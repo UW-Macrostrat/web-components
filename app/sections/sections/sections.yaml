@@ -1,0 +1,35 @@
+- name: Section A
+  id: A
+  location: Tsams Ost (N)
+  range: [0,175]
+  offset: 5
+- name: Section B
+  id: B
+  location: Tsams Ost (S)
+  range: [0,130]
+  offset: 90
+- name: Section C
+  id: C
+  offset: 210
+  location: Tsams Ost (N)
+  range: [0,146]
+- name: Section D
+  location: Tsams Ost (S)
+  id: D
+  range: [-20.2,250.1]
+  offset: 350
+- name: Section E
+  id: E
+  location: Tsams Ost (S)
+  offset: 200
+  range: [0,90]
+- name: Section F
+  id: F
+  location: North of Ubisis Canyon
+  range: [0,155]
+  offset: 250
+- name: Section G
+  id: G
+  location: Ubisis Canyon (north fork)
+  range: [-5,65]
+  offset: 0

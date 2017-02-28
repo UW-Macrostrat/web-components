@@ -1,0 +1,72 @@
+:global {
+  * {
+    box-sizing: border-box;
+    font-family: Helvetica Neue, Helvetica, sans-serif;
+  }
+
+  body {
+    display: flex;
+  }
+
+  #main {
+    position: relative;
+  }
+
+  #wrap {
+    padding: 0 2em;
+    margin: 0 auto;
+  }
+
+  #canvas {
+    display: flex;
+    flex-direction: row;
+  }
+
+  .section {
+    min-width: 20em;
+    h2 {
+      margin-bottom: 0em;
+    }
+  }
+
+  .location {
+    margin-top: 0;
+    color: #888;
+  }
+
+  .section .main {
+    margin: auto;
+    position: relative;
+    padding-top: 10px;
+    padding-bottom: 40px;
+    img {
+      padding-left: 40px;
+    }
+    svg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+  }
+
+  svg path.domain {
+    stroke-width: 0;
+    fill: none;
+  }
+}
+
+.underlay {
+  top: 0;
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  z-index: -10;
+}
+
+.correlation {
+  stroke: darken(red,20%);
+  fill: transparent;
+  stroke-width: 3px;
+}

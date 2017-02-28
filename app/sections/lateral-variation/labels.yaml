@@ -1,0 +1,21 @@
+locality:
+  - x: 120
+    t1: Tsams
+    t2: northwest
+  - x: 600
+    t1: Ubisis
+    t2: southwest
+  - x: 1000
+    t1: Onis
+    t2: east
+formation:
+  - name: Chain
+    h: 120
+  - name: Tsams
+    h: 240
+  - name: Lemoenputs
+    h: 390
+  - name: Onis
+    h: 500
+  - name: Tafel
+    h: 650

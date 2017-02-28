@@ -1,0 +1,124 @@
+:global {
+  * {
+    box-sizing: border-box;
+    font-family: Helvetica Neue, Helvetica, sans-serif;
+    font-size: 1em;
+    }
+}
+
+.root {
+  &>.header h1 {
+    font-size: 1.2em;
+  }
+  &>.children {
+    width: 20rem;
+    display: flex;
+    flex-flow: column wrap;
+    height: 50rem;
+    justify-content: flex-start;
+    &> div {
+      padding-right: 1em;
+    }
+  }
+}
+
+.header {
+  display: flex;
+  flex-direction: row;
+  min-height: 2em;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.desc {
+  font-size: 0.65em;
+  margin-bottom: 0;
+  padding-left: 0.5em;
+  margin-top: 0;
+  flex-grow: 1;
+  text-align: right;
+}
+
+.basic {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  h1 {
+    padding: 0.5em;
+    margin-bottom: 0
+    margin-top: 0;
+    flex-grow: 2;
+    }
+  p {
+    @extend .desc;
+    }
+}
+
+.colored {
+  @extend .basic;
+  border-style: solid;
+  border-width: 0;
+  border-left-width: 2em;
+  }
+
+.supergroup {
+  @extend .basic
+  margin-top: 2em;
+  h1 {
+    font-size: 0.7em;
+    flex-grow: 4;
+    text-transform: uppercase;
+    }
+  &>.header {
+    background-color: #bbb;
+    color: white;
+    padding-right: 1em;
+  }
+}
+
+.group {
+  @extend .basic;
+  h1 { font-size: 1.1em}
+  margin-bottom: 0.2em;
+  p {
+    @extend .desc;
+  }
+}
+
+.subgroup {
+  h1 { font-size: 0.9em }
+  margin-bottom: 0.2em;
+}
+
+.formation {
+  @extend .colored;
+  border-left-width: 0.5em;
+  h1 { font-size: 0.8em }
+  margin-bottom: 0.2em;
+}
+
+.member {
+  @extend .colored;
+  h1 { font-size: 0.6em }
+}
+
+.sequence {
+  @extend .member;
+}
+
+.bed {
+  @extend .member;
+  //border-style: double;
+  //border-left-width: 0.4em;
+  //margin-top: 0.2em;
+  //margin-left: -0.6em;
+  h1 {
+    font-size: 0.6em;
+    font-weight: 400;
+  }
+}
+
+.nochildren {
+  border-left-width: 2em;
+  @extend .colored
+}
+

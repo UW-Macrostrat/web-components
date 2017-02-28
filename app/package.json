@@ -1,0 +1,26 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "Stratigraphic columns for the Zebra Nappe, Naukluft Nappe Complex, Namibia",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "dependencies": {
+    "bluebird": "^3.4.6",
+    "css-modules-electron": "^1.0.0",
+    "css-modules-require-hook": "^4.0.1",
+    "d3": "^4.2.6",
+    "d3-hierarchy": "^1.0.2",
+    "d3-selection-multi": "^1.0.0",
+    "electron-localshortcut": "^0.6.0",
+    "jquery": "^3.0.0",
+    "js-yaml": "^3.6.1",
+    "pg": "^5.1.0",
+    "react": "^15.1.0",
+    "react-faux-dom": "^2.5.0",
+    "stylus": "^0.54.5"
+  }
+}

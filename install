@@ -1,0 +1,27 @@
+#!/bin/bash
+
+dir=$(pwd)
+
+npm install
+
+export npm_config_disturl=https://atom.io/download/atom-shell
+export npm_config_target=1.2.1
+export npm_config_arch=x64
+export npm_config_runtime=electron
+export HOME=~/.electron-gyp
+
+repo="$dir/deps/node-mapnik"
+mkdir -p $repo
+cd $repo
+git clone https://github.com/mapnik/node-mapnik.git .
+git submodule update --init
+make
+npm link
+
+cd "$dir/deps/gis-core"
+npm link
+
+cd "$dir/app"
+npm link mapnik
+npm link gis-core
+npm install
