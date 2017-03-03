@@ -1,19 +1,11 @@
 {remote} = require 'electron'
-# Setup require hook for css modules
-# works for .styl and .css extensions
-hook = require 'css-modules-require-hook'
-stylus = require 'stylus'
-hook
-  extensions: ['.styl'],
-  preprocessCss: (css, filename)->
-    stylus(css)
-      .set('filename', filename)
-      .render()
-  processCss: (css)->
-    style = document.createElement('style')
-    style.type = 'text/css'
-    style.innerHTML = css
-    document.head.appendChild(style)
+
+# Setup helper functions
+require('node-cjsx').transform()
+css_modules = require 'pdf-printer/_helpers/stylus-css-modules'
+{css} = require 'pdf-printer/_helpers'
+css_modules('global') # global by default
+css()
 
 client_url = remote.getGlobal "BROWSER_SYNC_URL"
 

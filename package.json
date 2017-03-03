@@ -4,7 +4,7 @@
   "description": "Application for Naukluft Nappe Complex mapping",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
+    "start": "electron index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Daven Quinn",
@@ -18,15 +18,21 @@
   },
   "dependencies": {
     "bluebird": "^3.4.7",
-    "coffee-script": "^1.10.0",
+    "coffee-script": "^1.12.4",
     "css-modules-require-hook": "^4.0.5",
     "d3": "^4.4.1",
     "d3-selection-multi": "^1.0.0",
+    "electron": "^1.6.1",
     "electron-localshortcut": "^1.0.0",
     "electron-prebuilt": "^1.2.2",
+    "electron-reload": "^1.1.0",
     "js-yaml": "^3.7.0",
+    "leaflet": "^1.0.3",
+    "mbtiles": "^0.9.0",
+    "node-cjsx": "^2.0.0",
     "pg": "^6.1.2",
     "pg-promise": "^5.5.0",
-    "stylus": "^0.54.5"
+    "stylus": "^0.54.5",
+    "tessera": "^0.9.0"
   }
 }
