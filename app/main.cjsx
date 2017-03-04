@@ -1,27 +1,30 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
-{BrowserRouter,Route,Link} = require 'react-router-dom'
+{HashRouter,Route,Link} = require 'react-router-dom'
+
+SectionPage = require './sections'
+Map = require './map-viewer'
 
 Router = ->
-  <BrowserRouter>
+  <HashRouter>
     <div>
       <ul>
         <li><Link to="/">Home</Link></li>
-        <li><Link to="/about">About</Link></li>
-        <li><Link to="/topics">Topics</Link></li>
+        <li><Link to="/sections">Sections</Link></li>
+        <li><Link to="/map">Map</Link></li>
       </ul>
 
       <hr/>
 
       <Route exact path="/" component={Home}/>
-      <Route path="/about" component={About}/>
-      <Route path="/topics" component={Topics}/>
+      <Route path="/sections" component={SectionPage}/>
+      <Route path="/map" component={Map}/>
     </div>
-  </BrowserRouter>
+  </HashRouter>
 
 Home = ->
   <div>
-    <h2>Home</h2>
+    <h2>Naukluft Nappe Complex</h2>
   </div>
 
 About = ->
