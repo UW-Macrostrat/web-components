@@ -1709,6 +1709,10 @@ morgan@^1.5.0:
     on-finished "~2.3.0"
     on-headers "~1.0.1"
 
+mousetrap@^1.6.0:
+  version "1.6.0"
+  resolved "https://registry.yarnpkg.com/mousetrap/-/mousetrap-1.6.0.tgz#0168fcabb11d07669e87490324c981208121ac4d"
+
 ms@0.7.1:
   version "0.7.1"
   resolved "https://registry.yarnpkg.com/ms/-/ms-0.7.1.tgz#9cd13c03adbff25b65effde7ce864ee952017098"
@@ -2146,6 +2150,12 @@ react-hyperscript-helpers@^1.2.0:
 react-hyperscript@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/react-hyperscript/-/react-hyperscript-3.0.0.tgz#3c16010b33175de6bc01fd1ebad0a16a9a6dc9ab"
+
+react-mousetrap@^0.1.1:
+  version "0.1.1"
+  resolved "https://registry.yarnpkg.com/react-mousetrap/-/react-mousetrap-0.1.1.tgz#5acf293708f80dfeaa6a70a0ea057d1a69fd8139"
+  dependencies:
+    mousetrap "^1.6.0"
 
 react-router-dom@next:
   version "4.0.0-beta.6"

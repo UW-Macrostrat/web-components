@@ -1,35 +1,44 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
 {HashRouter,Route,Link} = require 'react-router-dom'
+{mouseTrap} = require 'react-mousetrap'
 
+NavBar = require './navbar'
 SectionPage = require './sections'
 Map = require './map-viewer'
+style = require './main.styl'
 
-Router = ->
-  <HashRouter>
-    <div>
-      <ul>
-        <li><Link to="/">Home</Link></li>
-        <li><Link to="/sections">Sections</Link></li>
-        <li><Link to="/map">Map</Link></li>
-      </ul>
-
-      <hr/>
-
+class App_ extends React.Component
+  constructor: ->
+    @state = {}
+    @state.showNavBar = true
+  render: ->
+    <div id="root">
+      {<NavBar /> if @state.showNavBar}
       <Route exact path="/" component={Home}/>
       <Route path="/sections" component={SectionPage}/>
       <Route path="/map" component={Map}/>
     </div>
+
+  _toggleNavBar: =>
+    @setState showNavBar: not @state.showNavBar
+
+  componentWillMount: ->
+    @props.bindShortcut 'f', @_toggleNavBar
+
+  componentWillUnmount: ->
+    @props.unbindShortcut 'f'
+
+App = mouseTrap(App_)
+
+Router = ->
+  <HashRouter>
+    <App />
   </HashRouter>
 
 Home = ->
   <div>
     <h2>Naukluft Nappe Complex</h2>
-  </div>
-
-About = ->
-  <div>
-    <h2>About</h2>
   </div>
 
 Topics = ({ match }) =>
