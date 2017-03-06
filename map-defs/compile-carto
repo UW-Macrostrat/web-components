@@ -1,0 +1,52 @@
+#!/usr/bin/env coffee
+
+fs = require "fs"
+path = require "path"
+yaml = require "js-yaml"
+carto = require "carto"
+replaceExt = require "replace-ext"
+minimist = require 'minimist'
+
+renderer = null
+
+makeFile = (fn, outdir)->
+  ext = path.extname fn
+
+  # Load data from file
+  s = fs.readFileSync fn, 'utf8'
+  if ext in [".yaml",".yml"]
+    data = yaml.safeLoad s
+  else
+    data = JSON.parse s
+
+  data.Stylesheet ?= []
+  # Inline stylesheet files
+  data.Stylesheet = data.Stylesheet.map (x)->
+    if typeof x isnt 'string'
+        return id: x, data: x.data
+    _ = path.join path.dirname(fn), x
+    d = fs.readFileSync _, 'utf8'
+    return id: x, data: d
+
+  # Create renderer
+  if not renderer?
+    renderer = new carto.Renderer
+
+  res = renderer.render(data)
+
+  outfile = replaceExt fn,".xml"
+  if outdir?
+    _ = path.basename outfile
+    outfile = path.join outdir, _
+
+  # Write out file
+  fs.writeFileSync outfile, res
+
+# Process arguments
+argv = minimist process.argv.slice(2)
+
+o = argv.o or null
+
+for fn in argv._
+  makeFile fn,o
+

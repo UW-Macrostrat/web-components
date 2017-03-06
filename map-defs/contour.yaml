@@ -1,0 +1,19 @@
+Layer:
+  - id: contour
+    srs: +init=epsg:32733
+    Datasource:
+      dbname: Naukluft
+      geometry_field: wkb_geometry
+      host: localhost
+      table: >
+        (SELECT wkb_geometry, elevation,
+          elevation%100 AS mod100,
+          elevation%50 AS mod50,
+          elevation%20 AS mod20,
+          elevation%10 AS mod10,
+          elevation%5 AS mod5,
+          elevation%2 AS mod2
+          FROM contour.contour) as contour
+      type: postgis
+      user: Daven
+
