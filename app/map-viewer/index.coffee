@@ -1,44 +1,48 @@
 {remote} = require 'electron'
-L = require 'leaflet'
-require 'leaflet/dist/leaflet.css'
 require './main.styl'
-{Component, createElement} = require 'react'
-{findDOMNode} = require 'react-dom'
-
+React = require 'react'
+ReactDOM = require 'react-dom'
+require 'mapbox-gl/dist/mapbox-gl.css'
+mgl = require 'mapbox-gl/dist/mapbox-gl'
 
 # Maybe this should go in main thread
 {spawn} = require 'child_process'
 path = require 'path'
 
-class MapView extends Component
-  render: -> createElement 'div', id: 'map-container'
+class MapView extends React.Component
+  render: -> React.createElement 'div', id: 'map-container'
   setupServer: ->
     console.log "Starting server"
-    fn = path.join(process.env.NAUKLUFT_DATA_DIR,"tilesets","Naukluft-satellite.mbtiles")
-    args = ['--port', '3005', "mbtiles://#{fn}"]
+    args = ['--port', '3005', '-c', process.env.TESSERA_CONFIG]
     name = path.join process.cwd(),"node_modules/.bin/tessera"
     @tessera = spawn name, args
 
   componentDidMount: ->
     @setupServer()
 
-    el = findDOMNode @
-    map = L.map(el).setView([-24.2254,16.1987], 11);
+    el = ReactDOM.findDOMNode @
 
-    L.tileLayer 'http://localhost:3005/{z}/{x}/{y}.png'
-      .addTo(map)
 
-    #map = new Map el,
-      #zoom: 2
-      #boxZoom: false
-      #continuousWorld: true
-      #debounceMoveend: true
-
-    #map.addLayerControl()
-    scale = L.control.scale
-      maxWidth: 250,
-      imperial: false
-    scale.addTo map
+    map = new mgl.Map
+      container: el
+      attributionControl: false
+      center: [16.1987, -24.2254]
+      zoom: 11
+      trackResize: true
+      style: #"mapbox://styles/mapbox/satellite-v9"
+        version: 8
+        sources:
+          satellite:
+            type: 'raster'
+            tiles: ["http://localhost:3005/satellite/{z}/{x}/{y}@2x.png"]
+            tileSize: 512
+          contact:
+            type: 'vector'
+            url: "http://localhost:3005/contact/index.json"
+        layers: [
+          {id: "satellite", type: "raster", source: "satellite"}
+          {id: "contact", type: "vector", source: "contact"}
+        ]
 
   componentWillUnmount: ->
     console.log "Killing map server"

@@ -1,0 +1,16 @@
+srs: +init=epsg:3857
+Layer:
+  - id: contact
+    name: contact
+    srs: +init=epsg:32733
+    Datasource:
+      dbname: Naukluft
+      geometry_field: geometry
+      host: localhost
+      table: >
+        (SELECT * FROM mapping.contact_data) as contact
+      type: postgis
+      user: Daven
+Stylesheet:
+  - "contact.mss"
+
