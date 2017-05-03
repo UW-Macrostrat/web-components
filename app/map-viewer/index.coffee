@@ -35,13 +35,14 @@ class MapView extends React.Component
           satellite:
             type: 'raster'
             tiles: ["http://localhost:3005/satellite/{z}/{x}/{y}@2x.png"]
-            tileSize: 512
+            tileSize: 256
           contact:
-            type: 'vector'
-            url: "http://localhost:3005/contact/index.json"
+            type: 'raster'
+            tiles: ["http://localhost:3005/contact/{z}/{x}/{y}@2x.png"]
+            tileSize: 256
         layers: [
           {id: "satellite", type: "raster", source: "satellite"}
-          {id: "contact", type: "vector", source: "contact"}
+          {id: "contact", type: "raster", source: "contact"}
         ]
 
   componentWillUnmount: ->

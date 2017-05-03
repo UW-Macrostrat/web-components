@@ -6,7 +6,7 @@ ReactDOM = require 'react-dom'
 NavBar = require './navbar'
 SectionPage = require './sections'
 Map = require './map-viewer'
-style = require './main.styl'
+#style = require './main.styl'
 
 class App_ extends React.Component
   constructor: ->

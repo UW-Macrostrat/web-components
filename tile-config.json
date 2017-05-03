@@ -1,5 +1,0 @@
-{
-  "/satellite": "mbtiles:///Users/Daven/Development/Naukluft/data/tilesets/Naukluft-satellite.mbtiles",
-  "/contour": "mapnik:///Users/Daven/Development/Naukluft/versioned/nAPPe/map-defs/_compiled/contour.xml",
-  "/contact": "mapnik:///Users/Daven/Development/Naukluft/versioned/nAPPe/map-defs/_compiled/contact.xml"
-}

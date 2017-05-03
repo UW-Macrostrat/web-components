@@ -1,5 +1,0 @@
-#!/usr/bin/env zsh
-
-(cd map-defs && ./compile-all)
-app/node_modules/.bin/tessera --port 3005 -c tile-config.json & \
-  maputnik --watch --file style.json

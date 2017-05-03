@@ -1,5 +1,0 @@
-#!/usr/bin/env zsh
-
-outdir=_compiled
-mkdir -p $outdir
-./compile-carto -o $outdir *.yaml

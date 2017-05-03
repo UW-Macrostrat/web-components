@@ -1,0 +1,10 @@
+map:
+  layers:
+    - map-defs/contact.yaml
+  projection: +init=epsg:3857
+  resolution:
+    max: 0.2 # m/px
+    min: 256 # m/px
+  bounds: [[10,-30],[20,-20]]
+  center: [16,-25]
+
