@@ -33,10 +33,12 @@
       },
       "paint": {
         "line-color": "#000000",
-        "line-translate-anchor": "map"
+        "line-translate-anchor": "map",
+        "line-opacity": 1,
+        "line-width": 2
       },
       "filter": [
-        "all"
+        "any"
       ]
     },
     {
