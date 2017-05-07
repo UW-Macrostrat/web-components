@@ -6,19 +6,12 @@ require 'mapbox-gl/dist/mapbox-gl.css'
 mgl = require 'mapbox-gl/dist/mapbox-gl'
 
 # Maybe this should go in main thread
-{spawn} = require 'child_process'
 path = require 'path'
 
 class MapView extends React.Component
   render: -> React.createElement 'div', id: 'map-container'
-  setupServer: ->
-    console.log "Starting server"
-    args = ['--port', '3005', '-c', process.env.TESSERA_CONFIG]
-    name = path.join process.cwd(),"node_modules/.bin/tessera"
-    @tessera = spawn name, args
 
   componentDidMount: ->
-    @setupServer()
 
     el = ReactDOM.findDOMNode @
 
@@ -34,19 +27,14 @@ class MapView extends React.Component
         sources:
           satellite:
             type: 'raster'
-            tiles: ["http://localhost:3005/satellite/{z}/{x}/{y}@2x.png"]
+            tiles: ["http://localhost:39805/satellite/{z}/{x}/{y}@2x.png"]
             tileSize: 256
           contact:
-            type: 'raster'
-            tiles: ["http://localhost:3005/contact/{z}/{x}/{y}@2x.png"]
-            tileSize: 256
+            type: 'vector'
+            source: 'http://localhost:39805/contact/index.json'
         layers: [
-          {id: "satellite", type: "raster", source: "satellite"}
-          {id: "contact", type: "raster", source: "contact"}
+          #{id: "satellite", type: "raster", source: "satellite"}
+          {id: "contact", type: "line", source: "contact", 'source-layer': "contact"}
         ]
-
-  componentWillUnmount: ->
-    console.log "Killing map server"
-    @tessera.kill('SIGINT')
 
 module.exports = MapView
