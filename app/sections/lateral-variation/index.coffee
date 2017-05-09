@@ -5,26 +5,27 @@ Query = require '../database'
 chroma = require 'chroma-js'
 _ = require 'underscore'
 fs = require 'fs'
-style = require './main.styl'
+require './main.styl'
 yaml = require 'js-yaml'
 
-labels = yaml.safeLoad fs.readFileSync("#{__dirname}/labels.yaml", 'utf8')
+createVisualization = (el, units, sections, surfaces)->
 
-wrap = d3.select '#wrap'
+  labels = yaml.safeLoad fs.readFileSync("#{__dirname}/labels.yaml", 'utf8')
 
-size =
-  width: 1200
-  height: 1000
+  wrap = d3.select el
 
-svg = wrap.append "svg"
-  .attrs size
+  size =
+    width: 1200
+    height: 1000
 
-f = fs.readFileSync("#{__dirname}/patterns.svg")
+  svg = wrap.append "svg"
+    .attrs size
 
-defs = svg.append "defs"
-  .html f.toString()
+  f = fs.readFileSync("#{__dirname}/patterns.svg")
 
-createVisualization = (units, sections, surfaces)->
+  defs = svg.append "defs"
+    .html f.toString()
+
 
   locations = d3.nest()
     .key (d)->d.location
@@ -103,7 +104,7 @@ createVisualization = (units, sections, surfaces)->
 
   ax = svg.append 'g'
     .attrs
-      class: style.axis
+      class: 'axis'
       transform: "translate(#{scaleSize-20} 0)"
 
   ax.append 'g'
@@ -171,7 +172,7 @@ createVisualization = (units, sections, surfaces)->
 
   g = bkg.append "g"
     .attrs
-      class: style.sections
+      class: 'sections'
       transform: "translate(0 #{size.height-60})"
 
   g.append 'text'
@@ -190,7 +191,7 @@ createVisualization = (units, sections, surfaces)->
 
   locales = svg.append 'g'
     .attrs
-      class: style.locality
+      class: 'locality'
       transform: "translate(0 #{size.height-10})"
 
   locales.append 'text'
@@ -215,7 +216,7 @@ createVisualization = (units, sections, surfaces)->
 
   fm = svg.append 'g'
     .attrs
-      class: style.formations
+      class: 'formations'
       transform: 'rotate(90) translate(0 -1110)'
 
   fm.append 'text'
@@ -234,11 +235,12 @@ createVisualization = (units, sections, surfaces)->
       class: 'fm'
       transform: (d)->"translate(#{y(d.h)} 0)"
 
-
-Promise.all([
-  Query "#{__dirname}/sql/unit-heights.sql"
-  Query "#{__dirname}/sql/sections.sql"
-  Query "#{__dirname}/sql/boundary-heights.sql"])
-  .spread (heights, sections, surfaces)->
-    createVisualization(heights.rows,sections.rows, surfaces.rows)
+module.exports = (el,cb)->
+  Promise.all([
+    Query "#{__dirname}/sql/unit-heights.sql"
+    Query "#{__dirname}/sql/sections.sql"
+    Query "#{__dirname}/sql/boundary-heights.sql"])
+    .spread (heights, sections, surfaces)->
+      createVisualization(el, heights.rows,sections.rows, surfaces.rows)
+    .then -> cb()
 
