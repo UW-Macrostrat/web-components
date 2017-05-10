@@ -29,12 +29,13 @@ class MapView extends React.Component
             type: 'raster'
             tiles: ["http://localhost:39805/satellite/{z}/{x}/{y}@2x.png"]
             tileSize: 256
-          contact:
-            type: 'vector'
-            source: 'http://localhost:39805/contact/index.json'
+          geology:
+            type: 'raster'
+            tiles: ["http://localhost:39805/geology/{z}/{x}/{y}/tile@2x.png"]
+            tileSize: 256
         layers: [
-          #{id: "satellite", type: "raster", source: "satellite"}
-          {id: "contact", type: "line", source: "contact", 'source-layer': "contact"}
+          {id: "geology", type: "raster", source: "geology"}
+          #{id: "contact", type: "line", source: "contact", 'source-layer': "contact"}
         ]
 
 module.exports = MapView
