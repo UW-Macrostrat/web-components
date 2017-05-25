@@ -1,6 +1,7 @@
 {findDOMNode} = require 'react-dom'
 {Component, createElement} = require 'react'
 require './sections/main.styl'
+{select} = require 'd3-selection'
 
 ipc = require('electron').ipcRenderer
 
@@ -27,12 +28,15 @@ class SectionPage extends Component
     createElement 'div', props, @state.sections
 
   componentDidMount: ->
-    el = findDOMNode @
-
     getSectionData()
       .map processSection
       .then (sections)=>
         @setState sections: sections
+        _el = findDOMNode @
+        el = select _el
+        el.selectAll 'img'
+          .on 'load', ->
+            console.log "Loaded all images"
 
     @setupListeners()
 
@@ -45,5 +49,7 @@ class SectionPage extends Component
     ipc.on 'zoom-out',=>
       z = @state.zoom / 1.25
       @setState zoom: z
+
+
 
 module.exports = SectionPage
