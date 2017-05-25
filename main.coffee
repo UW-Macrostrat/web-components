@@ -6,7 +6,10 @@ path = require 'path'
 shortcuts = require './app/sections/shortcuts'
 
 # Could make this better
-reload(process.cwd())
+reload([
+  process.cwd()
+  path.join(process.env.REPO_DIR,'deps','node')
+])
 
 #name = path.join process.env.REPO_DIR,"tile-server","run-server"
 #tessera = spawn name

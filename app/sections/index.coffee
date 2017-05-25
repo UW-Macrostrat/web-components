@@ -1,25 +1,39 @@
 {findDOMNode} = require 'react-dom'
 {Component, createElement} = require 'react'
-loadSections = require 'sections'
-require 'sections/main.styl'
+require './sections/main.styl'
 
 ipc = require('electron').ipcRenderer
+
+{SectionComponent} = require 'stratigraphic-column'
+{getSectionData} = require 'stratigraphic-column/src/util'
+
+processSection = (row)->
+  row.key = row.id # Because react
+  createElement SectionComponent, row
 
 class SectionPage extends Component
   constructor: (props)->
     super props
     @state =
       zoom: 1
+      sections: []
 
   render: ->
-    createElement 'div',
+    props =
       id: 'main'
       style:
         zoom: @state.zoom
 
+    createElement 'div', props, @state.sections
+
   componentDidMount: ->
     el = findDOMNode @
-    loadSections el
+
+    getSectionData()
+      .map processSection
+      .then (sections)=>
+        @setState sections: sections
+
     @setupListeners()
 
   setupListeners: =>
