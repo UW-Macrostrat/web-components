@@ -2,9 +2,9 @@ d3 = require "d3"
 require 'd3-selection-multi'
 fs = require 'fs'
 yaml = require 'js-yaml'
+{Section} = require 'stratigraphic-column'
+drawSections = require 'sections'
 
-Section = require './section'
-ipc = require('electron').ipcRenderer
 style = require './main.styl'
 
 module.exports = (el)->
@@ -75,29 +75,5 @@ module.exports = (el)->
             coords.push [rect.left-bbox.left+(rect.width/2), ht]
           return path(coords)
 
-    reflowCorrelations()
-
-  ipc.on 'zoom-reset', ->
-    console.log "Zoom reset"
-    wrap
-      .datum zoom: 1
-      .call setZoom
-    reflowCorrelations()
-
-  ipc.on 'zoom-in', ->
-    console.log "Zoom in"
-    d = wrap.datum()
-    d.zoom *= 1.25
-    wrap
-      .datum d
-      .call setZoom
-    reflowCorrelations()
-
-  ipc.on 'zoom-out',->
-    d = wrap.datum()
-    d.zoom /= 1.25
-    wrap
-      .datum d
-      .call setZoom
     reflowCorrelations()
 
