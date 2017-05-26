@@ -9,10 +9,6 @@ ipc = require('electron').ipcRenderer
 {SectionComponent} = require 'stratigraphic-column'
 {getSectionData} = require 'stratigraphic-column/src/util'
 
-processSection = (row)->
-  row.key = row.id # Because react
-  h SectionComponent, row
-
 class SectionPage extends Component
   constructor: (props)->
     super props
@@ -23,14 +19,15 @@ class SectionPage extends Component
   render: ->
     props =
       id: 'section-page'
-      style:
-        zoom: @state.zoom
 
-    h 'div', props, @state.sections
+    h 'div', props, @state.sections.map (row)=>
+      row.key = row.id # Because react
+      row.zoom = @state.zoom
+      h SectionComponent, row
+
 
   componentDidMount: ->
     getSectionData()
-      .map processSection
       .then (sections)=>
         @setState sections: sections
         _el = findDOMNode @
