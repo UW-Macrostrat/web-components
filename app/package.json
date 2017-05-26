@@ -25,8 +25,6 @@
     "mapbox-gl": "^0.32.1",
     "mbtiles": "^0.9.0",
     "pdf-printer": "file:../../deps/node/pdf-printer",
-    "stratigraphic-column": "file:../../deps/node/stratigraphic-column",
-    "sections": "file:../../parts/sections",
     "pg": "^5.1.0",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
@@ -36,6 +34,9 @@
     "react-mousetrap": "^0.1.1",
     "react-router": "^3.0.2",
     "react-router-dom": "next",
+    "react-visibility-sensor": "^3.9.0",
+    "sections": "file:../../parts/sections",
+    "stratigraphic-column": "file:../../deps/node/stratigraphic-column",
     "stylus": "^0.54.5",
     "tessera": "^0.9.0",
     "tilelive-bridge": "^2.3.1"

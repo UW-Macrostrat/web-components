@@ -1,7 +1,8 @@
 {findDOMNode} = require 'react-dom'
-{Component, createElement} = require 'react'
+{Component} = require 'react'
 require './sections/main.styl'
 {select} = require 'd3-selection'
+h = require 'react-hyperscript'
 
 ipc = require('electron').ipcRenderer
 
@@ -10,7 +11,7 @@ ipc = require('electron').ipcRenderer
 
 processSection = (row)->
   row.key = row.id # Because react
-  createElement SectionComponent, row
+  h SectionComponent, row
 
 class SectionPage extends Component
   constructor: (props)->
@@ -21,11 +22,11 @@ class SectionPage extends Component
 
   render: ->
     props =
-      id: 'main'
+      id: 'section-page'
       style:
         zoom: @state.zoom
 
-    createElement 'div', props, @state.sections
+    h 'div', props, @state.sections
 
   componentDidMount: ->
     getSectionData()
