@@ -1118,6 +1118,10 @@ etag@~1.8.0:
   version "1.8.0"
   resolved "https://registry.yarnpkg.com/etag/-/etag-1.8.0.tgz#6f631aef336d6c46362b51764044ce216be3c051"
 
+eventlistener@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/eventlistener/-/eventlistener-0.0.1.tgz#ed2baabb852227af2bcf889152c72c63ca532eb8"
+
 execspawn@^1.0.1:
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/execspawn/-/execspawn-1.0.1.tgz#8286f9dde7cecde7905fbdc04e24f368f23f8da6"
@@ -3023,6 +3027,12 @@ react-dom@^15.4.2, react-dom@^15.5.4:
     loose-envify "^1.1.0"
     object-assign "^4.1.0"
     prop-types "~15.5.7"
+
+react-element-pan@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/react-element-pan/-/react-element-pan-1.0.9.tgz#eb97d3397e8eca75e5b1f061397a2346c2e01edb"
+  dependencies:
+    eventlistener "0.0.1"
 
 react-faux-dom@^2.5.0:
   version "2.7.1"

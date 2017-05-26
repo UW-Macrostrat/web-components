@@ -3,7 +3,7 @@
 require './sections/main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
-
+ElementPan = require 'react-element-pan'
 ipc = require('electron').ipcRenderer
 
 {SectionComponent} = require 'stratigraphic-column'
