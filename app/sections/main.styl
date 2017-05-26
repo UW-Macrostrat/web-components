@@ -1,21 +1,36 @@
-* {
+*
   font-family: "Helvetica Neue"
-  }
 
-ul {
-  list-style: none;
-  padding-left: 0;
-  }
+ul
+  list-style: none
+  padding-left: 0
 
-li a {
-  background-color: #ccc;
-  margin-bottom: 1em;
-  text-decoration: none;
-  padding: 1em;
-  display: block;
-  &:hover {
-    color: white;
-    background-color: dodgerblue;
-  }
-}
+li a
+  background-color: #ccc
+  margin-bottom: 1em
+  text-decoration: none
+  padding: 1em
+  display: block
+  &:hover
+    color: white
+    background-color: dodgerblue
+
+body
+  background-color: white
+
+#main
+  display: flex
+  flex-direction: column
+
+#section-page
+  width: 100%
+  overflow: scroll
+  display: flex
+  flex-direction: row
+  background-color: white
+  flex: 1
+
+div.section-container
+  flex: flex-grow
+
 

@@ -1,6 +1,6 @@
 {findDOMNode} = require 'react-dom'
 {Component} = require 'react'
-require './sections/main.styl'
+require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
 ElementPan = require 'react-element-pan'
@@ -24,7 +24,6 @@ class SectionPage extends Component
       row.key = row.id # Because react
       row.zoom = @state.zoom
       h SectionComponent, row
-
 
   componentDidMount: ->
     getSectionData()
