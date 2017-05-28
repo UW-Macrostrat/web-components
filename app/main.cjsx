@@ -5,6 +5,7 @@ ReactDOM = require 'react-dom'
 
 NavBar = require './navbar'
 SectionPage = require './sections'
+CarbonIsotopesPage = require './carbon-isotopes'
 Map = require './map-viewer'
 #style = require './main.styl'
 
@@ -17,6 +18,7 @@ class App_ extends React.Component
       {<NavBar /> if @state.showNavBar}
       <Route exact path="/" component={Home}/>
       <Route path="/sections" component={SectionPage}/>
+      <Route path="/carbon-isotopes" component={CarbonIsotopesPage}/>
       <Route path="/map" component={Map}/>
     </div>
 
