@@ -1,12 +1,13 @@
 d3 = require 'd3'
 require 'd3-selection-multi'
 Promise = require 'bluebird'
-Query = require '../database'
 chroma = require 'chroma-js'
 _ = require 'underscore'
 fs = require 'fs'
 require './main.styl'
 yaml = require 'js-yaml'
+{db, storedProcedure} = require 'stratigraphic-column/src/db'
+{lithology} = require 'stratigraphic-column/src/sed-patterns'
 
 createVisualization = (el, units, sections, surfaces)->
 
@@ -23,9 +24,7 @@ createVisualization = (el, units, sections, surfaces)->
 
   f = fs.readFileSync("#{__dirname}/patterns.svg")
 
-  defs = svg.append "defs"
-    .html f.toString()
-
+  svg.call lithology
 
   locations = d3.nest()
     .key (d)->d.location
@@ -235,12 +234,16 @@ createVisualization = (el, units, sections, surfaces)->
       class: 'fm'
       transform: (d)->"translate(#{y(d.h)} 0)"
 
+query = (id)->
+  fn = "#{__dirname}/sql/#{id}.sql"
+  db.query(storedProcedure(fn))
+
 module.exports = (el,cb)->
   Promise.all([
-    Query "#{__dirname}/sql/unit-heights.sql"
-    Query "#{__dirname}/sql/sections.sql"
-    Query "#{__dirname}/sql/boundary-heights.sql"])
+    query("unit-heights")
+    query("sections")
+    query("boundary-heights")])
     .spread (heights, sections, surfaces)->
-      createVisualization(el, heights.rows,sections.rows, surfaces.rows)
+      createVisualization(el, heights, sections, surfaces)
     .then -> cb()
 

@@ -13,6 +13,7 @@ class NavBar extends React.Component
       <NavLink to="/">Home</NavLink>
       <NavLink to="/sections">Sections</NavLink>
       <NavLink to="/carbon-isotopes">Carbon Isotopes</NavLink>
+      <NavLink to="/lateral-variation">Lateral Variation</NavLink>
       <NavLink to="/map" >Map</NavLink>
     </ul>
 

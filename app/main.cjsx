@@ -6,6 +6,7 @@ ReactDOM = require 'react-dom'
 NavBar = require './navbar'
 SectionPage = require './sections'
 CarbonIsotopesPage = require './carbon-isotopes'
+LateralVariation = require './lateral-variation/component'
 Map = require './map-viewer'
 #style = require './main.styl'
 
@@ -19,6 +20,7 @@ class App_ extends React.Component
       <Route exact path="/" component={Home}/>
       <Route path="/sections" component={SectionPage}/>
       <Route path="/carbon-isotopes" component={CarbonIsotopesPage}/>
+      <Route path="/lateral-variation" component={LateralVariation} />
       <Route path="/map" component={Map}/>
     </div>
 
