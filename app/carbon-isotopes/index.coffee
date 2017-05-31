@@ -6,7 +6,6 @@ require 'd3-selection-multi'
 require 'd3-scale-chromatic'
 require 'd3-jetpack'
 h = require 'react-hyperscript'
-ElementPan = require 'react-element-pan'
 
 {db, storedProcedure} = require 'stratigraphic-column/src/db'
 
@@ -70,11 +69,12 @@ class CarbonIsotopesPage extends Component
 
     xax.call b
 
-    xax.append 'text'
-      .text '∂13C'
+    xax.append 'foreignObject'
+      .translate [width/2, 20]
+      .append 'xhtml:div'
+      .html '∂<sup>13</sup>C'
       .attrs
         class: 'axis-label'
-        transform: "translate(#{width/2} 40)"
 
     gg = inner.append 'g.grid'
       .selectAll 'line'
@@ -96,11 +96,14 @@ class CarbonIsotopesPage extends Component
 
     yax.call left
 
-    yax.append 'text'
-      .text 'Normalized stratigraphic height'
+    yax.append 'foreignObject'
+      .at
+        transform: "translate(-50 #{height/2+150}) rotate(-90)"
+        width: 350
+      .append 'xhtml:div'
+      .html 'Stratigraphic height (m) — <em>normalized to Section J</em>'
       .attrs
         class: 'axis-label'
-        transform: "translate(-40 #{height/2}) rotate(-90)"
 
     @dataArea = inner.append 'g'
 
