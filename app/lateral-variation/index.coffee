@@ -22,8 +22,6 @@ createVisualization = (el, units, sections, surfaces)->
   svg = wrap.append "svg"
     .attrs size
 
-  f = fs.readFileSync("#{__dirname}/patterns.svg")
-
   svg.call lithology
 
   locations = d3.nest()
@@ -101,6 +99,10 @@ createVisualization = (el, units, sections, surfaces)->
       .ticks 10
       .tickSize 10
 
+  mid = svg.append "g"
+  v = svg.append 'g'
+  bkg = svg.append "g"
+
   ax = svg.append 'g'
     .attrs
       class: 'axis'
@@ -114,8 +116,6 @@ createVisualization = (el, units, sections, surfaces)->
       .attrs
         class: 'label'
         transform: "translate(-50,#{y(350)}) rotate(-90)"
-
-  mid = svg.append "g"
 
   sel = mid.selectAll "g"
     .data units
@@ -136,7 +136,6 @@ createVisualization = (el, units, sections, surfaces)->
       'fill-opacity': 0.7
       stroke: 'transparent'
 
-  v = svg.append 'g'
   sel = v.selectAll 'path'
     .data surfaces
 
@@ -149,7 +148,6 @@ createVisualization = (el, units, sections, surfaces)->
       'stroke-width': (d)->d.weight
 
   # Lay out sections
-  bkg = svg.append "g"
   sel = bkg.selectAll "g.section"
     .data sections
 
@@ -233,6 +231,37 @@ createVisualization = (el, units, sections, surfaces)->
     .attrs
       class: 'fm'
       transform: (d)->"translate(#{y(d.h)} 0)"
+
+  xv = d3.scaleLinear()
+    .domain [0, 1]
+    .range [0,size.width]
+
+  clipPath = d3.area()
+    .x (d)->xv(d[0])
+    .y0 (d)->y(d[1])
+    .y1 -5
+    .curve d3.curveCardinal
+
+
+  data1 = [
+      [0, 500]
+      [0.1,520]
+      [0.25, 700]
+      [0.4, 400]
+      [0.6,420]
+      [0.7,400]
+      [0.8,650]
+      [0.9, 690]
+      [1, 650]
+   ]
+
+  bkg.append 'path'
+    .datum data1
+    .attrs
+      'comp-op': 'multiply'
+      class: 'clip'
+      d: clipPath
+
 
 query = (id)->
   fn = "#{__dirname}/sql/#{id}.sql"
