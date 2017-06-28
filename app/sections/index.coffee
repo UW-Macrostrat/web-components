@@ -7,6 +7,7 @@ ElementPan = require 'react-element-pan'
 ipc = require('electron').ipcRenderer
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
+SettingsPanel = require './settings'
 
 {SectionComponent} = require 'stratigraphic-column'
 {getSectionData} = require 'stratigraphic-column/src/util'
@@ -17,25 +18,34 @@ class SectionPage extends Component
     @state =
       zoom: 1
       sections: []
+      settingsIsActive: false
 
   render: ->
-    props =
-      id: 'section-page'
 
-
-    body = h 'div', props, @state.sections.map (row)=>
+    children = @state.sections.map (row)=>
       row.key = row.id # Because react
       row.zoom = @state.zoom
       h SectionComponent, row
 
-    h 'div.page', [
-      h 'ul.controls', [
-        h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
-        h 'li', [h 'a', [h Icon, name: 'gear', size: '2x']]
+    elements = [
+      h 'div#section-pane', [
+        h 'ul.controls', [
+          h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
+          h 'li', [
+            h 'a', onClick: @toggleSettings, [
+              h Icon, name: 'gear', size: '2x'
+            ]
+          ]
+        ]
+        h 'div#section-page', children
       ]
-      body
+      h SettingsPanel, active: @state.settingsIsActive
     ]
 
+    h 'div.page', elements
+
+  toggleSettings: =>
+    @setState settingsIsActive: not @state.settingsIsActive
 
   componentDidMount: ->
     getSectionData()

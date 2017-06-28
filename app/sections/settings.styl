@@ -1,0 +1,26 @@
+width=15em
+
+#settings
+  width: width
+  border-left: 2px solid #444
+  height: 100%
+  padding: 1em
+  h2:first-child
+    margin-top: 0
+
+  &.settings-enter
+    width: 0.01em
+    padding: 0em
+    &.settings-enter-active
+      transition: width 400ms, padding 100ms
+      width: width
+      padding: 1em
+
+  &.settings-leave
+    width: width
+    padding: 0em
+    &.settings-leave-active
+      width: 0.01em
+      transition: width 400ms, padding 100ms
+      padding 1em
+

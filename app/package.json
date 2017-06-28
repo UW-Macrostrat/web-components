@@ -30,6 +30,7 @@
     "pdf-printer": "file:../../deps/node/pdf-printer",
     "pg": "^5.1.0",
     "react": "^15.4.2",
+    "react-addons-css-transition-group": "^15.6.0",
     "react-dom": "^15.4.2",
     "react-element-pan": "^1.0.9",
     "react-fa": "^4.2.0",
