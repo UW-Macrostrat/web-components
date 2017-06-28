@@ -3,7 +3,7 @@
 require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
-ElementPan = require 'react-element-pan'
+require 'react-pan-zoom-element'
 ipc = require('electron').ipcRenderer
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'

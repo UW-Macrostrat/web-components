@@ -11,6 +11,11 @@ body
   background-color: white
 *
   box-sizing: border-box
+  &:focus
+    outline: none
+
+input[type=checkbox]:focus
+  outline: 0
 
 div.page
   display: flex
@@ -46,17 +51,19 @@ ul.controls
     margin-left: 0.5em
     a
       background-color: #ccc
+      border: 2px solid #999
+      color: #666
       margin-bottom: 1em
       text-decoration: none
       padding 0.4em
-      padding-top: 0.5em
+      padding-top: 0.4em
       width: 3em
       height: 3em
       text-align: center
       border-radius: 1.5em
       display: block
-      color: black
       &:hover
         color: white
         background-color: dodgerblue
+        border-color: darken(dodgerblue, 20%)
 
