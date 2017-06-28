@@ -21,6 +21,12 @@ class SectionPage extends Component
       sections: []
       options:
         settingsPanelIsActive: false
+        modes: [
+          {value: 'normal', label: 'Normal'}
+          {value: 'skeleton', label: 'Skeleton'}
+        ]
+        activeMode: 'normal'
+        update: @updateOptions
 
   render: ->
 
@@ -41,7 +47,7 @@ class SectionPage extends Component
         ]
         h 'div#section-page', children
       ]
-      h SettingsPanel, active: @state.options.settingsPanelIsActive
+      h SettingsPanel, @state.options
     ]
 
     h 'div.page', elements

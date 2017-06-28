@@ -15,9 +15,12 @@ class ModeControl extends Component
     value: 'normal'
     options: options
   render: ->
-    opts = options.map (d)=>
-      props = type: 'button', className: 'pt-button'
-      if 'normal' == d.value
+    opts = @props.modes.map (d)=>
+      props =
+        type: 'button'
+        className: 'pt-button'
+        onClick: =>@update(d.value)
+      if @props.activeMode == d.value
         props.className += ' pt-active'
       h 'button', props, d.label
 
@@ -25,15 +28,18 @@ class ModeControl extends Component
       h 'h5', 'Display mode'
       h 'div.pt-vertical.pt-button-group.pt-align-left.pt-fill', opts
     ]
+  update: (value)=>
+    return if value == @props.value
+    @props.update activeMode: {$set: value}
 
 class SettingsPanel extends Component
   render: ->
     body = []
-    if @props.active
+    if @props.settingsPanelIsActive
       body = [
         h 'div#settings', {key: 'settings'}, [
           h 'h2', 'Settings'
-          h ModeControl
+          h ModeControl, @props
         ]
       ]
 
