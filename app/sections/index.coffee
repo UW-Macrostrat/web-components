@@ -8,6 +8,7 @@ ipc = require('electron').ipcRenderer
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
 SettingsPanel = require './settings'
+update = require 'immutability-helper'
 
 {SectionComponent} = require 'stratigraphic-column'
 {getSectionData} = require 'stratigraphic-column/src/util'
@@ -18,7 +19,8 @@ class SectionPage extends Component
     @state =
       zoom: 1
       sections: []
-      settingsIsActive: false
+      options:
+        settingsPanelIsActive: false
 
   render: ->
 
@@ -39,13 +41,17 @@ class SectionPage extends Component
         ]
         h 'div#section-page', children
       ]
-      h SettingsPanel, active: @state.settingsIsActive
+      h SettingsPanel, active: @state.options.settingsPanelIsActive
     ]
 
     h 'div.page', elements
 
+  updateOptions: (opts)=>
+    newOptions = update @state.options, opts
+    @setState options: newOptions
+
   toggleSettings: =>
-    @setState settingsIsActive: not @state.settingsIsActive
+    @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
   componentDidMount: ->
     getSectionData()

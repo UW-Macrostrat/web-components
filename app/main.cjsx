@@ -3,6 +3,7 @@ ReactDOM = require 'react-dom'
 {HashRouter,Route,Link} = require 'react-router-dom'
 {mouseTrap} = require 'react-mousetrap'
 h = require 'react-hyperscript'
+require '@blueprintjs/core/dist/blueprint.css'
 
 {NavBar, NavLink} = require './nav'
 SectionPage = require './sections'
