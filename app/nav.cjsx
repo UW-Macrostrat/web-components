@@ -17,4 +17,4 @@ class NavBar extends React.Component
       <NavLink to="/map" >Map</NavLink>
     </ul>
 
-module.exports = NavBar
+module.exports = { NavBar, NavLink }

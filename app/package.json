@@ -32,6 +32,7 @@
     "react": "^15.4.2",
     "react-dom": "^15.4.2",
     "react-element-pan": "^1.0.9",
+    "react-fa": "^4.2.0",
     "react-faux-dom": "^2.5.0",
     "react-hyperscript": "^3.0.0",
     "react-hyperscript-helpers": "^1.2.0",

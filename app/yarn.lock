@@ -1291,6 +1291,10 @@ flow-remove-types@^1.1.2:
     babylon "^6.15.0"
     vlq "^0.2.1"
 
+font-awesome@^4.3.0:
+  version "4.7.0"
+  resolved "https://registry.yarnpkg.com/font-awesome/-/font-awesome-4.7.0.tgz#8fa8cf0411a1a31afd07b06d2902bb9fc815a133"
+
 for-in@^1.0.1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/for-in/-/for-in-1.0.2.tgz#81068d295a8142ec0ac726c6e2200c30fb6d5e80"
@@ -2943,7 +2947,7 @@ promise@^7.1.1:
   dependencies:
     asap "~2.0.3"
 
-prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@~15.5.7:
+prop-types@^15.5.4, prop-types@^15.5.6, prop-types@^15.5.7, prop-types@^15.5.8, prop-types@~15.5.7:
   version "15.5.10"
   resolved "https://registry.yarnpkg.com/prop-types/-/prop-types-15.5.10.tgz#2797dfc3126182e3a95e3dfbb2e893ddd7456154"
   dependencies:
@@ -3056,6 +3060,13 @@ react-element-pan@^1.0.9:
   resolved "https://registry.yarnpkg.com/react-element-pan/-/react-element-pan-1.0.9.tgz#eb97d3397e8eca75e5b1f061397a2346c2e01edb"
   dependencies:
     eventlistener "0.0.1"
+
+react-fa@^4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/react-fa/-/react-fa-4.2.0.tgz#691e056c68ff4be8763917a21f7e3eaef3be8e0f"
+  dependencies:
+    font-awesome "^4.3.0"
+    prop-types "^15.5.8"
 
 react-faux-dom@^2.5.0:
   version "2.7.1"

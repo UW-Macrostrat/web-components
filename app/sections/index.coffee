@@ -5,6 +5,8 @@ require './main.styl'
 h = require 'react-hyperscript'
 ElementPan = require 'react-element-pan'
 ipc = require('electron').ipcRenderer
+{NavLink} = require '../nav'
+{Icon} = require 'react-fa'
 
 {SectionComponent} = require 'stratigraphic-column'
 {getSectionData} = require 'stratigraphic-column/src/util'
@@ -20,10 +22,20 @@ class SectionPage extends Component
     props =
       id: 'section-page'
 
-    h 'div', props, @state.sections.map (row)=>
+
+    body = h 'div', props, @state.sections.map (row)=>
       row.key = row.id # Because react
       row.zoom = @state.zoom
       h SectionComponent, row
+
+    h 'div.page', [
+      h 'ul.controls', [
+        h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
+        h 'li', [h 'a', [h Icon, name: 'gear', size: '2x']]
+      ]
+      body
+    ]
+
 
   componentDidMount: ->
     getSectionData()

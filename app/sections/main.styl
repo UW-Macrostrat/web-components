@@ -6,20 +6,11 @@ ul
   padding-left: 0
 
 li a
-  background-color: #ccc
-  margin-bottom: 1em
-  text-decoration: none
-  padding: 1em
-  display: block
-  color: black
-  &:hover
-    color: white
-    background-color: dodgerblue
 
 body
   background-color: white
 
-#main
+div.page
   display: flex
   flex-direction: column
 
@@ -34,4 +25,28 @@ body
 div.section-container
   flex: flex-grow
 
+ul.controls
+  position: absolute
+  top 0
+  right 0
+  margin: 1em
+  z-index: 10
+  li
+    display: inline-block
+    margin-left: 0.5em
+    a
+      background-color: #ccc
+      margin-bottom: 1em
+      text-decoration: none
+      padding 0.4em
+      padding-top: 0.4em
+      width: 2em
+      height: 2em
+      text-align: center
+      border-radius: 1.5em
+      display: block
+      color: black
+      &:hover
+        color: white
+        background-color: dodgerblue
 
