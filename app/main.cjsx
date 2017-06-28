@@ -45,8 +45,8 @@ Router = -> h HashRouter, [ h mouseTrap(App) ]
 navLink = -> h NavLink, arguments...
 
 Home = ->
-  h 'div', [
-    h 'h2', 'Naukluft Nappe Complex'
+  h 'div#homepage', [
+    h 'h1', 'Naukluft Nappe Complex'
     h 'ul', className: 'navigation', [
       navLink to: '/sections', "Sections"
       navLink to: '/carbon-isotopes', "Carbon Isotopes"

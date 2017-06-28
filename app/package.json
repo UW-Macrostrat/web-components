@@ -41,6 +41,7 @@
     "react-router-dom": "next",
     "react-visibility-sensor": "^3.9.0",
     "sections": "file:../../parts/sections",
+    "semantic-ui-react": "^0.70.0",
     "stratigraphic-column": "file:../../deps/node/stratigraphic-column",
     "stylus": "^0.54.5",
     "tessera": "^0.9.0",
