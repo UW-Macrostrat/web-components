@@ -1,8 +1,10 @@
 {Component} = require 'react'
 h = require 'react-hyperscript'
 CSSTransition = require 'react-addons-css-transition-group'
+{Switch} = require '@blueprintjs/core'
+
 require './settings.styl'
-Select = require 'react-select'
+
 
 class ModeControl extends Component
   render: ->
@@ -15,7 +17,7 @@ class ModeControl extends Component
         props.className += ' pt-active'
       h 'button', props, d.label
 
-    h 'div', [
+    h 'div.mode-control', [
       h 'h5', 'Display mode'
       h 'div.pt-vertical.pt-button-group.pt-align-left.pt-fill', opts
     ]
@@ -31,6 +33,11 @@ class SettingsPanel extends Component
         h 'div#settings', {key: 'settings'}, [
           h 'h2', 'Settings'
           h ModeControl, @props
+          h Switch, {
+            checked: @props.showNotes
+            label: "Show Notes"
+            onChange: @switchHandler('showNotes')
+          }
         ]
       ]
 
@@ -40,5 +47,10 @@ class SettingsPanel extends Component
       transitionLeaveTimeout: 1000
     }
     h CSSTransition, props, body
+
+  switchHandler: (name)=> =>
+    v = {}
+    v[name] = {$apply: (d)->not d}
+    @props.update v
 
 module.exports = SettingsPanel

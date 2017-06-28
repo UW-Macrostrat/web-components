@@ -26,6 +26,7 @@ class SectionPage extends Component
           {value: 'skeleton', label: 'Skeleton'}
         ]
         activeMode: 'normal'
+        showNotes: true
         update: @updateOptions
 
     @optionsStorage = new LocalStorage 'sections-component'
@@ -38,6 +39,8 @@ class SectionPage extends Component
     children = @state.sections.map (row)=>
       row.key = row.id # Because react
       row.zoom = @state.zoom
+      row.skeletal = @state.options.activeMode == 'skeleton'
+      row.showNotes = @state.options.showNotes
       h SectionComponent, row
 
     elements = [
