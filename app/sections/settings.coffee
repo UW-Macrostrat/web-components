@@ -4,16 +4,7 @@ CSSTransition = require 'react-addons-css-transition-group'
 require './settings.styl'
 Select = require 'react-select'
 
-options = [
-  {value: 'normal', label: 'Normal'}
-  {value: 'skeleton', label: 'Skeleton'}
-]
-
 class ModeControl extends Component
-  @props =
-    name: 'mode-control'
-    value: 'normal'
-    options: options
   render: ->
     opts = @props.modes.map (d)=>
       props =

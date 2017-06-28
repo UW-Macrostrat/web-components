@@ -9,7 +9,7 @@ ipc = require('electron').ipcRenderer
 {Icon} = require 'react-fa'
 SettingsPanel = require './settings'
 update = require 'immutability-helper'
-
+LocalStorage = require './storage'
 {SectionComponent} = require 'stratigraphic-column'
 {getSectionData} = require 'stratigraphic-column/src/util'
 
@@ -27,6 +27,11 @@ class SectionPage extends Component
         ]
         activeMode: 'normal'
         update: @updateOptions
+
+    @optionsStorage = new LocalStorage 'sections-component'
+    v = @optionsStorage.get()
+    return unless v?
+    @state = update @state, options: {$merge: v}
 
   render: ->
 
@@ -55,6 +60,7 @@ class SectionPage extends Component
   updateOptions: (opts)=>
     newOptions = update @state.options, opts
     @setState options: newOptions
+    @optionsStorage.set newOptions
 
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
