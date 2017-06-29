@@ -5,6 +5,7 @@ ReactDOM = require 'react-dom'
 h = require 'react-hyperscript'
 require '@blueprintjs/core/dist/blueprint.css'
 
+{Icon} = require 'react-fa'
 {NavBar, NavLink} = require './nav'
 SectionPage = require './sections'
 CarbonIsotopesPage = require './carbon-isotopes'
@@ -19,6 +20,16 @@ wrapNavBar = (component)->
         h component
       ]
 
+wrapHomeButton = (component)->
+  class HomeButtonPage extends React.Component
+    render: ->
+      h 'div.page', [
+        h 'ul.controls', [
+          h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
+        ]
+        h component
+      ]
+
 class App extends React.Component
   constructor: ->
     @state = {}
@@ -29,7 +40,7 @@ class App extends React.Component
       <Route path="/sections" component={SectionPage}/>
       <Route path="/carbon-isotopes" component={wrapNavBar(CarbonIsotopesPage)}/>
       <Route path="/lateral-variation" component={wrapNavBar(LateralVariation)} />
-      <Route path="/map" component={wrapNavBar(Map)}/>
+      <Route path="/map" component={wrapHomeButton(Map)}/>
     </div>
 
   _toggleNavBar: =>
@@ -48,6 +59,7 @@ navLink = -> h NavLink, arguments...
 Home = ->
   h 'div#homepage', [
     h 'h1', 'Naukluft Nappe Complex'
+    h 'p', 'Data products of research in the Southern Naukluft mountains, for presentation on the web alongside journal publication'
     h 'ul', className: 'navigation', [
       navLink to: '/sections', "Sections"
       navLink to: '/carbon-isotopes', "Carbon Isotopes"

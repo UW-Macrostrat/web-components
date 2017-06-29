@@ -15,7 +15,6 @@ class MapView extends React.Component
 
     el = ReactDOM.findDOMNode @
 
-
     map = new mgl.Map
       container: el
       attributionControl: false

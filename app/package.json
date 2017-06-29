@@ -40,6 +40,7 @@
     "react-hyperscript": "^3.0.0",
     "react-hyperscript-helpers": "^1.2.0",
     "react-localstorage": "^0.3.1",
+    "react-measure": "^2.0.2",
     "react-mousetrap": "^0.1.1",
     "react-pan-zoom-element": "^2.0.1",
     "react-router": "^3.0.2",
