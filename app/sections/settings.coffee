@@ -38,6 +38,15 @@ class SettingsPanel extends Component
             label: "Show Notes"
             onChange: @switchHandler('showNotes')
           }
+          h 'div#view-params', [
+            h 'h5', 'View info'
+            h 'table.pt-table', [
+              h 'tr', [
+                h 'td', 'Zoom'
+                h 'td', @props.zoom
+              ]
+            ]
+          ]
         ]
       ]
 

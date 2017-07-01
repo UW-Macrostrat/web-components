@@ -3,7 +3,7 @@
 require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
-require 'react-pan-zoom-element'
+ElementPan = require 'react-element-pan'
 ipc = require('electron').ipcRenderer
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
@@ -12,14 +12,28 @@ update = require 'immutability-helper'
 LocalStorage = require './storage'
 {SectionComponent} = require 'stratigraphic-column'
 {getSectionData} = require 'stratigraphic-column/src/util'
+Measure = require 'react-measure'
+
+class SectionPanel extends Component
+  # Zoomable panel containing individual sections
+  render: ->
+    children = @props.sections.map (row)=>
+      row.key = row.id # Because react
+      row.zoom = @props.options.zoom
+      row.skeletal = @props.options.activeMode == 'skeleton'
+      row.showNotes = @props.options.showNotes
+      h SectionComponent, row
+
+    h 'div#section-page', children
+
 
 class SectionPage extends Component
   constructor: (props)->
     super props
     @state =
-      zoom: 1
       sections: []
       options:
+        zoom: 1
         settingsPanelIsActive: false
         modes: [
           {value: 'normal', label: 'Normal'}
@@ -36,13 +50,6 @@ class SectionPage extends Component
 
   render: ->
 
-    children = @state.sections.map (row)=>
-      row.key = row.id # Because react
-      row.zoom = @state.zoom
-      row.skeletal = @state.options.activeMode == 'skeleton'
-      row.showNotes = @state.options.showNotes
-      h SectionComponent, row
-
     elements = [
       h 'div#section-pane', [
         h 'ul.controls', [
@@ -53,12 +60,12 @@ class SectionPage extends Component
             ]
           ]
         ]
-        h 'div#section-page', children
+        h SectionPanel, @state
       ]
       h SettingsPanel, @state.options
     ]
 
-    h 'div.page', elements
+    h 'div.page.section-page', elements
 
   updateOptions: (opts)=>
     newOptions = update @state.options, opts
@@ -82,13 +89,11 @@ class SectionPage extends Component
 
   setupListeners: =>
     ipc.on 'zoom-reset', =>
-      @setState zoom: 1
+      @updateOptions zoom: {$set: 1}
     ipc.on 'zoom-in', =>
-      z = @state.zoom * 1.25
-      @setState zoom: z
+      @updateOptions zoom: {$apply: (d)-> d * 1.25}
     ipc.on 'zoom-out',=>
-      z = @state.zoom / 1.25
-      @setState zoom: z
+      @updateOptions zoom: {$apply: (d)-> d / 1.25}
 
 
 
