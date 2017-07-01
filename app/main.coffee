@@ -30,18 +30,23 @@ wrapHomeButton = (component)->
         h component
       ]
 
+route = (path, component, props={})->
+  props.path = path
+  props.component = component
+  h Route, props
+
 class App extends React.Component
   constructor: ->
     @state = {}
     @state.showNavBar = true
   render: ->
-    <div id="root">
-      <Route exact path="/" component={Home}/>
-      <Route path="/sections" component={SectionPage}/>
-      <Route path="/carbon-isotopes" component={wrapNavBar(CarbonIsotopesPage)}/>
-      <Route path="/lateral-variation" component={wrapNavBar(LateralVariation)} />
-      <Route path="/map" component={wrapHomeButton(Map)}/>
-    </div>
+    h 'div#root', [
+      route '/', Home, exact: true
+      route '/sections', SectionPage
+      route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
+      route '/lateral-variation', wrapNavBar(LateralVariation)
+      route '/map', wrapHomeButton(Map)
+    ]
 
   _toggleNavBar: =>
     @setState showNavBar: not @state.showNavBar
