@@ -10,9 +10,12 @@ ipc = require('electron').ipcRenderer
 SettingsPanel = require './settings'
 update = require 'immutability-helper'
 LocalStorage = require './storage'
-{SectionComponent} = require 'stratigraphic-column'
+SectionComponent = require './column'
+require 'stratigraphic-column/src/main.styl'
 {getSectionData} = require 'stratigraphic-column/src/util'
-Measure = require 'react-measure'
+Measure = require('react-measure').default
+{Dragdealer} = require 'dragdealer'
+require 'dragdealer/src/dragdealer.css'
 
 class SectionPanel extends Component
   # Zoomable panel containing individual sections
@@ -23,9 +26,15 @@ class SectionPanel extends Component
       row.skeletal = @props.options.activeMode == 'skeleton'
       row.showNotes = @props.options.showNotes
       h SectionComponent, row
+    h 'div.dragdealer#section-page', [
+      h 'div#section-page-inner.handle', children
+    ]
 
-    h 'div#section-page', children
-
+  componentDidMount: ->
+    console.log "Section page mounted"
+    _el = findDOMNode @
+    console.log Dragdealer
+    new Dragdealer _el, {x: 1, y: 1, vertical: true, requestAnimationFrame: true}
 
 class SectionPage extends Component
   constructor: (props)->
@@ -50,6 +59,14 @@ class SectionPage extends Component
 
   render: ->
 
+    resizeFunc = (contentRect)->
+      console.log contentRect
+
+    obj = bounds: true, offset: true, scroll: true, onResize: resizeFunc
+
+    panel = h Measure, obj, (measureRef)=>
+      h SectionPanel, @state
+
     elements = [
       h 'div#section-pane', [
         h 'ul.controls', [
@@ -60,7 +77,7 @@ class SectionPage extends Component
             ]
           ]
         ]
-        h SectionPanel, @state
+        panel
       ]
       h SettingsPanel, @state.options
     ]
@@ -94,7 +111,5 @@ class SectionPage extends Component
       @updateOptions zoom: {$apply: (d)-> d * 1.25}
     ipc.on 'zoom-out',=>
       @updateOptions zoom: {$apply: (d)-> d / 1.25}
-
-
 
 module.exports = SectionPage

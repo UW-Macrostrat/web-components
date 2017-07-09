@@ -1,7 +1,6 @@
 {remote} = require 'electron'
 
 # Setup helper functions
-require('node-cjsx').transform()
 css_modules = require 'pdf-printer/_helpers/stylus-css-modules'
 {css} = require 'pdf-printer/_helpers'
 css_modules('global') # global by default
