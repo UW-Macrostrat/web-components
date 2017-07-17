@@ -2,6 +2,7 @@
 h = require 'react-hyperscript'
 CSSTransition = require 'react-addons-css-transition-group'
 {Switch} = require '@blueprintjs/core'
+{format} = require 'd3'
 
 require './settings.styl'
 
@@ -25,6 +26,8 @@ class ModeControl extends Component
     return if value == @props.value
     @props.update activeMode: {$set: value}
 
+fmt = format('.2f')
+
 class SettingsPanel extends Component
   render: ->
     body = []
@@ -41,9 +44,11 @@ class SettingsPanel extends Component
           h 'div#view-params', [
             h 'h5', 'View info'
             h 'table.pt-table', [
-              h 'tr', [
-                h 'td', 'Zoom'
-                h 'td', @props.zoom
+              h 'tbody', [
+                h 'tr', [
+                  h 'td', 'Zoom'
+                  h 'td', fmt(@props.zoom)
+                ]
               ]
             ]
           ]

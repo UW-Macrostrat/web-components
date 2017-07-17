@@ -41,6 +41,7 @@ input[type=checkbox]:focus
   background-color: white
   min-width: 100%
   min-height: 100vh
+  cursor: move
 
 div.section-container
   flex: flex-grow
@@ -75,4 +76,59 @@ ul.controls
         color: white
         background-color: dodgerblue
         border-color: darken(dodgerblue, 20%)
+
+.section
+  margin: auto
+  position: relative
+  svg
+    position: absolute
+    top: 0
+    left: 0
+
+  .backdrop
+    z-index: 10
+
+text
+  font-family: 'Helvetica Neue'
+  font-size: 10
+
+.info text
+  font-style: italic
+  &.width-ratio
+    font-size: 8
+
+svg path.domain
+  stroke-width: 0
+  fill: none
+
+.grainsize.axis
+  text
+    font-family: 'Helvetica Neue'
+    text-anchor: middle
+    font-size: 10
+  line
+    stroke: #aaa
+
+  &.source
+    line
+      stroke: lighten(orange,5%)
+    text
+      font-style: italic
+      font-size: 8
+
+g.dominant-lithology
+  .neatline
+    stroke: black
+    stroke-width: 2px
+    fill: transparent
+
+.y.axis path, line
+  stroke: grey
+  stroke-width: 2px
+// Main section
+
+div.images
+  position: relative
+  img
+    max-width: 100%
 
