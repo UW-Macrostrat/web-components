@@ -31,7 +31,8 @@ class SectionPanel extends Component
 
     st = {zoom: @props.options.zoom}
     h 'div.dragdealer#section-page', [
-      h 'div#section-page-inner.handle', {style: st }, children
+      # The actual container in which the sections sit
+      h 'div#section-page-inner.handle', children
     ]
 
   componentDidMount: ->

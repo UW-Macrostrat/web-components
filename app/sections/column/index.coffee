@@ -4,7 +4,7 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 VisibilitySensor = require 'react-visibility-sensor'
-createLithologyColumn = require 'stratigraphic-column/src/lithology'
+LithologyColumn = require './lithology'
 createGrainsizeScale = require 'stratigraphic-column/src/grainsize'
 
 NotesColumn = require './notes'
@@ -12,16 +12,22 @@ NotesColumn = require './notes'
 require './main.styl'
 
 class SectionImages extends Component
+  @defaultProps:
+    skeletal: false
   render: ->
     height = d3.sum @props.imageFiles, (d)->d.height
     style =
       "paddingTop": @props.padding.top
       "paddingLeft": @props.padding.left+@props.lithologyWidth
-    h "div.images", {style}, @props.imageFiles.map (im)=>
-      h "img",
-        src: im.filename
-        width: im.width/@props.scaleFactor
-        height: im.height/@props.scaleFactor
+    if @props.skeletal
+      children = []
+    else
+      children = @props.imageFiles.map (im)=>
+        h "img",
+          src: im.filename
+          width: im.width/@props.scaleFactor
+          height: im.height/@props.scaleFactor
+    h "div.images", {style}, children
 
 class SectionOverlay extends Component
   @defaultProps:
@@ -31,10 +37,15 @@ class SectionOverlay extends Component
     @state = lithologyData: null
 
   render: ->
+    console.log "Rendering overlay for section #{@props.id}"
+
+    #@yAxis.scale(@props.scale)
+
     h "svg.overlay", style: {
       width: @props.outerWidth
       height: @props.outerHeight
     }
+
   componentDidMount: ->
     _el = findDOMNode @
     el = d3.select _el
@@ -43,7 +54,13 @@ class SectionOverlay extends Component
       .attrs class: 'backdrop'
 
     @createAxes()
-    @createLithologyColumn()
+    #@createLithologyColumn()
+
+  componentDidUpdate: ->
+    console.log "Section #{@props.id} was updated"
+    @yAxis.scale @props.scale
+    @backdrop.select '.y.axis'
+       .call @yAxis
 
   createAxisLines: =>
     g = @backdrop.append 'g'
@@ -59,26 +76,27 @@ class SectionOverlay extends Component
           {x1: 0, x2: @props.innerWidth, y1: y, y2: y}
 
   createAxes: =>
-    yAxis = d3.axisLeft()
+    @yAxis = d3.axisLeft()
       .scale(@props.scale)
       .ticks(@props.height//10)
 
     @backdrop
       .attr 'transform', "translate(#{@props.padding.left} #{@props.padding.top})"
 
-    @backdrop.append 'g'
+    @backdrop.append('g')
       .attrs class: 'y axis'
-      .call yAxis
+      .call @yAxis
 
     @x = d3.scaleLinear()
       .domain [0,14] #blocks
-      .range [0,@props.innerWidth]
+      .range [0, @props.innerWidth]
 
     g = @backdrop.append 'g'
-    createGrainsizeScale g.node(),
+    createGrainsizeScale g.node(), {
       scale: @props.scale
       height: @props.innerHeight
       range: [118,198]
+    }
 
   createLithologyColumn: =>
 
@@ -144,19 +162,26 @@ class SectionComponent extends Component
 
   render: ->
     {left, top, right, bottom} = @props.padding
-    innerHeight = @props.height*@props.pixelsPerMeter
+    innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
     @state.scaleFactor =  8.1522#@state.naturalHeight/innerHeight
 
     @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight+top+bottom
-    innerWidth = @props.innerWidth
+    innerWidth = @props.innerWidth*@props.zoom
     outerWidth = innerWidth+left+right
 
     style =
       width: outerWidth
       height: outerHeight
       #zoom: @props.zoom
+
+    # Resize axes
+    #@backdrop.select '.y.axis'
+    #  .call @yaxis
+
+    #@x.range [0, innerWidth]
+
 
     console.log @props
 
@@ -174,28 +199,34 @@ class SectionComponent extends Component
 
     sectionInnerElements = =>
       if @props.skeletal
-        return [ h 'div.section-column', style: {padding: @props.padding, height: @props.innerHeight} ]
-      else
-        return [
-          h SectionOverlay, {
-            id
-            height: @props.height
-            range: @props.range
-            padding: @props.padding
-            lithologyWidth: @props.lithologyWidth
-            innerHeight
-            outerHeight
-            innerWidth
-            outerWidth
-            scale
-          }
-          h SectionImages, {
-            padding: @props.padding
-            lithologyWidth: @props.lithologyWidth
-            scaleFactor: @state.scaleFactor
-            imageFiles: @props.imageFiles
-          }
-        ]
+        return [ h 'div.section-column', style: {padding: @props.padding, height: innerHeight} ]
+      ls =
+        height: innerHeight
+        width: @props.lithologyWidth
+        top: @props.padding.top
+        left: @props.padding.left
+
+      return [
+        h LithologyColumn, {style: ls}
+        h SectionOverlay, {
+          id
+          height: @props.height
+          range: @props.range
+          padding: @props.padding
+          lithologyWidth: @props.lithologyWidth
+          innerHeight
+          outerHeight
+          innerWidth
+          outerWidth
+          scale
+        }
+        h SectionImages, {
+          padding: @props.padding
+          lithologyWidth: @props.lithologyWidth
+          scaleFactor: @state.scaleFactor/@props.zoom
+          imageFiles: @props.imageFiles
+        }
+      ]
 
     outerElements = [
       h 'div.section', {style}, sectionInnerElements()
@@ -219,7 +250,6 @@ class SectionComponent extends Component
         className: if @props.skeletal then "skeleton" else null
         style:
           minWidth: @computeWidth()
-          height: (outerHeight+30)*@props.zoom
         children
     ]
 

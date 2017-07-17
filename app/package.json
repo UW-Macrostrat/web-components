@@ -30,6 +30,7 @@
     "mapbox-gl": "^0.32.1",
     "mbtiles": "^0.9.0",
     "pdf-printer": "file:../../deps/node/pdf-printer",
+    "geologic-patterns": "file:../../deps/FGDC geologic patterns",
     "pg": "^5.1.0",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.6.0",
