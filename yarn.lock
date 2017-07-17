@@ -552,6 +552,10 @@ coffee-script@^1.12.2, coffee-script@^1.12.4, coffee-script@^1.9.1:
   version "1.12.4"
   resolved "https://registry.yarnpkg.com/coffee-script/-/coffee-script-1.12.4.tgz#fe1bced97fe1fb3927b998f2b45616e0658be1ff"
 
+coffeescript@next:
+  version "2.0.0-beta3"
+  resolved "https://registry.yarnpkg.com/coffeescript/-/coffeescript-2.0.0-beta3.tgz#5bce739c6c69a5c8e8bb5fb967a16db0cca5c04f"
+
 colors@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/colors/-/colors-1.1.2.tgz#168a4701756b6a7f51a12ce0c97bfa28c084ed63"
@@ -1076,9 +1080,9 @@ electron-reload@^1.0.3, electron-reload@^1.1.0:
   dependencies:
     chokidar "^1.5.1"
 
-electron@^1.6.11:
-  version "1.6.11"
-  resolved "https://registry.yarnpkg.com/electron/-/electron-1.6.11.tgz#be79c0ebdcefedb5bf28117409800fa53baceffa"
+electron@beta:
+  version "1.7.4"
+  resolved "https://registry.yarnpkg.com/electron/-/electron-1.7.4.tgz#db8b85ae98dffb7a82938e5ea6eed3cb66f62a65"
   dependencies:
     "@types/node" "^7.0.18"
     electron-download "^3.0.1"
