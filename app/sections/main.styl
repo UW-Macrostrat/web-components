@@ -42,6 +42,21 @@ input[type=checkbox]:focus
   min-width: 100%
   min-height: 100vh
   cursor: move
+  &.skeletal div
+    border: 1px solid dodgerblue
+    background: alpha(dodgerblue, 0.1)
+
+div.location-group
+  margin: 0.5em 3em
+  h1
+    font-size: 1.5em
+    font-variant: small-caps
+    color: #444
+
+div.location-group-body
+  display: flex
+  flex-direction: row
+  margin: 0 -2em
 
 div.section-container
   flex: flex-grow

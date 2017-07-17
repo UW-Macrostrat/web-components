@@ -29,6 +29,7 @@ class SectionPage extends Component
         ]
         activeMode: 'normal'
         showNotes: true
+        condensedDisplay: true
         update: @updateOptions
 
     @optionsStorage = new LocalStorage 'sections-component'

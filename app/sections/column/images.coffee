@@ -8,11 +8,12 @@ class SectionImages extends Component
     skeletal: false
   render: ->
     height = d3.sum @props.imageFiles, (d)->d.height
+    width = d3.max @props.imageFiles, (d)->d.width
     style =
       marginTop: @props.padding.top
       marginLeft: @props.padding.left+@props.lithologyWidth
       height: height/@props.scaleFactor
-      width: 30*@props.scaleFactor*@props.zoom
+      width: width/@props.scaleFactor
     if @props.skeletal
       children = []
     else

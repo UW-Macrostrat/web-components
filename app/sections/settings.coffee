@@ -41,6 +41,11 @@ class SettingsPanel extends Component
             label: "Show Notes"
             onChange: @switchHandler('showNotes')
           }
+          h Switch, {
+            checked: @props.condensedDisplay
+            label: "Condensed display"
+            onChange: @switchHandler('condensedDisplay')
+          }
           h 'div#view-params', [
             h 'h5', 'View info'
             h 'table.pt-table', [

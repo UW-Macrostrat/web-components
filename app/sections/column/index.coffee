@@ -76,38 +76,44 @@ class SectionComponent extends Component
     # Set up number of ticks
     nticks = (@props.height*@props.zoom)/10
 
+
+    innerElements = [
+      h LithologyColumn, {
+        style:
+          height: innerHeight
+          width: @props.lithologyWidth
+          top: padding.top
+          left: padding.left
+        skeletal
+      }
+      h SectionOverlay, {
+        id
+        height: @props.height
+        range: @props.range
+        padding
+        lithologyWidth: @props.lithologyWidth
+        ticks: nticks
+        innerHeight
+        outerHeight
+        innerWidth
+        outerWidth
+        scale
+        skeletal
+      }
+    ]
+
+    if @props.zoom > 0.25
+      img = h SectionImages, {
+        padding
+        lithologyWidth: @props.lithologyWidth
+        imageFiles: @props.imageFiles
+        scaleFactor
+        skeletal
+      }
+      innerElements.push img
+
     outerElements = [
-      h 'div.section', {style}, [
-        h LithologyColumn, {
-          style:
-            height: innerHeight
-            width: @props.lithologyWidth
-            top: padding.top
-            left: padding.left
-          skeletal
-        }
-        h SectionOverlay, {
-          id
-          height: @props.height
-          range: @props.range
-          padding
-          lithologyWidth: @props.lithologyWidth
-          ticks: nticks
-          innerHeight
-          outerHeight
-          innerWidth
-          outerWidth
-          scale
-          skeletal
-        }
-        h SectionImages, {
-          padding
-          lithologyWidth: @props.lithologyWidth
-          imageFiles: @props.imageFiles
-          scaleFactor
-          skeletal
-        }
-      ]
+      h 'div.section', {style}, innerElements
     ]
 
     if @props.showNotes and @props.zoom > 0.5
