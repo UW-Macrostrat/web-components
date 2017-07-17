@@ -236,4 +236,7 @@ class SectionComponent extends Component
     console.log "Section visibility changed"
     @setState visible: isVisible
 
+    # I'm not sure why this works but it does
+    window.dispatchEvent(new Event('resize'))
+
 module.exports = SectionComponent

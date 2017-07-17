@@ -4,6 +4,8 @@ ReactDOM = require 'react-dom'
 {mouseTrap} = require 'react-mousetrap'
 h = require 'react-hyperscript'
 require '@blueprintjs/core/dist/blueprint.css'
+{FocusStyleManager} = require '@blueprintjs/core'
+FocusStyleManager.onlyShowFocusOnTabs()
 
 {Icon} = require 'react-fa'
 {NavBar, NavLink} = require './nav'
