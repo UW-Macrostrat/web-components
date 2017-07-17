@@ -11,7 +11,6 @@ SettingsPanel = require './settings'
 update = require 'immutability-helper'
 LocalStorage = require './storage'
 SectionComponent = require './column'
-require 'stratigraphic-column/src/main.styl'
 {getSectionData} = require 'stratigraphic-column/src/util'
 Measure = require('react-measure').default
 {Dragdealer} = require 'dragdealer'
@@ -128,8 +127,12 @@ class SectionPage extends Component
     ipc.on 'zoom-reset', =>
       @updateOptions zoom: {$set: 1}
     ipc.on 'zoom-in', =>
-      @updateOptions zoom: {$apply: (d)-> d * 1.25}
+      @updateOptions zoom: {
+        $apply: (d)-> if d < 2 then d * 1.25 else d
+      }
     ipc.on 'zoom-out',=>
-      @updateOptions zoom: {$apply: (d)-> d / 1.25}
+      @updateOptions zoom: {
+        $apply: (d)-> if d > 0.05 then d / 1.25 else d
+      }
 
 module.exports = SectionPage

@@ -3,7 +3,20 @@ d3 = require 'd3'
 require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
-{db, storedProcedure} = require 'stratigraphic-column/src/db'
+{db, storedProcedure} = require '../db'
+uuid = require('uuid/v4')
+ReactTooltip = require 'react-tooltip'
+
+class Note extends Component
+  render: ->
+    {style} = @props
+    h 'div.note', {
+      onMouseOver: @positioningInfo
+      style
+    }, @props.d.note
+
+  positioningInfo: =>
+    console.log @props
 
 class NotesColumn extends Component
   @defaultProps:
@@ -25,6 +38,6 @@ class NotesColumn extends Component
     h 'div.section-log', {style}, @state.notes.map (d)=>
       style =
         top: @props.scale(d.text_height)
-      h 'p.note', {style}, d.note
+      h Note, {style, d}
 
 module.exports = NotesColumn

@@ -10,9 +10,10 @@ div.section-container
     h2, p
       color: blue
     border: 1px solid dodgerblue
-
-    .section
+    background: alpha(dodgerblue, 0.1)
+    div
       border: 1px solid dodgerblue
+      background: alpha(dodgerblue, 0.1)
 
 div.section-outer
   display: flex
@@ -22,10 +23,9 @@ div.section-outer
 div.section-log
   flex-grow: 1
   position: relative
-  p.note
+  div.note
     position: absolute
     width: 100%
-    margin-left: -5em
     padding-left: 1em
     font-style: italic
     font-size: 0.7em

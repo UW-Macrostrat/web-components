@@ -1,6 +1,25 @@
 {Component, createElement} = require 'react'
 {findDOMNode} = require 'react-dom'
-createGrainsizeScale = require 'stratigraphic-column/src/grainsize'
+createGrainsizeScale = require './grainsize'
+h = require 'react-hyperscript'
+d3 = require 'd3'
+
+class GrainsizeScale extends Component
+  render: ->
+    h 'g.grainsize-scale'
+  componentDidMount: ->
+    @componentDidUpdate.call arguments
+
+  componentDidUpdate: =>
+    g = findDOMNode @
+    @x = d3.scaleLinear()
+      .domain [0,14] #blocks
+      .range [0, @props.width]
+
+    createGrainsizeScale g, {
+      height: @props.height
+      range: [118,198]
+    }
 
 class SectionOverlay extends Component
   @defaultProps:
@@ -13,25 +32,40 @@ class SectionOverlay extends Component
     console.log "Rendering overlay for section #{@props.id}"
 
     #@yAxis.scale(@props.scale)
+    transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
     h "svg.overlay", style: {
       width: @props.outerWidth
       height: @props.outerHeight
-    }
+    }, [
+      h 'g.backdrop', {transform}, [
+        h 'g.y.axis'
+        h GrainsizeScale, {
+          width: @props.innerWidth
+          height: @props.innerHeight
+        }
+      ]
+    ]
 
   componentDidMount: ->
     _el = findDOMNode @
     el = d3.select _el
 
-    @backdrop = el.append 'g'
-      .attrs class: 'backdrop'
+    @backdrop = el.select '.backdrop'
 
-    @createAxes()
-    #@createLithologyColumn()
+    @yAxis = d3.axisLeft()
+      .scale(@props.scale)
+      .ticks(@props.ticks)
+
+    @backdrop.select '.y.axis'
+      .call @yAxis
 
   componentDidUpdate: ->
+    console.log @props.ticks
     console.log "Section #{@props.id} was updated"
-    @yAxis.scale @props.scale
+    @yAxis
+      .scale @props.scale
+      .ticks @props.ticks
     @backdrop.select '.y.axis'
        .call @yAxis
 
@@ -48,64 +82,5 @@ class SectionOverlay extends Component
           y = @props.scale(d)
           {x1: 0, x2: @props.innerWidth, y1: y, y2: y}
 
-  createAxes: =>
-    @yAxis = d3.axisLeft()
-      .scale(@props.scale)
-      .ticks(@props.height//10)
-
-    @backdrop
-      .attr 'transform', "translate(#{@props.padding.left} #{@props.padding.top})"
-
-    @backdrop.append('g')
-      .attrs class: 'y axis'
-      .call @yAxis
-
-    @x = d3.scaleLinear()
-      .domain [0,14] #blocks
-      .range [0, @props.innerWidth]
-
-    g = @backdrop.append 'g'
-    createGrainsizeScale g.node(), {
-      scale: @props.scale
-      height: @props.innerHeight
-      range: [118,198]
-    }
-
-  createLithologyColumn: =>
-
-    defs = @backdrop
-      .append 'defs'
-
-    defs.append 'rect'
-      .attrs
-        id: 'lithology-column'
-        height: @props.innerHeight
-        width: @props.lithologyWidth
-        x: @x(0)
-        y: 0
-
-    defs.append 'clipPath'
-      .attrs
-        id: 'lithology-clip'
-      .append 'use'
-        .attrs href: '#lithology-column'
-
-    lith = @backdrop.append 'g'
-      .attrs class: 'dominant-lithology'
-
-    el = lith.append 'g'
-      .attrs
-        class: 'container'
-        'clip-path': "url(#lithology-clip)"
-
-    createLithologyColumn el,
-      id: @props.id
-      width: @props.lithologyWidth
-      scale: @props.scale
-
-    lith.append 'use'
-      .attrs
-        class: 'neatline'
-        href: '#lithology-column'
 
 module.exports = SectionOverlay

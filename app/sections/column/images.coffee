@@ -1,6 +1,7 @@
 {Component, createElement} = require 'react'
 {findDOMNode} = require 'react-dom'
 d3 = require 'd3'
+h = require 'react-hyperscript'
 
 class SectionImages extends Component
   @defaultProps:
@@ -8,8 +9,10 @@ class SectionImages extends Component
   render: ->
     height = d3.sum @props.imageFiles, (d)->d.height
     style =
-      "paddingTop": @props.padding.top
-      "paddingLeft": @props.padding.left+@props.lithologyWidth
+      marginTop: @props.padding.top
+      marginLeft: @props.padding.left+@props.lithologyWidth
+      height: height/@props.scaleFactor
+      width: 30*@props.scaleFactor*@props.zoom
     if @props.skeletal
       children = []
     else

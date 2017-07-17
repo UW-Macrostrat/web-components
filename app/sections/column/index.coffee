@@ -8,7 +8,6 @@ LithologyColumn = require './lithology'
 SectionOverlay = require './overlay'
 SectionImages = require './images'
 NotesColumn = require './notes'
-
 require './main.styl'
 
 class SectionComponent extends Component
@@ -40,26 +39,21 @@ class SectionComponent extends Component
     {left, top, right, bottom} = @props.padding
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
-    @state.scaleFactor =  8.1522#@state.naturalHeight/innerHeight
+    # 8.1522
+    scaleFactor = @state.naturalHeight/innerHeight
 
     @state.scale.range [innerHeight, 0]
-    outerHeight = innerHeight+top+bottom
+    outerHeight = innerHeight+(top+bottom)*@props.zoom
     innerWidth = @props.innerWidth*@props.zoom
     outerWidth = innerWidth+left+right
 
-    style =
+    heightOfTop = 700-@props.height-parseFloat(@props.offset)
+    marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
+
+    style = {
       width: outerWidth
       height: outerHeight
-      #zoom: @props.zoom
-
-    # Resize axes
-    #@backdrop.select '.y.axis'
-    #  .call @yaxis
-
-    #@x.range [0, innerWidth]
-
-
-    console.log @props
+    }
 
     p =
       onChange: @onVisibilityChange
@@ -73,39 +67,47 @@ class SectionComponent extends Component
     scale = @state.scale
     zoom = @props.zoom
 
-    sectionInnerElements = =>
-      if @props.skeletal
-        return [ h 'div.section-column', style: {padding: @props.padding, height: innerHeight} ]
-      ls =
-        height: innerHeight
-        width: @props.lithologyWidth
-        top: @props.padding.top
-        left: @props.padding.left
+    padding = {}
+    for k,v of @props.padding
+      padding[k] = @props.padding[k]*@props.zoom
 
-      return [
-        h LithologyColumn, {style: ls}
+    {skeletal} = @props
+
+    # Set up number of ticks
+    nticks = (@props.height*@props.zoom)/10
+
+    outerElements = [
+      h 'div.section', {style}, [
+        h LithologyColumn, {
+          style:
+            height: innerHeight
+            width: @props.lithologyWidth
+            top: padding.top
+            left: padding.left
+          skeletal
+        }
         h SectionOverlay, {
           id
           height: @props.height
           range: @props.range
-          padding: @props.padding
+          padding
           lithologyWidth: @props.lithologyWidth
+          ticks: nticks
           innerHeight
           outerHeight
           innerWidth
           outerWidth
           scale
+          skeletal
         }
         h SectionImages, {
-          padding: @props.padding
+          padding
           lithologyWidth: @props.lithologyWidth
-          scaleFactor: @state.scaleFactor/@props.zoom
           imageFiles: @props.imageFiles
+          scaleFactor
+          skeletal
         }
       ]
-
-    outerElements = [
-      h 'div.section', {style}, sectionInnerElements()
     ]
 
     if @props.showNotes and @props.zoom > 0.5
@@ -126,6 +128,7 @@ class SectionComponent extends Component
         className: if @props.skeletal then "skeleton" else null
         style:
           minWidth: @computeWidth()
+          paddingTop: marginTop
         children
     ]
 
