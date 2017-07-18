@@ -8,11 +8,6 @@ div.section-container
   &.skeleton
     h2, p
       color: blue
-    border: 1px solid dodgerblue
-    background: alpha(dodgerblue, 0.1)
-    div
-      border: 1px solid dodgerblue
-      background: alpha(dodgerblue, 0.1)
 
 div.section-outer
   display: flex
@@ -29,3 +24,19 @@ div.section-log
     font-style: italic
     font-size: 0.7em
     line-height: 1em
+    .note-span-container
+      position: relative
+    .note-span
+      position: absolute
+      border-radius: 4px
+      width: 5px
+      left: -40px
+      background-color: alpha(black,0.2)
+
+.skeletal .note-span
+  background: alpha(dodgerblue, 0.5)
+
+.note.error
+  p
+    color: darken(red,0.2) !important
+  background: alpha(red, 0.2) !important

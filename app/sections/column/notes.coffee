@@ -7,13 +7,40 @@ h = require 'react-hyperscript'
 uuid = require('uuid/v4')
 ReactTooltip = require 'react-tooltip'
 
+class NoteSpan extends Component
+  render: ->
+    h 'svg'
+
 class Note extends Component
   render: ->
-    {style} = @props
-    h 'div.note', {
+    {scale, style, d} = @props
+    extraClasses = ''
+    if d.text_height == 'NaN'
+      extraClasses+='.error'
+
+    pos = scale(d.text_height)
+
+    height = scale(0)-scale(d.span)
+
+    bias = height/2
+
+    spanStyle =
+      top: -bias
+      height: height or 0
+    #spanStyle = {}
+
+    style =
+      top: pos+bias
+
+
+    h "div.note#{extraClasses}", {
       onMouseOver: @positioningInfo
-      style
-    }, @props.d.note
+      style }, [
+      h 'div.note-span-container', [
+        h 'div.note-span', {style: spanStyle}
+      ]
+      h 'p', d.note
+    ]
 
   positioningInfo: =>
     console.log @props.d
@@ -33,11 +60,9 @@ class NotesColumn extends Component
         @setState notes: data
 
   render: ->
-    style = zoom: @props.zoom
+    {scale} = @props
 
-    h 'div.section-log', {style}, @state.notes.map (d)=>
-      style =
-        top: @props.scale(d.text_height)
-      h Note, {style, d}
+    h 'div.section-log', {}, @state.notes.map (d)->
+      h Note, {scale, d}
 
 module.exports = NotesColumn

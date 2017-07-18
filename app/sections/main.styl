@@ -31,7 +31,6 @@ input[type=checkbox]:focus
 
 #section-page
   width: 100%
-  cursor: move
   overflow: hidden
   flex-grow: 1
 
@@ -41,10 +40,11 @@ input[type=checkbox]:focus
   background-color: white
   min-width: 100%
   min-height: 100vh
-  cursor: move
+  *
+    cursor: move !important
   &.skeletal div
-    border: 1px solid dodgerblue
-    background: alpha(dodgerblue, 0.1)
+    outline: 2px solid alpha(dodgerblue, 0.2)
+    background: alpha(dodgerblue, 0.05)
 
 div.location-group
   margin: 0.5em 3em

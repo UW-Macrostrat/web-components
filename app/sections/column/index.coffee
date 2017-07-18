@@ -17,7 +17,7 @@ class SectionComponent extends Component
     innerWidth: 280
     height: 100 # Section height in meters
     lithologyWidth: 40
-    logWidth: 400
+    logWidth: 250
     pixelsPerMeter: 20
     containerWidth: 1000
     skeletal: false
@@ -119,7 +119,6 @@ class SectionComponent extends Component
     if @props.showNotes and @props.zoom > 0.5
       outerElements.push(
         h NotesColumn, {id,scale, width: @props.logWidth, zoom}
-        h NotesColumn, {id,scale, width: @props.logWidth, type: 'meta-notes', zoom}
       )
 
     children = null
