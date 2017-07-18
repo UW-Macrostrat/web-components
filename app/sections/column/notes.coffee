@@ -16,7 +16,7 @@ class Note extends Component
     }, @props.d.note
 
   positioningInfo: =>
-    console.log @props
+    console.log @props.d
 
 class NotesColumn extends Component
   @defaultProps:

@@ -140,8 +140,9 @@ class SectionComponent extends Component
     ]
 
   componentDidUpdate: ->
+    # This leads to some problems unsurprisingly
     el = findDOMNode @
-    heightOfTop = 670-@props.height-parseFloat(@props.offset)
+    heightOfTop = 700-@props.height-parseFloat(@props.offset)
     desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
     offs = 0
 

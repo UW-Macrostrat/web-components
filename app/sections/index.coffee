@@ -31,6 +31,8 @@ class SectionPage extends Component
         showNotes: true
         condensedDisplay: true
         update: @updateOptions
+        sectionIDs: []
+        dragPosition: {x: 0, y: 0}
 
     @optionsStorage = new LocalStorage 'sections-component'
     v = @optionsStorage.get()
@@ -52,7 +54,13 @@ class SectionPage extends Component
 
 
     panel = h Measure, obj, (measureRef)=>
-      h SectionPanel, @state
+      {sections, dimensions, options} = @state
+      h SectionPanel, {
+        sections, dimensions, options
+        updatePosition: (pos)=>
+          console.log "Updating drag position"
+          @updateOptions dragPosition: {$set: pos}
+      }
 
     elements = [
       h 'div#section-pane', [
@@ -83,6 +91,8 @@ class SectionPage extends Component
     getSectionData()
       .then (sections)=>
         @setState sections: sections
+        ids = sections.map (s)->s.id
+        @updateOptions sectionIDs: {$set: ids}
         _el = findDOMNode @
         el = select _el
         el.selectAll 'img'

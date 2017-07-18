@@ -18,9 +18,15 @@ class LocationGroup extends Component
       h 'div.location-group-body', {}, @props.children
     ]
 
+groupOrder = [
+  'Tsams'
+  'Onis'
+  'Ubisis'
+]
+
 stackGroups = [
   'AC'
-  'BD'
+  'ED'
   'FG'
   'HI'
 ]
@@ -36,7 +42,6 @@ class SectionPanel extends Component
 
   render: ->
     console.log "Rendering section panel"
-    console.log @props
 
     stackGroup = (d)=>
       if @props.options.condensedDisplay
@@ -45,12 +50,15 @@ class SectionPanel extends Component
             return g
       return d.id
 
-    sections = d3.nest()
+    sectionGroups = d3.nest()
       .key (d)->d.location
       .key stackGroup
       .entries @props.sections
 
-    children = sections.map ({key,values})=>
+    sectionGroups.sort (a,b)->
+      groupOrder.indexOf(a.key)-groupOrder.indexOf(b.key)
+
+    children = sectionGroups.map ({key,values})=>
       h LocationGroup, {key, name: key},
         values.map ({key,values})=>
           values.sort (a, b)-> b.offset-a.offset
@@ -70,14 +78,14 @@ class SectionPanel extends Component
   componentDidMount: ->
     console.log "Section page mounted"
     _el = findDOMNode @
-    console.log Dragdealer
+    {x,y} = @props.options.dragPosition
     new Dragdealer _el, {
-      x: 0, y: 0,
+      x,y
       loose: true
       vertical: true, requestAnimationFrame: true
       callback: @setPosition}
 
   setPosition: (x,y)=>
-    console.log x,y
+    @props.updatePosition {x,y}
 
 module.exports = SectionPanel

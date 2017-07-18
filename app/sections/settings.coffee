@@ -57,6 +57,9 @@ class SettingsPanel extends Component
               ]
             ]
           ]
+          h 'h5', 'Jump To'
+          h 'div#jump-list.pt-button-group.pt-minimal.pt-vertical', @props.sectionIDs.map (d)->
+            h 'a.pt-button', {role: 'button'}, "Section #{d}"
         ]
       ]
 
