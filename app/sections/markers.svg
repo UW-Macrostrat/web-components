@@ -1,0 +1,22 @@
+<svg width="960" height="500">
+    <defs>
+        <marker id="marker_circle" markerHeight="5" markerWidth="5" markerUnits="strokeWidth" orient="auto" refX="0" refY="0" viewBox="-6 -6 12 12">
+            <path d="M 0, 0  m -5, 0  a 5,5 0 1,0 10,0  a 5,5 0 1,0 -10,0" fill="#1f77b4"></path>
+        </marker>
+        <marker id="marker_square" markerHeight="5" markerWidth="5" markerUnits="strokeWidth" orient="auto" refX="0" refY="0" viewBox="-5 -5 10 10">
+            <path d="M 0,0 m -5,-5 L 5,-5 L 5,5 L -5,5 Z" fill="#ff7f0e"></path>
+        </marker>
+        <marker id="marker_arrow" markerHeight="5" markerWidth="5" markerUnits="strokeWidth" orient="auto" refX="0" refY="0" viewBox="-5 -5 10 10">
+            <path d="M 0,0 m -5,-5 L 5,0 L -5,5 Z" fill="#2ca02c"></path>
+        </marker>
+        <marker id="marker_stub" markerHeight="5" markerWidth="5" markerUnits="strokeWidth" orient="auto" refX="0" refY="0" viewBox="-1 -5 2 10">
+            <path d="M 0,0 m -1,-5 L 1,-5 L 1,5 L -1,5 Z" fill="#d62728"></path>
+        </marker>
+    </defs>
+    <g id="markers" transform="translate(40,50)">
+        <path d="M 0,0 L 880,0" stroke="#1f77b4" stroke-width="5" stroke-linecap="round" marker-start="url(#marker_circle)" marker-end="url(#marker_circle)"></path>
+        <path d="M 0,100 L 880,100" stroke="#ff7f0e" stroke-width="5" stroke-linecap="round" marker-start="url(#marker_square)" marker-end="url(#marker_square)"></path>
+        <path d="M 0,200 L 880,200" stroke="#2ca02c" stroke-width="5" stroke-linecap="round" marker-start="url(#marker_arrow)" marker-end="url(#marker_arrow)"></path>
+        <path d="M 0,300 L 880,300" stroke="#d62728" stroke-width="5" stroke-linecap="round" marker-start="url(#marker_stub)" marker-end="url(#marker_stub)"></path>
+    </g>
+</svg>

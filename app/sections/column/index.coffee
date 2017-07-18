@@ -10,6 +10,7 @@ SectionImages = require './images'
 NotesColumn = require './notes'
 require './main.styl'
 
+
 class SectionComponent extends Component
   @defaultProps: {
     zoom: 1
@@ -17,7 +18,7 @@ class SectionComponent extends Component
     innerWidth: 280
     height: 100 # Section height in meters
     lithologyWidth: 40
-    logWidth: 250
+    logWidth: 300
     pixelsPerMeter: 20
     containerWidth: 1000
     skeletal: false
@@ -64,7 +65,7 @@ class SectionComponent extends Component
     txt = if @props.zoom > 0.5 then "Section " else ""
     txt += id
 
-    scale = @state.scale
+    {scale,visible} = @state
     zoom = @props.zoom
 
     padding = {}
@@ -84,9 +85,16 @@ class SectionComponent extends Component
           width: @props.lithologyWidth
           top: padding.top
           left: padding.left
+        id
+        scale
         skeletal
+        zoom
+        visible
       }
-      h SectionOverlay, {
+    ]
+
+    if @state.visible
+      _ = h SectionOverlay, {
         id
         height: @props.height
         range: @props.range
@@ -99,10 +107,12 @@ class SectionComponent extends Component
         outerWidth
         scale
         skeletal
+        zoom
       }
-    ]
+      innerElements.push _
 
-    if @props.zoom > 0.25
+
+    if @props.zoom > 0.25 and @state.visible
       img = h SectionImages, {
         padding
         lithologyWidth: @props.lithologyWidth
@@ -116,17 +126,16 @@ class SectionComponent extends Component
       h 'div.section', {style}, innerElements
     ]
 
-    if @props.showNotes and @props.zoom > 0.5
+    if @props.showNotes and @props.zoom > 0.5 and @state.visible
       outerElements.push(
         h NotesColumn, {id,scale, width: @props.logWidth, zoom}
       )
 
     children = null
-    if @state.visible
-      children= [
-        h 'div.section-header', [h "h2", txt]
-        h 'div.section-outer', outerElements
-      ]
+    children= [
+      h 'div.section-header', [h "h2", txt]
+      h 'div.section-outer', outerElements
+    ]
 
     width = @computeWidth()
     style = {top: marginTop}
@@ -166,6 +175,5 @@ class SectionComponent extends Component
     @setState visible: isVisible
 
     # I'm not sure why this works but it does
-    window.dispatchEvent(new Event('resize'))
 
 module.exports = SectionComponent

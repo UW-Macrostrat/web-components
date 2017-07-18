@@ -1,7 +1,16 @@
-rect.lithology
-  &.definite
-    stroke: black
-    stroke-width: 1px
+div.lithology-column
+  overflow: hidden
+  span.lithology
+    display: block
+    position: absolute
+    left: -5
+    width: 500px
+    //background-size: 100px 100px
+    background-color: white
+    &.definite
+      border: 1px solid black
+    &.covered
+      background-color: lightness(red,80%)
 
 div.section-container
   position: relative
@@ -13,13 +22,14 @@ div.section-outer
   display: flex
   flex-direction: row
   width: 100%
+  svg.overlay
+    z-index: -10
 
 div.section-log
   flex-grow: 1
   position: relative
   div.note
     position: absolute
-    width: 100%
     padding-left: 1em
     font-style: italic
     font-size: 0.7em
@@ -28,13 +38,11 @@ div.section-log
       position: relative
     .note-span
       position: absolute
-      border-radius: 4px
-      width: 5px
-      left: -40px
-      background-color: alpha(black,0.2)
-
-.skeletal .note-span
-  background: alpha(dodgerblue, 0.5)
+      line
+        stroke: #444
+        stroke-width: 2
+        marker-start: url(#arrow_start)
+        marker-end: url(#arrow_end)
 
 .note.error
   p

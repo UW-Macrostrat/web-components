@@ -101,6 +101,9 @@ class SectionPage extends Component
 
     @setupListeners()
 
+  componentDidUpdate: ->
+    window.dispatchEvent(new Event('resize'))
+
   setupListeners: =>
     ipc.on 'zoom-reset', =>
       @updateOptions zoom: {$set: 1}

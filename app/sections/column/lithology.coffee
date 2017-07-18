@@ -1,46 +1,63 @@
 {db, storedProcedure} = require '../db'
 {select} = require 'd3-selection'
-{findSymbol, lithology} = require 'stratigraphic-column/src/sed-patterns'
 {Component} = require 'react'
 h = require 'react-hyperscript'
 
-module.exports = (el, opts={})->
-  opts.width ?= 10
-  opts.padding ?= 2
-  db.query storedProcedure('lithology'), [opts.id]
-    .then (data)->
-      # Setup sed patterns
-      el.call lithology
+symbolIndex =
+  'dolomite-limestone': 641
+  'lime_mudstone': 627
+  'sandstone': 607
+  'siltstone': 616
+  'shale': 620
+  'limestone': 627
+  'dolomite': 642
+  'conglomerate': 602
+  'dolomite-mudstone': 642
+  'mudstone': 620
+  'sandy-dolomite': 645
 
-      sel = el.selectAll 'rect'
-        .data data
-
-      console.log "Setting up lithology column"
-
-      sel.enter()
-        .append 'rect'
-        .attrs
-          class: "lithology"
-          x: -opts.padding
-          width: opts.width+2*opts.padding
-        .classed 'definite', (d)->d.definite_boundary
-        .classed 'covered', (d)->d.covered
-        .attrs (d)->
-          y = opts.scale(d.top)
-          height = opts.scale(d.bottom)-y
-          fill = findSymbol d.pattern
-          {y, height, fill}
+resolveSymbol = (d)->
+  id = symbolIndex[d]
+  try
+    q = require.resolve "geologic-patterns/assets/png-quant/#{id}.png"
+    return 'file://'+q
+  catch
+    console.log d
+    return ''
 
 class LithologyColumn extends Component
-  constructor: ->
+  constructor: (props)->
+    super props
     @state =
       divisions: []
-    super @props
+    db.query storedProcedure('lithology'), [@props.id]
+      .then (data)=>
+        data.reverse()
+        @setState divisions: data
 
   render: ->
-    {style} = @props
+    {style, scale, visible} = @props
+    divisions = if visible then @state.divisions else []
     h 'div.lithology-column', {style},
-      @state.divisions.map (d)->
-        h 'div'
+      divisions.map (d)->
+        classes = '.lithology'
+        classes += '.definite' if d.definite_boundary
+        classes += '.covered' if d.covered
+
+        y = scale(d.top)
+        height = scale(d.bottom)-y
+
+        fn = resolveSymbol d.pattern
+
+        style = {
+          position: 'absolute'
+          top: y
+          height: height+5 # A little overlap
+          'backgroundImage': "url(#{fn})"
+          'backgroundSize': '100px 100px'
+        }
+
+        h "span#{classes}", {style}
+
 
 module.exports = LithologyColumn

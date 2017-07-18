@@ -1,25 +1,8 @@
 {Component, createElement} = require 'react'
 {findDOMNode} = require 'react-dom'
-createGrainsizeScale = require './grainsize'
+GrainsizeScale = require './grainsize'
 h = require 'react-hyperscript'
 d3 = require 'd3'
-
-class GrainsizeScale extends Component
-  render: ->
-    h 'g.grainsize-scale'
-  componentDidMount: ->
-    @componentDidUpdate.call arguments
-
-  componentDidUpdate: =>
-    g = findDOMNode @
-    @x = d3.scaleLinear()
-      .domain [0,14] #blocks
-      .range [0, @props.width]
-
-    createGrainsizeScale g, {
-      height: @props.height
-      range: [118,198]
-    }
 
 class SectionOverlay extends Component
   @defaultProps:
@@ -34,16 +17,21 @@ class SectionOverlay extends Component
     #@yAxis.scale(@props.scale)
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
+    gs = null
+    if @props.zoom > 0.4
+      gs = h GrainsizeScale, {
+        height: @props.innerHeight
+        range: [118*@props.zoom,198*@props.zoom]
+      }
+
+
     h "svg.overlay", style: {
       width: @props.outerWidth
       height: @props.outerHeight
     }, [
       h 'g.backdrop', {transform}, [
         h 'g.y.axis'
-        h GrainsizeScale, {
-          width: @props.innerWidth
-          height: @props.innerHeight
-        }
+        gs
       ]
     ]
 
