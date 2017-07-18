@@ -7,13 +7,23 @@ SectionComponent = require './column'
 require 'dragdealer/src/dragdealer.css'
 d3 = require 'd3'
 
+class SectionColumn extends Component
+  render: ->
+    h 'div.section-column', {}, @props.children
+
 class LocationGroup extends Component
   render: ->
-    console.log @props.children
     h 'div.location-group', [
       h 'h1', @props.name
       h 'div.location-group-body', {}, @props.children
     ]
+
+stackGroups = [
+  'AC'
+  'BD'
+  'FG'
+  'HI'
+]
 
 class SectionPanel extends Component
   # Zoomable panel containing individual sections
@@ -28,13 +38,24 @@ class SectionPanel extends Component
     console.log "Rendering section panel"
     console.log @props
 
+    stackGroup = (d)=>
+      if @props.options.condensedDisplay
+        for g in stackGroups
+          if g.indexOf(d.id) != -1
+            return g
+      return d.id
+
     sections = d3.nest()
       .key (d)->d.location
+      .key stackGroup
       .entries @props.sections
 
     children = sections.map ({key,values})=>
-      items = values.map @createSectionElement
-      h LocationGroup, {key, name: key}, items
+      h LocationGroup, {key, name: key},
+        values.map ({key,values})=>
+          values.sort (a, b)-> b.offset-a.offset
+          console.log key, values
+          h SectionColumn, values.map @createSectionElement
 
     hc = "handle"
     if @props.options.activeMode == 'skeleton'

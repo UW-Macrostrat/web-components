@@ -129,14 +129,28 @@ class SectionComponent extends Component
         h 'div.section-outer', outerElements
       ]
 
+    width = @computeWidth()
+    style = {top: marginTop}
     h VisibilitySensor, p, [
       h "div.section-container",
         className: if @props.skeletal then "skeleton" else null
         style:
-          minWidth: @computeWidth()
-          paddingTop: marginTop
+          minWidth: width
         children
     ]
+
+  componentDidUpdate: ->
+    el = findDOMNode @
+    heightOfTop = 670-@props.height-parseFloat(@props.offset)
+    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
+    offs = 0
+
+    sib = el.previousSibling
+    if sib?
+      {top} = el.parentElement.getBoundingClientRect()
+      {bottom} = sib.getBoundingClientRect()
+      offs = bottom-top
+    el.style.marginTop = "#{desiredPosition-offs}px"
 
   computeWidth: =>
     if @props.showNotes

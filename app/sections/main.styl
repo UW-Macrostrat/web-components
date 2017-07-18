@@ -52,14 +52,24 @@ div.location-group
     font-size: 1.5em
     font-variant: small-caps
     color: #444
+  display: flex
+  flex-direction: column
 
 div.location-group-body
   display: flex
+  flex-grow: 1
   flex-direction: row
   margin: 0 -2em
 
-div.section-container
+div.section-column
   flex: flex-grow
+  position: relative
+  margin: 2em
+  div.section-locator
+    position: relative
+    height: 0
+  div.section-locator-inner
+    position: absolute
 
 div.lithology-column
   border: 2px solid black
