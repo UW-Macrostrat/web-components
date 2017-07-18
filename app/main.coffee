@@ -39,6 +39,7 @@ route = (path, component, props={})->
 
 class App extends React.Component
   constructor: ->
+    super()
     @state = {}
     @state.showNavBar = true
   render: ->

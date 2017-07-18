@@ -6,6 +6,7 @@ h = require 'react-hyperscript'
 {db, storedProcedure} = require '../db'
 {Node, Renderer, Force} = require 'labella'
 {calculateSize} = require 'calculate-size'
+FlexibleNode = require './flexible-node'
 
 processNotesData = (opts)->(data)->
   index = []
@@ -21,18 +22,23 @@ processNotesData = (opts)->(data)->
           hy = parseFloat(note.end_height)
         else
           hy = sh
-        console.log sh, hy
         index[column] = hy
-        note.offsetX = column
+        offsX = column
         break
+    note.offsetX = offsX
 
-  nodes = data.map (note)=>
     txt = note.note or ''
-    estimatedTextHeight = ((txt.length//60)+1)*10
+    estimatedTextHeight = ((txt.length//(opts.width/3.5))+1)*12+5
     note.estimatedTextHeight = estimatedTextHeight
 
-    height = opts.scale note.text_height
-    new Node height, estimatedTextHeight
+  nodes = data.map (note)=>
+    height = opts.scale note.start_height
+    if note.has_span
+      end_height = opts.scale note.end_height
+      harr = [height-4,end_height+4]
+      if harr[0]-harr[1] > 5
+        return new FlexibleNode harr, note.estimatedTextHeight
+    return new Node height, note.estimatedTextHeight
 
   force = new Force
     minPos: 0,
@@ -83,10 +89,6 @@ class Note extends Component
   render: ->
     {scale, style, d} = @props
     extraClasses = ''
-    if d.text_height == 'NaN'
-      extraClasses+='.error'
-
-    pos = scale(d.text_height)
 
     if d.has_span
       height = scale(0)-scale(d.span)
@@ -95,16 +97,14 @@ class Note extends Component
 
     halfHeight = height/2
 
-    if "#{pos}" == 'NaN'
-      pos = 0
-
-    pos = d.node.idealPos
+    pos = d.node.centerPos or d.node.idealPos
 
     offsY = d.node.currentPos
+    offsX = d.offsetX or 0
 
     h "g.note#{extraClasses}", {
       onMouseOver: @positioningInfo
-      transform: "translate(#{(d.offsetX+1)*5} 0)"
+      transform: "translate(#{(offsX+1)*5} 0)"
     }, [
       h NoteSpan, {
         transform: "translate(0 #{pos-halfHeight})"
@@ -116,15 +116,14 @@ class Note extends Component
       createElement 'foreignObject', {
         width: @props.width
         x: @props.columnGap
-        y: -d.estimatedTextHeight/2+offsY
-        height: 0
+        y: offsY
       }, h 'p.note-label',
           xmlns: "http://www.w3.org/1999/xhtml"
           d.note
     ]
 
   positioningInfo: =>
-    console.log @props.d
+    console.log @props.d.id
 
 class NotesColumn extends Component
   @defaultProps:
@@ -132,27 +131,41 @@ class NotesColumn extends Component
     type: 'log-notes'
     columnGap: 60
   constructor: (props)->
+    # We define our own scale because we only
+    # want to compute the force layout once regardless of zooming
+
     super props
     @state =
       notes: []
 
+    {height, sectionLimits, width} = @props
+    scale = d3.scaleLinear()
+      .domain sectionLimits
+      .range [height, 0]
+
     db.query storedProcedure(@props.type), [@props.id]
-      .then processNotesData(@props)
+      .then processNotesData({scale, height, width})
       .then (data)=>
         @setState notes: data
 
   render: ->
-    {scale, width, columnGap} = @props
+    {width, columnGap} = @props
+    {scale, notes} = @state
+
+    {height, sectionLimits} = @props
+    scale = d3.scaleLinear()
+      .domain sectionLimits
+      .range [height, 0]
 
     renderer = new Renderer
       direction: 'right'
-      layerGap: @props.columnGap
+      layerGap: columnGap
       nodeHeight: 5
 
-    nodes = @state.notes.map (d)->d.node
+    nodes = notes.map (d)->d.node
 
-    children = @state.notes.map (d)->
-      h Note, {scale, d, width, link: renderer.generatePath(d.node), columnGap}
+    children = notes.map (d)->
+      h Note, {scale, d, width, link: renderer.generatePath(d.node), key: d.id, columnGap}
 
     h 'svg.section-log', {width: width, xmlns: "http://www.w3.org/2000/svg"}, [
       h 'defs', [

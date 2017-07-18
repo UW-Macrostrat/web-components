@@ -18,7 +18,7 @@ class SectionComponent extends Component
     innerWidth: 280
     height: 100 # Section height in meters
     lithologyWidth: 40
-    logWidth: 300
+    logWidth: 350
     pixelsPerMeter: 20
     containerWidth: 1000
     skeletal: false
@@ -127,9 +127,12 @@ class SectionComponent extends Component
     ]
 
     if @props.showNotes and @props.zoom > 0.5 and @state.visible
+      # Notes column manages zoom on its own
       outerElements.push(
         h NotesColumn, {
-          id,scale
+          id,
+          sectionLimits: @props.range
+          height: innerHeight/zoom
           width: @props.logWidth
           zoom,
           marginTop: @props.padding.top
