@@ -67,7 +67,7 @@ class Note extends Component
       createElement 'foreignObject', {
         width: @props.width
         x: 30
-        y: halfHeight-d.estimatedTextHeight/2
+        y: -d.estimatedTextHeight/2
         height: 0
       }, h 'p.note-label',
           xmlns: "http://www.w3.org/1999/xhtml"
@@ -125,6 +125,7 @@ class NotesColumn extends Component
           d.node = newNodes[i]
 
         console.log "Completed force layout"
+        data.reverse()
 
         @setState notes: data
 
@@ -134,15 +135,12 @@ class NotesColumn extends Component
     children = @state.notes.map (d)->
       h Note, {scale, d, width}
 
-    children.push(h 'defs', [
+    h 'svg.section-log', {width: width, xmlns: "http://www.w3.org/2000/svg"}, [
+      h 'defs', [
         arrowMarker 'arrow_start', 270
         arrowMarker 'arrow_end', 90
-      ])
-
-
-    h 'svg.section-log', {
-      width: "#{width}px"
-      xmlns: "http://www.w3.org/2000/svg"
-    }, children
+      ]
+      h 'g', {transform: "translate(0 #{@props.marginTop})"}, children
+    ]
 
 module.exports = NotesColumn

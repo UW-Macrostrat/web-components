@@ -128,8 +128,12 @@ class SectionComponent extends Component
 
     if @props.showNotes and @props.zoom > 0.5 and @state.visible
       outerElements.push(
-        h NotesColumn, {id,scale, width: @props.logWidth, zoom}
-      )
+        h NotesColumn, {
+          id,scale
+          width: @props.logWidth
+          zoom,
+          marginTop: @props.padding.top
+        })
 
     children = null
     children= [
