@@ -4,6 +4,8 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 {db, storedProcedure} = require '../db'
+{Node, Renderer, Force} = require 'labella'
+{calculateSize} = require 'calculate-size'
 
 arrowMarker = (id, orient, sz=2.5)->
   h 'marker', {
@@ -24,17 +26,16 @@ arrowMarker = (id, orient, sz=2.5)->
 
 class NoteSpan extends Component
   render: ->
-    {style, padding} = @props
-    h 'svg.note-span', {style}, [
-      h 'defs', [
-        arrowMarker 'arrow_start', 270
-        arrowMarker 'arrow_end', 90
-      ]
-      h 'line', {
-       x1: 2, x2: 2, y1: 2+padding,
-       y2: style.height-2-padding*2
+    {height, transform} = @props
+    if height > 0
+      el = h 'line', {
+       x1: 0, x2: 0, y1: 2.5,
+       y2: height-2.5
       }
-    ]
+    else
+      el = h 'circle', {r: 2}
+
+    h 'g', transform: transform, el
 
 class Note extends Component
   render: ->
@@ -45,31 +46,32 @@ class Note extends Component
 
     pos = scale(d.text_height)
 
-    height = scale(0)-scale(d.span)
+    if d.has_span
+      height = scale(0)-scale(d.span)
+    else
+      height = 0
 
-    bias = height/2
+    halfHeight = height/2
 
-    compress = d.offsetX*5
-    padding = 0
-    spanStyle =
-      top: -bias-padding
-      height: (height or 0)+padding*2
-      width: 40-d.offsetX*5
-      left: -40+d.offsetX*5
-    #spanStyle = {}
+    if "#{pos}" == 'NaN'
+      pos = 0
 
-    style =
-      top: pos+bias
-      width: @props.width
-
-
-    h "div.note#{extraClasses}", {
+    h "g.note#{extraClasses}", {
+      transform: "translate(0 #{pos})"
       onMouseOver: @positioningInfo
-      style }, [
-      h 'div.note-span-container', [
-        h NoteSpan, {padding, style: spanStyle}
-      ]
-      h 'p', d.note
+    }, [
+      h NoteSpan, {
+        transform: "translate(#{(d.offsetX+1)*5} #{-halfHeight})"
+        height
+      }
+      createElement 'foreignObject', {
+        width: @props.width
+        x: 30
+        y: halfHeight-d.estimatedTextHeight/2
+        height: 0
+      }, h 'p.note-label',
+          xmlns: "http://www.w3.org/1999/xhtml"
+          d.note
     ]
 
   positioningInfo: =>
@@ -87,24 +89,60 @@ class NotesColumn extends Component
     db.query storedProcedure(@props.type), [@props.id]
       .then (data)=>
         index = []
-        offsX = 0
+        nodes = []
+
         for note in data
+          offsX = 0
           for column in [0..index.length+1]
-            index[column] ?= note.start_height
-            if index[column] <= note.start_height
-              if note.has_span
-                index[column] = note.end_height
-              offsX = column
+            sh = parseFloat(note.start_height)
+            index[column] ?= sh
+            if index[column] <= sh
+              hy = parseFloat(note.end_height) or sh
+              console.log hy
+              index[column] = hy
+              note.offsetX = column
               break
-          note.offsetX = offsX
           console.log index
+          console.log note.offsetX
+
+        nodes = data.map (note)=>
+          txt = note.note or ''
+          estimatedTextHeight = ((txt.length//60)+1)*9
+          note.estimatedTextHeight = estimatedTextHeight
+
+          height = @props.scale note.text_height
+          new Node height, estimatedTextHeight
+
+        force = new Force
+          minPos: 0,
+          maxPos: @props.height
+
+        force.nodes(nodes).compute()
+
+        newNodes = force.nodes()
+
+        data.forEach (d,i)->
+          d.node = newNodes[i]
+
+        console.log "Completed force layout"
 
         @setState notes: data
 
   render: ->
     {scale, width} = @props
 
-    h 'div.section-log', {}, @state.notes.map (d)->
+    children = @state.notes.map (d)->
       h Note, {scale, d, width}
+
+    children.push(h 'defs', [
+        arrowMarker 'arrow_start', 270
+        arrowMarker 'arrow_end', 90
+      ])
+
+
+    h 'svg.section-log', {
+      width: "#{width}px"
+      xmlns: "http://www.w3.org/2000/svg"
+    }, children
 
 module.exports = NotesColumn
