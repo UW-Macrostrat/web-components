@@ -35,6 +35,7 @@
     "mbtiles": "^0.9.0",
     "pdf-printer": "file:../../deps/node/pdf-printer",
     "pg": "^5.1.0",
+    "prop-types": "^15.5.10",
     "react": "^15.4.2",
     "react-addons-css-transition-group": "^15.6.0",
     "react-dom": "^15.4.2",

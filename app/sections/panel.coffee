@@ -6,6 +6,7 @@ SectionComponent = require './column'
 {Dragdealer} = require 'dragdealer'
 require 'dragdealer/src/dragdealer.css'
 d3 = require 'd3'
+_ = require 'underscore'
 
 class SectionColumn extends Component
   render: ->
@@ -73,22 +74,50 @@ class SectionPanel extends Component
       hc += " zoomed-way-out"
 
     st = {zoom: @props.options.zoom}
-    h "div.dragdealer#section-page", [
+
+    {dragdealer} = @props.options
+    className = if dragdealer then "dragdealer" else ""
+
+    h "div#section-page", {className, key: className}, [
       # The actual container in which the sections sit
-      h "div#section-page-inner", {className: hc}, children
+      h "div#section-page-inner", {
+        className: hc}, children
     ]
 
   componentDidMount: ->
     console.log "Section page mounted"
     _el = findDOMNode @
+    el = _el.childNodes[0]
     {x,y} = @props.options.dragPosition
-    new Dragdealer _el, {
-      x,y
-      loose: true
-      vertical: true, requestAnimationFrame: true
-      callback: @setPosition}
+    if not @props.options.dragdealer
+      fn = =>
+        ypos = _el.scrollTop/el.clientHeight
+        xpos = _el.scrollLeft/el.clientWidth
+        console.log xpos,ypos
+        @setPosition xpos, ypos
+
+      d3.select(_el).on "scroll", _.debounce(fn, 500)
+      _el.scrollTop = y*el.clientHeight
+      _el.scrollLeft = x*el.clientWidth
+    else
+      @dragdealer = new Dragdealer _el, {
+        x,y
+        loose: true
+        vertical: true, requestAnimationFrame: true
+        callback: @setPosition}
+      @toggleDragdealer()
+
+  componentDidUpdate: (prevProps)->
+    if prevProps.options.dragdealer != @props.options.dragdealer
+      @toggleDragdealer()
 
   setPosition: (x,y)=>
     @props.updatePosition {x,y}
+
+  toggleDragdealer: =>
+    if @props.options.dragdealer and @dragdealer?
+      @dragdealer.enable()
+    else
+      @dragdealer.disable()
 
 module.exports = SectionPanel

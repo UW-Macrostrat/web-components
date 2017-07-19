@@ -13,6 +13,7 @@ LocalStorage = require './storage'
 {getSectionData} = require './section-data'
 Measure = require('react-measure').default
 SectionPanel = require './panel'
+PropTypes = require 'prop-types'
 
 class SectionPage extends Component
   constructor: (props)->
@@ -23,12 +24,14 @@ class SectionPage extends Component
       options:
         zoom: 1
         settingsPanelIsActive: false
+        inEditMode: false
         modes: [
           {value: 'normal', label: 'Normal'}
           {value: 'skeleton', label: 'Skeleton'}
         ]
         activeMode: 'normal'
         showNotes: true
+        dragdealer: false
         condensedDisplay: true
         update: @updateOptions
         sectionIDs: []
@@ -38,6 +41,12 @@ class SectionPage extends Component
     v = @optionsStorage.get()
     return unless v?
     @state = update @state, options: {$merge: v}
+
+  getChildContext: ->
+    inEditMode: @state.options.inEditMode
+
+  @childContextTypes:
+    inEditMode: PropTypes.bool
 
   render: ->
 

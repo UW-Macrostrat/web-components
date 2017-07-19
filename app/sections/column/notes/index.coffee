@@ -3,10 +3,12 @@ d3 = require 'd3'
 require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
-{db, storedProcedure} = require '../db'
+{db, storedProcedure} = require '../../db'
 {Node, Renderer, Force} = require 'labella'
 {calculateSize} = require 'calculate-size'
 FlexibleNode = require './flexible-node'
+PropTypes = require 'prop-types'
+{EditableText} = require '@blueprintjs/core'
 
 processNotesData = (opts)->(data)->
   index = []
@@ -102,28 +104,45 @@ class Note extends Component
     offsY = d.node.currentPos
     offsX = d.offsetX or 0
 
+    x = (offsX+1)*5
     h "g.note#{extraClasses}", {
       onMouseOver: @positioningInfo
-      transform: "translate(#{(offsX+1)*5} 0)"
     }, [
       h NoteSpan, {
-        transform: "translate(0 #{pos-halfHeight})"
+        transform: "translate(#{x} #{pos-halfHeight})"
         height
       }
       h 'path.link', {
         d: @props.link
+        transform: "translate(#{x} 0)"
       }
       createElement 'foreignObject', {
         width: @props.width-@props.columnGap-offsX-10
-        x: @props.columnGap
+        x: @props.columnGap+x
         y: offsY-d.estimatedTextHeight/2
-      }, h 'p.note-label',
-          xmlns: "http://www.w3.org/1999/xhtml"
-          d.note
+        height: 100
+      }, @createBody()
     ]
+
+  createBody: =>
+    if @context.inEditMode
+      v = h EditableText, {
+        multiline: true
+        className: 'note-label'
+        defaultValue: @props.d.note
+      }
+    else
+      v = h 'p.note-label',
+          xmlns: "http://www.w3.org/1999/xhtml"
+          @props.d.note
+    h 'div', {}, v
+
 
   positioningInfo: =>
     console.log @props.d.id
+
+  @contextTypes:
+    inEditMode: PropTypes.bool
 
 class NotesColumn extends Component
   @defaultProps:

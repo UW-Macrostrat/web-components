@@ -37,14 +37,24 @@ class SettingsPanel extends Component
           h 'h2', 'Settings'
           h ModeControl, @props
           h Switch, {
-            checked: @props.showNotes
-            label: "Show Notes"
-            onChange: @switchHandler('showNotes')
-          }
-          h Switch, {
             checked: @props.condensedDisplay
             label: "Condensed display"
             onChange: @switchHandler('condensedDisplay')
+          }
+          h Switch, {
+            checked: @props.showNotes
+            label: "Show notes"
+            onChange: @switchHandler('showNotes')
+          }
+          h Switch, {
+            checked: @props.inEditMode
+            label: "Allow editing"
+            onChange: @switchHandler('inEditMode')
+          }
+          h Switch, {
+            checked: @props.dragdealer
+            label: "Dragdealer"
+            onChange: @switchHandler('dragdealer')
           }
           h 'div#view-params', [
             h 'h5', 'View info'
@@ -57,9 +67,6 @@ class SettingsPanel extends Component
               ]
             ]
           ]
-          #h 'h5', 'Jump To'
-          #h 'div#jump-list.pt-button-group.pt-minimal.pt-vertical', @props.sectionIDs.map (d)->
-          #  h 'a.pt-button', {role: 'button'}, "Section #{d}"
         ]
       ]
 

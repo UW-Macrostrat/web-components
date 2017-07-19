@@ -131,7 +131,7 @@ class FlexibleNode{
   }
 
   clone(){
-    const node = new Node(this.idealPos, this.width, this.data);
+    const node = new FlexibleNode(this.allowedRange, this.width, this.data);
     node.currentPos = this.currentPos;
     node.layerIndex = this.layerIndex;
     return node;
