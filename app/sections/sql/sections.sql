@@ -2,7 +2,10 @@ SELECT
   s.id AS section,
   s.start,
   s.end,
-  coalesce(s.offset,0) AS offset,
+  coalesce(
+    coalesce(s.offset_compact,s.offset),
+    0
+  ) AS offset,
   s.location
 FROM section.section s
 JOIN section.locality l ON s.location = l.name

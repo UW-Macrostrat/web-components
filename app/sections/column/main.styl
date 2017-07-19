@@ -39,14 +39,29 @@ svg.section-log
     p.note-label
       padding-left: 0.3em
       border-left: 1px solid black
-      margin-top: -8px
+      //margin-top: -8px
       //transform: translateY(-50%)
       font-style: italic
       font-size: 10px
     path.link
       stroke: #000
-      stroke-width: 1.5
+      stroke-width: 1
       fill: none
+
+.grainsize.axis
+  text
+    font-family: 'Helvetica Neue'
+    text-anchor: middle
+    font-size: 6
+    font-style: italic
+    &.top
+      transform: translate(0,-2px)
+    &.bottom
+      transform: translate(0,10px)
+  line
+    stroke: lighten(dodgerblue, 0.5)
+    stroke-width: 1px
+    stroke-dasharray: 2,2
 
 .note.error
   p

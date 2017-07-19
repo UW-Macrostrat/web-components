@@ -114,9 +114,9 @@ class Note extends Component
         d: @props.link
       }
       createElement 'foreignObject', {
-        width: @props.width-@props.columnGap-offsX
+        width: @props.width-@props.columnGap-offsX-10
         x: @props.columnGap
-        y: offsY
+        y: offsY-d.estimatedTextHeight/2
       }, h 'p.note-label',
           xmlns: "http://www.w3.org/1999/xhtml"
           d.note
@@ -165,8 +165,8 @@ class NotesColumn extends Component
 
     nodes = notes.map (d)->d.node
 
-    style = {zoom, marginLeft: -50}
-    width += 50
+    style = {zoom, marginLeft: -80}
+    width += 80
 
     children = []
     if visible

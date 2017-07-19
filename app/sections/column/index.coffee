@@ -37,6 +37,8 @@ class SectionComponent extends Component
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
 
   render: ->
+    {id, zoom} = @props
+ 
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
     padding = {}
@@ -47,7 +49,10 @@ class SectionComponent extends Component
 
     {left, top, right, bottom} = padding
     # 8.1522
-    scaleFactor = 8.1522 #@state.naturalHeight/innerHeight
+    # 8.138565
+    # 8.1565
+    scaleFactor = 8.157
+    extraSpace = 2.5*zoom #@state.naturalHeight/innerHeight
 
     @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight+(top+bottom)
@@ -57,11 +62,21 @@ class SectionComponent extends Component
     heightOfTop = 700-@props.height-parseFloat(@props.offset)
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
+    [bottom,top] = @props.range
+
+    @log "Section #{id}"
+    @log "Images are #{@state.naturalHeight} pixels high"
+    @log "Height of section: #{top-bottom} m, #{innerHeight} px"
+    @log "Natural scale of section images: #{@state.naturalHeight/(top-bottom)} px/m"
+    @log "Scale height: #{@state.scale(1)-@state.scale(0)} px/m"
+    @log "Forced scale factor: #{scaleFactor*@props.pixelsPerMeter}"
+    fn = (v, d)-> v+" #{d.width} px,"
+    @log @props.imageFiles.reduce(fn, "Width of images: ")
+
     p =
       onChange: @onVisibilityChange
       partialVisibility: true
 
-    id = @props.id
     # Set text of header for appropriate zoom level
     txt = if @props.zoom > 0.5 then "Section " else ""
     txt += id
@@ -114,8 +129,10 @@ class SectionComponent extends Component
         padding
         lithologyWidth: @props.lithologyWidth
         imageFiles: @props.imageFiles
-        scaleFactor
+        scaleFactor: scaleFactor
+        extraSpace: extraSpace
         skeletal
+        zoom
       }
       innerElements.push img
 
@@ -124,27 +141,34 @@ class SectionComponent extends Component
       height: outerHeight
     }
 
-    outerElements = [
-      h 'div.section', {style}, innerElements
-    ]
-
-    if @props.showNotes and @props.zoom > 0.5
-      # Notes column manages zoom on its own
-      outerElements.push(
-        h NotesColumn, {
-          id,
+    notesEl = null
+    if @props.showNotes
+      if @props.zoom > 0.5 and visible
+        # Notes column manages zoom on its own
+        notesEl = h NotesColumn, {
+          id
           visible
           sectionLimits: @props.range
-          height: innerHeight/zoom
-          width: @props.logWidth
+          height: innerHeight*zoom
+          width: @props.logWidth*zoom
           zoom,
           marginTop: @props.padding.top
-        })
+        }
+      else
+        notesEl = h 'div.notes-placeholder',
+          style: {
+            height: innerHeight*zoom
+            width: @props.logWidth*zoom
+            marginTop: @props.padding.top
+          }
 
     children = null
     children= [
       h 'div.section-header', [h "h2", txt]
-      h 'div.section-outer', outerElements
+      h 'div.section-outer', [
+        h 'div.section', {style}, innerElements
+        notesEl
+      ]
     ]
 
     width = outerWidth
@@ -156,6 +180,8 @@ class SectionComponent extends Component
           minWidth: width
         children
     ]
+
+  log: ->
 
   componentDidUpdate: ->
     # This leads to some problems unsurprisingly

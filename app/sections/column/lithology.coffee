@@ -52,7 +52,7 @@ class LithologyColumn extends Component
         style = {
           position: 'absolute'
           top: y
-          height: height # A little overlap
+          height: height + 2# A little overlap
           'backgroundImage': "url(#{fn})"
           'backgroundSize': '100px 100px'
         }

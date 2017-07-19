@@ -10,7 +10,7 @@ ipc = require('electron').ipcRenderer
 SettingsPanel = require './settings'
 update = require 'immutability-helper'
 LocalStorage = require './storage'
-{getSectionData} = require 'stratigraphic-column/src/util'
+{getSectionData} = require './section-data'
 Measure = require('react-measure').default
 SectionPanel = require './panel'
 

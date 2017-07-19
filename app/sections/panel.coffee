@@ -62,12 +62,15 @@ class SectionPanel extends Component
       h LocationGroup, {key, name: key},
         values.map ({key,values})=>
           values.sort (a, b)-> b.offset-a.offset
-          console.log key, values
           h SectionColumn, values.map @createSectionElement
 
     hc = "handle"
     if @props.options.activeMode == 'skeleton'
       hc += " skeletal"
+    if @props.options.zoom < 0.5
+      hc += " zoomed-out"
+    if @props.options.zoom < 0.1
+      hc += " zoomed-way-out"
 
     st = {zoom: @props.options.zoom}
     h "div.dragdealer#section-page", [

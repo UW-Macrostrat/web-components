@@ -17,11 +17,17 @@ class SectionOverlay extends Component
     #@yAxis.scale(@props.scale)
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
+    {lithologyWidth, zoom} = @props
+
+    range = [128,208].map (d)->d-40
+      .map (d)->d*zoom
+      .map (d)->d+lithologyWidth
+
     gs = null
     if @props.zoom > 0.4
       gs = h GrainsizeScale, {
         height: @props.innerHeight
-        range: [118*@props.zoom,198*@props.zoom]
+        range: range
       }
 
 
