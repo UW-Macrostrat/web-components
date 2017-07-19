@@ -24,7 +24,7 @@ class SectionComponent extends Component
     skeletal: false
     showNotes: true
     padding:
-      left: 60
+      left: 30
       top: 30
       right: 30
       bottom: 30
@@ -37,24 +37,25 @@ class SectionComponent extends Component
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
 
   render: ->
-    {left, top, right, bottom} = @props.padding
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
+    padding = {}
+    for k,v of @props.padding
+      padding[k] = @props.padding[k]
+      unless k == 'left'
+        padding[k] *= @props.zoom
+
+    {left, top, right, bottom} = padding
     # 8.1522
-    scaleFactor = @state.naturalHeight/innerHeight
+    scaleFactor = 8.1522 #@state.naturalHeight/innerHeight
 
     @state.scale.range [innerHeight, 0]
-    outerHeight = innerHeight+(top+bottom)*@props.zoom
+    outerHeight = innerHeight+(top+bottom)
     innerWidth = @props.innerWidth*@props.zoom
-    outerWidth = innerWidth+left+right
+    outerWidth = innerWidth+(left+right)
 
     heightOfTop = 700-@props.height-parseFloat(@props.offset)
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
-
-    style = {
-      width: outerWidth
-      height: outerHeight
-    }
 
     p =
       onChange: @onVisibilityChange
@@ -67,10 +68,6 @@ class SectionComponent extends Component
 
     {scale,visible} = @state
     zoom = @props.zoom
-
-    padding = {}
-    for k,v of @props.padding
-      padding[k] = @props.padding[k]*@props.zoom
 
     {skeletal} = @props
 
@@ -122,15 +119,21 @@ class SectionComponent extends Component
       }
       innerElements.push img
 
+    style = {
+      width: outerWidth
+      height: outerHeight
+    }
+
     outerElements = [
       h 'div.section', {style}, innerElements
     ]
 
-    if @props.showNotes and @props.zoom > 0.5 and @state.visible
+    if @props.showNotes and @props.zoom > 0.5
       # Notes column manages zoom on its own
       outerElements.push(
         h NotesColumn, {
           id,
+          visible
           sectionLimits: @props.range
           height: innerHeight/zoom
           width: @props.logWidth
@@ -144,7 +147,7 @@ class SectionComponent extends Component
       h 'div.section-outer', outerElements
     ]
 
-    width = @computeWidth()
+    width = outerWidth
     style = {top: marginTop}
     h VisibilitySensor, p, [
       h "div.section-container",

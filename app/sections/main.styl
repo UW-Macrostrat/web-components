@@ -9,6 +9,7 @@ li a
 
 body
   background-color: white
+  user-select: none
 *
   box-sizing: border-box
   &:focus
@@ -132,14 +133,9 @@ svg path.domain
     text-anchor: middle
     font-size: 10
   line
-    stroke: #aaa
-
-  &.source
-    line
-      stroke: lighten(orange,5%)
-    text
-      font-style: italic
-      font-size: 8
+    stroke: lighten(dodgerblue, 0.5)
+    stroke-width: 1px
+    stroke-dasharray: 2,2
 
 g.dominant-lithology
   .neatline

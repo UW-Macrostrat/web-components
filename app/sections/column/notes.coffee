@@ -114,7 +114,7 @@ class Note extends Component
         d: @props.link
       }
       createElement 'foreignObject', {
-        width: @props.width
+        width: @props.width-@props.columnGap-offsX
         x: @props.columnGap
         y: offsY
       }, h 'p.note-label',
@@ -130,6 +130,7 @@ class NotesColumn extends Component
     width: 100
     type: 'log-notes'
     columnGap: 60
+    visible: false
   constructor: (props)->
     # We define our own scale because we only
     # want to compute the force layout once regardless of zooming
@@ -138,7 +139,7 @@ class NotesColumn extends Component
     @state =
       notes: []
 
-    {height, sectionLimits, width} = @props
+    {height, sectionLimits, width, visible} = @props
     scale = d3.scaleLinear()
       .domain sectionLimits
       .range [height, 0]
@@ -149,7 +150,7 @@ class NotesColumn extends Component
         @setState notes: data
 
   render: ->
-    {width, columnGap} = @props
+    {width, columnGap, zoom, visible} = @props
     {scale, notes} = @state
 
     {height, sectionLimits} = @props
@@ -164,10 +165,19 @@ class NotesColumn extends Component
 
     nodes = notes.map (d)->d.node
 
-    children = notes.map (d)->
-      h Note, {scale, d, width, link: renderer.generatePath(d.node), key: d.id, columnGap}
+    style = {zoom, marginLeft: -50}
+    width += 50
 
-    h 'svg.section-log', {width: width, xmlns: "http://www.w3.org/2000/svg"}, [
+    children = []
+    if visible
+      children = notes.map (d)->
+        h Note, {
+          scale, d, width,
+          link: renderer.generatePath(d.node),
+          key: d.id, columnGap}
+
+
+    h 'svg.section-log', {width, xmlns: "http://www.w3.org/2000/svg", style}, [
       h 'defs', [
         arrowMarker 'arrow_start', 270
         arrowMarker 'arrow_end', 90
