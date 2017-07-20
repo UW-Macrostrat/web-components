@@ -1,4 +1,5 @@
 SELECT
+  id,
   start_height,
   end_height,
   end_height-start_height span,

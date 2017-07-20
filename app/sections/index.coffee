@@ -12,7 +12,7 @@ update = require 'immutability-helper'
 LocalStorage = require './storage'
 {getSectionData} = require './section-data'
 Measure = require('react-measure').default
-SectionPanel = require './panel'
+{ZoomablePanelContainer} = require './panel'
 PropTypes = require 'prop-types'
 
 class SectionPage extends Component
@@ -64,7 +64,7 @@ class SectionPage extends Component
 
     panel = h Measure, obj, (measureRef)=>
       {sections, dimensions, options} = @state
-      h SectionPanel, {
+      h ZoomablePanelContainer, {
         sections, dimensions, options
         updatePosition: (pos)=>
           console.log "Updating drag position"

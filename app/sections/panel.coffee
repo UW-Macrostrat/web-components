@@ -34,18 +34,27 @@ stackGroups = [
 
 class SectionPanel extends Component
   # Zoomable panel containing individual sections
+  @defaultProps:
+    activeMode: 'normal'
+    zoom: 1
+    showNotes: true
+    condensedDisplay: true
+    sections: []
+  constructor: (props)->
+    super props
+
   createSectionElement: (row)=>
     row.key = row.id # Because react
-    row.zoom = @props.options.zoom
-    row.skeletal = @props.options.activeMode == 'skeleton'
-    row.showNotes = @props.options.showNotes
+    row.zoom = @props.zoom
+    row.skeletal = @props.activeMode == 'skeleton'
+    row.showNotes = @props.showNotes
     h SectionComponent, row
 
   render: ->
     console.log "Rendering section panel"
 
     stackGroup = (d)=>
-      if @props.options.condensedDisplay
+      if @props.condensedDisplay
         for g in stackGroups
           if g.indexOf(d.id) != -1
             return g
@@ -66,22 +75,27 @@ class SectionPanel extends Component
           h SectionColumn, values.map @createSectionElement
 
     hc = "handle"
-    if @props.options.activeMode == 'skeleton'
+    if @props.activeMode == 'skeleton'
       hc += " skeletal"
-    if @props.options.zoom < 0.5
+    if @props.zoom < 0.5
       hc += " zoomed-out"
-    if @props.options.zoom < 0.1
+    if @props.zoom < 0.1
       hc += " zoomed-way-out"
 
-    st = {zoom: @props.options.zoom}
+    h "div#section-page-inner", {className: hc}, children
 
-    {dragdealer} = @props.options
+class ZoomablePanelContainer extends Component
+  # Zoomable panel container
+
+  render: ->
+    {options, sections} = @props
+    {dragdealer, rest...} = options
     className = if dragdealer then "dragdealer" else ""
 
     h "div#section-page", {className, key: className}, [
       # The actual container in which the sections sit
-      h "div#section-page-inner", {
-        className: hc}, children
+      # Uncritically forward all props for now...
+      h SectionPanel, { rest..., sections }
     ]
 
   componentDidMount: ->
@@ -120,4 +134,4 @@ class SectionPanel extends Component
     else
       @dragdealer.disable()
 
-module.exports = SectionPanel
+module.exports = {SectionPanel,ZoomablePanelContainer}
