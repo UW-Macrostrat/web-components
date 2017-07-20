@@ -1,6 +1,11 @@
+
 div.lithology-column
+  border: 2px solid black
+  position: absolute
   overflow: hidden
   span.lithology
+    &:first-child
+      border-top: none
     display: block
     position: absolute
     left: -5
@@ -18,12 +23,21 @@ div.section-container
     h2, p
       color: blue
 
+.y.axis
+  line
+    stroke: black
+    stroke-width: 2px
+  path
+    stroke: black
+    stroke-width: 0
+// Main section
+
 div.section-outer
   display: flex
   flex-direction: row
   width: 100%
   svg.overlay
-    z-index: -10
+    z-index: 10
 
 svg.section-log
   flex-grow: 1
@@ -45,8 +59,8 @@ svg.section-log
       font-size: 10px
       margin: 0
       z-index: 100
-    div.note-label
-      transform: translateY(30px)
+    //div.note-label
+    // transform: translateY(30px)
     path.link
       stroke: #000
       stroke-width: 1
@@ -56,7 +70,7 @@ svg.section-log
   text
     font-family: 'Helvetica Neue'
     text-anchor: middle
-    font-size: 6
+    font-size: 10
     font-style: italic
     &.top
       transform: translate(0,-2px)

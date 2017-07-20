@@ -31,7 +31,7 @@ class SectionOverlay extends Component
       }
 
 
-    h "svg.overlay", style: {
+    h "svg.overlay", {
       width: @props.outerWidth
       height: @props.outerHeight
     }, [

@@ -15,6 +15,7 @@ class SectionComponent extends Component
   @defaultProps: {
     zoom: 1
     visible: false
+    trackVisibility: true
     innerWidth: 280
     height: 100 # Section height in meters
     lithologyWidth: 40
@@ -32,7 +33,7 @@ class SectionComponent extends Component
   constructor: (props)->
     super props
     @state =
-      visible: false
+      visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
 
@@ -72,10 +73,6 @@ class SectionComponent extends Component
     @log "Forced scale factor: #{scaleFactor*@props.pixelsPerMeter}"
     fn = (v, d)-> v+" #{d.width} px,"
     @log @props.imageFiles.reduce(fn, "Width of images: ")
-
-    p =
-      onChange: @onVisibilityChange
-      partialVisibility: true
 
     # Set text of header for appropriate zoom level
     txt = if @props.zoom > 0.5 then "Section " else ""
@@ -173,13 +170,19 @@ class SectionComponent extends Component
 
     width = outerWidth
     style = {top: marginTop}
-    h VisibilitySensor, p, [
-      h "div.section-container",
-        className: if @props.skeletal then "skeleton" else null
-        style:
-          minWidth: width
-        children
-    ]
+    mainElement = h "div.section-container",
+      className: if @props.skeletal then "skeleton" else null
+      style:
+        minWidth: width
+      children
+
+    return mainElement unless @props.trackVisibility
+
+    p =
+      onChange: @onVisibilityChange
+      partialVisibility: true
+
+    h VisibilitySensor, p, [mainElement]
 
   log: ->
 

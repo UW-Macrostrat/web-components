@@ -39,7 +39,7 @@ input[type=checkbox]:focus
     cursor: move
 
 #section-page-inner
-  display: flex
+  display: inline-flex
   flex-direction: row
   background-color: white
   min-width: 100%
@@ -72,10 +72,6 @@ div.section-column
     height: 0
   div.section-locator-inner
     position: absolute
-
-div.lithology-column
-  border: 2px solid black
-  position: absolute
 
 ul.controls
   position: absolute
@@ -123,21 +119,6 @@ text
   font-style: italic
   &.width-ratio
     font-size: 8
-
-svg path.domain
-  stroke-width: 0
-  fill: none
-
-g.dominant-lithology
-  .neatline
-    stroke: black
-    stroke-width: 2px
-    fill: transparent
-
-.y.axis path, line
-  stroke: grey
-  stroke-width: 2px
-// Main section
 
 div.images
   position: relative
