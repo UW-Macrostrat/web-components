@@ -39,7 +39,7 @@ class SectionComponent extends Component
 
   render: ->
     {id, zoom} = @props
- 
+
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
     padding = {}
@@ -60,7 +60,7 @@ class SectionComponent extends Component
     innerWidth = @props.innerWidth*@props.zoom
     outerWidth = innerWidth+(left+right)
 
-    heightOfTop = 700-@props.height-parseFloat(@props.offset)
+    heightOfTop = 670-@props.height-parseFloat(@props.offset)
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     [bottom,top] = @props.range
@@ -186,11 +186,20 @@ class SectionComponent extends Component
 
   log: ->
 
+  componentDidMount: ->
+    @componentDidUpdate.apply @, arguments
+
   componentDidUpdate: ->
     # This leads to some problems unsurprisingly
     el = findDOMNode @
-    heightOfTop = 700-@props.height-parseFloat(@props.offset)
-    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
+
+    {scale} = @state
+    {height, zoom, offset} = @props
+    pixelsPerMeter = Math.abs(scale(1)-scale(0))
+
+    heightOfTop = 670-height-offset
+    console.log "Section #{@props.id}: offset #{heightOfTop} m"
+    desiredPosition = heightOfTop*pixelsPerMeter*zoom
     offs = 0
 
     sib = el.previousSibling
