@@ -25,7 +25,7 @@ class SectionComponent extends Component
     skeletal: false
     showNotes: true
     padding:
-      left: 30
+      left: 100
       top: 30
       right: 30
       bottom: 30
@@ -136,6 +136,7 @@ class SectionComponent extends Component
     style = {
       width: outerWidth
       height: outerHeight
+      marginLeft: -100
     }
 
     notesEl = null

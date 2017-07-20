@@ -9,7 +9,8 @@ SELECT
   coalesce(edited_note, note) note
 FROM section.section_note
 WHERE section = $1
-  AND type = 'log'
+  --AND type = 'log'
+  AND coalesce(display_in_log, true)
   AND (
     note IS NOT null OR
     edited_note IS NOT null)

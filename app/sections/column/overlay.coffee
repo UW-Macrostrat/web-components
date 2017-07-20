@@ -1,6 +1,7 @@
 {Component, createElement} = require 'react'
 {findDOMNode} = require 'react-dom'
 GrainsizeScale = require './grainsize'
+Samples = require './samples'
 h = require 'react-hyperscript'
 d3 = require 'd3'
 
@@ -17,19 +18,22 @@ class SectionOverlay extends Component
     #@yAxis.scale(@props.scale)
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
-    {lithologyWidth, zoom} = @props
+    {lithologyWidth, zoom, id} = @props
 
     range = [128,208].map (d)->d-40
       .map (d)->d*zoom
       .map (d)->d+lithologyWidth
 
     gs = null
+    samples = null
     if @props.zoom > 0.4
       gs = h GrainsizeScale, {
         height: @props.innerHeight
         range: range
       }
 
+      {scale, zoom} = @props
+      samples = h Samples, {scale, zoom, id}
 
     h "svg.overlay", {
       width: @props.outerWidth
@@ -38,6 +42,7 @@ class SectionOverlay extends Component
       h 'g.backdrop', {transform}, [
         h 'g.y.axis'
         gs
+        samples
       ]
     ]
 

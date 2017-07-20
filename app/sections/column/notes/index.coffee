@@ -30,7 +30,7 @@ processNotesData = (opts)->(data)->
     note.offsetX = offsX
 
     txt = note.note or ''
-    estimatedTextHeight = ((txt.length//(opts.width/3.5))+1)*12+5
+    estimatedTextHeight = ((txt.length//(opts.width/3.8))+1)*12+5
     note.estimatedTextHeight = estimatedTextHeight
 
   nodes = data.map (note)=>
@@ -214,8 +214,12 @@ class NotesColumn extends Component
     ]
 
   handleNoteEdit: (noteID, newText)=>
-    sql = storedProcedure('update-note')
-    await db.none sql, [noteID, newText]
+    if newText.length == 0
+      sql = storedProcedure('set-note-invisible')
+      await db.none sql, [noteID]
+    else
+      sql = storedProcedure('update-note')
+      await db.none sql, [noteID, newText]
     @updateNotes()
     console.log "Note #{noteID} edited"
 
