@@ -6,9 +6,11 @@ SELECT
   coalesce(end_height > start_height, false) has_span,
   symbol,
   type,
-  note
+  coalesce(edited_note, note) note
 FROM section.section_note
 WHERE section = $1
   AND type = 'log'
-  AND note IS NOT null
+  AND (
+    note IS NOT null OR
+    edited_note IS NOT null)
 ORDER BY start_height

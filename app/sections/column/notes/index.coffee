@@ -88,8 +88,10 @@ class NoteSpan extends Component
     h 'g', transform: transform, el
 
 class Note extends Component
+  @defaultProps:
+    marginTop: 0
   render: ->
-    {scale, style, d} = @props
+    {scale, style, d, marginTop} = @props
     extraClasses = ''
 
     if d.has_span
@@ -100,8 +102,9 @@ class Note extends Component
     halfHeight = height/2
 
     pos = d.node.centerPos or d.node.idealPos
+    pos += marginTop
 
-    offsY = d.node.currentPos
+    offsY = d.node.currentPos+marginTop
     offsX = d.offsetX or 0
 
     x = (offsX+1)*5
@@ -114,7 +117,7 @@ class Note extends Component
       }
       h 'path.link', {
         d: @props.link
-        transform: "translate(#{x} 0)"
+        transform: "translate(#{x} #{marginTop})"
       }
       createElement 'foreignObject', {
         width: @props.width-@props.columnGap-offsX-10
@@ -130,6 +133,8 @@ class Note extends Component
         multiline: true
         className: 'note-label'
         defaultValue: @props.d.note
+        onConfirm: (text)=>
+          @props.editHandler(@props.d.id, text)
       }
     else
       v = h 'p.note-label',
@@ -157,7 +162,9 @@ class NotesColumn extends Component
     super props
     @state =
       notes: []
+    @updateNotes()
 
+  updateNotes: ->
     {height, sectionLimits, width, visible} = @props
     scale = d3.scaleLinear()
       .domain sectionLimits
@@ -172,7 +179,7 @@ class NotesColumn extends Component
     {width, columnGap, zoom, visible} = @props
     {scale, notes} = @state
 
-    {height, sectionLimits} = @props
+    {height, sectionLimits, marginTop} = @props
     scale = d3.scaleLinear()
       .domain sectionLimits
       .range [height, 0]
@@ -189,9 +196,11 @@ class NotesColumn extends Component
 
     children = []
     if visible
-      children = notes.map (d)->
+      children = notes.map (d)=>
         h Note, {
+          marginTop
           scale, d, width,
+          editHandler: @handleNoteEdit
           link: renderer.generatePath(d.node),
           key: d.id, columnGap}
 
@@ -201,7 +210,13 @@ class NotesColumn extends Component
         arrowMarker 'arrow_start', 270
         arrowMarker 'arrow_end', 90
       ]
-      h 'g', {transform: "translate(0 #{@props.marginTop})"}, children
+      h 'g', children
     ]
+
+  handleNoteEdit: (noteID, newText)=>
+    sql = storedProcedure('update-note')
+    await db.none sql, [noteID, newText]
+    @updateNotes()
+    console.log "Note #{noteID} edited"
 
 module.exports = NotesColumn
