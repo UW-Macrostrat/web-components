@@ -4,6 +4,7 @@ SELECT
   coalesce(definite_boundary, true) definite_boundary,
   coalesce(v.pattern, l.lithology) pattern,
   coalesce(l.schematic, false) schematic,
+  fgdc_pattern,
   l.bottom::numeric,
   coalesce(
     lead(l.bottom) OVER (ORDER BY l.bottom),

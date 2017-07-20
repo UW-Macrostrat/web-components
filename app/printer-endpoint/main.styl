@@ -1,0 +1,54 @@
+.sections-print
+  display: inline-block
+  position: relative
+  margin: 4em
+  h1,h2,h3,h4,h5
+    font-family: Gotham
+  div.location-group h1
+    font-size: 2em
+
+.section-header
+  h2
+    font-size: 2.5em
+
+
+.title-section
+  margin: 0 3em
+  h1, h2
+    display: inline-block
+    margin-bottom: 0
+  h2
+    margin-right: 2em
+    color: #888
+    font-weight: 200
+    font-size: 2em
+    &.location
+      margin-left: 1em
+      font-weight: 300
+      color: black
+
+.charts
+  position: absolute
+  top: 800
+  right: 3em
+  padding: 2em
+  width: 1400px
+  &>div
+    border: 5px solid #ddd
+    padding: 2em
+    float: right
+    margin-bottom: 2em
+    &>h3
+      font-size: 1.8em
+      font-variant: small-caps
+  #carbon-isotopes
+    zoom: 1.5
+  #lateral-variation
+    *
+      font-size: 1em
+    zoom: 0.9
+    path[stroke="transparent"]
+      fill-opacity: 0.5
+    margin-bottom: 3em
+    z-index: -10
+

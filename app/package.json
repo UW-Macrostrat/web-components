@@ -33,6 +33,7 @@
     "labella": "^1.1.4",
     "mapbox-gl": "^0.32.1",
     "mbtiles": "^0.9.0",
+    "moment": "^2.18.1",
     "pdf-printer": "file:../../deps/node/pdf-printer",
     "pg": "^5.1.0",
     "prop-types": "^15.5.10",

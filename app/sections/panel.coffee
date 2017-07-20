@@ -4,6 +4,7 @@
 h = require 'react-hyperscript'
 SectionComponent = require './column'
 {Dragdealer} = require 'dragdealer'
+require './main.styl'
 require 'dragdealer/src/dragdealer.css'
 d3 = require 'd3'
 _ = require 'underscore'

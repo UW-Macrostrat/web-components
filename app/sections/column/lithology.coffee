@@ -17,12 +17,15 @@ symbolIndex =
   'sandy-dolomite': 645
 
 resolveSymbol = (d)->
-  id = symbolIndex[d]
+  if d.fgdc_pattern?
+    id = d.fgdc_pattern
+  else
+    id = symbolIndex[d.pattern]
   try
     q = require.resolve "geologic-patterns/assets/png-quant/#{id}.png"
     return 'file://'+q
   catch
-    console.log d
+    console.log d.pattern
     return ''
 
 class LithologyColumn extends Component
@@ -47,7 +50,7 @@ class LithologyColumn extends Component
         y = scale(d.top)
         height = scale(d.bottom)-y
 
-        fn = resolveSymbol d.pattern
+        fn = resolveSymbol d
 
         style = {
           position: 'absolute'
