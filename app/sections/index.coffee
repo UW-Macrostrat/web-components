@@ -35,6 +35,7 @@ class SectionPage extends Component
         condensedDisplay: true
         update: @updateOptions
         sectionIDs: []
+        showCarbonIsotopes: false
         dragPosition: {x: 0, y: 0}
 
     @optionsStorage = new LocalStorage 'sections-component'
@@ -51,7 +52,6 @@ class SectionPage extends Component
   render: ->
 
     resizeFunc = (contentRect)->
-      console.log contentRect
       @setState dimensions: contentRect
 
     obj =

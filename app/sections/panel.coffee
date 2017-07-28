@@ -50,12 +50,12 @@ class SectionPanel extends Component
     row.zoom = @props.zoom
     row.skeletal = @props.activeMode == 'skeleton'
     row.showNotes = @props.showNotes
+    row.showCarbonIsotopes = @props.showCarbonIsotopes
     row.trackVisibility = @props.trackVisibility
     h SectionComponent, row
 
   render: ->
     console.log "Rendering section panel"
-    console.log @props.sections
 
     stackGroup = (d)=>
       if @props.condensedDisplay

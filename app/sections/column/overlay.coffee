@@ -33,7 +33,10 @@ class SectionOverlay extends Component
       }
 
       {scale, zoom} = @props
-      samples = h Samples, {scale, zoom, id}
+      if @props.showCarbonIsotopes
+        samples = h Samples, {scale, zoom, id}
+      else
+        samples = h 'g'
 
     h "svg.overlay", {
       width: @props.outerWidth

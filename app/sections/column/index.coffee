@@ -44,9 +44,10 @@ class SectionComponent extends Component
 
     padding = {}
     for k,v of @props.padding
-      padding[k] = @props.padding[k]
-      unless k == 'left'
-        padding[k] *= @props.zoom
+      if k == 'left'
+        padding[k] = @props.padding[k]
+      else
+        padding[k] = @props.padding[k]*@props.zoom
 
     {left, top, right, bottom} = padding
     # 8.1522
@@ -140,7 +141,6 @@ class SectionComponent extends Component
     style = {
       width: outerWidth
       height: outerHeight
-      marginLeft: -100
     }
 
     notesEl = null
@@ -157,7 +157,7 @@ class SectionComponent extends Component
           marginTop: @props.padding.top
         }
       else
-        notesEl = h 'div.notes-placeholder',
+        notesEl = h 'div.notes-placeholder.section-log',
           style: {
             height: innerHeight*zoom
             width: @props.logWidth*zoom
@@ -203,8 +203,8 @@ class SectionComponent extends Component
     pixelsPerMeter = Math.abs(scale(1)-scale(0))
 
     heightOfTop = 670-height-offset
-    console.log "Section #{@props.id}: offset #{heightOfTop} m"
-    desiredPosition = heightOfTop*pixelsPerMeter*zoom
+    desiredPosition = heightOfTop*pixelsPerMeter
+    console.log "Section #{@props.id}: offset #{heightOfTop} m, desired #{desiredPosition} px"
     offs = 0
 
     sib = el.previousSibling
@@ -212,7 +212,9 @@ class SectionComponent extends Component
       {top} = el.parentElement.getBoundingClientRect()
       {bottom} = sib.getBoundingClientRect()
       offs = bottom-top
+      console.log top,bottom
     el.style.marginTop = "#{desiredPosition-offs}px"
+    console.log "              position: #{el.style.marginTop} px"
 
   computeWidth: =>
     if @props.showNotes

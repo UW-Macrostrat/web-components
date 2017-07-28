@@ -53,7 +53,6 @@ processNotesData = (opts)->(data)->
   data.forEach (d,i)->
     d.node = newNodes[i]
 
-  console.log "Completed force layout"
   data.reverse()
 
 

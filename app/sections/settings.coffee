@@ -47,6 +47,11 @@ class SettingsPanel extends Component
             onChange: @switchHandler('showNotes')
           }
           h Switch, {
+            checked: @props.showCarbonIsotopes
+            label: "Show carbon isotopes"
+            onChange: @switchHandler('showCarbonIsotopes')
+          }
+          h Switch, {
             checked: @props.inEditMode
             label: "Allow editing"
             onChange: @switchHandler('inEditMode')

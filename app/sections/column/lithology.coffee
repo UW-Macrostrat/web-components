@@ -25,7 +25,6 @@ resolveSymbol = (d)->
     q = require.resolve "geologic-patterns/assets/png/#{id}.png"
     return 'file://'+q
   catch
-    console.log d.pattern
     return ''
 
 class LithologyColumn extends Component
