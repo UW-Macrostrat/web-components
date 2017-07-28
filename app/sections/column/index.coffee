@@ -52,7 +52,11 @@ class SectionComponent extends Component
     # 8.1522
     # 8.138565
     # 8.1565
-    scaleFactor = 8.157
+    # This is really weird
+    if not @props.trackVisibility
+      scaleFactor = 8.138565
+    else
+      scaleFactor = 8.157
     extraSpace = 2.5*zoom #@state.naturalHeight/innerHeight
 
     @state.scale.range [innerHeight, 0]

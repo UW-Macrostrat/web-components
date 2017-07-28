@@ -22,7 +22,7 @@ resolveSymbol = (d)->
   else
     id = symbolIndex[d.pattern]
   try
-    q = require.resolve "geologic-patterns/assets/png-quant/#{id}.png"
+    q = require.resolve "geologic-patterns/assets/png/#{id}.png"
     return 'file://'+q
   catch
     console.log d.pattern

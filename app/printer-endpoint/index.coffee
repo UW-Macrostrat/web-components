@@ -8,6 +8,10 @@ moment = require 'moment'
 {SectionPanel} = require '../sections/panel'
 CarbonIsotopesPanel = require '../carbon-isotopes'
 LateralVariation = require '../lateral-variation/component'
+require '@blueprintjs/core/dist/blueprint.css'
+require '../sections/main.styl'
+require '../sections/settings.styl'
+require '../main.styl'
 
 module.exports = (el, cb)->
 

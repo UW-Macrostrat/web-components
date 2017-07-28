@@ -5,6 +5,7 @@ chroma = require 'chroma-js'
 _ = require 'underscore'
 fs = require 'fs'
 require './main.styl'
+require '../main.styl'
 yaml = require 'js-yaml'
 {db, storedProcedure} = require 'stratigraphic-column/src/db'
 {lithology} = require 'stratigraphic-column/src/sed-patterns'
@@ -268,6 +269,7 @@ query = (id)->
   db.query(storedProcedure(fn))
 
 module.exports = (el,cb)->
+  cb ?= ->
   Promise.all([
     query("unit-heights")
     query("sections")
