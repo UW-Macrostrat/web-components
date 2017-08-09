@@ -28,7 +28,7 @@ groupOrder = [
 
 stackGroups = [
   'AC'
-  'ED'
+  'BD'
   'FG'
   'HI'
 ]
@@ -50,6 +50,7 @@ class SectionPanel extends Component
     row.zoom = @props.zoom
     row.skeletal = @props.activeMode == 'skeleton'
     row.showNotes = @props.showNotes
+    row.showFloodingSurfaces = @props.showFloodingSurfaces
     row.showCarbonIsotopes = @props.showCarbonIsotopes
     row.trackVisibility = @props.trackVisibility
     h SectionComponent, row

@@ -122,9 +122,10 @@ class SectionComponent extends Component
         scale
         skeletal
         zoom
+        showCarbonIsotopes: @props.showCarbonIsotopes
+        showFloodingSurfaces: @props.showFloodingSurfaces
       }
       innerElements.push _
-
 
     if @props.zoom > 0.25 and @state.visible
       img = h SectionImages, {
@@ -145,24 +146,16 @@ class SectionComponent extends Component
 
     notesEl = null
     if @props.showNotes
-      if @props.zoom > 0.5 and visible
-        # Notes column manages zoom on its own
-        notesEl = h NotesColumn, {
-          id
-          visible
-          sectionLimits: @props.range
-          height: innerHeight*zoom
-          width: @props.logWidth*zoom
-          zoom,
-          marginTop: @props.padding.top
-        }
-      else
-        notesEl = h 'div.notes-placeholder.section-log',
-          style: {
-            height: innerHeight*zoom
-            width: @props.logWidth*zoom
-            marginTop: @props.padding.top
-          }
+      # Notes column manages zoom on its own
+      notesEl = h NotesColumn, {
+        id
+        visible
+        sectionLimits: @props.range
+        height: innerHeight*zoom
+        width: @props.logWidth*zoom
+        zoom,
+        marginTop: @props.padding.top
+      }
 
     children = null
     children= [

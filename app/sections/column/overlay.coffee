@@ -2,6 +2,7 @@
 {findDOMNode} = require 'react-dom'
 GrainsizeScale = require './grainsize'
 Samples = require './samples'
+FloodingSurfaces = require './flooding-surfaces'
 h = require 'react-hyperscript'
 d3 = require 'd3'
 
@@ -38,6 +39,11 @@ class SectionOverlay extends Component
       else
         samples = h 'g'
 
+      if @props.showFloodingSurfaces
+        surf = h FloodingSurfaces, {scale, zoom, id}
+      else
+        surf = h 'g'
+
     h "svg.overlay", {
       width: @props.outerWidth
       height: @props.outerHeight
@@ -46,6 +52,7 @@ class SectionOverlay extends Component
         h 'g.y.axis'
         gs
         samples
+        surf
       ]
     ]
 

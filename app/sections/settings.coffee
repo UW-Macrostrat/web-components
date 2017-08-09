@@ -52,6 +52,11 @@ class SettingsPanel extends Component
             onChange: @switchHandler('showCarbonIsotopes')
           }
           h Switch, {
+            checked: @props.showFloodingSurfaces
+            label: "Show flooding surfaces"
+            onChange: @switchHandler('showFloodingSurfaces')
+          }
+          h Switch, {
             checked: @props.inEditMode
             label: "Allow editing"
             onChange: @switchHandler('inEditMode')

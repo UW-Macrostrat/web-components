@@ -28,9 +28,11 @@ class SectionPage extends Component
         modes: [
           {value: 'normal', label: 'Normal'}
           {value: 'skeleton', label: 'Skeleton'}
+          #{value: 'sequence-stratigraphy', label: 'Sequence Strat.'}
         ]
         activeMode: 'normal'
         showNotes: true
+        showFloodingSurfaces: false
         dragdealer: false
         condensedDisplay: true
         update: @updateOptions

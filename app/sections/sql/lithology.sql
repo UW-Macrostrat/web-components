@@ -19,4 +19,5 @@ JOIN section.lithology v
 JOIN section.section s
   ON s.id = l.section
 WHERE section = $1::text
+  AND l.lithology IS NOT null
 ORDER BY bottom
