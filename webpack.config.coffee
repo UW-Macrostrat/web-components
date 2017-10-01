@@ -13,15 +13,18 @@ plugins = [browserSync]
 ignores = [/pg-promise*/,/electron/,/pg/,/fs/]
 
 
-for i in ignores
-  plugins.push new IgnorePlugin(i)
+#for i in ignores
+#  plugins.push new IgnorePlugin(i)
 
 babelLoader = {
   loader: 'babel-loader'
   options: {
-    presets: ['es2015','react']
+    presets: ['es2017','react']
   }
 }
+
+#exclude = /node_modules/
+exclude = null
 
 coffeeLoader = {
   loader: 'coffee-loader'
@@ -32,7 +35,7 @@ module.exports = {
   module:
     rules: [
       {test: /\.coffee$/, use: [babelLoader, coffeeLoader]}
-      {test: /\.js$/, use: [babelLoader]}
+      {test: /\.(js|jsx)$/, use: [babelLoader]}
       {test: /\.styl$/, use: ["style-loader","css-loader", "stylus-loader"]}
       {test: /\.css$/, use: ["style-loader", "css-loader"]}
       {

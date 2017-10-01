@@ -14,5 +14,5 @@ class App extends Component
 
 ReactDOM.render(
  h(App),
- document.getElementById('root')
+ document.getElementById('main')
  )

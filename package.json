@@ -13,6 +13,8 @@
   "devDependencies": {
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
+    "babel-preset-es2017": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
     "browser-sync": "^2.13.0",
     "browser-sync-webpack-plugin": "^1.2.0",
     "chalk": "^1.1.3",
