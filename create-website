@@ -1,0 +1,13 @@
+#!/usr/bin/env zsh
+
+fn=$PROJECT_DIR/versioned/Products/webroot
+mkdir -p $fn
+
+# Serialize query datasets
+
+# Compile code
+cp app/web-index.html $fn/index.html
+webpack $@
+## Use --watch flag to start browserSync
+
+# Move images (and later, slice up)
