@@ -23,7 +23,6 @@ babelLoader = {
   }
 }
 
-#exclude = /node_modules/
 exclude = null
 
 coffeeLoader = {
