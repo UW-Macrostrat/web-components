@@ -4,7 +4,10 @@ require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
 ElementPan = require 'react-element-pan'
-ipc = require('electron').ipcRenderer
+try
+  ipc = window.require('electron').ipcRenderer
+catch
+  ipc = null
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
 SettingsPanel = require './settings'

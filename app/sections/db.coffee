@@ -1,7 +1,10 @@
 {join} = require 'path'
 Promise = require 'bluebird'
-pgp = require('pg-promise')(promiseLib: Promise)
-db = pgp('postgresql:///Naukluft')
+try
+  pgp = require('pg-promise')(promiseLib: Promise)
+  db = pgp('postgresql:///Naukluft')
+catch
+  db = null
 
 proc = (id)->
   if not id.endsWith('.sql')

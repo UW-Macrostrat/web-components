@@ -1,4 +1,3 @@
-{remote} = require 'electron'
 require './main.styl'
 React = require 'react'
 ReactDOM = require 'react-dom'

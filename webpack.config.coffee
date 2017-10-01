@@ -10,16 +10,17 @@ browserSync = new BrowserSyncPlugin {
 }
 
 plugins = [browserSync]
-ignores = [/pg-promise*/,/electron/,/pg/,/fs/]
+ignores = [/^pg-promise/,/^electron/,/^pg/,/^fs/]
 
 
-#for i in ignores
-#  plugins.push new IgnorePlugin(i)
+for i in ignores
+  plugins.push new IgnorePlugin(i)
 
 babelLoader = {
   loader: 'babel-loader'
   options: {
-    presets: ['es2017','react']
+    presets: ['es2015','react']
+    sourceMap: false
   }
 }
 
@@ -27,7 +28,7 @@ exclude = null
 
 coffeeLoader = {
   loader: 'coffee-loader'
-  options: {sourceMap: true}
+  options: {sourceMap: false}
 }
 
 module.exports = {
