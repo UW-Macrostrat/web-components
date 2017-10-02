@@ -36,8 +36,16 @@ class SerializableQuery
   getData: -> db.query @sql
   filename: -> query.hash+'.json'
 
-baseDir = dirname require.resolve "../sections"
+baseDir = dirname require.resolve "../lateral-variation"
+lateralVariationQueries = [
+  'unit-heights'
+  'sections'
+  'boundary-heights'
+]
+for q in lateralVariationQueries
+  new SerializableQuery(q, null, {baseDir})
 
+baseDir = dirname require.resolve "../sections"
 new SerializableQuery('sections', null, {baseDir})
 new SerializableQuery('carbon-isotopes', null, {baseDir})
 

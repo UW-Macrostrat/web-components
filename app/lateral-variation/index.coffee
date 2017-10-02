@@ -5,12 +5,12 @@ chroma = require 'chroma-js'
 {flatten, zip} = require 'underscore'
 require './main.styl'
 require '../main.styl'
-{query} = require '../db'
+database = require '../db'
 {getYAML} = require '../util'
 {lithology} = require 'stratigraphic-column/src/sed-patterns'
 
 query = (id)->
-  query id, null, {baseDir: __dirname}
+  database.query id, null, {baseDir: __dirname}
 
 createVisualization = (el, units, sections, surfaces)->
   labels = await getYAML "#{__dirname}/labels.yaml"
