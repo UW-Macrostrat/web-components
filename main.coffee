@@ -3,8 +3,6 @@ reload = require 'electron-reload'
 path = require 'path'
 {spawn} = require 'child_process'
 
-shortcuts = require './app/sections/shortcuts'
-
 # Could make this better
 reload([
   process.cwd()
@@ -19,8 +17,6 @@ createWindow = ->
   win.loadURL "file://#{__dirname}/app/index.html"
   win.on 'closed', ->
     win = null
-
-  shortcuts(win)
 
 app.on 'ready', createWindow
 app.on 'window-all-closed', -> app.quit()

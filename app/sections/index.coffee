@@ -15,7 +15,6 @@ Measure = require('react-measure').default
 PropTypes = require 'prop-types'
 { Hotkey, Hotkeys, HotkeysTarget } = require "@blueprintjs/core"
 
-@HotkeysTarget
 class SectionPage extends Component
   constructor: (props)->
     super props
@@ -131,22 +130,24 @@ class SectionPage extends Component
     h Hotkeys, [
       h Hotkey, {
         global: true
-        combo: "mod + -"
+        combo: "-"
         label: "Zoom out"
-        onKeyDown: -> @zoomOut()
+        onKeyDown: @zoomOut
       }
       h Hotkey, {
         global: true
-        combo: "mod + ="
+        combo: "="
         label: "Zoom in"
-        onKeyDown: -> @zoomIn()
+        onKeyDown: @zoomIn
       }
       h Hotkey, {
         global: true
-        combo: "mod + 0"
+        combo: "0"
         label: "Reset zoom"
-        onKeyDown: -> @zoomReset()
+        onKeyDown: @zoomReset
       }
     ]
+
+HotkeysTarget SectionPage
 
 module.exports = SectionPage
