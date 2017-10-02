@@ -1,6 +1,7 @@
-{getAllSections} = require './db'
+{query} = require './db'
+{getJSON} = require './db/util'
 {join} = require 'path'
-{readFileSync} = require 'fs'
+Promise = require 'bluebird'
 
 sectionFilename = (fn, dataDir)->
   dataDir ?= process.env.NAUKLUFT_DATA_DIR
@@ -8,10 +9,9 @@ sectionFilename = (fn, dataDir)->
 
 getSectionData = (dataDir)->
   fn = sectionFilename('file-info.json', dataDir)
-  _ = readFileSync fn, 'utf-8'
-  config = JSON.parse _
+  config = await getJSON fn
 
-  getAllSections()
+  query 'sections'
     .map (s)->
       s.id = s.section.trim()
       files = config[s.id] or []

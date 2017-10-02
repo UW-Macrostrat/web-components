@@ -1,7 +1,6 @@
 {join} = require 'path'
 Promise = require 'bluebird'
-req = require 'request-promise'
-{getUID, getHash} = require './util'
+{getUID, getHash, getJSON} = require './util'
 
 if PLATFORM == ELECTRON
   {db, storedProcedure, serializableQueries} = require './backend'
@@ -16,6 +15,8 @@ query = (id, values)->
   if not SERIALIZED_QUERIES
     func = -> db.query storedProcedure(id), values
     if not __queryList?
+      ## Get a list of potentially serializable queries
+      # before returning queries
       p = serializableQueries()
         .then (d)-> __queryList = d
     else
@@ -27,26 +28,11 @@ query = (id, values)->
   # We get JSON from our library of stored queries
   fn = getHash(id,values)+'.json'
   console.log "Getting query file `#{fn}`"
-
-  if PLATFORM == ELECTRON
-    # We can do a direct require
-    data = require "#{OUTPUT_DIRECTORY}/#{fn}"
-    return Promise.resolve(data)
-  else
-    return req {
-      uri: "file://#{OUTPUT_DIRECTORY}/#{fn}"
-      json: true
-    }
-
-getAllSections = ->
-  query('sections')
+  getJSON "#{OUTPUT_DIRECTORY}/#{fn}"
 
 module.exports = {
   query
-  getAllSections
   storedProcedure
   db
-  sectionData: (id)->
-    db.one storedProcedure('section'),[id]
 }
 
