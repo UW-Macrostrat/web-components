@@ -1,6 +1,7 @@
 {join} = require 'path'
 Promise = require 'bluebird'
-{getUID, getHash, getJSON} = require './util'
+{getUID, getHash} = require './util'
+{getJSON} = require '../util'
 
 if PLATFORM == ELECTRON
   {db, storedProcedure, serializableQueries} = require './backend'

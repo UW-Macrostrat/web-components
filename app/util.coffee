@@ -2,8 +2,9 @@
 Promise = require 'bluebird'
 
 getJSON = (url)->
-  if window? and not PLATFORM == ELECTRON
+  if window? and PLATFORM != ELECTRON
     # We are using a web-like backend
+    console.log "Requesting json at #{url}"
     return new Promise (res, rej)->
       req = require 'browser-request'
       req {uri: url, json: true}, (err, data)->
@@ -18,7 +19,7 @@ getJSON = (url)->
     return Promise.resolve(data)
 
 getYAML = (url)->
-  if window? and not PLATFORM == ELECTRON
+  if window? and PLATFORM != ELECTRON
     return new Promise (res, rej)->
       req = require 'browser-request'
       req {uri: url}, (err, text)->
