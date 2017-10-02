@@ -1,5 +1,5 @@
 #!/usr/bin/env coffee
-{serializableQueries} = require './app/sections/db/backend'
+{serializableQueries} = require './app/db/backend'
 {join} = require 'path'
 {writeFileSync} = require 'fs'
 
