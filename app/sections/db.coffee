@@ -1,7 +1,14 @@
 {join} = require 'path'
 Promise = require 'bluebird'
+
+opts = {
+  promiseLib: Promise
+  query: (e)=>console.log e.query
+}
+
+
 try
-  pgp = require('pg-promise')(promiseLib: Promise)
+  pgp = require('pg-promise')(opts)
   db = pgp('postgresql:///Naukluft')
 catch
   db = null
@@ -12,6 +19,7 @@ storedProcedure = (id)->
   pgp.QueryFile(id)
 
 getAllSections = ->
+  console.log "Getting all sections from database"
   db.query storedProcedure('sections')
 
 module.exports = {

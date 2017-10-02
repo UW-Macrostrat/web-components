@@ -101,7 +101,7 @@ class SectionPage extends Component
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
-  componentDidMount: ->
+  getInitialData: ->
     getSectionData()
       .then (sections)=>
         @setState sections: sections
@@ -113,11 +113,15 @@ class SectionPage extends Component
           .on 'load', ->
             console.log "Loaded all images"
 
-  componentWillUpdate: (nextProps,nextState)->
-    console.log arguments
+  componentDidMount: ->
+    @getInitialData()
 
-  componentDidUpdate: ->
+  componentDidUpdate: (prevProps, prevState)->
     window.dispatchEvent(new Event('resize'))
+    {serializedQueries} = @state.options
+
+    if prevState.options.serializedQueries != serializedQueries
+      @getInitialData()
 
   zoomIn: =>
     @updateOptions zoom: {
