@@ -11,7 +11,6 @@ getSectionData = (dataDir)->
   _ = readFileSync fn, 'utf-8'
   config = JSON.parse _
 
-  console.log config
   getAllSections()
     .map (s)->
       s.id = s.section.trim()
@@ -24,4 +23,4 @@ getSectionData = (dataDir)->
         return d
       return s
 
-module.exports = { sectionFilename, getSectionData }
+module.exports = { getSectionData }
