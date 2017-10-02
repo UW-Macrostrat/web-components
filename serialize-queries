@@ -1,0 +1,22 @@
+#!/usr/bin/env coffee
+{serializableQueries} = require './app/sections/db'
+{join} = require 'path'
+{writeFileSync} = require 'fs'
+
+outdir = process.argv[2]
+unless outdir?
+  console.log "Please provide an output directory"
+  process.exit(1)
+
+run = ->
+  queries = await serializableQueries()
+  for query in queries
+    data = await query.getData()
+    fn = join(outdir, query.hash+'.json')
+    writeFileSync fn, JSON.stringify(data)
+
+run()
+  .then -> process.exit(0)
+  .catch (e)->
+    console.error e
+    process.exit(1)

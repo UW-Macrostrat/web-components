@@ -2,6 +2,8 @@
 Promise = require 'bluebird'
 {createHash} = require 'crypto'
 
+OUTPUT_DIRECTORY = join(process.env.PROJECT_DIR,"versioned","Products","webroot","queries")
+
 opts = {
   promiseLib: Promise
   query: (e)=>
@@ -21,8 +23,6 @@ storedProcedure = (id)->
     id = join(__dirname,'sql',"#{id}.sql")
   pgp.QueryFile(id)
 
-md5sum = createHash('md5')
-
 queryLibrary = []
 
 # Serialize queries based on query file and opts
@@ -30,13 +30,15 @@ class SerializableQuery
   constructor: (@id, @values)->
     query = storedProcedure(@id)
     @sql = pgp.as.format(query, @values)
+    @uid = @id+JSON.stringify(@values)
+    md5sum = createHash('md5')
+    @hash = md5sum.update(@uid).digest('hex')
     # Get the hash for the parameterized query
     queryLibrary.push(@)
-  uid: ->
-    @id+JSON.stringify(@values)
-  hash: ->
-    v = @uid()
-    md5sum.update(v).digest('hex')
+  getData: -> db.query @sql
+  filename: -> query.hash+'.json'
+  path: ->
+    join OUTPUT_DIRECTORY, @filename()
 
 new SerializableQuery('sections')
 new SerializableQuery('carbon-isotopes')
@@ -54,7 +56,6 @@ createSerializedQueries = ->
   for q in sectionQueries
     for l in sectionLabels
       v = new SerializableQuery(q,[l])
-      console.log v.uid()
 
 getAllSections = ->
   console.log "Getting all sections from database"
@@ -65,7 +66,15 @@ getAllSections = ->
       sectionLabels = sections.map (d)->d.section
       createSerializedQueries()
 
+serializableQueries = ->
+  ## Return a list of serializable queries for writing
+  # out to files
+  await getAllSections()
+  createSerializedQueries()
+  return queryLibrary
+
 module.exports = {
+  serializableQueries
   getAllSections
   storedProcedure
   db

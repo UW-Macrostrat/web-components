@@ -1,9 +1,11 @@
 #!/usr/bin/env zsh
 
 fn=$PROJECT_DIR/versioned/Products/webroot
-mkdir -p $fn
+query_dir="$fn/queries"
+mkdir -p $fn $query_dir
 
 # Serialize query datasets
+./serialize-queries $query_dir
 
 # Compile code
 cp app/web-index.html $fn/index.html
