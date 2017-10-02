@@ -1,4 +1,4 @@
-{db, storedProcedure} = require '../db'
+{query} = require '../db'
 d3 = require 'd3'
 {Component} = require 'react'
 h = require 'react-hyperscript'
@@ -11,7 +11,7 @@ class FloodingSurface extends Component
     @getData()
 
   getData: ->
-    db.query storedProcedure('flooding-surface'), [@props.id]
+    query 'flooding-surface', [@props.id]
       .then (data)=>
         @setState floodingSurfaces: data
 

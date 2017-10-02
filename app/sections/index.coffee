@@ -66,7 +66,6 @@ class SectionPage extends Component
       client: true,
       onResize: resizeFunc
 
-
     panel = h Measure, obj, (measureRef)=>
       {sections, dimensions, options} = @state
       h ZoomablePanelContainer, {

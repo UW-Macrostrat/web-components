@@ -1,4 +1,4 @@
-{db, storedProcedure} = require '../db'
+{query} = require '../db'
 {select} = require 'd3-selection'
 {Component} = require 'react'
 h = require 'react-hyperscript'
@@ -32,7 +32,7 @@ class LithologyColumn extends Component
     super props
     @state =
       divisions: []
-    db.query storedProcedure('lithology'), [@props.id]
+    query 'lithology', [@props.id]
       .then (data)=>
         data.reverse()
         @setState divisions: data

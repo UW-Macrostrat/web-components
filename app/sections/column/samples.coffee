@@ -1,4 +1,4 @@
-{db, storedProcedure} = require '../db'
+{query} = require '../db'
 d3 = require 'd3'
 {Component} = require 'react'
 h = require 'react-hyperscript'
@@ -13,7 +13,7 @@ class Samples extends Component
     @getSamples()
 
   getSamples: ->
-    db.query storedProcedure('section-samples'), [@props.id]
+    query 'section-samples', [@props.id]
       .then (data)=>
         @setState samples: data
 

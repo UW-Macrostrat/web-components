@@ -3,7 +3,7 @@ d3 = require 'd3'
 require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
-{db, storedProcedure} = require '../../db'
+{db, storedProcedure, query} = require '../../db'
 {Node, Renderer, Force} = require 'labella'
 {calculateSize} = require 'calculate-size'
 FlexibleNode = require './flexible-node'
@@ -169,7 +169,7 @@ class NotesColumn extends Component
       .domain sectionLimits
       .range [height, 0]
 
-    db.query storedProcedure(@props.type), [@props.id]
+    query @props.type, [@props.id]
       .then processNotesData({scale, height, width})
       .then (data)=>
         @setState notes: data
@@ -213,6 +213,8 @@ class NotesColumn extends Component
     ]
 
   handleNoteEdit: (noteID, newText)=>
+    # We can't edit on the frontend
+    return unless PLATFORM == ELECTRON
     if newText.length == 0
       sql = storedProcedure('set-note-invisible')
       await db.none sql, [noteID]
