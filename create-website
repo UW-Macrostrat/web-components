@@ -4,6 +4,8 @@ fn=$PROJECT_DIR/versioned/Products/webroot
 query_dir="$fn/queries"
 mkdir -p $fn $query_dir
 
+rm -rf node_modules/.cache
+
 # Serialize query datasets
 ./serialize-queries $query_dir
 

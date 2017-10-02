@@ -7,7 +7,7 @@ require 'd3-scale-chromatic'
 require 'd3-jetpack'
 h = require 'react-hyperscript'
 
-{db, storedProcedure} = require 'stratigraphic-column/src/db'
+{query} = require '../sections/db'
 
 class CarbonIsotopesPage extends Component
   @defaultProps:
@@ -35,7 +35,7 @@ class CarbonIsotopesPage extends Component
     }
 
   componentDidMount: ->
-    db.query storedProcedure('carbon-isotopes')
+    query('carbon-isotopes')
       .then (rows)=>
         console.log rows
         @setState data: rows
