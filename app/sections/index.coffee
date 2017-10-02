@@ -4,10 +4,6 @@ require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
 ElementPan = require 'react-element-pan'
-try
-  ipc = window.require('electron').ipcRenderer
-catch
-  ipc = null
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
 SettingsPanel = require './settings'
@@ -17,7 +13,9 @@ LocalStorage = require './storage'
 Measure = require('react-measure').default
 {ZoomablePanelContainer} = require './panel'
 PropTypes = require 'prop-types'
+{ Hotkey, Hotkeys, HotkeysTarget } = require "@blueprintjs/core"
 
+@HotkeysTarget
 class SectionPage extends Component
   constructor: (props)->
     super props
@@ -113,21 +111,42 @@ class SectionPage extends Component
           .on 'load', ->
             console.log "Loaded all images"
 
-    @setupListeners()
-
   componentDidUpdate: ->
     window.dispatchEvent(new Event('resize'))
 
-  setupListeners: =>
-    ipc.on 'zoom-reset', =>
-      @updateOptions zoom: {$set: 1}
-    ipc.on 'zoom-in', =>
-      @updateOptions zoom: {
-        $apply: (d)-> if d < 2 then d * 1.25 else d
+  zoomIn: =>
+    @updateOptions zoom: {
+      $apply: (d)-> if d < 2 then d * 1.25 else d
+    }
+
+  zoomOut: =>
+    @updateOptions zoom: {
+      $apply: (d)-> if d > 0.05 then d / 1.25 else d
+    }
+
+  zoomReset: =>
+    @updateOptions zoom: {$set: 1}
+
+  renderHotkeys: ->
+    h Hotkeys, [
+      h Hotkey, {
+        global: true
+        combo: "mod + -"
+        label: "Zoom out"
+        onKeyDown: -> @zoomOut()
       }
-    ipc.on 'zoom-out',=>
-      @updateOptions zoom: {
-        $apply: (d)-> if d > 0.05 then d / 1.25 else d
+      h Hotkey, {
+        global: true
+        combo: "mod + ="
+        label: "Zoom in"
+        onKeyDown: -> @zoomIn()
       }
+      h Hotkey, {
+        global: true
+        combo: "mod + 0"
+        label: "Reset zoom"
+        onKeyDown: -> @zoomReset()
+      }
+    ]
 
 module.exports = SectionPage
