@@ -3,16 +3,17 @@ require 'd3-selection-multi'
 Promise = require 'bluebird'
 chroma = require 'chroma-js'
 {flatten, zip} = require 'underscore'
-fs = require 'fs'
 require './main.styl'
 require '../main.styl'
-yaml = require 'js-yaml'
-{db, storedProcedure} = require 'stratigraphic-column/src/db'
+{query} = require '../db'
+{getYAML} = require '../util'
 {lithology} = require 'stratigraphic-column/src/sed-patterns'
 
-createVisualization = (el, units, sections, surfaces)->
+query = (id)->
+  query id, null, {baseDir: __dirname}
 
-  labels = yaml.safeLoad fs.readFileSync("#{__dirname}/labels.yaml", 'utf8')
+createVisualization = (el, units, sections, surfaces)->
+  labels = await getYAML "#{__dirname}/labels.yaml"
 
   wrap = d3.select el
 
@@ -262,11 +263,6 @@ createVisualization = (el, units, sections, surfaces)->
       'comp-op': 'multiply'
       class: 'clip'
       d: clipPath
-
-
-query = (id)->
-  fn = "#{__dirname}/sql/#{id}.sql"
-  db.query(storedProcedure(fn))
 
 module.exports = (el,cb)->
   cb ?= ->

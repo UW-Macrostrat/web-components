@@ -1,5 +1,5 @@
 {query} = require '../db'
-{getJSON} = require '../db/util'
+{getJSON} = require '../util'
 {join} = require 'path'
 Promise = require 'bluebird'
 
