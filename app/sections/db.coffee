@@ -2,9 +2,6 @@
 Promise = require 'bluebird'
 {createHash} = require 'crypto'
 
-pgp = require('pg-promise')(opts)
-db = pgp('postgresql:///Naukluft')
-
 opts = {
   promiseLib: Promise
   query: (e)=>
@@ -13,6 +10,9 @@ opts = {
       d.sql == e.query
     console.log v
 }
+
+pgp = require('pg-promise')(opts)
+db = pgp('postgresql:///Naukluft')
 
 storedProcedure = (id)->
   if not id.endsWith('.sql')
@@ -43,7 +43,7 @@ getAllSections = ->
 module.exports = {
   getAllSections
   storedProcedure
-  db: db
+  db
   sectionData: (id)->
     db.one storedProcedure('section'),[id]
 }
