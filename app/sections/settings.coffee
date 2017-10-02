@@ -66,6 +66,11 @@ class SettingsPanel extends Component
             label: "Dragdealer"
             onChange: @switchHandler('dragdealer')
           }
+          h Switch, {
+            checked: @props.serializedQueries
+            label: "Serialized queries"
+            onChange: @switchHandler('serializedQueries')
+          }
           h 'div#view-params', [
             h 'h5', 'View info'
             h 'table.pt-table', [

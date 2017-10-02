@@ -33,6 +33,9 @@ class SectionPage extends Component
         activeMode: 'normal'
         showNotes: true
         showFloodingSurfaces: false
+        # Allows us to test the serialized query mode
+        # we are developing for the web
+        serializedQueries: false
         dragdealer: false
         condensedDisplay: true
         update: @updateOptions
@@ -109,6 +112,9 @@ class SectionPage extends Component
         el.selectAll 'img'
           .on 'load', ->
             console.log "Loaded all images"
+
+  componentWillUpdate: (nextProps,nextState)->
+    console.log arguments
 
   componentDidUpdate: ->
     window.dispatchEvent(new Event('resize'))
