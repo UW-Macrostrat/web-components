@@ -1,5 +1,5 @@
-{query} = require './db'
-{getJSON} = require './db/util'
+{query} = require '../db'
+{getJSON} = require '../db/util'
 {join} = require 'path'
 Promise = require 'bluebird'
 
@@ -11,7 +11,7 @@ getSectionData = (dataDir)->
   fn = sectionFilename('file-info.json', dataDir)
   config = await getJSON fn
 
-  query 'sections'
+  query 'sections', null, {baseDir: __dirname}
     .map (s)->
       s.id = s.section.trim()
       files = config[s.id] or []
