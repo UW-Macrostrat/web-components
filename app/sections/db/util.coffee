@@ -1,6 +1,5 @@
 {join} = require 'path'
 {createHash} = require 'crypto'
-req = require 'browser-request'
 Promise = require 'bluebird'
 
 getUID = (id, values)->
@@ -14,7 +13,8 @@ getHash = (id,values)->
 getJSON = (url)->
   if window?
     # We are using a web-like backend
-    return Promise (res, rej)->
+    return new Promise (res, rej)->
+      req = require 'browser-request'
       req {uri: url, json: true}, (err, data)->
         if err?
           reject(err)
@@ -22,7 +22,8 @@ getJSON = (url)->
         res(data)
   else
     # Assume we can do a direct require
-    data = require url
+    {readFileSync} = require 'fs'
+    data = JSON.parse readFileSync url
     return Promise.resolve(data)
 
 

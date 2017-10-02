@@ -2,7 +2,7 @@ d3 = require 'd3'
 require 'd3-selection-multi'
 Promise = require 'bluebird'
 chroma = require 'chroma-js'
-_ = require 'underscore'
+{flatten, zip} = require 'underscore'
 fs = require 'fs'
 require './main.styl'
 require '../main.styl'
@@ -74,19 +74,19 @@ createVisualization = (el, units, sections, surfaces)->
 
   double = (a,b)->
     b ?= a
-    _.flatten _.zip a, b
+    flatten zip a, b
 
   createX = (d)->
     xv = d.section.map x
     double xv, xv.map (d)->d+20
 
   areaGenerator = (d)->
-    v = _.zip createX(d), double(d.start), double(d.end)
+    v = zip createX(d), double(d.start), double(d.end)
     applyEdges(v)
     areaPath(v)
 
   lineGenerator = (d)->
-    v = _.zip createX(d), double(d.height)
+    v = zip createX(d), double(d.height)
     applyEdges(v)
     linePath(v)
 

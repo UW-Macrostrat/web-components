@@ -7,7 +7,7 @@ SectionComponent = require './column'
 require './main.styl'
 require 'dragdealer/src/dragdealer.css'
 d3 = require 'd3'
-_ = require 'underscore'
+{debounce} = require 'underscore'
 
 class SectionColumn extends Component
   render: ->
@@ -115,7 +115,7 @@ class ZoomablePanelContainer extends Component
         console.log xpos,ypos
         @setPosition xpos, ypos
 
-      d3.select(_el).on "scroll", _.debounce(fn, 500)
+      d3.select(_el).on "scroll", debounce(fn, 500)
       _el.scrollTop = y*el.clientHeight
       _el.scrollLeft = x*el.clientWidth
     else

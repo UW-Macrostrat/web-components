@@ -24,7 +24,7 @@ babelLoader = {
   }
 }
 
-exclude = null
+exclude = /node_modules/
 
 coffeeLoader = {
   loader: 'coffee-loader'
@@ -34,8 +34,8 @@ coffeeLoader = {
 module.exports = {
   module:
     rules: [
-      {test: /\.coffee$/, use: [babelLoader, coffeeLoader]}
-      {test: /\.(js|jsx)$/, use: [babelLoader]}
+      {test: /\.coffee$/, use: [babelLoader, coffeeLoader], exclude}
+      {test: /\.(js|jsx)$/, use: [babelLoader], exclude}
       {test: /\.styl$/, use: ["style-loader","css-loader", "stylus-loader"]}
       {test: /\.css$/, use: ["style-loader", "css-loader"]}
       {
