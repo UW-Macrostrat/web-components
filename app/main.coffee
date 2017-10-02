@@ -1,3 +1,13 @@
+## Set whether we are on the backend or frontend
+global.ELECTRON = 'electron'
+global.WEB = 'web'
+global.PLATFORM = ELECTRON
+try
+  require 'electron'
+catch
+  global.PLATFORM = WEB
+console.log "Running application on #{PLATFORM}"
+
 React = require 'react'
 ReactDOM = require 'react-dom'
 {HashRouter,Route,Link} = require 'react-router-dom'
@@ -13,7 +23,7 @@ SectionPage = require './sections'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
 Map = require './map-viewer'
-#style = require './main.styl'
+
 wrapNavBar = (component)->
   class NavBarPage extends React.Component
     render: ->

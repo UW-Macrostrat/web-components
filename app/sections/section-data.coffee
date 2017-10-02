@@ -1,4 +1,4 @@
-{db, storedProcedure} = require './db'
+{getAllSections} = require './db'
 {join} = require 'path'
 {readFileSync} = require 'fs'
 
@@ -12,7 +12,7 @@ getSectionData = (dataDir)->
   config = JSON.parse _
 
   console.log config
-  db.query storedProcedure('sections')
+  getAllSections()
     .map (s)->
       s.id = s.section.trim()
       files = config[s.id] or []

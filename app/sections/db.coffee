@@ -6,13 +6,22 @@ try
 catch
   db = null
 
-proc = (id)->
+storedProcedure = (id)->
   if not id.endsWith('.sql')
     id = join(__dirname,'sql',"#{id}.sql")
   pgp.QueryFile(id)
 
-module.exports =
-  storedProcedure: proc
+getAllSections = ->
+  db.query storedProcedure('sections')
+
+module.exports = {
+  getAllSections
+  storedProcedure
   db: db
-  sectionData: (id)->db.one proc('section'),[id]
+  sectionData: (id)->
+    _ = storedProcedure('section')
+    console.log "Section data"
+    console.log _
+    db.one _,[id]
+}
 
