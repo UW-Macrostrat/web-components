@@ -2,10 +2,12 @@
 global.ELECTRON = 'electron'
 global.WEB = 'web'
 global.PLATFORM = ELECTRON
+global.SERIALIZED_QUERIES = false
 try
   require 'electron'
 catch
   global.PLATFORM = WEB
+  global.SERIALIZED_QUERIES = true
 console.log "Running application on #{PLATFORM}"
 
 React = require 'react'

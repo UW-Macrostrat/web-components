@@ -47,6 +47,7 @@
     "pg": "^6.1.2",
     "pg-promise": "^5.5.0",
     "replace-ext": "^1.0.0",
+    "request-promise": "^4.2.2",
     "stylus": "^0.54.5",
     "tilelive-mapnik": "^0.6.18"
   }

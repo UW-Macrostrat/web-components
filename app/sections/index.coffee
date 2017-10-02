@@ -35,7 +35,7 @@ class SectionPage extends Component
         showFloodingSurfaces: false
         # Allows us to test the serialized query mode
         # we are developing for the web
-        serializedQueries: false
+        serializedQueries: global.SERIALIZED_QUERIES
         dragdealer: false
         condensedDisplay: true
         update: @updateOptions
@@ -121,6 +121,8 @@ class SectionPage extends Component
     {serializedQueries} = @state.options
 
     if prevState.options.serializedQueries != serializedQueries
+      global.SERIALIZED_QUERIES = serializedQueries
+      console.log "Changed SERIALIZED_QUERIES to #{serializedQueries}"
       @getInitialData()
 
   zoomIn: =>
