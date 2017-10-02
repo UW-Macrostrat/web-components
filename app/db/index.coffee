@@ -7,13 +7,14 @@ if PLATFORM == ELECTRON
   OUTPUT_DIRECTORY = join(process.env.PROJECT_DIR,"versioned","Products","webroot","queries")
 
 __queryList = null
-query = (id, values)->
+query = (id, values, opts={})->
   ###
   Generalized query that picks the best method for
   getting query variables
   ###
+  {baseDir} = opts
   if not SERIALIZED_QUERIES
-    func = -> db.query storedProcedure(id), values
+    func = -> db.query storedProcedure(id, {baseDir}), values
     if not __queryList?
       ## Get a list of potentially serializable queries
       # before returning queries
@@ -23,7 +24,7 @@ query = (id, values)->
       p = null
     return Promise.resolve(p)
       .then ->
-        db.query storedProcedure(id), values
+        db.query storedProcedure(id, {baseDir}), values
 
   # We get JSON from our library of stored queries
   fn = getHash(id,values)+'.json'

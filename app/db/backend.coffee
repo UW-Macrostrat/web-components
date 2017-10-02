@@ -1,4 +1,4 @@
-{join} = require 'path'
+{join, dirname} = require 'path'
 Promise = require 'bluebird'
 {getUID, getHash} = require './util'
 
@@ -16,26 +16,30 @@ opts = {
 pgp = require('pg-promise')(opts)
 db = pgp('postgresql:///Naukluft')
 
-storedProcedure = (id)->
+storedProcedure = (id, opts={})->
+  {baseDir} = opts
+  baseDir ?= __dirname
   if not id.endsWith('.sql')
-    id = join(__dirname,'sql',"#{id}.sql")
+    id = join(baseDir,'sql',"#{id}.sql")
   pgp.QueryFile(id)
 
 queryLibrary = []
 
 # Serialize queries based on query file and opts
 class SerializableQuery
-  constructor: (@id, @values)->
-    query = storedProcedure(@id)
+  constructor: (@id, @values, opts={})->
+    query = storedProcedure(@id, opts)
     @sql = pgp.as.format(query, @values)
-    @uid = getUID @id, @values
-    @hash = getHash @id, @values
+    @uid = getUID arguments
+    @hash = getHash arguments
     queryLibrary.push(@)
   getData: -> db.query @sql
   filename: -> query.hash+'.json'
 
-new SerializableQuery('sections')
-new SerializableQuery('carbon-isotopes')
+baseDir = dirname require.resolve "../sections"
+
+new SerializableQuery('sections', null, {baseDir})
+new SerializableQuery('carbon-isotopes', null, {baseDir})
 
 sectionLabels = null
 sectionQueries =  [
@@ -48,12 +52,12 @@ sectionQueries =  [
 createSerializedQueries = ->
   for q in sectionQueries
     for l in sectionLabels
-      v = new SerializableQuery(q,[l])
+      v = new SerializableQuery(q,[l], {baseDir})
 
 serializableQueries = ->
   ## Return a list of serializable queries for writing
   # out to files
-  sections = await db.query storedProcedure('sections')
+  sections = await db.query storedProcedure('sections', {baseDir})
   return if sectionLabels?
   sectionLabels = sections.map (d)->d.section
   createSerializedQueries()

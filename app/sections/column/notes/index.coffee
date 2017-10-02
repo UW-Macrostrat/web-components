@@ -215,11 +215,13 @@ class NotesColumn extends Component
   handleNoteEdit: (noteID, newText)=>
     # We can't edit on the frontend
     return unless PLATFORM == ELECTRON
+    {dirname} = require 'path'
+    baseDir = dirname require.resolve '../..'
     if newText.length == 0
-      sql = storedProcedure('set-note-invisible')
+      sql = storedProcedure('set-note-invisible', {baseDir})
       await db.none sql, [noteID]
     else
-      sql = storedProcedure('update-note')
+      sql = storedProcedure('update-note', {baseDir})
       await db.none sql, [noteID, newText]
     @updateNotes()
     console.log "Note #{noteID} edited"
