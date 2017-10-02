@@ -2,7 +2,6 @@ var Node = require('labella').Node;
 
 class FlexibleNode{
   constructor(allowedRange, width, data){
-    console.log(allowedRange,width,data);
     this.allowedRange = allowedRange;
     this.centerPos = (this.allowedRange[0]+this.allowedRange[1])/2;
     this.currentPos = this.centerPos
@@ -73,8 +72,6 @@ class FlexibleNode{
   }
 
   createStub(width){
-    // The below throws an error when used with non-1 zoom levels
-    console.log(this.idealPos, width, this.data);
     const stub = new Node(this.idealPos, width, this.data);
     stub.currentPos = this.currentPos;
     stub.child = this;
