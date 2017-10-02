@@ -1,5 +1,5 @@
 SELECT
-  s.id AS section,
+  s.id::text AS section,
   s.start,
   s.end,
   coalesce(
