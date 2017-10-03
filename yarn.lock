@@ -1281,7 +1281,7 @@ d3-array@1, d3-array@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/d3-array/-/d3-array-1.0.2.tgz#174237bf356a852fadd6af87743d928631de7655"
 
-d3-axis@1.0.4:
+d3-axis@1, d3-axis@1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/d3-axis/-/d3-axis-1.0.4.tgz#bdfdcf5e859824062e0f17ad920f76236e72512c"
 
@@ -1362,6 +1362,25 @@ d3-interpolate@1, d3-interpolate@1.1.2:
   dependencies:
     d3-color "1"
 
+d3-jetpack-module@^0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/d3-jetpack-module/-/d3-jetpack-module-0.0.19.tgz#6a6d9207a4c36dd3c1706b6237ba59208fba62a2"
+  dependencies:
+    d3 "4"
+
+d3-jetpack@^2.0.13:
+  version "2.0.13"
+  resolved "https://registry.yarnpkg.com/d3-jetpack/-/d3-jetpack-2.0.13.tgz#3a4e30ad00c95fc0e0a21570b91f429d28bb0e9a"
+  dependencies:
+    d3-array "1"
+    d3-axis "1"
+    d3-collection "1"
+    d3-queue "3"
+    d3-request "1"
+    d3-scale "1"
+    d3-selection "1"
+    d3-transition "1"
+
 d3-path@1, d3-path@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/d3-path/-/d3-path-1.0.3.tgz#60103d0dea9a6cd6ca58de86c6d56724002d3fde"
@@ -1374,7 +1393,7 @@ d3-quadtree@1, d3-quadtree@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/d3-quadtree/-/d3-quadtree-1.0.2.tgz#e7e873af06aaa427eaa4af094cc4cbfb350b9e38"
 
-d3-queue@3.0.3:
+d3-queue@3, d3-queue@3.0.3:
   version "3.0.3"
   resolved "https://registry.yarnpkg.com/d3-queue/-/d3-queue-3.0.3.tgz#10ee4dd0574a1affaabfb931d0ba4f117926edc6"
 
@@ -1382,7 +1401,7 @@ d3-random@1.0.2:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/d3-random/-/d3-random-1.0.2.tgz#83ff6a391206209c30565299e43c6549866db269"
 
-d3-request@1.0.3:
+d3-request@1, d3-request@1.0.3:
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/d3-request/-/d3-request-1.0.3.tgz#63fc7dfd784607db0df5d535d7cb898fceba755a"
   dependencies:
@@ -1391,7 +1410,7 @@ d3-request@1.0.3:
     d3-dsv "1"
     xmlhttprequest "1"
 
-d3-scale@1.0.4:
+d3-scale@1, d3-scale@1.0.4:
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/d3-scale/-/d3-scale-1.0.4.tgz#50e28bf6a193b706745528515ed9b3d44205a033"
   dependencies:
@@ -1459,7 +1478,7 @@ d3-zoom@1.1.1:
     d3-selection "1"
     d3-transition "1"
 
-d3@^4.4.1:
+d3@4, d3@^4.4.1:
   version "4.4.1"
   resolved "https://registry.yarnpkg.com/d3/-/d3-4.4.1.tgz#2cbb08f92970364076ffe91ab83ef66b80610785"
   dependencies:

@@ -3,8 +3,8 @@
 require './main.styl'
 d3 = require 'd3'
 require 'd3-selection-multi'
-require 'd3-scale-chromatic'
 require 'd3-jetpack'
+require 'd3-scale-chromatic'
 h = require 'react-hyperscript'
 
 {query} = require '../sections/db'
@@ -79,6 +79,7 @@ class CarbonIsotopesPage extends Component
     gg = inner.append 'g.grid'
       .selectAll 'line'
       .data @x.ticks()
+      .attrs class: 'grid'
 
     gg.enter()
       .append 'line'

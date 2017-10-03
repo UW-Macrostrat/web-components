@@ -6,14 +6,13 @@ chroma = require 'chroma-js'
 require './main.styl'
 require '../main.styl'
 database = require '../db'
-{getYAML} = require '../util'
 {lithology} = require 'stratigraphic-column/src/sed-patterns'
+labels = require './labels.json'
 
 query = (id)->
   database.query id, null, {baseDir: __dirname}
 
 createVisualization = (el, units, sections, surfaces)->
-  labels = await getYAML "#{__dirname}/labels.yaml"
 
   wrap = d3.select el
 

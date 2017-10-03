@@ -20,14 +20,15 @@ getJSON = (url)->
 
 getYAML = (url)->
   if window? and PLATFORM != ELECTRON
-    return new Promise (res, rej)->
+    return new Promise (resolve, reject)->
       req = require 'browser-request'
-      req {uri: url}, (err, text)->
+      req {uri: url}, (err, response)->
         if err?
           reject(err)
           return
+        text = response.body
         data = safeLoad text
-        res(data)
+        resolve(data)
   else
     # Assume we can do a direct require
     {readFileSync} = require 'fs'
