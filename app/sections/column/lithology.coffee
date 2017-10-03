@@ -2,6 +2,7 @@
 {select} = require 'd3-selection'
 {Component} = require 'react'
 h = require 'react-hyperscript'
+{join} = require 'path'
 
 symbolIndex =
   'dolomite-limestone': 641
@@ -22,8 +23,11 @@ resolveSymbol = (d)->
   else
     id = symbolIndex[d.pattern]
   try
-    q = require.resolve "geologic-patterns/assets/png/#{id}.png"
-    return 'file://'+q
+    if PLATFORM == ELECTRON
+      q = require.resolve "geologic-patterns/assets/png/#{id}.png"
+      return 'file://'+q
+    else
+      return join BASE_URL, 'assets',"#{id}.png"
   catch
     return ''
 
