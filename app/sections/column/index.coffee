@@ -52,7 +52,7 @@ class SectionComponent extends Component
     {left, top, right, bottom} = padding
 
     scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
-    extraSpace = 2.5*zoom #@state.naturalHeight/innerHeight
+    extraSpace = if zoom > 0.5 then 2.5*zoom else 0#@state.naturalHeight/innerHeight
 
     @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight+(top+bottom)
@@ -139,7 +139,7 @@ class SectionComponent extends Component
     }
 
     notesEl = null
-    if @props.showNotes
+    if @props.showNotes and @props.zoom > 0.50
       # Notes column manages zoom on its own
       notesEl = h NotesColumn, {
         id

@@ -12,7 +12,7 @@ rm -rf node_modules/.cache
 
 rm -f "$image_dir"
 ln -s \
-  "$NAUKLUFT_DATA_DIR/Sections/Digitized Images/extracted-clipped" \
+  "$NAUKLUFT_DATA_DIR/Sections/Digitized Images/web-images" \
   "$image_dir"
 
 # Compile code

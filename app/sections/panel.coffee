@@ -94,10 +94,13 @@ class ZoomablePanelContainer extends Component
 
   render: ->
     {options, sections} = @props
-    {dragdealer, rest...} = options
+    {dragdealer, dragPosition, rest...} = options
     className = if dragdealer then "dragdealer" else ""
 
-    h "div#section-page", {className, key: className}, [
+    {x,y} = dragPosition
+    console.log x,y
+    scroll = {scrollTop: y, scrollLeft: x}
+    h "div#section-page", {className, key: className, scroll...}, [
       # The actual container in which the sections sit
       # Uncritically forward all props for now...
       h SectionPanel, { rest..., sections }
@@ -110,14 +113,12 @@ class ZoomablePanelContainer extends Component
     {x,y} = @props.options.dragPosition
     if not @props.options.dragdealer
       fn = =>
-        ypos = _el.scrollTop/el.clientHeight
-        xpos = _el.scrollLeft/el.clientWidth
+        ypos = el.scrollTop
+        xpos = el.scrollLeft
         console.log xpos,ypos
-        @setPosition xpos, ypos
+        @props.updatePosition x:xpos, y:ypos
 
       d3.select(_el).on "scroll", debounce(fn, 500)
-      _el.scrollTop = y*el.clientHeight
-      _el.scrollLeft = x*el.clientWidth
     else
       @dragdealer = new Dragdealer _el, {
         x,y
@@ -131,6 +132,7 @@ class ZoomablePanelContainer extends Component
       @toggleDragdealer()
 
   setPosition: (x,y)=>
+    console.log "Setting drag position to #{x},#{y}"
     @props.updatePosition {x,y}
 
   toggleDragdealer: =>

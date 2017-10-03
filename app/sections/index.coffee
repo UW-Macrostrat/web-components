@@ -41,7 +41,7 @@ class SectionPage extends Component
         update: @updateOptions
         sectionIDs: []
         showCarbonIsotopes: false
-        dragPosition: {x: 0, y: 0}
+        dragPosition: {x: 500, y: 500}
 
     @optionsStorage = new LocalStorage 'sections-component'
     v = @optionsStorage.get()
