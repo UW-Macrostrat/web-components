@@ -3,15 +3,15 @@
 {join} = require 'path'
 Promise = require 'bluebird'
 
-sectionFilename = (fn, dataDir)->
+sectionFilename = (fn)->
   if PLATFORM == ELECTRON
-    dataDir ?= process.env.NAUKLUFT_DATA_DIR
-    return join dataDir, "Sections", "Digitized Images", "extracted-clipped", fn
+    dataDir = process.env.NAUKLUFT_DATA_DIR
+    return join dataDir, "Sections", "Digitized Images", "web-images", fn
   else
     return join BASE_URL, 'images', fn
 
-getSectionData = (dataDir)->
-  fn = sectionFilename('file-info.json', dataDir)
+getSectionData = ->
+  fn = sectionFilename('file-info.json')
   config = await getJSON fn
 
   query 'sections', null, {baseDir: __dirname}
@@ -21,9 +21,17 @@ getSectionData = (dataDir)->
       s.range = [s.start, s.end]
       # Height in meters
       s.height = s.end-s.start
-      s.imageFiles = files.reverse().map (d)->
-        d.filename = sectionFilename(d.filename)
-        return d
+
+      scaleFactor = files.height/s.height
+      console.log "Section #{s.id} scale factor: #{scaleFactor} px/m"
+
+      sz = 427
+      s.scaleFactor = scaleFactor
+      s.imageFiles = [1..files.n].map (i)->
+        filename = sectionFilename("section_#{s.id}_#{i}.png")
+        remaining = files.height-(i-1)*sz
+        height = if remaining > sz then sz else remaining
+        {width: sz, height, filename}
       return s
 
 module.exports = { getSectionData }

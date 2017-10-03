@@ -50,14 +50,8 @@ class SectionComponent extends Component
         padding[k] = @props.padding[k]*@props.zoom
 
     {left, top, right, bottom} = padding
-    # 8.1522
-    # 8.138565
-    # 8.1565
-    # This is really weird
-    if not @props.trackVisibility
-      scaleFactor = 8.138565
-    else
-      scaleFactor = 8.157
+
+    scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
     extraSpace = 2.5*zoom #@state.naturalHeight/innerHeight
 
     @state.scale.range [innerHeight, 0]
@@ -132,8 +126,8 @@ class SectionComponent extends Component
         padding
         lithologyWidth: @props.lithologyWidth
         imageFiles: @props.imageFiles
-        scaleFactor: scaleFactor
-        extraSpace: extraSpace
+        scaleFactor
+        extraSpace
         skeletal
         zoom
       }
