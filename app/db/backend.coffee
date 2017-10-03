@@ -30,8 +30,8 @@ class SerializableQuery
   constructor: (@id, @values, opts={})->
     query = storedProcedure(@id, opts)
     @sql = pgp.as.format(query, @values)
-    @uid = getUID arguments
-    @hash = getHash arguments
+    @uid = getUID @id, @values
+    @hash = getHash @id, @values
     queryLibrary.push(@)
   getData: -> db.query @sql
   filename: -> query.hash+'.json'

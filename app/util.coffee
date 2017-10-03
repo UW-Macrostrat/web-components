@@ -5,13 +5,13 @@ getJSON = (url)->
   if window? and PLATFORM != ELECTRON
     # We are using a web-like backend
     console.log "Requesting json at #{url}"
-    return new Promise (res, rej)->
+    return new Promise (resolve, reject)->
       req = require 'browser-request'
-      req {uri: url, json: true}, (err, data)->
+      req {uri: url, json: true}, (err, response)->
         if err?
           reject(err)
           return
-        res(data)
+        resolve(response.body)
   else
     # Assume we can do a direct require
     {readFileSync} = require 'fs'

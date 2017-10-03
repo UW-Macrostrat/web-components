@@ -4,8 +4,11 @@
 Promise = require 'bluebird'
 
 sectionFilename = (fn, dataDir)->
-  dataDir ?= process.env.NAUKLUFT_DATA_DIR
-  join dataDir, "Sections", "Digitized Images", "extracted-clipped", fn
+  if PLATFORM == ELECTRON
+    dataDir ?= process.env.NAUKLUFT_DATA_DIR
+    return join dataDir, "Sections", "Digitized Images", "extracted-clipped", fn
+  else
+    return join BASE_URL, 'images', fn
 
 getSectionData = (dataDir)->
   fn = sectionFilename('file-info.json', dataDir)

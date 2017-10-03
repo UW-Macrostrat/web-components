@@ -5,7 +5,9 @@ Promise = require 'bluebird'
 
 if PLATFORM == ELECTRON
   {db, storedProcedure, serializableQueries} = require './backend'
-  OUTPUT_DIRECTORY = join(process.env.PROJECT_DIR,"versioned","Products","webroot","queries")
+  QUERY_DIRECTORY = join(process.env.PROJECT_DIR,"versioned","Products","webroot","queries")
+else
+  QUERY_DIRECTORY = join(BASE_URL,"queries")
 
 __queryList = null
 query = (id, values, opts={})->
@@ -15,6 +17,7 @@ query = (id, values, opts={})->
   ###
   {baseDir} = opts
   if not SERIALIZED_QUERIES
+    # Get data directly from database (only works on backend)
     func = -> db.query storedProcedure(id, {baseDir}), values
     if not __queryList?
       ## Get a list of potentially serializable queries
@@ -30,7 +33,7 @@ query = (id, values, opts={})->
   # We get JSON from our library of stored queries
   fn = getHash(id,values)+'.json'
   console.log "Getting query file `#{fn}`"
-  getJSON "#{OUTPUT_DIRECTORY}/#{fn}"
+  getJSON "#{QUERY_DIRECTORY}/#{fn}"
 
 module.exports = {
   query

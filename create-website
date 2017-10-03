@@ -2,12 +2,18 @@
 
 fn=$PROJECT_DIR/versioned/Products/webroot
 query_dir="$fn/queries"
+image_dir="$fn/images"
 mkdir -p $fn $query_dir
 
 rm -rf node_modules/.cache
 
 # Serialize query datasets
 ./serialize-queries $query_dir
+
+rm -f "$image_dir"
+ln -s \
+  "$NAUKLUFT_DATA_DIR/Sections/Digitized Images/extracted-clipped" \
+  "$image_dir"
 
 # Compile code
 cp app/web-index.html $fn/index.html

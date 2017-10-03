@@ -65,7 +65,7 @@ module.exports = {
   entry: "./app/web-index.coffee"
   output:
     path: path.join webRoot, "assets"
-    publicPath: "/assets"
+    publicPath: "/assets/"
     filename: "app.js"
   plugins
 }

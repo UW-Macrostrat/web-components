@@ -8,6 +8,7 @@ try
 catch
   global.PLATFORM = WEB
   global.SERIALIZED_QUERIES = true
+  global.BASE_URL = "/"
 console.log "Running application on #{PLATFORM}"
 
 React = require 'react'
