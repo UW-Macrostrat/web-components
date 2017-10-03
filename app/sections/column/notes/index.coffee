@@ -136,9 +136,19 @@ class Note extends Component
           @props.editHandler(@props.d.id, text)
       }
     else
+      note_content = [h('span', {}, @props.d.note)]
+      {photos} = @props.d
+      if photos?
+        tx = "#{photos.length} photo"
+        if photos.length > 1
+          tx += 's'
+        photos_link = h 'a.photos-link', {href: ''}, tx
+        note_content.push photos_link
+
       v = h 'p.note-label',
           xmlns: "http://www.w3.org/1999/xhtml"
-          @props.d.note
+          note_content
+
     h 'div', {}, v
 
 

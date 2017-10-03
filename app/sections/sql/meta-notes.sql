@@ -4,7 +4,8 @@ SELECT
   coalesce(end_height,start_height) text_height,
   end_height-start_height span,
   coalesce(end_height > start_height, false) has_span,
-  note
+  note,
+  photo
 FROM section.section_note
 WHERE type = 'note'
   AND section = $1
