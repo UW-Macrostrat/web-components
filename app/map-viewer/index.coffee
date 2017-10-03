@@ -14,6 +14,11 @@ class MapView extends React.Component
 
     el = ReactDOM.findDOMNode @
 
+    if PLATFORM == ELECTRON
+      tileUrl = "http://localhost:39805/geology"
+    else
+      tileUrl = BASE_URL+"tiles"
+
     map = new mgl.Map
       container: el
       attributionControl: false
@@ -29,7 +34,7 @@ class MapView extends React.Component
             tileSize: 256
           geology:
             type: 'raster'
-            tiles: ["http://localhost:39805/geology/{z}/{x}/{y}/tile@2x.png"]
+            tiles: ["#{tileUrl}/{z}/{x}/{y}/tile@2x.png"]
             tileSize: 256
         layers: [
           {id: "geology", type: "raster", source: "geology"}
