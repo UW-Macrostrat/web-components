@@ -23,6 +23,7 @@ FocusStyleManager.onlyShowFocusOnTabs()
 {Icon} = require 'react-fa'
 {NavBar, NavLink} = require './nav'
 SectionPage = require './sections'
+MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
 Map = require './map-viewer'
@@ -62,6 +63,7 @@ class App extends React.Component
       route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
       route '/lateral-variation', wrapNavBar(LateralVariation)
       route '/map', wrapHomeButton(Map)
+      route '/map-legend', wrapNavBar(MapLegend)
     ]
 
   _toggleNavBar: =>
@@ -86,6 +88,7 @@ Home = ->
       navLink to: '/carbon-isotopes', "Carbon Isotopes"
       navLink to: '/lateral-variation', "Lateral Variation"
       navLink to: '/map', "Map"
+      navLink to: '/map-legend', "Map legend"
     ]
   ]
 

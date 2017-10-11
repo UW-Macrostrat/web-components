@@ -1,8 +1,9 @@
 d3 = require 'd3'
 require 'd3-selection-multi'
 {stratify} = require 'd3-hierarchy'
-Query = require '../database'
 style = require './main.styl'
+{query} = require '../db'
+classNames = require 'classnames'
 
 makeNested = (item)->
   # Recursively callable function to make nested data
@@ -33,18 +34,19 @@ makeNested = (item)->
       vals.filter (d)->d.data.level?
     .enter().append 'div'
       .attrs class: (d)->
-        t = d.data.type or 'div'
-        val = "child #{style[t]}"
-        children = d.children or []
-        if children.length == 0
-          val += " #{style['nochildren']}"
-        return val
+        ch = d.children or []
+        return classNames(
+          "child",
+           d.data.type or 'div',
+           {nochildren: ch.length == 0})
 
   if not children.empty()
     children.call makeNested
 
-createLegend = (data)->
-  wrap = d3.select '#wrap'
+createLegend = (el)->
+  data = await query("unit-data",null, {baseDir: __dirname})
+
+  wrap = d3.select el
 
   data.push unit_id: 'root', name: 'Legend'
 
@@ -66,6 +68,4 @@ createLegend = (data)->
     .attrs class: style.root
     .call makeNested
 
-Query "#{__dirname}/unit-data.sql"
-  .then (d)->d.rows
-  .then createLegend
+module.exports = createLegend
