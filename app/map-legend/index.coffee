@@ -22,7 +22,6 @@ makeNested = (item)->
   item.styles
     'border-color': color
 
-
   c = item.append 'div'
     .attrs class: style.children
 
