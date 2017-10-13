@@ -5,6 +5,9 @@ style = require './main.styl'
 {query} = require '../db'
 classNames = require 'classnames'
 
+makeMapUnit = (d)->
+  console.log d
+
 makeNested = (item)->
   # Recursively callable function to make nested data
   #
@@ -34,6 +37,7 @@ makeNested = (item)->
       vals.filter (d)->d.data.level?
     .enter().append 'div'
       .attrs class: (d)->
+        console.log d
         ch = d.children or []
         return classNames(
           "child",
