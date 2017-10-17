@@ -46,7 +46,7 @@
     "js-yaml": "^3.7.0",
     "leaflet": "^1.0.3",
     "node-cjsx": "^2.0.0",
-    "pdf-printer": "file:../deps/node/pdf-printer",
+    "pdf-printer": "file:../deps/pdf-printer",
     "pg": "^6.1.2",
     "pg-promise": "^5.5.0",
     "replace-ext": "^1.0.0",
