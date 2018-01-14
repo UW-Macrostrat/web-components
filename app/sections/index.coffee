@@ -2,9 +2,11 @@
 require './main.styl'
 styles = require './section-index.styl'
 h = require 'react-hyperscript'
+{Route, Switch} = require 'react-router-dom'
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
 {getSectionData} = require './section-data'
+SectionPage = require './section-page'
 
 {nest} = require 'd3'
 
@@ -20,17 +22,16 @@ createSectionLink = (d)->
   ]
   navLink
 
+
 class SectionIndexPage extends Component
   constructor: (props)->
     super props
-    @state =
-      sections: []
 
   render: ->
 
     nestedSections = nest()
       .key (d)->d.location
-      .entries @state.sections
+      .entries @props.sections
 
     locations = nestedSections.map (nest)->
       {key,values} = nest
@@ -49,11 +50,33 @@ class SectionIndexPage extends Component
       ]
     ]
 
+class SectionIndex extends Component
+  constructor: (props)->
+    super props
+    @state =
+      sections: []
+
+  render: ->
+
+    {match} = @props
+    {sections} = @state
+    routes = sections.map (d)->
+      component = SectionPage
+      h Route, {path: match.url+'/'+d.id, component}
+
+    routes.push h Route, {
+      path: match.url+'/'
+      exact: true
+      render: => h(SectionIndexPage, {sections}, null)
+    }
+
+    h Switch, routes
+
   getInitialData: ->
     sections = await getSectionData()
-    @setState sections: sections
+    @setState {sections}
 
   componentDidMount: ->
     @getInitialData()
 
-module.exports = SectionIndexPage
+module.exports = SectionIndex
