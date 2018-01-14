@@ -4,9 +4,7 @@
 # Queries have to have unique identifiers and combinations of parameters
 
 getUID = (id, values)->
-  v = JSON.stringify([id,values])
-  console.log v
-  return v
+  return JSON.stringify([id,values])
 
 getHash = (id,values)->
   uid = getUID id,values

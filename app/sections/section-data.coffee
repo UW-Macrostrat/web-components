@@ -10,7 +10,8 @@ sectionFilename = (fn)->
   else
     return join BASE_URL, 'images', fn
 
-getSectionData = ->
+getSectionData = (opts={})->
+  opts.verbose ?= false
   fn = sectionFilename('file-info.json')
   config = await getJSON fn
 
@@ -23,7 +24,8 @@ getSectionData = ->
       s.height = s.end-s.start
 
       scaleFactor = files.height/s.height
-      console.log "Section #{s.id} scale factor: #{scaleFactor} px/m"
+      if opts.verbose
+        console.log "Section #{s.id} scale factor: #{scaleFactor} px/m"
 
       sz = 427
       s.scaleFactor = scaleFactor

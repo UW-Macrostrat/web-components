@@ -6,7 +6,7 @@ h = require 'react-hyperscript'
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
 {getSectionData} = require './section-data'
-SectionPage = require './section-page'
+SectionPage = require './single-section'
 
 {nest} = require 'd3'
 
@@ -57,20 +57,24 @@ class SectionIndex extends Component
       sections: []
 
   render: ->
-
     {match} = @props
     {sections} = @state
-    routes = sections.map (d)->
-      component = SectionPage
-      h Route, {path: match.url+'/'+d.id, component}
 
-    routes.push h Route, {
-      path: match.url+'/'
-      exact: true
-      render: => h(SectionIndexPage, {sections}, null)
-    }
-
-    h Switch, routes
+    h Switch, [
+      h Route, {
+        path: match.url+'/'
+        exact: true
+        render: => h(SectionIndexPage, {sections}, null)
+      }
+      h Route, {
+        path: match.url+'/:id', render: (props)->
+          {id} = props.match.params
+          section = sections.find (d)->d.id == id
+          if not section?
+            return h 'div'
+          h SectionPage, {section}
+      }
+    ]
 
   getInitialData: ->
     sections = await getSectionData()
