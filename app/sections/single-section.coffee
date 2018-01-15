@@ -87,7 +87,9 @@ class SectionPage extends Component
           trackVisibility: false
           section...,
           offsetTop: 0,
-          key, skeletal, @state.options...}
+          key, skeletal,
+          @state.options...
+        }
       ]
       h SettingsPanel, @state.options
     ]

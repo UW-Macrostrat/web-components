@@ -142,6 +142,7 @@ class Note extends Component
         tx = "#{photos.length} photo"
         if photos.length > 1
           tx += 's'
+        console.log photos
         photos_link = h 'a.photos-link', {href: ''}, tx
         note_content.push photos_link
 
