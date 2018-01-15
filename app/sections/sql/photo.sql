@@ -1,5 +1,5 @@
 SELECT
-  p.id,
+  p.id::integer,
   image_id,
   date,
   geometry,
