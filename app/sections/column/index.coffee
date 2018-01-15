@@ -17,6 +17,7 @@ class SectionComponent extends Component
     visible: false
     trackVisibility: true
     innerWidth: 280
+    offsetTop: null
     height: 100 # Section height in meters
     lithologyWidth: 40
     logWidth: 350
@@ -59,7 +60,9 @@ class SectionComponent extends Component
     innerWidth = @props.innerWidth*@props.zoom
     outerWidth = innerWidth+(left+right)
 
-    heightOfTop = 670-@props.height-parseFloat(@props.offset)
+    {heightOfTop} = @props
+    #if not heightOfTop?
+    #  heightOfTop = 670-@props.height-@props.offset
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     [bottom,top] = @props.range
@@ -186,10 +189,11 @@ class SectionComponent extends Component
     el = findDOMNode @
 
     {scale} = @state
-    {height, zoom, offset} = @props
+    {height, zoom, offset, offsetTop} = @props
     pixelsPerMeter = Math.abs(scale(1)-scale(0))
 
-    heightOfTop = 670-height-offset
+    offsetTop ?= 670-height-offset
+    heightOfTop = offsetTop
     desiredPosition = heightOfTop*pixelsPerMeter
     console.log "Section #{@props.id}: offset #{heightOfTop} m, desired #{desiredPosition} px"
     offs = 0
@@ -200,8 +204,8 @@ class SectionComponent extends Component
       {bottom} = sib.getBoundingClientRect()
       offs = bottom-top
       console.log top,bottom
-    el.style.marginTop = "#{desiredPosition-offs}px"
-    console.log "              position: #{el.style.marginTop} px"
+    #el.style.marginTop = "#{desiredPosition-offs}px"
+    #console.log "              position: #{el.style.marginTop} px"
 
   computeWidth: =>
     if @props.showNotes

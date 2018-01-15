@@ -72,8 +72,7 @@ class SectionPage extends Component
     key = section.id # Because react
     skeletal = @state.options.activeMode == 'skeleton'
 
-
-    elements = [
+    h 'div.page.section-page.single-section', [
       h 'div#section-pane', [
         h 'ul.controls', [
           h NavLink, to: '/sections', [h Icon, name: 'arrow-left', size: '2x']
@@ -84,13 +83,14 @@ class SectionPage extends Component
             ]
           ]
         ]
-        h SectionComponent, {section..., key, skeletal, @state.options...}
-
+        h SectionComponent, {
+          trackVisibility: false
+          section...,
+          offsetTop: 0,
+          key, skeletal, @state.options...}
       ]
       h SettingsPanel, @state.options
     ]
-
-    h 'div.page.section-page', elements
 
   updateOptions: (opts)=>
     newOptions = update @state.options, opts
