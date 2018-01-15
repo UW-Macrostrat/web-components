@@ -1,8 +1,8 @@
-WITH photo_notes AS (
+WITH __photo_notes AS (
   SELECT
     note_id,
     array_agg(photo_id) AS photos
-  FROM photo_note
+  FROM section.section_note_photo
   GROUP BY note_id
 )
 SELECT
@@ -16,7 +16,7 @@ SELECT
   coalesce(edited_note, note) note,
   photos
 FROM section.section_note n
-LEFT JOIN photo_notes ON n.id = note_id
+LEFT JOIN __photo_notes ON n.id = note_id
 WHERE section = $1
   AND coalesce(display_in_log, true)
   AND (

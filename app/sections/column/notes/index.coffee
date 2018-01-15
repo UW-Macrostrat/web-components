@@ -9,6 +9,7 @@ h = require 'react-hyperscript'
 FlexibleNode = require './flexible-node'
 PropTypes = require 'prop-types'
 {EditableText} = require '@blueprintjs/core'
+{PhotoOverlay} = require './photo-overlay'
 
 processNotesData = (opts)->(data)->
   index = []
@@ -89,6 +90,11 @@ class NoteSpan extends Component
 class Note extends Component
   @defaultProps:
     marginTop: 0
+
+  constructor: (props)->
+    super props
+    @state = {overlayIsEnabled: false}
+
   render: ->
     {scale, style, d, marginTop} = @props
     extraClasses = ''
@@ -142,9 +148,14 @@ class Note extends Component
         tx = "#{photos.length} photo"
         if photos.length > 1
           tx += 's'
-        console.log photos
-        photos_link = h 'a.photos-link', {href: ''}, tx
+        photos_link = h 'a.photos-link', {onClick: @toggleOverlay}, tx
         note_content.push photos_link
+
+        note_content.push h PhotoOverlay, {
+          isOpen: @state.overlayIsEnabled
+          onClose: @toggleOverlay
+          photoIDs: photos
+        }
 
       v = h 'p.note-label',
           xmlns: "http://www.w3.org/1999/xhtml"
@@ -152,6 +163,9 @@ class Note extends Component
 
     h 'div', {}, v
 
+  toggleOverlay: =>
+    {overlayIsEnabled} = @state
+    @setState overlayIsEnabled: not overlayIsEnabled
 
   positioningInfo: =>
     console.log @props.d.id
