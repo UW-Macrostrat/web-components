@@ -2,7 +2,9 @@ WITH __photo_notes AS (
   SELECT
     note_id,
     array_agg(photo_id) AS photos
-  FROM section.section_note_photo
+  FROM section.section_note_photo sn
+  JOIN photo p ON p.id = sn.photo_id
+  WHERE p.image_id NOT LIKE 'IMGP%'
   GROUP BY note_id
 )
 SELECT

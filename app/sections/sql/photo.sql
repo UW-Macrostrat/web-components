@@ -11,4 +11,4 @@ LEFT JOIN section.section_note_photo s
 LEFT JOIN section.section_note sn
   ON s.note_id = sn.id
 WHERE geometry IS NOT null
-OR p.id IN (SELECT photo_id FROM section.section_note_photo)
+   OR p.id IN (SELECT photo_id FROM section.section_note_photo)
