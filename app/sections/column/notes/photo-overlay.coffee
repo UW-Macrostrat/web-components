@@ -1,6 +1,5 @@
 {Component} = require 'react'
 {Dialog} = require '@blueprintjs/core'
-Slider = require('react-image-slider').default
 h = require 'react-hyperscript'
 Lightbox = require('react-images').default
 

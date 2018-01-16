@@ -49,6 +49,8 @@
     "pdf-printer": "file:../deps/pdf-printer",
     "pg": "^6.1.2",
     "pg-promise": "^5.5.0",
+    "react": "^16.2.0",
+    "react-hyperscript": "^3.0.0",
     "react-image-slider": "^0.1.0",
     "react-images": "^0.5.14",
     "replace-ext": "^1.0.0",
