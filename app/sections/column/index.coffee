@@ -45,7 +45,7 @@ class SectionComponent extends Component
 
     padding = {}
     for k,v of @props.padding
-      if k == 'left'
+      if k == 'left' or k == 'bottom'
         padding[k] = @props.padding[k]
       else
         padding[k] = @props.padding[k]*@props.zoom
@@ -58,6 +58,9 @@ class SectionComponent extends Component
     @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight+(top+bottom)
     innerWidth = @props.innerWidth*@props.zoom
+    if innerWidth < @props.lithologyWidth
+      innerWidth = @props.lithologyWidth
+
     outerWidth = innerWidth+(left+right)
 
     {heightOfTop} = @props
@@ -85,7 +88,6 @@ class SectionComponent extends Component
 
     # Set up number of ticks
     nticks = (@props.height*@props.zoom)/10
-
 
     innerElements = []
 
@@ -125,6 +127,8 @@ class SectionComponent extends Component
       width: outerWidth
       height: outerHeight
     }
+
+    console.log style
 
     notesEl = null
     if @props.showNotes and @props.zoom > 0.50
@@ -195,15 +199,6 @@ class SectionComponent extends Component
       offs = bottom-top
 
     el.style.marginTop = "#{desiredPosition-offs}px"
-
-
-  computeWidth: =>
-    if @props.showNotes
-      width = @props.containerWidth
-    else
-      width = @props.innerWidth+30
-    width *= @props.zoom
-    return width
 
   onVisibilityChange: (isVisible)=>
     return if isVisible == @state.visible
