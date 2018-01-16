@@ -72,6 +72,8 @@ class SectionPage extends Component
 
     key = section.id # Because react
     skeletal = @state.options.activeMode == 'skeleton'
+    {options} = @state
+    options.zoom = 1
 
     h 'div.page.section-page.single-section', [
       h 'div#section-pane', [
@@ -89,7 +91,7 @@ class SectionPage extends Component
           section...,
           offsetTop: 0,
           key, skeletal,
-          @state.options...
+          options...
         }
       ]
       h SettingsPanel, @state.options

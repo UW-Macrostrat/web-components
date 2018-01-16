@@ -11,11 +11,20 @@ class SectionNavigationControl extends Component
         h Icon, name: 'arrow-left', size: '2x'
       ]
 
+    settings = null
+    if @props.toggleSettings
+      settings = h 'li', [
+        h 'a', onClick: @props.toggleSettings, [
+          h Icon, name: 'gear', size: '2x'
+        ]
+      ]
+
     {children} = @props
 
     h 'ul.controls', [
       backButton
       h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
+      settings
       children
     ]
 

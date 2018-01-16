@@ -12,8 +12,8 @@ LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
 Measure = require('react-measure').default
 {ZoomablePanelContainer} = require '../panel'
+{SectionNavigationControl} = require '../util'
 PropTypes = require 'prop-types'
-{ Hotkey, Hotkeys, HotkeysTarget } = require "@blueprintjs/core"
 
 class SectionPage extends Component
   constructor: (props)->
@@ -22,7 +22,7 @@ class SectionPage extends Component
       sections: []
       dimensions: {}
       options:
-        zoom: 1
+        zoom: 0.25
         settingsPanelIsActive: false
         inEditMode: false
         modes: [
@@ -46,13 +46,6 @@ class SectionPage extends Component
     @optionsStorage = new LocalStorage 'sections-component'
     v = @optionsStorage.get()
     return unless v?
-    @state = update @state, options: {$merge: v}
-
-  getChildContext: ->
-    inEditMode: @state.options.inEditMode
-
-  @childContextTypes:
-    inEditMode: PropTypes.bool
 
   render: ->
 
@@ -67,7 +60,8 @@ class SectionPage extends Component
       onResize: resizeFunc
 
     panel = h Measure, obj, (measureRef)=>
-      {sections, dimensions, options} = @state
+      {sections} = @props
+      {dimensions, options} = @state
       h ZoomablePanelContainer, {
         sections, dimensions, options
         updatePosition: (pos)=>
@@ -75,16 +69,11 @@ class SectionPage extends Component
           @updateOptions dragPosition: {$set: pos}
       }
 
+    backLocation = '/sections'
+    {toggleSettings} = @
     elements = [
       h 'div#section-pane', [
-        h 'ul.controls', [
-          h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
-          h 'li', [
-            h 'a', onClick: @toggleSettings, [
-              h Icon, name: 'gear', size: '2x'
-            ]
-          ]
-        ]
+        h SectionNavigationControl, {backLocation, toggleSettings}
         panel
       ]
       h SettingsPanel, @state.options
@@ -99,67 +88,6 @@ class SectionPage extends Component
 
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
-
-  getInitialData: ->
-    getSectionData()
-      .then (sections)=>
-        @setState sections: sections
-        ids = sections.map (s)->s.id
-        @updateOptions sectionIDs: {$set: ids}
-        _el = findDOMNode @
-        el = select _el
-        el.selectAll 'img'
-          .on 'load', ->
-            console.log "Loaded all images"
-
-  componentDidMount: ->
-    @getInitialData()
-
-  componentDidUpdate: (prevProps, prevState)->
-    window.dispatchEvent(new Event('resize'))
-    {serializedQueries} = @state.options
-
-    if prevState.options.serializedQueries != serializedQueries
-      global.SERIALIZED_QUERIES = serializedQueries
-      console.log "Changed SERIALIZED_QUERIES to #{serializedQueries}"
-      @getInitialData()
-
-  zoomIn: =>
-    @updateOptions zoom: {
-      $apply: (d)-> if d < 2 then d * 1.25 else d
-    }
-
-  zoomOut: =>
-    @updateOptions zoom: {
-      $apply: (d)-> if d > 0.05 then d / 1.25 else d
-    }
-
-  zoomReset: =>
-    @updateOptions zoom: {$set: 1}
-
-  renderHotkeys: ->
-    h Hotkeys, [
-      h Hotkey, {
-        global: true
-        combo: "-"
-        label: "Zoom out"
-        onKeyDown: @zoomOut
-      }
-      h Hotkey, {
-        global: true
-        combo: "="
-        label: "Zoom in"
-        onKeyDown: @zoomIn
-      }
-      h Hotkey, {
-        global: true
-        combo: "0"
-        label: "Reset zoom"
-        onKeyDown: @zoomReset
-      }
-    ]
-
-HotkeysTarget SectionPage
 
 module.exports = SectionPage
 
