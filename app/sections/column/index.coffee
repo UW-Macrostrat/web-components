@@ -203,9 +203,6 @@ class SectionComponent extends Component
       {top} = el.parentElement.getBoundingClientRect()
       {bottom} = sib.getBoundingClientRect()
       offs = bottom-top
-      console.log top,bottom
-    #el.style.marginTop = "#{desiredPosition-offs}px"
-    #console.log "              position: #{el.style.marginTop} px"
 
   computeWidth: =>
     if @props.showNotes

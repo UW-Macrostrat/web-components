@@ -7,11 +7,12 @@ h = require 'react-hyperscript'
 {Icon} = require 'react-fa'
 {getSectionData} = require './section-data'
 SectionPage = require './single-section'
+SummarySections = require './summary-sections'
+{SectionNavigationControl} = require './util'
 
 {nest} = require 'd3'
 
 createSectionLink = (d)->
-  console.log d
   navLink = h NavLink, to: "/sections/"+d.id, [
     h 'div', [
       h 'div.title', [
@@ -21,7 +22,6 @@ createSectionLink = (d)->
     ]
   ]
   navLink
-
 
 class SectionIndexPage extends Component
   constructor: (props)->
@@ -41,11 +41,14 @@ class SectionIndexPage extends Component
       ]
 
     h 'div#homepage', [
-      h 'ul.controls', [
-        h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
-      ]
+      h SectionNavigationControl
       h 'div#section-pane', [
         h 'h1', 'Sections'
+        h 'ul.navigation', [
+          h NavLink, to: "/sections/summary", [
+            h 'div.title', 'Summary sections'
+          ]
+        ]
         locations...
       ]
     ]
@@ -65,6 +68,11 @@ class SectionIndex extends Component
         path: match.url+'/'
         exact: true
         render: => h(SectionIndexPage, {sections}, null)
+      }
+      h Route, {
+        path: match.url+'/summary'
+        exact: true
+        render: => h(SummarySections, {sections}, null)
       }
       h Route, {
         path: match.url+'/:id', render: (props)->

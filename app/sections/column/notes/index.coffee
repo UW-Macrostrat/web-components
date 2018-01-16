@@ -31,7 +31,7 @@ processNotesData = (opts)->(data)->
     note.offsetX = offsX
 
     txt = note.note or ''
-    estimatedTextHeight = ((txt.length//(opts.width/3.8))+1)*14+5
+    estimatedTextHeight = ((txt.length//(opts.width/3.8))+1)*16+5
     note.estimatedTextHeight = estimatedTextHeight
 
   nodes = data.map (note)=>

@@ -15,6 +15,7 @@ SectionComponent = require './column'
 {ZoomablePanelContainer} = require './panel'
 PropTypes = require 'prop-types'
 { Hotkey, Hotkeys, HotkeysTarget } = require "@blueprintjs/core"
+{SectionNavigationControl} = require '../util'
 
 class SectionPage extends Component
   constructor: (props)->
