@@ -24,6 +24,7 @@ class SectionComponent extends Component
     containerWidth: 1000
     skeletal: false
     showNotes: true
+    useRelativePositioning: true
     padding:
       left: 100
       top: 30
@@ -60,8 +61,6 @@ class SectionComponent extends Component
     outerWidth = innerWidth+(left+right)
 
     {heightOfTop} = @props
-    #if not heightOfTop?
-    #  heightOfTop = 670-@props.height-@props.offset
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     [bottom,top] = @props.range
@@ -180,7 +179,7 @@ class SectionComponent extends Component
 
     # If we're not moving sections from the top, don't mess with positioning
     # at runtime
-    return unless offset > 0
+    return unless @props.useRelativePositioning
 
     offsetTop ?= 670-height-offset
     heightOfTop = offsetTop

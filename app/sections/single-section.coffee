@@ -15,7 +15,7 @@ SectionComponent = require './column'
 {ZoomablePanelContainer} = require './panel'
 PropTypes = require 'prop-types'
 { Hotkey, Hotkeys, HotkeysTarget } = require "@blueprintjs/core"
-{SectionNavigationControl} = require '../util'
+{SectionNavigationControl} = require './util'
 
 class SectionPage extends Component
   constructor: (props)->
@@ -75,22 +75,17 @@ class SectionPage extends Component
     {options} = @state
     options.zoom = 1
 
+    backLocation = '/sections'
+    {toggleSettings} = @
     h 'div.page.section-page.single-section', [
+      h SectionNavigationControl, {backLocation, toggleSettings}
       h 'div#section-pane', [
-        h 'ul.controls', [
-          h NavLink, to: '/sections', [h Icon, name: 'arrow-left', size: '2x']
-          h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
-          h 'li', [
-            h 'a', onClick: @toggleSettings, [
-              h Icon, name: 'gear', size: '2x'
-            ]
-          ]
-        ]
         h SectionComponent, {
           trackVisibility: false
           section...,
           offsetTop: 0,
           key, skeletal,
+          useRelativePositioning: false
           options...
         }
       ]
