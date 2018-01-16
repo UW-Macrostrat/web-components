@@ -192,17 +192,25 @@ class SectionComponent extends Component
     {height, zoom, offset, offsetTop} = @props
     pixelsPerMeter = Math.abs(scale(1)-scale(0))
 
+    # If we're not moving sections from the top, don't mess with positioning
+    # at runtime
+    return unless offset > 0
+
     offsetTop ?= 670-height-offset
     heightOfTop = offsetTop
     desiredPosition = heightOfTop*pixelsPerMeter
     console.log "Section #{@props.id}: offset #{heightOfTop} m, desired #{desiredPosition} px"
-    offs = 0
 
+    # Set alignment
+    offs = 0
     sib = el.previousSibling
     if sib?
       {top} = el.parentElement.getBoundingClientRect()
       {bottom} = sib.getBoundingClientRect()
       offs = bottom-top
+
+    el.style.marginTop = "#{desiredPosition-offs}px"
+
 
   computeWidth: =>
     if @props.showNotes
