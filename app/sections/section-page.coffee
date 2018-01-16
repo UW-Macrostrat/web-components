@@ -78,6 +78,7 @@ class SectionPage extends Component
     elements = [
       h 'div#section-pane', [
         h 'ul.controls', [
+          h NavLink, to: '/sections', [h Icon, name: 'arrow-left', size: '2x']
           h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
           h 'li', [
             h 'a', onClick: @toggleSettings, [

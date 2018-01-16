@@ -8,6 +8,7 @@ h = require 'react-hyperscript'
 {getSectionData} = require './section-data'
 SectionPage = require './single-section'
 SummarySections = require './summary-sections'
+AllSections = require './section-page'
 {SectionNavigationControl} = require './util'
 
 {nest} = require 'd3'
@@ -48,6 +49,9 @@ class SectionIndexPage extends Component
           h NavLink, to: "/sections/summary", [
             h 'div.title', 'Summary sections'
           ]
+          h NavLink, to: "/sections/all", [
+            h 'div.title', 'All sections'
+          ]
         ]
         locations...
       ]
@@ -73,6 +77,11 @@ class SectionIndex extends Component
         path: match.url+'/summary'
         exact: true
         render: => h(SummarySections, {sections}, null)
+      }
+      h Route, {
+        path: match.url+'/all'
+        exact: true
+        render: => h(AllSections, {sections}, null)
       }
       h Route, {
         path: match.url+'/:id', render: (props)->
