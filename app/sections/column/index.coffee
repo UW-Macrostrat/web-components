@@ -4,7 +4,6 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 VisibilitySensor = require 'react-visibility-sensor'
-LithologyColumn = require './lithology'
 SectionOverlay = require './overlay'
 SectionImages = require './images'
 NotesColumn = require './notes'
@@ -89,20 +88,7 @@ class SectionComponent extends Component
     nticks = (@props.height*@props.zoom)/10
 
 
-    innerElements = [
-      h LithologyColumn, {
-        style:
-          height: innerHeight
-          width: @props.lithologyWidth
-          top: padding.top
-          left: padding.left
-        id
-        scale
-        skeletal
-        zoom
-        visible
-      }
-    ]
+    innerElements = []
 
     if @state.visible
       _ = h SectionOverlay, {

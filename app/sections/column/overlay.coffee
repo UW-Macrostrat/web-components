@@ -5,6 +5,7 @@ Samples = require './samples'
 FloodingSurfaces = require './flooding-surfaces'
 h = require 'react-hyperscript'
 d3 = require 'd3'
+LithologyColumn = require './lithology'
 
 class SectionOverlay extends Component
   @defaultProps:
@@ -19,7 +20,7 @@ class SectionOverlay extends Component
     #@yAxis.scale(@props.scale)
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
-    {lithologyWidth, zoom, id} = @props
+    {lithologyWidth, zoom, id, scale} = @props
 
     range = [128,208].map (d)->d-40
       .map (d)->d*zoom
@@ -27,13 +28,13 @@ class SectionOverlay extends Component
 
     gs = null
     samples = null
-    if @props.zoom > 0.4
+
+    if zoom > 0.4
       gs = h GrainsizeScale, {
         height: @props.innerHeight
-        range: range
+        range
       }
 
-      {scale, zoom} = @props
       if @props.showCarbonIsotopes
         samples = h Samples, {scale, zoom, id}
       else
@@ -50,6 +51,12 @@ class SectionOverlay extends Component
     }, [
       h 'g.backdrop', {transform}, [
         h 'g.y.axis'
+        h LithologyColumn, {
+          width: lithologyWidth
+          height: @props.innerHeight
+          scale
+          id
+        }
         gs
         samples
         surf

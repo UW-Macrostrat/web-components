@@ -141,7 +141,4 @@ class ZoomablePanelContainer extends Component
     else
       @dragdealer.disable()
 
-class SimplePanelContainer extends Component
-
-
-module.exports = {SectionPanel,ZoomablePanelContainer,SimplePanelContainer}
+module.exports = {SectionPanel,ZoomablePanelContainer}

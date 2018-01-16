@@ -5,11 +5,11 @@ SELECT
   coalesce(v.pattern, l.lithology) pattern,
   coalesce(l.schematic, false) schematic,
   fgdc_pattern,
-  l.bottom::numeric,
+  l.bottom::float,
   coalesce(
     lead(l.bottom) OVER (ORDER BY l.bottom),
     s.end
-  )::numeric top,
+  )::float top,
   t.tree
 FROM section.section_lithology l
 JOIN section.lithology_tree t

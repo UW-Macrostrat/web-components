@@ -23,14 +23,13 @@ class SummarySections extends Component
       dimensions: {}
       options:
         settingsPanelIsActive: false
-        inEditMode: false
         modes: [
           {value: 'normal', label: 'Normal'}
           {value: 'skeleton', label: 'Skeleton'}
           #{value: 'sequence-stratigraphy', label: 'Sequence Strat.'}
         ]
         activeMode: 'normal'
-        showNotes: true
+        showNotes: false
         showFloodingSurfaces: false
         # Allows us to test the serialized query mode
         # we are developing for the web

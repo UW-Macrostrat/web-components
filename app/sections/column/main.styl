@@ -1,21 +1,18 @@
 
-div.lithology-column
-  border: 2px solid black
-  position: absolute
-  overflow: hidden
-  span.lithology
-    &:first-child
-      border-top: none
-    display: block
-    position: absolute
-    left: -5
-    width: 500px
-    //background-size: 100px 100px
-    background-color: white
+g.lithology-column
+  rect.frame
+    stroke: black
+    stroke-width 2px
+  rect.lithology
+    stroke #aaa
     &.definite
-      border: 1px solid black
+      stroke: #444
+      stroke-width: 0.5px
     &.covered
-      background-color: lightness(red,80%)
+      stroke-width: 0.5px
+  rect.covered-area
+    fill: red
+    fill-opacity 0.2
 
 div.section-container
   position: relative

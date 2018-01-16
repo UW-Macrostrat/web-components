@@ -33,6 +33,7 @@
     "bluebird": "^3.4.7",
     "browser-request": "^0.3.3",
     "carto": "^0.17.2",
+    "classnames": "^2.2.5",
     "coffeescript": "next",
     "css-modules-require-hook": "^4.0.6",
     "d3": "^4.4.1",

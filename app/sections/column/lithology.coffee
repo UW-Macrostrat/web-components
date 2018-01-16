@@ -3,6 +3,8 @@
 {Component} = require 'react'
 h = require 'react-hyperscript'
 {join} = require 'path'
+{v4} = require 'uuid'
+classNames = require 'classnames'
 
 symbolIndex =
   'dolomite-limestone': 641
@@ -17,11 +19,12 @@ symbolIndex =
   'mudstone': 620
   'sandy-dolomite': 645
 
-resolveSymbol = (d)->
+resolveID = (d)->
   if d.fgdc_pattern?
-    id = d.fgdc_pattern
-  else
-    id = symbolIndex[d.pattern]
+    return d.fgdc_pattern
+  return symbolIndex[d.pattern]
+
+resolveSymbol = (id)->
   try
     if PLATFORM == ELECTRON
       q = require.resolve "geologic-patterns/assets/png/#{id}.png"
@@ -31,39 +34,87 @@ resolveSymbol = (d)->
   catch
     return ''
 
+__divisionSize = (d)->
+  {bottom,top} = d
+  if top < bottom
+    [top,bottom] = [bottom,top]
+  return [bottom, top]
+
 class LithologyColumn extends Component
+  @defaultProps:
+    width: 100
+    height: 100
+    visible: true
   constructor: (props)->
     super props
     @state =
+      patternUUID: v4()
       divisions: []
+      patterns: []
     query 'lithology', [@props.id]
-      .then (data)=>
-        data.reverse()
-        @setState divisions: data
+      .then @setupData
+
+  setupData: (divisions)=>
+    divisions.reverse()
+    patterns = divisions
+      .map(resolveID)
+      .filter((x, i, a) => a.indexOf(x) == i)
+    @setState {divisions, patterns}
 
   render: ->
-    {style, scale, visible} = @props
-    divisions = if visible then @state.divisions else []
-    h 'div.lithology-column', {style},
-      divisions.map (d)->
-        classes = '.lithology'
-        classes += '.definite' if d.definite_boundary
-        classes += '.covered' if d.covered
+    {scale, visible} = @props
+    {divisions} = @state
+    divisions = [] unless visible
+    {width, height} = @props
+    h 'g.lithology-column', [
+      @createDefs()
+      divisions.map(@renderDivision)...
+      divisions.map(@renderCoveredOverlay)...
+      h 'rect.frame', {x:0,y:0,width,height,fill:'transparent'}
+    ]
 
-        y = scale(d.top)
-        height = scale(d.bottom)-y
-
-        fn = resolveSymbol d
-
-        style = {
-          position: 'absolute'
-          top: y
-          height: height + 2# A little overlap
-          'backgroundImage': "url(#{fn})"
-          'backgroundSize': '100px 100px'
+  createDefs: ->
+    width = 100
+    height = 100
+    {patternUUID,patterns} = @state
+    elements = patterns.map (d)->
+      h 'pattern', {
+        id: "#{patternUUID}-#{d}"
+        patternUnits: "userSpaceOnUse"
+        width,
+        height
+      }, [
+        h 'image', {
+          href: resolveSymbol(d)
+          x:0,y:0, width, height
         }
+      ]
 
-        h "span#{classes}", {style}
+    h 'defs', elements
 
+  renderDivision: (d)=>
+    className = classNames({
+      definite: d.definite_boundary
+      covered: d.covered}, 'lithology')
+
+    {width,scale} = @props
+    {patternUUID} = @state
+    [bottom,top] = __divisionSize(d)
+    y = scale(top)
+    height = scale(bottom)-y+1
+
+    fn = resolveSymbol d
+
+    __ = resolveID(d)
+    fill = "url(##{patternUUID}-#{__})"
+    h "rect", {className,y, width, height, fill}
+
+  renderCoveredOverlay: (d)=>
+    return null if not d.covered
+    {width,scale} = @props
+    [bottom,top] = __divisionSize(d)
+    y = scale(top)
+    height = scale(bottom)-y+1
+    h "rect.covered-area", {y, width, height}
 
 module.exports = LithologyColumn
