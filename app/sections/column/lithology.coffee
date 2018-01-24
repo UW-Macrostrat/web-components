@@ -1,10 +1,11 @@
 {query} = require '../db'
 {select} = require 'd3-selection'
-{Component} = require 'react'
+{Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 {join} = require 'path'
 {v4} = require 'uuid'
 classNames = require 'classnames'
+{createGrainsizeScale} = require './grainsize'
 
 symbolIndex =
   'dolomite-limestone': 641
@@ -104,10 +105,12 @@ class LithologyColumn extends Component
 
     {width, height} = @props
     frame = h "rect#{@frameID}", {x:0,y:0,width,height}
-    clipPath = h "clipPath#{@clipID}", [
-      h 'use', {'href': @frameID}
-    ]
 
+    clipPath = createElement(
+      "clipPath",
+      {id: @clipID.slice(1)}, [
+        h 'use', {'href': @frameID}
+      ])
     h 'defs', [frame,clipPath,elements...]
 
   renderDivision: (d)=>
@@ -116,7 +119,6 @@ class LithologyColumn extends Component
       covered: d.covered}, 'lithology')
 
     {width,scale} = @props
-    {patternUUID} = @state
     [bottom,top] = __divisionSize(d)
     y = scale(top)
     height = scale(bottom)-y+1
@@ -125,7 +127,7 @@ class LithologyColumn extends Component
 
     __ = @resolveID(d)
     fill = "url(##{@UUID}-#{__})"
-    h "rect", {className,y, width, height, fill}
+    h "rect", {className,y, x: -5, width: width+10, height, fill}
 
   renderCoveredOverlay: (d)=>
     return null if not d.covered
@@ -136,6 +138,11 @@ class LithologyColumn extends Component
     h "rect.covered-area", {y, width, height}
 
 class GeneralizedSectionColumn extends LithologyColumn
+  constructor: (props)->
+    super props
+  componentWillUpdate: (props)->
+    {width} = props
+    @scale = createGrainsizeScale([width/4, width])
   renderCoveredOverlay: ->
     return null
   resolveID: (d)->

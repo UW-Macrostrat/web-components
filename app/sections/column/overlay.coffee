@@ -1,6 +1,6 @@
 {Component, createElement} = require 'react'
 {findDOMNode} = require 'react-dom'
-GrainsizeScale = require './grainsize'
+{GrainsizeScale} = require './grainsize'
 Samples = require './samples'
 FloodingSurfaces = require './flooding-surfaces'
 h = require 'react-hyperscript'

@@ -102,6 +102,7 @@ class SVGSectionComponent extends BaseSectionComponent
     style = {
       width: outerWidth
       height: outerHeight
+      xmlns: "http://www.w3.org/2000/svg"
     }
 
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
