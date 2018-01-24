@@ -6,6 +6,7 @@ h = require 'react-hyperscript'
 {v4} = require 'uuid'
 classNames = require 'classnames'
 {createGrainsizeScale} = require './grainsize'
+{path} = require 'd3-path'
 
 symbolIndex =
   'dolomite-limestone': 641
@@ -68,6 +69,10 @@ class LithologyColumn extends Component
       .filter((x, i, a) => a.indexOf(x) == i)
     @setState {divisions, patterns}
 
+  createFrame: ->
+    {width, height} = @props
+    h "rect#{@frameID}", {x:0,y:0,width,height}
+
   render: ->
     {scale, visible,left} = @props
     {divisions} = @state
@@ -84,7 +89,7 @@ class LithologyColumn extends Component
         divisions.map(@renderDivision)...
         divisions.map(@renderCoveredOverlay)...
       ]
-      h 'use.frame', {href: @frameID,fill:'transparent'}
+      h 'use.frame', {href: @frameID, fill:'transparent'}
     ]
 
   createDefs: =>
@@ -103,15 +108,16 @@ class LithologyColumn extends Component
         }
       ]
 
-    {width, height} = @props
-    frame = h "rect#{@frameID}", {x:0,y:0,width,height}
-
     clipPath = createElement(
       "clipPath",
       {id: @clipID.slice(1)}, [
         h 'use', {'href': @frameID}
       ])
-    h 'defs', [frame,clipPath,elements...]
+    h 'defs', [
+      @createFrame()
+      clipPath
+      elements...
+    ]
 
   renderDivision: (d)=>
     className = classNames({
@@ -142,12 +148,33 @@ class GeneralizedSectionColumn extends LithologyColumn
     super props
   componentWillUpdate: (props)->
     {width} = props
-    @scale = createGrainsizeScale([width/4, width])
+    @grainsizeScale = createGrainsizeScale([width/4, width])
   renderCoveredOverlay: ->
     return null
   resolveID: (d)->
     p = symbolIndex[d.fill_pattern]
     return p if p?
     return d.fill_pattern
+
+  createFrame: ->
+    {scale} = @props
+    {divisions} = @state
+    if divisions.length == 0
+      return super.createFrame()
+
+    topOf = (d)->
+      scale(d.top)
+    bottomOf = (d)->
+      scale(d.bottom)
+
+    _ = path()
+    _.moveTo(0,topOf(divisions[0]))
+    for div in divisions
+      x = @grainsizeScale(div.grainsize)
+      _.lineTo x, topOf(div)
+      _.lineTo x, bottomOf(div)
+    _.lineTo 0, bottomOf(div)
+    _.closePath()
+    h "path#{@frameID}", {d: _.toString()}
 
 module.exports = {LithologyColumn, GeneralizedSectionColumn}
