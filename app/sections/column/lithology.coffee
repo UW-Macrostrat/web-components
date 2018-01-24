@@ -48,10 +48,15 @@ class LithologyColumn extends Component
     left: 0
   constructor: (props)->
     super props
-    @state =
-      patternUUID: v4()
+    @UUID = v4()
+    @frameID = "#frame-#{@UUID}"
+    @clipID = "#clip-#{@UUID}"
+
+    @state = {
       divisions: []
       patterns: []
+    }
+
     query 'lithology', [@props.id]
       .then @setupData
 
@@ -71,31 +76,39 @@ class LithologyColumn extends Component
     if left?
       transform = "translate(#{left})"
 
+    clipPath = "url(#{@clipID})"
     h 'g.lithology-column', {transform},[
       @createDefs()
-      divisions.map(@renderDivision)...
-      divisions.map(@renderCoveredOverlay)...
-      h 'rect.frame', {x:0,y:0,width,height,fill:'transparent'}
+      h 'g.lithology-inner', {clipPath}, [
+        divisions.map(@renderDivision)...
+        divisions.map(@renderCoveredOverlay)...
+      ]
+      h 'use.frame', {href: @frameID,fill:'transparent'}
     ]
 
-  createDefs: ->
-    width = 100
-    height = 100
-    {patternUUID,patterns} = @state
-    elements = patterns.map (d)->
+  createDefs: =>
+    patternSize = {width: 100, height: 100}
+    {patterns} = @state
+    elements = patterns.map (d)=>
       h 'pattern', {
-        id: "#{patternUUID}-#{d}"
+        id: "#{@UUID}-#{d}"
         patternUnits: "userSpaceOnUse"
-        width,
-        height
+        patternSize...
       }, [
         h 'image', {
           href: resolveSymbol(d)
-          x:0,y:0, width, height
+          x:0,y:0
+          patternSize...
         }
       ]
 
-    h 'defs', elements
+    {width, height} = @props
+    frame = h "rect#{@frameID}", {x:0,y:0,width,height}
+    clipPath = h "clipPath#{@clipID}", [
+      h 'use', {'href': @frameID}
+    ]
+
+    h 'defs', [frame,clipPath,elements...]
 
   renderDivision: (d)=>
     className = classNames({
@@ -111,7 +124,7 @@ class LithologyColumn extends Component
     fn = resolveSymbol d
 
     __ = resolveID(d)
-    fill = "url(##{patternUUID}-#{__})"
+    fill = "url(##{@UUID}-#{__})"
     h "rect", {className,y, width, height, fill}
 
   renderCoveredOverlay: (d)=>
