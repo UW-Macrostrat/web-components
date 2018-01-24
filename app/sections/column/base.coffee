@@ -4,6 +4,7 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 {SectionOverlay, SectionAxis} = require './overlay'
+LithologyColumn = require './lithology'
 require './main.styl'
 
 class BaseSectionComponent extends Component
@@ -71,7 +72,7 @@ class SVGSectionComponent extends BaseSectionComponent
       scale: d3.scaleLinear().domain(@props.range)
 
   render: ->
-    {id, zoom, padding} = @props
+    {id, zoom, padding, lithologyWidth} = @props
 
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
@@ -102,37 +103,28 @@ class SVGSectionComponent extends BaseSectionComponent
     # Set up number of ticks
     nticks = (@props.height*@props.zoom)/10
 
-    innerElements = []
-
-    if @state.visible
-      _ = h SectionOverlay, {
-        id
-        height: @props.height
-        range: @props.range
-        padding
-        lithologyWidth: @props.lithologyWidth
-        ticks: nticks
-        innerHeight
-        outerHeight
-        innerWidth
-        outerWidth
-        scale
-        skeletal
-        zoom
-        showCarbonIsotopes: @props.showCarbonIsotopes
-        showFloodingSurfaces: @props.showFloodingSurfaces
-      }
-      innerElements.push _
-
     style = {
       width: outerWidth
       height: outerHeight
     }
 
+    transform = "translate(#{@props.padding.left} #{@props.padding.top})"
     children= [
       h 'div.section-header', [h "h2", txt]
       h 'div.section-outer', [
-        h 'div.section', {style}, innerElements
+        h 'div.section', {style}, [
+          h "svg.overlay", style, [
+            h 'g.backdrop', {transform}, [
+              h SectionAxis, {scale, ticks: nticks}
+              h LithologyColumn, {
+                width: lithologyWidth
+                height: innerHeight
+                scale
+                id
+              }
+            ]
+          ]
+        ]
       ]
     ]
 
