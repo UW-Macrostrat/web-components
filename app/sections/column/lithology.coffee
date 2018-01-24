@@ -19,11 +19,6 @@ symbolIndex =
   'mudstone': 620
   'sandy-dolomite': 645
 
-resolveID = (d)->
-  if d.fgdc_pattern?
-    return d.fgdc_pattern
-  return symbolIndex[d.pattern]
-
 resolveSymbol = (id)->
   try
     if PLATFORM == ELECTRON
@@ -60,10 +55,15 @@ class LithologyColumn extends Component
     query 'lithology', [@props.id]
       .then @setupData
 
+  resolveID: (d)->
+    if d.fgdc_pattern?
+      return d.fgdc_pattern
+    return symbolIndex[d.pattern]
+
   setupData: (divisions)=>
     divisions.reverse()
     patterns = divisions
-      .map(resolveID)
+      .map(@resolveID)
       .filter((x, i, a) => a.indexOf(x) == i)
     @setState {divisions, patterns}
 
@@ -123,7 +123,7 @@ class LithologyColumn extends Component
 
     fn = resolveSymbol d
 
-    __ = resolveID(d)
+    __ = @resolveID(d)
     fill = "url(##{@UUID}-#{__})"
     h "rect", {className,y, width, height, fill}
 
@@ -136,5 +136,11 @@ class LithologyColumn extends Component
     h "rect.covered-area", {y, width, height}
 
 class GeneralizedSectionColumn extends LithologyColumn
+  renderCoveredOverlay: ->
+    return null
+  resolveID: (d)->
+    p = symbolIndex[d.fill_pattern]
+    return p if p?
+    return d.fill_pattern
 
 module.exports = {LithologyColumn, GeneralizedSectionColumn}
