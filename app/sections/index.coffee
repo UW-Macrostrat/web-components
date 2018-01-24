@@ -8,7 +8,7 @@ h = require 'react-hyperscript'
 {getSectionData} = require './section-data'
 SectionPage = require './single-section'
 SummarySections = require './summary-sections'
-AllSections = require './section-page'
+{AllSections} = require './section-page'
 {SectionNavigationControl} = require './util'
 
 {nest} = require 'd3'
@@ -66,6 +66,9 @@ class SectionIndex extends Component
   render: ->
     {match} = @props
     {sections} = @state
+
+    if sections.length == 0
+      return h 'div'
 
     h Switch, [
       h Route, {

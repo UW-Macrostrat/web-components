@@ -2,7 +2,7 @@
 {Component} = require 'react'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
-SectionComponent = require './column'
+{SectionComponent} = require './column'
 {Dragdealer} = require 'dragdealer'
 require './main.styl'
 require 'dragdealer/src/dragdealer.css'
@@ -45,30 +45,20 @@ class SectionPanel extends Component
   constructor: (props)->
     super props
 
-  createSectionElement: (row)=>
-    row.key = row.id # Because react
-    row.zoom = @props.zoom
-    row.skeletal = @props.activeMode == 'skeleton'
-    row.showNotes = @props.showNotes
-    row.showFloodingSurfaces = @props.showFloodingSurfaces
-    row.showCarbonIsotopes = @props.showCarbonIsotopes
-    row.trackVisibility = @props.trackVisibility
-    h SectionComponent, row
-
   render: ->
     console.log "Rendering section panel"
 
     stackGroup = (d)=>
       if @props.condensedDisplay
         for g in stackGroups
-          if g.indexOf(d.id) != -1
+          if g.indexOf(d.key) != -1
             return g
       return d.id
 
     sectionGroups = d3.nest()
-      .key (d)->d.location
+      .key (d)->d.props.location
       .key stackGroup
-      .entries @props.sections
+      .entries @props.children
 
     sectionGroups.sort (a,b)->
       groupOrder.indexOf(a.key)-groupOrder.indexOf(b.key)
@@ -77,7 +67,7 @@ class SectionPanel extends Component
       h LocationGroup, {key, name: key},
         values.map ({key,values})=>
           values.sort (a, b)-> b.offset-a.offset
-          h SectionColumn, values.map @createSectionElement
+          h SectionColumn, values
 
     hc = "handle"
     if @props.activeMode == 'skeleton'
@@ -98,12 +88,11 @@ class ZoomablePanelContainer extends Component
     className = if dragdealer then "dragdealer" else ""
 
     {x,y} = dragPosition
-    console.log x,y
     scroll = {scrollTop: y, scrollLeft: x}
     h "div#section-page", {className, key: className, scroll...}, [
       # The actual container in which the sections sit
       # Uncritically forward all props for now...
-      h SectionPanel, { rest..., sections }
+      h SectionPanel, { rest...}, @props.children
     ]
 
   componentDidMount: ->

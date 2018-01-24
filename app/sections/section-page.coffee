@@ -13,7 +13,12 @@ LocalStorage = require './storage'
 Measure = require('react-measure').default
 {ZoomablePanelContainer} = require './panel'
 PropTypes = require 'prop-types'
+{SectionComponent} = require './column'
 { Hotkey, Hotkeys, HotkeysTarget } = require "@blueprintjs/core"
+
+class BaseSectionPage extends Component
+  constructor: (props)->
+    super props
 
 class SectionPage extends Component
   constructor: (props)->
@@ -41,6 +46,7 @@ class SectionPage extends Component
         update: @updateOptions
         sectionIDs: []
         showCarbonIsotopes: false
+        trackVisibility: true
         dragPosition: {x: 500, y: 500}
 
     @optionsStorage = new LocalStorage 'sections-component'
@@ -50,9 +56,22 @@ class SectionPage extends Component
 
   getChildContext: ->
     inEditMode: @state.options.inEditMode
+    trackVisibility: @state.options.trackVisibility
 
   @childContextTypes:
     inEditMode: PropTypes.bool
+    trackVisibility: PropTypes.bool
+
+  createSectionElement: (row)=>
+    opts = @props.options
+    row.key = row.id # Because react
+    row.zoom = opts.zoom
+    row.skeletal = opts.activeMode == 'skeleton'
+    row.showNotes = opts.showNotes
+    row.showFloodingSurfaces = opts.showFloodingSurfaces
+    row.showCarbonIsotopes = opts.showCarbonIsotopes
+    row.trackVisibility = opts.trackVisibility
+    h SectionComponent, row
 
   render: ->
 
@@ -69,11 +88,11 @@ class SectionPage extends Component
     panel = h Measure, obj, (measureRef)=>
       {sections, dimensions, options} = @state
       h ZoomablePanelContainer, {
-        sections, dimensions, options
+        dimensions, options
         updatePosition: (pos)=>
           console.log "Updating drag position"
           @updateOptions dragPosition: {$set: pos}
-      }
+      }, sections.map @createSectionElement
 
     elements = [
       h 'div#section-pane', [
@@ -162,5 +181,5 @@ class SectionPage extends Component
 
 HotkeysTarget SectionPage
 
-module.exports = SectionPage
+module.exports = {BaseSectionPage, SectionPage}
 

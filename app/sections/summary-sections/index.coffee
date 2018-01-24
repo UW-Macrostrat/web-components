@@ -12,6 +12,8 @@ LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
 Measure = require('react-measure').default
 {SectionPanel} = require '../panel'
+{BaseSectionPage} = require '../section-page'
+{SectionComponent} = require '../column'
 {SectionNavigationControl} = require '../util'
 PropTypes = require 'prop-types'
 
@@ -47,14 +49,25 @@ class SummarySections extends Component
     {sections} = @props
     {dimensions, options} = @state
     {dragdealer, dragPosition, rest...} = options
-
     backLocation = '/sections'
     {toggleSettings} = @
+
+    opts = @state.options
+    __sections = sections.map (row)=>
+      row.key = row.id # Because react
+      row.zoom = 0.1
+      row.skeletal = opts.activeMode == 'skeleton'
+      row.showNotes = opts.showNotes
+      row.showFloodingSurfaces = opts.showFloodingSurfaces
+      row.showCarbonIsotopes = opts.showCarbonIsotopes
+      row.trackVisibility = opts.trackVisibility
+      h SectionComponent, row
+
     h 'div.page.section-page', [
       h 'div.panel-container', [
         h SectionNavigationControl, {backLocation, toggleSettings}
         h 'div#section-pane', [
-          h SectionPanel, {sections, zoom: 0.1, rest...}
+          h SectionPanel, {zoom: 0.1, rest...}, __sections
         ]
       ]
       h SettingsPanel, @state.options
