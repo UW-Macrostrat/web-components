@@ -7,6 +7,23 @@ h = require 'react-hyperscript'
 d3 = require 'd3'
 LithologyColumn = require './lithology'
 
+class SectionAxis extends Component
+  @defaultProps: {
+    scale: d3.scaleIdentity()
+    ticks: 4
+  }
+  render: ->
+    h 'g.y.axis'
+  componentDidUpdate: ->
+    @yAxis
+      .scale @props.scale
+      .ticks @props.ticks
+    d3.select findDOMNode @
+      .call @yAxis
+  componentDidMount: ->
+    @yAxis = d3.axisLeft()
+    @componentDidUpdate()
+
 class SectionOverlay extends Component
   @defaultProps:
     padding: 30
@@ -20,7 +37,7 @@ class SectionOverlay extends Component
     #@yAxis.scale(@props.scale)
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
-    {lithologyWidth, zoom, id, scale} = @props
+    {lithologyWidth, zoom, id, scale, ticks} = @props
 
     range = [128,208].map (d)->d-40
       .map (d)->d*zoom
@@ -50,7 +67,7 @@ class SectionOverlay extends Component
       height: @props.outerHeight
     }, [
       h 'g.backdrop', {transform}, [
-        h 'g.y.axis'
+        h SectionAxis, {scale, ticks}
         h LithologyColumn, {
           width: lithologyWidth
           height: @props.innerHeight
@@ -62,28 +79,6 @@ class SectionOverlay extends Component
         surf
       ]
     ]
-
-  componentDidMount: ->
-    _el = findDOMNode @
-    el = d3.select _el
-
-    @backdrop = el.select '.backdrop'
-
-    @yAxis = d3.axisLeft()
-      .scale(@props.scale)
-      .ticks(@props.ticks)
-
-    @backdrop.select '.y.axis'
-      .call @yAxis
-
-  componentDidUpdate: ->
-    console.log @props.ticks
-    console.log "Section #{@props.id} was updated"
-    @yAxis
-      .scale @props.scale
-      .ticks @props.ticks
-    @backdrop.select '.y.axis'
-       .call @yAxis
 
   createAxisLines: =>
     g = @backdrop.append 'g'
@@ -99,4 +94,4 @@ class SectionOverlay extends Component
           {x1: 0, x2: @props.innerWidth, y1: y, y2: y}
 
 
-module.exports = SectionOverlay
+module.exports = {SectionOverlay, SectionAxis}

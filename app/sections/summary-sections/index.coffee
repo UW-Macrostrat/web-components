@@ -13,7 +13,7 @@ LocalStorage = require '../storage'
 Measure = require('react-measure').default
 {SectionPanel} = require '../panel'
 {BaseSectionPage} = require '../section-page'
-{SectionComponent} = require '../column'
+{SVGSectionComponent} = require '../column'
 {SectionNavigationControl} = require '../util'
 PropTypes = require 'prop-types'
 
@@ -53,15 +53,18 @@ class SummarySections extends Component
     {toggleSettings} = @
 
     opts = @state.options
-    __sections = sections.map (row)=>
-      row.key = row.id # Because react
-      row.zoom = 0.1
-      row.skeletal = opts.activeMode == 'skeleton'
-      row.showNotes = opts.showNotes
-      row.showFloodingSurfaces = opts.showFloodingSurfaces
-      row.showCarbonIsotopes = opts.showCarbonIsotopes
-      row.trackVisibility = opts.trackVisibility
-      h SectionComponent, row
+    __sections = sections.map (row)=> 
+      skeletal = opts.activeMode == 'skeleton'
+      {showFloodingSurfaces, showCarbonIsotopes, trackVisibility} = opts
+
+      h SVGSectionComponent, {
+        zoom: 0.1, key: row.id,
+        skeletal,
+        showFloodingSurfaces
+        showCarbonIsotopes,
+        trackVisibility
+        row...
+      }
 
     h 'div.page.section-page', [
       h 'div.panel-container', [
