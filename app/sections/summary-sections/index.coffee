@@ -51,9 +51,11 @@ class SummarySections extends Component
     backLocation = '/sections'
     {toggleSettings} = @
     h 'div.page.section-page', [
-      h SectionNavigationControl, {backLocation, toggleSettings}
-      h 'div#section-pane', [
-        h SectionPanel, {sections, zoom: 0.1, rest...}
+      h 'div.panel-container', [
+        h SectionNavigationControl, {backLocation, toggleSettings}
+        h 'div#section-pane', [
+          h SectionPanel, {sections, zoom: 0.1, rest...}
+        ]
       ]
       h SettingsPanel, @state.options
     ]

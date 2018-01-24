@@ -10,7 +10,12 @@ SELECT
     lead(l.bottom) OVER (ORDER BY l.bottom),
     s.end
   )::float top,
-  t.tree
+  t.tree,
+  l.grainsize,
+  coalesce(
+    coalesce(l.fill_pattern, v.pattern),
+    l.lithology
+  ) fill_pattern
 FROM section.section_lithology l
 JOIN section.lithology_tree t
   ON l.lithology = t.id
@@ -21,3 +26,4 @@ JOIN section.section s
 WHERE section = $1::text
   AND l.lithology IS NOT null
 ORDER BY bottom
+
