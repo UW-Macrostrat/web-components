@@ -45,6 +45,7 @@ class LithologyColumn extends Component
     width: 100
     height: 100
     visible: true
+    left: 0
   constructor: (props)->
     super props
     @state =
@@ -62,11 +63,15 @@ class LithologyColumn extends Component
     @setState {divisions, patterns}
 
   render: ->
-    {scale, visible} = @props
+    {scale, visible,left} = @props
     {divisions} = @state
     divisions = [] unless visible
     {width, height} = @props
-    h 'g.lithology-column', [
+    transform = null
+    if left?
+      transform = "translate(#{left})"
+
+    h 'g.lithology-column', {transform},[
       @createDefs()
       divisions.map(@renderDivision)...
       divisions.map(@renderCoveredOverlay)...
@@ -117,4 +122,6 @@ class LithologyColumn extends Component
     height = scale(bottom)-y+1
     h "rect.covered-area", {y, width, height}
 
-module.exports = LithologyColumn
+class GeneralizedSectionColumn extends LithologyColumn
+
+module.exports = {LithologyColumn, GeneralizedSectionColumn}

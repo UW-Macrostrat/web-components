@@ -5,7 +5,7 @@ Samples = require './samples'
 FloodingSurfaces = require './flooding-surfaces'
 h = require 'react-hyperscript'
 d3 = require 'd3'
-LithologyColumn = require './lithology'
+{LithologyColumn} = require './lithology'
 
 class SectionAxis extends Component
   @defaultProps: {

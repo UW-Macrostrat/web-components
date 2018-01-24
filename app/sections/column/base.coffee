@@ -4,7 +4,7 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 {SectionOverlay, SectionAxis} = require './overlay'
-LithologyColumn = require './lithology'
+{LithologyColumn, GeneralizedSectionColumn} = require './lithology'
 require './main.styl'
 
 class BaseSectionComponent extends Component
@@ -54,7 +54,7 @@ class SVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
     BaseSectionComponent.defaultProps...
     trackVisibility: false
-    innerWidth: 280
+    innerWidth: 150
     height: 100 # Section height in meters
     lithologyWidth: 40
     logWidth: 350
@@ -72,7 +72,7 @@ class SVGSectionComponent extends BaseSectionComponent
       scale: d3.scaleLinear().domain(@props.range)
 
   render: ->
-    {id, zoom, padding, lithologyWidth} = @props
+    {id, zoom, padding, lithologyWidth, innerWidth} = @props
 
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
@@ -82,10 +82,6 @@ class SVGSectionComponent extends BaseSectionComponent
 
     @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight+(top+bottom)
-    innerWidth = @props.innerWidth*@props.zoom
-    if innerWidth < @props.lithologyWidth
-      innerWidth = @props.lithologyWidth
-
     outerWidth = innerWidth+(left+right)
 
     {heightOfTop} = @props
@@ -125,6 +121,13 @@ class SVGSectionComponent extends BaseSectionComponent
               height: innerHeight
               scale
               id
+            }
+            h GeneralizedSectionColumn, {
+              width: lithologyWidth
+              height: innerHeight
+              scale
+              id
+              left: lithologyWidth
             }
           ]
         ]
