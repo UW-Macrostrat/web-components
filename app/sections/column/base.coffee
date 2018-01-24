@@ -109,42 +109,26 @@ class SVGSectionComponent extends BaseSectionComponent
     }
 
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
-    children= [
+
+    minWidth = outerWidth
+    h "div.section-container", {
+      className: if @props.skeletal then "skeleton" else null
+      style: {minWidth}
+    }, [
       h 'div.section-header', [h "h2", txt]
       h 'div.section-outer', [
-        h 'div.section', {style}, [
-          h "svg.overlay", style, [
-            h 'g.backdrop', {transform}, [
-              h SectionAxis, {scale, ticks: nticks}
-              h LithologyColumn, {
-                width: lithologyWidth
-                height: innerHeight
-                scale
-                id
-              }
-            ]
+        h "svg.section", style, [
+          h 'g.backdrop', {transform}, [
+            h SectionAxis, {scale, ticks: nticks}
+            h LithologyColumn, {
+              width: lithologyWidth
+              height: innerHeight
+              scale
+              id
+            }
           ]
         ]
       ]
     ]
-
-    width = outerWidth
-    mainElement = h "div.section-container",
-      className: if @props.skeletal then "skeleton" else null
-      style:
-        minWidth: width
-      children
-
-    return mainElement
-
-  log: ->
-
-  onVisibilityChange: (isVisible)=>
-    return if isVisible == @state.visible
-    console.log "Section visibility changed"
-    @setState visible: isVisible
-
-    # I'm not sure why this works but it does
-
 
 module.exports = {BaseSectionComponent, SVGSectionComponent}
