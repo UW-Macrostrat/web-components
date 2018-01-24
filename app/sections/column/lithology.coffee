@@ -147,14 +147,20 @@ class GeneralizedSectionColumn extends LithologyColumn
   constructor: (props)->
     super props
   componentWillUpdate: (props)->
-    {width} = props
-    @grainsizeScale = createGrainsizeScale([width/4, width])
+    {width, grainsizeScaleStart} = props
+    grainsizeScaleStart ?= width/4
+    @grainsizeScale = createGrainsizeScale([grainsizeScaleStart, width])
   renderCoveredOverlay: ->
     return null
   resolveID: (d)->
     p = symbolIndex[d.fill_pattern]
     return p if p?
-    return d.fill_pattern
+    fp = d.fill_pattern
+    # Special case for shales since we probably want to emphasize lithology
+    if parseInt(fp) == 624
+      return super.resolveID(d)
+    else
+      return fp
 
   createFrame: ->
     {scale} = @props

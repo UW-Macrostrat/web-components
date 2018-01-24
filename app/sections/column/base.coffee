@@ -117,18 +117,12 @@ class SVGSectionComponent extends BaseSectionComponent
         h "svg.section", style, [
           h 'g.backdrop', {transform}, [
             h SectionAxis, {scale, ticks: nticks}
-            h LithologyColumn, {
-              width: lithologyWidth
-              height: innerHeight
-              scale
-              id
-            }
             h GeneralizedSectionColumn, {
-              width: lithologyWidth
+              width: 100
               height: innerHeight
               scale
               id
-              left: lithologyWidth
+              grainsizeScaleStart: 40
             }
           ]
         ]
