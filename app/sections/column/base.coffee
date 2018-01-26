@@ -4,7 +4,7 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 {SectionOverlay, SectionAxis} = require './overlay'
-{LithologyColumn, GeneralizedSectionColumn} = require './lithology'
+{LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require './lithology'
 require './main.styl'
 
 class BaseSectionComponent extends Component
@@ -116,7 +116,12 @@ class SVGSectionComponent extends BaseSectionComponent
       h 'div.section-outer', [
         h "svg.section", style, [
           h 'g.backdrop', {transform}, [
-            h SectionAxis, {scale, ticks: nticks}
+            h CoveredColumn, {
+              height: innerHeight
+              scale
+              id
+              width: 6
+            }
             h GeneralizedSectionColumn, {
               width: 100
               height: innerHeight
@@ -124,6 +129,7 @@ class SVGSectionComponent extends BaseSectionComponent
               id
               grainsizeScaleStart: 40
             }
+            h SectionAxis, {scale, ticks: nticks}
           ]
         ]
       ]

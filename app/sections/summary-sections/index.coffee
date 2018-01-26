@@ -53,7 +53,7 @@ class SummarySections extends Component
     {toggleSettings} = @
 
     opts = @state.options
-    __sections = sections.map (row)=> 
+    __sections = sections.map (row)=>
       skeletal = opts.activeMode == 'skeleton'
       {showFloodingSurfaces, showCarbonIsotopes, trackVisibility} = opts
 

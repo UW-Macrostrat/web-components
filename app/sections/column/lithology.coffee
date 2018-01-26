@@ -143,6 +143,29 @@ class LithologyColumn extends Component
     height = scale(bottom)-y+1
     h "rect.covered-area", {y, width, height}
 
+class CoveredColumn extends LithologyColumn
+  @defaultProps: {
+    width: 5
+  }
+  constructor: (props)->
+    super props
+  render: ->
+    {scale, left} = @props
+    {divisions} = @state
+    {width, height} = @props
+    transform = null
+    left ?= -width
+    if left?
+      transform = "translate(#{left})"
+
+    h 'g.lithology-column.covered-column', {transform},[
+      h 'g.lithology-inner', [
+        divisions.map(@renderCoveredOverlay)...
+      ]
+    ]
+
+
+
 class GeneralizedSectionColumn extends LithologyColumn
   constructor: (props)->
     super props
@@ -183,4 +206,4 @@ class GeneralizedSectionColumn extends LithologyColumn
     _.closePath()
     h "path#{@frameID}", {d: _.toString()}
 
-module.exports = {LithologyColumn, GeneralizedSectionColumn}
+module.exports = {LithologyColumn, GeneralizedSectionColumn, CoveredColumn}
