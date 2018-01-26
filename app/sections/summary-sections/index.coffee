@@ -15,6 +15,7 @@ Measure = require('react-measure').default
 {BaseSectionPage} = require '../section-page'
 {SVGSectionComponent} = require '../column'
 {SectionNavigationControl} = require '../util'
+{SectionLinkOverlay} = require './link-overlay'
 PropTypes = require 'prop-types'
 
 class SummarySections extends Component
@@ -63,6 +64,7 @@ class SummarySections extends Component
         showFloodingSurfaces
         showCarbonIsotopes,
         trackVisibility
+        onResize: @onSectionResize(row.id)
         row...
       }
 
@@ -71,10 +73,14 @@ class SummarySections extends Component
         h SectionNavigationControl, {backLocation, toggleSettings}
         h 'div#section-pane', [
           h SectionPanel, {zoom: 0.1, rest...}, __sections
+          h SectionLinkOverlay
         ]
       ]
       h SettingsPanel, @state.options
     ]
+
+  onSectionResize: (key)=>(contentRect)=>
+    console.log "Section #{key} was resized"
 
   updateOptions: (opts)=>
     newOptions = update @state.options, opts

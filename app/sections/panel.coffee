@@ -39,7 +39,6 @@ class SectionPanel extends Component
     activeMode: 'normal'
     zoom: 1
     showNotes: true
-    condensedDisplay: true
     sections: []
     trackVisibility: true
   constructor: (props)->
@@ -49,10 +48,9 @@ class SectionPanel extends Component
     console.log "Rendering section panel"
 
     stackGroup = (d)=>
-      if @props.condensedDisplay
-        for g in stackGroups
-          if g.indexOf(d.key) != -1
-            return g
+      for g in stackGroups
+        if g.indexOf(d.key) != -1
+          return g
       return d.id
 
     sectionGroups = d3.nest()

@@ -3,6 +3,7 @@ d3 = require 'd3'
 require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
+Measure = require('react-measure').default
 {SectionOverlay, SectionAxis} = require './overlay'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require './lithology'
 require './main.styl'
@@ -49,7 +50,6 @@ class BaseSectionComponent extends Component
 
     el.style.marginTop = "#{desiredPosition-offs}px"
 
-
 class SVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
     BaseSectionComponent.defaultProps...
@@ -72,7 +72,7 @@ class SVGSectionComponent extends BaseSectionComponent
       scale: d3.scaleLinear().domain(@props.range)
 
   render: ->
-    {id, zoom, padding, lithologyWidth, innerWidth} = @props
+    {id, zoom, padding, lithologyWidth, innerWidth, onResize} = @props
 
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
@@ -114,24 +114,25 @@ class SVGSectionComponent extends BaseSectionComponent
     }, [
       h 'div.section-header', [h "h2", txt]
       h 'div.section-outer', [
-        h "svg.section", style, [
-          h 'g.backdrop', {transform}, [
-            h CoveredColumn, {
-              height: innerHeight
-              scale
-              id
-              width: 6
-            }
-            h GeneralizedSectionColumn, {
-              width: 100
-              height: innerHeight
-              scale
-              id
-              grainsizeScaleStart: 40
-            }
-            h SectionAxis, {scale, ticks: nticks}
+        h Measure, {bounds: true, onResize}, ({measureRef})=>
+          h "svg.section", {style, ref: measureRef}, [
+            h 'g.backdrop', {transform}, [
+              h CoveredColumn, {
+                height: innerHeight
+                scale
+                id
+                width: 6
+              }
+              h GeneralizedSectionColumn, {
+                width: 100
+                height: innerHeight
+                scale
+                id
+                grainsizeScaleStart: 40
+              }
+              h SectionAxis, {scale, ticks: nticks}
+            ]
           ]
-        ]
       ]
     ]
 

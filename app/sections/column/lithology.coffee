@@ -133,7 +133,7 @@ class LithologyColumn extends Component
 
     __ = @resolveID(d)
     fill = "url(##{@UUID}-#{__})"
-    h "rect", {className,y, x: -5, width: width+10, height, fill}
+    h "rect", {className,y, x: -5, width: width+10, height, fill, key: d.id}
 
   renderCoveredOverlay: (d)=>
     return null if not d.covered
@@ -141,7 +141,7 @@ class LithologyColumn extends Component
     [bottom,top] = __divisionSize(d)
     y = scale(top)
     height = scale(bottom)-y+1
-    h "rect.covered-area", {y, width, height}
+    h "rect.covered-area", {y, width, height, key: d.id}
 
 class CoveredColumn extends LithologyColumn
   @defaultProps: {
