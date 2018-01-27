@@ -1,6 +1,7 @@
 {findDOMNode} = require 'react-dom'
 {Component} = require 'react'
 require '../main.styl'
+require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
 ElementPan = require 'react-element-pan'
@@ -23,7 +24,10 @@ class SummarySections extends Component
     super props
     @state =
       sections: []
-      dimensions: {}
+      dimensions: {
+        canvas: {width: 100, height: 100}
+      }
+      sectionPositions: {}
       options:
         settingsPanelIsActive: false
         modes: [
@@ -45,42 +49,71 @@ class SummarySections extends Component
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
     return unless v?
+    @state = update @state, options: {$merge: v}
 
   render: ->
     {sections} = @props
-    {dimensions, options} = @state
+    {dimensions, options, sectionPositions} = @state
     {dragdealer, dragPosition, rest...} = options
     backLocation = '/sections'
     {toggleSettings} = @
+    {showFloodingSurfaces,
+     showCarbonIsotopes,
+     trackVisibility,
+     activeMode} = options
 
-    opts = @state.options
+    skeletal = activeMode == 'skeleton'
+
+    accum = {}
+    sectionResize = (key)=>(contentRect)=>
+      accum[key] = {$set: contentRect}
+      if Object.keys(accum).length == sections.length
+        console.log "Updating state"
+        @mutateState {sectionPositions: accum}
+
     __sections = sections.map (row)=>
-      skeletal = opts.activeMode == 'skeleton'
-      {showFloodingSurfaces, showCarbonIsotopes, trackVisibility} = opts
-
       h SVGSectionComponent, {
         zoom: 0.1, key: row.id,
         skeletal,
         showFloodingSurfaces
         showCarbonIsotopes,
         trackVisibility
-        onResize: @onSectionResize(row.id)
+        onResize: sectionResize(row.id)
         row...
       }
 
+    {canvas} = @state.dimensions
+    console.log canvas
     h 'div.page.section-page', [
       h 'div.panel-container', [
         h SectionNavigationControl, {backLocation, toggleSettings}
         h 'div#section-pane', [
-          h SectionPanel, {zoom: 0.1, rest...}, __sections
-          h SectionLinkOverlay
+          h SectionPanel, {
+            zoom: 0.1,
+            onResize: @onCanvasResize
+            rest...}, __sections
+          h SectionLinkOverlay, {skeletal, canvas..., sectionPositions}
         ]
       ]
       h SettingsPanel, @state.options
     ]
 
   onSectionResize: (key)=>(contentRect)=>
-    console.log "Section #{key} was resized"
+    console.log "Section #{key} was resized", contentRect
+
+    @mutateState {sectionPositions: {"#{key}": {$set: contentRect}}}
+
+  mutateState: (spec)=>
+    state = update(@state, spec)
+    @setState state
+
+  onCanvasResize: ({bounds})=>
+    {width, height} = bounds
+    console.log "Canvas was resized", bounds
+    @mutateState {dimensions: {canvas: {
+      width: {$set: width}
+      height: {$set: height}
+    }}}
 
   updateOptions: (opts)=>
     newOptions = update @state.options, opts

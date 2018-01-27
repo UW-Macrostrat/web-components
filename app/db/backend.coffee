@@ -5,7 +5,6 @@ Promise = require 'bluebird'
 opts = {
   promiseLib: Promise
   query: (e)=>
-    console.log e.query
     v = queryLibrary.find (d)->
       d.sql == e.query
     if not v?
@@ -43,6 +42,13 @@ lateralVariationQueries = [
   'boundary-heights'
 ]
 for q in lateralVariationQueries
+  new SerializableQuery(q, null, {baseDir})
+
+baseDir = dirname require.resolve "../sections/summary-sections"
+summarySectionQueries = [
+  'lithostratigraphy-surface'
+]
+for q in summarySectionQueries
   new SerializableQuery(q, null, {baseDir})
 
 baseDir = dirname require.resolve "../sections"

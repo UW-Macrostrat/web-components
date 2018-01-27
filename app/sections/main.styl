@@ -46,13 +46,15 @@ div.panel-container
     overflow: hidden
     cursor: move
 
+#section-page-inner, #section-link-overlay
+  position: absolute
+  margin-left: 2em
+  margin-right: 2em
+
 #section-page-inner
-  display: inline-flex
+  display: flex
   flex-direction: row
   background-color: white
-  min-width: 100%
-  min-height: 100vh
-  padding-left: 100px
   &.skeletal div, &.skeletal svg, &.skeletal g
     outline: 2px solid alpha(dodgerblue, 0.2)
     background: alpha(dodgerblue, 0.05)

@@ -1,1 +1,20 @@
+svg#section-link-overlay
+  rect.section-tracker
+    fill: transparent
+  &.skeletal
+    outline: 2px solid alpha(red, 0.2)
+    background: alpha(red, 0.05)
+    rect
+      outline: 2px solid alpha(red, 0.2)
+      fill: alpha(red, 0.05)
 
+  path.section-link
+    fill none
+    stroke #888
+    &.commonality-0
+      stroke-width 3
+      stroke black
+    &.commonality-2
+      stroke-width 2
+    &.commonality-3
+      stroke-width 1

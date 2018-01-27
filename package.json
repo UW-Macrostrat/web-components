@@ -54,6 +54,7 @@
     "react-hyperscript": "^3.0.0",
     "react-image-slider": "^0.1.0",
     "react-images": "^0.5.14",
+    "react-sizeme": "^2.3.6",
     "replace-ext": "^1.0.0",
     "request": "^2.83.0",
     "request-promise": "^4.2.2",

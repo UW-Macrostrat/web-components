@@ -59,6 +59,7 @@ class SVGSectionComponent extends BaseSectionComponent
     lithologyWidth: 40
     logWidth: 350
     containerWidth: 1000
+    onResize: ->
     padding:
       left: 30
       top: 30
@@ -70,6 +71,11 @@ class SVGSectionComponent extends BaseSectionComponent
     @state =
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
+
+  onResize: ({bounds})=>
+    {scale} = @state
+    {padding} = @props
+    @props.onResize {scale, bounds, padding}
 
   render: ->
     {id, zoom, padding, lithologyWidth, innerWidth, onResize} = @props
@@ -114,7 +120,7 @@ class SVGSectionComponent extends BaseSectionComponent
     }, [
       h 'div.section-header', [h "h2", txt]
       h 'div.section-outer', [
-        h Measure, {bounds: true, onResize}, ({measureRef})=>
+        h Measure, {bounds: true, @onResize}, ({measureRef})=>
           h "svg.section", {style, ref: measureRef}, [
             h 'g.backdrop', {transform}, [
               h CoveredColumn, {

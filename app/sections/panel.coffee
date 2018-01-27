@@ -8,6 +8,7 @@ require './main.styl'
 require 'dragdealer/src/dragdealer.css'
 d3 = require 'd3'
 {debounce} = require 'underscore'
+Measure = require('react-measure').default
 
 class SectionColumn extends Component
   render: ->
@@ -41,6 +42,7 @@ class SectionPanel extends Component
     showNotes: true
     sections: []
     trackVisibility: true
+    onResize: ->
   constructor: (props)->
     super props
 
@@ -75,7 +77,9 @@ class SectionPanel extends Component
     if @props.zoom < 0.1
       hc += " zoomed-way-out"
 
-    h "div#section-page-inner", {className: hc}, children
+    {onResize} = @props
+    h Measure, {bounds: true, onResize}, ({measureRef})->
+      h "div#section-page-inner", {className: hc, ref: measureRef}, children
 
 class ZoomablePanelContainer extends Component
   # Zoomable panel container
