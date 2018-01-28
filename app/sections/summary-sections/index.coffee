@@ -19,6 +19,27 @@ Measure = require('react-measure').default
 {SectionLinkOverlay} = require './link-overlay'
 PropTypes = require 'prop-types'
 
+sectionOffsets = {
+  A: 0
+  B: 120
+  C: 250
+  D: 410
+  E: 230
+  F: 210
+  G: 0
+  H: 345
+  I: 40
+  J: -5
+}
+
+groupOrder = [
+  'Tsams'
+  'Onis'
+  'Ubisis'
+]
+
+stackGroups = ['AC','BD','FG','HI']
+
 class SummarySections extends Component
   constructor: (props)->
     super props
@@ -72,6 +93,9 @@ class SummarySections extends Component
         @mutateState {sectionPositions: accum}
 
     __sections = sections.map (row)=>
+      {offset, rest...} = row
+      offset = sectionOffsets[row.id] or offset
+
       h SVGSectionComponent, {
         zoom: 0.1, key: row.id,
         skeletal,
@@ -79,7 +103,8 @@ class SummarySections extends Component
         showCarbonIsotopes,
         trackVisibility
         onResize: sectionResize(row.id)
-        row...
+        offset
+        rest...
       }
 
     {canvas} = @state.dimensions
@@ -91,6 +116,8 @@ class SummarySections extends Component
           h SectionPanel, {
             zoom: 0.1,
             onResize: @onCanvasResize
+            stackGroups
+            groupOrder
             rest...}, __sections
           h SectionLinkOverlay, {skeletal, canvas..., sectionPositions}
         ]

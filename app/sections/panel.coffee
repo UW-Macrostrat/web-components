@@ -21,25 +21,18 @@ class LocationGroup extends Component
       h 'div.location-group-body', {}, @props.children
     ]
 
-groupOrder = [
-  'Tsams'
-  'Onis'
-  'Ubisis'
-]
-
-stackGroups = [
-  'AC'
-  'BD'
-  'FG'
-  'HI'
-]
-
 class SectionPanel extends Component
   # Zoomable panel containing individual sections
   @defaultProps:
     activeMode: 'normal'
     zoom: 1
     showNotes: true
+    groupOrder: [
+      'Tsams'
+      'Onis'
+      'Ubisis'
+    ]
+    stackGroups: ['AC','BD','FG','HI']
     sections: []
     trackVisibility: true
     onResize: ->
@@ -48,6 +41,7 @@ class SectionPanel extends Component
 
   render: ->
     console.log "Rendering section panel"
+    {stackGroups, groupOrder} = @props
 
     stackGroup = (d)=>
       for g in stackGroups

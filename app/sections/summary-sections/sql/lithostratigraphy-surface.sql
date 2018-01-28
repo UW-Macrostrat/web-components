@@ -10,7 +10,6 @@ SELECT
 FROM section.section_surface
 WHERE lower_unit IS NOT null
   AND upper_unit IS NOT null
-  AND NOT inferred
   GROUP BY lower_unit, upper_unit
 )
 SELECT
