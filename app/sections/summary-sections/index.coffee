@@ -14,31 +14,31 @@ LocalStorage = require '../storage'
 Measure = require('react-measure').default
 {SectionPanel} = require '../panel'
 {BaseSectionPage} = require '../section-page'
-{SVGSectionComponent} = require '../column'
+{SVGSectionComponent} = require './column'
 {SectionNavigationControl} = require '../util'
 {SectionLinkOverlay} = require './link-overlay'
 PropTypes = require 'prop-types'
 
 sectionOffsets = {
   A: 0
-  B: 120
-  C: 250
-  D: 410
-  E: 230
-  F: 210
+  B: 105
+  C: 270
+  D: 415
+  E: 255
+  F: 240
   G: 0
-  H: 345
-  I: 40
+  H: 378
+  I: 50
   J: -5
 }
 
 groupOrder = [
   'Tsams'
-  'Onis'
   'Ubisis'
+  'Onis'
 ]
 
-stackGroups = ['AC','BD','FG','HI']
+stackGroups = ['AC','BED','GF','HI']
 
 class SummarySections extends Component
   constructor: (props)->
@@ -107,9 +107,10 @@ class SummarySections extends Component
         rest...
       }
 
+    paddingLeft = 30
     {canvas} = @state.dimensions
     console.log canvas
-    h 'div.page.section-page', [
+    h 'div.page.section-page#summary-sections', [
       h 'div.panel-container', [
         h SectionNavigationControl, {backLocation, toggleSettings}
         h 'div#section-pane', [
@@ -119,7 +120,8 @@ class SummarySections extends Component
             stackGroups
             groupOrder
             rest...}, __sections
-          h SectionLinkOverlay, {skeletal, canvas..., sectionPositions}
+          h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
+                                 sectionPositions}
         ]
       ]
       h SettingsPanel, @state.options

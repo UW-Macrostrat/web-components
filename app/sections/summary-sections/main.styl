@@ -12,11 +12,21 @@ svg#section-link-overlay
     fill none
     stroke #888
     &.inferred
-      stroke-dasharray: 2,2
+      stroke-dasharray: 2,4
     &.commonality-0
       stroke-width 3
       stroke black
     &.commonality-2
       stroke-width 2
+      &.inferred
+        stroke-dasharray: 4,8
     &.commonality-3
       stroke-width 1
+
+div.section-page#summary-sections
+  .location-group
+    margin 2em 8em
+  .section-column
+    margin 0 1em
+  .section-container h2
+    margin-bottom 0

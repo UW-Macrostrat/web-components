@@ -8,6 +8,7 @@ class SectionLinkOverlay extends Component
   @defaultProps: {
     width: 100
     height: 100
+    paddingLeft: 20
   }
   constructor: (props)->
     super props
@@ -21,14 +22,14 @@ class SectionLinkOverlay extends Component
       .y (d)->d.y
 
   buildLink: (surface)=>
-    {sectionPositions} = @props
+    {sectionPositions, paddingLeft} = @props
     {section_height, unit_commonality} = surface
     heights = section_height.map ({section,height,inferred})->
       console.log inferred
       {bounds, padding, scale} = sectionPositions[section]
       yOffs = scale(height)
       y = bounds.top+padding.top+yOffs
-      {x0: bounds.left-5, x1: bounds.left+100, y, inferred}
+      {x0: bounds.left-paddingLeft, x1: bounds.left+100, y, inferred}
 
     heights.sort (a,b)-> a.x0 - b.x0
 

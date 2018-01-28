@@ -52,6 +52,8 @@ class SectionPanel extends Component
     sectionGroups = d3.nest()
       .key (d)->d.props.location
       .key stackGroup
+      .sortKeys (a,b)->
+        stackGroups.indexOf(a)-stackGroups.indexOf(b)
       .entries @props.children
 
     sectionGroups.sort (a,b)->

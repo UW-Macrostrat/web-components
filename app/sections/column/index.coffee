@@ -7,7 +7,7 @@ VisibilitySensor = require 'react-visibility-sensor'
 {SectionOverlay} = require './overlay'
 SectionImages = require './images'
 NotesColumn = require './notes'
-{BaseSectionComponent, SVGSectionComponent} = require './base'
+{BaseSectionComponent} = require './base'
 require './main.styl'
 
 class SectionComponent extends BaseSectionComponent
@@ -175,4 +175,4 @@ class SectionComponent extends BaseSectionComponent
 
     # I'm not sure why this works but it does
 
-module.exports = {SectionComponent, SVGSectionComponent}
+module.exports = {SectionComponent}
