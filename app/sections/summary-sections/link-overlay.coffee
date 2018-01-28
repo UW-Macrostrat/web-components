@@ -23,30 +23,34 @@ class SectionLinkOverlay extends Component
   buildLink: (surface)=>
     {sectionPositions} = @props
     {section_height, unit_commonality} = surface
-    heights = section_height.map ({section,height})->
+    heights = section_height.map ({section,height,inferred})->
+      console.log inferred
       {bounds, padding, scale} = sectionPositions[section]
       yOffs = scale(height)
       y = bounds.top+padding.top+yOffs
-      {x0: bounds.left-5, x1: bounds.left+100, y}
+      {x0: bounds.left-5, x1: bounds.left+100, y, inferred}
 
     heights.sort (a,b)-> a.x0 - b.x0
 
     return null if heights.length < 2
 
     pathData = d3.pairs heights, (a,b)->
+      inferred = (a.inferred or b.inferred)
+      console.log inferred
       source = {x: a.x1, y: a.y}
       target = {x: b.x0, y: b.y}
-      {source, target}
+      {source, target, inferred}
 
-    context = d3.path()
-    @link.context(context)
-    console.log "Started path"
-    for pair in pathData
-        @link(pair)
+    links = for pair in pathData
+      {inferred} = pair
+      className = classNames(
+        "section-link"
+        "commonality-#{unit_commonality}"
+        {inferred})
+      d = @link(pair)
+      h 'path', {d, className}
 
-    d = context.toString()
-    className = classNames("section-link","commonality-#{unit_commonality}")
-    h 'path', {d, className}
+    h 'g', links
 
   render: ->
     {skeletal, sectionPositions} = @props
