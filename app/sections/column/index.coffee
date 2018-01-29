@@ -37,9 +37,12 @@ class SectionComponent extends BaseSectionComponent
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
 
   render: ->
-    {id, zoom} = @props
+    {id, zoom, scrollToHeight} = @props
 
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
+
+    if scrollToHeight?
+      scrollTop = @state.scale.invert(scrollToHeight)
 
     padding = {}
     for k,v of @props.padding
@@ -152,10 +155,12 @@ class SectionComponent extends BaseSectionComponent
 
     width = outerWidth
     style = {top: marginTop}
-    mainElement = h "div.section-container",
-      className: if @props.skeletal then "skeleton" else null
-      style:
-        minWidth: width
+    mainElement = h "div.section-container", {
+        className: if @props.skeletal then "skeleton" else null
+        style: {
+          minWidth: width
+        }
+      },
       children
 
     return mainElement unless @props.trackVisibility

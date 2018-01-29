@@ -43,7 +43,7 @@ class SVGSectionComponent extends BaseSectionComponent
     {clientY} = event
     height = scale.invert(clientY-top)
     console.log "Clicked Section #{@props.id} @ #{height}"
-    history.push("/sections/#{@props.id}")
+    history.push("/sections/#{@props.id}/height/#{height}")
 
   render: ->
     {id, zoom, padding, lithologyWidth,

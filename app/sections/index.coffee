@@ -87,8 +87,16 @@ class SectionIndex extends Component
         render: => h(AllSections, {sections}, null)
       }
       h Route, {
-        path: match.url+'/:id', render: (props)->
-          {id} = props.match.params
+        path: match.url+'/:id/height/:height', render: (props)->
+          {id,height} = props.match.params
+          section = sections.find (d)->d.id == id
+          if not section?
+            return h 'div'
+          h SectionPage, {section, height}
+      }
+      h Route, {
+        path: match.url+'/:id/', render: (props)->
+          {id,height} = props.match.params
           section = sections.find (d)->d.id == id
           if not section?
             return h 'div'

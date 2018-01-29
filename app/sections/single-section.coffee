@@ -61,8 +61,11 @@ class SectionPage extends Component
     resizeFunc = (contentRect)->
       @setState dimensions: contentRect
 
-    {section} = @props
+    {section, height} = @props
 
+    scrollToHeight = height
+
+    # Set up routing to jump to a specific height
     obj =
       bounds: true,
       offset: true,
@@ -83,6 +86,7 @@ class SectionPage extends Component
           trackVisibility: false
           section...,
           offsetTop: 0,
+          scrollToHeight
           key, skeletal,
           useRelativePositioning: false
           options...
