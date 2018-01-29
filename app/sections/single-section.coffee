@@ -75,10 +75,9 @@ class SectionPage extends Component
     {options} = @state
     options.zoom = 1
 
-    backLocation = '/sections'
     {toggleSettings} = @
     h 'div.page.section-page.single-section', [
-      h SectionNavigationControl, {backLocation, toggleSettings}
+      h SectionNavigationControl, {toggleSettings}
       h 'div#section-pane', [
         h SectionComponent, {
           trackVisibility: false

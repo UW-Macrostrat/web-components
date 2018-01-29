@@ -1,13 +1,27 @@
 React = require 'react'
-{Link} = require 'react-router-dom'
+{Link, withRouter} = require 'react-router-dom'
 h = require 'react-hyperscript'
 style = require './main.styl'
+{Icon} = require 'react-fa'
 
 class NavLink extends React.Component
   render: ->
     h 'li', [
       h Link, to: @props.to, @props.children
     ]
+
+
+class BackLink extends React.Component
+  render: ->
+    h 'li', [
+      h 'a', {onClick: @onClick}, [h Icon, name: 'arrow-left', size: '2x']
+    ]
+  onClick: =>
+    console.log "Going home"
+    {history} = @props
+    history.goBack()
+
+BackLink = withRouter(BackLink)
 
 class NavBar extends React.Component
   render: ->
@@ -19,4 +33,4 @@ class NavBar extends React.Component
       h NavLink, to: "/map", "Map"
     ]
 
-module.exports = { NavBar, NavLink }
+module.exports = { NavBar, NavLink, BackLink}

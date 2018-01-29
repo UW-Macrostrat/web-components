@@ -4,7 +4,7 @@ require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
 ElementPan = require 'react-element-pan'
-{NavLink} = require '../nav'
+{NavLink, BackLink} = require '../nav'
 {Icon} = require 'react-fa'
 SettingsPanel = require './settings'
 update = require 'immutability-helper'
@@ -97,7 +97,7 @@ class SectionPage extends Component
     elements = [
       h 'div#section-pane', [
         h 'ul.controls', [
-          h NavLink, to: '/sections', [h Icon, name: 'arrow-left', size: '2x']
+          h BackLink
           h NavLink, to: '/', [h Icon, name: 'home', size: '2x']
           h 'li', [
             h 'a', onClick: @toggleSettings, [

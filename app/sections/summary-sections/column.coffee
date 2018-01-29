@@ -7,6 +7,7 @@ Measure = require('react-measure').default
 {SectionOverlay, SectionAxis} = require '../column/overlay'
 {BaseSectionComponent} = require '../column/base'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
+{withRouter} = require 'react-router-dom'
 
 class SVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
@@ -25,9 +26,10 @@ class SVGSectionComponent extends BaseSectionComponent
   }
   constructor: (props)->
     super props
-    @state =
+    @state = {
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
+    }
 
   onResize: ({bounds})=>
     {scale} = @state
@@ -35,13 +37,13 @@ class SVGSectionComponent extends BaseSectionComponent
     @props.onResize {scale, bounds, padding}
 
   onClick: (event)=>
+    {history} = @props
     {scale} = @state
-    console.log event
+    {top} = event.target.getBoundingClientRect()
     {clientY} = event
-    console.log clientY
-    height = scale.invert(clientY)
-
+    height = scale.invert(clientY-top)
     console.log "Clicked Section #{@props.id} @ #{height}"
+    history.push("/sections/#{@props.id}")
 
   render: ->
     {id, zoom, padding, lithologyWidth,
@@ -114,6 +116,8 @@ class SVGSectionComponent extends BaseSectionComponent
           ]
       ]
     ]
+
+SVGSectionComponent = withRouter(SVGSectionComponent)
 
 module.exports = {SVGSectionComponent}
 

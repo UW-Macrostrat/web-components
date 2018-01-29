@@ -96,8 +96,11 @@ class LithologyColumn extends Component
   createDefs: =>
     patternSize = {width: 100, height: 100}
     {patterns, UUID, frameID, clipID} = @state
-    elements = patterns.map (d)=>
+    ids = []
+    elements = for d in patterns
       id = "#{UUID}-#{d}"
+      continue if ids.includes(id)
+      ids.push(id)
       h 'pattern', {
         id
         key: id
