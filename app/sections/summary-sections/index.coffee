@@ -108,6 +108,7 @@ class SummarySections extends Component
       }
 
     paddingLeft = 30
+    marginTop = 50
     {canvas} = @state.dimensions
     console.log canvas
     h 'div.page.section-page#summary-sections', [
@@ -121,6 +122,7 @@ class SummarySections extends Component
             groupOrder
             rest...}, __sections
           h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
+                                 marginTop,
                                  sectionPositions}
         ]
       ]

@@ -9,6 +9,7 @@ class SectionLinkOverlay extends Component
     width: 100
     height: 100
     paddingLeft: 20
+    marginTop: 0
   }
   constructor: (props)->
     super props
@@ -22,13 +23,13 @@ class SectionLinkOverlay extends Component
       .y (d)->d.y
 
   buildLink: (surface)=>
-    {sectionPositions, paddingLeft} = @props
+    {sectionPositions, paddingLeft, marginTop} = @props
     {section_height, unit_commonality} = surface
     heights = section_height.map ({section,height,inferred})->
       console.log inferred
       {bounds, padding, scale} = sectionPositions[section]
       yOffs = scale(height)
-      y = bounds.top+padding.top+yOffs
+      y = bounds.top+padding.top+yOffs-marginTop
       {x0: bounds.left-paddingLeft, x1: bounds.left+100, y, inferred}
 
     heights.sort (a,b)-> a.x0 - b.x0
@@ -54,7 +55,7 @@ class SectionLinkOverlay extends Component
     h 'g', links
 
   render: ->
-    {skeletal, sectionPositions} = @props
+    {skeletal, sectionPositions, marginTop} = @props
     {surfaces} = @state
 
     className = classNames {skeletal}
@@ -63,13 +64,14 @@ class SectionLinkOverlay extends Component
     for key, {bounds, padding} of sectionPositions
       {left, top, width, height} = bounds
       x = left
-      y = top+padding.top
+      y = top+padding.top-marginTop
       width -= (padding.left+padding.right)
       height -= (padding.top+padding.bottom)
       __.push h 'rect.section-tracker', {key, x,y,width, height}
 
     {width, height} = @props
-    h 'svg#section-link-overlay', {className, width, height}, [
+    style = {top: marginTop}
+    h 'svg#section-link-overlay', {className, width, height, style}, [
       h 'g.section-trackers', __
       h 'g.section-links', surfaces.map @buildLink
     ]
