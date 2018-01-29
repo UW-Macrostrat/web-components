@@ -45,11 +45,11 @@ class LithologyColumn extends Component
     left: 0
   constructor: (props)->
     super props
-    @UUID = v4()
-    @frameID = "#frame-#{@UUID}"
-    @clipID = "#clip-#{@UUID}"
-
+    UUID = v4()
     @state = {
+      UUID
+      frameID: "#frame-#{UUID}"
+      clipID: "#clip-#{UUID}"
       divisions: []
       patterns: []
     }
@@ -59,45 +59,48 @@ class LithologyColumn extends Component
 
   resolveID: (d)->
     if d.fgdc_pattern?
-      return d.fgdc_pattern
-    return symbolIndex[d.pattern]
+      return "#{d.fgdc_pattern}"
+    return "#{symbolIndex[d.pattern]}"
 
   setupData: (divisions)=>
     divisions.reverse()
     patterns = divisions
       .map(@resolveID)
-      .filter((x, i, a) => a.indexOf(x) == i)
+      .filter((x, i, arr) => arr.indexOf(x) == i)
     @setState {divisions, patterns}
 
   createFrame: ->
     {width, height} = @props
-    h "rect#{@frameID}", {x:0,y:0,width,height}
+    {frameID} = @state
+    h "rect#{frameID}", {x:0,y:0,width,height, key: frameID}
 
   render: ->
     {scale, visible,left} = @props
-    {divisions} = @state
+    {divisions, clipID, frameID} = @state
     divisions = [] unless visible
     {width, height} = @props
     transform = null
     if left?
       transform = "translate(#{left})"
 
-    clipPath = "url(#{@clipID})"
+    clipPath = "url(#{clipID})"
     h 'g.lithology-column', {transform},[
       @createDefs()
       h 'g.lithology-inner', {clipPath}, [
         divisions.map(@renderDivision)...
         divisions.map(@renderCoveredOverlay)...
       ]
-      h 'use.frame', {href: @frameID, fill:'transparent'}
+      h 'use.frame', {href: frameID, fill:'transparent'}
     ]
 
   createDefs: =>
     patternSize = {width: 100, height: 100}
-    {patterns} = @state
+    {patterns, UUID, frameID, clipID} = @state
     elements = patterns.map (d)=>
+      id = "#{UUID}-#{d}"
       h 'pattern', {
-        id: "#{@UUID}-#{d}"
+        id
+        key: id
         patternUnits: "userSpaceOnUse"
         patternSize...
       }, [
@@ -110,8 +113,8 @@ class LithologyColumn extends Component
 
     clipPath = createElement(
       "clipPath",
-      {id: @clipID.slice(1)}, [
-        h 'use', {'href': @frameID}
+      {id: clipID.slice(1), key: clipID}, [
+        h 'use', {'href': frameID}
       ])
     h 'defs', [
       @createFrame()
@@ -125,6 +128,7 @@ class LithologyColumn extends Component
       covered: d.covered}, 'lithology')
 
     {width,scale} = @props
+    {UUID} = @state
     [bottom,top] = __divisionSize(d)
     y = scale(top)
     height = scale(bottom)-y+1
@@ -132,7 +136,7 @@ class LithologyColumn extends Component
     fn = resolveSymbol d
 
     __ = @resolveID(d)
-    fill = "url(##{@UUID}-#{__})"
+    fill = "url(##{UUID}-#{__})"
     h "rect", {className,y, x: -5, width: width+10, height, fill, key: d.id}
 
   renderCoveredOverlay: (d)=>
@@ -141,7 +145,7 @@ class LithologyColumn extends Component
     [bottom,top] = __divisionSize(d)
     y = scale(top)
     height = scale(bottom)-y+1
-    h "rect.covered-area", {y, width, height, key: d.id}
+    h "rect.covered-area", {y, width, height, key: "#{bottom}-covered"}
 
 class CoveredColumn extends LithologyColumn
   @defaultProps: {
@@ -187,7 +191,7 @@ class GeneralizedSectionColumn extends LithologyColumn
 
   createFrame: ->
     {scale} = @props
-    {divisions} = @state
+    {divisions,frameID} = @state
     if divisions.length == 0
       return super.createFrame()
 
@@ -204,6 +208,6 @@ class GeneralizedSectionColumn extends LithologyColumn
       _.lineTo x, bottomOf(div)
     _.lineTo 0, bottomOf(div)
     _.closePath()
-    h "path#{@frameID}", {d: _.toString()}
+    h "path#{frameID}", {d: _.toString()}
 
 module.exports = {LithologyColumn, GeneralizedSectionColumn, CoveredColumn}

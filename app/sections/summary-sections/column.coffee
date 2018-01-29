@@ -34,6 +34,15 @@ class SVGSectionComponent extends BaseSectionComponent
     {padding} = @props
     @props.onResize {scale, bounds, padding}
 
+  onClick: (event)=>
+    {scale} = @state
+    console.log event
+    {clientY} = event
+    console.log clientY
+    height = scale.invert(clientY)
+
+    console.log "Clicked Section #{@props.id} @ #{height}"
+
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft} = @props
@@ -78,8 +87,14 @@ class SVGSectionComponent extends BaseSectionComponent
     }, [
       h 'div.section-header', [h "h2", txt]
       h 'div.section-outer', [
-        h Measure, {bounds: true, @onResize}, ({measureRef})=>
-          h "svg.section", {style, ref: measureRef}, [
+        h Measure, {
+          bounds: true,
+          onResize: @onResize
+        }, ({measureRef})=>
+          h "svg.section", {
+            style, ref: measureRef
+            onClick: @onClick
+          }, [
             h 'g.backdrop', {transform}, [
               h CoveredColumn, {
                 height: innerHeight

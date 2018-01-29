@@ -38,7 +38,6 @@ class SectionLinkOverlay extends Component
 
     pathData = d3.pairs heights, (a,b)->
       inferred = (a.inferred or b.inferred)
-      console.log inferred
       source = {x: a.x1, y: a.y}
       target = {x: b.x0, y: b.y}
       {source, target, inferred}
