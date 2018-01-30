@@ -1,5 +1,4 @@
 SELECT
-  l.id,
   l.lithology,
   l.covered,
   coalesce(definite_boundary, true) definite_boundary,
@@ -18,12 +17,16 @@ SELECT
     l.lithology
   ) fill_pattern
 FROM section.section_lithology l
-LEFT JOIN section.lithology_tree t
+JOIN section.lithology_tree t
   ON l.lithology = t.id
-LEFT JOIN section.lithology v
+JOIN section.lithology v
   ON l.lithology = v.id
 JOIN section.section s
   ON s.id = l.section
 WHERE section = $1::text
+  AND (
+    l.lithology IS NOT null
+ OR l.fill_pattern IS NOT null)
 ORDER BY bottom
+
 

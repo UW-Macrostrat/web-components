@@ -43,6 +43,7 @@ class LithologyColumn extends Component
     height: 100
     visible: true
     left: 0
+  queryID: 'lithology'
   constructor: (props)->
     super props
     UUID = v4()
@@ -54,7 +55,7 @@ class LithologyColumn extends Component
       patterns: []
     }
 
-    query 'lithology', [@props.id]
+    query @queryID, [@props.id]
       .then @setupData
 
   resolveID: (d)->
@@ -63,9 +64,10 @@ class LithologyColumn extends Component
     return "#{symbolIndex[d.pattern]}"
 
   setupData: (divisions)=>
-    divisions.reverse()
+    for d in divisions
+      d.patternID = @resolveID(d)
     patterns = divisions
-      .map(@resolveID)
+      .map (d)->d.patternID
       .filter((x, i, arr) => arr.indexOf(x) == i)
     @setState {divisions, patterns}
 
@@ -83,11 +85,20 @@ class LithologyColumn extends Component
     if left?
       transform = "translate(#{left})"
 
+    __ = divisions.slice(0,1)
+    for d in divisions
+      ix = __.length-1
+      shouldSkip = not d.patternID? or d.patternID == __[ix].patternID
+      if shouldSkip
+        __[ix].top = d.top
+      else
+        __.push {d...}
+
     clipPath = "url(#{clipID})"
     h 'g.lithology-column', {transform},[
       @createDefs()
       h 'g.lithology-inner', {clipPath}, [
-        divisions.map(@renderDivision)...
+        __.map(@renderDivision)...
         divisions.map(@renderCoveredOverlay)...
       ]
       h 'use.frame', {href: frameID, fill:'transparent', key: 'frame'}
@@ -133,13 +144,10 @@ class LithologyColumn extends Component
     {width,scale} = @props
     {UUID} = @state
     [bottom,top] = __divisionSize(d)
-    y = scale(top)
-    height = scale(bottom)-y+1
-
-    fn = resolveSymbol d
-
-    __ = @resolveID(d)
-    fill = "url(##{UUID}-#{__})"
+    t = scale(top)
+    y = t-2
+    height = scale(bottom)-t
+    fill = "url(##{UUID}-#{d.patternID})"
     h "rect", {className,y, x: -5, width: width+10, height, fill, key: d.id}
 
   renderCoveredOverlay: (d)=>
@@ -204,12 +212,12 @@ class GeneralizedSectionColumn extends LithologyColumn
       scale(d.bottom)
 
     _ = path()
-    _.moveTo(0,topOf(divisions[0]))
+    _.moveTo(0,bottomOf(divisions[0]))
     for div in divisions
       x = @grainsizeScale(div.grainsize)
-      _.lineTo x, topOf(div)
       _.lineTo x, bottomOf(div)
-    _.lineTo 0, bottomOf(div)
+      _.lineTo x, topOf(div)
+    _.lineTo 0, topOf(div)
     _.closePath()
     h "path#{frameID}", {d: _.toString()}
 
