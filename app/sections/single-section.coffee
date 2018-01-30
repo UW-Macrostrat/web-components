@@ -16,11 +16,14 @@ Measure = require('react-measure').default
 PropTypes = require 'prop-types'
 { Hotkey, Hotkeys, HotkeysTarget } = require "@blueprintjs/core"
 {SectionNavigationControl} = require './util'
+{Intent} = require '@blueprintjs/core'
+{Notification} = require '../notify'
 
 class SectionPage extends Component
   constructor: (props)->
     super props
     @state =
+      notificationSent: false
       dimensions: {}
       options:
         zoom: 1
@@ -32,7 +35,13 @@ class SectionPage extends Component
           #{value: 'sequence-stratigraphy', label: 'Sequence Strat.'}
         ]
         activeMode: 'normal'
+        displayModes: [
+          {value: 'image', label: 'Full-resolution'}
+          {value: 'generalized', label: 'Generalized'}
+        ]
+        activeDisplayMode: 'image'
         showNotes: true
+        showSymbols: true
         showFloodingSurfaces: false
         # Allows us to test the serialized query mode
         # we are developing for the web
@@ -80,17 +89,19 @@ class SectionPage extends Component
 
     {toggleSettings} = @
     h 'div.page.section-page.single-section', [
-      h SectionNavigationControl, {toggleSettings}
-      h 'div#section-pane', [
-        h SectionComponent, {
-          trackVisibility: false
-          section...,
-          offsetTop: 0,
-          scrollToHeight
-          key, skeletal,
-          useRelativePositioning: false
-          options...
-        }
+      h 'div.panel-container', [
+        h SectionNavigationControl, {toggleSettings}
+        h 'div#section-pane', {ref: (p)=>@pane = p}, [
+          h SectionComponent, {
+            trackVisibility: false
+            section...,
+            offsetTop: 0
+            onResize: @onResize
+            key, skeletal,
+            useRelativePositioning: false
+            options...
+          }
+        ]
       ]
       h SettingsPanel, @state.options
     ]
@@ -102,6 +113,19 @@ class SectionPage extends Component
 
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
+
+  onResize: ({bounds, scale, padding})=>
+    {height, section} = @props
+    return unless height
+    console.log "Setting scroll position"
+    @pane.scrollTop = scale.invert(height)
+    return if @state.notificationSent
+    Notification.show {
+      message: "Section #{section.id} @ #{height} m"
+      intent: Intent.PRIMARY
+    }
+    @setState {notificationSent: true}
+
 
 module.exports = SectionPage
 

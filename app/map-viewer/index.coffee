@@ -15,7 +15,7 @@ class MapView extends React.Component
     el = ReactDOM.findDOMNode @
 
     if PLATFORM == ELECTRON
-      tileUrl = "http://localhost:39805/geology"
+      tileUrl = "http://localhost:3006/tiles/geology"
     else
       tileUrl = BASE_URL+"tiles"
 
@@ -30,11 +30,11 @@ class MapView extends React.Component
         sources:
           satellite:
             type: 'raster'
-            tiles: ["http://localhost:39805/satellite/{z}/{x}/{y}@2x.png"]
+            tiles: ["http://localhost:3006/tiles/satellite/{z}/{x}/{y}.png"]
             tileSize: 256
           geology:
             type: 'raster'
-            tiles: ["#{tileUrl}/{z}/{x}/{y}/tile@2x.png"]
+            tiles: ["#{tileUrl}/{z}/{x}/{y}.png"]
             tileSize: 256
         layers: [
           {id: "geology", type: "raster", source: "geology"}

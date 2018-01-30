@@ -59,6 +59,7 @@ sectionLabels = null
 sectionQueries =  [
   'flooding-surface'
   'section-samples'
+  'section-symbols'
   'lithology'
   'log-notes'
 ]

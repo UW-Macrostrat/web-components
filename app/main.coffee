@@ -5,6 +5,8 @@ global.PLATFORM = ELECTRON
 global.SERIALIZED_QUERIES = false
 try
   require 'electron'
+  {resolve, join} = require 'path'
+  global.BASE_DIR = resolve join(__dirname,'..')
 catch
   global.PLATFORM = WEB
   global.SERIALIZED_QUERIES = true
@@ -16,7 +18,6 @@ ReactDOM = require 'react-dom'
 {HashRouter,Route,Link, Switch} = require 'react-router-dom'
 {mouseTrap} = require 'react-mousetrap'
 h = require 'react-hyperscript'
-require '@blueprintjs/core/dist/blueprint.css'
 {FocusStyleManager} = require '@blueprintjs/core'
 FocusStyleManager.onlyShowFocusOnTabs()
 
@@ -27,6 +28,7 @@ MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
 Map = require './map-viewer'
+
 
 wrapNavBar = (component)->
   class NavBarPage extends React.Component

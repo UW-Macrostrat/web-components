@@ -215,7 +215,7 @@ class NotesColumn extends Component
 
     nodes = notes.map (d)->d.node
 
-    style = {zoom, marginLeft: -80}
+    style = {zoom}
     width += 80
 
     children = []
@@ -228,8 +228,8 @@ class NotesColumn extends Component
           link: renderer.generatePath(d.node),
           key: d.id, columnGap}
 
-
-    h 'svg.section-log', {width, xmlns: "http://www.w3.org/2000/svg", style}, [
+    xmlns = "http://www.w3.org/2000/svg"
+    h 'svg.section-log', {width, height, xmlns, style}, [
       h 'defs', [
         arrowMarker 'arrow_start', 270
         arrowMarker 'arrow_end', 90

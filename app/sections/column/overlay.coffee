@@ -1,11 +1,12 @@
 {Component, createElement} = require 'react'
 {findDOMNode} = require 'react-dom'
 {GrainsizeScale} = require './grainsize'
+{SymbolColumn} = require './symbol-column'
 Samples = require './samples'
 FloodingSurfaces = require './flooding-surfaces'
 h = require 'react-hyperscript'
 d3 = require 'd3'
-{LithologyColumn} = require './lithology'
+{LithologyColumn, GeneralizedSectionColumn} = require './lithology'
 
 class SectionAxis extends Component
   @defaultProps: {
@@ -46,27 +47,8 @@ class SectionOverlay extends Component
     gs = null
     samples = null
 
-    if zoom > 0.4
-      gs = h GrainsizeScale, {
-        height: @props.innerHeight
-        range
-      }
 
-      if @props.showCarbonIsotopes
-        samples = h Samples, {scale, zoom, id}
-      else
-        samples = h 'g'
-
-      if @props.showFloodingSurfaces
-        surf = h FloodingSurfaces, {scale, zoom, id}
-      else
-        surf = h 'g'
-
-    h "svg.overlay", {
-      width: @props.outerWidth
-      height: @props.outerHeight
-    }, [
-      h 'g.backdrop', {transform}, [
+    __ = [
         h SectionAxis, {scale, ticks}
         h LithologyColumn, {
           width: lithologyWidth
@@ -74,10 +56,37 @@ class SectionOverlay extends Component
           scale
           id
         }
-        gs
-        samples
-        surf
-      ]
+    ]
+    if zoom > 0.4
+      __.push h GrainsizeScale, {
+        height: @props.innerHeight
+        range
+      }
+
+      if @props.showGeneralizedSections
+        __.push h GeneralizedSectionColumn, {
+          scale
+          id
+          grainsizeScaleStart: range[0]-lithologyWidth
+          width: range[1]-lithologyWidth
+          left: lithologyWidth
+          height: @props.innerHeight
+        }
+
+      if @props.showCarbonIsotopes
+        __.push h Samples, {scale, zoom, id}
+
+      if @props.showFloodingSurfaces
+        __.push h FloodingSurfaces, {scale, zoom, id}
+
+      if @props.showSymbols
+        __.push h SymbolColumn, {scale, id, left: 215}
+
+    h "svg.overlay", {
+      width: @props.outerWidth
+      height: @props.outerHeight
+    }, [
+      h 'g.backdrop', {transform}, __
     ]
 
   createAxisLines: =>

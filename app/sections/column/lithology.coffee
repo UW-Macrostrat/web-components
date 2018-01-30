@@ -90,7 +90,7 @@ class LithologyColumn extends Component
         divisions.map(@renderDivision)...
         divisions.map(@renderCoveredOverlay)...
       ]
-      h 'use.frame', {href: frameID, fill:'transparent'}
+      h 'use.frame', {href: frameID, fill:'transparent', key: 'frame'}
     ]
 
   createDefs: =>
@@ -117,9 +117,9 @@ class LithologyColumn extends Component
     clipPath = createElement(
       "clipPath",
       {id: clipID.slice(1), key: clipID}, [
-        h 'use', {'href': frameID}
+        h 'use', {key: frameID, 'href': frameID}
       ])
-    h 'defs', [
+    h 'defs', {key: 'defs'}, [
       @createFrame()
       clipPath
       elements...

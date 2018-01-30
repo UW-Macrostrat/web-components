@@ -7,6 +7,7 @@ VisibilitySensor = require 'react-visibility-sensor'
 {SectionOverlay} = require './overlay'
 SectionImages = require './images'
 NotesColumn = require './notes'
+Measure = require('react-measure').default
 {BaseSectionComponent} = require './base'
 require './main.styl'
 
@@ -15,18 +16,19 @@ class SectionComponent extends BaseSectionComponent
     BaseSectionComponent.defaultProps...
     visible: false
     trackVisibility: true
-    innerWidth: 280
+    innerWidth: 250
     offsetTop: null
     height: 100 # Section height in meters
     lithologyWidth: 40
-    logWidth: 350
+    logWidth: 450
     containerWidth: 1000
+    showSymbols: true
     showNotes: true
     useRelativePositioning: true
     padding:
       left: 100
       top: 30
-      right: 30
+      right: 0
       bottom: 30
   }
   constructor: (props)->
@@ -93,6 +95,7 @@ class SectionComponent extends BaseSectionComponent
     innerElements = []
 
     if @state.visible
+      {showSymbols} = @props
       _ = h SectionOverlay, {
         id
         height: @props.height
@@ -106,7 +109,9 @@ class SectionComponent extends BaseSectionComponent
         outerWidth
         scale
         skeletal
+        showSymbols
         zoom
+        showGeneralizedSections: @props.activeDisplayMode == 'generalized'
         showCarbonIsotopes: @props.showCarbonIsotopes
         showFloodingSurfaces: @props.showFloodingSurfaces
       }
@@ -119,7 +124,7 @@ class SectionComponent extends BaseSectionComponent
         imageFiles: @props.imageFiles
         scaleFactor
         extraSpace
-        skeletal
+        skeletal: skeletal or @props.activeDisplayMode != 'image'
         zoom
       }
       innerElements.push img
@@ -128,8 +133,6 @@ class SectionComponent extends BaseSectionComponent
       width: outerWidth
       height: outerHeight
     }
-
-    console.log style
 
     notesEl = null
     if @props.showNotes and @props.zoom > 0.50
@@ -145,12 +148,17 @@ class SectionComponent extends BaseSectionComponent
       }
 
     children = null
+    props =
     children= [
       h 'div.section-header', [h "h2", txt]
-      h 'div.section-outer', [
-        h 'div.section', {style}, innerElements
-        notesEl
-      ]
+      h Measure, {
+        bounds: true
+        onResize: @onResize
+      }, ({measureRef})=>
+        h 'div.section-outer', [
+            h 'div.section', {style, ref: measureRef}, innerElements
+            notesEl
+        ]
     ]
 
     width = outerWidth

@@ -6,6 +6,7 @@ h = require 'react-hyperscript'
 Measure = require('react-measure').default
 {SectionOverlay, SectionAxis} = require '../column/overlay'
 {BaseSectionComponent} = require '../column/base'
+{SymbolColumn} = require '../column/symbol-column'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
 {withRouter} = require 'react-router-dom'
 
@@ -30,11 +31,6 @@ class SVGSectionComponent extends BaseSectionComponent
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
     }
-
-  onResize: ({bounds})=>
-    {scale} = @state
-    {padding} = @props
-    @props.onResize {scale, bounds, padding}
 
   onClick: (event)=>
     {history} = @props
@@ -110,6 +106,12 @@ class SVGSectionComponent extends BaseSectionComponent
                 scale
                 id
                 grainsizeScaleStart: 40
+              }
+              h SymbolColumn, {
+                scale
+                height: innerHeight
+                left: 90
+                id
               }
               h SectionAxis, {scale, ticks: nticks}
             ]

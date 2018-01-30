@@ -7,24 +7,32 @@ CSSTransition = require 'react-addons-css-transition-group'
 require './settings.styl'
 
 
-class ModeControl extends Component
+class PickerControl extends Component
+  @defaultProps: {
+    states : [
+      {label: 'State 1', value: 'state1'}
+      {label: 'State 2', value: 'state2'}
+    ]
+  }
   render: ->
-    opts = @props.modes.map (d)=>
-      props =
+    {states, activeState} = @props
+    opts = states.map (d)=>
+      props = {
         type: 'button'
         className: 'pt-button'
-        onClick: =>@update(d.value)
-      if @props.activeMode == d.value
+        onClick: @onUpdate(d.value)
+      }
+      if @props.activeState == d.value
         props.className += ' pt-active'
       h 'button', props, d.label
 
-    h 'div.mode-control', [
-      h 'h5', 'Display mode'
+    h 'div.picker-control', [
       h 'div.pt-vertical.pt-button-group.pt-align-left.pt-fill', opts
     ]
-  update: (value)=>
-    return if value == @props.value
-    @props.update activeMode: {$set: value}
+  onUpdate: (value)=> =>
+    return if value == @props.activeState
+    return unless @props.onUpdate?
+    @props.onUpdate(value)
 
 fmt = format('.2f')
 
@@ -35,53 +43,19 @@ class SettingsPanel extends Component
       body = [
         h 'div#settings', {key: 'settings'}, [
           h 'h2', 'Settings'
-          h ModeControl, @props
-          h Switch, {
-            checked: @props.condensedDisplay
-            label: "Condensed display"
-            onChange: @switchHandler('condensedDisplay')
-          }
-          h Switch, {
-            checked: @props.showNotes
-            label: "Show notes"
-            onChange: @switchHandler('showNotes')
-          }
-          h Switch, {
-            checked: @props.showCarbonIsotopes
-            label: "Show carbon isotopes"
-            onChange: @switchHandler('showCarbonIsotopes')
-          }
-          h Switch, {
-            checked: @props.showFloodingSurfaces
-            label: "Show flooding surfaces"
-            onChange: @switchHandler('showFloodingSurfaces')
-          }
-          h Switch, {
-            checked: @props.inEditMode
-            label: "Allow editing"
-            onChange: @switchHandler('inEditMode')
-          }
-          h Switch, {
-            checked: @props.dragdealer
-            label: "Dragdealer"
-            onChange: @switchHandler('dragdealer')
-          }
-          h Switch, {
-            checked: @props.serializedQueries
-            label: "Serialized queries"
-            onChange: @switchHandler('serializedQueries')
-          }
-          h 'div#view-params', [
-            h 'h5', 'View info'
-            h 'table.pt-table', [
-              h 'tbody', [
-                h 'tr', [
-                  h 'td', 'Zoom'
-                  h 'td', fmt(@props.zoom)
-                ]
-              ]
-            ]
-          ]
+          h 'hr'
+          h 'h5', "Components"
+          @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
+          @createSwitch 'showFloodingSurfaces', "Sequence boundaries"
+          @createSwitch 'showSymbols', 'Symbols'
+          @createSwitch 'showNotes', "Notes"
+          @createPicker 'displayModes', 'activeDisplayMode'
+          h 'hr'
+          @createSwitch('inEditMode', "Allow editing")
+          @createSwitch 'serializedQueries', "Serialized queries"
+          h 'hr'
+          h 'h5', 'Display mode'
+          @createPicker 'modes', 'activeMode'
         ]
       ]
 
@@ -92,9 +66,41 @@ class SettingsPanel extends Component
     }
     h CSSTransition, props, body
 
+  viewParams: =>
+    h 'div#view-params', [
+      h 'h5', 'View info'
+      h 'table.pt-table', [
+        h 'tbody', [
+          h 'tr', [
+            h 'td', 'Zoom'
+            h 'td', fmt(@props.zoom)
+          ]
+        ]
+      ]
+    ]
+
+  createSwitch: (id, label)=>
+    h Switch, {
+      checked: @props[id]
+      label: label
+      onChange: @switchHandler(id)
+    }
+
   switchHandler: (name)=> =>
     v = {}
     v[name] = {$apply: (d)->not d}
     @props.update v
+
+  createPicker: (modes, active)=>
+    onUpdate = (value)=>
+      v = {}
+      v[active] = {$set: value}
+      @props.update v
+
+    h PickerControl, {
+      states: @props[modes]
+      activeState: @props[active]
+      onUpdate
+    }
 
 module.exports = SettingsPanel

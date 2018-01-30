@@ -20,6 +20,12 @@ class BaseSectionComponent extends Component
   componentDidMount: ->
     @componentDidUpdate.apply @, arguments
 
+  onResize: ({bounds})=>
+    {scale} = @state
+    {padding, onResize} = @props
+    return unless onResize?
+    onResize {scale, bounds, padding}
+
   componentDidUpdate: ->
     # This leads to some problems unsurprisingly
     el = findDOMNode @

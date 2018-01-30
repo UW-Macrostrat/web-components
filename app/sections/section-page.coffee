@@ -71,7 +71,7 @@ class SectionPage extends Component
     row.showFloodingSurfaces = opts.showFloodingSurfaces
     row.showCarbonIsotopes = opts.showCarbonIsotopes
     row.trackVisibility = opts.trackVisibility
-    h SectionComponent, row
+    h SectionComponent, {onResize, row...}
 
   render: ->
 
