@@ -10,6 +10,7 @@ SectionPage = require './single-section'
 SummarySections = require './summary-sections'
 {AllSections} = require './section-page'
 {SectionNavigationControl} = require './util'
+{FaciesDescriptionPage} = require './facies-descriptions'
 
 {nest} = require 'd3'
 
@@ -49,6 +50,9 @@ class SectionIndexPage extends Component
           h NavLink, to: "/sections/summary", [
             h 'div.title', 'Summary sections'
           ]
+          h NavLink, to: "/sections/facies-descriptions", [
+            h 'div.title', 'Facies descriptions'
+          ]
         ]
         locations...
       ]
@@ -77,6 +81,11 @@ class SectionIndex extends Component
         path: match.url+'/summary'
         exact: true
         render: => h(SummarySections, {sections}, null)
+      }
+      h Route, {
+        path: match.url+'/facies-descriptions'
+        exact: true
+        render: => h(FaciesDescriptionPage, {}, null)
       }
       h Route, {
         path: match.url+'/all'

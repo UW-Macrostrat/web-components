@@ -24,6 +24,7 @@ class SectionComponent extends BaseSectionComponent
     containerWidth: 1000
     showSymbols: true
     showNotes: true
+    showFacies: false
     useRelativePositioning: true
     padding:
       left: 100
@@ -66,7 +67,7 @@ class SectionComponent extends BaseSectionComponent
 
     outerWidth = innerWidth+(left+right)
 
-    {heightOfTop} = @props
+    {heightOfTop, showFacies} = @props
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     [bottom,top] = @props.range
@@ -111,6 +112,7 @@ class SectionComponent extends BaseSectionComponent
         skeletal
         showSymbols
         zoom
+        showFacies
         showGeneralizedSections: @props.activeDisplayMode == 'generalized'
         showCarbonIsotopes: @props.showCarbonIsotopes
         showFloodingSurfaces: @props.showFloodingSurfaces

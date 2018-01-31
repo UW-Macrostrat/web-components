@@ -1,5 +1,7 @@
 SELECT
   l.id,
+  l.facies,
+  f.color facies_color,
   l.lithology,
   l.covered,
   coalesce(definite_boundary, true) definite_boundary,
@@ -20,6 +22,8 @@ SELECT
 FROM section.section_lithology l
 LEFT JOIN section.lithology_tree t
   ON l.lithology = t.id
+LEFT JOIN section.facies f
+  ON l.facies = f.id
 LEFT JOIN section.lithology v
   ON l.lithology = v.id
 JOIN section.section s

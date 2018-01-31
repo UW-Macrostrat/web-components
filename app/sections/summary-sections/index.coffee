@@ -7,7 +7,7 @@ h = require 'react-hyperscript'
 ElementPan = require 'react-element-pan'
 {NavLink} = require '../../nav'
 {Icon} = require 'react-fa'
-SettingsPanel = require '../settings'
+{SummarySectionsSettings} = require '../settings'
 update = require 'immutability-helper'
 LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
@@ -18,6 +18,7 @@ Measure = require('react-measure').default
 {SectionNavigationControl} = require '../util'
 {SectionLinkOverlay} = require './link-overlay'
 PropTypes = require 'prop-types'
+{FaciesDescriptionSmall} = require '../facies-descriptions'
 
 sectionOffsets = {
   A: 0
@@ -57,7 +58,7 @@ class SummarySections extends Component
           #{value: 'sequence-stratigraphy', label: 'Sequence Strat.'}
         ]
         activeMode: 'normal'
-        showNotes: false
+        showFacies: true
         showFloodingSurfaces: false
         # Allows us to test the serialized query mode
         # we are developing for the web
@@ -81,6 +82,7 @@ class SummarySections extends Component
     {showFloodingSurfaces,
      showCarbonIsotopes,
      trackVisibility,
+     showFacies,
      activeMode} = options
 
     skeletal = activeMode == 'skeleton'
@@ -102,6 +104,7 @@ class SummarySections extends Component
         showFloodingSurfaces
         showCarbonIsotopes,
         trackVisibility
+        showFacies
         onResize: sectionResize(row.id)
         offset
         rest...
@@ -126,7 +129,7 @@ class SummarySections extends Component
                                  sectionPositions}
         ]
       ]
-      h SettingsPanel, @state.options
+      h SummarySectionsSettings, @state.options
     ]
 
   onSectionResize: (key)=>(contentRect)=>

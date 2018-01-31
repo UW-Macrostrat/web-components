@@ -56,6 +56,8 @@ new SerializableQuery('sections', null, {baseDir})
 new SerializableQuery('carbon-isotopes', null, {baseDir})
 
 sectionLabels = null
+
+new SerializableQuery('facies',null, {baseDir})
 sectionQueries =  [
   'flooding-surface'
   'section-samples'

@@ -3,6 +3,7 @@ h = require 'react-hyperscript'
 CSSTransition = require 'react-addons-css-transition-group'
 {Switch} = require '@blueprintjs/core'
 {format} = require 'd3'
+{FaciesDescriptionSmall} = require './facies-descriptions'
 
 require './settings.styl'
 
@@ -44,18 +45,7 @@ class SettingsPanel extends Component
         h 'div#settings', {key: 'settings'}, [
           h 'h2', 'Settings'
           h 'hr'
-          h 'h5', "Components"
-          @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
-          @createSwitch 'showFloodingSurfaces', "Sequence boundaries"
-          @createSwitch 'showSymbols', 'Symbols'
-          @createSwitch 'showNotes', "Notes"
-          @createPicker 'displayModes', 'activeDisplayMode'
-          h 'hr'
-          @createSwitch('inEditMode', "Allow editing")
-          @createSwitch 'serializedQueries', "Serialized queries"
-          h 'hr'
-          h 'h5', 'Display mode'
-          @createPicker 'modes', 'activeMode'
+          @renderControls()
         ]
       ]
 
@@ -77,6 +67,22 @@ class SettingsPanel extends Component
           ]
         ]
       ]
+    ]
+
+  renderControls: =>
+    return [
+      h 'h5', "Components"
+      @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
+      @createSwitch 'showFloodingSurfaces', "Sequence boundaries"
+      @createSwitch 'showSymbols', 'Symbols'
+      @createSwitch 'showNotes', "Notes"
+      @createPicker 'displayModes', 'activeDisplayMode'
+      h 'hr'
+      @createSwitch('inEditMode', "Allow editing")
+      @createSwitch 'serializedQueries', "Serialized queries"
+      h 'hr'
+      h 'h5', 'Display mode'
+      @createPicker 'modes', 'activeMode'
     ]
 
   createSwitch: (id, label)=>
@@ -103,4 +109,20 @@ class SettingsPanel extends Component
       onUpdate
     }
 
-module.exports = SettingsPanel
+class SummarySectionsSettings extends SettingsPanel
+  renderControls: =>
+    return [
+      h 'h5', "Components"
+      @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
+      @createSwitch 'showFloodingSurfaces', "Sequence boundaries"
+      @createSwitch 'showSymbols', 'Symbols'
+      @createSwitch 'showFacies', 'Facies'
+      h 'hr'
+      @createSwitch 'serializedQueries', "Serialized queries"
+      h 'hr'
+      h 'h5', 'Display mode'
+      @createPicker 'modes', 'activeMode'
+      h FaciesDescriptionSmall, {}, null
+    ]
+
+module.exports = {SettingsPanel, SummarySectionsSettings}

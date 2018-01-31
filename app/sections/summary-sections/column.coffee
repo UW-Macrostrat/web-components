@@ -17,6 +17,7 @@ class SVGSectionComponent extends BaseSectionComponent
     innerWidth: 100
     height: 100 # Section height in meters
     lithologyWidth: 40
+    showFacies: true
     onResize: ->
     marginLeft: -25
     padding:
@@ -43,7 +44,7 @@ class SVGSectionComponent extends BaseSectionComponent
 
   render: ->
     {id, zoom, padding, lithologyWidth,
-     innerWidth, onResize, marginLeft} = @props
+     innerWidth, onResize, marginLeft, showFacies} = @props
 
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
 
@@ -103,6 +104,7 @@ class SVGSectionComponent extends BaseSectionComponent
               h GeneralizedSectionColumn, {
                 width: innerWidth
                 height: innerHeight
+                showFacies
                 scale
                 id
                 grainsizeScaleStart: 40

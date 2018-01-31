@@ -43,6 +43,8 @@ class LithologyColumn extends Component
     height: 100
     visible: true
     left: 0
+    showFacies: false
+    padWidth: true
   queryID: 'lithology'
   constructor: (props)->
     super props
@@ -85,7 +87,7 @@ class LithologyColumn extends Component
     if left?
       transform = "translate(#{left})"
 
-    __ = divisions.slice(0,1)
+    __ = [{divisions[0]...}]
     for d in divisions
       ix = __.length-1
       shouldSkip = not d.patternID? or d.patternID == __[ix].patternID
@@ -94,12 +96,18 @@ class LithologyColumn extends Component
       else
         __.push {d...}
 
+    facies = null
+    if @props.showFacies
+      facies = @renderFacies()
+
+
     clipPath = "url(#{clipID})"
     h 'g.lithology-column', {transform},[
       @createDefs()
       h 'g.lithology-inner', {clipPath}, [
-        __.map(@renderDivision)...
-        divisions.map(@renderCoveredOverlay)...
+        facies
+        h 'g.lithology', {}, __.map(@renderDivision)
+        h 'g.covered', {}, divisions.map(@renderCoveredOverlay)
       ]
       h 'use.frame', {href: frameID, fill:'transparent', key: 'frame'}
     ]
@@ -136,31 +144,50 @@ class LithologyColumn extends Component
       elements...
     ]
 
+  createRect: (d, props)=>
+    [bottom,top] = __divisionSize(d)
+    t = @props.scale(top)
+    y = t
+    {width} = @props
+    x = 0
+    if @props.padWidth
+      x -= 5
+      width += 10
+    height = @props.scale(bottom)-y
+    key = props.key or d.id
+    h "rect", {x,y, width, height, key, props...}
+
   renderDivision: (d)=>
     className = classNames({
       definite: d.definite_boundary
       covered: d.covered}, 'lithology')
-
-    {width,scale} = @props
     {UUID} = @state
-    [bottom,top] = __divisionSize(d)
-    t = scale(top)
-    y = t-2
-    height = scale(bottom)-t
     fill = "url(##{UUID}-#{d.patternID})"
-    h "rect", {className,y, x: -5, width: width+10, height, fill, key: d.id}
+    @createRect d, {className, fill}
 
   renderCoveredOverlay: (d)=>
     return null if not d.covered
-    {width,scale} = @props
-    [bottom,top] = __divisionSize(d)
-    y = scale(top)
-    height = scale(bottom)-y+1
-    h "rect.covered-area", {y, width, height, key: "#{bottom}-covered"}
+    @createRect d, {className: 'covered-area'}
+
+  renderFacies: =>
+    {divisions} = @state
+    __ = [{divisions[0]...}]
+    for d in divisions
+      ix = __.length-1
+      shouldSkip = not d.facies? or d.facies == __[ix].facies
+      if shouldSkip
+        __[ix].top = d.top
+      else
+        __.push {d...}
+    return null if __.length == 1
+    h 'g.facies', __.map (d)=>
+      className = classNames('facies', d.id)
+      @createRect d, {className, fill: d.facies_color}
 
 class CoveredColumn extends LithologyColumn
   @defaultProps: {
     width: 5
+    padWidth: false
   }
   constructor: (props)->
     super props
