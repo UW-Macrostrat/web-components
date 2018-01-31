@@ -40,10 +40,13 @@ __divisionSize = (d)->
 class LithologyColumn extends Component
   @defaultProps:
     width: 100
+    # Should align exactly with centerline of stroke
+    shiftY: 0.5
     height: 100
     visible: true
     left: 0
     showFacies: false
+    showLithology: true
     padWidth: true
   queryID: 'lithology'
   constructor: (props)->
@@ -61,6 +64,8 @@ class LithologyColumn extends Component
       .then @setupData
 
   resolveID: (d)->
+    if not (d.fgdc_pattern? or d.pattern?)
+      return null
     if d.fgdc_pattern?
       return "#{d.fgdc_pattern}"
     return "#{symbolIndex[d.pattern]}"
@@ -79,35 +84,22 @@ class LithologyColumn extends Component
     h "rect#{frameID}", {x:0,y:0,width,height, key: frameID}
 
   render: ->
-    {scale, visible,left} = @props
+    {scale, visible,left, shiftY} = @props
     {divisions, clipID, frameID} = @state
     divisions = [] unless visible
     {width, height} = @props
     transform = null
     if left?
-      transform = "translate(#{left})"
+      transform = "translate(#{left} #{shiftY})"
 
-    __ = [{divisions[0]...}]
-    for d in divisions
-      ix = __.length-1
-      shouldSkip = not d.patternID? or d.patternID == __[ix].patternID
-      if shouldSkip
-        __[ix].top = d.top
-      else
-        __.push {d...}
-
-    facies = null
-    if @props.showFacies
-      facies = @renderFacies()
-
-
+    onClick = @onClick
     clipPath = "url(#{clipID})"
-    h 'g.lithology-column', {transform},[
+    h 'g.lithology-column', {transform, onClick},[
       @createDefs()
       h 'g.lithology-inner', {clipPath}, [
-        facies
-        h 'g.lithology', {}, __.map(@renderDivision)
-        h 'g.covered', {}, divisions.map(@renderCoveredOverlay)
+        @renderFacies()
+        @renderLithology()
+        @renderCoveredOverlay()
       ]
       h 'use.frame', {href: frameID, fill:'transparent', key: 'frame'}
     ]
@@ -157,19 +149,38 @@ class LithologyColumn extends Component
     key = props.key or d.id
     h "rect", {x,y, width, height, key, props...}
 
-  renderDivision: (d)=>
-    className = classNames({
-      definite: d.definite_boundary
-      covered: d.covered}, 'lithology')
-    {UUID} = @state
-    fill = "url(##{UUID}-#{d.patternID})"
-    @createRect d, {className, fill}
+  renderCoveredOverlay: =>
+    {showCoveredOverlay, showLithology} = @props
+    if not showCoveredOverlay?
+      showCoveredOverlay = showLithology
+    return unless showCoveredOverlay
+    {divisions} = @state
+    h 'g.covered-overlay', {}, divisions.map (d)=>
+      return null if not d.covered
+      @createRect d, {className: 'covered-area'}
 
-  renderCoveredOverlay: (d)=>
-    return null if not d.covered
-    @createRect d, {className: 'covered-area'}
+  renderLithology: =>
+    return unless @props.showLithology
+    {divisions, UUID} = @state
+    __ = [{divisions[0]...}]
+    for d in divisions
+      ix = __.length-1
+      sameAsLast = d.patternID == __[ix].patternID
+      shouldSkip = not d.patternID? or sameAsLast
+      if shouldSkip
+        __[ix].top = d.top
+      else
+        __.push {d...}
+
+    h 'g.lithology', {}, __.map (d)=>
+      className = classNames({
+        definite: d.definite_boundary
+        covered: d.covered}, 'lithology')
+      fill = "url(##{UUID}-#{d.patternID})"
+      @createRect d, {className, fill}
 
   renderFacies: =>
+    return unless @props.showFacies
     {divisions} = @state
     __ = [{divisions[0]...}]
     for d in divisions
@@ -206,7 +217,10 @@ class CoveredColumn extends LithologyColumn
       ]
     ]
 
-
+class FaciesColumn extends LithologyColumn
+  @defaultProps:
+    showFacies: true
+    showLithology: false
 
 class GeneralizedSectionColumn extends LithologyColumn
   constructor: (props)->
@@ -248,4 +262,5 @@ class GeneralizedSectionColumn extends LithologyColumn
     _.closePath()
     h "path#{frameID}", {d: _.toString()}
 
-module.exports = {LithologyColumn, GeneralizedSectionColumn, CoveredColumn}
+module.exports = {LithologyColumn, FaciesColumn,
+                  GeneralizedSectionColumn, CoveredColumn}

@@ -6,7 +6,8 @@ Samples = require './samples'
 FloodingSurfaces = require './flooding-surfaces'
 h = require 'react-hyperscript'
 d3 = require 'd3'
-{LithologyColumn, GeneralizedSectionColumn} = require './lithology'
+{LithologyColumn, GeneralizedSectionColumn,
+ FaciesColumn, CoveredColumn} = require './lithology'
 
 class SectionAxis extends Component
   @defaultProps: {
@@ -47,26 +48,32 @@ class SectionOverlay extends Component
     gs = null
     samples = null
 
-
+    {innerHeight} = @props
+    {showFacies} = @props
+    height = innerHeight
     __ = [
         h SectionAxis, {scale, ticks}
         h LithologyColumn, {
           width: lithologyWidth
-          height: @props.innerHeight
-          scale
-          id
+          showCoveredOverlay: not showFacies
+          height, showFacies, scale, id
         }
     ]
+
+    if showFacies
+      __.push h CoveredColumn, {
+        scale, id, height, width: 6
+      }
+
     if zoom > 0.4
       __.push h GrainsizeScale, {
-        height: @props.innerHeight
+        height
         range
       }
 
       if @props.showGeneralizedSections
         __.push h GeneralizedSectionColumn, {
-          scale
-          id
+          scale, id
           grainsizeScaleStart: range[0]-lithologyWidth
           width: range[1]-lithologyWidth
           left: lithologyWidth
@@ -82,9 +89,10 @@ class SectionOverlay extends Component
       if @props.showSymbols
         __.push h SymbolColumn, {scale, id, left: 215}
 
+    height = @props.outerHeight
     h "svg.overlay", {
       width: @props.outerWidth
-      height: @props.outerHeight
+      height
     }, [
       h 'g.backdrop', {transform}, __
     ]

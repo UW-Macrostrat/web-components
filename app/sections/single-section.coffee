@@ -42,6 +42,7 @@ class SectionPage extends Component
         activeDisplayMode: 'image'
         showNotes: true
         showSymbols: true
+        showFacies: true
         showFloodingSurfaces: false
         # Allows us to test the serialized query mode
         # we are developing for the web
@@ -118,7 +119,7 @@ class SectionPage extends Component
     {height, section} = @props
     return unless height
     console.log "Setting scroll position"
-    @pane.scrollTop = scale.invert(height)
+    @pane.scrollTop = scale(height)-window.innerHeight/2
     return if @state.notificationSent
     Notification.show {
       message: "Section #{section.id} @ #{height} m"

@@ -10,6 +10,9 @@ NotesColumn = require './notes'
 Measure = require('react-measure').default
 {BaseSectionComponent} = require './base'
 require './main.styl'
+{Intent} = require '@blueprintjs/core'
+{Notification} = require '../../notify'
+d3 = require 'd3'
 
 class SectionComponent extends BaseSectionComponent
   @defaultProps: {
@@ -102,7 +105,6 @@ class SectionComponent extends BaseSectionComponent
         height: @props.height
         range: @props.range
         padding
-        lithologyWidth: @props.lithologyWidth
         ticks: nticks
         innerHeight
         outerHeight
@@ -113,6 +115,7 @@ class SectionComponent extends BaseSectionComponent
         showSymbols
         zoom
         showFacies
+        lithologyWidth: @props.lithologyWidth
         showGeneralizedSections: @props.activeDisplayMode == 'generalized'
         showCarbonIsotopes: @props.showCarbonIsotopes
         showFloodingSurfaces: @props.showFloodingSurfaces
@@ -158,7 +161,10 @@ class SectionComponent extends BaseSectionComponent
         onResize: @onResize
       }, ({measureRef})=>
         h 'div.section-outer', [
-            h 'div.section', {style, ref: measureRef}, innerElements
+            h 'div.section', {
+              style, ref: measureRef,
+              onClick: @onClick
+            }, innerElements
             notesEl
         ]
     ]
@@ -167,9 +173,6 @@ class SectionComponent extends BaseSectionComponent
     style = {top: marginTop}
     mainElement = h "div.section-container", {
         className: if @props.skeletal then "skeleton" else null
-        style: {
-          minWidth: width
-        }
       },
       children
 
@@ -189,5 +192,16 @@ class SectionComponent extends BaseSectionComponent
     @setState visible: isVisible
 
     # I'm not sure why this works but it does
+
+  onClick: (event)=>
+    fmt = d3.format('.1f')
+    {scale} = @state
+    {top} = event.target.getBoundingClientRect()
+    {clientY} = event
+    height = scale.invert(clientY-top)
+    Notification.show {
+      message: "#{fmt(height)} m"
+      timeout: 2000
+    }
 
 module.exports = {SectionComponent}

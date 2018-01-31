@@ -74,11 +74,12 @@ class SettingsPanel extends Component
       h 'h5', "Components"
       @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
       @createSwitch 'showFloodingSurfaces', "Sequence boundaries"
+      @createSwitch 'showFacies', "Facies"
       @createSwitch 'showSymbols', 'Symbols'
       @createSwitch 'showNotes', "Notes"
       @createPicker 'displayModes', 'activeDisplayMode'
       h 'hr'
-      @createSwitch('inEditMode', "Allow editing")
+      @createSwitch 'inEditMode', "Allow editing"
       @createSwitch 'serializedQueries', "Serialized queries"
       h 'hr'
       h 'h5', 'Display mode'
@@ -89,6 +90,7 @@ class SettingsPanel extends Component
     h Switch, {
       checked: @props[id]
       label: label
+      key: id
       onChange: @switchHandler(id)
     }
 
