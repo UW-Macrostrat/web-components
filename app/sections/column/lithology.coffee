@@ -48,6 +48,7 @@ class LithologyColumn extends Component
     showFacies: false
     showLithology: true
     padWidth: true
+    onEditInterval: null
   queryID: 'lithology'
   constructor: (props)->
     super props
@@ -102,6 +103,7 @@ class LithologyColumn extends Component
         @renderCoveredOverlay()
       ]
       h 'use.frame', {href: frameID, fill:'transparent', key: 'frame'}
+      @renderEditableColumn()
     ]
 
   createDefs: =>
@@ -195,6 +197,16 @@ class LithologyColumn extends Component
       className = classNames('facies', d.id)
       @createRect d, {className, fill: d.facies_color}
 
+  renderEditableColumn: =>
+    return unless @props.onEditInterval?
+    {divisions} = @state
+    clickHandler = (d)-> (event)->
+      console.log d, event
+    h 'g.edit-overlay', divisions.map (d)=>
+      onClick = clickHandler(d)
+      className = classNames('edit-overlay', d.id)
+      @createRect d, {className, fill: 'transparent', onClick}
+
 class CoveredColumn extends LithologyColumn
   @defaultProps: {
     width: 5
@@ -220,6 +232,7 @@ class FaciesColumn extends LithologyColumn
   @defaultProps:
     showFacies: true
     showLithology: false
+    editable: true
 
 class GeneralizedSectionColumn extends LithologyColumn
   constructor: (props)->

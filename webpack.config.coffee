@@ -1,7 +1,8 @@
 path = require 'path'
 BrowserSyncPlugin = require 'browser-sync-webpack-plugin'
-{IgnorePlugin} = require 'webpack'
+{IgnorePlugin, DefinePlugin} = require 'webpack'
 webRoot = path.resolve '../Products/webroot'
+UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
 browserSync = new BrowserSyncPlugin {
   port: 3000
@@ -9,7 +10,13 @@ browserSync = new BrowserSyncPlugin {
   server: { baseDir: [ webRoot ] }
 }
 
-plugins = [browserSync]
+define = new DefinePlugin {
+  'process.env.NODE_ENV': JSON.stringify('production')
+}
+
+uglify = new UglifyJsPlugin()
+
+plugins = [browserSync, define, uglify]
 ignores = [/^pg-promise/,/^electron/,/^pg/,/^fs/]
 
 

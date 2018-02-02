@@ -29,6 +29,7 @@ class SectionComponent extends BaseSectionComponent
     showNotes: true
     showFacies: false
     isEditable: false
+    editingInterval: null
     useRelativePositioning: true
     padding:
       left: 100
@@ -99,6 +100,10 @@ class SectionComponent extends BaseSectionComponent
 
     innerElements = []
 
+    onEditInterval = null
+    if isEditable and showFacies
+      onEditInterval = @onEditInterval
+
     if @state.visible
       {showSymbols, isEditable} = @props
       _ = h SectionOverlay, {
@@ -117,6 +122,7 @@ class SectionComponent extends BaseSectionComponent
         showSymbols
         zoom
         showFacies
+        onEditInterval
         lithologyWidth: @props.lithologyWidth
         showGeneralizedSections: @props.activeDisplayMode == 'generalized'
         showCarbonIsotopes: @props.showCarbonIsotopes
@@ -187,6 +193,9 @@ class SectionComponent extends BaseSectionComponent
     h VisibilitySensor, p, [mainElement]
 
   log: ->
+
+  onEditInterval: (interval)=>
+    @setState {editingInterval: interval}
 
   onVisibilityChange: (isVisible)=>
     return if isVisible == @state.visible
