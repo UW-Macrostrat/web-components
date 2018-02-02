@@ -28,6 +28,7 @@ class SectionComponent extends BaseSectionComponent
     showSymbols: true
     showNotes: true
     showFacies: false
+    isEditable: false
     useRelativePositioning: true
     padding:
       left: 100
@@ -99,7 +100,7 @@ class SectionComponent extends BaseSectionComponent
     innerElements = []
 
     if @state.visible
-      {showSymbols} = @props
+      {showSymbols, isEditable} = @props
       _ = h SectionOverlay, {
         id
         height: @props.height
@@ -110,6 +111,7 @@ class SectionComponent extends BaseSectionComponent
         outerHeight
         innerWidth
         outerWidth
+        isEditable
         scale
         skeletal
         showSymbols

@@ -8,6 +8,7 @@ h = require 'react-hyperscript'
 d3 = require 'd3'
 {LithologyColumn, GeneralizedSectionColumn,
  FaciesColumn, CoveredColumn} = require './lithology'
+{FaciesEditColumn} = require './facies-edit'
 
 class SectionAxis extends Component
   @defaultProps: {
@@ -29,6 +30,7 @@ class SectionAxis extends Component
 class SectionOverlay extends Component
   @defaultProps:
     padding: 30
+    isEditable: false
   constructor: (props)->
     super props
     @state = lithologyData: null
@@ -48,7 +50,7 @@ class SectionOverlay extends Component
     gs = null
     samples = null
 
-    {innerHeight} = @props
+    {innerHeight, isEditable} = @props
     {showFacies} = @props
     height = innerHeight
     __ = [
@@ -63,6 +65,11 @@ class SectionOverlay extends Component
     if showFacies
       __.push h CoveredColumn, {
         scale, id, height, width: 6
+      }
+
+    if showFacies and isEditable
+      __.push h FaciesEditColumn, {
+        scale, id, height, width: lithologyWidth
       }
 
     if zoom > 0.4

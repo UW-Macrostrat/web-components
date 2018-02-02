@@ -71,7 +71,7 @@ class SectionPage extends Component
     resizeFunc = (contentRect)->
       @setState dimensions: contentRect
 
-    {section, height} = @props
+    {section, height, inEditMode} = @props
 
     scrollToHeight = height
 
@@ -99,6 +99,7 @@ class SectionPage extends Component
             offsetTop: 0
             onResize: @onResize
             key, skeletal,
+            isEditable: inEditMode
             useRelativePositioning: false
             options...
           }

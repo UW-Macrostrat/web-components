@@ -199,6 +199,7 @@ class CoveredColumn extends LithologyColumn
   @defaultProps: {
     width: 5
     padWidth: false
+    showCoveredOverlay: true
   }
   constructor: (props)->
     super props
@@ -212,9 +213,7 @@ class CoveredColumn extends LithologyColumn
       transform = "translate(#{left})"
 
     h 'g.lithology-column.covered-column', {transform},[
-      h 'g.lithology-inner', [
-        divisions.map(@renderCoveredOverlay)...
-      ]
+      @renderCoveredOverlay()
     ]
 
 class FaciesColumn extends LithologyColumn
