@@ -21,6 +21,8 @@ d3 = require 'd3'
 {LithologyColumn, GeneralizedSectionColumn,
  FaciesColumn, CoveredColumn} = require './lithology'
 
+fmt = d3.format(".1f")
+
 class SectionOverlay extends Component
   @defaultProps:
     padding: 30
@@ -59,33 +61,35 @@ class SectionComponent extends BaseSectionComponent
       scale: d3.scaleLinear().domain(@props.range)
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
 
-  render: ->
-    {id, zoom, scrollToHeight} = @props
-
+  getGeometry: =>
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
-
-    if scrollToHeight?
-      scrollTop = @state.scale.invert(scrollToHeight)
-
     padding = {}
     for k,v of @props.padding
       if k == 'left' or k == 'bottom'
         padding[k] = @props.padding[k]
       else
         padding[k] = @props.padding[k]*@props.zoom
-
     {left, top, right, bottom} = padding
 
-    scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
-    extraSpace = if zoom > 0.5 then 2.5*zoom else 0#@state.naturalHeight/innerHeight
-
-    @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight+(top+bottom)
     innerWidth = @props.innerWidth*@props.zoom
     if innerWidth < @props.lithologyWidth
       innerWidth = @props.lithologyWidth
-
     outerWidth = innerWidth+(left+right)
+    {padding, innerHeight, outerHeight, innerWidth, outerWidth}
+
+  render: ->
+    {id, zoom, scrollToHeight} = @props
+
+    if scrollToHeight?
+      scrollTop = @state.scale.invert(scrollToHeight)
+
+    scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
+    extraSpace = if zoom > 0.5 then 2.5*zoom else 0#@state.naturalHeight/innerHeight
+
+    {innerHeight, padding, outerWidth, innerWidth, outerHeight} = @getGeometry()
+    @state.scale.range [innerHeight, 0]
+
 
     {heightOfTop, showFacies} = @props
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
@@ -118,14 +122,7 @@ class SectionComponent extends BaseSectionComponent
 
     if @state.visible
       {showSymbols, isEditable} = @props
-      _ = @renderOverlaySVG {
-        padding
-        innerHeight
-        outerHeight
-        innerWidth
-        outerWidth
-      }
-      innerElements.push _
+      innerElements.push @renderOverlaySVG()
 
     if @props.zoom > 0.25 and @state.visible
       img = h SectionImages, {
@@ -157,9 +154,11 @@ class SectionComponent extends BaseSectionComponent
         marginTop: @props.padding.top
       }
 
-    children = null
-    props =
-    children= [
+    width = outerWidth
+    style = {top: marginTop}
+    mainElement = h "div.section-container", {
+        className: if @props.skeletal then "skeleton" else null
+      }, [
       h 'div.section-header', [h "h2", txt]
       h Measure, {
         bounds: true
@@ -173,13 +172,6 @@ class SectionComponent extends BaseSectionComponent
             notesEl
         ]
     ]
-
-    width = outerWidth
-    style = {top: marginTop}
-    mainElement = h "div.section-container", {
-        className: if @props.skeletal then "skeleton" else null
-      },
-      children
 
     return mainElement unless @props.trackVisibility
 
@@ -212,19 +204,15 @@ class SectionComponent extends BaseSectionComponent
       timeout: 2000
     }
 
-  renderOverlaySVG: ({innerHeight, outerHeight, innerWidth, outerWidth, padding})->
-    console.log "Rendering overlay for section #{@props.id}"
-
+  renderOverlaySVG: =>
+    {innerHeight, outerHeight, innerWidth, outerWidth, padding} = @getGeometry()
     #@yAxis.scale(@props.scale)
-    {showSymbols, isEditable} = @props
+    {showSymbols, isEditable, showFacies} = @props
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
+    showGeneralizedSections =  @props.activeDisplayMode == 'generalized'
 
-
-    lithologyWidth: @props.lithologyWidth
-    showGeneralizedSections: @props.activeDisplayMode == 'generalized'
-
-    {lithologyWidth, zoom, id} = @props
+    {lithologyWidth, zoom, id, isEditable, showFacies, lithologyWidth} = @props
     {scale} = @state
 
     ticks = (@props.height*@props.zoom)/10
@@ -236,8 +224,6 @@ class SectionComponent extends BaseSectionComponent
     gs = null
     samples = null
 
-    {isEditable} = @props
-    {showFacies} = @props
     height = innerHeight
     __ = [
         h SectionAxis, {scale, ticks}
