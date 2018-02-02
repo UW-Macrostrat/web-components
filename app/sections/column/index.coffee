@@ -4,7 +4,7 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 VisibilitySensor = require 'react-visibility-sensor'
-{SectionOverlay} = require './overlay'
+{SectionAxis} = require './axis'
 SectionImages = require './images'
 NotesColumn = require './notes'
 Measure = require('react-measure').default
@@ -12,7 +12,99 @@ Measure = require('react-measure').default
 require './main.styl'
 {Intent} = require '@blueprintjs/core'
 {Notification} = require '../../notify'
+{GrainsizeScale} = require './grainsize'
+{SymbolColumn} = require './symbol-column'
+Samples = require './samples'
+FloodingSurfaces = require './flooding-surfaces'
+h = require 'react-hyperscript'
 d3 = require 'd3'
+{LithologyColumn, GeneralizedSectionColumn,
+ FaciesColumn, CoveredColumn} = require './lithology'
+
+class SectionOverlay extends Component
+  @defaultProps:
+    padding: 30
+    isEditable: false
+  constructor: (props)->
+    super props
+    @state = lithologyData: null
+
+  render: ->
+    console.log "Rendering overlay for section #{@props.id}"
+
+    #@yAxis.scale(@props.scale)
+    transform = "translate(#{@props.padding.left} #{@props.padding.top})"
+
+    {lithologyWidth, zoom, id, scale, ticks} = @props
+
+    range = [128,208].map (d)->d-40
+      .map (d)->d*zoom
+      .map (d)->d+lithologyWidth
+
+    gs = null
+    samples = null
+
+    {innerHeight, isEditable} = @props
+    {showFacies} = @props
+    height = innerHeight
+    __ = [
+        h SectionAxis, {scale, ticks}
+        h LithologyColumn, {
+          width: lithologyWidth
+          showCoveredOverlay: not showFacies
+          height, showFacies, scale, id
+        }
+    ]
+
+    if showFacies
+      __.push h CoveredColumn, {
+        scale, id, height, width: 6
+      }
+
+    if zoom > 0.4
+      __.push h GrainsizeScale, {
+        height
+        range
+      }
+
+      if @props.showGeneralizedSections
+        __.push h GeneralizedSectionColumn, {
+          scale, id
+          grainsizeScaleStart: range[0]-lithologyWidth
+          width: range[1]-lithologyWidth
+          left: lithologyWidth
+          height: @props.innerHeight
+        }
+
+      if @props.showCarbonIsotopes
+        __.push h Samples, {scale, zoom, id}
+
+      if @props.showFloodingSurfaces
+        __.push h FloodingSurfaces, {scale, zoom, id}
+
+      if @props.showSymbols
+        __.push h SymbolColumn, {scale, id, left: 215}
+
+    height = @props.outerHeight
+    h "svg.overlay", {
+      width: @props.outerWidth
+      height
+    }, [
+      h 'g.backdrop', {transform}, __
+    ]
+
+  createAxisLines: =>
+    g = @backdrop.append 'g'
+      .attrs class: 'y graticule'
+
+    r = @props.range
+    g.selectAll 'line'
+      .data [r[0]..r[1]]
+      .enter()
+        .append('line')
+        .attrs (d)=>
+          y = @props.scale(d)
+          {x1: 0, x2: @props.innerWidth, y1: y, y2: y}
 
 class SectionComponent extends BaseSectionComponent
   @defaultProps: {

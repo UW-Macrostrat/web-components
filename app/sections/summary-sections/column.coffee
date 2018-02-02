@@ -4,7 +4,7 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 Measure = require('react-measure').default
-{SectionOverlay, SectionAxis} = require '../column/overlay'
+{SectionAxis} = require '../column/axis'
 {BaseSectionComponent} = require '../column/base'
 {SymbolColumn} = require '../column/symbol-column'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
