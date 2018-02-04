@@ -4,6 +4,7 @@ require 'd3-selection-multi'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 require './main.styl'
+{query} = require '../db'
 
 class BaseSectionComponent extends Component
   @defaultProps: {
@@ -16,6 +17,11 @@ class BaseSectionComponent extends Component
   }
   constructor: (props)->
     super props
+    @state = {
+      divisions: []
+    }
+    query 'lithology', [@props.id]
+      .then (divisions)=>@setState {divisions}
 
   componentDidMount: ->
     @componentDidUpdate.apply @, arguments

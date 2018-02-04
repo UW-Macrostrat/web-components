@@ -14,6 +14,7 @@ require './main.styl'
 {Notification} = require '../../notify'
 {GrainsizeScale} = require './grainsize'
 {SymbolColumn} = require './symbol-column'
+{ModalEditor} = require './modal-editor'
 Samples = require './samples'
 FloodingSurfaces = require './flooding-surfaces'
 h = require 'react-hyperscript'
@@ -56,10 +57,13 @@ class SectionComponent extends BaseSectionComponent
   }
   constructor: (props)->
     super props
-    @state =
+    @state = {
+      @state...
+      editingInterval: null
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
+    }
 
   getGeometry: =>
     innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
@@ -109,12 +113,19 @@ class SectionComponent extends BaseSectionComponent
     txt = if @props.zoom > 0.5 then "Section " else ""
     txt += id
 
-    {scale,visible} = @state
+    {scale,visible, editingInterval} = @state
     zoom = @props.zoom
 
     {skeletal} = @props
 
-    innerElements = []
+    innerElements = [
+      h ModalEditor, {
+        isOpen: editingInterval?
+        interval: editingInterval
+        closeDialog: =>
+          @setState {editingInterval: null}
+      }
+    ]
 
     onEditInterval = null
     if isEditable and showFacies
@@ -184,6 +195,7 @@ class SectionComponent extends BaseSectionComponent
   log: ->
 
   onEditInterval: (interval)=>
+    console.log "Editing interval"
     @setState {editingInterval: interval}
 
   onVisibilityChange: (isVisible)=>
@@ -213,7 +225,7 @@ class SectionComponent extends BaseSectionComponent
     showGeneralizedSections =  @props.activeDisplayMode == 'generalized'
 
     {lithologyWidth, zoom, id, isEditable, showFacies, lithologyWidth} = @props
-    {scale} = @state
+    {scale, divisions} = @state
 
     ticks = (@props.height*@props.zoom)/10
 
@@ -228,7 +240,9 @@ class SectionComponent extends BaseSectionComponent
     __ = [
         h SectionAxis, {scale, ticks}
         h LithologyColumn, {
+          divisions
           width: lithologyWidth
+          onEditInterval: @onEditInterval
           showCoveredOverlay: not showFacies
           height, showFacies, scale, id
         }
@@ -236,6 +250,7 @@ class SectionComponent extends BaseSectionComponent
 
     if showFacies
       __.push h CoveredColumn, {
+        divisions,
         scale, id, height, width: 6
       }
 
@@ -247,7 +262,8 @@ class SectionComponent extends BaseSectionComponent
 
       if @props.showGeneralizedSections
         __.push h GeneralizedSectionColumn, {
-          scale, id
+          scale, id,
+          divisions
           grainsizeScaleStart: range[0]-lithologyWidth
           width: range[1]-lithologyWidth
           left: lithologyWidth

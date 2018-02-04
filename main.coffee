@@ -2,6 +2,8 @@
 reload = require 'electron-reload'
 path = require 'path'
 {spawn} = require 'child_process'
+{default: installExtension
+ REACT_DEVELOPER_TOOLS} = require('electron-devtools-installer')
 
 # Could make this better
 reload([
@@ -13,6 +15,8 @@ reload([
 #tessera = spawn name
 
 createWindow = ->
+  await installExtension REACT_DEVELOPER_TOOLS
+
   win = new BrowserWindow
   win.loadURL "file://#{__dirname}/app/index.html"
   win.on 'closed', ->

@@ -12,6 +12,7 @@ update = require 'immutability-helper'
 LocalStorage = require './storage'
 {db, storedProcedure, query} = require './db'
 d3 = require 'd3'
+classNames = require 'classnames'
 {SwatchesPicker} = require 'react-color'
 {Popover} = require '@blueprintjs/core'
 
@@ -61,6 +62,7 @@ class FaciesDescriptionPage extends Component
     @updateData()
 
 class FaciesDescriptionSmall extends Component
+  @defaultProps: {selected: null}
   constructor: (props)->
     super props
     @state = {
@@ -82,9 +84,22 @@ class FaciesDescriptionSmall extends Component
 
   render: ->
     h 'div.facies-description-small', [
-      h 'h5', 'Facies descriptions'
+      h 'h5', 'Facies'
       h 'div', @state.facies.map (d)=>
-        h 'div.facies', {key: d.id}, [
+        onClick = null
+        style = {}
+        if @props.onClick?
+          onClick = =>@props.onClick(d)
+          style.cursor = 'pointer'
+        {selected} = @props
+        if selected == d.id
+          style.backgroundColor = d.color
+          style.color = 'white'
+        className = classNames({selected: selected == d.id})
+
+        h 'div.facies.pt-card.pt-elevation-0', {
+          key: d.id, onClick, style, className
+        }, [
           h 'div.header', [
             h Popover, {
               tetherOptions:{

@@ -29,6 +29,7 @@ class SVGSectionComponent extends BaseSectionComponent
   constructor: (props)->
     super props
     @state = {
+      @state...
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
     }
@@ -63,7 +64,7 @@ class SVGSectionComponent extends BaseSectionComponent
 
     txt = id
 
-    {scale,visible} = @state
+    {scale,visible, divisions} = @state
     zoom = @props.zoom
 
     {skeletal} = @props
@@ -97,6 +98,7 @@ class SVGSectionComponent extends BaseSectionComponent
             h 'g.backdrop', {transform}, [
               h CoveredColumn, {
                 height: innerHeight
+                divisions
                 scale
                 id
                 width: 6
@@ -104,6 +106,7 @@ class SVGSectionComponent extends BaseSectionComponent
               h GeneralizedSectionColumn, {
                 width: innerWidth
                 height: innerHeight
+                divisions
                 showFacies
                 scale
                 id

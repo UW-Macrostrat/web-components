@@ -1,4 +1,3 @@
-{query} = require '../db'
 {select} = require 'd3-selection'
 {Component, createElement} = require 'react'
 h = require 'react-hyperscript'
@@ -8,7 +7,7 @@ classNames = require 'classnames'
 {createGrainsizeScale} = require './grainsize'
 {path} = require 'd3-path'
 
-symbolIndex =
+symbolIndex = {
   'dolomite-limestone': 641
   'lime_mudstone': 627
   'sandstone': 607
@@ -20,6 +19,7 @@ symbolIndex =
   'dolomite-mudstone': 642
   'mudstone': 620
   'sandy-dolomite': 645
+}
 
 resolveSymbol = (id)->
   try
@@ -37,11 +37,15 @@ __divisionSize = (d)->
     [top,bottom] = [bottom,top]
   return [bottom, top]
 
-class LithologyColumn extends Component
+
+class ManagesColumnState extends Component
+
+class LithologyColumn extends ManagesColumnState
   @defaultProps:
     width: 100
     # Should align exactly with centerline of stroke
     shiftY: 0.5
+    divisions: []
     height: 100
     visible: true
     left: 0
@@ -57,13 +61,7 @@ class LithologyColumn extends Component
       UUID
       frameID: "#frame-#{UUID}"
       clipID: "#clip-#{UUID}"
-      divisions: []
-      patterns: []
     }
-
-    query @queryID, [@props.id]
-      .then @setupData
-
   resolveID: (d)->
     if not (d.fgdc_pattern? or d.pattern?)
       return null
@@ -71,24 +69,16 @@ class LithologyColumn extends Component
       return "#{d.fgdc_pattern}"
     return "#{symbolIndex[d.pattern]}"
 
-  setupData: (divisions)=>
-    for d in divisions
-      d.patternID = @resolveID(d)
-    patterns = divisions
-      .map (d)->d.patternID
-      .filter((x, i, arr) => arr.indexOf(x) == i)
-    @setState {divisions, patterns}
-
   createFrame: ->
     {width, height} = @props
     {frameID} = @state
     h "rect#{frameID}", {x:0,y:0,width,height, key: frameID}
 
   render: ->
-    {scale, visible,left, shiftY} = @props
-    {divisions, clipID, frameID} = @state
+    {scale, visible,left, shiftY,
+        width, height, divisions} = @props
+    {clipID, frameID} = @state
     divisions = [] unless visible
-    {width, height} = @props
     transform = null
     if left?
       transform = "translate(#{left} #{shiftY})"
@@ -108,7 +98,12 @@ class LithologyColumn extends Component
 
   createDefs: =>
     patternSize = {width: 100, height: 100}
-    {patterns, UUID, frameID, clipID} = @state
+    {divisions} = @props
+    {UUID, frameID, clipID} = @state
+    patterns = divisions
+      .map (d)=>@resolveID(d)
+      .filter((x, i, arr) => arr.indexOf(x) == i)
+
     ids = []
     elements = for d in patterns
       id = "#{UUID}-#{d}"
@@ -152,27 +147,28 @@ class LithologyColumn extends Component
     h "rect", {x,y, width, height, key, props...}
 
   renderCoveredOverlay: =>
-    {showCoveredOverlay, showLithology} = @props
+    {showCoveredOverlay, showLithology, divisions} = @props
     if not showCoveredOverlay?
       showCoveredOverlay = showLithology
     return unless showCoveredOverlay
-    {divisions} = @state
     h 'g.covered-overlay', {}, divisions.map (d)=>
       return null if not d.covered
       @createRect d, {className: 'covered-area'}
 
   renderLithology: =>
     return unless @props.showLithology
-    {divisions, UUID} = @state
+    {divisions} = @props
+    {UUID} = @state
     __ = [{divisions[0]...}]
     for d in divisions
       ix = __.length-1
-      sameAsLast = d.patternID == __[ix].patternID
-      shouldSkip = not d.patternID? or sameAsLast
+      patternID = @resolveID(d)
+      sameAsLast = patternID == @resolveID(__[ix])
+      shouldSkip = not patternID? or sameAsLast
       if shouldSkip
         __[ix].top = d.top
       else
-        __.push {d...}
+        __.push {d..., patternID}
 
     h 'g.lithology', {}, __.map (d)=>
       className = classNames({
@@ -183,7 +179,7 @@ class LithologyColumn extends Component
 
   renderFacies: =>
     return unless @props.showFacies
-    {divisions} = @state
+    {divisions} = @props
     __ = [{divisions[0]...}]
     for d in divisions
       ix = __.length-1
@@ -199,9 +195,10 @@ class LithologyColumn extends Component
 
   renderEditableColumn: =>
     return unless @props.onEditInterval?
-    {divisions} = @state
-    clickHandler = (d)-> (event)->
-      console.log d, event
+    {divisions} = @props
+    clickHandler = (d)=> (event)=>
+      @props.onEditInterval(d)
+      event.stopPropagation()
     h 'g.edit-overlay', divisions.map (d)=>
       onClick = clickHandler(d)
       className = classNames('edit-overlay', d.id)
@@ -216,8 +213,7 @@ class CoveredColumn extends LithologyColumn
   constructor: (props)->
     super props
   render: ->
-    {scale, left} = @props
-    {divisions} = @state
+    {scale, left, divisions} = @props
     {width, height} = @props
     transform = null
     left ?= -width
@@ -254,8 +250,8 @@ class GeneralizedSectionColumn extends LithologyColumn
       return fp
 
   createFrame: ->
-    {scale} = @props
-    {divisions,frameID} = @state
+    {scale, divisions} = @props
+    {frameID} = @state
     if divisions.length == 0
       return super.createFrame()
 
