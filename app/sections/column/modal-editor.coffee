@@ -40,6 +40,12 @@ class ModalEditor extends Component
         ]
       ]
     ]
-  selectFacies: =>
+  selectFacies: (facies)=>
+    {onSelectFacies:o, interval} = @props
+    return unless o?
+    selected = facies.id
+    if selected == interval.facies
+      selected = null
+    o(interval, selected)
 
 module.exports = {ModalEditor}

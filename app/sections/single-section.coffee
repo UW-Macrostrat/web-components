@@ -71,7 +71,8 @@ class SectionPage extends Component
     resizeFunc = (contentRect)->
       @setState dimensions: contentRect
 
-    {section, height, inEditMode} = @props
+    {section, height} = @props
+    {inEditMode} = @state.options
 
     scrollToHeight = height
 

@@ -21,6 +21,9 @@ h = require 'react-hyperscript'
 d3 = require 'd3'
 {LithologyColumn, GeneralizedSectionColumn,
  FaciesColumn, CoveredColumn} = require './lithology'
+{db, storedProcedure, query} = require '../db'
+{dirname} = require 'path'
+update = require 'immutability-helper'
 
 fmt = d3.format(".1f")
 
@@ -113,7 +116,7 @@ class SectionComponent extends BaseSectionComponent
     txt = if @props.zoom > 0.5 then "Section " else ""
     txt += id
 
-    {scale,visible, editingInterval} = @state
+    {scale,visible, editingInterval, divisions} = @state
     zoom = @props.zoom
 
     {skeletal} = @props
@@ -121,7 +124,8 @@ class SectionComponent extends BaseSectionComponent
     innerElements = [
       h ModalEditor, {
         isOpen: editingInterval?
-        interval: editingInterval
+        interval: divisions.find (d)-> d.id == editingInterval
+        onSelectFacies: @setFaciesForInterval
         closeDialog: =>
           @setState {editingInterval: null}
       }
@@ -195,8 +199,9 @@ class SectionComponent extends BaseSectionComponent
   log: ->
 
   onEditInterval: (interval)=>
+    return unless @props.isEditable
     console.log "Editing interval"
-    @setState {editingInterval: interval}
+    @setState {editingInterval: interval.id}
 
   onVisibilityChange: (isVisible)=>
     return if isVisible == @state.visible
@@ -299,5 +304,16 @@ class SectionComponent extends BaseSectionComponent
         .attrs (d)=>
           y = @props.scale(d)
           {x1: 0, x2: @props.innerWidth, y1: y, y2: y}
+
+  setFaciesForInterval: (interval, facies)=>
+    {id: section} = @props
+    {id} = interval
+    baseDir = dirname require.resolve '..'
+    sql = storedProcedure('update-facies', {baseDir})
+    await db.none sql, {section, id, facies}
+    # Could potentially make this fetch less
+    query 'lithology', [section]
+      .then (divisions)=>
+        @setState {divisions}
 
 module.exports = {SectionComponent}
