@@ -10,7 +10,6 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
-    "@blueprintjs/core": "^1.21.0",
     "bluebird": "^3.4.6",
     "calculate-size": "^1.1.1",
     "css-modules-electron": "^1.0.0",

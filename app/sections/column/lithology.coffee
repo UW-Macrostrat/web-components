@@ -6,6 +6,7 @@ h = require 'react-hyperscript'
 classNames = require 'classnames'
 {createGrainsizeScale} = require './grainsize'
 {path} = require 'd3-path'
+d3 = require 'd3'
 
 symbolIndex = {
   'dolomite-limestone': 641
@@ -37,10 +38,7 @@ __divisionSize = (d)->
     [top,bottom] = [bottom,top]
   return [bottom, top]
 
-
-class ManagesColumnState extends Component
-
-class LithologyColumn extends ManagesColumnState
+class LithologyColumn extends Component
   @defaultProps:
     width: 100
     # Should align exactly with centerline of stroke
@@ -159,10 +157,13 @@ class LithologyColumn extends ManagesColumnState
     return unless @props.showLithology
     {divisions} = @props
     {UUID} = @state
-    __ = [{divisions[0]...}]
+    __ = []
     for d in divisions
       ix = __.length-1
       patternID = @resolveID(d)
+      if ix == -1
+        __.push {d..., patternID}
+        continue
       sameAsLast = patternID == @resolveID(__[ix])
       shouldSkip = not patternID? or sameAsLast
       if shouldSkip
@@ -195,9 +196,13 @@ class LithologyColumn extends ManagesColumnState
 
   renderEditableColumn: =>
     return unless @props.onEditInterval?
-    {divisions} = @props
+    {divisions, scale} = @props
     clickHandler = (d)=> (event)=>
-      @props.onEditInterval(d)
+      {top} = event.target.getBoundingClientRect()
+      {clientY} = event
+      pxFromTop = scale(d.top)+(clientY-top)
+      height = scale.invert(pxFromTop)
+      @props.onEditInterval(d, {height})
       event.stopPropagation()
     h 'g.edit-overlay', divisions.map (d)=>
       onClick = clickHandler(d)
@@ -233,7 +238,10 @@ class FaciesColumn extends LithologyColumn
 class GeneralizedSectionColumn extends LithologyColumn
   constructor: (props)->
     super props
+    @createGrainsizeScale(props)
   componentWillUpdate: (props)->
+    @createGrainsizeScale(props)
+  createGrainsizeScale: (props)->
     {width, grainsizeScaleStart} = props
     grainsizeScaleStart ?= width/4
     @grainsizeScale = createGrainsizeScale([grainsizeScaleStart, width])
@@ -262,8 +270,11 @@ class GeneralizedSectionColumn extends LithologyColumn
 
     _ = path()
     _.moveTo(0,bottomOf(divisions[0]))
+    currentGrainsize = 'm'
     for div in divisions
-      x = @grainsizeScale(div.grainsize)
+      if div.grainsize?
+        currentGrainsize = div.grainsize
+      x = @grainsizeScale(currentGrainsize)
       _.lineTo x, bottomOf(div)
       _.lineTo x, topOf(div)
     _.lineTo 0, topOf(div)

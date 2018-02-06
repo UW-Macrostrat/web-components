@@ -18,6 +18,8 @@ PropTypes = require 'prop-types'
 {SectionNavigationControl} = require './util'
 {Intent} = require '@blueprintjs/core'
 {Notification} = require '../notify'
+d3 = require 'd3'
+fmt = d3.format('.1f')
 
 class SectionPage extends Component
   constructor: (props)->
@@ -124,7 +126,7 @@ class SectionPage extends Component
     @pane.scrollTop = scale(height)-window.innerHeight/2
     return if @state.notificationSent
     Notification.show {
-      message: "Section #{section.id} @ #{height} m"
+      message: "Section #{section.id} @ #{fmt(height)} m"
       intent: Intent.PRIMARY
     }
     @setState {notificationSent: true}

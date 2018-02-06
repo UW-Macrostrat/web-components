@@ -32,6 +32,8 @@
     "webpack": "^3.6.0"
   },
   "dependencies": {
+    "@blueprintjs/core": "^1.35.2",
+    "@blueprintjs/labs": "^0.15.2",
     "bluebird": "^3.4.7",
     "browser-request": "^0.3.3",
     "carto": "^0.17.2",

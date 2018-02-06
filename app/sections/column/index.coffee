@@ -26,6 +26,8 @@ d3 = require 'd3'
 update = require 'immutability-helper'
 
 fmt = d3.format(".1f")
+baseDir = dirname require.resolve '..'
+sql = (id)-> storedProcedure(id, {baseDir})
 
 class SectionOverlay extends Component
   @defaultProps:
@@ -50,7 +52,7 @@ class SectionComponent extends BaseSectionComponent
     showNotes: true
     showFacies: false
     isEditable: false
-    editingInterval: null
+    editingInterval: {id: null}
     useRelativePositioning: true
     padding:
       left: 100
@@ -62,7 +64,7 @@ class SectionComponent extends BaseSectionComponent
     super props
     @state = {
       @state...
-      editingInterval: null
+      editingInterval: {id: null}
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
@@ -123,11 +125,15 @@ class SectionComponent extends BaseSectionComponent
 
     innerElements = [
       h ModalEditor, {
-        isOpen: editingInterval?
-        interval: divisions.find (d)-> d.id == editingInterval
+        isOpen: editingInterval.id?
+        interval: divisions.find (d)-> d.id == editingInterval.id
+        height: editingInterval.height
+        section: id
         onSelectFacies: @setFaciesForInterval
         closeDialog: =>
-          @setState {editingInterval: null}
+          @setState {editingInterval: {id:null}}
+        addInterval: @addInterval
+        removeInterval: @removeInterval
       }
     ]
 
@@ -198,10 +204,12 @@ class SectionComponent extends BaseSectionComponent
 
   log: ->
 
-  onEditInterval: (interval)=>
+  onEditInterval: (interval, opts={})=>
     return unless @props.isEditable
+    {id} = interval
+    {height} = opts
     console.log "Editing interval"
-    @setState {editingInterval: interval.id}
+    @setState {editingInterval: {id, height}}
 
   onVisibilityChange: (isVisible)=>
     return if isVisible == @state.visible
@@ -265,7 +273,7 @@ class SectionComponent extends BaseSectionComponent
         range
       }
 
-      if @props.showGeneralizedSections
+      if showGeneralizedSections
         __.push h GeneralizedSectionColumn, {
           scale, id,
           divisions
@@ -308,12 +316,28 @@ class SectionComponent extends BaseSectionComponent
   setFaciesForInterval: (interval, facies)=>
     {id: section} = @props
     {id} = interval
-    baseDir = dirname require.resolve '..'
-    sql = storedProcedure('update-facies', {baseDir})
-    await db.none sql, {section, id, facies}
+    q = sql('update-facies')
+    await db.none q, {section, id, facies}
     # Could potentially make this fetch less
-    query 'lithology', [section]
-      .then (divisions)=>
-        @setState {divisions}
+    divisions = await query 'lithology', [section]
+    @setState {divisions}
+
+  addInterval: (height)=>
+    {id: section, editingInterval} = @props
+    {id} = await db.one sql('add-interval'), {section,height}
+    divisions = await query 'lithology', [section]
+    if editingInterval.id?
+      editingInterval.id = id
+    @setState {divisions, editingInterval}
+
+
+  removeInterval: (id)=>
+    {id: section} = @props
+
+    await db.none sql('remove-interval'), {section, id}
+
+    divisions = await query 'lithology', [section]
+    @setState {divisions, editingInterval: {id:null}}
+
 
 module.exports = {SectionComponent}
