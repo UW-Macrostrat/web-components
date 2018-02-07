@@ -130,6 +130,7 @@ class SectionComponent extends BaseSectionComponent
         height: editingInterval.height
         section: id
         onSelectFacies: @setFaciesForInterval
+        onSelectGrainSize: @setGrainSizeForInterval
         closeDialog: =>
           @setState {editingInterval: {id:null}}
         addInterval: @addInterval
@@ -322,12 +323,22 @@ class SectionComponent extends BaseSectionComponent
     divisions = await query 'lithology', [section]
     @setState {divisions}
 
+  setGrainSizeForInterval: (interval, grainsize)=>
+    {id: section} = @props
+    {id} = interval
+    q = sql('update-grainsize')
+    await db.none q, {section, id, grainsize}
+    # Could potentially make this fetch less
+    divisions = await query 'lithology', [section]
+    @setState {divisions}
+
   addInterval: (height)=>
     {id: section, editingInterval} = @props
     {id} = await db.one sql('add-interval'), {section,height}
     divisions = await query 'lithology', [section]
-    if editingInterval.id?
-      editingInterval.id = id
+    {id: oldID, height} = editingInterval
+    if oldID?
+      editingInterval = {id, height}
     @setState {divisions, editingInterval}
 
 

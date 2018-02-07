@@ -4,6 +4,7 @@ CSSTransition = require 'react-addons-css-transition-group'
 {Switch} = require '@blueprintjs/core'
 {format} = require 'd3'
 {FaciesDescriptionSmall} = require './facies-descriptions'
+classNames = require 'classnames'
 
 require './settings.styl'
 
@@ -14,24 +15,31 @@ class PickerControl extends Component
       {label: 'State 1', value: 'state1'}
       {label: 'State 2', value: 'state2'}
     ]
+    vertical: true
+    isNullable: false
   }
   render: ->
-    {states, activeState} = @props
-    opts = states.map (d)=>
-      props = {
-        type: 'button'
-        className: 'pt-button'
-        onClick: @onUpdate(d.value)
-      }
-      if @props.activeState == d.value
-        props.className += ' pt-active'
-      h 'button', props, d.label
+    {states, activeState, vertical} = @props
+    className = classNames('pt-button-group', 'pt-fill', {
+      'pt-vertical': vertical
+      'pt-align-left': vertical
+    })
 
     h 'div.picker-control', [
-      h 'div.pt-vertical.pt-button-group.pt-align-left.pt-fill', opts
+      h 'div', {className}, states.map (d)=>
+        className = classNames('pt-button', {
+          'pt-active': @props.activeState == d.value
+        })
+        h 'button', {
+          type: 'button'
+          className
+          onClick: @onUpdate(d.value)
+        }, d.label
     ]
   onUpdate: (value)=> =>
-    return if value == @props.activeState
+    if value == @props.activeState
+      return unless @props.isNullable
+      value = null
     return unless @props.onUpdate?
     @props.onUpdate(value)
 
@@ -127,4 +135,4 @@ class SummarySectionsSettings extends SettingsPanel
       h FaciesDescriptionSmall, {}, null
     ]
 
-module.exports = {SettingsPanel, SummarySectionsSettings}
+module.exports = {PickerControl, SettingsPanel, SummarySectionsSettings}

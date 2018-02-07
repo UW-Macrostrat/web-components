@@ -2,6 +2,8 @@
 {Component, createElement} = require 'react'
 {Dialog, Button, Intent, ButtonGroup, Alert} = require '@blueprintjs/core'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
+{PickerControl} = require '../settings'
+{grainSizes} = require './grainsize'
 h = require 'react-hyperscript'
 d3 = require 'd3'
 fmt = d3.format('.1f')
@@ -27,6 +29,16 @@ class ModalEditor extends Component
           onClick: @selectFacies
           selected: facies
         }
+        h 'label.pt-label', [
+          'Grainsize'
+          h PickerControl, {
+            vertical: false,
+            isNullable: true,
+            states: grainSizes.map (d)->{label: d, value: d}
+            activeState: interval.grainsize
+            onUpdate: @selectGrainSize
+          }
+        ]
         h 'div', [
           h 'h5', "Interval"
           h 'div.pt-button-group.pt-vertical', [
@@ -65,5 +77,10 @@ class ModalEditor extends Component
     if selected == interval.facies
       selected = null
     o(interval, selected)
+
+  selectGrainSize: (grainsize)=>
+    {onSelectGrainSize:o, interval} = @props
+    return unless o?
+    o(interval, grainsize)
 
 module.exports = {ModalEditor}

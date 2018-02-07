@@ -5,15 +5,15 @@ require 'd3-selection-multi'
 d3 = require 'd3'
 h = require 'react-hyperscript'
 
+grainSizes = ['ms','s','vf','f','m','c','vc','p']
 createGrainsizeScale = (range)->
-  sizes = ['ms','s','vf','f','m','c','vc','p']
-  mn = sizes.length-1
+  mn = grainSizes.length-1
   scale = d3.scaleLinear()
     .domain [0,mn]
     .range range
   d3.scaleOrdinal()
-    .domain sizes
-    .range sizes.map (d,i)=>scale(i)
+    .domain grainSizes
+    .range grainSizes.map (d,i)=>scale(i)
 
 class GrainsizeScale extends Component
   @defaultProps:
@@ -31,4 +31,4 @@ class GrainsizeScale extends Component
         h 'line', {y1: 0, x1: 0, x2: 0, y2: @props.height}
       ]
 
-module.exports = {GrainsizeScale, createGrainsizeScale}
+module.exports = {GrainsizeScale, grainSizes, createGrainsizeScale}
