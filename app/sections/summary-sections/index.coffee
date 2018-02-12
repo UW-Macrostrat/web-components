@@ -26,7 +26,7 @@ sectionOffsets = {
   C: 270
   D: 415
   E: 255
-  F: 240
+  F: 268
   G: 0
   H: 378
   I: 50

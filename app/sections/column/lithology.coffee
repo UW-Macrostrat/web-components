@@ -13,6 +13,7 @@ symbolIndex = {
   'lime_mudstone': 627
   'sandstone': 607
   'siltstone': 616
+  'dolomitic siltstone': 616
   'shale': 620
   'limestone': 627
   'dolomite': 642

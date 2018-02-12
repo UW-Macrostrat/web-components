@@ -33,6 +33,7 @@ class SVGSectionComponent extends BaseSectionComponent
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
     }
+    @state.scale.clamp()
 
   onClick: (event)=>
     {history} = @props
@@ -45,9 +46,10 @@ class SVGSectionComponent extends BaseSectionComponent
 
   render: ->
     {id, zoom, padding, lithologyWidth,
-     innerWidth, onResize, marginLeft, showFacies} = @props
+     innerWidth, onResize, marginLeft,
+     showFacies, height, clip_end} = @props
 
-    innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
+    innerHeight = height*@props.pixelsPerMeter*@props.zoom
 
     {left, top, right, bottom} = padding
 
@@ -65,12 +67,13 @@ class SVGSectionComponent extends BaseSectionComponent
     txt = id
 
     {scale,visible, divisions} = @state
+    divisions = divisions.filter (d)->not d.schematic
     zoom = @props.zoom
 
     {skeletal} = @props
 
     # Set up number of ticks
-    nticks = (@props.height*@props.zoom)/10
+    nticks = (height*@props.zoom)/10
 
     style = {
       width: outerWidth

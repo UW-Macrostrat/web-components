@@ -15,6 +15,8 @@ d3 = require 'd3'
 classNames = require 'classnames'
 {SwatchesPicker} = require 'react-color'
 {Popover} = require '@blueprintjs/core'
+{readFileSync} = require 'fs'
+{dirname} = require 'path'
 
 class FaciesDescriptionPage extends Component
   constructor: (props)->
@@ -37,29 +39,18 @@ class FaciesDescriptionPage extends Component
       @setState {facies}
 
   render: ->
+    __a = '../../assets/facies-descriptions/facies-descriptions.html'
+    fn = require.resolve __a
+    dir = dirname(fn)
+    html = readFileSync(fn, 'utf-8')
+    __html = html.replace(/\*\*\//g,"file://#{dir}/images/")
+    dangerouslySetInnerHTML = {__html}
     h 'div.page.facies-descriptions.text-page', [
       h SectionNavigationControl
-      h 'h1', 'Facies descriptions'
-      h 'div', @state.facies.map (d)=>
-        h 'div.facies-card.pt-card', {key: d.id}, [
-          h 'div.header', [
-            h Popover, [
-              h 'div.color-swatch', {style: {backgroundColor: d.color or 'black', width: '2em', height: '2em'}}
-              h 'div', [
-                h SwatchesPicker, {color: d.color or 'black', onChangeComplete: @onChangeColor(d.id)}
-              ]
-            ]
-            h 'h2', d.name
-          ]
-          h 'p', d.description or "No description"
-        ]
-    ]
-
-  onChangeColor: (id)=>(color)=>
-    sql = storedProcedure('set-facies-color', {baseDir: __dirname})
-    color = color.hex
-    await db.none sql, {id,color}
-    @updateData()
+      h 'div.facies-descriptions', {
+        dangerouslySetInnerHTML
+      }
+   ]
 
 class FaciesDescriptionSmall extends Component
   @defaultProps: {selected: null}
