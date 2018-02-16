@@ -90,28 +90,34 @@ class FaciesDescriptionSmall extends Component
 
         h 'div.facies.pt-card.pt-elevation-0', {
           key: d.id, onClick, style, className
-        }, [
-          h 'div.header', [
-            h Popover, {
-              tetherOptions:{
-                constraints: [{ attachment: "together", to: "scrollParent" }]
-              }
-            }, [
-              h 'div.color-swatch', {style: {backgroundColor: d.color or 'black', width: '2em', height: '2em'}}
-              h 'div', [
-                h SwatchesPicker, {
-                  color: d.color or 'black'
-                  onChangeComplete: @onChangeColor(d.id)
-                  styles: {
-                    width: 500
-                    height: 570
-                  }
-                }
-              ]
-            ]
-            h 'p', {style: {marginLeft: 20}}, d.name
-          ]
+        }, @renderFacies(d)
+    ]
+
+  renderFacies: (d)=>
+    swatch = h 'div.color-swatch', {style: {backgroundColor: d.color or 'black', width: '2em', height: '2em'}}
+    if @state.options.isEditable
+      swatch = h Popover, {
+        tetherOptions:{
+          constraints: [{ attachment: "together", to: "scrollParent" }]
+        }
+      }, [
+        swatch
+        h 'div', [
+          h SwatchesPicker, {
+            color: d.color or 'black'
+            onChangeComplete: @onChangeColor(d.id)
+            styles: {
+              width: 500
+              height: 570
+            }
+          }
         ]
+      ]
+
+
+    h 'div.header', [
+      swatch
+      h 'p.name', {style: {marginLeft: 20}}, d.name
     ]
 
   onChangeColor: (id)=>(color)=>

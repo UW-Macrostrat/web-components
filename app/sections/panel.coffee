@@ -60,8 +60,8 @@ class SectionPanel extends Component
       .sortKeys (a,b)->__ix(a)-__ix(b)
       .entries @props.children
 
-    {values} = sectionGroups.find (d)->d.key == ""
-    extraItems = values[0].values
+    g = sectionGroups.find (d)->d.key == ""
+    extraItems = if g? then g.values[0].values else []
     sectionGroups = sectionGroups.filter (d)->d.key != ""
 
     __ix = indexOf(groupOrder)
