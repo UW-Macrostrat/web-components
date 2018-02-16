@@ -7,7 +7,7 @@ h = require 'react-hyperscript'
 ElementPan = require 'react-element-pan'
 {NavLink} = require '../../nav'
 {Icon} = require 'react-fa'
-{SummarySectionsSettings} = require '../settings'
+{SummarySectionsSettings} = require './settings'
 update = require 'immutability-helper'
 LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
@@ -19,6 +19,7 @@ Measure = require('react-measure').default
 {SectionLinkOverlay} = require './link-overlay'
 PropTypes = require 'prop-types'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
+{Legend} = require './legend'
 
 sectionOffsets = {
   A: 0
@@ -60,6 +61,7 @@ class SummarySections extends Component
         activeMode: 'normal'
         showFacies: true
         showFloodingSurfaces: false
+        showLegend: true
         # Allows us to test the serialized query mode
         # we are developing for the web
         serializedQueries: global.SERIALIZED_QUERIES
@@ -83,6 +85,7 @@ class SummarySections extends Component
      showCarbonIsotopes,
      trackVisibility,
      showFacies,
+     showLegend,
      activeMode} = options
 
     skeletal = activeMode == 'skeleton'
@@ -110,10 +113,12 @@ class SummarySections extends Component
         rest...
       }
 
+    if showLegend
+      __sections.push h Legend
+
     paddingLeft = 30
     marginTop = 50
     {canvas} = @state.dimensions
-    console.log canvas
     h 'div.page.section-page#summary-sections', [
       h 'div.panel-container', [
         h SectionNavigationControl, {backLocation, toggleSettings}

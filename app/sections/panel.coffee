@@ -49,21 +49,31 @@ class SectionPanel extends Component
           return g
       return d.id
 
+    indexOf = (arr)->(d)->
+      arr.indexOf(d)
+
+    __ix = indexOf(stackGroups)
+
     sectionGroups = d3.nest()
-      .key (d)->d.props.location
+      .key (d)->d.props.location or ""
       .key stackGroup
-      .sortKeys (a,b)->
-        stackGroups.indexOf(a)-stackGroups.indexOf(b)
+      .sortKeys (a,b)->__ix(a)-__ix(b)
       .entries @props.children
 
-    sectionGroups.sort (a,b)->
-      groupOrder.indexOf(a.key)-groupOrder.indexOf(b.key)
+    {values} = sectionGroups.find (d)->d.key == ""
+    extraItems = values[0].values
+    sectionGroups = sectionGroups.filter (d)->d.key != ""
 
-    children = sectionGroups.map ({key,values})=>
+    __ix = indexOf(groupOrder)
+    sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
+
+    __ = sectionGroups.map ({key,values})=>
       h LocationGroup, {key, name: key},
         values.map ({key,values})=>
           values.sort (a, b)-> b.offset-a.offset
           h SectionColumn, values
+
+    children = [__...,extraItems...]
 
     hc = "handle"
     if @props.activeMode == 'skeleton'

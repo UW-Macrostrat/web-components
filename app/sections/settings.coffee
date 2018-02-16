@@ -119,20 +119,4 @@ class SettingsPanel extends Component
       onUpdate
     }
 
-class SummarySectionsSettings extends SettingsPanel
-  renderControls: =>
-    return [
-      h 'h5', "Components"
-      @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
-      @createSwitch 'showFloodingSurfaces', "Sequence boundaries"
-      @createSwitch 'showSymbols', 'Symbols'
-      @createSwitch 'showFacies', 'Facies'
-      h 'hr'
-      @createSwitch 'serializedQueries', "Serialized queries"
-      h 'hr'
-      h 'h5', 'Display mode'
-      @createPicker 'modes', 'activeMode'
-      h FaciesDescriptionSmall, {}, null
-    ]
-
-module.exports = {PickerControl, SettingsPanel, SummarySectionsSettings}
+module.exports = {PickerControl, SettingsPanel}
