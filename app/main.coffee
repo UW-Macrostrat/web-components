@@ -35,9 +35,7 @@ wrapHomeButton = (component)->
       ]
 
 route = (path, component, props={})->
-  props.path = path
-  props.component = component
-  h Route, props
+  h Route, {props...,path,component}
 
 class App extends React.Component
   constructor: ->

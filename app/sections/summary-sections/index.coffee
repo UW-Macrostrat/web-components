@@ -144,6 +144,74 @@ class SummarySections extends Component
       ]
       h SummarySectionsSettings, @state.options
     ]
+  render: ->
+    {sections} = @props
+    {dimensions, options, sectionPositions} = @state
+    {dragdealer, dragPosition, rest...} = options
+    backLocation = '/sections'
+    {toggleSettings} = @
+    {showFloodingSurfaces,
+     showCarbonIsotopes,
+     trackVisibility,
+     showNavigationController,
+     showFacies,
+     showLegend,
+     activeMode} = options
+
+    skeletal = activeMode == 'skeleton'
+
+    accum = {}
+    sectionResize = (key)=>(contentRect)=>
+      accum[key] = {$set: contentRect}
+      if Object.keys(accum).length == sections.length
+        console.log "Updating state"
+        @mutateState {sectionPositions: accum}
+
+    __sections = sections.map (row)=>
+      {offset, rest...} = row
+      offset = sectionOffsets[row.id] or offset
+
+      h SVGSectionComponent, {
+        zoom: 0.1, key: row.id,
+        skeletal,
+        showFloodingSurfaces
+        showCarbonIsotopes,
+        trackVisibility
+        showFacies
+        onResize: sectionResize(row.id)
+        offset
+        rest...
+      }
+
+    if showLegend
+      __sections.push h Legend
+
+    navigationController = null
+    if showNavigationController
+      navigationController = h(
+        SectionNavigationControl
+        {backLocation, toggleSettings})
+
+    paddingLeft = 30
+    marginTop = 50
+    {canvas} = @state.dimensions
+    h 'div.page.section-page#summary-sections', [
+      h 'div.panel-container', [
+        navigationController
+        h 'div#section-pane', [
+          h SectionPanel, {
+            zoom: 0.1,
+            onResize: @onCanvasResize
+            stackGroups
+            groupOrder
+            rest...}, __sections
+          h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
+                                 marginTop,
+                                 sectionPositions}
+        ]
+      ]
+      h SummarySectionsSettings, @state.options
+    ]
 
   onSectionResize: (key)=>(contentRect)=>
     console.log "Section #{key} was resized", contentRect
@@ -170,5 +238,5 @@ class SummarySections extends Component
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
-module.exports = SummarySections
+module.exports = {SummarySections}
 
