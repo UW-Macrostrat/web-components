@@ -1,5 +1,6 @@
 {SettingsPanel} = require '../settings'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
+{Button} = require "@blueprintjs/core"
 h = require 'react-hyperscript'
 
 class SummarySectionsSettings extends SettingsPanel
@@ -16,7 +17,8 @@ class SummarySectionsSettings extends SettingsPanel
       h 'hr'
       h 'h5', 'Display mode'
       @createPicker 'modes', 'activeMode'
-      h FaciesDescriptionSmall, {}, null
+      h 'h5', 'Actions'
+      h Button, {}, "Print"
     ]
 
 module.exports = {SummarySectionsSettings}

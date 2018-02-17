@@ -5,7 +5,7 @@ h = require 'react-hyperscript'
 {Route, Switch} = require 'react-router-dom'
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
-{getSectionData} = require './section-data'
+{getSectionData, SectionDataContainer} = require './section-data'
 SectionPage = require './single-section'
 SummarySections = require './summary-sections'
 {AllSections} = require './section-page'
@@ -58,12 +58,7 @@ class SectionIndexPage extends Component
       ]
     ]
 
-class SectionIndex extends Component
-  constructor: (props)->
-    super props
-    @state =
-      sections: []
-
+class SectionIndex extends SectionDataContainer
   render: ->
     {match} = @props
     {sections} = @state
@@ -110,11 +105,4 @@ class SectionIndex extends Component
       }
     ]
 
-  getInitialData: ->
-    sections = await getSectionData()
-    @setState {sections}
-
-  componentDidMount: ->
-    @getInitialData()
-
-module.exports = SectionIndex
+module.exports = {SectionIndex, SectionDataContainer}

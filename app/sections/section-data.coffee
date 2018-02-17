@@ -2,6 +2,7 @@
 {getJSON} = require '../util'
 {join} = require 'path'
 Promise = require 'bluebird'
+{Component} = require 'react'
 
 sectionFilename = (fn)->
   if PLATFORM == ELECTRON
@@ -36,4 +37,17 @@ getSectionData = (opts={})->
         {width: sz, height, filename}
       return s
 
-module.exports = { getSectionData }
+class SectionDataContainer extends Component
+  constructor: (props)->
+    super props
+    @state =
+      sections: []
+
+  getInitialData: ->
+    sections = await getSectionData()
+    @setState {sections}
+
+  componentDidMount: ->
+    @getInitialData()
+
+module.exports = { getSectionData, SectionDataContainer }

@@ -94,7 +94,11 @@ class FaciesDescriptionSmall extends Component
     ]
 
   renderFacies: (d)=>
-    swatch = h 'div.color-swatch', {style: {backgroundColor: d.color or 'black', width: '2em', height: '2em'}}
+    swatch = h 'div.color-swatch', {style: {
+      backgroundColor: d.color or 'black'
+      width: '2em'
+      height: '2em'
+    }}
     if @state.options.isEditable
       swatch = h Popover, {
         tetherOptions:{
@@ -117,7 +121,7 @@ class FaciesDescriptionSmall extends Component
 
     h 'div.header', [
       swatch
-      h 'p.name', {style: {marginLeft: 20}}, d.name
+      h 'p.name', {style: {marginLeft: 20, textAlign: 'right'}}, d.name
     ]
 
   onChangeColor: (id)=>(color)=>

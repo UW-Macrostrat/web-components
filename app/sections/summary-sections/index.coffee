@@ -58,6 +58,7 @@ class SummarySections extends Component
           {value: 'skeleton', label: 'Skeleton'}
           #{value: 'sequence-stratigraphy', label: 'Sequence Strat.'}
         ]
+        showNavigationController: true
         activeMode: 'normal'
         showFacies: true
         showFloodingSurfaces: false
@@ -84,6 +85,7 @@ class SummarySections extends Component
     {showFloodingSurfaces,
      showCarbonIsotopes,
      trackVisibility,
+     showNavigationController,
      showFacies,
      showLegend,
      activeMode} = options
@@ -116,12 +118,18 @@ class SummarySections extends Component
     if showLegend
       __sections.push h Legend
 
+    navigationController = null
+    if showNavigationController
+      navigationController = h(
+        SectionNavigationControl
+        {backLocation, toggleSettings})
+
     paddingLeft = 30
     marginTop = 50
     {canvas} = @state.dimensions
     h 'div.page.section-page#summary-sections', [
       h 'div.panel-container', [
-        h SectionNavigationControl, {backLocation, toggleSettings}
+        navigationController
         h 'div#section-pane', [
           h SectionPanel, {
             zoom: 0.1,

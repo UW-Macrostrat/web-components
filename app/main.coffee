@@ -1,18 +1,4 @@
-## Set whether we are on the backend or frontend
-global.ELECTRON = 'electron'
-global.WEB = 'web'
-global.PLATFORM = ELECTRON
-global.SERIALIZED_QUERIES = false
-try
-  require 'electron'
-  {resolve, join} = require 'path'
-  global.BASE_DIR = resolve join(__dirname,'..')
-catch
-  global.PLATFORM = WEB
-  global.SERIALIZED_QUERIES = true
-  global.BASE_URL = ""
-console.log "Running application on #{PLATFORM}"
-
+require './set-platform'
 React = require 'react'
 ReactDOM = require 'react-dom'
 {HashRouter,Route,Link, Switch} = require 'react-router-dom'
@@ -23,7 +9,7 @@ FocusStyleManager.onlyShowFocusOnTabs()
 
 {Icon} = require 'react-fa'
 {NavBar, NavLink} = require './nav'
-SectionPage = require './sections'
+{SectionIndex} = require './sections'
 MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
@@ -62,7 +48,7 @@ class App extends React.Component
     h 'div#root', [
       h Switch, [
         route '/', Home, exact: true
-        route '/sections', SectionPage
+        route '/sections', SectionIndex
         route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
         route '/lateral-variation', wrapNavBar(LateralVariation)
         route '/map', wrapHomeButton(Map)
