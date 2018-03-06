@@ -132,13 +132,17 @@ class SVGSectionComponent extends BaseSectionComponent
                 id
                 grainsizeScaleStart: 40
                 onEditInterval: (d, opts)->
-                  return unless opts.event.shiftKey
+                  {height, event} = @props
+                  if event.shiftKey
+                    console.log "Clicked Section #{id} @ #{height}"
+                    history.push("/sections/#{id}/height/#{height}")
+                    return
                   Notification.show {
                     message: h 'div', [
-                      h 'h4', "Section #{id} @ #{fmt(opts.height)} m"
+                      h 'h4', "Section #{id} @ #{fmt(height)} m"
                       h 'p', [
-                        'Interval ID:'
-                        h('code', d.id)
+                        'Interval ID: '
+                        h('code', id)
                       ]
                       h 'p', "#{d.bottom} - #{d.top} m"
                     ]
