@@ -101,7 +101,7 @@ class SymbolColumn extends Component
     className = classNames({symbol}, 'symbol')
 
     {width,scale} = @props
-    y = scale(height)-width/2
+    y = scale(height)-width/2+12
 
     href = "##{@UUID}-#{symbol}"
     h "use", {className,y, x: 0, width, href, key: id}

@@ -91,6 +91,7 @@ class SVGSectionComponent extends BaseSectionComponent
         id
         offsetLeft: -40
         lineWidth: 30
+        divisions
       }
 
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"

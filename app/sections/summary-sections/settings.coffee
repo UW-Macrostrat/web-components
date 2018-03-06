@@ -9,6 +9,8 @@ class SummarySectionsSettings extends SettingsPanel
       h 'h5', "Components"
       @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
       @createSwitch 'showFloodingSurfaces', "Sequence boundaries"
+      @createSwitch 'showLithostratigraphy', "Lithostratigraphic correlations"
+      @createSwitch 'showSequenceStratigraphy', "Sequence-stratigraphic correlations"
       @createSwitch 'showSymbols', 'Symbols'
       @createSwitch 'showFacies', 'Facies'
       @createSwitch 'showLegend', 'Legend'

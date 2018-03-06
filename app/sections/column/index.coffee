@@ -131,10 +131,12 @@ class SectionComponent extends BaseSectionComponent
         section: id
         onSelectFacies: @setFaciesForInterval
         onSelectGrainSize: @setGrainSizeForInterval
+        onSelectFloodingSurfaceOrder: @setFloodingSurfaceOrderForInterval
         closeDialog: =>
           @setState {editingInterval: {id:null}}
         addInterval: @addInterval
         removeInterval: @removeInterval
+        onUpdate: @onIntervalUpdated
       }
     ]
 
@@ -288,7 +290,7 @@ class SectionComponent extends BaseSectionComponent
         __.push h Samples, {scale, zoom, id}
 
       if @props.showFloodingSurfaces
-        __.push h FloodingSurface, {scale, zoom, id}
+        __.push h FloodingSurface, {divisions, scale, zoom, id}
 
       if @props.showSymbols
         __.push h SymbolColumn, {scale, id, left: 215}
@@ -319,15 +321,22 @@ class SectionComponent extends BaseSectionComponent
     {id} = interval
     q = sql('update-facies')
     await db.none q, {section, id, facies}
-    # Could potentially make this fetch less
-    divisions = await query 'lithology', [section]
-    @setState {divisions}
 
   setGrainSizeForInterval: (interval, grainsize)=>
     {id: section} = @props
     {id} = interval
     q = sql('update-grainsize')
     await db.none q, {section, id, grainsize}
+
+  setFloodingSurfaceOrderForInterval: (interval, flooding_surface_order)=>
+    {id: section} = @props
+    {id} = interval
+    q = sql('update-flooding-surface')
+    await db.none q, {section, id, flooding_surface_order}
+
+  onIntervalUpdated: =>
+    console.log "Updating intervals"
+    {id: section} = @props
     # Could potentially make this fetch less
     divisions = await query 'lithology', [section]
     @setState {divisions}

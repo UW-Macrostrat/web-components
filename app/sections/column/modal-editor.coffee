@@ -8,13 +8,20 @@ h = require 'react-hyperscript'
 d3 = require 'd3'
 fmt = d3.format('.1f')
 
+floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
+
 class ModalEditor extends Component
+  @defaultProps: {onUpdate: ->}
   constructor: (props)->
     super props
-    @state = {facies: [], isAlertOpen: false}
+    @state = {
+      facies: [],
+      isAlertOpen: false
+    }
   render: ->
     {interval, height, section} = @props
     return null unless interval?
+    console.log interval
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
     h Dialog, {
@@ -24,6 +31,10 @@ class ModalEditor extends Component
       style: {top: '10%'}
     }, [
       h 'div', {className:"pt-dialog-body"}, [
+        h 'h3', [
+          "ID "
+          h 'code', interval.id
+        ]
         h FaciesDescriptionSmall, {
           options: {isEditable: true}
           onClick: @selectFacies
@@ -34,9 +45,23 @@ class ModalEditor extends Component
           h PickerControl, {
             vertical: false,
             isNullable: true,
-            states: grainSizes.map (d)->{label: d, value: d}
+            states: grainSizes.map (d)->
+              {label: d, value: d}
             activeState: interval.grainsize
             onUpdate: @selectGrainSize
+          }
+        ]
+        h 'label.pt-label', [
+          'Flooding surface (negative is regression)'
+          h PickerControl, {
+            vertical: false,
+            isNullable: true,
+            states: floodingSurfaceOrders.map (d)->
+              lbl = "#{d}"
+              lbl = 'None' if not d?
+              {label: d, value: d}
+            activeState: interval.flooding_surface_order
+            onUpdate: @selectFloodingSurfaceOrder
           }
         ]
         h 'div', [
@@ -76,11 +101,19 @@ class ModalEditor extends Component
     selected = facies.id
     if selected == interval.facies
       selected = null
-    o(interval, selected)
+    await o(interval, selected)
+    @props.onUpdate()
+
+  selectFloodingSurfaceOrder: (fso)=>
+    {onSelectFloodingSurfaceOrder:o, interval} = @props
+    return unless o?
+    await o(interval, fso)
+    @props.onUpdate()
 
   selectGrainSize: (grainsize)=>
     {onSelectGrainSize:o, interval} = @props
     return unless o?
-    o(interval, grainsize)
+    await o(interval, grainsize)
+    @props.onUpdate()
 
 module.exports = {ModalEditor}

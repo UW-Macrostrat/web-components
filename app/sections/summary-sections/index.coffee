@@ -65,6 +65,7 @@ class SummarySections extends Component
         activeMode: 'normal'
         showFacies: true
         showFloodingSurfaces: false
+        showLithostratigraphy: true
         showLegend: true
         # Allows us to test the serialized query mode
         # we are developing for the web
@@ -88,6 +89,7 @@ class SummarySections extends Component
      trackVisibility,
      showFacies,
      showLegend,
+     showLithostratigraphy,
      activeMode} = options
 
     skeletal = activeMode == 'skeleton'
@@ -131,7 +133,9 @@ class SummarySections extends Component
         rest...}, __sections
       h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
                              marginTop,
-                             sectionPositions}
+                             sectionPositions,
+                             showLithostratigraphy
+                             }
     ]
 
   render: ->

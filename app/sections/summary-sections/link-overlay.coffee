@@ -10,6 +10,7 @@ class SectionLinkOverlay extends Component
     height: 100
     paddingLeft: 20
     marginTop: 0
+    showLithostratigraphy: true
   }
   constructor: (props)->
     super props
@@ -54,10 +55,13 @@ class SectionLinkOverlay extends Component
     h 'g', links
 
   render: ->
-    {skeletal, sectionPositions, marginTop} = @props
+    {skeletal, sectionPositions, marginTop, showLithostratigraphy} = @props
     {surfaces} = @state
 
     className = classNames {skeletal}
+
+    if not showLithostratigraphy
+      surfaces = []
 
     __ = []
     for key, {bounds, padding} of sectionPositions
