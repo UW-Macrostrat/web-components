@@ -227,6 +227,7 @@ class SectionComponent extends BaseSectionComponent
     {top} = event.target.getBoundingClientRect()
     {clientY} = event
     height = scale.invert(clientY-top)
+
     Notification.show {
       message: "#{fmt(height)} m"
       timeout: 2000

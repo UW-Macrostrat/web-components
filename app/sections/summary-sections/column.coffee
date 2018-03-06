@@ -10,6 +10,9 @@ Measure = require('react-measure').default
 {FloodingSurface} = require '../column/flooding-surface'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
 {withRouter} = require 'react-router-dom'
+{Notification} = require '../../notify'
+
+fmt = d3.format('.1f')
 
 class SVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
@@ -42,6 +45,7 @@ class SVGSectionComponent extends BaseSectionComponent
     {scale} = @state
     {top} = event.target.getBoundingClientRect()
     {clientY} = event
+    return if event.shiftKey
     height = scale.invert(clientY-top)
     console.log "Clicked Section #{@props.id} @ #{height}"
     history.push("/sections/#{@props.id}/height/#{height}")
@@ -127,6 +131,19 @@ class SVGSectionComponent extends BaseSectionComponent
                 scale
                 id
                 grainsizeScaleStart: 40
+                onEditInterval: (d, opts)->
+                  return unless opts.event.shiftKey
+                  Notification.show {
+                    message: h 'div', [
+                      h 'h4', "Section #{id} @ #{fmt(opts.height)} m"
+                      h 'p', [
+                        'Interval ID:'
+                        h('code', d.id)
+                      ]
+                      h 'p', "#{d.bottom} - #{d.top} m"
+                    ]
+                    timeout: 2000
+                  }
               }
               h SymbolColumn, {
                 scale
