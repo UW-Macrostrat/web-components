@@ -16,7 +16,7 @@ require './main.styl'
 {SymbolColumn} = require './symbol-column'
 {ModalEditor} = require './modal-editor'
 Samples = require './samples'
-FloodingSurfaces = require './flooding-surfaces'
+{FloodingSurface} = require './flooding-surface'
 h = require 'react-hyperscript'
 d3 = require 'd3'
 {LithologyColumn, GeneralizedSectionColumn,
@@ -288,7 +288,7 @@ class SectionComponent extends BaseSectionComponent
         __.push h Samples, {scale, zoom, id}
 
       if @props.showFloodingSurfaces
-        __.push h FloodingSurfaces, {scale, zoom, id}
+        __.push h FloodingSurface, {scale, zoom, id}
 
       if @props.showSymbols
         __.push h SymbolColumn, {scale, id, left: 215}

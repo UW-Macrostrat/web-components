@@ -4,6 +4,7 @@ SELECT
   f.color facies_color,
   l.lithology,
   l.covered,
+  l.flooding_surface_order,
   coalesce(definite_boundary, true) definite_boundary,
   coalesce(v.pattern, l.lithology) pattern,
   coalesce(l.schematic, false) schematic,

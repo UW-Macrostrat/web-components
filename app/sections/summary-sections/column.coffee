@@ -7,6 +7,7 @@ Measure = require('react-measure').default
 {SectionAxis} = require '../column/axis'
 {BaseSectionComponent} = require '../column/base'
 {SymbolColumn} = require '../column/symbol-column'
+{FloodingSurface} = require '../column/flooding-surface'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
 {withRouter} = require 'react-router-dom'
 
@@ -18,6 +19,7 @@ class SVGSectionComponent extends BaseSectionComponent
     height: 100 # Section height in meters
     lithologyWidth: 40
     showFacies: true
+    showFloodingSurfaces: true
     onResize: ->
     marginLeft: -25
     padding:
@@ -81,6 +83,16 @@ class SVGSectionComponent extends BaseSectionComponent
       marginLeft
     }
 
+    fs = null
+    if @props.showFloodingSurfaces
+      fs = h FloodingSurface, {
+        scale
+        zoom
+        id
+        offsetLeft: -40
+        lineWidth: 30
+      }
+
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
     minWidth = outerWidth
@@ -121,6 +133,7 @@ class SVGSectionComponent extends BaseSectionComponent
                 left: 90
                 id
               }
+              fs
               h SectionAxis, {scale, ticks: nticks}
             ]
           ]
