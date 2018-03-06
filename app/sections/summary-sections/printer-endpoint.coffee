@@ -7,31 +7,29 @@ require 'd3-selection-multi'
 {SectionDataContainer} = require '../section-data'
 require '../main.styl'
 require '../../main.styl'
+require './print.styl'
 {SummarySections: BaseSummarySections} = require '.'
 {HashRouter} = require 'react-router-dom'
 
 class SummarySections extends BaseSummarySections
   render: ->
-    h 'div.page.section-page#summary-sections', [
-      h 'div.panel-container', [
-        @renderSections()
-      ]
+    h 'div', [
+      @renderSections()
     ]
 
 class SectionsPage extends SectionDataContainer
   render: ->
     {sections} = @state
-    h SummarySections, {sections}
+    scrollable = false
+    h SummarySections, {sections, scrollable}
 
 Router = -> h HashRouter, [ h SectionsPage ]
 
 module.exports = (el, cb)->
-  v = d3.select el
-    .append 'div'
 
   render(
     createElement(Router)
-    v.node()
+    el
   )
 
   setTimeout cb, 3000

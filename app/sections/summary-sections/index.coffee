@@ -43,6 +43,9 @@ groupOrder = [
 stackGroups = ['AC','BED','GF','HI']
 
 class SummarySections extends Component
+  @defaultProps: {
+    scrollable: true
+  }
   constructor: (props)->
     super props
     @state =
@@ -77,7 +80,7 @@ class SummarySections extends Component
     @state = update @state, options: {$merge: v}
 
   renderSections: ->
-    {sections} = @props
+    {sections, scrollable} = @props
     {dimensions, options, sectionPositions} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
@@ -117,8 +120,9 @@ class SummarySections extends Component
 
     paddingLeft = 30
     marginTop = 50
+    overflow = if scrollable then "scroll" else 'inherit'
     {canvas} = @state.dimensions
-    h 'div#section-pane', [
+    h 'div#section-pane', {style: {overflow}}, [
       h SectionPanel, {
         zoom: 0.1,
         onResize: @onCanvasResize
