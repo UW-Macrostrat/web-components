@@ -16,10 +16,11 @@ class SectionColumn extends Component
 
 class LocationGroup extends Component
   render: ->
-    width = @props.width or null
-    h 'div.location-group', {style: {width}}, [
-      h 'h1', {style: {height: '3em'}}, @props.name
-      h 'div.location-group-body', {}, @props.children
+    {width, name, children, rest...} = @props
+    width ?= null
+    h 'div.location-group', {style: {width}, rest...}, [
+      h 'h1', {style: {height: '3em'}}, name
+      h 'div.location-group-body', {}, children
     ]
 
 class SectionPanel extends Component

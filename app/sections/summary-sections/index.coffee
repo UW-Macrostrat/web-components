@@ -137,6 +137,7 @@ class SummarySections extends Component
           zoom: 0.1,
           system: 'delta18o'
           label: 'δ¹⁸O'
+          domain: [-15,0]
           key: 'oxygen-isotopes',
           showFacies
           onResize: sectionResize('oxygen-isotopes')
@@ -145,7 +146,10 @@ class SummarySections extends Component
           rest...
         }
 
-      __sections.push h LocationGroup, {name: 'Chemostratigraphy'}, __
+      __sections.push h LocationGroup, {
+        name: 'Chemostratigraphy'
+        className: 'chemostratigraphy'
+      }, __
 
     if showLegend
       __sections.push h Legend

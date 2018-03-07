@@ -6,7 +6,13 @@
 {grainSizes} = require './grainsize'
 h = require 'react-hyperscript'
 d3 = require 'd3'
+{db, storedProcedure, query} = require '../db'
 fmt = d3.format('.1f')
+
+{dirname} = require 'path'
+baseDir = dirname require.resolve '..'
+sql = (id)-> storedProcedure(id, {baseDir})
+{helpers} = require '../../db/backend'
 
 floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
 
@@ -38,7 +44,7 @@ class ModalEditor extends Component
         ]
         h FaciesDescriptionSmall, {
           options: {isEditable: true}
-          onClick: @selectFacies
+          onClick: @updateFacies
           selected: facies
         }
         h 'label.pt-label', [
@@ -49,7 +55,8 @@ class ModalEditor extends Component
             states: grainSizes.map (d)->
               {label: d, value: d}
             activeState: interval.grainsize
-            onUpdate: @selectGrainSize
+            onUpdate: (grainsize)=>
+              @update {grainsize}
           }
         ]
         h 'label.pt-label', [
@@ -62,7 +69,8 @@ class ModalEditor extends Component
               lbl = 'None' if not d?
               {label: d, value: d}
             activeState: interval.flooding_surface_order
-            onUpdate: @selectFloodingSurfaceOrder
+            onUpdate: (flooding_surface_order)=>
+              @update {flooding_surface_order}
           }
         ]
         h 'div', [
@@ -96,25 +104,22 @@ class ModalEditor extends Component
         ]
       ]
     ]
-  selectFacies: (facies)=>
-    {onSelectFacies:o, interval} = @props
-    return unless o?
+  updateFacies: (facies)=>
+    {interval} = @props
     selected = facies.id
     if selected == interval.facies
       selected = null
-    await o(interval, selected)
-    @props.onUpdate()
+    @update {facies: selected}
 
-  selectFloodingSurfaceOrder: (fso)=>
-    {onSelectFloodingSurfaceOrder:o, interval} = @props
-    return unless o?
-    await o(interval, fso)
-    @props.onUpdate()
-
-  selectGrainSize: (grainsize)=>
-    {onSelectGrainSize:o, interval} = @props
-    return unless o?
-    await o(interval, grainsize)
+  update: (columns)=>
+    {TableName, update} = helpers
+    tbl = new TableName("section_lithology", "section")
+    id = @props.interval.id
+    section = @props.section
+    s = helpers.update columns, null, tbl
+    s += " WHERE id=#{id} AND section='#{section}'"
+    console.log s
+    await db.none(s)
     @props.onUpdate()
 
 module.exports = {ModalEditor}

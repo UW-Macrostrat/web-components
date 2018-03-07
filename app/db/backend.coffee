@@ -14,6 +14,7 @@ opts = {
 
 pgp = require('pg-promise')(opts)
 db = pgp('postgresql:///Naukluft')
+{helpers} = pgp
 
 storedProcedure = (id, opts={})->
   {baseDir} = opts
@@ -84,5 +85,5 @@ serializableQueries = ->
 
 
 module.exports = {
-  db, storedProcedure, serializableQueries
+  db, storedProcedure, serializableQueries, helpers
 }

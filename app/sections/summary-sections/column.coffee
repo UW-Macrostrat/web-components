@@ -133,9 +133,10 @@ class BaseSVGSectionComponent extends BaseSectionComponent
                       h 'h4', "Section #{id} @ #{fmt(height)} m"
                       h 'p', [
                         'Interval ID: '
-                        h('code', id)
+                        h('code', d.id)
                       ]
                       h 'p', "#{d.bottom} - #{d.top} m"
+                      if d.surface then h('p', ["Surface: ", h('code',d.surface)]) else null
                     ]
                     timeout: 2000
                   }
