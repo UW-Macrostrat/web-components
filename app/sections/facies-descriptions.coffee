@@ -17,7 +17,7 @@ classNames = require 'classnames'
 {readFileSync} = require 'fs'
 {dirname} = require 'path'
 
-FaciesContext = createContext 'facies'
+FaciesContext = createContext {facies:[],onChanged: ->}
 
 class FaciesDescriptionPage extends Component
   constructor: (props)->
@@ -26,18 +26,7 @@ class FaciesDescriptionPage extends Component
       options: {
         isEditable: false
       }
-      facies: []
     }
-
-    @updateData()
-    @optionsStorage = new LocalStorage 'facies-descriptions'
-    v = @optionsStorage.get()
-    return unless v?
-    @state = update @state, options: {$merge: v}
-
-  updateData: =>
-    query('facies').then (facies)=>
-      @setState {facies}
 
   render: ->
     __a = '../../assets/facies-descriptions/facies-descriptions.html'
@@ -64,18 +53,14 @@ class FaciesDescriptionSmall extends Component
       facies: []
     }
 
-    @updateData()
     @optionsStorage = new LocalStorage 'facies-descriptions'
     v = @optionsStorage.get()
     return unless v?
     @state = update @state, options: {$merge: v}
 
-  updateData: =>
-    query('facies').then (facies)=>
-      @setState {facies}
 
   render: ->
-    h FaciesContext.Consumer, (facies)=>
+    h FaciesContext.Consumer, {}, ({facies, onChanged})=>
       h 'div.facies-description-small', [
         h 'h5', 'Facies'
         h 'div', facies.map (d)=>
@@ -92,10 +77,10 @@ class FaciesDescriptionSmall extends Component
 
           h 'div.facies.pt-card.pt-elevation-0', {
             key: d.id, onClick, style, className
-          }, @renderFacies(d)
+          }, @renderFacies(d, onChanged)
       ]
 
-  renderFacies: (d)=>
+  renderFacies: (d, callback)=>
     swatch = h 'div.color-swatch', {style: {
       backgroundColor: d.color or 'black'
       width: '2em'
@@ -111,7 +96,7 @@ class FaciesDescriptionSmall extends Component
         h 'div', [
           h SwatchesPicker, {
             color: d.color or 'black'
-            onChangeComplete: @onChangeColor(d.id)
+            onChangeComplete: @onChangeColor(d.id, callback)
             styles: {
               width: 500
               height: 570
@@ -126,11 +111,11 @@ class FaciesDescriptionSmall extends Component
       h 'p.name', {style: {marginLeft: 20, textAlign: 'right'}}, d.name
     ]
 
-  onChangeColor: (id)=>(color)=>
+  onChangeColor: (id, callback)=>(color)=>
     sql = storedProcedure('set-facies-color', {baseDir: __dirname})
     color = color.hex
     await db.none sql, {id,color}
-    @updateData()
+    callback()
 
 
 module.exports = {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext}

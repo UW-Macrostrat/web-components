@@ -42,10 +42,17 @@ class SectionDataContainer extends Component
     super props
     @state =
       sections: []
+      facies: []
 
   getInitialData: ->
     sections = await getSectionData()
     @setState {sections}
+    @loadFacies()
+
+  loadFacies: ->
+    facies = await query('facies', null, {baseDir: __dirname})
+    console.log facies
+    @setState {facies}
 
   componentDidMount: ->
     @getInitialData()

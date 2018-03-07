@@ -11,6 +11,7 @@ SectionPage = require './single-section'
 {AllSections} = require './section-page'
 {SectionNavigationControl} = require './util'
 {FaciesDescriptionPage, FaciesContext} = require './facies-descriptions'
+{query} = require './db'
 
 {nest} = require 'd3'
 
@@ -26,9 +27,6 @@ createSectionLink = (d)->
   navLink
 
 class SectionIndexPage extends Component
-  constructor: (props)->
-    super props
-
   render: ->
 
     nestedSections = nest()
@@ -42,69 +40,68 @@ class SectionIndexPage extends Component
         h 'ul.navigation.sections', values.map createSectionLink
       ]
 
-    h FaciesContext.Provider, {value: []}, [
-      h 'div#homepage', [
-        h SectionNavigationControl
-        h 'div#section-pane', [
-          h 'h1', 'Sections'
-          h 'ul.navigation', [
-            h NavLink, to: "/sections/summary", [
-              h 'div.title', 'Summary sections'
-            ]
-            h NavLink, to: "/sections/facies-descriptions", [
-              h 'div.title', 'Facies descriptions'
-            ]
+    h 'div#homepage', [
+      h SectionNavigationControl
+      h 'div#homepage-inner', [
+        h 'h1', 'Sections'
+        h 'ul.navigation', [
+          h NavLink, to: "/sections/summary", [
+            h 'div.title.summary-sections', 'Summary sections'
           ]
-          locations...
         ]
+        locations...
       ]
     ]
+
 
 class SectionIndex extends SectionDataContainer
   render: ->
     {match} = @props
-    {sections} = @state
+    {sections, facies} = @state
 
     if sections.length == 0
       return h 'div'
 
-    h Switch, [
-      h Route, {
-        path: match.url+'/'
-        exact: true
-        render: => h(SectionIndexPage, {sections}, null)
-      }
-      h Route, {
-        path: match.url+'/summary'
-        exact: true
-        render: => h(SummarySections, {sections}, null)
-      }
-      h Route, {
-        path: match.url+'/facies-descriptions'
-        exact: true
-        render: => h(FaciesDescriptionPage, {}, null)
-      }
-      h Route, {
-        path: match.url+'/all'
-        exact: true
-        render: => h(AllSections, {sections}, null)
-      }
-      h Route, {
-        path: match.url+'/:id/height/:height', render: (props)->
-          {id,height} = props.match.params
-          section = sections.find (d)->d.id == id
-          if not section?
-            return h 'div'
-          h SectionPage, {section, height}
-      }
-      h Route, {
-        path: match.url+'/:id/', render: (props)->
-          {id,height} = props.match.params
-          section = sections.find (d)->d.id == id
-          if not section?
-            return h 'div'
-          h SectionPage, {section}
-      }
+    value = {facies, onChanged: @loadFacies}
+    h FaciesContext.Provider, {value}, [
+      h Switch, [
+        h Route, {
+          path: match.url+'/'
+          exact: true
+          render: => h(SectionIndexPage, {sections}, null)
+        }
+        h Route, {
+          path: match.url+'/summary'
+          exact: true
+          render: => h(SummarySections, {sections}, null)
+        }
+        h Route, {
+          path: match.url+'/facies-descriptions'
+          exact: true
+          render: => h(FaciesDescriptionPage, {}, null)
+        }
+        h Route, {
+          path: match.url+'/all'
+          exact: true
+          render: => h(AllSections, {sections}, null)
+        }
+        h Route, {
+          path: match.url+'/:id/height/:height', render: (props)->
+            {id,height} = props.match.params
+            section = sections.find (d)->d.id == id
+            if not section?
+              return h 'div'
+            h SectionPage, {section, height}
+        }
+        h Route, {
+          path: match.url+'/:id/', render: (props)->
+            {id,height} = props.match.params
+            section = sections.find (d)->d.id == id
+            if not section?
+              return h 'div'
+            h SectionPage, {section}
+        }
+      ]
     ]
 
 module.exports = {SectionIndex, SectionDataContainer}
