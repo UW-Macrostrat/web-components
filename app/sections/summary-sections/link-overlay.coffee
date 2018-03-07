@@ -11,27 +11,43 @@ class SectionLinkOverlay extends Component
     paddingLeft: 20
     marginTop: 0
     showLithostratigraphy: true
+    showCarbonIsotopes: false
   }
   constructor: (props)->
     super props
     @state = {surfaces: []}
 
     query 'lithostratigraphy-surface', null, {baseDir: __dirname}
-      .then (surfaces)=>@setState {surfaces}
+      .then @setupData
 
     @link = d3.linkHorizontal()
       .x (d)->d.x
       .y (d)->d.y
 
+  setupData: (surfaces)=>
+    @setState {surfaces}
+
   buildLink: (surface)=>
-    {sectionPositions, paddingLeft, marginTop} = @props
+    {sectionPositions, paddingLeft, marginTop, showCarbonIsotopes} = @props
     {section_height, unit_commonality} = surface
-    heights = section_height.map ({section,height,inferred})->
-      console.log inferred
-      {bounds, padding, scale} = sectionPositions[section]
+    heights = []
+
+    values = [section_height...]
+    #if showCarbonIsotopes
+    v = section_height.find (d)->d.section == 'J'
+    if v?
+      {section, rest...} = v
+      values.push {section: 'carbon-isotopes', rest...}
+
+    for {section, height, inferred} in values
+      try
+        {bounds, padding, scale} = sectionPositions[section]
+      catch
+        # Not positioned yet (or at all?)
+        continue
       yOffs = scale(height)
       y = bounds.top+padding.top+yOffs-marginTop
-      {x0: bounds.left-paddingLeft, x1: bounds.left+100, y, inferred}
+      heights.push {x0: bounds.left-paddingLeft, x1: bounds.left+100, y, inferred}
 
     heights.sort (a,b)-> a.x0 - b.x0
 

@@ -14,7 +14,7 @@ Measure = require('react-measure').default
 
 fmt = d3.format('.1f')
 
-class SVGSectionComponent extends BaseSectionComponent
+class BaseSVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
     BaseSectionComponent.defaultProps...
     trackVisibility: false
@@ -95,10 +95,11 @@ class SVGSectionComponent extends BaseSectionComponent
       className: if @props.skeletal then "skeleton" else null
       style: {minWidth}
     }, [
-      h 'div.section-header', [h "h2", txt]
+      h 'div.section-header', [h("h2", {style: {height: '1.2rem'}}, txt)]
       h 'div.section-outer', [
         h Measure, {
           bounds: true,
+          client: true,
           onResize: @onResize
         }, ({measureRef})=>
           h "svg.section", {
@@ -152,7 +153,7 @@ class SVGSectionComponent extends BaseSectionComponent
       ]
     ]
 
-SVGSectionComponent = withRouter(SVGSectionComponent)
+SVGSectionComponent = withRouter(BaseSVGSectionComponent)
 
-module.exports = {SVGSectionComponent}
+module.exports = {BaseSVGSectionComponent, SVGSectionComponent}
 

@@ -121,8 +121,6 @@ class CarbonIsotopesPage extends Component
     path = @dataArea.selectAll 'g.section'
       .data nested
 
-
-
     line = d3.line()
 
     esel = path.enter()

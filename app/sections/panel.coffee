@@ -16,8 +16,9 @@ class SectionColumn extends Component
 
 class LocationGroup extends Component
   render: ->
-    h 'div.location-group', [
-      h 'h1', @props.name
+    width = @props.width or null
+    h 'div.location-group', {style: {width}}, [
+      h 'h1', {style: {height: '3em'}}, @props.name
       h 'div.location-group-body', {}, @props.children
     ]
 
@@ -138,4 +139,4 @@ class ZoomablePanelContainer extends Component
     else
       @dragdealer.disable()
 
-module.exports = {SectionPanel,ZoomablePanelContainer}
+module.exports = {SectionPanel,ZoomablePanelContainer, LocationGroup}

@@ -190,8 +190,7 @@ class SectionComponent extends BaseSectionComponent
       }, ({measureRef})=>
         h 'div.section-outer', [
             h 'div.section', {
-              style, ref: measureRef,
-              onClick: @onClick
+              style, ref: measureRef
             }, innerElements
             notesEl
         ]
@@ -220,18 +219,6 @@ class SectionComponent extends BaseSectionComponent
     @setState visible: isVisible
 
     # I'm not sure why this works but it does
-
-  onClick: (event)=>
-    fmt = d3.format('.1f')
-    {scale} = @state
-    {top} = event.target.getBoundingClientRect()
-    {clientY} = event
-    height = scale.invert(clientY-top)
-
-    Notification.show {
-      message: "#{fmt(height)} m"
-      timeout: 2000
-    }
 
   renderOverlaySVG: =>
     {innerHeight, outerHeight, innerWidth, outerWidth, padding} = @getGeometry()

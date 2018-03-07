@@ -10,8 +10,9 @@ h = require 'react-hyperscript'
 update = require 'immutability-helper'
 LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
+{IsotopesComponent} = require './carbon-isotopes'
 Measure = require('react-measure').default
-{SectionPanel} = require '../panel'
+{SectionPanel, LocationGroup} = require '../panel'
 {BaseSectionPage} = require '../section-page'
 {SVGSectionComponent} = require './column'
 {SectionNavigationControl} = require '../util'
@@ -85,6 +86,7 @@ class SummarySections extends Component
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
      showCarbonIsotopes,
+     showOxygenIsotopes,
      trackVisibility,
      showFacies,
      showLegend,
@@ -93,12 +95,10 @@ class SummarySections extends Component
 
     skeletal = activeMode == 'skeleton'
 
-    accum = {}
     sectionResize = (key)=>(contentRect)=>
-      accum[key] = {$set: contentRect}
-      if Object.keys(accum).length == sections.length
-        console.log "Updating state"
-        @mutateState {sectionPositions: accum}
+      cset = {}
+      cset[key] = {$set: contentRect}
+      @mutateState {sectionPositions: cset}
 
     __sections = sections.map (row)=>
       {offset, rest...} = row
@@ -115,6 +115,37 @@ class SummarySections extends Component
         offset
         rest...
       }
+
+    if showCarbonIsotopes or showOxygenIsotopes
+      row = sections.find (d)->d.id == 'J'
+      {offset, location, rest...} = row
+      location = null
+      __ = []
+      if showCarbonIsotopes
+        __.push h IsotopesComponent, {
+          zoom: 0.1,
+          key: 'carbon-isotopes',
+          showFacies
+          onResize: sectionResize('carbon-isotopes')
+          offset
+          location: ""
+          rest...
+        }
+
+      if showOxygenIsotopes
+        __.push h IsotopesComponent, {
+          zoom: 0.1,
+          system: 'delta18o'
+          label: 'δ¹⁸O'
+          key: 'oxygen-isotopes',
+          showFacies
+          onResize: sectionResize('oxygen-isotopes')
+          offset
+          location: ""
+          rest...
+        }
+
+      __sections.push h LocationGroup, {name: 'Chemostratigraphy'}, __
 
     if showLegend
       __sections.push h Legend
@@ -134,6 +165,7 @@ class SummarySections extends Component
                              marginTop,
                              sectionPositions,
                              showLithostratigraphy
+                             showCarbonIsotopes
                              }
     ]
 
