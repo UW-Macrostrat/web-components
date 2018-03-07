@@ -45,14 +45,12 @@ class SectionDataContainer extends Component
       facies: []
 
   getInitialData: ->
-    sections = await getSectionData()
-    @setState {sections}
-    @loadFacies()
-
-  loadFacies: ->
-    facies = await query('facies', null, {baseDir: __dirname})
-    console.log facies
-    @setState {facies}
+    getSectionData()
+      .then (sections)=>@setState {sections}
+    query('facies', null, {baseDir: __dirname})
+      .then (facies)=>@setState {facies}
+    query('section-surface', null, {baseDir: __dirname})
+      .then (surfaces)=>@setState {surfaces}
 
   componentDidMount: ->
     @getInitialData()

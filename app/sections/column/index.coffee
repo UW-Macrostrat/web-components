@@ -304,24 +304,6 @@ class SectionComponent extends BaseSectionComponent
           y = @props.scale(d)
           {x1: 0, x2: @props.innerWidth, y1: y, y2: y}
 
-  setFaciesForInterval: (interval, facies)=>
-    {id: section} = @props
-    {id} = interval
-    q = sql('update-facies')
-    await db.none q, {section, id, facies}
-
-  setGrainSizeForInterval: (interval, grainsize)=>
-    {id: section} = @props
-    {id} = interval
-    q = sql('update-grainsize')
-    await db.none q, {section, id, grainsize}
-
-  setFloodingSurfaceOrderForInterval: (interval, flooding_surface_order)=>
-    {id: section} = @props
-    {id} = interval
-    q = sql('update-flooding-surface')
-    await db.none q, {section, id, flooding_surface_order}
-
   onIntervalUpdated: =>
     console.log "Updating intervals"
     {id: section} = @props

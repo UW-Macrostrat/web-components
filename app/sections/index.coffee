@@ -57,12 +57,12 @@ class SectionIndexPage extends Component
 class SectionIndex extends SectionDataContainer
   render: ->
     {match} = @props
-    {sections, facies} = @state
+    {sections, facies, surfaces} = @state
 
     if sections.length == 0
       return h 'div'
 
-    value = {facies, onChanged: @loadFacies}
+    value = {facies, surfaces, onChanged: @loadFacies}
     h FaciesContext.Provider, {value}, [
       h Switch, [
         h Route, {

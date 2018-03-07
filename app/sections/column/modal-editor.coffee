@@ -1,8 +1,11 @@
 {findDOMNode} = require 'react-dom'
 {Component, createElement} = require 'react'
 {Dialog, Button, Intent, ButtonGroup, Alert} = require '@blueprintjs/core'
-{FaciesDescriptionSmall} = require '../facies-descriptions'
+{FaciesDescriptionSmall, FaciesContext} = require '../facies-descriptions'
 {PickerControl} = require '../settings'
+Select = require('react-select').default
+require 'react-select/dist/react-select.css'
+
 {grainSizes} = require './grainsize'
 h = require 'react-hyperscript'
 d3 = require 'd3'
@@ -25,11 +28,19 @@ class ModalEditor extends Component
       isAlertOpen: false
     }
   render: ->
+    h FaciesContext.Consumer, null, ({surfaces})=>
+      @renderMain(surfaces)
+
+  renderMain: (surfaces)=>
     {interval, height, section} = @props
     return null unless interval?
     console.log interval
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
+
+    options = surfaces.map (d)->
+      {value: d.id, label: d.note}
+
     h Dialog, {
       className: 'pt-minimal'
       title: "Section #{section}: #{bottom} - #{top} m"
@@ -71,6 +82,22 @@ class ModalEditor extends Component
             activeState: interval.flooding_surface_order
             onUpdate: (flooding_surface_order)=>
               @update {flooding_surface_order}
+          }
+        ]
+        h 'label.pt-label', [
+          'Correlated surface'
+          h Select, {
+            id: "state-select"
+            ref: (ref) => @select = ref
+            options
+            clearable: true
+            searchable: true
+            name: "selected-state"
+            value: interval.surface
+            onChange: (surface)=>
+              if surface?
+                surface = surface.value
+              @update {surface}
           }
         ]
         h 'div', [
