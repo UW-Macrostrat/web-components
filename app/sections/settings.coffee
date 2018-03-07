@@ -1,6 +1,6 @@
 {Component} = require 'react'
 h = require 'react-hyperscript'
-CSSTransition = require 'react-addons-css-transition-group'
+CSSTransition = require 'react-transition-group/CSSTransitionGroup'
 {Switch} = require '@blueprintjs/core'
 {format} = require 'd3'
 {FaciesDescriptionSmall} = require './facies-descriptions'

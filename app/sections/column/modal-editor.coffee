@@ -25,6 +25,7 @@ class ModalEditor extends Component
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
     h Dialog, {
+      className: 'pt-minimal'
       title: "Section #{section}: #{bottom} - #{top} m"
       isOpen: @props.isOpen
       onClose: @props.closeDialog

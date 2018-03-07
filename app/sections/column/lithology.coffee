@@ -204,7 +204,7 @@ class LithologyColumn extends Component
       pxFromTop = scale(d.top)+(clientY-top)
       height = scale.invert(pxFromTop)
       @props.onEditInterval(d, {height, event})
-      #event.stopPropagation()
+      event.stopPropagation()
     h 'g.edit-overlay', divisions.map (d)=>
       onClick = clickHandler(d)
       className = classNames('edit-overlay', d.id)

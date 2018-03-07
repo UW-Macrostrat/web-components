@@ -1,9 +1,8 @@
 {findDOMNode} = require 'react-dom'
-{Component} = require 'react'
+{Component, createContext} = require 'react'
 require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
-ElementPan = require 'react-element-pan'
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
 SettingsPanel = require './settings'
@@ -17,6 +16,8 @@ classNames = require 'classnames'
 {Popover} = require '@blueprintjs/core'
 {readFileSync} = require 'fs'
 {dirname} = require 'path'
+
+FaciesContext = createContext 'facies'
 
 class FaciesDescriptionPage extends Component
   constructor: (props)->
@@ -74,24 +75,25 @@ class FaciesDescriptionSmall extends Component
       @setState {facies}
 
   render: ->
-    h 'div.facies-description-small', [
-      h 'h5', 'Facies'
-      h 'div', @state.facies.map (d)=>
-        onClick = null
-        style = {}
-        if @props.onClick?
-          onClick = =>@props.onClick(d)
-          style.cursor = 'pointer'
-        {selected} = @props
-        if selected == d.id
-          style.backgroundColor = d.color
-          style.color = 'white'
-        className = classNames({selected: selected == d.id})
+    h FaciesContext.Consumer, (facies)=>
+      h 'div.facies-description-small', [
+        h 'h5', 'Facies'
+        h 'div', facies.map (d)=>
+          onClick = null
+          style = {}
+          if @props.onClick?
+            onClick = =>@props.onClick(d)
+            style.cursor = 'pointer'
+          {selected} = @props
+          if selected == d.id
+            style.backgroundColor = d.color
+            style.color = 'white'
+          className = classNames({selected: selected == d.id})
 
-        h 'div.facies.pt-card.pt-elevation-0', {
-          key: d.id, onClick, style, className
-        }, @renderFacies(d)
-    ]
+          h 'div.facies.pt-card.pt-elevation-0', {
+            key: d.id, onClick, style, className
+          }, @renderFacies(d)
+      ]
 
   renderFacies: (d)=>
     swatch = h 'div.color-swatch', {style: {
@@ -131,5 +133,5 @@ class FaciesDescriptionSmall extends Component
     @updateData()
 
 
-module.exports = {FaciesDescriptionPage, FaciesDescriptionSmall}
+module.exports = {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext}
 

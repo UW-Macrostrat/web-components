@@ -1,4 +1,4 @@
-{Component} = require 'react'
+{Component, createContext} = require 'react'
 require './main.styl'
 styles = require './section-index.styl'
 h = require 'react-hyperscript'
@@ -10,7 +10,7 @@ SectionPage = require './single-section'
 {SummarySections} = require './summary-sections'
 {AllSections} = require './section-page'
 {SectionNavigationControl} = require './util'
-{FaciesDescriptionPage} = require './facies-descriptions'
+{FaciesDescriptionPage, FaciesContext} = require './facies-descriptions'
 
 {nest} = require 'd3'
 
@@ -42,19 +42,21 @@ class SectionIndexPage extends Component
         h 'ul.navigation.sections', values.map createSectionLink
       ]
 
-    h 'div#homepage', [
-      h SectionNavigationControl
-      h 'div#section-pane', [
-        h 'h1', 'Sections'
-        h 'ul.navigation', [
-          h NavLink, to: "/sections/summary", [
-            h 'div.title', 'Summary sections'
+    h FaciesContext.Provider, {value: []}, [
+      h 'div#homepage', [
+        h SectionNavigationControl
+        h 'div#section-pane', [
+          h 'h1', 'Sections'
+          h 'ul.navigation', [
+            h NavLink, to: "/sections/summary", [
+              h 'div.title', 'Summary sections'
+            ]
+            h NavLink, to: "/sections/facies-descriptions", [
+              h 'div.title', 'Facies descriptions'
+            ]
           ]
-          h NavLink, to: "/sections/facies-descriptions", [
-            h 'div.title', 'Facies descriptions'
-          ]
+          locations...
         ]
-        locations...
       ]
     ]
 

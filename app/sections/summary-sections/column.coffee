@@ -40,16 +40,6 @@ class SVGSectionComponent extends BaseSectionComponent
     }
     @state.scale.clamp()
 
-  onClick: (event)=>
-    {history} = @props
-    {scale} = @state
-    {top} = event.target.getBoundingClientRect()
-    {clientY} = event
-    return if event.shiftKey
-    height = scale.invert(clientY-top)
-    console.log "Clicked Section #{@props.id} @ #{height}"
-    history.push("/sections/#{@props.id}/height/#{height}")
-
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
@@ -113,7 +103,6 @@ class SVGSectionComponent extends BaseSectionComponent
         }, ({measureRef})=>
           h "svg.section", {
             style, ref: measureRef
-            onClick: @onClick
           }, [
             h 'g.backdrop', {transform}, [
               h CoveredColumn, {
@@ -131,9 +120,10 @@ class SVGSectionComponent extends BaseSectionComponent
                 scale
                 id
                 grainsizeScaleStart: 40
-                onEditInterval: (d, opts)->
-                  {height, event} = @props
-                  if event.shiftKey
+                onEditInterval: (d, opts)=>
+                  {history} = @props
+                  {height, event} = opts
+                  if not event.shiftKey
                     console.log "Clicked Section #{id} @ #{height}"
                     history.push("/sections/#{id}/height/#{height}")
                     return

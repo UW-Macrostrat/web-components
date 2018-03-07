@@ -14,7 +14,7 @@ MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
 Map = require './map-viewer'
-
+require '@blueprintjs/core/lib/css/blueprint.css'
 
 wrapNavBar = (component)->
   class NavBarPage extends React.Component

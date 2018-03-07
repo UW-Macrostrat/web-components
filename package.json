@@ -32,12 +32,9 @@
     "webpack": "^3.6.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^1.35.2",
-    "@blueprintjs/labs": "^0.15.2",
     "bluebird": "^3.4.7",
     "browser-request": "^0.3.3",
     "carto": "^0.17.2",
-    "classnames": "^2.2.5",
     "coffeescript": "next",
     "css-modules-require-hook": "^4.0.6",
     "d3": "^4.4.1",
@@ -52,16 +49,6 @@
     "leaflet": "^1.0.3",
     "node-cjsx": "^2.0.0",
     "pdf-printer": "file:../deps/pdf-printer",
-    "pg": "^6.1.2",
-    "pg-promise": "^5.5.0",
-    "react": "^16.2.0",
-    "react-hyperscript": "^3.0.0",
-    "react-image-slider": "^0.1.0",
-    "react-images": "^0.5.14",
-    "react-sizeme": "^2.3.6",
-    "replace-ext": "^1.0.0",
-    "request": "^2.83.0",
-    "request-promise": "^4.2.2",
     "stylus": "^0.54.5",
     "tilelive-mapnik": "^0.6.18"
   }
