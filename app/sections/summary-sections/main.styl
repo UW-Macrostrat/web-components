@@ -1,7 +1,7 @@
 svg#section-link-overlay
   pointer-events none
   rect.section-tracker
-    fill: transparent
+    fill: none
   &.skeletal
     outline: 2px solid alpha(red, 0.2)
     background: alpha(red, 0.05)
@@ -10,13 +10,12 @@ svg#section-link-overlay
       fill: alpha(red, 0.05)
 
   path.section-link
+    pointer-events all
     fill none
-    stroke #888
     &.inferred
       stroke-dasharray: 2,4
     &.commonality-0
       stroke-width 3
-      stroke black
     &.commonality-2
       stroke-width 2
       &.inferred

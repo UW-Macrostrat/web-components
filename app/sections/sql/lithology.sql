@@ -6,6 +6,7 @@ SELECT
   l.covered,
   l.flooding_surface_order,
   l.surface,
+  ss.note,
   coalesce(definite_boundary, true) definite_boundary,
   coalesce(v.pattern, l.lithology) pattern,
   coalesce(l.schematic, false) schematic,
@@ -24,6 +25,8 @@ SELECT
 FROM section.section_lithology l
 LEFT JOIN section.lithology_tree t
   ON l.lithology = t.id
+LEFT JOIN section.surface ss
+  ON l.surface = ss.id
 LEFT JOIN section.facies f
   ON l.facies = f.id
 LEFT JOIN section.lithology v

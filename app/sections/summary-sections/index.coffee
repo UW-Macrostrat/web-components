@@ -66,6 +66,7 @@ class SummarySections extends Component
         showFacies: true
         showFloodingSurfaces: false
         showLithostratigraphy: true
+        showSequenceStratigraphy: true
         showLegend: true
         # Allows us to test the serialized query mode
         # we are developing for the web
@@ -85,6 +86,7 @@ class SummarySections extends Component
     {dimensions, options, sectionPositions} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
+     showSequenceStratigraphy,
      showCarbonIsotopes,
      showOxygenIsotopes,
      trackVisibility,
@@ -169,6 +171,7 @@ class SummarySections extends Component
                              marginTop,
                              sectionPositions,
                              showLithostratigraphy
+                             showSequenceStratigraphy
                              showCarbonIsotopes
                              }
     ]

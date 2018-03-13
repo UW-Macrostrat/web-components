@@ -3,6 +3,7 @@ h = require 'react-hyperscript'
 classNames = require 'classnames'
 {query} = require '../../db'
 d3 = require 'd3'
+{Notification} = require '../../notify'
 
 class SectionLinkOverlay extends Component
   @defaultProps: {
@@ -25,20 +26,41 @@ class SectionLinkOverlay extends Component
       .y (d)->d.y
 
   setupData: (surfaces)=>
+    surfaces.reverse()
     @setState {surfaces}
 
   buildLink: (surface)=>
-    {sectionPositions, paddingLeft, marginTop, showCarbonIsotopes} = @props
-    {section_height, unit_commonality} = surface
-    heights = []
+    {sectionPositions, paddingLeft, marginTop,
+     showLithostratigraphy, showSequenceStratigraphy} = @props
+    {section_height, unit_commonality, type, flooding_surface_order, note} = surface
+    console.log surface
 
     values = [section_height...]
     #if showCarbonIsotopes
-    v = section_height.find (d)->d.section == 'J'
-    if v?
-      {section, rest...} = v
-      values.push {section: 'carbon-isotopes', rest...}
+    #v = section_height.find (d)->d.section == 'J'
+    #if v?
+      #{section, rest...} = v
+      #values.push {section: 'carbon-isotopes', rest...}
 
+    if type == 'lithostrat'
+      stroke = '#ccc'
+      if not showLithostratigraphy
+        return null
+    if type == 'sequence-strat'
+      stroke = if flooding_surface_order > 0 then '#888' else '#f88'
+      strokeWidth = 6-Math.abs(flooding_surface_order)
+      if not showSequenceStratigraphy
+        return null
+
+    if note?
+      onClick = ->
+        Notification.show {
+          message: note
+        }
+    else
+      onClick = null
+
+    heights = []
     for {section, height, inferred} in values
       try
         {bounds, padding, scale} = sectionPositions[section]
@@ -64,9 +86,10 @@ class SectionLinkOverlay extends Component
       className = classNames(
         "section-link"
         "commonality-#{unit_commonality}"
+        type
         {inferred})
       d = @link(pair)
-      h 'path', {d, className}
+      h 'path', {d, className, stroke, strokeWidth, onClick}
 
     h 'g', links
 
@@ -75,9 +98,6 @@ class SectionLinkOverlay extends Component
     {surfaces} = @state
 
     className = classNames {skeletal}
-
-    if not showLithostratigraphy
-      surfaces = []
 
     __ = []
     for key, {bounds, padding} of sectionPositions

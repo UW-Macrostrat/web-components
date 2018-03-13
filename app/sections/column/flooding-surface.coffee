@@ -2,6 +2,7 @@
 d3 = require 'd3'
 {Component} = require 'react'
 h = require 'react-hyperscript'
+{Notification} = require '../../notify'
 
 class FloodingSurface extends Component
   @defaultProps: {
@@ -18,8 +19,15 @@ class FloodingSurface extends Component
         y = scale(d.bottom)
         x = offsetLeft
         transform = "translate(#{x} #{y})"
+        onClick = null
+        if d.note?
+          onClick = ->
+            Notification.show {
+              message: d.note
+            }
         h "line.flooding-surface", {
           transform,
+          onClick
           key: d.id,
           strokeWidth: 6-Math.abs(d.flooding_surface_order)
           stroke: if d.flooding_surface_order >= 0 then '#444' else '#fcc'
