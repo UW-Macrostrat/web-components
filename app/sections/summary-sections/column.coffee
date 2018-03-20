@@ -7,7 +7,7 @@ Measure = require('react-measure').default
 {SectionAxis} = require '../column/axis'
 {BaseSectionComponent} = require '../column/base'
 {SymbolColumn} = require '../column/symbol-column'
-{FloodingSurface} = require '../column/flooding-surface'
+{FloodingSurface, TriangleBars} = require '../column/flooding-surface'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
 {withRouter} = require 'react-router-dom'
 {Notification} = require '../../notify'
@@ -88,6 +88,17 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         divisions
       }
 
+    triangleBars = null
+    if @props.showTriangleBars
+      fs = h TriangleBars, {
+        scale
+        zoom
+        id
+        offsetLeft: -40
+        lineWidth: 30
+        divisions
+      }
+
     transform = "translate(#{@props.padding.left} #{@props.padding.top})"
 
     minWidth = outerWidth
@@ -148,6 +159,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
                 id
               }
               fs
+              triangleBars
               h SectionAxis, {scale, ticks: nticks}
             ]
           ]

@@ -81,11 +81,14 @@ class SettingsPanel extends Component
     return [
       h 'h5', "Components"
       @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
-      @createSwitch 'showFloodingSurfaces', "Sequence boundaries"
       @createSwitch 'showFacies', "Facies"
       @createSwitch 'showSymbols', 'Symbols'
       @createSwitch 'showNotes', "Notes"
       @createPicker 'displayModes', 'activeDisplayMode'
+      h 'hr'
+      h 'h5', 'Sequence stratigraphy'
+      @createSwitch 'showFloodingSurfaces', "Flooding surfaces"
+      @createSwitch 'showTriangleBars', "Triangle bars"
       h 'hr'
       @createSwitch 'inEditMode', "Allow editing"
       @createSwitch 'serializedQueries', "Serialized queries"

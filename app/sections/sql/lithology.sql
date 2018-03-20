@@ -18,6 +18,8 @@ SELECT
   )::float top,
   t.tree,
   l.grainsize,
+  l.surface_type_1,
+  l.surface_type_2,
   coalesce(
     coalesce(l.fill_pattern, v.pattern),
     l.lithology

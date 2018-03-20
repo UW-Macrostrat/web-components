@@ -45,6 +45,7 @@ class SectionPage extends Component
         showSymbols: true
         showFacies: true
         showFloodingSurfaces: false
+        showTriangleBars: false
         # Allows us to test the serialized query mode
         # we are developing for the web
         serializedQueries: global.SERIALIZED_QUERIES

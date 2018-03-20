@@ -14,6 +14,7 @@ class BaseSectionComponent extends Component
     offset: 0
     offsetTop: null
     useRelativePositioning: true
+    showTriangleBars: false
   }
   constructor: (props)->
     super props

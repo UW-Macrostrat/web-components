@@ -19,6 +19,11 @@ sql = (id)-> storedProcedure(id, {baseDir})
 
 floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
 
+surfaceTypes = [
+  {value: 'mfs', label: 'Maximum flooding surface'}
+  {value: 'sb', label: 'Sequence boundary'}
+]
+
 class ModalEditor extends Component
   @defaultProps: {onUpdate: ->}
   constructor: (props)->
@@ -68,6 +73,28 @@ class ModalEditor extends Component
             activeState: interval.grainsize
             onUpdate: (grainsize)=>
               @update {grainsize}
+          }
+        ]
+        h 'label.pt-label', [
+          'Surface type (parasequence)'
+          h PickerControl, {
+            vertical: false,
+            isNullable: true,
+            states: surfaceTypes
+            activeState: interval.surface_type_1
+            onUpdate: (surface_type_1)=>
+              @update {surface_type_1}
+          }
+        ]
+         h 'label.pt-label', [
+          'Surface type (parasequence set)'
+          h PickerControl, {
+            vertical: false,
+            isNullable: true,
+            states: surfaceTypes
+            activeState: interval.surface_type_2
+            onUpdate: (surface_type_2)=>
+              @update {surface_type_2}
           }
         ]
         h 'label.pt-label', [

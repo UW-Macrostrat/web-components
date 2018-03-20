@@ -65,6 +65,7 @@ class SummarySections extends Component
         activeMode: 'normal'
         showFacies: true
         showFloodingSurfaces: false
+        showTriangleBars: false
         showLithostratigraphy: true
         showSequenceStratigraphy: true
         showLegend: true
@@ -87,6 +88,7 @@ class SummarySections extends Component
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
      showSequenceStratigraphy,
+     showTriangleBars,
      showCarbonIsotopes,
      showOxygenIsotopes,
      trackVisibility,
@@ -110,6 +112,7 @@ class SummarySections extends Component
         zoom: 0.1, key: row.id,
         skeletal,
         showFloodingSurfaces
+        showTriangleBars,
         showCarbonIsotopes,
         trackVisibility
         showFacies
