@@ -38,14 +38,16 @@ class FloodingSurface extends Component
 
 class TriangleBars extends FloodingSurface
   render: ->
-    h 'g.triangle-bars', {}, @renderSurfaces(1)
+    h 'g.triangle-bars', {}, [
+      h 'g.level-1', {}, @renderSurfaces(1)
+      h 'g.level-2', {}, @renderSurfaces(2)
+    ]
 
   renderSurfaces: (order)=>
     {scale, zoom, offsetLeft, lineWidth, divisions} = @props
     return null unless divisions.length
     w = lineWidth/2
-    bottom = null
-    middle = null
+    ol = offsetLeft+lineWidth*2+5
     __ = []
 
     column = "surface_type_#{order}"
@@ -53,9 +55,9 @@ class TriangleBars extends FloodingSurface
     for d,i in divisions
       continue unless d[column]?
       height = scale(d.bottom)
-      if d.surface_type_1 == 'mfs'
+      if d[column] == 'mfs'
         __.push ['mfs', height]
-      if d.surface_type_1 == 'sb'
+      if d[column] == 'sb'
         if __.length == 0
           __.push ['sb', height]
           continue
@@ -89,7 +91,7 @@ class TriangleBars extends FloodingSurface
       else if top[0] == 'sb'
         sequenceBoundary = top
 
-    h "path", {d: _.toString(), transform: "translate(#{offsetLeft/2})"}
+    h "path", {d: _.toString(), transform: "translate(#{-lineWidth*order+ol})"}
 
     #x = offsetLeft
     #transform = "translate(#{x})"

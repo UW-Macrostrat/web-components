@@ -224,7 +224,8 @@ class SectionComponent extends BaseSectionComponent
     {innerHeight, outerHeight, innerWidth, outerWidth, padding} = @getGeometry()
     #@yAxis.scale(@props.scale)
     {showSymbols, isEditable, showFacies} = @props
-    transform = "translate(#{@props.padding.left} #{@props.padding.top})"
+    left = @props.padding.left
+    transform = "translate(#{left} #{@props.padding.top})"
 
     showGeneralizedSections =  @props.activeDisplayMode == 'generalized'
 
@@ -281,7 +282,7 @@ class SectionComponent extends BaseSectionComponent
         __.push h FloodingSurface, {divisions, scale, zoom, id}
 
       if @props.showTriangleBars
-        __.push h TriangleBars, {divisions, scale, zoom, id}
+        __.push h TriangleBars, {divisions, scale, zoom, id, offsetLeft: -85, lineWidth: 25}
 
       if @props.showSymbols
         __.push h SymbolColumn, {scale, id, left: 215}

@@ -49,6 +49,9 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
     {left, top, right, bottom} = padding
 
+    if @props.showTriangleBars
+      left += 60
+
     scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
 
     @state.scale.range [innerHeight, 0]
@@ -94,12 +97,12 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         scale
         zoom
         id
-        offsetLeft: -40
-        lineWidth: 30
+        offsetLeft: -80
+        lineWidth: 20
         divisions
       }
 
-    transform = "translate(#{@props.padding.left} #{@props.padding.top})"
+    transform = "translate(#{left} #{@props.padding.top})"
 
     minWidth = outerWidth
     h "div.section-container", {

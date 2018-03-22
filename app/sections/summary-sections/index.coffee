@@ -159,7 +159,7 @@ class SummarySections extends Component
     if showLegend
       __sections.push h Legend
 
-    paddingLeft = 30
+    paddingLeft = if showTriangleBars then 90 else 30
     marginTop = 50
     overflow = if scrollable then "scroll" else 'inherit'
     {canvas} = @state.dimensions
