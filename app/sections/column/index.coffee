@@ -282,7 +282,7 @@ class SectionComponent extends BaseSectionComponent
         __.push h FloodingSurface, {divisions, scale, zoom, id}
 
       if @props.showTriangleBars
-        __.push h TriangleBars, {divisions, scale, zoom, id, offsetLeft: -85, lineWidth: 25}
+        __.push h TriangleBars, {divisions, scale, zoom, id, offsetLeft: -85, lineWidth: 25, parasequence: true}
 
       if @props.showSymbols
         __.push h SymbolColumn, {scale, id, left: 215}

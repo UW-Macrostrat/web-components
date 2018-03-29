@@ -37,10 +37,16 @@ class FloodingSurface extends Component
         }
 
 class TriangleBars extends FloodingSurface
+  @defaultProps: {
+    FloodingSurface.defaultProps...
+    parasequence: false
+    parasequenceSet: true
+  }
   render: ->
+    {parasequence, parasequenceSet} = @props
     h 'g.triangle-bars', {}, [
-      h 'g.level-1', {}, @renderSurfaces(1)
-      h 'g.level-2', {}, @renderSurfaces(2)
+      if parasequence then h 'g.level-1', {}, @renderSurfaces(1)
+      if parasequenceSet then h 'g.level-2', {}, @renderSurfaces(2)
     ]
 
   renderSurfaces: (order)=>
