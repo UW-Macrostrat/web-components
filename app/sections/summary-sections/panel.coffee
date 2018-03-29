@@ -2,10 +2,8 @@
 {Component} = require 'react'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
-{SectionComponent} = require './column'
-{Dragdealer} = require 'dragdealer'
-require './main.styl'
-require 'dragdealer/src/dragdealer.css'
+{SectionComponent} = require '../column'
+require '../main.styl'
 d3 = require 'd3'
 {debounce} = require 'underscore'
 Measure = require('react-measure').default
