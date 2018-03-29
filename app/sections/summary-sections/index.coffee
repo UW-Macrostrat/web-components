@@ -21,7 +21,7 @@ PropTypes = require 'prop-types'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {Legend} = require './legend'
 
-sectionOffsets = {
+tectonicSectionOffsets = {
   A: 0
   B: 105
   C: 270
@@ -34,13 +34,29 @@ sectionOffsets = {
   J: -5
 }
 
+# A more stratigraphically focused set of section offsets
+# (shows progradation downdip)
+sectionOffsets = {
+  A: -180
+  B: -20
+  C: 90
+  D: 230
+  E: 80
+  F: 240
+  G: 0
+  H: 355
+  I: 60
+  J: -5
+}
+
+
 groupOrder = [
-  'Tsams'
-  'Ubisis'
   'Onis'
+  'Ubisis'
+  'Tsams'
 ]
 
-stackGroups = ['AC','BED','GF','HI']
+stackGroups = ['BED','AC','HI','GF']
 
 class SummarySections extends Component
   @defaultProps: {
@@ -151,7 +167,7 @@ class SummarySections extends Component
           rest...
         }
 
-      __sections.push h LocationGroup, {
+      __sections.unshift h LocationGroup, {
         name: 'Chemostratigraphy'
         className: 'chemostratigraphy'
       }, __

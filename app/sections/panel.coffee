@@ -30,9 +30,9 @@ class SectionPanel extends Component
     zoom: 1
     showNotes: true
     groupOrder: [
-      'Tsams'
       'Onis'
       'Ubisis'
+      'Tsams'
     ]
     stackGroups: ['AC','BD','FG','HI']
     sections: []
