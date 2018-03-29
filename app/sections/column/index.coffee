@@ -248,16 +248,10 @@ class SectionComponent extends BaseSectionComponent
           divisions
           width: lithologyWidth
           onEditInterval: @onEditInterval
-          showCoveredOverlay: not showFacies
+          showCoveredOverlay: true
           height, showFacies, scale, id
         }
     ]
-
-    if showFacies
-      __.push h CoveredColumn, {
-        divisions,
-        scale, id, height, width: 6
-      }
 
     if zoom > 0.4
       __.push h GrainsizeScale, {
