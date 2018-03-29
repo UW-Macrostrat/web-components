@@ -12,13 +12,14 @@ LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
 {IsotopesComponent} = require './carbon-isotopes'
 Measure = require('react-measure').default
-{SectionPanel, LocationGroup} = require './panel'
+{SectionPanel, LocationGroup, SectionColumn} = require './panel'
 {SVGSectionComponent} = require './column'
 {SectionNavigationControl} = require '../util'
 {SectionLinkOverlay} = require './link-overlay'
 PropTypes = require 'prop-types'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {Legend} = require './legend'
+d3 = require 'd3'
 
 tectonicSectionOffsets = {
   A: 0
@@ -56,6 +57,37 @@ groupOrder = [
 ]
 
 stackGroups = ['BED','AC','HI','GF']
+
+groupSections = (sections)=>
+  stackGroup = (d)=>
+    for g in stackGroups
+      if g.indexOf(d.key) != -1
+        return g
+    return d.id
+
+  indexOf = (arr)->(d)->
+    arr.indexOf(d)
+
+  __ix = indexOf(stackGroups)
+
+  sectionGroups = d3.nest()
+    .key (d)->d.props.location or ""
+    .key stackGroup
+    .sortKeys (a,b)->__ix(a)-__ix(b)
+    .entries sections
+
+  g = sectionGroups.find (d)->d.key == ""
+  extraItems = if g? then g.values[0].values else []
+  sectionGroups = sectionGroups.filter (d)->d.key != ""
+
+  __ix = indexOf(groupOrder)
+  sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
+
+  sectionGroups.map ({key,values})=>
+    h LocationGroup, {key, name: key},
+      values.map ({key,values})=>
+        values.sort (a, b)-> b.offset-a.offset
+        h SectionColumn, values
 
 class SummarySections extends Component
   @defaultProps: {
@@ -168,6 +200,8 @@ class SummarySections extends Component
           rest...
         }
 
+      __sections = groupSections(__sections)
+
       __sections.unshift h LocationGroup, {
         name: 'Chemostratigraphy'
         className: 'chemostratigraphy'
@@ -182,10 +216,8 @@ class SummarySections extends Component
     {canvas} = @state.dimensions
     h 'div#section-pane', {style: {overflow}}, [
       h SectionPanel, {
-        zoom: 0.1,
+        zoom: 1,
         onResize: @onCanvasResize
-        stackGroups
-        groupOrder
         rest...}, __sections
       h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
                              marginTop,
