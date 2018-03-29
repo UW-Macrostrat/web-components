@@ -50,6 +50,7 @@
     "node-cjsx": "^2.0.0",
     "pdf-printer": "file:../deps/pdf-printer",
     "stylus": "^0.54.5",
+    "textures": "^1.2.0",
     "tilelive-mapnik": "^0.6.18"
   }
 }

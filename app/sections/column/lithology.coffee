@@ -1,9 +1,11 @@
 {select} = require 'd3-selection'
 {Component, createElement} = require 'react'
+{findDOMNode} = require 'react-dom'
 h = require 'react-hyperscript'
 {join} = require 'path'
 {v4} = require 'uuid'
 classNames = require 'classnames'
+textures = require 'textures'
 {createGrainsizeScale} = require './grainsize'
 {path} = require 'd3-path'
 d3 = require 'd3'
@@ -61,6 +63,16 @@ class LithologyColumn extends Component
       frameID: "#frame-#{UUID}"
       clipID: "#clip-#{UUID}"
     }
+    @coveredPattern = textures
+      .lines()
+      .size(8)
+      .stroke('rgba(0,0,0,0.3)')
+
+  componentDidMount: ->
+    {UUID} = @state
+    d3.select findDOMNode @
+      .call @coveredPattern
+
   resolveID: (d)->
     if not (d.fgdc_pattern? or d.pattern?)
       return null
@@ -152,7 +164,7 @@ class LithologyColumn extends Component
     return unless showCoveredOverlay
     h 'g.covered-overlay', {}, divisions.map (d)=>
       return null if not d.covered
-      @createRect d, {className: 'covered-area'}
+      @createRect d, {fill: @coveredPattern.url()}
 
   renderLithology: =>
     return unless @props.showLithology
@@ -246,8 +258,6 @@ class GeneralizedSectionColumn extends LithologyColumn
     {width, grainsizeScaleStart} = props
     grainsizeScaleStart ?= width/4
     @grainsizeScale = createGrainsizeScale([grainsizeScaleStart, width])
-  renderCoveredOverlay: ->
-    return null
   resolveID: (d)->
     p = symbolIndex[d.fill_pattern]
     return p if p?

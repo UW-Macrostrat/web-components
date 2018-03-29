@@ -120,18 +120,12 @@ class BaseSVGSectionComponent extends BaseSectionComponent
             style, ref: measureRef
           }, [
             h 'g.backdrop', {transform}, [
-              h CoveredColumn, {
-                height: innerHeight
-                divisions
-                scale
-                id
-                width: 6
-              }
               h GeneralizedSectionColumn, {
                 width: innerWidth
                 height: innerHeight
                 divisions
                 showFacies
+                showCoveredOverlay: true
                 scale
                 id
                 grainsizeScaleStart: 40
