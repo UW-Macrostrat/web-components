@@ -13,7 +13,6 @@ LocalStorage = require '../storage'
 {IsotopesComponent} = require './carbon-isotopes'
 Measure = require('react-measure').default
 {SectionPanel, LocationGroup} = require '../panel'
-{BaseSectionPage} = require '../section-page'
 {SVGSectionComponent} = require './column'
 {SectionNavigationControl} = require '../util'
 {SectionLinkOverlay} = require './link-overlay'
@@ -112,6 +111,8 @@ class SummarySections extends Component
      showLegend,
      showLithostratigraphy,
      activeMode} = options
+
+    return null unless sections.length > 0
 
     skeletal = activeMode == 'skeleton'
 
