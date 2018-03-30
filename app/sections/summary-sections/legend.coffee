@@ -7,6 +7,7 @@ class FaciesLegend extends FaciesDescriptionSmall
   @defaultProps: {
     facies: []
     onChanged: ->
+    isEditable: true
   }
   render: ->
     h 'div.facies-description', [

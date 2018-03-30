@@ -19,6 +19,7 @@ Measure = require('react-measure').default
 PropTypes = require 'prop-types'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {Legend} = require './legend'
+{LithostratKey} = require './lithostrat-key'
 d3 = require 'd3'
 
 tectonicSectionOffsets = {
@@ -38,7 +39,7 @@ tectonicSectionOffsets = {
 # (shows progradation downdip)
 sectionOffsets = {
   A: -180
-  B: -20
+  B: -55
   C: 90
   D: 230
   E: 80
@@ -170,10 +171,11 @@ class SummarySections extends Component
         rest...
       }
 
+    row = sections.find (d)->d.id == 'J'
+    {offset, location, rest...} = row
+    location = null
+
     if showCarbonIsotopes or showOxygenIsotopes
-      row = sections.find (d)->d.id == 'J'
-      {offset, location, rest...} = row
-      location = null
       __ = []
       if showCarbonIsotopes
         __.push h IsotopesComponent, {
@@ -201,6 +203,14 @@ class SummarySections extends Component
         }
 
       __sections = groupSections(__sections)
+
+
+      __sections.unshift h LithostratKey, {
+        zoom: 0.1
+        onResize: sectionResize('lithostrat-key')
+        offset
+        rest...
+      }
 
       __sections.unshift h LocationGroup, {
         name: 'Chemostratigraphy'

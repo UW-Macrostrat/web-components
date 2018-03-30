@@ -16,10 +16,14 @@ classNames = require 'classnames'
 {Popover} = require '@blueprintjs/core'
 {readFileSync} = require 'fs'
 {dirname} = require 'path'
+{PlatformContext} = require '../platform'
 
 FaciesContext = createContext {facies:[],onChanged: ->}
 
 class FaciesDescriptionPage extends Component
+  defaultProps: {
+    isEditable: false
+  }
   constructor: (props)->
     super props
     @state = {
@@ -43,22 +47,7 @@ class FaciesDescriptionPage extends Component
    ]
 
 class FaciesDescriptionSmall extends Component
-  @defaultProps: {selected: null}
-  constructor: (props)->
-    super props
-    @state = {
-      options: {
-        isEditable: false
-      }
-      facies: []
-    }
-
-    @optionsStorage = new LocalStorage 'facies-descriptions'
-    v = @optionsStorage.get()
-    return unless v?
-    @state = update @state, options: {$merge: v}
-
-
+  @defaultProps: {selected: null, isEditable: false}
   render: ->
     h FaciesContext.Consumer, {}, ({facies, onChanged})=>
       h 'div.facies-description-small', [
@@ -86,7 +75,7 @@ class FaciesDescriptionSmall extends Component
       width: '2em'
       height: '2em'
     }}
-    if @state.options.isEditable
+    if @props.isEditable
       swatch = h Popover, {
         tetherOptions:{
           constraints: [{ attachment: "together", to: "scrollParent" }]

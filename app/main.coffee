@@ -13,6 +13,7 @@ FocusStyleManager.onlyShowFocusOnTabs()
 MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
+{PlatformContext} = require './platform'
 Map = require './map-viewer'
 require '@blueprintjs/core/lib/css/blueprint.css'
 
@@ -43,17 +44,18 @@ class App extends React.Component
     @state = {}
     @state.showNavBar = true
   render: ->
-    h 'div#root', [
-      h Switch, [
-        route '/', Home, exact: true
-        route '/sections', SectionIndex
-        route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
-        route '/lateral-variation', wrapNavBar(LateralVariation)
-        route '/map', wrapHomeButton(Map)
-        route '/map-legend', wrapNavBar(MapLegend)
+    h PlatformContext.Provider, {}, [
+      h 'div#root', [
+        h Switch, [
+          route '/', Home, exact: true
+          route '/sections', SectionIndex
+          route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
+          route '/lateral-variation', wrapNavBar(LateralVariation)
+          route '/map', wrapHomeButton(Map)
+          route '/map-legend', wrapNavBar(MapLegend)
+        ]
       ]
     ]
-
   _toggleNavBar: =>
     @setState showNavBar: not @state.showNavBar
 
