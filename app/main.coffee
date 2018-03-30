@@ -71,14 +71,16 @@ navLink = -> h NavLink, arguments...
 
 Home = ->
   h 'div#homepage', [
-    h 'h1', 'Naukluft Nappe Complex'
-    h 'p', 'Data products of research in the Southern Naukluft mountains, for presentation on the web alongside journal publication'
-    h 'ul', className: 'navigation', [
-      navLink to: '/sections', "Sections"
-      navLink to: '/carbon-isotopes', "Carbon Isotopes"
-      navLink to: '/lateral-variation', "Lateral Variation"
-      navLink to: '/map', "Map"
-      navLink to: '/map-legend', "Map legend"
+    h 'div#homepage-inner', [
+      h 'h1', 'Naukluft Nappe Complex'
+      h 'p', 'Data products of research in the Southern Naukluft mountains, for presentation on the web alongside journal publication'
+      h 'ul', className: 'navigation', [
+        navLink to: '/sections', "Sections"
+        navLink to: '/carbon-isotopes', "Carbon Isotopes"
+        navLink to: '/lateral-variation', "Lateral Variation"
+        navLink to: '/map', "Map"
+        navLink to: '/map-legend', "Map legend"
+      ]
     ]
   ]
 

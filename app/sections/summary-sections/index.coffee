@@ -155,10 +155,18 @@ class SummarySections extends Component
       @mutateState {sectionPositions: cset}
 
     __sections = sections.map (row)=>
-      {offset, rest...} = row
+      console.log row
+      {offset, range, height, start, end, rest...} = row
       offset = sectionOffsets[row.id] or offset
 
-      h SVGSectionComponent, {
+      # Clip off the top of some columns...
+      end = row.clip_end
+
+      height = end-start
+      range = [start, end]
+
+
+      sec = h SVGSectionComponent, {
         zoom: 0.1, key: row.id,
         skeletal,
         showFloodingSurfaces
@@ -168,13 +176,19 @@ class SummarySections extends Component
         showFacies
         onResize: sectionResize(row.id)
         offset
+        range
+        height
+        start
+        end
         rest...
       }
+      return sec
 
     row = sections.find (d)->d.id == 'J'
     {offset, location, rest...} = row
     location = null
 
+    chemostrat = null
     if showCarbonIsotopes or showOxygenIsotopes
       __ = []
       if showCarbonIsotopes
@@ -202,23 +216,16 @@ class SummarySections extends Component
           rest...
         }
 
-      __sections = groupSections(__sections)
-
-
-      __sections.unshift h LithostratKey, {
-        zoom: 0.1
-        onResize: sectionResize('lithostrat-key')
-        offset
-        rest...
-      }
-
-      __sections.unshift h LocationGroup, {
+      chemostrat = h LocationGroup, {
         name: 'Chemostratigraphy'
         className: 'chemostratigraphy'
       }, __
 
-    if showLegend
-      __sections.push h Legend
+
+    __sections = [chemostrat, groupSections(__sections)...]
+
+    #if showLegend
+    #  __sections.push h Legend
 
     paddingLeft = if showTriangleBars then 90 else 30
     marginTop = 50
@@ -263,6 +270,19 @@ class SummarySections extends Component
 
     @mutateState {sectionPositions: {"#{key}": {$set: contentRect}}}
 
+  componentDidUpdate: (prevProps, prevState)->
+    if prevState.dimensions != @state.dimensions
+      console.log "Dimensions changed!"
+
+      obj = {}
+      window.resizers.map (section)->
+        {measureRef,props} = section
+        if measureRef.measure?
+          contentRect = measureRef.measure()
+          obj["#{props.id}"] = {$set: contentRect}
+      console.log obj
+      @mutateState {sectionPositions: obj}
+
   mutateState: (spec)=>
     state = update(@state, spec)
     @setState state
@@ -282,6 +302,11 @@ class SummarySections extends Component
 
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
+
+window.resizeEverything = ->
+  window.resizers.map ({measure,onResize})->
+      if measure.measure?
+        measure.measure()
 
 module.exports = {SummarySections}
 

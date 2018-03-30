@@ -1,7 +1,7 @@
 {findDOMNode} = require 'react-dom'
 d3 = require 'd3'
 require 'd3-selection-multi'
-{Component, createElement} = require 'react'
+{Component, createElement, createRef} = require 'react'
 h = require 'react-hyperscript'
 Measure = require('react-measure').default
 {SectionAxis} = require '../column/axis'
@@ -13,6 +13,8 @@ Measure = require('react-measure').default
 {Notification} = require '../../notify'
 
 fmt = d3.format('.1f')
+
+window.resizers = []
 
 class BaseSVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
@@ -33,6 +35,8 @@ class BaseSVGSectionComponent extends BaseSectionComponent
   }
   constructor: (props)->
     super props
+    @measureRef = createRef()
+
     @state = {
       @state...
       visible: not @props.trackVisibility
@@ -49,8 +53,9 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
     {left, top, right, bottom} = padding
 
+    tbo = 80
     if @props.showTriangleBars
-      left += 60
+      left += tbo
 
     scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
 
@@ -62,6 +67,9 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     [bottom,top] = @props.range
+
+    if clip_end != @props.end
+      debugger
 
     txt = id
 
@@ -93,11 +101,11 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
     triangleBars = null
     if @props.showTriangleBars
-      fs = h TriangleBars, {
+      triangleBars = h TriangleBars, {
         scale
         zoom
         id
-        offsetLeft: -80
+        offsetLeft: -tbo+20
         lineWidth: 20
         divisions
       }
@@ -109,9 +117,13 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       className: if @props.skeletal then "skeleton" else null
       style: {minWidth}
     }, [
-      h 'div.section-header', [h("h2", {style: {height: '1.2rem'}}, txt)]
+      h 'div.section-header', {
+          style: {marginLeft: -marginLeft}
+        }, [
+        h("h2", {style: {height: '1.2rem'}}, txt)]
       h 'div.section-outer', [
         h Measure, {
+          ref: @measureRef
           bounds: true,
           client: true,
           onResize: @onResize
@@ -162,6 +174,9 @@ class BaseSVGSectionComponent extends BaseSectionComponent
           ]
       ]
     ]
+
+  componentDidMount: =>
+    window.resizers.push @
 
 SVGSectionComponent = withRouter(BaseSVGSectionComponent)
 

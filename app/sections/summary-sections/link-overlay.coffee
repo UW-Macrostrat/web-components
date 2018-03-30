@@ -33,7 +33,6 @@ class SectionLinkOverlay extends Component
     {sectionPositions, paddingLeft, marginTop,
      showLithostratigraphy, showSequenceStratigraphy} = @props
     {section_height, unit_commonality, type, flooding_surface_order, note} = surface
-    console.log surface
 
     values = [section_height...]
     #if showCarbonIsotopes
@@ -69,7 +68,7 @@ class SectionLinkOverlay extends Component
         continue
       yOffs = scale(height)
       y = bounds.top+padding.top+yOffs-marginTop
-      heights.push {x0: bounds.left-paddingLeft, x1: bounds.left+100, y, inferred}
+      heights.push {x0: bounds.left, x1: bounds.left+bounds.width, y, inferred}
 
     heights.sort (a,b)-> a.x0 - b.x0
 
@@ -96,6 +95,7 @@ class SectionLinkOverlay extends Component
   render: ->
     {skeletal, sectionPositions, marginTop, showLithostratigraphy} = @props
     {surfaces} = @state
+    console.log "Rendering overlay", sectionPositions
 
     className = classNames {skeletal}
 
