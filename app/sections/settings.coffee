@@ -1,6 +1,6 @@
 {Component} = require 'react'
 h = require 'react-hyperscript'
-CSSTransition = require 'react-transition-group/CSSTransitionGroup'
+{CSSTransition} = require 'react-transition-group'
 {Switch} = require '@blueprintjs/core'
 {format} = require 'd3'
 {FaciesDescriptionSmall} = require './facies-descriptions'
@@ -47,22 +47,17 @@ fmt = format('.2f')
 
 class SettingsPanel extends Component
   render: ->
-    body = []
-    if @props.settingsPanelIsActive
-      body = [
-        h 'div#settings', {key: 'settings'}, [
-          h 'h2', 'Settings'
-          h 'hr'
-          @renderControls()
-        ]
+    return null unless @props.settingsPanelIsActive
+    h CSSTransition, {
+      classNames: "settings"
+      timeout: {exit: 1000, enter: 1000}
+    }, [
+      h 'div#settings', {key: 'settings'}, [
+        h 'h2', 'Settings'
+        h 'hr'
+        @renderControls()
       ]
-
-    props = {
-      transitionName: "settings"
-      transitionEnterTimeout: 1000
-      transitionLeaveTimeout: 1000
-    }
-    h CSSTransition, props, body
+    ]
 
   viewParams: =>
     h 'div#view-params', [
