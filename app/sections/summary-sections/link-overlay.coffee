@@ -68,7 +68,7 @@ class SectionLinkOverlay extends Component
         continue
       yOffs = scale(height)
       y = bounds.top+padding.top+yOffs-marginTop
-      heights.push {x0: bounds.left, x1: bounds.left+bounds.width, y, inferred}
+      heights.push {x0: bounds.left+40, x1: bounds.left+bounds.width, y, inferred}
 
     heights.sort (a,b)-> a.x0 - b.x0
 

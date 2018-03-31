@@ -57,7 +57,7 @@ groupOrder = [
   'Tsams'
 ]
 
-stackGroups = ['BED','AC','HI','GF']
+stackGroups = ['AC','BED','GF','HI']
 
 groupSections = (sections)=>
   stackGroup = (d)=>
