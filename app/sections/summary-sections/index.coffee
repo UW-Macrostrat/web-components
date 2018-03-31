@@ -22,42 +22,7 @@ PropTypes = require 'prop-types'
 {LithostratKey} = require './lithostrat-key'
 d3 = require 'd3'
 
-tectonicSectionOffsets = {
-  A: 0
-  B: 105
-  C: 270
-  D: 415
-  E: 255
-  F: 268
-  G: 0
-  H: 378
-  I: 50
-  J: -5
-}
-
-# A more stratigraphically focused set of section offsets
-# (shows progradation downdip)
-sectionOffsets = {
-  A: -180
-  B: -55
-  C: 90
-  D: 230
-  E: 80
-  F: 240
-  G: 0
-  H: 355
-  I: 60
-  J: -5
-}
-
-
-groupOrder = [
-  'Onis'
-  'Ubisis'
-  'Tsams'
-]
-
-stackGroups = ['AC','BED','GF','HI']
+{stackGroups, groupOrder, sectionOffsets} = require './display-parameters'
 
 groupSections = (sections)=>
   stackGroup = (d)=>
