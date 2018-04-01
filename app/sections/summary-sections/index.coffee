@@ -39,41 +39,6 @@ class LocationGroup extends Component
       h 'div.location-group-body', {}, children
     ]
 
-class SectionPanel extends Component
-  # Zoomable panel containing individual sections
-  @defaultProps:
-    activeMode: 'normal'
-    zoom: 1
-    showNotes: true
-    groupOrder: [
-      'Onis'
-      'Ubisis'
-      'Tsams'
-    ]
-    stackGroups: ['AC','BD','FG','HI']
-    sections: []
-    trackVisibility: true
-    onResize: ->
-  constructor: (props)->
-    super props
-
-  render: ->
-    console.log "Rendering section panel"
-
-
-    hc = "handle"
-    if @props.activeMode == 'skeleton'
-      hc += " skeletal"
-    if @props.zoom < 0.5
-      hc += " zoomed-out"
-    if @props.zoom < 0.1
-      hc += " zoomed-way-out"
-
-    {onResize, zoom} = @props
-    style = {zoom}
-    h Measure, {bounds: true, onResize}, ({measureRef})=>
-      h "div#section-page-inner", {className: hc, ref: measureRef, style}, @props.children
-
 groupSections = (sections)=>
   stackGroup = (d)=>
     for g in stackGroups
@@ -249,10 +214,11 @@ class SummarySections extends Component
     overflow = if scrollable then "scroll" else 'inherit'
     {canvas} = @state.dimensions
     h 'div#section-pane', {style: {overflow}}, [
-      h SectionPanel, {
-        zoom: 1,
-        onResize: @onCanvasResize
-        rest...}, __sections
+      h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
+        h "div#section-page-inner", {
+          ref: measureRef
+          style: {zoom: 1}
+        }, __sections
       h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
                              marginTop,
                              sectionPositions,
