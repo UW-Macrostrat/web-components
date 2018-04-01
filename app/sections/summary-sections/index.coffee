@@ -1,7 +1,5 @@
 {findDOMNode} = require 'react-dom'
 {Component} = require 'react'
-require '../main.styl'
-require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
 {NavLink} = require '../../nav'
@@ -12,7 +10,6 @@ LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
 {IsotopesComponent} = require './carbon-isotopes'
 Measure = require('react-measure').default
-{SectionPanel, LocationGroup, SectionColumn} = require './panel'
 {SVGSectionComponent} = require './column'
 {SectionNavigationControl} = require '../util'
 {SectionLinkOverlay} = require './link-overlay'
@@ -20,9 +17,62 @@ PropTypes = require 'prop-types'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {Legend} = require './legend'
 {LithostratKey} = require './lithostrat-key'
+{stackGroups, groupOrder, sectionOffsets} = require './display-parameters'
+{debounce} = require 'underscore'
+
 d3 = require 'd3'
 
-{stackGroups, groupOrder, sectionOffsets} = require './display-parameters'
+require '../main.styl'
+require './main.styl'
+
+
+class SectionColumn extends Component
+  render: ->
+    h 'div.section-column', {}, @props.children
+
+class LocationGroup extends Component
+  render: ->
+    {width, name, children, rest...} = @props
+    width ?= null
+    h 'div.location-group', {style: {width}, rest...}, [
+      h 'h1', {style: {height: '3em'}}, name
+      h 'div.location-group-body', {}, children
+    ]
+
+class SectionPanel extends Component
+  # Zoomable panel containing individual sections
+  @defaultProps:
+    activeMode: 'normal'
+    zoom: 1
+    showNotes: true
+    groupOrder: [
+      'Onis'
+      'Ubisis'
+      'Tsams'
+    ]
+    stackGroups: ['AC','BD','FG','HI']
+    sections: []
+    trackVisibility: true
+    onResize: ->
+  constructor: (props)->
+    super props
+
+  render: ->
+    console.log "Rendering section panel"
+
+
+    hc = "handle"
+    if @props.activeMode == 'skeleton'
+      hc += " skeletal"
+    if @props.zoom < 0.5
+      hc += " zoomed-out"
+    if @props.zoom < 0.1
+      hc += " zoomed-way-out"
+
+    {onResize, zoom} = @props
+    style = {zoom}
+    h Measure, {bounds: true, onResize}, ({measureRef})=>
+      h "div#section-page-inner", {className: hc, ref: measureRef, style}, @props.children
 
 groupSections = (sections)=>
   stackGroup = (d)=>
@@ -54,6 +104,8 @@ groupSections = (sections)=>
       values.map ({key,values})=>
         values.sort (a, b)-> b.offset-a.offset
         h SectionColumn, values
+
+#SectionOptions = createContext {
 
 class SummarySections extends Component
   @defaultProps: {
