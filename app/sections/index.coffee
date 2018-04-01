@@ -10,7 +10,7 @@ SectionPage = require './single-section'
 {SummarySections} = require './summary-sections'
 {SectionNavigationControl} = require './util'
 {FaciesDescriptionPage, FaciesContext} = require './facies-descriptions'
-{query} = require './db'
+{db, query, storedProcedure} = require './db'
 
 {nest} = require 'd3'
 
@@ -54,14 +54,14 @@ class SectionIndexPage extends Component
 
 
 class SectionIndex extends SectionDataContainer
-  render: ->
+  render: =>
     {match} = @props
     {sections, facies, surfaces} = @state
 
     if sections.length == 0
       return h 'div'
 
-    value = {facies, surfaces, onChanged: @loadFacies}
+    value = {facies, surfaces, onColorChanged: @changeFaciesColor}
     h FaciesContext.Provider, {value}, [
       h Switch, [
         h Route, {
@@ -102,5 +102,10 @@ class SectionIndex extends SectionDataContainer
         }
       ]
     ]
+
+  changeFaciesColor: (id,color)=>
+    sql = storedProcedure('set-facies-color', {baseDir: __dirname})
+    await db.none sql, {id,color}
+    @getFaciesData()
 
 module.exports = {SectionIndex, SectionDataContainer}

@@ -8,13 +8,12 @@ classNames = require 'classnames'
 {path} = require 'd3-path'
 
 symbolIndex = {
-  "Cross-beds": "sedlog-patterns/symbols/herringbone.svg"
-  "Gutter cast": "sedlog-patterns/symbols/scours.svg"
-  "Hummocky cross-stratified": "sedlog-patterns/symbols/hummocky.svg"
-  "Mudcracks": "sedlog-patterns/symbols/mudcracks.svg"
-  "Stromatolites": "sedlog-patterns/symbols/stromatolites.svg"
-  "Trough cross-stratified": "sedlog-patterns/symbols/troughs.svg"
-  "Wavy": "sedlog-patterns/symbols/wave-ripple.svg"
+  "Hummocky cross-stratified": "column-patterns/hcs.svg"
+  "Ooids": "column-patterns/ooids.svg"
+  "Dessication cracks": "column-patterns/dessication-cracks.svg"
+  "Digitate stromatolites": "column-patterns/digitate-stromatolites.svg"
+  "Domal stromatolites": "column-patterns/domal-stromatolites.svg"
+  "Trough cross-stratified": "column-patterns/tcs.svg"
 }
 
 resolveSymbol = (sym)->
@@ -35,7 +34,7 @@ __divisionSize = (d)->
 
 class SymbolColumn extends Component
   @defaultProps:
-    width: 30
+    width: 20
     height: 100
     visible: true
     left: 0

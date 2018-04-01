@@ -47,10 +47,13 @@ class SectionDataContainer extends Component
   getInitialData: ->
     getSectionData()
       .then (sections)=>@setState {sections}
-    query('facies', null, {baseDir: __dirname})
-      .then (facies)=>@setState {facies}
     query('section-surface', null, {baseDir: __dirname})
       .then (surfaces)=>@setState {surfaces}
+    @getFaciesData()
+
+  getFaciesData: =>
+    query('facies', null, {baseDir: __dirname})
+      .then (facies)=>@setState {facies}
 
   componentDidMount: ->
     @getInitialData()

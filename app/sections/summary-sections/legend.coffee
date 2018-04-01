@@ -13,7 +13,7 @@ class FaciesLegend extends FaciesDescriptionSmall
     h 'div.facies-description', [
       h 'h2', 'Facies'
       h 'div.section', [
-        h 'h4', 'Clastic'
+        h 'h4', 'Siliciclastic'
         @facies "coarse-clastics"
         @facies "shallow-fine-clastics"
         @facies "fine-clastics"
@@ -53,7 +53,14 @@ class FaciesLegend extends FaciesDescriptionSmall
 
 class Legend extends Component
   render: ->
-    h 'div.legend#summary-sections-legend', [
+    h 'div.legend#summary-sections-legend', {
+      style: {
+        position: 'absolute'
+        left: 800
+        top: 50
+      }
+    },
+    [
       h FaciesContext.Consumer, null, (props)=>
         h FaciesLegend, props
     ]

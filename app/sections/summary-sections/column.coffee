@@ -26,11 +26,11 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     showFacies: true
     showFloodingSurfaces: true
     onResize: ->
-    marginLeft: -25
+    marginLeft: -105
     padding:
       left: 30
       top: 10
-      right: 10
+      right: 30
       bottom: 10
   }
   constructor: (props)->
@@ -67,9 +67,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     [bottom,top] = @props.range
-
-    if clip_end != @props.end
-      debugger
 
     txt = id
 
@@ -117,9 +114,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       className: if @props.skeletal then "skeleton" else null
       style: {minWidth}
     }, [
-      h 'div.section-header', {
-          style: {marginLeft: -marginLeft}
-        }, [
+      h 'div.section-header', [
         h("h2", {style: {height: '1.2rem'}}, txt)]
       h 'div.section-outer', [
         h Measure, {

@@ -31,9 +31,13 @@ class SectionColumn extends Component
     h 'div.section-column', {}, @props.children
 
 class LocationGroup extends Component
+  @defaultProps: {
+    offsetTop: 0
+  }
   render: ->
     {width, name, children, rest...} = @props
     width ?= null
+
     h 'div.location-group', {style: {width}, rest...}, [
       h 'h1', {style: {height: '3em'}}, name
       h 'div.location-group-body', {}, children
@@ -71,6 +75,7 @@ groupSections = (sections)=>
         h SectionColumn, values
 
 #SectionOptions = createContext {
+
 
 class SummarySections extends Component
   @defaultProps: {
@@ -204,10 +209,13 @@ class SummarySections extends Component
       }, __
 
 
-    __sections = [chemostrat, groupSections(__sections)...]
+    __sections = [
+      chemostrat,
+      groupSections(__sections)...
+    ]
 
-    #if showLegend
-    #  __sections.push h Legend
+    if showLegend
+      __sections.push h Legend
 
     paddingLeft = if showTriangleBars then 90 else 30
     marginTop = 50

@@ -274,15 +274,25 @@ class GeneralizedSectionColumn extends LithologyColumn
     if divisions.length == 0
       return super.createFrame()
 
+    [bottomOfSection, topOfSection] = scale.domain()
+
     topOf = (d)->
-      scale(d.top)
+      {top} = d
+      if top > topOfSection
+        top = topOfSection
+      scale(top)
     bottomOf = (d)->
-      scale(d.bottom)
+      {bottom} = d
+      if bottom < bottomOfSection
+        bottom = bottomOfSection
+      scale(bottom)
 
     _ = path()
     _.moveTo(0,bottomOf(divisions[0]))
     currentGrainsize = 'm'
-    for div in divisions
+    for nextDiv in divisions
+      break if nextDiv.bottom > topOfSection
+      div = nextDiv
       if div.grainsize?
         currentGrainsize = div.grainsize
       x = @grainsizeScale(currentGrainsize)

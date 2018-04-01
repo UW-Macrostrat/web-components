@@ -18,7 +18,7 @@ classNames = require 'classnames'
 {dirname} = require 'path'
 {PlatformContext} = require '../platform'
 
-FaciesContext = createContext {facies:[],onChanged: ->}
+FaciesContext = createContext {facies:[],onColorChanged: ->}
 
 class FaciesDescriptionPage extends Component
   defaultProps: {
@@ -49,7 +49,7 @@ class FaciesDescriptionPage extends Component
 class FaciesDescriptionSmall extends Component
   @defaultProps: {selected: null, isEditable: false}
   render: ->
-    h FaciesContext.Consumer, {}, ({facies, onChanged})=>
+    h FaciesContext.Consumer, {}, ({facies, onColorChanged})=>
       h 'div.facies-description-small', [
         h 'h5', 'Facies'
         h 'div', facies.map (d)=>
@@ -66,7 +66,7 @@ class FaciesDescriptionSmall extends Component
 
           h 'div.facies.pt-card.pt-elevation-0', {
             key: d.id, onClick, style, className
-          }, @renderFacies(d, onChanged)
+          }, @renderFacies(d, onColorChanged)
       ]
 
   renderFacies: (d, callback)=>
@@ -85,7 +85,8 @@ class FaciesDescriptionSmall extends Component
         h 'div', [
           h SwatchesPicker, {
             color: d.color or 'black'
-            onChangeComplete: @onChangeColor(d.id, callback)
+            onChangeComplete: (color)->
+              callback(d.id, color.hex)
             styles: {
               width: 500
               height: 570
@@ -99,13 +100,6 @@ class FaciesDescriptionSmall extends Component
       swatch
       h 'p.name', {style: {marginLeft: 20, textAlign: 'right'}}, d.name
     ]
-
-  onChangeColor: (id, callback)=>(color)=>
-    sql = storedProcedure('set-facies-color', {baseDir: __dirname})
-    color = color.hex
-    await db.none sql, {id,color}
-    callback()
-
 
 module.exports = {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext}
 
