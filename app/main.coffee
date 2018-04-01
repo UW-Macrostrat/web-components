@@ -1,4 +1,4 @@
-require './set-platform'
+{PlatformContext} = require './platform'
 React = require 'react'
 ReactDOM = require 'react-dom'
 {HashRouter,Route,Link, Switch} = require 'react-router-dom'
@@ -13,7 +13,6 @@ FocusStyleManager.onlyShowFocusOnTabs()
 MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
-{PlatformContext} = require './platform'
 Map = require './map-viewer'
 require '@blueprintjs/core/lib/css/blueprint.css'
 
