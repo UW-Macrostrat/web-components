@@ -20,6 +20,39 @@ classNames = require 'classnames'
 
 FaciesContext = createContext {facies:[],onColorChanged: ->}
 
+class FaciesSwatch extends Component
+  @defaultProps: {
+    isEditable: true
+    facies: null
+  }
+  render: =>
+    {facies: d} = @props
+    basicSwatch = h 'div.color-swatch', {style: {
+      backgroundColor: d.color or 'black'
+      width: '2em'
+      height: '2em'
+    }}
+    return basicSwatch unless @props.isEditable
+    h Popover, {
+      tetherOptions:{
+        constraints: [{ attachment: "together", to: "scrollParent" }]
+      }
+    }, [
+      basicSwatch
+      h 'div', [
+        h FaciesContext.Consumer, {}, ({onColorChanged})=>
+          h SwatchesPicker, {
+            color: d.color or 'black'
+            onChangeComplete: (color)->
+              onColorChanged(d.id, color.hex)
+            styles: {
+              width: 500
+              height: 570
+            }
+          }
+      ]
+    ]
+
 class FaciesDescriptionPage extends Component
   defaultProps: {
     isEditable: false
@@ -99,8 +132,8 @@ class FaciesDescriptionSmall extends Component
   renderFacies: (d)=>
     h 'div.header', [
       h 'p.name', {style: {marginRight: 20, textAlign: 'left'}}, d.name
-      @renderFaciesSwatch(d)
+      h FaciesSwatch, {facies: d}
     ]
 
-module.exports = {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext}
+module.exports = {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext, FaciesSwatch}
 

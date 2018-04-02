@@ -1,9 +1,9 @@
 {Component} = require 'react'
 h = require 'react-hyperscript'
 classNames = require 'classnames'
-{FaciesDescriptionSmall, FaciesContext} = require '../facies-descriptions'
+{FaciesDescriptionSmall, FaciesContext, FaciesSwatch} = require '../facies-descriptions'
 
-class FaciesLegend extends FaciesDescriptionSmall
+class FaciesLegend extends Component
   @defaultProps: {
     facies: []
     onChanged: ->
@@ -52,7 +52,7 @@ class FaciesLegend extends FaciesDescriptionSmall
     }, [
       h 'div.header', [
         h 'p.name', title or d.name
-        @renderFaciesSwatch(d)
+        h FaciesSwatch, {facies: d}
       ]
     ]
 
