@@ -19,6 +19,7 @@ PropTypes = require 'prop-types'
 {LithostratKey} = require './lithostrat-key'
 {stackGroups, groupOrder, sectionOffsets} = require './display-parameters'
 {debounce} = require 'underscore'
+{query} = require '../../db'
 
 d3 = require 'd3'
 
@@ -86,6 +87,7 @@ class SummarySections extends Component
     super props
     @state =
       sections: []
+      surfaces: []
       dimensions: {
         canvas: {width: 100, height: 100}
       }
@@ -118,9 +120,14 @@ class SummarySections extends Component
     return unless v?
     @state = update @state, options: {$merge: v}
 
+    query 'lithostratigraphy-surface', null, {baseDir: __dirname}
+      .then (surfaces)=>
+        surfaces.reverse()
+        @setState {surfaces}
+
   renderSections: ->
     {sections, scrollable} = @props
-    {dimensions, options, sectionPositions} = @state
+    {dimensions, options, sectionPositions, surfaces} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
      showSequenceStratigraphy,
@@ -210,7 +217,21 @@ class SummarySections extends Component
       }, __
 
 
+    lithostratKey = h LithostratKey, {
+        zoom: 0.1, key: row.id,
+        skeletal,
+        showFloodingSurfaces
+        showTriangleBars,
+        showCarbonIsotopes,
+        trackVisibility
+        showFacies
+        onResize: sectionResize(row.id)
+        offset
+        rest...
+      }
+
     __sections = [
+      lithostratKey,
       chemostrat,
       groupSections(__sections)...
     ]
@@ -233,6 +254,7 @@ class SummarySections extends Component
                              showLithostratigraphy
                              showSequenceStratigraphy
                              showCarbonIsotopes
+                             surfaces
                              }
       h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
         h "div#section-page-inner", {

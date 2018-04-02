@@ -27,9 +27,6 @@ class FaciesLegend extends Component
         @facies "mixed-grainstone", 'Wavy-bedded heterolithic'
         @facies "intraclast-breccia", 'Intraclast breccia'
       ]
-      h 'div.section', [
-        h 'h4', 'Other'
-      ]
     ]
 
   facies: (id, title=null)->

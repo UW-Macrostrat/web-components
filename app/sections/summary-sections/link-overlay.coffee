@@ -1,4 +1,4 @@
-{Component} = require 'react'
+{Component, createContext} = require 'react'
 h = require 'react-hyperscript'
 classNames = require 'classnames'
 {query} = require '../../db'
@@ -16,18 +16,10 @@ class SectionLinkOverlay extends Component
   }
   constructor: (props)->
     super props
-    @state = {surfaces: []}
-
-    query 'lithostratigraphy-surface', null, {baseDir: __dirname}
-      .then @setupData
 
     @link = d3.linkHorizontal()
       .x (d)->d.x
       .y (d)->d.y
-
-  setupData: (surfaces)=>
-    surfaces.reverse()
-    @setState {surfaces}
 
   buildLink: (surface)=>
     {sectionPositions, paddingLeft, marginTop,
@@ -93,8 +85,7 @@ class SectionLinkOverlay extends Component
     h 'g', links
 
   render: ->
-    {skeletal, sectionPositions, marginTop, showLithostratigraphy} = @props
-    {surfaces} = @state
+    {skeletal, sectionPositions, marginTop, showLithostratigraphy, surfaces} = @props
     console.log "Rendering overlay", sectionPositions
 
     className = classNames {skeletal}
