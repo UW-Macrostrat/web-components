@@ -14,26 +14,21 @@ class FaciesLegend extends Component
       h 'h2', 'Facies'
       h 'div.section', [
         h 'h4', 'Siliciclastic'
-        @facies "coarse-clastics"
-        @facies "shallow-fine-clastics"
-        @facies "fine-clastics"
+        @facies "coarse-clastics", "Coarse sandstone and pebble conglomerate"
+        @facies "shallow-fine-clastics", "Inner shoreface sandstone–siltstone"
+        @facies "fine-clastics", "Outer shoreface sandstone–mudstone"
       ]
       h 'div.section', [
-        h 'h4', 'Carbonate grainstone'
-        @facies "intraclast-grainstone"
-        @facies "hcs-grainstone"
-        @facies "mixed-grainstone"
-        @facies "wavy-grainstone"
-      ]
-      h 'div.section', [
-        h 'h4', 'Carbonate mudstone'
-        @facies "shallow-carbonate"
+        h 'h4', 'Carbonate'
+        @facies "knobbly-stromatolites", "Stromatolites"
         @facies "carbonate-mudstone"
-        @facies "intraclast-breccia"
+        @facies "intraclast-grainstone"
+        @facies "hcs-grainstone", "Cross-stratified grainstone"
+        @facies "mixed-grainstone", 'Wavy-bedded heterolithic'
+        @facies "intraclast-breccia", 'Intraclast breccia'
       ]
       h 'div.section', [
         h 'h4', 'Other'
-        @facies "knobbly-stromatolites"
       ]
     ]
 
