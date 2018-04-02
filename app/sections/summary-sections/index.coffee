@@ -219,6 +219,7 @@ class SummarySections extends Component
 
     lithostratKey = h LithostratKey, {
         zoom: 0.1, key: row.id,
+        surfaces,
         skeletal,
         showFloodingSurfaces
         showTriangleBars,

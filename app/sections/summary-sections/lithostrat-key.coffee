@@ -15,30 +15,76 @@ Measure = require('react-measure').default
 {withRouter} = require 'react-router-dom'
 {Notification} = require '../../notify'
 {FaciesContext} = require '../facies-descriptions'
+{query} = require '../../db'
 
 fmt = d3.format('.1f')
 
-class LithostratigraphyColumn extends Component
+class LSLabel extends Component
+  @defaultProps: { width: 20, extend: false}
   render: ->
-    {divisions, scale} = @props
-    console.log divisions
-    h 'g.lithostratigraphy'
+    {y, name, width, extend} = @props
+    x2 = if extend then width else 0
+    h 'g.label', {transform: "translate(#{width},#{y})"}, [
+      h 'line', {x1: -width, x2, y1: 0, y2: 0, stroke: '#888', strokeWidth: 2}
+      h 'text', {transform: "rotate(-90) translate(5,-4)"}, name
+    ]
+
+class LithostratigraphyColumn extends Component
+  constructor: (props)->
+    super props
+    @state = {names: []}
+    query 'lithostratigraphy-names', null, {baseDir: __dirname}
+      .then (names)=>
+        @setState {names}
+
+  render: ->
+    {surfaces, scale} = @props
+    {names} = @state
+
+    surfaces = surfaces
+      .filter (d)->d.type == 'lithostrat'
+      .map (d)->
+        {section_height, rest...} = d
+        {height} = section_height.find (v)->v.section == 'J'
+        {height, rest...}
+
+    surfaces.sort (a,b)->a.height - b.height
+
+    __formations = []
+    __members = []
+    for d in surfaces
+      y = scale(d.height)
+      transform = "translate(0,#{y}) rotate(-90)"
+      surfaceData = names.find (v)->v.id == d.upper_unit
+      continue unless surfaceData?
+      if surfaceData.level == 3
+        __formations.push h LSLabel, {y, name: surfaceData.short_name, extend: true}
+        continue
+      if d.commonality == 2
+        __formations.push h LSLabel, {y, name: surfaceData.formation_short_name}
+
+      __members.push h LSLabel, {y, name: surfaceData.short_name}
+
+    h 'g.lithostratigraphy', [
+      h 'g.formations', {style: {fontSize: 20}}, __formations
+      h 'g.members', {transform: "translate(20)",style: {fontSize: 14, fontStyle: 'italic'}}, __members
+    ]
 
 class BaseSVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
     BaseSectionComponent.defaultProps...
     trackVisibility: false
-    innerWidth: 100
+    innerWidth: 40
     height: 100 # Section height in meters
     lithologyWidth: 40
     showFacies: true
     showFloodingSurfaces: true
     onResize: ->
-    marginLeft: -90
+    marginLeft: 0
     padding:
-      left: 30
+      left: 5
       top: 10
-      right: 10
+      right: 5
       bottom: 10
   }
   constructor: (props)->
@@ -55,15 +101,11 @@ class BaseSVGSectionComponent extends BaseSectionComponent
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
-     showFacies, height, clip_end} = @props
+     showFacies, height, clip_end, surfaces} = @props
 
     innerHeight = height*@props.pixelsPerMeter*@props.zoom
 
     {left, top, right, bottom} = padding
-
-    tbo = 80
-    if @props.showTriangleBars
-      left += tbo
 
     scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
 
@@ -79,7 +121,8 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     txt = id
 
     {scale,visible, divisions} = @state
-    divisions = divisions.filter (d)->not d.schematic
+
+    console.log surfaces
     zoom = @props.zoom
 
     {skeletal} = @props
@@ -103,8 +146,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       h 'div.section-outer', [
         h "svg.section", {style}, [
           h 'g.backdrop', {transform}, [
-            h SectionAxis, {scale, ticks: nticks}
-            h LithostratigraphyColumn, {scale, divisions}
+            h LithostratigraphyColumn, {scale, divisions, surfaces}
           ]
         ]
       ]

@@ -1,7 +1,6 @@
 {Component, createContext} = require 'react'
 h = require 'react-hyperscript'
 classNames = require 'classnames'
-{query} = require '../../db'
 d3 = require 'd3'
 {Notification} = require '../../notify'
 
