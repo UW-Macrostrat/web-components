@@ -37,8 +37,8 @@ class FaciesLegend extends FaciesDescriptionSmall
       ]
     ]
 
-  facies: (id)->
-    {selected, onColorChanged, facies} = @props
+  facies: (id, title=null)->
+    {selected, facies} = @props
     d = facies.find (d)->d.id == id
     return null if not d?
     style = {}
@@ -49,15 +49,20 @@ class FaciesLegend extends FaciesDescriptionSmall
 
     h 'div.facies', {
       key: d.id, style, className
-    }, @renderFacies(d, onColorChanged)
+    }, [
+      h 'div.header', [
+        h 'p.name', title or d.name
+        @renderFaciesSwatch(d)
+      ]
+    ]
 
 class Legend extends Component
   render: ->
     h 'div.legend#summary-sections-legend', {
       style: {
         position: 'absolute'
-        left: 800
-        top: 50
+        left: 500
+        top: 25
       }
     },
     [

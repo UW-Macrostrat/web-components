@@ -49,7 +49,7 @@ class FaciesDescriptionPage extends Component
 class FaciesDescriptionSmall extends Component
   @defaultProps: {selected: null, isEditable: false}
   render: ->
-    h FaciesContext.Consumer, {}, ({facies, onColorChanged})=>
+    h FaciesContext.Consumer, {}, ({facies})=>
       h 'div.facies-description-small', [
         h 'h5', 'Facies'
         h 'div', facies.map (d)=>
@@ -66,39 +66,40 @@ class FaciesDescriptionSmall extends Component
 
           h 'div.facies.pt-card.pt-elevation-0', {
             key: d.id, onClick, style, className
-          }, @renderFacies(d, onColorChanged)
+          }, @renderFacies(d)
       ]
 
-  renderFacies: (d, callback)=>
-    swatch = h 'div.color-swatch', {style: {
+  renderFaciesSwatch: (d)=>
+    basicSwatch = h 'div.color-swatch', {style: {
       backgroundColor: d.color or 'black'
       width: '2em'
       height: '2em'
     }}
-    if @props.isEditable
-      swatch = h Popover, {
-        tetherOptions:{
-          constraints: [{ attachment: "together", to: "scrollParent" }]
-        }
-      }, [
-        swatch
-        h 'div', [
+    return basicSwatch unless @props.isEditable
+    h Popover, {
+      tetherOptions:{
+        constraints: [{ attachment: "together", to: "scrollParent" }]
+      }
+    }, [
+      basicSwatch
+      h 'div', [
+        h FaciesContext.Consumer, {}, ({onColorChanged})=>
           h SwatchesPicker, {
             color: d.color or 'black'
             onChangeComplete: (color)->
-              callback(d.id, color.hex)
+              onColorChanged(d.id, color.hex)
             styles: {
               width: 500
               height: 570
             }
           }
-        ]
       ]
+    ]
 
-
+  renderFacies: (d)=>
     h 'div.header', [
-      swatch
-      h 'p.name', {style: {marginLeft: 20, textAlign: 'right'}}, d.name
+      h 'p.name', {style: {marginRight: 20, textAlign: 'left'}}, d.name
+      @renderFaciesSwatch(d)
     ]
 
 module.exports = {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext}
