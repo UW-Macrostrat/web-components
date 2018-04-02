@@ -26,11 +26,11 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     showFacies: true
     showFloodingSurfaces: true
     onResize: ->
-    marginLeft: -105
+    marginLeft: -90
     padding:
       left: 30
       top: 10
-      right: 30
+      right: 10
       bottom: 10
   }
   constructor: (props)->
@@ -115,7 +115,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       style: {minWidth}
     }, [
       h 'div.section-header', [
-        h("h2", {style: {height: '1.2rem'}}, txt)]
+        h("h2", txt)]
       h 'div.section-outer', [
         h Measure, {
           ref: @measureRef

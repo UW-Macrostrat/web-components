@@ -26,11 +26,29 @@ svg#section-link-overlay
 div.section-page#summary-sections
   .location-group
     margin 2em 10em
+    margin-top 3em
+    position relative
+    &#Ubisis
+      h1
+        top 560px
+    &#Tsams
+      h1
+        top 370px
+      margin-right 0
+    h1
+      position absolute
+      top -20px
+      left 0
+      font-size 2em
+      color #888
+
     &.chemostratigraphy
       margin 2em 2em 0 2em
   .legend
     margin 2em 4em
+    margin-top 0
     min-width 20em
+    background-color white
     h2
       font-size 1.5em
     &>div
@@ -42,7 +60,10 @@ div.section-page#summary-sections
   .section-column
     margin 0 1em
   .section-container h2
-    margin-bottom 0
+    position absolute
+    left: -5px
+    top: 8px
+    text-align right
   .section-header.subtle h2
     font-weight: 400
     font-size 1em

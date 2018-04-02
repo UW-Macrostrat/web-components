@@ -38,8 +38,8 @@ class LocationGroup extends Component
     {width, name, children, rest...} = @props
     width ?= null
 
-    h 'div.location-group', {style: {width}, rest...}, [
-      h 'h1', {style: {height: '3em'}}, name
+    h 'div.location-group', {id: name, style: {width}, rest...}, [
+      h 'h1', {}, name
       h 'div.location-group-body', {}, children
     ]
 
@@ -71,7 +71,8 @@ groupSections = (sections)=>
   sectionGroups.map ({key,values})=>
     h LocationGroup, {key, name: key},
       values.map ({key,values})=>
-        values.sort (a, b)-> b.offset-a.offset
+        values.sort (a, b)->
+          b.offset-a.offset
         h SectionColumn, values
 
 #SectionOptions = createContext {
@@ -204,7 +205,7 @@ class SummarySections extends Component
         }
 
       chemostrat = h LocationGroup, {
-        name: 'Chemostratigraphy'
+        name: null
         className: 'chemostratigraphy'
       }, __
 
@@ -214,6 +215,8 @@ class SummarySections extends Component
       groupSections(__sections)...
     ]
 
+    maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
+
     if showLegend
       __sections.push h Legend
 
@@ -221,12 +224,9 @@ class SummarySections extends Component
     marginTop = 50
     overflow = if scrollable then "scroll" else 'inherit'
     {canvas} = @state.dimensions
+    minHeight = 1500
+
     h 'div#section-pane', {style: {overflow}}, [
-      h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
-        h "div#section-page-inner", {
-          ref: measureRef
-          style: {zoom: 1}
-        }, __sections
       h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
                              marginTop,
                              sectionPositions,
@@ -234,6 +234,11 @@ class SummarySections extends Component
                              showSequenceStratigraphy
                              showCarbonIsotopes
                              }
+      h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
+        h "div#section-page-inner", {
+          ref: measureRef
+          style: {zoom: 1, minHeight}
+        }, __sections
     ]
 
   render: ->
@@ -281,6 +286,7 @@ class SummarySections extends Component
   onCanvasResize: ({bounds})=>
     {width, height} = bounds
     console.log "Canvas was resized", bounds
+    height = 1720 #! HACK!
     @mutateState {dimensions: {canvas: {
       width: {$set: width}
       height: {$set: height}
