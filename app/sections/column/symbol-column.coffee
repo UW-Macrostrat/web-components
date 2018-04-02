@@ -34,7 +34,7 @@ __divisionSize = (d)->
 
 class SymbolColumn extends Component
   @defaultProps:
-    width: 20
+    width: 30
     height: 100
     visible: true
     left: 0
@@ -100,7 +100,7 @@ class SymbolColumn extends Component
     className = classNames({symbol}, 'symbol')
 
     {width,scale} = @props
-    y = scale(height)-width/2+12
+    y = scale(height)-width/2
 
     href = "##{@UUID}-#{symbol}"
     h "use", {className,y, x: 0, width, href, key: id}

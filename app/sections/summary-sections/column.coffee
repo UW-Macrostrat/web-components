@@ -31,7 +31,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     padding:
       left: 30
       top: 10
-      right: 10
+      right: 20
       bottom: 10
   }
   constructor: (props)->

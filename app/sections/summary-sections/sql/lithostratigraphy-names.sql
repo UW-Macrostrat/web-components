@@ -30,4 +30,4 @@ FROM a
 JOIN a a1
   ON a.id = ANY(mapping.subunits(a1.id))
  AND a1.level = 3
-WHERE a.level > 3
+WHERE a.level = 4
