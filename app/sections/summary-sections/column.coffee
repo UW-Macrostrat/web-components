@@ -11,6 +11,7 @@ Measure = require('react-measure').default
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
 {withRouter} = require 'react-router-dom'
 {Notification} = require '../../notify'
+{FaciesContext} = require '../facies-descriptions'
 
 fmt = d3.format('.1f')
 
@@ -127,35 +128,37 @@ class BaseSVGSectionComponent extends BaseSectionComponent
             style, ref: measureRef
           }, [
             h 'g.backdrop', {transform}, [
-              h GeneralizedSectionColumn, {
-                width: innerWidth
-                height: innerHeight
-                divisions
-                showFacies
-                showCoveredOverlay: true
-                scale
-                id
-                grainsizeScaleStart: 40
-                onEditInterval: (d, opts)=>
-                  {history} = @props
-                  {height, event} = opts
-                  if not event.shiftKey
-                    console.log "Clicked Section #{id} @ #{height}"
-                    history.push("/sections/#{id}/height/#{height}")
-                    return
-                  Notification.show {
-                    message: h 'div', [
-                      h 'h4', "Section #{id} @ #{fmt(height)} m"
-                      h 'p', [
-                        'Interval ID: '
-                        h('code', d.id)
+              h FaciesContext.Consumer, {}, ({facies})->
+                h GeneralizedSectionColumn, {
+                  width: innerWidth
+                  height: innerHeight
+                  divisions
+                  showFacies
+                  showCoveredOverlay: true
+                  facies: facies
+                  scale
+                  id
+                  grainsizeScaleStart: 40
+                  onEditInterval: (d, opts)=>
+                    {history} = @props
+                    {height, event} = opts
+                    if not event.shiftKey
+                      console.log "Clicked Section #{id} @ #{height}"
+                      history.push("/sections/#{id}/height/#{height}")
+                      return
+                    Notification.show {
+                      message: h 'div', [
+                        h 'h4', "Section #{id} @ #{fmt(height)} m"
+                        h 'p', [
+                          'Interval ID: '
+                          h('code', d.id)
+                        ]
+                        h 'p', "#{d.bottom} - #{d.top} m"
+                        if d.surface then h('p', ["Surface: ", h('code',d.surface)]) else null
                       ]
-                      h 'p', "#{d.bottom} - #{d.top} m"
-                      if d.surface then h('p', ["Surface: ", h('code',d.surface)]) else null
-                    ]
-                    timeout: 2000
-                  }
-              }
+                      timeout: 2000
+                    }
+                }
               h SymbolColumn, {
                 scale
                 height: innerHeight

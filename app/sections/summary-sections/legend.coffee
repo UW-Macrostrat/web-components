@@ -38,7 +38,7 @@ class FaciesLegend extends FaciesDescriptionSmall
     ]
 
   facies: (id)->
-    {selected, onChanged, facies} = @props
+    {selected, onColorChanged, facies} = @props
     d = facies.find (d)->d.id == id
     return null if not d?
     style = {}
@@ -49,7 +49,7 @@ class FaciesLegend extends FaciesDescriptionSmall
 
     h 'div.facies', {
       key: d.id, style, className
-    }, @renderFacies(d, )
+    }, @renderFacies(d, onColorChanged)
 
 class Legend extends Component
   render: ->

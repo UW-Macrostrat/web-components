@@ -193,7 +193,13 @@ class LithologyColumn extends Component
 
   renderFacies: =>
     return unless @props.showFacies
-    {divisions} = @props
+    {divisions, facies} = @props
+    faciesColorMap = {}
+    if facies?
+      # We have responsive facies!
+      for f in facies
+        faciesColorMap[f.id] = f.color
+ 
     __ = [{divisions[0]...}]
     for d in divisions
       ix = __.length-1
@@ -205,7 +211,7 @@ class LithologyColumn extends Component
     return null if __.length == 1
     h 'g.facies', __.map (d)=>
       className = classNames('facies', d.id)
-      @createRect d, {className, fill: d.facies_color}
+      @createRect d, {className, fill: faciesColorMap[d.facies] or d.facies_color}
 
   renderEditableColumn: =>
     return unless @props.onEditInterval?
