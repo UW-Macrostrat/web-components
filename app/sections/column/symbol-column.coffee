@@ -38,6 +38,7 @@ class SymbolColumn extends Component
     height: 100
     visible: true
     left: 0
+    zoom: 1
   constructor: (props)->
     super props
     @UUID = v4()
@@ -55,18 +56,22 @@ class SymbolColumn extends Component
     @setState {symbols, patterns}
 
   render: ->
-    {scale, visible,left, width, height} = @props
+    {scale, visible,left, width, height, zoom} = @props
     {symbols, patterns} = @state
     transform = null
     if left?
       transform = "translate(#{left})"
+
+    symbols = symbols
+      .filter (d)->d.symbol_min_zoom < zoom
+      .map @renderSymbol
 
     x = 0
     y = 0
     h 'g.symbol-column', {transform}, [
       @createDefs()
       h 'rect.symbol-column-area', {width, height}
-      h 'g.symbols', symbols.map @renderSymbol
+      h 'g.symbols', symbols
     ]
 
   createDefs: =>

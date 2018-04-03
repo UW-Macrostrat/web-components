@@ -35,8 +35,6 @@ class PhotoOverlay extends Component
     {photos, currentImage} = @state
     return null if not photos?
     {isOpen, onClose} = @props
-    console.log "Rendering"
-    console.log photos
 
     images = photos.map (d)->
       {src: d.path, caption: d.note}

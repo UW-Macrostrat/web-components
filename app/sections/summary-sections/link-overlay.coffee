@@ -53,12 +53,12 @@ class SectionLinkOverlay extends Component
     heights = []
     for {section, height, inferred} in values
       try
-        {bounds, padding, scale} = sectionPositions[section]
+        {bounds, padding, scale, pixelOffset} = sectionPositions[section]
       catch
         # Not positioned yet (or at all?)
         continue
-      yOffs = scale(height)
-      y = bounds.top+padding.top+yOffs-marginTop
+      yOffs = scale(height)+pixelOffset
+      y = yOffs
       heights.push {x0: bounds.left+40, x1: bounds.left+bounds.width, y, inferred}
 
     heights.sort (a,b)-> a.x0 - b.x0
@@ -104,6 +104,20 @@ class SectionLinkOverlay extends Component
       h 'g.section-trackers', __
       h 'g.section-links', surfaces.map @buildLink
     ]
+
+## Not used as yet
+class LinkedOverlayManager extends Component
+  @defaultProps: {
+    skeletal: false
+  }
+  constructor: ->
+  render: ->
+    h 'div', [
+      h Measure, {onResize: @onCanvasResize}, ({measureRef})=>
+        h "div", {ref: measureRef}, @props.children
+      h SectionLinkOverlay, {}
+    ]
+
 
 module.exports = {SectionLinkOverlay}
 

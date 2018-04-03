@@ -48,7 +48,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
-     showFacies, height, clip_end} = @props
+     showFacies, height, clip_end, offset, offsetTop} = @props
 
     innerHeight = height*@props.pixelsPerMeter*@props.zoom
 
@@ -67,13 +67,19 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     {heightOfTop} = @props
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
+    # Basic positioning
+    # If we're not moving sections from the top, don't mess with positioning
+    # at runtime
+    offsetTop ?= 670-height-offset
+    heightOfTop = offsetTop
+    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
+
     [bottom,top] = @props.range
 
     txt = id
 
     {scale,visible, divisions} = @state
     divisions = divisions.filter (d)->not d.schematic
-    zoom = @props.zoom
 
     {skeletal} = @props
 
@@ -111,9 +117,10 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     transform = "translate(#{left} #{@props.padding.top})"
 
     minWidth = outerWidth
+    position = 'absolute'
     h "div.section-container", {
       className: if @props.skeletal then "skeleton" else null
-      style: {minWidth}
+      style: {minWidth, position, top:desiredPosition}
     }, [
       h 'div.section-header', [
         h("h2", txt)]
@@ -143,7 +150,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
                     {history} = @props
                     {height, event} = opts
                     if not event.shiftKey
-                      console.log "Clicked Section #{id} @ #{height}"
                       history.push("/sections/#{id}/height/#{height}")
                       return
                     Notification.show {
@@ -164,6 +170,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
                 height: innerHeight
                 left: 90
                 id
+                zoom
               }
               fs
               triangleBars
@@ -175,6 +182,8 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
   componentDidMount: =>
     window.resizers.push @
+
+  componentDidUpdate: =>
 
 SVGSectionComponent = withRouter(BaseSVGSectionComponent)
 

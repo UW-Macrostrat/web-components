@@ -1,5 +1,5 @@
 {findDOMNode} = require 'react-dom'
-{Component} = require 'react'
+{Component, createContext} = require 'react'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
 {NavLink} = require '../../nav'
@@ -27,16 +27,21 @@ require '../main.styl'
 require './main.styl'
 
 
+SectionOptionsContext = createContext {
+  pixelsPerMeter: 2
+  showTriangleBars: true
+}
+
 class SectionColumn extends Component
   render: ->
-    h 'div.section-column', {}, @props.children
+    h 'div.section-column', {style: {position: 'relative', width: 240}}, @props.children
 
 class LocationGroup extends Component
   @defaultProps: {
     offsetTop: 0
   }
   render: ->
-    {width, name, children, rest...} = @props
+    {width, name, children, offsetTop, rest...} = @props
     width ?= null
 
     h 'div.location-group', {id: name, style: {width}, rest...}, [
@@ -75,9 +80,6 @@ groupSections = (sections)=>
         values.sort (a, b)->
           b.offset-a.offset
         h SectionColumn, values
-
-#SectionOptions = createContext {
-
 
 class SummarySections extends Component
   @defaultProps: {
@@ -150,7 +152,6 @@ class SummarySections extends Component
       @mutateState {sectionPositions: cset}
 
     __sections = sections.map (row)=>
-      console.log row
       {offset, range, height, start, end, rest...} = row
       offset = sectionOffsets[row.id] or offset
 
@@ -249,19 +250,20 @@ class SummarySections extends Component
     minHeight = 1500
 
     h 'div#section-pane', {style: {overflow}}, [
-      h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
-                             marginTop,
-                             sectionPositions,
-                             showLithostratigraphy
-                             showSequenceStratigraphy
-                             showCarbonIsotopes
-                             surfaces
-                             }
       h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
         h "div#section-page-inner", {
           ref: measureRef
           style: {zoom: 1, minHeight}
         }, __sections
+      h SectionLinkOverlay, {
+        skeletal, paddingLeft, canvas...,
+        marginTop,
+        sectionPositions,
+        showLithostratigraphy
+        showSequenceStratigraphy
+        showCarbonIsotopes
+        surfaces
+      }
     ]
 
   render: ->
@@ -299,7 +301,6 @@ class SummarySections extends Component
         if measureRef.measure?
           contentRect = measureRef.measure()
           obj["#{props.id}"] = {$set: contentRect}
-      console.log obj
       @mutateState {sectionPositions: obj}
 
   mutateState: (spec)=>
@@ -308,7 +309,6 @@ class SummarySections extends Component
 
   onCanvasResize: ({bounds})=>
     {width, height} = bounds
-    console.log "Canvas was resized", bounds
     height = 1720 #! HACK!
     @mutateState {dimensions: {canvas: {
       width: {$set: width}

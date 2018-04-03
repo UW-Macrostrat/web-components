@@ -210,12 +210,10 @@ class SectionComponent extends BaseSectionComponent
     return unless @props.isEditable
     {id} = interval
     {height} = opts
-    console.log "Editing interval"
     @setState {editingInterval: {id, height}}
 
   onVisibilityChange: (isVisible)=>
     return if isVisible == @state.visible
-    console.log "Section visibility changed"
     @setState visible: isVisible
 
     # I'm not sure why this works but it does

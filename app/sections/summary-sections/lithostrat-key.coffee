@@ -122,7 +122,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
     {scale,visible, divisions} = @state
 
-    console.log surfaces
     zoom = @props.zoom
 
     {skeletal} = @props

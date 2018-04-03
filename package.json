@@ -43,6 +43,7 @@
     "dragdealer": "^0.9.9",
     "electron": "beta",
     "electron-localshortcut": "^1.0.0",
+    "electron-react-devtools": "^0.5.3",
     "electron-reload": "^1.1.0",
     "js-yaml": "^3.7.0",
     "leaflet": "^1.0.3",

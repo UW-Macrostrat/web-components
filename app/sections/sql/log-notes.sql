@@ -11,9 +11,10 @@ SELECT
   id,
   start_height::float,
   end_height::float,
-  (end_height-start_height)::float span,
+  coalesce(end_height-start_height, 0)::float span,
   coalesce(end_height > start_height, false) has_span,
   symbol,
+  coalesce(symbol_min_zoom,0) symbol_min_zoom,
   type,
   coalesce(edited_note, note) note,
   photos

@@ -29,9 +29,14 @@ class BaseSectionComponent extends Component
 
   onResize: ({bounds})=>
     {scale} = @state
-    {padding, onResize} = @props
+    {padding, onResize, offsetTop, offset, height} = @props
+
+    offsetTop ?= 670-height-offset
+    heightOfTop = offsetTop
+    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
+
     return unless onResize?
-    onResize {scale, bounds, padding}
+    onResize {scale, bounds, padding, pixelOffset: desiredPosition}
 
   componentDidUpdate: ->
     # This leads to some problems unsurprisingly
