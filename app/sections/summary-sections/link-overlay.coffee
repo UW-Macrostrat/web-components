@@ -37,7 +37,7 @@ class SectionLinkOverlay extends Component
       if not showLithostratigraphy
         return null
     if type == 'sequence-strat'
-      stroke = if flooding_surface_order > 0 then '#888' else '#f88'
+      stroke = if flooding_surface_order > 0 then '#aaa' else '#faa'
       strokeWidth = 6-Math.abs(flooding_surface_order)
       if not showSequenceStratigraphy
         return null

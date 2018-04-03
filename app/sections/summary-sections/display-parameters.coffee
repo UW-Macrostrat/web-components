@@ -26,7 +26,6 @@ sectionOffsets = {
   J: -5
 }
 
-
 groupOrder = [
   'Onis'
   'Ubisis'

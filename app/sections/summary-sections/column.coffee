@@ -128,7 +128,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
             style, ref: measureRef
           }, [
             h 'g.backdrop', {transform}, [
-              h FaciesContext.Consumer, {}, ({facies})->
+              h FaciesContext.Consumer, {}, ({facies})=>
                 h GeneralizedSectionColumn, {
                   width: innerWidth
                   height: innerHeight

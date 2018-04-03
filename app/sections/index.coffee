@@ -52,7 +52,6 @@ class SectionIndexPage extends Component
       ]
     ]
 
-
 class SectionIndex extends SectionDataContainer
   render: =>
     {match} = @props

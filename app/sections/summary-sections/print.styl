@@ -1,28 +1,34 @@
+ul.controls
+  display: none
+
+*
+  shape-rendering inherit
+
+text
+  font-family: Gotham
+  font-size: inherit
+
+#main
+  margin 0
+  height inherit
+  width 1925px
+  height 1770px
+  overflow hidden
+  position relative
+  transform translate(-40px,-25px)
+
+#section-link-overlay
+  transform translate(40px,25px)
+
+//body
+//  margin -20px -40px
+
 #section-pane
-  overflow: inherit
-  height: 1550px
-  width: 1800px
-  flex-grow: inherit
+  height inherit
+  overflow hidden !important
 
-body>div
-  height: 1550px
-  width: 1800px
-  overflow inherit
+#main .page.section-page
+  height inherit
 
-#summary-sections-legend
-  margin 3em
-  max-width 14em
-
-#section-page-inner
-  width: 1800px
-
-div.location-group
-  margin 3em 6em
-
-div.facies .header
-  display flex
-  flex-direction row
-  align-items center
-  &>p
-    flex 1
-    max-width 200px
+  div.panel-container
+    height inherit

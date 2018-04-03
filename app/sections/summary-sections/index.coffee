@@ -103,7 +103,7 @@ class SummarySections extends Component
         activeMode: 'normal'
         showFacies: true
         showFloodingSurfaces: false
-        showTriangleBars: false
+        showTriangleBars: true
         showLithostratigraphy: true
         showSequenceStratigraphy: true
         showLegend: true
@@ -113,7 +113,7 @@ class SummarySections extends Component
         condensedDisplay: true
         update: @updateOptions
         sectionIDs: []
-        showCarbonIsotopes: false
+        showCarbonIsotopes: true
 
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
