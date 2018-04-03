@@ -57,7 +57,7 @@ class SectionLinkOverlay extends Component
       catch
         # Not positioned yet (or at all?)
         continue
-      yOffs = scale(height)+pixelOffset
+      yOffs = scale(height)+pixelOffset+2
       y = yOffs
       heights.push {x0: bounds.left+40, x1: bounds.left+bounds.width, y, inferred}
 
