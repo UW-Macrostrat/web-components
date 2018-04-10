@@ -47,6 +47,9 @@ class SectionIndexPage extends Component
           h NavLink, to: "/sections/summary", [
             h 'div.title.summary-sections', 'Summary sections'
           ]
+          h NavLink, to: "/sections/generalized", [
+            h 'div.title', 'Generalized sections'
+          ]
         ]
         locations...
       ]
