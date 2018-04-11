@@ -4,7 +4,7 @@
 h = require 'react-hyperscript'
 {NavLink} = require '../../nav'
 {Icon} = require 'react-fa'
-{SummarySectionsSettings} = require './settings'
+{SummarySectionsSettings} = require '../summary-sections/settings'
 update = require 'immutability-helper'
 LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
@@ -184,59 +184,7 @@ class GeneralizedSections extends Component
     {offset, location, rest...} = row
     location = null
 
-    chemostrat = null
-    if showCarbonIsotopes or showOxygenIsotopes
-      __ = []
-      if showCarbonIsotopes
-        __.push h IsotopesComponent, {
-          zoom: 0.1,
-          key: 'carbon-isotopes',
-          showFacies
-          onResize: sectionResize('carbon-isotopes')
-          offset
-          location: ""
-          rest...
-        }
-
-      if showOxygenIsotopes
-        __.push h IsotopesComponent, {
-          zoom: 0.1,
-          system: 'delta18o'
-          label: 'δ¹⁸O'
-          domain: [-15,0]
-          key: 'oxygen-isotopes',
-          showFacies
-          onResize: sectionResize('oxygen-isotopes')
-          offset
-          location: ""
-          rest...
-        }
-
-      chemostrat = h LocationGroup, {
-        name: null
-        className: 'chemostratigraphy'
-      }, __
-
-
-    lithostratKey = h LithostratKey, {
-        zoom: 0.1, key: row.id,
-        surfaces,
-        skeletal,
-        showFloodingSurfaces
-        showTriangleBars,
-        showCarbonIsotopes,
-        trackVisibility
-        showFacies
-        onResize: sectionResize(row.id)
-        offset
-        rest...
-      }
-
-    __sections = [
-      lithostratKey,
-      chemostrat,
-      groupSections(__sections)...
-    ]
+    __sections = groupSections(__sections)
 
     maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
 

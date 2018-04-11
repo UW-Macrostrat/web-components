@@ -8,6 +8,7 @@ h = require 'react-hyperscript'
 {getSectionData, SectionDataContainer} = require './section-data'
 SectionPage = require './single-section'
 {SummarySections} = require './summary-sections'
+{GeneralizedSections} = require './generalized-sections'
 {SectionNavigationControl} = require './util'
 {FaciesDescriptionPage, FaciesContext} = require './facies-descriptions'
 {db, query, storedProcedure} = require './db'
@@ -75,6 +76,11 @@ class SectionIndex extends SectionDataContainer
           path: match.url+'/summary'
           exact: true
           render: => h(SummarySections, {sections}, null)
+        }
+        h Route, {
+          path: match.url+'/generalized'
+          exact: true
+          render: => h(GeneralizedSections, {sections}, null)
         }
         h Route, {
           path: match.url+'/facies-descriptions'

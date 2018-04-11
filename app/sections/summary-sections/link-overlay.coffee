@@ -4,6 +4,12 @@ classNames = require 'classnames'
 d3 = require 'd3'
 {Notification} = require '../../notify'
 
+sectionSurfaceProps = (surface)->
+    {flooding_surface_order} = surface
+    stroke = if flooding_surface_order > 0 then '#aaa' else '#faa'
+    strokeWidth = 6-Math.abs(flooding_surface_order)
+    return {stroke, strokeWidth}
+
 class SectionLinkOverlay extends Component
   @defaultProps: {
     width: 100
@@ -22,23 +28,23 @@ class SectionLinkOverlay extends Component
 
   buildLink: (surface)=>
     {sectionPositions, paddingLeft, marginTop,
-     showLithostratigraphy, showSequenceStratigraphy} = @props
+     showLithostratigraphy, showSequenceStratigraphy
+     showCarbonIsotopes} = @props
     {section_height, unit_commonality, type, flooding_surface_order, note} = surface
 
     values = [section_height...]
-    #if showCarbonIsotopes
-    #v = section_height.find (d)->d.section == 'J'
-    #if v?
-      #{section, rest...} = v
-      #values.push {section: 'carbon-isotopes', rest...}
+    if showCarbonIsotopes
+      v = section_height.find (d)->d.section == 'J'
+      if v?
+        {section, rest...} = v
+        values.push {section: 'carbon-isotopes', rest...}
 
     if type == 'lithostrat'
       stroke = '#ccc'
       if not showLithostratigraphy
         return null
     if type == 'sequence-strat'
-      stroke = if flooding_surface_order > 0 then '#aaa' else '#faa'
-      strokeWidth = 6-Math.abs(flooding_surface_order)
+      {stroke, strokeWidth} = sectionSurfaceProps(surface)
       if not showSequenceStratigraphy
         return null
 
@@ -119,5 +125,5 @@ class LinkedOverlayManager extends Component
     ]
 
 
-module.exports = {SectionLinkOverlay}
+module.exports = {SectionLinkOverlay, sectionSurfaceProps}
 

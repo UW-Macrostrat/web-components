@@ -14,7 +14,7 @@ tectonicSectionOffsets = {
 # A more stratigraphically focused set of section offsets
 # (shows progradation downdip)
 sectionOffsets = {
-  A: -180
+  A: -220
   B: -92
   C: 50
   D: 200
@@ -32,6 +32,6 @@ groupOrder = [
   'Tsams'
 ]
 
-stackGroups = ['BED','AC','IF','HG']
+stackGroups = ['BED','AC','HG','IF']
 
 module.exports = {stackGroups, groupOrder, sectionOffsets, tectonicSectionOffsets}

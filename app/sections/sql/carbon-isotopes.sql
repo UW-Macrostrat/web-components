@@ -39,7 +39,12 @@ SELECT
   section,
   height orig_height,
   sum(n) n,
-  (section.normalized_height(section::text, height::numeric)).*
+  (section.normalized_height(section::text, height::numeric)).*,
+  CASE WHEN (section = 'J' AND height < 14.3) THEN
+    false
+  ELSE
+    true
+  END AS in_zebra_nappe
 FROM v
 GROUP BY (section, height)
 )

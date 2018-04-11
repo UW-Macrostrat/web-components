@@ -195,6 +195,7 @@ class SummarySections extends Component
           onResize: sectionResize('carbon-isotopes')
           offset
           location: ""
+          surfaces
           rest...
         }
 
@@ -209,6 +210,7 @@ class SummarySections extends Component
           onResize: sectionResize('oxygen-isotopes')
           offset
           location: ""
+          surfaces
           rest...
         }
 

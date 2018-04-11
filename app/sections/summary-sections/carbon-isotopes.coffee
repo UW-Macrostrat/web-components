@@ -8,6 +8,7 @@ h = require 'react-hyperscript'
 Measure = require('react-measure').default
 {SectionAxis} = require '../column/axis'
 {query} = require '../db'
+{sectionSurfaceProps} = require './link-overlay'
 classNames = require 'class-names'
 chroma = require 'chroma-js'
 
@@ -21,6 +22,7 @@ class IsotopesComponent extends Component
     trackVisibility: true
     innerWidth: 150
     offsetTop: null
+    surfaces: null
     xRatio: 6
     height: 100 # Section height in meters
     pixelsPerMeter: 2
@@ -111,6 +113,7 @@ class IsotopesComponent extends Component
           }, [
             h 'g.backdrop', {transform}, [
               @renderScale()
+              @renderAxisLines()
               @renderData()
             ]
           ]
@@ -127,13 +130,33 @@ class IsotopesComponent extends Component
       @state.scale(parseFloat(d.height))
     ]
 
+  renderAxisLines: =>
+    getHeight = (d)->
+      {height} = d.section_height.find (v)->v.section == 'J'
+      return height
+
+    {surfaces} = @props
+    return null unless surfaces?
+    surfaces = surfaces.filter (d)->d.type == 'sequence-strat'
+    h 'g.surfaces', {style: {strokeOpacity: 0.3}}, surfaces.map (d)=>
+      height = getHeight(d)
+
+      y = @state.scale(height)
+      h 'line', {
+        x1: -500
+        x2: 500
+        transform: "translate(0, #{y})"
+        sectionSurfaceProps(d)...
+      }
+
   renderData: =>
     {isotopes, cscale, scale, xScale} = @state
     h 'g.data', isotopes.map ({key, values}, i)=>
       [x,y] = @locatePoint values[values.length-1]
       transform = "translate(#{x},#{y})"
       fill = stroke = cscale(i)
-      d = @line(values)
+      lineValues = values.filter (d)->d.in_zebra_nappe
+      d = @line(lineValues)
       h 'g.section-data', {key}, [
         @renderValues(values, fill)
         h 'path', {d, stroke, fill:'transparent'}
@@ -146,11 +169,15 @@ class IsotopesComponent extends Component
       [x1,y1] = @locatePoint(d, -2)
       [x2,y2] = @locatePoint(d, 2)
 
+      actualStroke = stroke
+      if not d.in_zebra_nappe
+        actualStroke = chroma(stroke).brighten(2).css()
+
       h 'line', {
         key: d.id
         x1,y1,x2,y2,
-        stroke
-        strokeWidth: 4
+        stroke: actualStroke
+        strokeWidth: 8
         strokeLinecap: 'round'
       }
 
