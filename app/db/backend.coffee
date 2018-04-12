@@ -16,12 +16,16 @@ pgp = require('pg-promise')(opts)
 db = pgp('postgresql:///Naukluft')
 {helpers} = pgp
 
+queryFiles = {}
 storedProcedure = (id, opts={})->
   {baseDir} = opts
   baseDir ?= __dirname
   if not id.endsWith('.sql')
     id = join(baseDir,'sql',"#{id}.sql")
-  pgp.QueryFile(id)
+  # Don't hit the filesystem repeatedly
+  # in a session
+  queryFiles[id] ?= pgp.QueryFile(id)
+  return queryFiles[id]
 
 queryLibrary = []
 

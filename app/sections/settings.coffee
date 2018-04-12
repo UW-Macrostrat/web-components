@@ -55,7 +55,7 @@ class SettingsPanel extends Component
       h 'div#settings', {key: 'settings'}, [
         h 'h2', 'Settings'
         h 'hr'
-        @renderControls()
+        @renderControls()...
       ]
     ]
 

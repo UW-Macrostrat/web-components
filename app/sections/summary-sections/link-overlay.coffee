@@ -10,6 +10,11 @@ sectionSurfaceProps = (surface)->
     strokeWidth = 6-Math.abs(flooding_surface_order)
     return {stroke, strokeWidth}
 
+OverlayContext = createContext {
+  sectionPositions: []
+  onResize: ->
+}
+
 class SectionLinkOverlay extends Component
   @defaultProps: {
     width: 100
@@ -91,7 +96,6 @@ class SectionLinkOverlay extends Component
 
   render: ->
     {skeletal, sectionPositions, marginTop, showLithostratigraphy, surfaces} = @props
-    console.log "Rendering overlay", sectionPositions
 
     className = classNames {skeletal}
 
