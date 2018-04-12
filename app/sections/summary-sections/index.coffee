@@ -20,6 +20,7 @@ PropTypes = require 'prop-types'
 {stackGroups, groupOrder, sectionOffsets} = require './display-parameters'
 {debounce} = require 'underscore'
 {query} = require '../../db'
+{HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
 
 d3 = require 'd3'
 

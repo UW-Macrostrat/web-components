@@ -14,6 +14,7 @@ MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
 Map = require './map-viewer'
+{HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
 require '@blueprintjs/core/lib/css/blueprint.css'
 
 wrapNavBar = (component)->
@@ -58,13 +59,20 @@ class App extends React.Component
   _toggleNavBar: =>
     @setState showNavBar: not @state.showNavBar
 
-  componentWillMount: ->
-    @props.bindShortcut 'f', @_toggleNavBar
+  renderHotkeys: ->
+    h Hotkeys, {}, [
+      h Hotkey, {
+        global: true
+        combo: "r"
+        label:"Reload"
+        onKeyDown: -> console.log("Awesome!")
+      }
+    ]
 
-  componentWillUnmount: ->
-    @props.unbindShortcut 'f'
+# This doesn't work for unknown reasons
+HotkeysTarget(App)
 
-Router = -> h HashRouter, [ h mouseTrap(App) ]
+Router = -> h HashRouter, [ h(App) ]
 
 navLink = -> h NavLink, arguments...
 
