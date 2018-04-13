@@ -100,7 +100,6 @@ class SummarySections extends Component
         modes: [
           {value: 'normal', label: 'Normal'}
           {value: 'skeleton', label: 'Skeleton'}
-          #{value: 'sequence-stratigraphy', label: 'Sequence Strat.'}
         ]
         showNavigationController: true
         activeMode: 'normal'

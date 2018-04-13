@@ -27,7 +27,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     showFacies: true
     showFloodingSurfaces: true
     onResize: ->
-    marginLeft: -90
+    marginLeft: -10
     padding:
       left: 30
       top: 10
@@ -66,10 +66,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
     {left, top, right, bottom} = padding
 
-    tbo = 80
-    if @props.showTriangleBars
-      left += tbo
-
     scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
 
     @state.scale.range [innerHeight, 0]
@@ -98,12 +94,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     # Set up number of ticks
     nticks = (height*@props.zoom)/10
 
-    style = {
-      width: outerWidth
-      height: outerHeight
-      marginLeft
-    }
-
     fs = null
     if @props.showFloodingSurfaces
       fs = h FloodingSurface, {
@@ -116,7 +106,12 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       }
 
     triangleBars = null
+    tbo = 80
     if @props.showTriangleBars
+      left += tbo
+      marginLeft -= tbo
+      outerWidth += tbo
+
       triangleBars = h TriangleBars, {
         scale
         zoom
@@ -125,6 +120,13 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         lineWidth: 20
         divisions
       }
+
+
+    style = {
+      width: outerWidth
+      height: outerHeight
+      marginLeft
+    }
 
     transform = "translate(#{left} #{@props.padding.top})"
 
