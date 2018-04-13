@@ -70,13 +70,6 @@ groupSections = (sections)=>
   __ix = indexOf(groupOrder)
   sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
 
-  sectionGroups.map ({key,values})=>
-    h LocationGroup, {key, name: key},
-      values.map ({key,values})=>
-        values.sort (a, b)->
-          b.offset-a.offset
-        h SectionColumn, values
-
 class WrappedSectionComponent extends Component
   render: ->
     h SectionOptionsContext.Consumer, null, (opts)=>
@@ -227,10 +220,17 @@ class SummarySections extends Component
         rest...
       }
 
+    sectionGroups = groupSections(__sections).map ({key,values})=>
+      h LocationGroup, {key, name: key},
+        values.map ({key,values})=>
+          values.sort (a, b)->
+            b.offset-a.offset
+          h SectionColumn, values
+
     __sections = [
       lithostratKey,
       chemostrat,
-      groupSections(__sections)...
+      sectionGroups...
     ]
 
     maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
