@@ -20,7 +20,7 @@ sectionOffsets = {
   D: 200
   E: 40
   F: 200
-  G: -30
+  G: -100
   H: 310
   I: 30
   J: -5
