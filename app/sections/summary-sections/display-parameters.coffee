@@ -32,6 +32,6 @@ groupOrder = [
   'Tsams'
 ]
 
-stackGroups = ['BED','AC','HG','IF']
+stackGroups = ['BED','AC','IF','HG']
 
 module.exports = {stackGroups, groupOrder, sectionOffsets, tectonicSectionOffsets}

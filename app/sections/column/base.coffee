@@ -27,18 +27,6 @@ class BaseSectionComponent extends Component
   componentDidMount: ->
     @componentDidUpdate.apply @, arguments
 
-  onResize: ({bounds})=>
-    {scale} = @state
-    {id, padding, onResize, offsetTop, offset, height} = @props
-    console.log "Resizing section #{id}"
-
-    offsetTop ?= 670-height-offset
-    heightOfTop = offsetTop
-    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
-
-    return unless onResize?
-    onResize {scale, bounds, padding, pixelOffset: desiredPosition}
-
   componentDidUpdate: ->
     # This leads to some problems unsurprisingly
     el = findDOMNode @
