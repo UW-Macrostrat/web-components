@@ -1,9 +1,10 @@
 {query} = require '../db'
 d3 = require 'd3'
-{Component} = require 'react'
+{Component, createElement} = require 'react'
 h = require 'react-hyperscript'
 {Notification} = require '../../notify'
 {path} = require 'd3-path'
+{v4} = require 'uuid'
 
 class FloodingSurface extends Component
   @defaultProps: {
@@ -42,11 +43,50 @@ class TriangleBars extends FloodingSurface
     parasequence: false
     parasequenceSet: true
   }
+
+  constructor: (props)->
+    super(props)
+    @UUID = v4()
+
   render: ->
-    {parasequence, parasequenceSet} = @props
+    {scale, zoom, offsetLeft, lineWidth, divisions,
+     parasequence, parasequenceSet} = @props
+    [bottom, top] = scale.range()
+
+    _ = path()
+
+    zigZagLine = (x0, x1, y, nzigs=5, a=2)->
+      #_.moveTo(start...)
+      xs = d3.scaleLinear()
+        .domain([0,nzigs])
+        .range([x0,x1])
+
+      _.lineTo(x0,y)
+
+      for i in [0...nzigs]
+        x_ = xs(i)
+        y_ = y
+        if i%2 == 1
+          y_ += a
+        _.lineTo(x_,y_)
+
+      _.lineTo(x1,y)
+
+
+    btm = bottom-top
+    _.moveTo(-lineWidth,0)
+    zigZagLine(-lineWidth, lineWidth, btm, 16, 3)
+    zigZagLine(lineWidth, -lineWidth, 0, 16, 3)
+    _.closePath()
+
     h 'g.triangle-bars', {}, [
-      if parasequence then h 'g.level-1', {}, @renderSurfaces(1)
-      if parasequenceSet then h 'g.level-2', {}, @renderSurfaces(2)
+      h 'defs', [
+        createElement('clipPath', {id: @UUID}, [
+          h 'path', {d: _.toString()}
+        ])
+      ]
+      if parasequence then @renderSurfaces(1)
+      if parasequenceSet then @renderSurfaces(2)
     ]
 
   renderSurfaces: (order)=>
@@ -97,21 +137,12 @@ class TriangleBars extends FloodingSurface
       else if top[0] == 'sb'
         sequenceBoundary = top
 
-    h "path", {d: _.toString(), transform: "translate(#{-lineWidth*order+ol})"}
-
-    #x = offsetLeft
-    #transform = "translate(#{x})"
-    #h "line.flooding-surface", {
-      #transform,
-      #key: d.id,
-      #strokeWidth: 1
-      #stroke: '#444'
-      #x1: 0
-      #x2: lineWidth/2
-      #y1, y2
-    #}
-
-
+    h "g.level-#{order}", {
+      clipPath: "url(##{@UUID})"
+      transform: "translate(#{-lineWidth*order+ol})"
+    }, [
+      h "path", {d: _.toString()}
+    ]
 
 module.exports = {FloodingSurface, TriangleBars}
 
