@@ -3,6 +3,7 @@ h = require 'react-hyperscript'
 classNames = require 'classnames'
 d3 = require 'd3'
 {Notification} = require '../../notify'
+{SectionOptionsContext} = require './options'
 
 sectionSurfaceProps = (surface)->
     {flooding_surface_order} = surface
@@ -23,6 +24,7 @@ class SectionLinkOverlay extends Component
     marginTop: 0
     showLithostratigraphy: true
     showCarbonIsotopes: false
+    sectionOptions: {}
   }
   constructor: (props)->
     super props
@@ -61,16 +63,29 @@ class SectionLinkOverlay extends Component
     else
       onClick = null
 
+    {triangleBarsOffset, width} = @props.sectionOptions
     heights = []
     for {section, height, inferred} in values
       try
-        {bounds, padding, scale, pixelOffset} = sectionPositions[section]
+        {bounds, padding, scale, pixelOffset
+         triangleBarRightSide
+         triangleBarsOffset} = sectionPositions[section]
+        triangleBarRightSide ?= false
       catch
         # Not positioned yet (or at all?)
         continue
       yOffs = scale(height)+pixelOffset+2
       y = yOffs
-      heights.push {x0: bounds.left+40, x1: bounds.left+bounds.width, y, inferred}
+      {left: x0, width} = bounds
+      x0 += 55
+      x1 = x0+width-40
+      ofs = triangleBarsOffset - 10
+      if triangleBarRightSide
+        x0 -= ofs
+        x1 -= ofs
+
+
+      heights.push {x0, x1, y, inferred}
 
     heights.sort (a,b)-> a.x0 - b.x0
 
@@ -116,18 +131,10 @@ class SectionLinkOverlay extends Component
       h 'g.section-links', surfaces.map @buildLink
     ]
 
-## Not used as yet
-class LinkedOverlayManager extends Component
-  @defaultProps: {
-    skeletal: false
-  }
+class SectionLinkHOC extends Component
   render: ->
-    h 'div', [
-      h Measure, {onResize: @onCanvasResize}, ({measureRef})=>
-        h "div", {ref: measureRef}, @props.children
-      h SectionLinkOverlay, {}
-    ]
+    h SectionOptionsContext.Consumer, null, (sectionOptions)=>
+      h SectionLinkOverlay, {sectionOptions, @props...}
 
-
-module.exports = {SectionLinkOverlay, sectionSurfaceProps}
+module.exports = {SectionLinkOverlay: SectionLinkHOC, sectionSurfaceProps}
 

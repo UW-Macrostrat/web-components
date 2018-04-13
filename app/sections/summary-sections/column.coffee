@@ -26,6 +26,8 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     lithologyWidth: 40
     showFacies: true
     showFloodingSurfaces: true
+    triangleBarsOffset: 0
+    triangleBarRightSide: false
     onResize: ->
     marginLeft: -10
     padding:
@@ -47,7 +49,11 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
   onResize: ({bounds, offset, padding})=>
     {scale} = @state
-    {id, padding, onResize, offsetTop, offset: _offset, height} = @props
+    {
+      id, padding, onResize, offsetTop
+      offset: _offset, height
+      triangleBarRightSide, triangleBarsOffset
+    } = @props
     console.log "Resizing section #{id}"
 
     offsetTop ?= 670-height-_offset
@@ -55,12 +61,21 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     return unless onResize?
-    onResize {scale, bounds, offset, padding, pixelOffset: desiredPosition}
+    onResize {
+      scale, bounds, offset
+      triangleBarRightSide
+      triangleBarsOffset
+      padding
+      pixelOffset: desiredPosition
+    }
 
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
-     showFacies, height, clip_end, offset, offsetTop} = @props
+     showFacies, height, clip_end, offset, offsetTop
+     showTriangleBars,
+     showFloodingSurfaces
+     } = @props
 
     innerHeight = height*@props.pixelsPerMeter*@props.zoom
 
@@ -105,27 +120,35 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         divisions
       }
 
+    {triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
+    left += tbo
+    marginLeft -= tbo
+    marginRight = 0
+    outerWidth += tbo
     triangleBars = null
-    tbo = 80
     if @props.showTriangleBars
-      left += tbo
-      marginLeft -= tbo
-      outerWidth += tbo
+      offsetLeft = -tbo+20
+      if onRight
+        offsetLeft *= -1
+        offsetLeft += tbo
+        marginRight -= tbo
+        marginLeft += tbo
+        left -= tbo
 
       triangleBars = h TriangleBars, {
         scale
         zoom
         id
-        offsetLeft: -tbo+20
+        offsetLeft
         lineWidth: 20
         divisions
       }
-
 
     style = {
       width: outerWidth
       height: outerHeight
       marginLeft
+      marginRight
     }
 
     transform = "translate(#{left} #{@props.padding.top})"

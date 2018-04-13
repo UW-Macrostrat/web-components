@@ -21,17 +21,12 @@ PropTypes = require 'prop-types'
 {debounce} = require 'underscore'
 {query} = require '../../db'
 {HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
+{SectionOptionsContext, defaultSectionOptions} = require './options'
 
 d3 = require 'd3'
 
 require '../main.styl'
 require './main.styl'
-
-
-SectionOptionsContext = createContext {
-  pixelsPerMeter: 2
-  showTriangleBars: true
-}
 
 class SectionColumn extends Component
   render: ->
@@ -82,6 +77,11 @@ groupSections = (sections)=>
           b.offset-a.offset
         h SectionColumn, values
 
+class WrappedSectionComponent extends Component
+  render: ->
+    h SectionOptionsContext.Consumer, null, (opts)=>
+      h SVGSectionComponent, {opts..., @props...}
+
 class SummarySections extends Component
   @defaultProps: {
     scrollable: true
@@ -95,7 +95,7 @@ class SummarySections extends Component
         canvas: {width: 100, height: 100}
       }
       sectionPositions: {}
-      options:
+      options: {
         settingsPanelIsActive: false
         modes: [
           {value: 'normal', label: 'Normal'}
@@ -103,11 +103,7 @@ class SummarySections extends Component
         ]
         showNavigationController: true
         activeMode: 'normal'
-        showFacies: true
-        showFloodingSurfaces: false
-        showTriangleBars: true
-        showLithostratigraphy: true
-        showSequenceStratigraphy: true
+        defaultSectionOptions...
         showLegend: true
         # Allows us to test the serialized query mode
         # we are developing for the web
@@ -115,8 +111,10 @@ class SummarySections extends Component
         condensedDisplay: true
         update: @updateOptions
         sectionIDs: []
+        showLithostratigraphy: true
+        showSequenceStratigraphy: true
         showCarbonIsotopes: true
-
+      }
     @measureRef = createRef()
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
@@ -163,14 +161,14 @@ class SummarySections extends Component
       range = [start, end]
 
 
-      sec = h SVGSectionComponent, {
-        zoom: 0.1, key: row.id,
+      #h SectionOptionsContext.Consumer, null, (v)=>
+      #  console.log opts
+      h WrappedSectionComponent, {
+        zoom: 0.1, key: row.id
         skeletal,
-        showFloodingSurfaces
-        showTriangleBars,
+        triangleBarRightSide: row.id == 'J'
         showCarbonIsotopes,
         trackVisibility
-        showFacies
         onResize: @onSectionResize(row.id)
         offset
         range
@@ -179,7 +177,6 @@ class SummarySections extends Component
         end
         rest...
       }
-      return sec
 
     row = sections.find (d)->d.id == 'J'
     {offset, location, rest...} = row
@@ -225,11 +222,6 @@ class SummarySections extends Component
         zoom: 0.1, key: row.id,
         surfaces,
         skeletal,
-        showFloodingSurfaces
-        showTriangleBars,
-        showCarbonIsotopes,
-        trackVisibility
-        showFacies
         onResize: sectionResize(row.id)
         offset
         rest...
@@ -253,6 +245,15 @@ class SummarySections extends Component
     minHeight = 1500
 
     h 'div#section-pane', {style: {overflow}}, [
+      h SectionLinkOverlay, {
+        skeletal, paddingLeft, canvas...,
+        marginTop,
+        sectionPositions,
+        showLithostratigraphy
+        showSequenceStratigraphy
+        showCarbonIsotopes
+        surfaces
+      }
       h Measure, {
         bounds: true,
         innerRef: (ref)=>
@@ -264,15 +265,6 @@ class SummarySections extends Component
           ref: measureRef
           style: {zoom: 1, minHeight}
         }, __sections
-      h SectionLinkOverlay, {
-        skeletal, paddingLeft, canvas...,
-        marginTop,
-        sectionPositions,
-        showLithostratigraphy
-        showSequenceStratigraphy
-        showCarbonIsotopes
-        surfaces
-      }
     ]
 
   render: ->
@@ -289,14 +281,28 @@ class SummarySections extends Component
 
     h 'div.page.section-page#summary-sections', [
       h 'div.panel-container', [
-        navigationController
-        @renderSections()
+        h SectionOptionsContext.Provider, {value: @getSectionOptions()}, [
+          navigationController
+          @renderSections()
+        ]
       ]
       h SummarySectionsSettings, {
         reloadCorrelations: @resizeAllSections
         options...
       }
     ]
+
+  getSectionOptions: =>
+    value = {}
+    for k,v of defaultSectionOptions
+      value[k] = @state.options[k]
+    triangleBarsOffset = 0
+    if value.showTriangleBars
+      triangleBarsOffset = 80
+    return {
+      triangleBarsOffset
+      value...
+    }
 
   onSectionResize: (key)=>(contentRect)=>
     {scrollTop, scrollLeft} =  @measureRef.offsetParent
@@ -348,11 +354,5 @@ class SummarySections extends Component
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
-window.resizeEverything = ->
-  console.log "Reloading correlations"
-  window.resizers.map ({measure,onResize})->
-      if measure.measure?
-        measure.measure()
-
-module.exports = {SummarySections}
+module.exports = {SummarySections, SectionOptionsContext}
 
