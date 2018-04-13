@@ -21,3 +21,4 @@ webpack $@
 ## Use --watch flag to start browserSync
 
 # Move images (and later, slice up)
+tl copy mbtiles://$REPO_DIR/Products/tiles/geology.mbtiles file://$fn/tiles

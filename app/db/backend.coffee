@@ -8,7 +8,7 @@ opts = {
     v = queryLibrary.find (d)->
       d.sql == e.query
     if not v?
-      console.warn "No serialization spec found matching this query.
+      console.warn "No serialization spec found matching the query `#{e.query}`.
                     This request will fail on the frontend."
 }
 
@@ -52,6 +52,7 @@ for q in lateralVariationQueries
 baseDir = dirname require.resolve "../sections/summary-sections"
 summarySectionQueries = [
   'lithostratigraphy-surface'
+  'lithostratigraphy-names'
 ]
 for q in summarySectionQueries
   new SerializableQuery(q, null, {baseDir})
@@ -69,6 +70,7 @@ sectionQueries =  [
   'section-symbols'
   'lithology'
   'log-notes'
+  'section-surface'
 ]
 
 createSerializedQueries = ->

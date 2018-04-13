@@ -10,8 +10,7 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
-    "@blueprintjs/core": "^2.0.0-rc.2",
-    "@blueprintjs/labs": "^0.15.2",
+    "@blueprintjs/core": "^2.1.1",
     "bluebird": "^3.5.0",
     "calculate-size": "^1.1.1",
     "chroma-js": "^1.2.1",
@@ -49,7 +48,6 @@
     "react-images": "^0.5.14",
     "react-localstorage": "^0.3.1",
     "react-measure": "^2.0.2",
-    "react-mousetrap": "^0.1.1",
     "react-pan-zoom-element": "^2.0.1",
     "react-router": "^4.2.0",
     "react-router-dom": "^4.2.2",

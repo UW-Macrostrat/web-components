@@ -120,7 +120,6 @@ class LinkedOverlayManager extends Component
   @defaultProps: {
     skeletal: false
   }
-  constructor: ->
   render: ->
     h 'div', [
       h Measure, {onResize: @onCanvasResize}, ({measureRef})=>

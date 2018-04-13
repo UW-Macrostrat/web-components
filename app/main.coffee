@@ -44,23 +44,22 @@ class App extends React.Component
     @state = {}
     @state.showNavBar = true
   render: ->
-    h PlatformContext.Provider, {}, [
-      h 'div#root', [
-        h Switch, [
-          route '/', Home, exact: true
-          route '/sections', SectionIndex
-          route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
-          route '/lateral-variation', wrapNavBar(LateralVariation)
-          route '/map', wrapHomeButton(Map)
-          route '/map-legend', wrapNavBar(MapLegend)
-        ]
+    h 'div#root', [
+      h Switch, [
+        route '/', Home, exact: true
+        route '/sections', SectionIndex
+        route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
+        route '/lateral-variation', wrapNavBar(LateralVariation)
+        route '/map', wrapHomeButton(Map)
+        route '/map-legend', wrapNavBar(MapLegend)
       ]
     ]
   _toggleNavBar: =>
     @setState showNavBar: not @state.showNavBar
 
   renderHotkeys: ->
-    h Hotkeys, {}, [
+    console.log "Rendering hotkeys"
+    h Hotkeys, {tabIndex: null}, [
       h Hotkey, {
         global: true
         combo: "r"
@@ -72,7 +71,11 @@ class App extends React.Component
 # This doesn't work for unknown reasons
 HotkeysTarget(App)
 
-Router = -> h HashRouter, [ h(App) ]
+Router = -> h HashRouter, [
+  h PlatformContext.Provider, [
+    h(App)
+  ]
+]
 
 navLink = -> h NavLink, arguments...
 
