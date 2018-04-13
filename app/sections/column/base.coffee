@@ -29,7 +29,8 @@ class BaseSectionComponent extends Component
 
   onResize: ({bounds})=>
     {scale} = @state
-    {padding, onResize, offsetTop, offset, height} = @props
+    {id, padding, onResize, offsetTop, offset, height} = @props
+    console.log "Resizing section #{id}"
 
     offsetTop ?= 670-height-offset
     heightOfTop = offsetTop

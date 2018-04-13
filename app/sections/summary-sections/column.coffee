@@ -45,6 +45,18 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     }
     @state.scale.clamp()
 
+  onResize: ({bounds, offset, padding})=>
+    {scale} = @state
+    {id, padding, onResize, offsetTop, offset: _offset, height} = @props
+    console.log "Resizing section #{id}"
+
+    offsetTop ?= 670-height-_offset
+    heightOfTop = offsetTop
+    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
+
+    return unless onResize?
+    onResize {scale, bounds, offset, padding, pixelOffset: desiredPosition}
+
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
@@ -129,8 +141,9 @@ class BaseSVGSectionComponent extends BaseSectionComponent
           ref: @measureRef
           bounds: true,
           client: true,
+          offset: true,
           onResize: @onResize
-        }, ({measureRef})=>
+        }, ({measureRef, measure})=>
           h "svg.section", {
             style, ref: measureRef
           }, [

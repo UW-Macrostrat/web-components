@@ -4,6 +4,9 @@
 h = require 'react-hyperscript'
 
 class SummarySectionsSettings extends SettingsPanel
+  @defaultProps: {
+    reloadCorrelations: ->
+  }
   renderControls: =>
     return [
       h 'h5', "Components"
@@ -24,7 +27,7 @@ class SummarySectionsSettings extends SettingsPanel
       h 'h5', 'Display mode'
       @createPicker 'modes', 'activeMode'
       h 'h5', 'Actions'
-      h Button, {}, "Print"
+      h Button, {onClick: @props.reloadCorrelations}, 'Reload correlations'
     ]
 
 module.exports = {SummarySectionsSettings}

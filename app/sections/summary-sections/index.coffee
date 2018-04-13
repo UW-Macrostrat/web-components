@@ -1,5 +1,5 @@
 {findDOMNode} = require 'react-dom'
-{Component, createContext} = require 'react'
+{Component, createContext, createRef} = require 'react'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
 {NavLink} = require '../../nav'
@@ -118,6 +118,7 @@ class SummarySections extends Component
         sectionIDs: []
         showCarbonIsotopes: true
 
+    @measureRef = createRef()
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
     return unless v?
@@ -171,7 +172,7 @@ class SummarySections extends Component
         showCarbonIsotopes,
         trackVisibility
         showFacies
-        onResize: sectionResize(row.id)
+        onResize: @onSectionResize(row.id)
         offset
         range
         height
@@ -253,7 +254,13 @@ class SummarySections extends Component
     minHeight = 1500
 
     h 'div#section-pane', {style: {overflow}}, [
-      h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
+      h Measure, {
+        bounds: true,
+        innerRef: (ref)=>
+          @measureRef = ref
+        onResize: @onCanvasResize,
+        scroll: true
+      }, ({measureRef})=>
         h "div#section-page-inner", {
           ref: measureRef
           style: {zoom: 1, minHeight}
@@ -286,13 +293,28 @@ class SummarySections extends Component
         navigationController
         @renderSections()
       ]
-      h SummarySectionsSettings, options
+      h SummarySectionsSettings, {
+        reloadCorrelations: @resizeAllSections
+        options...
+      }
     ]
 
   onSectionResize: (key)=>(contentRect)=>
+    {scrollTop, scrollLeft} =  @measureRef.offsetParent
     console.log "Section #{key} was resized", contentRect
+    {bounds, __rest...} = contentRect
+    {top, right, bottom, left, rest...} = bounds
+    top += scrollTop
+    bottom += scrollTop
+    left += scrollLeft
+    right += scrollLeft
+    bounds = {top, right, bottom, left, rest...}
+    sectionPositions = {}
+    sectionPositions[key] = {$set: {bounds, __rest...}}
+    @mutateState {sectionPositions}
 
-    @mutateState {sectionPositions: {"#{key}": {$set: contentRect}}}
+  resizeAllSections: =>
+    console.log "Resizing all sections"
 
   componentDidUpdate: (prevProps, prevState)->
     if prevState.dimensions != @state.dimensions
@@ -310,8 +332,9 @@ class SummarySections extends Component
     state = update(@state, spec)
     @setState state
 
-  onCanvasResize: ({bounds})=>
-    {width, height} = bounds
+  onCanvasResize: ({bounds, scroll})=>
+    {width, height} = scroll
+    console.log scroll
     height = 1720 #! HACK!
     @mutateState {dimensions: {canvas: {
       width: {$set: width}
@@ -327,6 +350,7 @@ class SummarySections extends Component
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
 window.resizeEverything = ->
+  console.log "Reloading correlations"
   window.resizers.map ({measure,onResize})->
       if measure.measure?
         measure.measure()
