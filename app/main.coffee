@@ -44,14 +44,16 @@ class App extends React.Component
     @state = {}
     @state.showNavBar = true
   render: ->
-    h 'div#root', [
-      h Switch, [
-        route '/', Home, exact: true
-        route '/sections', SectionIndex
-        route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
-        route '/lateral-variation', wrapNavBar(LateralVariation)
-        route '/map', wrapHomeButton(Map)
-        route '/map-legend', wrapNavBar(MapLegend)
+    h PlatformContext.Provider, [
+      h 'div#root', [
+        h Switch, [
+          route '/', Home, exact: true
+          route '/sections', SectionIndex
+          route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
+          route '/lateral-variation', wrapNavBar(LateralVariation)
+          route '/map', wrapHomeButton(Map)
+          route '/map-legend', wrapNavBar(MapLegend)
+        ]
       ]
     ]
   _toggleNavBar: =>
@@ -72,9 +74,7 @@ class App extends React.Component
 HotkeysTarget(App)
 
 Router = -> h HashRouter, [
-  h PlatformContext.Provider, [
-    h(App)
-  ]
+  h(App)
 ]
 
 navLink = -> h NavLink, arguments...
