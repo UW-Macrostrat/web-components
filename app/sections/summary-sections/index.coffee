@@ -37,10 +37,15 @@ class LocationGroup extends Component
     offsetTop: 0
   }
   render: ->
-    {width, name, children, offsetTop, rest...} = @props
-    width ?= null
+    {id, name, values, width, values, children, offsetTop, rest...} = @props
+    name ?= id
+    if not children? and values?
+      children = values.map ({k,values})->
+        values.sort (a, b)->
+          b.offset-a.offset
+        h SectionColumn, values
 
-    h 'div.location-group', {id: name, style: {width}, rest...}, [
+    h 'div.location-group', {id, style: {width}, rest...}, [
       h 'h1', {}, name
       h 'div.location-group-body', {}, children
     ]
@@ -221,11 +226,7 @@ class SummarySections extends Component
       }
 
     sectionGroups = groupSections(__sections).map ({key,values})=>
-      h LocationGroup, {key, name: key},
-        values.map ({key,values})=>
-          values.sort (a, b)->
-            b.offset-a.offset
-          h SectionColumn, values
+      h LocationGroup, {key, id: key, values}
 
     __sections = [
       lithostratKey,
