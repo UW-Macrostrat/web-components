@@ -71,6 +71,7 @@ sectionQueries =  [
   'lithology'
   'log-notes'
   'section-surface'
+  'photo'
 ]
 
 createSerializedQueries = ->

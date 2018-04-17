@@ -14,7 +14,6 @@ d3 = require 'd3'
 classNames = require 'classnames'
 {SwatchesPicker} = require 'react-color'
 {Popover} = require '@blueprintjs/core'
-{readFileSync} = require 'fs'
 {dirname} = require 'path'
 {PlatformContext} = require '../platform'
 

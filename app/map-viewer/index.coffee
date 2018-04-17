@@ -41,4 +41,4 @@ class MapView extends React.Component
           #{id: "contact", type: "line", source: "contact", 'source-layer': "contact"}
         ]
 
-module.exports = MapView
+module.exports = {MapView}

@@ -4,6 +4,9 @@ BrowserSyncPlugin = require 'browser-sync-webpack-plugin'
 webRoot = path.resolve '../Products/webroot'
 UglifyJsPlugin = require('uglifyjs-webpack-plugin')
 
+mode = 'development'
+
+
 browserSync = new BrowserSyncPlugin {
   port: 3000
   host: 'localhost'
@@ -11,23 +14,24 @@ browserSync = new BrowserSyncPlugin {
 }
 
 define = new DefinePlugin {
-  'process.env.NODE_ENV': JSON.stringify('production')
+  'process.env.NODE_ENV': JSON.stringify(mode)
 }
 
 uglify = new UglifyJsPlugin()
 
-plugins = [browserSync, define, uglify]
+plugins = [browserSync, define]#, uglify]
 ignores = [/^pg-promise/,/^electron/,/^pg/,/^fs/]
 
 
 for i in ignores
   plugins.push new IgnorePlugin(i)
 
+
 babelLoader = {
   loader: 'babel-loader'
   options: {
     presets: ['es2015','react']
-    sourceMap: false
+    sourceMap: mode == 'development'
   }
 }
 
@@ -35,10 +39,11 @@ exclude = /node_modules/
 
 coffeeLoader = {
   loader: 'coffee-loader'
-  options: {sourceMap: false}
+  options: {sourceMap: mode == 'development'}
 }
 
 module.exports = {
+  mode
   module:
     rules: [
       {test: /\.coffee$/, use: [babelLoader, coffeeLoader], exclude}
@@ -69,10 +74,12 @@ module.exports = {
     ]
   resolve:
     extensions: [".coffee", ".js"]
-  entry: "./app/web-index.coffee"
+  entry: {
+    'sections/assets/index': "./app/entrypoints/sections-index.coffee"
+    'map/assets/index': "./app/entrypoints/map-index.coffee"
+  }
   output:
-    path: path.join webRoot, "assets"
-    publicPath: "/assets/"
-    filename: "app.js"
+    path: webRoot
+    filename: "[name].js"
   plugins
 }

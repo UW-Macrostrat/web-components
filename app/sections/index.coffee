@@ -2,7 +2,7 @@
 require './main.styl'
 styles = require './section-index.styl'
 h = require 'react-hyperscript'
-{Route, Switch} = require 'react-router-dom'
+{Route, Switch,withRouter} = require 'react-router-dom'
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
 {getSectionData, SectionDataContainer} = require './section-data'
@@ -15,8 +15,10 @@ SectionPage = require './single-section'
 
 {nest} = require 'd3'
 
-createSectionLink = (d)->
-  navLink = h NavLink, to: "/sections/"+d.id, [
+createSectionLink = (d, base)->
+  base ?= "sections/"
+  #withRouter(props => <MyComponent {...props}/>)
+  navLink = h NavLink, to: base+d.id, [
     h 'div', [
       h 'div.title', [
         h 'span', 'Section '
@@ -24,10 +26,11 @@ createSectionLink = (d)->
       ]
     ]
   ]
-  navLink
 
 class SectionIndexPage extends Component
   render: ->
+
+    {pathname} = @props.location
 
     nestedSections = nest()
       .key (d)->d.location
@@ -37,7 +40,8 @@ class SectionIndexPage extends Component
       {key,values} = nest
       h 'div.location', [
         h 'h2', key
-        h 'ul.navigation.sections', values.map createSectionLink
+        h 'ul.navigation.sections', values.map (d)->
+          createSectionLink(d, pathname)
       ]
 
     h 'div#homepage', [
@@ -45,10 +49,10 @@ class SectionIndexPage extends Component
       h 'div#homepage-inner', [
         h 'h1', 'Sections'
         h 'ul.navigation', [
-          h NavLink, to: "/sections/summary", [
+          h NavLink, to: "#{pathname}summary", [
             h 'div.title.summary-sections', 'Summary sections'
           ]
-          h NavLink, to: "/sections/generalized", [
+          h NavLink, to: "#{pathname}generalized", [
             h 'div.title', 'Generalized sections'
           ]
         ]
@@ -70,7 +74,8 @@ class SectionIndex extends SectionDataContainer
         h Route, {
           path: match.url+'/'
           exact: true
-          render: => h(SectionIndexPage, {sections}, null)
+          render: withRouter (props)=>
+            h(SectionIndexPage, {sections, props...}, null)
         }
         h Route, {
           path: match.url+'/summary'
@@ -115,5 +120,7 @@ class SectionIndex extends SectionDataContainer
     sql = storedProcedure('set-facies-color', {baseDir: __dirname})
     await db.none sql, {id,color}
     @getFaciesData()
+
+
 
 module.exports = {SectionIndex, SectionDataContainer}

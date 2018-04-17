@@ -13,7 +13,7 @@ FocusStyleManager.onlyShowFocusOnTabs()
 MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
-Map = require './map-viewer'
+{MapView} = require './map-viewer'
 {HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
 require '@blueprintjs/core/lib/css/blueprint.css'
 
@@ -51,7 +51,7 @@ class App extends React.Component
           route '/sections', SectionIndex
           route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
           route '/lateral-variation', wrapNavBar(LateralVariation)
-          route '/map', wrapHomeButton(Map)
+          route '/map', wrapHomeButton(MapView)
           route '/map-legend', wrapNavBar(MapLegend)
         ]
       ]

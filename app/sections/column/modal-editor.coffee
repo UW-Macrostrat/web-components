@@ -15,7 +15,10 @@ fmt = d3.format('.1f')
 {dirname} = require 'path'
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
-{helpers} = require '../../db/backend'
+try
+  {helpers} = require '../../db/backend'
+catch
+  {}
 
 floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
 

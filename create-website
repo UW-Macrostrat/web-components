@@ -1,8 +1,8 @@
 #!/usr/bin/env zsh
 
 fn=$PROJECT_DIR/versioned/Products/webroot
-query_dir="$fn/queries"
-image_dir="$fn/images"
+query_dir="$fn/sections/queries"
+image_dir="$fn/sections/images"
 mkdir -p $fn $query_dir
 
 rm -rf node_modules/.cache
@@ -16,9 +16,13 @@ ln -s \
   "$image_dir"
 
 # Compile code
+mkdir -p $fn/map
 cp app/web-index.html $fn/index.html
+cp app/entrypoints/sections-index.html $fn/sections/index.html
+cp app/entrypoints/map-index.html $fn/map/index.html
+
 webpack $@
 ## Use --watch flag to start browserSync
 
 # Move images (and later, slice up)
-tl copy mbtiles://$REPO_DIR/Products/tiles/geology.mbtiles file://$fn/tiles
+tl copy mbtiles://$REPO_DIR/Products/tiles/geology.mbtiles file://$fn/map/tiles
