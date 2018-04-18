@@ -55,6 +55,17 @@ class PlatformData
     catch
       return ''
 
+  resolveLithologySymbol: (id)=>
+    try
+      if @ELECTRON
+        q = require.resolve "geologic-patterns/assets/png/#{id}.png"
+        return 'file://'+q
+      else
+        return join @baseUrl, 'assets', 'lithology-patterns',"#{id}.png"
+    catch
+      return ''
+
+
 PlatformContext = createContext()
 
 class PlatformProvider extends Component

@@ -2,11 +2,14 @@
 
 products="$PROJECT_DIR/versioned/Products"
 fn=$products/webroot
-query_dir="$fn/sections/queries"
-image_dir="$fn/sections/images"
+sections="$fn/sections"
+query_dir="$sections/queries"
+image_dir="$sections/images"
 map_query_dir="$fn/map/queries"
 map_pattern_dir="$fn/map/patterns"
 mkdir -p $fn $query_dir $map_query_dir $map_pattern_dir
+
+cd "$PROJECT_DIR/versioned/naukluft-app"
 
 rm -rf node_modules/.cache
 
@@ -25,9 +28,19 @@ mkdir -p $fn/map
 cp app/web-index.html $fn/index.html
 cp app/entrypoints/sections-index.html $fn/sections/index.html
 cp app/entrypoints/map-index.html $fn/map/index.html
-cp $products/map-patterns/*.svg $map_pattern_dir/*.svg
+cp $products/map-patterns/*.svg $map_pattern_dir
 
-tl copy mbtiles://$REPO_DIR/Products/tiles/geology.mbtiles file://$fn/map/tiles
+# Copy symbols
+sp=$sections/assets/column-patterns
+mkdir -p $sp
+cp assets/column-patterns/*.svg $sp
+
+# Copy geologic patterns
+sp=$sections/assets/lithology-patterns
+mkdir -p $sp
+cp $PROJECT_DIR/versioned/deps/geologic-patterns/assets/png/*.png $sp
+
+tl copy mbtiles://$REPO_DIR/Products/tiles/geology.mbtiles file://$fn/map/tiles > /dev/null
 
 webpack $@
 ## Use --watch flag to start browserSync

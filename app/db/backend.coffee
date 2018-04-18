@@ -39,7 +39,7 @@ class SerializableQuery
     @hash = getHash @id, @values
     queryLibrary.push(@)
   getData: -> db.query @sql
-  filename: -> query.hash+'.json'
+  filename: -> @id+'_'+@hash+'.json'
 
 baseDir = dirname require.resolve "../lateral-variation"
 lateralVariationQueries = [
@@ -64,6 +64,7 @@ new SerializableQuery('unit-data', null, {baseDir})
 
 baseDir = dirname require.resolve "../sections"
 new SerializableQuery('sections', null, {baseDir})
+new SerializableQuery('section-surface', null, {baseDir})
 new SerializableQuery('carbon-isotopes', null, {baseDir})
 
 sectionLabels = null
@@ -75,7 +76,6 @@ sectionQueries =  [
   'section-symbols'
   'lithology'
   'log-notes'
-  'section-surface'
   'photo'
 ]
 

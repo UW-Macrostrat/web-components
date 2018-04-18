@@ -1,6 +1,6 @@
 React = require 'react'
 ReactDOM = require 'react-dom'
-{HashRouter,Route,Link, Switch} = require 'react-router-dom'
+{HashRouter,Route,Link, Switch, Redirect} = require 'react-router-dom'
 {mouseTrap} = require 'react-mousetrap'
 h = require 'react-hyperscript'
 {FocusStyleManager} = require '@blueprintjs/core'
@@ -9,7 +9,7 @@ FocusStyleManager.onlyShowFocusOnTabs()
 require '@blueprintjs/core/lib/css/blueprint.css'
 
 global.WEB_MODE=true
-{PlatformContext} = require '../platform'
+{PlatformProvider} = require '../platform'
 {SectionIndex} = require '../sections'
 
 
@@ -22,10 +22,14 @@ class App extends React.Component
     @state = {}
     @state.showNavBar = false
   render: ->
-    h PlatformContext.Provider, [
+    h PlatformProvider, [
       h 'div#root', [
         h Switch, [
-          route '/', SectionIndex, exact: true
+          h Route, {
+            exact: true, path:'/', render: =>
+              h Redirect, {to: '/sections'}
+          }
+          route '/sections', SectionIndex
         ]
       ]
     ]

@@ -12,7 +12,7 @@ run = ->
   queries = await serializableQueries()
   for query in queries
     data = await query.getData()
-    fn = join(outdir, query.hash+'.json')
+    fn = join(outdir, query.filename())
     writeFileSync fn, JSON.stringify(data)
 
 run()

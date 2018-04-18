@@ -8,6 +8,7 @@ getUID = (id, values)->
 
 getHash = (id,values)->
   uid = getUID id,values
+  console.log "Hashing: #{uid}"
   md5sum = createHash('md5')
   md5sum.update(uid).digest('hex')
 

@@ -51,9 +51,9 @@ class SectionIndexPage extends Component
           h NavLink, to: "#{pathname}/summary", [
             h 'div.title.summary-sections', 'Summary sections'
           ]
-          h NavLink, to: "#{pathname}/generalized", [
-            h 'div.title', 'Generalized sections'
-          ]
+          #h NavLink, to: "#{pathname}/generalized", [
+          #  h 'div.title', 'Generalized sections'
+          #]
         ]
         locations...
       ]

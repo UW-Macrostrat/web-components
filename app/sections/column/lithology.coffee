@@ -5,10 +5,16 @@ h = require 'react-hyperscript'
 {join} = require 'path'
 {v4} = require 'uuid'
 classNames = require 'classnames'
-textures = require 'textures'
 {createGrainsizeScale} = require './grainsize'
 {path} = require 'd3-path'
 d3 = require 'd3'
+{PlatformContext} = require '../../platform'
+
+# Malformed es6 module
+v = require('react-svg-textures')
+if v.default?
+  v = v.default
+{Lines} = v
 
 symbolIndex = {
   'dolomite-limestone': 641
@@ -31,7 +37,7 @@ resolveSymbol = (id)->
       q = require.resolve "geologic-patterns/assets/png/#{id}.png"
       return 'file://'+q
     else
-      return join BASE_URL, 'assets',"#{id}.png"
+      return join BASE_URL, 'assets','lithology-patterns', "#{id}.png"
   catch
     return ''
 
@@ -63,15 +69,6 @@ class LithologyColumn extends Component
       frameID: "#frame-#{UUID}"
       clipID: "#clip-#{UUID}"
     }
-    @coveredPattern = textures
-      .lines()
-      .size(8)
-      .stroke('rgba(0,0,0,0.3)')
-
-  componentDidMount: ->
-    {UUID} = @state
-    d3.select findDOMNode @
-      .call @coveredPattern
 
   resolveID: (d)->
     if not (d.fgdc_pattern? or d.pattern?)
@@ -159,12 +156,24 @@ class LithologyColumn extends Component
 
   renderCoveredOverlay: =>
     {showCoveredOverlay, showLithology, divisions} = @props
+    {UUID} = @state
     if not showCoveredOverlay?
       showCoveredOverlay = showLithology
     return unless showCoveredOverlay
-    h 'g.covered-overlay', {}, divisions.map (d)=>
+    divs = divisions.map (d)=>
       return null if not d.covered
-      @createRect d, {fill: @coveredPattern.url()}
+      @createRect d, {fill: "url(##{UUID}-covered)"}
+
+    line = h(Lines, {
+      id: "#{UUID}-covered"
+      size: 8
+      stroke: 'rgba(0,0,0,0.3)'
+    })
+
+    h 'g.covered-overlay', {}, [
+      h 'defs', [line]
+      divs...
+    ]
 
   renderLithology: =>
     return unless @props.showLithology
@@ -199,7 +208,7 @@ class LithologyColumn extends Component
       # We have responsive facies!
       for f in facies
         faciesColorMap[f.id] = f.color
- 
+
     __ = [{divisions[0]...}]
     for d in divisions
       ix = __.length-1

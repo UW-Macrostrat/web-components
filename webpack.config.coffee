@@ -65,6 +65,8 @@ module.exports = {
           {
             loader: 'file-loader',
             options: {
+              useRelativePath: true
+              outputPath: 'sections/assets/'
               name: '[name].[ext]'
             }
           }
