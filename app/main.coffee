@@ -1,4 +1,4 @@
-{PlatformContext} = require './platform'
+{PlatformContext, PlatformProvider} = require './platform'
 React = require 'react'
 ReactDOM = require 'react-dom'
 {HashRouter,Route,Link, Switch} = require 'react-router-dom'
@@ -10,7 +10,7 @@ FocusStyleManager.onlyShowFocusOnTabs()
 {Icon} = require 'react-fa'
 {NavBar, NavLink} = require './nav'
 {SectionIndex} = require './sections'
-MapLegend = require './map-legend/component'
+#MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
 {MapView} = require './map-viewer'
@@ -44,15 +44,15 @@ class App extends React.Component
     @state = {}
     @state.showNavBar = true
   render: ->
-    h PlatformContext.Provider, [
+    h PlatformProvider, [
       h 'div#root', [
         h Switch, [
           route '/', Home, exact: true
           route '/sections', SectionIndex
           route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
           route '/lateral-variation', wrapNavBar(LateralVariation)
-          route '/map', wrapHomeButton(MapView)
-          route '/map-legend', wrapNavBar(MapLegend)
+          route '/map', MapView
+          #route '/map-legend', wrapNavBar(MapLegend)
         ]
       ]
     ]

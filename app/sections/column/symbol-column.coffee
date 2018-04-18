@@ -9,11 +9,11 @@ classNames = require 'classnames'
 
 symbolIndex = {
   "Hummocky cross-stratified": "column-patterns/hcs.svg"
-  "Ooids": "column-patterns/ooids.svg"
-  "Dessication cracks": "column-patterns/dessication-cracks.svg"
-  "Digitate stromatolites": "column-patterns/digitate-stromatolites.svg"
-  "Domal stromatolites": "column-patterns/domal-stromatolites.svg"
   "Trough cross-stratified": "column-patterns/tcs.svg"
+  "Dessication cracks": "column-patterns/dessication-cracks.svg"
+  "Ooids": "column-patterns/ooids.svg"
+  "Domal stromatolites": "column-patterns/domal-stromatolites.svg"
+  "Digitate stromatolites": "column-patterns/digitate-stromatolites.svg"
 }
 
 resolveSymbol = (sym)->
@@ -110,4 +110,17 @@ class SymbolColumn extends Component
     href = "##{@UUID}-#{symbol}"
     h "use", {className,y, x: 0, width, href, key: id}
 
-module.exports = {SymbolColumn}
+class SymbolLegend extends Component
+  render: ->
+    arr = []
+    for name,symbol of symbolIndex
+      sym =  h 'div', {key: name}, [
+        h 'img', {src: resolveSymbol(symbol)}
+        h 'span.label', name
+      ]
+
+      arr.push sym
+
+    h 'div.symbol-legend', arr
+
+module.exports = {SymbolColumn, SymbolLegend}

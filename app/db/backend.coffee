@@ -7,6 +7,7 @@ opts = {
   query: (e)=>
     v = queryLibrary.find (d)->
       d.sql == e.query
+    console.log e.query
     if not v?
       console.warn "No serialization spec found matching the query `#{e.query}`.
                     This request will fail on the frontend."
@@ -56,6 +57,10 @@ summarySectionQueries = [
 ]
 for q in summarySectionQueries
   new SerializableQuery(q, null, {baseDir})
+
+baseDir = dirname require.resolve "../map-viewer/legend"
+new SerializableQuery('unit-data', null, {baseDir})
+
 
 baseDir = dirname require.resolve "../sections"
 new SerializableQuery('sections', null, {baseDir})

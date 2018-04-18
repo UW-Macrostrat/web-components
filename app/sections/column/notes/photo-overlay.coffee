@@ -1,6 +1,7 @@
 {Component} = require 'react'
 {Dialog} = require '@blueprintjs/core'
 h = require 'react-hyperscript'
+{PlatformContext} = require '../../../platform'
 Lightbox = require('react-images').default
 
 {db, storedProcedure, query} = require '../../db'
@@ -15,7 +16,7 @@ getData = ->
     __photos = await __photo_promise
   return __photos
 
-class PhotoOverlay extends Component
+class PhotoOverlay__ extends Component
   constructor: (props)->
     super props
     @state = {
@@ -34,10 +35,11 @@ class PhotoOverlay extends Component
   render: ->
     {photos, currentImage} = @state
     return null if not photos?
-    {isOpen, onClose} = @props
+    {isOpen, onClose, computePhotoPath} = @props
 
     images = photos.map (d)->
-      {src: d.path, caption: d.note}
+      src = computePhotoPath(d)
+      {src, caption: d.note}
 
     h Lightbox, {
       images
@@ -59,5 +61,10 @@ class PhotoOverlay extends Component
     if currentImage >= @state.photos.length
       currentImage = 0
     @setState {currentImage}
+
+class PhotoOverlay extends Component
+  render: ->
+    h PlatformContext.Consumer, null, ({computePhotoPath})=>
+      h PhotoOverlay__, {computePhotoPath, @props...}
 
 module.exports = {PhotoOverlay}

@@ -1,6 +1,7 @@
 {Component} = require 'react'
 h = require 'react-hyperscript'
 classNames = require 'classnames'
+{SymbolLegend} = require '../column/symbol-column'
 {FaciesDescriptionSmall, FaciesContext, FaciesSwatch} = require '../facies-descriptions'
 
 class FaciesLegend extends Component
@@ -10,22 +11,30 @@ class FaciesLegend extends Component
     isEditable: true
   }
   render: ->
-    h 'div.facies-description', [
-      h 'h2', 'Facies'
-      h 'div.section', [
-        h 'h4', 'Siliciclastic'
-        @facies "coarse-clastics", "Coarse sandstone and pebble conglomerate"
-        @facies "shallow-fine-clastics", "Inner shoreface sandstone–siltstone"
-        @facies "fine-clastics", "Outer shoreface sandstone–mudstone"
+    h 'div.legend-inner', [
+      h 'div.facies-description', [
+        h 'h2', 'Sedimentary facies'
+        h 'div.section', [
+          h 'h4', 'Siliciclastic'
+          @facies "coarse-clastics", "Coarse sandstone and pebble conglomerate"
+          @facies "shallow-fine-clastics", "Inner shoreface sandstone–siltstone"
+          @facies "fine-clastics", "Outer shoreface sandstone–mudstone"
+        ]
+        h 'div.section', [
+          h 'h4', 'Carbonate'
+          @facies "knobbly-stromatolites", "Stromatolite-colonized reworking surface*"
+          @facies "carbonate-mudstone"
+          @facies "intraclast-grainstone"
+          @facies "hcs-grainstone", "Cross-stratified grainstone"
+          @facies "mixed-grainstone", 'Wavy-bedded heterolithic'
+          @facies "intraclast-breccia", 'Intraclast breccia'
+          h 'p.note', "*: not a stratigraphically continuous facies"
+        ]
       ]
-      h 'div.section', [
-        h 'h4', 'Carbonate'
-        @facies "knobbly-stromatolites", "Stromatolites"
-        @facies "carbonate-mudstone"
-        @facies "intraclast-grainstone"
-        @facies "hcs-grainstone", "Cross-stratified grainstone"
-        @facies "mixed-grainstone", 'Wavy-bedded heterolithic'
-        @facies "intraclast-breccia", 'Intraclast breccia'
+      h 'div.symbol-legend', [
+        h 'h2', 'Symbology'
+        h SymbolLegend
+        h 'p.note', 'Triangle bars represent variation in accomodation space at the parasequence set level'
       ]
     ]
 

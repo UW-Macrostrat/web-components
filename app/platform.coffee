@@ -1,5 +1,6 @@
-{createContext} = require 'react'
-
+{Component, createContext} = require 'react'
+h = require 'react-hyperscript'
+{join, resolve} = require 'path'
 ## Set whether we are on the backend or frontend
 global.ELECTRON = 'electron'
 global.WEB = 'web'
@@ -21,9 +22,43 @@ Platform = Object.freeze {
   PRINT: 3
 }
 
-PlatformContext = createContext {
-  platform: Platform.DESKTOP
-  editable: true
-}
+class PlatformData
+  constructor: ->
+    @WEB = false
+    @ELECTRON = false
+    if global.PLATFORM == WEB
+      @platform = Platform.WEB
+      @WEB = true
+      @editable = false
+      @baseUrl = BASE_URL
+    else
+      @platform = Platform.ELECTRON
+      @ELECTRON = true
+      @editable = true
+      @baseUrl = 'file://'+resolve(BASE_DIR)
 
-module.exports = {PlatformContext, Platform}
+  computePhotoPath: (photo)=>
+    if @ELECTRON
+        return join(@baseUrl, '..', 'Products', 'webroot', 'Sections', 'photos', "#{photo.id}.jpg")
+      else
+        return join(@baseUrl, 'photos', "#{photo.id}.jpg")
+    # Original photo
+    return photo.path
+
+  resolveSymbol: (sym)->
+    try
+      if @ELECTRON
+        q = resolve join(BASE_DIR, 'assets', sym)
+        return 'file://'+q
+      else
+        return join BASE_URL, 'assets', sym
+    catch
+      return ''
+
+PlatformContext = createContext()
+
+class PlatformProvider extends Component
+  render: ->
+    h PlatformContext.Provider, {value: new PlatformData}, @props.children
+
+module.exports = {PlatformContext, Platform, PlatformProvider}

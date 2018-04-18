@@ -1,20 +1,23 @@
 require './main.styl'
 React = require 'react'
 ReactDOM = require 'react-dom'
-require 'mapbox-gl/dist/mapbox-gl.css'
 mgl = require 'mapbox-gl/dist/mapbox-gl'
-
+h = require 'react-hyperscript'
+{LegendPanel} = require './legend/index.coffee'
+{MapNavigationControl} = require './nav'
+require 'mapbox-gl/dist/mapbox-gl.css'
 # Maybe this should go in main thread
 path = require 'path'
 
-class MapView extends React.Component
-  render: -> React.createElement 'div', id: 'map-container'
+class MapPanel extends React.Component
+  render: -> h 'div', {id: 'map-container'}
 
   componentDidMount: ->
 
     el = ReactDOM.findDOMNode @
 
     if PLATFORM == ELECTRON
+      #tileUrl = BASE_URL+"tiles"
       tileUrl = "http://localhost:3006/tiles/geology"
     else
       tileUrl = BASE_URL+"tiles"
@@ -38,7 +41,21 @@ class MapView extends React.Component
             tileSize: 256
         layers: [
           {id: "geology", type: "raster", source: "geology"}
-          #{id: "contact", type: "line", source: "contact", 'source-layer': "contact"}
         ]
+
+class MapView extends React.Component
+  constructor: ->
+    super()
+    @state = {legendIsActive: true}
+  toggleLegend: =>
+    @setState {legendIsActive: not @state.legendIsActive}
+  render: ->
+    h 'div#map-root', {}, [
+      h 'div#map-panel-container', {}, [
+        h MapNavigationControl, {toggleLegend: @toggleLegend}
+        h MapPanel
+      ]
+      h LegendPanel, {isActive: @state.legendIsActive}
+    ]
 
 module.exports = {MapView}

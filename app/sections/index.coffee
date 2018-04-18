@@ -17,7 +17,6 @@ SectionPage = require './single-section'
 
 createSectionLink = (d, base)->
   base ?= "sections/"
-  #withRouter(props => <MyComponent {...props}/>)
   navLink = h NavLink, to: base+d.id, [
     h 'div', [
       h 'div.title', [
@@ -41,7 +40,7 @@ class SectionIndexPage extends Component
       h 'div.location', [
         h 'h2', key
         h 'ul.navigation.sections', values.map (d)->
-          createSectionLink(d, pathname)
+          createSectionLink(d)
       ]
 
     h 'div#homepage', [
@@ -49,10 +48,10 @@ class SectionIndexPage extends Component
       h 'div#homepage-inner', [
         h 'h1', 'Sections'
         h 'ul.navigation', [
-          h NavLink, to: "#{pathname}summary", [
+          h NavLink, to: "#{pathname}/summary", [
             h 'div.title.summary-sections', 'Summary sections'
           ]
-          h NavLink, to: "#{pathname}generalized", [
+          h NavLink, to: "#{pathname}/generalized", [
             h 'div.title', 'Generalized sections'
           ]
         ]

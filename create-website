@@ -1,14 +1,19 @@
 #!/usr/bin/env zsh
 
-fn=$PROJECT_DIR/versioned/Products/webroot
+products="$PROJECT_DIR/versioned/Products"
+fn=$products/webroot
 query_dir="$fn/sections/queries"
 image_dir="$fn/sections/images"
-mkdir -p $fn $query_dir
+map_query_dir="$fn/map/queries"
+map_pattern_dir="$fn/map/patterns"
+mkdir -p $fn $query_dir $map_query_dir $map_pattern_dir
 
 rm -rf node_modules/.cache
 
 # Serialize query datasets
-./serialize-queries $query_dir
+./serialize-queries $query_dir $map_query_dir $map_pattern_dir
+
+cp $query_dir/*.json "$map_query_dir"
 
 rm -f "$image_dir"
 ln -s \
@@ -20,9 +25,11 @@ mkdir -p $fn/map
 cp app/web-index.html $fn/index.html
 cp app/entrypoints/sections-index.html $fn/sections/index.html
 cp app/entrypoints/map-index.html $fn/map/index.html
+cp $products/map-patterns/*.svg $map_pattern_dir/*.svg
+
+tl copy mbtiles://$REPO_DIR/Products/tiles/geology.mbtiles file://$fn/map/tiles
 
 webpack $@
 ## Use --watch flag to start browserSync
 
 # Move images (and later, slice up)
-tl copy mbtiles://$REPO_DIR/Products/tiles/geology.mbtiles file://$fn/map/tiles
