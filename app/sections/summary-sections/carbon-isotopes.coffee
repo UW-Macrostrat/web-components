@@ -9,6 +9,7 @@ Measure = require('react-measure').default
 {SectionAxis} = require '../column/axis'
 {query} = require '../db'
 {sectionSurfaceProps} = require './link-overlay'
+{SVGNamespaces} = require '../util'
 classNames = require 'class-names'
 chroma = require 'chroma-js'
 
@@ -108,6 +109,7 @@ class IsotopesComponent extends Component
           onResize: @onResize
         }, ({measureRef})=>
           h "svg.section", {
+            SVGNamespaces...
             size...
             ref: measureRef
           }, [

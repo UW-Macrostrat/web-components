@@ -18,10 +18,8 @@ rm -rf node_modules/.cache
 
 cp $query_dir/*.json "$map_query_dir"
 
-rm -f "$image_dir"
-ln -s \
-  "$NAUKLUFT_DATA_DIR/Sections/Digitized Images/web-images" \
-  "$image_dir"
+# Copy web images
+rsync -av --delete "$NAUKLUFT_DATA_DIR/Sections/Digitized Images/web-images/" "$image_dir"
 
 # Compile code
 mkdir -p $fn/map

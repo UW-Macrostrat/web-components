@@ -2,6 +2,7 @@
 h = require 'react-hyperscript'
 classNames = require 'classnames'
 d3 = require 'd3'
+{SVGNamespaces} = require '../util'
 {Notification} = require '../../notify'
 {SectionOptionsContext} = require './options'
 
@@ -126,7 +127,9 @@ class SectionLinkOverlay extends Component
 
     {width, height} = @props
     style = {top: marginTop}
-    h 'svg#section-link-overlay', {className, width, height, style}, [
+    h 'svg#section-link-overlay', {
+      SVGNamespaces...
+      className, width, height, style}, [
       h 'g.section-trackers', __
       h 'g.section-links', surfaces.map @buildLink
     ]

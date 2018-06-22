@@ -108,7 +108,7 @@ class SymbolColumn extends Component
     y = scale(height)-width/2
 
     href = "##{@UUID}-#{symbol}"
-    h "use", {className,y, x: 0, width, href, key: id}
+    h "use", {className,y, x: 0, width, xlinkHref: href, key: id}
 
 class SymbolLegend extends Component
   render: ->

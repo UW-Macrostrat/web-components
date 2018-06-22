@@ -12,6 +12,7 @@ Measure = require('react-measure').default
 {withRouter} = require 'react-router-dom'
 {Notification} = require '../../notify'
 {FaciesContext} = require '../facies-descriptions'
+{SVGNamespaces} = require '../util'
 
 fmt = d3.format('.1f')
 
@@ -170,6 +171,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
           onResize: @onResize
         }, ({measureRef, measure})=>
           h "svg.section", {
+            SVGNamespaces...
             style, ref: measureRef
           }, [
             h 'g.backdrop', {transform}, [

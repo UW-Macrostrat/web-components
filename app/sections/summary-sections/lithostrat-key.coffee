@@ -16,6 +16,7 @@ Measure = require('react-measure').default
 {Notification} = require '../../notify'
 {FaciesContext} = require '../facies-descriptions'
 {query} = require '../../db'
+{SVGNamespaces} = require '../util'
 
 fmt = d3.format('.1f')
 
@@ -143,7 +144,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       style: {minWidth}
     }, [
       h 'div.section-outer', [
-        h "svg.section", {style}, [
+        h "svg.section", {style, SVGNamespaces...}, [
           h 'g.backdrop', {transform}, [
             h LithostratigraphyColumn, {scale, divisions, surfaces}
           ]

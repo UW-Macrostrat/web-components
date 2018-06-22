@@ -48,4 +48,6 @@ SELECT
 FROM v
 GROUP BY (section, height)
 )
-SELECT * FROM z ORDER BY height;
+SELECT * FROM z
+WHERE height IS NOT null
+ORDER BY height;

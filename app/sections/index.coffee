@@ -46,7 +46,12 @@ class SectionIndexPage extends Component
     h 'div#homepage', [
       h SectionNavigationControl
       h 'div#homepage-inner', [
-        h 'h1', 'Sections'
+        h 'div.title-block', [
+          h 'h1', 'Stratigraphic sections of the Zebra Nappe'
+          h 'p.author', 'Dissertation plate 5.2 – Daven Quinn'
+          h 'p', "Summary sections can be used to access
+                  detailed sections"
+        ]
         h 'ul.navigation', [
           h NavLink, to: "#{pathname}/summary", [
             h 'div.title.summary-sections', 'Summary sections'

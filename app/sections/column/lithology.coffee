@@ -63,11 +63,11 @@ class LithologyColumn extends Component
   queryID: 'lithology'
   constructor: (props)->
     super props
-    UUID = v4()
+    @UUID = v4()
     @state = {
-      UUID
-      frameID: "#frame-#{UUID}"
-      clipID: "#clip-#{UUID}"
+      UUID: @UUID
+      frameID: "#frame-#{@UUID}"
+      clipID: "#clip-#{@UUID}"
     }
 
   resolveID: (d)->
@@ -77,10 +77,12 @@ class LithologyColumn extends Component
       return "#{d.fgdc_pattern}"
     return "#{symbolIndex[d.pattern]}"
 
-  createFrame: ->
+  createFrame: (setID=true)->
     {width, height} = @props
-    {frameID} = @state
-    h "rect#{frameID}", {x:0,y:0,width,height, key: frameID}
+    frameID = null
+    if setID
+      frameID = 'frame-'+@UUID
+    h "rect", {id: frameID, x:0,y:0,width,height, key: frameID}
 
   render: ->
     {scale, visible,left, shiftY,
@@ -95,12 +97,12 @@ class LithologyColumn extends Component
     clipPath = "url(#{clipID})"
     h 'g.lithology-column', {transform, onClick},[
       @createDefs()
-      h 'g.lithology-inner', {clipPath}, [
+      h 'g', {className: 'lithology-inner', clipPath}, [
         @renderFacies()
         @renderLithology()
         @renderCoveredOverlay()
       ]
-      h 'use.frame', {href: frameID, fill:'transparent', key: 'frame'}
+      h 'use.frame', {xlinkHref: '#frame-'+@UUID, fill:'transparent', key: 'frame'}
       @renderEditableColumn()
     ]
 
@@ -124,20 +126,17 @@ class LithologyColumn extends Component
         patternSize...
       }, [
         h 'image', {
-          href: resolveSymbol(d)
+          xlinkHref: resolveSymbol(d)
           x:0,y:0
           patternSize...
         }
       ]
 
-    clipPath = createElement(
-      "clipPath",
-      {id: clipID.slice(1), key: clipID}, [
-        h 'use', {key: frameID, 'href': frameID}
-      ])
     h 'defs', {key: 'defs'}, [
       @createFrame()
-      clipPath
+      createElement('clipPath', {id: clipID.slice(1), key: clipID}, [
+        @createFrame(false)
+      ])
       elements...
     ]
 
@@ -160,6 +159,7 @@ class LithologyColumn extends Component
     if not showCoveredOverlay?
       showCoveredOverlay = showLithology
     return unless showCoveredOverlay
+
     divs = divisions.map (d)=>
       return null if not d.covered
       @createRect d, {fill: "url(##{UUID}-covered)"}

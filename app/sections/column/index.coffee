@@ -15,6 +15,7 @@ require './main.styl'
 {GrainsizeScale} = require './grainsize'
 {SymbolColumn} = require './symbol-column'
 {ModalEditor} = require './modal-editor'
+{SVGNamespaces} = require '../util'
 Samples = require './samples'
 {FloodingSurface, TriangleBars} = require './flooding-surface'
 h = require 'react-hyperscript'
@@ -281,6 +282,7 @@ class SectionComponent extends BaseSectionComponent
 
     height = outerHeight
     h "svg.overlay", {
+      SVGNamespaces...
       width: outerWidth
       height
     }, [
