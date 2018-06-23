@@ -141,7 +141,12 @@ class IsotopesComponent extends Component
     return null unless surfaces?
     surfaces = surfaces.filter (d)->d.type == 'sequence-strat'
     h 'g.surfaces', {style: {strokeOpacity: 0.3}}, surfaces.map (d)=>
-      height = getHeight(d)
+      try
+        height = getHeight(d)
+      catch
+        # No height for section J. We should create a more
+        # robust solution to this problem in the SQL code.
+        return null
 
       y = @state.scale(height)
       h 'line', {
