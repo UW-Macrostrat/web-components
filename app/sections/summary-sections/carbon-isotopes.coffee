@@ -23,6 +23,7 @@ class IsotopesComponent extends Component
     trackVisibility: true
     innerWidth: 150
     offsetTop: null
+    showLines: false
     surfaces: null
     xRatio: 6
     height: 100 # Section height in meters
@@ -162,11 +163,15 @@ class IsotopesComponent extends Component
       [x,y] = @locatePoint values[values.length-1]
       transform = "translate(#{x},#{y})"
       fill = stroke = cscale(i)
-      lineValues = values.filter (d)->d.in_zebra_nappe
-      d = @line(lineValues)
+
+      line = null
+      if @props.showLines
+        lineValues = values.filter (d)->d.in_zebra_nappe
+        d = @line(lineValues)
+        line = h 'path', {d, stroke, fill:'transparent'}
       h 'g.section-data', {key}, [
         @renderValues(values, fill)
-        h 'path', {d, stroke, fill:'transparent'}
+        line
         h 'text', {transform, x:10,y:5,fill}, key
       ]
 

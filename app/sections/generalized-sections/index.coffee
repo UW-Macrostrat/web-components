@@ -63,7 +63,6 @@ groupSections = (sections)=>
 
   sectionGroups = d3.nest()
     .key (d)->d.props.location or ""
-    .key stackGroup
     .sortKeys (a,b)->__ix(a)-__ix(b)
     .entries sections
 
@@ -75,11 +74,11 @@ groupSections = (sections)=>
   sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
 
   sectionGroups.map ({key,values})=>
-    h LocationGroup, {key, name: key},
-      values.map ({key,values})=>
-        values.sort (a, b)->
-          b.offset-a.offset
-        h SectionColumn, values
+    values.sort (a, b)->
+      b.offset-a.offset
+    h LocationGroup, {key, name: key}, [
+      h SectionColumn, values
+    ]
 
 class GeneralizedSections extends Component
   @defaultProps: {
@@ -108,7 +107,6 @@ class GeneralizedSections extends Component
         showTriangleBars: true
         showLithostratigraphy: true
         showSequenceStratigraphy: true
-        showLegend: true
         # Allows us to test the serialized query mode
         # we are developing for the web
         serializedQueries: global.SERIALIZED_QUERIES
@@ -138,7 +136,6 @@ class GeneralizedSections extends Component
      showOxygenIsotopes,
      trackVisibility,
      showFacies,
-     showLegend,
      showLithostratigraphy,
      activeMode} = options
 
@@ -187,9 +184,6 @@ class GeneralizedSections extends Component
     __sections = groupSections(__sections)
 
     maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
-
-    if showLegend
-      __sections.push h Legend
 
     paddingLeft = if showTriangleBars then 90 else 30
     marginTop = 50

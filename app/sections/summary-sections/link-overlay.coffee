@@ -17,6 +17,8 @@ OverlayContext = createContext {
   onResize: ->
 }
 
+# https://www.particleincell.com/2012/bezier-splines/
+
 class SectionLinkOverlay extends Component
   @defaultProps: {
     width: 100

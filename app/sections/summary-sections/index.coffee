@@ -26,7 +26,6 @@ PropTypes = require 'prop-types'
 d3 = require 'd3'
 
 require '../main.styl'
-require './main.styl'
 
 class SectionColumn extends Component
   render: ->
