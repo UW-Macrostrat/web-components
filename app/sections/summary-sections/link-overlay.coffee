@@ -118,8 +118,8 @@ class SectionLinkOverlay extends Component
     className = classNames {skeletal}
 
     __ = []
-    for key, {offset, padding} of sectionPositions
-      {left, top, width, height} = offset
+    for key, {bounds, padding} of sectionPositions
+      {left, top, width, height} = bounds
       continue unless left?
       x = left
       y = top+padding.top-marginTop
