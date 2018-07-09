@@ -148,15 +148,17 @@ class SectionLinkOverlay extends Component
       .entries (v for k,v of sectionPositions)
 
     stackSurfaces = []
-    for {key, values} in sectionStacks
+    for {key, values: _} in sectionStacks
       surfacesIndex = {}
-      for section in values
+      # Logic for determining which section's surface is rendered
+      # within a stack
+
+      for section in _
 
         # Define a function to return domain
         withinDomain = (height)->
           d = section.scale.domain()
           return d[0] < height < d[1]
-
         {key: section_id, surfaces: section_surfaces} = section
         # Naive logic
         for surface in section_surfaces
