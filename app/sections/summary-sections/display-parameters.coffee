@@ -20,7 +20,7 @@ sectionOffsets = {
   D: 200
   E: 40
   F: 200
-  G: -100
+  G: -10
   H: 310
   I: 30
   J: -5
@@ -38,6 +38,6 @@ groupOrder = [
   'Tsams'
 ]
 
-stackGroups = ['BED','AC','IF','HG']
+stackGroups = ['BED','AC','HG','IF']
 
 module.exports = {stackGroups, groupOrder, sectionOffsets, tectonicSectionOffsets}

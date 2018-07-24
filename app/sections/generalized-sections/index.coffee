@@ -49,37 +49,6 @@ class LocationGroup extends Component
       h 'div.location-group-body', {}, children
     ]
 
-groupSections = (sections)=>
-  stackGroup = (d)=>
-    for g in stackGroups
-      if g.indexOf(d.key) != -1
-        return g
-    return d.id
-
-  indexOf = (arr)->(d)->
-    arr.indexOf(d)
-
-  __ix = indexOf(stackGroups)
-
-  sectionGroups = d3.nest()
-    .key (d)->d.props.location or ""
-    .sortKeys (a,b)->__ix(a)-__ix(b)
-    .entries sections
-
-  g = sectionGroups.find (d)->d.key == ""
-  extraItems = if g? then g.values[0].values else []
-  sectionGroups = sectionGroups.filter (d)->d.key != ""
-
-  __ix = indexOf(groupOrder)
-  sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
-
-  sectionGroups.map ({key,values})=>
-    values.sort (a, b)->
-      b.offset-a.offset
-    h LocationGroup, {key, name: key}, [
-      h SectionColumn, values
-    ]
-
 class GeneralizedSections extends Component
   @defaultProps: {
     scrollable: true
@@ -120,11 +89,6 @@ class GeneralizedSections extends Component
     return unless v?
     @state = update @state, options: {$merge: v}
 
-    query 'lithostratigraphy-surface', null, {baseDir: __dirname}
-      .then (surfaces)=>
-        surfaces.reverse()
-        @setState {surfaces}
-
   renderSections: ->
     {sections, scrollable} = @props
     {dimensions, options, sectionPositions, surfaces} = @state
@@ -143,12 +107,47 @@ class GeneralizedSections extends Component
 
     skeletal = activeMode == 'skeleton'
 
+    # Group sections by data instead of pre-created elements
+    __sections = @groupSections(sections)
+
+    maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
+
+    paddingLeft = if showTriangleBars then 90 else 30
+    marginTop = 50
+    overflow = if scrollable then "scroll" else 'inherit'
+    {canvas} = @state.dimensions
+    minHeight = 1500
+
+    h 'div#section-pane', {style: {overflow}}, [
+      h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
+        h "div#section-page-inner", {
+          ref: measureRef
+          style: {zoom: 1, minHeight}
+        }, __sections
+    ]
+
+  groupSections: (sections)=>
+    {sections, scrollable} = @props
+    {dimensions, options, sectionPositions, surfaces} = @state
+    {dragdealer, dragPosition, rest...} = options
+    {showFloodingSurfaces,
+     showSequenceStratigraphy,
+     showTriangleBars,
+     showCarbonIsotopes,
+     showOxygenIsotopes,
+     trackVisibility,
+     showFacies,
+     showLithostratigraphy,
+     activeMode} = options
+
+    skeletal = activeMode == 'skeleton'
+
     sectionResize = (key)=>(contentRect)=>
       cset = {}
       cset[key] = {$set: contentRect}
       @mutateState {sectionPositions: cset}
 
-    __sections = sections.map (row)=>
+    sections = sections.map (row)=>
       {offset, range, height, start, end, rest...} = row
       offset = sectionOffsets[row.id] or offset
 
@@ -177,36 +176,37 @@ class GeneralizedSections extends Component
       }
       return sec
 
-    row = sections.find (d)->d.id == 'J'
-    {offset, location, rest...} = row
-    location = null
 
-    __sections = groupSections(__sections)
+    stackGroup = (d)=>
+      for g in stackGroups
+        if g.indexOf(d.key) != -1
+          return g
+      return d.id
 
-    maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
+    indexOf = (arr)->(d)->
+      arr.indexOf(d)
 
-    paddingLeft = if showTriangleBars then 90 else 30
-    marginTop = 50
-    overflow = if scrollable then "scroll" else 'inherit'
-    {canvas} = @state.dimensions
-    minHeight = 1500
+    __ix = indexOf(stackGroups)
 
-    h 'div#section-pane', {style: {overflow}}, [
-      h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
-        h "div#section-page-inner", {
-          ref: measureRef
-          style: {zoom: 1, minHeight}
-        }, __sections
-      h SectionLinkOverlay, {
-        skeletal, paddingLeft, canvas...,
-        marginTop,
-        sectionPositions,
-        showLithostratigraphy
-        showSequenceStratigraphy
-        showCarbonIsotopes
-        surfaces
-      }
-    ]
+    sectionGroups = d3.nest()
+      .key (d)->d.props.location or ""
+      .sortKeys (a,b)->__ix(a)-__ix(b)
+      .entries sections
+
+    g = sectionGroups.find (d)->d.key == ""
+    extraItems = if g? then g.values[0].values else []
+    sectionGroups = sectionGroups.filter (d)->d.key != ""
+
+    __ix = indexOf(groupOrder)
+    sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
+
+    sectionGroups.map ({key,values})=>
+      values.sort (a, b)->
+        b.offset-a.offset
+      h LocationGroup, {key, name: key}, [
+        h SectionColumn, values
+      ]
+
 
   render: ->
     {options} = @state

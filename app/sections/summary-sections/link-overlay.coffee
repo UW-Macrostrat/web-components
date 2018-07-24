@@ -70,7 +70,7 @@ class SectionLinkOverlay extends Component
 
     {triangleBarsOffset, width} = @props.sectionOptions
     heights = []
-    for {section, height, inferred} in values
+    for {section, height, inferred, inDomain} in values
       try
         {bounds, padding, scale, pixelOffset
          triangleBarRightSide
@@ -90,7 +90,7 @@ class SectionLinkOverlay extends Component
         x1 -= ofs
 
 
-      heights.push {x0, x1, y, inferred}
+      heights.push {x0, x1, y, inferred, inDomain}
 
     heights.sort (a,b)-> a.x0 - b.x0
 
@@ -100,16 +100,19 @@ class SectionLinkOverlay extends Component
       inferred = (a.inferred or b.inferred)
       source = {x: a.x1, y: a.y}
       target = {x: b.x0, y: b.y}
-      {source, target, inferred}
+      {inDomain} = b
+      width = b.x1-b.x0
+      {source, target, inferred, width}
 
     links = for pair in pathData
-      {inferred} = pair
+      {inferred,width} = pair
       className = classNames(
         "section-link"
         "commonality-#{unit_commonality}"
         type
         {inferred})
-      d = @link(pair)
+      d = @link(pair) + "l#{width},0"
+
       h 'path', {d, className, stroke, strokeWidth, onClick}
 
     h 'g', links
@@ -151,7 +154,7 @@ class SectionLinkOverlay extends Component
     for {key, values: _} in sectionStacks
       surfacesIndex = {}
       # Logic for determining which section's surface is rendered
-      # within a stack
+      # within a stack (typically the section that is not inferred)
 
       for section in _
 
@@ -177,6 +180,7 @@ class SectionLinkOverlay extends Component
       for surface in surfacesIndex
         {scale, pixelOffset} = sectionPositions[surface.section]
         surface.y = scale(surface.height)+pixelOffset+2
+        surface.inDomain = withinDomain(surface.height)
 
       # Save generated index to appropriate stack
       stackSurfaces.push {
