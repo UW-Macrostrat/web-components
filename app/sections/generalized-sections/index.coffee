@@ -143,13 +143,7 @@ class GeneralizedSections extends Component
     {scrollable} = @props
     {dimensions, options, sectionPositions, surfaces, sections} = @state
     {dragdealer, dragPosition, rest...} = options
-    {showFloodingSurfaces,
-     showSequenceStratigraphy,
-     showTriangleBars,
-     showCarbonIsotopes,
-     showOxygenIsotopes,
-     trackVisibility,
-     showFacies,
+    {showFacies,
      showLithostratigraphy,
      activeMode} = options
 
@@ -160,7 +154,10 @@ class GeneralizedSections extends Component
       cset[key] = {$set: contentRect}
       @mutateState {sectionPositions: cset}
 
-    sections = sections.map (row)=>
+    sections.sort (a, b)->
+      b.offset-a.offset
+
+    return sections.map (row)=>
       {offset, range, height, start, end, rest...} = row
 
       # Clip off the top of some columns...
@@ -173,12 +170,7 @@ class GeneralizedSections extends Component
       sec = h GeneralizedSVGSection, {
         zoom: 0.1, key: row.id,
         skeletal,
-        showFloodingSurfaces
-        showTriangleBars,
-        showCarbonIsotopes,
-        trackVisibility
         showFacies
-        onResize: sectionResize(row.id)
         offset
         range
         height
@@ -186,41 +178,11 @@ class GeneralizedSections extends Component
         end
         rest...
       }
-      return sec
 
-    stackGroup = (d)=>
-      for g in stackGroups
-        if g.indexOf(d.key) != -1
-          return g
-      return d.id
-
-    indexOf = (arr)->(d)->
-      arr.indexOf(d)
-
-    __ix = indexOf(stackGroups)
-
-    sectionGroups = d3.nest()
-      .key (d)->d.props.location or ""
-      .sortKeys (a,b)->__ix(a)-__ix(b)
-      .entries sections
-
-    g = sectionGroups.find (d)->d.key == ""
-    extraItems = if g? then g.values[0].values else []
-    sectionGroups = sectionGroups.filter (d)->d.key != ""
-
-    __ix = indexOf(groupOrder)
-    sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
-
-    sections.sort (a, b)->
-      b.offset-a.offset
-
-    sections.map (section)=>
-      key = section.props.id
+      key = row.id
       h LocationGroup, {key, name: key}, [
-        h SectionColumn, [section]
+        h SectionColumn, [sec]
       ]
-
-
 
   render: ->
     {options} = @state
