@@ -83,29 +83,40 @@ class GeneralizedSections extends Component
         condensedDisplay: true
         update: @updateOptions
         sectionIDs: []
+        sectionData: null
         showCarbonIsotopes: true
 
     query 'generalized-section', null, {baseDir: join(__dirname,'..')}
-      .then @createSectionData
+      .then (data)=>
+        groupedSections = d3.nest()
+          .key (d)->d.section
+          .entries data
+
+        vals = groupedSections.map ({key, values})->
+          start = 0
+          end = d3.max values, (d)->d.top
+          {
+            section: key
+            divisions: values
+            start
+            end
+            clip_end: end
+            height: end-start
+            id: key
+            location: key
+            offset: 0
+            range: [start, end]
+          }
+
+        state = update @state, {sectionData: {$set: vals}}
+        @setState state
 
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
     return unless v?
     @state = update @state, options: {$merge: v}
 
-  createSectionData: (d)=>
-    {sections, surfaces} = @state
-
-    sections = d
-    groupedSections = d3.nest()
-      .key (d)->d.section
-      .entries sections
-
-    console.log sectionGroups
-    debugger
-
   renderSections: ->
-    {scrollable} = @props
     {dimensions, options, sectionPositions, surfaces, sections} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
@@ -115,21 +126,14 @@ class GeneralizedSections extends Component
      showOxygenIsotopes,
      trackVisibility,
      showFacies,
-     showLithostratigraphy,
-     activeMode} = options
-
-    return null unless sections.length > 0
-
-    skeletal = activeMode == 'skeleton'
+     showLithostratigraphy} = options
 
     # Group sections by data instead of pre-created elements
-    __sections = @groupSections(sections)
-
-    maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
+    __sections = @groupSections()
 
     paddingLeft = if showTriangleBars then 90 else 30
     marginTop = 50
-    overflow = if scrollable then "scroll" else 'inherit'
+    overflow = "scroll"
     {canvas} = @state.dimensions
     minHeight = 1500
 
@@ -141,24 +145,13 @@ class GeneralizedSections extends Component
 
   groupSections: (sections)=>
     {scrollable} = @props
-    {dimensions, options, sectionPositions, surfaces, sections} = @state
+    {dimensions, options, sectionPositions, surfaces, sectionData} = @state
     {dragdealer, dragPosition, rest...} = options
-    {showFacies,
-     showLithostratigraphy,
-     activeMode} = options
+    {showFacies, showLithostratigraphy} = options
 
-    skeletal = activeMode == 'skeleton'
-
-    sectionResize = (key)=>(contentRect)=>
-      cset = {}
-      cset[key] = {$set: contentRect}
-      @mutateState {sectionPositions: cset}
-
-    sections.sort (a, b)->
-      b.offset-a.offset
-
-    return sections.map (row)=>
-      {offset, range, height, start, end, rest...} = row
+    return null unless sectionData?
+    return sectionData.map (row)=>
+      {offset, range, height, start, end, divisions, rest...} = row
 
       # Clip off the top of some columns...
       end = row.clip_end
@@ -169,7 +162,7 @@ class GeneralizedSections extends Component
 
       sec = h GeneralizedSVGSection, {
         zoom: 0.1, key: row.id,
-        skeletal,
+        divisions
         showFacies
         offset
         range
