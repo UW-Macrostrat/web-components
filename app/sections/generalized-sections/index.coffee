@@ -118,20 +118,11 @@ class GeneralizedSections extends Component
 
   renderSections: ->
     {dimensions, options, sectionPositions, surfaces, sections} = @state
-    {dragdealer, dragPosition, rest...} = options
-    {showFloodingSurfaces,
-     showSequenceStratigraphy,
-     showTriangleBars,
-     showCarbonIsotopes,
-     showOxygenIsotopes,
-     trackVisibility,
-     showFacies,
-     showLithostratigraphy} = options
 
     # Group sections by data instead of pre-created elements
     __sections = @groupSections()
 
-    paddingLeft = if showTriangleBars then 90 else 30
+    paddingLeft = 30
     marginTop = 50
     overflow = "scroll"
     {canvas} = @state.dimensions
