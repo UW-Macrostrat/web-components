@@ -117,31 +117,14 @@ class GeneralizedSections extends Component
     @state = update @state, options: {$merge: v}
 
   renderSections: ->
-    {dimensions, options, sectionPositions, surfaces, sections} = @state
-
-    # Group sections by data instead of pre-created elements
-    __sections = @groupSections()
-
-    paddingLeft = 30
-    marginTop = 50
-    overflow = "scroll"
-    {canvas} = @state.dimensions
-    minHeight = 1500
-
-    h 'div#section-pane', {style: {overflow}}, [
-      h "div#section-page-inner", {
-        style: {zoom: 1, minHeight}
-      }, __sections
-    ]
-
-  groupSections: (sections)=>
     {scrollable} = @props
-    {dimensions, options, sectionPositions, surfaces, sectionData} = @state
+    {dimensions, options, sectionPositions, surfaces, sections, sectionData} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFacies, showLithostratigraphy} = options
 
+    # Group sections by data instead of pre-created elements
     return null unless sectionData?
-    return sectionData.map (row)=>
+    __sections =  sectionData.map (row)=>
       {offset, range, height, start, end, divisions, rest...} = row
 
       # Clip off the top of some columns...
@@ -167,6 +150,18 @@ class GeneralizedSections extends Component
       h LocationGroup, {key, name: key}, [
         h SectionColumn, [sec]
       ]
+
+    paddingLeft = 30
+    marginTop = 50
+    overflow = "scroll"
+    {canvas} = @state.dimensions
+    minHeight = 1500
+
+    h 'div#section-pane', {style: {overflow}}, [
+      h "div#section-page-inner", {
+        style: {zoom: 1, minHeight}
+      }, __sections
+    ]
 
   render: ->
     {options} = @state
