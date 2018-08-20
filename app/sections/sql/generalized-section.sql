@@ -2,19 +2,27 @@ WITH l AS (
 SELECT
 	l.id,
 	b.locality section,
+	f.color facies_color,
 	l.section original_section,
 	l.bottom original_height,
 	l.bottom+section.generalized_offset(l.section) bottom,
 	l.covered,
 	l.lithology,
 	l.surface,
-	l.fgdc_pattern,
-	l.schematic,
+  coalesce(definite_boundary, true) definite_boundary,
+  coalesce(v.pattern, l.lithology) pattern,
+	l.fgdc_pattern::text,
+	coalesce(l.schematic, false) schematic,
 	l.grainsize,
 	l.fill_pattern,
 	l.facies
 FROM section.section_lithology l
-JOIN section.generalized_breaks b ON l.section = b.section
+JOIN section.generalized_breaks b
+  ON l.section = b.section
+LEFT JOIN section.facies f
+  ON l.facies = f.id
+LEFT JOIN section.lithology v
+  ON l.lithology = v.id
 WHERE b.lower_height <= l.bottom
   AND l.bottom < b.upper_height
 )
