@@ -18,11 +18,13 @@ class BaseSectionComponent extends Component
   }
   constructor: (props)->
     super props
-    @state = {
-      divisions: []
-    }
-    query 'lithology', [@props.id]
-      .then (divisions)=>@setState {divisions}
+    {divisions} = @props
+    if not divisions?
+      divisions = []
+      query 'lithology', [@props.id]
+        .then (divisions)=>@setState {divisions}
+
+    @state = {divisions}
 
   componentDidMount: ->
     @componentDidUpdate.apply @, arguments

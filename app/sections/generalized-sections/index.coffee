@@ -162,13 +162,13 @@ class GeneralizedSections extends Component
 
     sections = sections.map (row)=>
       {offset, range, height, start, end, rest...} = row
-      offset = sectionOffsets[row.id] or offset
 
       # Clip off the top of some columns...
       end = row.clip_end
 
       height = end-start
       range = [start, end]
+      offset = 670-height
 
       sec = h GeneralizedSVGSection, {
         zoom: 0.1, key: row.id,
@@ -187,7 +187,6 @@ class GeneralizedSections extends Component
         rest...
       }
       return sec
-
 
     stackGroup = (d)=>
       for g in stackGroups
@@ -212,12 +211,15 @@ class GeneralizedSections extends Component
     __ix = indexOf(groupOrder)
     sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
 
-    sectionGroups.map ({key,values})=>
-      values.sort (a, b)->
-        b.offset-a.offset
+    sections.sort (a, b)->
+      b.offset-a.offset
+
+    sections.map (section)=>
+      key = section.props.id
       h LocationGroup, {key, name: key}, [
-        h SectionColumn, values
+        h SectionColumn, [section]
       ]
+
 
 
   render: ->

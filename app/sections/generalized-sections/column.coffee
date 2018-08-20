@@ -55,24 +55,7 @@ class GeneralizedSVGSection extends BaseSVGSectionComponent
 
     # Set up number of ticks
     nticks = (height*@props.zoom)/10
-
-    fs = null
-    if @props.showFloodingSurfaces
-      fs = h FloodingSurface, {
-        scale
-        zoom
-        id
-        offsetLeft: -40
-        lineWidth: 30
-        divisions
-      }
-
-    {triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
-    left += tbo
-    marginLeft -= tbo
     marginRight = 0
-    outerWidth += tbo
-    triangleBars = null
 
     style = {
       width: outerWidth
@@ -89,8 +72,6 @@ class GeneralizedSVGSection extends BaseSVGSectionComponent
       className: if @props.skeletal then "skeleton" else null
       style: {minWidth, position, top:desiredPosition}
     }, [
-      h 'div.section-header', [
-        h("h2", txt)]
       h 'div.section-outer', [
         h Measure, {
           ref: @measureRef
@@ -116,15 +97,6 @@ class GeneralizedSVGSection extends BaseSVGSectionComponent
                   id
                   grainsizeScaleStart: 40
                 }
-              h SymbolColumn, {
-                scale
-                height: innerHeight
-                left: 90
-                id
-                zoom
-              }
-              fs
-              triangleBars
               h SectionAxis, {scale, ticks: nticks}
             ]
           ]
