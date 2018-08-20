@@ -1,5 +1,134 @@
 {BaseSVGSectionComponent} = require '../summary-sections/column'
+{findDOMNode} = require 'react-dom'
+d3 = require 'd3'
+require 'd3-selection-multi'
+{Component, createElement, createRef} = require 'react'
+h = require 'react-hyperscript'
+Measure = require('react-measure').default
+{SectionAxis} = require '../column/axis'
+{SymbolColumn} = require '../column/symbol-column'
+{FloodingSurface, TriangleBars} = require '../column/flooding-surface'
+{LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
+{withRouter} = require 'react-router-dom'
+{Notification} = require '../../notify'
+{FaciesContext} = require '../facies-descriptions'
+{SVGNamespaces} = require '../util'
+
 
 class GeneralizedSVGSection extends BaseSVGSectionComponent
+  render: ->
+    {id, zoom, padding, lithologyWidth,
+     innerWidth, onResize, marginLeft,
+     showFacies, height, clip_end, offset, offsetTop
+     showTriangleBars,
+     showFloodingSurfaces
+     } = @props
+
+    innerHeight = height*@props.pixelsPerMeter*@props.zoom
+
+    {left, top, right, bottom} = padding
+
+    scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
+
+    @state.scale.range [innerHeight, 0]
+    outerHeight = innerHeight+(top+bottom)
+    outerWidth = innerWidth+(left+right)
+
+    {heightOfTop} = @props
+    marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
+
+    # Basic positioning
+    # If we're not moving sections from the top, don't mess with positioning
+    # at runtime
+    offsetTop ?= 670-height-offset
+    heightOfTop = offsetTop
+    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
+
+    [bottom,top] = @props.range
+
+    txt = id
+
+    {scale,visible, divisions} = @state
+    divisions = divisions.filter (d)->not d.schematic
+
+    {skeletal} = @props
+
+    # Set up number of ticks
+    nticks = (height*@props.zoom)/10
+
+    fs = null
+    if @props.showFloodingSurfaces
+      fs = h FloodingSurface, {
+        scale
+        zoom
+        id
+        offsetLeft: -40
+        lineWidth: 30
+        divisions
+      }
+
+    {triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
+    left += tbo
+    marginLeft -= tbo
+    marginRight = 0
+    outerWidth += tbo
+    triangleBars = null
+
+    style = {
+      width: outerWidth
+      height: outerHeight
+      marginLeft
+      marginRight
+    }
+
+    transform = "translate(#{left} #{@props.padding.top})"
+
+    minWidth = outerWidth
+    position = 'absolute'
+    h "div.section-container", {
+      className: if @props.skeletal then "skeleton" else null
+      style: {minWidth, position, top:desiredPosition}
+    }, [
+      h 'div.section-header', [
+        h("h2", txt)]
+      h 'div.section-outer', [
+        h Measure, {
+          ref: @measureRef
+          bounds: true,
+          client: true,
+          offset: true,
+          onResize: @onResize
+        }, ({measureRef, measure})=>
+          h "svg.section", {
+            SVGNamespaces...
+            style, ref: measureRef
+          }, [
+            h 'g.backdrop', {transform}, [
+              h FaciesContext.Consumer, {}, ({facies})=>
+                h GeneralizedSectionColumn, {
+                  width: innerWidth
+                  height: innerHeight
+                  divisions
+                  showFacies
+                  showCoveredOverlay: true
+                  facies: facies
+                  scale
+                  id
+                  grainsizeScaleStart: 40
+                }
+              h SymbolColumn, {
+                scale
+                height: innerHeight
+                left: 90
+                id
+                zoom
+              }
+              fs
+              triangleBars
+              h SectionAxis, {scale, ticks: nticks}
+            ]
+          ]
+      ]
+    ]
 
 module.exports = {GeneralizedSVGSection}
