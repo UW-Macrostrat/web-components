@@ -82,7 +82,7 @@ class TriangleBars extends FloodingSurface
     h 'g.triangle-bars', {}, [
       h 'defs', [
         createElement('clipPath', {id: @UUID}, [
-          h 'path', {d: _.toString()}
+          h 'path', {d: _.toString(), key: @UUID+'-path'}
         ])
       ]
       if parasequence then @renderSurfaces(1)
@@ -140,8 +140,9 @@ class TriangleBars extends FloodingSurface
     h "g.level-#{order}", {
       clipPath: "url(##{@UUID})"
       transform: "translate(#{-lineWidth*order+ol})"
+      key: @UUID+'-'+order
     }, [
-      h "path", {d: _.toString()}
+      h "path", {d: _.toString(), key: @UUID+'-'+order}
     ]
 
 module.exports = {FloodingSurface, TriangleBars}

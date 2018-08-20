@@ -10,16 +10,17 @@ LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
 {IsotopesComponent} = require '../summary-sections/carbon-isotopes'
 Measure = require('react-measure').default
-{SVGSectionComponent} = require '../summary-sections/column'
 {SectionNavigationControl} = require '../util'
 {SectionLinkOverlay} = require '../summary-sections/link-overlay'
 PropTypes = require 'prop-types'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {Legend} = require '../summary-sections/legend'
 {LithostratKey} = require '../summary-sections/lithostrat-key'
+{GeneralizedSVGSection} = require './column'
 {stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
 {debounce} = require 'underscore'
 {query} = require '../../db'
+{join} = require 'path'
 
 d3 = require 'd3'
 
@@ -56,7 +57,7 @@ class GeneralizedSections extends Component
   constructor: (props)->
     super props
     @state =
-      sections: []
+      sections: @props.sections
       surfaces: []
       dimensions: {
         canvas: {width: 100, height: 100}
@@ -71,7 +72,7 @@ class GeneralizedSections extends Component
         ]
         showNavigationController: true
         activeMode: 'normal'
-        showFacies: true
+        showFacies: true?
         showFloodingSurfaces: false
         showTriangleBars: true
         showLithostratigraphy: true
@@ -84,14 +85,28 @@ class GeneralizedSections extends Component
         sectionIDs: []
         showCarbonIsotopes: true
 
+    query 'generalized-section', null, {baseDir: join(__dirname,'..')}
+      .then @createSectionData
+
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
     return unless v?
     @state = update @state, options: {$merge: v}
 
+  createSectionData: (d)=>
+    {sections, surfaces} = @state
+
+    sections = d
+    groupedSections = d3.nest()
+      .key (d)->d.section
+      .entries sections
+
+    console.log sectionGroups
+    debugger
+
   renderSections: ->
-    {sections, scrollable} = @props
-    {dimensions, options, sectionPositions, surfaces} = @state
+    {scrollable} = @props
+    {dimensions, options, sectionPositions, surfaces, sections} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
      showSequenceStratigraphy,
@@ -119,16 +134,14 @@ class GeneralizedSections extends Component
     minHeight = 1500
 
     h 'div#section-pane', {style: {overflow}}, [
-      h Measure, {bounds: true, onResize: @onCanvasResize}, ({measureRef})=>
-        h "div#section-page-inner", {
-          ref: measureRef
-          style: {zoom: 1, minHeight}
-        }, __sections
+      h "div#section-page-inner", {
+        style: {zoom: 1, minHeight}
+      }, __sections
     ]
 
   groupSections: (sections)=>
-    {sections, scrollable} = @props
-    {dimensions, options, sectionPositions, surfaces} = @state
+    {scrollable} = @props
+    {dimensions, options, sectionPositions, surfaces, sections} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
      showSequenceStratigraphy,
@@ -157,8 +170,7 @@ class GeneralizedSections extends Component
       height = end-start
       range = [start, end]
 
-
-      sec = h SVGSectionComponent, {
+      sec = h GeneralizedSVGSection, {
         zoom: 0.1, key: row.id,
         skeletal,
         showFloodingSurfaces

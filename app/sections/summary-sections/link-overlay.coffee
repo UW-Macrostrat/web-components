@@ -104,6 +104,7 @@ class SectionLinkOverlay extends Component
       width = b.x1-b.x0
       {source, target, inferred, width}
 
+    isFirst = true
     links = for pair in pathData
       {inferred,width} = pair
       className = classNames(
@@ -111,7 +112,14 @@ class SectionLinkOverlay extends Component
         "commonality-#{unit_commonality}"
         type
         {inferred})
-      d = @link(pair) + "l#{width},0"
+      d = ""
+      if isFirst
+        # Could probably replace this with a particular thing
+        {x,y} = pair.source
+        d += "M#{x-width},#{y}l#{width},0"
+        isFirst = false
+      d += @link(pair)
+      d += "l#{width},0"
 
       h 'path', {d, className, stroke, strokeWidth, onClick}
 

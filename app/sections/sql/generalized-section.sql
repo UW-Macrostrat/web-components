@@ -1,32 +1,33 @@
+WITH l AS (
 SELECT
-  l.lithology,
-  l.covered,
-  coalesce(definite_boundary, true) definite_boundary,
-  coalesce(v.pattern, l.lithology) pattern,
-  coalesce(l.schematic, false) schematic,
-  fgdc_pattern::text,
-  l.bottom::float,
-  coalesce(
-    lead(l.bottom) OVER (ORDER BY l.bottom),
-    s.end
-  )::float top,
-  t.tree,
-  l.grainsize,
-  coalesce(
-    coalesce(l.fill_pattern, v.pattern),
-    l.lithology
-  ) fill_pattern
+	l.id,
+	b.locality section,
+	l.section original_section,
+	l.bottom original_height,
+	l.bottom+section.generalized_offset(l.section) bottom,
+	l.covered,
+	l.lithology,
+	l.surface,
+	l.fgdc_pattern,
+	l.schematic,
+	l.grainsize,
+	l.fill_pattern,
+	l.facies
 FROM section.section_lithology l
+JOIN section.generalized_breaks b ON l.section = b.section
+WHERE b.lower_height <= l.bottom
+  AND l.bottom < b.upper_height
+)
+SELECT
+	l.*,
+  coalesce(
+    lead(l.bottom) OVER (PARTITION BY l.section ORDER BY l.bottom),
+    s.end + section.generalized_offset(l.original_section)
+  )::float top,
+  t.tree
+FROM l
 JOIN section.lithology_tree t
   ON l.lithology = t.id
-JOIN section.lithology v
-  ON l.lithology = v.id
 JOIN section.section s
-  ON s.id = l.section
-WHERE section = $1::text
-  AND (
-    l.lithology IS NOT null
- OR l.fill_pattern IS NOT null)
-ORDER BY bottom
-
-
+  ON s.id = l.original_section
+ORDER BY section, bottom;
