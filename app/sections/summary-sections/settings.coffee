@@ -30,4 +30,12 @@ class SummarySectionsSettings extends SettingsPanel
       h Button, {onClick: @props.reloadCorrelations}, 'Reload correlations'
     ]
 
-module.exports = {SummarySectionsSettings}
+class GeneralizedSectionsSettings extends SettingsPanel
+  renderControls: =>
+    return [
+      @createSwitch 'showSequenceStratigraphy', 'Sequence-stratigraphic correlations'
+      h 'h5', 'Display mode'
+      @createPicker 'modes', 'activeMode'
+    ]
+
+module.exports = {SummarySectionsSettings, GeneralizedSectionsSettings}

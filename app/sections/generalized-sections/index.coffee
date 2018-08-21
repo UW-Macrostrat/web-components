@@ -57,7 +57,6 @@ class GeneralizedSections extends Component
   constructor: (props)->
     super props
     @state =
-      sections: @props.sections
       surfaces: []
       dimensions: {
         canvas: {width: 100, height: 100}
@@ -139,6 +138,7 @@ class GeneralizedSections extends Component
         divisions
         showFacies
         offset
+        onResize: @onSectionResize(row.id)
         range
         height
         start
@@ -175,7 +175,7 @@ class GeneralizedSections extends Component
         SectionNavigationControl
         {backLocation, toggleSettings})
 
-    h 'div.page.section-page#summary-sections', [
+    h 'div.page.section-page#generalized-sections', [
       h 'div.panel-container', [
         navigationController
         @renderSections()
