@@ -242,7 +242,6 @@ class SummarySections extends Component
     marginTop = 50
     overflow = if scrollable then "scroll" else 'inherit'
     {canvas} = @state.dimensions
-    minHeight = 1500
 
     h 'div#section-pane', {style: {overflow}}, [
       h SectionLinkOverlay, {
@@ -254,18 +253,22 @@ class SummarySections extends Component
         showCarbonIsotopes
         surfaces
       }
-      h Measure, {
-        bounds: true,
-        innerRef: (ref)=>
-          @measureRef = ref
-        onResize: @onCanvasResize,
-        scroll: true
-      }, ({measureRef})=>
-        h "div#section-page-inner", {
-          ref: measureRef
-          style: {zoom: 1, minHeight}
-        }, __sections
+      @__buildCanvas(__sections)
     ]
+
+  __buildCanvas: (sections)->
+    minHeight = 1500
+    h Measure, {
+      bounds: true,
+      innerRef: (ref)=>
+        @measureRef = ref
+      onResize: @onCanvasResize,
+      scroll: true
+    }, ({measureRef})=>
+      h "div#section-page-inner", {
+        ref: measureRef
+        style: {zoom: 1, minHeight}
+      }, sections
 
   render: ->
     {options} = @state

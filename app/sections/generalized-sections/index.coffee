@@ -4,6 +4,7 @@
 h = require 'react-hyperscript'
 {NavLink} = require '../../nav'
 {Icon} = require 'react-fa'
+{SummarySections} = require '../summary-sections'
 {SummarySectionsSettings} = require '../summary-sections/settings'
 update = require 'immutability-helper'
 LocalStorage = require '../storage'
@@ -50,7 +51,7 @@ class LocationGroup extends Component
       h 'div.location-group-body', {}, children
     ]
 
-class GeneralizedSections extends Component
+class GeneralizedSections extends SummarySections
   @defaultProps: {
     scrollable: true
   }
@@ -107,19 +108,20 @@ class GeneralizedSections extends Component
             range: [start, end]
           }
 
-        state = update @state, {sectionData: {$set: vals}}
-        @setState state
+        @mutateState {sectionData: {$set: vals}}
 
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
     return unless v?
-    @state = update @state, options: {$merge: v}
+    @state = update @state, {options: {$merge: v}}
 
   renderSections: ->
     {scrollable} = @props
     {dimensions, options, sectionPositions, surfaces, sections, sectionData} = @state
     {dragdealer, dragPosition, rest...} = options
-    {showFacies, showLithostratigraphy} = options
+    {showFacies, showLithostratigraphy, activeMode} = options
+
+    skeletal = activeMode == 'skeleton'
 
     # Group sections by data instead of pre-created elements
     return null unless sectionData?
@@ -134,6 +136,7 @@ class GeneralizedSections extends Component
       offset = 670-height
 
       sec = h GeneralizedSVGSection, {
+        skeletal
         zoom: 0.1, key: row.id,
         divisions
         showFacies
@@ -158,9 +161,7 @@ class GeneralizedSections extends Component
     minHeight = 1500
 
     h 'div#section-pane', {style: {overflow}}, [
-      h "div#section-page-inner", {
-        style: {zoom: 1, minHeight}
-      }, __sections
+      @__buildCanvas(__sections)
     ]
 
   render: ->
@@ -199,10 +200,6 @@ class GeneralizedSections extends Component
           contentRect = measureRef.measure()
           obj["#{props.id}"] = {$set: contentRect}
       @mutateState {sectionPositions: obj}
-
-  mutateState: (spec)=>
-    state = update(@state, spec)
-    @setState state
 
   onCanvasResize: ({bounds})=>
     {width, height} = bounds

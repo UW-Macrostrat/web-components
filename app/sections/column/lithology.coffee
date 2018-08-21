@@ -315,7 +315,7 @@ class GeneralizedSectionColumn extends LithologyColumn
       _.lineTo x, topOf(div)
     _.lineTo 0, topOf(div)
     _.closePath()
-    h "path#{frameID}", {d: _.toString()}
+    h "path#{frameID}", {key: frameID, d: _.toString()}
 
 module.exports = {LithologyColumn, FaciesColumn,
                   GeneralizedSectionColumn, CoveredColumn}
