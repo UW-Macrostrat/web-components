@@ -85,7 +85,7 @@ class SummarySections extends Component
   }
   constructor: (props)->
     super props
-    @state =
+    @state = {
       sections: []
       surfaces: []
       dimensions: {
@@ -112,6 +112,7 @@ class SummarySections extends Component
         showSequenceStratigraphy: true
         showCarbonIsotopes: true
       }
+    }
     @measureRef = createRef()
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()

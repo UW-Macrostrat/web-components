@@ -117,7 +117,7 @@ class GeneralizedSections extends SummarySections
 
   renderSections: ->
     {scrollable} = @props
-    {dimensions, options, sectionPositions, surfaces, sections, sectionData} = @state
+    {dimensions, options, sectionPositions, surfaces, sectionData} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFacies, showLithostratigraphy, activeMode} = options
 
@@ -161,6 +161,17 @@ class GeneralizedSections extends SummarySections
     minHeight = 1500
 
     h 'div#section-pane', {style: {overflow}}, [
+      h SectionLinkOverlay, {
+        skeletal,
+        paddingLeft,
+        canvas...,
+        marginTop,
+        sectionPositions,
+        showLithostratigraphy: false
+        showSequenceStratigraphy: true
+        showCarbonIsotopes: false
+        surfaces: []
+      }
       @__buildCanvas(__sections)
     ]
 
