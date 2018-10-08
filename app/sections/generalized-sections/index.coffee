@@ -17,7 +17,7 @@ LocalStorage = require '../storage'
 {IsotopesComponent} = require '../summary-sections/carbon-isotopes'
 {GeneralizedSVGSection} = require './column'
 {SectionNavigationControl} = require '../util'
-{SectionLinkOverlay} = require '../summary-sections/link-overlay'
+{LinkOverlayBase} = require '../summary-sections/link-overlay'
 {LithostratKey} = require '../summary-sections/lithostrat-key'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {Legend} = require '../summary-sections/legend'
@@ -27,28 +27,11 @@ require '../summary-sections/main.styl'
 {query} = require '../../db'
 require '../main.styl'
 
-
-SectionOptionsContext = createContext {
-  pixelsPerMeter: 20
-  zoom: 1
-  showTriangleBars: true
-}
-
-class SectionColumn extends Component
+class LinkOverlay extends LinkOverlayBase
   render: ->
-    h 'div.section-column', {style: {position: 'relative', width: 100}}, @props.children
-
-class LocationGroup extends Component
-  @defaultProps: {
-    offsetTop: 0
-  }
-  render: ->
-    {width, name, children, offsetTop, rest...} = @props
-    width ?= null
-
-    h 'div.location-group', {id: name, style: {width}, rest...}, [
-      h 'h1', {}, name
-      h 'div.location-group-body', {}, children
+    {width, height} = @props
+    h 'g#section-link-overlay', [
+      h 'g.section-links', @prepareData().map @buildLink
     ]
 
 class GeneralizedSections extends SummarySections
@@ -160,12 +143,36 @@ class GeneralizedSections extends SummarySections
     marginTop = 50
     overflow = "scroll"
     {canvas} = @state.dimensions
-    height = 1600
 
+    getGeneralizedHeight = (surface)->
+      # Gets heights of surfaces in stacked sections
+      {section, height, inferred} = surface
+      for newSection in sectionData
+        for s in newSection.divisions
+          continue unless s.original_section.trim() == section.trim()
+          continue unless s.original_bottom == height
+          return {section: s.section, height: s.bottom, inferred}
+      return null
+
+    for surface in surfaces
+      _ = surface.section_height.map(getGeneralizedHeight).filter (d)->d?
+      surface.section_height = _
+
+    height = 1600
     size = {width: 1200, height}
+
+    sectionPositions = {}
+    for d,i in sectionData
+      d.bounds = {left: i*60, top: 0, width: 50, height: 500}
+      d.scale = d3.scaleLinear().domain(d.range).range([500,0])
+      d.key = d.id
+      sectionPositions[d.section] = d
+
+    links = h LinkOverlay, {size..., surfaces, sectionPositions}
 
     trans = {transform: "translate(#{padding},#{padding})"}
     h 'svg#section-pane', {style: size}, [
+      links
       h 'g.section-pane-inner', trans, __sections
     ]
 

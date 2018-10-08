@@ -19,6 +19,8 @@ OverlayContext = createContext {
 
 # https://www.particleincell.com/2012/bezier-splines/
 
+ZeroPadding = {left: 0, right: 0, top: 0, bottom: 0}
+
 class SectionLinkOverlay extends Component
   @defaultProps: {
     width: 100
@@ -40,7 +42,8 @@ class SectionLinkOverlay extends Component
     {sectionPositions, paddingLeft, marginTop,
      showLithostratigraphy, showSequenceStratigraphy
      showCarbonIsotopes} = @props
-    {section_height, surface_id, unit_commonality, type, flooding_surface_order, note} = surface
+    {section_height, surface_id, unit_commonality,
+     type, flooding_surface_order, note} = surface
 
     values = [section_height...]
     if showCarbonIsotopes
@@ -79,6 +82,10 @@ class SectionLinkOverlay extends Component
       catch
         # Not positioned yet (or at all?)
         continue
+
+      pixelOffset ?= 0
+      triangleBarsOffset ?= 0
+
       yOffs = scale(height)+pixelOffset+2
       y = yOffs
       {left: x0, width} = bounds
@@ -88,7 +95,6 @@ class SectionLinkOverlay extends Component
       if triangleBarRightSide
         x0 -= ofs
         x1 -= ofs
-
 
       heights.push {x0, x1, y, inferred, inDomain}
 
@@ -106,6 +112,7 @@ class SectionLinkOverlay extends Component
 
     isFirst = true
     links = for pair in pathData
+      unit_commonality ?= 0
       {inferred,width} = pair
       className = classNames(
         "section-link"
@@ -120,8 +127,9 @@ class SectionLinkOverlay extends Component
         isFirst = false
       d += @link(pair)
       d += "l#{width},0"
+      fill = 'none'
 
-      h 'path', {d, className, stroke, strokeWidth, onClick}
+      h 'path', {d, className, stroke, strokeWidth, fill, onClick}
 
     h 'g', links
 
@@ -136,6 +144,7 @@ class SectionLinkOverlay extends Component
     ## aren't connected in the same stack.
     for {surface_id, section_height} in surfaces
       continue unless surface_id? # weed out lithostratigraphy for now
+      console.log section_height
       for {section, height, inferred} in section_height
         sectionPositions[section].surfaces ?= []
         sectionPositions[section].surfaces.push {surface_id, height, inferred}
@@ -146,18 +155,18 @@ class SectionLinkOverlay extends Component
       .entries (v for k,v of sectionPositions)
 
     stackSurfaces = []
-    for {key, values: _} in sectionStacks
+    for {key, values: stackedSections} in sectionStacks
       surfacesIndex = {}
       # Logic for determining which section's surface is rendered
       # within a stack (typically the section that is not inferred)
 
-      for section in _
-
+      for section in stackedSections
+        {key: section_id, surfaces: section_surfaces} = section
         # Define a function to return domain
         withinDomain = (height)->
           d = section.scale.domain()
           return d[0] < height < d[1]
-        {key: section_id, surfaces: section_surfaces} = section
+
         # Naive logic
         for surface in section_surfaces
           s1 = surfacesIndex[surface.surface_id]
@@ -214,69 +223,7 @@ class SectionLinkOverlay extends Component
       height -= (padding.top+padding.bottom)
       __.push h 'rect.section-tracker', {key, x,y,width, height}
 
-    ## Deconflict surfaces
-    ## The below is a fairly complex way to make sure multiple surfaces
-    ## aren't connected in the same stack.
-    for {surface_id, section_height} in surfaces
-      continue unless surface_id? # weed out lithostratigraphy for now
-      for {section, height, inferred} in section_height
-        sectionPositions[section].surfaces ?= []
-        sectionPositions[section].surfaces.push {surface_id, height, inferred}
-
-    # Backdoor way to get section stacks
-    sectionStacks = d3.nest()
-      .key (d)->d.bounds.left
-      .entries (v for k,v of sectionPositions)
-
-    stackSurfaces = []
-    for {key, values: _} in sectionStacks
-      surfacesIndex = {}
-      # Logic for determining which section's surface is rendered
-      # within a stack (typically the section that is not inferred)
-
-      for section in _
-
-        # Define a function to return domain
-        withinDomain = (height)->
-          d = section.scale.domain()
-          return d[0] < height < d[1]
-        {key: section_id, surfaces: section_surfaces} = section
-        # Naive logic
-        for surface in section_surfaces
-          s1 = surfacesIndex[surface.surface_id]
-          if s1?
-            # We already have a surface defined
-            if withinDomain(s1.height)
-              if s1.inferred and not section.inferred
-                continue
-            if not withinDomain(surface.height)
-              continue
-          surfacesIndex[surface.surface_id] = {section: section_id, surface...}
-      # Convert to an array
-      surfacesIndex = (v for k,v of surfacesIndex)
-      # Add the pixel height
-      for surface in surfacesIndex
-        {scale, pixelOffset} = sectionPositions[surface.section]
-        surface.y = scale(surface.height)+pixelOffset+2
-        surface.inDomain = withinDomain(surface.height)
-
-      # Save generated index to appropriate stack
-      stackSurfaces.push {
-        x: parseFloat(key)
-        values: surfacesIndex
-      }
-
-    # Turn back into surface-oriented list
-    surfacesNew = surfaces.map (s)->
-      id = s.surface_id
-      v = {s...}
-      return v unless id?
-      heights = []
-      for {values} in stackSurfaces
-        val = values.find (d)->id == d.surface_id
-        heights.push(val) if val?
-      v.section_height = heights
-      return v
+    surfacesNew = @prepareData()
 
     {width, height} = @props
     style = {top: marginTop}
@@ -292,5 +239,9 @@ class SectionLinkHOC extends Component
     h SectionOptionsContext.Consumer, null, (sectionOptions)=>
       h SectionLinkOverlay, {sectionOptions, @props...}
 
-module.exports = {SectionLinkOverlay: SectionLinkHOC, sectionSurfaceProps}
+module.exports = {
+  SectionLinkOverlay: SectionLinkHOC
+  LinkOverlayBase: SectionLinkOverlay
+  sectionSurfaceProps
+}
 
