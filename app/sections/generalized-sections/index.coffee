@@ -18,20 +18,19 @@ LocalStorage = require '../storage'
 {GeneralizedSVGSection} = require './column'
 {SectionNavigationControl} = require '../util'
 {SectionLinkOverlay} = require '../summary-sections/link-overlay'
+{LithostratKey} = require '../summary-sections/lithostrat-key'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {Legend} = require '../summary-sections/legend'
-{LithostratKey} = require '../summary-sections/lithostrat-key'
-{stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
-{query} = require '../../db'
-{NavLink} = require '../../nav'
-
-
-require '../main.styl'
 require '../summary-sections/main.styl'
+{stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
+{NavLink} = require '../../nav'
+{query} = require '../../db'
+require '../main.styl'
 
 
 SectionOptionsContext = createContext {
-  pixelsPerMeter: 2
+  pixelsPerMeter: 20
+  zoom: 1
   showTriangleBars: true
 }
 
@@ -136,14 +135,13 @@ class GeneralizedSections extends SummarySections
       range = [start, end]
       offset = 670-height
 
-      sec = h GeneralizedSVGSection, {
+      h GeneralizedSVGSection, {
         skeletal
         zoom: 0.1,
         key: row.id,
         divisions
         showFacies
         offset
-        onResize: @onSectionResize(row.id)
         range
         height
         start
@@ -151,31 +149,13 @@ class GeneralizedSections extends SummarySections
         rest...
       }
 
-      key = row.id
-      h LocationGroup, {key, name: key}, [
-        h SectionColumn, [sec]
-      ]
-
     paddingLeft = 30
     marginTop = 50
     overflow = "scroll"
     {canvas} = @state.dimensions
     minHeight = 1500
 
-    h 'div#section-pane', {style: {overflow}}, [
-      h SectionLinkOverlay, {
-        skeletal,
-        paddingLeft,
-        canvas...,
-        marginTop,
-        sectionPositions,
-        showLithostratigraphy: false
-        showSequenceStratigraphy: true
-        showCarbonIsotopes: false
-        surfaces: []
-      }
-      @__buildCanvas(__sections)
-    ]
+    h 'svg#section-pane', {style: {overflow}}, __sections
 
   render: ->
     {options} = @state

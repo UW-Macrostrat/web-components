@@ -7,31 +7,33 @@ Measure = require('react-measure').default
 
 {BaseSVGSectionComponent} = require '../summary-sections/column'
 {SectionAxis} = require '../column/axis'
-{SymbolColumn} = require '../column/symbol-column'
-{LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
-{Notification} = require '../../notify'
+{GeneralizedSectionColumn} = require '../column/lithology'
 {FaciesContext} = require '../facies-descriptions'
 {SVGNamespaces} = require '../util'
 
+class GeneralizedSVGSection extends Component
+  @defaultProps: {pixelsPerMeter: 20, zoom: 1}
+  constructor: (props)->
+    super props
+    @state = {
+      scale: d3.scaleLinear().domain(@props.range)
+    }
+    @state.scale.clamp()
 
-class GeneralizedSVGSection extends BaseSVGSectionComponent
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
      showFacies, height, clip_end, offset, offsetTop
      showTriangleBars,
-     showFloodingSurfaces
+     showFloodingSurfaces,
+     divisions
      } = @props
 
     innerHeight = height*@props.pixelsPerMeter*@props.zoom
 
-    {left, top, right, bottom} = padding
-
-    scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
-
     @state.scale.range [innerHeight, 0]
-    outerHeight = innerHeight+(top+bottom)
-    outerWidth = innerWidth+(left+right)
+    outerHeight = innerHeight
+    outerWidth = innerWidth
 
     {heightOfTop} = @props
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
@@ -47,10 +49,12 @@ class GeneralizedSVGSection extends BaseSVGSectionComponent
 
     txt = id
 
-    {scale,visible, divisions} = @state
+    {scale,visible} = @state
     divisions = divisions.filter (d)->not d.schematic
 
     {skeletal} = @props
+    left = 0
+    top = 0
 
     # Set up number of ticks
     nticks = (height*@props.zoom)/10
@@ -63,43 +67,24 @@ class GeneralizedSVGSection extends BaseSVGSectionComponent
       marginRight
     }
 
-    transform = "translate(#{left} #{@props.padding.top})"
+    transform = "translate(#{left} #{top})"
 
     minWidth = outerWidth
     position = 'absolute'
-    h "div.section-container", {
-      className: if @props.skeletal then "skeleton" else null
-      style: {minWidth, position, top:desiredPosition}
-    }, [
-      h 'div.section-outer', [
-        h Measure, {
-          ref: @measureRef
-          bounds: true,
-          client: true,
-          offset: true,
-          onResize: @onResize
-        }, ({measureRef, measure})=>
-          h "svg.section", {
-            SVGNamespaces...
-            style, ref: measureRef
-          }, [
-            h 'g.backdrop', {transform}, [
-              h FaciesContext.Consumer, {}, ({facies})=>
-                h GeneralizedSectionColumn, {
-                  width: innerWidth
-                  height: innerHeight
-                  divisions
-                  showFacies
-                  showCoveredOverlay: true
-                  facies: facies
-                  scale
-                  id
-                  grainsizeScaleStart: 40
-                }
-              h SectionAxis, {scale, ticks: nticks}
-            ]
-          ]
-      ]
+
+    h "g.section", {style, transform}, [
+      h FaciesContext.Consumer, {}, ({facies})=>
+        h GeneralizedSectionColumn, {
+          width: innerWidth
+          height: innerHeight
+          divisions
+          showFacies
+          showCoveredOverlay: true
+          facies: facies
+          scale
+          id
+          grainsizeScaleStart: 40
+        }
     ]
 
 module.exports = {GeneralizedSVGSection}
