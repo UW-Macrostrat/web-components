@@ -116,8 +116,7 @@ class GeneralizedSections extends SummarySections
     @state = update @state, {options: {$merge: v}}
 
   renderSections: ->
-    {scrollable} = @props
-    {dimensions, options, sectionPositions, surfaces, sectionData} = @state
+    {dimensions, options, surfaces, sectionData} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFacies, showLithostratigraphy, activeMode} = options
 
@@ -190,31 +189,6 @@ class GeneralizedSections extends SummarySections
       h SummarySectionsSettings, options
     ]
 
-  onSectionResize: (key)=>(contentRect)=>
-    console.log "Section #{key} was resized", contentRect
-
-    @mutateState {sectionPositions: {"#{key}": {$set: contentRect}}}
-
-  componentDidUpdate: (prevProps, prevState)->
-    if prevState.dimensions != @state.dimensions
-      console.log "Dimensions changed!"
-
-      obj = {}
-      window.resizers.map (section)->
-        {measureRef,props} = section
-        if measureRef.measure?
-          contentRect = measureRef.measure()
-          obj["#{props.id}"] = {$set: contentRect}
-      @mutateState {sectionPositions: obj}
-
-  onCanvasResize: ({bounds})=>
-    {width, height} = bounds
-    height = 1720 #! HACK!
-    @mutateState {dimensions: {canvas: {
-      width: {$set: width}
-      height: {$set: height}
-    }}}
-
   updateOptions: (opts)=>
     newOptions = update @state.options, opts
     @setState options: newOptions
@@ -222,11 +196,6 @@ class GeneralizedSections extends SummarySections
 
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
-
-window.resizeEverything = ->
-  window.resizers.map ({measure,onResize})->
-      if measure.measure?
-        measure.measure()
 
 module.exports = {GeneralizedSections}
 
