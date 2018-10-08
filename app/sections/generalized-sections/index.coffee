@@ -37,7 +37,7 @@ SectionOptionsContext = createContext {
 
 class SectionColumn extends Component
   render: ->
-    h 'div.section-column', {style: {position: 'relative', width: 240}}, @props.children
+    h 'div.section-column', {style: {position: 'relative', width: 100}}, @props.children
 
 class LocationGroup extends Component
   @defaultProps: {

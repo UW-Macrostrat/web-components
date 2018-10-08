@@ -8,7 +8,6 @@ Measure = require('react-measure').default
 {BaseSVGSectionComponent} = require '../summary-sections/column'
 {SectionAxis} = require '../column/axis'
 {SymbolColumn} = require '../column/symbol-column'
-{FloodingSurface, TriangleBars} = require '../column/flooding-surface'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
 {Notification} = require '../../notify'
 {FaciesContext} = require '../facies-descriptions'
