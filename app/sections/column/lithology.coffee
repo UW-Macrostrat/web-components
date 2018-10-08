@@ -277,45 +277,30 @@ class GeneralizedSectionColumn extends LithologyColumn
     p = symbolIndex[d.fill_pattern]
     return p if p?
     fp = d.fill_pattern
-    # Special case for shales since we probably want to emphasize lithology
+    # Special case fo r shales since we probably want to emphasize lithology
     if parseInt(fp) == 624
       return super.resolveID(d)
     else
       return fp
 
   createFrame: ->
-    {scale, divisions} = @props
+    {scale, divisions, width} = @props
     {frameID} = @state
-    if divisions.length == 0
-      return super.createFrame()
+    width ?= 20
 
-    [bottomOfSection, topOfSection] = scale.domain()
-
-    topOf = (d)->
-      {top} = d
-      if top > topOfSection
-        top = topOfSection
-      scale(top)
-    bottomOf = (d)->
-      {bottom} = d
-      if bottom < bottomOfSection
-        bottom = bottomOfSection
-      scale(bottom)
-
+    [bottom,top] = scale.domain()
     _ = path()
-    _.moveTo(0,bottomOf(divisions[0]))
-    currentGrainsize = 'm'
-    for nextDiv in divisions
-      break if nextDiv.bottom > topOfSection
-      div = nextDiv
-      if div.grainsize?
-        currentGrainsize = div.grainsize
-      x = @grainsizeScale(currentGrainsize)
-      _.lineTo x, bottomOf(div)
-      _.lineTo x, topOf(div)
-    _.lineTo 0, topOf(div)
+    y = scale(bottom)
+    _.moveTo(0,y)
+    _.lineTo(width,y)
+    y = scale(top)
+    _.lineTo(width,y)
+    _.lineTo(0,y)
     _.closePath()
     h "path#{frameID}", {key: frameID, d: _.toString()}
+
+  renderLithology: ->
+  renderCoveredOverlay: ->
 
 module.exports = {LithologyColumn, FaciesColumn,
                   GeneralizedSectionColumn, CoveredColumn}
