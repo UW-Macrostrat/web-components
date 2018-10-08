@@ -23,17 +23,21 @@ class GeneralizedSVGSection extends Component
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
+     left,
      showFacies, height, clip_end, offset, offsetTop
      showTriangleBars,
      showFloodingSurfaces,
      divisions
      } = @props
 
+    left ?= 0 # Position relative to left margin
+
     innerHeight = height*@props.pixelsPerMeter*@props.zoom
 
     @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight
     outerWidth = innerWidth
+    innerWidth = 50
 
     {heightOfTop} = @props
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
@@ -53,7 +57,6 @@ class GeneralizedSVGSection extends Component
     divisions = divisions.filter (d)->not d.schematic
 
     {skeletal} = @props
-    left = 0
     top = 0
 
     # Set up number of ticks
@@ -77,10 +80,10 @@ class GeneralizedSVGSection extends Component
         h GeneralizedSectionColumn, {
           width: innerWidth
           height: innerHeight
+          facies: facies
           divisions
           showFacies
           showCoveredOverlay: true
-          facies: facies
           scale
           id
           grainsizeScaleStart: 40

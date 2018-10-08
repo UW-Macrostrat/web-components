@@ -125,11 +125,17 @@ class GeneralizedSections extends SummarySections
 
     # Group sections by data instead of pre-created elements
     return null unless sectionData?
-    __sections =  sectionData.map (row)=>
+    __sections =  sectionData.map (row, i)=>
       {offset, range, height, start, end, divisions, rest...} = row
 
       # Clip off the top of some columns...
       end = row.clip_end
+
+      # Bottom is the first division with an assigned facies
+      for d in divisions
+        if d.facies != 'none'
+          start = d.bottom
+          break
 
       height = end-start
       range = [start, end]
@@ -137,8 +143,10 @@ class GeneralizedSections extends SummarySections
 
       h GeneralizedSVGSection, {
         skeletal
-        zoom: 0.1,
+        pixelsPerMeter: 1
+        zoom: 1
         key: row.id,
+        left: i*200
         divisions
         showFacies
         offset
@@ -149,13 +157,18 @@ class GeneralizedSections extends SummarySections
         rest...
       }
 
-    paddingLeft = 30
+    padding = 50
     marginTop = 50
     overflow = "scroll"
     {canvas} = @state.dimensions
-    minHeight = 1500
+    height = 1600
 
-    h 'svg#section-pane', {style: {overflow}}, __sections
+    size = {width: 1200, height}
+
+    trans = {transform: "translate(#{padding},#{padding})"}
+    h 'svg#section-pane', {style: size}, [
+      h 'g.section-pane-inner', trans, __sections
+    ]
 
   render: ->
     {options} = @state
