@@ -7,7 +7,7 @@ Measure = require('react-measure').default
 
 {BaseSVGSectionComponent} = require '../summary-sections/column'
 {SectionAxis} = require '../column/axis'
-{GeneralizedSectionColumn} = require '../column/lithology'
+{GeneralizedSectionColumn, FaciesColumn} = require '../column/lithology'
 {FaciesContext} = require '../facies-descriptions'
 {SVGNamespaces} = require '../util'
 
@@ -77,13 +77,12 @@ class GeneralizedSVGSection extends Component
 
     h "g.section", {style, transform}, [
       h FaciesContext.Consumer, {}, ({facies})=>
-        h GeneralizedSectionColumn, {
+        h FaciesColumn, {
           width: innerWidth
           height: innerHeight
           facies: facies
           divisions
           showFacies
-          showCoveredOverlay: true
           scale
           id
           grainsizeScaleStart: 40
