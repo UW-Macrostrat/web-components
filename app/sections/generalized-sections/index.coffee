@@ -138,7 +138,8 @@ class GeneralizedSections extends SummarySections
 
       sec = h GeneralizedSVGSection, {
         skeletal
-        zoom: 0.1, key: row.id,
+        zoom: 0.1,
+        key: row.id,
         divisions
         showFacies
         offset

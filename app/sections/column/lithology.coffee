@@ -286,7 +286,7 @@ class GeneralizedSectionColumn extends LithologyColumn
   createFrame: ->
     {scale, divisions, width} = @props
     {frameID} = @state
-    width ?= 20
+    width ?= 30
 
     [bottom,top] = scale.domain()
     _ = path()
