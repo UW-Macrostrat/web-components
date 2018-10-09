@@ -27,9 +27,11 @@ class BaseSectionComponent extends Component
     @state = {divisions}
 
   componentDidMount: ->
-    @componentDidUpdate.apply @, arguments
-
+    @__doUpdate.apply @, arguments
   componentDidUpdate: ->
+    @__doUpdate.apply @, arguments
+
+  __doUpdate: ->
     # This leads to some problems unsurprisingly
     el = findDOMNode @
 

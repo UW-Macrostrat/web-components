@@ -66,6 +66,7 @@ class SectionComponent extends BaseSectionComponent
     super props
     @state = {
       @state...
+      loaded: false
       editingInterval: {id: null}
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
@@ -211,13 +212,22 @@ class SectionComponent extends BaseSectionComponent
       @renderMain()
     ]
 
-  componentDidMount: ->
-    super.componentDidMount()
+  componentDidUpdate: ->
+    super.componentDidUpdate()
     node = findDOMNode(this)
-    {scrollToHeight} = @props
+    {scrollToHeight, id} = @props
+    {scale, loaded} = @state
     return unless scrollToHeight?
-    scrollTop = @state.scale(scrollToHeight)-window.innerHeight/2
+    return if loaded
+    scrollTop = scale(scrollToHeight)-window.innerHeight/2
     node.scrollTop = scrollTop
+
+    Notification.show {
+      message: "Section #{id} @ #{fmt(scrollToHeight)} m"
+      intent: Intent.PRIMARY
+    }
+    @setState {loaded: true}
+
 
   log: ->
 

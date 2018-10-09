@@ -15,14 +15,11 @@ PropTypes = require 'prop-types'
 { Hotkey, Hotkeys, HotkeysTarget, Intent} = require "@blueprintjs/core"
 {SectionNavigationControl} = require './util'
 {Notification} = require '../notify'
-d3 = require 'd3'
-fmt = d3.format('.1f')
 
 class SectionPage extends Component
   constructor: (props)->
     super props
     @state =
-      notificationSent: false
       dimensions: {}
       options:
         zoom: 1
@@ -115,16 +112,6 @@ class SectionPage extends Component
 
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
-
-  componentDidUpdate: ->
-    {height, section} = @props
-    return if @state.notificationSent
-    Notification.show {
-      message: "Section #{section.id} @ #{fmt(height)} m"
-      intent: Intent.PRIMARY
-    }
-    @setState {notificationSent: true}
-
 
 module.exports = SectionPage
 
