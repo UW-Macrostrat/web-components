@@ -70,6 +70,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       pixelOffset: desiredPosition
     }
 
+
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
@@ -152,6 +153,18 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       marginRight
     }
 
+
+    x = -left
+    if @props.showTriangleBars and not onRight
+      x += 55
+    underlay = h 'rect.underlay', {
+      width: outerWidth-55
+      height: innerHeight+10
+      x
+      y: -5
+      fill: 'white'
+    }
+
     transform = "translate(#{left} #{@props.padding.top})"
 
     minWidth = outerWidth
@@ -175,6 +188,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
             style, ref: measureRef
           }, [
             h 'g.backdrop', {transform}, [
+              underlay
               h FaciesContext.Consumer, {}, ({facies})=>
                 h GeneralizedSectionColumn, {
                   width: innerWidth
