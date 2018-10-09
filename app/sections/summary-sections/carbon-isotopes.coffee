@@ -72,7 +72,8 @@ class IsotopesComponent extends Component
     [mn,mx] = @props.domain
     innerWidth = (mx-mn)*@props.xRatio
 
-    @state.scale.range [innerHeight, 0]
+    pixelOffset = 3
+    @state.scale.range [innerHeight-pixelOffset, 0-pixelOffset]
     @state.xScale.range [0, innerWidth]
     outerHeight = innerHeight+(top+bottom)
     outerWidth = innerWidth+(left+right)
