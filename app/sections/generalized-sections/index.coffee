@@ -24,6 +24,7 @@ LocalStorage = require '../storage'
 require '../summary-sections/main.styl'
 {stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
 {NavLink} = require '../../nav'
+{GeneralizedSectionPositions} = require './positions.coffee'
 {query} = require '../../db'
 require '../main.styl'
 
@@ -120,18 +121,20 @@ class GeneralizedSections extends SummarySections
           start = d.bottom
           break
 
+      {x,y} = GeneralizedSectionPositions[row.section]
       height = end-start
       range = [start, end]
-      offset = 670-height
-
 
       pixelsPerMeter = 1
       zoom = 1
-      left = i*200
-      __ = {}
+      left = x*50
+      offsetTop = -y
+
       pxHeight = height*pixelsPerMeter*zoom
+      xv = [pxHeight,0].map (A)->A+offsetTop+50-2
+      __ = {}
       __.bounds = {left, top: 0, width: 50, height: pxHeight}
-      __.scale = d3.scaleLinear().domain(range).range([pxHeight,0])
+      __.scale = d3.scaleLinear().domain(range).range(xv)
       __.key = row.id
       sectionPositions[row.section] = __
 
@@ -143,7 +146,7 @@ class GeneralizedSections extends SummarySections
         left
         divisions
         showFacies
-        offset
+        offsetTop
         range
         height
         start

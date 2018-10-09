@@ -39,15 +39,12 @@ class GeneralizedSVGSection extends Component
     outerWidth = innerWidth
     innerWidth = 50
 
-    {heightOfTop} = @props
-    marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
+    {offsetTop} = @props
+    marginTop = offsetTop*@props.pixelsPerMeter*@props.zoom
 
     # Basic positioning
     # If we're not moving sections from the top, don't mess with positioning
     # at runtime
-    offsetTop ?= 670-height-offset
-    heightOfTop = offsetTop
-    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     [bottom,top] = @props.range
 
@@ -57,25 +54,18 @@ class GeneralizedSVGSection extends Component
     divisions = divisions.filter (d)->not d.schematic
 
     {skeletal} = @props
-    top = 0
+    top = marginTop
 
     # Set up number of ticks
     nticks = (height*@props.zoom)/10
     marginRight = 0
 
-    style = {
-      width: outerWidth
-      height: outerHeight
-      marginLeft
-      marginRight
-    }
-
-    transform = "translate(#{left} #{top})"
+    transform = "translate(#{left} #{offsetTop})"
 
     minWidth = outerWidth
     position = 'absolute'
 
-    h "g.section", {style, transform}, [
+    h "g.section", {transform}, [
       h FaciesContext.Consumer, {}, ({facies})=>
         h FaciesColumn, {
           width: innerWidth
