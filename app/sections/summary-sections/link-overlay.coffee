@@ -90,7 +90,7 @@ class SectionLinkOverlay extends Component
       y = yOffs
       {left: x0, width} = bounds
       x0 += 55
-      x1 = x0+width-40
+      x1 = x0+width-55
       ofs = triangleBarsOffset - 10
       if triangleBarRightSide
         x0 -= ofs

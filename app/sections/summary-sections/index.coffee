@@ -345,7 +345,7 @@ class SummarySections extends Component
   onCanvasResize: ({bounds, scroll})=>
     {width, height} = scroll
     console.log scroll
-    height = 1720 #! HACK!
+    height = 1800 #! HACK!
     @mutateState {dimensions: {canvas: {
       width: {$set: width}
       height: {$set: height}
