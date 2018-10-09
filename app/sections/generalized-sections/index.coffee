@@ -105,6 +105,7 @@ class GeneralizedSections extends SummarySections
 
     skeletal = activeMode == 'skeleton'
 
+    sectionPositions = {}
     # Group sections by data instead of pre-created elements
     return null unless sectionData?
     __sections =  sectionData.map (row, i)=>
@@ -123,12 +124,23 @@ class GeneralizedSections extends SummarySections
       range = [start, end]
       offset = 670-height
 
+
+      pixelsPerMeter = 1
+      zoom = 1
+      left = i*200
+      __ = {}
+      pxHeight = height*pixelsPerMeter*zoom
+      __.bounds = {left, top: 0, width: 50, height: pxHeight}
+      __.scale = d3.scaleLinear().domain(range).range([pxHeight,0])
+      __.key = row.id
+      sectionPositions[row.section] = __
+
       h GeneralizedSVGSection, {
         skeletal
-        pixelsPerMeter: 1
-        zoom: 1
+        pixelsPerMeter
+        zoom
         key: row.id,
-        left: i*200
+        left
         divisions
         showFacies
         offset
@@ -160,13 +172,6 @@ class GeneralizedSections extends SummarySections
 
     height = 1600
     size = {width: 1200, height}
-
-    sectionPositions = {}
-    for d,i in sectionData
-      d.bounds = {left: i*60, top: 0, width: 50, height: 500}
-      d.scale = d3.scaleLinear().domain(d.range).range([500,0])
-      d.key = d.id
-      sectionPositions[d.section] = d
 
     links = h LinkOverlay, {size..., surfaces, sectionPositions}
 
