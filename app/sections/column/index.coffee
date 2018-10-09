@@ -45,6 +45,7 @@ class SectionComponent extends BaseSectionComponent
     trackVisibility: true
     innerWidth: 250
     offsetTop: null
+    scrollToHeight: null
     height: 100 # Section height in meters
     lithologyWidth: 40
     logWidth: 450
@@ -88,7 +89,7 @@ class SectionComponent extends BaseSectionComponent
     outerWidth = innerWidth+(left+right)
     {padding, innerHeight, outerHeight, innerWidth, outerWidth}
 
-  render: ->
+  renderMain: ->
     {id, zoom, scrollToHeight} = @props
 
     if scrollToHeight?
@@ -204,6 +205,19 @@ class SectionComponent extends BaseSectionComponent
       partialVisibility: true
 
     h VisibilitySensor, p, [mainElement]
+
+  render: ->
+    h 'div#section-pane', [
+      @renderMain()
+    ]
+
+  componentDidMount: ->
+    super.componentDidMount()
+    node = findDOMNode(this)
+    {scrollToHeight} = @props
+    return unless scrollToHeight?
+    scrollTop = @state.scale(scrollToHeight)-window.innerHeight/2
+    node.scrollTop = scrollTop
 
   log: ->
 

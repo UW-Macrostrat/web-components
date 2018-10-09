@@ -93,18 +93,17 @@ class SectionPage extends Component
     h 'div.page.section-page.single-section', [
       h 'div.panel-container', [
         h SectionNavigationControl, {toggleSettings}
-        h 'div#section-pane', {ref: (p)=>@pane = p}, [
-          h SectionComponent, {
-            trackVisibility: false
-            section...,
-            offsetTop: 0
-            onResize: @onResize
-            key, skeletal,
-            isEditable: inEditMode
-            useRelativePositioning: false
-            options...
-          }
-        ]
+        h SectionComponent, {
+          trackVisibility: false
+          section...,
+          scrollToHeight,
+          offsetTop: 0
+          onResize: @onResize
+          key, skeletal,
+          isEditable: inEditMode
+          useRelativePositioning: false
+          options...
+        }
       ]
       h SettingsPanel, @state.options
     ]
@@ -117,11 +116,8 @@ class SectionPage extends Component
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
-  onResize: ({bounds, scale, padding})=>
+  componentDidUpdate: ->
     {height, section} = @props
-    return unless height
-    console.log "Setting scroll position"
-    @pane.scrollTop = scale(height)-window.innerHeight/2
     return if @state.notificationSent
     Notification.show {
       message: "Section #{section.id} @ #{fmt(height)} m"
