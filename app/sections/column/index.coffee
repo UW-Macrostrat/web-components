@@ -18,8 +18,6 @@ require './main.styl'
 {SVGNamespaces} = require '../util'
 Samples = require './samples'
 {FloodingSurface, TriangleBars} = require './flooding-surface'
-h = require 'react-hyperscript'
-d3 = require 'd3'
 {LithologyColumn, GeneralizedSectionColumn,
  FaciesColumn, CoveredColumn} = require './lithology'
 {db, storedProcedure, query} = require '../db'

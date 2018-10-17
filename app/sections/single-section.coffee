@@ -74,12 +74,13 @@ class SectionPage extends Component
     scrollToHeight = height
 
     # Set up routing to jump to a specific height
-    obj =
+    obj = {
       bounds: true,
       offset: true,
       scroll: true,
       client: true,
       onResize: resizeFunc
+    }
 
     key = section.id # Because react
     skeletal = @state.options.activeMode == 'skeleton'

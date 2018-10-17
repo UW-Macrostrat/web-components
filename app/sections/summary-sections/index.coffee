@@ -37,23 +37,18 @@ class LocationGroup extends Component
     offsetTop: 0
   }
   render: ->
-    {id, name, values, width, values, children, offsetTop, rest...} = @props
-    name ?= id
-    if not children? and values?
-      children = values.map ({k,values})->
-        values.sort (a, b)->
-          b.offset-a.offset
-        h SectionColumn, values
-
+    {id, name, location, values, width, values, children, offsetTop, rest...} = @props
+    name ?= location
+    id ?= location
     h 'div.location-group', {id, style: {width}, rest...}, [
       h 'h1', {}, name
       h 'div.location-group-body', {}, children
     ]
 
-groupSections = (sections)=>
+groupSectionData = (sections)->
   stackGroup = (d)=>
     for g in stackGroups
-      if g.indexOf(d.key) != -1
+      if g.indexOf(d.id) != -1
         return g
     return d.id
 
@@ -63,17 +58,22 @@ groupSections = (sections)=>
   __ix = indexOf(stackGroups)
 
   sectionGroups = d3.nest()
-    .key (d)->d.props.location or ""
+    .key (d)->d.location
     .key stackGroup
     .sortKeys (a,b)->__ix(a)-__ix(b)
     .entries sections
 
-  g = sectionGroups.find (d)->d.key == ""
-  extraItems = if g? then g.values[0].values else []
-  sectionGroups = sectionGroups.filter (d)->d.key != ""
+  # Change key names to be more semantic
+  for g in sectionGroups
+    g.columns = g.values.map (col)->
+      return col.values
+    delete g.values
+    g.location = g.key
+    delete g.key
 
   __ix = indexOf(groupOrder)
-  sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
+  sectionGroups.sort (a,b)->__ix(a.location)-__ix(b.location)
+  return sectionGroups
 
 class WrappedSectionComponent extends Component
   render: ->
@@ -149,7 +149,7 @@ class SummarySections extends Component
       cset[key] = {$set: contentRect}
       @mutateState {sectionPositions: cset}
 
-    __sections = sections.map (row)=>
+    mapRowToSection = (row)=>
       {offset, range, height, start, end, rest...} = row
       offset = sectionOffsets[row.id] or offset
 
@@ -226,8 +226,11 @@ class SummarySections extends Component
         rest...
       }
 
-    sectionGroups = groupSections(__sections).map ({key,values})=>
-      h LocationGroup, {key, id: key, values}
+    groupedSections = groupSectionData(sections)
+
+    sectionGroups = groupedSections.map ({location, columns})->
+      h LocationGroup, {key: location, location}, columns.map (col, i)->
+        h SectionColumn, {key: i}, col.map mapRowToSection
 
     __sections = [
       lithostratKey,
