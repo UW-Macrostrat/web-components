@@ -125,6 +125,56 @@ class SummarySections extends Component
         surfaces.reverse()
         @setState {surfaces}
 
+  renderChemostratigraphy: ({offset, sectionResize})->
+    {sections, scrollable} = @props
+    {dimensions, options, sectionPositions, surfaces} = @state
+    {dragdealer, dragPosition, rest...} = options
+    {showFloodingSurfaces,
+     showSequenceStratigraphy,
+     showTriangleBars,
+     showCarbonIsotopes,
+     showOxygenIsotopes,
+     showFacies} = options
+
+    return null unless showCarbonIsotopes or showOxygenIsotopes
+
+    row = sections.find (d)->d.id == 'J'
+    {offset, location, rest...} = row
+    location = null
+
+    __ = []
+    if showCarbonIsotopes
+      __.push h IsotopesComponent, {
+        zoom: 0.1,
+        key: 'carbon-isotopes',
+        showFacies
+        onResize: sectionResize('carbon-isotopes')
+        offset
+        location: ""
+        surfaces
+        rest...
+      }
+
+    if showOxygenIsotopes
+      __.push h IsotopesComponent, {
+        zoom: 0.1,
+        system: 'delta18o'
+        label: 'δ¹⁸O'
+        domain: [-15,0]
+        key: 'oxygen-isotopes',
+        showFacies
+        onResize: sectionResize('oxygen-isotopes')
+        offset
+        location: ""
+        surfaces
+        rest...
+      }
+
+    h LocationGroup, {
+      name: null
+      className: 'chemostratigraphy'
+    }, __
+
   renderSections: ->
     {sections, scrollable} = @props
     {dimensions, options, sectionPositions, surfaces} = @state
@@ -134,7 +184,6 @@ class SummarySections extends Component
      showTriangleBars,
      showCarbonIsotopes,
      showOxygenIsotopes,
-     trackVisibility,
      showFacies,
      showLegend,
      showLithostratigraphy,
@@ -167,7 +216,7 @@ class SummarySections extends Component
         skeletal,
         triangleBarRightSide: row.id == 'J'
         showCarbonIsotopes,
-        trackVisibility
+        trackVisibility: false
         onResize: @onSectionResize(row.id)
         offset
         range
@@ -181,47 +230,11 @@ class SummarySections extends Component
     {offset, location, rest...} = row
     location = null
 
-    chemostrat = null
-    if showCarbonIsotopes or showOxygenIsotopes
-      __ = []
-      if showCarbonIsotopes
-        __.push h IsotopesComponent, {
-          zoom: 0.1,
-          key: 'carbon-isotopes',
-          showFacies
-          onResize: sectionResize('carbon-isotopes')
-          offset
-          location: ""
-          surfaces
-          rest...
-        }
-
-      if showOxygenIsotopes
-        __.push h IsotopesComponent, {
-          zoom: 0.1,
-          system: 'delta18o'
-          label: 'δ¹⁸O'
-          domain: [-15,0]
-          key: 'oxygen-isotopes',
-          showFacies
-          onResize: sectionResize('oxygen-isotopes')
-          offset
-          location: ""
-          surfaces
-          rest...
-        }
-
-      chemostrat = h LocationGroup, {
-        name: null
-        className: 'chemostratigraphy'
-      }, __
-
-
     lithostratKey = h LithostratKey, {
-        zoom: 0.1, key: row.id,
+        zoom: 0.1, key: "key",
         surfaces,
         skeletal,
-        onResize: sectionResize(row.id)
+        onResize: sectionResize("key")
         offset
         rest...
       }
@@ -234,7 +247,7 @@ class SummarySections extends Component
 
     __sections = [
       lithostratKey,
-      chemostrat,
+      @renderChemostratigraphy({offset, sectionResize}),
       sectionGroups...
     ]
 
@@ -289,7 +302,7 @@ class SummarySections extends Component
 
     h 'div.page.section-page#summary-sections', [
       h 'div.panel-container', [
-        h SectionOptionsContext.Provider, {value: @getSectionOptions()}, [
+        h SectionOptionsContext.Provider, {value: @createSectionOptions()}, [
           navigationController
           @renderSections()
         ]
@@ -300,7 +313,7 @@ class SummarySections extends Component
       }
     ]
 
-  getSectionOptions: =>
+  createSectionOptions: =>
     value = {}
     for k,v of defaultSectionOptions
       value[k] = @state.options[k]
