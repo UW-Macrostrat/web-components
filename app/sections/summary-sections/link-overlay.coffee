@@ -219,7 +219,6 @@ class SectionLinkOverlay extends Component
 
     className = classNames {skeletal}
 
-    __ = []
     for key, {bounds, padding} of sectionPositions
       {left, top, width, height} = bounds
       sectionPositions[key].key = key
@@ -228,7 +227,6 @@ class SectionLinkOverlay extends Component
       y = top+padding.top-marginTop
       width -= (padding.left+padding.right)
       height -= (padding.top+padding.bottom)
-      __.push h 'rect.section-tracker', {key, x,y,width, height}
 
     surfacesNew = @prepareData()
 
@@ -242,7 +240,6 @@ class SectionLinkOverlay extends Component
       SVGNamespaces...
       className, width, height, style}, [
       h SectionTrackers, {sectionPositions: ix}
-      h 'g.section-trackers', __
       h 'g.section-links', surfacesNew.map @buildLink
     ]
 

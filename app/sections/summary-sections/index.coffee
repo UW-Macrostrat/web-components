@@ -35,6 +35,23 @@ class Box
     @width ?= opts.width
     @height ?= opts.height
 
+class SectionScale
+  constructor: (opts={})->
+    {start,height,offset,pixelsPerMeter} = opts
+    range = [start, end]
+    end = start + height
+    offset = parseFloat(offset)
+
+    @props = {start, end, range, height, offset, pixelsPerMeter}
+  pixelHeight: ->
+    @props.height*@props.pixelsPerMeter
+  pixelOffset: ->
+    top = 669-(@props.start+@props.height)
+    (top-@props.offset)*@props.pixelsPerMeter
+  pixelBounds: ->
+    height = @pixelHeight()
+    y = @pixelOffset()
+    return {y, height}
 
 class SectionPositioner
   ###
@@ -43,10 +60,10 @@ class SectionPositioner
   ###
   @defaultProps: {
     marginLeft: 0
-    groupMargin: 300
+    groupMargin: 400
     columnMargin: 100
     columnWidth: 200
-    pixelsPerMeter: 1
+    pixelsPerMeter: 2
   }
   constructor: (props={})->
     @props = {}
@@ -56,6 +73,7 @@ class SectionPositioner
       @props[k] ?= opt
 
   update: (groupedSections)->
+    {pixelsPerMeter} = @props
     xPosition = @props.marginLeft
     sectionPositionsIndex = {}
     for group in groupedSections
@@ -64,11 +82,24 @@ class SectionPositioner
         # Column x position
         col.position = {x: groupWidth, width: @props.columnWidth}
         for sec in col
+          {offset, start, end} = sec
+
+          # Heights
+          offset = sectionOffsets[sec.id] or offset
+          # Clip off the top of some columns...
+          # (this should be more customizable)
+          end = sec.clip_end
+          height = end-start
+          range = [start, end]
+          heightScale = new SectionScale {
+            pixelsPerMeter, start, height, offset
+          }
+
           secPosition = {
-            x: xPosition+groupWidth,
-            y: 0,
-            width: @props.columnWidth,
-            height: 100
+            x: xPosition+groupWidth
+            heightScale.pixelBounds()...
+            width: @props.columnWidth
+            heightScale
           }
           sec.position = secPosition
           sectionPositionsIndex[sec.id] = secPosition
