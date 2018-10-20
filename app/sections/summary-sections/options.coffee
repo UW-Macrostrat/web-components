@@ -4,6 +4,7 @@ defaultSectionOptions = {
   showTriangleBars: true
   showFacies: true
   showFloodingSurfaces: false
+  skeletal: false
 }
 
 SectionOptionsContext = createContext {

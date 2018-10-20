@@ -28,6 +28,45 @@ d3 = require 'd3'
 
 require '../main.styl'
 
+class Box
+  constructor: (opts)->
+    @x ?= opts.x
+    @y ?= opts.y
+    @width ?= opts.width
+    @height ?= opts.height
+
+
+class SectionPositioner
+  ###
+  # Groups sections into sets of columns
+  # using a transformation
+  ###
+  @defaultProps: {
+    groupMargin: 300
+    columnMargin: 100
+    columnWidth: 200
+  }
+  constructor: (props={})->
+    @props = {}
+    for k,opt of @constructor.defaultProps
+      if props[k]?
+        @props[k] = props[k]
+      @props[k] ?= opt
+
+  update: (groupedSections)->
+    xPosition = 0
+    for group in groupedSections
+      groupWidth = 0
+      for col in group.columns
+        col.position = {x: groupWidth, width: @props.columnWidth}
+        groupWidth += @props.columnWidth + @props.columnMargin
+      groupWidth -= @props.columnMargin
+      group.position = {x: xPosition, width: groupWidth}
+      xPosition += groupWidth+@props.groupMargin
+    xPosition -= @props.groupMargin
+    groupedSections.position = {x: 0, y: 0, width: xPosition}
+    return groupedSections
+
 class SectionColumn extends Component
   render: ->
     h 'div.section-column', {style: {position: 'relative', width: 240}}, @props.children
@@ -241,6 +280,10 @@ class SummarySections extends Component
 
     groupedSections = groupSectionData(sections)
 
+    # Pre-compute section positions
+    positioner = new SectionPositioner()
+    groupedSections = positioner.update(groupedSections)
+
     sectionGroups = groupedSections.map ({location, columns})->
       h LocationGroup, {key: location, location}, columns.map (col, i)->
         h SectionColumn, {key: i}, col.map mapRowToSection
@@ -262,16 +305,18 @@ class SummarySections extends Component
     {canvas} = @state.dimensions
 
     h 'div#section-pane', {style: {overflow}}, [
+      @__buildCanvas(__sections)
       h SectionLinkOverlay, {
-        skeletal, paddingLeft, canvas...,
+        paddingLeft,
+        canvas...,
         marginTop,
+        groupedSections,
         sectionPositions,
         showLithostratigraphy
         showSequenceStratigraphy
         showCarbonIsotopes
         surfaces
       }
-      @__buildCanvas(__sections)
     ]
 
   __buildCanvas: (sections)->
