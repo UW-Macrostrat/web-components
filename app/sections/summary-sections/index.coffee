@@ -42,9 +42,11 @@ class SectionPositioner
   # using a transformation
   ###
   @defaultProps: {
+    marginLeft: 0
     groupMargin: 300
     columnMargin: 100
     columnWidth: 200
+    pixelsPerMeter: 1
   }
   constructor: (props={})->
     @props = {}
@@ -54,17 +56,34 @@ class SectionPositioner
       @props[k] ?= opt
 
   update: (groupedSections)->
-    xPosition = 0
+    xPosition = @props.marginLeft
+    sectionPositionsIndex = {}
     for group in groupedSections
       groupWidth = 0
       for col in group.columns
+        # Column x position
         col.position = {x: groupWidth, width: @props.columnWidth}
+        for sec in col
+          secPosition = {
+            x: xPosition+groupWidth,
+            y: 0,
+            width: @props.columnWidth,
+            height: 100
+          }
+          sec.position = secPosition
+          sectionPositionsIndex[sec.id] = secPosition
+
         groupWidth += @props.columnWidth + @props.columnMargin
+
       groupWidth -= @props.columnMargin
       group.position = {x: xPosition, width: groupWidth}
+
       xPosition += groupWidth+@props.groupMargin
     xPosition -= @props.groupMargin
     groupedSections.position = {x: 0, y: 0, width: xPosition}
+    # Hack to create index of section positions
+    groupedSections.index = sectionPositionsIndex
+
     return groupedSections
 
 class SectionColumn extends Component
@@ -247,9 +266,6 @@ class SummarySections extends Component
       height = end-start
       range = [start, end]
 
-
-      #h SectionOptionsContext.Consumer, null, (v)=>
-      #  console.log opts
       h WrappedSectionComponent, {
         zoom: 0.1, key: row.id
         skeletal,
@@ -281,7 +297,7 @@ class SummarySections extends Component
     groupedSections = groupSectionData(sections)
 
     # Pre-compute section positions
-    positioner = new SectionPositioner()
+    positioner = new SectionPositioner({marginLeft: 200})
     groupedSections = positioner.update(groupedSections)
 
     sectionGroups = groupedSections.map ({location, columns})->

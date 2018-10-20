@@ -5,6 +5,7 @@ d3 = require 'd3'
 {SVGNamespaces} = require '../util'
 {Notification} = require '../../notify'
 {SectionOptionsContext} = require './options'
+PropTypes = require 'prop-types'
 
 sectionSurfaceProps = (surface)->
     {flooding_surface_order} = surface
@@ -20,6 +21,12 @@ OverlayContext = createContext {
 # https://www.particleincell.com/2012/bezier-splines/
 
 ZeroPadding = {left: 0, right: 0, top: 0, bottom: 0}
+
+class SectionTrackers extends Component
+  render: ->
+    {sectionPositions} = @props
+    h 'g.section-trackers', sectionPositions.map (d)->
+      h 'rect.section-tracker', d
 
 class SectionLinkOverlay extends Component
   @defaultProps: {
@@ -206,7 +213,7 @@ class SectionLinkOverlay extends Component
 
   render: ->
     {skeletal, sectionPositions, marginTop,
-     showLithostratigraphy, surfaces} = @props
+     showLithostratigraphy, surfaces, groupedSections} = @props
     return null unless surfaces.length
     {triangleBarsOffset} = @props.sectionOptions
 
@@ -225,11 +232,16 @@ class SectionLinkOverlay extends Component
 
     surfacesNew = @prepareData()
 
+    # Compute the position of sections by index
+    # This could be moved to a context instance probably
+    ix = ({id: k, v...} for k,v of groupedSections.index)
+
     {width, height} = @props
     style = {top: marginTop}
     h 'svg#section-link-overlay', {
       SVGNamespaces...
       className, width, height, style}, [
+      h SectionTrackers, {sectionPositions: ix}
       h 'g.section-trackers', __
       h 'g.section-links', surfacesNew.map @buildLink
     ]
