@@ -129,25 +129,27 @@ class SectionLinkOverlay extends Component
     h 'g', links
 
   prepareData: ->
-    {skeletal, sectionPositions, marginTop,
+    {skeletal, groupedSections, marginTop,
      showLithostratigraphy, surfaces} = @props
     return null unless surfaces.length
     {triangleBarsOffset} = @props.sectionOptions
 
+    sectionIndex = groupedSections.index
+
     ## Deconflict surfaces
     ## The below is a fairly complex way to make sure multiple surfaces
     ## aren't connected in the same stack.
+    sectionSurfaces = {}
     for {surface_id, section_height} in surfaces
       continue unless surface_id? # weed out lithostratigraphy for now
-      console.log section_height
       for {section, height, inferred} in section_height
-        sectionPositions[section].surfaces ?= []
-        sectionPositions[section].surfaces.push {surface_id, height, inferred}
+        sectionSurfaces[section] ?= []
+        sectionSurfaces[section].push {surface_id, height, inferred}
 
     # Backdoor way to get section stacks
     sectionStacks = d3.nest()
-      .key (d)->d.bounds.left
-      .entries (v for k,v of sectionPositions)
+      .key (d)->d.position.x
+      .entries (v for k,v of sectionIndex)
 
     stackSurfaces = []
     for {key, values: stackedSections} in sectionStacks
@@ -156,10 +158,13 @@ class SectionLinkOverlay extends Component
       # within a stack (typically the section that is not inferred)
 
       for section in stackedSections
-        {key: section_id, surfaces: section_surfaces} = section
+        {id: section_id} = section
+        section_surfaces = sectionSurfaces[section_id]
         # Define a function to return domain
         withinDomain = (height)->
-          d = section.scale.domain()
+          {position} = sectionIndex[section.id]
+          scale = position.heightScale.global
+          d = scale.domain()
           return d[0] < height < d[1]
 
         # Naive logic
@@ -177,8 +182,9 @@ class SectionLinkOverlay extends Component
       surfacesIndex = (v for k,v of surfacesIndex)
       # Add the pixel height
       for surface in surfacesIndex
-        {scale, pixelOffset} = sectionPositions[surface.section]
-        surface.y = scale(surface.height)+pixelOffset+2
+        {position} = sectionIndex[surface.section]
+        scale = position.heightScale.global
+        surface.y = scale(surface.height)
         surface.inDomain = withinDomain(surface.height)
 
       # Save generated index to appropriate stack
