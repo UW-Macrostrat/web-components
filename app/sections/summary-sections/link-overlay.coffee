@@ -46,9 +46,9 @@ class SectionLinkOverlay extends Component
       .y (d)->d.y
 
   buildLink: (surface)=>
-    {sectionPositions, paddingLeft, marginTop,
+    {paddingLeft, marginTop,
      showLithostratigraphy, showSequenceStratigraphy
-     showCarbonIsotopes} = @props
+     showCarbonIsotopes, groupedSections} = @props
     {section_height, surface_id, unit_commonality,
      type, flooding_surface_order, note} = surface
 
@@ -78,30 +78,18 @@ class SectionLinkOverlay extends Component
         ]
       }
 
-    {triangleBarsOffset, width} = @props.sectionOptions
     heights = []
     for {section, height, inferred, inDomain} in values
       try
-        {bounds, padding, scale, pixelOffset
-         triangleBarRightSide
-         triangleBarsOffset} = sectionPositions[section]
-        triangleBarRightSide ?= false
+        {position} = groupedSections.index[section]
+        scale = position.heightScale.global
+        {width, x: x0} = position
+        x1 = x0+width
+        y = scale(height)
+
       catch
         # Not positioned yet (or at all?)
-        continue
-
-      pixelOffset ?= 0
-      triangleBarsOffset ?= 0
-
-      yOffs = scale(height)+pixelOffset+2
-      y = yOffs
-      {left: x0, width} = bounds
-      x0 += 55
-      x1 = x0+width-55
-      ofs = triangleBarsOffset - 10
-      if triangleBarRightSide
-        x0 -= ofs
-        x1 -= ofs
+        console.log "Couldn't position section #{section}"
 
       heights.push {x0, x1, y, inferred, inDomain}
 
@@ -230,9 +218,10 @@ class SectionLinkOverlay extends Component
 
     surfacesNew = @prepareData()
 
+
     # Compute the position of sections by index
     # This could be moved to a context instance probably
-    ix = ({id: k, v...} for k,v of groupedSections.index)
+    ix = ({id: k, v.position...} for k,v of groupedSections.index)
 
     {width, height} = @props
     style = {top: marginTop}

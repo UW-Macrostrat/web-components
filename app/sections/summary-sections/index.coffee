@@ -38,11 +38,18 @@ class Box
 class SectionScale
   constructor: (opts={})->
     {start,height,offset,pixelsPerMeter} = opts
-    range = [start, end]
     end = start + height
+    range = [start, end]
     offset = parseFloat(offset)
-
     @props = {start, end, range, height, offset, pixelsPerMeter}
+    pxOffset = @pixelOffset()
+    @global = d3.scaleLinear()
+      .domain(range)
+      .range([@pixelHeight()+pxOffset,pxOffset])
+    @local = d3.scaleLinear()
+      .domain(range)
+      .range([@pixelHeight(),0])
+
   pixelHeight: ->
     @props.height*@props.pixelsPerMeter
   pixelOffset: ->
@@ -86,6 +93,7 @@ class SectionPositioner
 
           # Heights
           offset = sectionOffsets[sec.id] or offset
+          sec.offset = parseFloat(offset)
           # Clip off the top of some columns...
           # (this should be more customizable)
           end = sec.clip_end
@@ -102,8 +110,7 @@ class SectionPositioner
             heightScale
           }
           sec.position = secPosition
-          sectionPositionsIndex[sec.id] = secPosition
-
+          sectionPositionsIndex[sec.id] = sec
         groupWidth += @props.columnWidth + @props.columnMargin
 
       groupWidth -= @props.columnMargin
