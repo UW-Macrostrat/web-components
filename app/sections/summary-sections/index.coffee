@@ -172,6 +172,8 @@ class WrappedSectionComponent extends Component
 class SummarySections extends Component
   @defaultProps: {
     scrollable: true
+    groupMargin: 400
+    columnMargin: 100
   }
   constructor: (props)->
     super props
@@ -325,15 +327,33 @@ class SummarySections extends Component
         rest...
       }
 
+    # Find width of chemostrat column (this is an insane hack)
+    chemostratWidth = 74
+    if showCarbonIsotopes
+      chemostratWidth += 170
+    if showOxygenIsotopes
+      chemostratWidth += 170
+
     groupedSections = groupSectionData(sections)
 
     # Pre-compute section positions
-    positioner = new SectionPositioner({marginLeft: 200})
+    {groupMargin, columnMargin} = @props
+    positioner = new SectionPositioner({
+      marginLeft: chemostratWidth,
+      groupMargin, columnMargin})
     groupedSections = positioner.update(groupedSections)
 
-    sectionGroups = groupedSections.map ({location, columns})->
-      h LocationGroup, {key: location, location}, columns.map (col, i)->
-        h SectionColumn, {key: i}, col.map mapRowToSection
+    sectionGroups = groupedSections.map ({location, columns}, i)->
+      marginRight = groupMargin
+      if i == groupedSections.length-1
+        marginRight = 0
+      style = {marginRight}
+      h LocationGroup, {key: location, location, style}, columns.map (col, i)->
+        marginRight = columnMargin
+        if i == columns.length-1
+          marginRight = 0
+        style = {marginRight}
+        h SectionColumn, {key: i, style}, col.map mapRowToSection
 
     __sections = [
       lithostratKey,
