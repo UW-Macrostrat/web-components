@@ -26,7 +26,8 @@ class SectionTrackers extends Component
   render: ->
     {sectionPositions} = @props
     h 'g.section-trackers', sectionPositions.map (d)->
-      h 'rect.section-tracker', d
+      {x,y,width,height} = d
+      h 'rect.section-tracker', {x,y,width,height}
 
 class SectionLinkOverlay extends Component
   @defaultProps: {
@@ -206,24 +207,13 @@ class SectionLinkOverlay extends Component
       return v
 
   render: ->
-    {skeletal, sectionPositions, marginTop,
+    {skeletal, marginTop,
      showLithostratigraphy, surfaces, groupedSections} = @props
     return null unless surfaces.length
-    {triangleBarsOffset} = @props.sectionOptions
 
     className = classNames {skeletal}
 
-    for key, {bounds, padding} of sectionPositions
-      {left, top, width, height} = bounds
-      sectionPositions[key].key = key
-      continue unless left?
-      x = left+triangleBarsOffset
-      y = top+padding.top-marginTop
-      width -= (padding.left+padding.right)
-      height -= (padding.top+padding.bottom)
-
     surfacesNew = @prepareData()
-
 
     # Compute the position of sections by index
     # This could be moved to a context instance probably

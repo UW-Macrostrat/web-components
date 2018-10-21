@@ -312,7 +312,6 @@ class SummarySections extends Component
         triangleBarRightSide: row.id == 'J'
         showCarbonIsotopes,
         trackVisibility: false
-        onResize: @onSectionResize(row.id)
         offset
         range
         height
@@ -329,7 +328,6 @@ class SummarySections extends Component
         zoom: 0.1, key: "key",
         surfaces,
         skeletal,
-        onResize: sectionResize("key")
         offset
         rest...
       }
@@ -378,34 +376,24 @@ class SummarySections extends Component
     overflow = if scrollable then "scroll" else 'inherit'
     {canvas} = @state.dimensions
 
+    minHeight = 1500
+
     h 'div#section-pane', {style: {overflow}}, [
-      @__buildCanvas(__sections)
+      h "div#section-page-inner", {
+        style: {zoom: 1, minHeight}
+      }, __sections
       h SectionLinkOverlay, {
         paddingLeft,
-        canvas...,
+        width: 2500,
+        height: 1500,
         marginTop,
         groupedSections,
-        sectionPositions,
         showLithostratigraphy
         showSequenceStratigraphy
         showCarbonIsotopes
         surfaces
       }
     ]
-
-  __buildCanvas: (sections)->
-    minHeight = 1500
-    h Measure, {
-      bounds: true,
-      innerRef: (ref)=>
-        @measureRef = ref
-      onResize: @onCanvasResize,
-      scroll: true
-    }, ({measureRef})=>
-      h "div#section-page-inner", {
-        ref: measureRef
-        style: {zoom: 1, minHeight}
-      }, sections
 
   render: ->
     {options} = @state
@@ -444,47 +432,9 @@ class SummarySections extends Component
       value...
     }
 
-  onSectionResize: (key)=>(contentRect)=>
-    {scrollTop, scrollLeft} =  @measureRef.offsetParent
-    console.log "Section #{key} was resized", contentRect
-    {bounds, __rest...} = contentRect
-    {top, right, bottom, left, rest...} = bounds
-    top += scrollTop
-    bottom += scrollTop
-    left += scrollLeft
-    right += scrollLeft
-    bounds = {top, right, bottom, left, rest...}
-    sectionPositions = {}
-    sectionPositions[key] = {$set: {bounds, __rest...}}
-    @mutateState {sectionPositions}
-
-  resizeAllSections: =>
-    console.log "Resizing all sections"
-
-  componentDidUpdate: (prevProps, prevState)->
-    if prevState.dimensions != @state.dimensions
-      console.log "Dimensions changed!"
-
-      obj = {}
-      window.resizers.map (section)->
-        {measureRef,props} = section
-        if measureRef.measure?
-          contentRect = measureRef.measure()
-          obj["#{props.id}"] = {$set: contentRect}
-      @mutateState {sectionPositions: obj}
-
   mutateState: (spec)=>
     state = update(@state, spec)
     @setState state
-
-  onCanvasResize: ({bounds, scroll})=>
-    {width, height} = scroll
-    console.log scroll
-    height = 1800 #! HACK!
-    @mutateState {dimensions: {canvas: {
-      width: {$set: width}
-      height: {$set: height}
-    }}}
 
   updateOptions: (opts)=>
     newOptions = update @state.options, opts
