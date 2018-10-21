@@ -185,16 +185,10 @@ class SectionComponent extends BaseSectionComponent
         className: if @props.skeletal then "skeleton" else null
       }, [
       h 'div.section-header', [h "h2", txt]
-      h Measure, {
-        bounds: true
-        onResize: @onResize
-      }, ({measureRef})=>
-        h 'div.section-outer', [
-            h 'div.section', {
-              style, ref: measureRef
-            }, innerElements
-            notesEl
-        ]
+      h 'div.section-outer', [
+          h 'div.section', {style}, innerElements
+          notesEl
+      ]
     ]
 
     return mainElement unless @props.trackVisibility

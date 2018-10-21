@@ -53,7 +53,7 @@ class SectionScale
   pixelHeight: ->
     @props.height*@props.pixelsPerMeter
   pixelOffset: ->
-    top = 669-(@props.start+@props.height)
+    top = 670-(@props.start+@props.height)
     (top-@props.offset)*@props.pixelsPerMeter
   pixelBounds: ->
     height = @pixelHeight()
@@ -126,17 +126,22 @@ class SectionPositioner
 
 class SectionColumn extends Component
   render: ->
-    h 'div.section-column', {style: {position: 'relative', width: 240}}, @props.children
+    {style} = @props
+    style.position = 'relative'
+    style.width ?= 240
+    h 'div.section-column', {style}, @props.children
 
 class LocationGroup extends Component
   @defaultProps: {
     offsetTop: 0
   }
   render: ->
-    {id, name, location, values, width, values, children, offsetTop, rest...} = @props
+    {id, name, location, width, children, style} = @props
     name ?= location
     id ?= location
-    h 'div.location-group', {id, style: {width}, rest...}, [
+    style ?= {}
+    style.width ?= width
+    h 'div.location-group', {id, style}, [
       h 'h1', {}, name
       h 'div.location-group-body', {}, children
     ]
@@ -181,6 +186,7 @@ class SummarySections extends Component
     scrollable: true
     groupMargin: 400
     columnMargin: 100
+    columnWidth: 240
   }
   constructor: (props)->
     super props
@@ -223,7 +229,7 @@ class SummarySections extends Component
         surfaces.reverse()
         @setState {surfaces}
 
-  renderChemostratigraphy: ({offset, sectionResize})->
+  renderChemostratigraphy: ->
     {sections, scrollable} = @props
     {dimensions, options, sectionPositions, surfaces} = @state
     {dragdealer, dragPosition, rest...} = options
@@ -246,7 +252,6 @@ class SummarySections extends Component
         zoom: 0.1,
         key: 'carbon-isotopes',
         showFacies
-        onResize: sectionResize('carbon-isotopes')
         offset
         location: ""
         surfaces
@@ -261,7 +266,6 @@ class SummarySections extends Component
         domain: [-15,0]
         key: 'oxygen-isotopes',
         showFacies
-        onResize: sectionResize('oxygen-isotopes')
         offset
         location: ""
         surfaces
@@ -290,11 +294,6 @@ class SummarySections extends Component
     return null unless sections.length > 0
 
     skeletal = activeMode == 'skeleton'
-
-    sectionResize = (key)=>(contentRect)=>
-      cset = {}
-      cset[key] = {$set: contentRect}
-      @mutateState {sectionPositions: cset}
 
     mapRowToSection = (row)=>
       {offset, range, height, start, end, rest...} = row
@@ -332,39 +331,26 @@ class SummarySections extends Component
         rest...
       }
 
-    # Find width of chemostrat column (this is an insane hack)
-    chemostratWidth = 74
-    if showCarbonIsotopes
-      chemostratWidth += 170
-    if showOxygenIsotopes
-      chemostratWidth += 170
-
     groupedSections = groupSectionData(sections)
 
+
+    height = 1800
     # Pre-compute section positions
-    {groupMargin, columnMargin} = @props
-    positioner = new SectionPositioner({
-      marginLeft: chemostratWidth,
-      groupMargin, columnMargin})
+    {groupMargin, columnMargin, columnWidth} = @props
+    positioner = new SectionPositioner({groupMargin, columnMargin, columnWidth})
     groupedSections = positioner.update(groupedSections)
 
     sectionGroups = groupedSections.map ({location, columns}, i)->
       marginRight = groupMargin
       if i == groupedSections.length-1
         marginRight = 0
-      style = {marginRight}
+      style = {marginRight, height}
       h LocationGroup, {key: location, location, style}, columns.map (col, i)->
         marginRight = columnMargin
         if i == columns.length-1
           marginRight = 0
-        style = {marginRight}
+        style = {marginRight, height, width: columnWidth}
         h SectionColumn, {key: i, style}, col.map mapRowToSection
-
-    __sections = [
-      lithostratKey,
-      @renderChemostratigraphy({offset, sectionResize}),
-      sectionGroups...
-    ]
 
     maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
 
@@ -381,18 +367,24 @@ class SummarySections extends Component
     h 'div#section-pane', {style: {overflow}}, [
       h "div#section-page-inner", {
         style: {zoom: 1, minHeight}
-      }, __sections
-      h SectionLinkOverlay, {
-        paddingLeft,
-        width: 2500,
-        height: 1500,
-        marginTop,
-        groupedSections,
-        showLithostratigraphy
-        showSequenceStratigraphy
-        showCarbonIsotopes
-        surfaces
-      }
+      }, [
+        lithostratKey,
+        @renderChemostratigraphy(),
+        h "div#section-container", [
+          h 'div.grouped-sections', sectionGroups
+          h SectionLinkOverlay, {
+            paddingLeft,
+            width: 2500,
+            height,
+            marginTop,
+            groupedSections,
+            showLithostratigraphy
+            showSequenceStratigraphy
+            showCarbonIsotopes
+            surfaces
+          }
+        ]
+      ]
     ]
 
   render: ->

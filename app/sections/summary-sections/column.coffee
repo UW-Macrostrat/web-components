@@ -16,8 +16,6 @@ Measure = require('react-measure').default
 
 fmt = d3.format('.1f')
 
-window.resizers = []
-
 class BaseSVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
     BaseSectionComponent.defaultProps...
@@ -76,10 +74,13 @@ class BaseSVGSectionComponent extends BaseSectionComponent
      innerWidth, onResize, marginLeft,
      showFacies, height, clip_end, offset, offsetTop
      showTriangleBars,
-     showFloodingSurfaces
+     showFloodingSurfaces,
+     position
      } = @props
 
-    innerHeight = height*@props.pixelsPerMeter*@props.zoom
+    pos = position
+
+    innerHeight = pos.heightScale.pixelHeight()
 
     {left, top, right, bottom} = padding
 
@@ -90,14 +91,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     outerWidth = innerWidth+(left+right)
 
     {heightOfTop} = @props
-    marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
-
-    # Basic positioning
-    # If we're not moving sections from the top, don't mess with positioning
-    # at runtime
-    offsetTop ?= 670-height-offset
-    heightOfTop = offsetTop
-    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
+    marginTop = pos.heightScale.pixelOffset()
 
     [bottom,top] = @props.range
 
@@ -149,8 +143,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     style = {
       width: outerWidth
       height: outerHeight
-      marginLeft
-      marginRight
     }
 
 
@@ -171,71 +163,61 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     position = 'absolute'
     h "div.section-container", {
       className: if @props.skeletal then "skeleton" else null
-      style: {minWidth, position, top:desiredPosition}
+      style: {minWidth}
     }, [
       h 'div.section-header', [
         h("h2", txt)]
       h 'div.section-outer', [
-        h Measure, {
-          ref: @measureRef
-          bounds: true,
-          client: true,
-          offset: true,
-          onResize: @onResize
-        }, ({measureRef, measure})=>
-          h "svg.section", {
-            SVGNamespaces...
-            style, ref: measureRef
-          }, [
-            h 'g.backdrop', {transform}, [
-              underlay
-              h FaciesContext.Consumer, {}, ({facies})=>
-                h GeneralizedSectionColumn, {
-                  width: innerWidth
-                  height: innerHeight
-                  divisions
-                  showFacies
-                  showCoveredOverlay: true
-                  facies: facies
-                  scale
-                  id
-                  grainsizeScaleStart: 40
-                  onEditInterval: (d, opts)=>
-                    {history} = @props
-                    {height, event} = opts
-                    if not event.shiftKey
-                      history.push("/sections/#{id}/height/#{height}")
-                      return
-                    Notification.show {
-                      message: h 'div', [
-                        h 'h4', "Section #{id} @ #{fmt(height)} m"
-                        h 'p', [
-                          'Interval ID: '
-                          h('code', d.id)
-                        ]
-                        h 'p', "#{d.bottom} - #{d.top} m"
-                        if d.surface then h('p', ["Surface: ", h('code',d.surface)]) else null
-                      ]
-                      timeout: 2000
-                    }
-                }
-              h SymbolColumn, {
-                scale
+        h "svg.section", {
+          SVGNamespaces...
+          style
+        }, [
+          h 'g.backdrop', {transform}, [
+            underlay
+            h FaciesContext.Consumer, {}, ({facies})=>
+              h GeneralizedSectionColumn, {
+                width: innerWidth
                 height: innerHeight
-                left: 90
+                divisions
+                showFacies
+                showCoveredOverlay: true
+                facies: facies
+                scale
                 id
-                zoom
+                grainsizeScaleStart: 40
+                onEditInterval: (d, opts)=>
+                  {history} = @props
+                  {height, event} = opts
+                  if not event.shiftKey
+                    history.push("/sections/#{id}/height/#{height}")
+                    return
+                  Notification.show {
+                    message: h 'div', [
+                      h 'h4', "Section #{id} @ #{fmt(height)} m"
+                      h 'p', [
+                        'Interval ID: '
+                        h('code', d.id)
+                      ]
+                      h 'p', "#{d.bottom} - #{d.top} m"
+                      if d.surface then h('p', ["Surface: ", h('code',d.surface)]) else null
+                    ]
+                    timeout: 2000
+                  }
               }
-              fs
-              triangleBars
-              h SectionAxis, {scale, ticks: nticks}
-            ]
+            h SymbolColumn, {
+              scale
+              height: innerHeight
+              left: 90
+              id
+              zoom
+            }
+            fs
+            triangleBars
+            h SectionAxis, {scale, ticks: nticks}
           ]
+        ]
       ]
     ]
-
-  componentDidMount: =>
-    window.resizers.push @
 
   componentDidUpdate: =>
 
