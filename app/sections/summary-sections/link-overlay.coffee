@@ -35,6 +35,7 @@ class SectionLinkOverlay extends Component
     height: 100
     paddingLeft: 20
     marginTop: 0
+    connectLines: false
     showLithostratigraphy: true
     showCarbonIsotopes: false
     sectionOptions: {}
@@ -49,7 +50,9 @@ class SectionLinkOverlay extends Component
   buildLink: (surface)=>
     {paddingLeft, marginTop,
      showLithostratigraphy, showSequenceStratigraphy
-     showCarbonIsotopes, groupedSections} = @props
+     showCarbonIsotopes, groupedSections,
+     connectLines
+    } = @props
     {section_height, surface_id, unit_commonality,
      type, flooding_surface_order, note} = surface
 
@@ -87,12 +90,11 @@ class SectionLinkOverlay extends Component
         {width, x: x0} = position
         x1 = x0+width
         y = scale(height)
-
+        heights.push {x0, x1, y, inferred, inDomain, section}
       catch
         # Not positioned yet (or at all?)
-        console.log "Couldn't position section #{section}"
+        console.log "No section position computed for #{section}"
 
-      heights.push {x0, x1, y, inferred, inDomain}
 
     heights.sort (a,b)-> a.x0 - b.x0
 
@@ -100,14 +102,15 @@ class SectionLinkOverlay extends Component
 
     pathData = d3.pairs heights, (a,b)->
       inferred = (a.inferred or b.inferred)
-      source = {x: a.x1, y: a.y}
-      target = {x: b.x0, y: b.y}
+      source = {x: a.x1, y: a.y, section: a.section}
+      target = {x: b.x0, y: b.y, section: b.section}
       {inDomain} = b
       width = b.x1-b.x0
       {source, target, inferred, width}
 
     isFirst = true
-    links = for pair in pathData
+
+    links = for pair,i in pathData
       unit_commonality ?= 0
       {inferred,width} = pair
       className = classNames(
@@ -115,15 +118,26 @@ class SectionLinkOverlay extends Component
         "commonality-#{unit_commonality}"
         type
         {inferred})
-      d = ""
+      # First move to initial height
+      {x,y} = pair.source
+      d = "M0,#{y}"
+      if connectLines
+        d += "l#{width},0"
       if isFirst
         # Could probably replace this with a particular thing
-        {x,y} = pair.source
-        d += "M#{x-width},#{y}l#{width},0"
+        if connectLines
+          d += "M#{x-width},#{y}l#{width},0"
+        else
+          d += "M#{width},#{y}"
         isFirst = false
       d += @link(pair)
-      d += "l#{width},0"
+      if connectLines
+        d += "l#{width},0"
+      else
+        d += "M#{width},0"
       fill = 'none'
+      if y == 1272
+        debugger
 
       h 'path', {d, className, stroke, strokeWidth, fill, onClick}
 
