@@ -370,9 +370,9 @@ class SummarySections extends Component
         @renderChemostratigraphy(),
         h "div#section-container", [
           h(Legend) if showLegend
-          h 'div.grouped-sections', sectionGroups
           h SectionLinkOverlay, {
             paddingLeft,
+            connectLines: true
             width: 2500,
             height,
             marginTop,
@@ -383,6 +383,7 @@ class SummarySections extends Component
             surfaces
             skeletal
           }
+          h 'div.grouped-sections', sectionGroups
         ]
       ]
     ]

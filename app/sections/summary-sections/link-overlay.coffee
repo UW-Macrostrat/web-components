@@ -108,8 +108,6 @@ class SectionLinkOverlay extends Component
       width = b.x1-b.x0
       {source, target, inferred, width}
 
-    isFirst = true
-
     d = null
     links = for pair,i in pathData
       unit_commonality ?= 0
@@ -136,8 +134,6 @@ class SectionLinkOverlay extends Component
       else
         d += "M#{width},0"
       fill = 'none'
-      if y == 1272
-        debugger
 
       h 'path', {d, className, stroke, strokeWidth, fill, onClick}
 

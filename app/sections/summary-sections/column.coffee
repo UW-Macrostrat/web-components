@@ -23,6 +23,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     innerWidth: 100
     height: 100 # Section height in meters
     lithologyWidth: 40
+    showWhiteUnderlay: true
     showFacies: true
     showFloodingSurfaces: true
     triangleBarsOffset: 0
@@ -47,7 +48,10 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     @state.scale.clamp()
 
   renderWhiteUnderlay: ->
-    {innerWidth, padding, marginLeft} = @props
+    {showWhiteUnderlay, skeletal} = @props
+    return null if not showWhiteUnderlay
+    return null if skeletal
+    {innerWidth, padding, marginLeft, position: pos} = @props
     innerHeight = pos.heightScale.pixelHeight()
     {left, right} = padding
     outerWidth = innerWidth+(left+right)
@@ -75,6 +79,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
      showFacies, height, clip_end,
      showTriangleBars,
      showFloodingSurfaces,
+     showWhiteUnderlay,
      position
      } = @props
 
@@ -176,7 +181,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
           style
         }, [
           h 'g.backdrop', {transform}, [
-            if whiteUnderlay then @renderWhiteUnderlay() else null
+            @renderWhiteUnderlay()
             h FaciesContext.Consumer, {}, ({facies})=>
               h GeneralizedSectionColumn, {
                 width: innerWidth
