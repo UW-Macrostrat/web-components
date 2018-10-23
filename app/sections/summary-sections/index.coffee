@@ -305,7 +305,8 @@ class SummarySections extends Component
       range = [start, end]
 
       h WrappedSectionComponent, {
-        zoom: 0.1, key: row.id
+        zoom: 0.1,
+        key: row.id,
         skeletal,
         triangleBarRightSide: row.id == 'J'
         showCarbonIsotopes,
@@ -354,9 +355,6 @@ class SummarySections extends Component
 
     maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
 
-    if showLegend
-      __sections.push h Legend
-
     paddingLeft = if showTriangleBars then 90 else 30
     marginTop = 52 # This is a weird hack
     overflow = if scrollable then "scroll" else 'inherit'
@@ -371,6 +369,7 @@ class SummarySections extends Component
         lithostratKey,
         @renderChemostratigraphy(),
         h "div#section-container", [
+          h(Legend) if showLegend
           h 'div.grouped-sections', sectionGroups
           h SectionLinkOverlay, {
             paddingLeft,

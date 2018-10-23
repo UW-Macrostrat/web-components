@@ -5,8 +5,9 @@ require 'd3-selection-multi'
 h = require 'react-hyperscript'
 require './main.styl'
 {query} = require '../db'
+{KnownSizeComponent} = require '../util'
 
-class BaseSectionComponent extends Component
+class BaseSectionComponent extends KnownSizeComponent
   @defaultProps: {
     zoom: 1
     pixelsPerMeter: 20
@@ -25,11 +26,6 @@ class BaseSectionComponent extends Component
         .then (divisions)=>@setState {divisions}
 
     @state = {divisions}
-
-  componentDidMount: ->
-    @__doUpdate.apply @, arguments
-  componentDidUpdate: ->
-    @__doUpdate.apply @, arguments
 
   __doUpdate: ->
     # This leads to some problems unsurprisingly

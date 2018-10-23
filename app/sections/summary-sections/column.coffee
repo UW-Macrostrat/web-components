@@ -46,28 +46,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     }
     @state.scale.clamp()
 
-  onResize: ({bounds, offset, padding})=>
-    {scale} = @state
-    {
-      id, padding, onResize, offsetTop
-      offset: _offset, height
-      triangleBarRightSide, triangleBarsOffset
-    } = @props
-    console.log "Resizing section #{id}"
-
-    offsetTop ?= 670-height-_offset
-    heightOfTop = offsetTop
-    desiredPosition = heightOfTop*@props.pixelsPerMeter*@props.zoom
-
-    return unless onResize?
-    onResize {
-      scale, bounds, offset
-      triangleBarRightSide
-      triangleBarsOffset
-      padding
-      pixelOffset: desiredPosition
-    }
-
   renderWhiteUnderlay: ->
     {innerWidth, padding, marginLeft} = @props
     innerHeight = pos.heightScale.pixelHeight()
@@ -91,10 +69,36 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       fill: 'white'
     }
 
+  __doUpdate: ->
+    # This leads to some problems unsurprisingly
+    el = findDOMNode @
+
+    {scale} = @state
+    {height, zoom, offset, offsetTop} = @props
+    pixelsPerMeter = Math.abs(scale(1)-scale(0))
+
+    # If we're not moving sections from the top, don't mess with positioning
+    # at runtime
+    return unless @props.useRelativePositioning
+
+    offsetTop ?= 670-height-offset
+    heightOfTop = offsetTop
+    desiredPosition = heightOfTop*pixelsPerMeter
+
+    # Set alignment
+    offs = 0
+    sib = el.previousSibling
+    if sib?
+      {top} = el.parentElement.getBoundingClientRect()
+      {bottom} = sib.getBoundingClientRect()
+      offs = bottom-top
+
+    el.style.marginTop = "#{desiredPosition-offs}px"
+
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
-     showFacies, height, clip_end, offset, offsetTop
+     showFacies, height, clip_end,
      showTriangleBars,
      showFloodingSurfaces,
      position
@@ -185,9 +189,10 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
     minWidth = outerWidth
     position = 'absolute'
+    top = marginTop
     h "div.section-container", {
       className: if @props.skeletal then "skeleton" else null
-      style: {minWidth}
+      style: {minWidth, top, position}
     }, [
       h 'div.section-header', [
         h("h2", txt)]
@@ -242,8 +247,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         ]
       ]
     ]
-
-  componentDidUpdate: =>
 
 SVGSectionComponent = withRouter(BaseSVGSectionComponent)
 
