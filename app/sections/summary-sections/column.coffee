@@ -68,6 +68,28 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       pixelOffset: desiredPosition
     }
 
+  renderWhiteUnderlay: ->
+    {innerWidth, padding, marginLeft} = @props
+    innerHeight = pos.heightScale.pixelHeight()
+    {left, right} = padding
+    outerWidth = innerWidth+(left+right)
+
+    {triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
+    left += tbo
+    marginLeft -= tbo
+    marginRight = 0
+    outerWidth += tbo
+
+    x = -left
+    if @props.showTriangleBars and not onRight
+      x += 55
+    return h 'rect.underlay', {
+      width: outerWidth-55
+      height: innerHeight+10
+      x
+      y: -5
+      fill: 'white'
+    }
 
   render: ->
     {id, zoom, padding, lithologyWidth,
@@ -157,6 +179,8 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       fill: 'white'
     }
 
+    whiteUnderlay = false
+
     transform = "translate(#{left} #{@props.padding.top})"
 
     minWidth = outerWidth
@@ -173,7 +197,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
           style
         }, [
           h 'g.backdrop', {transform}, [
-            underlay
+            if whiteUnderlay then @renderWhiteUnderlay() else null
             h FaciesContext.Consumer, {}, ({facies})=>
               h GeneralizedSectionColumn, {
                 width: innerWidth
