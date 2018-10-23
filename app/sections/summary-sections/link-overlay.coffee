@@ -110,6 +110,7 @@ class SectionLinkOverlay extends Component
 
     isFirst = true
 
+    d = null
     links = for pair,i in pathData
       unit_commonality ?= 0
       {inferred,width} = pair
@@ -120,16 +121,15 @@ class SectionLinkOverlay extends Component
         {inferred})
       # First move to initial height
       {x,y} = pair.source
-      d = "M0,#{y}"
-      if connectLines
-        d += "l#{width},0"
-      if isFirst
-        # Could probably replace this with a particular thing
+
+      if not d?
+        initialX = x
         if connectLines
-          d += "M#{x-width},#{y}l#{width},0"
-        else
-          d += "M#{width},#{y}"
-        isFirst = false
+          initialX -= width
+        d = "M#{initialX},#{y}"
+        if connectLines
+          d += "l#{width},0"
+
       d += @link(pair)
       if connectLines
         d += "l#{width},0"
