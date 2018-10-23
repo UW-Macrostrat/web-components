@@ -69,32 +69,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       fill: 'white'
     }
 
-  __doUpdate: ->
-    # This leads to some problems unsurprisingly
-    el = findDOMNode @
-
-    {scale} = @state
-    {height, zoom, offset, offsetTop} = @props
-    pixelsPerMeter = Math.abs(scale(1)-scale(0))
-
-    # If we're not moving sections from the top, don't mess with positioning
-    # at runtime
-    return unless @props.useRelativePositioning
-
-    offsetTop ?= 670-height-offset
-    heightOfTop = offsetTop
-    desiredPosition = heightOfTop*pixelsPerMeter
-
-    # Set alignment
-    offs = 0
-    sib = el.previousSibling
-    if sib?
-      {top} = el.parentElement.getBoundingClientRect()
-      {bottom} = sib.getBoundingClientRect()
-      offs = bottom-top
-
-    el.style.marginTop = "#{desiredPosition-offs}px"
-
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
@@ -142,8 +116,10 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         divisions
       }
 
+    overhangLeft = 0
+    overhangRight = 0
+
     {triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
-    left += tbo
     marginLeft -= tbo
     marginRight = 0
     outerWidth += tbo
@@ -151,11 +127,14 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     if @props.showTriangleBars
       offsetLeft = -tbo+20
       if onRight
+        overhangRight = 25
         offsetLeft *= -1
         offsetLeft += tbo
         marginRight -= tbo
         marginLeft += tbo
-        left -= tbo
+      else
+        overhangLeft = 25
+        left = tbo
 
       triangleBars = h TriangleBars, {
         scale
@@ -165,6 +144,8 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         lineWidth: 20
         divisions
       }
+
+
 
     # Expand SVG past bounds of section
     style = {
@@ -181,7 +162,11 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     top = marginTop
     h "div.section-container", {
       className: if @props.skeletal then "skeleton" else null
-      style: {minWidth, top, position}
+      style: {
+        minWidth, top, position,
+        marginLeft: -overhangLeft
+        marginRight: -overhangRight
+      }
     }, [
       h 'div.section-header', [
         h("h2", txt)]

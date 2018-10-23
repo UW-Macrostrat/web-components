@@ -337,7 +337,7 @@ class SummarySections extends Component
     # Pre-compute section positions
     {groupMargin, columnMargin, columnWidth} = @props
     if showTriangleBars
-      columnWidth += 90
+      columnWidth += 25
     positioner = new SectionPositioner({groupMargin, columnMargin, columnWidth})
     groupedSections = positioner.update(groupedSections)
 
