@@ -284,7 +284,7 @@ class GeneralizedSectionColumn extends LithologyColumn
       return fp
 
   createFrame: ->
-    {scale, divisions} = @props
+    {scale, divisions, position, id} = @props
     {frameID} = @state
     if divisions.length == 0
       return super.createFrame()
@@ -302,12 +302,15 @@ class GeneralizedSectionColumn extends LithologyColumn
         bottom = bottomOfSection
       scale(bottom)
 
-    _ = path()
-    _.moveTo(0,bottomOf(divisions[0]))
+    _ = null
     currentGrainsize = 'm'
-    for nextDiv in divisions
-      break if nextDiv.bottom > topOfSection
-      div = nextDiv
+    for div in divisions
+      continue if div.top <= bottomOfSection
+      if not _?
+        _ = path()
+        _.moveTo(0,bottomOf(div))
+      break if div.bottom > topOfSection
+
       if div.grainsize?
         currentGrainsize = div.grainsize
       x = @grainsizeScale(currentGrainsize)

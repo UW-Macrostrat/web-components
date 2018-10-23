@@ -166,21 +166,10 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         divisions
       }
 
+    # Expand SVG past bounds of section
     style = {
       width: outerWidth
       height: outerHeight
-    }
-
-
-    x = -left
-    if @props.showTriangleBars and not onRight
-      x += 55
-    underlay = h 'rect.underlay', {
-      width: outerWidth-55
-      height: innerHeight+10
-      x
-      y: -5
-      fill: 'white'
     }
 
     whiteUnderlay = false
