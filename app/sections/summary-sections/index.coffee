@@ -53,8 +53,7 @@ class SectionScale
   pixelHeight: ->
     @props.height*@props.pixelsPerMeter
   pixelOffset: ->
-    top = 670-(@props.start+@props.height)
-    (top-@props.offset)*@props.pixelsPerMeter
+    (670-@props.height-@props.offset)*@props.pixelsPerMeter
   pixelBounds: ->
     height = @pixelHeight()
     y = @pixelOffset()
@@ -186,7 +185,7 @@ class SummarySections extends Component
     scrollable: true
     groupMargin: 400
     columnMargin: 100
-    columnWidth: 240
+    columnWidth: 150
   }
   constructor: (props)->
     super props
@@ -333,10 +332,11 @@ class SummarySections extends Component
 
     groupedSections = groupSectionData(sections)
 
-
     height = 1800
     # Pre-compute section positions
     {groupMargin, columnMargin, columnWidth} = @props
+    if showTriangleBars
+      columnWidth += 90
     positioner = new SectionPositioner({groupMargin, columnMargin, columnWidth})
     groupedSections = positioner.update(groupedSections)
 
@@ -358,7 +358,7 @@ class SummarySections extends Component
       __sections.push h Legend
 
     paddingLeft = if showTriangleBars then 90 else 30
-    marginTop = 50
+    marginTop = 52 # This is a weird hack
     overflow = if scrollable then "scroll" else 'inherit'
     {canvas} = @state.dimensions
 
@@ -382,6 +382,7 @@ class SummarySections extends Component
             showSequenceStratigraphy
             showCarbonIsotopes
             surfaces
+            skeletal
           }
         ]
       ]

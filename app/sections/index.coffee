@@ -125,6 +125,4 @@ class SectionIndex extends SectionDataContainer
     await db.none sql, {id,color}
     @getFaciesData()
 
-
-
 module.exports = {SectionIndex, SectionDataContainer}

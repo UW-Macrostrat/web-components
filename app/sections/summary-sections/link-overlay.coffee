@@ -206,25 +206,29 @@ class SectionLinkOverlay extends Component
       v.section_height = heights
       return v
 
+  renderSectionTrackers: ->
+    {groupedSections, skeletal} = @props
+    return null if not skeletal
+    # Compute the position of sections by index
+    # This could be moved to a context instance probably
+    ix = ({id: k, v.position...} for k,v of groupedSections.index)
+    h SectionTrackers, {sectionPositions: ix}
+
   render: ->
     {skeletal, marginTop,
-     showLithostratigraphy, surfaces, groupedSections} = @props
+     showLithostratigraphy, surfaces} = @props
     return null unless surfaces.length
 
     className = classNames {skeletal}
 
     surfacesNew = @prepareData()
 
-    # Compute the position of sections by index
-    # This could be moved to a context instance probably
-    ix = ({id: k, v.position...} for k,v of groupedSections.index)
-
     {width, height} = @props
     style = {top: marginTop}
     h 'svg#section-link-overlay', {
       SVGNamespaces...
       className, width, height, style}, [
-      h SectionTrackers, {sectionPositions: ix}
+      @renderSectionTrackers()
       h 'g.section-links', surfacesNew.map @buildLink
     ]
 
