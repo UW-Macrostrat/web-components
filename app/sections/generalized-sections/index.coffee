@@ -161,6 +161,9 @@ class GeneralizedSections extends SummarySections
         rest...
       }
 
+    positioner = new GeneralizedSectionPositioner()
+    groupedSections = positioner.update(sectionData)
+
     padding = 50
     marginTop = 50
     overflow = "scroll"
@@ -184,8 +187,7 @@ class GeneralizedSections extends SummarySections
     size = {width: 1200, height}
 
     links = null
-    #links = h LinkOverlay, {
-    #  size..., surfaces, sectionPositions}
+    links = h LinkOverlay, {size..., surfaces, groupedSections}
     trans = {transform: "translate(#{padding},#{padding})"}
     h 'svg#section-pane', {style: size}, [
       links

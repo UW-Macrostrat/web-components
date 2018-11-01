@@ -31,11 +31,14 @@ class SectionPositioner
   ###
   @defaultProps: {
     marginLeft: 0
+    marginRight: 0
+    marginTop: 0
+    marginBottom: 0
     groupMargin: 400
     columnMargin: 100
     columnWidth: 200
     pixelsPerMeter: 2
-    sectionOffsets: null
+    sectionOffsets: {}
   }
   constructor: (props={})->
     @props = {}
@@ -44,10 +47,32 @@ class SectionPositioner
         @props[k] = props[k]
       @props[k] ?= opt
 
-  update: (groupedSections)->
-    {pixelsPerMeter, sectionOffsets} = @props
+  updateSingleSection: (xPosition)=>(sec)=>
+    {sectionOffsets, pixelsPerMeter} = @props
+    {offset, start, end} = sec
+    # Heights
+    offset = sectionOffsets[sec.id] or offset or 0
+    # Clip off the top of some columns...
+    # (this should be more customizable)
+    end = sec.clip_end
+    height = end-start
+    range = [start, end]
+    heightScale = new SectionScale {
+      pixelsPerMeter, start, height, offset
+    }
 
-    sectionOffsets ?= {}
+    secPosition = {
+      x: xPosition
+      heightScale.pixelBounds()...
+      width: @props.columnWidth
+      heightScale
+    }
+    sec.position = secPosition
+    @sectionPositionsIndex[sec.id] = sec
+    return sec
+
+  update: (groupedSections)->
+    @sectionPositionsIndex = {}
     xPosition = @props.marginLeft
     sectionPositionsIndex = {}
     for group in groupedSections
@@ -55,29 +80,7 @@ class SectionPositioner
       for col in group.columns
         # Column x position
         col.position = {x: groupWidth, width: @props.columnWidth}
-        for sec in col
-          {offset, start, end} = sec
-
-          # Heights
-          offset = sectionOffsets[sec.id] or offset or 0
-          sec.offset = parseFloat(offset)
-          # Clip off the top of some columns...
-          # (this should be more customizable)
-          end = sec.clip_end
-          height = end-start
-          range = [start, end]
-          heightScale = new SectionScale {
-            pixelsPerMeter, start, height, offset
-          }
-
-          secPosition = {
-            x: xPosition+groupWidth
-            heightScale.pixelBounds()...
-            width: @props.columnWidth
-            heightScale
-          }
-          sec.position = secPosition
-          sectionPositionsIndex[sec.id] = sec
+        col.forEach @updateSingleSection(xPosition+groupWidth)
         groupWidth += @props.columnWidth + @props.columnMargin
 
       groupWidth -= @props.columnMargin
@@ -87,8 +90,7 @@ class SectionPositioner
     xPosition -= @props.groupMargin
     groupedSections.position = {x: 0, y: 0, width: xPosition}
     # Hack to create index of section positions
-    groupedSections.index = sectionPositionsIndex
-
+    groupedSections.index = @sectionPositionsIndex
     return groupedSections
 
 module.exports = {SectionPositioner, SectionScale}
