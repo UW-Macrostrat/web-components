@@ -41,14 +41,11 @@ class SectionPositioner
     sectionOffsets: {}
   }
   constructor: (props={})->
-    @props = {}
-    for k,opt of @constructor.defaultProps
-      if props[k]?
-        @props[k] = props[k]
-      @props[k] ?= opt
+    @props = Object.assign(@constructor.defaultProps,props)
 
   updateSingleSection: (xPosition)=>(sec)=>
     {sectionOffsets, pixelsPerMeter} = @props
+    sectionOffsets ?= {}
     {offset, start, end} = sec
     # Heights
     offset = sectionOffsets[sec.id] or offset or 0
@@ -70,6 +67,22 @@ class SectionPositioner
     sec.position = secPosition
     @sectionPositionsIndex[sec.id] = sec
     return sec
+
+  getOverallPosition: (groupedSections)->
+    [xMax,yMax] = [0,0]
+    for group in groupedSections
+      for column in group.columns
+        for section in column
+          {position} = section
+          {x,y,width,height} = position
+          if x+width > xMax
+            xMax = x+width
+          if y+height > yMax
+            yMax = y+height
+    width = xMax + (@props.marginLeft or 0)+(@props.marginRight or 0)
+    height = yMax + (@props.marginTop or 0)+(@props.marginBottom or 0)
+    return {x:0,y:0, width, height}
+
 
   update: (groupedSections)->
     @sectionPositionsIndex = {}

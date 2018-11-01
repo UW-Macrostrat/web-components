@@ -15,67 +15,31 @@ class GeneralizedSVGSection extends Component
   @defaultProps: {pixelsPerMeter: 20, zoom: 1}
   constructor: (props)->
     super props
-    @state = {
-      scale: d3.scaleLinear().domain(@props.range)
-    }
-    @state.scale.clamp()
 
   render: ->
-    {id, zoom, padding, lithologyWidth,
-     innerWidth, onResize, marginLeft,
-     left,
-     showFacies, height, clip_end, offset, offsetTop
-     showTriangleBars,
-     showFloodingSurfaces,
-     divisions
-     } = @props
+    {id,
+     showFacies,
+     divisions,
+     position} = @props
 
-    left ?= 0 # Position relative to left margin
+    {x: left, y: top, width, height, heightScale} = position
 
-    innerHeight = height*@props.pixelsPerMeter*@props.zoom
+    scale = heightScale.local
 
-    @state.scale.range [innerHeight, 0]
-    outerHeight = innerHeight
-    outerWidth = innerWidth
-    innerWidth = 50
-
-    {offsetTop} = @props
-    marginTop = offsetTop*@props.pixelsPerMeter*@props.zoom
-
-    # Basic positioning
-    # If we're not moving sections from the top, don't mess with positioning
-    # at runtime
-
-    [bottom,top] = @props.range
-
-    txt = id
-
-    {scale,visible} = @state
     divisions = divisions.filter (d)->not d.schematic
 
-    {skeletal} = @props
-    top = marginTop
+    transform = "translate(#{left} #{top})"
 
-    # Set up number of ticks
-    nticks = (height*@props.zoom)/10
-    marginRight = 0
-
-    transform = "translate(#{left} #{offsetTop})"
-
-    minWidth = outerWidth
-    position = 'absolute'
-
-    h "g.section", {transform}, [
+    h "g.section", {transform, key: id}, [
       h FaciesContext.Consumer, {}, ({facies})=>
         h FaciesColumn, {
-          width: innerWidth
-          height: innerHeight
-          facies: facies
+          width
+          height
+          facies
           divisions
           showFacies
           scale
           id
-          grainsizeScaleStart: 40
         }
     ]
 

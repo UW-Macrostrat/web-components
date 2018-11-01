@@ -30,8 +30,8 @@ require '../main.styl'
 
 GeneralizedSectionPositions = {
   Onis: {x: 0, y: 0}
-  Tsams: {x: 15, y: -150}
-  Ubisis: {x: 5, y: -320}
+  Tsams: {x: 15, y: 150}
+  Ubisis: {x: 5, y: 320}
 }
 
 class LinkOverlay extends LinkOverlayBase
@@ -120,50 +120,17 @@ class GeneralizedSections extends SummarySections
 
     skeletal = activeMode == 'skeleton'
 
-    positioner = new GeneralizedSectionPositioner()
+    positioner = new GeneralizedSectionPositioner {
+      pixelsPerMeter: 1
+      marginLeft: 50
+      marginTop: 50
+      columnWidth: 50
+      positions: GeneralizedSectionPositions
+      scaleMultipliers: {x: 30}
+    }
     groupedSections = positioner.update(sectionData)
 
-    sectionPositions = {}
     # Group sections by data instead of pre-created elements
-    __sections =  groupedSections.map (row, i)=>
-      {columns: [[section]]} = row
-      console.log section
-
-      {offset, range, height, start, end, divisions, rest...} = section
-
-      {x,y} = GeneralizedSectionPositions[section.id]
-      height = end-start
-      range = [start, end]
-
-      pixelsPerMeter = 1
-      zoom = 1
-      left = x*50
-      offsetTop = -y
-
-      pxHeight = height*pixelsPerMeter*zoom
-      xv = [pxHeight,0].map (A)->A+offsetTop+50-2
-      __ = {}
-      __.bounds = {left, top: 0, width: 50, height: pxHeight}
-      __.scale = d3.scaleLinear().domain(range).range(xv)
-      __.key = row.id
-      sectionPositions[section.id] = __
-
-      h GeneralizedSVGSection, {
-        skeletal
-        pixelsPerMeter
-        zoom
-        key: section.id,
-        left
-        divisions
-        showFacies
-        offsetTop
-        range
-        height
-        start
-        end
-        rest...
-      }
-
     padding = 50
     marginTop = 50
     overflow = "scroll"
@@ -188,10 +155,12 @@ class GeneralizedSections extends SummarySections
 
     links = null
     links = h LinkOverlay, {size..., surfaces, groupedSections}
-    trans = {transform: "translate(#{padding},#{padding})"}
     h 'svg#section-pane', {style: size}, [
       links
-      h 'g.section-pane-inner', trans, __sections
+      h 'g.section-pane-inner', groupedSections.map (row, i)=>
+        {columns: [[section]]} = row
+        vals = do -> {id, divisions, position} = section
+        h GeneralizedSVGSection, {vals..., showFacies}
     ]
 
 module.exports = {GeneralizedSections}
