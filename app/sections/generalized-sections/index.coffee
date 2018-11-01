@@ -24,7 +24,7 @@ LocalStorage = require '../storage'
 require '../summary-sections/main.styl'
 {stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
 {NavLink} = require '../../nav'
-{SectionPositioner} = '../summary-sections/group-sections'
+{SectionPositioner} = '../summary-sections/positioner'
 {GeneralizedSectionPositions} = require './positions.coffee'
 {query} = require '../../db'
 require '../main.styl'
@@ -35,8 +35,6 @@ class LinkOverlay extends LinkOverlayBase
     h 'g#section-link-overlay', [
       h 'g.section-links', @prepareData().map @buildLink
     ]
-
-#class SimpleSectionPositioner extends SectionPositioner
 
 class GeneralizedSections extends SummarySections
   @defaultProps: {
