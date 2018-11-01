@@ -100,6 +100,7 @@ class SummarySections extends Component
     columnMargin: 100
     columnWidth: 150
   }
+  pageID: 'summary-sections'
   constructor: (props)->
     super props
     @state = {
@@ -130,7 +131,7 @@ class SummarySections extends Component
         showCarbonIsotopes: true
       }
     }
-    @measureRef = createRef()
+
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
     return unless v?
@@ -322,12 +323,13 @@ class SummarySections extends Component
         {backLocation, toggleSettings})
 
     # Keep errors isolated within groups
+    sections = null
     try
       sections = @renderSections()
     catch err
       console.error err
 
-    h 'div.page.section-page#summary-sections', [
+    h 'div.page.section-page', {id: @pageID}, [
       h 'div.panel-container', [
         h SectionOptionsContext.Provider, {value: @createSectionOptions()}, [
           navigationController
@@ -335,7 +337,6 @@ class SummarySections extends Component
         ]
       ]
       h SummarySectionsSettings, {
-        reloadCorrelations: @resizeAllSections
         options...
       }
     ]

@@ -24,10 +24,15 @@ LocalStorage = require '../storage'
 require '../summary-sections/main.styl'
 {stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
 {NavLink} = require '../../nav'
-{SectionPositioner} = '../summary-sections/positioner'
-{GeneralizedSectionPositions} = require './positions.coffee'
+{GeneralizedSectionPositioner} = require './positioner.coffee'
 {query} = require '../../db'
 require '../main.styl'
+
+GeneralizedSectionPositions = {
+  Onis: {x: 0, y: 0}
+  Tsams: {x: 15, y: -150}
+  Ubisis: {x: 5, y: -320}
+}
 
 class LinkOverlay extends LinkOverlayBase
   render: ->
@@ -40,6 +45,7 @@ class GeneralizedSections extends SummarySections
   @defaultProps: {
     scrollable: true
   }
+  pageID: 'generalized-sections'
   constructor: (props)->
     super props
     @state =
@@ -177,40 +183,14 @@ class GeneralizedSections extends SummarySections
     height = 1000
     size = {width: 1200, height}
 
-    links = h LinkOverlay, {size..., surfaces, sectionPositions}
+    links = null
+    #links = h LinkOverlay, {
+    #  size..., surfaces, sectionPositions}
     trans = {transform: "translate(#{padding},#{padding})"}
     h 'svg#section-pane', {style: size}, [
       links
       h 'g.section-pane-inner', trans, __sections
     ]
-
-  render: ->
-    {options} = @state
-    backLocation = '/sections'
-    {toggleSettings} = @
-    {showNavigationController} = options
-
-    navigationController = null
-    if showNavigationController
-      navigationController = h(
-        SectionNavigationControl
-        {backLocation, toggleSettings})
-
-    h 'div.page.section-page#generalized-sections', [
-      h 'div.panel-container', [
-        navigationController
-        @renderSections()
-      ]
-      h SummarySectionsSettings, options
-    ]
-
-  updateOptions: (opts)=>
-    newOptions = update @state.options, opts
-    @setState options: newOptions
-    @optionsStorage.set newOptions
-
-  toggleSettings: =>
-    @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
 module.exports = {GeneralizedSections}
 
