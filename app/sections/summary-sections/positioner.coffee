@@ -18,7 +18,7 @@ class SectionScale
   pixelHeight: ->
     @props.height*@props.pixelsPerMeter
   pixelOffset: ->
-    (670-@props.height-@props.offset)*@props.pixelsPerMeter
+    @props.offset*@props.pixelsPerMeter
   pixelBounds: ->
     height = @pixelHeight()
     y = @pixelOffset()
@@ -30,17 +30,20 @@ class SectionPositioner
   # using a transformation
   ###
   @defaultProps: {
-    marginLeft: 0
-    marginRight: 0
-    marginTop: 0
-    marginBottom: 0
     groupMargin: 400
     columnMargin: 100
     columnWidth: 200
     pixelsPerMeter: 2
     sectionOffsets: {}
+    ScaleCreator: SectionScale
   }
   constructor: (props={})->
+    {margin} = props
+    margin ?= 0
+    props.marginTop ?= margin
+    props.marginBottom ?= margin
+    props.marginLeft ?= margin
+    props.marginRight ?= margin
     @props = Object.assign(@constructor.defaultProps,props)
 
   updateSingleSection: (xPosition)=>(sec)=>
@@ -54,7 +57,7 @@ class SectionPositioner
     end = sec.clip_end
     height = end-start
     range = [start, end]
-    heightScale = new SectionScale {
+    heightScale = new @props.ScaleCreator {
       pixelsPerMeter, start, height, offset
     }
 
@@ -79,8 +82,8 @@ class SectionPositioner
             xMax = x+width
           if y+height > yMax
             yMax = y+height
-    width = xMax + (@props.marginLeft or 0)+(@props.marginRight or 0)
-    height = yMax + (@props.marginTop or 0)+(@props.marginBottom or 0)
+    width = xMax + @props.marginRight
+    height = yMax + @props.marginBottom
     return {x:0,y:0, width, height}
 
 

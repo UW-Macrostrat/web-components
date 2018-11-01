@@ -122,11 +122,10 @@ class GeneralizedSections extends SummarySections
 
     positioner = new GeneralizedSectionPositioner {
       pixelsPerMeter: 1
-      marginLeft: 50
-      marginTop: 50
       columnWidth: 50
       positions: GeneralizedSectionPositions
       scaleMultipliers: {x: 30}
+      margin: 20
     }
     groupedSections = positioner.update(sectionData)
 
@@ -150,14 +149,14 @@ class GeneralizedSections extends SummarySections
       _ = surface.section_height.map(getGeneralizedHeight).filter (d)->d?
       surface.section_height = _
 
-    height = 1000
-    size = {width: 1200, height}
+    {width, height} = groupedSections.position
+    size = {width, height}
 
     links = null
     links = h LinkOverlay, {size..., surfaces, groupedSections}
     h 'svg#section-pane', {style: size}, [
       links
-      h 'g.section-pane-inner', groupedSections.map (row, i)=>
+      h 'g.section-pane-inner', {}, groupedSections.map (row, i)=>
         {columns: [[section]]} = row
         vals = do -> {id, divisions, position} = section
         h GeneralizedSVGSection, {vals..., showFacies}

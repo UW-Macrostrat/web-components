@@ -8,6 +8,7 @@ update = require 'immutability-helper'
 PropTypes = require 'prop-types'
 {debounce} = require 'underscore'
 Measure = require('react-measure').default
+d3 = require 'd3'
 
 {SummarySectionsSettings} = require './settings'
 LocalStorage = require '../storage'
@@ -23,18 +24,13 @@ LocalStorage = require '../storage'
 {NavLink} = require '../../nav'
 {Legend} = require './legend'
 {query} = require '../../db'
-{SectionPositioner} = require './positioner'
-
-d3 = require 'd3'
+{SectionPositioner, SectionScale} = require './positioner'
 
 require '../main.styl'
 
-class Box
-  constructor: (opts)->
-    @x ?= opts.x
-    @y ?= opts.y
-    @width ?= opts.width
-    @height ?= opts.height
+class LegacySectionScale extends SectionScale
+  pixelOffset: ->
+    (670-@props.height-@props.offset)*@props.pixelsPerMeter
 
 class SectionColumn extends Component
   render: ->
@@ -259,6 +255,7 @@ class SummarySections extends Component
       columnMargin,
       columnWidth,
       sectionOffsets
+      ScaleCreator: LegacySectionScale
     })
 
     groupedSections = positioner.update(groupedSections)
