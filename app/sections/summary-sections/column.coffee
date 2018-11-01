@@ -176,7 +176,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       }
     }, [
       h 'div.section-header', [
-        h("h2", txt)]
+        h("h2", {style: {zIndex: 20}}, txt)]
       h 'div.section-outer', [
         h "svg.section", {
           SVGNamespaces...

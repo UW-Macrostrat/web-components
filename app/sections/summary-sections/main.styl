@@ -90,7 +90,7 @@ div.isotopes
       padding 1em
   margin 2em 4em
   margin-top 0
-  width 40em
+  width 50em
   z-index 12
   align-items top
   background-color white
@@ -98,26 +98,36 @@ div.isotopes
     font-size 1.5em
 
   h4
-    margin-top 1.5em
+    margin-top 0em
   div.facies .header
-    margin-bottom 0.3em
     display flex
     flex-direction row
+    align-items center
     p.name
+      margin 0.2em 0
       flex-grow 1
       margin-right 1em
 
   p.note
     font-style italic
 
-  div.symbol-legend>div
+  div.facies-description
+    flex-grow 2
+  div.facies-description-inner
+    display flex
+    flex-direction row
+    margin 0 -1em
+    &>div
+      margin 0 1em
+
+  div.symbol-legend>div.symbol-legend
     img
       width 30px
       height 30px
     &>div
       display flex
       flex-direction row
-      align-items baseline
+      align-items center
       justify-content middle
       span
         flex-grow 1

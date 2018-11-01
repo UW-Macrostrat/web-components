@@ -205,7 +205,6 @@ class SectionComponent extends BaseSectionComponent
     ]
 
   componentDidUpdate: ->
-    super.componentDidUpdate()
     node = findDOMNode(this)
     {scrollToHeight, id} = @props
     {scale, loaded} = @state

@@ -14,21 +14,23 @@ class FaciesLegend extends Component
     h 'div.legend-inner', [
       h 'div.facies-description', [
         h 'h2', 'Sedimentary facies'
-        h 'div.section', [
-          h 'h4', 'Siliciclastic'
-          @facies "coarse-clastics", "Coarse sandstone and pebble conglomerate"
-          @facies "shallow-fine-clastics", "Inner shoreface sandstone–siltstone"
-          @facies "fine-clastics", "Outer shoreface sandstone–mudstone"
-        ]
-        h 'div.section', [
-          h 'h4', 'Carbonate'
-          @facies "knobbly-stromatolites", "Stromatolite-colonized reworking surface*"
-          @facies "carbonate-mudstone"
-          @facies "intraclast-grainstone"
-          @facies "hcs-grainstone", "Cross-stratified grainstone"
-          @facies "mixed-grainstone", 'Wavy-bedded heterolithic'
-          @facies "intraclast-breccia", 'Intraclast breccia'
-          h 'p.note', "*: not a stratigraphically continuous facies"
+        h 'div.facies-description-inner', [
+          h 'div.section', [
+            h 'h4', 'Siliciclastic'
+            @facies "coarse-clastics", "Coarse sandstone and pebble conglomerate"
+            @facies "shallow-fine-clastics", "Inner shoreface sandstone–siltstone"
+            @facies "fine-clastics", "Outer shoreface sandstone–mudstone"
+          ]
+          h 'div.section', [
+            h 'h4', 'Carbonate'
+            @facies "knobbly-stromatolites", "Stromatolite-colonized reworking surface*"
+            @facies "carbonate-mudstone"
+            @facies "intraclast-grainstone"
+            @facies "hcs-grainstone", "Cross-stratified grainstone"
+            @facies "mixed-grainstone", 'Wavy-bedded heterolithic'
+            @facies "intraclast-breccia", 'Intraclast breccia'
+            h 'p.note', "*: not a stratigraphically continuous facies"
+          ]
         ]
       ]
       h 'div.symbol-legend', [
