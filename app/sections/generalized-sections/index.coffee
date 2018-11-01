@@ -24,6 +24,7 @@ LocalStorage = require '../storage'
 require '../summary-sections/main.styl'
 {stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
 {NavLink} = require '../../nav'
+{SectionPositioner} = '../summary-sections/group-sections'
 {GeneralizedSectionPositions} = require './positions.coffee'
 {query} = require '../../db'
 require '../main.styl'
@@ -34,6 +35,8 @@ class LinkOverlay extends LinkOverlayBase
     h 'g#section-link-overlay', [
       h 'g.section-links', @prepareData().map @buildLink
     ]
+
+#class SimpleSectionPositioner extends SectionPositioner
 
 class GeneralizedSections extends SummarySections
   @defaultProps: {
@@ -173,11 +176,10 @@ class GeneralizedSections extends SummarySections
       _ = surface.section_height.map(getGeneralizedHeight).filter (d)->d?
       surface.section_height = _
 
-    height = 1600
+    height = 1000
     size = {width: 1200, height}
 
     links = h LinkOverlay, {size..., surfaces, sectionPositions}
-
     trans = {transform: "translate(#{padding},#{padding})"}
     h 'svg#section-pane', {style: size}, [
       links

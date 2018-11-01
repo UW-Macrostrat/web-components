@@ -28,6 +28,7 @@ class IsotopesComponent extends Component
     xRatio: 6
     height: 100 # Section height in meters
     pixelsPerMeter: 2
+    pixelOffset: 0 # This should be changed
     domain: [-15,6]
     padding:
       left: 10
@@ -63,7 +64,10 @@ class IsotopesComponent extends Component
   render: ->
     {id, zoom, padding,
      onResize,
-     marginLeft, height, clip_end} = @props
+     marginLeft, height,
+     clip_end, pixelOffset
+     heightOfTop
+    } = @props
     innerHeight = height*@props.pixelsPerMeter
 
     {left, top, right, bottom} = padding
@@ -72,13 +76,11 @@ class IsotopesComponent extends Component
     [mn,mx] = @props.domain
     innerWidth = (mx-mn)*@props.xRatio
 
-    pixelOffset = 3
     @state.scale.range [innerHeight-pixelOffset, 0-pixelOffset]
     @state.xScale.range [0, innerWidth]
     outerHeight = innerHeight+(top+bottom)
     outerWidth = innerWidth+(left+right)
 
-    {heightOfTop} = @props
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
 
     [bottom,top] = @props.range
@@ -100,9 +102,14 @@ class IsotopesComponent extends Component
     minWidth = outerWidth
     h "div.isotopes", {
       className: if @props.skeletal then "skeleton" else null
+      style: {marginTop: 12}
     }, [
       h 'div.section-header.subtle', [
-        h "h2", {style: {height: '1.2rem'}},label
+        h "h2", {style: {
+          height: '1.2rem'
+          position: 'absolute'
+          top: '-1.4rem'
+        }},label
       ]
       h 'div.section-outer', [
         h Measure, {

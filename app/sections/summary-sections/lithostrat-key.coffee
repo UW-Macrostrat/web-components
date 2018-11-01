@@ -133,6 +133,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     style = {
       width: outerWidth
       height: outerHeight
+      marginTop: 12
       marginLeft
     }
 

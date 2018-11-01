@@ -65,8 +65,12 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     x = -left
     if @props.showTriangleBars and not onRight
       x += 55
+    if @props.showTriangleBars and onRight
+      outerWidth += 75
+
+
     return h 'rect.underlay', {
-      width: outerWidth-55
+      width: outerWidth-50
       height: innerHeight+10
       x
       y: -5
@@ -157,8 +161,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       width: outerWidth
       height: outerHeight
     }
-
-    whiteUnderlay = false
 
     transform = "translate(#{left} #{@props.padding.top})"
 
