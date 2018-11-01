@@ -20,7 +20,7 @@ class GeneralizedSectionPositioner extends SectionPositioner
         columns: [col]
         position: {x: xPosition, width: groupWidth}
       }
-      console.log group
+      groupedSections.push group
       xPosition += groupWidth+@props.groupMargin
 
     xPosition -= @props.groupMargin

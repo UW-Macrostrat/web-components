@@ -83,18 +83,24 @@ class GeneralizedSections extends SummarySections
           .key (d)->d.section
           .entries data
 
-        vals = groupedSections.map ({key, values})->
+        vals = groupedSections.map ({key: section, values: divisions})->
           start = 0
-          end = d3.max values, (d)->d.top
-          {
-            section: key
-            divisions: values
+          # Bottom is the first division with an assigned facies
+          for d in divisions
+            if d.facies != 'none'
+              start = d.bottom
+              break
+          end = d3.max divisions, (d)->d.top
+
+          return {
+            section
+            divisions
             start
             end
             clip_end: end
             height: end-start
-            id: key
-            location: key
+            id: section
+            location: section
             offset: 0
             range: [start, end]
           }
@@ -110,25 +116,22 @@ class GeneralizedSections extends SummarySections
     {dimensions, options, surfaces, sectionData} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFacies, showLithostratigraphy, activeMode} = options
+    return null unless sectionData?
 
     skeletal = activeMode == 'skeleton'
 
+    positioner = new GeneralizedSectionPositioner()
+    groupedSections = positioner.update(sectionData)
+
     sectionPositions = {}
     # Group sections by data instead of pre-created elements
-    return null unless sectionData?
-    __sections =  sectionData.map (row, i)=>
-      {offset, range, height, start, end, divisions, rest...} = row
+    __sections =  groupedSections.map (row, i)=>
+      {columns: [[section]]} = row
+      console.log section
 
-      # Clip off the top of some columns...
-      end = row.clip_end
+      {offset, range, height, start, end, divisions, rest...} = section
 
-      # Bottom is the first division with an assigned facies
-      for d in divisions
-        if d.facies != 'none'
-          start = d.bottom
-          break
-
-      {x,y} = GeneralizedSectionPositions[row.section]
+      {x,y} = GeneralizedSectionPositions[section.id]
       height = end-start
       range = [start, end]
 
@@ -143,13 +146,13 @@ class GeneralizedSections extends SummarySections
       __.bounds = {left, top: 0, width: 50, height: pxHeight}
       __.scale = d3.scaleLinear().domain(range).range(xv)
       __.key = row.id
-      sectionPositions[row.section] = __
+      sectionPositions[section.id] = __
 
       h GeneralizedSVGSection, {
         skeletal
         pixelsPerMeter
         zoom
-        key: row.id,
+        key: section.id,
         left
         divisions
         showFacies
@@ -160,9 +163,6 @@ class GeneralizedSections extends SummarySections
         end
         rest...
       }
-
-    positioner = new GeneralizedSectionPositioner()
-    groupedSections = positioner.update(sectionData)
 
     padding = 50
     marginTop = 50
