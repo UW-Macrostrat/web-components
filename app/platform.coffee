@@ -27,43 +27,41 @@ PlatformContext = createContext()
 class PlatformProvider extends Component
   constructor: (props)->
     WEB = false
-    ELECTRON = false
+    ELECTRON = true
+    platform = Platform.ELECTRON
+    baseUrl = 'file://'+resolve(BASE_DIR)
+    editable = true
     if global.PLATFORM == WEB
       platform = Platform.WEB
       WEB = true
       editable = false
       baseUrl = BASE_URL
-    else
-      platform = Platform.ELECTRON
-      ELECTRON = true
-      editable = true
-      baseUrl = 'file://'+resolve(BASE_DIR)
 
-    props = {platform, WEB, ELECTRON, editable, baseUrl}
     super props
     @state = {
       serializedQueries: not ELECTRON
       inEditMode: false
+      platform, WEB, ELECTRON, editable, baseUrl
     }
 
   render: ->
     {computePhotoPath, resolveSymbol, resolveLithologySymbol, updateState} = @
     {serializedQueries, restState...} = @state
-    if @props.platform == Platform.WEB
+    if @state.platform == Platform.WEB
       serializedQueries = true
     {children, rest...} = @props
     value = {rest..., restState..., serializedQueries, updateState, computePhotoPath,
              resolveSymbol, resolveLithologySymbol}
     h PlatformContext.Provider, {value}, children
 
-  path: (args...)->
-    join(@props.baseUrl, args...)
+  path: (args...)=>
+    join(@state.baseUrl, args...)
 
   updateState: (val)=>
     @setState val
 
   computePhotoPath: (photo)=>
-    if @props.ELECTRON
+    if @state.ELECTRON
       return @path( '..', 'Products', 'webroot', 'Sections', 'photos', "#{photo.id}.jpg")
     else
       return @path( 'photos', "#{photo.id}.jpg")
@@ -72,7 +70,7 @@ class PlatformProvider extends Component
 
   resolveSymbol: (sym)=>
     try
-      if @props.ELECTRON
+      if @state.ELECTRON
         q = resolve join(BASE_DIR, 'assets', sym)
         return 'file://'+q
       else
@@ -82,7 +80,7 @@ class PlatformProvider extends Component
 
   resolveLithologySymbol: (id)=>
     try
-      if @props.ELECTRON
+      if @state.ELECTRON
         q = require.resolve "geologic-patterns/assets/png/#{id}.png"
         return 'file://'+q
       else
