@@ -11,6 +11,7 @@ SectionPage = require './single-section'
 {GeneralizedSections} = require './generalized-sections'
 {SectionNavigationControl} = require './util'
 {FaciesDescriptionPage, FaciesContext} = require './facies-descriptions'
+{SequenceStratProvider} = require './sequence-strat-context'
 {db, query, storedProcedure} = require './db'
 
 {nest} = require 'd3'
@@ -64,6 +65,13 @@ class SectionIndexPage extends Component
       ]
     ]
 
+class SectionDataProvider extends Component
+  render: ->
+    {value} = @props
+    h FaciesContext.Provider, {value}, [
+      h SequenceStratProvider, null, @props.children
+    ]
+
 class SectionIndex extends SectionDataContainer
   render: =>
     {match} = @props
@@ -73,7 +81,7 @@ class SectionIndex extends SectionDataContainer
       return h 'div'
 
     value = {facies, surfaces, onColorChanged: @changeFaciesColor}
-    h FaciesContext.Provider, {value}, [
+    h SectionDataProvider, {value}, [
       h Switch, [
         h Route, {
           path: match.url+'/'
