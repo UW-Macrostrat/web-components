@@ -22,32 +22,47 @@ Platform = Object.freeze {
   PRINT: 3
 }
 
-class PlatformData
-  constructor: ->
-    @WEB = false
-    @ELECTRON = false
+PlatformContext = createContext()
+
+class PlatformProvider extends Component
+  constructor: (props)->
+    super props
+    WEB = false
+    ELECTRON = false
     if global.PLATFORM == WEB
-      @platform = Platform.WEB
-      @WEB = true
-      @editable = false
-      @baseUrl = BASE_URL
+      platform = Platform.WEB
+      WEB = true
+      editable = false
+      baseUrl = BASE_URL
     else
-      @platform = Platform.ELECTRON
-      @ELECTRON = true
-      @editable = true
-      @baseUrl = 'file://'+resolve(BASE_DIR)
+      platform = Platform.ELECTRON
+      ELECTRON = true
+      editable = true
+      baseUrl = 'file://'+resolve(BASE_DIR)
+
+    @state = {platform, WEB, ELECTRON, editable, baseUrl}
+
+  render: ->
+    {computePhotoPath, resolveSymbol, resolveLithologySymbol} = @
+
+    value = {@state..., computePhotoPath,
+             resolveSymbol, resolveLithologySymbol}
+    h PlatformContext.Provider, {value}, @props.children
+
+  path: (args...)->
+    join(@state.baseUrl, args...)
 
   computePhotoPath: (photo)=>
-    if @ELECTRON
-        return join(@baseUrl, '..', 'Products', 'webroot', 'Sections', 'photos', "#{photo.id}.jpg")
-      else
-        return join(@baseUrl, 'photos', "#{photo.id}.jpg")
+    if @state.ELECTRON
+      return @path( '..', 'Products', 'webroot', 'Sections', 'photos', "#{photo.id}.jpg")
+    else
+      return @path( 'photos', "#{photo.id}.jpg")
     # Original photo
     return photo.path
 
-  resolveSymbol: (sym)->
+  resolveSymbol: (sym)=>
     try
-      if @ELECTRON
+      if @state.ELECTRON
         q = resolve join(BASE_DIR, 'assets', sym)
         return 'file://'+q
       else
@@ -57,19 +72,14 @@ class PlatformData
 
   resolveLithologySymbol: (id)=>
     try
-      if @ELECTRON
+      if @state.ELECTRON
         q = require.resolve "geologic-patterns/assets/png/#{id}.png"
         return 'file://'+q
       else
-        return join @baseUrl, 'assets', 'lithology-patterns',"#{id}.png"
+        return @path 'assets', 'lithology-patterns',"#{id}.png"
     catch
       return ''
 
+PlatformConsumer = PlatformContext.Consumer
 
-PlatformContext = createContext()
-
-class PlatformProvider extends Component
-  render: ->
-    h PlatformContext.Provider, {value: new PlatformData}, @props.children
-
-module.exports = {PlatformContext, Platform, PlatformProvider}
+module.exports = {PlatformContext, Platform, PlatformProvider, PlatformConsumer}
