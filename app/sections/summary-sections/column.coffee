@@ -87,26 +87,17 @@ class BaseSVGSectionComponent extends BaseSectionComponent
      position
      } = @props
 
-    pos = position
-
-    innerHeight = pos.heightScale.pixelHeight()
+    {heightScale} = position
+    innerHeight = heightScale.pixelHeight()
+    marginTop = heightScale.pixelOffset()
+    scale = heightScale.local
 
     {left, top, right, bottom} = padding
 
-    scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
-
-    @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight+(top+bottom)
     outerWidth = innerWidth+(left+right)
 
-    {heightOfTop} = @props
-    marginTop = pos.heightScale.pixelOffset()
-
-    [bottom,top] = @props.range
-
-    txt = id
-
-    {scale,visible, divisions} = @state
+    {visible, divisions} = @state
     divisions = divisions.filter (d)->not d.schematic
 
     {skeletal} = @props
@@ -115,7 +106,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     nticks = (height*@props.zoom)/10
 
     fs = null
-    if @props.showFloodingSurfaces
+    if showFloodingSurfaces
       fs = h FloodingSurface, {
         scale
         zoom
@@ -133,7 +124,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     marginRight = 0
     outerWidth += tbo
     triangleBars = null
-    if @props.showTriangleBars
+    if showTriangleBars
       offsetLeft = -tbo+20
       if onRight
         overhangRight = 25
@@ -177,7 +168,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       }
     }, [
       h 'div.section-header', [
-        h("h2", {style: {zIndex: 20}}, txt)]
+        h("h2", {style: {zIndex: 20}}, id)]
       h 'div.section-outer', [
         h "svg.section", {
           SVGNamespaces...
