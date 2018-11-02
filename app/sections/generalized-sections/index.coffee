@@ -114,26 +114,18 @@ class GeneralizedSections extends SummarySections
 
   renderSections: ->
     {dimensions, options, surfaces, sectionData} = @state
-    {dragdealer, dragPosition, rest...} = options
-    {showFacies, showLithostratigraphy, activeMode} = options
+    {showFacies} = options
     return null unless sectionData?
 
-    skeletal = activeMode == 'skeleton'
-
     positioner = new GeneralizedSectionPositioner {
-      pixelsPerMeter: 1
+      pixelsPerMeter: 1.5
       columnWidth: 50
       positions: GeneralizedSectionPositions
-      scaleMultipliers: {x: 30}
-      margin: 20
+      scaleMultipliers: {x: 70}
+      margin: 40
+      marginHorizontal: 80
     }
     groupedSections = positioner.update(sectionData)
-
-    # Group sections by data instead of pre-created elements
-    padding = 50
-    marginTop = 50
-    overflow = "scroll"
-    {canvas} = @state.dimensions
 
     getGeneralizedHeight = (surface)->
       # Gets heights of surfaces in stacked sections
@@ -145,15 +137,22 @@ class GeneralizedSections extends SummarySections
           return {section: s.section, height: s.bottom, inferred}
       return null
 
+    updateGeneralizedHeights = ({section_height})->
+      section_height.map(getGeneralizedHeight).filter (d)->d?
+
     for surface in surfaces
-      _ = surface.section_height.map(getGeneralizedHeight).filter (d)->d?
-      surface.section_height = _
+      surface.section_height = updateGeneralizedHeights(surface)
 
     {width, height} = groupedSections.position
     size = {width, height}
 
     links = null
-    links = h LinkOverlay, {size..., surfaces, groupedSections}
+    links = h LinkOverlay, {
+      size...,
+      surfaces, groupedSections
+      showLithostratigraphy: false
+      showSequenceStratigraphy: true
+    }
     h 'svg#section-pane', {style: size}, [
       links
       h 'g.section-pane-inner', {}, groupedSections.map (row, i)=>

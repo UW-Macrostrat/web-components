@@ -38,12 +38,14 @@ class SectionPositioner
     ScaleCreator: SectionScale
   }
   constructor: (props={})->
-    {margin} = props
+    {margin, marginHorizontal, marginVertical} = props
     margin ?= 0
-    props.marginTop ?= margin
-    props.marginBottom ?= margin
-    props.marginLeft ?= margin
-    props.marginRight ?= margin
+    marginVertical ?= margin
+    marginHorizontal ?= margin
+    props.marginTop ?= marginVertical
+    props.marginBottom ?= marginVertical
+    props.marginLeft ?= marginHorizontal
+    props.marginRight ?= marginHorizontal
     @props = Object.assign(@constructor.defaultProps,props)
 
   updateSingleSection: (xPosition)=>(sec)=>
