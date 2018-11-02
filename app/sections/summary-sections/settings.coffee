@@ -22,20 +22,16 @@ class SummarySectionsSettings extends SettingsPanel
       @createSwitch 'showFloodingSurfaces', "Flooding surfaces"
       @createSwitch 'showTriangleBars', "Triangle bars"
       h 'hr'
-      @createSwitch 'serializedQueries', "Serialized queries"
-      h 'hr'
-      h 'h5', 'Display mode'
+      @debuggingControls()...
+      h 'h6', 'Display mode'
       @createPicker 'modes', 'activeMode'
-      h 'h5', 'Actions'
-      h Button, {onClick: @props.reloadCorrelations}, 'Reload correlations'
     ]
 
 class GeneralizedSectionsSettings extends SettingsPanel
   renderControls: =>
     return [
       @createSwitch 'showSequenceStratigraphy', 'Sequence-stratigraphic correlations'
-      h 'h5', 'Display mode'
-      @createPicker 'modes', 'activeMode'
+      @debuggingControls()...
     ]
 
 module.exports = {SummarySectionsSettings, GeneralizedSectionsSettings}

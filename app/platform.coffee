@@ -26,7 +26,6 @@ PlatformContext = createContext()
 
 class PlatformProvider extends Component
   constructor: (props)->
-    super props
     WEB = false
     ELECTRON = false
     if global.PLATFORM == WEB
@@ -40,20 +39,31 @@ class PlatformProvider extends Component
       editable = true
       baseUrl = 'file://'+resolve(BASE_DIR)
 
-    @state = {platform, WEB, ELECTRON, editable, baseUrl}
+    props = {platform, WEB, ELECTRON, editable, baseUrl}
+    super props
+    @state = {
+      serializedQueries: not ELECTRON
+      inEditMode: false
+    }
 
   render: ->
-    {computePhotoPath, resolveSymbol, resolveLithologySymbol} = @
-
-    value = {@state..., computePhotoPath,
+    {computePhotoPath, resolveSymbol, resolveLithologySymbol, updateState} = @
+    {serializedQueries, restState...} = @state
+    if @props.platform == Platform.WEB
+      serializedQueries = true
+    {children, rest...} = @props
+    value = {rest..., restState..., serializedQueries, updateState, computePhotoPath,
              resolveSymbol, resolveLithologySymbol}
-    h PlatformContext.Provider, {value}, @props.children
+    h PlatformContext.Provider, {value}, children
 
   path: (args...)->
-    join(@state.baseUrl, args...)
+    join(@props.baseUrl, args...)
+
+  updateState: (val)=>
+    @setState val
 
   computePhotoPath: (photo)=>
-    if @state.ELECTRON
+    if @props.ELECTRON
       return @path( '..', 'Products', 'webroot', 'Sections', 'photos', "#{photo.id}.jpg")
     else
       return @path( 'photos', "#{photo.id}.jpg")
@@ -62,7 +72,7 @@ class PlatformProvider extends Component
 
   resolveSymbol: (sym)=>
     try
-      if @state.ELECTRON
+      if @props.ELECTRON
         q = resolve join(BASE_DIR, 'assets', sym)
         return 'file://'+q
       else
@@ -72,13 +82,18 @@ class PlatformProvider extends Component
 
   resolveLithologySymbol: (id)=>
     try
-      if @state.ELECTRON
+      if @props.ELECTRON
         q = require.resolve "geologic-patterns/assets/png/#{id}.png"
         return 'file://'+q
       else
         return @path 'assets', 'lithology-patterns',"#{id}.png"
     catch
       return ''
+
+  componentDidUpdate: (prevProps, prevState)->
+    # Shim global state
+    if prevState.serializedQueries != @state.serializedQueries
+      global.SERIALIZED_QUERIES = @state.serializedQueries
 
 PlatformConsumer = PlatformContext.Consumer
 

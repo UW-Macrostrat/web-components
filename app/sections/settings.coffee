@@ -3,6 +3,7 @@ h = require 'react-hyperscript'
 {CSSTransition} = require 'react-transition-group'
 {Switch} = require '@blueprintjs/core'
 {format} = require 'd3'
+{PlatformConsumer} = require '../platform'
 {FaciesDescriptionSmall} = require './facies-descriptions'
 classNames = require 'classnames'
 
@@ -45,6 +46,25 @@ class PickerControl extends Component
 
 fmt = format('.2f')
 
+EditModeControl = (props)->
+  h PlatformConsumer, null, ({WEB, inEditMode, updateState})->
+    h Switch, {
+      checked: inEditMode
+      label: 'Allow editing'
+      key: 'edit-mode'
+      onChange: -> updateState {inEditMode: not inEditMode}
+    }
+
+SerializedQueriesControl = (props)->
+  h PlatformConsumer, null, ({WEB, serializedQueries, updateState})->
+    return null if WEB
+    h Switch, {
+      checked: serializedQueries
+      label: 'Serialized queries'
+      key: 'serialized-queries'
+      onChange: -> updateState {serializedQueries: not serializedQueries}
+    }
+
 class SettingsPanel extends Component
   render: ->
     return null unless @props.settingsPanelIsActive
@@ -85,11 +105,17 @@ class SettingsPanel extends Component
       @createSwitch 'showFloodingSurfaces', "Flooding surfaces"
       @createSwitch 'showTriangleBars', "Triangle bars"
       h 'hr'
-      @createSwitch 'inEditMode', "Allow editing"
-      @createSwitch 'serializedQueries', "Serialized queries"
-      h 'hr'
-      h 'h5', 'Display mode'
+      @debuggingControls()...
+      h 'h6', 'Display mode'
       @createPicker 'modes', 'activeMode'
+    ]
+
+  debuggingControls: ->
+    return [
+      h 'h5', "Backend"
+      h EditModeControl
+      h SerializedQueriesControl
+      h 'hr'
     ]
 
   createSwitch: (id, label)=>
