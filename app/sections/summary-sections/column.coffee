@@ -13,6 +13,7 @@ Measure = require('react-measure').default
 {Notification} = require '../../notify'
 {FaciesContext} = require '../facies-descriptions'
 {SVGNamespaces} = require '../util'
+{SequenceStratConsumer} = require '../sequence-strat-context'
 
 fmt = d3.format('.1f')
 
@@ -25,7 +26,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     lithologyWidth: 40
     showWhiteUnderlay: true
     showFacies: true
-    showFloodingSurfaces: true
     triangleBarsOffset: 0
     triangleBarRightSide: false
     onResize: ->
@@ -152,6 +152,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         offsetLeft
         lineWidth: 20
         divisions
+        order: @props.sequenceStratOrder
       }
 
 
@@ -229,7 +230,13 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       ]
     ]
 
-SVGSectionComponent = withRouter(BaseSVGSectionComponent)
+SVGSectionComponent = (props)->
+  h SequenceStratConsumer, null, (value)->
+    {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
+    h withRouter(BaseSVGSectionComponent), {
+      showTriangleBars, showFloodingSurfaces,
+      sequenceStratOrder, props...
+    }
 
 module.exports = {BaseSVGSectionComponent, SVGSectionComponent}
 

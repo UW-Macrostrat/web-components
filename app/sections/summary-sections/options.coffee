@@ -1,9 +1,7 @@
 {createContext} = require 'react'
 
 defaultSectionOptions = {
-  showTriangleBars: true
   showFacies: true
-  showFloodingSurfaces: false
   skeletal: false
 }
 

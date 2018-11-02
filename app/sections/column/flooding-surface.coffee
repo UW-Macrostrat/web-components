@@ -40,8 +40,7 @@ class FloodingSurface extends Component
 class TriangleBars extends FloodingSurface
   @defaultProps: {
     FloodingSurface.defaultProps...
-    parasequence: false
-    parasequenceSet: true
+    order: 2
   }
 
   constructor: (props)->
@@ -50,8 +49,9 @@ class TriangleBars extends FloodingSurface
 
   render: ->
     {scale, zoom, offsetLeft, lineWidth, divisions,
-     parasequence, parasequenceSet} = @props
+     order, orders} = @props
     [bottom, top] = scale.range()
+    orders ?= [order]
 
     _ = path()
 
@@ -85,25 +85,24 @@ class TriangleBars extends FloodingSurface
           h 'path', {d: _.toString(), key: @UUID+'-path'}
         ])
       ]
-      if parasequence then @renderSurfaces(1)
-      if parasequenceSet then @renderSurfaces(2)
+      orders.map @renderSurfaces
     ]
 
-  renderSurfaces: (order)=>
+  renderSurfaces: (order, index)=>
     {scale, zoom, offsetLeft, lineWidth, divisions} = @props
     return null unless divisions.length
     w = lineWidth/2
     ol = offsetLeft+lineWidth*2+5
     __ = []
 
-    column = "surface_type_#{order}"
-
     for d,i in divisions
-      continue unless d[column]?
+      {surface_type, surface_order} = d
+      continue unless (surface_type? and surface_order?)
+      continue unless surface_order <= order
       height = scale(d.bottom)
-      if d[column] == 'mfs'
+      if surface_type == 'mfs'
         __.push ['mfs', height]
-      if d[column] == 'sb'
+      if surface_type == 'sb'
         if __.length == 0
           __.push ['sb', height]
           continue
@@ -139,7 +138,7 @@ class TriangleBars extends FloodingSurface
 
     h "g.level-#{order}", {
       clipPath: "url(##{@UUID})"
-      transform: "translate(#{-lineWidth*order+ol})"
+      transform: "translate(#{-lineWidth*(2+index)+ol})"
       key: @UUID+'-'+order
     }, [
       h "path", {d: _.toString(), key: @UUID+'-'+order}

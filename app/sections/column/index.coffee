@@ -7,7 +7,6 @@ VisibilitySensor = require 'react-visibility-sensor'
 {SectionAxis} = require './axis'
 SectionImages = require './images'
 NotesColumn = require './notes'
-Measure = require('react-measure').default
 {BaseSectionComponent} = require './base'
 require './main.styl'
 {Intent} = require '@blueprintjs/core'
@@ -20,6 +19,7 @@ Samples = require './samples'
 {FloodingSurface, TriangleBars} = require './flooding-surface'
 {LithologyColumn, GeneralizedSectionColumn,
  FaciesColumn, CoveredColumn} = require './lithology'
+{SequenceStratConsumer} = require '../sequence-strat-context'
 {db, storedProcedure, query} = require '../db'
 {dirname} = require 'path'
 update = require 'immutability-helper'
@@ -290,7 +290,9 @@ class SectionComponent extends BaseSectionComponent
         __.push h FloodingSurface, {divisions, scale, zoom, id}
 
       if @props.showTriangleBars
-        __.push h TriangleBars, {divisions, scale, zoom, id, offsetLeft: -85, lineWidth: 25, parasequence: true}
+        __.push h TriangleBars, {
+          divisions, scale, zoom, id,
+          offsetLeft: -85, lineWidth: 25, orders: [1,2]}
 
       if @props.showSymbols
         __.push h SymbolColumn, {scale, id, left: 215}
@@ -343,4 +345,9 @@ class SectionComponent extends BaseSectionComponent
     @setState {divisions, editingInterval: {id:null}}
 
 
-module.exports = {SectionComponent}
+SectionComponentHOC = (props)->
+  h SequenceStratConsumer, null, (value)->
+    {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
+    h SectionComponent, {showTriangleBars, showFloodingSurfaces, sequenceStratOrder, props...}
+
+module.exports = {SectionComponent: SectionComponentHOC}

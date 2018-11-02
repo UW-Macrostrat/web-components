@@ -19,6 +19,7 @@ LocalStorage = require '../storage'
 {SectionLinkOverlay} = require './link-overlay'
 {stackGroups, groupOrder, sectionOffsets} = require './display-parameters'
 {SectionOptionsContext, defaultSectionOptions} = require './options'
+{SequenceStratConsumer} = require '../sequence-strat-context'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {LithostratKey} = require './lithostrat-key'
 {NavLink} = require '../../nav'
@@ -144,7 +145,6 @@ class SummarySections extends Component
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
      showSequenceStratigraphy,
-     showTriangleBars,
      showCarbonIsotopes,
      showOxygenIsotopes,
      showFacies} = options
@@ -187,12 +187,11 @@ class SummarySections extends Component
     }, __
 
   renderSections: ->
-    {sections, scrollable} = @props
+    {sections, scrollable, showTriangleBars} = @props
     {dimensions, options, sectionPositions, surfaces} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
      showSequenceStratigraphy,
-     showTriangleBars,
      showCarbonIsotopes,
      showOxygenIsotopes,
      showFacies,
@@ -343,7 +342,7 @@ class SummarySections extends Component
     for k,v of defaultSectionOptions
       value[k] = @state.options[k]
     triangleBarsOffset = 0
-    if value.showTriangleBars
+    if @props.showTriangleBars
       triangleBarsOffset = 80
     return {
       triangleBarsOffset
@@ -362,5 +361,9 @@ class SummarySections extends Component
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
-module.exports = {SummarySections, SectionOptionsContext}
+SummarySectionsHOC = (props)->
+  h SequenceStratConsumer, null, ({actions, rest...})->
+    h SummarySections, {props..., rest...}
+
+module.exports = {SummarySections: SummarySectionsHOC, SectionOptionsContext}
 
