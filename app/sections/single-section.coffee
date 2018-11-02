@@ -11,6 +11,7 @@ LocalStorage = require './storage'
 {getSectionData} = require './section-data'
 Measure = require('react-measure').default
 {SectionComponent} = require './column'
+{PlatformConsumer} = require '../platform'
 PropTypes = require 'prop-types'
 { Hotkey, Hotkeys, HotkeysTarget, Intent} = require "@blueprintjs/core"
 {SectionNavigationControl} = require './util'
@@ -24,7 +25,6 @@ class SectionPage extends Component
       options:
         zoom: 1
         settingsPanelIsActive: false
-        inEditMode: false
         modes: [
           {value: 'normal', label: 'Normal'}
           {value: 'skeleton', label: 'Skeleton'}
@@ -91,17 +91,18 @@ class SectionPage extends Component
     h 'div.page.section-page.single-section', [
       h 'div.panel-container', [
         h SectionNavigationControl, {toggleSettings}
-        h SectionComponent, {
-          trackVisibility: false
-          section...,
-          scrollToHeight,
-          offsetTop: 0
-          onResize: @onResize
-          key, skeletal,
-          isEditable: inEditMode
-          useRelativePositioning: false
-          options...
-        }
+        h PlatformConsumer, null, ({inEditMode})=>
+          h SectionComponent, {
+            trackVisibility: false
+            section...,
+            scrollToHeight,
+            offsetTop: 0
+            onResize: @onResize
+            key, skeletal,
+            isEditable: inEditMode
+            useRelativePositioning: false
+            options...
+          }
       ]
       h SettingsPanel, @state.options
     ]

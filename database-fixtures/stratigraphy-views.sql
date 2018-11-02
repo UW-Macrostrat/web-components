@@ -1,3 +1,68 @@
+CREATE OR REPLACE VIEW section.generalized_breaks AS
+WITH upper AS (
+SELECT
+  locality,
+  b.lower_section section,
+  l1.surface upper_surface,
+  l1.bottom upper_height
+FROM section.locality_generalized_breaks b
+LEFT JOIN section.section_lithology l1
+  ON b.surface = l1.surface
+ AND l1.section = b.lower_section
+), lower AS (
+SELECT
+  locality,
+  b.upper_section section,
+  l1.surface lower_surface,
+  coalesce(l1.bottom, null) lower_height
+FROM section.locality_generalized_breaks b
+LEFT JOIN section.section_lithology l1
+  ON b.surface = l1.surface
+ AND l1.section = b.upper_section
+)
+SELECT
+	coalesce(lower.locality, upper.locality) locality,
+	coalesce(lower.section, upper.section) section,
+	lower_surface,
+	coalesce(
+		lower_height, (
+      SELECT start
+      FROM section.section s
+      WHERE s.id = upper.section
+    )
+	) lower_height,
+	upper_surface,
+	coalesce(
+		upper_height, (
+      SELECT coalesce(s.clip_end,s.end)
+      FROM section.section s
+      WHERE s.id = lower.section
+    )
+	) upper_height
+FROM lower
+FULL JOIN upper
+  ON lower.section = upper.section
+WHERE (
+    upper.section IS NOT null
+ OR lower.section IS NOT null
+);
+
+/* Recursive function to compute the offset
+   of a surface within a generalized column */
+CREATE OR REPLACE FUNCTION section.generalized_offset(section_id text)
+RETURNS numeric
+AS $$
+SELECT
+  coalesce(section.generalized_offset(b0.section),0)+coalesce(b0.upper_height,0)-b1.lower_height
+FROM section.generalized_breaks b0
+FULL JOIN section.generalized_breaks b1
+  ON b0.upper_surface = b1.lower_surface
+ AND b0.locality = b1.locality
+WHERE b1.section = section_id
+LIMIT 1
+$$
+LANGUAGE "sql" IMMUTABLE;
+
 CREATE OR REPLACE VIEW section.section_surface_data AS
 SELECT
   l.id,
@@ -20,8 +85,8 @@ SELECT
   )::float top,
   t.tree,
   l.grainsize,
-  l.surface_type_1,
-  l.surface_type_2,
+  l.surface_type,
+  l.surface_order,
   coalesce(
     coalesce(l.fill_pattern, v.pattern),
     l.lithology
@@ -63,8 +128,8 @@ SELECT
   l.fgdc_pattern,
   l.tree,
   l.grainsize,
-  l.surface_type_1,
-  l.surface_type_2,
+  l.surface_type,
+  l.surface_order,
   l.fill_pattern
 FROM l
 JOIN section.generalized_breaks b
