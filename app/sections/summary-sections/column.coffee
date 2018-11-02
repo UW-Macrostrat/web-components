@@ -6,6 +6,7 @@ h = require 'react-hyperscript'
 Measure = require('react-measure').default
 {SectionAxis} = require '../column/axis'
 {BaseSectionComponent} = require '../column/base'
+{PlatformConsumer} = require '../../platform'
 {SymbolColumn} = require '../column/symbol-column'
 {FloodingSurface, TriangleBars} = require '../column/flooding-surface'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
@@ -42,6 +43,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
     @state = {
       @state...
+      hoveredInterval: null
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
     }
@@ -76,6 +78,25 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       y: -5
       fill: 'white'
     }
+
+  createEditOverlay: =>
+    {hoveredInterval} = @state
+    return unless hoveredInterval
+    console.log hoveredInterval
+    pos = @props.position
+    scale = pos.heightScale.local
+    top = scale(hoveredInterval.top)
+    bottom = scale(hoveredInterval.bottom)
+    height = bottom-top
+    width = pos.width-@props.padding.left-@props.padding.right-50
+
+    top += @props.padding.top
+    left = @props.padding.left
+
+    style = {top, left, height, width}
+    h 'div.edit-overlay', [
+      h 'div.cursor', {style}
+    ]
 
   render: ->
     {id, zoom, padding, lithologyWidth,
@@ -146,8 +167,6 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         order: @props.sequenceStratOrder
       }
 
-
-
     # Expand SVG past bounds of section
     style = {
       width: outerWidth
@@ -155,6 +174,11 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     }
 
     transform = "translate(#{left} #{@props.padding.top})"
+
+    onHoverInterval = null
+    if @props.inEditMode
+      onHoverInterval = (d, opts)=>
+        @setState {hoveredInterval: d}
 
     minWidth = outerWidth
     position = 'absolute'
@@ -170,6 +194,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       h 'div.section-header', [
         h("h2", {style: {zIndex: 20}}, id)]
       h 'div.section-outer', [
+        @createEditOverlay()
         h "svg.section", {
           SVGNamespaces...
           style
@@ -187,6 +212,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
                 scale
                 id
                 grainsizeScaleStart: 40
+                onHoverInterval
                 onEditInterval: (d, opts)=>
                   {history} = @props
                   {height, event} = opts
@@ -222,12 +248,13 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     ]
 
 SVGSectionComponent = (props)->
-  h SequenceStratConsumer, null, (value)->
-    {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
-    h withRouter(BaseSVGSectionComponent), {
-      showTriangleBars, showFloodingSurfaces,
-      sequenceStratOrder, props...
-    }
+  h PlatformConsumer, null, ({inEditMode})->
+    h SequenceStratConsumer, null, (value)->
+      {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
+      h withRouter(BaseSVGSectionComponent), {
+        showTriangleBars, showFloodingSurfaces,
+        sequenceStratOrder, inEditMode, props...
+      }
 
 module.exports = {BaseSVGSectionComponent, SVGSectionComponent}
 

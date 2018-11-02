@@ -223,19 +223,27 @@ class LithologyColumn extends Component
       @createRect d, {className, fill: faciesColorMap[d.facies] or d.facies_color}
 
   renderEditableColumn: =>
-    return unless @props.onEditInterval?
+    return unless @props.onEditInterval? or @props.onHoverInterval?
     {divisions, scale} = @props
-    clickHandler = (d)=> (event)=>
+    eventHandler = (fn)=>(d)=> (event)=>
       {top} = event.target.getBoundingClientRect()
       {clientY} = event
-      pxFromTop = scale(d.top)+(clientY-top)
-      height = scale.invert(pxFromTop)
-      @props.onEditInterval(d, {height, event})
+      try
+        pxFromTop = scale(d.top)+(clientY-top)
+        height = scale.invert(pxFromTop)
+      catch
+        height = null
+      fn(d, {height, event})
       event.stopPropagation()
+
+    clickHandler = eventHandler(@props.onEditInterval or ->)
+    hoverHandler = eventHandler(@props.onHoverInterval or ->)
+
     h 'g.edit-overlay', divisions.map (d)=>
       onClick = clickHandler(d)
+      onMouseOver = hoverHandler(d)
       className = classNames('edit-overlay', d.id)
-      @createRect d, {className, fill: 'transparent', onClick}
+      @createRect d, {className, fill: 'transparent', onClick, onMouseOver}
 
 class CoveredColumn extends LithologyColumn
   @defaultProps: {

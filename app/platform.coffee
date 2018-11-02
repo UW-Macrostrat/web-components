@@ -1,6 +1,8 @@
 {Component, createContext} = require 'react'
 h = require 'react-hyperscript'
 {join, resolve} = require 'path'
+LocalStorage = require './sections/storage'
+update = require 'immutability-helper'
 ## Set whether we are on the backend or frontend
 global.ELECTRON = 'electron'
 global.WEB = 'web'
@@ -43,6 +45,11 @@ class PlatformProvider extends Component
       inEditMode: false
       platform, WEB, ELECTRON, editable, baseUrl
     }
+
+    @storage = new LocalStorage 'edit-mode'
+    v = @storage.get()
+    return unless v?
+    @state = update @state, {inEditMode: {$set: v}}
 
   render: ->
     {computePhotoPath, resolveSymbol, resolveLithologySymbol, updateState} = @
@@ -92,6 +99,10 @@ class PlatformProvider extends Component
     # Shim global state
     if prevState.serializedQueries != @state.serializedQueries
       global.SERIALIZED_QUERIES = @state.serializedQueries
+
+    {inEditMode} = @state
+    if prevState.inEditMode != inEditMode
+      @storage.set {inEditMode}
 
 PlatformConsumer = PlatformContext.Consumer
 
