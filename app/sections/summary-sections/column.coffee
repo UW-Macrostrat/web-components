@@ -9,7 +9,9 @@ Measure = require('react-measure').default
 {PlatformConsumer} = require '../../platform'
 {SymbolColumn} = require '../column/symbol-column'
 {FloodingSurface, TriangleBars} = require '../column/flooding-surface'
+{IntervalEditor} = require '../column/modal-editor'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
+{Popover, Position} = require '@blueprintjs/core'
 {withRouter} = require 'react-router-dom'
 {Notification} = require '../../notify'
 {FaciesContext} = require '../facies-descriptions'
@@ -79,10 +81,10 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       fill: 'white'
     }
 
-  createEditOverlay: =>
+  createEditOverlay: (p={})=>
     {hoveredInterval} = @state
-    return unless hoveredInterval
-    console.log hoveredInterval
+    return null unless hoveredInterval
+    return null unless @props.inEditMode
     pos = @props.position
     scale = pos.heightScale.local
     top = scale(hoveredInterval.top)
@@ -90,13 +92,31 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     height = bottom-top
     width = pos.width-@props.padding.left-@props.padding.right-50
 
-    top += @props.padding.top
-    left = @props.padding.left
+    popoverProps = {position: Position.LEFT}
 
-    style = {top, left, height, width}
-    h 'div.edit-overlay', [
-      h 'div.cursor', {style}
+    position = 'absolute'
+    outerStyle = {left: p.left, top: p.top, position}
+    style = {top, height, width, position}
+    h 'div.edit-overlay', {style: outerStyle}, [
+      h 'div.cursor-container', {style}, [
+        h Popover, popoverProps, [
+          h 'div.cursor', {style: {width, height}}
+          h ModalEditorSmall, {
+            interval: hoveredInterval
+            height: hoveredInterval.height
+            section: @props.id
+            onUpdate: @onIntervalUpdated
+          }
+        ]
+      ]
     ]
+
+  onIntervalUpdated: =>
+    console.log "Updating intervals"
+    {id: section} = @props
+    # Could potentially make this fetch less
+    divisions = await query 'lithology', [section]
+    @setState {divisions}
 
   render: ->
     {id, zoom, padding, lithologyWidth,
@@ -194,7 +214,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
       h 'div.section-header', [
         h("h2", {style: {zIndex: 20}}, id)]
       h 'div.section-outer', [
-        @createEditOverlay()
+        @createEditOverlay({left, top: @props.padding.top})
         h "svg.section", {
           SVGNamespaces...
           style

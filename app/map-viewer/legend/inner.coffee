@@ -117,6 +117,7 @@ class MapUnit extends Component
       console.log id, name, desc
       return unless swatches.length > 0
       swatchData = swatches.find (d)=>d.unit_id == id
+      swatchData ?= {}
       {name: nameData} = swatchData
       if not name?
         name = nameData

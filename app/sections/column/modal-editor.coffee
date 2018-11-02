@@ -1,6 +1,6 @@
 {findDOMNode} = require 'react-dom'
 {Component, createElement} = require 'react'
-{Dialog, Button, Intent, ButtonGroup, Alert} = require '@blueprintjs/core'
+{Dialog, Button, Intent, ButtonGroup, Alert, Slider} = require '@blueprintjs/core'
 {FaciesDescriptionSmall, FaciesContext} = require '../facies-descriptions'
 {PickerControl} = require '../settings'
 Select = require('react-select').default
@@ -49,6 +49,20 @@ class ModalEditor extends Component
     options = surfaces.map (d)->
       {value: d.id, label: d.note}
 
+    surfaceOrderSlider = h 'p', 'Please set an interval type to access surface orders'
+    if interval.surface_type?
+      surfaceOrderSlider = h Slider, {
+        min: 0
+        max: 5
+        stepSize: 1
+        showTrackFill: false
+        value: interval.surface_order
+        onChange: (surface_order)=>
+          return unless interval.surface_type?
+          @update {surface_order}
+      }
+
+
     h Dialog, {
       className: 'pt-minimal'
       title: "Section #{section}: #{bottom} - #{top} m"
@@ -84,21 +98,14 @@ class ModalEditor extends Component
             vertical: false,
             isNullable: true,
             states: surfaceTypes
-            activeState: interval.surface_type_1
-            onUpdate: (surface_type_1)=>
-              @update {surface_type_1}
+            activeState: interval.surface_type
+            onUpdate: (surface_type)=>
+              @update {surface_type}
           }
         ]
          h 'label.pt-label', [
-          'Surface type (parasequence set)'
-          h PickerControl, {
-            vertical: false,
-            isNullable: true,
-            states: surfaceTypes
-            activeState: interval.surface_type_2
-            onUpdate: (surface_type_2)=>
-              @update {surface_type_2}
-          }
+          'Surface order'
+           surfaceOrderSlider
         ]
         h 'label.pt-label', [
           'Flooding surface (negative is regression)'
@@ -179,4 +186,89 @@ class ModalEditor extends Component
     await db.none(s)
     @props.onUpdate()
 
-module.exports = {ModalEditor}
+class IntervalEditor extends Component
+  @defaultProps: {onUpdate: ->}
+  render: ->
+    h FaciesContext.Consumer, null, ({surfaces})=>
+      @renderMain(surfaces)
+
+  renderMain: (surfaces)=>
+    {interval, height, section} = @props
+    return null unless interval?
+    {id, top, bottom, facies} = interval
+    hgt = fmt(height)
+
+    options = surfaces.map (d)->
+      {value: d.id, label: d.note}
+
+    surfaceOrderSlider = h 'p', 'Please set an interval type to access surface orders'
+    if interval.surface_type?
+      surfaceOrderSlider = h Slider, {
+        min: 0
+        max: 5
+        stepSize: 1
+        showTrackFill: false
+        value: interval.surface_order
+        onChange: (surface_order)=>
+          return unless interval.surface_type?
+          @update {surface_order}
+      }
+
+
+    h 'div', [
+      h 'h3', [
+        "ID "
+        h 'code', interval.id
+      ]
+      h 'label.pt-label', [
+        'Surface type'
+        h PickerControl, {
+          vertical: false,
+          isNullable: true,
+          states: surfaceTypes
+          activeState: interval.surface_type
+          onUpdate: (surface_type)=>
+            @update {surface_type}
+        }
+      ]
+       h 'label.pt-label', [
+        'Surface order'
+         surfaceOrderSlider
+      ]
+      h 'label.pt-label', [
+        'Correlated surface'
+        h Select, {
+          id: "state-select"
+          ref: (ref) => @select = ref
+          options
+          clearable: true
+          searchable: true
+          name: "selected-state"
+          value: interval.surface
+          onChange: (surface)=>
+            if surface?
+              surface = surface.value
+            @update {surface}
+        }
+      ]
+    ]
+  updateFacies: (facies)=>
+    {interval} = @props
+    selected = facies.id
+    if selected == interval.facies
+      selected = null
+    @update {facies: selected}
+
+  update: (columns)=>
+    {TableName, update} = helpers
+    tbl = new TableName("section_lithology", "section")
+    id = @props.interval.id
+    section = @props.section
+    s = helpers.update columns, null, tbl
+    s += " WHERE id=#{id} AND section='#{section}'"
+    console.log s
+    await db.none(s)
+    @props.onUpdate()
+
+
+module.exports = {ModalEditor, IntervalEditor}
