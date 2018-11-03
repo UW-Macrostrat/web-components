@@ -8,9 +8,16 @@ d3 = require 'd3'
 PropTypes = require 'prop-types'
 
 sectionSurfaceProps = (surface)->
-    {flooding_surface_order} = surface
-    stroke = if flooding_surface_order > 0 then '#aaa' else '#faa'
-    strokeWidth = 6-Math.abs(flooding_surface_order)
+    {surface_type, surface_order} = surface
+
+    if surface_type == 'mfs'
+      stroke = '#aaa'
+    else if surface_type == 'sb'
+      stroke = '#faa'
+    else
+      stroke = '#ccc'
+
+    strokeWidth = 6-surface_order
     return {stroke, strokeWidth}
 
 OverlayContext = createContext {

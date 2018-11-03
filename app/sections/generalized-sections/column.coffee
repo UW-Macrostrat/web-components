@@ -10,17 +10,19 @@ Measure = require('react-measure').default
 {GeneralizedSectionColumn, FaciesColumn} = require '../column/lithology'
 {FaciesContext} = require '../facies-descriptions'
 {SVGNamespaces} = require '../util'
+{SequenceStratConsumer} = require '../sequence-strat-context'
 
-class GeneralizedSVGSection extends Component
+class GeneralizedSVGSectionBase extends Component
   @defaultProps: {pixelsPerMeter: 20, zoom: 1}
   constructor: (props)->
     super props
 
   render: ->
-    {id,
-     showFacies,
-     divisions,
-     position} = @props
+    { id,
+      showFacies,
+      divisions,
+      position,
+      facies } = @props
 
     {x: left, y: top, width, height, heightScale} = position
 
@@ -31,16 +33,23 @@ class GeneralizedSVGSection extends Component
     transform = "translate(#{left} #{top})"
 
     h "g.section", {transform, key: id}, [
-      h FaciesContext.Consumer, {}, ({facies})=>
-        h FaciesColumn, {
-          width
-          height
-          facies
-          divisions
-          showFacies
-          scale
-          id
-        }
+      h FaciesColumn, {
+        width
+        height
+        facies
+        divisions
+        showFacies
+        scale
+        id
+      }
     ]
+
+class GeneralizedSVGSection extends Component
+  render: ->
+    h FaciesContext.Consumer, null, ({facies})=>
+      h SequenceStratConsumer, null, ({actions, rest...})=>
+        props = {@props..., facies, rest...}
+        h GeneralizedSVGSectionBase, props
+
 
 module.exports = {GeneralizedSVGSection}
