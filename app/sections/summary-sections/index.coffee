@@ -97,6 +97,7 @@ class SummarySectionsBase extends Component
     columnMargin: 100
     columnWidth: 150
   }
+  SettingsPanel: SummarySectionsSettings
   pageID: 'summary-sections'
   constructor: (props)->
     super props
@@ -306,11 +307,16 @@ class SummarySectionsBase extends Component
       ]
     ]
 
-  render: ->
+  renderSettingsPanel: =>
     {options} = @state
+    h @SettingsPanel, {
+      options...
+    }
+
+  render: ->
     backLocation = '/sections'
     {toggleSettings} = @
-    {showNavigationController} = options
+    {showNavigationController} = @state.options
 
     navigationController = null
     if showNavigationController
@@ -332,9 +338,7 @@ class SummarySectionsBase extends Component
           sections
         ]
       ]
-      h SummarySectionsSettings, {
-        options...
-      }
+      @renderSettingsPanel()
     ]
 
   createSectionOptions: =>

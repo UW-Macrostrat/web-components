@@ -11,7 +11,7 @@ Measure = require('react-measure').default
 {debounce} = require 'underscore'
 
 {SummarySectionsBase} = require '../summary-sections'
-{SummarySectionsSettings} = require '../summary-sections/settings'
+{GeneralizedSectionsSettings} = require '../summary-sections/settings'
 LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
 {IsotopesComponent} = require '../summary-sections/carbon-isotopes'
@@ -47,6 +47,7 @@ class GeneralizedSectionsBase extends SummarySectionsBase
   @defaultProps: {
     scrollable: true
   }
+  SettingsPanel: GeneralizedSectionsSettings
   pageID: 'generalized-sections'
   constructor: (props)->
     super props
@@ -115,6 +116,12 @@ class GeneralizedSectionsBase extends SummarySectionsBase
     v = @optionsStorage.get()
     return unless v?
     @state = update @state, {options: {$merge: v}}
+
+  renderSettingsPanel: =>
+    {options} = @state
+    h @SettingsPanel, {
+      options...
+    }
 
   renderSections: ->
     {dimensions, options, surfaces, sectionData} = @state

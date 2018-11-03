@@ -29,7 +29,8 @@ class GeneralizedSectionsSettings extends SettingsPanel
   renderControls: =>
     return [
       @createSwitch 'showSequenceStratigraphy', 'Sequence-stratigraphic correlations'
-      @debuggingControls()...
+      @sequenceStratControls()
+      @debuggingControls()
     ]
 
 module.exports = {SummarySectionsSettings, GeneralizedSectionsSettings}
