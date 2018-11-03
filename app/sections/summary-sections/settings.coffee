@@ -32,7 +32,7 @@ class GeneralizedSectionsSettings extends SettingsPanel
   renderControls: =>
     return [
       @createSwitch 'showSequenceStratigraphy', 'Sequence-stratigraphic correlations'
-      @createSwitch 'showSimplifiedLithology', 'Simplified lithology'
+      @createSwitch 'showLithology', 'Simplified lithology'
       @createSwitch 'showFacies', 'Facies'
       @createSwitch 'showFaciesTracts', 'Facies tracts'
       @sequenceStratControls()

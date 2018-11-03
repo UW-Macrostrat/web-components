@@ -64,21 +64,13 @@ class GeneralizedSectionsBase extends SummarySectionsBase
           {value: 'skeleton', label: 'Skeleton'}
           #{value: 'sequence-stratigraphy', label: 'Sequence Strat.'}
         ]
-        showNavigationController: true
-        activeMode: 'normal'
-        showFacies: true?
-        showFloodingSurfaces: false
-        showTriangleBars: true
-        showLithostratigraphy: true
+        showFacies: true
+        showFaciesTracts: false
+        showSimplifiedLithology: true
         showSequenceStratigraphy: true
         # Allows us to test the serialized query mode
         # we are developing for the web
-        serializedQueries: global.SERIALIZED_QUERIES
-        condensedDisplay: true
         update: @updateOptions
-        sectionIDs: []
-        sectionData: null
-        showCarbonIsotopes: true
         exportSVG: @exportSVG
 
     query 'generalized-section', null, {baseDir: join(__dirname,'..')}
@@ -120,7 +112,7 @@ class GeneralizedSectionsBase extends SummarySectionsBase
 
   renderSections: ->
     {dimensions, options, surfaces, sectionData} = @state
-    {showFacies} = options
+    {showFacies, showLithology} = options
     return null unless sectionData?
 
     positioner = new GeneralizedSectionPositioner {
@@ -148,8 +140,7 @@ class GeneralizedSectionsBase extends SummarySectionsBase
       section_height = section_height.map(getGeneralizedHeight).filter (d)->d?
       {section_height, rest...}
 
-    {width, height} = groupedSections.position
-    size = {width, height}
+    size = do -> {width, height} = groupedSections.position
 
     links = null
     links = h LinkOverlay, {
@@ -158,12 +149,12 @@ class GeneralizedSectionsBase extends SummarySectionsBase
       showLithostratigraphy: false
       showSequenceStratigraphy: true
     }
-    h 'svg#section-pane', {style: size}, [
+    h 'svg#section-pane', {size..., style: size}, [
       links
       h 'g.section-pane-inner', {}, groupedSections.map (row, i)=>
         {columns: [[section]]} = row
         vals = do -> {id, divisions, position} = section
-        h GeneralizedSVGSection, {vals..., showFacies}
+        h GeneralizedSVGSection, {vals..., showFacies, showLithology}
     ]
 
   exportSVG: =>

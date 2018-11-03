@@ -7,14 +7,14 @@ Measure = require('react-measure').default
 
 {BaseSVGSectionComponent} = require '../summary-sections/column'
 {SectionAxis} = require '../column/axis'
-{GeneralizedSectionColumn, FaciesColumn} = require '../column/lithology'
+{GeneralizedSectionColumn, FaciesColumn, LithologyColumn} = require '../column/lithology'
 {FaciesContext} = require '../facies-descriptions'
 {SVGNamespaces} = require '../util'
 {SequenceStratConsumer} = require '../sequence-strat-context'
 {TriangleBars} = require '../column/flooding-surface'
 
 class GeneralizedSVGSectionBase extends Component
-  @defaultProps: {pixelsPerMeter: 20, zoom: 1}
+  @defaultProps: {pixelsPerMeter: 20, zoom: 1, showLithology: false}
   constructor: (props)->
     super props
 
@@ -32,6 +32,22 @@ class GeneralizedSVGSectionBase extends Component
 
   getScale: (v='local')->
     @props.position.heightScale[v]
+
+  getSize: ->
+    {width, height} = @props.position
+
+  renderLithology: ->
+    {showLithology, divisions, id} = @props
+    return null unless showLithology
+    {width, height} = @getSize()
+    scale = @getScale()
+    h LithologyColumn, {
+      width
+      height
+      divisions
+      scale
+      id
+    }
 
   render: ->
     { id,
@@ -58,6 +74,7 @@ class GeneralizedSVGSectionBase extends Component
         scale
         id
       }
+      @renderLithology()
       @renderTriangleBars()
     ]
 
