@@ -13,6 +13,26 @@ Measure = require('react-measure').default
 {SequenceStratConsumer} = require '../sequence-strat-context'
 {TriangleBars} = require '../column/flooding-surface'
 
+class SimplifiedLithologyColumn extends LithologyColumn
+  render: ->
+    {scale, left, shiftY,
+        width, height, divisions} = @props
+    {clipID, frameID} = @state
+    transform = null
+    if left?
+      transform = "translate(#{left} #{shiftY})"
+
+    onClick = @onClick
+    clipPath = "url(#{clipID})"
+    h 'g.lithology-column', {transform, onClick},[
+      @createDefs()
+      h 'g', {className: 'lithology-inner', clipPath}, [
+        @renderLithology()
+      ]
+      h 'use.frame', {xlinkHref: '#frame-'+@UUID, fill:'transparent', key: 'frame'}
+      @renderEditableColumn()
+    ]
+
 class GeneralizedSVGSectionBase extends Component
   @defaultProps: {pixelsPerMeter: 20, zoom: 1, showLithology: false}
   constructor: (props)->
@@ -41,7 +61,7 @@ class GeneralizedSVGSectionBase extends Component
     return null unless showLithology
     {width, height} = @getSize()
     scale = @getScale()
-    h LithologyColumn, {
+    h SimplifiedLithologyColumn, {
       width
       height
       divisions
