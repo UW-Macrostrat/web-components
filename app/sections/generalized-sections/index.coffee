@@ -26,13 +26,13 @@ require '../summary-sections/main.styl'
 {stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
 {NavLink} = require '../../nav'
 {SequenceStratConsumer} = require '../sequence-strat-context'
-{GeneralizedSectionPositioner} = require './positioner.coffee'
+{GeneralizedSectionPositioner} = require './positioner'
 {query} = require '../../db'
 require '../main.styl'
 
 GeneralizedSectionPositions = {
   Onis: {x: 0, y: 0}
-  Tsams: {x: 15, y: 150}
+  Tsams: {x: 15, y: 220}
   Ubisis: {x: 5, y: 320}
 }
 
@@ -92,7 +92,9 @@ class GeneralizedSectionsBase extends SummarySectionsBase
             if d.facies != 'none'
               start = d.bottom
               break
-          end = d3.max divisions, (d)->d.top
+          # Top of the last section is taken as the height
+          # at which to clip off errant facies
+          end = divisions[divisions.length-1].section_end
 
           return {
             section

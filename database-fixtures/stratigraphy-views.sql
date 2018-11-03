@@ -130,7 +130,13 @@ SELECT
   l.grainsize,
   l.surface_type,
   l.surface_order,
-  l.fill_pattern
+  l.fill_pattern,
+  /* These two columns are repetitive because we don't have a separate
+    query for the basic start and end of the section. We could
+    possibly reparameterize this as separate surface rows containing
+    information on section start and end */
+  s.start+section.generalized_offset(l.section) section_start,
+  coalesce(s.clip_end, s.end)+section.generalized_offset(l.section) section_end
 FROM l
 JOIN section.generalized_breaks b
   ON l.section = b.section
