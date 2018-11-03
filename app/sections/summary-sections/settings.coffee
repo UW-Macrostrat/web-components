@@ -26,11 +26,18 @@ class SummarySectionsSettings extends SettingsPanel
     ]
 
 class GeneralizedSectionsSettings extends SettingsPanel
+  @defaultProps: {
+    exportSVG: ->
+  }
   renderControls: =>
     return [
       @createSwitch 'showSequenceStratigraphy', 'Sequence-stratigraphic correlations'
+      @createSwitch 'showSimplifiedLithology', 'Simplified lithology'
+      @createSwitch 'showFacies', 'Facies'
+      @createSwitch 'showFaciesTracts', 'Facies tracts'
       @sequenceStratControls()
       @debuggingControls()
+      h Button, {onClick: @props.exportSVG}, 'Export SVG'
     ]
 
 module.exports = {SummarySectionsSettings, GeneralizedSectionsSettings}

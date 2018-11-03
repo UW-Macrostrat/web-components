@@ -79,6 +79,7 @@ class GeneralizedSectionsBase extends SummarySectionsBase
         sectionIDs: []
         sectionData: null
         showCarbonIsotopes: true
+        exportSVG: @exportSVG
 
     query 'generalized-section', null, {baseDir: join(__dirname,'..')}
       .then (data)=>
@@ -116,12 +117,6 @@ class GeneralizedSectionsBase extends SummarySectionsBase
     v = @optionsStorage.get()
     return unless v?
     @state = update @state, {options: {$merge: v}}
-
-  renderSettingsPanel: =>
-    {options} = @state
-    h @SettingsPanel, {
-      options...
-    }
 
   renderSections: ->
     {dimensions, options, surfaces, sectionData} = @state
@@ -170,6 +165,17 @@ class GeneralizedSectionsBase extends SummarySectionsBase
         vals = do -> {id, divisions, position} = section
         h GeneralizedSVGSection, {vals..., showFacies}
     ]
+
+  exportSVG: =>
+    el = findDOMNode(@).querySelector("svg#section-pane")
+    serializer = new XMLSerializer()
+    return unless el?
+    svgString = serializer.serializeToString(el)
+    fs = require('fs')
+    fs.writeFileSync(
+      '/Users/Daven/Desktop/exported-generalized-sections.svg',
+      svgString, 'utf-8'
+    )
 
 GeneralizedSections = (props)->
   h SequenceStratConsumer, null, ({actions, rest...})->
