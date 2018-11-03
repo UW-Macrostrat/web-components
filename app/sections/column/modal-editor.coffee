@@ -39,6 +39,23 @@ class ModalEditor extends Component
     h FaciesContext.Consumer, null, ({surfaces})=>
       @renderMain(surfaces)
 
+  surfaceOrderSlider: =>
+    {interval} = @props
+    if not interval.surface_type?
+      return h 'p', 'Please set an interval type to access surface orders'
+    val = interval.surface_order
+    val ?= 5
+    return h Slider, {
+      min: 0
+      max: 5
+      stepSize: 1
+      showTrackFill: false
+      value: val
+      onChange: (surface_order)=>
+        return unless interval.surface_type?
+        @update {surface_order}
+    }
+
   renderMain: (surfaces)=>
     {interval, height, section} = @props
     return null unless interval?
@@ -48,20 +65,6 @@ class ModalEditor extends Component
 
     options = surfaces.map (d)->
       {value: d.id, label: d.note}
-
-    surfaceOrderSlider = h 'p', 'Please set an interval type to access surface orders'
-    if interval.surface_type?
-      surfaceOrderSlider = h Slider, {
-        min: 0
-        max: 5
-        stepSize: 1
-        showTrackFill: false
-        value: interval.surface_order or 5
-        onChange: (surface_order)=>
-          return unless interval.surface_type?
-          @update {surface_order}
-      }
-
 
     h Dialog, {
       className: 'pt-minimal'
@@ -105,7 +108,7 @@ class ModalEditor extends Component
         ]
          h 'label.pt-label', [
           'Surface order'
-           surfaceOrderSlider
+           @surfaceOrderSlider()
         ]
         h 'label.pt-label', [
           'Flooding surface (negative is regression)'
@@ -185,7 +188,7 @@ class ModalEditor extends Component
     await db.none(s)
     @props.onUpdate()
 
-class IntervalEditor extends Component
+class IntervalEditor extends ModalEditor
   @defaultProps: {
     onUpdate: ->
     onNext: ->
@@ -204,19 +207,6 @@ class IntervalEditor extends Component
 
     options = surfaces.map (d)->
       {value: d.id, label: d.note}
-
-    surfaceOrderSlider = h 'p', 'Set an interval type to access surface orders'
-    if interval.surface_type?
-      surfaceOrderSlider = h Slider, {
-        min: 0
-        max: 5
-        stepSize: 1
-        showTrackFill: false
-        value: interval.surface_order or 5
-        onChange: (surface_order)=>
-          return unless interval.surface_type?
-          @update {surface_order}
-      }
 
     width = @props.width or 240
     h 'div.interval-editor', {style: {padding: 20, zIndex: 50, backgroundColor: 'white', width}}, [
@@ -238,7 +228,7 @@ class IntervalEditor extends Component
       ]
        h 'label.pt-label', [
         'Surface order'
-         surfaceOrderSlider
+         @surfaceOrderSlider()
       ]
       h 'label.pt-label', [
         'Correlated surface'
