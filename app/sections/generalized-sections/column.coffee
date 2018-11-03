@@ -11,11 +11,21 @@ Measure = require('react-measure').default
 {FaciesContext} = require '../facies-descriptions'
 {SVGNamespaces} = require '../util'
 {SequenceStratConsumer} = require '../sequence-strat-context'
+{TriangleBars} = require '../column/flooding-surface'
 
 class GeneralizedSVGSectionBase extends Component
   @defaultProps: {pixelsPerMeter: 20, zoom: 1}
   constructor: (props)->
     super props
+
+  renderTriangleBars: ->
+    {showTriangleBars,
+     id, divisions,
+     scale, sequenceStratOrder} = @props
+    return null unless showTriangleBars
+    h TriangleBars, {
+      id, divisions, scale, order: sequenceStratOrder
+    }
 
   render: ->
     { id,
@@ -42,6 +52,7 @@ class GeneralizedSVGSectionBase extends Component
         scale
         id
       }
+      @renderTriangleBars()
     ]
 
 class GeneralizedSVGSection extends Component
