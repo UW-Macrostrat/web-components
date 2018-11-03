@@ -23,8 +23,8 @@ catch
 floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
 
 surfaceTypes = [
-  {value: 'mfs', label: 'Maximum flooding surface'}
-  {value: 'sb', label: 'Sequence boundary'}
+  {value: 'mfs', label: 'MFS'}
+  {value: 'sb', label: 'SB'}
 ]
 
 class ModalEditor extends Component
@@ -56,7 +56,7 @@ class ModalEditor extends Component
         max: 5
         stepSize: 1
         showTrackFill: false
-        value: interval.surface_order
+        value: interval.surface_order or 5
         onChange: (surface_order)=>
           return unless interval.surface_type?
           @update {surface_order}
@@ -182,12 +182,16 @@ class ModalEditor extends Component
     section = @props.section
     s = helpers.update columns, null, tbl
     s += " WHERE id=#{id} AND section='#{section}'"
-    console.log s
     await db.none(s)
     @props.onUpdate()
 
 class IntervalEditor extends Component
-  @defaultProps: {onUpdate: ->}
+  @defaultProps: {
+    onUpdate: ->
+    onNext: ->
+    onPrev: ->
+    onClose: ->
+  }
   render: ->
     h FaciesContext.Consumer, null, ({surfaces})=>
       @renderMain(surfaces)
@@ -201,25 +205,26 @@ class IntervalEditor extends Component
     options = surfaces.map (d)->
       {value: d.id, label: d.note}
 
-    surfaceOrderSlider = h 'p', 'Please set an interval type to access surface orders'
+    surfaceOrderSlider = h 'p', 'Set an interval type to access surface orders'
     if interval.surface_type?
       surfaceOrderSlider = h Slider, {
         min: 0
         max: 5
         stepSize: 1
         showTrackFill: false
-        value: interval.surface_order
+        value: interval.surface_order or 5
         onChange: (surface_order)=>
           return unless interval.surface_type?
           @update {surface_order}
       }
 
-
-    h 'div', [
+    width = @props.width or 240
+    h 'div.interval-editor', {style: {padding: 20, zIndex: 50, backgroundColor: 'white', width}}, [
       h 'h3', [
-        "ID "
+        "Interval "
         h 'code', interval.id
       ]
+      h 'h6', "#{fmt(interval.bottom)}-#{fmt(interval.top)} m"
       h 'label.pt-label', [
         'Surface type'
         h PickerControl, {
@@ -251,6 +256,11 @@ class IntervalEditor extends Component
             @update {surface}
         }
       ]
+      #h ButtonGroup, [
+        #h Button, {onClick: @props.onPrev}, "Previous"
+        #h Button, {onClick: @props.onNext}, "Next"
+      #]
+      #h Button, {intent: Intent.PRIMARY, onClick: @props.onClose}, "Close"
     ]
   updateFacies: (facies)=>
     {interval} = @props

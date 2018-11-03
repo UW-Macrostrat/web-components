@@ -90,7 +90,7 @@ class WrappedSectionComponent extends Component
     h SectionOptionsContext.Consumer, null, (opts)=>
       h SVGSectionComponent, {opts..., @props...}
 
-class SummarySections extends Component
+class SummarySectionsBase extends Component
   @defaultProps: {
     scrollable: true
     groupMargin: 400
@@ -361,9 +361,9 @@ class SummarySections extends Component
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
-SummarySectionsHOC = (props)->
+SummarySections = (props)->
   h SequenceStratConsumer, null, ({actions, rest...})->
-    h SummarySections, {props..., rest...}
+    h SummarySectionsBase, {props..., rest...}
 
-module.exports = {SummarySections: SummarySectionsHOC, SectionOptionsContext}
+module.exports = {SummarySections, SummarySectionsBase, SectionOptionsContext}
 

@@ -55,7 +55,7 @@ class SectionComponent extends BaseSectionComponent
     editingInterval: {id: null}
     useRelativePositioning: true
     padding:
-      left: 100
+      left: 150
       top: 30
       right: 0
       bottom: 30
@@ -290,9 +290,10 @@ class SectionComponent extends BaseSectionComponent
         __.push h FloodingSurface, {divisions, scale, zoom, id}
 
       if @props.showTriangleBars
+        order = @props.sequenceStratOrder
         __.push h TriangleBars, {
           divisions, scale, zoom, id,
-          offsetLeft: -85, lineWidth: 25, orders: [1,2]}
+          offsetLeft: -85, lineWidth: 25, orders: [order, order-1]}
 
       if @props.showSymbols
         __.push h SymbolColumn, {scale, id, left: 215}

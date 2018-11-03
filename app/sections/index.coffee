@@ -97,7 +97,8 @@ class SectionIndex extends SectionDataContainer
         h Route, {
           path: match.url+'/generalized'
           exact: true
-          render: => h(GeneralizedSections, {sections}, null)
+          render: =>
+            h(GeneralizedSections, {sections}, null)
         }
         h Route, {
           path: match.url+'/facies-descriptions'

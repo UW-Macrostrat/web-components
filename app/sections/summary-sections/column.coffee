@@ -17,6 +17,7 @@ Measure = require('react-measure').default
 {FaciesContext} = require '../facies-descriptions'
 {SVGNamespaces} = require '../util'
 {SequenceStratConsumer} = require '../sequence-strat-context'
+{db, storedProcedure, query} = require '../db'
 
 fmt = d3.format('.1f')
 
@@ -46,6 +47,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     @state = {
       @state...
       hoveredInterval: null
+      popoverIsOpen: false
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
     }
@@ -82,6 +84,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     }
 
   createEditOverlay: (p={})=>
+    {triangleBarsRightSide: onRight} = @props
     {hoveredInterval} = @state
     return null unless hoveredInterval
     return null unless @props.inEditMode
@@ -92,31 +95,53 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     height = bottom-top
     width = pos.width-@props.padding.left-@props.padding.right-50
 
-    popoverProps = {position: Position.LEFT}
+    _ = Position.LEFT
+    if onRight
+      _ = Position.RIGHT
+    popoverProps = {position: _,}# isOpen: @state.popoverIsOpen}
 
     position = 'absolute'
-    outerStyle = {left: p.left, top: p.top, position}
+    outerStyle = {left: p.left, top: p.top, position, width}
     style = {top, height, width, position}
     h 'div.edit-overlay', {style: outerStyle}, [
       h 'div.cursor-container', {style}, [
         h Popover, popoverProps, [
           h 'div.cursor', {style: {width, height}}
-          h ModalEditorSmall, {
+          h IntervalEditor, {
             interval: hoveredInterval
             height: hoveredInterval.height
             section: @props.id
             onUpdate: @onIntervalUpdated
+            #onPrev: @hoverAdjacent(-1)
+            #onNext: @hoverAdjacent(1)
+            #onClose: => @setState {popoverIsOpen: false}
           }
         ]
       ]
     ]
 
+  hoverAdjacent: (offset=1) => =>
+    {hoveredInterval, divisions} = @state
+    return if not hoveredInterval?
+    ix = divisions.findIndex (d)->d.id = hoveredInterval.id
+    return unless ix?
+    newDiv = divisions[ix+offset]
+    debugger
+    return unless newDiv?
+    @setState {hoveredInterval: newDiv}
+
   onIntervalUpdated: =>
     console.log "Updating intervals"
     {id: section} = @props
+    {hoveredInterval} = @state
     # Could potentially make this fetch less
-    divisions = await query 'lithology', [section]
-    @setState {divisions}
+    query 'lithology', [section]
+      .then (divisions)=>
+        cset = {divisions}
+        if hoveredInterval?
+          newHovered = divisions.find (d)-> d.id == hoveredInterval.id
+          cset.hoveredInterval = newHovered
+        @setState cset
 
   render: ->
     {id, zoom, padding, lithologyWidth,

@@ -10,7 +10,7 @@ update = require 'immutability-helper'
 Measure = require('react-measure').default
 {debounce} = require 'underscore'
 
-{SummarySections} = require '../summary-sections'
+{SummarySectionsBase} = require '../summary-sections'
 {SummarySectionsSettings} = require '../summary-sections/settings'
 LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
@@ -21,9 +21,11 @@ LocalStorage = require '../storage'
 {LithostratKey} = require '../summary-sections/lithostrat-key'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
 {Legend} = require '../summary-sections/legend'
+{SectionOptionsContext, defaultSectionOptions} = require '../summary-sections/options'
 require '../summary-sections/main.styl'
 {stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
 {NavLink} = require '../../nav'
+{SequenceStratConsumer} = require '../sequence-strat-context'
 {GeneralizedSectionPositioner} = require './positioner.coffee'
 {query} = require '../../db'
 require '../main.styl'
@@ -41,7 +43,7 @@ class LinkOverlay extends LinkOverlayBase
       h 'g.section-links', @prepareData().map @buildLink
     ]
 
-class GeneralizedSections extends SummarySections
+class GeneralizedSectionsBase extends SummarySectionsBase
   @defaultProps: {
     scrollable: true
   }
@@ -160,6 +162,11 @@ class GeneralizedSections extends SummarySections
         vals = do -> {id, divisions, position} = section
         h GeneralizedSVGSection, {vals..., showFacies}
     ]
+
+GeneralizedSections = (props)->
+  h SequenceStratConsumer, null, ({actions, rest...})->
+    h GeneralizedSectionsBase, {props..., rest...}
+
 
 module.exports = {GeneralizedSections}
 
