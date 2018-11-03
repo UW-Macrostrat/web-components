@@ -20,12 +20,18 @@ class GeneralizedSVGSectionBase extends Component
 
   renderTriangleBars: ->
     {showTriangleBars,
-     id, divisions,
-     scale, sequenceStratOrder} = @props
+     id, divisions, sequenceStratOrder} = @props
     return null unless showTriangleBars
     h TriangleBars, {
-      id, divisions, scale, order: sequenceStratOrder
+      id, divisions,
+      scale: @getScale(),
+      order: sequenceStratOrder
+      lineWidth: 20
+      offsetLeft: -30
     }
+
+  getScale: (v='local')->
+    @props.position.heightScale[v]
 
   render: ->
     { id,

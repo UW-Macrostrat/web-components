@@ -158,6 +158,7 @@ class SectionLinkOverlay extends Component
     ## The below is a fairly complex way to make sure multiple surfaces
     ## aren't connected in the same stack.
     sectionSurfaces = {}
+    console.log surfaces
     for {surface_id, section_height} in surfaces
       continue unless surface_id? # weed out lithostratigraphy for now
       for {section, height, inferred} in section_height
@@ -177,7 +178,7 @@ class SectionLinkOverlay extends Component
 
       for section in stackedSections
         {id: section_id} = section
-        section_surfaces = sectionSurfaces[section_id]
+        section_surfaces = sectionSurfaces[section_id] or []
         # Define a function to return domain
         withinDomain = (height)->
           {position} = sectionIndex[section.id]

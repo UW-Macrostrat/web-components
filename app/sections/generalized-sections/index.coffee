@@ -141,11 +141,10 @@ class GeneralizedSectionsBase extends SummarySectionsBase
           return {section: s.section, height: s.bottom, inferred}
       return null
 
-    updateGeneralizedHeights = ({section_height})->
-      section_height.map(getGeneralizedHeight).filter (d)->d?
-
-    for surface in surfaces
-      surface.section_height = updateGeneralizedHeights(surface)
+    surfaces = surfaces.map ({section_height, rest...})->
+      # Update section heights to use generalized section heights
+      section_height = section_height.map(getGeneralizedHeight).filter (d)->d?
+      {section_height, rest...}
 
     {width, height} = groupedSections.position
     size = {width, height}
