@@ -33,7 +33,7 @@ require '../main.styl'
 GeneralizedSectionPositions = {
   Onis: {x: 0, y: 0}
   Tsams: {x: 15, y: 220}
-  Ubisis: {x: 5, y: 320}
+  Ubisis: {x: 5, y: 290}
 }
 
 class LinkOverlay extends LinkOverlayBase

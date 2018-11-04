@@ -318,15 +318,17 @@ class GeneralizedSectionColumn extends LithologyColumn
         bottom = bottomOfSection
       scale(bottom)
 
+    filteredDivisions = divisions.filter (d)->
+      return false if d.top <= bottomOfSection
+      return false if d.bottom > topOfSection
+      return true
+
     _ = null
     currentGrainsize = 'm'
-    for div in divisions
-      continue if div.top <= bottomOfSection
+    for div in filteredDivisions
       if not _?
         _ = path()
         _.moveTo(0,bottomOf(div))
-      break if div.bottom > topOfSection
-
       if div.grainsize?
         currentGrainsize = div.grainsize
       x = @grainsizeScale(currentGrainsize)
@@ -334,6 +336,7 @@ class GeneralizedSectionColumn extends LithologyColumn
       _.lineTo x, topOf(div)
     _.lineTo 0, topOf(div)
     _.closePath()
+
     h "path#{frameID}", {key: frameID, d: _.toString()}
 
 module.exports = {LithologyColumn, FaciesColumn,
