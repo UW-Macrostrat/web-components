@@ -2,7 +2,11 @@
 {getJSON} = require '../util'
 {join} = require 'path'
 Promise = require 'bluebird'
-{Component} = require 'react'
+{Component, createContext} = require 'react'
+{db, query, storedProcedure} = require './db'
+{FaciesContext} = require './facies-descriptions'
+{SequenceStratProvider} = require './sequence-strat-context'
+h = require 'react-hyperscript'
 
 sectionFilename = (fn)->
   if PLATFORM == ELECTRON
@@ -37,12 +41,24 @@ getSectionData = (opts={})->
         {width: sz, height, filename}
       return s
 
-class SectionDataContainer extends Component
+class SectionDataProvider extends Component
+  render: ->
+    {facies, surfaces} = @props
+    h FaciesProvider, {facies, surfaces}, [
+      h SequenceStratProvider, null, @props.children
+    ]
+
+
+SectionContext = createContext({})
+
+class SectionDataProvider extends Component
   constructor: (props)->
     super props
-    @state =
+    @state = {
       sections: []
       facies: []
+      surfaces: []
+    }
 
   getInitialData: ->
     getSectionData()
@@ -58,4 +74,20 @@ class SectionDataContainer extends Component
   componentDidMount: ->
     @getInitialData()
 
-module.exports = { getSectionData, SectionDataContainer }
+  changeFaciesColor: (id,color)=>
+    sql = storedProcedure('set-facies-color', {baseDir: __dirname})
+    await db.none sql, {id,color}
+    @getFaciesData()
+
+  render: ->
+    {facies, surfaces, sections} = @state
+    value = {facies, surfaces, onColorChanged: @changeFaciesColor}
+    h FaciesContext.Provider, {value}, [
+      h SequenceStratProvider, null, [
+        h SectionContext.Provider, {value: {sections}}, @props.children
+      ]
+    ]
+
+SectionConsumer = SectionContext.Consumer
+
+module.exports = { getSectionData, SectionDataProvider, SectionConsumer }

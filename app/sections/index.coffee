@@ -5,14 +5,12 @@ h = require 'react-hyperscript'
 {Route, Switch,withRouter} = require 'react-router-dom'
 {NavLink} = require '../nav'
 {Icon} = require 'react-fa'
-{getSectionData, SectionDataContainer} = require './section-data'
+{SectionDataProvider, SectionConsumer} = require './section-data'
 SectionPage = require './single-section'
 {SummarySections} = require './summary-sections'
 {GeneralizedSections} = require './generalized-sections'
 {SectionNavigationControl} = require './util'
-{FaciesDescriptionPage, FaciesContext} = require './facies-descriptions'
-{SequenceStratProvider} = require './sequence-strat-context'
-{db, query, storedProcedure} = require './db'
+{FaciesDescriptionPage} = require './facies-descriptions'
 
 {nest} = require 'd3'
 
@@ -65,40 +63,34 @@ class SectionIndexPage extends Component
       ]
     ]
 
-class SectionDataProvider extends Component
-  render: ->
-    {value} = @props
-    h FaciesContext.Provider, {value}, [
-      h SequenceStratProvider, null, @props.children
-    ]
-
-class SectionIndex extends SectionDataContainer
-  render: =>
-    {match} = @props
-    {sections, facies, surfaces} = @state
-
+wrapWithSections = (component)=> (props)=>
+  h SectionConsumer, null, ({sections})=>
     if sections.length == 0
       return h 'div'
+    h(component, {sections, props...}, null)
 
-    value = {facies, surfaces, onColorChanged: @changeFaciesColor}
-    h SectionDataProvider, {value}, [
+
+class SectionIndex extends Component
+  render: =>
+    {match} = @props
+    h SectionDataProvider, [
       h Switch, [
         h Route, {
           path: match.url+'/'
           exact: true
           render: withRouter (props)=>
-            h(SectionIndexPage, {sections, props...}, null)
+            h wrapWithSections(SectionIndexPage), props
         }
         h Route, {
           path: match.url+'/summary'
           exact: true
-          render: => h(SummarySections, {sections}, null)
+          render: => h(wrapWithSections(SummarySections))
         }
         h Route, {
           path: match.url+'/generalized'
           exact: true
           render: =>
-            h(GeneralizedSections, {sections}, null)
+            h(wrapWithSections(GeneralizedSections))
         }
         h Route, {
           path: match.url+'/facies-descriptions'
@@ -116,22 +108,19 @@ class SectionIndex extends SectionDataContainer
             section = sections.find (d)->d.id == id
             if not section?
               return h 'div'
-            h SectionPage, {section, height}
+            h wrapWithSections(SectionPage), {height}
         }
         h Route, {
-          path: match.url+'/:id/', render: (props)->
-            {id,height} = props.match.params
-            section = sections.find (d)->d.id == id
-            if not section?
-              return h 'div'
-            h SectionPage, {section}
+          path: match.url+'/:id/',
+          render: (props)->
+            h SectionConsumer ({sections})->
+              {id,height} = props.match.params
+              section = sections.find (d)->d.id == id
+              if not section?
+                return h 'div'
+              h SectionPage, {section}
         }
       ]
     ]
 
-  changeFaciesColor: (id,color)=>
-    sql = storedProcedure('set-facies-color', {baseDir: __dirname})
-    await db.none sql, {id,color}
-    @getFaciesData()
-
-module.exports = {SectionIndex, SectionDataContainer}
+module.exports = {SectionIndex, SectionDataProvider}
