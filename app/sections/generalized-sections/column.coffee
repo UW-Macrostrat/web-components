@@ -4,6 +4,7 @@ h = require 'react-hyperscript'
 {findDOMNode} = require 'react-dom'
 Measure = require('react-measure').default
 {Component, createElement, createRef} = require 'react'
+classNames = require 'classnames'
 
 {BaseSVGSectionComponent} = require '../summary-sections/column'
 {SectionAxis} = require '../column/axis'
@@ -14,14 +15,40 @@ Measure = require('react-measure').default
 {TriangleBars} = require '../column/flooding-surface'
 
 class SimplifiedLithologyColumn extends LithologyColumn
+
+  resolveID: (d)->
+    {pattern} = d
+    return null if not pattern?
+    console.log pattern
+    if ['dolomite', 'dolomite-limestone',
+        'sandy-dolomite', 'lime_mudstone'].includes(pattern)
+      pattern = 'limestone'
+    return "#{@symbolIndex[pattern]}"
+
+  constructLithologyDivisions: =>
+    {divisions} = @props
+    __ = []
+    for d in divisions
+      ix = __.length-1
+      patternID = @resolveID(d)
+      if ix == -1
+        __.push {d..., patternID}
+        continue
+      sameAsLast = patternID == @resolveID(__[ix])
+      heightTooSmall = d.top-d.bottom < 2
+      shouldSkip = not patternID? or sameAsLast or heightTooSmall
+      if shouldSkip
+        __[ix].top = d.top
+      else
+        __.push {d..., patternID}
+    return __
+
   render: ->
     {scale, left, shiftY,
         width, height, divisions} = @props
-    {clipID, frameID} = @state
-    transform = null
-    if left?
-      transform = "translate(#{left} #{shiftY})"
 
+    {clipID, frameID} = @state
+    transform = @computeTransform()
     onClick = @onClick
     clipPath = "url(#{clipID})"
     h 'g.lithology-column', {transform, onClick},[
@@ -30,7 +57,6 @@ class SimplifiedLithologyColumn extends LithologyColumn
         @renderLithology()
       ]
       h 'use.frame', {xlinkHref: '#frame-'+@UUID, fill:'transparent', key: 'frame'}
-      @renderEditableColumn()
     ]
 
 class GeneralizedSVGSectionBase extends Component

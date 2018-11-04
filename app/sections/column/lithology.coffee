@@ -60,6 +60,7 @@ class LithologyColumn extends Component
     showLithology: true
     padWidth: true
     onEditInterval: null
+  symbolIndex: symbolIndex
   queryID: 'lithology'
   constructor: (props)->
     super props
@@ -75,7 +76,7 @@ class LithologyColumn extends Component
       return null
     if d.fgdc_pattern?
       return "#{d.fgdc_pattern}"
-    return "#{symbolIndex[d.pattern]}"
+    return "#{@symbolIndex[d.pattern]}"
 
   createFrame: (setID=true)->
     {width, height} = @props
@@ -84,14 +85,17 @@ class LithologyColumn extends Component
       frameID = 'frame-'+@UUID
     h "rect", {id: frameID, x:0,y:0,width,height, key: frameID}
 
+  computeTransform: =>
+    {left, shiftY} = @props
+    return null unless left?
+    return "translate(#{left} #{shiftY})"
+
   render: ->
     {scale, visible,left, shiftY,
         width, height, divisions} = @props
     {clipID, frameID} = @state
     divisions = [] unless visible
-    transform = null
-    if left?
-      transform = "translate(#{left} #{shiftY})"
+    transform = @computeTransform()
 
     onClick = @onClick
     clipPath = "url(#{clipID})"
@@ -175,10 +179,8 @@ class LithologyColumn extends Component
       divs...
     ]
 
-  renderLithology: =>
-    return unless @props.showLithology
+  constructLithologyDivisions: =>
     {divisions} = @props
-    {UUID} = @state
     __ = []
     for d in divisions
       ix = __.length-1
@@ -192,8 +194,14 @@ class LithologyColumn extends Component
         __[ix].top = d.top
       else
         __.push {d..., patternID}
+    return __
 
-    h 'g.lithology', {}, __.map (d)=>
+  renderLithology: =>
+    return unless @props.showLithology
+    {UUID} = @state
+    divisions = @constructLithologyDivisions()
+
+    h 'g.lithology', {}, divisions.map (d)=>
       className = classNames({
         definite: d.definite_boundary
         covered: d.covered}, 'lithology')
