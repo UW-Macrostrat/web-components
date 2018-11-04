@@ -44,7 +44,7 @@ class SectionLinkOverlay extends Component
     height: 100
     paddingLeft: 20
     marginTop: 0
-    connectLines: false
+    connectLines: true
     showLithostratigraphy: true
     showCarbonIsotopes: false
     sectionOptions: {}

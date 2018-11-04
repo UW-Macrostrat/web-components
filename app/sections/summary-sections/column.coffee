@@ -191,11 +191,11 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     outerWidth += tbo
     triangleBars = null
     if showTriangleBars
-      offsetLeft = -tbo+20
+      offsetLeft = -tbo+35
       if onRight
-        overhangRight = 25
+        overhangRight = 45
         offsetLeft *= -1
-        offsetLeft += tbo
+        offsetLeft += tbo+20
         marginRight -= tbo
         marginLeft += tbo
       else
@@ -209,7 +209,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         offsetLeft
         lineWidth: 20
         divisions
-        order: @props.sequenceStratOrder
+        orders: [@props.sequenceStratOrder, @props.sequenceStratOrder-1]
       }
 
     # Expand SVG past bounds of section
