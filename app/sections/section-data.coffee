@@ -41,14 +41,6 @@ getSectionData = (opts={})->
         {width: sz, height, filename}
       return s
 
-class SectionDataProvider extends Component
-  render: ->
-    {facies, surfaces} = @props
-    h FaciesProvider, {facies, surfaces}, [
-      h SequenceStratProvider, null, @props.children
-    ]
-
-
 SectionContext = createContext({})
 
 class SectionDataProvider extends Component
@@ -57,6 +49,7 @@ class SectionDataProvider extends Component
     @state = {
       sections: []
       facies: []
+      facies_tracts: []
       surfaces: []
     }
 
@@ -70,6 +63,10 @@ class SectionDataProvider extends Component
   getFaciesData: =>
     query('facies', null, {baseDir: __dirname})
       .then (facies)=>@setState {facies}
+
+  getFaciesTractData: =>
+    query('facies-tract', null, {baseDir: __dirname})
+      .then (facies_tracts)=>@setState {facies_tracts}
 
   componentDidMount: ->
     @getInitialData()

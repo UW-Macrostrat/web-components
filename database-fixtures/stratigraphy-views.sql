@@ -142,6 +142,8 @@ JOIN section.generalized_breaks b
   ON l.section = b.section
 JOIN section.section s
   ON s.id = l.section
-WHERE b.lower_height <= l.bottom
-  AND l.bottom < b.upper_height
+-- If top/bottom surfaces are not defined, we don't subset
+-- based on them
+WHERE (b.lower_height <= l.bottom OR b.lower_surface IS null)
+  AND (l.bottom < b.upper_height OR b.upper_surface IS null)
 ORDER BY s.location, bottom;

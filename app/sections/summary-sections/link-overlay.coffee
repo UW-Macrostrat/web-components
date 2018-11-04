@@ -17,7 +17,9 @@ sectionSurfaceProps = (surface)->
     else
       stroke = '#ccc'
 
-    strokeWidth = 6-surface_order
+    strokeWidth = 6-Math.pow(surface_order,1.5)*2
+    if strokeWidth < 1
+      strokeWidth = 1
     return {stroke, strokeWidth}
 
 OverlayContext = createContext {
@@ -121,7 +123,6 @@ class SectionLinkOverlay extends Component
       {inferred,width} = pair
       className = classNames(
         "section-link"
-        "commonality-#{unit_commonality}"
         type
         {inferred})
       # First move to initial height

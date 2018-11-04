@@ -83,7 +83,7 @@ class GeneralizedSectionsBase extends SummarySectionsBase
           start = 0
           # Bottom is the first division with an assigned facies
           for d in divisions
-            if d.facies != 'none'
+            if d.facies? and d.facies != 'none'
               start = d.bottom
               break
           # Top of the last section is taken as the height
