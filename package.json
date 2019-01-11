@@ -9,6 +9,7 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
-    "@blueprintjs/core": "^3.11.0"
+    "@blueprintjs/core": "^3.11.0",
+    "axios": "^0.18.0"
   }
 }

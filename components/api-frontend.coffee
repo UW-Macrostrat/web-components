@@ -34,17 +34,29 @@ class APIResultView extends Component
 
 class PagedAPIView extends Component
   @defaultProps: {
+    count: null
     perPage: 20
+    getTotalCount: (response)->
+      {headers} = response
+      console.log parseInt(headers['x-total-count'])
+      return parseInt(headers['x-total-count'])
   }
   constructor: (props)->
     super props
-    @state = {currentPage: 0}
+    @state = {currentPage: 0, count: null}
 
   setPage: (i)=> =>
     @setState {currentPage: i}
 
   renderPagination: ->
-    {currentPage} = @state
+    {perPage} = @props
+    {currentPage, count} = @state
+    nextDisabled = false
+    if count?
+      lastPage = Math.floor(count/perPage)
+      if currentPage >= lastPage
+        nextDisabled = true
+
     return h ButtonGroup, [
       h Button, {
         onClick: @setPage(currentPage-1)
@@ -54,19 +66,31 @@ class PagedAPIView extends Component
       h Button, {
         onClick: @setPage(currentPage+1)
         rightIcon: 'arrow-right'
+        disabled: nextDisabled
       }, "Next"
     ]
 
+
   render: ->
-    {route: base, perPage, children, rest...} = @props
+    {
+      route: base,
+      perPage,
+      children,
+      getTotalCount,
+      rest...
+    } = @props
     {currentPage} = @state
 
     offset = currentPage*perPage
     limit = perPage
     route = base + "?offset=#{offset}&limit=#{limit}"
 
+    success = (response)=>
+      count = getTotalCount(response)
+      @setState {count}
+
     h 'div.pagination-container', rest, [
-      h APIResultView, {route}, children
+      h APIResultView, {route, success}, children
       @renderPagination()
     ]
 
