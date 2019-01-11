@@ -1,0 +1,14 @@
+{
+  "name": "@macrostrat/ui-components",
+  "version": "1.0.0",
+  "description": "UI components for React and blueprint.js",
+  "main": "index.coffee",
+  "scripts": {
+    "preinstall": "linklocal"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "dependencies": {
+    "@blueprintjs/core": "^3.11.0"
+  }
+}
