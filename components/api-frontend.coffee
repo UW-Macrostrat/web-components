@@ -58,14 +58,14 @@ class PagedAPIView extends Component
     ]
 
   render: ->
-    {route: base, perPage, children} = @props
+    {route: base, perPage, children, rest...} = @props
     {currentPage} = @state
 
     offset = currentPage*perPage
     limit = perPage
     route = base + "?offset=#{offset}&limit=#{limit}"
 
-    h 'div.pagination-container', [
+    h 'div.pagination-container', rest, [
       h APIResultView, {route}, children
       @renderPagination()
     ]
