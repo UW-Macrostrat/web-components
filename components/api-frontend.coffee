@@ -1,15 +1,19 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import {get} from 'axios'
-import {Spinner, Button, ButtonGroup} from '@blueprintjs/core'
+import axios, {get} from 'axios'
+import {Spinner, Button, ButtonGroup, Intent} from '@blueprintjs/core'
+import {AppToaster} from './notify'
+
+APIContext = createContext({})
+APIConsumer = APIContext.Consumer
 
 class APIResultView extends Component
-  @Context: createContext({})
   @defaultProps: {
     route: null
     params: {}
     debug: false
     success: console.log
+    primaryKey: 'id'
   }
   constructor: ->
     super arguments...
@@ -36,7 +40,23 @@ class APIResultView extends Component
     if not response?
       return h Spinner
     {data} = response
-    @props.children(data)
+
+    value = {deleteItem: @deleteItem}
+    h APIContext.Provider, {value}, (
+        @props.children(data)
+    )
+
+  deleteItem: (data)=>
+    {route, primaryKey} = @props
+    id = data[primaryKey]
+    itemRoute = route+"/#{id}"
+    try
+      res = await axios.delete(itemRoute)
+      @getData()
+    catch err
+      message = err.message
+      intent = Intent.DANGER
+      AppToaster.show {message, intent}
 
 class PagedAPIView extends Component
   @defaultProps: {
@@ -44,7 +64,6 @@ class PagedAPIView extends Component
     perPage: 20
     getTotalCount: (response)->
       {headers} = response
-      console.log parseInt(headers['x-total-count'])
       return parseInt(headers['x-total-count'])
   }
   constructor: (props)->
@@ -83,6 +102,7 @@ class PagedAPIView extends Component
       perPage,
       children,
       getTotalCount,
+      primaryKey,
       rest...
     } = @props
     {currentPage} = @state
@@ -96,9 +116,9 @@ class PagedAPIView extends Component
       @setState {count}
 
     h 'div.pagination-container', rest, [
-      h APIResultView, {route, params, success}, children
+      h APIResultView, {route, params, success, primaryKey}, children
       @renderPagination()
     ]
 
 
-export {APIResultView, PagedAPIView}
+export {APIContext, APIConsumer, APIResultView, PagedAPIView}
