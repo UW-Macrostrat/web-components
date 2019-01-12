@@ -20,17 +20,23 @@ class APIResultView extends Component
     @state = {response: null}
     @getData()
 
-  componentDidUpdate: (prevProps)->
-    return if prevProps.route == @props.route
-    @getData()
-
-  getData: ->
-    {route, params, success} = @props
-    throw "API route undefined" unless route?
+  buildURL: (props)=>
+    props ?= @props
+    {route, params} = props
+    return null unless route?
     p = new URLSearchParams(params).toString()
     if p != ""
       route += "?"+p
+    return route
 
+  componentDidUpdate: (prevProps)->
+    return if @buildURL() == @buildURL(prevProps)
+    @getData()
+
+  getData: ->
+    {success} = @props
+    route = @buildURL()
+    return unless route?
     response = await get(route)
     @setState {response}
     success response
@@ -109,7 +115,7 @@ class PagedAPIView extends Component
 
     offset = currentPage*perPage
     limit = perPage
-    params = {}
+    params = {offset, limit}
 
     success = (response)=>
       count = getTotalCount(response)
