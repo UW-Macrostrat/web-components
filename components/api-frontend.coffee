@@ -1,11 +1,13 @@
-import {Component} from 'react'
+import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
 import {get} from 'axios'
 import {Spinner, Button, ButtonGroup} from '@blueprintjs/core'
 
 class APIResultView extends Component
+  @Context: createContext({})
   @defaultProps: {
     route: null
+    params: {}
     debug: false
     success: console.log
   }
@@ -19,8 +21,12 @@ class APIResultView extends Component
     @getData()
 
   getData: ->
-    {route, success} = @props
-    return unless route?
+    {route, params, success} = @props
+    throw "API route undefined" unless route?
+    p = new URLSearchParams(params).toString()
+    if p != ""
+      route += "?"+p
+
     response = await get(route)
     @setState {response}
     success response
@@ -73,7 +79,7 @@ class PagedAPIView extends Component
 
   render: ->
     {
-      route: base,
+      route,
       perPage,
       children,
       getTotalCount,
@@ -83,14 +89,14 @@ class PagedAPIView extends Component
 
     offset = currentPage*perPage
     limit = perPage
-    route = base + "?offset=#{offset}&limit=#{limit}"
+    params = {}
 
     success = (response)=>
       count = getTotalCount(response)
       @setState {count}
 
     h 'div.pagination-container', rest, [
-      h APIResultView, {route, success}, children
+      h APIResultView, {route, params, success}, children
       @renderPagination()
     ]
 

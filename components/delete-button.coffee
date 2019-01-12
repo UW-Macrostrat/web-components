@@ -5,15 +5,22 @@ import {Intent, Button, Alert} from '@blueprintjs/core'
 class DeleteButton extends Component
   @defaultProps: {
     handleDelete: ->
-    alertContent: "Are you sure you want to delete this item?"
+    alertContent: null
+    itemDescription: "this item"
   }
   constructor: (props)->
     super props
     @state = {alertIsShown: false}
 
   render: ->
-    {handleDelete, alertContent, rest...} = @props
+    {handleDelete, alertContent, itemDescription, rest...} = @props
     {alertIsShown} = @state
+
+    alertContent = [
+      "Are you sure you want to delete "
+      itemDescription
+      "?"
+    ]
 
     onCancel = =>
       @setState {alertIsShown: false}
