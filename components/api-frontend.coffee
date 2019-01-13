@@ -60,7 +60,9 @@ class APIResultView extends Component
       res = await axios.delete(itemRoute)
       @getData()
     catch err
-      message = err.message
+      {message} = err
+      if err.response.status == 403
+        message = err.response.data.message
       intent = Intent.DANGER
       AppToaster.show {message, intent}
 
