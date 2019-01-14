@@ -48,7 +48,6 @@ class FileUploadComponent extends Component
     ]
 
   render: ->
-    {files} = @state
     h Dropzone, {
       onDrop: @props.onAddFile
       onFileDialogCancel: @props.onCancel
