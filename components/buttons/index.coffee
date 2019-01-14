@@ -1,15 +1,20 @@
 import h from 'react-hyperscript'
-import {Button, Intent} from '@blueprintjs/core'
+import {Button, Intent, Spinner} from '@blueprintjs/core'
 import classNames from 'classnames'
 
 SaveButton = (props)->
-  {className, rest...} = props
+  {className, inProgress, disabled, rest...} = props
   className = classNames(className, 'save-button')
+  icon = 'floppy-disk'
+  if inProgress
+    icon = h Spinner, {size: 20}
+    disabled = true
 
   h Button, {
-    icon: 'floppy-disk'
+    icon
     intent: Intent.SUCCESS
     className
+    disabled
     rest...
   }
 
