@@ -26,11 +26,15 @@ class ModelEditor extends StatefulComponent
 
   render: ->
     {data, isEditing} = @state
-    actions = do => {getValue, onChange, toggleEditing} = @
-    value = {actions, data, isEditing}
+    actions = do => {onChange, toggleEditing, updateState} = @
+    value = {actions, data, isEditing, hasChanges: @hasChanges}
+    console.log value
     h ModelEditorContext.Provider, {value}, @props.children
 
   getValue: (field)=> @state.data[field]
+
+  hasChanges: =>
+    @props.data != @state.data
 
   onChange: (field)=>(value)=>
     data = {}
@@ -39,6 +43,10 @@ class ModelEditor extends StatefulComponent
 
   toggleEditing: =>
     @updateState {$toggle: ['isEditing']}
+
+  componentDidUpdate: (prevProps)->
+    if @props.data != prevProps.data
+      @updateState {initialData: {$set: @props.data}}
 
 class EditableField extends Component
   @contextType: ModelEditorContext
@@ -51,6 +59,7 @@ class EditableField extends Component
     if isEditing
       value = h EditableText, {
         placeholder: "Edit #{field}"
+        multiline: true
         onChange
         value
       }
