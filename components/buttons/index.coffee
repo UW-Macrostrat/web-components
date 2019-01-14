@@ -28,5 +28,23 @@ CancelButton = (props)->
     rest...
   }
 
-export {SaveButton, CancelButton}
+EditButton = (props)->
+  {isEditing, intent, icon, className, rest...} = props
+  if isEditing
+    intent ?= null
+    icon ?= 'tick'
+  else
+    intent ?= Intent.PRIMARY
+    icon ?= 'edit'
+
+  className = classNames(className, 'edit-button')
+
+  h Button, {
+    icon,
+    intent,
+    className
+    rest...
+  }
+
+export {SaveButton, EditButton, CancelButton}
 export * from './delete-button'
