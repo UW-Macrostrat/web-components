@@ -3,3 +3,4 @@ deps/node-mapnik
 build/
 map-defs/_compiled
 assets/map-patterns
+dist
