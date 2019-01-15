@@ -11,6 +11,7 @@ SectionPage = require './single-section'
 {GeneralizedSections} = require './generalized-sections'
 {SectionNavigationControl} = require './util'
 {FaciesDescriptionPage} = require './facies-descriptions'
+{RegionalCrossSectionPage} = require './regional-cross-section'
 
 {nest} = require 'd3'
 
@@ -58,6 +59,9 @@ class SectionIndexPage extends Component
           h NavLink, to: "#{pathname}/generalized", [
             h 'div.title', 'Generalized sections'
           ]
+          h NavLink, to: "#{pathname}/regional", [
+            h 'div.title.regional', 'Regional cross section'
+          ]
         ]
         locations...
       ]
@@ -101,6 +105,11 @@ class SectionIndex extends Component
           path: match.url+'/all'
           exact: true
           render: => h(AllSections, {sections}, null)
+        }
+        h Route, {
+          path: match.url+'/regional'
+          exact: true
+          render: => h(RegionalCrossSectionPage, {}, null)
         }
         h Route, {
           path: match.url+'/:id/height/:height', render: (props)->
