@@ -2,7 +2,11 @@
 {getJSON} = require '../util'
 {join} = require 'path'
 Promise = require 'bluebird'
-{Component} = require 'react'
+{Component, createContext} = require 'react'
+{db, query, storedProcedure} = require './db'
+{FaciesContext} = require './facies-descriptions'
+{SequenceStratProvider} = require './sequence-strat-context'
+h = require 'react-hyperscript'
 
 sectionFilename = (fn)->
   if PLATFORM == ELECTRON
@@ -37,22 +41,50 @@ getSectionData = (opts={})->
         {width: sz, height, filename}
       return s
 
-class SectionDataContainer extends Component
+SectionContext = createContext({})
+
+class SectionDataProvider extends Component
   constructor: (props)->
     super props
-    @state =
+    @state = {
       sections: []
       facies: []
+      facies_tracts: []
+      surfaces: []
+    }
 
   getInitialData: ->
     getSectionData()
       .then (sections)=>@setState {sections}
-    query('facies', null, {baseDir: __dirname})
-      .then (facies)=>@setState {facies}
     query('section-surface', null, {baseDir: __dirname})
       .then (surfaces)=>@setState {surfaces}
+    @getFaciesData()
+
+  getFaciesData: =>
+    query('facies', null, {baseDir: __dirname})
+      .then (facies)=>@setState {facies}
+
+  getFaciesTractData: =>
+    query('facies-tract', null, {baseDir: __dirname})
+      .then (facies_tracts)=>@setState {facies_tracts}
 
   componentDidMount: ->
     @getInitialData()
 
-module.exports = { getSectionData, SectionDataContainer }
+  changeFaciesColor: (id,color)=>
+    sql = storedProcedure('set-facies-color', {baseDir: __dirname})
+    await db.none sql, {id,color}
+    @getFaciesData()
+
+  render: ->
+    {facies, surfaces, sections} = @state
+    value = {facies, surfaces, onColorChanged: @changeFaciesColor}
+    h FaciesContext.Provider, {value}, [
+      h SequenceStratProvider, null, [
+        h SectionContext.Provider, {value: {sections}}, @props.children
+      ]
+    ]
+
+SectionConsumer = SectionContext.Consumer
+
+module.exports = { getSectionData, SectionDataProvider, SectionConsumer }

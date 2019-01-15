@@ -5,8 +5,9 @@ require 'd3-selection-multi'
 h = require 'react-hyperscript'
 require './main.styl'
 {query} = require '../db'
+{KnownSizeComponent} = require '../util'
 
-class BaseSectionComponent extends Component
+class BaseSectionComponent extends KnownSizeComponent
   @defaultProps: {
     zoom: 1
     pixelsPerMeter: 20
@@ -18,22 +19,15 @@ class BaseSectionComponent extends Component
   }
   constructor: (props)->
     super props
-    @state = {
-      divisions: []
-    }
-    query 'lithology', [@props.id]
-      .then (divisions)=>@setState {divisions}
+    {divisions} = @props
+    if not divisions?
+      divisions = []
+      query 'lithology', [@props.id]
+        .then (divisions)=>@setState {divisions}
 
-  componentDidMount: ->
-    @componentDidUpdate.apply @, arguments
+    @state = {divisions}
 
-  onResize: ({bounds})=>
-    {scale} = @state
-    {padding, onResize} = @props
-    return unless onResize?
-    onResize {scale, bounds, padding}
-
-  componentDidUpdate: ->
+  __doUpdate: ->
     # This leads to some problems unsurprisingly
     el = findDOMNode @
 

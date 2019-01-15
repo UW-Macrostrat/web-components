@@ -1,5 +1,8 @@
-{createContext} = require 'react'
-
+{Component, createContext} = require 'react'
+h = require 'react-hyperscript'
+{join, resolve} = require 'path'
+LocalStorage = require './sections/storage'
+update = require 'immutability-helper'
 ## Set whether we are on the backend or frontend
 global.ELECTRON = 'electron'
 global.WEB = 'web'
@@ -21,9 +24,86 @@ Platform = Object.freeze {
   PRINT: 3
 }
 
-PlatformContext = createContext {
-  platform: Platform.DESKTOP
-  editable: true
-}
+PlatformContext = createContext()
 
-module.exports = {PlatformContext, Platform}
+class PlatformProvider extends Component
+  constructor: (props)->
+    WEB = false
+    ELECTRON = true
+    platform = Platform.ELECTRON
+    baseUrl = 'file://'+resolve(BASE_DIR)
+    editable = true
+    if global.PLATFORM == WEB
+      platform = Platform.WEB
+      WEB = true
+      editable = false
+      baseUrl = BASE_URL
+
+    super props
+    @state = {
+      serializedQueries: not ELECTRON
+      inEditMode: false
+      platform, WEB, ELECTRON, editable, baseUrl
+    }
+
+    @storage = new LocalStorage 'edit-mode'
+    v = @storage.get()
+    return unless v?
+    @state = update @state, {inEditMode: {$set: v}}
+
+  render: ->
+    {computePhotoPath, resolveSymbol, resolveLithologySymbol, updateState} = @
+    {serializedQueries, restState...} = @state
+    if @state.platform == Platform.WEB
+      serializedQueries = true
+    {children, rest...} = @props
+    value = {rest..., restState..., serializedQueries, updateState, computePhotoPath,
+             resolveSymbol, resolveLithologySymbol}
+    h PlatformContext.Provider, {value}, children
+
+  path: (args...)=>
+    join(@state.baseUrl, args...)
+
+  updateState: (val)=>
+    @setState val
+
+  computePhotoPath: (photo)=>
+    if @state.ELECTRON
+      return @path( '..', 'Products', 'webroot', 'Sections', 'photos', "#{photo.id}.jpg")
+    else
+      return @path( 'photos', "#{photo.id}.jpg")
+    # Original photo
+    return photo.path
+
+  resolveSymbol: (sym)=>
+    try
+      if @state.ELECTRON
+        q = resolve join(BASE_DIR, 'assets', sym)
+        return 'file://'+q
+      else
+        return join BASE_URL, 'assets', sym
+    catch
+      return ''
+
+  resolveLithologySymbol: (id)=>
+    try
+      if @state.ELECTRON
+        q = require.resolve "geologic-patterns/assets/png/#{id}.png"
+        return 'file://'+q
+      else
+        return @path 'assets', 'lithology-patterns',"#{id}.png"
+    catch
+      return ''
+
+  componentDidUpdate: (prevProps, prevState)->
+    # Shim global state
+    if prevState.serializedQueries != @state.serializedQueries
+      global.SERIALIZED_QUERIES = @state.serializedQueries
+
+    {inEditMode} = @state
+    if prevState.inEditMode != inEditMode
+      @storage.set {inEditMode}
+
+PlatformConsumer = PlatformContext.Consumer
+
+module.exports = {PlatformContext, Platform, PlatformProvider, PlatformConsumer}

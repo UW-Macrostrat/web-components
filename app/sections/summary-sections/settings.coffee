@@ -1,9 +1,13 @@
 {SettingsPanel} = require '../settings'
 {FaciesDescriptionSmall} = require '../facies-descriptions'
-{Button} = require "@blueprintjs/core"
+{Button, Silder} = require "@blueprintjs/core"
 h = require 'react-hyperscript'
 
 class SummarySectionsSettings extends SettingsPanel
+  @defaultProps: {
+    reloadCorrelations: ->
+  }
+
   renderControls: =>
     return [
       h 'h5', "Components"
@@ -15,16 +19,25 @@ class SummarySectionsSettings extends SettingsPanel
       @createSwitch 'showFacies', 'Facies'
       @createSwitch 'showLegend', 'Legend'
       h 'hr'
-      h 'h5', 'Sequence stratigraphy'
-      @createSwitch 'showFloodingSurfaces', "Flooding surfaces"
-      @createSwitch 'showTriangleBars', "Triangle bars"
-      h 'hr'
-      @createSwitch 'serializedQueries', "Serialized queries"
-      h 'hr'
-      h 'h5', 'Display mode'
+      @sequenceStratControls()
+      @debuggingControls()
+      h 'h6', 'Display mode'
       @createPicker 'modes', 'activeMode'
-      h 'h5', 'Actions'
-      h Button, {}, "Print"
     ]
 
-module.exports = {SummarySectionsSettings}
+class GeneralizedSectionsSettings extends SettingsPanel
+  @defaultProps: {
+    exportSVG: ->
+  }
+  renderControls: =>
+    return [
+      @createSwitch 'showSequenceStratigraphy', 'Sequence-stratigraphic correlations'
+      @createSwitch 'showLithology', 'Simplified lithology'
+      @createSwitch 'showFacies', 'Facies'
+      @createSwitch 'showFaciesTracts', 'Facies tracts'
+      @sequenceStratControls()
+      @debuggingControls()
+      h Button, {onClick: @props.exportSVG}, 'Export SVG'
+    ]
+
+module.exports = {SummarySectionsSettings, GeneralizedSectionsSettings}

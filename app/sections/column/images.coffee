@@ -13,7 +13,6 @@ class SectionImages extends Component
     height = d3.sum @props.imageFiles, (d)->d.height
     width = d3.max @props.imageFiles, (d)->d.width
     zs = zoom/scaleFactor
-    console.log "Scale factor: #{zoom/zs}"
     style =
       marginTop: @props.padding.top+@props.extraSpace
       marginLeft: @props.padding.left+@props.lithologyWidth

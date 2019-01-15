@@ -1,33 +1,64 @@
 {findDOMNode} = require 'react-dom'
-{Component} = require 'react'
-require '../main.styl'
-require './main.styl'
 {select} = require 'd3-selection'
 h = require 'react-hyperscript'
-{NavLink} = require '../../nav'
+{Component, createContext, createRef} = require 'react'
+{HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
 {Icon} = require 'react-fa'
-{SummarySectionsSettings} = require './settings'
 update = require 'immutability-helper'
+PropTypes = require 'prop-types'
+{debounce} = require 'underscore'
+Measure = require('react-measure').default
+d3 = require 'd3'
+
+{SummarySectionsSettings} = require './settings'
 LocalStorage = require '../storage'
 {getSectionData} = require '../section-data'
 {IsotopesComponent} = require './carbon-isotopes'
-Measure = require('react-measure').default
-{SectionPanel, LocationGroup, SectionColumn} = require './panel'
 {SVGSectionComponent} = require './column'
 {SectionNavigationControl} = require '../util'
 {SectionLinkOverlay} = require './link-overlay'
-PropTypes = require 'prop-types'
-{FaciesDescriptionSmall} = require '../facies-descriptions'
-{Legend} = require './legend'
-{LithostratKey} = require './lithostrat-key'
-d3 = require 'd3'
-
 {stackGroups, groupOrder, sectionOffsets} = require './display-parameters'
+{SectionOptionsContext, defaultSectionOptions} = require './options'
+{SequenceStratConsumer} = require '../sequence-strat-context'
+{FaciesDescriptionSmall} = require '../facies-descriptions'
+{LithostratKey} = require './lithostrat-key'
+{NavLink} = require '../../nav'
+{Legend} = require './legend'
+{query} = require '../../db'
+{SectionPositioner, SectionScale} = require './positioner'
 
-groupSections = (sections)=>
+require '../main.styl'
+
+class LegacySectionScale extends SectionScale
+  pixelOffset: ->
+    (670-@props.height-@props.offset)*@props.pixelsPerMeter
+
+class SectionColumn extends Component
+  render: ->
+    {style} = @props
+    style.position = 'relative'
+    style.width ?= 240
+    h 'div.section-column', {style}, @props.children
+
+class LocationGroup extends Component
+  @defaultProps: {
+    offsetTop: 0
+  }
+  render: ->
+    {id, name, location, width, children, style} = @props
+    name ?= location
+    id ?= location
+    style ?= {}
+    style.width ?= width
+    h 'div.location-group', {id, style}, [
+      h 'h1', {}, name
+      h 'div.location-group-body', {}, children
+    ]
+
+groupSectionData = (sections)->
   stackGroup = (d)=>
     for g in stackGroups
-      if g.indexOf(d.key) != -1
+      if g.indexOf(d.id) != -1
         return g
     return d.id
 
@@ -37,50 +68,55 @@ groupSections = (sections)=>
   __ix = indexOf(stackGroups)
 
   sectionGroups = d3.nest()
-    .key (d)->d.props.location or ""
+    .key (d)->d.location
     .key stackGroup
     .sortKeys (a,b)->__ix(a)-__ix(b)
     .entries sections
 
-  g = sectionGroups.find (d)->d.key == ""
-  extraItems = if g? then g.values[0].values else []
-  sectionGroups = sectionGroups.filter (d)->d.key != ""
+  # Change key names to be more semantic
+  for g in sectionGroups
+    g.columns = g.values.map (col)->
+      return col.values
+    delete g.values
+    g.location = g.key
+    delete g.key
 
   __ix = indexOf(groupOrder)
-  sectionGroups.sort (a,b)->__ix(a.key)-__ix(b.key)
+  sectionGroups.sort (a,b)->__ix(a.location)-__ix(b.location)
+  return sectionGroups
 
-  sectionGroups.map ({key,values})=>
-    h LocationGroup, {key, name: key},
-      values.map ({key,values})=>
-        values.sort (a, b)-> b.offset-a.offset
-        h SectionColumn, values
+class WrappedSectionComponent extends Component
+  render: ->
+    h SectionOptionsContext.Consumer, null, (opts)=>
+      h SVGSectionComponent, {opts..., @props...}
 
-class SummarySections extends Component
+class SummarySectionsBase extends Component
   @defaultProps: {
     scrollable: true
+    groupMargin: 400
+    columnMargin: 100
+    columnWidth: 150
   }
+  SettingsPanel: SummarySectionsSettings
+  pageID: 'summary-sections'
   constructor: (props)->
     super props
-    @state =
+    @state = {
       sections: []
+      surfaces: []
       dimensions: {
         canvas: {width: 100, height: 100}
       }
       sectionPositions: {}
-      options:
+      options: {
         settingsPanelIsActive: false
         modes: [
           {value: 'normal', label: 'Normal'}
           {value: 'skeleton', label: 'Skeleton'}
-          #{value: 'sequence-stratigraphy', label: 'Sequence Strat.'}
         ]
         showNavigationController: true
         activeMode: 'normal'
-        showFacies: true
-        showFloodingSurfaces: false
-        showTriangleBars: false
-        showLithostratigraphy: true
-        showSequenceStratigraphy: true
+        defaultSectionOptions...
         showLegend: true
         # Allows us to test the serialized query mode
         # we are developing for the web
@@ -88,23 +124,77 @@ class SummarySections extends Component
         condensedDisplay: true
         update: @updateOptions
         sectionIDs: []
-        showCarbonIsotopes: false
+        showLithostratigraphy: true
+        showSequenceStratigraphy: true
+        showCarbonIsotopes: true
+      }
+    }
 
     @optionsStorage = new LocalStorage 'summary-sections'
     v = @optionsStorage.get()
     return unless v?
     @state = update @state, options: {$merge: v}
 
-  renderSections: ->
+    query 'lithostratigraphy-surface', null, {baseDir: __dirname}
+      .then (surfaces)=>
+        surfaces.reverse()
+        @setState {surfaces}
+
+  renderChemostratigraphy: ->
     {sections, scrollable} = @props
-    {dimensions, options, sectionPositions} = @state
+    {dimensions, options, sectionPositions, surfaces} = @state
     {dragdealer, dragPosition, rest...} = options
     {showFloodingSurfaces,
      showSequenceStratigraphy,
-     showTriangleBars,
      showCarbonIsotopes,
      showOxygenIsotopes,
-     trackVisibility,
+     showFacies} = options
+
+    return null unless showCarbonIsotopes or showOxygenIsotopes
+
+    row = sections.find (d)->d.id == 'J'
+    {offset, location, rest...} = row
+    location = null
+
+    __ = []
+    if showCarbonIsotopes
+      __.push h IsotopesComponent, {
+        zoom: 0.1,
+        key: 'carbon-isotopes',
+        showFacies
+        offset
+        location: ""
+        surfaces
+        rest...
+      }
+
+    if showOxygenIsotopes
+      __.push h IsotopesComponent, {
+        zoom: 0.1,
+        system: 'delta18o'
+        label: 'δ¹⁸O'
+        domain: [-15,0]
+        key: 'oxygen-isotopes',
+        showFacies
+        offset
+        location: ""
+        surfaces
+        rest...
+      }
+
+    h LocationGroup, {
+      name: null
+      className: 'chemostratigraphy'
+    }, __
+
+  renderSections: ->
+    {sections, scrollable, showTriangleBars} = @props
+    {dimensions, options, sectionPositions, surfaces} = @state
+    {dragdealer, dragPosition, rest...} = options
+    {showFloodingSurfaces,
+     showSequenceStratigraphy,
+     showCarbonIsotopes,
+     showOxygenIsotopes,
      showFacies,
      showLegend,
      showLithostratigraphy,
@@ -114,13 +204,7 @@ class SummarySections extends Component
 
     skeletal = activeMode == 'skeleton'
 
-    sectionResize = (key)=>(contentRect)=>
-      cset = {}
-      cset[key] = {$set: contentRect}
-      @mutateState {sectionPositions: cset}
-
-    __sections = sections.map (row)=>
-      console.log row
+    mapRowToSection = (row)=>
       {offset, range, height, start, end, rest...} = row
       offset = sectionOffsets[row.id] or offset
 
@@ -130,16 +214,13 @@ class SummarySections extends Component
       height = end-start
       range = [start, end]
 
-
-      sec = h SVGSectionComponent, {
-        zoom: 0.1, key: row.id,
+      h WrappedSectionComponent, {
+        zoom: 0.1,
+        key: row.id,
         skeletal,
-        showFloodingSurfaces
-        showTriangleBars,
+        triangleBarRightSide: row.id == 'J'
         showCarbonIsotopes,
-        trackVisibility
-        showFacies
-        onResize: sectionResize(row.id)
+        trackVisibility: false
         offset
         range
         height
@@ -147,74 +228,95 @@ class SummarySections extends Component
         end
         rest...
       }
-      return sec
 
     row = sections.find (d)->d.id == 'J'
     {offset, location, rest...} = row
     location = null
 
-    chemostrat = null
-    if showCarbonIsotopes or showOxygenIsotopes
-      __ = []
-      if showCarbonIsotopes
-        __.push h IsotopesComponent, {
-          zoom: 0.1,
-          key: 'carbon-isotopes',
-          showFacies
-          onResize: sectionResize('carbon-isotopes')
-          offset
-          location: ""
-          rest...
-        }
+    lithostratKey = h LithostratKey, {
+        zoom: 0.1, key: "key",
+        surfaces,
+        skeletal,
+        offset
+        rest...
+      }
 
-      if showOxygenIsotopes
-        __.push h IsotopesComponent, {
-          zoom: 0.1,
-          system: 'delta18o'
-          label: 'δ¹⁸O'
-          domain: [-15,0]
-          key: 'oxygen-isotopes',
-          showFacies
-          onResize: sectionResize('oxygen-isotopes')
-          offset
-          location: ""
-          rest...
-        }
+    groupedSections = groupSectionData(sections)
 
-      chemostrat = h LocationGroup, {
-        name: 'Chemostratigraphy'
-        className: 'chemostratigraphy'
-      }, __
+    height = 1800
+    # Pre-compute section positions
+    {groupMargin, columnMargin, columnWidth} = @props
+    if showTriangleBars
+      columnWidth += 25
 
+    ## Create a section positioner
+    positioner = new SectionPositioner({
+      groupMargin,
+      columnMargin,
+      columnWidth,
+      sectionOffsets
+      ScaleCreator: LegacySectionScale
+    })
 
-    __sections = [chemostrat, groupSections(__sections)...]
+    groupedSections = positioner.update(groupedSections)
 
-    #if showLegend
-    #  __sections.push h Legend
+    sectionGroups = groupedSections.map ({location, columns}, i)->
+      marginRight = groupMargin
+      if i == groupedSections.length-1
+        marginRight = 0
+      style = {marginRight, height}
+      h LocationGroup, {key: location, location, style}, columns.map (col, i)->
+        marginRight = columnMargin
+        if i == columns.length-1
+          marginRight = 0
+        style = {marginRight, height, width: columnWidth}
+        h SectionColumn, {key: i, style}, col.map mapRowToSection
+
+    maxOffset = d3.max sections.map (d)->parseFloat(d.height)-parseFloat(d.offset)+669
 
     paddingLeft = if showTriangleBars then 90 else 30
-    marginTop = 50
+    marginTop = 52 # This is a weird hack
     overflow = if scrollable then "scroll" else 'inherit'
     {canvas} = @state.dimensions
+
+    minHeight = 1500
+
     h 'div#section-pane', {style: {overflow}}, [
-      h SectionPanel, {
-        zoom: 1,
-        onResize: @onCanvasResize
-        rest...}, __sections
-      h SectionLinkOverlay, {skeletal, paddingLeft, canvas...,
-                             marginTop,
-                             sectionPositions,
-                             showLithostratigraphy
-                             showSequenceStratigraphy
-                             showCarbonIsotopes
-                             }
+      h "div#section-page-inner", {
+        style: {zoom: 1, minHeight}
+      }, [
+        lithostratKey,
+        @renderChemostratigraphy(),
+        h "div#section-container", [
+          h(Legend) if showLegend
+          h SectionLinkOverlay, {
+            paddingLeft,
+            connectLines: true
+            width: 2500,
+            height,
+            marginTop,
+            groupedSections,
+            showLithostratigraphy
+            showSequenceStratigraphy
+            showCarbonIsotopes
+            surfaces
+            skeletal
+          }
+          h 'div.grouped-sections', sectionGroups
+        ]
+      ]
     ]
 
-  render: ->
+  renderSettingsPanel: =>
     {options} = @state
+    h @SettingsPanel, {
+      options...
+    }
+
+  render: ->
     backLocation = '/sections'
     {toggleSettings} = @
-    {showNavigationController} = options
+    {showNavigationController} = @state.options
 
     navigationController = null
     if showNavigationController
@@ -222,43 +324,38 @@ class SummarySections extends Component
         SectionNavigationControl
         {backLocation, toggleSettings})
 
-    h 'div.page.section-page#summary-sections', [
+    # Keep errors isolated within groups
+    sections = null
+    try
+      sections = @renderSections()
+    catch err
+      console.error err
+
+    h 'div.page.section-page', {id: @pageID}, [
       h 'div.panel-container', [
-        navigationController
-        @renderSections()
+        h SectionOptionsContext.Provider, {value: @createSectionOptions()}, [
+          navigationController
+          sections
+        ]
       ]
-      h SummarySectionsSettings, options
+      @renderSettingsPanel()
     ]
 
-  onSectionResize: (key)=>(contentRect)=>
-    console.log "Section #{key} was resized", contentRect
-
-    @mutateState {sectionPositions: {"#{key}": {$set: contentRect}}}
-
-  componentDidUpdate: (prevProps, prevState)->
-    if prevState.dimensions != @state.dimensions
-      console.log "Dimensions changed!"
-
-      obj = {}
-      window.resizers.map (section)->
-        {measureRef,props} = section
-        if measureRef.measure?
-          contentRect = measureRef.measure()
-          obj["#{props.id}"] = {$set: contentRect}
-      console.log obj
-      @mutateState {sectionPositions: obj}
+  createSectionOptions: =>
+    value = {}
+    for k,v of defaultSectionOptions
+      value[k] = @state.options[k]
+    triangleBarsOffset = 0
+    if @props.showTriangleBars
+      triangleBarsOffset = 80
+    return {
+      triangleBarsOffset
+      value...
+    }
 
   mutateState: (spec)=>
     state = update(@state, spec)
     @setState state
-
-  onCanvasResize: ({bounds})=>
-    {width, height} = bounds
-    console.log "Canvas was resized", bounds
-    @mutateState {dimensions: {canvas: {
-      width: {$set: width}
-      height: {$set: height}
-    }}}
 
   updateOptions: (opts)=>
     newOptions = update @state.options, opts
@@ -268,10 +365,9 @@ class SummarySections extends Component
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
-window.resizeEverything = ->
-  window.resizers.map ({measure,onResize})->
-      if measure.measure?
-        measure.measure()
+SummarySections = (props)->
+  h SequenceStratConsumer, null, ({actions, rest...})->
+    h SummarySectionsBase, {props..., rest...}
 
-module.exports = {SummarySections}
+module.exports = {SummarySections, SummarySectionsBase, SectionOptionsContext}
 

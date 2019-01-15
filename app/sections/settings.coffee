@@ -1,8 +1,10 @@
 {Component} = require 'react'
 h = require 'react-hyperscript'
 {CSSTransition} = require 'react-transition-group'
-{Switch} = require '@blueprintjs/core'
+{Switch, Slider} = require '@blueprintjs/core'
 {format} = require 'd3'
+{PlatformConsumer} = require '../platform'
+{SequenceStratConsumer} = require './sequence-strat-context'
 {FaciesDescriptionSmall} = require './facies-descriptions'
 classNames = require 'classnames'
 
@@ -45,6 +47,52 @@ class PickerControl extends Component
 
 fmt = format('.2f')
 
+EditModeControl = (props)->
+  h PlatformConsumer, null, ({WEB, inEditMode, updateState})->
+    h Switch, {
+      checked: inEditMode
+      label: 'Allow editing'
+      key: 'edit-mode'
+      onChange: -> updateState {inEditMode: not inEditMode}
+    }
+
+SerializedQueriesControl = (props)->
+  h PlatformConsumer, null, ({WEB, serializedQueries, updateState})->
+    return null if WEB
+    h Switch, {
+      checked: serializedQueries
+      label: 'Serialized queries'
+      key: 'serialized-queries'
+      onChange: -> updateState {serializedQueries: not serializedQueries}
+    }
+
+SequenceStratControlPanel = (props)->
+  h SequenceStratConsumer, null, (value)->
+    {actions} = value
+    h 'div', props, [
+      h 'h5', 'Sequence stratigraphy'
+      h Switch, {
+        checked: value.showFloodingSurfaces
+        label: "Flooding surfaces"
+        onChange: actions.toggleBooleanState("showFloodingSurfaces")
+      }
+      h Switch, {
+        checked: value.showTriangleBars
+        label: "Triangle bars"
+        onChange: actions.toggleBooleanState("showTriangleBars")
+      }
+      h Slider, {
+        min: 0,
+        max: 5,
+        stepSize: 1,
+        showTrackFill: false,
+        value: value.sequenceStratOrder
+        onChange: (v)->
+          actions.updateState({sequenceStratOrder:v})
+      }
+      h 'hr'
+    ]
+
 class SettingsPanel extends Component
   render: ->
     return null unless @props.settingsPanelIsActive
@@ -55,7 +103,7 @@ class SettingsPanel extends Component
       h 'div#settings', {key: 'settings'}, [
         h 'h2', 'Settings'
         h 'hr'
-        @renderControls()
+        @renderControls()...
       ]
     ]
 
@@ -81,16 +129,22 @@ class SettingsPanel extends Component
       @createSwitch 'showNotes', "Notes"
       @createPicker 'displayModes', 'activeDisplayMode'
       h 'hr'
-      h 'h5', 'Sequence stratigraphy'
-      @createSwitch 'showFloodingSurfaces', "Flooding surfaces"
-      @createSwitch 'showTriangleBars', "Triangle bars"
-      h 'hr'
-      @createSwitch 'inEditMode', "Allow editing"
-      @createSwitch 'serializedQueries', "Serialized queries"
-      h 'hr'
-      h 'h5', 'Display mode'
+      @sequenceStratControls()
+      @debuggingControls()
+      h 'h6', 'Display mode'
       @createPicker 'modes', 'activeMode'
     ]
+
+  debuggingControls: ->
+    h 'div', [
+      h 'h5', "Backend"
+      h EditModeControl
+      h SerializedQueriesControl
+      h 'hr'
+    ]
+
+  sequenceStratControls: ->
+    return h SequenceStratControlPanel
 
   createSwitch: (id, label)=>
     h Switch, {

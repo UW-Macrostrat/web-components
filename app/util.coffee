@@ -3,6 +3,7 @@ Promise = require 'bluebird'
 
 getJSON = (url)->
   if window? and PLATFORM != ELECTRON
+    console.log "Web backend found!!"
     # We are using a web-like backend
     console.log "Requesting json at #{url}"
     return new Promise (resolve, reject)->

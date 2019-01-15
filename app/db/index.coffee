@@ -31,9 +31,10 @@ query = (id, values, opts={})->
         db.query storedProcedure(id, {baseDir}), values
 
   # We get JSON from our library of stored queries
-  fn = getHash(id,values)+'.json'
-  console.log "Getting query file `#{fn}`"
-  getJSON "#{QUERY_DIRECTORY}/#{fn}"
+  fn = id+"_"+getHash(id,values)+'.json'
+  console.log "Getting query file `#{fn}` for query `#{id}` with values #{values}"
+  data = getJSON "#{QUERY_DIRECTORY}/#{fn}"
+  return data
 
 module.exports = {
   query

@@ -11,23 +11,20 @@ LocalStorage = require './storage'
 {getSectionData} = require './section-data'
 Measure = require('react-measure').default
 {SectionComponent} = require './column'
+{PlatformConsumer} = require '../platform'
 PropTypes = require 'prop-types'
 { Hotkey, Hotkeys, HotkeysTarget, Intent} = require "@blueprintjs/core"
 {SectionNavigationControl} = require './util'
 {Notification} = require '../notify'
-d3 = require 'd3'
-fmt = d3.format('.1f')
 
 class SectionPage extends Component
   constructor: (props)->
     super props
     @state =
-      notificationSent: false
       dimensions: {}
       options:
         zoom: 1
         settingsPanelIsActive: false
-        inEditMode: false
         modes: [
           {value: 'normal', label: 'Normal'}
           {value: 'skeleton', label: 'Skeleton'}
@@ -77,12 +74,13 @@ class SectionPage extends Component
     scrollToHeight = height
 
     # Set up routing to jump to a specific height
-    obj =
+    obj = {
       bounds: true,
       offset: true,
       scroll: true,
       client: true,
       onResize: resizeFunc
+    }
 
     key = section.id # Because react
     skeletal = @state.options.activeMode == 'skeleton'
@@ -93,10 +91,11 @@ class SectionPage extends Component
     h 'div.page.section-page.single-section', [
       h 'div.panel-container', [
         h SectionNavigationControl, {toggleSettings}
-        h 'div#section-pane', {ref: (p)=>@pane = p}, [
+        h PlatformConsumer, null, ({inEditMode})=>
           h SectionComponent, {
             trackVisibility: false
             section...,
+            scrollToHeight,
             offsetTop: 0
             onResize: @onResize
             key, skeletal,
@@ -104,7 +103,6 @@ class SectionPage extends Component
             useRelativePositioning: false
             options...
           }
-        ]
       ]
       h SettingsPanel, @state.options
     ]
@@ -116,19 +114,6 @@ class SectionPage extends Component
 
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
-
-  onResize: ({bounds, scale, padding})=>
-    {height, section} = @props
-    return unless height
-    console.log "Setting scroll position"
-    @pane.scrollTop = scale(height)-window.innerHeight/2
-    return if @state.notificationSent
-    Notification.show {
-      message: "Section #{section.id} @ #{fmt(height)} m"
-      intent: Intent.PRIMARY
-    }
-    @setState {notificationSent: true}
-
 
 module.exports = SectionPage
 

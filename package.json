@@ -21,14 +21,12 @@
     "coffee-loader": "^0.8.0",
     "css-loader": "^0.28.7",
     "electron-compile": "^3.2.3",
-    "electron-devtools-installer": "^2.2.3",
     "electron-rebuild": "^1.6.0",
-    "file-loader": "^0.11.2",
     "nodemon": "^1.11.0",
     "style-loader": "^0.18.2",
     "stylus-loader": "^3.0.1",
     "uglifyjs-webpack-plugin": "^1.1.8",
-    "webpack": "^3.6.0"
+    "webpack-cli": "^2.0.14"
   },
   "dependencies": {
     "bluebird": "^3.4.7",
@@ -41,15 +39,20 @@
     "d3-jetpack-module": "^0.0.19",
     "d3-selection-multi": "^1.0.0",
     "dragdealer": "^0.9.9",
-    "electron": "beta",
+    "electron": "^4.0.0-beta.11",
+    "electron-devtools-installer": "^2.2.4",
     "electron-localshortcut": "^1.0.0",
+    "electron-react-devtools": "^0.5.3",
     "electron-reload": "^1.1.0",
+    "file-loader": "^1.1.11",
     "js-yaml": "^3.7.0",
     "leaflet": "^1.0.3",
     "node-cjsx": "^2.0.0",
     "pdf-printer": "file:../deps/pdf-printer",
+    "styled-components": "^4.0.2",
     "stylus": "^0.54.5",
     "textures": "^1.2.0",
-    "tilelive-mapnik": "^0.6.18"
+    "tilelive-mapnik": "^0.6.18",
+    "webpack": "^4.5.0"
   }
 }

@@ -1,28 +1,35 @@
+*
+  shape-rendering inherit
+
+@media print
+  ul.controls
+    display: none
+
+text
+  font-size: inherit
+
+#main
+  height inherit
+  width 2400px
+  height 1850px
+  overflow hidden
+  position relative
+  transform translate(-20px,-25px)
+
+
+//body
+//  margin -20px -40px
+
 #section-pane
-  overflow: inherit
-  height: 1550px
-  width: 1800px
-  flex-grow: inherit
+  height inherit
+  overflow hidden !important
 
-body>div
-  height: 1550px
-  width: 1800px
-  overflow inherit
+#main .page.section-page
+  height inherit
 
-#summary-sections-legend
-  margin 3em
-  max-width 14em
+  div.panel-container
+    height inherit
 
-#section-page-inner
-  width: 1800px
-
-div.location-group
-  margin 3em 6em
-
-div.facies .header
-  display flex
-  flex-direction row
-  align-items center
-  &>p
-    flex 1
-    max-width 200px
+.section-header
+  h2
+    z-index 20

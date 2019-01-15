@@ -8,13 +8,12 @@ classNames = require 'classnames'
 {path} = require 'd3-path'
 
 symbolIndex = {
-  "Cross-beds": "sedlog-patterns/symbols/herringbone.svg"
-  "Gutter cast": "sedlog-patterns/symbols/scours.svg"
-  "Hummocky cross-stratified": "sedlog-patterns/symbols/hummocky.svg"
-  "Mudcracks": "sedlog-patterns/symbols/mudcracks.svg"
-  "Stromatolites": "sedlog-patterns/symbols/stromatolites.svg"
-  "Trough cross-stratified": "sedlog-patterns/symbols/troughs.svg"
-  "Wavy": "sedlog-patterns/symbols/wave-ripple.svg"
+  "Hummocky cross-stratified": "column-patterns/hcs.svg"
+  "Trough cross-stratified": "column-patterns/tcs.svg"
+  "Dessication cracks": "column-patterns/dessication-cracks.svg"
+  "Ooids": "column-patterns/ooids.svg"
+  "Domal stromatolites": "column-patterns/domal-stromatolites.svg"
+  "Digitate stromatolites": "column-patterns/digitate-stromatolites.svg"
 }
 
 resolveSymbol = (sym)->
@@ -39,6 +38,7 @@ class SymbolColumn extends Component
     height: 100
     visible: true
     left: 0
+    zoom: 1
   constructor: (props)->
     super props
     @UUID = v4()
@@ -56,18 +56,22 @@ class SymbolColumn extends Component
     @setState {symbols, patterns}
 
   render: ->
-    {scale, visible,left, width, height} = @props
+    {scale, visible,left, width, height, zoom} = @props
     {symbols, patterns} = @state
     transform = null
     if left?
       transform = "translate(#{left})"
+
+    symbols = symbols
+      .filter (d)->d.symbol_min_zoom < zoom
+      .map @renderSymbol
 
     x = 0
     y = 0
     h 'g.symbol-column', {transform}, [
       @createDefs()
       h 'rect.symbol-column-area', {width, height}
-      h 'g.symbols', symbols.map @renderSymbol
+      h 'g.symbols', symbols
     ]
 
   createDefs: =>
@@ -101,9 +105,22 @@ class SymbolColumn extends Component
     className = classNames({symbol}, 'symbol')
 
     {width,scale} = @props
-    y = scale(height)-width/2+12
+    y = scale(height)-width/2
 
     href = "##{@UUID}-#{symbol}"
-    h "use", {className,y, x: 0, width, href, key: id}
+    h "use", {className,y, x: 0, width, xlinkHref: href, key: id}
 
-module.exports = {SymbolColumn}
+class SymbolLegend extends Component
+  render: ->
+    arr = []
+    for name,symbol of symbolIndex
+      sym =  h 'div', {key: name}, [
+        h 'img', {src: resolveSymbol(symbol)}
+        h 'span.label', name
+      ]
+
+      arr.push sym
+
+    h 'div.symbol-legend', arr
+
+module.exports = {SymbolColumn, SymbolLegend}

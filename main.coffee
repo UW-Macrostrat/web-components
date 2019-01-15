@@ -15,7 +15,7 @@ reload([
 #tessera = spawn name
 
 createWindow = ->
-#  await installExtension REACT_DEVELOPER_TOOLS
+  await installExtension REACT_DEVELOPER_TOOLS
 
   win = new BrowserWindow
   win.loadURL "file://#{__dirname}/app/index.html"

@@ -2,6 +2,7 @@ SELECT
   id,
   section,
   symbol,
+  coalesce(symbol_min_zoom, 0) symbol_min_zoom,
   (
     start_height+coalesce(
     end_height,start_height)

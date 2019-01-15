@@ -1,4 +1,4 @@
-{PlatformContext} = require './platform'
+{PlatformContext, PlatformProvider} = require './platform'
 React = require 'react'
 ReactDOM = require 'react-dom'
 {HashRouter,Route,Link, Switch} = require 'react-router-dom'
@@ -10,10 +10,11 @@ FocusStyleManager.onlyShowFocusOnTabs()
 {Icon} = require 'react-fa'
 {NavBar, NavLink} = require './nav'
 {SectionIndex} = require './sections'
-MapLegend = require './map-legend/component'
+#MapLegend = require './map-legend/component'
 CarbonIsotopesPage = require './carbon-isotopes'
 LateralVariation = require './lateral-variation/component'
-Map = require './map-viewer'
+{MapView} = require './map-viewer'
+{HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
 require '@blueprintjs/core/lib/css/blueprint.css'
 
 wrapNavBar = (component)->
@@ -43,28 +44,38 @@ class App extends React.Component
     @state = {}
     @state.showNavBar = true
   render: ->
-    h PlatformContext.Provider, {}, [
+    h PlatformProvider, [
       h 'div#root', [
         h Switch, [
           route '/', Home, exact: true
           route '/sections', SectionIndex
           route '/carbon-isotopes', wrapNavBar(CarbonIsotopesPage)
           route '/lateral-variation', wrapNavBar(LateralVariation)
-          route '/map', wrapHomeButton(Map)
-          route '/map-legend', wrapNavBar(MapLegend)
+          route '/map', MapView
+          #route '/map-legend', wrapNavBar(MapLegend)
         ]
       ]
     ]
   _toggleNavBar: =>
     @setState showNavBar: not @state.showNavBar
 
-  componentWillMount: ->
-    @props.bindShortcut 'f', @_toggleNavBar
+  renderHotkeys: ->
+    console.log "Rendering hotkeys"
+    h Hotkeys, {tabIndex: null}, [
+      h Hotkey, {
+        global: true
+        combo: "r"
+        label:"Reload"
+        onKeyDown: -> console.log("Awesome!")
+      }
+    ]
 
-  componentWillUnmount: ->
-    @props.unbindShortcut 'f'
+# This doesn't work for unknown reasons
+HotkeysTarget(App)
 
-Router = -> h HashRouter, [ h mouseTrap(App) ]
+Router = -> h HashRouter, [
+  h(App)
+]
 
 navLink = -> h NavLink, arguments...
 

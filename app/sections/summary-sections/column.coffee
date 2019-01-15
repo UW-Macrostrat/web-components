@@ -6,15 +6,20 @@ h = require 'react-hyperscript'
 Measure = require('react-measure').default
 {SectionAxis} = require '../column/axis'
 {BaseSectionComponent} = require '../column/base'
+{PlatformConsumer} = require '../../platform'
 {SymbolColumn} = require '../column/symbol-column'
 {FloodingSurface, TriangleBars} = require '../column/flooding-surface'
+{IntervalEditor} = require '../column/modal-editor'
 {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
+{Popover, Position} = require '@blueprintjs/core'
 {withRouter} = require 'react-router-dom'
 {Notification} = require '../../notify'
+{FaciesContext} = require '../facies-descriptions'
+{SVGNamespaces} = require '../util'
+{SequenceStratConsumer} = require '../sequence-strat-context'
+{db, storedProcedure, query} = require '../db'
 
 fmt = d3.format('.1f')
-
-window.resizers = []
 
 class BaseSVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
@@ -23,14 +28,16 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     innerWidth: 100
     height: 100 # Section height in meters
     lithologyWidth: 40
+    showWhiteUnderlay: true
     showFacies: true
-    showFloodingSurfaces: true
+    triangleBarsOffset: 0
+    triangleBarRightSide: false
     onResize: ->
-    marginLeft: -25
+    marginLeft: -10
     padding:
       left: 30
       top: 10
-      right: 10
+      right: 20
       bottom: 10
   }
   constructor: (props)->
@@ -39,57 +46,133 @@ class BaseSVGSectionComponent extends BaseSectionComponent
 
     @state = {
       @state...
+      hoveredInterval: null
+      popoverIsOpen: false
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
     }
     @state.scale.clamp()
 
+  renderWhiteUnderlay: ->
+    {showWhiteUnderlay, skeletal} = @props
+    return null if not showWhiteUnderlay
+    return null if skeletal
+    {innerWidth, padding, marginLeft, position: pos} = @props
+    innerHeight = pos.heightScale.pixelHeight()
+    {left, right} = padding
+    outerWidth = innerWidth+(left+right)
+
+    {triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
+    left += tbo
+    marginLeft -= tbo
+    marginRight = 0
+    outerWidth += tbo
+
+    x = -left
+    if @props.showTriangleBars and not onRight
+      x += 55
+    if @props.showTriangleBars and onRight
+      outerWidth += 75
+
+
+    return h 'rect.underlay', {
+      width: outerWidth-50
+      height: innerHeight+10
+      x
+      y: -5
+      fill: 'white'
+    }
+
+  createEditOverlay: (p={})=>
+    {triangleBarsRightSide: onRight} = @props
+    {hoveredInterval} = @state
+    return null unless hoveredInterval
+    return null unless @props.inEditMode
+    pos = @props.position
+    scale = pos.heightScale.local
+    top = scale(hoveredInterval.top)
+    bottom = scale(hoveredInterval.bottom)
+    height = bottom-top
+    width = pos.width-@props.padding.left-@props.padding.right-50
+
+    _ = Position.LEFT
+    if onRight
+      _ = Position.RIGHT
+    popoverProps = {position: _,}# isOpen: @state.popoverIsOpen}
+
+    position = 'absolute'
+    outerStyle = {left: p.left, top: p.top, position, width}
+    style = {top, height, width, position}
+    h 'div.edit-overlay', {style: outerStyle}, [
+      h 'div.cursor-container', {style}, [
+        h Popover, popoverProps, [
+          h 'div.cursor', {style: {width, height}}
+          h IntervalEditor, {
+            interval: hoveredInterval
+            height: hoveredInterval.height
+            section: @props.id
+            onUpdate: @onIntervalUpdated
+            #onPrev: @hoverAdjacent(-1)
+            #onNext: @hoverAdjacent(1)
+            #onClose: => @setState {popoverIsOpen: false}
+          }
+        ]
+      ]
+    ]
+
+  hoverAdjacent: (offset=1) => =>
+    {hoveredInterval, divisions} = @state
+    return if not hoveredInterval?
+    ix = divisions.findIndex (d)->d.id = hoveredInterval.id
+    return unless ix?
+    newDiv = divisions[ix+offset]
+    debugger
+    return unless newDiv?
+    @setState {hoveredInterval: newDiv}
+
+  onIntervalUpdated: =>
+    console.log "Updating intervals"
+    {id: section} = @props
+    {hoveredInterval} = @state
+    # Could potentially make this fetch less
+    query 'lithology', [section]
+      .then (divisions)=>
+        cset = {divisions}
+        if hoveredInterval?
+          newHovered = divisions.find (d)-> d.id == hoveredInterval.id
+          cset.hoveredInterval = newHovered
+        @setState cset
+
   render: ->
     {id, zoom, padding, lithologyWidth,
      innerWidth, onResize, marginLeft,
-     showFacies, height, clip_end} = @props
+     showFacies, height, clip_end,
+     showTriangleBars,
+     showFloodingSurfaces,
+     showWhiteUnderlay,
+     position
+     } = @props
 
-    innerHeight = height*@props.pixelsPerMeter*@props.zoom
+    {heightScale} = position
+    innerHeight = heightScale.pixelHeight()
+    marginTop = heightScale.pixelOffset()
+    scale = heightScale.local
 
     {left, top, right, bottom} = padding
 
-    tbo = 80
-    if @props.showTriangleBars
-      left += tbo
-
-    scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
-
-    @state.scale.range [innerHeight, 0]
     outerHeight = innerHeight+(top+bottom)
     outerWidth = innerWidth+(left+right)
 
-    {heightOfTop} = @props
-    marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
-
-    [bottom,top] = @props.range
-
-    if clip_end != @props.end
-      debugger
-
-    txt = id
-
-    {scale,visible, divisions} = @state
+    {visible, divisions} = @state
     divisions = divisions.filter (d)->not d.schematic
-    zoom = @props.zoom
 
     {skeletal} = @props
 
     # Set up number of ticks
     nticks = (height*@props.zoom)/10
 
-    style = {
-      width: outerWidth
-      height: outerHeight
-      marginLeft
-    }
-
     fs = null
-    if @props.showFloodingSurfaces
+    if showFloodingSurfaces
       fs = h FloodingSurface, {
         scale
         zoom
@@ -99,53 +182,86 @@ class BaseSVGSectionComponent extends BaseSectionComponent
         divisions
       }
 
+    overhangLeft = 0
+    overhangRight = 0
+
+    {triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
+    marginLeft -= tbo
+    marginRight = 0
+    outerWidth += tbo
     triangleBars = null
-    if @props.showTriangleBars
+    if showTriangleBars
+      offsetLeft = -tbo+35
+      if onRight
+        overhangRight = 45
+        offsetLeft *= -1
+        offsetLeft += tbo+20
+        marginRight -= tbo
+        marginLeft += tbo
+      else
+        overhangLeft = 25
+        left = tbo
+
       triangleBars = h TriangleBars, {
         scale
         zoom
         id
-        offsetLeft: -tbo+20
+        offsetLeft
         lineWidth: 20
         divisions
+        orders: [@props.sequenceStratOrder, @props.sequenceStratOrder-1]
       }
+
+    # Expand SVG past bounds of section
+    style = {
+      width: outerWidth
+      height: outerHeight
+    }
 
     transform = "translate(#{left} #{@props.padding.top})"
 
+    onHoverInterval = null
+    if @props.inEditMode
+      onHoverInterval = (d, opts)=>
+        @setState {hoveredInterval: d}
+
     minWidth = outerWidth
+    position = 'absolute'
+    top = marginTop
     h "div.section-container", {
       className: if @props.skeletal then "skeleton" else null
-      style: {minWidth}
+      style: {
+        minWidth, top, position,
+        marginLeft: -overhangLeft
+        marginRight: -overhangRight
+      }
     }, [
-      h 'div.section-header', {
-          style: {marginLeft: -marginLeft}
-        }, [
-        h("h2", {style: {height: '1.2rem'}}, txt)]
+      h 'div.section-header', [
+        h("h2", {style: {zIndex: 20}}, id)]
       h 'div.section-outer', [
-        h Measure, {
-          ref: @measureRef
-          bounds: true,
-          client: true,
-          onResize: @onResize
-        }, ({measureRef})=>
-          h "svg.section", {
-            style, ref: measureRef
-          }, [
-            h 'g.backdrop', {transform}, [
+        @createEditOverlay({left, top: @props.padding.top})
+        h "svg.section", {
+          SVGNamespaces...
+          style
+        }, [
+          h 'g.backdrop', {transform}, [
+            @renderWhiteUnderlay()
+            h FaciesContext.Consumer, {}, ({facies})=>
               h GeneralizedSectionColumn, {
                 width: innerWidth
                 height: innerHeight
                 divisions
                 showFacies
                 showCoveredOverlay: true
+                facies: facies
                 scale
                 id
                 grainsizeScaleStart: 40
+                onHoverInterval
                 onEditInterval: (d, opts)=>
                   {history} = @props
                   {height, event} = opts
                   if not event.shiftKey
-                    console.log "Clicked Section #{id} @ #{height}"
                     history.push("/sections/#{id}/height/#{height}")
                     return
                   Notification.show {
@@ -161,24 +277,29 @@ class BaseSVGSectionComponent extends BaseSectionComponent
                     timeout: 2000
                   }
               }
-              h SymbolColumn, {
-                scale
-                height: innerHeight
-                left: 90
-                id
-              }
-              fs
-              triangleBars
-              h SectionAxis, {scale, ticks: nticks}
-            ]
+            h SymbolColumn, {
+              scale
+              height: innerHeight
+              left: 90
+              id
+              zoom
+            }
+            fs
+            triangleBars
+            h SectionAxis, {scale, ticks: nticks}
           ]
+        ]
       ]
     ]
 
-  componentDidMount: =>
-    window.resizers.push @
-
-SVGSectionComponent = withRouter(BaseSVGSectionComponent)
+SVGSectionComponent = (props)->
+  h PlatformConsumer, null, ({inEditMode})->
+    h SequenceStratConsumer, null, (value)->
+      {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
+      h withRouter(BaseSVGSectionComponent), {
+        showTriangleBars, showFloodingSurfaces,
+        sequenceStratOrder, inEditMode, props...
+      }
 
 module.exports = {BaseSVGSectionComponent, SVGSectionComponent}
 

@@ -20,6 +20,9 @@ SELECT
       'height', bottom,
       'inferred', false
   )) section_height,
+  min(surface_order) AS surface_order,
+  mode() WITHIN GROUP (ORDER BY surface_type) AS surface_type,
+  -- Legacy
   mode() WITHIN GROUP (ORDER BY flooding_surface_order) AS flooding_surface_order,
   surface surface_id
 FROM section.section_lithology l
@@ -29,8 +32,11 @@ SELECT
   surface_id,
   'sequence-strat' AS type,
   section_height,
-  flooding_surface_order,
-  abs(flooding_surface_order) AS commonality,
+  surface_order,
+  coalesce(s.sequence_strat_type, ss.surface_type, 'mfs') surface_type,
+  -- Legacy
+  5-coalesce(surface_order, flooding_surface_order) AS flooding_surface_order,
+  coalesce(surface_order, abs(flooding_surface_order)) AS commonality,
   s.note,
   s.sequence_boundary,
   null AS lower_unit,
@@ -43,6 +49,8 @@ SELECT
   null surface_id,
   'lithostrat',
   section_height,
+  null,
+  null,
   null,
   coalesce(
     mapping.unit_commonality(lower_unit,upper_unit),

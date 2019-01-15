@@ -5,10 +5,16 @@ h = require 'react-hyperscript'
 {join} = require 'path'
 {v4} = require 'uuid'
 classNames = require 'classnames'
-textures = require 'textures'
 {createGrainsizeScale} = require './grainsize'
 {path} = require 'd3-path'
 d3 = require 'd3'
+{PlatformContext} = require '../../platform'
+
+# Malformed es6 module
+v = require('react-svg-textures')
+if v.default?
+  v = v.default
+{Lines} = v
 
 symbolIndex = {
   'dolomite-limestone': 641
@@ -31,7 +37,7 @@ resolveSymbol = (id)->
       q = require.resolve "geologic-patterns/assets/png/#{id}.png"
       return 'file://'+q
     else
-      return join BASE_URL, 'assets',"#{id}.png"
+      return join BASE_URL, 'assets','lithology-patterns', "#{id}.png"
   catch
     return ''
 
@@ -54,56 +60,53 @@ class LithologyColumn extends Component
     showLithology: true
     padWidth: true
     onEditInterval: null
+  symbolIndex: symbolIndex
   queryID: 'lithology'
   constructor: (props)->
     super props
-    UUID = v4()
+    @UUID = v4()
     @state = {
-      UUID
-      frameID: "#frame-#{UUID}"
-      clipID: "#clip-#{UUID}"
+      UUID: @UUID
+      frameID: "#frame-#{@UUID}"
+      clipID: "#clip-#{@UUID}"
     }
-    @coveredPattern = textures
-      .lines()
-      .size(8)
-      .stroke('rgba(0,0,0,0.3)')
-
-  componentDidMount: ->
-    {UUID} = @state
-    d3.select findDOMNode @
-      .call @coveredPattern
 
   resolveID: (d)->
     if not (d.fgdc_pattern? or d.pattern?)
       return null
     if d.fgdc_pattern?
       return "#{d.fgdc_pattern}"
-    return "#{symbolIndex[d.pattern]}"
+    return "#{@symbolIndex[d.pattern]}"
 
-  createFrame: ->
+  createFrame: (setID=true)->
     {width, height} = @props
-    {frameID} = @state
-    h "rect#{frameID}", {x:0,y:0,width,height, key: frameID}
+    frameID = null
+    if setID
+      frameID = 'frame-'+@UUID
+    h "rect", {id: frameID, x:0,y:0,width,height, key: frameID}
+
+  computeTransform: =>
+    {left, shiftY} = @props
+    return null unless left?
+    return "translate(#{left} #{shiftY})"
 
   render: ->
     {scale, visible,left, shiftY,
         width, height, divisions} = @props
     {clipID, frameID} = @state
     divisions = [] unless visible
-    transform = null
-    if left?
-      transform = "translate(#{left} #{shiftY})"
+    transform = @computeTransform()
 
     onClick = @onClick
     clipPath = "url(#{clipID})"
     h 'g.lithology-column', {transform, onClick},[
       @createDefs()
-      h 'g.lithology-inner', {clipPath}, [
+      h 'g', {className: 'lithology-inner', clipPath}, [
         @renderFacies()
         @renderLithology()
         @renderCoveredOverlay()
       ]
-      h 'use.frame', {href: frameID, fill:'transparent', key: 'frame'}
+      h 'use.frame', {xlinkHref: '#frame-'+@UUID, fill:'transparent', key: 'frame'}
       @renderEditableColumn()
     ]
 
@@ -127,20 +130,17 @@ class LithologyColumn extends Component
         patternSize...
       }, [
         h 'image', {
-          href: resolveSymbol(d)
+          xlinkHref: resolveSymbol(d)
           x:0,y:0
           patternSize...
         }
       ]
 
-    clipPath = createElement(
-      "clipPath",
-      {id: clipID.slice(1), key: clipID}, [
-        h 'use', {key: frameID, 'href': frameID}
-      ])
     h 'defs', {key: 'defs'}, [
       @createFrame()
-      clipPath
+      createElement('clipPath', {id: clipID.slice(1), key: clipID}, [
+        @createFrame(false)
+      ])
       elements...
     ]
 
@@ -159,17 +159,28 @@ class LithologyColumn extends Component
 
   renderCoveredOverlay: =>
     {showCoveredOverlay, showLithology, divisions} = @props
+    {UUID} = @state
     if not showCoveredOverlay?
       showCoveredOverlay = showLithology
     return unless showCoveredOverlay
-    h 'g.covered-overlay', {}, divisions.map (d)=>
-      return null if not d.covered
-      @createRect d, {fill: @coveredPattern.url()}
 
-  renderLithology: =>
-    return unless @props.showLithology
+    divs = divisions.map (d)=>
+      return null if not d.covered
+      @createRect d, {fill: "url(##{UUID}-covered)"}
+
+    line = h(Lines, {
+      id: "#{UUID}-covered"
+      size: 8
+      stroke: 'rgba(0,0,0,0.3)'
+    })
+
+    h 'g.covered-overlay', {}, [
+      h 'defs', [line]
+      divs...
+    ]
+
+  constructLithologyDivisions: =>
     {divisions} = @props
-    {UUID} = @state
     __ = []
     for d in divisions
       ix = __.length-1
@@ -183,8 +194,14 @@ class LithologyColumn extends Component
         __[ix].top = d.top
       else
         __.push {d..., patternID}
+    return __
 
-    h 'g.lithology', {}, __.map (d)=>
+  renderLithology: =>
+    return unless @props.showLithology
+    {UUID} = @state
+    divisions = @constructLithologyDivisions()
+
+    h 'g.lithology', {}, divisions.map (d)=>
       className = classNames({
         definite: d.definite_boundary
         covered: d.covered}, 'lithology')
@@ -193,7 +210,13 @@ class LithologyColumn extends Component
 
   renderFacies: =>
     return unless @props.showFacies
-    {divisions} = @props
+    {divisions, facies} = @props
+    faciesColorMap = {}
+    if facies?
+      # We have responsive facies!
+      for f in facies
+        faciesColorMap[f.id] = f.color
+
     __ = [{divisions[0]...}]
     for d in divisions
       ix = __.length-1
@@ -205,22 +228,30 @@ class LithologyColumn extends Component
     return null if __.length == 1
     h 'g.facies', __.map (d)=>
       className = classNames('facies', d.id)
-      @createRect d, {className, fill: d.facies_color}
+      @createRect d, {className, fill: faciesColorMap[d.facies] or d.facies_color}
 
   renderEditableColumn: =>
-    return unless @props.onEditInterval?
+    return unless @props.onEditInterval? or @props.onHoverInterval?
     {divisions, scale} = @props
-    clickHandler = (d)=> (event)=>
+    eventHandler = (fn)=>(d)=> (event)=>
       {top} = event.target.getBoundingClientRect()
       {clientY} = event
-      pxFromTop = scale(d.top)+(clientY-top)
-      height = scale.invert(pxFromTop)
-      @props.onEditInterval(d, {height, event})
+      try
+        pxFromTop = scale(d.top)+(clientY-top)
+        height = scale.invert(pxFromTop)
+      catch
+        height = null
+      fn(d, {height, event})
       event.stopPropagation()
+
+    clickHandler = eventHandler(@props.onEditInterval or ->)
+    hoverHandler = eventHandler(@props.onHoverInterval or ->)
+
     h 'g.edit-overlay', divisions.map (d)=>
       onClick = clickHandler(d)
+      onMouseOver = hoverHandler(d)
       className = classNames('edit-overlay', d.id)
-      @createRect d, {className, fill: 'transparent', onClick}
+      @createRect d, {className, fill: 'transparent', onClick, onMouseOver}
 
 class CoveredColumn extends LithologyColumn
   @defaultProps: {
@@ -269,20 +300,35 @@ class GeneralizedSectionColumn extends LithologyColumn
       return fp
 
   createFrame: ->
-    {scale, divisions} = @props
+    {scale, divisions, position, id} = @props
     {frameID} = @state
     if divisions.length == 0
       return super.createFrame()
 
-    topOf = (d)->
-      scale(d.top)
-    bottomOf = (d)->
-      scale(d.bottom)
+    [bottomOfSection, topOfSection] = scale.domain()
 
-    _ = path()
-    _.moveTo(0,bottomOf(divisions[0]))
+    topOf = (d)->
+      {top} = d
+      if top > topOfSection
+        top = topOfSection
+      scale(top)
+    bottomOf = (d)->
+      {bottom} = d
+      if bottom < bottomOfSection
+        bottom = bottomOfSection
+      scale(bottom)
+
+    filteredDivisions = divisions.filter (d)->
+      return false if d.top <= bottomOfSection
+      return false if d.bottom > topOfSection
+      return true
+
+    _ = null
     currentGrainsize = 'm'
-    for div in divisions
+    for div in filteredDivisions
+      if not _?
+        _ = path()
+        _.moveTo(0,bottomOf(div))
       if div.grainsize?
         currentGrainsize = div.grainsize
       x = @grainsizeScale(currentGrainsize)
@@ -290,7 +336,8 @@ class GeneralizedSectionColumn extends LithologyColumn
       _.lineTo x, topOf(div)
     _.lineTo 0, topOf(div)
     _.closePath()
-    h "path#{frameID}", {d: _.toString()}
+
+    h "path#{frameID}", {key: frameID, d: _.toString()}
 
 module.exports = {LithologyColumn, FaciesColumn,
                   GeneralizedSectionColumn, CoveredColumn}

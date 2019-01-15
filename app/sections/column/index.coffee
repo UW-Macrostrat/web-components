@@ -7,7 +7,6 @@ VisibilitySensor = require 'react-visibility-sensor'
 {SectionAxis} = require './axis'
 SectionImages = require './images'
 NotesColumn = require './notes'
-Measure = require('react-measure').default
 {BaseSectionComponent} = require './base'
 require './main.styl'
 {Intent} = require '@blueprintjs/core'
@@ -15,12 +14,12 @@ require './main.styl'
 {GrainsizeScale} = require './grainsize'
 {SymbolColumn} = require './symbol-column'
 {ModalEditor} = require './modal-editor'
+{SVGNamespaces} = require '../util'
 Samples = require './samples'
 {FloodingSurface, TriangleBars} = require './flooding-surface'
-h = require 'react-hyperscript'
-d3 = require 'd3'
 {LithologyColumn, GeneralizedSectionColumn,
  FaciesColumn, CoveredColumn} = require './lithology'
+{SequenceStratConsumer} = require '../sequence-strat-context'
 {db, storedProcedure, query} = require '../db'
 {dirname} = require 'path'
 update = require 'immutability-helper'
@@ -44,6 +43,7 @@ class SectionComponent extends BaseSectionComponent
     trackVisibility: true
     innerWidth: 250
     offsetTop: null
+    scrollToHeight: null
     height: 100 # Section height in meters
     lithologyWidth: 40
     logWidth: 450
@@ -55,7 +55,7 @@ class SectionComponent extends BaseSectionComponent
     editingInterval: {id: null}
     useRelativePositioning: true
     padding:
-      left: 100
+      left: 150
       top: 30
       right: 0
       bottom: 30
@@ -64,6 +64,7 @@ class SectionComponent extends BaseSectionComponent
     super props
     @state = {
       @state...
+      loaded: false
       editingInterval: {id: null}
       visible: not @props.trackVisibility
       scale: d3.scaleLinear().domain(@props.range)
@@ -87,7 +88,7 @@ class SectionComponent extends BaseSectionComponent
     outerWidth = innerWidth+(left+right)
     {padding, innerHeight, outerHeight, innerWidth, outerWidth}
 
-  render: ->
+  renderMain: ->
     {id, zoom, scrollToHeight} = @props
 
     if scrollToHeight?
@@ -184,16 +185,10 @@ class SectionComponent extends BaseSectionComponent
         className: if @props.skeletal then "skeleton" else null
       }, [
       h 'div.section-header', [h "h2", txt]
-      h Measure, {
-        bounds: true
-        onResize: @onResize
-      }, ({measureRef})=>
-        h 'div.section-outer', [
-            h 'div.section', {
-              style, ref: measureRef
-            }, innerElements
-            notesEl
-        ]
+      h 'div.section-outer', [
+          h 'div.section', {style}, innerElements
+          notesEl
+      ]
     ]
 
     return mainElement unless @props.trackVisibility
@@ -204,18 +199,37 @@ class SectionComponent extends BaseSectionComponent
 
     h VisibilitySensor, p, [mainElement]
 
+  render: ->
+    h 'div#section-pane', [
+      @renderMain()
+    ]
+
+  componentDidUpdate: ->
+    node = findDOMNode(this)
+    {scrollToHeight, id} = @props
+    {scale, loaded} = @state
+    return unless scrollToHeight?
+    return if loaded
+    scrollTop = scale(scrollToHeight)-window.innerHeight/2
+    node.scrollTop = scrollTop
+
+    Notification.show {
+      message: "Section #{id} @ #{fmt(scrollToHeight)} m"
+      intent: Intent.PRIMARY
+    }
+    @setState {loaded: true}
+
+
   log: ->
 
   onEditInterval: (interval, opts={})=>
     return unless @props.isEditable
     {id} = interval
     {height} = opts
-    console.log "Editing interval"
     @setState {editingInterval: {id, height}}
 
   onVisibilityChange: (isVisible)=>
     return if isVisible == @state.visible
-    console.log "Section visibility changed"
     @setState visible: isVisible
 
     # I'm not sure why this works but it does
@@ -276,13 +290,17 @@ class SectionComponent extends BaseSectionComponent
         __.push h FloodingSurface, {divisions, scale, zoom, id}
 
       if @props.showTriangleBars
-        __.push h TriangleBars, {divisions, scale, zoom, id, offsetLeft: -85, lineWidth: 25, parasequence: true}
+        order = @props.sequenceStratOrder
+        __.push h TriangleBars, {
+          divisions, scale, zoom, id,
+          offsetLeft: -85, lineWidth: 25, orders: [order, order-1]}
 
       if @props.showSymbols
         __.push h SymbolColumn, {scale, id, left: 215}
 
     height = outerHeight
     h "svg.overlay", {
+      SVGNamespaces...
       width: outerWidth
       height
     }, [
@@ -328,4 +346,9 @@ class SectionComponent extends BaseSectionComponent
     @setState {divisions, editingInterval: {id:null}}
 
 
-module.exports = {SectionComponent}
+SectionComponentHOC = (props)->
+  h SequenceStratConsumer, null, (value)->
+    {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
+    h SectionComponent, {showTriangleBars, showFloodingSurfaces, sequenceStratOrder, props...}
+
+module.exports = {SectionComponent: SectionComponentHOC}

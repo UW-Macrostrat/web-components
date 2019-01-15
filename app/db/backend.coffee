@@ -7,8 +7,9 @@ opts = {
   query: (e)=>
     v = queryLibrary.find (d)->
       d.sql == e.query
+    console.log e.query
     if not v?
-      console.warn "No serialization spec found matching this query.
+      console.warn "No serialization spec found matching the query `#{e.query}`.
                     This request will fail on the frontend."
 }
 
@@ -16,12 +17,16 @@ pgp = require('pg-promise')(opts)
 db = pgp('postgresql:///Naukluft')
 {helpers} = pgp
 
+queryFiles = {}
 storedProcedure = (id, opts={})->
   {baseDir} = opts
   baseDir ?= __dirname
   if not id.endsWith('.sql')
     id = join(baseDir,'sql',"#{id}.sql")
-  pgp.QueryFile(id)
+  # Don't hit the filesystem repeatedly
+  # in a session
+  queryFiles[id] ?= pgp.QueryFile(id)
+  return queryFiles[id]
 
 queryLibrary = []
 
@@ -34,7 +39,7 @@ class SerializableQuery
     @hash = getHash @id, @values
     queryLibrary.push(@)
   getData: -> db.query @sql
-  filename: -> query.hash+'.json'
+  filename: -> @id+'_'+@hash+'.json'
 
 baseDir = dirname require.resolve "../lateral-variation"
 lateralVariationQueries = [
@@ -48,12 +53,18 @@ for q in lateralVariationQueries
 baseDir = dirname require.resolve "../sections/summary-sections"
 summarySectionQueries = [
   'lithostratigraphy-surface'
+  'lithostratigraphy-names'
 ]
 for q in summarySectionQueries
   new SerializableQuery(q, null, {baseDir})
 
+baseDir = dirname require.resolve "../map-viewer/legend"
+new SerializableQuery('unit-data', null, {baseDir})
+
+
 baseDir = dirname require.resolve "../sections"
 new SerializableQuery('sections', null, {baseDir})
+new SerializableQuery('section-surface', null, {baseDir})
 new SerializableQuery('carbon-isotopes', null, {baseDir})
 
 sectionLabels = null
@@ -65,6 +76,7 @@ sectionQueries =  [
   'section-symbols'
   'lithology'
   'log-notes'
+  'photo'
 ]
 
 createSerializedQueries = ->

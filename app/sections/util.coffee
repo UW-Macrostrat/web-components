@@ -22,4 +22,24 @@ class SectionNavigationControl extends Component
       children
     ]
 
-module.exports = {SectionNavigationControl}
+class KnownSizeComponent extends Component
+  constructor: (props)->
+    super(props)
+    Object.defineProperty(@,'width', {get: @__width})
+    Object.defineProperty(@,'height', {get: @__height})
+
+  @__width: ->
+    return null
+  @__height: ->
+    return null
+
+SVGNamespaces = {
+  xmlns: "http://www.w3.org/2000/svg"
+  xmlnsXlink: "http://www.w3.org/1999/xlink"
+}
+
+module.exports = {
+  SectionNavigationControl
+  SVGNamespaces
+  KnownSizeComponent
+}
