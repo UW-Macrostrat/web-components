@@ -32,6 +32,7 @@ symbolIndex = {
 }
 
 resolveSymbol = (id)->
+  return null if not id?
   try
     if PLATFORM == ELECTRON
       q = join process.env.PROJECT_DIR, "deps/geologic-patterns/assets/png/#{id}.png"

@@ -3,13 +3,17 @@
 import { app, BrowserWindow } from 'electron'
 import * as path from 'path'
 import { format as formatUrl } from 'url'
+import installExtension, {REACT_DEVELOPER_TOOLS} from 'electron-devtools-installer'
+
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
 
 // global reference to mainWindow (necessary to prevent window from being garbage collected)
 let mainWindow
 
-function createMainWindow() {
+async function createMainWindow() {
+  await installExtension(REACT_DEVELOPER_TOOLS);
+
   const window = new BrowserWindow({webPreferences: {webSecurity: false}})
 
   if (isDevelopment) {
@@ -57,6 +61,6 @@ app.on('activate', () => {
 })
 
 // create main BrowserWindow when electron is ready
-app.on('ready', () => {
-  mainWindow = createMainWindow()
+app.on('ready', async () => {
+  mainWindow = await createMainWindow()
 })
