@@ -24,7 +24,7 @@ class SectionImages extends Component
     else
       children = @props.imageFiles.map (im,i)=>
         h "img",
-          src: im.filename
+          src: "file://"+im.filename
           width: im.width*zs
           height: im.height*zs
           style: {
