@@ -10,7 +10,7 @@ import update from "immutability-helper"
 import {SectionNavigationControl} from "./util"
 import LocalStorage from "./storage"
 import {db, storedProcedure, query} from "./db"
-import d3 from "d3"
+import * as d3 from "d3"
 import classNames from "classnames"
 import {SwatchesPicker} from "react-color"
 import {Popover} from "@blueprintjs/core"
@@ -135,4 +135,3 @@ class FaciesDescriptionSmall extends Component
     ]
 
 export {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext, FaciesSwatch}
-

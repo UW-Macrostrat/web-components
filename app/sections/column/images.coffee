@@ -1,6 +1,6 @@
 import {Component, createElement} from "react"
 import {findDOMNode} from "react-dom"
-import d3 from "d3"
+import * as d3 from "d3"
 import h from "react-hyperscript"
 
 class SectionImages extends Component

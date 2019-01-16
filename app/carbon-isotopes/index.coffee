@@ -1,7 +1,7 @@
 import {findDOMNode} from "react-dom"
 import {Component} from "react"
 import "./main.styl"
-import d3 from "d3"
+import * as d3 from "d3"
 import "d3-selection-multi"
 import "d3-jetpack"
 import "d3-scale-chromatic"
@@ -165,4 +165,3 @@ class CarbonIsotopesPage extends Component
             r: 2
 
 export default CarbonIsotopesPage
-

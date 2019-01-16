@@ -1,5 +1,5 @@
 import {query} from "../db"
-import d3 from "d3"
+import * as d3 from "d3"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
 import {Notification} from "../../notify"
@@ -145,4 +145,3 @@ class TriangleBars extends FloodingSurface
     ]
 
 export {FloodingSurface, TriangleBars}
-

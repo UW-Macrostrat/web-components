@@ -1,4 +1,4 @@
-import d3 from "d3"
+import * as d3 from "d3"
 import "d3-selection-multi"
 import Promise from "bluebird"
 import chroma from "chroma-js"
@@ -272,4 +272,3 @@ export default (el,cb)->
     .spread (heights, sections, surfaces)->
       createVisualization(el, heights, sections, surfaces)
     .then -> cb()
-

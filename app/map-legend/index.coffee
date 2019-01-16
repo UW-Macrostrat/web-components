@@ -1,4 +1,4 @@
-import d3 from "d3"
+import * as d3 from "d3"
 import "d3-selection-multi"
 import {stratify} from "d3-hierarchy"
 import style from "./main.styl"

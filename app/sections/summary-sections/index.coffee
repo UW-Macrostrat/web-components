@@ -8,7 +8,7 @@ import update from "immutability-helper"
 import PropTypes from "prop-types"
 import {debounce} from "underscore"
 Measure = require('react-measure').default
-import d3 from "d3"
+import * as d3 from "d3"
 
 import {SummarySectionsSettings} from "./settings"
 import LocalStorage from "../storage"

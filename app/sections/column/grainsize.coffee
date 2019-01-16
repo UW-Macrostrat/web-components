@@ -1,4 +1,4 @@
-import d3 from "d3"
+import * as d3 from "d3"
 import "d3-selection-multi"
 import {Component, createElement} from "react"
 import {findDOMNode} from "react-dom"

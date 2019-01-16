@@ -1,7 +1,7 @@
 import {Component, createContext} from "react"
 import h from "react-hyperscript"
 import classNames from "classnames"
-import d3 from "d3"
+import * as d3 from "d3"
 import {SVGNamespaces} from "../util"
 import {Notification} from "../../notify"
 import {SectionOptionsContext} from "./options"

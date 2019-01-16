@@ -1,5 +1,5 @@
 import {findDOMNode} from "react-dom"
-import d3 from "d3"
+import * as d3 from "d3"
 import "d3-selection-multi"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"

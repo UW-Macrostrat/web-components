@@ -7,7 +7,7 @@ import {v4} from "uuid"
 import classNames from "classnames"
 import {createGrainsizeScale} from "./grainsize"
 import {path} from "d3-path"
-import d3 from "d3"
+import * as d3 from "d3"
 import {PlatformContext} from "../../platform"
 
 # Malformed es6 module

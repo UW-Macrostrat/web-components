@@ -5,7 +5,7 @@ import {Icon} from "react-fa"
 import {select} from "d3-selection"
 import PropTypes from "prop-types"
 import {join} from "path"
-import d3 from "d3"
+import * as d3 from "d3"
 import update from "immutability-helper"
 Measure = require('react-measure').default
 import {debounce} from "underscore"
