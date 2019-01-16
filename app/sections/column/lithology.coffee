@@ -1,14 +1,14 @@
-{select} = require 'd3-selection'
-{Component, createElement} = require 'react'
-{findDOMNode} = require 'react-dom'
-h = require 'react-hyperscript'
-{join} = require 'path'
-{v4} = require 'uuid'
-classNames = require 'classnames'
-{createGrainsizeScale} = require './grainsize'
-{path} = require 'd3-path'
-d3 = require 'd3'
-{PlatformContext} = require '../../platform'
+import {select} from "d3-selection"
+import {Component, createElement} from "react"
+import {findDOMNode} from "react-dom"
+import h from "react-hyperscript"
+import {join} from "path"
+import {v4} from "uuid"
+import classNames from "classnames"
+import {createGrainsizeScale} from "./grainsize"
+import {path} from "d3-path"
+import * as d3 from "d3"
+import {PlatformContext} from "../../platform"
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -341,5 +341,5 @@ class GeneralizedSectionColumn extends LithologyColumn
 
     h "path#{frameID}", {key: frameID, d: _.toString()}
 
-module.exports = {LithologyColumn, FaciesColumn,
+export {LithologyColumn, FaciesColumn,
                   GeneralizedSectionColumn, CoveredColumn}

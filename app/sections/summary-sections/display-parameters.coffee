@@ -40,4 +40,4 @@ groupOrder = [
 
 stackGroups = ['BD','E','AC','HG','IF']
 
-module.exports = {stackGroups, groupOrder, sectionOffsets, tectonicSectionOffsets}
+export {stackGroups, groupOrder, sectionOffsets, tectonicSectionOffsets}

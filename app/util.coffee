@@ -1,5 +1,5 @@
-{safeLoad} = require 'js-yaml'
-Promise = require 'bluebird'
+import {safeLoad} from "js-yaml"
+import Promise from "bluebird"
 
 getJSON = (url)->
   if window? and PLATFORM != ELECTRON
@@ -36,4 +36,4 @@ getYAML = (url)->
     data = safeLoad readFileSync url
     return Promise.resolve(data)
 
-module.exports = {getJSON, getYAML}
+export {getJSON, getYAML}

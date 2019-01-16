@@ -1,8 +1,8 @@
-{findDOMNode} = require 'react-dom'
-{Component} = require 'react'
-d3 = require 'd3'
-h = require 'react-hyperscript'
-createVisualization = require '.'
+import {findDOMNode} from "react-dom"
+import {Component} from "react"
+import * as d3 from "d3"
+import h from "react-hyperscript"
+import createVisualization from "."
 
 class LateralVariation extends Component
   render: ->
@@ -11,6 +11,4 @@ class LateralVariation extends Component
     node = findDOMNode @
     createVisualization(node)
 
-module.exports = LateralVariation
-
-
+export default LateralVariation

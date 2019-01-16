@@ -1,5 +1,5 @@
-{join} = require 'path'
-{createHash} = require 'crypto'
+import {join} from "path"
+import {createHash} from "crypto"
 
 # Queries have to have unique identifiers and combinations of parameters
 
@@ -12,4 +12,4 @@ getHash = (id,values)->
   md5sum = createHash('md5')
   md5sum.update(uid).digest('hex')
 
-module.exports = { getUID, getHash }
+export { getUID, getHash }

@@ -1,18 +1,18 @@
-{findDOMNode} = require 'react-dom'
-{Component, createElement} = require 'react'
-{Dialog, Button, Intent, ButtonGroup, Alert, Slider} = require '@blueprintjs/core'
-{FaciesDescriptionSmall, FaciesContext} = require '../facies-descriptions'
-{PickerControl} = require '../settings'
-Select = require('react-select').default
-require 'react-select/dist/react-select.css'
+import {findDOMNode} from "react-dom"
+import {Component, createElement} from "react"
+import {Dialog, Button, Intent, ButtonGroup, Alert, Slider} from "@blueprintjs/core"
+import {FaciesDescriptionSmall, FaciesContext} from "../facies-descriptions"
+import {PickerControl} from "../settings"
+import Select from 'react-select'
+import "react-select/dist/react-select.css"
 
-{grainSizes} = require './grainsize'
-h = require 'react-hyperscript'
-d3 = require 'd3'
-{db, storedProcedure, query} = require '../db'
+import {grainSizes} from "./grainsize"
+import h from "react-hyperscript"
+import * as d3 from "d3"
+import {db, storedProcedure, query} from "../db"
 fmt = d3.format('.1f')
 
-{dirname} = require 'path'
+import {dirname} from "path"
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
 try
@@ -271,4 +271,4 @@ class IntervalEditor extends ModalEditor
     @props.onUpdate()
 
 
-module.exports = {ModalEditor, IntervalEditor}
+export {ModalEditor, IntervalEditor}

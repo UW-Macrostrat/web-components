@@ -1,19 +1,17 @@
-{Component, createContext} = require 'react'
-require './main.styl'
-styles = require './section-index.styl'
-h = require 'react-hyperscript'
-{Route, Switch,withRouter} = require 'react-router-dom'
-{NavLink} = require '../nav'
-{Icon} = require 'react-fa'
-{SectionDataProvider, SectionConsumer} = require './section-data'
-SectionPage = require './single-section'
-{SummarySections} = require './summary-sections'
-{GeneralizedSections} = require './generalized-sections'
-{SectionNavigationControl} = require './util'
-{FaciesDescriptionPage} = require './facies-descriptions'
-{RegionalCrossSectionPage} = require './regional-cross-section'
-
-{nest} = require 'd3'
+import {Component, createContext} from "react"
+import "./main.styl"
+import styles from "./section-index.styl"
+import h from "react-hyperscript"
+import {Route, Switch,withRouter} from "react-router-dom"
+import {NavLink} from "../nav"
+import {Icon} from "react-fa"
+import {SectionDataProvider, SectionConsumer} from "./section-data"
+import SectionPage from "./single-section"
+import {SummarySections} from "./summary-sections"
+import {GeneralizedSections} from "./generalized-sections"
+import {SectionNavigationControl} from "./util"
+import {FaciesDescriptionPage} from "./facies-descriptions"
+import {nest} from "d3"
 
 createSectionLink = (d, base)->
   base ?= "sections/"
@@ -133,4 +131,4 @@ class SectionIndex extends Component
       ]
     ]
 
-module.exports = {SectionIndex, SectionDataProvider}
+export {SectionIndex, SectionDataProvider}

@@ -1,8 +1,9 @@
-{Component, createContext} = require 'react'
-h = require 'react-hyperscript'
-{join, resolve} = require 'path'
-LocalStorage = require './sections/storage'
-update = require 'immutability-helper'
+import {Component, createContext} from "react"
+import h from "react-hyperscript"
+import {join, resolve} from "path"
+import LocalStorage from "./sections/storage"
+import update from "immutability-helper"
+
 ## Set whether we are on the backend or frontend
 global.ELECTRON = 'electron'
 global.WEB = 'web'
@@ -10,7 +11,6 @@ global.PLATFORM = ELECTRON
 global.SERIALIZED_QUERIES = false
 try
   require 'electron'
-  {resolve, join} = require 'path'
   global.BASE_DIR = resolve join(__dirname,'..')
 catch
   global.PLATFORM = WEB
@@ -106,4 +106,4 @@ class PlatformProvider extends Component
 
 PlatformConsumer = PlatformContext.Consumer
 
-module.exports = {PlatformContext, Platform, PlatformProvider, PlatformConsumer}
+export {PlatformContext, Platform, PlatformProvider, PlatformConsumer}

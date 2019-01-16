@@ -1,8 +1,7 @@
-{createContext, Component} = require 'react'
-h = require 'react-hyperscript'
-update = require 'immutability-helper'
-
-LocalStorage = require './storage'
+import {createContext, Component} from "react"
+import h from "react-hyperscript"
+import update from "immutability-helper"
+import LocalStorage from "./storage"
 
 SequenceStratContext = createContext({})
 
@@ -37,4 +36,4 @@ class SequenceStratProvider extends Component
 
 SequenceStratConsumer = SequenceStratContext.Consumer
 
-module.exports = {SequenceStratProvider, SequenceStratConsumer}
+export {SequenceStratProvider, SequenceStratConsumer}

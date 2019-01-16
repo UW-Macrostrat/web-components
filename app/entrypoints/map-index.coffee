@@ -1,10 +1,10 @@
-{Component, createElement} = require 'react'
-{render} = require 'react-dom'
-h = require 'react-hyperscript'
+import {Component, createElement} from "react"
+import {render} from "react-dom"
+import h from "react-hyperscript"
 
 global.WEB_MODE=true
-{PlatformContext} = require '../platform'
-{MapView} = require '../map-viewer'
+import {PlatformContext} from "../platform"
+import {MapView} from "../map-viewer"
 
 class App extends Component
   constructor: ->
