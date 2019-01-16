@@ -49,7 +49,7 @@ __divisionSize = (d)->
   return [bottom, top]
 
 class LithologyColumn extends Component
-  @defaultProps:
+  @defaultProps: {
     width: 100
     # Should align exactly with centerline of stroke
     shiftY: 0.5
@@ -61,6 +61,7 @@ class LithologyColumn extends Component
     showLithology: true
     padWidth: true
     onEditInterval: null
+  }
   symbolIndex: symbolIndex
   queryID: 'lithology'
   constructor: (props)->
