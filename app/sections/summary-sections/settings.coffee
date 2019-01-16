@@ -1,7 +1,7 @@
-{SettingsPanel} = require '../settings'
-{FaciesDescriptionSmall} = require '../facies-descriptions'
-{Button, Silder} = require "@blueprintjs/core"
-h = require 'react-hyperscript'
+import {SettingsPanel} from "../settings"
+import {FaciesDescriptionSmall} from "../facies-descriptions"
+import {Button, Silder} from "@blueprintjs/core"
+import h from "react-hyperscript"
 
 class SummarySectionsSettings extends SettingsPanel
   @defaultProps: {
@@ -40,4 +40,4 @@ class GeneralizedSectionsSettings extends SettingsPanel
       h Button, {onClick: @props.exportSVG}, 'Export SVG'
     ]
 
-module.exports = {SummarySectionsSettings, GeneralizedSectionsSettings}
+export {SummarySectionsSettings, GeneralizedSectionsSettings}

@@ -1,11 +1,13 @@
-{Component, createElement} = require 'react'
-{findDOMNode} = require 'react-dom'
-h = require 'react-hyperscript'
-d3 = require 'd3'
+import {Component, createElement} from "react"
+import {findDOMNode} from "react-dom"
+import h from "react-hyperscript"
+import {select} from "d3-selection"
+import {scaleIdentity} from "d3-scale"
+import {axisLeft} from 'd3-axis'
 
 class SectionAxis extends Component
   @defaultProps: {
-    scale: d3.scaleIdentity()
+    scale: scaleIdentity()
     ticks: 4
   }
   render: ->
@@ -14,10 +16,10 @@ class SectionAxis extends Component
     @yAxis
       .scale @props.scale
       .ticks @props.ticks
-    d3.select findDOMNode @
+    select findDOMNode @
       .call @yAxis
   componentDidMount: ->
-    @yAxis = d3.axisLeft()
+    @yAxis = axisLeft()
     @componentDidUpdate()
 
-module.exports = {SectionAxis}
+export {SectionAxis}

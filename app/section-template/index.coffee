@@ -1,4 +1,4 @@
-{Component} = require 'react'
+import {Component} from "react"
 
 class SectionTemplate extends Component
   render: ->

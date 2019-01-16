@@ -1,8 +1,8 @@
-{Component} = require 'react'
-h = require 'react-hyperscript'
-classNames = require 'classnames'
-{SymbolLegend} = require '../column/symbol-column'
-{FaciesDescriptionSmall, FaciesContext, FaciesSwatch} = require '../facies-descriptions'
+import {Component} from "react"
+import h from "react-hyperscript"
+import classNames from "classnames"
+import {SymbolLegend} from "../column/symbol-column"
+import {FaciesDescriptionSmall, FaciesContext, FaciesSwatch} from "../facies-descriptions"
 
 class FaciesLegend extends Component
   @defaultProps: {
@@ -73,4 +73,4 @@ class Legend extends Component
         h FaciesLegend, props
     ]
 
-module.exports = {Legend}
+export {Legend}

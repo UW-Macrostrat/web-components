@@ -1,4 +1,4 @@
-{createContext} = require 'react'
+import {createContext} from "react"
 
 defaultSectionOptions = {
   showFacies: true
@@ -18,4 +18,4 @@ SectionOptionsContext = createContext {
   }
 }
 
-module.exports = {SectionOptionsContext, defaultSectionOptions}
+export {SectionOptionsContext, defaultSectionOptions}

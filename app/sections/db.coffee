@@ -1,6 +1,10 @@
-{db, storedProcedure, query} = require '../db'
+import {db, storedProcedure, query} from "../db"
 baseDir = __dirname
 newQuery = (id, values)->
   query(id,values, {baseDir: __dirname})
 
-module.exports = {db,storedProcedure,query: newQuery}
+export {
+  db,
+  storedProcedure,
+  newQuery as query
+}

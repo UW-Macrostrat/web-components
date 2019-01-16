@@ -1,7 +1,7 @@
-{Component} = require 'react'
-h = require 'react-hyperscript'
-{NavLink, BackLink} = require '../nav'
-{Icon} = require 'react-fa'
+import {Component} from "react"
+import h from "react-hyperscript"
+import {NavLink, BackLink} from "../nav"
+import {Icon} from "react-fa"
 
 class SectionNavigationControl extends Component
   render: ->
@@ -38,7 +38,7 @@ SVGNamespaces = {
   xmlnsXlink: "http://www.w3.org/1999/xlink"
 }
 
-module.exports = {
+export {
   SectionNavigationControl
   SVGNamespaces
   KnownSizeComponent

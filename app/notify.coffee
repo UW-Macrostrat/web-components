@@ -1,5 +1,5 @@
-{Position, Toaster} = require '@blueprintjs/core'
+import {Position, Toaster} from "@blueprintjs/core"
 
 Notification = Toaster.create()
 
-module.exports = {Notification}
+export {Notification}

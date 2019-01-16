@@ -1,11 +1,11 @@
-{Component, createContext} = require 'react'
-h = require 'react-hyperscript'
-classNames = require 'classnames'
-d3 = require 'd3'
-{SVGNamespaces} = require '../util'
-{Notification} = require '../../notify'
-{SectionOptionsContext} = require './options'
-PropTypes = require 'prop-types'
+import {Component, createContext} from "react"
+import h from "react-hyperscript"
+import classNames from "classnames"
+import * as d3 from "d3"
+import {SVGNamespaces} from "../util"
+import {Notification} from "../../notify"
+import {SectionOptionsContext} from "./options"
+import PropTypes from "prop-types"
 
 sectionSurfaceProps = (surface)->
     {surface_type, surface_order} = surface
@@ -256,9 +256,9 @@ class SectionLinkHOC extends Component
     h SectionOptionsContext.Consumer, null, (sectionOptions)=>
       h SectionLinkOverlay, {sectionOptions, @props...}
 
-module.exports = {
-  SectionLinkOverlay: SectionLinkHOC
-  LinkOverlayBase: SectionLinkOverlay
+export {
+  SectionLinkHOC as SectionLinkOverlay
+  SectionLinkOverlay as LinkOverlayBase
   sectionSurfaceProps
 }
 

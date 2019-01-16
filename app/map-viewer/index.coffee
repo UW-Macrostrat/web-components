@@ -1,13 +1,13 @@
-require './main.styl'
-React = require 'react'
-ReactDOM = require 'react-dom'
-mgl = require 'mapbox-gl/dist/mapbox-gl'
-h = require 'react-hyperscript'
-{LegendPanel} = require './legend/index.coffee'
-{MapNavigationControl} = require './nav'
-require 'mapbox-gl/dist/mapbox-gl.css'
+import "./main.styl"
+import React from "react"
+import ReactDOM from "react-dom"
+import mgl from "mapbox-gl/dist/mapbox-gl"
+import h from "react-hyperscript"
+import {LegendPanel} from "./legend/index.coffee"
+import {MapNavigationControl} from "./nav"
+import "mapbox-gl/dist/mapbox-gl.css"
 # Maybe this should go in main thread
-path = require 'path'
+import path from "path"
 
 class MapPanel extends React.Component
   render: -> h 'div', {id: 'map-container'}
@@ -58,4 +58,4 @@ class MapView extends React.Component
       h LegendPanel, {isActive: @state.legendIsActive}
     ]
 
-module.exports = {MapView}
+export {MapView}

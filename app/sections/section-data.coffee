@@ -1,12 +1,11 @@
-{query} = require '../db'
-{getJSON} = require '../util'
-{join} = require 'path'
-Promise = require 'bluebird'
-{Component, createContext} = require 'react'
-{db, query, storedProcedure} = require './db'
-{FaciesContext} = require './facies-descriptions'
-{SequenceStratProvider} = require './sequence-strat-context'
-h = require 'react-hyperscript'
+import {getJSON} from "../util"
+import {join} from "path"
+import Promise from "bluebird"
+import {Component, createContext} from "react"
+import {db, query, storedProcedure} from "./db"
+import {FaciesContext} from "./facies-descriptions"
+import {SequenceStratProvider} from "./sequence-strat-context"
+import h from "react-hyperscript"
 
 sectionFilename = (fn)->
   if PLATFORM == ELECTRON
@@ -87,4 +86,4 @@ class SectionDataProvider extends Component
 
 SectionConsumer = SectionContext.Consumer
 
-module.exports = { getSectionData, SectionDataProvider, SectionConsumer }
+export { getSectionData, SectionDataProvider, SectionConsumer }

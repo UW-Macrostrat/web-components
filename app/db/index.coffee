@@ -1,7 +1,7 @@
-{join} = require 'path'
-Promise = require 'bluebird'
-{getUID, getHash} = require './util'
-{getJSON} = require '../util'
+import {join} from "path"
+import Promise from "bluebird"
+import {getUID, getHash} from "./util"
+import {getJSON} from "../util"
 
 if PLATFORM == ELECTRON
   {db, storedProcedure, serializableQueries} = require './backend'
@@ -36,7 +36,7 @@ query = (id, values, opts={})->
   data = getJSON "#{QUERY_DIRECTORY}/#{fn}"
   return data
 
-module.exports = {
+export {
   query
   storedProcedure
   db

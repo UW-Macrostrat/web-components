@@ -1,7 +1,7 @@
-{Component} = require 'react'
-h = require 'react-hyperscript'
-{CSSTransition} = require 'react-transition-group'
-{MapLegendList} = require './inner'
+import {Component} from "react"
+import h from "react-hyperscript"
+import {CSSTransition} from "react-transition-group"
+import {MapLegendList} from "./inner"
 
 class LegendPanel extends Component
   render: ->
@@ -25,4 +25,4 @@ class LegendPanel extends Component
       ]
     ]
 
-module.exports = {LegendPanel}
+export {LegendPanel}

@@ -1,23 +1,23 @@
-{findDOMNode} = require 'react-dom'
-d3 = require 'd3'
-require 'd3-selection-multi'
-{Component, createElement, createRef} = require 'react'
-h = require 'react-hyperscript'
-Measure = require('react-measure').default
-{SectionAxis} = require '../column/axis'
-{BaseSectionComponent} = require '../column/base'
-{PlatformConsumer} = require '../../platform'
-{SymbolColumn} = require '../column/symbol-column'
-{FloodingSurface, TriangleBars} = require '../column/flooding-surface'
-{IntervalEditor} = require '../column/modal-editor'
-{LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
-{Popover, Position} = require '@blueprintjs/core'
-{withRouter} = require 'react-router-dom'
-{Notification} = require '../../notify'
-{FaciesContext} = require '../facies-descriptions'
-{SVGNamespaces} = require '../util'
-{SequenceStratConsumer} = require '../sequence-strat-context'
-{db, storedProcedure, query} = require '../db'
+import {findDOMNode} from "react-dom"
+import * as d3 from "d3"
+import "d3-selection-multi"
+import {Component, createElement, createRef} from "react"
+import h from "react-hyperscript"
+import Measure from 'react-measure'
+import {SectionAxis} from "../column/axis"
+import {BaseSectionComponent} from "../column/base"
+import {PlatformConsumer} from "../../platform"
+import {SymbolColumn} from "../column/symbol-column"
+import {FloodingSurface, TriangleBars} from "../column/flooding-surface"
+import {IntervalEditor} from "../column/modal-editor"
+import {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} from "../column/lithology"
+import {Popover, Position} from "@blueprintjs/core"
+import {withRouter} from "react-router-dom"
+import {Notification} from "../../notify"
+import {FaciesContext} from "../facies-descriptions"
+import {SVGNamespaces} from "../util"
+import {SequenceStratConsumer} from "../sequence-strat-context"
+import {db, storedProcedure, query} from "../db"
 
 fmt = d3.format('.1f')
 
@@ -301,5 +301,5 @@ SVGSectionComponent = (props)->
         sequenceStratOrder, inEditMode, props...
       }
 
-module.exports = {BaseSVGSectionComponent, SVGSectionComponent}
+export {BaseSVGSectionComponent, SVGSectionComponent}
 

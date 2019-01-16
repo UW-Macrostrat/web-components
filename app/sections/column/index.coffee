@@ -1,28 +1,30 @@
-{findDOMNode} = require 'react-dom'
-d3 = require 'd3'
-require 'd3-selection-multi'
-{Component, createElement} = require 'react'
-h = require 'react-hyperscript'
-VisibilitySensor = require 'react-visibility-sensor'
-{SectionAxis} = require './axis'
-SectionImages = require './images'
-NotesColumn = require './notes'
-{BaseSectionComponent} = require './base'
-require './main.styl'
-{Intent} = require '@blueprintjs/core'
-{Notification} = require '../../notify'
-{GrainsizeScale} = require './grainsize'
-{SymbolColumn} = require './symbol-column'
-{ModalEditor} = require './modal-editor'
-{SVGNamespaces} = require '../util'
-Samples = require './samples'
-{FloodingSurface, TriangleBars} = require './flooding-surface'
-{LithologyColumn, GeneralizedSectionColumn,
- FaciesColumn, CoveredColumn} = require './lithology'
-{SequenceStratConsumer} = require '../sequence-strat-context'
-{db, storedProcedure, query} = require '../db'
-{dirname} = require 'path'
-update = require 'immutability-helper'
+import {findDOMNode} from "react-dom"
+import * as d3 from "d3"
+import "d3-selection-multi"
+import {Component, createElement} from "react"
+import h from "react-hyperscript"
+import VisibilitySensor from "react-visibility-sensor"
+import {SectionAxis} from "./axis"
+import SectionImages from "./images"
+import NotesColumn from "./notes"
+import {BaseSectionComponent} from "./base"
+import "./main.styl"
+import {Intent} from "@blueprintjs/core"
+import {Notification} from "../../notify"
+import {GrainsizeScale} from "./grainsize"
+import {SymbolColumn} from "./symbol-column"
+import {ModalEditor} from "./modal-editor"
+import {SVGNamespaces} from "../util"
+import Samples from "./samples"
+import {FloodingSurface, TriangleBars} from "./flooding-surface"
+import {
+ LithologyColumn, GeneralizedSectionColumn,
+ FaciesColumn, CoveredColumn
+} from "./lithology"
+import {SequenceStratConsumer} from "../sequence-strat-context"
+import {db, storedProcedure, query} from "../db"
+import {dirname} from "path"
+import update from "immutability-helper"
 
 fmt = d3.format(".1f")
 baseDir = dirname require.resolve '..'
@@ -351,4 +353,4 @@ SectionComponentHOC = (props)->
     {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
     h SectionComponent, {showTriangleBars, showFloodingSurfaces, sequenceStratOrder, props...}
 
-module.exports = {SectionComponent: SectionComponentHOC}
+export {SectionComponentHOC as SectionComponent}
