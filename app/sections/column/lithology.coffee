@@ -34,7 +34,7 @@ symbolIndex = {
 resolveSymbol = (id)->
   try
     if PLATFORM == ELECTRON
-      q = require.resolve "geologic-patterns/assets/png/#{id}.png"
+      q = join process.env.PROJECT_DIR, "deps/geologic-patterns/assets/png/#{id}.png"
       return 'file://'+q
     else
       return join BASE_URL, 'assets','lithology-patterns', "#{id}.png"
