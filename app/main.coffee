@@ -1,3 +1,5 @@
+require '@babel/polyfill'
+
 {PlatformContext, PlatformProvider} = require './platform'
 React = require 'react'
 ReactDOM = require 'react-dom'
@@ -94,4 +96,4 @@ Home = ->
     ]
   ]
 
-ReactDOM.render(React.createElement(Router),document.querySelector('#main'))
+ReactDOM.render(React.createElement(Router),document.querySelector('#app'))

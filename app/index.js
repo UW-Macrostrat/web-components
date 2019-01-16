@@ -1,1 +1,1 @@
-import "./main.coffee";
+import './main.coffee';
