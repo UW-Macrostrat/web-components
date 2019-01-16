@@ -1,4 +1,4 @@
-d3 = require 'd3'
+import d3 from "d3"
 module.exports = (el, cb)->
   d3.select el
     .append 'div'

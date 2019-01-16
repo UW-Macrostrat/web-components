@@ -1,11 +1,11 @@
-{findDOMNode} = require 'react-dom'
-d3 = require 'd3'
-require 'd3-selection-multi'
-{Component, createElement} = require 'react'
-h = require 'react-hyperscript'
-require './main.styl'
-{query} = require '../db'
-{KnownSizeComponent} = require '../util'
+import {findDOMNode} from "react-dom"
+import d3 from "d3"
+import "d3-selection-multi"
+import {Component, createElement} from "react"
+import h from "react-hyperscript"
+import "./main.styl"
+import {query} from "../db"
+import {KnownSizeComponent} from "../util"
 
 class BaseSectionComponent extends KnownSizeComponent
   @defaultProps: {
@@ -53,4 +53,4 @@ class BaseSectionComponent extends KnownSizeComponent
 
     el.style.marginTop = "#{desiredPosition-offs}px"
 
-module.exports = {BaseSectionComponent}
+export {BaseSectionComponent}

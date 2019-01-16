@@ -1,13 +1,13 @@
-d3 = require 'd3'
-require 'd3-selection-multi'
-{stratify} = require 'd3-hierarchy'
-{query, storedProcedure} = require '../../db'
-classNames = require 'classnames'
-{Component, createContext} = require 'react'
-{findDOMNode} = require 'react-dom'
-require 'd3-jetpack'
-h = require 'react-hyperscript'
-{join} = require 'path'
+import d3 from "d3"
+import "d3-selection-multi"
+import {stratify} from "d3-hierarchy"
+import {query, storedProcedure} from "../../db"
+import classNames from "classnames"
+import {Component, createContext} from "react"
+import {findDOMNode} from "react-dom"
+import "d3-jetpack"
+import h from "react-hyperscript"
+import {join} from "path"
 
 createRow = (data)->
   console.log data
@@ -248,4 +248,4 @@ class MapLegendList extends Component
 
 
 
-module.exports = {MapLegendList}
+export {MapLegendList}

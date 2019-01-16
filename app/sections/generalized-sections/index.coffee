@@ -1,34 +1,34 @@
-{findDOMNode} = require 'react-dom'
-{Component, createContext} = require 'react'
-h = require 'react-hyperscript'
-{Icon} = require 'react-fa'
-{select} = require 'd3-selection'
-PropTypes = require 'prop-types'
-{join} = require 'path'
-d3 = require 'd3'
-update = require 'immutability-helper'
+import {findDOMNode} from "react-dom"
+import {Component, createContext} from "react"
+import h from "react-hyperscript"
+import {Icon} from "react-fa"
+import {select} from "d3-selection"
+import PropTypes from "prop-types"
+import {join} from "path"
+import d3 from "d3"
+import update from "immutability-helper"
 Measure = require('react-measure').default
-{debounce} = require 'underscore'
+import {debounce} from "underscore"
 
-{SummarySectionsBase} = require '../summary-sections'
-{GeneralizedSectionsSettings} = require '../summary-sections/settings'
-LocalStorage = require '../storage'
-{getSectionData} = require '../section-data'
-{IsotopesComponent} = require '../summary-sections/carbon-isotopes'
-{GeneralizedSVGSection} = require './column'
-{SectionNavigationControl} = require '../util'
-{LinkOverlayBase} = require '../summary-sections/link-overlay'
-{LithostratKey} = require '../summary-sections/lithostrat-key'
-{FaciesDescriptionSmall} = require '../facies-descriptions'
-{Legend} = require '../summary-sections/legend'
-{SectionOptionsContext, defaultSectionOptions} = require '../summary-sections/options'
-require '../summary-sections/main.styl'
-{stackGroups, groupOrder, sectionOffsets} = require '../summary-sections/display-parameters'
-{NavLink} = require '../../nav'
-{SequenceStratConsumer} = require '../sequence-strat-context'
-{GeneralizedSectionPositioner} = require './positioner'
-{query} = require '../../db'
-require '../main.styl'
+import {SummarySectionsBase} from "../summary-sections"
+import {GeneralizedSectionsSettings} from "../summary-sections/settings"
+import LocalStorage from "../storage"
+import {getSectionData} from "../section-data"
+import {IsotopesComponent} from "../summary-sections/carbon-isotopes"
+import {GeneralizedSVGSection} from "./column"
+import {SectionNavigationControl} from "../util"
+import {LinkOverlayBase} from "../summary-sections/link-overlay"
+import {LithostratKey} from "../summary-sections/lithostrat-key"
+import {FaciesDescriptionSmall} from "../facies-descriptions"
+import {Legend} from "../summary-sections/legend"
+import {SectionOptionsContext, defaultSectionOptions} from "../summary-sections/options"
+import "../summary-sections/main.styl"
+import {stackGroups, groupOrder, sectionOffsets} from "../summary-sections/display-parameters"
+import {NavLink} from "../../nav"
+import {SequenceStratConsumer} from "../sequence-strat-context"
+import {GeneralizedSectionPositioner} from "./positioner"
+import {query} from "../../db"
+import "../main.styl"
 
 GeneralizedSectionPositions = {
   Onis: {x: 0, y: 0}
@@ -173,6 +173,6 @@ GeneralizedSections = (props)->
     h GeneralizedSectionsBase, {props..., rest...}
 
 
-module.exports = {GeneralizedSections}
+export {GeneralizedSections}
 
 

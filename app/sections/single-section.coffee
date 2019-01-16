@@ -1,21 +1,21 @@
-{findDOMNode} = require 'react-dom'
-{Component} = require 'react'
-require './main.styl'
-{select} = require 'd3-selection'
-h = require 'react-hyperscript'
-{NavLink} = require '../nav'
-{Icon} = require 'react-fa'
-{SettingsPanel} = require './settings'
-update = require 'immutability-helper'
-LocalStorage = require './storage'
-{getSectionData} = require './section-data'
+import {findDOMNode} from "react-dom"
+import {Component} from "react"
+import "./main.styl"
+import {select} from "d3-selection"
+import h from "react-hyperscript"
+import {NavLink} from "../nav"
+import {Icon} from "react-fa"
+import {SettingsPanel} from "./settings"
+import update from "immutability-helper"
+import LocalStorage from "./storage"
+import {getSectionData} from "./section-data"
 Measure = require('react-measure').default
-{SectionComponent} = require './column'
-{PlatformConsumer} = require '../platform'
-PropTypes = require 'prop-types'
-{ Hotkey, Hotkeys, HotkeysTarget, Intent} = require "@blueprintjs/core"
-{SectionNavigationControl} = require './util'
-{Notification} = require '../notify'
+import {SectionComponent} from "./column"
+import {PlatformConsumer} from "../platform"
+import PropTypes from "prop-types"
+import { Hotkey, Hotkeys, HotkeysTarget, Intent} from "@blueprintjs/core"
+import {SectionNavigationControl} from "./util"
+import {Notification} from "../notify"
 
 class SectionPage extends Component
   constructor: (props)->
@@ -115,6 +115,6 @@ class SectionPage extends Component
   toggleSettings: =>
     @updateOptions settingsPanelIsActive: {$apply: (d)->not d}
 
-module.exports = SectionPage
+export default SectionPage
 
 

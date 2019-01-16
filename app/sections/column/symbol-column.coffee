@@ -1,11 +1,11 @@
-{query} = require '../db'
-{select} = require 'd3-selection'
-{Component, createElement} = require 'react'
-h = require 'react-hyperscript'
-{join, resolve} = require 'path'
-{v4} = require 'uuid'
-classNames = require 'classnames'
-{path} = require 'd3-path'
+import {query} from "../db"
+import {select} from "d3-selection"
+import {Component, createElement} from "react"
+import h from "react-hyperscript"
+import {join, resolve} from "path"
+import {v4} from "uuid"
+import classNames from "classnames"
+import {path} from "d3-path"
 
 symbolIndex = {
   "Hummocky cross-stratified": "column-patterns/hcs.svg"
@@ -123,4 +123,4 @@ class SymbolLegend extends Component
 
     h 'div.symbol-legend', arr
 
-module.exports = {SymbolColumn, SymbolLegend}
+export {SymbolColumn, SymbolLegend}

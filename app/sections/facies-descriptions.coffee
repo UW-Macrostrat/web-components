@@ -1,21 +1,21 @@
-{findDOMNode} = require 'react-dom'
-{Component, createContext} = require 'react'
-require './main.styl'
-{select} = require 'd3-selection'
-h = require 'react-hyperscript'
-{NavLink} = require '../nav'
-{Icon} = require 'react-fa'
-SettingsPanel = require './settings'
-update = require 'immutability-helper'
-{SectionNavigationControl} = require './util'
-LocalStorage = require './storage'
-{db, storedProcedure, query} = require './db'
-d3 = require 'd3'
-classNames = require 'classnames'
-{SwatchesPicker} = require 'react-color'
-{Popover} = require '@blueprintjs/core'
-{dirname} = require 'path'
-{PlatformContext} = require '../platform'
+import {findDOMNode} from "react-dom"
+import {Component, createContext} from "react"
+import "./main.styl"
+import {select} from "d3-selection"
+import h from "react-hyperscript"
+import {NavLink} from "../nav"
+import {Icon} from "react-fa"
+import SettingsPanel from "./settings"
+import update from "immutability-helper"
+import {SectionNavigationControl} from "./util"
+import LocalStorage from "./storage"
+import {db, storedProcedure, query} from "./db"
+import d3 from "d3"
+import classNames from "classnames"
+import {SwatchesPicker} from "react-color"
+import {Popover} from "@blueprintjs/core"
+import {dirname} from "path"
+import {PlatformContext} from "../platform"
 
 FaciesContext = createContext {facies:[],onColorChanged: ->}
 
@@ -134,5 +134,5 @@ class FaciesDescriptionSmall extends Component
       h FaciesSwatch, {facies: d}
     ]
 
-module.exports = {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext, FaciesSwatch}
+export {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesContext, FaciesSwatch}
 

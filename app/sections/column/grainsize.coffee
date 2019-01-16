@@ -1,9 +1,8 @@
-d3 = require 'd3'
-require 'd3-selection-multi'
-{Component, createElement} = require 'react'
-{findDOMNode} = require 'react-dom'
-d3 = require 'd3'
-h = require 'react-hyperscript'
+import d3 from "d3"
+import "d3-selection-multi"
+import {Component, createElement} from "react"
+import {findDOMNode} from "react-dom"
+import h from "react-hyperscript"
 
 grainSizes = ['ms','s','vf','f','m','c','vc','p']
 createGrainsizeScale = (range)->
@@ -31,4 +30,4 @@ class GrainsizeScale extends Component
         h 'line', {y1: 0, x1: 0, x2: 0, y2: @props.height}
       ]
 
-module.exports = {GrainsizeScale, grainSizes, createGrainsizeScale}
+export {GrainsizeScale, grainSizes, createGrainsizeScale}

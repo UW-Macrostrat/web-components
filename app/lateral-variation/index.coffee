@@ -1,16 +1,16 @@
-d3 = require 'd3'
-require 'd3-selection-multi'
-Promise = require 'bluebird'
-chroma = require 'chroma-js'
-{flatten, zip} = require 'underscore'
-require './main.styl'
-require '../main.styl'
-database = require '../db'
-{lithology} = require 'stratigraphic-column/src/sed-patterns'
-labels = require './labels.json'
+import d3 from "d3"
+import "d3-selection-multi"
+import Promise from "bluebird"
+import chroma from "chroma-js"
+import {flatten, zip} from "underscore"
+import "./main.styl"
+import "../main.styl"
+import {query as baseQuery} from "../db"
+import {lithology} from "stratigraphic-column/src/sed-patterns"
+import labels from "./labels.json"
 
 query = (id)->
-  database.query id, null, {baseDir: __dirname}
+  baseQuery id, null, {baseDir: __dirname}
 
 createVisualization = (el, units, sections, surfaces)->
 
@@ -263,7 +263,7 @@ createVisualization = (el, units, sections, surfaces)->
       class: 'clip'
       d: clipPath
 
-module.exports = (el,cb)->
+export default (el,cb)->
   cb ?= ->
   Promise.all([
     query("unit-heights")

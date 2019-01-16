@@ -1,11 +1,11 @@
-{Component, createContext} = require 'react'
-h = require 'react-hyperscript'
+import {Component, createContext} from "react"
+import h from "react-hyperscript"
 
 class ThesisInformation extends Component
 
   render: ->
     h
 
-module.exports = {ThesisInformation}
+export {ThesisInformation}
 
 

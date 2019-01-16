@@ -1,6 +1,6 @@
-{join, dirname} = require 'path'
-Promise = require 'bluebird'
-{getUID, getHash} = require './util'
+import {join, dirname} from "path"
+import Promise from "bluebird"
+import {getUID, getHash} from "./util"
 
 opts = {
   promiseLib: Promise
@@ -96,6 +96,6 @@ serializableQueries = ->
   return queryLibrary
 
 
-module.exports = {
+export {
   db, storedProcedure, serializableQueries, helpers
 }

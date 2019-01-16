@@ -1,11 +1,11 @@
-{findDOMNode} = require 'react-dom'
-{Component} = require 'react'
-d3 = require 'd3'
-require 'd3-selection-multi'
-require 'd3-jetpack'
-h = require 'react-hyperscript'
-createLegend = require '.'
-require './main.styl'
+import {findDOMNode} from "react-dom"
+import {Component} from "react"
+import d3 from "d3"
+import "d3-selection-multi"
+import "d3-jetpack"
+import h from "react-hyperscript"
+import createLegend from "."
+import "./main.styl"
 
 class MapLegend extends Component
   @defaultProps: {}
@@ -20,5 +20,5 @@ class MapLegend extends Component
     el = findDOMNode @
     createLegend el
 
-module.exports = MapLegend
+export MapLegend
 

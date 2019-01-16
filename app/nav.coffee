@@ -1,8 +1,8 @@
-React = require 'react'
-{Link, withRouter} = require 'react-router-dom'
-h = require 'react-hyperscript'
-style = require './main.styl'
-{Icon} = require 'react-fa'
+import React from "react"
+import {Link, withRouter} from "react-router-dom"
+import h from "react-hyperscript"
+import style from "./main.styl"
+import {Icon} from "react-fa"
 
 class NavLink extends React.Component
   render: ->
@@ -33,4 +33,4 @@ class NavBar extends React.Component
       h NavLink, to: "/map", "Map"
     ]
 
-module.exports = { NavBar, NavLink, BackLink}
+export { NavBar, NavLink, BackLink}

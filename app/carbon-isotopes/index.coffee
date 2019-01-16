@@ -1,13 +1,13 @@
-{findDOMNode} = require 'react-dom'
-{Component} = require 'react'
-require './main.styl'
-d3 = require 'd3'
-require 'd3-selection-multi'
-require 'd3-jetpack'
-require 'd3-scale-chromatic'
-h = require 'react-hyperscript'
+import {findDOMNode} from "react-dom"
+import {Component} from "react"
+import "./main.styl"
+import d3 from "d3"
+import "d3-selection-multi"
+import "d3-jetpack"
+import "d3-scale-chromatic"
+import h from "react-hyperscript"
 
-{query} = require '../sections/db'
+import {query} from "../sections/db"
 
 class CarbonIsotopesPage extends Component
   @defaultProps:
@@ -164,5 +164,5 @@ class CarbonIsotopesPage extends Component
             fill: (d)->cscale(i)
             r: 2
 
-module.exports = CarbonIsotopesPage
+export default CarbonIsotopesPage
 

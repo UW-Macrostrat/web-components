@@ -1,4 +1,4 @@
-d3 = require 'd3'
+import d3 from "d3"
 
 groupSectionData = (sections)->
   stackGroup = (d)=>
@@ -118,6 +118,6 @@ class SectionPositioner
 
     return groupedSections
 
-module.exports = {groupSectionData,
+export {groupSectionData,
                   SectionScale,
                   SectionPositioner}

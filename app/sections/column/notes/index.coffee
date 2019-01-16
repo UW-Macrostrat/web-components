@@ -1,15 +1,15 @@
-{findDOMNode} = require 'react-dom'
-d3 = require 'd3'
-require 'd3-selection-multi'
-{Component, createElement} = require 'react'
-h = require 'react-hyperscript'
-{db, storedProcedure, query} = require '../../db'
-{Node, Renderer, Force} = require 'labella'
-{calculateSize} = require 'calculate-size'
-FlexibleNode = require './flexible-node'
-PropTypes = require 'prop-types'
-{EditableText} = require '@blueprintjs/core'
-{PhotoOverlay} = require './photo-overlay'
+import {findDOMNode} from "react-dom"
+import d3 from "d3"
+import "d3-selection-multi"
+import {Component, createElement} from "react"
+import h from "react-hyperscript"
+import {db, storedProcedure, query} from "../../db"
+import {Node, Renderer, Force} from "labella"
+import {calculateSize} from "calculate-size"
+import FlexibleNode from "./flexible-node"
+import PropTypes from "prop-types"
+import {EditableText} from "@blueprintjs/core"
+import {PhotoOverlay} from "./photo-overlay"
 
 processNotesData = (opts)->(data)->
   index = []
@@ -251,4 +251,4 @@ class NotesColumn extends Component
     @updateNotes()
     console.log "Note #{noteID} edited"
 
-module.exports = NotesColumn
+export default NotesColumn

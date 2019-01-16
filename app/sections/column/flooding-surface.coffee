@@ -1,10 +1,10 @@
-{query} = require '../db'
-d3 = require 'd3'
-{Component, createElement} = require 'react'
-h = require 'react-hyperscript'
-{Notification} = require '../../notify'
-{path} = require 'd3-path'
-{v4} = require 'uuid'
+import {query} from "../db"
+import d3 from "d3"
+import {Component, createElement} from "react"
+import h from "react-hyperscript"
+import {Notification} from "../../notify"
+import {path} from "d3-path"
+import {v4} from "uuid"
 
 class FloodingSurface extends Component
   @defaultProps: {
@@ -144,5 +144,5 @@ class TriangleBars extends FloodingSurface
       h "path", {d: _.toString(), key: @UUID+'-'+order}
     ]
 
-module.exports = {FloodingSurface, TriangleBars}
+export {FloodingSurface, TriangleBars}
 

@@ -1,16 +1,16 @@
-React = require 'react'
-ReactDOM = require 'react-dom'
-{HashRouter,Route,Link, Switch, Redirect} = require 'react-router-dom'
-{mouseTrap} = require 'react-mousetrap'
-h = require 'react-hyperscript'
-{FocusStyleManager} = require '@blueprintjs/core'
+import React from "react"
+import ReactDOM from "react-dom"
+import {HashRouter,Route,Link, Switch, Redirect} from "react-router-dom"
+import {mouseTrap} from "react-mousetrap"
+import h from "react-hyperscript"
+import {FocusStyleManager} from "@blueprintjs/core"
 FocusStyleManager.onlyShowFocusOnTabs()
-{HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
-require '@blueprintjs/core/lib/css/blueprint.css'
+import {HotkeysTarget, Hotkeys, Hotkey} from "@blueprintjs/core"
+import "@blueprintjs/core/lib/css/blueprint.css"
 
 global.WEB_MODE=true
-{PlatformProvider} = require '../platform'
-{SectionIndex} = require '../sections'
+import {PlatformProvider} from "../platform"
+import {SectionIndex} from "../sections"
 
 
 route = (path, component, props={})->
