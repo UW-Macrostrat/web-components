@@ -1,3 +1,5 @@
+require '@babel/polyfill'
+
 {PlatformContext, PlatformProvider} = require './platform'
 React = require 'react'
 ReactDOM = require 'react-dom'
@@ -36,7 +38,7 @@ wrapHomeButton = (component)->
       ]
 
 route = (path, component, props={})->
-  h Route, {props...,path,component}
+  h Route, {path,component,props...}
 
 class App extends React.Component
   constructor: ->
@@ -94,4 +96,4 @@ Home = ->
     ]
   ]
 
-ReactDOM.render(React.createElement(Router),document.querySelector('#main'))
+ReactDOM.render(React.createElement(Router),document.querySelector('#app'))

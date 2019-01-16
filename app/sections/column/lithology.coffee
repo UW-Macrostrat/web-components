@@ -32,9 +32,10 @@ symbolIndex = {
 }
 
 resolveSymbol = (id)->
+  return null if not id?
   try
     if PLATFORM == ELECTRON
-      q = require.resolve "geologic-patterns/assets/png/#{id}.png"
+      q = join process.env.PROJECT_DIR, "deps/geologic-patterns/assets/png/#{id}.png"
       return 'file://'+q
     else
       return join BASE_URL, 'assets','lithology-patterns', "#{id}.png"
@@ -48,7 +49,7 @@ __divisionSize = (d)->
   return [bottom, top]
 
 class LithologyColumn extends Component
-  @defaultProps:
+  @defaultProps: {
     width: 100
     # Should align exactly with centerline of stroke
     shiftY: 0.5
@@ -60,6 +61,7 @@ class LithologyColumn extends Component
     showLithology: true
     padWidth: true
     onEditInterval: null
+  }
   symbolIndex: symbolIndex
   queryID: 'lithology'
   constructor: (props)->
