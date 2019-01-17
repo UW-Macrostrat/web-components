@@ -1,13 +1,21 @@
-function bindDrawFunctions(idx) {
+function setupCanvas(canvas) {
+  // Get the device pixel ratio, falling back to 1.
+  var dpr = window.devicePixelRatio || 1;
+  // Get the size of the canvas in CSS pixels.
+  var rect = canvas.getBoundingClientRect();
+  // Give the canvas pixel dimensions of their CSS
+  // size * the device pixel ratio.
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  var ctx = canvas.getContext('2d');
+  // Scale all drawing operations by the dpr, so you
+  // don't have to worry about the difference.
+  ctx.scale(dpr, dpr);
+  return ctx;
+}
 
-  var figure = find("figure")[idx];
-  var cvs = document.createElement("canvas");
-  cvs.width = 200;
-  cvs.height = 200;
-  var ctx = cvs.getContext("2d");
-  figure.appendChild(cvs);
-  var button = figure.querySelector("button");
-  if(button) { figure.appendChild(button); }
+function DrawFunctions(cvs) {
+  var ctx = setupCanvas(cvs);
 
   var randomColors = [];
   for(var i=0,j; i<360; i++) {
@@ -219,3 +227,5 @@ function bindDrawFunctions(idx) {
     }
   };
 }
+
+export {DrawFunctions}
