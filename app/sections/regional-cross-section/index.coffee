@@ -9,6 +9,7 @@ import {SVGComponent, SectionNavigationControl} from '../util'
 import Bezier from 'bezier-js'
 import {path} from 'd3-path'
 import {DrawFunctions} from './bezier-draw'
+import {handleInteraction} from './interaction'
 
 class BezierComponent extends Component
   render: ->
@@ -28,8 +29,16 @@ class CanvasBezierComponent extends Component
     curve = new Bezier(100,25 , 10,90 , 110,100 , 150,195)
     el = findDOMNode @
     draw = DrawFunctions(el)
-    draw.drawSkeleton(curve)
-    draw.drawCurve(curve)
+    drawCurve = ->
+      draw.drawSkeleton(curve)
+      draw.drawCurve(curve)
+
+    drawCurve()
+    handleInteraction(el,curve).onupdate = (evt)->
+      draw.reset(curve, evt)
+      draw.drawSkeleton(curve)
+      draw.drawCurve(curve)
+
 
 
 class RegionalCrossSectionPage extends Component

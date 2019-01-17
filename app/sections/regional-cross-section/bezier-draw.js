@@ -29,7 +29,8 @@ function DrawFunctions(cvs) {
     getCanvas: function() { return cvs; },
 
     reset: function(curve, evt) {
-      cvs.width = cvs.width;
+      setupCanvas(cvs);
+      //cvs.width = cvs.width;
       ctx.strokeStyle = "black";
       ctx.fillStyle = "none";
       if (evt && curve) {

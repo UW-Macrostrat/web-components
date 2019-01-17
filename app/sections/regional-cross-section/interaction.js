@@ -1,16 +1,14 @@
 function handleInteraction(cvs, curve) {
   curve.mouse = false;
 
-  var fix = function(e) {
-    e = e || window.event;
-    var target = e.target || e.srcElement,
-        rect = target.getBoundingClientRect();
-    e.offsetX = e.clientX - rect.left;
-    e.offsetY = e.clientY - rect.top;
-  };
+  var fix = function(e) {};
 
   var lpts = curve.points;
-  var moving = false, mx = my = ox = oy = 0, cx, cy, mp = false;
+  var ox = 0;
+  var oy = 0;
+  var mx = 0;
+  var my = 0;
+  var moving = false, cx, cy, mp = false;
 
   var handler = { onupdate: function() {} };
 
@@ -70,3 +68,5 @@ function handleInteraction(cvs, curve) {
 
   return handler;
 }
+
+export {handleInteraction}
