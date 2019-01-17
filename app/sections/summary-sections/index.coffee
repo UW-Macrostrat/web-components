@@ -7,7 +7,7 @@ import {Icon} from "react-fa"
 import update from "immutability-helper"
 import PropTypes from "prop-types"
 import {debounce} from "underscore"
-Measure = require('react-measure').default
+import Measure from 'react-measure'
 import * as d3 from "d3"
 
 import {SummarySectionsSettings} from "./settings"

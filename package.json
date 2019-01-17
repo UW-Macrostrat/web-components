@@ -35,6 +35,7 @@
     "@babel/preset-env": "^7.2.3",
     "@babel/preset-react": "^7.0.0",
     "babel-loader": "^8.0.5",
+    "bezier-js": "^2.3.1",
     "bluebird": "^3.4.7",
     "browser-request": "^0.3.3",
     "carto": "^0.17.2",

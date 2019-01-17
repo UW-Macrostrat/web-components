@@ -38,8 +38,11 @@ SVGNamespaces = {
   xmlnsXlink: "http://www.w3.org/1999/xlink"
 }
 
+SVGComponent = (props)-> h 'svg', {props..., SVGNamespaces...}
+
 export {
   SectionNavigationControl
   SVGNamespaces
+  SVGComponent
   KnownSizeComponent
 }

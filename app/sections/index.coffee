@@ -11,6 +11,7 @@ import {SummarySections} from "./summary-sections"
 import {GeneralizedSections} from "./generalized-sections"
 import {SectionNavigationControl} from "./util"
 import {FaciesDescriptionPage} from "./facies-descriptions"
+import {RegionalCrossSectionPage} from "./regional-cross-section"
 import {nest} from "d3"
 
 createSectionLink = (d, base)->
