@@ -12,8 +12,8 @@ import {geoPath, geoTransform} from 'd3-geo'
 import {select} from 'd3-selection'
 import {readFileSync} from 'fs'
 import {join} from 'path'
-import polygonize from '@turf/polygonize'
 import {db, storedProcedure} from '../db'
+import './main.styl'
 
 removeALine = (f)->
   f.substring(f.indexOf("\n") + 1)
@@ -34,6 +34,7 @@ PolygonComponent = (props)->
   return null unless polygons?
   h 'g.polygons', [
     polygons.map (p, i)->
+      console.log p
       fill = schemeSet3[i%12]
       h 'path', {d: generator(p.geometry), key: i, fill}
   ]
@@ -58,7 +59,7 @@ class RegionalCrossSectionPage extends Component
 
     main = svg.select("g#Main")
 
-    main.selectAll 'path,polygon'
+    main.selectAll 'path,line,polygon'
       .each ->
         len = @getTotalLength()
         return if len == 0
