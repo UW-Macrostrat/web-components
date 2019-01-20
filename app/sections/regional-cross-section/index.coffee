@@ -7,6 +7,8 @@ import {findDOMNode} from 'react-dom'
 import h from 'react-hyperscript'
 import {SVGComponent, SectionNavigationControl} from '../util'
 import {path} from 'd3-path'
+import {schemeSet3} from 'd3-scale-chromatic'
+import {geoPath, geoTransform} from 'd3-geo'
 import {select} from 'd3-selection'
 import {readFileSync} from 'fs'
 import {join} from 'path'
@@ -22,6 +24,21 @@ coordAtLength = (path, pos)->
   y = Math.round(y*10)/10
   [x,y]
 
+proj = geoTransform {
+  point: (px, py)-> @stream.point(px, py)
+}
+generator = geoPath().projection proj
+
+PolygonComponent = (props)->
+  {polygons} = props
+  return null unless polygons?
+  h 'g.polygons', [
+    polygons.map (p, i)->
+      fill = schemeSet3[i%12]
+      h 'path', {d: generator(p.geometry), key: i, fill}
+  ]
+
+
 class RegionalCrossSectionPage extends Component
   constructor: ->
     super arguments...
@@ -35,8 +52,11 @@ class RegionalCrossSectionPage extends Component
     el = select findDOMNode @
     pathData = []
 
-    el.select("div.regional-cross-section").html v
-    main = el.select "svg g#Main"
+    tcs = el.select("div.temp-cross-section")
+    tcs.html v
+    svg = tcs.select "svg"
+
+    main = svg.select("g#Main")
 
     main.selectAll 'path,polygon'
       .each ->
@@ -50,6 +70,11 @@ class RegionalCrossSectionPage extends Component
         coordinates.push coordAtLength(@,len)
         pathData.push coordinates
 
+    cs = el.select("svg.cross-section")
+      .attr "viewBox", svg.attr("viewBox")
+    cs.select("g.linework")
+      .node().appendChild main.node()
+
     @getPolygons(pathData)
 
   getPolygons: (pathData)->
@@ -62,13 +87,17 @@ class RegionalCrossSectionPage extends Component
         type: 'MultiLineString'
       }
     }
-    console.log res
-    #@setState {polygons: geometry}
+    @setState {polygons: res}
 
   render: ->
+    {polygons} = @state
     h 'div', [
       h SectionNavigationControl
-      h 'div.regional-cross-section'
+      h SVGComponent, {className: 'cross-section'}, [
+        h PolygonComponent, {polygons}
+        h 'g.linework'
+      ]
+      h 'div.temp-cross-section'
     ]
 
 export {RegionalCrossSectionPage}
