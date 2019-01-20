@@ -7,7 +7,7 @@ opts = {
   query: (e)=>
     v = queryLibrary.find (d)->
       d.sql == e.query
-    console.log e.query
+    #console.log e.query
     if not v?
       console.warn "No serialization spec found matching the query `#{e.query}`.
                     This request will fail on the frontend."
