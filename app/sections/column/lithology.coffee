@@ -342,4 +342,4 @@ class GeneralizedSectionColumn extends LithologyColumn
     h "path#{frameID}", {key: frameID, d: _.toString()}
 
 export {LithologyColumn, FaciesColumn,
-                  GeneralizedSectionColumn, CoveredColumn}
+        GeneralizedSectionColumn, CoveredColumn}

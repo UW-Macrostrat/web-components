@@ -14,6 +14,7 @@ import {readFileSync} from 'fs'
 import {join} from 'path'
 import {db, storedProcedure} from '../db'
 import './main.styl'
+import {PlatformContext} from '../../platform'
 
 removeALine = (f)->
   f.substring(f.indexOf("\n") + 1)
@@ -30,23 +31,51 @@ proj = geoTransform {
 generator = geoPath().projection proj
 
 facies_ix = {
-  shale: '#aaaaaa'
-  gs: 'purple'
-  ms: 'dodgerblue'
+  shale: 620
+  gs: 627
+  ms: 642
 }
 
-PolygonComponent = (props)->
-  {polygons} = props
-  return null unless polygons?
-  h 'g.polygons', [
-    polygons.map (p, i)->
-      {facies_id, geometry} = p
-      fill = schemeSet3[i%12]
-      if facies_id?
-        fill = facies_ix[facies_id]
+class PolygonComponent extends Component
+  @contextType: PlatformContext
+  renderDefs: ->
+    {resolveLithologySymbol} = @context
+    patternSize = {width: 30, height: 30}
+    patterns = Object.values(facies_ix)
+    patternLoc = {x:0,y:0}
 
-      h 'path', {d: generator(geometry), key: i, fill}
-  ]
+    h 'defs', patterns.map (d)->
+      id = "pattern-#{d}"
+      h 'pattern', {
+        id
+        key: id
+        patternUnits: "userSpaceOnUse"
+        patternSize...
+      }, [
+        h 'rect', {
+          fill: '#aaaaaa'
+          patternSize...
+          patternLoc...
+        }
+        h 'image', {
+          xlinkHref: resolveLithologySymbol(d)
+          patternLoc...
+          patternSize...
+        }
+      ]
+
+  render: ->
+    {polygons} = @props
+    return null unless polygons?
+    h 'g.polygon-container', [
+      @renderDefs()
+      h 'g.polygons', polygons.map (p, i)->
+        {facies_id, geometry} = p
+        fill = schemeSet3[i%12]
+        if facies_id?
+          fill = "url(#pattern-#{facies_ix[facies_id]})"
+        h 'path', {d: generator(geometry), key: i, fill}
+    ]
 
 
 class RegionalCrossSectionPage extends Component

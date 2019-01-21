@@ -19,12 +19,12 @@ catch
 console.log "Running application on #{PLATFORM}"
 
 Platform = Object.freeze {
-  DESKTOP: 1
+  ELECTRON: 1
   WEB: 2
   PRINT: 3
 }
 
-PlatformContext = createContext()
+PlatformContext = createContext({})
 
 class PlatformProvider extends Component
   constructor: (props)->
@@ -86,12 +86,13 @@ class PlatformProvider extends Component
       return ''
 
   resolveLithologySymbol: (id)=>
+    return null if not id?
     try
       if @state.ELECTRON
-        q = require.resolve "geologic-patterns/assets/png/#{id}.png"
+        q = join process.env.PROJECT_DIR, "deps/geologic-patterns/assets/png/#{id}.png"
         return 'file://'+q
       else
-        return @path 'assets', 'lithology-patterns',"#{id}.png"
+        return @path 'assets','lithology-patterns', "#{id}.png"
     catch
       return ''
 
