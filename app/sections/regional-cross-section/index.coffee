@@ -29,14 +29,23 @@ proj = geoTransform {
 }
 generator = geoPath().projection proj
 
+facies_ix = {
+  shale: '#aaaaaa'
+  gs: 'purple'
+  ms: 'dodgerblue'
+}
+
 PolygonComponent = (props)->
   {polygons} = props
   return null unless polygons?
   h 'g.polygons', [
     polygons.map (p, i)->
-      console.log p
+      {facies_id, geometry} = p
       fill = schemeSet3[i%12]
-      h 'path', {d: generator(p.geometry), key: i, fill}
+      if facies_id?
+        fill = facies_ix[facies_id]
+
+      h 'path', {d: generator(geometry), key: i, fill}
   ]
 
 
@@ -59,7 +68,8 @@ class RegionalCrossSectionPage extends Component
 
     main = svg.select("g#Main")
 
-    main.selectAll 'path,line,polygon'
+    ### Get path data ###
+    main.selectAll 'path,line,polygon,polyline'
       .each ->
         len = @getTotalLength()
         return if len == 0
@@ -76,9 +86,24 @@ class RegionalCrossSectionPage extends Component
     cs.select("g.linework")
       .node().appendChild main.node()
 
-    @getPolygons(pathData)
+    ### Get facies data ###
+    points = []
+    facies = svg.select("g#Facies")
+    facies.selectAll 'text'
+      .each ->
+        faciesID = select(@).text()
+        {x,y,width,height} = @getBBox()
+        console.log y,height
+        {e,f} = @transform.baseVal[0].matrix
+        loc = [e+x+width/2,f+y+height/2]
+        geometry = {coordinates: loc, type: "Point"}
+        points.push {type: 'Feature', id: faciesID, geometry}
 
-  getPolygons: (pathData)->
+    svg.remove()
+
+    @getPolygons(pathData, points)
+
+  getPolygons: (pathData, points)->
     sql = storedProcedure "get-generalized", {
       baseDir: join(__dirname)
     }
@@ -87,6 +112,7 @@ class RegionalCrossSectionPage extends Component
         coordinates: pathData,
         type: 'MultiLineString'
       }
+      points
     }
     @setState {polygons: res}
 
