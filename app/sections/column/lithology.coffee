@@ -31,17 +31,6 @@ symbolIndex = {
   'sandy-dolomite': 645
 }
 
-resolveSymbol = (id)->
-  return null if not id?
-  try
-    if PLATFORM == ELECTRON
-      q = join process.env.PROJECT_DIR, "deps/geologic-patterns/assets/png/#{id}.png"
-      return 'file://'+q
-    else
-      return join BASE_URL, 'assets','lithology-patterns', "#{id}.png"
-  catch
-    return ''
-
 __divisionSize = (d)->
   {bottom,top} = d
   if top < bottom
@@ -49,6 +38,7 @@ __divisionSize = (d)->
   return [bottom, top]
 
 class LithologyColumn extends Component
+  @contextType: PlatformContext
   @defaultProps: {
     width: 100
     # Should align exactly with centerline of stroke
@@ -113,6 +103,7 @@ class LithologyColumn extends Component
     ]
 
   createDefs: =>
+    {resolveLithologySymbol} = @context
     patternSize = {width: 100, height: 100}
     {divisions} = @props
     {UUID, frameID, clipID} = @state
@@ -132,7 +123,7 @@ class LithologyColumn extends Component
         patternSize...
       }, [
         h 'image', {
-          xlinkHref: resolveSymbol(d)
+          xlinkHref: resolveLithologySymbol(d)
           x:0,y:0
           patternSize...
         }
