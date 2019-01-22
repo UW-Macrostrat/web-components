@@ -1,9 +1,12 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
+import {DateInput} from '@blueprintjs/datetime'
 import {EditableText} from '@blueprintjs/core'
 import {EditButton, DeleteButton} from './buttons'
 import {StatefulComponent} from './stateful'
 import classNames from 'classnames'
+
+import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
 ModelEditorContext = createContext {}
 
@@ -11,7 +14,11 @@ class ModelEditButton extends Component
   @contextType: ModelEditorContext
   render: ->
     {isEditing, actions} = @context
-    h EditButton, {isEditing, onClick: actions.toggleEditing}
+    h EditButton, {
+      isEditing
+      onClick: actions.toggleEditing
+      ...@props
+    }
 
 class ModelEditor extends StatefulComponent
   @EditButton: ModelEditButton
@@ -65,6 +72,25 @@ class EditableField extends Component
       }
     return h 'div.text', null, value
 
+class EditableDateField extends Component
+  @contextType: ModelEditorContext
+  render: ->
+    {field} = @props
+    {actions, data, isEditing} = @context
+    value = data[field]
+    if not isEditing
+      return h 'div.date-input.disabled', value
+    h DateInput, {
+      className: 'date-input'
+      value: new Date(value)
+      formatDate: (date) => date.toLocaleDateString(),
+      placeholder: "MM/DD/YYYY"
+      showActionsBar: true
+      onChange: actions.onChange(field)
+      parseDate: (d)->new Date(d)
+    }
 
-export {ModelEditor, EditableField}
+
+export {ModelEditor, ModelEditorContext,
+        EditableField, EditableDateField}
 
