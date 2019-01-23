@@ -58,19 +58,21 @@ class ModelEditor extends StatefulComponent
 class EditableField extends Component
   @contextType: ModelEditorContext
   render: ->
-    {field} = @props
+    {field, className} = @props
     {actions, data, isEditing} =  @context
     value = data[field]
     onChange = actions.onChange(field)
+    className = classNames className, "field-#{field}"
 
     if isEditing
       value = h EditableText, {
         placeholder: "Edit #{field}"
         multiline: true
+        className
         onChange
         value
       }
-    return h 'div.text', null, value
+    return h 'div.text', {className}, value
 
 class EditableDateField extends Component
   @contextType: ModelEditorContext
