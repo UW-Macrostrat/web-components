@@ -5,4 +5,5 @@ export * from './collapse-panel'
 export * from './api-frontend'
 export * from './model-editor'
 export * from './stateful'
+export * from './image'
 
