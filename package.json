@@ -10,6 +10,8 @@
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^3.11.0",
-    "axios": "^0.18.0"
+    "@blueprintjs/datetime": "^3.7.0",
+    "axios": "^0.18.0",
+    "react-dropzone": "^8.0.3"
   }
 }
