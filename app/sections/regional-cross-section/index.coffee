@@ -31,9 +31,11 @@ proj = geoTransform {
 generator = geoPath().projection proj
 
 facies_ix = {
-  shale: 620
-  gs: 627
-  ms: 642
+  shale: [620, '#DCEDC8']
+  gs: [627, '#4A148C']
+  ms: [642, '#BBDEFB']
+  cc: [601,'#006064']
+  fc: [669,'#4DB6AC']
 }
 
 class PolygonComponent extends Component
@@ -45,7 +47,7 @@ class PolygonComponent extends Component
     patternLoc = {x:0,y:0}
 
     h 'defs', patterns.map (d)->
-      id = "pattern-#{d}"
+      id = "pattern-#{d[0]}"
       h 'pattern', {
         id
         key: id
@@ -53,12 +55,12 @@ class PolygonComponent extends Component
         patternSize...
       }, [
         h 'rect', {
-          fill: '#aaaaaa'
+          fill: d[1]
           patternSize...
           patternLoc...
         }
         h 'image', {
-          xlinkHref: resolveLithologySymbol(d)
+          xlinkHref: resolveLithologySymbol(d[0], {svg: true})
           patternLoc...
           patternSize...
         }
@@ -73,7 +75,7 @@ class PolygonComponent extends Component
         {facies_id, geometry} = p
         fill = schemeSet3[i%12]
         if facies_id?
-          fill = "url(#pattern-#{facies_ix[facies_id]})"
+          fill = "url(#pattern-#{facies_ix[facies_id][0]})"
         h 'path', {d: generator(geometry), key: i, fill}
     ]
 
@@ -115,6 +117,10 @@ class RegionalCrossSectionPage extends Component
     cs.select("g.linework")
       .node().appendChild main.node()
 
+    pts = svg.select("g#Labels")
+    cs.select("g.overlay")
+      .node().appendChild(pts.node())
+
     ### Get facies data ###
     points = []
     facies = svg.select("g#Facies")
@@ -152,6 +158,7 @@ class RegionalCrossSectionPage extends Component
       h SVGComponent, {className: 'cross-section'}, [
         h PolygonComponent, {polygons}
         h 'g.linework'
+        h 'g.overlay'
       ]
       h 'div.temp-cross-section'
     ]

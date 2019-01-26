@@ -85,11 +85,15 @@ class PlatformProvider extends Component
     catch
       return ''
 
-  resolveLithologySymbol: (id)=>
+  resolveLithologySymbol: (id, opts={})=>
+    {svg} = opts
+    svg ?= false
     return null if not id?
     try
       if @state.ELECTRON
-        q = join process.env.PROJECT_DIR, "deps/geologic-patterns/assets/png/#{id}.png"
+        fp = "png/#{id}.png"
+        if svg then fp = "svg/#{id}.svg"
+        q = join process.env.PROJECT_DIR, "versioned/deps/geologic-patterns/assets", fp
         return 'file://'+q
       else
         return @path 'assets','lithology-patterns', "#{id}.png"
