@@ -1,11 +1,50 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import axios, {get} from 'axios'
+import axios, {get, post} from 'axios'
 import {Spinner, Button, ButtonGroup, Intent} from '@blueprintjs/core'
 import {AppToaster} from './notify'
 
 APIContext = createContext({})
-APIConsumer = APIContext.Consumer
+APIViewContext = createContext({})
+APIViewConsumer = APIViewContext.Consumer
+
+class APIProvider extends Component
+  @defaultProps: {
+    baseRoute: "/api"
+  }
+  constructor: (props)->
+    super props
+    @state = {
+      getCredentials: -> null
+    }
+  render: ->
+    {baseURL} = @props
+    helpers = {buildURL: @buildURL}
+    actions = {post: @post, get: @get}
+    value = {actions..., helpers, baseURL}
+    h APIContext.Provider, {value}, @props.children
+
+  buildURL: (route, params={})=>
+    {baseURL} = @props
+    return null unless route?
+    p = new URLSearchParams(params).toString()
+    if p != ""
+      route += "?"+p
+    return baseURL+route
+
+  post: (route, params, data)=>
+    {baseURL} = @props
+    if not data?
+      data = params
+      params = {}
+    url = @buildURL route, params
+    {data: result} = await post url, data
+    return result
+
+  get: (route, params={})=>
+    url = @buildURL route, params
+    {data: result} = await get url
+    return result
 
 class APIResultView extends Component
   @defaultProps: {
@@ -48,7 +87,7 @@ class APIResultView extends Component
     {data} = response
 
     value = {deleteItem: @deleteItem}
-    h APIContext.Provider, {value}, (
+    h APIViewContext.Provider, {value}, (
         @props.children(data)
     )
 
@@ -129,4 +168,9 @@ class PagedAPIView extends Component
     ]
 
 
-export {APIContext, APIConsumer, APIResultView, PagedAPIView}
+export {
+  APIContext, APIConsumer,
+  APIProvider,
+  APIViewContext, APIViewConsumer,
+  APIResultView, PagedAPIView
+}
