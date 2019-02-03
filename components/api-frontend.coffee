@@ -12,11 +12,6 @@ class APIProvider extends Component
   @defaultProps: {
     baseRoute: "/api"
   }
-  constructor: (props)->
-    super props
-    @state = {
-      getCredentials: -> null
-    }
   render: ->
     {baseURL} = @props
     helpers = {buildURL: @buildURL}
@@ -32,14 +27,16 @@ class APIProvider extends Component
       route += "?"+p
     return baseURL+route
 
-  post: (route, params, data)=>
+  post: (route, params, payload)=>
     {baseURL} = @props
     if not data?
       data = params
       params = {}
     url = @buildURL route, params
-    {data: result} = await post url, data
-    return result
+
+    res = await post url, payload
+    {data} = res
+    return data
 
   get: (route, params={})=>
     url = @buildURL route, params
