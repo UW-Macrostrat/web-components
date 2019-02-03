@@ -29,8 +29,8 @@ class APIProvider extends Component
 
   post: (route, params, payload)=>
     {baseURL} = @props
-    if not data?
-      data = params
+    if not payload?
+      payload = params
       params = {}
     url = @buildURL route, params
 
