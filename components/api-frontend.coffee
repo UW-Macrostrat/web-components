@@ -1,7 +1,7 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
 import axios, {get, post} from 'axios'
-import {Spinner, Button, ButtonGroup, Intent} from '@blueprintjs/core'
+import {Spinner, Button, ButtonGroup, Intent, NonIdealState} from '@blueprintjs/core'
 import {AppToaster} from './notify'
 
 APIContext = createContext({})
@@ -147,6 +147,7 @@ class PagedAPIView extends Component
       children,
       getTotalCount,
       primaryKey,
+      count
       rest...
     } = @props
     {currentPage} = @state
@@ -163,7 +164,6 @@ class PagedAPIView extends Component
       h APIResultView, {route, params, success, primaryKey}, children
       @renderPagination()
     ]
-
 
 export {
   APIContext, APIConsumer,
