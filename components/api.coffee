@@ -1,8 +1,6 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
 import axios, {get, post} from 'axios'
-import {Spinner, Button, ButtonGroup, Intent, NonIdealState} from '@blueprintjs/core'
-import {AppToaster} from './notify'
 
 APIContext = createContext({})
 APIConsumer = APIContext.Consumer
