@@ -1,6 +1,6 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import axios, {get, post} from 'axios'
+import axios, {post} from 'axios'
 import {Spinner, Button, ButtonGroup, Intent, NonIdealState} from '@blueprintjs/core'
 import {AppToaster} from './notify'
 import {APIContext} from './api'
@@ -9,6 +9,7 @@ APIViewContext = createContext({})
 APIViewConsumer = APIViewContext.Consumer
 
 class APIResultView extends Component
+  @contextType: APIContext
   @defaultProps: {
     route: null
     params: {}
@@ -18,35 +19,36 @@ class APIResultView extends Component
   }
   constructor: ->
     super arguments...
-    @state = {response: null}
+    @state = {data: null}
     @getData()
 
   buildURL: (props)=>
     props ?= @props
+    {helpers: {buildURL}} = @context
     {route, params} = props
-    return null unless route?
-    p = new URLSearchParams(params).toString()
-    if p != ""
-      route += "?"+p
-    return route
+    buildURL route, params
 
   componentDidUpdate: (prevProps)->
     return if @buildURL() == @buildURL(prevProps)
     @getData()
 
   getData: ->
-    {success} = @props
-    route = @buildURL()
+    {get} = @context
+    if not get?
+      throw "APIResultView component must inhabit an APIContext"
+    {success, route, params} = @props
     return unless route?
-    response = await get(route)
-    @setState {response}
+    console.log route
+    # Get the full response instead of just the data
+    response = await get(route, params, true)
+    {data} = response
+    @setState {data}
     success response
 
   render: ->
-    {response} = @state
-    if not response?
+    {data} = @state
+    if not data?
       return h Spinner
-    {data} = response
     value = {deleteItem: @deleteItem}
     h APIViewContext.Provider, {value}, (
         @props.children(data)
@@ -87,22 +89,29 @@ class PagedAPIView extends Component
     {perPage} = @props
     {currentPage, count} = @state
     nextDisabled = false
+    paginationInfo = null
     if count?
       lastPage = Math.floor(count/perPage)
       if currentPage >= lastPage
         nextDisabled = true
+      paginationInfo = h 'div', {disabled: true}, [
+        "Page #{currentPage+1} of #{lastPage+1}"
+      ]
 
-    return h ButtonGroup, [
-      h Button, {
-        onClick: @setPage(currentPage-1)
-        icon: 'arrow-left'
-        disabled: currentPage == 0
-      }, "Previous"
-      h Button, {
-        onClick: @setPage(currentPage+1)
-        rightIcon: 'arrow-right'
-        disabled: nextDisabled
-      }, "Next"
+    return h 'div.pagination-controls', [
+      h ButtonGroup, [
+        h Button, {
+          onClick: @setPage(currentPage-1)
+          icon: 'arrow-left'
+          disabled: currentPage == 0
+        }, "Previous"
+        h Button, {
+          onClick: @setPage(currentPage+1)
+          rightIcon: 'arrow-right'
+          disabled: nextDisabled
+        }, "Next"
+      ]
+      paginationInfo
     ]
 
 

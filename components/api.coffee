@@ -20,12 +20,19 @@ class APIProvider extends Component
   buildURL: (route, params={})=>
     {baseURL} = @props
     return null unless route?
+    console.log route
+    try
+      if not route.startsWith(baseURL)
+        route = baseURL+route
+    catch
+      debugger
+
     p = new URLSearchParams(params).toString()
     if p != ""
       route += "?"+p
-    return baseURL+route
+    return route
 
-  post: (route, params, payload)=>
+  post: (route, params, payload, fullResponse=false)=>
     {onError} = @props
     if not payload?
       payload = params
@@ -37,12 +44,14 @@ class APIProvider extends Component
       {data} = res
       if not data?
         onError(route, res)
+      if fullResponse
+        return res
       return data
     catch err
       onError(route, {error:err})
       return null
 
-  get: (route, params={})=>
+  get: (route, params={}, fullResponse=false)=>
     {onError} = @props
     url = @buildURL route, params
     try
@@ -50,6 +59,8 @@ class APIProvider extends Component
       {data} = res
       if not data?
         onError(route, res)
+      if fullResponse
+        return res
       return data
     catch err
       onError(route, {error:err})
