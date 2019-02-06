@@ -48,3 +48,4 @@ EditButton = (props)->
 
 export {SaveButton, EditButton, CancelButton}
 export * from './delete-button'
+export * from './link-button'

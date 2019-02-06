@@ -47,7 +47,6 @@ class APIResultView extends Component
     if not response?
       return h Spinner
     {data} = response
-
     value = {deleteItem: @deleteItem}
     h APIViewContext.Provider, {value}, (
         @props.children(data)
@@ -71,6 +70,8 @@ class PagedAPIView extends Component
   @defaultProps: {
     count: null
     perPage: 20
+    topPagination: false
+    bottomPagination: true
     getTotalCount: (response)->
       {headers} = response
       return parseInt(headers['x-total-count'])
@@ -113,6 +114,8 @@ class PagedAPIView extends Component
       getTotalCount,
       primaryKey,
       count
+      topPagination
+      bottomPagination
       rest...
     } = @props
     {currentPage} = @state
@@ -126,8 +129,9 @@ class PagedAPIView extends Component
       @setState {count}
 
     h 'div.pagination-container', rest, [
+      @renderPagination() if topPagination
       h APIResultView, {route, params, success, primaryKey}, children
-      @renderPagination()
+      @renderPagination() if bottomPagination
     ]
 
 export {

@@ -8,6 +8,7 @@ APIConsumer = APIContext.Consumer
 class APIProvider extends Component
   @defaultProps: {
     baseRoute: "/api"
+    onError: ->
   }
   render: ->
     {baseURL} = @props
@@ -25,20 +26,34 @@ class APIProvider extends Component
     return baseURL+route
 
   post: (route, params, payload)=>
-    {baseURL} = @props
+    {onError} = @props
     if not payload?
       payload = params
       params = {}
     url = @buildURL route, params
 
-    res = await post url, payload
-    {data} = res
-    return data
+    try
+      res = await post url, payload
+      {data} = res
+      if not data?
+        onError(route, res)
+      return data
+    catch err
+      onError(route, {error:err})
+      return null
 
   get: (route, params={})=>
+    {onError} = @props
     url = @buildURL route, params
-    {data: result} = await get url
-    return result
+    try
+      res = await get url
+      {data} = res
+      if not data?
+        onError(route, res)
+      return data
+    catch err
+      onError(route, {error:err})
+      return null
 
 export {
   APIContext,
