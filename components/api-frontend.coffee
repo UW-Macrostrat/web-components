@@ -98,6 +98,7 @@ class PagedAPIView extends Component
     if count?
       lastPage = Math.floor(count/perPage)
       if currentPage >= lastPage
+        currentPage = lastPage
         nextDisabled = true
       paginationInfo = h 'div', {disabled: true}, [
         "#{currentPage+1} of #{lastPage+1} (#{count} records)"
