@@ -48,7 +48,9 @@ class APIResultView extends Component
   render: ->
     {data} = @state
     if not data?
-      return h Spinner
+      return h 'div.api-result-placeholder', [
+        h Spinner
+      ]
     value = {deleteItem: @deleteItem}
     h APIViewContext.Provider, {value}, (
         @props.children(data)
@@ -95,7 +97,7 @@ class PagedAPIView extends Component
       if currentPage >= lastPage
         nextDisabled = true
       paginationInfo = h 'div', {disabled: true}, [
-        "Page #{currentPage+1} of #{lastPage+1}"
+        "#{currentPage+1} of #{lastPage+1}"
       ]
 
     return h 'div.pagination-controls', [
