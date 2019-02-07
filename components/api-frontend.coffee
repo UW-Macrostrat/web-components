@@ -4,6 +4,7 @@ import axios, {post} from 'axios'
 import {Spinner, Button, ButtonGroup, Intent, NonIdealState} from '@blueprintjs/core'
 import {AppToaster} from './notify'
 import {APIContext} from './api'
+import {debounce} from 'underscore'
 
 APIViewContext = createContext({})
 APIViewConsumer = APIViewContext.Consumer
@@ -30,9 +31,10 @@ class APIResultView extends Component
 
   componentDidUpdate: (prevProps)->
     return if @buildURL() == @buildURL(prevProps)
-    @getData()
+    lazyGetData = debounce @getData, 300
+    lazyGetData()
 
-  getData: ->
+  getData: =>
     {get} = @context
     if not get?
       throw "APIResultView component must inhabit an APIContext"
@@ -76,6 +78,7 @@ class PagedAPIView extends Component
     perPage: 20
     topPagination: false
     bottomPagination: true
+    extraPagination: null
     getTotalCount: (response)->
       {headers} = response
       return parseInt(headers['x-total-count'])
@@ -97,7 +100,7 @@ class PagedAPIView extends Component
       if currentPage >= lastPage
         nextDisabled = true
       paginationInfo = h 'div', {disabled: true}, [
-        "#{currentPage+1} of #{lastPage+1}"
+        "#{currentPage+1} of #{lastPage+1} (#{count} records)"
       ]
 
     return h 'div.pagination-controls', [
@@ -113,6 +116,7 @@ class PagedAPIView extends Component
           disabled: nextDisabled
         }, "Next"
       ]
+      @props.extraPagination
       paginationInfo
     ]
 
@@ -127,13 +131,18 @@ class PagedAPIView extends Component
       count
       topPagination
       bottomPagination
+      params
       rest...
     } = @props
     {currentPage} = @state
 
-    offset = currentPage*perPage
-    limit = perPage
-    params = {offset, limit}
+    params ?= {}
+    {offset, limit, rest...} = params
+    offset ?= 0
+    offset += currentPage*perPage
+    if not limit? or limit > perPage
+      limit = perPage
+    params = {offset, limit, rest...}
 
     success = (response)=>
       count = getTotalCount(response)
