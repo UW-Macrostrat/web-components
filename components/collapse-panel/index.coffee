@@ -29,8 +29,8 @@ class CollapsePanel extends Component
   across pages, if storageID prop is passed
   ###
   savedState: ->
-    st = window.localStorage.getItem('collapse-panel-state')
     try
+      st = window.localStorage.getItem('collapse-panel-state')
       return JSON.parse(st)
     catch
       return {}
