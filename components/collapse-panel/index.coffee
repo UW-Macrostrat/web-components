@@ -31,7 +31,7 @@ class CollapsePanel extends Component
   savedState: ->
     try
       st = window.localStorage.getItem('collapse-panel-state')
-      return JSON.parse(st)
+      return JSON.parse(st) or {}
     catch
       return {}
 
