@@ -1,33 +1,33 @@
-{findDOMNode} = require 'react-dom'
-{select} = require 'd3-selection'
-h = require 'react-hyperscript'
-{Component, createContext, createRef} = require 'react'
-{HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
-{Icon} = require 'react-fa'
-update = require 'immutability-helper'
-PropTypes = require 'prop-types'
-{debounce} = require 'underscore'
-Measure = require('react-measure').default
-d3 = require 'd3'
+import {findDOMNode} from "react-dom"
+import {select} from "d3-selection"
+import h from "react-hyperscript"
+import {Component, createContext, createRef} from "react"
+import {HotkeysTarget, Hotkeys, Hotkey} from "@blueprintjs/core"
+import {Icon} from "react-fa"
+import update from "immutability-helper"
+import PropTypes from "prop-types"
+import {debounce} from "underscore"
+import Measure from 'react-measure'
+import * as d3 from "d3"
 
-{SummarySectionsSettings} = require './settings'
-LocalStorage = require '../storage'
-{getSectionData} = require '../section-data'
-{IsotopesComponent} = require './carbon-isotopes'
-{SVGSectionComponent} = require './column'
-{SectionNavigationControl} = require '../util'
-{SectionLinkOverlay} = require './link-overlay'
-{stackGroups, groupOrder, sectionOffsets} = require './display-parameters'
-{SectionOptionsContext, defaultSectionOptions} = require './options'
-{SequenceStratConsumer} = require '../sequence-strat-context'
-{FaciesDescriptionSmall} = require '../facies-descriptions'
-{LithostratKey} = require './lithostrat-key'
-{NavLink} = require '../../nav'
-{Legend} = require './legend'
-{query} = require '../../db'
-{SectionPositioner, SectionScale} = require './positioner'
+import {SummarySectionsSettings} from "./settings"
+import LocalStorage from "../storage"
+import {getSectionData} from "../section-data"
+import {IsotopesComponent} from "./carbon-isotopes"
+import {SVGSectionComponent} from "./column"
+import {SectionNavigationControl} from "../util"
+import {SectionLinkOverlay} from "./link-overlay"
+import {stackGroups, groupOrder, sectionOffsets} from "./display-parameters"
+import {SectionOptionsContext, defaultSectionOptions} from "./options"
+import {SequenceStratConsumer} from "../sequence-strat-context"
+import {FaciesDescriptionSmall} from "../facies-descriptions"
+import {LithostratKey} from "./lithostrat-key"
+import {NavLink} from "../../nav"
+import {Legend} from "./legend"
+import {query} from "../../db"
+import {SectionPositioner, SectionScale} from "./positioner"
 
-require '../main.styl'
+import "../main.styl"
 
 class LegacySectionScale extends SectionScale
   pixelOffset: ->
@@ -369,5 +369,5 @@ SummarySections = (props)->
   h SequenceStratConsumer, null, ({actions, rest...})->
     h SummarySectionsBase, {props..., rest...}
 
-module.exports = {SummarySections, SummarySectionsBase, SectionOptionsContext}
+export {SummarySections, SummarySectionsBase, SectionOptionsContext}
 

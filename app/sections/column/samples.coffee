@@ -1,9 +1,9 @@
-{query} = require '../db'
-d3 = require 'd3'
-{Component} = require 'react'
-h = require 'react-hyperscript'
+import {query} from "../db"
+import {format} from "d3-format"
+import {Component} from "react"
+import h from "react-hyperscript"
 
-fmt = d3.format('+.1f')
+fmt = format('+.1f')
 
 class Samples extends Component
   constructor: (props)->
@@ -32,4 +32,4 @@ class Samples extends Component
           h "text", {x: -10, y: 5}, "∂¹⁸O "+fmt(d.avg_delta18o)
         ]
 
-module.exports = Samples
+export default Samples

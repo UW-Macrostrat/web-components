@@ -1,3 +1,3 @@
 global.WEB_MODE=true
 
-require './main.coffee'
+import "./main.coffee"

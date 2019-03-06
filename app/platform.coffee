@@ -1,8 +1,9 @@
-{Component, createContext} = require 'react'
-h = require 'react-hyperscript'
-{join, resolve} = require 'path'
-LocalStorage = require './sections/storage'
-update = require 'immutability-helper'
+import {Component, createContext} from "react"
+import h from "react-hyperscript"
+import {join, resolve} from "path"
+import LocalStorage from "./sections/storage"
+import update from "immutability-helper"
+
 ## Set whether we are on the backend or frontend
 global.ELECTRON = 'electron'
 global.WEB = 'web'
@@ -10,7 +11,6 @@ global.PLATFORM = ELECTRON
 global.SERIALIZED_QUERIES = false
 try
   require 'electron'
-  {resolve, join} = require 'path'
   global.BASE_DIR = resolve join(__dirname,'..')
 catch
   global.PLATFORM = WEB
@@ -19,12 +19,12 @@ catch
 console.log "Running application on #{PLATFORM}"
 
 Platform = Object.freeze {
-  DESKTOP: 1
+  ELECTRON: 1
   WEB: 2
   PRINT: 3
 }
 
-PlatformContext = createContext()
+PlatformContext = createContext({})
 
 class PlatformProvider extends Component
   constructor: (props)->
@@ -85,13 +85,18 @@ class PlatformProvider extends Component
     catch
       return ''
 
-  resolveLithologySymbol: (id)=>
+  resolveLithologySymbol: (id, opts={})=>
+    {svg} = opts
+    svg ?= false
+    return null if not id?
     try
       if @state.ELECTRON
-        q = require.resolve "geologic-patterns/assets/png/#{id}.png"
+        fp = "png/#{id}.png"
+        if svg then fp = "svg/#{id}.svg"
+        q = join process.env.PROJECT_DIR, "versioned/deps/geologic-patterns/assets", fp
         return 'file://'+q
       else
-        return @path 'assets', 'lithology-patterns',"#{id}.png"
+        return @path 'assets','lithology-patterns', "#{id}.png"
     catch
       return ''
 
@@ -106,4 +111,4 @@ class PlatformProvider extends Component
 
 PlatformConsumer = PlatformContext.Consumer
 
-module.exports = {PlatformContext, Platform, PlatformProvider, PlatformConsumer}
+export {PlatformContext, Platform, PlatformProvider, PlatformConsumer}

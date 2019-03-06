@@ -1,21 +1,25 @@
-{PlatformContext, PlatformProvider} = require './platform'
-React = require 'react'
-ReactDOM = require 'react-dom'
-{HashRouter,Route,Link, Switch} = require 'react-router-dom'
-{mouseTrap} = require 'react-mousetrap'
-h = require 'react-hyperscript'
-{FocusStyleManager} = require '@blueprintjs/core'
+import "@babel/polyfill"
+requireFoolWebpack = require 'require-fool-webpack'
+# Because webpack is super annoying
+
+import {PlatformContext, PlatformProvider} from "./platform"
+import React from "react"
+import ReactDOM from "react-dom"
+import {HashRouter,Route,Link, Switch} from "react-router-dom"
+import {mouseTrap} from "react-mousetrap"
+import h from "react-hyperscript"
+import {FocusStyleManager} from "@blueprintjs/core"
 FocusStyleManager.onlyShowFocusOnTabs()
 
-{Icon} = require 'react-fa'
-{NavBar, NavLink} = require './nav'
-{SectionIndex} = require './sections'
+import {Icon} from "react-fa"
+import {NavBar, NavLink} from "./nav"
+import {SectionIndex} from "./sections"
 #MapLegend = require './map-legend/component'
-CarbonIsotopesPage = require './carbon-isotopes'
-LateralVariation = require './lateral-variation/component'
-{MapView} = require './map-viewer'
-{HotkeysTarget, Hotkeys, Hotkey} = require '@blueprintjs/core'
-require '@blueprintjs/core/lib/css/blueprint.css'
+import CarbonIsotopesPage from "./carbon-isotopes"
+import LateralVariation from "./lateral-variation/component"
+import {MapView} from "./map-viewer"
+import {HotkeysTarget, Hotkeys, Hotkey} from "@blueprintjs/core"
+import "@blueprintjs/core/lib/css/blueprint.css"
 
 wrapNavBar = (component)->
   class NavBarPage extends React.Component
@@ -36,7 +40,7 @@ wrapHomeButton = (component)->
       ]
 
 route = (path, component, props={})->
-  h Route, {props...,path,component}
+  h Route, {path,component,props...}
 
 class App extends React.Component
   constructor: ->
@@ -94,4 +98,4 @@ Home = ->
     ]
   ]
 
-ReactDOM.render(React.createElement(Router),document.querySelector('#main'))
+ReactDOM.render(React.createElement(Router),document.querySelector('#app'))

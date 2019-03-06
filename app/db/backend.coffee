@@ -1,13 +1,13 @@
-{join, dirname} = require 'path'
-Promise = require 'bluebird'
-{getUID, getHash} = require './util'
+import {join, dirname} from "path"
+import Promise from "bluebird"
+import {getUID, getHash} from "./util"
 
 opts = {
   promiseLib: Promise
   query: (e)=>
     v = queryLibrary.find (d)->
       d.sql == e.query
-    console.log e.query
+    #console.log e.query
     if not v?
       console.warn "No serialization spec found matching the query `#{e.query}`.
                     This request will fail on the frontend."
@@ -96,6 +96,6 @@ serializableQueries = ->
   return queryLibrary
 
 
-module.exports = {
+export {
   db, storedProcedure, serializableQueries, helpers
 }

@@ -1,11 +1,11 @@
-{Component} = require 'react'
-{Dialog} = require '@blueprintjs/core'
-h = require 'react-hyperscript'
-{PlatformContext} = require '../../../platform'
+import {Component} from "react"
+import {Dialog} from "@blueprintjs/core"
+import h from "react-hyperscript"
+import {PlatformContext} from "../../../platform"
 Lightbox = require('react-images').default
 
-{db, storedProcedure, query} = require '../../db'
-require 'react-image-slider/lib/image-slider.css'
+import {db, storedProcedure, query} from "../../db"
+import "react-image-slider/lib/image-slider.css"
 
 __photo_promise = null
 __photos = []
@@ -67,4 +67,4 @@ class PhotoOverlay extends Component
     h PlatformContext.Consumer, null, ({computePhotoPath})=>
       h PhotoOverlay__, {computePhotoPath, @props...}
 
-module.exports = {PhotoOverlay}
+export {PhotoOverlay}

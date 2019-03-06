@@ -1,17 +1,17 @@
-{BaseSVGSectionComponent} = require './column'
-{withRouter} = require 'react-router-dom'
-{findDOMNode} = require 'react-dom'
-d3 = require 'd3'
-require 'd3-selection-multi'
-{Component, createElement} = require 'react'
-h = require 'react-hyperscript'
-Measure = require('react-measure').default
-{SectionAxis} = require '../column/axis'
-{query} = require '../db'
-{sectionSurfaceProps} = require './link-overlay'
-{SVGNamespaces} = require '../util'
-classNames = require 'class-names'
-chroma = require 'chroma-js'
+import {BaseSVGSectionComponent} from "./column"
+import {withRouter} from "react-router-dom"
+import {findDOMNode} from "react-dom"
+import * as d3 from "d3"
+import "d3-selection-multi"
+import {Component, createElement} from "react"
+import h from "react-hyperscript"
+import Measure from 'react-measure'
+import {SectionAxis} from "../column/axis"
+import {query} from "../db"
+import {sectionSurfaceProps} from "./link-overlay"
+import {SVGNamespaces} from "../util"
+import classNames from "class-names"
+import chroma from "chroma-js"
 
 fmt = d3.format('.1f')
 
@@ -215,4 +215,4 @@ class IsotopesComponent extends Component
         h 'text', {y: y+12}, "#{d}"
       ]
 
-module.exports = {IsotopesComponent}
+export {IsotopesComponent}

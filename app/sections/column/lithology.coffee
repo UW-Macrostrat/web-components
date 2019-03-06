@@ -1,14 +1,14 @@
-{select} = require 'd3-selection'
-{Component, createElement} = require 'react'
-{findDOMNode} = require 'react-dom'
-h = require 'react-hyperscript'
-{join} = require 'path'
-{v4} = require 'uuid'
-classNames = require 'classnames'
-{createGrainsizeScale} = require './grainsize'
-{path} = require 'd3-path'
-d3 = require 'd3'
-{PlatformContext} = require '../../platform'
+import {select} from "d3-selection"
+import {Component, createElement} from "react"
+import {findDOMNode} from "react-dom"
+import h from "react-hyperscript"
+import {join} from "path"
+import {v4} from "uuid"
+import classNames from "classnames"
+import {createGrainsizeScale} from "./grainsize"
+import {path} from "d3-path"
+import * as d3 from "d3"
+import {PlatformContext} from "../../platform"
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -31,16 +31,6 @@ symbolIndex = {
   'sandy-dolomite': 645
 }
 
-resolveSymbol = (id)->
-  try
-    if PLATFORM == ELECTRON
-      q = require.resolve "geologic-patterns/assets/png/#{id}.png"
-      return 'file://'+q
-    else
-      return join BASE_URL, 'assets','lithology-patterns', "#{id}.png"
-  catch
-    return ''
-
 __divisionSize = (d)->
   {bottom,top} = d
   if top < bottom
@@ -48,7 +38,8 @@ __divisionSize = (d)->
   return [bottom, top]
 
 class LithologyColumn extends Component
-  @defaultProps:
+  @contextType: PlatformContext
+  @defaultProps: {
     width: 100
     # Should align exactly with centerline of stroke
     shiftY: 0.5
@@ -60,6 +51,7 @@ class LithologyColumn extends Component
     showLithology: true
     padWidth: true
     onEditInterval: null
+  }
   symbolIndex: symbolIndex
   queryID: 'lithology'
   constructor: (props)->
@@ -111,6 +103,7 @@ class LithologyColumn extends Component
     ]
 
   createDefs: =>
+    {resolveLithologySymbol} = @context
     patternSize = {width: 100, height: 100}
     {divisions} = @props
     {UUID, frameID, clipID} = @state
@@ -130,7 +123,7 @@ class LithologyColumn extends Component
         patternSize...
       }, [
         h 'image', {
-          xlinkHref: resolveSymbol(d)
+          xlinkHref: resolveLithologySymbol(d)
           x:0,y:0
           patternSize...
         }
@@ -339,5 +332,5 @@ class GeneralizedSectionColumn extends LithologyColumn
 
     h "path#{frameID}", {key: frameID, d: _.toString()}
 
-module.exports = {LithologyColumn, FaciesColumn,
-                  GeneralizedSectionColumn, CoveredColumn}
+export {LithologyColumn, FaciesColumn,
+        GeneralizedSectionColumn, CoveredColumn}

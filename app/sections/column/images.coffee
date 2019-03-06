@@ -1,7 +1,7 @@
-{Component, createElement} = require 'react'
-{findDOMNode} = require 'react-dom'
-d3 = require 'd3'
-h = require 'react-hyperscript'
+import {Component, createElement} from "react"
+import {findDOMNode} from "react-dom"
+import * as d3 from "d3"
+import h from "react-hyperscript"
 
 class SectionImages extends Component
   @defaultProps:
@@ -24,7 +24,7 @@ class SectionImages extends Component
     else
       children = @props.imageFiles.map (im,i)=>
         h "img",
-          src: im.filename
+          src: "file://"+im.filename
           width: im.width*zs
           height: im.height*zs
           style: {
@@ -34,4 +34,4 @@ class SectionImages extends Component
           }
     h "div.images", {style}, children
 
-module.exports = SectionImages
+export default SectionImages

@@ -9,4 +9,4 @@ class LocalStorage
     str = JSON.stringify obj
     window.localStorage.setItem @name, str
 
-module.exports = LocalStorage
+export default LocalStorage

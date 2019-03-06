@@ -1,4 +1,4 @@
-d3 = require 'd3'
+import * as d3 from "d3"
 
 class SectionScale
   constructor: (opts={})->
@@ -111,4 +111,4 @@ class SectionPositioner
     groupedSections.index = @sectionPositionsIndex
     return groupedSections
 
-module.exports = {SectionPositioner, SectionScale}
+export {SectionPositioner, SectionScale}

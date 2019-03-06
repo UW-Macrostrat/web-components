@@ -1,9 +1,9 @@
-d3 = require 'd3'
-require 'd3-selection-multi'
-{stratify} = require 'd3-hierarchy'
-style = require './main.styl'
-{query} = require '../db'
-classNames = require 'classnames'
+import * as d3 from "d3"
+import "d3-selection-multi"
+import {stratify} from "d3-hierarchy"
+import style from "./main.styl"
+import {query} from "../db"
+import classNames from "classnames"
 
 makeMapUnit = (d)->
   console.log d
@@ -72,4 +72,4 @@ createLegend = (el)->
     .attrs class: style.root
     .call makeNested
 
-module.exports = createLegend
+export createLegend

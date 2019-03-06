@@ -1,18 +1,18 @@
-d3 = require 'd3'
-require 'd3-selection-multi'
-h = require 'react-hyperscript'
-{findDOMNode} = require 'react-dom'
+import * as d3 from "d3"
+import "d3-selection-multi"
+import h from "react-hyperscript"
+import {findDOMNode} from "react-dom"
 Measure = require('react-measure').default
-{Component, createElement, createRef} = require 'react'
-classNames = require 'classnames'
+import {Component, createElement, createRef} from "react"
+import classNames from "classnames"
 
-{BaseSVGSectionComponent} = require '../summary-sections/column'
-{SectionAxis} = require '../column/axis'
-{GeneralizedSectionColumn, FaciesColumn, LithologyColumn} = require '../column/lithology'
-{FaciesContext} = require '../facies-descriptions'
-{SVGNamespaces} = require '../util'
-{SequenceStratConsumer} = require '../sequence-strat-context'
-{TriangleBars} = require '../column/flooding-surface'
+import {BaseSVGSectionComponent} from "../summary-sections/column"
+import {SectionAxis} from "../column/axis"
+import {GeneralizedSectionColumn, FaciesColumn, LithologyColumn} from "../column/lithology"
+import {FaciesContext} from "../facies-descriptions"
+import {SVGNamespaces} from "../util"
+import {SequenceStratConsumer} from "../sequence-strat-context"
+import {TriangleBars} from "../column/flooding-surface"
 
 class SimplifiedLithologyColumn extends LithologyColumn
 
@@ -132,4 +132,4 @@ class GeneralizedSVGSection extends Component
         h GeneralizedSVGSectionBase, props
 
 
-module.exports = {GeneralizedSVGSection}
+export {GeneralizedSVGSection}

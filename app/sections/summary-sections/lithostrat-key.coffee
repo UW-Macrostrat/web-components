@@ -1,22 +1,19 @@
-{Component} = require 'react'
-h = require 'react-hyperscript'
-
-{findDOMNode} = require 'react-dom'
-d3 = require 'd3'
-require 'd3-selection-multi'
-{Component, createElement, createRef} = require 'react'
-h = require 'react-hyperscript'
-Measure = require('react-measure').default
-{SectionAxis} = require '../column/axis'
-{BaseSectionComponent} = require '../column/base'
-{SymbolColumn} = require '../column/symbol-column'
-{FloodingSurface, TriangleBars} = require '../column/flooding-surface'
-{LithologyColumn, CoveredColumn, GeneralizedSectionColumn} = require '../column/lithology'
-{withRouter} = require 'react-router-dom'
-{Notification} = require '../../notify'
-{FaciesContext} = require '../facies-descriptions'
-{query} = require '../../db'
-{SVGNamespaces} = require '../util'
+import h from "react-hyperscript"
+import {findDOMNode} from "react-dom"
+import * as d3 from "d3"
+import "d3-selection-multi"
+import {Component, createElement, createRef} from "react"
+import Measure from 'react-measure'
+import {SectionAxis} from "../column/axis"
+import {BaseSectionComponent} from "../column/base"
+import {SymbolColumn} from "../column/symbol-column"
+import {FloodingSurface, TriangleBars} from "../column/flooding-surface"
+import {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} from "../column/lithology"
+import {withRouter} from "react-router-dom"
+import {Notification} from "../../notify"
+import {FaciesContext} from "../facies-descriptions"
+import {query} from "../../db"
+import {SVGNamespaces} from "../util"
 
 fmt = d3.format('.1f')
 
@@ -160,4 +157,4 @@ class LithostratKey extends Component
       h BaseSVGSectionComponent, @props
     ]
 
-module.exports = {LithostratKey}
+export {LithostratKey}

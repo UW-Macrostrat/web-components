@@ -1,2 +1,1 @@
-require("coffeescript/register");
-require("./main");
+import './main.coffee';

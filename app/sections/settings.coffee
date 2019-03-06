@@ -1,14 +1,14 @@
-{Component} = require 'react'
-h = require 'react-hyperscript'
-{CSSTransition} = require 'react-transition-group'
-{Switch, Slider} = require '@blueprintjs/core'
-{format} = require 'd3'
-{PlatformConsumer} = require '../platform'
-{SequenceStratConsumer} = require './sequence-strat-context'
-{FaciesDescriptionSmall} = require './facies-descriptions'
-classNames = require 'classnames'
+import {Component} from "react"
+import h from "react-hyperscript"
+import {CSSTransition} from "react-transition-group"
+import {Switch, Slider} from "@blueprintjs/core"
+import {format} from "d3"
+import {PlatformConsumer} from "../platform"
+import {SequenceStratConsumer} from "./sequence-strat-context"
+import {FaciesDescriptionSmall} from "./facies-descriptions"
+import classNames from "classnames"
 
-require './settings.styl'
+import "./settings.styl"
 
 
 class PickerControl extends Component
@@ -171,4 +171,4 @@ class SettingsPanel extends Component
       onUpdate
     }
 
-module.exports = {PickerControl, SettingsPanel}
+export {PickerControl, SettingsPanel}

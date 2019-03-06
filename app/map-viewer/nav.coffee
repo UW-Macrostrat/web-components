@@ -1,7 +1,7 @@
-{Component} = require 'react'
-h = require 'react-hyperscript'
-{NavLink, BackLink} = require '../nav'
-{Icon} = require 'react-fa'
+import {Component} from "react"
+import h from "react-hyperscript"
+import {NavLink, BackLink} from "../nav"
+import {Icon} from "react-fa"
 
 class MapNavigationControl extends Component
   render: ->
@@ -28,5 +28,5 @@ class MapNavigationControl extends Component
     ]
 
 
-module.exports = {MapNavigationControl}
+export {MapNavigationControl}
 

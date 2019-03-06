@@ -1,4 +1,4 @@
-{SectionPositioner, SectionScale} = require '../summary-sections/positioner'
+import {SectionPositioner, SectionScale} from "../summary-sections/positioner"
 
 class GeneralizedSectionPositioner extends SectionPositioner
   update: (sections)->
@@ -33,4 +33,4 @@ class GeneralizedSectionPositioner extends SectionPositioner
     console.log groupedSections
     return groupedSections
 
-module.exports = {GeneralizedSectionPositioner}
+export {GeneralizedSectionPositioner}
