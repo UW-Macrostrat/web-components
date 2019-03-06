@@ -65,11 +65,7 @@ class FaciesDescriptionPage extends Component
     }
 
   render: ->
-    __a = '../../assets/facies-descriptions/facies-descriptions.html'
-    fn = require.resolve __a
-    dir = dirname(fn)
-    html = readFileSync(fn, 'utf-8')
-    __html = html.replace(/\*\*\//g,"file://#{dir}/images/")
+    __html = ""
     dangerouslySetInnerHTML = {__html}
     h 'div.page.facies-descriptions.text-page', [
       h SectionNavigationControl

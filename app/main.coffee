@@ -1,4 +1,6 @@
 import "@babel/polyfill"
+requireFoolWebpack = require 'require-fool-webpack'
+# Because webpack is super annoying
 
 import {PlatformContext, PlatformProvider} from "./platform"
 import React from "react"
