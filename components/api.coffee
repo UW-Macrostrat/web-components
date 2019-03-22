@@ -39,14 +39,20 @@ class APIProvider extends Component
     route += buildQueryString(params)
     return route
 
-  post: (route, params, payload, opts)=>
-    if not payload?
-      opts = payload
-      payload = params
-      params = {}
+  post: =>
+    if arguments.length == 4
+      [route, params, payload, opts] = arguments
+    else if arguments.length == 3
+      [route, payload, opts] = arguments
+    else if arguments.length == 2
+      [route, payload] = arguments
+    else
+      throw "No data to post"
+    opts ?= {}
+    params ?= {}
 
     url = @buildURL route, params
-    @runQuery(post(url, payload), opts)
+    @runQuery(post(url, payload), url, "POST", opts)
 
   get: (route, params, opts)=>
     params ?= {}
@@ -55,13 +61,14 @@ class APIProvider extends Component
       params = {}
 
     url = @buildURL route, params
-    @runQuery(get(url), opts)
+    @runQuery(get(url), url, "GET", opts)
 
-  runQuery: (fn, opts)=>
+  runQuery: (fn, url, method, opts)=>
     opts = @processOptions opts
     {onError} = opts
     try
       res = await fn
+      console.log res
       {data} = res
       if not data?
         throw res.error or "No data!"
@@ -69,13 +76,21 @@ class APIProvider extends Component
         return res
       return opts.unwrapResponse(data)
     catch err
-      onError(route, {error:err, response: res})
+      if not opts.handleError
+        throw err
+      onError(route, {
+        error:err,
+        response: res,
+        endpoint: url,
+        method
+      })
       return null
 
   processOptions: (opts={})=>
     # Standardize option values
     # (some props can be passed as options)
     opts.fullResponse ?= false
+    opts.handleError ?= true
     opts.onError ?= @props.onError
     opts.unwrapResponse ?= @props.unwrapResponse
     return opts
