@@ -5,6 +5,12 @@ import axios, {get, post} from 'axios'
 APIContext = createContext({})
 APIConsumer = APIContext.Consumer
 
+buildQueryString = (params={})=>
+  p = new URLSearchParams(params).toString()
+  if p != ""
+    p = "?"+p
+  return p
+
 class APIProvider extends Component
   @defaultProps: {
     baseRoute: "/api"
@@ -12,7 +18,7 @@ class APIProvider extends Component
   }
   render: ->
     {baseURL} = @props
-    helpers = {buildURL: @buildURL}
+    helpers = {buildURL: @buildURL, buildQueryString}
     actions = {post: @post, get: @get}
     value = {actions..., helpers, baseURL}
     h APIContext.Provider, {value}, @props.children
@@ -20,12 +26,14 @@ class APIProvider extends Component
   buildURL: (route, params={})=>
     {baseURL} = @props
     return null unless route?
-    p = new URLSearchParams(params).toString()
-    if p != ""
-      route += "?"+p
-    return baseURL+route
+    console.log route
 
-  post: (route, params, payload)=>
+    if not (route.startsWith(baseURL) or route.startsWith('http'))
+      route = baseURL+route
+    route += buildQueryString(params)
+    return route
+
+  post: (route, params, payload, fullResponse=false)=>
     {onError} = @props
     if not payload?
       payload = params
@@ -37,12 +45,14 @@ class APIProvider extends Component
       {data} = res
       if not data?
         onError(route, res)
+      if fullResponse
+        return res
       return data
     catch err
       onError(route, {error:err})
       return null
 
-  get: (route, params={})=>
+  get: (route, params={}, fullResponse=false)=>
     {onError} = @props
     url = @buildURL route, params
     try
@@ -50,6 +60,8 @@ class APIProvider extends Component
       {data} = res
       if not data?
         onError(route, res)
+      if fullResponse
+        return res
       return data
     catch err
       onError(route, {error:err})
@@ -58,6 +70,7 @@ class APIProvider extends Component
 export {
   APIContext,
   APIProvider,
-  APIConsumer
+  APIConsumer,
+  buildQueryString
 }
 

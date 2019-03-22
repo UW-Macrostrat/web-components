@@ -1,14 +1,16 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
-import axios, {get, post} from 'axios'
+import axios, {post} from 'axios'
 import {Spinner, Button, ButtonGroup, Intent, NonIdealState} from '@blueprintjs/core'
 import {AppToaster} from './notify'
 import {APIContext} from './api'
+import {debounce} from 'underscore'
 
 APIViewContext = createContext({})
 APIViewConsumer = APIViewContext.Consumer
 
 class APIResultView extends Component
+  @contextType: APIContext
   @defaultProps: {
     route: null
     params: {}
@@ -18,35 +20,39 @@ class APIResultView extends Component
   }
   constructor: ->
     super arguments...
-    @state = {response: null}
+    @state = {data: null}
     @getData()
 
   buildURL: (props)=>
     props ?= @props
+    {helpers: {buildURL}} = @context
     {route, params} = props
-    return null unless route?
-    p = new URLSearchParams(params).toString()
-    if p != ""
-      route += "?"+p
-    return route
+    buildURL route, params
 
   componentDidUpdate: (prevProps)->
     return if @buildURL() == @buildURL(prevProps)
-    @getData()
+    lazyGetData = debounce @getData, 300
+    lazyGetData()
 
-  getData: ->
-    {success} = @props
-    route = @buildURL()
+  getData: =>
+    {get} = @context
+    if not get?
+      throw "APIResultView component must inhabit an APIContext"
+    {success, route, params} = @props
     return unless route?
-    response = await get(route)
-    @setState {response}
+    console.log route
+    # Get the full response instead of just the data
+    response = await get(route, params, true)
+    {data} = response
+    @setState {data}
     success response
 
   render: ->
-    {response} = @state
-    if not response?
-      return h Spinner
-    {data} = response
+    {data} = @state
+    if not data?
+      return h 'div.api-result-placeholder', [
+        h Spinner
+      ]
     value = {deleteItem: @deleteItem}
     h APIViewContext.Provider, {value}, (
         @props.children(data)
@@ -72,6 +78,7 @@ class PagedAPIView extends Component
     perPage: 20
     topPagination: false
     bottomPagination: true
+    extraPagination: null
     getTotalCount: (response)->
       {headers} = response
       return parseInt(headers['x-total-count'])
@@ -87,22 +94,31 @@ class PagedAPIView extends Component
     {perPage} = @props
     {currentPage, count} = @state
     nextDisabled = false
+    paginationInfo = null
     if count?
       lastPage = Math.floor(count/perPage)
       if currentPage >= lastPage
+        currentPage = lastPage
         nextDisabled = true
+      paginationInfo = h 'div', {disabled: true}, [
+        "#{currentPage+1} of #{lastPage+1} (#{count} records)"
+      ]
 
-    return h ButtonGroup, [
-      h Button, {
-        onClick: @setPage(currentPage-1)
-        icon: 'arrow-left'
-        disabled: currentPage == 0
-      }, "Previous"
-      h Button, {
-        onClick: @setPage(currentPage+1)
-        rightIcon: 'arrow-right'
-        disabled: nextDisabled
-      }, "Next"
+    return h 'div.pagination-controls', [
+      h ButtonGroup, [
+        h Button, {
+          onClick: @setPage(currentPage-1)
+          icon: 'arrow-left'
+          disabled: currentPage == 0
+        }, "Previous"
+        h Button, {
+          onClick: @setPage(currentPage+1)
+          rightIcon: 'arrow-right'
+          disabled: nextDisabled
+        }, "Next"
+      ]
+      @props.extraPagination
+      paginationInfo
     ]
 
 
@@ -116,13 +132,18 @@ class PagedAPIView extends Component
       count
       topPagination
       bottomPagination
+      params
       rest...
     } = @props
     {currentPage} = @state
 
-    offset = currentPage*perPage
-    limit = perPage
-    params = {offset, limit}
+    params ?= {}
+    {offset, limit, rest...} = params
+    offset ?= 0
+    offset += currentPage*perPage
+    if not limit? or limit > perPage
+      limit = perPage
+    params = {offset, limit, rest...}
 
     success = (response)=>
       count = getTotalCount(response)
