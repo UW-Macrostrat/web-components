@@ -13,8 +13,14 @@ buildQueryString = (params={})=>
 
 class APIProvider extends Component
   @defaultProps: {
-    baseRoute: "/api"
-    onError: ->
+    baseURL: "/api"
+    unwrapResponse: (res)->res
+    onError: (route, opts)->
+      # This is a non-intuitive signature
+      {error} = opts
+      if not error?
+        error = opts
+      throw error
   }
   render: ->
     {baseURL} = @props
@@ -33,39 +39,46 @@ class APIProvider extends Component
     route += buildQueryString(params)
     return route
 
-  post: (route, params, payload, fullResponse=false)=>
-    {onError} = @props
+  post: (route, params, payload, opts)=>
     if not payload?
+      opts = payload
       payload = params
       params = {}
-    url = @buildURL route, params
 
+    url = @buildURL route, params
+    @runQuery(post(url, payload), opts)
+
+  get: (route, params, opts)=>
+    params ?= {}
+    if not opts?
+      opts = params
+      params = {}
+
+    url = @buildURL route, params
+    @runQuery(get(url), opts)
+
+  runQuery: (fn, opts)=>
+    opts = @processOptions opts
+    {onError} = opts
     try
-      res = await post url, payload
+      res = await fn
       {data} = res
       if not data?
-        onError(route, res)
-      if fullResponse
+        throw res.error or "No data!"
+      if opts.fullResponse
         return res
-      return data
+      return opts.unwrapResponse(data)
     catch err
-      onError(route, {error:err})
+      onError(route, {error:err, response: res})
       return null
 
-  get: (route, params={}, fullResponse=false)=>
-    {onError} = @props
-    url = @buildURL route, params
-    try
-      res = await get url
-      {data} = res
-      if not data?
-        onError(route, res)
-      if fullResponse
-        return res
-      return data
-    catch err
-      onError(route, {error:err})
-      return null
+  processOptions: (opts={})=>
+    # Standardize option values
+    # (some props can be passed as options)
+    opts.fullResponse ?= false
+    opts.onError ?= @props.onError
+    opts.unwrapResponse ?= @props.unwrapResponse
+    return opts
 
 export {
   APIContext,
