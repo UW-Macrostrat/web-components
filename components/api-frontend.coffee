@@ -42,7 +42,7 @@ class APIResultView extends Component
     return unless route?
     console.log route
     # Get the full response instead of just the data
-    response = await get(route, params, true)
+    response = await get(route, params, {fullResponse: true})
     {data} = response
     @setState {data}
     success response
