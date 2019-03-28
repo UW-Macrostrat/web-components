@@ -9,6 +9,22 @@ import {debounce} from 'underscore'
 APIViewContext = createContext({})
 APIViewConsumer = APIViewContext.Consumer
 
+class Pagination extends Component
+  render: ->
+    {currentPage, nextDisabled, setPage} = @props
+    h ButtonGroup, [
+      h Button, {
+        onClick: setPage(currentPage-1)
+        icon: 'arrow-left'
+        disabled: currentPage == 0
+      }, "Previous"
+      h Button, {
+        onClick: setPage(currentPage+1)
+        rightIcon: 'arrow-right'
+        disabled: nextDisabled
+      }, "Next"
+    ]
+
 class APIResultView extends Component
   @contextType: APIContext
   @defaultProps: {
@@ -92,11 +108,13 @@ class PagedAPIView extends Component
 
   renderPagination: ->
     {perPage} = @props
-    {currentPage, count} = @state
+    {count} = @state
     nextDisabled = false
     paginationInfo = null
-    if count?
-      lastPage = Math.floor(count/perPage)
+    currentPage = @currentPage()
+    lastPage = @lastPage()
+
+    if lastPage?
       if currentPage >= lastPage
         currentPage = lastPage
         nextDisabled = true
@@ -105,22 +123,23 @@ class PagedAPIView extends Component
       ]
 
     return h 'div.pagination-controls', [
-      h ButtonGroup, [
-        h Button, {
-          onClick: @setPage(currentPage-1)
-          icon: 'arrow-left'
-          disabled: currentPage == 0
-        }, "Previous"
-        h Button, {
-          onClick: @setPage(currentPage+1)
-          rightIcon: 'arrow-right'
-          disabled: nextDisabled
-        }, "Next"
-      ]
+      h Pagination, {currentPage, nextDisabled, setPage: @setPage}
       @props.extraPagination
       paginationInfo
     ]
 
+  lastPage: ->
+    {count} = @state
+    {perPage} = @props
+    return null unless count?
+    return Math.floor(count/perPage)
+
+  currentPage: ->
+    {currentPage} = @state
+    lastPage = @lastPage()
+    if lastPage? and currentPage >= lastPage
+      return lastPage
+    return currentPage
 
   render: ->
     {
@@ -135,10 +154,11 @@ class PagedAPIView extends Component
       params
       rest...
     } = @props
-    {currentPage} = @state
 
     params ?= {}
     {offset, limit, rest...} = params
+
+    currentPage = @currentPage()
     offset ?= 0
     offset += currentPage*perPage
     if not limit? or limit > perPage
