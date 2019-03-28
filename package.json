@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "UI components for React and blueprint.js",
   "main": "index.coffee",
+  "source": true,
   "scripts": {
     "preinstall": "linklocal"
   },
