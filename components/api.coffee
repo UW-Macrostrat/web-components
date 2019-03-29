@@ -78,6 +78,7 @@ class APIProvider extends Component
     {onError} = opts
     try
       res = await promise
+      opts.onResponse(res)
       {data} = res
       if not data?
         throw res.error or "No data!"

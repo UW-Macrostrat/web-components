@@ -18,7 +18,7 @@ class Pagination extends Component
       h Button, {
         onClick: setPage(currentPage-1)
         icon: 'arrow-left'
-        disabled: currentPage == 0
+        disabled: currentPage <= 0
       }, "Previous"
       h Button, {
         onClick: setPage(currentPage+1)
@@ -138,7 +138,10 @@ class PagedAPIView extends Component
     {count} = @state
     {perPage} = @props
     return null unless count?
-    return Math.floor(count/perPage)
+    pages = Math.floor(count/perPage)
+    if count%perPage == 0
+      pages -= 1
+    return pages
 
   currentPage: ->
     {currentPage} = @state
@@ -178,9 +181,15 @@ class PagedAPIView extends Component
     # Options for get
     opts = {onResponse}
 
+    _children = (data)=>
+      if @state.count == 0
+        return h NonIdealState, {icon: 'search', title: "No results"}
+      console.log @state.count, data
+      children(data)
+
     h 'div.pagination-container', rest, [
       @renderPagination() if topPagination
-      h APIResultView, {route, params, opts, primaryKey}, children
+      h APIResultView, {route, params, opts, primaryKey}, _children
       @renderPagination() if bottomPagination
     ]
 
