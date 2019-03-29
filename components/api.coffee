@@ -1,5 +1,6 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
+import {memoize} from 'underscore'
 import axios, {get, post} from 'axios'
 
 APIContext = createContext({})
@@ -52,7 +53,9 @@ class APIProvider extends Component
     params ?= {}
 
     url = @buildURL route, params
-    @runQuery(post(url, payload), url, "POST", opts)
+    opts = @processOptions opts
+
+    await @runQuery(post(url, payload), route, url, "POST", opts)
 
   get: (route, params, opts)=>
     params ?= {}
@@ -61,23 +64,28 @@ class APIProvider extends Component
       params = {}
 
     url = @buildURL route, params
-    @runQuery(get(url), url, "GET", opts)
-
-  runQuery: (fn, url, method, opts)=>
     opts = @processOptions opts
+
+    fn = get
+    if opts.memoize
+      # Doesn't really work yet
+      fn = memoize(get)
+      #fn = get
+
+    await @runQuery(fn(url), route, url, "GET", opts)
+
+  runQuery: (promise, route, url, method, opts)=>
     {onError} = opts
     try
-      res = await fn
-      console.log res
+      res = await promise
       {data} = res
       if not data?
         throw res.error or "No data!"
-      if opts.fullResponse
-        return res
       return opts.unwrapResponse(data)
     catch err
       if not opts.handleError
         throw err
+      console.error err
       onError(route, {
         error:err,
         response: res,
@@ -91,8 +99,15 @@ class APIProvider extends Component
     # (some props can be passed as options)
     opts.fullResponse ?= false
     opts.handleError ?= true
+    opts.memoize ?= false
     opts.onError ?= @props.onError
+    # Run some side effects with the response (e.g. process headers)
+    opts.onResponse ?= ->
     opts.unwrapResponse ?= @props.unwrapResponse
+
+    if opts.fullResponse
+      opts.unwrapResponse = (data)->data
+
     return opts
 
 export {

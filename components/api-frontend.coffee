@@ -1,8 +1,10 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
 import axios, {post} from 'axios'
-import {Spinner, Button, ButtonGroup, Intent, NonIdealState} from '@blueprintjs/core'
+import {Spinner, Button, ButtonGroup,
+        Intent, NonIdealState} from '@blueprintjs/core'
 import {AppToaster} from './notify'
+import ReactJson from 'react-json-view'
 import {APIContext} from './api'
 import {debounce} from 'underscore'
 
@@ -30,6 +32,7 @@ class APIResultView extends Component
   @defaultProps: {
     route: null
     params: {}
+    opts: {} # Options passed to `get`
     debug: false
     success: console.log
     primaryKey: 'id'
@@ -54,24 +57,27 @@ class APIResultView extends Component
     {get} = @context
     if not get?
       throw "APIResultView component must inhabit an APIContext"
-    {success, route, params} = @props
+    {route, params, opts} = @props
     return unless route?
-    console.log route
-    # Get the full response instead of just the data
-    response = await get(route, params, {fullResponse: true})
-    {data} = response
+    data = await get(route, params, opts)
+    console.log data
     @setState {data}
-    success response
 
   render: ->
     {data} = @state
+    console.log data
+    {children} = @props
+    if not children?
+      children = (data)=>
+        h ReactJson, {src: data}
+
     if not data?
       return h 'div.api-result-placeholder', [
         h Spinner
       ]
     value = {deleteItem: @deleteItem}
     h APIViewContext.Provider, {value}, (
-        @props.children(data)
+        children(data)
     )
 
   deleteItem: (data)=>
@@ -165,13 +171,16 @@ class PagedAPIView extends Component
       limit = perPage
     params = {offset, limit, rest...}
 
-    success = (response)=>
+    onResponse = (response)=>
       count = getTotalCount(response)
       @setState {count}
 
+    # Options for get
+    opts = {onResponse}
+
     h 'div.pagination-container', rest, [
       @renderPagination() if topPagination
-      h APIResultView, {route, params, success, primaryKey}, children
+      h APIResultView, {route, params, opts, primaryKey}, children
       @renderPagination() if bottomPagination
     ]
 
