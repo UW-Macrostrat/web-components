@@ -3,9 +3,10 @@ import {NavLink} from 'react-router-dom'
 import classNames from 'classnames'
 
 LinkButton = (props)->
-  {to, className, children, rest...} = props
-  className = classNames className, "link-button", "bp3-button", "bp3-minimal"
-  activeClassName = classNames className, "bp3-active"
+  {to, className, children, minimal, rest...} = props
+  minimal ?= false
+  className = classNames className, {"bp3-minimal": minimal}, "link-button", "bp3-button"
+  activeClassName = null #classNames className, "bp3-active"
   h NavLink, {to, className, activeClassName, rest...}, children
 
 export {LinkButton}
