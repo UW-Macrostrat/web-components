@@ -8,4 +8,4 @@ export * from './image'
 export * from './model-editor'
 export * from './notify'
 export * from './stateful'
-
+export * from './geodeepdive'
