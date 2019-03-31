@@ -55,7 +55,7 @@ class APIProvider extends Component
     url = @buildURL route, params
     opts = @processOptions opts
 
-    await @runQuery(post(url, payload), route, url, "POST", opts)
+    @runQuery(post(url, payload), route, url, "POST", opts)
 
   get: (route, params, opts)=>
     params ?= {}
@@ -68,11 +68,9 @@ class APIProvider extends Component
 
     fn = get
     if opts.memoize
-      # Doesn't really work yet
       fn = memoize(get)
-      #fn = get
 
-    await @runQuery(fn(url), route, url, "GET", opts)
+    @runQuery(fn(url), route, url, "GET", opts)
 
   runQuery: (promise, route, url, method, opts)=>
     {onError} = opts

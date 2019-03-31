@@ -27,6 +27,11 @@ class Pagination extends Component
       }, "Next"
     ]
 
+APIResultPlaceholder = =>
+  h 'div.api-result-placeholder', [
+    h Spinner
+  ]
+
 class APIResultView extends Component
   @contextType: APIContext
   @defaultProps: {
@@ -36,6 +41,9 @@ class APIResultView extends Component
     debug: false
     success: console.log
     primaryKey: 'id'
+    # If placeholder is not defined, the render
+    # method will be called with null data
+    placeholder: APIResultPlaceholder
   }
   constructor: ->
     super arguments...
@@ -66,15 +74,13 @@ class APIResultView extends Component
   render: ->
     {data} = @state
     console.log data
-    {children} = @props
+    {children, placeholder} = @props
     if not children?
       children = (data)=>
         h ReactJson, {src: data}
 
-    if not data?
-      return h 'div.api-result-placeholder', [
-        h Spinner
-      ]
+    if not data? and placeholder?
+      return placeholder
     value = {deleteItem: @deleteItem}
     h APIViewContext.Provider, {value}, (
         children(data)
