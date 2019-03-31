@@ -27,7 +27,7 @@ class APIProvider extends Component
     {baseURL, unwrapResponse, onError, rest...} = @props
     helpers = {buildURL: @buildURL, buildQueryString}
     actions = {post: @post, get: @get}
-    value = {rest..., actions..., helpers, baseURL}
+    value = {rest..., actions..., helpers, baseURL, onError}
     h APIContext.Provider, {value}, @props.children
 
   buildURL: (route, params={})=>

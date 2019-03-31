@@ -57,7 +57,7 @@ class APIResultView extends Component
     {get} = @context
     if not get?
       throw "APIResultView component must inhabit an APIContext"
-    {route, params, opts} = @props
+    {route, params, opts, onError: _onError} = @props
     return unless route?
     data = await get(route, params, opts)
     console.log data
