@@ -1,12 +1,16 @@
 import h from 'react-hyperscript'
-import {NavLink} from 'react-router-dom'
-import classNames from 'classnames'
+import {NavLink, withRouter} from 'react-router-dom'
+import {Button, AnchorButton} from '@blueprintjs/core'
 
-LinkButton = (props)->
-  {to, className, children, minimal, rest...} = props
-  minimal ?= false
-  className = classNames className, {"bp3-minimal": minimal}, "link-button", "bp3-button"
-  activeClassName = null #classNames className, "bp3-active"
-  h NavLink, {to, className, activeClassName, rest...}, children
+# Button that forms a React Router link
+LinkButton = withRouter (props)->
+  {to, history, staticContext, onClick, rest...} = props
+
+  onClick = (event)->
+    return unless to?
+    history.push(to)
+    event.preventDefault()
+
+  h AnchorButton, {onClick, rest...}
 
 export {LinkButton}

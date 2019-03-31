@@ -24,10 +24,10 @@ class APIProvider extends Component
       throw error
   }
   render: ->
-    {baseURL} = @props
+    {baseURL, unwrapResponse, onError, rest...} = @props
     helpers = {buildURL: @buildURL, buildQueryString}
     actions = {post: @post, get: @get}
-    value = {actions..., helpers, baseURL}
+    value = {rest..., actions..., helpers, baseURL}
     h APIContext.Provider, {value}, @props.children
 
   buildURL: (route, params={})=>
