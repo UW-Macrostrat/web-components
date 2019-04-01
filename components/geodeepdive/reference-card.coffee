@@ -10,18 +10,22 @@ AuthorList = (props)->
     etAl = ' et al.'
   _ = []
   for author, ix in authors
-    name = author.name.split(',')
+    try
+      name = author.name.split(',')
+      newName = name[1].trim()+" "+name[0].trim()
+    catch
+      name = author.name
     isLast = (ix == authors.length-1 and not etAl?)
     if isLast
       _.pop()
       _.push ' and '
-    _.push h 'span.author', name[1].trim()+" "+name[0].trim()
+    _.push h 'span.author', name
     if not isLast
       _.push ', '
   if etAl?
     _.pop()
     _.push etAl
-  h 'span.authors', _
+  return h 'span.authors', _
 
 VolumeNumber = (props)->
   {volume, number} = props
@@ -40,9 +44,14 @@ VolumeNumber = (props)->
 class GeoDeepDiveSwatchInner extends Component
   render: ->
     {title, author, doi, link, journal, identifier, volume, number, year} = @props
-    {url} = link.find (d)->d.type == 'publisher'
-    {id: doi} = identifier.find (d)->d.type == 'doi'
-    console.log @props
+    try
+      {url} = link.find (d)->d.type == 'publisher'
+    catch
+      url = null
+    try
+      {id: doi} = identifier.find (d)->d.type == 'doi'
+    catch
+      doi = null
 
     h LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, [
       h AuthorList, {authors: author}
@@ -69,6 +78,9 @@ class GDDReferenceCard extends Component
         memoize: true
       }
     }, (data)=>
-      h GeoDeepDiveSwatchInner, data
+      try
+        return h GeoDeepDiveSwatchInner, data
+      catch
+        return null
 
 export {GDDReferenceCard, AuthorList}
