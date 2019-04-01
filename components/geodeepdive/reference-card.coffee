@@ -67,6 +67,7 @@ class GDDReferenceCard extends Component
       opts: {
         unwrapResponse: (res)->res.success.data[0]
         memoize: true
+        onError: console.error
       }
     }, (data)=>
       h GeoDeepDiveSwatchInner, data
