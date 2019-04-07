@@ -81,6 +81,9 @@ class SectionLinkOverlay extends Component
       if not showSequenceStratigraphy
         return null
 
+      if surface_id == 19
+        return null
+
     onClick = ->
       v = if type == 'lithostrat' then "Lithostratigraphic" else "Sequence-stratigraphic"
       Notification.show {

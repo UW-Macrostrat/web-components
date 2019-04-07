@@ -21,6 +21,17 @@ svg#section-link-overlay
     &.commonality-3
       stroke-width 1
 
+@media print
+  div.cursor
+    display: none
+  ul.controls, #settings
+    display: none
+  #section-page-inner
+    transform: scale(5)
+    transform-origin: top left
+  #section-pane, #panel-container
+    overflow: auto !important
+
 div.section-page#generalized-sections svg
   margin-bottom 1em
 

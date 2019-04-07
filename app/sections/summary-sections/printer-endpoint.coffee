@@ -1,10 +1,5 @@
-import * as d3 from "d3"
-module.exports = (el, cb)->
-  d3.select el
-    .append 'div'
-    .attr 'id', 'main'
-  window.location.hash = '#/sections/summary'
-  require '../../main.coffee'
-  require './print.styl'
-  setTimeout cb, 3000
+require '@babel/polyfill'
+fn = require './printer-endpoint-inner'
 
+console.log(fn)
+module.exports = fn

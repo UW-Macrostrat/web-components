@@ -1,8 +1,8 @@
 import {Component} from "react"
 import h from "react-hyperscript"
 import {CSSTransition} from "react-transition-group"
-import {Switch, Slider} from "@blueprintjs/core"
-import {format} from "d3"
+import {Switch, Slider, Button} from "@blueprintjs/core"
+import {format, select} from "d3"
 import {PlatformConsumer} from "../platform"
 import {SequenceStratConsumer} from "./sequence-strat-context"
 import {FaciesDescriptionSmall} from "./facies-descriptions"
@@ -140,8 +140,37 @@ class SettingsPanel extends Component
       h 'h5', "Backend"
       h EditModeControl
       h SerializedQueriesControl
+      h Button, {onClick: @printToPDF}, "Print to PDF"
       h 'hr'
     ]
+
+  printToPDF: ->
+    console.log "Printing to PDF"
+    {remote} = require 'electron'
+    fs = require 'fs'
+    path = require 'path'
+    wc = remote.getCurrentWebContents()
+
+    pixelsToMicrons = (px)->
+      Math.ceil(px/96.0*25400)
+
+    {width, height} = document.querySelector('#section-page-inner').getBoundingClientRect()
+    width = 2400
+    height = 1900
+
+    opts = {
+      printBackground: true
+      marginsType: 1
+      pageSize: {
+        height: pixelsToMicrons(height*5)+10
+        width: pixelsToMicrons(width*5)+10
+      }
+    }
+
+    wc.printToPDF opts, (e, data)->
+      dn = process.env.REPO_DIR
+      outfile = path.join(dn, "graphics","output", "summary-sections.pdf")
+      fs.writeFileSync outfile, data
 
   sequenceStratControls: ->
     return h SequenceStratControlPanel
