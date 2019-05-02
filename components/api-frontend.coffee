@@ -27,7 +27,7 @@ class Pagination extends Component
       }, "Next"
     ]
 
-APIResultPlaceholder = =>
+APIResultPlaceholder = (props)=>
   h 'div.api-result-placeholder', [
     h Spinner
   ]
@@ -80,7 +80,7 @@ class APIResultView extends Component
         h ReactJson, {src: data}
 
     if not data? and placeholder?
-      return placeholder
+      return h placeholder
     value = {deleteItem: @deleteItem}
     h APIViewContext.Provider, {value}, (
         children(data)
