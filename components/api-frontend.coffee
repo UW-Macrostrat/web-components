@@ -154,6 +154,8 @@ class PagedAPIView extends Component
     lastPage = @lastPage()
     if lastPage? and currentPage >= lastPage
       return lastPage
+    if currentPage < 0
+      currentPage = 0
     return currentPage
 
   render: ->
@@ -176,6 +178,11 @@ class PagedAPIView extends Component
     currentPage = @currentPage()
     offset ?= 0
     offset += currentPage*perPage
+
+    # This shouldn't happen but it does
+    if offset < 0
+      offset = 0
+
     if not limit? or limit > perPage
       limit = perPage
     params = {offset, limit, rest...}
