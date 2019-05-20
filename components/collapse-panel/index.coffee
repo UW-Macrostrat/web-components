@@ -4,6 +4,20 @@ import {Component} from 'react'
 import h from 'react-hyperscript'
 import {Button, Collapse} from '@blueprintjs/core'
 import './main.styl'
+import styled from '@emotion/styled'
+
+HeaderButton = styled(Button)"""
+.bp3-button-text {
+  flex-grow: 1;
+  display: flex;
+}
+.bp3-button-text * {
+  display: inline;
+}
+span.expander {
+  flex-grow: 1;
+}
+"""
 
 class CollapsePanel extends Component
   @defaultProps: {
@@ -65,9 +79,10 @@ class CollapsePanel extends Component
 
     h 'div.collapse-panel', props, [
       h 'div.panel-header', [
-        h Button, {icon, minimal: true, onClick}
-        h 'h2', title
-        h 'div.expander'
+        h HeaderButton, {icon, minimal: true, onClick, fill: true}, [
+          h 'h2', title
+          h 'span.expander'
+        ]
         headerRight
       ]
       h Collapse, {isOpen}, children
