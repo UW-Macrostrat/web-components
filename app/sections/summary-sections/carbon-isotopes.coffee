@@ -195,7 +195,7 @@ class IsotopesComponent extends Component
         actualStroke = chroma(stroke).brighten(2).css()
 
       h 'line', {
-        key: d.id
+        key: d.analysis_id
         x1,y1,x2,y2,
         stroke: actualStroke
         strokeWidth: 8
