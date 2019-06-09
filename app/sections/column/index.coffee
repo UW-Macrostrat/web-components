@@ -1,7 +1,7 @@
 import {findDOMNode} from "react-dom"
 import * as d3 from "d3"
 import "d3-selection-multi"
-import {Component, createElement} from "react"
+import {Component, createElement, createContext} from "react"
 import h from "react-hyperscript"
 import VisibilitySensor from "react-visibility-sensor"
 import {SectionAxis} from "./axis"
@@ -183,7 +183,8 @@ class SectionComponent extends BaseSectionComponent
 
     width = outerWidth
     style = {top: marginTop}
-    mainElement = h "div.section-container", {
+
+    h "div.section-container", {
         className: if @props.skeletal then "skeleton" else null
       }, [
       h 'div.section-header', [h "h2", txt]
@@ -192,14 +193,6 @@ class SectionComponent extends BaseSectionComponent
           notesEl
       ]
     ]
-
-    return mainElement unless @props.trackVisibility
-
-    p =
-      onChange: @onVisibilityChange
-      partialVisibility: true
-
-    h VisibilitySensor, p, [mainElement]
 
   render: ->
     h 'div#section-pane', [
@@ -229,12 +222,6 @@ class SectionComponent extends BaseSectionComponent
     {id} = interval
     {height} = opts
     @setState {editingInterval: {id, height}}
-
-  onVisibilityChange: (isVisible)=>
-    return if isVisible == @state.visible
-    @setState visible: isVisible
-
-    # I'm not sure why this works but it does
 
   renderOverlaySVG: =>
     {innerHeight, outerHeight, innerWidth, outerWidth, padding} = @getGeometry()
