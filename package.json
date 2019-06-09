@@ -56,6 +56,7 @@
     "leaflet": "^1.0.3",
     "pdf-printer": "file:../deps/pdf-printer",
     "pg-promise": "^8.5.4",
+    "prop-types": "^15.7.2",
     "require-fool-webpack": "^2.0.0",
     "style-loader": "^0.23.1",
     "styled-components": "^4.0.2",
