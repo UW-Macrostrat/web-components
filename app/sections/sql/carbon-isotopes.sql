@@ -1,12 +1,13 @@
 WITH a AS (
 SELECT
   sample_id id,
-  d.avg_delta13c,
-  d.avg_delta18o,
-  d.std_delta13c,
-  d.std_delta18o,
+  c.analysis_id,
+  c.corr_delta13c avg_delta13c,
+  c.corr_delta18o avg_delta18o,
+  c.std_delta13c,
+  c.std_delta18o,
   section,
-  height orig_height,
+  height::numeric orig_height,
   n,
   (section.normalized_height(section::text, height::numeric)).*,
   CASE WHEN (section = 'J' AND height < 14.3) THEN
@@ -20,5 +21,6 @@ JOIN carbon_isotopes.corrected_data c
 WHERE failure_mode IS null
 )
 SELECT * FROM a
-WHERE height IS NOT null;
+WHERE height IS NOT null
+  AND in_zebra_nappe;
 

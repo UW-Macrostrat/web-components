@@ -154,16 +154,24 @@ class SettingsPanel extends Component
     pixelsToMicrons = (px)->
       Math.ceil(px/96.0*25400)
 
-    {width, height} = document.querySelector('#section-page-inner').getBoundingClientRect()
-    width = 2400
-    height = 1900
+    try
+      {width, height} = document.querySelector('#section-page-inner').getBoundingClientRect()
+      width = 2400
+      height = 1900
+      scale = 5
+    catch
+      # Single section page
+      {width, x, y, height} = document.querySelector('.section-outer').getBoundingClientRect()
+      height += y + 30
+      width += x + 1000
+      scale = 1
 
     opts = {
       printBackground: true
       marginsType: 1
       pageSize: {
-        height: pixelsToMicrons(height*5)+10
-        width: pixelsToMicrons(width*5)+10
+        height: pixelsToMicrons(height*scale)+10
+        width: pixelsToMicrons(width*scale)+10
       }
     }
 

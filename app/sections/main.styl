@@ -54,6 +54,16 @@ div.panel-container
     overflow: hidden
     cursor: move
 
+@media print
+  div.cursor
+    display: none
+  ul.controls, #settings
+    display: none
+  .section-outer
+    //transform: scale(5)
+    transform-origin: top left
+
+
 #section-link-overlay
   position: absolute
   top 0

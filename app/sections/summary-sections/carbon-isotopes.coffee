@@ -59,6 +59,7 @@ class IsotopesComponent extends Component
     isotopes = d3.nest()
       .key (d)->d.section
       .entries isotopes
+      .sort (a,b)-> a.height < b.height
     @setState {isotopes}
 
   render: ->

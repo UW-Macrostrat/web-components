@@ -101,7 +101,7 @@ class Swatch extends Component
     {color, fgdc_symbol, unit_id} = @props
     style = {border: '1px solid #444', width: 30, height: 20}
     if fgdc_symbol?
-      color = "url('#{getSwatch(unit_id)}')"
+      color = "url('file://#{getSwatch(unit_id)}')"
     style.background = color
 
     h 'div.swatch', {style}

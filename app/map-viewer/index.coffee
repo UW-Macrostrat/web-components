@@ -17,8 +17,7 @@ class MapPanel extends React.Component
     el = ReactDOM.findDOMNode @
 
     if PLATFORM == ELECTRON
-      #tileUrl = BASE_URL+"tiles"
-      tileUrl = "http://localhost:3006/tiles/geology"
+      tileUrl = "http://localhost:3006/live-tiles/geology"
     else
       tileUrl = BASE_URL+"tiles"
 

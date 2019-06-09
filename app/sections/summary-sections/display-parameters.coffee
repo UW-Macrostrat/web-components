@@ -24,6 +24,7 @@ sectionOffsets = {
   H: 310
   I: 30
   J: -5
+  M: 120
 }
 
 groupOffsets = {
@@ -36,6 +37,8 @@ groupOrder = [
   'Onis'
   'Ubisis'
   'Tsams'
+  'Naukluft'
+  'Büllsport'
 ]
 
 stackGroups = ['BD','E','AC','HG','IF']
