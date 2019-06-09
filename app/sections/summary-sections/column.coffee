@@ -21,6 +21,18 @@ import {db, storedProcedure, query} from "../db"
 
 fmt = d3.format('.1f')
 
+IntervalNotification = (props)->
+  {id, height, bottom, top, surface} = props
+  h 'div', [
+    h 'h4', "Section #{id} @ #{fmt(height)} m"
+    h 'p', [
+      'Interval ID: '
+      h('code', id)
+    ]
+    h 'p', "#{bottom} - #{top} m"
+    if surface then h('p', ["Surface: ", h('code',surface)]) else null
+  ]
+
 class BaseSVGSectionComponent extends BaseSectionComponent
   @defaultProps: {
     BaseSectionComponent.defaultProps...
@@ -265,15 +277,7 @@ class BaseSVGSectionComponent extends BaseSectionComponent
                     history.push("/sections/#{id}/height/#{height}")
                     return
                   Notification.show {
-                    message: h 'div', [
-                      h 'h4', "Section #{id} @ #{fmt(height)} m"
-                      h 'p', [
-                        'Interval ID: '
-                        h('code', d.id)
-                      ]
-                      h 'p', "#{d.bottom} - #{d.top} m"
-                      if d.surface then h('p', ["Surface: ", h('code',d.surface)]) else null
-                    ]
+                    message: h IntervalNotification, {d..., height}
                     timeout: 2000
                   }
               }
