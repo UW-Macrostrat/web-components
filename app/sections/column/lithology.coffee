@@ -163,8 +163,9 @@ class LithologyColumn extends Component
 
     line = h(Lines, {
       id: "#{UUID}-covered"
-      size: 8
-      stroke: 'rgba(0,0,0,0.3)'
+      size: 9
+      strokeWidth: 3
+      stroke: 'rgba(0,0,0,0.5)'
     })
 
     h 'g.covered-overlay', {}, [
