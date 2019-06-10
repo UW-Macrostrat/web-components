@@ -17,6 +17,7 @@ import {FaciesContext} from "../facies-descriptions"
 import {SVGNamespaces, KnownSizeComponent, ColumnDivisionsProvider} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
+import {ColumnProvider} from './context'
 
 fmt = d3.format('.1f')
 
@@ -51,11 +52,12 @@ class BaseSVGSectionComponent extends KnownSizeComponent
     triangleBarRightSide: false
     onResize: ->
     marginLeft: -10
-    padding:
+    padding: {
       left: 30
       top: 10
       right: 20
       bottom: 10
+    }
   }
   constructor: (props)->
     super props
@@ -259,43 +261,45 @@ class BaseSVGSectionComponent extends KnownSizeComponent
         h("h2", {style: {zIndex: 20}}, id)]
       h 'div.section-outer', [
         @createEditOverlay({left, top: @props.padding.top})
-        h "svg.section", {
-          SVGNamespaces...
-          style
-        }, [
-          h 'g.backdrop', {transform}, [
-            @renderWhiteUnderlay()
-            h GeneralizedSectionColumn, {
-              width: innerWidth
-              height: innerHeight
-              divisions
-              showFacies
-              showCoveredOverlay: true
-              scale
-              id
-              grainsizeScaleStart: 40
-              onHoverInterval
-              onEditInterval: (d, opts)=>
-                {history} = @props
-                {height, event} = opts
-                if not event.shiftKey
-                  history.push("/sections/#{id}/height/#{height}")
-                  return
-                Notification.show {
-                  message: h IntervalNotification, {d..., height}
-                  timeout: 2000
-                }
-            }
-            h SymbolColumn, {
-              scale
-              height: innerHeight
-              left: 90
-              id
-              zoom
-            }
-            fs
-            triangleBars
-            h SectionAxis, {scale, ticks: nticks}
+        h ColumnProvider, {scale}, [
+          h "svg.section", {
+            SVGNamespaces...
+            style
+          }, [
+            h 'g.backdrop', {transform}, [
+              @renderWhiteUnderlay()
+              h GeneralizedSectionColumn, {
+                width: innerWidth
+                height: innerHeight
+                divisions
+                showFacies
+                showCoveredOverlay: true
+                scale
+                id
+                grainsizeScaleStart: 40
+                onHoverInterval
+                onEditInterval: (d, opts)=>
+                  {history} = @props
+                  {height, event} = opts
+                  if not event.shiftKey
+                    history.push("/sections/#{id}/height/#{height}")
+                    return
+                  Notification.show {
+                    message: h IntervalNotification, {d..., height}
+                    timeout: 2000
+                  }
+              }
+              h SymbolColumn, {
+                scale
+                height: innerHeight
+                left: 90
+                id
+                zoom
+              }
+              fs
+              triangleBars
+              h SectionAxis, {scale, ticks: nticks}
+            ]
           ]
         ]
       ]

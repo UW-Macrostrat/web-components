@@ -10,6 +10,7 @@ import {path} from "d3-path"
 import * as d3 from "d3"
 import {PlatformContext} from "../../platform"
 import {FaciesContext} from "../facies-descriptions"
+import {ColumnContext} from "./context"
 import T from 'prop-types'
 
 # Malformed es6 module
@@ -40,6 +41,7 @@ __divisionSize = (d)->
   return [bottom, top]
 
 class ColumnRect extends Component
+  @contextType: ColumnContext
   @propTypes: {
     division: T.object.isRequired
     padWidth: T.bool
@@ -48,7 +50,8 @@ class ColumnRect extends Component
     padWidth: false
   }
   render: ->
-    {division: d, scale, padWidth, key, width, rest...} = @props
+    {scale} = @context
+    {division: d, padWidth, key, width, rest...} = @props
     [bottom,top] = __divisionSize(d)
     y = scale(top)
     x = 0

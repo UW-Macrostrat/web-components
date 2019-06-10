@@ -13,6 +13,7 @@ import {FaciesContext} from "../facies-descriptions"
 import {SVGNamespaces} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {TriangleBars} from "./flooding-surface"
+import {ColumnProvider} from "./context"
 
 class SimplifiedLithologyColumn extends LithologyColumn
 
@@ -109,19 +110,20 @@ class GeneralizedSVGSectionBase extends Component
     divisions = divisions.filter (d)->not d.schematic
 
     transform = "translate(#{left} #{top})"
-
-    h "g.section", {transform, key: id}, [
-      h FaciesColumn, {
-        width
-        height
-        facies
-        divisions
-        showFacies
-        scale
-        id
-      }
-      @renderLithology()
-      @renderTriangleBars()
+    h ColumnProvider, {scale}, [
+      h "g.section", {transform, key: id}, [
+        h FaciesColumn, {
+          width
+          height
+          facies
+          divisions
+          showFacies
+          scale
+          id
+        }
+        @renderLithology()
+        @renderTriangleBars()
+      ]
     ]
 
 class GeneralizedSVGSection extends Component

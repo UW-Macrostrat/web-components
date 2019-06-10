@@ -9,6 +9,9 @@ class ColumnProvider extends Component
     divisions: T.arrayOf(T.object)
     scale: T.func.isRequired
   }
+  @defaultProps: {
+    divisions: []
+  }
   render: ->
     {children, rest...} = @props
     value = {rest...}
