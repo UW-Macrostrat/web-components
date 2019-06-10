@@ -9,6 +9,8 @@ import {createGrainsizeScale} from "./grainsize"
 import {path} from "d3-path"
 import * as d3 from "d3"
 import {PlatformContext} from "../../platform"
+import {FaciesContext} from "../facies-descriptions"
+import T from 'prop-types'
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -36,6 +38,63 @@ __divisionSize = (d)->
   if top < bottom
     [top,bottom] = [bottom,top]
   return [bottom, top]
+
+class ColumnRect extends Component
+  @propTypes: {
+    division: T.object.isRequired
+    padWidth: T.bool
+  }
+  @defaultProps: {
+    padWidth: false
+  }
+  render: ->
+    {division: d, scale, padWidth, key, width, rest...} = @props
+    [bottom,top] = __divisionSize(d)
+    y = scale(top)
+    x = 0
+    if padWidth
+      x -= 5
+      width += 10
+    height = scale(bottom)-y
+    key ?= d.id
+    h "rect", {x,y, width, height, key, rest...}
+
+class FaciesColumnInner extends Component
+  @contextType: FaciesContext
+  @propTypes: {
+    divisions: T.arrayOf(T.object).isRequired
+    scale: T.func.isRequired
+    width: T.number.isRequired
+  }
+  render: ->
+    {facies} = @context
+    {divisions, scale, width, padWidth} = @props
+
+    faciesColorMap = {}
+    if facies?
+      # We have responsive facies!
+      for f in facies
+        faciesColorMap[f.id] = f.color
+
+    __ = [{divisions[0]...}]
+    for d in divisions
+      ix = __.length-1
+      shouldSkip = not d.facies? or d.facies == __[ix].facies
+      if shouldSkip
+        __[ix].top = d.top
+      else
+        __.push {d...}
+    return null if __.length == 1
+    h 'g.facies', __.map (division)->
+      className = classNames('facies', division.id)
+      h ColumnRect, {
+        division,
+        padWidth,
+        className,
+        fill: faciesColorMap[division.facies] or division.facies_color,
+        scale
+        width
+      }
 
 class LithologyColumn extends Component
   @contextType: PlatformContext
@@ -204,25 +263,8 @@ class LithologyColumn extends Component
 
   renderFacies: =>
     return unless @props.showFacies
-    {divisions, facies} = @props
-    faciesColorMap = {}
-    if facies?
-      # We have responsive facies!
-      for f in facies
-        faciesColorMap[f.id] = f.color
-
-    __ = [{divisions[0]...}]
-    for d in divisions
-      ix = __.length-1
-      shouldSkip = not d.facies? or d.facies == __[ix].facies
-      if shouldSkip
-        __[ix].top = d.top
-      else
-        __.push {d...}
-    return null if __.length == 1
-    h 'g.facies', __.map (d)=>
-      className = classNames('facies', d.id)
-      @createRect d, {className, fill: faciesColorMap[d.facies] or d.facies_color}
+    {divisions, facies, scale, width} = @props
+    h FaciesColumnInner, {divisions, facies, scale, width}
 
   renderEditableColumn: =>
     return unless @props.onEditInterval? or @props.onHoverInterval?

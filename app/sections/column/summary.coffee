@@ -265,29 +265,27 @@ class BaseSVGSectionComponent extends KnownSizeComponent
         }, [
           h 'g.backdrop', {transform}, [
             @renderWhiteUnderlay()
-            h FaciesContext.Consumer, {}, ({facies})=>
-              h GeneralizedSectionColumn, {
-                width: innerWidth
-                height: innerHeight
-                divisions
-                showFacies
-                showCoveredOverlay: true
-                facies: facies
-                scale
-                id
-                grainsizeScaleStart: 40
-                onHoverInterval
-                onEditInterval: (d, opts)=>
-                  {history} = @props
-                  {height, event} = opts
-                  if not event.shiftKey
-                    history.push("/sections/#{id}/height/#{height}")
-                    return
-                  Notification.show {
-                    message: h IntervalNotification, {d..., height}
-                    timeout: 2000
-                  }
-              }
+            h GeneralizedSectionColumn, {
+              width: innerWidth
+              height: innerHeight
+              divisions
+              showFacies
+              showCoveredOverlay: true
+              scale
+              id
+              grainsizeScaleStart: 40
+              onHoverInterval
+              onEditInterval: (d, opts)=>
+                {history} = @props
+                {height, event} = opts
+                if not event.shiftKey
+                  history.push("/sections/#{id}/height/#{height}")
+                  return
+                Notification.show {
+                  message: h IntervalNotification, {d..., height}
+                  timeout: 2000
+                }
+            }
             h SymbolColumn, {
               scale
               height: innerHeight
