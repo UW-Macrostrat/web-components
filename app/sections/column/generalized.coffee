@@ -6,13 +6,13 @@ Measure = require('react-measure').default
 import {Component, createElement, createRef} from "react"
 import classNames from "classnames"
 
-import {BaseSVGSectionComponent} from "../column/summary"
-import {SectionAxis} from "../column/axis"
-import {GeneralizedSectionColumn, FaciesColumn, LithologyColumn} from "../column/lithology"
+import {BaseSVGSectionComponent} from "./summary"
+import {SectionAxis} from "./axis"
+import {GeneralizedSectionColumn, FaciesColumn, LithologyColumn} from "./lithology"
 import {FaciesContext} from "../facies-descriptions"
 import {SVGNamespaces} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
-import {TriangleBars} from "../column/flooding-surface"
+import {TriangleBars} from "./flooding-surface"
 
 class SimplifiedLithologyColumn extends LithologyColumn
 

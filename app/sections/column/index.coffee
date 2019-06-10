@@ -1,4 +1,5 @@
 import {SectionComponent} from './main'
 import {SVGSectionComponent} from './summary'
+import {GeneralizedSVGSection} from './generalized'
 
-export {SectionComponent, SVGSectionComponent}
+export {SectionComponent, SVGSectionComponent, GeneralizedSVGSection}
