@@ -6,7 +6,7 @@ Measure = require('react-measure').default
 import {Component, createElement, createRef} from "react"
 import classNames from "classnames"
 
-import {BaseSVGSectionComponent} from "../summary-sections/column"
+import {BaseSVGSectionComponent} from "../column/summary"
 import {SectionAxis} from "../column/axis"
 import {GeneralizedSectionColumn, FaciesColumn, LithologyColumn} from "../column/lithology"
 import {FaciesContext} from "../facies-descriptions"
