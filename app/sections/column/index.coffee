@@ -24,6 +24,7 @@ import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
 import {dirname} from "path"
 import update from "immutability-helper"
+import T from "prop-types"
 
 fmt = d3.format(".1f")
 baseDir = dirname require.resolve '..'
@@ -68,6 +69,10 @@ class SectionComponent extends KnownSizeComponent
       right: 0
       bottom: 30
   }
+  @propTypes: {
+    divisions: T.arrayOf(T.object)
+  }
+
   constructor: (props)->
     super props
 
