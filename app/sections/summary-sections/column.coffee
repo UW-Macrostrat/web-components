@@ -5,7 +5,6 @@ import {Component, createElement, createRef} from "react"
 import h from "react-hyperscript"
 import Measure from 'react-measure'
 import {SectionAxis} from "../column/axis"
-import {BaseSectionComponent} from "../column/base"
 import {PlatformConsumer} from "../../platform"
 import {SymbolColumn} from "../column/symbol-column"
 import {FloodingSurface, TriangleBars} from "../column/flooding-surface"
@@ -15,7 +14,7 @@ import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {Notification} from "../../notify"
 import {FaciesContext} from "../facies-descriptions"
-import {SVGNamespaces} from "../util"
+import {SVGNamespaces, KnownSizeComponent, ColumnDivisionsProvider} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
 
@@ -33,9 +32,15 @@ IntervalNotification = (props)->
     if surface then h('p', ["Surface: ", h('code',surface)]) else null
   ]
 
-class BaseSVGSectionComponent extends BaseSectionComponent
+class BaseSVGSectionComponent extends KnownSizeComponent
   @defaultProps: {
-    BaseSectionComponent.defaultProps...
+    zoom: 1
+    pixelsPerMeter: 20
+    skeletal: false
+    offset: 0
+    offsetTop: null
+    useRelativePositioning: true
+    showTriangleBars: false
     trackVisibility: false
     innerWidth: 100
     height: 100 # Section height in meters
@@ -133,7 +138,8 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     ]
 
   hoverAdjacent: (offset=1) => =>
-    {hoveredInterval, divisions} = @state
+    {divisions} = @props
+    {hoveredInterval} = @state
     return if not hoveredInterval?
     ix = divisions.findIndex (d)->d.id = hoveredInterval.id
     return unless ix?
@@ -175,7 +181,8 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     outerHeight = innerHeight+(top+bottom)
     outerWidth = innerWidth+(left+right)
 
-    {visible, divisions} = @state
+    {divisions} = @props
+    {visible} = @state
     divisions = divisions.filter (d)->not d.schematic
 
     {skeletal} = @props
@@ -297,13 +304,16 @@ class BaseSVGSectionComponent extends BaseSectionComponent
     ]
 
 SVGSectionComponent = (props)->
+  {id, divisions} = props
   h PlatformConsumer, null, ({inEditMode})->
     h SequenceStratConsumer, null, (value)->
       {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
-      h withRouter(BaseSVGSectionComponent), {
-        showTriangleBars, showFloodingSurfaces,
-        sequenceStratOrder, inEditMode, props...
-      }
+      h ColumnDivisionsProvider, {id, divisions}, (rest)->
+        h withRouter(BaseSVGSectionComponent), {
+          showTriangleBars, showFloodingSurfaces,
+          sequenceStratOrder, inEditMode, props...,
+          rest...
+        }
 
 export {BaseSVGSectionComponent, SVGSectionComponent}
 

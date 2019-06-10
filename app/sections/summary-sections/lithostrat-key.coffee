@@ -5,7 +5,6 @@ import "d3-selection-multi"
 import {Component, createElement, createRef} from "react"
 import Measure from 'react-measure'
 import {SectionAxis} from "../column/axis"
-import {BaseSectionComponent} from "../column/base"
 import {SymbolColumn} from "../column/symbol-column"
 import {FloodingSurface, TriangleBars} from "../column/flooding-surface"
 import {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} from "../column/lithology"
@@ -13,7 +12,7 @@ import {withRouter} from "react-router-dom"
 import {Notification} from "../../notify"
 import {FaciesContext} from "../facies-descriptions"
 import {query} from "../../db"
-import {SVGNamespaces} from "../util"
+import {SVGNamespaces, KnownSizeComponent} from "../util"
 
 fmt = d3.format('.1f')
 
@@ -68,9 +67,15 @@ class LithostratigraphyColumn extends Component
       h 'g.members', {transform: "translate(20)",style: {fontSize: 14, fontStyle: 'italic'}}, __members
     ]
 
-class BaseSVGSectionComponent extends BaseSectionComponent
+class BaseSVGSectionComponent extends KnownSizeComponent
   @defaultProps: {
-    BaseSectionComponent.defaultProps...
+    zoom: 1
+    pixelsPerMeter: 20
+    skeletal: false
+    offset: 0
+    offsetTop: null
+    useRelativePositioning: true
+    showTriangleBars: false
     trackVisibility: false
     innerWidth: 40
     height: 100 # Section height in meters

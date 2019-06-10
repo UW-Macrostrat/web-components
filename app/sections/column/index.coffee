@@ -6,14 +6,13 @@ import h from "react-hyperscript"
 import {SectionAxis} from "./axis"
 import SectionImages from "./images"
 import NotesColumn from "./notes"
-import {BaseSectionComponent} from "./base"
 import "./main.styl"
 import {Intent} from "@blueprintjs/core"
 import {Notification} from "../../notify"
 import {GrainsizeScale} from "./grainsize"
 import {SymbolColumn} from "./symbol-column"
 import {ModalEditor} from "./modal-editor"
-import {SVGNamespaces} from "../util"
+import {SVGNamespaces, ColumnDivisionsProvider, KnownSizeComponent} from "../util"
 import Samples from "./samples"
 import {FloodingSurface, TriangleBars} from "./flooding-surface"
 import {ColumnProvider} from './context'
@@ -31,16 +30,23 @@ baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
 
 class SectionOverlay extends Component
-  @defaultProps:
+  @defaultProps: {
     padding: 30
     isEditable: false
+  }
   constructor: (props)->
     super props
     @state = lithologyData: null
 
-class SectionComponent extends BaseSectionComponent
+class SectionComponent extends KnownSizeComponent
   @defaultProps: {
-    BaseSectionComponent.defaultProps...
+    zoom: 1
+    pixelsPerMeter: 20
+    skeletal: false
+    offset: 0
+    offsetTop: null
+    useRelativePositioning: true
+    showTriangleBars: false
     visible: true
     trackVisibility: true
     innerWidth: 250
@@ -64,8 +70,8 @@ class SectionComponent extends BaseSectionComponent
   }
   constructor: (props)->
     super props
+
     @state = {
-      @state...
       loaded: false
       editingInterval: {id: null}
       visible: true
@@ -121,7 +127,8 @@ class SectionComponent extends BaseSectionComponent
     txt = if @props.zoom > 0.5 then "Section " else ""
     txt += id
 
-    {scale,visible, editingInterval, divisions} = @state
+    {divisions} = @props
+    {scale,visible, editingInterval} = @state
     zoom = @props.zoom
 
     {skeletal} = @props
@@ -234,8 +241,8 @@ class SectionComponent extends BaseSectionComponent
 
     showGeneralizedSections =  @props.activeDisplayMode == 'generalized'
 
-    {lithologyWidth, zoom, id, isEditable, showFacies, lithologyWidth} = @props
-    {scale, divisions} = @state
+    {lithologyWidth, zoom, id, isEditable, showFacies, lithologyWidth, divisions} = @props
+    {scale} = @state
 
     ticks = (@props.height*@props.zoom)/10
 
@@ -338,8 +345,10 @@ class SectionComponent extends BaseSectionComponent
 
 
 SectionComponentHOC = (props)->
+  {id, divisions} = props
   h SequenceStratConsumer, null, (value)->
     {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
-    h SectionComponent, {showTriangleBars, showFloodingSurfaces, sequenceStratOrder, props...}
+    h ColumnDivisionsProvider, {id, divisions}, (rest)->
+      h SectionComponent, {showTriangleBars, showFloodingSurfaces, sequenceStratOrder, rest..., props...}
 
 export {SectionComponentHOC as SectionComponent}
