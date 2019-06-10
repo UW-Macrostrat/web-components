@@ -1,9 +1,8 @@
 import {findDOMNode} from "react-dom"
 import * as d3 from "d3"
 import "d3-selection-multi"
-import {Component, createElement, createContext} from "react"
+import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import VisibilitySensor from "react-visibility-sensor"
 import {SectionAxis} from "./axis"
 import SectionImages from "./images"
 import NotesColumn from "./notes"
@@ -17,6 +16,7 @@ import {ModalEditor} from "./modal-editor"
 import {SVGNamespaces} from "../util"
 import Samples from "./samples"
 import {FloodingSurface, TriangleBars} from "./flooding-surface"
+import {ColumnProvider} from './context'
 import {
  LithologyColumn, GeneralizedSectionColumn,
  FaciesColumn, CoveredColumn
@@ -41,7 +41,7 @@ class SectionOverlay extends Component
 class SectionComponent extends BaseSectionComponent
   @defaultProps: {
     BaseSectionComponent.defaultProps...
-    visible: false
+    visible: true
     trackVisibility: true
     innerWidth: 250
     offsetTop: null
@@ -68,7 +68,7 @@ class SectionComponent extends BaseSectionComponent
       @state...
       loaded: false
       editingInterval: {id: null}
-      visible: not @props.trackVisibility
+      visible: true
       scale: d3.scaleLinear().domain(@props.range)
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
     }
@@ -188,9 +188,11 @@ class SectionComponent extends BaseSectionComponent
         className: if @props.skeletal then "skeleton" else null
       }, [
       h 'div.section-header', [h "h2", txt]
-      h 'div.section-outer', [
-          h 'div.section', {style}, innerElements
-          notesEl
+      h ColumnProvider, {scale: @state.scale}, [
+        h 'div.section-outer', [
+            h 'div.section', {style}, innerElements
+            notesEl
+        ]
       ]
     ]
 
