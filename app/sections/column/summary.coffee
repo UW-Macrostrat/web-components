@@ -261,7 +261,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
         h("h2", {style: {zIndex: 20}}, id)]
       h 'div.section-outer', [
         @createEditOverlay({left, top: @props.padding.top})
-        h ColumnProvider, {scale}, [
+        h ColumnProvider, {scale, divisions}, [
           h "svg.section", {
             SVGNamespaces...
             style

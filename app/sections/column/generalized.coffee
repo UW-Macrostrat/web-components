@@ -110,7 +110,7 @@ class GeneralizedSVGSectionBase extends Component
     divisions = divisions.filter (d)->not d.schematic
 
     transform = "translate(#{left} #{top})"
-    h ColumnProvider, {scale}, [
+    h ColumnProvider, {scale, divisions}, [
       h "g.section", {transform, key: id}, [
         h FaciesColumn, {
           width

@@ -62,22 +62,38 @@ class ColumnRect extends Component
     key ?= d.id
     h "rect", {x,y, width, height, key, rest...}
 
-class FaciesColumnInner extends Component
+class FaciesSwatches extends Component
   @contextType: FaciesContext
   @propTypes: {
     divisions: T.arrayOf(T.object).isRequired
-    scale: T.func.isRequired
-    width: T.number.isRequired
   }
   render: ->
     {facies} = @context
-    {divisions, scale, width, padWidth} = @props
-
+    {divisions, padWidth, width} = @props
     faciesColorMap = {}
     if facies?
       # We have responsive facies!
+      # Should move this logic to facies context
       for f in facies
         faciesColorMap[f.id] = f.color
+
+    h 'g.facies', divisions.map (division)->
+      className = classNames('facies', division.id)
+      h ColumnRect, {
+        division,
+        padWidth,
+        className,
+        fill: faciesColorMap[division.facies] or division.facies_color,
+        width
+      }
+
+class FaciesColumnInner extends Component
+  @contextType: ColumnContext
+  @propTypes: {
+    width: T.number.isRequired
+  }
+  render: ->
+    {divisions, width, padWidth} = @props
 
     __ = [{divisions[0]...}]
     for d in divisions
@@ -88,16 +104,7 @@ class FaciesColumnInner extends Component
       else
         __.push {d...}
     return null if __.length == 1
-    h 'g.facies', __.map (division)->
-      className = classNames('facies', division.id)
-      h ColumnRect, {
-        division,
-        padWidth,
-        className,
-        fill: faciesColorMap[division.facies] or division.facies_color,
-        scale
-        width
-      }
+    h FaciesSwatches, {divisions: __, width, padWidth}
 
 class LithologyColumn extends Component
   @contextType: PlatformContext
