@@ -121,7 +121,7 @@ class DivisionEditOverlay extends Component
     event.stopPropagation()
 
   render: ->
-    {divisions, scale} = @context
+    {divisions} = @context
 
     clickHandler = @eventHandler(@props.onEditInterval)
     hoverHandler = @eventHandler(@props.onHoverInterval)
@@ -131,6 +131,33 @@ class DivisionEditOverlay extends Component
       onMouseOver = hoverHandler(d)
       className = classNames('edit-overlay', d.id)
       h ColumnRect, {division: d, width: 100, className, fill: 'transparent', onClick, onMouseOver}
+
+class UUIDComponent extends Component
+  constructor: (props)->
+    super props
+    @UUID = v4()
+
+class CoveredOverlay extends UUIDComponent
+  @contextType: ColumnContext
+  constructor: (props)->
+    super props
+  render: ->
+    {divisions} = @context
+    {width} = @props
+    divs = divisions.filter((d)->d.covered).map (d)=>
+      h ColumnRect, {division: d, width, fill: "url(##{@UUID}-covered)"}
+
+    h 'g.covered-overlay', {}, [
+      h 'defs', [
+        h Lines, {
+          id: "#{@UUID}-covered"
+          size: 9
+          strokeWidth: 3
+          stroke: 'rgba(0,0,0,0.5)'
+        }
+      ]
+      divs...
+    ]
 
 class LithologyColumn extends Component
   @contextType: PlatformContext
@@ -246,27 +273,12 @@ class LithologyColumn extends Component
     h "rect", {x,y, width, height, key, props...}
 
   renderCoveredOverlay: =>
-    {showCoveredOverlay, showLithology, divisions} = @props
+    {showCoveredOverlay, showLithology, width} = @props
     {UUID} = @state
     if not showCoveredOverlay?
       showCoveredOverlay = showLithology
     return unless showCoveredOverlay
-
-    divs = divisions.map (d)=>
-      return null if not d.covered
-      @createRect d, {fill: "url(##{UUID}-covered)"}
-
-    line = h(Lines, {
-      id: "#{UUID}-covered"
-      size: 9
-      strokeWidth: 3
-      stroke: 'rgba(0,0,0,0.5)'
-    })
-
-    h 'g.covered-overlay', {}, [
-      h 'defs', [line]
-      divs...
-    ]
+    h CoveredOverlay, {width}
 
   constructLithologyDivisions: =>
     {divisions} = @props
