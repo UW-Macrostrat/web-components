@@ -1,5 +1,5 @@
 import {select} from "d3-selection"
-import {Component, createElement} from "react"
+import {Component, PureComponent, createElement} from "react"
 import {findDOMNode} from "react-dom"
 import h from "react-hyperscript"
 import {join} from "path"
@@ -40,7 +40,7 @@ __divisionSize = (d)->
     [top,bottom] = [bottom,top]
   return [bottom, top]
 
-class ColumnRect extends Component
+class ColumnRect extends PureComponent
   @contextType: ColumnContext
   @propTypes: {
     division: T.object.isRequired
@@ -62,7 +62,7 @@ class ColumnRect extends Component
     key ?= d.id
     h "rect", {x,y, width, height, key, rest...}
 
-class FaciesRect extends Component
+class FaciesRect extends PureComponent
   @contextType: FaciesContext
   @propTypes: {
     division: T.object.isRequired
@@ -81,7 +81,7 @@ class FaciesRect extends Component
       width
     }
 
-class FaciesColumnInner extends Component
+class FaciesColumnInner extends PureComponent
   @contextType: ColumnContext
   @propTypes: {
     width: T.number.isRequired
@@ -132,7 +132,7 @@ class DivisionEditOverlay extends Component
       className = classNames('edit-overlay', d.id)
       h ColumnRect, {division: d, width: 100, className, fill: 'transparent', onClick, onMouseOver}
 
-class UUIDComponent extends Component
+class UUIDComponent extends PureComponent
   constructor: (props)->
     super props
     @UUID = v4()
@@ -159,6 +159,88 @@ class CoveredOverlay extends UUIDComponent
       divs...
     ]
 
+
+class SymbolDefinition extends PureComponent
+  @contextType: PlatformContext
+  @defaultProps: {
+    width: 100,
+    height: 100
+  }
+  @propTypes: {
+    UUID: T.string.isRequired
+  }
+  render: ->
+    {resolveLithologySymbol} = @context
+    {UUID, width, height, id: d} = @props
+    patternSize = {width, height}
+
+    id = "#{UUID}-#{d}"
+
+    h 'pattern', {
+      id
+      key: id
+      patternUnits: "userSpaceOnUse"
+      patternSize...
+    }, [
+      h 'image', {
+        xlinkHref: resolveLithologySymbol(d)
+        x:0,y:0
+        patternSize...
+      }
+    ]
+
+defaultResolveID = (d)->
+  if not (d.fgdc_pattern? or d.pattern?)
+    return null
+  if d.fgdc_pattern?
+    return "#{d.fgdc_pattern}"
+  return "#{symbolIndex[d.pattern]}"
+
+class LithologyColumnInner extends UUIDComponent
+  @contextType: ColumnContext
+  @defaultProps: {
+    resolveID: defaultResolveID
+  }
+  constructLithologyDivisions: =>
+    {divisions} = @context
+    {resolveID} = @props
+    __ = []
+    for d in divisions
+      ix = __.length-1
+      patternID = resolveID(d)
+      if ix == -1
+        __.push {d..., patternID}
+        continue
+      sameAsLast = patternID == resolveID(__[ix])
+      shouldSkip = not patternID? or sameAsLast
+      if shouldSkip
+        __[ix].top = d.top
+      else
+        __.push {d..., patternID}
+    return __
+
+  createDefs: (divisions)=>
+    {resolveID} = @props
+    __ = divisions.map (d)=>resolveID(d)
+      .filter((x, i, arr) => arr.indexOf(x) == i)
+
+    h 'defs', __.map (d)=>
+      h SymbolDefinition, {UUID: @UUID, id: d}
+
+  renderEach: (d)=>
+    className = classNames({
+      definite: d.definite_boundary
+      covered: d.covered}, 'lithology')
+    fill = "url(##{@UUID}-#{d.patternID})"
+    h ColumnRect, {width: @props.width, division: d, className, fill}
+
+  render: ->
+    divisions = @constructLithologyDivisions()
+    h 'g.lithology', {}, [
+      @createDefs(divisions)
+      divisions.map(@renderEach)
+    ]
+
 class LithologyColumn extends Component
   @contextType: PlatformContext
   @defaultProps: {
@@ -174,7 +256,6 @@ class LithologyColumn extends Component
     padWidth: true
     onEditInterval: null
   }
-  symbolIndex: symbolIndex
   queryID: 'lithology'
   constructor: (props)->
     super props
@@ -184,13 +265,6 @@ class LithologyColumn extends Component
       frameID: "#frame-#{@UUID}"
       clipID: "#clip-#{@UUID}"
     }
-
-  resolveID: (d)->
-    if not (d.fgdc_pattern? or d.pattern?)
-      return null
-    if d.fgdc_pattern?
-      return "#{d.fgdc_pattern}"
-    return "#{@symbolIndex[d.pattern]}"
 
   createFrame: (setID=true)->
     {width, height} = @props
@@ -259,19 +333,6 @@ class LithologyColumn extends Component
       elements...
     ]
 
-  createRect: (d, props)=>
-    [bottom,top] = __divisionSize(d)
-    t = @props.scale(top)
-    y = t
-    {width} = @props
-    x = 0
-    if @props.padWidth
-      x -= 5
-      width += 10
-    height = @props.scale(bottom)-y
-    key = props.key or d.id
-    h "rect", {x,y, width, height, key, props...}
-
   renderCoveredOverlay: =>
     {showCoveredOverlay, showLithology, width} = @props
     {UUID} = @state
@@ -280,34 +341,10 @@ class LithologyColumn extends Component
     return unless showCoveredOverlay
     h CoveredOverlay, {width}
 
-  constructLithologyDivisions: =>
-    {divisions} = @props
-    __ = []
-    for d in divisions
-      ix = __.length-1
-      patternID = @resolveID(d)
-      if ix == -1
-        __.push {d..., patternID}
-        continue
-      sameAsLast = patternID == @resolveID(__[ix])
-      shouldSkip = not patternID? or sameAsLast
-      if shouldSkip
-        __[ix].top = d.top
-      else
-        __.push {d..., patternID}
-    return __
-
   renderLithology: =>
     return unless @props.showLithology
-    {UUID} = @state
-    divisions = @constructLithologyDivisions()
-
-    h 'g.lithology', {}, divisions.map (d)=>
-      className = classNames({
-        definite: d.definite_boundary
-        covered: d.covered}, 'lithology')
-      fill = "url(##{UUID}-#{d.patternID})"
-      h ColumnRect, {width: @props.width, division: d, className, fill}
+    {width} = @props
+    h LithologyColumnInner, {width}
 
   renderFacies: =>
     return unless @props.showFacies
@@ -355,13 +392,15 @@ class GeneralizedSectionColumn extends LithologyColumn
     {width, grainsizeScaleStart} = props
     grainsizeScaleStart ?= width/4
     @grainsizeScale = createGrainsizeScale([grainsizeScaleStart, width])
+
+  # This isn't going to work until we get composition working
   resolveID: (d)->
     p = symbolIndex[d.fill_pattern]
     return p if p?
     fp = d.fill_pattern
     # Special case for shales since we probably want to emphasize lithology
     if parseInt(fp) == 624
-      return super.resolveID(d)
+      return defaultResolveID(d)
     else
       return fp
 
