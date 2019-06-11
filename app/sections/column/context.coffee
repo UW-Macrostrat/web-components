@@ -1,3 +1,4 @@
+import {scaleLinear, scaleOrdinal} from "d3"
 import {Component, createContext} from "react"
 import h from "react-hyperscript"
 import T from "prop-types"
@@ -11,10 +12,22 @@ class ColumnProvider extends Component
   }
   @defaultProps: {
     divisions: []
+    grainSizes: ['ms','s','vf','f','m','c','vc','p']
   }
+  grainsizeScale: (range)->
+    {grainSizes} = @props
+    mn = grainSizes.length-1
+    scale = scaleLinear()
+      .domain [0,mn]
+      .range range
+    scaleOrdinal()
+      .domain grainSizes
+      .range grainSizes.map (d,i)=>scale(i)
+
   render: ->
     {children, rest...} = @props
-    value = {rest...}
+    methods = do => {grainsizeScale} = @
+    value = {methods..., rest...}
     h ColumnContext.Provider, {value}, children
 
 export {ColumnContext, ColumnProvider}

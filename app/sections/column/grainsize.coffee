@@ -1,27 +1,26 @@
-import * as d3 from "d3"
-import "d3-selection-multi"
-import {Component, createElement} from "react"
-import {findDOMNode} from "react-dom"
+import {scaleLinear, scaleOrdinal} from "d3"
+import {Component} from "react"
+import {ColumnContext} from './context'
 import h from "react-hyperscript"
 
 grainSizes = ['ms','s','vf','f','m','c','vc','p']
 createGrainsizeScale = (range)->
   mn = grainSizes.length-1
-  scale = d3.scaleLinear()
+  scale = scaleLinear()
     .domain [0,mn]
     .range range
-  d3.scaleOrdinal()
+  scaleOrdinal()
     .domain grainSizes
     .range grainSizes.map (d,i)=>scale(i)
 
 class GrainsizeScale extends Component
-  @defaultProps:
+  @contextType: ColumnContext
+  @defaultProps: {
     height: 20
-  constructor: (props)->
-    super props
-
+  }
   render: ->
-    gs = createGrainsizeScale(@props.range)
+    {grainsizeScale} = @context
+    gs = grainsizeScale(@props.range)
     sizes = gs.domain()
     h 'g.grainsize.axis', sizes.map (d)=>
       h 'g.tick', transform: "translate(#{gs(d)} 0)", key: d, [

@@ -146,7 +146,6 @@ class BaseSVGSectionComponent extends KnownSizeComponent
     ix = divisions.findIndex (d)->d.id = hoveredInterval.id
     return unless ix?
     newDiv = divisions[ix+offset]
-    debugger
     return unless newDiv?
     @setState {hoveredInterval: newDiv}
 
@@ -318,4 +317,3 @@ SVGSectionComponent = (props)->
         }
 
 export {BaseSVGSectionComponent, SVGSectionComponent}
-
