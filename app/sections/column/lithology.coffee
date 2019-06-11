@@ -40,7 +40,7 @@ __divisionSize = (d)->
     [top,bottom] = [bottom,top]
   return [bottom, top]
 
-class ColumnRect extends PureComponent
+class ColumnRect extends Component
   @contextType: ColumnContext
   @propTypes: {
     division: T.object.isRequired
@@ -62,7 +62,7 @@ class ColumnRect extends PureComponent
     key ?= d.id
     h "rect", {x,y, width, height, key, rest...}
 
-class FaciesRect extends PureComponent
+class FaciesRect extends Component
   @contextType: FaciesContext
   @propTypes: {
     division: T.object.isRequired
@@ -81,7 +81,7 @@ class FaciesRect extends PureComponent
       width
     }
 
-class FaciesColumnInner extends PureComponent
+class FaciesColumnInner extends Component
   @contextType: ColumnContext
   @propTypes: {
     width: T.number.isRequired
@@ -132,7 +132,7 @@ class DivisionEditOverlay extends Component
       className = classNames('edit-overlay', d.id)
       h ColumnRect, {division: d, width: 100, className, fill: 'transparent', onClick, onMouseOver}
 
-class UUIDComponent extends PureComponent
+class UUIDComponent extends Component
   constructor: (props)->
     super props
     @UUID = v4()
@@ -160,7 +160,7 @@ class CoveredOverlay extends UUIDComponent
     ]
 
 
-class SymbolDefinition extends PureComponent
+class SymbolDefinition extends Component
   @contextType: PlatformContext
   @defaultProps: {
     width: 100,
@@ -238,7 +238,7 @@ class LithologyColumnInner extends UUIDComponent
     divisions = @constructLithologyDivisions()
     h 'g.lithology', {}, [
       @createDefs(divisions)
-      divisions.map(@renderEach)
+      h 'g', divisions.map(@renderEach)
     ]
 
 class LithologyColumn extends Component
@@ -299,38 +299,12 @@ class LithologyColumn extends Component
     ]
 
   createDefs: =>
-    {resolveLithologySymbol} = @context
-    patternSize = {width: 100, height: 100}
-    {divisions} = @props
-    {UUID, frameID, clipID} = @state
-    patterns = divisions
-      .map (d)=>@resolveID(d)
-      .filter((x, i, arr) => arr.indexOf(x) == i)
-
-    ids = []
-    elements = for d in patterns
-      id = "#{UUID}-#{d}"
-      continue if ids.includes(id)
-      ids.push(id)
-      h 'pattern', {
-        id
-        key: id
-        patternUnits: "userSpaceOnUse"
-        patternSize...
-      }, [
-        h 'image', {
-          xlinkHref: resolveLithologySymbol(d)
-          x:0,y:0
-          patternSize...
-        }
-      ]
-
+    {clipID} = @state
     h 'defs', {key: 'defs'}, [
       @createFrame()
       createElement('clipPath', {id: clipID.slice(1), key: clipID}, [
         @createFrame(false)
       ])
-      elements...
     ]
 
   renderCoveredOverlay: =>
