@@ -62,30 +62,24 @@ class ColumnRect extends Component
     key ?= d.id
     h "rect", {x,y, width, height, key, rest...}
 
-class FaciesSwatches extends Component
+class FaciesRect extends Component
   @contextType: FaciesContext
   @propTypes: {
-    divisions: T.arrayOf(T.object).isRequired
+    division: T.object.isRequired
   }
   render: ->
-    {facies} = @context
-    {divisions, padWidth, width} = @props
-    faciesColorMap = {}
-    if facies?
-      # We have responsive facies!
-      # Should move this logic to facies context
-      for f in facies
-        faciesColorMap[f.id] = f.color
-
-    h 'g.facies', divisions.map (division)->
-      className = classNames('facies', division.id)
-      h ColumnRect, {
-        division,
-        padWidth,
-        className,
-        fill: faciesColorMap[division.facies] or division.facies_color,
-        width
-      }
+    {getFaciesColor} = @context
+    {padWidth, width, division} = @props
+    {facies, facies_color, id} = division
+    fill = getFaciesColor(facies) or facies_color
+    className = classNames('facies', id)
+    h ColumnRect, {
+      division,
+      padWidth,
+      className,
+      fill,
+      width
+    }
 
 class FaciesColumnInner extends Component
   @contextType: ColumnContext
@@ -93,7 +87,8 @@ class FaciesColumnInner extends Component
     width: T.number.isRequired
   }
   render: ->
-    {divisions, width, padWidth} = @props
+    {divisions} = @context
+    {width, padWidth} = @props
 
     __ = [{divisions[0]...}]
     for d in divisions
@@ -104,7 +99,38 @@ class FaciesColumnInner extends Component
       else
         __.push {d...}
     return null if __.length == 1
-    h FaciesSwatches, {divisions: __, width, padWidth}
+    h 'g.facies', __.map (div)->
+      h FaciesRect, {division: div, width, padWidth}
+
+class DivisionEditOverlay extends Component
+  @contextType: ColumnContext
+  @defaultProps: {
+    onEditInterval: ->
+    onHoverInterval: ->
+  }
+  eventHandler: (fn)=>(d)=> (event)=>
+    {scale} = @context
+    {top} = event.target.getBoundingClientRect()
+    {clientY} = event
+    try
+      pxFromTop = scale(d.top)+(clientY-top)
+      height = scale.invert(pxFromTop)
+    catch
+      height = null
+    fn(d, {height, event})
+    event.stopPropagation()
+
+  render: ->
+    {divisions, scale} = @context
+
+    clickHandler = @eventHandler(@props.onEditInterval)
+    hoverHandler = @eventHandler(@props.onHoverInterval)
+
+    h 'g.edit-overlay', divisions.map (d)=>
+      onClick = clickHandler(d)
+      onMouseOver = hoverHandler(d)
+      className = classNames('edit-overlay', d.id)
+      h ColumnRect, {division: d, width: 100, className, fill: 'transparent', onClick, onMouseOver}
 
 class LithologyColumn extends Component
   @contextType: PlatformContext
@@ -269,35 +295,17 @@ class LithologyColumn extends Component
         definite: d.definite_boundary
         covered: d.covered}, 'lithology')
       fill = "url(##{UUID}-#{d.patternID})"
-      @createRect d, {className, fill}
+      h ColumnRect, {width: @props.width, division: d, className, fill}
 
   renderFacies: =>
     return unless @props.showFacies
-    {divisions, facies, scale, width} = @props
-    h FaciesColumnInner, {divisions, facies, scale, width}
+    {width} = @props
+    h FaciesColumnInner, {width}
 
   renderEditableColumn: =>
-    return unless @props.onEditInterval? or @props.onHoverInterval?
-    {divisions, scale} = @props
-    eventHandler = (fn)=>(d)=> (event)=>
-      {top} = event.target.getBoundingClientRect()
-      {clientY} = event
-      try
-        pxFromTop = scale(d.top)+(clientY-top)
-        height = scale.invert(pxFromTop)
-      catch
-        height = null
-      fn(d, {height, event})
-      event.stopPropagation()
-
-    clickHandler = eventHandler(@props.onEditInterval or ->)
-    hoverHandler = eventHandler(@props.onHoverInterval or ->)
-
-    h 'g.edit-overlay', divisions.map (d)=>
-      onClick = clickHandler(d)
-      onMouseOver = hoverHandler(d)
-      className = classNames('edit-overlay', d.id)
-      @createRect d, {className, fill: 'transparent', onClick, onMouseOver}
+    {onEditInterval, onHoverInterval} = @props
+    return unless onEditInterval? or onHoverInterval?
+    h DivisionEditOverlay, {onEditInterval, onHoverInterval}
 
 class CoveredColumn extends LithologyColumn
   @defaultProps: {
