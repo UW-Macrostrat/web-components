@@ -62,6 +62,9 @@ baseDir = dirname require.resolve "../map-viewer/legend"
 new SerializableQuery('unit-data', null, {baseDir})
 
 
+baseDir = dirname require.resolve "../sections/facies"
+new SerializableQuery('facies',null, {baseDir})
+
 baseDir = dirname require.resolve "../sections"
 new SerializableQuery('sections', null, {baseDir})
 new SerializableQuery('section-surface', null, {baseDir})
@@ -69,7 +72,6 @@ new SerializableQuery('carbon-isotopes', null, {baseDir})
 
 sectionLabels = null
 
-new SerializableQuery('facies',null, {baseDir})
 sectionQueries =  [
   'flooding-surface'
   'section-samples'

@@ -3,9 +3,10 @@ import {join} from "path"
 import Promise from "bluebird"
 import {Component, createContext} from "react"
 import {db, query, storedProcedure} from "./db"
-import {FaciesContext} from "./facies-descriptions"
+import {FaciesProvider} from "./facies"
 import {SequenceStratProvider} from "./sequence-strat-context"
 import h from "react-hyperscript"
+import "./main.styl"
 
 sectionFilename = (fn)->
   if PLATFORM == ELECTRON
@@ -47,8 +48,6 @@ class SectionDataProvider extends Component
     super props
     @state = {
       sections: []
-      facies: []
-      facies_tracts: []
       surfaces: []
     }
 
@@ -57,28 +56,14 @@ class SectionDataProvider extends Component
       .then (sections)=>@setState {sections}
     query('section-surface', null, {baseDir: __dirname})
       .then (surfaces)=>@setState {surfaces}
-    @getFaciesData()
-
-  getFaciesData: =>
-    query('facies', null, {baseDir: __dirname})
-      .then (facies)=>@setState {facies}
-
-  getFaciesTractData: =>
-    query('facies-tract', null, {baseDir: __dirname})
-      .then (facies_tracts)=>@setState {facies_tracts}
 
   componentDidMount: ->
     @getInitialData()
 
-  changeFaciesColor: (id,color)=>
-    sql = storedProcedure('set-facies-color', {baseDir: __dirname})
-    await db.none sql, {id,color}
-    @getFaciesData()
-
   render: ->
-    {facies, surfaces, sections} = @state
-    value = {facies, surfaces, onColorChanged: @changeFaciesColor}
-    h FaciesContext.Provider, {value}, [
+    {surfaces, sections} = @state
+    # Surfaces really shouldn't be tracked by facies provider
+    h FaciesProvider, {surfaces}, [
       h SequenceStratProvider, null, [
         h SectionContext.Provider, {value: {sections}}, @props.children
       ]

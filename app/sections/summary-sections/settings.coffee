@@ -1,5 +1,5 @@
 import {SettingsPanel} from "../settings"
-import {FaciesDescriptionSmall} from "../facies-descriptions"
+import {FaciesDescriptionSmall} from "../facies"
 import {Button, Silder} from "@blueprintjs/core"
 import h from "react-hyperscript"
 

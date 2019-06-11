@@ -9,7 +9,7 @@ import {createGrainsizeScale} from "./grainsize"
 import {path} from "d3-path"
 import * as d3 from "d3"
 import {PlatformContext} from "../../platform"
-import {FaciesContext} from "../facies-descriptions"
+import {FaciesContext} from "../facies"
 import {ColumnContext} from "./context"
 import T from 'prop-types'
 

@@ -1,23 +1,12 @@
-import {findDOMNode} from "react-dom"
 import {Component, createContext} from "react"
-import "./main.styl"
-import {select} from "d3-selection"
 import h from "react-hyperscript"
-import {NavLink} from "../nav"
 import {Icon} from "react-fa"
-import SettingsPanel from "./settings"
-import update from "immutability-helper"
-import {SectionNavigationControl} from "./util"
-import LocalStorage from "./storage"
-import {db, storedProcedure, query} from "./db"
+import {SectionNavigationControl} from "../util"
 import * as d3 from "d3"
 import classNames from "classnames"
 import {SwatchesPicker} from "react-color"
 import {Popover} from "@blueprintjs/core"
-import {dirname} from "path"
-import {PlatformContext} from "../platform"
-
-FaciesContext = createContext {facies:[],onColorChanged: ->}
+import {FaciesContext} from './context'
 
 class FaciesSwatch extends Component
   @defaultProps: {
@@ -39,11 +28,11 @@ class FaciesSwatch extends Component
     }, [
       basicSwatch
       h 'div', [
-        h FaciesContext.Consumer, {}, ({onColorChanged})=>
+        h FaciesContext.Consumer, {}, ({setFaciesColor})=>
           h SwatchesPicker, {
             color: d.color or 'black'
             onChangeComplete: (color)->
-              onColorChanged(d.id, color.hex)
+              setFaciesColor(d.id, color.hex)
             styles: {
               width: 500
               height: 570
@@ -111,11 +100,11 @@ class FaciesDescriptionSmall extends Component
     }, [
       basicSwatch
       h 'div', [
-        h FaciesContext.Consumer, {}, ({onColorChanged})=>
+        h FaciesContext.Consumer, {}, ({setFaciesColor})=>
           h SwatchesPicker, {
             color: d.color or 'black'
             onChangeComplete: (color)->
-              onColorChanged(d.id, color.hex)
+              setFaciesColor(d.id, color.hex)
             styles: {
               width: 500
               height: 570

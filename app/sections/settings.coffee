@@ -5,7 +5,7 @@ import {Switch, Slider, Button} from "@blueprintjs/core"
 import {format, select} from "d3"
 import {PlatformConsumer} from "../platform"
 import {SequenceStratConsumer} from "./sequence-strat-context"
-import {FaciesDescriptionSmall} from "./facies-descriptions"
+import {FaciesDescriptionSmall} from "./facies"
 import classNames from "classnames"
 
 import "./settings.styl"

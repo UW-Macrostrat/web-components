@@ -20,7 +20,7 @@ import {SectionLinkOverlay} from "./link-overlay"
 import {stackGroups, groupOrder, sectionOffsets} from "./display-parameters"
 import {SectionOptionsContext, defaultSectionOptions} from "./options"
 import {SequenceStratConsumer} from "../sequence-strat-context"
-import {FaciesDescriptionSmall} from "../facies-descriptions"
+import {FaciesDescriptionSmall} from "../facies"
 import {LithostratKey} from "./lithostrat-key"
 import {NavLink} from "../../nav"
 import {Legend} from "./legend"
@@ -370,4 +370,3 @@ SummarySections = (props)->
     h SummarySectionsBase, {props..., rest...}
 
 export {SummarySections, SummarySectionsBase, SectionOptionsContext}
-

@@ -10,7 +10,7 @@ import {FloodingSurface, TriangleBars} from "../column/flooding-surface"
 import {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} from "../column/lithology"
 import {withRouter} from "react-router-dom"
 import {Notification} from "../../notify"
-import {FaciesContext} from "../facies-descriptions"
+import {FaciesContext} from "../facies"
 import {query} from "../../db"
 import {SVGNamespaces, KnownSizeComponent} from "../util"
 

@@ -2,7 +2,7 @@ import {Component} from "react"
 import h from "react-hyperscript"
 import classNames from "classnames"
 import {SymbolLegend} from "../column/symbol-column"
-import {FaciesDescriptionSmall, FaciesContext, FaciesSwatch} from "../facies-descriptions"
+import {FaciesDescriptionSmall, FaciesContext, FaciesSwatch} from "../facies"
 
 class FaciesLegend extends Component
   @defaultProps: {

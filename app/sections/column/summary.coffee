@@ -13,7 +13,7 @@ import {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} from "./lithol
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {Notification} from "../../notify"
-import {FaciesContext} from "../facies-descriptions"
+import {FaciesContext} from "../facies"
 import {SVGNamespaces, KnownSizeComponent, ColumnDivisionsProvider} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
