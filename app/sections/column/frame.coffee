@@ -1,4 +1,4 @@
-import {Component} from "react"
+import {Component, createElement} from "react"
 import h from "react-hyperscript"
 import {path} from "d3-path"
 import {ColumnContext} from "./context"
@@ -58,4 +58,10 @@ class GrainsizeFrame extends Component
 
     h "path", {id: frameID, key: frameID, d: _.toString()}
 
-export {SimpleFrame, GrainsizeFrame}
+ClipPath = (props)->
+  {id, children, rest...} = props
+  if id.startsWith('#')
+    id = id.slice(1)
+  createElement('clipPath', {id, key: id, rest...}, children)
+
+export {SimpleFrame, GrainsizeFrame, ClipPath}

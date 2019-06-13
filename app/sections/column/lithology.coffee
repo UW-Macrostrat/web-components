@@ -12,7 +12,7 @@ import {PlatformContext} from "../../platform"
 import {FaciesContext} from "../facies"
 import {ColumnContext} from "./context"
 import T from 'prop-types'
-import {SimpleFrame, GrainsizeFrame} from './frame'
+import {SimpleFrame, GrainsizeFrame, ClipPath} from './frame'
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -160,7 +160,6 @@ class CoveredOverlay extends UUIDComponent
       divs...
     ]
 
-
 class SymbolDefinition extends Component
   @contextType: PlatformContext
   @defaultProps: {
@@ -299,11 +298,11 @@ class LithologyColumn extends UUIDComponent
 
   createDefs: =>
     {width} = @props
-    h 'defs', {key: 'defs'}, [
+    h 'defs', [
       h SimpleFrame, {id: @frameID, width}
-      createElement('clipPath', {id: @clipID.slice(1), key: @clipID}, [
+      h ClipPath, {id: @clipID}, (
         h UseFrame, {id: @frameID}
-      ])
+      )
     ]
 
   renderCoveredOverlay: =>
@@ -356,7 +355,6 @@ class FaciesColumn extends LithologyColumn
 
 class GeneralizedSectionColumn extends LithologyColumn
   # This isn't going to work until we get composition working
-
   resolveID: (d)->
     p = symbolIndex[d.fill_pattern]
     return p if p?
@@ -373,9 +371,9 @@ class GeneralizedSectionColumn extends LithologyColumn
     range = [grainsizeScaleStart, width]
     h 'defs', {key: 'defs'}, [
       h GrainsizeFrame, {id: @frameID, range}
-      createElement('clipPath', {id: @clipID.slice(1), key: @clipID}, [
+      h ClipPath, {id: @clipID}, (
         h UseFrame, {id: @frameID}
-      ])
+      )
     ]
 
 export {LithologyColumn, FaciesColumn,
