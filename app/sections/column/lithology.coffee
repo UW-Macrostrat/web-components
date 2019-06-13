@@ -353,44 +353,75 @@ class FaciesColumn extends LithologyColumn
     showLithology: false
     editable: true
 
-class GeneralizedSectionColumn extends LithologyColumn
-  # This isn't going to work until we get composition working
-  resolveID: (d)->
-    p = symbolIndex[d.fill_pattern]
-    return p if p?
-    fp = d.fill_pattern
-    # Special case for shales since we probably want to emphasize lithology
-    if parseInt(fp) == 624
-      return defaultResolveID(d)
-    else
-      return fp
+simplifiedResolveID = (d)->
+  p = symbolIndex[d.fill_pattern]
+  return p if p?
+  fp = d.fill_pattern
+  # Special case for shales since we probably want to emphasize lithology
+  if parseInt(fp) == 624
+    return defaultResolveID(d)
+  else
+    return fp
 
-  createDefs: =>
-    {width, grainsizeScaleStart} = @props
-    grainsizeScaleStart ?= width/4
-    range = [grainsizeScaleStart, width]
-    h 'defs', {key: 'defs'}, [
-      h GrainsizeFrame, {id: @frameID, range}
-      h ClipPath, {id: @clipID}, (
-        h UseFrame, {id: @frameID}
-      )
-    ]
+SimplifiedLithologyColumn = (props)->
+  h LithologyColumnInner, {
+    resolveID: simplifiedResolveID
+    props...
+  }
 
+prefixID = (uuid, prefixes)->
+  res = {}
+  for prefix in prefixes
+    res[prefix+"ID"] = "##{uuid}-#{prefix}"
+  return res
+
+class FrameComponent extends UUIDComponent
+  @defaultProps: {
+    onClick: null
+    shiftY: 0
+  }
+  @propTypes: {
+    left: T.number
+    shiftY: T.number
+    onClick: T.func
+    frame: T.func.isRequired
+  }
+  computeTransform: =>
+    {left, shiftY} = @props
+    return null unless left?
+    return "translate(#{left} #{shiftY})"
   render: ->
-    {scale, visible,left, shiftY,
-        width, height, divisions, children} = @props
-    divisions = [] unless visible
+    {children, frame, className, onClick} = @props
     transform = @computeTransform()
+    {frameID, clipID} = prefixID @UUID, ["frame", "clip"]
 
-    onClick = @onClick
-    clipPath = "url(#{@clipID})"
-    h 'g.lithology-column', {transform, onClick},[
-      @createDefs()
-      h 'g', {className: 'lithology-inner', clipPath}, children
-      h UseFrame, {id: @frameID}
+    h 'g', {className, transform, onClick},[
+      h 'defs', {key: 'defs'}, [
+        h frame, {id: frameID}
+        h ClipPath, {id: clipID}, h(UseFrame, {id: frameID})
+      ]
+      h 'g.inner', {
+        clipPath: "url(#{clipID})"
+      }, children
+      h UseFrame, {id: frameID}
     ]
+
+GeneralizedSectionColumn = (props)->
+  {width, grainsizeScaleStart, children} = props
+  grainsizeScaleStart ?= width/4
+  range = [grainsizeScaleStart, width]
+  h FrameComponent, {
+    className: 'lithology-column'
+    frame: (props)=> h GrainsizeFrame, {range, props...}
+  }, children
+
+GeneralizedSectionColumn.propTypes = {
+  width: T.number.isRequired
+  grainsizeScaleStart: T.number
+}
 
 export {LithologyColumn, FaciesColumn,
         GeneralizedSectionColumn, CoveredColumn,
         FaciesColumnInner, LithologyColumnInner,
+        SimplifiedLithologyColumn,
         CoveredOverlay, DivisionEditOverlay}

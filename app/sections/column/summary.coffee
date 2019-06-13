@@ -18,7 +18,7 @@ import {SVGNamespaces, KnownSizeComponent, ColumnDivisionsProvider} from "../uti
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
 import {ColumnProvider} from './context'
-import {CoveredOverlay, FaciesColumnInner,
+import {SimplifiedLithologyColumn, CoveredOverlay, FaciesColumnInner,
         DivisionEditOverlay, LithologyColumnInner} from './lithology'
 
 fmt = d3.format('.1f')
@@ -292,15 +292,13 @@ class BaseSVGSectionComponent extends KnownSizeComponent
                 width: innerWidth
                 height: innerHeight
                 divisions
-                showFacies
-                showCoveredOverlay: true
                 scale
                 id
                 grainsizeScaleStart: 40
               }, [
                 if showFacies then h(FaciesColumnInner, {width: innerWidth}) else null
                 h CoveredOverlay, {width: innerWidth}
-                h LithologyColumnInner, {width: innerWidth}
+                h SimplifiedLithologyColumn, {width: innerWidth}
               ]
               h DivisionEditOverlay, {
                 onEditInterval
