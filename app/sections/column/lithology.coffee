@@ -12,7 +12,7 @@ import {PlatformContext} from "../../platform"
 import {FaciesContext} from "../facies"
 import {ColumnContext} from "./context"
 import T from 'prop-types'
-import {SimpleFrame, GrainsizeFrame, ClipPath} from './frame'
+import {SimpleFrame, GrainsizeFrame, ClipToFrame} from './frame'
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -283,16 +283,16 @@ class LithologyColumn extends UUIDComponent
     divisions = [] unless visible
     transform = @computeTransform()
 
-    onClick = @onClick
-    clipPath = "url(#{@clipID})"
-    h 'g.lithology-column', {transform, onClick},[
-      @createDefs()
-      h 'g', {className: 'lithology-inner', clipPath}, [
+    h 'g', [
+      h ClipToFrame, {
+        className: 'lithology-column',
+        left, shiftY
+        frame: (props)=>h(SimpleFrame, {width, props...})
+      }, [
         @renderFacies()
         @renderLithology()
         @renderCoveredOverlay()
       ]
-      h UseFrame, {id: @frameID}
       @renderEditableColumn()
     ]
 
@@ -369,48 +369,11 @@ SimplifiedLithologyColumn = (props)->
     props...
   }
 
-prefixID = (uuid, prefixes)->
-  res = {}
-  for prefix in prefixes
-    res[prefix+"ID"] = "##{uuid}-#{prefix}"
-  return res
-
-class FrameComponent extends UUIDComponent
-  @defaultProps: {
-    onClick: null
-    shiftY: 0
-  }
-  @propTypes: {
-    left: T.number
-    shiftY: T.number
-    onClick: T.func
-    frame: T.func.isRequired
-  }
-  computeTransform: =>
-    {left, shiftY} = @props
-    return null unless left?
-    return "translate(#{left} #{shiftY})"
-  render: ->
-    {children, frame, className, onClick} = @props
-    transform = @computeTransform()
-    {frameID, clipID} = prefixID @UUID, ["frame", "clip"]
-
-    h 'g', {className, transform, onClick},[
-      h 'defs', {key: 'defs'}, [
-        h frame, {id: frameID}
-        h ClipPath, {id: clipID}, h(UseFrame, {id: frameID})
-      ]
-      h 'g.inner', {
-        clipPath: "url(#{clipID})"
-      }, children
-      h UseFrame, {id: frameID}
-    ]
-
 GeneralizedSectionColumn = (props)->
   {width, grainsizeScaleStart, children} = props
   grainsizeScaleStart ?= width/4
   range = [grainsizeScaleStart, width]
-  h FrameComponent, {
+  h ClipToFrame, {
     className: 'lithology-column'
     frame: (props)=> h GrainsizeFrame, {range, props...}
   }, children

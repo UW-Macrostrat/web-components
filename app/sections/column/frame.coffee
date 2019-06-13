@@ -64,4 +64,45 @@ ClipPath = (props)->
     id = id.slice(1)
   createElement('clipPath', {id, key: id, rest...}, children)
 
-export {SimpleFrame, GrainsizeFrame, ClipPath}
+UseFrame = (props)->
+  {id: frameID, rest...} = props
+  h 'use.frame', {xlinkHref: frameID, fill:'transparent', key: 'frame', rest...}
+
+prefixID = (uuid, prefixes)->
+  res = {}
+  for prefix in prefixes
+    res[prefix+"ID"] = "##{uuid}-#{prefix}"
+  return res
+
+class ClipToFrame extends Component
+  @defaultProps: {
+    onClick: null
+    shiftY: 0
+  }
+  @propTypes: {
+    left: T.number
+    shiftY: T.number
+    onClick: T.func
+    frame: T.func.isRequired
+  }
+  computeTransform: =>
+    {left, shiftY} = @props
+    return null unless left?
+    return "translate(#{left} #{shiftY})"
+  render: ->
+    {children, frame, className, onClick} = @props
+    transform = @computeTransform()
+    {frameID, clipID} = prefixID @UUID, ["frame", "clip"]
+
+    h 'g', {className, transform, onClick},[
+      h 'defs', {key: 'defs'}, [
+        h frame, {id: frameID}
+        h ClipPath, {id: clipID}, h(UseFrame, {id: frameID})
+      ]
+      h 'g.inner', {
+        clipPath: "url(#{clipID})"
+      }, children
+      h UseFrame, {id: frameID}
+    ]
+
+export {SimpleFrame, GrainsizeFrame, ClipPath, ClipToFrame}
