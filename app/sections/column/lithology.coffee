@@ -12,6 +12,7 @@ import {PlatformContext} from "../../platform"
 import {FaciesContext} from "../facies"
 import {ColumnContext} from "./context"
 import T from 'prop-types'
+import {SimpleFrame, GrainsizeFrame} from './frame'
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -241,13 +242,6 @@ class LithologyColumnInner extends UUIDComponent
       h 'g', divisions.map(@renderEach)
     ]
 
-class SimpleFrame extends Component
-  @contextType: ColumnContext
-  render: ->
-    {pixelHeight: height} = @context
-    {width, id: frameID} = @props
-    h "rect", {id: frameID, x:0,y:0,width,height, key: frameID}
-
 class LithologyColumn extends UUIDComponent
   @contextType: PlatformContext
   @defaultProps: {
@@ -362,49 +356,6 @@ class FaciesColumn extends LithologyColumn
     showFacies: true
     showLithology: false
     editable: true
-
-class GrainsizeFrame extends Component
-  @contextType: ColumnContext
-  render: ->
-    {scale, divisions, grainsizeScale} = @context
-    {id: frameID, range} = @props
-    gs = grainsizeScale(range)
-    if divisions.length == 0
-      return null
-
-    [bottomOfSection, topOfSection] = scale.domain()
-
-    topOf = (d)->
-      {top} = d
-      if top > topOfSection
-        top = topOfSection
-      scale(top)
-    bottomOf = (d)->
-      {bottom} = d
-      if bottom < bottomOfSection
-        bottom = bottomOfSection
-      scale(bottom)
-
-    filteredDivisions = divisions.filter (d)->
-      return false if d.top <= bottomOfSection
-      return false if d.bottom > topOfSection
-      return true
-
-    _ = null
-    currentGrainsize = 'm'
-    for div in filteredDivisions
-      if not _?
-        _ = path()
-        _.moveTo(0,bottomOf(div))
-      if div.grainsize?
-        currentGrainsize = div.grainsize
-      x = gs(currentGrainsize)
-      _.lineTo x, bottomOf(div)
-      _.lineTo x, topOf(div)
-    _.lineTo 0, topOf(div)
-    _.closePath()
-
-    h "path#{frameID}", {key: frameID, d: _.toString()}
 
 class GeneralizedSectionColumn extends LithologyColumn
   # This isn't going to work until we get composition working
