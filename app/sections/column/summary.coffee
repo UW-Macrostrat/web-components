@@ -18,6 +18,8 @@ import {SVGNamespaces, KnownSizeComponent, ColumnDivisionsProvider} from "../uti
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
 import {ColumnProvider} from './context'
+import {CoveredOverlay, FaciesColumnInner,
+        DivisionEditOverlay, LithologyColumnInner} from './lithology'
 
 fmt = d3.format('.1f')
 
@@ -247,6 +249,17 @@ class BaseSVGSectionComponent extends KnownSizeComponent
       onHoverInterval = (d, opts)=>
         @setState {hoveredInterval: d}
 
+    onEditInterval = (d, opts)=>
+      {history} = @props
+      {height, event} = opts
+      if not event.shiftKey
+        history.push("/sections/#{id}/height/#{height}")
+        return
+      Notification.show {
+        message: h IntervalNotification, {d..., height}
+        timeout: 2000
+      }
+
     minWidth = outerWidth
     position = 'absolute'
     top = marginTop
@@ -284,17 +297,14 @@ class BaseSVGSectionComponent extends KnownSizeComponent
                 scale
                 id
                 grainsizeScaleStart: 40
+              }, [
+                if showFacies then h(FaciesColumnInner, {width: innerWidth}) else null
+                h CoveredOverlay, {width: innerWidth}
+                h LithologyColumnInner, {width: innerWidth}
+              ]
+              h DivisionEditOverlay, {
+                onEditInterval
                 onHoverInterval
-                onEditInterval: (d, opts)=>
-                  {history} = @props
-                  {height, event} = opts
-                  if not event.shiftKey
-                    history.push("/sections/#{id}/height/#{height}")
-                    return
-                  Notification.show {
-                    message: h IntervalNotification, {d..., height}
-                    timeout: 2000
-                  }
               }
               h SymbolColumn, {
                 scale

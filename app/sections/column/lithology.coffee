@@ -376,5 +376,21 @@ class GeneralizedSectionColumn extends LithologyColumn
       )
     ]
 
+  render: ->
+    {scale, visible,left, shiftY,
+        width, height, divisions, children} = @props
+    divisions = [] unless visible
+    transform = @computeTransform()
+
+    onClick = @onClick
+    clipPath = "url(#{@clipID})"
+    h 'g.lithology-column', {transform, onClick},[
+      @createDefs()
+      h 'g', {className: 'lithology-inner', clipPath}, children
+      h UseFrame, {id: @frameID}
+    ]
+
 export {LithologyColumn, FaciesColumn,
-        GeneralizedSectionColumn, CoveredColumn}
+        GeneralizedSectionColumn, CoveredColumn,
+        FaciesColumnInner, LithologyColumnInner,
+        CoveredOverlay, DivisionEditOverlay}
