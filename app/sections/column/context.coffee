@@ -26,7 +26,7 @@ class ColumnProvider extends Component
     pixelsPerMeter: 20
     zoom: 1
   }
-  grainsizeScale: (pixelRange)->
+  grainsizeScale: (pixelRange)=>
     {grainSizes} = @props
     scale = scaleLinear()
       .domain [0,grainSizes.length-1]
@@ -59,6 +59,7 @@ class ColumnProvider extends Component
     value = {
       methods...
       pixelsPerMeter
+      pixelHeight
       zoom
       range
       height

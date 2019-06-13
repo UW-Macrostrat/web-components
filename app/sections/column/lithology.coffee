@@ -241,7 +241,14 @@ class LithologyColumnInner extends UUIDComponent
       h 'g', divisions.map(@renderEach)
     ]
 
-class LithologyColumn extends Component
+class SimpleFrame extends Component
+  @contextType: ColumnContext
+  render: ->
+    {pixelHeight: height} = @context
+    {width, id: frameID} = @props
+    h "rect", {id: frameID, x:0,y:0,width,height, key: frameID}
+
+class LithologyColumn extends UUIDComponent
   @contextType: PlatformContext
   @defaultProps: {
     width: 100
@@ -271,7 +278,7 @@ class LithologyColumn extends Component
     frameID = null
     if setID
       frameID = 'frame-'+@UUID
-    h "rect", {id: frameID, x:0,y:0,width,height, key: frameID}
+    h SimpleFrame, {id: frameID, width}
 
   computeTransform: =>
     {left, shiftY} = @props
@@ -303,7 +310,7 @@ class LithologyColumn extends Component
     h 'defs', {key: 'defs'}, [
       @createFrame()
       createElement('clipPath', {id: clipID.slice(1), key: clipID}, [
-        @createFrame(false)
+        h 'use.frame', {xlinkHref: '#frame-'+@UUID, fill:'transparent', key: 'frame'}
       ])
     ]
 
@@ -356,33 +363,14 @@ class FaciesColumn extends LithologyColumn
     showLithology: false
     editable: true
 
-class GeneralizedSectionColumn extends LithologyColumn
-  constructor: (props)->
-    super props
-    @createGrainsizeScale(props)
-  componentWillUpdate: (props)->
-    @createGrainsizeScale(props)
-  createGrainsizeScale: (props)->
-    {width, grainsizeScaleStart} = props
-    grainsizeScaleStart ?= width/4
-    @grainsizeScale = createGrainsizeScale([grainsizeScaleStart, width])
-
-  # This isn't going to work until we get composition working
-  resolveID: (d)->
-    p = symbolIndex[d.fill_pattern]
-    return p if p?
-    fp = d.fill_pattern
-    # Special case for shales since we probably want to emphasize lithology
-    if parseInt(fp) == 624
-      return defaultResolveID(d)
-    else
-      return fp
-
-  createFrame: ->
-    {scale, divisions, position, id} = @props
-    {frameID} = @state
+class GrainsizeFrame extends Component
+  @contextType: ColumnContext
+  render: ->
+    {scale, divisions, grainsizeScale} = @context
+    {id: frameID, range} = @props
+    gs = grainsizeScale(range)
     if divisions.length == 0
-      return super.createFrame()
+      return null
 
     [bottomOfSection, topOfSection] = scale.domain()
 
@@ -410,13 +398,32 @@ class GeneralizedSectionColumn extends LithologyColumn
         _.moveTo(0,bottomOf(div))
       if div.grainsize?
         currentGrainsize = div.grainsize
-      x = @grainsizeScale(currentGrainsize)
+      x = gs(currentGrainsize)
       _.lineTo x, bottomOf(div)
       _.lineTo x, topOf(div)
     _.lineTo 0, topOf(div)
     _.closePath()
 
     h "path#{frameID}", {key: frameID, d: _.toString()}
+
+class GeneralizedSectionColumn extends LithologyColumn
+  # This isn't going to work until we get composition working
+  resolveID: (d)->
+    p = symbolIndex[d.fill_pattern]
+    return p if p?
+    fp = d.fill_pattern
+    # Special case for shales since we probably want to emphasize lithology
+    if parseInt(fp) == 624
+      return defaultResolveID(d)
+    else
+      return fp
+
+  createFrame: ->
+    {frameID} = @state
+    {width, grainsizeScaleStart} = @props
+    grainsizeScaleStart ?= width/4
+    range = [grainsizeScaleStart, width]
+    h GrainsizeFrame, {id: frameID, range}
 
 export {LithologyColumn, FaciesColumn,
         GeneralizedSectionColumn, CoveredColumn}

@@ -274,10 +274,7 @@ class SectionComponent extends KnownSizeComponent
     ]
 
     if zoom > 0.4
-      __.push h GrainsizeScale, {
-        height
-        range
-      }
+      __.push h GrainsizeScale, {range}
 
       if showGeneralizedSections
         __.push h GeneralizedSectionColumn, {
