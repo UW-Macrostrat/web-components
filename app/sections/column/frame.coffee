@@ -9,6 +9,8 @@ class SimpleFrame extends Component
   render: ->
     {pixelHeight: height} = @context
     {width, id: frameID} = @props
+    if frameID.startsWith("#")
+      frameID = frameID.slice(1)
     h "rect", {id: frameID, x:0,y:0,width,height, key: frameID}
 
 class GrainsizeFrame extends Component
@@ -16,6 +18,8 @@ class GrainsizeFrame extends Component
   render: ->
     {scale, divisions, grainsizeScale} = @context
     {id: frameID, range} = @props
+    if frameID.startsWith("#")
+      frameID = frameID.slice(1)
     gs = grainsizeScale(range)
     if divisions.length == 0
       return null
@@ -52,6 +56,6 @@ class GrainsizeFrame extends Component
     _.lineTo 0, topOf(div)
     _.closePath()
 
-    h "path#{frameID}", {key: frameID, d: _.toString()}
+    h "path", {id: frameID, key: frameID, d: _.toString()}
 
 export {SimpleFrame, GrainsizeFrame}

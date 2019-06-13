@@ -242,6 +242,12 @@ class LithologyColumnInner extends UUIDComponent
       h 'g', divisions.map(@renderEach)
     ]
 
+
+UseFrame = (props)->
+  {id: frameID, rest...} = props
+  h 'use.frame', {xlinkHref: frameID, fill:'transparent', key: 'frame', rest...}
+
+
 class LithologyColumn extends UUIDComponent
   @contextType: PlatformContext
   @defaultProps: {
@@ -260,19 +266,12 @@ class LithologyColumn extends UUIDComponent
   queryID: 'lithology'
   constructor: (props)->
     super props
-    @UUID = v4()
-    @state = {
-      UUID: @UUID
-      frameID: "#frame-#{@UUID}"
-      clipID: "#clip-#{@UUID}"
-    }
+    @clipID = "#clip-#{@UUID}"
+    @frameID = "#frame-#{@UUID}"
 
-  createFrame: (setID=true)->
-    {width, height} = @props
-    frameID = null
-    if setID
-      frameID = 'frame-'+@UUID
-    h SimpleFrame, {id: frameID, width}
+  createFrame: (setID=true)=>
+    {width} = @props
+    h SimpleFrame, {id: @frameID, width}
 
   computeTransform: =>
     {left, shiftY} = @props
@@ -282,12 +281,11 @@ class LithologyColumn extends UUIDComponent
   render: ->
     {scale, visible,left, shiftY,
         width, height, divisions} = @props
-    {clipID, frameID} = @state
     divisions = [] unless visible
     transform = @computeTransform()
 
     onClick = @onClick
-    clipPath = "url(#{clipID})"
+    clipPath = "url(#{@clipID})"
     h 'g.lithology-column', {transform, onClick},[
       @createDefs()
       h 'g', {className: 'lithology-inner', clipPath}, [
@@ -295,22 +293,21 @@ class LithologyColumn extends UUIDComponent
         @renderLithology()
         @renderCoveredOverlay()
       ]
-      h 'use.frame', {xlinkHref: '#frame-'+@UUID, fill:'transparent', key: 'frame'}
+      h UseFrame, {id: @frameID}
       @renderEditableColumn()
     ]
 
   createDefs: =>
-    {clipID} = @state
+    {width} = @props
     h 'defs', {key: 'defs'}, [
-      @createFrame()
-      createElement('clipPath', {id: clipID.slice(1), key: clipID}, [
-        h 'use.frame', {xlinkHref: '#frame-'+@UUID, fill:'transparent', key: 'frame'}
+      h SimpleFrame, {id: @frameID, width}
+      createElement('clipPath', {id: @clipID.slice(1), key: @clipID}, [
+        h UseFrame, {id: @frameID}
       ])
     ]
 
   renderCoveredOverlay: =>
     {showCoveredOverlay, showLithology, width} = @props
-    {UUID} = @state
     if not showCoveredOverlay?
       showCoveredOverlay = showLithology
     return unless showCoveredOverlay
@@ -359,6 +356,7 @@ class FaciesColumn extends LithologyColumn
 
 class GeneralizedSectionColumn extends LithologyColumn
   # This isn't going to work until we get composition working
+
   resolveID: (d)->
     p = symbolIndex[d.fill_pattern]
     return p if p?
@@ -369,12 +367,16 @@ class GeneralizedSectionColumn extends LithologyColumn
     else
       return fp
 
-  createFrame: ->
-    {frameID} = @state
+  createDefs: =>
     {width, grainsizeScaleStart} = @props
     grainsizeScaleStart ?= width/4
     range = [grainsizeScaleStart, width]
-    h GrainsizeFrame, {id: frameID, range}
+    h 'defs', {key: 'defs'}, [
+      h GrainsizeFrame, {id: @frameID, range}
+      createElement('clipPath', {id: @clipID.slice(1), key: @clipID}, [
+        h UseFrame, {id: @frameID}
+      ])
+    ]
 
 export {LithologyColumn, FaciesColumn,
         GeneralizedSectionColumn, CoveredColumn}
