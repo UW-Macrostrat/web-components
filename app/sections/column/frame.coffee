@@ -3,6 +3,12 @@ import h from "react-hyperscript"
 import {path} from "d3-path"
 import {ColumnContext} from "./context"
 import T from 'prop-types'
+import {v4} from "uuid"
+
+class UUIDComponent extends Component
+  constructor: (props)->
+    super props
+    @UUID = v4()
 
 class SimpleFrame extends Component
   @contextType: ColumnContext
@@ -74,7 +80,14 @@ prefixID = (uuid, prefixes)->
     res[prefix+"ID"] = "##{uuid}-#{prefix}"
   return res
 
-class ClipToFrame extends Component
+widthOrFrame = (props, propName)->
+  {width, frame} = props
+  widthExists = width?
+  frameExists = frame?
+  return if widthExists or frameExists
+  return new Error "Provide either 'width' or 'frame' props"
+
+class ClipToFrame extends UUIDComponent
   @defaultProps: {
     onClick: null
     shiftY: 0
@@ -83,7 +96,8 @@ class ClipToFrame extends Component
     left: T.number
     shiftY: T.number
     onClick: T.func
-    frame: T.func.isRequired
+    frame: widthOrFrame
+    width: widthOrFrame
   }
   computeTransform: =>
     {left, shiftY} = @props
@@ -91,6 +105,10 @@ class ClipToFrame extends Component
     return "translate(#{left} #{shiftY})"
   render: ->
     {children, frame, className, onClick} = @props
+    if not frame?
+      {width} = @props
+      frame = (props)=>h(SimpleFrame, {width, props...})
+
     transform = @computeTransform()
     {frameID, clipID} = prefixID @UUID, ["frame", "clip"]
 
@@ -105,4 +123,4 @@ class ClipToFrame extends Component
       h UseFrame, {id: frameID}
     ]
 
-export {SimpleFrame, GrainsizeFrame, ClipPath, ClipToFrame}
+export {SimpleFrame, GrainsizeFrame, ClipPath, UUIDComponent, ClipToFrame}

@@ -8,7 +8,11 @@ import classNames from "classnames"
 
 import {BaseSVGSectionComponent} from "./summary"
 import {SectionAxis} from "./axis"
-import {GeneralizedSectionColumn, FaciesColumn, LithologyColumn} from "./lithology"
+import {ClipToFrame} from "./frame"
+import {
+  GeneralizedSectionColumn, FaciesColumnInner, LithologyColumn,
+  LithologyColumnInner, symbolIndex
+} from "./lithology"
 import {FaciesContext} from "../facies"
 import {SVGNamespaces} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
@@ -17,48 +21,30 @@ import {ColumnProvider} from "./context"
 
 class SimplifiedLithologyColumn extends LithologyColumn
 
-  resolveID: (d)->
-    {pattern} = d
-    return null if not pattern?
-    console.log pattern
-    if ['dolomite', 'dolomite-limestone',
-        'sandy-dolomite', 'lime_mudstone'].includes(pattern)
-      pattern = 'limestone'
-    return "#{@symbolIndex[pattern]}"
 
-  constructLithologyDivisions: =>
-    {divisions} = @props
-    __ = []
-    for d in divisions
-      ix = __.length-1
-      patternID = @resolveID(d)
-      if ix == -1
-        __.push {d..., patternID}
-        continue
-      sameAsLast = patternID == @resolveID(__[ix])
-      heightTooSmall = d.top-d.bottom < 2
-      shouldSkip = not patternID? or sameAsLast or heightTooSmall
-      if shouldSkip
-        __[ix].top = d.top
-      else
-        __.push {d..., patternID}
-    return __
 
   render: ->
-    {scale, left, shiftY,
-        width, height, divisions} = @props
-
-    {clipID, frameID} = @state
-    transform = @computeTransform()
-    onClick = @onClick
-    clipPath = "url(#{clipID})"
-    h 'g.lithology-column', {transform, onClick},[
-      @createDefs()
-      h 'g', {className: 'lithology-inner', clipPath}, [
-        @renderLithology()
-      ]
-      h 'use.frame', {xlinkHref: '#frame-'+@UUID, fill:'transparent', key: 'frame'}
+    {left, shiftY, width} = @props
+    h ClipToFrame, {
+      className: 'lithology-column',
+      left,
+      shiftY,
+      width
+    }, [
+      h LithologyColumnInner, {
+        resolveID: @resolveID
+        minimumHeight: 2
+      }
     ]
+
+resolveID = (d)->
+  {pattern} = d
+  return null if not pattern?
+  if ['dolomite', 'dolomite-limestone',
+      'sandy-dolomite', 'lime_mudstone'].includes(pattern)
+    pattern = 'limestone'
+  return "#{symbolIndex[pattern]}"
+
 
 class GeneralizedSVGSectionBase extends Component
   @defaultProps: {pixelsPerMeter: 20, zoom: 1, showLithology: false}
@@ -83,17 +69,20 @@ class GeneralizedSVGSectionBase extends Component
   getSize: ->
     {width, height} = @props.position
 
+  renderFacies: ->
+    {showFacies} = @props
+    {width} = @props.position
+    return null unless showFacies
+    h FaciesColumnInner, {width}
+
   renderLithology: ->
-    {showLithology, divisions, id} = @props
+    {showLithology} = @props
+    {width} = @props.position
     return null unless showLithology
-    {width, height} = @getSize()
-    scale = @getScale()
-    h SimplifiedLithologyColumn, {
+    h LithologyColumnInner, {
+      resolveID
+      minimumHeight: 2
       width
-      height
-      divisions
-      scale
-      id
     }
 
   render: ->
@@ -103,25 +92,23 @@ class GeneralizedSVGSectionBase extends Component
       position,
       facies } = @props
 
-    {x: left, y: top, width, height, heightScale} = position
-
-    scale = heightScale.local
+    {x: left, y: top, width, heightScale} = position
+    {pixelsPerMeter, height} = heightScale.props
 
     divisions = divisions.filter (d)->not d.schematic
 
     transform = "translate(#{left} #{top})"
-    h ColumnProvider, {scale, divisions}, [
+    h ColumnProvider, {
+      height, divisions, pixelsPerMeter
+    }, [
       h "g.section", {transform, key: id}, [
-        h FaciesColumn, {
+        h ClipToFrame, {
           width
-          height
-          facies
-          divisions
-          showFacies
-          scale
-          id
-        }
-        @renderLithology()
+          className: 'lithology-column'
+        }, [
+          @renderFacies()
+          @renderLithology()
+        ]
         @renderTriangleBars()
       ]
     ]

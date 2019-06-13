@@ -3,7 +3,6 @@ import {Component, PureComponent, createElement} from "react"
 import {findDOMNode} from "react-dom"
 import h from "react-hyperscript"
 import {join} from "path"
-import {v4} from "uuid"
 import classNames from "classnames"
 import {createGrainsizeScale} from "./grainsize"
 import {path} from "d3-path"
@@ -12,7 +11,7 @@ import {PlatformContext} from "../../platform"
 import {FaciesContext} from "../facies"
 import {ColumnContext} from "./context"
 import T from 'prop-types'
-import {SimpleFrame, GrainsizeFrame, ClipToFrame} from './frame'
+import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from './frame'
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -133,11 +132,6 @@ class DivisionEditOverlay extends Component
       className = classNames('edit-overlay', d.id)
       h ColumnRect, {division: d, width: 100, className, fill: 'transparent', onClick, onMouseOver}
 
-class UUIDComponent extends Component
-  constructor: (props)->
-    super props
-    @UUID = v4()
-
 class CoveredOverlay extends UUIDComponent
   @contextType: ColumnContext
   constructor: (props)->
@@ -200,10 +194,11 @@ class LithologyColumnInner extends UUIDComponent
   @contextType: ColumnContext
   @defaultProps: {
     resolveID: defaultResolveID
+    minimumHeight: 0
   }
   constructLithologyDivisions: =>
     {divisions} = @context
-    {resolveID} = @props
+    {resolveID, minimumHeight} = @props
     __ = []
     for d in divisions
       ix = __.length-1
@@ -212,11 +207,13 @@ class LithologyColumnInner extends UUIDComponent
         __.push {d..., patternID}
         continue
       sameAsLast = patternID == resolveID(__[ix])
-      shouldSkip = not patternID? or sameAsLast
+      heightTooSmall = d.top-d.bottom < minimumHeight
+      shouldSkip = not patternID? or sameAsLast or heightTooSmall
       if shouldSkip
         __[ix].top = d.top
       else
         __.push {d..., patternID}
+
     return __
 
   createDefs: (divisions)=>
@@ -268,10 +265,6 @@ class LithologyColumn extends UUIDComponent
     @clipID = "#clip-#{@UUID}"
     @frameID = "#frame-#{@UUID}"
 
-  createFrame: (setID=true)=>
-    {width} = @props
-    h SimpleFrame, {id: @frameID, width}
-
   computeTransform: =>
     {left, shiftY} = @props
     return null unless left?
@@ -279,31 +272,15 @@ class LithologyColumn extends UUIDComponent
 
   render: ->
     {scale, visible,left, shiftY,
-        width, height, divisions} = @props
+        width, children} = @props
     divisions = [] unless visible
     transform = @computeTransform()
 
-    h 'g', [
-      h ClipToFrame, {
-        className: 'lithology-column',
-        left, shiftY
-        frame: (props)=>h(SimpleFrame, {width, props...})
-      }, [
-        @renderFacies()
-        @renderLithology()
-        @renderCoveredOverlay()
-      ]
-      @renderEditableColumn()
-    ]
-
-  createDefs: =>
-    {width} = @props
-    h 'defs', [
-      h SimpleFrame, {id: @frameID, width}
-      h ClipPath, {id: @clipID}, (
-        h UseFrame, {id: @frameID}
-      )
-    ]
+    h ClipToFrame, {
+      className: 'lithology-column',
+      left, shiftY
+      frame: (props)=>h(SimpleFrame, {width, props...})
+    }, children
 
   renderCoveredOverlay: =>
     {showCoveredOverlay, showLithology, width} = @props
@@ -387,4 +364,5 @@ export {LithologyColumn, FaciesColumn,
         GeneralizedSectionColumn, CoveredColumn,
         FaciesColumnInner, LithologyColumnInner,
         SimplifiedLithologyColumn,
-        CoveredOverlay, DivisionEditOverlay}
+        CoveredOverlay, DivisionEditOverlay,
+        symbolIndex}

@@ -17,8 +17,11 @@ import Samples from "./samples"
 import {FloodingSurface, TriangleBars} from "./flooding-surface"
 import {ColumnProvider} from './context'
 import {
- LithologyColumn, GeneralizedSectionColumn,
- FaciesColumn, CoveredColumn
+  LithologyColumn,
+  GeneralizedSectionColumn,
+  FaciesColumn, CoveredColumn
+  SimplifiedLithologyColumn, CoveredOverlay, FaciesColumnInner,
+  DivisionEditOverlay, LithologyColumnInner
 } from "./lithology"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
@@ -270,6 +273,13 @@ class SectionComponent extends KnownSizeComponent
           onEditInterval: @onEditInterval
           showCoveredOverlay: true
           height, showFacies, scale, id
+        }, [
+          if showFacies then h(FaciesColumnInner, {width: lithologyWidth}) else null
+          h CoveredOverlay, {width: lithologyWidth}
+          h LithologyColumnInner, {width: lithologyWidth}
+        ]
+        h DivisionEditOverlay, {
+          onEditInterval: @onEditInterval
         }
     ]
 

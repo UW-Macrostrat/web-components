@@ -154,6 +154,7 @@ class GeneralizedSectionsBase extends SummarySectionsBase
       h 'g.section-pane-inner', {}, groupedSections.map (row, i)=>
         {columns: [[section]]} = row
         vals = do -> {id, divisions, position} = section
+        console.log vals.position
         h GeneralizedSVGSection, {vals..., showFacies, showLithology}
     ]
 
@@ -174,5 +175,3 @@ GeneralizedSections = (props)->
 
 
 export {GeneralizedSections}
-
-
