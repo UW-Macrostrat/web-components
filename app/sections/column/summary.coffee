@@ -169,7 +169,9 @@ class BaseSVGSectionComponent extends KnownSizeComponent
      showTriangleBars,
      showFloodingSurfaces,
      showWhiteUnderlay,
-     position
+     position,
+     range,
+     pixelsPerMeter
      } = @props
 
     {heightScale} = position
@@ -260,7 +262,13 @@ class BaseSVGSectionComponent extends KnownSizeComponent
         h("h2", {style: {zIndex: 20}}, id)]
       h 'div.section-outer', [
         @createEditOverlay({left, top: @props.padding.top})
-        h ColumnProvider, {scale, divisions}, [
+        h ColumnProvider, {
+          height: @props.height
+          range
+          zoom
+          pixelsPerMeter
+          divisions
+        }, [
           h "svg.section", {
             SVGNamespaces...
             style

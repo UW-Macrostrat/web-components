@@ -132,11 +132,8 @@ class SectionComponent extends KnownSizeComponent
     txt = if @props.zoom > 0.5 then "Section " else ""
     txt += id
 
-    {divisions} = @props
     {scale,visible, editingInterval} = @state
-    zoom = @props.zoom
-
-    {skeletal} = @props
+    {divisions, zoom, pixelsPerMeter, height, skeletal} = @props
 
     innerElements = [
       h ModalEditor, {
@@ -200,7 +197,13 @@ class SectionComponent extends KnownSizeComponent
         className: if @props.skeletal then "skeleton" else null
       }, [
       h 'div.section-header', [h "h2", txt]
-      h ColumnProvider, {scale: @state.scale, divisions}, [
+      h ColumnProvider, {
+        height,
+        range: @props.range
+        divisions
+        pixelsPerMeter
+        zoom
+      }, [
         h 'div.section-outer', [
             h 'div.section', {style}, innerElements
             notesEl
