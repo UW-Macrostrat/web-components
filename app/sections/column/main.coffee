@@ -19,7 +19,6 @@ import {ColumnProvider} from './context'
 import {
   LithologyColumn,
   GeneralizedSectionColumn,
-  FaciesColumn, CoveredColumn
   SimplifiedLithologyColumn, CoveredOverlay, FaciesColumnInner,
   DivisionEditOverlay, LithologyColumnInner
 } from "./lithology"

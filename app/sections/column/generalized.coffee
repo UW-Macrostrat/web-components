@@ -10,7 +10,7 @@ import {BaseSVGSectionComponent} from "./summary"
 import {SectionAxis} from "./axis"
 import {ClipToFrame} from "./frame"
 import {
-  GeneralizedSectionColumn, FaciesColumnInner, LithologyColumn,
+  FaciesColumnInner,
   LithologyColumnInner, symbolIndex
 } from "./lithology"
 import {FaciesContext} from "../facies"
@@ -18,24 +18,6 @@ import {SVGNamespaces} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {TriangleBars} from "./flooding-surface"
 import {ColumnProvider} from "./context"
-
-class SimplifiedLithologyColumn extends LithologyColumn
-
-
-
-  render: ->
-    {left, shiftY, width} = @props
-    h ClipToFrame, {
-      className: 'lithology-column',
-      left,
-      shiftY,
-      width
-    }, [
-      h LithologyColumnInner, {
-        resolveID: @resolveID
-        minimumHeight: 2
-      }
-    ]
 
 resolveID = (d)->
   {pattern} = d

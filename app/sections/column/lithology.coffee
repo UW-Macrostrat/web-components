@@ -238,33 +238,13 @@ class LithologyColumnInner extends UUIDComponent
       h 'g', divisions.map(@renderEach)
     ]
 
-
-UseFrame = (props)->
-  {id: frameID, rest...} = props
-  h 'use.frame', {xlinkHref: frameID, fill:'transparent', key: 'frame', rest...}
-
-
-class LithologyColumn extends UUIDComponent
-  @contextType: PlatformContext
+class LithologyColumn extends Component
   @defaultProps: {
     width: 100
     # Should align exactly with centerline of stroke
     shiftY: 0.5
-    divisions: []
-    height: 100
-    visible: true
     left: 0
-    showFacies: false
-    showLithology: true
-    padWidth: true
-    onEditInterval: null
   }
-  queryID: 'lithology'
-  constructor: (props)->
-    super props
-    @clipID = "#clip-#{@UUID}"
-    @frameID = "#frame-#{@UUID}"
-
   computeTransform: =>
     {left, shiftY} = @props
     return null unless left?
@@ -281,54 +261,6 @@ class LithologyColumn extends UUIDComponent
       left, shiftY
       frame: (props)=>h(SimpleFrame, {width, props...})
     }, children
-
-  renderCoveredOverlay: =>
-    {showCoveredOverlay, showLithology, width} = @props
-    if not showCoveredOverlay?
-      showCoveredOverlay = showLithology
-    return unless showCoveredOverlay
-    h CoveredOverlay, {width}
-
-  renderLithology: =>
-    return unless @props.showLithology
-    {width} = @props
-    h LithologyColumnInner, {width}
-
-  renderFacies: =>
-    return unless @props.showFacies
-    {width} = @props
-    h FaciesColumnInner, {width}
-
-  renderEditableColumn: =>
-    {onEditInterval, onHoverInterval} = @props
-    return unless onEditInterval? or onHoverInterval?
-    h DivisionEditOverlay, {onEditInterval, onHoverInterval}
-
-class CoveredColumn extends LithologyColumn
-  @defaultProps: {
-    width: 5
-    padWidth: false
-    showCoveredOverlay: true
-  }
-  constructor: (props)->
-    super props
-  render: ->
-    {scale, left, divisions} = @props
-    {width, height} = @props
-    transform = null
-    left ?= -width
-    if left?
-      transform = "translate(#{left})"
-
-    h 'g.lithology-column.covered-column', {transform},[
-      @renderCoveredOverlay()
-    ]
-
-class FaciesColumn extends LithologyColumn
-  @defaultProps:
-    showFacies: true
-    showLithology: false
-    editable: true
 
 simplifiedResolveID = (d)->
   p = symbolIndex[d.fill_pattern]
@@ -360,8 +292,8 @@ GeneralizedSectionColumn.propTypes = {
   grainsizeScaleStart: T.number
 }
 
-export {LithologyColumn, FaciesColumn,
-        GeneralizedSectionColumn, CoveredColumn,
+export {LithologyColumn,
+        GeneralizedSectionColumn,
         FaciesColumnInner, LithologyColumnInner,
         SimplifiedLithologyColumn,
         CoveredOverlay, DivisionEditOverlay,

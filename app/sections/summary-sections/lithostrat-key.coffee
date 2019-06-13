@@ -7,7 +7,7 @@ import Measure from 'react-measure'
 import {SectionAxis} from "../column/axis"
 import {SymbolColumn} from "../column/symbol-column"
 import {FloodingSurface, TriangleBars} from "../column/flooding-surface"
-import {LithologyColumn, CoveredColumn, GeneralizedSectionColumn} from "../column/lithology"
+import {LithologyColumn, GeneralizedSectionColumn} from "../column/lithology"
 import {withRouter} from "react-router-dom"
 import {Notification} from "../../notify"
 import {FaciesContext} from "../facies"
