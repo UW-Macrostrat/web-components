@@ -89,9 +89,9 @@ class NoteSpan extends Component
     h 'g', transform: transform, el
 
 class Note extends Component
-  @defaultProps:
+  @defaultProps: {
     marginTop: 0
-
+  }
   constructor: (props)->
     super props
     @state = {overlayIsEnabled: false}
@@ -199,17 +199,15 @@ class NotesColumn extends Component
         @setState {notes: data}
 
   render: ->
-    {scale, zoom} = @context
-    {width, columnGap} = @props
+    {scale, zoom, height} = @context
+    {width, columnGap, marginTop} = @props
     {notes} = @state
 
-    {height, sectionLimits, marginTop} = @props
-
-
-    renderer = new Renderer
+    renderer = new Renderer {
       direction: 'right'
       layerGap: columnGap
       nodeHeight: 5
+    }
 
     nodes = notes.map (d)->d.node
 

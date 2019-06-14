@@ -168,10 +168,8 @@ class SectionComponent extends KnownSizeComponent
         padding
         lithologyWidth: @props.lithologyWidth
         imageFiles: @props.imageFiles
-        scaleFactor
         extraSpace
         skeletal: skeletal or @props.activeDisplayMode != 'image'
-        zoom
       }
       innerElements.push img
 
@@ -219,6 +217,15 @@ class SectionComponent extends KnownSizeComponent
       @renderMain()
     ]
 
+  renderNotes: ->
+    return null unless @props.showNotes and @props.zoom > 0.50
+    h NotesColumn, {
+      visible
+      width: @props.logWidth*zoom
+      marginTop: @props.padding.top
+    }
+
+
   componentDidUpdate: ->
     node = findDOMNode(this)
     {scrollToHeight, id} = @props
@@ -264,16 +271,9 @@ class SectionComponent extends KnownSizeComponent
     gs = null
     samples = null
 
-    height = innerHeight
     __ = [
-        h SectionAxis, {scale, ticks}
-        h LithologyColumn, {
-          divisions
-          width: lithologyWidth
-          onEditInterval: @onEditInterval
-          showCoveredOverlay: true
-          height, showFacies, scale, id
-        }, [
+        h SectionAxis, {ticks}
+        h LithologyColumn, {width: lithologyWidth}, [
           if showFacies then h(FaciesColumnInner, {width: lithologyWidth}) else null
           h CoveredOverlay, {width: lithologyWidth}
           h LithologyColumnInner, {width: lithologyWidth}
