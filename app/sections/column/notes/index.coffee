@@ -10,6 +10,7 @@ import FlexibleNode from "./flexible-node"
 import PropTypes from "prop-types"
 import {EditableText} from "@blueprintjs/core"
 import {PhotoOverlay} from "./photo-overlay"
+import {ColumnContext} from '../context'
 
 processNotesData = (opts)->(data)->
   index = []
@@ -174,39 +175,36 @@ class Note extends Component
     inEditMode: PropTypes.bool
 
 class NotesColumn extends Component
-  @defaultProps:
+  @contextType: ColumnContext
+  @defaultProps: {
     width: 100
     type: 'log-notes'
     columnGap: 60
-    visible: false
+  }
   constructor: (props)->
     # We define our own scale because we only
     # want to compute the force layout once regardless of zooming
 
     super props
-    @state =
-      notes: []
+    @state = {notes: []}
     @updateNotes()
 
-  updateNotes: ->
-    {height, sectionLimits, width, visible} = @props
-    scale = d3.scaleLinear()
-      .domain sectionLimits
-      .range [height, 0]
+  updateNotes: =>
+    {width} = @props
+    {scale, height} = @context
 
     query @props.type, [@props.id]
       .then processNotesData({scale, height, width})
       .then (data)=>
-        @setState notes: data
+        @setState {notes: data}
 
   render: ->
-    {width, columnGap, zoom, visible} = @props
-    {scale, notes} = @state
+    {scale, zoom} = @context
+    {width, columnGap} = @props
+    {notes} = @state
 
     {height, sectionLimits, marginTop} = @props
-    scale = d3.scaleLinear()
-      .domain sectionLimits
-      .range [height, 0]
+
 
     renderer = new Renderer
       direction: 'right'

@@ -227,12 +227,9 @@ class BaseSVGSectionComponent extends KnownSizeComponent
         left = tbo
 
       triangleBars = h TriangleBars, {
-        scale
-        zoom
         id
         offsetLeft
         lineWidth: 20
-        divisions
         orders: [@props.sequenceStratOrder, @props.sequenceStratOrder-1]
       }
 
@@ -272,7 +269,8 @@ class BaseSVGSectionComponent extends KnownSizeComponent
       }
     }, [
       h 'div.section-header', [
-        h("h2", {style: {zIndex: 20}}, id)]
+        h("h2", {style: {zIndex: 20}}, id)
+      ]
       h 'div.section-outer', [
         @createEditOverlay({left, top: @props.padding.top})
         h ColumnProvider, {

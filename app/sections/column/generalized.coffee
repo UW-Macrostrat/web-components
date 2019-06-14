@@ -69,10 +69,8 @@ class GeneralizedSVGSectionBase extends Component
 
   render: ->
     { id,
-      showFacies,
       divisions,
-      position,
-      facies } = @props
+      position} = @props
 
     {x: left, y: top, width, heightScale} = position
     {pixelsPerMeter, height} = heightScale.props

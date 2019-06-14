@@ -15,23 +15,25 @@ class SectionImages extends Component
   }
   @contextType: ColumnContext
   render: ->
-    {zoom} = @context
-    {scaleFactor, imageFiles} = @props
+    {zoom, height, pixelsPerMeter} = @context
+    {imageFiles} = @props
     n = imageFiles.length
-    height = d3.sum imageFiles, (d)->d.height
-    width = d3.max imageFiles, (d)->d.width
+    imageHeight = d3.sum imageFiles, (d)->d.height
+    imageWidth = d3.max imageFiles, (d)->d.width
+
+    scaleFactor = imageHeight/height/pixelsPerMeter
     zs = zoom/scaleFactor
     style = {
       marginTop: @props.padding.top+@props.extraSpace
       marginLeft: @props.padding.left+@props.lithologyWidth
-      height: height*zs
-      width: width*zs
+      height: imageHeight*zs
+      width: imageWidth*zs
       position: 'relative'
     }
     if @props.skeletal
       children = []
     else
-      children = @props.imageFiles.map (im,i)=>
+      children = imageFiles.map (im,i)=>
         h "img",
           src: "file://"+im.filename
           width: im.width*zs

@@ -4,8 +4,8 @@ import {Component, createElement} from "react"
 import h from "react-hyperscript"
 import {Notification} from "../../notify"
 import {path} from "d3-path"
-import {v4} from "uuid"
 import {ColumnContext} from "./context"
+import {UUIDComponent} from './frame'
 
 class FloodingSurface extends Component
   @contextType: ColumnContext
@@ -38,19 +38,17 @@ class FloodingSurface extends Component
         x2: lineWidth
       }
 
-class TriangleBars extends FloodingSurface
+class TriangleBars extends UUIDComponent
+  @contextType: ColumnContext
   @defaultProps: {
-    FloodingSurface.defaultProps...
+    offsetLeft: -90
+    lineWidth: 50
     order: 2
   }
 
-  constructor: (props)->
-    super(props)
-    @UUID = v4()
-
   render: ->
-    {scale, zoom, offsetLeft, lineWidth, divisions,
-     order, orders} = @props
+    {offsetLeft, lineWidth, order, orders} = @props
+    {scale, zoom, divisions} = @context
     [bottom, top] = scale.range()
     orders ?= [order]
 
@@ -90,7 +88,8 @@ class TriangleBars extends FloodingSurface
     ]
 
   renderSurfaces: (order, index)=>
-    {scale, zoom, offsetLeft, lineWidth, divisions} = @props
+    {scale, zoom, divisions} = @context
+    {offsetLeft, lineWidth} = @props
     return null unless divisions.length
     w = lineWidth/2
     ol = offsetLeft+lineWidth*2+5

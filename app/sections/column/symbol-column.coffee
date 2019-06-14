@@ -3,9 +3,10 @@ import {select} from "d3-selection"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
 import {join, resolve} from "path"
-import {v4} from "uuid"
 import classNames from "classnames"
 import {path} from "d3-path"
+import {ColumnContext} from './context'
+import {UUIDComponent} from './frame'
 
 symbolIndex = {
   "Hummocky cross-stratified": "column-patterns/hcs.svg"
@@ -32,16 +33,17 @@ __divisionSize = (d)->
     [top,bottom] = [bottom,top]
   return [bottom, top]
 
-class SymbolColumn extends Component
-  @defaultProps:
+class SymbolColumn extends UUIDComponent
+  @contextType: ColumnContext
+  @defaultProps: {
     width: 30
     height: 100
     visible: true
     left: 0
     zoom: 1
+  }
   constructor: (props)->
     super props
-    @UUID = v4()
     @state = {
       symbols: []
       patterns: []
@@ -56,7 +58,8 @@ class SymbolColumn extends Component
     @setState {symbols, patterns}
 
   render: ->
-    {scale, visible,left, width, height, zoom} = @props
+    {scale, height, zoom} = @context
+    {visible,left, width} = @props
     {symbols, patterns} = @state
     transform = null
     if left?
@@ -101,10 +104,11 @@ class SymbolColumn extends Component
     h 'defs', elements
 
   renderSymbol: (d)=>
+    {scale} = @context
     {symbol, id, height} = d
     className = classNames({symbol}, 'symbol')
 
-    {width,scale} = @props
+    {width} = @props
     y = scale(height)-width/2
 
     href = "##{@UUID}-#{symbol}"
