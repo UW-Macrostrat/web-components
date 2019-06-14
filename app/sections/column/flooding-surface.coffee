@@ -5,37 +5,38 @@ import h from "react-hyperscript"
 import {Notification} from "../../notify"
 import {path} from "d3-path"
 import {v4} from "uuid"
+import {ColumnContext} from "./context"
 
 class FloodingSurface extends Component
+  @contextType: ColumnContext
   @defaultProps: {
     offsetLeft: -90
     lineWidth: 50
   }
-
   render: ->
-    {scale, zoom, offsetLeft, lineWidth, divisions} = @props
+    {scale, zoom, divisions} = @props
+    {offsetLeft, lineWidth} = @props
     floodingSurfaces = divisions.filter (d)->d.flooding_surface_order?
     return null unless floodingSurfaces.length
-    h 'g.flooding-surface', {},
-      floodingSurfaces.map (d)->
-        y = scale(d.bottom)
-        x = offsetLeft
-        transform = "translate(#{x} #{y})"
-        onClick = null
-        if d.note?
-          onClick = ->
-            Notification.show {
-              message: d.note
-            }
-        h "line.flooding-surface", {
-          transform,
-          onClick
-          key: d.id,
-          strokeWidth: 6-Math.abs(d.flooding_surface_order)
-          stroke: if d.flooding_surface_order >= 0 then '#444' else '#fcc'
-          x1: 0
-          x2: lineWidth
-        }
+    h 'g.flooding-surface', null, floodingSurfaces.map (d)->
+      y = scale(d.bottom)
+      x = offsetLeft
+      transform = "translate(#{x} #{y})"
+      onClick = null
+      if d.note?
+        onClick = ->
+          Notification.show {
+            message: d.note
+          }
+      h "line.flooding-surface", {
+        transform,
+        onClick
+        key: d.id,
+        strokeWidth: 6-Math.abs(d.flooding_surface_order)
+        stroke: if d.flooding_surface_order >= 0 then '#444' else '#fcc'
+        x1: 0
+        x2: lineWidth
+      }
 
 class TriangleBars extends FloodingSurface
   @defaultProps: {

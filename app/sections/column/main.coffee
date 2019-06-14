@@ -65,11 +65,12 @@ class SectionComponent extends KnownSizeComponent
     isEditable: false
     editingInterval: {id: null}
     useRelativePositioning: true
-    padding:
+    padding: {
       left: 150
       top: 30
       right: 0
       bottom: 30
+    }
   }
   @propTypes: {
     divisions: T.arrayOf(T.object)

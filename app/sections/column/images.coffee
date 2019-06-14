@@ -2,23 +2,32 @@ import {Component, createElement} from "react"
 import {findDOMNode} from "react-dom"
 import * as d3 from "d3"
 import h from "react-hyperscript"
+import T from "prop-types"
+import {ColumnContext} from "./context"
 
 class SectionImages extends Component
-  @defaultProps:
+  @defaultProps: {
     skeletal: false
     extraSpace: 0
+  }
+  @propTypes: {
+    imageFiles: T.arrayOf(T.object)
+  }
+  @contextType: ColumnContext
   render: ->
-    {zoom, scaleFactor} = @props
-    n = @props.imageFiles.length
-    height = d3.sum @props.imageFiles, (d)->d.height
-    width = d3.max @props.imageFiles, (d)->d.width
+    {zoom} = @context
+    {scaleFactor, imageFiles} = @props
+    n = imageFiles.length
+    height = d3.sum imageFiles, (d)->d.height
+    width = d3.max imageFiles, (d)->d.width
     zs = zoom/scaleFactor
-    style =
+    style = {
       marginTop: @props.padding.top+@props.extraSpace
       marginLeft: @props.padding.left+@props.lithologyWidth
       height: height*zs
       width: width*zs
       position: 'relative'
+    }
     if @props.skeletal
       children = []
     else

@@ -1,22 +1,23 @@
-import {Component, createElement} from "react"
+import {Component} from "react"
 import {findDOMNode} from "react-dom"
 import h from "react-hyperscript"
 import {select} from "d3-selection"
-import {scaleIdentity} from "d3-scale"
 import {axisLeft} from 'd3-axis'
+import {ColumnContext} from './context'
 
 class SectionAxis extends Component
+  @contextType: ColumnContext
   @defaultProps: {
-    scale: scaleIdentity()
     ticks: 4
   }
   render: ->
     h 'g.y.axis'
   componentDidUpdate: ->
+    {scale} = @context
     @yAxis
-      .scale @props.scale
+      .scale scale
       .ticks @props.ticks
-    select findDOMNode @
+    select findDOMNode(@)
       .call @yAxis
   componentDidMount: ->
     @yAxis = axisLeft()

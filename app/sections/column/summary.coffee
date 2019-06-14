@@ -290,10 +290,6 @@ class BaseSVGSectionComponent extends KnownSizeComponent
               @renderWhiteUnderlay()
               h GeneralizedSectionColumn, {
                 width: innerWidth
-                height: innerHeight
-                divisions
-                scale
-                id
                 grainsizeScaleStart: 40
               }, [
                 if showFacies then h(FaciesColumnInner, {width: innerWidth}) else null
