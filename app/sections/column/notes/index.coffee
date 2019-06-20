@@ -171,8 +171,9 @@ class Note extends Component
   positioningInfo: =>
     console.log @props.d.id
 
-  @contextTypes:
+  @contextTypes: {
     inEditMode: PropTypes.bool
+  }
 
 class NotesColumn extends Component
   @contextType: ColumnContext
@@ -190,18 +191,16 @@ class NotesColumn extends Component
     @updateNotes()
 
   updateNotes: =>
-    {width} = @props
-    {scale, height} = @context
-
-    query @props.type, [@props.id]
-      .then processNotesData({scale, height, width})
-      .then (data)=>
-        @setState {notes: data}
+    {type, id} = @props
+    data = await query type, [id]
+    @setState {notes: data}
 
   render: ->
-    {scale, zoom, height} = @context
+    {scale, zoom, pixelHeight: height} = @context
     {width, columnGap, marginTop} = @props
-    {notes} = @state
+
+    processor = processNotesData({scale, height, width})
+    notes = processor(@state.notes)
 
     renderer = new Renderer {
       direction: 'right'
@@ -214,15 +213,13 @@ class NotesColumn extends Component
     style = {zoom}
     width += 80
 
-    children = []
-    if visible
-      children = notes.map (d)=>
-        h Note, {
-          marginTop
-          scale, d, width,
-          editHandler: @handleNoteEdit
-          link: renderer.generatePath(d.node),
-          key: d.id, columnGap}
+    children = notes.map (d)=>
+      h Note, {
+        marginTop
+        scale, d, width,
+        editHandler: @handleNoteEdit
+        link: renderer.generatePath(d.node),
+        key: d.id, columnGap}
 
     xmlns = "http://www.w3.org/2000/svg"
     h 'svg.section-log', {width, height, xmlns, style}, [
