@@ -27,7 +27,7 @@ class Pagination extends Component
       }, "Next"
     ]
 
-APIResultPlaceholder = =>
+APIResultPlaceholder = (props)=>
   h 'div.api-result-placeholder', [
     h Spinner
   ]
@@ -68,19 +68,17 @@ class APIResultView extends Component
     {route, params, opts, onError: _onError} = @props
     return unless route?
     data = await get(route, params, opts)
-    console.log data
     @setState {data}
 
   render: ->
     {data} = @state
-    console.log data
     {children, placeholder} = @props
     if not children?
       children = (data)=>
         h ReactJson, {src: data}
 
     if not data? and placeholder?
-      return placeholder
+      return h placeholder
     value = {deleteItem: @deleteItem}
     h APIViewContext.Provider, {value}, (
         children(data)
@@ -107,6 +105,7 @@ class PagedAPIView extends Component
     topPagination: false
     bottomPagination: true
     extraPagination: null
+    params: {}
     getTotalCount: (response)->
       {headers} = response
       return parseInt(headers['x-total-count'])
@@ -154,7 +153,25 @@ class PagedAPIView extends Component
     lastPage = @lastPage()
     if lastPage? and currentPage >= lastPage
       return lastPage
+    if currentPage < 0
+      currentPage = 0
     return currentPage
+
+  params: =>
+    {params, perPage} = @props
+    {offset, limit, otherParams...} = params
+    currentPage = @currentPage()
+    offset ?= 0
+    offset += currentPage*perPage
+
+    # This shouldn't happen but it does
+    if offset < 0
+      offset = 0
+
+    if not limit? or limit > perPage
+      limit = perPage
+
+    {offset, limit, otherParams...}
 
   render: ->
     {
@@ -166,19 +183,12 @@ class PagedAPIView extends Component
       count
       topPagination
       bottomPagination
+      extraPagination
       params
       rest...
     } = @props
 
-    params ?= {}
-    {offset, limit, rest...} = params
-
-    currentPage = @currentPage()
-    offset ?= 0
-    offset += currentPage*perPage
-    if not limit? or limit > perPage
-      limit = perPage
-    params = {offset, limit, rest...}
+    params = @params()
 
     onResponse = (response)=>
       count = getTotalCount(response)
@@ -190,7 +200,6 @@ class PagedAPIView extends Component
     _children = (data)=>
       if @state.count == 0
         return h NonIdealState, {icon: 'search', title: "No results"}
-      console.log @state.count, data
       children(data)
 
     h 'div.pagination-container', rest, [
