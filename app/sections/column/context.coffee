@@ -35,6 +35,16 @@ class ColumnProvider extends Component
       .domain grainSizes
       .range grainSizes.map (d,i)=>scale(i)
 
+  grainsizeForDivision: (division)=>
+    {divisions} = @props
+    ix = divisions.indexOf(division)
+    # Search backwards through divisions
+    while ix > 0
+      {grainsize} = divisions[ix]
+      console.log divisions[ix]
+      return grainsize if grainsize?
+      ix -= 1
+
   render: ->
     {children
      pixelsPerMeter
@@ -55,7 +65,7 @@ class ColumnProvider extends Component
 
     scale = scaleLinear().domain(range).range([pixelHeight, 0])
 
-    methods = do => {grainsizeScale} = @
+    methods = do => {grainsizeScale, grainsizeForDivision} = @
     value = {
       methods...
       pixelsPerMeter

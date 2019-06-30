@@ -41,10 +41,15 @@ class DivisionEditOverlay extends Component
   @contextType: ColumnContext
   @propTypes: {
     width: T.number.isRequired
+    left: T.number
+    top: T.number
+    grainsizeScaleRange: T.arrayOf(T.number)
   }
   @defaultProps: {
     onEditInterval: ->
     onHoverInterval: ->
+    left: 0
+    top: 0
   }
   constructor: (props)->
     super props
@@ -72,7 +77,8 @@ class DivisionEditOverlay extends Component
     event.stopPropagation()
 
   renderEditBox: =>
-    {scale, pixelHeight} = @context
+    {scale, pixelHeight, grainsizeScale, grainsizeForDivision} = @context
+    {width, grainsizeScaleRange} = @props
     {division} = @state
     return null unless division?
 
@@ -80,23 +86,27 @@ class DivisionEditOverlay extends Component
     bottom = scale(division.bottom)
     height = bottom-top
 
+    # This is kind of a silly way to do things
+    # Probably should use some type of nested context
+    if grainsizeScaleRange?
+      xScale = grainsizeScale(grainsizeScaleRange)
+      width = xScale(grainsizeForDivision(division))
+
     h 'div.edit-box', {
       style: {
         position: 'absolute'
         top
         height
         left: 0
-        width: 100
+        width
         backgroundColor: "rgba(255,0,0,0.5)"
+
       }
     }
 
   render: ->
     {divisions, pixelHeight, width} = @context
     {width, left, top} = @props
-
-    onMouseEnter = (event)=>
-      @onHoverInterval(event)
 
     h 'div.edit-overlay', {
       style: {
@@ -108,8 +118,8 @@ class DivisionEditOverlay extends Component
         zIndex: 100
         pointerEvents: 'all'
       }
-      onMouseEnter
-      onMouseMove: onMouseEnter
+      onMouseEnter: @onHoverInterval
+      onMouseMove: @onHoverInterval
       onMouseLeave: => @setState {division: null}
     }, @renderEditBox()
 
@@ -338,6 +348,9 @@ class BaseSVGSectionComponent extends KnownSizeComponent
     minWidth = outerWidth
     position = 'absolute'
     top = marginTop
+
+    grainsizeScaleStart = 40
+
     h "div.section-container", {
       className: if @props.skeletal then "skeleton" else null
       style: {
@@ -362,6 +375,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
             width: innerWidth
             left,
             top: @props.padding.top
+            grainsizeScaleRange: [grainsizeScaleStart, innerWidth]
           }
           h "svg.section", {
             SVGNamespaces...
@@ -371,7 +385,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
               @renderWhiteUnderlay()
               h GeneralizedSectionColumn, {
                 width: innerWidth
-                grainsizeScaleStart: 40
+                grainsizeScaleStart
               }, [
                 if showFacies then h(FaciesColumnInner, {width: innerWidth}) else null
                 h CoveredOverlay, {width: innerWidth}
