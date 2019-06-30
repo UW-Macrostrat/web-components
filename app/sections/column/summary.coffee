@@ -17,9 +17,11 @@ import {FaciesContext} from "../facies"
 import {SVGNamespaces, KnownSizeComponent, ColumnDivisionsProvider} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
-import {ColumnProvider} from './context'
+import {ColumnProvider, ColumnContext} from './context'
 import {SimplifiedLithologyColumn, CoveredOverlay, FaciesColumnInner,
-        DivisionEditOverlay, LithologyColumnInner} from './lithology'
+        LithologyColumnInner} from './lithology'
+import T from 'prop-types'
+
 
 fmt = d3.format('.1f')
 
@@ -34,6 +36,61 @@ IntervalNotification = (props)->
     h 'p', "#{bottom} - #{top} m"
     if surface then h('p', ["Surface: ", h('code',surface)]) else null
   ]
+
+class DivisionEditOverlay extends Component
+  @contextType: ColumnContext
+  @propTypes: {
+    width: T.number.isRequired
+  }
+  @defaultProps: {
+    onEditInterval: ->
+    onHoverInterval: ->
+  }
+  eventHandler: (fn)=>(d)=> (event)=>
+    {scale} = @context
+    {top} = event.target.getBoundingClientRect()
+
+    {clientY} = event
+    try
+      pxFromTop = scale(d.top)+(clientY-top)
+      height = scale.invert(pxFromTop)
+    catch
+      height = null
+    fn(d, {height, event})
+    event.stopPropagation()
+
+  renderEditBox: ->
+    h 'div.edit-box', {
+      style: {
+        position: 'absolute'
+        top: 10
+        left: 0
+        width: 100
+        height: 200
+        backgroundColor: "rgba(255,0,0,0.5)"
+      }
+    }
+
+  render: ->
+    {divisions, pixelHeight, width} = @context
+
+    clickHandler = @eventHandler(@props.onEditInterval)
+    hoverHandler = @eventHandler(@props.onHoverInterval)
+
+    onMouseEnter = (event)->
+      console.log event
+
+    h 'div.edit-overlay', {
+      style: {
+        width: 300
+        height: innerHeight
+        position: 'absolute'
+        zIndex: 100
+        pointerEvents: 'all'
+      }
+      onMouseEnter
+      onMouseMove: onMouseEnter
+    }, @renderEditBox()
 
 class BaseSVGSectionComponent extends KnownSizeComponent
   @defaultProps: {
@@ -272,7 +329,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
         h("h2", {style: {zIndex: 20}}, id)
       ]
       h 'div.section-outer', [
-        @createEditOverlay({left, top: @props.padding.top})
+        #@createEditOverlay({left, top: @props.padding.top})
         h ColumnProvider, {
           height: @props.height
           range
@@ -280,6 +337,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
           pixelsPerMeter
           divisions
         }, [
+          h DivisionEditOverlay, {width: 200}
           h "svg.section", {
             SVGNamespaces...
             style
@@ -294,10 +352,6 @@ class BaseSVGSectionComponent extends KnownSizeComponent
                 h CoveredOverlay, {width: innerWidth}
                 h SimplifiedLithologyColumn, {width: innerWidth}
               ]
-              h DivisionEditOverlay, {
-                onEditInterval
-                onHoverInterval
-              }
               h SymbolColumn, {
                 scale
                 height: innerHeight

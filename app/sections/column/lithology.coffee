@@ -102,40 +102,8 @@ class FaciesColumnInner extends Component
     h 'g.facies', __.map (div)->
       h FaciesRect, {division: div, width, padWidth}
 
-class DivisionEditOverlay extends Component
-  @contextType: ColumnContext
-  @defaultProps: {
-    onEditInterval: ->
-    onHoverInterval: ->
-  }
-  eventHandler: (fn)=>(d)=> (event)=>
-    {scale} = @context
-    {top} = event.target.getBoundingClientRect()
-    {clientY} = event
-    try
-      pxFromTop = scale(d.top)+(clientY-top)
-      height = scale.invert(pxFromTop)
-    catch
-      height = null
-    fn(d, {height, event})
-    event.stopPropagation()
-
-  render: ->
-    {divisions} = @context
-
-    clickHandler = @eventHandler(@props.onEditInterval)
-    hoverHandler = @eventHandler(@props.onHoverInterval)
-
-    h 'g.edit-overlay', divisions.map (d)=>
-      onClick = clickHandler(d)
-      onMouseOver = hoverHandler(d)
-      className = classNames('edit-overlay', d.id)
-      h ColumnRect, {division: d, width: 100, className, fill: 'transparent', onClick, onMouseOver}
-
 class CoveredOverlay extends UUIDComponent
   @contextType: ColumnContext
-  constructor: (props)->
-    super props
   render: ->
     {divisions} = @context
     {width} = @props
@@ -296,5 +264,5 @@ export {LithologyColumn,
         GeneralizedSectionColumn,
         FaciesColumnInner, LithologyColumnInner,
         SimplifiedLithologyColumn,
-        CoveredOverlay, DivisionEditOverlay,
+        CoveredOverlay,
         symbolIndex}

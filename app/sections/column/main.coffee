@@ -20,7 +20,7 @@ import {
   LithologyColumn,
   GeneralizedSectionColumn,
   SimplifiedLithologyColumn, CoveredOverlay, FaciesColumnInner,
-  DivisionEditOverlay, LithologyColumnInner
+  LithologyColumnInner
 } from "./lithology"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
@@ -31,6 +31,10 @@ import T from "prop-types"
 fmt = d3.format(".1f")
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
+
+class DivisionEditOverlay extends Component
+  render: ->
+    h 'rect.edit-overlay', {x: -5, y: -5, width: 110, height: 210}
 
 class SectionOverlay extends Component
   @defaultProps: {
