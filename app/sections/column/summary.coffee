@@ -46,27 +46,47 @@ class DivisionEditOverlay extends Component
     onEditInterval: ->
     onHoverInterval: ->
   }
-  eventHandler: (fn)=>(d)=> (event)=>
-    {scale} = @context
-    {top} = event.target.getBoundingClientRect()
+  constructor: (props)->
+    super props
+    @state = {
+      height: null
+      division: null
+    }
 
-    {clientY} = event
-    try
-      pxFromTop = scale(d.top)+(clientY-top)
-      height = scale.invert(pxFromTop)
-    catch
-      height = null
-    fn(d, {height, event})
+  onHoverInterval: (event)=>
+    {scale, pixelHeight, divisions} = @context
+    {top} = event.target.getBoundingClientRect()
+    {offsetY} = event.nativeEvent
+    return unless findDOMNode(@) == event.target
+    console.log event.target
+    console.log offsetY
+    #pxFromBottom = pixelHeight-offsetY
+    height = scale.invert(offsetY)
+    division = null
+    for d in divisions
+      if d.bottom < height < d.top
+        division = d
+        break
+
+    @setState {division}
     event.stopPropagation()
 
-  renderEditBox: ->
+  renderEditBox: =>
+    {scale, pixelHeight} = @context
+    {division} = @state
+    return null unless division?
+
+    top = scale(division.top)
+    bottom = scale(division.bottom)
+    height = bottom-top
+
     h 'div.edit-box', {
       style: {
         position: 'absolute'
-        top: 10
+        top
+        height
         left: 0
         width: 100
-        height: 200
         backgroundColor: "rgba(255,0,0,0.5)"
       }
     }
@@ -74,22 +94,21 @@ class DivisionEditOverlay extends Component
   render: ->
     {divisions, pixelHeight, width} = @context
 
-    clickHandler = @eventHandler(@props.onEditInterval)
-    hoverHandler = @eventHandler(@props.onHoverInterval)
-
-    onMouseEnter = (event)->
-      console.log event
+    onMouseEnter = (event)=>
+      @onHoverInterval(event)
 
     h 'div.edit-overlay', {
       style: {
         width: 300
-        height: innerHeight
+        height: pixelHeight
         position: 'absolute'
         zIndex: 100
         pointerEvents: 'all'
       }
       onMouseEnter
       onMouseMove: onMouseEnter
+      onMouseLeave: =>
+        @setState {division: null}
     }, @renderEditBox()
 
 class BaseSVGSectionComponent extends KnownSizeComponent
