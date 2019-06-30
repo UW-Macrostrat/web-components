@@ -54,13 +54,13 @@ class DivisionEditOverlay extends Component
     }
 
   onHoverInterval: (event)=>
+    # findDOMNode might be slow but I'm not sure
+    return unless findDOMNode(@) == event.target
+
     {scale, pixelHeight, divisions} = @context
     {top} = event.target.getBoundingClientRect()
     {offsetY} = event.nativeEvent
-    return unless findDOMNode(@) == event.target
-    console.log event.target
-    console.log offsetY
-    #pxFromBottom = pixelHeight-offsetY
+
     height = scale.invert(offsetY)
     division = null
     for d in divisions
@@ -93,13 +93,16 @@ class DivisionEditOverlay extends Component
 
   render: ->
     {divisions, pixelHeight, width} = @context
+    {width, left, top} = @props
 
     onMouseEnter = (event)=>
       @onHoverInterval(event)
 
     h 'div.edit-overlay', {
       style: {
-        width: 300
+        width
+        left
+        top
         height: pixelHeight
         position: 'absolute'
         zIndex: 100
@@ -107,8 +110,7 @@ class DivisionEditOverlay extends Component
       }
       onMouseEnter
       onMouseMove: onMouseEnter
-      onMouseLeave: =>
-        @setState {division: null}
+      onMouseLeave: => @setState {division: null}
     }, @renderEditBox()
 
 class BaseSVGSectionComponent extends KnownSizeComponent
@@ -356,7 +358,11 @@ class BaseSVGSectionComponent extends KnownSizeComponent
           pixelsPerMeter
           divisions
         }, [
-          h DivisionEditOverlay, {width: 200}
+          h DivisionEditOverlay, {
+            width: innerWidth
+            left,
+            top: @props.padding.top
+          }
           h "svg.section", {
             SVGNamespaces...
             style
