@@ -7,6 +7,7 @@ import classNames from "classnames"
 import {path} from "d3-path"
 import {ColumnContext} from './context'
 import {UUIDComponent} from './frame'
+import T from 'prop-types'
 
 symbolIndex = {
   "Hummocky cross-stratified": "column-patterns/hcs.svg"
@@ -35,6 +36,9 @@ __divisionSize = (d)->
 
 class SymbolColumn extends UUIDComponent
   @contextType: ColumnContext
+  @propTypes: {
+    id: T.string.isRequired
+  }
   @defaultProps: {
     width: 30
     height: 100

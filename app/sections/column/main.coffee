@@ -33,10 +33,6 @@ fmt = d3.format(".1f")
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
 
-# class DivisionEditOverlay extends Component
-#   render: ->
-#     h 'rect.edit-overlay', {x: -5, y: -5, width: 110, height: 210}
-
 class SectionOverlay extends Component
   @defaultProps: {
     padding: 30
@@ -109,6 +105,18 @@ class SectionComponent extends KnownSizeComponent
     outerWidth = innerWidth+(left+right)
     {padding, innerHeight, outerHeight, innerWidth, outerWidth}
 
+  renderSectionImages: =>
+    {zoom} = @props
+    skeletal = false
+    return unless zoom > 0.25 and @state.visible
+    h SectionImages, {
+      padding: @props.padding
+      lithologyWidth: @props.lithologyWidth
+      imageFiles: @props.imageFiles
+      extraSpace: if @zoom > 0.5 then 2.5*zoom else 0
+      skeletal: skeletal or @props.activeDisplayMode != 'image'
+    }
+
   renderMain: ->
     {id, zoom, scrollToHeight} = @props
 
@@ -158,25 +166,9 @@ class SectionComponent extends KnownSizeComponent
         removeInterval: @removeInterval
         onUpdate: @onIntervalUpdated
       }
+      @renderOverlaySVG()
+      @renderSectionImages()
     ]
-
-    onEditInterval = null
-    if isEditable and showFacies
-      onEditInterval = @onEditInterval
-
-    if @state.visible
-      {showSymbols, isEditable} = @props
-      innerElements.push @renderOverlaySVG()
-
-    if @props.zoom > 0.25 and @state.visible
-      img = h SectionImages, {
-        padding
-        lithologyWidth: @props.lithologyWidth
-        imageFiles: @props.imageFiles
-        extraSpace
-        skeletal: skeletal or @props.activeDisplayMode != 'image'
-      }
-      innerElements.push img
 
     {lithologyWidth} = @props
     editOverlay = h DivisionEditOverlay, {
@@ -187,24 +179,6 @@ class SectionComponent extends KnownSizeComponent
     }
 
     innerElements.push editOverlay
-
-    style = {
-      width: outerWidth
-      height: outerHeight
-    }
-
-    notesEl = null
-    if @props.showNotes and @props.zoom > 0.50
-      # Notes column manages zoom on its own
-      notesEl = h NotesColumn, {
-        id
-        visible
-        sectionLimits: @props.range
-        height: innerHeight*zoom
-        width: @props.logWidth*zoom
-        zoom,
-        marginTop: @props.padding.top
-      }
 
     width = outerWidth
     style = {top: marginTop}
@@ -222,7 +196,7 @@ class SectionComponent extends KnownSizeComponent
       }, [
         h 'div.section-outer', [
             h 'div.section', {style}, innerElements
-            notesEl
+            @renderNotes()
         ]
       ]
     ]
@@ -232,14 +206,15 @@ class SectionComponent extends KnownSizeComponent
       @renderMain()
     ]
 
-  renderNotes: ->
-    return null unless @props.showNotes and @props.zoom > 0.50
+  renderNotes: =>
+    {zoom, id} = @props
+    return null unless @props.showNotes and zoom > 0.50
     h NotesColumn, {
-      visible
+      id
+      visible:true
       width: @props.logWidth*zoom
       marginTop: @props.padding.top
     }
-
 
   componentDidUpdate: ->
     node = findDOMNode(this)
@@ -264,9 +239,20 @@ class SectionComponent extends KnownSizeComponent
     {id} = division
     @setState {editingInterval: {id, height}}
 
+  renderSymbolColumn: =>
+    {id} = @props
+    return null unless @props.showSymbols
+    h SymbolColumn, {id, left: 215}
+
+  renderTriangleBars: =>
+    order = @props.sequenceStratOrder
+    h TriangleBars, {
+      divisions, scale, zoom, id,
+      offsetLeft: -85, lineWidth: 25, orders: [order, order-1]
+    }
+
   renderOverlaySVG: =>
     {innerHeight, outerHeight, innerWidth, outerWidth, padding} = @getGeometry()
-    #@yAxis.scale(@props.scale)
     {showSymbols, isEditable, showFacies} = @props
     left = @props.padding.left
     transform = "translate(#{left} #{@props.padding.top})"
@@ -319,16 +305,16 @@ class SectionComponent extends KnownSizeComponent
           divisions, scale, zoom, id,
           offsetLeft: -85, lineWidth: 25, orders: [order, order-1]}
 
-      if @props.showSymbols
-        __.push h SymbolColumn, {scale, id, left: 215}
-
     height = outerHeight
     h "svg.overlay", {
       SVGNamespaces...
       width: outerWidth
       height
     }, [
-      h 'g.backdrop', {transform}, __
+      h 'g.backdrop', {transform}, [
+        __...
+        @renderSymbolColumn()
+      ]
     ]
 
   onIntervalUpdated: =>
