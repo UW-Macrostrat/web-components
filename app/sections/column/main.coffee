@@ -23,6 +23,7 @@ import {
   LithologyColumnInner
 } from "./lithology"
 import {SequenceStratConsumer} from "../sequence-strat-context"
+import {DivisionEditOverlay} from './edit-overlay'
 import {db, storedProcedure, query} from "../db"
 import {dirname} from "path"
 import update from "immutability-helper"
@@ -32,9 +33,9 @@ fmt = d3.format(".1f")
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
 
-class DivisionEditOverlay extends Component
-  render: ->
-    h 'rect.edit-overlay', {x: -5, y: -5, width: 110, height: 210}
+# class DivisionEditOverlay extends Component
+#   render: ->
+#     h 'rect.edit-overlay', {x: -5, y: -5, width: 110, height: 210}
 
 class SectionOverlay extends Component
   @defaultProps: {
@@ -177,6 +178,16 @@ class SectionComponent extends KnownSizeComponent
       }
       innerElements.push img
 
+    {lithologyWidth} = @props
+    editOverlay = h DivisionEditOverlay, {
+      onClick: @onEditInterval
+      width: lithologyWidth
+      top: padding.top
+      left: padding.left
+    }
+
+    innerElements.push editOverlay
+
     style = {
       width: outerWidth
       height: outerHeight
@@ -282,9 +293,6 @@ class SectionComponent extends KnownSizeComponent
           h CoveredOverlay, {width: lithologyWidth}
           h LithologyColumnInner, {width: lithologyWidth}
         ]
-        h DivisionEditOverlay, {
-          onEditInterval: @onEditInterval
-        }
     ]
 
     if zoom > 0.4

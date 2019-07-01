@@ -20,8 +20,8 @@ import {db, storedProcedure, query} from "../db"
 import {ColumnProvider, ColumnContext} from './context'
 import {SimplifiedLithologyColumn, CoveredOverlay, FaciesColumnInner,
         LithologyColumnInner} from './lithology'
+import {DivisionEditOverlay} from './edit-overlay'
 import T from 'prop-types'
-
 
 fmt = d3.format('.1f')
 
@@ -36,92 +36,6 @@ IntervalNotification = (props)->
     h 'p', "#{bottom} - #{top} m"
     if surface then h('p', ["Surface: ", h('code',surface)]) else null
   ]
-
-class DivisionEditOverlay extends Component
-  @contextType: ColumnContext
-  @propTypes: {
-    width: T.number.isRequired
-    left: T.number
-    top: T.number
-    grainsizeScaleRange: T.arrayOf(T.number)
-  }
-  @defaultProps: {
-    onEditInterval: ->
-    onHoverInterval: ->
-    left: 0
-    top: 0
-  }
-  constructor: (props)->
-    super props
-    @state = {
-      height: null
-      division: null
-    }
-
-  onHoverInterval: (event)=>
-    # findDOMNode might be slow but I'm not sure
-    return unless findDOMNode(@) == event.target
-
-    {scale, pixelHeight, divisions} = @context
-    {top} = event.target.getBoundingClientRect()
-    {offsetY} = event.nativeEvent
-
-    height = scale.invert(offsetY)
-    division = null
-    for d in divisions
-      if d.bottom < height < d.top
-        division = d
-        break
-
-    @setState {division}
-    event.stopPropagation()
-
-  renderEditBox: =>
-    {scale, pixelHeight, grainsizeScale, grainsizeForDivision} = @context
-    {width, grainsizeScaleRange} = @props
-    {division} = @state
-    return null unless division?
-
-    top = scale(division.top)
-    bottom = scale(division.bottom)
-    height = bottom-top
-
-    # This is kind of a silly way to do things
-    # Probably should use some type of nested context
-    if grainsizeScaleRange?
-      xScale = grainsizeScale(grainsizeScaleRange)
-      width = xScale(grainsizeForDivision(division))
-
-    h 'div.edit-box', {
-      style: {
-        position: 'absolute'
-        top
-        height
-        left: 0
-        width
-        backgroundColor: "rgba(255,0,0,0.5)"
-
-      }
-    }
-
-  render: ->
-    {divisions, pixelHeight, width} = @context
-    {width, left, top} = @props
-
-    h 'div.edit-overlay', {
-      style: {
-        width
-        left
-        top
-        height: pixelHeight
-        position: 'absolute'
-        zIndex: 100
-        pointerEvents: 'all'
-      }
-      onMouseEnter: @onHoverInterval
-      onMouseMove: @onHoverInterval
-      onMouseLeave: => @setState {division: null}
-    }, @renderEditBox()
 
 class BaseSVGSectionComponent extends KnownSizeComponent
   @defaultProps: {
@@ -183,7 +97,6 @@ class BaseSVGSectionComponent extends KnownSizeComponent
     if @props.showTriangleBars and onRight
       outerWidth += 75
 
-
     return h 'rect.underlay', {
       width: outerWidth-50
       height: innerHeight+10
@@ -191,43 +104,6 @@ class BaseSVGSectionComponent extends KnownSizeComponent
       y: -5
       fill: 'white'
     }
-
-  createEditOverlay: (p={})=>
-    {triangleBarsRightSide: onRight} = @props
-    {hoveredInterval} = @state
-    return null unless hoveredInterval
-    return null unless @props.inEditMode
-    pos = @props.position
-    scale = pos.heightScale.local
-    top = scale(hoveredInterval.top)
-    bottom = scale(hoveredInterval.bottom)
-    height = bottom-top
-    width = pos.width-@props.padding.left-@props.padding.right-50
-
-    _ = Position.LEFT
-    if onRight
-      _ = Position.RIGHT
-    popoverProps = {position: _,}# isOpen: @state.popoverIsOpen}
-
-    position = 'absolute'
-    outerStyle = {left: p.left, top: p.top, position, width}
-    style = {top, height, width, position}
-    h 'div.edit-overlay', {style: outerStyle}, [
-      h 'div.cursor-container', {style}, [
-        h Popover, popoverProps, [
-          h 'div.cursor', {style: {width, height}}
-          h IntervalEditor, {
-            interval: hoveredInterval
-            height: hoveredInterval.height
-            section: @props.id
-            onUpdate: @onIntervalUpdated
-            #onPrev: @hoverAdjacent(-1)
-            #onNext: @hoverAdjacent(1)
-            #onClose: => @setState {popoverIsOpen: false}
-          }
-        ]
-      ]
-    ]
 
   hoverAdjacent: (offset=1) => =>
     {divisions} = @props
@@ -251,6 +127,28 @@ class BaseSVGSectionComponent extends KnownSizeComponent
           newHovered = divisions.find (d)-> d.id == hoveredInterval.id
           cset.hoveredInterval = newHovered
         @setState cset
+
+  renderEditOverlay: ({left})=>
+    grainsizeScaleStart = 40
+    {inEditMode, innerWidth, history} = @props
+    return null unless inEditMode
+
+    onClick = (height)=>
+      {id} = @props
+      path = "/sections/#{id}"
+      if height?
+        path += "/height/#{height}"
+      history.push(path)
+
+    h DivisionEditOverlay, {
+      width: innerWidth
+      left,
+      top: @props.padding.top
+      grainsizeScaleRange: [grainsizeScaleStart, innerWidth]
+      showInfoBox: true
+      history # This is a shameless hack
+      onClick
+    }
 
   render: ->
     {id, zoom, padding, lithologyWidth,
@@ -329,22 +227,6 @@ class BaseSVGSectionComponent extends KnownSizeComponent
 
     transform = "translate(#{left} #{@props.padding.top})"
 
-    onHoverInterval = null
-    if @props.inEditMode
-      onHoverInterval = (d, opts)=>
-        @setState {hoveredInterval: d}
-
-    onEditInterval = (d, opts)=>
-      {history} = @props
-      {height, event} = opts
-      if not event.shiftKey
-        history.push("/sections/#{id}/height/#{height}")
-        return
-      Notification.show {
-        message: h IntervalNotification, {d..., height}
-        timeout: 2000
-      }
-
     minWidth = outerWidth
     position = 'absolute'
     top = marginTop
@@ -363,7 +245,6 @@ class BaseSVGSectionComponent extends KnownSizeComponent
         h("h2", {style: {zIndex: 20}}, id)
       ]
       h 'div.section-outer', [
-        #@createEditOverlay({left, top: @props.padding.top})
         h ColumnProvider, {
           height: @props.height
           range
@@ -371,12 +252,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
           pixelsPerMeter
           divisions
         }, [
-          h DivisionEditOverlay, {
-            width: innerWidth
-            left,
-            top: @props.padding.top
-            grainsizeScaleRange: [grainsizeScaleStart, innerWidth]
-          }
+          @renderEditOverlay({left, top})
           h "svg.section", {
             SVGNamespaces...
             style
@@ -406,6 +282,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
         ]
       ]
     ]
+
 
 SVGSectionComponent = (props)->
   {id, divisions} = props
