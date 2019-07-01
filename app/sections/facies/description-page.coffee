@@ -51,7 +51,7 @@ class FaciesDescriptionSmall extends Component
 
     h 'div.facies.pt-card.pt-elevation-0', {
       key: d.id, onClick, style, className
-    }, h(FaciesCard, {facies})
+    }, h(FaciesCard, {facies: d})
 
   render: ->
     {facies} = @context

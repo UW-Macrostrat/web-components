@@ -259,10 +259,9 @@ class SectionComponent extends KnownSizeComponent
 
   log: ->
 
-  onEditInterval: (interval, opts={})=>
+  onEditInterval: ({division, height})=>
     return unless @props.isEditable
-    {id} = interval
-    {height} = opts
+    {id} = division
     @setState {editingInterval: {id, height}}
 
   renderOverlaySVG: =>

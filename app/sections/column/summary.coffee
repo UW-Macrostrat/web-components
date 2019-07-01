@@ -133,7 +133,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
     {inEditMode, innerWidth, history} = @props
     return null unless inEditMode
 
-    onClick = (height)=>
+    onClick = ({height})=>
       {id} = @props
       path = "/sections/#{id}"
       if height?

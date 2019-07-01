@@ -79,7 +79,7 @@ class DivisionEditOverlay extends Component
     if event.shiftKey and showInfoBox
       @setState {popoverIsOpen: true}
       return
-    @props.onClick(height)
+    @props.onClick({height, division})
 
   renderEditBoxInner: =>
     h 'div.edit-box', {
