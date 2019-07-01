@@ -33,15 +33,6 @@ fmt = d3.format(".1f")
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
 
-class SectionOverlay extends Component
-  @defaultProps: {
-    padding: 30
-    isEditable: false
-  }
-  constructor: (props)->
-    super props
-    @state = lithologyData: null
-
 class SectionComponent extends KnownSizeComponent
   @defaultProps: {
     zoom: 1
@@ -150,55 +141,30 @@ class SectionComponent extends KnownSizeComponent
       }
     ]
 
-  renderMain: ->
-    {id, zoom, scrollToHeight} = @props
-
-    if scrollToHeight?
-      scrollTop = @state.scale.invert(scrollToHeight)
-
-    scaleFactor = @props.scaleFactor/@props.pixelsPerMeter
-    extraSpace = if zoom > 0.5 then 2.5*zoom else 0#@state.naturalHeight/innerHeight
-
-    {innerHeight, padding, outerWidth, innerWidth, outerHeight} = @getGeometry()
-    @state.scale.range [innerHeight, 0]
-
-
-    {heightOfTop, showFacies} = @props
-    marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
-
-    [bottom,top] = @props.range
-
+  render: ->
+    {id, divisions, zoom, pixelsPerMeter, height, skeletal, range} = @props
     # Set text of header for appropriate zoom level
-    txt = if @props.zoom > 0.5 then "Section " else ""
+    txt = if zoom > 0.5 then "Section " else ""
     txt += id
 
-    {scale,visible, editingInterval} = @state
-    {divisions, zoom, pixelsPerMeter, height, skeletal} = @props
-
-    width = outerWidth
-    style = {top: marginTop}
-
-    h "div.section-container", {
-        className: if @props.skeletal then "skeleton" else null
+    h "div#section-pane", [
+      h "div.section-container", {
+        className: if skeletal then "skeleton" else null
       }, [
-      h 'div.section-header', [h "h2", txt]
-      h ColumnProvider, {
-        height,
-        range: @props.range
-        divisions
-        pixelsPerMeter
-        zoom
-      }, [
-        h 'div.section-outer', [
-          @renderInnerElements()
-          @renderNotes()
+        h 'div.section-header', [h "h2", txt]
+        h ColumnProvider, {
+          zoom
+          range
+          height
+          divisions
+          pixelsPerMeter
+        }, [
+          h 'div.section-outer', [
+            @renderInnerElements()
+            @renderNotes()
+          ]
         ]
       ]
-    ]
-
-  render: ->
-    h 'div#section-pane', [
-      @renderMain()
     ]
 
   renderNotes: =>
@@ -226,8 +192,6 @@ class SectionComponent extends KnownSizeComponent
     }
     @setState {loaded: true}
 
-  log: ->
-
   onEditInterval: ({division, height})=>
     return unless @props.isEditable
     {id} = division
@@ -239,6 +203,7 @@ class SectionComponent extends KnownSizeComponent
     h SymbolColumn, {id, left: 215}
 
   renderTriangleBars: =>
+    return null unless @props.showTriangleBars
     order = @props.sequenceStratOrder
     h TriangleBars, {
       offsetLeft: -85, lineWidth: 25, orders: [order, order-1]
@@ -271,7 +236,6 @@ class SectionComponent extends KnownSizeComponent
     transform = "translate(#{left} #{@props.padding.top})"
 
     {lithologyWidth, zoom, id, isEditable, showFacies, lithologyWidth, divisions} = @props
-    {scale} = @state
 
     ticks = (@props.height*@props.zoom)/10
 
