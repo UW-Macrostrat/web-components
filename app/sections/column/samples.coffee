@@ -1,11 +1,13 @@
 import {query} from "../db"
 import {format} from "d3-format"
 import {Component} from "react"
+import {ColumnContext} from "./context"
 import h from "react-hyperscript"
 
 fmt = format('+.1f')
 
 class Samples extends Component
+  @contextType: ColumnContext
   constructor: (props)->
     super props
     @state =

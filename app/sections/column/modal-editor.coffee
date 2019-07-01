@@ -3,6 +3,7 @@ import {Component, createElement} from "react"
 import {Dialog, Button, Intent, ButtonGroup, Alert, Slider} from "@blueprintjs/core"
 import {FaciesDescriptionSmall, FaciesContext} from "../facies"
 import {PickerControl} from "../settings"
+import {ColumnContext} from "./context"
 import Select from 'react-select'
 import "react-select/dist/react-select.css"
 

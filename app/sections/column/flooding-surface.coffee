@@ -14,7 +14,7 @@ class FloodingSurface extends Component
     lineWidth: 50
   }
   render: ->
-    {scale, zoom, divisions} = @props
+    {scale, zoom, divisions} = @context
     {offsetLeft, lineWidth} = @props
     floodingSurfaces = divisions.filter (d)->d.flooding_surface_order?
     return null unless floodingSurfaces.length

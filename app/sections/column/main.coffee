@@ -117,6 +117,39 @@ class SectionComponent extends KnownSizeComponent
       skeletal: skeletal or @props.activeDisplayMode != 'image'
     }
 
+  renderInnerElements: =>
+    {lithologyWidth, divisions, id, padding} = @props
+    {editingInterval} = @state
+
+    {heightOfTop, showFacies} = @props
+    marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
+    style = {top: marginTop}
+
+    h 'div.section', {style}, [
+      h ModalEditor, {
+        isOpen: editingInterval.id?
+        interval: divisions.find (d)-> d.id == editingInterval.id
+        height: editingInterval.height
+        section: id
+        onSelectFacies: @setFaciesForInterval
+        onSelectGrainSize: @setGrainSizeForInterval
+        onSelectFloodingSurfaceOrder: @setFloodingSurfaceOrderForInterval
+        closeDialog: =>
+          @setState {editingInterval: {id:null}}
+        addInterval: @addInterval
+        removeInterval: @removeInterval
+        onUpdate: @onIntervalUpdated
+      }
+      @renderOverlaySVG()
+      @renderSectionImages()
+      h DivisionEditOverlay, {
+        onClick: @onEditInterval
+        width: lithologyWidth
+        top: padding.top
+        left: padding.left
+      }
+    ]
+
   renderMain: ->
     {id, zoom, scrollToHeight} = @props
 
@@ -135,50 +168,12 @@ class SectionComponent extends KnownSizeComponent
 
     [bottom,top] = @props.range
 
-    @log "Section #{id}"
-    @log "Images are #{@state.naturalHeight} pixels high"
-    @log "Height of section: #{top-bottom} m, #{innerHeight} px"
-    @log "Natural scale of section images: #{@state.naturalHeight/(top-bottom)} px/m"
-    @log "Scale height: #{@state.scale(1)-@state.scale(0)} px/m"
-    @log "Forced scale factor: #{scaleFactor*@props.pixelsPerMeter}"
-    fn = (v, d)-> v+" #{d.width} px,"
-    @log @props.imageFiles.reduce(fn, "Width of images: ")
-
     # Set text of header for appropriate zoom level
     txt = if @props.zoom > 0.5 then "Section " else ""
     txt += id
 
     {scale,visible, editingInterval} = @state
     {divisions, zoom, pixelsPerMeter, height, skeletal} = @props
-
-    innerElements = [
-      h ModalEditor, {
-        isOpen: editingInterval.id?
-        interval: divisions.find (d)-> d.id == editingInterval.id
-        height: editingInterval.height
-        section: id
-        onSelectFacies: @setFaciesForInterval
-        onSelectGrainSize: @setGrainSizeForInterval
-        onSelectFloodingSurfaceOrder: @setFloodingSurfaceOrderForInterval
-        closeDialog: =>
-          @setState {editingInterval: {id:null}}
-        addInterval: @addInterval
-        removeInterval: @removeInterval
-        onUpdate: @onIntervalUpdated
-      }
-      @renderOverlaySVG()
-      @renderSectionImages()
-    ]
-
-    {lithologyWidth} = @props
-    editOverlay = h DivisionEditOverlay, {
-      onClick: @onEditInterval
-      width: lithologyWidth
-      top: padding.top
-      left: padding.left
-    }
-
-    innerElements.push editOverlay
 
     width = outerWidth
     style = {top: marginTop}
@@ -195,8 +190,8 @@ class SectionComponent extends KnownSizeComponent
         zoom
       }, [
         h 'div.section-outer', [
-            h 'div.section', {style}, innerElements
-            @renderNotes()
+          @renderInnerElements()
+          @renderNotes()
         ]
       ]
     ]
@@ -231,7 +226,6 @@ class SectionComponent extends KnownSizeComponent
     }
     @setState {loaded: true}
 
-
   log: ->
 
   onEditInterval: ({division, height})=>
@@ -247,8 +241,27 @@ class SectionComponent extends KnownSizeComponent
   renderTriangleBars: =>
     order = @props.sequenceStratOrder
     h TriangleBars, {
-      divisions, scale, zoom, id,
       offsetLeft: -85, lineWidth: 25, orders: [order, order-1]
+    }
+
+  renderFloodingSurfaces: =>
+    return null unless @props.showFloodingSurfaces
+    h FloodingSurface
+
+  renderCarbonIsotopes: =>
+    return null unless @props.showCarbonIsotopes
+    {id} = @props
+    h Samples, {id}
+
+  renderGeneralized: ({range, innerHeight})=>
+    return null unless @props.activeDisplayMode == 'generalized'
+    {lithologyWidth} = @props
+
+    h GeneralizedSectionColumn, {
+      grainsizeScaleStart: range[0]-lithologyWidth
+      width: range[1]-lithologyWidth
+      left: lithologyWidth
+      height: innerHeight
     }
 
   renderOverlaySVG: =>
@@ -256,8 +269,6 @@ class SectionComponent extends KnownSizeComponent
     {showSymbols, isEditable, showFacies} = @props
     left = @props.padding.left
     transform = "translate(#{left} #{@props.padding.top})"
-
-    showGeneralizedSections =  @props.activeDisplayMode == 'generalized'
 
     {lithologyWidth, zoom, id, isEditable, showFacies, lithologyWidth, divisions} = @props
     {scale} = @state
@@ -268,43 +279,6 @@ class SectionComponent extends KnownSizeComponent
       .map (d)->d*zoom
       .map (d)->d+lithologyWidth
 
-    gs = null
-    samples = null
-
-    __ = [
-        h SectionAxis, {ticks}
-        h LithologyColumn, {width: lithologyWidth}, [
-          if showFacies then h(FaciesColumnInner, {width: lithologyWidth}) else null
-          h CoveredOverlay, {width: lithologyWidth}
-          h LithologyColumnInner, {width: lithologyWidth}
-        ]
-    ]
-
-    if zoom > 0.4
-      __.push h GrainsizeScale, {range}
-
-      if showGeneralizedSections
-        __.push h GeneralizedSectionColumn, {
-          scale, id,
-          divisions
-          grainsizeScaleStart: range[0]-lithologyWidth
-          width: range[1]-lithologyWidth
-          left: lithologyWidth
-          height: innerHeight
-        }
-
-      if @props.showCarbonIsotopes
-        __.push h Samples, {scale, zoom, id}
-
-      if @props.showFloodingSurfaces
-        __.push h FloodingSurface, {divisions, scale, zoom, id}
-
-      if @props.showTriangleBars
-        order = @props.sequenceStratOrder
-        __.push h TriangleBars, {
-          divisions, scale, zoom, id,
-          offsetLeft: -85, lineWidth: 25, orders: [order, order-1]}
-
     height = outerHeight
     h "svg.overlay", {
       SVGNamespaces...
@@ -312,7 +286,17 @@ class SectionComponent extends KnownSizeComponent
       height
     }, [
       h 'g.backdrop', {transform}, [
-        __...
+        h SectionAxis, {ticks}
+        h LithologyColumn, {width: lithologyWidth}, [
+          if showFacies then h(FaciesColumnInner, {width: lithologyWidth}) else null
+          h CoveredOverlay, {width: lithologyWidth}
+          h LithologyColumnInner, {width: lithologyWidth}
+        ]
+        h GrainsizeScale, {range}
+        @renderGeneralized({range, innerHeight})
+        @renderCarbonIsotopes()
+        @renderFloodingSurfaces()
+        @renderTriangleBars()
         @renderSymbolColumn()
       ]
     ]
