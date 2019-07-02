@@ -15,7 +15,7 @@ import {ModalEditor} from "./modal-editor"
 import {SVGNamespaces, ColumnDivisionsProvider, KnownSizeComponent} from "../util"
 import Samples from "./samples"
 import {FloodingSurface, TriangleBars} from "./flooding-surface"
-import {ColumnProvider} from './context'
+import {ColumnProvider, ColumnContext} from './context'
 import {
   LithologyColumn,
   GeneralizedSectionColumn,
@@ -32,6 +32,34 @@ import T from "prop-types"
 fmt = d3.format(".1f")
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
+
+class ScrollToHeightComponent extends Component
+  @contextType: ColumnContext
+  @propTypes: {
+    scrollToHeight: T.number
+    id: T.string
+  }
+  constructor: (props)->
+    super props
+    @state = {loaded: false}
+  render: ->
+
+    h 'div.section-outer', null, @props.children
+  componentDidUpdate: ->
+    node = findDOMNode(this)
+    {scale} = @context
+    {scrollToHeight, id} = @props
+    {loaded} = @state
+    return unless scrollToHeight?
+    return if loaded
+    scrollTop = scale(scrollToHeight)-window.innerHeight/2
+    node.scrollTop = scrollTop
+
+    Notification.show {
+      message: "Section #{id} @ #{fmt(scrollToHeight)} m"
+      intent: Intent.PRIMARY
+    }
+    @setState {loaded: true}
 
 class SectionComponent extends KnownSizeComponent
   @defaultProps: {
@@ -70,19 +98,14 @@ class SectionComponent extends KnownSizeComponent
 
   constructor: (props)->
     super props
-
     @state = {
-      loaded: false
       editingInterval: {id: null}
-      visible: true
-      scale: d3.scaleLinear().domain(@props.range)
-      naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
     }
 
   renderSectionImages: =>
     {zoom} = @props
     skeletal = false
-    return unless zoom > 0.25 and @state.visible
+    return if zoom < 0.25
     h SectionImages, {
       padding: @props.padding
       lithologyWidth: @props.lithologyWidth
@@ -122,7 +145,8 @@ class SectionComponent extends KnownSizeComponent
     ]
 
   render: ->
-    {id, divisions, zoom, pixelsPerMeter, height, skeletal, range} = @props
+    {id, divisions, zoom, pixelsPerMeter,
+     scrollToHeight, height, skeletal, range} = @props
     # Set text of header for appropriate zoom level
     txt = if zoom > 0.5 then "Section " else ""
     txt += id
@@ -139,7 +163,7 @@ class SectionComponent extends KnownSizeComponent
           divisions
           pixelsPerMeter
         }, [
-          h 'div.section-outer', [
+          h ScrollToHeightComponent, {scrollToHeight, id}, [
             @renderInnerElements()
             @renderNotes()
           ]
@@ -156,21 +180,6 @@ class SectionComponent extends KnownSizeComponent
       width: @props.logWidth*zoom
       marginTop: @props.padding.top
     }
-
-  componentDidUpdate: ->
-    node = findDOMNode(this)
-    {scrollToHeight, id} = @props
-    {scale, loaded} = @state
-    return unless scrollToHeight?
-    return if loaded
-    scrollTop = scale(scrollToHeight)-window.innerHeight/2
-    node.scrollTop = scrollTop
-
-    Notification.show {
-      message: "Section #{id} @ #{fmt(scrollToHeight)} m"
-      intent: Intent.PRIMARY
-    }
-    @setState {loaded: true}
 
   onEditInterval: ({division, height})=>
     return unless @props.isEditable
