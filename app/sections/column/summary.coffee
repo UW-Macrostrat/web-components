@@ -159,66 +159,12 @@ class BaseSVGSectionComponent extends KnownSizeComponent
 
   renderTriangleBars: =>
     return null unless @props.showTriangleBars
-
-    {id, zoom, padding, lithologyWidth,
-     innerWidth, onResize, marginLeft,
-     showFacies, height, clip_end,
-     showTriangleBars,
-     showFloodingSurfaces,
-     showWhiteUnderlay,
-     position,
-     range,
-     pixelsPerMeter
-     } = @props
-
-    {heightScale} = position
-    innerHeight = heightScale.pixelHeight()
-    marginTop = heightScale.pixelOffset()
-    scale = heightScale.local
-
-    {left, top, right, bottom} = padding
-
-    outerHeight = innerHeight+(top+bottom)
-    outerWidth = innerWidth+(left+right)
-
-    {divisions} = @props
-    {visible} = @state
-    divisions = divisions.filter (d)->not d.schematic
-
-    {skeletal} = @props
-
-    # Set up number of ticks
-    nticks = (height*@props.zoom)/10
-
-    fs = null
-    if showFloodingSurfaces
-      fs = h FloodingSurface, {
-        scale
-        zoom
-        id
-        offsetLeft: -40
-        lineWidth: 30
-        divisions
-      }
-
-    overhangLeft = 0
-    overhangRight = 0
-
-    {triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
-    marginLeft -= tbo
-    marginRight = 0
-    outerWidth += tbo
+    {id, triangleBarsOffset: tbo, triangleBarRightSide: onRight} = @props
 
     offsetLeft = -tbo+35
     if onRight
-      overhangRight = 45
       offsetLeft *= -1
       offsetLeft += tbo+20
-      marginRight -= tbo
-      marginLeft += tbo
-    else
-      overhangLeft = 25
-      left = tbo
 
     h TriangleBars, {
       id
@@ -265,7 +211,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
     marginLeft -= tbo
     marginRight = 0
     outerWidth += tbo
-    triangleBars = null
+
     if showTriangleBars
       offsetLeft = -tbo+35
       if onRight
@@ -277,13 +223,6 @@ class BaseSVGSectionComponent extends KnownSizeComponent
       else
         overhangLeft = 25
         left = tbo
-
-      triangleBars = h TriangleBars, {
-        id
-        offsetLeft
-        lineWidth: 20
-        orders: [@props.sequenceStratOrder, @props.sequenceStratOrder-1]
-      }
 
     # Expand SVG past bounds of section
     style = {
