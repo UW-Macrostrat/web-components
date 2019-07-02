@@ -232,8 +232,6 @@ class SectionComponent extends KnownSizeComponent
   renderOverlaySVG: =>
     {innerHeight, outerHeight, innerWidth, outerWidth, padding} = @getGeometry()
     {showSymbols, isEditable, showFacies} = @props
-    left = @props.padding.left
-    transform = "translate(#{left} #{@props.padding.top})"
 
     {lithologyWidth, zoom, id, isEditable, showFacies, lithologyWidth, divisions} = @props
 
@@ -243,13 +241,14 @@ class SectionComponent extends KnownSizeComponent
       .map (d)->d*zoom
       .map (d)->d+lithologyWidth
 
-    height = outerHeight
     h "svg.overlay", {
       SVGNamespaces...
       width: outerWidth
-      height
+      height: outerHeight
     }, [
-      h 'g.backdrop', {transform}, [
+      h 'g.backdrop', {
+        transform: "translate(#{@props.padding.left} #{@props.padding.top})"
+      }, [
         h SectionAxis, {ticks}
         h LithologyColumn, {width: lithologyWidth}, [
           if showFacies then h(FaciesColumnInner, {width: lithologyWidth}) else null
