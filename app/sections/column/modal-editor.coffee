@@ -9,9 +9,9 @@ import "react-select/dist/react-select.css"
 
 import {grainSizes} from "./grainsize"
 import h from "react-hyperscript"
-import * as d3 from "d3"
+import {format} from "d3-format"
 import {db, storedProcedure, query} from "../db"
-fmt = d3.format('.1f')
+fmt = format('.1f')
 
 import {dirname} from "path"
 baseDir = dirname require.resolve '..'
@@ -28,6 +28,45 @@ surfaceTypes = [
   {value: 'sb', label: 'SB'}
 ]
 
+SurfaceOrderSlider = (props)->
+  {interval, onChange} = props
+  if not interval.surface_type?
+    return h 'p', 'Please set an interval type to access surface orders'
+  val = interval.surface_order
+  val ?= 5
+  h Slider, {
+    min: 0
+    max: 5
+    stepSize: 1
+    showTrackFill: false
+    value: val
+    onChange: (surface_order)=>
+      return unless interval.surface_type?
+      onChange {surface_order}
+  }
+
+class CorrelatedSurfaceControl extends Component
+  @contextType: FaciesContext
+  render: ->
+    {surfaces} = @context
+    {onChange, interval} = @props
+
+    options = surfaces.map (d)->
+      {value: d.id, label: d.note}
+
+    h Select, {
+      id: "state-select"
+      options
+      clearable: true
+      searchable: true
+      name: "selected-state"
+      value: interval.surface
+      onChange: (surface)=>
+        if surface?
+          surface = surface.value
+        onChange {surface}
+    }
+
 class ModalEditor extends Component
   @defaultProps: {onUpdate: ->}
   constructor: (props)->
@@ -37,35 +76,11 @@ class ModalEditor extends Component
       isAlertOpen: false
     }
   render: ->
-    h FaciesContext.Consumer, null, ({surfaces})=>
-      @renderMain(surfaces)
-
-  surfaceOrderSlider: =>
-    {interval} = @props
-    if not interval.surface_type?
-      return h 'p', 'Please set an interval type to access surface orders'
-    val = interval.surface_order
-    val ?= 5
-    return h Slider, {
-      min: 0
-      max: 5
-      stepSize: 1
-      showTrackFill: false
-      value: val
-      onChange: (surface_order)=>
-        return unless interval.surface_type?
-        @update {surface_order}
-    }
-
-  renderMain: (surfaces)=>
     {interval, height, section} = @props
     return null unless interval?
     console.log interval
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
-
-    options = surfaces.map (d)->
-      {value: d.id, label: d.note}
 
     h Dialog, {
       className: 'pt-minimal'
@@ -107,9 +122,11 @@ class ModalEditor extends Component
               @update {surface_type}
           }
         ]
-         h 'label.pt-label', [
+        h 'label.pt-label', [
           'Surface order'
-           @surfaceOrderSlider()
+          h SurfaceOrderSlider, {
+            interval, onChange: @update
+          }
         ]
         h 'label.pt-label', [
           'Flooding surface (negative is regression)'
@@ -127,18 +144,9 @@ class ModalEditor extends Component
         ]
         h 'label.pt-label', [
           'Correlated surface'
-          h Select, {
-            id: "state-select"
-            ref: (ref) => @select = ref
-            options
-            clearable: true
-            searchable: true
-            name: "selected-state"
-            value: interval.surface
-            onChange: (surface)=>
-              if surface?
-                surface = surface.value
-              @update {surface}
+          h CorrelatedSurfaceControl, {
+            interval
+            onChange: @update
           }
         ]
         h 'div', [
@@ -196,18 +204,12 @@ class IntervalEditor extends ModalEditor
     onPrev: ->
     onClose: ->
   }
-  render: ->
-    h FaciesContext.Consumer, null, ({surfaces})=>
-      @renderMain(surfaces)
 
-  renderMain: (surfaces)=>
+  render: (surfaces)=>
     {interval, height, section} = @props
     return null unless interval?
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
-
-    options = surfaces.map (d)->
-      {value: d.id, label: d.note}
 
     width = @props.width or 240
     h 'div.interval-editor', {style: {padding: 20, zIndex: 50, backgroundColor: 'white', width}}, [
@@ -227,24 +229,17 @@ class IntervalEditor extends ModalEditor
             @update {surface_type}
         }
       ]
-       h 'label.pt-label', [
+      h 'label.pt-label', [
         'Surface order'
-         @surfaceOrderSlider()
+        h SurfaceOrderSlider, {
+          interval, onChange: @update
+        }
       ]
       h 'label.pt-label', [
         'Correlated surface'
-        h Select, {
-          id: "state-select"
-          ref: (ref) => @select = ref
-          options
-          clearable: true
-          searchable: true
-          name: "selected-state"
-          value: interval.surface
-          onChange: (surface)=>
-            if surface?
-              surface = surface.value
-            @update {surface}
+        h CorrelatedSurfaceControl, {
+          interval
+          onChange: @update
         }
       ]
       #h ButtonGroup, [

@@ -41,10 +41,7 @@ class SymbolColumn extends UUIDComponent
   }
   @defaultProps: {
     width: 30
-    height: 100
-    visible: true
     left: 0
-    zoom: 1
   }
   constructor: (props)->
     super props
@@ -63,7 +60,7 @@ class SymbolColumn extends UUIDComponent
 
   render: ->
     {scale, height, zoom} = @context
-    {visible,left, width} = @props
+    {left, width} = @props
     {symbols, patterns} = @state
     transform = null
     if left?
