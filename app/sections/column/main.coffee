@@ -79,23 +79,6 @@ class SectionComponent extends KnownSizeComponent
       naturalHeight: d3.sum(@props.imageFiles, (d)->d.height)
     }
 
-  getGeometry: =>
-    innerHeight = @props.height*@props.pixelsPerMeter*@props.zoom
-    padding = {}
-    for k,v of @props.padding
-      if k == 'left' or k == 'bottom'
-        padding[k] = @props.padding[k]
-      else
-        padding[k] = @props.padding[k]*@props.zoom
-    {left, top, right, bottom} = padding
-
-    outerHeight = innerHeight+(top+bottom)
-    innerWidth = @props.innerWidth*@props.zoom
-    if innerWidth < @props.lithologyWidth
-      innerWidth = @props.lithologyWidth
-    outerWidth = innerWidth+(left+right)
-    {padding, innerHeight, outerHeight, innerWidth, outerWidth}
-
   renderSectionImages: =>
     {zoom} = @props
     skeletal = false
@@ -112,7 +95,7 @@ class SectionComponent extends KnownSizeComponent
     {lithologyWidth, divisions, id, padding} = @props
     {editingInterval} = @state
 
-    {heightOfTop, showFacies} = @props
+    {heightOfTop} = @props
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
     style = {top: marginTop}
 
@@ -122,9 +105,6 @@ class SectionComponent extends KnownSizeComponent
         interval: divisions.find (d)-> d.id == editingInterval.id
         height: editingInterval.height
         section: id
-        onSelectFacies: @setFaciesForInterval
-        onSelectGrainSize: @setGrainSizeForInterval
-        onSelectFloodingSurfaceOrder: @setFloodingSurfaceOrderForInterval
         closeDialog: =>
           @setState {editingInterval: {id:null}}
         addInterval: @addInterval
@@ -172,7 +152,7 @@ class SectionComponent extends KnownSizeComponent
     return null unless @props.showNotes and zoom > 0.50
     h NotesColumn, {
       id
-      visible:true
+      visible: true
       width: @props.logWidth*zoom
       marginTop: @props.padding.top
     }
@@ -218,26 +198,29 @@ class SectionComponent extends KnownSizeComponent
     {id} = @props
     h Samples, {id}
 
-  renderGeneralized: ({range, innerHeight})=>
+  renderGeneralized: ({range})=>
     return null unless @props.activeDisplayMode == 'generalized'
     {lithologyWidth} = @props
+    h GeneralizedSectionColumn, {range}, (
+      h LithologyColumnInner, {width: range[1]}
+    )
 
-    h GeneralizedSectionColumn, {
-      grainsizeScaleStart: range[0]-lithologyWidth
-      width: range[1]-lithologyWidth
-      left: lithologyWidth
-      height: innerHeight
-    }
+  renderFacies: =>
+    {lithologyWidth, showFacies} = @props
+    return null unless showFacies
+    h FaciesColumnInner, {width: lithologyWidth}
 
   renderOverlaySVG: =>
-    {innerHeight, outerHeight, innerWidth, outerWidth, padding} = @getGeometry()
-    {showSymbols, isEditable, showFacies} = @props
+    {lithologyWidth, zoom, id, height, pixelsPerMeter} = @props
 
-    {lithologyWidth, zoom, id, isEditable, showFacies, lithologyWidth, divisions} = @props
+    innerHeight = height*pixelsPerMeter
+    {left, top, right, bottom} = @props.padding
+    outerHeight = innerHeight+(top+bottom)
+    outerWidth = innerWidth+(left+right)
 
-    ticks = (@props.height*@props.zoom)/10
+    ticks = height/10
 
-    range = [128,208].map (d)->d-40
+    range = [88,168]
       .map (d)->d*zoom
       .map (d)->d+lithologyWidth
 
@@ -251,12 +234,12 @@ class SectionComponent extends KnownSizeComponent
       }, [
         h SectionAxis, {ticks}
         h LithologyColumn, {width: lithologyWidth}, [
-          if showFacies then h(FaciesColumnInner, {width: lithologyWidth}) else null
+          @renderFacies()
           h CoveredOverlay, {width: lithologyWidth}
           h LithologyColumnInner, {width: lithologyWidth}
         ]
         h GrainsizeScale, {range}
-        @renderGeneralized({range, innerHeight})
+        @renderGeneralized({range})
         @renderCarbonIsotopes()
         @renderFloodingSurfaces()
         @renderTriangleBars()
@@ -280,15 +263,11 @@ class SectionComponent extends KnownSizeComponent
       editingInterval = {id, height}
     @setState {divisions, editingInterval}
 
-
   removeInterval: (id)=>
-    {id: section} = @props
-
+    {id: section} = @prop
     await db.none sql('remove-interval'), {section, id}
-
     divisions = await query 'lithology', [section]
     @setState {divisions, editingInterval: {id:null}}
-
 
 SectionComponentHOC = (props)->
   {id, divisions} = props

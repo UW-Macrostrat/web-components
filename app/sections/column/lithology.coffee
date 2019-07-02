@@ -247,9 +247,9 @@ SimplifiedLithologyColumn = (props)->
   }
 
 GeneralizedSectionColumn = (props)->
-  {width, grainsizeScaleStart, children} = props
+  {width, grainsizeScaleStart, children, range} = props
   grainsizeScaleStart ?= width/4
-  range = [grainsizeScaleStart, width]
+  range ?= [grainsizeScaleStart, width]
   h ClipToFrame, {
     className: 'lithology-column'
     frame: (props)=> h GrainsizeFrame, {range, props...}
