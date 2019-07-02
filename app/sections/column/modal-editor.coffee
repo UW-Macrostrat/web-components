@@ -205,7 +205,7 @@ class IntervalEditor extends ModalEditor
     onClose: ->
   }
 
-  render: (surfaces)=>
+  render: ->
     {interval, height, section} = @props
     return null unless interval?
     {id, top, bottom, facies} = interval
