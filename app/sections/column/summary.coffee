@@ -131,13 +131,13 @@ class BaseSVGSectionComponent extends KnownSizeComponent
   renderEditOverlay: ({left})=>
     grainsizeScaleStart = 40
     {inEditMode, innerWidth, history} = @props
-    return null unless inEditMode
 
     onClick = ({height})=>
       {id} = @props
       path = "/sections/#{id}"
       if height?
         path += "/height/#{height}"
+      console.log height, path
       history.push(path)
 
     h DivisionEditOverlay, {
@@ -146,6 +146,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
       top: @props.padding.top
       grainsizeScaleRange: [grainsizeScaleStart, innerWidth]
       showInfoBox: true
+      allowEditing: inEditMode
       history # This is a shameless hack
       onClick
     }

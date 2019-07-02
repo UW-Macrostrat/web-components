@@ -1,6 +1,7 @@
 import {findDOMNode} from "react-dom"
 import {Component, createElement} from "react"
 import {Dialog, Button, Intent, ButtonGroup, Alert, Slider} from "@blueprintjs/core"
+import {DeleteButton} from '@macrostrat/ui-components'
 import {FaciesDescriptionSmall, FaciesContext} from "../facies"
 import {PickerControl} from "../settings"
 import {ColumnContext} from "./context"
@@ -81,19 +82,39 @@ class ModalEditor extends Component
     console.log interval
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
+    txt = "interval starting at #{hgt} m"
+
+    console.log height
 
     h Dialog, {
       className: 'pt-minimal'
       title: "Section #{section}: #{bottom} - #{top} m"
       isOpen: @props.isOpen
       onClose: @props.closeDialog
-      style: {top: '10%'}
+      style: {top: '10%', zIndex: 1000}
     }, [
       h 'div', {className:"pt-dialog-body"}, [
         h 'h3', [
           "ID "
           h 'code', interval.id
         ]
+        h 'div', [
+          h 'h5', "Interval"
+          h 'div.pt-button-group', [
+            h DeleteButton, {
+              itemDescription: "the "+txt
+              handleDelete: =>
+                return unless @props.removeInterval?
+                @props.removeInterval(id)
+            }, "Delete this interval"
+            h Button, {
+              onClick: =>
+                return unless @props.addInterval?
+                @props.addInterval(height)
+            }, "Add interval starting at #{fmt(height)} m"
+          ]
+        ]
+
         h FaciesDescriptionSmall, {
           options: {isEditable: true}
           onClick: @updateFacies
@@ -148,35 +169,6 @@ class ModalEditor extends Component
             interval
             onChange: @update
           }
-        ]
-        h 'div', [
-          h 'h5', "Interval"
-          h 'div.pt-button-group.pt-vertical', [
-            h Button, {
-              onClick: =>
-                return unless @props.addInterval?
-                @props.addInterval(height)
-            }, "Add interval starting at #{fmt(height)} m"
-            h Button, {
-              onClick: =>
-                @setState {isAlertOpen: true}
-              intent: Intent.DANGER}, "Remove interval starting at #{bottom} m"
-            h Alert, {
-                iconName: "trash"
-                intent: Intent.PRIMARY
-                isOpen: @state.isAlertOpen
-                confirmButtonText: "Delete interval"
-                cancelButtonText: "Cancel"
-                onConfirm: =>
-                  @setState {isAlertOpen: false}
-                  return unless @props.removeInterval?
-                  @props.removeInterval(id)
-                onCancel: => @setState {isAlertOpen: false}
-            }, [
-              h 'p', "Are you sure you want to delete the interval
-                      beginning at #{hgt} m?"
-            ]
-          ]
         ]
       ]
     ]

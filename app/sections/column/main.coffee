@@ -99,7 +99,7 @@ class SectionComponent extends KnownSizeComponent
   constructor: (props)->
     super props
     @state = {
-      editingInterval: {id: null}
+      editingInterval: {id: null, height: null}
     }
 
   renderSectionImages: =>
@@ -122,6 +122,8 @@ class SectionComponent extends KnownSizeComponent
     marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
     style = {top: marginTop}
 
+    console.log editingInterval.height
+
     h 'div.section', {style}, [
       h ModalEditor, {
         isOpen: editingInterval.id?
@@ -141,6 +143,7 @@ class SectionComponent extends KnownSizeComponent
         width: lithologyWidth
         top: padding.top
         left: padding.left
+        allowEditing: true
       }
     ]
 
@@ -185,8 +188,13 @@ class SectionComponent extends KnownSizeComponent
     }
 
   onEditInterval: ({division, height})=>
-    return unless @props.isEditable
+    if not (@props.isEditable and division?)
+      Notification.show {
+        message: "Section #{@props.id} at #{fmt(height)} m"
+      }
+      return
     {id} = division
+    console.log height
     @setState {editingInterval: {id, height}}
 
   renderSymbolColumn: =>

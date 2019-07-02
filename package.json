@@ -7,7 +7,8 @@
     "preinstall": "linklocal",
     "start": "electron-webpack dev",
     "compile": "electron-webpack",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "cd app && npm install"
   },
   "electronWebpack": {
     "main": {

@@ -31,6 +31,7 @@ class DivisionEditOverlay extends Component
     showInfoBox: T.bool
     grainsizeScaleRange: T.arrayOf(T.number)
     onClick: T.func
+    allowEditing: T.bool
   }
   @defaultProps: {
     onEditInterval: ->
@@ -39,6 +40,7 @@ class DivisionEditOverlay extends Component
     left: 0
     top: 0
     showInfoBox: false
+    allowEditing: true
   }
   constructor: (props)->
     super props
@@ -49,21 +51,21 @@ class DivisionEditOverlay extends Component
     }
 
   onHoverInterval: (event)=>
+    event.stopPropagation()
     # findDOMNode might be slow but I'm not sure
     return unless findDOMNode(@) == event.target
-
-    {pixelHeight, divisions} = @context
-    {top} = event.target.getBoundingClientRect()
-
     height = @heightForEvent(event)
+    return unless @props.allowEditing
+    {divisions} = @context
+
     division = null
     for d in divisions
       if d.bottom < height < d.top
         division = d
         break
-
+    return if division == @state.division
+    console.log height, division
     @setState {division}
-    event.stopPropagation()
 
   heightForEvent: (event)=>
     {scale} = @context
@@ -76,10 +78,19 @@ class DivisionEditOverlay extends Component
     {history, showInfoBox} = @props
     {division} = @state
     height = @heightForEvent(event)
+    event.stopPropagation()
     if event.shiftKey and showInfoBox
       @setState {popoverIsOpen: true}
       return
+    console.log division
     @props.onClick({height, division})
+
+  onClick: (event)=>
+    # This event handler might be unnecessary
+    if @props.allowEditing
+      return @onEditInterval(event)
+    height = @heightForEvent(event)
+    @props.onClick({height})
 
   renderEditBoxInner: =>
     h 'div.edit-box', {
@@ -112,11 +123,10 @@ class DivisionEditOverlay extends Component
       width = xScale(grainsizeForDivision(division))
 
     style = {
-      position: 'absolute'
-      top
+      marginTop: top
       height
-      left: 0
       width
+      pointerEvents: 'none'
     }
 
     h 'div.edit-box-outer', {style}, [
@@ -162,6 +172,7 @@ class DivisionEditOverlay extends Component
       }
       onMouseEnter: @onHoverInterval
       onMouseMove: @onHoverInterval
+      onClick: @onClick
       onMouseLeave: =>@setState {division: null}
     }, @renderEditBox()
 

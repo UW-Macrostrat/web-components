@@ -10,6 +10,7 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
+    "@macrostrat/ui-components": "file:./bundled-deps/ui-components",
     "@blueprintjs/core": "^2.1.1",
     "bluebird": "^3.5.0",
     "calculate-size": "^1.1.1",

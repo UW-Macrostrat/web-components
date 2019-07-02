@@ -1,4 +1,4 @@
-import "@babel/polyfill"
+import "@macrostrat/ui-components/ui-init"
 requireFoolWebpack = require 'require-fool-webpack'
 # Because webpack is super annoying
 

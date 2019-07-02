@@ -1,0 +1,3 @@
+[submodule "bundled-deps/ui-components"]
+	path = app/bundled-deps/ui-components
+	url = git://github.com/UW-Macrostrat/ui-components.git
