@@ -162,12 +162,15 @@ class SectionComponent extends KnownSizeComponent
           height
           divisions
           pixelsPerMeter
-        }, [
-          h ScrollToHeightComponent, {scrollToHeight, id}, [
+        }, (
+          h ScrollToHeightComponent, {
+            scrollToHeight: parseFloat(scrollToHeight)
+            id
+          }, [
             @renderInnerElements()
             @renderNotes()
           ]
-        ]
+        )
       ]
     ]
 
