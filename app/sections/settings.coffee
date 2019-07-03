@@ -22,15 +22,15 @@ class PickerControl extends Component
   }
   render: ->
     {states, activeState, vertical} = @props
-    className = classNames('pt-button-group', 'pt-fill', {
-      'pt-vertical': vertical
-      'pt-align-left': vertical
+    className = classNames('bp3-button-group', 'bp3-fill', {
+      'bp3-vertical': vertical
+      'bp3-align-left': vertical
     })
 
     h 'div.picker-control', [
       h 'div', {className}, states.map (d)=>
-        className = classNames('pt-button', {
-          'pt-active': @props.activeState == d.value
+        className = classNames('bp3-button', {
+          'bp3-active': @props.activeState == d.value
         })
         h 'button', {
           type: 'button'
@@ -110,7 +110,7 @@ class SettingsPanel extends Component
   viewParams: =>
     h 'div#view-params', [
       h 'h5', 'View info'
-      h 'table.pt-table', [
+      h 'table.bp3-table', [
         h 'tbody', [
           h 'tr', [
             h 'td', 'Zoom'

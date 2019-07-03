@@ -77,10 +77,8 @@ class FaciesPicker extends Component
     options = facies.map (f)->
       {value: f.id, label: h(FaciesCard, {facies: f})}
 
-    console.log interval.facies
     value = options.find (d)->d.value == interval.facies
     value ?= null
-    console.log value
 
     h Select, {
       id: 'facies-select'
@@ -88,12 +86,7 @@ class FaciesPicker extends Component
       value
       selected: interval.facies
       onChange: (res)->
-        console.log res
-        if res?
-          f = res.value
-        else
-          f = null
-        console.log f
+        f = if res? then res.value else null
         onChange f
     }
 
@@ -108,13 +101,12 @@ class ModalEditor extends Component
   render: ->
     {interval, height, section} = @props
     return null unless interval?
-    console.log interval
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
     txt = "interval starting at #{hgt} m"
 
     h Dialog, {
-      className: 'pt-minimal'
+      className: 'bp3-minimal'
       title: [
         h "code", {style: {transform: "translateY(-2px)", display: "inline-block"}}, interval.id
         " Section #{section}: #{bottom} - #{top} m"
@@ -123,13 +115,16 @@ class ModalEditor extends Component
       onClose: @props.closeDialog
       style: {top: '10%', zIndex: 1000, position: 'relative'}
     }, [
-      h 'div', {className:"pt-dialog-body"}, [
-        h FaciesPicker, {
-          onClick: @updateFacies
-          interval
-          onChange: (facies)=>@update {facies}
-        }
-        h 'label.pt-label', [
+      h 'div', {className:"bp3-dialog-body"}, [
+        h 'label.bp3-label', [
+          'Facies'
+          h FaciesPicker, {
+            onClick: @updateFacies
+            interval
+            onChange: (facies)=>@update {facies}
+          }
+        ]
+        h 'label.bp3-label', [
           'Grainsize'
           h PickerControl, {
             vertical: false,
@@ -141,7 +136,7 @@ class ModalEditor extends Component
               @update {grainsize}
           }
         ]
-        h 'label.pt-label', [
+        h 'label.bp3-label', [
           'Surface type (parasequence)'
           h PickerControl, {
             vertical: false,
@@ -152,13 +147,13 @@ class ModalEditor extends Component
               @update {surface_type}
           }
         ]
-        h 'label.pt-label', [
+        h 'label.bp3-label', [
           'Surface order'
           h SurfaceOrderSlider, {
             interval, onChange: @update
           }
         ]
-        h 'label.pt-label', [
+        h 'label.bp3-label', [
           'Flooding surface (negative is regression)'
           h PickerControl, {
             vertical: false,
@@ -172,14 +167,14 @@ class ModalEditor extends Component
               @update {flooding_surface_order}
           }
         ]
-        h 'label.pt-label', [
+        h 'label.bp3-label', [
           'Correlated surface'
           h CorrelatedSurfaceControl, {
             interval
             onChange: @update
           }
         ]
-        h 'div.pt-button-group', [
+        h 'div.buttons', [
           h DeleteButton, {
             itemDescription: "the "+txt
             handleDelete: =>
@@ -232,7 +227,7 @@ class IntervalEditor extends ModalEditor
         h 'code', interval.id
       ]
       h 'h6', "#{fmt(interval.bottom)}-#{fmt(interval.top)} m"
-      h 'label.pt-label', [
+      h 'label.bp3-label', [
         'Surface type'
         h PickerControl, {
           vertical: false,
@@ -243,13 +238,13 @@ class IntervalEditor extends ModalEditor
             @update {surface_type}
         }
       ]
-      h 'label.pt-label', [
+      h 'label.bp3-label', [
         'Surface order'
         h SurfaceOrderSlider, {
           interval, onChange: @update
         }
       ]
-      h 'label.pt-label', [
+      h 'label.bp3-label', [
         'Correlated surface'
         h CorrelatedSurfaceControl, {
           interval

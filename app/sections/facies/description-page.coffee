@@ -49,7 +49,7 @@ class FaciesDescriptionSmall extends Component
       style.color = 'white'
     className = classNames({selected: selected == d.id})
 
-    h 'div.facies.pt-card.pt-elevation-0', {
+    h 'div.facies.bp3-card.bp3-elevation-0', {
       key: d.id, onClick, style, className
     }, h(FaciesCard, {facies: d})
 

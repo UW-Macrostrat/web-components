@@ -10,8 +10,8 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
+    "@blueprintjs/core": "^3.17.1",
     "@macrostrat/ui-components": "file:./bundled-deps/ui-components",
-    "@blueprintjs/core": "^2.1.1",
     "bluebird": "^3.5.0",
     "calculate-size": "^1.1.1",
     "chroma-js": "^1.2.1",
