@@ -1,6 +1,5 @@
 import {findDOMNode} from "react-dom"
-import * as d3 from "d3"
-import "d3-selection-multi"
+import {format} from "d3-format"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
 import {SectionAxis} from "./axis"
@@ -12,7 +11,8 @@ import {Notification} from "../../notify"
 import {GrainsizeScale} from "./grainsize"
 import {SymbolColumn} from "./symbol-column"
 import {ModalEditor} from "./modal-editor"
-import {SVGNamespaces, ColumnDivisionsProvider, KnownSizeComponent} from "../util"
+import {ColumnSurfacesProvider, ColumnSurfacesContext} from "./data-source"
+import {SVGNamespaces, KnownSizeComponent} from "../util"
 import Samples from "./samples"
 import {FloodingSurface, TriangleBars} from "./flooding-surface"
 import {ColumnProvider, ColumnContext} from './context'
@@ -29,7 +29,7 @@ import {dirname} from "path"
 import update from "immutability-helper"
 import T from "prop-types"
 
-fmt = d3.format(".1f")
+fmt = format(".1f")
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
 
@@ -43,10 +43,9 @@ class ScrollToHeightComponent extends Component
     super props
     @state = {loaded: false}
   render: ->
-
     h 'div.section-outer', null, @props.children
   componentDidUpdate: ->
-    node = findDOMNode(this)
+    node = findDOMNode(@)
     {scale} = @context
     {scrollToHeight, id} = @props
     {loaded} = @state
@@ -62,6 +61,7 @@ class ScrollToHeightComponent extends Component
     @setState {loaded: true}
 
 class SectionComponent extends KnownSizeComponent
+  @contextType: ColumnSurfacesContext
   @defaultProps: {
     zoom: 1
     pixelsPerMeter: 20
@@ -115,19 +115,16 @@ class SectionComponent extends KnownSizeComponent
     }
 
   renderInnerElements: =>
-    {lithologyWidth, divisions, id, padding} = @props
+    {divisions} = @context
+    {lithologyWidth, id, padding} = @props
     {editingInterval} = @state
+    interval = divisions.find (d)-> d.id == editingInterval.id
+    console.log interval
 
-    {heightOfTop} = @props
-    marginTop = heightOfTop*@props.pixelsPerMeter*@props.zoom
-    style = {top: marginTop}
-
-    console.log editingInterval.height
-
-    h 'div.section', {style}, [
+    h 'div.section', [
       h ModalEditor, {
         isOpen: editingInterval.id?
-        interval: divisions.find (d)-> d.id == editingInterval.id
+        interval
         height: editingInterval.height
         section: id
         closeDialog: =>
@@ -148,7 +145,8 @@ class SectionComponent extends KnownSizeComponent
     ]
 
   render: ->
-    {id, divisions, zoom, pixelsPerMeter,
+    {divisions} = @context
+    {id, zoom, pixelsPerMeter,
      scrollToHeight, height, skeletal, range} = @props
     # Set text of header for appropriate zoom level
     txt = if zoom > 0.5 then "Section " else ""
@@ -194,7 +192,6 @@ class SectionComponent extends KnownSizeComponent
       }
       return
     {id} = division
-    console.log height
     @setState {editingInterval: {id, height}}
 
   renderSymbolColumn: =>
@@ -268,32 +265,30 @@ class SectionComponent extends KnownSizeComponent
     ]
 
   onIntervalUpdated: =>
-    console.log "Updating intervals"
-    {id: section} = @props
     # Could potentially make this fetch less
-    divisions = await query 'lithology', [section]
-    @setState {divisions}
+    @context.updateDivisions()
 
   addInterval: (height)=>
     {id: section, editingInterval} = @props
     {id} = await db.one sql('add-interval'), {section,height}
-    divisions = await query 'lithology', [section]
     {id: oldID, height} = editingInterval
     if oldID?
       editingInterval = {id, height}
-    @setState {divisions, editingInterval}
+    @context.updateDivisions()
+    @setState {editingInterval}
 
   removeInterval: (id)=>
-    {id: section} = @prop
+    {id: section} = @props
     await db.none sql('remove-interval'), {section, id}
-    divisions = await query 'lithology', [section]
-    @setState {divisions, editingInterval: {id:null}}
+    @context.updateDivisions()
+    @setState {editingInterval: {id:null}}
 
 SectionComponentHOC = (props)->
   {id, divisions} = props
   h SequenceStratConsumer, null, (value)->
     {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
-    h ColumnDivisionsProvider, {id, divisions}, (rest)->
-      h SectionComponent, {showTriangleBars, showFloodingSurfaces, sequenceStratOrder, rest..., props...}
+    h ColumnSurfacesProvider, {id, divisions}, (
+      h SectionComponent, {showTriangleBars, showFloodingSurfaces, sequenceStratOrder, props...}
+    )
 
 export {SectionComponentHOC as SectionComponent}

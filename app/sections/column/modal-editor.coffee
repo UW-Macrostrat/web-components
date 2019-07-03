@@ -2,7 +2,7 @@ import {findDOMNode} from "react-dom"
 import {Component, createElement} from "react"
 import {Dialog, Button, Intent, ButtonGroup, Alert, Slider} from "@blueprintjs/core"
 import {DeleteButton} from '@macrostrat/ui-components'
-import {FaciesDescriptionSmall, FaciesContext} from "../facies"
+import {FaciesDescriptionSmall, FaciesContext, FaciesCard} from "../facies"
 import {PickerControl} from "../settings"
 import {ColumnContext} from "./context"
 import Select from 'react-select'
@@ -25,8 +25,8 @@ catch
 floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
 
 surfaceTypes = [
-  {value: 'mfs', label: 'MFS'}
-  {value: 'sb', label: 'SB'}
+  {value: 'mfs', label: 'Maximum flooding surface'}
+  {value: 'sb', label: 'Sequence boundary'}
 ]
 
 SurfaceOrderSlider = (props)->
@@ -68,6 +68,35 @@ class CorrelatedSurfaceControl extends Component
         onChange {surface}
     }
 
+class FaciesPicker extends Component
+  @contextType: FaciesContext
+  render: ->
+    {facies} = @context
+    {interval, onChange} = @props
+
+    options = facies.map (f)->
+      {value: f.id, label: h(FaciesCard, {facies: f})}
+
+    console.log interval.facies
+    value = options.find (d)->d.value == interval.facies
+    value ?= null
+    console.log value
+
+    h Select, {
+      id: 'facies-select'
+      options
+      value
+      selected: interval.facies
+      onChange: (res)->
+        console.log res
+        if res?
+          f = res.value
+        else
+          f = null
+        console.log f
+        onChange f
+    }
+
 class ModalEditor extends Component
   @defaultProps: {onUpdate: ->}
   constructor: (props)->
@@ -84,41 +113,21 @@ class ModalEditor extends Component
     hgt = fmt(height)
     txt = "interval starting at #{hgt} m"
 
-    console.log height
-
     h Dialog, {
       className: 'pt-minimal'
-      title: "Section #{section}: #{bottom} - #{top} m"
+      title: [
+        h "code", {style: {transform: "translateY(-2px)", display: "inline-block"}}, interval.id
+        " Section #{section}: #{bottom} - #{top} m"
+      ]
       isOpen: @props.isOpen
       onClose: @props.closeDialog
-      style: {top: '10%', zIndex: 1000}
+      style: {top: '10%', zIndex: 1000, position: 'relative'}
     }, [
       h 'div', {className:"pt-dialog-body"}, [
-        h 'h3', [
-          "ID "
-          h 'code', interval.id
-        ]
-        h 'div', [
-          h 'h5', "Interval"
-          h 'div.pt-button-group', [
-            h DeleteButton, {
-              itemDescription: "the "+txt
-              handleDelete: =>
-                return unless @props.removeInterval?
-                @props.removeInterval(id)
-            }, "Delete this interval"
-            h Button, {
-              onClick: =>
-                return unless @props.addInterval?
-                @props.addInterval(height)
-            }, "Add interval starting at #{fmt(height)} m"
-          ]
-        ]
-
-        h FaciesDescriptionSmall, {
-          options: {isEditable: true}
+        h FaciesPicker, {
           onClick: @updateFacies
-          selected: facies
+          interval
+          onChange: (facies)=>@update {facies}
         }
         h 'label.pt-label', [
           'Grainsize'
@@ -169,6 +178,19 @@ class ModalEditor extends Component
             interval
             onChange: @update
           }
+        ]
+        h 'div.pt-button-group', [
+          h DeleteButton, {
+            itemDescription: "the "+txt
+            handleDelete: =>
+              return unless @props.removeInterval?
+              @props.removeInterval(id)
+          }, "Delete this interval"
+          h Button, {
+            onClick: =>
+              return unless @props.addInterval?
+              @props.addInterval(height)
+          }, "Add interval starting at #{fmt(height)} m"
         ]
       ]
     ]

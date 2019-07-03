@@ -60,4 +60,4 @@ class FaciesDescriptionSmall extends Component
       h 'div', facies.map @renderEach
     ]
 
-export {FaciesDescriptionPage, FaciesDescriptionSmall}
+export {FaciesDescriptionPage, FaciesDescriptionSmall, FaciesCard}

@@ -166,7 +166,7 @@ class DivisionEditOverlay extends Component
         top
         height: pixelHeight
         position: 'absolute'
-        zIndex: 100
+        zIndex: 18
         pointerEvents: 'all'
         cursor: 'pointer'
       }

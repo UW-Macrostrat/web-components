@@ -14,13 +14,14 @@ import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {Notification} from "../../notify"
 import {FaciesContext} from "../facies"
-import {SVGNamespaces, KnownSizeComponent, ColumnDivisionsProvider} from "../util"
+import {SVGNamespaces, KnownSizeComponent} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
 import {db, storedProcedure, query} from "../db"
 import {ColumnProvider, ColumnContext} from './context'
 import {SimplifiedLithologyColumn, CoveredOverlay, FaciesColumnInner,
         LithologyColumnInner} from './lithology'
 import {DivisionEditOverlay} from './edit-overlay'
+import {ColumnSurfacesProvider, ColumnSurfacesContext} from './data-source'
 import T from 'prop-types'
 
 fmt = d3.format('.1f')
@@ -38,6 +39,7 @@ IntervalNotification = (props)->
   ]
 
 class BaseSVGSectionComponent extends KnownSizeComponent
+  @contextType: ColumnSurfacesContext
   @defaultProps: {
     zoom: 1
     pixelsPerMeter: 20
@@ -118,15 +120,12 @@ class BaseSVGSectionComponent extends KnownSizeComponent
   onIntervalUpdated: =>
     console.log "Updating intervals"
     {id: section} = @props
-    {hoveredInterval} = @state
     # Could potentially make this fetch less
-    query 'lithology', [section]
-      .then (divisions)=>
-        cset = {divisions}
-        if hoveredInterval?
-          newHovered = divisions.find (d)-> d.id == hoveredInterval.id
-          cset.hoveredInterval = newHovered
-        @setState cset
+    divisions = await @context.updateDivisions()
+    {hoveredInterval} = @state
+    return unless hoveredInterval?
+    newHovered = divisions.find (d)-> d.id == hoveredInterval.id
+    @setState {hoveredInterval: newHovered}
 
   renderEditOverlay: ({left})=>
     grainsizeScaleStart = 40
@@ -196,7 +195,7 @@ class BaseSVGSectionComponent extends KnownSizeComponent
     outerHeight = innerHeight+(top+bottom)
     outerWidth = innerWidth+(left+right)
 
-    {divisions} = @props
+    {divisions} = @context
     {visible} = @state
     divisions = divisions.filter (d)->not d.schematic
 
@@ -295,11 +294,11 @@ SVGSectionComponent = (props)->
   h PlatformConsumer, null, ({inEditMode})->
     h SequenceStratConsumer, null, (value)->
       {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
-      h ColumnDivisionsProvider, {id, divisions}, (rest)->
+      h ColumnSurfacesProvider, {id, divisions}, (
         h withRouter(BaseSVGSectionComponent), {
           showTriangleBars, showFloodingSurfaces,
           sequenceStratOrder, inEditMode, props...,
-          rest...
         }
+      )
 
 export {BaseSVGSectionComponent, SVGSectionComponent}

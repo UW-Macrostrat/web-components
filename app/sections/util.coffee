@@ -1,4 +1,4 @@
-import {Component} from "react"
+import {Component, createContext} from "react"
 import h from "react-hyperscript"
 import {NavLink, BackLink} from "../nav"
 import {Icon} from "react-fa"
@@ -42,38 +42,9 @@ SVGNamespaces = {
 
 SVGComponent = (props)-> h 'svg', {props..., SVGNamespaces...}
 
-class ColumnDivisionsProvider extends Component
-  ###
-  # Makes sure divisions are defined for sections
-  ###
-  @propTypes: {
-    id: T.string
-    divisions: T.arrayOf(T.object)
-    children: T.func.isRequired
-  }
-  constructor: (props)->
-    super props
-    {divisions} = @props
-    if not divisions?
-      divisions = []
-      @getDivisions()
-
-    @state = {divisions}
-
-   getDivisions: =>
-    {id} = @props
-    divisions = await query 'lithology', [id]
-    @setState {divisions}
-
-  render: ->
-    {children, rest...} = @props
-    {divisions} = @state
-    children({rest..., divisions})
-
 export {
   SectionNavigationControl
   SVGNamespaces
   SVGComponent
   KnownSizeComponent
-  ColumnDivisionsProvider
 }
