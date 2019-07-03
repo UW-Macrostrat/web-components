@@ -10,6 +10,16 @@ const coffeeLoader = {
   options: {sourceMap: true}
 };
 
+const cssLoader = {
+  loader: 'css-loader',
+  options: {
+    modules: {
+      mode: 'global',
+      localIdentName: '[name]__[local]___[hash:base64:5]'
+    }
+  }
+};
+
 module.exports = {
   module: {
     rules: [
@@ -20,12 +30,12 @@ module.exports = {
       },
       {
         test: /\.styl$/,
-        use: ["style-loader","css-loader", "stylus-loader"],
+        use: ["style-loader", cssLoader, "stylus-loader"],
         exclude: /node_modules/
       },
       {
         test: /\.css$/,
-        use: ["style-loader", "css-loader"],
+        use: ["style-loader", cssLoader],
         exclude: /node_modules/
       }
     ]
@@ -34,4 +44,3 @@ module.exports = {
     extensions: ['.js', '.coffee']
   }
 }
-

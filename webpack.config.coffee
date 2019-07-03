@@ -42,14 +42,24 @@ coffeeLoader = {
   options: {sourceMap: mode == 'development'}
 }
 
+cssLoader = {
+  loader: 'css-loader',
+  options: {
+    modules: {
+      mode: 'global',
+      localIdentName: '[name]__[local]___[hash:base64:5]'
+    }
+  }
+}
+
 module.exports = {
   mode
   module:
     rules: [
       {test: /\.coffee$/, use: [babelLoader, coffeeLoader], exclude}
       {test: /\.(js|jsx)$/, use: [babelLoader], exclude}
-      {test: /\.styl$/, use: ["style-loader","css-loader", "stylus-loader"]}
-      {test: /\.css$/, use: ["style-loader", "css-loader"]}
+      {test: /\.styl$/, use: ["style-loader",cssLoader, "stylus-loader"]}
+      {test: /\.css$/, use: ["style-loader", cssLoader]}
       {
         test: /\.(eot|svg|ttf|woff|woff2)$/,
         use: [
