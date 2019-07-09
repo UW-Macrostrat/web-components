@@ -2,7 +2,7 @@ import {findDOMNode} from "react-dom"
 import {format} from "d3-format"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import {IntervalEditor} from "./modal-editor"
+import {IntervalEditor} from "./editor"
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {ColumnContext} from './context'

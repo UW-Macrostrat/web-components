@@ -2,16 +2,18 @@ import {findDOMNode} from "react-dom"
 import {Component, createElement} from "react"
 import {Dialog, Button, Intent, ButtonGroup, Alert, Slider} from "@blueprintjs/core"
 import {DeleteButton} from '@macrostrat/ui-components'
-import {FaciesDescriptionSmall, FaciesContext, FaciesCard} from "../facies"
-import {PickerControl} from "../settings"
-import {ColumnContext} from "./context"
 import Select from 'react-select'
+import {format} from "d3-format"
+
+import {FaciesDescriptionSmall, FaciesContext, FaciesCard} from "../../facies"
+import {PickerControl} from "../../settings"
+import {ColumnContext} from "../context"
 import "react-select/dist/react-select.css"
 
-import {grainSizes} from "./grainsize"
+import {grainSizes} from "../grainsize"
 import h from "react-hyperscript"
-import {format} from "d3-format"
-import {db, storedProcedure, query} from "../db"
+import {db, storedProcedure, query} from "../../db"
+
 fmt = format('.1f')
 
 import {dirname} from "path"
