@@ -7,7 +7,7 @@ import {db, storedProcedure, query} from "../../db"
 import {Node, Renderer, Force} from "labella"
 import {calculateSize} from "calculate-size"
 import FlexibleNode from "./flexible-node"
-import PropTypes from "prop-types"
+import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
 import {PhotoOverlay} from "./photo-overlay"
 import {ColumnContext} from '../context'
@@ -89,11 +89,8 @@ class NoteSpan extends Component
     h 'g', transform: transform, el
 
 class Note extends Component
-  @defaultProps: {
-    marginTop: 0
-  }
   @propTypes: {
-    inEditMode: PropTypes.bool
+    inEditMode: T.bool
   }
 
   constructor: (props)->
@@ -101,7 +98,7 @@ class Note extends Component
     @state = {overlayIsEnabled: false}
 
   render: ->
-    {scale, style, d, marginTop} = @props
+    {scale, style, d} = @props
     extraClasses = ''
 
     if d.has_span
@@ -112,9 +109,8 @@ class Note extends Component
     halfHeight = height/2
 
     pos = d.node.centerPos or d.node.idealPos
-    pos += marginTop
 
-    offsY = d.node.currentPos+marginTop
+    offsY = d.node.currentPos
     offsX = d.offsetX or 0
 
     x = (offsX+1)*5
@@ -127,7 +123,7 @@ class Note extends Component
       }
       h 'path.link', {
         d: @props.link
-        transform: "translate(#{x} #{marginTop})"
+        transform: "translate(#{x})"
       }
       createElement 'foreignObject', {
         width: @props.width-@props.columnGap-offsX-10
@@ -163,7 +159,7 @@ class Note extends Component
     ]
 
   createBody: =>
-    return @renderEditor() if @context.inEditMode
+    return @renderEditor() if @props.inEditMode
 
     h 'div', [
       h 'p.note-label', {
@@ -187,6 +183,10 @@ class NotesColumn extends Component
     width: 100
     type: 'log-notes'
     columnGap: 60
+    inEditMode: false
+  }
+  @propTypes: {
+    id: T.string.isRequired
   }
   constructor: (props)->
     # We define our own scale because we only
@@ -199,11 +199,12 @@ class NotesColumn extends Component
   updateNotes: =>
     {type, id} = @props
     data = await query type, [id]
+
     @setState {notes: data}
 
   render: ->
     {scale, zoom, pixelHeight: height} = @context
-    {width, columnGap, marginTop} = @props
+    {width, columnGap, transform} = @props
 
     processor = processNotesData({scale, height, width})
     notes = processor(@state.notes)
@@ -214,22 +215,22 @@ class NotesColumn extends Component
       nodeHeight: 5
     }
 
-    style = {zoom}
     width += 80
 
-    xmlns = "http://www.w3.org/2000/svg"
-    h 'svg.section-log', {width, height, xmlns, style}, [
+    h 'g.section-log', {transform}, [
       h 'defs', [
         arrowMarker 'arrow_start', 270
         arrowMarker 'arrow_end', 90
       ]
       h 'g', notes.map (d)=>
         h Note, {
-          marginTop
           scale, d, width,
           editHandler: @handleNoteEdit
           link: renderer.generatePath(d.node),
-          key: d.id, columnGap}
+          key: d.id,
+          columnGap
+          inEditMode: @props.inEditMode
+        }
 
     ]
 

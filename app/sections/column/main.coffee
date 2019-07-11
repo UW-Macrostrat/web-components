@@ -169,20 +169,20 @@ class SectionComponent extends KnownSizeComponent
             id
           }, [
             @renderInnerElements()
-            @renderNotes()
           ]
         )
       ]
     ]
 
-  renderNotes: =>
-    {zoom, id} = @props
-    return null unless @props.showNotes and zoom > 0.50
+  renderNotesColumn: =>
+    {zoom, innerWidth, id, showNotes, logWidth, isEditable} = @props
+    return null unless showNotes and zoom > 0.50
     h NotesColumn, {
-      id
       visible: true
-      width: @props.logWidth*zoom
-      marginTop: @props.padding.top
+      id
+      width: logWidth*zoom
+      inEditMode: isEditable
+      transform: "translate(#{innerWidth})"
     }
 
   onEditInterval: ({division, height})=>
@@ -261,6 +261,7 @@ class SectionComponent extends KnownSizeComponent
         @renderFloodingSurfaces()
         @renderTriangleBars()
         @renderSymbolColumn()
+        @renderNotesColumn()
       ]
     ]
 
