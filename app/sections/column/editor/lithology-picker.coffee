@@ -1,28 +1,43 @@
-import {Component, createElement} from "react"
+import {Component, createElement, useContext} from "react"
 import h from "react-hyperscript"
 import Select from 'react-select'
 
-import {FaciesCard, FaciesContext} from "../../facies"
 import {symbolIndex} from "app/sections/column/lithology"
-import "react-select/dist/react-select.css"
+import {PlatformContext} from "app/platform"
+
+import styles from './main.styl'
+
+
+LithologySwatch = ({symbolID, style, rest...})->
+  {resolveLithologySymbol} = useContext(PlatformContext)
+  src = resolveLithologySymbol(symbolID)
+  style ?= {}
+  style.backgroundImage = "url(\"#{src}\")"
+  h 'div', {className: styles.lithologySwatch, style, rest...}
+
+
+LithologyItem = (props)->
+  {symbol, lithology} = props
+  h 'span', {className: styles.faciesPickerRow}, [
+    h LithologySwatch, {symbolID: symbol}
+    h 'span', {className: styles.faciesPickerName}, lithology
+  ]
+
+options = for k,v of symbolIndex
+  {value: k, label: h(LithologyItem, {lithology: k, symbol: v})}
 
 class LithologyPicker extends Component
-  @contextType: FaciesContext
   render: ->
-    {facies} = @context
     {interval, onChange} = @props
 
-    options = facies.map (f)->
-      {value: f.id, label: h(FaciesCard, {facies: f})}
-
-    value = options.find (d)->d.value == interval.facies
+    value = options.find (d)->d.value == interval.lithology
     value ?= null
 
     h Select, {
       id: 'lithology-select'
       options
       value
-      selected: interval.facies
+      selected: interval.lithology
       onChange: (res)->
         f = if res? then res.value else null
         onChange f

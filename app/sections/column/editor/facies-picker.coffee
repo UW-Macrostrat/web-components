@@ -2,7 +2,6 @@ import {Component} from 'react'
 import h from 'react-hyperscript'
 import {FaciesContext, BasicFaciesSwatch} from '../../facies'
 import Select from 'react-select'
-import "react-select/dist/react-select.css"
 import styles from './main.styl'
 
 FaciesRow = ({facies})->

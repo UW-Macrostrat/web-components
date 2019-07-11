@@ -1,3 +1,5 @@
+@require '~react-select/dist/react-select.css'
+
 :local
   .faciesPickerRow
     display flex
@@ -11,7 +13,7 @@
       text-align left
       font-style italic
       color #444
-  .faciesColorSwatch
+  .faciesColorSwatch, .lithologySwatch
     margin-right 0.5em
     margin-left -0.5em
     border-radius 3px
@@ -31,3 +33,10 @@
       flex-grow 1
     .heightRange
       font-weight 400
+
+  .lithologySwatch
+    height 2em
+    width 2em
+    background-size: 6em
+    image-rendering: crisp-edges
+    border 1px solid black

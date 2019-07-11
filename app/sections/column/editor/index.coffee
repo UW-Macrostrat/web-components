@@ -105,7 +105,7 @@ class ModalEditor extends Component
           'Lithology'
           h LithologyPicker, {
             interval
-            onChange: (facies)=>@update {facies}
+            onChange: (lithology)=>@update {lithology}
           }
         ]
         h 'label.bp3-label', [
