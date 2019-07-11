@@ -11,6 +11,8 @@ import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
 import {PhotoOverlay} from "./photo-overlay"
 import {ColumnContext} from '../context'
+import {Note} from './note'
+import NoteDefs from './defs'
 
 processNotesData = (opts)->(data)->
   index = []
@@ -57,126 +59,6 @@ processNotesData = (opts)->(data)->
 
   data.reverse()
 
-
-arrowMarker = (id, orient, sz=2.5)->
-  h 'marker', {
-    id
-    orient
-    markerHeight: sz
-    markerWidth: sz
-    markerUnits: 'strokeWidth'
-    refX:"0"
-    refY:"0"
-    viewBox:"-#{sz} -#{sz} #{sz*2} #{sz*2}"
-  }, [
-    h 'path', {
-      d:"M 0,0 m -#{sz},-#{sz} L #{sz},0 L -#{sz},#{sz} Z"
-      fill:"#000000"
-    }
-  ]
-
-class NoteSpan extends Component
-  render: ->
-    {height, transform} = @props
-    if height > 5
-      el = h 'line', {
-       x1: 0, x2: 0, y1: 2.5,
-       y2: height-2.5
-      }
-    else
-      el = h 'circle', {r: 2}
-
-    h 'g', transform: transform, el
-
-class Note extends Component
-  @propTypes: {
-    inEditMode: T.bool
-  }
-
-  constructor: (props)->
-    super props
-    @state = {overlayIsEnabled: false}
-
-  render: ->
-    {scale, style, d} = @props
-    extraClasses = ''
-
-    if d.has_span
-      height = scale(0)-scale(d.span)
-    else
-      height = 0
-
-    halfHeight = height/2
-
-    pos = d.node.centerPos or d.node.idealPos
-
-    offsY = d.node.currentPos
-    offsX = d.offsetX or 0
-
-    x = (offsX+1)*5
-    h "g.note#{extraClasses}", {
-      onMouseOver: @positioningInfo
-    }, [
-      h NoteSpan, {
-        transform: "translate(#{x} #{pos-halfHeight})"
-        height
-      }
-      h 'path.link', {
-        d: @props.link
-        transform: "translate(#{x})"
-      }
-      createElement 'foreignObject', {
-        width: @props.width-@props.columnGap-offsX-10
-        x: @props.columnGap+x
-        y: offsY-d.estimatedTextHeight/2
-        height: 100
-      }, @createBody()
-    ]
-
-  renderEditor: =>
-    h EditableText, {
-      multiline: true
-      className: 'note-label'
-      defaultValue: @props.d.note
-      onConfirm: (text)=>
-        @props.editHandler(@props.d.id, text)
-    }
-
-  renderPhotoOverlay: =>
-    {photos} = @props.d
-    return null unless photos?
-    tx = "#{photos.length} photo"
-    if photos.length > 1
-      tx += 's'
-
-    h [
-      h 'a.photos-link', {onClick: @toggleOverlay}, tx
-      h PhotoOverlay, {
-        isOpen: @state.overlayIsEnabled
-        onClose: @toggleOverlay
-        photoIDs: photos
-      }
-    ]
-
-  createBody: =>
-    return @renderEditor() if @props.inEditMode
-
-    h 'div', [
-      h 'p.note-label', {
-        xmlns: "http://www.w3.org/1999/xhtml"
-      }, [
-        h('span', null, @props.d.note)
-        @renderPhotoOverlay()
-      ]
-    ]
-
-  toggleOverlay: =>
-    {overlayIsEnabled} = @state
-    @setState overlayIsEnabled: not overlayIsEnabled
-
-  positioningInfo: =>
-    console.log @props.d.id
-
 class NotesColumn extends Component
   @contextType: ColumnContext
   @defaultProps: {
@@ -218,10 +100,7 @@ class NotesColumn extends Component
     width += 80
 
     h 'g.section-log', {transform}, [
-      h 'defs', [
-        arrowMarker 'arrow_start', 270
-        arrowMarker 'arrow_end', 90
-      ]
+      h NoteDefs
       h 'g', notes.map (d)=>
         h Note, {
           scale, d, width,
@@ -248,4 +127,4 @@ class NotesColumn extends Component
     @updateNotes()
     console.log "Note #{noteID} edited"
 
-export default NotesColumn
+export {NotesColumn}
