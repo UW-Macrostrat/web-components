@@ -1,3 +1,5 @@
+const path = require("path");
+
 const babelLoader = {
   loader: 'babel-loader',
   options: {
@@ -41,6 +43,9 @@ module.exports = {
     ]
   },
   resolve: {
-    extensions: ['.js', '.coffee']
+    extensions: ['.js', '.coffee'],
+    alias: {
+      app: path.resolve(__dirname, 'app/')
+    }
   }
 }

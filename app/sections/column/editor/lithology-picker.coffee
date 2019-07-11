@@ -3,6 +3,7 @@ import h from "react-hyperscript"
 import Select from 'react-select'
 
 import {FaciesCard, FaciesContext} from "../../facies"
+import {symbolIndex} from "app/sections/column/lithology"
 import "react-select/dist/react-select.css"
 
 class LithologyPicker extends Component

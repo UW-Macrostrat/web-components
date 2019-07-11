@@ -86,6 +86,9 @@ module.exports = {
     ]
   resolve:
     extensions: [".coffee", ".js"]
+    alias: {
+      app$: path.resolve(__dirname, 'app')
+    }
   entry: {
     'sections/assets/index': "./app/entrypoints/sections-index.coffee"
     'map/assets/index': "./app/entrypoints/map-index.coffee"

@@ -14,6 +14,8 @@ import {LithologyPicker} from './lithology-picker'
 import {FaciesPicker} from './facies-picker'
 import {grainSizes} from "../grainsize"
 import h from "react-hyperscript"
+import styles from "./main.styl"
+
 import {db, storedProcedure, query} from "../../db"
 
 fmt = format('.1f')
@@ -88,10 +90,11 @@ class ModalEditor extends Component
     txt = "interval starting at #{hgt} m"
 
     h Dialog, {
-      className: 'bp3-minimal'
-      title: [
-        h "code", {style: {transform: "translateY(-2px)", display: "inline-block"}}, interval.id
-        " Section #{section}: #{bottom} - #{top} m"
+      className: "bp3-minimal"
+      title: h "div", {className: styles.editorDialogTitle}, [
+        h "span", {className: styles.titleCenter}, "Section #{section}"
+        h "span", {className: styles.heightRange}, "#{bottom} - #{top} m"
+        h "code", interval.id
       ]
       isOpen: @props.isOpen
       onClose: @props.closeDialog

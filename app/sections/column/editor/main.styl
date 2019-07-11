@@ -9,10 +9,25 @@
       flex-grow 1
       display block
       text-align left
-      font-weight bold
       font-style italic
       color #444
   .faciesColorSwatch
     margin-right 0.5em
     margin-left -0.5em
     border-radius 3px
+
+  margin=0.5em
+
+  .editorDialogTitle
+    margin-right: -margin
+    display flex
+    align-items: baseline
+    code
+      font-family: "Fira Code", monospace
+      color: #aaa
+    *
+      margin-right: margin
+    .titleCenter
+      flex-grow 1
+    .heightRange
+      font-weight 400

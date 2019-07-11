@@ -53,6 +53,7 @@
     "electron-react-devtools": "^0.5.3",
     "electron-webpack": "^2.6.2",
     "file-loader": "^1.1.11",
+    "hyperstyles": "^3.3.1",
     "js-yaml": "^3.7.0",
     "leaflet": "^1.0.3",
     "pdf-printer": "file:../deps/pdf-printer",
