@@ -25,12 +25,12 @@ class FaciesColorPicker extends Component
       }
     ]
 
-BasicSwatch = ({facies: d})->
+BasicFaciesSwatch = ({facies: d, rest...})->
   h 'div.color-swatch', {style: {
     backgroundColor: d.color or 'black'
     width: '2em'
     height: '2em'
-  }}
+  }, rest...}
 
 class FaciesSwatch extends Component
   @defaultProps: {
@@ -39,7 +39,7 @@ class FaciesSwatch extends Component
   }
   renderBasicSwatch: =>
     {facies} = @props
-    h BasicSwatch, {facies}
+    h BasicFaciesSwatch, {facies}
   render: =>
     {facies, isEditable} = @props
     return @renderBasicSwatch unless @props.isEditable
@@ -52,4 +52,4 @@ class FaciesSwatch extends Component
       h FaciesColorPicker, {facies}
     ]
 
-export {FaciesSwatch}
+export {FaciesSwatch, BasicFaciesSwatch}

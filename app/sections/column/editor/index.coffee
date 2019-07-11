@@ -10,6 +10,8 @@ import {PickerControl} from "../../settings"
 import {ColumnContext} from "../context"
 import "react-select/dist/react-select.css"
 
+import {LithologyPicker} from './lithology-picker'
+import {FaciesPicker} from './facies-picker'
 import {grainSizes} from "../grainsize"
 import h from "react-hyperscript"
 import {db, storedProcedure, query} from "../../db"
@@ -20,7 +22,7 @@ import {dirname} from "path"
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
 try
-  {helpers} = require '../../db/backend'
+  {helpers} = require '../../../db/backend'
 catch
   {}
 
@@ -70,28 +72,6 @@ class CorrelatedSurfaceControl extends Component
         onChange {surface}
     }
 
-class FaciesPicker extends Component
-  @contextType: FaciesContext
-  render: ->
-    {facies} = @context
-    {interval, onChange} = @props
-
-    options = facies.map (f)->
-      {value: f.id, label: h(FaciesCard, {facies: f})}
-
-    value = options.find (d)->d.value == interval.facies
-    value ?= null
-
-    h Select, {
-      id: 'facies-select'
-      options
-      value
-      selected: interval.facies
-      onChange: (res)->
-        f = if res? then res.value else null
-        onChange f
-    }
-
 class ModalEditor extends Component
   @defaultProps: {onUpdate: ->}
   constructor: (props)->
@@ -118,6 +98,13 @@ class ModalEditor extends Component
       style: {top: '10%', zIndex: 1000, position: 'relative'}
     }, [
       h 'div', {className:"bp3-dialog-body"}, [
+        h 'label.bp3-label', [
+          'Lithology'
+          h LithologyPicker, {
+            interval
+            onChange: (facies)=>@update {facies}
+          }
+        ]
         h 'label.bp3-label', [
           'Facies'
           h FaciesPicker, {
