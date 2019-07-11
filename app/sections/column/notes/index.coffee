@@ -92,6 +92,10 @@ class Note extends Component
   @defaultProps: {
     marginTop: 0
   }
+  @propTypes: {
+    inEditMode: PropTypes.bool
+  }
+
   constructor: (props)->
     super props
     @state = {overlayIsEnabled: false}
@@ -133,36 +137,42 @@ class Note extends Component
       }, @createBody()
     ]
 
-  createBody: =>
-    if @context.inEditMode
-      v = h EditableText, {
-        multiline: true
-        className: 'note-label'
-        defaultValue: @props.d.note
-        onConfirm: (text)=>
-          @props.editHandler(@props.d.id, text)
+  renderEditor: =>
+    h EditableText, {
+      multiline: true
+      className: 'note-label'
+      defaultValue: @props.d.note
+      onConfirm: (text)=>
+        @props.editHandler(@props.d.id, text)
+    }
+
+  renderPhotoOverlay: =>
+    {photos} = @props.d
+    return null unless photos?
+    tx = "#{photos.length} photo"
+    if photos.length > 1
+      tx += 's'
+
+    h [
+      h 'a.photos-link', {onClick: @toggleOverlay}, tx
+      h PhotoOverlay, {
+        isOpen: @state.overlayIsEnabled
+        onClose: @toggleOverlay
+        photoIDs: photos
       }
-    else
-      note_content = [h('span', {}, @props.d.note)]
-      {photos} = @props.d
-      if photos?
-        tx = "#{photos.length} photo"
-        if photos.length > 1
-          tx += 's'
-        photos_link = h 'a.photos-link', {onClick: @toggleOverlay}, tx
-        note_content.push photos_link
+    ]
 
-        note_content.push h PhotoOverlay, {
-          isOpen: @state.overlayIsEnabled
-          onClose: @toggleOverlay
-          photoIDs: photos
-        }
+  createBody: =>
+    return @renderEditor() if @context.inEditMode
 
-      v = h 'p.note-label',
-          xmlns: "http://www.w3.org/1999/xhtml"
-          note_content
-
-    h 'div', {}, v
+    h 'div', [
+      h 'p.note-label', {
+        xmlns: "http://www.w3.org/1999/xhtml"
+      }, [
+        h('span', null, @props.d.note)
+        @renderPhotoOverlay()
+      ]
+    ]
 
   toggleOverlay: =>
     {overlayIsEnabled} = @state
@@ -170,10 +180,6 @@ class Note extends Component
 
   positioningInfo: =>
     console.log @props.d.id
-
-  @contextTypes: {
-    inEditMode: PropTypes.bool
-  }
 
 class NotesColumn extends Component
   @contextType: ColumnContext
@@ -208,18 +214,8 @@ class NotesColumn extends Component
       nodeHeight: 5
     }
 
-    nodes = notes.map (d)->d.node
-
     style = {zoom}
     width += 80
-
-    children = notes.map (d)=>
-      h Note, {
-        marginTop
-        scale, d, width,
-        editHandler: @handleNoteEdit
-        link: renderer.generatePath(d.node),
-        key: d.id, columnGap}
 
     xmlns = "http://www.w3.org/2000/svg"
     h 'svg.section-log', {width, height, xmlns, style}, [
@@ -227,7 +223,14 @@ class NotesColumn extends Component
         arrowMarker 'arrow_start', 270
         arrowMarker 'arrow_end', 90
       ]
-      h 'g', children
+      h 'g', notes.map (d)=>
+        h Note, {
+          marginTop
+          scale, d, width,
+          editHandler: @handleNoteEdit
+          link: renderer.generatePath(d.node),
+          key: d.id, columnGap}
+
     ]
 
   handleNoteEdit: (noteID, newText)=>
