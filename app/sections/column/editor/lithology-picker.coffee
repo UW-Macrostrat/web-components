@@ -7,14 +7,12 @@ import {PlatformContext} from "app/platform"
 
 import styles from './main.styl'
 
-
 LithologySwatch = ({symbolID, style, rest...})->
   {resolveLithologySymbol} = useContext(PlatformContext)
   src = resolveLithologySymbol(symbolID)
   style ?= {}
   style.backgroundImage = "url(\"#{src}\")"
   h 'div', {className: styles.lithologySwatch, style, rest...}
-
 
 LithologyItem = (props)->
   {symbol, lithology} = props
