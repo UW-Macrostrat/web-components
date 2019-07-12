@@ -76,20 +76,24 @@ class NotesColumn extends Component
 
     super props
     @state = {notes: []}
+
+  componentDidMount: =>
     @updateNotes()
 
   updateNotes: =>
-    {type, id} = @props
-    data = await query type, [id]
+    {type, id, width} = @props
+    {scale, zoom, pixelHeight: height} = @context
 
-    @setState {notes: data}
+    data = await query type, [id]
+    processor = processNotesData({scale, height, width})
+    notes = processor(data)
+
+    @setState {notes}
 
   render: ->
     {scale, zoom, pixelHeight: height} = @context
     {width, columnGap, transform} = @props
-
-    processor = processNotesData({scale, height, width})
-    notes = processor(@state.notes)
+    {notes} = @state
 
     renderer = new Renderer {
       direction: 'right'

@@ -66,7 +66,7 @@ class Note extends Component
         width: @props.width-@props.columnGap-offsX-10
         x: @props.columnGap+x
         y: offsY-d.estimatedTextHeight/2
-        height: 100
+        height: d.estimatedTextHeight
       }, @createBody()
     ]
 

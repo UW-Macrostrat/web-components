@@ -9,6 +9,7 @@ import {ColumnContext} from './context'
 import T from 'prop-types'
 
 fmt = format('.1f')
+fmt2 = format('.2f')
 
 IntervalNotification = (props)->
   {id, height, bottom, top, surface} = props
@@ -55,6 +56,7 @@ class DivisionEditOverlay extends Component
     # findDOMNode might be slow but I'm not sure
     return unless findDOMNode(@) == event.target
     height = @heightForEvent(event)
+    @setState {height}
     return unless @props.allowEditing
     {divisions} = @context
 
@@ -64,7 +66,6 @@ class DivisionEditOverlay extends Component
         division = d
         break
     return if division == @state.division
-    console.log height, division
     @setState {division}
 
   heightForEvent: (event)=>
@@ -102,6 +103,33 @@ class DivisionEditOverlay extends Component
         cursor: "pointer"
       }
     }
+
+  renderCursorLine: =>
+    {height} = @state
+    {scale} = @context
+    return unless height?
+    style = {
+      top: scale(height)
+      height: 0
+      border: "0.5px solid black"
+      width: @props.width
+      position: 'absolute'
+      pointerEvents: 'none'
+    }
+
+    h 'div.cursor', {style}, [
+      h 'div.cursor-position', {style: {
+        pointerEvents: 'none'
+        fontWeight: 'bold'
+        fontSize: '12px'
+        left: '2px'
+        top: '-14px'
+        position: 'absolute'
+        color: 'black'
+      }}, [
+        fmt2(height)
+      ]
+    ]
 
   renderEditBox: =>
     {divisions, pixelHeight, width} = @context
@@ -173,7 +201,14 @@ class DivisionEditOverlay extends Component
       onMouseEnter: @onHoverInterval
       onMouseMove: @onHoverInterval
       onClick: @onClick
-      onMouseLeave: =>@setState {division: null}
-    }, @renderEditBox()
+      onMouseLeave: =>@setState {
+        division: null,
+        height: null
+      }
+    }, [
+      @renderEditBox()
+      @renderCursorLine()
+    ]
+
 
 export {DivisionEditOverlay}
