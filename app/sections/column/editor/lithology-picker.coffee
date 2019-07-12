@@ -50,4 +50,9 @@ class LithologyPicker extends Component
         onChange f
     }
 
-export {LithologyPicker}
+class LithologySymbolPicker extends Component
+  render: ->
+    {interval} = @props
+    h 'div'
+
+export {LithologyPicker, LithologySymbolPicker}

@@ -10,11 +10,13 @@ import {PickerControl} from "../../settings"
 import {ColumnContext} from "../context"
 import "react-select/dist/react-select.css"
 
-import {LithologyPicker} from './lithology-picker'
+import {LithologyPicker, LithologySymbolPicker, FillPatternControl} from './lithology-picker'
 import {FaciesPicker} from './facies-picker'
 import {grainSizes} from "../grainsize"
 import h from "react-hyperscript"
 import styles from "./main.styl"
+import T from 'prop-types'
+import {IntervalShape} from './types'
 
 import {db, storedProcedure, query} from "../../db"
 
@@ -74,6 +76,30 @@ class CorrelatedSurfaceControl extends Component
         onChange {surface}
     }
 
+HorizontalPicker = (props)->
+  h PickerControl, {
+    vertical: false,
+    isNullable: true
+    props...
+  }
+
+class BoundaryStyleControl extends Component
+  @propTypes: {
+    interval: IntervalShape
+  }
+  render: ->
+    {interval, onUpdate} = @props
+    states = [
+        {label: "Abrupt", value: true}
+        {label: "Diffuse", value: false}
+      ]
+
+    h HorizontalPicker, {
+      states
+      activeState: interval.definite_boundary
+      onUpdate
+    }
+
 class ModalEditor extends Component
   @defaultProps: {onUpdate: ->}
   constructor: (props)->
@@ -109,11 +135,10 @@ class ModalEditor extends Component
           }
         ]
         h 'label.bp3-label', [
-          'Facies'
-          h FaciesPicker, {
-            onClick: @updateFacies
+          'Lithology symbol'
+          h LithologySymbolPicker, {
             interval
-            onChange: (facies)=>@update {facies}
+            onChange: (d)=>@update {fillPattern: d}
           }
         ]
         h 'label.bp3-label', [
@@ -126,6 +151,21 @@ class ModalEditor extends Component
             activeState: interval.grainsize
             onUpdate: (grainsize)=>
               @update {grainsize}
+          }
+        ]
+        h 'label.bp3-label', [
+          'Surface expression'
+          h BoundaryStyleControl, {
+            interval
+            onUpdate: (d)=>@update {definite_boundary: d}
+          }
+        ]
+        h 'label.bp3-label', [
+          'Facies'
+          h FaciesPicker, {
+            onClick: @updateFacies
+            interval
+            onChange: (facies)=>@update {facies}
           }
         ]
         h 'label.bp3-label', [
