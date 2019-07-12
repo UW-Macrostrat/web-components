@@ -4,6 +4,7 @@ import Select from 'react-select'
 
 import {symbolIndex} from "app/sections/column/lithology"
 import {PlatformContext} from "app/platform"
+import {LithologyContext} from "app/sections/lithology"
 
 import styles from './main.styl'
 
@@ -21,12 +22,20 @@ LithologyItem = (props)->
     h 'span', {className: styles.faciesPickerName}, lithology
   ]
 
-options = for k,v of symbolIndex
-  {value: k, label: h(LithologyItem, {lithology: k, symbol: v})}
-
 class LithologyPicker extends Component
+  @contextType: LithologyContext
   render: ->
     {interval, onChange} = @props
+
+    {lithology} = @context
+
+    options = for item in lithology
+      {id, pattern} = item
+      symbol = symbolIndex[pattern]
+      continue unless symbol?
+      {value: id, label: h(LithologyItem, {lithology: id, symbol})}
+
+    console.log options
 
     value = options.find (d)->d.value == interval.lithology
     value ?= null

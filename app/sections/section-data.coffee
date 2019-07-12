@@ -4,6 +4,7 @@ import Promise from "bluebird"
 import {Component, createContext} from "react"
 import {db, query, storedProcedure} from "./db"
 import {FaciesProvider} from "./facies"
+import {LithologyProvider} from './lithology'
 import {SequenceStratProvider} from "./sequence-strat-context"
 import h from "react-hyperscript"
 import "./main.styl"
@@ -63,9 +64,11 @@ class SectionDataProvider extends Component
   render: ->
     {surfaces, sections} = @state
     # Surfaces really shouldn't be tracked by facies provider
-    h FaciesProvider, {surfaces}, [
-      h SequenceStratProvider, null, [
-        h SectionContext.Provider, {value: {sections}}, @props.children
+    h LithologyProvider, [
+      h FaciesProvider, {surfaces}, [
+        h SequenceStratProvider, null, [
+          h SectionContext.Provider, {value: {sections}}, @props.children
+        ]
       ]
     ]
 

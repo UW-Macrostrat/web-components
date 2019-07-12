@@ -270,11 +270,14 @@ class SectionComponent extends KnownSizeComponent
     @context.updateDivisions()
 
   addInterval: (height)=>
-    {id: section, editingInterval} = @props
+    {editingInterval} = @state
+    {id: section} = @props
     {id} = await db.one sql('add-interval'), {section,height}
     {id: oldID, height} = editingInterval
     if oldID?
       editingInterval = {id, height}
+    else
+      editingInterval = {id: null, height: null}
     @context.updateDivisions()
     @setState {editingInterval}
 
