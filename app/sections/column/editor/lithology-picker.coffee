@@ -53,6 +53,19 @@ class LithologyPicker extends Component
 class LithologySymbolPicker extends Component
   render: ->
     {interval} = @props
-    h 'div'
+    isUserSet = false
+    console.log interval
+    if interval.pattern?
+      symbol = interval.pattern
+      isUserSet = true
+    if interval.lithology?
+      symbol = symbolIndex[interval.lithology]
+    if not symbol?
+      return h "div", "None defined"
+    h 'div', [
+      h LithologySwatch, {symbolID: symbol}
+      if isUserSet then null else h("div", "Default value for lithology")
+
+    ]
 
 export {LithologyPicker, LithologySymbolPicker}
