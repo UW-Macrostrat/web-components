@@ -1,5 +1,5 @@
 import {Component, createElement, useContext} from "react"
-import h from "react-hyperscript"
+import hyper from "@macrostrat/hyper"
 import Select from 'react-select'
 
 import {symbolIndex} from "app/sections/column/lithology"
@@ -7,6 +7,8 @@ import {PlatformContext} from "app/platform"
 import {LithologyContext} from "app/sections/lithology"
 
 import styles from './main.styl'
+
+h = hyper.styled(styles)
 
 LithologySwatch = ({symbolID, style, rest...})->
   {resolveLithologySymbol} = useContext(PlatformContext)
@@ -50,22 +52,24 @@ class LithologyPicker extends Component
         onChange f
     }
 
+
 class LithologySymbolPicker extends Component
   render: ->
     {interval} = @props
     isUserSet = false
     console.log interval
+    text = "No pattern set"
     if interval.pattern?
       symbol = interval.pattern
       isUserSet = true
+      text = "Symbol #{symbol}"
     if interval.lithology?
       symbol = symbolIndex[interval.lithology]
-    if not symbol?
-      return h "div", "None defined"
-    h 'div', [
-      h LithologySwatch, {symbolID: symbol}
-      if isUserSet then null else h("div", "Default value for lithology")
+      text = "Default for lithology"
 
+    h 'div', [
+      h.if(symbol?) LithologySwatch, {symbolID: symbol}
+      h "div.picker-label.text", text
     ]
 
 export {LithologyPicker, LithologySymbolPicker}
