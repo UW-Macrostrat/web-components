@@ -1,13 +1,15 @@
 import {Component} from 'react'
-import h from 'react-hyperscript'
+import {hyperStyled} from '@macrostrat/hyper'
 import {FaciesContext, BasicFaciesSwatch} from '../../facies'
 import Select from 'react-select'
 import styles from './main.styl'
 
+h = hyperStyled(styles)
+
 FaciesRow = ({facies})->
-  h 'span', {className: styles.faciesPickerRow}, [
-    h BasicFaciesSwatch, {facies, className: styles.faciesColorSwatch}
-    h 'span', {className: styles.faciesPickerName}, facies.name
+  h 'span.facies-picker-row', [
+    h BasicFaciesSwatch, {facies, className: 'facies-color-swatch'}
+    h 'span.facies-picker-name', facies.name
   ]
 
 class FaciesPicker extends Component

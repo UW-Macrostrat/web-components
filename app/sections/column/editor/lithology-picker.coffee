@@ -15,13 +15,13 @@ LithologySwatch = ({symbolID, style, rest...})->
   src = resolveLithologySymbol(symbolID)
   style ?= {}
   style.backgroundImage = "url(\"#{src}\")"
-  h 'div', {className: styles.lithologySwatch, style, rest...}
+  h 'div.lithology-swatch', {style, rest...}
 
 LithologyItem = (props)->
   {symbol, lithology} = props
-  h 'span', {className: styles.faciesPickerRow}, [
+  h 'span.facies-picker-row', [
     h LithologySwatch, {symbolID: symbol}
-    h 'span', {className: styles.faciesPickerName}, lithology
+    h 'span.facies-picker-name', lithology
   ]
 
 class LithologyPicker extends Component
@@ -67,7 +67,7 @@ class LithologySymbolPicker extends Component
       symbol = symbolIndex[interval.lithology]
       text = "Default for lithology"
 
-    h 'div', [
+    h 'div.lithology-symbol-picker', [
       h.if(symbol?) LithologySwatch, {symbolID: symbol}
       h "div.picker-label.text", text
     ]

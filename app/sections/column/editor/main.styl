@@ -1,22 +1,22 @@
 @require '~react-select/dist/react-select.css'
 
 :local
-  .faciesPickerRow
+  .facies-picker-row
     display flex
     flex-direction row
     align-items: center
     span
       display block
-    .faciesPickerName
+    .facies-picker-name
       flex-grow 1
       display block
       text-align left
       font-style italic
       color #444
-    .faciesColorSwatch, .lithologySwatch
+    .facies-color-swatch, .lithology-swatch
       margin-right 0.5em
       margin-left -0.5em
-  .faciesColorSwatch, .lithologySwatch
+  .facies-picker-name, .lithology-swatch
     border-radius 3px
   .picker-label
     font-style: italic
@@ -37,9 +37,17 @@
     .heightRange
       font-weight 400
 
-  .lithologySwatch
+  .lithology-swatch
     height 2em
     width 2em
     background-size: 6em
     image-rendering: crisp-edges
     border 1px solid black
+
+  .lithology-symbol-picker
+    display: flex
+    flex-direction: row
+    align-items: center
+    *
+      margin-right margin
+    margin 0 4px
