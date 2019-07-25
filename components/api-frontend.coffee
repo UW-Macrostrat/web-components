@@ -105,6 +105,7 @@ class PagedAPIView extends Component
     topPagination: false
     bottomPagination: true
     extraPagination: null
+    opts: {} # Options passed to GET
     params: {}
     getTotalCount: (response)->
       {headers} = response
@@ -185,17 +186,22 @@ class PagedAPIView extends Component
       bottomPagination
       extraPagination
       params
+      opts
       rest...
     } = @props
 
     params = @params()
 
+    # Create new onResponse function
+    {onResponse: __onResponse} = opts
     onResponse = (response)=>
       count = getTotalCount(response)
       @setState {count}
+      # Run inherited onResponse if it exists
+      if __onResponse? then __onResponse(response)
 
     # Options for get
-    opts = {onResponse}
+    opts = {opts..., onResponse}
 
     _children = (data)=>
       if @state.count == 0
