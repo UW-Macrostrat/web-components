@@ -1,14 +1,15 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "UI components for React and blueprint.js",
   "main": "index.coffee",
+  "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "source": true,
   "style": "lib/index.css",
-  "module": "lib/index.js",
+  "module": "lib/esm",
   "scripts": {
     "build": "rollup -c",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -18,6 +19,7 @@
   "dependencies": {
     "@blueprintjs/core": "^3.17.1",
     "@blueprintjs/datetime": "^3.7.0",
+    "@emotion/core": "^10.0.14",
     "@emotion/styled": "^10.0.14",
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
@@ -37,12 +39,14 @@
     "@babel/core": "^7.5.5",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
+    "@betit/rollup-plugin-rename-extensions": "0.0.4",
     "babel-plugin-emotion": "^10.0.14",
     "coffeescript": "^2.4.1",
     "rollup": "^1.17.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-coffee-script": "^2.0.0",
     "rollup-plugin-css-porter": "^1.0.2",
+    "rollup-plugin-rename": "0.0.1",
     "rollup-plugin-stylus-compiler": "^1.0.1"
   }
 }

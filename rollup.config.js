@@ -5,17 +5,20 @@ import resolve from 'rollup-plugin-node-resolve';
 import stylus from 'rollup-plugin-stylus-compiler';
 import css from 'rollup-plugin-css-porter';
 import commonjs from 'rollup-plugin-commonjs';
+import renameExtensions from 'rollup-plugin-rename';
 
 export default {
  input: pkg.main, // our source file
  output: [
     {
-     file: pkg.module,
-     format: 'es' // the preferred format
+     dir: 'lib/esm',
+     format: 'esm' // the preferred format
     }
   ],
+  preserveModules: true,
   external: Object.keys(pkg.dependencies || {}),
   plugins: [
+    resolve({ extensions: [ '.js', '.coffee' ]}),
     stylus(),
     css(),
     /*
@@ -23,17 +26,17 @@ export default {
     https://rollupjs.org/guide/en/#error-name-is-not-exported-by-module.
     Apparently, React isn't an es6 module. Who knew?
     */
-    commonjs({
-      namedExports: {
-         'react': ['Component', 'createContext', 'Children', 'createElement', 'Fragment'],
-         'react-dom': ['findDOMNode'],
-         'react-is': ['isValidElementType']
-      }
-    }),
-    resolve({ extensions: [ '.js', '.coffee' ]}),
+    commonjs(),
     coffee(),
     babel({
       exclude: 'node_modules/**'
+    }),
+    renameExtensions({
+      include: ["**/*.coffee"],
+      map: (d)=>{
+        console.log(d);
+        return d.replace(".coffee", ".js")
+      }
     })
   ]
 };
