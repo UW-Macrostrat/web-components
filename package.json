@@ -29,6 +29,7 @@
     "react-hyperscript": "^3.2.0",
     "react-json-view": "^1.19.1",
     "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1",
     "rollup-plugin-commonjs": "^10.0.1",
     "underscore": "^1.9.1"
   },

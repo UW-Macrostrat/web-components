@@ -14,7 +14,7 @@ export default {
      format: 'es' // the preferred format
     }
   ],
-  external: Object.keys(pkg.dependencies || {})+Object.keys(pkg.peerDependencies || {}),
+  external: Object.keys(pkg.dependencies || {}),
   plugins: [
     stylus(),
     css(),
