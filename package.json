@@ -40,6 +40,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@betit/rollup-plugin-rename-extensions": "0.0.4",
+    "@zeekay/rollup-plugin-coffee": "^0.1.19",
     "babel-plugin-emotion": "^10.0.14",
     "coffeescript": "^2.4.1",
     "rollup": "^1.17.0",

@@ -26,17 +26,16 @@ export default {
     https://rollupjs.org/guide/en/#error-name-is-not-exported-by-module.
     Apparently, React isn't an es6 module. Who knew?
     */
-    commonjs(),
     coffee(),
-    babel({
-      exclude: 'node_modules/**'
-    }),
     renameExtensions({
       include: ["**/*.coffee"],
       map: (d)=>{
         console.log(d);
         return d.replace(".coffee", ".js")
       }
+    }),
+    babel({
+      exclude: 'node_modules/**'
     })
   ]
 };
