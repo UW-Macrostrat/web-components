@@ -20,11 +20,6 @@ export default {
     resolve({ extensions: [ '.js', '.coffee' ]}),
     stylus(),
     css(),
-    /*
-    CommonJS module and namedExports fixes errors with React
-    https://rollupjs.org/guide/en/#error-name-is-not-exported-by-module.
-    Apparently, React isn't an es6 module. Who knew?
-    */
     babel({
       exclude: 'node_modules/**'
     }),
