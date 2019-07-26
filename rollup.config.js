@@ -9,14 +9,13 @@ import renameExtensions from 'rollup-plugin-rename';
 
 export default {
  input: pkg.main, // our source file
- output: [
-    {
+ output: {
      dir: 'lib/esm',
-     format: 'esm' // the preferred format
-    }
-  ],
-  preserveModules: true,
+     format: 'es', // the preferred format
+  },
   external: Object.keys(pkg.dependencies || {}),
+  experimentalOptimizeChunks: true,
+  experimentalDynamicImport: true,
   plugins: [
     resolve({ extensions: [ '.js', '.coffee' ]}),
     stylus(),
@@ -27,13 +26,6 @@ export default {
     Apparently, React isn't an es6 module. Who knew?
     */
     coffee(),
-    renameExtensions({
-      include: ["**/*.coffee"],
-      map: (d)=>{
-        console.log(d);
-        return d.replace(".coffee", ".js")
-      }
-    }),
     babel({
       exclude: 'node_modules/**'
     })
