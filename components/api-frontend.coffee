@@ -44,11 +44,12 @@ class __APIResultView extends Component
     # If placeholder is not defined, the render
     # method will be called with null data
     placeholder: APIResultPlaceholder
-    minInterval: 300
+    debounce: 300
   }
   constructor: ->
     super arguments...
     @state = {data: null}
+    @createDebouncedFunction()
     @getData()
 
   buildURL: (props)=>
@@ -57,10 +58,14 @@ class __APIResultView extends Component
     {route, params} = props
     buildURL route, params
 
+  createDebouncedFunction: =>
+    @lazyGetData = debounce @getData, @props.debounce
+
   componentDidUpdate: (prevProps)->
+    if prevProps.debounce != @props.debounce
+      @createDebouncedFunction()
     return if @buildURL() == @buildURL(prevProps)
-    lazyGetData = debounce @getData, @props.minInterval
-    lazyGetData()
+    @lazyGetData()
 
   getData: =>
     {get} = @context
