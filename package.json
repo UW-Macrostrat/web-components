@@ -1,14 +1,15 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "UI components for React and blueprint.js",
   "main": "index.coffee",
+  "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "source": true,
   "style": "lib/index.css",
-  "module": "lib/index.js",
+  "module": "lib/esm",
   "scripts": {
     "build": "rollup -c",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -40,6 +41,7 @@
     "rollup-plugin-coffee-script": "^2.0.0",
     "rollup-plugin-commonjs": "^10.0.1",
     "rollup-plugin-css-porter": "^1.0.2",
+    "rollup-plugin-rename": "0.0.1",
     "rollup-plugin-stylus-compiler": "^1.0.1"
   },
   "peerDependencies": {
