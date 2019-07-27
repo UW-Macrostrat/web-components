@@ -1,21 +1,53 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "1.0.0",
+  "version": "0.0.3",
   "description": "UI components for React and blueprint.js",
   "main": "index.coffee",
+  "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "source": true,
+  "style": "lib/index.css",
+  "module": "lib/esm",
   "scripts": {
-    "preinstall": "linklocal"
+    "build": "rollup -c",
+    "prepare": "npm run build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
-    "@blueprintjs/core": "^3.11.0",
-    "@blueprintjs/datetime": "^3.7.0",
+    "@emotion/core": "^10.0.14",
+    "@emotion/styled": "^10.0.14",
     "axios": "^0.18.0",
+    "classnames": "^2.2.6",
     "date-fns": "^1.30.1",
-    "react-dropzone": "^8.0.3",
+    "immutability-helper": "^3.0.1",
+    "react-dropzone": "^8.2.0",
+    "react-hyperscript": "^3.2.0",
     "react-json-view": "^1.19.1",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1",
     "underscore": "^1.9.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.5.5",
+    "@babel/preset-env": "^7.5.5",
+    "@babel/preset-react": "^7.0.0",
+    "babel-plugin-emotion": "^10.0.14",
+    "coffeescript": "^2.4.1",
+    "rollup": "^1.17.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-coffee-script": "^2.0.0",
+    "rollup-plugin-commonjs": "^10.0.1",
+    "rollup-plugin-css-porter": "^1.0.2",
+    "rollup-plugin-rename": "0.0.1",
+    "rollup-plugin-stylus-compiler": "^1.0.1"
+  },
+  "peerDependencies": {
+    "@blueprintjs/core": "^3.17.1",
+    "@blueprintjs/datetime": "^3.7.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6"
   }
 }
