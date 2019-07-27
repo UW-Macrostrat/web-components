@@ -6,6 +6,9 @@ import stylus from 'rollup-plugin-stylus-compiler';
 import css from 'rollup-plugin-css-porter';
 import commonjs from 'rollup-plugin-commonjs';
 
+const externalModules = (Object.keys(pkg.dependencies || {})
+                       + Object.keys(pkg.peerDependencies || {}));
+
 export default {
  input: pkg.main, // our source file
  output: [
@@ -14,7 +17,7 @@ export default {
      format: 'es' // the preferred format
     }
   ],
-  external: Object.keys(pkg.dependencies || {}),
+  external: externalModules,
   plugins: [
     stylus(),
     css(),
