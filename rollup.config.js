@@ -17,9 +17,9 @@ export default {
   },
   external: Object.keys(deps),
   plugins: [
-    resolve({ extensions: [ '.js', '.coffee' ]}),
-    stylus(),
     css(),
+    resolve({ extensions: [ '.js', '.coffee']}),
+    stylus(),
     coffee(),
     babel({
       exclude: 'node_modules/**'
