@@ -5,9 +5,10 @@
   "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "style": "lib/index.css",
   "module": "lib/esm",
+  "main": "lib/cjs",
   "scripts": {
     "build": "rollup -c",
-    "prepublish": "npm run build"
+    "prepare": "npm run build"
   },
   "author": "Daven Quinn",
   "license": "ISC",

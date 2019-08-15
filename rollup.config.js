@@ -15,20 +15,25 @@ const extensions =  [ '.js', '.coffee']
 
 export default {
  input: 'index.coffee', // our source file
- output: [
+  output: [
+    // Right now our ES6 and CJS targets are basically the same
     {
       dir: pkg.module,
-      format: 'es', // the preferred format
+      format: 'es',
+    },
+    {
+      dir: pkg.main,
+      format: 'cjs',
     }
   ],
   external: Object.keys(deps),
   plugins: [
     css(),
-    resolve({ extensions: extensions}),
+    resolve({extensions}),
     stylus(),
     coffee(),
     babel({
-      extensions: extensions,
+      extensions,
       exclude: 'node_modules/**'
     })
   ]
