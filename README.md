@@ -1,4 +1,4 @@
-# `@macrostrat/ui-components`
+# Macrostrat ui-components
 
 A library of common UI components implemented with React, for use in basic
 applications for UW-Macrostrat.
