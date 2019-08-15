@@ -17,7 +17,7 @@ However, new components can be added using Javascript, JSX and CSS.
 Everything is bundled to ES6 Javascript for use in other applications
 using [Rollup](https://rollupjs.org/guide/en/), [Babel](https://babeljs.io/), and a fleet of plugins.
 
-The packaging step is fragile and the configuration is fraught at best – however, this
+The packaging step is fragile and the configuration is fraught at best (see e.g. [issue #1](https://github.com/UW-Macrostrat/ui-components/issues/1) – however, this
 approach allows the components to be imported into an application
 that is collected with, e.g., [Webpack](https://webpack.js.org/) or
 [Parcel](https://parceljs.org/), without any special configuration.
