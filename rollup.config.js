@@ -7,19 +7,20 @@ import css from 'rollup-plugin-css-porter';
 import commonjs from 'rollup-plugin-commonjs';
 import renameExtensions from '@betit/rollup-plugin-rename-extensions';
 
+const deps = {...pkg.dependencies, ...pkg.peerDependencies};
+
 export default {
  input: pkg.main, // our source file
  output: {
      dir: 'lib/esm',
      format: 'es', // the preferred format
   },
-  external: Object.keys(pkg.dependencies || {}),
-  preserveModules: true,
+  external: Object.keys(deps),
   plugins: [
-    coffee(),
-    resolve({ extensions: [ '.js', '.coffee' ]}),
-    stylus(),
     css(),
+    resolve({ extensions: [ '.js', '.coffee']}),
+    stylus(),
+    coffee(),
     babel({
       exclude: 'node_modules/**'
     }),

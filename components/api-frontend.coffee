@@ -1,11 +1,11 @@
-import {Component, createContext} from 'react'
+import {Component, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
 import axios, {post} from 'axios'
 import {Spinner, Button, ButtonGroup,
         Intent, NonIdealState} from '@blueprintjs/core'
 import {AppToaster} from './notify'
 import ReactJson from 'react-json-view'
-import {APIContext} from './api'
+import {APIContext, APIProvider} from './api'
 import {debounce} from 'underscore'
 
 APIViewContext = createContext({})
@@ -32,7 +32,7 @@ APIResultPlaceholder = (props)=>
     h Spinner
   ]
 
-class APIResultView extends Component
+class __APIResultView extends Component
   @contextType: APIContext
   @defaultProps: {
     route: null
@@ -44,10 +44,12 @@ class APIResultView extends Component
     # If placeholder is not defined, the render
     # method will be called with null data
     placeholder: APIResultPlaceholder
+    debounce: 300
   }
   constructor: ->
     super arguments...
     @state = {data: null}
+    @createDebouncedFunction()
     @getData()
 
   buildURL: (props)=>
@@ -56,10 +58,14 @@ class APIResultView extends Component
     {route, params} = props
     buildURL route, params
 
+  createDebouncedFunction: =>
+    @lazyGetData = debounce @getData, @props.debounce
+
   componentDidUpdate: (prevProps)->
+    if prevProps.debounce != @props.debounce
+      @createDebouncedFunction()
     return if @buildURL() == @buildURL(prevProps)
-    lazyGetData = debounce @getData, 300
-    lazyGetData()
+    @lazyGetData()
 
   getData: =>
     {get} = @context
@@ -97,6 +103,14 @@ class APIResultView extends Component
         message = err.response.data.message
       intent = Intent.DANGER
       AppToaster.show {message, intent}
+
+APIResultView = (props)->
+  # Enable the use of the APIResultView outside of the APIContext
+  # by wrapping it in a placeholder APIContext
+  ctx = useContext(APIContext)
+  component = h __APIResultView, props
+  return component if ctx.get?
+  return h APIProvider, {baseURL: ""}, component
 
 class PagedAPIView extends Component
   @defaultProps: {
