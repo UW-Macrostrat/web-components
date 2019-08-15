@@ -9,19 +9,26 @@ import renameExtensions from 'rollup-plugin-rename';
 
 const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
+//https://2ality.com/2017/02/babel-preset-env.html
+
+const extensions =  [ '.js', '.coffee']
+
 export default {
- input: pkg.main, // our source file
- output: {
-     dir: 'lib/esm',
-     format: 'es', // the preferred format
-  },
+ input: 'index.coffee', // our source file
+ output: [
+    {
+      dir: pkg.module,
+      format: 'es', // the preferred format
+    }
+  ],
   external: Object.keys(deps),
   plugins: [
     css(),
-    resolve({ extensions: [ '.js', '.coffee']}),
+    resolve({ extensions: extensions}),
     stylus(),
     coffee(),
     babel({
+      extensions: extensions,
       exclude: 'node_modules/**'
     })
   ]
