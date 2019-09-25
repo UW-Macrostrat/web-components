@@ -13,7 +13,7 @@ createGrainsizeScale = (range)->
     .domain grainSizes
     .range grainSizes.map (d,i)=>scale(i)
 
-class GrainsizeScale extends Component
+class GrainsizeAxis extends Component
   @contextType: ColumnContext
   @defaultProps: {
     height: 20
@@ -29,4 +29,4 @@ class GrainsizeScale extends Component
         h 'line', {y1: 0, x1: 0, x2: 0, y2: pixelHeight}
       ]
 
-export {GrainsizeScale, grainSizes, createGrainsizeScale}
+export {GrainsizeAxis, grainSizes, createGrainsizeScale}

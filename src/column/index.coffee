@@ -1,7 +1,7 @@
 import {Component, useContext} from 'react'
-import {ColumnProvider, ColumnContext} from './context'
-import {GrainsizeAxis} from './grainsize-axis'
-import {ColumnAxis} from './axis'
+import {ColumnProvider, ColumnContext} from '~/column-components/context'
+import {GrainsizeAxis} from '~/column-components/grainsize'
+import {ColumnAxis} from '~/column-components/axis'
 import h from '@macrostrat/hyper'
 import T from 'prop-types'
 
