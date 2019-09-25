@@ -114,4 +114,4 @@ class Note extends Component
   positioningInfo: =>
     console.log @props.d.id
 
-export {Note, NoteDefs}
+export {Note}

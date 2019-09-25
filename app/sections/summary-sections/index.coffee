@@ -3,11 +3,9 @@ import {select} from "d3-selection"
 import h from "react-hyperscript"
 import {Component, createContext, createRef} from "react"
 import {HotkeysTarget, Hotkeys, Hotkey} from "@blueprintjs/core"
-import {Icon} from "react-fa"
 import update from "immutability-helper"
 import PropTypes from "prop-types"
 import {debounce} from "underscore"
-import Measure from 'react-measure'
 import * as d3 from "d3"
 
 import {SummarySectionsSettings} from "./settings"
@@ -127,6 +125,7 @@ class SummarySectionsBase extends Component
         showLithostratigraphy: true
         showSequenceStratigraphy: true
         showCarbonIsotopes: true
+        chemostratigraphyPerSection: false
       }
     }
 
@@ -148,9 +147,12 @@ class SummarySectionsBase extends Component
      showSequenceStratigraphy,
      showCarbonIsotopes,
      showOxygenIsotopes,
+     chemostratigraphyPerSection,
      showFacies} = options
 
+
     return null unless showCarbonIsotopes or showOxygenIsotopes
+    return null if chemostratigraphyPerSection
 
     row = sections.find (d)->d.id == 'J'
     {offset, location, rest...} = row

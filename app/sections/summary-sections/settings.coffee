@@ -13,6 +13,7 @@ class SummarySectionsSettings extends SettingsPanel
       h 'h5', "Components"
       @createSwitch 'showCarbonIsotopes', "Carbon isotopes"
       @createSwitch 'showOxygenIsotopes', "Oxygen isotopes"
+      @createSwitch 'isotopesPerSection', "Show isotopes for each section"
       @createSwitch 'showLithostratigraphy', "Lithostratigraphic correlations"
       @createSwitch 'showSequenceStratigraphy', "Sequence-stratigraphic correlations"
       @createSwitch 'showSymbols', 'Symbols'

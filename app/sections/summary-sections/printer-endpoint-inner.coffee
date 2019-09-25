@@ -1,5 +1,5 @@
 import * as d3 from "d3"
-import '../../main.coffee'
+import '../../main'
 import './print.styl'
 
 fn = (el, cb)->

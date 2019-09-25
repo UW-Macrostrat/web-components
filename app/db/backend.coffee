@@ -1,4 +1,4 @@
-import {join, dirname} from "path"
+import {join, dirname, resolve} from "path"
 import Promise from "bluebird"
 import {getUID, getHash} from "./util"
 
@@ -41,7 +41,7 @@ class SerializableQuery
   getData: -> db.query @sql
   filename: -> @id+'_'+@hash+'.json'
 
-baseDir = dirname require.resolve "../lateral-variation"
+baseDir = resolve join __dirname, "../lateral-variation"
 lateralVariationQueries = [
   'unit-heights'
   'sections'
@@ -50,7 +50,7 @@ lateralVariationQueries = [
 for q in lateralVariationQueries
   new SerializableQuery(q, null, {baseDir})
 
-baseDir = dirname require.resolve "../sections/summary-sections"
+baseDir = resolve join __dirname, "../sections/summary-sections"
 summarySectionQueries = [
   'lithostratigraphy-surface'
   'lithostratigraphy-names'
@@ -58,14 +58,14 @@ summarySectionQueries = [
 for q in summarySectionQueries
   new SerializableQuery(q, null, {baseDir})
 
-baseDir = dirname require.resolve "../map-viewer/legend"
+baseDir = resolve join __dirname, "../map-viewer/legend"
 new SerializableQuery('unit-data', null, {baseDir})
 
 
-baseDir = dirname require.resolve "../sections/facies"
+baseDir = resolve join __dirname, "../sections/facies"
 new SerializableQuery('facies',null, {baseDir})
 
-baseDir = dirname require.resolve "../sections"
+baseDir = resolve join __dirname, "../sections"
 new SerializableQuery('sections', null, {baseDir})
 new SerializableQuery('section-surface', null, {baseDir})
 new SerializableQuery('carbon-isotopes', null, {baseDir})
