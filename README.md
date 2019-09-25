@@ -1,3 +1,3 @@
-# Naukluft app
+# Section editor
 
-An app for mapping some nappes
+A demonstration web tool for defining a stratigraphic section.
