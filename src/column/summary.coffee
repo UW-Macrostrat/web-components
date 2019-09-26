@@ -12,7 +12,6 @@ import {IntervalEditor} from "./editor"
 import {LithologyColumn, GeneralizedSectionColumn} from "./lithology"
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
-import {Notification} from "../../notify"
 import {FaciesContext} from "../facies"
 import {SVGNamespaces, KnownSizeComponent} from "../util"
 import {SequenceStratConsumer} from "../sequence-strat-context"
@@ -25,18 +24,6 @@ import {ColumnSurfacesProvider, ColumnSurfacesContext} from './data-source'
 import T from 'prop-types'
 
 fmt = d3.format('.1f')
-
-IntervalNotification = (props)->
-  {id, height, bottom, top, surface} = props
-  h 'div', [
-    h 'h4', "Section #{id} @ #{fmt(height)} m"
-    h 'p', [
-      'Interval ID: '
-      h('code', id)
-    ]
-    h 'p', "#{bottom} - #{top} m"
-    if surface then h('p', ["Surface: ", h('code',surface)]) else null
-  ]
 
 class BaseSVGSectionComponent extends KnownSizeComponent
   @contextType: ColumnSurfacesContext
@@ -292,13 +279,11 @@ class BaseSVGSectionComponent extends KnownSizeComponent
 SVGSectionComponent = (props)->
   {id, divisions} = props
   h PlatformConsumer, null, ({inEditMode})->
-    h SequenceStratConsumer, null, (value)->
       {showTriangleBars, showFloodingSurfaces, sequenceStratOrder} = value
-      h ColumnSurfacesProvider, {id, divisions}, (
-        h withRouter(BaseSVGSectionComponent), {
-          showTriangleBars, showFloodingSurfaces,
-          sequenceStratOrder, inEditMode, props...,
-        }
-      )
+    h ColumnSurfacesProvider, {id, divisions}, (
+      h withRouter(BaseSVGSectionComponent), {
+        showTriangleBars, showFloodingSurfaces,
+        sequenceStratOrder, inEditMode, props...,
+      }
 
 export {BaseSVGSectionComponent, SVGSectionComponent}
