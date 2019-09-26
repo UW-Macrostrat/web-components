@@ -11,7 +11,7 @@ class FaciesProvider extends StatefulComponent
   constructor: (props)->
     super props
     @state = {
-      facies: []
+      facies: props.initialFacies or []
       __colorMap: {}
     }
 

@@ -4,12 +4,17 @@ import {
   LithologyColumn,
   SimplifiedLithologyColumn,
   GeneralizedSectionColumn,
-  CoveredOverlay
+  CoveredOverlay,
+  FaciesColumnInner
 } from "~/column-components/lithology"
+import {SymbolColumn} from "~/column-components/symbol-column"
+import {SVG} from '~/column-components/util'
 import {ColumnAxis} from '~/column-components/axis'
 import {ColumnProvider, ColumnContext, FaciesProvider} from '~/column-components/context'
+import "~/column-components/main.styl"
 import h from '@macrostrat/hyper'
 import T from 'prop-types'
+import defaultFacies from './default-facies'
 
 ColumnSVG = (props)->
   {width: innerWidth, margin, children, rest...} = props
@@ -17,8 +22,13 @@ ColumnSVG = (props)->
   {left, right, top, bottom} = margin
   height = pixelHeight+(top+bottom)
   width = innerWidth+(left+right)
-  h 'svg', {width, height, rest...}, (
-    h 'g', {
+  h SVG, {
+    width,
+    height,
+    className: 'section'
+    rest...
+  }, (
+    h 'g.backdrop', {
       transform: "translate(#{left},#{top})"
     }, children
   )
@@ -31,9 +41,10 @@ class StratColumn extends Component
       right: 0
       bottom: 30
     }
+    showFacies: false
   }
   render: ->
-    {margin} = @props
+    {margin, showFacies} = @props
     h ColumnProvider, {
       surfaces: [],
       width: 150
@@ -45,17 +56,18 @@ class StratColumn extends Component
         h GeneralizedSectionColumn, {
           width: innerWidth
         }, [
+          h.if(showFacies) FaciesColumnInner, {width: innerWidth}
           h CoveredOverlay, {width: innerWidth}
           h SimplifiedLithologyColumn, {width: innerWidth}
         ]
+        h SymbolColumn, {left: 90}
         h ColumnAxis
         h GrainsizeAxis, {range: [50, 150]}
       ]
     ]
 
-
 __StratOuter = (props)->
-  h FaciesProvider, null, [
+  h FaciesProvider, {initialFacies: defaultFacies}, [
     h StratColumn, props
   ]
 
