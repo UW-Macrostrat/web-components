@@ -15,6 +15,7 @@
     "@macrostrat/ui-components": "^0.1.1",
     "chroma-js": "^2.0.6",
     "d3": "^5.12.0",
+    "geologic-patterns": "github:davenquinn/geologic-patterns",
     "labella": "^1.1.4",
     "parcel-bundler": "^1.12.3",
     "react": "^16.9.0",

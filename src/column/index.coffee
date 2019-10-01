@@ -16,18 +16,8 @@ import "~/column-components/main.styl"
 import h from '@macrostrat/hyper'
 import T from 'prop-types'
 import defaultFacies from './default-facies'
-import defaultSurfaces from './default-surfaces'
-import assetPaths from "../../svg-patterns/*.svg"
-
+import assetPaths from "../../sed-patterns/*.svg"
 console.log assetPaths
-
-for surface,i in defaultSurfaces
-  try
-    surface.top = defaultSurfaces[i+1].bottom
-  catch
-    surface.top = 400
-
-
 ColumnSVG = (props)->
   {width: innerWidth, margin, children, rest...} = props
   {pixelHeight} = useContext(ColumnContext)
@@ -62,13 +52,11 @@ class StratColumn extends Component
       divisions: surfaces,
       width: 150
       grainsizeScaleStart: 80
-      range: [0,100],
+      range: [0,400],
       pixelsPerMeter: 10
     }, [
       h ColumnSVG, {width: 200, margin}, [
-        h GeneralizedSectionColumn, {
-          width: innerWidth
-        }, [
+        h GeneralizedSectionColumn, [
           h.if(showFacies) FaciesColumnInner, {width: innerWidth}
           h CoveredOverlay, {width: innerWidth}
           h LithologyColumnInner, {
@@ -82,8 +70,10 @@ class StratColumn extends Component
     ]
 
 resolveLithologySymbol = (id)->
+  console.log id
   if assetPaths[id]?
     return assetPaths[id]
+  return null
 
 
 resolveSymbol = (id)->
@@ -92,7 +82,7 @@ __StratOuter = (props)->
   value = {resolveLithologySymbol, resolveSymbol}
   h AssetPathContext.Provider, {value}, [
     h FaciesProvider, {initialFacies: defaultFacies}, [
-      h StratColumn, {props, surfaces: defaultSurfaces}
+      h StratColumn, props
     ]
   ]
 

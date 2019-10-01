@@ -148,12 +148,20 @@ class SymbolDefinition extends Component
       }
     ]
 
-defaultResolveID = (d)->
+oldResolveID = (d)->
   if not (d.fgdc_pattern? or d.pattern?)
     return null
   if d.fgdc_pattern?
     return "#{d.fgdc_pattern}"
   return "#{symbolIndex[d.pattern]}"
+
+defaultResolveID = (d)->
+  # Changed pattern to lithology
+  if not (d.fgdc_pattern? or d.lithology?)
+    return null
+  if d.fgdc_pattern?
+    return "#{d.fgdc_pattern}"
+  return "#{symbolIndex[d.lithology]}"
 
 class LithologyColumnInner extends UUIDComponent
   @contextType: ColumnContext
@@ -168,6 +176,7 @@ class LithologyColumnInner extends UUIDComponent
     for d in divisions
       ix = __.length-1
       patternID = resolveID(d)
+      console.log patternID
       if ix == -1
         __.push {d..., patternID}
         continue
@@ -251,11 +260,6 @@ GeneralizedSectionColumn = (props)->
     className: 'lithology-column'
     frame: (props)=> h GrainsizeFrame, {range, props...}
   }, children
-
-GeneralizedSectionColumn.propTypes = {
-  width: T.number.isRequired
-  grainsizeScaleStart: T.number
-}
 
 export {LithologyColumn,
         GeneralizedSectionColumn,
