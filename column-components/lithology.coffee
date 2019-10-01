@@ -216,9 +216,8 @@ class LithologyColumn extends Component
     return "translate(#{left} #{shiftY})"
 
   render: ->
-    {scale, visible,left, shiftY,
+    {scale, left, shiftY,
         width, children} = @props
-    divisions = [] unless visible
     transform = @computeTransform()
 
     h ClipToFrame, {

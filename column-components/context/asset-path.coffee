@@ -12,7 +12,7 @@ class AssetPathProvider extends Component
   render: ->
     {resolveSymbol, resolveLithologySymbol} = @
     value = {resolveSymbol, resolveLithologySymbol}
-    h AssetPathContext.Provider, {value}, children
+    h AssetPathContext.Provider, {value}, @props.children
 
   resolveSymbol: (sym)=>
     return join BASE_URL, 'assets', sym
