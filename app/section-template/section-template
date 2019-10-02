@@ -1,4 +1,0 @@
-#!/usr/bin/env zsh
-
-pdf-printer $@ --dpi 500 --reload ../.. index.coffee Section-Template.pdf
-
