@@ -65,7 +65,7 @@ class StratColumn extends Component
         ]
         h SymbolColumn, {left: 90}
         h ColumnAxis
-        h GrainsizeAxis, {range: [50, 150]}
+        h GrainsizeAxis, {range: [80, 150]}
       ]
     ]
 
