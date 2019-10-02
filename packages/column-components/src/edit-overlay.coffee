@@ -2,7 +2,6 @@ import {findDOMNode} from "react-dom"
 import {format} from "d3-format"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import {IntervalEditor} from "./editor"
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {ColumnContext} from './context'
@@ -33,6 +32,7 @@ class DivisionEditOverlay extends Component
     grainsizeScaleRange: T.arrayOf(T.number)
     onClick: T.func
     allowEditing: T.bool
+    renderEditorPopup: T.func
   }
   @defaultProps: {
     onEditInterval: ->
@@ -42,6 +42,7 @@ class DivisionEditOverlay extends Component
     top: 0
     showInfoBox: false
     allowEditing: true
+    renderEditorPopup: ->return null
   }
   constructor: (props)->
     super props
@@ -165,22 +166,9 @@ class DivisionEditOverlay extends Component
         position: Position.LEFT
       }, [
         h 'span'
-        @renderIntervalEditor()
+        @props.renderEditorPopup(division)
       ]
     ]
-
-  renderIntervalEditor: =>
-    {division} = @state
-    return null unless division?
-    h IntervalEditor, {
-      interval: division
-      height: division.height
-      section: division.id
-      onUpdate: @onIntervalUpdated
-      #onPrev: @hoverAdjacent(-1)
-      #onNext: @hoverAdjacent(1)
-      onClose: => @setState {popoverIsOpen: false}
-    }
 
   render: ->
     {divisions, pixelHeight, width} = @context

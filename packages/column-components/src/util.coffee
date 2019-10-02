@@ -1,4 +1,5 @@
 import h from 'react-hyperscript'
+import {createElement} from 'react'
 
 SVGNamespaces = {
   xmlns: "http://www.w3.org/2000/svg"
@@ -7,7 +8,11 @@ SVGNamespaces = {
 
 SVG = (props)-> h 'svg', {props..., SVGNamespaces...}
 
+ForeignObject = (props)->
+  createElement 'foreignObject', props
+
 export {
   SVGNamespaces
   SVG
+  ForeignObject
 }
