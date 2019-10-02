@@ -5,7 +5,7 @@ import {select} from "d3-selection"
 import {axisLeft} from 'd3-axis'
 import {ColumnContext} from './context'
 
-class SectionAxis extends Component
+class ColumnAxis extends Component
   @contextType: ColumnContext
   @defaultProps: {
     ticks: 4
@@ -23,4 +23,4 @@ class SectionAxis extends Component
     @yAxis = axisLeft()
     @componentDidUpdate()
 
-export {SectionAxis}
+export {ColumnAxis}

@@ -17,12 +17,16 @@ class ColumnProvider extends Component
     divisions: T.arrayOf(T.object)
     range: rangeOrHeight
     height: rangeOrHeight
+    grainsizeScaleStart: T.number
+    width: T.number.isRequired
     pixelsPerMeter: T.number.isRequired
     zoom: T.number
   }
   @defaultProps: {
     divisions: []
     grainSizes: ['ms','s','vf','f','m','c','vc','p']
+    grainsizeScaleStart: 50
+    width: 150
     pixelsPerMeter: 20
     zoom: 1
   }

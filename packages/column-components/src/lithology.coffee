@@ -1,16 +1,14 @@
 import {select} from "d3-selection"
-import {Component, PureComponent, createElement} from "react"
+import {Component, PureComponent, createElement, useContext} from "react"
 import {findDOMNode} from "react-dom"
 import h from "react-hyperscript"
 import {join} from "path"
 import classNames from "classnames"
-import {createGrainsizeScale} from "./grainsize"
 import {path} from "d3-path"
-import {PlatformContext} from "../../platform"
-import {FaciesContext} from "../facies"
-import {ColumnContext} from "./context"
 import T from 'prop-types'
 import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from './frame'
+import {FaciesContext, ColumnContext, AssetPathContext} from "./context"
+import {createGrainsizeScale} from "./grainsize"
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -122,7 +120,7 @@ class CoveredOverlay extends UUIDComponent
     ]
 
 class SymbolDefinition extends Component
-  @contextType: PlatformContext
+  @contextType: AssetPathContext
   @defaultProps: {
     width: 100,
     height: 100
@@ -151,6 +149,7 @@ class SymbolDefinition extends Component
     ]
 
 defaultResolveID = (d)->
+  # Changed pattern to lithology
   if not (d.fgdc_pattern? or d.pattern?)
     return null
   if d.fgdc_pattern?
@@ -218,9 +217,8 @@ class LithologyColumn extends Component
     return "translate(#{left} #{shiftY})"
 
   render: ->
-    {scale, visible,left, shiftY,
+    {scale, left, shiftY,
         width, children} = @props
-    divisions = [] unless visible
     transform = @computeTransform()
 
     h ClipToFrame, {
@@ -246,18 +244,14 @@ SimplifiedLithologyColumn = (props)->
   }
 
 GeneralizedSectionColumn = (props)->
-  {width, grainsizeScaleStart, children, range} = props
+  {width, grainsizeScaleStart} = useContext(ColumnContext)
+  {children, range} = props
   grainsizeScaleStart ?= width/4
   range ?= [grainsizeScaleStart, width]
   h ClipToFrame, {
     className: 'lithology-column'
     frame: (props)=> h GrainsizeFrame, {range, props...}
   }, children
-
-GeneralizedSectionColumn.propTypes = {
-  width: T.number.isRequired
-  grainsizeScaleStart: T.number
-}
 
 export {LithologyColumn,
         GeneralizedSectionColumn,
