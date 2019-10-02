@@ -5,8 +5,8 @@ import {DeleteButton} from '@macrostrat/ui-components'
 import Select from 'react-select'
 import {format} from "d3-format"
 
-import {FaciesDescriptionSmall, FaciesContext, FaciesCard} from "../../facies"
-import {PickerControl} from "../../settings"
+import {FaciesDescriptionSmall, FaciesContext, FaciesCard} from "app/sections/facies"
+import {PickerControl} from "app/sections/settings"
 import {ColumnContext} from "../context"
 import "react-select/dist/react-select.css"
 
@@ -18,7 +18,7 @@ import styles from "./main.styl"
 import T from 'prop-types'
 import {IntervalShape} from './types'
 
-import {db, storedProcedure, query} from "../../db"
+import {db, storedProcedure, query} from "app/sections/db"
 
 fmt = format('.1f')
 
@@ -26,7 +26,7 @@ import {dirname} from "path"
 baseDir = dirname require.resolve '..'
 sql = (id)-> storedProcedure(id, {baseDir})
 try
-  {helpers} = require '../../../db/backend'
+  {helpers} = require 'app/db/backend'
 catch
   {}
 
