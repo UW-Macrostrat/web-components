@@ -1,18 +1,18 @@
 import {Component, useContext} from 'react'
-import {GrainsizeAxis} from '~/column-components/grainsize'
+import {GrainsizeAxis} from '@macrostrat/column-components/src/grainsize'
 import {
   LithologyColumn,
   LithologyColumnInner,
   GeneralizedSectionColumn,
   CoveredOverlay,
   FaciesColumnInner
-} from "~/column-components/lithology"
-import {SymbolColumn} from "~/column-components/symbol-column"
-import {SVG} from '~/column-components/util'
-import {ColumnAxis} from '~/column-components/axis'
+} from "@macrostrat/column-components/src/lithology"
+import {SymbolColumn} from "@macrostrat/column-components/src/symbol-column"
+import {SVG} from '@macrostrat/column-components/src/util'
+import {ColumnAxis} from '@macrostrat/column-components/src/axis'
 import {ColumnProvider, ColumnContext,
-        FaciesProvider, AssetPathContext} from '~/column-components/context'
-import "~/column-components/main.styl"
+        FaciesProvider, AssetPathContext} from '@macrostrat/column-components/src/context'
+import "~/column-components/src/main.styl"
 import h from '@macrostrat/hyper'
 import T from 'prop-types'
 import defaultFacies from './default-facies'

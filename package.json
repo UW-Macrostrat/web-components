@@ -4,6 +4,7 @@
   "description": "A demonstration web tool for defining a stratigraphic section.",
   "main": "index.js",
   "scripts": {
+    "preinstall": "linklocal",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "parcel index.html"
   },
@@ -13,11 +14,11 @@
     "@blueprintjs/core": "^3.18.1",
     "@macrostrat/hyper": "^1.1.1",
     "@macrostrat/ui-components": "^0.1.1",
+    "@macrostrat/column-components": "file:./column-components",
     "chroma-js": "^2.0.6",
     "d3": "^5.12.0",
     "geologic-patterns": "github:davenquinn/geologic-patterns",
     "labella": "^1.1.4",
-    "parcel-bundler": "^1.12.3",
     "react": "^16.9.0",
     "react-color": "^2.17.3",
     "react-dom": "^16.9.0",
@@ -31,6 +32,8 @@
   },
   "devDependencies": {
     "coffeescript": "^2.4.1",
+    "linklocal": "^2.8.2",
+    "parcel-bundler": "^1.12.3",
     "postcss-modules": "^1.4.1",
     "stylus": "^0.54.7"
   }
