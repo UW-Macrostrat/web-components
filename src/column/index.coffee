@@ -8,16 +8,18 @@ import {
   FaciesColumnInner
 } from "@macrostrat/column-components/src/lithology"
 import {SymbolColumn} from "@macrostrat/column-components/src/symbol-column"
-import {SVG} from '@macrostrat/column-components/src/util'
+import {SVG, ForeignObject} from '@macrostrat/column-components/src/util'
 import {ColumnAxis} from '@macrostrat/column-components/src/axis'
 import {ColumnProvider, ColumnContext,
         FaciesProvider, AssetPathContext} from '@macrostrat/column-components/src/context'
+import {DivisionEditOverlay} from '@macrostrat/column-components/src/edit-overlay'
 import "~/column-components/src/main.styl"
 import h from '@macrostrat/hyper'
 import T from 'prop-types'
 import defaultFacies from './default-facies'
 import assetPaths from "../../sed-patterns/*.svg"
 console.log assetPaths
+
 ColumnSVG = (props)->
   {width: innerWidth, margin, children, rest...} = props
   {pixelHeight} = useContext(ColumnContext)
@@ -55,6 +57,12 @@ class StratColumn extends Component
       range: [0,100],
       pixelsPerMeter: 10
     }, [
+      h DivisionEditOverlay, {
+        top: @props.margin.top
+        left: @props.margin.left
+        allowEditing: true
+        width: 200
+      }
       h ColumnSVG, {width: 200, margin}, [
         h GeneralizedSectionColumn, [
           h.if(showFacies) FaciesColumnInner, {width: innerWidth}
