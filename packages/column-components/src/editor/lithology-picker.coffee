@@ -2,9 +2,8 @@ import {Component, createElement, useContext} from "react"
 import hyper from "@macrostrat/hyper"
 import Select from 'react-select'
 
-import {symbolIndex} from "app/sections/column/lithology"
-import {AssetPathContext} from "~/"
-import {LithologyContext} from "app/sections/lithology"
+import {symbolIndex} from "../lithology"
+import {AssetPathContext, LithologyContext} from "../context"
 
 import styles from './main.styl'
 

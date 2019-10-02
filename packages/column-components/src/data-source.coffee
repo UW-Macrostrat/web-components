@@ -1,7 +1,7 @@
 import {Component, createContext} from "react"
 import h from "react-hyperscript"
 import T from "prop-types"
-import {query} from "../db"
+import {query} from "app/sections/db"
 
 ColumnSurfacesContext = createContext {}
 

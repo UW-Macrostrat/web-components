@@ -1,6 +1,6 @@
 import {Component} from 'react'
 import {hyperStyled} from '@macrostrat/hyper'
-import {FaciesContext, BasicFaciesSwatch} from '../../facies'
+import {FaciesContext, BasicFaciesSwatch} from 'app/sections/facies'
 import Select from 'react-select'
 import styles from './main.styl'
 

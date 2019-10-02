@@ -1,10 +1,10 @@
 import {Component} from "react"
 import {Dialog} from "@blueprintjs/core"
 import h from "react-hyperscript"
-import {PlatformContext} from "../../../platform"
+import {PlatformContext} from "app/platform"
 Lightbox = require('react-images').default
 
-import {db, storedProcedure, query} from "../../db"
+import {db, storedProcedure, query} from "app/sections/db"
 import "react-image-slider/lib/image-slider.css"
 
 __photo_promise = null
