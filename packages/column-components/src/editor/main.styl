@@ -1,0 +1,53 @@
+//@require '~react-select/dist/react-select.css'
+
+:local
+  .facies-picker-row
+    display flex
+    flex-direction row
+    align-items: center
+    span
+      display block
+    .facies-picker-name
+      flex-grow 1
+      display block
+      text-align left
+      font-style italic
+      color #444
+    .facies-color-swatch, .lithology-swatch
+      margin-right 0.5em
+      margin-left -0.5em
+  .facies-picker-name, .lithology-swatch
+    border-radius 3px
+  .picker-label
+    font-style: italic
+
+  margin=0.5em
+
+  .editorDialogTitle
+    margin-right: -margin
+    display flex
+    align-items: baseline
+    code
+      font-family: "Fira Code", monospace
+      color: #aaa
+    *
+      margin-right: margin
+    .titleCenter
+      flex-grow 1
+    .heightRange
+      font-weight 400
+
+  .lithology-swatch
+    height 2em
+    width 2em
+    background-size: 6em
+    image-rendering: crisp-edges
+    border 1px solid black
+
+  .lithology-symbol-picker
+    display: flex
+    flex-direction: row
+    align-items: center
+    *
+      margin-right margin
+    margin 0 4px
