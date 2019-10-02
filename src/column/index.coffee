@@ -52,7 +52,7 @@ class StratColumn extends Component
       divisions: surfaces,
       width: 150
       grainsizeScaleStart: 80
-      range: [0,400],
+      range: [0,100],
       pixelsPerMeter: 10
     }, [
       h ColumnSVG, {width: 200, margin}, [
@@ -70,7 +70,6 @@ class StratColumn extends Component
     ]
 
 resolveLithologySymbol = (id)->
-  console.log id
   if assetPaths[id]?
     return assetPaths[id]
   return null
