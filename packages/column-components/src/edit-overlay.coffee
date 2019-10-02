@@ -29,10 +29,10 @@ class DivisionEditOverlay extends Component
     left: T.number
     top: T.number
     showInfoBox: T.bool
-    grainsizeScaleRange: T.arrayOf(T.number)
     onClick: T.func
     allowEditing: T.bool
     renderEditorPopup: T.func
+    scaleToGrainsize: T.bool
   }
   @defaultProps: {
     onEditInterval: ->
@@ -42,6 +42,7 @@ class DivisionEditOverlay extends Component
     top: 0
     showInfoBox: false
     allowEditing: true
+    scaleToGrainsize: true
     renderEditorPopup: ->return null
   }
   constructor: (props)->
@@ -132,24 +133,29 @@ class DivisionEditOverlay extends Component
       ]
     ]
 
+  boxWidth: (division)=>
+    {scaleToGrainsize, width} = @props
+    if not scaleToGrainsize
+      return width
+    # This is kind of a silly way to do things
+    # Probably should use some type of nested context
+    {grainsizeScale, grainsizeForDivision} = @context
+    return grainsizeScale(grainsizeForDivision(division))
+
   renderEditBox: =>
     {divisions, pixelHeight, width} = @context
     {popoverIsOpen, division} = @state
-    {width, left, top, grainsizeScaleRange} = @props
+    {width, left, top} = @props
     isOpen = popoverIsOpen and division?
 
-    {scale, pixelHeight, grainsizeScale, grainsizeForDivision} = @context
+    {scale, pixelHeight, grainsizeScale} = @context
     return h('div') unless division?
 
     top = scale(division.top)
     bottom = scale(division.bottom)
     height = bottom-top
 
-    # This is kind of a silly way to do things
-    # Probably should use some type of nested context
-    if grainsizeScaleRange?
-      xScale = grainsizeScale(grainsizeScaleRange)
-      width = xScale(grainsizeForDivision(division))
+    width = @boxWidth(division)
 
     style = {
       marginTop: top

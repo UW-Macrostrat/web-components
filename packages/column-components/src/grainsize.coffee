@@ -19,8 +19,7 @@ class GrainsizeAxis extends Component
     height: 20
   }
   render: ->
-    {grainsizeScale, pixelHeight} = @context
-    gs = grainsizeScale(@props.range)
+    {grainsizeScale: gs, pixelHeight} = @context
     sizes = gs.domain()
     h 'g.grainsize.axis', sizes.map (d)=>
       h 'g.tick', transform: "translate(#{gs(d)} 0)", key: d, [
