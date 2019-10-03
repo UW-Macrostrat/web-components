@@ -14,7 +14,7 @@ import {ColumnProvider, ColumnContext,
         FaciesProvider, AssetPathContext} from '@macrostrat/column-components/src/context'
 import {DivisionEditOverlay} from '@macrostrat/column-components/src/edit-overlay'
 import "~/column-components/src/main.styl"
-import h from '@macrostrat/hyper'
+import h from '~/hyper'
 import T from 'prop-types'
 import defaultFacies from './default-facies'
 import assetPaths from "../../sed-patterns/*.svg"
@@ -50,18 +50,13 @@ class StratColumn extends Component
   render: ->
     {margin, showFacies, surfaces} = @props
 
-    h ColumnProvider, {
-      divisions: surfaces,
-      width: 150
-      grainsizeScaleStart: 80
-      range: [0,100],
-      pixelsPerMeter: 10
-    }, [
+    h 'div.column-container', [
       h DivisionEditOverlay, {
         top: @props.margin.top
         left: @props.margin.left
         allowEditing: true
         width: 200
+        onClick: @props.onEditInterval
       }
       h ColumnSVG, {width: 200, margin}, [
         h GeneralizedSectionColumn, [
@@ -82,14 +77,30 @@ resolveLithologySymbol = (id)->
     return assetPaths[id]
   return null
 
-
 resolveSymbol = (id)->
+
+class EditableStratColumn extends Component
+  render: ->
+    {surfaces, rest...} = @props
+
+    h ColumnProvider, {
+      divisions: surfaces,
+      width: 150
+      grainsizeScaleStart: 80
+      range: [0,100],
+      pixelsPerMeter: 10
+    }, [
+      h StratColumn, rest
+      h 'div.interval-editor', [
+        h 'h1', "Editor"
+      ]
+    ]
 
 __StratOuter = (props)->
   value = {resolveLithologySymbol, resolveSymbol}
   h AssetPathContext.Provider, {value}, [
     h FaciesProvider, {initialFacies: defaultFacies}, [
-      h StratColumn, props
+      h EditableStratColumn, props
     ]
   ]
 

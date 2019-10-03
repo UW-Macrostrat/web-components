@@ -1,6 +1,5 @@
-import {hyperStyled} from '@macrostrat/hyper'
+import h from '~/hyper'
 import {StratColumn} from './column'
-import styles from './main.styl'
 import defaultSurfaces from './default-surfaces.json'
 
 console.log defaultSurfaces
@@ -11,11 +10,11 @@ for surface,i in defaultSurfaces
   catch
     surface.top = 400
 
-h = hyperStyled(styles)
-
 App = ->
-  h 'div.column-container', [
-    h StratColumn, {surfaces: defaultSurfaces}
+  h 'div.app', [
+    h StratColumn, {
+      surfaces: defaultSurfaces
+    }
   ]
 
 export {App}
