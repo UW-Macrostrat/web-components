@@ -6,7 +6,8 @@
   "scripts": {
     "preinstall": "linklocal",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "parcel index.html"
+    "dev": "parcel index.html",
+    "example-data": "psql Naukluft -t0 -f example-data/extract-data.sql > example-data/Naukluft-Section-J.json"
   },
   "author": "",
   "license": "ISC",
