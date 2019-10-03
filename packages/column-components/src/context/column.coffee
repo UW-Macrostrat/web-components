@@ -13,6 +13,11 @@ rangeOrHeight = (props, propName)->
   return new Error "Provide either 'range' or 'height' props"
 
 class ColumnProvider extends Component
+  ###
+  Lays out a column on its Y (height) axis.
+  This component would be swapped to provide eventual generalization to a Wheeler-diagram
+  (time-domain) framework.
+  ###
   @propTypes: {
     divisions: T.arrayOf(T.object)
     range: rangeOrHeight
@@ -45,7 +50,6 @@ class ColumnProvider extends Component
     # Search backwards through divisions
     while ix > 0
       {grainsize} = divisions[ix]
-      console.log divisions[ix]
       return grainsize if grainsize?
       ix -= 1
 
@@ -69,9 +73,12 @@ class ColumnProvider extends Component
 
     scale = scaleLinear().domain(range).range([pixelHeight, 0])
 
-    methods = do => {grainsizeScale, grainsizeForDivision} = @
+    pixelRange = [@props.grainsizeScaleStart, @props.width]
+    grainsizeScale = @grainsizeScale(pixelRange)
+
     value = {
-      methods...
+      grainsizeForDivision: @grainsizeForDivision,
+      grainsizeScale,
       pixelsPerMeter
       pixelHeight
       zoom

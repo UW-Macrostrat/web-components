@@ -22,11 +22,10 @@ class SimpleFrame extends Component
 class GrainsizeFrame extends Component
   @contextType: ColumnContext
   render: ->
-    {scale, divisions, grainsizeScale} = @context
-    {id: frameID, range} = @props
+    {scale, divisions, grainsizeScale: gs} = @context
+    {id: frameID} = @props
     if frameID.startsWith("#")
       frameID = frameID.slice(1)
-    gs = grainsizeScale(range)
     if divisions.length == 0
       return null
 
