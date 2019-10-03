@@ -1,0 +1,159 @@
+import {findDOMNode} from "react-dom"
+import {Component, createElement} from "react"
+import {Dialog, Button, Intent, ButtonGroup, Alert, Slider} from "@blueprintjs/core"
+import {DeleteButton} from '@macrostrat/ui-components'
+import Select from 'react-select'
+import {format} from "d3-format"
+import T from 'prop-types'
+
+import {FaciesContext, ColumnContext} from "@macrostrat/column-components"
+
+import {FaciesDescriptionSmall, FaciesCard} from "@macrostrat/column-components/src/editor/facies"
+import {PickerControl} from "@macrostrat/column-components/src/editor/picker-base"
+import {LithologyPicker, LithologySymbolPicker, FillPatternControl} from '@macrostrat/column-components/src/editor/lithology-picker'
+import {
+  SurfaceOrderSlider,
+  HorizontalPicker,
+  BoundaryStyleControl
+} from '@macrostrat/column-components/src/editor/controls'
+
+import {FaciesPicker} from '@macrostrat/column-components/src/editor/facies/picker'
+import {grainSizes} from "@macrostrat/column-components/src/grainsize"
+import {IntervalShape} from '@macrostrat/column-components/src/editor/types'
+import h from "~/hyper"
+
+fmt = format('.1f')
+
+floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
+
+surfaceTypes = [
+  {value: 'mfs', label: 'Maximum flooding surface'}
+  {value: 'sb', label: 'Sequence boundary'}
+]
+
+class IntervalEditor extends Component
+  @defaultProps: {onUpdate: ->}
+  constructor: (props)->
+    super props
+    @state = {
+      facies: [],
+      isAlertOpen: false
+    }
+  render: ->
+    {interval, height, section} = @props
+    return null unless interval?
+    {id, top, bottom, facies} = interval
+    hgt = fmt(height)
+    txt = "interval starting at #{hgt} m"
+
+    h 'div.interval-editor', [
+      h "h2.title", [
+        h "span.height-range", "#{bottom} – #{top} m"
+        h "code", interval.id
+      ]
+      h 'div.interval-editor-body', [
+        h 'label.bp3-label', [
+          'Lithology'
+          h LithologyPicker, {
+            interval
+            onChange: (lithology)=>@update {lithology}
+          }
+        ]
+        h 'label.bp3-label', [
+          'Lithology symbol'
+          h LithologySymbolPicker, {
+            interval
+            onChange: (d)=>@update {fillPattern: d}
+          }
+        ]
+        h 'label.bp3-label', [
+          'Grainsize'
+          h PickerControl, {
+            vertical: false,
+            isNullable: true,
+            states: grainSizes.map (d)->
+              {label: d, value: d}
+            activeState: interval.grainsize
+            onUpdate: (grainsize)=>
+              @update {grainsize}
+          }
+        ]
+        h 'label.bp3-label', [
+          'Surface expression'
+          h BoundaryStyleControl, {
+            interval
+            onUpdate: (d)=>@update {definite_boundary: d}
+          }
+        ]
+        h 'label.bp3-label', [
+          'Facies'
+          h FaciesPicker, {
+            onClick: @updateFacies
+            interval
+            onChange: (facies)=>@update {facies}
+          }
+        ]
+        h 'label.bp3-label', [
+          'Surface type (parasequence)'
+          h PickerControl, {
+            vertical: false,
+            isNullable: true,
+            states: surfaceTypes
+            activeState: interval.surface_type
+            onUpdate: (surface_type)=>
+              @update {surface_type}
+          }
+        ]
+        h 'label.bp3-label', [
+          'Surface order'
+          h SurfaceOrderSlider, {
+            interval, onChange: @update
+          }
+        ]
+        h 'label.bp3-label', [
+          'Flooding surface (negative is regression)'
+          h PickerControl, {
+            vertical: false,
+            isNullable: true,
+            states: floodingSurfaceOrders.map (d)->
+              lbl = "#{d}"
+              lbl = 'None' if not d?
+              {label: d, value: d}
+            activeState: interval.flooding_surface_order
+            onUpdate: (flooding_surface_order)=>
+              @update {flooding_surface_order}
+          }
+        ]
+        h 'div.buttons', [
+          h DeleteButton, {
+            itemDescription: "the "+txt
+            handleDelete: =>
+              return unless @props.removeInterval?
+              @props.removeInterval(id)
+          }, "Delete this interval"
+          h Button, {
+            onClick: =>
+              return unless @props.addInterval?
+              @props.addInterval(height)
+          }, "Add interval starting at #{fmt(height)} m"
+        ]
+      ]
+    ]
+  updateFacies: (facies)=>
+    {interval} = @props
+    selected = facies.id
+    if selected == interval.facies
+      selected = null
+    @update {facies: selected}
+
+  update: (columns)=>
+    {TableName, update} = helpers
+    tbl = new TableName("section_lithology", "section")
+    id = @props.interval.id
+    section = @props.section
+    s = helpers.update columns, null, tbl
+    s += " WHERE id=#{id} AND section='#{section}'"
+    await db.none(s)
+    @props.onUpdate()
+
+export {IntervalEditor}

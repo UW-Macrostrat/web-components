@@ -13,7 +13,7 @@ for surface,i in defaultSurfaces
 App = ->
   h 'div.app', [
     h StratColumn, {
-      surfaces: defaultSurfaces
+      initialSurfaces: defaultSurfaces
     }
   ]
 

@@ -7,6 +7,8 @@ import {
   CoveredOverlay,
   FaciesColumnInner
 } from "@macrostrat/column-components/src/lithology"
+import {StatefulComponent} from '@macrostrat/ui-components'
+import {IntervalEditor} from "./editor"
 import {SymbolColumn} from "@macrostrat/column-components/src/symbol-column"
 import {SVG, ForeignObject} from '@macrostrat/column-components/src/util'
 import {ColumnAxis} from '@macrostrat/column-components/src/axis'
@@ -79,9 +81,16 @@ resolveLithologySymbol = (id)->
 
 resolveSymbol = (id)->
 
-class EditableStratColumn extends Component
+class EditableStratColumn extends StatefulComponent
+  constructor: ->
+    super arguments...
+    @state = {
+      surfaces: @props.initialSurfaces or []
+      editingInterval: null
+      clickedHeight: null
+    }
   render: ->
-    {surfaces, rest...} = @props
+    {surfaces, editingInterval, clickedHeight} = @state
 
     h ColumnProvider, {
       divisions: surfaces,
@@ -90,11 +99,22 @@ class EditableStratColumn extends Component
       range: [0,100],
       pixelsPerMeter: 10
     }, [
-      h StratColumn, rest
+      h StratColumn, {
+        onEditInterval: @onEditInterval
+      }
       h 'div.interval-editor', [
-        h 'h1', "Editor"
+        h IntervalEditor, {
+          interval: editingInterval
+          height: clickedHeight
+        }
       ]
     ]
+
+  onEditInterval: ({height, division})=>
+    @updateState {
+      editingInterval: {$set: division}
+      clickedHeight: {$set: height}
+    }
 
 __StratOuter = (props)->
   value = {resolveLithologySymbol, resolveSymbol}
