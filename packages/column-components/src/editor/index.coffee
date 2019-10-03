@@ -5,13 +5,13 @@ import {DeleteButton} from '@macrostrat/ui-components'
 import Select from 'react-select'
 import {format} from "d3-format"
 
-import {FaciesDescriptionSmall, FaciesContext, FaciesCard} from "app/sections/facies"
+import {FaciesDescriptionSmall, FaciesCard} from "app/sections/facies"
 import {PickerControl} from "app/sections/settings"
-import {ColumnContext} from "../context"
+import {FaciesContext, ColumnContext} from "../context"
 import "react-select/dist/react-select.css"
 
 import {LithologyPicker, LithologySymbolPicker, FillPatternControl} from './lithology-picker'
-import {FaciesPicker} from './facies-picker'
+import {FaciesPicker} from './facies/picker'
 import {grainSizes} from "../grainsize"
 import h from "react-hyperscript"
 import styles from "./main.styl"
