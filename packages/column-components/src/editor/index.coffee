@@ -5,8 +5,8 @@ import {DeleteButton} from '@macrostrat/ui-components'
 import Select from 'react-select'
 import {format} from "d3-format"
 
-import {FaciesDescriptionSmall, FaciesCard} from "app/sections/facies"
-import {PickerControl} from "app/sections/settings"
+import {FaciesDescriptionSmall, FaciesCard} from "./facies"
+import {PickerControl} from "./picker-base"
 import {FaciesContext, ColumnContext} from "../context"
 import "react-select/dist/react-select.css"
 
