@@ -85,7 +85,6 @@ class DivisionEditOverlay extends Component
     if event.shiftKey and showInfoBox
       @setState {popoverIsOpen: true}
       return
-    console.log division
     @props.onClick({height, division})
 
   onClick: (event)=>
@@ -114,7 +113,7 @@ class DivisionEditOverlay extends Component
       top: scale(height)
       height: 0
       border: "0.5px solid black"
-      width: @props.width
+      width: @boxWidth()
       position: 'absolute'
       pointerEvents: 'none'
     }
@@ -134,6 +133,7 @@ class DivisionEditOverlay extends Component
     ]
 
   boxWidth: (division)=>
+    division ?= @state.division
     {scaleToGrainsize, width} = @props
     if not scaleToGrainsize
       return width
