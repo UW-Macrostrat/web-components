@@ -24,8 +24,6 @@ import h from "~/hyper"
 
 fmt = format('.1f')
 
-floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
-
 surfaceTypes = [
   {value: 'mfs', label: 'Maximum flooding surface'}
   {value: 'sb', label: 'Sequence boundary'}
@@ -108,20 +106,6 @@ class IntervalEditor extends Component
           'Surface order'
           h SurfaceOrderSlider, {
             interval, onChange: @update
-          }
-        ]
-        h 'label.bp3-label', [
-          'Flooding surface (negative is regression)'
-          h PickerControl, {
-            vertical: false,
-            isNullable: true,
-            states: floodingSurfaceOrders.map (d)->
-              lbl = "#{d}"
-              lbl = 'None' if not d?
-              {label: d, value: d}
-            activeState: interval.flooding_surface_order
-            onUpdate: (flooding_surface_order)=>
-              @update {flooding_surface_order}
           }
         ]
         h 'div.buttons', [
