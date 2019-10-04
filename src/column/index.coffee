@@ -90,13 +90,16 @@ class EditableStratColumn extends StatefulComponent
       clickedHeight: null
     }
   render: ->
-    {surfaces, editingInterval, clickedHeight} = @state
+    {editingInterval, clickedHeight} = @state
+    {data} = @props
+    {surfaces} = data
+    console.log surfaces
 
     h ColumnProvider, {
       divisions: surfaces,
       width: 150
       grainsizeScaleStart: 80
-      range: [0,100],
+      range: [0,data.height],
       pixelsPerMeter: 10
     }, [
       h StratColumn, {

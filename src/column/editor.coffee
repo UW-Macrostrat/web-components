@@ -10,7 +10,11 @@ import {FaciesContext, ColumnContext} from "@macrostrat/column-components"
 
 import {FaciesDescriptionSmall, FaciesCard} from "@macrostrat/column-components/src/editor/facies"
 import {PickerControl} from "@macrostrat/column-components/src/editor/picker-base"
-import {LithologyPicker, LithologySymbolPicker, FillPatternControl} from '@macrostrat/column-components/src/editor/lithology-picker'
+import {
+  LithologyPicker,
+  LithologySymbolPicker,
+  FillPatternControl
+} from '@macrostrat/column-components/src/editor/lithology-picker'
 import {
   SurfaceOrderSlider,
   HorizontalPicker,

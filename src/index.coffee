@@ -1,19 +1,27 @@
 import h from '~/hyper'
 import {StratColumn} from './column'
-import defaultSurfaces from './default-surfaces.json'
+import columnData from '~/example-data/Naukluft-Section-J.json'
 
-console.log defaultSurfaces
 
-for surface,i in defaultSurfaces
-  try
-    surface.top = defaultSurfaces[i+1].bottom
-  catch
-    surface.top = 400
+prepareColumnData = (columnData)->
+  columnData.height = 60
+  columnData.surfaces.sort (a,b)->
+    return a.bottom-b.bottom
+
+  for surface,i in columnData.surfaces
+    try
+      surface.top = columnData.surfaces[i+1].bottom
+    catch
+      surface.top = columnData.height
+
+  return columnData
+
+
 
 App = ->
   h 'div.app', [
     h StratColumn, {
-      initialSurfaces: defaultSurfaces
+      data: prepareColumnData(columnData)
     }
   ]
 
