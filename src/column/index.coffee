@@ -13,7 +13,9 @@ import {SymbolColumn} from "@macrostrat/column-components/src/symbol-column"
 import {SVG, ForeignObject} from '@macrostrat/column-components/src/util'
 import {ColumnAxis} from '@macrostrat/column-components/src/axis'
 import {ColumnProvider, ColumnContext,
-        FaciesProvider, AssetPathContext} from '@macrostrat/column-components/src/context'
+        FaciesProvider, AssetPathContext,
+        GrainsizeLayoutProvider
+} from '@macrostrat/column-components/src/context'
 import {DivisionEditOverlay} from '@macrostrat/column-components/src/edit-overlay'
 import "~/column-components/src/main.styl"
 import h from '~/hyper'
@@ -53,24 +55,26 @@ class StratColumn extends Component
     {margin, showFacies, surfaces} = @props
 
     h 'div.column-container', [
-      h DivisionEditOverlay, {
-        top: @props.margin.top
-        left: @props.margin.left
-        allowEditing: true
-        width: 200
-        onClick: @props.onEditInterval
-      }
-      h ColumnSVG, {width: 200, margin}, [
-        h GeneralizedSectionColumn, [
-          h.if(showFacies) FaciesColumnInner, {width: innerWidth}
-          h CoveredOverlay, {width: innerWidth}
-          h LithologyColumnInner, {
-            width: innerWidth
-          }
+      h GrainsizeLayoutProvider, {width: 150, grainsizeScaleStart: 80}, [
+        h DivisionEditOverlay, {
+          top: @props.margin.top
+          left: @props.margin.left
+          allowEditing: true
+          width: 200
+          onClick: @props.onEditInterval
+        }
+        h ColumnSVG, {width: 200, margin}, [
+          h LithologyColumn, {width: 40}, [
+            h.if(showFacies) FaciesColumnInner, {width: innerWidth}
+            h CoveredOverlay, {width: innerWidth}
+            h LithologyColumnInner, {
+              width: innerWidth
+            }
+          ]
+          h SymbolColumn, {left: 90}
+          h ColumnAxis
+          h GrainsizeAxis, {range: [80, 150]}
         ]
-        h SymbolColumn, {left: 90}
-        h ColumnAxis
-        h GrainsizeAxis, {range: [80, 150]}
       ]
     ]
 
