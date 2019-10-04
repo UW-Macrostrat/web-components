@@ -4,7 +4,7 @@ import {Component, createElement} from "react"
 import h from "react-hyperscript"
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
-import {ColumnContext} from './context'
+import {ColumnLayoutContext} from './context'
 import T from 'prop-types'
 
 fmt = format('.1f')
@@ -23,9 +23,8 @@ IntervalNotification = (props)->
   ]
 
 class DivisionEditOverlay extends Component
-  @contextType: ColumnContext
+  @contextType: ColumnLayoutContext
   @propTypes: {
-    width: T.number.isRequired
     left: T.number
     top: T.number
     showInfoBox: T.bool
@@ -42,7 +41,6 @@ class DivisionEditOverlay extends Component
     top: 0
     showInfoBox: false
     allowEditing: true
-    scaleToGrainsize: true
     renderEditorPopup: ->return null
   }
   constructor: (props)->
@@ -134,12 +132,14 @@ class DivisionEditOverlay extends Component
 
   boxWidth: (division)=>
     division ?= @state.division
-    {scaleToGrainsize, width} = @props
-    if not scaleToGrainsize
-      return width
+    {scaleToGrainsize} = @props
     # This is kind of a silly way to do things
     # Probably should use some type of nested context
-    {grainsizeScale, grainsizeForDivision} = @context
+    {grainsizeScale, grainsizeForDivision, width} = @context
+    scaleToGrainsize ?= grainsizeScale?
+    if not scaleToGrainsize
+      return width
+
     return grainsizeScale(grainsizeForDivision(division))
 
   renderEditBox: =>

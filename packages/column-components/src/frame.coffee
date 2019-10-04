@@ -1,7 +1,7 @@
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
 import {path} from "d3-path"
-import {ColumnContext} from "./context"
+import {ColumnLayoutContext} from "./context"
 import T from 'prop-types'
 import {v4} from "uuid"
 
@@ -11,18 +11,23 @@ class UUIDComponent extends Component
     @UUID = v4()
 
 class SimpleFrame extends Component
-  @contextType: ColumnContext
+  @contextType: ColumnLayoutContext
+  @propTypes: {
+    id: T.string.isRequired
+  }
   render: ->
-    {pixelHeight: height} = @context
-    {width, id: frameID} = @props
+    {pixelHeight: height, width} = @context
+    {id: frameID} = @props
     if frameID.startsWith("#")
       frameID = frameID.slice(1)
     h "rect", {id: frameID, x:0,y:0,width,height, key: frameID}
 
 class GrainsizeFrame extends Component
-  @contextType: ColumnContext
+  @contextType: ColumnLayoutContext
   render: ->
     {scale, divisions, grainsizeScale: gs} = @context
+    if not gs?
+      throw "GrainsizeFrame must be a child of a GrainsizeScaleProvider"
     {id: frameID} = @props
     if frameID.startsWith("#")
       frameID = frameID.slice(1)

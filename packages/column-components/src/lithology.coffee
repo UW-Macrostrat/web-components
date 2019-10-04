@@ -7,7 +7,7 @@ import classNames from "classnames"
 import {path} from "d3-path"
 import T from 'prop-types'
 import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from './frame'
-import {FaciesContext, ColumnContext, AssetPathContext} from "./context"
+import {FaciesContext, ColumnContext, ColumnLayoutContext, AssetPathContext, ColumnLayoutProvider} from "./context"
 import {createGrainsizeScale} from "./grainsize"
 
 # Malformed es6 module
@@ -157,7 +157,7 @@ defaultResolveID = (d)->
   return "#{symbolIndex[d.pattern]}"
 
 class LithologyColumnInner extends UUIDComponent
-  @contextType: ColumnContext
+  @contextType: ColumnLayoutContext
   @defaultProps: {
     resolveID: defaultResolveID
     minimumHeight: 0
@@ -191,11 +191,12 @@ class LithologyColumnInner extends UUIDComponent
       h SymbolDefinition, {UUID: @UUID, id: d}
 
   renderEach: (d)=>
+    {width} = @context
     className = classNames({
       definite: d.definite_boundary
       covered: d.covered}, 'lithology')
     fill = "url(##{@UUID}-#{d.patternID})"
-    h ColumnRect, {width: @props.width, division: d, className, fill}
+    h ColumnRect, {width, division: d, className, fill}
 
   render: ->
     divisions = @constructLithologyDivisions()
@@ -206,10 +207,12 @@ class LithologyColumnInner extends UUIDComponent
 
 class LithologyColumn extends Component
   @defaultProps: {
-    width: 100
     # Should align exactly with centerline of stroke
     shiftY: 0.5
     left: 0
+  }
+  @propTypes: {
+    width: T.number.isRequired
   }
   computeTransform: =>
     {left, shiftY} = @props
@@ -217,15 +220,16 @@ class LithologyColumn extends Component
     return "translate(#{left} #{shiftY})"
 
   render: ->
-    {scale, left, shiftY,
-        width, children} = @props
+    {left, shiftY, width, children} = @props
     transform = @computeTransform()
 
-    h ClipToFrame, {
-      className: 'lithology-column',
-      left, shiftY
-      frame: (props)=>h(SimpleFrame, {width, props...})
-    }, children
+    h ColumnLayoutProvider, {width}, [
+      h ClipToFrame, {
+        className: 'lithology-column',
+        left, shiftY
+        frame: (props)=>h(SimpleFrame, props)
+      }, children
+    ]
 
 simplifiedResolveID = (d)->
   p = symbolIndex[d.fill_pattern]
@@ -244,10 +248,6 @@ SimplifiedLithologyColumn = (props)->
   }
 
 GeneralizedSectionColumn = (props)->
-  {width, grainsizeScaleStart} = useContext(ColumnContext)
-  {children, range} = props
-  grainsizeScaleStart ?= width/4
-  range ?= [grainsizeScaleStart, width]
   h ClipToFrame, {
     className: 'lithology-column'
     frame: (props)=> h GrainsizeFrame, {range, props...}

@@ -4,10 +4,11 @@ import h from "react-hyperscript"
 import T from "prop-types"
 import {ColumnContext} from './column'
 
+## This isn't really used yet...
+
 ColumnLayoutContext = createContext {
   scale: null,
   width: 0
-
 }
 
 class ColumnLayoutProvider extends Component
@@ -17,31 +18,31 @@ class ColumnLayoutProvider extends Component
   @contextType: ColumnContext
   render: ->
     {children, rest...} = @props
-    colCtx = @context
-
-    value = {width, rest..., colCtx...}
-
+    value = {@context..., rest...}
     h ColumnLayoutContext.Provider, {value}, children
 
-class GrainsizeAxisProvider extends Component
+class GrainsizeLayoutProvider extends Component
+  ###
+  Right now this provides a ColumnLayoutContext
+  but it could be reworked to provide a
+  separate "GrainsizeLayoutContext" if that seemed
+  appropriate.
+  ###
   @contextType: ColumnContext
   @propTypes: {
-    grainsizeScaleStart: T.number
     width: T.number.isRequired
+    grainsizeScaleStart: T.number
+    grainSizes: T.arrayOf(T.number)
   }
   @defaultProps: {
-    divisions: []
     grainSizes: ['ms','s','vf','f','m','c','vc','p']
     grainsizeScaleStart: 50
-    width: 150
-    pixelsPerMeter: 20
-    zoom: 1
   }
-  grainsizeScale: (pixelRange)=>
-    {grainSizes} = @props
+  grainsizeScale: =>
+    {grainSizes, width, grainsizeScaleStart} = @props
     scale = scaleLinear()
       .domain [0,grainSizes.length-1]
-      .range pixelRange
+      .range [grainsizeScaleStart, width]
     scaleOrdinal()
       .domain grainSizes
       .range grainSizes.map (d,i)=>scale(i)
@@ -58,16 +59,15 @@ class GrainsizeAxisProvider extends Component
 
   render: ->
     {width, grainSizes, grainsizeScaleStart, children} = @props
-
+    grainsizeScaleRange = [grainsizeScaleStart, width]
     # This is slow to run each iteration
-    methods = do => {grainsizeScale, grainsizeForDivision} = @
-
     h ColumnLayoutProvider, {
       grainSizes,
+      grainsizeScale: @grainsizeScale()
       grainsizeScaleStart,
       grainsizeScaleRange,
-      methods...
+      @grainsizeForDivision,
     }, children
 
 
-export {ColumnLayoutContext, ColumnLayoutProvider}
+export {ColumnLayoutContext, ColumnLayoutProvider, GrainsizeLayoutProvider}
