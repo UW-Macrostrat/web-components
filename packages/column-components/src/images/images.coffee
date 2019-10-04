@@ -3,9 +3,9 @@ import {findDOMNode} from "react-dom"
 import * as d3 from "d3"
 import h from "react-hyperscript"
 import T from "prop-types"
-import {ColumnContext} from "./context"
+import {ColumnContext} from "../context"
 
-class SectionImages extends Component
+class ColumnImages extends Component
   @defaultProps: {
     skeletal: false
     extraSpace: 0
@@ -45,4 +45,4 @@ class SectionImages extends Component
           }
     h "div.images", {style}, children
 
-export default SectionImages
+export {ColumnImages}

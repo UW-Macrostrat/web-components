@@ -53,7 +53,6 @@ class GrainsizeLayoutProvider extends Component
     # Search backwards through divisions
     while ix > 0
       {grainsize} = divisions[ix]
-      console.log divisions[ix]
       return grainsize if grainsize?
       ix -= 1
 
