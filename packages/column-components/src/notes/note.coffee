@@ -18,20 +18,16 @@ class NoteSpan extends Component
     else
       el = h 'circle', {r: 2}
 
-    h 'g', transform: transform, el
+    h 'g', {transform}, el
 
 class Note extends Component
   @propTypes: {
     inEditMode: T.bool
+    columnGap: T.number.isRequired
   }
-
-  constructor: (props)->
-    super props
-    @state = {overlayIsEnabled: false}
 
   render: ->
     {scale, style, d} = @props
-    extraClasses = ''
 
     if d.has_span
       height = scale(0)-scale(d.span)
@@ -46,7 +42,7 @@ class Note extends Component
     offsX = d.offsetX or 0
 
     x = (offsX+1)*5
-    h "g.note#{extraClasses}", {
+    h "g.note", {
       onMouseOver: @positioningInfo
     }, [
       h NoteSpan, {
@@ -84,10 +80,6 @@ class Note extends Component
         h('span', null, @props.d.note)
       ]
     ]
-
-  toggleOverlay: =>
-    {overlayIsEnabled} = @state
-    @setState overlayIsEnabled: not overlayIsEnabled
 
   positioningInfo: =>
     console.log @props.d.id

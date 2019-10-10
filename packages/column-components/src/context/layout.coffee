@@ -61,6 +61,7 @@ class GrainsizeLayoutProvider extends Component
     grainsizeScaleRange = [grainsizeScaleStart, width]
     # This is slow to run each iteration
     h ColumnLayoutProvider, {
+      width,
       grainSizes,
       grainsizeScale: @grainsizeScale()
       grainsizeScaleStart,

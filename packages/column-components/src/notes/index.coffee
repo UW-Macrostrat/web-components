@@ -33,13 +33,13 @@ processNotesData = (opts)->(data)->
     note.estimatedTextHeight = estimatedTextHeight
 
   nodes = data.map (note)=>
-    height = opts.scale note.start_height
+    pixelHeight = opts.scale note.height
     if note.has_span
       end_height = opts.scale note.end_height
-      harr = [height-4,end_height+4]
+      harr = [pixelHeight-4,end_height+4]
       if harr[0]-harr[1] > 5
         return new FlexibleNode harr, note.estimatedTextHeight
-    return new Node height, note.estimatedTextHeight
+    return new Node pixelHeight, note.estimatedTextHeight
 
   force = new Force
     minPos: 0,
@@ -57,42 +57,28 @@ processNotesData = (opts)->(data)->
 class NotesColumn extends Component
   @contextType: ColumnContext
   @defaultProps: {
-    width: 100
     type: 'log-notes'
-    columnGap: 60
+    paddingLeft: 60
     inEditMode: false
   }
   @propTypes: {
-    id: T.string.isRequired
+    notes: T.arrayOf(T.object)
+    width: T.number.isRequired
+    paddingLeft: T.number
   }
-  constructor: (props)->
-    # We define our own scale because we only
-    # want to compute the force layout once regardless of zooming
-
-    super props
-    @state = {notes: []}
-
-  componentDidMount: =>
-    @updateNotes()
-
-  updateNotes: =>
-    {type, id, width} = @props
-    {scale, zoom, pixelHeight: height} = @context
-
-    data = await query type, [id]
-    processor = processNotesData({scale, height, width})
-    notes = processor(data)
-
-    @setState {notes}
-
   render: ->
     {scale, zoom, pixelHeight: height} = @context
-    {width, columnGap, transform} = @props
-    {notes} = @state
+    {type, width,
+     paddingLeft, transform, notes} = @props
+
+    innerWidth = width-paddingLeft
+
+    processor = processNotesData({scale, height, width: innerWidth})
+    notes = processor(notes)
 
     renderer = new Renderer {
       direction: 'right'
-      layerGap: columnGap
+      layerGap: paddingLeft
       nodeHeight: 5
     }
 
@@ -102,11 +88,11 @@ class NotesColumn extends Component
       h NoteDefs
       h 'g', notes.map (d)=>
         h Note, {
-          scale, d, width,
+          scale, d, width: innerWidth,
           editHandler: @handleNoteEdit
           link: renderer.generatePath(d.node),
           key: d.id,
-          columnGap
+          columnGap: paddingLeft
           inEditMode: @props.inEditMode
         }
 
