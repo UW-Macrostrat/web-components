@@ -1,15 +1,10 @@
 import {findDOMNode} from "react-dom"
-import * as d3 from "d3"
-import "d3-selection-multi"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import {db, storedProcedure, query} from "app/sections/db"
 import {Node, Renderer, Force} from "labella"
-import {calculateSize} from "calculate-size"
 import FlexibleNode from "./flexible-node"
 import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
-import {PhotoOverlay} from "./photo-overlay"
 import {ColumnContext} from '../context'
 
 class NoteSpan extends Component
@@ -79,22 +74,6 @@ class Note extends Component
         @props.editHandler(@props.d.id, text)
     }
 
-  renderPhotoOverlay: =>
-    {photos} = @props.d
-    return null unless photos?
-    tx = "#{photos.length} photo"
-    if photos.length > 1
-      tx += 's'
-
-    h [
-      h 'a.photos-link', {onClick: @toggleOverlay}, tx
-      h PhotoOverlay, {
-        isOpen: @state.overlayIsEnabled
-        onClose: @toggleOverlay
-        photoIDs: photos
-      }
-    ]
-
   createBody: =>
     return @renderEditor() if @props.inEditMode
 
@@ -103,7 +82,6 @@ class Note extends Component
         xmlns: "http://www.w3.org/1999/xhtml"
       }, [
         h('span', null, @props.d.note)
-        @renderPhotoOverlay()
       ]
     ]
 

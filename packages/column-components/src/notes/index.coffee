@@ -1,15 +1,10 @@
 import {findDOMNode} from "react-dom"
-import * as d3 from "d3"
-import "d3-selection-multi"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import {db, storedProcedure, query} from "app/sections/db"
 import {Node, Renderer, Force} from "labella"
-import {calculateSize} from "calculate-size"
 import FlexibleNode from "./flexible-node"
 import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
-import {PhotoOverlay} from "./photo-overlay"
 import {ColumnContext} from '../context'
 import {Note} from './note'
 import NoteDefs from './defs'
@@ -117,18 +112,18 @@ class NotesColumn extends Component
 
     ]
 
-  handleNoteEdit: (noteID, newText)=>
-    # We can't edit on the frontend
-    return unless PLATFORM == ELECTRON
-    {dirname} = require 'path'
-    baseDir = dirname require.resolve '../..'
-    if newText.length == 0
-      sql = storedProcedure('set-note-invisible', {baseDir})
-      await db.none sql, [noteID]
-    else
-      sql = storedProcedure('update-note', {baseDir})
-      await db.none sql, [noteID, newText]
-    @updateNotes()
-    console.log "Note #{noteID} edited"
+  # handleNoteEdit: (noteID, newText)=>
+  #   # We can't edit on the frontend
+  #   return unless PLATFORM == ELECTRON
+  #   {dirname} = require 'path'
+  #   baseDir = dirname require.resolve '../..'
+  #   if newText.length == 0
+  #     sql = storedProcedure('set-note-invisible', {baseDir})
+  #     await db.none sql, [noteID]
+  #   else
+  #     sql = storedProcedure('update-note', {baseDir})
+  #     await db.none sql, [noteID, newText]
+  #   @updateNotes()
+  #   console.log "Note #{noteID} edited"
 
 export {NotesColumn}
