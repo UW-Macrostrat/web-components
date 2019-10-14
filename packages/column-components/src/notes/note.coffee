@@ -39,7 +39,7 @@ class Note extends Component
     d = note
 
     if d.has_span
-      height = scale(0)-scale(d.span)
+      height = Math.abs(scale(d.top_height)-scale(d.height))
     else
       height = 0
 
