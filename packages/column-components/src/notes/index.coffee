@@ -30,14 +30,21 @@ class NotesColumn extends Component
     index = []
     nodes = []
 
+    # notes must be ordered from bottom up!
+    notes.sort (a,b)->parseFloat(a.height)-parseFloat(b.height)
+
+    console.log notes
+
     for note in notes
       offsX = 0
       console.log(note)
       note.has_span = note.top_height?
 
+      # Get column that note should render in
       for column in [0..index.length+1]
         sh = parseFloat(note.height)
         index[column] ?= sh
+        # if column is 
         if index[column] < sh
           if note.has_span
             hy = parseFloat(note.top_height)
@@ -49,7 +56,7 @@ class NotesColumn extends Component
       note.offsetX = offsX
 
       txt = note.note or ''
-      estimatedTextHeight = ((txt.length//(width/3.8))+1)*16+5
+      estimatedTextHeight = ((txt.length//(width/3.8))+1)*18+5
       note.estimatedTextHeight = estimatedTextHeight
 
     data = notes.filter (d)->d.note?
