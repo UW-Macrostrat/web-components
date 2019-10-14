@@ -58,7 +58,7 @@ class StratColumn extends Component
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
-    notesWidth = 450
+    notesWidth = 500
     notesOffset = columnWidth+10
 
     h 'div.column-container', [
@@ -132,6 +132,7 @@ class EditableStratColumn extends StatefulComponent
         h IntervalEditor, {
           interval: editingInterval
           height: clickedHeight
+          closeDialog: @cancelEditInterval
         }
       ]
     ]
@@ -141,6 +142,9 @@ class EditableStratColumn extends StatefulComponent
       editingInterval: {$set: division}
       clickedHeight: {$set: height}
     }
+
+  cancelEditInterval: =>
+    @updateState {editingInterval: {$set: null}}
 
 __StratOuter = (props)->
   value = {resolveLithologySymbol, resolveSymbol}

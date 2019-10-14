@@ -48,12 +48,18 @@ class IntervalEditor extends Component
     hgt = fmt(height)
     txt = "interval starting at #{hgt} m"
 
-    h 'div.interval-editor', [
-      h "h2.title", [
-        h "span.height-range", "#{bottom} – #{top} m"
+    h Dialog, {
+      className: "bp3-minimal"
+      title: h "div.editor-dialog-title", [
+        h "span.title-center", "Edit interval"
+        h "span.height-range", "#{bottom} - #{top} m"
         h "code", interval.id
       ]
-      h 'div.interval-editor-body', [
+      isOpen: @props.interval?
+      onClose: @props.closeDialog
+      style: {top: '10%', zIndex: 1000, position: 'relative'}
+    }, [
+      h 'div.bp3-dialog-body', [
         h 'label.bp3-label', [
           'Lithology'
           h LithologyPicker, {
