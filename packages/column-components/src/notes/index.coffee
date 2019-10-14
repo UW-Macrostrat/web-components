@@ -24,14 +24,17 @@ class NotesColumn extends Component
 
   notesData: =>
     {scale, pixelHeight: height} = @context
-    {width: outerWidth, paddingLeft, notes: data} = @props
+    {width: outerWidth, paddingLeft, notes} = @props
     width = outerWidth-paddingLeft
 
     index = []
     nodes = []
 
-    for note in data
+    for note in notes
       offsX = 0
+      console.log(note)
+      note.has_span = note.top_height?
+
       for column in [0..index.length+1]
         sh = parseFloat(note.height)
         index[column] ?= sh
@@ -49,6 +52,8 @@ class NotesColumn extends Component
       estimatedTextHeight = ((txt.length//(width/3.8))+1)*16+5
       note.estimatedTextHeight = estimatedTextHeight
 
+    data = notes.filter (d)->d.note?
+
     nodes = data.map (note)=>
       pixelHeight = scale(note.height)
       if note.has_span
@@ -64,9 +69,7 @@ class NotesColumn extends Component
     }
 
     force.nodes(nodes).compute()
-
     newNodes = force.nodes()
-
     data.forEach (d,i)->
       d.node = newNodes[i]
 
@@ -74,8 +77,13 @@ class NotesColumn extends Component
 
   render: ->
     {scale, zoom, pixelHeight: height} = @context
-    {type, width,
-     paddingLeft, transform, notes} = @props
+    {type,
+     width,
+     paddingLeft,
+     transform,
+     notes,
+     inEditMode
+    } = @props
 
     innerWidth = width-paddingLeft
 
@@ -91,14 +99,16 @@ class NotesColumn extends Component
 
     h 'g.section-log', {transform}, [
       h NoteDefs
-      h 'g', notes.map (d)=>
+      h 'g', notes.map (note)=>
         h Note, {
-          scale, d, width: innerWidth,
+          note
+          scale,
+          width: innerWidth,
           editHandler: @handleNoteEdit
-          link: renderer.generatePath(d.node),
-          key: d.id,
-          columnGap: paddingLeft
-          inEditMode: @props.inEditMode
+          link: renderer.generatePath(note.node),
+          key: note.id,
+          paddingLeft
+          inEditMode
         }
 
     ]

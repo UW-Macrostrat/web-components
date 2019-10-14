@@ -20,14 +20,23 @@ class NoteSpan extends Component
 
     h 'g', {transform}, el
 
+NoteType = {
+  height: T.number.isRequired
+  top_height: T.number
+  note: T.string
+  estimatedTextHeight: T.number.isRequired
+}
+
 class Note extends Component
   @propTypes: {
     inEditMode: T.bool
-    columnGap: T.number.isRequired
+    paddingLeft: T.number.isRequired
+    note: T.shape(NoteType).isRequired
   }
 
   render: ->
-    {scale, style, d} = @props
+    {scale, style, note, paddingLeft} = @props
+    d = note
 
     if d.has_span
       height = scale(0)-scale(d.span)
@@ -54,10 +63,10 @@ class Note extends Component
         transform: "translate(#{x})"
       }
       createElement 'foreignObject', {
-        width: @props.width-@props.columnGap-offsX-10
-        x: @props.columnGap+x
-        y: offsY-d.estimatedTextHeight/2
-        height: d.estimatedTextHeight
+        width: @props.width-paddingLeft-offsX-10
+        x: paddingLeft+x
+        y: offsY-note.estimatedTextHeight/2
+        height: note.estimatedTextHeight
       }, @createBody()
     ]
 
@@ -65,9 +74,9 @@ class Note extends Component
     h EditableText, {
       multiline: true
       className: 'note-label'
-      defaultValue: @props.d.note
+      defaultValue: @props.note.note
       onConfirm: (text)=>
-        @props.editHandler(@props.d.id, text)
+        @props.editHandler(@props.note.id, text)
     }
 
   createBody: =>
@@ -77,11 +86,11 @@ class Note extends Component
       h 'p.note-label', {
         xmlns: "http://www.w3.org/1999/xhtml"
       }, [
-        h('span', null, @props.d.note)
+        h('span', null, @props.note.note)
       ]
     ]
 
   positioningInfo: =>
-    console.log @props.d.id
+    console.log @props.note.id
 
 export {Note}
