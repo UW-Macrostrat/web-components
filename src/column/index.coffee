@@ -55,7 +55,6 @@ class StratColumn extends Component
   }
   render: ->
     {margin, showFacies, notes} = @props
-    console.log notes
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
