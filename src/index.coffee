@@ -1,5 +1,8 @@
 import h from '~/hyper'
 import {StratColumn} from './column'
+import {SettingsPanel} from './settings'
+import {Component} from 'react'
+
 import columnData from '~/example-data/Naukluft-Section-J.json'
 
 prepareColumnData = (columnData)->
@@ -15,11 +18,14 @@ prepareColumnData = (columnData)->
 
   return columnData
 
-App = ->
-  h 'div.app', [
-    h StratColumn, {
-      data: prepareColumnData(columnData)
-    }
-  ]
+
+class App extends Component
+  render: ->
+    h 'div.app', [
+      h StratColumn, {
+        data: prepareColumnData(columnData)
+      }
+      h SettingsPanel
+    ]
 
 export {App}

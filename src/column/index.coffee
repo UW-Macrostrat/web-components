@@ -128,13 +128,11 @@ class EditableStratColumn extends StatefulComponent
         onEditInterval: @onEditInterval
         notes
       }
-      h 'div.interval-editor', [
-        h IntervalEditor, {
-          interval: editingInterval
-          height: clickedHeight
-          closeDialog: @cancelEditInterval
-        }
-      ]
+      h IntervalEditor, {
+        interval: editingInterval
+        height: clickedHeight
+        closeDialog: @cancelEditInterval
+      }
     ]
 
   onEditInterval: ({height, division})=>
