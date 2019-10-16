@@ -55,7 +55,7 @@ class StratColumn extends Component
     inEditMode: true
   }
   render: ->
-    {margin, showFacies, notes, inEditMode} = @props
+    {margin, showFacies, notes, inEditMode, generalized} = @props
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
@@ -64,7 +64,7 @@ class StratColumn extends Component
 
     h 'div.column-container', [
       h GrainsizeLayoutProvider, {width: columnWidth, grainsizeScaleStart}, [
-        h ColumnImage, {
+        h.if(not generalized) ColumnImage, {
           left: @props.margin.left+lithologyWidth
           top: @props.margin.top
           src: testImage
@@ -80,7 +80,14 @@ class StratColumn extends Component
           margin,
           style: {zIndex: 10, position: 'relative'}
         }, [
-          h LithologyColumn, {width: lithologyWidth}, [
+          h.if(not generalized) LithologyColumn, {width: lithologyWidth}, [
+            h.if(showFacies) FaciesColumnInner, {width: innerWidth}
+            h CoveredOverlay, {width: innerWidth}
+            h LithologyColumnInner, {
+              width: innerWidth
+            }
+          ]
+          h.if(generalized) GeneralizedSectionColumn, {width: innerWidth}, [
             h.if(showFacies) FaciesColumnInner, {width: innerWidth}
             h CoveredOverlay, {width: innerWidth}
             h LithologyColumnInner, {
