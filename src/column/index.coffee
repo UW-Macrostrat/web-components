@@ -52,9 +52,10 @@ class StratColumn extends Component
       bottom: 30
     }
     showFacies: false
+    inEditMode: true
   }
   render: ->
-    {margin, showFacies, notes} = @props
+    {margin, showFacies, notes, inEditMode} = @props
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
@@ -68,10 +69,9 @@ class StratColumn extends Component
           top: @props.margin.top
           src: testImage
         }
-        h DivisionEditOverlay, {
+        h.if(inEditMode) DivisionEditOverlay, {
           top: @props.margin.top
           left: @props.margin.left
-          allowEditing: true
           width: 200
           onClick: @props.onEditInterval
         }
@@ -107,6 +107,11 @@ resolveLithologySymbol = (id)->
 resolveSymbol = (id)->
 
 class EditableStratColumn extends StatefulComponent
+  @propTypes: {
+    inEditMode: T.bool.isRequired
+    generalized: T.bool
+  }
+
   constructor: ->
     super arguments...
     @state = {
@@ -116,7 +121,7 @@ class EditableStratColumn extends StatefulComponent
     }
   render: ->
     {editingInterval, clickedHeight} = @state
-    {data} = @props
+    {data, rest...} = @props
     {surfaces, notes} = data
 
     h ColumnProvider, {
@@ -127,6 +132,7 @@ class EditableStratColumn extends StatefulComponent
       h StratColumn, {
         onEditInterval: @onEditInterval
         notes
+        rest...
       }
       h IntervalEditor, {
         interval: editingInterval
@@ -136,6 +142,7 @@ class EditableStratColumn extends StatefulComponent
     ]
 
   onEditInterval: ({height, division})=>
+    return unless @props.inEditMode
     @updateState {
       editingInterval: {$set: division}
       clickedHeight: {$set: height}

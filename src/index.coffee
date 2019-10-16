@@ -2,6 +2,7 @@ import h from '~/hyper'
 import {StratColumn} from './column'
 import {SettingsPanel} from './settings'
 import {Component} from 'react'
+import {StatefulComponent} from '@macrostrat/ui-components'
 
 import columnData from '~/example-data/Naukluft-Section-J.json'
 
@@ -19,13 +20,30 @@ prepareColumnData = (columnData)->
   return columnData
 
 
-class App extends Component
+class App extends StatefulComponent
+  constructor: (props)->
+    super props
+    @state = {
+      imageURL: null
+      columnData: prepareColumnData(columnData)
+      inEditMode: true
+      generalized: false
+    }
+
   render: ->
+    {generalized, inEditMode} = @state
+
     h 'div.app', [
       h StratColumn, {
         data: prepareColumnData(columnData)
+        generalized
+        inEditMode
       }
-      h SettingsPanel
+      h SettingsPanel, {
+        inEditMode
+        generalized
+        @updateState
+      }
     ]
 
 export {App}
