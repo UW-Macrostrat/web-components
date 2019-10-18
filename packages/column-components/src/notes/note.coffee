@@ -49,7 +49,6 @@ class Note extends Component
 
     offsY = d.node.currentPos
     offsX = d.offsetX or 0
-    console.log offsX
 
     x = (offsX+1)*5
     h "g.note", {
