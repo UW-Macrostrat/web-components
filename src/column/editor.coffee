@@ -35,6 +35,10 @@ surfaceTypes = [
 
 class IntervalEditor extends Component
   @defaultProps: {onUpdate: ->}
+  @propTypes: {
+    setEditingInterval: T.func.isRequired
+  }
+  @contextType: ColumnContext
   constructor: (props)->
     super props
     @state = {
@@ -43,7 +47,10 @@ class IntervalEditor extends Component
     }
   render: ->
     {interval, height, section} = @props
+    {divisions} = @context
     return null unless interval?
+    ix = divisions.indexOf(interval)
+
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
     txt = "interval starting at #{hgt} m"
@@ -56,10 +63,25 @@ class IntervalEditor extends Component
         h "code", interval.id
       ]
       isOpen: @props.interval?
-      onClose: @props.closeDialog
+      onClose: =>
+        @props.setEditingInterval(null)
       style: {top: '10%', zIndex: 1000, position: 'relative'}
     }, [
       h 'div.bp3-dialog-body', [
+        h 'div.buttons', [
+          h Button, {
+            onClick: =>
+              division = divisions[ix-1]
+              @props.setEditingInterval {division}
+            disabled: ix == 0
+          }, 'Previous'
+          h Button, {
+            onClick: =>
+              division = divisions[ix+1]
+              @props.setEditingInterval {division}
+            disabled: ix == divisions.length-1
+          }, 'Next'
+        ]
         h 'label.bp3-label', [
           'Lithology'
           h LithologyPicker, {

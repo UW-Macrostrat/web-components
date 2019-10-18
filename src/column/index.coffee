@@ -117,18 +117,24 @@ class EditableStratColumn extends StatefulComponent
   @propTypes: {
     inEditMode: T.bool.isRequired
     generalized: T.bool
-  }
-
-  constructor: ->
-    super arguments...
-    @state = {
-      surfaces: @props.initialSurfaces or []
-      editingInterval: null
-      clickedHeight: null
+    editingInterval: T.object
+    data: T.shape {
+      surfaces: T.arrayOf(T.object).isRequired
     }
+    editInterval: T.func.isRequired
+    createInterval: T.func.isRequired
+
+  }
   render: ->
-    {editingInterval, clickedHeight} = @state
-    {data, rest...} = @props
+    {
+      data
+      editingInterval
+      clickedHeight
+      editInterval
+      addInterval
+      removeInterval
+      rest...
+    } = @props
     {surfaces, notes} = data
 
     h ColumnProvider, {
@@ -137,26 +143,20 @@ class EditableStratColumn extends StatefulComponent
       pixelsPerMeter: 20
     }, [
       h StratColumn, {
-        onEditInterval: @onEditInterval
+        onEditInterval: editInterval
         notes
         rest...
       }
       h IntervalEditor, {
         interval: editingInterval
         height: clickedHeight
-        closeDialog: @cancelEditInterval
+        closeDialog: =>
+          editInterval(null)
+        addInterval
+        removeInterval
+        setEditingInterval: editInterval
       }
     ]
-
-  onEditInterval: ({height, division})=>
-    return unless @props.inEditMode
-    @updateState {
-      editingInterval: {$set: division}
-      clickedHeight: {$set: height}
-    }
-
-  cancelEditInterval: =>
-    @updateState {editingInterval: {$set: null}}
 
 __StratOuter = (props)->
   value = {resolveLithologySymbol, resolveSymbol}
