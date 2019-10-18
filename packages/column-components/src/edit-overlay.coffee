@@ -32,6 +32,7 @@ class DivisionEditOverlay extends Component
     allowEditing: T.bool
     renderEditorPopup: T.func
     scaleToGrainsize: T.bool
+    selectedDivision: T.object
   }
   @defaultProps: {
     onEditInterval: ->
@@ -47,7 +48,7 @@ class DivisionEditOverlay extends Component
     super props
     @state = {
       height: null
-      division: null
+      hoveredDivision: null
       popoverIsOpen: false
     }
 
@@ -65,8 +66,8 @@ class DivisionEditOverlay extends Component
       if d.bottom < height < d.top
         division = d
         break
-    return if division == @state.division
-    @setState {division}
+    return if division == @state.hoveredDivision
+    @setState {hoveredDivision: division}
 
   heightForEvent: (event)=>
     {scale} = @context
@@ -77,13 +78,13 @@ class DivisionEditOverlay extends Component
     # This could be moved to the actual interval
     # wrapped with a withRouter
     {history, showInfoBox} = @props
-    {division} = @state
+    {hoveredDivision} = @state
     height = @heightForEvent(event)
     event.stopPropagation()
     if event.shiftKey and showInfoBox
       @setState {popoverIsOpen: true}
       return
-    @props.onClick({height, division})
+    @props.onClick({height, division: hoveredDivision})
 
   onClick: (event)=>
     # This event handler might be unnecessary
@@ -131,7 +132,7 @@ class DivisionEditOverlay extends Component
     ]
 
   boxWidth: (division)=>
-    division ?= @state.division
+    division ?= @state.hoveredDivision
     {scaleToGrainsize} = @props
     # This is kind of a silly way to do things
     # Probably should use some type of nested context
@@ -142,9 +143,9 @@ class DivisionEditOverlay extends Component
 
     return grainsizeScale(grainsizeForDivision(division))
 
-  renderEditBox: =>
+  renderHoveredBox: =>
     {divisions, pixelHeight, width} = @context
-    {popoverIsOpen, division} = @state
+    {popoverIsOpen, hoveredDivision: division} = @state
     {width, left, top} = @props
     isOpen = popoverIsOpen and division?
 
@@ -178,7 +179,7 @@ class DivisionEditOverlay extends Component
 
   render: ->
     {divisions, pixelHeight, width} = @context
-    {popoverIsOpen, division} = @state
+    {popoverIsOpen, hoveredDivision: division} = @state
     {width, left, top} = @props
 
     h 'div.edit-overlay', {
@@ -196,11 +197,11 @@ class DivisionEditOverlay extends Component
       onMouseMove: @onHoverInterval
       onClick: @onClick
       onMouseLeave: =>@setState {
-        division: null,
+        hoveredDivision: null,
         height: null
       }
     }, [
-      @renderEditBox()
+      @renderHoveredBox()
       @renderCursorLine()
     ]
 
