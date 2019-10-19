@@ -37,6 +37,7 @@ class IntervalEditor extends Component
   @defaultProps: {onUpdate: ->}
   @propTypes: {
     setEditingInterval: T.func.isRequired
+    onUpdate: T.func.isRequired
   }
   @contextType: ColumnContext
   constructor: (props)->
@@ -162,14 +163,8 @@ class IntervalEditor extends Component
       selected = null
     @update {facies: selected}
 
-  update: (columns)=>
-    {TableName, update} = helpers
-    tbl = new TableName("section_lithology", "section")
-    id = @props.interval.id
-    section = @props.section
-    s = helpers.update columns, null, tbl
-    s += " WHERE id=#{id} AND section='#{section}'"
-    await db.none(s)
-    @props.onUpdate()
+  update: (newData)=>
+    {interval} = @props
+    @props.onUpdate(interval, newData)
 
 export {IntervalEditor}

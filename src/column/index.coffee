@@ -52,7 +52,9 @@ class StratColumn extends Component
       bottom: 30
     }
     showFacies: false
-    inEditMode: true
+  }
+  @propTypes: {
+    inEditMode: T.bool.isRequired
   }
   render: ->
     {margin, showFacies, notes, inEditMode, generalized} = @props
@@ -97,11 +99,11 @@ class StratColumn extends Component
           h SymbolColumn, {left: 90}
           h ColumnAxis
           h GrainsizeAxis
-          h NotesColumn, {
-            notes,
-            transform: "translate(#{notesOffset})",
-            width: notesWidth
-          }
+          #h NotesColumn, {
+            #notes,
+            #transform: "translate(#{notesOffset})",
+            #width: notesWidth
+          #}
         ]
       ]
     ]
@@ -133,6 +135,7 @@ class EditableStratColumn extends StatefulComponent
       editInterval
       addInterval
       removeInterval
+      onUpdate
       rest...
     } = @props
     {surfaces, notes} = data
@@ -155,6 +158,7 @@ class EditableStratColumn extends StatefulComponent
         addInterval
         removeInterval
         setEditingInterval: editInterval
+        onUpdate
       }
     ]
 
