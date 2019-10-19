@@ -100,10 +100,9 @@ class FaciesColumnInner extends Component
       h FaciesRect, {division: div, width, padWidth}
 
 class CoveredOverlay extends UUIDComponent
-  @contextType: ColumnContext
+  @contextType: ColumnLayoutContext
   render: ->
-    {divisions} = @context
-    {width} = @props
+    {divisions, width} = @context
     divs = divisions.filter((d)->d.covered).map (d)=>
       h ColumnRect, {division: d, width, fill: "url(##{@UUID}-covered)"}
 
