@@ -36,8 +36,6 @@ class LithologyPicker extends Component
       continue unless symbol?
       {value: id, label: h(LithologyItem, {lithology: id, symbol})}
 
-    console.log options
-
     value = options.find (d)->d.value == interval.lithology
     value ?= null
 
