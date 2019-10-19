@@ -1,7 +1,7 @@
 import {findDOMNode} from "react-dom"
 import {format} from "d3-format"
 import {Component, createElement} from "react"
-import h from "react-hyperscript"
+import h from "~/hyper"
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {ColumnLayoutContext} from './context'
@@ -32,7 +32,8 @@ class DivisionEditOverlay extends Component
     allowEditing: T.bool
     renderEditorPopup: T.func
     scaleToGrainsize: T.bool
-    selectedDivision: T.object
+    editingInterval: T.object
+
   }
   @defaultProps: {
     onEditInterval: ->
@@ -93,17 +94,6 @@ class DivisionEditOverlay extends Component
     height = @heightForEvent(event)
     @props.onClick({height})
 
-  renderEditBoxInner: =>
-    h 'div.edit-box', {
-      onClick: @onEditInterval
-      style: {
-        width: '100%'
-        height: '100%'
-        backgroundColor: "rgba(255,0,0,0.5)"
-        cursor: "pointer"
-      }
-    }
-
   renderCursorLine: =>
     {height} = @state
     {scale} = @context
@@ -143,14 +133,10 @@ class DivisionEditOverlay extends Component
 
     return grainsizeScale(grainsizeForDivision(division))
 
-  renderHoveredBox: =>
-    {divisions, pixelHeight, width} = @context
-    {popoverIsOpen, hoveredDivision: division} = @state
-    {width, left, top} = @props
-    isOpen = popoverIsOpen and division?
-
-    {scale, pixelHeight, grainsizeScale} = @context
-    return h('div') unless division?
+  renderEditingBox: =>
+    {editingInterval: division} = @props
+    return null unless division?
+    {scale} = @context
 
     top = scale(division.top)
     bottom = scale(division.bottom)
@@ -166,9 +152,48 @@ class DivisionEditOverlay extends Component
     }
 
     h 'div.edit-box-outer', {style}, [
-      @renderEditBoxInner()
-      h Popover, {
-        isOpen
+      h 'div.edit-box', {
+        style: {
+          width: '100%'
+          height: '100%'
+          backgroundColor: "rgba(255,0,0,0.3)"
+        }
+      }
+    ]
+
+  renderHoveredBox: =>
+    return null unless @state.hoveredDivision?
+    {divisions, pixelHeight, width} = @context
+    {popoverIsOpen, hoveredDivision: division} = @state
+    {width, left, top} = @props
+
+    {scale, pixelHeight, grainsizeScale} = @context
+
+    top = scale(division.top)
+    bottom = scale(division.bottom)
+    height = bottom-top
+
+    width = @boxWidth(division)
+
+    style = {
+      marginTop: top
+      height
+      width
+      pointerEvents: 'none'
+    }
+
+    h 'div.hovered-box-outer', {style}, [
+      h 'div.hovered-box', {
+        onClick: @onEditInterval
+        style: {
+          width: '100%'
+          height: '100%'
+          backgroundColor: "rgba(255,0,0,0.5)"
+          cursor: "pointer"
+        }
+      }
+      h.if(@props.renderEditorPopup) Popover, {
+        isOpen: popoverIsOpen and division?
         style: {display: 'block', width}
         position: Position.LEFT
       }, [
@@ -202,6 +227,7 @@ class DivisionEditOverlay extends Component
       }
     }, [
       @renderHoveredBox()
+      @renderEditingBox()
       @renderCursorLine()
     ]
 
