@@ -30,9 +30,13 @@ class App extends StatefulComponent
       columnData
     } = @state
 
+    {surfaces, notes, height} = columnData
+
     h 'div.app', [
       h StratColumn, {
-        data: columnData
+        surfaces
+        notes
+        height
         generalized
         inEditMode
         @editInterval
@@ -108,7 +112,6 @@ class App extends StatefulComponent
     surfaces.push editingInterval
     console.log surfaces
     surfaces.sort (a,b)-> a.bottom-b.bottom
-    @props.update {surfaces: {$set: surfaces}}
     @updateState {editingInterval: {$set: editingInterval}}
 
   removeInterval: (id)=>

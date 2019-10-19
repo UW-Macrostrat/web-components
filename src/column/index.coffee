@@ -55,104 +55,74 @@ class StratColumn extends Component
   }
   @propTypes: {
     inEditMode: T.bool.isRequired
+    generalized: T.bool
     editingInterval: T.object
+    surfaces: T.arrayOf(T.object).isRequired
+    notes: T.arrayOf(T.object).isRequired
+    editInterval: T.func.isRequired
+    addInterval: T.func.isRequired
+    height: T.number.isRequired
   }
+
   render: ->
-    {margin, showFacies, notes, inEditMode, generalized, editingInterval} = @props
+    {margin, clickedHeight, showFacies, notes, inEditMode,
+     generalized, editingInterval, height,
+     addInterval, removeInterval, editInterval, onUpdate } = @props
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
     notesWidth = 500
     notesOffset = columnWidth+10
 
-    h 'div.column-container', [
-      h GrainsizeLayoutProvider, {width: columnWidth, grainsizeScaleStart}, [
-        h.if(not generalized) ColumnImage, {
-          left: @props.margin.left+lithologyWidth
-          top: @props.margin.top
-          src: testImage
-        }
-        h.if(inEditMode) DivisionEditOverlay, {
-          top: @props.margin.top
-          left: @props.margin.left
-          width: 200
-          onClick: @props.onEditInterval
-          editingInterval
-        }
-        h ColumnSVG, {
-          width: notesOffset+notesWidth,
-          margin,
-          style: {zIndex: 10, position: 'relative'}
-        }, [
-          h.if(not generalized) LithologyColumn, {width: lithologyWidth}, [
-            h.if(showFacies) FaciesColumnInner, {width: innerWidth}
-            h CoveredOverlay, {width: innerWidth}
-            h LithologyColumnInner, {
-              width: innerWidth
-            }
-          ]
-          h.if(generalized) GeneralizedSectionColumn, {width: innerWidth}, [
-            h.if(showFacies) FaciesColumnInner, {width: innerWidth}
-            h CoveredOverlay, {width: innerWidth}
-            h LithologyColumnInner, {
-              width: innerWidth
-            }
-          ]
-          h SymbolColumn, {left: 90}
-          h ColumnAxis
-          h GrainsizeAxis
-          #h NotesColumn, {
-            #notes,
-            #transform: "translate(#{notesOffset})",
-            #width: notesWidth
-          #}
-        ]
-      ]
-    ]
-
-resolveLithologySymbol = (id)->
-  if assetPaths[id]?
-    return assetPaths[id]
-  return null
-
-resolveSymbol = (id)->
-
-class EditableStratColumn extends StatefulComponent
-  @propTypes: {
-    inEditMode: T.bool.isRequired
-    generalized: T.bool
-    editingInterval: T.object
-    data: T.shape {
-      surfaces: T.arrayOf(T.object).isRequired
-    }
-    editInterval: T.func.isRequired
-    createInterval: T.func.isRequired
-
-  }
-  render: ->
-    {
-      data
-      editingInterval
-      clickedHeight
-      editInterval
-      addInterval
-      removeInterval
-      onUpdate
-      rest...
-    } = @props
-    {surfaces, notes} = data
-
     h ColumnProvider, {
-      divisions: surfaces,
-      range: [0,data.height],
+      divisions: @props.surfaces,
+      range: [0,height],
       pixelsPerMeter: 20
     }, [
-      h StratColumn, {
-        onEditInterval: editInterval
-        editingInterval
-        notes
-        rest...
-      }
+      h 'div.column-container', [
+        h GrainsizeLayoutProvider, {width: columnWidth, grainsizeScaleStart}, [
+          h.if(not generalized) ColumnImage, {
+            left: @props.margin.left+lithologyWidth
+            top: @props.margin.top
+            src: testImage
+          }
+          h.if(inEditMode) DivisionEditOverlay, {
+            top: @props.margin.top
+            left: @props.margin.left
+            width: 200
+            onClick: @props.editInterval
+            editingInterval
+          }
+          h ColumnSVG, {
+            width: notesOffset+notesWidth,
+            margin,
+            style: {zIndex: 10, position: 'relative'}
+          }, [
+            h.if(not generalized) LithologyColumn, {width: lithologyWidth}, [
+              h.if(showFacies) FaciesColumnInner, {width: innerWidth}
+              h CoveredOverlay, {width: innerWidth}
+              h LithologyColumnInner, {
+                width: innerWidth
+              }
+            ]
+            h.if(generalized) GeneralizedSectionColumn, {width: innerWidth}, [
+              h.if(showFacies) FaciesColumnInner, {width: innerWidth}
+              h CoveredOverlay, {width: innerWidth}
+              h LithologyColumnInner, {
+                width: innerWidth
+              }
+            ]
+            h SymbolColumn, {left: 90}
+            h ColumnAxis
+            h GrainsizeAxis
+            h NotesColumn, {
+              notes,
+              transform: "translate(#{notesOffset})",
+              width: notesWidth
+            }
+          ]
+        ]
+      ]
       h IntervalEditor, {
         interval: editingInterval
         height: clickedHeight
@@ -165,11 +135,18 @@ class EditableStratColumn extends StatefulComponent
       }
     ]
 
+resolveLithologySymbol = (id)->
+  if assetPaths[id]?
+    return assetPaths[id]
+  return null
+
+resolveSymbol = (id)->
+
 __StratOuter = (props)->
   value = {resolveLithologySymbol, resolveSymbol}
   h AssetPathContext.Provider, {value}, [
     h FaciesProvider, {initialFacies: defaultFacies}, [
-      h EditableStratColumn, props
+      h StratColumn, props
     ]
   ]
 
