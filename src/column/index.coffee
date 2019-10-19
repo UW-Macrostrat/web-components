@@ -55,9 +55,10 @@ class StratColumn extends Component
   }
   @propTypes: {
     inEditMode: T.bool.isRequired
+    editingInterval: T.object
   }
   render: ->
-    {margin, showFacies, notes, inEditMode, generalized} = @props
+    {margin, showFacies, notes, inEditMode, generalized, editingInterval} = @props
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
@@ -76,6 +77,7 @@ class StratColumn extends Component
           left: @props.margin.left
           width: 200
           onClick: @props.onEditInterval
+          editingInterval
         }
         h ColumnSVG, {
           width: notesOffset+notesWidth,
@@ -147,6 +149,7 @@ class EditableStratColumn extends StatefulComponent
     }, [
       h StratColumn, {
         onEditInterval: editInterval
+        editingInterval
         notes
         rest...
       }
