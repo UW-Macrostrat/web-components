@@ -43,7 +43,7 @@ ColumnSVG = (props)->
     }, children
   )
 
-GeneralizedColumn = ({generalized, lithologyWidth: width, rest...})->
+MainColumn = ({generalized, lithologyWidth: width, rest...})->
   if generalized
     return h GeneralizedSectionColumn, rest
   return h LithologyColumn, {width, rest...}
@@ -103,7 +103,7 @@ class StratColumn extends Component
             margin,
             style: {zIndex: 10, position: 'relative'}
           }, [
-            h GeneralizedColumn, {generalized, lithologyWidth}, [
+            h MainColumn, {generalized, lithologyWidth}, [
               h.if(showFacies) FaciesColumnInner
               h CoveredOverlay
               h LithologyColumnInner
@@ -115,6 +115,7 @@ class StratColumn extends Component
               notes,
               transform: "translate(#{notesOffset})",
               width: notesWidth
+              inEditMode
             }
           ]
         ]
