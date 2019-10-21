@@ -77,7 +77,13 @@ class StratColumn extends Component
     columnWidth = 212
     grainsizeScaleStart = 132
     notesWidth = 500
-    notesOffset = columnWidth+10
+    notesMargin = 10
+    notesOffset = columnWidth+notesMargin
+    containerWidth = columnWidth
+
+    notesShown = not @props.editingInterval?
+    if notesShown
+      containerWidth = notesOffset+notesWidth
 
     h ColumnProvider, {
       divisions: @props.surfaces,
@@ -99,7 +105,7 @@ class StratColumn extends Component
             editingInterval
           }
           h ColumnSVG, {
-            width: notesOffset+notesWidth,
+            width: containerWidth,
             margin,
             style: {zIndex: 10, position: 'relative'}
           }, [
@@ -111,7 +117,7 @@ class StratColumn extends Component
             h SymbolColumn, {left: 90}
             h ColumnAxis
             h GrainsizeAxis
-            h NotesColumn, {
+            h.if(notesShown) NotesColumn, {
               notes,
               transform: "translate(#{notesOffset})",
               width: notesWidth
