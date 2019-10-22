@@ -56,6 +56,11 @@ class GrainsizeLayoutProvider extends Component
       return grainsize if grainsize?
       ix -= 1
 
+  widthForDivision: (division)=>
+    return @props.width unless division?
+    gs = @grainsizeScale()
+    return gs(@grainsizeForDivision(division))
+
   render: ->
     {width, grainSizes, grainsizeScaleStart, children} = @props
     grainsizeScaleRange = [grainsizeScaleStart, width]
@@ -67,6 +72,7 @@ class GrainsizeLayoutProvider extends Component
       grainsizeScaleStart,
       grainsizeScaleRange,
       @grainsizeForDivision,
+      @widthForDivision,
     }, children
 
 

@@ -1,6 +1,6 @@
 import {findDOMNode} from "react-dom"
 import {format} from "d3-format"
-import {Component, createElement} from "react"
+import {Component, createElement, useContext} from "react"
 import h from "~/hyper"
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
@@ -21,6 +21,44 @@ IntervalNotification = (props)->
     h 'p', "#{bottom} - #{top} m"
     if surface then h('p', ["Surface: ", h('code',surface)]) else null
   ]
+
+OverlayBox = (props)->
+  {division, background, className, onClick} = props
+
+  {widthForDivision, scale} = useContext(ColumnLayoutContext)
+
+  top = scale(division.top)
+  bottom = scale(division.bottom)
+  height = bottom-top
+
+  width = widthForDivision(division)
+
+  style = {
+    marginTop: top
+    height
+    width
+    pointerEvents: 'none'
+    position: 'absolute'
+  }
+
+  h 'div', {style}, [
+    h 'div', {
+      onClick
+      className
+      style: {
+        cursor: if onClick? then 'pointer' else null
+        width: '100%'
+        height: '100%'
+        background
+      }
+    }
+    props.children
+  ]
+
+OverlayBox.propTypes = {
+  division: T.division
+}
+
 
 class DivisionEditOverlay extends Component
   @contextType: ColumnLayoutContext
@@ -95,14 +133,14 @@ class DivisionEditOverlay extends Component
     @props.onClick({height})
 
   renderCursorLine: =>
-    {height} = @state
+    {height, hoveredDivision} = @state
     {scale} = @context
     return unless height?
     style = {
       top: scale(height)
       height: 0
       border: "0.5px solid black"
-      width: @boxWidth()
+      width: @context.widthForDivision(hoveredDivision)
       position: 'absolute'
       pointerEvents: 'none'
     }
@@ -121,79 +159,26 @@ class DivisionEditOverlay extends Component
       ]
     ]
 
-  boxWidth: (division)=>
-    division ?= @state.hoveredDivision
-    {scaleToGrainsize} = @props
-    # This is kind of a silly way to do things
-    # Probably should use some type of nested context
-    {grainsizeScale, grainsizeForDivision, width} = @context
-    scaleToGrainsize ?= grainsizeScale?
-    if not scaleToGrainsize
-      return width
-
-    return grainsizeScale(grainsizeForDivision(division))
-
   renderEditingBox: =>
     {editingInterval: division} = @props
     return null unless division?
-    {scale} = @context
-
-    top = scale(division.top)
-    bottom = scale(division.bottom)
-    height = bottom-top
-
-    width = @boxWidth(division)
-
-    style = {
-      marginTop: top
-      height
-      width
-      pointerEvents: 'none'
-      position: 'absolute'
+    h OverlayBox, {
+      className: 'editing-box'
+      division
+      background: "rgba(255,0,0,0.3)"
     }
-
-    h 'div.edit-box-outer', {style}, [
-      h 'div.edit-box', {
-        style: {
-          width: '100%'
-          height: '100%'
-          backgroundColor: "rgba(255,0,0,0.3)"
-        }
-      }
-    ]
 
   renderHoveredBox: =>
     return null unless @state.hoveredDivision?
-    {divisions, pixelHeight, width} = @context
     {popoverIsOpen, hoveredDivision: division} = @state
-    {width, left, top} = @props
+    width = @context.widthForDivision(division)
 
-    {scale, pixelHeight, grainsizeScale} = @context
-
-    top = scale(division.top)
-    bottom = scale(division.bottom)
-    height = bottom-top
-
-    width = @boxWidth(division)
-
-    style = {
-      marginTop: top
-      height
-      width
-      pointerEvents: 'none'
-      position: 'absolute'
-    }
-
-    h 'div.hovered-box-outer', {style}, [
-      h 'div.hovered-box', {
-        onClick: @onEditInterval
-        style: {
-          width: '100%'
-          height: '100%'
-          backgroundColor: "rgba(255,0,0,0.5)"
-          cursor: "pointer"
-        }
-      }
+    h OverlayBox, {
+      division
+      className: 'hovered-box'
+      background: "rgba(255,0,0,0.3)"
+      onClick: @onEditInterval
+    }, [
       h.if(@props.renderEditorPopup) Popover, {
         isOpen: popoverIsOpen and division?
         style: {display: 'block', width}
