@@ -57,6 +57,7 @@ class StratColumn extends Component
       bottom: 30
     }
     showFacies: false
+    hideDefaultColumn: false
   }
   @propTypes: {
     inEditMode: T.bool.isRequired
@@ -67,7 +68,11 @@ class StratColumn extends Component
     editInterval: T.func.isRequired
     addInterval: T.func.isRequired
     height: T.number.isRequired
+    hideDetailColumn: T.bool
   }
+
+  shouldShowNotes: =>
+    not @props.editingInterval? and not @props.hideDetailColumn
 
   render: ->
     {margin, clickedHeight, showFacies, notes, inEditMode,
@@ -82,8 +87,10 @@ class StratColumn extends Component
     notesOffset = columnWidth+notesMargin
     containerWidth = columnWidth
 
-    notesShown = not @props.editingInterval?
-    if notesShown
+    if @props.hideDetailColumn
+      editingInterval = null
+
+    if @shouldShowNotes()
       containerWidth = notesOffset+notesWidth
 
     h ColumnProvider, {
@@ -91,7 +98,10 @@ class StratColumn extends Component
       range: [0,height],
       pixelsPerMeter: 20
     }, h 'div.column-container', [
-      h GrainsizeLayoutProvider, {width: columnWidth, grainsizeScaleStart}, [
+      h GrainsizeLayoutProvider, {
+        width: columnWidth,
+        grainsizeScaleStart
+      }, [
         h.if(not generalized) ColumnImage, {
           left: @props.margin.left+lithologyWidth
           top: @props.margin.top
@@ -117,7 +127,7 @@ class StratColumn extends Component
           h SymbolColumn, {left: 90}
           h ColumnAxis
           h GrainsizeAxis
-          h.if(notesShown) NotesColumn, {
+          h.if(@shouldShowNotes()) NotesColumn, {
             notes,
             transform: "translate(#{notesOffset})",
             width: notesWidth
