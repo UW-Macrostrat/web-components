@@ -78,6 +78,7 @@ class StratColumn extends Component
     grainsizeScaleStart = 132
     notesWidth = 500
     notesMargin = 10
+    editorMargin = 30
     notesOffset = columnWidth+notesMargin
     containerWidth = columnWidth
 
@@ -89,44 +90,42 @@ class StratColumn extends Component
       divisions: @props.surfaces,
       range: [0,height],
       pixelsPerMeter: 20
-    }, [
-      h 'div.column-container', [
-        h GrainsizeLayoutProvider, {width: columnWidth, grainsizeScaleStart}, [
-          h.if(not generalized) ColumnImage, {
-            left: @props.margin.left+lithologyWidth
-            top: @props.margin.top
-            src: testImage
-          }
-          h.if(inEditMode) DivisionEditOverlay, {
-            top: @props.margin.top
-            left: @props.margin.left
-            width: 200
-            onClick: @props.editInterval
-            editingInterval
-          }
-          h ColumnSVG, {
-            width: containerWidth,
-            margin,
-            style: {zIndex: 10, position: 'relative'}
-          }, [
-            h MainColumn, {generalized, lithologyWidth}, [
-              h.if(showFacies) FaciesColumnInner
-              h CoveredOverlay
-              h LithologyColumnInner
-            ]
-            h SymbolColumn, {left: 90}
-            h ColumnAxis
-            h GrainsizeAxis
-            h.if(notesShown) NotesColumn, {
-              notes,
-              transform: "translate(#{notesOffset})",
-              width: notesWidth
-              inEditMode
-            }
+    }, h 'div.column-container', [
+      h GrainsizeLayoutProvider, {width: columnWidth, grainsizeScaleStart}, [
+        h.if(not generalized) ColumnImage, {
+          left: @props.margin.left+lithologyWidth
+          top: @props.margin.top
+          src: testImage
+        }
+        h.if(inEditMode) DivisionEditOverlay, {
+          top: @props.margin.top
+          left: @props.margin.left
+          width: 200
+          onClick: @props.editInterval
+          editingInterval
+        }
+        h ColumnSVG, {
+          width: containerWidth,
+          margin,
+          style: {zIndex: 10, position: 'relative'}
+        }, [
+          h MainColumn, {generalized, lithologyWidth}, [
+            h.if(showFacies) FaciesColumnInner
+            h CoveredOverlay
+            h LithologyColumnInner
           ]
+          h SymbolColumn, {left: 90}
+          h ColumnAxis
+          h GrainsizeAxis
+          h.if(notesShown) NotesColumn, {
+            notes,
+            transform: "translate(#{notesOffset})",
+            width: notesWidth
+            inEditMode
+          }
         ]
       ]
-      h IntervalEditor, {
+      h.if(@props.editingInterval) IntervalEditor, {
         interval: editingInterval
         height: clickedHeight
         closeDialog: =>
@@ -135,6 +134,12 @@ class StratColumn extends Component
         removeInterval
         setEditingInterval: editInterval
         onUpdate
+        style: {
+          top: 0
+          left: notesOffset+editorMargin
+          width: notesWidth-editorMargin
+          position: 'absolute'
+        }
       }
     ]
 

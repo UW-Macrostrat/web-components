@@ -24,6 +24,7 @@ import {
 import {FaciesPicker} from '@macrostrat/column-components/src/editor/facies/picker'
 import {grainSizes} from "@macrostrat/column-components/src/grainsize"
 import {IntervalShape} from '@macrostrat/column-components/src/editor/types'
+import {PanelHeader} from '~/src/ui'
 import h from "~/hyper"
 
 fmt = format('.1f')
@@ -47,7 +48,7 @@ class IntervalEditor extends Component
       isAlertOpen: false
     }
   render: ->
-    {interval, height, section} = @props
+    {interval, height, section, style} = @props
     {divisions} = @context
     return null unless interval?
     ix = divisions.indexOf(interval)
@@ -56,19 +57,16 @@ class IntervalEditor extends Component
     hgt = fmt(height)
     txt = "interval starting at #{hgt} m"
 
-    h Dialog, {
-      className: "bp3-minimal"
-      title: h "div.editor-dialog-title", [
-        h "span.title-center", "Edit interval"
-        h "span.height-range", "#{bottom} - #{top} m"
-        h "code", interval.id
-      ]
-      isOpen: @props.interval?
-      onClose: =>
-        @props.setEditingInterval(null)
-      style: {top: '10%', zIndex: 1000, position: 'relative'}
-    }, [
-      h 'div.bp3-dialog-body', [
+    h 'div.editor-panel', {style}, [
+      h PanelHeader, {
+        title: h [
+          "Edit interval "
+          h "span.height-range", "#{bottom} - #{top} m"
+        ]
+        onClose: =>
+          @props.setEditingInterval(null)
+      }
+      h 'div.editor-panel-content', [
         h 'div.buttons', [
           h Button, {
             onClick: =>
@@ -156,6 +154,7 @@ class IntervalEditor extends Component
         ]
       ]
     ]
+
   updateFacies: (facies)=>
     {interval} = @props
     selected = facies.id
