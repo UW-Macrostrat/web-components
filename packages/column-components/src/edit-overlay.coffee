@@ -59,6 +59,13 @@ OverlayBox.propTypes = {
   division: T.division
 }
 
+EditingBox = ({division})->
+  return null unless division?
+  h OverlayBox, {
+    className: 'editing-box'
+    division
+    background: "rgba(255,0,0,0.3)"
+  }
 
 class DivisionEditOverlay extends Component
   @contextType: ColumnLayoutContext
@@ -159,15 +166,6 @@ class DivisionEditOverlay extends Component
       ]
     ]
 
-  renderEditingBox: =>
-    {editingInterval: division} = @props
-    return null unless division?
-    h OverlayBox, {
-      className: 'editing-box'
-      division
-      background: "rgba(255,0,0,0.3)"
-    }
-
   renderHoveredBox: =>
     return null unless @state.hoveredDivision?
     {popoverIsOpen, hoveredDivision: division} = @state
@@ -214,7 +212,7 @@ class DivisionEditOverlay extends Component
       }
     }, [
       @renderHoveredBox()
-      @renderEditingBox()
+      h EditingBox, {division: @props.editingInterval}
       @renderCursorLine()
     ]
 
