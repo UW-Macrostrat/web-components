@@ -149,6 +149,7 @@ class DivisionEditOverlay extends Component
       height
       width
       pointerEvents: 'none'
+      position: 'absolute'
     }
 
     h 'div.edit-box-outer', {style}, [
@@ -180,6 +181,7 @@ class DivisionEditOverlay extends Component
       height
       width
       pointerEvents: 'none'
+      position: 'absolute'
     }
 
     h 'div.hovered-box-outer', {style}, [
