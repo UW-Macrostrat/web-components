@@ -13,4 +13,11 @@ PanelHeader = (props)->
     h Button, {minimal: true, icon: "cross", onClick: onClose}
   ]
 
-export {PanelHeader}
+Panel = (props)->
+  {children, className, style, rest...} = props
+  h 'div.panel', {className, style}, [
+    h PanelHeader, rest
+    h 'div.panel-content', null, children
+  ]
+
+export {Panel, PanelHeader}

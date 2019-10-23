@@ -80,6 +80,7 @@ class App extends StatefulComponent
         h.if(currentPage == Page.SETTINGS) SettingsPanel, {
           inEditMode
           generalized
+          onClose: @toggleSettings
           @updateState
         }
       ]
@@ -106,11 +107,13 @@ class App extends StatefulComponent
 
   # Interval management
   editInterval: (obj)=>
+    console.log "Edit interval"
     return unless @state.inEditMode
     if not obj?
       return @cancelEditInterval()
     {height, division} = obj
     @updateState {
+      currentPage: {$set: Page.MAIN}
       editingInterval: {$set: division}
       clickedHeight: {$set: height}
     }
