@@ -85,7 +85,7 @@ class StratColumn extends Component
       editInterval, onUpdate
       columnImage
     } = @props
- 
+
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
@@ -135,12 +135,13 @@ class StratColumn extends Component
           h SymbolColumn, {left: 90}
           h ColumnAxis
           h GrainsizeAxis
+          # Notes column
           h.if(@shouldShowNotes()) NotesColumn, {
             notes,
             transform: "translate(#{notesOffset})",
             width: notesWidth
             inEditMode
-            onUpdate: @props.updateNote
+            onUpdateNote: @props.updateNote
           }
         ]
       ]
