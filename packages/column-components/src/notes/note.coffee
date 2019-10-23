@@ -45,18 +45,15 @@ class Note extends Component
   render: ->
     {style, note, paddingLeft, node, offsetX, height: noteHeight} = @props
     {scale, width} = @context
-    d = note
 
     if hasSpan(note)
-      height = Math.abs(scale(d.top_height)-scale(d.height))
+      height = Math.abs(scale(note.top_height)-scale(note.height))
     else
       height = 0
 
-    halfHeight = height/2
-
     return null unless node?
 
-    pos = node.centerPos or node.idealPos or scale(d.height)
+    pos = node.centerPos or node.idealPos or scale(note.height)
 
     offsY = node.currentPos
     offsX = offsetX or 0
@@ -67,7 +64,7 @@ class Note extends Component
       onMouseOver: @positioningInfo
     }, [
       h NoteSpan, {
-        transform: "translate(#{x} #{pos-halfHeight})"
+        transform: "translate(#{x} #{pos-height/2})"
         height
       }
       h 'path.link', {
@@ -106,8 +103,8 @@ class Note extends Component
     console.log @props.note.id
 
 NotesList = (props)->
-  {renderer, rest...} = props
-  {notes, nodes, columnIndex, estimatedTextHeight} = useContext(NoteLayoutContext)
+  {rest...} = props
+  {notes, nodes, columnIndex, estimatedTextHeight, renderer, paddingLeft} = useContext(NoteLayoutContext)
   {width} = useContext(ColumnLayoutContext)
 
   h 'g', notes.map (note, index)=>
@@ -120,6 +117,7 @@ NotesList = (props)->
       node
       link,
       offsetX,
+      paddingLeft,
       key: note.id,
       height: estimatedTextHeight(note, width)
       rest...

@@ -33,9 +33,11 @@ class NoteLayoutProvider extends Component
   @propTypes: {
     notes: T.arrayOf(NoteShape).isRequired
     width: T.number.isRequired
+    paddingLeft: T.number
     estimatedTextHeight: T.func
   }
   @defaultProps: {
+    paddingLeft: 60
     estimatedTextHeight: (note, width)->
       txt = note.note or ''
       return ((txt.length//(width/3.8))+1)*15+5
@@ -56,7 +58,7 @@ class NoteLayoutProvider extends Component
     )
 
   computeDerivedState: =>
-    {estimatedTextHeight, width} = @props
+    {estimatedTextHeight, width, paddingLeft} = @props
     notes = @props.notes
       .filter (d)->d.note?
       .sort (a,b)->a.height-b.height
@@ -83,9 +85,16 @@ class NoteLayoutProvider extends Component
 
       force.nodes(dataNodes).compute()
       nodes = force.nodes()
+
+    renderer = new Renderer {
+      direction: 'right'
+      layerGap: paddingLeft
+      nodeHeight: 5
+    }
+
     nodes ?= []
 
-    return {notes, columnIndex, nodes, estimatedTextHeight}
+    return {notes, columnIndex, nodes, renderer, estimatedTextHeight, paddingLeft}
 
   contextValue: =>
     return @computeDerivedState()
