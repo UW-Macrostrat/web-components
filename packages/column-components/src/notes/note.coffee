@@ -20,6 +20,32 @@ class NoteSpan extends Component
 
     h 'g', {transform}, el
 
+ForeignObject = (props)->
+  createElement 'foreignObject', props
+
+NoteEditor = (props)->
+  {text} = props
+  h EditableText, {
+    multiline: true
+    className: 'note-label'
+    defaultValue: text
+    onConfirm: (newText)=>
+      @props.editHandler(newText)
+  }
+
+NoteBody = (props)->
+  {text, editable} = props
+  editable ?= false
+  if editable
+    return h(NoteEditor, props)
+  h 'div', [
+    h 'p.note-label', {
+      xmlns: "http://www.w3.org/1999/xhtml"
+    }, [
+      h('span', null, text)
+    ]
+  ]
+
 class Note extends Component
   @propTypes: {
     inEditMode: T.bool
@@ -35,8 +61,9 @@ class Note extends Component
     {style, note, index} = @props
     {scale, nodes, columnIndex, width, estimatedTextHeight, renderer, paddingLeft} = @context
 
+    startHeight = scale(note.height)
     if hasSpan(note)
-      height = Math.abs(scale(note.top_height)-scale(note.height))
+      height = Math.abs(scale(note.top_height)-startHeight)
     else
       height = 0
 
@@ -45,20 +72,17 @@ class Note extends Component
 
     noteHeight = estimatedTextHeight(note, width)
 
-    link = if node? then renderer.generatePath(node) else null
-
     return null unless node?
+    link = renderer.generatePath(node)
 
-    pos = node.centerPos or node.idealPos or scale(note.height)
+    pos = node.centerPos or node.idealPos or startHeight
 
     offsY = node.currentPos
     offsX = offsetX or 0
 
     x = (offsX+1)*5
 
-    h "g.note", {
-      onMouseOver: @positioningInfo
-    }, [
+    h "g.note", [
       h NoteSpan, {
         transform: "translate(#{x} #{pos-height/2})"
         height
@@ -67,36 +91,19 @@ class Note extends Component
         d: link
         transform: "translate(#{x})"
       }
-      createElement 'foreignObject', {
+      h ForeignObject, {
         width: width-paddingLeft-offsX-10
         x: paddingLeft+x
         y: offsY-noteHeight/2
         height: noteHeight
-      }, @createBody()
-    ]
-
-  renderEditor: =>
-    h EditableText, {
-      multiline: true
-      className: 'note-label'
-      defaultValue: @props.note.note
-      onConfirm: (text)=>
-        @props.editHandler(@props.note.id, text)
-    }
-
-  createBody: =>
-    return @renderEditor() if @props.inEditMode
-
-    h 'div', [
-      h 'p.note-label', {
-        xmlns: "http://www.w3.org/1999/xhtml"
       }, [
-        h('span', null, @props.note.note)
+        h NoteBody, {
+          editable: @props.inEditMode,
+          editHandler: @props.editHandler,
+          text: @props.note.note
+        }
       ]
     ]
-
-  positioningInfo: =>
-    console.log @props.note.id
 
 NotesList = (props)->
   {notes} = useContext(NoteLayoutContext)

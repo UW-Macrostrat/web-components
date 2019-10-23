@@ -28,6 +28,12 @@ buildColumnIndex = ->
         break
     return colIx
 
+withinDomain = (scale)-> (d)->
+  [start, end] = scale.domain()
+  # end height greater than beginning
+  end_height = d.top_height or d.height
+  return end_height >= start and d.height <= end
+
 
 class NoteLayoutProvider extends Component
   @propTypes: {
@@ -60,32 +66,38 @@ class NoteLayoutProvider extends Component
 
   computeDerivedState: =>
     {estimatedTextHeight, width, paddingLeft} = @props
+    {pixelHeight, scale} = @context
+    # Clamp notes to within scale boundaries
+    # (we could turn this off if desired)
+    scale = scale.clamp(true)
+
     notes = @props.notes
       .filter (d)->d.note?
+      .filter withinDomain(scale)
       .sort (a,b)->a.height-b.height
     columnIndex = notes.map buildColumnIndex()
+
     # Compute force layout
-    if @context?
-      console.log "Computing force layout for notes column"
-      {pixelHeight, scale} = @context
-      force = new Force {
-        minPos: 0,
-        maxPos: pixelHeight
-      }
+    console.log "Computing force layout for notes column"
 
-      dataNodes = notes.map (note)=>
-        txt = note.note or ''
-        pixelHeight = estimatedTextHeight(note, width)
-        lowerHeight = scale(note.height)
-        if hasSpan(note)
-          upperHeight = scale(note.top_height)
-          harr = [lowerHeight-4,upperHeight+4]
-          if harr[0]-harr[1] > 5
-            return new FlexibleNode harr, pixelHeight
-        return new Node lowerHeight, pixelHeight
+    force = new Force {
+      minPos: 0,
+      maxPos: pixelHeight
+    }
 
-      force.nodes(dataNodes).compute()
-      nodes = force.nodes()
+    dataNodes = notes.map (note)=>
+      txt = note.note or ''
+      pixelHeight = estimatedTextHeight(note, width)
+      lowerHeight = scale(note.height)
+      if hasSpan(note)
+        upperHeight = scale(note.top_height)
+        harr = [lowerHeight-4,upperHeight+4]
+        if harr[0]-harr[1] > 5
+          return new FlexibleNode harr, pixelHeight
+      return new Node lowerHeight, pixelHeight
+
+    force.nodes(dataNodes).compute()
+    nodes = force.nodes()
 
     renderer = new Renderer {
       direction: 'right'
