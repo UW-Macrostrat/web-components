@@ -1,11 +1,12 @@
 import {findDOMNode} from "react-dom"
-import {Component, createElement} from "react"
+import {Component, createElement, useContext} from "react"
 import h from "react-hyperscript"
 import {Node, Renderer, Force} from "labella"
 import FlexibleNode from "./flexible-node"
 import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
 import {ColumnContext, ColumnLayoutContext} from '../context'
+import {NoteLayoutContext} from './layout'
 import {hasSpan} from './utils'
 
 class NoteSpan extends Component
@@ -25,19 +26,24 @@ NoteType = {
   height: T.number.isRequired
   top_height: T.number
   note: T.string
-  estimatedTextHeight: T.number.isRequired
 }
 
 class Note extends Component
   @propTypes: {
     inEditMode: T.bool
     paddingLeft: T.number.isRequired
+    offsetX: T.number
     note: T.shape(NoteType).isRequired
+    node: T.object
+    height: T.number.isRequired
+  }
+  @defaultProps: {
+    offsetX: 5
   }
   @contextType: ColumnLayoutContext
 
   render: ->
-    {style, note, paddingLeft} = @props
+    {style, note, paddingLeft, node, offsetX, height: noteHeight} = @props
     {scale, width} = @context
     d = note
 
@@ -48,12 +54,15 @@ class Note extends Component
 
     halfHeight = height/2
 
-    pos = d.node.centerPos or d.node.idealPos
+    return null unless node?
 
-    offsY = d.node.currentPos
-    offsX = d.offsetX or 0
+    pos = node.centerPos or node.idealPos or scale(d.height)
+
+    offsY = node.currentPos
+    offsX = offsetX or 0
 
     x = (offsX+1)*5
+
     h "g.note", {
       onMouseOver: @positioningInfo
     }, [
@@ -68,8 +77,8 @@ class Note extends Component
       createElement 'foreignObject', {
         width: width-paddingLeft-offsX-10
         x: paddingLeft+x
-        y: offsY-note.estimatedTextHeight/2
-        height: note.estimatedTextHeight
+        y: offsY-noteHeight/2
+        height: noteHeight
       }, @createBody()
     ]
 
@@ -96,4 +105,24 @@ class Note extends Component
   positioningInfo: =>
     console.log @props.note.id
 
-export {Note}
+NotesList = (props)->
+  {renderer, rest...} = props
+  {notes, nodes, columnIndex, estimatedTextHeight} = useContext(NoteLayoutContext)
+  {width} = useContext(ColumnLayoutContext)
+
+  h 'g', notes.map (note, index)=>
+    node = nodes[index]
+    ix = columnIndex[index]
+    offsetX = ix
+    link = if node? then renderer.generatePath(node) else null
+    h Note, {
+      note
+      node
+      link,
+      offsetX,
+      key: note.id,
+      height: estimatedTextHeight(note, width)
+      rest...
+    }
+
+export {Note, NotesList}

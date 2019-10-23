@@ -6,7 +6,7 @@ import FlexibleNode from "./flexible-node"
 import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
 import {ColumnContext} from '../context'
-import {Note} from './note'
+import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
 import {NoteLayoutContext, NoteLayoutProvider} from './layout'
@@ -97,7 +97,7 @@ class NotesColumn extends Component
 
     innerWidth = width-paddingLeft
 
-    notes = @notesData()
+    #notes = @notesData()
 
     renderer = new Renderer {
       direction: 'right'
@@ -107,7 +107,10 @@ class NotesColumn extends Component
 
     width += 80
 
-    h NoteLayoutProvider, {notes, width: innerWidth}, [
+    h NoteLayoutProvider, {
+      notes
+      width: innerWidth
+    }, [
       h 'g.section-log', {transform}, [
         h NoteDefs
         h NotesList, {
@@ -118,17 +121,5 @@ class NotesColumn extends Component
         }
       ]
     ]
-
-NotesList = (props)->
-  {renderer, rest...} = props
-  {notes} = useContext(NoteLayoutContext)
-  h 'g', notes.map (note, index)=>
-    h Note, {
-      note
-      link: renderer.generatePath(note.node),
-      key: note.id,
-      rest...
-    }
-
 
 export {NotesColumn}
