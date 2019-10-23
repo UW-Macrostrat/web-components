@@ -5,7 +5,8 @@ import {Node, Renderer, Force} from "labella"
 import FlexibleNode from "./flexible-node"
 import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
-import {ColumnContext} from '../context'
+import {ColumnContext, ColumnLayoutContext} from '../context'
+import {hasSpan} from './utils'
 
 class NoteSpan extends Component
   render: ->
@@ -33,12 +34,14 @@ class Note extends Component
     paddingLeft: T.number.isRequired
     note: T.shape(NoteType).isRequired
   }
+  @contextType: ColumnLayoutContext
 
   render: ->
-    {scale, style, note, paddingLeft} = @props
+    {style, note, paddingLeft} = @props
+    {scale, width} = @context
     d = note
 
-    if d.has_span
+    if hasSpan(note)
       height = Math.abs(scale(d.top_height)-scale(d.height))
     else
       height = 0
@@ -63,7 +66,7 @@ class Note extends Component
         transform: "translate(#{x})"
       }
       createElement 'foreignObject', {
-        width: @props.width-paddingLeft-offsX-10
+        width: width-paddingLeft-offsX-10
         x: paddingLeft+x
         y: offsY-note.estimatedTextHeight/2
         height: note.estimatedTextHeight

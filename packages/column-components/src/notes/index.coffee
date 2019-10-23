@@ -1,5 +1,5 @@
 import {findDOMNode} from "react-dom"
-import {Component, createElement} from "react"
+import {Component, createElement, useContext} from "react"
 import h from "react-hyperscript"
 import {Node, Renderer, Force} from "labella"
 import FlexibleNode from "./flexible-node"
@@ -8,13 +8,8 @@ import {EditableText} from "@blueprintjs/core"
 import {ColumnContext} from '../context'
 import {Note} from './note'
 import NoteDefs from './defs'
-
-NoteShape = T.shape {
-  height: T.number.isRequired
-  note: T.string
-  top_height: T.number
-  symbol: T.string
-}
+import {NoteShape} from './types'
+import {NoteLayoutContext, NoteLayoutProvider} from './layout'
 
 class NotesColumn extends Component
   @contextType: ColumnContext
@@ -112,23 +107,28 @@ class NotesColumn extends Component
 
     width += 80
 
-    h 'g.section-log', {transform}, [
-      h NoteDefs
-      h 'g', notes.map (note)=>
-        h Note, {
-          note
-          scale,
-          width: innerWidth,
-          editHandler: @handleNoteEdit
-          link: renderer.generatePath(note.node),
-          key: note.id,
+    h NoteLayoutProvider, {notes, width: innerWidth}, [
+      h 'g.section-log', {transform}, [
+        h NoteDefs
+        h NotesList, {
+          editHandler: @props.editHandler
+          renderer
           paddingLeft
           inEditMode
         }
-
+      ]
     ]
 
-  handleNoteEdit: (noteID, newText)=>
-    @props.editHandler(noteID, newText)
+NotesList = (props)->
+  {renderer, rest...} = props
+  {notes} = useContext(NoteLayoutContext)
+  h 'g', notes.map (note, index)=>
+    h Note, {
+      note
+      link: renderer.generatePath(note.node),
+      key: note.id,
+      rest...
+    }
+
 
 export {NotesColumn}
