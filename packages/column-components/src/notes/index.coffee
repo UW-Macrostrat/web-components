@@ -1,10 +1,6 @@
-import {findDOMNode} from "react-dom"
-import {Component, createElement, useContext} from "react"
+import {Component} from "react"
 import h from "react-hyperscript"
-import {Node, Renderer, Force} from "labella"
-import FlexibleNode from "./flexible-node"
 import T from "prop-types"
-import {EditableText} from "@blueprintjs/core"
 import {ColumnContext} from '../context'
 import {NotesList} from './note'
 import NoteDefs from './defs'

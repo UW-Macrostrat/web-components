@@ -45,7 +45,8 @@ class NoteLayoutProvider extends Component
   @contextType: ColumnContext
   constructor: (props)->
     super props
-    @state = @contextValue()
+    # State is very minimal to start
+    @state = {notes: []}
 
   componentDidMount: =>
     @_previousContext = null
@@ -65,7 +66,7 @@ class NoteLayoutProvider extends Component
     columnIndex = notes.map buildColumnIndex()
     # Compute force layout
     if @context?
-      console.log "Computing force layout"
+      console.log "Computing force layout for notes column"
       {pixelHeight, scale} = @context
       force = new Force {
         minPos: 0,
@@ -94,7 +95,18 @@ class NoteLayoutProvider extends Component
 
     nodes ?= []
 
-    return {notes, columnIndex, nodes, renderer, estimatedTextHeight, paddingLeft}
+    return {
+      notes,
+      columnIndex,
+      nodes,
+      renderer,
+      estimatedTextHeight,
+      paddingLeft,
+      # Forwarded values from column context
+      # There may be a more elegant way to do this
+      scale
+      width
+    }
 
   contextValue: =>
     return @computeDerivedState()
