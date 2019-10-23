@@ -23,7 +23,6 @@ import h from '~/hyper'
 import T from 'prop-types'
 import defaultFacies from './default-facies'
 import assetPaths from "../../sed-patterns/*.svg"
-import testImage from '../../example-data/Naukluft-Section-J.png'
 import {NotesColumn} from '@macrostrat/column-components/src/notes'
 
 ColumnSVG = (props)->
@@ -58,6 +57,7 @@ class StratColumn extends Component
     }
     showFacies: false
     hideDefaultColumn: false
+    columnImage: null
   }
   @propTypes: {
     inEditMode: T.bool.isRequired
@@ -69,15 +69,23 @@ class StratColumn extends Component
     addInterval: T.func.isRequired
     height: T.number.isRequired
     hideDetailColumn: T.bool
+    updateNote: T.func.isRequired
+    columnImage: T.string
   }
 
   shouldShowNotes: =>
     not @props.editingInterval? and not @props.hideDetailColumn
 
   render: ->
-    {margin, clickedHeight, showFacies, notes, inEditMode,
-     generalized, editingInterval, height,
-     addInterval, removeInterval, editInterval, onUpdate } = @props
+    { margin, clickedHeight,
+      showFacies, notes, inEditMode,
+      generalized, editingInterval,
+      height,
+      addInterval, removeInterval,
+      editInterval, onUpdate
+      columnImage
+    } = @props
+ 
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
@@ -102,10 +110,10 @@ class StratColumn extends Component
         width: columnWidth,
         grainsizeScaleStart
       }, [
-        h.if(not generalized) ColumnImage, {
+        h.if(not generalized and columnImage) ColumnImage, {
           left: @props.margin.left+lithologyWidth
           top: @props.margin.top
-          src: testImage
+          src: columnImage
         }
         h.if(inEditMode) DivisionEditOverlay, {
           top: @props.margin.top
@@ -132,6 +140,7 @@ class StratColumn extends Component
             transform: "translate(#{notesOffset})",
             width: notesWidth
             inEditMode
+            onUpdate: @props.updateNote
           }
         ]
       ]

@@ -1,5 +1,5 @@
 import h from '~/hyper'
-import {Switch} from '@blueprintjs/core'
+import {Switch, Button} from '@blueprintjs/core'
 import {Component} from 'react'
 import {Panel} from '~/src/ui'
 
@@ -14,6 +14,7 @@ SettingsPanel = (props)->
     inEditMode,
     generalized,
     updateState,
+    resetDemoData,
     rest...
   } = props
 
@@ -28,6 +29,7 @@ SettingsPanel = (props)->
     h 'form', [
       h Switch, {label: 'Edit mode', checked: inEditMode, onChange: toggle('inEditMode')}
       h Switch, {label: 'Generalized', checked: generalized, onChange: toggle('generalized')}
+      h Button, {onClick: resetDemoData, disabled: not resetDemoData?}, "Reset demo"
     ]
   ]
 
