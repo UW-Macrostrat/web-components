@@ -21,7 +21,6 @@ ArrowMarker = ({id, orient, size: sz})->
     }
   ]
 
-
 NoteDefs = ->
   h 'defs', [
     h ArrowMarker, {id: 'arrow_start', orient: 270}

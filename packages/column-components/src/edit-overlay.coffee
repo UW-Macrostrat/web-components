@@ -56,7 +56,7 @@ OverlayBox = (props)->
   ]
 
 OverlayBox.propTypes = {
-  division: T.division
+  division: T.object
 }
 
 EditingBox = ({division})->

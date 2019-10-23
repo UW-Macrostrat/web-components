@@ -9,6 +9,13 @@ import {ColumnContext} from '../context'
 import {Note} from './note'
 import NoteDefs from './defs'
 
+NoteShape = T.shape {
+  height: T.number.isRequired
+  note: T.string
+  top_height: T.number
+  symbol: T.string
+}
+
 class NotesColumn extends Component
   @contextType: ColumnContext
   @defaultProps: {
@@ -17,9 +24,10 @@ class NotesColumn extends Component
     inEditMode: false
   }
   @propTypes: {
-    notes: T.arrayOf(T.object)
+    notes: T.arrayOf(NoteShape).isRequired
     width: T.number.isRequired
     paddingLeft: T.number
+    onUpdateNote: T.func
   }
 
   notesData: =>
@@ -120,18 +128,7 @@ class NotesColumn extends Component
 
     ]
 
-  # handleNoteEdit: (noteID, newText)=>
-  #   # We can't edit on the frontend
-  #   return unless PLATFORM == ELECTRON
-  #   {dirname} = require 'path'
-  #   baseDir = dirname require.resolve '../..'
-  #   if newText.length == 0
-  #     sql = storedProcedure('set-note-invisible', {baseDir})
-  #     await db.none sql, [noteID]
-  #   else
-  #     sql = storedProcedure('update-note', {baseDir})
-  #     await db.none sql, [noteID, newText]
-  #   @updateNotes()
-  #   console.log "Note #{noteID} edited"
+  handleNoteEdit: (noteID, newText)=>
+    @props.editHandler(noteID, newText)
 
 export {NotesColumn}
