@@ -15,9 +15,16 @@ PanelHeader = (props)->
 
 Panel = (props)->
   {children, className, style, rest...} = props
-  h 'div.panel', {className, style}, [
-    h PanelHeader, rest
-    h 'div.panel-content', null, children
+  h 'div.panel-container', [
+    h 'div.panel-container-inner', [
+      h 'div.panel-outer', [
+        h 'div.panel', {className, style}, [
+          h PanelHeader, rest
+          h 'div.panel-content', null, children
+        ]
+        h 'div.expander'
+      ]
+    ]
   ]
 
 export {Panel, PanelHeader}

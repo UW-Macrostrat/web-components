@@ -1,6 +1,9 @@
 @require './column/editor-styles'
 @require './ui/main'
 
+*
+  box-sizing border-box
+
 body, html
   margin 0
 
@@ -29,12 +32,4 @@ body, html
 .column-container
   position relative
 
-.panel-column
-  flex-grow 1
 
-.interval-editor, .settings-panel
-  top 0
-  padding 2em 1em
-  position sticky
-  height 100vh
-  overflow-y scroll
