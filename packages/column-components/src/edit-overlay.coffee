@@ -196,7 +196,7 @@ class DivisionEditOverlay extends Component
   render: ->
     {divisions, pixelHeight, width} = @context
     {popoverIsOpen, hoveredDivision: division} = @state
-    {width, left, top} = @props
+    {width, left, top, color} = @props
 
     h 'div.edit-overlay', {
       style: {
@@ -218,7 +218,7 @@ class DivisionEditOverlay extends Component
       }
     }, [
       @renderHoveredBox()
-      h EditingBox, {division: @props.editingInterval}
+      h EditingBox, {division: @props.editingInterval, color}
       @renderCursorLine()
     ]
 
