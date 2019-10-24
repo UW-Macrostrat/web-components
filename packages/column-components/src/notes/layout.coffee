@@ -41,19 +41,23 @@ class NoteLayoutProvider extends StatefulComponent
     notes: T.arrayOf(NoteShape).isRequired
     width: T.number.isRequired
     paddingLeft: T.number
-    estimatedTextHeight: T.func
   }
   @defaultProps: {
     paddingLeft: 60
     estimatedTextHeight: (note, width)->
       txt = note.note or ''
-      return ((txt.length//(width/3.8))+1)*15+5
+      return 12
   }
   @contextType: ColumnContext
   constructor: (props)->
     super props
     # State is very minimal to start
-    @state = {notes: [], elementHeights: [], nodes: []}
+    @state = {
+      notes: [],
+      elementHeights: [],
+      nodes: []
+      @generatePath
+    }
 
   componentDidMount: =>
     @_previousContext = null
@@ -67,7 +71,7 @@ class NoteLayoutProvider extends StatefulComponent
 
   computeContextValue: =>
     console.log "Computing context value"
-    {estimatedTextHeight, width, paddingLeft} = @props
+    {width, paddingLeft} = @props
     {elementHeights} = @state
     {pixelHeight, scale} = @context
     # Clamp notes to within scale boundaries
@@ -81,7 +85,7 @@ class NoteLayoutProvider extends StatefulComponent
       scale
       width
       @registerHeight
-      estimatedTextHeight
+      @generatePath
     }
 
     notes = @props.notes
@@ -102,9 +106,20 @@ class NoteLayoutProvider extends StatefulComponent
       notes,
       columnIndex,
       renderer,
-      estimatedTextHeight,
       forwardedValues...
     }
+
+  generatePath: (node, pixelOffset)=>
+    {paddingLeft} = @props
+    renderer = new Renderer {
+      direction: 'right'
+      layerGap: paddingLeft-pixelOffset
+      nodeHeight: 5
+    }
+    try
+      return renderer.generatePath(node)
+    catch
+      return null
 
   computeForceLayout: =>
     {notes, nodes, elementHeights} = @state
@@ -123,7 +138,6 @@ class NoteLayoutProvider extends StatefulComponent
     dataNodes = notes.map (note, index)=>
       txt = note.note or ''
       pixelHeight = elementHeights[index]
-      console.log pixelHeight
       lowerHeight = scale(note.height)
       if hasSpan(note)
         upperHeight = scale(note.top_height)
@@ -138,7 +152,6 @@ class NoteLayoutProvider extends StatefulComponent
 
   registerHeight: (index, height)=>
     return unless height?
-    console.log "Registering height of #{height} px for note at index #{index}"
     {elementHeights} = @state
     elementHeights[index] = height
     @updateState {elementHeights: {$set: elementHeights}}

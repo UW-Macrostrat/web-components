@@ -63,32 +63,27 @@ class Note extends Component
 
   render: ->
     {style, note, index} = @props
-    {scale, nodes, columnIndex, width, estimatedTextHeight, renderer, paddingLeft} = @context
+    {scale, nodes, columnIndex, width, paddingLeft} = @context
 
     startHeight = scale(note.height)
+    height = 0
     if hasSpan(note)
       height = Math.abs(scale(note.top_height)-startHeight)
-    else
-      height = 0
 
     node = nodes[index]
-    offsetX = columnIndex[index]
+    offsetX = columnIndex[index] or 0
+    x = (offsetX+1)*5
 
-    noteHeight = estimatedTextHeight(note, width)
-
-    try
-      link = renderer.generatePath(node)
-    catch
-      link = null
+    link = @context.generatePath(node, x)
 
     pos = 0
     offsY = startHeight
     if node?
       pos = node.centerPos or node.idealPos
       offsY = node.currentPos
-    offsX = offsetX or 0
 
-    x = (offsX+1)*5
+    noteHeight = (@state.height or 0)
+
 
     h "g.note", [
       h NoteSpan, {
@@ -100,14 +95,13 @@ class Note extends Component
         transform: "translate(#{x})"
       }
       h ForeignObject, {
-        width: width-paddingLeft-offsX-10
-        x: paddingLeft+x
+        width: width-paddingLeft
+        x: paddingLeft
         y: offsY-noteHeight/2
-        height: noteHeight
+        height: noteHeight+10
       }, [
-        h 'div', [
+        h 'div.note-inner', {ref: @element}, [
           h NoteBody, {
-            ref: @element
             editable: false,
             editHandler: @props.editHandler,
             text: @props.note.note
