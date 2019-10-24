@@ -6,12 +6,18 @@ import {SettingsPanel} from './settings'
 import {TitleBar, SideMenu} from './nav'
 import T from 'prop-types'
 import {Page} from './enum'
+import {Panel} from './ui'
 
 import defaultColumnData from '~/example-data/Naukluft-Section-J.json'
 import testImage from '~/example-data/Naukluft-Section-J.png'
 
 createID = ->
   '_' + Math.random().toString(36).substr(2, 9)
+
+AboutPanel = (props)->
+  h Panel, {title: "About", props...}, [
+    h 'div', "This is an app"
+  ]
 
 class App extends StatefulComponent
   constructor: (props)->
@@ -58,6 +64,7 @@ class App extends StatefulComponent
           onUpdate: @updateInterval
           hideDetailColumn: currentPage != Page.MAIN
           columnImage: @state.columnImage
+          @updateNote
         }
         h.if(currentPage == Page.SETTINGS) SettingsPanel, {
           inEditMode
@@ -65,6 +72,9 @@ class App extends StatefulComponent
           onClose: @setPage(Page.SETTINGS)
           resetDemoData: if @isChanged() then @resetDemoData else null
           @updateState
+        }
+        h.if(currentPage == Page.ABOUT) AboutPanel, {
+          onClose: @setPage(Page.ABOUT)
         }
       ]
     ]

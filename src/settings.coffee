@@ -21,17 +21,15 @@ SettingsPanel = (props)->
   toggle = (key)-> ->
     updateState {$toggle: [key]}
 
-  h 'div.panel-column', [
-    h Panel, {
-      className: 'settings-panel'
-      title: "Settings"
-      rest...
-    }, [
-      h 'form', [
-        h Switch, {label: 'Edit mode', checked: inEditMode, onChange: toggle('inEditMode')}
-        h Switch, {label: 'Generalized', checked: generalized, onChange: toggle('generalized')}
-        h Button, {onClick: resetDemoData, disabled: not resetDemoData?}, "Reset demo"
-      ]
+  h Panel, {
+    className: 'settings-panel'
+    title: "Settings"
+    rest...
+  }, [
+    h 'form', [
+      h Switch, {label: 'Edit mode', checked: inEditMode, onChange: toggle('inEditMode')}
+      h Switch, {label: 'Generalized', checked: generalized, onChange: toggle('generalized')}
+      h Button, {onClick: resetDemoData, disabled: not resetDemoData?}, "Reset demo"
     ]
   ]
 
