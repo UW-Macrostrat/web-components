@@ -165,7 +165,7 @@ class IntervalEditor extends Component
     @props.onUpdate(interval, newData)
 
 WrappedIntervalEditor = (props)->
-  h 'div.editor-column', [
+  h 'div.panel-column', [
     h IntervalEditor, props
   ]
 

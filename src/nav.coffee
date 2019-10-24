@@ -1,6 +1,12 @@
 import h from '~/hyper'
-import {Navbar, Button, Alignment, Menu} from '@blueprintjs/core'
+import {
+  Navbar, Button,
+  Menu, Icon,
+  Intent
+} from '@blueprintjs/core'
 import T from 'prop-types'
+
+import {Page} from './enum'
 
 TitleBar = (props)->
   {toggleSettings} = props
@@ -20,14 +26,30 @@ TitleBar.propTypes = {
   toggleSettings: T.func
 }
 
+GiantIconButton = (props)->
+  {icon, iconSize, rest...} = props
+  iconSize ?= 24
+  h Button, {
+    large: true
+    minimal: true
+    rest...
+  }, (
+    h Icon, {icon, iconSize}
+  )
+
 SideMenu = (props)->
-  {toggleSettings} = props
+  {currentPage, setPage} = props
   h 'div.menu-column', [
-    h Menu, {className: 'main-menu'}, [
-      h Menu.Item, {
-        icon: 'settings',
-        onClick: toggleSettings
-        text: "Settings"
+    h 'div.main-menu', [
+      h GiantIconButton, {
+        onClick: setPage(Page.SETTINGS)
+        active: currentPage == Page.SETTINGS
+        icon: 'settings'
+      }
+      h GiantIconButton, {
+        onClick: setPage(Page.ABOUT)
+        active: currentPage == Page.ABOUT
+        icon: 'info-sign'
       }
     ]
   ]

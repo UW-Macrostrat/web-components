@@ -1,21 +1,17 @@
 import h from '~/hyper'
+import {StatefulComponent} from '@macrostrat/ui-components'
+
 import {StratColumn} from './column'
 import {SettingsPanel} from './settings'
-import {StatefulComponent} from '@macrostrat/ui-components'
 import {TitleBar, SideMenu} from './nav'
 import T from 'prop-types'
+import {Page} from './enum'
 
 import defaultColumnData from '~/example-data/Naukluft-Section-J.json'
 import testImage from '~/example-data/Naukluft-Section-J.png'
 
 createID = ->
   '_' + Math.random().toString(36).substr(2, 9)
-
-Page = Object.freeze {
-  MAIN: 'main'
-  SETTINGS: 'settings'
-  ABOUT: 'about'
-}
 
 class App extends StatefulComponent
   constructor: (props)->
@@ -42,12 +38,12 @@ class App extends StatefulComponent
     } = @state
     {surfaces, notes, height} = columnData
 
-    if not inEditMode
+    if not inEditMode or currentPage == Page.SETTINGS
       editingInterval = null
 
     h 'div.app', [
       h 'div.main', [
-        h SideMenu, {@toggleSettings}
+        h SideMenu, {@setPage, currentPage}
         h StratColumn, {
           surfaces
           notes
@@ -66,7 +62,7 @@ class App extends StatefulComponent
         h.if(currentPage == Page.SETTINGS) SettingsPanel, {
           inEditMode
           generalized
-          onClose: @toggleSettings
+          onClose: @setPage(Page.SETTINGS)
           resetDemoData: if @isChanged() then @resetDemoData else null
           @updateState
         }
@@ -145,9 +141,8 @@ class App extends StatefulComponent
   updateNote: (noteID, newText)=>
     console.log arguments
 
-  toggleSettings: =>
-    nextPage = Page.SETTINGS
-    if @state.currentPage == Page.SETTINGS
+  setPage: (nextPage)=> =>
+    if @state.currentPage == nextPage
       nextPage = Page.MAIN
     @updateState {currentPage: {$set: nextPage}}
 

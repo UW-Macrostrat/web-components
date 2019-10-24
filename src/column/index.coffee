@@ -89,8 +89,8 @@ class StratColumn extends Component
     lithologyWidth = 40
     columnWidth = 212
     grainsizeScaleStart = 132
-    notesWidth = 500
-    notesMargin = 10
+    notesWidth = 480
+    notesMargin = 30
     editorMargin = 30
     notesOffset = columnWidth+notesMargin
     containerWidth = columnWidth
@@ -121,6 +121,7 @@ class StratColumn extends Component
             left: @props.margin.left
             width: 200
             onClick: @props.editInterval
+            color: 'dodgerblue'
             editingInterval
           }
           h ColumnSVG, {
