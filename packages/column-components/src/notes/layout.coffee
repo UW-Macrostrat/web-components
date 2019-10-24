@@ -109,13 +109,19 @@ class NoteLayoutProvider extends StatefulComponent
       forwardedValues...
     }
 
-  generatePath: (node, pixelOffset)=>
-    {paddingLeft} = @props
-    renderer = new Renderer {
+  savedRendererForWidth: (width)=>
+    @_rendererIndex ?= {}
+    @_rendererIndex[width] ?= new Renderer {
       direction: 'right'
-      layerGap: paddingLeft-pixelOffset
+      layerGap: width
       nodeHeight: 5
     }
+    return @_rendererIndex[width]
+
+
+  generatePath: (node, pixelOffset)=>
+    {paddingLeft} = @props
+    renderer = @savedRendererForWidth(paddingLeft-pixelOffset)
     try
       return renderer.generatePath(node)
     catch

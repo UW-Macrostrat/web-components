@@ -34,16 +34,18 @@ NoteEditor = forwardRef (props, ref)->
       @props.editHandler(newText)
   }
 
-NoteBody = forwardRef (props, ref)->
+NoteBody = (props)->
   {text, editable} = props
   editable ?= false
-  if editable
-    return h(NoteEditor, {ref, props...})
-  h 'p.note-label', {
-    ref
-    xmlns: "http://www.w3.org/1999/xhtml"
-  }, [
-    h('span', null, text)
+  visibility = if editable then 'hidden' else 'inherit'
+  h [
+    h.if(editable) NoteEditor, {props...}
+    h 'p.note-label', {
+      style: {visibility}
+      xmlns: "http://www.w3.org/1999/xhtml"
+    }, [
+      h('span', null, text)
+    ]
   ]
 
 class Note extends Component
@@ -71,10 +73,7 @@ class Note extends Component
       height = Math.abs(scale(note.top_height)-startHeight)
 
     node = nodes[index]
-    offsetX = columnIndex[index] or 0
-    x = (offsetX+1)*5
-
-    link = @context.generatePath(node, x)
+    offsetX = (columnIndex[index] or 0)*5
 
     pos = 0
     offsY = startHeight
@@ -87,12 +86,12 @@ class Note extends Component
 
     h "g.note", [
       h NoteSpan, {
-        transform: "translate(#{x} #{pos-height/2})"
+        transform: "translate(#{offsetX} #{pos-height/2})"
         height
       }
       h 'path.link', {
-        d: link
-        transform: "translate(#{x})"
+        d: @context.generatePath(node, offsetX)
+        transform: "translate(#{offsetX})"
       }
       h ForeignObject, {
         width: width-paddingLeft
@@ -102,7 +101,7 @@ class Note extends Component
       }, [
         h 'div.note-inner', {ref: @element}, [
           h NoteBody, {
-            editable: false,
+            editable: @props.inEditMode,
             editHandler: @props.editHandler,
             text: @props.note.note
           }
