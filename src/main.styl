@@ -1,19 +1,32 @@
 @require './column/editor-styles'
 @require './ui/main'
 
+body, html
+  margin 0
+
 .app
-  margin 1em auto
+  margin 0 auto
   max-width 800px
 
 .main
   display flex
   flex-direction row
 
+.main-menu
+  position sticky
+  top 0
+  padding-top 2em
+  min-width 8em
 
 .column-container
-  flex-grow 1
   position relative
 
-.editor-panel
-  width 400px
-  margin 20px 1em
+.panel-column
+  flex-grow 1
+
+.interval-editor, .settings-panel
+  top 0
+  padding 2em 1em
+  position sticky
+  height 100vh
+  overflow-y scroll

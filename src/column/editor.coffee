@@ -56,7 +56,6 @@ class IntervalEditor extends Component
     {id, top, bottom, facies} = interval
     hgt = fmt(height)
     txt = "interval starting at #{hgt} m"
-
     h Panel, {
       style
       className: 'interval-editor'
@@ -165,4 +164,9 @@ class IntervalEditor extends Component
     {interval} = @props
     @props.onUpdate(interval, newData)
 
-export {IntervalEditor}
+WrappedIntervalEditor = (props)->
+  h 'div.editor-column', [
+    h IntervalEditor, props
+  ]
+
+export {WrappedIntervalEditor as IntervalEditor}

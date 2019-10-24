@@ -1,35 +1,15 @@
 import h from '~/hyper'
 import {StratColumn} from './column'
 import {SettingsPanel} from './settings'
-import {Component} from 'react'
 import {StatefulComponent} from '@macrostrat/ui-components'
-import {Navbar, Button, Alignment} from '@blueprintjs/core'
+import {TitleBar, SideMenu} from './nav'
 import T from 'prop-types'
 
 import defaultColumnData from '~/example-data/Naukluft-Section-J.json'
 import testImage from '~/example-data/Naukluft-Section-J.png'
 
-
 createID = ->
   '_' + Math.random().toString(36).substr(2, 9)
-
-TitleBar = (props)->
-  {toggleSettings} = props
-  h Navbar, [
-    h Navbar.Group, [
-      h Navbar.Heading, "Column builder"
-      h Navbar.Divider
-      h Button, {
-        minimal: true,
-        icon: 'settings',
-        onClick: toggleSettings
-      }, "Settings"
-    ]
-  ]
-
-TitleBar.propTypes = {
-  toggleSettings: T.func
-}
 
 Page = Object.freeze {
   MAIN: 'main'
@@ -62,10 +42,12 @@ class App extends StatefulComponent
     } = @state
     {surfaces, notes, height} = columnData
 
+    if not inEditMode
+      editingInterval = null
 
     h 'div.app', [
-      h TitleBar, {@toggleSettings}
       h 'div.main', [
+        h SideMenu, {@toggleSettings}
         h StratColumn, {
           surfaces
           notes
@@ -117,6 +99,9 @@ class App extends StatefulComponent
     if not obj?
       return @cancelEditInterval()
     {height, division} = obj
+    if division == @state.editingInterval
+      division = null
+
     @updateState {
       currentPage: {$set: Page.MAIN}
       editingInterval: {$set: division}
@@ -168,7 +153,7 @@ class App extends StatefulComponent
 
   isChanged: =>
     return @state.columnData != @defaultData \
-          or @state.columnImage != testImage
+        or @state.columnImage != testImage
 
   resetDemoData: =>
     @updateState {
