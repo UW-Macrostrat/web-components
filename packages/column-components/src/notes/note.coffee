@@ -23,23 +23,28 @@ class NoteSpan extends Component
 ForeignObject = (props)->
   createElement 'foreignObject', props
 
-NoteEditor = forwardRef (props, ref)->
+NoteEditor = (props)->
   {text} = props
   h EditableText, {
     multiline: true
     className: 'note-label'
     defaultValue: text
-    ref
     onConfirm: (newText)=>
-      @props.editHandler(newText)
+      props.editHandler(newText)
   }
+
+NoteEditor.propTypes = {
+  editHandler: T.func.isRequired
+}
 
 NoteBody = (props)->
   {text, editable} = props
   editable ?= false
+  if not props.editHandler?
+    editable = false
   visibility = if editable then 'hidden' else 'inherit'
   h [
-    h.if(editable) NoteEditor, {props...}
+    h.if(editable) NoteEditor, props
     h 'p.note-label', {
       style: {visibility}
       xmlns: "http://www.w3.org/1999/xhtml"
@@ -53,6 +58,7 @@ class Note extends Component
     inEditMode: T.bool
     note: NoteShape.isRequired
     index: T.number.isRequired
+    editHandler: T.func
   }
   @contextType: NoteLayoutContext
   constructor: (props)->

@@ -24,7 +24,12 @@ class NotesColumn extends Component
      transform,
      notes,
      inEditMode
+     onUpdateNote
     } = @props
+
+    editHandler = onUpdateNote
+    if not inEditMode
+      editHandler = null
 
     innerWidth = width-paddingLeft
 
@@ -36,7 +41,7 @@ class NotesColumn extends Component
       h 'g.section-log', {transform}, [
         h NoteDefs
         h NotesList, {
-          editHandler: @props.editHandler
+          editHandler
           inEditMode
         }
       ]
