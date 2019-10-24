@@ -118,7 +118,6 @@ class NoteLayoutProvider extends StatefulComponent
     }
     return @_rendererIndex[width]
 
-
   generatePath: (node, pixelOffset)=>
     {paddingLeft} = @props
     renderer = @savedRendererForWidth(paddingLeft-pixelOffset)

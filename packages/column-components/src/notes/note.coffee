@@ -54,9 +54,6 @@ class Note extends Component
     note: NoteShape.isRequired
     index: T.number.isRequired
   }
-  @defaultProps: {
-    offsetX: 5
-  }
   @contextType: NoteLayoutContext
   constructor: (props)->
     super props

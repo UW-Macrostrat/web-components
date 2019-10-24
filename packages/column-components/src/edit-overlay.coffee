@@ -6,6 +6,7 @@ import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {ColumnLayoutContext} from './context'
 import T from 'prop-types'
+import chroma from 'chroma-js'
 
 fmt = format('.1f')
 fmt2 = format('.2f')
@@ -59,12 +60,14 @@ OverlayBox.propTypes = {
   division: T.object
 }
 
-EditingBox = ({division})->
+EditingBox = ({division, color})->
   return null unless division?
+  color ?= "red"
+  background = chroma(color).alpha(0.2).css()
   h OverlayBox, {
     className: 'editing-box'
     division
-    background: "rgba(255,0,0,0.3)"
+    background
   }
 
 class DivisionEditOverlay extends Component
@@ -78,7 +81,7 @@ class DivisionEditOverlay extends Component
     renderEditorPopup: T.func
     scaleToGrainsize: T.bool
     editingInterval: T.object
-
+    color: T.string
   }
   @defaultProps: {
     onEditInterval: ->
@@ -89,6 +92,7 @@ class DivisionEditOverlay extends Component
     showInfoBox: false
     allowEditing: true
     renderEditorPopup: ->return null
+    color: 'red'
   }
   constructor: (props)->
     super props
@@ -170,11 +174,13 @@ class DivisionEditOverlay extends Component
     return null unless @state.hoveredDivision?
     {popoverIsOpen, hoveredDivision: division} = @state
     width = @context.widthForDivision(division)
+    {color} = @props
+    background = chroma(color).alpha(0.5).css()
 
     h OverlayBox, {
       division
       className: 'hovered-box'
-      background: "rgba(255,0,0,0.3)"
+      background
       onClick: @onEditInterval
     }, [
       h.if(@props.renderEditorPopup) Popover, {
