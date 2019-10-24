@@ -63,7 +63,7 @@ OverlayBox.propTypes = {
 EditingBox = ({division, color})->
   return null unless division?
   color ?= "red"
-  background = chroma(color).alpha(0.2).css()
+  background = chroma(color).alpha(0.5).css()
   h OverlayBox, {
     className: 'editing-box'
     division
@@ -175,7 +175,7 @@ class DivisionEditOverlay extends Component
     {popoverIsOpen, hoveredDivision: division} = @state
     width = @context.widthForDivision(division)
     {color} = @props
-    background = chroma(color).alpha(0.5).css()
+    background = chroma(color).alpha(0.3).css()
 
     h OverlayBox, {
       division
