@@ -1,5 +1,5 @@
 import {findDOMNode} from "react-dom"
-import {Component, createElement, useContext} from "react"
+import {Component, createElement, useContext, createRef, forwardRef} from "react"
 import h from "react-hyperscript"
 import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
@@ -23,27 +23,27 @@ class NoteSpan extends Component
 ForeignObject = (props)->
   createElement 'foreignObject', props
 
-NoteEditor = (props)->
+NoteEditor = forwardRef (props, ref)->
   {text} = props
   h EditableText, {
     multiline: true
     className: 'note-label'
     defaultValue: text
+    ref
     onConfirm: (newText)=>
       @props.editHandler(newText)
   }
 
-NoteBody = (props)->
+NoteBody = forwardRef (props, ref)->
   {text, editable} = props
   editable ?= false
   if editable
-    return h(NoteEditor, props)
-  h 'div', [
-    h 'p.note-label', {
-      xmlns: "http://www.w3.org/1999/xhtml"
-    }, [
-      h('span', null, text)
-    ]
+    return h(NoteEditor, {ref, props...})
+  h 'p.note-label', {
+    ref
+    xmlns: "http://www.w3.org/1999/xhtml"
+  }, [
+    h('span', null, text)
   ]
 
 class Note extends Component
@@ -56,6 +56,10 @@ class Note extends Component
     offsetX: 5
   }
   @contextType: NoteLayoutContext
+  constructor: (props)->
+    super props
+    @element = createRef()
+    @state = {height: null}
 
   render: ->
     {style, note, index} = @props
@@ -72,12 +76,16 @@ class Note extends Component
 
     noteHeight = estimatedTextHeight(note, width)
 
-    return null unless node?
-    link = renderer.generatePath(node)
+    try
+      link = renderer.generatePath(node)
+    catch
+      link = null
 
-    pos = node.centerPos or node.idealPos or startHeight
-
-    offsY = node.currentPos
+    pos = 0
+    offsY = startHeight
+    if node?
+      pos = node.centerPos or node.idealPos
+      offsY = node.currentPos
     offsX = offsetX or 0
 
     x = (offsX+1)*5
@@ -97,13 +105,27 @@ class Note extends Component
         y: offsY-noteHeight/2
         height: noteHeight
       }, [
-        h NoteBody, {
-          editable: @props.inEditMode,
-          editHandler: @props.editHandler,
-          text: @props.note.note
-        }
+        h 'div', [
+          h NoteBody, {
+            ref: @element
+            editable: false,
+            editHandler: @props.editHandler,
+            text: @props.note.note
+          }
+        ]
       ]
     ]
+
+  componentDidMount: =>
+    node = @element.current
+    return unless node?
+    height = node.offsetHeight
+    return unless height?
+    return if @state.height == height
+    console.log height
+    @setState {height}
+    @context.registerHeight(@props.index, height)
+
 
 NotesList = (props)->
   {notes} = useContext(NoteLayoutContext)

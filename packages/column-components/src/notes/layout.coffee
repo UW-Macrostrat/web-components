@@ -1,4 +1,5 @@
-import {Component, createContext} from 'react'
+import {createContext} from 'react'
+import {StatefulComponent} from '@macrostrat/ui-components'
 import h from '@macrostrat/hyper'
 import {NoteShape} from './types'
 import {ColumnLayoutProvider, ColumnContext} from '../context'
@@ -35,7 +36,7 @@ withinDomain = (scale)-> (d)->
   return end_height >= start and d.height <= end
 
 
-class NoteLayoutProvider extends Component
+class NoteLayoutProvider extends StatefulComponent
   @propTypes: {
     notes: T.arrayOf(NoteShape).isRequired
     width: T.number.isRequired
@@ -52,11 +53,11 @@ class NoteLayoutProvider extends Component
   constructor: (props)->
     super props
     # State is very minimal to start
-    @state = {notes: []}
+    @state = {notes: [], elementHeights: [], nodes: []}
 
   componentDidMount: =>
     @_previousContext = null
-    @setState @contextValue()
+    @computeContextValue()
 
   render: ->
     {children, width} = @props
@@ -64,12 +65,24 @@ class NoteLayoutProvider extends Component
       h ColumnLayoutProvider, {width}, children
     )
 
-  computeDerivedState: =>
+  computeContextValue: =>
+    console.log "Computing context value"
     {estimatedTextHeight, width, paddingLeft} = @props
+    {elementHeights} = @state
     {pixelHeight, scale} = @context
     # Clamp notes to within scale boundaries
     # (we could turn this off if desired)
     scale = scale.clamp(true)
+
+    forwardedValues = {
+      # Forwarded values from column context
+      # There may be a more elegant way to do this
+      paddingLeft,
+      scale
+      width
+      @registerHeight
+      estimatedTextHeight
+    }
 
     notes = @props.notes
       .filter (d)->d.note?
@@ -78,6 +91,28 @@ class NoteLayoutProvider extends Component
     columnIndex = notes.map buildColumnIndex()
 
     # Compute force layout
+
+    renderer = new Renderer {
+      direction: 'right'
+      layerGap: paddingLeft
+      nodeHeight: 5
+    }
+
+    @setState {
+      notes,
+      columnIndex,
+      renderer,
+      estimatedTextHeight,
+      forwardedValues...
+    }
+
+  computeForceLayout: =>
+    {notes, nodes, elementHeights} = @state
+    {pixelHeight, scale} = @context
+    {width, paddingLeft} = @props
+
+    return if elementHeights.length < notes.length
+    return if nodes.length != 0
     console.log "Computing force layout for notes column"
 
     force = new Force {
@@ -85,9 +120,10 @@ class NoteLayoutProvider extends Component
       maxPos: pixelHeight
     }
 
-    dataNodes = notes.map (note)=>
+    dataNodes = notes.map (note, index)=>
       txt = note.note or ''
-      pixelHeight = estimatedTextHeight(note, width)
+      pixelHeight = elementHeights[index]
+      console.log pixelHeight
       lowerHeight = scale(note.height)
       if hasSpan(note)
         upperHeight = scale(note.top_height)
@@ -97,37 +133,22 @@ class NoteLayoutProvider extends Component
       return new Node lowerHeight, pixelHeight
 
     force.nodes(dataNodes).compute()
-    nodes = force.nodes()
+    nodes = force.nodes() or []
+    @updateState {nodes: {$set: nodes}}
 
-    renderer = new Renderer {
-      direction: 'right'
-      layerGap: paddingLeft
-      nodeHeight: 5
-    }
-
-    nodes ?= []
-
-    return {
-      notes,
-      columnIndex,
-      nodes,
-      renderer,
-      estimatedTextHeight,
-      paddingLeft,
-      # Forwarded values from column context
-      # There may be a more elegant way to do this
-      scale
-      width
-    }
-
-  contextValue: =>
-    return @computeDerivedState()
+  registerHeight: (index, height)=>
+    return unless height?
+    console.log "Registering height of #{height} px for note at index #{index}"
+    {elementHeights} = @state
+    elementHeights[index] = height
+    @updateState {elementHeights: {$set: elementHeights}}
 
   componentDidUpdate: (prevProps)=>
+    @computeForceLayout()
     return if @props.notes == prevProps.notes
     return if @context == @_previousContext
-    @setState @contextValue()
     console.log "Updating node grapher"
+    @computeContextValue()
     @_previousContext = @context
 
 export {NoteLayoutContext, NoteLayoutProvider}

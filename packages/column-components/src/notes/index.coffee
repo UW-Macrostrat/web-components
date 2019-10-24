@@ -1,14 +1,12 @@
 import {Component} from "react"
 import h from "react-hyperscript"
 import T from "prop-types"
-import {ColumnContext} from '../context'
 import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
 import {NoteLayoutProvider} from './layout'
 
 class NotesColumn extends Component
-  @contextType: ColumnContext
   @defaultProps: {
     type: 'log-notes'
     paddingLeft: 60
@@ -21,9 +19,7 @@ class NotesColumn extends Component
     onUpdateNote: T.func
   }
   render: ->
-    {scale, zoom, pixelHeight: height} = @context
-    {type,
-     width,
+    {width,
      paddingLeft,
      transform,
      notes,
@@ -31,10 +27,6 @@ class NotesColumn extends Component
     } = @props
 
     innerWidth = width-paddingLeft
-
-    #notes = @notesData()
-
-    width += 80
 
     h NoteLayoutProvider, {
       notes
