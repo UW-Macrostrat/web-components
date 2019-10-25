@@ -1,16 +1,11 @@
 import {findDOMNode} from "react-dom"
-import * as d3 from "d3"
-import "d3-selection-multi"
-import {Component, createElement} from "react"
+import {Component, createElement, useContext, createRef, forwardRef} from "react"
 import h from "react-hyperscript"
-import {db, storedProcedure, query} from "app/sections/db"
-import {Node, Renderer, Force} from "labella"
-import {calculateSize} from "calculate-size"
-import FlexibleNode from "./flexible-node"
 import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
-import {PhotoOverlay} from "./photo-overlay"
-import {ColumnContext} from '../context'
+import {NoteLayoutContext} from './layout'
+import {hasSpan} from './utils'
+import {NoteShape} from './types'
 
 class NoteSpan extends Component
   render: ->
@@ -23,95 +18,114 @@ class NoteSpan extends Component
     else
       el = h 'circle', {r: 2}
 
-    h 'g', transform: transform, el
+    h 'g', {transform}, el
+
+ForeignObject = (props)->
+  createElement 'foreignObject', props
+
+NoteEditor = (props)->
+  {text} = props
+  h EditableText, {
+    multiline: true
+    className: 'note-label'
+    defaultValue: text
+    onConfirm: (newText)=>
+      props.editHandler(newText)
+  }
+
+NoteEditor.propTypes = {
+  editHandler: T.func.isRequired
+}
+
+NoteBody = (props)->
+  {text, editable} = props
+  editable ?= false
+  if not props.editHandler?
+    editable = false
+  visibility = if editable then 'hidden' else 'inherit'
+  h [
+    h.if(editable) NoteEditor, props
+    h 'p.note-label', {
+      style: {visibility}
+      xmlns: "http://www.w3.org/1999/xhtml"
+    }, [
+      h('span', null, text)
+    ]
+  ]
 
 class Note extends Component
   @propTypes: {
     inEditMode: T.bool
+    note: NoteShape.isRequired
+    index: T.number.isRequired
+    editHandler: T.func
   }
-
+  @contextType: NoteLayoutContext
   constructor: (props)->
     super props
-    @state = {overlayIsEnabled: false}
+    @element = createRef()
+    @state = {height: null}
 
   render: ->
-    {scale, style, d} = @props
-    extraClasses = ''
+    {style, note, index} = @props
+    {scale, nodes, columnIndex, width, paddingLeft} = @context
 
-    if d.has_span
-      height = scale(0)-scale(d.span)
-    else
-      height = 0
+    startHeight = scale(note.height)
+    height = 0
+    if hasSpan(note)
+      height = Math.abs(scale(note.top_height)-startHeight)
 
-    halfHeight = height/2
+    node = nodes[index]
+    offsetX = (columnIndex[index] or 0)*5
 
-    pos = d.node.centerPos or d.node.idealPos
+    pos = 0
+    offsY = startHeight
+    if node?
+      pos = node.centerPos or node.idealPos
+      offsY = node.currentPos
 
-    offsY = d.node.currentPos
-    offsX = d.offsetX or 0
+    noteHeight = (@state.height or 0)
 
-    x = (offsX+1)*5
-    h "g.note#{extraClasses}", {
-      onMouseOver: @positioningInfo
-    }, [
+
+    h "g.note", [
       h NoteSpan, {
-        transform: "translate(#{x} #{pos-halfHeight})"
+        transform: "translate(#{offsetX} #{pos-height/2})"
         height
       }
       h 'path.link', {
-        d: @props.link
-        transform: "translate(#{x})"
+        d: @context.generatePath(node, offsetX)
+        transform: "translate(#{offsetX})"
       }
-      createElement 'foreignObject', {
-        width: @props.width-@props.columnGap-offsX-10
-        x: @props.columnGap+x
-        y: offsY-d.estimatedTextHeight/2
-        height: d.estimatedTextHeight
-      }, @createBody()
-    ]
-
-  renderEditor: =>
-    h EditableText, {
-      multiline: true
-      className: 'note-label'
-      defaultValue: @props.d.note
-      onConfirm: (text)=>
-        @props.editHandler(@props.d.id, text)
-    }
-
-  renderPhotoOverlay: =>
-    {photos} = @props.d
-    return null unless photos?
-    tx = "#{photos.length} photo"
-    if photos.length > 1
-      tx += 's'
-
-    h [
-      h 'a.photos-link', {onClick: @toggleOverlay}, tx
-      h PhotoOverlay, {
-        isOpen: @state.overlayIsEnabled
-        onClose: @toggleOverlay
-        photoIDs: photos
-      }
-    ]
-
-  createBody: =>
-    return @renderEditor() if @props.inEditMode
-
-    h 'div', [
-      h 'p.note-label', {
-        xmlns: "http://www.w3.org/1999/xhtml"
+      h ForeignObject, {
+        width: width-paddingLeft
+        x: paddingLeft
+        y: offsY-noteHeight/2
+        height: noteHeight+10
       }, [
-        h('span', null, @props.d.note)
-        @renderPhotoOverlay()
+        h 'div.note-inner', {ref: @element}, [
+          h NoteBody, {
+            editable: @props.inEditMode,
+            editHandler: @props.editHandler,
+            text: @props.note.note
+          }
+        ]
       ]
     ]
 
-  toggleOverlay: =>
-    {overlayIsEnabled} = @state
-    @setState overlayIsEnabled: not overlayIsEnabled
+  componentDidMount: =>
+    node = @element.current
+    return unless node?
+    height = node.offsetHeight
+    return unless height?
+    return if @state.height == height
+    console.log height
+    @setState {height}
+    @context.registerHeight(@props.index, height)
 
-  positioningInfo: =>
-    console.log @props.d.id
 
-export {Note}
+NotesList = (props)->
+  {notes} = useContext(NoteLayoutContext)
+  h 'g', notes.map (note, index)=>
+    h Note, {note, index, props...}
+
+export {Note, NotesList}

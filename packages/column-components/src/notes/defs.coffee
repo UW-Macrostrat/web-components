@@ -1,18 +1,10 @@
 import {findDOMNode} from "react-dom"
-import * as d3 from "d3"
-import "d3-selection-multi"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import {db, storedProcedure, query} from "app/sections/db"
-import {Node, Renderer, Force} from "labella"
-import {calculateSize} from "calculate-size"
-import FlexibleNode from "./flexible-node"
 import T from "prop-types"
-import {EditableText} from "@blueprintjs/core"
-import {PhotoOverlay} from "./photo-overlay"
-import {ColumnContext} from '../context'
 
-arrowMarker = (id, orient, sz=2.5)->
+ArrowMarker = ({id, orient, size: sz})->
+  sz ?= 2.5
   h 'marker', {
     id
     orient
@@ -29,11 +21,10 @@ arrowMarker = (id, orient, sz=2.5)->
     }
   ]
 
-
 NoteDefs = ->
   h 'defs', [
-    arrowMarker 'arrow_start', 270
-    arrowMarker 'arrow_end', 90
+    h ArrowMarker, {id: 'arrow_start', orient: 270}
+    h ArrowMarker, {id: 'arrow_end', orient: 90}
   ]
 
 export default NoteDefs

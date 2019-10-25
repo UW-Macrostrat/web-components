@@ -1,11 +1,12 @@
 import {findDOMNode} from "react-dom"
 import {format} from "d3-format"
-import {Component, createElement} from "react"
-import h from "react-hyperscript"
+import {Component, createElement, useContext} from "react"
+import h from "~/hyper"
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
-import {ColumnContext} from './context'
+import {ColumnLayoutContext} from './context'
 import T from 'prop-types'
+import chroma from 'chroma-js'
 
 fmt = format('.1f')
 fmt2 = format('.2f')
@@ -22,10 +23,56 @@ IntervalNotification = (props)->
     if surface then h('p', ["Surface: ", h('code',surface)]) else null
   ]
 
+OverlayBox = (props)->
+  {division, background, className, onClick} = props
+
+  {widthForDivision, scale} = useContext(ColumnLayoutContext)
+
+  top = scale(division.top)
+  bottom = scale(division.bottom)
+  height = bottom-top
+
+  width = widthForDivision(division)
+
+  style = {
+    marginTop: top
+    height
+    width
+    pointerEvents: 'none'
+    position: 'absolute'
+  }
+
+  h 'div', {style}, [
+    h 'div', {
+      onClick
+      className
+      style: {
+        cursor: if onClick? then 'pointer' else null
+        width: '100%'
+        height: '100%'
+        background
+      }
+    }
+    props.children
+  ]
+
+OverlayBox.propTypes = {
+  division: T.object
+}
+
+EditingBox = ({division, color})->
+  return null unless division?
+  color ?= "red"
+  background = chroma(color).alpha(0.5).css()
+  h OverlayBox, {
+    className: 'editing-box'
+    division
+    background
+  }
+
 class DivisionEditOverlay extends Component
-  @contextType: ColumnContext
+  @contextType: ColumnLayoutContext
   @propTypes: {
-    width: T.number.isRequired
     left: T.number
     top: T.number
     showInfoBox: T.bool
@@ -33,6 +80,8 @@ class DivisionEditOverlay extends Component
     allowEditing: T.bool
     renderEditorPopup: T.func
     scaleToGrainsize: T.bool
+    editingInterval: T.object
+    color: T.string
   }
   @defaultProps: {
     onEditInterval: ->
@@ -42,14 +91,14 @@ class DivisionEditOverlay extends Component
     top: 0
     showInfoBox: false
     allowEditing: true
-    scaleToGrainsize: true
     renderEditorPopup: ->return null
+    color: 'red'
   }
   constructor: (props)->
     super props
     @state = {
       height: null
-      division: null
+      hoveredDivision: null
       popoverIsOpen: false
     }
 
@@ -67,8 +116,8 @@ class DivisionEditOverlay extends Component
       if d.bottom < height < d.top
         division = d
         break
-    return if division == @state.division
-    @setState {division}
+    return if division == @state.hoveredDivision
+    @setState {hoveredDivision: division}
 
   heightForEvent: (event)=>
     {scale} = @context
@@ -79,13 +128,13 @@ class DivisionEditOverlay extends Component
     # This could be moved to the actual interval
     # wrapped with a withRouter
     {history, showInfoBox} = @props
-    {division} = @state
+    {hoveredDivision} = @state
     height = @heightForEvent(event)
     event.stopPropagation()
     if event.shiftKey and showInfoBox
       @setState {popoverIsOpen: true}
       return
-    @props.onClick({height, division})
+    @props.onClick({height, division: hoveredDivision})
 
   onClick: (event)=>
     # This event handler might be unnecessary
@@ -94,26 +143,15 @@ class DivisionEditOverlay extends Component
     height = @heightForEvent(event)
     @props.onClick({height})
 
-  renderEditBoxInner: =>
-    h 'div.edit-box', {
-      onClick: @onEditInterval
-      style: {
-        width: '100%'
-        height: '100%'
-        backgroundColor: "rgba(255,0,0,0.5)"
-        cursor: "pointer"
-      }
-    }
-
   renderCursorLine: =>
-    {height} = @state
+    {height, hoveredDivision} = @state
     {scale} = @context
     return unless height?
     style = {
       top: scale(height)
       height: 0
       border: "0.5px solid black"
-      width: @boxWidth()
+      width: @context.widthForDivision(hoveredDivision)
       position: 'absolute'
       pointerEvents: 'none'
     }
@@ -132,42 +170,21 @@ class DivisionEditOverlay extends Component
       ]
     ]
 
-  boxWidth: (division)=>
-    division ?= @state.division
-    {scaleToGrainsize, width} = @props
-    if not scaleToGrainsize
-      return width
-    # This is kind of a silly way to do things
-    # Probably should use some type of nested context
-    {grainsizeScale, grainsizeForDivision} = @context
-    return grainsizeScale(grainsizeForDivision(division))
+  renderHoveredBox: =>
+    return null unless @state.hoveredDivision?
+    {popoverIsOpen, hoveredDivision: division} = @state
+    width = @context.widthForDivision(division)
+    {color} = @props
+    background = chroma(color).alpha(0.3).css()
 
-  renderEditBox: =>
-    {divisions, pixelHeight, width} = @context
-    {popoverIsOpen, division} = @state
-    {width, left, top} = @props
-    isOpen = popoverIsOpen and division?
-
-    {scale, pixelHeight, grainsizeScale} = @context
-    return h('div') unless division?
-
-    top = scale(division.top)
-    bottom = scale(division.bottom)
-    height = bottom-top
-
-    width = @boxWidth(division)
-
-    style = {
-      marginTop: top
-      height
-      width
-      pointerEvents: 'none'
-    }
-
-    h 'div.edit-box-outer', {style}, [
-      @renderEditBoxInner()
-      h Popover, {
-        isOpen
+    h OverlayBox, {
+      division
+      className: 'hovered-box'
+      background
+      onClick: @onEditInterval
+    }, [
+      h.if(@props.renderEditorPopup) Popover, {
+        isOpen: popoverIsOpen and division?
         style: {display: 'block', width}
         position: Position.LEFT
       }, [
@@ -178,8 +195,8 @@ class DivisionEditOverlay extends Component
 
   render: ->
     {divisions, pixelHeight, width} = @context
-    {popoverIsOpen, division} = @state
-    {width, left, top} = @props
+    {popoverIsOpen, hoveredDivision: division} = @state
+    {width, left, top, color} = @props
 
     h 'div.edit-overlay', {
       style: {
@@ -196,11 +213,12 @@ class DivisionEditOverlay extends Component
       onMouseMove: @onHoverInterval
       onClick: @onClick
       onMouseLeave: =>@setState {
-        division: null,
+        hoveredDivision: null,
         height: null
       }
     }, [
-      @renderEditBox()
+      @renderHoveredBox()
+      h EditingBox, {division: @props.editingInterval, color}
       @renderCursorLine()
     ]
 
