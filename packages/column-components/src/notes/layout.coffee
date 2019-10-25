@@ -131,8 +131,10 @@ class NoteLayoutProvider extends StatefulComponent
     {pixelHeight, scale} = @context
     {width, paddingLeft} = @props
 
+    return if notes.length == 0
     return if elementHeights.length < notes.length
     return if nodes.length != 0
+    console.log @state
     console.log "Computing force layout for notes column"
 
     force = new Force {

@@ -1,6 +1,6 @@
 import {findDOMNode} from "react-dom"
 import {Component, createElement, useContext, createRef, forwardRef} from "react"
-import h from "react-hyperscript"
+import h from "@macrostrat/hyper"
 import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
 import {NoteLayoutContext} from './layout'
