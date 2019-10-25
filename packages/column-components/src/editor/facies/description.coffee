@@ -36,3 +36,5 @@ class FaciesDescriptionSmall extends Component
       h 'h5', 'Facies'
       h 'div', facies.map @renderEach
     ]
+
+export {FaciesDescriptionSmall}
