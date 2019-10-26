@@ -5,6 +5,7 @@ import T from "prop-types"
 import {EditableText} from "@blueprintjs/core"
 import {NoteLayoutContext} from './layout'
 import {hasSpan} from './utils'
+import {ForeignObject} from '../util'
 import {NoteShape} from './types'
 
 class NoteSpan extends Component
@@ -17,11 +18,7 @@ class NoteSpan extends Component
       }
     else
       el = h 'circle', {r: 2}
-
     h 'g', {transform}, el
-
-ForeignObject = (props)->
-  createElement 'foreignObject', props
 
 NoteEditor = (props)->
   {text} = props
@@ -121,7 +118,6 @@ class Note extends Component
     console.log height
     @setState {height}
     @context.registerHeight(@props.index, height)
-
 
 NotesList = (props)->
   {notes} = useContext(NoteLayoutContext)
