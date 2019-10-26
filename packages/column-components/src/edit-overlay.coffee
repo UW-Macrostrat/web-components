@@ -1,7 +1,7 @@
 import {findDOMNode} from "react-dom"
 import {format} from "d3-format"
 import {Component, createElement, useContext} from "react"
-import h from "~/hyper"
+import h from "./hyper"
 import {Popover, Position} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {ColumnLayoutContext} from './context'

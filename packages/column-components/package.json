@@ -3,9 +3,14 @@
   "version": "0.0.1",
   "description": "React rendering primitives for stratigraphic columns",
   "main": "src/index.coffee",
+  "module": "src/index.coffee",
+  "source": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Daven Quinn",
-  "license": "ISC"
+  "license": "ISC",
+  "devDependencies": {
+    "@babel/core": "^7.6.4"
+  }
 }
