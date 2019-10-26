@@ -41,6 +41,7 @@ class NoteLayoutProvider extends StatefulComponent
     notes: T.arrayOf(NoteShape).isRequired
     width: T.number.isRequired
     paddingLeft: T.number
+    noteComponent: T.elementType.isRequired
   }
   @defaultProps: {
     paddingLeft: 60
@@ -52,11 +53,13 @@ class NoteLayoutProvider extends StatefulComponent
   constructor: (props)->
     super props
     # State is very minimal to start
+    {noteComponent} = @props
     @state = {
       notes: [],
       elementHeights: [],
       nodes: []
       @generatePath
+      noteComponent
     }
 
   componentDidMount: =>
@@ -164,6 +167,10 @@ class NoteLayoutProvider extends StatefulComponent
     @updateState {elementHeights: {$set: elementHeights}}
 
   componentDidUpdate: (prevProps)=>
+    # Update note component
+    {noteComponent} = @props
+    if noteComponent != prevProps.noteComponent
+      @setState {noteComponent}
     @computeForceLayout()
     return if @props.notes == prevProps.notes
     return if @context == @_previousContext

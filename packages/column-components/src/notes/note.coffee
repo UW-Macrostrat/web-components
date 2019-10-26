@@ -2,7 +2,6 @@ import {findDOMNode} from "react-dom"
 import {Component, createElement, useContext, createRef, forwardRef} from "react"
 import h from "@macrostrat/hyper"
 import T from "prop-types"
-import {EditableText} from "@blueprintjs/core"
 import {NoteLayoutContext} from './layout'
 import {hasSpan} from './utils'
 import {ForeignObject} from '../util'
@@ -20,36 +19,6 @@ class NoteSpan extends Component
       el = h 'circle', {r: 2}
     h 'g', {transform}, el
 
-NoteEditor = (props)->
-  {text} = props
-  h EditableText, {
-    multiline: true
-    className: 'note-label'
-    defaultValue: text
-    onConfirm: (newText)=>
-      props.editHandler(newText)
-  }
-
-NoteEditor.propTypes = {
-  editHandler: T.func.isRequired
-}
-
-NoteBody = (props)->
-  {text, editable} = props
-  editable ?= false
-  if not props.editHandler?
-    editable = false
-  visibility = if editable then 'hidden' else 'inherit'
-  h [
-    h.if(editable) NoteEditor, props
-    h 'p.note-label', {
-      style: {visibility}
-      xmlns: "http://www.w3.org/1999/xhtml"
-    }, [
-      h('span', null, text)
-    ]
-  ]
-
 class Note extends Component
   @propTypes: {
     inEditMode: T.bool
@@ -64,8 +33,8 @@ class Note extends Component
     @state = {height: null}
 
   render: ->
-    {style, note, index} = @props
-    {scale, nodes, columnIndex, width, paddingLeft} = @context
+    {style, note, index, editHandler} = @props
+    {scale, nodes, columnIndex, width, paddingLeft, noteComponent} = @context
 
     startHeight = scale(note.height)
     height = 0
@@ -100,10 +69,10 @@ class Note extends Component
         height: noteHeight+10
       }, [
         h 'div.note-inner', {ref: @element}, [
-          h NoteBody, {
+          h noteComponent, {
             editable: @props.inEditMode,
-            editHandler: @props.editHandler,
-            text: @props.note.note
+            editHandler
+            note
           }
         ]
       ]
