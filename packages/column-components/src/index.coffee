@@ -1,3 +1,5 @@
 export * from './context'
 export * from './images'
+export * from './notes'
+export * from './photos'
 export {SVG, ForeignObject} from './util'

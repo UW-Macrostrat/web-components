@@ -17,31 +17,33 @@ symbolIndex = {
   "Digitate stromatolites": "column-patterns/digitate-stromatolites.svg"
 }
 
-SymbolDefs = (props)->
-  {width, patterns, UUID} = props
+Symbol = (props)->
+  {symbol, width, height, UUID} = props
   {resolveSymbol} = useContext(AssetPathContext)
-  height = width
+  id = "#{UUID}-#{symbol}"
   symbolSize = {width}
-  ids = []
-  elements = for sym in patterns
-    {symbol} = sym
-    id = "#{UUID}-#{symbol}"
-    continue if ids.includes id
-    href = resolveSymbol(symbolIndex[symbol])
-    ids.push(id)
-    h 'symbol', {
-      id
-      key: id
-      symbolSize...
-    }, [
-      h 'image', {
-        href
-        x:0,y:0
-        symbolSize...
-      }
-    ]
+  href = resolveSymbol(symbolIndex[symbol])
 
-    h 'defs', elements
+  h 'symbol', {
+    id
+    key: id
+    symbolSize...
+  }, [
+    h 'image', {
+      href
+      x:0,y:0
+      symbolSize...
+    }
+  ]
+
+SymbolDefs = (props)->
+  {patterns, rest...} = props
+  ids = []
+  h 'defs', patterns.map (sym)->
+    {symbol} = sym
+    return null if ids.includes(symbol)
+    ids.push(symbol)
+    h Symbol, {symbol, rest...}
 
 class SymbolColumn extends UUIDComponent
   @contextType: ColumnContext

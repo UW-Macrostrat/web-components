@@ -23,38 +23,39 @@ IntervalNotification = (props)->
     if surface then h('p', ["Surface: ", h('code',surface)]) else null
   ]
 
-OverlayBox = (props)->
-  {division, background, className, onClick} = props
+class OverlayBox extends Component
+  @contextType: ColumnLayoutContext
+  render: ->
+    {division, background, className, onClick} = @props
+    {widthForDivision, scale} = @context
 
-  {widthForDivision, scale} = useContext(ColumnLayoutContext)
+    top = scale(division.top)
+    bottom = scale(division.bottom)
+    height = bottom-top
 
-  top = scale(division.top)
-  bottom = scale(division.bottom)
-  height = bottom-top
+    width = widthForDivision(division)
 
-  width = widthForDivision(division)
-
-  style = {
-    marginTop: top
-    height
-    width
-    pointerEvents: 'none'
-    position: 'absolute'
-  }
-
-  h 'div', {style}, [
-    h 'div', {
-      onClick
-      className
-      style: {
-        cursor: if onClick? then 'pointer' else null
-        width: '100%'
-        height: '100%'
-        background
-      }
+    style = {
+      marginTop: top
+      height
+      width
+      pointerEvents: 'none'
+      position: 'absolute'
     }
-    props.children
-  ]
+
+    h 'div', {style}, [
+      h 'div', {
+        onClick
+        className
+        style: {
+          cursor: if onClick? then 'pointer' else null
+          width: '100%'
+          height: '100%'
+          background
+        }
+      }
+      @props.children
+    ]
 
 OverlayBox.propTypes = {
   division: T.object

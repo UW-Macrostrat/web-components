@@ -88,4 +88,4 @@ class NotesColumn extends Component
       ]
     ]
 
-export {NotesColumn, NotesComponent, NotesEditor}
+export {NotesColumn, NoteComponent, NoteEditor}
