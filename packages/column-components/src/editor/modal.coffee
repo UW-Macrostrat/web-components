@@ -8,7 +8,7 @@ import {format} from "d3-format"
 import {FaciesDescriptionSmall, FaciesCard} from "./facies"
 import {FaciesContext, ColumnContext} from "../context"
 import {PickerControl} from "./picker-base"
-import "react-select/dist/react-select.css"
+#import "react-select/dist/react-select.css"
 
 import {LithologyPicker, LithologySymbolPicker, FillPatternControl} from './lithology-picker'
 import {SurfaceOrderSlider, HorizontalPicker, BoundaryStyleControl} from './controls'
