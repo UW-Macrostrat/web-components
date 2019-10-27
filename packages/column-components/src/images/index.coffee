@@ -1,4 +1,4 @@
-import h from '../../hyper'
+import h from '../hyper'
 import {Component} from 'react'
 import {ColumnContext} from '../context'
 

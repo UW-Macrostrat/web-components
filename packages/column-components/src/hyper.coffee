@@ -1,5 +1,5 @@
 import {hyperStyled} from '@macrostrat/hyper'
-import styles from './src/main.styl'
+import styles from './main.styl'
 
 h = hyperStyled(styles)
 
