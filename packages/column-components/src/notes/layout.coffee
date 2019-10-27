@@ -1,12 +1,13 @@
 import {createContext} from 'react'
 import {StatefulComponent} from '@macrostrat/ui-components'
-import h from '@macrostrat/hyper'
-import {NoteShape} from './types'
-import {ColumnLayoutProvider, ColumnContext} from '../context'
-import T from 'prop-types'
-import {hasSpan} from './utils'
 import {Node, Renderer, Force} from "labella"
+import h from '@macrostrat/hyper'
+import T from 'prop-types'
+
+import {hasSpan} from './utils'
+import {NoteShape} from './types'
 import FlexibleNode from "./flexible-node"
+import {ColumnLayoutProvider, ColumnContext} from '../context'
 
 NoteLayoutContext = createContext()
 
@@ -41,7 +42,8 @@ class NoteLayoutProvider extends StatefulComponent
     notes: T.arrayOf(NoteShape).isRequired
     width: T.number.isRequired
     paddingLeft: T.number
-    noteComponent: T.elementType.isRequired
+    # This needs to be a component technically
+    noteComponent: T.func.isRequired
   }
   @defaultProps: {
     paddingLeft: 60

@@ -1,8 +1,8 @@
-import {query} from "app/sections/db"
+#import {query} from "app/sections/db"
 import * as d3 from "d3"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import {Notification} from "app/notify"
+#import {Notification} from "app/notify"
 import {path} from "d3-path"
 import {ColumnContext} from "./context"
 import {UUIDComponent} from './frame'

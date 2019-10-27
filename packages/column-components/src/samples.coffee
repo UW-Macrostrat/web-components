@@ -1,4 +1,4 @@
-import {query} from "app/sections/db"
+#import {query} from "app/sections/db"
 import {format} from "d3-format"
 import {Component} from "react"
 import {ColumnContext} from "./context"
