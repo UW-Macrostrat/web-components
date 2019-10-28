@@ -6,31 +6,30 @@ import Select from 'react-select'
 import {format} from "d3-format"
 
 import {FaciesDescriptionSmall, FaciesCard} from "./facies"
-import {PickerControl} from "./picker-base"
 import {FaciesContext, ColumnContext} from "../context"
-import "react-select/dist/react-select.css"
+import {PickerControl} from "./picker-base"
+#import "react-select/dist/react-select.css"
 
 import {LithologyPicker, LithologySymbolPicker, FillPatternControl} from './lithology-picker'
 import {SurfaceOrderSlider, HorizontalPicker, BoundaryStyleControl} from './controls'
-
 import {FaciesPicker} from './facies/picker'
 import {grainSizes} from "../grainsize"
-import h from "react-hyperscript"
-import styles from "./main.styl"
-import T from 'prop-types'
 import {IntervalShape} from './types'
+import styles from "./main.styl"
+import h from "react-hyperscript"
+import T from 'prop-types'
+import {dirname} from "path"
 
-import {db, storedProcedure, query} from "app/sections/db"
+#import {db, storedProcedure, query} from "app/sections/db"
 
 fmt = format('.1f')
 
-import {dirname} from "path"
-baseDir = dirname require.resolve '..'
-sql = (id)-> storedProcedure(id, {baseDir})
-try
-  {helpers} = require 'app/db/backend'
-catch
-  {}
+# baseDir = dirname require.resolve '..'
+# sql = (id)-> storedProcedure(id, {baseDir})
+# try
+#   {helpers} = require 'app/db/backend'
+# catch
+#   {}
 
 floodingSurfaceOrders = [-1,-2,-3,-4,-5,null,5,4,3,2,1]
 
