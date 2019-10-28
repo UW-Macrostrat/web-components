@@ -3,7 +3,7 @@ import h from "react-hyperscript"
 import T from 'prop-types'
 import {SwatchesPicker} from "react-color"
 import {Popover} from "@blueprintjs/core"
-import {FaciesContext} from '@macrostrat/column-components/src/context'
+import {FaciesContext} from '#/context'
 
 class FaciesColorPicker extends Component
   @contextType: FaciesContext

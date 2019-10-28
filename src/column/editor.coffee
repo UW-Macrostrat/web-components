@@ -6,24 +6,24 @@ import Select from 'react-select'
 import {format} from "d3-format"
 import T from 'prop-types'
 
-import {FaciesContext, ColumnContext} from "@macrostrat/column-components"
+import {FaciesContext, ColumnContext} from "#/"
 
-import {FaciesDescriptionSmall, FaciesCard} from "@macrostrat/column-components/src/editor/facies"
-import {PickerControl} from "@macrostrat/column-components/src/editor/picker-base"
+import {FaciesDescriptionSmall, FaciesCard} from "#/editor/facies"
+import {PickerControl} from "#/editor/picker-base"
 import {
   LithologyPicker,
   LithologySymbolPicker,
   FillPatternControl
-} from '@macrostrat/column-components/src/editor/lithology-picker'
+} from '#/editor/lithology-picker'
 import {
   SurfaceOrderSlider,
   HorizontalPicker,
   BoundaryStyleControl
-} from '@macrostrat/column-components/src/editor/controls'
+} from '#/editor/controls'
 
-import {FaciesPicker} from '@macrostrat/column-components/src/editor/facies/picker'
-import {grainSizes} from "@macrostrat/column-components/src/grainsize"
-import {IntervalShape} from '@macrostrat/column-components/src/editor/types'
+import {FaciesPicker} from '#/editor/facies/picker'
+import {grainSizes} from "#/grainsize"
+import {IntervalShape} from '#/editor/types'
 import {Panel} from '~/src/ui'
 import h from "~/hyper"
 

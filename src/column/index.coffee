@@ -1,29 +1,31 @@
 import {Component, useContext} from 'react'
-import {GrainsizeAxis} from '@macrostrat/column-components/src/grainsize'
+import {GrainsizeAxis} from '#/grainsize'
 import {
   LithologyColumn,
   LithologyColumnInner,
   GeneralizedSectionColumn,
   CoveredOverlay,
   FaciesColumnInner
-} from "@macrostrat/column-components/src/lithology"
+} from "#/lithology"
 import {StatefulComponent} from '@macrostrat/ui-components'
 import {IntervalEditor} from "./editor"
-import {SymbolColumn} from "@macrostrat/column-components/src/symbol-column"
-import {SVG, ForeignObject} from '@macrostrat/column-components/src/util'
-import {ColumnAxis} from '@macrostrat/column-components/src/axis'
+import {SymbolColumn} from "#/symbol-column"
+import {SVG, ForeignObject} from '#/util'
+import {ColumnAxis} from '#/axis'
 import {ColumnProvider, ColumnContext,
         FaciesProvider, AssetPathContext,
         GrainsizeLayoutProvider
         ColumnImage
-} from '@macrostrat/column-components'
-import {DivisionEditOverlay} from '@macrostrat/column-components/src/edit-overlay'
+} from '#/'
+import {DivisionEditOverlay} from '#/edit-overlay'
 import "~/column-components/src/main.styl"
 import h from '~/hyper'
 import T from 'prop-types'
 import defaultFacies from './default-facies'
 import assetPaths from "../../sed-patterns/*.svg"
-import {NotesColumn} from '@macrostrat/column-components/src/notes'
+import {NotesColumn} from '#/notes'
+import { animateScroll as scroll } from 'react-scroll'
+
 
 ColumnSVG = (props)->
   {width: innerWidth, margin, children, rest...} = props
@@ -75,6 +77,9 @@ class StratColumn extends Component
 
   shouldShowNotes: =>
     not @props.editingInterval? and not @props.hideDetailColumn
+
+  componentDidMount: =>
+    scroll.scrollTo(200)
 
   render: ->
     { margin, clickedHeight,
