@@ -86,6 +86,10 @@ class Note extends Component
 
     noteHeight = (@state.height or 0)
 
+    outerPad = 5
+
+    style = {margin: '5px', position: 'relative'}
+
 
     h "g.note", [
       h NoteSpan, {
@@ -97,12 +101,12 @@ class Note extends Component
         transform: "translate(#{offsetX})"
       }
       h ForeignObject, {
-        width: width-paddingLeft
-        x: paddingLeft
-        y: offsY-noteHeight/2
-        height: noteHeight+10
+        width: width-paddingLeft+2*outerPad
+        x: paddingLeft-outerPad
+        y: offsY-noteHeight/2-outerPad
+        height: noteHeight+2*outerPad
       }, [
-        h 'div.note-inner', {ref: @element}, [
+        h 'div.note-inner', {ref: @element, style}, [
           h NoteBody, {
             editable: @props.inEditMode,
             editHandler: @props.editHandler,
