@@ -1,6 +1,6 @@
 import {Component, useState, useContext} from "react"
 import h from "@macrostrat/hyper"
-import {ModalGateway, Modal, Carousel} from 'react-images'
+import Carousel, {ModalGateway, Modal} from 'react-images'
 import {PhotoLibraryContext} from './context'
 
 PhotoGallery = (props)->
