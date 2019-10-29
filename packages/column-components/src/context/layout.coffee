@@ -32,7 +32,7 @@ class GrainsizeLayoutProvider extends Component
   @propTypes: {
     width: T.number.isRequired
     grainsizeScaleStart: T.number
-    grainSizes: T.arrayOf(T.number)
+    grainSizes: T.arrayOf(T.string)
   }
   @defaultProps: {
     grainSizes: ['ms','s','vf','f','m','c','vc','p']
