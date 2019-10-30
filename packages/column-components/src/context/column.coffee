@@ -51,6 +51,7 @@ class ColumnProvider extends Component
     pixelHeight = height*pixelsPerMeter*zoom
 
     scale = scaleLinear().domain(range).range([pixelHeight, 0])
+    scaleClamped = scale.clamp()
 
     value = {
       pixelsPerMeter
@@ -59,6 +60,7 @@ class ColumnProvider extends Component
       range
       height
       scale
+      scaleClamped
       rest...
     }
     h ColumnContext.Provider, {value}, children

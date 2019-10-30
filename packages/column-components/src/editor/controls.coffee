@@ -16,6 +16,7 @@ import h from "react-hyperscript"
 import styles from "./main.styl"
 import T from 'prop-types'
 import {IntervalShape} from './types'
+import 'react-select/dist/react-select.css'
 
 fmt = format('.1f')
 

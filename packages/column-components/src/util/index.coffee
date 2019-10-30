@@ -42,3 +42,4 @@ export {
 }
 
 export * from './box-model'
+export * from './scroll-box'
