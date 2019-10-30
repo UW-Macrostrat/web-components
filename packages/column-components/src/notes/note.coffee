@@ -84,7 +84,6 @@ class Note extends Component
     height = node.offsetHeight
     return unless height?
     return if @state.height == height
-    console.log height
     @setState {height}
     @context.registerHeight(@props.index, height)
 
