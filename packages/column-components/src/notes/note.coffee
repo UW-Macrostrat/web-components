@@ -1,6 +1,6 @@
 import {findDOMNode} from "react-dom"
 import {Component, createElement, useContext, createRef, forwardRef} from "react"
-import h from "@macrostrat/hyper"
+import h from "../hyper"
 import T from "prop-types"
 import {NoteLayoutContext} from './layout'
 import {hasSpan} from './utils'
@@ -21,7 +21,7 @@ class NoteSpan extends Component
 
 class Note extends Component
   @propTypes: {
-    inEditMode: T.bool
+    editable: T.bool
     note: NoteShape.isRequired
     index: T.number.isRequired
     editHandler: T.func
@@ -33,7 +33,7 @@ class Note extends Component
     @state = {height: null}
 
   render: ->
-    {style, note, index, editHandler} = @props
+    {style, note, index, editHandler, editable} = @props
     {scale, nodes, columnIndex, width, paddingLeft, noteComponent} = @context
 
     startHeight = scale(note.height)
@@ -52,6 +52,10 @@ class Note extends Component
 
     noteHeight = (@state.height or 0)
 
+    outerPad = 5
+
+    style = {margin: '5px', position: 'relative'}
+
 
     h "g.note", [
       h NoteSpan, {
@@ -63,14 +67,14 @@ class Note extends Component
         transform: "translate(#{offsetX})"
       }
       h ForeignObject, {
-        width: width-paddingLeft
-        x: paddingLeft
-        y: offsY-noteHeight/2
-        height: noteHeight+10
+        width: width-paddingLeft+2*outerPad
+        x: paddingLeft-outerPad
+        y: offsY-noteHeight/2-outerPad
+        height: noteHeight+2*outerPad
       }, [
         h 'div.note-inner', {ref: @element}, [
           h noteComponent, {
-            editable: @props.inEditMode,
+            editable
             editHandler
             note
           }
@@ -88,8 +92,10 @@ class Note extends Component
     @context.registerHeight(@props.index, height)
 
 NotesList = (props)->
+  {inEditMode: editable, rest...} = props
+  editable ?= false
   {notes} = useContext(NoteLayoutContext)
   h 'g', notes.map (note, index)=>
-    h Note, {note, index, props...}
+    h Note, {note, index, editable, rest...}
 
 export {Note, NotesList}

@@ -25,3 +25,13 @@ g.note
     stroke: #000
     stroke-width: 1
     fill: none
+
+.note-label
+  cursor: pointer
+  &:global(.bp3-editable-text)
+    user-select none
+    &:before
+      top: 0
+      left: 0
+      right: 0
+      bottom: 0

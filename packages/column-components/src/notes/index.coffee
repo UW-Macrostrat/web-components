@@ -55,6 +55,7 @@ class NotesColumn extends Component
     width: T.number.isRequired
     paddingLeft: T.number
     onUpdateNote: T.func
+    inEditMode: T.bool
     noteComponent: T.elementType
   }
   render: ->
