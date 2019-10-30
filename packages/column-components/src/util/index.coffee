@@ -23,10 +23,10 @@ ColumnSVG = (props)->
   {children, rest...} = props
   {pixelHeight} = useContext(ColumnContext)
   nextProps = expandInnerSize({innerHeight: pixelHeight, rest...})
-  {paddingLeft, paddingTop} = nextProps
+  {paddingLeft, paddingTop, innerHeight, innerWidth, rest...} = nextProps
   h SVG, {
     className: 'section'
-    nextProps...
+    rest...
   }, (
     h 'g.backdrop', {
       transform: "translate(#{paddingLeft},#{paddingTop})"

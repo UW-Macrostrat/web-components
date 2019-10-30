@@ -7,6 +7,7 @@ import {withRouter} from "react-router-dom"
 import {ColumnLayoutContext} from './context'
 import T from 'prop-types'
 import chroma from 'chroma-js'
+import Box from 'ui-box'
 
 fmt = format('.1f')
 fmt2 = format('.2f')
@@ -197,9 +198,11 @@ class DivisionEditOverlay extends Component
   render: ->
     {divisions, pixelHeight, width} = @context
     {popoverIsOpen, hoveredDivision: division} = @state
-    {width, left, top, color} = @props
+    {left, top, color} = @props
+    width ?= @props.width
 
-    h 'div.edit-overlay', {
+    h Box, {
+      className: 'edit-overlay'
       style: {
         width
         left

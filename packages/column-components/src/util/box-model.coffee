@@ -53,6 +53,8 @@ expandInnerSize = (obj)->
     n.height ?= innerHeight + n.paddingTop + n.paddingBottom
   if innerWidth?
     n.width ?= innerWidth + n.paddingLeft + n.paddingRight
+  delete obj.innerHeight
+  delete obj.innerWidth
   return n
 
 export {
