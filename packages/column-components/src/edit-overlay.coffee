@@ -84,6 +84,8 @@ class DivisionEditOverlay extends Component
     scaleToGrainsize: T.bool
     editingInterval: T.object
     color: T.string
+    width: T.number
+    onEditInterval: T.func
   }
   @defaultProps: {
     onEditInterval: ->
