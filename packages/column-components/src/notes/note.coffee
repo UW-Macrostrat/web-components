@@ -72,7 +72,7 @@ class Note extends Component
         y: offsY-noteHeight/2-outerPad
         height: noteHeight+2*outerPad
       }, [
-        h 'div.note-inner', {ref: @element}, [
+        h 'div.note-inner', {ref: @element, style}, [
           h noteComponent, {
             editable
             editHandler

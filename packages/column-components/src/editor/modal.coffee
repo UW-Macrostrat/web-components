@@ -11,7 +11,12 @@ import {PickerControl} from "./picker-base"
 #import "react-select/dist/react-select.css"
 
 import {LithologyPicker, LithologySymbolPicker, FillPatternControl} from './lithology-picker'
-import {SurfaceOrderSlider, HorizontalPicker, BoundaryStyleControl} from './controls'
+import {
+  CorrelatedSurfaceControl,
+  SurfaceOrderSlider,
+  HorizontalPicker,
+  BoundaryStyleControl
+} from './controls'
 import {FaciesPicker} from './facies/picker'
 import {grainSizes} from "../grainsize"
 import {IntervalShape} from './types'

@@ -30,9 +30,14 @@ PhotoOverlay = (props)->
   displayedPhotos = photoIDs.map (id)=>
     photos.find (d)->d.id == id
 
-  images = displayedPhotos.map (d)->
+
+  getPaths = (d)->
     src = computePhotoPath(d)
     {src, caption: d.note}
+
+  images = displayedPhotos
+    .filter (d)->d?
+    .map(getPaths)
 
   h PhotoGallery, {
     images

@@ -85,10 +85,8 @@ class DivisionEditOverlay extends Component
     editingInterval: T.object
     color: T.string
     width: T.number
-    onEditInterval: T.func
   }
   @defaultProps: {
-    onEditInterval: ->
     onHoverInterval: ->
     onClick: ->
     left: 0
@@ -205,11 +203,11 @@ class DivisionEditOverlay extends Component
 
     h Box, {
       className: 'edit-overlay'
+      width
+      height: pixelHeight
       style: {
-        width
         left
         top
-        height: pixelHeight
         position: 'absolute'
         zIndex: 18
         pointerEvents: 'all'
