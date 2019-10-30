@@ -28,10 +28,10 @@ class OverlayBox extends Component
   @contextType: ColumnLayoutContext
   render: ->
     {division, background, className, onClick} = @props
-    {widthForDivision, scale} = @context
+    {widthForDivision, scaleClamped} = @context
 
-    top = scale(division.top)
-    bottom = scale(division.bottom)
+    top = scaleClamped(division.top)
+    bottom = scaleClamped(division.bottom)
     height = bottom-top
 
     width = widthForDivision(division)
