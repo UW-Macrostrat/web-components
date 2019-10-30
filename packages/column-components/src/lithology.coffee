@@ -7,7 +7,8 @@ import classNames from "classnames"
 import {path} from "d3-path"
 import T from 'prop-types'
 import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from './frame'
-import {FaciesContext, ColumnContext, ColumnLayoutContext, AssetPathContext, ColumnLayoutProvider} from "./context"
+import {FaciesContext, ColumnContext, ColumnLayoutContext,
+        AssetPathContext, ColumnLayoutProvider} from "./context"
 import {createGrainsizeScale} from "./grainsize"
 
 # Malformed es6 module
@@ -79,13 +80,14 @@ class FaciesRect extends Component
     }
 
 class FaciesColumnInner extends Component
-  @contextType: ColumnContext
+  @contextType: ColumnLayoutContext
   @propTypes: {
-    width: T.number.isRequired
+    padWidth: T.number
   }
   render: ->
-    {divisions} = @context
-    {width, padWidth} = @props
+    {padWidth} = @props
+    {divisions, width} = @context
+
 
     __ = [{divisions[0]...}]
     for d in divisions
