@@ -85,4 +85,4 @@ class GDDReferenceCard extends Component
       catch
         return null
 
-export {GDDReferenceCard, AuthorList}
+export {GDDReferenceCard, GeoDeepDiveSwatchInner, AuthorList}

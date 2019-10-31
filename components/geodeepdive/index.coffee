@@ -1,2 +1,1 @@
-import {GDDReferenceCard} from './reference-card'
-export {GDDReferenceCard}
+export * from './reference-card'

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "UI components for React and blueprint.js",
   "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "style": "lib/index.css",
@@ -17,17 +17,21 @@
   },
   "dependencies": {
     "@babel/polyfill": "^7.4.4",
+    "@blueprintjs/datetime": "^3.7.0",
     "@emotion/core": "^10.0.14",
     "@emotion/styled": "^10.0.14",
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
     "date-fns": "^1.30.1",
     "immutability-helper": "^3.0.1",
+    "react": "^16.11.0",
+    "react-dom": "^16.11.0",
     "react-dropzone": "^8.2.0",
     "react-hyperscript": "^3.2.0",
     "react-json-view": "^1.19.1",
-    "underscore": "^1.9.1",
-    "@blueprintjs/datetime": "^3.7.0"
+    "react-router": "^5.1.2",
+    "react-router-dom": "^5.1.2",
+    "underscore": "^1.9.1"
   },
   "devDependencies": {
     "@babel/core": "^7.5.5",
