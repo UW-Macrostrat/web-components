@@ -3,7 +3,6 @@ import {hyperStyled} from "@macrostrat/hyper"
 import styles from "./main.styl"
 import {format} from 'd3-format'
 import {IntervalShape} from './types'
-
 h = hyperStyled(styles)
 
 LabeledControl = (props)->
