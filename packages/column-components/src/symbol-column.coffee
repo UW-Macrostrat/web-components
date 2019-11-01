@@ -51,25 +51,19 @@ class SymbolColumn extends UUIDComponent
     width: 30
     left: 0
   }
-  constructor: (props)->
-    super props
-    @state = {
-      symbols: []
-      patterns: []
-    }
-
-  #   query 'section-symbols', [@props.id]
-  #     .then @setupData
-  #
-  # setupData: (symbols)=>
-  #   patterns = symbols
-  #     .filter((x, i, arr) => arr.indexOf(x) == i)
-  #   @setState {symbols, patterns}
+  @propTypes: {
+    width: T.number
+    left: T.number
+    symbols: T.arrayOf(T.object).isRequired
+  }
 
   render: ->
-    {scale, height, zoom} = @context
+    {scale, pixelHeight, zoom} = @context
     {left, width} = @props
-    {symbols, patterns} = @state
+    {symbols} = @props
+    patterns = symbols
+      .filter (x, i, arr) => arr.indexOf(x) == i
+
     transform = null
     if left?
       transform = "translate(#{left})"
@@ -82,7 +76,7 @@ class SymbolColumn extends UUIDComponent
     y = 0
     h 'g.symbol-column', {transform}, [
       h SymbolDefs, {width, patterns, UUID: @UUID}
-      h 'rect.symbol-column-area', {width, height}
+      h 'rect.symbol-column-area', {width, height: pixelHeight}
       h 'g.symbols', symbols
     ]
 
