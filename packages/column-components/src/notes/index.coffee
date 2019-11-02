@@ -9,13 +9,13 @@ import {EditableText} from "@blueprintjs/core"
 
 NoteEditor = (props)->
   {note} = props
-  {note: text} = note
+  {note: text, id} = note
   h EditableText, {
     multiline: true
     className: 'note-label'
     defaultValue: text
     onConfirm: (newText)=>
-      props.editHandler(newText)
+      props.editHandler(id, newText)
   }
 
 NoteEditor.propTypes = {
