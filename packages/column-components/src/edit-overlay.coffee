@@ -115,7 +115,7 @@ class DivisionEditOverlay extends Component
 
     division = null
     for d in divisions
-      if d.bottom < height < d.top
+      if d.bottom <= height < d.top
         division = d
         break
     return if division == @state.hoveredDivision
