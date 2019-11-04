@@ -21,6 +21,24 @@ class ColumnLayoutProvider extends Component
     value = {@context..., rest...}
     h ColumnLayoutContext.Provider, {value}, children
 
+class CrossAxisLayoutProvider extends Component
+  @propTypes: {
+    width: T.number.isRequired
+    domain: T.arrayOf(T.number).isRequired
+    range: T.arrayOf(T.number)
+  }
+  @contextType: ColumnContext
+  render: ->
+    {domain, range, width, children} = @props
+    if not range?
+      range = [0, width]
+    xScale = scaleLinear().domain(domain).range(range)
+    h ColumnLayoutProvider, {
+      xScale,
+      width,
+      children
+    }
+
 class GrainsizeLayoutProvider extends Component
   ###
   Right now this provides a ColumnLayoutContext
@@ -76,4 +94,9 @@ class GrainsizeLayoutProvider extends Component
     }, children
 
 
-export {ColumnLayoutContext, ColumnLayoutProvider, GrainsizeLayoutProvider}
+export {
+  ColumnLayoutContext,
+  ColumnLayoutProvider,
+  CrossAxisLayoutProvider,
+  GrainsizeLayoutProvider
+}
