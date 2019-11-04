@@ -24,6 +24,7 @@ class ColumnScroller extends Component
     alignment: T.oneOf(['center', 'top', 'bottom'])
     animated: T.bool
     onScrolled: T.func
+    paddingTop: T.number
   }
   @defaultProps: {
     animated: true
@@ -31,30 +32,39 @@ class ColumnScroller extends Component
     onScrolled: (height)->
       console.log "Scrolled to #{height} m"
   }
-  constructor: (props)->
-    super props
-
   render: ->
-    setRef = (ref)=> @node=ref
     keys = Object.keys(@constructor.propTypes)
     [props, rest] = splitProps(keys, @props)
     {pixelHeight} = @context
-
-    h Box, {height: pixelHeight, rest...}
+    h Box, {
+      height: pixelHeight,
+      position: 'absolute'
+      rest...
+    }
 
   scrollTo: (height, opts={})=>
     node = findDOMNode(@)
     {animated, alignment, rest...} = opts
     animated ?= false
+    {paddingTop} = @props
     {scale} = @context
     pixelOffset = scale(height)
     {top} = node.getBoundingClientRect()
-    pixelHeight = top+pixelOffset
-    console.log(pixelHeight)
-    scroller.scrollTo(parseInt(pixelHeight), rest)
+
+    node = document.querySelector('.panel-container')
+    pos = pixelOffset+top+paddingTop
+    screenHeight = window.innerHeight
+
+    if @props.alignment == 'center'
+      pos -= screenHeight/2
+    else if @props.alignment == 'bottom'
+      pos -= screenHeight
+
+    node.scrollTop = pos
 
   componentDidMount: ->
     {scrollToHeight, alignment} = @props
+    console.log scrollToHeight
     return unless scrollToHeight?
     @scrollTo(scrollToHeight, {alignment, animated: false})
     @props.onScrolled(scrollToHeight)
