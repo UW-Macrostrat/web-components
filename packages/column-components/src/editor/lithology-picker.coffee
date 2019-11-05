@@ -28,9 +28,9 @@ class LithologyPicker extends Component
   render: ->
     {interval, onChange} = @props
 
-    {lithology} = @context
+    {lithologies} = @context
 
-    options = for item in lithology
+    options = for item in lithologies
       {id, pattern} = item
       symbol = symbolIndex[pattern]
       continue unless symbol?
