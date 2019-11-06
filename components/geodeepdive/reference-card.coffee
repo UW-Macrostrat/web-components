@@ -1,10 +1,12 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
-import {APIResultView} from '../api-frontend'
-import {LinkCard} from '../link-card'
 import {Card} from '@blueprintjs/core'
 
-AuthorList = (props)->
+import {APIResultView} from '../api-frontend'
+import {LinkCard} from '../link-card'
+import {AuthorList} from '../citations'
+
+AuthorList2 = (props)->
   {authors} = props
   postfix = null
   if authors.length >= 4
@@ -51,7 +53,7 @@ InnerCard = (props) =>
       doi = null
 
     h [
-      h AuthorList, {authors: author}
+      h AuthorList, {names: author}
       ", "
       h 'span.title', title
       ", "
