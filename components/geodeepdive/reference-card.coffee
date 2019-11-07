@@ -52,8 +52,13 @@ InnerCard = (props) =>
     catch
       doi = null
 
+    names = author.map (d)->
+      n = d.name.split(", ")
+      n.reverse()
+      return n.join(" ")
+
     h [
-      h AuthorList, {names: author}
+      h AuthorList, {names}
       ", "
       h 'span.title', title
       ", "
