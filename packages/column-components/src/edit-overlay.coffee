@@ -62,7 +62,7 @@ OverlayBox.propTypes = {
   division: T.object
 }
 
-EditingBox = ({division, color})->
+EditingBox = ({division, color, rest...})->
   return null unless division?
   color ?= "red"
   background = chroma(color).alpha(0.5).css()
@@ -70,6 +70,7 @@ EditingBox = ({division, color})->
     className: 'editing-box'
     division
     background
+    rest...
   }
 
 class DivisionEditOverlay extends Component
@@ -103,6 +104,7 @@ class DivisionEditOverlay extends Component
       hoveredDivision: null
       popoverIsOpen: false
     }
+    @timeout = null
 
   onHoverInterval: (event)=>
     event.stopPropagation()
@@ -120,6 +122,13 @@ class DivisionEditOverlay extends Component
         break
     return if division == @state.hoveredDivision
     @setState {hoveredDivision: division}
+    if @timeout?
+      clearTimeout(@timeout)
+      @timeout = null
+
+  removeHoverBox: =>
+    @setState {hoveredDivision: null, popoverIsOpen: false}
+    @timeout = null
 
   heightForEvent: (event)=>
     {scale} = @context
@@ -127,6 +136,8 @@ class DivisionEditOverlay extends Component
     return scale.invert(offsetY)
 
   onEditInterval: (event)=>
+    if @state.popoverIsOpen
+      return
     # This could be moved to the actual interval
     # wrapped with a withRouter
     {history, showInfoBox} = @props
@@ -183,14 +194,13 @@ class DivisionEditOverlay extends Component
       division
       className: 'hovered-box'
       background
-      onClick: @onEditInterval
     }, [
       h.if(@props.renderEditorPopup) Popover, {
         isOpen: popoverIsOpen and division?
         style: {display: 'block', width}
         position: Position.LEFT
       }, [
-        h 'span'
+        h 'div', {style: {width, height: 30, transform: "translate(0,-30)"}}
         @props.renderEditorPopup(division)
       ]
     ]
@@ -213,16 +223,16 @@ class DivisionEditOverlay extends Component
         pointerEvents: 'all'
         cursor: 'pointer'
       }
+      onClick: @onEditInterval
       onMouseEnter: @onHoverInterval
       onMouseMove: @onHoverInterval
-      onClick: @onClick
-      onMouseLeave: =>@setState {
-        hoveredDivision: null,
-        height: null
-      }
+      onMouseLeave: =>
+        @setState {height: null}
+        @timeout = setTimeout(@removeHoverBox, 1000)
     }, [
       @renderHoveredBox()
-      h EditingBox, {division: @props.editingInterval, color}
+      h EditingBox, {
+        division: @props.editingInterval, color}
       @renderCursorLine()
     ]
 
