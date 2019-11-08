@@ -2,7 +2,7 @@ import {findDOMNode} from "react-dom"
 import {format} from "d3-format"
 import {Component, createElement, useContext} from "react"
 import h from "./hyper"
-import {Popover, Position} from "@blueprintjs/core"
+import {Popover, Position, Button, Intent} from "@blueprintjs/core"
 import {withRouter} from "react-router-dom"
 import {ColumnLayoutContext} from './context'
 import T from 'prop-types'
@@ -23,6 +23,17 @@ IntervalNotification = (props)->
     h 'p', "#{bottom} - #{top} m"
     if surface then h('p', ["Surface: ", h('code',surface)]) else null
   ]
+
+PopoverEditorTitle = (props)->
+  {interval, children} = props
+  h 'div.interval-editor-title', [
+    h 'h3', "#{fmt2(interval.bottom)}–#{fmt2(interval.top)} m"
+    h 'div.id', [
+      h 'code', interval.id
+    ]
+    children
+  ]
+
 
 class OverlayBox extends Component
   @contextType: ColumnLayoutContext
@@ -86,6 +97,7 @@ class DivisionEditOverlay extends Component
     editingInterval: T.object
     color: T.string
     width: T.number
+    popoverWidth: T.number
   }
   @defaultProps: {
     onHoverInterval: ->
@@ -96,6 +108,7 @@ class DivisionEditOverlay extends Component
     allowEditing: true
     renderEditorPopup: ->return null
     color: 'red'
+    popoverWidth: 340
   }
   constructor: (props)->
     super props
@@ -201,9 +214,32 @@ class DivisionEditOverlay extends Component
         position: Position.LEFT
       }, [
         h 'div', {style: {width, height: 30, transform: "translate(0,-30)"}}
-        @props.renderEditorPopup(division)
+        h 'div.editor-popover-contents', {
+          style: {
+            width: @props.popoverWidth
+            padding: '10px'
+          }
+        }, [
+          h PopoverEditorTitle, {
+            interval: division
+          }, [
+            h Button, {
+              icon: 'cross',
+              minimal: true
+              intent: Intent.WARNING
+              onClick: @closePopover
+            }
+
+          ]
+          @props.renderEditorPopup(division)
+        ]
       ]
     ]
+
+  closePopover: =>
+    @setState {
+      popoverIsOpen: false
+    }
 
   render: ->
     {divisions, pixelHeight, width} = @context
@@ -227,6 +263,7 @@ class DivisionEditOverlay extends Component
       onMouseEnter: @onHoverInterval
       onMouseMove: @onHoverInterval
       onMouseLeave: =>
+        return if popoverIsOpen
         @setState {height: null}
         @timeout = setTimeout(@removeHoverBox, 1000)
     }, [

@@ -2,6 +2,7 @@ import h from 'react-hyperscript'
 import {createContext, useState, useContext} from 'react'
 import update from 'immutability-helper'
 import LocalStorage from '../util/storage'
+import T from 'prop-types'
 
 SettingsUpdateContext = createContext()
 SettingsContext = createContext()
@@ -15,10 +16,11 @@ SettingsProvider = (props)->
   {storageID, children, defaultSettings...} = props
   # Update from local storage
   storage = null
-  if localStorageID?
+  if storageID?
     # Merge initial options if set
-    storage = new LocalStorage(localStorageID)
+    storage = new LocalStorage(storageID)
     v = storage.get() or {}
+    console.log "Loading from local storage", v
     defaultSettings = update(defaultSettings, {$merge: v})
 
   [settings, setState] = useState(defaultSettings)
@@ -30,6 +32,10 @@ SettingsProvider = (props)->
   h SettingsContext.Provider, {value: settings}, [
     h SettingsUpdateContext.Provider, {value: updateState}, children
   ]
+
+SettingsProvider.propTypes = {
+  storageID: T.string
+}
 
 useSettings = ->
   useContext(SettingsContext)

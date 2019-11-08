@@ -60,46 +60,42 @@ class ColumnRect extends Component
     key ?= d.id
     h "rect", {x,y, width, height, key, rest...}
 
-class FaciesRect extends Component
-  @contextType: FaciesContext
-  @propTypes: {
-    division: T.object.isRequired
-  }
-  render: ->
-    {getFaciesColor} = @context
-    {padWidth, width, division} = @props
-    {facies, facies_color, id} = division
-    fill = getFaciesColor(facies) or facies_color
-    className = classNames('facies', id)
+ParameterIntervals = (props)->
+  {divisions, width} = useContext(ColumnLayoutContext)
+  {padWidth, parameter: key, fillForInterval} = props
+  __ = [{divisions[0]...}]
+  for d in divisions
+    ix = __.length-1
+    shouldSkip = not d[key]? or d[key] == __[ix][key]
+    if shouldSkip
+      __[ix].top = d.top
+    else
+      __.push {d...}
+  return null if __.length == 1
+  h 'g', {className: key}, __.map (div)->
     h ColumnRect, {
-      division,
+      className: classNames(key, div.id)
+      division: div,
       padWidth,
-      className,
-      fill,
+      fill: fillForInterval(div[key], div),
       width
     }
 
-class FaciesColumnInner extends Component
-  @contextType: ColumnLayoutContext
-  @propTypes: {
-    padWidth: T.number
+ParameterIntervals.propTypes = {
+  padWidth: T.number
+  parameter: T.string.isRequired
+  fillForInterval: T.func.isRequired
+}
+
+FaciesColumnInner = (props)->
+  {getFaciesColor} = useContext(FaciesContext)
+  h ParameterIntervals, {
+    parameter: 'facies'
+    fillForInterval: (param, division)->
+      {facies, facies_color} = division
+      getFaciesColor(facies) or facies_color
+    props...
   }
-  render: ->
-    {padWidth} = @props
-    {divisions, width} = @context
-
-
-    __ = [{divisions[0]...}]
-    for d in divisions
-      ix = __.length-1
-      shouldSkip = not d.facies? or d.facies == __[ix].facies
-      if shouldSkip
-        __[ix].top = d.top
-      else
-        __.push {d...}
-    return null if __.length == 1
-    h 'g.facies', __.map (div)->
-      h FaciesRect, {division: div, width, padWidth}
 
 class CoveredOverlay extends UUIDComponent
   @contextType: ColumnLayoutContext
@@ -255,7 +251,8 @@ GeneralizedSectionColumn = (props)->
     frame: (p)=> h GrainsizeFrame, p
   }, children
 
-export {LithologyColumn,
+export {ParameterIntervals,
+        LithologyColumn,
         GeneralizedSectionColumn,
         FaciesColumnInner, LithologyColumnInner,
         SimplifiedLithologyColumn,
