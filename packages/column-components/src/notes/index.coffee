@@ -5,6 +5,7 @@ import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
 import {NoteLayoutProvider} from './layout'
+import {NoteEditorProvider} from './editor'
 
 class NotesColumn extends Component
   @defaultProps: {
@@ -38,12 +39,14 @@ class NotesColumn extends Component
       width: innerWidth
       paddingLeft
     }, [
-      h 'g.section-log', {transform}, [
-        h NoteDefs
-        h NotesList, {
-          editHandler
-          inEditMode
-        }
+      h NoteEditorProvider, {inEditMode}, [
+        h 'g.section-log', {transform}, [
+          h NoteDefs
+          h NotesList, {
+            editHandler
+            inEditMode
+          }
+        ]
       ]
     ]
 

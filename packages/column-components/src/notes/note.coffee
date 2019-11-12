@@ -2,8 +2,8 @@ import {findDOMNode} from "react-dom"
 import {Component, createElement, useContext, createRef, forwardRef} from "react"
 import h from "../../hyper"
 import T from "prop-types"
-import {EditableText} from "@blueprintjs/core"
 import {NoteLayoutContext} from './layout'
+import {NoteEditorContext} from './editor'
 import {hasSpan} from './utils'
 import {NoteShape} from './types'
 
@@ -23,33 +23,20 @@ class NoteSpan extends Component
 ForeignObject = (props)->
   createElement 'foreignObject', props
 
-NoteEditor = (props)->
-  {text} = props
-  h EditableText, {
-    multiline: true
-    className: 'note-label'
-    defaultValue: text
-    onConfirm: (newText)=>
-      props.editHandler(newText)
-  }
-
-NoteEditor.propTypes = {
-  editHandler: T.func.isRequired
-}
-
 NoteBody = (props)->
-  {text, editable} = props
-  editable ?= false
-  if not props.editHandler?
-    editable = false
-  visibility = if editable then 'hidden' else 'inherit'
+  {note} = props
+  {setEditingNote, editingNote, noteEditor} = useContext(NoteEditorContext)
+  isEditing = editingNote == note
+
+  visibility = if isEditing then 'hidden' else 'inherit'
   h [
-    h.if(editable) NoteEditor, props
+    h.if(isEditing) noteEditor, props
     h 'p.note-label', {
       style: {visibility}
       xmlns: "http://www.w3.org/1999/xhtml"
+      onClick: -> setEditingNote(note)
     }, [
-      h('span', null, text)
+      h('span', null, note.note)
     ]
   ]
 
@@ -110,7 +97,7 @@ class Note extends Component
           h NoteBody, {
             editable: @props.inEditMode,
             editHandler: @props.editHandler,
-            text: @props.note.note
+            note: @props.note
           }
         ]
       ]
