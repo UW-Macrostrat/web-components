@@ -25,12 +25,15 @@ class ColumnScroller extends Component
     animated: T.bool
     onScrolled: T.func
     paddingTop: T.number
+    scrollContainer: T.func.isRequired
   }
   @defaultProps: {
     animated: true
     alignment: 'center'
     onScrolled: (height)->
       console.log "Scrolled to #{height} m"
+    scrollContainer: ->
+      document.querySelector('.panel-container')
   }
   render: ->
     keys = Object.keys(@constructor.propTypes)
@@ -51,7 +54,7 @@ class ColumnScroller extends Component
     pixelOffset = scale(height)
     {top} = node.getBoundingClientRect()
 
-    node = document.querySelector('.panel-container')
+    node = @props.scrollContainer()
     pos = pixelOffset+top+paddingTop
     screenHeight = window.innerHeight
 
