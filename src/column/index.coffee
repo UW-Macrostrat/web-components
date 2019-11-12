@@ -79,7 +79,8 @@ class StratColumn extends Component
     not @props.editingInterval? and not @props.hideDetailColumn
 
   componentDidMount: =>
-    scroll.scrollTo(200)
+    {margin} = @props
+    scroll.scrollTo(margin.top)
 
   render: ->
     { margin, clickedHeight,
