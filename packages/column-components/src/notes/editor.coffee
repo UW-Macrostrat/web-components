@@ -1,8 +1,12 @@
-import {createContext, useState} from 'react'
+import {createContext, useState, useContext} from 'react'
 import {EditableText} from "@blueprintjs/core"
 import h from "../hyper"
 import T from 'prop-types'
 import {NoteShape} from './types'
+import {ForeignObject} from '../util'
+import {NoteLayoutContext} from './layout'
+import Draggable from 'react-draggable'
+import {hasSpan} from './utils'
 
 NoteEditorContext = createContext({inEditMode: false})
 
@@ -37,4 +41,31 @@ NoteEditorProvider.propTypes = {
   noteEditor: T.elementType.isRequired
 }
 
-export {NoteEditorProvider, NoteEditorContext, NoteTextEditor}
+PositionEditorInner = (props)->
+  {note} = props
+  {scale, nodes, columnIndex, width, paddingLeft} = useContext(NoteLayoutContext)
+
+  startHeight = scale(note.height)
+  height = 0
+  if hasSpan(note)
+    height = Math.abs(scale(note.top_height)-startHeight)
+
+    h 'div.position-editor', [
+      h Draggable, [
+        h 'div', 'I am draggable'
+      ]
+    ]
+
+
+NotePositionEditor = (props)->
+  {editingNote} = useContext(NoteEditorContext)
+  return null unless editingNote
+
+  h ForeignObject, {
+    width: 30, x: 0, y: 0, height: 1,
+    style: {overflowY: 'visible'}
+  }, [
+    h PositionEditorInner, {note: editingNote}
+  ]
+
+export {NoteEditorProvider, NoteEditorContext, NoteTextEditor, NotePositionEditor}

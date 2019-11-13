@@ -5,7 +5,7 @@ import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
 import {NoteLayoutProvider} from './layout'
-import {NoteEditorProvider, NoteTextEditor} from './editor'
+import {NoteEditorProvider, NoteTextEditor, NotePositionEditor} from './editor'
 
 NoteComponent = (props)->
   {visibility, note, onClick} = props
@@ -70,6 +70,7 @@ class NotesColumn extends Component
             editHandler
             inEditMode
           }
+          h NotePositionEditor
         ]
       ]
     ]
