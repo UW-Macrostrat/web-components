@@ -22,6 +22,7 @@ import "~/column-components/src/main.styl"
 import h from '~/hyper'
 import T from 'prop-types'
 import defaultFacies from './default-facies'
+import {NoteEditor} from './note-editor'
 import assetPaths from "../../sed-patterns/*.svg"
 import {NotesColumn} from '#/notes'
 import { animateScroll as scroll } from 'react-scroll'
@@ -140,7 +141,7 @@ class StratColumn extends Component
               h CoveredOverlay
               h LithologyColumnInner
             ]
-            h SymbolColumn, {left: 90}
+            h SymbolColumn, {left: 90, symbols: []}
             h ColumnAxis
             h GrainsizeAxis
             # Notes column
@@ -150,6 +151,8 @@ class StratColumn extends Component
               width: notesWidth
               inEditMode
               onUpdateNote: @props.updateNote
+              noteEditor: NoteEditor
+              allowPositionEditing: true
             }
           ]
         ]

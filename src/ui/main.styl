@@ -19,11 +19,17 @@ c1 = rgb(16, 22, 26)
   flex-grow 1
   position relative
 
-.panel
+.panel,.content-panel
   box-shadow: 0 0 0 1px alpha(c1,0.1), 0 0 0 alpha(c1, 0), 0 1px 1px alpha(c1, 0.2)
   border-radius 6px
+  background-color white
   display flex
   flex-direction column
+
+.content-panel
+  padding 0.5em
+
+.panel
   flex-shrink 1
   height 100%
 
@@ -57,4 +63,3 @@ c1 = rgb(16, 22, 26)
   top 0
   display flex
   flex-direction column
-

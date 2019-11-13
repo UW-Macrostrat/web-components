@@ -24,6 +24,7 @@
     "react": "^16.11.0",
     "react-color": "^2.17.3",
     "react-dom": "^16.11.0",
+    "react-draggable": "^4.1.0",
     "react-image-slider": "^0.1.0",
     "react-images": "^1.0.0",
     "react-measure": "^2.3.0",
@@ -43,6 +44,8 @@
     "stylus": "^0.54.7"
   },
   "alias": {
-    "#": "./column-components/src"
+    "#": "./column-components/src",
+    "react": "./node_modules/react",
+    "react-dom": "./node_modules/react-dom"
   }
 }

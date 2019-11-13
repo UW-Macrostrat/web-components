@@ -29,4 +29,7 @@ Panel = (props)->
     ]
   ]
 
-export {Panel, PanelHeader}
+ContentPanel = (props)->
+  h 'div.content-panel', props
+
+export {Panel, PanelHeader, ContentPanel}
