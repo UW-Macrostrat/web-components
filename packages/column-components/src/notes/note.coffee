@@ -10,20 +10,33 @@ import {NoteShape} from './types'
 
 NoteBody = (props)->
   {note} = props
-  {setEditingNote, editingNote, noteEditor} = useContext(NoteEditorContext)
+  {setEditingNote, editingNote} = useContext(NoteEditorContext)
   {noteComponent} = useContext(NoteLayoutContext)
   isEditing = editingNote == note
 
   onClick = ->
     setEditingNote(note)
 
-  onCancel = ->
-    setEditingNote(null)
-
   visibility = if isEditing then 'hidden' else 'inherit'
-  h [
-    h.if(isEditing) noteEditor, {note, onCancel}
-    h noteComponent, {visibility, note, onClick}
+  h noteComponent, {visibility, note, onClick}
+
+NotePositioner = forwardRef (props, ref)->
+  {offsetY, noteHeight, children} = props
+  {width, paddingLeft} = useContext(NoteLayoutContext)
+  noteHeight ?= 0
+  outerPad = 5
+
+  h ForeignObject, {
+    width: width-paddingLeft+2*outerPad
+    x: paddingLeft-outerPad
+    y: offsetY-noteHeight/2-outerPad
+    height: 1
+    style: {overflowY: 'visible'}
+  }, [
+    h 'div.note-inner', {
+      ref,
+      style: {margin: '5px', position: 'relative'}
+    }, children
   ]
 
 class NoteSpan extends Component
@@ -37,6 +50,54 @@ class NoteSpan extends Component
     else
       el = h 'circle', {r: 2}
     h 'g', {transform}, el
+
+findIndex = (note)->
+  {notes} = useContext(NoteLayoutContext)
+  notes.indexOf(note)
+
+NoteConnector = (props)->
+  {note, node, index} = props
+  # Try to avoid scanning for index if we can
+  index ?= findIndex(note)
+  {scale, nodes, columnIndex, generatePath} = useContext(NoteLayoutContext)
+
+  startHeight = scale(note.height)
+  height = 0
+  if hasSpan(note)
+    height = Math.abs(scale(note.top_height)-startHeight)
+
+  node ?= nodes[index]
+  offsetX = (columnIndex[index] or 0)*5
+
+  pos = 0
+  if node?
+    pos = node.centerPos or node.idealPos
+
+  h [
+    h NoteSpan, {
+      transform: "translate(#{offsetX} #{pos-height/2})"
+      height
+    }
+    h 'path.link', {
+      d: generatePath(node, offsetX)
+      transform: "translate(#{offsetX})"
+    }
+  ]
+
+NoteMain = forwardRef (props, ref)->
+  {note, offsetY, noteHeight} = props
+  {editingNote} = useContext(NoteEditorContext)
+  return null if editingNote == note
+  h "g.note", [
+    h NoteConnector, {note}
+    h NotePositioner, {
+      offsetY
+      noteHeight
+      ref
+    }, [
+      h NoteBody, {note}
+    ]
+  ]
 
 class Note extends Component
   @propTypes: {
@@ -55,48 +116,19 @@ class Note extends Component
     {style, note, index, editHandler, editable} = @props
     {scale, nodes, columnIndex, width, paddingLeft} = @context
 
-    startHeight = scale(note.height)
-    height = 0
-    if hasSpan(note)
-      height = Math.abs(scale(note.top_height)-startHeight)
-
     node = nodes[index]
-    offsetX = (columnIndex[index] or 0)*5
-
-    pos = 0
-    offsY = startHeight
+    offsetY = scale(note.height)
     if node?
-      pos = node.centerPos or node.idealPos
-      offsY = node.currentPos
+      offsetY = node.currentPos
 
     noteHeight = (@state.height or 0)
 
-    outerPad = 5
-
-    style = {margin: '5px', position: 'relative'}
-
-
-    h "g.note", [
-      h NoteSpan, {
-        transform: "translate(#{offsetX} #{pos-height/2})"
-        height
-      }
-      h 'path.link', {
-        d: @context.generatePath(node, offsetX)
-        transform: "translate(#{offsetX})"
-      }
-      h ForeignObject, {
-        width: width-paddingLeft+2*outerPad
-        x: paddingLeft-outerPad
-        y: offsY-noteHeight/2-outerPad
-        height: 1
-        style: {overflowY: 'visible'}
-      }, [
-        h 'div.note-inner', {ref: @element, style}, [
-          h NoteBody, {note}
-        ]
-      ]
-    ]
+    h NoteMain, {
+      offsetY
+      note
+      noteHeight
+      ref: @element
+    }
 
   componentDidMount: =>
     node = @element.current
@@ -114,4 +146,4 @@ NotesList = (props)->
   h 'g', notes.map (note, index)=>
     h Note, {note, index, editable, rest...}
 
-export {Note, NotesList}
+export {Note, NotesList, NotePositioner, NoteConnector}

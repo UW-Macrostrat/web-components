@@ -27,6 +27,7 @@ class NotesColumn extends Component
     inEditMode: false
     noteComponent: NoteComponent
     noteEditor: NoteTextEditor
+    allowPositionEditing: false
   }
   @propTypes: {
     notes: T.arrayOf(NoteShape).isRequired
@@ -36,6 +37,7 @@ class NotesColumn extends Component
     inEditMode: T.bool
     noteComponent: T.elementType
     noteEditor: T.elementType
+    allowPositionEditing: T.bool
   }
   render: ->
     {width,
@@ -46,6 +48,7 @@ class NotesColumn extends Component
      onUpdateNote
      noteComponent
      noteEditor
+     allowPositionEditing
     } = @props
 
     editHandler = onUpdateNote
@@ -63,6 +66,7 @@ class NotesColumn extends Component
       h NoteEditorProvider, {
         inEditMode
         noteEditor
+        allowPositionEditing
       }, [
         h 'g.section-log', {transform}, [
           h NoteDefs

@@ -5,6 +5,7 @@ import T from 'prop-types'
 import {NoteShape} from './types'
 import {ForeignObject} from '../util'
 import {NoteLayoutContext} from './layout'
+import {NotePositioner, NoteConnector} from './note'
 import Draggable from 'react-draggable'
 import {hasSpan} from './utils'
 import Box from 'ui-box'
@@ -42,6 +43,18 @@ NoteEditorProvider.propTypes = {
   noteEditor: T.elementType.isRequired
 }
 
+EditableNoteConnector = (props)->
+  h 'path', {
+    d, strokeWidth: 3, transform: "translate(#{x})",
+    fill: 'transparent', stroke: '#ccc'
+  }
+  h ForeignObject, {
+    width: 30, x, y: 0, height: 1,
+    style: {overflowY: 'visible'}
+  }, [
+    h PositionEditorInner, {note: editingNote}
+  ]
+
 PositionEditorInner = (props)->
   {note, margin} = props
   margin ?= 3
@@ -69,27 +82,22 @@ PositionEditorInner = (props)->
 
 
 NotePositionEditor = (props)->
-  {editingNote} = useContext(NoteEditorContext)
-  return null unless editingNote?
-  {notes, nodes, columnIndex, generatePath} = useContext(NoteLayoutContext)
+  {editingNote, noteEditor} = useContext(NoteEditorContext)
+  {notes, nodes, columnIndex, elementHeights, generatePath} = useContext(NoteLayoutContext)
   ix = notes.indexOf(editingNote)
+  return null unless editingNote?
   return null if ix == -1
   col = columnIndex[ix]
   currentNode = nodes[ix]
+  noteHeight = elementHeights[ix]
   x = col*5
   d = generatePath(currentNode, x)
 
 
-  h 'g.note-editor', [
-    h 'path', {
-      d, strokeWidth: 3, transform: "translate(#{x})",
-      fill: 'transparent', stroke: '#ccc'
-    }
-    h ForeignObject, {
-      width: 30, x, y: 0, height: 1,
-      style: {overflowY: 'visible'}
-    }, [
-      h PositionEditorInner, {note: editingNote}
+  h 'g.note-editor.note', [
+    h NoteConnector, {note: editingNote, node: currentNode, index: ix}
+    h NotePositioner, {offsetY: currentNode.currentPos, noteHeight}, [
+      h noteEditor, {note: editingNote, key: ix}
     ]
   ]
 
