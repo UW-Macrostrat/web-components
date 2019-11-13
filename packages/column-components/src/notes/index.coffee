@@ -5,7 +5,7 @@ import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
 import {NoteLayoutProvider} from './layout'
-import {NoteEditorProvider, NoteTextEditor, NotePositionEditor} from './editor'
+import {NoteEditorProvider, NoteEditor, NoteTextEditor} from './editor'
 
 NoteComponent = (props)->
   {visibility, note, onClick} = props
@@ -66,7 +66,6 @@ class NotesColumn extends Component
       h NoteEditorProvider, {
         inEditMode
         noteEditor
-        allowPositionEditing
       }, [
         h 'g.section-log', {transform}, [
           h NoteDefs
@@ -74,10 +73,9 @@ class NotesColumn extends Component
             editHandler
             inEditMode
           }
-          h NotePositionEditor
+          h NoteEditor, {allowPositionEditing}
         ]
       ]
     ]
 
-export {NoteTextEditor} from './editor'
-export {NotesColumn, NoteComponent}
+export {NotesColumn, NoteComponent, NoteTextEditor}

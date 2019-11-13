@@ -44,15 +44,24 @@ NoteEditorProvider.propTypes = {
 }
 
 EditableNoteConnector = (props)->
-  h 'path', {
-    d, strokeWidth: 3, transform: "translate(#{x})",
-    fill: 'transparent', stroke: '#ccc'
-  }
-  h ForeignObject, {
-    width: 30, x, y: 0, height: 1,
-    style: {overflowY: 'visible'}
-  }, [
-    h PositionEditorInner, {note: editingNote}
+  {notes, nodes, columnIndex, generatePath} = useContext(NoteLayoutContext)
+  {note, node, index} = props
+  index ?= notes.indexOf(note)
+  node ?= nodes[index]
+  x = columnIndex[index]*5
+  d = generatePath(node, x)
+
+  h [
+    h 'path', {
+      d, strokeWidth: 3, transform: "translate(#{x})",
+      fill: 'transparent', stroke: 'green'
+    }
+    h ForeignObject, {
+      width: 30, x, y: 0, height: 1,
+      style: {overflowY: 'visible'}
+    }, [
+      h PositionEditorInner, {note}
+    ]
   ]
 
 PositionEditorInner = (props)->
@@ -81,23 +90,20 @@ PositionEditorInner = (props)->
   ]
 
 
-NotePositionEditor = (props)->
+NoteEditor = (props)->
+  {allowPositionEditing} = props
   {editingNote, noteEditor} = useContext(NoteEditorContext)
-  {notes, nodes, columnIndex, elementHeights, generatePath} = useContext(NoteLayoutContext)
-  ix = notes.indexOf(editingNote)
+  {notes, nodes, elementHeights} = useContext(NoteLayoutContext)
   return null unless editingNote?
-  return null if ix == -1
-  col = columnIndex[ix]
-  currentNode = nodes[ix]
-  noteHeight = elementHeights[ix]
-  x = col*5
-  d = generatePath(currentNode, x)
-
+  index = notes.indexOf(editingNote)
+  node = nodes[index]
+  noteHeight = elementHeights[index]
 
   h 'g.note-editor.note', [
-    h NoteConnector, {note: editingNote, node: currentNode, index: ix}
-    h NotePositioner, {offsetY: currentNode.currentPos, noteHeight}, [
-      h noteEditor, {note: editingNote, key: ix}
+    h.if(not allowPositionEditing) NoteConnector, {note: editingNote, index}
+    h.if(allowPositionEditing) EditableNoteConnector, {note: editingNote}
+    h NotePositioner, {offsetY: node.currentPos, noteHeight}, [
+      h noteEditor, {note: editingNote, key: index}
     ]
   ]
 
@@ -105,5 +111,5 @@ export {
   NoteEditorProvider,
   NoteEditorContext,
   NoteTextEditor,
-  NotePositionEditor
+  NoteEditor
 }
