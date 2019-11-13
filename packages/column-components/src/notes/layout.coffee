@@ -131,6 +131,20 @@ class NoteLayoutProvider extends StatefulComponent
     catch
       return null
 
+  generateNodeForNote: (note, index)=>
+    {notes, elementHeights} = @state
+    {pixelHeight, scale} = @context
+    index ?= notes.indexOf(note)
+    return null if index == -1
+    pixelHeight = elementHeights[index]
+    lowerHeight = scale(note.height)
+    if hasSpan(note)
+      upperHeight = scale(note.top_height)
+      harr = [lowerHeight-4,upperHeight+4]
+      if harr[0]-harr[1] > 5
+        return new FlexibleNode harr, pixelHeight
+    return new Node lowerHeight, pixelHeight
+
   computeForceLayout: =>
     {notes, nodes, elementHeights} = @state
     {pixelHeight, scale} = @context
@@ -147,16 +161,7 @@ class NoteLayoutProvider extends StatefulComponent
       maxPos: pixelHeight
     }
 
-    dataNodes = notes.map (note, index)=>
-      txt = note.note or ''
-      pixelHeight = elementHeights[index]
-      lowerHeight = scale(note.height)
-      if hasSpan(note)
-        upperHeight = scale(note.top_height)
-        harr = [lowerHeight-4,upperHeight+4]
-        if harr[0]-harr[1] > 5
-          return new FlexibleNode harr, pixelHeight
-      return new Node lowerHeight, pixelHeight
+    dataNodes = notes.map @generateNodeForNote
 
     force.nodes(dataNodes).compute()
     nodes = force.nodes() or []

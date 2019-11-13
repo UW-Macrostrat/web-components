@@ -1,0 +1,21 @@
+:global(.note-label)
+  cursor: pointer
+  &:global(.bp3-editable-text)
+    user-select none
+    &:before
+      top: 0
+      left: 0
+      right: 0
+      bottom: 0
+
+.position-editor
+  *
+    box-sizing: border-box;
+  .handle
+    width: 6px
+    background-color: #eee
+    border: 1px solid #aaa
+    .top-handle, .bottom-handle
+      width: 8px
+      border-radius 2px
+      height: 8px

@@ -7,6 +7,7 @@ import {ForeignObject} from '../util'
 import {NoteLayoutContext} from './layout'
 import Draggable from 'react-draggable'
 import {hasSpan} from './utils'
+import Box from 'ui-box'
 
 NoteEditorContext = createContext({inEditMode: false})
 
@@ -42,30 +43,59 @@ NoteEditorProvider.propTypes = {
 }
 
 PositionEditorInner = (props)->
-  {note} = props
+  {note, margin} = props
+  margin ?= 3
   {scale, nodes, columnIndex, width, paddingLeft} = useContext(NoteLayoutContext)
 
-  startHeight = scale(note.height)
+  bottomHeight = scale(note.height)
+  topHeight = bottomHeight
   height = 0
   if hasSpan(note)
-    height = Math.abs(scale(note.top_height)-startHeight)
+    topHeight = scale(note.top_height)
+    height = Math.abs(topHeight-bottomHeight)
 
-    h 'div.position-editor', [
-      h Draggable, [
-        h 'div', 'I am draggable'
+  h 'div.position-editor', [
+    h Draggable, {position: {x: -margin, y: topHeight}, axis: 'y'}, [
+      h Box, {className: 'handle', height: height+margin, width: 2*margin}, [
+        h Draggable, {position: {x: -2, y: -4}, axis: 'y'}, [
+          h 'div.handle.top-handle'
+        ]
+        h Draggable, {position: {x: -2, y: height-14}, axis: 'y'}, [
+          h 'div.handle.bottom-handle'
+        ]
       ]
     ]
+  ]
 
 
 NotePositionEditor = (props)->
   {editingNote} = useContext(NoteEditorContext)
-  return null unless editingNote
+  return null unless editingNote?
+  {notes, nodes, columnIndex, generatePath} = useContext(NoteLayoutContext)
+  ix = notes.indexOf(editingNote)
+  return null if ix == -1
+  col = columnIndex[ix]
+  currentNode = nodes[ix]
+  x = col*5
+  d = generatePath(currentNode, x)
 
-  h ForeignObject, {
-    width: 30, x: 0, y: 0, height: 1,
-    style: {overflowY: 'visible'}
-  }, [
-    h PositionEditorInner, {note: editingNote}
+
+  h 'g.note-editor', [
+    h 'path', {
+      d, strokeWidth: 3, transform: "translate(#{x})",
+      fill: 'transparent', stroke: '#ccc'
+    }
+    h ForeignObject, {
+      width: 30, x, y: 0, height: 1,
+      style: {overflowY: 'visible'}
+    }, [
+      h PositionEditorInner, {note: editingNote}
+    ]
   ]
 
-export {NoteEditorProvider, NoteEditorContext, NoteTextEditor, NotePositionEditor}
+export {
+  NoteEditorProvider,
+  NoteEditorContext,
+  NoteTextEditor,
+  NotePositionEditor
+}
