@@ -25,7 +25,6 @@ NoteTextEditor.propTypes = {
 NoteEditorProvider = (props)->
   {children, inEditMode, noteEditor} = props
   inEditMode ?= false
-  noteEditor ?= NoteTextEditor
 
   [editingNote, setEditingNote] = useState(null)
 
@@ -35,6 +34,7 @@ NoteEditorProvider = (props)->
 
 NoteEditorProvider.propTypes = {
   inEditMode: T.bool
+  noteEditor: T.elementType.isRequired
 }
 
 export {NoteEditorProvider, NoteEditorContext, NoteTextEditor}

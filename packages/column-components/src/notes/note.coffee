@@ -8,6 +8,24 @@ import {hasSpan} from './utils'
 import {ForeignObject} from '../util'
 import {NoteShape} from './types'
 
+NoteBody = (props)->
+  {note} = props
+  {setEditingNote, editingNote, noteEditor} = useContext(NoteEditorContext)
+  {noteComponent} = useContext(NoteLayoutContext)
+  isEditing = editingNote == note
+
+  onClick = ->
+    setEditingNote(note)
+
+  onCancel = ->
+    setEditingNote(null)
+
+  visibility = if isEditing then 'hidden' else 'inherit'
+  h [
+    h.if(isEditing) noteEditor, {note, onCancel}
+    h noteComponent, {visibility, note, onClick}
+  ]
+
 class NoteSpan extends Component
   render: ->
     {height, transform} = @props
@@ -35,7 +53,7 @@ class Note extends Component
 
   render: ->
     {style, note, index, editHandler, editable} = @props
-    {scale, nodes, columnIndex, width, paddingLeft, noteComponent} = @context
+    {scale, nodes, columnIndex, width, paddingLeft} = @context
 
     startHeight = scale(note.height)
     height = 0
@@ -71,14 +89,11 @@ class Note extends Component
         width: width-paddingLeft+2*outerPad
         x: paddingLeft-outerPad
         y: offsY-noteHeight/2-outerPad
-        height: noteHeight+2*outerPad
+        height: 1
+        style: {overflowY: 'visible'}
       }, [
         h 'div.note-inner', {ref: @element, style}, [
-          h noteComponent, {
-            editable
-            editHandler
-            note
-          }
+          h NoteBody, {note}
         ]
       ]
     ]

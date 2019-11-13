@@ -5,42 +5,18 @@ import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
 import {NoteLayoutProvider} from './layout'
-import {NoteEditorProvider} from './editor'
-import {EditableText} from "@blueprintjs/core"
-
-NoteEditor = (props)->
-  {note} = props
-  {note: text, id} = note
-  h EditableText, {
-    multiline: true
-    className: 'note-label'
-    defaultValue: text
-    onConfirm: (newText)=>
-      props.editHandler(id, newText)
-  }
-
-NoteEditor.propTypes = {
-  editHandler: T.func.isRequired
-  note: NoteShape.isRequired
-}
+import {NoteEditorProvider, NoteTextEditor} from './editor'
 
 NoteComponent = (props)->
-  {note, editable} = props
-  editable ?= false
-  {note: text} = note
-  if not props.editHandler?
-    editable = false
-  visibility = if editable then 'hidden' else 'inherit'
-  h [
-    h.if(editable) NoteEditor, props
-    h 'p.note-label', {
-      style: {visibility}
-      xmlns: "http://www.w3.org/1999/xhtml"
-    }, text
-  ]
+  {visibility, note, onClick} = props
+  text = note.note
+  h 'p.note-label', {
+    style: {visibility}
+    onClick
+  }, text
 
 NoteComponent.propTypes = {
-  editHandler: T.func
+  onClick: T.func
   note: NoteShape.isRequired
 }
 
@@ -50,6 +26,7 @@ class NotesColumn extends Component
     paddingLeft: 60
     inEditMode: false
     noteComponent: NoteComponent
+    noteEditor: NoteTextEditor
   }
   @propTypes: {
     notes: T.arrayOf(NoteShape).isRequired
@@ -58,6 +35,7 @@ class NotesColumn extends Component
     onUpdateNote: T.func
     inEditMode: T.bool
     noteComponent: T.elementType
+    noteEditor: T.elementType
   }
   render: ->
     {width,
@@ -67,6 +45,7 @@ class NotesColumn extends Component
      inEditMode
      onUpdateNote
      noteComponent
+     noteEditor
     } = @props
 
     editHandler = onUpdateNote
@@ -81,7 +60,10 @@ class NotesColumn extends Component
       paddingLeft
       noteComponent
     }, [
-      h NoteEditorProvider, {inEditMode}, [
+      h NoteEditorProvider, {
+        inEditMode
+        noteEditor
+      }, [
         h 'g.section-log', {transform}, [
           h NoteDefs
           h NotesList, {
@@ -92,4 +74,5 @@ class NotesColumn extends Component
       ]
     ]
 
-export {NotesColumn, NoteComponent, NoteEditor}
+export {NoteTextEditor} from './editor'
+export {NotesColumn, NoteComponent}
