@@ -3,6 +3,7 @@ import {Component, createElement, useContext, createRef, forwardRef} from "react
 import h from "../hyper"
 import T from "prop-types"
 import {NoteLayoutContext} from './layout'
+import {NoteEditorContext} from './editor'
 import {hasSpan} from './utils'
 import {ForeignObject} from '../util'
 import {NoteShape} from './types'

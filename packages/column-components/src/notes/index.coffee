@@ -1,10 +1,11 @@
 import {Component} from "react"
-import h from "@macrostrat/hyper"
+import h from "../hyper"
 import T from "prop-types"
 import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
 import {NoteLayoutProvider} from './layout'
+import {NoteEditorProvider} from './editor'
 import {EditableText} from "@blueprintjs/core"
 
 NoteEditor = (props)->
@@ -80,12 +81,14 @@ class NotesColumn extends Component
       paddingLeft
       noteComponent
     }, [
-      h 'g.section-log', {transform}, [
-        h NoteDefs
-        h NotesList, {
-          editHandler
-          inEditMode
-        }
+      h NoteEditorProvider, {inEditMode}, [
+        h 'g.section-log', {transform}, [
+          h NoteDefs
+          h NotesList, {
+            editHandler
+            inEditMode
+          }
+        ]
       ]
     ]
 
