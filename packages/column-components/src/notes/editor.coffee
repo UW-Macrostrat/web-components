@@ -1,4 +1,5 @@
 import {createContext, useState, useContext} from 'react'
+import {ColumnContext} from '#'
 import {EditableText} from "@blueprintjs/core"
 import h from "../hyper"
 import T from 'prop-types'
@@ -54,7 +55,7 @@ EditableNoteConnector = (props)->
   h [
     h 'path', {
       d, strokeWidth: 3, transform: "translate(#{x})",
-      fill: 'transparent', stroke: 'green'
+      fill: 'transparent', stroke: '#ccc'
     }
     h ForeignObject, {
       width: 30, x, y: 0, height: 1,
@@ -89,6 +90,20 @@ PositionEditorInner = (props)->
     ]
   ]
 
+NoteEditorUnderlay = ({padding})->
+  padding ?= 5
+  {width} = useContext(NoteLayoutContext)
+  {pixelHeight} = useContext(ColumnContext)
+  {setEditingNote} = useContext(NoteEditorContext)
+  h 'rect.underlay', {
+    width: width+2*padding
+    height: pixelHeight
+    fill: 'rgba(255,255,255,0.8)'
+    transform: "translate(#{-padding},#{-padding})"
+    style: {pointerEvents: 'none'}
+  }
+
+
 
 NoteEditor = (props)->
   {allowPositionEditing} = props
@@ -100,6 +115,7 @@ NoteEditor = (props)->
   noteHeight = elementHeights[index]
 
   h 'g.note-editor.note', [
+    h NoteEditorUnderlay
     h.if(not allowPositionEditing) NoteConnector, {note: editingNote, index}
     h.if(allowPositionEditing) EditableNoteConnector, {note: editingNote}
     h NotePositioner, {offsetY: node.currentPos, noteHeight}, [

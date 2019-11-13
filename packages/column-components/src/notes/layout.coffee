@@ -1,4 +1,4 @@
-import {createContext} from 'react'
+import {createContext, useContext} from 'react'
 import {StatefulComponent} from '@macrostrat/ui-components'
 import {Node, Renderer, Force} from "labella"
 import h from '@macrostrat/hyper'
@@ -185,4 +185,17 @@ class NoteLayoutProvider extends StatefulComponent
     @computeContextValue()
     @_previousContext = @context
 
-export {NoteLayoutContext, NoteLayoutProvider}
+NoteUnderlay = ({padding, fill, rest...})->
+  padding ?= 5
+  fill ?= 'transparent'
+  {width} = useContext(NoteLayoutContext)
+  {pixelHeight} = useContext(ColumnContext)
+  h 'rect.underlay', {
+    width: width+2*padding
+    height: pixelHeight
+    transform: "translate(#{-padding},#{-padding})"
+    fill
+    rest...
+  }
+
+export {NoteLayoutContext, NoteLayoutProvider, NoteUnderlay}

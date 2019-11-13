@@ -1,11 +1,11 @@
-import {Component} from "react"
+import {Component, useContext} from "react"
 import h from "../hyper"
 import T from "prop-types"
 import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
-import {NoteLayoutProvider} from './layout'
-import {NoteEditorProvider, NoteEditor, NoteTextEditor} from './editor'
+import {NoteLayoutProvider, NoteUnderlay} from './layout'
+import {NoteEditorProvider, NoteEditor, NoteTextEditor, NoteEditorContext} from './editor'
 
 NoteComponent = (props)->
   {visibility, note, onClick} = props
@@ -19,6 +19,13 @@ NoteComponent.propTypes = {
   onClick: T.func
   note: NoteShape.isRequired
 }
+
+CancelEditUnderlay = ->
+  {setEditingNote} = useContext(NoteEditorContext)
+  h NoteUnderlay, {
+    onClick: ->
+      setEditingNote(null)
+  }
 
 class NotesColumn extends Component
   @defaultProps: {
@@ -69,6 +76,7 @@ class NotesColumn extends Component
       }, [
         h 'g.section-log', {transform}, [
           h NoteDefs
+          h CancelEditUnderlay
           h NotesList, {
             editHandler
             inEditMode
