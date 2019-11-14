@@ -11,13 +11,16 @@
       bottom: 0
 
 .position-editor
-  *
-    box-sizing: border-box;
   .handle
-    width: 6px
-    background-color: #eee
-    border: 1px solid #aaa
-    .top-handle, .bottom-handle
-      width: 8px
-      border-radius 2px
-      height: 8px
+    background-color: lighten(dodgerblue, 80%)
+    border: 1px solid dodgerblue
+  .add-span-handle
+    background-color: lighten(dodgerblue, 90%)
+    border 1px dotted dodgerblue
+  .top-handle, .bottom-handle, .add-span-handle
+    border-radius 3px
+
+.note-editor
+  .note-connector
+    stroke: dodgerblue
+    stroke-width 3

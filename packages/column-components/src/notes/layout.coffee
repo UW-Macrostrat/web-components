@@ -61,6 +61,7 @@ class NoteLayoutProvider extends StatefulComponent
       elementHeights: [],
       nodes: []
       @generatePath
+      @createNodeForNote
       noteComponent
     }
 
@@ -131,7 +132,7 @@ class NoteLayoutProvider extends StatefulComponent
     catch
       return null
 
-  generateNodeForNote: (note, index)=>
+  createNodeForNote: (note, index)=>
     {notes, elementHeights} = @state
     {pixelHeight, scale} = @context
     index ?= notes.indexOf(note)
@@ -161,7 +162,7 @@ class NoteLayoutProvider extends StatefulComponent
       maxPos: pixelHeight
     }
 
-    dataNodes = notes.map @generateNodeForNote
+    dataNodes = notes.map @createNodeForNote
 
     force.nodes(dataNodes).compute()
     nodes = force.nodes() or []
