@@ -1,3 +1,5 @@
+# This should eventually come from the @macrostrat/ui-components repository
+
 import {createContext, useContext, useState, useEffect} from 'react'
 import update from 'immutability-helper'
 import h from 'react-hyperscript'

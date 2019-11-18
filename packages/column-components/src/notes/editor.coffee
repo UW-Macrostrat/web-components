@@ -107,7 +107,6 @@ PositionEditorInner = (props)->
     height = Math.abs(topHeight-bottomHeight)
 
   moveEntireNote = (e, data)->
-    console.log arguments
     {y} = data
     # Set note height
     spec = {height: {$set: scale.invert(y+height)}}
