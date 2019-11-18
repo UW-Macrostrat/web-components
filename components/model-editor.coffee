@@ -25,7 +25,7 @@ class ModelEditor extends StatefulComponent
   constructor: (props)->
     super props
     @state = {
-      isEditing: false
+      isEditing: props.isEditing or false
       error: null
       data: props.data
       initialData: props.data
@@ -40,8 +40,10 @@ class ModelEditor extends StatefulComponent
 
   getValue: (field)=> @state.data[field]
 
-  hasChanges: =>
-    @props.data != @state.data
+  hasChanges: (field)=>
+    if not field?
+      return @props.data != @state.data
+    return @props.data[field] != @state.data[field]
 
   onChange: (field)=>(value)=>
     data = {}
@@ -52,10 +54,14 @@ class ModelEditor extends StatefulComponent
     @updateState {$toggle: ['isEditing']}
 
   componentDidUpdate: (prevProps)->
+    spec = {}
+    if @props.isEditing != prevProps.isEditing
+      spec.isEditing = {$set: @props.isEditing}
     if @props.data != prevProps.data
-      @updateState {initialData: {$set: @props.data}}
+      spec.initialData = {$set: @props.data}
+    @updateState spec
 
-class EditableField extends Component
+class EditableMultilineText extends Component
   @contextType: ModelEditorContext
   render: ->
     {field, className} = @props
@@ -93,6 +99,10 @@ class EditableDateField extends Component
     }
 
 
-export {ModelEditor, ModelEditorContext,
-        EditableField, EditableDateField}
-
+export {
+  ModelEditor,
+  ModelEditorContext,
+  ModelEditButton,
+  EditableMultilineText,
+  EditableDateField
+}
