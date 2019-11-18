@@ -54,6 +54,7 @@ class ModelEditor extends StatefulComponent
     @updateState {$toggle: ['isEditing']}
 
   componentDidUpdate: (prevProps)->
+    return unless prevProps?
     spec = {}
     if @props.isEditing != prevProps.isEditing
       spec.isEditing = {$set: @props.isEditing}
