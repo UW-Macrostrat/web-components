@@ -186,17 +186,26 @@ class NoteLayoutProvider extends StatefulComponent
     @computeContextValue()
     @_previousContext = @context
 
-NoteUnderlay = ({padding, fill, rest...})->
+NoteRect = (props)->
+  {padding, width, rest...} = props
   padding ?= 5
-  fill ?= 'transparent'
-  {width} = useContext(NoteLayoutContext)
   {pixelHeight} = useContext(ColumnContext)
-  h 'rect.underlay', {
+  if not width?
+    {width} = useContext(NoteLayoutContext)
+
+  h 'rect', {
     width: width+2*padding
     height: pixelHeight
     transform: "translate(#{-padding},#{-padding})"
+    rest...
+  }
+
+NoteUnderlay = ({fill, rest...})->
+  fill ?= 'transparent'
+  h NoteRect, {
+    className: 'underlay'
     fill
     rest...
   }
 
-export {NoteLayoutContext, NoteLayoutProvider, NoteUnderlay}
+export {NoteLayoutContext, NoteLayoutProvider, NoteRect, NoteUnderlay}

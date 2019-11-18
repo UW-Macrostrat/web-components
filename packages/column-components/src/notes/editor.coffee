@@ -6,7 +6,8 @@ import h from "../hyper"
 import T from 'prop-types'
 import {NoteShape} from './types'
 import {ForeignObject} from '../util'
-import {NoteLayoutContext} from './layout'
+import {NoteLayoutContext, NoteRect} from './layout'
+import {HeightRangeAnnotation} from './height-range'
 import {NotePositioner, NoteConnector} from './note'
 import Draggable from 'react-draggable'
 import {hasSpan} from './utils'
@@ -36,7 +37,12 @@ NoteEditorProvider = (props)->
 
   [editingNote, setEditingNote] = useState(null)
 
-  value = {editingNote, setEditingNote, inEditMode, noteEditor}
+  value = {
+    editingNote,
+    setEditingNote,
+    inEditMode,
+    noteEditor
+  }
 
   ## Model editor provider gives us a nice store
   h NoteEditorContext.Provider, {value}, [
@@ -155,19 +161,13 @@ PositionEditorInner = (props)->
   ]
 
 NoteEditorUnderlay = ({padding})->
-  padding ?= 5
   {width} = useContext(NoteLayoutContext)
-  {pixelHeight} = useContext(ColumnContext)
   {setEditingNote} = useContext(NoteEditorContext)
-  h 'rect.underlay', {
-    width: width+2*padding
-    height: pixelHeight
+  h NoteRect, {
     fill: 'rgba(255,255,255,0.8)'
-    transform: "translate(#{-padding},#{-padding})"
     style: {pointerEvents: 'none'}
+    className: 'underlay'
   }
-
-
 
 NoteEditor = (props)->
   {allowPositionEditing} = props

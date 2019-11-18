@@ -4,6 +4,7 @@ import h from "../hyper"
 import T from "prop-types"
 import {NoteLayoutContext} from './layout'
 import {NoteEditorContext} from './editor'
+import {HeightRangeAnnotation} from './height-range'
 import {hasSpan} from './utils'
 import {ForeignObject} from '../util'
 import {NoteShape} from './types'
@@ -39,18 +40,6 @@ NotePositioner = forwardRef (props, ref)->
     }, children
   ]
 
-class NoteSpan extends Component
-  render: ->
-    {height, transform} = @props
-    if height > 5
-      el = h 'line', {
-       x1: 0, x2: 0, y1: 2.5,
-       y2: height-2.5
-      }
-    else
-      el = h 'circle', {r: 2}
-    h 'g', {transform}, el
-
 findIndex = (note)->
   {notes} = useContext(NoteLayoutContext)
   notes.indexOf(note)
@@ -59,24 +48,17 @@ NoteConnector = (props)->
   {note, node, index} = props
   # Try to avoid scanning for index if we can
   index ?= findIndex(note)
-  {scale, nodes, columnIndex, generatePath} = useContext(NoteLayoutContext)
-
-  startHeight = scale(note.height)
-  height = 0
-  if hasSpan(note)
-    height = Math.abs(scale(note.top_height)-startHeight)
+  {nodes, columnIndex, generatePath} = useContext(NoteLayoutContext)
+  {height, top_height} = note
 
   node ?= nodes[index]
   offsetX = (columnIndex[index] or 0)*5
 
-  pos = 0
-  if node?
-    pos = node.centerPos or node.idealPos
-
   h [
-    h NoteSpan, {
-      transform: "translate(#{offsetX} #{pos-height/2})"
-      height
+    h HeightRangeAnnotation, {
+      offsetX
+      height,
+      top_height
     }
     h 'path.link', {
       d: generatePath(node, offsetX)

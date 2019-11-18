@@ -5,7 +5,16 @@ import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
 import {NoteLayoutProvider, NoteUnderlay} from './layout'
-import {NoteEditorProvider, NoteEditor, NoteTextEditor, NoteEditorContext} from './editor'
+import {
+  NoteEditor,
+  NoteTextEditor,
+  NoteEditorContext,
+  NoteEditorProvider
+} from './editor'
+import {
+  NewNotePositioner
+} from './new'
+
 
 NoteComponent = (props)->
   {visibility, note, onClick} = props
@@ -35,6 +44,7 @@ class NotesColumn extends Component
     noteComponent: NoteComponent
     noteEditor: NoteTextEditor
     allowPositionEditing: false
+    allowCreation: false
   }
   @propTypes: {
     notes: T.arrayOf(NoteShape).isRequired
@@ -45,6 +55,7 @@ class NotesColumn extends Component
     noteComponent: T.elementType
     noteEditor: T.elementType
     allowPositionEditing: T.bool
+    allowCreation: T.bool
   }
   render: ->
     {width,
@@ -56,6 +67,7 @@ class NotesColumn extends Component
      noteComponent
      noteEditor
      allowPositionEditing
+     allowCreation
     } = @props
 
     editHandler = onUpdateNote
@@ -81,6 +93,7 @@ class NotesColumn extends Component
             editHandler
             inEditMode
           }
+          h.if(allowCreation) NewNotePositioner
           h NoteEditor, {allowPositionEditing}
         ]
       ]
