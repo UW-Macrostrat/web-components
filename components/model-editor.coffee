@@ -55,8 +55,9 @@ class ModelEditor extends StatefulComponent
 
   componentDidUpdate: (prevProps)->
     return unless prevProps?
+    return if prevProps == @props
     spec = {}
-    if @props.isEditing != prevProps.isEditing
+    if @props.isEditing != prevProps.isEditing and @props.isEditing != @state.isEditing
       spec.isEditing = {$set: @props.isEditing}
     if @props.data != prevProps.data
       spec.initialData = {$set: @props.data}
