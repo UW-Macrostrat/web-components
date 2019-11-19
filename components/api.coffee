@@ -1,4 +1,4 @@
-import {Component, createContext} from 'react'
+import {Component, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
 import {memoize} from 'underscore'
 import axios, {get, post} from 'axios'
@@ -115,4 +115,3 @@ export {
   APIConsumer,
   buildQueryString
 }
-

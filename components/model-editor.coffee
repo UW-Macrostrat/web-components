@@ -1,10 +1,11 @@
-import {Component, createContext} from 'react'
+import {Component, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
 import {DateInput} from '@blueprintjs/datetime'
 import {EditableText} from '@blueprintjs/core'
 import {EditButton, DeleteButton} from './buttons'
 import {StatefulComponent} from './stateful'
 import classNames from 'classnames'
+import T from 'prop-types'
 
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
 
@@ -21,37 +22,72 @@ class ModelEditButton extends Component
     }
 
 class ModelEditor extends StatefulComponent
-  @EditButton: ModelEditButton
+  @defaultProps: {
+    canEdit: true
+  }
+  @propTypes: {
+    model: T.object.isRequired
+    persistChanges: T.func
+  }
   constructor: (props)->
     super props
     @state = {
       isEditing: props.isEditing or false
+      isPersisting: null
       error: null
-      data: props.data
-      initialData: props.data
+      model: props.model
+      initialModel: props.model
     }
 
   render: ->
-    {data, isEditing} = @state
-    actions = do => {onChange, toggleEditing, updateState} = @
-    value = {actions, data, isEditing, hasChanges: @hasChanges}
-    console.log value
+    {model} = @state
+    {canEdit} = @props
+    isEditing = @state.isEditing and canEdit
+    actions = do => {onChange, toggleEditing, updateState, onPersistChanges} = @
+    value = {actions, model, isEditing, canEdit, hasChanges: @hasChanges}
     h ModelEditorContext.Provider, {value}, @props.children
 
-  getValue: (field)=> @state.data[field]
+  getValue: (field)=> @state.model[field]
 
   hasChanges: (field)=>
     if not field?
-      return @props.data != @state.data
-    return @props.data[field] != @state.data[field]
+      return @props.model != @state.model
+    return @props.model[field] != @state.model[field]
 
   onChange: (field)=>(value)=>
-    data = {}
-    data[field] = {$set: value}
-    @updateState {data}
+    @updateState {model: {[field]: {$set: value}}}
 
   toggleEditing: =>
-    @updateState {$toggle: ['isEditing']}
+    spec = {$toggle: ['isEditing']}
+    if @state.isEditing
+      spec.model = {$set: @state.initialModel}
+    @updateState spec
+
+  onPersistChanges: =>
+    @persistChanges()
+
+  persistChanges: =>
+    {persistChanges} = @props
+    # Persist changes expects a promise
+    ret = null
+    return null unless persistChanges?
+    try
+      @updateState {isPersisting: {$set: true}}
+
+      # Compute a shallow changeset of the model fields
+      changeset = {}
+      for k,v of @state.model
+        continue if v == @state.initialModel[k]
+        changeset[k] = v
+
+      ret = await persistChanges(@state.model, changeset)
+    catch err
+      console.error err
+    finally
+      spec = {isPersisting: {$set: false}}
+      if ret? and Object.isObject(ret)
+         spec.model = {$merge: ret}
+      @updateState spec
 
   componentDidUpdate: (prevProps)->
     return unless prevProps?
@@ -59,16 +95,16 @@ class ModelEditor extends StatefulComponent
     spec = {}
     if @props.isEditing != prevProps.isEditing and @props.isEditing != @state.isEditing
       spec.isEditing = {$set: @props.isEditing}
-    if @props.data != prevProps.data
-      spec.initialData = {$set: @props.data}
+    if @props.model != prevProps.model
+      spec.initialModel = {$set: @props.model}
     @updateState spec
 
 class EditableMultilineText extends Component
   @contextType: ModelEditorContext
   render: ->
     {field, className} = @props
-    {actions, data, isEditing} =  @context
-    value = data[field]
+    {actions, model, isEditing} =  @context
+    value = model[field]
     onChange = actions.onChange(field)
     className = classNames className, "field-#{field}"
 
@@ -86,8 +122,8 @@ class EditableDateField extends Component
   @contextType: ModelEditorContext
   render: ->
     {field} = @props
-    {actions, data, isEditing} = @context
-    value = data[field]
+    {actions, model, isEditing} = @context
+    value = model[field]
     if not isEditing
       return h 'div.date-input.disabled', value
     h DateInput, {
@@ -100,6 +136,8 @@ class EditableDateField extends Component
       parseDate: (d)->new Date(d)
     }
 
+useModelEditor = ->
+  useContext(ModelEditorContext)
 
 export {
   ModelEditor,
@@ -107,4 +145,5 @@ export {
   ModelEditButton,
   EditableMultilineText,
   EditableDateField
+  useModelEditor
 }
