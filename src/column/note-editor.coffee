@@ -20,10 +20,14 @@ HeightRange = (props)->
   ]
 
 NoteEditor = (props)->
-  {editedModel: note} = useModelEditor()
+  {editedModel: note, updateModel} = useModelEditor()
+  onChange = (event)->
+    v = event.target.value
+    updateModel {note: {$set: v}}
+
   h 'div.note-editor', [
     h ContentPanel, [
-      h TextArea, {value: note.note, growVertically: true}
+      h TextArea, {value: note.note, growVertically: true, onChange}
       h HeightRange, {note}
       h Button, {}, "Make span"
       h Button, {}, "Delete"

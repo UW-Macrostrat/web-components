@@ -22,10 +22,11 @@ AboutPanel = (props)->
 class App extends StatefulComponent
   constructor: (props)->
     super props
-    @defaultData = @prepareColumnData(defaultColumnData)
+    preparedData = @prepareColumnData(defaultColumnData)
     @state = {
       columnImage: testImage
-      columnData: @defaultData
+      defaultData: preparedData
+      columnData:  preparedData
       inEditMode: true
       generalized: false
       editingInterval: null
@@ -52,10 +53,10 @@ class App extends StatefulComponent
         h SideMenu, {@setPage, currentPage}
         h StratColumn, {
           surfaces
-          notes
           height
           generalized
           inEditMode
+          notes
           @editInterval
           @addInterval
           @removeInterval
@@ -64,7 +65,7 @@ class App extends StatefulComponent
           onUpdate: @updateInterval
           hideDetailColumn: currentPage != Page.MAIN
           columnImage: @state.columnImage
-          @updateNote
+          @onUpdateNote
         }
         h.if(currentPage == Page.SETTINGS) SettingsPanel, {
           inEditMode
@@ -93,6 +94,10 @@ class App extends StatefulComponent
       return a.bottom-b.bottom
     v = columnData.surfaces.map @prepareSurface(columnData.height)
     columnData.surfaces = v
+
+    columnData.notes.forEach (d)->
+      d.id ?= createID()
+
     return columnData
 
   updateColumnData: (spec)=>
@@ -148,7 +153,23 @@ class App extends StatefulComponent
   removeInterval: (id)=>
 
   ### Note editing ###
-  updateNote: (noteID, newText)=>
+  onUpdateNote: (newNote)=>
+    return unless newNote?
+    {notes} = @state.columnData
+    if newNote.id?
+      # Updating note
+      ix = notes.findIndex (d)->
+        d.id == newNote.id
+      spec = {[ix]: {$set: newNote}}
+    else
+      newNote.id = createID()
+      newNote.top_height ?= null
+      newNote.note ?= null
+      newNote.symbol ?= null
+      spec = {$push: [newNote]}
+
+    @updateColumnData {notes: spec}
+
     console.log arguments
 
   setPage: (nextPage)=> =>

@@ -72,7 +72,7 @@ class StratColumn extends Component
     addInterval: T.func.isRequired
     height: T.number.isRequired
     hideDetailColumn: T.bool
-    updateNote: T.func.isRequired
+    onUpdateNote: T.func.isRequired
     columnImage: T.string
   }
 
@@ -150,9 +150,10 @@ class StratColumn extends Component
               transform: "translate(#{notesOffset})",
               width: notesWidth
               inEditMode
-              onUpdateNote: @props.updateNote
+              onUpdateNote: @props.onUpdateNote
               noteEditor: NoteEditor
               allowPositionEditing: true
+              allowCreation: true
             }
           ]
         ]
