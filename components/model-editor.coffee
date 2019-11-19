@@ -5,6 +5,7 @@ import {EditableText} from '@blueprintjs/core'
 import {EditButton, DeleteButton} from './buttons'
 import {StatefulComponent} from './stateful'
 import classNames from 'classnames'
+import update from 'immutability-helper'
 import T from 'prop-types'
 
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'
@@ -51,8 +52,8 @@ class ModelEditor extends StatefulComponent
 
   hasChanges: (field)=>
     if not field?
-      return @props.model != @state.model
-    return @props.model[field] != @state.model[field]
+      return @state.initialModel != @state.model
+    return @state.initialModel[field] != @state.model[field]
 
   onChange: (field)=>(value)=>
     @updateState {model: {[field]: {$set: value}}}
@@ -85,8 +86,12 @@ class ModelEditor extends StatefulComponent
       console.error err
     finally
       spec = {isPersisting: {$set: false}}
-      if ret? and Object.isObject(ret)
-         spec.model = {$merge: ret}
+
+      if ret?
+        newModel = update(@state.initialModel, {$merge: ret})
+        console.log newModel
+        spec.model = {$set: newModel}
+        spec.initialModel = {$set: newModel}
       @updateState spec
 
   componentDidUpdate: (prevProps)->
