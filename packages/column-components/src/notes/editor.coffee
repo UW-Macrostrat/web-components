@@ -35,7 +35,12 @@ NoteEditorProvider = (props)->
   {children, inEditMode, noteEditor} = props
   inEditMode ?= false
 
-  [editingNote, setEditingNote] = useState(null)
+  [editingNote, setState] = useState(null)
+
+  setEditingNote = (val)->
+    console.log val
+    setState val
+    props.onUpdateNote(val)
 
   value = {
     editingNote,
@@ -46,12 +51,16 @@ NoteEditorProvider = (props)->
 
   ## Model editor provider gives us a nice store
   h NoteEditorContext.Provider, {value}, [
-    h ModelEditorProvider, {model: editingNote}, children
+    h ModelEditorProvider, {
+      model: editingNote
+      logUpdates: true
+    }, children
   ]
 
 NoteEditorProvider.propTypes = {
   inEditMode: T.bool
   noteEditor: T.elementType.isRequired
+  onUpdateNote: T.func.isRequired
 }
 
 EditableNoteConnector = (props)->
@@ -197,7 +206,10 @@ NoteEditor = (props)->
     h.if(not allowPositionEditing) NoteConnector, {note: editingNote, index}
     h.if(allowPositionEditing) EditableNoteConnector, {note: editingNote, node}
     h NotePositioner, {offsetY: node.currentPos, noteHeight}, [
-      h noteEditor, {note: editingNote, key: index}
+      h noteEditor, {
+        note: editingNote,
+        key: index
+      }
     ]
   ]
 

@@ -64,6 +64,7 @@ class NotesColumn extends Component
      notes,
      inEditMode
      onUpdateNote
+     onCreateNote
      noteComponent
      noteEditor
      allowPositionEditing
@@ -85,6 +86,7 @@ class NotesColumn extends Component
       h NoteEditorProvider, {
         inEditMode
         noteEditor
+        onUpdateNote
       }, [
         h 'g.section-log', {transform}, [
           h NoteDefs
@@ -93,8 +95,8 @@ class NotesColumn extends Component
             editHandler
             inEditMode
           }
-          h.if(allowCreation) NewNotePositioner
-          h NoteEditor, {allowPositionEditing}
+          h.if(allowCreation) NewNotePositioner, {onCreateNote}
+          h NoteEditor, {allowPositionEditing, onUpdateNote}
         ]
       ]
     ]

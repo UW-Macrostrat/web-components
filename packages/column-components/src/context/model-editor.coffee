@@ -10,13 +10,17 @@ ModelEditorProvider = (props)->
   ###
   Context to assist with editing a model
   ###
-  {model, logUpdates, children} = props
+  {model, logUpdates, onConfirmChanges, children} = props
   logUpdates ?= false
   [editedModel, setState] = useState({model...})
 
   revertChanges = ->
     setState({model...})
   # Zero out edited model when model prop changes
+
+  confirmChanges = ->
+    onConfirmChanges(editedModel)
+
   useEffect(revertChanges, [model])
 
   updateModel = (spec)->
@@ -28,7 +32,7 @@ ModelEditorProvider = (props)->
   hasChanges = ->
     model == editedModel
 
-  value = {model, editedModel, updateModel, hasChanges, revertChanges}
+  value = {model, editedModel, updateModel, hasChanges, revertChanges, confirmChanges}
   h ModelEditorContext.Provider, {value}, children
 
 useModelEditor = ->
