@@ -44,7 +44,7 @@ class ModelEditor extends StatefulComponent
     {model} = @state
     {canEdit} = @props
     isEditing = @state.isEditing and canEdit
-    actions = do => {onChange, toggleEditing, updateState, onPersistChanges} = @
+    actions = do => {onChange, toggleEditing, updateState, persistChanges} = @
     value = {actions, model, isEditing, canEdit, hasChanges: @hasChanges}
     h ModelEditorContext.Provider, {value}, @props.children
 
@@ -67,9 +67,18 @@ class ModelEditor extends StatefulComponent
   onPersistChanges: =>
     @persistChanges()
 
-  persistChanges: =>
+  persistChanges: (spec)=>
     {persistChanges} = @props
     # Persist changes expects a promise
+
+    updatedModel = @state.model
+    if spec?
+      # If changeset is provided, we need to integrate
+      # it before proceeding
+      console.log spec
+      updatedModel = update(@state.model, spec)
+    console.log updatedModel
+
     ret = null
     return null unless persistChanges?
     try
@@ -77,11 +86,11 @@ class ModelEditor extends StatefulComponent
 
       # Compute a shallow changeset of the model fields
       changeset = {}
-      for k,v of @state.model
+      for k,v of updatedModel
         continue if v == @state.initialModel[k]
         changeset[k] = v
 
-      ret = await persistChanges(@state.model, changeset)
+      ret = await persistChanges(updatedModel, changeset)
     catch err
       console.error err
     finally
