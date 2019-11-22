@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import h from "../hyper"
 import T from 'prop-types'
 import {NoteShape} from './types'
+import {NoteLayoutProvider} from './layout'
 import {ForeignObject} from '../util'
 import {NoteLayoutContext, NoteRect} from './layout'
 import {HeightRangeAnnotation} from './height-range'
@@ -33,24 +34,23 @@ NoteTextEditor.propTypes = {
 
 NoteEditorProvider = (props)->
   {children, inEditMode, noteEditor} = props
+  {notes} = useContext(NoteLayoutContext)
   inEditMode ?= false
 
   [editingNote, setState] = useState(null)
 
   setEditingNote = (val)->
-    console.log val
     setState val
 
   deleteNote = ->
-    props.onDeleteNote(editingNote)
+    val = editingNote
     setState(null)
+    props.onDeleteNote(val)
 
-  {onCreateNote} = props
-  if onCreateNote?
-    onCreateNote = (v)->
-      note = props.onCreateNote(v)
-      console.log "Starting to edit new note", note
-      setEditingNote(note)
+  onCreateNote = (pos)->
+    {height, top_height} = pos
+    val = {height, top_height, note: null, symbol: null}
+    setState(val)
 
   value = {
     editingNote,
@@ -61,13 +61,15 @@ NoteEditorProvider = (props)->
     onCreateNote
   }
 
+  onConfirmChanges = (n)->
+    if editingNote? then props.onUpdateNote(n)
+
   ## Model editor provider gives us a nice store
   h NoteEditorContext.Provider, {value}, [
     h ModelEditorProvider, {
       model: editingNote
       onDelete: deleteNote
-      onConfirmChanges: (n)=>
-        props.onUpdateNote(n)
+      onConfirmChanges
       logUpdates: true
       alwaysConfirm: true
     }, children
@@ -80,20 +82,31 @@ NoteEditorProvider.propTypes = {
   onDeleteNote: T.func.isRequired
 }
 
+NoteConnectorPath = (props)->
+  {d, offsetX, className} = props
+  h 'path', {
+    d,
+    transform: "translate(#{offsetX})"
+    fill: 'transparent'
+  }
+
+
 EditableNoteConnector = (props)->
   {notes, nodes, columnIndex,
-   generatePath} = useContext(NoteLayoutContext)
+   generatePath,
+   createNodeForNote} = useContext(NoteLayoutContext)
   {note, node, index} = props
-  index ?= notes.indexOf(note)
-  node ?= nodes[index]
-  x = columnIndex[index]*5
+  if note.id?
+    node = nodes[note.id]
+  node ?= createNodeForNote(note)
+  x = columnIndex[note.id]*5 or 0
 
   d = generatePath(node, x)
 
   h [
-    h 'path.note-connector', {
-      d, transform: "translate(#{x})",
-      fill: 'transparent'
+    h NoteConnectorPath, {
+      className: 'note-connector'
+      d, offsetX: x
     }
     h ForeignObject, {
       width: 30, x, y: 0, height: 1,
@@ -202,13 +215,12 @@ NoteEditor = (props)->
   {editedModel} = useModelEditor()
   return null unless editingNote?
   index = notes.indexOf(editingNote)
-  node = nodes[index]
-  return null unless node?
   {id: noteID} = editingNote
+  node = nodes[noteID] or createNodeForNote(editingNote)
   noteHeight = elementHeights[noteID]
 
   if editedModel? and editedModel.height?
-    newNode = createNodeForNote(editedModel, index)
+    newNode = createNodeForNote(editedModel)
     # Set position of note to current position
     newNode.currentPos = node.currentPos
 
@@ -222,7 +234,7 @@ NoteEditor = (props)->
 
   h 'g.note-editor.note', [
     h NoteEditorUnderlay
-    h.if(not allowPositionEditing) NoteConnector, {note: editingNote, index}
+    h.if(not allowPositionEditing) NoteConnector, {note: editingNote}
     h.if(allowPositionEditing) EditableNoteConnector, {note: editingNote, node}
     h NotePositioner, {offsetY: node.currentPos, noteHeight}, [
       h noteEditor, {

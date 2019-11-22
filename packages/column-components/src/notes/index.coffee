@@ -55,6 +55,8 @@ class NotesColumn extends Component
     onUpdateNote: T.func
     onCreateNote: T.func
     onDeleteNote: T.func
+    editingNote: NoteShape
+    onEditNote: T.func
     inEditMode: T.bool
     noteComponent: T.elementType
     noteEditor: T.elementType

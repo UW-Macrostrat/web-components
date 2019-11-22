@@ -69,8 +69,4 @@ NewNotePositioner.defaultProps = {
   tolerance: 0.1
 }
 
-NewNotePositioner.propTypes = {
-  onCreateNote: T.func.isRequired
-}
-
 export {NewNotePositioner}

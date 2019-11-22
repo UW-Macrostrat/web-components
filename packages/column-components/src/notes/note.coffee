@@ -85,7 +85,6 @@ class Note extends Component
   @propTypes: {
     editable: T.bool
     note: NoteShape.isRequired
-    index: T.number.isRequired
     editHandler: T.func
   }
   @contextType: NoteLayoutContext
