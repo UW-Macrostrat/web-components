@@ -142,7 +142,7 @@ class NoteLayoutProvider extends StatefulComponent
     # Something is wrong...
     #return if elementHeights.length < notes.length
     # Return if we've already computed nodes
-    return if nodes.length == notes.length
+    return if Object.keys(nodes).length == notes.length
     console.log @state
     console.log "Computing force layout for notes column"
 
@@ -155,12 +155,16 @@ class NoteLayoutProvider extends StatefulComponent
 
     force.nodes(dataNodes).compute()
     nodes = force.nodes() or []
-    @updateState {nodes: {$set: nodes}}
+    nodesObj = {}
+    for node, i in nodes
+      note = notes[i]
+      nodesObj[note.id] = node
 
-  registerHeight: (index, height)=>
+    @updateState {nodes: {$set: nodesObj}}
+
+  registerHeight: (id, height)=>
     return unless height?
-    {elementHeights, notes} = @state
-    {id} = notes[index]
+    {elementHeights} = @state
     elementHeights[id] = height
     @updateState {elementHeights: {$set: elementHeights}}
 
@@ -184,7 +188,7 @@ class NoteLayoutProvider extends StatefulComponent
 
   componentDidUpdate: (prevProps, prevState)=>
     if @props.notes != prevProps.notes
-      @updateNotes(arguments...)
+      @updateNotes()
 
     # Update note component
     {noteComponent} = @props

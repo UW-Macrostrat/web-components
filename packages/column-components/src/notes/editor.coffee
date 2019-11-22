@@ -45,12 +45,20 @@ NoteEditorProvider = (props)->
     props.onDeleteNote(editingNote)
     setState(null)
 
+  {onCreateNote} = props
+  if onCreateNote?
+    onCreateNote = (v)->
+      note = props.onCreateNote(v)
+      console.log "Starting to edit new note", note
+      setEditingNote(note)
+
   value = {
     editingNote,
     setEditingNote,
     deleteNote
     inEditMode,
     noteEditor
+    onCreateNote
   }
 
   ## Model editor provider gives us a nice store
@@ -58,8 +66,10 @@ NoteEditorProvider = (props)->
     h ModelEditorProvider, {
       model: editingNote
       onDelete: deleteNote
-      onConfirmChanges: props.onUpdateNote
+      onConfirmChanges: (n)=>
+        props.onUpdateNote(n)
       logUpdates: true
+      alwaysConfirm: true
     }, children
   ]
 

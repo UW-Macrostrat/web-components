@@ -35,7 +35,6 @@ CancelEditUnderlay = ->
   {confirmChanges} = useModelEditor()
   h NoteUnderlay, {
     onClick: ->
-      confirmChanges()
       setEditingNote(null)
   }
 
@@ -90,6 +89,7 @@ class NotesColumn extends Component
       h NoteEditorProvider, {
         inEditMode
         noteEditor
+        onCreateNote
         onUpdateNote
         onDeleteNote
       }, [
@@ -100,7 +100,7 @@ class NotesColumn extends Component
             editHandler
             inEditMode
           }
-          h.if(onCreateNote?) NewNotePositioner, {onCreateNote}
+          h NewNotePositioner
           h NoteEditor, {allowPositionEditing}
         ]
       ]
