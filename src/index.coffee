@@ -30,6 +30,7 @@ class App extends StatefulComponent
       inEditMode: true
       generalized: false
       editingInterval: null
+      editingNote: null
       clickedHeight: null
       currentPage: Page.MAIN
     }
@@ -39,6 +40,7 @@ class App extends StatefulComponent
       generalized,
       inEditMode,
       editingInterval,
+      editingNote
       clickedHeight,
       columnData,
       currentPage
@@ -67,6 +69,7 @@ class App extends StatefulComponent
           columnImage: @state.columnImage
           @onUpdateNote
           @onDeleteNote
+          @onCreateNote
         }
         h.if(currentPage == Page.SETTINGS) SettingsPanel, {
           inEditMode
@@ -141,13 +144,11 @@ class App extends StatefulComponent
   cancelEditInterval: =>
     @updateState {editingInterval: {$set: null}}
 
-
   addInterval: (height)=>
     return unless @props.update?
     {surfaces} = @props.data
     editingInterval = {bottom: height}
     surfaces.push editingInterval
-    console.log surfaces
     surfaces.sort (a,b)-> a.bottom-b.bottom
     @updateState {editingInterval: {$set: editingInterval}}
 
@@ -156,22 +157,23 @@ class App extends StatefulComponent
   ### Note editing ###
   onUpdateNote: (newNote)=>
     return unless newNote?
+    if not newNote.note? or newNote.note == ""
+      return
     {notes} = @state.columnData
-    if newNote.id?
-      # Updating note
-      ix = notes.findIndex (d)->
-        d.id == newNote.id
+
+    newNote.id ?= createID()
+    # Updating note
+    ix = @getNoteIndex(newNote)
+
+    if ix != -1
       spec = {[ix]: {$set: newNote}}
     else
-      newNote.id = createID()
-      newNote.top_height ?= null
-      newNote.note ?= null
-      newNote.symbol ?= null
       spec = {$push: [newNote]}
+
+    console.log "Updating notes with spec", spec
 
     @updateColumnData {notes: spec}
 
-    console.log arguments
 
   getNoteIndex: (note)=>
     @state.columnData.notes.findIndex (d)->
