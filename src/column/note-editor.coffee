@@ -3,8 +3,9 @@ import h from '~/hyper'
 import {ContentPanel} from '../ui'
 import {TextArea, InputGroup, Button} from '@blueprintjs/core'
 import {format} from 'd3-format'
+import {DeleteButton} from '@macrostrat/ui-components'
 
-fmt = format("~s")
+fmt = format(".2f")
 
 HeightRange = (props)->
   {formatter} = props
@@ -20,7 +21,7 @@ HeightRange = (props)->
   ]
 
 NoteEditor = (props)->
-  {editedModel: note, updateModel} = useModelEditor()
+  {editedModel: note, updateModel, deleteModel} = useModelEditor()
   onChange = (event)->
     v = event.target.value
     updateModel {note: {$set: v}}
@@ -28,9 +29,15 @@ NoteEditor = (props)->
   h 'div.note-editor', [
     h ContentPanel, [
       h TextArea, {value: note.note, growVertically: true, onChange}
-      h HeightRange, {note}
-      h Button, {}, "Make span"
-      h Button, {}, "Delete"
+      h 'div.toolbar', [
+        h HeightRange, {note}
+        h DeleteButton, {
+          small: true,
+          minimal: true,
+          itemDescription: "this note",
+          handleDelete: deleteModel
+        }
+      ]
     ]
   ]
 

@@ -73,15 +73,16 @@ class StratColumn extends Component
     height: T.number.isRequired
     hideDetailColumn: T.bool
     onUpdateNote: T.func.isRequired
+    onDeleteNote: T.func.isRequired
     columnImage: T.string
   }
 
   shouldShowNotes: =>
     not @props.editingInterval? and not @props.hideDetailColumn
 
-  componentDidMount: =>
-    {margin} = @props
-    scroll.scrollTo(margin.top)
+  #componentDidMount: =>
+    #{margin} = @props
+    #scroll.scrollTo(margin.top)
 
   render: ->
     { margin, clickedHeight,
@@ -151,6 +152,7 @@ class StratColumn extends Component
               width: notesWidth
               inEditMode
               onUpdateNote: @props.onUpdateNote
+              onDeleteNote: @props.onDeleteNote
               noteEditor: NoteEditor
               allowPositionEditing: true
               allowCreation: true

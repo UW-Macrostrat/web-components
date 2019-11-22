@@ -66,6 +66,7 @@ class App extends StatefulComponent
           hideDetailColumn: currentPage != Page.MAIN
           columnImage: @state.columnImage
           @onUpdateNote
+          @onDeleteNote
         }
         h.if(currentPage == Page.SETTINGS) SettingsPanel, {
           inEditMode
@@ -171,6 +172,14 @@ class App extends StatefulComponent
     @updateColumnData {notes: spec}
 
     console.log arguments
+
+  getNoteIndex: (note)=>
+    @state.columnData.notes.findIndex (d)->
+      d.id == note.id
+
+  onDeleteNote: (note)=>
+    ix = @getNoteIndex(note)
+    @updateColumnData {notes: {$splice: [[ix,1]]}}
 
   setPage: (nextPage)=> =>
     if @state.currentPage == nextPage
