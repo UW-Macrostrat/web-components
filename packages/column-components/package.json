@@ -15,6 +15,7 @@
     "@babel/preset-react": "^7.7.0"
   },
   "dependencies": {
+    "diff-immutability-helper": "^1.1.0",
     "react": "^16.11.0",
     "react-select": "^3.0.8",
     "ui-box": "^3.0.2"

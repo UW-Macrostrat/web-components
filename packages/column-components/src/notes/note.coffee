@@ -126,6 +126,6 @@ NotesList = (props)->
   editable ?= false
   {notes} = useContext(NoteLayoutContext)
   h 'g', notes.map (note, index)=>
-    h Note, {note, index, editable, rest...}
+    h Note, {key: note.id, note, index, editable, rest...}
 
 export {Note, NotesList, NotePositioner, NoteConnector}

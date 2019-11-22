@@ -3,6 +3,7 @@
 import {createContext, useContext, useState, useEffect} from 'react'
 import update from 'immutability-helper'
 import h from 'react-hyperscript'
+import T from 'prop-types'
 
 ModelEditorContext = createContext(null)
 
@@ -10,7 +11,12 @@ ModelEditorProvider = (props)->
   ###
   Context to assist with editing a model
   ###
-  {model, logUpdates, onConfirmChanges, children} = props
+  {
+    model,
+    logUpdates,
+    children
+  } = props
+
   logUpdates ?= false
   [editedModel, setState] = useState({model...})
 
@@ -19,7 +25,7 @@ ModelEditorProvider = (props)->
   # Zero out edited model when model prop changes
 
   confirmChanges = ->
-    onConfirmChanges(editedModel)
+    props.onConfirmChanges(editedModel)
 
   useEffect(revertChanges, [model])
 
@@ -29,11 +35,23 @@ ModelEditorProvider = (props)->
       console.log(v)
     setState(v)
 
+  deleteModel = ->
+    props.onDelete(model)
+
   hasChanges = ->
     model == editedModel
 
-  value = {model, editedModel, updateModel, hasChanges, revertChanges, confirmChanges}
+  value = {
+    model, editedModel, updateModel,
+    deleteModel, hasChanges,
+    revertChanges, confirmChanges
+  }
   h ModelEditorContext.Provider, {value}, children
+
+ModelEditorProvider.propTypes = {
+  onConfirmChanges: T.func.isRequired
+  onDelete: T.func.isRequired
+}
 
 useModelEditor = ->
   useContext(ModelEditorContext)

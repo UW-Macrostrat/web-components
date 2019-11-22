@@ -42,9 +42,14 @@ NoteEditorProvider = (props)->
     setState val
     props.onUpdateNote(val)
 
+  deleteNote = ->
+    props.onDeleteNote(editingNote)
+    setState(null)
+
   value = {
     editingNote,
     setEditingNote,
+    deleteNote
     inEditMode,
     noteEditor
   }
@@ -53,6 +58,8 @@ NoteEditorProvider = (props)->
   h NoteEditorContext.Provider, {value}, [
     h ModelEditorProvider, {
       model: editingNote
+      onDelete: deleteNote
+      onConfirmChanges: props.onUpdateNote
       logUpdates: true
     }, children
   ]
@@ -61,6 +68,7 @@ NoteEditorProvider.propTypes = {
   inEditMode: T.bool
   noteEditor: T.elementType.isRequired
   onUpdateNote: T.func.isRequired
+  onDeleteNote: T.func.isRequired
 }
 
 EditableNoteConnector = (props)->
@@ -108,7 +116,7 @@ PointHandle = (props)->
 PositionEditorInner = (props)->
   {note, margin} = props
   margin ?= 3
-  {scale} = useContext(NoteLayoutContext)
+  {scaleClamped: scale} = useContext(ColumnContext)
   {updateModel, editedModel: note} = useModelEditor()
   return null unless note?
 
@@ -186,7 +194,9 @@ NoteEditor = (props)->
   return null unless editingNote?
   index = notes.indexOf(editingNote)
   node = nodes[index]
-  noteHeight = elementHeights[index]
+  return null unless node?
+  {id: noteID} = editingNote
+  noteHeight = elementHeights[noteID]
 
   if editedModel? and editedModel.height?
     newNode = createNodeForNote(editedModel, index)

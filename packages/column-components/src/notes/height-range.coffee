@@ -5,7 +5,7 @@ import {NoteLayoutContext} from './layout'
 
 HeightRangeAnnotation = (props)->
   {scale} = useContext(NoteLayoutContext)
-  {height, top_height, offsetX, rest...} = props
+  {height, top_height, offsetX, color, rest...} = props
 
   bottomHeight = scale(height)
   pxHeight = 0
@@ -17,12 +17,12 @@ HeightRangeAnnotation = (props)->
 
   transform = "translate(#{offsetX},#{topHeight})"
 
-  h 'g', {transform, rest...}, [
+  h 'g.height-range', {transform, rest...}, [
     h.if(isLine) 'line', {
-     x1: 0,
-     x2: 0,
-     y1: 2.5,
-     y2: pxHeight-2.5
+      x1: 0,
+      x2: 0,
+      y1: 2.5,
+      y2: pxHeight-2.5
     }
     h.if(not isLine) 'circle', {r: 2}
   ]

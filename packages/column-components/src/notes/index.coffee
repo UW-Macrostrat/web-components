@@ -51,6 +51,7 @@ class NotesColumn extends Component
     width: T.number.isRequired
     paddingLeft: T.number
     onUpdateNote: T.func
+    onDeleteNote: T.func
     inEditMode: T.bool
     noteComponent: T.elementType
     noteEditor: T.elementType
@@ -64,6 +65,7 @@ class NotesColumn extends Component
      notes,
      inEditMode
      onUpdateNote
+     onDeleteNote
      onCreateNote
      noteComponent
      noteEditor
@@ -87,6 +89,7 @@ class NotesColumn extends Component
         inEditMode
         noteEditor
         onUpdateNote
+        onDeleteNote
       }, [
         h 'g.section-log', {transform}, [
           h NoteDefs
@@ -96,7 +99,7 @@ class NotesColumn extends Component
             inEditMode
           }
           h.if(allowCreation) NewNotePositioner, {onCreateNote}
-          h NoteEditor, {allowPositionEditing, onUpdateNote}
+          h NoteEditor, {allowPositionEditing}
         ]
       ]
     ]

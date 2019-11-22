@@ -58,16 +58,12 @@ class NoteLayoutProvider extends StatefulComponent
     {noteComponent} = @props
     @state = {
       notes: [],
-      elementHeights: [],
+      elementHeights: {},
       nodes: []
       @generatePath
       @createNodeForNote
       noteComponent
     }
-
-  componentDidMount: =>
-    @_previousContext = null
-    @computeContextValue()
 
   render: ->
     {children, width} = @props
@@ -78,11 +74,9 @@ class NoteLayoutProvider extends StatefulComponent
   computeContextValue: =>
     console.log "Computing context value"
     {width, paddingLeft} = @props
-    {elementHeights} = @state
-    {pixelHeight, scale} = @context
     # Clamp notes to within scale boundaries
     # (we could turn this off if desired)
-    scale = scale.clamp(true)
+    {pixelHeight, scaleClamped: scale} = @context
 
     forwardedValues = {
       # Forwarded values from column context
@@ -101,7 +95,6 @@ class NoteLayoutProvider extends StatefulComponent
     columnIndex = notes.map buildColumnIndex()
 
     # Compute force layout
-
     renderer = new Renderer {
       direction: 'right'
       layerGap: paddingLeft
@@ -134,10 +127,11 @@ class NoteLayoutProvider extends StatefulComponent
 
   createNodeForNote: (note, index)=>
     {notes, elementHeights} = @state
-    {pixelHeight, scale} = @context
+    {pixelHeight, scaleClamped: scale} = @context
     index ?= notes.indexOf(note)
     return null if index == -1
-    pixelHeight = elementHeights[index]
+    {id: noteID} = note
+    pixelHeight = elementHeights[noteID]
     lowerHeight = scale(note.height)
     if hasSpan(note)
       upperHeight = scale(note.top_height)
@@ -152,8 +146,10 @@ class NoteLayoutProvider extends StatefulComponent
     {width, paddingLeft} = @props
 
     return if notes.length == 0
-    return if elementHeights.length < notes.length
-    return if nodes.length != 0
+    # Something is wrong...
+    #return if elementHeights.length < notes.length
+    # Return if we've already computed nodes
+    return if nodes.length == notes.length
     console.log @state
     console.log "Computing force layout for notes column"
 
@@ -170,11 +166,39 @@ class NoteLayoutProvider extends StatefulComponent
 
   registerHeight: (index, height)=>
     return unless height?
-    {elementHeights} = @state
-    elementHeights[index] = height
+    {elementHeights, notes} = @state
+    {id} = notes[index]
+    elementHeights[id] = height
     @updateState {elementHeights: {$set: elementHeights}}
 
-  componentDidUpdate: (prevProps)=>
+  updateNotes: =>
+    # We received a new set of notes from props
+    {scaleClamped} = @context
+    notes = @props.notes
+      .filter (d)->d.note?
+      .filter withinDomain(scaleClamped)
+      .sort (a,b)->a.height-b.height
+    columnIndex = notes.map buildColumnIndex()
+    @setState {notes, columnIndex}
+
+  ###
+  # Lifecycle methods
+  ###
+  componentDidMount: =>
+    @_previousContext = null
+    @computeContextValue()
+
+  componentDidUpdate: (prevProps, prevState)=>
+    if @props.notes.length != prevProps.notes.length
+      @updateNotes(arguments...)
+      #console.log "Added or deleted a note"
+      #@setState {
+        #notes: [],
+        #elementHeights: [],
+        #nodes: []
+      #}
+      #@_previousContext = null
+
     # Update note component
     {noteComponent} = @props
     if noteComponent != prevProps.noteComponent
