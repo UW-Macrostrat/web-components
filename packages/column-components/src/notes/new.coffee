@@ -1,9 +1,11 @@
 import {useState, useContext} from 'react'
 import h from '../hyper'
 import {NoteLayoutContext, NoteRect} from './layout'
+import {ModelEditorContext} from '../context'
 import {NoteEditorContext} from './editor'
 import {HeightRangeAnnotation} from './height-range'
 import T from 'prop-types'
+import NoteDefs from './defs'
 
 getHeights = (position, tolerance=0.1)->
   {startHeight, dragHeight, rest...} = position
@@ -23,16 +25,18 @@ HeightRange = (props)->
   h HeightRangeAnnotation, val
 
 NewNotePositioner = (props)->
-  {tolerance, onCreateNote} = props
+  {tolerance} = props
   [notePosition, setPosition] = useState(null)
   {paddingLeft, scale} = useContext(NoteLayoutContext)
-  {editingNote} = useContext(NoteEditorContext)
-  return null if editingNote?
+  {setEditingNote} = useContext(NoteEditorContext)
+  {model} = useContext(ModelEditorContext)
+  return null if model?
 
   eventHeight = (evt)->
     scale.invert(evt.nativeEvent.offsetY)
 
   h 'g.new-note', [
+    h NoteDefs, {fill: 'dodgerblue', sz: 4, prefix: 'new_'}
     h NoteRect, {
       width: paddingLeft
       fill: 'transparent'
@@ -54,19 +58,19 @@ NewNotePositioner = (props)->
       onMouseUp: (evt)->
         dragHeight = eventHeight(evt)
         finalPos = getHeights({notePosition..., dragHeight})
-
         setPosition null
+        newNote = props.onCreateNote(finalPos)
+        setEditingNote(newNote)
     }
     h HeightRange, {position: notePosition}
   ]
 
 NewNotePositioner.defaultProps = {
   tolerance: 0.1
-  onCreateNote: ->
 }
 
 NewNotePositioner.propTypes = {
-  onCreateNote: T.func
+  onCreateNote: T.func.isRequired
 }
 
 export {NewNotePositioner}

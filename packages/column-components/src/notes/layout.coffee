@@ -59,7 +59,8 @@ class NoteLayoutProvider extends StatefulComponent
     @state = {
       notes: [],
       elementHeights: {},
-      nodes: []
+      columnIndex: {}
+      nodes: {}
       @generatePath
       @createNodeForNote
       noteComponent
@@ -88,12 +89,6 @@ class NoteLayoutProvider extends StatefulComponent
       @generatePath
     }
 
-    notes = @props.notes
-      .filter (d)->d.note?
-      .filter withinDomain(scale)
-      .sort (a,b)->a.height-b.height
-    columnIndex = notes.map buildColumnIndex()
-
     # Compute force layout
     renderer = new Renderer {
       direction: 'right'
@@ -102,8 +97,6 @@ class NoteLayoutProvider extends StatefulComponent
     }
 
     @setState {
-      notes,
-      columnIndex,
       renderer,
       forwardedValues...
     }
@@ -186,18 +179,12 @@ class NoteLayoutProvider extends StatefulComponent
   ###
   componentDidMount: =>
     @_previousContext = null
+    @updateNotes()
     @computeContextValue()
 
   componentDidUpdate: (prevProps, prevState)=>
-    if @props.notes.length != prevProps.notes.length
+    if @props.notes != prevProps.notes
       @updateNotes(arguments...)
-      #console.log "Added or deleted a note"
-      #@setState {
-        #notes: [],
-        #elementHeights: [],
-        #nodes: []
-      #}
-      #@_previousContext = null
 
     # Update note component
     {noteComponent} = @props

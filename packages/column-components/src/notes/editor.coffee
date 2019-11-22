@@ -40,7 +40,6 @@ NoteEditorProvider = (props)->
   setEditingNote = (val)->
     console.log val
     setState val
-    props.onUpdateNote(val)
 
   deleteNote = ->
     props.onDeleteNote(editingNote)

@@ -4,6 +4,7 @@ import T from "prop-types"
 import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
+import {useModelEditor} from '../context'
 import {NoteLayoutProvider, NoteUnderlay} from './layout'
 import {
   NoteEditor,
@@ -31,8 +32,10 @@ NoteComponent.propTypes = {
 
 CancelEditUnderlay = ->
   {setEditingNote} = useContext(NoteEditorContext)
+  {confirmChanges} = useModelEditor()
   h NoteUnderlay, {
     onClick: ->
+      confirmChanges()
       setEditingNote(null)
   }
 
@@ -51,12 +54,12 @@ class NotesColumn extends Component
     width: T.number.isRequired
     paddingLeft: T.number
     onUpdateNote: T.func
+    onCreateNote: T.func
     onDeleteNote: T.func
     inEditMode: T.bool
     noteComponent: T.elementType
     noteEditor: T.elementType
     allowPositionEditing: T.bool
-    allowCreation: T.bool
   }
   render: ->
     {width,
@@ -70,7 +73,6 @@ class NotesColumn extends Component
      noteComponent
      noteEditor
      allowPositionEditing
-     allowCreation
     } = @props
 
     editHandler = onUpdateNote
@@ -98,7 +100,7 @@ class NotesColumn extends Component
             editHandler
             inEditMode
           }
-          h.if(allowCreation) NewNotePositioner, {onCreateNote}
+          h.if(onCreateNote?) NewNotePositioner, {onCreateNote}
           h NoteEditor, {allowPositionEditing}
         ]
       ]
