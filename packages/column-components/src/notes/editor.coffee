@@ -62,7 +62,9 @@ NoteEditorProvider = (props)->
   }
 
   onConfirmChanges = (n)->
-    if editingNote? then props.onUpdateNote(n)
+    console.log "Confirming changes", n
+    return unless n.note?
+    props.onUpdateNote(n)
 
   ## Model editor provider gives us a nice store
   h NoteEditorContext.Provider, {value}, [
@@ -86,6 +88,7 @@ NoteConnectorPath = (props)->
   {d, offsetX, className} = props
   h 'path', {
     d,
+    className
     transform: "translate(#{offsetX})"
     fill: 'transparent'
   }
@@ -217,7 +220,7 @@ NoteEditor = (props)->
   index = notes.indexOf(editingNote)
   {id: noteID} = editingNote
   node = nodes[noteID] or createNodeForNote(editingNote)
-  noteHeight = elementHeights[noteID]
+  noteHeight = elementHeights[noteID] or 20
 
   if editedModel? and editedModel.height?
     newNode = createNodeForNote(editedModel)

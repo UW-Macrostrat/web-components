@@ -111,14 +111,21 @@ class Note extends Component
       ref: @element
     }
 
-  componentDidMount: =>
+  updateHeight: (prevProps)=>
     node = @element.current
     return unless node?
     height = node.offsetHeight
     return unless height?
-    return if @state.height == height
+    return if prevProps? and prevProps.note == @props.note
+    console.log "Updating note height"
     @setState {height}
     @context.registerHeight(@props.note.id, height)
+
+  componentDidMount: =>
+    @updateHeight.apply(@,arguments)
+
+  componentDidUpdate: =>
+    @updateHeight.apply(@,arguments)
 
 NotesList = (props)->
   {inEditMode: editable, rest...} = props

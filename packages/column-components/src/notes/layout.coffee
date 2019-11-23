@@ -131,7 +131,7 @@ class NoteLayoutProvider extends StatefulComponent
         return new FlexibleNode harr, pixelHeight
     return new Node lowerHeight, pixelHeight
 
-  computeForceLayout: =>
+  computeForceLayout: (prevProps, prevState)=>
     {notes, nodes, elementHeights} = @state
     {pixelHeight, scale} = @context
     {width, paddingLeft} = @props
@@ -140,7 +140,11 @@ class NoteLayoutProvider extends StatefulComponent
     # Something is wrong...
     #return if elementHeights.length < notes.length
     # Return if we've already computed nodes
-    return if Object.keys(nodes).length == notes.length
+    v1 = Object.keys(nodes).length == notes.length
+    prevState ?= {}
+    v2 = elementHeights == prevState.elementHeights or []
+    return if v1 and v2
+    console.log "Computing force layout"
 
     force = new Force {
       minPos: 0,
@@ -189,7 +193,7 @@ class NoteLayoutProvider extends StatefulComponent
     {noteComponent} = @props
     if noteComponent != prevProps.noteComponent
       @setState {noteComponent}
-    @computeForceLayout()
+    @computeForceLayout.call(arguments...)
     return if @props.notes == prevProps.notes
     return if @context == @_previousContext
     @computeContextValue()
