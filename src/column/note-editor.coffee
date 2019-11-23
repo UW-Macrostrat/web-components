@@ -1,9 +1,15 @@
 import {NoteTextEditor, useModelEditor} from '#'
 import h from '~/hyper'
 import {ContentPanel} from '../ui'
-import {TextArea, InputGroup, Button} from '@blueprintjs/core'
+import {
+  TextArea,
+  InputGroup,
+  Button,
+  ButtonGroup,
+  Intent
+} from '@blueprintjs/core'
 import {format} from 'd3-format'
-import {DeleteButton} from '@macrostrat/ui-components'
+import {SaveButton, CancelButton, DeleteButton} from '@macrostrat/ui-components'
 
 fmt = format(".2f")
 
@@ -26,9 +32,11 @@ NoteEditor = (props)->
     v = event.target.value
     updateModel {note: {$set: v}}
 
+  value = note.note or ""
+
   h 'div.note-editor', [
     h ContentPanel, [
-      h TextArea, {value: note.note, growVertically: true, onChange}
+      h TextArea, {value, growVertically: true, onChange}
       h 'div.toolbar', [
         h HeightRange, {note}
         h DeleteButton, {
