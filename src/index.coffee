@@ -165,9 +165,12 @@ class App extends StatefulComponent
     # Updating note
     ix = @getNoteIndex(newNote)
 
+    isEmpty = not newNote.note? or newNote.note == ""
+
+    spec = {}
     if ix != -1
       spec = {[ix]: {$set: newNote}}
-    else
+    else if not isEmpty
       spec = {$push: [newNote]}
 
     console.log "Updating notes with spec", spec
