@@ -62,7 +62,7 @@ NoteEditorProvider = (props)->
   }
 
   onConfirmChanges = (n)->
-    console.log "Confirming changes", n
+    return unless n?
     return unless n.note?
     props.onUpdateNote(n)
 
@@ -213,16 +213,16 @@ NoteEditorUnderlay = ({padding})->
 
 NoteEditor = (props)->
   {allowPositionEditing} = props
-  {editingNote, noteEditor} = useContext(NoteEditorContext)
+  {noteEditor} = useContext(NoteEditorContext)
   {notes, nodes, elementHeights, createNodeForNote} = useContext(NoteLayoutContext)
   {editedModel} = useModelEditor()
-  return null unless editingNote?
-  index = notes.indexOf(editingNote)
-  {id: noteID} = editingNote
-  node = nodes[noteID] or createNodeForNote(editingNote)
+  return null unless editedModel?
+  index = notes.indexOf(editedModel)
+  {id: noteID} = editedModel
+  node = nodes[noteID] or createNodeForNote(editedModel)
   noteHeight = elementHeights[noteID] or 20
 
-  if editedModel? and editedModel.height?
+  if editedModel.height?
     newNode = createNodeForNote(editedModel)
     # Set position of note to current position
     newNode.currentPos = node.currentPos
@@ -237,11 +237,11 @@ NoteEditor = (props)->
 
   h 'g.note-editor.note', [
     h NoteEditorUnderlay
-    h.if(not allowPositionEditing) NoteConnector, {note: editingNote}
-    h.if(allowPositionEditing) EditableNoteConnector, {note: editingNote, node}
+    h.if(not allowPositionEditing) NoteConnector, {note: editedModel}
+    h.if(allowPositionEditing) EditableNoteConnector, {note: editedModel, node}
     h NotePositioner, {offsetY: node.currentPos, noteHeight}, [
       h noteEditor, {
-        note: editingNote,
+        note: editedModel,
         key: index
       }
     ]
