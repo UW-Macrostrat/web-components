@@ -224,7 +224,7 @@ class LithologyColumn extends Component
       h ClipToFrame, {
         className: 'lithology-column',
         left, shiftY
-        frame: (props)=>h(SimpleFrame, props)
+        frame: SimpleFrame
       }, children
     ]
 
@@ -245,10 +245,12 @@ SimplifiedLithologyColumn = (props)->
   }
 
 GeneralizedSectionColumn = (props)->
-  {children, rest...} = props
+  {children, frame, rest...} = props
+  frame ?= GrainsizeFrame
   h ClipToFrame, {
     className: 'lithology-column'
-    frame: (p)=> h GrainsizeFrame, p
+    frame
+    rest...
   }, children
 
 export {ParameterIntervals,
@@ -257,4 +259,6 @@ export {ParameterIntervals,
         FaciesColumnInner, LithologyColumnInner,
         SimplifiedLithologyColumn,
         CoveredOverlay,
+        SimpleFrame,
+        GrainsizeFrame
         symbolIndex}
