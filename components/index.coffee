@@ -1,5 +1,6 @@
 export * from './api'
 export * from './api-frontend'
+export * from './infinite-scroll'
 export * from './buttons'
 export * from './collapse-panel'
 export * from './link-card'
