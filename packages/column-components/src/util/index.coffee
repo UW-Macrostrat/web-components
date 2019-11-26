@@ -42,5 +42,6 @@ export {
   ForeignObject
 }
 
+export * from './column-box'
 export * from './box-model'
 export * from './scroll-box'
