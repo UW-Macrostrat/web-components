@@ -32,6 +32,30 @@ symbolIndex = {
   'sandy-dolomite': 645
 }
 
+isCarbonateSymbol = (d)->
+  ###
+  Does this FGDC pattern correspond to a carbonate rock?
+  ###
+  if d < 627
+    return false
+  if d > 648
+    return false
+  return true
+
+defaultResolveID = (d)->
+  # Changed pattern to lithology
+  if not (d.fgdc_pattern? or d.pattern?)
+    return null
+  if d.fgdc_pattern?
+    return "#{d.fgdc_pattern}"
+  return "#{symbolIndex[d.pattern]}"
+
+carbonateResolveID = (d)->
+  # Just whether a carbonate or not
+  v = defaultResolveID(d)
+  return v if not v?
+  return if isCarbonateSymbol(v) then 627 else -1
+
 __divisionSize = (d)->
   {bottom,top} = d
   if top < bottom
@@ -145,14 +169,6 @@ class SymbolDefinition extends Component
       }
     ]
 
-defaultResolveID = (d)->
-  # Changed pattern to lithology
-  if not (d.fgdc_pattern? or d.pattern?)
-    return null
-  if d.fgdc_pattern?
-    return "#{d.fgdc_pattern}"
-  return "#{symbolIndex[d.pattern]}"
-
 class LithologyColumnInner extends UUIDComponent
   @contextType: ColumnLayoutContext
   @defaultProps: {
@@ -170,12 +186,28 @@ class LithologyColumnInner extends UUIDComponent
         __.push {d..., patternID}
         continue
       sameAsLast = patternID == resolveID(__[ix])
-      heightTooSmall = d.top-d.bottom < minimumHeight
-      shouldSkip = not patternID? or sameAsLast or heightTooSmall
+      shouldSkip = not patternID? or sameAsLast
       if shouldSkip
         __[ix].top = d.top
       else
         __.push {d..., patternID}
+
+    # Allow removing of items by minimum height
+    if minimumHeight > 0
+      toDelete = []
+      for d, i in __
+        heightTooSmall = d.top-d.bottom < minimumHeight
+        continue unless heightTooSmall
+        toDelete.push [i,1]
+        continue if resolveID(__[i+1])?
+        try
+          __[i+1].bottom = d.bottom
+          __[i+1].patternID = resolveID(d)
+        catch
+          null
+      for v in toDelete
+        __.splice.apply(@,v)
+
 
     return __
 
@@ -184,8 +216,9 @@ class LithologyColumnInner extends UUIDComponent
     __ = divisions.map (d)=>resolveID(d)
       .filter((x, i, arr) => arr.indexOf(x) == i)
 
-    h 'defs', __.map (d)=>
-      h SymbolDefinition, {UUID: @UUID, id: d}
+    h 'defs', __.map (id, i)=>
+      return null if id == -1
+      h SymbolDefinition, {key: i, UUID: @UUID, id}
 
   renderEach: (d)=>
     {width} = @context
@@ -193,6 +226,8 @@ class LithologyColumnInner extends UUIDComponent
       definite: d.definite_boundary
       covered: d.covered}, 'lithology')
     fill = "url(##{@UUID}-#{d.patternID})"
+    if d.patternID == -1
+      fill = 'transparent'
     h ColumnRect, {width, division: d, className, fill}
 
   render: ->
@@ -253,10 +288,18 @@ GeneralizedSectionColumn = (props)->
     rest...
   }, children
 
+CarbonateDivisions = (props)->
+  h LithologyColumnInner, {
+    resolveID: carbonateResolveID
+    props...
+  }
+
 export {ParameterIntervals,
         LithologyColumn,
         GeneralizedSectionColumn,
-        FaciesColumnInner, LithologyColumnInner,
+        FaciesColumnInner,
+        LithologyColumnInner,
+        CarbonateDivisions,
         SimplifiedLithologyColumn,
         CoveredOverlay,
         SimpleFrame,
