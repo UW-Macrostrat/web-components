@@ -39,8 +39,9 @@ __InfiniteScrollResultView = (props)->
     return
 
   loadNext = ->
-    {scrollId} = state
     if scrollId?
+      # Guard against empty scrollid
+      return if scrollId == ""
       {data, scrollId} = await get(route,
         {scroll_id: scrollId},
         {unwrapResponse, opts...})
@@ -62,7 +63,7 @@ __InfiniteScrollResultView = (props)->
   h InfiniteScroll, {
     pageStart: 0,
     loadMore: loadNext
-    hasMore: true
+    hasMore: scrollId? and scrollId != ""
     loader: h(Spinner)
   }, main
 
