@@ -18,7 +18,7 @@ __InfiniteScrollResultView = (props)->
   [state, updateState] = useImmutableState({
     items: []
     scrollId: null
-    hits: null
+    count: null
     error: null
   })
   {scrollId} = state
@@ -34,7 +34,7 @@ __InfiniteScrollResultView = (props)->
     updateState {
       items: {$set: data}
       scrollId: {$set: scrollId}
-      hits: {$set: hits}
+      count: {$set: hits}
     }
     return
 
@@ -56,9 +56,9 @@ __InfiniteScrollResultView = (props)->
 
   main = null
   try
-    main = h(children, {items: state.items})
+    main = h(children, state)
   catch
-    main = children(respose.data)
+    main = children(state)
 
   h InfiniteScroll, {
     pageStart: 0,
