@@ -3,7 +3,7 @@ import h from 'react-hyperscript'
 import {DateInput} from '@blueprintjs/datetime'
 import {EditableText} from '@blueprintjs/core'
 import {EditButton, DeleteButton} from './buttons'
-import {StatefulComponent} from './stateful'
+import {StatefulComponent} from './util'
 import classNames from 'classnames'
 
 import '@blueprintjs/datetime/lib/css/blueprint-datetime.css'

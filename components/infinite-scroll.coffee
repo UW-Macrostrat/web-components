@@ -1,43 +1,70 @@
-import {APIContext, APIProvider} from "./api"
 import InfiniteScroll from 'react-infinite-scroller'
-import {useContext, useState, useEffect} from 'react'
-import h from '@macrostrat/hyper'
-import update from 'immutability-helper'
-
-
-useImmutableState = (v)->
-  [state, setState] = useState(v)
-  updateState = (cset)->
-    newState = update(state,cset)
-    setState(newState)
-  return [state, updateState]
-
-useAsyncEffect = (fn,dependencies)->
-  vfn = ->
-    fn()
-    return
-  useEffect vfn, dependencies
+import {useContext, useEffect} from 'react'
+import h from 'react-hyperscript'
+import {APIContext, APIProvider} from "./api"
+import {useImmutableState} from './util'
+import {useAsyncEffect} from './util'
+import {Spinner} from '@blueprintjs/core'
 
 __InfiniteScrollResultView = (props)->
+  ###
+  A container for cursor-based pagination. This is built for
+  the GeoDeepDive API right now, but it can likely be generalized
+  for other uses.
+  ###
   {route, params, opts, unwrapResponse, children} = props
   {get} = useContext(APIContext)
 
   [state, updateState] = useImmutableState({
     items: []
+    scrollId: null
+    hits: null
     error: null
   })
+  {scrollId} = state
 
   getInitialData = ->
-    data = await get(route, params, {unwrapResponse, opts...})
-    updateState {items: {$set: data}}
+    ###
+    Get the initial dataset
+    ###
+    success = await get(
+      route, params, {unwrapResponse, opts...})
+
+    {data, scrollId, hits} = success
+    updateState {
+      items: {$set: data}
+      scrollId: {$set: scrollId}
+      hits: {$set: hits}
+    }
     return
+
+  loadNext = ->
+    {scrollId} = state
+    if scrollId?
+      {data, scrollId} = await get(route,
+        {scroll_id: scrollId},
+        {unwrapResponse, opts...})
+      updateState {
+        items: {$push: data}
+        scrollId: {$set: scrollId}
+      }
+    else
+      getInitialData()
 
   useAsyncEffect getInitialData, [route,params]
 
+  main = null
   try
-    return h children, {items: state.items}
+    main = h(children, {items: state.items})
   catch
-    return children(data)
+    main = children(respose.data)
+
+  h InfiniteScroll, {
+    pageStart: 0,
+    loadMore: loadNext
+    hasMore: true
+    loader: h(Spinner)
+  }, main
 
 InfiniteScrollResultView = (props)->
   # Enable the use of the APIResultView outside of the APIContext
