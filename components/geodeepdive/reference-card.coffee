@@ -84,6 +84,16 @@ class GeoDeepDiveSwatchInner extends Component
       url = null
     h LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, h(InnerCard, rest)
 
+class GeoDeepDiveRelatedTerms extends Component
+  render: ->
+    {data} = @props
+    h [
+      h 'h1', "Related Terms"
+      h('ul#related_terms', data.map (item) ->
+        h('li', item[0])
+      )
+    ]
+
 class GDDReferenceCard extends Component
   render: ->
     {docid} = @props
@@ -101,4 +111,4 @@ class GDDReferenceCard extends Component
       catch
         return null
 
-export {GDDReferenceCard, GeoDeepDiveSwatchInner, AuthorList, GeoDeepDiveSwatchInnerBare}
+export {GDDReferenceCard, GeoDeepDiveSwatchInner, AuthorList, GeoDeepDiveSwatchInnerBare, GeoDeepDiveRelatedTerms}
