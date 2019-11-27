@@ -44,6 +44,7 @@ isCarbonateSymbol = (d)->
 
 defaultResolveID = (d)->
   # Changed pattern to lithology
+  return null unless d?
   if not (d.fgdc_pattern? or d.pattern?)
     return null
   if d.fgdc_pattern?
