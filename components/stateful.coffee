@@ -1,9 +1,5 @@
-import {Component} from 'react'
-import update from 'immutability-helper'
-
-class StatefulComponent extends Component
-  updateState: (spec)=>
-    newState = update @state, spec
-    @setState newState
-
-export {StatefulComponent}
+console.warn("Please import
+              '@macrostrat/ui-components/src/stateful' from
+              '@macrostrat/ui-components/src/util' in the
+              future.")
+export * from './util/stateful'
