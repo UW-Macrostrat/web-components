@@ -1,5 +1,5 @@
 import h from 'react-hyperscript'
-import {createElement, useContext} from 'react'
+import {createElement, useContext, forwardRef} from 'react'
 import {expandInnerSize} from './box-model'
 import {ColumnContext} from '../context'
 import Box from 'ui-box'
@@ -21,7 +21,7 @@ ForeignObject = (props)->
 
 ColumnSVG = (props)->
   ## Need to rework to use UI Box code
-  {children, className, rest...} = props
+  {children, className, innerRef, rest...} = props
   {pixelHeight} = useContext(ColumnContext)
   nextProps = expandInnerSize({innerHeight: pixelHeight, rest...})
   {paddingLeft, paddingTop, innerHeight, innerWidth, height, width} = nextProps
@@ -29,6 +29,7 @@ ColumnSVG = (props)->
     className: classNames(className, 'section')
     height
     width
+    innerRef
   }, (
     h 'g.backdrop', {
       transform: "translate(#{paddingLeft},#{paddingTop})"
