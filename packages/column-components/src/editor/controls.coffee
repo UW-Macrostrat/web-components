@@ -41,6 +41,17 @@ SurfaceOrderSlider = (props)->
       onChange {surface_order}
   }
 
+RaisedSelect = (props)->
+  h Select, {
+    styles: {
+      menu: (provided, state) => {
+        provided...,
+        zIndex: 20
+      }
+    }
+    props...
+  }
+
 class CorrelatedSurfaceControl extends Component
   @contextType: FaciesContext
   render: ->
@@ -48,13 +59,15 @@ class CorrelatedSurfaceControl extends Component
     {onChange, interval} = @props
 
     options = surfaces.map (d)->
-      {value: d.id, label: d.note}
+      {value: d.id, label: h "div.correlated-surface-row", [
+        h "div.bp3-code", d.id
+        h "div", d.note
+      ]}
 
-    h Select, {
-      id: "state-select"
+    h RaisedSelect, {
       options
-      clearable: true
-      searchable: true
+      isClearable: true
+      isSearchable: true
       name: "selected-state"
       value: interval.surface
       onChange: (surface)=>
@@ -87,4 +100,10 @@ class BoundaryStyleControl extends Component
       onUpdate
     }
 
-export {SurfaceOrderSlider, BoundaryStyleControl, HorizontalPicker, CorrelatedSurfaceControl}
+export {
+  SurfaceOrderSlider,
+  BoundaryStyleControl,
+  HorizontalPicker,
+  CorrelatedSurfaceControl,
+  RaisedSelect
+}
