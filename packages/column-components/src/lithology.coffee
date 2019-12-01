@@ -87,7 +87,12 @@ class ColumnRect extends Component
 
 ParameterIntervals = (props)->
   {divisions, width} = useContext(ColumnLayoutContext)
-  {padWidth, parameter: key, fillForInterval} = props
+  {
+    padWidth,
+    parameter: key,
+    fillForInterval,
+    minimumHeight
+  } = props
   __ = [{divisions[0]...}]
   for d in divisions
     ix = __.length-1
@@ -195,21 +200,15 @@ class LithologyColumnInner extends UUIDComponent
 
     # Allow removing of items by minimum height
     if minimumHeight > 0
-      toDelete = []
+      nextVals = []
       for d, i in __
         heightTooSmall = d.top-d.bottom < minimumHeight
-        continue unless heightTooSmall
-        toDelete.push [i,1]
-        continue if resolveID(__[i+1])?
-        try
+        if heightTooSmall and __[i+1]?
           __[i+1].bottom = d.bottom
-          __[i+1].patternID = resolveID(d)
-        catch
-          null
-      for v in toDelete
-        __.splice.apply(@,v)
-
-
+          __[i+1].patternID ?= resolveID(d)
+        else
+          nextVals.push(d)
+      return nextVals
     return __
 
   createDefs: (divisions)=>
