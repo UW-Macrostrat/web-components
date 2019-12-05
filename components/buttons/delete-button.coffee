@@ -31,7 +31,8 @@ class DeleteButton extends Component
     intent = Intent.DANGER
     icon = 'trash'
 
-    h 'div.delete-control', [
+    h [
+      h Button, {onClick, icon, intent, rest...}
       h Alert, {
         isOpen: alertIsShown
         cancelButtonText: 'Cancel'
@@ -43,7 +44,6 @@ class DeleteButton extends Component
           handleDelete()
           onCancel()
       }, alertContent
-      h Button, {onClick, icon, intent, rest...}
     ]
 
 export {DeleteButton}

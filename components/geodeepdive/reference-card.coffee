@@ -1,6 +1,7 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
-import {LinkCard, APIResultView} from '@macrostrat/ui-components'
+import {APIResultView} from '../api-frontend'
+import {LinkCard} from '../link-card'
 
 AuthorList = (props)->
   {authors} = props
@@ -84,4 +85,4 @@ class GDDReferenceCard extends Component
       catch
         return null
 
-export {GDDReferenceCard, AuthorList}
+export {GDDReferenceCard, GeoDeepDiveSwatchInner, AuthorList}
