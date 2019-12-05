@@ -1,9 +1,12 @@
 import {Component} from 'react'
 import h from 'react-hyperscript'
+import {Card} from '@blueprintjs/core'
+
 import {APIResultView} from '../api-frontend'
 import {LinkCard} from '../link-card'
+import {AuthorList} from '../citations'
 
-AuthorList = (props)->
+AuthorList2 = (props)->
   {authors} = props
   postfix = null
   if authors.length >= 4
@@ -42,20 +45,20 @@ VolumeNumber = (props)->
   h 'span', null, _
 
 
-class GeoDeepDiveSwatchInner extends Component
-  render: ->
-    {title, author, doi, link, journal, identifier, volume, number, year} = @props
-    try
-      {url} = link.find (d)->d.type == 'publisher'
-    catch
-      url = null
+InnerCard = (props) =>
+    {title, author, doi, journal, identifier, volume, number, year} = props
     try
       {id: doi} = identifier.find (d)->d.type == 'doi'
     catch
       doi = null
 
-    h LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, [
-      h AuthorList, {authors: author}
+    names = author.map (d)->
+      n = d.name.split(", ")
+      n.reverse()
+      return n.join(" ")
+
+    h [
+      h AuthorList, {names}
       ", "
       h 'span.title', title
       ", "
@@ -66,6 +69,29 @@ class GeoDeepDiveSwatchInner extends Component
       ", "
       h 'span.doi-title', 'doi: '
       h 'span.doi', doi
+    ]
+
+class GeoDeepDiveSwatchInnerBare extends Component
+  render: ->
+    h Card, {interactive: false, className: 'gdd-article'}, h(InnerCard, @props)
+
+class GeoDeepDiveSwatchInner extends Component
+  render: ->
+    {link, ...rest} = @props
+    try
+      {url} = link.find (d)->d.type == 'publisher'
+    catch
+      url = null
+    h LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, h(InnerCard, rest)
+
+class GeoDeepDiveRelatedTerms extends Component
+  render: ->
+    {data} = @props
+    h [
+      h 'h1', "Related Terms"
+      h('ul#related_terms', data.map (item) ->
+        h('li', item[0])
+      )
     ]
 
 class GDDReferenceCard extends Component
@@ -85,4 +111,4 @@ class GDDReferenceCard extends Component
       catch
         return null
 
-export {GDDReferenceCard, GeoDeepDiveSwatchInner, AuthorList}
+export {GDDReferenceCard, GeoDeepDiveSwatchInner, AuthorList, GeoDeepDiveSwatchInnerBare, GeoDeepDiveRelatedTerms}
