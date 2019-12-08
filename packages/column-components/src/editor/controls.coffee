@@ -64,12 +64,14 @@ class CorrelatedSurfaceControl extends Component
         h "div", d.note
       ]}
 
+    value = options.find (d)->d.value == interval.surface
+
     h RaisedSelect, {
       options
       isClearable: true
       isSearchable: true
       name: "selected-state"
-      value: interval.surface
+      value
       onChange: (surface)=>
         if surface?
           surface = surface.value

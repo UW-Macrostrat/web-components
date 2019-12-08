@@ -43,7 +43,7 @@ class LithologyPicker extends Component
       id: 'lithology-select'
       options
       value
-      selected: interval.lithology
+      isClearable: true
       onChange: (res)->
         f = if res? then res.value else null
         onChange f
