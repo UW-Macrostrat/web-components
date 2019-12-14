@@ -171,10 +171,10 @@ class DivisionEditOverlay extends Component
 
   renderCursorLine: =>
     {height, hoveredDivision} = @state
-    {scale} = @context
+    {scaleClamped} = @context
     return unless height?
     style = {
-      top: scale(height)
+      top: scaleClamped(height)
       height: 0
       border: "0.5px solid black"
       width: @context.widthForDivision(hoveredDivision)

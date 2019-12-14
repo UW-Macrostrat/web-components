@@ -9,16 +9,31 @@ class ColumnAxis extends Component
   @contextType: ColumnContext
   @defaultProps: {
     ticks: 4
+    showLabel: -> true
   }
   render: ->
     h 'g.y.axis'
   componentDidUpdate: ->
     {scale} = @context
-    @yAxis
-      .scale scale
-      .ticks @props.ticks
-    select findDOMNode(@)
+    {showLabel} = @props
+    @yAxis.scale scale
+
+    if @props.ticks?
+      @yAxis.ticks @props.ticks
+
+    if @props.tickValues?
+      @yAxis.tickValues @props.tickValues
+
+    ax = select findDOMNode(@)
       .call @yAxis
+
+    # Hide labels if they match the showLabel predicate
+    ax.selectAll ".tick text"
+      .each (d)->
+        v = showLabel(d)
+        return if v
+        select(@).attr "visibility", "hidden"
+
   componentDidMount: ->
     @yAxis = axisLeft()
     @componentDidUpdate()
