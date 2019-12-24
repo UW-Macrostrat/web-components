@@ -1,5 +1,5 @@
 import h from 'react-hyperscript'
-import {createElement, useContext, forwardRef} from 'react'
+import {createElement, useContext, forwardRef, createRef} from 'react'
 import {expandInnerSize} from './box-model'
 import {ColumnContext} from '../context'
 import Box from 'ui-box'
@@ -10,11 +10,16 @@ SVGNamespaces = {
   xmlnsXlink: "http://www.w3.org/1999/xlink"
 }
 
-SVG = (props)-> h Box, {
-  is: 'svg'
-  props...
-  SVGNamespaces...
-}
+SVG = forwardRef (props, ref)->
+  {innerRef, rest...} = props
+  if innerRef?
+    ref = innerRef
+
+  h 'svg', {
+    ref
+    rest...
+    SVGNamespaces...
+  }
 
 ForeignObject = (props)->
   createElement 'foreignObject', props
