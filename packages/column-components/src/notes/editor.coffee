@@ -1,5 +1,5 @@
 import {createContext, useState, useContext} from 'react'
-import {ColumnContext, ModelEditorProvider, useModelEditor} from '#'
+import {ColumnContext, ModelEditorProvider, useModelEditor} from '../context'
 import {EditableText} from "@blueprintjs/core"
 import classNames from 'classnames'
 import h from "../hyper"
