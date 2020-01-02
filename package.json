@@ -17,5 +17,10 @@
   "devDependencies": {
     "parcel-bundler": "^1.12.4",
     "typescript": "^3.7.4"
+  },
+  "dependencies": {
+    "@macrostrat/hyper": "^1.1.5",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   }
 }
