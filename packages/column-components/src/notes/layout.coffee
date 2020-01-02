@@ -1,4 +1,4 @@
-import {createContext} from 'react'
+import {createContext, useContext} from 'react'
 import {StatefulComponent} from '@macrostrat/ui-components'
 import {Node, Renderer, Force} from "labella"
 import h from '@macrostrat/hyper'
@@ -58,15 +58,13 @@ class NoteLayoutProvider extends StatefulComponent
     {noteComponent} = @props
     @state = {
       notes: [],
-      elementHeights: [],
-      nodes: []
+      elementHeights: {},
+      columnIndex: {}
+      nodes: {}
       @generatePath
+      @createNodeForNote
       noteComponent
     }
-
-  componentDidMount: =>
-    @_previousContext = null
-    @computeContextValue()
 
   render: ->
     {children, width} = @props
@@ -77,11 +75,9 @@ class NoteLayoutProvider extends StatefulComponent
   computeContextValue: =>
     console.log "Computing context value"
     {width, paddingLeft} = @props
-    {elementHeights} = @state
-    {pixelHeight, scale} = @context
     # Clamp notes to within scale boundaries
     # (we could turn this off if desired)
-    scale = scale.clamp(true)
+    {pixelHeight, scaleClamped: scale} = @context
 
     forwardedValues = {
       # Forwarded values from column context
@@ -93,14 +89,7 @@ class NoteLayoutProvider extends StatefulComponent
       @generatePath
     }
 
-    notes = @props.notes
-      .filter (d)->d.note?
-      .filter withinDomain(scale)
-      .sort (a,b)->a.height-b.height
-    columnIndex = notes.map buildColumnIndex()
-
     # Compute force layout
-
     renderer = new Renderer {
       direction: 'right'
       layerGap: paddingLeft
@@ -108,8 +97,6 @@ class NoteLayoutProvider extends StatefulComponent
     }
 
     @setState {
-      notes,
-      columnIndex,
       renderer,
       forwardedValues...
     }
@@ -128,56 +115,112 @@ class NoteLayoutProvider extends StatefulComponent
     renderer = @savedRendererForWidth(paddingLeft-pixelOffset)
     try
       return renderer.generatePath(node)
-    catch
+    catch err
       return null
 
-  computeForceLayout: =>
+  createNodeForNote: (note)=>
+    {notes, elementHeights} = @state
+    {pixelHeight, scaleClamped: scale} = @context
+    {id: noteID} = note
+    pixelHeight = elementHeights[noteID] or 10
+    lowerHeight = scale(note.height)
+    if hasSpan(note)
+      upperHeight = scale(note.top_height)
+      harr = [lowerHeight-4,upperHeight+4]
+      if harr[0]-harr[1] > 5
+        return new FlexibleNode harr, pixelHeight
+    return new Node lowerHeight, pixelHeight
+
+  computeForceLayout: (prevProps, prevState)=>
     {notes, nodes, elementHeights} = @state
     {pixelHeight, scale} = @context
     {width, paddingLeft} = @props
 
     return if notes.length == 0
-    return if elementHeights.length < notes.length
-    return if nodes.length != 0
-    console.log @state
-    console.log "Computing force layout for notes column"
+    # Something is wrong...
+    #return if elementHeights.length < notes.length
+    # Return if we've already computed nodes
+    v1 = Object.keys(nodes).length == notes.length
+    prevState ?= {}
+    v2 = elementHeights == prevState.elementHeights or []
+    return if v1 and v2
+    console.log "Computing force layout"
 
     force = new Force {
       minPos: 0,
       maxPos: pixelHeight
     }
 
-    dataNodes = notes.map (note, index)=>
-      txt = note.note or ''
-      pixelHeight = elementHeights[index]
-      lowerHeight = scale(note.height)
-      if hasSpan(note)
-        upperHeight = scale(note.top_height)
-        harr = [lowerHeight-4,upperHeight+4]
-        if harr[0]-harr[1] > 5
-          return new FlexibleNode harr, pixelHeight
-      return new Node lowerHeight, pixelHeight
+    dataNodes = notes.map @createNodeForNote
 
     force.nodes(dataNodes).compute()
     nodes = force.nodes() or []
-    @updateState {nodes: {$set: nodes}}
+    nodesObj = {}
+    for node, i in nodes
+      note = notes[i]
+      nodesObj[note.id] = node
 
-  registerHeight: (index, height)=>
+    @updateState {nodes: {$set: nodesObj}}
+
+  registerHeight: (id, height)=>
     return unless height?
     {elementHeights} = @state
-    elementHeights[index] = height
+    elementHeights[id] = height
     @updateState {elementHeights: {$set: elementHeights}}
 
-  componentDidUpdate: (prevProps)=>
+  updateNotes: =>
+    # We received a new set of notes from props
+    {scaleClamped} = @context
+    notes = @props.notes
+      .filter withinDomain(scaleClamped)
+      .sort (a,b)->a.height-b.height
+    columnIndex = notes.map buildColumnIndex()
+    @setState {notes, columnIndex}
+
+  ###
+  # Lifecycle methods
+  ###
+  componentDidMount: =>
+    @_previousContext = null
+    @updateNotes()
+    @computeContextValue()
+
+  componentDidUpdate: (prevProps, prevState)=>
+    if @props.notes != prevProps.notes
+      @updateNotes()
+
     # Update note component
     {noteComponent} = @props
     if noteComponent != prevProps.noteComponent
       @setState {noteComponent}
-    @computeForceLayout()
+    @computeForceLayout.call(arguments...)
     return if @props.notes == prevProps.notes
     return if @context == @_previousContext
-    console.log "Updating node grapher"
     @computeContextValue()
     @_previousContext = @context
 
-export {NoteLayoutContext, NoteLayoutProvider}
+NoteRect = (props)->
+  {padding, width, rest...} = props
+  padding ?= 5
+  {pixelHeight} = useContext(ColumnContext)
+  if not width?
+    {width} = useContext(NoteLayoutContext)
+  if isNaN(width)
+    return null
+
+  h 'rect', {
+    width: width+2*padding
+    height: pixelHeight
+    transform: "translate(#{-padding},#{-padding})"
+    rest...
+  }
+
+NoteUnderlay = ({fill, rest...})->
+  fill ?= 'transparent'
+  h NoteRect, {
+    className: 'underlay'
+    fill
+    rest...
+  }
+
+export {NoteLayoutContext, NoteLayoutProvider, NoteRect, NoteUnderlay}

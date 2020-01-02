@@ -3,7 +3,8 @@ import {Component, createElement} from "react"
 import h from "react-hyperscript"
 import T from "prop-types"
 
-ArrowMarker = ({id, orient, size: sz})->
+ArrowMarker = ({id, orient, size: sz, fill})->
+  fill ?= 'black'
   sz ?= 2.5
   h 'marker', {
     id
@@ -17,14 +18,15 @@ ArrowMarker = ({id, orient, size: sz})->
   }, [
     h 'path', {
       d:"M 0,0 m -#{sz},-#{sz} L #{sz},0 L -#{sz},#{sz} Z"
-      fill:"#000000"
+      fill
     }
   ]
 
-NoteDefs = ->
+NoteDefs = ({fill, prefix})->
+  prefix ?= ""
   h 'defs', [
-    h ArrowMarker, {id: 'arrow_start', orient: 270}
-    h ArrowMarker, {id: 'arrow_end', orient: 90}
+    h ArrowMarker, {id: prefix+'arrow_start', orient: 270, fill}
+    h ArrowMarker, {id: prefix+'arrow_end', orient: 90, fill}
   ]
 
 export default NoteDefs

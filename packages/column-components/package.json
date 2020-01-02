@@ -11,7 +11,13 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "devDependencies": {
-    "@babel/core": "^7.6.4",
-    "postcss-modules": "^1.4.1"
+    "postcss-modules": "^1.4.1",
+    "@babel/core": "^7.7.2",
+    "@babel/preset-react": "^7.7.0"
+  },
+  "dependencies": {
+    "react": "^16.11.0",
+    "react-select": "^3.0.8",
+    "ui-box": "^3.0.2"
   }
 }

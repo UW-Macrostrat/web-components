@@ -1,4 +1,6 @@
-g.note
+@require "./note-editor.styl"
+
+g.note,g.note-editor
   circle
     fill: black
   line
@@ -6,19 +8,14 @@ g.note
     stroke-width: 2
     marker-start: url('#arrow_start')
     marker-end: url('#arrow_end')
-  p.note-label, div.note-label
+  :global(.note-label)
     padding-left: 0.3em
     border-left: 1px solid black
     //margin-top: -8px
     //transform: translateY(-50%)
     font-style: italic
-    font-size: 10px
     margin: 0
     z-index: 15
-    a.photos-link
-      font-style: bold
-      display: inline-block
-      margin-left: 1em
   //div.note-label
   // transform: translateY(30px)
   path.link
@@ -26,12 +23,14 @@ g.note
     stroke-width: 1
     fill: none
 
-.note-label
-  cursor: pointer
-  &:global(.bp3-editable-text)
-    user-select none
-    &:before
-      top: 0
-      left: 0
-      right: 0
-      bottom: 0
+.new-note
+  circle
+    fill: dodgerblue
+  line
+    stroke: dodgerblue
+    stroke-width: 3
+    marker-start: url('#new_arrow_start')
+    marker-end: url('#new_arrow_end')
+
+#new_arrow_start, #new_arrow_end
+  fill dodgerblue

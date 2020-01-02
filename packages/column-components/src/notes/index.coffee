@@ -1,47 +1,42 @@
-import {Component} from "react"
-import h from "@macrostrat/hyper"
+import {Component, useContext} from "react"
+import h from "../hyper"
 import T from "prop-types"
 import {NotesList} from './note'
 import NoteDefs from './defs'
 import {NoteShape} from './types'
-import {NoteLayoutProvider} from './layout'
-import {EditableText} from "@blueprintjs/core"
+import {useModelEditor} from '../context'
+import {NoteLayoutProvider, NoteUnderlay} from './layout'
+import {
+  NoteEditor,
+  NoteTextEditor,
+  NoteEditorContext,
+  NoteEditorProvider
+} from './editor'
+import {
+  NewNotePositioner
+} from './new'
 
-NoteEditor = (props)->
-  {note} = props
-  {note: text, id} = note
-  h EditableText, {
-    multiline: true
-    className: 'note-label'
-    defaultValue: text
-    onConfirm: (newText)=>
-      props.editHandler(id, newText)
-  }
-
-NoteEditor.propTypes = {
-  editHandler: T.func.isRequired
-  note: NoteShape.isRequired
-}
 
 NoteComponent = (props)->
-  {note, editable} = props
-  editable ?= false
-  {note: text} = note
-  if not props.editHandler?
-    editable = false
-  visibility = if editable then 'hidden' else 'inherit'
-  h [
-    h.if(editable) NoteEditor, props
-    h 'p.note-label', {
-      style: {visibility}
-      xmlns: "http://www.w3.org/1999/xhtml"
-    }, text
-  ]
+  {visibility, note, onClick} = props
+  text = note.note
+  h 'p.note-label', {
+    style: {visibility}
+    onClick
+  }, text
 
 NoteComponent.propTypes = {
-  editHandler: T.func
+  onClick: T.func
   note: NoteShape.isRequired
 }
+
+CancelEditUnderlay = ->
+  {setEditingNote} = useContext(NoteEditorContext)
+  {confirmChanges} = useModelEditor()
+  h NoteUnderlay, {
+    onClick: ->
+      setEditingNote(null)
+  }
 
 class NotesColumn extends Component
   @defaultProps: {
@@ -49,14 +44,23 @@ class NotesColumn extends Component
     paddingLeft: 60
     inEditMode: false
     noteComponent: NoteComponent
+    noteEditor: NoteTextEditor
+    allowPositionEditing: false
+    allowCreation: false
   }
   @propTypes: {
     notes: T.arrayOf(NoteShape).isRequired
     width: T.number.isRequired
     paddingLeft: T.number
     onUpdateNote: T.func
+    onCreateNote: T.func
+    onDeleteNote: T.func
+    editingNote: NoteShape
+    onEditNote: T.func
     inEditMode: T.bool
     noteComponent: T.elementType
+    noteEditor: T.elementType
+    allowPositionEditing: T.bool
   }
   render: ->
     {width,
@@ -65,7 +69,11 @@ class NotesColumn extends Component
      notes,
      inEditMode
      onUpdateNote
+     onDeleteNote
+     onCreateNote
      noteComponent
+     noteEditor
+     allowPositionEditing
     } = @props
 
     editHandler = onUpdateNote
@@ -80,13 +88,24 @@ class NotesColumn extends Component
       paddingLeft
       noteComponent
     }, [
-      h 'g.section-log', {transform}, [
-        h NoteDefs
-        h NotesList, {
-          editHandler
-          inEditMode
-        }
+      h NoteEditorProvider, {
+        inEditMode
+        noteEditor
+        onCreateNote
+        onUpdateNote
+        onDeleteNote
+      }, [
+        h 'g.section-log', {transform}, [
+          h NoteDefs
+          h CancelEditUnderlay
+          h NotesList, {
+            editHandler
+            inEditMode
+          }
+          h NewNotePositioner
+          h NoteEditor, {allowPositionEditing}
+        ]
       ]
     ]
 
-export {NotesColumn, NoteComponent, NoteEditor}
+export {NotesColumn, NoteComponent, NoteTextEditor}
