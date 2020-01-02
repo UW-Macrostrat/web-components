@@ -3,5 +3,6 @@ import "regenerator-runtime/runtime";
 import {render} from 'react-dom';
 import h from '@macrostrat/hyper';
 import App from './app.ts'
+import './main.styl'
 
 render(h(App), document.querySelector('#app'));
