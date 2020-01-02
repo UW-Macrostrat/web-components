@@ -10,6 +10,7 @@ class ColumnAxis extends Component
   @defaultProps: {
     ticks: 4
     showLabel: -> true
+    showDomain: true
   }
   render: ->
     h 'g.y.axis'
@@ -26,6 +27,9 @@ class ColumnAxis extends Component
 
     ax = select findDOMNode(@)
       .call @yAxis
+
+    if not @props.showDomain
+      ax.select(".domain").remove()
 
     # Hide labels if they match the showLabel predicate
     ax.selectAll ".tick text"

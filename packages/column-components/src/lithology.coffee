@@ -303,5 +303,6 @@ export {ParameterIntervals,
         SimplifiedLithologyColumn,
         CoveredOverlay,
         SimpleFrame,
-        GrainsizeFrame
+        GrainsizeFrame,
+        ColumnRect,
         symbolIndex}
