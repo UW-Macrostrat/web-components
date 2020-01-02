@@ -205,6 +205,8 @@ NoteRect = (props)->
   {pixelHeight} = useContext(ColumnContext)
   if not width?
     {width} = useContext(NoteLayoutContext)
+  if isNaN(width)
+    return null
 
   h 'rect', {
     width: width+2*padding
