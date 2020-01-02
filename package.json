@@ -1,0 +1,20 @@
+{
+  "name": "@macrostrat/section-renderer",
+  "version": "1.0.0",
+  "description": "A renderer for Macrostrat columns",
+  "main": "index.html",
+  "scripts": {
+    "dev": "parcel index.html"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "alias": {
+    "@macrostrat/column-components": "./bundledDeps/column-components/src",
+    "@macrostrat/ui-components": "./bundledDeps/ui-components/src",
+    "react": "./node_modules/react",
+    "react-dom": "./node_modules/react-dom"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4"
+  }
+}
