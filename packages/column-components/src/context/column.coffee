@@ -43,7 +43,7 @@ class ColumnProvider extends Component
     ## Calculate correct range and height
     # Range overrides height if set
     if range?
-      height = range[1]-range[0]
+      height = Math.abs(range[1]-range[0])
     else
       range = [0, height]
 
