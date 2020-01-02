@@ -9,8 +9,8 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "alias": {
-    "@macrostrat/column-components": "./bundledDeps/column-components/src",
-    "@macrostrat/ui-components": "./bundledDeps/ui-components/src",
+    "column-components": "./bundledDeps/column-components/src",
+    "#": "./bundledDeps/ui-components/src",
     "react": "./node_modules/react",
     "react-dom": "./node_modules/react-dom"
   },
@@ -20,7 +20,10 @@
   },
   "dependencies": {
     "@macrostrat/hyper": "^1.1.5",
+    "core-js": "^3.6.1",
     "react": "^16.12.0",
-    "react-dom": "^16.12.0"
+    "react-dom": "^16.12.0",
+    "regenerator-runtime": "^0.13.3",
+    "ui-components": "^0.1.5"
   }
 }
