@@ -115,16 +115,14 @@ class NoteLayoutProvider extends StatefulComponent
     renderer = @savedRendererForWidth(paddingLeft-pixelOffset)
     try
       return renderer.generatePath(node)
-    catch
+    catch err
       return null
 
-  createNodeForNote: (note, index)=>
+  createNodeForNote: (note)=>
     {notes, elementHeights} = @state
     {pixelHeight, scaleClamped: scale} = @context
-    index ?= notes.indexOf(note)
-    return null if index == -1
     {id: noteID} = note
-    pixelHeight = elementHeights[noteID]
+    pixelHeight = elementHeights[noteID] or 10
     lowerHeight = scale(note.height)
     if hasSpan(note)
       upperHeight = scale(note.top_height)
@@ -133,7 +131,7 @@ class NoteLayoutProvider extends StatefulComponent
         return new FlexibleNode harr, pixelHeight
     return new Node lowerHeight, pixelHeight
 
-  computeForceLayout: =>
+  computeForceLayout: (prevProps, prevState)=>
     {notes, nodes, elementHeights} = @state
     {pixelHeight, scale} = @context
     {width, paddingLeft} = @props
@@ -142,9 +140,11 @@ class NoteLayoutProvider extends StatefulComponent
     # Something is wrong...
     #return if elementHeights.length < notes.length
     # Return if we've already computed nodes
-    return if nodes.length == notes.length
-    console.log @state
-    console.log "Computing force layout for notes column"
+    v1 = Object.keys(nodes).length == notes.length
+    prevState ?= {}
+    v2 = elementHeights == prevState.elementHeights or []
+    return if v1 and v2
+    console.log "Computing force layout"
 
     force = new Force {
       minPos: 0,
@@ -155,12 +155,16 @@ class NoteLayoutProvider extends StatefulComponent
 
     force.nodes(dataNodes).compute()
     nodes = force.nodes() or []
-    @updateState {nodes: {$set: nodes}}
+    nodesObj = {}
+    for node, i in nodes
+      note = notes[i]
+      nodesObj[note.id] = node
 
-  registerHeight: (index, height)=>
+    @updateState {nodes: {$set: nodesObj}}
+
+  registerHeight: (id, height)=>
     return unless height?
-    {elementHeights, notes} = @state
-    {id} = notes[index]
+    {elementHeights} = @state
     elementHeights[id] = height
     @updateState {elementHeights: {$set: elementHeights}}
 
@@ -168,7 +172,6 @@ class NoteLayoutProvider extends StatefulComponent
     # We received a new set of notes from props
     {scaleClamped} = @context
     notes = @props.notes
-      .filter (d)->d.note?
       .filter withinDomain(scaleClamped)
       .sort (a,b)->a.height-b.height
     columnIndex = notes.map buildColumnIndex()
@@ -184,16 +187,15 @@ class NoteLayoutProvider extends StatefulComponent
 
   componentDidUpdate: (prevProps, prevState)=>
     if @props.notes != prevProps.notes
-      @updateNotes(arguments...)
+      @updateNotes()
 
     # Update note component
     {noteComponent} = @props
     if noteComponent != prevProps.noteComponent
       @setState {noteComponent}
-    @computeForceLayout()
+    @computeForceLayout.call(arguments...)
     return if @props.notes == prevProps.notes
     return if @context == @_previousContext
-    console.log "Updating node grapher"
     @computeContextValue()
     @_previousContext = @context
 
@@ -203,6 +205,8 @@ NoteRect = (props)->
   {pixelHeight} = useContext(ColumnContext)
   if not width?
     {width} = useContext(NoteLayoutContext)
+  if isNaN(width)
+    return null
 
   h 'rect', {
     width: width+2*padding

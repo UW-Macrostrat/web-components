@@ -25,10 +25,11 @@ HeightRange = (props)->
   h HeightRangeAnnotation, val
 
 NewNotePositioner = (props)->
+  {paddingLeft, scale} = useContext(NoteLayoutContext)
+  {onCreateNote} = useContext(NoteEditorContext)
+  return null unless onCreateNote?
   {tolerance} = props
   [notePosition, setPosition] = useState(null)
-  {paddingLeft, scale} = useContext(NoteLayoutContext)
-  {setEditingNote} = useContext(NoteEditorContext)
   {model} = useContext(ModelEditorContext)
   return null if model?
 
@@ -59,18 +60,13 @@ NewNotePositioner = (props)->
         dragHeight = eventHeight(evt)
         finalPos = getHeights({notePosition..., dragHeight})
         setPosition null
-        newNote = props.onCreateNote(finalPos)
-        setEditingNote(newNote)
+        onCreateNote(finalPos)
     }
     h HeightRange, {position: notePosition}
   ]
 
 NewNotePositioner.defaultProps = {
   tolerance: 0.1
-}
-
-NewNotePositioner.propTypes = {
-  onCreateNote: T.func.isRequired
 }
 
 export {NewNotePositioner}

@@ -14,18 +14,23 @@ ModelEditorProvider = (props)->
   {
     model,
     logUpdates,
-    children
+    children,
+    alwaysConfirm
   } = props
 
   logUpdates ?= false
-  [editedModel, setState] = useState({model...})
-
-  revertChanges = ->
-    setState({model...})
-  # Zero out edited model when model prop changes
+  alwaysConfirm ?= false
+  [editedModel, setState] = useState(model)
 
   confirmChanges = ->
     props.onConfirmChanges(editedModel)
+
+  revertChanges = ->
+    if alwaysConfirm
+      console.log "Confirming model changes"
+      confirmChanges()
+    setState(model)
+  # Zero out edited model when model prop changes
 
   useEffect(revertChanges, [model])
 
@@ -36,6 +41,7 @@ ModelEditorProvider = (props)->
     setState(v)
 
   deleteModel = ->
+    setState(null)
     props.onDelete(model)
 
   hasChanges = ->

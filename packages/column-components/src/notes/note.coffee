@@ -51,7 +51,7 @@ NoteConnector = (props)->
   {nodes, columnIndex, generatePath} = useContext(NoteLayoutContext)
   {height, top_height} = note
 
-  node ?= nodes[index]
+  node ?= nodes[note.id]
   offsetX = (columnIndex[index] or 0)*5
 
   h [
@@ -85,7 +85,6 @@ class Note extends Component
   @propTypes: {
     editable: T.bool
     note: NoteShape.isRequired
-    index: T.number.isRequired
     editHandler: T.func
   }
   @contextType: NoteLayoutContext
@@ -95,10 +94,10 @@ class Note extends Component
     @state = {height: null}
 
   render: ->
-    {style, note, index, editHandler, editable} = @props
+    {style, note, editHandler, editable} = @props
     {scale, nodes, columnIndex, width, paddingLeft} = @context
 
-    node = nodes[index]
+    node = nodes[note.id]
     offsetY = scale(note.height)
     if node?
       offsetY = node.currentPos
@@ -112,20 +111,27 @@ class Note extends Component
       ref: @element
     }
 
-  componentDidMount: =>
+  updateHeight: (prevProps)=>
     node = @element.current
     return unless node?
     height = node.offsetHeight
     return unless height?
-    return if @state.height == height
+    return if prevProps? and prevProps.note == @props.note
+    console.log "Updating note height"
     @setState {height}
-    @context.registerHeight(@props.index, height)
+    @context.registerHeight(@props.note.id, height)
+
+  componentDidMount: =>
+    @updateHeight.apply(@,arguments)
+
+  componentDidUpdate: =>
+    @updateHeight.apply(@,arguments)
 
 NotesList = (props)->
   {inEditMode: editable, rest...} = props
   editable ?= false
   {notes} = useContext(NoteLayoutContext)
-  h 'g', notes.map (note, index)=>
-    h Note, {key: note.id, note, index, editable, rest...}
+  h 'g', notes.map (note)=>
+    h Note, {key: note.id, note, editable, rest...}
 
 export {Note, NotesList, NotePositioner, NoteConnector}
