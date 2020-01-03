@@ -5,10 +5,13 @@ import {
   ColumnSVG,
   LithologyColumn,
   ColumnAxis,
-  ColumnContext
+  ColumnContext,
+  NotesColumn
 } from './column-components'
 import UnitsColumn from './units'
+import UnitNamesColumn from './unit-names'
 import {useContext} from 'react'
+import "./column-components/main.styl"
 
 export interface IUnit {
   unit_id: number,
@@ -20,13 +23,13 @@ export interface IUnit {
 }
 
 interface IColumnProps {
-  data: Array<IUnit>
+  data: IUnit[]
 }
 
-const AgeAxis = =>{
+const AgeAxis = ()=>{
   const {height} = useContext(ColumnContext)
   return h(ColumnAxis, {
-    ticks: Math.round(height/10)
+    ticks: Math.round(height/10),
     showDomain: false
   })
 }
@@ -34,19 +37,22 @@ const AgeAxis = =>{
 const Section = (props: IColumnProps)=>{
   const {data} = props
 
+  const notesOffset = 100
+
   return h(ColumnProvider, {
     divisions: data,
-    range: [data[data.length-1].b_age, data[0].t_age]
+    range: [data[data.length-1].b_age, data[0].t_age],
     pixelsPerMeter: 4 // Actually pixels per myr
   }, [
     h(ColumnSVG, {
-      width: 200
-      paddingLeft: 40
-      padding: 20
+      width: 450,
+      paddingLeft: 40,
+      padding: 20,
       paddingV: 5
     }, [
       h(AgeAxis),
-      h(UnitsColumn)
+      h(UnitNamesColumn, {left: notesOffset, width: 200, paddingLeft: 30})
+      h(UnitsColumn, {width: 90}),
     ])
   ])
 }
