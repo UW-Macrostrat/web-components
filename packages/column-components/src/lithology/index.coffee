@@ -8,6 +8,7 @@ import T from 'prop-types'
 import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from '../frame'
 import {FaciesContext, ColumnContext, ColumnLayoutContext,
         AssetPathContext, ColumnLayoutProvider} from "../context"
+import {GeologicPattern, GeologicPatternProvider} from './patterns'
 import {createGrainsizeScale} from "../grainsize"
 
 # Malformed es6 module
@@ -145,43 +146,17 @@ class CoveredOverlay extends UUIDComponent
       divs...
     ]
 
-class SymbolDefinition extends Component
-  @contextType: AssetPathContext
-  @defaultProps: {
-    width: 100,
-    height: 100
-  }
-  @propTypes: {
-    UUID: T.string.isRequired
-  }
-  render: ->
-    {resolveLithologySymbol} = @context
-    {UUID, width, height, id: d} = @props
-    patternSize = {width, height}
-
-    id = "#{UUID}-#{d}"
-
-    h 'pattern', {
-      id
-      key: id
-      patternUnits: "userSpaceOnUse"
-      patternSize...
-    }, [
-      h 'image', {
-        xlinkHref: resolveLithologySymbol(d)
-        x:0,y:0
-        patternSize...
-      }
-    ]
-
 LithologySymbolDefs = (props)->
   {resolveID, divisions, UUID} = props
-  __ = divisions.map (d)->resolveID(d)
+  divisions ?= useContext(ColumnContext).divisions
+
+  __ = divisions
+    .map (d)->resolveID(d)
     .filter((x, i, arr) -> arr.indexOf(x) == i)
 
   h 'defs', __.map (id, i)->
     return null if id == -1
-    h SymbolDefinition, {key: i, UUID, id}
+    h GeologicPattern, {key: i, UUID, id}
 
 class LithologyColumnInner extends UUIDComponent
   @contextType: ColumnLayoutContext
@@ -294,9 +269,11 @@ CarbonateDivisions = (props)->
     props...
   }
 
+export * from './patterns'
 export {ParameterIntervals,
         LithologyColumn,
         GeneralizedSectionColumn,
+        defaultResolveID
         FaciesColumnInner,
         LithologySymbolDefs,
         LithologyColumnInner,

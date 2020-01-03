@@ -1,3 +1,6 @@
+import {useUUID} from './frame'
+export {useUUID}
+
 export * from './context'
 export * from './images'
 export * from './notes'

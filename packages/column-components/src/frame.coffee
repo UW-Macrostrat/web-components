@@ -1,4 +1,4 @@
-import {Component, createElement} from "react"
+import {Component, createElement, useState} from "react"
 import h from "react-hyperscript"
 import {path} from "d3-path"
 import {ColumnLayoutContext} from "./context"
@@ -9,6 +9,9 @@ class UUIDComponent extends Component
   constructor: (props)->
     super props
     @UUID = v4()
+
+useUUID = ->
+  return useState(v4())[0]
 
 class SimpleFrame extends Component
   @contextType: ColumnLayoutContext
@@ -127,4 +130,11 @@ class ClipToFrame extends UUIDComponent
       h UseFrame, {id: frameID}
     ]
 
-export {SimpleFrame, GrainsizeFrame, ClipPath, UUIDComponent, ClipToFrame}
+export {
+  SimpleFrame,
+  GrainsizeFrame,
+  ClipPath,
+  UUIDComponent,
+  ClipToFrame,
+  useUUID
+}
