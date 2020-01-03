@@ -38,7 +38,7 @@ CancelEditUnderlay = ->
       setEditingNote(null)
   }
 
-class NotesColumn extends Component
+class EditableNotesColumn extends Component
   @defaultProps: {
     type: 'log-notes'
     paddingLeft: 60
@@ -61,6 +61,7 @@ class NotesColumn extends Component
     noteComponent: T.elementType
     noteEditor: T.elementType
     allowPositionEditing: T.bool
+    forceOptions: T.options
   }
   render: ->
     {width,
@@ -74,6 +75,7 @@ class NotesColumn extends Component
      noteComponent
      noteEditor
      allowPositionEditing
+     forceOptions
     } = @props
 
     editHandler = onUpdateNote
@@ -87,6 +89,7 @@ class NotesColumn extends Component
       width: innerWidth
       paddingLeft
       noteComponent
+      forceOptions
     }, [
       h NoteEditorProvider, {
         inEditMode
@@ -107,5 +110,46 @@ class NotesColumn extends Component
         ]
       ]
     ]
+
+StaticNotesColumn = (props)->
+  {width,
+   paddingLeft,
+   transform,
+   notes,
+   noteComponent
+  } = props
+
+  innerWidth = width-paddingLeft
+
+  h NoteLayoutProvider, {
+    notes
+    width: innerWidth
+    paddingLeft
+    noteComponent
+  }, [
+    h 'g.section-log', {transform}, [
+      h NoteDefs
+      h NotesList, {inEditMode: false}
+    ]
+  ]
+
+StaticNotesColumn.defaultProps = {
+  paddingLeft: 60
+  noteComponent: NoteComponent
+}
+
+StaticNotesColumn.propTypes = {
+  notes: T.arrayOf(NoteShape).isRequired
+  width: T.number.isRequired
+  paddingLeft: T.number
+  noteComponent: T.elementType
+}
+
+NotesColumn = (props)->
+  {editable, rest...} = props
+  c = if editable then EditableNotesColumn else StaticNotesColumn
+  h c, rest
+
+NotesColumn.defaultProps = {editable: true}
 
 export {NotesColumn, NoteComponent, NoteTextEditor}

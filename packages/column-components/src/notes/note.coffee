@@ -131,7 +131,9 @@ NotesList = (props)->
   {inEditMode: editable, rest...} = props
   editable ?= false
   {notes} = useContext(NoteLayoutContext)
+  console.log notes
   h 'g', notes.map (note)=>
+    console.log note
     h Note, {key: note.id, note, editable, rest...}
 
 export {Note, NotesList, NotePositioner, NoteConnector}

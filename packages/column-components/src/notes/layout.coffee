@@ -34,7 +34,12 @@ withinDomain = (scale)-> (d)->
   [start, end] = scale.domain()
   # end height greater than beginning
   end_height = d.top_height or d.height
-  return end_height >= start and d.height <= end
+  if start < end
+    # Normal scale (e.g. height)
+    return end_height >= start and d.height <= end
+  else
+    # Inverted scale (e.g. time)
+    return end_height <= start and d.height >= end
 
 
 class NoteLayoutProvider extends StatefulComponent
@@ -44,6 +49,7 @@ class NoteLayoutProvider extends StatefulComponent
     paddingLeft: T.number
     # This needs to be a component technically
     noteComponent: T.func.isRequired
+    forceOptions: T.object
   }
   @defaultProps: {
     paddingLeft: 60
@@ -123,18 +129,19 @@ class NoteLayoutProvider extends StatefulComponent
     {pixelHeight, scaleClamped: scale} = @context
     {id: noteID} = note
     pixelHeight = elementHeights[noteID] or 10
+    padding = 5
     lowerHeight = scale(note.height)
     if hasSpan(note)
       upperHeight = scale(note.top_height)
-      harr = [lowerHeight-4,upperHeight+4]
-      if harr[0]-harr[1] > 5
+      harr = [lowerHeight-padding,upperHeight+padding]
+      if harr[0]-harr[1] > 0
         return new FlexibleNode harr, pixelHeight
     return new Node lowerHeight, pixelHeight
 
   computeForceLayout: (prevProps, prevState)=>
     {notes, nodes, elementHeights} = @state
     {pixelHeight, scale} = @context
-    {width, paddingLeft} = @props
+    {width, paddingLeft, forceOptions} = @props
 
     return if notes.length == 0
     # Something is wrong...
@@ -149,6 +156,8 @@ class NoteLayoutProvider extends StatefulComponent
     force = new Force {
       minPos: 0,
       maxPos: pixelHeight
+      nodeSpacing: 0
+      forceOptions...
     }
 
     dataNodes = notes.map @createNodeForNote

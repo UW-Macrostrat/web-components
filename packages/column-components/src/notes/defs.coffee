@@ -22,11 +22,31 @@ ArrowMarker = ({id, orient, size: sz, fill})->
     }
   ]
 
+EndpointTick = ({id, fill, size: sz})->
+  fill ?= 'black'
+  sz ?= 2.5
+  h 'marker', {
+    id
+    markerHeight: 2
+    markerWidth: sz*2
+    markerUnits: 'strokeWidth'
+    refX: 0
+    refY: 0
+    viewBox:"-#{sz} -1 #{sz*2} 1"
+  }, [
+    h 'path', {
+      d: "M -#{sz},0 L #{sz},0"
+      fill: 'transparent'
+      stroke: fill
+    }
+  ]
+
 NoteDefs = ({fill, prefix})->
   prefix ?= ""
   h 'defs', [
     h ArrowMarker, {id: prefix+'arrow_start', orient: 270, fill}
     h ArrowMarker, {id: prefix+'arrow_end', orient: 90, fill}
+    h EndpointTick, {id: prefix+'tick', fill}
   ]
 
 export default NoteDefs
