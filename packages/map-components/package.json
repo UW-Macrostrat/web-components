@@ -1,8 +1,8 @@
 {
   "name": "map-components",
-  "version": "0.0.0",
-  "description": "",
-  "keywords": [],
+  "version": "0.0.1",
+  "description": "React components for vector maps",
+  "keywords": ["gis", "react", "maps", "vector-graphics"],
   "main": "dist/map-components.umd.js",
   "module": "dist/map-components.es5.js",
   "typings": "dist/types/map-components.d.ts",
@@ -22,8 +22,10 @@
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
-    "build": "tsc --module commonjs && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
-    "start": "rollup -c rollup.config.ts -w",
+    "build": "npm run build:types && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
+    "build:types": "tsc --emitDeclarationOnly",
+    "dev": "rollup -c rollup.config.ts -w & tsc --emitDeclarationOnly -w",
+    "start": "npm run dev",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
     "test:prod": "npm run lint && npm run test -- --no-cache",
@@ -83,6 +85,7 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.7.7",
     "@babel/preset-react": "^7.7.4",
     "@babel/preset-typescript": "^7.7.7",
     "@commitlint/cli": "^7.1.2",
