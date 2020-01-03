@@ -13,6 +13,7 @@ const symbolIndex = {
   'sandy-dolomite': 645
   'quartzite': 702
   'halite': 668
+  'basalt': 717
 }
 
 const resolveID = (d: object)=>{
@@ -24,6 +25,14 @@ const resolveID = (d: object)=>{
               environs)
 
   let sym = null
+
+  // overrides for IODP columns
+  if (d.unit_name == 'clay') {
+    return "650"
+  }
+  if (d.unit_name == 'calcareous clay') {
+    return "651"
+  }
 
   for (const k of liths) {
     if (k.name == 'sandstone') {

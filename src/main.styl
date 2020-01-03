@@ -1,3 +1,21 @@
+*
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif
+
+// Column
+.column
+  margin 2em
+  display: flex
+  flex-direction row
+  .age-axis-label
+    writing-mode sideways-lr
+    font-size 12px
+    text-align: center
+
+  .tick text
+    writing-mode sideways-lr
+    text-anchor middle
+    transform translate(0,-3px)
+
 rect.unit
   stroke: black
   stroke-width: 1px
@@ -8,7 +26,6 @@ rect.unit
 
 .note-label
   font-size: 10px
-  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif
   margin-top 3px
   padding 2px
   padding-left: 3px

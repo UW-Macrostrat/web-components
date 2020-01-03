@@ -38,9 +38,8 @@ const Section = (props: IColumnProps)=>{
   }, [
     h(ColumnSVG, {
       width: 450,
-      paddingLeft: 40,
       padding: 20,
-      paddingV: 5
+      paddingV: 10
     }, [
       h(AgeAxis),
       h(UnitNamesColumn, {left: notesOffset, width: 200, paddingLeft: 30})
@@ -56,11 +55,14 @@ const Column = (props: IColumnProps)=>{
 
   sectionGroups.sort((a,b)=>a.t_age-b.t_age)
 
-  return h("div.column", sectionGroups.map(([id,values])=>{
-    return h(`div.section-${id}`, [
-      h(Section, {data: values})
-    ])
-  }))
+  return h("div.column", [
+    h("div.age-axis-label", "Age (Ma)")
+    h("div.main-column", sectionGroups.map(([id,values])=>{
+      return h(`div.section-${id}`, [
+        h(Section, {data: values})
+      ])
+    })
+  ])
 }
 
 export default Column
