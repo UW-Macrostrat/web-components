@@ -30,6 +30,7 @@ symbolIndex = {
   'dolomite-mudstone': 642
   'mudstone': 620
   'sandy-dolomite': 645
+  'quartzite': 702
 }
 
 isCarbonateSymbol = (d)->
@@ -147,7 +148,8 @@ class CoveredOverlay extends UUIDComponent
     ]
 
 LithologySymbolDefs = (props)->
-  {resolveID, divisions, UUID} = props
+  {resolveID, divisions, UUID, scalePattern} = props
+  scalePattern ?= -> 1
   divisions ?= useContext(ColumnContext).divisions
 
   __ = divisions
@@ -156,9 +158,13 @@ LithologySymbolDefs = (props)->
 
   h 'defs', __.map (id, i)->
     return null if id == -1
-    h GeologicPattern, {key: i, UUID, id}
+    sz = 100
+    if scalePattern?
+      scalar = scalePattern(id)
+      sz *= scalar
+    h GeologicPattern, {key: i, UUID, id, width: sz, height: sz}
 
-class LithologyColumnInner extends UUIDComponent
+class LithologyBoxes extends UUIDComponent
   @contextType: ColumnLayoutContext
   @defaultProps: {
     resolveID: defaultResolveID
@@ -208,9 +214,15 @@ class LithologyColumnInner extends UUIDComponent
     divisions = @constructLithologyDivisions()
     {resolveID} = @props
     h 'g.lithology', [
-      h LithologySymbolDefs, {divisions, resolveID, @UUID}
+      h LithologySymbolDefs, {
+        divisions,
+        resolveID,
+        @UUID
+      }
       h 'g', divisions.map(@renderEach)
     ]
+
+LithologyColumnInner = LithologyBoxes
 
 class LithologyColumn extends Component
   @defaultProps: {
@@ -272,6 +284,7 @@ CarbonateDivisions = (props)->
 export * from './patterns'
 export {ParameterIntervals,
         LithologyColumn,
+        LithologyBoxes,
         GeneralizedSectionColumn,
         defaultResolveID
         FaciesColumnInner,
