@@ -9,18 +9,10 @@ import {
   NotesColumn
 } from './column-components'
 import UnitsColumn from './units'
-import UnitNamesColumn from './unit-names'
+import UnitNamesColumn from './units/names'
+import {IUnit} from './units/types'
 import {useContext} from 'react'
 import "./column-components/main.styl"
-
-export interface IUnit {
-  unit_id: number,
-  col_id: number,
-  section_id: number,
-  t_age: number,
-  b_age: number
-  [x: string]: any
-}
 
 interface IColumnProps {
   data: IUnit[]

@@ -1,12 +1,15 @@
 import h from '@macrostrat/hyper'
+import {useContext} from 'react'
+
 import {
   ColumnContext
   NotesColumn
-} from './column-components'
-import {useContext, ColumnContext} from 'react'
+} from '../column-components'
+import {INote} from '../column-components/notes/index.d.ts'
 
 interface UnitNamesProps {
   left?: number
+  nameForDivision(object): string
 }
 
 const NoteComponent = (props)=>{
@@ -16,14 +19,14 @@ const NoteComponent = (props)=>{
 }
 
 const UnitNamesColumn = (props: UnitNamesProps)=>{
-  const {left, ...rest} = props
+  const {left, nameForDivision, ...rest} = props
   const {divisions} = useContext(ColumnContext)
 
-  const notes = divisions.map((div,i) =>{
+  const notes: INote[] = divisions.map((div,i) =>{
     return {
       height: div.b_age
       top_height: div.t_age
-      note: div.unit_name.replace("Mbr", "Member").replace("Fm", "Formation").replace("Gp", "Group")
+      note: nameForDivision(div)
       id: i
     }
   })
@@ -38,6 +41,15 @@ const UnitNamesColumn = (props: UnitNamesProps)=>{
     }
     ...rest
   })
+}
+
+UnitNamesColumn.defaultProps = {
+  nameForDivision: (div)=>{
+    return div.unit_name
+      .replace("Mbr", "Member")
+      .replace("Fm", "Formation")
+      .replace("Gp", "Group")
+  }
 }
 
 export default UnitNamesColumn

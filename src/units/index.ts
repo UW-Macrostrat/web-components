@@ -4,9 +4,14 @@ import {
   LithologyColumn,
   ColumnContext,
   ColumnLayoutContext
-} from './column-components'
+} from '../column-components'
+import {IUnit} from './types'
 
-const Unit = (props)=>{
+interface UnitProps {
+  division: IUnit
+}
+
+const Unit = (props: UnitProps)=>{
   const {division: d} = props
   const {scale} = useContext(ColumnContext)
   const {width} = useContext(ColumnLayoutContext)
