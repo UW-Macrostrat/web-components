@@ -82,6 +82,8 @@
     ]
   },
   "devDependencies": {
+    "@babel/preset-react": "^7.7.4",
+    "@babel/preset-typescript": "^7.7.7",
     "@commitlint/cli": "^7.1.2",
     "@commitlint/config-conventional": "^7.1.2",
     "@types/jest": "^23.3.2",
@@ -101,6 +103,7 @@
     "replace-in-file": "^3.4.2",
     "rimraf": "^2.6.2",
     "rollup": "^0.67.0",
+    "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-commonjs": "^9.1.8",
     "rollup-plugin-json": "^3.1.0",
     "rollup-plugin-node-resolve": "^3.4.0",
@@ -116,5 +119,10 @@
     "tslint-config-standard": "^8.0.1",
     "typedoc": "^0.12.0",
     "typescript": "^3.0.3"
+  },
+  "dependencies": {
+    "coffeescript": "^2.5.0",
+    "rollup-plugin-coffee-script": "^2.0.0",
+    "rollup-plugin-stylus-compiler": "^1.0.1"
   }
 }
