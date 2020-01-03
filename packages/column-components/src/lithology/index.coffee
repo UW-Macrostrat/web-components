@@ -2,14 +2,13 @@ import {select} from "d3-selection"
 import {Component, PureComponent, createElement, useContext} from "react"
 import {findDOMNode} from "react-dom"
 import h from "react-hyperscript"
-import {join} from "path"
 import classNames from "classnames"
 import {path} from "d3-path"
 import T from 'prop-types'
-import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from './frame'
+import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from '../frame'
 import {FaciesContext, ColumnContext, ColumnLayoutContext,
-        AssetPathContext, ColumnLayoutProvider} from "./context"
-import {createGrainsizeScale} from "./grainsize"
+        AssetPathContext, ColumnLayoutProvider} from "../context"
+import {createGrainsizeScale} from "../grainsize"
 
 # Malformed es6 module
 v = require('react-svg-textures')
@@ -175,6 +174,15 @@ class SymbolDefinition extends Component
       }
     ]
 
+LithologySymbolDefs = (props)->
+  {resolveID, divisions, UUID} = props
+  __ = divisions.map (d)->resolveID(d)
+    .filter((x, i, arr) -> arr.indexOf(x) == i)
+
+  h 'defs', __.map (id, i)->
+    return null if id == -1
+    h SymbolDefinition, {key: i, UUID, id}
+
 class LithologyColumnInner extends UUIDComponent
   @contextType: ColumnLayoutContext
   @defaultProps: {
@@ -211,15 +219,6 @@ class LithologyColumnInner extends UUIDComponent
       return nextVals
     return __
 
-  createDefs: (divisions)=>
-    {resolveID} = @props
-    __ = divisions.map (d)=>resolveID(d)
-      .filter((x, i, arr) => arr.indexOf(x) == i)
-
-    h 'defs', __.map (id, i)=>
-      return null if id == -1
-      h SymbolDefinition, {key: i, UUID: @UUID, id}
-
   renderEach: (d)=>
     {width} = @context
     className = classNames({
@@ -232,8 +231,9 @@ class LithologyColumnInner extends UUIDComponent
 
   render: ->
     divisions = @constructLithologyDivisions()
-    h 'g.lithology', {}, [
-      @createDefs(divisions)
+    {resolveID} = @props
+    h 'g.lithology', [
+      h LithologySymbolDefs, {divisions, resolveID, @UUID}
       h 'g', divisions.map(@renderEach)
     ]
 
@@ -298,6 +298,7 @@ export {ParameterIntervals,
         LithologyColumn,
         GeneralizedSectionColumn,
         FaciesColumnInner,
+        LithologySymbolDefs,
         LithologyColumnInner,
         CarbonateDivisions,
         SimplifiedLithologyColumn,
