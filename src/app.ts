@@ -7,18 +7,27 @@ import {
   GeologicPatternProvider
 } from './column-components'
 import Column, {IUnit} from './column'
+import MapView from './map'
 import patterns from '../geologic-patterns/*.png'
 
 const renderResults = (data: Array<IUnit>)=> {
   return h(Column, {data});
 };
 
-const MainView = => {
+const ColumnView = => {
   // 495
   return h(APIResultView, {
     route: "/units",
     params: {all: true, col_id: 495, response: 'long'}
   }, renderResults);
+};
+
+const MainView = => {
+  // 495
+  return h('div.main', [
+    h(MapView),
+    h(ColumnView)
+  ]);
 };
 
 const resolvePattern = (id)=>patterns[id]
