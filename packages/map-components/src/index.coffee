@@ -96,6 +96,9 @@ class Globe extends StatefulComponent
   updateProjection: (newProj)=>
     @updateState {projection: {$set: newProj}}
 
+  rotateProjection: (rotation)=>
+    @updateProjection(@state.projection.rotate(rotation))
+
   dispatchEvent: (evt)=>
     v = findDOMNode(@)
     el = v.getElementsByClassName(styles.map)[0]
@@ -112,14 +115,15 @@ class Globe extends StatefulComponent
     @componentDidUpdate.call(@,arguments)
 
   render: ->
-    {width, height, children, keepNorthUp, allowDragging, projection, rest...} = @props
+    {width, height, children, keepNorthUp, allowDragging, rest...} = @props
+    {projection} = @state
     initialScale = projection.scale() or 500
 
-    {projection} = @state
     actions = do => {
       updateState,
       updateProjection,
       dispatchEvent
+      rotateProjection
       } = @
     renderPath = geoPath(projection)
     value = {projection, renderPath, width, height, actions...}

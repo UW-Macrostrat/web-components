@@ -15,11 +15,13 @@ class DraggableOverlay extends Component
     keepNorthUp: T.bool
     enableZoom: T.bool
     initialScale: T.number
+    dragSensitivity: T.number
   }
   @defaultProps: {
-    showMousePosition: true
+    showMousePosition: false
     enableZoom: true
     pinNorthUp: false
+    dragSensitivity: 0.1
   }
   constructor: ->
     super arguments...
@@ -43,23 +45,24 @@ class DraggableOverlay extends Component
     @setState {mousePosition: {type: "Point", coordinates: pos}}
     @r0 = projection.rotate()
     @p0 = sph2cart(pos)
-    @qa = euler2quat(projection.rotate())
-    @q0 = euler2quat(projection.rotate())
+    @qa = euler2quat(@r0)
+    @q0 = euler2quat(@r0)
 
-  dragged: (mousePos)=>
-    {keepNorthUp} = @props
-    {projection, updateProjection} = @context
-    @q0 = euler2quat(projection.rotate())
+  dragged: (mousePos, evt)=>
+    {keepNorthUp, dragSensitivity: sens} = @props
+    {projection, rotateProjection} = @context
+    rot = projection.rotate()
+    @q0 = euler2quat(rot)
     pos = projection.invert(mousePos)
     q1 = quaternion(@p0, sph2cart(pos))
     res = quatMultiply( @q0, q1 )
     r1 = quat2euler(res)
-    return unless r1?
     # keeping north up basically doesn't workq
     if keepNorthUp
-      #console.log(@r0)
-      r1 = [r1[0], r1[1], r1[2]]
-    updateProjection(projection.rotate(r1))
+      # A completely different rotation strategy
+      r1 = [evt.x*sens, -evt.y*sens, rot[2]]
+    return unless r1?
+    rotateProjection(r1)
 
   dragEnded: =>
     @setState {mousePosition: null}
@@ -72,12 +75,24 @@ class DraggableOverlay extends Component
 
   componentDidMount: ->
     {width, height, projection, dispatchEvent} = @context
+    {dragSensitivity: sens} = @props
+
     forwardMousePos = (func)-> ->
-      func(mouse(@))
+      func(mouse(@), currentEvent)
+
+    sens = 0.08
+    eventSubject = (d)->
+      # for d3 events to report x and y in terms of rotation
+      r = projection.rotate()
+      return {
+        x: r[0] / sens
+        y: -r[1] / sens
+      }
 
     el = select(findDOMNode(@))
     @drag = drag()
       .clickDistance 2
+      .subject eventSubject
       .on "start", forwardMousePos(@dragStarted)
       .on "drag", forwardMousePos(@dragged)
       .on "end", @dragEnded
