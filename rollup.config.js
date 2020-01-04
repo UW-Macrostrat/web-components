@@ -29,7 +29,7 @@ export default {
   external: Object.keys(deps),
   plugins: [
     css(),
-    resolve({extensions}),
+    resolve({extensions, module: true}),
     stylus(),
     coffee(),
     babel({

@@ -1,7 +1,7 @@
 import {Component, createContext} from 'react'
 import h from 'react-hyperscript'
 import {memoize} from 'underscore'
-import axios, {get, post} from 'axios'
+import axios from 'axios'
 
 APIContext = createContext({})
 APIConsumer = APIContext.Consumer
@@ -55,7 +55,7 @@ class APIProvider extends Component
     url = @buildURL route, params
     opts = @processOptions opts
 
-    @runQuery(post(url, payload), route, url, "POST", opts)
+    @runQuery(axios.post(url, payload), route, url, "POST", opts)
 
   get: (route, params, opts)=>
     params ?= {}
@@ -66,9 +66,9 @@ class APIProvider extends Component
     url = @buildURL route, params
     opts = @processOptions opts
 
-    fn = get
+    fn = axios.get
     if opts.memoize
-      fn = memoize(get)
+      fn = memoize(axios.get)
 
     @runQuery(fn(url), route, url, "GET", opts)
 
@@ -115,4 +115,3 @@ export {
   APIConsumer,
   buildQueryString
 }
-
