@@ -4,3 +4,6 @@
 [submodule "src/ui-components"]
 	path = bundledDeps/ui-components
 	url = git://github.com/UW-Macrostrat/ui-components.git
+[submodule "bundledDeps/map-components"]
+	path = bundledDeps/map-components
+	url = git://github.com/UW-Macrostrat/map-components.git

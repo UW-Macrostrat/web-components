@@ -2,7 +2,7 @@ import h from '@macrostrat/hyper';
 import {
   APIProvider,
   APIResultView
-} from './ui-components';
+} from '@macrostrat/ui-components';
 import {
   GeologicPatternProvider
 } from './column-components'

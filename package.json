@@ -4,18 +4,23 @@
   "description": "A renderer for Macrostrat columns",
   "main": "index.html",
   "scripts": {
-    "dev": "parcel index.html"
+    "preinstall": "linklocal && linklocal --list | bulk -c 'npm install'",
+    "dev": "concurrently npm:watch:core npm:watch:map npm:watch:ui",
+    "watch:core": "parcel index.html",
+    "watch:map": "cd bundledDeps/map-components && npm run watch:main",
+    "watch:ui": "cd bundledDeps/ui-components && npm run dev"
   },
   "author": "Daven Quinn",
   "license": "ISC",
   "alias": {
-    "column-components": "./bundledDeps/column-components/src",
-    "#": "./bundledDeps/ui-components/src",
     "react": "./node_modules/react",
     "react-dom": "./node_modules/react-dom"
   },
   "devDependencies": {
+    "bulk": "^2.0.1",
     "coffeescript": "^2.5.0",
+    "concurrently": "^5.0.2",
+    "linklocal": "^2.8.2",
     "parcel-bundler": "^1.12.4",
     "stylus": "^0.54.7",
     "typescript": "^3.7.4"
@@ -23,7 +28,9 @@
   "dependencies": {
     "@blueprintjs/core": "^3.22.3",
     "@macrostrat/hyper": "^1.1.5",
-    "@macrostrat/ui-components": "^0.1.3",
+    "@macrostrat/ui-components": "file:./bundledDeps/ui-components",
+    "@macrostrat/map-components": "file:./bundledDeps/map-components",
+    "@macrostrat/column-components": "file:./bundledDeps/column-components",
     "geologic-patterns": "github:davenquinn/geologic-patterns",
     "core-js": "^3.6.1",
     "d3": "^5.15.0",
