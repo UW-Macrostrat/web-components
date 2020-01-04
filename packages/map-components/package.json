@@ -134,7 +134,16 @@
     "typescript": "^3.0.3"
   },
   "dependencies": {
-    "@macrostrat/ui-components": "^0.1"
+    "@macrostrat/hyper": "^1.1.5",
+    "@macrostrat/ui-components": "^0.1",
+    "d3-array": "^2.4.0",
+    "d3-drag": "^1.2.5",
+    "d3-geo": "^1.11.9",
+    "d3-selection": "^1.4.1",
+    "d3-zoom": "^1.8.3",
+    "prop-types": "^15.7.2",
+    "react-hyperscript": "^3.2.0",
+    "underscore": "^1.9.1"
   },
   "peerDependencies": {
     "react": "^16.11.0",

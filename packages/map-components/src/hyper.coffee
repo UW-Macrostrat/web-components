@@ -1,5 +1,5 @@
 import hyper from '@macrostrat/hyper'
-import styles from './module.styl'
+import styles from './main.module.styl'
 h = hyper.styled(styles)
 
 export default h

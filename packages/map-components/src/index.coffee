@@ -7,8 +7,6 @@ import {MapContext} from './context'
 import {DraggableOverlay} from './drag-interaction'
 import {min, max} from 'd3-array'
 import {geoStereographic, geoOrthographic, geoGraticule, geoPath} from 'd3-geo'
-import styles from './module.styl'
-export * from './map-components'
 
 GeoPath = (props)->
   {geometry, rest...} = props
