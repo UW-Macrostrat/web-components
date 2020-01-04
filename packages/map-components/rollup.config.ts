@@ -11,6 +11,7 @@ const pkg = require('./package.json')
 
 const libraryName = 'map-components'
 const extensions = ['.js','.coffee', '.ts']
+const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
 export default {
   input: `src/index.coffee`,
@@ -19,7 +20,7 @@ export default {
     { file: pkg.module, format: 'es', sourcemap: true },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: ["react", "react-dom"],
+  external: Object.keys(deps),
   watch: {
     include: 'src/**',
   },
@@ -28,8 +29,6 @@ export default {
     json(),
     // Compile coffeescript files
     coffee(),
-    // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
-    commonjs(),
     // Bundle stylesheets
     postcss({
       // postfix with .module.css etc. for css modules
@@ -45,5 +44,7 @@ export default {
     }),
     // Resolve source maps to the original source
     sourceMaps(),
+    // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
+    commonjs(),
   ],
 }

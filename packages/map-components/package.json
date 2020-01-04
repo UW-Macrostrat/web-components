@@ -1,8 +1,13 @@
 {
-  "name": "map-components",
+  "name": "@macrostrat/map-components",
   "version": "0.0.1",
   "description": "React components for vector maps",
-  "keywords": ["gis", "react", "maps", "vector-graphics"],
+  "keywords": [
+    "gis",
+    "react",
+    "maps",
+    "vector-graphics"
+  ],
   "main": "dist/map-components.umd.js",
   "module": "dist/map-components.es5.js",
   "typings": "dist/types/map-components.d.ts",
@@ -24,7 +29,8 @@
     "prebuild": "rimraf dist",
     "build": "npm run build:types && rollup -c rollup.config.ts && typedoc --out docs --target es6 --theme minimal --mode file src",
     "build:types": "tsc --emitDeclarationOnly",
-    "dev": "rollup -c rollup.config.ts -w & tsc --emitDeclarationOnly -w",
+    "watch:main": "rollup -c rollup.config.ts -w",
+    "dev": "npm run watch:main & tsc --emitDeclarationOnly -w",
     "start": "npm run dev",
     "test": "jest --coverage",
     "test:watch": "jest --coverage --watch",
@@ -127,7 +133,9 @@
     "typedoc": "^0.12.0",
     "typescript": "^3.0.3"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@macrostrat/ui-components": "^0.1"
+  },
   "peerDependencies": {
     "react": "^16.11.0",
     "react-dom": "^16.11.0"
