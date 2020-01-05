@@ -8,7 +8,8 @@ import {memoize} from 'underscore'
 
 # https://philna.sh/blog/2018/09/27/techniques-for-animating-on-the-canvas-in-react/
 
-MapCanvasContext = createContext {context: null, inCanvas: false}
+MapCanvasContext = createContext {
+  context: null, inCanvas: false, renderPath: null}
 
 class CanvasLayer extends Component
   @contextType: MapContext
@@ -32,10 +33,17 @@ class CanvasLayer extends Component
     if el?
       context = el.getContext("2d")
 
-    value = {context, inCanvas: true}
+    value = {
+      context,
+      inCanvas: true
+      renderPath: null
+    }
 
     dpr = window.devicePixelRatio or 1
     if context?
+
+      value.renderPath = geoPath(@context.projection, context)
+
       style ?= {}
       {fill, stroke, strokeWidth} = style
       fill ?= "rgba(200,200,200,0.5)"
