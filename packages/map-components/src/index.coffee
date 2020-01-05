@@ -168,3 +168,4 @@ class Globe extends StatefulComponent
 
 
 export {Globe, MapContext}
+export * from './canvas-layer.coffee'
