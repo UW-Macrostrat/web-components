@@ -1,7 +1,8 @@
-import {Component, createContext} from 'react'
+import {Component, createContext, useState, useContext} from 'react'
 import h from 'react-hyperscript'
 import {memoize} from 'underscore'
 import axios from 'axios'
+import useAsyncEffect from 'use-async-effect'
 
 APIContext = createContext({})
 APIConsumer = APIContext.Consumer
@@ -25,7 +26,7 @@ class APIProvider extends Component
   }
   render: ->
     {baseURL, unwrapResponse, onError, rest...} = @props
-    helpers = {buildURL: @buildURL, buildQueryString}
+    helpers = {@buildURL, buildQueryString, @processOptions}
     actions = {post: @post, get: @get}
     value = {rest..., actions..., helpers, baseURL, onError}
     h APIContext.Provider, {value}, @props.children
@@ -109,9 +110,23 @@ class APIProvider extends Component
 
     return opts
 
+useAPIResult = (route, params, opts={})->
+  ###
+  React hook for API results
+  ###
+  [result, setResult] = useState(null)
+  {get} = useContext(APIContext)
+  getAPIData = ->
+    res = await get(route, params, {opts...})
+    setResult(res)
+
+  useAsyncEffect(getAPIData, [])
+  return result
+
 export {
   APIContext,
   APIProvider,
   APIConsumer,
-  buildQueryString
+  buildQueryString,
+  useAPIResult
 }
