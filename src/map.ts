@@ -1,37 +1,94 @@
 import {useState, useContext} from 'react'
 import useAsyncEffect from 'use-async-effect'
 import h from 'react-hyperscript'
-import {APIResultView} from '@macrostrat/ui-components'
-import {Globe, CanvasLayer} from '@macrostrat/map-components'
+import {APIResultView, APIContext} from '@macrostrat/ui-components'
+import {
+  Globe,
+  CanvasLayer,
+  MapContext,
+  MapCanvasContext
+} from '@macrostrat/map-components'
 import {ResizeSensor} from '@blueprintjs/core'
 import {min} from 'd3-array'
 import {get} from 'axios'
+import {feature} from 'topojson'
 
-/*
-const Land = (props)=>{
-  const renderResult = (data)=>{
-    console.log(data);
-    const {land} = data.objects
-    return h(CanvasLayer, {geometry: land, fill: 'rgb(233, 252, 234)'})
+const FeatureLayer = (props)=>{
+  const {useCanvas, ...rest} = props
+  if (useCanvas) {
+    return h(CanvasLayer, rest)
   }
-  return h(APIResultView, {
-    route: "https://unpkg.com/world-atlas@1/world/50m.json",
-    placeholder: null,
-    unwrapResponse: res => res.data.objects.land
-  }, renderResult)
+  return h('g', rest)
 }
-*/
+
+FeatureLayer.defaultProps = {
+  useCanvas: false
+}
+
+const Feature = (props)=>{
+  const {geometry, ...rest} = props
+  const {inCanvas, context} = useContext(MapCanvasContext)
+
+  if (inCanvas) {
+    const {renderPath} = useContext(MapCanvasContext)
+    if (context != null) {
+      renderPath(geometry)
+    }
+    return null
+  } else {
+    const {renderPath} = useContext(MapContext)
+    const d = renderPath(geometry)
+    return h('path', {d, ...rest})
+  }
+}
+
 
 const Land = (props)=>{
 
   const [geometry, setGeometry] = useState(null)
 
   useAsyncEffect(async function(){
-    const {data} = await get("https://unpkg.com/world-atlas@1/world/50m.json")
-    setGeometry(data.objects.land)
+    const {data} = await get("https://unpkg.com/world-atlas@1/world/110m.json")
+    // Parse topoJSON
+    const geom = feature(data, data.objects.land)
+    setGeometry(geom)
   }, [])
 
-  return h(CanvasLayer, {geometry, fill: 'rgb(233, 252, 234)'})
+  return h(FeatureLayer, {
+    useCanvas: true,
+    style: {
+      fill: 'rgb(233, 252, 234)'
+      stroke: 'transparent'
+    }
+  }, [
+    h(Feature, {geometry})
+  ])
+}
+
+const Columns = (props)=>{
+  const {buildURL} = useContext(APIContext).helpers
+
+  const [features, setFeatures] = useState([])
+
+  useAsyncEffect(async function(){
+    const uri = buildURL('/columns', {format: 'topojson', all: true})
+    const res = await get(uri)
+    const {data} = res.data.success
+    // Parse topoJSON
+    const {features} = feature(data, data.objects.output)
+    setFeatures(features)
+  }, [])
+
+  return h(FeatureLayer, {
+    useCanvas: true,
+    style: {
+      fill: 'rgba(150,150,150,0.2)'
+      stroke: 'rgb(150,150,150,0.4)'
+    }
+  }, features.map(f =>{
+    const {geometry} = f
+    return h(Feature, {geometry})
+  })
 }
 
 const MapView = props =>{
@@ -52,6 +109,7 @@ const MapView = props =>{
         scale: min([size.width,size.height])/2-(2*margin)
       }, [
         h(Land)
+        h(Columns)
       ])
     ])
   ])

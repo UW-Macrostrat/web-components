@@ -11,6 +11,7 @@ import {
 } from '../column-components'
 import {IUnit} from './types'
 import {resolveID, scalePattern} from './resolvers'
+import UnitNamesColumn from './names'
 
 interface UnitProps {
   division: IUnit
@@ -52,9 +53,48 @@ const UnitBoxes = (props)=>{
 }
 
 const UnitsColumn = (props)=>{
+  /*
+  A column showing units with USGS color fill
+  */
   return h(LithologyColumn, {width: 100}, [
     h(UnitBoxes)
   ])
 }
 
-export default UnitsColumn
+interface ICompositeUnitProps {
+  width: number
+  columnWidth: number
+  gutterWidth?: number
+  labelOffset?: number
+}
+
+const CompositeUnitsColumn = (props: ICompositeUnitProps)=>{
+  /*
+  A column with units and names either
+  overlapping or offset to the right
+  */
+  const {
+    columnWidth,
+    width,
+    gutterWidth,
+    labelOffset
+  } = props
+
+  return h([
+    h(UnitsColumn, {
+      width: columnWidth
+    }),
+    h(UnitNamesColumn, {
+      transform: `translate(${columnWidth+gutterWidth})`
+      paddingLeft: labelOffset
+      width: width-columnWidth-gutterWidth
+    })
+  ])
+}
+
+CompositeUnitsColumn.defaultProps = {
+  gutterWidth: 10,
+  labelOffset: 30
+}
+
+export {CompositeUnitsColumn}

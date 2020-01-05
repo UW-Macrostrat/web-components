@@ -8,8 +8,7 @@ import {
   ColumnContext,
   NotesColumn
 } from './column-components'
-import UnitsColumn from './units'
-import UnitNamesColumn from './units/names'
+import {CompositeUnitsColumn} from './units'
 import {IUnit} from './units/types'
 import {useContext} from 'react'
 import "./column-components/main.styl"
@@ -42,8 +41,10 @@ const Section = (props: IColumnProps)=>{
       paddingV: 10
     }, [
       h(AgeAxis),
-      h(UnitNamesColumn, {left: notesOffset, width: 200, paddingLeft: 30})
-      h(UnitsColumn, {width: 90}),
+      h(CompositeUnitsColumn, {
+        width: 400,
+        columnWidth: 90
+      })
     ])
   ])
 }

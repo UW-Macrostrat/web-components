@@ -1,7 +1,9 @@
+import {useState} from 'react'
 import h from '@macrostrat/hyper';
 import {
   APIProvider,
-  APIResultView
+  APIResultView,
+  useAPIResult
 } from '@macrostrat/ui-components';
 import {
   GeologicPatternProvider
@@ -14,20 +16,32 @@ const renderResults = (data: Array<IUnit>)=> {
   return h(Column, {data});
 };
 
-const ColumnView = => {
+const ColumnView = (props)=> {
+  const {col_id} = props
   // 495
   return h(APIResultView, {
     route: "/units",
-    params: {all: true, col_id: 495, response: 'long'}
+    params: {all: true, col_id, response: 'long'}
   }, renderResults);
 };
 
-const MainView = => {
+const ColumnTitle = (props)=>{
+  return h.if(props.data != null)('h1', props.data?.col_name)
+}
+
+const ColumnManager = => {
+  const [col_id, setColumn] = useState(495)
+
+  const res = useAPIResult('/columns', {col_id, format: 'geojson'})
+  const columnFeature = res?.features[0]
   // 495
-  return h('div.main', [
-    h(MapView),
-    h(ColumnView)
-  ]);
+  return h([
+    h("div.column-view", [
+      h(ColumnTitle, {data: columnFeature?.properties}),
+      h(ColumnView, {col_id})
+    ]),
+    h(MapView, {currentColumn: columnFeature}),
+  ])
 };
 
 const resolvePattern = (id)=>patterns[id]
@@ -37,7 +51,7 @@ const App = => {
     h(APIProvider, {
       baseURL: "https://dev.macrostrat.org/api/v2",
       unwrapResponse: (res)=>res.success.data
-    }, h(MainView))
+    }, h(ColumnManager))
   )
 }
 

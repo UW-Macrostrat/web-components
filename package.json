@@ -49,6 +49,7 @@
     "react-scroll": "^1.7.15",
     "react-svg-textures": "^1.4.7",
     "regenerator-runtime": "^0.13.3",
+    "topojson": "^3.0.2",
     "ui-box": "^3.0.2",
     "ui-components": "^0.1.5",
     "use-async-effect": "^2.2.1"
