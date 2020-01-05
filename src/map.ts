@@ -1,11 +1,41 @@
 import {useState, useContext} from 'react'
+import useAsyncEffect from 'use-async-effect'
 import h from 'react-hyperscript'
-import {Globe} from '@macrostrat/map-components'
+import {APIResultView} from '@macrostrat/ui-components'
+import {Globe, CanvasLayer} from '@macrostrat/map-components'
 import {ResizeSensor} from '@blueprintjs/core'
-import {max} from 'd3-array'
+import {min} from 'd3-array'
+import {get} from 'axios'
+
+/*
+const Land = (props)=>{
+  const renderResult = (data)=>{
+    console.log(data);
+    const {land} = data.objects
+    return h(CanvasLayer, {geometry: land, fill: 'rgb(233, 252, 234)'})
+  }
+  return h(APIResultView, {
+    route: "https://unpkg.com/world-atlas@1/world/50m.json",
+    placeholder: null,
+    unwrapResponse: res => res.data.objects.land
+  }, renderResult)
+}
+*/
+
+const Land = (props)=>{
+
+  const [geometry, setGeometry] = useState(null)
+
+  useAsyncEffect(async function(){
+    const {data} = await get("https://unpkg.com/world-atlas@1/world/50m.json")
+    setGeometry(data.objects.land)
+  }, [])
+
+  return h(CanvasLayer, {geometry, fill: 'rgb(233, 252, 234)'})
+}
 
 const MapView = props =>{
-  const [size, setSize] = useState({width: 1100, height: 800})
+  const [size, setSize] = useState({width: 200, height: 200})
 
   const onResize = (entries)=>{
     const {width, height} = entries[0].contentRect
@@ -14,13 +44,14 @@ const MapView = props =>{
 
   const {featureDataset, margin} = props
   return h(ResizeSensor, {onResize}, [
-    h('div.world-map', [
+    h('div.context-map', [
       h(Globe, {
         ...size,
         margin,
         keepNorthUp: true,
-        scale: max([size.width,size.height])/2-(2*margin)
+        scale: min([size.width,size.height])/2-(2*margin)
       }, [
+        h(Land)
       ])
     ])
   ])

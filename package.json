@@ -27,16 +27,16 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^3.22.3",
-    "@macrostrat/hyper": "^1.1.5",
-    "@macrostrat/ui-components": "file:./bundledDeps/ui-components",
-    "@macrostrat/map-components": "file:./bundledDeps/map-components",
     "@macrostrat/column-components": "file:./bundledDeps/column-components",
-    "geologic-patterns": "github:davenquinn/geologic-patterns",
+    "@macrostrat/hyper": "^1.1.5",
+    "@macrostrat/map-components": "file:./bundledDeps/map-components",
+    "@macrostrat/ui-components": "file:./bundledDeps/ui-components",
     "core-js": "^3.6.1",
     "d3": "^5.15.0",
     "d3-array": "^2.4.0",
     "d3-path": "^1.0.9",
     "d3-selection": "^1.4.1",
+    "geologic-patterns": "github:davenquinn/geologic-patterns",
     "immutability-helper": "^3.0.1",
     "labella": "^1.1.4",
     "prop-types": "^15.7.2",
@@ -50,6 +50,7 @@
     "react-svg-textures": "^1.4.7",
     "regenerator-runtime": "^0.13.3",
     "ui-box": "^3.0.2",
-    "ui-components": "^0.1.5"
+    "ui-components": "^0.1.5",
+    "use-async-effect": "^2.2.1"
   }
 }
