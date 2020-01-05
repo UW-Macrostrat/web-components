@@ -1,11 +1,13 @@
 import React, {Component, createContext, useContext, createRef, createElement} from 'react'
 import {findDOMNode} from 'react-dom'
+import {addClassNames} from '@macrostrat/hyper'
 import {StatefulComponent} from '@macrostrat/ui-components'
 import T from 'prop-types'
 import h from './hyper'
 import {MapContext} from './context'
 import {DraggableOverlay} from './drag-interaction'
 import {min, max} from 'd3-array'
+import classNames from 'classnames'
 import {geoStereographic, geoOrthographic, geoGraticule, geoPath} from 'd3-geo'
 
 GeoPath = (props)->
@@ -36,6 +38,13 @@ Graticule = (props)->
     className: 'graticule',
     geometry: graticule(),
     props...
+  }
+
+Sphere = (props)->
+  newProps = addClassNames(props, "neatline")
+  h GeoPath, {
+    geometry: {type: 'Sphere'},
+    newProps...
   }
 
 class Globe extends StatefulComponent
@@ -115,9 +124,19 @@ class Globe extends StatefulComponent
     @componentDidUpdate.call(@,arguments)
 
   render: ->
-    {width, height, children, keepNorthUp, allowDragging, rest...} = @props
+    {
+      width,
+      height,
+      children,
+      keepNorthUp,
+      allowDragging,
+      scale,
+      graticule
+      rest...} = @props
     {projection} = @state
-    initialScale = projection.scale() or 500
+    initialScale = scale or projection.scale() or 500
+
+    graticule ?= Graticule
 
     actions = do => {
       updateState,
@@ -132,11 +151,16 @@ class Globe extends StatefulComponent
     viewBox = "0 0 #{width} #{height}"
 
     h MapContext.Provider, {value}, [
-      createElement 'svg', {className: 'globe', xmlns, width, height, viewBox, rest...}, [
+      createElement 'svg', {
+        className: 'macrostrat-map globe',
+        xmlns,
+        width, height, viewBox, rest...
+      }, [
         h 'g.map', {ref: @mapElement}, [
           h Background, {fill: 'dodgerblue'}
-          h Graticule
+          h.if(graticule) graticule
           children
+          h Sphere
         ]
         h.if(allowDragging) DraggableOverlay, {keepNorthUp, initialScale}
       ]

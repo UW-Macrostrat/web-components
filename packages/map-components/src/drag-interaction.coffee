@@ -21,7 +21,7 @@ class DraggableOverlay extends Component
     showMousePosition: false
     enableZoom: true
     pinNorthUp: false
-    dragSensitivity: 0.1
+    dragSensitivity: 1
   }
   constructor: ->
     super arguments...
@@ -80,7 +80,6 @@ class DraggableOverlay extends Component
     forwardMousePos = (func)-> ->
       func(mouse(@), currentEvent)
 
-    sens = 0.08
     eventSubject = (d)->
       # for d3 events to report x and y in terms of rotation
       r = projection.rotate()
