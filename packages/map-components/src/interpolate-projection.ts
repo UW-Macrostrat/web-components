@@ -1,6 +1,9 @@
 /*
 https://bl.ocks.org/rob4acre/50c94f7ee7e96c40434bfa313c37576d
 Function to interpolate two projections
+
+Updated version here:
+https://observablehq.com/@jashkenas/interpolating-d3-map-projections
 */
 
 function interpolatedProjection(a, b) {

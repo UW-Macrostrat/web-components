@@ -3,15 +3,20 @@ import h from 'react-hyperscript'
 import { MapContext } from './context'
 import { CanvasLayer, MapCanvasContext } from './canvas-layer'
 
-interface IFeatureProps {
+interface IFeature {
   id: number | string
   geometry: object
   properties?: object
 }
 
+interface IFeatureProps {
+  feature: IFeature
+}
+
 const Feature = (props: IFeatureProps) => {
-  const { geometry, id, properties, ...rest } = props
+  const { feature, onClick, ...rest } = props
   const { inCanvas, context } = useContext(MapCanvasContext)
+  const { geometry, properties, id } = feature
 
   if (inCanvas) {
     const { renderPath } = useContext(MapCanvasContext)
@@ -22,7 +27,15 @@ const Feature = (props: IFeatureProps) => {
   } else {
     const { renderPath } = useContext(MapContext)
     const d = renderPath(geometry)
-    return h('path', { d, className: `feature-${id}`, ...rest })
+    return h('path.feature', {
+      d,
+      className: `feature-${id}`,
+      ...rest,
+      onClick: () => {
+        if (onClick == null) return
+        return onClick(feature)
+      }
+    })
   }
 }
 
@@ -37,9 +50,9 @@ const FeatureLayer = (props: IFeatureLayerProps) => {
 
   let newChildren = null
   if (features != null) {
-    newChildren = features.map(d => h(Feature, d))
+    newChildren = features.map(feature => h(Feature, { feature }))
   } else if (geometry != null) {
-    newChildren = h(Feature, { id: 0, geometry })
+    newChildren = h(Feature, { feature: { id: 0, geometry } })
   }
 
   const el = useCanvas ? CanvasLayer : 'g'

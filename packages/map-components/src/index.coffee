@@ -66,7 +66,7 @@ class Globe extends StatefulComponent
     projection: geoOrthographic()
       .clipAngle(90)
       .precision(0.5)
-    setupProjection: (projection, {width, height, scale, translate, center})->
+    setupProjection: (projection, {width, height, scale, translate, center, margin})->
       if not scale?
         maxSize = min [width, height]
         scale = maxSize/2
@@ -74,6 +74,7 @@ class Globe extends StatefulComponent
       projection.scale(scale)
         .translate(translate)
         .rotate([-center[0], -center[1]])
+        .clipExtent([[margin,margin],[width-margin,height-margin]])
   }
 
   constructor: (props)->
@@ -91,7 +92,7 @@ class Globe extends StatefulComponent
     }
 
   componentDidUpdate: (prevProps)=>
-    {width, height, scale, translate, center, setupProjection} = @props
+    {width, height, scale, translate, center, margin, setupProjection} = @props
     sameDimensions = prevProps.width == width and prevProps.height == height
     sameProjection = prevProps.projection == @props.projection
     sameScale = prevProps.scale == scale and prevProps.translate == translate and prevProps.center == center
@@ -101,7 +102,7 @@ class Globe extends StatefulComponent
     else
       {projection} = @props
 
-    newProj = setupProjection(projection, {width,height, scale, translate, center})
+    newProj = setupProjection(projection, {width,height, scale, translate, center, margin})
 
     @updateProjection newProj
 
@@ -166,11 +167,15 @@ class Globe extends StatefulComponent
           children
           h Sphere
         ]
-        h.if(allowDragging) DraggableOverlay, {keepNorthUp, initialScale}
+        h.if(allowDragging) DraggableOverlay, {
+          keepNorthUp,
+          initialScale
+          dragSensitivity: 0.1
+        }
       ]
     ]
 
 
 export {Globe, MapContext}
-export * from './canvas-layer.coffee'
+export * from './canvas-layer'
 export * from './feature'
