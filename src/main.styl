@@ -20,7 +20,9 @@ html, body
     writing-mode sideways-lr
     font-size 12px
     text-align: center
-
+    position: sticky
+    top: 0
+    max-height: 100vh
   .tick text
     writing-mode sideways-lr
     text-anchor middle
@@ -33,6 +35,7 @@ rect.unit
 .lithology-column .frame
   stroke black
   stroke-width: 1.5px
+  pointer-events none
 
 .note-label
   font-size: 10px

@@ -110,6 +110,7 @@ const MapView = props =>{
         margin,
         center: columnCenter
         allowDrag: expanded,
+        allowZoom: false
         keepNorthUp: true,
         scale
         onClick: clicker(true)

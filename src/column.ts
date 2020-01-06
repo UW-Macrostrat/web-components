@@ -15,30 +15,45 @@ import "./column-components/main.styl"
 
 interface IColumnProps {
   data: IUnit[]
+  pixelScale?: number
 }
 
-const AgeAxis = ()=>{
-  const {height} = useContext(ColumnContext)
+const AgeAxis = ({ticks})=>{
+  const {pixelHeight} = useContext(ColumnContext)
+  // A tick roughly every 40 pixels
+  let v = Math.max(Math.round(pixelHeight/40),1)
+
   return h(ColumnAxis, {
-    ticks: Math.round(height/10),
+    ticks: v,
     showDomain: false
   })
 }
 
 const Section = (props: IColumnProps)=>{
+  // Section with "squishy" time scale
   const {data} = props
+  let {pixelScale} = props
 
   const notesOffset = 100
 
+  const range = [data[data.length-1].b_age, data[0].t_age]
+
+  if (!pixelScale) {
+    // Make up a pixel scale
+    const dAge = range[0]-range[1]
+    const targetHeight = 20*data.length
+    pixelScale = Math.round(targetHeight/dAge)
+  }
+
   return h(ColumnProvider, {
     divisions: data,
-    range: [data[data.length-1].b_age, data[0].t_age],
-    pixelsPerMeter: 4 // Actually pixels per myr
+    range,
+    pixelsPerMeter: pixelScale // Actually pixels per myr
   }, [
     h(ColumnSVG, {
       width: 450,
       padding: 20,
-      paddingV: 10
+      paddingV: 15
     }, [
       h(AgeAxis),
       h(CompositeUnitsColumn, {

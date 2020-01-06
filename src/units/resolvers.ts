@@ -2,18 +2,35 @@ const symbolIndex = {
   'dolomite-limestone': 641
   'lime_mudstone': 627
   'sandstone': 607
+  'sand': 608
   'siltstone': 616
+  'silt': 616
   'dolomitic siltstone': 616
   'shale': 620
   'limestone': 627
   'dolomite': 642
   'conglomerate': 602
+  'carbonate': 627
   'dolomite-mudstone': 642
   'mudstone': 620
   'sandy-dolomite': 645
   'quartzite': 702
   'halite': 668
   'basalt': 717
+  'rhyolite': 722
+  'till': 681
+  'loess': 684
+  'calcareous ooze': 653
+  'chalk': 626
+  'gravel': 601
+  'plutonic': 721
+  'granite': 719
+  'clay': 660
+  'syenite': 722
+  'tuff': 711
+  'volcanic': 725
+  'metamorphic': 707
+  'volcaniclastic': 714
 }
 
 const resolveID = (d: object)=>{
@@ -21,7 +38,7 @@ const resolveID = (d: object)=>{
   let environs = d.environ.map(d=>d.name).join(" ")
   liths.sort((a,b)=>b.prop-a.prop)
 
-  //console.log(d.unit_name, liths.map(d => d.name), environs)
+  console.log(d, d.unit_name, liths.map(d => d.name), environs)
 
   let sym = null
 
@@ -44,6 +61,9 @@ const resolveID = (d: object)=>{
       }
       if (environs.includes("shore")) {
         return "611"
+      }
+      if (environs.includes("loess")) {
+        return "686"
       }
     }
 

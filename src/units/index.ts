@@ -33,7 +33,7 @@ const Unit = (props: UnitProps)=>{
 
   const fill = (v != null) ? `url(#${UUID}-${patternID})` : '#aaa'
 
-  return h("rect.unit", {x: 0, y, width, height, fill})
+  return h("rect.unit", {x: 0, y, width, height, fill, onMouseOver: =>console.log(d)})
 }
 
 const UnitBoxes = (props)=>{
