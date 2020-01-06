@@ -83,6 +83,7 @@ class APIProvider extends Component
         throw res.error or "No data!"
       return opts.unwrapResponse(data)
     catch err
+      debugger
       if not opts.handleError
         throw err
       console.error err
@@ -92,7 +93,7 @@ class APIProvider extends Component
         endpoint: url,
         method
       })
-      return null
+      return Promise.resolve(null)
 
   processOptions: (opts={})=>
     # Standardize option values
