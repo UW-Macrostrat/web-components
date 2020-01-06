@@ -41,8 +41,8 @@ function getQueryString() {
       obj[k] = v
     }
   })
-  if (obj == {}) return null
-  return obj
+  const hasKeys = Object.keys(obj).length > 0
+  return hasKeys ? obj : null
 }
 
 function setQueryString(args) {
@@ -56,7 +56,7 @@ function setQueryString(args) {
 const ColumnManager = => {
 
   const defaultArgs = {col_id: 495}
-  const initArgs = getQueryString() ?? col495
+  const initArgs = getQueryString() ?? defaultArgs
   const [columnArgs, setColumnArgs] = useState(initArgs)
 
   const colParams = {...columnArgs, format: 'geojson'}
