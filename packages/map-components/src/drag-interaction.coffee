@@ -69,9 +69,11 @@ class DraggableOverlay extends Component
 
   zoomed: =>
     scale = currentEvent.transform.k
-    console.log scale
     {projection, updateProjection} = @context
     updateProjection(projection.scale(scale))
+
+  element: =>
+    select(findDOMNode(@).parentElement)
 
   componentDidMount: ->
     {width, height, projection, dispatchEvent} = @context
@@ -88,7 +90,7 @@ class DraggableOverlay extends Component
         y: -r[1] / sens
       }
 
-    el = select(findDOMNode(@))
+    el = @element()
     @drag = drag()
       .clickDistance 2
       .subject eventSubject
@@ -97,13 +99,15 @@ class DraggableOverlay extends Component
       .on "end", @dragEnded
     @drag(el)
     el.on 'click', ->
+      console.log("Clicking")
       dispatchEvent currentEvent
+      return false
 
     if @props.enableZoom
       @setupZoom()
 
   setupZoom: ->
-    el = select(findDOMNode(@))
+    el = @element()
     # Zoom over one order of magnitude by default
 
     @zoom = zoom().on("zoom", @zoomed)
@@ -111,7 +115,7 @@ class DraggableOverlay extends Component
     @updateZoom()
 
   updateZoom: (scale)=>
-    el = select(findDOMNode(@))
+    el = @element()
     scale ?= @props.initialScale
     @zoom.scaleExtent(@getScaleExtent())
         .scaleTo(el, scale)
@@ -123,7 +127,7 @@ class DraggableOverlay extends Component
     [initialScale*0.8, initialScale*2]
 
   componentDidUpdate: (prevProps)->
-    el = select(findDOMNode(@))
+    el = @element()
     {initialScale} = @props
     return if initialScale == prevProps.initialScale
     @updateZoom() if @zoom?

@@ -9,6 +9,7 @@ import {DraggableOverlay} from './drag-interaction'
 import {min, max} from 'd3-array'
 import classNames from 'classnames'
 import {geoStereographic, geoOrthographic, geoGraticule, geoPath} from 'd3-geo'
+import styles from './main.module.styl'
 
 GeoPath = (props)->
   {geometry, rest...} = props
@@ -53,7 +54,8 @@ class Globe extends StatefulComponent
     width: T.number.isRequired,
     height: T.number.isRequired,
     keepNorthUp: T.bool,
-    allowDragging: T.bool
+    allowDrag: T.bool
+    allowZoom: T.bool
     setupProjection: T.func
     scale: T.number
     center: T.arrayOf(T.number)
@@ -61,7 +63,8 @@ class Globe extends StatefulComponent
   }
   @defaultProps: {
     keepNorthUp: false
-    allowDragging: true
+    allowDrag: true
+    allowZoom: false
     center: [0,0]
     projection: geoOrthographic()
       .clipAngle(90)
@@ -133,7 +136,8 @@ class Globe extends StatefulComponent
       height,
       children,
       keepNorthUp,
-      allowDragging,
+      allowDrag,
+      allowZoom,
       scale,
       center,
       graticule
@@ -167,10 +171,11 @@ class Globe extends StatefulComponent
           children
           h Sphere
         ]
-        h.if(allowDragging) DraggableOverlay, {
+        h.if(allowDrag) DraggableOverlay, {
           keepNorthUp,
           initialScale
           dragSensitivity: 0.1
+          allowZoom
         }
       ]
     ]
