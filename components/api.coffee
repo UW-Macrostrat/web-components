@@ -110,15 +110,17 @@ class APIProvider extends Component
 
     return opts
 
-useAPIResult = (route, params, opts={})->
+useAPIResult = (route, params, onResponse)->
   ###
   React hook for API results
   ###
+  onResponse ?= (d)->d
+
   [result, setResult] = useState(null)
   {get} = useContext(APIContext)
   getAPIData = ->
-    res = await get(route, params, {opts...})
-    setResult(res)
+    res = await get(route, params, opts={})
+    setResult(onResponse(res))
 
   useAsyncEffect(getAPIData, [])
   return result
