@@ -56,21 +56,24 @@ class Globe extends StatefulComponent
     allowDragging: T.bool
     setupProjection: T.func
     scale: T.number
+    center: T.arrayOf(T.number)
     translate: T.arrayOf(T.number)
   }
   @defaultProps: {
     keepNorthUp: false
     allowDragging: true
+    center: [0,0]
     projection: geoOrthographic()
       .clipAngle(90)
       .precision(0.5)
-    setupProjection: (projection, {width, height, scale, translate})->
+    setupProjection: (projection, {width, height, scale, translate, center})->
       if not scale?
         maxSize = min [width, height]
         scale = maxSize/2
       translate ?= [width/2, height/2]
       projection.scale(scale)
         .translate(translate)
+        .rotate([-center[0], -center[1]])
   }
 
   constructor: (props)->
@@ -88,17 +91,17 @@ class Globe extends StatefulComponent
     }
 
   componentDidUpdate: (prevProps)=>
-    {width, height, scale, translate, setupProjection} = @props
+    {width, height, scale, translate, center, setupProjection} = @props
     sameDimensions = prevProps.width == width and prevProps.height == height
     sameProjection = prevProps.projection == @props.projection
-    sameScale = prevProps.scale == scale and prevProps.translate == translate
+    sameScale = prevProps.scale == scale and prevProps.translate == translate and prevProps.center == center
     return if sameDimensions and sameProjection and sameScale
     if sameProjection
       {projection} = @state
     else
       {projection} = @props
 
-    newProj = setupProjection(projection, {width,height, scale, translate})
+    newProj = setupProjection(projection, {width,height, scale, translate, center})
 
     @updateProjection newProj
 
@@ -131,6 +134,7 @@ class Globe extends StatefulComponent
       keepNorthUp,
       allowDragging,
       scale,
+      center,
       graticule
       rest...} = @props
     {projection} = @state
@@ -169,3 +173,4 @@ class Globe extends StatefulComponent
 
 export {Globe, MapContext}
 export * from './canvas-layer.coffee'
+export * from './feature'
