@@ -50,7 +50,7 @@ const FeatureLayer = (props: IFeatureLayerProps) => {
 
   let newChildren = null
   if (features != null) {
-    newChildren = features.map(feature => h(Feature, { feature }))
+    newChildren = features.map((feature, i) => h(Feature, { feature, key: i }))
   } else if (geometry != null) {
     newChildren = h(Feature, { feature: { id: 0, geometry } })
   }

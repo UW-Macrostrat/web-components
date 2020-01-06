@@ -73,6 +73,7 @@ class DraggableOverlay extends Component
     updateProjection(projection.scale(scale))
 
   element: =>
+    # This is a hack but it seems to work!
     select(findDOMNode(@).parentElement)
 
   componentDidMount: ->
