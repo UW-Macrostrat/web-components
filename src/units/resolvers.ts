@@ -21,8 +21,7 @@ const resolveID = (d: object)=>{
   let environs = d.environ.map(d=>d.name).join(" ")
   liths.sort((a,b)=>b.prop-a.prop)
 
-  console.log(d.unit_name, liths.map(d => d.name),
-              environs)
+  //console.log(d.unit_name, liths.map(d => d.name), environs)
 
   let sym = null
 

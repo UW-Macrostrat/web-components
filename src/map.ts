@@ -1,47 +1,23 @@
 import {useState, useContext} from 'react'
 import useAsyncEffect from 'use-async-effect'
 import h from 'react-hyperscript'
-import {APIResultView, APIContext} from '@macrostrat/ui-components'
+import {
+  APIResultView,
+  APIContext,
+  useAPIResult
+} from '@macrostrat/ui-components'
 import {
   Globe,
   CanvasLayer,
   MapContext,
-  MapCanvasContext
+  MapCanvasContext,
+  FeatureLayer
 } from '@macrostrat/map-components'
 import {ResizeSensor} from '@blueprintjs/core'
 import {min} from 'd3-array'
+import {geoCentroid} from 'd3-geo'
 import {get} from 'axios'
 import {feature} from 'topojson'
-
-const FeatureLayer = (props)=>{
-  const {useCanvas, ...rest} = props
-  if (useCanvas) {
-    return h(CanvasLayer, rest)
-  }
-  return h('g', rest)
-}
-
-FeatureLayer.defaultProps = {
-  useCanvas: false
-}
-
-const Feature = (props)=>{
-  const {geometry, ...rest} = props
-  const {inCanvas, context} = useContext(MapCanvasContext)
-
-  if (inCanvas) {
-    const {renderPath} = useContext(MapCanvasContext)
-    if (context != null) {
-      renderPath(geometry)
-    }
-    return null
-  } else {
-    const {renderPath} = useContext(MapContext)
-    const d = renderPath(geometry)
-    return h('path', {d, ...rest})
-  }
-}
-
 
 const Land = (props)=>{
 
@@ -59,25 +35,18 @@ const Land = (props)=>{
     style: {
       fill: 'rgb(233, 252, 234)'
       stroke: 'transparent'
-    }
-  }, [
-    h(Feature, {geometry})
-  ])
+    },
+    geometry
+  }
 }
 
 const Columns = (props)=>{
-  const {buildURL} = useContext(APIContext).helpers
 
-  const [features, setFeatures] = useState([])
-
-  useAsyncEffect(async function(){
-    const uri = buildURL('/columns', {format: 'topojson', all: true})
-    const res = await get(uri)
-    const {data} = res.data.success
-    // Parse topoJSON
-    const {features} = feature(data, data.objects.output)
-    setFeatures(features)
-  }, [])
+  let features = useAPIResult('/columns', {format: 'topojson', all: true}, res =>{
+    const {features} = feature(res, res.objects.output)
+    return features
+  })
+  if (features == null) return null
 
   return h(FeatureLayer, {
     useCanvas: true,
@@ -85,13 +54,25 @@ const Columns = (props)=>{
       fill: 'rgba(150,150,150,0.2)'
       stroke: 'rgb(150,150,150,0.4)'
     }
-  }, features.map(f =>{
-    const {geometry} = f
-    return h(Feature, {geometry})
+    features
+  }
+}
+
+const CurrentColumn = props =>{
+  const {feature} = props
+  console.log(feature)
+  return h(FeatureLayer, {
+    features: [feature],
+    style: {
+      fill: 'rgba(255,0,0,0.4)'
+      stroke: 'rgba(255,0,0,0.6)'
+      strokeWidth: 2
+    }
   })
 }
 
 const MapView = props =>{
+  const {currentColumn} = props
   const [size, setSize] = useState({width: 200, height: 200})
 
   const onResize = (entries)=>{
@@ -99,17 +80,21 @@ const MapView = props =>{
     setSize({width, height})
   }
 
+  const columnCenter = geoCentroid?.(currentColumn)
+
   const {featureDataset, margin} = props
   return h(ResizeSensor, {onResize}, [
     h('div.context-map', [
       h(Globe, {
         ...size,
         margin,
+        center: columnCenter
         keepNorthUp: true,
         scale: min([size.width,size.height])/2-(2*margin)
       }, [
         h(Land)
         h(Columns)
+        h.if(currentColumn != null)(CurrentColumn, {feature: currentColumn})
       ])
     ])
   ])
