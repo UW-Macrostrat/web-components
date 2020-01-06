@@ -1,5 +1,7 @@
 import {useState} from 'react'
+import {isEqual} from 'underscore'
 import h from '@macrostrat/hyper';
+import {ButtonGroup, Button} from "@blueprintjs/core"
 import {
   APIProvider,
   APIResultView,
@@ -17,11 +19,11 @@ const renderResults = (data: Array<IUnit>)=> {
 };
 
 const ColumnView = (props)=> {
-  const {col_id} = props
+  const {params} = props
   // 495
   return h(APIResultView, {
     route: "/units",
-    params: {all: true, col_id, response: 'long'}
+    params: {all: true, ...params, response: 'long'}
   }, renderResults);
 };
 
@@ -30,17 +32,41 @@ const ColumnTitle = (props)=>{
 }
 
 const ColumnManager = => {
-  const [col_id, setColumn] = useState(495)
+  const defaultArgs = {col_id: 495}
+  const [columnArgs, setColumnArgs] = useState(defaultArgs)
 
-  const res = useAPIResult('/columns', {col_id, format: 'geojson'})
+  const colParams = {...columnArgs, format: 'geojson'}
+  const res = useAPIResult('/columns', colParams, [columnArgs])
   const columnFeature = res?.features[0]
+
+  const setCurrentColumn = (obj)=>{
+    if ('properties' in obj) {
+      setColumnArgs({col_id: obj.properties.col_id})
+    } else {
+      setColumnArgs(obj)
+    }
+  }
+
+  const DefaultButton = ({args, children})=>{
+    const onClick = ()=>setColumnArgs(args)
+    return h(Button, {onClick, disabled: isEqual(columnArgs,args)}, children)
+  }
+
   // 495
-  return h([
+  return h("div.column-ui",[
     h("div.column-view", [
       h(ColumnTitle, {data: columnFeature?.properties}),
-      h(ColumnView, {col_id})
+      h(ColumnView, {params: columnArgs})
     ]),
-    h(MapView, {currentColumn: columnFeature}),
+    h("div.column-nav", [
+      h("h3", "Column navigator")
+      h(MapView, {currentColumn: columnFeature, setCurrentColumn}),
+      h("h3", "Selected examples")
+      h(ButtonGroup, {vertical: true, minimal: true, alignText: 'left', className: 'default-buttons'}, [
+        h(DefaultButton, {args: defaultArgs}, "Paradox Basin"),
+        h(DefaultButton, {args: {project_id: 4, status_code: "in process"}}, "IODP Test")
+      ])
+    ])
   ])
 };
 

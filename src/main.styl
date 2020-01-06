@@ -1,8 +1,12 @@
 *
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif
 
+html, body
+  margin 0
+  padding 0
+
 .column-view
-  margin 2em
+  flex-grow 1
   h1
     font-size 1.2em
     margin-bottom 0.2em
@@ -47,12 +51,52 @@ rect.unit
   .neatline
     stroke-width 1.5px
 
+div.column-ui
+  padding: 1em
+  width 100vw
+  display flex
+  flex-direction row
+
+.column-nav
+  position sticky
+  top 0px
+  h3
+    color: #444
+    margin-bottom: 0.3em
+
+.default-buttons
+  width: 100%
 
 div.context-map
-  position fixed
-  top 1em
-  right 1em
-  width 200px
+  position relative
+  width: 200px
+  height: 200px
+  cursor pointer
+  z-index 100
+  transition: width 0.5s, height 0.5s, margin 0.5s
+  &.expanded
+    cursor inherit
+    width 450px
+    height 450px
+    margin: 0 0 -250px -250px
+    .columns path:hover
+      stroke: rgba(255,0,0,.4) !important
 
-.land
-  background-color rgb(233, 252, 234)
+
+  .close-button
+    position absolute
+    top 1em
+    right 1em
+
+  .land
+    background-color rgb(233, 252, 234)
+
+@media (prefers-color-scheme: dark)
+  body
+    display block
+
+  .lithology-column .frame
+    stroke: white
+  g.inner
+    rect.unit
+      filter: invert(100%)

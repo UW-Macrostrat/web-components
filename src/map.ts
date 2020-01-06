@@ -1,6 +1,6 @@
 import {useState, useContext} from 'react'
 import useAsyncEffect from 'use-async-effect'
-import h from 'react-hyperscript'
+import h from '@macrostrat/hyper'
 import {
   APIResultView,
   APIContext,
@@ -11,9 +11,10 @@ import {
   CanvasLayer,
   MapContext,
   MapCanvasContext,
-  FeatureLayer
+  FeatureLayer,
+  Feature
 } from '@macrostrat/map-components'
-import {ResizeSensor} from '@blueprintjs/core'
+import {Button, ResizeSensor} from '@blueprintjs/core'
 import {min} from 'd3-array'
 import {geoCentroid} from 'd3-geo'
 import {get} from 'axios'
@@ -33,34 +34,40 @@ const Land = (props)=>{
   return h(FeatureLayer, {
     useCanvas: true,
     style: {
-      fill: 'rgb(233, 252, 234)'
+      fill: 'rgb(233, 252, 234)',
       stroke: 'transparent'
     },
     geometry
-  }
+  })
 }
 
 const Columns = (props)=>{
 
+  const {onClick} = props
+
   let features = useAPIResult('/columns', {format: 'topojson', all: true}, res =>{
     const {features} = feature(res, res.objects.output)
     return features
-  })
+  }, [])
   if (features == null) return null
 
   return h(FeatureLayer, {
-    useCanvas: true,
+    className: "columns"
+    useCanvas: onClick == null,
     style: {
       fill: 'rgba(150,150,150,0.2)'
       stroke: 'rgb(150,150,150,0.4)'
     }
-    features
-  }
+  }, features.map(f =>{
+    return h(Feature, {
+      onClick,
+      feature: f
+    })
+  })
 }
 
 const CurrentColumn = props =>{
   const {feature} = props
-  console.log(feature)
   return h(FeatureLayer, {
     features: [feature],
     style: {
@@ -72,8 +79,9 @@ const CurrentColumn = props =>{
 }
 
 const MapView = props =>{
-  const {currentColumn} = props
-  const [size, setSize] = useState({width: 200, height: 200})
+  const {currentColumn, setCurrentColumn} = props
+  const [size, setSize] = useState({width: 0, height: 0})
+  const [expanded, setExpanded] = useState(false)
 
   const onResize = (entries)=>{
     const {width, height} = entries[0].contentRect
@@ -82,20 +90,41 @@ const MapView = props =>{
 
   const columnCenter = geoCentroid?.(currentColumn)
 
+  const className = expanded ? "expanded" : null
   const {featureDataset, margin} = props
+  let scale = min([size.width,size.height])/2-(margin)
+  if (expanded) {
+    scale *= 3
+  }
+
+  const clicker = (shouldExpand: boolean) => => {
+    setExpanded(shouldExpand)
+  }
+
+  const onClick = expanded ? setCurrentColumn : null
+
   return h(ResizeSensor, {onResize}, [
-    h('div.context-map', [
+    h('div.context-map', {className}, [
       h(Globe, {
         ...size,
         margin,
         center: columnCenter
+        allowDrag: expanded,
         keepNorthUp: true,
-        scale: min([size.width,size.height])/2-(2*margin)
+        scale
+        onClick: clicker(true)
       }, [
         h(Land)
-        h(Columns)
+        h(Columns, {onClick})
         h.if(currentColumn != null)(CurrentColumn, {feature: currentColumn})
-      ])
+      ]),
+      h.if(expanded)(Button, {
+        className: 'close-button',
+        icon: 'cross',
+        minimal: true,
+        onClick: clicker(false)
+        intent: 'danger'
+      })
     ])
   ])
 }
