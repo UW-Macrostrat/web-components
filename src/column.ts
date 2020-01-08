@@ -38,11 +38,13 @@ const Section = (props: IColumnProps)=>{
 
   const range = [data[data.length-1].b_age, data[0].t_age]
 
+  console.log(range)
+
   if (!pixelScale) {
     // Make up a pixel scale
     const dAge = range[0]-range[1]
     const targetHeight = 20*data.length
-    pixelScale = Math.round(targetHeight/dAge)
+    pixelScale = Math.ceil(targetHeight/dAge)
   }
 
   return h(ColumnProvider, {

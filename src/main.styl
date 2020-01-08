@@ -17,16 +17,16 @@ html, body
   display: flex
   flex-direction row
   .age-axis-label
-    writing-mode sideways-lr
+    writing-mode vertical-lr
+    transform: rotate(180deg)
     font-size 12px
     text-align: center
     position: sticky
     top: 0
     max-height: 100vh
   .tick text
-    writing-mode sideways-lr
     text-anchor middle
-    transform translate(0,-3px)
+    transform rotate(-90deg) translate(8px,-12px)
 
 rect.unit
   stroke: black

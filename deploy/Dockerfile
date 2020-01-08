@@ -1,3 +1,3 @@
-FROM nginx:alpine
+FROM busybox
 
-COPY . /usr/share/nginx/html/
+COPY . /site/

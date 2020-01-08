@@ -31,6 +31,12 @@ const symbolIndex = {
   'volcanic': 725
   'metamorphic': 707
   'volcaniclastic': 714
+  'migmatite': 709
+  'gneiss': 708
+  'tonalite': 727
+  'granodiorite': 725
+  'monzonite': 723
+  'argillite': 624
 }
 
 const resolveID = (d: object)=>{

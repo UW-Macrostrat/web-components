@@ -9,7 +9,7 @@
     "watch:core": "parcel index.html",
     "watch:map": "cd bundledDeps/map-components && npm run watch:main",
     "watch:ui": "cd bundledDeps/ui-components && npm run dev",
-    "build": "parcel build --public-url . index.html",
+    "build": "parcel build --no-content-hash --public-url . index.html",
     "deploy": "./deploy/deploy.sh"
   },
   "author": "Daven Quinn",
