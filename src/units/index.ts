@@ -8,7 +8,7 @@ import {
   ColumnLayoutContext,
   GeologicPatternContext
   useUUID
-} from '../column-components'
+} from '@macrostrat/column-components'
 import {IUnit} from './types'
 import {resolveID, scalePattern} from './resolvers'
 import UnitNamesColumn from './names'

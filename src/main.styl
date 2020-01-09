@@ -17,32 +17,37 @@ html, body
   display: flex
   flex-direction row
   .age-axis-label
-    writing-mode sideways-lr
+    writing-mode vertical-lr
+    transform: rotate(180deg)
     font-size 12px
     text-align: center
     position: sticky
     top: 0
     max-height: 100vh
   .tick text
-    writing-mode sideways-lr
     text-anchor middle
-    transform translate(0,-3px)
+    font-weight 400 !important
+    transform rotate(-90deg) translate(8px,-12px)
 
 rect.unit
   stroke: black
   stroke-width: 1px
 
-.lithology-column .frame
+g.lithology-column use.frame
   stroke black
-  stroke-width: 1.5px
+  stroke-width: 1.5px !important
   pointer-events none
 
-.note-label
+.mc-note-label
   font-size: 10px
   margin-top 3px
   padding 2px
   padding-left: 3px
   line-height: 9px
+  border-left none !important
+
+.note-inner
+  border: none
 
 .frame rect
   fill transparent
@@ -62,13 +67,14 @@ div.column-ui
 
 .column-nav
   position sticky
-  top 0px
+  top 2.2em
   h3
     color: #444
     margin-bottom: 0.3em
 
 .default-buttons
   width: 100%
+  margin 0 -10px
 
 div.context-map
   position relative
