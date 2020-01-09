@@ -27,16 +27,23 @@ NotePositioner = forwardRef (props, ref)->
   noteHeight ?= 0
   outerPad = 5
 
+  y = offsetY-noteHeight/2-outerPad
+
+  # HACK: override y position for Safari
+  # (foreign objects don't work too well)
+  if navigator.userAgent.includes("Safari")
+    y += 5
+
   h ForeignObject, {
     width: width-paddingLeft+2*outerPad
     x: paddingLeft-outerPad
-    y: offsetY-noteHeight/2-outerPad
+    y
     height: 200
     style: {overflowY: 'visible'}
   }, [
     h 'div.note-inner', {
       ref,
-      style: {margin: '5px', position: 'relative'}
+      style: {margin: outerPad}
     }, children
   ]
 
