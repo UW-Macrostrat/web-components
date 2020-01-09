@@ -26,23 +26,28 @@ html, body
     max-height: 100vh
   .tick text
     text-anchor middle
+    font-weight 400 !important
     transform rotate(-90deg) translate(8px,-12px)
 
 rect.unit
   stroke: black
   stroke-width: 1px
 
-.lithology-column .frame
+g.lithology-column use.frame
   stroke black
-  stroke-width: 1.5px
+  stroke-width: 1.5px !important
   pointer-events none
 
-.note-label
+.mc-note-label
   font-size: 10px
   margin-top 3px
   padding 2px
   padding-left: 3px
   line-height: 9px
+  border-left none !important
+
+.note-inner
+  border: none
 
 .frame rect
   fill transparent

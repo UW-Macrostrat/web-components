@@ -7,11 +7,10 @@ import {
   ColumnAxis,
   ColumnContext,
   NotesColumn
-} from './column-components'
+} from '@macrostrat/column-components'
 import {CompositeUnitsColumn} from './units'
 import {IUnit} from './units/types'
 import {useContext} from 'react'
-import "./column-components/main.styl"
 
 interface IColumnProps {
   data: IUnit[]

@@ -4,8 +4,8 @@ import {useContext} from 'react'
 import {
   ColumnContext
   NotesColumn
-} from '../column-components'
-import {INote} from '../column-components/notes/index.d.ts'
+} from '@macrostrat/column-components'
+//import {INote} from '@macrostrat/column-components/src/notes/index.d.ts'
 
 interface UnitNamesProps {
   left?: number
@@ -15,7 +15,7 @@ interface UnitNamesProps {
 const NoteComponent = (props)=>{
   const {note} = props
   const text = note.note
-  return h('p.note-label', text)
+  return h('p.mc-note-label', text)
 }
 
 const UnitNamesColumn = (props: UnitNamesProps)=>{

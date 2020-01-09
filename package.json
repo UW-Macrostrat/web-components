@@ -5,10 +5,11 @@
   "main": "index.html",
   "scripts": {
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install'",
-    "dev": "concurrently npm:watch:core npm:watch:map npm:watch:ui",
+    "dev": "concurrently npm:watch:core npm:watch:column npm:watch:map npm:watch:ui",
     "watch:core": "parcel index.html",
     "watch:map": "cd bundledDeps/map-components && npm run watch:main",
     "watch:ui": "cd bundledDeps/ui-components && npm run dev",
+    "watch:column": "cd bundledDeps/column-components && npm run dev",
     "build": "parcel build --no-content-hash --public-url . index.html",
     "deploy": "./deploy/deploy.sh"
   },

@@ -9,7 +9,7 @@ import {
 } from '@macrostrat/ui-components';
 import {
   GeologicPatternProvider
-} from './column-components'
+} from '@macrostrat/column-components'
 import Column, {IUnit} from './column'
 import MapView from './map'
 import patterns from '../geologic-patterns/*.png'
