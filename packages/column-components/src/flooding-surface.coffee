@@ -1,5 +1,5 @@
 #import {query} from "app/sections/db"
-import * as d3 from "d3"
+import {scaleLinear} from 'd3-scale'
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
 #import {Notification} from "app/notify"
@@ -56,7 +56,7 @@ class TriangleBars extends UUIDComponent
 
     zigZagLine = (x0, x1, y, nzigs=5, a=2)->
       #_.moveTo(start...)
-      xs = d3.scaleLinear()
+      xs = scaleLinear()
         .domain([0,nzigs])
         .range([x0,x1])
 

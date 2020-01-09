@@ -1,4 +1,4 @@
-import {scaleLinear, scaleOrdinal} from "d3"
+import {scaleLinear, scaleOrdinal} from "d3-scale"
 import {Component} from "react"
 import {ColumnLayoutContext} from './context'
 import h from "react-hyperscript"

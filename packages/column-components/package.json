@@ -2,22 +2,66 @@
   "name": "@macrostrat/column-components",
   "version": "0.0.1",
   "description": "React rendering primitives for stratigraphic columns",
-  "main": "src/index.coffee",
-  "module": "src/index.coffee",
-  "source": true,
+  "keywords": [
+    "geology",
+    "react",
+    "vector-graphics",
+    "data-visualization"
+  ],
+  "module": "dist/column-components.es5.js",
+  "style": "dist/column-components.css",
+  "typings": "dist/types/column-components.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "watch:main": "rollup -c rollup.config.ts -w",
+    "watch:types": "tsc --emitDeclarationOnly -w",
+    "dev": "npm run watch:main",
+    "start": "npm run dev",
+    "prebuild": "rimraf dist"
   },
-  "author": "Daven Quinn",
-  "license": "ISC",
+  "author": "Daven Quinn <dev@davenquinn.com>",
+  "license": "MIT",
   "devDependencies": {
-    "postcss-modules": "^1.4.1",
     "@babel/core": "^7.7.2",
-    "@babel/preset-react": "^7.7.0"
+    "@babel/preset-react": "^7.7.0",
+    "@babel/preset-typescript": "^7.7.7",
+    "concurrently": "^5.0.2",
+    "postcss-modules": "^1.4.1",
+    "rimraf": "^3.0.0",
+    "rollup": "^1.29.0",
+    "rollup-plugin-babel": "^4.3.3",
+    "rollup-plugin-coffee-script": "^2.0.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "rollup-plugin-postcss": "^2.0.3",
+    "rollup-plugin-sourcemaps": "^0.5.0"
   },
   "dependencies": {
-    "react": "^16.11.0",
+    "@macrostrat/hyper": "^1.1.5",
+    "chroma-js": "^2.1.0",
+    "classnames": "^2.2.6",
+    "d3-format": "^1.4.3",
+    "d3-path": "^1.0.9",
+    "d3-scale": "^3.2.1",
+    "d3-selection": "^1.4.1",
+    "labella": "^1.1.4",
+    "prop-types": "^15.7.2",
+    "react-color": "^2.18.0",
+    "react-hyperscript": "^3.2.0",
+    "react-images": "^1.1.0-beta.1",
+    "react-router-dom": "^5.1.2",
     "react-select": "^3.0.8",
-    "ui-box": "^3.0.2"
+    "ui-box": "^3.0.2",
+    "underscore": "^1.9.2",
+    "uuid": "^3.3.3"
+  },
+  "peerDependencies": {
+    "@blueprintjs/core": "^3.22.3",
+    "@macrostrat/ui-components": "^0.1.3",
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0"
   }
 }

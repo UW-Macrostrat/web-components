@@ -30,13 +30,13 @@ const GeologicPattern = (props: IGeologicPattern)=> {
   const id = `${UUID}-${d}`
 
   return h('pattern', {
-    id
-    key: id
-    patternUnits: "userSpaceOnUse"
+    id,
+    key: id,
+    patternUnits: "userSpaceOnUse",
     ...patternSize
   }, [
     h('image', {
-      xlinkHref: resolvePattern(d)
+      xlinkHref: resolvePattern(d),
       x:0,
       y:0,
       ...patternSize

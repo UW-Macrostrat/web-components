@@ -20,7 +20,7 @@ NoteTextEditor = (props)->
   {note} = props
   h EditableText, {
     multiline: true
-    className: 'note-label note-editing'
+    className: 'mc-note-label note-editing'
     defaultValue: note.note
     isEditing: true
     onConfirm: (newText)=>

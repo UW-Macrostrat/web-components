@@ -20,7 +20,7 @@ import {
 NoteComponent = (props)->
   {visibility, note, onClick} = props
   text = note.note
-  h 'p.note-label', {
+  h 'p.mc-note-label', {
     style: {visibility}
     onClick
   }, text

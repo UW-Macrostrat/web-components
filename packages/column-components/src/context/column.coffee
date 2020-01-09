@@ -1,4 +1,4 @@
-import {scaleLinear, scaleOrdinal} from "d3"
+import {scaleLinear, scaleOrdinal} from "d3-scale"
 import {Component, createContext} from "react"
 import h from "react-hyperscript"
 import T from "prop-types"

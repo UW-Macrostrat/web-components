@@ -1,6 +1,15 @@
 @require "./note-editor.styl"
 
-g.note,g.note-editor
+:global(.mc-note-label)
+  padding-left: 0.3em
+  border-left: 1px solid black
+  //margin-top: -8px
+  //transform: translateY(-50%)
+  font-style: italic
+  margin: 0
+  z-index: 15
+
+g.note, g.note-editor
   circle
     fill: black
   line
@@ -8,17 +17,9 @@ g.note,g.note-editor
     stroke-width: 2
     //marker-start: url('#tick')
     //marker-end: url('#tick')
-  :global(.note-label)
-    padding-left: 0.3em
-    border-left: 1px solid black
-    //margin-top: -8px
-    //transform: translateY(-50%)
-    font-style: italic
-    margin: 0
-    z-index: 15
   //div.note-label
   // transform: translateY(30px)
-  path.link
+  .link
     stroke: #000
     stroke-width: 1
     fill: none
