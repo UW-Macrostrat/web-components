@@ -8,7 +8,7 @@ import T from 'prop-types'
 import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from '../frame'
 import {FaciesContext, ColumnContext, ColumnLayoutContext,
         AssetPathContext, ColumnLayoutProvider} from "../context"
-import {GeologicPattern, GeologicPatternProvider} from './patterns'
+import {GeologicPattern, GeologicPatternProvider} from './patterns.ts'
 import {createGrainsizeScale} from "../grainsize"
 
 # Malformed es6 module

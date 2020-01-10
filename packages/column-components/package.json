@@ -8,16 +8,17 @@
     "vector-graphics",
     "data-visualization"
   ],
-  "module": "dist/column-components.es5.js",
+  "module": "dist/esm",
   "style": "dist/column-components.css",
   "typings": "dist/types/column-components.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
+    "compile:coffee": "coffee -c -m -o dist/esm src",
     "watch:main": "rollup -c rollup.config.ts -w",
     "watch:types": "tsc --emitDeclarationOnly -w",
-    "dev": "npm run watch:main",
+    "dev": "npm run prebuild && npm run watch:main",
     "start": "npm run dev",
     "prebuild": "rimraf dist"
   },
@@ -27,6 +28,7 @@
     "@babel/core": "^7.7.2",
     "@babel/preset-react": "^7.7.0",
     "@babel/preset-typescript": "^7.7.7",
+    "@betit/rollup-plugin-rename-extensions": "^0.1.0",
     "concurrently": "^5.0.2",
     "postcss-modules": "^1.4.1",
     "rimraf": "^3.0.0",
@@ -35,14 +37,17 @@
     "rollup-plugin-coffee-script": "^2.0.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-json": "^4.0.0",
+    "rollup-plugin-multi-entry": "^2.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-postcss": "^2.0.3",
-    "rollup-plugin-sourcemaps": "^0.5.0"
+    "rollup-plugin-sourcemaps": "^0.5.0",
+    "style-inject": "^0.3.0"
   },
   "dependencies": {
     "@macrostrat/hyper": "^1.1.5",
     "chroma-js": "^2.1.0",
     "classnames": "^2.2.6",
+    "d3": "^5.15.0",
     "d3-format": "^1.4.3",
     "d3-path": "^1.0.9",
     "d3-scale": "^3.2.1",
@@ -50,6 +55,7 @@
     "labella": "^1.1.4",
     "prop-types": "^15.7.2",
     "react-color": "^2.18.0",
+    "react-draggable": "^4.2.0",
     "react-hyperscript": "^3.2.0",
     "react-images": "^1.1.0-beta.1",
     "react-router-dom": "^5.1.2",

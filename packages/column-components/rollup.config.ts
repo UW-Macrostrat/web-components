@@ -6,21 +6,28 @@ import coffee from 'rollup-plugin-coffee-script'
 import json from 'rollup-plugin-json'
 import babel from 'rollup-plugin-babel'
 import postcss from 'rollup-plugin-postcss'
+import path from 'path'
 
 const pkg = require('./package.json')
 
-const libraryName = 'map-components'
 const extensions = ['.js','.coffee', '.ts']
 const deps = {...pkg.dependencies, ...pkg.peerDependencies};
+const moduleDir = path.resolve(__dirname, pkg.module);
 
 export default {
-  input: `src/index.coffee`,
+  input: 'src',
+  preserveModules: true,
   output: [
     //{ file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-    { file: pkg.module, format: 'es', sourcemap: true },
+    { dir: moduleDir, format: 'esm', sourcemap: true, entryFileNames: '[name].js' },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: Object.keys(deps),
+  external: [
+    ...Object.keys(deps),
+    'immutability-helper',
+    'react-scroll',
+    'd3-axis'
+  ],
   watch: {
     include: 'src/**',
   },
@@ -32,7 +39,8 @@ export default {
     // Bundle stylesheets
     postcss({
       // postfix with .module.css etc. for css modules
-      modules: true
+      modules: true,
+      extract: "dist/column-components.css"
     }),
     // Allow node_modules resolution, so you can use 'external' to control
     // which external modules to include in the bundle
