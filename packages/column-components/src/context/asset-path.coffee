@@ -1,31 +1,26 @@
-import {Component, createContext} from "react"
+import {createContext} from "react"
 import h from "react-hyperscript"
 import {join} from "path"
 import T from 'prop-types'
 import {GeologicPatternProvider} from '../lithology/patterns'
 
-AssetPathContext = createContext {}
+AssetPathContext = createContext()
 
-class AssetPathProvider extends Component
-  @propTypes: {
-    baseURL: T.string.isRequired
-  }
-  render: ->
-    {resolveSymbol, resolveLithologySymbol} = @
-    value = {resolveSymbol, resolveLithologySymbol}
-    h GeologicPatternProvider, {resolvePattern: resolveLithologySymbol}, (
-      h AssetPathContext.Provider, {value}, @props.children
-    )
+AssetPathProvider = (props)->
+  {children, baseURL} = props
 
-  resolveSymbol: (sym)=>
-    return join BASE_URL, 'assets', sym
+  resolveSymbol = (sym)->
+    return null unless sym?
+    console.log arguments
+    return join baseURL, 'assets', sym
 
-  resolveLithologySymbol: (id, opts={})=>
-    {baseURL} = @props
-    {svg} = opts
-    svg ?= false
-    return null if not id?
-    return join(baseURL,'assets','lithology-patterns', "#{id}.png")
+  h AssetPathContext.Provider, {
+    value: {resolveSymbol}
+  }, children
+
+AssetPathProvider.propTypes = {
+  baseURL: T.string.isRequired
+}
 
 export {
   AssetPathContext,
