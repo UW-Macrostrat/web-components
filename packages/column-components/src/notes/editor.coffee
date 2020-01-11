@@ -17,18 +17,18 @@ import Box from 'ui-box'
 NoteEditorContext = createContext({inEditMode: false})
 
 NoteTextEditor = (props)->
+  {updateModel} = useModelEditor()
   {note} = props
   h EditableText, {
     multiline: true
     className: 'mc-note-label note-editing'
     defaultValue: note.note
     isEditing: true
-    onConfirm: (newText)=>
-      props.editHandler(newText)
+    onConfirm: (newText)->
+      updateModel({note: {$set: newText}})
   }
 
 NoteTextEditor.propTypes = {
-  editHandler: T.func.isRequired
   note: NoteShape.isRequired
 }
 
@@ -64,6 +64,7 @@ NoteEditorProvider = (props)->
   onConfirmChanges = (n)->
     return unless n?
     return unless n.note?
+    return if n == editingNote
     props.onUpdateNote(n)
 
   ## Model editor provider gives us a nice store
