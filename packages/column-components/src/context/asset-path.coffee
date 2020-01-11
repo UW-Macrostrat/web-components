@@ -7,19 +7,14 @@ import {GeologicPatternProvider} from '../lithology/patterns'
 AssetPathContext = createContext()
 
 AssetPathProvider = (props)->
-  {children, baseURL} = props
-
-  resolveSymbol = (sym)->
-    return null unless sym?
-    console.log arguments
-    return join baseURL, 'assets', sym
+  {children, resolveSymbol} = props
 
   h AssetPathContext.Provider, {
     value: {resolveSymbol}
   }, children
 
 AssetPathProvider.propTypes = {
-  baseURL: T.string.isRequired
+  resolveSymbol: T.func.isRequired
 }
 
 export {
