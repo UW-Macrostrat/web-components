@@ -3,15 +3,16 @@ import hyper from "@macrostrat/hyper"
 import Select from 'react-select'
 
 import {symbolIndex} from "../lithology"
-import {AssetPathContext, LithologyContext} from "../context"
+import {GeologicPatternContext} from '../lithology'
+import {LithologyContext} from "../context"
 
 import styles from './main.styl'
 
 h = hyper.styled(styles)
 
 LithologySwatch = ({symbolID, style, rest...})->
-  {resolveLithologySymbol} = useContext(AssetPathContext)
-  src = resolveLithologySymbol(symbolID)
+  {resolvePattern} = useContext(GeologicPatternContext)
+  src = resolvePattern(symbolID)
   style ?= {}
   style.backgroundImage = "url(\"#{src}\")"
   h 'div.lithology-swatch', {style, rest...}

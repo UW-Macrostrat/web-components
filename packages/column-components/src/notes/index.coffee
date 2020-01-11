@@ -152,4 +152,10 @@ NotesColumn = (props)->
 
 NotesColumn.defaultProps = {editable: true}
 
-export {NotesColumn, NoteComponent, NoteTextEditor}
+export {
+  NotesColumn,
+  NoteComponent,
+  NoteTextEditor,
+  NoteEditor,
+  NoteEditorContext
+}
