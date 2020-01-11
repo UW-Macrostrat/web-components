@@ -38,7 +38,7 @@ NotePositioner = forwardRef (props, ref)->
     width: width-paddingLeft+2*outerPad
     x: paddingLeft-outerPad
     y
-    height: 200
+    height: noteHeight+2*outerPad
     style: {overflowY: 'visible'}
   }, [
     h 'div.note-inner', {
