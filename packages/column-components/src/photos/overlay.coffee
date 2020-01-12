@@ -1,7 +1,7 @@
 import {Component, useState, useContext} from "react"
 import h from "@macrostrat/hyper"
-import Carousel, {ModalGateway, Modal} from 'react-images'
-import {PhotoLibraryContext} from './context'
+#import Carousel, {ModalGateway, Modal} from 'react-images'
+#import {PhotoLibraryContext} from './context'
 
 PhotoGallery = (props)->
   {images, isOpen, onClose, rest...} = props
@@ -23,6 +23,8 @@ PhotoGallery = (props)->
   ]
 
 PhotoOverlay = (props)->
+  # TODO: figure out web error "Cannot find module `fscreen`"
+  return null
   {photos, computePhotoPath} = useContext(PhotoLibraryContext)
   return null if not photos?
   {photoIDs, rest...} = props
