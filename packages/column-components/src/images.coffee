@@ -1,6 +1,6 @@
-import h from '../hyper'
 import {Component} from 'react'
-import {ColumnContext} from '../context'
+import h from './hyper'
+import {ColumnContext} from './context'
 
 class ColumnImage extends Component
   @contextType: ColumnContext
@@ -11,5 +11,4 @@ class ColumnImage extends Component
       h 'img', {src, style: {height: pixelHeight}}
     ]
 
-export * from './images'
 export {ColumnImage}

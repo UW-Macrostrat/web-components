@@ -53,6 +53,7 @@
     "d3-path": "^1.0.9",
     "d3-scale": "^3.2.1",
     "d3-selection": "^1.4.1",
+    "fscreen": "^1.0.2",
     "labella": "^1.1.4",
     "prop-types": "^15.7.2",
     "react-color": "^2.18.0",

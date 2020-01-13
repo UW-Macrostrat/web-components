@@ -9,12 +9,12 @@ import {UUIDComponent} from './frame'
 import T from 'prop-types'
 
 symbolIndex = {
-  "Hummocky cross-stratified": "column-patterns/hcs.svg"
-  "Trough cross-stratified": "column-patterns/tcs.svg"
-  "Dessication cracks": "column-patterns/dessication-cracks.svg"
-  "Ooids": "column-patterns/ooids.svg"
-  "Domal stromatolites": "column-patterns/domal-stromatolites.svg"
-  "Digitate stromatolites": "column-patterns/digitate-stromatolites.svg"
+  "Hummocky cross-stratified": "hcs.svg"
+  "Trough cross-stratified": "tcs.svg"
+  "Dessication cracks": "dessication-cracks.svg"
+  "Ooids": "ooids.svg"
+  "Domal stromatolites": "domal-stromatolites.svg"
+  "Digitate stromatolites": "digitate-stromatolites.svg"
 }
 
 Symbol = (props)->
