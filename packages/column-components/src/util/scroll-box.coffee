@@ -67,7 +67,6 @@ class ColumnScroller extends Component
 
   componentDidMount: ->
     {scrollToHeight, alignment} = @props
-    console.log scrollToHeight
     return unless scrollToHeight?
     @scrollTo(scrollToHeight, {alignment, animated: false})
     @props.onScrolled(scrollToHeight)
