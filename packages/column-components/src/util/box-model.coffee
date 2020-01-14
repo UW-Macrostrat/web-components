@@ -1,4 +1,16 @@
-extractMargin = (obj)->
+keys = (main)->
+  allKeys = ["","V","H","Left","Right","Top","Bottom"]
+  allKeys.map (d)->main+d
+
+keyRemover = (type)->(obj)->
+  for key in keys(type)
+    delete obj[key]
+  return obj
+
+removeMargin = keyRemover("margin")
+removePadding = keyRemover("padding")
+
+extractMargin = (obj, remove=false)->
   ###
   I'm really annoyed I can't find a third-party implementation
   of this that covers edge cases...
@@ -14,9 +26,12 @@ extractMargin = (obj)->
   marginRight ?= marginH
   marginTop ?= marginV
   marginBottom ?= marginV
-  {marginLeft, marginRight, marginTop, marginBottom}
 
-extractPadding = (obj)->
+  if remove then removeMargin(obj)
+
+  return {marginLeft, marginRight, marginTop, marginBottom}
+
+extractPadding = (obj, remove=false)->
   ###
   I'm really annoyed I can't find a third-party implementation
   of this that covers edge cases...
@@ -32,6 +47,9 @@ extractPadding = (obj)->
   paddingRight ?= paddingH
   paddingTop ?= paddingV
   paddingBottom ?= paddingV
+
+  if remove then removePadding(obj)
+
   {paddingLeft, paddingRight, paddingTop, paddingBottom}
 
 expandMargin = (obj)->
@@ -63,4 +81,6 @@ export {
   expandMargin,
   expandPadding,
   expandInnerSize
+  removeMargin,
+  removePadding
 }

@@ -1,6 +1,6 @@
 import h from 'react-hyperscript'
 import {createElement, useContext, forwardRef, createRef} from 'react'
-import {expandInnerSize} from './box-model'
+import {expandInnerSize, extractPadding, removePadding, extractMargin, removeMargin} from './box-model'
 import {ColumnContext} from '../context'
 import Box from 'ui-box'
 import classNames from 'classnames'
@@ -11,15 +11,25 @@ SVGNamespaces = {
 }
 
 SVG = forwardRef (props, ref)->
-  {innerRef, rest...} = props
+  {innerRef, children, style, rest...} = expandInnerSize(props)
   if innerRef?
     ref = innerRef
 
+  # Sizing
+  {paddingLeft, paddingTop} = extractPadding(props)
+  margin = extractMargin(props)
+  realRest = removeMargin(removePadding(rest))
+
   h 'svg', {
     ref
-    rest...
+    style: {style..., margin...}
+    realRest...
     SVGNamespaces...
-  }
+  }, (
+    h 'g', {
+      transform: "translate(#{paddingLeft},#{paddingTop})"
+    }, children
+  )
 
 ForeignObject = (props)->
   createElement 'foreignObject', props
