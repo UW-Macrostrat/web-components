@@ -13,14 +13,13 @@ const pkg = require('./package.json')
 
 const extensions = ['.js','.coffee', '.ts']
 const deps = {...pkg.dependencies, ...pkg.peerDependencies};
-const moduleDir = "dist/esm";
 
 export default {
   input: 'src',
   preserveModules: true,
   output: [
-    //{ file: pkg.main, name: camelCase(libraryName), format: 'umd', sourcemap: true },
-    { dir: moduleDir, format: 'esm', sourcemap: true, entryFileNames: '[name].js' },
+    { dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
+    { dir: pkg.module, format: 'esm', sourcemap: true, entryFileNames: '[name].js' },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: [

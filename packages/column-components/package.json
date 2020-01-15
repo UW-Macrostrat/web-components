@@ -8,7 +8,8 @@
     "vector-graphics",
     "data-visualization"
   ],
-  "module": "dist/esm/index.js",
+  "main": "dist/cjs",
+  "module": "dist/esm",
   "style": "dist/column-components.css",
   "typings": "dist/types/column-components.d.ts",
   "files": [
