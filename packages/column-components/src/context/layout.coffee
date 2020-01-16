@@ -9,6 +9,7 @@ import {ColumnContext} from './column'
 ColumnLayoutContext = createContext {
   scale: null,
   width: 0
+  divisions: []
 }
 
 class ColumnLayoutProvider extends Component
