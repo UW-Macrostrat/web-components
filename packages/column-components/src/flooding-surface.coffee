@@ -32,8 +32,8 @@ class FloodingSurface extends Component
         transform,
         onClick
         key: d.id,
-        strokeWidth: 6-Math.abs(d.flooding_surface_order)
-        stroke: if d.flooding_surface_order >= 0 then '#444' else '#fcc'
+        strokeWidth: (6-Math.abs(d.flooding_surface_order))*.75
+        stroke: if d.flooding_surface_order >= 0 then '#ccc' else '#fcc'
         x1: 0
         x2: lineWidth
       }
