@@ -86,14 +86,7 @@ class ColumnRect extends Component
     key ?= d.id
     h "rect", {x,y, width, height, key, rest...}
 
-ParameterIntervals = (props)->
-  {divisions, width} = useContext(ColumnLayoutContext)
-  {
-    padWidth,
-    parameter: key,
-    fillForInterval,
-    minimumHeight
-  } = props
+expandDivisionsByKey = (divisions, key)->
   __ = [{divisions[0]...}]
   for d in divisions
     ix = __.length-1
@@ -102,8 +95,20 @@ ParameterIntervals = (props)->
       __[ix].top = d.top
     else
       __.push {d...}
+  return __
   return null if __.length == 1
-  h 'g', {className: key}, __.map (div)->
+
+ParameterIntervals = (props)->
+  {divisions, width} = useContext(ColumnLayoutContext)
+  {
+    padWidth,
+    parameter: key,
+    fillForInterval,
+    minimumHeight
+  } = props
+  newDivisions = expandDivisionsByKey(divisions, key)
+  return null if newDivisions.length == 1
+  h 'g', {className: key}, newDivisions.map (div)->
     h ColumnRect, {
       className: classNames(key, div.id)
       division: div,
@@ -296,4 +301,5 @@ export {ParameterIntervals,
         SimpleFrame,
         GrainsizeFrame,
         ColumnRect,
+        expandDivisionsByKey,
         symbolIndex}

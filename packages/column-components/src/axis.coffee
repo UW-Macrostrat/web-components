@@ -7,6 +7,17 @@ import {ColumnContext} from './context'
 
 class ColumnAxis extends Component
   @contextType: ColumnContext
+  # https://github.com/d3/d3-axis
+  @__d3axisKeys: [
+    'ticks',
+    'tickArguments'
+    'tickValues',
+    'tickFormat'
+    'tickSize'
+    'tickSizeInner'
+    'tickSizeOuter'
+    'tickPadding'
+  ]
   @defaultProps: {
     ticks: 4
     showLabel: -> true
@@ -19,11 +30,9 @@ class ColumnAxis extends Component
     {showLabel} = @props
     @yAxis.scale scale
 
-    if @props.ticks?
-      @yAxis.ticks @props.ticks
-
-    if @props.tickValues?
-      @yAxis.tickValues @props.tickValues
+    for k in @constructor.__d3axisKeys
+      continue unless @props[k]?
+      @yAxis[k](@props[k])
 
     ax = select findDOMNode(@)
       .call @yAxis
