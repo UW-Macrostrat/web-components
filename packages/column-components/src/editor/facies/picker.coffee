@@ -1,8 +1,9 @@
 import {Component} from 'react'
 import {hyperStyled} from '@macrostrat/hyper'
-import {FaciesContext, BasicFaciesSwatch} from '../../facies'
+import {FaciesContext} from '../../context'
+import {BasicFaciesSwatch} from './color-picker'
 import Select from 'react-select'
-import styles from './main.styl'
+import styles from '../main.styl'
 
 h = hyperStyled(styles)
 

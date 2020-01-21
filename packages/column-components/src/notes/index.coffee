@@ -1,134 +1,161 @@
-import {findDOMNode} from "react-dom"
-import * as d3 from "d3"
-import "d3-selection-multi"
-import {Component, createElement} from "react"
-import h from "react-hyperscript"
-import {db, storedProcedure, query} from "../../db"
-import {Node, Renderer, Force} from "labella"
-import {calculateSize} from "calculate-size"
-import FlexibleNode from "./flexible-node"
+import {Component, useContext} from "react"
+import h from "../hyper"
 import T from "prop-types"
-import {EditableText} from "@blueprintjs/core"
-import {PhotoOverlay} from "./photo-overlay"
-import {ColumnContext} from '../context'
-import {Note} from './note'
+import {NotesList} from './note'
 import NoteDefs from './defs'
+import {NoteShape} from './types'
+import {useModelEditor} from '../context'
+import {NoteLayoutProvider, NoteUnderlay} from './layout'
+import {
+  NoteEditor,
+  NoteTextEditor,
+  NoteEditorContext,
+  NoteEditorProvider
+} from './editor'
+import {
+  NewNotePositioner
+} from './new'
 
-processNotesData = (opts)->(data)->
-  index = []
-  nodes = []
 
-  for note in data
-    offsX = 0
-    for column in [0..index.length+1]
-      sh = parseFloat(note.start_height)
-      index[column] ?= sh
-      if index[column] < sh
-        if note.has_span
-          hy = parseFloat(note.end_height)
-        else
-          hy = sh
-        index[column] = hy
-        offsX = column
-        break
-    note.offsetX = offsX
+NoteComponent = (props)->
+  {visibility, note, onClick} = props
+  text = note.note
+  h 'p.mc-note-label', {
+    style: {visibility}
+    onClick
+  }, text
 
-    txt = note.note or ''
-    estimatedTextHeight = ((txt.length//(opts.width/3.8))+1)*16+5
-    note.estimatedTextHeight = estimatedTextHeight
+NoteComponent.propTypes = {
+  onClick: T.func
+  note: NoteShape.isRequired
+}
 
-  nodes = data.map (note)=>
-    height = opts.scale note.start_height
-    if note.has_span
-      end_height = opts.scale note.end_height
-      harr = [height-4,end_height+4]
-      if harr[0]-harr[1] > 5
-        return new FlexibleNode harr, note.estimatedTextHeight
-    return new Node height, note.estimatedTextHeight
+CancelEditUnderlay = ->
+  {setEditingNote} = useContext(NoteEditorContext)
+  {confirmChanges} = useModelEditor()
+  h NoteUnderlay, {
+    onClick: ->
+      setEditingNote(null)
+  }
 
-  force = new Force
-    minPos: 0,
-    maxPos: opts.height
-
-  force.nodes(nodes).compute()
-
-  newNodes = force.nodes()
-
-  data.forEach (d,i)->
-    d.node = newNodes[i]
-
-  data.reverse()
-
-class NotesColumn extends Component
-  @contextType: ColumnContext
+class EditableNotesColumn extends Component
   @defaultProps: {
-    width: 100
     type: 'log-notes'
-    columnGap: 60
+    paddingLeft: 60
     inEditMode: false
+    noteComponent: NoteComponent
+    noteEditor: NoteTextEditor
+    allowPositionEditing: false
+    allowCreation: false
   }
   @propTypes: {
-    id: T.string.isRequired
+    notes: T.arrayOf(NoteShape).isRequired
+    width: T.number.isRequired
+    paddingLeft: T.number
+    onUpdateNote: T.func
+    onCreateNote: T.func
+    onDeleteNote: T.func
+    editingNote: NoteShape
+    onEditNote: T.func
+    inEditMode: T.bool
+    noteComponent: T.elementType
+    noteEditor: T.elementType
+    allowPositionEditing: T.bool
+    forceOptions: T.options
   }
-  constructor: (props)->
-    # We define our own scale because we only
-    # want to compute the force layout once regardless of zooming
-
-    super props
-    @state = {notes: []}
-
-  componentDidMount: =>
-    @updateNotes()
-
-  updateNotes: =>
-    {type, id, width} = @props
-    {scale, zoom, pixelHeight: height} = @context
-
-    data = await query type, [id]
-    processor = processNotesData({scale, height, width})
-    notes = processor(data)
-
-    @setState {notes}
-
   render: ->
-    {scale, zoom, pixelHeight: height} = @context
-    {width, columnGap, transform} = @props
-    {notes} = @state
+    {width,
+     paddingLeft,
+     transform,
+     notes,
+     inEditMode
+     onUpdateNote
+     onDeleteNote
+     onCreateNote
+     noteComponent
+     noteEditor
+     allowPositionEditing
+     forceOptions
+    } = @props
 
-    renderer = new Renderer {
-      direction: 'right'
-      layerGap: columnGap
-      nodeHeight: 5
-    }
+    editHandler = onUpdateNote
+    if not inEditMode
+      editHandler = null
 
-    width += 80
+    innerWidth = width-paddingLeft
 
-    h 'g.section-log', {transform}, [
-      h NoteDefs
-      h 'g', notes.map (d)=>
-        h Note, {
-          scale, d, width,
-          editHandler: @handleNoteEdit
-          link: renderer.generatePath(d.node),
-          key: d.id,
-          columnGap
-          inEditMode: @props.inEditMode
-        }
-
+    h NoteLayoutProvider, {
+      notes
+      width: innerWidth
+      paddingLeft
+      noteComponent
+      forceOptions
+    }, [
+      h NoteEditorProvider, {
+        inEditMode
+        noteEditor
+        onCreateNote
+        onUpdateNote
+        onDeleteNote
+      }, [
+        h 'g.section-log', {transform}, [
+          h NoteDefs
+          h CancelEditUnderlay
+          h NotesList, {
+            editHandler
+            inEditMode
+          }
+          h NewNotePositioner
+          h NoteEditor, {allowPositionEditing}
+        ]
+      ]
     ]
 
-  handleNoteEdit: (noteID, newText)=>
-    # We can't edit on the frontend
-    return unless PLATFORM == ELECTRON
-    {dirname} = require 'path'
-    baseDir = dirname require.resolve '../..'
-    if newText.length == 0
-      sql = storedProcedure('set-note-invisible', {baseDir})
-      await db.none sql, [noteID]
-    else
-      sql = storedProcedure('update-note', {baseDir})
-      await db.none sql, [noteID, newText]
-    @updateNotes()
-    console.log "Note #{noteID} edited"
+StaticNotesColumn = (props)->
+  {width,
+   paddingLeft,
+   transform,
+   notes,
+   noteComponent
+  } = props
 
-export {NotesColumn}
+  innerWidth = width-paddingLeft
+
+  h NoteLayoutProvider, {
+    notes
+    width: innerWidth
+    paddingLeft
+    noteComponent
+  }, [
+    h 'g.section-log', {transform}, [
+      h NoteDefs
+      h NotesList, {inEditMode: false}
+    ]
+  ]
+
+StaticNotesColumn.defaultProps = {
+  paddingLeft: 60
+  noteComponent: NoteComponent
+}
+
+StaticNotesColumn.propTypes = {
+  notes: T.arrayOf(NoteShape).isRequired
+  width: T.number.isRequired
+  paddingLeft: T.number
+  noteComponent: T.elementType
+}
+
+NotesColumn = (props)->
+  {editable, rest...} = props
+  c = if editable then EditableNotesColumn else StaticNotesColumn
+  h c, rest
+
+NotesColumn.defaultProps = {editable: true}
+
+export {
+  NotesColumn,
+  NoteComponent,
+  NoteTextEditor,
+  NoteEditor,
+  NoteEditorContext
+}

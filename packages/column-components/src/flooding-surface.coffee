@@ -1,8 +1,8 @@
-import {query} from "../db"
-import * as d3 from "d3"
+#import {query} from "app/sections/db"
+import {scaleLinear} from 'd3-scale'
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import {Notification} from "../../notify"
+#import {Notification} from "app/notify"
 import {path} from "d3-path"
 import {ColumnContext} from "./context"
 import {UUIDComponent} from './frame'
@@ -32,8 +32,8 @@ class FloodingSurface extends Component
         transform,
         onClick
         key: d.id,
-        strokeWidth: 6-Math.abs(d.flooding_surface_order)
-        stroke: if d.flooding_surface_order >= 0 then '#444' else '#fcc'
+        strokeWidth: (6-Math.abs(d.flooding_surface_order))*.75
+        stroke: if d.flooding_surface_order >= 0 then '#ccc' else '#fcc'
         x1: 0
         x2: lineWidth
       }
@@ -56,7 +56,7 @@ class TriangleBars extends UUIDComponent
 
     zigZagLine = (x0, x1, y, nzigs=5, a=2)->
       #_.moveTo(start...)
-      xs = d3.scaleLinear()
+      xs = scaleLinear()
         .domain([0,nzigs])
         .range([x0,x1])
 

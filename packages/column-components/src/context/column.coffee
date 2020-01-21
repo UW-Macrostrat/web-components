@@ -1,4 +1,4 @@
-import {scaleLinear, scaleOrdinal} from "d3"
+import {scaleLinear, scaleOrdinal} from "d3-scale"
 import {Component, createContext} from "react"
 import h from "react-hyperscript"
 import T from "prop-types"
@@ -13,6 +13,11 @@ rangeOrHeight = (props, propName)->
   return new Error "Provide either 'range' or 'height' props"
 
 class ColumnProvider extends Component
+  ###
+  Lays out a column on its Y (height) axis.
+  This component would be swapped to provide eventual generalization to a Wheeler-diagram
+  (time-domain) framework.
+  ###
   @propTypes: {
     divisions: T.arrayOf(T.object)
     range: rangeOrHeight
@@ -22,28 +27,10 @@ class ColumnProvider extends Component
   }
   @defaultProps: {
     divisions: []
-    grainSizes: ['ms','s','vf','f','m','c','vc','p']
+    width: 150
     pixelsPerMeter: 20
     zoom: 1
   }
-  grainsizeScale: (pixelRange)=>
-    {grainSizes} = @props
-    scale = scaleLinear()
-      .domain [0,grainSizes.length-1]
-      .range pixelRange
-    scaleOrdinal()
-      .domain grainSizes
-      .range grainSizes.map (d,i)=>scale(i)
-
-  grainsizeForDivision: (division)=>
-    {divisions} = @props
-    ix = divisions.indexOf(division)
-    # Search backwards through divisions
-    while ix > 0
-      {grainsize} = divisions[ix]
-      console.log divisions[ix]
-      return grainsize if grainsize?
-      ix -= 1
 
   render: ->
     {children
@@ -56,7 +43,7 @@ class ColumnProvider extends Component
     ## Calculate correct range and height
     # Range overrides height if set
     if range?
-      height = range[1]-range[0]
+      height = Math.abs(range[1]-range[0])
     else
       range = [0, height]
 
@@ -64,16 +51,16 @@ class ColumnProvider extends Component
     pixelHeight = height*pixelsPerMeter*zoom
 
     scale = scaleLinear().domain(range).range([pixelHeight, 0])
+    scaleClamped = scale.copy().clamp(true)
 
-    methods = do => {grainsizeScale, grainsizeForDivision} = @
     value = {
-      methods...
       pixelsPerMeter
       pixelHeight
       zoom
       range
       height
       scale
+      scaleClamped
       rest...
     }
     h ColumnContext.Provider, {value}, children

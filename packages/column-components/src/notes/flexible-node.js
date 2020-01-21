@@ -140,4 +140,4 @@ class FlexibleNode{
   }
 }
 
-module.exports = FlexibleNode;
+export default FlexibleNode;

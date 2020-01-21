@@ -1,117 +1,144 @@
 import {findDOMNode} from "react-dom"
-import * as d3 from "d3"
-import "d3-selection-multi"
-import {Component, createElement} from "react"
-import h from "react-hyperscript"
-import {db, storedProcedure, query} from "../../db"
-import {Node, Renderer, Force} from "labella"
-import {calculateSize} from "calculate-size"
-import FlexibleNode from "./flexible-node"
+import {Component, createElement, useContext, createRef, forwardRef} from "react"
+import h from "../hyper"
 import T from "prop-types"
-import {EditableText} from "@blueprintjs/core"
-import {PhotoOverlay} from "./photo-overlay"
-import {ColumnContext} from '../context'
+import {NoteLayoutContext} from './layout'
+import {NoteEditorContext} from './editor'
+import {HeightRangeAnnotation} from './height-range'
+import {hasSpan} from './utils'
+import {ForeignObject} from '../util'
+import {NoteShape} from './types'
 
-class NoteSpan extends Component
-  render: ->
-    {height, transform} = @props
-    if height > 5
-      el = h 'line', {
-       x1: 0, x2: 0, y1: 2.5,
-       y2: height-2.5
-      }
-    else
-      el = h 'circle', {r: 2}
+NoteBody = (props)->
+  {note} = props
+  {setEditingNote, editingNote} = useContext(NoteEditorContext)
+  {noteComponent} = useContext(NoteLayoutContext)
+  isEditing = editingNote == note
 
-    h 'g', transform: transform, el
+  onClick = ->
+    setEditingNote(note)
+
+  visibility = if isEditing then 'hidden' else 'inherit'
+  h noteComponent, {visibility, note, onClick}
+
+NotePositioner = forwardRef (props, ref)->
+  {offsetY, noteHeight, children} = props
+  {width, paddingLeft} = useContext(NoteLayoutContext)
+  noteHeight ?= 0
+  outerPad = 5
+
+  y = offsetY-noteHeight/2-outerPad
+
+  # HACK: override y position for Safari
+  # (foreign objects don't work too well)
+  if navigator.userAgent.includes("Safari")
+    y += 5
+
+  h ForeignObject, {
+    width: width-paddingLeft+2*outerPad
+    x: paddingLeft-outerPad
+    y
+    height: noteHeight+2*outerPad
+    style: {overflowY: 'visible'}
+  }, [
+    h 'div.note-inner', {
+      ref,
+      style: {margin: outerPad}
+    }, children
+  ]
+
+findIndex = (note)->
+  {notes} = useContext(NoteLayoutContext)
+  notes.indexOf(note)
+
+NoteConnector = (props)->
+  {note, node, index} = props
+  # Try to avoid scanning for index if we can
+  index ?= findIndex(note)
+  {nodes, columnIndex, generatePath} = useContext(NoteLayoutContext)
+  {height, top_height} = note
+
+  node ?= nodes[note.id]
+  offsetX = (columnIndex[index] or 0)*5
+
+  h [
+    h HeightRangeAnnotation, {
+      offsetX
+      height,
+      top_height
+    }
+    h 'path.link', {
+      d: generatePath(node, offsetX)
+      transform: "translate(#{offsetX})"
+    }
+  ]
+
+NoteMain = forwardRef (props, ref)->
+  {note, offsetY, noteHeight} = props
+  {editingNote} = useContext(NoteEditorContext)
+  return null if editingNote == note
+  h "g.note", [
+    h NoteConnector, {note}
+    h NotePositioner, {
+      offsetY
+      noteHeight
+      ref
+    }, [
+      h NoteBody, {note}
+    ]
+  ]
 
 class Note extends Component
   @propTypes: {
-    inEditMode: T.bool
+    editable: T.bool
+    note: NoteShape.isRequired
+    editHandler: T.func
   }
-
+  @contextType: NoteLayoutContext
   constructor: (props)->
     super props
-    @state = {overlayIsEnabled: false}
+    @element = createRef()
+    @state = {height: null}
 
   render: ->
-    {scale, style, d} = @props
-    extraClasses = ''
+    {style, note, editHandler, editable} = @props
+    {scale, nodes, columnIndex, width, paddingLeft} = @context
 
-    if d.has_span
-      height = scale(0)-scale(d.span)
-    else
-      height = 0
+    node = nodes[note.id]
+    offsetY = scale(note.height)
+    if node?
+      offsetY = node.currentPos
 
-    halfHeight = height/2
+    noteHeight = (@state.height or 0)
 
-    pos = d.node.centerPos or d.node.idealPos
-
-    offsY = d.node.currentPos
-    offsX = d.offsetX or 0
-
-    x = (offsX+1)*5
-    h "g.note#{extraClasses}", {
-      onMouseOver: @positioningInfo
-    }, [
-      h NoteSpan, {
-        transform: "translate(#{x} #{pos-halfHeight})"
-        height
-      }
-      h 'path.link', {
-        d: @props.link
-        transform: "translate(#{x})"
-      }
-      createElement 'foreignObject', {
-        width: @props.width-@props.columnGap-offsX-10
-        x: @props.columnGap+x
-        y: offsY-d.estimatedTextHeight/2
-        height: d.estimatedTextHeight
-      }, @createBody()
-    ]
-
-  renderEditor: =>
-    h EditableText, {
-      multiline: true
-      className: 'note-label'
-      defaultValue: @props.d.note
-      onConfirm: (text)=>
-        @props.editHandler(@props.d.id, text)
+    h NoteMain, {
+      offsetY
+      note
+      noteHeight
+      ref: @element
     }
 
-  renderPhotoOverlay: =>
-    {photos} = @props.d
-    return null unless photos?
-    tx = "#{photos.length} photo"
-    if photos.length > 1
-      tx += 's'
+  updateHeight: (prevProps)=>
+    node = @element.current
+    return unless node?
+    height = node.offsetHeight
+    return unless height?
+    return if prevProps? and prevProps.note == @props.note
+    console.log "Updating note height"
+    @setState {height}
+    @context.registerHeight(@props.note.id, height)
 
-    h [
-      h 'a.photos-link', {onClick: @toggleOverlay}, tx
-      h PhotoOverlay, {
-        isOpen: @state.overlayIsEnabled
-        onClose: @toggleOverlay
-        photoIDs: photos
-      }
-    ]
+  componentDidMount: =>
+    @updateHeight.apply(@,arguments)
 
-  createBody: =>
-    return @renderEditor() if @props.inEditMode
+  componentDidUpdate: =>
+    @updateHeight.apply(@,arguments)
 
-    h 'div', [
-      h 'p.note-label', {
-        xmlns: "http://www.w3.org/1999/xhtml"
-      }, [
-        h('span', null, @props.d.note)
-        @renderPhotoOverlay()
-      ]
-    ]
+NotesList = (props)->
+  {inEditMode: editable, rest...} = props
+  editable ?= false
+  {notes} = useContext(NoteLayoutContext)
+  h 'g', notes.map (note)=>
+    h Note, {key: note.id, note, editable, rest...}
 
-  toggleOverlay: =>
-    {overlayIsEnabled} = @state
-    @setState overlayIsEnabled: not overlayIsEnabled
-
-  positioningInfo: =>
-    console.log @props.d.id
-
-export {Note}
+export {Note, NotesList, NotePositioner, NoteConnector}

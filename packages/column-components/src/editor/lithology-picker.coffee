@@ -2,17 +2,17 @@ import {Component, createElement, useContext} from "react"
 import hyper from "@macrostrat/hyper"
 import Select from 'react-select'
 
-import {symbolIndex} from "app/sections/column/lithology"
-import {PlatformContext} from "app/platform"
-import {LithologyContext} from "app/sections/lithology"
+import {symbolIndex} from "../lithology"
+import {GeologicPatternContext} from '../lithology'
+import {LithologyContext} from "../context"
 
 import styles from './main.styl'
 
 h = hyper.styled(styles)
 
 LithologySwatch = ({symbolID, style, rest...})->
-  {resolveLithologySymbol} = useContext(PlatformContext)
-  src = resolveLithologySymbol(symbolID)
+  {resolvePattern} = useContext(GeologicPatternContext)
+  src = resolvePattern(symbolID)
   style ?= {}
   style.backgroundImage = "url(\"#{src}\")"
   h 'div.lithology-swatch', {style, rest...}
@@ -29,15 +29,13 @@ class LithologyPicker extends Component
   render: ->
     {interval, onChange} = @props
 
-    {lithology} = @context
+    {lithologies} = @context
 
-    options = for item in lithology
+    options = for item in lithologies
       {id, pattern} = item
       symbol = symbolIndex[pattern]
       continue unless symbol?
       {value: id, label: h(LithologyItem, {lithology: id, symbol})}
-
-    console.log options
 
     value = options.find (d)->d.value == interval.lithology
     value ?= null
@@ -46,7 +44,7 @@ class LithologyPicker extends Component
       id: 'lithology-select'
       options
       value
-      selected: interval.lithology
+      isClearable: true
       onChange: (res)->
         f = if res? then res.value else null
         onChange f

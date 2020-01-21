@@ -1,0 +1,37 @@
+@require "./note-editor.styl"
+
+:global(.mc-note-label)
+  padding-left: 0.3em
+  border-left: 1px solid black
+  //margin-top: -8px
+  //transform: translateY(-50%)
+  font-style: italic
+  margin: 0
+  z-index: 15
+
+g.note, g.note-editor
+  circle
+    fill: black
+  line
+    stroke: black
+    stroke-width: 2
+    marker-start: url('#arrow_start')
+    marker-end: url('#arrow_end')
+  //div.note-label
+  // transform: translateY(30px)
+  .link
+    stroke: #000
+    stroke-width: 1
+    fill: none
+
+.new-note
+  circle
+    fill: dodgerblue
+  line
+    stroke: dodgerblue
+    stroke-width: 3
+    marker-start: url('#new_arrow_start')
+    marker-end: url('#new_arrow_end')
+
+#new_arrow_start, #new_arrow_end
+  fill dodgerblue

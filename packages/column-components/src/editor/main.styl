@@ -1,6 +1,13 @@
-//@require '~react-select/dist/react-select.css'
 
 :local
+  .correlated-surface-row
+    display flex
+    flex-direction: row
+    &>div
+      flex 1
+      margin-right 1em
+
+
   .facies-picker-row
     display flex
     flex-direction row
@@ -23,7 +30,7 @@
 
   margin=0.5em
 
-  .editorDialogTitle
+  .editor-dialog-title
     margin-right: -margin
     display flex
     align-items: baseline
@@ -32,9 +39,9 @@
       color: #aaa
     *
       margin-right: margin
-    .titleCenter
+    .title-center
       flex-grow 1
-    .heightRange
+    .height-range
       font-weight 400
 
   .lithology-swatch
@@ -51,3 +58,6 @@
     *
       margin-right margin
     margin 0 4px
+
+  .label-text
+    font-weight 500

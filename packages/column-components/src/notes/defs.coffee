@@ -1,18 +1,11 @@
 import {findDOMNode} from "react-dom"
-import * as d3 from "d3"
-import "d3-selection-multi"
 import {Component, createElement} from "react"
 import h from "react-hyperscript"
-import {db, storedProcedure, query} from "../../db"
-import {Node, Renderer, Force} from "labella"
-import {calculateSize} from "calculate-size"
-import FlexibleNode from "./flexible-node"
 import T from "prop-types"
-import {EditableText} from "@blueprintjs/core"
-import {PhotoOverlay} from "./photo-overlay"
-import {ColumnContext} from '../context'
 
-arrowMarker = (id, orient, sz=2.5)->
+ArrowMarker = ({id, orient, size: sz, fill})->
+  fill ?= 'black'
+  sz ?= 2.5
   h 'marker', {
     id
     orient
@@ -25,15 +18,35 @@ arrowMarker = (id, orient, sz=2.5)->
   }, [
     h 'path', {
       d:"M 0,0 m -#{sz},-#{sz} L #{sz},0 L -#{sz},#{sz} Z"
-      fill:"#000000"
+      fill
     }
   ]
 
+EndpointTick = ({id, fill, size: sz})->
+  fill ?= 'black'
+  sz ?= 2.5
+  h 'marker', {
+    id
+    markerHeight: 2
+    markerWidth: sz*2
+    markerUnits: 'strokeWidth'
+    refX: 0
+    refY: 0
+    viewBox:"-#{sz} -1 #{sz*2} 1"
+  }, [
+    h 'path', {
+      d: "M -#{sz},0 L #{sz},0"
+      fill: 'transparent'
+      stroke: fill
+    }
+  ]
 
-NoteDefs = ->
+NoteDefs = ({fill, prefix})->
+  prefix ?= ""
   h 'defs', [
-    arrowMarker 'arrow_start', 270
-    arrowMarker 'arrow_end', 90
+    h ArrowMarker, {id: prefix+'arrow_start', orient: 270, fill}
+    h ArrowMarker, {id: prefix+'arrow_end', orient: 90, fill}
+    h EndpointTick, {id: prefix+'tick', fill}
   ]
 
 export default NoteDefs
