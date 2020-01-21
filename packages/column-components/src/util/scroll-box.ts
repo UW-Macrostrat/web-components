@@ -31,15 +31,8 @@ const splitProps = function(keys, props){
 
 class ColumnScroller extends Component {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.scrollTo = this.scrollTo.bind(this);
     super(...args);
+    this.scrollTo = this.scrollTo.bind(this);
   }
 
   static initClass() {

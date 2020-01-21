@@ -15,20 +15,13 @@ const FaciesContext = createContext({
 
 class FaciesProvider extends StatefulComponent {
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.getFaciesColor = this.getFaciesColor.bind(this);
-    this.setFaciesColor = this.setFaciesColor.bind(this);
     super(props);
     this.state = {
       facies: props.initialFacies || [],
       __colorMap: {}
     };
+    this.getFaciesColor = this.getFaciesColor.bind(this);
+    this.setFaciesColor = this.setFaciesColor.bind(this);
   }
 
   getFaciesColor(id){

@@ -61,17 +61,10 @@ CrossAxisLayoutProvider.initClass();
 
 class GrainsizeLayoutProvider extends Component {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(...args);
     this.grainsizeScale = this.grainsizeScale.bind(this);
     this.grainsizeForDivision = this.grainsizeForDivision.bind(this);
     this.widthForDivision = this.widthForDivision.bind(this);
-    super(...args);
   }
 
   static initClass() {
