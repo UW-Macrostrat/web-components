@@ -52,32 +52,6 @@ RaisedSelect = (props)->
     props...
   }
 
-class CorrelatedSurfaceControl extends Component
-  @contextType: FaciesContext
-  render: ->
-    {surfaces} = @context
-    {onChange, interval} = @props
-
-    options = surfaces.map (d)->
-      {value: d.id, label: h "div.correlated-surface-row", [
-        h "div.bp3-code", d.id
-        h "div", d.note
-      ]}
-
-    value = options.find (d)->d.value == interval.surface
-
-    h RaisedSelect, {
-      options
-      isClearable: true
-      isSearchable: true
-      name: "selected-state"
-      value
-      onChange: (surface)=>
-        if surface?
-          surface = surface.value
-        onChange {surface}
-    }
-
 HorizontalPicker = (props)->
   h PickerControl, {
     vertical: false,
@@ -106,6 +80,5 @@ export {
   SurfaceOrderSlider,
   BoundaryStyleControl,
   HorizontalPicker,
-  CorrelatedSurfaceControl,
   RaisedSelect
 }
