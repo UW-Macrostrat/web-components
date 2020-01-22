@@ -26,13 +26,14 @@ surfaceTypes = [
 
 SurfaceOrderSlider = (props)->
   {interval, onChange} = props
-  if not interval.surface_type?
-    return h 'p', 'Please set an interval type to access surface orders'
+  #if not interval.surface_type?
+  #  return h 'p', 'Please set an surface type to access orders'
   val = interval.surface_order
   val ?= 5
   h Slider, {
     min: 0
     max: 5
+    disabled: not interval.surface_type?
     stepSize: 1
     showTrackFill: false
     value: val
