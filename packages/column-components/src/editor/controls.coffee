@@ -2,7 +2,6 @@ import {findDOMNode} from "react-dom"
 import {Component, createElement} from "react"
 import {Dialog, Button, Intent, ButtonGroup, Alert, Slider} from "@blueprintjs/core"
 import {DeleteButton} from '@macrostrat/ui-components'
-import Select from 'react-select'
 import {format} from "d3-format"
 
 import {FaciesDescriptionSmall, FaciesCard} from "./facies"
@@ -12,6 +11,7 @@ import {FaciesContext, ColumnContext} from "../context"
 import {LithologyPicker, LithologySymbolPicker, FillPatternControl} from './lithology-picker'
 import {FaciesPicker} from './facies/picker'
 import {grainSizes} from "../grainsize"
+import {RaisedSelect} from './util'
 import h from "react-hyperscript"
 import styles from "./main.styl"
 import T from 'prop-types'
@@ -39,17 +39,6 @@ SurfaceOrderSlider = (props)->
     onChange: (surface_order)=>
       return unless interval.surface_type?
       onChange {surface_order}
-  }
-
-RaisedSelect = (props)->
-  h Select, {
-    styles: {
-      menu: (provided, state) => {
-        provided...,
-        zIndex: 20
-      }
-    }
-    props...
   }
 
 HorizontalPicker = (props)->

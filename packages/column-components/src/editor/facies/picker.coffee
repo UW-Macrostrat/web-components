@@ -2,7 +2,7 @@ import {Component} from 'react'
 import {hyperStyled} from '@macrostrat/hyper'
 import {FaciesContext} from '../../context'
 import {BasicFaciesSwatch} from './color-picker'
-import Select from 'react-select'
+import {RaisedSelect} from '../util'
 import styles from '../main.styl'
 
 h = hyperStyled(styles)
@@ -25,7 +25,7 @@ class FaciesPicker extends Component
     value = options.find (d)->d.value == interval.facies
     value ?= null
 
-    h Select, {
+    h RaisedSelect, {
       id: 'facies-select'
       options
       value

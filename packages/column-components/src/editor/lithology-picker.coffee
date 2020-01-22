@@ -1,6 +1,6 @@
 import {Component, createElement, useContext} from "react"
 import hyper from "@macrostrat/hyper"
-import Select from 'react-select'
+import {RaisedSelect} from './util'
 
 import {symbolIndex} from "../lithology"
 import {GeologicPatternContext} from '../lithology'
@@ -40,7 +40,7 @@ class LithologyPicker extends Component
     value = options.find (d)->d.value == interval.lithology
     value ?= null
 
-    h Select, {
+    h RaisedSelect, {
       id: 'lithology-select'
       options
       value

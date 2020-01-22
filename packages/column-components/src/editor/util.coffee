@@ -3,6 +3,7 @@ import {hyperStyled} from "@macrostrat/hyper"
 import styles from "./main.styl"
 import {format} from 'd3-format'
 import {IntervalShape} from './types'
+import Select from 'react-select'
 h = hyperStyled(styles)
 
 LabeledControl = (props)->
@@ -12,6 +13,17 @@ LabeledControl = (props)->
     h.if(title?) 'span.label-text', null, title
     if props.is? then h(props.is, rest) else null
   ]
+
+menuStyles = (provided) => ({
+    provided...,
+    zIndex: 999
+  })
+
+RaisedSelect = (props)->
+  h('div', {style: {zIndex: 2000}}, [
+    h Select, {styles: {menu: menuStyles}, props...}
+  ])
+
 
 IntervalEditorTitle = (props)->
   {showID, title, interval, heightFormat} = props
@@ -33,4 +45,4 @@ IntervalEditorTitle.propTypes = {
   heightFormat: T.string
 }
 
-export {LabeledControl, IntervalEditorTitle}
+export {LabeledControl, IntervalEditorTitle, RaisedSelect}
