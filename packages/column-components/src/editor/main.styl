@@ -53,12 +53,25 @@
     border 1px solid black
 
   .lithology-symbol-picker
+    margin-top -10px
+    &.hidden
+      .lithology-symbol-picker-inner
+        display none
+    &.expanded
+      .expand-button
+        display none
+    margin-bottom 15px
+    margin-left 8px
+
+  .lithology-symbol-picker-inner
     display: flex
     flex-direction: row
     align-items: center
     *
       margin-right margin
     margin 0 4px
+    .picker-label
+      flex-grow 1
 
   .label-text
     font-weight 500
