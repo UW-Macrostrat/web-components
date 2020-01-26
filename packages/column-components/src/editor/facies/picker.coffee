@@ -25,12 +25,15 @@ class FaciesPicker extends Component
     value = options.find (d)->d.value == interval.facies
     value ?= null
 
+
     h RaisedSelect, {
       id: 'facies-select'
       options
       value
       selected: interval.facies
+      isClearable: true
       onChange: (res)->
+        console.log("Changing", res)
         f = if res? then res.value else null
         onChange f
     }

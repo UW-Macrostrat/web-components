@@ -20,9 +20,7 @@ menuStyles = (provided) => ({
   })
 
 RaisedSelect = (props)->
-  h('div', {style: {zIndex: 2000}}, [
-    h Select, {styles: {menu: menuStyles}, props...}
-  ])
+  h Select, {styles: {menu: menuStyles}, props...}
 
 
 IntervalEditorTitle = (props)->
