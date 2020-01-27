@@ -47,7 +47,7 @@ class GrainsizeFrame extends Component {
   render() {
     let div;
     const {scale, divisions, grainsizeScale: gs} = this.context;
-    if (gs == null) return null
+    //if (gs == null) return null
     let {id: frameID} = this.props;
     if (frameID.startsWith("#")) {
       frameID = frameID.slice(1);
