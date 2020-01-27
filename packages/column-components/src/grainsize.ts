@@ -30,7 +30,9 @@ class GrainsizeAxis extends Component {
   }
   render() {
     const {grainsizeScale: gs, pixelHeight} = this.context;
-    if (gs == null) return null
+    if (gs == null) {
+      throw "GrainsizeFrame must be a child of a GrainsizeScaleProvider";
+    }
     const sizes = gs.domain();
     return h('g.grainsize.axis', sizes.map(d=> {
       return h('g.tick', {transform: `translate(${gs(d)} 0)`, key: d}, [

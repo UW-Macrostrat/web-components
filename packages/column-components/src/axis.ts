@@ -38,7 +38,6 @@ class ColumnAxis extends Component {
   }
   componentDidUpdate() {
     const {scale} = this.context;
-    //if (scale == null) return null
     const {showLabel} = this.props;
     this.yAxis.scale(scale);
 
