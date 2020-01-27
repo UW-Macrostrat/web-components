@@ -10,7 +10,10 @@ import {Component, createContext} from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
 
-const ColumnContext = createContext({});
+const ColumnContext = createContext({
+  scale: scaleLinear([0,1]),
+  divisions: []
+});
 
 const rangeOrHeight = function(props, propName){
   const {range, height} = props;

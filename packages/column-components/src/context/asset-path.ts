@@ -7,7 +7,9 @@ import {createContext} from "react";
 import h from "react-hyperscript";
 import T from 'prop-types';
 
-const AssetPathContext = createContext();
+const AssetPathContext = createContext({
+  resolveSymbol(){}
+});
 
 const AssetPathProvider = function(props){
   const {children, resolveSymbol} = props;

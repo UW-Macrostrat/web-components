@@ -47,9 +47,7 @@ class GrainsizeFrame extends Component {
   render() {
     let div;
     const {scale, divisions, grainsizeScale: gs} = this.context;
-    if ((gs == null)) {
-      throw "GrainsizeFrame must be a child of a GrainsizeScaleProvider";
-    }
+    if (gs == null) return null
     let {id: frameID} = this.props;
     if (frameID.startsWith("#")) {
       frameID = frameID.slice(1);
@@ -134,8 +132,8 @@ const widthOrFrame = function(props, propName){
 
 class ClipToFrame extends UUIDComponent {
   constructor(...args) {
-    this.computeTransform = this.computeTransform.bind(this);
     super(...args);
+    this.computeTransform = this.computeTransform.bind(this);
   }
 
   static initClass() {

@@ -128,6 +128,7 @@ const expandDivisionsByKey = function(divisions, key){
 
 const ParameterIntervals = function(props){
   const {divisions, width} = useContext(ColumnLayoutContext);
+  if (divisions == null) return null
   const {
     padWidth,
     parameter: key,
@@ -135,6 +136,7 @@ const ParameterIntervals = function(props){
     minimumHeight
   } = props;
   const newDivisions = expandDivisionsByKey(divisions, key);
+  if (newDivisions == null) return null
   if (newDivisions.length === 1) { return null; }
   return h('g', {className: key}, newDivisions.map(div => h(ColumnRect, {
     className: classNames(key, div.id),

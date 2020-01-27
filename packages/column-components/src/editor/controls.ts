@@ -82,6 +82,5 @@ BoundaryStyleControl.initClass();
 export {
   SurfaceOrderSlider,
   BoundaryStyleControl,
-  HorizontalPicker,
-  RaisedSelect
+  HorizontalPicker
 };

@@ -17,7 +17,7 @@ import {NoteShape} from './types';
 import FlexibleNode from "./flexible-node";
 import {ColumnLayoutProvider, ColumnContext} from '../context';
 
-const NoteLayoutContext = createContext();
+const NoteLayoutContext = createContext(null);
 
 const buildColumnIndex = function() {
   /*

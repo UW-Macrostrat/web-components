@@ -10,8 +10,8 @@ import update from 'immutability-helper';
 import LocalStorage from '../util/storage';
 import T from 'prop-types';
 
-const SettingsUpdateContext = createContext();
-const SettingsContext = createContext();
+const SettingsUpdateContext = createContext(function(){});
+const SettingsContext = createContext({});
 
 // Could rework this to use `constate` or similar
 
