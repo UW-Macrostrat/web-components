@@ -11,7 +11,7 @@ import h from "react-hyperscript";
 import T from "prop-types";
 
 const ColumnContext = createContext({
-  scale: scaleLinear([0,1]),
+  scale: scaleLinear([0,100]),
   divisions: []
 });
 
