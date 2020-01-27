@@ -161,7 +161,7 @@ class DivisionEditOverlay extends Component
     if event.shiftKey and showInfoBox
       @setState {popoverIsOpen: true}
       return
-    @props.onClick({height, division: hoveredDivision})
+    @props.onClick({event, height, division: hoveredDivision})
 
   onClick: (event)=>
     # This event handler might be unnecessary
