@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
  * DS102: Remove unnecessary code created because of implicit returns
  * DS202: Simplify dynamic range loops
  * DS206: Consider reworking classes to avoid initClass
@@ -54,15 +53,8 @@ FloodingSurface.initClass();
 
 class TriangleBars extends UUIDComponent {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.renderSurfaces = this.renderSurfaces.bind(this);
     super(...args);
+    this.renderSurfaces = this.renderSurfaces.bind(this);
   }
 
   static initClass() {

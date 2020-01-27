@@ -9,16 +9,28 @@ import {hyperStyled} from "@macrostrat/hyper";
 import styles from "./main.styl";
 import {format} from 'd3-format';
 import {IntervalShape} from './types';
+import Select from 'react-select';
 const h = hyperStyled(styles);
 
 const LabeledControl = function(props){
   const {title, children, ...rest} = props;
   delete rest.is;
-  return h('label.bp3-label', null, [
-    h.if(title != null)('span.label-text', null, title),
+  return h('div.labeled-control', [
+    h('label.bp3-label', null, [
+      h.if(title != null)('span.label-text', null, title)
+    ]),
     (props.is != null) ? h(props.is, rest) : null
   ]);
 };
+
+
+const menuStyles = provided => (({
+    ...provided,
+    zIndex: 999
+  }));
+
+const RaisedSelect = props => h(Select, {styles: {menu: menuStyles}, ...props});
+
 
 const IntervalEditorTitle = function(props){
   let {showID, title, interval, heightFormat} = props;
@@ -28,10 +40,13 @@ const IntervalEditorTitle = function(props){
     fmt = format(heightFormat);
   }
   if (showID == null) { showID = true; }
-  return h("div.editor-dialog-title", [
-    h("span.title-center", title),
-    h("span.height-range", `${fmt(bottom)} – ${fmt(top)} m`),
-    h.if((id != null) && showID)("code", id)
+  return h("div.editor-dialog-title.editor-title", [
+    h("h3.title-center", title),
+    h("h4.height-range", `${fmt(bottom)} – ${fmt(top)} m`),
+    h("h4.id", null, [
+      "ID: ",
+      h.if((id != null) && showID)("code", id)
+    ])
   ]);
 };
 
@@ -42,4 +57,4 @@ IntervalEditorTitle.propTypes = {
   heightFormat: T.string
 };
 
-export {LabeledControl, IntervalEditorTitle};
+export {LabeledControl, IntervalEditorTitle, RaisedSelect};

@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
  * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS206: Consider reworking classes to avoid initClass
@@ -115,7 +114,8 @@ class DivisionEditOverlay extends Component {
       editingInterval: T.object,
       color: T.string,
       width: T.number,
-      popoverWidth: T.number
+      popoverWidth: T.number,
+      selectedHeight: T.number
     };
     this.defaultProps = {
       onHoverInterval() {},
@@ -130,13 +130,7 @@ class DivisionEditOverlay extends Component {
     };
   }
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(props);
     this.onHoverInterval = this.onHoverInterval.bind(this);
     this.removeHoverBox = this.removeHoverBox.bind(this);
     this.heightForEvent = this.heightForEvent.bind(this);
@@ -145,7 +139,6 @@ class DivisionEditOverlay extends Component {
     this.renderCursorLine = this.renderCursorLine.bind(this);
     this.renderHoveredBox = this.renderHoveredBox.bind(this);
     this.closePopover = this.closePopover.bind(this);
-    super(props);
     this.state = {
       height: null,
       hoveredDivision: null,
@@ -203,7 +196,7 @@ class DivisionEditOverlay extends Component {
       this.setState({popoverIsOpen: true});
       return;
     }
-    return this.props.onClick({height, division: hoveredDivision});
+    return this.props.onClick({event, height, division: hoveredDivision});
   }
 
   onClick(event){
@@ -216,8 +209,11 @@ class DivisionEditOverlay extends Component {
   }
 
   renderCursorLine() {
-    const {height, hoveredDivision} = this.state;
+    let {height, hoveredDivision} = this.state;
     const {scaleClamped} = this.context;
+    // Show the height we have selected if we are not hovering
+    const {selectedHeight} = this.props;
+    if (height == null) { height = selectedHeight; }
     if (height == null) { return; }
     const style = {
       top: scaleClamped(height),

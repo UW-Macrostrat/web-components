@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
  * DS102: Remove unnecessary code created because of implicit returns
  * DS202: Simplify dynamic range loops
  * DS206: Consider reworking classes to avoid initClass
@@ -77,13 +76,7 @@ class NoteLayoutProvider extends StatefulComponent {
     this.contextType = ColumnContext;
   }
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(props);
     this.computeContextValue = this.computeContextValue.bind(this);
     this.savedRendererForWidth = this.savedRendererForWidth.bind(this);
     this.generatePath = this.generatePath.bind(this);
@@ -93,7 +86,6 @@ class NoteLayoutProvider extends StatefulComponent {
     this.updateNotes = this.updateNotes.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.componentDidUpdate = this.componentDidUpdate.bind(this);
-    super(props);
     // State is very minimal to start
     const {noteComponent} = this.props;
     this.state = {

@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
  * DS101: Remove unnecessary use of Array.from
  * DS102: Remove unnecessary code created because of implicit returns
  * DS104: Avoid inline assignments
@@ -212,16 +211,9 @@ const LithologySymbolDefs = function(props){
 
 class LithologyBoxes extends UUIDComponent {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(...args);
     this.constructLithologyDivisions = this.constructLithologyDivisions.bind(this);
     this.renderEach = this.renderEach.bind(this);
-    super(...args);
   }
 
   static initClass() {
@@ -302,15 +294,8 @@ const LithologyColumnInner = LithologyBoxes;
 
 class LithologyColumn extends Component {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.computeTransform = this.computeTransform.bind(this);
     super(...args);
+    this.computeTransform = this.computeTransform.bind(this);
   }
 
   static initClass() {

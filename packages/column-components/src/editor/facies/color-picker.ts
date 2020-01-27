@@ -1,6 +1,5 @@
 /*
  * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
  * DS102: Remove unnecessary code created because of implicit returns
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
@@ -46,16 +45,9 @@ const BasicFaciesSwatch = ({facies: d, ...rest}) => h('div.color-swatch', {style
 
 class FaciesSwatch extends Component {
   constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(...args);
     this.renderBasicSwatch = this.renderBasicSwatch.bind(this);
     this.render = this.render.bind(this);
-    super(...args);
   }
 
   static initClass() {

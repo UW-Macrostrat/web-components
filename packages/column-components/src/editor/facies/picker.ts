@@ -9,7 +9,7 @@ import {Component} from 'react';
 import {hyperStyled} from '@macrostrat/hyper';
 import {FaciesContext} from '../../context';
 import {BasicFaciesSwatch} from './color-picker';
-import Select from 'react-select';
+import {RaisedSelect} from '../util';
 import styles from '../main.styl';
 
 const h = hyperStyled(styles);
@@ -35,12 +35,15 @@ class FaciesPicker extends Component {
     let value = options.find(d => d.value === interval.facies);
     if (value == null) { value = null; }
 
-    return h(Select, {
+
+    return h(RaisedSelect, {
       id: 'facies-select',
       options,
       value,
       selected: interval.facies,
+      isClearable: true,
       onChange(res){
+        console.log("Changing", res);
         const f = (res != null) ? res.value : null;
         return onChange(f);
       }

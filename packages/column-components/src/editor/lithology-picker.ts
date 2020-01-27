@@ -7,9 +7,10 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createElement, useContext} from "react";
+import {useContext, useState} from "react";
 import hyper from "@macrostrat/hyper";
-import Select from 'react-select';
+import {RaisedSelect} from './util';
+import {Button, Intent} from '@blueprintjs/core';
 
 import {symbolIndex} from "../lithology";
 import {GeologicPatternContext} from '../lithology';
@@ -35,66 +36,85 @@ const LithologyItem = function(props){
   ]);
 };
 
-class LithologyPicker extends Component {
-  static initClass() {
-    this.contextType = LithologyContext;
-  }
-  render() {
-    const {interval, onChange} = this.props;
+const LithologyPicker = (props)=>{
+  const {interval, onChange} = props;
+  const {lithologies} = useContext(LithologyContext);
 
-    const {lithologies} = this.context;
-
-    const options = (() => {
-      const result = [];
-      for (let item of Array.from(lithologies)) {
-        const {id, pattern} = item;
-        const symbol = symbolIndex[pattern];
-        if (symbol == null) { continue; }
-        result.push({value: id, label: h(LithologyItem, {lithology: id, symbol})});
-      }
-      return result;
-    })();
-
-    let value = options.find(d => d.value === interval.lithology);
-    if (value == null) { value = null; }
-
-    return h(Select, {
-      id: 'lithology-select',
-      options,
-      value,
-      isClearable: true,
-      onChange(res){
-        const f = (res != null) ? res.value : null;
-        return onChange(f);
-      }
-    });
-  }
-}
-LithologyPicker.initClass();
-
-
-class LithologySymbolPicker extends Component {
-  render() {
-    let symbol;
-    const {interval} = this.props;
-    let isUserSet = false;
-    console.log(interval);
-    let text = "No pattern set";
-    if (interval.pattern != null) {
-      symbol = interval.pattern;
-      isUserSet = true;
-      text = `Symbol ${symbol}`;
+  const options = (() => {
+    const result = [];
+    for (let item of lithologies) {
+      const {id, pattern} = item;
+      const symbol = symbolIndex[pattern];
+      if (symbol == null) { continue; }
+      result.push({value: id, label: h(LithologyItem, {lithology: id, symbol})});
     }
-    if (interval.lithology != null) {
-      symbol = symbolIndex[interval.lithology];
-      text = "Default for lithology";
-    }
+    return result;
+  })();
 
-    return h('div.lithology-symbol-picker', [
-      h.if(symbol != null)(LithologySwatch, {symbolID: symbol}),
-      h("div.picker-label.text", text)
-    ]);
-  }
+  let value = options.find(d => d.value === interval.lithology);
+  if (value == null) { value = null; }
+
+  return h(RaisedSelect, {
+    id: 'lithology-select',
+    options,
+    value,
+    isClearable: true,
+    onChange(res){
+      const f = (res != null) ? res.value : null;
+      return onChange(f);
+    }
+  });
 }
+
+const SymbolPickerInner = function(props){
+  let symbol;
+  const {interval, onClose, style} = props;
+  let isUserSet = false;
+
+  let text = "No pattern set";
+  if (interval.pattern != null) {
+    symbol = interval.pattern;
+    isUserSet = true;
+    text = `Symbol ${symbol}`;
+  }
+  if (interval.lithology != null) {
+    symbol = symbolIndex[interval.lithology];
+    text = "Default for lithology";
+  }
+
+  return h('div.lithology-symbol-picker-inner', {style}, [
+    h.if(symbol != null)(LithologySwatch, {symbolID: symbol}),
+    h("div.picker-label.text", text),
+    h.if(onClose != null)(Button, {
+      small: true,
+      icon: 'cross',
+      intent: Intent.DANGER,
+      minimal: true,
+      onClick: onClose
+    }, "Clear override")
+  ]);
+};
+
+const LithologySymbolPicker = function(props){
+  const {interval, updatePattern} = props;
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const className = isExpanded ? "expanded" : "hidden"
+
+  return h('div.lithology-symbol-picker', {className}, [
+    h(Button, {
+      className: "expand-button",
+      onClick() { setIsExpanded(true)},
+      minimal: true,
+      small: true,
+      intent: Intent.WARNING
+    }, "Override lithology pattern"),
+    h(SymbolPickerInner, {
+      interval,
+      onClose: ()=>setIsExpanded(false),
+      updatePattern
+    })
+  ]);
+};
 
 export {LithologyPicker, LithologySymbolPicker};
