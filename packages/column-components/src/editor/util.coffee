@@ -9,10 +9,13 @@ h = hyperStyled(styles)
 LabeledControl = (props)->
   {title, children, rest...} = props
   delete rest.is
-  h 'label.bp3-label', null, [
-    h.if(title?) 'span.label-text', null, title
+  h 'div.labeled-control', [
+    h 'label.bp3-label', null, [
+      h.if(title?) 'span.label-text', null, title
+    ]
     if props.is? then h(props.is, rest) else null
   ]
+
 
 menuStyles = (provided) => ({
     provided...,
@@ -30,10 +33,13 @@ IntervalEditorTitle = (props)->
   if heightFormat?
     fmt = format(heightFormat)
   showID ?= true
-  h "div.editor-dialog-title", [
-    h "span.title-center", title
-    h "span.height-range", "#{fmt(bottom)} – #{fmt(top)} m"
-    h.if(id? and showID) "code", id
+  h "div.editor-dialog-title.editor-title", [
+    h "h3.title-center", title
+    h "h4.height-range", "#{fmt(bottom)} – #{fmt(top)} m"
+    h "h4.id", null, [
+      "ID: "
+      h.if(id? and showID) "code", id
+    ]
   ]
 
 IntervalEditorTitle.propTypes = {

@@ -34,12 +34,14 @@
   .editor-dialog-title
     margin-right: -margin
     display flex
+    flex-direction column
     align-items: baseline
     code
       font-family: "Fira Code", monospace
       color: #aaa
     *
-      margin-right: margin
+      margin-bottom 0.2em
+      margin-top 0
     .title-center
       flex-grow 1
     .height-range
@@ -72,6 +74,13 @@
     margin 0 4px
     .picker-label
       flex-grow 1
+
+  .labeled-control
+    :global(.bp3-label)
+      margin-bottom: 0
+      color: #444
+    margin-bottom: 15px
+
 
   .label-text
     font-weight 500

@@ -98,6 +98,7 @@ class DivisionEditOverlay extends Component
     color: T.string
     width: T.number
     popoverWidth: T.number
+    selectedHeight: T.number
   }
   @defaultProps: {
     onHoverInterval: ->
@@ -172,6 +173,9 @@ class DivisionEditOverlay extends Component
   renderCursorLine: =>
     {height, hoveredDivision} = @state
     {scaleClamped} = @context
+    # Show the height we have selected if we are not hovering
+    {selectedHeight} = @props
+    height ?= selectedHeight
     return unless height?
     style = {
       top: scaleClamped(height)

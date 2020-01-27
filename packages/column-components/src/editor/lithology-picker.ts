@@ -91,7 +91,7 @@ const SymbolPickerInner = function(props){
       intent: Intent.DANGER,
       minimal: true,
       onClick: onClose
-    })
+    }, "Clear override")
   ]);
 };
 
