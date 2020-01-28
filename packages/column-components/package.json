@@ -18,8 +18,9 @@
   "scripts": {
     "compile:coffee": "coffee -c -m -o dist/esm src",
     "watch:main": "rollup -c rollup.config.ts -w",
-    "watch:types": "tsc --emitDeclarationOnly -w",
-    "dev": "npm run prebuild && npm run watch:main",
+    "watch:types": "tsc --emitDeclarationOnly -w 2&>/dev/null",
+    "watch": "concurrently npm:watch:main npm:watch:types",
+    "dev": "npm run prebuild && npm run watch",
     "start": "npm run dev",
     "prebuild": "rimraf dist"
   },
@@ -43,7 +44,9 @@
     "rollup-plugin-multi-entry": "^2.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
     "rollup-plugin-postcss": "^2.0.3",
-    "rollup-plugin-sourcemaps": "^0.5.0"
+    "rollup-plugin-sourcemaps": "^0.5.0",
+    "tsc-silent": "^1.2.1",
+    "typescript": "^3.7.5"
   },
   "dependencies": {
     "@macrostrat/hyper": "^1.1.5",
