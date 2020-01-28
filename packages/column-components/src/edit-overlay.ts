@@ -8,14 +8,14 @@
  */
 import {findDOMNode} from "react-dom";
 import {format} from "d3-format";
-import {Component, createElement, useContext} from "react";
+import {Component, useContext, MouseEvent, ReactNode} from "react";
 import h from "./hyper";
 import {Popover, Position, Button, Intent} from "@blueprintjs/core";
-import {withRouter} from "react-router-dom";
 import {ColumnLayoutContext} from './context';
 import T from 'prop-types';
 import chroma from 'chroma-js';
 import Box from 'ui-box';
+import {ColumnDivision} from './defs'
 
 const fmt = format('.1f');
 const fmt2 = format('.2f');
@@ -44,45 +44,48 @@ const PopoverEditorTitle = function(props){
   ]);
 };
 
+type color = string
 
-class OverlayBox extends Component {
-  static initClass() {
-    this.contextType = ColumnLayoutContext;
-  }
-  render() {
-    const {division, background, className, onClick} = this.props;
-    const {widthForDivision, scaleClamped} = this.context;
-
-    const top = scaleClamped(division.top);
-    const bottom = scaleClamped(division.bottom);
-    const height = bottom-top;
-
-    const width = widthForDivision(division);
-
-    const style = {
-      marginTop: top,
-      height,
-      width,
-      pointerEvents: 'none',
-      position: 'absolute'
-    };
-
-    return h('div', {style}, [
-      h('div', {
-        onClick,
-        className,
-        style: {
-          cursor: (onClick != null) ? 'pointer' : null,
-          width: '100%',
-          height: '100%',
-          background
-        }
-      }),
-      this.props.children
-    ]);
-  }
+interface OverlayBoxProps {
+  division: ColumnDivision,
+  background: color,
+  className: string,
+  children: ReactNode,
+  onClick(evt: MouseEvent): void
 }
-OverlayBox.initClass();
+
+const OverlayBox = (props: OverlayBoxProps)=>{
+  const {division, background, className, onClick} = props;
+  const {widthForDivision, scaleClamped} = useContext(ColumnLayoutContext);
+
+  const top = scaleClamped(division.top);
+  const bottom = scaleClamped(division.bottom);
+  const height = bottom-top;
+
+  const width = widthForDivision(division);
+
+  const style = {
+    marginTop: top,
+    height,
+    width,
+    pointerEvents: 'none',
+    position: 'absolute'
+  };
+
+  return h('div', {style}, [
+    h('div', {
+      onClick,
+      className,
+      style: {
+        cursor: (onClick != null) ? 'pointer' : null,
+        width: '100%',
+        height: '100%',
+        background
+      }
+    }),
+    props.children
+  ]);
+}
 
 OverlayBox.propTypes = {
   division: T.object
@@ -101,34 +104,32 @@ const EditingBox = function({division, color, ...rest}){
 };
 
 class DivisionEditOverlay extends Component {
-  static initClass() {
-    this.contextType = ColumnLayoutContext;
-    this.propTypes = {
-      left: T.number,
-      top: T.number,
-      showInfoBox: T.bool,
-      onClick: T.func,
-      allowEditing: T.bool,
-      renderEditorPopup: T.func,
-      scaleToGrainsize: T.bool,
-      editingInterval: T.object,
-      color: T.string,
-      width: T.number,
-      popoverWidth: T.number,
-      selectedHeight: T.number
-    };
-    this.defaultProps = {
-      onHoverInterval() {},
-      onClick() {},
-      left: 0,
-      top: 0,
-      showInfoBox: false,
-      allowEditing: true,
-      renderEditorPopup() { return null; },
-      color: 'red',
-      popoverWidth: 340
-    };
-  }
+  static contextType = ColumnLayoutContext;
+  static propTypes = {
+    left: T.number,
+    top: T.number,
+    showInfoBox: T.bool,
+    onClick: T.func,
+    allowEditing: T.bool,
+    renderEditorPopup: T.func,
+    scaleToGrainsize: T.bool,
+    editingInterval: T.object,
+    color: T.string,
+    width: T.number,
+    popoverWidth: T.number,
+    selectedHeight: T.number
+  };
+  static defaultProps = {
+    onHoverInterval() {},
+    onClick() {},
+    left: 0,
+    top: 0,
+    showInfoBox: false,
+    allowEditing: true,
+    renderEditorPopup() { return null; },
+    color: 'red',
+    popoverWidth: 340
+  };
   constructor(props){
     super(props);
     this.onHoverInterval = this.onHoverInterval.bind(this);
@@ -270,7 +271,7 @@ class DivisionEditOverlay extends Component {
               icon: 'cross',
               minimal: true,
               intent: Intent.WARNING,
-              onClick: this.closePopover
+              onClick: this.closePopover.bind(this)
             })
 
           ]),
@@ -322,7 +323,5 @@ class DivisionEditOverlay extends Component {
     ]);
   }
 }
-DivisionEditOverlay.initClass();
-
 
 export {DivisionEditOverlay};
