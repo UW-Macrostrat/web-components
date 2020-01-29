@@ -1,11 +1,10 @@
 import pkg from './package.json';
 import babel from 'rollup-plugin-babel';
 import coffee from 'rollup-plugin-coffee-script';
-import resolve from 'rollup-plugin-node-resolve';
-import stylus from 'rollup-plugin-stylus-compiler';
-import css from 'rollup-plugin-css-porter';
-import commonJS from 'rollup-plugin-commonjs';
+import resolve from '@rollup/plugin-node-resolve';
 import sourceMaps from 'rollup-plugin-sourcemaps';
+import postcss from 'rollup-plugin-postcss';
+import renameExtensions from '@betit/rollup-plugin-rename-extensions';
 
 const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
@@ -22,16 +21,25 @@ export default {
   ],
   external: Object.keys(deps),
   plugins: [
-    css(),
     resolve({extensions, module: true}),
-    stylus(),
     coffee(),
+    postcss({
+      // postfix with .module.css etc. for css modules (DISABLED)
+      modules: false,
+      extract: "lib/index.css"
+    }),
     babel({
       extensions,
       exclude: 'node_modules/**'
     }),
+    renameExtensions({
+      include: ['**/*.ts', '**/*.coffee'],
+      mappings: {
+          '.coffee': '.js',
+          '.ts': '.js',
+      },
+    }),
     // Resolve source maps to the original source
-    sourceMaps(),
-    commonJS()
+    sourceMaps()
   ]
 };

@@ -39,6 +39,9 @@ Licensed under the Apache License, Version 2.0.
 
 */
 .bp3-datepicker{
+  display:-webkit-box;
+  display:-ms-flexbox;
+  display:flex;
   position:relative;
   border-radius:3px;
   background:#ffffff;
@@ -129,11 +132,9 @@ Licensed under the Apache License, Version 2.0.
 
 .bp3-datepicker-navbar{
   display:-webkit-box;
-  display:-webkit-flex;
   display:-ms-flexbox;
   display:flex;
   -webkit-box-align:center;
-  -webkit-align-items:center;
       -ms-flex-align:center;
           align-items:center;
   position:absolute;
@@ -148,35 +149,28 @@ Licensed under the Apache License, Version 2.0.
 
 .bp3-datepicker-caption{
   display:-webkit-box;
-  display:-webkit-flex;
   display:-ms-flexbox;
   display:flex;
   -webkit-box-orient:horizontal;
   -webkit-box-direction:normal;
-  -webkit-flex-direction:row;
       -ms-flex-direction:row;
           flex-direction:row;
   -webkit-box-pack:justify;
-  -webkit-justify-content:space-between;
       -ms-flex-pack:justify;
           justify-content:space-between;
   margin:0 25px 5px; }
   .bp3-datepicker-caption > *{
     -webkit-box-flex:0;
-    -webkit-flex-grow:0;
         -ms-flex-positive:0;
             flex-grow:0;
-    -webkit-flex-shrink:0;
-        -ms-flex-negative:0;
-            flex-shrink:0; }
+    -ms-flex-negative:0;
+        flex-shrink:0; }
   .bp3-datepicker-caption > :first-child{
     -webkit-box-flex:1;
-    -webkit-flex-grow:1;
         -ms-flex-positive:1;
             flex-grow:1;
-    -webkit-flex-shrink:1;
-        -ms-flex-negative:1;
-            flex-shrink:1; }
+    -ms-flex-negative:1;
+        flex-shrink:1; }
   .bp3-datepicker-caption select{
     padding-right:16px;
     padding-left:5px;
@@ -187,14 +181,12 @@ Licensed under the Apache License, Version 2.0.
     margin:0; }
 
 .bp3-datepicker-month-select{
-  -webkit-flex-shrink:1;
-      -ms-flex-negative:1;
-          flex-shrink:1; }
+  -ms-flex-negative:1;
+      flex-shrink:1; }
 
 .bp3-datepicker-year-select{
-  -webkit-flex-shrink:1;
-      -ms-flex-negative:1;
-          flex-shrink:1;
+  -ms-flex-negative:1;
+      flex-shrink:1;
   min-width:60px; }
 
 .bp3-datepicker-caption-measure{
@@ -203,11 +195,9 @@ Licensed under the Apache License, Version 2.0.
 
 .bp3-datepicker-footer{
   display:-webkit-box;
-  display:-webkit-flex;
   display:-ms-flexbox;
   display:flex;
   -webkit-box-pack:justify;
-  -webkit-justify-content:space-between;
       -ms-flex-pack:justify;
           justify-content:space-between; }
 
@@ -235,7 +225,6 @@ Licensed under the Apache License, Version 2.0.
     border-top-color:rgba(16, 22, 26, 0.4); }
 .bp3-daterangepicker{
   display:-webkit-box;
-  display:-webkit-flex;
   display:-ms-flexbox;
   display:flex;
   white-space:nowrap; }
@@ -245,12 +234,10 @@ Licensed under the Apache License, Version 2.0.
     display:none; }
   .bp3-daterangepicker .bp3-daterangepicker-timepickers{
     display:-webkit-box;
-    display:-webkit-flex;
     display:-ms-flexbox;
     display:flex;
-    -webkit-justify-content:space-around;
-        -ms-flex-pack:distribute;
-            justify-content:space-around; }
+    -ms-flex-pack:distribute;
+        justify-content:space-around; }
   .bp3-daterangepicker.bp3-daterangepicker-contiguous .DayPicker{
     min-width:220px; }
   .bp3-daterangepicker.bp3-daterangepicker-single-month .DayPicker{
@@ -343,6 +330,102 @@ Licensed under the Apache License, Version 2.0.
     .bp3-timepicker .bp3-timepicker-input:focus{
       -webkit-box-shadow:0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3);
               box-shadow:0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3); }
+    .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary{
+      -webkit-box-shadow:0 0 0 0 rgba(19, 124, 189, 0), 0 0 0 0 rgba(19, 124, 189, 0), inset 0 0 0 1px #137cbd, inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+              box-shadow:0 0 0 0 rgba(19, 124, 189, 0), 0 0 0 0 rgba(19, 124, 189, 0), inset 0 0 0 1px #137cbd, inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2); }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary:focus{
+        -webkit-box-shadow:0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+                box-shadow:0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.2); }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary[readonly]{
+        -webkit-box-shadow:inset 0 0 0 1px #137cbd;
+                box-shadow:inset 0 0 0 1px #137cbd; }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary:disabled, .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary.bp3-disabled{
+        -webkit-box-shadow:none;
+                box-shadow:none; }
+      .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary{
+        -webkit-box-shadow:0 0 0 0 rgba(19, 124, 189, 0), 0 0 0 0 rgba(19, 124, 189, 0), 0 0 0 0 rgba(19, 124, 189, 0), inset 0 0 0 1px #137cbd, inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+                box-shadow:0 0 0 0 rgba(19, 124, 189, 0), 0 0 0 0 rgba(19, 124, 189, 0), 0 0 0 0 rgba(19, 124, 189, 0), inset 0 0 0 1px #137cbd, inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4); }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary:focus{
+          -webkit-box-shadow:0 0 0 1px #137cbd, 0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+                  box-shadow:0 0 0 1px #137cbd, 0 0 0 1px #137cbd, 0 0 0 3px rgba(19, 124, 189, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4); }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary[readonly]{
+          -webkit-box-shadow:inset 0 0 0 1px #137cbd;
+                  box-shadow:inset 0 0 0 1px #137cbd; }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary:disabled, .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-primary.bp3-disabled{
+          -webkit-box-shadow:none;
+                  box-shadow:none; }
+    .bp3-timepicker .bp3-timepicker-input.bp3-intent-success{
+      -webkit-box-shadow:0 0 0 0 rgba(15, 153, 96, 0), 0 0 0 0 rgba(15, 153, 96, 0), inset 0 0 0 1px #0f9960, inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+              box-shadow:0 0 0 0 rgba(15, 153, 96, 0), 0 0 0 0 rgba(15, 153, 96, 0), inset 0 0 0 1px #0f9960, inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2); }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-success:focus{
+        -webkit-box-shadow:0 0 0 1px #0f9960, 0 0 0 3px rgba(15, 153, 96, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+                box-shadow:0 0 0 1px #0f9960, 0 0 0 3px rgba(15, 153, 96, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.2); }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-success[readonly]{
+        -webkit-box-shadow:inset 0 0 0 1px #0f9960;
+                box-shadow:inset 0 0 0 1px #0f9960; }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-success:disabled, .bp3-timepicker .bp3-timepicker-input.bp3-intent-success.bp3-disabled{
+        -webkit-box-shadow:none;
+                box-shadow:none; }
+      .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-success{
+        -webkit-box-shadow:0 0 0 0 rgba(15, 153, 96, 0), 0 0 0 0 rgba(15, 153, 96, 0), 0 0 0 0 rgba(15, 153, 96, 0), inset 0 0 0 1px #0f9960, inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+                box-shadow:0 0 0 0 rgba(15, 153, 96, 0), 0 0 0 0 rgba(15, 153, 96, 0), 0 0 0 0 rgba(15, 153, 96, 0), inset 0 0 0 1px #0f9960, inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4); }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-success:focus{
+          -webkit-box-shadow:0 0 0 1px #0f9960, 0 0 0 1px #0f9960, 0 0 0 3px rgba(15, 153, 96, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+                  box-shadow:0 0 0 1px #0f9960, 0 0 0 1px #0f9960, 0 0 0 3px rgba(15, 153, 96, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4); }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-success[readonly]{
+          -webkit-box-shadow:inset 0 0 0 1px #0f9960;
+                  box-shadow:inset 0 0 0 1px #0f9960; }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-success:disabled, .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-success.bp3-disabled{
+          -webkit-box-shadow:none;
+                  box-shadow:none; }
+    .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning{
+      -webkit-box-shadow:0 0 0 0 rgba(217, 130, 43, 0), 0 0 0 0 rgba(217, 130, 43, 0), inset 0 0 0 1px #d9822b, inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+              box-shadow:0 0 0 0 rgba(217, 130, 43, 0), 0 0 0 0 rgba(217, 130, 43, 0), inset 0 0 0 1px #d9822b, inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2); }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning:focus{
+        -webkit-box-shadow:0 0 0 1px #d9822b, 0 0 0 3px rgba(217, 130, 43, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+                box-shadow:0 0 0 1px #d9822b, 0 0 0 3px rgba(217, 130, 43, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.2); }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning[readonly]{
+        -webkit-box-shadow:inset 0 0 0 1px #d9822b;
+                box-shadow:inset 0 0 0 1px #d9822b; }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning:disabled, .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning.bp3-disabled{
+        -webkit-box-shadow:none;
+                box-shadow:none; }
+      .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning{
+        -webkit-box-shadow:0 0 0 0 rgba(217, 130, 43, 0), 0 0 0 0 rgba(217, 130, 43, 0), 0 0 0 0 rgba(217, 130, 43, 0), inset 0 0 0 1px #d9822b, inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+                box-shadow:0 0 0 0 rgba(217, 130, 43, 0), 0 0 0 0 rgba(217, 130, 43, 0), 0 0 0 0 rgba(217, 130, 43, 0), inset 0 0 0 1px #d9822b, inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4); }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning:focus{
+          -webkit-box-shadow:0 0 0 1px #d9822b, 0 0 0 1px #d9822b, 0 0 0 3px rgba(217, 130, 43, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+                  box-shadow:0 0 0 1px #d9822b, 0 0 0 1px #d9822b, 0 0 0 3px rgba(217, 130, 43, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4); }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning[readonly]{
+          -webkit-box-shadow:inset 0 0 0 1px #d9822b;
+                  box-shadow:inset 0 0 0 1px #d9822b; }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning:disabled, .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-warning.bp3-disabled{
+          -webkit-box-shadow:none;
+                  box-shadow:none; }
+    .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger{
+      -webkit-box-shadow:0 0 0 0 rgba(219, 55, 55, 0), 0 0 0 0 rgba(219, 55, 55, 0), inset 0 0 0 1px #db3737, inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+              box-shadow:0 0 0 0 rgba(219, 55, 55, 0), 0 0 0 0 rgba(219, 55, 55, 0), inset 0 0 0 1px #db3737, inset 0 0 0 1px rgba(16, 22, 26, 0.15), inset 0 1px 1px rgba(16, 22, 26, 0.2); }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger:focus{
+        -webkit-box-shadow:0 0 0 1px #db3737, 0 0 0 3px rgba(219, 55, 55, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.2);
+                box-shadow:0 0 0 1px #db3737, 0 0 0 3px rgba(219, 55, 55, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.2); }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger[readonly]{
+        -webkit-box-shadow:inset 0 0 0 1px #db3737;
+                box-shadow:inset 0 0 0 1px #db3737; }
+      .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger:disabled, .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger.bp3-disabled{
+        -webkit-box-shadow:none;
+                box-shadow:none; }
+      .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger{
+        -webkit-box-shadow:0 0 0 0 rgba(219, 55, 55, 0), 0 0 0 0 rgba(219, 55, 55, 0), 0 0 0 0 rgba(219, 55, 55, 0), inset 0 0 0 1px #db3737, inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+                box-shadow:0 0 0 0 rgba(219, 55, 55, 0), 0 0 0 0 rgba(219, 55, 55, 0), 0 0 0 0 rgba(219, 55, 55, 0), inset 0 0 0 1px #db3737, inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4); }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger:focus{
+          -webkit-box-shadow:0 0 0 1px #db3737, 0 0 0 1px #db3737, 0 0 0 3px rgba(219, 55, 55, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4);
+                  box-shadow:0 0 0 1px #db3737, 0 0 0 1px #db3737, 0 0 0 3px rgba(219, 55, 55, 0.3), inset 0 0 0 1px rgba(16, 22, 26, 0.3), inset 0 1px 1px rgba(16, 22, 26, 0.4); }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger[readonly]{
+          -webkit-box-shadow:inset 0 0 0 1px #db3737;
+                  box-shadow:inset 0 0 0 1px #db3737; }
+        .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger:disabled, .bp3-dark .bp3-timepicker .bp3-timepicker-input.bp3-intent-danger.bp3-disabled{
+          -webkit-box-shadow:none;
+                  box-shadow:none; }
   .bp3-timepicker .bp3-timepicker-ampm-select{
     margin-left:5px; }
   .bp3-timepicker.bp3-disabled .bp3-timepicker-input-row{
@@ -395,4 +478,3 @@ Licensed under the Apache License, Version 2.0.
 
 .bp3-dateinput-popover{
   padding:0; }
-/*# sourceMappingURL=blueprint-datetime.css.map */
