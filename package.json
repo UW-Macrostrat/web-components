@@ -6,9 +6,12 @@
   "style": "lib/index.css",
   "module": "lib/esm",
   "main": "lib/cjs",
+  "typings": "lib/types",
   "scripts": {
-    "dev": "rollup -c -w",
-    "build": "rollup -c",
+    "watch:main": "rollup -c -w",
+    "watch:types": "tsc --emitDeclarationOnly -w",
+    "dev": "concurrently npm:watch:main npm:watch:types",
+    "build": "rollup -c && tsc --emitDeclarationOnly",
     "prepare": "npm run build"
   },
   "author": "Daven Quinn",
@@ -35,8 +38,14 @@
     "@babel/core": "^7.7.7",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
+    "@babel/preset-typescript": "^7.8.3",
+    "@types/classnames": "^2.2.9",
+    "@types/immutability-helper": "^2.6.3",
+    "@types/react": "^16.9.19",
+    "@types/react-hyperscript": "^3.0.4",
     "babel-plugin-emotion": "^10.0.14",
     "coffeescript": "^2.4.1",
+    "concurrently": "^5.1.0",
     "rollup": "^1.17.0",
     "rollup-plugin-babel": "^4.3.3",
     "rollup-plugin-coffee-script": "^2.0.0",
@@ -44,7 +53,9 @@
     "rollup-plugin-css": "^1.0.10",
     "rollup-plugin-css-porter": "^1.0.2",
     "rollup-plugin-rename": "0.0.1",
-    "rollup-plugin-stylus-compiler": "^1.0.1"
+    "rollup-plugin-sourcemaps": "^0.5.0",
+    "rollup-plugin-stylus-compiler": "^1.0.1",
+    "typescript": "^3.7.5"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.17.1",
