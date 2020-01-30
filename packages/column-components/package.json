@@ -11,14 +11,13 @@
   "main": "dist/cjs",
   "module": "dist/esm",
   "style": "dist/column-components.css",
-  "typings": "dist/types/column-components.d.ts",
+  "typings": "dist/types",
   "files": [
     "dist"
   ],
   "scripts": {
-    "compile:coffee": "coffee -c -m -o dist/esm src",
     "watch:main": "rollup -c rollup.config.ts -w",
-    "watch:types": "tsc --emitDeclarationOnly -w 2&>/dev/null",
+    "watch:types": "tsc --emitDeclarationOnly -w",
     "watch": "concurrently npm:watch:main npm:watch:types",
     "dev": "npm run prebuild && npm run watch",
     "start": "npm run dev",
@@ -52,7 +51,7 @@
     "typescript": "^3.7.5"
   },
   "dependencies": {
-    "@macrostrat/hyper": "^1.1.5",
+    "@macrostrat/hyper": "^1.2.0",
     "autobind": "^1.0.3",
     "babel-plugin-transform-class-properties": "^6.24.1",
     "chroma-js": "^2.1.0",
