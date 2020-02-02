@@ -14,10 +14,9 @@ import {axisLeft} from 'd3-axis';
 import {ColumnContext} from './context';
 
 class ColumnAxis extends Component {
-  static initClass() {
-    this.contextType = ColumnContext;
-    // https://github.com/d3/d3-axis
-    this.__d3axisKeys = [
+  // https://github.com/d3/d3-axis
+  static contextType = ColumnContext;
+  static __d3axisKeys = [
       'ticks',
       'tickArguments',
       'tickValues',
@@ -27,12 +26,11 @@ class ColumnAxis extends Component {
       'tickSizeOuter',
       'tickPadding'
     ];
-    this.defaultProps = {
-      ticks: 4,
-      showLabel() { return true; },
-      showDomain: true
-    };
-  }
+  static defaultProps = {
+    ticks: 4,
+    showLabel() { return true; },
+    showDomain: true
+  };
   render() {
     return h('g.y.axis');
   }
@@ -41,8 +39,8 @@ class ColumnAxis extends Component {
     const {showLabel} = this.props;
     this.yAxis.scale(scale);
 
-    for (let k of Array.from(this.constructor.__d3axisKeys)) {
-      if (this.props[k] == null) { continue; }
+    for (let k of this.constructor.__d3axisKeys) {
+      if (this.props[k] == null) continue;
       this.yAxis[k](this.props[k]);
     }
 
@@ -64,9 +62,8 @@ class ColumnAxis extends Component {
 
   componentDidMount() {
     this.yAxis = axisLeft();
-    return this.componentDidUpdate();
+    this.componentDidUpdate();
   }
 }
-ColumnAxis.initClass();
 
 export {ColumnAxis};
