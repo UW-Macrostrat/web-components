@@ -1,10 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {scaleLinear, scaleOrdinal} from "d3-scale";
 import {Component, createContext} from "react";
 import h from "react-hyperscript";
@@ -66,8 +59,6 @@ class ColumnProvider extends Component {
     const scale = scaleLinear().domain(range).range([pixelHeight, 0]);
     const scaleClamped = scale.copy().clamp(true);
 
-    console.log("Rendering column context")
-
     const value = {
       pixelsPerMeter,
       pixelHeight,
@@ -82,4 +73,6 @@ class ColumnProvider extends Component {
   }
 }
 
-export {ColumnContext, ColumnProvider};
+const useColumnDivisions = ()=>useContext(ColumnContext).divisions
+
+export {ColumnContext, ColumnProvider, useColumnDivisions};
