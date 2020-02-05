@@ -49,7 +49,12 @@ class FloodingSurface extends Component {
       });}));
   }
 }
-FloodingSurface.initClass();
+FloodingSurface.initClass;
+
+function range(start, end) {
+    if(start === end) return [start];
+    return [start, ...range(start + 1, end)];
+}
 
 class TriangleBars extends UUIDComponent {
   constructor(...args) {
@@ -67,10 +72,17 @@ class TriangleBars extends UUIDComponent {
   }
 
   render() {
-    let {offsetLeft, lineWidth, order, orders} = this.props;
+    let {offsetLeft, lineWidth, order, orders, minOrder, maxOrder} = this.props;
     const {scale, zoom, divisions} = this.context;
+
+    if (orders == null && minOrder != null && maxOrder != null) {
+      orders = range(minOrder, maxOrder)
+    }
+
     const [bottom, top] = scale.range();
-    if (orders == null) { orders = [order]; }
+    if (orders == null && order != null) { orders = [order]; }
+
+    orders.reverse()
 
     const _ = path();
 
