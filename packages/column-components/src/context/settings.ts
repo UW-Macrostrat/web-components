@@ -6,7 +6,7 @@
  */
 import h from 'react-hyperscript';
 import {createContext, useState, useContext} from 'react';
-import update from 'immutability-helper';
+import update, {Spec} from 'immutability-helper';
 import LocalStorage from '../util/storage';
 import T from 'prop-types';
 
@@ -31,7 +31,7 @@ const SettingsProvider = function(props){
   }
 
   const [settings, setState] = useState(defaultSettings);
-  const updateState = function(spec){
+  const updateState = function(spec: Spec){
     const newSettings = update(settings, spec);
     setState(newSettings);
     if (storage != null) { return storage.set(newSettings); }
