@@ -1,59 +1,43 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS202: Simplify dynamic range loops
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-//import {query} from "app/sections/db"
 import {scaleLinear} from 'd3-scale';
-import {Component, createElement} from "react";
+import {useContext, createElement} from "react";
 import h from "react-hyperscript";
-//import {Notification} from "app/notify"
+import {Notification} from "~/notify"
 import {path} from "d3-path";
 import {ColumnContext} from "./context";
 import {UUIDComponent} from './frame';
 
-class FloodingSurface extends Component {
-  static initClass() {
-    this.contextType = ColumnContext;
-    this.defaultProps = {
-      offsetLeft: -90,
-      lineWidth: 50
-    };
-  }
-  render() {
-    const {scale, zoom, divisions} = this.context;
-    const {offsetLeft, lineWidth} = this.props;
-    const floodingSurfaces = divisions.filter(d => d.flooding_surface_order != null);
-    if (!floodingSurfaces.length) { return null; }
-    return h('g.flooding-surface', null, floodingSurfaces.map(function(d){
-      const y = scale(d.bottom);
-      const x = offsetLeft;
-      const transform = `translate(${x} ${y})`;
-      let onClick = null;
-      if (d.note != null) {
-        onClick = () => Notification.show({
-          message: d.note
-        });
-      }
-      return h("line.flooding-surface", {
-        transform,
-        onClick,
-        key: d.id,
-        strokeWidth: (6-Math.abs(d.flooding_surface_order))*.75,
-        stroke: d.flooding_surface_order >= 0 ? '#ccc' : '#fcc',
-        x1: 0,
-        x2: lineWidth
-      });}));
-  }
+const FloodingSurface = (props)=> {
+  const {scale, divisions} = useContext(ColumnContext);
+  const {offsetLeft, lineWidth} = props;
+  const floodingSurfaces = divisions.filter(d => d.flooding_surface_order != null);
+  if (!floodingSurfaces.length) { return null; }
+  return h('g.flooding-surface', null, floodingSurfaces.map(function(d){
+    const y = scale(d.bottom);
+    const x = offsetLeft;
+    let onClick = null;
+    if (d.note != null) {
+      onClick = () => Notification.show({message: d.note});
+    }
+    return h("line.flooding-surface", {
+      transform: `translate(${x} ${y})`,
+      onClick,
+      key: d.id,
+      strokeWidth: (6-Math.abs(d.flooding_surface_order))*.75,
+      stroke: d.flooding_surface_order >= 0 ? '#ccc' : '#fcc',
+      x1: 0,
+      x2: lineWidth
+    });
+  }));
 }
-FloodingSurface.initClass;
 
-function range(start, end) {
-    if(start === end) return [start];
-    return [start, ...range(start + 1, end)];
+FloodingSurface.defaultProps = {
+  offsetLeft: -90,
+  lineWidth: 50
+};
+
+function range(start: number, end: number): number[] {
+  if(start === end) return [start];
+  return [start, ...range(start + 1, end)];
 }
 
 class TriangleBars extends UUIDComponent {
