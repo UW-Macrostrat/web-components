@@ -1,24 +1,11 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS104: Avoid inline assignments
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import {select} from "d3-selection";
-import {Component, PureComponent, createElement, useContext} from "react";
-import {findDOMNode} from "react-dom";
+import {Component, useContext} from "react";
 import h from "react-hyperscript";
 import classNames from "classnames";
-import {path} from "d3-path";
 import T from 'prop-types';
 import {SimpleFrame, GrainsizeFrame, ClipToFrame, UUIDComponent} from '../frame';
 import {FaciesContext, ColumnContext, ColumnLayoutContext,
-        AssetPathContext, ColumnLayoutProvider} from "../context";
-import {GeologicPattern, GeologicPatternProvider} from './patterns.ts';
-import {createGrainsizeScale} from "../grainsize";
+        ColumnLayoutProvider} from "../context";
+import {GeologicPattern} from './patterns.ts';
 
 // Malformed es6 module
 let v = require('react-svg-textures');
