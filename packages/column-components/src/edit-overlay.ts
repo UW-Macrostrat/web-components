@@ -56,7 +56,12 @@ interface OverlayBoxProps {
 
 const OverlayBox = (props: OverlayBoxProps)=>{
   const {division, background, className, onClick} = props;
-  const {widthForDivision, scaleClamped} = useContext(ColumnLayoutContext);
+  const {
+    widthForDivision,
+    scaleClamped
+  } = useContext(ColumnLayoutContext);
+
+  if (scaleClamped == null) return null
 
   const top = scaleClamped(division.top);
   const bottom = scaleClamped(division.bottom);
