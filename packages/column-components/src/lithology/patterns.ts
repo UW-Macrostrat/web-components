@@ -3,7 +3,7 @@ import h from "react-hyperscript"
 import {createGrainsizeScale} from "../grainsize"
 
 interface IGeologicPattern {
-  UUID: string
+  prefix: string
   id: string
   width: number
   height: number
@@ -27,7 +27,7 @@ const GeologicPattern = (props: IGeologicPattern)=> {
   const {UUID, width, height, id: d} = props
   const patternSize = {width, height}
 
-  const id = `${UUID}-${d}`
+  const id = `${prefix}-${d}`
 
   return h('pattern', {
     id,

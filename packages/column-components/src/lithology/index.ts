@@ -151,14 +151,11 @@ const FaciesColumnInner = function(props){
 };
 
 class CoveredOverlay extends UUIDComponent {
-  static initClass() {
-    this.contextType = ColumnLayoutContext;
-  }
+  static contextType = ColumnLayoutContext;
   render() {
     const {divisions, width} = this.context;
-    const divs = divisions.filter(d => d.covered).map(d=> {
-      return h(ColumnRect, {division: d, width, fill: `url(#${this.UUID}-covered)`});
-  });
+    const fill = `url(#${this.UUID}-covered)`
+    const coveredDivs = divisions.filter(d => d.covered)
 
     return h('g.covered-overlay', {}, [
       h('defs', [
@@ -169,11 +166,12 @@ class CoveredOverlay extends UUIDComponent {
           stroke: 'rgba(0,0,0,0.5)'
         })
       ]),
-      ...divs
+      h('g.main', coveredDivs.map(d=> {
+        return h(ColumnRect, {division: d, width, fill});
+      }))
     ]);
   }
 }
-CoveredOverlay.initClass();
 
 const LithologySymbolDefs = function(props){
   let {resolveID, divisions, UUID, scalePattern} = props;
@@ -193,7 +191,14 @@ const LithologySymbolDefs = function(props){
       const scalar = scalePattern(id);
       sz *= scalar;
     }
-    return h(GeologicPattern, {key: i, UUID, id, width: sz, height: sz});}));
+    return h(GeologicPattern, {
+      key: i,
+      prefix: UUID,
+      id,
+      width: sz,
+      height: sz
+    });
+  }));
 };
 
 class LithologyBoxes extends UUIDComponent {

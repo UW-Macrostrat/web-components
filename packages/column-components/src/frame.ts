@@ -82,7 +82,7 @@ class GrainsizeFrame extends Component {
     let _ = null;
     let currentGrainsize = 'm';
     for (div of Array.from(filteredDivisions)) {
-      if ((_ == null)) {
+      if (_ == null) {
         _ = path();
         _.moveTo(0,bottomOf(div));
       }
@@ -96,7 +96,11 @@ class GrainsizeFrame extends Component {
     _.lineTo(0, topOf(div));
     _.closePath();
 
-    return h("path", {id: frameID, key: frameID, d: _.toString()});
+    return h("path", {
+      id: frameID,
+      key: frameID,
+      d: _.toString()
+    });
   }
 }
 GrainsizeFrame.initClass();
