@@ -1,6 +1,5 @@
 import {createContext, useContext} from "react"
 import h from "react-hyperscript"
-import {createGrainsizeScale} from "../grainsize"
 
 interface IGeologicPattern {
   prefix: string
@@ -24,7 +23,7 @@ const GeologicPatternProvider = (props: IGeologicPatternProvider)=>{
 
 const GeologicPattern = (props: IGeologicPattern)=> {
   const {resolvePattern} = useContext(GeologicPatternContext)
-  const {UUID, width, height, id: d} = props
+  const {prefix, width, height, id: d} = props
   const patternSize = {width, height}
 
   const id = `${prefix}-${d}`
