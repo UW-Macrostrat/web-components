@@ -1,23 +1,19 @@
 import {scaleLinear} from 'd3-scale';
 import {useContext, createElement} from "react";
 import h from "react-hyperscript";
-import {Notification} from "~/notify"
 import {path} from "d3-path";
 import {ColumnContext} from "./context";
 import {UUIDComponent} from './frame';
 
 const FloodingSurface = (props)=> {
   const {scale, divisions} = useContext(ColumnContext);
-  const {offsetLeft, lineWidth} = props;
+  const {offsetLeft, lineWidth, onClick} = props;
   const floodingSurfaces = divisions.filter(d => d.flooding_surface_order != null);
   if (!floodingSurfaces.length) { return null; }
   return h('g.flooding-surface', null, floodingSurfaces.map(function(d){
     const y = scale(d.bottom);
     const x = offsetLeft;
-    let onClick = null;
-    if (d.note != null) {
-      onClick = () => Notification.show({message: d.note});
-    }
+
     return h("line.flooding-surface", {
       transform: `translate(${x} ${y})`,
       onClick,
