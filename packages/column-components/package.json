@@ -12,6 +12,7 @@
   "module": "dist/esm",
   "style": "dist/column-components.css",
   "typings": "dist/types",
+  "type": "module",
   "files": [
     "dist"
   ],
