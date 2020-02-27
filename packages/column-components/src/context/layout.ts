@@ -27,7 +27,6 @@ class ColumnLayoutProvider extends Component {
   render() {
     const {children, ...rest} = this.props;
     const value = {...this.context, ...rest};
-    console.log(value)
     return h(ColumnLayoutContext.Provider, {value}, children);
   }
 }
