@@ -1,10 +1,29 @@
-import {scaleLinear, scaleOrdinal} from "d3-scale";
+import {scaleLinear, ScaleContinuousNumeric} from "d3-scale";
 import {Component, createContext} from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
 
-const ColumnContext = createContext({
-  scale: scaleLinear([0,1]),
+type HeightRange = [number,number]
+type ColumnScale = ScaleContinuousNumeric<HeightRange,number>
+
+declare interface ColumnDivision {
+  section_id: string;
+  id: number,
+  surface: number,
+  bottom: number,
+  top: number
+}
+
+interface ColumnCtx {
+  divisions: ColumnDivision[],
+  scaleClamped: ColumnScale,
+  pixelsPerMeter: number,
+  scale: ColumnScale,
+  zoom: number
+}
+
+const ColumnContext = createContext<ColumnCtx>({
+  scale: scaleLinear(),
   divisions: []
 });
 
