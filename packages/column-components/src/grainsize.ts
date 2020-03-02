@@ -22,12 +22,8 @@ const createGrainsizeScale = function(range){
 };
 
 class GrainsizeAxis extends Component {
-  static initClass() {
-    this.contextType = ColumnLayoutContext;
-    this.defaultProps = {
-      height: 20
-    };
-  }
+  static contextType = ColumnLayoutContext;
+  static defaultProps = {height: 20};
   render() {
     const {grainsizeScale: gs, pixelHeight} = this.context;
     if (gs == null) {
@@ -43,6 +39,5 @@ class GrainsizeAxis extends Component {
   }));
   }
 }
-GrainsizeAxis.initClass();
 
 export {GrainsizeAxis, grainSizes, createGrainsizeScale};
