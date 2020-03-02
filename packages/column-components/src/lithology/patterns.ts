@@ -1,11 +1,12 @@
 import {createContext, useContext} from "react"
-import h from "react-hyperscript"
+import h from "@macrostrat/hyper"
 
 interface IGeologicPattern {
   prefix: string
   id: string
   width: number
-  height: number
+  height: number,
+  name?: string
 }
 
 interface IGeologicPatternProvider {
@@ -23,19 +24,17 @@ const GeologicPatternProvider = (props: IGeologicPatternProvider)=>{
 
 const GeologicPattern = (props: IGeologicPattern)=> {
   const {resolvePattern} = useContext(GeologicPatternContext)
-  const {prefix, width, height, id: d} = props
+  const {prefix, width, height, id, name, ...rest} = props
   const patternSize = {width, height}
 
-  const id = `${prefix}-${d}`
-
   return h('pattern', {
-    id,
-    key: id,
+    id: `${prefix}-${name ?? id}`,
     patternUnits: "userSpaceOnUse",
-    ...patternSize
+    ...patternSize,
+    ...rest
   }, [
-    h('image', {
-      xlinkHref: resolvePattern(d),
+    h.if(id != null)('image', {
+      xlinkHref: resolvePattern(id),
       x:0,
       y:0,
       ...patternSize
