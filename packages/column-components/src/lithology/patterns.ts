@@ -70,7 +70,7 @@ const GeologicPattern = (props: IGeologicPattern)=> {
       h.if(color != null)('rect', {
         ...patternBounds,
         fill: color,
-        mask: id != null ? `url(#${maskID})` : null
+        mask: `url(#${maskID})`
       }),
       // Or render the image as normal
       h.if(id != null && color == null)('image', {
