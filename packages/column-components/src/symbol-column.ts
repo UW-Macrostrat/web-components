@@ -99,12 +99,13 @@ class SymbolColumn extends UUIDComponent {
   }
 
   renderSymbol(d){
-    const {scale} = this.context;
+    const {scale, pixelHeight} = this.context;
     const {symbol, id, height} = d;
     const className = classNames({symbol}, 'symbol');
 
     const {width} = this.props;
     const y = scale(height)-(width/2);
+    if (y < 0 || y > pixelHeight) return null
 
     const href = `#${this.UUID}-${symbol}`;
     return h("use", {className,y, x: 0, width, xlinkHref: href, key: id});
