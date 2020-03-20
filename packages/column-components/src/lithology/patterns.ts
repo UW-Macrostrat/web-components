@@ -1,19 +1,21 @@
 import {createContext, useContext} from "react"
-import h from "react-hyperscript"
-import {createGrainsizeScale} from "../grainsize"
+import h from "@macrostrat/hyper"
 
 interface IGeologicPattern {
-  UUID: string
+  prefix: string
   id: string
   width: number
-  height: number
+  height: number,
+  backgroundColor?: string,
+  name?: string,
+  invert?: boolean
 }
 
 interface IGeologicPatternProvider {
   resolvePattern(string): string
 }
 
-const GeologicPatternContext = createContext()
+const GeologicPatternContext = createContext<any>(null)
 
 const GeologicPatternProvider = (props: IGeologicPatternProvider)=>{
   const {resolvePattern, children} = props
@@ -24,23 +26,58 @@ const GeologicPatternProvider = (props: IGeologicPatternProvider)=>{
 
 const GeologicPattern = (props: IGeologicPattern)=> {
   const {resolvePattern} = useContext(GeologicPatternContext)
-  const {UUID, width, height, id: d} = props
+  let {
+    prefix,
+    backgroundColor,
+    color,
+    invert,
+    width, height, id, name, ...rest} = props
   const patternSize = {width, height}
+  const patternBounds = {x: 0, y: 0, ...patternSize}
 
-  const id = `${UUID}-${d}`
+  // Compositing if we want to set overlay color
+  // let overlayStyles = {}
+  // if (color != null) {
+  //   overlayStyles = {mixB}
+  // }
+  if (invert ?? false) {
+    color = props.backgroundColor
+    backgroundColor = props.color
+  }
+
+  const patternID = `${prefix}-${name ?? id}`
+  const maskID = `${patternID}-mask`
 
   return h('pattern', {
-    id,
-    key: id,
+    id: patternID,
     patternUnits: "userSpaceOnUse",
-    ...patternSize
+    ...patternSize,
+    ...rest
   }, [
-    h('image', {
-      xlinkHref: resolvePattern(d),
-      x:0,
-      y:0,
-      ...patternSize
-    })
+    h('g', {style: {isolation: 'isolate'}}, [
+      // Mask, if required
+      h.if(color != null && id != null)("mask", {id: maskID}, [
+        h('image', {
+          xlinkHref: resolvePattern(id),
+          ...patternBounds
+        })
+      ]),
+      h.if(backgroundColor != null)('rect', {
+        ...patternBounds,
+        fill: backgroundColor
+      }),
+      // Render a masked colored image
+      h.if(color != null)('rect', {
+        ...patternBounds,
+        fill: color,
+        mask: `url(#${maskID})`
+      }),
+      // Or render the image as normal
+      h.if(id != null && color == null)('image', {
+        xlinkHref: resolvePattern(id),
+        ...patternBounds
+      }),
+    ])
   ])
 }
 
