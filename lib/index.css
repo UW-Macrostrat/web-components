@@ -1,13 +1,3 @@
-div.file-upload .bp3-file-input {
-  width: 100%;
-}
-div.file-upload .bp3-file-input .bp3-file-upload-input .files {
-  padding-top: 2px;
-}
-div.file-upload .bp3-file-input .bp3-file-upload-input .files .bp3-tag {
-  pointer-events: none;
-}
-
 div.panel-header {
   padding: 6px;
   border-radius: 6px;
@@ -30,6 +20,16 @@ div.panel-header h3 {
 }
 div.panel-header div.expander {
   flex-grow: 1;
+}
+
+div.file-upload .bp3-file-input {
+  width: 100%;
+}
+div.file-upload .bp3-file-input .bp3-file-upload-input .files {
+  padding-top: 2px;
+}
+div.file-upload .bp3-file-input .bp3-file-upload-input .files .bp3-tag {
+  pointer-events: none;
 }
 
 /*!

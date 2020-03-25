@@ -1,12 +1,12 @@
 import {Component} from 'react'
-import update from 'immutability-helper'
+import update, {Spec} from 'immutability-helper'
 
-class StatefulComponent extends Component {
-  constructor(props){
+class StatefulComponent<Props,State> extends Component<Props,State> {
+  constructor(props: Props){
     super(props)
     this.updateState.bind(this)
   }
-  updateState(spec) {
+  updateState(spec: Spec<State>) {
     const newState = update(this.state, spec)
     this.setState(newState)
   }

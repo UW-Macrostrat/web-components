@@ -1,6 +1,7 @@
 import { Component } from 'react';
-declare class StatefulComponent extends Component {
-    constructor(props: any);
-    updateState(spec: any): void;
+import { Spec } from 'immutability-helper';
+declare class StatefulComponent<Props, State> extends Component<Props, State> {
+    constructor(props: Props);
+    updateState(spec: Spec<State>): void;
 }
 export { StatefulComponent };
