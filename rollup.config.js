@@ -13,7 +13,7 @@ const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 const extensions =  [ '.js', '.coffee', '.ts']
 
 export default {
-  input: 'index.coffee', // our source file
+  input: 'index.ts', // our source file
   preserveModules: true,
   output: [
     { dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
@@ -33,11 +33,8 @@ export default {
       exclude: 'node_modules/**'
     }),
     renameExtensions({
-      include: ['**/*.ts', '**/*.coffee'],
-      mappings: {
-          '.coffee': '.js',
-          '.ts': '.js',
-      },
+      include: ['**/*.ts'],
+      mappings: {'.ts': '.js'},
     }),
     // Resolve source maps to the original source
     sourceMaps()
