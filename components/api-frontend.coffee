@@ -39,7 +39,7 @@ class __APIResultView extends Component
     params: {}
     opts: {} # Options passed to `get`
     debug: false
-    success: console.log
+    onSuccess: console.log
     primaryKey: 'id'
     # If placeholder is not defined, the render
     # method will be called with null data
@@ -74,6 +74,8 @@ class __APIResultView extends Component
     {route, params, opts, onError: _onError} = @props
     return unless route?
     data = await get(route, params, opts)
+    # Run side effects...
+    @props.onSuccess(data)
     @setState {data}
 
   render: ->
