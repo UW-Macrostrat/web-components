@@ -5,7 +5,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import {Component} from 'react';
-import h from 'react-hyperscript';
+import h from '@macrostrat/hyper';
 import {Intent, Button, Alert} from '@blueprintjs/core';
 
 class DeleteButton extends Component {

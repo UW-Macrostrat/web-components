@@ -46,19 +46,12 @@ class ModelEditor extends StatefulComponent {
     };
   }
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(props);
     this.getValue = this.getValue.bind(this);
     this.hasChanges = this.hasChanges.bind(this);
     this.onChange = this.onChange.bind(this);
     this.toggleEditing = this.toggleEditing.bind(this);
     this.onPersistChanges = this.onPersistChanges.bind(this);
-    super(props);
     this.state = {
       isEditing: props.isEditing || false,
       isPersisting: null,

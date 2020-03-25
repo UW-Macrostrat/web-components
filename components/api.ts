@@ -25,19 +25,12 @@ const buildQueryString = params=> {
 };
 
 class APIProvider extends Component {
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+  constructor(props) {
+    super(props);
     this.buildURL = this.buildURL.bind(this);
     this.post = this.post.bind(this);
     this.get = this.get.bind(this);
     this.processOptions = this.processOptions.bind(this);
-    super(...args);
   }
 
   static initClass() {
@@ -113,7 +106,7 @@ class APIProvider extends Component {
     return this.runQuery(fn(url), route, url, "GET", opts);
   }
 
-  runQuery = async (promise, route, url, method, opts)=> {
+  async runQuery(promise, route, url, method, opts) {
     let res;
     const {onError} = opts;
     try {

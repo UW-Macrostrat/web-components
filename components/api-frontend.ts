@@ -59,17 +59,12 @@ class __APIResultView extends Component {
       debounce: 300
     };
   }
-  constructor() {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+  constructor(props) {
+    super(props);
+
     this.buildURL = this.buildURL.bind(this);
     this.createDebouncedFunction = this.createDebouncedFunction.bind(this);
-    super(...arguments);
+
     this.state = {data: null};
     this.createDebouncedFunction();
     this.getData();

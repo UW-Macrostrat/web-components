@@ -36,16 +36,9 @@ class FileUploadComponent extends Component {
       onCancel() {}
     };
   }
-  constructor() {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+  constructor(props) {
+    super(props);
     this.renderDropzone = this.renderDropzone.bind(this);
-    super(...arguments);
   }
 
   renderDropzone({getRootProps, getInputProps, isDragActive}){
