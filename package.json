@@ -42,7 +42,6 @@
     "@babel/core": "^7.7.7",
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
-<<<<<<< HEAD
     "@babel/preset-typescript": "^7.8.3",
     "@betit/rollup-plugin-rename-extensions": "^0.1.0",
     "@rollup/plugin-node-resolve": "^7.0.0",
@@ -50,9 +49,6 @@
     "@types/immutability-helper": "^2.6.3",
     "@types/react": "^16.9.19",
     "@types/react-hyperscript": "^3.0.4",
-=======
-    "@betit/rollup-plugin-rename-extensions": "0.0.5",
->>>>>>> origin/feature/tree-shaking
     "babel-plugin-emotion": "^10.0.14",
     "coffeescript": "^2.4.1",
     "concurrently": "^5.1.0",
