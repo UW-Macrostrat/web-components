@@ -10,10 +10,10 @@ const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
 //https://2ality.com/2017/02/babel-preset-env.html
 
-const extensions =  [ '.js', '.coffee', '.ts']
+const extensions =  [ '.js', '.ts']
 
 export default {
-  input: 'index.ts', // our source file
+  input: 'src/index.ts', // our source file
   preserveModules: true,
   output: [
     { dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
