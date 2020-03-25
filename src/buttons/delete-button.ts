@@ -1,21 +1,13 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {Component} from 'react';
 import h from '@macrostrat/hyper';
 import {Intent, Button, Alert} from '@blueprintjs/core';
 
 class DeleteButton extends Component {
-  static initClass() {
-    this.defaultProps = {
-      handleDelete() {},
-      alertContent: null,
-      itemDescription: "this item"
-    };
-  }
+  static defaultProps = {
+    handleDelete() {},
+    alertContent: null,
+    itemDescription: "this item"
+  };
   constructor(props){
     super(props);
     this.state = {alertIsShown: false};
@@ -59,6 +51,5 @@ class DeleteButton extends Component {
     ]);
   }
 }
-DeleteButton.initClass();
 
 export {DeleteButton};
