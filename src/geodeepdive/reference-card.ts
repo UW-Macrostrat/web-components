@@ -2,7 +2,7 @@ import {Component} from 'react';
 import h from '@macrostrat/hyper';
 import {Card} from '@blueprintjs/core';
 
-import {APIResultView} from '../api-frontend';
+import {APIResultView} from '../api';
 import {LinkCard} from '../link-card';
 import {AuthorList} from '../citations';
 

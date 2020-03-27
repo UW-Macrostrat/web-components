@@ -11,9 +11,9 @@ import h from 'react-hyperscript';
 import axios from 'axios';
 import {Spinner, Button, ButtonGroup,
         Intent, NonIdealState} from '@blueprintjs/core';
-import {AppToaster} from './notify';
+import {AppToaster} from '../notify';
 import ReactJson from 'react-json-view';
-import {APIContext, APIProvider} from './api';
+import {APIContext, APIProvider} from './provider';
 import {debounce} from 'underscore';
 
 const APIViewContext = createContext({});
@@ -44,26 +44,26 @@ const APIResultPlaceholder = props=> {
 };
 
 class __APIResultView extends Component {
-  static initClass() {
-    this.contextType = APIContext;
-    this.defaultProps = {
-      route: null,
-      params: {},
-      opts: {}, // Options passed to `get`
-      debug: false,
-      onSuccess: console.log,
-      primaryKey: 'id',
-      // If placeholder is not defined, the render
-      // method will be called with null data
-      placeholder: APIResultPlaceholder,
-      debounce: 300
-    };
+  static contextType = APIContext;
+  static defaultProps = {
+    route: null,
+    params: {},
+    opts: {}, // Options passed to `get`
+    debug: false,
+    onSuccess: console.log,
+    primaryKey: 'id',
+    // If placeholder is not defined, the render
+    // method will be called with null data
+    placeholder: APIResultPlaceholder,
+    debounce: 300
   }
   constructor(props) {
     super(props);
 
     this.buildURL = this.buildURL.bind(this);
     this.createDebouncedFunction = this.createDebouncedFunction.bind(this);
+    this.getData = this.getData.bind(this)
+    this.submittedRequest = false
 
     this.state = {data: null};
     this.createDebouncedFunction();
@@ -87,18 +87,20 @@ class __APIResultView extends Component {
     if (prevProps.debounce !== this.props.debounce) {
       this.createDebouncedFunction();
     }
-    if (this.buildURL() === this.buildURL(prevProps)) { return; }
+    if (this.buildURL() === this.buildURL(prevProps) && this.submittedRequest) { return; }
     return this.lazyGetData();
   }
 
-  getData = async () => {
-    const {get} = this.context;
-    if ((get == null)) {
-      throw "APIResultView component must inhabit an APIContext";
+  async getData() {
+    this.submittedRequest = false
+    if (this.context?.get == null) {
+      return
+      //throw "APIResultView component must inhabit an APIContext";
     }
     const {route, params, opts, onError: _onError} = this.props;
     if (route == null) { return; }
-    const data = await get(route, params, opts);
+    const data = await this.context.get(route, params, opts);
+    this.submittedRequest = true
     // Run side effects...
     this.props.onSuccess(data);
     return this.setState({data});
@@ -113,7 +115,7 @@ class __APIResultView extends Component {
       };
     }
 
-    if ((data == null) && (placeholder != null)) {
+    if (data == null && placeholder != null) {
       return h(placeholder);
     }
     const value = {deleteItem: this.deleteItem};
@@ -141,14 +143,15 @@ class __APIResultView extends Component {
     }
   };
 }
-__APIResultView.initClass();
 
 const APIResultView = function(props){
   // Enable the use of the APIResultView outside of the APIContext
   // by wrapping it in a placeholder APIContext
   const ctx = useContext(APIContext);
+  if (ctx == null) return null
   const component = h(__APIResultView, props);
-  if (ctx.get != null) { return component; }
+  if (ctx?.get != null) { return component; }
+  console.log("Wrapping in API context")
   return h(APIProvider, {baseURL: ""}, component);
 };
 

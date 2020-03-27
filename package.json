@@ -15,7 +15,7 @@
     "dev:docs": "concurrently npm:watch:*",
     "build:docs": "rm -rf .docz && docz build",
     "build:main": "rollup -c",
-    "build:types": "tsc --emitDeclarationOnly 2&> /dev/null",
+    "build:types": "tsc --emitDeclarationOnly; exit 0",
     "build": "concurrently npm:build:main npm:build:types",
     "prepare": "npm run build"
   },
