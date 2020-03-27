@@ -169,16 +169,9 @@ class PagedAPIView extends Component {
     };
   }
   constructor(props){
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
+    super(props);
     this.setPage = this.setPage.bind(this);
     this.params = this.params.bind(this);
-    super(props);
     this.state = {currentPage: 0, count: null};
   }
 

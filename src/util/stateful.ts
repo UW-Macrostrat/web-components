@@ -5,7 +5,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import {Component, useState} from 'react';
-import update from 'immutability-helper';
+import update, {Spec} from 'immutability-helper';
 
 const useImmutableState = function(v){
   const [state, setState] = useState(v);
@@ -16,22 +16,14 @@ const useImmutableState = function(v){
   return [state, updateState];
 };
 
-class StatefulComponent extends Component {
-  constructor(...args) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) { super(); }
-      let thisFn = (() => { return this; }).toString();
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1];
-      eval(`${thisName} = this;`);
-    }
-    this.updateState = this.updateState.bind(this);
-    super(...args);
+class StatefulComponent<Props, State> extends Component<Props, State> {
+  constructor(props: Props) {
+    super(props)
+    this.updateState.bind(this)
   }
-
-  updateState(spec){
-    const newState = update(this.state, spec);
-    return this.setState(newState);
+  updateState(spec: Spec<State>) {
+    const newState = update(this.state, spec)
+    this.setState(newState)
   }
 }
 

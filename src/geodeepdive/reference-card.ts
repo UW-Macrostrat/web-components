@@ -1,11 +1,5 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {Component} from 'react';
-import h from 'react-hyperscript';
+import h from '@macrostrat/hyper';
 import {Card} from '@blueprintjs/core';
 
 import {APIResultView} from '../api-frontend';
@@ -110,6 +104,7 @@ class GeoDeepDiveSwatchInner extends Component {
     } catch (error) {
       url = null;
     }
+    console.log("Render GDD swatch")
     return h(LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, h(InnerCard, rest));
   }
 }

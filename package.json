@@ -9,14 +9,14 @@
   "typings": "lib/types",
   "scripts": {
     "watch:main": "rollup -c -w",
-    "watch:types": "tsc --emitDeclarationOnly -w",
+    "watch:types": "tsc --emitDeclarationOnly -w 2&> /dev/null",
     "watch:docs": "rm -rf .docz && docz dev",
     "dev": "concurrently npm:watch:main npm:watch:types",
     "dev:docs": "concurrently npm:watch:*",
     "build:docs": "rm -rf .docz && docz build",
     "build:main": "rollup -c",
-    "build:types": "tsc --emitDeclarationOnly",
-    "build": "concurrently npm:build:*",
+    "build:types": "tsc --emitDeclarationOnly 2&> /dev/null",
+    "build": "concurrently npm:build:main npm:build:types",
     "prepare": "npm run build"
   },
   "author": "Daven Quinn",
@@ -42,11 +42,7 @@
     "react-json-view": "^1.19.1",
     "underscore": "^1.9.1",
     "use-async-effect": "^2.2.1",
-    "@blueprintjs/core": "^3.17.1",
-    "react": "^16.8.6",
-    "react-dom": "^16.8.6",
-    "react-router": "^5.0.1",
-    "react-router-dom": "^5.0.1"
+    "@blueprintjs/core": "^3.17.1"
   },
   "devDependencies": {
     "@babel/core": "^7.7.7",
@@ -78,5 +74,11 @@
     "rollup-plugin-stylus-compiler": "^1.0.1",
     "stylus": "^0.54.7",
     "typescript": "^3.7.5"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "react-router": "^5.0.1",
+    "react-router-dom": "^5.0.1"
   }
 }

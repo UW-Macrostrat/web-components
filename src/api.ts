@@ -59,7 +59,6 @@ class APIProvider extends Component {
     if (params == null) { params = {}; }
     const {baseURL} = this.props;
     if (route == null) { return null; }
-    console.log(route);
 
     if (!(route.startsWith(baseURL) || route.startsWith('http'))) {
       route = baseURL+route;
@@ -165,7 +164,11 @@ const useAPIResult = function(route, params, onResponse, deps){
   if (onResponse == null) { onResponse = d => d; }
 
   const [result, setResult] = useState(null);
-  const {get} = useContext(APIContext);
+  let {get, baseURL} = useContext(APIContext);
+  if (route.startsWith("http") && !route.startsWith(baseURL)) {
+    throw "useAPIResult hook must be used within a matching APIContext (for now)";
+  }
+
   const getAPIData = async function() {
     let opts;
     const res = await get(route, params, (opts={}));
