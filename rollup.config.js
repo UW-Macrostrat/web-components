@@ -1,6 +1,5 @@
 import pkg from './package.json';
 import babel from 'rollup-plugin-babel';
-import coffee from 'rollup-plugin-coffee-script';
 import resolve from '@rollup/plugin-node-resolve';
 import sourceMaps from 'rollup-plugin-sourcemaps';
 import postcss from 'rollup-plugin-postcss';
@@ -22,7 +21,6 @@ export default {
   external: Object.keys(deps),
   plugins: [
     resolve({extensions, module: true}),
-    coffee(),
     postcss({
       // postfix with .module.css etc. for css modules (DISABLED)
       modules: false,
