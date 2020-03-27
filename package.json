@@ -16,7 +16,7 @@
     "build:docs": "rm -rf .docz && docz build",
     "build:main": "rollup -c",
     "build:types": "tsc --emitDeclarationOnly; exit 0",
-    "build": "concurrently npm:build:main npm:build:types",
+    "build": "npm run-script build:main && npm run-script build:types",
     "prepare": "npm run build"
   },
   "author": "Daven Quinn",

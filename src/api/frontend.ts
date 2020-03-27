@@ -63,7 +63,6 @@ class __APIResultView extends Component {
     this.buildURL = this.buildURL.bind(this);
     this.createDebouncedFunction = this.createDebouncedFunction.bind(this);
     this.getData = this.getData.bind(this)
-    this.submittedRequest = false
 
     this.state = {data: null};
     this.createDebouncedFunction();
@@ -87,20 +86,19 @@ class __APIResultView extends Component {
     if (prevProps.debounce !== this.props.debounce) {
       this.createDebouncedFunction();
     }
-    if (this.buildURL() === this.buildURL(prevProps) && this.submittedRequest) { return; }
+    if (this.buildURL() === this.buildURL(prevProps)) { return; }
     return this.lazyGetData();
   }
 
   async getData() {
-    this.submittedRequest = false
+    console.log(this)
+    console.log(this.context)
     if (this.context?.get == null) {
-      return
-      //throw "APIResultView component must inhabit an APIContext";
+      throw "APIResultView component must inhabit an APIContext";
     }
     const {route, params, opts, onError: _onError} = this.props;
     if (route == null) { return; }
-    const data = await this.context.get(route, params, opts);
-    this.submittedRequest = true
+    const data = await get(route, params, opts);
     // Run side effects...
     this.props.onSuccess(data);
     return this.setState({data});

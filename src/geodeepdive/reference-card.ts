@@ -104,7 +104,6 @@ class GeoDeepDiveSwatchInner extends Component {
     } catch (error) {
       url = null;
     }
-    console.log("Render GDD swatch")
     return h(LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, h(InnerCard, rest));
   }
 }
@@ -126,7 +125,10 @@ class GDDReferenceCard extends Component {
       route: "http://geodeepdive.org/api/articles",
       params: {docid},
       opts: {
-        unwrapResponse(res){ return res.success.data[0]; },
+        unwrapResponse(res){
+          console.log(res)
+          return res.success.data[0];
+        },
         memoize: true,
         onError: console.error
       }
