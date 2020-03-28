@@ -6,14 +6,11 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext, useContext} from 'react';
+import {Component, createContext, ReactNode, cloneElement, isValidElement, Children} from 'react';
 import h from 'react-hyperscript';
-import axios from 'axios';
-import {Spinner, Button, ButtonGroup,
-        Intent, NonIdealState} from '@blueprintjs/core';
-import {AppToaster} from '../notify';
+import {Spinner, Button, ButtonGroup, NonIdealState} from '@blueprintjs/core';
 import ReactJson from 'react-json-view';
-import {APIContext, APIProvider, APIActions, APIHelpers} from './provider';
+import {APIContext, APIActions, APIHelpers} from './provider';
 import {debounce} from 'underscore';
 
 const APIViewContext = createContext({});
@@ -43,13 +40,19 @@ const APIResultPlaceholder = props=> {
   ]);
 };
 
+type ChildFunction<T> = (d: T)=>ReactNode
+
+type APIChild<T> =
+  | React.ReactElement<{data: T}>
+  | ChildFunction<T>
+
 interface APIResultProps<T> {
   route: string|null,
   params: QueryParams,
   onSuccess: (d: T)=>void,
   placeholder: React.ComponentType,
   debounce: number,
-  children?: React.ReactChild
+  children?: APIChild<T>
 }
 
 type APIResultState<T> = {data: T}
@@ -120,10 +123,18 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     const {data} = this.state;
     let {children, placeholder} = this.props;
 
+    const {params} = this.props
+    const value = {data, params}
+
     if (data == null && placeholder != null) {
       return h(placeholder);
     }
-    return children(data)
+    if (typeof children == 'function') {
+      return h(APIViewContext.Provider, {value}, children(data))
+    } else if (isValidElement(children)) {
+      return h(APIViewContext.Provider, {value}, cloneElement(children, {data}))
+    }
+    return null
   }
 }
 
