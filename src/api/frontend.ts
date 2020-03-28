@@ -13,7 +13,7 @@ import {Spinner, Button, ButtonGroup,
         Intent, NonIdealState} from '@blueprintjs/core';
 import {AppToaster} from '../notify';
 import ReactJson from 'react-json-view';
-import {APIContext, APIProvider, APIActions} from './provider';
+import {APIContext, APIProvider, APIActions, APIHelpers} from './provider';
 import {debounce} from 'underscore';
 
 const APIViewContext = createContext({});
@@ -74,12 +74,11 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
   _didFetch: boolean
   _lazyGetData: ()=>Promise<void>
 
-  constructor(props) {
-    super(props);
+  constructor(props, context) {
+    super(props, context);
 
     this._didFetch = false
 
-    this.buildURL = this.buildURL.bind(this);
     this.getData = this.getData.bind(this)
     this._lazyGetData = debounce(this.getData, this.props.debounce);
 
@@ -89,7 +88,7 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
 
   buildURL(props=null){
     const {route, params} = props ?? this.props;
-    const {helpers: {buildURL}} = this.context;
+    const {buildURL} = APIHelpers(this.context)
     return buildURL(route, params);
   }
 
@@ -97,16 +96,16 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     if (prevProps.debounce !== this.props.debounce) {
       this._lazyGetData = debounce(this.getData, this.props.debounce);
     }
-    if (this.buildURL() === this.buildURL(prevProps) && this._didFetch) return
+    if (this.buildURL() === this.buildURL(prevProps)) return
 
     return this._lazyGetData();
   }
 
   async getData() {
     this._didFetch = false
-    if (this.context?.get == null) {
-      return
-    }
+    // if (this.context?.get == null) {
+    //   return
+    // }
     const {route, params, opts, onError: _onError} = this.props;
     if (route == null) { return; }
     const {get} = APIActions(this.context)
