@@ -40,7 +40,7 @@ const APIResultPlaceholder = props=> {
   ]);
 };
 
-type ChildFunction<T> = (d: T)=>ReactNode
+type ChildFunction<T> = (d: T)=>React.ReactChild
 
 type APIChild<T> =
   | React.ReactElement<{data: T}>
