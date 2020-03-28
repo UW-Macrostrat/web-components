@@ -60,6 +60,8 @@ class __APIResultView extends Component {
   constructor(props) {
     super(props);
 
+    this._didFetch = false
+
     this.buildURL = this.buildURL.bind(this);
     this.createDebouncedFunction = this.createDebouncedFunction.bind(this);
     this.getData = this.getData.bind(this)
@@ -86,22 +88,23 @@ class __APIResultView extends Component {
     if (prevProps.debounce !== this.props.debounce) {
       this.createDebouncedFunction();
     }
-    if (this.buildURL() === this.buildURL(prevProps)) { return; }
+    if (this.buildURL() === this.buildURL(prevProps) && this._didFetch) return
+
     return this.lazyGetData();
   }
 
   async getData() {
-    console.log(this)
-    console.log(this.context)
+    this._didFetch = false
     if (this.context?.get == null) {
-      throw "APIResultView component must inhabit an APIContext";
+      return
     }
     const {route, params, opts, onError: _onError} = this.props;
     if (route == null) { return; }
-    const data = await get(route, params, opts);
+    const data = await this.context.get(route, params, opts);
+    this._didFetch = true
     // Run side effects...
     this.props.onSuccess(data);
-    return this.setState({data});
+    this.setState({data});
   };
 
   render() {
@@ -123,6 +126,7 @@ class __APIResultView extends Component {
   }
 
   deleteItem = async data=> {
+    console.warn("deleteItem is deprecated")
     const {route, primaryKey} = this.props;
     const id = data[primaryKey];
     const itemRoute = route+`/${id}`;
