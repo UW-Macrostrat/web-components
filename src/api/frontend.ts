@@ -43,7 +43,16 @@ const APIResultPlaceholder = props=> {
   ]);
 };
 
-class __APIResultView extends Component {
+interface APIResultProps<T> {
+  route: string|null,
+  params: QueryParams,
+  onSuccess: (d: T)=>void,
+  debounce: number
+}
+
+type APIResultState<T> = {data: T}
+
+class __APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
   static contextType = APIContext;
   static defaultProps = {
     route: null,
@@ -57,40 +66,35 @@ class __APIResultView extends Component {
     placeholder: APIResultPlaceholder,
     debounce: 300
   }
+  _didFetch: boolean
+  _lazyGetData: ()=>Promise<void>
+
   constructor(props) {
     super(props);
 
     this._didFetch = false
 
     this.buildURL = this.buildURL.bind(this);
-    this.createDebouncedFunction = this.createDebouncedFunction.bind(this);
     this.getData = this.getData.bind(this)
+    this._lazyGetData = debounce(this.getData, this.props.debounce);
 
     this.state = {data: null};
-    this.createDebouncedFunction();
     this.getData();
   }
 
-  buildURL(props){
-    if (props == null) { ({
-      props
-    } = this); }
+  buildURL(props=null){
+    const {route, params} = props ?? this.props;
     const {helpers: {buildURL}} = this.context;
-    const {route, params} = props;
     return buildURL(route, params);
-  }
-
-  createDebouncedFunction() {
-    return this.lazyGetData = debounce(this.getData, this.props.debounce);
   }
 
   componentDidUpdate(prevProps){
     if (prevProps.debounce !== this.props.debounce) {
-      this.createDebouncedFunction();
+      this._lazyGetData = debounce(this.getData, this.props.debounce);
     }
     if (this.buildURL() === this.buildURL(prevProps) && this._didFetch) return
 
-    return this.lazyGetData();
+    return this._lazyGetData();
   }
 
   async getData() {
