@@ -13,7 +13,7 @@ import {Spinner, Button, ButtonGroup,
         Intent, NonIdealState} from '@blueprintjs/core';
 import {AppToaster} from '../notify';
 import ReactJson from 'react-json-view';
-import {APIContext, APIProvider} from './provider';
+import {APIContext, APIProvider, APIActions} from './provider';
 import {debounce} from 'underscore';
 
 const APIViewContext = createContext({});
@@ -48,12 +48,13 @@ interface APIResultProps<T> {
   params: QueryParams,
   onSuccess: (d: T)=>void,
   placeholder: React.ComponentType,
-  debounce: number
+  debounce: number,
+  children?: React.ReactChild
 }
 
 type APIResultState<T> = {data: T}
 
-class __APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
+class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
   static contextType = APIContext;
   static defaultProps = {
     route: null,
@@ -65,7 +66,10 @@ class __APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>>
     // If placeholder is not defined, the render
     // method will be called with null data
     placeholder: APIResultPlaceholder,
-    debounce: 300
+    debounce: 300,
+    children: (data) => {
+      return h(ReactJson, {src: data});
+    }
   }
   _didFetch: boolean
   _lazyGetData: ()=>Promise<void>
@@ -105,7 +109,8 @@ class __APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>>
     }
     const {route, params, opts, onError: _onError} = this.props;
     if (route == null) { return; }
-    const data = await this.context.get(route, params, opts);
+    const {get} = APIActions(this.context)
+    const data = await get(route, params, opts);
     this._didFetch = true
     // Run side effects...
     this.props.onSuccess(data);
@@ -115,52 +120,13 @@ class __APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>>
   render() {
     const {data} = this.state;
     let {children, placeholder} = this.props;
-    if ((children == null)) {
-      children = data=> {
-        return h(ReactJson, {src: data});
-      };
-    }
 
     if (data == null && placeholder != null) {
       return h(placeholder);
     }
-    const value = {deleteItem: this.deleteItem};
-    return h(APIViewContext.Provider, {value}, (
-        children(data)
-    ));
+    return children(data)
   }
-
-  deleteItem = async data=> {
-    console.warn("deleteItem is deprecated")
-    const {route, primaryKey} = this.props;
-    const id = data[primaryKey];
-    const itemRoute = route+`/${id}`;
-    try {
-      const res = await axios.delete(itemRoute);
-      return this.getData();
-    } catch (err) {
-      let {message} = err;
-      if (err.response.status === 403) {
-        ({
-          message
-        } = err.response.data);
-      }
-      const intent = Intent.DANGER;
-      return AppToaster.show({message, intent});
-    }
-  };
 }
-
-const APIResultView = function(props){
-  // Enable the use of the APIResultView outside of the APIContext
-  // by wrapping it in a placeholder APIContext
-  const ctx = useContext(APIContext);
-  if (ctx == null) return null
-  const component = h(__APIResultView, props);
-  if (ctx?.get != null) { return component; }
-  console.log("Wrapping in API context")
-  return h(APIProvider, {baseURL: ""}, component);
-};
 
 class PagedAPIView extends Component {
   static initClass() {
