@@ -47,6 +47,7 @@ interface APIResultProps<T> {
   route: string|null,
   params: QueryParams,
   onSuccess: (d: T)=>void,
+  placeholder: React.ComponentType,
   debounce: number
 }
 

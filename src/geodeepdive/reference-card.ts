@@ -1,6 +1,6 @@
 import {Component} from 'react';
 import h from '@macrostrat/hyper';
-import {Card} from '@blueprintjs/core';
+import {Card, Classes} from '@blueprintjs/core';
 
 import {APIResultView} from '../api';
 import {LinkCard} from '../link-card';
@@ -118,28 +118,39 @@ class GeoDeepDiveRelatedTerms extends Component {
   }
 }
 
-class GDDReferenceCard extends Component {
-  render() {
-    const {docid} = this.props;
-    return h(APIResultView, {
-      route: "http://geodeepdive.org/api/articles",
-      params: {docid},
-      opts: {
-        unwrapResponse(res){
-          console.log(res)
-          return res.success.data[0];
-        },
-        memoize: true,
-        onError: console.error
-      }
-    }, data=> {
-      try {
-        return h(GeoDeepDiveSwatchInner, data);
-      } catch (error) {
-        return null;
-      }
-    });
-  }
+const PlaceholderReference = ()=>{
+  return h(Card, {
+    className: `gdd-article ${Classes.SKELETON}`,
+  }, "word ".repeat(35))
 }
 
-export {GDDReferenceCard, GeoDeepDiveSwatchInner, AuthorList, GeoDeepDiveSwatchInnerBare, GeoDeepDiveRelatedTerms};
+const GDDReferenceCard = (props: {docid: string})=>{
+  const {docid} = props;
+  return h(APIResultView, {
+    route: "http://geodeepdive.org/api/articles",
+    params: {docid},
+
+    opts: {
+      unwrapResponse(res){
+        console.log(res)
+        return res.success.data[0];
+      },
+      memoize: true,
+    },
+    placeholder: PlaceholderReference
+  }, (data)=> {
+    try {
+      return h(GeoDeepDiveSwatchInner, data);
+    } catch (error) {
+      return null;
+    }
+  });
+}
+
+export {
+  GDDReferenceCard,
+  GeoDeepDiveSwatchInner,
+  AuthorList,
+  GeoDeepDiveSwatchInnerBare,
+  GeoDeepDiveRelatedTerms
+};
