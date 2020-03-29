@@ -11,3 +11,4 @@ export * from './util';
 export * from './citations';
 export * from './geodeepdive';
 export * from './text';
+export * from './dark-mode';
