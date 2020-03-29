@@ -4,6 +4,7 @@ import {memoize} from 'underscore';
 import axios, {AxiosPromise} from 'axios';
 import useAsyncEffect from 'use-async-effect';
 import {buildURL} from './helpers'
+import {debounce} from 'underscore';
 
 type APIBase = {baseURL: string}
 type APIContextValue = APIConfig & APIBase
@@ -120,33 +121,34 @@ const APIProvider = (props: APIProviderProps)=>{
   return h(APIContext.Provider, {value}, children)
 }
 
-const useAPIResult = function(route, params, onResponse, deps){
+const useAPIActions = ()=> APIActions(useContext(APIContext))
+
+type APIHookOpts = APIConfig & {
+  debounce?: number
+}
+
+const useAPIResult = function<T>(
+    route: string,
+    params: QueryParams = {},
+    opts: APIHookOpts = {}): T {
   /* React hook for API results */
-  if (arguments.length === 3) {
-    deps = onResponse;
-    onResponse = null;
-  }
-  if (deps == null) { deps = []; }
-  if (onResponse == null) { onResponse = d => d; }
+  const deps = Object.values(params)
 
   const [result, setResult] = useState(null);
-  let ctx = useContext(APIContext);
-  const {baseURL} = ctx
-  const {get} = APIActions(ctx)
-  if (route.startsWith("http") && !route.startsWith(baseURL)) {
-    throw "useAPIResult hook must be used within a matching APIContext (for now)";
-  }
 
-  const getAPIData = async function() {
-    const res = await get(route, params, {});
-    return setResult(onResponse(res));
+  const {debounce: _debounce, ...rest} = opts ?? {}
+  let {get} = useAPIActions()
+
+  const _getAPIData = async function() {
+    const res = await get(route, params, rest);
+    return setResult(res);
   };
+
+  const getAPIData = _debounce != null ? debounce(_getAPIData, _debounce) : _getAPIData
 
   useAsyncEffect(getAPIData, deps);
   return result;
 };
-
-const useAPIActions = ()=> APIActions(useContext(APIContext))
 
 export {
   APIContext,
