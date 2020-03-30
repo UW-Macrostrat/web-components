@@ -16,7 +16,8 @@ const Author = function(props){
 
 interface AuthorListProps {
   names: string[],
-  highlight: string
+  highlight: string,
+  limit?: number
 }
 
 const AuthorList = function(props: AuthorListProps){
@@ -35,14 +36,20 @@ const AuthorList = function(props: AuthorListProps){
     return A(names[0]);
   }
 
+  const limit = props.limit ?? n
+  const truncated = n > limit
+
+  const penultimateIx = limit-1
   const L = [];
   for (const [i, name] of names.entries()) {
     L.push(A(name));
-    if (i <= (n-2)) {
-      L.push(n > 2 ? ", " : " ");
-    }
-    if (i === (n-2) && n != 1) {
+    L.push(i < penultimateIx ? ", " : " ");
+    if (i === penultimateIx && n != 1 && !truncated) {
       L.push("and ");
+    }
+    if (i >= limit-1) {
+      L.push("et al.")
+      break
     }
   }
 

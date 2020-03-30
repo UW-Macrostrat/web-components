@@ -6,43 +6,6 @@ import {APIResultView} from '../api';
 import {LinkCard} from '../link-card';
 import {AuthorList} from '../citations';
 
-const AuthorList2 = function(props){
-  let etAl;
-  let {authors} = props;
-  const postfix = null;
-  if (authors.length >= 4) {
-    authors = authors.slice(0,2);
-    etAl = ' et al.';
-  }
-  const _ = [];
-  for (let ix = 0; ix < authors.length; ix++) {
-    var name;
-    const author = authors[ix];
-    try {
-      name = author.name.split(',');
-      const newName = name[1].trim()+" "+name[0].trim();
-    } catch (error) {
-      ({
-        name
-      } = author);
-    }
-    const isLast = ((ix === (authors.length-1)) && (etAl == null));
-    if (isLast) {
-      _.pop();
-      _.push(' and ');
-    }
-    _.push(h('span.author', name));
-    if (!isLast) {
-      _.push(', ');
-    }
-  }
-  if (etAl != null) {
-    _.pop();
-    _.push(etAl);
-  }
-  return h('span.authors', _);
-};
-
 const VolumeNumber = function(props){
   const {volume, number} = props;
   const _ = [];
@@ -75,7 +38,7 @@ const InnerCard = props => {
     });
 
     return h([
-      h(AuthorList, {names}),
+      h(AuthorList, {names, limit: 3}),
       ", ",
       h('span.title', title),
       ", ",
@@ -132,7 +95,6 @@ const GDDReferenceCard = (props: {docid: string})=>{
 
     opts: {
       unwrapResponse(res){
-        console.log(res)
         return res.success.data[0];
       },
       memoize: true,
