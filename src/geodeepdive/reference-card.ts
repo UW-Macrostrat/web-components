@@ -90,7 +90,7 @@ const PlaceholderReference = ()=>{
 const GDDReferenceCard = (props: {docid: string})=>{
   const {docid} = props;
   return h(APIResultView, {
-    route: "http://geodeepdive.org/api/articles",
+    route: "https://geodeepdive.org/api/articles",
     params: {docid},
 
     opts: {
