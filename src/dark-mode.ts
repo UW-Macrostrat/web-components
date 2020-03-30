@@ -25,7 +25,7 @@ const DarkModeProvider = (props: {children?: React.ReactNode})=>{
   }
 
   useEffect(()=>{
-    matcher?.addEventListener('change', e =>{
+    matcher?.addEventListener?.('change', e =>{
       if (value.isAutoset) updateValue(systemDarkMode())
     })
   })
