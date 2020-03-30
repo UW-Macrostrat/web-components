@@ -64,7 +64,7 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     params: {},
     opts: {}, // Options passed to `get`
     debug: false,
-    onSuccess: console.log,
+    onSuccess: ()=>{},
     primaryKey: 'id',
     // If placeholder is not defined, the render
     // method will be called with null data
