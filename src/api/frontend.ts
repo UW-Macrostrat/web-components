@@ -46,13 +46,21 @@ type APIChild<T> =
   | React.ReactElement<{data: T}>
   | ChildFunction<T>
 
-interface APIResultProps<T> {
-  route: string|null,
-  params: QueryParams,
-  onSuccess: (d: T)=>void,
+type APIViewCTX<T> = {
   placeholder: React.ComponentType,
-  debounce: number,
+  params: QueryParams,
+  route: string|null,
+  data: T
+}
+
+type APIViewProps<T> = {
   children?: APIChild<T>
+} & APIViewCTX<T>
+
+interface APIResultProps<T> extends APIViewProps<T> {
+  onSuccess: (d: T)=>void,
+  debounce: number,
+  opts?: APIOptions
 }
 
 type APIResultState<T> = {data: T}
@@ -121,21 +129,24 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
 
   render() {
     const {data} = this.state;
-    let {children, placeholder} = this.props;
-
-    const {params} = this.props
-    const value = {data, params}
-
-    if (data == null && placeholder != null) {
-      return h(placeholder);
-    }
-    if (typeof children == 'function') {
-      return h(APIViewContext.Provider, {value}, children(data))
-    } else if (isValidElement(children)) {
-      return h(APIViewContext.Provider, {value}, cloneElement(children, {data}))
-    }
-    return null
+    let {children, placeholder, params, route} = this.props;
+    return h(APIView, {data, placeholder, params, route}, children)
   }
+}
+
+const APIView = (props: APIViewProps<T>): React.ReactElement =>{
+  const {data, children, placeholder, params, route} = props;
+  const value = {data, params, placeholder, route}
+
+  if (data == null && placeholder != null) {
+    return h(placeholder);
+  }
+  if (typeof children == 'function') {
+    return h(APIViewContext.Provider, {value}, children(data))
+  } else if (isValidElement(children)) {
+    return h(APIViewContext.Provider, {value}, cloneElement(children, {data}))
+  }
+  return null
 }
 
 class PagedAPIView extends Component {
@@ -280,5 +291,7 @@ PagedAPIView.initClass();
 
 export {
   APIViewContext, APIViewConsumer,
-  APIResultView, PagedAPIView
+  APIResultView, PagedAPIView,
+  APIResultProps,
+  APIView
 };
