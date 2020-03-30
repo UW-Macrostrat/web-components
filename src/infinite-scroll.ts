@@ -12,10 +12,18 @@ import {useImmutableState} from './util';
 import {useAsyncEffect} from './util';
 import {Spinner} from '@blueprintjs/core';
 
+interface ScrollState<T> {
+  items: T[],
+  scrollParams: QueryParams,
+  count: number,
+  error?: any
+}
+
 interface InfiniteScrollProps<T> extends APIResultProps<T> {
   getCount(r: T): number,
   getNextParams(r: T, params: QueryParams): QueryParams,
-  getItems(r: T): any
+  getItems(r: T): any,
+  hasMore(s: ScrollState): boolean
 }
 
 const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
@@ -26,14 +34,16 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
   */
   const {route, params, opts, children, placeholder} = props;
   const {get} = useAPIActions();
-  const {getCount, getNextParams, getItems} = props
+  const {getCount, getNextParams, getItems, hasMore} = props
 
-  const [state, updateState] = useImmutableState({
+  const initialState: ScrollState<T> = {
     items: [],
     scrollParams: params,
     count: null,
     error: null
-  });
+  }
+
+  const [state, updateState] = useImmutableState(initialState);
 
   const parseResponse = (res: T)=>{
     updateState({
@@ -42,6 +52,10 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
       count: {$set: getCount(res)}
     });
   }
+
+  // useEffect(()=>{
+  //   updateState({$set: initialState})
+  // }, [route, params])
 
   const getInitialData = async function() {
     /*
@@ -67,7 +81,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
   return h(InfiniteScroll, {
     pageStart: 0,
     loadMore: loadNext,
-    hasMore: state.scrollParams != null && items.length > 0,
+    hasMore: hasMore(state),
     loader: h(Spinner)
   }, h(APIView, {
       data: items,
