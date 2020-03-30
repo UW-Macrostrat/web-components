@@ -16,7 +16,8 @@ interface ScrollState<T> {
   items: T[],
   scrollParams: QueryParams,
   count: number,
-  error?: any
+  error?: any,
+  hasLoaded: boolean
 }
 
 interface InfiniteScrollProps<T> extends APIResultProps<T> {
@@ -40,30 +41,32 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     items: [],
     scrollParams: params,
     count: null,
-    error: null
+    error: null,
+    hasLoaded: false
   }
 
   const [state, updateState] = useImmutableState(initialState);
 
-  const parseResponse = (res: T)=>{
+  const parseResponse = (res: T, initial: boolean)=>{
+    const itemVals = getItems(res)
+    const items = initial ? {$set: itemVals} : {$push: itemVals}
     updateState({
-      items: {$push: getItems(res)},
+      items,
       scrollParams: {$set: getNextParams(res, params)},
-      count: {$set: getCount(res)}
+      count: {$set: getCount(res)},
+      hasLoaded: {$set: true}
     });
   }
 
-  // useEffect(()=>{
-  //   updateState({$set: initialState})
-  // }, [route, params])
-
-  const getInitialData = async function() {
+  const loadInitialData = async function() {
     /*
     Get the initial dataset
     */
     const success = await get(route, params, opts);
-    parseResponse(success)
+    parseResponse(success, true)
   };
+
+  useAsyncEffect(loadInitialData, [route, params])
 
   const loadNext = async function() {
     // if (state.scrollParams == null && state.items == []) {
@@ -72,10 +75,10 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     // }
     console.log("Loading next page...")
     const success = await get(route, state.scrollParams, opts)
-    parseResponse(success)
+    parseResponse(success, false)
   };
 
-  useAsyncEffect(getInitialData, [route, params]);
+  //useAsyncEffect(getInitialData, [route, params]);
 
   const {items} = state
   return h(InfiniteScroll, {
