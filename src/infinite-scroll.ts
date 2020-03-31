@@ -59,15 +59,18 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     });
   }
 
-  const loadInitialData = async function() {
+  const loadInitialData = function() {
     /*
     Get the initial dataset
     */
-    const success = await get(route, params, opts);
-    parseResponse(success, true)
+    //const success = await get(route, params, opts);
+    //parseResponse(success, true)
+    if (state == initialState) return
+    updateState({$set: initialState});
+
   };
 
-  useAsyncEffect(loadInitialData, [route, params])
+  useEffect(loadInitialData, [route, params])
 
   const loadNext = async function() {
     // if (state.scrollParams == null && state.items == []) {
