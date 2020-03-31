@@ -6,7 +6,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext, ReactNode, cloneElement, isValidElement, Children} from 'react';
+import {Component, createContext, useContext, cloneElement, isValidElement} from 'react';
 import h from 'react-hyperscript';
 import {Spinner, Button, ButtonGroup, NonIdealState} from '@blueprintjs/core';
 import ReactJson from 'react-json-view';
@@ -289,9 +289,12 @@ class PagedAPIView extends Component {
 }
 PagedAPIView.initClass();
 
+const useAPIView = ()=>useContext(APIViewContext)
+
 export {
   APIViewContext, APIViewConsumer,
   APIResultView, PagedAPIView,
   APIResultProps,
-  APIView
+  APIView,
+  useAPIView
 };

@@ -17,14 +17,14 @@ interface ScrollState<T> {
   scrollParams: QueryParams,
   count: number,
   error?: any,
-  hasLoaded: boolean
+  hasMore: boolean
 }
 
 interface InfiniteScrollProps<T> extends APIResultProps<T> {
   getCount(r: T): number,
   getNextParams(r: T, params: QueryParams): QueryParams,
   getItems(r: T): any,
-  hasMore(s: ScrollState): boolean
+  hasMore(s: ScrollState<T>, res: T): boolean
 }
 
 const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
@@ -42,7 +42,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     scrollParams: params,
     count: null,
     error: null,
-    hasLoaded: false
+    hasMore: true
   }
 
   const [state, updateState] = useImmutableState(initialState);
@@ -54,7 +54,8 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
       items,
       scrollParams: {$set: getNextParams(res, params)},
       count: {$set: getCount(res)},
-      hasLoaded: {$set: true}
+      hasLoaded: {$set: true},
+      hasMore: {$set: hasMore(state, res) && itemVals.length > 0 && state.items.length <= state.count}
     });
   }
 
@@ -84,7 +85,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
   return h(InfiniteScroll, {
     pageStart: 0,
     loadMore: loadNext,
-    hasMore: hasMore(state),
+    hasMore: state.hasMore,
     loader: h(Spinner)
   }, h(APIView, {
       data: items,
@@ -94,5 +95,9 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     }, children)
   );
 };
+
+InfiniteScrollView.defaultProps = {
+  hasMore(a, b) { return true }
+}
 
 export {InfiniteScrollView};
