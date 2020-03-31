@@ -33,7 +33,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
   the GeoDeepDive API right now, but it can likely be generalized
   for other uses.
   */
-  const {route, params, opts, children, placeholder} = props;
+  const {route, params, opts, children, placeholder, className} = props;
   const {get} = useAPIActions();
   const {getCount, getNextParams, getItems, hasMore} = props
 
@@ -86,7 +86,8 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     loadMore: loadNext,
     hasMore: state.hasMore,
     loader: h(Spinner),
-    useWindow: true
+    useWindow: true,
+    className
   }, h(APIView, {
       data: state.items,
       route,
