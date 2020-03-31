@@ -42,46 +42,39 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     scrollParams: params,
     count: null,
     error: null,
-    hasMore: true
+    hasMore: true,
   }
 
   const [state, updateState] = useImmutableState(initialState);
 
-  const parseResponse = (res: T, initial: boolean)=>{
+  const parseResponse = (res: T, page: number)=>{
     const itemVals = getItems(res)
-    const items = initial ? {$set: itemVals} : {$push: itemVals}
+    const ival = page == 0 ? {$set: itemVals} : {$push: itemVals}
     updateState({
-      items,
-      scrollParams: {$set: getNextParams(res, params)},
+      items: ival,
+      scrollParams: {$set: {...params, page: page+1}},
       count: {$set: getCount(res)},
-      hasLoaded: {$set: true},
       hasMore: {$set: hasMore(state, res) && itemVals.length > 0 && state.items.length <= state.count}
     });
   }
 
-  const loadInitialData = function() {
+  const loadNext = async function(page) {
+    console.log("Loading page ", page)
+    const success = await get(route, state.scrollParams, opts)
+    parseResponse(success, page)
+  };
+
+  const loadInitialData = async function() {
     /*
     Get the initial dataset
     */
-    //const success = await get(route, params, opts);
-    //parseResponse(success, true)
-    if (state == initialState) return
-    console.log("Resetting data")
-    updateState({$set: initialState});
-
+    // const success = await get(route, params, opts);
+    // parseResponse(success, true)
+    await loadNext(0)
   };
 
-  useEffect(loadInitialData, [route, params])
-
-  const loadNext = async function() {
-    // if (state.scrollParams == null && state.items == []) {
-    //   getInitialData()
-    //   return
-    // }
-    console.log("Loading next page...")
-    const success = await get(route, state.scrollParams, opts)
-    parseResponse(success, false)
-  };
+  //loadInitialData()
+  useAsyncEffect(loadInitialData, [props.route, props.params])
 
   //useAsyncEffect(getInitialData, [route, params]);
 
@@ -90,7 +83,8 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     pageStart: 0,
     loadMore: loadNext,
     hasMore: state.hasMore,
-    loader: h(Spinner)
+    loader: h(Spinner),
+    useWindow: true
   }, h(APIView, {
       data: items,
       route,
