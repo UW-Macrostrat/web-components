@@ -6,48 +6,41 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext, useContext, cloneElement, isValidElement} from 'react';
-import h from 'react-hyperscript';
-import {Spinner, Button, ButtonGroup, NonIdealState} from '@blueprintjs/core';
-import ReactJson from 'react-json-view';
-import {APIContext, APIActions, APIHelpers} from './provider';
-import {debounce} from 'underscore';
+import {Component} from 'react';
+import h from '@macrostrat/hyper';
+import {Button, ButtonGroup, NonIdealState} from '@blueprintjs/core';
+import {APIResultView} from './frontend'
 
-
-class Pagination extends Component {
-  render() {
-    const {currentPage, nextDisabled, setPage} = this.props;
-    return h(ButtonGroup, [
-      h(Button, {
-        onClick: setPage(currentPage-1),
-        icon: 'arrow-left',
-        disabled: currentPage <= 0
-      }, "Previous"),
-      h(Button, {
-        onClick: setPage(currentPage+1),
-        rightIcon: 'arrow-right',
-        disabled: nextDisabled
-      }, "Next")
-    ]);
-  }
+const Pagination = (props)=>{
+  const {currentPage, nextDisabled, setPage} = props;
+  return h(ButtonGroup, [
+    h(Button, {
+      onClick: setPage(currentPage-1),
+      icon: 'arrow-left',
+      disabled: currentPage <= 0
+    }, "Previous"),
+    h(Button, {
+      onClick: setPage(currentPage+1),
+      rightIcon: 'arrow-right',
+      disabled: nextDisabled
+    }, "Next")
+  ]);
 }
 
 class PagedAPIView extends Component {
-  static initClass() {
-    this.defaultProps = {
-      count: null,
-      perPage: 20,
-      topPagination: false,
-      bottomPagination: true,
-      extraPagination: null,
-      opts: {}, // Options passed to GET
-      params: {},
-      getTotalCount(response){
-        const {headers} = response;
-        return parseInt(headers['x-total-count']);
-      }
-    };
-  }
+  static defaultProps = {
+    count: null,
+    perPage: 20,
+    topPagination: false,
+    bottomPagination: true,
+    extraPagination: null,
+    opts: {}, // Options passed to GET
+    params: {},
+    getTotalCount(response){
+      const {headers} = response;
+      return parseInt(headers['x-total-count']);
+    }
+  };
   constructor(props){
     super(props);
     this.setPage = this.setPage.bind(this);
@@ -170,7 +163,6 @@ class PagedAPIView extends Component {
     ]);
   }
 }
-PagedAPIView.initClass();
 
 export {
   PagedAPIView,

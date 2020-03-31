@@ -50,15 +50,17 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
   const parseResponse = (res: T, page: number)=>{
     const itemVals = getItems(res)
     const ival = page == 0 ? {$set: itemVals} : {$push: itemVals}
+    const nextLength = state.items.length + itemVals.length
+    const count = getCount(res)
     updateState({
       items: ival,
       scrollParams: {$set: {...params, page: page+1}},
-      count: {$set: getCount(res)},
-      hasMore: {$set: hasMore(state, res) && itemVals.length > 0 && state.items.length <= state.count}
+      count: {$set: count},
+      hasMore: {$set: hasMore(state, res) && itemVals.length > 0 && nextLength <= count}
     });
   }
 
-  const loadNext = async function(page) {
+  const loadNext = async function(page: number) {
     console.log("Loading page ", page)
     const success = await get(route, state.scrollParams, opts)
     parseResponse(success, page)
@@ -70,7 +72,8 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     */
     // const success = await get(route, params, opts);
     // parseResponse(success, true)
-    await loadNext(0)
+    updateState({$set: initialState})
+    //await loadNext(0)
   };
 
   //loadInitialData()
@@ -78,7 +81,6 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
 
   //useAsyncEffect(getInitialData, [route, params]);
 
-  const {items} = state
   return h(InfiniteScroll, {
     pageStart: 0,
     loadMore: loadNext,
@@ -86,7 +88,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     loader: h(Spinner),
     useWindow: true
   }, h(APIView, {
-      data: items,
+      data: state.items,
       route,
       params: state.scrollParams,
       placeholder
