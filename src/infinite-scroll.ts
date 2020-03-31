@@ -66,6 +66,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     //const success = await get(route, params, opts);
     //parseResponse(success, true)
     if (state == initialState) return
+    console.log("Resetting data")
     updateState({$set: initialState});
 
   };
