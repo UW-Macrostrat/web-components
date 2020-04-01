@@ -24,7 +24,7 @@ interface InfiniteScrollProps<T> extends APIResultProps<T> {
   getCount(r: T): number,
   getNextParams(r: T, params: QueryParams): QueryParams,
   getItems(r: T): any,
-  hasMore(s: ScrollState<T>, res: T): boolean
+  hasMore(s: ScrollState<T>, res: T): boolean,
 }
 
 const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
@@ -85,7 +85,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     pageStart: 0,
     loadMore: loadNext,
     hasMore: state.hasMore,
-    loader: h(Spinner),
+    loader:  state.items.length == 0 ? null : placeholder,
     useWindow: true,
     className
   }, h(APIView, {
