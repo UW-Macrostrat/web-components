@@ -16,7 +16,11 @@ import {debounce} from 'underscore';
 const APIViewContext = createContext({});
 const APIViewConsumer = APIViewContext.Consumer;
 
-const APIResultPlaceholder = props=> {
+interface APIPlaceholderProps {
+  isLoading: boolean
+}
+
+const APIResultPlaceholder = (props: APIPlaceholderProps)=> {
   return h('div.api-result-placeholder', [
     h(Spinner)
   ]);
@@ -25,19 +29,20 @@ const APIResultPlaceholder = props=> {
 type ChildFunction<T> = (d: T)=>React.ReactChild
 
 type APIChild<T> =
-  | React.ReactElement<{data: T}>
+  | React.ReactElement<{data: T, isLoading: boolean}>
   | ChildFunction<T>
 
 type APIViewCTX<T> = {
-  placeholder: React.ComponentType,
+  placeholder: React.ComponentType<APIPlaceholderProps>,
   params: QueryParams,
   route: string|null,
+  isLoading: boolean,
   data: T
 }
 
 type APIViewProps<T> = {
   children?: APIChild<T>
-} & APIViewCTX<T>
+} & APIViewCTX<T> & APIPlaceholderProps
 
 interface APIResultProps<T> extends APIViewProps<T> {
   onSuccess: (d: T)=>void,
@@ -45,7 +50,7 @@ interface APIResultProps<T> extends APIViewProps<T> {
   opts?: APIOptions
 }
 
-type APIResultState<T> = {data: T}
+type APIResultState<T> = {data: T, isLoading: boolean}
 
 class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
   static contextType = APIContext;
@@ -75,7 +80,7 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     this.getData = this.getData.bind(this)
     this._lazyGetData = debounce(this.getData, this.props.debounce);
 
-    this.state = {data: null};
+    this.state = {data: null, isLoading: false};
     this.getData();
   }
 
@@ -102,33 +107,41 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     const {route, params, opts, onError: _onError} = this.props;
     if (route == null) { return; }
     const {get} = APIActions(this.context)
+    this.setState({isLoading: true})
     const data = await get(route, params, opts);
     this._didFetch = true
     // Run side effects...
     this.props.onSuccess(data);
-    this.setState({data});
+    this.setState({data, isLoading: false});
   };
 
   render() {
-    const {data} = this.state;
+    const {data, isLoading} = this.state;
     let {children, placeholder, params, route} = this.props;
-    return h(APIView, {data, placeholder, params, route}, children)
+    return h(APIView, {data, placeholder, params, route, isLoading}, children)
   }
 }
 
 const APIView = (props: APIViewProps<T>): React.ReactElement =>{
-  const {data, children, placeholder, params, route} = props;
-  const value = {data, params, placeholder, route}
+  const {data, children, placeholder, params, route, isLoading} = props;
+  const value = {data, params, placeholder, route, isLoading}
 
   if (data == null && placeholder != null) {
-    return h(placeholder);
+    return h(placeholder, {isLoading});
   }
   if (typeof children == 'function') {
     return h(APIViewContext.Provider, {value}, children(data))
   } else if (isValidElement(children)) {
-    return h(APIViewContext.Provider, {value}, cloneElement(children, {data}))
+    return h(APIViewContext.Provider, {value}, cloneElement(children, {
+      data,
+      isLoading
+    }))
   }
   return null
+}
+
+APIView.defaultProps = {
+  isLoading: false
 }
 
 const useAPIView = ()=>useContext(APIViewContext)

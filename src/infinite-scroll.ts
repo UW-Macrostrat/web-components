@@ -92,7 +92,8 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
       data: state.items,
       route,
       params: state.scrollParams,
-      placeholder
+      placeholder,
+      isLoading: state.hasMore,
     }, children)
   );
 };
