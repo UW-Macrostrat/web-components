@@ -5,12 +5,10 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import InfiniteScroll from 'react-infinite-scroller';
-import {useContext, useEffect} from 'react';
 import h from 'react-hyperscript';
-import {APIContext, APIView, APIResultProps, useAPIActions} from "./api";
+import {APIView, APIResultProps, useAPIActions} from "./api";
 import {useImmutableState} from './util';
 import {useAsyncEffect} from './util';
-import {Spinner} from '@blueprintjs/core';
 
 interface ScrollState<T> {
   items: T[],

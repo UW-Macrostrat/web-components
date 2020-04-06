@@ -122,10 +122,11 @@ const APIProvider = (props: APIProviderProps)=>{
 }
 
 const useAPIActions = ()=> APIActions(useContext(APIContext))
+const useAPIHelpers = ()=> APIHelpers(useContext(APIContext))
 
-type APIHookOpts = APIConfig & {
+type APIHookOpts = Partial<APIConfig & {
   debounce?: number
-}
+}>
 
 const useAPIResult = function<T>(
     route: string,
@@ -156,5 +157,6 @@ export {
   APIActions,
   APIHelpers,
   useAPIActions,
-  useAPIResult
+  useAPIResult,
+  useAPIHelpers
 };
