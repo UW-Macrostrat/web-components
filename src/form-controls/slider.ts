@@ -13,7 +13,7 @@ import {
 } from '@blueprintjs/core';
 import {Spec} from 'immutability-helper'
 import classNames from 'classnames'
-import styles from './main.styl'
+import './main.styl'
 
 
 const ControlledSlider = (props: ISliderProps)=>{
@@ -34,7 +34,23 @@ const NullableSlider = (props: ISliderProps)=>{
     showTrackFill = false
     className = classNames(className, "mui-slider-disabled")
   }
-  return h(ControlledSlider, {...rest, className, value, showTrackFill})
+
+  const handleChange = props.onRelease ?? props.onChange
+  const onClick = ()=>handleChange?.(null)
+
+  return h("div.nullable-slider", [
+    h(ControlledSlider, {...rest, className, value, showTrackFill}),
+    h("div.controls", [
+      h(Button, {
+        minimal: true,
+        onClick,
+        small: true,
+        icon: "cross",
+        disabled: props.value == null,
+        intent: props.value == null ? null : Intent.DANGER
+      })
+    ])
+  ])
 }
 
 export {ControlledSlider, NullableSlider}
