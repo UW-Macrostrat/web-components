@@ -58,7 +58,7 @@ class GeoDeepDiveSwatchInnerBare extends Component {
   }
 }
 
-class GeoDeepDiveSwatchInner extends Component {
+class GeoDeepDiveSwatch extends Component {
   render() {
     let url;
     const {link, ...rest} = this.props;
@@ -102,7 +102,7 @@ const GDDReferenceCard = (props: {docid: string})=>{
     placeholder: PlaceholderReference
   }, (data)=> {
     try {
-      return h(GeoDeepDiveSwatchInner, data);
+      return h(GeoDeepDiveSwatch, data);
     } catch (error) {
       return null;
     }
@@ -111,7 +111,7 @@ const GDDReferenceCard = (props: {docid: string})=>{
 
 export {
   GDDReferenceCard,
-  GeoDeepDiveSwatchInner,
+  GeoDeepDiveSwatch,
   AuthorList,
   GeoDeepDiveSwatchInnerBare,
   GeoDeepDiveRelatedTerms
