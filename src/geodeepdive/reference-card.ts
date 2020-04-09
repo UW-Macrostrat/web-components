@@ -67,7 +67,11 @@ class GeoDeepDiveSwatch extends Component {
     } catch (error) {
       url = null;
     }
-    return h(LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, h(InnerCard, rest));
+    return h(LinkCard, {
+      href: url,
+      target: '_blank',
+      className: 'gdd-article'
+    }, h(InnerCard, rest));
   }
 }
 
