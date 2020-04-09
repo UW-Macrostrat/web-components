@@ -1,10 +1,9 @@
 import InfiniteScroll from 'react-infinite-scroller';
 import h from 'react-hyperscript';
 import update, {Spec} from 'immutability-helper'
-import {useReducer} from 'react'
+import {useReducer, useEffect} from 'react'
 
 import {APIView, APIResultProps, useAPIActions} from "./api";
-import {useImmutableState} from './util';
 import {useAsyncEffect} from './util';
 
 interface ScrollState<T=object> {
@@ -24,9 +23,11 @@ interface InfiniteScrollProps<T> extends APIResultProps<T> {
 }
 
 type UpdateState<T> = {type: 'update-state', spec: Spec<ScrollState<T>>}
+type LoadPage = {type: 'load-page', page: number}
 
 type ScrollAction<T> =
   | UpdateState<T>
+  | LoadPage
 
 type Reducer<T> = (state: ScrollState<T>, action: ScrollAction<T>)=>ScrollState<T>
 
@@ -34,6 +35,8 @@ const infiniteScrollReducer = function<T>(state: ScrollState<T>, action: ScrollA
   switch (action.type) {
   case "update-state":
     return update(state, action.spec)
+  case "load-page":
+    return update(state, {isLoadingPage: {$set: action.page}})
   }
 }
 
@@ -88,27 +91,29 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     parseResponse(success, page)
   };
 
-  const loadInitialData = async function() {
+  const loadInitialData = function() {
     /*
     Get the initial dataset
     */
     // const success = await get(route, params, opts);
     // parseResponse(success, true)
-    if (state.items.length == 0 && state.isLoadingPage == null)
+    if (state.items.length == 0 && state.isLoadingPage == null) return
     dispatch({type: 'update-state', spec: {$set: initialState}})
     //await loadNext(0)
   };
 
-  useAsyncEffect(loadInitialData, [props.route, props.params])
+  useEffect(loadInitialData, [props.route, props.params])
   if (state == null) return null
 
   //useAsyncEffect(getInitialData, [route, params]);
+
+  //const showLoader = state.isLoadingPage != null && state.items.length > 0
 
   return h(InfiniteScroll, {
     pageStart: 0,
     loadMore: loadNext,
     hasMore: state.hasMore && state.isLoadingPage == null,
-    loader:  state.items.length == 0 ? null : placeholder,
+    loader: placeholder,
     useWindow: true,
     className
   }, h(APIView, {
@@ -117,6 +122,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
       params: state.scrollParams,
       placeholder,
       isLoading: state.isLoadingPage != null,
+      totalCount: state.count
     }, children)
   );
 };

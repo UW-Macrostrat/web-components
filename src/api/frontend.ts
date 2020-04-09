@@ -37,7 +37,9 @@ type APIViewCTX<T> = {
   params: QueryParams,
   route: string|null,
   isLoading: boolean,
-  data: T
+  data: T,
+  totalCount?: number,
+  pageCount?: number
 }
 
 type APIViewProps<T> = {
@@ -122,9 +124,9 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
   }
 }
 
-const APIView = (props: APIViewProps<T>): React.ReactElement =>{
-  const {data, children, placeholder, params, route, isLoading} = props;
-  const value = {data, params, placeholder, route, isLoading}
+const APIView = <T>(props: APIViewProps<T>): React.ReactElement =>{
+  const {data, children, placeholder, params, route, isLoading, ...rest} = props;
+  const value = {data, params, placeholder, route, isLoading, ...rest}
 
   if (data == null && placeholder != null) {
     return h(placeholder, {isLoading});
