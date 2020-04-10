@@ -21,6 +21,7 @@ interface InfiniteScrollProps<T> extends APIResultProps<T> {
   getNextParams(r: T, params: QueryParams): QueryParams,
   getItems(r: T): any,
   hasMore(res: T): boolean,
+  totalCount?: number
 }
 
 type UpdateState<T> = {type: 'update-state', spec: Spec<ScrollState<T>>}
@@ -151,7 +152,7 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
       params: state.scrollParams,
       placeholder,
       isLoading: state.isLoadingPage != null,
-      totalCount: state.count
+      totalCount: props.totalCount ?? state.count
     }, children)
   );
 };

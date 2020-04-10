@@ -34,6 +34,7 @@ async function handleResult(promise: AxiosPromise, route, url, method, opts) {
     if ((data == null)) {
       throw res.error || "No data!";
     }
+    console.log(data)
     return opts.unwrapResponse(data);
   } catch (err) {
     if (!opts.handleError) {
@@ -46,7 +47,7 @@ async function handleResult(promise: AxiosPromise, route, url, method, opts) {
       endpoint: url,
       method
     });
-    return Promise.resolve(null);
+    return null;
   }
 };
 
@@ -129,11 +130,11 @@ type APIHookOpts = Partial<APIConfig & {
 }>
 
 const useAPIResult = function<T>(
-    route: string,
+    route: string|null,
     params: QueryParams = {},
     opts: APIHookOpts = {}): T {
   /* React hook for API results */
-  const deps = Object.values(params)
+  const deps = [route, ...Object.values(params)]
 
   const [result, setResult] = useState(null);
 
@@ -141,7 +142,12 @@ const useAPIResult = function<T>(
   let {get} = useAPIActions()
 
   const _getAPIData = async function() {
+    if (route == null) {
+      console.log("Returning nothing for a null route")
+      return setResult(null)
+    }
     const res = await get(route, params, rest);
+    console.log(res)
     return setResult(res);
   };
 
