@@ -13,7 +13,7 @@ import ReactJson from 'react-json-view';
 import {APIContext, APIActions, APIHelpers} from './provider';
 import {debounce} from 'underscore';
 
-const APIViewContext = createContext({});
+const APIViewContext = createContext<APIViewCTX<any>|null>(null);
 const APIViewConsumer = APIViewContext.Consumer;
 
 interface APIPlaceholderProps {
@@ -26,7 +26,7 @@ const APIResultPlaceholder = (props: APIPlaceholderProps)=> {
   ]);
 };
 
-type ChildFunction<T> = (d: T)=>React.ReactChild
+type ChildFunction<T> = (d: T)=>React.ReactNode
 
 type APIChild<T> =
   | React.ReactElement<{data: T, isLoading: boolean}>
@@ -153,6 +153,7 @@ export {
   APIViewConsumer,
   APIResultView,
   APIResultProps,
+  APIPlaceholderProps,
   APIView,
   useAPIView
 };

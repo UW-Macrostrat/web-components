@@ -1,7 +1,9 @@
+type APIParams = Record<string, string|number>
+
 declare type QueryParams =
   | string
   | string[][]
-  | Record<string, string>
+  | APIParams
   | URLSearchParams
 
 declare interface APIConfig {

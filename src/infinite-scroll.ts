@@ -1,13 +1,13 @@
 import InfiniteScroll from 'react-infinite-scroller';
 import h from 'react-hyperscript';
 import update, {Spec} from 'immutability-helper'
-import {useReducer, useEffect, useRef, useCallback} from 'react'
+import {useReducer, useEffect, useRef} from 'react'
 
 import {APIView, APIResultProps, useAPIActions} from "./api";
 
 interface ScrollState<T=object> {
   items: T[],
-  scrollParams: QueryParams,
+  scrollParams: APIParams,
   count: number|null,
   error?: any,
   hasMore: boolean,
@@ -16,12 +16,15 @@ interface ScrollState<T=object> {
 
 type ScrollResponseItems<T> = Pick<ScrollState<T>,'count'|'hasMore'|'items'>
 
-interface InfiniteScrollProps<T> extends APIResultProps<T> {
+interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>,"params"> {
   getCount(r: T): number,
   getNextParams(r: T, params: QueryParams): QueryParams,
   getItems(r: T): any,
   hasMore(res: T): boolean,
-  totalCount?: number
+  totalCount?: number,
+  // Only allow more restrictive parameter types
+  params: APIParams,
+  className?: string
 }
 
 type UpdateState<T> = {type: 'update-state', spec: Spec<ScrollState<T>>}
@@ -31,7 +34,7 @@ type LoadNextPage = {
 }
 type LoadPage<T> = {
   type: 'load-page',
-  params: QueryParams,
+  params: APIParams,
   dispatch: Dispatch<T>,
   callback<T>(action: LoadPage<T>): void
 }
@@ -82,8 +85,8 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
 
   const [state, dispatch] = useReducer<Reducer<T>>(infiniteScrollReducer, initialState)
 
-  const loadPage = async <T>(action: LoadPage<T>)=>{
-    const page = action.params.page ?? 0
+  const loadPage = async (action: LoadPage<T>)=>{
+    const page = (action.params.page as number) ?? 0
     console.log("Loading page ", page)
     const res = await get(route, action.params, opts)
 
@@ -98,9 +101,11 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
     //   return
     // }
 
+    let p1 = {...params, page: page+1}
+
     action.dispatch({type: "update-state", spec: {
       items: ival,
-      scrollParams: {$set: {...params, page: page+1}},
+      scrollParams: {$set: p1},
       count: {$set: count},
       hasMore: {$set: hasMore(res) && itemVals.length > 0},
       isLoadingPage: {$set: null}

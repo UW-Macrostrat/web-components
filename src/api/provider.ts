@@ -34,7 +34,6 @@ async function handleResult(promise: AxiosPromise, route, url, method, opts) {
     if ((data == null)) {
       throw res.error || "No data!";
     }
-    console.log(data)
     return opts.unwrapResponse(data);
   } catch (err) {
     if (!opts.handleError) {
@@ -143,11 +142,9 @@ const useAPIResult = function<T>(
 
   const _getAPIData = async function() {
     if (route == null) {
-      console.log("Returning nothing for a null route")
       return setResult(null)
     }
     const res = await get(route, params, rest);
-    console.log(res)
     return setResult(res);
   };
 

@@ -1,11 +1,10 @@
 import {useState, useEffect} from 'react'
+/*
 import { useRouter } from 'next/router'
 
 const useSearchString = (pathname)=> {
-  /*
-  A React hook to manage a search string and
-  synchronize URL query parameters
-  */
+  // A React hook to manage a search string and
+  // synchronize URL query parameters
   const router = useRouter();
 
   const [searchString, setState] = useState()
@@ -29,7 +28,7 @@ const useSearchString = (pathname)=> {
 
   return [searchString, updateSearchString]
 }
-
+*/
 
 /*
 const ResultView = (props)=>{
