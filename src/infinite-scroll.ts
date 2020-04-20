@@ -163,7 +163,9 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
 };
 
 InfiniteScrollView.defaultProps = {
-  hasMore(a, b) { return true }
+  hasMore(a, b) { return true },
+  getItems(d) { return d },
+  getCount(d) { return null }
 }
 
 export {InfiniteScrollView};
