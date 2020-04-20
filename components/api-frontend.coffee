@@ -1,6 +1,6 @@
 import {Component, createContext, useContext} from 'react'
 import h from 'react-hyperscript'
-import axios, {post} from 'axios'
+import axios from 'axios'
 import {Spinner, Button, ButtonGroup,
         Intent, NonIdealState} from '@blueprintjs/core'
 import {AppToaster} from './notify'

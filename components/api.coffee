@@ -1,7 +1,8 @@
-import {Component, createContext} from 'react'
+import {Component, createContext, useState, useContext} from 'react'
 import h from 'react-hyperscript'
 import {memoize} from 'underscore'
-import axios, {get, post} from 'axios'
+import axios from 'axios'
+import useAsyncEffect from 'use-async-effect'
 
 APIContext = createContext({})
 APIConsumer = APIContext.Consumer
@@ -25,7 +26,7 @@ class APIProvider extends Component
   }
   render: ->
     {baseURL, unwrapResponse, onError, rest...} = @props
-    helpers = {buildURL: @buildURL, buildQueryString}
+    helpers = {@buildURL, buildQueryString, @processOptions}
     actions = {post: @post, get: @get}
     value = {rest..., actions..., helpers, baseURL, onError}
     h APIContext.Provider, {value}, @props.children
@@ -55,7 +56,7 @@ class APIProvider extends Component
     url = @buildURL route, params
     opts = @processOptions opts
 
-    @runQuery(post(url, payload), route, url, "POST", opts)
+    @runQuery(axios.post(url, payload), route, url, "POST", opts)
 
   get: (route, params, opts)=>
     params ?= {}
@@ -66,9 +67,9 @@ class APIProvider extends Component
     url = @buildURL route, params
     opts = @processOptions opts
 
-    fn = get
+    fn = axios.get
     if opts.memoize
-      fn = memoize(get)
+      fn = memoize(axios.get)
 
     @runQuery(fn(url), route, url, "GET", opts)
 
@@ -82,6 +83,7 @@ class APIProvider extends Component
         throw res.error or "No data!"
       return opts.unwrapResponse(data)
     catch err
+      debugger
       if not opts.handleError
         throw err
       console.error err
@@ -91,7 +93,7 @@ class APIProvider extends Component
         endpoint: url,
         method
       })
-      return null
+      return Promise.resolve(null)
 
   processOptions: (opts={})=>
     # Standardize option values
@@ -109,10 +111,29 @@ class APIProvider extends Component
 
     return opts
 
+useAPIResult = (route, params, onResponse, deps)->
+  ###
+  React hook for API results
+  ###
+  if arguments.length == 3
+    deps = onResponse
+    onResponse = null
+  deps ?= []
+  onResponse ?= (d)->d
+
+  [result, setResult] = useState(null)
+  {get} = useContext(APIContext)
+  getAPIData = ->
+    res = await get(route, params, opts={})
+    setResult(onResponse(res))
+
+  useAsyncEffect(getAPIData, deps)
+  return result
+
 export {
   APIContext,
   APIProvider,
   APIConsumer,
-  buildQueryString
+  buildQueryString,
+  useAPIResult
 }
-
