@@ -2,6 +2,7 @@ import InfiniteScroll from 'react-infinite-scroller';
 import h from 'react-hyperscript';
 import update, {Spec} from 'immutability-helper'
 import {useReducer, useEffect, useRef} from 'react'
+import {Spinner} from '@blueprintjs/core'
 
 import {APIView, APIResultProps, useAPIActions} from "./api";
 
@@ -86,28 +87,29 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
   const [state, dispatch] = useReducer<Reducer<T>>(infiniteScrollReducer, initialState)
 
   const loadPage = async (action: LoadPage<T>)=>{
-    const page = (action.params.page as number) ?? 0
-    console.log("Loading page ", page)
     const res = await get(route, action.params, opts)
-
+    console.log("Loaded page with params", action.params)
     const itemVals = getItems(res)
-    const ival = page == 0 ? {$set: itemVals} : {$push: itemVals}
+    const ival = {$push: itemVals}
     const nextLength = state.items.length + itemVals.length
     const count = getCount(res)
-    console.log(`Finished loading page ${page}`)
+    console.log(state.items)
     // if (state.isLoadingPage == null) {
     //   // We have externally cancelled this request (by e.g. moving to a new results set)
     //   console.log("Loading cancelled")
     //   return
     // }
 
-    let p1 = {...params, page: page+1}
+
+    let p1 = getNextParams(res, params)
+    let hasNextParams = p1 != null
+    console.log("Next page parameters", p1)
 
     action.dispatch({type: "update-state", spec: {
       items: ival,
       scrollParams: {$set: p1},
       count: {$set: count},
-      hasMore: {$set: hasMore(res) && itemVals.length > 0},
+      hasMore: {$set: hasMore(res) && itemVals.length > 0 && hasNextParams},
       isLoadingPage: {$set: null}
     }});
   }
@@ -165,7 +167,12 @@ const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
 InfiniteScrollView.defaultProps = {
   hasMore(a, b) { return true },
   getItems(d) { return d },
-  getCount(d) { return null }
+  getCount(d) { return null },
+  getNextParams(response, params) {
+    const lastPage = params.page ?? 0
+    return {...params, page: lastPage+1}
+  },
+  placeholder: h(Spinner)
 }
 
 export {InfiniteScrollView};

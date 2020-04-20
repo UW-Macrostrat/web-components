@@ -116,7 +116,6 @@ const GDDReferenceCard = (props: {docid: string})=>{
 export {
   GDDReferenceCard,
   GeoDeepDiveSwatch,
-  AuthorList,
   GeoDeepDiveSwatchInnerBare,
   GeoDeepDiveRelatedTerms
 };
