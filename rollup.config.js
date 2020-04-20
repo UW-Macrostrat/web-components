@@ -4,7 +4,7 @@ import resolve from '@rollup/plugin-node-resolve';
 import sourceMaps from 'rollup-plugin-sourcemaps';
 import postcss from 'rollup-plugin-postcss';
 import renameExtensions from '@betit/rollup-plugin-rename-extensions';
-
+import path from 'path'
 const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
 //https://2ality.com/2017/02/babel-preset-env.html
@@ -24,7 +24,7 @@ export default {
     postcss({
       // postfix with .module.css etc. for css modules (DISABLED)
       modules: false,
-      extract: "lib/index.css"
+      extract: "index.css"
     }),
     babel({
       extensions,
