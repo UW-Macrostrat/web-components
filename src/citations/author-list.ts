@@ -14,7 +14,13 @@ const Author = function(props){
   return h('span.author', name);
 };
 
-const AuthorList = function(props){
+interface AuthorListProps {
+  names: string[],
+  highlight: string,
+  limit?: number
+}
+
+const AuthorList = function(props: AuthorListProps){
   const {names, highlight} = props;
   const A = name => h(Author, {name, highlight});
 
@@ -30,15 +36,20 @@ const AuthorList = function(props){
     return A(names[0]);
   }
 
+  const limit = props.limit ?? n
+  const truncated = n > limit
+
+  const penultimateIx = limit-1
   const L = [];
-  for (let i = 0; i < names.length; i++) {
-    const name = names[i];
+  for (const [i, name] of names.entries()) {
     L.push(A(name));
-    if (i <= (n-2)) {
-      L.push(n > 2 ? ", " : " ");
-    }
-    if (i === (n-2)) {
+    L.push(i < penultimateIx ? ", " : " ");
+    if (i === penultimateIx && n != 1 && !truncated) {
       L.push("and ");
+    }
+    if (i >= limit-1) {
+      L.push("et al.")
+      break
     }
   }
 

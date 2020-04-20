@@ -1,53 +1,10 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {Component} from 'react';
-import h from 'react-hyperscript';
-import {Card} from '@blueprintjs/core';
+import h from '@macrostrat/hyper';
+import {Card, Classes} from '@blueprintjs/core';
 
-import {APIResultView} from '../api-frontend';
+import {APIResultView} from '../api';
 import {LinkCard} from '../link-card';
 import {AuthorList} from '../citations';
-
-const AuthorList2 = function(props){
-  let etAl;
-  let {authors} = props;
-  const postfix = null;
-  if (authors.length >= 4) {
-    authors = authors.slice(0,2);
-    etAl = ' et al.';
-  }
-  const _ = [];
-  for (let ix = 0; ix < authors.length; ix++) {
-    var name;
-    const author = authors[ix];
-    try {
-      name = author.name.split(',');
-      const newName = name[1].trim()+" "+name[0].trim();
-    } catch (error) {
-      ({
-        name
-      } = author);
-    }
-    const isLast = ((ix === (authors.length-1)) && (etAl == null));
-    if (isLast) {
-      _.pop();
-      _.push(' and ');
-    }
-    _.push(h('span.author', name));
-    if (!isLast) {
-      _.push(', ');
-    }
-  }
-  if (etAl != null) {
-    _.pop();
-    _.push(etAl);
-  }
-  return h('span.authors', _);
-};
 
 const VolumeNumber = function(props){
   const {volume, number} = props;
@@ -81,7 +38,7 @@ const InnerCard = props => {
     });
 
     return h([
-      h(AuthorList, {names}),
+      h(AuthorList, {names, limit: 3}),
       ", ",
       h('span.title', title),
       ", ",
@@ -101,7 +58,7 @@ class GeoDeepDiveSwatchInnerBare extends Component {
   }
 }
 
-class GeoDeepDiveSwatchInner extends Component {
+class GeoDeepDiveSwatch extends Component {
   render() {
     let url;
     const {link, ...rest} = this.props;
@@ -110,7 +67,11 @@ class GeoDeepDiveSwatchInner extends Component {
     } catch (error) {
       url = null;
     }
-    return h(LinkCard, {href: url, target: '_blank', interactive: true, className: 'gdd-article'}, h(InnerCard, rest));
+    return h(LinkCard, {
+      href: url,
+      target: '_blank',
+      className: 'gdd-article'
+    }, h(InnerCard, rest));
   }
 }
 
@@ -124,25 +85,38 @@ class GeoDeepDiveRelatedTerms extends Component {
   }
 }
 
-class GDDReferenceCard extends Component {
-  render() {
-    const {docid} = this.props;
-    return h(APIResultView, {
-      route: "http://geodeepdive.org/api/articles",
-      params: {docid},
-      opts: {
-        unwrapResponse(res){ return res.success.data[0]; },
-        memoize: true,
-        onError: console.error
-      }
-    }, data=> {
-      try {
-        return h(GeoDeepDiveSwatchInner, data);
-      } catch (error) {
-        return null;
-      }
-    });
-  }
+const PlaceholderReference = ()=>{
+  return h(Card, {
+    className: `gdd-article ${Classes.SKELETON}`,
+  }, "word ".repeat(35))
 }
 
-export {GDDReferenceCard, GeoDeepDiveSwatchInner, AuthorList, GeoDeepDiveSwatchInnerBare, GeoDeepDiveRelatedTerms};
+const GDDReferenceCard = (props: {docid: string})=>{
+  const {docid} = props;
+  return h(APIResultView, {
+    route: "https://geodeepdive.org/api/articles",
+    params: {docid},
+
+    opts: {
+      unwrapResponse(res){
+        return res.success.data[0];
+      },
+      memoize: true,
+    },
+    placeholder: PlaceholderReference
+  }, (data)=> {
+    try {
+      return h(GeoDeepDiveSwatch, data);
+    } catch (error) {
+      return null;
+    }
+  });
+}
+
+export {
+  GDDReferenceCard,
+  GeoDeepDiveSwatch,
+  AuthorList,
+  GeoDeepDiveSwatchInnerBare,
+  GeoDeepDiveRelatedTerms
+};

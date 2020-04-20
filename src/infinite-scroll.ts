@@ -1,91 +1,169 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import InfiniteScroll from 'react-infinite-scroller';
-import {useContext, useEffect} from 'react';
 import h from 'react-hyperscript';
-import {APIContext, APIProvider} from "./api";
-import {useImmutableState} from './util';
-import {useAsyncEffect} from './util';
-import {Spinner} from '@blueprintjs/core';
+import update, {Spec} from 'immutability-helper'
+import {useReducer, useEffect, useRef} from 'react'
 
-const __InfiniteScrollResultView = function(props){
+import {APIView, APIResultProps, useAPIActions} from "./api";
+
+interface ScrollState<T=object> {
+  items: T[],
+  scrollParams: APIParams,
+  count: number|null,
+  error?: any,
+  hasMore: boolean,
+  isLoadingPage: number|null
+}
+
+type ScrollResponseItems<T> = Pick<ScrollState<T>,'count'|'hasMore'|'items'>
+
+interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>,"params"> {
+  getCount(r: T): number,
+  getNextParams(r: T, params: QueryParams): QueryParams,
+  getItems(r: T): any,
+  hasMore(res: T): boolean,
+  totalCount?: number,
+  // Only allow more restrictive parameter types
+  params: APIParams,
+  className?: string
+}
+
+type UpdateState<T> = {type: 'update-state', spec: Spec<ScrollState<T>>}
+type LoadNextPage = {
+  type: 'load-next-page',
+  page: number
+}
+type LoadPage<T> = {
+  type: 'load-page',
+  params: APIParams,
+  dispatch: Dispatch<T>,
+  callback<T>(action: LoadPage<T>): void
+}
+
+type ScrollAction<T> =
+  | UpdateState<T>
+  | LoadNextPage
+  | LoadPage<T>
+
+type Reducer<T> = (state: ScrollState<T>, action: ScrollAction<T>)=>ScrollState<T>
+type Dispatch<T> = (action: ScrollAction<T>)=> void
+
+const infiniteScrollReducer = function<T>(state: ScrollState<T>, action: ScrollAction<T>) {
+  switch (action.type) {
+  case "update-state":
+    return update(state, action.spec)
+  case "load-page":
+    action.callback(action)
+    return update(state, {isLoadingPage: {$set: action.params.page ?? 0}})
+  }
+}
+
+const InfiniteScrollView = function<T>(props: InfiniteScrollProps<T>){
   /*
   A container for cursor-based pagination. This is built for
   the GeoDeepDive API right now, but it can likely be generalized
   for other uses.
   */
-  const {route, params, opts, unwrapResponse, children} = props;
-  const {get} = useContext(APIContext);
+  const {
+    route,
+    params,
+    opts,
+    children,
+    placeholder,
+    className
+  } = props;
+  const {get} = useAPIActions();
+  const {getCount, getNextParams, getItems, hasMore} = props
 
-  const [state, updateState] = useImmutableState({
+  const initialState: ScrollState<T> = {
     items: [],
-    scrollId: null,
+    scrollParams: params,
     count: null,
-    error: null
-  });
-  let {scrollId} = state;
+    error: null,
+    hasMore: true,
+    isLoadingPage: null
+  }
 
-  const getInitialData = async function() {
+  const [state, dispatch] = useReducer<Reducer<T>>(infiniteScrollReducer, initialState)
+
+  const loadPage = async (action: LoadPage<T>)=>{
+    const page = (action.params.page as number) ?? 0
+    console.log("Loading page ", page)
+    const res = await get(route, action.params, opts)
+
+    const itemVals = getItems(res)
+    const ival = page == 0 ? {$set: itemVals} : {$push: itemVals}
+    const nextLength = state.items.length + itemVals.length
+    const count = getCount(res)
+    console.log(`Finished loading page ${page}`)
+    // if (state.isLoadingPage == null) {
+    //   // We have externally cancelled this request (by e.g. moving to a new results set)
+    //   console.log("Loading cancelled")
+    //   return
+    // }
+
+    let p1 = {...params, page: page+1}
+
+    action.dispatch({type: "update-state", spec: {
+      items: ival,
+      scrollParams: {$set: p1},
+      count: {$set: count},
+      hasMore: {$set: hasMore(res) && itemVals.length > 0},
+      isLoadingPage: {$set: null}
+    }});
+  }
+
+  const isInitialRender = useRef(true)
+  const loadInitialData = function() {
+    // Don't run on initial render
+    if (isInitialRender.current) {
+      isInitialRender.current = false
+      return
+    }
+    console.log("Resetting to initial data")
     /*
     Get the initial dataset
     */
-    let data, hits;
-    const success = await get(
-      route, params, {unwrapResponse, ...opts});
-
-    ({data, scrollId, hits} = success);
-    updateState({
-      items: {$set: data},
-      scrollId: {$set: scrollId},
-      count: {$set: hits}
-    });
+    // const success = await get(route, params, opts);
+    // parseResponse(success, true)
+    //if (state.items.length == 0 && state.isLoadingPage == null) return
+    dispatch({type: 'update-state', spec: {$set: initialState}})
+    //await loadNext(0)
   };
 
-  const loadNext = async function() {
-    if (scrollId != null) {
-      // Guard against empty scrollid
-      let data;
-      if (scrollId === "") { return; }
-      ({data, scrollId} = await get(route,
-        {scroll_id: scrollId},
-        {unwrapResponse, ...opts}));
-      return updateState({
-        items: {$push: data},
-        scrollId: {$set: scrollId}
-      });
-    } else {
-      return getInitialData();
-    }
-  };
+  useEffect(loadInitialData, [props.route, props.params])
+  if (state == null) return null
 
-  useAsyncEffect(getInitialData, [route,params]);
+  //useAsyncEffect(getInitialData, [route, params]);
 
-  let main = null;
-  try {
-    main = h(children, state);
-  } catch (error) {
-    main = children(state);
-  }
+  //const showLoader = state.isLoadingPage != null && state.items.length > 0
 
   return h(InfiniteScroll, {
-    pageStart: 0,
-    loadMore: loadNext,
-    hasMore: (scrollId != null) && (scrollId !== ""),
-    loader: h(Spinner)
-  }, main);
+    pageStart: -1,
+    loadMore: (page: number)=>{
+      dispatch({
+        type: "load-page",
+        params: state.scrollParams,
+        dispatch,
+        callback: loadPage
+      })
+    },
+    hasMore: state.hasMore && state.isLoadingPage == null,
+    loader: placeholder,
+    useWindow: true,
+    className
+  }, h(APIView, {
+      data: state.items,
+      route,
+      params: state.scrollParams,
+      placeholder,
+      isLoading: state.isLoadingPage != null,
+      totalCount: props.totalCount ?? state.count
+    }, children)
+  );
 };
 
-const InfiniteScrollResultView = function(props){
-  // Enable the use of the APIResultView outside of the APIContext
-  // by wrapping it in a placeholder APIContext
-  const ctx = useContext(APIContext);
-  const component = h(__InfiniteScrollResultView, props);
-  if (ctx.get != null) { return component; }
-  return h(APIProvider, {baseURL: ""}, component);
-};
+InfiniteScrollView.defaultProps = {
+  hasMore(a, b) { return true }
+}
 
-export {InfiniteScrollResultView};
+export {InfiniteScrollView};
