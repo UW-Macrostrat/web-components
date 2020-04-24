@@ -12,6 +12,7 @@
     display flex
     flex-direction row
     align-items: center
+    margin 0 8px
     span
       display block
     .facies-picker-name
@@ -33,12 +34,14 @@
   .editor-dialog-title
     margin-right: -margin
     display flex
+    flex-direction column
     align-items: baseline
     code
       font-family: "Fira Code", monospace
       color: #aaa
     *
-      margin-right: margin
+      margin-bottom 0.2em
+      margin-top 0
     .title-center
       flex-grow 1
     .height-range
@@ -52,12 +55,32 @@
     border 1px solid black
 
   .lithology-symbol-picker
+    margin-top -10px
+    &.hidden
+      .lithology-symbol-picker-inner
+        display none
+    &.expanded
+      .expand-button
+        display none
+    margin-bottom 15px
+    margin-left 8px
+
+  .lithology-symbol-picker-inner
     display: flex
     flex-direction: row
     align-items: center
     *
       margin-right margin
     margin 0 4px
+    .picker-label
+      flex-grow 1
+
+  .labeled-control
+    :global(.bp3-label)
+      margin-bottom: 0
+      color: #444
+    margin-bottom: 15px
+
 
   .label-text
     font-weight 500
