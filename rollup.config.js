@@ -1,19 +1,15 @@
 import pkg from './package.json';
 import babel from 'rollup-plugin-babel';
-import coffee from 'rollup-plugin-coffee-script';
 import resolve from '@rollup/plugin-node-resolve';
-import sourceMaps from 'rollup-plugin-sourcemaps';
 import postcss from 'rollup-plugin-postcss';
-import renameExtensions from '@betit/rollup-plugin-rename-extensions';
-
 const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
 //https://2ality.com/2017/02/babel-preset-env.html
 
-const extensions =  [ '.js', '.coffee', '.ts']
+const extensions =  [ '.js', '.ts', '.d.ts']
 
 export default {
-  input: 'index.coffee', // our source file
+  input: 'src/index.ts', // our source file
   preserveModules: true,
   output: [
     { dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
@@ -22,24 +18,14 @@ export default {
   external: Object.keys(deps),
   plugins: [
     resolve({extensions, module: true}),
-    coffee(),
     postcss({
       // postfix with .module.css etc. for css modules (DISABLED)
       modules: false,
-      extract: "lib/index.css"
+      extract: "index.css"
     }),
     babel({
       extensions,
       exclude: 'node_modules/**'
-    }),
-    renameExtensions({
-      include: ['**/*.ts', '**/*.coffee'],
-      mappings: {
-          '.coffee': '.js',
-          '.ts': '.js',
-      },
-    }),
-    // Resolve source maps to the original source
-    sourceMaps()
+    })
   ]
 };
