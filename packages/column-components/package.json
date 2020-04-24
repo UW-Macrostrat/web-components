@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "0.8.0",
+  "version": "0.8.1",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -10,7 +10,7 @@
   ],
   "main": "dist/cjs",
   "module": "dist/esm",
-  "style": "dist/esm/column-components.css",
+  "style": "dist/esm/index.css",
   "typings": "dist/types",
   "type": "module",
   "files": [
@@ -21,7 +21,9 @@
     "watch:types": "tsc --emitDeclarationOnly -w 2&> /dev/null",
     "watch": "npm-run-all --aggregate-output --parallel watch:**",
     "dev": "npm run prebuild && npm run watch",
-    "build": "rollup -c rollup.config.ts",
+    "build:main": "rollup -c rollup.config.ts",
+    "build:types": "tsc --emitDeclarationOnly; exit 0",
+    "build": "npm-run-all -s prebuild build:types build:main",
     "start": "npm run dev",
     "prebuild": "rimraf dist"
   },
@@ -45,6 +47,7 @@
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-postcss": "^3.1.0",
+    "stylus": "^0.54.7",
     "typescript": "^3.8.0"
   },
   "dependencies": {

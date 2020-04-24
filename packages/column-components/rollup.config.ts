@@ -24,23 +24,22 @@ export default {
   plugins: [
     // Allow json resolution
     json(),
-    // Bundle stylesheets
-    postcss({
-      // postfix with .module.css etc. for css modules
-      modules: true,
-      extract: "column-components.css"
-    }),
     // Allow node_modules resolution, so you can use 'external' to control
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve({extensions}),
+    // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
+    commonjs(),
+    // Bundle stylesheets
+    postcss({
+      // postfix with .module.css etc. for css modules
+      modules: true,
+      extensions: ['.css', '.styl'],
+      extract: "index.css"
+    }),
     babel({
       extensions,
       exclude: 'node_modules/**'
-    }),
-    // Resolve source maps to the original source
-    //sourceMaps(),
-    // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
-    commonjs(),
+    })
   ],
 }
