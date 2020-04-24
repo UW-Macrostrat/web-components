@@ -24,6 +24,11 @@ const ModelEditorProvider = function(props){
     alwaysConfirm
   } = props;
 
+  console.warn(`Using the ModelEditorContext from
+    @macrostrat/column-components is deprecated.
+    Please use the equivalent class from
+    @macrostrat/ui-components instead.`)
+
   if (logUpdates == null) { logUpdates = false; }
   if (alwaysConfirm == null) { alwaysConfirm = false; }
   const [editedModel, setState] = useState(model);
