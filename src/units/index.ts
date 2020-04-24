@@ -2,11 +2,10 @@ import h from '@macrostrat/hyper'
 import {useContext} from 'react'
 import {
   LithologyColumn,
-  LithologyBoxes,
-  LithologySymbolDefs
+  LithologySymbolDefs,
   ColumnContext,
   ColumnLayoutContext,
-  GeologicPatternContext
+  GeologicPatternContext,
   useUUID
 } from '@macrostrat/column-components'
 import {IUnit} from './types'
@@ -41,11 +40,11 @@ const UnitBoxes = (props)=>{
   const UUID = useUUID()
 
   return h('g.divisions', [
-    h(LithologySymbolDefs, {resolveID, UUID, scalePattern})
+    h(LithologySymbolDefs, {resolveID, UUID, scalePattern}),
     h('g', divisions.map(div =>{
       return h(Unit, {
-        division: div
-        resolveID
+        division: div,
+        resolveID,
         UUID
       })
     }))
@@ -85,8 +84,8 @@ const CompositeUnitsColumn = (props: ICompositeUnitProps)=>{
       width: columnWidth
     }),
     h(UnitNamesColumn, {
-      transform: `translate(${columnWidth+gutterWidth})`
-      paddingLeft: labelOffset
+      transform: `translate(${columnWidth+gutterWidth})`,
+      paddingLeft: labelOffset,
       width: width-columnWidth-gutterWidth
     })
   ])

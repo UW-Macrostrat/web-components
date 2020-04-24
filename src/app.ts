@@ -5,7 +5,9 @@ import {ButtonGroup, Button} from "@blueprintjs/core"
 import {
   APIProvider,
   APIResultView,
-  useAPIResult
+  useAPIResult,
+  getQueryString,
+  setQueryString
 } from '@macrostrat/ui-components';
 import {
   GeologicPatternProvider
@@ -29,28 +31,6 @@ const ColumnView = (props)=> {
 
 const ColumnTitle = (props)=>{
   return h.if(props.data != null)('h1', props.data?.col_name)
-}
-
-function getQueryString() {
-  const params = new URLSearchParams(document.location.search)
-  let obj = {}
-  params.forEach( (v,k) =>{
-    if Number.isInteger(v) {
-      obj[k] = Number(v)
-    } else {
-      obj[k] = v
-    }
-  })
-  const hasKeys = Object.keys(obj).length > 0
-  return hasKeys ? obj : null
-}
-
-function setQueryString(args) {
-  const params = new URLSearchParams()
-  for (const k in args) {
-    params.set(k, args[k])
-  }
-  window.history.replaceState({}, '', `${document.location.pathname}?${params}`)
 }
 
 const ColumnManager = => {
