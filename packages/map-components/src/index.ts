@@ -1,11 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import React, { Component, createContext, useContext, createRef, createElement } from 'react'
 import { findDOMNode } from 'react-dom'
 import { addClassNames } from '@macrostrat/hyper'
@@ -30,9 +22,7 @@ const GeoPath = function(props) {
 }
 
 class Background extends Component {
-  static initClass() {
-    this.contextType = MapContext
-  }
+  static contextType = MapContext
   render() {
     return h(GeoPath, {
       geometry: { type: 'Sphere' },
@@ -41,7 +31,6 @@ class Background extends Component {
     })
   }
 }
-Background.initClass()
 
 const Graticule = function(props) {
   const graticule = geoGraticule()
@@ -66,65 +55,52 @@ const Sphere = function(props) {
 }
 
 class Globe extends StatefulComponent {
-  static initClass() {
-    this.propTypes = {
-      projection: T.func.isRequired,
-      width: T.number.isRequired,
-      height: T.number.isRequired,
-      keepNorthUp: T.bool,
-      allowDrag: T.bool,
-      allowZoom: T.bool,
-      setupProjection: T.func,
-      scale: T.number,
-      center: T.arrayOf(T.number),
-      translate: T.arrayOf(T.number)
-    }
-    this.defaultProps = {
-      keepNorthUp: false,
-      allowDrag: true,
-      allowZoom: false,
-      center: [0, 0],
-      projection: geoOrthographic()
-        .clipAngle(90)
-        .precision(0.5),
-      setupProjection(projection, { width, height, scale, translate, center, margin }) {
-        if (scale == null) {
-          const maxSize = min([width, height])
-          scale = maxSize / 2
-        }
-        if (translate == null) {
-          translate = [width / 2, height / 2]
-        }
-        return projection
-          .scale(scale)
-          .translate(translate)
-          .rotate([-center[0], -center[1]])
-          .clipExtent([
-            [margin, margin],
-            [width - margin, height - margin]
-          ])
+  static propTypes = {
+    projection: T.func.isRequired,
+    width: T.number.isRequired,
+    height: T.number.isRequired,
+    keepNorthUp: T.bool,
+    allowDrag: T.bool,
+    allowZoom: T.bool,
+    setupProjection: T.func,
+    scale: T.number,
+    center: T.arrayOf(T.number),
+    translate: T.arrayOf(T.number)
+  }
+  static defaultProps = {
+    keepNorthUp: false,
+    allowDrag: true,
+    allowZoom: false,
+    center: [0, 0],
+    projection: geoOrthographic()
+      .clipAngle(90)
+      .precision(0.5),
+    setupProjection(projection, { width, height, scale, translate, center, margin }) {
+      if (scale == null) {
+        const maxSize = min([width, height])
+        scale = maxSize / 2
       }
+      if (translate == null) {
+        translate = [width / 2, height / 2]
+      }
+      return projection
+        .scale(scale)
+        .translate(translate)
+        .rotate([-center[0], -center[1]])
+        .clipExtent([
+          [margin, margin],
+          [width - margin, height - margin]
+        ])
     }
   }
 
   constructor(props) {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) {
-        super()
-      }
-      let thisFn = (() => {
-        return this
-      }).toString()
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1]
-      eval(`${thisName} = this;`)
-    }
+    super(props)
     this.componentDidUpdate = this.componentDidUpdate.bind(this)
     this.updateProjection = this.updateProjection.bind(this)
     this.rotateProjection = this.rotateProjection.bind(this)
     this.dispatchEvent = this.dispatchEvent.bind(this)
     this.componentDidMount = this.componentDidMount.bind(this)
-    super(props)
 
     this.mapElement = createRef()
 
@@ -243,7 +219,6 @@ class Globe extends StatefulComponent {
     ])
   }
 }
-Globe.initClass()
 
 export { Globe, MapContext }
 export * from './canvas-layer'

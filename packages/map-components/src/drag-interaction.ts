@@ -1,12 +1,4 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import { Component, createContext, useContext } from 'react'
+import { Component } from 'react'
 import { findDOMNode } from 'react-dom'
 import T from 'prop-types'
 import h from './hyper'
@@ -17,21 +9,19 @@ import { select, event as currentEvent, mouse } from 'd3-selection'
 import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from './math'
 
 class DraggableOverlay extends Component {
-  static initClass() {
-    this.contextType = MapContext
-    this.propTypes = {
-      showMousePosition: T.bool,
-      keepNorthUp: T.bool,
-      enableZoom: T.bool,
-      initialScale: T.number,
-      dragSensitivity: T.number
-    }
-    this.defaultProps = {
-      showMousePosition: false,
-      enableZoom: true,
-      pinNorthUp: false,
-      dragSensitivity: 1
-    }
+  static contextType = MapContext
+  static propTypes = {
+    showMousePosition: T.bool,
+    keepNorthUp: T.bool,
+    enableZoom: T.bool,
+    initialScale: T.number,
+    dragSensitivity: T.number
+  }
+  static defaultProps = {
+    showMousePosition: false,
+    enableZoom: true,
+    pinNorthUp: false,
+    dragSensitivity: 1
   }
   constructor(props) {
     super(props)
@@ -176,6 +166,5 @@ class DraggableOverlay extends Component {
     }
   }
 }
-DraggableOverlay.initClass()
 
 export { DraggableOverlay }

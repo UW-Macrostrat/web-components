@@ -1,18 +1,7 @@
-/*
- * decaffeinate suggestions:
- * DS001: Remove Babel/TypeScript constructor workaround
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import { Component, createContext, useContext, createRef, createElement } from 'react'
-import { findDOMNode } from 'react-dom'
-import T from 'prop-types'
+import { Component, createContext, createRef, createElement } from 'react'
 import h from './hyper'
 import { MapContext } from './context'
 import { geoPath } from 'd3-geo'
-import { memoize } from 'underscore'
 
 // https://philna.sh/blog/2018/09/27/techniques-for-animating-on-the-canvas-in-react/
 
@@ -23,23 +12,9 @@ const MapCanvasContext = createContext({
 })
 
 class CanvasLayer extends Component {
-  static initClass() {
-    this.contextType = MapContext
-  }
-  constructor() {
-    {
-      // Hack: trick Babel/TypeScript into allowing this before super.
-      if (false) {
-        super()
-      }
-      let thisFn = (() => {
-        return this
-      }).toString()
-      let thisName = thisFn.match(/return (?:_assertThisInitialized\()*(\w+)\)*;/)[1]
-      eval(`${thisName} = this;`)
-    }
-    this.componentDidUpdate = this.componentDidUpdate.bind(this)
-    super(...arguments)
+  static contextType = MapContext
+  constructor(props, ctx) {
+    super(props, ctx)
     this.canvas = createRef()
     this.state = {
       // The canvas rendering context
@@ -134,6 +109,5 @@ class CanvasLayer extends Component {
     return context.stroke()
   }
 }
-CanvasLayer.initClass()
 
 export { CanvasLayer, MapCanvasContext }
