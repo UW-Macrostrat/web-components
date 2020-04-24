@@ -4,6 +4,7 @@ import h from '@macrostrat/hyper'
 import {
   APIResultView,
   APIContext,
+  QueryParams,
   useAPIResult
 } from '@macrostrat/ui-components'
 import {
@@ -18,12 +19,11 @@ import {Button, ResizeSensor} from '@blueprintjs/core'
 import {min} from 'd3-array'
 import {geoCentroid} from 'd3-geo'
 import {get} from 'axios'
-import {feature} from 'topojson'
+import {feature} from 'topojson-client'
 
 const Land = (props)=>{
 
   const [geometry, setGeometry] = useState(null)
-
   useAsyncEffect(async function(){
     const {data} = await get("https://unpkg.com/world-atlas@1/world/110m.json")
     // Parse topoJSON
@@ -46,10 +46,17 @@ const Columns = (props)=>{
   const {onClick} = props
 
   let features = useAPIResult('/columns', {format: 'topojson', all: true}, res =>{
-    const {features} = feature(res, res.objects.output)
-    return features
-  }, [])
+    try {
+      const {data} = res.success
+      const {features: f} = feature(data, data.objects.output)
+      return f
+    } catch (err) {
+      console.error(err)
+      return []
+    }
+  })
   if (features == null) return null
+  console.log(features)
 
   return h(FeatureLayer, {
     className: "columns"
