@@ -3,6 +3,7 @@ import h from 'react-hyperscript';
 import update, {Spec} from 'immutability-helper'
 import {useReducer, useEffect, useRef} from 'react'
 import {Spinner} from '@blueprintjs/core'
+import {APIParams, QueryParams} from './api'
 
 import {APIView, APIResultProps, useAPIActions} from "./api";
 

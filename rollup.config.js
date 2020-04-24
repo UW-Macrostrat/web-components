@@ -1,15 +1,12 @@
 import pkg from './package.json';
 import babel from 'rollup-plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
-import sourceMaps from 'rollup-plugin-sourcemaps';
 import postcss from 'rollup-plugin-postcss';
-import renameExtensions from '@betit/rollup-plugin-rename-extensions';
-import path from 'path'
 const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
 //https://2ality.com/2017/02/babel-preset-env.html
 
-const extensions =  [ '.js', '.ts']
+const extensions =  [ '.js', '.ts', '.d.ts']
 
 export default {
   input: 'src/index.ts', // our source file
@@ -29,12 +26,6 @@ export default {
     babel({
       extensions,
       exclude: 'node_modules/**'
-    }),
-    renameExtensions({
-      include: ['**/*.ts'],
-      mappings: {'.ts': '.js'},
-    }),
-    // Resolve source maps to the original source
-    sourceMaps()
+    })
   ]
 };
