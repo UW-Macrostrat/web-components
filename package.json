@@ -4,7 +4,7 @@
   "description": "A renderer for Macrostrat columns",
   "main": "index.html",
   "scripts": {
-    "preinstall": "linklocal && linklocal --list | bulk -c 'npm install'",
+    "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
     "dev": "npm-run-all --aggregate-output -l -p watch:**",
     "watch:core": "parcel index.html",
     "watch:map": "cd bundledDeps/map-components && npm run watch:main",
