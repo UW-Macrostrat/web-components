@@ -1,3 +1,5 @@
+import {QueryParams} from './types'
+
 const buildQueryString = (params: QueryParams): string => {
   let p = new URLSearchParams(params ?? {}).toString();
   if (p !== "") {

@@ -12,6 +12,8 @@ import {Spinner} from '@blueprintjs/core';
 import ReactJson from 'react-json-view';
 import {APIContext, APIActions, APIHelpers} from './provider';
 import {debounce} from 'underscore';
+import {APIOptions, QueryParams} from './types'
+
 
 const APIViewContext = createContext<APIViewCTX<any>|null>(null);
 const APIViewConsumer = APIViewContext.Consumer;

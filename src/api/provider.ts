@@ -5,6 +5,7 @@ import axios, {AxiosPromise} from 'axios';
 import useAsyncEffect from 'use-async-effect';
 import {buildURL} from './helpers'
 import {debounce} from 'underscore';
+import {APIConfig, APIOptions, QueryParams} from './types'
 
 type APIBase = {baseURL: string}
 type APIContextValue = APIConfig & APIBase
@@ -103,7 +104,7 @@ const APIActions = (ctx: APIContextValue): APIActions => {
         [params, opts] = args
       }
 
-      const url = buildURL(route, params);
+      const url = buildURL(route, params ?? {});
       opts = processOptions(opts ?? {});
 
       let fn = axios.get;
@@ -131,11 +132,15 @@ type APIHookOpts = Partial<APIConfig & {
 const useAPIResult = function<T>(
     route: string|null,
     params: QueryParams = {},
-    opts: APIHookOpts = {}): T {
+    opts: APIHookOpts|(<T,U=any>(arg: U)=>T) = {}): T {
   /* React hook for API results */
-  const deps = [route, ...Object.values(params)]
+  const deps = [route, ...Object.values(params ?? {})]
 
-  const [result, setResult] = useState(null);
+  const [result, setResult] = useState<T|null>(null);
+
+  if (typeof opts === 'function') {
+    opts = {unwrapResponse: opts}
+  }
 
   const {debounce: _debounce, ...rest} = opts ?? {}
   let {get} = useAPIActions()

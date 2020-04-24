@@ -6,7 +6,7 @@ const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
 //https://2ality.com/2017/02/babel-preset-env.html
 
-const extensions =  [ '.js', '.ts']
+const extensions =  [ '.js', '.ts', '.d.ts']
 
 export default {
   input: 'src/index.ts', // our source file

@@ -1,12 +1,13 @@
-type APIParams = Record<string, string|number>
+export type APIParams = Record<string, string|number>
 
-declare type QueryParams =
+export type QueryParams =
   | string
   | string[][]
   | APIParams
   | URLSearchParams
+  | null
 
-declare interface APIConfig {
+export interface APIConfig {
   fullResponse: boolean,
   handleError: boolean,
   memoize: boolean,
@@ -15,4 +16,4 @@ declare interface APIConfig {
   unwrapResponse<T,U>(a: T): U,
 }
 
-declare type APIOptions = Partial<APIConfig>
+export type APIOptions = Partial<APIConfig>
