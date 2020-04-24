@@ -3,11 +3,10 @@ import commonjs from '@rollup/plugin-commonjs'
 import json from '@rollup/plugin-json'
 import babel from 'rollup-plugin-babel'
 import postcss from 'rollup-plugin-postcss'
-import localResolve from 'rollup-plugin-local-resolve';
 
 const pkg = require('./package.json')
 
-const extensions = ['.js','.coffee', '.ts']
+const extensions = ['.js', '.ts']
 const deps = {...pkg.dependencies, ...pkg.peerDependencies};
 
 export default {
@@ -35,7 +34,6 @@ export default {
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
     resolve({extensions}),
-    localResolve(),
     babel({
       extensions,
       exclude: 'node_modules/**'
