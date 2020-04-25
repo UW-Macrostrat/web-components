@@ -25,7 +25,7 @@ const MapView = props =>{
     scale *= 3
   }
 
-  const clicker = (shouldExpand: boolean) => => {
+  const clicker = (shouldExpand: boolean) => ()=> {
     setExpanded(shouldExpand)
   }
 
@@ -36,22 +36,22 @@ const MapView = props =>{
       h(Globe, {
         ...size,
         margin,
-        center: columnCenter
+        center: columnCenter,
         allowDrag: expanded,
-        allowZoom: false
+        allowZoom: false,
         keepNorthUp: true,
-        scale
+        scale,
         onClick: clicker(true)
       }, [
-        h(Land)
-        h(Columns, {onClick})
+        h(Land),
+        h(Columns, {onClick}),
         h.if(currentColumn != null)(CurrentColumn, {feature: currentColumn})
       ]),
       h.if(expanded)(Button, {
         className: 'close-button',
         icon: 'cross',
         minimal: true,
-        onClick: clicker(false)
+        onClick: clicker(false),
         intent: 'danger'
       })
     ])

@@ -2,7 +2,10 @@ import {useState} from 'react'
 import useAsyncEffect from 'use-async-effect'
 import h from '@macrostrat/hyper'
 import {useAPIResult} from '@macrostrat/ui-components'
-import {FeatureLayer, Feature} from '@macrostrat/map-components'
+import {
+  FeatureLayer,
+  Feature
+} from '@macrostrat/map-components'
 import {get} from 'axios'
 import {feature} from 'topojson-client'
 
