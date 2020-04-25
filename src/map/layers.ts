@@ -33,6 +33,7 @@ const Columns = (props)=>{
   const {onClick} = props
 
   let features = useAPIResult('/columns', {format: 'topojson', all: true}, res =>{
+    console.log("Getting data")
     try {
       const {data} = res.success
       const {features: f} = feature(data, data.objects.output)

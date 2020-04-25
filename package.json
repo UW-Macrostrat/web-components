@@ -6,7 +6,7 @@
   "scripts": {
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
     "dev": "npm-run-all --aggregate-output -l -p watch:**",
-    "watch:core": "rm -rf .cache && parcel index.html",
+    "watch:core": "rm -rf .cache && parcel serve index.html",
     "watch:map": "cd bundledDeps/map-components && npm run watch:main",
     "watch:ui": "cd bundledDeps/ui-components && npm run dev",
     "watch:column": "cd bundledDeps/column-components && npm run watch",
@@ -50,6 +50,7 @@
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scroll": "^1.7.15",
+    "react-spring": "^8.0.27",
     "react-svg-textures": "^1.4.7",
     "regenerator-runtime": "^0.13.3",
     "topojson-client": "^3.1.0",

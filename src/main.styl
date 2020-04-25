@@ -55,6 +55,9 @@ g.height-range
 .frame rect
   fill transparent
 
+.map-placeholder
+  position relative
+
 .macrostrat-map
   .graticule
     stroke-dasharray inherit
@@ -80,17 +83,15 @@ div.column-ui
   margin 0 -10px
 
 div.context-map
-  position relative
-  width: 200px
-  height: 200px
+  position absolute
+  top 0
+  right 0
+  width: 250px
+  height: 250px
   cursor pointer
   z-index 100
-  transition: width 0.5s, height 0.5s, margin 0.5s
   &.expanded
     cursor inherit
-    width 450px
-    height 450px
-    margin: 0 0 -250px -250px
     .columns path:hover
       stroke: rgba(255,0,0,.4) !important
 
