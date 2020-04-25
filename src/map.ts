@@ -1,17 +1,9 @@
-import {useState, useContext} from 'react'
+import {useState} from 'react'
 import useAsyncEffect from 'use-async-effect'
 import h from '@macrostrat/hyper'
-import {
-  APIResultView,
-  APIContext,
-  QueryParams,
-  useAPIResult
-} from '@macrostrat/ui-components'
+import {useAPIResult} from '@macrostrat/ui-components'
 import {
   Globe,
-  CanvasLayer,
-  MapContext,
-  MapCanvasContext,
   FeatureLayer,
   Feature
 } from '@macrostrat/map-components'
@@ -56,7 +48,6 @@ const Columns = (props)=>{
     }
   })
   if (features == null) return null
-  console.log(features)
 
   return h(FeatureLayer, {
     className: "columns"
@@ -98,7 +89,7 @@ const MapView = props =>{
   const columnCenter = geoCentroid?.(currentColumn)
 
   const className = expanded ? "expanded" : null
-  const {featureDataset, margin} = props
+  const {margin} = props
   let scale = min([size.width,size.height])/2-(margin)
   if (expanded) {
     scale *= 3

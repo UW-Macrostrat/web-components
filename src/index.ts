@@ -3,6 +3,8 @@ import "regenerator-runtime/runtime"
 
 import {FocusStyleManager} from '@blueprintjs/core'
 import '@blueprintjs/core/lib/css/blueprint.css'
+import '@macrostrat/column-components/dist/esm/index.css'
+import '@macrostrat/map-components/dist/esm/index.css'
 
 FocusStyleManager.onlyShowFocusOnTabs()
 

@@ -15,7 +15,7 @@ interface UnitNamesProps {
 const NoteComponent = (props)=>{
   const {note} = props
   const text = note.note
-  return h('p.mc-note-label', text)
+  return h('p.col-note-label', text)
 }
 
 const UnitNamesColumn = (props: UnitNamesProps)=>{
