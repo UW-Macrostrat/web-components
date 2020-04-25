@@ -25,7 +25,7 @@ const NoteTextEditor = function(props){
   const {note} = props;
   return h(EditableText, {
     multiline: true,
-    className: 'mc-note-label note-editing',
+    className: 'col-note-label note-editing',
     defaultValue: note.note,
     isEditing: true,
     onConfirm(newText){
