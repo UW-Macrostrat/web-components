@@ -7,6 +7,8 @@ import {Land, Columns, CurrentColumn} from './layers'
 import classNames from 'classnames'
 import {useSpring, animated} from 'react-spring'
 
+const AnimatedGlobe = animated(Globe)
+
 const MapView = props =>{
   const {currentColumn, setCurrentColumn} = props
   const [expanded, setExpanded] = useState(false)
@@ -16,11 +18,6 @@ const MapView = props =>{
   const className = classNames({expanded}, 'context-map')
   const {margin} = props
 
-
-  const clicker = (shouldExpand: boolean) => ()=> {
-    setExpanded(shouldExpand)
-  }
-
   const baseSize = 250
   const sz = expanded ? 450 : baseSize
 
@@ -29,24 +26,26 @@ const MapView = props =>{
     scale *= 3
   }
 
-  const animationProps = useSpring({
+  const targetProps = {
     width: sz,
     height: sz,
     scale,
-  })
+  }
+
+  const animationProps = useSpring(targetProps)
 
   return h("div.map-placeholder", {style: {width: baseSize, height: baseSize}}, [
     h(animated.div, {className, style: animationProps}, [
-      h(Globe, {
-        scale,
-        width: sz,
-        height: sz,
+      h(AnimatedGlobe, {
+        ...targetProps,
         margin,
         center: columnCenter,
         allowDrag: expanded,
         allowZoom: false,
         keepNorthUp: true,
-        onClick: clicker(true)
+        onClick() {
+          setExpanded(true)
+        }
       }, [
         h(Land),
         h(Columns, {onClick: setCurrentColumn}),
@@ -56,7 +55,9 @@ const MapView = props =>{
         className: 'close-button',
         icon: 'cross',
         minimal: true,
-        onClick: clicker(false),
+        onClick() {
+          setExpanded(false)
+        },
         intent: 'danger'
       })
     ])
