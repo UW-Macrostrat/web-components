@@ -1,5 +1,9 @@
-function getQueryString() {
-  const params = new URLSearchParams(document.location.search)
+interface QueryArgs {
+  [k: string]: any
+}
+
+function parseParams(paramString: string) {
+  const params = new URLSearchParams(paramString)
   let obj = {}
   params.forEach( (v,k) =>{
     const parsed = parseInt(v);
@@ -9,16 +13,24 @@ function getQueryString() {
   return hasKeys ? obj : null
 }
 
-interface QueryArgs {
-  [k: string]: any
-}
-
-function setQueryString(args: QueryArgs) {
+function encodeParams(args: QueryArgs){
   const params = new URLSearchParams()
   for (const k in args) {
     params.set(k, args[k])
   }
-  window.history.replaceState({}, '', `${document.location.pathname}?${params}`)
+  return params
 }
 
-export {getQueryString, setQueryString}
+const updateURL = (joinWith: string, args: QueryArgs)=>{
+  const params = encodeParams(args)
+  window.history.replaceState({}, '', `${document.location.pathname}${joinWith}${params}`)
+}
+
+const getHashString = ()=> parseParams(document.location.hash)
+const setHashString = (args: QueryArgs)=> updateURL("#", args)
+
+
+const getQueryString = ()=> parseParams(document.location.search)
+const setQueryString = (args: QueryArgs)=>  updateURL("?", args)
+
+export {getQueryString, setQueryString, getHashString, setHashString}
