@@ -39,6 +39,7 @@
     "@emotion/styled": "^10.0.14",
     "@macrostrat/hyper": "^1.2.8",
     "@types/classnames": "^2.2.9",
+    "@types/immutability-helper": "^2.6.3",
     "@types/react": "^16.9.19",
     "@types/react-hyperscript": "^3.0.4",
     "axios": "^0.18.0",
