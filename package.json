@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "0.3.0",
+  "version": "0.3.0-beta.1",
   "description": "UI components for React and blueprint.js",
   "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "style": "lib/esm/index.css",
@@ -42,6 +42,7 @@
     "@types/immutability-helper": "^2.6.3",
     "@types/react": "^16.9.19",
     "@types/react-hyperscript": "^3.0.4",
+    "@types/react-router-dom": "^5.1.5",
     "axios": "^0.18.0",
     "classnames": "^2.2.6",
     "core-js": "^3.6.4",
