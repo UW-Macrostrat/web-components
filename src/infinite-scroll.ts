@@ -106,7 +106,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     //   return
     // }
 
-    let p1 = getNextParams(res, params);
+    let p1: QueryParams = getNextParams(res, params);
     let hasNextParams = p1 != null;
     console.log("Next page parameters", p1);
 
@@ -114,6 +114,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       type: "update-state",
       spec: {
         items: ival,
+        // @ts-ignore
         scrollParams: { $set: p1 },
         count: { $set: count },
         hasMore: { $set: hasMore(res) && itemVals.length > 0 && hasNextParams },
@@ -156,6 +157,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
           type: "load-page",
           params: state.scrollParams,
           dispatch,
+          // @ts-ignore
           callback: loadPage
         });
       },

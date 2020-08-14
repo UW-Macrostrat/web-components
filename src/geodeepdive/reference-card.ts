@@ -24,7 +24,7 @@ const VolumeNumber = function(props) {
   return h("span", null, _);
 };
 
-const InnerCard = props => {
+function InnerCard(props: { [k: string]: any }) {
   let { title, author, doi, journal, identifier, volume, number, year } = props;
   try {
     ({ id: doi } = identifier.find(d => d.type === "doi"));
@@ -51,16 +51,13 @@ const InnerCard = props => {
     h("span.doi-title", "doi: "),
     h("span.doi", doi)
   ]);
-};
+}
 
-class GeoDeepDiveSwatchInnerBare extends Component {
-  render() {
-    return h(
-      Card,
-      { interactive: false, className: "gdd-article" },
-      h(InnerCard, this.props)
-    );
-  }
+function GeoDeepDiveSwatchInnerBare(props: any) {
+  return h(Card, { interactive: false, className: "gdd-article" }, [
+    // @ts-ignore
+    h(InnerCard, props)
+  ]);
 }
 
 class GeoDeepDiveSwatch extends Component<any, any> {
@@ -79,6 +76,7 @@ class GeoDeepDiveSwatch extends Component<any, any> {
         target: "_blank",
         className: "gdd-article"
       },
+      // @ts-ignore
       h(InnerCard, rest)
     );
   }

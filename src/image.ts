@@ -52,6 +52,7 @@ class ConfinedImage extends Component<ConfinedImageProps, ConfinedImageState> {
 
   componentDidMount() {
     const el = findDOMNode(this);
+    // @ts-ignore
     const img = el.querySelector("img");
     return (img.onload = () => {
       const height = img.naturalHeight / 2;

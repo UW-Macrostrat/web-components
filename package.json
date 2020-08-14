@@ -41,6 +41,7 @@
     "@types/classnames": "^2.2.9",
     "@types/immutability-helper": "^2.6.3",
     "@types/react": "^16.9.19",
+    "@types/react-dom": "^16.9.8",
     "@types/react-hyperscript": "^3.0.4",
     "@types/react-router-dom": "^5.1.5",
     "axios": "^0.18.0",
