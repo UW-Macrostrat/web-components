@@ -4,9 +4,9 @@
   "description": "UI components for React and blueprint.js",
   "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "style": "lib/index.css",
-  "main": "lib/cjs/index.js",
-  "module": "lib/esm/index.js",
-  "types": "lib/types/index.d.ts",
+  "main": "lib/cjs",
+  "module": "lib/esm",
+  "types": "lib/types",
   "source": "src/index.ts",
   "scripts": {
     "watch:main": "parcel watch src/index.ts",
@@ -14,7 +14,8 @@
     "dev": "npm run watch:main",
     "dev:docs": "npm-run-all -p --aggregate-output npm:watch:**",
     "build:docs": "rm -rf .docz && docz build",
-    "build": "parcel build src/index.ts",
+    "build": "rollup -c",
+    "build:parcel": "parcel build src/index.ts",
     "prepare": "npm run build"
   },
   "targets": {
@@ -68,16 +69,14 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.8.3",
-    "@parcel/transformer-typescript-tsc": "^2.0.0-alpha.3",
     "babel-plugin-emotion": "^10.0.14",
     "docz": "^2.2.0",
     "husky": "^4.2.5",
     "npm-run-all": "^4.1.5",
-    "parcel": "^2.0.0-beta.1",
     "postcss-modules": "^2.0.0",
     "pretty-quick": "^2.0.1",
     "stylus": "^0.54.7",
-    "typescript": "^3.7.5"
+    "typescript": "^3.9.7"
   },
   "peerDependencies": {
     "react": "^16.8.6",
