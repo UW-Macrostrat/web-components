@@ -14,7 +14,9 @@
     "dev": "npm run watch:main",
     "dev:docs": "npm-run-all -p --aggregate-output npm:watch:**",
     "build:docs": "rm -rf .docz && docz build",
-    "build": "rollup -c",
+    "build:types": "tsc --emitDeclarationOnly",
+    "build:main": "rollup -c",
+    "build": "npm run build:main && npm run build:types",
     "build:parcel": "parcel build src/index.ts",
     "prepare": "npm run build"
   },
