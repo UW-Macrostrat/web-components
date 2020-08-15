@@ -3,7 +3,7 @@
   "version": "0.3.0-beta.1",
   "description": "UI components for React and blueprint.js",
   "repository": "https://github.com/UW-Macrostrat/ui-components.git",
-  "style": "lib/esm/index.css",
+  "style": "lib/index.css",
   "main": "lib/cjs/index.js",
   "module": "lib/esm/index.js",
   "types": "lib/types/index.d.ts",
@@ -19,7 +19,10 @@
   },
   "targets": {
     "module": {
-      "includeNodeModules": false
+      "includeNodeModules": false,
+      "isLibrary": true,
+      "minify": false,
+      "distDir": "lib/esm"
     }
   },
   "author": "Daven Quinn",
@@ -65,6 +68,7 @@
     "@babel/preset-env": "^7.5.5",
     "@babel/preset-react": "^7.0.0",
     "@babel/preset-typescript": "^7.8.3",
+    "@parcel/transformer-typescript-tsc": "^2.0.0-alpha.3",
     "babel-plugin-emotion": "^10.0.14",
     "docz": "^2.2.0",
     "husky": "^4.2.5",
