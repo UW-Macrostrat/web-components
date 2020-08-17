@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
+    "outDir": "./lib",
+    "rootDir": "src",
     "moduleResolution": "node",
     "declaration": true,
     "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "downlevelIteration": true,
     "declarationDir": "lib/types",
