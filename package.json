@@ -15,14 +15,6 @@
     "build": "rollup -c",
     "prepare": "npm run build"
   },
-  "targets": {
-    "module": {
-      "includeNodeModules": false,
-      "isLibrary": true,
-      "minify": false,
-      "distDir": "lib/esm"
-    }
-  },
   "author": "Daven Quinn",
   "license": "ISC",
   "publishConfig": {
