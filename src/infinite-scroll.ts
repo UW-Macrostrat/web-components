@@ -52,7 +52,7 @@ type Reducer<T> = (
 ) => ScrollState<T>;
 type Dispatch<T> = (action: ScrollAction<T>) => void;
 
-const infiniteScrollReducer = function<T>(
+function infiniteScrollReducer<T>(
   state: ScrollState<T>,
   action: ScrollAction<T>
 ) {
@@ -66,7 +66,7 @@ const infiniteScrollReducer = function<T>(
         isLoadingPage: { $set: action.params.page ?? 0 }
       });
   }
-};
+}
 
 function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   /*

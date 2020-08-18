@@ -2,7 +2,7 @@ import h from "react-hyperscript";
 import { Link } from "react-router-dom";
 import classNames from "classnames";
 
-const LinkCard = function(props) {
+function LinkCard(props) {
   let { to, href, className, elevation, ...rest } = props;
   if (elevation == null) {
     elevation = 0;
@@ -19,6 +19,6 @@ const LinkCard = function(props) {
     return h("a", { href, className, ...rest });
   }
   return h(Link, { to, className, ...rest });
-};
+}
 
 export { LinkCard };

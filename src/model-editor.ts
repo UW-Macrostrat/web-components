@@ -5,29 +5,41 @@ import { EditableText } from "@blueprintjs/core";
 import { EditButton, DeleteButton } from "./buttons";
 import { StatefulComponent } from "./util";
 import classNames from "classnames";
-import update from "immutability-helper";
+import update, { Spec } from "immutability-helper";
 import T from "prop-types";
 
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
 const ModelEditorContext = createContext<any>({});
 
-class ModelEditButton extends Component {
-  static initClass() {
-    this.contextType = ModelEditorContext;
-  }
-  render() {
-    const { isEditing, actions } = this.context;
-    return h(EditButton, {
-      isEditing,
-      onClick: actions.toggleEditing,
-      ...this.props
-    });
-  }
+function ModelEditButton(props) {
+  const { isEditing, actions } = useContext(ModelEditorContext);
+  return h(EditButton, {
+    isEditing,
+    onClick: actions.toggleEditing,
+    ...props
+  });
 }
-ModelEditButton.initClass();
 
-class ModelEditor extends StatefulComponent<any, any> {
+interface ModelEditorProps<T> {
+  model: T;
+  canEdit: boolean;
+  isEditing: boolean;
+  persistChanges(v: T, spec: Spec<T>): void;
+}
+
+interface ModelEditorState<T> {
+  isEditing: boolean;
+  isPersisting: boolean | null;
+  error: any | null;
+  model: T;
+  initialModel: T;
+}
+
+class ModelEditor<T> extends StatefulComponent<
+  ModelEditorProps<T>,
+  ModelEditorState<T>
+> {
   static defaultProps = {
     canEdit: true
   };
@@ -84,6 +96,7 @@ class ModelEditor extends StatefulComponent<any, any> {
 
   onChange(field) {
     return value => {
+      // @ts-ignore
       return this.updateState({ model: { [field]: { $set: value } } });
     };
   }
@@ -121,7 +134,7 @@ class ModelEditor extends StatefulComponent<any, any> {
       this.updateState({ isPersisting: { $set: true } });
 
       // Compute a shallow changeset of the model fields
-      const changeset = {};
+      const changeset: any = {};
       for (let k in updatedModel) {
         const v = updatedModel[k];
         if (v === this.state.initialModel[k]) {
@@ -137,6 +150,7 @@ class ModelEditor extends StatefulComponent<any, any> {
       spec = { isPersisting: { $set: false } };
 
       if (ret != null) {
+        // @ts-ignore
         const newModel = update(this.state.initialModel, { $merge: ret });
         console.log(newModel);
         spec.model = { $set: newModel };
