@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import h from 'react-hyperscript'
+import h from '@macrostrat/hyper'
 import { MapContext } from './context'
 import { CanvasLayer, MapCanvasContext } from './canvas-layer'
 
@@ -40,11 +40,11 @@ const Feature = (props: IFeatureProps) => {
   }
 }
 
-interface IFeatureLayerProps {
+type IFeatureLayerProps = React.PropsWithChildren<{
   geometry?: object
-  features?: object[]
+  features?: IFeature[]
   useCanvas?: boolean
-}
+}>
 
 const FeatureLayer = (props: IFeatureLayerProps) => {
   const { useCanvas, features, geometry, children, ...rest } = props

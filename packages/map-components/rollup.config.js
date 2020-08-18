@@ -2,22 +2,22 @@ import resolve from '@rollup/plugin-node-resolve'
 import babel from 'rollup-plugin-babel'
 import postcss from 'rollup-plugin-postcss'
 
-const pkg = require('./package.json')
+import pkg from './package.json'
 
 const extensions = ['.js', '.ts']
-const deps = {...pkg.dependencies, ...pkg.peerDependencies};
+const deps = { ...pkg.dependencies, ...pkg.peerDependencies }
 
 export default {
-  input: "src/index.ts",
+  input: 'src/index.ts',
   preserveModules: true,
   output: [
-    { dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
+    //{ dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
     { dir: pkg.module, format: 'esm', sourcemap: true, entryFileNames: '[name].js' }
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
   external: Object.keys(deps),
   watch: {
-    include: 'src/**',
+    include: 'src/**'
   },
   plugins: [
     // Bundle stylesheets
@@ -29,10 +29,10 @@ export default {
     // Allow node_modules resolution, so you can use 'external' to control
     // which external modules to include in the bundle
     // https://github.com/rollup/rollup-plugin-node-resolve#usage
-    resolve({extensions}),
+    resolve({ extensions }),
     babel({
       extensions,
       exclude: 'node_modules/**'
     })
-  ],
+  ]
 }

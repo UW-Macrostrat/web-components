@@ -142,7 +142,7 @@ class Globe extends StatefulComponent<any, any> {
   }
 
   dispatchEvent(evt) {
-    const v = findDOMNode(this)
+    const v = <HTMLElement>findDOMNode(this)
     const el = v.getElementsByClassName(styles.map)[0]
     // Simulate an event directly on the map's DOM element
     const { clientX, clientY } = evt
