@@ -7,9 +7,10 @@
 import { Component, useState } from "react";
 import update, { Spec } from "immutability-helper";
 
-const useImmutableState = function(v) {
+const useImmutableState = function<S>(v: S) {
+  /** useState wrapper hook that requires updating using an "immutability-helper" spec */
   const [state, setState] = useState(v);
-  const updateState = function(cset) {
+  const updateState = function(cset: Spec<S>) {
     const newState = update(state, cset);
     return setState(newState);
   };

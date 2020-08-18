@@ -5,7 +5,7 @@ import axios, { AxiosPromise } from "axios";
 import useAsyncEffect from "use-async-effect";
 import { buildURL } from "./helpers";
 import { debounce } from "underscore";
-import { APIConfig, APIOptions, QueryParams } from "./types";
+import { APIConfig, APIOptions, QueryParams, ResponseUnwrapper } from "./types";
 
 type APIBase = { baseURL: string };
 type APIContextValue = APIConfig & APIBase;
@@ -20,7 +20,7 @@ const apiDefaults: APIConfig = {
     throw error;
   },
   onResponse(d) {},
-  unwrapResponse<T, U = T>(d) {
+  unwrapResponse(d) {
     return d;
   }
 };
@@ -151,7 +151,7 @@ type APIHookOpts = Partial<
 const useAPIResult = function<T>(
   route: string | null,
   params: QueryParams = {},
-  opts: APIHookOpts | (<T, U = any>(arg: U) => T) = {}
+  opts: APIHookOpts | ResponseUnwrapper<any, T> = {}
 ): T {
   /* React hook for API results */
   const deps = [route, ...Object.values(params ?? {})];
