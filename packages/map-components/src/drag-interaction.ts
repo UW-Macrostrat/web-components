@@ -3,12 +3,12 @@ import { findDOMNode } from 'react-dom'
 import T from 'prop-types'
 import h from './hyper'
 import { MapContext } from './context'
-import { drag } from 'd3-drag'
-import { zoom } from 'd3-zoom'
+import { drag, DragBehavior } from 'd3-drag'
+import { zoom, ZoomBehavior } from 'd3-zoom'
 import { select, event as currentEvent, mouse } from 'd3-selection'
 import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from './math'
 
-class DraggableOverlay extends Component {
+class DraggableOverlay extends Component<any, any> {
   static contextType = MapContext
   static propTypes = {
     showMousePosition: T.bool,
@@ -23,6 +23,13 @@ class DraggableOverlay extends Component {
     pinNorthUp: false,
     dragSensitivity: 1
   }
+  zoom: ZoomBehavior<any, any>
+  drag: DragBehavior<any, any, any>
+  r0: number
+  p0: number[]
+  qa: number[]
+  q0: number[]
+
   constructor(props) {
     super(props)
     this.dragStarted = this.dragStarted.bind(this)
@@ -55,7 +62,7 @@ class DraggableOverlay extends Component {
     this.r0 = projection.rotate()
     this.p0 = sph2cart(pos)
     this.qa = euler2quat(this.r0)
-    return (this.q0 = euler2quat(this.r0))
+    this.q0 = euler2quat(this.r0)
   }
 
   dragged(mousePos, evt) {
@@ -139,7 +146,7 @@ class DraggableOverlay extends Component {
     return this.updateZoom()
   }
 
-  updateZoom(scale) {
+  updateZoom(scale?: number) {
     const el = this.element()
     if (scale == null) {
       scale = this.props.initialScale
@@ -162,6 +169,7 @@ class DraggableOverlay extends Component {
       return
     }
     if (this.zoom != null) {
+      // @ts-ignore
       return this.updateZoom()
     }
   }

@@ -11,6 +11,7 @@ interface IFeature {
 
 interface IFeatureProps {
   feature: IFeature
+  [key: string]: any
 }
 
 const Feature = (props: IFeatureProps) => {

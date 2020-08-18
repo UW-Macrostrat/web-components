@@ -1,4 +1,4 @@
-import React, { Component, createContext, useContext, createRef, createElement } from 'react'
+import React, { Component, useContext, createRef, createElement } from 'react'
 import { findDOMNode } from 'react-dom'
 import { addClassNames } from '@macrostrat/hyper'
 import { StatefulComponent } from '@macrostrat/ui-components'
@@ -7,17 +7,13 @@ import h from './hyper'
 import { MapContext } from './context'
 import { DraggableOverlay } from './drag-interaction'
 import { min, max } from 'd3-array'
-import classNames from 'classnames'
-import { geoStereographic, geoOrthographic, geoGraticule, geoPath } from 'd3-geo'
+import { geoOrthographic, geoGraticule, geoPath } from 'd3-geo'
 import styles from './main.module.styl'
 
-const GeoPath = function(props) {
+function GeoPath(props) {
   const { geometry, ...rest } = props
-  let d = null
-  if (geometry != null) {
-    const { renderPath } = useContext(MapContext)
-    d = renderPath(geometry)
-  }
+  const { renderPath } = useContext<any>(MapContext)
+  const d = geometry != null ? renderPath(geometry) : null
   return h('path', { d, ...rest })
 }
 
@@ -54,7 +50,7 @@ const Sphere = function(props) {
   })
 }
 
-class Globe extends StatefulComponent {
+class Globe extends StatefulComponent<any, any> {
   static propTypes = {
     projection: T.func.isRequired,
     width: T.number.isRequired,
@@ -93,6 +89,8 @@ class Globe extends StatefulComponent {
         ])
     }
   }
+
+  mapElement: React.RefObject<HTMLElement>
 
   constructor(props) {
     super(props)
@@ -149,8 +147,8 @@ class Globe extends StatefulComponent {
     // Simulate an event directly on the map's DOM element
     const { clientX, clientY } = evt
 
-    const e1 = new Event('mousedown', { clientX, clientY })
-    const e2 = new Event('mouseup', { clientX, clientY })
+    const e1 = new Event('mousedown', <any>{ clientX, clientY })
+    const e2 = new Event('mouseup', <any>{ clientX, clientY })
 
     el.dispatchEvent(e1)
     return el.dispatchEvent(e2)
