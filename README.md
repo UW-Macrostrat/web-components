@@ -29,10 +29,11 @@ Because CSS is stripped during packaging, we must import it separately. Several
 CSS files from the BlueprintJS project are required for this library to function.
 These can be imported directly into HTML (an exercise left to the developer) or
 included in Javascript for further processing by a bundler:
+
 ```js
-import '@blueprintjs/core/lib/css/blueprint.css'
-import '@blueprintjs/icons/lib/css/blueprint-icons.css'
-import '@macrostrat/ui-components/lib/index.css'
+import "@blueprintjs/core/lib/css/blueprint.css";
+import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+import "@macrostrat/ui-components/lib/index.css";
 ```
 
 We also provide [`init.js`](init.js), a small helper that imports these styles
@@ -52,3 +53,11 @@ and sets up common Babel and BlueprintJS configuration.
 This library is primarily maintained by [Daven Quinn](https://davenquinn.com),
 who mostly wants to look at rocks but has to solve Javascript preprocessor issues
 instead.
+
+## Changelog
+
+### `[v0.3.0]`: 18-08-2020
+
+- Merge query string management.
+- Update to bundling strategy.
+- Remove all typing errors
