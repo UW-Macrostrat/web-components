@@ -1,4 +1,4 @@
-import { stringify, StringifyOptions } from "query-string";
+import { stringify, parse, StringifyOptions, ParseOptions } from "query-string";
 
 // API query string management
 export type APIParams = Record<string, string>;
@@ -39,33 +39,25 @@ function buildQueryURL(
 
 // Base query string management
 
-function parseParams(paramString: string) {
-  const params = new URLSearchParams(paramString);
-  let obj = {};
-  params.forEach((v, k) => {
-    const parsed = parseInt(v);
-    obj[k] = isNaN(parsed) ? v : parsed;
+function parseParams(paramString: string, opts?: ParseOptions) {
+  const params = parse(paramString, {
+    parseBooleans: true,
+    parseNumbers: true,
+    arrayFormat: "comma",
+    ...opts
   });
-  const hasKeys = Object.keys(obj).length > 0;
-  return hasKeys ? obj : null;
+  // Return null unless we have params defined
+  return Object.keys(params).length > 0 ? params : null;
 }
 
-function encodeParams(args: QueryArgs) {
-  const params = new URLSearchParams();
-  for (const k in args) {
-    params.set(k, args[k]);
-  }
-  return params;
-}
-
-const updateURL = (joinWith: string, args: QueryArgs) => {
-  const params = encodeParams(args);
+function updateURL(joinWith: string, args: QueryArgs, opts?: StringifyOptions) {
+  const params = buildQueryString(args, opts);
   window.history.replaceState(
     {},
     "",
     `${document.location.pathname}${joinWith}${params}`
   );
-};
+}
 
 const getHashString = () => parseParams(document.location.hash);
 const setHashString = (args: QueryArgs) => updateURL("#", args);

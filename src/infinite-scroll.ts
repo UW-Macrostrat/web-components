@@ -3,7 +3,7 @@ import h from "@macrostrat/hyper";
 import update, { Spec } from "immutability-helper";
 import { useReducer, useEffect, useRef } from "react";
 import { Spinner } from "@blueprintjs/core";
-import { APIParams, QueryParams } from "./api";
+import { APIParams, QueryParams } from "./util/query-string";
 
 import { APIView, APIResultProps, useAPIActions } from "./api";
 
