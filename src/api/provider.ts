@@ -3,9 +3,9 @@ import h from "react-hyperscript";
 import { memoize } from "underscore";
 import axios, { AxiosPromise } from "axios";
 import useAsyncEffect from "use-async-effect";
-import { buildURL } from "./helpers";
 import { debounce } from "underscore";
-import { APIConfig, APIOptions, QueryParams, ResponseUnwrapper } from "./types";
+import { APIConfig, APIOptions, ResponseUnwrapper } from "./types";
+import { buildQueryURL, QueryParams } from "../util/query-string";
 
 type APIBase = { baseURL: string };
 type APIContextValue = APIConfig & APIBase;
@@ -19,7 +19,7 @@ const apiDefaults: APIConfig = {
     let error = opts.error ?? opts;
     throw error;
   },
-  onResponse(d) {},
+  onResponse(_) {},
   unwrapResponse(d) {
     return d;
   }
@@ -68,7 +68,7 @@ const APIHelpers = (ctx: APIContextValue) => ({
     ) {
       route = baseURL + route;
     }
-    return buildURL(route, params);
+    return buildQueryURL(route, params);
   },
   processOptions(opts: APIOptions = {}): APIConfig {
     let o1: APIConfig = { ...ctx, ...opts };
