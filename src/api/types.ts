@@ -1,19 +1,12 @@
-export type APIParams = Record<string, string|number>
-
-export type QueryParams =
-  | string
-  | string[][]
-  | APIParams
-  | URLSearchParams
-  | null
+export type ResponseUnwrapper<T = any, U = any> = (input: T) => U;
 
 export interface APIConfig {
-  fullResponse: boolean,
-  handleError: boolean,
-  memoize: boolean,
-  onError(e: Error, opts: any): void,
-  onResponse<T>(a: T): void,
-  unwrapResponse<T,U>(a: T): U,
+  fullResponse: boolean;
+  handleError: boolean;
+  memoize: boolean;
+  onError(e: Error, opts: any): void;
+  onResponse<T>(a: T): void;
+  unwrapResponse: ResponseUnwrapper;
 }
 
-export type APIOptions = Partial<APIConfig>
+export type APIOptions = Partial<APIConfig>;

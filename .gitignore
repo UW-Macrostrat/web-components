@@ -22,3 +22,4 @@ typings/
 
 lib
 .docz
+.parcel-cache

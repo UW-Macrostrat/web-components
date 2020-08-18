@@ -4,11 +4,11 @@
    script in order for CSS stylesheets, etc. to resolve properly.
 */
 // Babel polyfills
-import "core-js/stable"
-import "regenerator-runtime/runtime"
+import "core-js/stable";
+import "regenerator-runtime/runtime";
 
-import {FocusStyleManager} from '@blueprintjs/core'
-import '@blueprintjs/core/lib/css/blueprint.css'
-import './lib/esm/index.css'
+import { FocusStyleManager } from "@blueprintjs/core";
+import "@blueprintjs/core/lib/css/blueprint.css";
+import "./lib/index.css";
 
 FocusStyleManager.onlyShowFocusOnTabs();

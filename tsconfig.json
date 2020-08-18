@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
+    "outDir": "lib",
+    "rootDir": ".",
     "moduleResolution": "node",
     "declaration": true,
-    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
     "experimentalDecorators": true,
+    "downlevelIteration": true,
     "declarationDir": "lib/types",
-    "typeRoots": [
-      "node_modules/@types"
-    ]
+    "typeRoots": ["node_modules/@types"]
   },
-  "include": ["src"]
+  "include": ["src", "index.ts"]
 }

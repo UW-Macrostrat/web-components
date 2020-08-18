@@ -1,55 +1,51 @@
-import {Component} from 'react';
-import h from '@macrostrat/hyper';
-import {Intent, Button, Alert} from '@blueprintjs/core';
+import { useState, ReactNode } from "react";
+import h from "@macrostrat/hyper";
+import { Intent, Button, Alert } from "@blueprintjs/core";
 
-class DeleteButton extends Component {
-  static defaultProps = {
-    handleDelete() {},
-    alertContent: null,
-    itemDescription: "this item"
-  };
-  constructor(props){
-    super(props);
-    this.state = {alertIsShown: false};
-  }
+interface P {
+  handleDelete(): void;
+  alertContent: ReactNode;
+  itemDescription: ReactNode;
+}
 
-  render() {
-    let {handleDelete, alertContent, itemDescription, ...rest} = this.props;
-    const {alertIsShown} = this.state;
+function DeleteButton(props: P) {
+  let { handleDelete, alertContent, itemDescription, ...rest } = this.props;
+  const [alertIsShown, setIsShown] = useState(false);
 
-    alertContent = [
-      "Are you sure you want to delete ",
-      itemDescription,
-      "?"
-    ];
+  alertContent = ["Are you sure you want to delete ", itemDescription, "?"];
 
-    const onCancel = () => {
-      return this.setState({alertIsShown: false});
-    };
+  const onCancel = () => setIsShown(false);
 
-    const onClick = () => {
-      return this.setState({alertIsShown: true});
-    };
+  const onClick = () => setIsShown(true);
 
-    const intent = Intent.DANGER;
-    const icon = 'trash';
+  const intent = Intent.DANGER;
+  const icon = "trash";
 
-    return h([
-      h(Button, {onClick, icon, intent, ...rest}),
-      h(Alert, {
+  return h([
+    h(Button, { onClick, icon, intent, ...rest }),
+    h(
+      Alert,
+      {
         isOpen: alertIsShown,
-        cancelButtonText: 'Cancel',
-        confirmButtonText: 'Delete',
+        cancelButtonText: "Cancel",
+        confirmButtonText: "Delete",
         icon,
         intent,
         onCancel,
         onConfirm: () => {
           handleDelete();
-          return onCancel();
+          onCancel();
         }
-      }, alertContent)
-    ]);
-  }
+      },
+      alertContent
+    )
+  ]);
 }
 
-export {DeleteButton};
+DeleteButton.defaultProps = {
+  handleDelete() {},
+  alertContent: null,
+  itemDescription: "this item"
+};
+
+export { DeleteButton };
