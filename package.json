@@ -26,7 +26,7 @@
     "@blueprintjs/datetime": "^3.7.0",
     "@emotion/core": "^10.0.14",
     "@emotion/styled": "^10.0.14",
-    "@macrostrat/hyper": "^1.2.9",
+    "@macrostrat/hyper": "^1.2.10",
     "@types/classnames": "^2.2.9",
     "@types/immutability-helper": "^2.6.3",
     "@types/query-string": "^6.3.0",
