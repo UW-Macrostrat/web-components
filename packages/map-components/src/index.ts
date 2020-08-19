@@ -1,23 +1,20 @@
-import React, { Component, createContext, useContext, createRef, createElement } from 'react'
+import React, { Component, useContext, createRef, createElement } from 'react'
 import { findDOMNode } from 'react-dom'
 import { addClassNames } from '@macrostrat/hyper'
 import { StatefulComponent } from '@macrostrat/ui-components'
-import T from 'prop-types'
 import h from './hyper'
 import { MapContext } from './context'
 import { DraggableOverlay } from './drag-interaction'
 import { min, max } from 'd3-array'
-import classNames from 'classnames'
-import { geoStereographic, geoOrthographic, geoGraticule, geoPath } from 'd3-geo'
+import { geoOrthographic, geoGraticule, geoPath, GeoProjection } from 'd3-geo'
 import styles from './main.module.styl'
 
-const GeoPath = function(props) {
+type Coord = [number, number]
+
+function GeoPath(props) {
   const { geometry, ...rest } = props
-  let d = null
-  if (geometry != null) {
-    const { renderPath } = useContext(MapContext)
-    d = renderPath(geometry)
-  }
+  const { renderPath } = useContext<any>(MapContext)
+  const d = geometry != null ? renderPath(geometry) : null
   return h('path', { d, ...rest })
 }
 
@@ -46,7 +43,7 @@ const Graticule = function(props) {
   })
 }
 
-const Sphere = function(props) {
+function Sphere(props) {
   const newProps = addClassNames(props, 'neatline')
   return h(GeoPath, {
     geometry: { type: 'Sphere' },
@@ -54,45 +51,63 @@ const Sphere = function(props) {
   })
 }
 
-class Globe extends StatefulComponent {
-  static propTypes = {
-    projection: T.func.isRequired,
-    width: T.number.isRequired,
-    height: T.number.isRequired,
-    keepNorthUp: T.bool,
-    allowDrag: T.bool,
-    allowZoom: T.bool,
-    setupProjection: T.func,
-    scale: T.number,
-    center: T.arrayOf(T.number),
-    translate: T.arrayOf(T.number)
+interface ProjectionParams {
+  center?: Coord
+  translate?: Coord
+  width: number
+  height: number
+  scale: number
+  margin: number
+}
+
+type MutateProjection = (p: GeoProjection, opts: ProjectionParams) => GeoProjection
+
+interface GlobeProps extends ProjectionParams {
+  [key: string]: any
+  projection: GeoProjection
+  setCenter?(v: Coord): void
+  keepNorthUp: boolean
+  allowDrag: boolean
+  allowZoom: boolean
+  setupProjection: MutateProjection
+}
+
+const mutateProjection: MutateProjection = (projection, opts) => {
+  /** Function to update a projection with new parameters */
+  const { width, height, center } = opts
+  const margin = opts.margin ?? 0
+  let { scale, translate } = opts
+  if (scale == null) {
+    const maxSize = min([width, height])
+    scale = maxSize / 2
   }
+  if (translate == null) {
+    translate = [width / 2, height / 2]
+  }
+  return projection
+    .scale(scale)
+    .translate(translate)
+    .center(center)
+    .clipExtent([
+      [margin, margin],
+      [width - margin, height - margin]
+    ])
+}
+
+class Globe extends StatefulComponent<GlobeProps, any> {
   static defaultProps = {
     keepNorthUp: false,
     allowDrag: true,
     allowZoom: false,
     center: [0, 0],
+    graticule: Graticule,
     projection: geoOrthographic()
       .clipAngle(90)
       .precision(0.5),
-    setupProjection(projection, { width, height, scale, translate, center, margin }) {
-      if (scale == null) {
-        const maxSize = min([width, height])
-        scale = maxSize / 2
-      }
-      if (translate == null) {
-        translate = [width / 2, height / 2]
-      }
-      return projection
-        .scale(scale)
-        .translate(translate)
-        .rotate([-center[0], -center[1]])
-        .clipExtent([
-          [margin, margin],
-          [width - margin, height - margin]
-        ])
-    }
+    setupProjection: mutateProjection
   }
+
+  mapElement: React.RefObject<HTMLElement>
 
   constructor(props) {
     super(props)
@@ -105,7 +120,6 @@ class Globe extends StatefulComponent {
     this.mapElement = createRef()
 
     const { projection } = this.props
-    projection.center([0, 0])
 
     this.state = {
       projection,
@@ -115,7 +129,6 @@ class Globe extends StatefulComponent {
   }
 
   componentDidUpdate(prevProps) {
-    let projection
     const { width, height, scale, translate, center, margin, setupProjection } = this.props
     const sameDimensions = prevProps.width === width && prevProps.height === height
     const sameProjection = prevProps.projection === this.props.projection
@@ -124,11 +137,8 @@ class Globe extends StatefulComponent {
     if (sameDimensions && sameProjection && sameScale) {
       return
     }
-    if (sameProjection) {
-      ;({ projection } = this.state)
-    } else {
-      ;({ projection } = this.props)
-    }
+
+    const projection = sameProjection ? this.state.projection : this.props.projection
 
     const newProj = setupProjection(projection, { width, height, scale, translate, center, margin })
 
@@ -144,13 +154,13 @@ class Globe extends StatefulComponent {
   }
 
   dispatchEvent(evt) {
-    const v = findDOMNode(this)
+    const v = <HTMLElement>findDOMNode(this)
     const el = v.getElementsByClassName(styles.map)[0]
     // Simulate an event directly on the map's DOM element
     const { clientX, clientY } = evt
 
-    const e1 = new Event('mousedown', { clientX, clientY })
-    const e2 = new Event('mouseup', { clientX, clientY })
+    const e1 = new Event('mousedown', <any>{ clientX, clientY })
+    const e2 = new Event('mouseup', <any>{ clientX, clientY })
 
     el.dispatchEvent(e1)
     return el.dispatchEvent(e2)
@@ -170,27 +180,27 @@ class Globe extends StatefulComponent {
       allowZoom,
       scale,
       center,
-      graticule,
-      ...rest
+      graticule
     } = this.props
     const { projection } = this.state
     const initialScale = scale || projection.scale() || 500
-
-    if (graticule == null) {
-      graticule = Graticule
-    }
 
     const actions = (() => {
       let dispatchEvent, rotateProjection, updateProjection, updateState
       return ({ updateState, updateProjection, dispatchEvent, rotateProjection } = this)
     })()
+
     const renderPath = geoPath(projection)
     const value = { projection, renderPath, width, height, ...actions }
+
+    const margin = 80
 
     const xmlns = 'http://www.w3.org/2000/svg'
     const viewBox = `0 0 ${width} ${height}`
 
-    return h(MapContext.Provider, { value }, [
+    return h(
+      MapContext.Provider,
+      { value },
       createElement(
         'svg',
         {
@@ -198,13 +208,12 @@ class Globe extends StatefulComponent {
           xmlns,
           width,
           height,
-          viewBox,
-          ...rest
+          viewBox
         },
         [
           h('g.map', { ref: this.mapElement }, [
             h(Background, { fill: 'dodgerblue' }),
-            h.if(graticule)(graticule),
+            h(graticule),
             children,
             h(Sphere)
           ]),
@@ -216,7 +225,7 @@ class Globe extends StatefulComponent {
           })
         ]
       )
-    ])
+    )
   }
 }
 

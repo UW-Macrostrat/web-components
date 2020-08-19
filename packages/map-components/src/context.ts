@@ -1,7 +1,7 @@
 import { createContext } from 'react'
-import h from 'react-hyperscript'
+import h from '@macrostrat/hyper'
 
-const MapContext = createContext({})
+const MapContext = createContext<any>({})
 
 const MapProvider = props => {
   const { projection, children } = props

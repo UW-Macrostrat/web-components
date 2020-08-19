@@ -1,9 +1,9 @@
 import { useContext } from 'react'
-import h from 'react-hyperscript'
+import h from '@macrostrat/hyper'
 import { MapContext } from './context'
 import { CanvasLayer, MapCanvasContext } from './canvas-layer'
 
-interface IFeature {
+export interface IFeature {
   id: number | string
   geometry: object
   properties?: object
@@ -11,6 +11,7 @@ interface IFeature {
 
 interface IFeatureProps {
   feature: IFeature
+  [key: string]: any
 }
 
 const Feature = (props: IFeatureProps) => {
@@ -39,11 +40,12 @@ const Feature = (props: IFeatureProps) => {
   }
 }
 
-interface IFeatureLayerProps {
+type IFeatureLayerProps = React.PropsWithChildren<{
   geometry?: object
-  features?: object[]
+  features?: IFeature[]
   useCanvas?: boolean
-}
+  [k: string]: any
+}>
 
 const FeatureLayer = (props: IFeatureLayerProps) => {
   const { useCanvas, features, geometry, children, ...rest } = props

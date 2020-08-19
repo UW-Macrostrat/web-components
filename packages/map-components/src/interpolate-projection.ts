@@ -1,13 +1,16 @@
+import { geoProjection } from 'd3-geo'
 /*
 https://bl.ocks.org/rob4acre/50c94f7ee7e96c40434bfa313c37576d
 Function to interpolate two projections
 
 Updated version here:
 https://observablehq.com/@jashkenas/interpolating-d3-map-projections
+
+NOTE: this code is currently non-functional and is here as a placeholder!
 */
 
 function interpolatedProjection(a, b) {
-  var projection = d3.geo.projection(raw).scale(1),
+  var projection = geoProjection(raw).scale(1),
     center = projection.center,
     translate = projection.translate,
     α

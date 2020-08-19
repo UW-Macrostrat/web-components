@@ -1,4 +1,4 @@
-import { Component, createContext, createRef, createElement } from 'react'
+import { Component, createContext, createRef, createElement, RefObject } from 'react'
 import h from './hyper'
 import { MapContext } from './context'
 import { geoPath } from 'd3-geo'
@@ -11,11 +11,12 @@ const MapCanvasContext = createContext({
   renderPath: null
 })
 
-class CanvasLayer extends Component {
+class CanvasLayer extends Component<any, any> {
   static contextType = MapContext
+  canvas: RefObject<HTMLCanvasElement>
   constructor(props, ctx) {
     super(props, ctx)
-    this.canvas = createRef()
+    this.canvas = createRef<HTMLCanvasElement>()
     this.state = {
       // The canvas rendering context
       context: null,
@@ -75,7 +76,8 @@ class CanvasLayer extends Component {
           width: width * dpr,
           height: height * dpr,
           style,
-          ref: this.canvas
+          ref: this.canvas,
+          key: 0
         }),
         children
       ])
