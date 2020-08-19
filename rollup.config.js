@@ -29,6 +29,6 @@ export default {
       modules: false,
       extract: "index.css"
     }),
-    typescript({ useTsconfigDeclarationDir: true })
+    typescript()
   ]
 };

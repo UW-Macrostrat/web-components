@@ -1,8 +1,5 @@
 {
   "compilerOptions": {
-    "rootDir": "src",
-    "outDir": "lib/esm",
-    "declarationDir": "lib/types",
     "moduleResolution": "node",
     "declaration": true,
     "esModuleInterop": true,
