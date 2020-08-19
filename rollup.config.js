@@ -11,12 +11,12 @@ export default {
   preserveModules: true,
   output: [
     {
-      dir: "lib/esm",
+      dir: pkg.module,
       format: "esm",
       sourcemap: true
     },
     {
-      dir: "lib/cjs",
+      dir: pkg.main,
       format: "cjs",
       sourcemap: true
     }
