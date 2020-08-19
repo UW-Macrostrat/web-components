@@ -15,7 +15,6 @@ function GeoPath(props) {
   const { geometry, ...rest } = props
   const { renderPath } = useContext<any>(MapContext)
   const d = geometry != null ? renderPath(geometry) : null
-  if (geometry.type == 'Sphere') console.log(d)
   return h('path', { d, ...rest })
 }
 
@@ -75,7 +74,8 @@ interface GlobeProps extends ProjectionParams {
 
 const mutateProjection: MutateProjection = (projection, opts) => {
   /** Function to update a projection with new parameters */
-  const { width, height, center, margin } = opts
+  const { width, height, center } = opts
+  const margin = opts.margin ?? 0
   let { scale, translate } = opts
   if (scale == null) {
     const maxSize = min([width, height])
@@ -87,7 +87,7 @@ const mutateProjection: MutateProjection = (projection, opts) => {
   return projection
     .scale(scale)
     .translate(translate)
-    .rotate([-center[0], -center[1]])
+    .center(center)
     .clipExtent([
       [margin, margin],
       [width - margin, height - margin]
@@ -120,7 +120,6 @@ class Globe extends StatefulComponent<GlobeProps, any> {
     this.mapElement = createRef()
 
     const { projection } = this.props
-    projection.center(this.props.center)
 
     this.state = {
       projection,
@@ -190,8 +189,11 @@ class Globe extends StatefulComponent<GlobeProps, any> {
       let dispatchEvent, rotateProjection, updateProjection, updateState
       return ({ updateState, updateProjection, dispatchEvent, rotateProjection } = this)
     })()
+
     const renderPath = geoPath(projection)
     const value = { projection, renderPath, width, height, ...actions }
+
+    const margin = 80
 
     const xmlns = 'http://www.w3.org/2000/svg'
     const viewBox = `0 0 ${width} ${height}`
