@@ -3,7 +3,7 @@ import h from '@macrostrat/hyper'
 import { MapContext } from './context'
 import { CanvasLayer, MapCanvasContext } from './canvas-layer'
 
-interface IFeature {
+export interface IFeature {
   id: number | string
   geometry: object
   properties?: object
@@ -44,6 +44,7 @@ type IFeatureLayerProps = React.PropsWithChildren<{
   geometry?: object
   features?: IFeature[]
   useCanvas?: boolean
+  [k: string]: any
 }>
 
 const FeatureLayer = (props: IFeatureLayerProps) => {

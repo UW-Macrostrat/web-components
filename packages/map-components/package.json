@@ -8,6 +8,7 @@
     "maps",
     "vector-graphics"
   ],
+  "main": "dist/cjs",
   "module": "dist/esm",
   "typings": "dist/types",
   "style": "dist/esm/index.css",
@@ -134,9 +135,12 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@macrostrat/hyper": "^1.2.9",
-    "@macrostrat/ui-components": "^0.2.1",
+    "@macrostrat/hyper": "^1.2.10",
+    "@macrostrat/ui-components": "^0.3.0",
+    "@types/d3-array": "^2.0.0",
     "@types/d3-drag": "^1.2.3",
+    "@types/d3-geo": "^1.11.1",
+    "@types/d3-selection": "^1.4.2",
     "@types/d3-zoom": "^1.7.4",
     "@types/react-dom": "^16.9.8",
     "d3-array": "^2.4.0",
@@ -144,8 +148,7 @@
     "d3-geo": "^1.11.9",
     "d3-selection": "^1.4.1",
     "d3-zoom": "^1.8.3",
-    "prop-types": "^15.7.2",
-    "underscore": "^1.9.1"
+    "prop-types": "^15.7.2"
   },
   "peerDependencies": {
     "react": "^16.11.0",

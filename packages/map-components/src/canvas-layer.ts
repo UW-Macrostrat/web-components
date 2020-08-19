@@ -76,7 +76,8 @@ class CanvasLayer extends Component<any, any> {
           width: width * dpr,
           height: height * dpr,
           style,
-          ref: this.canvas
+          ref: this.canvas,
+          key: 0
         }),
         children
       ])

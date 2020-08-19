@@ -26,3 +26,7 @@ Include stylesheets into your app from `@macrostrat/map-components/dist/esm/inde
 
 - Complete move towards typescript
 - Update bundler strategy
+
+### August 2020
+
+- Improve typings

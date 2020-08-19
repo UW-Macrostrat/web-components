@@ -11,7 +11,7 @@ export default {
   input: 'src/index.ts',
   preserveModules: true,
   output: [
-    //{ dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
+    { dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
     { dir: pkg.module, format: 'esm', sourcemap: true, entryFileNames: '[name].js' }
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
