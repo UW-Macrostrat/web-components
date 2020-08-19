@@ -1,10 +1,12 @@
 import pkg from "./package.json";
+import babel from "@rollup/plugin-babel";
 import postcss from "rollup-plugin-postcss";
-import typescript from "rollup-plugin-typescript2";
 import resolve from "@rollup/plugin-node-resolve";
 const deps = { ...pkg.dependencies, ...pkg.peerDependencies };
 
 //https://2ality.com/2017/02/babel-preset-env.html
+
+const extensions = [".js", ".ts", ".d.ts"];
 
 export default {
   input: "src/index.ts", // our source file
@@ -13,22 +15,28 @@ export default {
     {
       dir: pkg.module,
       format: "esm",
-      sourcemap: true
+      sourcemap: true,
+      entryFileNames: "[name].js"
     },
     {
       dir: pkg.main,
       format: "cjs",
-      sourcemap: true
+      sourcemap: true,
+      entryFileNames: "[name].js"
     }
   ],
   external: Object.keys(deps),
   plugins: [
-    resolve({ module: true }),
+    resolve({ extensions, module: true }),
     postcss({
       // postfix with .module.css etc. for css modules (DISABLED)
       modules: false,
       extract: "index.css"
     }),
-    typescript()
+    babel({
+      extensions,
+      exclude: "node_modules/**",
+      babelHelpers: "bundled"
+    })
   ]
 };

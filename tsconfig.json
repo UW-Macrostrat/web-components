@@ -1,10 +1,12 @@
 {
   "compilerOptions": {
+    "rootDir": "src",
     "moduleResolution": "node",
     "declaration": true,
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "downlevelIteration": true,
+    "declarationDir": "lib/types",
     "typeRoots": ["node_modules/@types"]
   },
   "include": ["src"]
