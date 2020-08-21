@@ -1,29 +1,66 @@
 import h from "@macrostrat/hyper";
 import { defaultIntervals } from "./intervals";
 import { group, rollup } from "d3-array";
+import "./main.styl";
 
 interface Interval {
   nam: string;
   oid: number;
-  pid: number;
+  pid?: number;
   lvl: number;
-  color: string;
-  lag: number;
-  eag: number;
+  col: string;
+  lag?: number;
+  eag?: number;
+  children?: Interval[];
 }
 
 interface TimescaleProps {
   intervals?: Interval[];
 }
 
-function nestTimescale(rootItem, intervals: Interval[]) {
-  const map = group(intervals, (d) => d.pid);
-  const _nest = (id) => {
-    const items = map.get(id);
-    if (items == null) return null;
-    return items.map((d) => _nest(id));
+function __nestMap(rootItem: Interval, intervalMap: Map<number, Interval[]>) {
+  const items = intervalMap.get(rootItem.oid);
+  if (items == null) return rootItem;
+  return {
+    ...rootItem,
+    children: items.map((d) => __nestMap(d, intervalMap)),
   };
-  return _nest(rootItem);
+}
+
+function nestTimescale(rootID: number, intervals: Interval[]) {
+  // Find the root interval by its id
+  const rootItem = intervals.find((d) => d.oid == rootID);
+  // Group by parent id
+  const map = group(intervals, (d) => d.pid);
+  return __nestMap(rootItem, map);
+}
+
+function IntervalBox(props: { interval: Interval }) {
+  const { interval: d } = props;
+  return h(
+    "div.interval-box",
+    { key: d.oid, style: { backgroundColor: d.col } },
+    h("span.interval-label", d.nam)
+  );
+}
+
+function IntervalChildren({ children }) {
+  if (children == null) return null;
+  return h(
+    "div.children",
+    children.map((d) => {
+      return h(Interval, { interval: d });
+    })
+  );
+}
+
+function Interval(props: { interval: Interval }) {
+  const { interval } = props;
+  const { children } = interval;
+  return h("div.interval", [
+    h(IntervalBox, { interval }),
+    h(IntervalChildren, { children }),
+  ]);
 }
 
 function Timescale(props: TimescaleProps) {
@@ -38,23 +75,20 @@ function Timescale(props: TimescaleProps) {
    *
    */
   const { intervals } = props;
-  const l1 = intervals.filter((d) => d.lvl == 1);
 
   const rootItem = {
     oid: 0,
+    lvl: 0,
     col: "#000000",
     nam: "Geologic Time",
-    children: [],
   };
 
-  const timescale = nestTimescale(0, intervals);
-  console.log(timescale);
+  const timescale = nestTimescale(0, [rootItem, ...intervals]);
 
   return h(
     "div.timescale",
-    { style: { width: 800, height: 200 } },
-    l1.map((d) => {
-      return h("div.interval", { key: d.oid }, h("span.interval-label", d.nam));
+    timescale.children.map((d) => {
+      return h(Interval, { interval: d });
     })
   );
 }
