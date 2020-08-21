@@ -1,9 +1,11 @@
 import h from "@macrostrat/hyper";
 import { defaultIntervals } from "./intervals";
+import { group, rollup } from "d3-array";
 
 interface Interval {
   nam: string;
   oid: number;
+  pid: number;
   lvl: number;
   color: string;
   lag: number;
@@ -12,6 +14,16 @@ interface Interval {
 
 interface TimescaleProps {
   intervals?: Interval[];
+}
+
+function nestTimescale(rootItem, intervals: Interval[]) {
+  const map = group(intervals, (d) => d.pid);
+  const _nest = (id) => {
+    const items = map.get(id);
+    if (items == null) return null;
+    return items.map((d) => _nest(id));
+  };
+  return _nest(rootItem);
 }
 
 function Timescale(props: TimescaleProps) {
@@ -28,7 +40,15 @@ function Timescale(props: TimescaleProps) {
   const { intervals } = props;
   const l1 = intervals.filter((d) => d.lvl == 1);
 
-  const data = { oid: 0, col: "#000000", nam: "Geologic Time", children: [] };
+  const rootItem = {
+    oid: 0,
+    col: "#000000",
+    nam: "Geologic Time",
+    children: [],
+  };
+
+  const timescale = nestTimescale(0, intervals);
+  console.log(timescale);
 
   return h(
     "div.timescale",
