@@ -1,18 +1,21 @@
 {
   "name": "@macrostrat/timescale",
   "version": "1.0.0",
-  "description": "A configurable Geologic Timescale written with React and Typescript",
+  "description": "A configurable geologic timescale written with React and Typescript",
   "main": "dist/index.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "parcel serve example/index.html"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Daven Quinn",
+  "license": "MIT",
   "devDependencies": {
+    "@parcel/transformer-css": "^2.0.0-alpha.3",
+    "@parcel/transformer-postcss": "^2.0.0-alpha.3",
     "parcel": "^2.0.0-beta.1",
     "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react-dom": "^16.13.1",
+    "stylus": "^0.54.8",
+    "typescript": "^4.0.2"
   },
   "dependencies": {
     "@macrostrat/hyper": "^1.2.10"
