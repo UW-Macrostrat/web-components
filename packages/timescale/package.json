@@ -4,7 +4,7 @@
   "description": "A configurable geologic timescale written with React and Typescript",
   "main": "dist/index.ts",
   "scripts": {
-    "dev": "parcel serve example/index.html"
+    "dev": "parcel serve --no-autoinstall example/index.html"
   },
   "author": "Daven Quinn",
   "license": "MIT",
