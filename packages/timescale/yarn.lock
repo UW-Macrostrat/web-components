@@ -951,10 +951,10 @@
   resolved "https://registry.yarnpkg.com/@iarna/toml/-/toml-2.2.5.tgz#b32366c89b43c6f8cefbdefac778b9c828e3ba8c"
   integrity sha512-trnsAYxU3xnS1gPHPyU961coFyLkh4gAD/0zQ5mymY4yOZ+CYvsPqUbOFSw0aDM4y0tV7tiFxL/1XfXPNC6IPg==
 
-"@macrostrat/hyper@^1.2.10":
-  version "1.2.10"
-  resolved "https://registry.yarnpkg.com/@macrostrat/hyper/-/hyper-1.2.10.tgz#9cea7a8df6655a6f77a9d0fea64c17b2ac7738bc"
-  integrity sha512-yL3wZ6H17aPUksT4OG6mmbFW8SwgyPPrfulyV7BmhSQAZuOR/QV9IkarQCt0awar0ibYYL7B10jRh/+RsvghYQ==
+"@macrostrat/hyper@^1.2.11":
+  version "1.2.11"
+  resolved "https://registry.yarnpkg.com/@macrostrat/hyper/-/hyper-1.2.11.tgz#aa402a48cdff7f2f33baa093a1a29d3cc474a895"
+  integrity sha512-M1O9bIbAS6t6RWNJ22TwpI3ck1jJ4pCQFKFM5NifbZKd2GFUuDqmZK/qEh+2F/rxxeWw6ZMGcERxMPmpS78k9Q==
   dependencies:
     "@types/classnames" "^2.2.10"
     "@types/react" "^16.9.46"
