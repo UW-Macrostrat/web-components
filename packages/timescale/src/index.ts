@@ -3,6 +3,7 @@ import { defaultIntervals } from "./intervals";
 
 interface Interval {
   nam: string;
+  oid: number;
   lvl: number;
   color: string;
   lag: number;
@@ -25,14 +26,15 @@ function Timescale(props: TimescaleProps) {
    *
    */
   const { intervals } = props;
-
   const l1 = intervals.filter((d) => d.lvl == 1);
+
+  const data = { oid: 0, col: "#000000", nam: "Geologic Time", children: [] };
 
   return h(
     "div.timescale",
     { style: { width: 800, height: 200 } },
     l1.map((d) => {
-      return h("div.interval", h("span.interval-label", d.nam));
+      return h("div.interval", { key: d.oid }, h("span.interval-label", d.nam));
     })
   );
 }

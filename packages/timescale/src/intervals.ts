@@ -1,4 +1,4 @@
-export const defaultIntervals = [
+const defaultIntervals = [
   {
     oid: 753,
     typ: "int",
@@ -1873,3 +1873,5 @@ export const defaultIntervals = [
     rid: [47900],
   },
 ];
+
+export { defaultIntervals };
