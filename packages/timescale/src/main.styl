@@ -2,6 +2,29 @@
   display flex
   flex-direction: row
 
+.interval-box
+  min-width 1em
+
 .timescale
   display flex
-  flex-direction column-reverse;
+  flex-direction column;
+
+
+// For vertical labels
+.timescale.vertical
+  display: flex
+  flex-direction row
+  position relative
+  .interval-label
+    padding 5px 2px
+    writing-mode vertical-lr
+    transform: rotate(180deg)
+    font-size 12px
+    text-align: center
+    position: sticky
+    top: 0
+    max-height: 100vh
+  // .tick text
+  //   text-anchor middle
+  //   font-weight 400 !important
+  //   transform rotate(-90deg) translate(8px,-12px)

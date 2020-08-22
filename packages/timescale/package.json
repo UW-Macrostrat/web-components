@@ -18,6 +18,7 @@
   "dependencies": {
     "@macrostrat/hyper": "^1.2.11",
     "@types/d3-array": "^2.0.0",
+    "@vx/scale": "0.0.198",
     "d3-array": "^2.5.1"
   }
 }

@@ -1,6 +1,10 @@
 import { render } from "react-dom";
 import h from "@macrostrat/hyper";
-import { Timescale } from "../src";
+import { Timescale, TimescaleOrientation } from "../src";
 import "./main.styl";
 
-render(h(Timescale), document.getElementById("root"));
+function TimescaleUI() {
+  return h(Timescale, { orientation: TimescaleOrientation.VERTICAL });
+}
+
+render(h(TimescaleUI), document.getElementById("root"));
