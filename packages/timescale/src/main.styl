@@ -1,6 +1,5 @@
 .interval
   display flex
-  flex-direction: row
 
 .interval-box
   min-width 1em
@@ -8,25 +7,39 @@
 
 .timescale
   display flex
-  flex-direction column;
-
-
-// For vertical labels
-.timescale.vertical
-  display: flex
-  flex-direction row
   position relative
   .interval-box
     margin 1px
+    overflow hidden
     &:last-child
       flex-grow 1
+
   .children
-    flex-grow 1
+    flex 1
+    display flex
+
+  &.horizontal
+    flex-direction column
+    .interval
+      flex-direction: column;
+    .children
+      flex-direction row-reverse
+
+  &.vertical
+    flex-direction row
+    .interval
+      flex-direction: row;
+    .children
+      flex-direction column
   .interval-label
     padding 5px 2px
+    font-size 12px
+
+// For vertical labels
+.timescale.vertical
+  .interval-label
     writing-mode vertical-lr
     transform: rotate(180deg)
-    font-size 12px
     text-align: center
     position: sticky
     top: 50%

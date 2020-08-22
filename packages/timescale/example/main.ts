@@ -3,6 +3,8 @@ import h from "@macrostrat/hyper";
 import { Timescale, TimescaleProps, TimescaleOrientation } from "../src";
 import { useState } from "react";
 import { Card, ButtonGroup, Button } from "@blueprintjs/core";
+import classNames from "classnames";
+import { useLocalStorage } from "@rehooks/local-storage";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "./main.styl";
 
@@ -30,16 +32,18 @@ function OrientationControl({ orientation, setOrientation }) {
 }
 
 function TimescaleUI() {
-  const [state, setState] = useState<TimescaleProps>(defaultProps);
+  const [state, setState] = useLocalStorage("timescaleProps", defaultProps);
+  const { orientation } = state;
+  const className = classNames(orientation);
   return h("div.ui", [
-    h("div.timescale-ui", [
+    h("div.timescale-ui", { className }, [
       h(Timescale, state),
       h("div.spacer"),
       h("div.control-array", [
         h(Card, { className: "control-panel" }, [
           h("h2.bp3-heading", "Geologic timescale"),
           h(OrientationControl, {
-            orientation: state.orientation,
+            orientation,
             setOrientation(orientation) {
               setState({ ...state, orientation });
             },

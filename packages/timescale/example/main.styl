@@ -6,18 +6,36 @@ body
 
 .timescale-ui
   display flex
-  flex-direction row
   margin 0 auto
-  max-width 60em
-
+  .timescale
+    padding 2em
+  &.horizontal
+    flex-direction column
+    width max-content
+    max-width 100vw
+    .timescale
+      width max-content
+    .control-array
+      width 60em
+      position fixed
+      top 12em
+      left 0
+      right 0
+      margin 2em auto
+      .control-panel
+        float right
+  &.vertical
+    max-width 60em
+    flex-direction row
 
 .spacer
   flex-grow 1
 
 .control-panel
-  min-width 30em
+  width 30em
   position sticky
   top 2em
+  right 2em
 
 .control-array
   position relative
