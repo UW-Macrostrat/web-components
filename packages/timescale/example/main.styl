@@ -3,6 +3,9 @@
 
 body
   margin 0
+  height 100vh
+  width 100vw
+  overflow scroll
 
 .timescale-ui
   display flex
@@ -12,13 +15,12 @@ body
   &.horizontal
     flex-direction column
     width max-content
-    overflow-x scroll
     .timescale
       width max-content
     .control-array
       width 60em
       position fixed
-      top 12em
+      top 14em
       left 0
       right 0
       margin 2em auto

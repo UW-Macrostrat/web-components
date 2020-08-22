@@ -10,7 +10,6 @@
   position relative
   .interval-box
     margin 1px
-    overflow hidden
     &:last-child
       flex-grow 1
 
@@ -29,9 +28,12 @@
       position: sticky
       display inline-block
       left: 50%
+      max-width: 100vw
 
   &.vertical
     flex-direction row
+    .interval-box
+      min-width 1.2em
     .interval
       flex-direction: row;
     .children
