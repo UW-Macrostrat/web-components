@@ -25,6 +25,12 @@ function __nestMap(rootItem: Interval, intervalMap: Map<number, Interval[]>) {
   if (items == null) return rootItem;
   items.sort(ageSorter);
 
+  if (items.length == 1 && items[0].nam == rootItem.nam) {
+    /* This is effectively a special case for the Holocene, but
+    it makes sure that identical time periods extend across levels */
+    return rootItem;
+  }
+
   return {
     ...rootItem,
     children: items.map((d) => __nestMap(d, intervalMap)),

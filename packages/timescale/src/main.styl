@@ -4,6 +4,7 @@
 
 .interval-box
   min-width 1em
+  position relative
 
 .timescale
   display flex
@@ -15,6 +16,12 @@
   display: flex
   flex-direction row
   position relative
+  .interval-box
+    margin 1px
+    &:last-child
+      flex-grow 1
+  .children
+    flex-grow 1
   .interval-label
     padding 5px 2px
     writing-mode vertical-lr
@@ -22,8 +29,9 @@
     font-size 12px
     text-align: center
     position: sticky
-    top: 0
+    top: 50%
     max-height: 100vh
+
   // .tick text
   //   text-anchor middle
   //   font-weight 400 !important
