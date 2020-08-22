@@ -24,6 +24,11 @@
       flex-direction: column;
     .children
       flex-direction row-reverse
+    .interval-label
+      text-align: center
+      position: sticky
+      display inline-block
+      left: 50%
 
   &.vertical
     flex-direction row
@@ -31,19 +36,18 @@
       flex-direction: row;
     .children
       flex-direction column
+    .interval-label
+      writing-mode vertical-lr
+      transform: rotate(180deg)
+      position: sticky
+      top: 50%
+      max-height: 100vh
   .interval-label
     padding 5px 2px
     font-size 12px
+    display inline-block
 
-// For vertical labels
-.timescale.vertical
-  .interval-label
-    writing-mode vertical-lr
-    transform: rotate(180deg)
-    text-align: center
-    position: sticky
-    top: 50%
-    max-height: 100vh
+
 
   // .tick text
   //   text-anchor middle
