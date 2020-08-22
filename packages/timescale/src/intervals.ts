@@ -1,5 +1,14 @@
 const defaultIntervals = [
   {
+    pid: null,
+    oid: 0,
+    lvl: 0,
+    eag: 4000,
+    lag: 0,
+    col: "#000000",
+    nam: "Geologic Time",
+  },
+  {
     oid: 753,
     typ: "int",
     nam: "Archean",
