@@ -50,4 +50,4 @@ Timescale.defaultProps = {
   orientation: TimescaleOrientation.HORIZONTAL,
 };
 
-export { Timescale, TimescaleOrientation };
+export { Timescale, TimescaleOrientation, TimescaleProps };

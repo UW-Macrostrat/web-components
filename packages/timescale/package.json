@@ -9,6 +9,7 @@
   "author": "Daven Quinn",
   "license": "MIT",
   "devDependencies": {
+    "@blueprintjs/core": "^3.31.0",
     "parcel": "^2.0.0-beta.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
