@@ -27,12 +27,24 @@ function Timescale(props: TimescaleProps) {
    * @param width - Width of the timescale (optional)
    *
    */
-  const { intervals, orientation, ageRange, length, absoluteAgeScale } = props;
+  const {
+    intervals,
+    orientation,
+    ageRange,
+    length: l,
+    absoluteAgeScale,
+  } = props;
 
   const [parentMap, timescale] = nestTimescale(0, intervals);
 
   const className = classNames(orientation);
-  const length = absoluteAgeScale ? 6000 : null;
+  const length = absoluteAgeScale ? l ?? 6000 : null;
+
+  let ageRange2 = ageRange ?? [timescale.eag, timescale.lag];
+  if (orientation == TimescaleOrientation.VERTICAL) {
+    ageRange2.reverse();
+  }
+  console.log(ageRange2);
 
   return h(
     TimescaleProvider,
@@ -40,7 +52,7 @@ function Timescale(props: TimescaleProps) {
       timescale,
       selectedInterval: null,
       parentMap,
-      ageRange: [timescale.lag, timescale.eag],
+      ageRange: ageRange2,
       length,
       orientation,
     },

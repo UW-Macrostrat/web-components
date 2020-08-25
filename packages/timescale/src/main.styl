@@ -2,7 +2,6 @@
   display flex
 
 .interval-box
-  min-width 1em
   position relative
 
 .timescale
@@ -10,6 +9,8 @@
   position relative
   .interval-box
     margin 0.5px
+    position relative
+    overflow hidden
     &:last-child
       flex 1
 
@@ -27,9 +28,10 @@
       text-align: center
       position: sticky
       display inline-block
-      //left: 50%
-      margin 0.5em auto
       max-width: 100vw
+    .interval-box
+      height: 2em
+
 
   &.vertical
     flex-direction row
@@ -45,6 +47,7 @@
       position: sticky
       top: 50%
       max-height: 100vh
+
   .interval-label
     padding 5px 2px
     font-size 12px

@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { Interval, NestedInterval } from "../types";
+import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 
 function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
@@ -23,12 +23,18 @@ function IntervalChildren({ children }) {
 
 function TimescaleBoxes(props: { interval: NestedInterval }) {
   const { interval } = props;
-  const { scale } = useTimescale();
+  const { scale, orientation } = useTimescale();
   const { eag, lag } = interval;
-  const length = scale ? scale(eag) - scale(lag) : null;
+  const length = scale != null ? Math.abs(scale(eag) - scale(lag)) : null;
+  let style = {};
+  if (orientation == TimescaleOrientation.HORIZONTAL) {
+    style["width"] = length;
+  } else {
+    style["height"] = length;
+  }
 
   const { children, nam: name } = interval;
-  return h("div.interval", { className: name, style: { height: length } }, [
+  return h("div.interval", { className: name, style }, [
     h(IntervalBox, { interval }),
     h(IntervalChildren, { children }),
   ]);
