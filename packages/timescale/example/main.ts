@@ -2,7 +2,7 @@ import { render } from "react-dom";
 import h from "@macrostrat/hyper";
 import { Timescale, TimescaleProps, TimescaleOrientation } from "../src";
 import { useState } from "react";
-import { Card, ButtonGroup, Button } from "@blueprintjs/core";
+import { Card, ButtonGroup, Button, Switch } from "@blueprintjs/core";
 import classNames from "classnames";
 import { useLocalStorage } from "@rehooks/local-storage";
 import "@blueprintjs/core/lib/css/blueprint.css";
@@ -10,6 +10,7 @@ import "./main.styl";
 
 const defaultProps = {
   orientation: TimescaleOrientation.VERTICAL,
+  absoluteAgeScale: false,
 };
 
 function OrientationControl({ orientation, setOrientation }) {
@@ -33,7 +34,7 @@ function OrientationControl({ orientation, setOrientation }) {
 
 function TimescaleUI() {
   const [state, setState] = useLocalStorage("timescaleProps", defaultProps);
-  const { orientation } = state;
+  const { orientation, absoluteAgeScale } = state;
   const className = classNames(orientation);
   return h("div.ui", [
     h("div.timescale-ui", { className }, [
@@ -47,6 +48,13 @@ function TimescaleUI() {
             setOrientation(orientation) {
               setState({ ...state, orientation });
             },
+          }),
+          h(Switch, {
+            onChange() {
+              setState({ ...state, absoluteAgeScale: !absoluteAgeScale });
+            },
+            checked: absoluteAgeScale,
+            label: "Absolute age scale",
           }),
         ]),
       ]),

@@ -16,11 +16,28 @@ interface NestedInterval extends Interval {
 
 type IntervalMap = Map<number, Interval[]>;
 
-interface TimescaleCTX {
+enum TimescaleOrientation {
+  VERTICAL = "vertical",
+  HORIZONTAL = "horizontal",
+}
+
+interface TimescaleProviderProps {
   timescale: NestedInterval;
   selectedInterval: Interval | null;
   parentMap: IntervalMap;
-  scale: ScaleLinear<number, number>;
+  ageRange: [number, number];
+  length: number;
+  orientation: TimescaleOrientation;
 }
 
-export { TimescaleCTX, Interval, NestedInterval, IntervalMap };
+interface TimescaleCTX extends TimescaleProviderProps {
+  scale: ScaleLinear<number, number> | null;
+}
+
+export {
+  TimescaleCTX,
+  Interval,
+  NestedInterval,
+  IntervalMap,
+  TimescaleOrientation,
+};
