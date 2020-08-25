@@ -28,6 +28,7 @@ interface TimescaleProviderProps {
   ageRange: [number, number];
   length: number;
   orientation: TimescaleOrientation;
+  levels: [number, number] | null;
 }
 
 interface TimescaleCTX extends TimescaleProviderProps {

@@ -11,7 +11,7 @@ import "./main.styl";
 interface TimescaleProps {
   intervals?: Interval[];
   orientation: TimescaleOrientation;
-  levels: number[] | null;
+  levels: [number, number] | null;
   length?: number;
   ageRange?: [number, number];
 }
@@ -33,6 +33,7 @@ function Timescale(props: TimescaleProps) {
     ageRange,
     length: l,
     absoluteAgeScale,
+    levels,
   } = props;
 
   const [parentMap, timescale] = nestTimescale(0, intervals);
@@ -44,7 +45,6 @@ function Timescale(props: TimescaleProps) {
   if (orientation == TimescaleOrientation.VERTICAL) {
     ageRange2.reverse();
   }
-  console.log(ageRange2);
 
   return h(
     TimescaleProvider,
@@ -55,6 +55,7 @@ function Timescale(props: TimescaleProps) {
       ageRange: ageRange2,
       length,
       orientation,
+      levels,
     },
     h("div.timescale", { className }, [
       h(TimescaleBoxes, { interval: timescale }),

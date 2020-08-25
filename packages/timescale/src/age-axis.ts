@@ -34,10 +34,17 @@ function AgeAxis() {
       ...axProps,
       scale,
       numTicks: Math.floor(length / 50),
-      tickLabelProps(/** tickValue, index */) {
+      tickLabelProps(tickValue, index) {
+        const vertProps = isHorizontal
+          ? {}
+          : {
+              dy: "1em",
+              dx: "2em",
+              transform: `rotate(-90 0,${scale(tickValue)})`,
+            };
+
         return {
-          dy: isHorizontal ? null : "0.3em",
-          dx: isHorizontal ? null : "1.6em",
+          ...vertProps,
           textAnchor: "middle",
           fontSize: 10,
           fill: "#222",
