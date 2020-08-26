@@ -4,17 +4,20 @@ import { TimescaleProvider } from "./provider";
 import { Interval, TimescaleOrientation } from "./types";
 import { TimescaleBoxes } from "./components";
 import { nestTimescale } from "./preprocess";
-import { AgeAxis } from "./age-axis";
+import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
 import "./main.styl";
 
 interface TimescaleProps {
   intervals?: Interval[];
-  orientation: TimescaleOrientation;
-  levels: [number, number] | null;
+  orientation?: TimescaleOrientation;
+  levels?: [number, number] | null;
   length?: number;
   ageRange?: [number, number];
-  absoluteAgeScale: boolean;
+  absoluteAgeScale?: boolean;
+  rootInterval?: number;
+  /** Configuration for the axis */
+  axisProps?: AgeAxisProps;
 }
 
 function Timescale(props: TimescaleProps) {
@@ -29,15 +32,17 @@ function Timescale(props: TimescaleProps) {
    *
    */
   const {
-    intervals,
-    orientation,
+    intervals = defaultIntervals,
+    orientation = TimescaleOrientation.HORIZONTAL,
     ageRange,
     length: l,
-    absoluteAgeScale,
+    absoluteAgeScale = false,
     levels,
+    rootInterval,
+    axisProps,
   } = props;
 
-  const [parentMap, timescale] = nestTimescale(0, intervals);
+  const [parentMap, timescale] = nestTimescale(rootInterval, intervals);
 
   const className = classNames(orientation);
   const length = absoluteAgeScale ? l ?? 6000 : null;
@@ -60,7 +65,7 @@ function Timescale(props: TimescaleProps) {
     },
     h("div.timescale", { className }, [
       h(TimescaleBoxes, { interval: timescale }),
-      h(AgeAxis),
+      h(AgeAxis, axisProps),
     ])
   );
 }
@@ -68,6 +73,13 @@ function Timescale(props: TimescaleProps) {
 Timescale.defaultProps = {
   intervals: defaultIntervals,
   orientation: TimescaleOrientation.HORIZONTAL,
+  rootInterval: 0,
+  axisProps: {},
 };
 
-export { Timescale, TimescaleOrientation, TimescaleProps };
+export {
+  Timescale,
+  TimescaleOrientation,
+  TimescaleProps,
+  defaultIntervals as intervals,
+};

@@ -3,7 +3,9 @@ import { Axis } from "@vx/axis";
 import { TimescaleOrientation } from "./types";
 import { useTimescale } from "./provider";
 
-function AgeAxis() {
+type AgeAxisProps = any;
+
+function AgeAxis(props: AgeAxisProps) {
   const ctx = useTimescale();
   const { scale, length, orientation } = ctx;
   if (!scale) return null;
@@ -31,7 +33,6 @@ function AgeAxis() {
     "svg.timescale-axis",
     { ...size, style },
     h(Axis, {
-      ...axProps,
       scale,
       numTicks: Math.floor(length / 50),
       tickLabelProps(tickValue, index) {
@@ -50,8 +51,10 @@ function AgeAxis() {
           fill: "#222",
         };
       },
+      ...axProps,
+      ...props,
     })
   );
 }
 
-export { AgeAxis };
+export { AgeAxis, AgeAxisProps };
