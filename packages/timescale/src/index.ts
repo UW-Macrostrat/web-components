@@ -14,6 +14,7 @@ interface TimescaleProps {
   levels: [number, number] | null;
   length?: number;
   ageRange?: [number, number];
+  absoluteAgeScale: boolean;
 }
 
 function Timescale(props: TimescaleProps) {
