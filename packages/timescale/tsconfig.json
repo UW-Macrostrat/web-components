@@ -8,8 +8,7 @@
     "experimentalDecorators": true,
     "downlevelIteration": true,
     "declarationDir": "dist/types",
-    "typeRoots": ["node_modules/@types"],
-    "lib": ["es6"]
+    "typeRoots": ["node_modules/@types"]
   },
   "include": ["src/**/*"]
 }
