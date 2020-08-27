@@ -1,14 +1,39 @@
 import h from "@macrostrat/hyper";
+import { useRef, useEffect, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 
 function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
   const { interval: d, showLabel = true } = props;
 
+  const containerRef = useRef<HTMLElement>();
+  const labelRef = useRef<HTMLElement>();
+  const [sizes, setSizes] = useState({ label: 0, container: 0 });
+
+  const { orientation } = useTimescale();
+  const key =
+    orientation == TimescaleOrientation.HORIZONTAL
+      ? "clientWidth"
+      : "clientHeight";
+  useEffect(() => {
+    const container = containerRef.current?.[key] ?? 0;
+    const label = labelRef.current?.[key] ?? 0;
+    setSizes({ container, label });
+  }, [containerRef, labelRef]);
+
+  let labelText = d.nam;
+  if (sizes.container < 10) {
+    labelText = "";
+  } else if (sizes.label > sizes.container) {
+    labelText = d.nam[0];
+  }
+
   return h(
     "div.interval-box",
-    { key: d.oid, style: { backgroundColor: d.col } },
-    h.if(showLabel)("span.interval-label", d.nam)
+    { key: d.oid, style: { backgroundColor: d.col }, ref: containerRef },
+    h.if(showLabel)("span.interval-label", [
+      h("span.interval-label-text", { ref: labelRef }, labelText),
+    ])
   );
 }
 
