@@ -5,7 +5,6 @@ import { StatefulComponent } from '@macrostrat/ui-components'
 import h from './hyper'
 import { MapContext } from './context'
 import { DraggableOverlay } from './drag-interaction'
-import { min, max } from 'd3-array'
 import { geoOrthographic, geoGraticule, geoPath, GeoProjection } from 'd3-geo'
 import styles from './main.module.styl'
 
@@ -24,22 +23,22 @@ class Background extends Component {
     return h(GeoPath, {
       geometry: { type: 'Sphere' },
       className: 'background',
-      ...this.props
+      ...this.props,
     })
   }
 }
 
-const Graticule = function(props) {
+const Graticule = function (props) {
   const graticule = geoGraticule()
     .step([10, 10])
     .extent([
       [-180, -80],
-      [180, 80 + 1e-6]
+      [180, 80 + 1e-6],
     ])
   return h(GeoPath, {
     className: 'graticule',
     geometry: graticule(),
-    ...props
+    ...props,
   })
 }
 
@@ -47,9 +46,11 @@ function Sphere(props) {
   const newProps = addClassNames(props, 'neatline')
   return h(GeoPath, {
     geometry: { type: 'Sphere' },
-    ...newProps
+    ...newProps,
   })
 }
+
+type RotationAngles = [number, number, number] | [number, number]
 
 interface ProjectionParams {
   center?: Coord
@@ -58,6 +59,7 @@ interface ProjectionParams {
   height: number
   scale: number
   margin: number
+  rotation?: RotationAngles
 }
 
 type MutateProjection = (p: GeoProjection, opts: ProjectionParams) => GeoProjection
@@ -65,20 +67,20 @@ type MutateProjection = (p: GeoProjection, opts: ProjectionParams) => GeoProject
 interface GlobeProps extends ProjectionParams {
   [key: string]: any
   projection: GeoProjection
-  setCenter?(v: Coord): void
   keepNorthUp: boolean
   allowDrag: boolean
   allowZoom: boolean
   setupProjection: MutateProjection
+  onRotate?(v: RotationAngles): void
 }
 
 const mutateProjection: MutateProjection = (projection, opts) => {
   /** Function to update a projection with new parameters */
-  const { width, height, center } = opts
+  const { width, height, center = projection.center(), rotation = projection.rotate() } = opts
   const margin = opts.margin ?? 0
   let { scale, translate } = opts
   if (scale == null) {
-    const maxSize = min([width, height])
+    const maxSize = Math.min(width, height)
     scale = maxSize / 2
   }
   if (translate == null) {
@@ -90,8 +92,9 @@ const mutateProjection: MutateProjection = (projection, opts) => {
     .center(center)
     .clipExtent([
       [margin, margin],
-      [width - margin, height - margin]
+      [width - margin, height - margin],
     ])
+    .rotate(rotation)
 }
 
 class Globe extends StatefulComponent<GlobeProps, any> {
@@ -101,10 +104,8 @@ class Globe extends StatefulComponent<GlobeProps, any> {
     allowZoom: false,
     center: [0, 0],
     graticule: Graticule,
-    projection: geoOrthographic()
-      .clipAngle(90)
-      .precision(0.5),
-    setupProjection: mutateProjection
+    projection: geoOrthographic().clipAngle(90).precision(0.5),
+    setupProjection: mutateProjection,
   }
 
   mapElement: React.RefObject<HTMLElement>
@@ -116,20 +117,21 @@ class Globe extends StatefulComponent<GlobeProps, any> {
     this.rotateProjection = this.rotateProjection.bind(this)
     this.dispatchEvent = this.dispatchEvent.bind(this)
     this.componentDidMount = this.componentDidMount.bind(this)
+    this.resetProjection = this.resetProjection.bind(this)
 
     this.mapElement = createRef()
 
-    const { projection } = this.props
+    const { projection, setupProjection, ...rest } = this.props
 
     this.state = {
-      projection,
+      projection: setupProjection(projection, rest),
       zoom: 1,
-      canvasContexts: new Set([])
+      canvasContexts: new Set([]),
     }
   }
 
-  componentDidUpdate(prevProps) {
-    const { width, height, scale, translate, center, margin, setupProjection } = this.props
+  componentDidUpdate(prevProps, prevState) {
+    const { width, height, scale, translate, center, setupProjection } = this.props
     const sameDimensions = prevProps.width === width && prevProps.height === height
     const sameProjection = prevProps.projection === this.props.projection
     const sameScale =
@@ -138,11 +140,14 @@ class Globe extends StatefulComponent<GlobeProps, any> {
       return
     }
 
-    const projection = sameProjection ? this.state.projection : this.props.projection
-
-    const newProj = setupProjection(projection, { width, height, scale, translate, center, margin })
+    const newProj = setupProjection(this.state.projection, this.props)
 
     return this.updateProjection(newProj)
+  }
+
+  resetProjection(projection) {
+    const { setupProjection, ...rest } = this.props
+    return this.updateProjection(setupProjection(projection, this.props))
   }
 
   updateProjection(newProj) {
@@ -150,7 +155,13 @@ class Globe extends StatefulComponent<GlobeProps, any> {
   }
 
   rotateProjection(rotation) {
-    return this.updateProjection(this.state.projection.rotate(rotation))
+    this.props.onRotate?.(rotation)
+    if (this.props.rotation != null) return
+    const newProj = this.props.setupProjection(this.state.projection, {
+      ...this.props,
+      rotation,
+    })
+    return this.updateProjection(newProj)
   }
 
   dispatchEvent(evt) {
@@ -180,7 +191,7 @@ class Globe extends StatefulComponent<GlobeProps, any> {
       allowZoom,
       scale,
       center,
-      graticule
+      graticule,
     } = this.props
     const { projection } = this.state
     const initialScale = scale || projection.scale() || 500
@@ -208,21 +219,21 @@ class Globe extends StatefulComponent<GlobeProps, any> {
           xmlns,
           width,
           height,
-          viewBox
+          viewBox,
         },
         [
           h('g.map', { ref: this.mapElement }, [
             h(Background, { fill: 'dodgerblue' }),
             h(graticule),
             children,
-            h(Sphere)
+            h(Sphere),
           ]),
           h.if(allowDrag)(DraggableOverlay, {
             keepNorthUp,
             initialScale,
             dragSensitivity: 0.1,
-            allowZoom
-          })
+            allowZoom,
+          }),
         ]
       )
     )

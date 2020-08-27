@@ -28,7 +28,11 @@ Include stylesheets into your app from `@macrostrat/map-components/dist/esm/inde
 - Complete move towards typescript
 - Update bundler strategy
 
-### August 2020
+### [0.2.0] August 2020
 
 - Improve typings
-- Fix bug with projection clipping.
+- Fix bug with projection clipping and `Sphere` geometry.
+
+### [0.2.1]
+
+- Add better state handling and ability to reset projection.

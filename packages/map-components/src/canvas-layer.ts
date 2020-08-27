@@ -8,7 +8,7 @@ import { geoPath } from 'd3-geo'
 const MapCanvasContext = createContext({
   context: null,
   inCanvas: false,
-  renderPath: null
+  renderPath: null,
 })
 
 class CanvasLayer extends Component<any, any> {
@@ -20,7 +20,7 @@ class CanvasLayer extends Component<any, any> {
     this.state = {
       // The canvas rendering context
       context: null,
-      isLoaded: false
+      isLoaded: false,
     }
   }
 
@@ -39,7 +39,7 @@ class CanvasLayer extends Component<any, any> {
     const value = {
       context,
       inCanvas: true,
-      renderPath: null
+      renderPath: null,
     }
 
     const dpr = window.devicePixelRatio || 1
@@ -77,9 +77,9 @@ class CanvasLayer extends Component<any, any> {
           height: height * dpr,
           style,
           ref: this.canvas,
-          key: 0
+          key: 'canvas',
         }),
-        children
+        children,
       ])
     )
   }
