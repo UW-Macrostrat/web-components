@@ -15,8 +15,8 @@ function AgeAxis(props: AgeAxisProps) {
   const isHorizontal = orientation == TimescaleOrientation.HORIZONTAL;
 
   const size = isHorizontal
-    ? { height: 200, width: length + 2 * margin }
-    : { width: 200, height: length + 2 * margin };
+    ? { height: 20, width: length + 2 * margin }
+    : { width: 20, height: length + 2 * margin };
 
   const style = isHorizontal
     ? { marginLeft: -margin, marginRight: -margin }

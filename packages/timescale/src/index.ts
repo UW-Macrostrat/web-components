@@ -1,12 +1,14 @@
 import h from "@macrostrat/hyper";
 import { defaultIntervals } from "./intervals";
-import { TimescaleProvider } from "./provider";
+import { TimescaleProvider, useTimescale } from "./provider";
 import { Interval, TimescaleOrientation } from "./types";
-import { TimescaleBoxes } from "./components";
+import { TimescaleBoxes, Cursor } from "./components";
 import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
 import "./main.styl";
+
+type ClickHandler = (event: Event, age: number) => void;
 
 interface TimescaleProps {
   intervals?: Interval[];
@@ -18,6 +20,29 @@ interface TimescaleProps {
   rootInterval?: number;
   /** Configuration for the axis */
   axisProps?: AgeAxisProps;
+  onClick?: ClickHandler;
+  cursorPosition?: number | null;
+  cursorComponent?: any;
+}
+
+function TimescaleContainer(props: {
+  onClick: ClickHandler;
+  className: string;
+  children?: React.ReactChildren;
+}) {
+  const { onClick: clickHandler, ...rest } = props;
+  const { scale, orientation } = useTimescale();
+
+  function onClick(evt) {
+    const bbox = evt.currentTarget.getBoundingClientRect();
+    const pos =
+      orientation == TimescaleOrientation.HORIZONTAL
+        ? evt.clientX - bbox.x
+        : evt.clientY - bbox.y;
+    clickHandler(evt, scale.invert(pos));
+  }
+
+  return h("div.timescale", { onClick, ...rest });
 }
 
 function Timescale(props: TimescaleProps) {
@@ -40,6 +65,9 @@ function Timescale(props: TimescaleProps) {
     levels,
     rootInterval,
     axisProps,
+    cursorPosition,
+    cursorComponent,
+    onClick,
   } = props;
 
   const [parentMap, timescale] = nestTimescale(rootInterval, intervals);
@@ -63,9 +91,10 @@ function Timescale(props: TimescaleProps) {
       orientation,
       levels,
     },
-    h("div.timescale", { className }, [
+    h(TimescaleContainer, { className, onClick }, [
       h(TimescaleBoxes, { interval: timescale }),
       h(AgeAxis, axisProps),
+      h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
     ])
   );
 }
@@ -73,8 +102,10 @@ function Timescale(props: TimescaleProps) {
 Timescale.defaultProps = {
   intervals: defaultIntervals,
   orientation: TimescaleOrientation.HORIZONTAL,
+  cursorComponent: Cursor,
   rootInterval: 0,
   axisProps: {},
+  onClick: () => {},
 };
 
 export {
