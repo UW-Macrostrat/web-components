@@ -7,6 +7,9 @@
 .timescale
   display flex
   position relative
+
+  --timescale-cursor-color: black
+
   .interval-box
     margin 0.5px
     position relative
@@ -17,6 +20,25 @@
   .children
     flex 1
     display flex
+
+  .cursor
+    position absolute
+    display flex
+    align-items: center
+    .cursor-text
+      color: var(--timescale-cursor-color)
+      background-color: white
+      white-space: nowrap
+      text-align center
+    .cursor-line
+      background-color var(--timescale-cursor-color)
+      z-index 20
+      border 1px solid white
+
+  .interval-label
+    padding 5px 2px
+    font-size 12px
+    display inline-block
 
   &.horizontal
     flex-direction column
@@ -30,6 +52,20 @@
       display block
       margin 0 auto
       text-align center
+
+    .cursor
+      top: 1px
+      transform: translate(-2px)
+      bottom: -1px
+      width 0
+      flex-direction column
+
+      .cursor-text
+        transform: translate(0,1px)
+        text-align center
+      .cursor-line
+        width 2px
+        height 100%
 
   &.vertical
     flex-direction row
@@ -46,11 +82,18 @@
       top: 50%
       max-height: 100vh
 
-  .interval-label
-    padding 5px 2px
-    font-size 12px
-    display inline-block
-
+    .cursor
+      left: 1px
+      transform: translate(0,-2px)
+      right: -1px
+      width 0
+      flex-direction row
+      .cursor-text
+        transform: translate(1px,0)
+        text-align center
+      .cursor-line
+        height 2px
+        width 100%
 
 
   // .tick text
