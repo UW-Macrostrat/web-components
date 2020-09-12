@@ -8,16 +8,15 @@ function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
 
   const containerRef = useRef<HTMLElement>();
   const labelRef = useRef<HTMLElement>();
-  const [sizes, setSizes] = useState({ label: 0, container: 0 });
+  const [sizes, setSizes] = useState({ label: 0, container: 200 });
 
   const { orientation } = useTimescale();
   const key =
-    orientation == TimescaleOrientation.HORIZONTAL
-      ? "clientWidth"
-      : "clientHeight";
+    orientation == TimescaleOrientation.HORIZONTAL ? "width" : "height";
   useEffect(() => {
-    const container = containerRef.current?.[key] ?? 0;
-    const label = labelRef.current?.[key] ?? 0;
+    const container = containerRef.current?.getBoundingClientRect()[key] ?? 0;
+    const label = labelRef.current?.getBoundingClientRect()[key] ?? 0;
+    console.log(container, label);
     setSizes({ container, label });
   }, [containerRef, labelRef]);
 

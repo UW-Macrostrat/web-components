@@ -3,20 +3,22 @@ import { Axis } from "@vx/axis";
 import { TimescaleOrientation } from "./types";
 import { useTimescale } from "./provider";
 
-type AgeAxisProps = any;
+type AgeAxisProps = {
+  width: number;
+  margin: number;
+};
 
 function AgeAxis(props: AgeAxisProps) {
   const ctx = useTimescale();
   const { scale, length, orientation } = ctx;
   if (!scale) return null;
-
-  const margin = 20;
+  const { width, margin } = props;
 
   const isHorizontal = orientation == TimescaleOrientation.HORIZONTAL;
 
   const size = isHorizontal
-    ? { height: 20, width: length + 2 * margin }
-    : { width: 20, height: length + 2 * margin };
+    ? { height: width, width: length + 2 * margin }
+    : { width: width, height: length + 2 * margin };
 
   const style = isHorizontal
     ? { marginLeft: -margin, marginRight: -margin }
@@ -56,5 +58,10 @@ function AgeAxis(props: AgeAxisProps) {
     })
   );
 }
+
+AgeAxis.defaultProps = {
+  width: 25,
+  margin: 20,
+};
 
 export { AgeAxis, AgeAxisProps };
