@@ -16,7 +16,6 @@ function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
   useEffect(() => {
     const container = containerRef.current?.getBoundingClientRect()[key] ?? 0;
     const label = labelRef.current?.getBoundingClientRect()[key] ?? 0;
-    console.log(container, label);
     setSizes({ container, label });
   }, [containerRef, labelRef]);
 
