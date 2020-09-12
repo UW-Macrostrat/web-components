@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-components",
-  "version": "0.2.2",
+  "version": "0.2.2-1",
   "description": "React components for vector maps",
   "keywords": [
     "gis",
@@ -27,6 +27,7 @@
   "scripts": {
     "lint": "tslint  --project tsconfig.json -t codeFrame 'src/**/*.ts' 'test/**/*.ts'",
     "prebuild": "rimraf dist",
+    "prepublish": "npm run build",
     "build": "npm run build:types && rollup -c",
     "build:types": "tsc --emitDeclarationOnly; exit 0",
     "watch:main": "rollup -c -w",
