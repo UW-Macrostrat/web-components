@@ -47,11 +47,28 @@ function IntervalChildren({ children }) {
   );
 }
 
+function ensureIncreasingAgeRange(ageRange) {
+  return [Math.min(...ageRange), Math.max(...ageRange)];
+}
+
 function TimescaleBoxes(props: { interval: NestedInterval }) {
   const { interval } = props;
-  const { scale, orientation, levels } = useTimescale();
+  const { scale, orientation, levels, ageRange } = useTimescale();
   const { eag, lag, lvl } = interval;
-  const length = scale != null ? Math.abs(scale(eag) - scale(lag)) : null;
+
+  // If we don't have an ageRange and scale, we don't specify the length.
+  let length = null;
+
+  // This age range extends further than any realistic constraints
+  const expandedAgeRange = ensureIncreasingAgeRange(ageRange) ?? [-50, 5000];
+
+  // If we have a scale, give us the boundaries clipped to the age range if appropriate
+  if (scale != null) {
+    const startAge = Math.min(expandedAgeRange[1], eag);
+    const endAge = Math.max(expandedAgeRange[0], lag);
+    length = Math.abs(scale(startAge) - scale(endAge));
+  }
+
   let style = {};
   if (orientation == TimescaleOrientation.HORIZONTAL) {
     style["width"] = length;
@@ -62,6 +79,11 @@ function TimescaleBoxes(props: { interval: NestedInterval }) {
   const [minLevel, maxLevel] = levels ?? [0, 5];
 
   const { children, nam: name } = interval;
+
+  // Don't render if we are fully outside the age range of interest
+  if (eag < expandedAgeRange[0]) return null;
+  if (lag > expandedAgeRange[1]) return null;
+
   return h("div.interval", { className: name, style }, [
     h.if(lvl >= minLevel)(IntervalBox, { interval }),
     h.if(lvl < maxLevel)(IntervalChildren, { children }),
