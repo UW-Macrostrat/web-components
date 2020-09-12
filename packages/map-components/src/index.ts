@@ -222,12 +222,7 @@ class Globe extends StatefulComponent<GlobeProps, any> {
           viewBox,
         },
         [
-          h('g.map', { ref: this.mapElement }, [
-            h(Background, { fill: 'dodgerblue' }),
-            h(graticule),
-            children,
-            h(Sphere),
-          ]),
+          h('g.map', { ref: this.mapElement }, [h(Background), h(graticule), children, h(Sphere)]),
           h.if(allowDrag)(DraggableOverlay, {
             keepNorthUp,
             initialScale,
