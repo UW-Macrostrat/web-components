@@ -3,27 +3,35 @@ import { useRef, useEffect, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 
+type SizeState = {
+  label: number;
+  container: number;
+};
+
 function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
   const { interval: d, showLabel = true } = props;
 
   const containerRef = useRef<HTMLElement>();
   const labelRef = useRef<HTMLElement>();
-  const [sizes, setSizes] = useState({ label: 0, container: 200 });
+  const [sizes, setSizes] = useState<SizeState | null>(null);
 
   const { orientation } = useTimescale();
   const key =
     orientation == TimescaleOrientation.HORIZONTAL ? "width" : "height";
   useEffect(() => {
-    const container = containerRef.current?.getBoundingClientRect()[key] ?? 0;
-    const label = labelRef.current?.getBoundingClientRect()[key] ?? 0;
+    const container = containerRef.current?.getBoundingClientRect()[key];
+    const label = labelRef.current?.getBoundingClientRect()[key];
+    if (container == null || sizes == null) return;
     setSizes({ container, label });
   }, [containerRef, labelRef]);
 
   let labelText = d.nam;
-  if (sizes.container < 10) {
-    labelText = "";
-  } else if (sizes.label > sizes.container) {
-    labelText = d.nam[0];
+  if (sizes != null) {
+    if (sizes.container < 10) {
+      labelText = "";
+    } else if (sizes.label > sizes.container) {
+      labelText = d.nam[0];
+    }
   }
 
   return h(
