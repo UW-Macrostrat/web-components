@@ -31,7 +31,7 @@ export default {
     postcss({
       // postfix with .module.css etc. for css modules (DISABLED)
       modules: false,
-      extract: "index.css"
+      extract: "lib/index.css"
     }),
     babel({
       extensions,
