@@ -1,4 +1,4 @@
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, Context } from "react";
 import h from "react-hyperscript";
 import { memoize } from "underscore";
 import axios, { AxiosPromise } from "axios";
@@ -9,7 +9,13 @@ import { buildQueryURL, QueryParams } from "../util/query-string";
 
 type APIBase = { baseURL: string };
 type APIContextValue = APIConfig & APIBase;
-type APIProviderProps = APIBase & APIOptions & { children?: React.ReactChild };
+type APIProviderProps = APIBase &
+  APIOptions & {
+    context?: Context<APIContextValue>;
+    children?: React.ReactChild;
+  };
+
+type APIContextType = Context<APIContextValue>;
 
 const apiDefaults: APIConfig = {
   fullResponse: false,
@@ -25,7 +31,11 @@ const apiDefaults: APIConfig = {
   }
 };
 
-const APIContext = createContext<APIContextValue>({
+function createAPIContext(defaultProps: APIContextValue): APIContextType {
+  return createContext<APIContextValue>(defaultProps);
+}
+
+const APIContext = createAPIContext({
   baseURL: "",
   ...apiDefaults
 });
@@ -134,17 +144,27 @@ const APIActions = (ctx: APIContextValue): APIActions => {
 };
 
 const APIProvider = (props: APIProviderProps) => {
-  const { children, ...rest } = props;
+  /** Provider for APIContext
+
+  can pass an alternative API context using "context" param
+  */
+  const { children, context, ...rest } = props;
   const value = { ...apiDefaults, ...rest };
-  return h(APIContext.Provider, { value }, children);
+  return h((context ?? APIContext).Provider, { value }, children);
 };
 
-const useAPIActions = () => APIActions(useContext(APIContext));
-const useAPIHelpers = () => APIHelpers(useContext(APIContext));
+const useAPIActions = (ctx: APIContextType = APIContext) => {
+  return APIActions(useContext(ctx));
+};
+
+const useAPIHelpers = (ctx: APIContextType = APIContext) => {
+  return APIHelpers(useContext(ctx));
+};
 
 type APIHookOpts = Partial<
   APIConfig & {
     debounce?: number;
+    context?: APIContextType;
   }
 >;
 
@@ -162,8 +182,8 @@ const useAPIResult = function<T>(
     opts = { unwrapResponse: opts };
   }
 
-  const { debounce: _debounce, ...rest } = opts ?? {};
-  let { get } = useAPIActions();
+  const { debounce: _debounce, context, ...rest } = opts ?? {};
+  let { get } = useAPIActions(context);
 
   const _getAPIData = async function() {
     if (route == null) {
@@ -181,6 +201,7 @@ const useAPIResult = function<T>(
 };
 
 export {
+  createAPIContext,
   APIContext,
   APIProvider,
   APIActions,

@@ -141,6 +141,11 @@ const APIView = <T>(props: APIViewProps<T>): React.ReactElement => {
   } = props;
   const value = { data, params, placeholder, route, isLoading, ...rest };
 
+  console.warn(
+    `The APIView component is deprecated in @macrostrat/ui-components "
+     v0.4.x and will be removed in the 0.5 series. Please migrate to react hooks.`
+  );
+
   if (data == null && placeholder != null) {
     return h(placeholder, { isLoading });
   }
