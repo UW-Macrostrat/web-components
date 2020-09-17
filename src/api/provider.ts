@@ -31,14 +31,17 @@ const apiDefaults: APIConfig = {
   }
 };
 
-function createAPIContext(defaultProps: APIContextValue): APIContextType {
-  return createContext<APIContextValue>(defaultProps);
+function createAPIContext(
+  defaultProps: Partial<APIContextValue> = {}
+): APIContextType {
+  return createContext<APIContextValue>({
+    baseURL: "",
+    ...apiDefaults,
+    ...defaultProps
+  });
 }
 
-const APIContext = createAPIContext({
-  baseURL: "",
-  ...apiDefaults
-});
+const APIContext = createAPIContext();
 
 async function handleResult(promise: AxiosPromise, route, url, method, opts) {
   let res;
@@ -208,5 +211,7 @@ export {
   APIHelpers,
   useAPIActions,
   useAPIResult,
-  useAPIHelpers
+  useAPIHelpers,
+  APIOptions,
+  APIConfig
 };
