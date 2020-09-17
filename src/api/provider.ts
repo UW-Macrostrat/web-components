@@ -211,7 +211,5 @@ export {
   APIHelpers,
   useAPIActions,
   useAPIResult,
-  useAPIHelpers,
-  APIOptions,
-  APIConfig
+  useAPIHelpers
 };
