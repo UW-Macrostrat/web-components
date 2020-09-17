@@ -108,12 +108,12 @@ const APIActions = (ctx: APIContextValue): APIActions => {
   return {
     post(route: string, ...args) {
       let opts: APIOptions, params: QueryParams, payload: any;
-      if (arguments.length === 4) {
-        [route, params, payload, opts] = args;
-      } else if (arguments.length === 3) {
-        [route, payload, opts] = args;
-      } else if (arguments.length === 2) {
-        [route, payload] = args;
+      if (args.length === 3) {
+        [params, payload, opts] = args;
+      } else if (args.length === 2) {
+        [payload, opts] = args;
+      } else if (args.length === 1) {
+        [payload] = args;
       } else {
         throw "No data to post";
       }
