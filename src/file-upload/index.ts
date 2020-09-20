@@ -1,6 +1,6 @@
 import "./main.styl";
 import { Component } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { Tag } from "@blueprintjs/core";
 import Dropzone from "react-dropzone";
 import classNames from "classnames";
@@ -72,7 +72,6 @@ class FileUploadComponent extends Component<FileUploadProps> {
         onDrop: this.props.onAddFile,
         onFileDialogCancel: this.props.onCancel
       },
-      // @ts-ignore
       this.renderDropzone
     );
   }
