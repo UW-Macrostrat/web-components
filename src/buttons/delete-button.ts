@@ -9,7 +9,7 @@ interface P {
 }
 
 function DeleteButton(props: P) {
-  let { handleDelete, alertContent, itemDescription, ...rest } = this.props;
+  let { handleDelete, alertContent, itemDescription, ...rest } = props;
   const [alertIsShown, setIsShown] = useState(false);
 
   alertContent = ["Are you sure you want to delete ", itemDescription, "?"];
