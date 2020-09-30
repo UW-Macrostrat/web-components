@@ -33,7 +33,11 @@ function buildQueryURL(
   params: QueryParams = {},
   opts?: StringifyOptions
 ): string {
-  route += "?" + buildQueryString(params, opts);
+  if (Object.entries(params) == 0) {
+    route = route;
+  } else {
+    route += "?" + buildQueryString(params, opts);
+  }
   return route;
 }
 
