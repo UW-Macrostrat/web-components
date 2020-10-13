@@ -43,8 +43,8 @@ and sets up common Babel and BlueprintJS configuration.
 
 - [ ] Come to a decision regarding whether BlueprintJS libraries should be
       `dependencies` or `peerDependencies`.
-- [ ] Use less aggressive transpilation for ES6 modules, if appropriate.
-- [ ] Bundle ES6 modules as separate files to improve code-splitting
+- [x] Use less aggressive transpilation for ES6 modules, if appropriate.
+- [x] Bundle ES6 modules as separate files to improve code-splitting
       and allow direct importing of individual components when
       aggressive bundle-size optimization is needed.
 
@@ -55,6 +55,11 @@ who mostly wants to look at rocks but has to solve Javascript preprocessor issue
 instead.
 
 ## Changelog
+
+### `[v0.4.2]`: 12-10-2020
+
+- Added `SettingsProvider` and settings context for persistent settings
+- Upgraded dark mode context to store values across page reloads (using local storage)
 
 ### `[v0.3.0]`: 18-08-2020
 
