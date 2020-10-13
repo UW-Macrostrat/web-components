@@ -201,9 +201,7 @@ function EditableMultilineText(props: any): React.ReactNode {
 }
 
 class EditableDateField extends Component<any, any> {
-  static initClass() {
-    this.contextType = ModelEditorContext;
-  }
+  static contextType = ModelEditorContext;
   render() {
     const { field } = this.props;
     const { actions, model, isEditing } = this.context;
@@ -224,7 +222,6 @@ class EditableDateField extends Component<any, any> {
     });
   }
 }
-EditableDateField.initClass();
 
 const useModelEditor = () => useContext(ModelEditorContext);
 

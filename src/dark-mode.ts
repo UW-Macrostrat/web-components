@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useEffect } from "react";
 import { Button, IButtonProps } from "@blueprintjs/core";
+import { useStoredState } from "./util/local-storage";
 import h from "@macrostrat/hyper";
 
 type DarkModeState = { isEnabled: boolean; isAutoset: boolean };
@@ -17,7 +18,15 @@ const systemDarkMode = (): DarkModeState => ({
 });
 
 const DarkModeProvider = (props: { children?: React.ReactNode }) => {
-  const [value, updateValue] = useState(systemDarkMode());
+  const [storedValue, updateValue] = useStoredState(
+    "ui-dark-mode",
+    systemDarkMode()
+  );
+  // Guards so that we don't error on an invalid stored value
+  const value = {
+    isEnabled: storedValue?.isEnabled ?? false,
+    isAutoset: storedValue?.isAutoset ?? false
+  };
 
   const update: DarkModeUpdater = (enabled: boolean | null) => {
     const isEnabled = enabled ?? !value.isEnabled;
@@ -43,7 +52,7 @@ const darkModeUpdater = () => useContext(UpdaterContext);
 
 const DarkModeButton = (props: IButtonProps) => {
   const { isEnabled, isAutoset } = useDarkMode();
-  const icon = isEnabled ? "moon" : "flash";
+  const icon = isEnabled ? "flash" : "moon";
   const update = darkModeUpdater();
   const onClick = () => update();
   const active = !isAutoset;
