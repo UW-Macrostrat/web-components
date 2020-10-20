@@ -176,6 +176,10 @@ class ModelEditor<T> extends StatefulComponent<
     }
     if (this.props.model !== prevProps.model) {
       spec.initialModel = { $set: this.props.model };
+      if (!this.props.isEditing) {
+        // If we aren't in edit mode, we want to propagate changes into the model
+        spec.model = { $set: this.props.model };
+      }
     }
     return this.updateState(spec);
   }
