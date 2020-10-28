@@ -14,7 +14,6 @@
     "@blueprintjs/core": "^3.32.1",
     "@docusaurus/core": "2.0.0-alpha.64",
     "@docusaurus/preset-classic": "2.0.0-alpha.64",
-    "@docusaurus/theme-live-codeblock": "^2.0.0-alpha.39",
     "@mdx-js/react": "^1.5.8",
     "clsx": "^1.1.1",
     "react": "^16.8.4",

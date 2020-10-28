@@ -41,6 +41,9 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "@macrostrat/ui-components/lib/index.css";
 ```
 
+You will also need to install 'react-router-dom' if you don't have it installed.
+`npm install --save react-router-dom`
+
 We also provide [`init.js`](init.js), a small helper that imports these styles
 and sets up common Babel and BlueprintJS configuration.
 
