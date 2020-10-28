@@ -1,7 +1,7 @@
 module.exports = {
   title: "MacroStrat-UI Components",
   tagline: "Easy to use Components for Frontend Development",
-  url: "https://your-docusaurus-test-site.com",
+  url: "https://docusaurus-2.netlify.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
   favicon: "img/favicon.ico",
