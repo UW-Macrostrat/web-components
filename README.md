@@ -56,6 +56,12 @@ instead.
 
 ## Changelog
 
+### `[v0.4.4]`: 14-11-2020
+
+- Small fixes to query string management
+- Added ability for dark mode provider to set body classes. This can prevent
+  blinding flashes in certain situations.
+
 ### `[v0.4.2]`: 12-10-2020
 
 - Added `SettingsProvider` and settings context for persistent settings
