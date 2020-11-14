@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect } from "react";
+import { createContext, useContext, useEffect, ReactNode } from "react";
 import { Button, IButtonProps } from "@blueprintjs/core";
 import { useStoredState } from "./util/local-storage";
 import h from "@macrostrat/hyper";
@@ -17,7 +17,13 @@ const systemDarkMode = (): DarkModeState => ({
   isAutoset: true
 });
 
-const DarkModeProvider = (props: { children?: React.ReactNode }) => {
+type DarkModeProps = {
+  children?: ReactNode;
+  addBodyClasses: boolean;
+};
+
+const DarkModeProvider = (props: DarkModeProps) => {
+  const { addBodyClasses = true, children } = props;
   const [storedValue, updateValue] = useStoredState(
     "ui-dark-mode",
     systemDarkMode()
@@ -27,6 +33,16 @@ const DarkModeProvider = (props: { children?: React.ReactNode }) => {
     isEnabled: storedValue?.isEnabled ?? false,
     isAutoset: storedValue?.isAutoset ?? false
   };
+
+  // Manage dark mode body classes
+  useEffect(() => {
+    if (!addBodyClasses) return;
+    if (value.isEnabled) {
+      document.body.classList.add("bp3-dark");
+    } else {
+      document.body.classList.remove("bp3-dark");
+    }
+  }, [storedValue]);
 
   const update: DarkModeUpdater = (enabled: boolean | null) => {
     const isEnabled = enabled ?? !value.isEnabled;
@@ -42,7 +58,7 @@ const DarkModeProvider = (props: { children?: React.ReactNode }) => {
   return h(
     ValueContext.Provider,
     { value },
-    h(UpdaterContext.Provider, { value: update }, props.children)
+    h(UpdaterContext.Provider, { value: update }, children)
   );
 };
 
