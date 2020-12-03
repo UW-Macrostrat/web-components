@@ -1,15 +1,15 @@
-# Section renderer
+# Macrostrat section renderer
 
-This repository contains the codebase for a demonstration
-section-renderer application using the Macrostrat API.
-A live version of this code
-is available [here](https://davenquinn.com/viz/section-renderer).
+This repository contains the codebase for
+section-renderer applications using the Macrostrat API.
 
 We anticipate developing a variety of applications over the same input modules
 to showcase different overlays on the Macrostrat system. We are experimenting
 with a "monorepo" organization for this codebase, in which related applications
 can live in their own subdirectories and share common components. Right now, the
 only app is in the `basic-renderer` directory.
+A live version of this app
+is available [here](https://davenquinn.com/viz/macrostrat-column-renderer/).
 
 The `packages` subdirectory contains development
 versions of several constituent modules, which are linked together at runtime
@@ -41,7 +41,7 @@ and can be found on https://localhost:1234 by default.
 ## Related demos
 
 Several demo applications in development at Macrostrat are based on the same modules
-used here, but organized in their own codebases. Here are a few
+used here, but organized in their own codebases. Here are a few:
 
 - [Stratigraphic column editor](https://davenquinn.com/viz/stratigraphic-column-editor/)
 - [Corelle PBDB demo](https://davenquinn.com/viz/corelle-demo-pbdb/)
@@ -55,7 +55,7 @@ Initial shifts towards a monorepo organizational pattern
 ### June 2020
 
 - Shift to external `@macrostrat/map-components` module
-- Create a new
+- Create a new animated map
 
 ### January 2020
 
