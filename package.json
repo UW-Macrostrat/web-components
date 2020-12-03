@@ -7,9 +7,9 @@
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
     "dev": "npm-run-all --aggregate-output -l -p watch:**",
     "watch:core": "rm -rf .cache && parcel serve index.html",
-    "watch:map": "cd bundledDeps/map-components && npm run watch:main",
-    "watch:ui": "cd bundledDeps/ui-components && npm run dev",
-    "watch:column": "cd bundledDeps/column-components && npm run watch",
+    "watch:map": "npm --prefix packages/map-components run watch:main",
+    "watch:ui": "npm --prefix packages/ui-components run dev",
+    "watch:column": "npm --prefix packages/column-components run watch",
     "build": "parcel build --public-url . index.html",
     "deploy": "./deploy/deploy.sh"
   },
@@ -21,19 +21,21 @@
   },
   "devDependencies": {
     "bulk": "^2.0.1",
-    "coffeescript": "^2.5.0",
     "linklocal": "^2.8.2",
     "npm-run-all": "^4.1.5",
     "parcel-bundler": "^1.12.4",
     "stylus": "^0.54.7",
     "typescript": "^3.7.4"
   },
+  "workspaces": [
+    "packages/*"
+  ],
   "dependencies": {
     "@blueprintjs/core": "^3.22.3",
-    "@macrostrat/column-components": "file:./bundledDeps/column-components",
+    "@macrostrat/column-components": "file:./packages/column-components",
     "@macrostrat/hyper": "^1.1.5",
-    "@macrostrat/map-components": "file:./bundledDeps/map-components",
-    "@macrostrat/ui-components": "file:./bundledDeps/ui-components",
+    "@macrostrat/map-components": "file:./packages/map-components",
+    "@macrostrat/ui-components": "file:./packages/ui-components",
     "core-js": "^3.6.1",
     "d3": "^5.15.0",
     "d3-array": "^2.4.0",
