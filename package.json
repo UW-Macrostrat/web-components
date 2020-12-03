@@ -17,7 +17,8 @@
   "license": "ISC",
   "alias": {
     "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom"
+    "react-dom": "./node_modules/react-dom",
+    "common": "./packages/common/src"
   },
   "devDependencies": {
     "bulk": "^2.0.1",

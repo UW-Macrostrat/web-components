@@ -8,8 +8,8 @@ import {
   ColumnContext,
   NotesColumn
 } from '@macrostrat/column-components'
-import {CompositeUnitsColumn} from './units'
-import {IUnit} from './units/types'
+import {CompositeUnitsColumn} from 'common/units'
+import {IUnit} from 'common/units/types'
 import {useContext} from 'react'
 
 interface IColumnProps {
