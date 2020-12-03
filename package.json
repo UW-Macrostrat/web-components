@@ -5,8 +5,8 @@
   "main": "index.html",
   "scripts": {
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
-    "dev": "npm-run-all --aggregate-output -l -p watch:**",
-    "watch:core": "rm -rf .cache && parcel serve index.html",
+    "dev": "npm-run-all --aggregate-output -l -p watch:** dev:renderer",
+    "dev:renderer": "parcel serve basic-renderer/index.html",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
     "watch:column": "npm --prefix packages/column-components run watch",
