@@ -5,13 +5,15 @@
   "main": "index.html",
   "scripts": {
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
-    "dev": "npm-run-all --aggregate-output -l -p watch:** dev:renderer",
+    "dev": "npm-run-all -l -p dev:measurements watch:**",
     "dev:renderer": "parcel serve apps/basic-renderer/index.html",
+    "dev:measurements": "parcel serve apps/measurements/index.html",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
     "watch:column": "npm --prefix packages/column-components run watch",
     "build": "parcel build --public-url . index.html",
-    "deploy": "./deploy/deploy.sh"
+    "deploy": "./deploy/deploy.sh",
+    "clean": "rm -rf .cache"
   },
   "author": "Daven Quinn",
   "license": "ISC",
