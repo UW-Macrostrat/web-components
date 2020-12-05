@@ -1,4 +1,4 @@
-import { DetritalAgeSpectrum } from "common/dz-spectrum";
+import { DetritalSpectrumPlot, DetritalSeries } from "common/dz-spectrum";
 import { group } from "d3-array";
 import h from "@macrostrat/hyper";
 import { useAPIResult } from "@macrostrat/ui-components";
@@ -44,12 +44,9 @@ function DetritalGroup(props: DetritalItemProps) {
 
   return h("div.detrital-group", [
     h("h4.geo-unit", geo_unit),
-    h("div.detrital-items", data.map(d=> {
-      return h(DetritalAgeSpectrum, {
-          data: d.measure_value,
-          dataAccessor(d) {
-            return d;
-          }
+    h(DetritalSpectrumPlot, data.map(d=> {
+      return h(DetritalSeries, {
+          data: d.measure_value
         })
     }))
   ]);
@@ -71,12 +68,9 @@ function DetritalColumn(columnArgs) {
 
   if (res == null) return null;
 
+  // group by units
   const dataMap = group(res, d => d.unit_id);
-  console.log(dataMap);
 
-  //return null;
-
-  console.log(res);
   return h(
     "div.detrital-column",
     null,

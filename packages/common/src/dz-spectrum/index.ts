@@ -11,19 +11,67 @@ import {
   kernelGaussian
 } from "./kernel-density";
 
-interface DetritalPlotCtx {
+interface PlotAreaCtx {
+  xScale: AxisScale;
   width: number;
   height: number;
 }
 
-function DetritalAgeSpectrum(props) {
-  const { data, dataAccessor } = props;
+const PlotAreaContext = createContext<PlotAreaCtx>({
+  width: 200,
+  height: 50,
+  xScale: scaleLinear({
+    range: [0, 200],
+    domain: [0, 4000]
+  })
+});
+
+interface DetritalSeriesProps {
+  data: number[];
+  accessor: (d: any) => number;
+}
+
+const noOp = d => d;
+
+function DetritalSeries(props: DetritalSeriesProps) {
+  const { data, accessor = noOp } = props;
   if (data == null) {
     return null;
   }
 
-  const accessor = dataAccessor;
+  const bandwidth = 60;
 
+  const { height, xScale } = useContext(PlotAreaContext);
+
+  const xTicks = xScale.ticks(400);
+  const kde = kernelDensityEstimator(kernelGaussian(bandwidth), xTicks);
+  const kdeData = kde(data.map(accessor));
+
+  // All KDEs should have same height
+  const maxProbability = max(kdeData, d => d[1]);
+
+  const yScale = scaleLinear({
+    range: [height, 0],
+    domain: [0, maxProbability]
+  });
+
+  return h(AreaClosed, {
+    data: kdeData,
+    yScale,
+    x(d) {
+      return xScale(d[0]);
+    },
+    y(d) {
+      return yScale(d[1]);
+    },
+    stroke: "magenta",
+    fill: "transparent"
+    //fill: `url(#${id})`
+  });
+}
+
+function DetritalSpectrumPlot(props) {
+  const { children } = props;
   let minmax = [0, 4000]; // extent(data, accessor);
   const delta = minmax[1] - minmax[0];
   const bandwidth = 60; //delta / 50;
@@ -49,60 +97,41 @@ function DetritalAgeSpectrum(props) {
     tickFormat = d => d / 1000;
   }
 
-  const xTicks = xScale.ticks(400);
-  const kde = kernelDensityEstimator(kernelGaussian(bandwidth), xTicks);
-  const kdeData = kde(data.map(accessor));
-
-  // All KDEs should have same height
-  const maxProbability = max(kdeData, d => d[1]);
-
-  const yScale = scaleLinear({
-    range: [eachHeight, 0],
-    domain: [0, maxProbability]
-  });
-
   const labelProps = { label };
 
   const id = "gradient_1";
 
-  return h("svg", { width, height }, [
-    h(
-      "g",
-      {
-        transform: `translate(${margin},${marginTop})`
-      },
-      [
-        h(gradients[0], { id }),
-        h(AxisBottom, {
-          scale: xScale,
-          numTicks: 10,
-          tickLength: 4,
-          tickFormat,
-          strokeWidth: 1.5,
-          top: eachHeight,
-          ...labelProps
-        }),
-        h(AreaClosed, {
-          data: kdeData,
-          yScale,
-          x(d) {
-            return xScale(d[0]);
-          },
-          y(d) {
-            return yScale(d[1]);
-          },
-          stroke: "magenta",
-          fill: "transparent"
-          //fill: `url(#${id})`
-        }),
-        createElement(
-          "foreignObject",
-          { x: 0, y: -20, width: 500, height: 50 },
-          h("h4", null, [`${data.length} grains`])
-        )
-      ]
-    )
-  ]);
+  const value = {
+    width: innerWidth,
+    height: eachHeight,
+    xScale
+  };
+
+  return h(
+    PlotAreaContext.Provider,
+    { value },
+    h("svg", { width, height }, [
+      h(
+        "g",
+        {
+          transform: `translate(${margin},${marginTop})`
+        },
+        [
+          h(gradients[0], { id }),
+          h(AxisBottom, {
+            scale: xScale,
+            numTicks: 10,
+            tickLength: 4,
+            tickFormat,
+            strokeWidth: 1.5,
+            top: eachHeight,
+            ...labelProps
+          }),
+          children
+        ]
+      )
+    ])
+  );
 }
 
-export { DetritalAgeSpectrum };
+export { DetritalSpectrumPlot, DetritalSeries };
