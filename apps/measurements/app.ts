@@ -15,6 +15,7 @@ import {
 import Column, {IUnit} from './column'
 import MapView from 'common/map'
 import patterns from '../../geologic-patterns/*.png'
+import {DetritalColumn} from "./dz-measurements"
 
 const renderResults = (data: Array<IUnit>)=> {
   return h(Column, {data});
@@ -64,6 +65,7 @@ const ColumnManager = ()=> {
       h(ColumnTitle, {data: columnFeature?.properties}),
       h(ColumnView, {params: columnArgs})
     ]),
+    h(DetritalColumn, columnArgs),
     h('div.column-sidebar', [
       h("div.column-nav", [
         h("h3", "Column navigator"),

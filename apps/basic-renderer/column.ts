@@ -37,8 +37,6 @@ const Section = (props: IColumnProps)=>{
 
   const range = [data[data.length-1].b_age, data[0].t_age]
 
-  console.log(range)
-
   if (!pixelScale) {
     // Make up a pixel scale
     const dAge = range[0]-range[1]
