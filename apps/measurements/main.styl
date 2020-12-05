@@ -4,6 +4,9 @@
 html, body
   margin 0
   padding 0
+  height 100vh
+  width 100vh
+
 
 .column-view
   flex-grow 1
@@ -66,10 +69,11 @@ g.height-range
     stroke-width 1.5px
 
 div.column-ui
-  padding: 1em
+  padding 0
   width 100vw
   display flex
   flex-direction row
+  height 100vh
 
 .column-nav
   position sticky
@@ -83,17 +87,9 @@ div.column-ui
   margin 0 -10px
 
 div.context-map
-  position absolute
-  top 0
-  right 0
-  width: 250px
-  height: 250px
   cursor pointer
-  z-index 100
-  &.expanded
-    cursor inherit
-    .columns path:hover
-      stroke: rgba(255,0,0,.4) !important
+  .columns path:hover
+    stroke: rgba(255,0,0,.4) !important
 
 
   .close-button
@@ -106,6 +102,14 @@ div.context-map
 
 div.detrital-column
   flex-grow 2
+
+div.map-column
+  width 600px
+  height 100vh
+  display flex
+  flex-direction column
+  .map-area
+    flex-grow 1
 
 @media (prefers-color-scheme: dark)
   body

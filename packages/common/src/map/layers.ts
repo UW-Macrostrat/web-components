@@ -9,6 +9,17 @@ import {
 import {get} from 'axios'
 import {feature} from 'topojson-client'
 
+function processTopoJSON(res) {
+  try {
+    const {data} = res.success
+    const {features: f} = feature(data, data.objects.output)
+    return f
+  } catch (err) {
+    console.error(err)
+    return []
+  }
+}
+
 const Land = (props)=>{
   const [geometry, setGeometry] = useState(null)
   useAsyncEffect(async function(){
@@ -32,17 +43,7 @@ const Columns = (props)=>{
 
   const {onClick} = props
 
-  let features = useAPIResult('/columns', {format: 'topojson', all: true}, res =>{
-    console.log("Getting data")
-    try {
-      const {data} = res.success
-      const {features: f} = feature(data, data.objects.output)
-      return f
-    } catch (err) {
-      console.error(err)
-      return []
-    }
-  })
+  let features = useAPIResult('/columns', {format: 'topojson', all: true}, processTopoJSON)
   if (features == null) return null
 
   return h(FeatureLayer, {
@@ -72,4 +73,4 @@ const CurrentColumn = props =>{
   })
 }
 
-export {Land, Columns, CurrentColumn}
+export {Land, Columns, CurrentColumn, processTopoJSON}

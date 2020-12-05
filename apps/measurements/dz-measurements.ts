@@ -62,7 +62,7 @@ function DetritalColumn(columnArgs) {
     measurement: "207Pb-206Pb"
   };
   const res: MeasurementInfo[] = useAPIResult(
-    "https://macrostrat.org/api/v2/measurements",
+    "https://dev.macrostrat.org/api/v2/measurements",
     params
   );
 

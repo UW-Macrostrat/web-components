@@ -13,9 +13,9 @@ import {
   GeologicPatternProvider
 } from '@macrostrat/column-components'
 import Column, {IUnit} from './column'
-import MapView from 'common/map'
 import patterns from '../../geologic-patterns/*.png'
 import {DetritalColumn} from "./dz-measurements"
+import {MapView, MeasurementsLayer} from "./map"
 
 const renderResults = (data: Array<IUnit>)=> {
   return h(Column, {data});
@@ -61,21 +61,19 @@ const ColumnManager = ()=> {
 
   // 495
   return h("div.column-ui",[
-    h("div.column-view", [
-      h(ColumnTitle, {data: columnFeature?.properties}),
-      h(ColumnView, {params: columnArgs})
+    h("div.main-panel", [
+      h("div.column-view", [
+        h(ColumnTitle, {data: columnFeature?.properties}),
+
+        h(ColumnView, {params: columnArgs})
+      ]),
+      h(DetritalColumn, columnArgs),
+
     ]),
-    h(DetritalColumn, columnArgs),
-    h('div.column-sidebar', [
-      h("div.column-nav", [
-        h("h3", "Column navigator"),
-        h(MapView, {currentColumn: columnFeature, setCurrentColumn}),
-        h("h3", "Selected examples"),
-        h(ButtonGroup, {vertical: true, minimal: true, alignText: 'left', className: 'default-buttons'}, [
-          h(DefaultButton, {args: defaultArgs}, "Paradox Basin"),
-          h(DefaultButton, {args: {project_id: 4, status_code: "in process"}}, "IODP Test")
-        ])
-      ])
+    h('div.map-column', [
+      h(MapView, {currentColumn: columnFeature, setCurrentColumn}, [
+        h(MeasurementsLayer)
+      ]),
     ])
   ])
 };
