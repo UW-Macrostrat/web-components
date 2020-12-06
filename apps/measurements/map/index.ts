@@ -1,24 +1,24 @@
-import { useState, useRef } from "react";
-import h from "@macrostrat/hyper";
-import { Globe } from "@macrostrat/map-components";
-import { geoCentroid } from "d3-geo";
-import { Land, Columns, CurrentColumn } from "common/map/layers";
-import classNames from "classnames";
-import useSize from "@react-hook/size";
+import { useState, useRef } from 'react'
+import h from '@macrostrat/hyper'
+import { Globe } from '@macrostrat/map-components'
+import { geoCentroid } from 'd3-geo'
+import { Land, Columns, CurrentColumn } from 'common/map/layers'
+import classNames from 'classnames'
+import useSize from '@react-hook/size'
 
 const MapView = props => {
-  const { currentColumn, setCurrentColumn, children } = props;
+  const { currentColumn, setCurrentColumn, children } = props
 
-  const ref = useRef(null);
-  const [width, height] = useSize(ref);
+  const ref = useRef(null)
+  const [width, height] = useSize(ref)
 
-  const columnCenter = geoCentroid?.(currentColumn);
+  const columnCenter = geoCentroid?.(currentColumn)
 
-  const { margin } = props;
+  const { margin } = props
 
-  let scale = width;
+  let scale = width
 
-  return h("div.map-area", { ref }, [
+  return h('div.map-area', { ref }, [
     h(
       Globe,
       {
@@ -29,24 +29,26 @@ const MapView = props => {
         center: columnCenter,
         allowDrag: true,
         allowZoom: false,
-        keepNorthUp: true
+        keepNorthUp: true,
+        //translate: [width / 2 - scale, height - scale],
+        rotation: [-columnCenter[0], -columnCenter[1]],
       },
       [
         h(Land),
         children,
         h(Columns, {
           onChange: setCurrentColumn,
-          col_id: currentColumn?.properties.col_id
+          col_id: currentColumn?.properties.col_id,
         }),
-        h.if(currentColumn != null)(CurrentColumn, { feature: currentColumn })
+        h.if(currentColumn != null)(CurrentColumn, { feature: currentColumn }),
       ]
-    )
-  ]);
-};
+    ),
+  ])
+}
 
 MapView.defaultProps = {
-  margin: 10
-};
+  margin: 10,
+}
 
-export * from "./layers";
-export { MapView };
+export * from './layers'
+export { MapView }

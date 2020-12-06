@@ -39,7 +39,7 @@
   "dependencies": {
     "@blueprintjs/core": "^3.22.3",
     "@macrostrat/column-components": "file:./packages/column-components",
-    "@macrostrat/hyper": "^1.1.5",
+    "@macrostrat/hyper": "^1.2.11",
     "@macrostrat/map-components": "file:./packages/map-components",
     "@macrostrat/ui-components": "file:./packages/ui-components",
     "@react-hook/size": "^2.1.1",

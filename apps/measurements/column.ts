@@ -1,5 +1,6 @@
 import h from '@macrostrat/hyper'
 import {group} from 'd3-array'
+//import {ColumnProvider} from "@macrostrat/column-components/dist/cjs/context/column"
 import {
   ColumnProvider,
   ColumnSVG,
