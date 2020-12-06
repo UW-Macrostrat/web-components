@@ -64,7 +64,6 @@ const ColumnManager = ()=> {
     h("div.main-panel", [
       h("div.column-view", [
         h(ColumnTitle, {data: columnFeature?.properties}),
-
         h(ColumnView, {params: columnArgs})
       ]),
       h(DetritalColumn, columnArgs),

@@ -151,8 +151,6 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
     }
   }, [neighbors, col_id])
 
-  // Get direction mapping
-  console.log(neighbors)
   if (neighbors == null) return null
   const neighborFeatures = neighbors.map(d => features[d])
 
