@@ -9,7 +9,7 @@ import {
   ColumnContext,
   NotesColumn
 } from '@macrostrat/column-components'
-import {CompositeUnitsColumn} from 'common/units'
+import {CompositeUnitsColumn} from './column-data'
 import {IUnit} from 'common/units/types'
 import {useContext} from 'react'
 

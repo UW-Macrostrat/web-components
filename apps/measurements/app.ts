@@ -16,6 +16,7 @@ import Column, {IUnit} from './column'
 import patterns from '../../geologic-patterns/*.png'
 import {DetritalColumn} from "./dz-measurements"
 import {MapView, MeasurementsLayer} from "./map"
+import {ColumnDataProvider} from "./column-data"
 
 const renderResults = (data: Array<IUnit>)=> {
   return h(Column, {data});
@@ -60,21 +61,23 @@ const ColumnManager = ()=> {
   }
 
   // 495
-  return h("div.column-ui",[
-    h("div.main-panel", [
-      h("div.column-view", [
-        h(ColumnTitle, {data: columnFeature?.properties}),
-        h(ColumnView, {params: columnArgs})
-      ]),
-      h(DetritalColumn, columnArgs),
+  return h(ColumnDataProvider, {...columnArgs},
+    h("div.column-ui",[
+      h("div.main-panel", [
+        h("div.column-view", [
+          h(ColumnTitle, {data: columnFeature?.properties}),
+          h(ColumnView, {params: columnArgs})
+        ]),
+        h(DetritalColumn, columnArgs),
 
-    ]),
-    h('div.map-column', [
-      h(MapView, {currentColumn: columnFeature, setCurrentColumn}, [
-        h(MeasurementsLayer)
       ]),
+      h('div.map-column', [
+        h(MapView, {currentColumn: columnFeature, setCurrentColumn}, [
+          h(MeasurementsLayer)
+        ]),
+      ])
     ])
-  ])
+  )
 };
 
 const resolvePattern = (id)=>patterns[id]
