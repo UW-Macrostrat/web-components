@@ -1,7 +1,7 @@
 import {useState} from 'react'
 import {isEqual} from 'underscore'
 import h from '@macrostrat/hyper';
-import {ButtonGroup, Button} from "@blueprintjs/core"
+import {Button} from "@blueprintjs/core"
 import {
   APIProvider,
   APIResultView,

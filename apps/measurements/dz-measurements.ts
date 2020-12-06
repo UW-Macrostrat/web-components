@@ -40,15 +40,18 @@ interface DetritalItemProps {
 
 function DetritalGroup(props: DetritalItemProps) {
   const { data } = props;
-  const {geo_unit} = data[0]
+  const { geo_unit } = data[0];
 
   return h("div.detrital-group", [
     h("h4.geo-unit", geo_unit),
-    h(DetritalSpectrumPlot, data.map(d=> {
-      return h(DetritalSeries, {
+    h(
+      DetritalSpectrumPlot,
+      data.map(d => {
+        return h(DetritalSeries, {
           data: d.measure_value
-        })
-    }))
+        });
+      })
+    )
   ]);
 }
 
@@ -57,7 +60,7 @@ function DetritalColumn(columnArgs) {
     ...columnArgs,
     measure_phase: "zircon",
     response: "long",
-    show_values: true
+    show_values: true,
     // Other isotope systems are organized separately
     measurement: "207Pb-206Pb"
   };
@@ -74,8 +77,8 @@ function DetritalColumn(columnArgs) {
   return h(
     "div.detrital-column",
     null,
-    Array.from(dataMap.values()).map((d)=>{
-      return h(DetritalGroup, {data: d})
+    Array.from(dataMap.values()).map(d => {
+      return h(DetritalGroup, { data: d });
     })
   );
 }

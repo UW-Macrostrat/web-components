@@ -6,6 +6,7 @@ html, body
   padding 0
   height 100vh
   width 100vh
+  overflow-y: none
 
 
 .column-view
@@ -91,14 +92,14 @@ div.context-map
   .columns path:hover
     stroke: rgba(255,0,0,.4) !important
 
-
-  .close-button
-    position absolute
-    top 1em
-    right 1em
-
   .land
     background-color rgb(233, 252, 234)
+
+div.main-panel
+  flex-grow 1
+  display flex
+  flex-direction: row
+  overflow-y: scroll
 
 div.detrital-column
   flex-grow 2
@@ -120,4 +121,4 @@ div.map-column
   g.inner
     rect.unit
       filter: invert(100%)
-      stroke: white !important
+      stroke: black !important
