@@ -1,15 +1,21 @@
-import { useState } from 'react'
+import { useState, useContext, useEffect, useMemo } from 'react'
 import useAsyncEffect from 'use-async-effect'
 import h from '@macrostrat/hyper'
 import { useAPIResult } from '@macrostrat/ui-components'
 import {
   FeatureLayer,
-  Feature
+  Feature,
+  MapContext
 } from '@macrostrat/map-components'
 import { get } from 'axios'
 import { feature } from 'topojson-client'
 import { geoVoronoi } from 'd3-geo-voronoi'
-import { geoCentroid } from "d3-geo"
+import { geoCentroid, ExtendedFeature} from "d3-geo"
+import {Polygon} from "geojson"
+
+type ColumnProps = {col_id: number}
+
+type ColumnFeature = ExtendedFeature<Polygon,ColumnProps>
 
 function processTopoJSON(res) {
   try {
@@ -65,30 +71,92 @@ interface ColumnNavProps {
 }
 
 interface KeyboardNavProps extends ColumnNavProps {
-  features: any[];
+  features: ColumnFeature[];
   showLayers: boolean;
 }
 
+function normalize(angle) {
+  if (angle > Math.PI) { angle -= 2 * Math.PI; }
+  else if (angle <= -Math.PI) { angle += 2 * Math.PI; }
+  return angle
+}
+
+function buildTriangulation(features) {
+  console.log("Computing triangulation")
+  const centroids = features.map(geoCentroid)
+  const tri = geoVoronoi(centroids)
+  return {centroids, tri}
+}
+
+function buildKeyMapping(neighbors, centroids, currentIndex, projection) {
+  if (neighbors == null) return
+
+  const currentCentroid = projection(centroids[currentIndex])
+  console.log(currentCentroid)
+
+  let edgeAngles = neighbors.map(index => {
+    const centroid = projection(centroids[index])
+    const dx = centroid[0]-currentCentroid[0]
+    const dy = centroid[1]-currentCentroid[1]
+    return {col_index: index, angle: Math.atan2(dy, dx)}
+  })
+
+  edgeAngles.sort(d => d.angle)
+
+  function closestAngle(num) {
+    // Find closest angle in array of neighbors
+    let curr = edgeAngles[0]
+    for (let next of edgeAngles) {
+      if Math.abs(normalize(num-next.angle)) < Math.abs(normalize(num-curr.angle)) {
+        curr = next
+      }
+    }
+    return curr.col_index
+  }
+
+  return {
+    37: closestAngle(Math.PI),// left
+    38: closestAngle(3*Math.PI/2),  // up
+    39: closestAngle(0),          // right
+    40: closestAngle(Math.PI/2), // down
+  }
+}
 
 function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   /**
   Feature to enable keyboard navigation of columns using a
   delaunay triangulation
   */
-  const { features, col_id, onChange, showLayers = false } = props
-  const centroids = features.map(geoCentroid)
+  const { features = [], col_id = null, onChange, showLayers = false } = props
+  const { projection } = useContext(MapContext)
+  const {centroids, tri} = useMemo(()=>buildTriangulation(features), [features])
   const currentIndex = features.findIndex(d => d.properties.col_id == col_id)
-
-
-  const tri = geoVoronoi(centroids)
-  console.log(features, tri.delaunay)
-
   const neighbors = tri.delaunay.neighbors[currentIndex]
-  console.log(neighbors)
 
+  useEffect(()=>{
+    if (col_id == null || neighbors == null) return
+    const keyMapping = buildKeyMapping(neighbors, centroids, currentIndex, projection)
+
+    const listener = (event)=>{
+      const nextColumnIx = keyMapping[event.keyCode]
+      if (nextColumnIx == null) return
+      const {col_id} = features[nextColumnIx].properties
+      console.log(`Loading column ${col_id}`)
+      onChange({col_id})
+    };
+
+    document.addEventListener("keydown", listener)
+    return ()=>{
+      document.removeEventListener("keydown", listener)
+    }
+  }, [neighbors, col_id])
+
+  // Get direction mapping
+  console.log(neighbors)
+  if (neighbors == null) return null
   const neighborFeatures = neighbors.map(d => features[d])
 
-  return h([
+  return h.if(showLayers)([
     h(FeatureLayer, {
       features: tri.links().features, useCanvas: false, style: {
         stroke: "purple",
@@ -109,7 +177,7 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
 const Columns = (props: ColumnNavProps) => {
 
-  const { onChange, col_id } = props
+  const { onChange, col_id = null } = props
 
   let features = useAPIResult('/columns', { format: 'topojson', all: true }, processTopoJSON)
   if (features == null) return null
