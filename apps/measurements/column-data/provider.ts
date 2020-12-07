@@ -1,6 +1,7 @@
 import { useContext, createContext, useMemo } from 'react'
 import { useDetritalMeasurements, MeasurementInfo } from '../detrital/provider'
 import { useAPIResult } from '@macrostrat/ui-components'
+import { IUnit } from 'common/units'
 
 import h from '@macrostrat/hyper'
 
@@ -25,7 +26,7 @@ interface ColumnCtx {
   }
   dz: MeasurementInfo[]
   footprint: any
-  units: any[]
+  units: IUnit[]
 }
 
 const ColumnDataContext = createContext<ColumnCtx | null>(null)

@@ -1,15 +1,15 @@
-import { Component, createElement, createContext, useContext } from 'react'
-import h from '@macrostrat/hyper'
-import { scaleLinear } from '@vx/scale'
-import { AreaClosed } from '@vx/shape'
-import { AxisLeft, AxisBottom, AxisScale } from '@vx/axis'
-import { extent, min, max, histogram } from 'd3-array'
-import gradients from './gradients'
+import { Component, createElement, createContext, useContext } from "react"
+import h from "@macrostrat/hyper"
+import { scaleLinear } from "@vx/scale"
+import { AreaClosed } from "@vx/shape"
+import { AxisLeft, AxisBottom, AxisScale } from "@vx/axis"
+import { extent, min, max, histogram } from "d3-array"
+import gradients from "./gradients"
 import {
   kernelDensityEstimator,
   kernelEpanechnikov,
   kernelGaussian,
-} from './kernel-density'
+} from "./kernel-density"
 
 interface PlotAreaCtx {
   xScale: AxisScale
@@ -25,6 +25,8 @@ const PlotAreaContext = createContext<PlotAreaCtx>({
     domain: [0, 4000],
   }),
 })
+
+const usePlotArea = () => useContext(PlotAreaContext)
 
 interface DetritalSeriesProps {
   data: number[]
@@ -62,8 +64,8 @@ function DetritalSeries(props: DetritalSeriesProps) {
     y(d) {
       return yScale(d[1])
     },
-    stroke: 'magenta',
-    fill: 'transparent',
+    stroke: "magenta",
+    fill: "transparent",
     //fill: `url(#${id})`
   })
 }
@@ -87,16 +89,16 @@ function DetritalSpectrumPlot(props) {
     domain: minmax,
   })
 
-  let label = 'Age (Ma)'
+  let label = "Age (Ma)"
   let tickFormat = d => d
   if (delta > 1000) {
-    label = 'Age (Ga)'
+    label = "Age (Ga)"
     tickFormat = d => d / 1000
   }
 
   const labelProps = { label }
 
-  const id = 'gradient_1'
+  const id = "gradient_1"
 
   const value = {
     width: innerWidth,
@@ -107,9 +109,9 @@ function DetritalSpectrumPlot(props) {
   return h(
     PlotAreaContext.Provider,
     { value },
-    h('svg', { width, height }, [
+    h("svg", { width, height }, [
       h(
-        'g',
+        "g",
         {
           transform: `translate(${margin},${marginTop})`,
         },
@@ -131,4 +133,4 @@ function DetritalSpectrumPlot(props) {
   )
 }
 
-export { DetritalSpectrumPlot, DetritalSeries }
+export { DetritalSpectrumPlot, DetritalSeries, usePlotArea }
