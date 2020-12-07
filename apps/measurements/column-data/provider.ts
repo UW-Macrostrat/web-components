@@ -1,4 +1,4 @@
-import { useContext, createContext } from 'react'
+import { useContext, createContext, useMemo } from 'react'
 import { useDetritalMeasurements, MeasurementInfo } from '../detrital/provider'
 import { useAPIResult } from '@macrostrat/ui-components'
 
@@ -35,7 +35,10 @@ function ColumnDataProvider(props: React.PropsWithChildren<ColumnCtx>) {
   const measurements = useDetritalMeasurements(params)
   const footprint = useColumnFootprint(params)
   const units = useColumnUnits(params)
-  const value = { measurements, footprint, units, params }
+  console.log('Rendering provider')
+  const value = useMemo(() => {
+    return { measurements, footprint, units, params }
+  }, [measurements, footprint, units, params])
   return h(ColumnDataContext.Provider, { value, children })
 }
 
