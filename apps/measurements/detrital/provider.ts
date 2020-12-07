@@ -1,6 +1,4 @@
-import { DetritalSpectrumPlot, DetritalSeries } from 'common/dz-spectrum'
 import { group } from 'd3-array'
-import h from '@macrostrat/hyper'
 import { useAPIResult } from '@macrostrat/ui-components'
 
 export interface MeasurementInfo {
@@ -34,28 +32,7 @@ export interface MeasurementInfo {
   error_units: string
 }
 
-interface DetritalItemProps {
-  data: MeasurementInfo[]
-}
-
-function DetritalGroup(props: DetritalItemProps) {
-  const { data } = props
-  const { geo_unit } = data[0]
-
-  return h('div.detrital-group', [
-    h('h4.geo-unit', geo_unit),
-    h(
-      DetritalSpectrumPlot,
-      data.map(d => {
-        return h(DetritalSeries, {
-          data: d.measure_value,
-        })
-      })
-    ),
-  ])
-}
-
-function useDetritalMeasurements(columnArgs) {
+export function useDetritalMeasurements(columnArgs) {
   const params = {
     ...columnArgs,
     measure_phase: 'zircon',
@@ -67,25 +44,8 @@ function useDetritalMeasurements(columnArgs) {
   const res: MeasurementInfo[] = useAPIResult(
     'https://dev.macrostrat.org/api/v2/measurements',
     params,
-    Object.values(columnArgs)
+    columnArgs
   )
   if (res == null) return null
   return group(res, d => d.unit_id)
 }
-
-function DetritalColumn(columnArgs) {
-  const data = useDetritalMeasurements(columnArgs)
-
-  if (data == null) return null
-
-  // group by units
-  return h(
-    'div.detrital-column',
-    null,
-    Array.from(data.values()).map(d => {
-      return h(DetritalGroup, { data: d })
-    })
-  )
-}
-
-export { DetritalColumn, DetritalGroup, useDetritalMeasurements }

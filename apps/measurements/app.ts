@@ -14,25 +14,35 @@ import {
 } from '@macrostrat/column-components'
 import Column, {IUnit} from './column'
 import patterns from '../../geologic-patterns/*.png'
-import {DetritalColumn} from "./dz-measurements"
+import {DetritalColumn} from "./detrital"
 import {MapView, MeasurementsLayer} from "./map"
-import {ColumnDataProvider} from "./column-data"
-
-const renderResults = (data: Array<IUnit>)=> {
-  return h(Column, {data});
-};
-
-const ColumnView = (props)=> {
-  const {params} = props
-  // 495
-  return h(APIResultView, {
-    route: "/units",
-    params: {all: true, ...params, response: 'long'}
-  }, renderResults);
-};
+import {ColumnDataProvider, useColumnData} from "./column-data"
+import {useColumnData} from "./column-data"
 
 const ColumnTitle = (props)=>{
   return h.if(props.data != null)('h1', props.data?.col_name)
+}
+
+const ColumnUI = ({setCurrentColumn})=>{
+  const {footprint, params, units} = useColumnData()
+
+  // 495
+  return h("div.column-ui", [
+    h("div.main-panel", [
+      h(ColumnTitle, {data: footprint?.properties}),
+      h("div.flex-container.columns", [
+        h("div.column-view", [
+          h(Column, {data: units})
+        ]),
+        h(DetritalColumn, params),
+      ])
+    ]),
+    h('div.map-column', [
+      h(MapView, {currentColumn: footprint, setCurrentColumn, margin: 0}, [
+        h(MeasurementsLayer)
+      ]),
+    ])
+  )
 }
 
 const ColumnManager = ()=> {
@@ -40,10 +50,6 @@ const ColumnManager = ()=> {
   const defaultArgs = {col_id: 495}
   const initArgs = getQueryString() ?? defaultArgs
   const [columnArgs, setColumnArgs] = useState(initArgs)
-
-  const colParams = {...columnArgs, format: 'geojson'}
-  const res = useAPIResult('/columns', colParams, [columnArgs])
-  const columnFeature = res?.features[0]
 
   const setCurrentColumn = (obj)=>{
     let args = obj
@@ -55,29 +61,7 @@ const ColumnManager = ()=> {
     setColumnArgs(args)
   }
 
-  const DefaultButton = ({args, children})=>{
-    const onClick = ()=>setCurrentColumn(args)
-    return h(Button, {onClick, disabled: isEqual(columnArgs,args)}, children)
-  }
-
-  // 495
-  return h(ColumnDataProvider, {...columnArgs},
-    h("div.column-ui",[
-      h("div.main-panel", [
-        h("div.column-view", [
-          h(ColumnTitle, {data: columnFeature?.properties}),
-          h(ColumnView, {params: columnArgs})
-        ]),
-        h(DetritalColumn, columnArgs),
-
-      ]),
-      h('div.map-column', [
-        h(MapView, {currentColumn: columnFeature, setCurrentColumn}, [
-          h(MeasurementsLayer)
-        ]),
-      ])
-    ])
-  )
+  return h(ColumnDataProvider, {params: columnArgs}, h(ColumnUI, {setCurrentColumn}))
 };
 
 const resolvePattern = (id)=>patterns[id]
@@ -86,7 +70,9 @@ const App = => {
   return h(GeologicPatternProvider, {resolvePattern}, (
     h(APIProvider, {
       baseURL: "https://dev.macrostrat.org/api/v2",
-      unwrapResponse: (res)=>res.success.data
+      unwrapResponse: (res)=>{
+        return res.success.data
+      }
     }, h(ColumnManager))
   )
 }
