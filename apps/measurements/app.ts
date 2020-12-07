@@ -61,7 +61,7 @@ const ColumnManager = ()=> {
     setColumnArgs(args)
   }
 
-  return h(ColumnDataProvider, {...columnArgs}, h(ColumnUI, {setCurrentColumn}))
+  return h(ColumnDataProvider, {params: columnArgs}, h(ColumnUI, {setCurrentColumn}))
 };
 
 const resolvePattern = (id)=>patterns[id]

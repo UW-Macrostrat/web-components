@@ -35,10 +35,7 @@ function ColumnDataProvider(props: React.PropsWithChildren<ColumnCtx>) {
   const measurements = useDetritalMeasurements(params)
   const footprint = useColumnFootprint(params)
   const units = useColumnUnits(params)
-  console.log('Rendering provider')
-  const value = useMemo(() => {
-    return { measurements, footprint, units, params }
-  }, [measurements, footprint, units, params])
+  const value = { params, measurements, footprint, units }
   return h(ColumnDataContext.Provider, { value, children })
 }
 
