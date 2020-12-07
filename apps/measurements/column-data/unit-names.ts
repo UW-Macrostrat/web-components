@@ -1,7 +1,7 @@
 import h from '@macrostrat/hyper'
 import {useContext} from 'react'
 import {useColumnData} from './provider'
-import {useDetritalMeasurements, DetritalGroup} from '../dz-measurements'
+import {DetritalGroup} from './detrital'
 
 import {
   ColumnContext
@@ -27,8 +27,6 @@ const NoteComponent = (props)=>{
 const UnitNamesColumn = (props: UnitNamesProps)=>{
   const {left, nameForDivision, ...rest} = props
   const {divisions} = useContext(ColumnContext)
-  const {col_id} = useColumnData({col_id})
-  const dz = useDetritalMeasurements({col_id})
 
   const notes: INote[] = divisions.map((div,i) =>{
     return {
@@ -36,7 +34,7 @@ const UnitNamesColumn = (props: UnitNamesProps)=>{
       top_height: div.t_age,
       note: nameForDivision(div),
       division: div,
-      measurement: dz?.get(div.unit_id)
+      //measurement: dz?.get(div.unit_id)
       id: i
     }
   })

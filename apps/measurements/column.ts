@@ -38,8 +38,6 @@ const Section = (props: IColumnProps)=>{
 
   const range = [data[data.length-1].b_age, data[0].t_age]
 
-  console.log(range)
-
   if (!pixelScale) {
     // Make up a pixel scale
     const dAge = range[0]-range[1]
@@ -68,13 +66,14 @@ const Section = (props: IColumnProps)=>{
 
 const Column = (props: IColumnProps)=>{
   const {data} = props;
+  if (data == null) return null
 
   let sectionGroups = Array.from(group(data, d=>d.section_id))
 
   sectionGroups.sort((a,b)=>a.t_age-b.t_age)
 
   return h("div.column", [
-    h("div.age-axis-label", "Age (Ma)")
+    h("div.age-axis-label", "Age (Ma)"),
     h("div.main-column", sectionGroups.map(([id,values])=>{
       return h(`div.section-${id}`, [
         h(Section, {data: values})
