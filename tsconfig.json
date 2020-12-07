@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "paths": {
+      "common/*": ["packages/common/src/*"]
+    }
+  },
+  "include": ["apps/**/*", "packages/common/src/**/*"]
+}

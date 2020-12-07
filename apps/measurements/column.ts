@@ -1,5 +1,6 @@
 import h from '@macrostrat/hyper'
 import {group} from 'd3-array'
+//import {ColumnProvider} from "@macrostrat/column-components/dist/cjs/context/column"
 import {
   ColumnProvider,
   ColumnSVG,
@@ -8,7 +9,7 @@ import {
   ColumnContext,
   NotesColumn
 } from '@macrostrat/column-components'
-import {CompositeUnitsColumn} from 'common/units'
+import {CompositeUnitsColumn} from './column-data'
 import {IUnit} from 'common/units/types'
 import {useContext} from 'react'
 
@@ -36,8 +37,6 @@ const Section = (props: IColumnProps)=>{
   const notesOffset = 100
 
   const range = [data[data.length-1].b_age, data[0].t_age]
-
-  console.log(range)
 
   if (!pixelScale) {
     // Make up a pixel scale
@@ -67,13 +66,14 @@ const Section = (props: IColumnProps)=>{
 
 const Column = (props: IColumnProps)=>{
   const {data} = props;
+  if (data == null) return null
 
   let sectionGroups = Array.from(group(data, d=>d.section_id))
 
   sectionGroups.sort((a,b)=>a.t_age-b.t_age)
 
   return h("div.column", [
-    h("div.age-axis-label", "Age (Ma)")
+    h("div.age-axis-label", "Age (Ma)"),
     h("div.main-column", sectionGroups.map(([id,values])=>{
       return h(`div.section-${id}`, [
         h(Section, {data: values})

@@ -5,13 +5,15 @@
   "main": "index.html",
   "scripts": {
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
-    "dev": "npm-run-all --aggregate-output -l -p watch:** dev:renderer",
-    "dev:renderer": "parcel serve basic-renderer/index.html",
+    "dev": "npm-run-all -l -p dev:measurements watch:**",
+    "dev:renderer": "parcel serve apps/basic-renderer/index.html",
+    "dev:measurements": "parcel serve apps/measurements/index.html",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
     "watch:column": "npm --prefix packages/column-components run watch",
     "build": "parcel build --public-url . index.html",
-    "deploy": "./deploy/deploy.sh"
+    "deploy": "./deploy/deploy.sh",
+    "clean": "rm -rf .cache"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -21,12 +23,15 @@
     "common": "./packages/common/src"
   },
   "devDependencies": {
+    "@types/d3-geo": "^2.0.0",
+    "@types/geojson": "^7946.0.7",
     "bulk": "^2.0.1",
     "linklocal": "^2.8.2",
     "npm-run-all": "^4.1.5",
     "parcel-bundler": "^1.12.4",
+    "prettier": "^1.19.1",
     "stylus": "^0.54.7",
-    "typescript": "^3.7.4"
+    "typescript": "^3.9.7"
   },
   "workspaces": [
     "packages/*"
@@ -34,12 +39,19 @@
   "dependencies": {
     "@blueprintjs/core": "^3.22.3",
     "@macrostrat/column-components": "file:./packages/column-components",
-    "@macrostrat/hyper": "^1.1.5",
+    "@macrostrat/hyper": "^1.2.11",
     "@macrostrat/map-components": "file:./packages/map-components",
     "@macrostrat/ui-components": "file:./packages/ui-components",
+    "@react-hook/size": "^2.1.1",
+    "@types/react": "^16.14.2",
+    "@vx/axis": "^0.0.199",
+    "@vx/gradient": "^0.0.199",
+    "@vx/scale": "^0.0.199",
+    "@vx/shape": "^0.0.199",
     "core-js": "^3.6.1",
     "d3": "^5.15.0",
-    "d3-array": "^2.4.0",
+    "d3-array": "^2.8.0",
+    "d3-geo-voronoi": "^1.6.0",
     "d3-path": "^1.0.9",
     "d3-selection": "^1.4.1",
     "geologic-patterns": "github:davenquinn/geologic-patterns",
@@ -50,6 +62,7 @@
     "react-dom": "^16.12.0",
     "react-draggable": "^4.2.0",
     "react-images": "^1.1.0-beta.0",
+    "react-json-view": "^1.19.1",
     "react-router": "^5.1.2",
     "react-router-dom": "^5.1.2",
     "react-scroll": "^1.7.15",

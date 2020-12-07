@@ -10,7 +10,7 @@ import {useSpring, animated} from 'react-spring'
 const AnimatedGlobe = animated(Globe)
 
 const MapView = props =>{
-  const {currentColumn, setCurrentColumn} = props
+  const {currentColumn, setCurrentColumn, children} = props
   const [expanded, setExpanded] = useState(false)
 
   const columnCenter = geoCentroid?.(currentColumn)
@@ -49,6 +49,7 @@ const MapView = props =>{
       }, [
         h(Land),
         h(Columns, {onClick: setCurrentColumn}),
+        children,
         h.if(currentColumn != null)(CurrentColumn, {feature: currentColumn})
       ]),
       h.if(expanded)(Button, {
