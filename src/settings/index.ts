@@ -77,4 +77,4 @@ const updateSettings = function(func) {
   };
 };
 
-export { SettingsProvider, useSettings, updateSettings };
+export { SettingsProvider, useSettings, updateSettings, createSettingsContext };
