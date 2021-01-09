@@ -9,21 +9,8 @@ import {
 import {
   GeologicPatternProvider
 } from '@macrostrat/column-components'
-import Column, {IUnit} from './column'
+import Column from './column'
 import patterns from '../../geologic-patterns/*.png'
-
-const renderResults = (data: Array<IUnit>)=> {
-  return h(Column, {data});
-};
-
-const ColumnView = (props)=> {
-  const {params} = props
-  // 495
-  return h(APIResultView, {
-    route: "/units",
-    params: {all: true, ...params, response: 'long'}
-  }, renderResults);
-};
 
 const ColumnTitle = (props)=>{
   return h.if(props.data != null)('h1', props.data?.col_name)
@@ -42,7 +29,7 @@ const ColumnManager = ()=> {
   return h("div.column-ui",[
     h("div.column-view", [
       h(ColumnTitle, {data: columnFeature?.properties}),
-      h(ColumnView, {params: columnArgs})
+      h(Column, {params: columnArgs})
     ]),
     h("div.measurements", [
       h(APIResultView, {route: "/measurements", params: {

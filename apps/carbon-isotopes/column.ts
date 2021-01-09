@@ -1,16 +1,16 @@
 import h from '@macrostrat/hyper'
 import {group} from 'd3-array'
+import {useAPIResult} from "@macrostrat/ui-components"
 import {
   ColumnProvider,
   ColumnSVG,
-  LithologyColumn,
   ColumnAxis,
   ColumnContext,
-  NotesColumn
 } from '@macrostrat/column-components'
 import {CompositeUnitsColumn} from 'common/units'
 import {IUnit} from 'common/units/types'
 import {useContext} from 'react'
+import {IsotopesDataArea} from "./data-area"
 
 interface IColumnProps {
   data: IUnit[]
@@ -58,12 +58,13 @@ const Section = (props: IColumnProps)=>{
       h(CompositeUnitsColumn, {
         width: 400,
         columnWidth: 90
-      })
+      }),
+      h(IsotopesDataArea)
     ])
   ])
 }
 
-const Column = (props: IColumnProps)=>{
+function ColumnInner(props: IColumnProps) {
   const {data} = props;
 
   let sectionGroups = Array.from(group(data, d=>d.section_id))
@@ -79,5 +80,12 @@ const Column = (props: IColumnProps)=>{
     })
   ])
 }
+
+function Column(props) {
+  const {params} = props
+  const data: IUnit[] = useAPIResult("/units", {all: true, ...params, response: 'long'})
+  if (data == null) return null
+  return h(ColumnInner, {data})
+};
 
 export default Column
