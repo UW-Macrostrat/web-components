@@ -1,0 +1,67 @@
+---
+id: buttons
+title: Buttons
+sidebar_laber: Buttons
+---
+
+## SaveButton
+
+A blue button that renders a loading spinner if passed prop `inProgress` is true.
+
+### Props:
+
+> - _**inProgress**_: _boolean_ | if process is occuring which should disable button until process is complete.
+> - _**disabled**_: _boolean_ | is the button disabled from click event.
+> - _**className**_: _string_ | className for component
+> - _**...rest**_: Other props from a blueprintjs/core [button](https://blueprintjs.com/docs/#core/components/button) except for `icon`.
+
+## CancelButton
+
+A red button, designed to be used with an onClick action that cancels process.
+
+### Props:
+
+> - _**className**_: _string_ | className for component
+> - _**...rest**_: Other props from a blueprintjs/core [button](https://blueprintjs.com/docs/#core/components/button) except for `icon`.
+
+## EditButton
+
+A button whose color changes based on passed prop `isEditing`. Designed to work with `ModelEditor`.
+
+### Props:
+
+> - _**isEditing**_: _boolean_ | describes if editing is in progress.
+> - _**intent**_: _blueprintjs intent string_ | (Optional) will be changed based on isEditing if not passed
+> - _**className**_: _string_ | className for component
+> - _**...rest**_: Other props from a blueprintjs/core [button](https://blueprintjs.com/docs/#core/components/button) except for `icon`.
+
+## DeleteButton
+
+A button that triggers a blueprintjs/core `Alert` that on confirmation will trigger a callback to the passed `handleDelete` prop.
+
+### Props:
+
+> - _**handleDelete**_: _function_ | function called on deleteion confirmation inside the `Alert`
+> - _**alertContent**_: _string_ | description to be in the `Alert`, defualts to: "Are you sure you want to delete " + itemDescription + "?"
+> - _**itemDescription**_: _string_ | description or name of field being deleted, will be added to defualt `alertContent`
+> - _**...rest**_: Other props from a blueprintjs/core [button](https://blueprintjs.com/docs/#core/components/button) except for `icon`.
+
+## NavLinkButton
+
+A `NavLink` component that looks like a button.
+
+### Props:
+
+> - _**className**_ : _string_ | className of component
+> - _**...rest**_: Same props as [`NavLink`](https://reactrouter.com/web/api/NavLink) from `react-router-dom`.
+
+## LinkButton
+
+A button whose `onClick` routes toa specified page.
+
+### Props:
+
+> - _**to**_: _string_ | A specified path or url to link to.
+> - _**history**_: Idk, DAVEN!!!!!!
+
+[_**Source Code**_](https://github.com/UW-Macrostrat/ui-components/tree/72fcba180bbbdac2884e3a50bd84b97e680c7884/src/buttons)

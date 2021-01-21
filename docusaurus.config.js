@@ -10,10 +10,10 @@ module.exports = {
   themeConfig: {
     navbar: {
       title: "MacroStrat-UI Components",
-      logo: {
-        alt: "My Site Logo",
-        src: "img/logo.svg",
-      },
+      // logo: {
+      //   alt: "My Site Logo",
+      //   src: "img/logo.svg",
+      // },
       items: [
         {
           to: "docs/",

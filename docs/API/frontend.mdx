@@ -1,0 +1,49 @@
+---
+id: frontend
+title: API Frontend
+sidebar_label: Frontend API helpers
+---
+
+## [APIViewContext and APIViewConsumer](https://github.com/UW-Macrostrat/ui-components/blob/master/src/api/frontend.ts#L16)
+
+Context and context consumer for API related values.
+
+## [APIResultView](https://github.com/UW-Macrostrat/ui-components/blob/master/src/api/frontend.ts#L56)
+
+Component that creates an APIView component from a pass child component.
+
+### Props:
+
+> - _**route**_: _string_ | API url for HTTP requests.
+> - _**params**_: _{}_ | Parameters passed to the HTTP GET request.
+> - _**opts**_: _{}_ | Options passed to the HTTP GET request.
+> - _**debug**_: _boolean_ |
+> - _**onSuccess**_: _function_ | Function to call when data is successfully retrieved.
+> - _**primaryKey**_: _string_ | defaults to "key."
+> - _**placeholder**_: _react component_ | Placeholder component when there is no data.
+> - _**debounce**_: _int_
+> - _**children**_: _react component_ | Child component to be passed to APIView.
+
+## [APIView](https://github.com/UW-Macrostrat/ui-components/blob/master/src/api/frontend.ts#L132)
+
+Component that takes props and passes them as the value
+to the APIViewContext provider and wraps the passed child element.
+
+:::warning Deprecated
+The APIView component is deprecated in @macrostrat/ui-components "
+v0.4.x and will be removed in the 0.5 series. Please migrate to react hooks.
+:::
+
+### Props:
+
+> - _**data**_: API data fetched for the child component. Type depends on child.
+> - _**children**_: _react component_| Child component to be rendered inside context provider.
+> - _**placeholder**_: _react component_| Placehold component when data == null.
+> - _**params**_: _{}_ | Parameters for GET request
+> - _**route**_: _string_ | API url for HTTP requests.
+> - _**isLoading**_: _boolean_ | Whether data is being loaded.
+> - _**...rest**_: The rest of the possible values from APIViewContext.
+
+## [useAPIView](https://github.com/UW-Macrostrat/ui-components/blob/master/src/api/frontend.ts#L171)
+
+Custom React hook used to access values from APIViewContext.
