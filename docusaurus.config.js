@@ -1,15 +1,15 @@
 module.exports = {
-  title: "MacroStrat-UI Components",
+  title: "Macrostrat-UI Components",
   tagline: "Easy to use Components for Frontend Development",
   url: "https://docusaurus-2.netlify.com",
   baseUrl: "/",
   onBrokenLinks: "throw",
   favicon: "img/favicon.ico",
-  organizationName: "facebook", // Usually your GitHub org/user name.
-  projectName: "docusaurus", // Usually your repo name.
+  organizationName: "Macrostrat", // Usually your GitHub org/user name.
+  projectName: "Macrostrat-UI-Components", // Usually your repo name.
   themeConfig: {
     navbar: {
-      title: "MacroStrat-UI Components",
+      title: "Macrostrat-UI Components",
       // logo: {
       //   alt: "My Site Logo",
       //   src: "img/logo.svg",
@@ -21,7 +21,6 @@ module.exports = {
           label: "Docs",
           position: "left",
         },
-        { to: "blog", label: "Blog", position: "left" },
         {
           href: "https://github.com/UW-Macrostrat/ui-components",
           label: "GitHub",
@@ -33,15 +32,15 @@ module.exports = {
       style: "dark",
       links: [
         {
-          title: "Docs",
+          title: "Projects",
           items: [
             {
-              label: "Style Guide",
-              to: "docs/",
+              label: "Macrostrat",
+              href: "https://macrostrat.org/",
             },
             {
-              label: "Second Doc",
-              to: "docs/doc2/",
+              label: "Sparrow",
+              href: "https://sparrow-data.org/",
             },
           ],
         },
@@ -49,13 +48,30 @@ module.exports = {
           title: "Community",
           items: [
             {
-              label: "Blog",
-              to: "blog",
-            },
-
-            {
               label: "EarthCube",
-              href: "https://github.com/UW-Macrostrat/ui-components",
+              href: "https://www.earthcube.org/",
+            },
+            {
+              label: "Github",
+              href:
+                "https://github.com/UW-Macrostrat/ui-components/tree/72fcba180bbbdac2884e3a50bd84b97e680c7884",
+            },
+          ],
+        },
+        {
+          title: "People",
+          items: [
+            {
+              label: "Daven Quinn",
+              href: "https://davenquinn.com/",
+            },
+            {
+              label: "Ian Ross",
+              href: "https://github.com/iross",
+            },
+            {
+              label: "Shanan Peters",
+              href: "http://strata.geology.wisc.edu/index.html",
             },
           ],
         },
