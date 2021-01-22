@@ -33,12 +33,12 @@ function buildQueryURL(
   params: QueryParams = {},
   opts?: StringifyOptions
 ): string {
-  if (Object.entries(params) == 0) {
-    route = route;
+  const queryStr = buildQueryString(params, opts);
+  if (queryStr == "") {
+    return route;
   } else {
-    route += "?" + buildQueryString(params, opts);
+    return route + "?" + queryStr;
   }
-  return route;
 }
 
 // Base query string management
@@ -56,11 +56,11 @@ function parseParams(paramString: string, opts?: ParseOptions) {
 
 function updateURL(joinWith: string, args: QueryArgs, opts?: StringifyOptions) {
   const params = buildQueryString(args, opts);
-  window.history.replaceState(
-    {},
-    "",
-    `${document.location.pathname}${joinWith}${params}`
-  );
+  let pathname = document.location.pathname;
+  if (params != "") {
+    pathname += joinWith + params;
+  }
+  window.history.replaceState({}, "", pathname);
 }
 
 const getHashString = () => parseParams(document.location.hash);
