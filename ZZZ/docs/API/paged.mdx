@@ -1,0 +1,29 @@
+---
+id: paged
+title: Paged API Helpers
+sidebar_label: Paged API helpers
+---
+
+## [PagedAPIView](https://github.com/UW-Macrostrat/ui-components/blob/72fcba180bbbdac2884e3a50bd84b97e680c7884/src/api/paged.ts#L30)
+
+PagedAPIView is a component that renders an APIResultView with Pagination at the bottom.
+
+### Props:
+
+> - _**count**_: _int_ | number of items returned from api call
+> - _**perPage**_: _int_ | number of API data opbjects to render per page.
+> - _**topPagination**_: _boolean_ | whether or not to have Pagination at the top of the page
+> - _**bottomPagination**_: _boolean_ | whether or not to have Pagination at the bottom of the page
+> - _**extraPagination**_:
+> - _**opts**_: _{}_ | Options passed to the HTTP GET request.
+> - _**params**_: _{}_ | Parameters passed to the HTTP GET request.
+
+## [Pagination](https://github.com/UW-Macrostrat/ui-components/blob/72fcba180bbbdac2884e3a50bd84b97e680c7884/src/api/paged.ts#L6)
+
+Pagination component built on `buttonGroup` component from [Blueprintjs/core](https://blueprintjs.com/docs/#core/components/button-group).
+
+### Props:
+
+> - _**currentPage**_ : _int_ | the current page number.
+> - _**nextDisabled**_ : _boolean_ | Whether or not the next page button is disabled
+> - _**setPage**_ : _function_ | function to update the state if the page number.

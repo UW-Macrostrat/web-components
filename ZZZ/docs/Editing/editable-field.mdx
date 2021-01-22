@@ -1,0 +1,36 @@
+---
+id: editable-fields
+title: Editable Fields
+sidebar_label: Editable Fields
+---
+
+## EditableMultilineText
+
+Component for editing text fields on data model. Works with `ModelEditor`, becomes editable when
+`isEditing` is true.
+
+### Props:
+
+> - _**field**_: _string_ | Name of editable field.
+> - _**className**_: _string_ | Classname of component.
+
+Examples:
+
+```jsx
+function NameEditor() {
+  const field = "Name";
+  className = "name-editor";
+
+  return h(EditableMultilineText, { field, className });
+}
+```
+
+## EditableDateField
+
+Component for editing date data-fields.
+
+### Props:
+
+> - _**field**_: _string_ | Name of editable field.
+
+[_**Source Code**_](https://github.com/UW-Macrostrat/ui-components/blob/72fcba180bbbdac2884e3a50bd84b97e680c7884/src/model-editor.ts)

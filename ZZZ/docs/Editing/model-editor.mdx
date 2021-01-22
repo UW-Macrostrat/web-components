@@ -1,0 +1,97 @@
+---
+id: model-editor
+title: Model Editor
+sidebar_label: Model Editor
+---
+
+## ModelEditor
+
+Class based React Component that is designed for data-editing based on a structured data model.
+
+### Props:
+
+> - _**model**_: _Object_ | Data Model that is being edited.
+> - _**canEdit**_: _Boolean_ | Boolean value if editing is allowed (ex. only if signed in)
+> - _**isEditing**_: _Boolean_ | (Optional) Boolean value describing if data models is undergoing edits
+> - _**persistChanges**_: _function_ | Function, what happens when edited data is saved
+
+Example:
+
+```jsx
+function EditProjectData(props) {
+  const { project } = props;
+
+  return h(
+    ModelEditor,
+    {
+      model: project,
+      canEdit: isLoggedIn,
+      persistChanges: async (updatedModel, changeSet) => {
+        let rest;
+        let { id } = updatedModel;
+        const response = await put(`api/project/edits/${id}`, changeset);
+        const { data } = response;
+        ({ id, ...rest } = data);
+        return rest;
+      },
+    },
+    [h(EditableChilrenComponents)]
+  );
+}
+```
+
+## ModelEditButton
+
+An EditButton where color is controled by the `isEditing` prop of `ModelEditor`.
+
+### Props:
+
+All props the same as those for a `blueprintjs/core` [button](https://blueprintjs.com/docs/#core/components/button) **EXCEPT** `onClick` which calls the `toggleEditing` function from `ModelEditorContext`
+
+## ModelEditorContext
+
+Context that allows user to access props from `ModelEditor` component. Easily accessed using [useModelEditor()](model-editor#usemodeleditor).
+
+### Context Values
+
+> - _**actions**_ : Functions associated with `ModelEditor`.
+>   - _**onChange**_: Function that updates the state of the model.
+>   - _**toggleEditing**_: Function call to switch isEditing.
+>   - _**updateState**_: Function to update the current data model being edited. Changes are not persisted yet.
+>   - _**persistChanges**_: Functions to persist edits or save changes.
+> - _**model**_: Data model entered in `ModelEditor`.
+> - _**isEditing**_: Boolean describing if model is currently being edited.
+> - _**hasChanges**_: Boolean describing if model has been changed.
+> - _**canEdit**_: Boolean describing if model can be edited.
+
+## useModelEditor()
+
+React Hook for accessing stored values in ModelEditorContext.
+
+### Context Values
+
+> - See [ModelEditorContext](model-editor#context-values)
+
+Example:
+
+```jsx
+const { isEditing, hasChanges, actions } = useModelEditor();
+const changed = hasChanges();
+return h("div.edit-status-controls", [
+  h.if(!isEditing)(ModelEditButton, { minimal: true }, "Edit"),
+  h.if(isEditing)(ButtonGroup, { minimal: true }, [
+    h(SaveButton, {
+      disabled: !changed,
+      onClick() {
+        return actions.persistChanges();
+      },
+    }),
+    h(CancelButton, {
+      intent: changed ? "warning" : "none",
+      onClick: actions.toggleEditing,
+    }),
+  ]),
+]);
+```
+
+[_**Source Code**_](https://github.com/UW-Macrostrat/ui-components/blob/72fcba180bbbdac2884e3a50bd84b97e680c7884/src/model-editor.ts)
