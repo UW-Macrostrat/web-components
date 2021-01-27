@@ -1,5 +1,5 @@
 import {useState} from 'react'
-import h from '@macrostrat/hyper';
+import h, {C, compose} from '@macrostrat/hyper';
 import {
   APIProvider,
   APIResultView,
@@ -10,6 +10,7 @@ import {
   GeologicPatternProvider
 } from '@macrostrat/column-components'
 import Column from './column'
+import {MeasurementDataProvider} from "./data-provider"
 import patterns from '../../geologic-patterns/*.png'
 
 const ColumnTitle = (props)=>{
@@ -26,30 +27,25 @@ const ColumnManager = ()=> {
   const res = useAPIResult('/columns', colParams, [columnArgs])
   const columnFeature = res?.features[0]
 
-  return h("div.column-ui",[
-    h("div.column-view", [
-      h(ColumnTitle, {data: columnFeature?.properties}),
-      h(Column, {params: columnArgs})
-    ]),
-    h("div.measurements", [
-      h(APIResultView, {route: "/measurements", params: {
-        ...columnArgs,
-        show_values: true,
-        response: 'long'
-      }})
+  return h(MeasurementDataProvider, columnArgs, [
+    h("div.column-ui",[
+      h("div.column-view", [
+        h(ColumnTitle, {data: columnFeature?.properties}),
+        h(Column, {params: columnArgs})
+      ]),
     ])
   ])
 };
 
 const resolvePattern = (id)=>patterns[id]
 
-const App = => {
-  return h(GeologicPatternProvider, {resolvePattern}, (
-    h(APIProvider, {
-      baseURL: "https://dev.macrostrat.org/api/v2",
-      unwrapResponse: (res)=>res.success.data
-    }, h(ColumnManager))
-  )
-}
+const App = compose(
+  C(GeologicPatternProvider, {resolvePattern}),
+  C(APIProvider, {
+    baseURL: "https://dev.macrostrat.org/api/v2",
+    unwrapResponse: (res)=>res.success.data
+  })
+  ColumnManager
+)
 
 export default App
