@@ -10,7 +10,7 @@ import {
 import {CompositeUnitsColumn} from 'common/units'
 import {IUnit} from 'common/units/types'
 import {useContext} from 'react'
-import {IsotopesDataArea} from "./data-area"
+import {IsotopesColumn} from "./isotopes-column"
 
 interface IColumnProps {
   data: IUnit[]
@@ -52,14 +52,15 @@ const Section = (props: IColumnProps)=>{
     h(ColumnSVG, {
       width: 450,
       padding: 20,
-      paddingV: 15
+      paddingTop: 5
+      paddingBottom: 25
     }, [
       h(AgeAxis),
       h(CompositeUnitsColumn, {
         width: 400,
         columnWidth: 90
       }),
-      h(IsotopesDataArea)
+      h(IsotopesColumn, {parameter: "D13C"})
     ])
   ])
 }
