@@ -11,6 +11,7 @@ export interface IFeature {
 
 interface IFeatureProps {
   feature: IFeature
+  onClick(feature: IFeature): void
   [key: string]: any
 }
 
@@ -35,7 +36,7 @@ const Feature = (props: IFeatureProps) => {
       onClick: () => {
         if (onClick == null) return
         return onClick(feature)
-      }
+      },
     })
   }
 }
@@ -63,7 +64,7 @@ const FeatureLayer = (props: IFeatureLayerProps) => {
 }
 
 FeatureLayer.defaultProps = {
-  useCanvas: false
+  useCanvas: false,
 }
 
 export { FeatureLayer, Feature }
