@@ -99,7 +99,6 @@ class NoteLayoutProvider extends StatefulComponent {
   }
 
   computeContextValue() {
-    console.log("Computing context value");
     const {width, paddingLeft} = this.props;
     // Clamp notes to within scale boundaries
     // (we could turn this off if desired)
@@ -178,7 +177,6 @@ class NoteLayoutProvider extends StatefulComponent {
     if (prevState == null) { prevState = {}; }
     const v2 = (elementHeights === prevState.elementHeights) || [];
     if (v1 && v2) { return; }
-    console.log("Computing force layout");
 
     const force = new Force({
       minPos: 0,
