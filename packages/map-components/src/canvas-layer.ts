@@ -34,6 +34,8 @@ class CanvasLayer extends Component<any, any> {
     const { current: el } = this.canvas
     if (el != null) {
       context = el.getContext('2d')
+      // https://bugs.chromium.org/p/chromium/issues/detail?id=148499
+      // context.getImageData()
     }
 
     const value = {
