@@ -1,12 +1,11 @@
-import { useState, useRef } from "react"
+import { useRef } from "react"
 import h from "@macrostrat/hyper"
 import { Globe } from "@macrostrat/map-components"
 import { geoCentroid } from "d3-geo"
 import { Land, Columns, CurrentColumn } from "common/map/layers"
-import classNames from "classnames"
 import useSize from "@react-hook/size"
 
-const MapView = props => {
+const ColumnMapNavigator = props => {
   const { currentColumn, setCurrentColumn, children, ...rest } = props
 
   const ref = useRef(null)
@@ -47,9 +46,9 @@ const MapView = props => {
   ])
 }
 
-MapView.defaultProps = {
+ColumnMapNavigator.defaultProps = {
   margin: 10,
 }
 
 export * from "./layers"
-export { MapView }
+export { ColumnMapNavigator }

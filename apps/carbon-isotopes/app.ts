@@ -10,7 +10,7 @@ import {
   GeologicPatternProvider
 } from '@macrostrat/column-components'
 import Column from './column'
-import {MapView} from "../zircons/map"
+import {ColumnMapNavigator, MeasurementsLayer} from "common/column-map"
 import { MeasurementDataProvider } from "./data-provider"
 import {MeasurementsLayer} from "./map-layer"
 import patterns from '../../geologic-patterns/*.png'
@@ -50,8 +50,12 @@ const ColumnManager = ()=> {
         h(Column, {params: columnArgs})
       ]),
       h('div.map-column', [
-        h(MapView, { currentColumn: columnFeature, setCurrentColumn, margin: 0, ...projectParams},
-          h(MeasurementsLayer)
+        h(ColumnMapNavigator, { currentColumn: columnFeature, setCurrentColumn, margin: 0, ...projectParams},
+          h(MeasurementsLayer, {
+            ...projectParams, style: {
+              fill: "dodgerblue",
+              stroke: "blue"
+          } })
         )
       ])
     ])

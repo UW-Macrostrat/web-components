@@ -4,8 +4,6 @@ import h from '@macrostrat/hyper';
 import {Button} from "@blueprintjs/core"
 import {
   APIProvider,
-  APIResultView,
-  useAPIResult,
   getQueryString,
   setQueryString
 } from '@macrostrat/ui-components';
@@ -15,7 +13,7 @@ import {
 import Column, {IUnit} from './column'
 import patterns from '../../geologic-patterns/*.png'
 import {DetritalColumn} from "./detrital"
-import {MapView, MeasurementsLayer} from "./map"
+import {ColumnMapNavigator, MeasurementsLayer} from "common/column-map"
 import {ColumnDataProvider, useColumnData} from "./column-data"
 import {useColumnData} from "./column-data"
 
@@ -38,8 +36,9 @@ const ColumnUI = ({setCurrentColumn})=>{
       ])
     ]),
     h('div.map-column', [
-      h(MapView, {currentColumn: footprint, setCurrentColumn, margin: 0}, [
-        h(MeasurementsLayer)
+      h(ColumnMapNavigator, {currentColumn: footprint, setCurrentColumn, margin: 0}, [
+        h(MeasurementsLayer, {    measure_phase: "zircon",
+    measurement: "207Pb-206Pb"})
       ]),
     ])
   )
