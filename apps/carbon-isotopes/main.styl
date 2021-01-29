@@ -5,8 +5,16 @@ html, body
   margin 0
   padding 0
 
+div.column-ui
+  width 100vw
+  height 100vh
+  overflow-y scroll
+  display flex
+  flex-direction: row
+
 .column-view
   flex-grow 1
+  padding 1em
   h1
     font-size 1.2em
     margin-bottom 0.2em
@@ -73,12 +81,6 @@ g.height-range
   .neatline
     stroke-width 1.5px
 
-div.column-ui
-  padding: 1em
-  width 100vw
-  display flex
-  flex-direction row
-
 .column-nav
   position sticky
   top 2.2em
@@ -111,6 +113,14 @@ div.context-map
 
   .land
     background-color rgb(233, 252, 234)
+
+div.map-column
+  width 600px
+  height 100vh
+  display flex
+  flex-direction column
+  .map-area
+    flex-grow 1
 
 @media (prefers-color-scheme: dark)
   body

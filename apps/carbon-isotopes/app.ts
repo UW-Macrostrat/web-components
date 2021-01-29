@@ -2,14 +2,15 @@ import {useState} from 'react'
 import h, {C, compose} from '@macrostrat/hyper';
 import {
   APIProvider,
-  APIResultView,
   useAPIResult,
   getQueryString,
+  setQueryString
 } from '@macrostrat/ui-components';
 import {
   GeologicPatternProvider
 } from '@macrostrat/column-components'
 import Column from './column'
+import {MapView} from "../zircons/map"
 import {MeasurementDataProvider} from "./data-provider"
 import patterns from '../../geologic-patterns/*.png'
 
@@ -27,12 +28,25 @@ const ColumnManager = ()=> {
   const res = useAPIResult('/columns', colParams, [columnArgs])
   const columnFeature = res?.features[0]
 
+  const setCurrentColumn = (obj)=>{
+    let args = obj
+    if ('properties' in obj) {
+      args = {col_id: obj.properties.col_id}
+    }
+    // Set query string
+    setQueryString(args)
+    setColumnArgs(args)
+  }
+
   return h(MeasurementDataProvider, columnArgs, [
     h("div.column-ui",[
       h("div.column-view", [
         h(ColumnTitle, {data: columnFeature?.properties}),
         h(Column, {params: columnArgs})
       ]),
+      h('div.map-column', [
+        h(MapView, {currentColumn: columnFeature, setCurrentColumn, margin: 0}),
+      ])
     ])
   ])
 };

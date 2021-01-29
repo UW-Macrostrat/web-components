@@ -41,7 +41,7 @@ const Section = (props: IColumnProps)=>{
   if (!pixelScale) {
     // Make up a pixel scale
     const dAge = range[0]-range[1]
-    const targetHeight = 20*data.length
+    const targetHeight = 50*data.length
     pixelScale = Math.ceil(targetHeight/dAge)
   }
 
