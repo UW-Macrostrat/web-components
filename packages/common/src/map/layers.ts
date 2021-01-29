@@ -38,7 +38,7 @@ const Land = (props) => {
   }, [])
 
   return h(FeatureLayer, {
-    useCanvas: true,
+    useCanvas: false,
     style: {
       fill: 'rgb(233, 252, 234)',
       stroke: 'transparent'
