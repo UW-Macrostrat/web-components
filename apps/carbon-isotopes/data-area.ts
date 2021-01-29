@@ -1,16 +1,7 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { line } from "d3-shape"
 import { createContext, useContext } from "react"
 import h from "@macrostrat/hyper"
-import {
-  ColumnContext,
-  ColumnLayoutContext,
-} from "@macrostrat/column-components"
+import { ColumnLayoutContext } from "@macrostrat/column-components"
 
 const inDomain = (scale, num) => {
   const domain = scale.domain()

@@ -1,4 +1,4 @@
-import {useState} from 'react'
+import {useEffect, useState} from 'react'
 import h, {C, compose} from '@macrostrat/hyper';
 import {
   APIProvider,
@@ -11,7 +11,8 @@ import {
 } from '@macrostrat/column-components'
 import Column from './column'
 import {MapView} from "../zircons/map"
-import {MeasurementDataProvider} from "./data-provider"
+import { MeasurementDataProvider } from "./data-provider"
+import {MeasurementsLayer} from "./map-layer"
 import patterns from '../../geologic-patterns/*.png'
 
 const ColumnTitle = (props)=>{
@@ -20,9 +21,13 @@ const ColumnTitle = (props)=>{
 
 const ColumnManager = ()=> {
 
-  const defaultArgs = {col_id: 2138, project_id: 10, status_code: "in process"}
+  const defaultArgs = {col_id: 2192, project_id: 10, status_code: "in process"}
   const initArgs = getQueryString() ?? defaultArgs
   const [columnArgs, setColumnArgs] = useState(initArgs)
+
+  useEffect(() => setQueryString(columnArgs))
+
+  const {col_id, ...projectParams} = columnArgs
 
   const colParams = {...columnArgs, format: 'geojson'}
   const res = useAPIResult('/columns', colParams, [columnArgs])
@@ -31,7 +36,7 @@ const ColumnManager = ()=> {
   const setCurrentColumn = (obj)=>{
     let args = obj
     if ('properties' in obj) {
-      args = {col_id: obj.properties.col_id}
+      args = {col_id: obj.properties.col_id, ...projectParams}
     }
     // Set query string
     setQueryString(args)
@@ -45,7 +50,9 @@ const ColumnManager = ()=> {
         h(Column, {params: columnArgs})
       ]),
       h('div.map-column', [
-        h(MapView, {currentColumn: columnFeature, setCurrentColumn, margin: 0}),
+        h(MapView, { currentColumn: columnFeature, setCurrentColumn, margin: 0, ...projectParams},
+          h(MeasurementsLayer)
+        )
       ])
     ])
   ])
