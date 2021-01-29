@@ -15,6 +15,7 @@ import {IsotopesColumn} from "./isotopes-column"
 interface IColumnProps {
   data: IUnit[]
   pixelScale?: number
+  isOldestColumn: boolean
 }
 
 const AgeAxis = ({ticks})=>{
@@ -30,7 +31,7 @@ const AgeAxis = ({ticks})=>{
 
 const Section = (props: IColumnProps)=>{
   // Section with "squishy" time scale
-  const {data} = props
+  const {data, isOldestColumn = true} = props
   let {pixelScale} = props
 
   const notesOffset = 100
@@ -50,7 +51,7 @@ const Section = (props: IColumnProps)=>{
     pixelsPerMeter: pixelScale // Actually pixels per myr
   }, [
     h(ColumnSVG, {
-      width: 450,
+      width: 650,
       padding: 20,
       paddingTop: 5
       paddingBottom: 25
@@ -60,13 +61,16 @@ const Section = (props: IColumnProps)=>{
         width: 400,
         columnWidth: 90
       }),
-      h(IsotopesColumn, {parameter: "D13C"})
+      h(IsotopesColumn, {parameter: "D13C", label: "δ¹³C", width: 100, nTicks: 4, showAxis: isOldestColumn}),
+      h(IsotopesColumn, {parameter: "D18O", label: "δ¹⁸O", color: "red", domain: [-40, 0], width: 100, nTicks: 4, showAxis: isOldestColumn})
     ])
   ])
 }
 
-function ColumnInner(props: IColumnProps) {
-  const {data} = props;
+function Column(props: IColumnProps) {
+  const {params} = props
+  const data: IUnit[] = useAPIResult("/units", {all: true, ...params, response: 'long'})
+  if (data == null) return null
 
   let sectionGroups = Array.from(group(data, d=>d.section_id))
 
@@ -74,19 +78,12 @@ function ColumnInner(props: IColumnProps) {
 
   return h("div.column", [
     h("div.age-axis-label", "Age (Ma)")
-    h("div.main-column", sectionGroups.map(([id,values])=>{
+    h("div.main-column", sectionGroups.map(([id,values], i)=>{
       return h(`div.section-${id}`, [
-        h(Section, {data: values})
+        h(Section, {data: values, isOldestColumn: i == sectionGroups.length-1})
       ])
     })
   ])
 }
-
-function Column(props) {
-  const {params} = props
-  const data: IUnit[] = useAPIResult("/units", {all: true, ...params, response: 'long'})
-  if (data == null) return null
-  return h(ColumnInner, {data})
-};
 
 export default Column

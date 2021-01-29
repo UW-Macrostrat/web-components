@@ -17,26 +17,6 @@ const inDomain = (scale, num) => {
   return domain[0] < num < domain[1]
 }
 
-const valueAtStdev = function(opts) {
-  let { system, corrected } = opts
-  if (corrected == null) {
-    corrected = false
-  }
-  if (system == null) {
-    system = "delta13c"
-  }
-  if (corrected) {
-    system += "_corr"
-  }
-  return function(d, s = 0) {
-    let v = d["avg_" + system]
-    if (s !== 0) {
-      v += d["std_" + system] * s
-    }
-    return v
-  }
-}
-
 const createPointLocator = function(opts) {
   const { xScale, scale, getHeight, ...rest } = opts
   return function(d, s = 0) {
@@ -54,8 +34,6 @@ interface DataAreaProps {
 }
 
 const IsotopesDataArea = function(props: DataAreaProps) {
-  const { parameter } = props
-  const { divisions } = useContext(ColumnContext)
   const { xScale, scale } = useContext(ColumnLayoutContext) ?? {}
 
   let { corrected, system, children, getHeight, clipY } = props

@@ -3,15 +3,9 @@ import { useContext } from "react"
 import h from "@macrostrat/hyper"
 import classNames from "classnames"
 import { AxisBottom } from "@vx/axis"
-import { schemeCategory10 } from "d3-scale-chromatic"
 import { useMeasurementData } from "./data-provider"
 
-import {
-  IsotopesDataArea,
-  useDataLocator,
-  IsotopeDataLine,
-  IsotopeDataPoint,
-} from "./data-area"
+import { IsotopesDataArea, useDataLocator, IsotopeDataPoint } from "./data-area"
 
 import {
   CrossAxisLayoutProvider,
@@ -59,14 +53,16 @@ IsotopeText.propTypes = {
 }
 
 function ColumnScale(props) {
-  const { system, ...rest } = props
+  const {
+    label,
+    showAxis = true,
+    nTicks,
+    tickValues: _tickVals,
+    ...rest
+  } = props
   const { xScale, pixelHeight, width } = useContext(ColumnLayoutContext)
-  const label = system === "delta13c" ? "δ¹³C" : "δ¹⁸O"
 
-  let { tickValues } = rest
-  if (tickValues == null) {
-    tickValues = xScale.ticks()
-  }
+  const tickValues = _tickVals ?? xScale.ticks(nTicks)
 
   return h("g.scale.isotope-scale-axis", [
     h(
@@ -76,35 +72,37 @@ function ColumnScale(props) {
         return h(ScaleLine, { value, stroke: "#ddd", strokeDasharray })
       })
     ),
-    h("rect.underlay", {
-      x: 0,
-      y: pixelHeight,
-      width,
-      height: 30,
-    }),
-    h(AxisBottom, {
-      scale: xScale,
-      rangePadding: -4,
-      tickLength: 3,
-      ...rest,
-      top: pixelHeight,
-      tickLabelProps(tickValue, i) {
-        // Compensate for negative sign
-        let dx
-        if (tickValue < 0) {
-          dx = -2
-        }
-        return {
-          dy: "-1px",
-          dx,
-          fontSize: 10,
-          textAnchor: "middle",
-          fill: "#aaa",
-        }
-      },
-      labelOffset: 0,
-      label,
-    }),
+    h.if(showAxis)([
+      h("rect.underlay", {
+        x: 0,
+        y: pixelHeight,
+        width,
+        height: 30,
+      }),
+      h(AxisBottom, {
+        scale: xScale,
+        tickLength: 3,
+        tickValues,
+        ...rest,
+        top: pixelHeight,
+        tickLabelProps(tickValue, i) {
+          // Compensate for negative sign
+          let dx
+          if (tickValue < 0) {
+            dx = -2
+          }
+          return {
+            dy: "-1px",
+            dx,
+            fontSize: 10,
+            textAnchor: "middle",
+            fill: "#aaa",
+          }
+        },
+        labelOffset: 0,
+        label,
+      }),
+    ]),
   ])
 }
 
@@ -131,21 +129,9 @@ ScaleLine.propTypes = {
   labelBottom: T.bool,
 }
 
-function IsotopesColumnInner(props) {
-  let system, transform
-  const { isotopes } = props
-
-  const { divisions } = useContext(ColumnContext)
-  const { xScale, scale } = useContext(ColumnLayoutContext) ?? {}
-  const measures = useMeasurementData() ?? []
-
-  let refMeasures = referenceMeasuresToColumn(divisions, measures)
-  //refMeasures = refMeasures.filter(d => d.)
-
-  console.log(refMeasures)
-
+function unnestPoints(measures) {
   let points = []
-  for (const meas of refMeasures) {
+  for (const meas of measures) {
     const vals = meas.measure_value.map((d, i) => {
       return {
         value: d,
@@ -158,79 +144,62 @@ function IsotopesColumnInner(props) {
     })
     Array.prototype.push.apply(points, vals)
   }
+  return points
+}
 
-  const stroke = "dodgerblue"
+interface IsotopeColumnProps {
+  width: number
+  tickValues?: number[]
+  color: string
+  label: string
+  parameter: string
+  domain: [number, number]
+}
 
-  console.log(points)
+const IsotopesColumn = function(props: IsotopeColumnProps) {
+  const {
+    width = 120,
+    domain = [-14, 6],
+    parameter,
+    label,
+    color = "dodgerblue",
+    ...rest
+  } = props
+  const { divisions } = useContext(ColumnContext)
+  const measures = useMeasurementData() ?? []
+  const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
+    d => d.measurement == parameter
+  )
 
-  return h("g.isotopes-column", { transform }, [
-    h(ColumnScale, { system, tickValues: [-10, -5, 0] }),
-    h(
-      IsotopesDataArea,
-      {
-        getHeight(d) {
-          return d.age
+  const points = unnestPoints(refMeasures)
+
+  return h(
+    CrossAxisLayoutProvider,
+    { width, domain },
+    h("g.isotopes-column", { className: parameter }, [
+      h(ColumnScale, { label: label ?? parameter, ...rest }),
+      h(
+        IsotopesDataArea,
+        {
+          getHeight(d) {
+            return d.age
+          },
         },
-      },
-      [
         h(
           "g.data-points",
           points.map(d => {
             return h(IsotopeDataPoint, {
               datum: d,
-              stroke,
-              strokeWidth: 4,
+              fill: color,
             })
           })
-        ),
-        h.if(props.showLines)(IsotopeDataLine, {
-          values: isotopes,
-          stroke,
-        }),
-      ]
-    ),
-  ])
-}
-
-IsotopesColumnInner.propTypes = {
-  section: T.string.isRequired,
-  isotopes: T.arrayOf(T.object).isRequired,
-}
-
-IsotopesColumnInner.defaultProps = {
-  visible: false,
-  label: "δ¹³C",
-  system: "delta13c",
-  offsetTop: null,
-  colorScheme: schemeCategory10,
-  correctIsotopeRatios: false,
-  padding: {
-    left: 10,
-    top: 10,
-    right: 10,
-    bottom: 30,
-  },
-}
-
-const IsotopesColumn = function(props) {
-  const { width, domain, section, ...rest } = props
-
-  const vals = []
-
-  return h(
-    CrossAxisLayoutProvider,
-    { width, domain },
-    h(IsotopesColumnInner, {
-      isotopes: vals,
-      section,
-      ...rest,
-    })
+        )
+      ),
+    ])
   )
 }
 
 IsotopesColumn.defaultProps = {
-  domain: [-14, 6],
-  width: 120,
   nTicks: 6,
 }
 
