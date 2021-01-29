@@ -144,22 +144,38 @@ function IsotopesColumnInner(props) {
 
   console.log(refMeasures)
 
+  let points = []
+  for (const meas of refMeasures) {
+    const vals = meas.measure_value.map((d, i) => {
+      return {
+        value: d,
+        age: meas.measure_age[i],
+        position: meas.measure_position[i],
+        unit_id: meas.unit_id,
+        sample_id: meas.sample_no[i],
+        measurement: meas.measurement,
+      }
+    })
+    Array.prototype.push.apply(points, vals)
+  }
+
   const stroke = "dodgerblue"
+
+  console.log(points)
 
   return h("g.isotopes-column", { transform }, [
     h(ColumnScale, { system, tickValues: [-10, -5, 0] }),
     h(
       IsotopesDataArea,
       {
-        system,
         getHeight(d) {
-          return d.orig_height
+          return d.age
         },
       },
       [
         h(
           "g.data-points",
-          isotopes.map(d => {
+          points.map(d => {
             return h(IsotopeDataPoint, {
               datum: d,
               stroke,
