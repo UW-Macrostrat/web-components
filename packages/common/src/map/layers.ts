@@ -11,7 +11,7 @@ import { get } from 'axios'
 import { feature } from 'topojson-client'
 import { geoVoronoi } from 'd3-geo-voronoi'
 import { geoCentroid, ExtendedFeature} from "d3-geo"
-import {Polygon} from "geojson"
+import { Polygon } from "geojson"
 
 type ColumnProps = {col_id: number}
 
@@ -65,8 +65,15 @@ function ColumnFeatures(props) {
   })
 }
 
+enum MacrostratStatusCode {
+  InProcess = "in process"
+}
+
+
 interface ColumnNavProps {
   col_id: number;
+  status_code?: MacrostratStatusCode;
+  project_id?: number;
   onChange(col_id: number): void;
 }
 
@@ -175,9 +182,14 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
 const Columns = (props: ColumnNavProps) => {
 
-  const { onChange, col_id = null } = props
+  const { onChange, col_id = null, status_code, project_id } = props
 
-  let features = useAPIResult('/columns', { format: 'topojson', all: true }, processTopoJSON)
+  let all: boolean = undefined
+  if (status_code == null && project_id == null) {
+    all = true
+  }
+
+  let features = useAPIResult('/columns', { format: 'topojson', all, status_code, project_id }, processTopoJSON)
   if (features == null) return null
 
   return h([

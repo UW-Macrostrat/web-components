@@ -2,21 +2,23 @@ import h from "@macrostrat/hyper"
 import { useAPIResult } from "@macrostrat/ui-components"
 import { FeatureLayer } from "@macrostrat/map-components"
 
+const defaultStyle = {
+  fill: "rgb(239, 180, 249)",
+  stroke: "magenta",
+}
+
 const MeasurementsLayer = props => {
+  const { style = defaultStyle, ...params } = props
   const res = useAPIResult("/measurements", {
+    ...params,
     format: "geojson",
-    measure_phase: "zircon",
-    measurement: "207Pb-206Pb",
     response: "light",
   })
   if (res == null) return null
 
   return h(FeatureLayer, {
     useCanvas: false,
-    style: {
-      fill: "rgb(239, 180, 249)",
-      stroke: "magenta",
-    },
+    style,
     features: res.features.filter(d => d.properties.unit_id != null),
   })
 }
