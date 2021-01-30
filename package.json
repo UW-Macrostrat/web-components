@@ -6,8 +6,7 @@
   "scripts": {
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
     "dev": "npm-run-all -l -p dev:core watch:**",
-    "dev:renderer": "parcel serve apps/basic-renderer/index.html",
-    "dev:core": "parcel serve apps/*/index.html apps/index.html",
+    "dev:core": "node run-parcel.js apps/*/index.html apps/index.html",
     "deploy:steno": "./deploy/deploy-steno.sh",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
@@ -31,7 +30,7 @@
     "husky": "^4.3.5",
     "linklocal": "^2.8.2",
     "npm-run-all": "^4.1.5",
-    "parcel-bundler": "^1.12.4",
+    "parcel": "^2.0.0-beta.1",
     "prettier": "^1.19.1",
     "stylus": "^0.54.7",
     "typescript": "^3.9.7"
