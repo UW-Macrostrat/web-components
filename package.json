@@ -6,7 +6,7 @@
   "scripts": {
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
     "dev": "npm-run-all -l -p dev:core watch:**",
-    "dev:core": "node run-parcel.js apps/*/index.html apps/index.html",
+    "dev:core": "parcel serve apps/*/index.html apps/index.html",
     "deploy:steno": "./deploy/deploy-steno.sh",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
