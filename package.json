@@ -43,6 +43,7 @@
     "@macrostrat/column-components": "file:./packages/column-components",
     "@macrostrat/hyper": "^1.2.11",
     "@macrostrat/map-components": "file:./packages/map-components",
+    "@macrostrat/timescale": "file:./packages/timescale",
     "@macrostrat/ui-components": "file:./packages/ui-components",
     "@react-hook/size": "^2.1.1",
     "@types/react": "^16.14.2",

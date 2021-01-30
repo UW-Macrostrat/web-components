@@ -7,3 +7,6 @@
 [submodule "bundledDeps/map-components"]
 	path = packages/map-components
 	url = git://github.com/UW-Macrostrat/map-components.git
+[submodule "packages/timescale"]
+	path = packages/timescale
+	url = https://github.com/UW-Macrostrat/timescale
