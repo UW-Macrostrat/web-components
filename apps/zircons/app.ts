@@ -9,7 +9,7 @@ import {
 } from "@macrostrat/ui-components"
 import { GeologicPatternProvider } from "@macrostrat/column-components"
 import Column, { IUnit } from "./column"
-import patterns from "url:../../geologic-patterns/*.png"
+import patterns from "../../geologic-patterns/*.png"
 import { DetritalColumn } from "./detrital"
 import { ColumnMapNavigator, MeasurementsLayer } from "common/column-map"
 import { ColumnDataProvider, useColumnData } from "./column-data"

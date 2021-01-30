@@ -10,7 +10,7 @@ import { GeologicPatternProvider } from "@macrostrat/column-components"
 import Column from "./column"
 import { ColumnMapNavigator, MeasurementsLayer } from "common/column-map"
 import { MeasurementDataProvider } from "./data-provider"
-import patterns from "url:../../geologic-patterns/*.png"
+import patterns from "../../geologic-patterns/*.png"
 
 const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name)

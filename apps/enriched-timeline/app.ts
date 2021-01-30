@@ -12,7 +12,7 @@ import {
 import { GeologicPatternProvider } from "@macrostrat/column-components"
 import Column, { IUnit } from "../section-renderer/column"
 import MapView from "common/map"
-import patterns from "url:../../geologic-patterns/*.png"
+import patterns from "../../geologic-patterns/*.png"
 
 const renderResults = (data: Array<IUnit>) => {
   return h(Column, { data })
