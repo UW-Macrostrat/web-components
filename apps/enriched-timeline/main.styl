@@ -104,6 +104,19 @@ div.context-map
   .land
     background-color rgb(233, 252, 234)
 
+div.section
+  display flex
+  flex-direction row
+  div.timescale
+    padding 5px 0
+    width 10em
+    .interval-box
+      width: 12px
+    .interval
+      &:last-child
+        flex-grow 1
+
+
 @media (prefers-color-scheme: dark)
   body
     display block

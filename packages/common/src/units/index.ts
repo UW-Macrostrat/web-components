@@ -1,5 +1,5 @@
-import h from '@macrostrat/hyper'
-import { useContext } from 'react'
+import h from "@macrostrat/hyper"
+import { useContext } from "react"
 import {
   LithologyColumn,
   LithologySymbolDefs,
@@ -7,10 +7,10 @@ import {
   ColumnLayoutContext,
   GeologicPatternContext,
   useUUID,
-} from '@macrostrat/column-components'
-import { IUnit } from './types'
-import { resolveID, scalePattern } from './resolvers'
-import UnitNamesColumn from './names'
+} from "@macrostrat/column-components"
+import { IUnit } from "./types"
+import { resolveID, scalePattern } from "./resolvers"
+import UnitNamesColumn from "./names"
 
 interface UnitProps {
   division: IUnit
@@ -30,9 +30,9 @@ const Unit = (props: UnitProps) => {
   const patternID = resolveID(d)
   const v = resolvePattern(patternID)
 
-  const fill = v != null ? `url(#${UUID}-${patternID})` : '#aaa'
+  const fill = v != null ? `url(#${UUID}-${patternID})` : "#aaa"
 
-  return h('rect.unit', {
+  return h("rect.unit", {
     x: 0,
     y,
     width,
@@ -48,10 +48,10 @@ const UnitBoxes = props => {
   const { divisions } = useContext(ColumnContext)
   const UUID = useUUID()
 
-  return h('g.divisions', [
+  return h("g.divisions", [
     h(LithologySymbolDefs, { resolveID, UUID, scalePattern }),
     h(
-      'g',
+      "g",
       divisions.map(div => {
         return h(Unit, {
           division: div,
@@ -63,11 +63,11 @@ const UnitBoxes = props => {
   ])
 }
 
-const UnitsColumn = props => {
+const UnitsColumn = ({ width = 100 }) => {
   /*
   A column showing units with USGS color fill
   */
-  return h(LithologyColumn, { width: 100 }, [h(UnitBoxes)])
+  return h(LithologyColumn, { width }, [h(UnitBoxes)])
 }
 
 interface ICompositeUnitProps {

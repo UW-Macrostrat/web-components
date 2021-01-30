@@ -10,7 +10,7 @@ import {
   setQueryString,
 } from "@macrostrat/ui-components"
 import { GeologicPatternProvider } from "@macrostrat/column-components"
-import Column, { IUnit } from "../section-renderer/column"
+import Column, { IUnit } from "./column"
 import MapView from "common/map"
 import patterns from "../../geologic-patterns/*.png"
 
