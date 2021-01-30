@@ -1,36 +1,37 @@
-import h from "@macrostrat/hyper";
-import { useRef, useEffect, useState } from "react";
-import { Interval, NestedInterval, TimescaleOrientation } from "../types";
-import { useTimescale } from "../provider";
+import h from "@macrostrat/hyper"
+import { useRef, useEffect, useState } from "react"
+import { Interval, NestedInterval, TimescaleOrientation } from "../types"
+import { useTimescale } from "../provider"
 
 type SizeState = {
-  label: number;
-  container: number;
-};
+  label: number
+  container: number
+}
 
 function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
-  const { interval: d, showLabel = true } = props;
+  const { interval: d, showLabel = true } = props
 
-  const containerRef = useRef<HTMLElement>();
-  const labelRef = useRef<HTMLElement>();
-  const [sizes, setSizes] = useState<SizeState | null>(null);
+  const containerRef = useRef<HTMLElement>()
+  const labelRef = useRef<HTMLElement>()
+  const [sizes, setSizes] = useState<SizeState | null>(null)
 
-  const { orientation } = useTimescale();
+  const { orientation } = useTimescale()
   const key =
-    orientation == TimescaleOrientation.HORIZONTAL ? "width" : "height";
+    orientation == TimescaleOrientation.HORIZONTAL ? "width" : "height"
   useEffect(() => {
-    const container = containerRef.current?.getBoundingClientRect()[key];
-    const label = labelRef.current?.getBoundingClientRect()[key];
-    if (container == null || sizes == null) return;
-    setSizes({ container, label });
-  }, [containerRef, labelRef]);
+    const container = containerRef.current?.getBoundingClientRect()[key]
+    const label = labelRef.current?.getBoundingClientRect()[key]
+    //if (container == null) return
+    console.log({ container, label })
+    setSizes({ container, label })
+  }, [containerRef, labelRef])
 
-  let labelText = d.nam;
+  let labelText = d.nam
   if (sizes != null) {
-    if (sizes.container < 10) {
-      labelText = "";
+    if (sizes.container < 20) {
+      labelText = ""
     } else if (sizes.label > sizes.container) {
-      labelText = d.nam[0];
+      labelText = d.nam[0]
     }
   }
 
@@ -40,61 +41,61 @@ function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
     h.if(showLabel)("span.interval-label", [
       h("span.interval-label-text", { ref: labelRef }, labelText),
     ])
-  );
+  )
 }
 
 function IntervalChildren({ children }) {
-  if (children == null || children.length == 0) return null;
+  if (children == null || children.length == 0) return null
   return h(
     "div.children",
-    children.map((d) => {
-      return h(TimescaleBoxes, { interval: d });
+    children.map(d => {
+      return h(TimescaleBoxes, { interval: d })
     })
-  );
+  )
 }
 
 function ensureIncreasingAgeRange(ageRange) {
-  return [Math.min(...ageRange), Math.max(...ageRange)];
+  return [Math.min(...ageRange), Math.max(...ageRange)]
 }
 
 function TimescaleBoxes(props: { interval: NestedInterval }) {
-  const { interval } = props;
-  const { scale, orientation, levels, ageRange } = useTimescale();
-  const { eag, lag, lvl } = interval;
+  const { interval } = props
+  const { scale, orientation, levels, ageRange } = useTimescale()
+  const { eag, lag, lvl } = interval
 
   // If we don't have an ageRange and scale, we don't specify the length.
-  let length = null;
+  let length = null
 
   // This age range extends further than any realistic constraints
-  const expandedAgeRange = ensureIncreasingAgeRange(ageRange) ?? [-50, 5000];
+  const expandedAgeRange = ensureIncreasingAgeRange(ageRange) ?? [-50, 5000]
 
   // If we have a scale, give us the boundaries clipped to the age range if appropriate
   if (scale != null) {
-    const startAge = Math.min(expandedAgeRange[1], eag);
-    const endAge = Math.max(expandedAgeRange[0], lag);
-    length = Math.abs(scale(startAge) - scale(endAge));
+    const startAge = Math.min(expandedAgeRange[1], eag)
+    const endAge = Math.max(expandedAgeRange[0], lag)
+    length = Math.abs(scale(startAge) - scale(endAge))
   }
 
-  let style = {};
+  let style = {}
   if (orientation == TimescaleOrientation.HORIZONTAL) {
-    style["width"] = length;
+    style["width"] = length
   } else {
-    style["height"] = length;
+    style["height"] = length
   }
 
-  const [minLevel, maxLevel] = levels ?? [0, 5];
+  const [minLevel, maxLevel] = levels ?? [0, 5]
 
-  const { children, nam: name } = interval;
+  const { children, nam: name } = interval
 
   // Don't render if we are fully outside the age range of interest
-  if (eag < expandedAgeRange[0]) return null;
-  if (lag > expandedAgeRange[1]) return null;
+  if (eag < expandedAgeRange[0]) return null
+  if (lag > expandedAgeRange[1]) return null
 
   return h("div.interval", { className: name, style }, [
     h.if(lvl >= minLevel)(IntervalBox, { interval }),
     h.if(lvl < maxLevel)(IntervalChildren, { children }),
-  ]);
+  ])
 }
 
-export { TimescaleBoxes };
-export * from "./cursor";
+export { TimescaleBoxes }
+export * from "./cursor"
