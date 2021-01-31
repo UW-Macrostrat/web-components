@@ -1,27 +1,28 @@
-import { useContext, createContext } from "react"
-import h, { compose } from "@macrostrat/hyper"
+import { useContext, createContext, useState, useCallback } from "react"
+import h, { compose, C } from "@macrostrat/hyper"
 import { ColumnContext } from "../context"
 import { GeologicPattern, GeologicPatternContext } from "./patterns"
 import { UUIDProvider, useUUID } from "../frame"
 
-interface LithologySymbolCtx {
-  resolveID(div: any): string
+interface PatternDefsCtx {
+  trackPattern(id: string): void
 }
 
-const LithologySymbolContext = createContext<LithologySymbolCtx | null>(null)
+const PatternDefsContext = createContext<PatternDefsCtx | null>(null)
 
-const LithologySymbolDefs = function(props) {
-  let { resolveID, UUID, scalePattern } = props
-  const { divisions: allDivisions } = useContext(ColumnContext)
-  const divisions = props.divisions ?? allDivisions
+interface GeologicPatternProps {
+  patternIDs: Set<string | -1>
+  scalePattern?(_: string): number
+  UUID?: string
+}
 
-  let patternIDs = divisions.map(d => resolveID(d))
-  // deduplicate pattern IDs
-  patternIDs = Array.from(new Set(patternIDs))
+const GeologicPatternDefs = function(props: GeologicPatternProps) {
+  let { patternIDs, scalePattern } = props
+  const UUID = props.UUID ?? useUUID()
 
   return h(
     "defs",
-    patternIDs.map(function(id, i) {
+    Array.from(patternIDs).map(function(id, i) {
       if (id === -1) {
         return null
       }
@@ -40,39 +41,62 @@ const LithologySymbolDefs = function(props) {
   )
 }
 
+const LithologySymbolDefs = function(props) {
+  let { resolveID, UUID, scalePattern } = props
+  const { divisions: allDivisions } = useContext(ColumnContext)
+  const divisions = props.divisions ?? allDivisions
+
+  let patternIDs = divisions.map(d => resolveID(d))
+  // deduplicate pattern IDs
+  patternIDs = Array.from(new Set(patternIDs))
+
+  return h(GeologicPatternDefs, { UUID, scalePattern, patternIDs })
+}
+
 type LithProviderProps = React.PropsWithChildren<LithologySymbolCtx>
 
-function LithologyPatternProvider_(props: LithProviderProps) {
+function PatternDefsProvider(props: LithProviderProps) {
   /** A next-generation provider for lithology patterns in the context of an SVG.
    *  We should consider generalizing this further to work without needing the "resolveID" function.
    */
-  const { resolveID, scalePattern, children } = props
-  const value = { resolveID }
-  const UUID = useUUID()
+  const { scalePattern, children } = props
+  const [patternIDs, setPatternIDs] = useState<Set<string>>(new Set())
+
+  const trackPattern = useCallback(
+    (p: string) => {
+      if (patternIDs.has(p)) return
+      console.log("Tracking pattern", p)
+      let newSet = new Set(patternIDs)
+      newSet.add(p)
+      setPatternIDs(newSet)
+    },
+    [patternIDs]
+  )
+
+  const value = { trackPattern }
+  const Provider = compose(
+    UUIDProvider,
+    C(PatternDefsContext.Provider, { value })
+  )
+
   return h(
-    LithologySymbolContext.Provider,
-    { value },
+    Provider,
+    null,
     h("g.patterns", [
-      h(LithologySymbolDefs, { resolveID, scalePattern, UUID }),
+      h(GeologicPatternDefs, { scalePattern, patternIDs }),
       children,
     ])
   )
 }
 
-const LithologyPatternProvider = compose(
-  UUIDProvider,
-  LithologyPatternProvider_
-)
-
-function useLithologyPattern(d: any, fallback: string = "#aaa") {
+function useGeologicPattern(patternID: string, fallback: string = "#aaa") {
   const { resolvePattern } = useContext(GeologicPatternContext)
-  const ctx = useContext(LithologySymbolContext)
+  const ctx = useContext(PatternDefsContext)
   const UUID = useUUID()
-  if (ctx == null) return fallback
-  const patternID = ctx.resolveID(d)
   let v = resolvePattern(patternID)
-  console.log("Resolving pattern")
-  return v != null ? `url(#${UUID}-${patternID})` : fallback
+  if (v == null) return fallback
+  ctx?.trackPattern(patternID)
+  return `url(#${UUID}-${patternID})`
 }
 
-export { LithologyPatternProvider, useLithologyPattern, LithologySymbolDefs }
+export { PatternDefsProvider, useGeologicPattern, LithologySymbolDefs }
