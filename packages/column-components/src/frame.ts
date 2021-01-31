@@ -1,12 +1,10 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import { Component, createElement, useState } from "react"
+import {
+  Component,
+  createElement,
+  useContext,
+  createContext,
+  useRef,
+} from "react"
 import h from "react-hyperscript"
 import { path } from "d3-path"
 import { ColumnLayoutContext } from "./context"
@@ -20,7 +18,14 @@ class UUIDComponent extends Component {
   }
 }
 
-const useUUID = () => useState(v4())[0]
+const UUIDContext = createContext<string | null>(null)
+
+const useUUID = () => useContext(UUIDContext) ?? v4()
+
+function UUIDProvider({ children }) {
+  const ref = useRef<string>(v4())
+  return h(UUIDContext.Provider, { value: ref.current, children })
+}
 
 class SimpleFrame extends Component {
   static initClass() {
@@ -58,14 +63,14 @@ class GrainsizeFrame extends Component {
 
     const [bottomOfSection, topOfSection] = scale.domain()
 
-    const topOf = function (d) {
+    const topOf = function(d) {
       let { top } = d
       if (top > topOfSection) {
         top = topOfSection
       }
       return scale(top)
     }
-    const bottomOf = function (d) {
+    const bottomOf = function(d) {
       let { bottom } = d
       if (bottom < bottomOfSection) {
         bottom = bottomOfSection
@@ -73,7 +78,7 @@ class GrainsizeFrame extends Component {
       return scale(bottom)
     }
 
-    const filteredDivisions = divisions.filter(function (d) {
+    const filteredDivisions = divisions.filter(function(d) {
       if (d.top <= bottomOfSection) {
         return false
       }
@@ -109,7 +114,7 @@ class GrainsizeFrame extends Component {
 }
 GrainsizeFrame.initClass()
 
-const ClipPath = function (props) {
+const ClipPath = function(props) {
   let { id, children, ...rest } = props
   if (id.startsWith("#")) {
     id = id.slice(1)
@@ -117,7 +122,7 @@ const ClipPath = function (props) {
   return createElement("clipPath", { id, key: id, ...rest }, children)
 }
 
-const UseFrame = function (props) {
+const UseFrame = function(props) {
   const { id: frameID, ...rest } = props
   return h("use.frame", {
     xlinkHref: frameID,
@@ -127,7 +132,7 @@ const UseFrame = function (props) {
   })
 }
 
-const prefixID = function (uuid, prefixes) {
+const prefixID = function(uuid, prefixes) {
   const res = {}
   for (let prefix of Array.from(prefixes)) {
     res[prefix + "ID"] = `#${uuid}-${prefix}`
@@ -135,7 +140,7 @@ const prefixID = function (uuid, prefixes) {
   return res
 }
 
-const widthOrFrame = function (props, propName) {
+const widthOrFrame = function(props, propName) {
   const { width, frame } = props
   const widthExists = width != null
   const frameExists = frame != null
@@ -175,7 +180,7 @@ class ClipToFrame extends UUIDComponent {
     let { children, frame, className, onClick } = this.props
     if (frame == null) {
       const { width } = this.props
-      frame = (props) => h(SimpleFrame, { width, ...props })
+      frame = props => h(SimpleFrame, { width, ...props })
     }
 
     const transform = this.computeTransform()
@@ -205,5 +210,6 @@ export {
   ClipPath,
   UUIDComponent,
   ClipToFrame,
+  UUIDProvider,
   useUUID,
 }
