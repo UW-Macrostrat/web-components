@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper"
-import { useContext, ReactNode } from "react"
+import { useContext, ReactNode, useRef, useEffect, useState } from "react"
 import {
   ColumnContext,
   ColumnLayoutContext,
@@ -41,13 +41,44 @@ const Unit = (props: UnitProps) => {
   })
 }
 
+interface ElementSize {
+  width: number
+  height: number
+}
+
+function refSize(ref: React.RefObject<HTMLElement>): ElementSize {
+  const { width, height } = ref.current?.getBoundingClientRect()
+  return { width, height }
+}
+
+function SizeAwareLabel(props) {
+  /** A label that only renders if it fits within its container div */
+  const { label, ...rest } = props
+  const containerRef = useRef<HTMLElement>()
+  const labelRef = useRef<HTMLElement>()
+  const [fits, setFits] = useState<boolean | null>(null)
+  useEffect(() => {
+    const containerSz = refSize(containerRef)
+    const labelSz = refSize(labelRef)
+    setFits(
+      labelSz.width <= containerSz.width && labelSz.height <= containerSz.height
+    )
+  }, [containerRef, labelRef])
+
+  return h(
+    "div.unit-overlay",
+    { ...rest, ref: containerRef },
+    h.if(fits ?? true)("span.unit-label", { ref: labelRef }, label)
+  )
+}
+
 function LabeledUnit(props) {
   const { division, label } = props
   const bounds = useUnitRect(division)
-  const {x,y,...size} = bounds
+  const { x, y, ...size } = bounds
   return h("g.labeled-unit", [
-    h(Unit, { division })
-    h(ForeignObject, bounds, h("div.unit-overlay", { style: size }, h("span.unit-label", label)))
+    h(Unit, { division }),
+    h(ForeignObject, bounds, h(SizeAwareLabel, { style: size, label })),
   ])
 }
 
