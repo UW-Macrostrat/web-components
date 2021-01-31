@@ -4,7 +4,7 @@ import { NoteLayoutContext } from "./layout"
 import { HeightRangeAnnotation } from "./height-range"
 import { ForeignObject } from "../util"
 
-const NotePositioner = forwardRef(function (props, ref) {
+const NotePositioner = forwardRef(function(props, ref) {
   let { offsetY, noteHeight, children } = props
   const { width, paddingLeft } = useContext(NoteLayoutContext)
   if (noteHeight == null) {
@@ -42,12 +42,12 @@ const NotePositioner = forwardRef(function (props, ref) {
   )
 })
 
-const findIndex = function (note) {
+const findIndex = function(note) {
   const { notes } = useContext(NoteLayoutContext)
   return notes.indexOf(note)
 }
 
-const NoteConnector = function (props) {
+const NoteConnector = function(props) {
   let { note, node, index } = props
   // Try to avoid scanning for index if we can
   if (index == null) {
