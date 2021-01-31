@@ -1,7 +1,5 @@
-import { useState } from "react"
-import { isEqual } from "underscore"
+import { useState, useEffect } from "react"
 import h from "@macrostrat/hyper"
-import { ButtonGroup, Button } from "@blueprintjs/core"
 import {
   APIProvider,
   APIResultView,
@@ -10,8 +8,8 @@ import {
   setQueryString,
 } from "@macrostrat/ui-components"
 import { GeologicPatternProvider } from "@macrostrat/column-components"
+import { ColumnMapNavigator } from "common/column-map"
 import Column, { IUnit } from "./column"
-import MapView from "common/map"
 import patterns from "../../geologic-patterns/*.png"
 
 const renderResults = (data: Array<IUnit>) => {
@@ -35,59 +33,49 @@ const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name)
 }
 
-const ColumnManager = () => {
-  const defaultArgs = { col_id: 495 }
+function useColumnNav(defaultArgs = { col_id: 495 }) {
   const initArgs = getQueryString() ?? defaultArgs
   const [columnArgs, setColumnArgs] = useState(initArgs)
 
-  const colParams = { ...columnArgs, format: "geojson" }
-  const res = useAPIResult("/columns", colParams, [columnArgs])
-  const columnFeature = res?.features[0]
+  useEffect(() => setQueryString(columnArgs))
+
+  const { col_id, ...projectParams } = columnArgs
 
   const setCurrentColumn = obj => {
     let args = obj
     if ("properties" in obj) {
-      args = { col_id: obj.properties.col_id }
+      args = { col_id: obj.properties.col_id, ...projectParams }
     }
     // Set query string
     setQueryString(args)
     setColumnArgs(args)
   }
 
-  const DefaultButton = ({ args, children }) => {
-    const onClick = () => setCurrentColumn(args)
-    return h(Button, { onClick, disabled: isEqual(columnArgs, args) }, children)
-  }
+  return [columnArgs, setCurrentColumn]
+}
+
+const ColumnManager = () => {
+  const defaultArgs = { col_id: 495 }
+  const [currentColumn, setCurrentColumn] = useColumnNav(defaultArgs)
+  const { col_id, ...projectParams } = currentColumn
+
+  const colParams = { ...currentColumn, format: "geojson" }
+  const res = useAPIResult("/columns", colParams, [currentColumn])
+  const columnFeature = res?.features[0]
 
   // 495
   return h("div.column-ui", [
     h("div.column-view", [
       h(ColumnTitle, { data: columnFeature?.properties }),
-      h(ColumnView, { params: columnArgs }),
+      h(ColumnView, { params: currentColumn }),
     ]),
-    h("div.column-sidebar", [
-      h("div.column-nav", [
-        h("h3", "Column navigator"),
-        h(MapView, { currentColumn: columnFeature, setCurrentColumn }),
-        h("h3", "Selected examples"),
-        h(
-          ButtonGroup,
-          {
-            vertical: true,
-            minimal: true,
-            alignText: "left",
-            className: "default-buttons",
-          },
-          [
-            h(DefaultButton, { args: defaultArgs }, "Paradox Basin"),
-            h(
-              DefaultButton,
-              { args: { project_id: 4, status_code: "in process" } },
-              "IODP Test"
-            ),
-          ]
-        ),
-      ]),
+    h("div.map-column", [
+      h(ColumnMapNavigator, {
+        currentColumn: columnFeature,
+        setCurrentColumn,
+        margin: 0,
+        ...projectParams,
+      }),
     ]),
   ])
 }
