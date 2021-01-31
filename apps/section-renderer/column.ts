@@ -8,7 +8,7 @@ import {
   ColumnContext,
   NotesColumn,
 } from "@macrostrat/column-components"
-import { CompositeUnitsColumn } from "common/units"
+import { SimpleUnitsColumn } from "common/units"
 import { IUnit } from "common/units/types"
 import { useContext } from "react"
 
@@ -61,7 +61,7 @@ const Section = (props: IColumnProps) => {
         },
         [
           h(AgeAxis),
-          h(CompositeUnitsColumn, {
+          h(SimpleUnitsColumn, {
             width: 400,
             columnWidth: 90,
           }),

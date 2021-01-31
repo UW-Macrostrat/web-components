@@ -1,12 +1,16 @@
 import h from "@macrostrat/hyper"
 import { useContext } from "react"
-
-import { ColumnContext, NotesColumn } from "@macrostrat/column-components"
-//import {INote} from '@macrostrat/column-components/src/notes/index.d.ts'
-
-interface UnitNamesProps {
+import {
+  ColumnContext,
+  NotesColumn,
+  NotesColumnProps,
+} from "@macrostrat/column-components"
+import { INote } from "@macrostrat/column-components"
+import { IUnit } from "./types"
+interface UnitNamesProps extends NotesColumnProps {
   left?: number
-  nameForDivision(object): string
+  transform: string
+  nameForDivision?(obj: IUnit): string
 }
 
 const NoteComponent = props => {
@@ -15,18 +19,29 @@ const NoteComponent = props => {
   return h("p.col-note-label", text)
 }
 
+const noteForDivision = (
+  unitNameFn: (a: IUnit) => string
+): ((div: IUnit) => INote) => div => {
+  return {
+    height: div.b_age,
+    top_height: div.t_age,
+    note: unitNameFn(div),
+    id: div.unit_id,
+  }
+}
+
+const defaultNameFunction = div => {
+  return div.unit_name
+    .replace("Mbr", "Member")
+    .replace("Fm", "Formation")
+    .replace("Gp", "Group")
+}
+
 const UnitNamesColumn = (props: UnitNamesProps) => {
-  const { left, nameForDivision, ...rest } = props
+  const { left, nameForDivision = defaultNameFunction, ...rest } = props
   const { divisions } = useContext(ColumnContext)
 
-  const notes: INote[] = divisions.map((div, i) => {
-    return {
-      height: div.b_age,
-      top_height: div.t_age,
-      note: nameForDivision(div),
-      id: i,
-    }
-  })
+  const notes: INote[] = divisions.map(noteForDivision(nameForDivision))
 
   return h(NotesColumn, {
     transform: `translate(${left || 0})`,
@@ -40,13 +55,4 @@ const UnitNamesColumn = (props: UnitNamesProps) => {
   })
 }
 
-UnitNamesColumn.defaultProps = {
-  nameForDivision: div => {
-    return div.unit_name
-      .replace("Mbr", "Member")
-      .replace("Fm", "Formation")
-      .replace("Gp", "Group")
-  },
-}
-
-export default UnitNamesColumn
+export { UnitNamesColumn }
