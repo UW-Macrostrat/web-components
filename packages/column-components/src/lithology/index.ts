@@ -14,7 +14,8 @@ import {
   ColumnLayoutContext,
   ColumnLayoutProvider,
 } from "../context"
-import { GeologicPattern } from "./patterns.ts"
+import { GeologicPattern } from "./patterns"
+import { LithologySymbolDefs } from "./column-patterns"
 
 // Malformed es6 module
 let v = require("react-svg-textures")
@@ -39,7 +40,7 @@ const symbolIndex = {
   quartzite: 702,
 }
 
-const isCarbonateSymbol = function (d) {
+const isCarbonateSymbol = function(d) {
   /*
   Does this FGDC pattern correspond to a carbonate rock?
   */
@@ -52,7 +53,7 @@ const isCarbonateSymbol = function (d) {
   return true
 }
 
-const defaultResolveID = function (d) {
+const defaultResolveID = function(d) {
   // Changed pattern to lithology
   if (d == null) {
     return null
@@ -66,7 +67,7 @@ const defaultResolveID = function (d) {
   return `${symbolIndex[d.pattern]}`
 }
 
-const carbonateResolveID = function (d) {
+const carbonateResolveID = function(d) {
   // Just whether a carbonate or not
   v = defaultResolveID(d)
   if (v == null) {
@@ -79,7 +80,7 @@ const carbonateResolveID = function (d) {
   }
 }
 
-const __divisionSize = function (d) {
+const __divisionSize = function(d) {
   let { bottom, top } = d
   if (top < bottom) {
     ;[top, bottom] = [bottom, top]
@@ -117,7 +118,7 @@ class ColumnRect extends Component {
 }
 ColumnRect.initClass()
 
-const expandDivisionsByKey = function (divisions, key) {
+const expandDivisionsByKey = function(divisions, key) {
   const __ = [{ ...divisions[0] }]
   for (let d of Array.from(divisions)) {
     const ix = __.length - 1
@@ -134,7 +135,7 @@ const expandDivisionsByKey = function (divisions, key) {
   }
 }
 
-const ParameterIntervals = function (props) {
+const ParameterIntervals = function(props) {
   const { divisions, width } = useContext(ColumnLayoutContext)
   const { padWidth, parameter: key, fillForInterval, minimumHeight } = props
   const newDivisions = expandDivisionsByKey(divisions, key)
@@ -144,7 +145,7 @@ const ParameterIntervals = function (props) {
   return h(
     "g",
     { className: key },
-    newDivisions.map((div) =>
+    newDivisions.map(div =>
       h(ColumnRect, {
         className: classNames(key, div.id),
         division: div,
@@ -162,7 +163,7 @@ ParameterIntervals.propTypes = {
   fillForInterval: T.func.isRequired,
 }
 
-const FaciesColumnInner = function (props) {
+const FaciesColumnInner = function(props) {
   const { getFaciesColor } = useContext(FaciesContext)
   return h(ParameterIntervals, {
     parameter: "facies",
@@ -179,7 +180,7 @@ class CoveredOverlay extends UUIDComponent {
   render() {
     const { divisions, width } = this.context
     const fill = `url(#${this.UUID}-covered)`
-    const coveredDivs = divisions.filter((d) => d.covered)
+    const coveredDivs = divisions.filter(d => d.covered)
 
     return h("g.covered-overlay", {}, [
       h("defs", [
@@ -192,47 +193,12 @@ class CoveredOverlay extends UUIDComponent {
       ]),
       h(
         "g.main",
-        coveredDivs.map((d) => {
+        coveredDivs.map(d => {
           return h(ColumnRect, { division: d, width, fill })
         })
       ),
     ])
   }
-}
-
-const LithologySymbolDefs = function (props) {
-  let { resolveID, divisions, UUID, scalePattern } = props
-  if (scalePattern == null) {
-    scalePattern = () => 1
-  }
-  if (divisions == null) {
-    ;({ divisions } = useContext(ColumnContext))
-  }
-
-  const __ = divisions
-    .map((d) => resolveID(d))
-    .filter((x, i, arr) => arr.indexOf(x) === i)
-
-  return h(
-    "defs",
-    __.map(function (id, i) {
-      if (id === -1) {
-        return null
-      }
-      let sz = 100
-      if (scalePattern != null) {
-        const scalar = scalePattern(id)
-        sz *= scalar
-      }
-      return h(GeologicPattern, {
-        key: i,
-        prefix: UUID,
-        id,
-        width: sz,
-        height: sz,
-      })
-    })
-  )
 }
 
 class LithologyBoxes extends UUIDComponent {
@@ -370,7 +336,7 @@ class LithologyColumn extends Component {
 }
 LithologyColumn.initClass()
 
-const simplifiedResolveID = function (d) {
+const simplifiedResolveID = function(d) {
   const p = symbolIndex[d.fill_pattern]
   if (p != null) {
     return p
@@ -384,13 +350,13 @@ const simplifiedResolveID = function (d) {
   }
 }
 
-const SimplifiedLithologyColumn = (props) =>
+const SimplifiedLithologyColumn = props =>
   h(LithologyColumnInner, {
     resolveID: simplifiedResolveID,
     ...props,
   })
 
-const GeneralizedSectionColumn = function (props) {
+const GeneralizedSectionColumn = function(props) {
   let { children, frame, ...rest } = props
   if (frame == null) {
     frame = GrainsizeFrame
@@ -406,13 +372,14 @@ const GeneralizedSectionColumn = function (props) {
   )
 }
 
-const CarbonateDivisions = (props) =>
+const CarbonateDivisions = props =>
   h(LithologyColumnInner, {
     resolveID: carbonateResolveID,
     ...props,
   })
 
 export * from "./patterns"
+export * from "./column-patterns"
 export {
   ParameterIntervals,
   LithologyColumn,
@@ -420,7 +387,6 @@ export {
   GeneralizedSectionColumn,
   defaultResolveID,
   FaciesColumnInner,
-  LithologySymbolDefs,
   LithologyColumnInner,
   CarbonateDivisions,
   SimplifiedLithologyColumn,
