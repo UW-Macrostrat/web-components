@@ -43,13 +43,19 @@ const LithologySymbolDefs = function(props) {
 type LithProviderProps = React.PropsWithChildren<LithologySymbolCtx>
 
 function LithologyPatternProvider_(props: LithProviderProps) {
-  const { resolveID } = props
+  /** A next-generation provider for lithology patterns in the context of an SVG.
+   *  We should consider generalizing this further to work without needing the "resolveID" function.
+   */
+  const { resolveID, scalePattern, children } = props
   const value = { resolveID }
   const UUID = useUUID()
   return h(
     LithologySymbolContext.Provider,
     { value },
-    h([h(LithologySymbolDefs, { resolveID, UUID }), children])
+    h("g.patterns", [
+      h(LithologySymbolDefs, { resolveID, scalePattern, UUID }),
+      children,
+    ])
   )
 }
 
@@ -65,6 +71,7 @@ function useLithologyPattern(d: any, fallback: string = "#aaa") {
   if (ctx == null) return fallback
   const patternID = ctx.resolveID(d)
   let v = resolvePattern(patternID)
+  console.log("Resolving pattern")
   return v != null ? `url(#${UUID}-${patternID})` : fallback
 }
 
