@@ -14,7 +14,7 @@ import Box from "ui-box"
 
 const NoteEditorContext = createContext({ inEditMode: false })
 
-const NoteTextEditor = function(props) {
+const NoteTextEditor = function (props) {
   const { updateModel } = useModelEditor()
   const { note } = props
   return h(EditableText, {
@@ -32,7 +32,7 @@ NoteTextEditor.propTypes = {
   note: NoteShape.isRequired,
 }
 
-const NoteEditorProvider = function(props) {
+const NoteEditorProvider = function (props) {
   let { children, inEditMode, noteEditor } = props
   const { notes } = useContext(NoteLayoutContext)
   if (inEditMode == null) {
@@ -41,15 +41,15 @@ const NoteEditorProvider = function(props) {
 
   const [editingNote, setState] = useState(null)
 
-  const setEditingNote = val => setState(val)
+  const setEditingNote = (val) => setState(val)
 
-  const deleteNote = function() {
+  const deleteNote = function () {
     const val = editingNote
     setState(null)
     return props.onDeleteNote(val)
   }
 
-  const onCreateNote = function(pos) {
+  const onCreateNote = function (pos) {
     const { height, top_height } = pos
     const val = { height, top_height, note: null, symbol: null }
     return setState(val)
@@ -64,7 +64,7 @@ const NoteEditorProvider = function(props) {
     onCreateNote,
   }
 
-  const onConfirmChanges = function(n) {
+  const onConfirmChanges = function (n) {
     if (n == null) {
       return
     }
@@ -100,7 +100,7 @@ NoteEditorProvider.propTypes = {
   onDeleteNote: T.func.isRequired,
 }
 
-const NoteConnectorPath = function(props) {
+const NoteConnectorPath = function (props) {
   const { d, offsetX, className } = props
   return h("path", {
     d,
@@ -110,7 +110,7 @@ const NoteConnectorPath = function(props) {
   })
 }
 
-const EditableNoteConnector = function(props) {
+const EditableNoteConnector = function (props) {
   const {
     notes,
     nodes,
@@ -149,7 +149,7 @@ const EditableNoteConnector = function(props) {
   ])
 }
 
-const PointHandle = function(props) {
+const PointHandle = function (props) {
   let { height, size, className, ...rest } = props
   className = classNames("handle point-handle", className)
   if (size == null) {
@@ -175,7 +175,7 @@ const PointHandle = function(props) {
   )
 }
 
-var PositionEditorInner = function(props) {
+var PositionEditorInner = function (props) {
   let updateModel
   let { note, margin } = props
   if (margin == null) {
@@ -197,7 +197,7 @@ var PositionEditorInner = function(props) {
     height = Math.abs(topHeight - bottomHeight)
   }
 
-  const moveEntireNote = function(e, data) {
+  const moveEntireNote = function (e, data) {
     const { y } = data
     // Set note height
     const spec = { height: { $set: scale.invert(y + height) } }
@@ -208,7 +208,7 @@ var PositionEditorInner = function(props) {
     return updateModel(spec)
   }
 
-  const moveTop = function(e, data) {
+  const moveTop = function (e, data) {
     const spec = { top_height: { $set: scale.invert(data.y) } }
     if (Math.abs(data.y - bottomHeight) < 2) {
       spec.top_height = { $set: null }
@@ -216,7 +216,7 @@ var PositionEditorInner = function(props) {
     return updateModel(spec)
   }
 
-  const moveBottom = function(e, data) {
+  const moveBottom = function (e, data) {
     const spec = { height: { $set: scale.invert(data.y) } }
     if (Math.abs(data.y - topHeight) < 2) {
       spec.top_height = { $set: null }
@@ -262,7 +262,7 @@ var PositionEditorInner = function(props) {
   ])
 }
 
-const NoteEditorUnderlay = function({ padding }) {
+const NoteEditorUnderlay = function ({ padding }) {
   const { width } = useContext(NoteLayoutContext)
   const { setEditingNote } = useContext(NoteEditorContext)
   return h(NoteRect, {
@@ -272,7 +272,7 @@ const NoteEditorUnderlay = function({ padding }) {
   })
 }
 
-const NoteEditor = function(props) {
+const NoteEditor = function (props) {
   const { allowPositionEditing } = props
   const { noteEditor } = useContext(NoteEditorContext)
   const { notes, nodes, elementHeights, createNodeForNote } = useContext(

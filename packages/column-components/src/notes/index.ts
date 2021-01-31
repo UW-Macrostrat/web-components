@@ -27,7 +27,7 @@ interface NoteComponentProps {
   onClick(): void
 }
 
-const NoteComponent = function(props: NoteComponentProps) {
+const NoteComponent = function (props: NoteComponentProps) {
   const { visibility, note, onClick } = props
   const text = note.note
   return h(
@@ -45,7 +45,7 @@ NoteComponent.propTypes = {
   note: NoteShape.isRequired,
 }
 
-const CancelEditUnderlay = function() {
+const CancelEditUnderlay = function () {
   const { setEditingNote } = useContext(NoteEditorContext)
   const { confirmChanges } = useModelEditor()
   return h(NoteUnderlay, {
@@ -151,7 +151,7 @@ interface StaticNotesProps {
   noteComponent?: React.Component<NoteComponentProps>
 }
 
-const StaticNotesColumn = function(props: StaticNotesProps) {
+const StaticNotesColumn = function (props: StaticNotesProps) {
   const { width, paddingLeft, transform, notes, noteComponent } = props
 
   const innerWidth = width - paddingLeft
@@ -189,7 +189,7 @@ interface NotesColumnProps extends StaticNotesProps {
   editable: boolean
 }
 
-const NotesColumn = function(props: NotesColumnProps) {
+const NotesColumn = function (props: NotesColumnProps) {
   const { editable = true, ...rest } = props
   const c = editable ? EditableNotesColumn : StaticNotesColumn
   return h(c, rest)
