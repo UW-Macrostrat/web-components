@@ -5,6 +5,7 @@ import {
   ColumnLayoutContext,
   PatternDefsProvider,
   useGeologicPattern,
+  ForeignObject,
 } from "@macrostrat/column-components"
 import { IUnit } from "./types"
 import { resolveID, scalePattern } from "./resolvers"
@@ -16,27 +17,38 @@ interface UnitProps {
   children?: ReactNode
 }
 
-const Unit = (props: UnitProps) => {
-  const { division: d, children } = props
+function useUnitRect(division: IUnit) {
   const { scale } = useContext(ColumnContext)
   const { width } = useContext(ColumnLayoutContext)
+  const y = scale(division.t_age)
+  const height = scale(division.b_age) - y
+  return { x: 0, y, height, width }
+}
+
+const Unit = (props: UnitProps) => {
+  const { division: d, children } = props
+  const bounds = useUnitRect(d)
   const patternID = resolveID(d)
   const fill = useGeologicPattern(patternID, "#aaa")
 
-  const y = scale(d.t_age)
-  const height = scale(d.b_age) - y
-
   return h("rect.unit", {
-    x: 0,
-    y,
-    width,
-    height,
+    ...bounds,
     fill,
     onMouseOver() {
       console.log(d)
     },
     children,
   })
+}
+
+function LabeledUnit(props) {
+  const { division, label } = props
+  const bounds = useUnitRect(division)
+  const {x,y,...size} = bounds
+  return h("g.labeled-unit", [
+    h(Unit, { division })
+    h(ForeignObject, bounds, h("div.unit-overlay", { style: size }, h("span.unit-label", label)))
+  ])
 }
 
 function UnitBoxes(props) {
@@ -56,4 +68,4 @@ function UnitBoxes(props) {
   )
 }
 
-export { Unit, UnitBoxes, UnitProps }
+export { Unit, UnitBoxes, UnitProps, LabeledUnit }

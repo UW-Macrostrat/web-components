@@ -4,10 +4,10 @@ import {
   PatternDefsProvider,
   ColumnContext,
 } from "@macrostrat/column-components"
-import { UnitNamesColumn } from "./names"
+import { defaultNameFunction, UnitNamesColumn } from "./names"
 import { useContext } from "react"
 import { resolveID, scalePattern } from "./resolvers"
-import { Unit } from "./boxes"
+import { Unit, LabeledUnit } from "./boxes"
 export interface ICompositeUnitProps {
   width: number
   columnWidth: number
@@ -16,6 +16,7 @@ export interface ICompositeUnitProps {
 }
 
 function CompositeBoxes(props) {
+  const { nameForDivision = defaultNameFunction } = props
   const { divisions } = useContext(ColumnContext)
 
   return h(
@@ -24,8 +25,9 @@ function CompositeBoxes(props) {
     h(
       "g.divisions",
       divisions.map(div => {
-        return h(Unit, {
+        return h(LabeledUnit, {
           division: div,
+          label: nameForDivision(div),
         })
       })
     )
@@ -42,6 +44,7 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
   return h([
     h(LithologyColumn, { width: columnWidth }, [h(CompositeBoxes)]),
     h(UnitNamesColumn, {
+      nameForDivision: defaultNameFunction,
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
       width: width - columnWidth - gutterWidth,

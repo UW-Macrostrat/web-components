@@ -65,6 +65,24 @@ g.height-range
   .neatline
     stroke-width 1.5px
 
+.labeled-unit div.unit-overlay
+  font-size 10px
+  font-style: italic
+  display flex
+  align-items center
+  justify-content: center
+  span.unit-label
+    display block
+    text-shadow:
+      0px 0px 2px #ffffff,
+      0px 0px 2px #ffffff,
+      0px 0px 2px #ffffff,
+      0px 0px 2px #ffffff,
+      0px 0px 2px #ffffff,
+      0px 0px 2px #ffffff,
+      0px 0px 2px #ffffff,
+      0px 0px 2px #ffffff;
+
 div.column-ui
   padding: 1em
   width 100vw
@@ -120,7 +138,6 @@ div.section
     .interval
       &:last-child
         flex-grow 1
-
 
 @media (prefers-color-scheme: dark)
   body

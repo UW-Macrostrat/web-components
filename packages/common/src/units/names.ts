@@ -55,4 +55,4 @@ const UnitNamesColumn = (props: UnitNamesProps) => {
   })
 }
 
-export { UnitNamesColumn }
+export { UnitNamesColumn, defaultNameFunction }
