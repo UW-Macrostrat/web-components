@@ -65,7 +65,6 @@ function PatternDefsProvider(props: LithProviderProps) {
   const trackPattern = useCallback(
     (p: string) => {
       if (patternIDs.has(p)) return
-      console.log("Tracking pattern", p)
       let newSet = new Set(patternIDs)
       newSet.add(p)
       setPatternIDs(newSet)
