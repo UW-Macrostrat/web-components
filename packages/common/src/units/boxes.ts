@@ -58,6 +58,8 @@ function LabeledUnit(props: LabeledUnitProps) {
       ForeignObject,
       bounds,
       h(SizeAwareLabel, {
+        className: "unit-overlay",
+        labelClassName: "unit-label",
         style: size,
         label,
         onVisibilityChanged(viz) {

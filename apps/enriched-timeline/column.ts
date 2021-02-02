@@ -74,15 +74,15 @@ const Section = (props: IColumnProps) => {
       h(
         ColumnSVG,
         {
-          width: 450,
+          width: 650,
           padding: 20,
           paddingLeft: 1,
           paddingV: 5,
         },
         [
           h(CompositeUnitsColumn, {
-            width: 400,
-            columnWidth: 180,
+            width: 600,
+            columnWidth: 280,
             gutterWidth: 0,
           }),
         ]
