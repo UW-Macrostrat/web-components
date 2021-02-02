@@ -58,12 +58,29 @@ export interface ICompositeUnitProps {
   labelOffset?: number
 }
 
+interface ExtendedUnit extends IUnit {
+  bottomOverlap: boolean
+}
+
+const extendDivisions = (divisions: IUnit[]) => (unit: IUnit) => {
+  const overlappingUnits = divisions.filter(
+    d =>
+      d.unit_id != unit.unit_id &&
+      !(unit.t_age > d.b_age && unit.b_age < d.t_age)
+  )
+  console.log(unit, overlappingUnits)
+
+  return unit
+}
+
 function CompositeBoxes(props: {
   divisions: IUnit[]
   nameForDivision?(division: IUnit): string
 }) {
   const { divisions, nameForDivision = defaultNameFunction } = props
   const trackLabelVisibility = useContext(LabelTrackerContext)
+
+  //const refinedDivisions = divisions.map(extendDivisions(divisions))
 
   return h(
     PatternDefsProvider,
@@ -74,9 +91,7 @@ function CompositeBoxes(props: {
         return h(LabeledUnit, {
           division: div,
           label: nameForDivision(div),
-          //isShown: labelVisibility[div.unit_id] ?? true,
           onLabelUpdated(label, visible) {
-            console.log(label, visible)
             trackLabelVisibility(div, visible)
           },
         })

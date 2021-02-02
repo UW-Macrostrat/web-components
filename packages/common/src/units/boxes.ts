@@ -16,6 +16,7 @@ interface UnitProps {
   division: IUnit
   resolveID(IUnit): string
   UUID: string
+  defaultFill?: string
   children?: ReactNode
 }
 
@@ -28,10 +29,10 @@ function useUnitRect(division: IUnit) {
 }
 
 const Unit = (props: UnitProps) => {
-  const { division: d, children } = props
+  const { division: d, children, defaultFill = "transparent" } = props
   const bounds = useUnitRect(d)
   const patternID = resolveID(d)
-  const fill = useGeologicPattern(patternID, "#aaa")
+  const fill = useGeologicPattern(patternID, defaultFill)
 
   return h("rect.unit", {
     ...bounds,
@@ -45,6 +46,7 @@ const Unit = (props: UnitProps) => {
 
 interface LabeledUnitProps extends SizeAwareLabelProps {
   division: IUnit
+  label: string
   onLabelUpdated?(label: string, shown: boolean)
 }
 
