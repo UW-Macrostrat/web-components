@@ -2,6 +2,7 @@ import h from "@macrostrat/hyper"
 import { useRef, useEffect, useState } from "react"
 import { Interval, NestedInterval, TimescaleOrientation } from "../types"
 import { useTimescale } from "../provider"
+import { SizeAwareLabel } from "@macrostrat/column-components"
 
 type SizeState = {
   label: number
@@ -11,37 +12,21 @@ type SizeState = {
 function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
   const { interval: d, showLabel = true } = props
 
-  const containerRef = useRef<HTMLElement>()
-  const labelRef = useRef<HTMLElement>()
-  const [sizes, setSizes] = useState<SizeState | null>(null)
+  const [labelText, setLabelText] = useState<string>(d.nam)
 
-  const { orientation } = useTimescale()
-  const key =
-    orientation == TimescaleOrientation.HORIZONTAL ? "width" : "height"
-  useEffect(() => {
-    const container = containerRef.current?.getBoundingClientRect()[key]
-    const label = labelRef.current?.getBoundingClientRect()[key]
-    //if (container == null) return
-    console.log({ container, label })
-    setSizes({ container, label })
-  }, [containerRef, labelRef])
-
-  let labelText = d.nam
-  if (sizes != null) {
-    if (sizes.container < 20) {
-      labelText = ""
-    } else if (sizes.label > sizes.container) {
-      labelText = d.nam[0]
-    }
-  }
-
-  return h(
-    "div.interval-box",
-    { key: d.oid, style: { backgroundColor: d.col }, ref: containerRef },
-    h.if(showLabel)("span.interval-label", [
-      h("span.interval-label-text", { ref: labelRef }, labelText),
-    ])
-  )
+  return h(SizeAwareLabel, {
+    key: d.oid,
+    style: { backgroundColor: d.col },
+    className: "interval-box",
+    labelClassName: "interval-label",
+    label: labelText,
+    onVisibilityChanged(viz) {
+      if (!viz && labelText.length > 1) {
+        console.log("Trying to shorten label")
+        setLabelText(labelText[0])
+      }
+    },
+  })
 }
 
 function IntervalChildren({ children }) {

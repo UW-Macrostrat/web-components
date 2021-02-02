@@ -38,6 +38,7 @@
   },
   "dependencies": {
     "@macrostrat/hyper": "^1.2.11",
+    "@macrostrat/column-components": "^0.8.2",
     "@types/classnames": "^2.2.10",
     "@types/d3-array": "^2.0.0",
     "@vx/axis": "0.0.198",
