@@ -13,8 +13,13 @@ function refSize(ref: React.RefObject<HTMLElement>): ElementSize {
 
 type SizeAwareLabelProps = React.HTMLProps<"div"> & {
   label: React.ReactNode
+  labelClassName: string
   isShown?: boolean
-  onVisibilityChanged?(fits: boolean): void
+  onVisibilityChanged?(
+    fits: boolean,
+    containerSize: ElementSize,
+    labelSize: ElementSize
+  ): void
 }
 
 function SizeAwareLabel(props: SizeAwareLabelProps) {
@@ -27,7 +32,14 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
    * be used by itself when you need to report back whether the label was
    * rendered or not (e.g., so you can render it in another location).
    */
-  const { label, isShown, onVisibilityChanged, ...rest } = props
+  const {
+    label,
+    isShown,
+    onVisibilityChanged,
+    className,
+    labelClassName,
+    ...rest
+  } = props
   const containerRef = useRef<HTMLElement>()
   const labelRef = useRef<HTMLElement>()
   const [fits, setFits] = useState<boolean | null>(null)
@@ -37,23 +49,27 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
     const doesFit =
       labelSz.width <= containerSz.width && labelSz.height <= containerSz.height
     setFits(doesFit)
-  }, [containerRef, labelRef])
+  }, [containerRef, labelRef, label])
 
   // Report whether label fits upwards, if needed
   useEffect(() => {
     if (fits == null) return
-    onVisibilityChanged?.(fits)
+    onVisibilityChanged?.(fits, refSize(containerRef), refSize(labelRef))
   }, [fits])
 
   const shouldShow = isShown ?? fits ?? true
 
   return h(
-    "div.unit-overlay",
-    { ...rest, ref: containerRef },
+    "div.label-container",
+    { ...rest, className, ref: containerRef },
     h(
-      "span.unit-label",
-      { ref: labelRef, style: { visibility: shouldShow ? null : "hidden" } },
-      label
+      "span.label",
+      {
+        className: labelClassName,
+        ref: labelRef,
+        style: { visibility: shouldShow ? "visible" : "hidden" },
+      },
+      h("span.label-text", null, label)
     )
   )
 }
