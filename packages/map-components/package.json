@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-components",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "React components for vector maps",
   "keywords": [
     "gis",
@@ -139,7 +139,7 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@macrostrat/hyper": "^1.2.10",
+    "@macrostrat/hyper": "^1.2.11",
     "@macrostrat/ui-components": "^0.4.4",
     "@types/d3-array": "^2.0.0",
     "@types/d3-drag": "^1.2.3",
