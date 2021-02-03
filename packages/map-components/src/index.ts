@@ -1,7 +1,7 @@
 import React, { Component, useContext, createRef, createElement } from 'react'
 import { findDOMNode } from 'react-dom'
 import { addClassNames } from '@macrostrat/hyper'
-import { StatefulComponent } from '@macrostrat/ui-components/lib/cjs/util/stateful'
+import { StatefulComponent } from '@macrostrat/ui-components/lib/esm/util/stateful'
 import h from './hyper'
 import { MapContext } from './context'
 import { DraggableOverlay } from './drag-interaction'

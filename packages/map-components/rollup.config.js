@@ -7,22 +7,28 @@ import pkg from './package.json'
 
 const extensions = ['.js', '.ts']
 const deps = { ...pkg.dependencies, ...pkg.peerDependencies }
+const external = [...Object.keys(deps), '@macrostrat/ui-components/lib/esm/util/stateful']
+
+const outputParams = {
+  preserveModules: true,
+  preserveModulesRoot: 'src',
+  sourcemap: true,
+  entryFileNames: '[name].js',
+  exports: 'auto',
+}
 
 export default {
   input: 'src/index.ts',
-  preserveModules: true,
   output: [
-    { dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js', exports: 'auto' },
+    { dir: pkg.main, format: 'cjs', ...outputParams },
     {
       dir: pkg.module,
       format: 'esm',
-      sourcemap: true,
-      entryFileNames: '[name].js',
-      exports: 'auto',
+      ...outputParams,
     },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: Object.keys(deps),
+  external,
   watch: {
     include: 'src/**',
   },
