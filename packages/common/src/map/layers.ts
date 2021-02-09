@@ -140,7 +140,13 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   Feature to enable keyboard navigation of columns using a
   delaunay triangulation
   */
-  const { features = [], col_id = null, onChange, showLayers = false } = props
+  const {
+    features = [],
+    col_id = null,
+    onChange,
+    showLayers = false,
+    ...projectArgs
+  } = props
   const { projection } = useContext(MapContext)
   const { centroids, tri } = useMemo(() => buildTriangulation(features), [
     features,
@@ -162,7 +168,7 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
       if (nextColumnIx == null) return
       const { col_id } = features[nextColumnIx].properties
       console.log(`Loading column ${col_id}`)
-      onChange({ col_id })
+      onChange({ col_id, ...projectArgs })
     }
 
     document.addEventListener("keydown", listener)
@@ -197,8 +203,14 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   ])
 }
 
-const Columns = (props: ColumnNavProps) => {
-  const { onChange, col_id = null, status_code, project_id } = props
+const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
+  const {
+    apiRoute = "/columns",
+    onChange,
+    col_id = null,
+    status_code,
+    project_id,
+  } = props
 
   let all: boolean = undefined
   if (status_code == null && project_id == null) {
@@ -206,16 +218,26 @@ const Columns = (props: ColumnNavProps) => {
   }
 
   let features = useAPIResult(
-    "/columns",
+    apiRoute,
     { format: "topojson", all, status_code, project_id },
     processTopoJSON
   )
   if (features == null) return null
 
   return h([
-    h(ColumnKeyboardNavigation, { features, col_id, onChange }),
+    h(ColumnKeyboardNavigation, {
+      features,
+      col_id,
+      onChange,
+      status_code,
+      project_id,
+    }),
     h(ColumnFeatures, { features, onClick: onChange }),
   ])
+}
+
+const ColumnCenters = (props: ColumnNavProps) => {
+  return h(Columns, { apiRoute: "/defs/columns", ...props })
 }
 
 const CurrentColumn = props => {
@@ -230,4 +252,4 @@ const CurrentColumn = props => {
   })
 }
 
-export { Land, Columns, CurrentColumn, processTopoJSON }
+export { Land, Columns, CurrentColumn, processTopoJSON, ColumnCenters }

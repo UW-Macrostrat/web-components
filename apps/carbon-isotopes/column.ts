@@ -7,7 +7,7 @@ import {
   ColumnAxis,
   ColumnContext,
 } from "@macrostrat/column-components"
-import { CompositeUnitsColumn } from "common/units"
+import { SimpleUnitsColumn } from "common/units"
 import { IUnit } from "common/units/types"
 import { useContext } from "react"
 import { IsotopesColumn } from "./isotopes-column"
@@ -63,7 +63,7 @@ const Section = (props: IColumnProps) => {
         },
         [
           h(AgeAxis),
-          h(CompositeUnitsColumn, {
+          h(SimpleUnitsColumn, {
             width: 400,
             columnWidth: 90,
           }),
