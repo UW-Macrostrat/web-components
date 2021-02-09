@@ -6,12 +6,12 @@
   "scripts": {
     "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
     "dev": "npm-run-all -l -p dev:core watch:**",
-    "dev:renderer": "parcel serve apps/basic-renderer/index.html",
     "dev:core": "parcel serve apps/*/index.html apps/index.html",
     "deploy:steno": "./deploy/deploy-steno.sh",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
     "watch:column": "npm --prefix packages/column-components run watch",
+    "watch:timescale": "npm --prefix packages/timescale run watch",
     "build": "parcel build --public-url . index.html",
     "deploy": "./deploy/deploy.sh",
     "clean": "rm -rf .cache dist"
@@ -43,6 +43,7 @@
     "@macrostrat/column-components": "file:./packages/column-components",
     "@macrostrat/hyper": "^1.2.11",
     "@macrostrat/map-components": "file:./packages/map-components",
+    "@macrostrat/timescale": "file:./packages/timescale",
     "@macrostrat/ui-components": "file:./packages/ui-components",
     "@react-hook/size": "^2.1.1",
     "@types/react": "^16.14.2",

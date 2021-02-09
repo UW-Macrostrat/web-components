@@ -1,6 +1,5 @@
 import h from "@macrostrat/hyper"
 import { group } from "d3-array"
-//import {ColumnProvider} from "@macrostrat/column-components/dist/cjs/context/column"
 import {
   ColumnProvider,
   ColumnSVG,
@@ -9,9 +8,11 @@ import {
   ColumnContext,
   NotesColumn,
 } from "@macrostrat/column-components"
-import { CompositeUnitsColumn } from "./column-data"
+import { CompositeUnitsColumn } from "common/units"
 import { IUnit } from "common/units/types"
 import { useContext } from "react"
+import { Timescale, TimescaleOrientation } from "@macrostrat/timescale"
+import "@macrostrat/timescale/dist/timescale.css"
 
 interface IColumnProps {
   data: IUnit[]
@@ -37,10 +38,10 @@ const Section = (props: IColumnProps) => {
   const notesOffset = 100
 
   const range = [data[data.length - 1].b_age, data[0].t_age]
+  const dAge = range[0] - range[1]
 
   if (!pixelScale) {
     // Make up a pixel scale
-    const dAge = range[0] - range[1]
     const targetHeight = 20 * data.length
     pixelScale = Math.ceil(targetHeight / dAge)
   }
@@ -56,15 +57,33 @@ const Section = (props: IColumnProps) => {
       h(
         ColumnSVG,
         {
-          width: 450,
+          width: 30,
           padding: 20,
-          paddingV: 15,
+          paddingV: 5,
+        },
+        [h(AgeAxis)]
+      ),
+      h(Timescale, {
+        orientation: TimescaleOrientation.VERTICAL,
+        length: dAge * pixelScale,
+        levels: [2, 5],
+        absoluteAgeScale: true,
+        showAgeAxis: false,
+        ageRange: range,
+      }),
+      h(
+        ColumnSVG,
+        {
+          width: 650,
+          padding: 20,
+          paddingLeft: 1,
+          paddingV: 5,
         },
         [
-          h(AgeAxis),
           h(CompositeUnitsColumn, {
-            width: 400,
-            columnWidth: 90,
+            width: 600,
+            columnWidth: 280,
+            gutterWidth: 0,
           }),
         ]
       ),
@@ -74,7 +93,6 @@ const Section = (props: IColumnProps) => {
 
 const Column = (props: IColumnProps) => {
   const { data } = props
-  if (data == null) return null
 
   let sectionGroups = Array.from(group(data, d => d.section_id))
 
@@ -85,7 +103,7 @@ const Column = (props: IColumnProps) => {
     h(
       "div.main-column",
       sectionGroups.map(([id, values]) => {
-        return h(`div.section-${id}`, [h(Section, { data: values })])
+        return h(`div.section.section-${id}`, [h(Section, { data: values })])
       })
     ),
   ])
