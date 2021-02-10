@@ -1,16 +1,18 @@
 import { createContext, useState, useContext, Context } from "react";
 import h from "react-hyperscript";
 import { memoize } from "underscore";
-import axios, { AxiosPromise } from "axios";
+import axios, { AxiosPromise, AxiosInstance, AxiosRequestConfig } from "axios";
 import useAsyncEffect from "use-async-effect";
 import { debounce } from "underscore";
-import { APIConfig, APIOptions, ResponseUnwrapper } from "./types";
-import { buildQueryURL, QueryParams } from "../util/query-string";
+import { APIConfig, APIConfigOptions, ResponseUnwrapper } from "./types";
+import { QueryParams } from "../util/query-string";
 
-type APIBase = { baseURL: string };
-type APIContextValue = APIConfig & APIBase;
-type APIProviderProps = APIBase &
-  APIOptions & {
+type APIBase = { baseURL: string; axiosInstance: AxiosInstance };
+type APIContextValue = APIBase & {
+  config: APIConfig;
+};
+type APIProviderProps = Partial<APIConfig> &
+  Partial<AxiosRequestConfig> & {
     context?: Context<APIContextValue>;
     children?: React.ReactChild;
   };
@@ -31,13 +33,19 @@ const apiDefaults: APIConfig = {
   }
 };
 
+const defaultAxios = axios.create();
+
 function createAPIContext(
   defaultProps: Partial<APIContextValue> = {}
 ): APIContextType {
   return createContext<APIContextValue>({
-    baseURL: "",
-    ...apiDefaults,
-    ...defaultProps
+    baseURL: defaultAxios.defaults.baseURL ?? "",
+    // We use Axios's in-built context functionality
+    axiosInstance: defaultAxios,
+    config: {
+      ...apiDefaults,
+      ...defaultProps
+    }
   });
 }
 
@@ -71,20 +79,13 @@ async function handleResult(promise: AxiosPromise, route, url, method, opts) {
 
 const APIHelpers = (ctx: APIContextValue) => ({
   buildURL(route: string = "", params = {}) {
-    const { baseURL } = ctx;
-    if (
-      !(
-        route.startsWith(baseURL) ||
-        route.startsWith("http") ||
-        route.startsWith("//")
-      )
-    ) {
-      route = baseURL + route;
-    }
-    return buildQueryURL(route, params);
+    return ctx.axiosInstance.getUri({
+      url: route,
+      params
+    });
   },
-  processOptions(opts: APIOptions = {}): APIConfig {
-    let o1: APIConfig = { ...ctx, ...opts };
+  processOptions(opts: APIConfigOptions = {}): APIConfig {
+    let o1: APIConfig = { ...ctx.config, ...opts };
     if (o1.fullResponse) o1.unwrapResponse = apiDefaults.unwrapResponse;
     return o1;
   }
@@ -95,22 +96,27 @@ interface APIActions {
     route: string,
     params: QueryParams,
     payload: any,
-    opts: APIOptions
+    opts: APIConfigOptions
   ): Promise<any | null>;
-  post(route: string, payload: any, opts?: APIOptions): Promise<any | null>;
+  post(
+    route: string,
+    payload: any,
+    opts?: APIConfigOptions
+  ): Promise<any | null>;
   get(
     route: string,
     params: QueryParams,
-    opts: APIOptions
+    opts: APIConfigOptions
   ): Promise<any | null>;
-  get(route: string, opts?: APIOptions): Promise<any | null>;
+  get(route: string, opts?: APIConfigOptions): Promise<any | null>;
 }
 
 const APIActions = (ctx: APIContextValue): APIActions => {
   const { processOptions, buildURL } = APIHelpers(ctx);
+  const { axiosInstance } = ctx;
   return {
     post(route: string, ...args) {
-      let opts: APIOptions, params: QueryParams, payload: any;
+      let opts: APIConfigOptions, params: QueryParams, payload: any;
       if (args.length === 3) {
         [params, payload, opts] = args;
       } else if (args.length === 2) {
@@ -120,28 +126,32 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       } else {
         throw "No data to post";
       }
+      params = params ?? {};
 
-      const url = buildURL(route, params ?? {});
+      const url = buildURL(route, params);
       opts = processOptions(opts ?? {});
 
-      return handleResult(axios.post(url, payload), route, url, "POST", opts);
+      const req = axiosInstance.post(route, payload, { params });
+
+      return handleResult(req, route, url, "POST", opts);
     },
     get(route: string, ...args) {
-      let params: QueryParams, opts: APIOptions;
+      let params: QueryParams, opts: APIConfigOptions;
       if (args.length == 1) {
         [opts] = args;
       } else if (args.length == 2) {
         [params, opts] = args;
       }
+      params = params ?? {};
 
-      const url = buildURL(route, params ?? {});
+      const url = buildURL(route, params);
       opts = processOptions(opts ?? {});
 
-      let fn = axios.get;
-      if (opts.memoize) {
-        fn = memoize(axios.get);
-      }
-      return handleResult(fn(url), route, url, "GET", opts);
+      const { get } = axiosInstance;
+      const fn = opts.memoize ? memoize(get) : get;
+
+      const req = fn(url, { params });
+      return handleResult(req, route, url, "GET", opts);
     }
   };
 };
@@ -151,9 +161,35 @@ const APIProvider = (props: APIProviderProps) => {
 
   can pass an alternative API context using "context" param
   */
-  const { children, context, ...rest } = props;
-  const value = { ...apiDefaults, ...rest };
-  return h((context ?? APIContext).Provider, { value }, children);
+  const {
+    children,
+    context = APIContext,
+    // These should maybe be reworked into a legacy options set...
+    fullResponse,
+    handleError,
+    memoize,
+    onError,
+    onResponse,
+    unwrapResponse,
+    ...axiosConfig
+  } = props;
+
+  const axiosInstance = axios.create(axiosConfig);
+
+  const value = {
+    axiosInstance,
+    baseURL: axiosInstance.defaults.baseURL ?? "",
+    config: {
+      ...apiDefaults,
+      fullResponse,
+      handleError,
+      memoize,
+      onError,
+      onResponse,
+      unwrapResponse
+    }
+  };
+  return h(context.Provider, { value }, children);
 };
 
 const useAPIActions = (ctx: APIContextType = APIContext) => {
@@ -170,6 +206,10 @@ type APIHookOpts = Partial<
     context?: APIContextType;
   }
 >;
+
+function useAxiosInstance(context: APIContextType = APIContext) {
+  return useContext(context).axiosInstance;
+}
 
 const useAPIResult = function<T>(
   route: string | null,
@@ -205,6 +245,7 @@ const useAPIResult = function<T>(
 
 export {
   createAPIContext,
+  useAxiosInstance,
   APIContext,
   APIProvider,
   APIActions,

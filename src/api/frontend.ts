@@ -10,7 +10,7 @@ import { Spinner } from "@blueprintjs/core";
 import ReactJson from "react-json-view";
 import { APIContext, APIActions, APIHelpers } from "./provider";
 import { debounce } from "underscore";
-import { APIOptions } from "./types";
+import { APIConfig } from "./types";
 import { QueryParams } from "../util/query-string";
 
 const APIViewContext = createContext<APIViewCTX<any> | null>(null);
@@ -48,7 +48,7 @@ type APIViewProps<T> = {
 interface APIResultProps<T> extends APIViewProps<T> {
   onSuccess: (d: T) => void;
   debounce: number;
-  opts?: APIOptions;
+  opts?: Partial<APIConfig>;
 }
 
 type APIResultState<T> = { data: T; isLoading: boolean };
