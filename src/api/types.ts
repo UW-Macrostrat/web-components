@@ -9,4 +9,4 @@ export interface APIConfig {
   unwrapResponse: ResponseUnwrapper;
 }
 
-export type APIOptions = Partial<APIConfig>;
+export type APIConfigOptions = Partial<APIConfig>;
