@@ -71,8 +71,10 @@ const [
 // Deprecated: this is kind of confusing
 const updateSettings = function(func) {
   // Update settings using `immutability-helper` semantics
+  // @ts-ignore
   const updater = useSettingsUpdater();
   return function() {
+    // @ts-ignore
     return updater(func(...arguments));
   };
 };
