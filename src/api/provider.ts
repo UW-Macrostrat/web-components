@@ -1,7 +1,12 @@
 import { createContext, useState, useContext, Context } from "react";
 import h from "react-hyperscript";
 import { memoize } from "underscore";
-import axios, { AxiosPromise, AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, {
+  AxiosPromise,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse
+} from "axios";
 import useAsyncEffect from "use-async-effect";
 import { debounce } from "underscore";
 import { APIConfig, APIConfigOptions, ResponseUnwrapper } from "./types";
@@ -11,10 +16,11 @@ type APIBase = { baseURL: string; axiosInstance: AxiosInstance };
 type APIContextValue = APIBase & {
   config: APIConfig;
 };
-type APIProviderProps = Partial<APIConfig> &
+type APIProviderProps = APIConfigOptions &
   Partial<AxiosRequestConfig> & {
     context?: Context<APIContextValue>;
     children?: React.ReactChild;
+    config?: APIConfigOptions;
   };
 
 type APIContextType = Context<APIContextValue>;
@@ -49,31 +55,50 @@ function createAPIContext(
   });
 }
 
+enum APIMethod {
+  POST = "POST",
+  GET = "GET"
+}
+
 const APIContext = createAPIContext();
 
-async function handleResult(promise: AxiosPromise, route, url, method, opts) {
-  let res;
-  const { onError } = opts;
+interface APIRequestInfo {
+  route: string;
+  params: QueryParams;
+  method: APIMethod;
+  opts?: APIConfigOptions;
+}
+
+async function handleResult(
+  ctx: APIContextValue,
+  request: AxiosPromise,
+  info: APIRequestInfo
+) {
+  const { processOptions, buildURL } = APIHelpers(ctx);
+  const { opts, method, params, route } = info;
+  const cfg = processOptions(opts);
+
+  let res: AxiosResponse | null = null;
+  let error: Error | null = null;
   try {
-    res = await promise;
-    opts.onResponse(res);
-    const { data } = res;
-    if (data == null) {
-      throw res.error || "No data!";
-    }
-    return opts.unwrapResponse(data);
+    res = await request;
+    cfg.onResponse(res);
+    if (res.data != null) return cfg.unwrapResponse(res.data);
   } catch (err) {
-    if (!opts.handleError) {
-      throw err;
-    }
-    console.error(err);
-    onError(route, {
-      error: err,
+    error = err;
+  }
+  error = error ?? Error(res.statusText || "No data!");
+  if (cfg.handleError) {
+    // Log errors if we're not throwing
+    console.error(error);
+    cfg.onError(error, {
+      error: error,
       response: res,
-      endpoint: url,
+      endpoint: buildURL(route, params),
       method
     });
-    return null;
+  } else {
+    throw error;
   }
 }
 
@@ -112,7 +137,6 @@ interface APIActions {
 }
 
 const APIActions = (ctx: APIContextValue): APIActions => {
-  const { processOptions, buildURL } = APIHelpers(ctx);
   const { axiosInstance } = ctx;
   return {
     post(route: string, ...args) {
@@ -128,12 +152,9 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       }
       params = params ?? {};
 
-      const url = buildURL(route, params);
-      opts = processOptions(opts ?? {});
-
       const req = axiosInstance.post(route, payload, { params });
-
-      return handleResult(req, route, url, "POST", opts);
+      const info = { route, params, method: APIMethod.POST, opts };
+      return handleResult(ctx, req, info);
     },
     get(route: string, ...args) {
       let params: QueryParams, opts: APIConfigOptions;
@@ -144,14 +165,12 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       }
       params = params ?? {};
 
-      const url = buildURL(route, params);
-      opts = processOptions(opts ?? {});
-
       const { get } = axiosInstance;
       const fn = opts.memoize ? memoize(get) : get;
 
-      const req = fn(url, { params });
-      return handleResult(req, route, url, "GET", opts);
+      const request = fn(route, { params });
+      const info = { route, params, method: APIMethod.GET, opts };
+      return handleResult(ctx, request, info);
     }
   };
 };
@@ -164,6 +183,7 @@ const APIProvider = (props: APIProviderProps) => {
   const {
     children,
     context = APIContext,
+    config = {},
     // These should maybe be reworked into a legacy options set...
     fullResponse,
     handleError,
@@ -176,18 +196,32 @@ const APIProvider = (props: APIProviderProps) => {
 
   const axiosInstance = axios.create(axiosConfig);
 
+  const legacyConfig = {
+    fullResponse,
+    handleError,
+    memoize,
+    onError,
+    onResponse,
+    unwrapResponse
+  };
+
+  let configHandler = {
+    // Get configuration values from whichever place they might reside
+    get: function(target, name) {
+      return (
+        target[name] ?? config[name] ?? legacyConfig[name] ?? apiDefaults[name]
+      );
+    }
+  };
+
+  console.log("Configggg");
+
+  const configProxy = new Proxy({}, configHandler);
+
   const value = {
     axiosInstance,
     baseURL: axiosInstance.defaults.baseURL ?? "",
-    config: {
-      ...apiDefaults,
-      fullResponse,
-      handleError,
-      memoize,
-      onError,
-      onResponse,
-      unwrapResponse
-    }
+    config: configProxy
   };
   return h(context.Provider, { value }, children);
 };
