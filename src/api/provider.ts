@@ -12,6 +12,10 @@ import { debounce } from "underscore";
 import { APIConfig, APIConfigOptions, ResponseUnwrapper } from "./types";
 import { QueryParams } from "../util/query-string";
 
+/*
+The baseURL is used to prefix paths if they are not already absolute
+https://github.com/axios/axios/blob/master/lib/core/buildFullPath.js
+*/
 type APIBase = { baseURL: string; axiosInstance: AxiosInstance };
 type APIContextValue = APIBase & {
   config: APIConfig;
