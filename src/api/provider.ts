@@ -16,12 +16,16 @@ type APIBase = { baseURL: string; axiosInstance: AxiosInstance };
 type APIContextValue = APIBase & {
   config: APIConfig;
 };
-type APIProviderProps = APIConfigOptions &
+
+type APIProviderCoreProps = APIConfigOptions &
   Partial<AxiosRequestConfig> & {
-    context?: Context<APIContextValue>;
-    children?: React.ReactChild;
     config?: APIConfigOptions;
   };
+
+type APIProviderProps = APIProviderCoreProps & {
+  context?: Context<APIContextValue>;
+  children?: React.ReactChild;
+};
 
 type APIContextType = Context<APIContextValue>;
 
@@ -39,20 +43,60 @@ const apiDefaults: APIConfig = {
   }
 };
 
+function removeUndefined(o1: object) {
+  let obj = { ...o1 };
+  Object.keys(obj).forEach(key => {
+    if (obj[key] === undefined) {
+      delete obj[key];
+    }
+  });
+  return obj;
+}
+
+function splitConfig(
+  props: APIProviderCoreProps
+): [AxiosRequestConfig, APIConfig] {
+  const {
+    config = {},
+    // These should maybe be reworked into a legacy options set...
+    fullResponse,
+    handleError,
+    memoize,
+    onError,
+    onResponse,
+    unwrapResponse,
+    ...axiosConfig
+  } = props;
+
+  let legacyConfig = removeUndefined({
+    fullResponse,
+    handleError,
+    memoize,
+    onError,
+    onResponse,
+    unwrapResponse
+  });
+
+  const newConfig = { ...apiDefaults, ...legacyConfig, ...config };
+  return [axiosConfig, newConfig];
+}
+
 const defaultAxios = axios.create();
 
 function createAPIContext(
-  defaultProps: Partial<APIContextValue> = {}
+  defaultProps: APIProviderCoreProps = {}
 ): APIContextType {
-  return createContext<APIContextValue>({
-    baseURL: defaultAxios.defaults.baseURL ?? "",
-    // We use Axios's in-built context functionality
-    axiosInstance: defaultAxios,
-    config: {
-      ...apiDefaults,
-      ...defaultProps
-    }
-  });
+  const [axiosConfig, config] = splitConfig(defaultProps);
+
+  const axiosInstance = axios.create(axiosConfig);
+
+  const defaultValue = {
+    axiosInstance,
+    baseURL: axiosInstance.defaults.baseURL ?? "",
+    config
+  };
+
+  return createContext<APIContextValue>(defaultValue);
 }
 
 enum APIMethod {
@@ -180,48 +224,15 @@ const APIProvider = (props: APIProviderProps) => {
 
   can pass an alternative API context using "context" param
   */
-  const {
-    children,
-    context = APIContext,
-    config = {},
-    // These should maybe be reworked into a legacy options set...
-    fullResponse,
-    handleError,
-    memoize,
-    onError,
-    onResponse,
-    unwrapResponse,
-    ...axiosConfig
-  } = props;
+  const { context = APIContext, children, ...rest } = props;
+  const [axiosConfig, config] = splitConfig(rest);
 
   const axiosInstance = axios.create(axiosConfig);
-
-  const legacyConfig = {
-    fullResponse,
-    handleError,
-    memoize,
-    onError,
-    onResponse,
-    unwrapResponse
-  };
-
-  let configHandler = {
-    // Get configuration values from whichever place they might reside
-    get: function(target, name) {
-      return (
-        target[name] ?? config[name] ?? legacyConfig[name] ?? apiDefaults[name]
-      );
-    }
-  };
-
-  console.log("Configggg");
-
-  const configProxy = new Proxy({}, configHandler);
 
   const value = {
     axiosInstance,
     baseURL: axiosInstance.defaults.baseURL ?? "",
-    config: configProxy
+    config
   };
   return h(context.Provider, { value }, children);
 };
