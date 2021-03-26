@@ -152,10 +152,14 @@ async function handleResult(
 
 const APIHelpers = (ctx: APIContextValue) => ({
   buildURL(route: string = "", params = {}) {
-    return ctx.axiosInstance.getUri({
+    // axios's getUri doesn't return baseURL for some inexplicable reason,
+    // as of spring 2021.
+    // this behavior could change sometime in the future...
+    const uriPath = ctx.axiosInstance.getUri({
       url: route,
       params
     });
+    return ctx.baseURL + uriPath;
   },
   processOptions(opts: APIConfigOptions = {}): APIConfig {
     let o1: APIConfig = { ...ctx.config, ...opts };
