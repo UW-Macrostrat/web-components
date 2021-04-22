@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "0.4.6",
+  "version": "0.5.1",
   "description": "UI components for React and blueprint.js",
   "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "style": "lib/esm/index.css",
@@ -8,6 +8,7 @@
   "main": "lib/cjs",
   "typings": "lib/types",
   "scripts": {
+    "prepublish": "npm run build",
     "preinstall": "npm install npm-run-all",
     "watch:main": "rollup -c -w",
     "watch:types": "tsc --emitDeclarationOnly -w",
@@ -34,7 +35,7 @@
     "@types/react-dom": "^16.9.8",
     "@types/react-hyperscript": "^3.0.4",
     "@types/react-router-dom": "^5.1.5",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "classnames": "^2.2.6",
     "core-js": "^3.6.4",
     "date-fns": "^2.15.0",

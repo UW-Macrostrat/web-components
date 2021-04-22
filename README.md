@@ -56,6 +56,12 @@ instead.
 
 ## Changelog
 
+### `[v0.5.0]`: 10-02-2021
+
+- Move towards using Axios base types for API context. Allows more advanced abilities
+  to control global request context through Axios's built-in methods. Additional configurability
+  will be progressively added through the `0.5` series.
+
 ### `[v0.4.4]`: 14-11-2020
 
 - Small fixes to query string management

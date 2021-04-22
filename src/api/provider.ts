@@ -1,19 +1,35 @@
 import { createContext, useState, useContext, Context } from "react";
 import h from "react-hyperscript";
 import { memoize } from "underscore";
-import axios, { AxiosPromise } from "axios";
+import axios, {
+  AxiosPromise,
+  AxiosInstance,
+  AxiosRequestConfig,
+  AxiosResponse
+} from "axios";
 import useAsyncEffect from "use-async-effect";
 import { debounce } from "underscore";
-import { APIConfig, APIOptions, ResponseUnwrapper } from "./types";
-import { buildQueryURL, QueryParams } from "../util/query-string";
+import { APIConfig, APIConfigOptions, ResponseUnwrapper } from "./types";
+import { QueryParams } from "../util/query-string";
 
-type APIBase = { baseURL: string };
-type APIContextValue = APIConfig & APIBase;
-type APIProviderProps = APIBase &
-  APIOptions & {
-    context?: Context<APIContextValue>;
-    children?: React.ReactChild;
+/*
+The baseURL is used to prefix paths if they are not already absolute
+https://github.com/axios/axios/blob/master/lib/core/buildFullPath.js
+*/
+type APIBase = { baseURL: string; axiosInstance: AxiosInstance };
+type APIContextValue = APIBase & {
+  config: APIConfig;
+};
+
+type APIProviderCoreProps = APIConfigOptions &
+  Partial<AxiosRequestConfig> & {
+    config?: APIConfigOptions;
   };
+
+type APIProviderProps = APIProviderCoreProps & {
+  context?: Context<APIContextValue>;
+  children?: React.ReactChild;
+};
 
 type APIContextType = Context<APIContextValue>;
 
@@ -31,60 +47,122 @@ const apiDefaults: APIConfig = {
   }
 };
 
-function createAPIContext(
-  defaultProps: Partial<APIContextValue> = {}
-): APIContextType {
-  return createContext<APIContextValue>({
-    baseURL: "",
-    ...apiDefaults,
-    ...defaultProps
+function removeUndefined(o1: object) {
+  let obj = { ...o1 };
+  Object.keys(obj).forEach(key => {
+    if (obj[key] === undefined) {
+      delete obj[key];
+    }
   });
+  return obj;
+}
+
+function splitConfig(
+  props: APIProviderCoreProps
+): [AxiosRequestConfig, APIConfig] {
+  const {
+    config = {},
+    // These should maybe be reworked into a legacy options set...
+    fullResponse,
+    handleError,
+    memoize,
+    onError,
+    onResponse,
+    unwrapResponse,
+    ...axiosConfig
+  } = props;
+
+  let legacyConfig = removeUndefined({
+    fullResponse,
+    handleError,
+    memoize,
+    onError,
+    onResponse,
+    unwrapResponse
+  });
+
+  const newConfig = { ...apiDefaults, ...legacyConfig, ...config };
+  return [axiosConfig, newConfig];
+}
+
+const defaultAxios = axios.create();
+
+function createAPIContext(
+  defaultProps: APIProviderCoreProps = {}
+): APIContextType {
+  const [axiosConfig, config] = splitConfig(defaultProps);
+
+  const axiosInstance = axios.create(axiosConfig);
+
+  const defaultValue = {
+    axiosInstance,
+    baseURL: axiosInstance.defaults.baseURL ?? "",
+    config
+  };
+
+  return createContext<APIContextValue>(defaultValue);
+}
+
+enum APIMethod {
+  POST = "POST",
+  GET = "GET"
 }
 
 const APIContext = createAPIContext();
 
-async function handleResult(promise: AxiosPromise, route, url, method, opts) {
-  let res;
-  const { onError } = opts;
+interface APIRequestInfo {
+  route: string;
+  params: QueryParams;
+  method: APIMethod;
+  opts?: APIConfigOptions;
+}
+
+async function handleResult(
+  ctx: APIContextValue,
+  request: AxiosPromise,
+  info: APIRequestInfo
+) {
+  const { processOptions, buildURL } = APIHelpers(ctx);
+  const { opts, method, params, route } = info;
+  const cfg = processOptions(opts);
+
+  let res: AxiosResponse | null = null;
+  let error: Error | null = null;
   try {
-    res = await promise;
-    opts.onResponse(res);
-    const { data } = res;
-    if (data == null) {
-      throw res.error || "No data!";
-    }
-    return opts.unwrapResponse(data);
+    res = await request;
+    cfg.onResponse(res);
+    if (res.data != null) return cfg.unwrapResponse(res.data);
   } catch (err) {
-    if (!opts.handleError) {
-      throw err;
-    }
-    console.error(err);
-    onError(route, {
-      error: err,
+    error = err;
+  }
+  error = error ?? Error(res.statusText || "No data!");
+  if (cfg.handleError) {
+    // Log errors if we're not throwing
+    console.error(error);
+    cfg.onError(error, {
+      error: error,
       response: res,
-      endpoint: url,
+      endpoint: buildURL(route, params),
       method
     });
-    return null;
+  } else {
+    throw error;
   }
 }
 
 const APIHelpers = (ctx: APIContextValue) => ({
   buildURL(route: string = "", params = {}) {
-    const { baseURL } = ctx;
-    if (
-      !(
-        route.startsWith(baseURL) ||
-        route.startsWith("http") ||
-        route.startsWith("//")
-      )
-    ) {
-      route = baseURL + route;
-    }
-    return buildQueryURL(route, params);
+    // axios's getUri doesn't return baseURL for some inexplicable reason,
+    // as of spring 2021.
+    // this behavior could change sometime in the future...
+    const uriPath = ctx.axiosInstance.getUri({
+      url: route,
+      params
+    });
+    return ctx.baseURL + uriPath;
   },
-  processOptions(opts: APIOptions = {}): APIConfig {
-    let o1: APIConfig = { ...ctx, ...opts };
+  processOptions(opts: APIConfigOptions = {}): APIConfig {
+    let o1: APIConfig = { ...ctx.config, ...opts };
     if (o1.fullResponse) o1.unwrapResponse = apiDefaults.unwrapResponse;
     return o1;
   }
@@ -95,22 +173,26 @@ interface APIActions {
     route: string,
     params: QueryParams,
     payload: any,
-    opts: APIOptions
+    opts: APIConfigOptions
   ): Promise<any | null>;
-  post(route: string, payload: any, opts?: APIOptions): Promise<any | null>;
+  post(
+    route: string,
+    payload: any,
+    opts?: APIConfigOptions
+  ): Promise<any | null>;
   get(
     route: string,
     params: QueryParams,
-    opts: APIOptions
+    opts: APIConfigOptions
   ): Promise<any | null>;
-  get(route: string, opts?: APIOptions): Promise<any | null>;
+  get(route: string, opts?: APIConfigOptions): Promise<any | null>;
 }
 
 const APIActions = (ctx: APIContextValue): APIActions => {
-  const { processOptions, buildURL } = APIHelpers(ctx);
+  const { axiosInstance } = ctx;
   return {
     post(route: string, ...args) {
-      let opts: APIOptions, params: QueryParams, payload: any;
+      let opts: APIConfigOptions, params: QueryParams, payload: any;
       if (args.length === 3) {
         [params, payload, opts] = args;
       } else if (args.length === 2) {
@@ -120,28 +202,27 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       } else {
         throw "No data to post";
       }
+      params = params ?? {};
 
-      const url = buildURL(route, params ?? {});
-      opts = processOptions(opts ?? {});
-
-      return handleResult(axios.post(url, payload), route, url, "POST", opts);
+      const req = axiosInstance.post(route, payload, { params });
+      const info = { route, params, method: APIMethod.POST, opts };
+      return handleResult(ctx, req, info);
     },
     get(route: string, ...args) {
-      let params: QueryParams, opts: APIOptions;
+      let params: QueryParams, opts: APIConfigOptions;
       if (args.length == 1) {
         [opts] = args;
       } else if (args.length == 2) {
         [params, opts] = args;
       }
+      params = params ?? {};
 
-      const url = buildURL(route, params ?? {});
-      opts = processOptions(opts ?? {});
+      const { get } = axiosInstance;
+      const fn = opts.memoize ? memoize(get) : get;
 
-      let fn = axios.get;
-      if (opts.memoize) {
-        fn = memoize(axios.get);
-      }
-      return handleResult(fn(url), route, url, "GET", opts);
+      const request = fn(route, { params });
+      const info = { route, params, method: APIMethod.GET, opts };
+      return handleResult(ctx, request, info);
     }
   };
 };
@@ -151,9 +232,17 @@ const APIProvider = (props: APIProviderProps) => {
 
   can pass an alternative API context using "context" param
   */
-  const { children, context, ...rest } = props;
-  const value = { ...apiDefaults, ...rest };
-  return h((context ?? APIContext).Provider, { value }, children);
+  const { context = APIContext, children, ...rest } = props;
+  const [axiosConfig, config] = splitConfig(rest);
+
+  const axiosInstance = axios.create(axiosConfig);
+
+  const value = {
+    axiosInstance,
+    baseURL: axiosInstance.defaults.baseURL ?? "",
+    config
+  };
+  return h(context.Provider, { value }, children);
 };
 
 const useAPIActions = (ctx: APIContextType = APIContext) => {
@@ -170,6 +259,10 @@ type APIHookOpts = Partial<
     context?: APIContextType;
   }
 >;
+
+function useAxiosInstance(context: APIContextType = APIContext) {
+  return useContext(context).axiosInstance;
+}
 
 const useAPIResult = function<T>(
   route: string | null,
@@ -205,6 +298,7 @@ const useAPIResult = function<T>(
 
 export {
   createAPIContext,
+  useAxiosInstance,
   APIContext,
   APIProvider,
   APIActions,
