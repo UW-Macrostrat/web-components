@@ -16,7 +16,8 @@
     "build:types": "tsc --emitDeclarationOnly; exit 0",
     "build": "rollup -c && npm run build:types",
     "prepare": "npm run build",
-    "deploy-docs": "scripts/deploy-docs"
+    "deploy-docs": "scripts/deploy-docs",
+    "docs:build": "bash build-docs"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -73,6 +74,7 @@
     "rollup": "^2.27.1",
     "rollup-plugin-postcss": "^3.1.8",
     "stylus": "^0.54.7",
+    "typedoc": "^0.20.36",
     "typescript": "^3.9.7"
   },
   "peerDependencies": {

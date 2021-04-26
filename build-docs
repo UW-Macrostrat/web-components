@@ -1,0 +1,38 @@
+
+
+if [ `npm list | grep -c "typescript"` -eq 0 ]
+then 
+    echo "Typescript not installed"
+    echo "Would you like to install typescript? (Y/n)"
+    read answer1
+    if [ $answer1 -eq "Y"]
+    then
+        echo "Installing typescript"
+        npm install typescript
+        echo "Typescript installed succesfully"
+    fi
+fi
+
+if [ `npm list | grep -c "typedoc"` -eq 0 ]
+then
+    echo "Typedoc is not installed"
+    echo "Would you like to install typedoc? (Y/n)"
+    read answer2
+    if [ $answer2 = "Y" ]
+    then 
+        echo "Installing Typedoc"
+        npm install typedoc --save-dev
+        echo "Will build docs now"
+        typedoc --out docs src/index.ts
+        echo "Docs have been successfully compiled!"
+
+    else
+        echo "Not installing typedoc, aborting docs build process"
+    fi
+else
+    echo "typedoc is already installed, version..."
+    npm info --silent typedoc version
+    echo "Will build docs now"
+    typedoc --out docs src/index.ts
+    echo "Docs have been successfully compiled!"
+fi
