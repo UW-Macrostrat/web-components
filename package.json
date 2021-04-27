@@ -17,7 +17,7 @@
     "build": "rollup -c && npm run build:types",
     "prepare": "npm run build",
     "deploy-docs": "scripts/deploy-docs",
-    "docs:build": "bash build-docs"
+    "docs:build": "scripts/build-docs"
   },
   "author": "Daven Quinn",
   "license": "ISC",
