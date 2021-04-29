@@ -10,7 +10,7 @@ import T from "prop-types";
 import {NotesList} from './note';
 import NoteDefs from './defs';
 import {NoteShape} from './types';
-import {useModelEditor} from '../context';
+import {useModelEditor, ColumnContext} from '../context';
 import {NoteLayoutProvider, NoteUnderlay} from './layout';
 import {
   NoteEditor,
@@ -21,6 +21,7 @@ import {
 import {
   NewNotePositioner
 } from './new';
+
 
 
 const NoteComponent = function(props){
@@ -162,7 +163,10 @@ StaticNotesColumn.propTypes = {
 };
 
 const NotesColumn = function(props){
-  const {editable, ...rest} = props;
+  const { editable, ...rest } = props;
+  const ctx = useContext(ColumnContext)
+  if (ctx?.scaleClamped == null) return null
+
   const c = editable ? EditableNotesColumn : StaticNotesColumn;
   return h(c, rest);
 };
