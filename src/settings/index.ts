@@ -20,7 +20,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
   type Updater = (spec: SettingsUpdateSpec) => void;
   const UpdateContext = createContext<Updater | null>(null);
 
-  const Provider = function(props: SettingsProviderProps & T) {
+  const Provider = function (props: SettingsProviderProps & T) {
     /*
     A settings provider that can be used with LocalStorage
     */
@@ -38,7 +38,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
 
     // @ts-ignore
     const [settings, setState] = useState<T>(defaultSettings);
-    const updateState = function(spec: SettingsUpdateSpec) {
+    const updateState = function (spec: SettingsUpdateSpec) {
       const newSettings = update(settings, spec);
       setState(newSettings);
       if (storage != null) {
@@ -47,7 +47,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
     };
 
     return h(Context.Provider, { value: settings }, [
-      h(UpdateContext.Provider, { value: updateState }, children)
+      h(UpdateContext.Provider, { value: updateState }, children),
     ]);
   };
 
@@ -56,6 +56,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
   const useUpdater = (key: string | undefined) => {
     const updater = useContext(UpdateContext);
     if (key == null) return updater;
+    //@ts-ignore
     return (spec: Spec<any>) => updater({ [key]: spec });
   };
 
@@ -65,16 +66,16 @@ function createSettingsContext<T extends object>(defaultValue: T) {
 const [
   SettingsProvider,
   useSettings,
-  useSettingsUpdater
+  useSettingsUpdater,
 ] = createSettingsContext<object>({});
 
 // Deprecated: this is kind of confusing
-const updateSettings = function(func) {
+const updateSettings = function (func) {
   // Update settings using `immutability-helper` semantics
-  // @ts-ignore
+  //@ts-ignore
   const updater = useSettingsUpdater();
-  return function() {
-    // @ts-ignore
+  return function () {
+    //@ts-ignore
     return updater(func(...arguments));
   };
 };

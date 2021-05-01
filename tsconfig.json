@@ -10,5 +10,10 @@
     "typeRoots": ["node_modules/@types"],
     "lib": ["es6", "es7", "esnext", "dom"]
   },
-  "include": ["src"]
+  "include": ["src"],
+  "typedocOptions": {
+    "entryPoints": ["src/index.ts"],
+    "out": "docs",
+    "name": "Macrostrat UI-Components"
+  }
 }

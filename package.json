@@ -12,13 +12,11 @@
     "preinstall": "npm install npm-run-all",
     "watch:main": "rollup -c -w",
     "watch:types": "tsc --emitDeclarationOnly -w",
-    "watch:docs": "rm -rf .docz && docz dev",
     "dev": "npm-run-all -p --aggregate-output watch:main watch:types",
-    "dev:docs": "npm-run-all -p --aggregate-output npm:watch:**",
-    "build:docs": "rm -rf .docz && docz build",
     "build:types": "tsc --emitDeclarationOnly; exit 0",
     "build": "rollup -c && npm run build:types",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "deploy-docs": "scripts/deploy-docs"
   },
   "author": "Daven Quinn",
   "license": "ISC",

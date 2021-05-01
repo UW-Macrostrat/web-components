@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+scp -r docs/* steno:/data/projects/macrostrat/docs/ui-components
