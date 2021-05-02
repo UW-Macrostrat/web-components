@@ -1,10 +1,12 @@
-import {scaleLinear, ScaleContinuousNumeric} from "d3-scale";
-import {Component, createContext} from "react";
+import {scaleLinear, ScaleContinuousNumeric, scaleUtc, ScaleLinear} from "d3-scale";
+import {Component, createContext, useContext} from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
 
 type HeightRange = [number,number]
-type ColumnScale = ScaleContinuousNumeric<HeightRange,number>
+type ColumnScale = ScaleContinuousNumeric<HeightRange, number>
+
+type ColumnScaleClamped = ScaleLinear<number,number>
 
 declare interface ColumnDivision {
   section_id: string;
@@ -16,15 +18,19 @@ declare interface ColumnDivision {
 
 interface ColumnCtx {
   divisions: ColumnDivision[],
-  scaleClamped: ColumnScale,
+  scaleClamped: ColumnScaleClamped,
   pixelsPerMeter: number,
   scale: ColumnScale,
   zoom: number
 }
 
+
 const ColumnContext = createContext<ColumnCtx>({
   scale: scaleLinear(),
-  divisions: []
+  divisions: [],
+  scaleClamped: scaleLinear().clamp(true),
+  pixelsPerMeter: 1,
+  zoom: 1
 });
 
 const rangeOrHeight = function(props, propName){
@@ -71,6 +77,8 @@ class ColumnProvider extends Component {
     } else {
       range = [0, height];
     }
+
+    console.log("Rendering column provider", range)
 
     // same as the old `innerHeight`
     const pixelHeight = height*pixelsPerMeter*zoom;
