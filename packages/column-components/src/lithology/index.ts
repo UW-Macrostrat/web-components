@@ -150,6 +150,8 @@ const FaciesColumnInner = function(props){
   });
 };
 
+const FaciesIntervals = FaciesColumnInner
+
 class CoveredOverlay extends UUIDComponent {
   static contextType = ColumnLayoutContext;
   render() {
@@ -369,4 +371,6 @@ export {ParameterIntervals,
         GrainsizeFrame,
         ColumnRect,
         expandDivisionsByKey,
-        symbolIndex};
+        symbolIndex,
+        FaciesIntervals
+};
