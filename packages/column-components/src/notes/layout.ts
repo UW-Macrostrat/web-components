@@ -1,11 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS202: Simplify dynamic range loops
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import {createContext, useContext} from 'react';
 import {StatefulComponent} from '@macrostrat/ui-components';
 import {Node, Renderer, Force} from "labella";
@@ -107,7 +99,6 @@ class NoteLayoutProvider extends StatefulComponent {
   }
 
   computeContextValue() {
-    console.log("Computing context value");
     const {width, paddingLeft} = this.props;
     // Clamp notes to within scale boundaries
     // (we could turn this off if desired)
@@ -186,7 +177,6 @@ class NoteLayoutProvider extends StatefulComponent {
     if (prevState == null) { prevState = {}; }
     const v2 = (elementHeights === prevState.elementHeights) || [];
     if (v1 && v2) { return; }
-    console.log("Computing force layout");
 
     const force = new Force({
       minPos: 0,

@@ -52,7 +52,7 @@ const NoteConnector = function(props){
       height,
       top_height
     }),
-    h('path.link', {
+    h('path.link.col-note-link', {
       d: generatePath(node, offsetX),
       transform: `translate(${offsetX})`
     })

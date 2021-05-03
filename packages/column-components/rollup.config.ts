@@ -1,59 +1,50 @@
-import resolve from '@rollup/plugin-node-resolve'
-import commonjs from 'rollup-plugin-commonjs'
-import sourceMaps from 'rollup-plugin-sourcemaps'
-import camelCase from 'lodash.camelcase'
-import coffee from 'rollup-plugin-coffee-script'
-import json from 'rollup-plugin-json'
-import babel from 'rollup-plugin-babel'
-import postcss from 'rollup-plugin-postcss'
-import localResolve from 'rollup-plugin-local-resolve';
-import path from 'path'
+import pkg from "./package.json"
+import babel from "@rollup/plugin-babel"
+import postcss from "rollup-plugin-postcss"
+import resolve from "@rollup/plugin-node-resolve"
 
-const pkg = require('./package.json')
-
-const extensions = ['.js','.coffee', '.ts']
-const deps = {...pkg.dependencies, ...pkg.peerDependencies};
+const extensions = [".js", ".ts", ".d.ts"]
+const deps = { ...pkg.dependencies, ...pkg.peerDependencies }
 
 export default {
-  input: 'src',
+  input: "src/index.ts",
   preserveModules: true,
   output: [
-    { dir: pkg.main, format: 'cjs', sourcemap: true, entryFileNames: '[name].js' },
-    { dir: pkg.module, format: 'esm', sourcemap: true, entryFileNames: '[name].js' },
+    {
+      dir: pkg.main,
+      format: "cjs",
+      sourcemap: true,
+      exports: "auto",
+      entryFileNames: "[name].js",
+    },
+    {
+      dir: pkg.module,
+      format: "esm",
+      sourcemap: true,
+      entryFileNames: "[name].js",
+    },
   ],
   // Indicate here external modules you don't wanna include in your bundle (i.e.: 'lodash')
-  external: [
-    ...Object.keys(deps),
-    'immutability-helper',
-    'react-scroll',
-    'd3-axis'
-  ],
+  external: Object.keys(deps),
   watch: {
-    include: 'src/**',
+    include: "src/**",
   },
   plugins: [
-    // Allow json resolution
-    json(),
-    // Compile coffeescript files
-    coffee(),
+    // Allow node_modules resolution, so you can use 'external' to control
+    // which external modules to include in the bundle
+    // https://github.com/rollup/rollup-plugin-node-resolve#usage
+    resolve({ extensions, module: true }),
     // Bundle stylesheets
     postcss({
       // postfix with .module.css etc. for css modules
       modules: true,
-      extract: "dist/column-components.css"
+      extensions: [".css", ".styl"],
+      extract: "index.css",
     }),
-    // Allow node_modules resolution, so you can use 'external' to control
-    // which external modules to include in the bundle
-    // https://github.com/rollup/rollup-plugin-node-resolve#usage
-    resolve({extensions, module:true}),
-    localResolve(),
     babel({
       extensions,
-      exclude: 'node_modules/**'
+      exclude: "node_modules/**",
+      babelHelpers: "bundled",
     }),
-    // Resolve source maps to the original source
-    sourceMaps(),
-    // Allow bundling cjs modules (unlike webpack, rollup doesn't understand cjs)
-    commonjs(),
   ],
 }

@@ -27,7 +27,7 @@ import {
 const NoteComponent = function(props){
   const {visibility, note, onClick} = props;
   const text = note.note;
-  return h('p.mc-note-label', {
+  return h('p.col-note-label', {
     style: {visibility},
     onClick
   }, text);
