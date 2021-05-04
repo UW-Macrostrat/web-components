@@ -18,9 +18,9 @@
   ],
   "scripts": {
     "watch:main": "rollup -c rollup.config.ts -w",
-    "watch:types": "tsc --emitDeclarationOnly -w 2&> /dev/null",
+    "watch:types": "tsc --emitDeclarationOnly -w",
     "watch": "npm-run-all --aggregate-output --parallel watch:**",
-    "dev": "npm run prebuild && npm run watch",
+    "dev": "npm run prebuild && npm run build:types && npm run watch",
     "build:main": "rollup -c rollup.config.ts",
     "build:types": "tsc --emitDeclarationOnly; exit 0",
     "build": "npm-run-all -s prebuild build:types build:main",
