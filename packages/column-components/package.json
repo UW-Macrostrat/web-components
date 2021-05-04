@@ -8,10 +8,10 @@
     "vector-graphics",
     "data-visualization"
   ],
-  "main": "dist/cjs",
-  "module": "dist/esm",
-  "style": "dist/esm/index.css",
-  "typings": "dist/types",
+  "main": "./dist/cjs",
+  "module": "./dist/esm",
+  "style": "./dist/esm/index.css",
+  "typings": "./dist/types/index.d.ts",
   "type": "module",
   "files": [
     "dist"
