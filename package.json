@@ -9,7 +9,6 @@
   "typings": "lib/types",
   "scripts": {
     "prepublish": "npm run build",
-    "preinstall": "npm install npm-run-all",
     "watch:main": "rollup -c -w",
     "watch:types": "tsc --emitDeclarationOnly -w",
     "dev": "npm-run-all -p --aggregate-output watch:main watch:types",
