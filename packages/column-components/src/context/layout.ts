@@ -5,29 +5,29 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {scaleLinear, scaleOrdinal} from "d3-scale";
-import {Component, createContext} from "react";
+import { scaleLinear, scaleOrdinal } from "d3-scale";
+import { Component, createContext } from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
-import {ColumnContext} from './column';
+import { ColumnContext } from "./column";
 
 //# This isn't really used yet...
 
 const ColumnLayoutContext = createContext({
   scale: null,
   width: 0,
-  divisions: []
+  divisions: [],
 });
 
 class ColumnLayoutProvider extends Component {
   static propTypes = {
-    width: T.number.isRequired
+    width: T.number.isRequired,
   };
   static contextType = ColumnContext;
   render() {
-    const {children, ...rest} = this.props;
-    const value = {...this.context, ...rest};
-    return h(ColumnLayoutContext.Provider, {value}, children);
+    const { children, ...rest } = this.props;
+    const value = { ...this.context, ...rest };
+    return h(ColumnLayoutContext.Provider, { value }, children);
   }
 }
 
@@ -35,11 +35,11 @@ class CrossAxisLayoutProvider extends Component {
   static propTypes = {
     width: T.number.isRequired,
     domain: T.arrayOf(T.number).isRequired,
-    range: T.arrayOf(T.number)
+    range: T.arrayOf(T.number),
   };
   static contextType = ColumnContext;
   render() {
-    let {domain, range, width, children} = this.props;
+    let { domain, range, width, children } = this.props;
     if (range == null) {
       range = [0, width];
     }
@@ -47,7 +47,7 @@ class CrossAxisLayoutProvider extends Component {
     return h(ColumnLayoutProvider, {
       xScale,
       width,
-      children
+      children,
     });
   }
 }
@@ -69,52 +69,60 @@ class GrainsizeLayoutProvider extends Component {
   static propTypes = {
     width: T.number.isRequired,
     grainsizeScaleStart: T.number,
-    grainSizes: T.arrayOf(T.string)
+    grainSizes: T.arrayOf(T.string),
   };
   static defaultProps = {
-    grainSizes: ['ms','s','vf','f','m','c','vc','p'],
-    grainsizeScaleStart: 50
+    grainSizes: ["ms", "s", "vf", "f", "m", "c", "vc", "p"],
+    grainsizeScaleStart: 50,
   };
   grainsizeScale() {
-    const {grainSizes, width, grainsizeScaleStart} = this.props;
+    const { grainSizes, width, grainsizeScaleStart } = this.props;
     const scale = scaleLinear()
-      .domain([0,grainSizes.length-1])
+      .domain([0, grainSizes.length - 1])
       .range([grainsizeScaleStart, width]);
     return scaleOrdinal()
       .domain(grainSizes)
-      .range(grainSizes.map((d,i)=> scale(i)));
+      .range(grainSizes.map((d, i) => scale(i)));
   }
 
-  grainsizeForDivision(division){
-    const {divisions} = this.context;
+  grainsizeForDivision(division) {
+    const { divisions } = this.context;
     let ix = divisions.indexOf(division);
     // Search backwards through divisions
     while (ix > 0) {
-      const {grainsize} = divisions[ix];
-      if (grainsize != null) { return grainsize; }
+      const { grainsize } = divisions[ix];
+      if (grainsize != null) {
+        return grainsize;
+      }
       ix -= 1;
     }
   }
 
-  widthForDivision(division){
-    if (division == null) { return this.props.width; }
+  widthForDivision(division) {
+    if (division == null) {
+      return this.props.width;
+    }
     const gs = this.grainsizeScale();
     return gs(this.grainsizeForDivision(division));
   }
 
   render() {
-    const {width, grainSizes, grainsizeScaleStart, children} = this.props;
+    const { width, grainSizes, grainsizeScaleStart, children } = this.props;
     const grainsizeScaleRange = [grainsizeScaleStart, width];
     // This is slow to run each iteration
-    return h(ColumnLayoutProvider, {
-      width,
-      grainSizes,
-      grainsizeScale: this.grainsizeScale(),
-      grainsizeScaleStart,
-      grainsizeScaleRange,
-      grainsizeForDivision: this.grainsizeForDivision,
-      widthForDivision: this.widthForDivision,
-    }, children);
+    return h(
+      ColumnLayoutProvider,
+      {
+        width,
+        grainSizes,
+        grainsizeScale: this.grainsizeScale(),
+        grainsizeScaleStart,
+        grainsizeScaleRange,
+        grainsizeForDivision: this.grainsizeForDivision,
+        widthForDivision: this.widthForDivision,
+      },
+      children
+    );
   }
 }
 
@@ -122,5 +130,5 @@ export {
   ColumnLayoutContext,
   ColumnLayoutProvider,
   CrossAxisLayoutProvider,
-  GrainsizeLayoutProvider
+  GrainsizeLayoutProvider,
 };

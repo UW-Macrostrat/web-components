@@ -5,9 +5,9 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component} from "react";
+import { Component } from "react";
 import h from "react-hyperscript";
-import {Switch, Slider, Button} from "@blueprintjs/core";
+import { Switch, Slider, Button } from "@blueprintjs/core";
 import classNames from "classnames";
 
 class PickerControl extends Component {
@@ -18,44 +18,57 @@ class PickerControl extends Component {
 
   static initClass() {
     this.defaultProps = {
-      states : [
-        {label: 'State 1', value: 'state1'},
-        {label: 'State 2', value: 'state2'}
+      states: [
+        { label: "State 1", value: "state1" },
+        { label: "State 2", value: "state2" },
       ],
       vertical: true,
-      isNullable: false
+      isNullable: false,
     };
   }
   render() {
-    const {states, activeState, vertical} = this.props;
-    let className = classNames('bp3-button-group', 'bp3-fill', {
-      'bp3-vertical': vertical,
-      'bp3-align-left': vertical
+    const { states, activeState, vertical } = this.props;
+    let className = classNames("bp3-button-group", "bp3-fill", {
+      "bp3-vertical": vertical,
+      "bp3-align-left": vertical,
     });
 
-    return h('div.picker-control', [
-      h('div', {className}, states.map(d=> {
-        className = classNames('bp3-button', {
-          'bp3-active': this.props.activeState === d.value
-        });
-        return h('button', {
-          type: 'button',
-          className,
-          onClick: this.onUpdate(d.value)
-        }, d.label);
-      })
-      )
+    return h("div.picker-control", [
+      h(
+        "div",
+        { className },
+        states.map((d) => {
+          className = classNames("bp3-button", {
+            "bp3-active": this.props.activeState === d.value,
+          });
+          return h(
+            "button",
+            {
+              type: "button",
+              className,
+              onClick: this.onUpdate(d.value),
+            },
+            d.label
+          );
+        })
+      ),
     ]);
   }
-  onUpdate(value){ return () => {
-    if (value === this.props.activeState) {
-      if (!this.props.isNullable) { return; }
-      value = null;
-    }
-    if (this.props.onUpdate == null) { return; }
-    return this.props.onUpdate(value);
-  }; }
+  onUpdate(value) {
+    return () => {
+      if (value === this.props.activeState) {
+        if (!this.props.isNullable) {
+          return;
+        }
+        value = null;
+      }
+      if (this.props.onUpdate == null) {
+        return;
+      }
+      return this.props.onUpdate(value);
+    };
+  }
 }
 PickerControl.initClass();
 
-export {PickerControl};
+export { PickerControl };
