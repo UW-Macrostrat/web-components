@@ -14,3 +14,4 @@ export * from "./text";
 export * from "./dark-mode";
 export * from "./form-controls";
 export * from "./settings";
+export * from "./error-boundary";
