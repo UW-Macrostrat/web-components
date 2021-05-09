@@ -6,54 +6,57 @@
  */
 // This should eventually come from the @macrostrat/ui-components repository
 
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback
+} from "react";
 import update from "immutability-helper";
 import h from "react-hyperscript";
 import T from "prop-types";
 
 const ModelEditorContext = createContext(null);
 
-const ModelEditorProvider = function (props) {
+const ModelEditorProvider = function(props) {
   /*
   Context to assist with editing a model
   */
-  let { model, logUpdates, children, alwaysConfirm } = props;
+  let { model, logUpdates = false, children, alwaysConfirm = false } = props;
 
   console.warn(`Using the ModelEditorContext from
     @macrostrat/column-components is deprecated.
     Please use the equivalent class from
     @macrostrat/ui-components instead.`);
 
-  if (logUpdates == null) {
-    logUpdates = false;
-  }
-  if (alwaysConfirm == null) {
-    alwaysConfirm = false;
-  }
   const [editedModel, setState] = useState(model);
 
   const confirmChanges = () => props.onConfirmChanges(editedModel);
 
-  const revertChanges = function () {
+  // Zero out edited model when model prop changes
+
+  const revertChanges = useCallback(() => {
+    if (model == editedModel) return;
     if (alwaysConfirm) {
       console.log("Confirming model changes");
       confirmChanges();
     }
     return setState(model);
-  };
-  // Zero out edited model when model prop changes
+  }, [model]);
 
-  useEffect(revertChanges, [model]);
+  const updateModel = useCallback(
+    function(spec) {
+      const v = update(editedModel, spec);
+      if (logUpdates) {
+        console.log(v);
+      }
+      return setState(v);
+    },
+    [logUpdates, editedModel]
+  );
 
-  const updateModel = function (spec) {
-    const v = update(editedModel, spec);
-    if (logUpdates) {
-      console.log(v);
-    }
-    return setState(v);
-  };
-
-  const deleteModel = function () {
+  const deleteModel = function() {
     setState(null);
     return props.onDelete(model);
   };
@@ -67,14 +70,14 @@ const ModelEditorProvider = function (props) {
     deleteModel,
     hasChanges,
     revertChanges,
-    confirmChanges,
+    confirmChanges
   };
   return h(ModelEditorContext.Provider, { value }, children);
 };
 
 ModelEditorProvider.propTypes = {
   onConfirmChanges: T.func.isRequired,
-  onDelete: T.func.isRequired,
+  onDelete: T.func.isRequired
 };
 
 const useModelEditor = () => useContext(ModelEditorContext);
