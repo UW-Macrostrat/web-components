@@ -31,6 +31,13 @@ const ModelEditorProvider = function(props) {
     @macrostrat/ui-components instead.`);
 
   const [editedModel, setState] = useState(model);
+  // Our model can be initially null, but we want the edited model
+  // to take on the first non-null value
+  useEffect(() => {
+    if (editedModel == null && model != null) {
+      setState(model);
+    }
+  }, [model, editedModel]);
 
   const confirmChanges = () => props.onConfirmChanges(editedModel);
 

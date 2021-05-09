@@ -20,7 +20,7 @@ import Box from "ui-box";
 
 const NoteEditorContext = createContext({ inEditMode: false });
 
-const NoteTextEditor = function (props) {
+const NoteTextEditor = function(props) {
   const { updateModel } = useModelEditor();
   const { note } = props;
   return h(EditableText, {
@@ -30,15 +30,15 @@ const NoteTextEditor = function (props) {
     isEditing: true,
     onConfirm(newText) {
       return updateModel({ note: { $set: newText } });
-    },
+    }
   });
 };
 
 NoteTextEditor.propTypes = {
-  note: NoteShape.isRequired,
+  note: NoteShape.isRequired
 };
 
-const NoteEditorProvider = function (props) {
+const NoteEditorProvider = function(props) {
   let { children, inEditMode, noteEditor } = props;
   const { notes } = useContext(NoteLayoutContext);
   if (inEditMode == null) {
@@ -47,15 +47,15 @@ const NoteEditorProvider = function (props) {
 
   const [editingNote, setState] = useState(null);
 
-  const setEditingNote = (val) => setState(val);
+  const setEditingNote = val => setState(val);
 
-  const deleteNote = function () {
+  const deleteNote = function() {
     const val = editingNote;
     setState(null);
     return props.onDeleteNote(val);
   };
 
-  const onCreateNote = function (pos) {
+  const onCreateNote = function(pos) {
     const { height, top_height } = pos;
     const val = { height, top_height, note: null, symbol: null };
     return setState(val);
@@ -67,10 +67,10 @@ const NoteEditorProvider = function (props) {
     deleteNote,
     inEditMode,
     noteEditor,
-    onCreateNote,
+    onCreateNote
   };
 
-  const onConfirmChanges = function (n) {
+  const onConfirmChanges = function(n) {
     if (n == null) {
       return;
     }
@@ -92,10 +92,10 @@ const NoteEditorProvider = function (props) {
         onDelete: deleteNote,
         onConfirmChanges,
         logUpdates: true,
-        alwaysConfirm: true,
+        alwaysConfirm: true
       },
       children
-    ),
+    )
   ]);
 };
 
@@ -103,26 +103,26 @@ NoteEditorProvider.propTypes = {
   inEditMode: T.bool,
   noteEditor: T.elementType.isRequired,
   onUpdateNote: T.func.isRequired,
-  onDeleteNote: T.func.isRequired,
+  onDeleteNote: T.func.isRequired
 };
 
-const NoteConnectorPath = function (props) {
+const NoteConnectorPath = function(props) {
   const { d, offsetX, className } = props;
   return h("path", {
     d,
     className,
     transform: `translate(${offsetX})`,
-    fill: "transparent",
+    fill: "transparent"
   });
 };
 
-const EditableNoteConnector = function (props) {
+const EditableNoteConnector = function(props) {
   const {
     notes,
     nodes,
     columnIndex,
     generatePath,
-    createNodeForNote,
+    createNodeForNote
   } = useContext(NoteLayoutContext);
   let { note, node, index } = props;
   if (note.id != null) {
@@ -139,7 +139,7 @@ const EditableNoteConnector = function (props) {
     h(NoteConnectorPath, {
       className: "note-connector",
       d,
-      offsetX: x,
+      offsetX: x
     }),
     h(
       ForeignObject,
@@ -148,14 +148,14 @@ const EditableNoteConnector = function (props) {
         x,
         y: 0,
         height: 1,
-        style: { overflowY: "visible" },
+        style: { overflowY: "visible" }
       },
       [h(PositionEditorInner, { note })]
-    ),
+    )
   ]);
 };
 
-const PointHandle = function (props) {
+const PointHandle = function(props) {
   let { height, size, className, ...rest } = props;
   className = classNames("handle point-handle", className);
   if (size == null) {
@@ -166,7 +166,7 @@ const PointHandle = function (props) {
     {
       position: { x: 0, y: height },
       axis: "y",
-      ...rest,
+      ...rest
     },
     [
       h(Box, {
@@ -175,13 +175,13 @@ const PointHandle = function (props) {
         marginLeft: -size / 2,
         marginTop: -size / 2,
         position: "absolute",
-        className,
-      }),
+        className
+      })
     ]
   );
 };
 
-var PositionEditorInner = function (props) {
+var PositionEditorInner = function(props) {
   let updateModel;
   let { note, margin } = props;
   if (margin == null) {
@@ -203,7 +203,7 @@ var PositionEditorInner = function (props) {
     height = Math.abs(topHeight - bottomHeight);
   }
 
-  const moveEntireNote = function (e, data) {
+  const moveEntireNote = function(e, data) {
     const { y } = data;
     // Set note height
     const spec = { height: { $set: scale.invert(y + height) } };
@@ -214,7 +214,7 @@ var PositionEditorInner = function (props) {
     return updateModel(spec);
   };
 
-  const moveTop = function (e, data) {
+  const moveTop = function(e, data) {
     const spec = { top_height: { $set: scale.invert(data.y) } };
     if (Math.abs(data.y - bottomHeight) < 2) {
       spec.top_height = { $set: null };
@@ -222,7 +222,7 @@ var PositionEditorInner = function (props) {
     return updateModel(spec);
   };
 
-  const moveBottom = function (e, data) {
+  const moveBottom = function(e, data) {
     const spec = { height: { $set: scale.invert(data.y) } };
     if (Math.abs(data.y - topHeight) < 2) {
       spec.top_height = { $set: null };
@@ -236,7 +236,7 @@ var PositionEditorInner = function (props) {
       {
         position: { x: 0, y: topHeight },
         onDrag: moveEntireNote,
-        axis: "y",
+        axis: "y"
       },
       [
         h(
@@ -247,38 +247,38 @@ var PositionEditorInner = function (props) {
             width: 2 * margin,
             marginLeft: -margin,
             marginTop: -margin,
-            position: "absolute",
+            position: "absolute"
           },
           []
-        ),
+        )
       ]
     ),
     h(PointHandle, {
       height: noteHasSpan ? topHeight : topHeight - 15,
       onDrag: moveTop,
       className: classNames("top-handle", { "add-span-handle": !noteHasSpan }),
-      bounds: { bottom: bottomHeight },
+      bounds: { bottom: bottomHeight }
     }),
     h(PointHandle, {
       height: bottomHeight,
       onDrag: moveBottom,
       className: "bottom-handle",
-      bounds: noteHasSpan ? { top: topHeight } : null,
-    }),
+      bounds: noteHasSpan ? { top: topHeight } : null
+    })
   ]);
 };
 
-const NoteEditorUnderlay = function ({ padding }) {
+const NoteEditorUnderlay = function({ padding }) {
   const { width } = useContext(NoteLayoutContext);
   const { setEditingNote } = useContext(NoteEditorContext);
   return h(NoteRect, {
     fill: "rgba(255,255,255,0.8)",
     style: { pointerEvents: "none" },
-    className: "underlay",
+    className: "underlay"
   });
 };
 
-const NoteEditor = function (props) {
+const NoteEditor = function(props) {
   const { allowPositionEditing } = props;
   const { noteEditor } = useContext(NoteEditorContext);
   const { notes, nodes, elementHeights, createNodeForNote } = useContext(
@@ -314,14 +314,14 @@ const NoteEditor = function (props) {
     h.if(!allowPositionEditing)(NoteConnector, { note: editedModel }),
     h.if(allowPositionEditing)(EditableNoteConnector, {
       note: editedModel,
-      node,
+      node
     }),
     h(NotePositioner, { offsetY: node.currentPos, noteHeight }, [
       h(noteEditor, {
         note: editedModel,
-        key: index,
-      }),
-    ]),
+        key: index
+      })
+    ])
   ]);
 };
 
