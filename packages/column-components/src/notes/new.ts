@@ -13,13 +13,13 @@ import { HeightRangeAnnotation } from "./height-range";
 import T from "prop-types";
 import NoteDefs from "./defs";
 
-const getHeights = function (position, tolerance = 0.1) {
+const getHeights = function(position, tolerance = 0.1) {
   let { startHeight, dragHeight, ...rest } = position;
   if (dragHeight == null) {
     dragHeight = startHeight;
   }
-  const rng = [startHeight, dragHeight];
-  Array.sort(rng);
+  let rng = [startHeight, dragHeight];
+  rng.sort();
   let [height, top_height] = rng;
   if (top_height - height < tolerance) {
     top_height = null;
@@ -27,7 +27,7 @@ const getHeights = function (position, tolerance = 0.1) {
   return { height, top_height, ...rest };
 };
 
-const HeightRange = function (props) {
+const HeightRange = function(props) {
   let { position, tolerance } = props;
   if (!position) {
     return null;
@@ -39,7 +39,7 @@ const HeightRange = function (props) {
   return h(HeightRangeAnnotation, val);
 };
 
-const NewNotePositioner = function (props) {
+const NewNotePositioner = function(props) {
   const { paddingLeft, scale } = useContext(NoteLayoutContext);
   const { onCreateNote } = useContext(NoteEditorContext);
   if (onCreateNote == null) {
@@ -52,7 +52,7 @@ const NewNotePositioner = function (props) {
     return null;
   }
 
-  const eventHeight = (evt) => scale.invert(evt.nativeEvent.offsetY);
+  const eventHeight = evt => scale.invert(evt.nativeEvent.offsetY);
 
   return h("g.new-note", [
     h(NoteDefs, { fill: "dodgerblue", sz: 4, prefix: "new_" }),
@@ -67,7 +67,7 @@ const NewNotePositioner = function (props) {
         }
         return setPosition({
           startHeight: eventHeight(evt),
-          offsetX: evt.nativeEvent.offsetX,
+          offsetX: evt.nativeEvent.offsetX
         });
       },
       onMouseMove(evt) {
@@ -76,7 +76,7 @@ const NewNotePositioner = function (props) {
         }
         return setPosition({
           ...notePosition,
-          dragHeight: eventHeight(evt),
+          dragHeight: eventHeight(evt)
         });
       },
 
@@ -85,14 +85,14 @@ const NewNotePositioner = function (props) {
         const finalPos = getHeights({ ...notePosition, dragHeight });
         setPosition(null);
         return onCreateNote(finalPos);
-      },
+      }
     }),
-    h(HeightRange, { position: notePosition }),
+    h(HeightRange, { position: notePosition })
   ]);
 };
 
 NewNotePositioner.defaultProps = {
-  tolerance: 0.1,
+  tolerance: 0.1
 };
 
 export { NewNotePositioner };

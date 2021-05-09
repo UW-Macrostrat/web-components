@@ -38,7 +38,7 @@ NoteTextEditor.propTypes = {
   note: NoteShape.isRequired
 };
 
-const NoteEditorProvider = function(props) {
+function NoteEditorProvider(props) {
   let { children, inEditMode = false, noteEditor } = props;
   const { notes } = useContext(NoteLayoutContext);
 
@@ -70,7 +70,7 @@ const NoteEditorProvider = function(props) {
       console.log("No changes to note");
       return;
     }
-    if (notes.contains(editingNote)) {
+    if (notes.includes(n)) {
       return;
     }
     return props.onUpdateNote(n);
@@ -90,7 +90,7 @@ const NoteEditorProvider = function(props) {
       children
     )
   ]);
-};
+}
 
 NoteEditorProvider.propTypes = {
   inEditMode: T.bool,

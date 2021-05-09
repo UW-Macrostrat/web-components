@@ -31,10 +31,10 @@ const ModelEditorProvider = function(props) {
 
   const revertChanges = useCallback(() => {
     if (model == editedModel) return;
-    // if (alwaysConfirm && editedModel != null) {
-    //   console.log("Confirming model changes");
-    //   confirmChanges();
-    // }
+    if (alwaysConfirm && editedModel != null) {
+      console.log("Confirming model changes");
+      confirmChanges();
+    }
     setState(model);
   }, [model]);
 
