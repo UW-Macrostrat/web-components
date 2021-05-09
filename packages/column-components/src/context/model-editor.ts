@@ -1,11 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-// This should eventually come from the @macrostrat/ui-components repository
-
 import {
   createContext,
   useContext,
@@ -33,23 +25,21 @@ const ModelEditorProvider = function(props) {
   const [editedModel, setState] = useState(model);
   // Our model can be initially null, but we want the edited model
   // to take on the first non-null value
-  useEffect(() => {
-    if (editedModel == null && model != null) {
-      setState(model);
-    }
-  }, [model, editedModel]);
-
   const confirmChanges = () => props.onConfirmChanges(editedModel);
 
   // Zero out edited model when model prop changes
 
   const revertChanges = useCallback(() => {
     if (model == editedModel) return;
-    if (alwaysConfirm) {
-      console.log("Confirming model changes");
-      confirmChanges();
-    }
-    return setState(model);
+    // if (alwaysConfirm && editedModel != null) {
+    //   console.log("Confirming model changes");
+    //   confirmChanges();
+    // }
+    setState(model);
+  }, [model]);
+
+  useEffect(() => {
+    revertChanges();
   }, [model]);
 
   const updateModel = useCallback(

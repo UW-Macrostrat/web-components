@@ -39,26 +39,21 @@ NoteTextEditor.propTypes = {
 };
 
 const NoteEditorProvider = function(props) {
-  let { children, inEditMode, noteEditor } = props;
+  let { children, inEditMode = false, noteEditor } = props;
   const { notes } = useContext(NoteLayoutContext);
-  if (inEditMode == null) {
-    inEditMode = false;
-  }
 
-  const [editingNote, setState] = useState(null);
-
-  const setEditingNote = val => setState(val);
+  const [editingNote, setEditingNote] = useState(null);
 
   const deleteNote = function() {
     const val = editingNote;
-    setState(null);
+    setEditingNote(null);
     return props.onDeleteNote(val);
   };
 
   const onCreateNote = function(pos) {
     const { height, top_height } = pos;
     const val = { height, top_height, note: null, symbol: null };
-    return setState(val);
+    return setEditingNote(val);
   };
 
   const value = {
@@ -71,13 +66,11 @@ const NoteEditorProvider = function(props) {
   };
 
   const onConfirmChanges = function(n) {
-    if (n == null) {
+    if (n?.note == null && n == editingNote) {
+      console.log("No changes to note");
       return;
     }
-    if (n.note == null) {
-      return;
-    }
-    if (n === editingNote) {
+    if (notes.contains(editingNote)) {
       return;
     }
     return props.onUpdateNote(n);

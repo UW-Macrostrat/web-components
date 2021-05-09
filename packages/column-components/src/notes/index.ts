@@ -43,6 +43,7 @@ const CancelEditUnderlay = function() {
   const { confirmChanges } = useModelEditor();
   return h(NoteUnderlay, {
     onClick() {
+      console.log("Clicked to cancel note editing");
       return setEditingNote(null);
     }
   });
