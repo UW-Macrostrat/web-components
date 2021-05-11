@@ -20,13 +20,14 @@ function createSettingsContext<T extends object>(defaultValue: T) {
   type Updater = (spec: SettingsUpdateSpec) => void;
   const UpdateContext = createContext<Updater | null>(null);
 
-  const Provider = function (props: SettingsProviderProps & T) {
+  const Provider = function(props: SettingsProviderProps & T) {
     /*
     A settings provider that can be used with LocalStorage
     */
     let { storageID, children, ...defaultSettings } = props;
     // Update from local storage
     let storage = null;
+    console.log("Setting up SettingsProvider [ui-components]");
     if (storageID != null) {
       // Merge initial options if set
       storage = new LocalStorage(storageID);
@@ -38,7 +39,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
 
     // @ts-ignore
     const [settings, setState] = useState<T>(defaultSettings);
-    const updateState = function (spec: SettingsUpdateSpec) {
+    const updateState = function(spec: SettingsUpdateSpec) {
       const newSettings = update(settings, spec);
       setState(newSettings);
       if (storage != null) {
@@ -47,7 +48,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
     };
 
     return h(Context.Provider, { value: settings }, [
-      h(UpdateContext.Provider, { value: updateState }, children),
+      h(UpdateContext.Provider, { value: updateState }, children)
     ]);
   };
 
@@ -66,15 +67,15 @@ function createSettingsContext<T extends object>(defaultValue: T) {
 const [
   SettingsProvider,
   useSettings,
-  useSettingsUpdater,
+  useSettingsUpdater
 ] = createSettingsContext<object>({});
 
 // Deprecated: this is kind of confusing
-const updateSettings = function (func) {
+const updateSettings = function(func) {
   // Update settings using `immutability-helper` semantics
   //@ts-ignore
   const updater = useSettingsUpdater();
-  return function () {
+  return function() {
     //@ts-ignore
     return updater(func(...arguments));
   };
