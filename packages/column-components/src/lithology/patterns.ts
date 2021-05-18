@@ -21,7 +21,7 @@ const GeologicPatternProvider = (props: IGeologicPatternProvider) => {
   const { resolvePattern, children } = props;
   return h(GeologicPatternContext.Provider, {
     value: { resolvePattern },
-    children,
+    children
   });
 };
 
@@ -60,7 +60,7 @@ const GeologicPattern = (props: IGeologicPattern) => {
       id: patternID,
       patternUnits: "userSpaceOnUse",
       ...patternSize,
-      ...rest,
+      ...rest
     },
     [
       h("g", { style: { isolation: "isolate" } }, [
@@ -68,32 +68,32 @@ const GeologicPattern = (props: IGeologicPattern) => {
         h.if(color != null && id != null)("mask", { id: maskID }, [
           h("image", {
             xlinkHref: resolvePattern(id),
-            ...patternBounds,
-          }),
+            ...patternBounds
+          })
         ]),
         h.if(backgroundColor != null)("rect", {
           ...patternBounds,
-          fill: backgroundColor,
+          fill: backgroundColor
         }),
         // Render a masked colored image
         h.if(color != null)("rect", {
           ...patternBounds,
           fill: color,
-          mask: `url(#${maskID})`,
+          mask: `url(#${maskID})`
         }),
         // Or render the image as normal
         h.if(id != null && color == null)("image", {
           xlinkHref: resolvePattern(id),
-          ...patternBounds,
-        }),
-      ]),
+          ...patternBounds
+        })
+      ])
     ]
   );
 };
 
 GeologicPattern.defaultProps = {
   width: 100,
-  height: 100,
+  height: 100
 };
 
 export { GeologicPattern, GeologicPatternProvider, GeologicPatternContext };
