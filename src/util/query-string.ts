@@ -17,12 +17,13 @@ export type QueryParams =
 
 function buildQueryString(
   params: QueryParams,
-  opts?: StringifyOptions
+  opts: StringifyOptions = {}
 ): string {
   let p: string;
   if (typeof params === "string") {
     p = params;
   } else {
+    console.log(params, opts);
     p = stringify(params, { arrayFormat: "comma", ...opts });
   }
   return p;
@@ -48,7 +49,7 @@ function parseParams(paramString: string, opts?: ParseOptions) {
     parseBooleans: true,
     parseNumbers: true,
     arrayFormat: "comma",
-    ...opts
+    ...opts,
   });
   // Return null unless we have params defined
   return Object.keys(params).length > 0 ? params : null;
@@ -64,10 +65,12 @@ function updateURL(joinWith: string, args: QueryArgs, opts?: StringifyOptions) {
 }
 
 const getHashString = () => parseParams(document.location.hash);
-const setHashString = (args: QueryArgs) => updateURL("#", args);
+const setHashString = (args: QueryArgs, opts?: StringifyOptions) =>
+  updateURL("#", args, opts);
 
 const getQueryString = () => parseParams(document.location.search);
-const setQueryString = (args: QueryArgs) => updateURL("?", args);
+const setQueryString = (args: QueryArgs, opts?: StringifyOptions) =>
+  updateURL("?", args, opts);
 
 export {
   buildQueryString,
@@ -75,5 +78,5 @@ export {
   getQueryString,
   setQueryString,
   getHashString,
-  setHashString
+  setHashString,
 };
