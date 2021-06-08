@@ -18,7 +18,9 @@ function recolorPatternImage(
   ctx: CanvasRenderingContext2D,
   img: HTMLImageElement,
   backgroundColor: string,
-  color: string
+  color: string,
+  backgroundAlpha = 1,
+  alpha = 1
 ) {
   // create hidden canvas
   ctx.drawImage(img, 0, 0, img.width, img.height);
@@ -29,7 +31,7 @@ function recolorPatternImage(
   // overlay using source-atop to follow transparency
   ctx.globalCompositeOperation = "source-in";
   //ctx.globalAlpha = 0.3;
-  ctx.globalAlpha = 0.8;
+  ctx.globalAlpha = alpha;
   ctx.fillStyle = color;
   ctx.fillRect(0, 0, img.width, img.height);
 
@@ -37,7 +39,7 @@ function recolorPatternImage(
 
   //const map = ctx.getImageData(0, 0, img.width, img.height);
 
-  ctx.globalAlpha = 0.5;
+  ctx.globalAlpha = backgroundAlpha;
   ctx.fillStyle = backgroundColor;
   ctx.fillRect(0, 0, img.width, img.height);
 
@@ -48,8 +50,6 @@ function recolorPatternImage(
 }
 
 function createSolidColorImage(ctx, imgColor) {
-  var ctx = canvas.getContext("2d");
-
   ctx.globalAlpha = 0.5;
   ctx.fillStyle = imgColor;
   ctx.fillRect(0, 0, 40, 40);
@@ -57,14 +57,14 @@ function createSolidColorImage(ctx, imgColor) {
   //return ctx.getImageData(0, 0, 40, 40);
 }
 
-enum OutputFormat {
-  HTMLImage,
-  Base64
+enum ImageDataFormat {
+  HTMLImageData = "image-data",
+  Base64 = "base64"
 }
 
 async function createPatternImage(
   spec: PatternFillSpec,
-  outputFormat = OutputFormat.HTMLImage
+  outputFormat = ImageDataFormat.HTMLImageData
 ): Promise<ImageData | string> {
   let ctx;
   var canvas = document.createElement("canvas");
@@ -74,7 +74,6 @@ async function createPatternImage(
     ctx = createSolidColorImage(canvas.getContext("2d"), spec.color);
   } else {
     const img = await loadImage(spec.patternURL);
-    var canvas = document.createElement("canvas");
     canvas.width = img.width;
     canvas.height = img.height;
     ctx = canvas.getContext("2d");
@@ -86,11 +85,11 @@ async function createPatternImage(
     );
   }
   switch (outputFormat) {
-    case OutputFormat.HTMLImage:
+    case ImageDataFormat.HTMLImageData:
       return ctx.getImageData(0, 0, canvas.width, canvas.height);
-    case OutputFormat.Base64:
+    case ImageDataFormat.Base64:
       return canvas.toDataURL();
   }
 }
 
-export { recolorPatternImage, createPatternImage, loadImage };
+export { recolorPatternImage, createPatternImage, loadImage, ImageDataFormat };

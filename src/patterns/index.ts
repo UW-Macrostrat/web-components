@@ -1,33 +1,47 @@
-import { createPatternImage, loadImage } from "./composite-image";
+import {
+  createPatternImage,
+  loadImage,
+  ImageDataFormat
+} from "./composite-image";
 import { memoize } from "underscore";
 
-const vizBaseURL = "//visualization-assets.s3.amazonaws.com";
+const vizBaseURL = "https://visualization-assets.s3.amazonaws.com";
 const patternBaseURL = vizBaseURL + "/geologic-patterns/png";
 const lineSymbolsURL = vizBaseURL + "/geologic-line-symbols/png";
 
-function geologyPatternURL(symbol, baseURL = patternBaseURL) {
+function _geologyPatternBaseURL(
+  symbol: string | null,
+  baseURL = patternBaseURL
+) {
+  if (symbol == null) return null;
   return baseURL + `/${symbol}.png`;
 }
 
-async function _geologyPatternImage(
-  patternID: string,
+async function _geologyPatternURL(
+  patternID: string | null,
   color = null,
   patternColor = null
-) {
-  const url = geologyPatternURL(patternID);
+): Promise<string> {
+  const url = _geologyPatternBaseURL(patternID);
   if (color == null && patternColor == null) {
-    return loadImage(url);
+    return url;
   }
 
-  const img = await createPatternImage({
-    patternURL: url,
-    color,
-    patternColor
-  });
+  const img = await createPatternImage(
+    {
+      patternURL: url,
+      color,
+      patternColor
+    },
+    ImageDataFormat.Base64
+  );
   return img;
 }
 
-const geologyPatternImage = memoize(_geologyPatternImage);
+const geologyPatternURL = memoize(_geologyPatternURL);
+
+const geologyPatternImage = async (...args) =>
+  loadImage(await geologyPatternImage(...args));
 
 export { geologyPatternURL, geologyPatternImage };
 export * from "./composite-image";
