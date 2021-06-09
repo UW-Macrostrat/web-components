@@ -10,18 +10,19 @@ import { Component, createContext } from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
 import { ColumnContext } from "./column";
+import { useContext } from "react";
 
 //# This isn't really used yet...
 
 const ColumnLayoutContext = createContext({
   scale: null,
   width: 0,
-  divisions: [],
+  divisions: []
 });
 
 class ColumnLayoutProvider extends Component {
   static propTypes = {
-    width: T.number.isRequired,
+    width: T.number.isRequired
   };
   static contextType = ColumnContext;
   render() {
@@ -35,7 +36,7 @@ class CrossAxisLayoutProvider extends Component {
   static propTypes = {
     width: T.number.isRequired,
     domain: T.arrayOf(T.number).isRequired,
-    range: T.arrayOf(T.number),
+    range: T.arrayOf(T.number)
   };
   static contextType = ColumnContext;
   render() {
@@ -43,11 +44,13 @@ class CrossAxisLayoutProvider extends Component {
     if (range == null) {
       range = [0, width];
     }
-    const xScale = scaleLinear().domain(domain).range(range);
+    const xScale = scaleLinear()
+      .domain(domain)
+      .range(range);
     return h(ColumnLayoutProvider, {
       xScale,
       width,
-      children,
+      children
     });
   }
 }
@@ -69,11 +72,11 @@ class GrainsizeLayoutProvider extends Component {
   static propTypes = {
     width: T.number.isRequired,
     grainsizeScaleStart: T.number,
-    grainSizes: T.arrayOf(T.string),
+    grainSizes: T.arrayOf(T.string)
   };
   static defaultProps = {
     grainSizes: ["ms", "s", "vf", "f", "m", "c", "vc", "p"],
-    grainsizeScaleStart: 50,
+    grainsizeScaleStart: 50
   };
   grainsizeScale() {
     const { grainSizes, width, grainsizeScaleStart } = this.props;
@@ -119,16 +122,19 @@ class GrainsizeLayoutProvider extends Component {
         grainsizeScaleStart,
         grainsizeScaleRange,
         grainsizeForDivision: this.grainsizeForDivision,
-        widthForDivision: this.widthForDivision,
+        widthForDivision: this.widthForDivision
       },
       children
     );
   }
 }
 
+const useColumnLayout = () => useContext(ColumnLayoutContext);
+
 export {
   ColumnLayoutContext,
   ColumnLayoutProvider,
   CrossAxisLayoutProvider,
   GrainsizeLayoutProvider,
+  useColumnLayout
 };

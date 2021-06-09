@@ -2,7 +2,7 @@ import {
   scaleLinear,
   ScaleContinuousNumeric,
   scaleUtc,
-  ScaleLinear,
+  ScaleLinear
 } from "d3-scale";
 import { Component, createContext, useContext } from "react";
 import h from "react-hyperscript";
@@ -34,10 +34,10 @@ const ColumnContext = createContext<ColumnCtx>({
   divisions: [],
   scaleClamped: scaleLinear().clamp(true),
   pixelsPerMeter: 1,
-  zoom: 1,
+  zoom: 1
 });
 
-const rangeOrHeight = function (props, propName) {
+const rangeOrHeight = function(props, propName) {
   const { range, height } = props;
   const rangeExists = range != null && range.length === 2;
   const heightExists = height != null;
@@ -58,13 +58,13 @@ class ColumnProvider extends Component {
     range: rangeOrHeight,
     height: rangeOrHeight,
     pixelsPerMeter: T.number.isRequired,
-    zoom: T.number,
+    zoom: T.number
   };
   static defaultProps = {
     divisions: [],
     width: 150,
     pixelsPerMeter: 20,
-    zoom: 1,
+    zoom: 1
   };
   render() {
     let { children, pixelsPerMeter, zoom, height, range, ...rest } = this.props;
@@ -82,7 +82,9 @@ class ColumnProvider extends Component {
     // same as the old `innerHeight`
     const pixelHeight = height * pixelsPerMeter * zoom;
 
-    const scale = scaleLinear().domain(range).range([pixelHeight, 0]);
+    const scale = scaleLinear()
+      .domain(range)
+      .range([pixelHeight, 0]);
     const scaleClamped = scale.copy().clamp(true);
 
     const value = {
@@ -93,12 +95,13 @@ class ColumnProvider extends Component {
       height,
       scale,
       scaleClamped,
-      ...rest,
+      ...rest
     };
     return h(ColumnContext.Provider, { value }, children);
   }
 }
 
+const useColumn = () => useContext(ColumnContext);
 const useColumnDivisions = () => useContext(ColumnContext).divisions;
 
-export { ColumnContext, ColumnProvider, useColumnDivisions };
+export { ColumnContext, ColumnProvider, useColumnDivisions, useColumn };
