@@ -38,7 +38,7 @@ async function _geologyPatternURL(
   return img;
 }
 
-const geologyPatternURL = memoize(_geologyPatternURL);
+const geologyPatternURL = _geologyPatternURL;
 
 const geologyPatternImage = async (...args) =>
   loadImage(await geologyPatternImage(...args));

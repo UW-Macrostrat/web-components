@@ -49,8 +49,8 @@ function recolorPatternImage(
   return ctx;
 }
 
-function createSolidColorImage(ctx, imgColor) {
-  ctx.globalAlpha = 0.5;
+function createSolidColorImage(ctx, imgColor, alpha = 1) {
+  ctx.globalAlpha = alpha;
   ctx.fillStyle = imgColor;
   ctx.fillRect(0, 0, 40, 40);
   return ctx;
@@ -71,7 +71,10 @@ async function createPatternImage(
   if (spec.patternURL == null) {
     canvas.width = 40;
     canvas.height = 40;
-    ctx = createSolidColorImage(canvas.getContext("2d"), spec.color);
+    ctx = createSolidColorImage(
+      canvas.getContext("2d"),
+      spec.color ?? spec.patternColor
+    );
   } else {
     const img = await loadImage(spec.patternURL);
     canvas.width = img.width;
