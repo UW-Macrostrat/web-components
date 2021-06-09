@@ -19,7 +19,7 @@ declare interface ColumnDivision {
 enum ColumnAxisType {
   AGE = "age",
   HEIGHT = "height",
-  DEPTH = "depth"
+  DEPTH = "depth",
 }
 interface ColumnCtx<T extends ColumnDivision> {
   divisions: T[];
@@ -28,6 +28,7 @@ interface ColumnCtx<T extends ColumnDivision> {
   scale: ColumnScale;
   axisType?: ColumnAxisType;
   zoom: number;
+  id?: string | number | null;
 }
 
 const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
@@ -35,10 +36,10 @@ const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
   divisions: [],
   scaleClamped: scaleLinear().clamp(true),
   pixelsPerMeter: 1,
-  zoom: 1
+  zoom: 1,
 });
 
-const rangeOrHeight = function(props, propName) {
+const rangeOrHeight = function (props, propName) {
   const { range, height } = props;
   const rangeExists = range != null && range.length === 2;
   const heightExists = height != null;
@@ -90,9 +91,7 @@ function ColumnProvider<T extends ColumnDivision>(
   // same as the old `innerHeight`
   const pixelHeight = height * pixelsPerMeter * zoom;
 
-  const scale = scaleLinear()
-    .domain(range)
-    .range([pixelHeight, 0]);
+  const scale = scaleLinear().domain(range).range([pixelHeight, 0]);
   const scaleClamped = scale.copy().clamp(true);
 
   const value: ColumnCtx<T> = {
@@ -106,7 +105,7 @@ function ColumnProvider<T extends ColumnDivision>(
     divisions,
     width,
     axisType,
-    ...rest
+    ...rest,
   };
   return h(ColumnContext.Provider, { value }, children);
 }
@@ -116,7 +115,7 @@ ColumnProvider.propTypes = {
   range: rangeOrHeight,
   height: rangeOrHeight,
   pixelsPerMeter: T.number.isRequired,
-  zoom: T.number
+  zoom: T.number,
 };
 
 const useColumn = () => useContext(ColumnContext);
@@ -127,5 +126,5 @@ export {
   ColumnProvider,
   ColumnAxisType,
   useColumnDivisions,
-  useColumn
+  useColumn,
 };
