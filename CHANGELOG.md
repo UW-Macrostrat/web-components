@@ -1,5 +1,15 @@
 # Changelog
 
+## `[0.6.0]` - 28-06-2021
+
+- **Breaking change**: Move `LinkCard` and other components depending on `react-router-dom` to a separate `ext/router-links` section.
+  This allows applications that don't use `react-router` to still use the bulk of the module
+- Move Changelog to a separate file
+- Upgrade delete button
+- Added an `ErrorBoundary` component
+- Allowed resetting `useStoredState` using a third parameter, as such: `const [state, setState, resetState] = useStoredState(id, initialState)`
+- Can now reset dark mode state to default using a `Shift+click` on the `DarkModeButton`.
+
 ## `[0.5.0]` - 10-02-2021
 
 - Move towards using Axios base types for API context. Allows more advanced abilities
