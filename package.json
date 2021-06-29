@@ -12,7 +12,7 @@
     "watch:main": "rollup -c -w",
     "watch:types": "tsc --emitDeclarationOnly -w",
     "dev": "npm-run-all -p --aggregate-output watch:main watch:types",
-    "build:types": "tsc --emitDeclarationOnly; exit 0",
+    "build:types": "tsc --emitDeclarationOnly",
     "build": "rollup -c && npm run build:types",
     "deploy-docs": "scripts/deploy-docs"
   },
