@@ -3,15 +3,15 @@ import {
   createContext,
   useContext,
   cloneElement,
-  isValidElement
+  isValidElement,
 } from "react";
 import h from "@macrostrat/hyper";
 import { Spinner } from "@blueprintjs/core";
-import ReactJson from "react-json-view";
 import { APIContext, APIActions, APIHelpers } from "./provider";
 import { debounce } from "underscore";
 import { APIConfig } from "./types";
 import { QueryParams } from "../util/query-string";
+import { JSONView } from "../util/json-view";
 
 const APIViewContext = createContext<APIViewCTX<any> | null>(null);
 const APIViewConsumer = APIViewContext.Consumer;
@@ -66,9 +66,9 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     // method will be called with null data
     placeholder: APIResultPlaceholder,
     debounce: 300,
-    children: data => {
-      return h(ReactJson, { src: data });
-    }
+    children: (data) => {
+      return h(JSONView, { data });
+    },
   };
   _didFetch: boolean;
   _lazyGetData: () => Promise<void>;
@@ -130,15 +130,8 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
 }
 
 const APIView = <T>(props: APIViewProps<T>): React.ReactElement => {
-  const {
-    data,
-    children,
-    placeholder,
-    params,
-    route,
-    isLoading,
-    ...rest
-  } = props;
+  const { data, children, placeholder, params, route, isLoading, ...rest } =
+    props;
   const value = { data, params, placeholder, route, isLoading, ...rest };
 
   console.warn(
@@ -157,7 +150,7 @@ const APIView = <T>(props: APIViewProps<T>): React.ReactElement => {
       { value },
       cloneElement(children, {
         data,
-        isLoading
+        isLoading,
       })
     );
   }
@@ -165,7 +158,7 @@ const APIView = <T>(props: APIViewProps<T>): React.ReactElement => {
 };
 
 APIView.defaultProps = {
-  isLoading: false
+  isLoading: false,
 };
 
 const useAPIView = () => useContext(APIViewContext);
@@ -177,5 +170,5 @@ export {
   APIResultProps,
   APIPlaceholderProps,
   APIView,
-  useAPIView
+  useAPIView,
 };
