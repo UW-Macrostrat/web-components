@@ -1,4 +1,4 @@
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import classNames from "classnames";
 
 function LinkCard(props) {
