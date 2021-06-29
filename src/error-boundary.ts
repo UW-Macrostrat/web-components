@@ -12,13 +12,21 @@ function ErrorCallout(props) {
     {
       title,
       icon: "error",
-      intent: "danger"
+      intent: "danger",
     },
-    [h("p", [des])]
+    h("p", null, des)
   );
 }
 
-class ErrorBoundary extends Component {
+type ErrorBoundaryProps = {
+  description?: string;
+  title?: string;
+};
+type ErrorBoundaryState = {
+  error: Error | null;
+};
+
+class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   constructor(props) {
     super(props);
     this.state = { error: null };
@@ -35,15 +43,18 @@ class ErrorBoundary extends Component {
   }
 
   render() {
-    if (this.state.error != null) {
-      let { description } = this.props;
-      const { error } = this.state;
-      if (description == null) description = error.toString();
+    const { error } = this.state;
+    if (error != null) {
+      const {
+        description = error.toString(),
+        title = "A rendering error has occured",
+      } = this.props;
+
       // You can render any custom fallback UI
       return h(ErrorCallout, {
         error,
         description,
-        title: "A rendering error has occured"
+        title,
       });
     }
 
