@@ -1,11 +1,9 @@
-import { Component } from "react";
+import { Component, ReactNode } from "react";
 import { Callout } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 
 function ErrorCallout(props) {
-  const { error, description, title } = props;
-
-  const des = description ? description : error.toString();
+  const { error, title = "Unknown error" } = props;
 
   return h(
     Callout,
@@ -14,13 +12,20 @@ function ErrorCallout(props) {
       icon: "error",
       intent: "danger",
     },
-    h("p", null, des)
+    h(
+      "p",
+      null,
+      props.description ?? error?.toString() ?? "No description available"
+    )
   );
 }
 
 type ErrorBoundaryProps = {
   description?: string;
   title?: string;
+  fallback?: ReactNode;
+  override?: boolean;
+  onCatch?(error: Error, info: any): void;
 };
 type ErrorBoundaryState = {
   error: Error | null;
@@ -40,21 +45,23 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   componentDidCatch(error, info) {
     // You can also log the error to an error reporting service
     console.log(error);
+    this.props.onCatch?.(error, info);
   }
 
   render() {
     const { error } = this.state;
-    if (error != null) {
-      const {
-        description = error.toString(),
-        title = "A rendering error has occured",
-      } = this.props;
+    const { override = false } = this.props;
+    if (error != null || override) {
+      if (this.props.fallback != null) return this.props.fallback;
 
       // You can render any custom fallback UI
       return h(ErrorCallout, {
         error,
-        description,
-        title,
+        description:
+          this.props.description ??
+          error?.toString() ??
+          "No description available",
+        title: this.props.title ?? "A rendering error has occured",
       });
     }
 
