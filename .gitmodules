@@ -10,3 +10,6 @@
 [submodule "packages/timescale"]
 	path = packages/timescale
 	url = https://github.com/UW-Macrostrat/timescale
+[submodule "packages/data-sheet"]
+	path = packages/data-sheet
+	url = https://github.com/UW-Macrostrat/data-sheet
