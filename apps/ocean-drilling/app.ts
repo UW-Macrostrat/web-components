@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper"
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components"
 import { GeologicPatternProvider } from "@macrostrat/column-components"
 import { ColumnMapNavigator } from "common/column-map"
-import patterns from "../../geologic-patterns/*.png"
+import patterns from "url:../../geologic-patterns/*.png"
 import { useColumnNav } from "common/macrostrat-columns"
 
 const ColumnManager = () => {

@@ -4,9 +4,9 @@
   "description": "A renderer for Macrostrat columns",
   "main": "index.html",
   "scripts": {
-    "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
     "dev": "npm-run-all -l -p dev:core watch:**",
-    "dev:core": "parcel serve apps/*/index.html apps/index.html",
+    "postinstall": "lerna bootstrap --hoist",
+    "dev:core": "parcel serve apps/index.html",
     "deploy:steno": "./deploy/deploy-steno.sh",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
@@ -24,6 +24,7 @@
     "common": "./packages/common/src"
   },
   "devDependencies": {
+    "@parcel/transformer-stylus": "2.0.0-beta.3.1",
     "@types/d3-geo": "^2.0.0",
     "@types/geojson": "^7946.0.7",
     "bulk": "^2.0.1",
@@ -31,7 +32,7 @@
     "lerna": "^4.0.0",
     "linklocal": "^2.8.2",
     "npm-run-all": "^4.1.5",
-    "parcel-bundler": "^1.12.4",
+    "parcel": "2.0.0-beta.3.1",
     "prettier": "^1.19.1",
     "stylus": "^0.54.7",
     "typescript": "^4.3.5"
