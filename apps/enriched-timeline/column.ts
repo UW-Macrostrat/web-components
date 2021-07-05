@@ -81,8 +81,8 @@ const Section = (props: IColumnProps) => {
         },
         [
           h(CompositeUnitsColumn, {
-            width: 600,
-            columnWidth: 280,
+            width: 400,
+            columnWidth: 140,
             gutterWidth: 0,
           }),
         ]
