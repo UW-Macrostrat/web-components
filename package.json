@@ -2,7 +2,6 @@
   "name": "@macrostrat/section-renderer",
   "version": "1.0.0",
   "description": "A renderer for Macrostrat columns",
-  "main": "index.html",
   "scripts": {
     "dev": "npm-run-all -l -p dev:core watch:**",
     "postinstall": "lerna bootstrap --hoist",
@@ -24,7 +23,7 @@
     "common": "./packages/common/src"
   },
   "devDependencies": {
-    "@parcel/transformer-stylus": "2.0.0-beta.3.1",
+    "@parcel/resolver-glob": "^2.0.0-nightly.2374",
     "@types/d3-geo": "^2.0.0",
     "@types/geojson": "^7946.0.7",
     "bulk": "^2.0.1",
@@ -32,7 +31,7 @@
     "lerna": "^4.0.0",
     "linklocal": "^2.8.2",
     "npm-run-all": "^4.1.5",
-    "parcel": "2.0.0-beta.3.1",
+    "parcel": "^2.0.0-nightly.750",
     "prettier": "^1.19.1",
     "stylus": "^0.54.7",
     "typescript": "^4.3.5"
@@ -46,6 +45,7 @@
     "@macrostrat/map-components": "file:./packages/map-components",
     "@macrostrat/timescale": "file:./packages/timescale",
     "@macrostrat/ui-components": "file:./packages/ui-components",
+    "@parcel/transformer-stylus": "^2.0.0-nightly.752",
     "@react-hook/size": "^2.1.1",
     "@types/react": "^16.14.2",
     "@vx/axis": "^0.0.199",
