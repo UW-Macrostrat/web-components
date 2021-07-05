@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { findDOMNode } from "react-dom";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 
 type ConfinedImageProps = {
   maxHeight?: number | null;
@@ -41,12 +41,12 @@ class ConfinedImage extends Component<ConfinedImageProps, ConfinedImageState> {
 
     const imgStyle = {
       maxHeight,
-      maxWidth
+      maxWidth,
     };
 
     const style = { maxHeight, maxWidth };
     return h("div.image-container", { style }, [
-      h("img", { src, style: imgStyle })
+      h("img", { src, style: imgStyle }),
     ]);
   }
 

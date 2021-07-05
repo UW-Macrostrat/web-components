@@ -27,6 +27,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
     let { storageID, children, ...defaultSettings } = props;
     // Update from local storage
     let storage = null;
+    console.log("Setting up SettingsProvider [ui-components]");
     if (storageID != null) {
       // Merge initial options if set
       storage = new LocalStorage(storageID);
@@ -56,6 +57,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
   const useUpdater = (key: string | undefined) => {
     const updater = useContext(UpdateContext);
     if (key == null) return updater;
+    //@ts-ignore
     return (spec: Spec<any>) => updater({ [key]: spec });
   };
 
@@ -71,10 +73,12 @@ const [
 // Deprecated: this is kind of confusing
 const updateSettings = function(func) {
   // Update settings using `immutability-helper` semantics
+  //@ts-ignore
   const updater = useSettingsUpdater();
   return function() {
+    //@ts-ignore
     return updater(func(...arguments));
   };
 };
 
-export { SettingsProvider, useSettings, updateSettings };
+export { SettingsProvider, useSettings, updateSettings, createSettingsContext };

@@ -9,7 +9,7 @@ const deps = { ...pkg.dependencies, ...pkg.peerDependencies };
 const extensions = [".js", ".ts", ".d.ts"];
 
 export default {
-  input: "src/index.ts", // our source file
+  input: ["src/index.ts", "src/ext/router-links.ts"], // our source file
   preserveModules: true,
   output: [
     {

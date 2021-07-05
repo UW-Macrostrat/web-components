@@ -1,4 +1,4 @@
-import { Component, createContext, useContext } from "react";
+import { Component, createContext, ReactElement, useContext } from "react";
 import h from "@macrostrat/hyper";
 import { DateInput } from "@blueprintjs/datetime";
 import { EditableText } from "@blueprintjs/core";
@@ -6,18 +6,17 @@ import { EditButton, DeleteButton } from "./buttons";
 import { StatefulComponent } from "./util";
 import classNames from "classnames";
 import update, { Spec } from "immutability-helper";
-import T from "prop-types";
 
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
 const ModelEditorContext = createContext<any>({});
 
-function ModelEditButton(props) {
+function ModelEditButton(props): ReactElement {
   const { isEditing, actions } = useContext(ModelEditorContext);
   return h(EditButton, {
     isEditing,
     onClick: actions.toggleEditing,
-    ...props
+    ...props,
   });
 }
 
@@ -41,13 +40,8 @@ class ModelEditor<T> extends StatefulComponent<
   ModelEditorState<T>
 > {
   static defaultProps = {
-    canEdit: true
+    canEdit: true,
   };
-  static propTypes = {
-    model: T.object.isRequired,
-    persistChanges: T.func
-  };
-
   constructor(props) {
     super(props);
     this.getValue = this.getValue.bind(this);
@@ -61,11 +55,11 @@ class ModelEditor<T> extends StatefulComponent<
       isPersisting: null,
       error: null,
       model: props.model,
-      initialModel: props.model
+      initialModel: props.model,
     };
   }
 
-  render() {
+  render(): ReactElement {
     const { model } = this.state;
     const { canEdit } = this.props;
     const isEditing = this.state.isEditing && canEdit;
@@ -78,7 +72,7 @@ class ModelEditor<T> extends StatefulComponent<
       model,
       isEditing,
       canEdit,
-      hasChanges: this.hasChanges
+      hasChanges: this.hasChanges,
     };
     return h(ModelEditorContext.Provider, { value }, this.props.children);
   }
@@ -95,7 +89,7 @@ class ModelEditor<T> extends StatefulComponent<
   }
 
   onChange(field) {
-    return value => {
+    return (value) => {
       // @ts-ignore
       return this.updateState({ model: { [field]: { $set: value } } });
     };
@@ -198,7 +192,7 @@ function EditableMultilineText(props: any): React.ReactNode {
       multiline: true,
       className,
       onChange,
-      value
+      value,
     });
   }
   return h("div.text", { className }, value);
@@ -216,13 +210,13 @@ class EditableDateField extends Component<any, any> {
     return h(DateInput, {
       className: "date-input",
       value: new Date(value),
-      formatDate: date => date.toLocaleDateString(),
+      formatDate: (date) => date.toLocaleDateString(),
       placeholder: "MM/DD/YYYY",
       showActionsBar: true,
       onChange: actions.onChange(field),
       parseDate(d) {
         return new Date(d);
-      }
+      },
     });
   }
 }
@@ -235,5 +229,5 @@ export {
   ModelEditButton,
   EditableMultilineText,
   EditableDateField,
-  useModelEditor
+  useModelEditor,
 };

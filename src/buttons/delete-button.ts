@@ -9,10 +9,17 @@ interface P {
 }
 
 function DeleteButton(props: P) {
-  let { handleDelete, alertContent, itemDescription, ...rest } = props;
+  let {
+    handleDelete = () => {},
+    alertContent,
+    itemDescription = "this item",
+    ...rest
+  } = props;
   const [alertIsShown, setIsShown] = useState(false);
 
-  alertContent = ["Are you sure you want to delete ", itemDescription, "?"];
+  alertContent =
+    alertContent ??
+    h(["Are you sure you want to delete ", itemDescription, "?"]);
 
   const onCancel = () => setIsShown(false);
 
@@ -41,11 +48,5 @@ function DeleteButton(props: P) {
     )
   ]);
 }
-
-DeleteButton.defaultProps = {
-  handleDelete() {},
-  alertContent: null,
-  itemDescription: "this item"
-};
 
 export { DeleteButton };
