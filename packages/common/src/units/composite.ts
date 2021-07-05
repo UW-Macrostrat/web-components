@@ -143,10 +143,4 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
   ])
 }
 
-export {
-  UnitsColumn,
-  UnitNamesColumn,
-  SimpleUnitsColumn,
-  CompositeUnitsColumn,
-  ICompositeUnitProps,
-}
+export { UnitNamesColumn, CompositeUnitsColumn, ICompositeUnitProps }
