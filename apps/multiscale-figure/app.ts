@@ -4,7 +4,7 @@ import { GeologicPatternProvider } from "@macrostrat/column-components"
 import Column from "../carbon-isotopes/column"
 import { ColumnMapNavigator, MeasurementsLayer } from "common/column-map"
 import { MeasurementDataProvider } from "../carbon-isotopes/data-provider"
-import { MacrostratMeasurementProvider } from "./data-provider"
+import { MacrostratMeasurementProvider } from "./data-providers"
 import { useColumnNav } from "common/macrostrat-columns"
 import { ColumnMapNavigator } from "common/column-map"
 import Column2 from "../enriched-timeline/column"
@@ -43,7 +43,11 @@ const ColumnManager = () => {
   const params1 = { col_id: 1481 }
   return h("div.column-ui", [
     h("div.column-left", [
-      h(MacrostratMeasurementProvider, params1, h(Column, { params: params1 })),
+      h(
+        MacrostratMeasurementProvider,
+        { target: params1, source: { col_id } },
+        h(Column, { params: params1 })
+      ),
     ]),
     h("div.column-view", [
       h(ColumnTitle, { data: columnFeature?.properties }),
