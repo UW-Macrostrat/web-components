@@ -16,6 +16,7 @@ interface IColumnProps {
   data: IUnit[]
   pixelScale?: number
   isOldestColumn: boolean
+  range?: [number, number]
 }
 
 const AgeAxis = ({ ticks }) => {
@@ -31,12 +32,14 @@ const AgeAxis = ({ ticks }) => {
 
 const Section = (props: IColumnProps) => {
   // Section with "squishy" time scale
-  const { data, isOldestColumn = true } = props
+  const {
+    data,
+    isOldestColumn = true,
+    range = [data[data.length - 1].b_age, data[0].t_age],
+  } = props
   let { pixelScale } = props
 
   const notesOffset = 100
-
-  const range = [data[data.length - 1].b_age, data[0].t_age]
 
   if (!pixelScale) {
     // Make up a pixel scale
@@ -118,4 +121,5 @@ function Column(props: IColumnProps) {
   ])
 }
 
+export { Section, IColumnProps }
 export default Column

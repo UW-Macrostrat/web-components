@@ -1,7 +1,7 @@
 import h, { C, compose } from "@macrostrat/hyper"
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components"
 import { GeologicPatternProvider } from "@macrostrat/column-components"
-import Column from "../carbon-isotopes/column"
+import { Section, IColumnProps } from "../carbon-isotopes/column"
 import { MeasurementDataProvider } from "../carbon-isotopes/data-provider"
 import { MacrostratMeasurementProvider } from "./data-providers"
 import { useColumnNav } from "common/macrostrat-columns"
@@ -15,6 +15,26 @@ const columnArgs = {
   col_id: 2163,
   project_id: 10,
   status_code: "in process",
+}
+
+function Column(props: IColumnProps) {
+  const { params } = props
+  const data: IUnit[] = useAPIResult("/units", {
+    all: true,
+    ...params,
+    response: "long",
+  })
+  if (data == null) return null
+
+  return h("div.column", [
+    h("div.age-axis-label", "Age (Ma)"),
+    h(Section, {
+      range: [650, 540],
+      pixelScale: 8,
+      data,
+      isOldestColumn: true,
+    }),
+  ])
 }
 
 const ColumnManager = () => {
