@@ -17,12 +17,13 @@ import "@macrostrat/timescale/dist/timescale.css"
 interface IColumnProps {
   data: IUnit[]
   pixelScale?: number
+  range?: [number, number]
 }
 
-const AgeAxis = ({ ticks }) => {
+const AgeAxisCore = ({ ticks, tickSpacing = 40 }) => {
   const { pixelHeight } = useContext(ColumnContext)
   // A tick roughly every 40 pixels
-  let v = Math.max(Math.round(pixelHeight / 40), 1)
+  let v = Math.max(Math.round(pixelHeight / tickSpacing), 1)
 
   return h(ColumnAxis, {
     ticks: v,
@@ -30,14 +31,21 @@ const AgeAxis = ({ ticks }) => {
   })
 }
 
+function AgeAxis(props) {
+  const { ticks, tickSpacing, ...rest } = props
+  return h("div.column", [
+    h("div.age-axis-label", "Age (Ma)"),
+    h(ColumnSVG, rest, h(AgeAxisCore, { ticks, tickSpacing })),
+  ])
+}
+
 const Section = (props: IColumnProps) => {
   // Section with "squishy" time scale
-  const { data } = props
+  const { data, range = [data[data.length - 1].b_age, data[0].t_age] } = props
   let { pixelScale } = props
 
   const notesOffset = 100
 
-  const range = [data[data.length - 1].b_age, data[0].t_age]
   const dAge = range[0] - range[1]
 
   if (!pixelScale) {
@@ -54,15 +62,11 @@ const Section = (props: IColumnProps) => {
       pixelsPerMeter: pixelScale, // Actually pixels per myr
     },
     [
-      h(
-        ColumnSVG,
-        {
-          width: 30,
-          padding: 20,
-          paddingV: 5,
-        },
-        [h(AgeAxis)]
-      ),
+      h(AgeAxis, {
+        width: 30,
+        padding: 20,
+        paddingV: 5,
+      }),
       h(Timescale, {
         orientation: TimescaleOrientation.VERTICAL,
         length: dAge * pixelScale,
@@ -109,4 +113,5 @@ const Column = (props: IColumnProps) => {
   ])
 }
 
+export { Section, AgeAxis }
 export default Column

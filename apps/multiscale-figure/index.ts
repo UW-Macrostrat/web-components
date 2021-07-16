@@ -10,6 +10,6 @@ FocusStyleManager.onlyShowFocusOnTabs()
 
 import { render } from "react-dom"
 import h from "@macrostrat/hyper"
-import App from "./app"
+import App from "./src/app"
 
 render(h(App), document.querySelector("#app"))
