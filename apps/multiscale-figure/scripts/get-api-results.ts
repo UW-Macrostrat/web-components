@@ -1,5 +1,5 @@
 import axios from "axios"
-import { writeFileSync } from "fs"
+import { writeJSON } from "./utils"
 
 const apiBaseURL = "https://dev.macrostrat.org/api/v2"
 
@@ -27,6 +27,6 @@ for (let key in apiParams) {
   }
   const promise = axios.get(url)
   promise.then(response => {
-    writeFileSync(`./data/${key}.json`, JSON.stringify(response.data))
+    writeJSON(key, response.data)
   })
 }
