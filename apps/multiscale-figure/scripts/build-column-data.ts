@@ -2,18 +2,26 @@ import axios from "axios"
 import { apiBaseURL } from "../config"
 import { writeJSON } from "./utils"
 
-async function buildMacrostratMeasurements() {
+interface ColumnSpec {
+  col_id: number
+  status_code?: string
+  project_id?: number
+}
+
+export async function buildMacrostratMeasurements(
+  sourceColumn: ColumnSpec,
+  targetColumn: ColumnSpec
+) {
   // Get the measurements associated with the medium column
   const { data: res } = await axios.get(apiBaseURL + "/measurements", {
     params: {
-      col_id: 2163,
-      project_id: 10,
+      ...sourceColumn,
       show_values: true,
       response: "long",
     },
   })
 
-  const targetCol = 1481
+  const targetCol = targetColumn.col_id
 
   let data = []
 
@@ -38,6 +46,13 @@ async function buildMacrostratMeasurements() {
   return res2
 }
 
-buildMacrostratMeasurements().then(data => {
+buildMacrostratMeasurements(
+  {
+    col_id: 2163,
+    project_id: 10,
+    status_code: "in process",
+  },
+  { col_id: 1481 }
+).then(data => {
   writeJSON("macrostrat/measurements", data)
 })
