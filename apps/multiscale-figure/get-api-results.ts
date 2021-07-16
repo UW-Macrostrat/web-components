@@ -27,9 +27,6 @@ for (let key in apiParams) {
   }
   const promise = axios.get(url)
   promise.then(response => {
-    writeFileSync(
-      `./apps/multiscale-figure/data/${key}.json`,
-      JSON.stringify(response.data)
-    )
+    writeFileSync(`./data/${key}.json`, JSON.stringify(response.data))
   })
 }

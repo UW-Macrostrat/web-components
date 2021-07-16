@@ -11,10 +11,9 @@ function MeasurementDataProvider(props) {
     show_values: true,
     response: "long",
   })
-
   return h(MeasurementDataContext.Provider, { value: res, children })
 }
 
 const useMeasurementData = () => useContext(MeasurementDataContext)
 
-export { MeasurementDataProvider, useMeasurementData }
+export { MeasurementDataProvider, useMeasurementData, MeasurementDataContext }

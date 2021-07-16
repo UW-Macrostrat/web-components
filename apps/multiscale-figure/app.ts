@@ -4,17 +4,30 @@ import { GeologicPatternProvider } from "@macrostrat/column-components"
 import Column from "../carbon-isotopes/column"
 import { ColumnMapNavigator, MeasurementsLayer } from "common/column-map"
 import { MeasurementDataProvider } from "../carbon-isotopes/data-provider"
-import patterns from "url:../../geologic-patterns/*.png"
 import { useColumnNav } from "common/macrostrat-columns"
+import { ColumnMapNavigator } from "common/column-map"
+import Column2 from "../enriched-timeline/column"
+import patterns from "url:../../geologic-patterns/*.png"
 
 const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name)
 }
 
 const defaultArgs = {
-  col_id: 2192,
+  col_id: 2163,
   project_id: 10,
   status_code: "in process",
+}
+
+const ColumnView = props => {
+  const { params } = props
+  const data = useAPIResult("/units", {
+    all: true,
+    ...params,
+    response: "long",
+  })
+  if (data == null) return null
+  return h(Column2, { data })
 }
 
 const ColumnManager = () => {
@@ -26,29 +39,15 @@ const ColumnManager = () => {
   const res = useAPIResult("/columns", colParams, [columnArgs])
   const columnFeature = res?.features[0]
 
-  return h(MeasurementDataProvider, columnArgs, [
-    h("div.column-ui", [
-      h("div.column-view", [
-        h(ColumnTitle, { data: columnFeature?.properties }),
+  const params1 = { col_id: 1481 }
+  return h("div.column-ui", [
+    h("div.column-left", [
+      h(MeasurementDataProvider, params1, h(Column, { params: params1 })),
+    ]),
+    h("div.column-view", [
+      h(ColumnTitle, { data: columnFeature?.properties }),
+      h(MeasurementDataProvider, columnArgs, [
         h(Column, { params: columnArgs }),
-      ]),
-      h("div.map-column", [
-        h(
-          ColumnMapNavigator,
-          {
-            currentColumn: columnFeature,
-            setCurrentColumn,
-            margin: 0,
-            ...projectParams,
-          },
-          h(MeasurementsLayer, {
-            ...projectParams,
-            style: {
-              fill: "dodgerblue",
-              stroke: "blue",
-            },
-          })
-        ),
       ]),
     ]),
   ])
