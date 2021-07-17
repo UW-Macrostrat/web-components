@@ -1,26 +1,26 @@
-import h from "@macrostrat/hyper"
-import { useRef, useEffect, useState } from "react"
+import h from "@macrostrat/hyper";
+import { useRef, useEffect, useState } from "react";
 
 interface ElementSize {
-  width: number
-  height: number
+  width: number;
+  height: number;
 }
 
 function refSize(ref: React.RefObject<HTMLElement>): ElementSize {
-  const { width, height } = ref.current?.getBoundingClientRect()
-  return { width, height }
+  const { width, height } = ref.current?.getBoundingClientRect();
+  return { width, height };
 }
 
 type SizeAwareLabelProps = React.HTMLProps<"div"> & {
-  label: React.ReactNode
-  labelClassName: string
-  isShown?: boolean
+  label: React.ReactNode;
+  labelClassName: string;
+  isShown?: boolean;
   onVisibilityChanged?(
     fits: boolean,
     containerSize: ElementSize,
     labelSize: ElementSize
-  ): void
-}
+  ): void;
+};
 
 function SizeAwareLabel(props: SizeAwareLabelProps) {
   /** A label that only renders if it fits within its container div.
@@ -39,25 +39,26 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
     className,
     labelClassName,
     ...rest
-  } = props
-  const containerRef = useRef<HTMLElement>()
-  const labelRef = useRef<HTMLElement>()
-  const [fits, setFits] = useState<boolean | null>(null)
+  } = props;
+  const containerRef = useRef<HTMLElement>();
+  const labelRef = useRef<HTMLElement>();
+  const [fits, setFits] = useState<boolean | null>(null);
   useEffect(() => {
-    const containerSz = refSize(containerRef)
-    const labelSz = refSize(labelRef)
+    const containerSz = refSize(containerRef);
+    const labelSz = refSize(labelRef);
     const doesFit =
-      labelSz.width <= containerSz.width && labelSz.height <= containerSz.height
-    setFits(doesFit)
-  }, [containerRef, labelRef, label])
+      labelSz.width <= containerSz.width &&
+      labelSz.height <= containerSz.height;
+    setFits(doesFit);
+  }, [containerRef, labelRef, label]);
 
   // Report whether label fits upwards, if needed
   useEffect(() => {
-    if (fits == null) return
-    onVisibilityChanged?.(fits, refSize(containerRef), refSize(labelRef))
-  }, [fits])
+    if (fits == null) return;
+    onVisibilityChanged?.(fits, refSize(containerRef), refSize(labelRef));
+  }, [fits]);
 
-  const shouldShow = isShown ?? fits ?? true
+  const shouldShow = isShown ?? fits ?? true;
 
   return h(
     "div.label-container",
@@ -67,11 +68,11 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
       {
         className: labelClassName,
         ref: labelRef,
-        style: { visibility: shouldShow ? "visible" : "hidden" },
+        style: { visibility: shouldShow ? "visible" : "hidden" }
       },
       h("span.label-text", null, label)
     )
-  )
+  );
 }
 
-export { SizeAwareLabel }
+export { SizeAwareLabel };

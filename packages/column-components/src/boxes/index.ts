@@ -1,1 +1,1 @@
-export * from "./labeled"
+export * from "./labeled";

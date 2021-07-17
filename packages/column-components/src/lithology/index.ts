@@ -1,28 +1,28 @@
-import { Component, useContext } from "react"
-import h from "react-hyperscript"
-import classNames from "classnames"
-import T from "prop-types"
+import { Component, useContext } from "react";
+import h from "react-hyperscript";
+import classNames from "classnames";
+import T from "prop-types";
 import {
   SimpleFrame,
   GrainsizeFrame,
   ClipToFrame,
-  UUIDComponent,
-} from "../frame"
+  UUIDComponent
+} from "../frame";
 import {
   FaciesContext,
   ColumnContext,
   ColumnLayoutContext,
-  ColumnLayoutProvider,
-} from "../context"
-import { GeologicPattern } from "./patterns"
-import { LithologySymbolDefs } from "./column-patterns"
+  ColumnLayoutProvider
+} from "../context";
+import { GeologicPattern } from "./patterns";
+import { LithologySymbolDefs } from "./column-patterns";
 
 // Malformed es6 module
-let v = require("react-svg-textures")
+let v = require("react-svg-textures");
 if (v.default != null) {
-  v = v.default
+  v = v.default;
 }
-const { Lines } = v
+const { Lines } = v;
 
 const symbolIndex = {
   "dolomite-limestone": 641,
@@ -37,110 +37,110 @@ const symbolIndex = {
   "dolomite-mudstone": 642,
   mudstone: 620,
   "sandy-dolomite": 645,
-  quartzite: 702,
-}
+  quartzite: 702
+};
 
 const isCarbonateSymbol = function(d) {
   /*
   Does this FGDC pattern correspond to a carbonate rock?
   */
   if (d < 627) {
-    return false
+    return false;
   }
   if (d > 648) {
-    return false
+    return false;
   }
-  return true
-}
+  return true;
+};
 
 const defaultResolveID = function(d) {
   // Changed pattern to lithology
   if (d == null) {
-    return null
+    return null;
   }
   if (!(d.fgdc_pattern != null || d.pattern != null)) {
-    return null
+    return null;
   }
   if (d.fgdc_pattern != null) {
-    return `${d.fgdc_pattern}`
+    return `${d.fgdc_pattern}`;
   }
-  return `${symbolIndex[d.pattern]}`
-}
+  return `${symbolIndex[d.pattern]}`;
+};
 
 const carbonateResolveID = function(d) {
   // Just whether a carbonate or not
-  v = defaultResolveID(d)
+  v = defaultResolveID(d);
   if (v == null) {
-    return v
+    return v;
   }
   if (isCarbonateSymbol(v)) {
-    return 627
+    return 627;
   } else {
-    return -1
+    return -1;
   }
-}
+};
 
 const __divisionSize = function(d) {
-  let { bottom, top } = d
+  let { bottom, top } = d;
   if (top < bottom) {
-    ;[top, bottom] = [bottom, top]
+    [top, bottom] = [bottom, top];
   }
-  return [bottom, top]
-}
+  return [bottom, top];
+};
 
 class ColumnRect extends Component {
   static initClass() {
-    this.contextType = ColumnContext
+    this.contextType = ColumnContext;
     this.propTypes = {
       division: T.object.isRequired,
-      padWidth: T.bool,
-    }
+      padWidth: T.bool
+    };
     this.defaultProps = {
-      padWidth: false,
-    }
+      padWidth: false
+    };
   }
   render() {
-    const { scale } = this.context
-    let { division: d, padWidth, key, width, ...rest } = this.props
-    const [bottom, top] = __divisionSize(d)
-    const y = scale(top)
-    let x = 0
+    const { scale } = this.context;
+    let { division: d, padWidth, key, width, ...rest } = this.props;
+    const [bottom, top] = __divisionSize(d);
+    const y = scale(top);
+    let x = 0;
     if (padWidth) {
-      x -= 5
-      width += 10
+      x -= 5;
+      width += 10;
     }
-    const height = scale(bottom) - y
+    const height = scale(bottom) - y;
     if (key == null) {
-      key = d.id
+      key = d.id;
     }
-    return h("rect", { x, y, width, height, key, ...rest })
+    return h("rect", { x, y, width, height, key, ...rest });
   }
 }
-ColumnRect.initClass()
+ColumnRect.initClass();
 
 const expandDivisionsByKey = function(divisions, key) {
-  const __ = [{ ...divisions[0] }]
+  const __ = [{ ...divisions[0] }];
   for (let d of Array.from(divisions)) {
-    const ix = __.length - 1
-    const shouldSkip = d[key] == null || d[key] === __[ix][key]
+    const ix = __.length - 1;
+    const shouldSkip = d[key] == null || d[key] === __[ix][key];
     if (shouldSkip) {
-      __[ix].top = d.top
+      __[ix].top = d.top;
     } else {
-      __.push({ ...d })
+      __.push({ ...d });
     }
   }
-  return __
+  return __;
   if (__.length === 1) {
-    return null
+    return null;
   }
-}
+};
 
 const ParameterIntervals = function(props) {
-  const { divisions, width } = useContext(ColumnLayoutContext)
-  const { padWidth, parameter: key, fillForInterval, minimumHeight } = props
-  const newDivisions = expandDivisionsByKey(divisions, key)
+  const { divisions, width } = useContext(ColumnLayoutContext);
+  const { padWidth, parameter: key, fillForInterval, minimumHeight } = props;
+  const newDivisions = expandDivisionsByKey(divisions, key);
   if (newDivisions.length === 1) {
-    return null
+    return null;
   }
   return h(
     "g",
@@ -151,36 +151,36 @@ const ParameterIntervals = function(props) {
         division: div,
         padWidth,
         fill: fillForInterval(div[key], div),
-        width,
+        width
       })
     )
-  )
-}
+  );
+};
 
 ParameterIntervals.propTypes = {
   padWidth: T.number,
   parameter: T.string.isRequired,
-  fillForInterval: T.func.isRequired,
-}
+  fillForInterval: T.func.isRequired
+};
 
 const FaciesColumnInner = function(props) {
-  const { getFaciesColor } = useContext(FaciesContext)
+  const { getFaciesColor } = useContext(FaciesContext);
   return h(ParameterIntervals, {
     parameter: "facies",
     fillForInterval(param, division) {
-      const { facies, facies_color } = division
-      return getFaciesColor(facies) || facies_color
+      const { facies, facies_color } = division;
+      return getFaciesColor(facies) || facies_color;
     },
-    ...props,
-  })
-}
+    ...props
+  });
+};
 
 class CoveredOverlay extends UUIDComponent {
-  static contextType = ColumnLayoutContext
+  static contextType = ColumnLayoutContext;
   render() {
-    const { divisions, width } = this.context
-    const fill = `url(#${this.UUID}-covered)`
-    const coveredDivs = divisions.filter(d => d.covered)
+    const { divisions, width } = this.context;
+    const fill = `url(#${this.UUID}-covered)`;
+    const coveredDivs = divisions.filter(d => d.covered);
 
     return h("g.covered-overlay", {}, [
       h("defs", [
@@ -188,137 +188,137 @@ class CoveredOverlay extends UUIDComponent {
           id: `${this.UUID}-covered`,
           size: 9,
           strokeWidth: 3,
-          stroke: "rgba(0,0,0,0.5)",
-        }),
+          stroke: "rgba(0,0,0,0.5)"
+        })
       ]),
       h(
         "g.main",
         coveredDivs.map(d => {
-          return h(ColumnRect, { division: d, width, fill })
+          return h(ColumnRect, { division: d, width, fill });
         })
-      ),
-    ])
+      )
+    ]);
   }
 }
 
 class LithologyBoxes extends UUIDComponent {
   constructor(...args) {
-    super(...args)
+    super(...args);
     this.constructLithologyDivisions = this.constructLithologyDivisions.bind(
       this
-    )
-    this.renderEach = this.renderEach.bind(this)
+    );
+    this.renderEach = this.renderEach.bind(this);
   }
 
   static initClass() {
-    this.contextType = ColumnLayoutContext
+    this.contextType = ColumnLayoutContext;
     this.defaultProps = {
       resolveID: defaultResolveID,
-      minimumHeight: 0,
-    }
+      minimumHeight: 0
+    };
   }
   constructLithologyDivisions() {
-    let d, patternID
-    const { divisions } = this.context
-    const { resolveID, minimumHeight } = this.props
-    const __ = []
+    let d, patternID;
+    const { divisions } = this.context;
+    const { resolveID, minimumHeight } = this.props;
+    const __ = [];
     for (d of Array.from(divisions)) {
-      const ix = __.length - 1
-      patternID = resolveID(d)
+      const ix = __.length - 1;
+      patternID = resolveID(d);
       if (ix === -1) {
-        __.push({ ...d, patternID })
-        continue
+        __.push({ ...d, patternID });
+        continue;
       }
-      const sameAsLast = patternID === resolveID(__[ix])
-      const shouldSkip = patternID == null || sameAsLast
+      const sameAsLast = patternID === resolveID(__[ix]);
+      const shouldSkip = patternID == null || sameAsLast;
       if (shouldSkip) {
-        __[ix].top = d.top
+        __[ix].top = d.top;
       } else {
-        __.push({ ...d, patternID })
+        __.push({ ...d, patternID });
       }
     }
 
     // Allow removing of items by minimum height
     if (minimumHeight > 0) {
-      const nextVals = []
+      const nextVals = [];
       for (let i = 0; i < __.length; i++) {
-        d = __[i]
-        const heightTooSmall = d.top - d.bottom < minimumHeight
+        d = __[i];
+        const heightTooSmall = d.top - d.bottom < minimumHeight;
         if (heightTooSmall && __[i + 1] != null) {
-          var name
-          __[i + 1].bottom = d.bottom
+          var name;
+          __[i + 1].bottom = d.bottom;
           if (__[(name = i + 1)].patternID == null) {
-            __[name].patternID = resolveID(d)
+            __[name].patternID = resolveID(d);
           }
         } else {
-          nextVals.push(d)
+          nextVals.push(d);
         }
       }
-      return nextVals
+      return nextVals;
     }
-    return __
+    return __;
   }
 
   renderEach(d) {
-    const { width } = this.context
+    const { width } = this.context;
     const className = classNames(
       {
         definite: d.definite_boundary,
-        covered: d.covered,
+        covered: d.covered
       },
       "lithology"
-    )
-    let fill = `url(#${this.UUID}-${d.patternID})`
+    );
+    let fill = `url(#${this.UUID}-${d.patternID})`;
     if (d.patternID === -1) {
-      fill = "transparent"
+      fill = "transparent";
     }
-    return h(ColumnRect, { width, division: d, className, fill })
+    return h(ColumnRect, { width, division: d, className, fill });
   }
 
   render() {
-    const divisions = this.constructLithologyDivisions()
-    const { resolveID } = this.props
+    const divisions = this.constructLithologyDivisions();
+    const { resolveID } = this.props;
     return h("g.lithology", [
       h(LithologySymbolDefs, {
         divisions,
         resolveID,
-        UUID: this.UUID,
+        UUID: this.UUID
       }),
-      h("g", divisions.map(this.renderEach)),
-    ])
+      h("g", divisions.map(this.renderEach))
+    ]);
   }
 }
-LithologyBoxes.initClass()
+LithologyBoxes.initClass();
 
-const LithologyColumnInner = LithologyBoxes
+const LithologyColumnInner = LithologyBoxes;
 
 class LithologyColumn extends Component {
   constructor(...args) {
-    super(...args)
-    this.computeTransform = this.computeTransform.bind(this)
+    super(...args);
+    this.computeTransform = this.computeTransform.bind(this);
   }
 
   static initClass() {
     this.defaultProps = {
       // Should align exactly with centerline of stroke
       shiftY: 0.5,
-      left: 0,
-    }
+      left: 0
+    };
     this.propTypes = {
-      width: T.number.isRequired,
-    }
+      width: T.number.isRequired
+    };
   }
   computeTransform() {
-    const { left, shiftY } = this.props
+    const { left, shiftY } = this.props;
     if (left == null) {
-      return null
+      return null;
     }
-    return `translate(${left} ${shiftY})`
+    return `translate(${left} ${shiftY})`;
   }
 
   render() {
-    const { left, shiftY, width, children } = this.props
-    const transform = this.computeTransform()
+    const { left, shiftY, width, children } = this.props;
+    const transform = this.computeTransform();
 
     return h(ColumnLayoutProvider, { width }, [
       h(
@@ -327,59 +327,59 @@ class LithologyColumn extends Component {
           className: "lithology-column",
           left,
           shiftY,
-          frame: SimpleFrame,
+          frame: SimpleFrame
         },
         children
-      ),
-    ])
+      )
+    ]);
   }
 }
-LithologyColumn.initClass()
+LithologyColumn.initClass();
 
 const simplifiedResolveID = function(d) {
-  const p = symbolIndex[d.fill_pattern]
+  const p = symbolIndex[d.fill_pattern];
   if (p != null) {
-    return p
+    return p;
   }
-  const fp = d.fill_pattern
+  const fp = d.fill_pattern;
   // Special case for shales since we probably want to emphasize lithology
   if (parseInt(fp) === 624) {
-    return defaultResolveID(d)
+    return defaultResolveID(d);
   } else {
-    return fp
+    return fp;
   }
-}
+};
 
 const SimplifiedLithologyColumn = props =>
   h(LithologyColumnInner, {
     resolveID: simplifiedResolveID,
-    ...props,
-  })
+    ...props
+  });
 
 const GeneralizedSectionColumn = function(props) {
-  let { children, frame, ...rest } = props
+  let { children, frame, ...rest } = props;
   if (frame == null) {
-    frame = GrainsizeFrame
+    frame = GrainsizeFrame;
   }
   return h(
     ClipToFrame,
     {
       className: "lithology-column",
       frame,
-      ...rest,
+      ...rest
     },
     children
-  )
-}
+  );
+};
 
 const CarbonateDivisions = props =>
   h(LithologyColumnInner, {
     resolveID: carbonateResolveID,
-    ...props,
-  })
+    ...props
+  });
 
-export * from "./patterns"
-export * from "./column-patterns"
+export * from "./patterns";
+export * from "./column-patterns";
 export {
   ParameterIntervals,
   LithologyColumn,
@@ -395,5 +395,5 @@ export {
   GrainsizeFrame,
   ColumnRect,
   expandDivisionsByKey,
-  symbolIndex,
-}
+  symbolIndex
+};

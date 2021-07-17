@@ -1,33 +1,33 @@
 export interface StrictPadding {
-  paddingLeft: number
-  paddingRight: number
-  paddingTop: number
-  paddingBottom: number
+  paddingLeft: number;
+  paddingRight: number;
+  paddingTop: number;
+  paddingBottom: number;
 }
 
 export interface Padding extends StrictPadding {
-  paddingV: number
-  paddingH: number
-  padding: number
+  paddingV: number;
+  paddingH: number;
+  padding: number;
 }
 
-const keys = function (main) {
-  const allKeys = ["", "V", "H", "Left", "Right", "Top", "Bottom"]
-  return allKeys.map((d) => main + d)
-}
+const keys = function(main) {
+  const allKeys = ["", "V", "H", "Left", "Right", "Top", "Bottom"];
+  return allKeys.map(d => main + d);
+};
 
-const keyRemover = (type) =>
-  function (obj) {
+const keyRemover = type =>
+  function(obj) {
     for (let key of Array.from(keys(type))) {
-      delete obj[key]
+      delete obj[key];
     }
-    return obj
-  }
+    return obj;
+  };
 
-const removeMargin = keyRemover("margin")
-const removePadding = keyRemover("padding")
+const removeMargin = keyRemover("margin");
+const removePadding = keyRemover("padding");
 
-const extractMargin = function (obj, remove = false) {
+const extractMargin = function(obj, remove = false) {
   /*
   I'm really annoyed I can't find a third-party implementation
   of this that covers edge cases...
@@ -41,38 +41,38 @@ const extractMargin = function (obj, remove = false) {
     marginBottom,
     marginV,
     marginH,
-    margin,
-  } = obj
+    margin
+  } = obj;
   if (margin == null) {
-    margin = 0
+    margin = 0;
   }
   if (marginV == null) {
-    marginV = margin
+    marginV = margin;
   }
   if (marginH == null) {
-    marginH = margin
+    marginH = margin;
   }
   if (marginLeft == null) {
-    marginLeft = marginH
+    marginLeft = marginH;
   }
   if (marginRight == null) {
-    marginRight = marginH
+    marginRight = marginH;
   }
   if (marginTop == null) {
-    marginTop = marginV
+    marginTop = marginV;
   }
   if (marginBottom == null) {
-    marginBottom = marginV
+    marginBottom = marginV;
   }
 
   if (remove) {
-    removeMargin(obj)
+    removeMargin(obj);
   }
 
-  return { marginLeft, marginRight, marginTop, marginBottom }
-}
+  return { marginLeft, marginRight, marginTop, marginBottom };
+};
 
-const extractPadding = function (obj, remove = false) {
+const extractPadding = function(obj, remove = false) {
   /*
   I'm really annoyed I can't find a third-party implementation
   of this that covers edge cases...
@@ -86,70 +86,70 @@ const extractPadding = function (obj, remove = false) {
     paddingBottom,
     paddingV,
     paddingH,
-    padding,
-  } = obj
+    padding
+  } = obj;
   if (padding == null) {
-    padding = 0
+    padding = 0;
   }
   if (paddingV == null) {
-    paddingV = padding
+    paddingV = padding;
   }
   if (paddingH == null) {
-    paddingH = padding
+    paddingH = padding;
   }
   if (paddingLeft == null) {
-    paddingLeft = paddingH
+    paddingLeft = paddingH;
   }
   if (paddingRight == null) {
-    paddingRight = paddingH
+    paddingRight = paddingH;
   }
   if (paddingTop == null) {
-    paddingTop = paddingV
+    paddingTop = paddingV;
   }
   if (paddingBottom == null) {
-    paddingBottom = paddingV
+    paddingBottom = paddingV;
   }
 
   if (remove) {
-    removePadding(obj)
+    removePadding(obj);
   }
 
-  return { paddingLeft, paddingRight, paddingTop, paddingBottom }
-}
+  return { paddingLeft, paddingRight, paddingTop, paddingBottom };
+};
 
-const expandMargin = function (obj) {
-  const margin = extractMargin(obj)
+const expandMargin = function(obj) {
+  const margin = extractMargin(obj);
   for (let key of ["margin", "marginV", "marginH"]) {
-    delete obj[key]
+    delete obj[key];
   }
-  return { ...obj, ...margin }
-}
+  return { ...obj, ...margin };
+};
 
-const expandPadding = function (obj) {
-  const margin = extractPadding(obj)
+const expandPadding = function(obj) {
+  const margin = extractPadding(obj);
   for (let key of ["padding", "paddingV", "paddingH"]) {
-    delete obj[key]
+    delete obj[key];
   }
-  return { ...obj, ...margin }
-}
+  return { ...obj, ...margin };
+};
 
-const expandInnerSize = function (obj) {
-  const n = expandPadding(obj)
-  const { innerHeight, innerWidth, height, width, ...rest } = n
+const expandInnerSize = function(obj) {
+  const n = expandPadding(obj);
+  const { innerHeight, innerWidth, height, width, ...rest } = n;
   if (innerHeight != null) {
     if (n.height == null) {
-      n.height = innerHeight + n.paddingTop + n.paddingBottom
+      n.height = innerHeight + n.paddingTop + n.paddingBottom;
     }
   }
   if (innerWidth != null) {
     if (n.width == null) {
-      n.width = innerWidth + n.paddingLeft + n.paddingRight
+      n.width = innerWidth + n.paddingLeft + n.paddingRight;
     }
   }
-  delete n.innerHeight
-  delete n.innerWidth
-  return n
-}
+  delete n.innerHeight;
+  delete n.innerWidth;
+  return n;
+};
 
 export {
   extractMargin,
@@ -158,5 +158,5 @@ export {
   expandPadding,
   expandInnerSize,
   removeMargin,
-  removePadding,
-}
+  removePadding
+};
