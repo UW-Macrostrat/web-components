@@ -1,12 +1,10 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-// This should eventually come from the @macrostrat/ui-components repository
-
-import { createContext, useContext, useState, useEffect } from "react";
+import {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  useCallback
+} from "react";
 import update from "immutability-helper";
 import h from "react-hyperscript";
 import T from "prop-types";
@@ -17,41 +15,43 @@ const ModelEditorProvider = function(props) {
   /*
   Context to assist with editing a model
   */
-  let { model, logUpdates, children, alwaysConfirm } = props;
+  let { model, logUpdates = false, children, alwaysConfirm = false } = props;
 
   console.warn(`Using the ModelEditorContext from
     @macrostrat/column-components is deprecated.
     Please use the equivalent class from
     @macrostrat/ui-components instead.`);
 
-  if (logUpdates == null) {
-    logUpdates = false;
-  }
-  if (alwaysConfirm == null) {
-    alwaysConfirm = false;
-  }
   const [editedModel, setState] = useState(model);
-
+  // Our model can be initially null, but we want the edited model
+  // to take on the first non-null value
   const confirmChanges = () => props.onConfirmChanges(editedModel);
 
-  const revertChanges = function() {
-    if (alwaysConfirm) {
+  // Zero out edited model when model prop changes
+
+  const revertChanges = useCallback(() => {
+    if (model == editedModel) return;
+    if (alwaysConfirm && editedModel != null) {
       console.log("Confirming model changes");
       confirmChanges();
     }
-    return setState(model);
-  };
-  // Zero out edited model when model prop changes
+    setState(model);
+  }, [model]);
 
-  useEffect(revertChanges, [model]);
+  useEffect(() => {
+    revertChanges();
+  }, [model]);
 
-  const updateModel = function(spec) {
-    const v = update(editedModel, spec);
-    if (logUpdates) {
-      console.log(v);
-    }
-    return setState(v);
-  };
+  const updateModel = useCallback(
+    function(spec) {
+      const v = update(editedModel, spec);
+      if (logUpdates) {
+        console.log(v);
+      }
+      return setState(v);
+    },
+    [logUpdates, editedModel]
+  );
 
   const deleteModel = function() {
     setState(null);

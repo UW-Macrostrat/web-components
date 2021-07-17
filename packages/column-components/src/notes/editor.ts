@@ -1,5 +1,11 @@
+/*
+ * decaffeinate suggestions:
+ * DS102: Remove unnecessary code created because of implicit returns
+ * DS207: Consider shorter variations of null checks
+ * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
+ */
 import { createContext, useState, useContext } from "react";
-import { ColumnContext, ModelEditorProvider, useModelEditor } from "../context";
+import { ModelEditorProvider, useModelEditor, ColumnContext } from "../context";
 import { EditableText } from "@blueprintjs/core";
 import classNames from "classnames";
 import h from "../hyper";
@@ -32,27 +38,22 @@ NoteTextEditor.propTypes = {
   note: NoteShape.isRequired
 };
 
-const NoteEditorProvider = function(props) {
-  let { children, inEditMode, noteEditor } = props;
+function NoteEditorProvider(props) {
+  let { children, inEditMode = false, noteEditor } = props;
   const { notes } = useContext(NoteLayoutContext);
-  if (inEditMode == null) {
-    inEditMode = false;
-  }
 
-  const [editingNote, setState] = useState(null);
-
-  const setEditingNote = val => setState(val);
+  const [editingNote, setEditingNote] = useState(null);
 
   const deleteNote = function() {
     const val = editingNote;
-    setState(null);
+    setEditingNote(null);
     return props.onDeleteNote(val);
   };
 
   const onCreateNote = function(pos) {
     const { height, top_height } = pos;
     const val = { height, top_height, note: null, symbol: null };
-    return setState(val);
+    return setEditingNote(val);
   };
 
   const value = {
@@ -65,13 +66,11 @@ const NoteEditorProvider = function(props) {
   };
 
   const onConfirmChanges = function(n) {
-    if (n == null) {
+    if (n?.note == null && n == editingNote) {
+      console.log("No changes to note");
       return;
     }
-    if (n.note == null) {
-      return;
-    }
-    if (n === editingNote) {
+    if (notes.includes(n)) {
       return;
     }
     return props.onUpdateNote(n);
@@ -91,7 +90,7 @@ const NoteEditorProvider = function(props) {
       children
     )
   ]);
-};
+}
 
 NoteEditorProvider.propTypes = {
   inEditMode: T.bool,

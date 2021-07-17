@@ -18,8 +18,8 @@ const getHeights = function(position, tolerance = 0.1) {
   if (dragHeight == null) {
     dragHeight = startHeight;
   }
-  const rng = [startHeight, dragHeight];
-  Array.sort(rng);
+  let rng = [startHeight, dragHeight];
+  rng.sort();
   let [height, top_height] = rng;
   if (top_height - height < tolerance) {
     top_height = null;

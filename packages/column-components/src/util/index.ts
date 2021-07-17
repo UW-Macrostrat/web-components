@@ -86,6 +86,9 @@ const ColumnSVG = function(props) {
 
 export { SVGNamespaces, SVG, ColumnSVG, ForeignObject };
 
+import LocalStorage from "./storage";
+
 export * from "./column-box";
 export * from "./box-model";
 export * from "./scroll-box";
+export { LocalStorage };

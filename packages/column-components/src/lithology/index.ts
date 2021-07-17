@@ -15,7 +15,6 @@ import {
   ColumnLayoutProvider
 } from "../context";
 import { GeologicPattern } from "./patterns";
-import { LithologySymbolDefs } from "./column-patterns";
 
 // Malformed es6 module
 let v = require("react-svg-textures");
@@ -175,6 +174,8 @@ const FaciesColumnInner = function(props) {
   });
 };
 
+const FaciesIntervals = FaciesColumnInner;
+
 class CoveredOverlay extends UUIDComponent {
   static contextType = ColumnLayoutContext;
   render() {
@@ -200,6 +201,41 @@ class CoveredOverlay extends UUIDComponent {
     ]);
   }
 }
+
+const LithologySymbolDefs = function(props) {
+  let { resolveID, divisions, UUID, scalePattern } = props;
+  if (scalePattern == null) {
+    scalePattern = () => 1;
+  }
+  if (divisions == null) {
+    ({ divisions } = useContext(ColumnContext));
+  }
+
+  const __ = divisions
+    .map(d => resolveID(d))
+    .filter((x, i, arr) => arr.indexOf(x) === i);
+
+  return h(
+    "defs",
+    __.map(function(id, i) {
+      if (id === -1) {
+        return null;
+      }
+      let sz = 100;
+      if (scalePattern != null) {
+        const scalar = scalePattern(id);
+        sz *= scalar;
+      }
+      return h(GeologicPattern, {
+        key: i,
+        prefix: UUID,
+        id,
+        width: sz,
+        height: sz
+      });
+    })
+  );
+};
 
 class LithologyBoxes extends UUIDComponent {
   constructor(...args) {
@@ -379,7 +415,6 @@ const CarbonateDivisions = props =>
   });
 
 export * from "./patterns";
-export * from "./column-patterns";
 export {
   ParameterIntervals,
   LithologyColumn,
@@ -387,6 +422,7 @@ export {
   GeneralizedSectionColumn,
   defaultResolveID,
   FaciesColumnInner,
+  LithologySymbolDefs,
   LithologyColumnInner,
   CarbonateDivisions,
   SimplifiedLithologyColumn,
@@ -395,5 +431,6 @@ export {
   GrainsizeFrame,
   ColumnRect,
   expandDivisionsByKey,
-  symbolIndex
+  symbolIndex,
+  FaciesIntervals
 };

@@ -10,7 +10,7 @@ import T from "prop-types";
 import { NotesList } from "./note";
 import NoteDefs from "./defs";
 import { NoteShape } from "./types";
-import { useModelEditor } from "../context";
+import { useModelEditor, ColumnContext } from "../context";
 import { NoteLayoutProvider, NoteUnderlay } from "./layout";
 import {
   NoteEditor,
@@ -19,15 +19,8 @@ import {
   NoteEditorProvider
 } from "./editor";
 import { NewNotePositioner } from "./new";
-import { INote } from "./index.d";
 
-interface NoteComponentProps {
-  visibility: "hidden" | "visible" | null;
-  note: INote;
-  onClick(): void;
-}
-
-const NoteComponent = function(props: NoteComponentProps) {
+const NoteComponent = function(props) {
   const { visibility, note, onClick } = props;
   const text = note.note;
   return h(
@@ -50,108 +43,82 @@ const CancelEditUnderlay = function() {
   const { confirmChanges } = useModelEditor();
   return h(NoteUnderlay, {
     onClick() {
+      console.log("Clicked to cancel note editing");
       return setEditingNote(null);
     }
   });
 };
 
-class EditableNotesColumn extends Component {
-  static initClass() {
-    this.defaultProps = {
-      type: "log-notes",
-      paddingLeft: 60,
-      inEditMode: false,
-      noteComponent: NoteComponent,
-      noteEditor: NoteTextEditor,
-      allowPositionEditing: false,
-      allowCreation: false
-    };
-    this.propTypes = {
-      notes: T.arrayOf(NoteShape).isRequired,
-      width: T.number.isRequired,
-      paddingLeft: T.number,
-      onUpdateNote: T.func,
-      onCreateNote: T.func,
-      onDeleteNote: T.func,
-      editingNote: NoteShape,
-      onEditNote: T.func,
-      inEditMode: T.bool,
-      noteComponent: T.elementType,
-      noteEditor: T.elementType,
-      allowPositionEditing: T.bool,
-      forceOptions: T.options
-    };
-  }
-  render() {
-    const {
-      width,
-      paddingLeft,
-      transform,
+function EditableNotesColumn(props) {
+  const {
+    width,
+    paddingLeft = 60,
+    transform,
+    notes,
+    inEditMode = false,
+    onUpdateNote,
+    onDeleteNote,
+    onCreateNote,
+    noteComponent = NoteComponent,
+    noteEditor = NoteTextEditor,
+    allowPositionEditing = false,
+    forceOptions
+  } = props;
+
+  const innerWidth = width - paddingLeft;
+
+  return h(
+    NoteLayoutProvider,
+    {
       notes,
-      inEditMode,
-      onUpdateNote,
-      onDeleteNote,
-      onCreateNote,
+      width: innerWidth,
+      paddingLeft,
       noteComponent,
-      noteEditor,
-      allowPositionEditing,
       forceOptions
-    } = this.props;
-
-    let editHandler = onUpdateNote;
-    if (!inEditMode) {
-      editHandler = null;
-    }
-
-    const innerWidth = width - paddingLeft;
-
-    return h(
-      NoteLayoutProvider,
-      {
-        notes,
-        width: innerWidth,
-        paddingLeft,
-        noteComponent,
-        forceOptions
-      },
-      [
-        h(
-          NoteEditorProvider,
-          {
-            inEditMode,
-            noteEditor,
-            onCreateNote,
-            onUpdateNote,
-            onDeleteNote
-          },
-          [
-            h("g.section-log", { transform }, [
-              h(NoteDefs),
-              h(CancelEditUnderlay),
-              h(NotesList, {
-                editHandler,
-                inEditMode
-              }),
-              h(NewNotePositioner),
-              h(NoteEditor, { allowPositionEditing })
-            ])
-          ]
-        )
-      ]
-    );
-  }
+    },
+    [
+      h(
+        NoteEditorProvider,
+        {
+          inEditMode,
+          noteEditor,
+          onCreateNote,
+          onUpdateNote,
+          onDeleteNote
+        },
+        [
+          h("g.section-log", { transform }, [
+            h(NoteDefs),
+            h(CancelEditUnderlay),
+            h(NotesList, {
+              editHandler: inEditMode ? onUpdateNote : null,
+              inEditMode
+            }),
+            h(NewNotePositioner),
+            h(NoteEditor, { allowPositionEditing })
+          ])
+        ]
+      )
+    ]
+  );
 }
-EditableNotesColumn.initClass();
+EditableNotesColumn.propTypes = {
+  notes: T.arrayOf(NoteShape).isRequired,
+  width: T.number.isRequired,
+  paddingLeft: T.number,
+  onUpdateNote: T.func,
+  onCreateNote: T.func,
+  onDeleteNote: T.func,
+  editingNote: NoteShape,
+  onEditNote: T.func,
+  inEditMode: T.bool,
+  noteComponent: T.elementType,
+  noteEditor: T.elementType,
+  allowPositionEditing: T.bool,
+  forceOptions: T.options
+};
 
-interface StaticNotesProps {
-  paddingLeft: number;
-  width: number;
-  transform?: string;
-  notes: INote[];
-  noteComponent?: React.Component<NoteComponentProps>;
-}
-
-const StaticNotesColumn = function(props: StaticNotesProps) {
+const StaticNotesColumn = function(props) {
   const { width, paddingLeft, transform, notes, noteComponent } = props;
 
   const innerWidth = width - paddingLeft;
@@ -185,15 +152,16 @@ StaticNotesColumn.propTypes = {
   noteComponent: T.elementType
 };
 
-interface NotesColumnProps extends StaticNotesProps {
-  editable: boolean;
-}
+const NotesColumn = function(props) {
+  const { editable, ...rest } = props;
+  const ctx = useContext(ColumnContext);
+  if (ctx?.scaleClamped == null) return null;
 
-const NotesColumn = function(props: NotesColumnProps) {
-  const { editable = true, ...rest } = props;
   const c = editable ? EditableNotesColumn : StaticNotesColumn;
   return h(c, rest);
 };
+
+NotesColumn.defaultProps = { editable: true };
 
 export {
   NotesColumn,

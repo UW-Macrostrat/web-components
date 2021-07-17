@@ -14,7 +14,7 @@ const ArrowMarker = function({ id, orient, size: sz, fill }) {
     fill = "black";
   }
   if (sz == null) {
-    sz = 2.5;
+    sz = 4;
   }
   return h(
     "marker",
@@ -42,7 +42,7 @@ const EndpointTick = function({ id, fill, size: sz }) {
     fill = "black";
   }
   if (sz == null) {
-    sz = 2.5;
+    sz = 4;
   }
   return h(
     "marker",

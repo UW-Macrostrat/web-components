@@ -10,6 +10,7 @@ import { Component, createContext } from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
 import { ColumnContext } from "./column";
+import { useContext } from "react";
 
 //# This isn't really used yet...
 
@@ -128,9 +129,12 @@ class GrainsizeLayoutProvider extends Component {
   }
 }
 
+const useColumnLayout = () => useContext(ColumnLayoutContext);
+
 export {
   ColumnLayoutContext,
   ColumnLayoutProvider,
   CrossAxisLayoutProvider,
-  GrainsizeLayoutProvider
+  GrainsizeLayoutProvider,
+  useColumnLayout
 };
