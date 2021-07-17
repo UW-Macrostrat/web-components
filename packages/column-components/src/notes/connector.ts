@@ -4,7 +4,7 @@ import { NoteLayoutContext } from "./layout";
 import { HeightRangeAnnotation } from "./height-range";
 import { ForeignObject } from "../util";
 
-const NotePositioner = forwardRef(function (props, ref) {
+const NotePositioner = forwardRef(function(props, ref) {
   let { offsetY, noteHeight, children } = props;
   const { width, paddingLeft } = useContext(NoteLayoutContext);
   if (noteHeight == null) {
@@ -27,27 +27,27 @@ const NotePositioner = forwardRef(function (props, ref) {
       x: paddingLeft - outerPad,
       y,
       height: noteHeight + 2 * outerPad,
-      style: { overflowY: "visible" },
+      style: { overflowY: "visible" }
     },
     [
       h(
         "div.note-inner",
         {
           ref,
-          style: { margin: outerPad },
+          style: { margin: outerPad }
         },
         children
-      ),
+      )
     ]
   );
 });
 
-const findIndex = function (note) {
+const findIndex = function(note) {
   const { notes } = useContext(NoteLayoutContext);
   return notes.indexOf(note);
 };
 
-const NoteConnector = function (props) {
+const NoteConnector = function(props) {
   let { note, node, index } = props;
   // Try to avoid scanning for index if we can
   if (index == null) {
@@ -65,12 +65,12 @@ const NoteConnector = function (props) {
     h(HeightRangeAnnotation, {
       offsetX,
       height,
-      top_height,
+      top_height
     }),
     h("path.link.col-note-link", {
       d: generatePath(node, offsetX),
-      transform: `translate(${offsetX})`,
-    }),
+      transform: `translate(${offsetX})`
+    })
   ]);
 };
 

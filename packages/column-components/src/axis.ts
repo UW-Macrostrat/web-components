@@ -24,14 +24,14 @@ class ColumnAxis extends Component {
     "tickSize",
     "tickSizeInner",
     "tickSizeOuter",
-    "tickPadding",
+    "tickPadding"
   ];
   static defaultProps = {
     ticks: 4,
     showLabel() {
       return true;
     },
-    showDomain: true,
+    showDomain: true
   };
   render() {
     return h("g.y.axis");
@@ -53,7 +53,7 @@ class ColumnAxis extends Component {
     }
 
     // Hide labels if they match the showLabel predicate
-    return ax.selectAll(".tick text").each(function (d) {
+    return ax.selectAll(".tick text").each(function(d) {
       const v = showLabel(d);
       if (v) {
         return;

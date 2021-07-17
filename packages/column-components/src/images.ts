@@ -6,7 +6,7 @@ function ColumnImage(props) {
   const { src, ...rest } = props;
   const { pixelHeight } = useContext(ColumnContext);
   return h("div.column-image", { style: rest }, [
-    h("img", { src, style: { height: pixelHeight } }),
+    h("img", { src, style: { height: pixelHeight } })
   ]);
 }
 

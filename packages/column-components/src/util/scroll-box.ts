@@ -14,7 +14,7 @@ import h from "@macrostrat/hyper";
 
 import { ColumnContext } from "../context";
 
-const splitProps = function (keys, props) {
+const splitProps = function(keys, props) {
   const obj = {};
   const rest = {};
   for (let k in props) {
@@ -42,7 +42,7 @@ class ColumnScroller extends Component {
       animated: T.bool,
       onScrolled: T.func,
       paddingTop: T.number,
-      scrollContainer: T.func.isRequired,
+      scrollContainer: T.func.isRequired
     };
     this.defaultProps = {
       animated: true,
@@ -52,7 +52,7 @@ class ColumnScroller extends Component {
       },
       scrollContainer() {
         return document.querySelector(".panel-container");
-      },
+      }
     };
   }
   render() {
@@ -62,7 +62,7 @@ class ColumnScroller extends Component {
     return h(Box, {
       height: pixelHeight,
       position: "absolute",
-      ...rest,
+      ...rest
     });
   }
 

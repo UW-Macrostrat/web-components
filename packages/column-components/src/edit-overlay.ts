@@ -20,22 +20,22 @@ import { ColumnDivision } from "./defs";
 const fmt = format(".1f");
 const fmt2 = format(".2f");
 
-const IntervalNotification = function (props) {
+const IntervalNotification = function(props) {
   const { id, height, bottom, top, surface } = props;
   return h("div", [
     h("h4", `Section ${id} @ ${fmt(height)} m`),
     h("p", ["Interval ID: ", h("code", id)]),
     h("p", `${bottom} - ${top} m`),
-    surface ? h("p", ["Surface: ", h("code", surface)]) : null,
+    surface ? h("p", ["Surface: ", h("code", surface)]) : null
   ]);
 };
 
-const PopoverEditorTitle = function (props) {
+const PopoverEditorTitle = function(props) {
   const { interval, children } = props;
   return h("div.interval-editor-title", [
     h("h3", `${fmt2(interval.bottom)}–${fmt2(interval.top)} m`),
     h("div.id", [h("code", interval.id)]),
-    children,
+    children
   ]);
 };
 
@@ -66,7 +66,7 @@ const OverlayBox = (props: OverlayBoxProps) => {
     height,
     width,
     pointerEvents: "none",
-    position: "absolute",
+    position: "absolute"
   };
 
   return h("div", { style }, [
@@ -77,30 +77,32 @@ const OverlayBox = (props: OverlayBoxProps) => {
         cursor: onClick != null ? "pointer" : null,
         width: "100%",
         height: "100%",
-        background,
-      },
+        background
+      }
     }),
-    props.children,
+    props.children
   ]);
 };
 
 OverlayBox.propTypes = {
-  division: T.object,
+  division: T.object
 };
 
-const EditingBox = function ({ division, color, ...rest }) {
+const EditingBox = function({ division, color, ...rest }) {
   if (division == null) {
     return null;
   }
   if (color == null) {
     color = "red";
   }
-  const background = chroma(color).alpha(0.5).css();
+  const background = chroma(color)
+    .alpha(0.5)
+    .css();
   return h(OverlayBox, {
     className: "editing-box",
     division,
     background,
-    ...rest,
+    ...rest
   });
 };
 
@@ -118,7 +120,7 @@ class DivisionEditOverlay extends Component {
     color: T.string,
     width: T.number,
     popoverWidth: T.number,
-    selectedHeight: T.number,
+    selectedHeight: T.number
   };
   static defaultProps = {
     onHoverInterval() {},
@@ -131,7 +133,7 @@ class DivisionEditOverlay extends Component {
       return null;
     },
     color: "red",
-    popoverWidth: 340,
+    popoverWidth: 340
   };
   constructor(props) {
     super(props);
@@ -146,7 +148,7 @@ class DivisionEditOverlay extends Component {
     this.state = {
       height: null,
       hoveredDivision: null,
-      popoverIsOpen: false,
+      popoverIsOpen: false
     };
     this.timeout = null;
   }
@@ -235,7 +237,7 @@ class DivisionEditOverlay extends Component {
       border: "0.5px solid black",
       width: this.context.widthForDivision(hoveredDivision),
       position: "absolute",
-      pointerEvents: "none",
+      pointerEvents: "none"
     };
 
     return h("div.cursor", { style }, [
@@ -249,11 +251,11 @@ class DivisionEditOverlay extends Component {
             left: "2px",
             top: "-14px",
             position: "absolute",
-            color: "black",
-          },
+            color: "black"
+          }
         },
         [fmt2(height)]
-      ),
+      )
     ]);
   }
 
@@ -264,14 +266,16 @@ class DivisionEditOverlay extends Component {
     const { popoverIsOpen, hoveredDivision: division } = this.state;
     const width = this.context.widthForDivision(division);
     const { color } = this.props;
-    const background = chroma(color).alpha(0.3).css();
+    const background = chroma(color)
+      .alpha(0.3)
+      .css();
 
     return h(
       OverlayBox,
       {
         division,
         className: "hovered-box",
-        background,
+        background
       },
       [
         h.if(this.props.renderEditorPopup)(
@@ -279,47 +283,47 @@ class DivisionEditOverlay extends Component {
           {
             isOpen: popoverIsOpen && division != null,
             style: { display: "block", width },
-            position: Position.LEFT,
+            position: Position.LEFT
           },
           [
             h("div", {
-              style: { width, height: 30, transform: "translate(0,-30)" },
+              style: { width, height: 30, transform: "translate(0,-30)" }
             }),
             h(
               "div.editor-popover-contents",
               {
                 style: {
                   width: this.props.popoverWidth,
-                  padding: "10px",
-                },
+                  padding: "10px"
+                }
               },
               [
                 h(
                   PopoverEditorTitle,
                   {
-                    interval: division,
+                    interval: division
                   },
                   [
                     h(Button, {
                       icon: "cross",
                       minimal: true,
                       intent: Intent.WARNING,
-                      onClick: this.closePopover.bind(this),
-                    }),
+                      onClick: this.closePopover.bind(this)
+                    })
                   ]
                 ),
-                this.props.renderEditorPopup(division),
+                this.props.renderEditorPopup(division)
               ]
-            ),
+            )
           ]
-        ),
+        )
       ]
     );
   }
 
   closePopover() {
     return this.setState({
-      popoverIsOpen: false,
+      popoverIsOpen: false
     });
   }
 
@@ -343,7 +347,7 @@ class DivisionEditOverlay extends Component {
           position: "absolute",
           zIndex: 18,
           pointerEvents: "all",
-          cursor: "pointer",
+          cursor: "pointer"
         },
         onClick: this.onEditInterval,
         onMouseEnter: this.onHoverInterval,
@@ -354,15 +358,15 @@ class DivisionEditOverlay extends Component {
           }
           this.setState({ height: null });
           return (this.timeout = setTimeout(this.removeHoverBox, 1000));
-        },
+        }
       },
       [
         this.renderHoveredBox(),
         h(EditingBox, {
           division: this.props.editingInterval,
-          color,
+          color
         }),
-        this.renderCursorLine(),
+        this.renderCursorLine()
       ]
     );
   }

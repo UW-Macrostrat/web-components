@@ -20,38 +20,38 @@ class PickerControl extends Component {
     this.defaultProps = {
       states: [
         { label: "State 1", value: "state1" },
-        { label: "State 2", value: "state2" },
+        { label: "State 2", value: "state2" }
       ],
       vertical: true,
-      isNullable: false,
+      isNullable: false
     };
   }
   render() {
     const { states, activeState, vertical } = this.props;
     let className = classNames("bp3-button-group", "bp3-fill", {
       "bp3-vertical": vertical,
-      "bp3-align-left": vertical,
+      "bp3-align-left": vertical
     });
 
     return h("div.picker-control", [
       h(
         "div",
         { className },
-        states.map((d) => {
+        states.map(d => {
           className = classNames("bp3-button", {
-            "bp3-active": this.props.activeState === d.value,
+            "bp3-active": this.props.activeState === d.value
           });
           return h(
             "button",
             {
               type: "button",
               className,
-              onClick: this.onUpdate(d.value),
+              onClick: this.onUpdate(d.value)
             },
             d.label
           );
         })
-      ),
+      )
     ]);
   }
   onUpdate(value) {

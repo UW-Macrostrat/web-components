@@ -20,7 +20,7 @@ import styles from "./main.styl";
 
 const h = hyper.styled(styles);
 
-const LithologySwatch = function ({ symbolID, style, ...rest }) {
+const LithologySwatch = function({ symbolID, style, ...rest }) {
   const { resolvePattern } = useContext(GeologicPatternContext);
   const src = resolvePattern(symbolID);
   if (style == null) {
@@ -30,15 +30,15 @@ const LithologySwatch = function ({ symbolID, style, ...rest }) {
   return h("div.lithology-swatch", { style, ...rest });
 };
 
-const LithologyItem = function (props) {
+const LithologyItem = function(props) {
   const { symbol, lithology } = props;
   return h("span.facies-picker-row", [
     h(LithologySwatch, { symbolID: symbol }),
-    h("span.facies-picker-name", lithology),
+    h("span.facies-picker-name", lithology)
   ]);
 };
 
-const LithologyPicker = (props) => {
+const LithologyPicker = props => {
   const { interval, onChange } = props;
   const { lithologies } = useContext(LithologyContext);
 
@@ -52,13 +52,13 @@ const LithologyPicker = (props) => {
       }
       result.push({
         value: id,
-        label: h(LithologyItem, { lithology: id, symbol }),
+        label: h(LithologyItem, { lithology: id, symbol })
       });
     }
     return result;
   })();
 
-  let value = options.find((d) => d.value === interval.lithology);
+  let value = options.find(d => d.value === interval.lithology);
   if (value == null) {
     value = null;
   }
@@ -71,11 +71,11 @@ const LithologyPicker = (props) => {
     onChange(res) {
       const f = res != null ? res.value : null;
       return onChange(f);
-    },
+    }
   });
 };
 
-const SymbolPickerInner = function (props) {
+const SymbolPickerInner = function(props) {
   let symbol;
   const { interval, onClose, style } = props;
   let isUserSet = false;
@@ -101,14 +101,14 @@ const SymbolPickerInner = function (props) {
         icon: "cross",
         intent: Intent.DANGER,
         minimal: true,
-        onClick: onClose,
+        onClick: onClose
       },
       "Clear override"
-    ),
+    )
   ]);
 };
 
-const LithologySymbolPicker = function (props) {
+const LithologySymbolPicker = function(props) {
   const { interval, updatePattern } = props;
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -124,15 +124,15 @@ const LithologySymbolPicker = function (props) {
         },
         minimal: true,
         small: true,
-        intent: Intent.WARNING,
+        intent: Intent.WARNING
       },
       "Override lithology pattern"
     ),
     h(SymbolPickerInner, {
       interval,
       onClose: () => setIsExpanded(false),
-      updatePattern,
-    }),
+      updatePattern
+    })
   ]);
 };
 

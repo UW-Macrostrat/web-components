@@ -11,13 +11,13 @@ import { ColumnLayoutProvider, ColumnContext } from "../context";
 
 const NoteLayoutContext = createContext(null);
 
-const buildColumnIndex = function () {
+const buildColumnIndex = function() {
   /*
    * Find out where on the X axis arrows,
    * etc. should plot to aviod overlaps
    */
   const heightTracker = [];
-  return function (note) {
+  return function(note) {
     let colIx = 0;
     // Get column that note should render in
     const nPossibleCols = heightTracker.length + 1;
@@ -40,8 +40,8 @@ const buildColumnIndex = function () {
   };
 };
 
-const withinDomain = (scale) =>
-  function (d) {
+const withinDomain = scale =>
+  function(d) {
     const [start, end] = scale.domain();
     // end height greater than beginning
     const end_height = d.top_height || d.height;
@@ -62,14 +62,14 @@ class NoteLayoutProvider extends StatefulComponent {
       paddingLeft: T.number,
       // This needs to be a component technically
       noteComponent: T.func.isRequired,
-      forceOptions: T.object,
+      forceOptions: T.object
     };
     this.defaultProps = {
       paddingLeft: 60,
       estimatedTextHeight(note, width) {
         const txt = note.note || "";
         return 12;
-      },
+      }
     };
     this.contextType = ColumnContext;
   }
@@ -93,7 +93,7 @@ class NoteLayoutProvider extends StatefulComponent {
       nodes: {},
       generatePath: this.generatePath,
       createNodeForNote: this.createNodeForNote,
-      noteComponent,
+      noteComponent
     };
   }
 
@@ -119,19 +119,19 @@ class NoteLayoutProvider extends StatefulComponent {
       scale,
       width,
       registerHeight: this.registerHeight,
-      generatePath: this.generatePath,
+      generatePath: this.generatePath
     };
 
     // Compute force layout
     const renderer = new Renderer({
       direction: "right",
       layerGap: paddingLeft,
-      nodeHeight: 5,
+      nodeHeight: 5
     });
 
     return this.setState({
       renderer,
-      ...forwardedValues,
+      ...forwardedValues
     });
   }
 
@@ -143,7 +143,7 @@ class NoteLayoutProvider extends StatefulComponent {
       this._rendererIndex[width] = new Renderer({
         direction: "right",
         layerGap: width,
-        nodeHeight: 5,
+        nodeHeight: 5
       });
     }
     return this._rendererIndex[width];
@@ -200,7 +200,7 @@ class NoteLayoutProvider extends StatefulComponent {
       minPos: 0,
       maxPos: pixelHeight,
       nodeSpacing: 0,
-      ...forceOptions,
+      ...forceOptions
     });
 
     const dataNodes = notes.map(this.createNodeForNote);
@@ -268,7 +268,7 @@ class NoteLayoutProvider extends StatefulComponent {
 }
 NoteLayoutProvider.initClass();
 
-const NoteRect = function (props) {
+const NoteRect = function(props) {
   let { padding, width, ...rest } = props;
   if (padding == null) {
     padding = 5;
@@ -285,18 +285,18 @@ const NoteRect = function (props) {
     width: width + 2 * padding,
     height: pixelHeight,
     transform: `translate(${-padding},${-padding})`,
-    ...rest,
+    ...rest
   });
 };
 
-const NoteUnderlay = function ({ fill, ...rest }) {
+const NoteUnderlay = function({ fill, ...rest }) {
   if (fill == null) {
     fill = "transparent";
   }
   return h(NoteRect, {
     className: "underlay",
     fill,
-    ...rest,
+    ...rest
   });
 };
 

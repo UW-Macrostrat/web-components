@@ -10,7 +10,7 @@ import classNames from "classnames";
 import Box from "ui-box";
 
 // This could be merged with ColumnSVG
-const ColumnBox = function (props) {
+const ColumnBox = function(props) {
   const { offsetTop, absolutePosition, className, ...rest } = props;
   const { pixelsPerMeter, zoom } = useContext(ColumnContext);
 
@@ -19,14 +19,14 @@ const ColumnBox = function (props) {
   if (absolutePosition) {
     pos = {
       position: "absolute",
-      top: marginTop,
+      top: marginTop
     };
   }
 
   return h(Box, {
     className: classNames("column-box", className),
     ...pos,
-    ...rest,
+    ...rest
   });
 };
 

@@ -11,7 +11,7 @@ import {
   extractPadding,
   removePadding,
   extractMargin,
-  removeMargin,
+  removeMargin
 } from "./box-model";
 import { ColumnContext } from "../context";
 import Box from "ui-box";
@@ -19,10 +19,10 @@ import classNames from "classnames";
 
 const SVGNamespaces = {
   xmlns: "http://www.w3.org/2000/svg",
-  xmlnsXlink: "http://www.w3.org/1999/xlink",
+  xmlnsXlink: "http://www.w3.org/1999/xlink"
 };
 
-const SVG = forwardRef(function (props, ref) {
+const SVG = forwardRef(function(props, ref) {
   const { innerRef, children, style, ...rest } = expandInnerSize(props);
   if (innerRef != null) {
     ref = innerRef;
@@ -39,21 +39,21 @@ const SVG = forwardRef(function (props, ref) {
       ref,
       style: { ...style, ...margin },
       ...realRest,
-      ...SVGNamespaces,
+      ...SVGNamespaces
     },
     h(
       "g",
       {
-        transform: `translate(${paddingLeft},${paddingTop})`,
+        transform: `translate(${paddingLeft},${paddingTop})`
       },
       children
     )
   );
 });
 
-const ForeignObject = (props) => createElement("foreignObject", props);
+const ForeignObject = props => createElement("foreignObject", props);
 
-const ColumnSVG = function (props) {
+const ColumnSVG = function(props) {
   //# Need to rework to use UI Box code
   const { children, className, innerRef, ...rest } = props;
   const { pixelHeight } = useContext(ColumnContext);
@@ -64,7 +64,7 @@ const ColumnSVG = function (props) {
     innerHeight,
     innerWidth,
     height,
-    width,
+    width
   } = nextProps;
   return h(
     SVG,
@@ -72,12 +72,12 @@ const ColumnSVG = function (props) {
       className: classNames(className, "section"),
       height,
       width,
-      innerRef,
+      innerRef
     },
     h(
       "g.backdrop",
       {
-        transform: `translate(${paddingLeft},${paddingTop})`,
+        transform: `translate(${paddingLeft},${paddingTop})`
       },
       children
     )

@@ -11,13 +11,13 @@ export interface Padding extends StrictPadding {
   padding: number;
 }
 
-const keys = function (main) {
+const keys = function(main) {
   const allKeys = ["", "V", "H", "Left", "Right", "Top", "Bottom"];
-  return allKeys.map((d) => main + d);
+  return allKeys.map(d => main + d);
 };
 
-const keyRemover = (type) =>
-  function (obj) {
+const keyRemover = type =>
+  function(obj) {
     for (let key of Array.from(keys(type))) {
       delete obj[key];
     }
@@ -27,7 +27,7 @@ const keyRemover = (type) =>
 const removeMargin = keyRemover("margin");
 const removePadding = keyRemover("padding");
 
-const extractMargin = function (obj, remove = false) {
+const extractMargin = function(obj, remove = false) {
   /*
   I'm really annoyed I can't find a third-party implementation
   of this that covers edge cases...
@@ -41,7 +41,7 @@ const extractMargin = function (obj, remove = false) {
     marginBottom,
     marginV,
     marginH,
-    margin,
+    margin
   } = obj;
   if (margin == null) {
     margin = 0;
@@ -72,7 +72,7 @@ const extractMargin = function (obj, remove = false) {
   return { marginLeft, marginRight, marginTop, marginBottom };
 };
 
-const extractPadding = function (obj, remove = false) {
+const extractPadding = function(obj, remove = false) {
   /*
   I'm really annoyed I can't find a third-party implementation
   of this that covers edge cases...
@@ -86,7 +86,7 @@ const extractPadding = function (obj, remove = false) {
     paddingBottom,
     paddingV,
     paddingH,
-    padding,
+    padding
   } = obj;
   if (padding == null) {
     padding = 0;
@@ -117,7 +117,7 @@ const extractPadding = function (obj, remove = false) {
   return { paddingLeft, paddingRight, paddingTop, paddingBottom };
 };
 
-const expandMargin = function (obj) {
+const expandMargin = function(obj) {
   const margin = extractMargin(obj);
   for (let key of ["margin", "marginV", "marginH"]) {
     delete obj[key];
@@ -125,7 +125,7 @@ const expandMargin = function (obj) {
   return { ...obj, ...margin };
 };
 
-const expandPadding = function (obj) {
+const expandPadding = function(obj) {
   const margin = extractPadding(obj);
   for (let key of ["padding", "paddingV", "paddingH"]) {
     delete obj[key];
@@ -133,7 +133,7 @@ const expandPadding = function (obj) {
   return { ...obj, ...margin };
 };
 
-const expandInnerSize = function (obj) {
+const expandInnerSize = function(obj) {
   const n = expandPadding(obj);
   const { innerHeight, innerWidth, height, width, ...rest } = n;
   if (innerHeight != null) {
@@ -158,5 +158,5 @@ export {
   expandPadding,
   expandInnerSize,
   removeMargin,
-  removePadding,
+  removePadding
 };

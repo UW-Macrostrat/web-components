@@ -5,11 +5,11 @@ import { path } from "d3-path";
 import { ColumnContext } from "./context";
 import { UUIDComponent } from "./frame";
 
-const FloodingSurface = (props) => {
+const FloodingSurface = props => {
   const { scale, divisions } = useContext(ColumnContext);
   const { offsetLeft, lineWidth, onClick } = props;
   const floodingSurfaces = divisions.filter(
-    (d) => d.flooding_surface_order != null
+    d => d.flooding_surface_order != null
   );
   if (!floodingSurfaces.length) {
     return null;
@@ -17,7 +17,7 @@ const FloodingSurface = (props) => {
   return h(
     "g.flooding-surface",
     null,
-    floodingSurfaces.map(function (d) {
+    floodingSurfaces.map(function(d) {
       const y = scale(d.bottom);
       const x = offsetLeft;
 
@@ -28,7 +28,7 @@ const FloodingSurface = (props) => {
         strokeWidth: (6 - Math.abs(d.flooding_surface_order)) * 0.75,
         stroke: d.flooding_surface_order >= 0 ? "#ccc" : "#fcc",
         x1: 0,
-        x2: lineWidth,
+        x2: lineWidth
       });
     })
   );
@@ -36,7 +36,7 @@ const FloodingSurface = (props) => {
 
 FloodingSurface.defaultProps = {
   offsetLeft: -90,
-  lineWidth: 50,
+  lineWidth: 50
 };
 
 function range(start: number, end: number): number[] {
@@ -55,7 +55,7 @@ class TriangleBars extends UUIDComponent {
     this.defaultProps = {
       offsetLeft: -90,
       lineWidth: 50,
-      order: 2,
+      order: 2
     };
   }
 
@@ -66,7 +66,7 @@ class TriangleBars extends UUIDComponent {
       order,
       orders,
       minOrder,
-      maxOrder,
+      maxOrder
     } = this.props;
     const { scale, zoom, divisions } = this.context;
 
@@ -83,9 +83,11 @@ class TriangleBars extends UUIDComponent {
 
     const _ = path();
 
-    const zigZagLine = function (x0, x1, y, nzigs = 5, a = 2) {
+    const zigZagLine = function(x0, x1, y, nzigs = 5, a = 2) {
       //_.moveTo(start...)
-      const xs = scaleLinear().domain([0, nzigs]).range([x0, x1]);
+      const xs = scaleLinear()
+        .domain([0, nzigs])
+        .range([x0, x1]);
 
       _.lineTo(x0, y);
 
@@ -114,10 +116,10 @@ class TriangleBars extends UUIDComponent {
     return h("g.triangle-bars", {}, [
       h("defs", [
         createElement("clipPath", { id: this.UUID }, [
-          h("path", { d: _.toString(), key: this.UUID + "-path" }),
-        ]),
+          h("path", { d: _.toString(), key: this.UUID + "-path" })
+        ])
       ]),
-      orders.map(this.renderSurfaces),
+      orders.map(this.renderSurfaces)
     ]);
   }
 
@@ -195,7 +197,7 @@ class TriangleBars extends UUIDComponent {
       {
         clipPath: `url(#${this.UUID})`,
         transform: `translate(${-lineWidth * (2 + index) + ol})`,
-        key: this.UUID + "-" + order,
+        key: this.UUID + "-" + order
       },
       [h("path", { d: _.toString(), key: this.UUID + "-" + order })]
     );

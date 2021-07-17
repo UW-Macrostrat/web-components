@@ -17,7 +17,7 @@ const h = hyperStyled(styles);
 const FaciesRow = ({ facies }) =>
   h("span.facies-picker-row", [
     h(BasicFaciesSwatch, { facies, className: "facies-color-swatch" }),
-    h("span.facies-picker-name", facies.name),
+    h("span.facies-picker-name", facies.name)
   ]);
 
 class FaciesPicker extends Component {
@@ -28,12 +28,12 @@ class FaciesPicker extends Component {
     const { facies } = this.context;
     const { interval, onChange } = this.props;
 
-    const options = facies.map((f) => ({
+    const options = facies.map(f => ({
       value: f.id,
-      label: h(FaciesRow, { facies: f }),
+      label: h(FaciesRow, { facies: f })
     }));
 
-    let value = options.find((d) => d.value === interval.facies);
+    let value = options.find(d => d.value === interval.facies);
     if (value == null) {
       value = null;
     }
@@ -48,7 +48,7 @@ class FaciesPicker extends Component {
         console.log("Changing", res);
         const f = res != null ? res.value : null;
         return onChange(f);
-      },
+      }
     });
   }
 }

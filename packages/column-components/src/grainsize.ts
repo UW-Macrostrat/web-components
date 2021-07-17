@@ -11,9 +11,11 @@ import { ColumnLayoutContext } from "./context";
 import h from "react-hyperscript";
 
 const grainSizes = ["ms", "s", "vf", "f", "m", "c", "vc", "p"];
-const createGrainsizeScale = function (range) {
+const createGrainsizeScale = function(range) {
   const mn = grainSizes.length - 1;
-  const scale = scaleLinear().domain([0, mn]).range(range);
+  const scale = scaleLinear()
+    .domain([0, mn])
+    .range(range);
   return scaleOrdinal()
     .domain(grainSizes)
     .range(grainSizes.map((d, i) => scale(i)));
@@ -30,11 +32,11 @@ class GrainsizeAxis extends Component {
     const sizes = gs.domain();
     return h(
       "g.grainsize.axis",
-      sizes.map((d) => {
+      sizes.map(d => {
         return h("g.tick", { transform: `translate(${gs(d)} 0)`, key: d }, [
           h("text.top", { y: 0 }, d),
           h("text.bottom", { y: pixelHeight }, d),
-          h("line", { y1: 0, x1: 0, x2: 0, y2: pixelHeight }),
+          h("line", { y1: 0, x1: 0, x2: 0, y2: pixelHeight })
         ]);
       })
     );

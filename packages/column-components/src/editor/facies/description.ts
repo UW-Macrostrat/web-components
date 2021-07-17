@@ -15,7 +15,7 @@ import { FaciesSwatch } from "./color-picker";
 const FaciesCard = ({ facies }) =>
   h("div.header", [
     h("p.name", { style: { marginRight: 20, textAlign: "left" } }, facies.name),
-    h(FaciesSwatch, { facies }),
+    h(FaciesSwatch, { facies })
   ]);
 
 class FaciesDescriptionSmall extends Component {
@@ -48,7 +48,7 @@ class FaciesDescriptionSmall extends Component {
         key: d.id,
         onClick,
         style,
-        className,
+        className
       },
       h(FaciesCard, { facies: d })
     );
@@ -58,7 +58,7 @@ class FaciesDescriptionSmall extends Component {
     const { facies } = this.context;
     return h("div.facies-description-small", [
       h("h5", "Facies"),
-      h("div", facies.map(this.renderEach)),
+      h("div", facies.map(this.renderEach))
     ]);
   }
 }

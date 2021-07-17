@@ -9,7 +9,7 @@ import h from "../hyper";
 import T from "prop-types";
 import { NoteLayoutContext } from "./layout";
 
-const HeightRangeAnnotation = function (props) {
+const HeightRangeAnnotation = function(props) {
   const { scale } = useContext(NoteLayoutContext);
   const { height, top_height, offsetX, color, ...rest } = props;
 
@@ -29,20 +29,20 @@ const HeightRangeAnnotation = function (props) {
       x1: 0,
       x2: 0,
       y1: 2.5,
-      y2: pxHeight - 2.5,
+      y2: pxHeight - 2.5
     }),
-    h.if(!isLine)("circle", { r: 2 }),
+    h.if(!isLine)("circle", { r: 2 })
   ]);
 };
 
 HeightRangeAnnotation.propTypes = {
   height: T.number.isRequired,
   top_height: T.number,
-  offsetX: T.number,
+  offsetX: T.number
 };
 
 HeightRangeAnnotation.defaultProps = {
-  offsetX: 0,
+  offsetX: 0
 };
 
 export { HeightRangeAnnotation };

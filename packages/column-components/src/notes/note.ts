@@ -4,7 +4,7 @@ import {
   createElement,
   useContext,
   createRef,
-  forwardRef,
+  forwardRef
 } from "react";
 import h from "../hyper";
 import T from "prop-types";
@@ -16,7 +16,7 @@ import { ForeignObject } from "../util";
 import { NoteShape } from "./types";
 import { NotePositioner, NoteConnector } from "./connector";
 
-const NoteBody = function (props) {
+const NoteBody = function(props) {
   const { note } = props;
   const { setEditingNote, editingNote } = useContext(NoteEditorContext);
   const { noteComponent } = useContext(NoteLayoutContext);
@@ -28,7 +28,7 @@ const NoteBody = function (props) {
   return h(noteComponent, { visibility, note, onClick });
 };
 
-const NoteMain = forwardRef(function (props, ref) {
+const NoteMain = forwardRef(function(props, ref) {
   const { note, offsetY, noteHeight } = props;
   const { editingNote } = useContext(NoteEditorContext);
   if (editingNote === note) {
@@ -41,10 +41,10 @@ const NoteMain = forwardRef(function (props, ref) {
       {
         offsetY,
         noteHeight,
-        ref,
+        ref
       },
       [h(NoteBody, { note })]
-    ),
+    )
   ]);
 });
 
@@ -53,7 +53,7 @@ class Note extends Component {
     this.propTypes = {
       editable: T.bool,
       note: NoteShape.isRequired,
-      editHandler: T.func,
+      editHandler: T.func
     };
     this.contextType = NoteLayoutContext;
   }
@@ -82,7 +82,7 @@ class Note extends Component {
       offsetY,
       note,
       noteHeight,
-      ref: this.element,
+      ref: this.element
     });
   }
 
@@ -112,7 +112,7 @@ class Note extends Component {
 }
 Note.initClass();
 
-const NotesList = function (props) {
+const NotesList = function(props) {
   let { inEditMode: editable, ...rest } = props;
   if (editable == null) {
     editable = false;
@@ -120,7 +120,7 @@ const NotesList = function (props) {
   const { notes } = useContext(NoteLayoutContext);
   return h(
     "g",
-    notes.map((note) => {
+    notes.map(note => {
       return h(Note, { key: note.id, note, editable, ...rest });
     })
   );
