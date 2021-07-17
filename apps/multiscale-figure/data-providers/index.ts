@@ -31,4 +31,4 @@ function MacrostratMeasurementProvider(
   })
 }
 
-export { MacrostratMeasurementProvider, useMeasurementData }
+export { MacrostratMeasurementProvider, useMeasurementData, ColumnSpec }

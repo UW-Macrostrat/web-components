@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "A renderer for Macrostrat columns",
   "scripts": {
-    "dev:legacy": "npm-run-all -l -p dev:core watch:**",
+    "dev:legacy": "npm-run-all -l -p dev watch:**",
     "postinstall": "lerna bootstrap --hoist",
     "dev": "parcel serve apps/index.html",
     "deploy:steno": "./deploy/deploy-steno.sh",

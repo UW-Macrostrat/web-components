@@ -8,7 +8,6 @@ import { AgeAxis } from "../../enriched-timeline/column"
 import { CompositeUnitsColumn } from "common/units"
 import { IUnit } from "common/units/types"
 import { useContext } from "react"
-import { IsotopesColumn } from "../../carbon-isotopes/isotopes-column"
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale"
 import "@macrostrat/timescale/dist/timescale.css"
 
@@ -67,8 +66,11 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
   ])
 }
 
-function InteriorSection(props: IColumnProps) {
-  const { data, range, pixelScale } = props
+function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
+  const { data, range, pixelScale, children } = props
+
+  const ctx = useContext(ColumnContext)
+  console.log(ctx)
 
   return h(
     ColumnProvider,
@@ -92,22 +94,7 @@ function InteriorSection(props: IColumnProps) {
             columnWidth: 140,
             gutterWidth: 0,
           }),
-          h(IsotopesColumn, {
-            parameter: "D13C",
-            label: "δ¹³C",
-            width: 50,
-            nTicks: 4,
-            showAxis: true,
-          }),
-          h(IsotopesColumn, {
-            parameter: "D18O",
-            label: "δ¹⁸O",
-            color: "red",
-            domain: [-40, 0],
-            width: 50,
-            nTicks: 4,
-            showAxis: true,
-          }),
+          children,
         ]
       ),
     ]

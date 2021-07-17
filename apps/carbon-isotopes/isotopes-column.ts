@@ -56,7 +56,7 @@ function ColumnScale(props) {
   const {
     label,
     showAxis = true,
-    nTicks,
+    nTicks = 6,
     tickValues: _tickVals,
     ...rest
   } = props
@@ -147,24 +147,20 @@ function unnestPoints(measures) {
   return points
 }
 
-interface IsotopeColumnProps {
+interface IsotopesDatasetProps {
+  color: string
+  parameter: string
+}
+
+interface IsotopeColumnProps extends IsotopesDatasetProps {
   width: number
   tickValues?: number[]
-  color: string
   label: string
-  parameter: string
   domain: [number, number]
 }
 
-const IsotopesColumn = function(props: IsotopeColumnProps) {
-  const {
-    width = 120,
-    domain = [-14, 6],
-    parameter,
-    label,
-    color = "dodgerblue",
-    ...rest
-  } = props
+function IsotopesDataset(props) {
+  const { parameter, color = "dodgerblue" } = props
   const { divisions } = useContext(ColumnContext)
   const measures = useMeasurementData() ?? []
   const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
@@ -174,33 +170,50 @@ const IsotopesColumn = function(props: IsotopeColumnProps) {
   const points = unnestPoints(refMeasures)
 
   return h(
+    IsotopesDataArea,
+    {
+      getHeight(d) {
+        return d.age
+      },
+    },
+    h(
+      "g.data-points",
+      points.map(d => {
+        return h(IsotopeDataPoint, {
+          datum: d,
+          fill: color,
+        })
+      })
+    )
+  )
+}
+
+function IsotopesColumn(
+  props: IsotopeColumnProps & { children?: React.ReactNode }
+) {
+  const {
+    width = 120,
+    domain = [-14, 6],
+    parameter,
+    label,
+    color = "dodgerblue",
+    children = null,
+    ...rest
+  } = props
+
+  let _children = children
+  if (children == null && parameter != null) {
+    _children = h(IsotopesDataset, { parameter, color })
+  }
+
+  return h(
     CrossAxisLayoutProvider,
     { width, domain },
     h("g.isotopes-column", { className: parameter }, [
       h(ColumnScale, { label: label ?? parameter, ...rest }),
-      h(
-        IsotopesDataArea,
-        {
-          getHeight(d) {
-            return d.age
-          },
-        },
-        h(
-          "g.data-points",
-          points.map(d => {
-            return h(IsotopeDataPoint, {
-              datum: d,
-              fill: color,
-            })
-          })
-        )
-      ),
+      _children,
     ])
   )
 }
 
-IsotopesColumn.defaultProps = {
-  nTicks: 6,
-}
-
-export { IsotopesColumn }
+export { IsotopesColumn, IsotopesDataset }

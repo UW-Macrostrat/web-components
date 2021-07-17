@@ -37,3 +37,4 @@ export {
   CompositeUnitsColumn,
   ICompositeUnitProps,
 }
+export * from "./types"

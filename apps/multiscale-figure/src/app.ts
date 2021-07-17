@@ -1,12 +1,14 @@
 import h, { C, compose } from "@macrostrat/hyper"
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components"
 import { GeologicPatternProvider } from "@macrostrat/column-components"
-import { Section } from "../../enriched-timeline/column"
-import { IColumnProps } from "../../carbon-isotopes/column"
 import { MeasurementDataProvider } from "../../carbon-isotopes/data-provider"
-import { MacrostratMeasurementProvider } from "../data-providers"
+import { MacrostratMeasurementProvider, ColumnSpec } from "../data-providers"
 import { BaseSection, InteriorSection } from "./section"
-import { useColumnNav } from "common/macrostrat-columns"
+import {
+  IsotopesColumn,
+  IsotopesDataset,
+} from "../../carbon-isotopes/isotopes-column"
+import { IUnit } from "common/units"
 import patterns from "url:../../../geologic-patterns/*.png"
 import "./main.styl"
 
@@ -20,8 +22,8 @@ const columnArgs = {
   status_code: "in process",
 }
 
-function Column(props: IColumnProps) {
-  const { params } = props
+function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
+  const { params, children } = props
   const data: IUnit[] = useAPIResult("/units", {
     all: true,
     ...params,
@@ -32,10 +34,30 @@ function Column(props: IColumnProps) {
   return h("div.column", [
     h(InteriorSection, {
       data,
-      range: [650, 530],
+      range: [630, 530],
       pixelScale: 6,
+      children,
     }),
   ])
+}
+
+function MultiIsotopesColumn(props) {
+  return h(
+    IsotopesColumn,
+    {
+      parameter: "D18O",
+      label: "δ¹⁸O",
+      color: "red",
+      domain: [-15, 5],
+      width: 100,
+      nTicks: 4,
+      showAxis: true,
+    },
+    [
+      h(IsotopesDataset, { parameter: "D18O", color: "red" }),
+      h(IsotopesDataset, { parameter: "D13C", color: "dodgerblue" }),
+    ]
+  )
 }
 
 const ColumnManager = () => {
@@ -43,16 +65,16 @@ const ColumnManager = () => {
 
   // 1666 might be better, or 1481, or 1667
 
-  const params1 = { col_id: 1481 }
+  const params1 = { col_id: 1667 }
   return h("div.column-array", [
-    h(BaseSection, { range: [650, 530], pixelScale: 6 }, [
+    h(BaseSection, { range: [630, 530], pixelScale: 6 }, [
       h(
         MacrostratMeasurementProvider,
         { target: params1, source: { col_id } },
-        h(Column, { params: params1 })
+        h(Column, { params: params1 }, h(MultiIsotopesColumn))
       ),
       h(MeasurementDataProvider, columnArgs, [
-        h(Column, { params: columnArgs }),
+        h(Column, { params: columnArgs }, h(MultiIsotopesColumn)),
       ]),
       h("div.spacer"),
     ]),
