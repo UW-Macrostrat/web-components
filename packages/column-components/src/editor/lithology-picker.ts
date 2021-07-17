@@ -7,60 +7,60 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { useContext, useState } from "react"
-import hyper from "@macrostrat/hyper"
-import { RaisedSelect } from "./util"
-import { Button, Intent } from "@blueprintjs/core"
+import { useContext, useState } from "react";
+import hyper from "@macrostrat/hyper";
+import { RaisedSelect } from "./util";
+import { Button, Intent } from "@blueprintjs/core";
 
-import { symbolIndex } from "../lithology"
-import { GeologicPatternContext } from "../lithology"
-import { LithologyContext } from "../context"
+import { symbolIndex } from "../lithology";
+import { GeologicPatternContext } from "../lithology";
+import { LithologyContext } from "../context";
 
-import styles from "./main.styl"
+import styles from "./main.styl";
 
-const h = hyper.styled(styles)
+const h = hyper.styled(styles);
 
-const LithologySwatch = function ({ symbolID, style, ...rest }) {
-  const { resolvePattern } = useContext(GeologicPatternContext)
-  const src = resolvePattern(symbolID)
+const LithologySwatch = function({ symbolID, style, ...rest }) {
+  const { resolvePattern } = useContext(GeologicPatternContext);
+  const src = resolvePattern(symbolID);
   if (style == null) {
-    style = {}
+    style = {};
   }
-  style.backgroundImage = `url(\"${src}\")`
-  return h("div.lithology-swatch", { style, ...rest })
-}
+  style.backgroundImage = `url(\"${src}\")`;
+  return h("div.lithology-swatch", { style, ...rest });
+};
 
-const LithologyItem = function (props) {
-  const { symbol, lithology } = props
+const LithologyItem = function(props) {
+  const { symbol, lithology } = props;
   return h("span.facies-picker-row", [
     h(LithologySwatch, { symbolID: symbol }),
-    h("span.facies-picker-name", lithology),
-  ])
-}
+    h("span.facies-picker-name", lithology)
+  ]);
+};
 
-const LithologyPicker = (props) => {
-  const { interval, onChange } = props
-  const { lithologies } = useContext(LithologyContext)
+const LithologyPicker = props => {
+  const { interval, onChange } = props;
+  const { lithologies } = useContext(LithologyContext);
 
   const options = (() => {
-    const result = []
+    const result = [];
     for (let item of lithologies) {
-      const { id, pattern } = item
-      const symbol = symbolIndex[pattern]
+      const { id, pattern } = item;
+      const symbol = symbolIndex[pattern];
       if (symbol == null) {
-        continue
+        continue;
       }
       result.push({
         value: id,
-        label: h(LithologyItem, { lithology: id, symbol }),
-      })
+        label: h(LithologyItem, { lithology: id, symbol })
+      });
     }
-    return result
-  })()
+    return result;
+  })();
 
-  let value = options.find((d) => d.value === interval.lithology)
+  let value = options.find(d => d.value === interval.lithology);
   if (value == null) {
-    value = null
+    value = null;
   }
 
   return h(RaisedSelect, {
@@ -69,26 +69,26 @@ const LithologyPicker = (props) => {
     value,
     isClearable: true,
     onChange(res) {
-      const f = res != null ? res.value : null
-      return onChange(f)
-    },
-  })
-}
+      const f = res != null ? res.value : null;
+      return onChange(f);
+    }
+  });
+};
 
-const SymbolPickerInner = function (props) {
-  let symbol
-  const { interval, onClose, style } = props
-  let isUserSet = false
+const SymbolPickerInner = function(props) {
+  let symbol;
+  const { interval, onClose, style } = props;
+  let isUserSet = false;
 
-  let text = "No pattern set"
+  let text = "No pattern set";
   if (interval.pattern != null) {
-    symbol = interval.pattern
-    isUserSet = true
-    text = `Symbol ${symbol}`
+    symbol = interval.pattern;
+    isUserSet = true;
+    text = `Symbol ${symbol}`;
   }
   if (interval.lithology != null) {
-    symbol = symbolIndex[interval.lithology]
-    text = "Default for lithology"
+    symbol = symbolIndex[interval.lithology];
+    text = "Default for lithology";
   }
 
   return h("div.lithology-symbol-picker-inner", { style }, [
@@ -101,18 +101,18 @@ const SymbolPickerInner = function (props) {
         icon: "cross",
         intent: Intent.DANGER,
         minimal: true,
-        onClick: onClose,
+        onClick: onClose
       },
       "Clear override"
-    ),
-  ])
-}
+    )
+  ]);
+};
 
-const LithologySymbolPicker = function (props) {
-  const { interval, updatePattern } = props
-  const [isExpanded, setIsExpanded] = useState(false)
+const LithologySymbolPicker = function(props) {
+  const { interval, updatePattern } = props;
+  const [isExpanded, setIsExpanded] = useState(false);
 
-  const className = isExpanded ? "expanded" : "hidden"
+  const className = isExpanded ? "expanded" : "hidden";
 
   return h("div.lithology-symbol-picker", { className }, [
     h(
@@ -120,20 +120,20 @@ const LithologySymbolPicker = function (props) {
       {
         className: "expand-button",
         onClick() {
-          setIsExpanded(true)
+          setIsExpanded(true);
         },
         minimal: true,
         small: true,
-        intent: Intent.WARNING,
+        intent: Intent.WARNING
       },
       "Override lithology pattern"
     ),
     h(SymbolPickerInner, {
       interval,
       onClose: () => setIsExpanded(false),
-      updatePattern,
-    }),
-  ])
-}
+      updatePattern
+    })
+  ]);
+};
 
-export { LithologyPicker, LithologySymbolPicker }
+export { LithologyPicker, LithologySymbolPicker };

@@ -1,10 +1,10 @@
-import pkg from "./package.json"
-import babel from "@rollup/plugin-babel"
-import postcss from "rollup-plugin-postcss"
-import resolve from "@rollup/plugin-node-resolve"
+import pkg from "./package.json";
+import babel from "@rollup/plugin-babel";
+import postcss from "rollup-plugin-postcss";
+import resolve from "@rollup/plugin-node-resolve";
 
-const extensions = [".js", ".ts", ".d.ts"]
-const deps = { ...pkg.dependencies, ...pkg.peerDependencies }
+const extensions = [".js", ".ts", ".d.ts"];
+const deps = { ...pkg.dependencies, ...pkg.peerDependencies };
 
 export default {
   input: "src/index.ts",
@@ -47,4 +47,4 @@ export default {
       babelHelpers: "bundled",
     }),
   ],
-}
+};
