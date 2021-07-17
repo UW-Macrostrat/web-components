@@ -415,6 +415,7 @@ const CarbonateDivisions = props =>
   });
 
 export * from "./patterns";
+export * from "./column-patterns";
 export {
   ParameterIntervals,
   LithologyColumn,

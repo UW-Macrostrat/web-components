@@ -41,18 +41,6 @@ const GeologicPatternDefs = function(props: GeologicPatternProps) {
   );
 };
 
-const LithologySymbolDefs = function(props) {
-  let { resolveID, UUID, scalePattern } = props;
-  const { divisions: allDivisions } = useContext(ColumnContext);
-  const divisions = props.divisions ?? allDivisions;
-
-  let patternIDs = divisions.map(d => resolveID(d));
-  // deduplicate pattern IDs
-  patternIDs = Array.from(new Set(patternIDs));
-
-  return h(GeologicPatternDefs, { UUID, scalePattern, patternIDs });
-};
-
 type LithProviderProps = React.PropsWithChildren<LithologySymbolCtx>;
 
 function PatternDefsProvider(props: LithProviderProps) {
@@ -98,4 +86,4 @@ function useGeologicPattern(patternID: string, fallback: string = "#aaa") {
   return `url(#${UUID}-${patternID})`;
 }
 
-export { PatternDefsProvider, useGeologicPattern, LithologySymbolDefs };
+export { PatternDefsProvider, useGeologicPattern };
