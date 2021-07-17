@@ -12,9 +12,7 @@ import { IUnit } from "common/units";
 import patterns from "url:../../../geologic-patterns/*.png";
 import "./main.styl";
 
-const ColumnTitle = props => {
-  return h.if(props.data != null)("h1", props.data?.col_name);
-};
+const timeRange = [630, 530];
 
 const columnArgs = {
   col_id: 2163,
@@ -34,7 +32,7 @@ function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
   return h("div.column", [
     h(InteriorSection, {
       data,
-      range: [630, 530],
+      range: [timeRange[1], timeRange[0]],
       pixelScale: 6,
       children
     })
@@ -65,9 +63,9 @@ const ColumnManager = () => {
 
   // 1666 might be better, or 1481, or 1667
 
-  const params1 = { col_id: 1667 };
+  const params1 = { col_id: 1666 };
   return h("div.column-array", [
-    h(BaseSection, { range: [630, 530], pixelScale: 6 }, [
+    h(BaseSection, { range: timeRange, pixelScale: 6 }, [
       h(
         MacrostratMeasurementProvider,
         { target: params1, source: { col_id } },

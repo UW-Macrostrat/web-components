@@ -69,9 +69,6 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
 function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
   const { data, range, pixelScale, children } = props;
 
-  const ctx = useContext(ColumnContext);
-  console.log(ctx);
-
   return h(
     ColumnProvider,
     {

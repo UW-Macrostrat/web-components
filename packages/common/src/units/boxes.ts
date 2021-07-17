@@ -24,7 +24,7 @@ function useUnitRect(division: IUnit) {
   const { scale } = useContext(ColumnContext);
   const { width } = useContext(ColumnLayoutContext);
   const y = scale(division.t_age);
-  const height = scale(division.b_age) - y;
+  const height = Math.abs(scale(division.b_age) - y);
   return { x: 0, y, height, width };
 }
 
