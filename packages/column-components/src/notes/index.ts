@@ -163,6 +163,10 @@ const NotesColumn = function(props) {
 
 NotesColumn.defaultProps = { editable: true };
 
+interface NotesColumnProps {
+  editable: boolean;
+}
+
 export {
   NotesColumn,
   NoteComponent,
