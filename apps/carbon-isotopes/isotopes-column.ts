@@ -1,56 +1,60 @@
-import { format } from "d3-format"
-import { useContext } from "react"
-import h from "@macrostrat/hyper"
-import classNames from "classnames"
-import { AxisBottom } from "@vx/axis"
-import { useMeasurementData } from "./data-provider"
+import { format } from "d3-format";
+import { useContext } from "react";
+import h from "@macrostrat/hyper";
+import classNames from "classnames";
+import { AxisBottom } from "@vx/axis";
+import { useMeasurementData } from "./data-provider";
 
-import { IsotopesDataArea, useDataLocator, IsotopeDataPoint } from "./data-area"
+import {
+  IsotopesDataArea,
+  useDataLocator,
+  IsotopeDataPoint
+} from "./data-area";
 
 import {
   CrossAxisLayoutProvider,
   ColumnLayoutContext,
-  ColumnContext,
-} from "@macrostrat/column-components"
-import T from "prop-types"
+  ColumnContext
+} from "@macrostrat/column-components";
+import T from "prop-types";
 
-const fmt = format(".1f")
+const fmt = format(".1f");
 
 function referenceMeasuresToColumn(units, measures) {
   /** Add a `measure_age` parameter containing absolute ages derived from units. */
-  const ids = units.map(d => d.unit_id)
-  const colMeasures = measures.filter(d => ids.includes(d.unit_id))
+  const ids = units.map(d => d.unit_id);
+  const colMeasures = measures.filter(d => ids.includes(d.unit_id));
 
   return colMeasures.map(measure => {
-    const unit = units.find(u => u.unit_id == measure.unit_id)
+    const unit = units.find(u => u.unit_id == measure.unit_id);
 
-    const unitAgeSpan = unit.b_age - unit.t_age
+    const unitAgeSpan = unit.b_age - unit.t_age;
 
     const measure_age = measure.measure_position.map(pos => {
-      return (pos / 100) * unitAgeSpan + unit.t_age
-    })
+      return (pos / 100) * unitAgeSpan + unit.t_age;
+    });
 
-    return { measure_age, ...measure }
-  })
+    return { measure_age, ...measure };
+  });
 }
 
 const IsotopeText = function({ datum, text, ...rest }) {
-  const { pointLocator } = useDataLocator()
-  const [x, y] = pointLocator(datum)
+  const { pointLocator } = useDataLocator();
+  const [x, y] = pointLocator(datum);
   return h(
     "text",
     {
       x,
       y,
-      ...rest,
+      ...rest
     },
     text
-  )
-}
+  );
+};
 
 IsotopeText.propTypes = {
-  datum: T.object.isRequired,
-}
+  datum: T.object.isRequired
+};
 
 function ColumnScale(props) {
   const {
@@ -59,17 +63,17 @@ function ColumnScale(props) {
     nTicks = 6,
     tickValues: _tickVals,
     ...rest
-  } = props
-  const { xScale, pixelHeight, width } = useContext(ColumnLayoutContext)
+  } = props;
+  const { xScale, pixelHeight, width } = useContext(ColumnLayoutContext);
 
-  const tickValues = _tickVals ?? xScale.ticks(nTicks)
+  const tickValues = _tickVals ?? xScale.ticks(nTicks);
 
   return h("g.scale.isotope-scale-axis", [
     h(
       "g.scale-lines",
       tickValues.map(value => {
-        const strokeDasharray = value == 0 ? null : "2 6"
-        return h(ScaleLine, { value, stroke: "#ddd", strokeDasharray })
+        const strokeDasharray = value == 0 ? null : "2 6";
+        return h(ScaleLine, { value, stroke: "#ddd", strokeDasharray });
       })
     ),
     h.if(showAxis)([
@@ -77,7 +81,7 @@ function ColumnScale(props) {
         x: 0,
         y: pixelHeight,
         width,
-        height: 30,
+        height: 30
       }),
       h(AxisBottom, {
         scale: xScale,
@@ -87,50 +91,50 @@ function ColumnScale(props) {
         top: pixelHeight,
         tickLabelProps(tickValue, i) {
           // Compensate for negative sign
-          let dx
+          let dx;
           if (tickValue < 0) {
-            dx = -2
+            dx = -2;
           }
           return {
             dy: "-1px",
             dx,
             fontSize: 10,
             textAnchor: "middle",
-            fill: "#aaa",
-          }
+            fill: "#aaa"
+          };
         },
         labelOffset: 0,
-        label,
-      }),
-    ]),
-  ])
+        label
+      })
+    ])
+  ]);
 }
 
 const ScaleLine = function(props) {
-  let { value, className, labelBottom, labelOffset, ...rest } = props
+  let { value, className, labelBottom, labelOffset, ...rest } = props;
   if (labelBottom == null) {
-    labelBottom = false
+    labelBottom = false;
   }
   if (labelOffset == null) {
-    labelOffset = 12
+    labelOffset = 12;
   }
-  const { xScale, pixelHeight } = useContext(ColumnLayoutContext)
-  const x = xScale(value)
-  const transform = `translate(${x})`
-  className = classNames(className, { zero: value === 0 })
+  const { xScale, pixelHeight } = useContext(ColumnLayoutContext);
+  const x = xScale(value);
+  const transform = `translate(${x})`;
+  className = classNames(className, { zero: value === 0 });
   return h("g.tick", { transform, className, key: value }, [
     h("line", { x0: 0, x1: 0, y0: 0, y1: pixelHeight, ...rest }),
-    h.if(labelBottom)("text", { y: pixelHeight + labelOffset }, `${value}`),
-  ])
-}
+    h.if(labelBottom)("text", { y: pixelHeight + labelOffset }, `${value}`)
+  ]);
+};
 
 ScaleLine.propTypes = {
   value: T.number.isRequired,
-  labelBottom: T.bool,
-}
+  labelBottom: T.bool
+};
 
 function unnestPoints(measures) {
-  let points = []
+  let points = [];
   for (const meas of measures) {
     const vals = meas.measure_value.map((d, i) => {
       return {
@@ -139,53 +143,53 @@ function unnestPoints(measures) {
         position: meas.measure_position[i],
         unit_id: meas.unit_id,
         sample_id: meas.sample_no[i],
-        measurement: meas.measurement,
-      }
-    })
-    Array.prototype.push.apply(points, vals)
+        measurement: meas.measurement
+      };
+    });
+    Array.prototype.push.apply(points, vals);
   }
-  return points
+  return points;
 }
 
 interface IsotopesDatasetProps {
-  color: string
-  parameter: string
+  color: string;
+  parameter: string;
 }
 
 interface IsotopeColumnProps extends IsotopesDatasetProps {
-  width: number
-  tickValues?: number[]
-  label: string
-  domain: [number, number]
+  width: number;
+  tickValues?: number[];
+  label: string;
+  domain: [number, number];
 }
 
 function IsotopesDataset(props) {
-  const { parameter, color = "dodgerblue" } = props
-  const { divisions } = useContext(ColumnContext)
-  const measures = useMeasurementData() ?? []
+  const { parameter, color = "dodgerblue" } = props;
+  const { divisions } = useContext(ColumnContext);
+  const measures = useMeasurementData() ?? [];
   const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
     d => d.measurement == parameter
-  )
+  );
 
-  const points = unnestPoints(refMeasures)
+  const points = unnestPoints(refMeasures);
 
   return h(
     IsotopesDataArea,
     {
       getHeight(d) {
-        return d.age
-      },
+        return d.age;
+      }
     },
     h(
       "g.data-points",
       points.map(d => {
         return h(IsotopeDataPoint, {
           datum: d,
-          fill: color,
-        })
+          fill: color
+        });
       })
     )
-  )
+  );
 }
 
 function IsotopesColumn(
@@ -199,11 +203,11 @@ function IsotopesColumn(
     color = "dodgerblue",
     children = null,
     ...rest
-  } = props
+  } = props;
 
-  let _children = children
+  let _children = children;
   if (children == null && parameter != null) {
-    _children = h(IsotopesDataset, { parameter, color })
+    _children = h(IsotopesDataset, { parameter, color });
   }
 
   return h(
@@ -211,9 +215,9 @@ function IsotopesColumn(
     { width, domain },
     h("g.isotopes-column", { className: parameter }, [
       h(ColumnScale, { label: label ?? parameter, ...rest }),
-      _children,
+      _children
     ])
-  )
+  );
 }
 
-export { IsotopesColumn, IsotopesDataset }
+export { IsotopesColumn, IsotopesDataset };
