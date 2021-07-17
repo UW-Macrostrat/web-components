@@ -32,7 +32,7 @@ function Column(props: IColumnProps) {
   return h("div.column", [
     h(InteriorSection, {
       data,
-      range: [650, 520],
+      range: [650, 530],
       pixelScale: 6,
     }),
   ])
@@ -45,7 +45,7 @@ const ColumnManager = () => {
 
   const params1 = { col_id: 1481 }
   return h("div.column-array", [
-    h(BaseSection, { range: [650, 520], pixelScale: 6 }, [
+    h(BaseSection, { range: [650, 530], pixelScale: 6 }, [
       h(
         MacrostratMeasurementProvider,
         { target: params1, source: { col_id } },

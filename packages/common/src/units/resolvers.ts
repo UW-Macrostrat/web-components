@@ -12,6 +12,7 @@ const symbolIndex = {
   conglomerate: 602,
   carbonate: 627,
   "dolomite-mudstone": 642,
+  dolostone: 642,
   mudstone: 620,
   "sandy-dolomite": 645,
   quartzite: 702,
