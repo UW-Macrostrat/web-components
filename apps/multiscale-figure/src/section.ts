@@ -2,12 +2,11 @@ import h from "@macrostrat/hyper";
 import {
   ColumnProvider,
   ColumnSVG,
-  ColumnContext
+  useColumn
 } from "@macrostrat/column-components";
 import { AgeAxis } from "../../enriched-timeline/column";
 import { CompositeUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
-import { useContext } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 
@@ -68,6 +67,7 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
 
 function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
   const { data, range, pixelScale, children } = props;
+  const { pixelsPerMeter } = useColumn();
 
   return h(
     ColumnProvider,

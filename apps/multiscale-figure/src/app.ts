@@ -8,6 +8,7 @@ import {
   IsotopesColumn,
   IsotopesDataset
 } from "../../carbon-isotopes/isotopes-column";
+import { IsotopesSpectraColumn } from "./spectra";
 import { IUnit } from "common/units";
 import patterns from "url:../../../geologic-patterns/*.png";
 import "./main.styl";
@@ -32,6 +33,7 @@ function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
   return h("div.column", [
     h(InteriorSection, {
       data,
+      // This is honestly extremely strange.
       range: [timeRange[1], timeRange[0]],
       pixelScale: 6,
       children
@@ -69,7 +71,7 @@ const ColumnManager = () => {
       h(
         MacrostratMeasurementProvider,
         { target: params1, source: { col_id } },
-        h(Column, { params: params1 }, h(MultiIsotopesColumn))
+        h(Column, { params: params1 }, h(IsotopesSpectraColumn))
       ),
       h(MeasurementDataProvider, columnArgs, [
         h(Column, { params: columnArgs }, h(MultiIsotopesColumn))
