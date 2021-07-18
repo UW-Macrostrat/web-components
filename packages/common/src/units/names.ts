@@ -13,6 +13,7 @@ interface UnitDataProps extends NotesColumnProps {
   left?: number;
   transform: string;
   noteComponent: React.ComponentType<any>;
+  shouldRenderNote?(note: INote): boolean;
   divisions?: IUnit[];
 }
 interface UnitNamesProps extends Omit<UnitDataProps, "noteComponent"> {
@@ -39,12 +40,15 @@ function UnitDataColumn(props: UnitDataProps) {
   const {
     left,
     noteComponent,
+    shouldRenderNote = () => true,
     divisions = useContext(ColumnContext)?.divisions,
     ...rest
   } = props;
 
   if (divisions == null) return null;
-  const notes: INote[] = divisions.map(noteForDivision);
+  const notes: INote[] = divisions
+    .filter(shouldRenderNote)
+    .map(noteForDivision);
 
   return h(NotesColumn, {
     transform: `translate(${left || 0})`,

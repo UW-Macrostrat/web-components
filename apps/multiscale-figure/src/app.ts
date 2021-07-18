@@ -5,10 +5,14 @@ import { MeasurementDataProvider } from "../../carbon-isotopes/data-provider";
 import { MacrostratMeasurementProvider, ColumnSpec } from "../data-providers";
 import { BaseSection, InteriorSection } from "./section";
 import {
+  CompositeUnitsColumn,
+  AnnotatedUnitsColumn
+} from "common/units/composite";
+import {
   IsotopesColumn,
   IsotopesDataset
 } from "../../carbon-isotopes/isotopes-column";
-import { IsotopesSpectraColumn } from "./spectra";
+import { IsotopeSpectrumNote, shouldRenderNote } from "./spectra";
 import { IUnit } from "common/units";
 import patterns from "url:../../../geologic-patterns/*.png";
 import "./main.styl";
@@ -71,10 +75,25 @@ const ColumnManager = () => {
       h(
         MacrostratMeasurementProvider,
         { target: params1, source: { col_id } },
-        h(Column, { params: params1 }, h(IsotopesSpectraColumn))
+        h(Column, { params: params1 }, [
+          h(AnnotatedUnitsColumn, {
+            width: 400,
+            columnWidth: 140,
+            gutterWidth: 0,
+            noteComponent: IsotopeSpectrumNote
+            shouldRenderNote
+          })
+        ])
       ),
       h(MeasurementDataProvider, columnArgs, [
-        h(Column, { params: columnArgs }, h(MultiIsotopesColumn))
+        h(Column, { params: columnArgs }, [
+          h(CompositeUnitsColumn, {
+            width: 400,
+            columnWidth: 140,
+            gutterWidth: 0
+          }),
+          h(MultiIsotopesColumn)
+        ])
       ]),
       h("div.spacer")
     ])

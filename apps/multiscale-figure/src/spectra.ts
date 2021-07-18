@@ -13,6 +13,7 @@ import {
   kernelDensityEstimator,
   kernelGaussian
 } from "common/dz-spectrum/kernel-density";
+import { IUnit } from "common/units/types";
 import { PlotAreaContext, usePlotArea } from "common/dz-spectrum/index";
 
 interface IsotopesSeriesProps {
@@ -97,22 +98,26 @@ function IsotopesSpectrumPlot(props) {
     PlotAreaContext.Provider,
     { value },
     h(
-      "g",
-      {
-        transform: `translate(${margin},${marginTop})`
-      },
-      [
-        h(AxisBottom, {
-          scale: xScale,
-          numTicks: 10,
-          tickLength: 4,
-          tickFormat,
-          strokeWidth: 1.5,
-          top: eachHeight,
-          ...labelProps
-        }),
-        children
-      ]
+      "svg",
+      { width, height },
+      h(
+        "g",
+        {
+          transform: `translate(${margin},${marginTop})`
+        },
+        [
+          h(AxisBottom, {
+            scale: xScale,
+            numTicks: 10,
+            tickLength: 4,
+            tickFormat,
+            strokeWidth: 1.5,
+            top: eachHeight,
+            ...labelProps
+          }),
+          children
+        ]
+      )
     )
   );
 }
@@ -145,6 +150,13 @@ function IsotopesSpectrum({
   return h(IsotopesSpectrumPlot, null, h(IsotopesSeries, { data: values }));
 }
 
+function IsotopeSpectrumNote(props: { note: { data: IUnit } }) {
+  const { note } = props;
+  return h("div.isotopes-note", [
+    h(IsotopesSpectrum, { unit_id: note.data.unit_id, parameter: "D13C" })
+  ]);
+}
+
 function IsotopesSpectraColumn(props: { children?: React.ReactNode }) {
   const divisions = useColumnDivisions();
   const notes = useMemo(() => {
@@ -169,4 +181,4 @@ function IsotopesSpectraColumn(props: { children?: React.ReactNode }) {
   ]);
 }
 
-export { IsotopesSpectraColumn };
+export { IsotopesSpectraColumn, IsotopeSpectrumNote };
