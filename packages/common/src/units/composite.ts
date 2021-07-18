@@ -2,11 +2,10 @@ import h from "@macrostrat/hyper";
 import {
   LithologyColumn,
   PatternDefsProvider,
-  NotesColumn,
   ColumnContext,
   INote
 } from "@macrostrat/column-components";
-import { defaultNameFunction, UnitNamesColumn } from "./names";
+import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
 import {
   createContext,
   useContext,
@@ -112,6 +111,48 @@ function UnlabeledUnitNames(props) {
   return h(UnitNamesColumn, { divisions, ...props });
 }
 
+function _BaseUnitsColumn(props: React.PropsWithChildren<ICompositeUnitProps>) {
+  /*
+  A column with units and names either
+  overlapping or offset to the right
+  */
+  const { columnWidth, children } = props;
+
+  const { divisions } = useContext(ColumnContext);
+
+  return h(LabelTrackerProvider, [
+    h(LithologyColumn, { width: columnWidth }, [
+      h(CompositeBoxes, {
+        divisions
+      })
+    ]),
+    children
+  ]);
+}
+
+function AnnotatedUnitsColumn(props: IComposteUnitProps) {
+  /*
+  A column with units and names either
+  overlapping or offset to the right
+  */
+  const {
+    columnWidth,
+    width = 100,
+    gutterWidth = 10,
+    labelOffset = 30,
+    noteComponent
+  } = props;
+
+  return h(_BaseUnitsColumn, { columnWidth }, [
+    h(UnitDataColumn, {
+      transform: `translate(${columnWidth + gutterWidth})`,
+      paddingLeft: labelOffset,
+      width: width - columnWidth - gutterWidth,
+      noteComponent
+    })
+  ]);
+}
+
 function CompositeUnitsColumn(props: ICompositeUnitProps) {
   /*
   A column with units and names either
@@ -124,14 +165,7 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     labelOffset = 30
   } = props;
 
-  const { divisions } = useContext(ColumnContext);
-
-  return h(LabelTrackerProvider, [
-    h(LithologyColumn, { width: columnWidth }, [
-      h(CompositeBoxes, {
-        divisions
-      })
-    ]),
+  return h(_BaseUnitsColumn, { columnWidth }, [
     h(UnlabeledUnitNames, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
@@ -140,4 +174,9 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
   ]);
 }
 
-export { UnitNamesColumn, CompositeUnitsColumn, ICompositeUnitProps };
+export {
+  UnitNamesColumn,
+  CompositeUnitsColumn,
+  ICompositeUnitProps,
+  AnnotatedUnitsColumn
+};

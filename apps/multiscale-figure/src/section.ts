@@ -9,6 +9,7 @@ import { CompositeUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
+import { AnnotatedUnitsColumn } from "common/units/composite";
 
 interface IColumnProps {
   data: IUnit[];
@@ -86,10 +87,11 @@ function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
           paddingV: 20
         },
         [
-          h(CompositeUnitsColumn, {
+          h(AnnotatedUnitsColumn, {
             width: 400,
             columnWidth: 140,
-            gutterWidth: 0
+            gutterWidth: 0,
+            noteComponent: props => null
           }),
           children
         ]
