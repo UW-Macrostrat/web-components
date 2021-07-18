@@ -133,4 +133,4 @@ function DetritalSpectrumPlot(props) {
   );
 }
 
-export { DetritalSpectrumPlot, DetritalSeries, usePlotArea };
+export { DetritalSpectrumPlot, DetritalSeries, usePlotArea, PlotAreaContext };

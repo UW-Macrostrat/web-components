@@ -7,28 +7,26 @@ import {
 } from "@macrostrat/column-components";
 import { INote } from "@macrostrat/column-components";
 import { IUnit } from "./types";
-interface UnitNamesProps extends NotesColumnProps {
+import React from "packages/ui-components/node_modules/@types/react";
+
+interface UnitDataProps extends NotesColumnProps {
   left?: number;
   transform: string;
+  noteComponent: React.ComponentType<any>;
+  divisions?: IUnit[];
+}
+interface UnitNamesProps extends Omit<UnitDataProps, "noteComponent"> {
   nameForDivision?(obj: IUnit): string;
 }
 
-const NoteComponent = props => {
-  const { note } = props;
-  const text = note.note;
-  return h("p.col-note-label", text);
-};
-
-const noteForDivision = (
-  unitNameFn: (a: IUnit) => string
-): ((div: IUnit) => INote) => div => {
+function noteForDivision(div: IUnit): INote {
   return {
     height: div.b_age,
     top_height: div.t_age,
-    note: unitNameFn(div),
+    data: div,
     id: div.unit_id
   };
-};
+}
 
 const defaultNameFunction = div => {
   return div.unit_name
@@ -37,22 +35,44 @@ const defaultNameFunction = div => {
     .replace("Gp", "Group");
 };
 
-const UnitNamesColumn = (props: UnitNamesProps) => {
-  const { left, nameForDivision = defaultNameFunction, ...rest } = props;
-  const { divisions } = useContext(ColumnContext);
+function UnitDataColumn(props: UnitDataProps) {
+  const {
+    left,
+    noteComponent,
+    divisions = useContext(ColumnContext)?.divisions,
+    ...rest
+  } = props;
 
-  const notes: INote[] = divisions.map(noteForDivision(nameForDivision));
+  if (divisions == null) return null;
+  const notes: INote[] = divisions.map(noteForDivision);
 
   return h(NotesColumn, {
     transform: `translate(${left || 0})`,
     editable: false,
-    noteComponent: NoteComponent,
+    noteComponent,
     notes,
     forceOptions: {
       nodeSpacing: 1
     },
     ...rest
   });
+}
+
+const UnitNamesColumn = (props: UnitNamesProps) => {
+  const { nameForDivision = defaultNameFunction, ...rest } = props;
+
+  const NoteComponent = props => {
+    const { note } = props;
+    return h("p.col-note-label", nameForDivision(note.data));
+  };
+
+  return h(UnitDataColumn, { noteComponent: NoteComponent, ...rest });
 };
 
-export { UnitNamesColumn, defaultNameFunction, noteForDivision, NoteComponent };
+export {
+  UnitNamesColumn,
+  defaultNameFunction,
+  noteForDivision,
+  UnitDataColumn,
+  UnitNamesProps
+};

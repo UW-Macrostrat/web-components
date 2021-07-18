@@ -6,7 +6,7 @@ import {
   ColumnContext,
   INote
 } from "@macrostrat/column-components";
-import { defaultNameFunction, noteForDivision, NoteComponent } from "./names";
+import { defaultNameFunction, UnitNamesColumn } from "./names";
 import {
   createContext,
   useContext,
@@ -106,23 +106,10 @@ function CompositeBoxes(props: {
   );
 }
 
-function UnitNamesColumn(props) {
-  const { left, nameForDivision = defaultNameFunction, ...rest } = props;
+function UnlabeledUnitNames(props) {
   const divisions = useContext(UnlabeledDivisionsContext);
   if (divisions == null) return null;
-
-  const notes: INote[] = divisions.map(noteForDivision(nameForDivision));
-
-  return h(NotesColumn, {
-    transform: `translate(${left || 0})`,
-    editable: false,
-    noteComponent: NoteComponent,
-    notes,
-    forceOptions: {
-      nodeSpacing: 1
-    },
-    ...rest
-  });
+  return h(UnitNamesColumn, { divisions, ...props });
 }
 
 function CompositeUnitsColumn(props: ICompositeUnitProps) {
@@ -145,8 +132,7 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
         divisions
       })
     ]),
-    h(UnitNamesColumn, {
-      nameForDivision: defaultNameFunction,
+    h(UnlabeledUnitNames, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
       width: width - columnWidth - gutterWidth
