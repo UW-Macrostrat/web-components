@@ -1,40 +1,30 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { Component, useContext } from "react";
-import { GrainsizeAxis } from "#/grainsize";
+import { StatefulComponent } from "@macrostrat/ui-components";
+import { IntervalEditor } from "./editor";
 import {
+  SVG,
+  ColumnAxis,
+  ColumnProvider,
+  ColumnContext,
+  GrainsizeAxis,
+  FaciesProvider,
+  AssetPathContext,
+  GrainsizeLayoutProvider,
+  SymbolColumn,
+  DivisionEditOverlay,
+  ColumnImage,
   LithologyColumn,
   LithologyColumnInner,
   GeneralizedSectionColumn,
   CoveredOverlay,
-  FaciesColumnInner
-} from "#/lithology";
-import { StatefulComponent } from "@macrostrat/ui-components";
-import { IntervalEditor } from "./editor";
-import { SymbolColumn } from "#/symbol-column";
-import { SVG, ForeignObject } from "#/util";
-import { ColumnAxis } from "#/axis";
-import {
-  ColumnProvider,
-  ColumnContext,
-  FaciesProvider,
-  AssetPathContext,
-  GrainsizeLayoutProvider,
-  ColumnImage
-} from "#/";
-import { DivisionEditOverlay } from "#/edit-overlay";
-import "~/column-components/src/main.styl";
+  FaciesColumnInner,
+  NotesColumn
+} from "@macrostrat/column-components";
 import h from "~/hyper";
 import T from "prop-types";
 import defaultFacies from "./default-facies";
 import { NoteEditor } from "./note-editor";
-import assetPaths from "../../sed-patterns/*.svg";
-import { NotesColumn } from "#/notes";
+import assetPaths from "url:../../sed-patterns/*.svg";
 import { animateScroll as scroll } from "react-scroll";
 
 const ColumnSVG = function(props) {

@@ -16,7 +16,7 @@ import { Page } from "./enum";
 import { Panel } from "./ui";
 
 import defaultColumnData from "~/example-data/Naukluft-Section-J.json";
-import testImage from "~/example-data/Naukluft-Section-J.png";
+import testImage from "url:~/example-data/Naukluft-Section-J.png";
 
 const createID = () =>
   "_" +

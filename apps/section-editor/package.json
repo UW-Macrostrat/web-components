@@ -46,8 +46,6 @@
     "stylus": "^0.54.7"
   },
   "alias": {
-    "#": "./column-components/src",
-    "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom"
+    "#": "@macrostrat/column-components/dist/esm"
   }
 }

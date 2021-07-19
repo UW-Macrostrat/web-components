@@ -1,9 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import h from "~/hyper";
 import { Navbar, Button, Menu, Icon, Intent } from "@blueprintjs/core";
 import T from "prop-types";
