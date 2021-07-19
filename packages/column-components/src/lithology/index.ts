@@ -14,7 +14,7 @@ import {
   ColumnLayoutContext,
   ColumnLayoutProvider
 } from "../context";
-import { GeologicPattern } from "./patterns";
+import { GeologicPattern, PatternType } from "./patterns";
 
 // Malformed es6 module
 let v = require("react-svg-textures");
