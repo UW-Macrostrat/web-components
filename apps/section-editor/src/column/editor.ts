@@ -21,24 +21,19 @@ import Select from "react-select";
 import { format } from "d3-format";
 import T from "prop-types";
 
-import { FaciesContext, ColumnContext } from "#/";
+import { FaciesContext, ColumnContext } from "@macrostrat/column-components";
 
-import { FaciesDescriptionSmall, FaciesCard } from "#/editor/facies";
-import { PickerControl } from "#/editor/picker-base";
+import { PickerControl } from "@macrostrat/column-components";
 import {
   LithologyPicker,
   LithologySymbolPicker,
-  FillPatternControl
-} from "#/editor/lithology-picker";
-import {
   SurfaceOrderSlider,
   HorizontalPicker,
-  BoundaryStyleControl
-} from "#/editor/controls";
+  BoundaryStyleControl,
+  FaciesPicker,
+  grainSizes
+} from "@macrostrat/column-components";
 
-import { FaciesPicker } from "#/editor/facies/picker";
-import { grainSizes } from "#/grainsize";
-import { IntervalShape } from "#/editor/types";
 import { Panel } from "~/src/ui";
 import h from "~/hyper";
 

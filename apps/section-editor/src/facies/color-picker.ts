@@ -9,7 +9,7 @@ import h from "react-hyperscript";
 import T from "prop-types";
 import { SwatchesPicker } from "react-color";
 import { Popover } from "@blueprintjs/core";
-import { FaciesContext } from "#/context";
+import { FaciesContext } from "@macrostrat/column-components";
 
 class FaciesColorPicker extends Component {
   static initClass() {

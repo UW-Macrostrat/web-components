@@ -29,6 +29,7 @@ const AboutPanel = props =>
 
 class App extends StatefulComponent {
   constructor(props) {
+    super(props);
     this.updateColumnData = this.updateColumnData.bind(this);
     this.editInterval = this.editInterval.bind(this);
     this.surfaceIndex = this.surfaceIndex.bind(this);
@@ -42,7 +43,6 @@ class App extends StatefulComponent {
     this.setPage = this.setPage.bind(this);
     this.isChanged = this.isChanged.bind(this);
     this.resetDemoData = this.resetDemoData.bind(this);
-    super(props);
     const preparedData = this.prepareColumnData(defaultColumnData);
     this.state = {
       columnImage: testImage,

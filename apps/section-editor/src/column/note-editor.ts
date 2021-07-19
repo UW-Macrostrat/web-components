@@ -4,7 +4,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { NoteTextEditor, useModelEditor } from "#";
+import { NoteTextEditor, useModelEditor } from "@macrostrat/column-components";
 import h from "~/hyper";
 import { ContentPanel } from "../ui";
 import {
