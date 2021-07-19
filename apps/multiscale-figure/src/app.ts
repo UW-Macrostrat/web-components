@@ -12,18 +12,27 @@ import {
   IsotopesColumn,
   IsotopesDataset
 } from "../../carbon-isotopes/isotopes-column";
-import { IsotopeSpectrumNote, shouldRenderNote } from "./spectra";
+import {
+  IsotopesSpectraColumn,
+  IsotopeSpectrumNote,
+  shouldRenderNote
+} from "./spectra";
 import { IUnit } from "common/units";
 import patterns from "url:../../../geologic-patterns/*.png";
 import "./main.styl";
 
-const timeRange = [630, 530];
+const timeRange = [640, 530];
 
 const columnArgs = {
   col_id: 2163,
   project_id: 10,
   status_code: "in process"
 };
+
+// For measurements, we combine Nadaleen area and Sekwi area.
+const measureSourceColumns = { ...columnArgs, col_id: "2163,2164" };
+// 1666 might be better, or 1481, or 1667
+const largestScaleColumn = { col_id: 1666 };
 
 function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
   const { params, children } = props;
@@ -67,34 +76,30 @@ function MultiIsotopesColumn(props) {
 const ColumnManager = () => {
   const { col_id, ...projectParams } = columnArgs;
 
-  // 1666 might be better, or 1481, or 1667
-
-  const params1 = { col_id: 1666 };
   return h("div.column-array", [
     h(BaseSection, { range: timeRange, pixelScale: 6 }, [
       h(
         MacrostratMeasurementProvider,
-        { target: params1, source: { col_id } },
-        h(Column, { params: params1 }, [
-          h(AnnotatedUnitsColumn, {
-            width: 400,
-            columnWidth: 140,
-            gutterWidth: 0,
-            noteComponent: IsotopeSpectrumNote
-            shouldRenderNote
-          })
-        ])
+        { target: largestScaleColumn, source: measureSourceColumns },
+        h(Column, { params: largestScaleColumn }, h(IsotopesSpectraColumn))
       ),
-      h(MeasurementDataProvider, columnArgs, [
-        h(Column, { params: columnArgs }, [
-          h(CompositeUnitsColumn, {
-            width: 400,
-            columnWidth: 140,
-            gutterWidth: 0
-          }),
-          h(MultiIsotopesColumn)
-        ])
-      ]),
+      h(
+        MacrostratMeasurementProvider,
+        {
+          source: measureSourceColumns,
+          target: columnArgs
+        },
+        [
+          h(Column, { params: columnArgs }, [
+            h(CompositeUnitsColumn, {
+              width: 400,
+              columnWidth: 140,
+              gutterWidth: 0
+            }),
+            h(MultiIsotopesColumn)
+          ])
+        ]
+      ),
       h("div.spacer")
     ])
   ]);

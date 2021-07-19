@@ -21,22 +21,26 @@ export async function buildMacrostratMeasurements(
     }
   });
 
-  const targetCol = targetColumn.col_id;
-
   let data = [];
 
   // get all the units in the macrostrat column
   const { data: units } = await axios.get(apiBaseURL + "/units", {
-    params: { col_id: targetCol }
+    params: { ...targetColumn }
   });
 
+  const unitData = units.success?.data;
+  if (unitData == null) return res;
+
   for (const meas of res.success?.data ?? []) {
-    const unit = units.success?.data?.find(
-      u => u.strat_name_id === meas.strat_name_id
-    );
+    // First, find based on exact match (this is basically a no-op)
+    // Then, find based on the stratigraphic name
+    let unit =
+      unitData.find(u => u.unit_id === meas.unit_id) ??
+      unitData.find(u => u.strat_name_id === meas.strat_name_id);
     if (unit != null) {
       const { unit_id } = unit;
-      data.push({ ...meas, unit_id, col_id: targetCol });
+      data.push({ ...meas, unit_id, ...targetColumn });
+      console.log(meas, unit, unit_id);
     }
   }
 

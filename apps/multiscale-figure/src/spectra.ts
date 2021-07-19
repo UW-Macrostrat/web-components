@@ -1,8 +1,10 @@
 import h from "@macrostrat/hyper";
 import {
   useColumnDivisions,
-  StaticNotesColumn
+  Padding,
+  extractPadding
 } from "@macrostrat/column-components";
+import { AnnotatedUnitsColumn } from "common/units/composite";
 import { useMeasurementData } from "../../carbon-isotopes/data-provider";
 import { createContext, useContext, useMemo } from "react";
 import { scaleLinear } from "@vx/scale";
@@ -58,31 +60,42 @@ function IsotopesSeries(props: IsotopesSeriesProps) {
   });
 }
 
-function IsotopesSpectrumPlot(props) {
-  const { children } = props;
+interface IsotopesPlotProps extends Partial<Padding> {
+  children?: React.ReactNode;
+  width: number;
+  height: number;
+  label: string;
+  tickFormat?: (d: number) => string;
+}
+
+function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
+  const {
+    children,
+    width = 300,
+    height = 60,
+    label,
+    tickFormat = d => d,
+    ...rest
+  } = props;
+
+  const {
+    paddingLeft,
+    paddingRight,
+    paddingTop,
+    paddingBottom
+  } = extractPadding({ paddingBottom: 18, padding: 5, ...rest });
+
   let minmax = [-10, 10];
   const delta = minmax[1] - minmax[0];
   //minmax = [minmax[0] - bandwidth * 4, minmax[1] + bandwidth * 4]
 
-  const margin = 10;
-  const marginTop = 30;
-  const marginBottom = 50;
-  const innerWidth = 300;
-  const eachHeight = 60;
-  const height = eachHeight + marginTop + marginBottom;
-  const width = innerWidth + 2 * margin;
+  const innerWidth = width - paddingLeft - paddingRight;
+  const innerHeight = height - paddingTop - paddingBottom;
 
   const xScale = scaleLinear({
-    range: [0, width],
+    range: [0, innerWidth],
     domain: minmax
   });
-
-  let label = "Age (Ma)";
-  let tickFormat = d => d;
-  if (delta > 1000) {
-    label = "Age (Ga)";
-    tickFormat = d => d / 1000;
-  }
 
   const labelProps = { label };
 
@@ -90,7 +103,7 @@ function IsotopesSpectrumPlot(props) {
 
   const value = {
     width: innerWidth,
-    height: eachHeight,
+    height: innerHeight,
     xScale
   };
 
@@ -103,7 +116,7 @@ function IsotopesSpectrumPlot(props) {
       h(
         "g",
         {
-          transform: `translate(${margin},${marginTop})`
+          transform: `translate(${paddingLeft},${paddingTop})`
         },
         [
           h(AxisBottom, {
@@ -112,8 +125,8 @@ function IsotopesSpectrumPlot(props) {
             tickLength: 4,
             tickFormat,
             strokeWidth: 1.5,
-            top: eachHeight,
-            ...labelProps
+            top: innerHeight,
+            label
           }),
           children
         ]
@@ -147,7 +160,11 @@ function IsotopesSpectrum({
   if (values.length < 1) {
     return null;
   }
-  return h(IsotopesSpectrumPlot, null, h(IsotopesSeries, { data: values }));
+  return h(
+    IsotopesSpectrumPlot,
+    { width: 140, height: 50, label: "Isotope value" },
+    h(IsotopesSeries, { data: values })
+  );
 }
 
 function IsotopeSpectrumNote(props: { note: { data: IUnit } }) {
@@ -157,28 +174,26 @@ function IsotopeSpectrumNote(props: { note: { data: IUnit } }) {
   ]);
 }
 
-function IsotopesSpectraColumn(props: { children?: React.ReactNode }) {
-  const divisions = useColumnDivisions();
-  const notes = useMemo(() => {
-    return divisions.map(d => {
-      return { note: `${d.unit_id}`, height: d.b_age, top_height: d.t_age };
-    });
-  }, [divisions]);
+function IsotopesSpectraColumn(props: {
+  children?: React.ReactNode;
+  parameter: string;
+}) {
+  const { parameter = "D13C" } = props;
+  const measures = useMeasurementData() ?? [];
 
-  console.log(divisions);
-  return h([
-    h(
-      "g",
-      divisions.map(d => {
-        return h(IsotopesSpectrum, { unit_id: d.unit_id, parameter: "D13C" });
-      })
-    ),
-    h(StaticNotesColumn, {
-      transform: "translate(140,0)",
-      width: 100,
-      notes: []
-    })
-  ]);
+  return h(AnnotatedUnitsColumn, {
+    width: 400,
+    columnWidth: 140,
+    gutterWidth: 0,
+    noteComponent: IsotopeSpectrumNote,
+    shouldRenderNote(div: IUnit) {
+      const unitMeasures = measures.filter(
+        d => d.unit_id == div.unit_id && d.measurement == parameter
+      );
+      console.log(unitMeasures);
+      return unitMeasures.length > 0;
+    }
+  });
 }
 
 export { IsotopesSpectraColumn, IsotopeSpectrumNote };

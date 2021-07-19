@@ -140,7 +140,7 @@ function AnnotatedUnitsColumn(props: IComposteUnitProps) {
     width = 100,
     gutterWidth = 10,
     labelOffset = 30,
-    noteComponent
+    ...rest
   } = props;
 
   return h(_BaseUnitsColumn, { columnWidth }, [
@@ -148,7 +148,7 @@ function AnnotatedUnitsColumn(props: IComposteUnitProps) {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
       width: width - columnWidth - gutterWidth,
-      noteComponent
+      ...rest
     })
   ]);
 }

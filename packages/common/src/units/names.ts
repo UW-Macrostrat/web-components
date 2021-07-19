@@ -13,7 +13,7 @@ interface UnitDataProps extends NotesColumnProps {
   left?: number;
   transform: string;
   noteComponent: React.ComponentType<any>;
-  shouldRenderNote?(note: INote): boolean;
+  shouldRenderNote?(note: INote, index: number, array: INote[]): boolean;
   divisions?: IUnit[];
 }
 interface UnitNamesProps extends Omit<UnitDataProps, "noteComponent"> {
