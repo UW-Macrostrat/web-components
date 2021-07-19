@@ -16,7 +16,11 @@ interface IGeologicPatternProvider {
   resolvePattern(string): string;
 }
 
-const GeologicPatternContext = createContext<any>(null);
+const GeologicPatternContext = createContext<any>({
+  resolvePattern() {
+    return null;
+  }
+});
 
 const GeologicPatternProvider = (props: IGeologicPatternProvider) => {
   const { resolvePattern, children } = props;
