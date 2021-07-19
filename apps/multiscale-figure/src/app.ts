@@ -19,20 +19,25 @@ import {
 } from "./spectra";
 import { IUnit } from "common/units";
 import patterns from "url:../../../geologic-patterns/*.png";
+import { MeasuredSection } from "./measured-section";
 import "./main.styl";
 
-const timeRange = [640, 530];
+const timeRange = [650, 530];
 
-const columnArgs = {
+// 1666 might be better, or 1481, or 1667
+const largestScaleColumn = { col_id: 1666 };
+
+const regionalColumn = {
   col_id: 2163,
   project_id: 10,
   status_code: "in process"
 };
 
 // For measurements, we combine Nadaleen area and Sekwi area.
-const measureSourceColumns = { ...columnArgs, col_id: "2163,2164" };
-// 1666 might be better, or 1481, or 1667
-const largestScaleColumn = { col_id: 1666 };
+const measureSourceColumns = {
+  ...regionalColumn,
+  col_id: "2163,2164,2158,2159"
+};
 
 function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
   const { params, children } = props;
@@ -74,8 +79,6 @@ function MultiIsotopesColumn(props) {
 }
 
 const ColumnManager = () => {
-  const { col_id, ...projectParams } = columnArgs;
-
   return h("div.column-array", [
     h(BaseSection, { range: timeRange, pixelScale: 6 }, [
       h(
@@ -87,21 +90,21 @@ const ColumnManager = () => {
         MacrostratMeasurementProvider,
         {
           source: measureSourceColumns,
-          target: columnArgs
+          target: regionalColumn
         },
         [
-          h(Column, { params: columnArgs }, [
+          h(Column, { params: regionalColumn }, [
             h(CompositeUnitsColumn, {
-              width: 400,
-              columnWidth: 140,
-              gutterWidth: 0
+              width: 140,
+              showLabels: false
             }),
             h(MultiIsotopesColumn)
           ])
         ]
       ),
       h("div.spacer")
-    ])
+    ]),
+    h(MeasuredSection)
   ]);
 };
 

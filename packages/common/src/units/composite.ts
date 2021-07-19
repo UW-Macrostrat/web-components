@@ -2,8 +2,7 @@ import h from "@macrostrat/hyper";
 import {
   LithologyColumn,
   PatternDefsProvider,
-  ColumnContext,
-  INote
+  useColumn
 } from "@macrostrat/column-components";
 import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
 import {
@@ -26,7 +25,7 @@ const UnlabeledDivisionsContext = createContext(null);
 
 function LabelTrackerProvider(props) {
   const { children } = props;
-  const { divisions } = useContext(ColumnContext);
+  const { divisions } = useColumn();
   const [unlabeledDivisions, setUnlabeledDivisions] = useState<IUnit[] | null>(
     null
   );
@@ -56,12 +55,22 @@ function LabelTrackerProvider(props) {
   );
 }
 
-export interface ICompositeUnitProps {
-  width: number;
-  columnWidth: number;
+type BaseUnitProps =
+  | {
+      width: number;
+      showLabels: false;
+      columnWidth?: number;
+    }
+  | {
+      width: number;
+      columnWidth: number;
+      showLabels: true;
+    };
+
+export type ICompositeUnitProps = BaseUnitProps & {
   gutterWidth?: number;
   labelOffset?: number;
-}
+};
 
 interface ExtendedUnit extends IUnit {
   bottomOverlap: boolean;
@@ -111,17 +120,17 @@ function UnlabeledUnitNames(props) {
   return h(UnitNamesColumn, { divisions, ...props });
 }
 
-function _BaseUnitsColumn(props: React.PropsWithChildren<ICompositeUnitProps>) {
+function _BaseUnitsColumn(props: React.PropsWithChildren<{ width: number }>) {
   /*
   A column with units and names either
   overlapping or offset to the right
   */
-  const { columnWidth, children } = props;
+  const { width, children } = props;
 
-  const { divisions } = useContext(ColumnContext);
+  const { divisions } = useColumn();
 
   return h(LabelTrackerProvider, [
-    h(LithologyColumn, { width: columnWidth }, [
+    h(LithologyColumn, { width }, [
       h(CompositeBoxes, {
         divisions
       })
@@ -130,7 +139,7 @@ function _BaseUnitsColumn(props: React.PropsWithChildren<ICompositeUnitProps>) {
   ]);
 }
 
-function AnnotatedUnitsColumn(props: IComposteUnitProps) {
+function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
   /*
   A column with units and names either
   overlapping or offset to the right
@@ -140,10 +149,11 @@ function AnnotatedUnitsColumn(props: IComposteUnitProps) {
     width = 100,
     gutterWidth = 10,
     labelOffset = 30,
+    showLabels = true,
     ...rest
   } = props;
 
-  return h(_BaseUnitsColumn, { columnWidth }, [
+  return h(_BaseUnitsColumn, { width: showLabels ? columnWidth : width }, [
     h(UnitDataColumn, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
@@ -159,14 +169,19 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
   overlapping or offset to the right
   */
   const {
-    columnWidth,
     width = 100,
     gutterWidth = 10,
-    labelOffset = 30
+    labelOffset = 30,
+    showLabels = true
   } = props;
 
-  return h(_BaseUnitsColumn, { columnWidth }, [
-    h(UnlabeledUnitNames, {
+  let { columnWidth } = props;
+  if (!showLabels) {
+    columnWidth = width;
+  }
+
+  return h(_BaseUnitsColumn, { width: columnWidth }, [
+    h.if(showLabels)(UnlabeledUnitNames, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
       width: width - columnWidth - gutterWidth
@@ -174,9 +189,4 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
   ]);
 }
 
-export {
-  UnitNamesColumn,
-  CompositeUnitsColumn,
-  ICompositeUnitProps,
-  AnnotatedUnitsColumn
-};
+export { UnitNamesColumn, CompositeUnitsColumn, AnnotatedUnitsColumn };

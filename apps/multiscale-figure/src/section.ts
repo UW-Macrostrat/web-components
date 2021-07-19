@@ -79,7 +79,7 @@ function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
       h(
         ColumnSVG,
         {
-          width: 650,
+          width: 350,
           padding: 0,
           paddingLeft: 0,
           paddingV: 20
