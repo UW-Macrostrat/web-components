@@ -60,22 +60,27 @@ function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
 }
 
 function MultiIsotopesColumn(props) {
-  return h(
-    IsotopesColumn,
-    {
-      parameter: "D18O",
+  return h("g.isotopes-columns", { transform: "translate(160,0)" }, [
+    h(IsotopesColumn, {
+      label: "δ¹³C",
+      color: "dodgerblue",
+      domain: [-20, 5],
+      width: 50,
+      nTicks: 4,
+      showAxis: true,
+      parameter: "D13C"
+    }),
+    h(IsotopesColumn, {
       label: "δ¹⁸O",
       color: "red",
       domain: [-15, 5],
-      width: 100,
+      width: 50,
       nTicks: 4,
-      showAxis: true
-    },
-    [
-      h(IsotopesDataset, { parameter: "D18O", color: "red" }),
-      h(IsotopesDataset, { parameter: "D13C", color: "dodgerblue" })
-    ]
-  );
+      transform: "translate(70,0)",
+      showAxis: true,
+      parameter: "D18O"
+    })
+  ]);
 }
 
 const ColumnManager = () => {

@@ -161,6 +161,7 @@ interface IsotopeColumnProps extends IsotopesDatasetProps {
   tickValues?: number[];
   label: string;
   domain: [number, number];
+  transform?: string;
 }
 
 function IsotopesDataset(props) {
@@ -202,6 +203,7 @@ function IsotopesColumn(
     label,
     color = "dodgerblue",
     children = null,
+    transform,
     ...rest
   } = props;
 
@@ -213,7 +215,7 @@ function IsotopesColumn(
   return h(
     CrossAxisLayoutProvider,
     { width, domain },
-    h("g.isotopes-column", { className: parameter }, [
+    h("g.isotopes-column", { className: parameter, transform }, [
       h(ColumnScale, { label: label ?? parameter, ...rest }),
       _children
     ])

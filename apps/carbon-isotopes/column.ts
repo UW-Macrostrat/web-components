@@ -75,7 +75,8 @@ const Section = (props: IColumnProps) => {
             label: "δ¹³C",
             width: 100,
             nTicks: 4,
-            showAxis: isOldestColumn
+            showAxis: isOldestColumn,
+            transform: "translate(250,0)"
           }),
           h(IsotopesColumn, {
             parameter: "D18O",
@@ -84,7 +85,8 @@ const Section = (props: IColumnProps) => {
             domain: [-40, 0],
             width: 100,
             nTicks: 4,
-            showAxis: isOldestColumn
+            showAxis: isOldestColumn,
+            transform: "translate(370,0)"
           })
         ]
       )
