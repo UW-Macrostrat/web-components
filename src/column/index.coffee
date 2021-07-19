@@ -66,7 +66,6 @@ class StratColumn extends Component
     inEditMode: T.bool.isRequired
     generalized: T.bool
     editingInterval: T.object
-    editingNote: T.object
     surfaces: T.arrayOf(T.object).isRequired
     notes: T.arrayOf(T.object).isRequired
     editInterval: T.func.isRequired
@@ -151,12 +150,9 @@ class StratColumn extends Component
               notes,
               transform: "translate(#{notesOffset})",
               width: notesWidth
-              inEditMode
               onUpdateNote: @props.onUpdateNote
               onDeleteNote: @props.onDeleteNote
-              onCreateNote: @props.onCreateNote
               noteEditor: NoteEditor
-              editingNote: @props.editingNote
               allowPositionEditing: true
             }
           ]

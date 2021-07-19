@@ -28,9 +28,9 @@ class App extends StatefulComponent
       defaultData: preparedData
       columnData:  preparedData
       inEditMode: true
+      showFacies: true
       generalized: false
       editingInterval: null
-      editingNote: null
       clickedHeight: null
       currentPage: Page.MAIN
     }
@@ -69,7 +69,6 @@ class App extends StatefulComponent
           columnImage: @state.columnImage
           @onUpdateNote
           @onDeleteNote
-          @onCreateNote
         }
         h.if(currentPage == Page.SETTINGS) SettingsPanel, {
           inEditMode
@@ -130,6 +129,7 @@ class App extends StatefulComponent
   updateInterval: (interval, newItems)=>
     {id} = interval
     ix = @surfaceIndex(id)
+    return if ix == -1
     surface = @state.columnData.surfaces[ix]
     spec = {}
     for k,v of newItems

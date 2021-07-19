@@ -7,7 +7,9 @@
     "preinstall": "linklocal",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "parcel index.html",
-    "example-data": "psql Naukluft -tAz0 -f example-data/extract-data.sql > example-data/Naukluft-Section-J.json"
+    "build": "parcel build --no-content-hash --public-url . index.html",
+    "example-data": "psql Naukluft -tAz0 -f example-data/extract-data.sql > example-data/Naukluft-Section-J.json",
+    "deploy": "scripts/deploy.sh"
   },
   "author": "",
   "license": "ISC",
