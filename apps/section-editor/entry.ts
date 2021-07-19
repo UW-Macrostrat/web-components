@@ -9,7 +9,7 @@ import "@macrostrat/column-components/dist/esm/index.css";
 import "@macrostrat/map-components/dist/esm/index.css";
 
 FocusStyleManager.onlyShowFocusOnTabs();
-import h from "~/hyper";
+import h from "./hyper";
 import { render } from "react-dom";
 import { App } from "./src";
 
