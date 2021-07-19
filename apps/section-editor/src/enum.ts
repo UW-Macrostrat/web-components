@@ -1,7 +1,7 @@
 const Page = Object.freeze({
-  MAIN: 'main',
-  SETTINGS: 'settings',
-  ABOUT: 'about'
+  MAIN: "main",
+  SETTINGS: "settings",
+  ABOUT: "about"
 });
 
-export {Page};
+export { Page };

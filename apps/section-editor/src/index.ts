@@ -5,27 +5,30 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import h from '~/hyper';
-import {StatefulComponent} from '@macrostrat/ui-components';
+import h from "~/hyper";
+import { StatefulComponent } from "@macrostrat/ui-components";
 
-import {StratColumn} from './column';
-import {SettingsPanel} from './settings';
-import {TitleBar, SideMenu} from './nav';
-import T from 'prop-types';
-import {Page} from './enum';
-import {Panel} from './ui';
+import { StratColumn } from "./column";
+import { SettingsPanel } from "./settings";
+import { TitleBar, SideMenu } from "./nav";
+import T from "prop-types";
+import { Page } from "./enum";
+import { Panel } from "./ui";
 
-import defaultColumnData from '~/example-data/Naukluft-Section-J.json';
-import testImage from '~/example-data/Naukluft-Section-J.png';
+import defaultColumnData from "~/example-data/Naukluft-Section-J.json";
+import testImage from "~/example-data/Naukluft-Section-J.png";
 
-const createID = () => '_' + Math.random().toString(36).substr(2, 9);
+const createID = () =>
+  "_" +
+  Math.random()
+    .toString(36)
+    .substr(2, 9);
 
-const AboutPanel = props => h(Panel, {title: "About", ...props}, [
-  h('div', "This is an app")
-]);
+const AboutPanel = props =>
+  h(Panel, { title: "About", ...props }, [h("div", "This is an app")]);
 
 class App extends StatefulComponent {
-  constructor(props){
+  constructor(props) {
     this.updateColumnData = this.updateColumnData.bind(this);
     this.editInterval = this.editInterval.bind(this);
     this.surfaceIndex = this.surfaceIndex.bind(this);
@@ -44,7 +47,7 @@ class App extends StatefulComponent {
     this.state = {
       columnImage: testImage,
       defaultData: preparedData,
-      columnData:  preparedData,
+      columnData: preparedData,
       inEditMode: true,
       showFacies: true,
       generalized: false,
@@ -64,15 +67,15 @@ class App extends StatefulComponent {
       columnData,
       currentPage
     } = this.state;
-    const {surfaces, notes, height} = columnData;
+    const { surfaces, notes, height } = columnData;
 
-    if (!inEditMode || (currentPage === Page.SETTINGS)) {
+    if (!inEditMode || currentPage === Page.SETTINGS) {
       editingInterval = null;
     }
 
-    return h('div.app', [
-      h('div.main', [
-        h(SideMenu, {setPage: this.setPage, currentPage}),
+    return h("div.app", [
+      h("div.main", [
+        h(SideMenu, { setPage: this.setPage, currentPage }),
         h(StratColumn, {
           surfaces,
           height,
@@ -104,144 +107,162 @@ class App extends StatefulComponent {
     ]);
   }
 
-  prepareSurface(totalHeight){ return function(surface, i, allSurfaces){
-    if (surface.id == null) { surface.id = createID(); }
-    try {
-      surface.top = allSurfaces[i+1].bottom;
-    } catch (error) {
-      surface.top = totalHeight;
-    }
-    return surface;
-  }; }
+  prepareSurface(totalHeight) {
+    return function(surface, i, allSurfaces) {
+      if (surface.id == null) {
+        surface.id = createID();
+      }
+      try {
+        surface.top = allSurfaces[i + 1].bottom;
+      } catch (error) {
+        surface.top = totalHeight;
+      }
+      return surface;
+    };
+  }
 
-  prepareColumnData(columnData){
+  prepareColumnData(columnData) {
     columnData.height = 60;
-    columnData.surfaces.sort((a, b) => a.bottom-b.bottom);
+    columnData.surfaces.sort((a, b) => a.bottom - b.bottom);
     const v = columnData.surfaces.map(this.prepareSurface(columnData.height));
     columnData.surfaces = v;
 
-    columnData.notes.forEach(d => d.id != null ? d.id : (d.id = createID()));
+    columnData.notes.forEach(d => (d.id != null ? d.id : (d.id = createID())));
 
     return columnData;
   }
 
-  updateColumnData(spec){
-    return this.updateState({columnData: spec});
+  updateColumnData(spec) {
+    return this.updateState({ columnData: spec });
   }
 
   // Interval management
-  editInterval(obj){
+  editInterval(obj) {
     console.log("Edit interval");
-    if (!this.state.inEditMode) { return; }
-    if ((obj == null)) {
+    if (!this.state.inEditMode) {
+      return;
+    }
+    if (obj == null) {
       return this.cancelEditInterval();
     }
-    let {height, division} = obj;
+    let { height, division } = obj;
     if (division === this.state.editingInterval) {
       division = null;
     }
 
     return this.updateState({
-      currentPage: {$set: Page.MAIN},
-      editingInterval: {$set: division},
-      clickedHeight: {$set: height}
+      currentPage: { $set: Page.MAIN },
+      editingInterval: { $set: division },
+      clickedHeight: { $set: height }
     });
   }
 
-  surfaceIndex(id){
+  surfaceIndex(id) {
     const s = this.state.columnData.surfaces;
     return s.findIndex(d => d.id === id);
   }
 
-  updateInterval(interval, newItems){
-    const {id} = interval;
+  updateInterval(interval, newItems) {
+    const { id } = interval;
     const ix = this.surfaceIndex(id);
-    if (ix === -1) { return; }
+    if (ix === -1) {
+      return;
+    }
     const surface = this.state.columnData.surfaces[ix];
     const spec = {};
     for (let k in newItems) {
       const v = newItems[k];
-      if (surface[k] === v) { continue; }
-      spec[k] = {$set: v};
+      if (surface[k] === v) {
+        continue;
+      }
+      spec[k] = { $set: v };
     }
     console.log(ix, spec);
     return this.updateState({
-      columnData: {surfaces: {[ix]: spec}},
+      columnData: { surfaces: { [ix]: spec } },
       editingInterval: spec
     });
   }
 
   cancelEditInterval() {
-    return this.updateState({editingInterval: {$set: null}});
+    return this.updateState({ editingInterval: { $set: null } });
   }
 
-  addInterval(height){
-    if (this.props.update == null) { return; }
-    const {surfaces} = this.props.data;
-    const editingInterval = {bottom: height};
-    surfaces.push(editingInterval);
-    surfaces.sort((a, b) => a.bottom-b.bottom);
-    return this.updateState({editingInterval: {$set: editingInterval}});
-  }
-
-  removeInterval(id){}
-
-  /* Note editing */
-  onUpdateNote(newNote){
-    if (newNote == null) { return; }
-    if ((newNote.note == null) || (newNote.note === "")) {
+  addInterval(height) {
+    if (this.props.update == null) {
       return;
     }
-    const {notes} = this.state.columnData;
+    const { surfaces } = this.props.data;
+    const editingInterval = { bottom: height };
+    surfaces.push(editingInterval);
+    surfaces.sort((a, b) => a.bottom - b.bottom);
+    return this.updateState({ editingInterval: { $set: editingInterval } });
+  }
 
-    if (newNote.id == null) { newNote.id = createID(); }
+  removeInterval(id) {}
+
+  /* Note editing */
+  onUpdateNote(newNote) {
+    if (newNote == null) {
+      return;
+    }
+    if (newNote.note == null || newNote.note === "") {
+      return;
+    }
+    const { notes } = this.state.columnData;
+
+    if (newNote.id == null) {
+      newNote.id = createID();
+    }
     // Updating note
     const ix = this.getNoteIndex(newNote);
 
-    const isEmpty = (newNote.note == null) || (newNote.note === "");
+    const isEmpty = newNote.note == null || newNote.note === "";
 
     let spec = {};
     if (ix !== -1) {
-      spec = {[ix]: {$set: newNote}};
+      spec = { [ix]: { $set: newNote } };
     } else if (!isEmpty) {
-      spec = {$push: [newNote]};
+      spec = { $push: [newNote] };
     }
 
     console.log("Updating notes with spec", spec);
 
-    return this.updateColumnData({notes: spec});
+    return this.updateColumnData({ notes: spec });
   }
 
-
-  getNoteIndex(note){
+  getNoteIndex(note) {
     return this.state.columnData.notes.findIndex(d => d.id === note.id);
   }
 
-  onDeleteNote(note){
+  onDeleteNote(note) {
     const ix = this.getNoteIndex(note);
-    return this.updateColumnData({notes: {$splice: [[ix,1]]}});
+    return this.updateColumnData({ notes: { $splice: [[ix, 1]] } });
   }
 
-  setPage(nextPage){ return () => {
-    if (this.state.currentPage === nextPage) {
-      nextPage = Page.MAIN;
-    }
-    return this.updateState({currentPage: {$set: nextPage}});
-  }; }
+  setPage(nextPage) {
+    return () => {
+      if (this.state.currentPage === nextPage) {
+        nextPage = Page.MAIN;
+      }
+      return this.updateState({ currentPage: { $set: nextPage } });
+    };
+  }
 
   isChanged() {
-    return (this.state.columnData !== this.defaultData) 
-        || (this.state.columnImage !== testImage);
+    return (
+      this.state.columnData !== this.defaultData ||
+      this.state.columnImage !== testImage
+    );
   }
 
   resetDemoData() {
     return this.updateState({
-      columnData: {$set: this.defaultData},
-      columnImage: {$set: testImage},
-      editingInterval: {$set: null}
+      columnData: { $set: this.defaultData },
+      columnImage: { $set: testImage },
+      editingInterval: { $set: null }
     });
   }
 }
 
-
-export {App};
+export { App };

@@ -1,5 +1,5 @@
-import {hyperStyled} from '@macrostrat/hyper';
-import styles from './src/main.styl';
+import { hyperStyled } from "@macrostrat/hyper";
+import styles from "./src/main.styl";
 
 const h = hyperStyled(styles);
 
