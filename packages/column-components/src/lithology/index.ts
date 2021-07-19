@@ -1,4 +1,4 @@
-import { Component, useContext } from "react";
+import React, { Component, useContext } from "react";
 import h from "react-hyperscript";
 import classNames from "classnames";
 import T from "prop-types";
@@ -328,49 +328,30 @@ LithologyBoxes.initClass();
 
 const LithologyColumnInner = LithologyBoxes;
 
-class LithologyColumn extends Component {
-  constructor(...args) {
-    super(...args);
-    this.computeTransform = this.computeTransform.bind(this);
-  }
-
-  static initClass() {
-    this.defaultProps = {
-      // Should align exactly with centerline of stroke
-      shiftY: 0.5,
-      left: 0
-    };
-    this.propTypes = {
-      width: T.number.isRequired
-    };
-  }
-  computeTransform() {
-    const { left, shiftY } = this.props;
-    if (left == null) {
-      return null;
-    }
-    return `translate(${left} ${shiftY})`;
-  }
-
-  render() {
-    const { left, shiftY, width, children } = this.props;
-    const transform = this.computeTransform();
-
-    return h(ColumnLayoutProvider, { width }, [
-      h(
-        ClipToFrame,
-        {
-          className: "lithology-column",
-          left,
-          shiftY,
-          frame: SimpleFrame
-        },
-        children
-      )
-    ]);
-  }
+interface LithologyColumnProps {
+  width: number;
+  left?: number;
+  children?: React.ReactNode;
 }
-LithologyColumn.initClass();
+
+function LithologyColumn(props: LithologyColumnProps) {
+  const { left = 0, shiftY = 0.5, width, children } = props;
+
+  const transform = left != null ? `translate(${left} ${shiftY})` : null;
+
+  return h(ColumnLayoutProvider, { width }, [
+    h(
+      ClipToFrame,
+      {
+        className: "lithology-column",
+        left,
+        shiftY,
+        frame: SimpleFrame
+      },
+      children
+    )
+  ]);
+}
 
 const simplifiedResolveID = function(d) {
   const p = symbolIndex[d.fill_pattern];
