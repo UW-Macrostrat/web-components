@@ -3,13 +3,18 @@ import {
   ColumnProvider,
   ColumnSVG,
   useColumn,
-  LithologyColumn
+  ColumnAxis,
+  LithologyColumn,
+  LithologyBoxes,
+  GeneralizedSectionColumn,
+  GrainsizeLayoutProvider,
+  ColumnDivision,
+  ColumnSurface
 } from "@macrostrat/column-components";
 import { AgeAxis } from "../../enriched-timeline/column";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
-import { ColumnDivision } from "packages/column-components/dist/types/defs";
 
 interface IColumnProps {
   data: IUnit[];
@@ -17,16 +22,31 @@ interface IColumnProps {
   range?: [number, number];
 }
 
-const columnData: ColumnDivision[] = [];
+const columnData: ColumnDivision[] = [
+  {
+    bottom: 0,
+    top: 40,
+    lithology: "sandstone",
+    grainsize: "ms",
+    pattern: "limestone"
+  },
+  {
+    bottom: 40,
+    top: 350,
+    lithology: "limestone",
+    grainsize: "s",
+    pattern: "limestone"
+  }
+];
 
 const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
   // Section with "squishy" time scale
-  const { data = [], range = [0, 300], children } = props;
+  const { data = [], range = [0, 341.3], children } = props;
   let { pixelScale } = props;
 
   const notesOffset = 100;
 
-  return h([
+  return h("div.measured-section", [
     h(
       ColumnProvider,
       {
@@ -35,13 +55,17 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
         pixelsPerMeter: 2
       },
       [
-        h(AgeAxis, {
-          tickSpacing: 80,
-          width: 30,
-          padding: 20,
-          paddingRight: 30
-        }),
-        h(ColumnSVG, { width: 80 }, h(LithologyColumn, { width: 80 }))
+        h(ColumnSVG, { innerWidth: 80, padding: 20, paddingLeft: 40 }, [
+          h(ColumnAxis),
+          h(
+            GrainsizeLayoutProvider,
+            {
+              width: 80,
+              grainsizeScaleStart: 40
+            },
+            [h(GeneralizedSectionColumn, [h(LithologyBoxes)])]
+          )
+        ])
       ]
     ),
     children

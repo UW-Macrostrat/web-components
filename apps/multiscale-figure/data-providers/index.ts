@@ -9,7 +9,8 @@ import {
   buildMacrostratMeasurements
 } from "./reclassify-measurements";
 import { apiBaseURL } from "../config";
-import { useAsyncEffect } from "@macrostrat/ui-components";
+import { useAsyncEffect, useAPIResult } from "@macrostrat/ui-components";
+import { MeasurementLong, filterMeasurements } from "./filter-measurements";
 
 function MacrostratMeasurementProvider(
   props: React.PropsWithChildren<{ source: ColumnSpec; target: ColumnSpec }>
@@ -31,4 +32,31 @@ function MacrostratMeasurementProvider(
   });
 }
 
-export { MacrostratMeasurementProvider, useMeasurementData, ColumnSpec };
+function FilteredMeasurementProvider(
+  props: React.PropsWithChildren<ColumnSpec>
+) {
+  const { children, ...params } = props;
+  const res: MeasurementLong[] = useAPIResult("/measurements", {
+    ...params,
+    show_values: true,
+    response: "long"
+  });
+
+  let data = [];
+  for (const meas of res) {
+    let newVal = filterMeasurements(meas);
+    if (newVal != null) data.push(newVal);
+  }
+
+  return h(MeasurementDataContext.Provider, {
+    value: data,
+    children
+  });
+}
+
+export {
+  MacrostratMeasurementProvider,
+  FilteredMeasurementProvider,
+  useMeasurementData,
+  ColumnSpec
+};

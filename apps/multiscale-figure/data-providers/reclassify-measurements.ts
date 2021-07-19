@@ -1,9 +1,35 @@
 import axios from "axios";
+import { IUnit } from "common/units";
 
 export interface ColumnSpec {
   col_id: number;
   status_code?: string;
   project_id?: number;
+}
+
+export function referenceMeasurementsToColumn(
+  measurementData: any[],
+  columnUnits?: IUnit[],
+  targetColumnParams = {}
+) {
+  let data = [];
+  if (columnUnits == null) return measurementData;
+  for (const meas of measurementData) {
+    // First, find based on exact match (this is basically a no-op)
+    // Then, find based on the stratigraphic name
+    let unit =
+      columnUnits.find(u => u.unit_id === meas.unit_id) ??
+      columnUnits.find(u => u.strat_name_id === meas.strat_name_id);
+    if (unit != null) {
+      const { unit_id } = unit;
+      data.push({
+        ...meas,
+        unit_id,
+        ...targetColumnParams
+      });
+    }
+  }
+  return data;
 }
 
 export async function buildMacrostratMeasurements(
@@ -21,28 +47,16 @@ export async function buildMacrostratMeasurements(
     }
   });
 
-  let data = [];
-
   // get all the units in the macrostrat column
   const { data: units } = await axios.get(apiBaseURL + "/units", {
     params: { ...targetColumn }
   });
 
-  const unitData = units.success?.data;
-  if (unitData == null) return res;
-
-  for (const meas of res.success?.data ?? []) {
-    // First, find based on exact match (this is basically a no-op)
-    // Then, find based on the stratigraphic name
-    let unit =
-      unitData.find(u => u.unit_id === meas.unit_id) ??
-      unitData.find(u => u.strat_name_id === meas.strat_name_id);
-    if (unit != null) {
-      const { unit_id } = unit;
-      data.push({ ...meas, unit_id, ...targetColumn });
-      console.log(meas, unit, unit_id);
-    }
-  }
+  const data = referenceMeasurementsToColumn(
+    res.success?.data ?? [],
+    units.success?.data,
+    targetColumn
+  );
 
   let res2 = { ...res };
   res2.success.data = data;
