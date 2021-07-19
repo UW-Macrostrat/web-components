@@ -43,9 +43,12 @@ function FilteredMeasurementProvider(
   });
 
   let data = [];
-  for (const meas of res) {
-    let newVal = filterMeasurements(meas);
-    if (newVal != null) data.push(newVal);
+
+  if (res != null) {
+    for (const meas of res) {
+      let newVal = filterMeasurements(meas);
+      if (newVal != null) data.push(newVal);
+    }
   }
 
   return h(MeasurementDataContext.Provider, {

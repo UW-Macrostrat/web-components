@@ -2,7 +2,10 @@ import h, { C, compose } from "@macrostrat/hyper";
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
 import { MeasurementDataProvider } from "../../carbon-isotopes/data-provider";
-import { MacrostratMeasurementProvider, ColumnSpec } from "../data-providers";
+import {
+  MacrostratMeasurementProvider,
+  FilteredMeasurementProvider
+} from "../data-providers";
 import { BaseSection, InteriorSection } from "./section";
 import {
   CompositeUnitsColumn,
@@ -17,6 +20,7 @@ import {
   IsotopeSpectrumNote,
   shouldRenderNote
 } from "./spectra";
+import { ColumnSpec } from "@macrostrat/api-types";
 import { IUnit } from "common/units";
 import patterns from "url:../../../geologic-patterns/*.png";
 import { MeasuredSection } from "./measured-section";
@@ -25,16 +29,16 @@ import "./main.styl";
 const timeRange = [650, 530];
 
 // 1666 might be better, or 1481, or 1667
-const largestScaleColumn = { col_id: 1666 };
+const largestScaleColumn: ColumnSpec = { col_id: 1666 };
 
-const regionalColumn = {
+const regionalColumn: ColumnSpec = {
   col_id: 2163,
   project_id: 10,
   status_code: "in process"
 };
 
 // For measurements, we combine Nadaleen area and Sekwi area.
-const measureSourceColumns = {
+const measureSourceColumns: ColumnSpec = {
   ...regionalColumn,
   col_id: "2163,2164,2158,2159"
 };
@@ -109,7 +113,9 @@ const ColumnManager = () => {
       ),
       h("div.spacer")
     ]),
-    h(MeasuredSection)
+    h(FilteredMeasurementProvider, { ...measureSourceColumns }, [
+      h(MeasuredSection)
+    ])
   ]);
 };
 
