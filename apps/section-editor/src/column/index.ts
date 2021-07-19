@@ -1,5 +1,4 @@
 import { Component, useContext } from "react";
-import { StatefulComponent } from "@macrostrat/ui-components";
 import { IntervalEditor } from "./editor";
 import {
   SVG,
@@ -10,11 +9,12 @@ import {
   FaciesProvider,
   AssetPathContext,
   GrainsizeLayoutProvider,
+  GeologicPatternProvider,
   SymbolColumn,
   DivisionEditOverlay,
   ColumnImage,
   LithologyColumn,
-  LithologyColumnInner,
+  LithologyBoxes,
   GeneralizedSectionColumn,
   CoveredOverlay,
   FaciesColumnInner,
@@ -24,6 +24,7 @@ import h from "~/hyper";
 import T from "prop-types";
 import defaultFacies from "./default-facies";
 import { NoteEditor } from "./note-editor";
+import patterns from "url:../../../../geologic-patterns/*.png";
 import assetPaths from "url:../../sed-patterns/*.svg";
 import { animateScroll as scroll } from "react-scroll";
 
@@ -174,7 +175,7 @@ class StratColumn extends Component {
                   h(MainColumn, { generalized, lithologyWidth }, [
                     h.if(showFacies)(FaciesColumnInner),
                     h(CoveredOverlay),
-                    h(LithologyColumnInner)
+                    h(LithologyBoxes)
                   ]),
                   h(SymbolColumn, { left: 90, symbols: [] }),
                   h(ColumnAxis),
@@ -211,20 +212,16 @@ class StratColumn extends Component {
 }
 StratColumn.initClass();
 
-const resolveLithologySymbol = function(id) {
-  if (assetPaths[id] != null) {
-    return assetPaths[id];
-  }
-  return null;
+const resolvePattern = id => {
+  return patterns[id];
 };
 
-const resolveSymbol = function(id) {};
-
 const __StratOuter = function(props) {
-  const value = { resolveLithologySymbol, resolveSymbol };
-  return h(AssetPathContext.Provider, { value }, [
+  return h(
+    GeologicPatternProvider,
+    { resolvePattern },
     h(FaciesProvider, { initialFacies: defaultFacies }, [h(StratColumn, props)])
-  ]);
+  );
 };
 
 export { __StratOuter as StratColumn };
