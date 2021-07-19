@@ -42,14 +42,20 @@
         "t_int_name": "Middle Cambrian",
         "t_int_age": 501,
         "t_prop": 1,
-        "units_above": [0],
+        "units_above": [
+          0
+        ],
         "b_int_id": 128,
         "b_int_name": "Middle Cambrian",
         "b_int_age": 511,
         "b_prop": 0,
-        "units_below": [41208],
+        "units_below": [
+          41208
+        ],
         "strat_name_long": "Sekwi Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -104,14 +110,20 @@
         "t_int_name": "Early Cambrian",
         "t_int_age": 511,
         "t_prop": 1,
-        "units_above": [41209],
+        "units_above": [
+          41209
+        ],
         "b_int_id": 130,
         "b_int_name": "Early Cambrian",
         "b_int_age": 541,
         "b_prop": 0.5,
-        "units_below": [42771],
+        "units_below": [
+          42771
+        ],
         "strat_name_long": "Vampire Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -165,14 +177,20 @@
         "t_int_name": "Early Cambrian",
         "t_int_age": 511,
         "t_prop": 0.5,
-        "units_above": [41208],
+        "units_above": [
+          41208
+        ],
         "b_int_id": 130,
         "b_int_name": "Early Cambrian",
         "b_int_age": 541,
         "b_prop": 0,
-        "units_below": [0],
+        "units_below": [
+          0
+        ],
         "strat_name_long": null,
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -209,7 +227,9 @@
             "class": "sedimentary"
           },
           {
-            "atts": ["stromatolitic"],
+            "atts": [
+              "stromatolitic"
+            ],
             "name": "dolostone",
             "prop": 0.125,
             "lith_id": 114,
@@ -240,7 +260,12 @@
             "name": "marginal marine",
             "environ_id": 39
           },
-          { "class": "marine", "type": "", "name": "marine", "environ_id": 38 },
+          {
+            "class": "marine",
+            "type": "",
+            "name": "marine",
+            "environ_id": 38
+          },
           {
             "class": "marine",
             "type": "carbonate",
@@ -256,7 +281,10 @@
         ],
         "econ": [],
         "measure": [
-          { "measure_class": "geochemical", "measure_type": "stable isotopes" }
+          {
+            "measure_class": "geochemical",
+            "measure_type": "stable isotopes"
+          }
         ],
         "notes": "Stromatolites",
         "color": "#4D52E7",
@@ -265,14 +293,20 @@
         "t_int_name": "Ediacaran",
         "t_int_age": 541,
         "t_prop": 0.94444,
-        "units_above": [0],
+        "units_above": [
+          0
+        ],
         "b_int_id": 263,
         "b_int_name": "Ediacaran",
         "b_int_age": 635,
         "b_prop": 0.88889,
-        "units_below": [41206],
+        "units_below": [
+          41206
+        ],
         "strat_name_long": "Risky Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -364,7 +398,12 @@
             "name": "marginal marine",
             "environ_id": 39
           },
-          { "class": "marine", "type": "", "name": "marine", "environ_id": 38 },
+          {
+            "class": "marine",
+            "type": "",
+            "name": "marine",
+            "environ_id": 38
+          },
           {
             "class": "marine",
             "type": "carbonate",
@@ -380,7 +419,10 @@
         ],
         "econ": [],
         "measure": [
-          { "measure_class": "geochemical", "measure_type": "stable isotopes" }
+          {
+            "measure_class": "geochemical",
+            "measure_type": "stable isotopes"
+          }
         ],
         "notes": "Ediacaran Fauna",
         "color": "#777777",
@@ -389,14 +431,20 @@
         "t_int_name": "Ediacaran",
         "t_int_age": 541,
         "t_prop": 0.88889,
-        "units_above": [41207],
+        "units_above": [
+          41207
+        ],
         "b_int_id": 263,
         "b_int_name": "Ediacaran",
         "b_int_age": 635,
         "b_prop": 0.69149,
-        "units_below": [41205],
+        "units_below": [
+          41205
+        ],
         "strat_name_long": "Blueflower Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -425,7 +473,9 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": ["stromatolitic"],
+            "atts": [
+              "stromatolitic"
+            ],
             "name": "dolostone",
             "prop": 0.5556,
             "lith_id": 114,
@@ -466,7 +516,12 @@
           }
         ],
         "environ": [
-          { "class": "marine", "type": "", "name": "marine", "environ_id": 38 },
+          {
+            "class": "marine",
+            "type": "",
+            "name": "marine",
+            "environ_id": 38
+          },
           {
             "class": "marine",
             "type": "siliciclastic",
@@ -476,7 +531,10 @@
         ],
         "econ": [],
         "measure": [
-          { "measure_class": "geochemical", "measure_type": "stable isotopes" }
+          {
+            "measure_class": "geochemical",
+            "measure_type": "stable isotopes"
+          }
         ],
         "notes": "Stromatolites; Ediacaran Fauna",
         "color": "#4D52E7",
@@ -485,14 +543,20 @@
         "t_int_name": "Ediacaran",
         "t_int_age": 541,
         "t_prop": 0.69149,
-        "units_above": [41206],
+        "units_above": [
+          41206
+        ],
         "b_int_id": 263,
         "b_int_name": "Ediacaran",
         "b_int_age": 635,
         "b_prop": 0.64894,
-        "units_below": [41204],
+        "units_below": [
+          41204
+        ],
         "strat_name_long": "Gametrail Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -570,7 +634,12 @@
           }
         ],
         "environ": [
-          { "class": "marine", "type": "", "name": "marine", "environ_id": 38 },
+          {
+            "class": "marine",
+            "type": "",
+            "name": "marine",
+            "environ_id": 38
+          },
           {
             "class": "marine",
             "type": "siliciclastic",
@@ -586,7 +655,10 @@
         ],
         "econ": [],
         "measure": [
-          { "measure_class": "geochemical", "measure_type": "stable isotopes" }
+          {
+            "measure_class": "geochemical",
+            "measure_type": "stable isotopes"
+          }
         ],
         "notes": "Windermere SGp; Ediacaran Fauna",
         "color": "#999999",
@@ -595,14 +667,20 @@
         "t_int_name": "Ediacaran",
         "t_int_age": 541,
         "t_prop": 0.64894,
-        "units_above": [41205],
+        "units_above": [
+          41205
+        ],
         "b_int_id": 263,
         "b_int_name": "Ediacaran",
         "b_int_age": 635,
         "b_prop": 0.57,
-        "units_below": [0],
+        "units_below": [
+          0
+        ],
         "strat_name_long": "Nadaleen Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -656,7 +734,12 @@
           }
         ],
         "environ": [
-          { "class": "marine", "type": "", "name": "marine", "environ_id": 38 },
+          {
+            "class": "marine",
+            "type": "",
+            "name": "marine",
+            "environ_id": 38
+          },
           {
             "class": "marine",
             "type": "carbonate",
@@ -666,7 +749,10 @@
         ],
         "econ": [],
         "measure": [
-          { "measure_class": "geochemical", "measure_type": "stable isotopes" }
+          {
+            "measure_class": "geochemical",
+            "measure_type": "stable isotopes"
+          }
         ],
         "notes": "",
         "color": "#4D52E7",
@@ -675,14 +761,20 @@
         "t_int_name": "Ediacaran",
         "t_int_age": 541,
         "t_prop": 0.5,
-        "units_above": [0],
+        "units_above": [
+          0
+        ],
         "b_int_id": 263,
         "b_int_name": "Ediacaran",
         "b_int_age": 635,
         "b_prop": 0.45,
-        "units_below": [41203],
+        "units_below": [
+          41203
+        ],
         "strat_name_long": "Sheepbed Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -711,7 +803,9 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": ["black"],
+            "atts": [
+              "black"
+            ],
             "name": "shale",
             "prop": 0.8333,
             "lith_id": 8,
@@ -728,7 +822,12 @@
           }
         ],
         "environ": [
-          { "class": "marine", "type": "", "name": "marine", "environ_id": 38 },
+          {
+            "class": "marine",
+            "type": "",
+            "name": "marine",
+            "environ_id": 38
+          },
           {
             "class": "marine",
             "type": "siliciclastic",
@@ -744,7 +843,10 @@
         ],
         "econ": [],
         "measure": [
-          { "measure_class": "geochemical", "measure_type": "stable isotopes" }
+          {
+            "measure_class": "geochemical",
+            "measure_type": "stable isotopes"
+          }
         ],
         "notes": "",
         "color": "#777777",
@@ -753,14 +855,20 @@
         "t_int_name": "Ediacaran",
         "t_int_age": 541,
         "t_prop": 0.45,
-        "units_above": [42770],
+        "units_above": [
+          42770
+        ],
         "b_int_id": 263,
         "b_int_name": "Ediacaran",
         "b_int_age": 635,
         "b_prop": 0.03,
-        "units_below": [0],
+        "units_below": [
+          0
+        ],
         "strat_name_long": "Sheepbed Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -821,7 +929,10 @@
         ],
         "econ": [],
         "measure": [
-          { "measure_class": "geochemical", "measure_type": "stable isotopes" }
+          {
+            "measure_class": "geochemical",
+            "measure_type": "stable isotopes"
+          }
         ],
         "notes": "",
         "color": "#4D52E7",
@@ -830,14 +941,20 @@
         "t_int_name": "Ediacaran",
         "t_int_age": 541,
         "t_prop": 0.0225,
-        "units_above": [0],
+        "units_above": [
+          0
+        ],
         "b_int_id": 263,
         "b_int_name": "Ediacaran",
         "b_int_age": 635,
         "b_prop": 0.02,
-        "units_below": [41202],
+        "units_below": [
+          41202
+        ],
         "strat_name_long": "Hayhook Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -882,7 +999,9 @@
             "class": "igneous"
           },
           {
-            "atts": ["stromatolitic"],
+            "atts": [
+              "stromatolitic"
+            ],
             "name": "dolostone",
             "prop": 0.1111,
             "lith_id": 114,
@@ -922,7 +1041,10 @@
         ],
         "econ": [],
         "measure": [
-          { "measure_class": "geochemical", "measure_type": "stable isotopes" }
+          {
+            "measure_class": "geochemical",
+            "measure_type": "stable isotopes"
+          }
         ],
         "notes": "Windermere SGp; Stromatolites",
         "color": "#4D52E7",
@@ -931,14 +1053,20 @@
         "t_int_name": "Ediacaran",
         "t_int_age": 541,
         "t_prop": 0.02,
-        "units_above": [42769],
+        "units_above": [
+          42769
+        ],
         "b_int_id": 263,
         "b_int_name": "Ediacaran",
         "b_int_age": 635,
         "b_prop": 0,
-        "units_below": [41210],
+        "units_below": [
+          41210
+        ],
         "strat_name_long": "Ravensthroat Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -1016,7 +1144,12 @@
           }
         ],
         "environ": [
-          { "class": "marine", "type": "", "name": "marine", "environ_id": 38 },
+          {
+            "class": "marine",
+            "type": "",
+            "name": "marine",
+            "environ_id": 38
+          },
           {
             "class": "marine",
             "type": "siliciclastic",
@@ -1039,14 +1172,20 @@
         "t_int_name": "Cryogenian",
         "t_int_age": 635,
         "t_prop": 1,
-        "units_above": [41202],
+        "units_above": [
+          41202
+        ],
         "b_int_id": 264,
         "b_int_name": "Cryogenian",
         "b_int_age": 720,
         "b_prop": 0.75,
-        "units_below": [41201],
+        "units_below": [
+          41201
+        ],
         "strat_name_long": "Ice Brook Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -1101,14 +1240,20 @@
         "t_int_name": "Cryogenian",
         "t_int_age": 635,
         "t_prop": 0.75,
-        "units_above": [41210],
+        "units_above": [
+          41210
+        ],
         "b_int_id": 264,
         "b_int_name": "Cryogenian",
         "b_int_age": 720,
         "b_prop": 0.67765,
-        "units_below": [41200],
+        "units_below": [
+          41200
+        ],
         "strat_name_long": "Keele Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -1179,14 +1324,20 @@
         "t_int_name": "Cryogenian",
         "t_int_age": 635,
         "t_prop": 0.67765,
-        "units_above": [41201],
+        "units_above": [
+          41201
+        ],
         "b_int_id": 264,
         "b_int_name": "Cryogenian",
         "b_int_age": 720,
         "b_prop": 0.5,
-        "units_below": [41199],
+        "units_below": [
+          41199
+        ],
         "strat_name_long": "Twitya Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -1241,14 +1392,20 @@
         "t_int_name": "Cryogenian",
         "t_int_age": 635,
         "t_prop": 0.5,
-        "units_above": [41200],
+        "units_above": [
+          41200
+        ],
         "b_int_id": 264,
         "b_int_name": "Cryogenian",
         "b_int_age": 720,
         "b_prop": 0.2,
-        "units_below": [41198],
+        "units_below": [
+          41198
+        ],
         "strat_name_long": "Shezal Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -1295,14 +1452,20 @@
         "t_int_name": "Cryogenian",
         "t_int_age": 635,
         "t_prop": 0.2,
-        "units_above": [41199],
+        "units_above": [
+          41199
+        ],
         "b_int_id": 264,
         "b_int_name": "Cryogenian",
         "b_int_age": 720,
         "b_prop": 0.1,
-        "units_below": [41197],
+        "units_below": [
+          41197
+        ],
         "strat_name_long": "Sayunei Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,
@@ -1349,14 +1512,20 @@
         "t_int_name": "Cryogenian",
         "t_int_age": 635,
         "t_prop": 0.1,
-        "units_above": [41198],
+        "units_above": [
+          41198
+        ],
         "b_int_id": 265,
         "b_int_name": "Tonian",
         "b_int_age": 1000,
         "b_prop": 0.75,
-        "units_below": [0],
+        "units_below": [
+          0
+        ],
         "strat_name_long": "Mount Berg Formation",
-        "refs": [122],
+        "refs": [
+          122
+        ],
         "clat": 64.033,
         "clng": -127.93,
         "t_plat": 0,

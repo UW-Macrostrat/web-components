@@ -1,1 +1,4224 @@
-{"success":{"v":2,"license":"CC-BY 4.0","data":{"type":"FeatureCollection","features":[{"type":"Feature","geometry":{"type":"Point","coordinates":[-129.62,64.45]},"properties":{"measurement_id":73,"measuremeta_id":129625,"measure_units":"per mil","n":29,"unit_id":42756,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-129.62,64.45]},"properties":{"measurement_id":74,"measuremeta_id":129625,"measure_units":"per mil","n":29,"unit_id":42756,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-129.62,64.45]},"properties":{"measurement_id":73,"measuremeta_id":129626,"measure_units":"per mil","n":6,"unit_id":41161,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-129.62,64.45]},"properties":{"measurement_id":74,"measuremeta_id":129626,"measure_units":"per mil","n":6,"unit_id":41161,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-129.62,64.45]},"properties":{"measurement_id":73,"measuremeta_id":129627,"measure_units":"per mil","n":44,"unit_id":42754,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-129.62,64.45]},"properties":{"measurement_id":74,"measuremeta_id":129627,"measure_units":"per mil","n":44,"unit_id":42754,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-129.62,64.45]},"properties":{"measurement_id":73,"measuremeta_id":129628,"measure_units":"per mil","n":6,"unit_id":42755,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-129.62,64.45]},"properties":{"measurement_id":74,"measuremeta_id":129628,"measure_units":"per mil","n":6,"unit_id":42755,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":73,"measuremeta_id":129629,"measure_units":"per mil","n":16,"unit_id":41161,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":74,"measuremeta_id":129629,"measure_units":"per mil","n":16,"unit_id":41161,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":73,"measuremeta_id":129630,"measure_units":"per mil","n":30,"unit_id":41177,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":74,"measuremeta_id":129630,"measure_units":"per mil","n":30,"unit_id":41177,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":73,"measuremeta_id":129631,"measure_units":"per mil","n":122,"unit_id":42942,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":74,"measuremeta_id":129631,"measure_units":"per mil","n":122,"unit_id":42942,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":73,"measuremeta_id":129632,"measure_units":"per mil","n":115,"unit_id":41175,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":74,"measuremeta_id":129632,"measure_units":"per mil","n":115,"unit_id":41175,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":73,"measuremeta_id":129633,"measure_units":"per mil","n":184,"unit_id":41176,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.57,63.42]},"properties":{"measurement_id":74,"measuremeta_id":129633,"measure_units":"per mil","n":184,"unit_id":41176,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-138.68,64.28]},"properties":{"measurement_id":73,"measuremeta_id":129634,"measure_units":"per mil","n":38,"unit_id":42772,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-138.68,64.28]},"properties":{"measurement_id":74,"measuremeta_id":129634,"measure_units":"per mil","n":38,"unit_id":42772,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-138.68,64.28]},"properties":{"measurement_id":73,"measuremeta_id":129635,"measure_units":"per mil","n":10,"unit_id":42774,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-138.68,64.28]},"properties":{"measurement_id":74,"measuremeta_id":129635,"measure_units":"per mil","n":10,"unit_id":42774,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-138.68,64.28]},"properties":{"measurement_id":73,"measuremeta_id":129636,"measure_units":"per mil","n":170,"unit_id":42773,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-138.68,64.28]},"properties":{"measurement_id":74,"measuremeta_id":129636,"measure_units":"per mil","n":170,"unit_id":42773,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129637,"measure_units":"per mil","n":97,"unit_id":41205,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129637,"measure_units":"per mil","n":97,"unit_id":41205,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129638,"measure_units":"per mil","n":18,"unit_id":41206,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129638,"measure_units":"per mil","n":18,"unit_id":41206,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129639,"measure_units":"per mil","n":54,"unit_id":41205,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129639,"measure_units":"per mil","n":54,"unit_id":41205,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129640,"measure_units":"per mil","n":7,"unit_id":42769,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129640,"measure_units":"per mil","n":7,"unit_id":42769,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129641,"measure_units":"per mil","n":26,"unit_id":41202,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129641,"measure_units":"per mil","n":26,"unit_id":41202,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129642,"measure_units":"per mil","n":32,"unit_id":41207,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129642,"measure_units":"per mil","n":32,"unit_id":41207,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129643,"measure_units":"per mil","n":68,"unit_id":41203,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129643,"measure_units":"per mil","n":68,"unit_id":41203,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129644,"measure_units":"per mil","n":164,"unit_id":42770,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129644,"measure_units":"per mil","n":164,"unit_id":42770,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129645,"measure_units":"per mil","n":49,"unit_id":41205,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129645,"measure_units":"per mil","n":49,"unit_id":41205,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129646,"measure_units":"per mil","n":5,"unit_id":42769,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129646,"measure_units":"per mil","n":5,"unit_id":42769,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129647,"measure_units":"per mil","n":29,"unit_id":41204,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129647,"measure_units":"per mil","n":29,"unit_id":41204,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129648,"measure_units":"per mil","n":18,"unit_id":41202,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129648,"measure_units":"per mil","n":18,"unit_id":41202,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129649,"measure_units":"per mil","n":48,"unit_id":41207,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129649,"measure_units":"per mil","n":48,"unit_id":41207,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.68,63.52]},"properties":{"measurement_id":73,"measuremeta_id":129650,"measure_units":"per mil","n":103,"unit_id":41176,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.68,63.52]},"properties":{"measurement_id":74,"measuremeta_id":129650,"measure_units":"per mil","n":103,"unit_id":41176,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129651,"measure_units":"per mil","n":7,"unit_id":41205,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129651,"measure_units":"per mil","n":7,"unit_id":41205,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129652,"measure_units":"per mil","n":8,"unit_id":41204,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129652,"measure_units":"per mil","n":8,"unit_id":41204,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":73,"measuremeta_id":129653,"measure_units":"per mil","n":3,"unit_id":42770,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.69,64.37]},"properties":{"measurement_id":74,"measuremeta_id":129653,"measure_units":"per mil","n":3,"unit_id":42770,"ref_id":191}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.2,35.8]},"properties":{"measurement_id":73,"measuremeta_id":129654,"measure_units":"per mil","n":253,"unit_id":41388,"ref_id":192}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.2,35.8]},"properties":{"measurement_id":74,"measuremeta_id":129654,"measure_units":"per mil","n":253,"unit_id":41388,"ref_id":192}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-24.65,73.69]},"properties":{"measurement_id":73,"measuremeta_id":129655,"measure_units":"per mil","n":16,"unit_id":41306,"ref_id":193}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-24.65,73.69]},"properties":{"measurement_id":74,"measuremeta_id":129655,"measure_units":"per mil","n":16,"unit_id":41306,"ref_id":193}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":73,"measuremeta_id":129656,"measure_units":"per mil","n":10,"unit_id":41369,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":74,"measuremeta_id":129656,"measure_units":"per mil","n":10,"unit_id":41369,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":73,"measuremeta_id":129657,"measure_units":"per mil","n":25,"unit_id":41370,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":74,"measuremeta_id":129657,"measure_units":"per mil","n":25,"unit_id":41370,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":73,"measuremeta_id":129658,"measure_units":"per mil","n":9,"unit_id":41368,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":74,"measuremeta_id":129658,"measure_units":"per mil","n":9,"unit_id":41368,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":73,"measuremeta_id":129659,"measure_units":"per mil","n":5,"unit_id":41372,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":74,"measuremeta_id":129659,"measure_units":"per mil","n":5,"unit_id":41372,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":73,"measuremeta_id":129660,"measure_units":"per mil","n":14,"unit_id":41375,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":74,"measuremeta_id":129660,"measure_units":"per mil","n":14,"unit_id":41375,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":73,"measuremeta_id":129661,"measure_units":"per mil","n":27,"unit_id":41373,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":74,"measuremeta_id":129661,"measure_units":"per mil","n":27,"unit_id":41373,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":73,"measuremeta_id":129662,"measure_units":"per mil","n":11,"unit_id":41374,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.96,30.43]},"properties":{"measurement_id":74,"measuremeta_id":129662,"measure_units":"per mil","n":11,"unit_id":41374,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.9,35.9]},"properties":{"measurement_id":73,"measuremeta_id":129663,"measure_units":"per mil","n":15,"unit_id":41390,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.9,35.9]},"properties":{"measurement_id":74,"measuremeta_id":129663,"measure_units":"per mil","n":15,"unit_id":41390,"ref_id":194}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.64,35.66]},"properties":{"measurement_id":73,"measuremeta_id":129664,"measure_units":"per mil","n":8,"unit_id":41387,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.64,35.66]},"properties":{"measurement_id":74,"measuremeta_id":129664,"measure_units":"per mil","n":8,"unit_id":41387,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.64,35.66]},"properties":{"measurement_id":73,"measuremeta_id":129665,"measure_units":"per mil","n":20,"unit_id":41388,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.64,35.66]},"properties":{"measurement_id":74,"measuremeta_id":129665,"measure_units":"per mil","n":20,"unit_id":41388,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.22,35.29]},"properties":{"measurement_id":73,"measuremeta_id":129666,"measure_units":"per mil","n":4,"unit_id":41015,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.22,35.29]},"properties":{"measurement_id":74,"measuremeta_id":129666,"measure_units":"per mil","n":4,"unit_id":41015,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.07,35.86]},"properties":{"measurement_id":73,"measuremeta_id":129667,"measure_units":"per mil","n":21,"unit_id":41388,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.07,35.86]},"properties":{"measurement_id":74,"measuremeta_id":129667,"measure_units":"per mil","n":21,"unit_id":41388,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.07,35.86]},"properties":{"measurement_id":73,"measuremeta_id":129668,"measure_units":"per mil","n":14,"unit_id":41387,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.07,35.86]},"properties":{"measurement_id":74,"measuremeta_id":129668,"measure_units":"per mil","n":14,"unit_id":41387,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.07,35.86]},"properties":{"measurement_id":73,"measuremeta_id":129669,"measure_units":"per mil","n":8,"unit_id":41389,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.07,35.86]},"properties":{"measurement_id":74,"measuremeta_id":129669,"measure_units":"per mil","n":8,"unit_id":41389,"ref_id":195}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-53.16,47.43]},"properties":{"measurement_id":73,"measuremeta_id":129670,"measure_units":"per mil","n":13,"unit_id":40086,"ref_id":196}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-53.16,47.43]},"properties":{"measurement_id":74,"measuremeta_id":129670,"measure_units":"per mil","n":13,"unit_id":40086,"ref_id":196}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-53.18,47.46]},"properties":{"measurement_id":73,"measuremeta_id":129671,"measure_units":"per mil","n":7,"unit_id":40144,"ref_id":196}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-53.18,47.46]},"properties":{"measurement_id":74,"measuremeta_id":129671,"measure_units":"per mil","n":7,"unit_id":40144,"ref_id":196}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.02,36.48]},"properties":{"measurement_id":73,"measuremeta_id":129672,"measure_units":"per mil","n":107,"unit_id":41388,"ref_id":197}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.02,36.48]},"properties":{"measurement_id":74,"measuremeta_id":129672,"measure_units":"per mil","n":107,"unit_id":41388,"ref_id":197}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.02,64.15]},"properties":{"measurement_id":73,"measuremeta_id":129673,"measure_units":"per mil","n":248,"unit_id":41218,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.02,64.15]},"properties":{"measurement_id":74,"measuremeta_id":129673,"measure_units":"per mil","n":248,"unit_id":41218,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.05,64.14]},"properties":{"measurement_id":73,"measuremeta_id":129674,"measure_units":"per mil","n":77,"unit_id":41217,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.05,64.14]},"properties":{"measurement_id":74,"measuremeta_id":129674,"measure_units":"per mil","n":77,"unit_id":41217,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.443,64.106]},"properties":{"measurement_id":73,"measuremeta_id":129675,"measure_units":"per mil","n":245,"unit_id":41216,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.443,64.106]},"properties":{"measurement_id":74,"measuremeta_id":129675,"measure_units":"per mil","n":245,"unit_id":41216,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.3,64.06]},"properties":{"measurement_id":73,"measuremeta_id":129676,"measure_units":"per mil","n":69,"unit_id":41215,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.3,64.06]},"properties":{"measurement_id":74,"measuremeta_id":129676,"measure_units":"per mil","n":69,"unit_id":41215,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.3,64.06]},"properties":{"measurement_id":73,"measuremeta_id":129677,"measure_units":"per mil","n":5,"unit_id":41214,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-132.3,64.06]},"properties":{"measurement_id":74,"measuremeta_id":129677,"measure_units":"per mil","n":5,"unit_id":41214,"ref_id":122}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.97,36.78]},"properties":{"measurement_id":73,"measuremeta_id":129678,"measure_units":"per mil","n":78,"unit_id":41388,"ref_id":198}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.97,36.78]},"properties":{"measurement_id":74,"measuremeta_id":129678,"measure_units":"per mil","n":78,"unit_id":41388,"ref_id":198}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.97,36.78]},"properties":{"measurement_id":73,"measuremeta_id":129679,"measure_units":"per mil","n":18,"unit_id":41389,"ref_id":198}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.97,36.78]},"properties":{"measurement_id":74,"measuremeta_id":129679,"measure_units":"per mil","n":18,"unit_id":41389,"ref_id":198}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.836,38.785]},"properties":{"measurement_id":73,"measuremeta_id":129680,"measure_units":"per mil","n":48,"unit_id":41332,"ref_id":137}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-77.836,38.785]},"properties":{"measurement_id":74,"measuremeta_id":129680,"measure_units":"per mil","n":48,"unit_id":41332,"ref_id":137}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-36.521,82.099]},"properties":{"measurement_id":73,"measuremeta_id":129681,"measure_units":"per mil","n":44,"unit_id":41297,"ref_id":199}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129682,"measure_units":"per mil","n":27,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129682,"measure_units":"per mil","n":27,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129683,"measure_units":"per mil","n":88,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129683,"measure_units":"per mil","n":88,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129684,"measure_units":"per mil","n":6,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129684,"measure_units":"per mil","n":6,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129685,"measure_units":"per mil","n":34,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129685,"measure_units":"per mil","n":34,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129686,"measure_units":"per mil","n":27,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129686,"measure_units":"per mil","n":27,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129687,"measure_units":"per mil","n":194,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129687,"measure_units":"per mil","n":194,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129688,"measure_units":"per mil","n":15,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.388,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129688,"measure_units":"per mil","n":15,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129689,"measure_units":"per mil","n":4,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129689,"measure_units":"per mil","n":4,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.626]},"properties":{"measurement_id":73,"measuremeta_id":129690,"measure_units":"per mil","n":9,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.626]},"properties":{"measurement_id":74,"measuremeta_id":129690,"measure_units":"per mil","n":9,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":73,"measuremeta_id":129691,"measure_units":"per mil","n":28,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":74,"measuremeta_id":129691,"measure_units":"per mil","n":28,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":73,"measuremeta_id":129692,"measure_units":"per mil","n":6,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":74,"measuremeta_id":129692,"measure_units":"per mil","n":6,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":73,"measuremeta_id":129693,"measure_units":"per mil","n":8,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":74,"measuremeta_id":129693,"measure_units":"per mil","n":8,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":73,"measuremeta_id":129694,"measure_units":"per mil","n":136,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":74,"measuremeta_id":129694,"measure_units":"per mil","n":136,"unit_id":47718,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":73,"measuremeta_id":129695,"measure_units":"per mil","n":23,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":74,"measuremeta_id":129695,"measure_units":"per mil","n":23,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":73,"measuremeta_id":129696,"measure_units":"per mil","n":1,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":74,"measuremeta_id":129696,"measure_units":"per mil","n":1,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":73,"measuremeta_id":129697,"measure_units":"per mil","n":1,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":74,"measuremeta_id":129697,"measure_units":"per mil","n":1,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":73,"measuremeta_id":129698,"measure_units":"per mil","n":29,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":74,"measuremeta_id":129698,"measure_units":"per mil","n":29,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":73,"measuremeta_id":129699,"measure_units":"per mil","n":81,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.059,69.634]},"properties":{"measurement_id":74,"measuremeta_id":129699,"measure_units":"per mil","n":81,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":73,"measuremeta_id":129700,"measure_units":"per mil","n":156,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":74,"measuremeta_id":129700,"measure_units":"per mil","n":156,"unit_id":47719,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":73,"measuremeta_id":129701,"measure_units":"per mil","n":62,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":74,"measuremeta_id":129701,"measure_units":"per mil","n":62,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":73,"measuremeta_id":129702,"measure_units":"per mil","n":302,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":74,"measuremeta_id":129702,"measure_units":"per mil","n":302,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":73,"measuremeta_id":129703,"measure_units":"per mil","n":45,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-145.982,69.556]},"properties":{"measurement_id":74,"measuremeta_id":129703,"measure_units":"per mil","n":45,"unit_id":41256,"ref_id":200}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":23,"measuremeta_id":129704,"measure_units":"per mil","n":52,"unit_id":40991,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":74,"measuremeta_id":129704,"measure_units":"per mil","n":52,"unit_id":40991,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":73,"measuremeta_id":129705,"measure_units":"per mil","n":30,"unit_id":40991,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":74,"measuremeta_id":129705,"measure_units":"per mil","n":30,"unit_id":40991,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":73,"measuremeta_id":129706,"measure_units":"per mil","n":63,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":74,"measuremeta_id":129706,"measure_units":"per mil","n":63,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":73,"measuremeta_id":129707,"measure_units":"per mil","n":69,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":74,"measuremeta_id":129707,"measure_units":"per mil","n":69,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":73,"measuremeta_id":129708,"measure_units":"per mil","n":56,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":74,"measuremeta_id":129708,"measure_units":"per mil","n":56,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":73,"measuremeta_id":129709,"measure_units":"per mil","n":41,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":74,"measuremeta_id":129709,"measure_units":"per mil","n":41,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":73,"measuremeta_id":129710,"measure_units":"per mil","n":71,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.328,37.862]},"properties":{"measurement_id":74,"measuremeta_id":129710,"measure_units":"per mil","n":71,"unit_id":43007,"ref_id":201}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.097,36.406]},"properties":{"measurement_id":73,"measuremeta_id":129711,"measure_units":"per mil","n":122,"unit_id":41390,"ref_id":202}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.097,36.406]},"properties":{"measurement_id":74,"measuremeta_id":129711,"measure_units":"per mil","n":122,"unit_id":41390,"ref_id":202}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":73,"measuremeta_id":129712,"measure_units":"per mil","n":34,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":74,"measuremeta_id":129712,"measure_units":"per mil","n":34,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":73,"measuremeta_id":129713,"measure_units":"per mil","n":21,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":74,"measuremeta_id":129713,"measure_units":"per mil","n":21,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":73,"measuremeta_id":129714,"measure_units":"per mil","n":32,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":74,"measuremeta_id":129714,"measure_units":"per mil","n":32,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":73,"measuremeta_id":129715,"measure_units":"per mil","n":12,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":74,"measuremeta_id":129715,"measure_units":"per mil","n":12,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":73,"measuremeta_id":129716,"measure_units":"per mil","n":35,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":74,"measuremeta_id":129716,"measure_units":"per mil","n":35,"unit_id":40965,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":2,"measuremeta_id":129717,"measure_units":"Ma","n":130,"unit_id":41375,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":3,"measuremeta_id":129717,"measure_units":"Ma","n":130,"unit_id":41375,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-111.85,30.59]},"properties":{"measurement_id":4,"measuremeta_id":129717,"measure_units":"Ma","n":130,"unit_id":41375,"ref_id":203}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-124.903,57.7218]},"properties":{"measurement_id":73,"measuremeta_id":129718,"measure_units":"per mil","n":134,"unit_id":41157,"ref_id":207}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-124.903,57.7218]},"properties":{"measurement_id":74,"measuremeta_id":129718,"measure_units":"per mil","n":134,"unit_id":41157,"ref_id":207}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.074,36.921]},"properties":{"measurement_id":73,"measuremeta_id":129721,"measure_units":"per mil","n":2,"unit_id":40990,"ref_id":208}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.074,36.921]},"properties":{"measurement_id":74,"measuremeta_id":129721,"measure_units":"per mil","n":2,"unit_id":40990,"ref_id":208}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.074,36.921]},"properties":{"measurement_id":73,"measuremeta_id":129722,"measure_units":"per mil","n":16,"unit_id":40991,"ref_id":208}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.074,36.921]},"properties":{"measurement_id":74,"measuremeta_id":129722,"measure_units":"per mil","n":16,"unit_id":40991,"ref_id":208}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.074,36.921]},"properties":{"measurement_id":73,"measuremeta_id":129723,"measure_units":"per mil","n":5,"unit_id":43007,"ref_id":208}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.074,36.921]},"properties":{"measurement_id":74,"measuremeta_id":129723,"measure_units":"per mil","n":5,"unit_id":43007,"ref_id":208}},{"type":"Feature","geometry":{"type":"Point","coordinates":[17.637,79.582]},"properties":{"measurement_id":73,"measuremeta_id":129725,"measure_units":"per mil","n":27,"unit_id":42692,"ref_id":209}},{"type":"Feature","geometry":{"type":"Point","coordinates":[17.637,79.582]},"properties":{"measurement_id":74,"measuremeta_id":129725,"measure_units":"per mil","n":27,"unit_id":42692,"ref_id":209}},{"type":"Feature","geometry":{"type":"Point","coordinates":[17.637,79.582]},"properties":{"measurement_id":73,"measuremeta_id":129726,"measure_units":"per mil","n":14,"unit_id":41313,"ref_id":209}},{"type":"Feature","geometry":{"type":"Point","coordinates":[17.637,79.582]},"properties":{"measurement_id":74,"measuremeta_id":129726,"measure_units":"per mil","n":14,"unit_id":41313,"ref_id":209}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":73,"measuremeta_id":129728,"measure_units":"per mil","n":9,"unit_id":41008,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":74,"measuremeta_id":129728,"measure_units":"per mil","n":9,"unit_id":41008,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":73,"measuremeta_id":129729,"measure_units":"per mil","n":26,"unit_id":41009,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":74,"measuremeta_id":129729,"measure_units":"per mil","n":26,"unit_id":41009,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":73,"measuremeta_id":129730,"measure_units":"per mil","n":38,"unit_id":41010,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":74,"measuremeta_id":129730,"measure_units":"per mil","n":38,"unit_id":41010,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":73,"measuremeta_id":129731,"measure_units":"per mil","n":6,"unit_id":41011,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":74,"measuremeta_id":129731,"measure_units":"per mil","n":6,"unit_id":41011,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":73,"measuremeta_id":129732,"measure_units":"per mil","n":5,"unit_id":41008,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-117.485,36.255]},"properties":{"measurement_id":74,"measuremeta_id":129732,"measure_units":"per mil","n":5,"unit_id":41008,"ref_id":210}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.074,36.921]},"properties":{"measurement_id":73,"measuremeta_id":129733,"measure_units":"per mil","n":19,"unit_id":43007,"ref_id":208}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-118.074,36.921]},"properties":{"measurement_id":74,"measuremeta_id":129733,"measure_units":"per mil","n":19,"unit_id":43007,"ref_id":208}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":73,"measuremeta_id":129734,"measure_units":"per mil","n":1,"unit_id":41202,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":74,"measuremeta_id":129734,"measure_units":"per mil","n":1,"unit_id":41202,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":73,"measuremeta_id":129735,"measure_units":"per mil","n":13,"unit_id":42770,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":74,"measuremeta_id":129735,"measure_units":"per mil","n":13,"unit_id":42770,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":73,"measuremeta_id":129736,"measure_units":"per mil","n":2,"unit_id":41205,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":74,"measuremeta_id":129736,"measure_units":"per mil","n":2,"unit_id":41205,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":73,"measuremeta_id":129737,"measure_units":"per mil","n":16,"unit_id":41206,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":74,"measuremeta_id":129737,"measure_units":"per mil","n":16,"unit_id":41206,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":73,"measuremeta_id":129738,"measure_units":"per mil","n":8,"unit_id":41207,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":74,"measuremeta_id":129738,"measure_units":"per mil","n":8,"unit_id":41207,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":73,"measuremeta_id":129739,"measure_units":"per mil","n":3,"unit_id":41202,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.934,63.993]},"properties":{"measurement_id":74,"measuremeta_id":129739,"measure_units":"per mil","n":3,"unit_id":41202,"ref_id":211}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.269,63.89]},"properties":{"measurement_id":73,"measuremeta_id":129740,"measure_units":"per mil","n":48,"unit_id":42756,"ref_id":212}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.269,63.89]},"properties":{"measurement_id":74,"measuremeta_id":129740,"measure_units":"per mil","n":48,"unit_id":42756,"ref_id":212}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.269,63.89]},"properties":{"measurement_id":73,"measuremeta_id":129741,"measure_units":"per mil","n":43,"unit_id":42755,"ref_id":212}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-128.269,63.89]},"properties":{"measurement_id":74,"measuremeta_id":129741,"measure_units":"per mil","n":43,"unit_id":42755,"ref_id":212}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.94,35.813]},"properties":{"measurement_id":73,"measuremeta_id":129742,"measure_units":"per mil","n":51,"unit_id":41387,"ref_id":213}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-115.94,35.813]},"properties":{"measurement_id":74,"measuremeta_id":129742,"measure_units":"per mil","n":51,"unit_id":41387,"ref_id":213}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-141.2,64.553]},"properties":{"measurement_id":73,"measuremeta_id":129743,"measure_units":"per mil","n":61,"unit_id":42772,"ref_id":214}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-141.2,64.553]},"properties":{"measurement_id":74,"measuremeta_id":129743,"measure_units":"per mil","n":61,"unit_id":42772,"ref_id":214}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-141.2,64.553]},"properties":{"measurement_id":73,"measuremeta_id":129744,"measure_units":"per mil","n":34,"unit_id":42774,"ref_id":214}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-141.2,64.553]},"properties":{"measurement_id":74,"measuremeta_id":129744,"measure_units":"per mil","n":34,"unit_id":42774,"ref_id":214}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.09,35.843]},"properties":{"measurement_id":73,"measuremeta_id":129745,"measure_units":"per mil","n":43,"unit_id":41387,"ref_id":215}},{"type":"Feature","geometry":{"type":"Point","coordinates":[-116.09,35.843]},"properties":{"measurement_id":74,"measuremeta_id":129745,"measure_units":"per mil","n":43,"unit_id":41387,"ref_id":215}}]},"refs":{}}}
+{
+  "success": {
+    "v": 2,
+    "license": "CC-BY 4.0",
+    "data": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -129.62,
+              64.45
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129625,
+            "measure_units": "per mil",
+            "n": 29,
+            "unit_id": 42756,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -129.62,
+              64.45
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129625,
+            "measure_units": "per mil",
+            "n": 29,
+            "unit_id": 42756,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -129.62,
+              64.45
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129626,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 41161,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -129.62,
+              64.45
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129626,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 41161,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -129.62,
+              64.45
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129627,
+            "measure_units": "per mil",
+            "n": 44,
+            "unit_id": 42754,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -129.62,
+              64.45
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129627,
+            "measure_units": "per mil",
+            "n": 44,
+            "unit_id": 42754,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -129.62,
+              64.45
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129628,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 42755,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -129.62,
+              64.45
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129628,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 42755,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129629,
+            "measure_units": "per mil",
+            "n": 16,
+            "unit_id": 41161,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129629,
+            "measure_units": "per mil",
+            "n": 16,
+            "unit_id": 41161,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129630,
+            "measure_units": "per mil",
+            "n": 30,
+            "unit_id": 41177,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129630,
+            "measure_units": "per mil",
+            "n": 30,
+            "unit_id": 41177,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129631,
+            "measure_units": "per mil",
+            "n": 122,
+            "unit_id": 42942,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129631,
+            "measure_units": "per mil",
+            "n": 122,
+            "unit_id": 42942,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129632,
+            "measure_units": "per mil",
+            "n": 115,
+            "unit_id": 41175,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129632,
+            "measure_units": "per mil",
+            "n": 115,
+            "unit_id": 41175,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129633,
+            "measure_units": "per mil",
+            "n": 184,
+            "unit_id": 41176,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.57,
+              63.42
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129633,
+            "measure_units": "per mil",
+            "n": 184,
+            "unit_id": 41176,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -138.68,
+              64.28
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129634,
+            "measure_units": "per mil",
+            "n": 38,
+            "unit_id": 42772,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -138.68,
+              64.28
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129634,
+            "measure_units": "per mil",
+            "n": 38,
+            "unit_id": 42772,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -138.68,
+              64.28
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129635,
+            "measure_units": "per mil",
+            "n": 10,
+            "unit_id": 42774,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -138.68,
+              64.28
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129635,
+            "measure_units": "per mil",
+            "n": 10,
+            "unit_id": 42774,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -138.68,
+              64.28
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129636,
+            "measure_units": "per mil",
+            "n": 170,
+            "unit_id": 42773,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -138.68,
+              64.28
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129636,
+            "measure_units": "per mil",
+            "n": 170,
+            "unit_id": 42773,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129637,
+            "measure_units": "per mil",
+            "n": 97,
+            "unit_id": 41205,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129637,
+            "measure_units": "per mil",
+            "n": 97,
+            "unit_id": 41205,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129638,
+            "measure_units": "per mil",
+            "n": 18,
+            "unit_id": 41206,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129638,
+            "measure_units": "per mil",
+            "n": 18,
+            "unit_id": 41206,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129639,
+            "measure_units": "per mil",
+            "n": 54,
+            "unit_id": 41205,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129639,
+            "measure_units": "per mil",
+            "n": 54,
+            "unit_id": 41205,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129640,
+            "measure_units": "per mil",
+            "n": 7,
+            "unit_id": 42769,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129640,
+            "measure_units": "per mil",
+            "n": 7,
+            "unit_id": 42769,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129641,
+            "measure_units": "per mil",
+            "n": 26,
+            "unit_id": 41202,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129641,
+            "measure_units": "per mil",
+            "n": 26,
+            "unit_id": 41202,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129642,
+            "measure_units": "per mil",
+            "n": 32,
+            "unit_id": 41207,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129642,
+            "measure_units": "per mil",
+            "n": 32,
+            "unit_id": 41207,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129643,
+            "measure_units": "per mil",
+            "n": 68,
+            "unit_id": 41203,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129643,
+            "measure_units": "per mil",
+            "n": 68,
+            "unit_id": 41203,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129644,
+            "measure_units": "per mil",
+            "n": 164,
+            "unit_id": 42770,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129644,
+            "measure_units": "per mil",
+            "n": 164,
+            "unit_id": 42770,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129645,
+            "measure_units": "per mil",
+            "n": 49,
+            "unit_id": 41205,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129645,
+            "measure_units": "per mil",
+            "n": 49,
+            "unit_id": 41205,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129646,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 42769,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129646,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 42769,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129647,
+            "measure_units": "per mil",
+            "n": 29,
+            "unit_id": 41204,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129647,
+            "measure_units": "per mil",
+            "n": 29,
+            "unit_id": 41204,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129648,
+            "measure_units": "per mil",
+            "n": 18,
+            "unit_id": 41202,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129648,
+            "measure_units": "per mil",
+            "n": 18,
+            "unit_id": 41202,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129649,
+            "measure_units": "per mil",
+            "n": 48,
+            "unit_id": 41207,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129649,
+            "measure_units": "per mil",
+            "n": 48,
+            "unit_id": 41207,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.68,
+              63.52
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129650,
+            "measure_units": "per mil",
+            "n": 103,
+            "unit_id": 41176,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.68,
+              63.52
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129650,
+            "measure_units": "per mil",
+            "n": 103,
+            "unit_id": 41176,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129651,
+            "measure_units": "per mil",
+            "n": 7,
+            "unit_id": 41205,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129651,
+            "measure_units": "per mil",
+            "n": 7,
+            "unit_id": 41205,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129652,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41204,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129652,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41204,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129653,
+            "measure_units": "per mil",
+            "n": 3,
+            "unit_id": 42770,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.69,
+              64.37
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129653,
+            "measure_units": "per mil",
+            "n": 3,
+            "unit_id": 42770,
+            "ref_id": 191
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.2,
+              35.8
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129654,
+            "measure_units": "per mil",
+            "n": 253,
+            "unit_id": 41388,
+            "ref_id": 192
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.2,
+              35.8
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129654,
+            "measure_units": "per mil",
+            "n": 253,
+            "unit_id": 41388,
+            "ref_id": 192
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -24.65,
+              73.69
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129655,
+            "measure_units": "per mil",
+            "n": 16,
+            "unit_id": 41306,
+            "ref_id": 193
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -24.65,
+              73.69
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129655,
+            "measure_units": "per mil",
+            "n": 16,
+            "unit_id": 41306,
+            "ref_id": 193
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129656,
+            "measure_units": "per mil",
+            "n": 10,
+            "unit_id": 41369,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129656,
+            "measure_units": "per mil",
+            "n": 10,
+            "unit_id": 41369,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129657,
+            "measure_units": "per mil",
+            "n": 25,
+            "unit_id": 41370,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129657,
+            "measure_units": "per mil",
+            "n": 25,
+            "unit_id": 41370,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129658,
+            "measure_units": "per mil",
+            "n": 9,
+            "unit_id": 41368,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129658,
+            "measure_units": "per mil",
+            "n": 9,
+            "unit_id": 41368,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129659,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 41372,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129659,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 41372,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129660,
+            "measure_units": "per mil",
+            "n": 14,
+            "unit_id": 41375,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129660,
+            "measure_units": "per mil",
+            "n": 14,
+            "unit_id": 41375,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129661,
+            "measure_units": "per mil",
+            "n": 27,
+            "unit_id": 41373,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129661,
+            "measure_units": "per mil",
+            "n": 27,
+            "unit_id": 41373,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129662,
+            "measure_units": "per mil",
+            "n": 11,
+            "unit_id": 41374,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.96,
+              30.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129662,
+            "measure_units": "per mil",
+            "n": 11,
+            "unit_id": 41374,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -115.9,
+              35.9
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129663,
+            "measure_units": "per mil",
+            "n": 15,
+            "unit_id": 41390,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -115.9,
+              35.9
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129663,
+            "measure_units": "per mil",
+            "n": 15,
+            "unit_id": 41390,
+            "ref_id": 194
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -115.64,
+              35.66
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129664,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41387,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -115.64,
+              35.66
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129664,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41387,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -115.64,
+              35.66
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129665,
+            "measure_units": "per mil",
+            "n": 20,
+            "unit_id": 41388,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -115.64,
+              35.66
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129665,
+            "measure_units": "per mil",
+            "n": 20,
+            "unit_id": 41388,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.22,
+              35.29
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129666,
+            "measure_units": "per mil",
+            "n": 4,
+            "unit_id": 41015,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.22,
+              35.29
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129666,
+            "measure_units": "per mil",
+            "n": 4,
+            "unit_id": 41015,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.07,
+              35.86
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129667,
+            "measure_units": "per mil",
+            "n": 21,
+            "unit_id": 41388,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.07,
+              35.86
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129667,
+            "measure_units": "per mil",
+            "n": 21,
+            "unit_id": 41388,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.07,
+              35.86
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129668,
+            "measure_units": "per mil",
+            "n": 14,
+            "unit_id": 41387,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.07,
+              35.86
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129668,
+            "measure_units": "per mil",
+            "n": 14,
+            "unit_id": 41387,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.07,
+              35.86
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129669,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41389,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.07,
+              35.86
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129669,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41389,
+            "ref_id": 195
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -53.16,
+              47.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129670,
+            "measure_units": "per mil",
+            "n": 13,
+            "unit_id": 40086,
+            "ref_id": 196
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -53.16,
+              47.43
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129670,
+            "measure_units": "per mil",
+            "n": 13,
+            "unit_id": 40086,
+            "ref_id": 196
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -53.18,
+              47.46
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129671,
+            "measure_units": "per mil",
+            "n": 7,
+            "unit_id": 40144,
+            "ref_id": 196
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -53.18,
+              47.46
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129671,
+            "measure_units": "per mil",
+            "n": 7,
+            "unit_id": 40144,
+            "ref_id": 196
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.02,
+              36.48
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129672,
+            "measure_units": "per mil",
+            "n": 107,
+            "unit_id": 41388,
+            "ref_id": 197
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.02,
+              36.48
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129672,
+            "measure_units": "per mil",
+            "n": 107,
+            "unit_id": 41388,
+            "ref_id": 197
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.02,
+              64.15
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129673,
+            "measure_units": "per mil",
+            "n": 248,
+            "unit_id": 41218,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.02,
+              64.15
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129673,
+            "measure_units": "per mil",
+            "n": 248,
+            "unit_id": 41218,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.05,
+              64.14
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129674,
+            "measure_units": "per mil",
+            "n": 77,
+            "unit_id": 41217,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.05,
+              64.14
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129674,
+            "measure_units": "per mil",
+            "n": 77,
+            "unit_id": 41217,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.443,
+              64.106
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129675,
+            "measure_units": "per mil",
+            "n": 245,
+            "unit_id": 41216,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.443,
+              64.106
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129675,
+            "measure_units": "per mil",
+            "n": 245,
+            "unit_id": 41216,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.3,
+              64.06
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129676,
+            "measure_units": "per mil",
+            "n": 69,
+            "unit_id": 41215,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.3,
+              64.06
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129676,
+            "measure_units": "per mil",
+            "n": 69,
+            "unit_id": 41215,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.3,
+              64.06
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129677,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 41214,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -132.3,
+              64.06
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129677,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 41214,
+            "ref_id": 122
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.97,
+              36.78
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129678,
+            "measure_units": "per mil",
+            "n": 78,
+            "unit_id": 41388,
+            "ref_id": 198
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.97,
+              36.78
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129678,
+            "measure_units": "per mil",
+            "n": 78,
+            "unit_id": 41388,
+            "ref_id": 198
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.97,
+              36.78
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129679,
+            "measure_units": "per mil",
+            "n": 18,
+            "unit_id": 41389,
+            "ref_id": 198
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.97,
+              36.78
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129679,
+            "measure_units": "per mil",
+            "n": 18,
+            "unit_id": 41389,
+            "ref_id": 198
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -77.836,
+              38.785
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129680,
+            "measure_units": "per mil",
+            "n": 48,
+            "unit_id": 41332,
+            "ref_id": 137
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -77.836,
+              38.785
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129680,
+            "measure_units": "per mil",
+            "n": 48,
+            "unit_id": 41332,
+            "ref_id": 137
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -36.521,
+              82.099
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129681,
+            "measure_units": "per mil",
+            "n": 44,
+            "unit_id": 41297,
+            "ref_id": 199
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129682,
+            "measure_units": "per mil",
+            "n": 27,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129682,
+            "measure_units": "per mil",
+            "n": 27,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129683,
+            "measure_units": "per mil",
+            "n": 88,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129683,
+            "measure_units": "per mil",
+            "n": 88,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129684,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129684,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129685,
+            "measure_units": "per mil",
+            "n": 34,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129685,
+            "measure_units": "per mil",
+            "n": 34,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129686,
+            "measure_units": "per mil",
+            "n": 27,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129686,
+            "measure_units": "per mil",
+            "n": 27,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129687,
+            "measure_units": "per mil",
+            "n": 194,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129687,
+            "measure_units": "per mil",
+            "n": 194,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129688,
+            "measure_units": "per mil",
+            "n": 15,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.388,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129688,
+            "measure_units": "per mil",
+            "n": 15,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129689,
+            "measure_units": "per mil",
+            "n": 4,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129689,
+            "measure_units": "per mil",
+            "n": 4,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129690,
+            "measure_units": "per mil",
+            "n": 9,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.626
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129690,
+            "measure_units": "per mil",
+            "n": 9,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129691,
+            "measure_units": "per mil",
+            "n": 28,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129691,
+            "measure_units": "per mil",
+            "n": 28,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129692,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129692,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129693,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129693,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129694,
+            "measure_units": "per mil",
+            "n": 136,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129694,
+            "measure_units": "per mil",
+            "n": 136,
+            "unit_id": 47718,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129695,
+            "measure_units": "per mil",
+            "n": 23,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129695,
+            "measure_units": "per mil",
+            "n": 23,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129696,
+            "measure_units": "per mil",
+            "n": 1,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129696,
+            "measure_units": "per mil",
+            "n": 1,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129697,
+            "measure_units": "per mil",
+            "n": 1,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129697,
+            "measure_units": "per mil",
+            "n": 1,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129698,
+            "measure_units": "per mil",
+            "n": 29,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129698,
+            "measure_units": "per mil",
+            "n": 29,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129699,
+            "measure_units": "per mil",
+            "n": 81,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.059,
+              69.634
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129699,
+            "measure_units": "per mil",
+            "n": 81,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129700,
+            "measure_units": "per mil",
+            "n": 156,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129700,
+            "measure_units": "per mil",
+            "n": 156,
+            "unit_id": 47719,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129701,
+            "measure_units": "per mil",
+            "n": 62,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129701,
+            "measure_units": "per mil",
+            "n": 62,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129702,
+            "measure_units": "per mil",
+            "n": 302,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129702,
+            "measure_units": "per mil",
+            "n": 302,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129703,
+            "measure_units": "per mil",
+            "n": 45,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -145.982,
+              69.556
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129703,
+            "measure_units": "per mil",
+            "n": 45,
+            "unit_id": 41256,
+            "ref_id": 200
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 23,
+            "measuremeta_id": 129704,
+            "measure_units": "per mil",
+            "n": 52,
+            "unit_id": 40991,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129704,
+            "measure_units": "per mil",
+            "n": 52,
+            "unit_id": 40991,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129705,
+            "measure_units": "per mil",
+            "n": 30,
+            "unit_id": 40991,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129705,
+            "measure_units": "per mil",
+            "n": 30,
+            "unit_id": 40991,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129706,
+            "measure_units": "per mil",
+            "n": 63,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129706,
+            "measure_units": "per mil",
+            "n": 63,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129707,
+            "measure_units": "per mil",
+            "n": 69,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129707,
+            "measure_units": "per mil",
+            "n": 69,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129708,
+            "measure_units": "per mil",
+            "n": 56,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129708,
+            "measure_units": "per mil",
+            "n": 56,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129709,
+            "measure_units": "per mil",
+            "n": 41,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129709,
+            "measure_units": "per mil",
+            "n": 41,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129710,
+            "measure_units": "per mil",
+            "n": 71,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.328,
+              37.862
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129710,
+            "measure_units": "per mil",
+            "n": 71,
+            "unit_id": 43007,
+            "ref_id": 201
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.097,
+              36.406
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129711,
+            "measure_units": "per mil",
+            "n": 122,
+            "unit_id": 41390,
+            "ref_id": 202
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.097,
+              36.406
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129711,
+            "measure_units": "per mil",
+            "n": 122,
+            "unit_id": 41390,
+            "ref_id": 202
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129712,
+            "measure_units": "per mil",
+            "n": 34,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129712,
+            "measure_units": "per mil",
+            "n": 34,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129713,
+            "measure_units": "per mil",
+            "n": 21,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129713,
+            "measure_units": "per mil",
+            "n": 21,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129714,
+            "measure_units": "per mil",
+            "n": 32,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129714,
+            "measure_units": "per mil",
+            "n": 32,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129715,
+            "measure_units": "per mil",
+            "n": 12,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129715,
+            "measure_units": "per mil",
+            "n": 12,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129716,
+            "measure_units": "per mil",
+            "n": 35,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129716,
+            "measure_units": "per mil",
+            "n": 35,
+            "unit_id": 40965,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 2,
+            "measuremeta_id": 129717,
+            "measure_units": "Ma",
+            "n": 130,
+            "unit_id": 41375,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 3,
+            "measuremeta_id": 129717,
+            "measure_units": "Ma",
+            "n": 130,
+            "unit_id": 41375,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -111.85,
+              30.59
+            ]
+          },
+          "properties": {
+            "measurement_id": 4,
+            "measuremeta_id": 129717,
+            "measure_units": "Ma",
+            "n": 130,
+            "unit_id": 41375,
+            "ref_id": 203
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -124.903,
+              57.7218
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129718,
+            "measure_units": "per mil",
+            "n": 134,
+            "unit_id": 41157,
+            "ref_id": 207
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -124.903,
+              57.7218
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129718,
+            "measure_units": "per mil",
+            "n": 134,
+            "unit_id": 41157,
+            "ref_id": 207
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.074,
+              36.921
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129721,
+            "measure_units": "per mil",
+            "n": 2,
+            "unit_id": 40990,
+            "ref_id": 208
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.074,
+              36.921
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129721,
+            "measure_units": "per mil",
+            "n": 2,
+            "unit_id": 40990,
+            "ref_id": 208
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.074,
+              36.921
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129722,
+            "measure_units": "per mil",
+            "n": 16,
+            "unit_id": 40991,
+            "ref_id": 208
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.074,
+              36.921
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129722,
+            "measure_units": "per mil",
+            "n": 16,
+            "unit_id": 40991,
+            "ref_id": 208
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.074,
+              36.921
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129723,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 43007,
+            "ref_id": 208
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.074,
+              36.921
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129723,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 43007,
+            "ref_id": 208
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              17.637,
+              79.582
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129725,
+            "measure_units": "per mil",
+            "n": 27,
+            "unit_id": 42692,
+            "ref_id": 209
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              17.637,
+              79.582
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129725,
+            "measure_units": "per mil",
+            "n": 27,
+            "unit_id": 42692,
+            "ref_id": 209
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              17.637,
+              79.582
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129726,
+            "measure_units": "per mil",
+            "n": 14,
+            "unit_id": 41313,
+            "ref_id": 209
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              17.637,
+              79.582
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129726,
+            "measure_units": "per mil",
+            "n": 14,
+            "unit_id": 41313,
+            "ref_id": 209
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129728,
+            "measure_units": "per mil",
+            "n": 9,
+            "unit_id": 41008,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129728,
+            "measure_units": "per mil",
+            "n": 9,
+            "unit_id": 41008,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129729,
+            "measure_units": "per mil",
+            "n": 26,
+            "unit_id": 41009,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129729,
+            "measure_units": "per mil",
+            "n": 26,
+            "unit_id": 41009,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129730,
+            "measure_units": "per mil",
+            "n": 38,
+            "unit_id": 41010,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129730,
+            "measure_units": "per mil",
+            "n": 38,
+            "unit_id": 41010,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129731,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 41011,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129731,
+            "measure_units": "per mil",
+            "n": 6,
+            "unit_id": 41011,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129732,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 41008,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -117.485,
+              36.255
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129732,
+            "measure_units": "per mil",
+            "n": 5,
+            "unit_id": 41008,
+            "ref_id": 210
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.074,
+              36.921
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129733,
+            "measure_units": "per mil",
+            "n": 19,
+            "unit_id": 43007,
+            "ref_id": 208
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -118.074,
+              36.921
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129733,
+            "measure_units": "per mil",
+            "n": 19,
+            "unit_id": 43007,
+            "ref_id": 208
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129734,
+            "measure_units": "per mil",
+            "n": 1,
+            "unit_id": 41202,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129734,
+            "measure_units": "per mil",
+            "n": 1,
+            "unit_id": 41202,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129735,
+            "measure_units": "per mil",
+            "n": 13,
+            "unit_id": 42770,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129735,
+            "measure_units": "per mil",
+            "n": 13,
+            "unit_id": 42770,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129736,
+            "measure_units": "per mil",
+            "n": 2,
+            "unit_id": 41205,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129736,
+            "measure_units": "per mil",
+            "n": 2,
+            "unit_id": 41205,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129737,
+            "measure_units": "per mil",
+            "n": 16,
+            "unit_id": 41206,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129737,
+            "measure_units": "per mil",
+            "n": 16,
+            "unit_id": 41206,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129738,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41207,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129738,
+            "measure_units": "per mil",
+            "n": 8,
+            "unit_id": 41207,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129739,
+            "measure_units": "per mil",
+            "n": 3,
+            "unit_id": 41202,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.934,
+              63.993
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129739,
+            "measure_units": "per mil",
+            "n": 3,
+            "unit_id": 41202,
+            "ref_id": 211
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.269,
+              63.89
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129740,
+            "measure_units": "per mil",
+            "n": 48,
+            "unit_id": 42756,
+            "ref_id": 212
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.269,
+              63.89
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129740,
+            "measure_units": "per mil",
+            "n": 48,
+            "unit_id": 42756,
+            "ref_id": 212
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.269,
+              63.89
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129741,
+            "measure_units": "per mil",
+            "n": 43,
+            "unit_id": 42755,
+            "ref_id": 212
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -128.269,
+              63.89
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129741,
+            "measure_units": "per mil",
+            "n": 43,
+            "unit_id": 42755,
+            "ref_id": 212
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -115.94,
+              35.813
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129742,
+            "measure_units": "per mil",
+            "n": 51,
+            "unit_id": 41387,
+            "ref_id": 213
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -115.94,
+              35.813
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129742,
+            "measure_units": "per mil",
+            "n": 51,
+            "unit_id": 41387,
+            "ref_id": 213
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -141.2,
+              64.553
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129743,
+            "measure_units": "per mil",
+            "n": 61,
+            "unit_id": 42772,
+            "ref_id": 214
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -141.2,
+              64.553
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129743,
+            "measure_units": "per mil",
+            "n": 61,
+            "unit_id": 42772,
+            "ref_id": 214
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -141.2,
+              64.553
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129744,
+            "measure_units": "per mil",
+            "n": 34,
+            "unit_id": 42774,
+            "ref_id": 214
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -141.2,
+              64.553
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129744,
+            "measure_units": "per mil",
+            "n": 34,
+            "unit_id": 42774,
+            "ref_id": 214
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.09,
+              35.843
+            ]
+          },
+          "properties": {
+            "measurement_id": 73,
+            "measuremeta_id": 129745,
+            "measure_units": "per mil",
+            "n": 43,
+            "unit_id": 41387,
+            "ref_id": 215
+          }
+        },
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Point",
+            "coordinates": [
+              -116.09,
+              35.843
+            ]
+          },
+          "properties": {
+            "measurement_id": 74,
+            "measuremeta_id": 129745,
+            "measure_units": "per mil",
+            "n": 43,
+            "unit_id": 41387,
+            "ref_id": 215
+          }
+        }
+      ]
+    },
+    "refs": {}
+  }
+}

@@ -15,7 +15,7 @@ const apiParams = {
   "regional/all-columns.topo":
     "/columns?format=topojson&project_id=10&status_code=in%20process",
   "regional/column-measurements":
-    "/measurements?col_id=2163&project_id=10&response=long&show_values=true&status_code=in%20process",
+    "/measurements?col_id=2163,2164&project_id=10&response=long&show_values=true&status_code=in%20process",
   "regional/column.geo":
     "/columns?col_id=2163&format=geojson&project_id=10&status_code=in%20process"
 };
