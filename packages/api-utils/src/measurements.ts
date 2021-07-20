@@ -103,7 +103,7 @@ export function filterMeasurement(
     const dataPoint = buildDataPoint(meas, i);
     if (filterFunc(dataPoint, i, meas)) {
       for (const key of keys) {
-        data[key].push(dataPoint[i]);
+        data[key].push(dataPoint[key]);
       }
     }
   }

@@ -8,18 +8,19 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import { MeasurementLong, UnitLong, ColumnSpec } from "@macrostrat/api-types";
 import {
   alignMeasurementsToTargetColumn,
-  filterMeasurements
+  filterMeasurements,
+  FilterFunc
 } from "@macrostrat/api-utils";
 
 /** This file defines subsidiary measurement data providers that transform
  * data requests into formats for column subsets.
  */
 
+type MeasurementProviderProps = React.PropsWithChildren<{
+  measureData?: MeasurementLong[];
+}>;
 function AlignedMeasurementProvider(
-  props: React.PropsWithChildren<{
-    targetColumn: ColumnSpec;
-    measureData?: MeasurementLong[];
-  }>
+  props: MeasurementProviderProps & { targetColumn: ColumnSpec }
 ) {
   const { children, targetColumn, measureData = useMeasurementData() } = props;
   // Higher-level measurement data provider
@@ -43,19 +44,13 @@ function AlignedMeasurementProvider(
 }
 
 function FilteredMeasurementProvider(
-  props: React.PropsWithChildren<{ measureData?: MeasurementLong[] }>
+  props: MeasurementProviderProps & { filterFunc: FilterFunc }
 ) {
-  const { children, measureData = useMeasurementData() } = props;
+  const { children, measureData = useMeasurementData(), filterFunc } = props;
 
-  let filteredMeasurements = filterMeasurements(
-    measureData ?? [],
-    d => d.sample_no.match(/^G3-/) != null
-  );
+  const value = filterMeasurements(measureData ?? [], filterFunc);
 
-  return h(MeasurementDataContext.Provider, {
-    value: filterMeasurements,
-    children
-  });
+  return h(MeasurementDataContext.Provider, { value, children });
 }
 
 export {

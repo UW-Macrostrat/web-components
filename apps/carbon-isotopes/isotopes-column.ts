@@ -14,7 +14,7 @@ import { referenceMeasuresToColumn } from "@macrostrat/api-utils";
 import {
   CrossAxisLayoutProvider,
   ColumnLayoutContext,
-  ColumnContext
+  useColumnDivisions
 } from "@macrostrat/column-components";
 import T from "prop-types";
 
@@ -148,13 +148,13 @@ interface IsotopeColumnProps extends IsotopesDatasetProps {
 
 function IsotopesDataset(props) {
   const { parameter, color = "dodgerblue" } = props;
-  const { divisions } = useContext(ColumnContext);
+  const divisions = useColumnDivisions();
   const measures = useMeasurementData() ?? [];
   const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
     d => d.measurement == parameter
   );
-
   const points = unnestPoints(refMeasures);
+  console.log(refMeasures, points);
 
   return h(
     IsotopesDataArea,
@@ -186,12 +186,13 @@ function IsotopesColumn(
     color = "dodgerblue",
     children = null,
     transform,
+    getHeight,
     ...rest
   } = props;
 
   let _children = children;
   if (children == null && parameter != null) {
-    _children = h(IsotopesDataset, { parameter, color });
+    _children = h(IsotopesDataset, { parameter, color, getHeight });
   }
 
   return h(

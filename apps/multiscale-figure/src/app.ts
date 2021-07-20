@@ -37,6 +37,12 @@ const regionalColumn: ColumnSpec = {
   status_code: "in process"
 };
 
+const measuredColumn: ColumnSpec = {
+  col_id: 2164,
+  project_id: 10,
+  status_code: "in process"
+};
+
 // For measurements, we combine Nadaleen area and Sekwi area.
 const measureSourceColumns: ColumnSpec = {
   ...regionalColumn,
@@ -63,8 +69,8 @@ function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
   ]);
 }
 
-function MultiIsotopesColumn(props) {
-  return h("g.isotopes-columns", { transform: "translate(160,0)" }, [
+function MultiIsotopesColumn({ transform }) {
+  return h("g.isotopes-columns", { transform }, [
     h(IsotopesColumn, {
       label: "δ¹³C",
       color: "dodgerblue",
@@ -102,14 +108,18 @@ const ColumnManager = () => {
               width: 140,
               showLabels: false
             }),
-            h(MultiIsotopesColumn)
+            h(MultiIsotopesColumn, { transform: "translate(160,0)" })
           ])
         ]),
         h("div.spacer")
       ]),
-      h(FilteredMeasurementProvider, { ...measureSourceColumns }, [
-        h(MeasuredSection)
-      ])
+      h(
+        FilteredMeasurementProvider,
+        { filterFunc: d => d.sample_no.match(/^G3-/) != null },
+        h(MeasuredSection, { params: measuredColumn }, [
+          h(MultiIsotopesColumn, { transform: "translate(80,0)" })
+        ])
+      )
     ])
   ]);
 };

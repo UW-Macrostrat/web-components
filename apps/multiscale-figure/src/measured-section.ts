@@ -11,11 +11,12 @@ import {
   ColumnDivision,
   ColumnSurface
 } from "@macrostrat/column-components";
-import { BaseUnit } from "@macrostrat/api-types";
+import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
 import { AgeAxis } from "../../enriched-timeline/column";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
+import { useAPIResult } from "@macrostrat/ui-components";
 
 interface IColumnProps {
   data: IUnit[];
@@ -31,6 +32,8 @@ const columnData: BaseUnit[] = [
   {
     bottom: 0,
     top: 40,
+    b_age: 40,
+    t_age: 0,
     lithology: "sandstone",
     grainsize: "ms",
     pattern: "limestone",
@@ -39,6 +42,8 @@ const columnData: BaseUnit[] = [
   {
     bottom: 40,
     top: 350,
+    b_age: 350,
+    t_age: 40,
     lithology: "limestone",
     grainsize: "s",
     pattern: "limestone",
@@ -57,10 +62,18 @@ function mergeUnitData<A extends HasUnitID, B extends HasUnitID>(
   });
 }
 
-const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
+const BaseSection = (
+  props: IColumnProps & { children: React.ReactNode; params: ColumnSpec }
+) => {
   // Section with "squishy" time scale
-  const { data = [], range = [0, 341.3], children } = props;
+  const { data = [], range = [0, 341.3], children, params } = props;
   let { pixelScale } = props;
+
+  let divisions = data;
+  const unitData: UnitLong[] = useAPIResult("/units", params);
+  if (unitData != null) {
+    divisions = mergeUnitData(unitData, data);
+  }
 
   const notesOffset = 100;
 
@@ -68,22 +81,27 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
     h(
       ColumnProvider,
       {
-        divisions: columnData,
+        divisions,
         range,
         pixelsPerMeter: 2
       },
       [
-        h(ColumnSVG, { innerWidth: 80, padding: 20, paddingLeft: 40 }, [
-          h(ColumnAxis),
-          h(
-            GrainsizeLayoutProvider,
-            {
-              width: 80,
-              grainsizeScaleStart: 40
-            },
-            [h(GeneralizedSectionColumn, [h(LithologyBoxes)])]
-          )
-        ])
+        h(
+          ColumnSVG,
+          { innerWidth: 200, padding: 20, paddingLeft: 40, paddingBottom: 30 },
+          [
+            h(ColumnAxis),
+            h(
+              GrainsizeLayoutProvider,
+              {
+                width: 80,
+                grainsizeScaleStart: 40
+              },
+              [h(GeneralizedSectionColumn, [h(LithologyBoxes)])]
+            ),
+            children
+          ]
+        )
       ]
     ),
     children
@@ -91,5 +109,5 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
 };
 
 export function MeasuredSection(props) {
-  return h(BaseSection);
+  return h(BaseSection, { ...props, data: columnData });
 }
