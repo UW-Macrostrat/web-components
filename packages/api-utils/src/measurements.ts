@@ -1,4 +1,9 @@
-import { BaseUnit, MeasurementLong } from "@macrostrat/api-types";
+import {
+  BaseUnit,
+  MeasurementLong,
+  ColumnSpec,
+  StratUnit
+} from "@macrostrat/api-types";
 
 export function referenceMeasuresToColumn(
   units: BaseUnit[],
@@ -19,4 +24,32 @@ export function referenceMeasuresToColumn(
 
     return { measure_age, ...measure };
   });
+}
+
+/** Align measurements potentially taken from different columns to the units
+ * within a single column. */
+export function alignMeasurementsToTargetColumn<T extends StratUnit>(
+  measurementData: MeasurementLong[],
+  targetColumnUnits?: T[],
+  targetColumnParams?: ColumnSpec
+): MeasurementLong[] {
+  let data = [];
+  if (targetColumnUnits == null) return measurementData;
+  for (const meas of measurementData) {
+    /* First, find based on exact match (this is usually
+      basically a no-op, since most units are specific to columns)
+      Then, find based on the stratigraphic name */
+    let unit =
+      targetColumnUnits.find(u => u.unit_id === meas.unit_id) ??
+      targetColumnUnits.find(u => u.strat_name_id === meas.strat_name_id);
+    if (unit != null) {
+      const { unit_id } = unit;
+      data.push({
+        ...meas,
+        unit_id,
+        ...(targetColumnParams ?? {})
+      });
+    }
+  }
+  return data;
 }

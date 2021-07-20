@@ -1,37 +1,6 @@
 import axios from "axios";
-import { IUnit } from "common/units";
-
-export interface ColumnSpec {
-  col_id: number;
-  status_code?: string;
-  project_id?: number;
-}
-
-export function referenceMeasurementsToColumn(
-  measurementData: any[],
-  columnUnits?: IUnit[],
-  targetColumnParams = {}
-) {
-  let data = [];
-  if (columnUnits == null) return measurementData;
-  for (const meas of measurementData) {
-    /* First, find based on exact match (this is usually
-      basically a no-op, since most units are specific to columns)
-      Then, find based on the stratigraphic name */
-    let unit =
-      columnUnits.find(u => u.unit_id === meas.unit_id) ??
-      columnUnits.find(u => u.strat_name_id === meas.strat_name_id);
-    if (unit != null) {
-      const { unit_id } = unit;
-      data.push({
-        ...meas,
-        unit_id,
-        ...targetColumnParams
-      });
-    }
-  }
-  return data;
-}
+import { ColumnSpec } from "@macrostrat/api-types";
+import { alignMeasurementsToTargetColumn } from "@macrostrat/api-utils";
 
 export async function buildMacrostratMeasurements(
   apiBaseURL: string,
@@ -53,7 +22,7 @@ export async function buildMacrostratMeasurements(
     params: { ...targetColumn }
   });
 
-  const data = referenceMeasurementsToColumn(
+  const data = alignMeasurementsToTargetColumn(
     res.success?.data ?? [],
     units.success?.data,
     targetColumn

@@ -11,6 +11,7 @@ import {
   ColumnDivision,
   ColumnSurface
 } from "@macrostrat/column-components";
+import { BaseUnit } from "@macrostrat/api-types";
 import { AgeAxis } from "../../enriched-timeline/column";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
@@ -26,7 +27,7 @@ interface UnitDivision extends ColumnDivision {
   unit_id: number;
 }
 
-const columnData: UnitDivision[] = [
+const columnData: BaseUnit[] = [
   {
     bottom: 0,
     top: 40,
@@ -44,6 +45,17 @@ const columnData: UnitDivision[] = [
     unit_id: 41217
   }
 ];
+
+type HasUnitID = { unit_id: number };
+function mergeUnitData<A extends HasUnitID, B extends HasUnitID>(
+  sourceUnits: A[],
+  result: B[]
+): (A & B)[] {
+  return result.map(d => {
+    const foundMatch = sourceUnits.find(u => u.unit_id === d.unit_id);
+    return { ...foundMatch, ...d };
+  });
+}
 
 const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
   // Section with "squishy" time scale

@@ -4,6 +4,13 @@ export interface BaseUnit {
   t_age: number;
 }
 
+export interface StratUnit {
+  unit_id: number;
+  unit_name: string;
+  strat_name_id: number;
+  strat_name_long: string;
+}
+
 export interface Environment {
   class: string;
   type: string;
@@ -25,19 +32,15 @@ export interface MeasureInfo {
   measure_type: string;
 }
 
-export interface UnitLong extends BaseUnit {
+export interface UnitLong extends BaseUnit, StratUnit {
   section_id: number;
   col_id: number;
   project_id: number;
   col_area: number;
-  unit_name: string;
-  strat_name_id: number;
   Mbr: string;
   Fm: string;
   Gp: string;
   SGp: string;
-  t_age: number;
-  b_age: number;
   max_thick: number;
   min_thick: number;
   outcrop: string;
@@ -60,7 +63,6 @@ export interface UnitLong extends BaseUnit {
   b_int_age: number;
   b_prop: number;
   units_below?: number[] | null;
-  strat_name_long: string;
   refs?: number[] | null;
   clat: number;
   clng: number;
