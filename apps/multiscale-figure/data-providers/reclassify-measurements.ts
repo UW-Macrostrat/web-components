@@ -15,8 +15,9 @@ export function referenceMeasurementsToColumn(
   let data = [];
   if (columnUnits == null) return measurementData;
   for (const meas of measurementData) {
-    // First, find based on exact match (this is basically a no-op)
-    // Then, find based on the stratigraphic name
+    /* First, find based on exact match (this is usually
+      basically a no-op, since most units are specific to columns)
+      Then, find based on the stratigraphic name */
     let unit =
       columnUnits.find(u => u.unit_id === meas.unit_id) ??
       columnUnits.find(u => u.strat_name_id === meas.strat_name_id);

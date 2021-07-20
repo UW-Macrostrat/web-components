@@ -22,20 +22,26 @@ interface IColumnProps {
   range?: [number, number];
 }
 
-const columnData: ColumnDivision[] = [
+interface UnitDivision extends ColumnDivision {
+  unit_id: number;
+}
+
+const columnData: UnitDivision[] = [
   {
     bottom: 0,
     top: 40,
     lithology: "sandstone",
     grainsize: "ms",
-    pattern: "limestone"
+    pattern: "limestone",
+    unit_id: 41216
   },
   {
     bottom: 40,
     top: 350,
     lithology: "limestone",
     grainsize: "s",
-    pattern: "limestone"
+    pattern: "limestone",
+    unit_id: 41217
   }
 ];
 

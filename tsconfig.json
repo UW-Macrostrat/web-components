@@ -6,8 +6,17 @@
     "experimentalDecorators": true,
     "paths": {
       "common/*": ["./packages/common/src/**/*"],
-      "@macrostrat/column-components": ["./packages/column-components/src/**/*"]
+      "@macrostrat/column-components": [
+        "./packages/column-components/src/**/*"
+      ],
+      "@macrostrat/api-types": ["./packages/api-types/types"]
     }
   },
-  "include": ["apps/**/*", "packages/common/src/**/*"]
+  "include": [
+    "apps/**/*",
+    "packages/common/src/**/*",
+    "packages/api-types/types/*",
+    "packages/column-components/src/**/*",
+    "packages/api-utils/src/**/*"
+  ]
 }

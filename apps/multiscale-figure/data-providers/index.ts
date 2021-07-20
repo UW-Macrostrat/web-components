@@ -10,7 +10,8 @@ import {
 } from "./reclassify-measurements";
 import { apiBaseURL } from "../config";
 import { useAsyncEffect, useAPIResult } from "@macrostrat/ui-components";
-import { MeasurementLong, filterMeasurements } from "./filter-measurements";
+import { filterMeasurements } from "./filter-measurements";
+import { MeasurementLong } from "@macrostrat/api-types";
 
 function MacrostratMeasurementProvider(
   props: React.PropsWithChildren<{ source: ColumnSpec; target: ColumnSpec }>

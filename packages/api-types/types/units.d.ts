@@ -1,3 +1,9 @@
+export interface BaseUnit {
+  unit_id: number;
+  b_age: number;
+  t_age: number;
+}
+
 export interface Environment {
   class: string;
   type: string;
@@ -19,8 +25,7 @@ export interface MeasureInfo {
   measure_type: string;
 }
 
-export interface UnitLong {
-  unit_id: number;
+export interface UnitLong extends BaseUnit {
   section_id: number;
   col_id: number;
   project_id: number;
