@@ -47,6 +47,11 @@ const rangeOrHeight = function(props, propName) {
   return new Error("Provide either 'range' or 'height' props");
 };
 
+enum ColumnAxisType {
+  Age = "age",
+  Height = "height"
+}
+
 interface ColumnProviderProps<T extends ColumnDivision> {
   pixelsPerMeter?: number;
   divisions: T;
@@ -54,6 +59,7 @@ interface ColumnProviderProps<T extends ColumnDivision> {
   height?: number;
   zoom?: number;
   width?: number;
+  type?: ColumnAxisType;
   children?: React.ReactChild;
 }
 
@@ -73,6 +79,7 @@ function ColumnProvider<T extends ColumnDivision>(
     range,
     divisions = [],
     width = 150,
+    type = ColumnAxisType.Height,
     ...rest
   } = props;
 
