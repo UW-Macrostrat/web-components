@@ -5,6 +5,8 @@ import {
   StratUnit
 } from "@macrostrat/api-types";
 
+/* Reference measurements with relative heights to absolute age datum in column units.
+This produces data that can be plotted on column-based axes. */
 export function referenceMeasuresToColumn(
   units: BaseUnit[],
   measures: MeasurementLong[]
@@ -50,6 +52,73 @@ export function alignMeasurementsToTargetColumn<T extends StratUnit>(
         ...(targetColumnParams ?? {})
       });
     }
+  }
+  return data;
+}
+
+/** An un-nested data point */
+interface MeasureDataPoint {
+  measure_value: number;
+  measure_error: number;
+  measure_position: number;
+  measure_n: number;
+  sample_no: string;
+}
+
+const keys = [
+  "measure_value",
+  "measure_error",
+  "measure_position",
+  "measure_n",
+  "sample_no"
+];
+
+function buildDataPoint(
+  meas: MeasurementLong,
+  index: number
+): MeasureDataPoint {
+  let data = {} as MeasureDataPoint;
+  for (const key of keys) {
+    data[key] = meas[key][index];
+  }
+  return data;
+}
+
+export type FilterFunc = (
+  dataPoint: MeasureDataPoint,
+  index: number,
+  measurement: MeasurementLong
+) => boolean;
+
+export function filterMeasurement(
+  meas: MeasurementLong,
+  filterFunc: FilterFunc
+): MeasurementLong | null {
+  let data = {} as MeasurementLong;
+  for (const key of keys) {
+    data[key] = [];
+  }
+
+  for (const [i, _] of meas.measure_value.entries()) {
+    const dataPoint = buildDataPoint(meas, i);
+    if (filterFunc(dataPoint, i, meas)) {
+      for (const key of keys) {
+        data[key].push(dataPoint[i]);
+      }
+    }
+  }
+  if (data.measure_value.length == 0) return null;
+  return { ...meas, ...data };
+}
+
+export function filterMeasurements(
+  measureData: MeasurementLong[],
+  filterFunc: FilterFunc
+): MeasurementLong[] {
+  const data = [] as MeasurementLong[];
+  for (const meas of measureData) {
+    let newVal = filterMeasurement(meas, filterFunc);
+    if (newVal != null) data.push(newVal);
   }
   return data;
 }

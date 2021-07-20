@@ -1,31 +1,40 @@
 import h from "@macrostrat/hyper";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   useMeasurementData,
   MeasurementDataContext
 } from "../../carbon-isotopes/data-provider";
+import { useAPIResult } from "@macrostrat/ui-components";
+import { MeasurementLong, UnitLong, ColumnSpec } from "@macrostrat/api-types";
 import {
-  ColumnSpec,
-  buildMacrostratMeasurements
-} from "./reclassify-measurements";
-import { apiBaseURL } from "../config";
-import { useAsyncEffect, useAPIResult } from "@macrostrat/ui-components";
-import { filterMeasurements } from "./filter-measurements";
-import { MeasurementLong } from "@macrostrat/api-types";
+  alignMeasurementsToTargetColumn,
+  filterMeasurements
+} from "@macrostrat/api-utils";
 
-function MacrostratMeasurementProvider(
-  props: React.PropsWithChildren<{ source: ColumnSpec; target: ColumnSpec }>
+/** This file defines subsidiary measurement data providers that transform
+ * data requests into formats for column subsets.
+ */
+
+function AlignedMeasurementProvider(
+  props: React.PropsWithChildren<{
+    targetColumn: ColumnSpec;
+    measureData?: MeasurementLong[];
+  }>
 ) {
-  const { children, source, target } = props;
+  const { children, targetColumn, measureData = useMeasurementData() } = props;
+  // Higher-level measurement data provider
+  const unitData: UnitLong[] = useAPIResult("/units", targetColumn);
 
   const [data, setData] = useState<any[] | null>(null);
-  useAsyncEffect(
-    async function() {
-      const res = await buildMacrostratMeasurements(apiBaseURL, source, target);
-      setData(res.success.data);
-    },
-    [source, target]
-  );
+  useEffect(() => {
+    if (measureData == null || unitData == null) return;
+    const res = alignMeasurementsToTargetColumn(
+      measureData,
+      unitData,
+      targetColumn
+    );
+    setData(res);
+  }, [measureData, unitData]);
 
   return h(MeasurementDataContext.Provider, {
     value: data,
@@ -34,32 +43,23 @@ function MacrostratMeasurementProvider(
 }
 
 function FilteredMeasurementProvider(
-  props: React.PropsWithChildren<ColumnSpec>
+  props: React.PropsWithChildren<{ measureData?: MeasurementLong[] }>
 ) {
-  const { children, ...params } = props;
-  const res: MeasurementLong[] = useAPIResult("/measurements", {
-    ...params,
-    show_values: true,
-    response: "long"
-  });
+  const { children, measureData = useMeasurementData() } = props;
 
-  let data = [];
-
-  if (res != null) {
-    for (const meas of res) {
-      let newVal = filterMeasurements(meas);
-      if (newVal != null) data.push(newVal);
-    }
-  }
+  let filteredMeasurements = filterMeasurements(
+    measureData ?? [],
+    d => d.sample_no.match(/^G3-/) != null
+  );
 
   return h(MeasurementDataContext.Provider, {
-    value: data,
+    value: filterMeasurements,
     children
   });
 }
 
 export {
-  MacrostratMeasurementProvider,
+  AlignedMeasurementProvider,
   FilteredMeasurementProvider,
   useMeasurementData,
   ColumnSpec

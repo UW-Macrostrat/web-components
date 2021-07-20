@@ -1,3 +1,3 @@
-export * from "./columns";
-export * from "./measurements";
-export * from "./units";
+export * from "./columns.d";
+export * from "./measurements.d";
+export * from "./units.d";

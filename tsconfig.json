@@ -4,6 +4,7 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
+    "downlevelIteration": true,
     "paths": {
       "common/*": ["./packages/common/src/**/*"],
       "@macrostrat/column-components": [

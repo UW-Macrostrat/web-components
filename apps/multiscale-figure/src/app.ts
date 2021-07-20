@@ -3,7 +3,7 @@ import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
 import { MeasurementDataProvider } from "../../carbon-isotopes/data-provider";
 import {
-  MacrostratMeasurementProvider,
+  AlignedMeasurementProvider,
   FilteredMeasurementProvider
 } from "../data-providers";
 import { BaseSection, InteriorSection } from "./section";
@@ -89,19 +89,14 @@ function MultiIsotopesColumn(props) {
 
 const ColumnManager = () => {
   return h("div.column-array", [
-    h(BaseSection, { range: timeRange, pixelScale: 6 }, [
-      h(
-        MacrostratMeasurementProvider,
-        { target: largestScaleColumn, source: measureSourceColumns },
-        h(Column, { params: largestScaleColumn }, h(IsotopesSpectraColumn))
-      ),
-      h(
-        MacrostratMeasurementProvider,
-        {
-          source: measureSourceColumns,
-          target: regionalColumn
-        },
-        [
+    h(MeasurementDataProvider, { ...measureSourceColumns }, [
+      h(BaseSection, { range: timeRange, pixelScale: 6 }, [
+        h(
+          AlignedMeasurementProvider,
+          { targetColumn: largestScaleColumn },
+          h(Column, { params: largestScaleColumn }, h(IsotopesSpectraColumn))
+        ),
+        h(AlignedMeasurementProvider, { targetColumn: regionalColumn }, [
           h(Column, { params: regionalColumn }, [
             h(CompositeUnitsColumn, {
               width: 140,
@@ -109,12 +104,12 @@ const ColumnManager = () => {
             }),
             h(MultiIsotopesColumn)
           ])
-        ]
-      ),
-      h("div.spacer")
-    ]),
-    h(FilteredMeasurementProvider, { ...measureSourceColumns }, [
-      h(MeasuredSection)
+        ]),
+        h("div.spacer")
+      ]),
+      h(FilteredMeasurementProvider, { ...measureSourceColumns }, [
+        h(MeasuredSection)
+      ])
     ])
   ]);
 };
