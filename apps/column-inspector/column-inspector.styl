@@ -6,17 +6,28 @@ html, body
   padding 0
   width 100vw
   height 100vh
+  overflow: hidden
 
 .column-ui
   width 100vw
   display flex
   flex-direction row
-  .map-area
-    min-width 300px
-    height: 500px
+  position relative
+  .left-column
+    flex-grow 1
+    overflow-y scroll
+    height 100vh
+  .right-column
+    min-width 200px
+    width 40%
+    max-width 500px
+    height 100vh
+    position relative
+    .map-area
+      width 100%
+      height 100%
 
 .column-view
-  flex-grow 1
   margin 0
   padding 0
   h1
@@ -49,6 +60,9 @@ g.lithology-column use.frame
   stroke black
   stroke-width: 1.5px !important
   pointer-events none
+
+.unit-label
+  text-align center
 
 .col-note-label
   font-size: 10px

@@ -32,10 +32,19 @@ const AgeAxisCore = ({ ticks, tickSpacing = 40 }) => {
 };
 
 function AgeAxis(props) {
-  const { ticks, tickSpacing, ...rest } = props;
-  return h("div.column", [
-    h("div.age-axis-label", "Age (Ma)"),
-    h(ColumnSVG, rest, h(AgeAxisCore, { ticks, tickSpacing }))
+  const {
+    ticks,
+    tickSpacing,
+    showLabel = true,
+    paddingV = 10,
+    ...rest
+  } = props;
+
+  // Not sure where this extra 5px comes from.
+  const marginTop = -paddingV + 5;
+  return h("div.column", { style: { marginTop, marginBottom: -paddingV } }, [
+    h.if(showLabel)("div.age-axis-label", "Age (Ma)"),
+    h(ColumnSVG, { paddingV, ...rest }, h(AgeAxisCore, { ticks, tickSpacing }))
   ]);
 }
 
@@ -63,9 +72,9 @@ const Section = (props: IColumnProps) => {
     },
     [
       h(AgeAxis, {
-        width: 30,
+        width: 20,
         padding: 20,
-        paddingV: 5
+        showLabel: false
       }),
       h(Timescale, {
         orientation: TimescaleOrientation.VERTICAL,

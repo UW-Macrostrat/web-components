@@ -1,4 +1,4 @@
-import h from "@macrostrat/hyper";
+import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
   PatternDefsProvider,
@@ -15,6 +15,9 @@ import {
 import { resolveID, scalePattern } from "./resolvers";
 import { LabeledUnit } from "./boxes";
 import { UnitLong } from "@macrostrat/api-types";
+import styles from "./composite.module.styl";
+
+const h = hyperStyled(styles);
 
 interface LabelTracker {
   [key: number]: boolean;
@@ -105,7 +108,7 @@ function CompositeBoxes(props: {
     { resolveID, scalePattern },
     h(
       "g.divisions",
-      divisions.map(div => {
+      divisions.map(extendDivisions).map(div => {
         return h(LabeledUnit, {
           division: div,
           halfWidth: div.bottomOverlap,

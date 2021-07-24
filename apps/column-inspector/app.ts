@@ -1,6 +1,8 @@
-import h from "@macrostrat/hyper";
-import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
+import h, { C, compose } from "@macrostrat/hyper";
+import { useAPIResult, JSONView } from "@macrostrat/ui-components";
+import { useState } from "react";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
+import { MacrostratAPIProvider } from "common";
 import { ColumnMapNavigator } from "common/column-map";
 import Column from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
@@ -21,9 +23,10 @@ const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name);
 };
 
-const ColumnManager = () => {
+function ColumnManager() {
   const defaultArgs = { col_id: 495 };
   const [currentColumn, setCurrentColumn] = useColumnNav(defaultArgs);
+  const [selectedUnit, setSelectedUnit] = useState(null);
   const { col_id, ...projectParams } = currentColumn;
 
   const colParams = { ...currentColumn, format: "geojson" };
@@ -32,36 +35,37 @@ const ColumnManager = () => {
 
   // 495
   return h("div.column-ui", [
-    h("div.column-view", [
-      h(ColumnTitle, { data: columnFeature?.properties }),
-      h(ColumnView, { params: currentColumn })
+    h("div.left-column", [
+      h("div.column-view", [
+        h(ColumnTitle, { data: columnFeature?.properties }),
+        h(ColumnView, { params: currentColumn })
+      ])
     ]),
-    h("div.map-column", [
-      h(ColumnMapNavigator, {
+    h("div.right-column", [
+      h.if(selectedUnit == null)(ColumnMapNavigator, {
+        className: "column-map",
         currentColumn: columnFeature,
         setCurrentColumn,
         margin: 0,
         ...projectParams
-      })
+      }),
+      h.if(selectedUnit != null)(
+        h("div.modal-panel", null, h(JSONView, { src: selectedUnit }))
+      )
     ])
   ]);
-};
+}
 
 const resolvePattern = id => patterns[id];
 
-const App = () => {
+function App() {
   return h(
-    GeologicPatternProvider,
-    { resolvePattern },
-    h(
-      APIProvider,
-      {
-        baseURL: "https://dev.macrostrat.org/api/v2",
-        unwrapResponse: res => res.success.data
-      },
-      h(ColumnManager)
+    compose(
+      C(GeologicPatternProvider, { resolvePattern }),
+      MacrostratAPIProvider,
+      ColumnManager
     )
   );
-};
+}
 
 export default App;
