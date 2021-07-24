@@ -5,7 +5,7 @@
   "scripts": {
     "dev:legacy": "npm-run-all -l -p dev watch:**",
     "postinstall": "lerna bootstrap --hoist",
-    "dev": "parcel serve apps/index.html",
+    "dev": "parcel apps/index.html",
     "deploy:steno": "./deploy/deploy-steno.sh",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",

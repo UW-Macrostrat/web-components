@@ -11,25 +11,37 @@ import {
 } from "@macrostrat/column-components";
 import { IUnit } from "./types";
 import { resolveID, scalePattern } from "./resolvers";
+import { writeJSON } from "apps/multiscale-figure/scripts/utils";
 
 interface UnitProps {
   division: IUnit;
   resolveID(IUnit): string;
   UUID: string;
   defaultFill?: string;
+  widthFractionl?: number;
   children?: ReactNode;
 }
 
-function useUnitRect(division: IUnit) {
+function useUnitRect(division: IUnit, widthFraction: number = 1) {
   const { scale } = useContext(ColumnContext);
   const { width } = useContext(ColumnLayoutContext);
   const y = scale(division.t_age);
   const height = Math.abs(scale(division.b_age) - y);
-  return { x: 0, y, height, width };
+  return {
+    x: width * (1 - widthFraction),
+    y,
+    height,
+    width: widthFraction * width
+  };
 }
 
 const Unit = (props: UnitProps) => {
-  const { division: d, children, defaultFill = "transparent" } = props;
+  const {
+    division: d,
+    children,
+    defaultFill = "transparent",
+    widthFraction = 1
+  } = props;
   const bounds = useUnitRect(d);
   const patternID = resolveID(d);
   const fill = useGeologicPattern(patternID, defaultFill);
@@ -48,6 +60,7 @@ interface LabeledUnitProps extends SizeAwareLabelProps {
   division: IUnit;
   label: string;
   onLabelUpdated?(label: string, shown: boolean);
+  halfWidth?: boolean;
 }
 
 function LabeledUnit(props: LabeledUnitProps) {

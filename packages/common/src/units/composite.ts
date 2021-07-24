@@ -14,7 +14,7 @@ import {
 } from "react";
 import { resolveID, scalePattern } from "./resolvers";
 import { LabeledUnit } from "./boxes";
-import { IUnit } from "./types";
+import { UnitLong } from "@macrostrat/api-types";
 
 interface LabelTracker {
   [key: number]: boolean;
@@ -72,29 +72,33 @@ export type ICompositeUnitProps = BaseUnitProps & {
   labelOffset?: number;
 };
 
-interface ExtendedUnit extends IUnit {
+interface ExtUnit extends UnitLong {
   bottomOverlap: boolean;
 }
 
-const extendDivisions = (divisions: IUnit[]) => (unit: IUnit) => {
+const extendDivisions = (
+  unit: UnitLong,
+  i: number,
+  divisions: UnitLong[]
+): ExtUnit => {
   const overlappingUnits = divisions.filter(
     d =>
       d.unit_id != unit.unit_id &&
       !(unit.t_age > d.b_age && unit.b_age < d.t_age)
   );
-  console.log(unit, overlappingUnits);
-
-  return unit;
+  let bottomOverlap = false;
+  for (const d of overlappingUnits) {
+    if (d.b_age < unit.b_age) bottomOverlap = true;
+  }
+  return { ...unit, bottomOverlap };
 };
 
 function CompositeBoxes(props: {
-  divisions: IUnit[];
-  nameForDivision?(division: IUnit): string;
+  divisions: UnitLong[];
+  nameForDivision?(division: UnitLong): string;
 }) {
   const { divisions, nameForDivision = defaultNameFunction } = props;
   const trackLabelVisibility = useContext(LabelTrackerContext);
-
-  //const refinedDivisions = divisions.map(extendDivisions(divisions))
 
   return h(
     PatternDefsProvider,
@@ -104,6 +108,7 @@ function CompositeBoxes(props: {
       divisions.map(div => {
         return h(LabeledUnit, {
           division: div,
+          halfWidth: div.bottomOverlap,
           label: nameForDivision(div),
           onLabelUpdated(label, visible) {
             trackLabelVisibility(div, visible);

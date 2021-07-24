@@ -24,32 +24,49 @@ interface IColumnProps {
   range?: [number, number];
 }
 
-interface UnitDivision extends ColumnDivision {
-  unit_id: number;
+type UnitDivision = ColumnDivision & BaseUnit;
+
+interface ColumnSurface {
+  height: number;
 }
 
-const columnData: BaseUnit[] = [
+const columnData: ColumnSurface[] = [
   {
-    bottom: 0,
-    top: 40,
-    b_age: 40,
-    t_age: 0,
+    height: 0,
     lithology: "sandstone",
     grainsize: "ms",
     pattern: "limestone",
     unit_id: 41216
   },
   {
-    bottom: 40,
-    top: 350,
-    b_age: 350,
-    t_age: 40,
+    height: 182,
     lithology: "limestone",
     grainsize: "s",
     pattern: "limestone",
     unit_id: 41217
+  },
+  {
+    height: 320,
+    lithology: "limestone",
+    grainsize: "s",
+    pattern: "limestone",
+    unit_id: 41218
   }
 ];
+
+function buildDivisions<T extends ColumnSurface>(
+  surfaces: T[],
+  range: [number, number]
+): (BaseUnit & UnitDivision & T)[] {
+  return surfaces.map((surface, i) => {
+    const { height, ...rest } = surface;
+    const bottom = height;
+    const top = bottom + surfaces[i + 1]?.height ?? range[1];
+    const b_age = top;
+    const t_age = bottom;
+    return { top, bottom, b_age, t_age, ...rest };
+  });
+}
 
 type HasUnitID = { unit_id: number };
 function mergeUnitData<A extends HasUnitID, B extends HasUnitID>(
@@ -69,10 +86,10 @@ const BaseSection = (
   const { data = [], range = [0, 341.3], children, params } = props;
   let { pixelScale } = props;
 
-  let divisions = data;
+  let divisions = buildDivisions(data, range);
   const unitData: UnitLong[] = useAPIResult("/units", params);
   if (unitData != null) {
-    divisions = mergeUnitData(unitData, data);
+    divisions = mergeUnitData(unitData, divisions);
   }
 
   const notesOffset = 100;
