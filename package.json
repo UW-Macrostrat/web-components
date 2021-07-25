@@ -19,6 +19,7 @@
   "license": "ISC",
   "alias": {
     "@macrostrat/column-components": "@macrostrat/column-components/src",
+    "@macrostrat/map-components": "@macrostrat/map-components/src",
     "common": "./packages/common/src"
   },
   "devDependencies": {

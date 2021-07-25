@@ -46,7 +46,8 @@ const Land = props => {
 };
 
 function ColumnFeatures(props) {
-  const { features, onClick } = props;
+  const { features, onClick, singleFeature = true } = props;
+
   return h(
     FeatureLayer,
     {

@@ -27,7 +27,7 @@ const ColumnMapNavigator = props => {
         scale,
         center: columnCenter,
         allowDrag: true,
-        allowZoom: false,
+        allowZoom: true,
         keepNorthUp: true
         //translate: [width / 2 - scale, height - scale],
         //rotation: [-columnCenter[0], -columnCenter[1]],

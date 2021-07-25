@@ -10,6 +10,7 @@
       "@macrostrat/column-components": [
         "./packages/column-components/src/**/*"
       ],
+      "@macrostrat/map-components": ["./packages/map-components/src/**/*"],
       "@macrostrat/api-types": ["./packages/api-types/types"]
     }
   },
