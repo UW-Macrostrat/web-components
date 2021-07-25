@@ -13,13 +13,23 @@ import { IUnit } from "./types";
 import { resolveID, scalePattern } from "./resolvers";
 import { writeJSON } from "apps/multiscale-figure/scripts/utils";
 
-interface UnitProps {
+interface Clickable {
+  onClick: (evt: MouseEvent) => void;
+}
+interface UnitProps extends Clickable {
   division: IUnit;
   resolveID(IUnit): string;
   UUID: string;
   defaultFill?: string;
-  widthFractionl?: number;
+  widthFraction?: number;
   children?: ReactNode;
+}
+
+interface LabeledUnitProps extends SizeAwareLabelProps, Clickable {
+  division: IUnit;
+  label: string;
+  onLabelUpdated?(label: string, shown: boolean);
+  halfWidth?: boolean;
 }
 
 function useUnitRect(division: IUnit, widthFraction: number = 1) {
@@ -40,7 +50,8 @@ const Unit = (props: UnitProps) => {
     division: d,
     children,
     defaultFill = "transparent",
-    widthFraction = 1
+    widthFraction = 1,
+    onClick
   } = props;
   const bounds = useUnitRect(d);
   const patternID = resolveID(d);
@@ -52,23 +63,17 @@ const Unit = (props: UnitProps) => {
     onMouseOver() {
       console.log(d);
     },
+    onClick,
     children
   });
 };
 
-interface LabeledUnitProps extends SizeAwareLabelProps {
-  division: IUnit;
-  label: string;
-  onLabelUpdated?(label: string, shown: boolean);
-  halfWidth?: boolean;
-}
-
 function LabeledUnit(props: LabeledUnitProps) {
-  const { division, label, onLabelUpdated, ...rest } = props;
+  const { division, label, onLabelUpdated, onClick, ...rest } = props;
   const bounds = useUnitRect(division);
   const { x, y, ...size } = bounds;
   return h("g.labeled-unit", [
-    h(Unit, { division }),
+    h(Unit, { division, onClick }),
     h(
       ForeignObject,
       bounds,
