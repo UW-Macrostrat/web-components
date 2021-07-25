@@ -1,16 +1,9 @@
 import h from "@macrostrat/hyper";
 import { group } from "d3-array";
-import {
-  ColumnProvider,
-  ColumnSVG,
-  LithologyColumn,
-  ColumnAxis,
-  ColumnContext,
-  NotesColumn
-} from "@macrostrat/column-components";
+import { ColumnProvider, ColumnSVG } from "@macrostrat/column-components";
 import { CompositeUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
-import { useContext } from "react";
+import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 //
@@ -18,34 +11,6 @@ interface IColumnProps {
   data: IUnit[];
   pixelScale?: number;
   range?: [number, number];
-}
-
-const AgeAxisCore = ({ ticks, tickSpacing = 40 }) => {
-  const { pixelHeight } = useContext(ColumnContext);
-  // A tick roughly every 40 pixels
-  let v = Math.max(Math.round(pixelHeight / tickSpacing), 1);
-
-  return h(ColumnAxis, {
-    ticks: v,
-    showDomain: false
-  });
-};
-
-function AgeAxis(props) {
-  const {
-    ticks,
-    tickSpacing,
-    showLabel = true,
-    paddingV = 10,
-    ...rest
-  } = props;
-
-  // Not sure where this extra 5px comes from.
-  const marginTop = -paddingV + 5;
-  return h("div.column", { style: { marginTop, marginBottom: -paddingV } }, [
-    h.if(showLabel)("div.age-axis-label", "Age (Ma)"),
-    h(ColumnSVG, { paddingV, ...rest }, h(AgeAxisCore, { ticks, tickSpacing }))
-  ]);
 }
 
 const Section = (props: IColumnProps) => {

@@ -35,7 +35,6 @@ function LabelTrackerProvider(props) {
   const labelTrackerRef = useRef<LabelTracker>({});
   const trackLabelVisibility = useCallback(
     (div, visible) => {
-      console.log(div, visible);
       labelTrackerRef.current[div.unit_id] = visible;
       if (Object.keys(labelTrackerRef.current).length == divisions.length) {
         setUnlabeledDivisions(
