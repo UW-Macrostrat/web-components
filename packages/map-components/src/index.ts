@@ -79,6 +79,7 @@ const mutateProjection: MutateProjection = (projection, opts) => {
   const { width, height, center = projection.center() } = opts;
   const margin = opts.margin ?? 0;
   let { scale, translate } = opts;
+  scale = projection.scale();
   if (scale == null) {
     const maxSize = Math.min(width, height);
     scale = maxSize / 2;

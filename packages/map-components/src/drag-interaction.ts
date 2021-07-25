@@ -147,7 +147,7 @@ class DraggableOverlay extends Component<any, any> {
     const el = this.element();
     // Zoom over one order of magnitude by default
 
-    this.zoomHandler = zoom().on("zoom", this.zoomed).on("end", this.zoomEnd);
+    this.zoomHandler = zoom().on("zoom", this.zoomed.bind(this)).on("end", this.zoomEnd.bind(this));
     this.zoomHandler(el);
     this.updateZoom();
   }
