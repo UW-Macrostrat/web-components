@@ -1,6 +1,10 @@
 import h from "@macrostrat/hyper";
 import { useRef, useEffect, useState } from "react";
 
+export interface Clickable {
+  onClick: (evt: MouseEvent) => void;
+}
+
 interface ElementSize {
   width: number;
   height: number;
@@ -11,16 +15,17 @@ function refSize(ref: React.RefObject<HTMLElement>): ElementSize {
   return { width, height };
 }
 
-export type SizeAwareLabelProps = React.HTMLProps<"div"> & {
-  label: React.ReactNode;
-  labelClassName: string;
-  isShown?: boolean;
-  onVisibilityChanged?(
-    fits: boolean,
-    containerSize: ElementSize,
-    labelSize: ElementSize
-  ): void;
-};
+export type SizeAwareLabelProps = React.HTMLProps<"div"> &
+  Clickable & {
+    label: React.ReactNode;
+    labelClassName: string;
+    isShown?: boolean;
+    onVisibilityChanged?(
+      fits: boolean,
+      containerSize: ElementSize,
+      labelSize: ElementSize
+    ): void;
+  };
 
 function SizeAwareLabel(props: SizeAwareLabelProps) {
   /** A label that only renders if it fits within its container div.
