@@ -11,7 +11,7 @@ function refSize(ref: React.RefObject<HTMLElement>): ElementSize {
   return { width, height };
 }
 
-type SizeAwareLabelProps = React.HTMLProps<"div"> & {
+export type SizeAwareLabelProps = React.HTMLProps<"div"> & {
   label: React.ReactNode;
   labelClassName: string;
   isShown?: boolean;
