@@ -15,8 +15,8 @@ const DispatchContext = createContext<UnitSelectDispatch | null>(null);
 
 export function useUnitSelector(u: BaseUnit | null) {
   const dispatch = useContext(DispatchContext);
-  return () => {
-    console.log("Selected", u);
+  return (overrideUnit?: BaseUnit | null) => {
+    if (overrideUnit !== undefined) u = overrideUnit;
     dispatch?.(u);
   };
 }

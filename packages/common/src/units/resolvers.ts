@@ -2,6 +2,8 @@ const symbolIndex = {
   "dolomite-limestone": 641,
   lime_mudstone: 627,
   sandstone: 607,
+  "quartz arenite": 607,
+  litharenite: 608,
   sand: 608,
   siltstone: 616,
   silt: 616,
