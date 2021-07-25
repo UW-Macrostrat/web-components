@@ -7,15 +7,13 @@ import {
   useGeologicPattern,
   ForeignObject,
   SizeAwareLabel,
-  SizeAwareLabelProps
+  SizeAwareLabelProps,
+  Clickable
 } from "@macrostrat/column-components";
 import { IUnit } from "./types";
+import { useUnitSelector } from "./selection";
 import { resolveID, scalePattern } from "./resolvers";
-import { writeJSON } from "apps/multiscale-figure/scripts/utils";
 
-interface Clickable {
-  onClick: (evt: MouseEvent) => void;
-}
 interface UnitProps extends Clickable {
   division: IUnit;
   resolveID(IUnit): string;
@@ -50,12 +48,13 @@ const Unit = (props: UnitProps) => {
     division: d,
     children,
     defaultFill = "transparent",
-    widthFraction = 1,
-    onClick
+    widthFraction = 1
   } = props;
   const bounds = useUnitRect(d);
   const patternID = resolveID(d);
   const fill = useGeologicPattern(patternID, defaultFill);
+  // Allow us to select this unit if in the proper context
+  const onClick = useUnitSelector(d);
 
   return h("rect.unit", {
     ...bounds,
@@ -69,8 +68,9 @@ const Unit = (props: UnitProps) => {
 };
 
 function LabeledUnit(props: LabeledUnitProps) {
-  const { division, label, onLabelUpdated, onClick, ...rest } = props;
+  const { division, label, onLabelUpdated, ...rest } = props;
   const bounds = useUnitRect(division);
+  const onClick = useUnitSelector(division);
   const { x, y, ...size } = bounds;
   return h("g.labeled-unit", [
     h(Unit, { division, onClick }),
@@ -81,6 +81,7 @@ function LabeledUnit(props: LabeledUnitProps) {
         className: "unit-overlay",
         labelClassName: "unit-label",
         style: size,
+        onClick,
         label,
         onVisibilityChanged(viz) {
           onLabelUpdated(label, viz);

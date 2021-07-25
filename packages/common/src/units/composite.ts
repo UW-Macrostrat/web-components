@@ -97,7 +97,6 @@ const extendDivisions = (
 
 function CompositeBoxes(props: {
   divisions: UnitLong[];
-  onClick: (unit: UnitLong) => void;
   nameForDivision?(division: UnitLong): string;
 }) {
   const { divisions, nameForDivision = defaultNameFunction, onClick } = props;
@@ -111,9 +110,6 @@ function CompositeBoxes(props: {
       divisions.map(extendDivisions).map(div => {
         return h(LabeledUnit, {
           division: div,
-          onClick() {
-            onClick(div);
-          },
           //halfWidth: div.bottomOverlap,
           label: nameForDivision(div),
           onLabelUpdated(label, visible) {

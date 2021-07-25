@@ -1,8 +1,13 @@
 import h, { C, compose } from "@macrostrat/hyper";
 import { useAPIResult, JSONView } from "@macrostrat/ui-components";
-import { useState } from "react";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
-import { MacrostratAPIProvider } from "common";
+import {
+  MacrostratAPIProvider,
+  UnitSelectionProvider,
+  useSelectedUnit,
+  ModalPanel,
+  useUnitSelector
+} from "common";
 import { ColumnMapNavigator } from "common/column-map";
 import Column from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
@@ -23,10 +28,19 @@ const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name);
 };
 
+function ModalUnitPanel(props) {
+  const selectedUnit = useSelectedUnit();
+  const onClose = useUnitSelector(null);
+  if (selectedUnit == null) return null;
+  return h(ModalPanel, { onClose, title: "Unit data" }, [
+    h(JSONView, { data: selectedUnit })
+  ]);
+}
+
 function ColumnManager() {
   const defaultArgs = { col_id: 495 };
   const [currentColumn, setCurrentColumn] = useColumnNav(defaultArgs);
-  const [selectedUnit, setSelectedUnit] = useState(null);
+  const selectedUnit = useSelectedUnit();
   const { col_id, ...projectParams } = currentColumn;
 
   const colParams = { ...currentColumn, format: "geojson" };
@@ -49,9 +63,7 @@ function ColumnManager() {
         margin: 0,
         ...projectParams
       }),
-      h.if(selectedUnit != null)(
-        h("div.modal-panel", null, h(JSONView, { src: selectedUnit }))
-      )
+      h(ModalUnitPanel)
     ])
   ]);
 }
@@ -62,6 +74,7 @@ function App() {
   return h(
     compose(
       C(GeologicPatternProvider, { resolvePattern }),
+      UnitSelectionProvider,
       MacrostratAPIProvider,
       ColumnManager
     )

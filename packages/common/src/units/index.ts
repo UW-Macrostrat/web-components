@@ -38,3 +38,4 @@ export {
   ICompositeUnitProps
 };
 export * from "./types";
+export * from "./selection";

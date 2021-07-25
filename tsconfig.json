@@ -6,7 +6,7 @@
     "experimentalDecorators": true,
     "downlevelIteration": true,
     "paths": {
-      "common/*": ["./packages/common/src/**/*"],
+      "common": ["./packages/common/src/**/*"],
       "@macrostrat/column-components": [
         "./packages/column-components/src/**/*"
       ],
