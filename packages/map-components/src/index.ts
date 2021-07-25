@@ -167,13 +167,13 @@ class Globe extends StatefulComponent<GlobeProps, any> {
   }
 
   dispatchEvent(evt) {
-    const v = <HTMLElement>findDOMNode(this)
+    const v = findDOMNode(this) as HTMLElement
     const el = v.getElementsByClassName(styles.map)[0]
     // Simulate an event directly on the map's DOM element
     const { clientX, clientY } = evt
 
-    const e1 = new Event('mousedown', <any>{ clientX, clientY })
-    const e2 = new Event('mouseup', <any>{ clientX, clientY })
+    const e1 = new Event('mousedown', { clientX, clientY })
+    const e2 = new Event('mouseup', { clientX, clientY })
 
     el.dispatchEvent(e1)
     return el.dispatchEvent(e2)
@@ -198,10 +198,14 @@ class Globe extends StatefulComponent<GlobeProps, any> {
     const { projection } = this.state
     const initialScale = scale || projection.scale() || 500
 
-    const actions = (() => {
-      let dispatchEvent, rotateProjection, updateProjection, updateState
-      return ({ updateState, updateProjection, dispatchEvent, rotateProjection } = this)
-    })()
+    console.log('Rendering map')
+
+    const actions = {
+      rotateProjection: this.rotateProjection,
+      updateProjection: this.updateProjection,
+      updateState: this.updateState,
+      dispatchEvent: this.dispatchEvent,
+    }
 
     const renderPath = geoPath(projection)
     const value = { projection, renderPath, width, height, ...actions }

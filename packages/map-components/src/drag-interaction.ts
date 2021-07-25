@@ -13,17 +13,17 @@ class DraggableOverlay extends Component<any, any> {
   static propTypes = {
     showMousePosition: T.bool,
     keepNorthUp: T.bool,
-    enableZoom: T.bool,
+    allowZoom: T.bool,
     initialScale: T.number,
-    dragSensitivity: T.number
+    dragSensitivity: T.number,
   }
   static defaultProps = {
     showMousePosition: false,
-    enableZoom: true,
+    allowZoom: true,
     pinNorthUp: false,
-    dragSensitivity: 1
+    dragSensitivity: 1,
   }
-  zoom: ZoomBehavior<any, any>
+  zoomHandler: ZoomBehavior<any, any> | null
   drag: DragBehavior<any, any, any>
   r0: number
   p0: number[]
@@ -50,8 +50,8 @@ class DraggableOverlay extends Component<any, any> {
     return h('g.drag-overlay', [
       h('rect.drag-mouse-target', { width, height }),
       h.if(mousePosition != null && showMousePosition)('path.mouse-position', {
-        d: renderPath(mousePosition)
-      })
+        d: renderPath(mousePosition),
+      }),
     ])
   }
 
@@ -91,6 +91,12 @@ class DraggableOverlay extends Component<any, any> {
 
   zoomed() {
     const scale = currentEvent.transform.k
+    console.log(`Zoomed to ${scale}`)
+  }
+
+  zoomEnd() {
+    const scale = currentEvent.transform.k
+    console.log(`Finished zooming to ${scale}`)
     const { projection, updateProjection } = this.context
     return updateProjection(projection.scale(scale))
   }
@@ -104,17 +110,17 @@ class DraggableOverlay extends Component<any, any> {
     const { width, height, projection, dispatchEvent } = this.context
     const { dragSensitivity: sens } = this.props
 
-    const forwardMousePos = func =>
-      function() {
+    const forwardMousePos = (func) =>
+      function () {
         return func(mouse(this), currentEvent)
       }
 
-    const eventSubject = function(d) {
+    const eventSubject = function (d) {
       // for d3 events to report x and y in terms of rotation
       const r = projection.rotate()
       return {
         x: r[0] / sens,
-        y: -r[1] / sens
+        y: -r[1] / sens,
       }
     }
 
@@ -126,14 +132,14 @@ class DraggableOverlay extends Component<any, any> {
       .on('drag', forwardMousePos(this.dragged))
       .on('end', this.dragEnded)
     this.drag(el)
-    el.on('click', function() {
+    el.on('click', function () {
       console.log('Clicking')
       dispatchEvent(currentEvent)
       return false
     })
 
-    if (this.props.enableZoom) {
-      return this.setupZoom()
+    if (this.props.allowZoom) {
+      this.setupZoom()
     }
   }
 
@@ -141,17 +147,15 @@ class DraggableOverlay extends Component<any, any> {
     const el = this.element()
     // Zoom over one order of magnitude by default
 
-    this.zoom = zoom().on('zoom', this.zoomed)
-    this.zoom(el)
-    return this.updateZoom()
+    this.zoomHandler = zoom().on('zoom', this.zoomed).on('end', this.zoomEnd)
+    this.zoomHandler(el)
+    this.updateZoom()
   }
 
   updateZoom(scale?: number) {
     const el = this.element()
-    if (scale == null) {
-      scale = this.props.initialScale
-    }
-    return this.zoom.scaleExtent(this.getScaleExtent()).scaleTo(el, scale)
+    scale ??= this.props.initialScale
+    return this.zoomHandler?.scaleExtent(this.getScaleExtent()).scaleTo(el, scale)
   }
 
   getScaleExtent() {
@@ -168,7 +172,7 @@ class DraggableOverlay extends Component<any, any> {
     if (initialScale === prevProps.initialScale) {
       return
     }
-    if (this.zoom != null) {
+    if (this.zoomHandler != null) {
       // @ts-ignore
       return this.updateZoom()
     }
