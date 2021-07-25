@@ -134,16 +134,23 @@ class Globe extends StatefulComponent<GlobeProps, any> {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    const { width, height, scale, translate, center, setupProjection } = this.props;
+    const { width, height, scale, translate, setupProjection } = this.props;
     const sameDimensions = prevProps.width === width && prevProps.height === height;
     const sameProjection = prevProps.projection === this.props.projection;
+
+    let center = this.props.center;
+    if (center == prevProps.center) {
+      center = this.state.projection.center();
+    }
     const sameScale =
-      prevProps.scale === scale && prevProps.translate === translate && prevProps.center === center;
+      prevProps.scale === scale &&
+      prevProps.translate === translate &&
+      prevProps.center === this.props.center;
     if (sameDimensions && sameProjection && sameScale) {
       return;
     }
 
-    const newProj = setupProjection(this.state.projection, this.props);
+    const newProj = setupProjection(this.state.projection, { ...this.props, center });
 
     return this.updateProjection(newProj);
   }
@@ -198,8 +205,6 @@ class Globe extends StatefulComponent<GlobeProps, any> {
     } = this.props;
     const { projection } = this.state;
     const initialScale = scale || projection.scale() || 500;
-
-    console.log("Rendering map");
 
     const actions = {
       rotateProjection: this.rotateProjection,

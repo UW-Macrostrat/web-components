@@ -91,12 +91,12 @@ class DraggableOverlay extends Component<any, any> {
 
   zoomed() {
     const scale = currentEvent.transform.k;
-    console.log(`Zoomed to ${scale}`);
+    const { projection, updateProjection } = this.context;
+    return updateProjection(projection.scale(scale));
   }
 
   zoomEnd() {
     const scale = currentEvent.transform.k;
-    console.log(`Finished zooming to ${scale}`);
     const { projection, updateProjection } = this.context;
     return updateProjection(projection.scale(scale));
   }
