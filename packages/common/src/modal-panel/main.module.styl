@@ -37,6 +37,12 @@ c1 = rgb(16, 22, 26)
 .panel
   flex-shrink 1
   height 100%
+  &.minimal
+    box-shadow none
+    .panel-content
+      padding 0
+    border-radius 0
+    border 1px solid #ddd
 
 .panel-content
   overflow-y scroll

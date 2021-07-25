@@ -11,7 +11,7 @@ import {
   Clickable
 } from "@macrostrat/column-components";
 import { IUnit } from "./types";
-import { useUnitSelector } from "./selection";
+import { useSelectedUnit, useUnitSelector } from "./selection";
 import { resolveID, scalePattern } from "./resolvers";
 
 interface UnitProps extends Clickable {
@@ -21,6 +21,7 @@ interface UnitProps extends Clickable {
   defaultFill?: string;
   widthFraction?: number;
   children?: ReactNode;
+  className?: string;
 }
 
 interface LabeledUnitProps extends SizeAwareLabelProps, Clickable {
@@ -48,6 +49,7 @@ const Unit = (props: UnitProps) => {
     division: d,
     children,
     defaultFill = "transparent",
+    className,
     widthFraction = 1
   } = props;
   const bounds = useUnitRect(d);
@@ -55,16 +57,21 @@ const Unit = (props: UnitProps) => {
   const fill = useGeologicPattern(patternID, defaultFill);
   // Allow us to select this unit if in the proper context
   const onClick = useUnitSelector(d);
+  const selectedUnit = useSelectedUnit();
+  const selected = selectedUnit?.unit_id == d.unit_id;
 
-  return h("rect.unit", {
-    ...bounds,
-    fill,
-    onMouseOver() {
-      console.log(d);
-    },
-    onClick,
+  return h("g.unit", { className }, [
+    h("rect.unit", {
+      ...bounds,
+      fill,
+      onMouseOver() {
+        console.log(d);
+      },
+      onClick
+    }),
+    h.if(selected)("rect.selection-overlay", bounds),
     children
-  });
+  ]);
 };
 
 function LabeledUnit(props: LabeledUnitProps) {
@@ -72,8 +79,7 @@ function LabeledUnit(props: LabeledUnitProps) {
   const bounds = useUnitRect(division);
   const onClick = useUnitSelector(division);
   const { x, y, ...size } = bounds;
-  return h("g.labeled-unit", [
-    h(Unit, { division, onClick }),
+  return h(Unit, { className: "labeled-unit", division, onClick }, [
     h(
       ForeignObject,
       bounds,

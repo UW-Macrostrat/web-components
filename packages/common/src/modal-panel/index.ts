@@ -1,6 +1,6 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
-import styles from "./main.module.styl";
+import * as styles from "./main.module.styl";
 
 const h = hyperStyled(styles);
 
@@ -20,8 +20,22 @@ const PanelHeader = function(props: PanelHeaderProps) {
   ]);
 };
 
-function ModalPanel(props) {
+function MinimalModalPanel(props) {
   const { children, className, style, ...rest } = props;
+  return h("div.panel-column", [
+    h("div.panel.minimal", { className, style }, [
+      h(PanelHeader, rest),
+      h("div.panel-content", null, children)
+    ]),
+    h("div.expander")
+  ]);
+}
+
+function ModalPanel(props) {
+  const { children, className, style, minimal = false, ...rest } = props;
+  if (minimal) {
+    return h(MinimalModalPanel, { ...rest, children, className, style });
+  }
   return h("div.panel-column", [
     h("div.panel-container", [
       h("div.panel-container-inner", [
