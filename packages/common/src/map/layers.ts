@@ -232,7 +232,7 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
       onChange,
       status_code,
       project_id,
-      showLayers: true
+      showLayers: false
     }),
     h(ColumnFeatures, { features, onClick: onChange })
   ]);
