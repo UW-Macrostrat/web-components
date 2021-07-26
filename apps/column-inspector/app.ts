@@ -1,28 +1,22 @@
 import h, { C, compose } from "@macrostrat/hyper";
-import { useAPIResult, JSONView } from "@macrostrat/ui-components";
+import {
+  useAPIResult,
+  JSONView,
+  DarkModeProvider
+} from "@macrostrat/ui-components";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
+import { ButtonGroup, Button } from "@blueprintjs/core";
 import {
   MacrostratAPIProvider,
   UnitSelectionProvider,
   useSelectedUnit,
   ModalPanel,
-  useUnitSelector
+  useUnitSelectionDispatch
 } from "common";
 import { ColumnMapNavigator } from "common/column-map";
 import Column from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
 import { useColumnNav } from "common/macrostrat-columns";
-
-const ColumnView = props => {
-  const { params } = props;
-  const data = useAPIResult("/units", {
-    all: true,
-    ...params,
-    response: "long"
-  });
-  if (data == null) return null;
-  return h(Column, { data });
-};
 
 const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name);
@@ -50,13 +44,41 @@ const theme = {
 };
 
 function ModalUnitPanel(props) {
+  const { unitData } = props;
   const selectedUnit = useSelectedUnit();
-  const onClose = useUnitSelector(null);
+  const selectUnit = useUnitSelectionDispatch();
   if (selectedUnit == null) return null;
+
+  const ix = unitData.findIndex(unit => unit.unit_id === selectedUnit.unit_id);
+
+  const headerChildren = h(ButtonGroup, { minimal: true }, [
+    h(Button, {
+      icon: "arrow-up",
+      disabled: ix === 0,
+      onClick() {
+        selectUnit(unitData[ix - 1]);
+      }
+    }),
+    h(Button, {
+      icon: "arrow-down",
+      disabled: ix === unitData.length - 1,
+      onClick() {
+        selectUnit(unitData[ix + 1]);
+      }
+    })
+  ]);
+
   return h(
     ModalPanel,
-    { onClose, title: selectedUnit.unit_name, minimal: true },
-    [h(JSONView, { data: selectedUnit, theme, invertTheme: true })]
+    {
+      onClose() {
+        selectUnit(null);
+      },
+      title: selectedUnit.unit_name,
+      minimal: true,
+      headerChildren
+    },
+    h(JSONView, { data: selectedUnit, theme, invertTheme: true })
   );
 }
 
@@ -67,15 +89,18 @@ function ColumnManager() {
   const { col_id, ...projectParams } = currentColumn;
 
   const colParams = { ...currentColumn, format: "geojson" };
-  const res = useAPIResult("/columns", colParams, [currentColumn]);
-  const columnFeature = res?.features[0];
+  const unitParams = { ...currentColumn, all: true, response: "long" };
+  const columnFeature = useAPIResult("/columns", colParams, [currentColumn])
+    ?.features[0];
+
+  const unitData = useAPIResult("/units", unitParams, [currentColumn]);
 
   // 495
   return h("div.column-ui", [
     h("div.left-column", [
       h("div.column-view", [
         h(ColumnTitle, { data: columnFeature?.properties }),
-        h(ColumnView, { params: currentColumn })
+        h.if(unitData != null)(Column, { data: unitData })
       ])
     ]),
     h("div.right-column", [
@@ -86,7 +111,7 @@ function ColumnManager() {
         margin: 0,
         ...projectParams
       }),
-      h(ModalUnitPanel)
+      h(ModalUnitPanel, { unitData })
     ])
   ]);
 }
@@ -96,6 +121,7 @@ const resolvePattern = id => patterns[id];
 function App() {
   return h(
     compose(
+      DarkModeProvider,
       C(GeologicPatternProvider, { resolvePattern }),
       UnitSelectionProvider,
       MacrostratAPIProvider,

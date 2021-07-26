@@ -20,6 +20,10 @@ export function useUnitSelector(u: BaseUnit | null) {
   };
 }
 
+export function useUnitSelectionDispatch() {
+  return useContext(DispatchContext);
+}
+
 export function useSelectedUnit() {
   return useContext(UnitSelectionContext);
 }

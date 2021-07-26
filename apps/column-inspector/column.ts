@@ -6,7 +6,7 @@ import { IUnit } from "common/units/types";
 import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
-//
+
 interface IColumnProps {
   data: IUnit[];
   pixelScale?: number;

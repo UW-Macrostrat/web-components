@@ -6,7 +6,7 @@ import { Land, Columns, CurrentColumn } from "common/map/layers";
 import useSize from "@react-hook/size";
 
 const ColumnMapNavigator = props => {
-  const { currentColumn, setCurrentColumn, children, ...rest } = props;
+  const { currentColumn, setCurrentColumn, children, style, ...rest } = props;
 
   const ref = useRef(null);
   const [width, height] = useSize(ref);
@@ -17,7 +17,7 @@ const ColumnMapNavigator = props => {
 
   let scale = width;
 
-  return h("div.map-area", { ref }, [
+  return h("div.map-area", { ref, style }, [
     h(
       Globe,
       {
