@@ -11,6 +11,7 @@
         "./packages/column-components/src/**/*"
       ],
       "@macrostrat/map-components": ["./packages/map-components/src/**/*"],
+      "@macrostrat/ui-components": ["./packages/ui-components/src/**/*"],
       "@macrostrat/api-types": ["./packages/api-types/types"]
     }
   },
@@ -19,6 +20,8 @@
     "packages/common/src/**/*",
     "packages/api-types/types/*",
     "packages/column-components/src/**/*",
+    "packages/map-components/src/**/*",
+    "packages/ui-components/src/**/*",
     "packages/api-utils/src/**/*"
   ]
 }
