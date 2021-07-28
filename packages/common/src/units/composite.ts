@@ -99,7 +99,7 @@ function CompositeBoxes(props: {
   divisions: UnitLong[];
   nameForDivision?(division: UnitLong): string;
 }) {
-  const { divisions, nameForDivision = defaultNameFunction, onClick } = props;
+  const { divisions, nameForDivision = defaultNameFunction } = props;
   const trackLabelVisibility = useContext(LabelTrackerContext);
 
   return h(

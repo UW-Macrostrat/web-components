@@ -1,9 +1,5 @@
 import h, { C, compose } from "@macrostrat/hyper";
-import {
-  useAPIResult,
-  JSONView,
-  DarkModeProvider
-} from "@macrostrat/ui-components";
+import { useAPIResult, DarkModeProvider } from "@macrostrat/ui-components";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
 import {
   MacrostratAPIProvider,

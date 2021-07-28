@@ -31,7 +31,14 @@ interface LabeledUnitProps extends SizeAwareLabelProps, Clickable {
   halfWidth?: boolean;
 }
 
-function useUnitRect(division: IUnit, widthFraction: number = 1) {
+interface RectBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+function useUnitRect(division: IUnit, widthFraction: number = 1): RectBounds {
   const { scale } = useContext(ColumnContext);
   const { width } = useContext(ColumnLayoutContext);
   const y = scale(division.t_age);
@@ -44,15 +51,15 @@ function useUnitRect(division: IUnit, widthFraction: number = 1) {
   };
 }
 
-const Unit = (props: UnitProps) => {
+function UnitBox(props: UnitProps & RectBounds) {
   const {
     division: d,
     children,
     defaultFill = "transparent",
     className,
-    widthFraction = 1
+    widthFraction = 1,
+    ...bounds
   } = props;
-  const bounds = useUnitRect(d);
   const patternID = resolveID(d);
   const fill = useGeologicPattern(patternID, defaultFill);
   // Allow us to select this unit if in the proper context
@@ -72,6 +79,11 @@ const Unit = (props: UnitProps) => {
     h.if(selected)("rect.selection-overlay", bounds),
     children
   ]);
+}
+
+const Unit = (props: UnitProps) => {
+  const bounds = useUnitRect(props.division);
+  return h(UnitBox, { ...props, ...bounds });
 };
 
 function LabeledUnit(props: LabeledUnitProps) {

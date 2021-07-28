@@ -6,16 +6,22 @@ import { IUnit } from "common/units/types";
 import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
+import { ICompositeUnitProps } from "packages/common/src";
 
 interface IColumnProps {
   data: IUnit[];
   pixelScale?: number;
   range?: [number, number];
+  unitsComponent: React.FunctionComponent<ICompositeUnitProps>;
 }
 
 const Section = (props: IColumnProps) => {
   // Section with "squishy" time scale
-  const { data, range = [data[data.length - 1].b_age, data[0].t_age] } = props;
+  const {
+    data,
+    range = [data[data.length - 1].b_age, data[0].t_age],
+    unitsComponent = CompositeUnitsColumn
+  } = props;
   let { pixelScale } = props;
 
   const notesOffset = 100;
@@ -58,7 +64,7 @@ const Section = (props: IColumnProps) => {
           paddingV: 5
         },
         [
-          h(CompositeUnitsColumn, {
+          h(unitsComponent, {
             width: 400,
             columnWidth: 140,
             gutterWidth: 0
@@ -70,7 +76,7 @@ const Section = (props: IColumnProps) => {
 };
 
 const Column = (props: IColumnProps) => {
-  const { data } = props;
+  const { data, unitsComponent = CompositeUnitsColumn } = props;
 
   let sectionGroups = Array.from(group(data, d => d.section_id));
 
@@ -81,7 +87,9 @@ const Column = (props: IColumnProps) => {
     h(
       "div.main-column",
       sectionGroups.map(([id, values]) => {
-        return h(`div.section.section-${id}`, [h(Section, { data: values })]);
+        return h(`div.section.section-${id}`, [
+          h(Section, { data: values, unitsComponent })
+        ]);
       })
     )
   ]);
