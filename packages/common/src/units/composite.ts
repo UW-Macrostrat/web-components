@@ -1,8 +1,8 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
-  PatternDefsProvider,
-  useColumn
+  useColumn,
+  useColumnDivisions
 } from "@macrostrat/column-components";
 import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
 import {
@@ -12,8 +12,7 @@ import {
   useRef,
   useCallback
 } from "react";
-import { resolveID, scalePattern } from "./resolvers";
-import { LabeledUnit } from "./boxes";
+import { LabeledUnit, UnitBoxes } from "./boxes";
 import { UnitLong } from "@macrostrat/api-types";
 import styles from "./composite.module.styl";
 
@@ -78,7 +77,7 @@ interface ExtUnit extends UnitLong {
   bottomOverlap: boolean;
 }
 
-const extendDivisions = (
+const extendDivision = (
   unit: UnitLong,
   i: number,
   divisions: UnitLong[]
@@ -95,30 +94,19 @@ const extendDivisions = (
   return { ...unit, bottomOverlap };
 };
 
-function CompositeBoxes(props: {
-  divisions: UnitLong[];
-  nameForDivision?(division: UnitLong): string;
+function TrackedLabeledUnit({
+  division,
+  nameForDivision = defaultNameFunction
 }) {
-  const { divisions, nameForDivision = defaultNameFunction } = props;
   const trackLabelVisibility = useContext(LabelTrackerContext);
-
-  return h(
-    PatternDefsProvider,
-    { resolveID, scalePattern },
-    h(
-      "g.divisions",
-      divisions.map(extendDivisions).map(div => {
-        return h(LabeledUnit, {
-          division: div,
-          //halfWidth: div.bottomOverlap,
-          label: nameForDivision(div),
-          onLabelUpdated(label, visible) {
-            trackLabelVisibility(div, visible);
-          }
-        });
-      })
-    )
-  );
+  return h(LabeledUnit, {
+    division,
+    //halfWidth: div.bottomOverlap,
+    label: nameForDivision(division),
+    onLabelUpdated(label, visible) {
+      trackLabelVisibility(division, visible);
+    }
+  });
 }
 
 function UnlabeledUnitNames(props) {
@@ -134,12 +122,11 @@ function _BaseUnitsColumn(props: React.PropsWithChildren<{ width: number }>) {
   */
   const { width, children } = props;
 
-  const { divisions } = useColumn();
-
   return h(LabelTrackerProvider, [
     h(LithologyColumn, { width }, [
-      h(CompositeBoxes, {
-        divisions
+      h(UnitBoxes, {
+        unitComponent: TrackedLabeledUnit,
+        transformDivision: extendDivision
       })
     ]),
     children

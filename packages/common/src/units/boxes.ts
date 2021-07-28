@@ -110,16 +110,31 @@ function LabeledUnit(props: LabeledUnitProps) {
   ]);
 }
 
-function UnitBoxes(props) {
+function UnitBoxes<T>(props: {
+  unitComponent: React.FunctionComponent<{ division: T }>;
+  transformDivision?: (
+    division: any,
+    index: number,
+    divisions: any[]
+  ) => T | null;
+}) {
+  const { unitComponent = Unit } = props;
   const { divisions } = useContext(ColumnContext);
+
+  let newDivisions = divisions;
+  if (props.transformDivision) {
+    newDivisions = divisions
+      .map(props.transformDivision)
+      .filter(d => d != null);
+  }
 
   return h(
     PatternDefsProvider,
     { resolveID, scalePattern },
     h(
       "g.divisions",
-      divisions.map(div => {
-        return h(Unit, {
+      newDivisions.map(div => {
+        return h(unitComponent, {
           division: div
         });
       })

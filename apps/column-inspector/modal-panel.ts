@@ -33,9 +33,10 @@ function ModalUnitPanel(props) {
   const { unitData } = props;
   const selectedUnit = useSelectedUnit();
   const selectUnit = useUnitSelectionDispatch();
-  if (selectedUnit == null) return null;
 
-  const ix = unitData.findIndex(unit => unit.unit_id === selectedUnit.unit_id);
+  const ix = unitData?.findIndex(
+    unit => unit.unit_id === selectedUnit?.unit_id
+  );
 
   const keyMap = {
     38: ix - 1,
@@ -56,6 +57,8 @@ function ModalUnitPanel(props) {
       document.removeEventListener("keydown", listener);
     };
   }, [unitData, ix]);
+
+  if (selectedUnit == null) return null;
 
   const headerChildren = h(ButtonGroup, { minimal: true }, [
     h(Button, {
