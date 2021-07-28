@@ -1,12 +1,17 @@
 import h from "@macrostrat/hyper";
 import { group } from "d3-array";
-import { ColumnProvider, ColumnSVG } from "@macrostrat/column-components";
+import {
+  ColumnProvider,
+  ColumnSVG,
+  ColumnLayoutContext
+} from "@macrostrat/column-components";
+import { useContext } from "react";
 import { CompositeUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
 import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
-import { ICompositeUnitProps } from "packages/common/src";
+import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
 
 interface IColumnProps {
   data: IUnit[];
@@ -20,7 +25,7 @@ const Section = (props: IColumnProps) => {
   const {
     data,
     range = [data[data.length - 1].b_age, data[0].t_age],
-    unitsComponent = CompositeUnitsColumn
+    unitsComponent
   } = props;
   let { pixelScale } = props;
 
@@ -75,8 +80,42 @@ const Section = (props: IColumnProps) => {
   );
 };
 
+const extendDivision = (
+  unit: UnitLong,
+  i: number,
+  divisions: UnitLong[]
+): ExtUnit => {
+  const overlappingUnits = divisions.filter(
+    d =>
+      d.unit_id != unit.unit_id &&
+      !(unit.t_age > d.b_age && unit.b_age < d.t_age)
+  );
+  let bottomOverlap = false;
+  for (const d of overlappingUnits) {
+    if (d.b_age < unit.b_age) bottomOverlap = true;
+  }
+  return { ...unit, bottomOverlap };
+};
+
+function UnitComponent({ division, ...rest }) {
+  const { width } = useContext(ColumnLayoutContext);
+  return h(TrackedLabeledUnit, {
+    division,
+    ...rest
+    //width: 50 //division.bottomOverlap ? width / 2 : null
+  });
+}
+
+const MultiColumnUnits = (props: ICompositeUnitProps) => {
+  return h(CompositeUnitsColumn, {
+    ...props,
+    unitComponent: UnitComponent,
+    transformDivision: extendDivision
+  });
+};
+
 const Column = (props: IColumnProps) => {
-  const { data, unitsComponent = CompositeUnitsColumn } = props;
+  const { data, unitsComponent = MultiColumnUnits } = props;
 
   let sectionGroups = Array.from(group(data, d => d.section_id));
 

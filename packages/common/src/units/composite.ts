@@ -77,26 +77,10 @@ interface ExtUnit extends UnitLong {
   bottomOverlap: boolean;
 }
 
-const extendDivision = (
-  unit: UnitLong,
-  i: number,
-  divisions: UnitLong[]
-): ExtUnit => {
-  const overlappingUnits = divisions.filter(
-    d =>
-      d.unit_id != unit.unit_id &&
-      !(unit.t_age > d.b_age && unit.b_age < d.t_age)
-  );
-  let bottomOverlap = false;
-  for (const d of overlappingUnits) {
-    if (d.b_age < unit.b_age) bottomOverlap = true;
-  }
-  return { ...unit, bottomOverlap };
-};
-
 function TrackedLabeledUnit({
   division,
-  nameForDivision = defaultNameFunction
+  nameForDivision = defaultNameFunction,
+  ...rest
 }) {
   const trackLabelVisibility = useContext(LabelTrackerContext);
   return h(LabeledUnit, {
@@ -105,7 +89,8 @@ function TrackedLabeledUnit({
     label: nameForDivision(division),
     onLabelUpdated(label, visible) {
       trackLabelVisibility(division, visible);
-    }
+    },
+    ...rest
   });
 }
 
@@ -115,18 +100,22 @@ function UnlabeledUnitNames(props) {
   return h(UnitNamesColumn, { divisions, ...props });
 }
 
-function _BaseUnitsColumn(props: React.PropsWithChildren<{ width: number }>) {
+function _BaseUnitsColumn(
+  props: React.PropsWithChildren<{
+    width: number;
+    unitComponent?: React.FC<any>;
+  }>
+) {
   /*
   A column with units and names either
   overlapping or offset to the right
   */
-  const { width, children } = props;
+  const { width, children, unitComponent = TrackedLabeledUnit } = props;
 
   return h(LabelTrackerProvider, [
     h(LithologyColumn, { width }, [
       h(UnitBoxes, {
-        unitComponent: TrackedLabeledUnit,
-        transformDivision: extendDivision
+        unitComponent
       })
     ]),
     children
@@ -166,7 +155,8 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     width = 100,
     gutterWidth = 10,
     labelOffset = 30,
-    showLabels = true
+    showLabels = true,
+    ...rest
   } = props;
 
   let { columnWidth } = props;
@@ -174,7 +164,7 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     columnWidth = width;
   }
 
-  return h(_BaseUnitsColumn, { width: columnWidth }, [
+  return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
     h.if(showLabels)(UnlabeledUnitNames, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
@@ -183,4 +173,9 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
   ]);
 }
 
-export { UnitNamesColumn, CompositeUnitsColumn, AnnotatedUnitsColumn };
+export {
+  UnitNamesColumn,
+  CompositeUnitsColumn,
+  AnnotatedUnitsColumn,
+  TrackedLabeledUnit
+};

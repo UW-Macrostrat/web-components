@@ -37,5 +37,6 @@ export {
   CompositeUnitsColumn,
   ICompositeUnitProps
 };
+export * from "./composite";
 export * from "./types";
 export * from "./selection";

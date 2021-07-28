@@ -14,7 +14,14 @@ import { IUnit } from "./types";
 import { useSelectedUnit, useUnitSelector } from "./selection";
 import { resolveID, scalePattern } from "./resolvers";
 
-interface UnitProps extends Clickable {
+interface RectBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+interface UnitProps extends Clickable, Partial<RectBounds> {
   division: IUnit;
   resolveID(IUnit): string;
   UUID: string;
@@ -24,18 +31,14 @@ interface UnitProps extends Clickable {
   className?: string;
 }
 
-interface LabeledUnitProps extends SizeAwareLabelProps, Clickable {
+interface LabeledUnitProps
+  extends SizeAwareLabelProps,
+    Clickable,
+    Partial<RectBounds> {
   division: IUnit;
   label: string;
   onLabelUpdated?(label: string, shown: boolean);
   halfWidth?: boolean;
-}
-
-interface RectBounds {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
 }
 
 function useUnitRect(division: IUnit, widthFraction: number = 1): RectBounds {
@@ -51,15 +54,16 @@ function useUnitRect(division: IUnit, widthFraction: number = 1): RectBounds {
   };
 }
 
-function UnitBox(props: UnitProps & RectBounds) {
+function Unit(props: UnitProps) {
   const {
     division: d,
     children,
     defaultFill = "transparent",
     className,
     widthFraction = 1,
-    ...bounds
+    ...baseBounds
   } = props;
+  const bounds = { ...useUnitRect(d, widthFraction), ...baseBounds };
   const patternID = resolveID(d);
   const fill = useGeologicPattern(patternID, defaultFill);
   // Allow us to select this unit if in the proper context
@@ -81,30 +85,24 @@ function UnitBox(props: UnitProps & RectBounds) {
   ]);
 }
 
-const Unit = (props: UnitProps) => {
-  const bounds = useUnitRect(props.division);
-  return h(UnitBox, { ...props, ...bounds });
-};
-
 function LabeledUnit(props: LabeledUnitProps) {
   const { division, label, onLabelUpdated, ...rest } = props;
-  const bounds = useUnitRect(division);
+  const bounds = { ...useUnitRect(division), ...rest };
   const onClick = useUnitSelector(division);
-  const { x, y, ...size } = bounds;
-  return h(Unit, { className: "labeled-unit", division, onClick }, [
+  const { width, height } = bounds;
+  return h(Unit, { className: "labeled-unit", division, onClick, ...bounds }, [
     h(
       ForeignObject,
       bounds,
       h(SizeAwareLabel, {
         className: "unit-overlay",
         labelClassName: "unit-label",
-        style: size,
+        style: { width, height },
         onClick,
         label,
         onVisibilityChanged(viz) {
           onLabelUpdated(label, viz);
-        },
-        ...rest
+        }
       })
     )
   ]);
