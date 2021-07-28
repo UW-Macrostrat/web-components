@@ -110,6 +110,7 @@ function LabeledUnit(props: LabeledUnitProps) {
 
 function UnitBoxes<T>(props: {
   unitComponent: React.FunctionComponent<{ division: T }>;
+  transformDivisions?(divisions: T[]): T[];
   transformDivision?: (
     division: any,
     index: number,
@@ -118,12 +119,16 @@ function UnitBoxes<T>(props: {
 }) {
   const { unitComponent = Unit } = props;
   const { divisions } = useContext(ColumnContext);
+  const { transformDivision, transformDivisions } = props;
 
   let newDivisions = divisions;
-  if (props.transformDivision) {
-    newDivisions = divisions
-      .map(props.transformDivision)
-      .filter(d => d != null);
+
+  if (transformDivisions != null) {
+    newDivisions = transformDivisions(newDivisions);
+  }
+
+  if (transformDivision != null) {
+    newDivisions = newDivisions.map(transformDivision).filter(d => d != null);
   }
 
   return h(

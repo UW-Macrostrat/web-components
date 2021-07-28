@@ -80,37 +80,21 @@ const Section = (props: IColumnProps) => {
   );
 };
 
-const extendDivision = (
-  unit: UnitLong,
-  i: number,
-  divisions: UnitLong[]
-): ExtUnit => {
-  const overlappingUnits = divisions.filter(
-    d =>
-      d.unit_id != unit.unit_id &&
-      !(unit.t_age > d.b_age && unit.b_age < d.t_age)
-  );
-  let bottomOverlap = false;
-  for (const d of overlappingUnits) {
-    if (d.b_age < unit.b_age) bottomOverlap = true;
-  }
-  return { ...unit, bottomOverlap };
-};
-
 function UnitComponent({ division, ...rest }) {
   const { width } = useContext(ColumnLayoutContext);
+  //console.log(division);
   return h(TrackedLabeledUnit, {
     division,
-    ...rest
-    //width: 50 //division.bottomOverlap ? width / 2 : null
+    ...rest,
+    width: division.overlappingUnits.length > 0 ? width / 2 : width,
+    x: division.overlappingUnits.length == 1 ? width / 2 : 0
   });
 }
 
 const MultiColumnUnits = (props: ICompositeUnitProps) => {
   return h(CompositeUnitsColumn, {
     ...props,
-    unitComponent: UnitComponent,
-    transformDivision: extendDivision
+    unitComponent: UnitComponent
   });
 };
 
