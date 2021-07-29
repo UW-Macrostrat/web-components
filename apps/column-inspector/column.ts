@@ -17,7 +17,8 @@ interface IColumnProps {
   data: IUnit[];
   pixelScale?: number;
   range?: [number, number];
-  unitsComponent: React.FunctionComponent<ICompositeUnitProps>;
+  unitComponent: React.FunctionComponent<any>;
+  unitComponentProps?: any;
 }
 
 const Section = (props: IColumnProps) => {
@@ -25,11 +26,9 @@ const Section = (props: IColumnProps) => {
   const {
     data,
     range = [data[data.length - 1].b_age, data[0].t_age],
-    unitsComponent
+    unitComponent
   } = props;
   let { pixelScale } = props;
-
-  const notesOffset = 100;
 
   const dAge = range[0] - range[1];
 
@@ -68,38 +67,35 @@ const Section = (props: IColumnProps) => {
           paddingLeft: 1,
           paddingV: 5
         },
-        [
-          h(unitsComponent, {
-            width: 400,
-            columnWidth: 140,
-            gutterWidth: 0
-          })
-        ]
+        h(CompositeUnitsColumn, {
+          width: 450,
+          columnWidth: 250,
+          gutterWidth: 0,
+          unitComponent,
+          unitComponentProps: {
+            nColumns: Math.max(...data.map(d => d.column)) + 1
+          }
+        })
       )
     ]
   );
 };
 
-function UnitComponent({ division, ...rest }) {
+function UnitComponent({ division, nColumns = 2, ...rest }) {
   const { width } = useContext(ColumnLayoutContext);
+
+  //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
   //console.log(division);
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
-    width: division.overlappingUnits.length > 0 ? width / 2 : width,
-    x: division.overlappingUnits.length == 1 ? width / 2 : 0
+    width: division.overlappingUnits.length > 0 ? width / nColumns : width,
+    x: (division.column * width) / nColumns
   });
 }
 
-const MultiColumnUnits = (props: ICompositeUnitProps) => {
-  return h(CompositeUnitsColumn, {
-    ...props,
-    unitComponent: UnitComponent
-  });
-};
-
 const Column = (props: IColumnProps) => {
-  const { data, unitsComponent = MultiColumnUnits } = props;
+  const { data, unitComponent = UnitComponent } = props;
 
   let sectionGroups = Array.from(group(data, d => d.section_id));
 
@@ -111,7 +107,10 @@ const Column = (props: IColumnProps) => {
       "div.main-column",
       sectionGroups.map(([id, values]) => {
         return h(`div.section.section-${id}`, [
-          h(Section, { data: values, unitsComponent })
+          h(Section, {
+            data: values,
+            unitComponent
+          })
         ]);
       })
     )

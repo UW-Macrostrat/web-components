@@ -21,6 +21,7 @@ const symbolIndex = {
   halite: 668,
   basalt: 717,
   rhyolite: 722,
+  andesite: 723,
   till: 681,
   loess: 684,
   "calcareous ooze": 653,
@@ -83,9 +84,16 @@ const resolveID = (d: object) => {
       }
     }
 
+    if (k.name.includes("tuff")) {
+      return "711";
+    }
     sym = symbolIndex[k.name];
     if (sym != null) {
       return sym;
+    }
+
+    if (k.type == "volcanic") {
+      return "725";
     }
   }
   return sym;

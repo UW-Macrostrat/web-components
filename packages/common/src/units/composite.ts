@@ -73,10 +73,6 @@ export type ICompositeUnitProps = BaseUnitProps & {
   labelOffset?: number;
 };
 
-interface ExtUnit extends UnitLong {
-  bottomOverlap: boolean;
-}
-
 function TrackedLabeledUnit({
   division,
   nameForDivision = defaultNameFunction,
@@ -104,18 +100,25 @@ function _BaseUnitsColumn(
   props: React.PropsWithChildren<{
     width: number;
     unitComponent?: React.FC<any>;
+    unitComponentProps?: any;
   }>
 ) {
   /*
   A column with units and names either
   overlapping or offset to the right
   */
-  const { width, children, unitComponent = TrackedLabeledUnit } = props;
+  const {
+    width,
+    children,
+    unitComponent = TrackedLabeledUnit,
+    unitComponentProps
+  } = props;
 
   return h(LabelTrackerProvider, [
     h(LithologyColumn, { width }, [
       h(UnitBoxes, {
-        unitComponent
+        unitComponent,
+        unitComponentProps
       })
     ]),
     children
