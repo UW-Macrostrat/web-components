@@ -2,11 +2,10 @@
   "name": "@macrostrat/section-renderer",
   "version": "1.0.0",
   "description": "A renderer for Macrostrat columns",
-  "main": "index.html",
   "scripts": {
-    "preinstall": "linklocal && linklocal --list | bulk -c 'npm install --suppress-warnings'",
-    "dev": "npm-run-all -l -p dev:core watch:**",
-    "dev:core": "parcel serve apps/*/index.html apps/index.html",
+    "dev:legacy": "npm-run-all -l -p dev watch:**",
+    "postinstall": "lerna bootstrap --hoist",
+    "dev": "parcel apps/index.html",
     "deploy:steno": "./deploy/deploy-steno.sh",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
@@ -19,32 +18,36 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "alias": {
-    "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom",
+    "@macrostrat/column-components": "@macrostrat/column-components/src",
+    "@macrostrat/map-components": "@macrostrat/map-components/src",
+    "@macrostrat/ui-components": "@macrostrat/ui-components/src",
     "common": "./packages/common/src"
   },
   "devDependencies": {
+    "@parcel/resolver-glob": "^2.0.0-nightly.2338",
     "@types/d3-geo": "^2.0.0",
     "@types/geojson": "^7946.0.7",
     "bulk": "^2.0.1",
     "husky": "^4.3.5",
+    "lerna": "^4.0.0",
     "linklocal": "^2.8.2",
     "npm-run-all": "^4.1.5",
-    "parcel-bundler": "^1.12.4",
     "prettier": "^1.19.1",
     "stylus": "^0.54.7",
-    "typescript": "^3.9.7"
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.5"
   },
   "workspaces": [
     "packages/*"
   ],
   "dependencies": {
-    "@blueprintjs/core": "^3.22.3",
     "@macrostrat/column-components": "file:./packages/column-components",
-    "@macrostrat/hyper": "^1.2.11",
+    "@macrostrat/hyper": "^1.2.14",
     "@macrostrat/map-components": "file:./packages/map-components",
     "@macrostrat/timescale": "file:./packages/timescale",
     "@macrostrat/ui-components": "file:./packages/ui-components",
+    "@parcel/transformer-image": "^2.0.0-nightly.2400",
+    "@parcel/transformer-stylus": "^2.0.0-nightly.778",
     "@react-hook/size": "^2.1.1",
     "@types/react": "^16.14.2",
     "@vx/axis": "^0.0.199",
@@ -60,9 +63,12 @@
     "d3-path": "^1.0.9",
     "d3-scale-chromatic": "^1.5.0",
     "d3-selection": "^1.4.1",
+    "figment-ui": "^0.3.1",
     "geologic-patterns": "github:davenquinn/geologic-patterns",
     "immutability-helper": "^3.0.1",
     "labella": "^1.1.4",
+    "parcel": "^2.0.0-nightly.776",
+    "postcss": "^8.2.1",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -80,5 +86,6 @@
     "ui-components": "^0.1.5",
     "underscore": "^1.12.0",
     "use-async-effect": "^2.2.1"
-  }
+  },
+  "prettier": {}
 }

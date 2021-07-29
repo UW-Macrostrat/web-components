@@ -1,11 +1,27 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
+    "downlevelIteration": true,
     "paths": {
-      "common/*": ["packages/common/src/*"]
+      "common": ["./packages/common/src/**/*"],
+      "@macrostrat/column-components": [
+        "./packages/column-components/src/**/*"
+      ],
+      "@macrostrat/map-components": ["./packages/map-components/src/**/*"],
+      "@macrostrat/ui-components": ["./packages/ui-components/src/**/*"],
+      "@macrostrat/api-types": ["./packages/api-types/types"]
     }
   },
-  "include": ["apps/**/*", "packages/common/src/**/*"]
+  "include": [
+    "apps/**/*",
+    "packages/common/src/**/*",
+    "packages/api-types/types/*",
+    "packages/column-components/src/**/*",
+    "packages/map-components/src/**/*",
+    "packages/ui-components/src/**/*",
+    "packages/api-utils/src/**/*"
+  ]
 }

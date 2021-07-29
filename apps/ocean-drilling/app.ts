@@ -1,18 +1,18 @@
-import h from "@macrostrat/hyper"
-import { APIProvider, useAPIResult } from "@macrostrat/ui-components"
-import { GeologicPatternProvider } from "@macrostrat/column-components"
-import { ColumnMapNavigator } from "common/column-map"
-import patterns from "../../geologic-patterns/*.png"
-import { useColumnNav } from "common/macrostrat-columns"
+import h from "@macrostrat/hyper";
+import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
+import { GeologicPatternProvider } from "@macrostrat/column-components";
+import { ColumnMapNavigator } from "common/column-map";
+import patterns from "url:../../geologic-patterns/*.png";
+import { useColumnNav } from "common/macrostrat-columns";
 
 const ColumnManager = () => {
-  const defaultArgs = { col_id: 4371, project_id: 3 }
-  const [currentColumn, setCurrentColumn] = useColumnNav(defaultArgs)
-  const { col_id, ...projectParams } = currentColumn
+  const defaultArgs = { col_id: 4371, project_id: 3 };
+  const [currentColumn, setCurrentColumn] = useColumnNav(defaultArgs);
+  const { col_id, ...projectParams } = currentColumn;
 
-  const colParams = { ...currentColumn, format: "geojson" }
-  const res = useAPIResult("/defs/columns", colParams, [currentColumn])
-  const columnFeature = res?.features[0]
+  const colParams = { ...currentColumn, format: "geojson" };
+  const res = useAPIResult("/defs/columns", colParams, [currentColumn]);
+  const columnFeature = res?.features[0];
 
   // 495
   return h("div.column-ui", [
@@ -22,12 +22,12 @@ const ColumnManager = () => {
       setCurrentColumn,
       margin: 0,
       apiRoute: "/defs/columns",
-      ...projectParams,
-    }),
-  ])
-}
+      ...projectParams
+    })
+  ]);
+};
 
-const resolvePattern = id => patterns[id]
+const resolvePattern = id => patterns[id];
 
 const App = () => {
   return h(
@@ -37,11 +37,11 @@ const App = () => {
       APIProvider,
       {
         baseURL: "https://dev.macrostrat.org/api/v2",
-        unwrapResponse: res => res.success.data,
+        unwrapResponse: res => res.success.data
       },
       h(ColumnManager)
     )
-  )
-}
+  );
+};
 
-export default App
+export default App;

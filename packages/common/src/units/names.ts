@@ -1,58 +1,82 @@
-import h from "@macrostrat/hyper"
-import { useContext } from "react"
+import h from "@macrostrat/hyper";
+import { useContext } from "react";
 import {
   ColumnContext,
   NotesColumn,
-  NotesColumnProps,
-} from "@macrostrat/column-components"
-import { INote } from "@macrostrat/column-components"
-import { IUnit } from "./types"
-interface UnitNamesProps extends NotesColumnProps {
-  left?: number
-  transform: string
-  nameForDivision?(obj: IUnit): string
+  NotesColumnProps
+} from "@macrostrat/column-components";
+import { INote } from "@macrostrat/column-components";
+import { IUnit } from "./types";
+import React from "packages/ui-components/node_modules/@types/react";
+
+interface UnitDataProps extends NotesColumnProps {
+  left?: number;
+  transform: string;
+  noteComponent: React.ComponentType<any>;
+  shouldRenderNote?(note: INote, index: number, array: INote[]): boolean;
+  divisions?: IUnit[];
+}
+interface UnitNamesProps extends Omit<UnitDataProps, "noteComponent"> {
+  nameForDivision?(obj: IUnit): string;
 }
 
-const NoteComponent = props => {
-  const { note } = props
-  const text = note.note
-  return h("p.col-note-label", text)
-}
-
-const noteForDivision = (
-  unitNameFn: (a: IUnit) => string
-): ((div: IUnit) => INote) => div => {
+function noteForDivision(div: IUnit): INote {
   return {
     height: div.b_age,
     top_height: div.t_age,
-    note: unitNameFn(div),
-    id: div.unit_id,
-  }
+    data: div,
+    id: div.unit_id
+  };
 }
 
 const defaultNameFunction = div => {
   return div.unit_name
     .replace("Mbr", "Member")
     .replace("Fm", "Formation")
-    .replace("Gp", "Group")
-}
+    .replace("Gp", "Group");
+};
 
-const UnitNamesColumn = (props: UnitNamesProps) => {
-  const { left, nameForDivision = defaultNameFunction, ...rest } = props
-  const { divisions } = useContext(ColumnContext)
+function UnitDataColumn(props: UnitDataProps) {
+  const {
+    left,
+    noteComponent,
+    shouldRenderNote = () => true,
+    divisions = useContext(ColumnContext)?.divisions,
+    ...rest
+  } = props;
 
-  const notes: INote[] = divisions.map(noteForDivision(nameForDivision))
+  if (divisions == null) return null;
+  const notes: INote[] = divisions
+    .filter(shouldRenderNote)
+    .map(noteForDivision);
 
   return h(NotesColumn, {
     transform: `translate(${left || 0})`,
     editable: false,
-    noteComponent: NoteComponent,
+    noteComponent,
     notes,
     forceOptions: {
-      nodeSpacing: 1,
+      nodeSpacing: 1
     },
-    ...rest,
-  })
+    ...rest
+  });
 }
 
-export { UnitNamesColumn, defaultNameFunction, noteForDivision, NoteComponent }
+const UnitNamesColumn = (props: UnitNamesProps) => {
+  const { nameForDivision = defaultNameFunction, ...rest } = props;
+
+  const NoteComponent = props => {
+    const { note } = props;
+    return h("p.col-note-label", nameForDivision(note.data));
+  };
+
+  return h(UnitDataColumn, { noteComponent: NoteComponent, ...rest });
+};
+
+export {
+  UnitNamesColumn,
+  defaultNameFunction,
+  noteForDivision,
+  UnitDataColumn,
+  UnitNamesProps
+};

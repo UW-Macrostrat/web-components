@@ -1,47 +1,47 @@
-import h from "@macrostrat/hyper"
-import { group } from "d3-array"
+import h from "@macrostrat/hyper";
+import { group } from "d3-array";
 import {
   ColumnProvider,
   ColumnSVG,
   LithologyColumn,
   ColumnAxis,
   ColumnContext,
-  NotesColumn,
-} from "@macrostrat/column-components"
-import { SimpleUnitsColumn } from "common/units"
-import { IUnit } from "common/units/types"
-import { useContext } from "react"
+  NotesColumn
+} from "@macrostrat/column-components";
+import { SimpleUnitsColumn } from "common/units";
+import { IUnit } from "common/units/types";
+import { useContext } from "react";
 
 interface IColumnProps {
-  data: IUnit[]
-  pixelScale?: number
+  data: IUnit[];
+  pixelScale?: number;
 }
 
 const AgeAxis = ({ ticks }) => {
-  const { pixelHeight } = useContext(ColumnContext)
+  const { pixelHeight } = useContext(ColumnContext);
   // A tick roughly every 40 pixels
-  let v = Math.max(Math.round(pixelHeight / 40), 1)
+  let v = Math.max(Math.round(pixelHeight / 40), 1);
 
   return h(ColumnAxis, {
     ticks: v,
-    showDomain: false,
-  })
-}
+    showDomain: false
+  });
+};
 
 const Section = (props: IColumnProps) => {
   // Section with "squishy" time scale
-  const { data } = props
-  let { pixelScale } = props
+  const { data } = props;
+  let { pixelScale } = props;
 
-  const notesOffset = 100
+  const notesOffset = 100;
 
-  const range = [data[data.length - 1].b_age, data[0].t_age]
+  const range = [data[data.length - 1].b_age, data[0].t_age];
 
   if (!pixelScale) {
     // Make up a pixel scale
-    const dAge = range[0] - range[1]
-    const targetHeight = 20 * data.length
-    pixelScale = Math.ceil(targetHeight / dAge)
+    const dAge = range[0] - range[1];
+    const targetHeight = 20 * data.length;
+    pixelScale = Math.ceil(targetHeight / dAge);
   }
 
   return h(
@@ -49,7 +49,7 @@ const Section = (props: IColumnProps) => {
     {
       divisions: data,
       range,
-      pixelsPerMeter: pixelScale, // Actually pixels per myr
+      pixelsPerMeter: pixelScale // Actually pixels per myr
     },
     [
       h(
@@ -57,36 +57,36 @@ const Section = (props: IColumnProps) => {
         {
           width: 450,
           padding: 20,
-          paddingV: 15,
+          paddingV: 15
         },
         [
           h(AgeAxis),
           h(SimpleUnitsColumn, {
             width: 400,
-            columnWidth: 90,
-          }),
+            columnWidth: 90
+          })
         ]
-      ),
+      )
     ]
-  )
-}
+  );
+};
 
 const Column = (props: IColumnProps) => {
-  const { data } = props
+  const { data } = props;
 
-  let sectionGroups = Array.from(group(data, d => d.section_id))
+  let sectionGroups = Array.from(group(data, d => d.section_id));
 
-  sectionGroups.sort((a, b) => a.t_age - b.t_age)
+  sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
   return h("div.column", [
     h("div.age-axis-label", "Age (Ma)"),
     h(
       "div.main-column",
       sectionGroups.map(([id, values]) => {
-        return h(`div.section-${id}`, [h(Section, { data: values })])
+        return h(`div.section-${id}`, [h(Section, { data: values })]);
       })
-    ),
-  ])
-}
+    )
+  ]);
+};
 
-export default Column
+export default Column;

@@ -1,45 +1,50 @@
-import h from "@macrostrat/hyper"
+import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
-  PatternDefsProvider,
-  NotesColumn,
-  ColumnContext,
-  INote,
-} from "@macrostrat/column-components"
-import { defaultNameFunction, noteForDivision, NoteComponent } from "./names"
-import { createContext, useContext, useState, useRef, useCallback } from "react"
-import { resolveID, scalePattern } from "./resolvers"
-import { LabeledUnit } from "./boxes"
-import { IUnit } from "./types"
+  useColumn,
+  useColumnDivisions
+} from "@macrostrat/column-components";
+import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
+import {
+  createContext,
+  useContext,
+  useState,
+  useRef,
+  useCallback
+} from "react";
+import { LabeledUnit, UnitBoxes } from "./boxes";
+import { UnitLong } from "@macrostrat/api-types";
+import styles from "./composite.module.styl";
+
+const h = hyperStyled(styles);
 
 interface LabelTracker {
-  [key: number]: boolean
+  [key: number]: boolean;
 }
 
-const LabelTrackerContext = createContext(null)
-const UnlabeledDivisionsContext = createContext(null)
+const LabelTrackerContext = createContext(null);
+const UnlabeledDivisionsContext = createContext(null);
 
 function LabelTrackerProvider(props) {
-  const { children } = props
-  const { divisions } = useContext(ColumnContext)
+  const { children } = props;
+  const { divisions } = useColumn();
   const [unlabeledDivisions, setUnlabeledDivisions] = useState<IUnit[] | null>(
     null
-  )
-  const labelTrackerRef = useRef<LabelTracker>({})
+  );
+  const labelTrackerRef = useRef<LabelTracker>({});
   const trackLabelVisibility = useCallback(
     (div, visible) => {
-      console.log(div, visible)
-      labelTrackerRef.current[div.unit_id] = visible
+      labelTrackerRef.current[div.unit_id] = visible;
       if (Object.keys(labelTrackerRef.current).length == divisions.length) {
         setUnlabeledDivisions(
           divisions.filter(d => labelTrackerRef.current[d.unit_id] == false)
-        )
+        );
       }
     },
     [labelTrackerRef, divisions]
-  )
+  );
 
-  const value = trackLabelVisibility
+  const value = trackLabelVisibility;
   return h(
     LabelTrackerContext.Provider,
     { value },
@@ -48,75 +53,100 @@ function LabelTrackerProvider(props) {
       { value: unlabeledDivisions },
       children
     )
-  )
+  );
 }
 
-export interface ICompositeUnitProps {
-  width: number
-  columnWidth: number
-  gutterWidth?: number
-  labelOffset?: number
-}
+type BaseUnitProps =
+  | {
+      width: number;
+      showLabels: false;
+      columnWidth?: number;
+    }
+  | {
+      width: number;
+      columnWidth: number;
+      showLabels: true;
+    };
 
-interface ExtendedUnit extends IUnit {
-  bottomOverlap: boolean
-}
+export type ICompositeUnitProps = BaseUnitProps & {
+  gutterWidth?: number;
+  labelOffset?: number;
+};
 
-const extendDivisions = (divisions: IUnit[]) => (unit: IUnit) => {
-  const overlappingUnits = divisions.filter(
-    d =>
-      d.unit_id != unit.unit_id &&
-      !(unit.t_age > d.b_age && unit.b_age < d.t_age)
-  )
-  console.log(unit, overlappingUnits)
-
-  return unit
-}
-
-function CompositeBoxes(props: {
-  divisions: IUnit[]
-  nameForDivision?(division: IUnit): string
+function TrackedLabeledUnit({
+  division,
+  nameForDivision = defaultNameFunction,
+  ...rest
 }) {
-  const { divisions, nameForDivision = defaultNameFunction } = props
-  const trackLabelVisibility = useContext(LabelTrackerContext)
-
-  //const refinedDivisions = divisions.map(extendDivisions(divisions))
-
-  return h(
-    PatternDefsProvider,
-    { resolveID, scalePattern },
-    h(
-      "g.divisions",
-      divisions.map(div => {
-        return h(LabeledUnit, {
-          division: div,
-          label: nameForDivision(div),
-          onLabelUpdated(label, visible) {
-            trackLabelVisibility(div, visible)
-          },
-        })
-      })
-    )
-  )
+  const trackLabelVisibility = useContext(LabelTrackerContext);
+  return h(LabeledUnit, {
+    division,
+    //halfWidth: div.bottomOverlap,
+    label: nameForDivision(division),
+    onLabelUpdated(label, visible) {
+      trackLabelVisibility(division, visible);
+    },
+    ...rest
+  });
 }
 
-function UnitNamesColumn(props) {
-  const { left, nameForDivision = defaultNameFunction, ...rest } = props
-  const divisions = useContext(UnlabeledDivisionsContext)
-  if (divisions == null) return null
+function UnlabeledUnitNames(props) {
+  const divisions = useContext(UnlabeledDivisionsContext);
+  if (divisions == null) return null;
+  return h(UnitNamesColumn, { divisions, ...props });
+}
 
-  const notes: INote[] = divisions.map(noteForDivision(nameForDivision))
+function _BaseUnitsColumn(
+  props: React.PropsWithChildren<{
+    width: number;
+    unitComponent?: React.FC<any>;
+    unitComponentProps?: any;
+  }>
+) {
+  /*
+  A column with units and names either
+  overlapping or offset to the right
+  */
+  const {
+    width,
+    children,
+    unitComponent = TrackedLabeledUnit,
+    unitComponentProps
+  } = props;
 
-  return h(NotesColumn, {
-    transform: `translate(${left || 0})`,
-    editable: false,
-    noteComponent: NoteComponent,
-    notes,
-    forceOptions: {
-      nodeSpacing: 1,
-    },
-    ...rest,
-  })
+  return h(LabelTrackerProvider, [
+    h(LithologyColumn, { width }, [
+      h(UnitBoxes, {
+        unitComponent,
+        unitComponentProps
+      })
+    ]),
+    children
+  ]);
+}
+
+function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
+  /*
+  A column with units and names either
+  overlapping or offset to the right
+  */
+  const {
+    columnWidth,
+    width = 100,
+    gutterWidth = 10,
+    labelOffset = 30,
+    showLabels = true,
+    ...rest
+  } = props;
+
+  return h(_BaseUnitsColumn, { width: showLabels ? columnWidth : width }, [
+    h(UnitDataColumn, {
+      transform: `translate(${columnWidth + gutterWidth})`,
+      paddingLeft: labelOffset,
+      width: width - columnWidth - gutterWidth,
+      ...rest
+    })
+  ]);
 }
 
 function CompositeUnitsColumn(props: ICompositeUnitProps) {
@@ -124,29 +154,31 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
   A column with units and names either
   overlapping or offset to the right
   */
-  const { columnWidth, width = 100, gutterWidth = 10, labelOffset = 30 } = props
+  const {
+    width = 100,
+    gutterWidth = 10,
+    labelOffset = 30,
+    showLabels = true,
+    ...rest
+  } = props;
 
-  const { divisions } = useContext(ColumnContext)
+  let { columnWidth } = props;
+  if (!showLabels) {
+    columnWidth = width;
+  }
 
-  return h(LabelTrackerProvider, [
-    h(LithologyColumn, { width: columnWidth }, [
-      h(CompositeBoxes, {
-        divisions,
-      }),
-    ]),
-    h(UnitNamesColumn, {
-      nameForDivision: defaultNameFunction,
+  return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
+    h.if(showLabels)(UnlabeledUnitNames, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
-      width: width - columnWidth - gutterWidth,
-    }),
-  ])
+      width: width - columnWidth - gutterWidth
+    })
+  ]);
 }
 
 export {
-  UnitsColumn,
   UnitNamesColumn,
-  SimpleUnitsColumn,
   CompositeUnitsColumn,
-  ICompositeUnitProps,
-}
+  AnnotatedUnitsColumn,
+  TrackedLabeledUnit
+};
