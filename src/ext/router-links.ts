@@ -1,7 +1,8 @@
-import h from "react-hyperscript";
-import { NavLink, withRouter } from "react-router-dom";
-import { Button, AnchorButton } from "@blueprintjs/core";
+import h from "@macrostrat/hyper";
+import { NavLink, withRouter, Link } from "react-router-dom";
+import { AnchorButton } from "@blueprintjs/core";
 import classNames from "classnames";
+import { LinkCard as LinkCard_ } from "../link-card";
 
 // Button that forms a React Router link
 const LinkButton = withRouter(function(props) {
@@ -25,4 +26,6 @@ const NavLinkButton = function(props) {
   return h(NavLink, { className, ...rest });
 };
 
-export { LinkButton, NavLinkButton };
+const LinkCard = props => h(LinkCard_, { linkComponent: Link, ...props });
+
+export { LinkButton, NavLinkButton, LinkCard };

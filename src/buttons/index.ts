@@ -1,4 +1,4 @@
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { Button, Intent, Spinner } from "@blueprintjs/core";
 import classNames from "classnames";
 
@@ -61,4 +61,3 @@ const EditButton = function(props) {
 
 export { SaveButton, EditButton, CancelButton };
 export * from "./delete-button";
-export * from "./link-button";

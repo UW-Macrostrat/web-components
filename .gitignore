@@ -14,12 +14,10 @@ pids
 # Dependency directories
 node_modules/
 
-# TypeScript v1 declaration files
-typings/
-
 # dotenv environment variables file
 .env
 
 lib
 .docz
 .parcel-cache
+docs

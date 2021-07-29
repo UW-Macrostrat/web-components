@@ -7,11 +7,11 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import { Spinner } from "@blueprintjs/core";
-import ReactJson from "react-json-view";
 import { APIContext, APIActions, APIHelpers } from "./provider";
 import { debounce } from "underscore";
 import { APIConfig } from "./types";
 import { QueryParams } from "../util/query-string";
+import { JSONView } from "../util/json-view";
 
 const APIViewContext = createContext<APIViewCTX<any> | null>(null);
 const APIViewConsumer = APIViewContext.Consumer;
@@ -67,7 +67,7 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     placeholder: APIResultPlaceholder,
     debounce: 300,
     children: data => {
-      return h(ReactJson, { src: data });
+      return h(JSONView, { data });
     }
   };
   _didFetch: boolean;

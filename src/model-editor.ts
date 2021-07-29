@@ -1,4 +1,4 @@
-import { Component, createContext, useContext } from "react";
+import { Component, createContext, ReactElement, useContext } from "react";
 import h from "@macrostrat/hyper";
 import { DateInput } from "@blueprintjs/datetime";
 import { EditableText } from "@blueprintjs/core";
@@ -6,13 +6,12 @@ import { EditButton, DeleteButton } from "./buttons";
 import { StatefulComponent } from "./util";
 import classNames from "classnames";
 import update, { Spec } from "immutability-helper";
-import T from "prop-types";
 
 import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
 const ModelEditorContext = createContext<any>({});
 
-function ModelEditButton(props) {
+function ModelEditButton(props): ReactElement {
   const { isEditing, actions } = useContext(ModelEditorContext);
   return h(EditButton, {
     isEditing,
@@ -43,11 +42,6 @@ class ModelEditor<T> extends StatefulComponent<
   static defaultProps = {
     canEdit: true
   };
-  static propTypes = {
-    model: T.object.isRequired,
-    persistChanges: T.func
-  };
-
   constructor(props) {
     super(props);
     this.getValue = this.getValue.bind(this);
@@ -65,7 +59,7 @@ class ModelEditor<T> extends StatefulComponent<
     };
   }
 
-  render() {
+  render(): ReactElement {
     const { model } = this.state;
     const { canEdit } = this.props;
     const isEditing = this.state.isEditing && canEdit;

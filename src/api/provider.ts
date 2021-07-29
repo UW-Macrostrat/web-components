@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, Context } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { memoize } from "underscore";
 import axios, {
   AxiosPromise,

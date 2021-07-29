@@ -1,4 +1,10 @@
-import { useMemo, useState, Dispatch, SetStateAction } from "react";
+import {
+  useMemo,
+  useState,
+  Dispatch,
+  SetStateAction,
+  useCallback
+} from "react";
 
 class LocalStorage<T> {
   name: string;
@@ -20,21 +26,38 @@ class LocalStorage<T> {
     const str = JSON.stringify(obj);
     return window.localStorage.setItem(this.name, str);
   }
+
+  remove() {
+    window.localStorage.removeItem(this.name);
+  }
 }
 
 function useStoredState<S>(
   key: string,
-  initialState: S | (() => S)
-): [S, Dispatch<SetStateAction<S>>] {
+  initialState: S | (() => S),
+  isValid: (S) => boolean = d => true
+): [S, Dispatch<SetStateAction<S>>, VoidFunction] {
   /** React hook for setting and getting values on local storage */
   const storage = useMemo(() => new LocalStorage<S>(key), [key]);
-  const val = storage.get() ?? initialState;
-  const [state, setState] = useState<S>(val);
-  const updateState = newVal => {
-    setState(newVal);
-    storage.set(newVal);
-  };
-  return [state, updateState];
+  let initialValue = storage.get();
+  if (!isValid(initialValue)) initialValue = null;
+  const [state, setState] = useState<S>(initialValue ?? initialState);
+
+  const updateState = useCallback(
+    (val: S, validate = true) => {
+      if (validate && !isValid(val)) throw `State ${val} is not valid.`;
+      setState(val);
+      storage.set(state);
+    },
+    [isValid]
+  );
+
+  const resetState = useCallback(() => {
+    setState(initialState);
+    storage.remove();
+  }, [initialState]);
+
+  return [state, updateState, resetState];
 }
 
 export { LocalStorage, useStoredState };

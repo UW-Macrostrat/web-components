@@ -1,23 +1,11 @@
 // This component should be refactored into a shared UI component
 
 import { Component } from "react";
-import h from "@macrostrat/hyper";
+import h, { classed } from "@macrostrat/hyper";
 import { Button, Collapse } from "@blueprintjs/core";
 import "./main.styl";
-import styled from "@emotion/styled";
 
-const HeaderButton = styled(Button)`\
-.bp3-button-text {
-  flex-grow: 1;
-  display: flex;
-}
-.bp3-button-text * {
-  display: inline;
-}
-span.expander {
-  flex-grow: 1;
-}\
-`;
+const HeaderButton = classed(Button, "ms-header-button");
 
 type P = {
   storageID?: string;

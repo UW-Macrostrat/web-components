@@ -1,6 +1,6 @@
 import { Component } from "react";
 import { findDOMNode } from "react-dom";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 
 type ConfinedImageProps = {
   maxHeight?: number | null;
