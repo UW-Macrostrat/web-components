@@ -16,7 +16,7 @@ function ModelEditButton(props): ReactElement {
   return h(EditButton, {
     isEditing,
     onClick: actions.toggleEditing,
-    ...props,
+    ...props
   });
 }
 
@@ -40,7 +40,7 @@ class ModelEditor<T> extends StatefulComponent<
   ModelEditorState<T>
 > {
   static defaultProps = {
-    canEdit: true,
+    canEdit: true
   };
   constructor(props) {
     super(props);
@@ -55,7 +55,7 @@ class ModelEditor<T> extends StatefulComponent<
       isPersisting: null,
       error: null,
       model: props.model,
-      initialModel: props.model,
+      initialModel: props.model
     };
   }
 
@@ -72,7 +72,7 @@ class ModelEditor<T> extends StatefulComponent<
       model,
       isEditing,
       canEdit,
-      hasChanges: this.hasChanges,
+      hasChanges: this.hasChanges
     };
     return h(ModelEditorContext.Provider, { value }, this.props.children);
   }
@@ -89,7 +89,7 @@ class ModelEditor<T> extends StatefulComponent<
   }
 
   onChange(field) {
-    return (value) => {
+    return value => {
       // @ts-ignore
       return this.updateState({ model: { [field]: { $set: value } } });
     };
@@ -192,7 +192,7 @@ function EditableMultilineText(props: any): React.ReactNode {
       multiline: true,
       className,
       onChange,
-      value,
+      value
     });
   }
   return h("div.text", { className }, value);
@@ -210,13 +210,13 @@ class EditableDateField extends Component<any, any> {
     return h(DateInput, {
       className: "date-input",
       value: new Date(value),
-      formatDate: (date) => date.toLocaleDateString(),
+      formatDate: date => date.toLocaleDateString(),
       placeholder: "MM/DD/YYYY",
       showActionsBar: true,
       onChange: actions.onChange(field),
       parseDate(d) {
         return new Date(d);
-      },
+      }
     });
   }
 }
@@ -229,5 +229,5 @@ export {
   ModelEditButton,
   EditableMultilineText,
   EditableDateField,
-  useModelEditor,
+  useModelEditor
 };

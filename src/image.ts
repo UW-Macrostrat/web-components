@@ -41,12 +41,12 @@ class ConfinedImage extends Component<ConfinedImageProps, ConfinedImageState> {
 
     const imgStyle = {
       maxHeight,
-      maxWidth,
+      maxWidth
     };
 
     const style = { maxHeight, maxWidth };
     return h("div.image-container", { style }, [
-      h("img", { src, style: imgStyle }),
+      h("img", { src, style: imgStyle })
     ]);
   }
 

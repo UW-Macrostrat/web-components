@@ -15,3 +15,4 @@ export * from "./dark-mode";
 export * from "./form-controls";
 export * from "./settings";
 export * from "./error-boundary";
+export * from "./patterns";
