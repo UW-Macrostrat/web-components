@@ -79,7 +79,7 @@ const mutateProjection: MutateProjection = (projection, opts) => {
   const { width, height, center = projection.center() } = opts;
   const margin = opts.margin ?? 0;
   let { scale, translate } = opts;
-  scale = projection.scale();
+  scale = opts.scale ?? projection.scale();
   if (scale == null) {
     const maxSize = Math.min(width, height);
     scale = maxSize / 2;
@@ -192,17 +192,8 @@ class Globe extends StatefulComponent<GlobeProps, any> {
   }
 
   render() {
-    let {
-      width,
-      height,
-      children,
-      keepNorthUp,
-      allowDrag,
-      allowZoom,
-      scale,
-      center,
-      graticule,
-    } = this.props;
+    let { width, height, children, keepNorthUp, allowDrag, allowZoom, scale, center, graticule } =
+      this.props;
     const { projection } = this.state;
     const initialScale = scale || projection.scale() || 500;
 
