@@ -1,57 +1,10 @@
 /// https://paleobiodb.org/data1.2/colls/summary.json?show=time&min_ma=10&max_ma=12&level=3
-
-import { useMemo } from "react";
-import { useAPIResult } from "@macrostrat/ui-components";
-import {
-  useRotations,
-  usePathGenerator,
-  usePlatePolygons
-} from "@macrostrat/corelle";
-import { geoContains } from "d3-geo";
+import { useRotations, usePathGenerator } from "@macrostrat/corelle";
+import { FeatureLayer } from "@macrostrat/map-components";
+import { useSGPData } from "./features/sgp";
 import { scalePow } from "d3-scale";
+import { usePBDBFeatures } from "./features";
 import h from "@macrostrat/hyper";
-
-function intersectFeatures(polygons, points) {
-  let output = [];
-  for (const pt of points) {
-    for (const plate of polygons) {
-      if (geoContains(plate, [pt.lng, pt.lat])) {
-        const { old_lim, plate_id, young_lim } = plate.properties;
-        output.push({
-          ...pt,
-          old_lim,
-          plate_id,
-          young_lim
-        });
-        break;
-      }
-    }
-  }
-  return output;
-}
-
-function usePBDBFeatures(time: number, timeDelta: number = 2) {
-  /** Get features and assign to plates */
-  const res = useAPIResult<{ records: any[] }>(
-    "https://paleobiodb.org/data1.2/colls/summary.json",
-    {
-      show: "time",
-      min_ma: time - timeDelta,
-      max_ma: time + timeDelta,
-      level: 3
-    }
-  );
-
-  const polygons = usePlatePolygons();
-
-  const platePoints = useMemo(() => {
-    /** Memoized computation of polygon-point intersections */
-    if (res == null || polygons == null) return [];
-    return intersectFeatures(polygons, res.records);
-  }, [res, polygons]);
-
-  return platePoints;
-}
 
 const radiusScale = scalePow([0, 30], [1, 10])
   .exponent(0.5)
@@ -92,4 +45,22 @@ export function PBDBCollectionLayer() {
       return h(PBDBPoint, { feature: d });
     })
   );
+}
+
+const defaultStyle = {
+  fill: "transparent",
+  stroke: "purple"
+};
+
+export function SGPSamplesLayer() {
+  const { time } = useRotations();
+  const features = useSGPData(time);
+  console.log(features);
+  if (features == null) return null;
+
+  return h(FeatureLayer, {
+    useCanvas: false,
+    style: defaultStyle,
+    features
+  });
 }

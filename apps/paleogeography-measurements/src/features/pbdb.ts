@@ -3,15 +3,17 @@
 import { useMemo } from "react";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { usePlatePolygons } from "@macrostrat/corelle";
+import { intersectFeatures } from "./helpers";
 
-function useMacrostratFeatures(time: number, timeDelta: number = 2) {
+export function usePBDBFeatures(time: number, timeDelta: number = 2) {
   /** Get features and assign to plates */
   const res = useAPIResult<{ records: any[] }>(
-    "https://dev.macrostrat.org/api/v2/measurements",
+    "https://paleobiodb.org/data1.2/colls/summary.json",
     {
-      format: "geojson",
-      response: "light",
-      interval_name: "Devonian"
+      show: "time",
+      min_ma: time - timeDelta,
+      max_ma: time + timeDelta,
+      level: 3
     }
   );
 

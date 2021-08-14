@@ -5,13 +5,7 @@ import { RotationsProvider } from "@macrostrat/corelle";
 import { Timescale } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 import { Map } from "./map";
-import {
-  getQueryString,
-  setQueryString,
-  useAPIResult
-} from "@macrostrat/ui-components";
-import axios from "axios";
-import { useSGPResult } from "./sgp-api";
+import { getQueryString, setQueryString } from "@macrostrat/ui-components";
 
 function useTimeState(initialValue) {
   /** Time state hook that also manages query URL */
@@ -59,7 +53,6 @@ function App() {
     width: 1100,
     height: 800
   });
-  const result = useSGPResult(time);
 
   return h(
     ResizeSensor,

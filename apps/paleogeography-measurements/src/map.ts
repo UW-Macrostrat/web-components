@@ -1,22 +1,25 @@
-import { geoNaturalEarth1 } from "d3-geo";
+import { geoStereographic } from "d3-geo";
 import { useRef } from "react";
 import { PlateFeatureLayer } from "@macrostrat/corelle";
 import { hyperStyled } from "@macrostrat/hyper";
-import { PBDBCollectionLayer } from "./point-overlay";
+import { PBDBCollectionLayer, SGPSamplesLayer } from "./point-overlay";
 import { Globe } from "@macrostrat/map-components";
 import styles from "./main.styl";
+import { MeasurementsLayer } from "./features/macrostrat";
 
 const h = hyperStyled(styles);
+
+const baseProjection = geoStereographic().precision(0.5);
 
 const Map = props => {
   /** Map that implements callback to reset internal map state */
   const { width, height } = props;
-  const projection = geoNaturalEarth1().precision(0.5);
+  const projection = baseProjection;
   const mapRef = useRef<Globe>();
 
   const resetMap = () => {
     // We have to totally recreate the projection for it to be immutable
-    mapRef.current?.resetProjection(geoNaturalEarth1().precision(0.5));
+    mapRef.current?.resetProjection(baseProjection);
   };
 
   return h("div.world-map", null, [
@@ -29,7 +32,7 @@ const Map = props => {
         width,
         height,
         keepNorthUp: false,
-        scale: Math.min(width / 5.5, height / 3) - 10
+        scale: Math.min(width / 1.5, height / 1.5) - 10
       },
       [
         h(PlateFeatureLayer, {
@@ -40,7 +43,9 @@ const Map = props => {
             stroke: "#9dc99f"
           }
         }),
-        h(PBDBCollectionLayer)
+        h(PBDBCollectionLayer),
+        h(MeasurementsLayer),
+        h(SGPSamplesLayer)
       ]
     ),
     h("a.reset-map", { onClick: resetMap }, "Reset projection")
