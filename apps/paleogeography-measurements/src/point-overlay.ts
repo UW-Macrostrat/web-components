@@ -3,7 +3,11 @@ import { useRotations, usePathGenerator } from "@macrostrat/corelle";
 import { FeatureLayer } from "@macrostrat/map-components";
 import { useSGPData } from "./features/sgp";
 import { scalePow } from "d3-scale";
-import { usePBDBFeatures } from "./features";
+import {
+  usePBDBFeatures,
+  useMacrostratFeatures,
+  useSGPFeatures
+} from "./features";
 import h from "@macrostrat/hyper";
 
 const radiusScale = scalePow([0, 30], [1, 10])
@@ -22,10 +26,7 @@ function PBDBPoint({ feature }) {
 
   const { noc, nco, lng, lat } = feature;
   const radius = radiusScale(nco + noc);
-  const pt = proj.pointRadius(radius)({
-    coordinates: [lng, lat],
-    type: "Point"
-  });
+  const pt = proj.pointRadius(radius)(feature.geometry);
 
   if (pt == null) return null;
   return h("path.pbdb-collection", {
@@ -52,15 +53,47 @@ const defaultStyle = {
   stroke: "purple"
 };
 
+function BasicPoint({ feature }) {
+  /** Render a single PBDB point */
+  const proj = usePathGenerator(feature.plate_id);
+  const { time } = useRotations();
+  if (proj == null) return null;
+  if (time < feature.young_lim || time > feature.old_lim) return null;
+
+  //const { noc, nco, lng, lat } = feature;
+  //const radius = radiusScale(nco + noc);
+  const pt = proj.pointRadius(4)(feature.geometry);
+
+  if (pt == null) return null;
+  return h("path", {
+    opacity: 0.5, //opacityScale(nco + noc),
+    d: pt
+  });
+}
+
 export function SGPSamplesLayer() {
   const { time } = useRotations();
-  const features = useSGPData(time);
-  console.log(features);
+  const features = useSGPFeatures(time);
   if (features == null) return null;
+  console.log(features);
+  return h(
+    "g.sgp-collections",
+    {},
+    features.map((d, i) => {
+      return h(BasicPoint, { feature: d });
+    })
+  );
+}
 
-  return h(FeatureLayer, {
-    useCanvas: false,
-    style: defaultStyle,
-    features
-  });
+export function MacrostratMeasurementsLayer() {
+  const features = useMacrostratFeatures();
+  if (features == null) return null;
+  console.log(features);
+  return h(
+    "g.macrostrat-collections",
+    {},
+    features.map((d, i) => {
+      return h(BasicPoint, { feature: d });
+    })
+  );
 }

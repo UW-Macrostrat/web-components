@@ -1,15 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import Supercluster from "supercluster";
-
-export function clusterPoints(data, zoomLevel = 4, opts = {}) {
-  const cluster = new Supercluster({
-    radius: 20,
-    ...opts
-  });
-  cluster.load(data);
-  return cluster.getClusters([-180, -90, 180, 90], zoomLevel);
-}
+import { clusterPoints, usePlateIntersection } from "./helpers";
 
 function clusterSGPResult(rows: any[]) {
   console.log(rows);
@@ -27,17 +18,10 @@ function clusterSGPResult(rows: any[]) {
       }
     };
   });
-  const res = clusterPoints(data);
-  console.log(res);
-  return res;
+  return clusterPoints(data);
 }
 
 async function getSGPResult(ageRange: [number, number]) {
-  // const filters = {
-  //   type: "samples",
-  //   filters: { interpreted_age: ageRange },
-  //   show: ["coord_lat", "coord_lon"]
-  // };
   const filters = {
     type: "samples",
     count: 100000,
@@ -54,10 +38,10 @@ async function getSGPResult(ageRange: [number, number]) {
   return clusterSGPResult(res?.data?.rows);
 }
 
-export function useSGPData(time) {
+export function useSGPFeatures(time) {
   const [result, setResult] = useState(null);
   useEffect(() => {
     getSGPResult([time - 10, time + 10]).then(setResult);
   }, [time]);
-  return result;
+  return usePlateIntersection(result);
 }

@@ -2,10 +2,13 @@ import { geoStereographic } from "d3-geo";
 import { useRef } from "react";
 import { PlateFeatureLayer } from "@macrostrat/corelle";
 import { hyperStyled } from "@macrostrat/hyper";
-import { PBDBCollectionLayer, SGPSamplesLayer } from "./point-overlay";
+import {
+  PBDBCollectionLayer,
+  SGPSamplesLayer,
+  MacrostratMeasurementsLayer
+} from "./point-overlay";
 import { Globe } from "@macrostrat/map-components";
 import styles from "./main.styl";
-import { MeasurementsLayer } from "./features/macrostrat";
 
 const h = hyperStyled(styles);
 
@@ -44,7 +47,7 @@ const Map = props => {
           }
         }),
         h(PBDBCollectionLayer),
-        h(MeasurementsLayer),
+        h(MacrostratMeasurementsLayer),
         h(SGPSamplesLayer)
       ]
     ),

@@ -2,12 +2,9 @@
 
 import { useMemo } from "react";
 import { useAPIResult } from "@macrostrat/ui-components";
-import { usePlatePolygons } from "@macrostrat/corelle";
-import { FeatureLayer } from "@macrostrat/map-components";
-import { clusterPoints } from "./sgp";
-import h from "@macrostrat/hyper";
+import { clusterPoints, usePlateIntersection } from "./helpers";
 
-function useMacrostratFeatures() {
+export function useMacrostratFeatures() {
   /** Get features and assign to plates */
   const res = useAPIResult<{ records: any[] }>(
     "https://dev.macrostrat.org/api/v2/measurements",
@@ -18,26 +15,11 @@ function useMacrostratFeatures() {
     }
   );
 
-  return res?.success?.data;
+  const clustered = useMemo(() => {
+    const data = res?.success?.data?.features;
+    if (data == null) return null;
+    return clusterPoints(data);
+  }, [res]);
+
+  return usePlateIntersection(clustered);
 }
-
-const defaultStyle = {
-  fill: "rgb(239, 180, 249)",
-  stroke: "magenta"
-};
-
-const MeasurementsLayer = props => {
-  const { style = defaultStyle, ...params } = props;
-  const res = useMacrostratFeatures();
-  if (res == null) return null;
-
-  const features = clusterPoints(res.features);
-
-  return h(FeatureLayer, {
-    useCanvas: false,
-    style,
-    features
-  });
-};
-
-export { MeasurementsLayer };
