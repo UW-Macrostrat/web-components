@@ -15,7 +15,7 @@ html, body
   width 100vw
   height 100vh
   display flex
-  flex-direction column
+  flex-direction: row !important
   overflow hidden
 
 .world-map
@@ -82,17 +82,15 @@ The code below styles the timescale correctly.
 Eventually this will all be integrated as better options to
 the timescale component itself.
 */
-.timescale.horizontal
+.timescale.vertical
+  max-width 100px
   cursor: pointer
   position relative
   margin 0 auto
   &>.interval
     border 1px solid var(--timescale-cursor-color)
   margin-bottom 10px
-  flex-direction: column-reverse !important
 
-.interval
-  flex-direction: column-reverse !important;
 
 .interval-label
   color #222

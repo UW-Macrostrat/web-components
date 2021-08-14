@@ -8,7 +8,10 @@ import { Map } from "./map";
 import {
   getQueryString,
   setQueryString,
+  useAPIResult
 } from "@macrostrat/ui-components";
+import axios from "axios";
+import { useSGPResult } from "./sgp-api";
 
 function useTimeState(initialValue) {
   /** Time state hook that also manages query URL */
@@ -17,7 +20,7 @@ function useTimeState(initialValue) {
   const _init = isNaN(val) ? initialValue : val;
 
   const [time, _setTime] = useState(_init);
-  const setTime = (t) => {
+  const setTime = t => {
     _setTime(t);
     setQueryString({ time: t });
   };
@@ -54,8 +57,9 @@ function App() {
   const [time, setTime] = useTimeRange([542, 0], 300);
   const [size, setSize] = useState({
     width: 1100,
-    height: 800,
+    height: 800
   });
+  const result = useSGPResult(time);
 
   return h(
     ResizeSensor,
@@ -63,33 +67,33 @@ function App() {
       onResize(entries) {
         const { width, height } = entries[0].contentRect;
         return setSize({ width, height });
-      },
+      }
     },
     [
       h("div.app", [
-        h(RotationsProvider, { model, time, debounce: 1000 }, [
-          h(Map, { width: size.width, height: size.height - 100 }),
-        ]),
         // Many of these timescale options need to be simplified
         h(Timescale, {
           ageRange: [542, 0],
-          orientation: "horizontal",
-          length: size.width - 20,
+          orientation: "vertical",
+          length: size.height - 20,
           absoluteAgeScale: true,
           rootInterval: 751,
-          levels: [2, 3],
+          levels: [2, 3, 4],
           cursorPosition: time,
           axisProps: {
-            orientation: "top",
+            orientation: "left",
             tickLength: 4,
             hideAxisLine: true,
-            labelOffset: 10,
+            labelOffset: 10
           },
           onClick(event, age) {
             setTime(Math.round(age));
-          },
+          }
         }),
-      ]),
+        h(RotationsProvider, { model, time, debounce: 1000 }, [
+          h(Map, { width: size.width - 200, height: size.height })
+        ])
+      ])
     ]
   );
 }

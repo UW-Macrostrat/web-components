@@ -5,7 +5,7 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import {
   useRotations,
   usePathGenerator,
-  usePlatePolygons,
+  usePlatePolygons
 } from "@macrostrat/corelle";
 import { geoContains } from "d3-geo";
 import { scalePow } from "d3-scale";
@@ -21,7 +21,7 @@ function intersectFeatures(polygons, points) {
           ...pt,
           old_lim,
           plate_id,
-          young_lim,
+          young_lim
         });
         break;
       }
@@ -38,7 +38,7 @@ function usePBDBFeatures(time: number, timeDelta: number = 2) {
       show: "time",
       min_ma: time - timeDelta,
       max_ma: time + timeDelta,
-      level: 3,
+      level: 3
     }
   );
 
@@ -71,13 +71,13 @@ function PBDBPoint({ feature }) {
   const radius = radiusScale(nco + noc);
   const pt = proj.pointRadius(radius)({
     coordinates: [lng, lat],
-    type: "Point",
+    type: "Point"
   });
 
   if (pt == null) return null;
   return h("path.pbdb-collection", {
     opacity: opacityScale(nco + noc),
-    d: pt,
+    d: pt
   });
 }
 
