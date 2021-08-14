@@ -13,7 +13,7 @@ import h from "@macrostrat/hyper";
 const radiusScale = scalePow([0, 30], [1, 10])
   .exponent(0.5)
   .clamp(true);
-const opacityScale = scalePow([0, 30], [0.8, 0.2])
+const opacityScale = scalePow([0, 30], [0.5, 0.2])
   .exponent(0.5)
   .clamp(true);
 
@@ -60,13 +60,13 @@ function BasicPoint({ feature }) {
   if (proj == null) return null;
   if (time < feature.young_lim || time > feature.old_lim) return null;
 
-  //const { noc, nco, lng, lat } = feature;
-  //const radius = radiusScale(nco + noc);
-  const pt = proj.pointRadius(4)(feature.geometry);
+  const pointCount = feature?.properties?.point_count ?? 1;
+  const radius = radiusScale(pointCount);
+  const pt = proj.pointRadius(radius)(feature.geometry);
 
   if (pt == null) return null;
   return h("path", {
-    opacity: 0.5, //opacityScale(nco + noc),
+    opacity: opacityScale(pointCount),
     d: pt
   });
 }
