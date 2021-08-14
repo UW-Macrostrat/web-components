@@ -77,19 +77,24 @@ g.ne_110m_land
   stroke-width 1px
   stroke-dasharray 2,2
 
+.sidebar
+  width 200px
+  padding 1em
+
 /*
 The code below styles the timescale correctly.
 Eventually this will all be integrated as better options to
 the timescale component itself.
 */
 .timescale.vertical
-  max-width 100px
   cursor: pointer
-  position relative
-  margin 0 auto
+  //margin 0 auto
   &>.interval
     border 1px solid var(--timescale-cursor-color)
-  margin-bottom 10px
+    display flex
+    flex-direction column
+    transform translate(0 2px)
+  //margin-bottom 10px
 
 
 .interval-label

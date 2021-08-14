@@ -6,7 +6,7 @@ import { Timescale } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 import { Map } from "./map";
 import { getQueryString, setQueryString } from "@macrostrat/ui-components";
-import { IntervalProvider } from "./time-intervals";
+import { IntervalProvider, useSelectedInterval } from "./time-intervals";
 
 function useTimeState(initialValue) {
   /** Time state hook that also manages query URL */
@@ -45,6 +45,13 @@ function useTimeRange(range: [number, number], initialValue: number) {
   return [time, setTime];
 }
 
+function IntervalName() {
+  const int = useSelectedInterval();
+  return h("div.interval-info", [
+    h("h4.interval-name", int.nam),
+    h("p.interval-age", `${int.eag}–${int.lag} Ma`)
+  ]);
+}
 function App() {
   /** The core app component */
   const model = "Wright2013";
@@ -67,24 +74,29 @@ function App() {
       h(IntervalProvider, { time }, [
         h("div.app", [
           // Many of these timescale options need to be simplified
-          h(Timescale, {
-            ageRange: [542, 0],
-            orientation: "vertical",
-            length: size.height - 20,
-            absoluteAgeScale: true,
-            rootInterval: 751,
-            levels: [2, 3, 4],
-            cursorPosition: time,
-            axisProps: {
-              orientation: "left",
-              tickLength: 4,
-              hideAxisLine: true,
-              labelOffset: 10
-            },
-            onClick(event, age) {
-              setTime(Math.round(age));
-            }
-          }),
+          h("div.sidebar", [
+            h(IntervalName),
+            h("div.timescale-container", [
+              h(Timescale, {
+                ageRange: [542, 0],
+                orientation: "vertical",
+                length: size.height - 150,
+                absoluteAgeScale: true,
+                rootInterval: 751,
+                levels: [2, 3, 4],
+                cursorPosition: time,
+                axisProps: {
+                  orientation: "left",
+                  tickLength: 4,
+                  hideAxisLine: true,
+                  labelOffset: 10
+                },
+                onClick(event, age) {
+                  setTime(Math.round(age));
+                }
+              })
+            ])
+          ]),
           h(RotationsProvider, { model, time, debounce: 1000 }, [
             h(Map, { width: size.width - 200, height: size.height })
           ])
