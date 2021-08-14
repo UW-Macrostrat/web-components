@@ -42,7 +42,7 @@ g.plates path
     stroke-width: 1px
     outline: none
 
-land_color=#E9FCEA
+land_color=lighten(#E9FCEA,10%)
 g.ne_110m_land
   path
     fill land_color
@@ -73,7 +73,7 @@ g.ne_110m_land
 
 :global(.graticule)
   fill none
-  stroke #aaa
+  stroke #444
   stroke-width 1px
   stroke-dasharray 2,2
 
@@ -104,11 +104,11 @@ g.vx-group.vx-axis
   font-size 14px
   padding 0 4px
 
-path.pbdb-collection
-  fill: rgb(129, 79, 164)
+.pbdb-collections path
+  fill: pink
 
 .sgp-collections path
-  fill: red
+  fill: rgb(129, 79, 164)
 
 .macrostrat-collections path
   fill: dodgerblue

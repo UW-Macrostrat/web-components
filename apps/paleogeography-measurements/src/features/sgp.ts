@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { clusterPoints, usePlateIntersection } from "./helpers";
+import { useSelectedInterval } from "../time-intervals";
 
 function clusterSGPResult(rows: any[]) {
   console.log(rows);
@@ -39,9 +40,11 @@ async function getSGPResult(ageRange: [number, number]) {
 }
 
 export function useSGPFeatures(time) {
+  const int = useSelectedInterval();
+  const ageRange: [number, number] = [int.lag, int.eag];
   const [result, setResult] = useState(null);
   useEffect(() => {
-    getSGPResult([time - 10, time + 10]).then(setResult);
+    getSGPResult(ageRange).then(setResult);
   }, [time]);
   return usePlateIntersection(result);
 }

@@ -3,15 +3,17 @@
 import { useMemo } from "react";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { clusterPoints, usePlateIntersection } from "./helpers";
+import { useSelectedInterval } from "../time-intervals";
 
 export function useMacrostratFeatures() {
+  const interval = useSelectedInterval();
   /** Get features and assign to plates */
   const res = useAPIResult<{ records: any[] }>(
     "https://dev.macrostrat.org/api/v2/measurements",
     {
       format: "geojson",
       response: "light",
-      interval_name: "Ordovician"
+      interval_name: interval.nam
     }
   );
 

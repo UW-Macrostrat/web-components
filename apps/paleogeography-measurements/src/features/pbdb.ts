@@ -2,6 +2,7 @@
 
 import { useAPIResult } from "@macrostrat/ui-components";
 import { usePlateIntersection } from "./helpers";
+import { useSelectedInterval } from "../time-intervals";
 
 function createFeature(record) {
   const { lng, lat, ...rest } = record;
@@ -14,12 +15,13 @@ function createFeature(record) {
 
 export function usePBDBFeatures(time: number, timeDelta: number = 2) {
   /** Get features and assign to plates */
+  const int = useSelectedInterval();
   const res = useAPIResult<{ records: any[] }>(
     "https://paleobiodb.org/data1.2/colls/summary.json",
     {
       show: "time",
-      min_ma: time - timeDelta,
-      max_ma: time + timeDelta,
+      min_ma: int.lag,
+      max_ma: int.eag,
       level: 3
     }
   );

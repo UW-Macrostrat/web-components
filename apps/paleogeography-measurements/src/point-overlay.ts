@@ -29,7 +29,7 @@ function PBDBPoint({ feature }) {
   const pt = proj.pointRadius(radius)(feature.geometry);
 
   if (pt == null) return null;
-  return h("path.pbdb-collection", {
+  return h("path", {
     opacity: opacityScale(nco + noc),
     d: pt
   });
