@@ -8,6 +8,7 @@ import { feature } from "topojson-client";
 import { geoVoronoi } from "d3-geo-voronoi";
 import { geoCentroid, ExtendedFeature } from "d3-geo";
 import { Polygon } from "geojson";
+import chroma from "chroma-js";
 
 type ColumnProps = { col_id: number };
 
@@ -46,7 +47,14 @@ const Land = props => {
 };
 
 function ColumnFeatures(props) {
-  const { features, onClick, singleFeature = true } = props;
+  const {
+    features,
+    onClick,
+    color = "rgba(150,150,150)",
+    singleFeature = true
+  } = props;
+
+  const c = chroma(color);
 
   return h(
     FeatureLayer,
@@ -54,8 +62,8 @@ function ColumnFeatures(props) {
       className: "columns",
       useCanvas: onClick == null,
       style: {
-        fill: "rgba(150,150,150,0.2)",
-        stroke: "rgb(150,150,150,0.4)"
+        fill: c.alpha(0.2).css(),
+        stroke: c.alpha(0.4).css()
       }
     },
     features.map(f => {
@@ -210,7 +218,8 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
     onChange,
     col_id = null,
     status_code,
-    project_id
+    project_id,
+    color
   } = props;
 
   let all: boolean = undefined;
@@ -234,7 +243,7 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
       project_id,
       showLayers: false
     }),
-    h(ColumnFeatures, { features, onClick: onChange })
+    h(ColumnFeatures, { features, onClick: onChange, color })
   ]);
 };
 

@@ -5,10 +5,7 @@ import { EditableDateField } from "packages/ui-components/lib/types";
 const dt = 0.0001;
 
 function unitsOverlap<T extends BaseUnit>(a: T, b: T) {
-  return (
-    !(a.b_age <= b.t_age + dt || a.t_age >= b.b_age - dt) &&
-    a.section_id == b.section_id
-  );
+  return !(a.b_age <= b.t_age + dt || a.t_age >= b.b_age - dt);
 }
 
 interface ExtUnit extends UnitLong {

@@ -81,7 +81,7 @@ const Section = (props: IColumnProps) => {
   );
 };
 
-function UnitComponent({ division, nColumns = 2, ...rest }) {
+export function UnitComponent({ division, nColumns = 2, ...rest }) {
   const { width } = useContext(ColumnLayoutContext);
 
   //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)

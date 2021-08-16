@@ -7,10 +7,7 @@ import {
   FilteredMeasurementProvider
 } from "../data-providers";
 import { BaseSection, InteriorSection } from "./section";
-import {
-  CompositeUnitsColumn,
-  AnnotatedUnitsColumn
-} from "common/units/composite";
+import { CompositeUnitsColumn } from "common/units";
 import {
   IsotopesColumn,
   IsotopesDataset
@@ -24,9 +21,12 @@ import { ColumnSpec } from "@macrostrat/api-types";
 import { IUnit } from "common/units";
 import patterns from "url:../../../geologic-patterns/*.png";
 import { MeasuredSection } from "./measured-section";
+import { preprocessUnits } from "../../column-inspector/process-data";
 import "./main.styl";
+import { UnitComponent } from "../../column-inspector/column";
+import { ColumnMap } from "./map";
 
-const timeRange = [650, 530];
+const timeRange = [650, 510];
 
 // 1666 might be better, or 1481, or 1667
 const largestScaleColumn: ColumnSpec = { col_id: 1666 };
@@ -50,20 +50,22 @@ const measureSourceColumns: ColumnSpec = {
 };
 
 function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
-  const { params, children } = props;
-  const data: IUnit[] = useAPIResult("/units", {
+  const { params, children, width = 350 } = props;
+  const res: IUnit[] = useAPIResult("/units", {
     all: true,
     ...params,
     response: "long"
   });
-  if (data == null) return null;
+  if (res == null) return null;
+  const data = preprocessUnits(res);
 
   return h("div.column", [
     h(InteriorSection, {
       data,
       // This is honestly extremely strange.
       range: [timeRange[1], timeRange[0]],
-      pixelScale: 6,
+      pixelScale: 5,
+      width,
       children
     })
   ]);
@@ -76,7 +78,7 @@ function MultiIsotopesColumn({ transform }) {
       color: "dodgerblue",
       domain: [-20, 5],
       width: 50,
-      nTicks: 4,
+      nTicks: 2,
       showAxis: true,
       parameter: "D13C"
     }),
@@ -96,14 +98,24 @@ function MultiIsotopesColumn({ transform }) {
 const ColumnManager = () => {
   return h("div.column-array", [
     h(MeasurementDataProvider, { ...measureSourceColumns }, [
-      h(BaseSection, { range: timeRange, pixelScale: 6 }, [
+      h(BaseSection, { range: timeRange, pixelScale: 5 }, [
         h(
           AlignedMeasurementProvider,
           { targetColumn: largestScaleColumn },
-          h(Column, { params: largestScaleColumn }, h(IsotopesSpectraColumn))
+          h(Column, { params: largestScaleColumn, width: 280 }, [
+            h(CompositeUnitsColumn, {
+              width: 240,
+              showLabels: false,
+              unitComponent: UnitComponent,
+              unitComponentProps: {
+                nColumns: 2
+              }
+            })
+            //h(IsotopesSpectraColumn)
+          ])
         ),
         h(AlignedMeasurementProvider, { targetColumn: regionalColumn }, [
-          h(Column, { params: regionalColumn }, [
+          h(Column, { params: regionalColumn, width: 310 }, [
             h(CompositeUnitsColumn, {
               width: 140,
               showLabels: false
@@ -113,13 +125,20 @@ const ColumnManager = () => {
         ]),
         h("div.spacer")
       ]),
-      h(
-        FilteredMeasurementProvider,
-        { filterFunc: d => d.sample_no.match(/^G3-/) != null },
-        h(MeasuredSection, { params: measuredColumn }, [
-          h(MultiIsotopesColumn, { transform: "translate(80,0)" })
-        ])
-      )
+      h("div", [
+        h(
+          FilteredMeasurementProvider,
+          { filterFunc: d => d.sample_no.match(/^G3-/) != null },
+          h(MeasuredSection, { params: measuredColumn }, [
+            h(MultiIsotopesColumn, { transform: "translate(80,0)" })
+          ])
+        ),
+        h(ColumnMap, {
+          className: "column-map",
+          col_id: 1666,
+          margin: 0
+        })
+      ])
     ])
   ]);
 };

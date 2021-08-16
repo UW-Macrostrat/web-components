@@ -8,6 +8,7 @@ import { AgeAxis } from "../../enriched-timeline/column";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
+import { preprocessUnits } from "../../column-inspector/process-data";
 
 interface IColumnProps {
   data: IUnit[];
@@ -23,8 +24,6 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
     children
   } = props;
   let { pixelScale } = props;
-
-  const notesOffset = 100;
 
   const dAge = range[0] - range[1];
 
@@ -45,8 +44,8 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
       [
         h(AgeAxis, {
           tickSpacing: 80,
-          width: 30,
-          padding: 20,
+          width: 40,
+          padding: 30,
           paddingRight: 30
         }),
 
@@ -65,13 +64,15 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
 };
 
 function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
-  const { data, range, pixelScale, children } = props;
+  const { data, range, pixelScale, children, width = 350 } = props;
   const { pixelsPerMeter } = useColumn();
+  const divisions = preprocessUnits(data);
+  console.log(divisions);
 
   return h(
     ColumnProvider,
     {
-      divisions: data,
+      divisions,
       range,
       pixelsPerMeter: pixelScale // Actually pixels per myr
     },
@@ -79,10 +80,10 @@ function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
       h(
         ColumnSVG,
         {
-          width: 350,
-          padding: 0,
-          paddingLeft: 0,
-          paddingV: 20
+          width,
+          padding: 5,
+          paddingLeft: 1,
+          paddingV: 30
         },
 
         children

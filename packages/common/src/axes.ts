@@ -29,8 +29,16 @@ export function AgeAxis(props) {
 
   // Not sure where this extra 5px comes from.
   const marginTop = -paddingV + 5;
-  return h("div.column", { style: { marginTop, marginBottom: -paddingV } }, [
-    h.if(showLabel)("div.age-axis-label", "Age (Ma)"),
-    h(ColumnSVG, { paddingV, ...rest }, h(AgeAxisCore, { ticks, tickSpacing }))
-  ]);
+  return h(
+    "div.column.age-axis",
+    { style: { marginTop, marginBottom: -paddingV } },
+    [
+      h.if(showLabel)("div.age-axis-label", "Age (Ma)"),
+      h(
+        ColumnSVG,
+        { paddingV, ...rest },
+        h(AgeAxisCore, { ticks, tickSpacing })
+      )
+    ]
+  );
 }
