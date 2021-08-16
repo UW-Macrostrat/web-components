@@ -42,7 +42,7 @@ g.plates path
     stroke-width: 1px
     outline: none
 
-land_color=lighten(#E9FCEA,10%)
+land_color=#ffffff //lighten(#E9FCEA,40%)
 g.ne_110m_land
   path
     fill land_color
@@ -110,11 +110,13 @@ g.vx-group.vx-axis
   padding 0 4px
 
 .pbdb-collections path
-  fill: pink
+  fill: #aaa
 
 .sgp-collections path
-  fill: rgb(129, 79, 164)
+  fill: red
 
 .macrostrat-collections path
   fill: dodgerblue
 
+.macrostrat-map path.background
+  fill lighten(#afe6f0, 20%)
