@@ -8,7 +8,7 @@ type CollapseCardProps = ICardProps &
 export function CollapseCard(props: CollapseCardProps) {
   /** Collapsible card taken from COSMOS visualizer */
   const {
-    isOpen,
+    isOpen = true,
     keepChildrenMounted = true,
     transitionDuration = 500,
     className,
@@ -24,7 +24,7 @@ export function CollapseCard(props: CollapseCardProps) {
           className: classNames(className, "mui-collapse-card"),
           ...rest,
         },
-        [h("div.inner", children)]
+        h("div.inner", null, children)
       ),
     ]),
   ]);
