@@ -8,7 +8,7 @@
   "main": "lib/cjs",
   "typings": "lib/types",
   "scripts": {
-    "prepublish": "npm run build",
+    "prepack": "npm run build",
     "watch:main": "rollup -c -w",
     "watch:types": "tsc --emitDeclarationOnly -w",
     "dev": "npm-run-all -p --aggregate-output watch:main watch:types",
