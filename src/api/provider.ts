@@ -202,7 +202,8 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       } else {
         throw "No data to post";
       }
-      params = params ?? {};
+      params ??= {};
+      opts ??= {};
 
       const req = axiosInstance.post(route, payload, { params });
       const info = { route, params, method: APIMethod.POST, opts };
