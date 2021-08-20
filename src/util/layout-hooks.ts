@@ -1,3 +1,4 @@
+import { useAsyncEffect } from "use-async-effect";
 import {
   useLayoutEffect,
   useEffect,
@@ -5,13 +6,6 @@ import {
   useCallback,
   RefObject,
 } from "react";
-
-const useAsyncEffect = function (fn, dependencies) {
-  const vfn = function () {
-    fn();
-  };
-  return useEffect(vfn, dependencies);
-};
 
 type ElementSize = {
   height: number;
@@ -31,7 +25,6 @@ function useElementSize(
   const [size, setSize] = useState<ElementSize>(null);
 
   const sizeCallback = useCallback(() => {
-    console.log(ref);
     if (ref.current == null) return;
     const { height, width } = ref.current.getBoundingClientRect();
     setSize({ height, width });
@@ -46,7 +39,7 @@ function useElementSize(
     return function () {
       window.removeEventListener("resize", sizeCallback);
     };
-  }, [sizeCallback]);
+  }, [sizeCallback, trackWindowResize]);
 
   return size;
 }
