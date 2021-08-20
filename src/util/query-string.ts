@@ -49,7 +49,7 @@ function parseParams(paramString: string, opts?: ParseOptions) {
     parseBooleans: true,
     parseNumbers: true,
     arrayFormat: "comma",
-    ...opts
+    ...opts,
   });
   // Return null unless we have params defined
   return Object.keys(params).length > 0 ? params : null;
@@ -78,5 +78,5 @@ export {
   getQueryString,
   setQueryString,
   getHashString,
-  setHashString
+  setHashString,
 };

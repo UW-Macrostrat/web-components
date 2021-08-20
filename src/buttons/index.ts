@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import { Button, Intent, Spinner } from "@blueprintjs/core";
 import classNames from "classnames";
 
-const SaveButton = function(props) {
+const SaveButton = function (props) {
   let { className, inProgress, disabled, ...rest } = props;
   className = classNames(className, "save-button");
   let icon: React.ReactNode | string = "floppy-disk";
@@ -16,22 +16,22 @@ const SaveButton = function(props) {
     intent: Intent.SUCCESS,
     className,
     disabled,
-    ...rest
+    ...rest,
   });
 };
 
-const CancelButton = function(props) {
+const CancelButton = function (props) {
   let { className, ...rest } = props;
   className = classNames(className, "cancel-button");
 
   return h(Button, {
     intent: Intent.WARNING,
     className,
-    ...rest
+    ...rest,
   });
 };
 
-const EditButton = function(props) {
+const EditButton = function (props) {
   let { isEditing, intent, icon, className, ...rest } = props;
   if (isEditing) {
     if (intent == null) {
@@ -55,7 +55,7 @@ const EditButton = function(props) {
     icon,
     intent,
     className,
-    ...rest
+    ...rest,
   });
 };
 
