@@ -215,7 +215,8 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       } else if (args.length == 2) {
         [params, opts] = args;
       }
-      params = params ?? {};
+      params ??= {};
+      opts ??= {};
 
       const { get } = axiosInstance;
       const fn = opts.memoize ? memoize(get) : get;
