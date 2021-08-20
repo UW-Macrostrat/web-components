@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "UI components for React and blueprint.js",
   "repository": "https://github.com/UW-Macrostrat/ui-components.git",
   "style": "lib/esm/index.css",
@@ -58,6 +58,7 @@
     "husky": "^4.2.5",
     "npm-run-all": "^4.1.5",
     "postcss-modules": "^3.2.0",
+    "prettier": "^2.3.2",
     "pretty-quick": "^2.0.1",
     "rollup": "^2.27.1",
     "rollup-plugin-postcss": "^3.1.8",

@@ -1,7 +1,7 @@
 import {
   createPatternImage,
   loadImage,
-  ImageDataFormat
+  ImageDataFormat,
 } from "./composite-image";
 import { memoize } from "underscore";
 
@@ -27,14 +27,14 @@ async function _geologyPatternURL(
     return url;
   }
 
-  const img = await createPatternImage(
+  const img = (await createPatternImage(
     {
       patternURL: url,
       color,
-      patternColor
+      patternColor,
     },
     ImageDataFormat.Base64
-  );
+  )) as string;
   return img;
 }
 
