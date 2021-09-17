@@ -50,7 +50,7 @@ function ColumnFeatures(props) {
   const {
     features,
     onClick,
-    color = "rgba(150,150,150)",
+    color = "rgba(150,150,150, 1)",
     singleFeature = true
   } = props;
 
