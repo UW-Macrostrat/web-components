@@ -2,6 +2,7 @@ import { useRef } from "react";
 import h from "@macrostrat/hyper";
 import { Globe } from "@macrostrat/map-components";
 import { geoCentroid } from "d3-geo";
+import { MeasurementsLayer } from "common/column-map"
 import { Land, Columns } from "common/map/layers";
 import { useAPIResult } from "@macrostrat/ui-components";
 import useSize from "@react-hook/size";
@@ -69,6 +70,14 @@ const ColumnMap = props => {
           col_id: 1666,
           color: c1
         }),
+          h(MeasurementsLayer, {
+            project_id: 10,
+            status_code: "in process",
+            style: {
+              fill: "#d773a2",
+              stroke: "transparent"
+            }
+          })
         h(CurrentColumn, {
           params: { col_id: 1666 },
           style: { fill: c1.alpha(0.4).css(), stroke: c1.alpha(0.6).css() }
