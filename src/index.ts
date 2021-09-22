@@ -17,3 +17,4 @@ export * from "./settings";
 export * from "./error-boundary";
 export * from "./patterns";
 export * from "./collapse-card";
+export * from "./modal-panel";
