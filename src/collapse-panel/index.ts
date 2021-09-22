@@ -18,7 +18,7 @@ class CollapsePanel extends Component<P, { isOpen: boolean }> {
     title: "Panel",
     // `storageID` prop allows storage of state in
     // localStorage or equivalent.
-    storageID: null
+    storageID: null,
   };
   constructor(props) {
     super(props);
@@ -95,11 +95,11 @@ class CollapsePanel extends Component<P, { isOpen: boolean }> {
       h("div.panel-header", [
         h(HeaderButton, { icon, minimal: true, onClick, fill: true }, [
           h("h2", title),
-          h("span.expander")
+          h("span.expander"),
         ]),
-        headerRight
+        headerRight,
       ]),
-      h(Collapse, { isOpen }, children)
+      h(Collapse, { isOpen }, children),
     ]);
   }
 }

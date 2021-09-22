@@ -5,7 +5,7 @@ import axios, {
   AxiosPromise,
   AxiosInstance,
   AxiosRequestConfig,
-  AxiosResponse
+  AxiosResponse,
 } from "axios";
 import useAsyncEffect from "use-async-effect";
 import { debounce } from "underscore";
@@ -44,12 +44,12 @@ const apiDefaults: APIConfig = {
   onResponse(_) {},
   unwrapResponse(d) {
     return d;
-  }
+  },
 };
 
 function removeUndefined(o1: object) {
   let obj = { ...o1 };
-  Object.keys(obj).forEach(key => {
+  Object.keys(obj).forEach((key) => {
     if (obj[key] === undefined) {
       delete obj[key];
     }
@@ -78,7 +78,7 @@ function splitConfig(
     memoize,
     onError,
     onResponse,
-    unwrapResponse
+    unwrapResponse,
   });
 
   const newConfig = { ...apiDefaults, ...legacyConfig, ...config };
@@ -97,7 +97,7 @@ function createAPIContext(
   const defaultValue = {
     axiosInstance,
     baseURL: axiosInstance.defaults.baseURL ?? "",
-    config
+    config,
   };
 
   return createContext<APIContextValue>(defaultValue);
@@ -105,7 +105,7 @@ function createAPIContext(
 
 enum APIMethod {
   POST = "POST",
-  GET = "GET"
+  GET = "GET",
 }
 
 const APIContext = createAPIContext();
@@ -143,7 +143,7 @@ async function handleResult(
       error: error,
       response: res,
       endpoint: buildURL(route, params),
-      method
+      method,
     });
   } else {
     throw error;
@@ -157,7 +157,7 @@ const APIHelpers = (ctx: APIContextValue) => ({
     // this behavior could change sometime in the future...
     const uriPath = ctx.axiosInstance.getUri({
       url: route,
-      params
+      params,
     });
     return ctx.baseURL + uriPath;
   },
@@ -165,7 +165,7 @@ const APIHelpers = (ctx: APIContextValue) => ({
     let o1: APIConfig = { ...ctx.config, ...opts };
     if (o1.fullResponse) o1.unwrapResponse = apiDefaults.unwrapResponse;
     return o1;
-  }
+  },
 });
 
 interface APIActions {
@@ -202,7 +202,8 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       } else {
         throw "No data to post";
       }
-      params = params ?? {};
+      params ??= {};
+      opts ??= {};
 
       const req = axiosInstance.post(route, payload, { params });
       const info = { route, params, method: APIMethod.POST, opts };
@@ -215,7 +216,8 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       } else if (args.length == 2) {
         [params, opts] = args;
       }
-      params = params ?? {};
+      params ??= {};
+      opts ??= {};
 
       const { get } = axiosInstance;
       const fn = opts.memoize ? memoize(get) : get;
@@ -223,7 +225,7 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       const request = fn(route, { params });
       const info = { route, params, method: APIMethod.GET, opts };
       return handleResult(ctx, request, info);
-    }
+    },
   };
 };
 
@@ -240,7 +242,7 @@ function APIProvider(props: APIProviderProps) {
   const value = {
     axiosInstance,
     baseURL: axiosInstance.defaults.baseURL ?? "",
-    config
+    config,
   };
   return h(context.Provider, { value }, children);
 }
@@ -281,7 +283,7 @@ function useAPIResult<T>(
   const { debounce: _debounce, context, ...rest } = opts ?? {};
   let { get } = useAPIActions(context);
 
-  const _getAPIData = async function() {
+  const _getAPIData = async function () {
     if (route == null) {
       return setResult(null);
     }
@@ -307,5 +309,5 @@ export {
   QueryParams,
   useAPIActions,
   useAPIResult,
-  useAPIHelpers
+  useAPIHelpers,
 };

@@ -9,7 +9,7 @@ function loadImage(url): Promise<HTMLImageElement> {
     const img = new Image();
     img.crossOrigin = "anonymous";
     img.addEventListener("load", () => resolve(img));
-    img.addEventListener("error", err => reject(err));
+    img.addEventListener("error", (err) => reject(err));
     img.src = url;
   });
 }
@@ -59,7 +59,7 @@ function createSolidColorImage(ctx, imgColor, alpha = 1) {
 
 enum ImageDataFormat {
   HTMLImageData = "image-data",
-  Base64 = "base64"
+  Base64 = "base64",
 }
 
 async function createPatternImage(

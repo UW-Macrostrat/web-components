@@ -16,3 +16,4 @@ export * from "./form-controls";
 export * from "./settings";
 export * from "./error-boundary";
 export * from "./patterns";
+export * from "./collapse-card";
