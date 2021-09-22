@@ -9,7 +9,7 @@ import axios, {
 } from "axios";
 import useAsyncEffect from "use-async-effect";
 import { debounce } from "underscore";
-import { APIConfig, APIConfigOptions, ResponseUnwrapper } from "./types";
+import { APIConfig, ResponseUnwrapper, APIConfigOptions } from "./types";
 import { QueryParams } from "../util/query-string";
 
 /*
@@ -23,7 +23,7 @@ type APIContextValue = APIBase & {
 
 type APIProviderCoreProps = APIConfigOptions &
   Partial<AxiosRequestConfig> & {
-    config?: APIConfigOptions;
+    config?: Partial<APIConfigOptions>;
   };
 
 type APIProviderProps = APIProviderCoreProps & {
@@ -301,12 +301,10 @@ function useAPIResult<T>(
 export {
   createAPIContext,
   useAxiosInstance,
-  APIConfigOptions,
   APIContext,
   APIProvider,
   APIActions,
   APIHelpers,
-  QueryParams,
   useAPIActions,
   useAPIResult,
   useAPIHelpers,

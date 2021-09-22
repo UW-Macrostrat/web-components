@@ -1,6 +1,8 @@
 import h from "@macrostrat/hyper";
 import { createContext, useContext, ReactNode } from "react";
-import { useAPIResult, QueryParams, APIConfigOptions } from "./provider";
+import { QueryParams } from "../util/query-string";
+import { APIConfigOptions } from "./types";
+import { useAPIResult } from "./provider";
 
 interface DataProviderCtx {
   [key: string]: string | object | object[] | null;
