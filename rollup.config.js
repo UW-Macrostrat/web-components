@@ -16,28 +16,30 @@ export default {
       dir: pkg.module,
       format: "esm",
       sourcemap: true,
-      entryFileNames: "[name].js"
+      entryFileNames: "[name].js",
     },
     {
       dir: pkg.main,
       format: "cjs",
       sourcemap: true,
-      entryFileNames: "[name].js"
-    }
+      entryFileNames: "[name].js",
+    },
   ],
   external: Object.keys(deps),
   plugins: [
     resolve({ extensions, module: true }),
     postcss({
       // postfix with .module.css etc. for css modules (DISABLED)
-      modules: true,
+      modules: false,
+      autoModules: true,
+      namedExports: true,
       // CSS cannot be extracted outside of the bundle directory for rollup v2.
-      extract: "index.css"
+      extract: "index.css",
     }),
     babel({
       extensions,
       exclude: "node_modules/**",
-      babelHelpers: "bundled"
-    })
-  ]
+      babelHelpers: "bundled",
+    }),
+  ],
 };
