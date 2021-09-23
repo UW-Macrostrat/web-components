@@ -1,11 +1,12 @@
 import h from "@macrostrat/hyper";
 import update, { Spec } from "immutability-helper";
-import { useReducer, useEffect, useRef, useCallback } from "react";
-import { Spinner } from "@blueprintjs/core";
+import { useReducer, useEffect, useRef, useCallback, memo } from "react";
+import { Spinner, NonIdealState } from "@blueprintjs/core";
 import { APIParams, QueryParams } from "./util/query-string";
 import { useInView } from "react-intersection-observer";
 
 import { APIView, APIResultProps, useAPIActions } from "./api";
+import { JSONView } from "./util/json-view";
 
 interface ScrollState<T = object> {
   items: T[];
@@ -30,6 +31,8 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   // Only allow more restrictive parameter types
   params: APIParams;
   className?: string;
+  itemComponent?: React.ComponentType<{ data: T; index: number }>;
+  resultsComponent?: React.ComponentType<{ data: T[] }>;
 }
 
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
@@ -84,13 +87,96 @@ function InfiniteScroll(props) {
   ]);
 }
 
+const Placeholder = (props) => {
+  const { loading, ...rest } = props;
+
+  return h("div.placeholder", [
+    h(NonIdealState, {
+      icon: "search-template",
+      className: "placeholder-inner",
+      title: "No results yet",
+      description: "Enter a query to search the knowledge base",
+      ...rest,
+    }),
+  ]);
+};
+
+const LoadingPlaceholder = (props: { perPage: number }) => {
+  const { perPage = 10 } = props;
+  // const ctx = useAPIView();
+
+  // let desc = null;
+  // if (ctx != null) {
+  //   const page = ctx.params?.page ?? 0;
+
+  //   let computedPageCount = null;
+  //   if (perPage != null && ctx.totalCount != null) {
+  //     computedPageCount = Math.ceil(ctx.totalCount / perPage);
+  //   }
+  //   const pageCount = ctx.pageCount ?? computedPageCount;
+
+  //   if (page >= 1) {
+  //     desc = `Page ${page + 1}`;
+  //     if (pageCount != null) desc += ` of ${pageCount}`;
+  //   }
+  // }
+
+  return h(Placeholder, {
+    icon: h(Spinner),
+    title: "Loading extractions",
+    description: "Waiting",
+  });
+};
+
+function EmptyPlaceholder() {
+  return h(Placeholder, {
+    icon: "inbox",
+    title: "No results",
+  });
+}
+
+const InfiniteScrollBody = (props) => {
+  const {
+    data = [],
+    isLoading,
+    itemComponent = JSONView,
+    loadingPlaceholder = LoadingPlaceholder,
+    emptyPlaceholder = EmptyPlaceholder,
+    resultsComponent = "div.results",
+  } = props;
+  if (data.length == 0 && !isLoading) return h(emptyPlaceholder);
+
+  const offset = 0;
+
+  return h([
+    h(
+      resultsComponent,
+      { data },
+      data.map((d, i) => {
+        return h(itemComponent, { key: i, data: d, index: i });
+      })
+    ),
+    h.if(isLoading)(loadingPlaceholder),
+  ]);
+};
+
 function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   /*
   A container for cursor-based pagination. This is built for
   the GeoDeepDive API right now, but it can likely be generalized
   for other uses.
   */
-  const { route, params, opts, children, placeholder, className } = props;
+  const {
+    route,
+    params,
+    opts,
+    placeholder,
+    className,
+    itemComponent,
+    loadingPlaceholder,
+    emptyPlaceholder,
+    resultsComponent,
+  } = props;
   const { get } = useAPIActions();
   const { getCount, getNextParams, getItems, hasMore } = props;
 
@@ -141,7 +227,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
         },
       });
     },
-    [state.items]
+    [state.items, route, params, opts]
   );
 
   const loadMore = useCallback(() => {
@@ -152,25 +238,28 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       // @ts-ignore
       callback: loadPage,
     });
-  }, [state.scrollParams, loadPage]);
+  }, [state.scrollParams, loadPage, route, params, opts]);
 
   const isInitialRender = useRef(true);
-  const loadInitialData = function () {
-    // Don't run on initial render
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-    console.log("Resetting to initial data");
-    /*
+  const loadInitialData = useCallback(
+    function () {
+      // Don't run on initial render
+      if (isInitialRender.current) {
+        isInitialRender.current = false;
+        return;
+      }
+      console.log("Resetting to initial data");
+      /*
     Get the initial dataset
     */
-    // const success = await get(route, params, opts);
-    // parseResponse(success, true)
-    //if (state.items.length == 0 && state.isLoadingPage == null) return
-    dispatch({ type: "update-state", spec: { $set: initialState } });
-    //await loadNext(0)
-  };
+      // const success = await get(route, params, opts);
+      // parseResponse(success, true)
+      //if (state.items.length == 0 && state.isLoadingPage == null) return
+      dispatch({ type: "update-state", spec: { $set: initialState } });
+      //await loadNext(0)
+    },
+    [isInitialRender, route, params, opts]
+  );
 
   const isLoading = state.isLoadingPage != null;
 
@@ -202,7 +291,14 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
         isLoading: state.isLoadingPage != null,
         totalCount: props.totalCount ?? state.count,
       },
-      children
+      h(InfiniteScrollBody, {
+        data: state.items,
+        isLoading,
+        itemComponent,
+        resultsComponent,
+        loadingPlaceholder,
+        emptyPlaceholder,
+      })
     )
   );
 }
