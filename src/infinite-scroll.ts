@@ -1,9 +1,9 @@
-import InfiniteScroll from "react-infinite-scroller";
 import h from "@macrostrat/hyper";
 import update, { Spec } from "immutability-helper";
-import { useReducer, useEffect, useRef } from "react";
+import { useReducer, useEffect, useRef, useCallback } from "react";
 import { Spinner } from "@blueprintjs/core";
 import { APIParams, QueryParams } from "./util/query-string";
+import { useInView } from "react-intersection-observer";
 
 import { APIView, APIResultProps, useAPIActions } from "./api";
 
@@ -63,9 +63,25 @@ function infiniteScrollReducer<T>(
       action.callback(action);
       return update(state, {
         // @ts-ignore
-        isLoadingPage: { $set: action.params.page ?? 0 }
+        isLoadingPage: { $set: action.params.page ?? 0 },
       });
   }
+}
+
+function InfiniteScroll(props) {
+  const { hasMore, children, className, loadMore } = props;
+  const { ref, inView } = useInView({ rootMargin: "0px 0px -100px 0px" });
+
+  useEffect(() => {
+    if (!hasMore || !inView) return;
+    loadMore();
+  }, [inView, hasMore]);
+
+  return h("div.infinite-scroll-container", { className }, [
+    children,
+    //h.if(state.isLoadingPage != null)(placeholder),
+    h("div.bottom-marker", { ref }),
+  ]);
 }
 
 function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
@@ -84,7 +100,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     count: null,
     error: null,
     hasMore: true,
-    isLoadingPage: null
+    isLoadingPage: null,
   };
 
   const [state, dispatch] = useReducer<Reducer<T>>(
@@ -92,39 +108,54 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     initialState
   );
 
-  const loadPage = async (action: LoadPage<T>) => {
-    const res = await get(route, action.params, opts);
-    console.log("Loaded page with params", action.params);
-    const itemVals = getItems(res);
-    const ival = { $push: itemVals };
-    const nextLength = state.items.length + itemVals.length;
-    const count = getCount(res);
-    console.log(state.items);
-    // if (state.isLoadingPage == null) {
-    //   // We have externally cancelled this request (by e.g. moving to a new results set)
-    //   console.log("Loading cancelled")
-    //   return
-    // }
+  const loadPage = useCallback(
+    async (action: LoadPage<T>) => {
+      const res = await get(route, action.params, opts);
+      console.log("Loaded page with params", action.params);
+      const itemVals = getItems(res);
+      const ival = { $push: itemVals };
+      const nextLength = state.items.length + itemVals.length;
+      const count = getCount(res);
+      console.log(state.items);
+      // if (state.isLoadingPage == null) {
+      //   // We have externally cancelled this request (by e.g. moving to a new results set)
+      //   console.log("Loading cancelled")
+      //   return
+      // }
 
-    let p1: QueryParams = getNextParams(res, params);
-    let hasNextParams = p1 != null;
-    console.log("Next page parameters", p1);
+      let p1: QueryParams = getNextParams(res, params);
+      let hasNextParams = p1 != null;
+      console.log("Next page parameters", p1);
 
-    action.dispatch({
-      type: "update-state",
-      spec: {
-        items: ival,
-        // @ts-ignore
-        scrollParams: { $set: p1 },
-        count: { $set: count },
-        hasMore: { $set: hasMore(res) && itemVals.length > 0 && hasNextParams },
-        isLoadingPage: { $set: null }
-      }
+      action.dispatch({
+        type: "update-state",
+        spec: {
+          items: ival,
+          // @ts-ignore
+          scrollParams: { $set: p1 },
+          count: { $set: count },
+          hasMore: {
+            $set: hasMore(res) && itemVals.length > 0 && hasNextParams,
+          },
+          isLoadingPage: { $set: null },
+        },
+      });
+    },
+    [state.items]
+  );
+
+  const loadMore = useCallback(() => {
+    dispatch({
+      type: "load-page",
+      params: state.scrollParams,
+      dispatch,
+      // @ts-ignore
+      callback: loadPage,
     });
-  };
+  }, [state.scrollParams, loadPage]);
 
   const isInitialRender = useRef(true);
-  const loadInitialData = function() {
+  const loadInitialData = function () {
     // Don't run on initial render
     if (isInitialRender.current) {
       isInitialRender.current = false;
@@ -141,7 +172,10 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     //await loadNext(0)
   };
 
+  const isLoading = state.isLoadingPage != null;
+
   useEffect(loadInitialData, [props.route, props.params]);
+
   if (state == null) return null;
 
   //useAsyncEffect(getInitialData, [route, params]);
@@ -152,19 +186,11 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     InfiniteScroll,
     {
       pageStart: -1,
-      loadMore: (page: number) => {
-        dispatch({
-          type: "load-page",
-          params: state.scrollParams,
-          dispatch,
-          // @ts-ignore
-          callback: loadPage
-        });
-      },
+      loadMore,
       hasMore: state.hasMore && state.isLoadingPage == null,
       loader: placeholder,
       useWindow: true,
-      className
+      className,
     },
     h(
       APIView,
@@ -174,7 +200,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
         params: state.scrollParams,
         placeholder,
         isLoading: state.isLoadingPage != null,
-        totalCount: props.totalCount ?? state.count
+        totalCount: props.totalCount ?? state.count,
       },
       children
     )
@@ -195,7 +221,7 @@ InfiniteScrollView.defaultProps = {
     const lastPage = params.page ?? 0;
     return { ...params, page: lastPage + 1 };
   },
-  placeholder: h(Spinner)
+  placeholder: h(Spinner),
 };
 
 export { InfiniteScrollView };
