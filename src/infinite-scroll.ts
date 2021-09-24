@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 import update, { Spec } from "immutability-helper";
-import { useReducer, useEffect, useRef, useCallback, memo } from "react";
+import React, { useReducer, useEffect, useRef, useCallback, memo } from "react";
 import { Spinner, NonIdealState } from "@blueprintjs/core";
 import { APIParams, QueryParams } from "./util/query-string";
 import { useInView } from "react-intersection-observer";
@@ -32,6 +32,8 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   params: APIParams;
   className?: string;
   itemComponent?: React.ComponentType<{ data: T; index: number }>;
+  loadingPlaceholder?: React.ComponentType;
+  emptyPlaceholder?: React.ComponentType;
   resultsComponent?: React.ComponentType<{ data: T[] }>;
 }
 
@@ -123,7 +125,7 @@ const LoadingPlaceholder = (props: { perPage: number }) => {
 
   return h(Placeholder, {
     icon: h(Spinner),
-    title: "Loading extractions",
+    title: "Loading",
     description: "Waiting",
   });
 };
