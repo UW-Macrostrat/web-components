@@ -1,5 +1,19 @@
 # Changelog
 
+## `[1.0.0]` - 23-09-2021
+
+- Finally remove deprecated `APIView` component.
+- Change `InfiniteScrollView` component to use `IntersectionObserver` APIs, in order to get rid of stale dependency `react-infinite-scroller`.
+- Add a `useScrollMarkers` hook
+
+## `[0.7.0]` - 20-09-2021
+
+- **Breaking change**: Move `LinkCard` and other compents in `ext/router-links` to the new [`@macrostrat/router-components`](https://github.com/UW-Macrostrat/router-components) module.
+- Add a skeletal data provider that tracks multiple `useAPIResult` calls
+- Added a default theme (Monokai) to `JSONView`
+- Added a `ModalPanel` component
+- Upgrade `@macrostrat/hyper` dependency
+
 ## `[0.6.0]` - 28-06-2021
 
 - **Breaking change**: Move `LinkCard` and other components depending on `react-router-dom` to a separate `ext/router-links` section.
