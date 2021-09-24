@@ -6,6 +6,8 @@ import { debounce } from "underscore";
 import { APIConfig } from "./types";
 import { QueryParams } from "../util/query-string";
 import { JSONView } from "../util/json-view";
+import { IndexingProvider } from "./indexing";
+import { number } from "fp-ts";
 
 interface APIPlaceholderProps {
   isLoading: boolean;
@@ -21,7 +23,8 @@ type APIChild<T> =
   | React.ReactElement<{ data: T; isLoading: boolean }>
   | ChildFunction<T>;
 
-type APIViewCTX<T> = {
+type APIViewProps<T> = {
+  children?: APIChild<T>;
   placeholder: React.ComponentType<APIPlaceholderProps>;
   params: QueryParams;
   route: string | null;
@@ -30,11 +33,6 @@ type APIViewCTX<T> = {
   totalCount?: number;
   pageCount?: number;
 };
-
-type APIViewProps<T> = {
-  children?: APIChild<T>;
-} & APIViewCTX<T> &
-  APIPlaceholderProps;
 
 interface APIResultProps<T> extends APIViewProps<T> {
   onSuccess: (d: T) => void;
@@ -109,13 +107,10 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     this.setState({ data, isLoading: false });
   }
 
-  render() {
+  renderInner() {
     const { data, isLoading } = this.state;
-    const { children, placeholder } = this.props;
+    const { children } = this.props;
 
-    if (data == null && placeholder != null) {
-      return h(placeholder, { isLoading });
-    }
     if (typeof children == "function") {
       return children(data) as React.ReactElement;
     } else if (isValidElement(children)) {
@@ -128,6 +123,26 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
         "The APIResultView component must have a single child element or a function"
       );
     }
+  }
+
+  render() {
+    const { data, isLoading } = this.state;
+    const { placeholder } = this.props;
+    if (data == null && placeholder != null) {
+      return h(placeholder, { isLoading });
+    }
+
+    if (Array.isArray(data)) {
+      return h(
+        IndexingProvider,
+        {
+          totalCount: data.length,
+          indexOffset: 0,
+        },
+        this.renderInner()
+      );
+    }
+    return this.renderInner();
   }
 }
 

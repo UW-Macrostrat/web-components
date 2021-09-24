@@ -7,6 +7,7 @@ import { useInView } from "react-intersection-observer";
 
 import { APIResultProps, useAPIActions } from "./api";
 import { JSONView } from "./util/json-view";
+import { IndexingProvider } from "./api/indexing";
 
 interface ScrollState<T = object> {
   items: T[];
@@ -288,7 +289,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     },
     [
       h.if(isEmpty)(emptyPlaceholder),
-      h.if(!isEmpty)([
+      h.if(!isEmpty)(IndexingProvider, { totalCount, indexOffset: 0 }, [
         h(
           resultsComponent,
           { data },
