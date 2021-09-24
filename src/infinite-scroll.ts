@@ -5,7 +5,7 @@ import { Spinner, NonIdealState } from "@blueprintjs/core";
 import { APIParams, QueryParams } from "./util/query-string";
 import { useInView } from "react-intersection-observer";
 
-import { APIView, APIResultProps, useAPIActions } from "./api";
+import { APIResultProps, useAPIActions } from "./api";
 import { JSONView } from "./util/json-view";
 
 interface ScrollState<T = object> {
@@ -15,6 +15,7 @@ interface ScrollState<T = object> {
   error?: any;
   hasMore: boolean;
   isLoadingPage: number | null;
+  pageIndex: number;
 }
 
 type ScrollResponseItems<T> = Pick<
@@ -34,7 +35,10 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   itemComponent?: React.ComponentType<{ data: T; index: number }>;
   loadingPlaceholder?: React.ComponentType;
   emptyPlaceholder?: React.ComponentType;
+  finishedPlaceholder?: React.ComponentType;
   resultsComponent?: React.ComponentType<{ data: T[] }>;
+  perPage?: number;
+  startPage?: number;
 }
 
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
@@ -90,43 +94,46 @@ function InfiniteScroll(props) {
 }
 
 const Placeholder = (props) => {
-  const { loading, ...rest } = props;
+  const {
+    loading,
+    title = "No results yet",
+    description = null,
+    ...rest
+  } = props;
 
   return h("div.placeholder", [
     h(NonIdealState, {
       icon: "search-template",
       className: "placeholder-inner",
-      title: "No results yet",
-      description: "Enter a query to search the knowledge base",
+      title,
+      description,
       ...rest,
     }),
   ]);
 };
 
-const LoadingPlaceholder = (props: { perPage: number }) => {
-  const { perPage = 10 } = props;
-  // const ctx = useAPIView();
+const LoadingPlaceholder = (props: {
+  itemName?: string;
+  scrollParams?: APIParams;
+  pageIndex?: number | null;
+  loadedCount?: number;
+  totalCount?: number;
+  perPage?: number;
+}) => {
+  const { perPage = 10, loadedCount = 0, itemName = "results" } = props;
+  const { totalCount = 0 } = props;
 
-  // let desc = null;
-  // if (ctx != null) {
-  //   const page = ctx.params?.page ?? 0;
-
-  //   let computedPageCount = null;
-  //   if (perPage != null && ctx.totalCount != null) {
-  //     computedPageCount = Math.ceil(ctx.totalCount / perPage);
-  //   }
-  //   const pageCount = ctx.pageCount ?? computedPageCount;
-
-  //   if (page >= 1) {
-  //     desc = `Page ${page + 1}`;
-  //     if (pageCount != null) desc += ` of ${pageCount}`;
-  //   }
-  // }
+  let description = null;
+  if (totalCount != null) {
+    const loadedPages = Math.ceil(loadedCount / perPage);
+    const totalPages = Math.ceil(totalCount / perPage);
+    description = `Page ${loadedPages} of ${totalPages}`;
+  }
 
   return h(Placeholder, {
     icon: h(Spinner),
-    title: "Loading",
-    description: "Waiting",
+    title: "Loading " + itemName,
+    description,
   });
 };
 
@@ -137,30 +144,15 @@ function EmptyPlaceholder() {
   });
 }
 
-const InfiniteScrollBody = (props) => {
-  const {
-    data = [],
-    isLoading,
-    itemComponent = JSONView,
-    loadingPlaceholder = LoadingPlaceholder,
-    emptyPlaceholder = EmptyPlaceholder,
-    resultsComponent = "div.results",
-  } = props;
-  if (data.length == 0 && !isLoading) return h(emptyPlaceholder);
-
-  const offset = 0;
-
-  return h([
-    h(
-      resultsComponent,
-      { data },
-      data.map((d, i) => {
-        return h(itemComponent, { key: i, data: d, index: i });
-      })
-    ),
-    h.if(isLoading)(loadingPlaceholder),
-  ]);
-};
+function FinishedPlaceholder({ totalCount, ...rest }) {
+  const description = totalCount != null ? `${totalCount} total items` : null;
+  return h(Placeholder, {
+    icon: null,
+    title: "No more results",
+    description,
+    ...rest,
+  });
+}
 
 function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   /*
@@ -174,10 +166,13 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     opts,
     placeholder,
     className,
-    itemComponent,
-    loadingPlaceholder,
-    emptyPlaceholder,
-    resultsComponent,
+    itemComponent = JSONView,
+    loadingPlaceholder = LoadingPlaceholder,
+    emptyPlaceholder = EmptyPlaceholder,
+    finishedPlaceholder = FinishedPlaceholder,
+    resultsComponent = "div.results",
+    perPage = 10,
+    startPage = 0,
   } = props;
   const { get } = useAPIActions();
   const { getCount, getNextParams, getItems, hasMore } = props;
@@ -189,7 +184,10 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     error: null,
     hasMore: true,
     isLoadingPage: null,
+    pageIndex: startPage,
   };
+
+  const pageOffset = 0;
 
   const [state, dispatch] = useReducer<Reducer<T>>(
     infiniteScrollReducer,
@@ -221,6 +219,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
           items: ival,
           // @ts-ignore
           scrollParams: { $set: p1 },
+          pageIndex: { $set: state.pageIndex + 1 },
           count: { $set: count },
           hasMore: {
             $set: hasMore(res) && itemVals.length > 0 && hasNextParams,
@@ -263,8 +262,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     [isInitialRender, route, params, opts]
   );
 
-  const isLoading = state.isLoadingPage != null;
-
   useEffect(loadInitialData, [props.route, props.params]);
 
   if (state == null) return null;
@@ -272,6 +269,12 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   //useAsyncEffect(getInitialData, [route, params]);
 
   //const showLoader = state.isLoadingPage != null && state.items.length > 0
+
+  const data = state.items;
+  const isLoading = state.isLoadingPage != null;
+  const isEmpty = data.length == 0 && !isLoading;
+  const isFinished = !state.hasMore && !isLoading;
+  const totalCount = props.totalCount ?? state.count;
 
   return h(
     InfiniteScroll,
@@ -283,25 +286,27 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       useWindow: true,
       className,
     },
-    h(
-      APIView,
-      {
-        data: state.items,
-        route,
-        params: state.scrollParams,
-        placeholder,
-        isLoading: state.isLoadingPage != null,
-        totalCount: props.totalCount ?? state.count,
-      },
-      h(InfiniteScrollBody, {
-        data: state.items,
-        isLoading,
-        itemComponent,
-        resultsComponent,
-        loadingPlaceholder,
-        emptyPlaceholder,
-      })
-    )
+    [
+      h.if(isEmpty)(emptyPlaceholder),
+      h.if(!isEmpty)([
+        h(
+          resultsComponent,
+          { data },
+          data.map((d, i) => {
+            return h(itemComponent, { key: i, data: d, index: i });
+          })
+        ),
+        // @ts-ignore
+        h.if(isLoading)(loadingPlaceholder, {
+          totalCount,
+          scrollParams: state.scrollParams,
+          pageIndex: state.pageIndex,
+          loadedCount: data.length,
+          perPage,
+        }),
+        h.if(isFinished)(finishedPlaceholder, { totalCount }),
+      ]),
+    ]
   );
 }
 
