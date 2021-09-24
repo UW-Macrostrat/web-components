@@ -144,7 +144,7 @@ function EmptyPlaceholder() {
   });
 }
 
-function FinishedPlaceholder({ totalCount, ...rest }) {
+function FinishedPlaceholder({ totalCount, ...rest }: { totalCount?: number }) {
   const description = totalCount != null ? `${totalCount} total items` : null;
   return h(Placeholder, {
     icon: null,
@@ -304,6 +304,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
           loadedCount: data.length,
           perPage,
         }),
+        // @ts-ignore
         h.if(isFinished)(finishedPlaceholder, { totalCount }),
       ]),
     ]
