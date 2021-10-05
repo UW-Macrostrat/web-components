@@ -3,7 +3,7 @@ import {
   useState,
   Dispatch,
   SetStateAction,
-  useCallback
+  useCallback,
 } from "react";
 
 class LocalStorage<T> {
@@ -35,29 +35,30 @@ class LocalStorage<T> {
 function useStoredState<S>(
   key: string,
   initialState: S | (() => S),
-  isValid: (S) => boolean = d => true
+  isValid: (S) => boolean = (d) => true
 ): [S, Dispatch<SetStateAction<S>>, VoidFunction] {
   /** React hook for setting and getting values on local storage */
   const storage = useMemo(() => new LocalStorage<S>(key), [key]);
   let initialValue = storage.get();
   if (!isValid(initialValue)) initialValue = null;
-  const [state, setState] = useState<S>(initialValue ?? initialState);
+  const [state, _setState] = useState<S>(initialValue ?? initialState);
 
-  const updateState = useCallback(
-    (val: S, validate = true) => {
-      if (validate && !isValid(val)) throw `State ${val} is not valid.`;
-      setState(val);
-      storage.set(state);
+  const setState = useCallback(
+    (nextState: S, validate = true) => {
+      if (validate && !isValid(nextState))
+        throw `State ${nextState} is not valid.`;
+      _setState(nextState);
+      storage.set(nextState);
     },
     [isValid]
   );
 
   const resetState = useCallback(() => {
-    setState(initialState);
+    _setState(initialState);
     storage.remove();
   }, [initialState]);
 
-  return [state, updateState, resetState];
+  return [state, setState, resetState];
 }
 
 export { LocalStorage, useStoredState };
