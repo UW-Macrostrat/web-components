@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 
-const Author = function(props) {
+const Author = function (props) {
   const { name, highlight } = props;
 
   if (name === highlight) {
@@ -9,15 +9,15 @@ const Author = function(props) {
   return h("span.author", name);
 };
 
-interface AuthorListProps {
+export interface AuthorListProps {
   names: string[];
   highlight?: string;
   limit?: number;
 }
 
-const AuthorList = function(props: AuthorListProps) {
+const AuthorList = function (props: AuthorListProps) {
   const { names, highlight } = props;
-  const A = name => h(Author, { name, highlight });
+  const A = (name) => h(Author, { name, highlight });
 
   if (!Array.isArray(names)) {
     return A(names);
