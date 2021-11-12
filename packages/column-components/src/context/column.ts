@@ -16,11 +16,17 @@ declare interface ColumnDivision {
   top: number;
 }
 
+enum ColumnAxisType {
+  Age = "age",
+  Height = "height",
+  Depth = "depth"
+}
 interface ColumnCtx<T extends ColumnDivision> {
   divisions: T[];
   scaleClamped: ColumnScaleClamped;
   pixelsPerMeter: number;
   scale: ColumnScale;
+  axisType?: ColumnAxisType;
   zoom: number;
 }
 
@@ -42,12 +48,6 @@ const rangeOrHeight = function(props, propName) {
   return new Error("Provide either 'range' or 'height' props");
 };
 
-enum ColumnAxisType {
-  Age = "age",
-  Height = "height",
-  Depth = "depth"
-}
-
 interface ColumnProviderProps<T extends ColumnDivision> {
   pixelsPerMeter?: number;
   divisions: T;
@@ -55,7 +55,7 @@ interface ColumnProviderProps<T extends ColumnDivision> {
   height?: number;
   zoom?: number;
   width?: number;
-  type?: ColumnAxisType;
+  axisType?: ColumnAxisType;
   children?: React.ReactChild;
 }
 
@@ -75,7 +75,7 @@ function ColumnProvider<T extends ColumnDivision>(
     range,
     divisions = [],
     width = 150,
-    type = ColumnAxisType.Height,
+    axisType = ColumnAxisType.Height,
     ...rest
   } = props;
 
@@ -105,6 +105,7 @@ function ColumnProvider<T extends ColumnDivision>(
     scaleClamped,
     divisions,
     width,
+    axisType,
     ...rest
   };
   return h(ColumnContext.Provider, { value }, children);
@@ -121,4 +122,10 @@ ColumnProvider.propTypes = {
 const useColumn = () => useContext(ColumnContext);
 const useColumnDivisions = () => useContext(ColumnContext).divisions;
 
-export { ColumnContext, ColumnProvider, useColumnDivisions, useColumn };
+export {
+  ColumnContext,
+  ColumnProvider,
+  ColumnAxisType,
+  useColumnDivisions,
+  useColumn
+};
