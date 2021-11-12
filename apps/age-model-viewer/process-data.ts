@@ -42,35 +42,6 @@ function extendDivision(
 
 function preprocessUnits(units: UnitLong[]) {
   let divisions = units.map(extendDivision);
-  for (let d of divisions) {
-    const overlappingUnits = divisions.filter(u =>
-      d.overlappingUnits.includes(u.unit_id)
-    );
-
-    const maxNOverlapping = Math.max(
-      Math.max(
-        ...d.overlappingUnits.map(
-          uid => divisions.find(u => u.unit_id == uid).overlappingUnits.length
-        ),
-        0
-      )
-    );
-
-    //d.maxNOverlapping = maxNOverlapping;
-
-    // Overlapping columns
-    const columns = overlappingUnits.map(d => d.column);
-
-    if (columns.includes(d.column)) {
-      let col = 0;
-      // Go through columns to find a better index
-      while (columns.includes(col)) {
-        col++;
-      }
-      d.column = col;
-    }
-  }
-
   return divisions;
 }
 

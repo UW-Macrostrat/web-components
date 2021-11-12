@@ -12,20 +12,28 @@ import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
+import { ColumnAxisType } from "common/units/boxes";
 
-interface IColumnProps {
+interface ColumnProps {
   data: IUnit[];
   pixelScale?: number;
   range?: [number, number];
   unitComponent: React.FunctionComponent<any>;
   unitComponentProps?: any;
+  axisType?: ColumnAxisType;
 }
 
-const Section = (props: IColumnProps) => {
+function getRange(data, axisType: ColumnAxisType = ColumnAxisType.AGE) {
+  return [data[data.length - 1]["b_" + axisType], data[0]["t_" + axisType]];
+}
+
+const Section = (props: ColumnProps) => {
   // Section with "squishy" time scale
+
   const {
     data,
-    range = [data[data.length - 1].b_age, data[0].t_age],
+    axisType,
+    range = getRange(data, axisType),
     unitComponent
   } = props;
   let { pixelScale } = props;
@@ -72,9 +80,11 @@ const Section = (props: IColumnProps) => {
         h(SimpleUnitsColumn, {
           width: 450,
           columnWidth: 250,
+          axisType,
           unitComponent,
           unitComponentProps: {
-            nColumns: 1
+            nColumns: 1,
+            axisType: "pos"
           }
         })
       )
@@ -90,17 +100,18 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
+    axisType: "pos",
     width: division.overlappingUnits.length > 0 ? width / nColumns : width,
     x: (division.column * width) / nColumns
   });
 }
 
-const Column = (props: IColumnProps) => {
-  const { data, unitComponent = UnitComponent } = props;
+const Column = (props: ColumnProps) => {
+  const { data, unitComponent = UnitComponent, axisType } = props;
 
   let sectionGroups = Array.from(group(data, d => d.section_id));
 
-  sectionGroups.sort((a, b) => a.t_age - b.t_age);
+  //sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
   return h("div.column", [
     h("div.age-axis-label", "Age (Ma)"),
@@ -110,6 +121,7 @@ const Column = (props: IColumnProps) => {
         return h(`div.section.section-${id}`, [
           h(Section, {
             data: values,
+            axisType,
             unitComponent
           })
         ]);

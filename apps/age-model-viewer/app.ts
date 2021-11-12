@@ -12,6 +12,7 @@ import patterns from "url:../../geologic-patterns/*.png";
 import { useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
+import { ColumnAxisType } from "common/units/boxes";
 
 const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name);
@@ -50,7 +51,10 @@ https: function ColumnManager() {
     h("div.left-column", [
       h("div.column-view", [
         h(ColumnTitle, { data: columnFeature?.properties }),
-        h.if(unitData != null)(Column, { data: units })
+        h.if(unitData != null)(Column, {
+          data: unitData,
+          axisType: ColumnAxisType.HEIGHT
+        })
       ])
     ]),
     h("div.right-column", [
@@ -61,7 +65,7 @@ https: function ColumnManager() {
         margin: 0,
         ...projectParams
       }),
-      h(ModalUnitPanel, { unitData: units })
+      h(ModalUnitPanel, { unitData })
     ])
   ]);
 }

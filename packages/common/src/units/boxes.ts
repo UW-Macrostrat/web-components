@@ -21,7 +21,12 @@ interface RectBounds {
   height: number;
 }
 
-interface UnitProps extends Clickable, Partial<RectBounds> {
+interface UnitRectOptions {
+  widthFraction?: number;
+  axisType?: ColumnAxisType;
+}
+
+interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   division: IUnit;
   resolveID(IUnit): string;
   UUID: string;
@@ -32,7 +37,7 @@ interface UnitProps extends Clickable, Partial<RectBounds> {
 }
 
 interface LabeledUnitProps
-  extends SizeAwareLabelProps,
+  extends UnitRectOptions,
     Clickable,
     Partial<RectBounds> {
   division: IUnit;
@@ -41,11 +46,20 @@ interface LabeledUnitProps
   halfWidth?: boolean;
 }
 
-function useUnitRect(division: IUnit, widthFraction: number = 1): RectBounds {
+enum ColumnAxisType {
+  AGE = "age",
+  HEIGHT = "pos"
+}
+
+function useUnitRect(
+  division: IUnit,
+  options: UnitRectOptions = {}
+): RectBounds {
+  const { widthFraction = 1, axisType = "age" } = options;
   const { scale } = useContext(ColumnContext);
   const { width } = useContext(ColumnLayoutContext);
-  const y = scale(division.t_age);
-  const height = Math.abs(scale(division.b_age) - y);
+  const y = scale(division["t_" + axisType]);
+  const height = Math.abs(scale(division["b_" + axisType]) - y);
   return {
     x: width * (1 - widthFraction),
     y,
@@ -61,9 +75,13 @@ function Unit(props: UnitProps) {
     defaultFill = "transparent",
     className,
     widthFraction = 1,
+    axisType,
     ...baseBounds
   } = props;
-  const bounds = { ...useUnitRect(d, widthFraction), ...baseBounds };
+  const bounds = {
+    ...useUnitRect(d, { widthFraction, axisType }),
+    ...baseBounds
+  };
   const patternID = resolveID(d);
   const fill = useGeologicPattern(patternID, defaultFill);
   // Allow us to select this unit if in the proper context
@@ -86,8 +104,8 @@ function Unit(props: UnitProps) {
 }
 
 function LabeledUnit(props: LabeledUnitProps) {
-  const { division, label, onLabelUpdated, ...rest } = props;
-  const bounds = { ...useUnitRect(division), ...rest };
+  const { division, label, onLabelUpdated, widthFraction, axisType } = props;
+  const bounds = { ...useUnitRect(division, { widthFraction, axisType }) };
   const onClick = useUnitSelector(division);
   const { width, height } = bounds;
   return h(Unit, { className: "labeled-unit", division, onClick, ...bounds }, [
@@ -120,26 +138,16 @@ function UnitBoxes<T>(props: {
 }) {
   const { unitComponent = Unit, unitComponentProps = {} } = props;
   const { divisions } = useContext(ColumnContext);
-  const { transformDivision, transformDivisions } = props;
-
-  let newDivisions = divisions;
-
-  if (transformDivisions != null) {
-    newDivisions = transformDivisions(newDivisions);
-  }
-
-  if (transformDivision != null) {
-    newDivisions = newDivisions.map(transformDivision).filter(d => d != null);
-  }
 
   return h(
     PatternDefsProvider,
     { resolveID, scalePattern },
     h(
       "g.divisions",
-      newDivisions.map(div => {
+      divisions.map(div => {
         return h(unitComponent, {
           division: div,
+          axisType: ColumnAxisType.HEIGHT,
           ...unitComponentProps
         });
       })
@@ -147,4 +155,4 @@ function UnitBoxes<T>(props: {
   );
 }
 
-export { Unit, UnitBoxes, UnitProps, LabeledUnit };
+export { Unit, UnitBoxes, UnitProps, LabeledUnit, ColumnAxisType };
