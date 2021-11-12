@@ -1,4 +1,4 @@
-import h, { C, compose } from "@macrostrat/hyper";
+import { C, compose, hyperStyled } from "@macrostrat/hyper";
 import { useAPIResult, DarkModeProvider } from "@macrostrat/ui-components";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
 import {
@@ -13,6 +13,8 @@ import { useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
 import { ColumnAxisType } from "common/units/boxes";
+import styles from "./age-model.module.styl";
+const h = hyperStyled(styles);
 
 const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name);

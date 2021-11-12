@@ -16,7 +16,7 @@ const SimpleUnitsColumn = (props: ICompositeUnitProps) => {
   A column with units and names either
   overlapping or offset to the right
   */
-  const { columnWidth, width, gutterWidth = 10, labelOffset = 30 } = props;
+  const { columnWidth, width, gutterWidth = 0, labelOffset = 30 } = props;
 
   return h([
     h(UnitsColumn, {

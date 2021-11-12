@@ -13,7 +13,6 @@ import {
   useCallback
 } from "react";
 import { LabeledUnit, UnitBoxes } from "./boxes";
-import { UnitLong } from "@macrostrat/api-types";
 import styles from "./composite.module.styl";
 
 const h = hyperStyled(styles);
@@ -140,12 +139,17 @@ function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
   } = props;
 
   return h(_BaseUnitsColumn, { width: showLabels ? columnWidth : width }, [
-    h(UnitDataColumn, {
+    h.if(showLabels)(UnlabeledUnitNames, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
-      width: width - columnWidth - gutterWidth,
-      ...rest
+      width: width - columnWidth - gutterWidth
     })
+    // h(UnitDataColumn, {
+    //   transform: `translate(${columnWidth + gutterWidth})`,
+    //   paddingLeft: labelOffset,
+    //   width: width - columnWidth - gutterWidth,
+    //   ...rest
+    // })
   ]);
 }
 

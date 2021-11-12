@@ -6,7 +6,11 @@ import {
   ColumnLayoutContext
 } from "@macrostrat/column-components";
 import { useContext } from "react";
-import { CompositeUnitsColumn, SimpleUnitsColumn } from "common/units";
+import {
+  AnnotatedUnitsColumn,
+  CompositeUnitsColumn,
+  SimpleUnitsColumn
+} from "common/units";
 import { IUnit } from "common/units/types";
 import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
@@ -38,21 +42,20 @@ const Section = (props: ColumnProps) => {
   } = props;
   let { pixelScale } = props;
 
-  const dAge = range[0] - range[1];
+  const dHeight = range[0] - range[1];
 
   if (!pixelScale) {
     // Make up a pixel scale
     const targetHeight = 20 * data.length;
-    pixelScale = Math.ceil(targetHeight / dAge);
+    pixelScale = Math.ceil(targetHeight / dHeight);
   }
-
-  pixelScale = 200;
 
   return h(
     ColumnProvider,
     {
       divisions: data,
       range,
+      axisType: "depth",
       pixelsPerMeter: pixelScale // Actually pixels per myr
     },
     [
@@ -61,25 +64,17 @@ const Section = (props: ColumnProps) => {
         padding: 20,
         showLabel: false
       }),
-      h(Timescale, {
-        orientation: TimescaleOrientation.VERTICAL,
-        length: dAge * pixelScale,
-        levels: [2, 5],
-        absoluteAgeScale: true,
-        showAgeAxis: false,
-        ageRange: range
-      }),
       h(
         ColumnSVG,
         {
-          width: 650,
+          width: 350,
           padding: 20,
           paddingLeft: 1,
           paddingV: 5
         },
-        h(SimpleUnitsColumn, {
-          width: 450,
-          columnWidth: 250,
+        h(AnnotatedUnitsColumn, {
+          width: 350,
+          columnWidth: 150,
           axisType,
           unitComponent,
           unitComponentProps: {
@@ -97,29 +92,41 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
 
   //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
   //console.log(division);
+  const nOverlaps = division.overlappingUnits.length ?? 0;
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
     axisType: "pos",
-    width: division.overlappingUnits.length > 0 ? width / nColumns : width,
+    width: nOverlaps > 0 ? width / nColumns : width,
     x: (division.column * width) / nColumns
   });
 }
+
+const AgeAxisLabel = ({ axisType: ColumnAxisType, axisLabel }) => {
+  if (axisLabel == null) {
+    axisLabel = "Height (meters)";
+    if (ColumnAxisType === ColumnAxisType.AGE) {
+      axisLabel = "Age (myr)";
+    }
+  }
+  return h("div.age-axis-label", axisLabel);
+};
 
 const Column = (props: ColumnProps) => {
   const { data, unitComponent = UnitComponent, axisType } = props;
 
   let sectionGroups = Array.from(group(data, d => d.section_id));
 
-  //sectionGroups.sort((a, b) => a.t_age - b.t_age);
+  sectionGroups.sort((a, b) => a["t_" + axisType] - b["t_" + axisType]);
 
   return h("div.column", [
-    h("div.age-axis-label", "Age (Ma)"),
+    h(AgeAxisLabel, { axisType, axisLabel: "Depth (meters below seafloor)" }),
     h(
       "div.main-column",
       sectionGroups.map(([id, values]) => {
         return h(`div.section.section-${id}`, [
           h(Section, {
+            pixelScale: 10,
             data: values,
             axisType,
             unitComponent

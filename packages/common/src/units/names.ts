@@ -2,6 +2,7 @@ import h from "@macrostrat/hyper";
 import { useContext } from "react";
 import {
   ColumnContext,
+  ColumnAxisType,
   NotesColumn,
   NotesColumnProps
 } from "@macrostrat/column-components";
@@ -20,10 +21,18 @@ interface UnitNamesProps extends Omit<UnitDataProps, "noteComponent"> {
   nameForDivision?(obj: IUnit): string;
 }
 
-function noteForDivision(div: IUnit): INote {
+function noteForDivision(div: IUnit, { axisType: ColumnAxisType }): INote {
+  let key: string;
+  switch (ColumnAxisType) {
+    case "age":
+      key = "age";
+    case "depth":
+    case "height":
+      key = "pos";
+  }
   return {
-    height: div.b_age,
-    top_height: div.t_age,
+    height: div[`b_${key}`],
+    top_height: div[`t_${key}`],
     data: div,
     id: div.unit_id
   };
@@ -37,18 +46,19 @@ const defaultNameFunction = div => {
 };
 
 function UnitDataColumn(props: UnitDataProps) {
+  const ctx = useContext(ColumnContext);
   const {
     left,
     noteComponent,
     shouldRenderNote = () => true,
-    divisions = useContext(ColumnContext)?.divisions,
+    divisions = ctx?.divisions,
     ...rest
   } = props;
 
   if (divisions == null) return null;
   const notes: INote[] = divisions
     .filter(shouldRenderNote)
-    .map(noteForDivision);
+    .map(d => noteForDivision(d, { axisType: ctx.axisType }));
 
   return h(NotesColumn, {
     transform: `translate(${left || 0})`,
