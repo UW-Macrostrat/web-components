@@ -5,7 +5,7 @@
   "scripts": {
     "dev:legacy": "npm-run-all -l -p dev watch:**",
     "postinstall": "lerna bootstrap --hoist",
-    "dev": "parcel apps/index.html",
+    "dev": "parcel --no-autoinstall apps/index.html",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
     "watch:column": "npm --prefix packages/column-components run watch",
@@ -24,6 +24,7 @@
   },
   "devDependencies": {
     "@parcel/resolver-glob": "^2.0.0-nightly.2338",
+    "@parcel/transformer-postcss": "^2.0.0-nightly.778",
     "@types/d3-geo": "^2.0.0",
     "@types/geojson": "^7946.0.7",
     "bulk": "^2.0.1",
@@ -42,7 +43,7 @@
   "dependencies": {
     "@macrostrat/column-components": "file:./packages/column-components",
     "@macrostrat/corelle": "^1.1.0",
-    "@macrostrat/hyper": "^1.2.14",
+    "@macrostrat/hyper": "^1.3.3",
     "@macrostrat/map-components": "file:./packages/map-components",
     "@macrostrat/timescale": "file:./packages/timescale",
     "@macrostrat/ui-components": "file:./packages/ui-components",
@@ -68,7 +69,7 @@
     "immutability-helper": "^3.0.1",
     "labella": "^1.1.4",
     "parcel": "^2.0.0-nightly.776",
-    "postcss": "^8.2.1",
+    "postcss": "^8.3.11",
     "prop-types": "^15.7.2",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
