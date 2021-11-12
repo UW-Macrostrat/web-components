@@ -1,10 +1,5 @@
-import {
-  scaleLinear,
-  ScaleContinuousNumeric,
-  scaleUtc,
-  ScaleLinear
-} from "d3-scale";
-import React, { Component, createContext, useContext } from "react";
+import { scaleLinear, ScaleContinuousNumeric, ScaleLinear } from "d3-scale";
+import React, { createContext, useContext } from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
 
@@ -49,7 +44,8 @@ const rangeOrHeight = function(props, propName) {
 
 enum ColumnAxisType {
   Age = "age",
-  Height = "height"
+  Height = "height",
+  Depth = "depth"
 }
 
 interface ColumnProviderProps<T extends ColumnDivision> {
