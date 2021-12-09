@@ -144,6 +144,7 @@
     "@types/d3-geo": "^1.11.1",
     "@types/d3-selection": "^1.4.2",
     "@types/d3-zoom": "^1.7.4",
+    "@types/geojson": "^7946.0.8",
     "@types/react-dom": "^16.9.8",
     "d3-array": "^2.5.1",
     "d3-drag": "^1.2.5",

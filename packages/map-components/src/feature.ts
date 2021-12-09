@@ -16,9 +16,10 @@ interface IFeatureProps {
 }
 
 const Feature = (props: IFeatureProps) => {
-  const { feature, onClick, ...rest } = props;
+  const { feature, onClick, id: _id, ...rest } = props;
   const { inCanvas, context } = useContext(MapCanvasContext);
-  const { geometry, properties, id } = feature;
+  const { geometry, properties } = feature;
+  const id = _id ?? feature.id;
 
   if (inCanvas) {
     const { renderPath } = useContext(MapCanvasContext);

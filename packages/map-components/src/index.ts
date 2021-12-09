@@ -1,4 +1,12 @@
-import React, { Component, useContext, createRef, createElement } from "react";
+import React, {
+  Component,
+  useContext,
+  createRef,
+  createElement,
+  useRef,
+  useState,
+  useEffect,
+} from "react";
 import { findDOMNode } from "react-dom";
 import { addClassNames } from "@macrostrat/hyper";
 import { StatefulComponent } from "@macrostrat/ui-components";
@@ -72,6 +80,7 @@ interface GlobeProps extends ProjectionParams {
   allowZoom: boolean;
   setupProjection: MutateProjection;
   onRotate?(v: RotationAngles): void;
+  children?: React.ReactNode;
 }
 
 const mutateProjection: MutateProjection = (projection, opts) => {
@@ -100,144 +109,158 @@ const mutateProjection: MutateProjection = (projection, opts) => {
     ]);
 };
 
-class Globe extends StatefulComponent<GlobeProps, any> {
-  static defaultProps = {
-    keepNorthUp: false,
-    allowDrag: true,
-    allowZoom: false,
-    center: [0, 0],
-    graticule: Graticule,
-    projection: geoOrthographic().clipAngle(90).precision(0.5),
-    setupProjection: mutateProjection,
+type GlobeState = any;
+
+function createActions(
+  ref: React.RefObject<HTMLElement>,
+  props: GlobeProps,
+  state: GlobeState,
+  setState: React.Dispatch<React.SetStateAction<GlobeState>>
+) {
+  const { projection: _projection, setupProjection, ...rest } = props;
+
+  const updateProjection = (newProj) => {
+    setState({ ...state, projection: newProj });
   };
 
-  mapElement: React.RefObject<HTMLElement>;
+  return {
+    resetProjection(newProj) {
+      updateProjection(setupProjection(newProj, rest));
+    },
+    updateProjection,
+    rotateProjection(rotation) {
+      props.onRotate?.(rotation);
+      if (props.rotation != null) return;
+      const newProj = setupProjection(state.projection, {
+        ...rest,
+        rotation,
+      });
+      updateProjection(newProj);
+    },
+    dispatchEvent(evt) {
+      const v: HTMLElement = ref.current;
+      if (v == null) return;
+      const el = v.getElementsByClassName(styles.map)[0];
+      // Simulate an event directly on the map's DOM element
+      const { clientX, clientY } = evt;
 
-  constructor(props) {
-    super(props);
-    this.componentDidUpdate = this.componentDidUpdate.bind(this);
-    this.updateProjection = this.updateProjection.bind(this);
-    this.rotateProjection = this.rotateProjection.bind(this);
-    this.dispatchEvent = this.dispatchEvent.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
-    this.resetProjection = this.resetProjection.bind(this);
+      const e1 = new MouseEvent("mousedown", { clientX, clientY });
+      const e2 = new MouseEvent("mouseup", { clientX, clientY });
 
-    this.mapElement = createRef();
-
-    const { projection, setupProjection, ...rest } = this.props;
-
-    this.state = {
-      projection: setupProjection(projection, rest),
-      zoom: 1,
-      canvasContexts: new Set([]),
-    };
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    const { width, height, scale, translate, setupProjection } = this.props;
-    const sameDimensions = prevProps.width === width && prevProps.height === height;
-    const sameProjection = prevProps.projection === this.props.projection;
-
-    let center = this.props.center;
-    if (center == prevProps.center) {
-      center = this.state.projection.center();
-    }
-    const sameScale =
-      prevProps.scale === scale &&
-      prevProps.translate === translate &&
-      prevProps.center === this.props.center;
-    if (sameDimensions && sameProjection && sameScale) {
-      return;
-    }
-
-    const newProj = setupProjection(this.state.projection, { ...this.props, center });
-
-    return this.updateProjection(newProj);
-  }
-
-  resetProjection(projection) {
-    const { setupProjection, ...rest } = this.props;
-    return this.updateProjection(setupProjection(projection, this.props));
-  }
-
-  updateProjection(newProj) {
-    return this.updateState({ projection: { $set: newProj } });
-  }
-
-  rotateProjection(rotation) {
-    this.props.onRotate?.(rotation);
-    if (this.props.rotation != null) return;
-    const newProj = this.props.setupProjection(this.state.projection, {
-      ...this.props,
-      rotation,
-    });
-    return this.updateProjection(newProj);
-  }
-
-  dispatchEvent(evt) {
-    const v = findDOMNode(this) as HTMLElement;
-    const el = v.getElementsByClassName(styles.map)[0];
-    // Simulate an event directly on the map's DOM element
-    const { clientX, clientY } = evt;
-
-    const e1 = new Event("mousedown", { clientX, clientY });
-    const e2 = new Event("mouseup", { clientX, clientY });
-
-    el.dispatchEvent(e1);
-    return el.dispatchEvent(e2);
-  }
-
-  componentDidMount() {
-    return this.componentDidUpdate.call(this, arguments);
-  }
-
-  render() {
-    let { width, height, children, keepNorthUp, allowDrag, allowZoom, scale, center, graticule } =
-      this.props;
-    const { projection } = this.state;
-    const initialScale = scale || projection.scale() || 500;
-
-    const actions = {
-      rotateProjection: this.rotateProjection,
-      updateProjection: this.updateProjection,
-      updateState: this.updateState,
-      dispatchEvent: this.dispatchEvent,
-    };
-
-    const renderPath = geoPath(projection);
-    const value = { projection, renderPath, width, height, ...actions };
-
-    const margin = 80;
-
-    const xmlns = "http://www.w3.org/2000/svg";
-    const viewBox = `0 0 ${width} ${height}`;
-
-    return h(
-      MapContext.Provider,
-      { value },
-      createElement(
-        "svg",
-        {
-          className: "macrostrat-map globe",
-          xmlns,
-          width,
-          height,
-          viewBox,
-        },
-        [
-          h("g.map", { ref: this.mapElement }, [h(Background), h(graticule), children, h(Sphere)]),
-          h.if(allowDrag)(DraggableOverlay, {
-            keepNorthUp,
-            initialScale,
-            dragSensitivity: 0.1,
-            allowZoom,
-          }),
-        ]
-      )
-    );
-  }
+      el.dispatchEvent(e1);
+      el.dispatchEvent(e2);
+    },
+  };
 }
 
-export { Globe, MapContext };
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+function useComponentDidUpdate(componentUpdater, props = {}, state = {}) {
+  const prevProps = usePrevious(props);
+  const prevState = usePrevious(state);
+  useEffect(() => {
+    componentUpdater(prevProps ?? {}, prevState ?? {});
+  }, [...Object.values(props), ...Object.values(state)]);
+}
+
+const defaultProps = {
+  keepNorthUp: false,
+  allowDrag: true,
+  allowZoom: false,
+  center: [0, 0],
+  graticule: Graticule,
+  projection: geoOrthographic().clipAngle(90).precision(0.5),
+  setupProjection: mutateProjection,
+};
+
+export function Globe(_props: GlobeProps) {
+  const props = { ...defaultProps, ..._props };
+  console.log(props);
+
+  let { width, height, children, keepNorthUp, allowDrag, allowZoom, scale, center, graticule } =
+    props;
+  const { projection: _projection, setupProjection, ...rest } = props;
+
+  const [mapState, setState] = useState({
+    projection: setupProjection(_projection, rest),
+    zoom: 1,
+    canvasContexts: new Set([]),
+  });
+
+  console.log(setupProjection);
+
+  const { projection } = mapState;
+  const initialScale = scale || projection.scale() || 500;
+
+  const ref = useRef<HTMLElement>(null);
+  const mapElement = useRef<HTMLElement>(null);
+
+  const actions = createActions(ref, props, mapState, setState);
+
+  useComponentDidUpdate(
+    (prevProps, prevState) => {
+      const { width, height, scale, translate, setupProjection } = props;
+      const sameDimensions = prevProps.width === width && prevProps.height === height;
+      const sameProjection = prevProps.projection === props.projection;
+
+      let center = props.center;
+      if (center == prevProps.center) {
+        center = mapState.projection.center();
+      }
+      const sameScale =
+        prevProps.scale === scale &&
+        prevProps.translate === translate &&
+        prevProps.center === props.center;
+      if (sameDimensions && sameProjection && sameScale) {
+        return;
+      }
+      const newProj = setupProjection(mapState.projection, { ...props, center });
+      actions.updateProjection(newProj);
+    },
+    props,
+    mapState
+  );
+
+  const renderPath = geoPath(projection);
+  const value = { projection, renderPath, width, height, ...actions };
+
+  const margin = 80;
+
+  const xmlns = "http://www.w3.org/2000/svg";
+  const viewBox = `0 0 ${width} ${height}`;
+
+  return h(
+    MapContext.Provider,
+    { value },
+    createElement(
+      "svg",
+      {
+        className: "macrostrat-map globe",
+        ref,
+        xmlns,
+        width,
+        height,
+        viewBox,
+      },
+      [
+        h("g.map", { ref: mapElement }, [h(Background), h(graticule), children, h(Sphere)]),
+        h.if(allowDrag)(DraggableOverlay, {
+          keepNorthUp,
+          initialScale,
+          dragSensitivity: 0.1,
+          allowZoom,
+        }),
+      ]
+    )
+  );
+}
+
+export { MapContext };
 export * from "./canvas-layer";
 export * from "./feature";
