@@ -1,12 +1,4 @@
-import React, {
-  Component,
-  useContext,
-  createRef,
-  createElement,
-  useRef,
-  useState,
-  useEffect,
-} from "react";
+import React, { Component, useContext, createElement, useRef, useState } from "react";
 import { addClassNames } from "@macrostrat/hyper";
 import h from "./hyper";
 import { MapContext } from "./context";
@@ -164,7 +156,6 @@ const defaultProps = {
 
 export function Globe(_props: GlobeProps) {
   const props = { ...defaultProps, ..._props };
-  console.log(props);
 
   let { width, height, children, keepNorthUp, allowDrag, allowZoom, scale, center, graticule } =
     props;
@@ -175,8 +166,6 @@ export function Globe(_props: GlobeProps) {
     zoom: 1,
     canvasContexts: new Set([]),
   });
-
-  console.log(setupProjection);
 
   const { projection } = mapState;
   const initialScale = scale || projection.scale() || 500;
@@ -191,6 +180,9 @@ export function Globe(_props: GlobeProps) {
       const { width, height, scale, translate, setupProjection } = props;
       const sameDimensions = prevProps.width === width && prevProps.height === height;
       const sameProjection = prevProps.projection === props.projection;
+
+      // For some reason we need this to get the projection to update
+      prevState.projection == mapState.projection;
 
       let center = props.center;
       if (center == prevProps.center) {
@@ -210,7 +202,7 @@ export function Globe(_props: GlobeProps) {
     mapState
   );
 
-  const renderPath = geoPath(projection);
+  const renderPath = geoPath(mapState.projection);
   const value = { projection, renderPath, width, height, ...actions };
 
   const margin = 80;
