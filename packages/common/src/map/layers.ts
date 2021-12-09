@@ -68,6 +68,7 @@ function ColumnFeatures(props) {
     },
     features.map(f => {
       return h(Feature, {
+        id: f.id ?? f.properties.col_id,
         onClick,
         feature: f
       });
@@ -232,6 +233,19 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
     { format: "topojson", all, status_code, project_id },
     processTopoJSON
   );
+  // let features = useAPIResult(
+  //   apiRoute,
+  //   {
+  //     format: "geojson",
+  //     all,
+  //     status_code,
+  //     project_id
+  //   },
+  //   res => res?.success?.data.features
+  // );
+
+  // console.log(features);
+
   if (features == null) return null;
 
   return h([

@@ -39,8 +39,9 @@ https: function ColumnManager() {
     all: true,
     response: "long"
   };
-  const columnFeature = useAPIResult("/columns", colParams, [currentColumn])
-    ?.features[0];
+  const columnFeature = useAPIResult("/defs/columns", colParams, [
+    currentColumn
+  ])?.features[0];
 
   const unitData = useAPIResult("/units", unitParams, [currentColumn]);
 
@@ -65,6 +66,7 @@ https: function ColumnManager() {
         currentColumn: columnFeature,
         setCurrentColumn,
         margin: 0,
+        apiRoute: "/defs/columns",
         ...projectParams
       }),
       h(ModalUnitPanel, { unitData })
