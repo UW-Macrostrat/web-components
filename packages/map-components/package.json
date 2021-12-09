@@ -138,7 +138,7 @@
   },
   "dependencies": {
     "@macrostrat/hyper": "^1.2.11",
-    "@macrostrat/ui-components": "^0.4.4",
+    "@macrostrat/ui-components": "^1.0.2",
     "@types/d3-array": "^2.0.0",
     "@types/d3-drag": "^1.2.3",
     "@types/d3-geo": "^1.11.1",

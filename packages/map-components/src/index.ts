@@ -7,14 +7,13 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { findDOMNode } from "react-dom";
 import { addClassNames } from "@macrostrat/hyper";
-import { StatefulComponent } from "@macrostrat/ui-components";
 import h from "./hyper";
 import { MapContext } from "./context";
 import { DraggableOverlay } from "./drag-interaction";
 import { geoOrthographic, geoGraticule, geoPath, GeoProjection } from "d3-geo";
 import styles from "./main.module.styl";
+import { useComponentDidUpdate } from "@macrostrat/ui-components";
 
 type Coord = [number, number];
 
@@ -151,22 +150,6 @@ function createActions(
       el.dispatchEvent(e2);
     },
   };
-}
-
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
-
-function useComponentDidUpdate(componentUpdater, props = {}, state = {}) {
-  const prevProps = usePrevious(props);
-  const prevState = usePrevious(state);
-  useEffect(() => {
-    componentUpdater(prevProps ?? {}, prevState ?? {});
-  }, [...Object.values(props), ...Object.values(state)]);
 }
 
 const defaultProps = {
