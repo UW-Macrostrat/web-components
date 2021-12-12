@@ -1,33 +1,45 @@
-import React, { Component, useContext, createElement, useRef, useState, useReducer } from "react";
+import React, {
+  Component,
+  useContext,
+  createElement,
+  useRef,
+  useCallback,
+  useReducer,
+  useEffect,
+} from "react";
 import { addClassNames } from "@macrostrat/hyper";
 import h from "./hyper";
-import { MapContext } from "./context";
+import {
+  useMap,
+  MapContext,
+  RotationAngles,
+  GlobeActions,
+  GlobeState,
+  globeReducer,
+  MapDispatchContext,
+} from "./context";
 import { DraggableOverlay } from "./drag-interaction";
 import { geoOrthographic, geoGraticule, geoPath, GeoProjection } from "d3-geo";
 import styles from "./main.module.styl";
-import { useComponentDidUpdate } from "@macrostrat/ui-components";
 
 type Coord = [number, number];
 
 function GeoPath(props) {
   const { geometry, ...rest } = props;
-  const { renderPath } = useContext<any>(MapContext);
+  const { renderPath } = useMap();
   const d = geometry != null ? renderPath(geometry) : null;
   return h("path", { d, ...rest });
 }
 
-class Background extends Component {
-  static contextType = MapContext;
-  render() {
-    return h(GeoPath, {
-      geometry: { type: "Sphere" },
-      className: "background",
-      ...this.props,
-    });
-  }
+function Background(props) {
+  return h(GeoPath, {
+    geometry: { type: "Sphere" },
+    className: "background",
+    ...props,
+  });
 }
 
-const Graticule = function (props) {
+function Graticule(props) {
   const graticule = geoGraticule()
     .step([10, 10])
     .extent([
@@ -39,7 +51,7 @@ const Graticule = function (props) {
     geometry: graticule(),
     ...props,
   });
-};
+}
 
 function Sphere(props) {
   const newProps = addClassNames(props, "neatline");
@@ -48,8 +60,6 @@ function Sphere(props) {
     ...newProps,
   });
 }
-
-type RotationAngles = [number, number, number] | [number, number];
 
 interface ProjectionParams {
   center?: Coord;
@@ -89,44 +99,16 @@ const mutateProjection: MutateProjection = (projection, opts) => {
     ]);
 };
 
-type GlobeState = {
-  projection: GeoProjection;
-  zoom: number;
-  canvasContexts: Set<CanvasRenderingContext2D[]>;
-  updateCount: number;
-};
-
-type UpdateProjection = { type: "update"; projection: GeoProjection };
-type RotateProjection = { type: "rotate"; rotation: RotationAngles };
-type UpdateState = { type: "update-state"; state: GlobeState };
-
-type GlobeActions = UpdateProjection | RotateProjection | UpdateState;
-
-function createActions(
-  ref: React.RefObject<HTMLElement>,
-  props: GlobeProps,
-  state: GlobeState,
-  dispatch: React.Dispatch<GlobeActions>
-) {
-  const { projection: _projection, setupProjection, ...rest } = props;
-
+function createActions(ref: React.RefObject<HTMLElement>, dispatch: React.Dispatch<GlobeActions>) {
   const updateProjection = (newProj) => {
     dispatch({ type: "update", projection: newProj });
   };
 
   return {
-    resetProjection(newProj) {
-      dispatch({ type: "update", projection: setupProjection(newProj, rest) });
-    },
+    resetProjection: updateProjection,
     updateProjection,
     rotateProjection(rotation) {
-      props.onRotate?.(rotation);
-      if (props.rotation != null) return;
-      const newProj = setupProjection(state.projection, {
-        ...rest,
-        rotation,
-      });
-      updateProjection(newProj);
+      dispatch({ type: "rotate", rotation: rotation });
     },
     dispatchEvent(evt) {
       const v: HTMLElement = ref.current;
@@ -165,38 +147,39 @@ interface GlobeProps extends ProjectionParams {
   children?: React.ReactNode;
 }
 
-function globeReducer(state: GlobeState, action: GlobeActions) {
-  switch (action.type) {
-    case "update":
-      return {
-        ...state,
-        updateCount: state.updateCount + 1,
-        projection: action.projection,
-      };
-    case "update-state":
-      return action.state;
-    case "rotate":
-      return {
-        ...state,
-        updateCount: state.updateCount + 1,
-        projection: action.projection.rotate(action.rotation),
-      };
-  }
-}
-
 export function Globe(_props: GlobeProps) {
   const props = { ...defaultProps, ..._props };
 
-  let { width, height, children, keepNorthUp, allowDrag, allowZoom, scale, center, graticule } =
-    props;
-  const { projection: _projection, setupProjection, ...rest } = props;
+  let {
+    width,
+    height,
+    children,
+    keepNorthUp,
+    allowDrag,
+    allowZoom,
+    scale,
+    center,
+    graticule,
+    onRotate,
+  } = props;
+  const { margin = 80, translate, ...rest } = props;
 
   const [mapState, dispatch] = useReducer(globeReducer, {
-    projection: setupProjection(_projection, rest),
+    projection: props.projection,
     zoom: 1,
     canvasContexts: new Set([]),
     updateCount: 0,
   });
+
+  const actionHandler = useCallback(
+    (action: GlobeActions) => {
+      if (action.type === "rotate") {
+        onRotate?.(action.rotation);
+      }
+      dispatch(action);
+    },
+    [dispatch, onRotate]
+  );
 
   const { projection } = mapState;
   const initialScale = scale || projection.scale() || 500;
@@ -204,42 +187,24 @@ export function Globe(_props: GlobeProps) {
   const ref = useRef<HTMLElement>(null);
   const mapElement = useRef<HTMLElement>(null);
 
-  const actions = createActions(ref, props, mapState, dispatch);
+  const actions = createActions(ref, actionHandler);
 
-  useComponentDidUpdate(
-    (prevProps, prevState) => {
-      const { width, height, scale, translate, setupProjection } = props;
-      const sameDimensions = prevProps.width === width && prevProps.height === height;
-      const sameProjection = prevProps.projection === props.projection;
+  useEffect(() => {
+    const rotation: [number, number] = [-center[0], -center[1]];
+    dispatch({ type: "rotate", rotation });
+  }, [center]);
 
-      // For some reason we need this to get the projection to update
-      // console.log("projection", prevState.projection == mapState.projection);
-      console.log("center", mapState.projection.center());
-
-      let center = props.center;
-      if (center == prevProps.center) {
-        center = mapState.projection.center();
-      }
-
-      const sameScale =
-        prevProps.scale === scale &&
-        prevProps.translate === translate &&
-        prevProps.center === props.center;
-      if (sameDimensions && sameProjection && sameScale) {
-        return;
-      }
-      const newProj = setupProjection(mapState.projection, { ...props, center });
-      dispatch({ type: "update", projection: newProj });
-      actions.updateProjection(newProj);
-    },
-    props,
-    mapState
-  );
+  useEffect(() => {
+    const trans = translate ?? [width / 2, height / 2];
+    const newProj = projection.translate(trans).clipExtent([
+      [margin, margin],
+      [width - margin, height - margin],
+    ]);
+    dispatch({ type: "update", projection: newProj });
+  }, [projection, width, height, margin, translate]);
 
   const renderPath = geoPath(mapState.projection);
   const value = { projection, renderPath, width, height, ...actions };
-
-  const margin = 80;
 
   const xmlns = "http://www.w3.org/2000/svg";
   const viewBox = `0 0 ${width} ${height}`;
@@ -247,25 +212,29 @@ export function Globe(_props: GlobeProps) {
   return h(
     MapContext.Provider,
     { value },
-    createElement(
-      "svg",
-      {
-        className: "macrostrat-map globe",
-        ref,
-        xmlns,
-        width,
-        height,
-        viewBox,
-      },
-      [
-        h("g.map", { ref: mapElement }, [h(Background), h(graticule), children, h(Sphere)]),
-        h.if(allowDrag)(DraggableOverlay, {
-          keepNorthUp,
-          initialScale,
-          dragSensitivity: 0.1,
-          allowZoom,
-        }),
-      ]
+    h(
+      MapDispatchContext.Provider,
+      { value: actionHandler },
+      createElement(
+        "svg",
+        {
+          className: "macrostrat-map globe",
+          ref,
+          xmlns,
+          width,
+          height,
+          viewBox,
+        },
+        [
+          h("g.map", { ref: mapElement }, [h(Background), h(graticule), children, h(Sphere)]),
+          h.if(allowDrag)(DraggableOverlay, {
+            keepNorthUp,
+            initialScale,
+            dragSensitivity: 0.1,
+            allowZoom,
+          }),
+        ]
+      )
     )
   );
 }
