@@ -82,7 +82,7 @@ class DraggableOverlay extends Component<any, any> {
     if (r1 == null) {
       return;
     }
-    return rotateProjection(r1);
+    rotateProjection(r1);
   }
 
   dragEnded() {

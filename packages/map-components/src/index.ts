@@ -1,4 +1,4 @@
-import React, { Component, useContext, createElement, useRef, useState } from "react";
+import React, { Component, useContext, createElement, useRef, useState, useReducer } from "react";
 import { addClassNames } from "@macrostrat/hyper";
 import h from "./hyper";
 import { MapContext } from "./context";
@@ -63,17 +63,6 @@ interface ProjectionParams {
 
 type MutateProjection = (p: GeoProjection, opts: ProjectionParams) => GeoProjection;
 
-interface GlobeProps extends ProjectionParams {
-  [key: string]: any;
-  projection: GeoProjection;
-  keepNorthUp: boolean;
-  allowDrag: boolean;
-  allowZoom: boolean;
-  setupProjection: MutateProjection;
-  onRotate?(v: RotationAngles): void;
-  children?: React.ReactNode;
-}
-
 const mutateProjection: MutateProjection = (projection, opts) => {
   /** Function to update a projection with new parameters */
   const { width, height, center = projection.center() } = opts;
@@ -100,23 +89,34 @@ const mutateProjection: MutateProjection = (projection, opts) => {
     ]);
 };
 
-type GlobeState = any;
+type GlobeState = {
+  projection: GeoProjection;
+  zoom: number;
+  canvasContexts: Set<CanvasRenderingContext2D[]>;
+  updateCount: number;
+};
+
+type UpdateProjection = { type: "update"; projection: GeoProjection };
+type RotateProjection = { type: "rotate"; rotation: RotationAngles };
+type UpdateState = { type: "update-state"; state: GlobeState };
+
+type GlobeActions = UpdateProjection | RotateProjection | UpdateState;
 
 function createActions(
   ref: React.RefObject<HTMLElement>,
   props: GlobeProps,
   state: GlobeState,
-  setState: React.Dispatch<React.SetStateAction<GlobeState>>
+  dispatch: React.Dispatch<GlobeActions>
 ) {
   const { projection: _projection, setupProjection, ...rest } = props;
 
   const updateProjection = (newProj) => {
-    setState({ ...state, projection: newProj });
+    dispatch({ type: "update", projection: newProj });
   };
 
   return {
     resetProjection(newProj) {
-      updateProjection(setupProjection(newProj, rest));
+      dispatch({ type: "update", projection: setupProjection(newProj, rest) });
     },
     updateProjection,
     rotateProjection(rotation) {
@@ -154,6 +154,36 @@ const defaultProps = {
   setupProjection: mutateProjection,
 };
 
+interface GlobeProps extends ProjectionParams {
+  [key: string]: any;
+  projection: GeoProjection;
+  keepNorthUp: boolean;
+  allowDrag: boolean;
+  allowZoom: boolean;
+  setupProjection: MutateProjection;
+  onRotate?(v: RotationAngles): void;
+  children?: React.ReactNode;
+}
+
+function globeReducer(state: GlobeState, action: GlobeActions) {
+  switch (action.type) {
+    case "update":
+      return {
+        ...state,
+        updateCount: state.updateCount + 1,
+        projection: action.projection,
+      };
+    case "update-state":
+      return action.state;
+    case "rotate":
+      return {
+        ...state,
+        updateCount: state.updateCount + 1,
+        projection: action.projection.rotate(action.rotation),
+      };
+  }
+}
+
 export function Globe(_props: GlobeProps) {
   const props = { ...defaultProps, ..._props };
 
@@ -161,10 +191,11 @@ export function Globe(_props: GlobeProps) {
     props;
   const { projection: _projection, setupProjection, ...rest } = props;
 
-  const [mapState, setState] = useState({
+  const [mapState, dispatch] = useReducer(globeReducer, {
     projection: setupProjection(_projection, rest),
     zoom: 1,
     canvasContexts: new Set([]),
+    updateCount: 0,
   });
 
   const { projection } = mapState;
@@ -173,7 +204,7 @@ export function Globe(_props: GlobeProps) {
   const ref = useRef<HTMLElement>(null);
   const mapElement = useRef<HTMLElement>(null);
 
-  const actions = createActions(ref, props, mapState, setState);
+  const actions = createActions(ref, props, mapState, dispatch);
 
   useComponentDidUpdate(
     (prevProps, prevState) => {
@@ -182,12 +213,14 @@ export function Globe(_props: GlobeProps) {
       const sameProjection = prevProps.projection === props.projection;
 
       // For some reason we need this to get the projection to update
-      prevState.projection == mapState.projection;
+      // console.log("projection", prevState.projection == mapState.projection);
+      console.log("center", mapState.projection.center());
 
       let center = props.center;
       if (center == prevProps.center) {
         center = mapState.projection.center();
       }
+
       const sameScale =
         prevProps.scale === scale &&
         prevProps.translate === translate &&
@@ -196,6 +229,7 @@ export function Globe(_props: GlobeProps) {
         return;
       }
       const newProj = setupProjection(mapState.projection, { ...props, center });
+      dispatch({ type: "update", projection: newProj });
       actions.updateProjection(newProj);
     },
     props,
