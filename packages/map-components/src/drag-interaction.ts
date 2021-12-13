@@ -7,7 +7,6 @@ import { drag, DragBehavior } from "d3-drag";
 import { zoom, ZoomBehavior } from "d3-zoom";
 import { select, event as currentEvent, mouse } from "d3-selection";
 import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from "./math";
-import { runInThisContext } from "vm";
 
 class _DraggableOverlay extends Component<any, any> {
   static contextType = MapContext;
