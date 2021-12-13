@@ -9,15 +9,10 @@ import { useSpring, animated } from "react-spring";
 
 const AnimatedGlobe = animated(Globe);
 
-const MapView = props => {
-  const { currentColumn, setCurrentColumn, children, ...rest } = props;
+const MapViewFrame = props => {
   const [expanded, setExpanded] = useState(false);
-
-  const columnCenter = geoCentroid?.(currentColumn);
-
   const className = classNames({ expanded }, "context-map");
-  const { margin } = props;
-
+  const { children, center, margin = 10 } = props;
   const baseSize = 250;
   const sz = expanded ? 450 : baseSize;
 
@@ -44,7 +39,7 @@ const MapView = props => {
           {
             ...targetProps,
             margin,
-            center: columnCenter,
+            center,
             allowDrag: expanded,
             allowZoom: false,
             keepNorthUp: true,
@@ -52,14 +47,7 @@ const MapView = props => {
               setExpanded(true);
             }
           },
-          [
-            h(Land),
-            h(Columns, { onClick: setCurrentColumn, ...rest }),
-            children,
-            h.if(currentColumn != null)(CurrentColumn, {
-              feature: currentColumn
-            })
-          ]
+          [h(Land), children]
         ),
         h.if(expanded)(Button, {
           className: "close-button",
@@ -75,8 +63,18 @@ const MapView = props => {
   );
 };
 
-MapView.defaultProps = {
-  margin: 10
+const MapView = props => {
+  const { currentColumn, setCurrentColumn, children, ...rest } = props;
+  const center = geoCentroid?.(currentColumn);
+
+  return h(MapViewFrame, { center, ...rest }, [
+    h(Columns, { onClick: setCurrentColumn, ...rest }),
+    children,
+    h.if(currentColumn != null)(CurrentColumn, {
+      feature: currentColumn
+    })
+  ]);
 };
 
+export { MapViewFrame };
 export default MapView;

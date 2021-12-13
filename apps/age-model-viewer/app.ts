@@ -6,7 +6,7 @@ import {
   UnitSelectionProvider,
   useSelectedUnit
 } from "common";
-import { ColumnMapNavigator } from "common/column-map";
+import ColumnMap from "./column-picker";
 import Column from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
 import { useColumnNav } from "common/macrostrat-columns";
@@ -52,6 +52,20 @@ https: function ColumnManager() {
   // 495
   return h("div.column-ui", [
     h("div.left-column", [
+      h(ColumnMap, {
+        className: "column-map",
+        currentColumn: columnFeature,
+        setCurrentColumn,
+        margin: 0,
+        color: "dodgerblue",
+        apiRoute: "/defs/columns",
+        ...projectParams,
+        filterColumns(col) {
+          return col.properties.t_units > 0;
+        }
+      })
+    ]),
+    h("div.main-column", [
       h("div.column-view", [
         h(ColumnTitle, { data: columnFeature?.properties }),
         h.if(unitData != null)(Column, {
@@ -60,17 +74,7 @@ https: function ColumnManager() {
         })
       ])
     ]),
-    h("div.right-column", [
-      h.if(selectedUnit == null)(ColumnMapNavigator, {
-        className: "column-map",
-        currentColumn: columnFeature,
-        setCurrentColumn,
-        margin: 0,
-        apiRoute: "/defs/columns",
-        ...projectParams
-      }),
-      h(ModalUnitPanel, { unitData })
-    ])
+    h("div.right-column", [h(ModalUnitPanel, { unitData })])
   ]);
 }
 

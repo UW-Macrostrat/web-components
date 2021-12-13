@@ -20,7 +20,7 @@
   "alias": {
     "@macrostrat/column-components": "@macrostrat/column-components/src",
     "@macrostrat/map-components": "@macrostrat/map-components/src",
-    "@macrostrat/ui-components": "@macrostrat/ui-components/src",
+    "@macrostrat/ui-components": "./packages/ui-components/src",
     "common": "./packages/common/src",
     "react": "./node_modules/react",
     "react-dom": "./node_modules/react-dom"

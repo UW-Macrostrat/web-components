@@ -5,19 +5,13 @@ import { geoCentroid } from "d3-geo";
 import { Land, Columns, CurrentColumn } from "common/map/layers";
 import useSize from "@react-hook/size";
 
-const ColumnMapNavigator = props => {
-  const { currentColumn, setCurrentColumn, children, style, ...rest } = props;
-
+function ResizableMapFrame(props) {
+  const { center, children, style, margin, className } = props;
   const ref = useRef(null);
   const [width, height] = useSize(ref);
-
-  const columnCenter = geoCentroid?.(currentColumn);
-
-  const { margin } = props;
-
   let scale = width;
 
-  return h("div.map-area", { ref, style }, [
+  return h("div.map-area", { ref, style, className }, [
     h(
       Globe,
       {
@@ -25,24 +19,36 @@ const ColumnMapNavigator = props => {
         height,
         margin,
         scale,
-        center: columnCenter,
+        center,
         allowDrag: true,
         allowZoom: true,
         keepNorthUp: true
-        //translate: [width / 2 - scale, height - scale],
-        //rotation: [-columnCenter[0], -columnCenter[1]],
       },
-      [
-        h(Land),
-        children,
-        h(Columns, {
-          onChange: setCurrentColumn,
-          col_id: currentColumn?.properties.col_id,
-          ...rest
-        }),
-        h.if(currentColumn != null)(CurrentColumn, { feature: currentColumn })
-      ]
+      [h(Land), children]
     )
+  ]);
+}
+
+const ColumnMapNavigator = props => {
+  const {
+    currentColumn,
+    setCurrentColumn,
+    children,
+    style,
+    margin,
+    ...rest
+  } = props;
+
+  const columnCenter = geoCentroid?.(currentColumn);
+
+  return h(BasicMapFrame, { center: columnCenter, style, margin }, [
+    children,
+    h(Columns, {
+      onChange: setCurrentColumn,
+      col_id: currentColumn?.properties.col_id,
+      ...rest
+    }),
+    h.if(currentColumn != null)(CurrentColumn, { feature: currentColumn })
   ]);
 };
 
@@ -51,4 +57,4 @@ ColumnMapNavigator.defaultProps = {
 };
 
 export * from "./layers";
-export { ColumnMapNavigator };
+export { ColumnMapNavigator, ResizableMapFrame };
