@@ -2,13 +2,14 @@ import { Component } from "react";
 import { findDOMNode } from "react-dom";
 import T from "prop-types";
 import h from "./hyper";
-import { MapContext } from "./context";
+import { MapContext, useMapDispatch } from "./context";
 import { drag, DragBehavior } from "d3-drag";
 import { zoom, ZoomBehavior } from "d3-zoom";
 import { select, event as currentEvent, mouse } from "d3-selection";
 import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from "./math";
+import { runInThisContext } from "vm";
 
-class DraggableOverlay extends Component<any, any> {
+class _DraggableOverlay extends Component<any, any> {
   static contextType = MapContext;
   static propTypes = {
     showMousePosition: T.bool,
@@ -67,7 +68,7 @@ class DraggableOverlay extends Component<any, any> {
 
   dragged(mousePos, evt) {
     const { keepNorthUp, dragSensitivity: sens } = this.props;
-    const { projection, rotateProjection } = this.context;
+    const { projection } = this.context;
     const rot = projection.rotate();
     this.q0 = euler2quat(rot);
     const pos = projection.invert(mousePos);
@@ -82,7 +83,7 @@ class DraggableOverlay extends Component<any, any> {
     if (r1 == null) {
       return;
     }
-    rotateProjection(r1);
+    this.props.dispatch({ type: "rotate", rotation: r1 });
   }
 
   dragEnded() {
@@ -90,15 +91,11 @@ class DraggableOverlay extends Component<any, any> {
   }
 
   zoomed() {
-    const scale = currentEvent.transform.k;
-    const { projection, updateProjection } = this.context;
-    return updateProjection(projection.scale(scale));
-  }
-
-  zoomEnd() {
-    const scale = currentEvent.transform.k;
-    const { projection, updateProjection } = this.context;
-    return updateProjection(projection.scale(scale));
+    const scale = currentEvent?.transform.k;
+    if (scale == null) {
+      return;
+    }
+    this.props.dispatch({ type: "scale", scale });
   }
 
   element() {
@@ -134,7 +131,7 @@ class DraggableOverlay extends Component<any, any> {
     this.drag(el);
     el.on("click", function () {
       console.log("Clicking");
-      dispatchEvent(currentEvent);
+      //dispatchEvent(currentEvent);
       return false;
     });
 
@@ -147,7 +144,9 @@ class DraggableOverlay extends Component<any, any> {
     const el = this.element();
     // Zoom over one order of magnitude by default
 
-    this.zoomHandler = zoom().on("zoom", this.zoomed.bind(this)).on("end", this.zoomEnd.bind(this));
+    const zoomHandler = this.zoomed.bind(this);
+
+    this.zoomHandler = zoom().on("zoom", zoomHandler).on("end", zoomHandler);
     this.zoomHandler(el);
     this.updateZoom();
   }
@@ -155,7 +154,7 @@ class DraggableOverlay extends Component<any, any> {
   updateZoom(scale?: number) {
     const el = this.element();
     scale ??= this.props.initialScale;
-    return this.zoomHandler?.scaleExtent(this.getScaleExtent()).scaleTo(el, scale);
+    this.zoomHandler?.scaleExtent(this.getScaleExtent()).scaleTo(el, scale);
   }
 
   getScaleExtent() {
@@ -177,6 +176,11 @@ class DraggableOverlay extends Component<any, any> {
       return this.updateZoom();
     }
   }
+}
+
+function DraggableOverlay(props) {
+  const dispatch = useMapDispatch();
+  return h(_DraggableOverlay, { ...props, dispatch });
 }
 
 export { DraggableOverlay };

@@ -1,12 +1,4 @@
-import React, {
-  Component,
-  useContext,
-  createElement,
-  useRef,
-  useCallback,
-  useReducer,
-  useEffect,
-} from "react";
+import React, { createElement, useRef, useCallback, useReducer, useEffect } from "react";
 import { addClassNames } from "@macrostrat/hyper";
 import h from "./hyper";
 import {
@@ -61,20 +53,12 @@ function Sphere(props) {
   });
 }
 
-interface ProjectionParams {
-  center?: Coord;
-  translate?: Coord;
-  width: number;
-  height: number;
-  scale: number;
-  margin: number;
-  rotation?: RotationAngles;
-}
+/*
+
 
 type MutateProjection = (p: GeoProjection, opts: ProjectionParams) => GeoProjection;
 
 const mutateProjection: MutateProjection = (projection, opts) => {
-  /** Function to update a projection with new parameters */
   const { width, height, center = projection.center() } = opts;
   const margin = opts.margin ?? 0;
   let { scale, translate } = opts;
@@ -98,32 +82,32 @@ const mutateProjection: MutateProjection = (projection, opts) => {
       [width - margin, height - margin],
     ]);
 };
+*/
 
-function createActions(ref: React.RefObject<HTMLElement>, dispatch: React.Dispatch<GlobeActions>) {
-  const updateProjection = (newProj) => {
-    dispatch({ type: "update", projection: newProj });
-  };
+/* This function is currently unused, but it helps propagate mouse events upwards
+function dispatchEvent(evt) {
+  const v: HTMLElement = ref.current;
+  if (v == null) return;
+  const el = v.getElementsByClassName(styles.map)[0];
+  // Simulate an event directly on the map's DOM element
+  const { clientX, clientY } = evt;
 
-  return {
-    resetProjection: updateProjection,
-    updateProjection,
-    rotateProjection(rotation) {
-      dispatch({ type: "rotate", rotation: rotation });
-    },
-    dispatchEvent(evt) {
-      const v: HTMLElement = ref.current;
-      if (v == null) return;
-      const el = v.getElementsByClassName(styles.map)[0];
-      // Simulate an event directly on the map's DOM element
-      const { clientX, clientY } = evt;
+  const e1 = new MouseEvent("mousedown", { clientX, clientY });
+  const e2 = new MouseEvent("mouseup", { clientX, clientY });
 
-      const e1 = new MouseEvent("mousedown", { clientX, clientY });
-      const e2 = new MouseEvent("mouseup", { clientX, clientY });
+  el.dispatchEvent(e1);
+  el.dispatchEvent(e2);
+}
+*/
 
-      el.dispatchEvent(e1);
-      el.dispatchEvent(e2);
-    },
-  };
+interface ProjectionParams {
+  center?: Coord;
+  translate?: Coord;
+  width: number;
+  height: number;
+  scale: number;
+  margin: number;
+  rotation?: RotationAngles;
 }
 
 const defaultProps = {
@@ -133,7 +117,6 @@ const defaultProps = {
   center: [0, 0],
   graticule: Graticule,
   projection: geoOrthographic().clipAngle(90).precision(0.5),
-  setupProjection: mutateProjection,
 };
 
 interface GlobeProps extends ProjectionParams {
@@ -142,7 +125,6 @@ interface GlobeProps extends ProjectionParams {
   keepNorthUp: boolean;
   allowDrag: boolean;
   allowZoom: boolean;
-  setupProjection: MutateProjection;
   onRotate?(v: RotationAngles): void;
   children?: React.ReactNode;
 }
@@ -187,7 +169,7 @@ export function Globe(_props: GlobeProps) {
   const ref = useRef<HTMLElement>(null);
   const mapElement = useRef<HTMLElement>(null);
 
-  const actions = createActions(ref, actionHandler);
+  //const actions = createActions(ref, actionHandler);
 
   useEffect(() => {
     const rotation: [number, number] = [-center[0], -center[1]];
@@ -204,7 +186,7 @@ export function Globe(_props: GlobeProps) {
   }, [projection, width, height, margin, translate]);
 
   const renderPath = geoPath(mapState.projection);
-  const value = { projection, renderPath, width, height, ...actions };
+  const value = { projection, renderPath, width, height };
 
   const xmlns = "http://www.w3.org/2000/svg";
   const viewBox = `0 0 ${width} ${height}`;
