@@ -33,4 +33,5 @@ export const WithHighlight = Template.bind({});
 WithHighlight.args = {
   names,
   highlight: "Batman",
+  limit: null,
 };

@@ -38,11 +38,11 @@ const AuthorList = function (props: AuthorListProps) {
   const L = [];
   for (const [i, name] of names.entries()) {
     L.push(A(name));
-    L.push(i < penultimateIx ? ", " : " ");
-    if (i === penultimateIx && n != 1 && !truncated) {
+    L.push(i < penultimateIx && n != 2 ? ", " : " ");
+    if (i === penultimateIx - 1 && n != 1 && !truncated) {
       L.push("and ");
     }
-    if (i >= limit - 1) {
+    if (i >= limit - 1 && truncated) {
       L.push("et al.");
       break;
     }
