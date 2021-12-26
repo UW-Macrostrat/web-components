@@ -48,7 +48,7 @@ function useScrollOffset(ref: RefObject<HTMLElement>): number {
   const [offset, setOffset] = useState(0);
   useEffect(() => {
     ref.current?.addEventListener("scroll", (evt) => {
-      const el = <HTMLElement>evt.target;
+      const el = evt.target as HTMLElement;
       setOffset(el.scrollTop);
     });
   }, [ref.current]);
