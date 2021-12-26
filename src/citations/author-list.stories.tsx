@@ -1,8 +1,7 @@
-import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import h from "@macrostrat/hyper";
 
-import { AuthorList, AuthorListProps } from ".";
+import { AuthorList, AuthorListProps } from "./author-list";
 
 const names = [
   "Casey Idzikowski",
@@ -30,8 +29,8 @@ NameList.args = {
   names,
 };
 
-export const WithHighligh = Template.bind({});
-WithHighligh.args = {
+export const WithHighlight = Template.bind({});
+WithHighlight.args = {
   names,
   highlight: "Batman",
 };
