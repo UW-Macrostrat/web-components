@@ -1,6 +1,0 @@
-{
-  "name": "@macrostrat/mapbox-utils",
-  "version": "1.0.0",
-  "description": "Utilities for working with mapbox maps",
-  "peerDependencies": {}
-}
