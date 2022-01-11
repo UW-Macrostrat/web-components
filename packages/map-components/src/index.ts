@@ -114,8 +114,6 @@ export function Globe(_props: GlobeProps) {
   const props = { ...defaultProps, ..._props };
 
   let {
-    width,
-    height,
     children,
     keepNorthUp,
     allowDrag,
@@ -124,8 +122,9 @@ export function Globe(_props: GlobeProps) {
     center,
     graticule,
     onRotate,
+    graticuleSpacing = 10,
   } = props;
-  const { margin = 80, translate, ...rest } = props;
+  const { width: outerWidth, height: outerHeight, margin = 80, translate, ...rest } = props;
 
   const [mapState, dispatch] = useReducer(globeReducer, {
     projection: props.projection,
@@ -150,6 +149,9 @@ export function Globe(_props: GlobeProps) {
   const ref = useRef<HTMLElement>(null);
   const mapElement = useRef<HTMLElement>(null);
 
+  const width = outerWidth - 2 * margin;
+  const height = outerHeight - 2 * margin;
+
   //const actions = createActions(ref, actionHandler);
 
   useEffect(() => {
@@ -163,17 +165,17 @@ export function Globe(_props: GlobeProps) {
       .translate(trans)
       .scale(scale)
       .clipExtent([
-        [margin, margin],
-        [width - margin, height - margin],
+        [0, 0],
+        [width, height],
       ]);
     dispatch({ type: "update", projection: newProj });
   }, [props.projection, width, height, margin, translate, scale]);
 
   const renderPath = useMemo(() => geoPath(mapState.projection), [mapState.projection]); //, [mapState.projection]);
-  const value = { projection, renderPath, width, height };
+  const value = { projection, renderPath, width, height, margin };
 
   const xmlns = "http://www.w3.org/2000/svg";
-  const viewBox = `0 0 ${width} ${height}`;
+  const viewBox = `0 0 ${outerWidth} ${outerHeight}`;
 
   return h(
     MapContext.Provider,
@@ -187,12 +189,17 @@ export function Globe(_props: GlobeProps) {
           className: "macrostrat-map globe",
           ref,
           xmlns,
-          width,
-          height,
+          width: outerWidth,
+          height: outerWidth,
           viewBox,
         },
         [
-          h("g.map", { ref: mapElement }, [h(Background), h(graticule), children, h(Sphere)]),
+          h("g.map", { ref: mapElement, transform: `translate(${margin} ${margin})` }, [
+            h(Background),
+            h(graticule, { stepSize: graticuleSpacing }),
+            children,
+            h(Sphere),
+          ]),
           h.if(allowDrag)(DraggableOverlay, {
             keepNorthUp,
             initialScale,
@@ -206,6 +213,6 @@ export function Globe(_props: GlobeProps) {
 }
 
 export * from "./axis-labels";
-export { MapContext };
+export { MapContext, useMap };
 export * from "./canvas-layer";
 export * from "./feature";

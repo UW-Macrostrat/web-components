@@ -13,6 +13,7 @@ type GlobeState = {
 type GlobeCtx = {
   width: number;
   height: number;
+  margin: number;
   renderPath: (geom: GeoGeometryObjects) => string;
   projection: GeoProjection;
 };
@@ -27,6 +28,7 @@ type GlobeActions = UpdateProjection | RotateProjection | UpdateState | ScalePro
 const MapContext = createContext<GlobeCtx>({
   width: 0,
   height: 0,
+  margin: 0,
   renderPath: (geom) => null,
   projection: geoOrthographic(),
 });

@@ -14,40 +14,52 @@ import PathHandler from "kld-intersections/lib/PathHandler";
 import { useMap } from "./context";
 import { useGraticule } from "./graticule";
 import h from "./hyper";
+import React from "react";
 
 const index = { lon: 0, lat: 1 };
 
-const formatAzimuthLabel = function (d) {
-  const v = 180 - d.value;
+export function formatAzimuthLabel(d) {
+  const v = Math.round(180 - d.value);
+  console.log(v);
   if (v === 180) {
     return "S";
   }
   if (v === 90) {
     return "E";
   }
-  if (v === 0) {
+  if (v === 0 || v === 360) {
     return "N";
   }
   if (v === 270) {
     return "W";
   }
   return `${v}°`;
-};
+}
 
-enum CoordAxis {
+export enum CoordinateAxis {
   Longitude = 0,
   Latitude = 1,
 }
 
 type PixelCoord = { x: number; y: number };
 type ShapeData = { shape?: Shapes.Shape } & { start?: PixelCoord; end?: PixelCoord };
-type IntersectionData = { axis: CoordAxis } & ShapeData;
+type IntersectionOptions = { axis: CoordinateAxis; spacing: number } & ShapeData;
 
 type IntersectionResult = PixelCoord & { value: number };
 
-function useIntersections({ axis, shape, start, end }: IntersectionData): IntersectionResult[] {
+function useIntersections({
+  axis,
+  shape,
+  start,
+  end,
+  spacing = 10,
+}: IntersectionOptions): IntersectionResult[] {
   shape ??= Shapes.line(start.x, start.y, end.x, end.y);
-  const { coordinates, type } = useGraticule();
+  let graticuleSpacing = [spacing, spacing];
+  if (axis == CoordinateAxis.Longitude) {
+    graticuleSpacing[1] = 0.5;
+  }
+  const { coordinates, type } = useGraticule(graticuleSpacing);
   const { projection } = useMap();
   const pth = geoPath(projection);
   const intersections = [];
@@ -183,18 +195,48 @@ class _DipLabels extends GraticuleLabels {
   }
 }
 
-export function GraticuleLabels({ formatValue }) {
-  formatValue ??= (d) => `${d}°`;
-  const intersections = useIntersections({
-    axis: CoordAxis.Latitude,
-    start: { x: 0, y: 0 },
-    end: { x: 500, y: 500 },
-  });
-  return h(
-    "g.labels",
+type GraticuleLabelProps = {
+  formatValue?: (d: any) => string;
+  axisLabel?: string;
+  labelProps?: any;
+  padding?: number;
+  showPoints?: boolean;
+  children?: React.Node;
+} & IntersectionOptions &
+  React.SVGProps<SVGGElement>;
+
+export function GraticuleLabels({
+  formatValue,
+  axisLabel,
+  showPoints = false,
+  children,
+  labelProps = {
+    textAnchor: "middle",
+    alignmentBaseline: "center",
+  },
+  shape,
+  start,
+  end,
+  axis,
+  spacing,
+  rotate = 0,
+  ...rest
+}: GraticuleLabelProps) {
+  formatValue ??= (d) => `${d.value}°`;
+  const intersections = useIntersections({ shape, start, end, axis, spacing });
+  return h("g.labels", { ...rest }, [
     intersections.map((d) => {
       const { x, y, value } = d;
-      return h("g.label", [h("text", { transform: `translate(${x} ${y})` }, formatValue(value))]);
-    })
-  );
+      let transform = `translate(${x} ${y})`;
+      if (rotate) {
+        transform += ` rotate(${rotate})`;
+      }
+      return h("g.label", { transform }, [
+        h("text", labelProps, formatValue(d)),
+        h.if(showPoints)("circle", { r: 2 }),
+      ]);
+    }),
+    h.if(axisLabel)("text.axis-label", { transform: "translate(0, -10)" }, axisLabel),
+    children,
+  ]);
 }
