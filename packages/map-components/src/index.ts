@@ -9,38 +9,19 @@ import {
   GlobeState,
   globeReducer,
   MapDispatchContext,
+  GeoPath,
 } from "./context";
+import { useGraticule, Graticule } from "./graticule";
 import { DraggableOverlay } from "./drag-interaction";
 import { geoOrthographic, geoGraticule, geoPath, GeoProjection } from "d3-geo";
 import styles from "./main.module.styl";
 
 type Coord = [number, number];
 
-function GeoPath(props) {
-  const { geometry, ...rest } = props;
-  const { renderPath } = useMap();
-  const d = geometry != null ? renderPath(geometry) : null;
-  return h("path", { d, ...rest });
-}
-
 function Background(props) {
   return h(GeoPath, {
     geometry: { type: "Sphere" },
     className: "background",
-    ...props,
-  });
-}
-
-function Graticule(props) {
-  const graticule = geoGraticule()
-    .step([10, 10])
-    .extent([
-      [-180, -80],
-      [180, 80 + 1e-6],
-    ]);
-  return h(GeoPath, {
-    className: "graticule",
-    geometry: graticule(),
     ...props,
   });
 }
@@ -224,6 +205,7 @@ export function Globe(_props: GlobeProps) {
   );
 }
 
+export * from "./axis-labels";
 export { MapContext };
 export * from "./canvas-layer";
 export * from "./feature";

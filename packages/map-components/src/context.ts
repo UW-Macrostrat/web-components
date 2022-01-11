@@ -65,6 +65,13 @@ function globeReducer(state: GlobeState, action: GlobeActions) {
   }
 }
 
+function GeoPath(props) {
+  const { geometry, ...rest } = props;
+  const { renderPath } = useMap();
+  const d = geometry != null ? renderPath(geometry) : null;
+  return h("path", { d, ...rest });
+}
+
 export {
   MapContext,
   useMapDispatch,
@@ -73,5 +80,6 @@ export {
   globeReducer,
   GlobeActions,
   GlobeState,
+  GeoPath,
   RotationAngles,
 };
