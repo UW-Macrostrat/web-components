@@ -16,16 +16,24 @@ interface IFeatureProps {
   [key: string]: any;
 }
 
-function CanvasFeature({ geometry }) {
-  const { context, renderPath } = useContext(MapCanvasContext);
+function CanvasFeature({ geometry, style }) {
+  const { projection } = useContext(MapContext);
+  const { context } = useContext(MapCanvasContext);
   if (context != null) {
-    renderPath(geometry);
+    if (style?.fill != null) {
+      context.fillColor = style.fill;
+    }
+    if (style?.stroke != null) {
+      context.strokeColor = style.stroke;
+    }
+    console.log(style);
+    geoPath(projection, context)(geometry);
   }
   return null;
 }
 
 function Feature(props: IFeatureProps) {
-  const { feature, onClick, id: _id, ...rest } = props;
+  const { feature, onClick, id: _id, style, ...rest } = props;
   const { inCanvas } = useContext(MapCanvasContext);
   const { geometry, properties } = feature;
   const id = _id ?? feature.id;
@@ -33,12 +41,12 @@ function Feature(props: IFeatureProps) {
   //const renderPath = geoPath(projection);
 
   if (inCanvas) {
-    return h(CanvasFeature, { geometry });
+    return h(CanvasFeature, { geometry, style });
   } else {
     const d = renderPath(geometry);
-    console.log(id, d);
     return h("path.feature", {
       className: `feature-${id}`,
+      style,
       ...rest,
       d,
       onClick: () => {

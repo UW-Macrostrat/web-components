@@ -20,7 +20,6 @@ const index = { lon: 0, lat: 1 };
 
 export function formatAzimuthLabel(d) {
   const v = Math.round(180 - d.value);
-  console.log(v);
   if (v === 180) {
     return "S";
   }
@@ -135,7 +134,6 @@ class _GraticuleLabels {
       const { points } = Intersection.intersect(path, this.shape);
       for (let point of Array.from(points)) {
         point.value = coords[0][ix];
-        console.log(point);
         intersections.push(point);
       }
     }
