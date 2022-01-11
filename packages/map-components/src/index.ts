@@ -1,4 +1,4 @@
-import React, { createElement, useRef, useCallback, useReducer, useEffect } from "react";
+import React, { createElement, useRef, useCallback, useReducer, useEffect, useMemo } from "react";
 import { addClassNames } from "@macrostrat/hyper";
 import h from "./hyper";
 import {
@@ -178,14 +178,17 @@ export function Globe(_props: GlobeProps) {
 
   useEffect(() => {
     const trans = translate ?? [width / 2, height / 2];
-    const newProj = projection.translate(trans).clipExtent([
-      [margin, margin],
-      [width - margin, height - margin],
-    ]);
+    const newProj = projection
+      .translate(trans)
+      .scale(scale)
+      .clipExtent([
+        [margin, margin],
+        [width - margin, height - margin],
+      ]);
     dispatch({ type: "update", projection: newProj });
-  }, [projection, width, height, margin, translate]);
+  }, [props.projection, width, height, margin, translate, scale]);
 
-  const renderPath = geoPath(mapState.projection);
+  const renderPath = useMemo(() => geoPath(mapState.projection), [mapState.projection]); //, [mapState.projection]);
   const value = { projection, renderPath, width, height };
 
   const xmlns = "http://www.w3.org/2000/svg";

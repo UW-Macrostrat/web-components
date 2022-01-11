@@ -2,6 +2,7 @@ import { useContext } from "react";
 import h from "@macrostrat/hyper";
 import { MapContext } from "./context";
 import { CanvasLayer, MapCanvasContext } from "./canvas-layer";
+import { geoPath } from "d3-geo";
 
 export interface IFeature {
   id: number | string;
@@ -15,32 +16,38 @@ interface IFeatureProps {
   [key: string]: any;
 }
 
-const Feature = (props: IFeatureProps) => {
+function CanvasFeature({ geometry }) {
+  const { context, renderPath } = useContext(MapCanvasContext);
+  if (context != null) {
+    renderPath(geometry);
+  }
+  return null;
+}
+
+function Feature(props: IFeatureProps) {
   const { feature, onClick, id: _id, ...rest } = props;
-  const { inCanvas, context } = useContext(MapCanvasContext);
+  const { inCanvas } = useContext(MapCanvasContext);
   const { geometry, properties } = feature;
   const id = _id ?? feature.id;
+  const { projection, renderPath } = useContext(MapContext);
+  //const renderPath = geoPath(projection);
 
   if (inCanvas) {
-    const { renderPath } = useContext(MapCanvasContext);
-    if (context != null) {
-      renderPath(geometry);
-    }
-    return null;
+    return h(CanvasFeature, { geometry });
   } else {
-    const { renderPath } = useContext(MapContext);
     const d = renderPath(geometry);
+    console.log(id, d);
     return h("path.feature", {
-      d,
       className: `feature-${id}`,
       ...rest,
+      d,
       onClick: () => {
         if (onClick == null) return;
         return onClick(feature);
       },
     });
   }
-};
+}
 
 type IFeatureLayerProps = React.PropsWithChildren<{
   geometry?: object;
