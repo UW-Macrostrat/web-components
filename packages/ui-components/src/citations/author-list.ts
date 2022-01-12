@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 
-const Author = function(props) {
+const Author = function (props) {
   const { name, highlight } = props;
 
   if (name === highlight) {
@@ -9,15 +9,15 @@ const Author = function(props) {
   return h("span.author", name);
 };
 
-interface AuthorListProps {
+export interface AuthorListProps {
   names: string[];
   highlight?: string;
   limit?: number;
 }
 
-const AuthorList = function(props: AuthorListProps) {
+const AuthorList = function (props: AuthorListProps) {
   const { names, highlight } = props;
-  const A = name => h(Author, { name, highlight });
+  const A = (name) => h(Author, { name, highlight });
 
   if (!Array.isArray(names)) {
     return A(names);
@@ -38,11 +38,11 @@ const AuthorList = function(props: AuthorListProps) {
   const L = [];
   for (const [i, name] of names.entries()) {
     L.push(A(name));
-    L.push(i < penultimateIx ? ", " : " ");
-    if (i === penultimateIx && n != 1 && !truncated) {
+    L.push(i < penultimateIx && n != 2 ? ", " : " ");
+    if (i === penultimateIx - 1 && n != 1 && !truncated) {
       L.push("and ");
     }
-    if (i >= limit - 1) {
+    if (i >= limit - 1 && truncated) {
       L.push("et al.");
       break;
     }

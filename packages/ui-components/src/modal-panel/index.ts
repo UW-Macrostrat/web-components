@@ -1,6 +1,7 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
 import * as styles from "./main.module.styl";
+import React from "react";
 
 const h = hyperStyled(styles);
 
@@ -30,7 +31,17 @@ function MinimalModalPanel(props) {
   ]);
 }
 
-function ModalPanel(props) {
+export interface ModalPanelProps {
+  title: string | null;
+  onClose: () => void;
+  children?: React.ReactNode;
+  headerChildren?: React.ReactNode;
+  style: object;
+  minimal: boolean;
+  className: string;
+}
+
+function ModalPanel(props: ModalPanelProps) {
   const {
     children,
     className,
