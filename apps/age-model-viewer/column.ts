@@ -6,17 +6,14 @@ import {
   ColumnLayoutContext
 } from "@macrostrat/column-components";
 import { useContext } from "react";
-import {
-  AnnotatedUnitsColumn,
-  CompositeUnitsColumn,
-  SimpleUnitsColumn
-} from "common/units";
+import { AnnotatedUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
 import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
 import { ColumnAxisType } from "common/units/boxes";
+import { AgeModelColumn, ColumnAgeDataset } from "./age-model-column";
 
 interface ColumnProps {
   data: IUnit[];
@@ -67,21 +64,33 @@ const Section = (props: ColumnProps) => {
       h(
         ColumnSVG,
         {
-          width: 350,
+          width: 550,
           padding: 20,
           paddingLeft: 1,
-          paddingV: 5
+          paddingV: 10,
+          paddingBottom: 20
         },
-        h(AnnotatedUnitsColumn, {
-          width: 350,
-          columnWidth: 150,
-          axisType,
-          unitComponent,
-          unitComponentProps: {
-            nColumns: 1,
-            axisType: "pos"
-          }
-        })
+        [
+          h(AnnotatedUnitsColumn, {
+            width: 350,
+            columnWidth: 150,
+            axisType,
+            unitComponent,
+            unitComponentProps: {
+              nColumns: 1,
+              axisType: "pos"
+            }
+          }),
+          h(
+            AgeModelColumn,
+            {
+              transform: "translate(160)",
+              width: 550 - 160 - 10,
+              nTicks: 10
+            },
+            h(ColumnAgeDataset, { stroke: "red", strokeWidth: 2 })
+          )
+        ]
       )
     ]
   );
@@ -126,7 +135,7 @@ const Column = (props: ColumnProps) => {
       sectionGroups.map(([id, values]) => {
         return h(`div.section.section-${id}`, [
           h(Section, {
-            pixelScale: 10,
+            pixelScale: 5,
             data: values,
             axisType,
             unitComponent

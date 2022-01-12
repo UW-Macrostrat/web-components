@@ -6,6 +6,9 @@ import {
   UnitSelectionProvider,
   useSelectedUnit
 } from "common";
+import { Button } from "@blueprintjs/core";
+import { CSSTransition } from "react-transition-group";
+import { useState } from "react";
 import ColumnMap from "./column-picker";
 import Column from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
@@ -43,6 +46,8 @@ https: function ColumnManager() {
     currentColumn
   ])?.features[0];
 
+  const [showContext, setShowContext] = useState(true);
+
   const unitData = useAPIResult("/units", unitParams, [currentColumn]);
 
   if (unitData == null) return null;
@@ -51,21 +56,37 @@ https: function ColumnManager() {
 
   // 495
   return h("div.column-ui", [
-    h("div.left-column", [
-      h(ColumnMap, {
-        className: "column-map",
-        currentColumn: columnFeature,
-        setCurrentColumn,
-        margin: 0,
-        color: "dodgerblue",
-        apiRoute: "/defs/columns",
-        ...projectParams,
-        filterColumns(col) {
-          return col.properties.t_units > 0;
-        }
-      })
-    ]),
+    h(
+      CSSTransition,
+      {
+        in: showContext,
+        timeout: 300,
+        unmountOnExit: true,
+        onEnter() {}
+      },
+      [
+        h("div.left-column", [
+          h(ColumnMap, {
+            className: "column-map",
+            currentColumn: columnFeature,
+            setCurrentColumn,
+            margin: 0,
+            color: "dodgerblue",
+            apiRoute: "/defs/columns",
+            ...projectParams,
+            filterColumns(col) {
+              return col.properties.t_units > 0;
+            }
+          })
+        ])
+      ]
+    ),
     h("div.main-column", [
+      h(
+        Button,
+        { onClick: () => setShowContext(!showContext) },
+        "Toggle Context"
+      ),
       h("div.column-view", [
         h(ColumnTitle, { data: columnFeature?.properties }),
         h.if(unitData != null)(Column, {
@@ -86,7 +107,7 @@ function App() {
       DarkModeProvider,
       C(GeologicPatternProvider, { resolvePattern }),
       UnitSelectionProvider,
-      MacrostratAPIProvider,
+      C(MacrostratAPIProvider, { useDev: false }),
       ColumnManager
     )
   );

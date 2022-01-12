@@ -33,6 +33,18 @@
       max-width 500px
       height: 100vh
       position relative
+      &.enter
+        transform translateX(-100%)
+        min-width 0
+      &.enter-active
+        width 40%
+        transform translateX(0%)
+        transition transform 300ms
+      &.exit-active
+        width 0
+        margin-left -400px
+        transition width margin-left 300ms
+        min-width 0
       .map-area
         width 100%
         height 100%
@@ -193,3 +205,9 @@
     g.inner
       pattern image
         filter: invert(100%)
+
+  body
+    --column-background-color: #ffffff
+  // Column graph styles
+  .underlay
+    fill: var(--column-background-color)
