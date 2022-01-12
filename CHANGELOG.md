@@ -1,6 +1,6 @@
 # Changelog
 
-## `[1.0.3]` - 12-01-2022
+## `[1.0.4]` - 12-01-2022
 
 - Add box model helpers (for plotting) to this library.
 
