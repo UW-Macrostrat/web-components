@@ -5,7 +5,6 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import { FeatureLayer, Feature, MapContext } from "@macrostrat/map-components";
 import { get } from "axios";
 import { feature } from "topojson-client";
-import { geoVoronoi } from "d3-geo-voronoi";
 import { geoCentroid, ExtendedFeature } from "d3-geo";
 import { Polygon } from "geojson";
 import chroma from "chroma-js";
