@@ -1,0 +1,85 @@
+{
+  "success": {
+    "v": 2,
+    "license": "CC-BY 4.0",
+    "data": {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [
+                  -134.7995,
+                  64.6415
+                ],
+                [
+                  -132.6489,
+                  64.4775
+                ],
+                [
+                  -131.001,
+                  64.3113
+                ],
+                [
+                  -129.1745,
+                  63.9748
+                ],
+                [
+                  -128.5153,
+                  63.3102
+                ],
+                [
+                  -128.6966,
+                  62.6666
+                ],
+                [
+                  -129.2651,
+                  63.0201
+                ],
+                [
+                  -129.9243,
+                  63.5388
+                ],
+                [
+                  -131.5118,
+                  64.198
+                ],
+                [
+                  -132.3029,
+                  64.1382
+                ],
+                [
+                  -133.6981,
+                  64.3411
+                ],
+                [
+                  -134.7995,
+                  64.6415
+                ]
+              ]
+            ]
+          },
+          "properties": {
+            "col_id": 2163,
+            "col_name": "Southern and Central Mackenzie Mountains, Yukon",
+            "col_group": "Cordillera of Western North America:N, NW, and W Laurentian margins",
+            "col_group_id": 67,
+            "group_col_id": "169.00",
+            "col_area": "13148.9",
+            "project_id": 10,
+            "col_type": "column",
+            "refs": [
+              122
+            ]
+          }
+        }
+      ]
+    },
+    "refs": {
+      "122": "Moynihan, D.P., Strauss, J.V., Nelson, L.L., Padget, C.D. Upper Windermere Supergroup and the transition from rifting to continent-margin sedimentation, Nadaleen River area, northern Canadian Cordillera. Geological Society of America Bulletin. 2019. 10.1130/B32039.1. "
+    }
+  }
+}

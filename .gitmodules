@@ -1,0 +1,15 @@
+[submodule "src/column-components"]
+	path = packages/column-components
+	url = git://github.com/UW-Macrostrat/column-components.git
+[submodule "src/ui-components"]
+	path = packages/ui-components
+	url = git://github.com/UW-Macrostrat/ui-components.git
+[submodule "bundledDeps/map-components"]
+	path = packages/map-components
+	url = git://github.com/UW-Macrostrat/map-components.git
+[submodule "packages/timescale"]
+	path = packages/timescale
+	url = https://github.com/UW-Macrostrat/timescale
+[submodule "packages/data-sheet"]
+	path = packages/data-sheet
+	url = https://github.com/UW-Macrostrat/data-sheet
