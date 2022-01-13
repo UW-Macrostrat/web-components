@@ -8,6 +8,7 @@ import { SketchPicker } from "react-color";
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import chroma from "chroma-js";
+import "./attitude-sheet.styl";
 
 //import classNames from "classnames";
 interface GridElement extends ReactDataSheet.Cell<GridElement, number> {
@@ -21,7 +22,6 @@ function ColorEditor(props) {
   const { value, onKeyDown, onChange } = props;
   //const initialColor = chroma(value);
   //const [editingColor, setColor] = useState(initialColor);
-  console.log(value);
   const target = h("span.popover-target");
 
   let color = null;
@@ -114,7 +114,7 @@ export const orientationFields: Field<OrientationKey>[] = [
     name: "Color",
     key: "color",
     required: false,
-    //isValid: (d) => getColor(d) != null,
+    isValid: (d) => true, //getColor(d) != null,
     transform: (d) => d,
     dataEditor: ColorEditor,
   },

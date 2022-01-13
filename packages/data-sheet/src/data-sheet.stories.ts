@@ -1,7 +1,7 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { SaveButton } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
-import { DataArea, orientationFields } from "./attitude-sheet";
+import { DataArea, orientationFields } from "./test-sheet";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
