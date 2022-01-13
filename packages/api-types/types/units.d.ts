@@ -70,4 +70,6 @@ export interface UnitLong extends BaseUnit, StratUnit {
   t_plng: number;
   b_plat: number;
   b_plng: number;
+  b_pos?: number;
+  t_pos?: number;
 }

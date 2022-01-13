@@ -5,7 +5,6 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import { FeatureLayer, Feature, MapContext } from "@macrostrat/map-components";
 import { get } from "axios";
 import { feature } from "topojson-client";
-import { geoVoronoi } from "d3-geo-voronoi";
 import { geoCentroid, ExtendedFeature } from "d3-geo";
 import { Polygon } from "geojson";
 import chroma from "chroma-js";
@@ -68,6 +67,7 @@ function ColumnFeatures(props) {
     },
     features.map(f => {
       return h(Feature, {
+        id: f.id ?? f.properties.col_id,
         onClick,
         feature: f
       });
@@ -212,6 +212,30 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   ]);
 }
 
+function processGeoJSON(res) {
+  return res?.success?.data.features;
+}
+
+function useColumnData({
+  apiRoute = "/columns",
+  status_code,
+  project_id,
+  format = "topojson"
+}) {
+  let all: boolean = undefined;
+  if (status_code == null && project_id == null) {
+    all = true;
+  }
+
+  const processor = format === "topojson" ? processTopoJSON : processGeoJSON;
+
+  return useAPIResult(
+    apiRoute,
+    { format, all, status_code, project_id },
+    processor
+  );
+}
+
 const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
   const {
     apiRoute = "/columns",
@@ -219,20 +243,18 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
     col_id = null,
     status_code,
     project_id,
-    color
+    color,
+    filterColumns,
+    showDebugLayers = false
   } = props;
 
-  let all: boolean = undefined;
-  if (status_code == null && project_id == null) {
-    all = true;
-  }
+  let features = useColumnData(apiRoute, { status_code, project_id });
 
-  let features = useAPIResult(
-    apiRoute,
-    { format: "topojson", all, status_code, project_id },
-    processTopoJSON
-  );
   if (features == null) return null;
+
+  if (filterColumns != null) {
+    features = features.filter(filterColumns);
+  }
 
   return h([
     h(ColumnKeyboardNavigation, {
@@ -241,7 +263,7 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
       onChange,
       status_code,
       project_id,
-      showLayers: false
+      showLayers: showDebugLayers
     }),
     h(ColumnFeatures, { features, onClick: onChange, color })
   ]);
@@ -263,4 +285,13 @@ const CurrentColumn = props => {
   });
 };
 
-export { Land, Columns, CurrentColumn, processTopoJSON, ColumnCenters };
+export {
+  Land,
+  Columns,
+  CurrentColumn,
+  processTopoJSON,
+  ColumnCenters,
+  ColumnFeatures,
+  ColumnKeyboardNavigation,
+  useColumnData
+};
