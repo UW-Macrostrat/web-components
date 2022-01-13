@@ -21,7 +21,7 @@ module.exports = {
           options: { stylusOptions: {} },
         },
       ],
-      include: path.resolve(__dirname, "../src"),
+      include: path.resolve(__dirname, "../packages"),
     });
 
     // Return the altered config
