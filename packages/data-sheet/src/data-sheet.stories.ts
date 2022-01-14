@@ -3,6 +3,7 @@ import { ErrorBoundary } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 import { DataArea, orientationFields } from "./test-sheet";
 import { DataSheetMain } from "./main";
+import chroma from "chroma-js";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -62,27 +63,28 @@ const columnSpec = [
   },
 ];
 
-const repeatedData = Array(5000)
-  .fill({
-    strike: 10,
-    dip: 8,
-    rake: 2,
-    maxError: 20,
-    minError: 8,
-    color: "#65499e",
-  })
-  .map((d) => {
-    return {
-      color: d.color,
-      strike: d.strike + Math.random() * 10,
-      dip: d.dip + Math.random() * 10,
-      rake: d.rake + Math.random() * 10,
-      maxError: d.maxError + Math.random() * 10,
-      minError: d.minError + Math.random() * 10,
-    };
-  });
+const cscale = chroma.scale("Spectral");
 
-const Template1: ComponentStory<typeof DataSheetMain> = ({ data }) => {
+const repeatedData = [];
+
+for (const i of Array(5000).keys()) {
+  repeatedData.push({
+    color: cscale(((i % 10) / 10) * Math.random() * 0.2).hex(),
+    strike: 10 + Math.random() * 10,
+    dip: 5 + Math.random() * 10,
+    rake: 20 + Math.random() * 10,
+    maxError: 4 + Math.random() * 10,
+    minError: 2 + Math.random() * 10,
+  });
+}
+
+const Template1: ComponentStory<typeof DataSheetMain> = ({ data, columns }) => {
+  function transformData(data: object): GridElement[] {
+    return columns.map((d) => {
+      return { value: data[d.key] ?? null, className: "test" };
+    });
+  }
+
   return h(
     ErrorBoundary,
     null,
@@ -90,15 +92,8 @@ const Template1: ComponentStory<typeof DataSheetMain> = ({ data }) => {
       columns: columnSpec,
       width: 500,
       height: 500,
-      data: data.map(transformData),
+      data: repeatedData.map(transformData),
       valueRenderer: (d) => {
-        try {
-          return d.value.toFixed(2);
-        } catch (e) {
-          return d.value;
-        }
-      },
-      valueViewer: (d) => {
         try {
           return d.value.toFixed(2);
         } catch (e) {
@@ -111,12 +106,10 @@ const Template1: ComponentStory<typeof DataSheetMain> = ({ data }) => {
 
 export const Virtualized = Template1.bind({});
 Virtualized.args = {
-  valueViewer: (d) => Math.round(d.value),
   columns: columnSpec,
   containerWidth: 500,
   height: 500,
   width: 400,
-  data: repeatedData,
 };
 
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
