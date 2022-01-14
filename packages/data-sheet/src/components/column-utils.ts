@@ -105,7 +105,10 @@ function useColumnWidths(): ColumnWidthInfo[] {
   let widthArray = [];
   let offset = 50; // for index, we should probably not hard-code this...
   for (const [i, col] of columns.entries()) {
-    let width = columnWidths[col.name] ?? col.width ?? 0;
+    let width =
+      columnWidths[col.name] ??
+      col.width ??
+      (containerWidth - 50) / columns.length;
     if (i == columns.length - 1) {
       // special case for last column to fill container
       width = containerWidth - offset;

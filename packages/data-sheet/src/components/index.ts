@@ -88,9 +88,11 @@ function Header_({ width }) {
   const style = { width };
   const { columns } = useDataSheet();
 
+  console.log(columns);
+
   return h("thead", { style }, [
     h("tr.header", { style }, [
-      h("td.index-column.cell", ""),
+      h("td.index-column.cell.read-only", ""),
       columns.map((col, index) => {
         return h(HeaderCell, { key: col.name, col, index });
       }),

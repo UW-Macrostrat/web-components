@@ -81,13 +81,19 @@ const cscale = chroma.scale("Spectral");
 const repeatedData = [];
 
 for (const i of Array(5000).keys()) {
+  const errors = [4 + Math.random() * 10, 2 + Math.random() * 10];
   repeatedData.push({
-    color: chroma.mix("red", "blue", (Math.random() + (i % 8)) / 8, "rgb"),
+    color: chroma.mix(
+      "red",
+      "blue",
+      (Math.random() + Math.abs((i % 20) - 10)) / 10,
+      "rgb"
+    ),
     strike: 10 + Math.random() * 10,
     dip: 5 + Math.random() * 10,
     rake: 20 + Math.random() * 10,
-    maxError: 4 + Math.random() * 10,
-    minError: 2 + Math.random() * 10,
+    maxError: Math.max(...errors),
+    minError: Math.min(...errors),
   });
 }
 

@@ -2,8 +2,9 @@ import ReactDataSheet, { DataEditor } from "react-datasheet/lib";
 import { useDataSheet } from "./provider";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useRef, useEffect } from "react";
-import { useElementSize, useScrollOffset } from "./helpers";
+import { useScrollOffset } from "@macrostrat/ui-components";
 import styles from "./module.styl";
+import { Row, Sheet } from "./components";
 
 const h = hyperStyled(styles);
 
@@ -59,8 +60,6 @@ function VirtualizedSheet(props) {
     dispatch({ type: "set-row-offset", value: rowOffset });
   }, [rowOffset]);
 
-  useEffect(() => {});
-
   const lastRow = Math.min(rowOffset + rowsToDisplay, data.length - 1);
 
   return h("div.virtualized-sheet", { ref, style: { height, width } }, [
@@ -69,15 +68,17 @@ function VirtualizedSheet(props) {
         ...rest,
         width,
         height,
+        sheetRenderer: Sheet,
         data: data.slice(rowOffset, lastRow),
         selected: offsetSelection(selection, -rowOffset),
         onSelect(sel) {
           dispatch({ type: "set-selection", value: sel });
         },
+        rowRenderer: Row,
         dataEditor: VirtualizedDataEditor,
         onCellsChanged(changes) {
           changes.forEach((d) => (d.row += rowOffset));
-          onCellsChanged(changes);
+          onCellsChanged?.(changes);
         },
       }),
     ]),
