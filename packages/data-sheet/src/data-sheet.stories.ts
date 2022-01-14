@@ -1,8 +1,9 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
-import { DataArea, orientationFields } from "./test-sheet";
+import { DataArea, orientationFields, ColorEditor } from "./test-sheet";
 import { DataSheetMain } from "./main";
+import { enhanceData } from "./enhancers";
 import chroma from "chroma-js";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -59,7 +60,19 @@ const columnSpec = [
     required: false,
     isValid: (d) => true, //getColor(d) != null,
     transform: (d) => d,
-    //dataEditor: ColorEditor,
+    dataEditor: ColorEditor,
+    valueViewer(d) {
+      return h(
+        "span.value-viewer",
+        {
+          style: {
+            color: d.value.css(),
+            backgroundColor: d.value.luminance(0.8).css(),
+          },
+        },
+        d.value.hex()
+      );
+    },
   },
 ];
 
@@ -69,7 +82,7 @@ const repeatedData = [];
 
 for (const i of Array(5000).keys()) {
   repeatedData.push({
-    color: cscale(((i % 10) / 10) * Math.random() * 0.2).hex(),
+    color: chroma.mix("red", "blue", (Math.random() + (i % 8)) / 8, "rgb"),
     strike: 10 + Math.random() * 10,
     dip: 5 + Math.random() * 10,
     rake: 20 + Math.random() * 10,
@@ -80,9 +93,10 @@ for (const i of Array(5000).keys()) {
 
 const Template1: ComponentStory<typeof DataSheetMain> = ({ data, columns }) => {
   function transformData(data: object): GridElement[] {
-    return columns.map((d) => {
+    const row1 = columns.map((d) => {
       return { value: data[d.key] ?? null, className: "test" };
     });
+    return enhanceData(row1, columns);
   }
 
   return h(
@@ -90,7 +104,7 @@ const Template1: ComponentStory<typeof DataSheetMain> = ({ data, columns }) => {
     null,
     h(DataSheetMain, {
       columns: columnSpec,
-      width: 500,
+      width: 600,
       height: 500,
       data: repeatedData.map(transformData),
       valueRenderer: (d) => {

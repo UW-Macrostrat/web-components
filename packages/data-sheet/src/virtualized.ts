@@ -59,6 +59,8 @@ function VirtualizedSheet(props) {
     dispatch({ type: "set-row-offset", value: rowOffset });
   }, [rowOffset]);
 
+  useEffect(() => {});
+
   const lastRow = Math.min(rowOffset + rowsToDisplay, data.length - 1);
 
   return h("div.virtualized-sheet", { ref, style: { height, width } }, [
