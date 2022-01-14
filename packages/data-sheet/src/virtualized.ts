@@ -37,6 +37,9 @@ function VirtualizedSheet(props) {
     dataEditor,
     onCellsChanged,
     scrollBuffer = 50,
+    style = {},
+    height,
+    width,
     ...rest
   } = props;
 
@@ -44,7 +47,7 @@ function VirtualizedSheet(props) {
 
   const ref = useRef<HTMLDivElement>();
 
-  const { height, width } = useElementSize(ref) ?? defaultSize;
+  //const elementSize = useElementSize(ref) ?? {};
   const scrollOffset = useScrollOffset(ref);
 
   const scrollerHeight = data.length * rowHeight;
@@ -58,10 +61,12 @@ function VirtualizedSheet(props) {
 
   const lastRow = Math.min(rowOffset + rowsToDisplay, data.length - 1);
 
-  return h("div.virtualized-sheet", { ref }, [
+  return h("div.virtualized-sheet", { ref, style: { height, width } }, [
     h("div.ui", { style: { height, width } }, [
       h(ReactDataSheet, {
         ...rest,
+        width,
+        height,
         data: data.slice(rowOffset, lastRow),
         selected: offsetSelection(selection, -rowOffset),
         onSelect(sel) {

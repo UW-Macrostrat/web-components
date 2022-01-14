@@ -18,7 +18,7 @@ interface GridElement extends ReactDataSheet.Cell<GridElement, number> {
 type OrientationRow = Partial<Orientation> | null;
 type OrientationData = OrientationRow[];
 
-function ColorEditor(props) {
+export function ColorEditor(props) {
   const { value, onKeyDown, onChange } = props;
   //const initialColor = chroma(value);
   //const [editingColor, setColor] = useState(initialColor);
@@ -210,7 +210,6 @@ function Controls({ data, updateData, resetData }) {
 }
 
 function enhanceData(row: GridElement[]): any[] {
-  console.log(row);
   if (row == null) return [];
   return row.map((cellData, i) => {
     const { dataEditor, key } = getFieldData(orientationFields[i]);
