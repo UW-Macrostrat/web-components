@@ -1,4 +1,5 @@
-import ReactDataSheet, { DataSheetProps } from "react-datasheet";
+import ReactDataSheet from "react-datasheet";
+import "react-datasheet/lib/react-datasheet.css";
 import h from "@macrostrat/hyper";
 import { forwardRef } from "react";
 import { useDataSheet } from "./provider";

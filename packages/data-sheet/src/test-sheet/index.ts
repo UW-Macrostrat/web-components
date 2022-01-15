@@ -1,88 +1,17 @@
 import h from "@macrostrat/hyper";
-import ReactDataSheet, { DataEditor } from "react-datasheet";
+import ReactDataSheet from "react-datasheet";
 import "react-datasheet/lib/react-datasheet.css";
 import update, { Spec } from "immutability-helper";
 import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ErrorBoundary } from "@macrostrat/ui-components";
-import { SketchPicker } from "react-color";
-import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
-import chroma from "chroma-js";
 import "./attitude-sheet.styl";
+import { ColorEditor } from "../editors";
 
 //import classNames from "classnames";
-interface GridElement extends ReactDataSheet.Cell<GridElement, number> {
-  value: number | null;
-}
 
 type OrientationRow = Partial<Orientation> | null;
 type OrientationData = OrientationRow[];
-
-export function ColorEditor(props) {
-  const { value, onKeyDown, onChange } = props;
-  //const initialColor = chroma(value);
-  //const [editingColor, setColor] = useState(initialColor);
-  const target = h("span.popover-target");
-
-  let color = null;
-  try {
-    color = chroma(value).hex();
-  } catch {}
-  console.log(color);
-  return h([
-    h(DataEditor, props),
-    h("span.popover-container", [
-      h(
-        Popover2,
-        {
-          content: h(
-            "div.interaction-barrier",
-            {
-              onMouseDown(evt) {
-                evt.nativeEvent.stopImmediatePropagation();
-              },
-              onKeyDown(evt) {
-                console.log(evt);
-              },
-            },
-            [
-              h(ErrorBoundary, [
-                h(SketchPicker, {
-                  disableAlpha: true,
-                  color: color ?? "#aaaaaa",
-                  onChange(color, evt) {
-                    let c = "";
-                    console.log(color);
-                    try {
-                      c = chroma(color.hex).name();
-                    } finally {
-                      onChange(c);
-                      evt.stopPropagation();
-                    }
-                  },
-                }),
-              ]),
-            ]
-          ),
-          enforceFocus: false,
-          autoFocus: false,
-          minimal: true,
-          modifiers: {
-            offset: { enabled: true, options: { offset: [0, 8] } },
-          },
-          interactionKind: "hover-target",
-          isOpen: true,
-          onClose(evt) {
-            console.log("trying to close");
-            onKeyDown(evt);
-          },
-          usePortal: false,
-        },
-        target
-      ),
-    ]),
-  ]);
-}
 
 class OrientationDataSheet extends ReactDataSheet<GridElement, number> {}
 type SheetContent = GridElement[][];

@@ -1,8 +1,8 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import h from "@macrostrat/hyper";
-import { DataArea, orientationFields, ColorEditor } from "./test-sheet";
+import { DataArea, orientationFields } from "./test-sheet";
 import { DataSheet } from "./main";
-import { enhanceData } from "./enhancers";
+import { ColorEditor } from "./editors";
 import chroma from "chroma-js";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
