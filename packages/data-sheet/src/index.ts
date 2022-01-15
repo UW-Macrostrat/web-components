@@ -1,4 +1,6 @@
 export * from "./provider";
 export * from "./components";
 export * from "./virtualized";
-export * from "./main";
+import { DataSheet } from "./main";
+
+export default DataSheet;

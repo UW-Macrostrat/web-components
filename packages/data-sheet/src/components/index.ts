@@ -88,8 +88,6 @@ function Header_({ width }) {
   const style = { width };
   const { columns } = useDataSheet();
 
-  console.log(columns);
-
   return h("thead", { style }, [
     h("tr.header", { style }, [
       h("td.index-column.cell.read-only", ""),

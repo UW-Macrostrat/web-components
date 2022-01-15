@@ -1,8 +1,7 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { ErrorBoundary } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 import { DataArea, orientationFields, ColorEditor } from "./test-sheet";
-import { DataSheetMain } from "./main";
+import { DataSheet } from "./main";
 import { enhanceData } from "./enhancers";
 import chroma from "chroma-js";
 
@@ -97,31 +96,21 @@ for (const i of Array(5000).keys()) {
   });
 }
 
-const Template1: ComponentStory<typeof DataSheetMain> = ({ data, columns }) => {
-  function transformData(data: object): GridElement[] {
-    const row1 = columns.map((d) => {
-      return { value: data[d.key] ?? null, className: "test" };
-    });
-    return enhanceData(row1, columns);
-  }
-
-  return h(
-    ErrorBoundary,
-    null,
-    h(DataSheetMain, {
-      columns: columnSpec,
-      width: 600,
-      height: 500,
-      data: repeatedData.map(transformData),
-      valueRenderer: (d) => {
-        try {
-          return d.value.toFixed(2);
-        } catch (e) {
-          return d.value;
-        }
-      },
-    })
-  );
+const Template1: ComponentStory<typeof DataSheet> = ({ data, columns }) => {
+  return h(DataSheet, {
+    columns: columnSpec,
+    virtualized: true,
+    width: 600,
+    height: 500,
+    data: repeatedData,
+    valueRenderer: (d) => {
+      try {
+        return d.value.toFixed(2);
+      } catch (e) {
+        return d.value;
+      }
+    },
+  });
 };
 
 export const Virtualized = Template1.bind({});

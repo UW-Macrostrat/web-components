@@ -3,8 +3,8 @@ import { useDataSheet } from "./provider";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useRef, useEffect } from "react";
 import { useScrollOffset } from "@macrostrat/ui-components";
+import { BaseSheet } from "./base";
 import styles from "./module.styl";
-import { Row, Sheet } from "./components";
 
 const h = hyperStyled(styles);
 
@@ -30,15 +30,12 @@ function offsetSelection(
   };
 }
 
-const defaultSize = { height: 20, width: 100 };
-
 function VirtualizedSheet(props) {
   const {
     data,
     dataEditor,
     onCellsChanged,
     scrollBuffer = 50,
-    style = {},
     height,
     width,
     ...rest
@@ -48,9 +45,7 @@ function VirtualizedSheet(props) {
 
   const ref = useRef<HTMLDivElement>();
 
-  //const elementSize = useElementSize(ref) ?? {};
   const scrollOffset = useScrollOffset(ref);
-
   const scrollerHeight = data.length * rowHeight;
   const percentage = scrollOffset / scrollerHeight;
   const rowsToDisplay = Math.ceil((height + scrollBuffer) / rowHeight);
@@ -62,30 +57,26 @@ function VirtualizedSheet(props) {
 
   const lastRow = Math.min(rowOffset + rowsToDisplay, data.length - 1);
 
-  return h("div.virtualized-sheet", { ref, style: { height, width } }, [
-    h("div.ui", { style: { height, width } }, [
-      h(ReactDataSheet, {
-        ...rest,
-        width,
-        height,
-        sheetRenderer: Sheet,
-        data: data.slice(rowOffset, lastRow),
-        selected: offsetSelection(selection, -rowOffset),
-        onSelect(sel) {
-          dispatch({ type: "set-selection", value: sel });
-        },
-        rowRenderer: Row,
-        dataEditor: VirtualizedDataEditor,
-        onCellsChanged(changes) {
-          changes.forEach((d) => (d.row += rowOffset));
-          onCellsChanged?.(changes);
-        },
-      }),
-    ]),
+  return h(
+    BaseSheet,
+    {
+      ref,
+      height,
+      width,
+      className: "virtualized-sheet",
+      ...rest,
+      data: data.slice(rowOffset, lastRow),
+      selected: offsetSelection(selection, -rowOffset),
+      dataEditor: VirtualizedDataEditor,
+      onCellsChanged(changes) {
+        changes.forEach((d) => (d.row += rowOffset));
+        onCellsChanged?.(changes);
+      },
+    },
     h("div.scroll-panel", {
       style: { height: scrollerHeight },
-    }),
-  ]);
+    })
+  );
 }
 
 export { VirtualizedSheet, VirtualizedDataEditor, offsetSelection };
