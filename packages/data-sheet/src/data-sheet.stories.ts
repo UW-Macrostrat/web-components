@@ -61,15 +61,21 @@ const columnSpec = [
     transform: (d) => d,
     dataEditor: ColorEditor,
     valueViewer(d) {
+      let color = d.value;
+      try {
+        color.hex();
+      } catch (e) {
+        color = null;
+      }
       return h(
         "span.value-viewer",
         {
           style: {
-            color: d.value.css(),
-            backgroundColor: d.value.luminance(0.8).css(),
+            color: color?.css(),
+            backgroundColor: color?.luminance(0.8).css(),
           },
         },
-        d.value.hex()
+        color?.hex()
       );
     },
   },

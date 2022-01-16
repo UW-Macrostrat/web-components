@@ -111,4 +111,5 @@ function Sheet({ className, children }) {
 }
 
 export * from "./column-utils";
+export * from "./toolbar";
 export { Sheet, Row };
