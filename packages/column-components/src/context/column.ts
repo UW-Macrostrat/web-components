@@ -17,9 +17,9 @@ declare interface ColumnDivision {
 }
 
 enum ColumnAxisType {
-  Age = "age",
-  Height = "height",
-  Depth = "depth"
+  AGE = "age",
+  HEIGHT = "height",
+  DEPTH = "depth"
 }
 interface ColumnCtx<T extends ColumnDivision> {
   divisions: T[];
@@ -75,7 +75,7 @@ function ColumnProvider<T extends ColumnDivision>(
     range,
     divisions = [],
     width = 150,
-    axisType = ColumnAxisType.Height,
+    axisType = ColumnAxisType.HEIGHT,
     ...rest
   } = props;
 
