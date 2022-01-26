@@ -11,13 +11,15 @@
       "@macrostrat/column-components": ["./packages/column-components/src"],
       "@macrostrat/map-components": ["./packages/map-components/src"],
       "@macrostrat/ui-components": ["./packages/ui-components/src"],
-      "@macrostrat/api-types": ["./packages/api-types/types"]
+      "@macrostrat/api-types": ["./packages/api-types/types"],
+      "@macrostrat/api-views": ["./packages/api-views/src"]
     }
   },
   "include": [
     "apps/**/*",
     "packages/common/src/**/*",
     "packages/api-types/types/*",
+    "packages/api-views/src/**/*",
     "packages/column-components/src/**/*",
     "packages/map-components/src/**/*",
     "packages/ui-components/src/**/*",

@@ -15,7 +15,7 @@ import patterns from "url:../../geologic-patterns/*.png";
 import { useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
-import { ColumnAxisType } from "common/units/boxes";
+import { ColumnAxisType } from "@macrostrat/column-components";
 import styles from "./age-model.module.styl";
 const h = hyperStyled(styles);
 

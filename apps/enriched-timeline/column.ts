@@ -6,6 +6,7 @@ import { CompositeUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
+import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface IColumnProps {
   data: IUnit[];
@@ -29,7 +30,7 @@ const Section = (props: IColumnProps) => {
   }
 
   return h(
-    ColumnProvider,
+    MacrostratColumnProvider,
     {
       divisions: data,
       range,

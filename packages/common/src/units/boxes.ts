@@ -8,9 +8,11 @@ import {
   ForeignObject,
   SizeAwareLabel,
   SizeAwareLabelProps,
-  Clickable
+  Clickable,
+  ColumnAxisType,
+  useColumn
 } from "@macrostrat/column-components";
-import { IUnit } from "./types";
+import { IUnit, transformAxisType } from "./types";
 import { useSelectedUnit, useUnitSelector } from "./selection";
 import { resolveID, scalePattern } from "./resolvers";
 
@@ -46,20 +48,28 @@ interface LabeledUnitProps
   halfWidth?: boolean;
 }
 
-enum ColumnAxisType {
-  AGE = "age",
-  HEIGHT = "pos"
-}
-
 function useUnitRect(
   division: IUnit,
   options: UnitRectOptions = {}
 ): RectBounds {
-  const { widthFraction = 1, axisType = "age" } = options;
+  const { widthFraction = 1, axisType = ColumnAxisType.AGE } = options;
   const { scale } = useContext(ColumnContext);
   const { width } = useContext(ColumnLayoutContext);
-  const y = scale(division["t_" + axisType]);
-  const height = Math.abs(scale(division["b_" + axisType]) - y);
+  const macrostratAxisKey = transformAxisType(axisType);
+  const t_key = "t_" + macrostratAxisKey;
+  const b_key = "b_" + macrostratAxisKey;
+
+  const topHeight = division[t_key];
+  const bottomHeight = division[b_key];
+  if (topHeight == null && bottomHeight == null) {
+    console.warn(
+      `Missing keys ${t_key} and ${b_key} for ${division.unit_id} (${division.unit_name})`
+    );
+  }
+
+  const y = scale(topHeight);
+  const height = Math.abs(scale(bottomHeight) - y);
+
   return {
     x: width * (1 - widthFraction),
     y,
@@ -75,9 +85,10 @@ function Unit(props: UnitProps) {
     defaultFill = "transparent",
     className,
     widthFraction = 1,
-    axisType,
     ...baseBounds
   } = props;
+
+  const { axisType } = useColumn();
   const bounds = {
     ...useUnitRect(d, { widthFraction, axisType }),
     ...baseBounds
@@ -88,6 +99,7 @@ function Unit(props: UnitProps) {
   const onClick = useUnitSelector(d);
   const selectedUnit = useSelectedUnit();
   const selected = selectedUnit?.unit_id == d.unit_id;
+  console.log(bounds, widthFraction);
 
   return h("g.unit", { className }, [
     h("rect.unit", {
@@ -104,8 +116,19 @@ function Unit(props: UnitProps) {
 }
 
 function LabeledUnit(props: LabeledUnitProps) {
-  const { division, label, onLabelUpdated, widthFraction, axisType } = props;
-  const bounds = { ...useUnitRect(division, { widthFraction, axisType }) };
+  const {
+    division,
+    label,
+    onLabelUpdated,
+    widthFraction,
+    ...baseBounds
+  } = props;
+
+  const { axisType } = useColumn();
+  const bounds = {
+    ...useUnitRect(division, { widthFraction, axisType }),
+    ...baseBounds
+  };
   const onClick = useUnitSelector(division);
   const { width, height } = bounds;
   return h(Unit, { className: "labeled-unit", division, onClick, ...bounds }, [
@@ -139,6 +162,11 @@ function UnitBoxes<T>(props: {
   const { unitComponent = Unit, unitComponentProps = {} } = props;
   const { divisions } = useContext(ColumnContext);
 
+  if (divisions.length == 0) {
+    console.warn("No divisions found in column context");
+    return null;
+  }
+
   return h(
     PatternDefsProvider,
     { resolveID, scalePattern },
@@ -155,4 +183,4 @@ function UnitBoxes<T>(props: {
   );
 }
 
-export { Unit, UnitBoxes, UnitProps, LabeledUnit, ColumnAxisType };
+export { Unit, UnitBoxes, UnitProps, LabeledUnit };

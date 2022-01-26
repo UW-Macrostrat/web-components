@@ -12,6 +12,7 @@ import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
+import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface IColumnProps {
   data: IUnit[];
@@ -39,7 +40,7 @@ const Section = (props: IColumnProps) => {
   }
 
   return h(
-    ColumnProvider,
+    MacrostratColumnProvider,
     {
       divisions: data,
       range,

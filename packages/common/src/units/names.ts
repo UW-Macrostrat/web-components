@@ -7,7 +7,7 @@ import {
   NotesColumnProps
 } from "@macrostrat/column-components";
 import { INote } from "@macrostrat/column-components";
-import { IUnit } from "./types";
+import { IUnit, transformAxisType } from "./types";
 import React from "packages/ui-components/node_modules/@types/react";
 
 interface UnitDataProps extends NotesColumnProps {
@@ -21,15 +21,13 @@ interface UnitNamesProps extends Omit<UnitDataProps, "noteComponent"> {
   nameForDivision?(obj: IUnit): string;
 }
 
-function noteForDivision(div: IUnit, { axisType: ColumnAxisType }): INote {
-  let key: string;
-  switch (ColumnAxisType) {
-    case "age":
-      key = "age";
-    case "depth":
-    case "height":
-      key = "pos";
-  }
+function noteForDivision(
+  div: IUnit,
+  opts: { axisType: ColumnAxisType }
+): INote {
+  const { axisType } = opts;
+
+  const key = transformAxisType(axisType);
   return {
     height: div[`b_${key}`],
     top_height: div[`t_${key}`],

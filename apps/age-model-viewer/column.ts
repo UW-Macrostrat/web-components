@@ -3,7 +3,8 @@ import { group } from "d3-array";
 import {
   ColumnProvider,
   ColumnSVG,
-  ColumnLayoutContext
+  ColumnLayoutContext,
+  ColumnAxisType
 } from "@macrostrat/column-components";
 import { useContext } from "react";
 import { AnnotatedUnitsColumn } from "common/units";
@@ -12,8 +13,8 @@ import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
-import { ColumnAxisType } from "common/units/boxes";
 import { AgeModelColumn, ColumnAgeDataset } from "./age-model-column";
+import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface ColumnProps {
   data: IUnit[];
@@ -48,7 +49,7 @@ const Section = (props: ColumnProps) => {
   }
 
   return h(
-    ColumnProvider,
+    MacrostratColumnProvider,
     {
       divisions: data,
       range,
@@ -77,8 +78,7 @@ const Section = (props: ColumnProps) => {
             axisType,
             unitComponent,
             unitComponentProps: {
-              nColumns: 1,
-              axisType: "pos"
+              nColumns: 1
             }
           }),
           h(

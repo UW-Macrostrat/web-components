@@ -9,6 +9,7 @@ import {
   ColumnContext,
   NotesColumn
 } from "@macrostrat/column-components";
+import { MacrostratColumnProvider } from "@macrostrat/api-views";
 import { CompositeUnitsColumn } from "./column-data";
 import { IUnit } from "common/units/types";
 import { useContext } from "react";
@@ -46,7 +47,7 @@ const Section = (props: IColumnProps) => {
   }
 
   return h(
-    ColumnProvider,
+    MacrostratColumnProvider,
     {
       divisions: data,
       range,

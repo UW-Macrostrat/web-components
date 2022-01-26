@@ -41,7 +41,7 @@ const ColumnMapNavigator = props => {
 
   const columnCenter = geoCentroid?.(currentColumn);
 
-  return h(BasicMapFrame, { center: columnCenter, style, margin }, [
+  return h(ResizableMapFrame, { center: columnCenter, style, margin }, [
     children,
     h(Columns, {
       onChange: setCurrentColumn,

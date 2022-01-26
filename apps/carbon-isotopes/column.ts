@@ -11,6 +11,7 @@ import { SimpleUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
 import { useContext } from "react";
 import { IsotopesColumn } from "./isotopes-column";
+import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface IColumnProps {
   data: IUnit[];
@@ -49,7 +50,7 @@ const Section = (props: IColumnProps) => {
   }
 
   return h(
-    ColumnProvider,
+    MacrostratColumnProvider,
     {
       divisions: data,
       range,

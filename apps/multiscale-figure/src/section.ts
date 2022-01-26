@@ -9,6 +9,7 @@ import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
 import { preprocessUnits } from "../../column-inspector/process-data";
+import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface IColumnProps {
   data: IUnit[];
@@ -35,7 +36,7 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
 
   return h([
     h(
-      ColumnProvider,
+      MacrostratColumnProvider,
       {
         divisions: data,
         range,
@@ -70,7 +71,7 @@ function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
   console.log(divisions);
 
   return h(
-    ColumnProvider,
+    MacrostratColumnProvider,
     {
       divisions,
       range,
