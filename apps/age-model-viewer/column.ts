@@ -8,7 +8,7 @@ import {
 } from "@macrostrat/column-components";
 import { useContext } from "react";
 import { AnnotatedUnitsColumn } from "common/units";
-import { IUnit } from "common/units/types";
+import { IUnit, transformAxisType } from "common/units/types";
 import { AgeAxis } from "common";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import "@macrostrat/timescale/dist/timescale.css";
@@ -26,7 +26,8 @@ interface ColumnProps {
 }
 
 function getRange(data, axisType: ColumnAxisType = ColumnAxisType.AGE) {
-  return [data[data.length - 1]["b_" + axisType], data[0]["t_" + axisType]];
+  const key = transformAxisType(axisType);
+  return [data[data.length - 1]["b_" + key], data[0]["t_" + key]];
 }
 
 const Section = (props: ColumnProps) => {
