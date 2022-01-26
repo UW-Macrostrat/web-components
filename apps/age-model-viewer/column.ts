@@ -76,6 +76,7 @@ const Section = (props: ColumnProps) => {
           h(AnnotatedUnitsColumn, {
             width: 350,
             columnWidth: 150,
+            gutterWidth: 0,
             axisType,
             unitComponent,
             unitComponentProps: {
