@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { defaultIntervals, Interval } from "./intervals";
+import { defaultIntervals } from "./intervals";
 import { TimescaleProvider, useTimescale } from "./provider";
 import { Interval, TimescaleOrientation } from "./types";
 import { TimescaleBoxes, Cursor } from "./components";
