@@ -5,13 +5,14 @@ import {
   NavbarGroup,
   Alignment,
   Intent,
+  Position,
 } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.styl";
-import { useState, useRef, useReducer, useEffect } from "react";
+import { useReducer, useEffect } from "react";
 import useElementDimensions from "use-element-dimensions";
-import { useElementSize } from "../util";
-import { count } from "d3-array";
+import { useContext, createContext } from "react";
+import { identity } from "fp-ts/lib/function";
 const h = hyper.styled(styles);
 
 interface ThreeColumnLayoutProps {
@@ -25,6 +26,7 @@ interface ThreeColumnLayoutProps {
   title?: string;
   twoPanelBreakpoint?: number;
   preferredMainWidth?: number;
+  contextButtonPlacement?: "left" | "right";
 }
 
 enum SidePanel {
@@ -49,6 +51,13 @@ type LayoutAction =
 function openPanels(panelState: PanelState): Set<SidePanel> {
   const keys = Object.keys(panelState) as SidePanel[];
   return new Set(keys.filter((k) => panelState[k]));
+}
+
+const LayoutDispatchContext =
+  createContext<React.Dispatch<LayoutAction>>(identity);
+
+function useLayoutDispatch() {
+  return useContext(LayoutDispatchContext);
 }
 
 function layoutReducer(state: LayoutState, action: LayoutAction) {
@@ -90,6 +99,7 @@ function buttonProps(
   const isActuallyShown = active && active == actualState[panel];
   return {
     active,
+    minimal: true,
     intent: isActuallyShown ? Intent.PRIMARY : null,
     onClick() {
       dispatch({ type: "show-panel", panel, shouldShow: !isActuallyShown });
@@ -107,6 +117,7 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
     panelState = {},
     twoPanelBreakpoint = 800,
     preferredMainWidth,
+    contextButtonPlacement = Position.LEFT,
     ...rest
   } = props;
 
@@ -120,7 +131,7 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
   const [layoutState, dispatch] = useReducer(
     layoutReducer,
     {
-      panelState,
+      panelState: { context: true, ...panelState },
       keyPanel,
       isReduced: false,
     },
@@ -156,54 +167,69 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
     dispatch({ type: "set-is-reduced", value: shouldReduce });
   }, [mainSize]);
 
+  const contextButton = h.if(contextPanel != null)(Button, {
+    icon: "projects",
+    ...buttonProps(
+      SidePanel.Context,
+      panelDesiredState,
+      panelActualState,
+      dispatch
+    ),
+  });
+
   return h(
-    "div.user-interface",
-    {
-      ref,
-      ...rest,
-    },
-    [
-      h(Navbar, [
-        h(Navbar.Group, [h(Navbar.Heading, null, title)]),
-        h(NavbarGroup, { align: Alignment.RIGHT }, [
-          h(ButtonGroup, { minimal: true }, [
-            h.if(contextPanel != null)(Button, {
-              icon: "projects",
-              ...buttonProps(
-                SidePanel.Context,
-                panelDesiredState,
-                panelActualState,
-                dispatch
-              ),
-            }),
-            h.if(detailPanel != null)(Button, {
-              icon: "properties",
-              ...buttonProps(
-                SidePanel.Detail,
-                panelDesiredState,
-                panelActualState,
-                dispatch
-              ),
-            }),
+    LayoutDispatchContext.Provider,
+    { value: dispatch },
+    h(
+      "div.user-interface",
+      {
+        ref,
+        ...rest,
+      },
+      [
+        h(Navbar, [
+          h(Navbar.Group, [
+            h.if(contextButtonPlacement == "left")([
+              contextButton,
+              h("div.spacer"),
+            ]),
+            h(Navbar.Heading, null, title),
+          ]),
+          h(NavbarGroup, { align: Alignment.RIGHT }, [
+            h("div.spacer"),
+            h(ButtonGroup, { minimal: true }, [
+              h.if(contextButtonPlacement == "right")([contextButton]),
+              h.if(detailPanel != null)(Button, {
+                icon: "properties",
+                ...buttonProps(
+                  SidePanel.Detail,
+                  panelDesiredState,
+                  panelActualState,
+                  dispatch
+                ),
+              }),
+            ]),
           ]),
         ]),
-      ]),
-      h("div.three-column", [
-        h.if(contextPanel != null && panelActualState.context)(
-          "div.column.context-column",
-          null,
-          contextPanel
-        ),
-        h("div.column.main-column", { ref: mainRef }, children),
-        h.if(detailPanel != null && panelActualState.detail)(
-          "div.column.detail-column",
-          null,
-          detailPanel
-        ),
-      ]),
-      h.if(footer != null)("footer", null, footer),
-    ]
+        h("div.three-column", [
+          h.if(contextPanel != null && panelActualState.context)(
+            "div.column.context-column",
+            null,
+            contextPanel
+          ),
+          h("div.column.main-column", { ref: mainRef }, children),
+          h.if(detailPanel != null && panelActualState.detail)(
+            "div.column.detail-column",
+            null,
+            detailPanel
+          ),
+        ]),
+        h.if(footer != null)("footer", null, footer),
+      ]
+    )
   );
 }
 
-export { ThreeColumnLayout, ThreeColumnLayoutProps };
+ThreeColumnLayout.Panels = SidePanel;
+
+export { ThreeColumnLayout, ThreeColumnLayoutProps, useLayoutDispatch };

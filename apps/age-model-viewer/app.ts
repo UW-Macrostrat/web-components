@@ -6,7 +6,6 @@ import {
   UnitSelectionProvider,
   useSelectedUnit
 } from "common";
-import { useState } from "react";
 import ColumnMap from "./column-picker";
 import Column from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
@@ -15,7 +14,12 @@ import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import styles from "./age-model.module.styl";
-import { ThreeColumnLayout } from "@macrostrat/ui-components";
+import {
+  ThreeColumnLayout,
+  useLayoutDispatch
+} from "@macrostrat/ui-components";
+import { NonIdealState, Spinner } from "@blueprintjs/core";
+import { useEffect } from "react";
 
 const h = hyperStyled(styles);
 
@@ -25,6 +29,24 @@ const ColumnTitle = props => {
     h("span.column-title", props.data?.col_name)
   ]);
 };
+
+function ColumnView({ unitData }) {
+  if (unitData == null)
+    return h(NonIdealState, { title: "Loading" }, h(Spinner));
+  if (unitData.length === 0)
+    return h(NonIdealState, {
+      title: "Data unavailable",
+      icon: "inbox",
+      description: "No units have yet been captured for this core"
+    });
+
+  return h("div.column-view", [
+    h.if(unitData != null)(Column, {
+      data: unitData,
+      axisType: ColumnAxisType.HEIGHT
+    })
+  ]);
+}
 
 //macrostrat.org/api/units?col_id=5156&status_code=in%20process&show_position=true&response=long
 
@@ -51,9 +73,17 @@ function AppMain() {
 
   const unitData = useAPIResult("/units", unitParams, [currentColumn]);
 
-  if (unitData == null) return null;
+  const units = preprocessUnits(unitData ?? []);
 
-  const units = preprocessUnits(unitData);
+  const dispatch = useLayoutDispatch();
+
+  useEffect(() => {
+    dispatch({
+      type: "show-panel",
+      panel: ThreeColumnLayout.Panels.Detail,
+      shouldShow: selectedUnit != null
+    });
+  }, [selectedUnit]);
 
   const detailPanel = h(ModalUnitPanel, {
     className: "unit-details",
@@ -67,7 +97,6 @@ function AppMain() {
     currentColumn: columnFeature,
     setCurrentColumn,
     margin: 0,
-    height: 500,
     color: "dodgerblue",
     apiRoute: "/defs/columns",
     ...projectParams,
@@ -89,12 +118,7 @@ function AppMain() {
         detail: selectedUnit != null
       }
     },
-    h("div.column-view", [
-      h.if(unitData != null)(Column, {
-        data: unitData,
-        axisType: ColumnAxisType.HEIGHT
-      })
-    ])
+    h(ColumnView, { unitData })
   );
 }
 
