@@ -6,8 +6,6 @@ import {
   UnitSelectionProvider,
   useSelectedUnit
 } from "common";
-import { Button } from "@blueprintjs/core";
-import { CSSTransition } from "react-transition-group";
 import { useState } from "react";
 import ColumnMap from "./column-picker";
 import Column from "./column";
@@ -17,15 +15,20 @@ import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import styles from "./age-model.module.styl";
+import { ThreeColumnLayout } from "@macrostrat/ui-components";
+
 const h = hyperStyled(styles);
 
 const ColumnTitle = props => {
-  return h.if(props.data != null)("h1", props.data?.col_name);
+  return h.if(props.data != null)([
+    " – ",
+    h("span.column-title", props.data?.col_name)
+  ]);
 };
 
 //macrostrat.org/api/units?col_id=5156&status_code=in%20process&show_position=true&response=long
 
-https: function ColumnManager() {
+function AppMain() {
   const defaultArgs = {
     col_id: 5156,
     status_code: "in process",
@@ -46,57 +49,53 @@ https: function ColumnManager() {
     currentColumn
   ])?.features[0];
 
-  const [showContext, setShowContext] = useState(true);
-
   const unitData = useAPIResult("/units", unitParams, [currentColumn]);
 
   if (unitData == null) return null;
 
   const units = preprocessUnits(unitData);
 
+  const detailPanel = h(ModalUnitPanel, {
+    className: "unit-details",
+    unitData: units,
+    setIsShown: () => {}
+  });
+
   // 495
-  return h("div.column-ui", [
-    h(
-      CSSTransition,
-      {
-        in: showContext,
-        timeout: 300,
-        unmountOnExit: true,
-        onEnter() {}
-      },
-      [
-        h("div.left-column", [
-          h(ColumnMap, {
-            className: "column-map",
-            currentColumn: columnFeature,
-            setCurrentColumn,
-            margin: 0,
-            color: "dodgerblue",
-            apiRoute: "/defs/columns",
-            ...projectParams,
-            filterColumns(col) {
-              return col.properties.t_units > 0;
-            }
-          })
-        ])
-      ]
-    ),
-    h("div.main-column", [
-      h(
-        Button,
-        { onClick: () => setShowContext(!showContext) },
-        "Toggle Context"
-      ),
-      h("div.column-view", [
-        h(ColumnTitle, { data: columnFeature?.properties }),
-        h.if(unitData != null)(Column, {
-          data: unitData,
-          axisType: ColumnAxisType.HEIGHT
-        })
-      ])
-    ]),
-    h("div.right-column", [h(ModalUnitPanel, { unitData })])
-  ]);
+  const contextPanel = h(ColumnMap, {
+    className: "column-map",
+    currentColumn: columnFeature,
+    setCurrentColumn,
+    margin: 0,
+    height: 500,
+    color: "dodgerblue",
+    apiRoute: "/defs/columns",
+    ...projectParams,
+    filterColumns(col) {
+      return col.properties.t_units > 0;
+    }
+  });
+
+  return h(
+    ThreeColumnLayout,
+    {
+      title: h("span.title", [
+        "eODP age model viewer",
+        h(ColumnTitle, { data: columnFeature?.properties })
+      ]),
+      contextPanel,
+      detailPanel,
+      panelState: {
+        detail: selectedUnit != null
+      }
+    },
+    h("div.column-view", [
+      h.if(unitData != null)(Column, {
+        data: unitData,
+        axisType: ColumnAxisType.HEIGHT
+      })
+    ])
+  );
 }
 
 const resolvePattern = id => patterns[id];
@@ -108,7 +107,7 @@ function App() {
       C(GeologicPatternProvider, { resolvePattern }),
       UnitSelectionProvider,
       C(MacrostratAPIProvider, { useDev: false }),
-      ColumnManager
+      AppMain
     )
   );
 }

@@ -82,12 +82,12 @@ function layoutReducer(state: LayoutState, action: LayoutAction) {
 
 function buttonProps(
   panel: SidePanel,
-  state: LayoutState,
-  overrides: PanelState,
+  desiredState: PanelState,
+  actualState: PanelState,
   dispatch: React.Dispatch<LayoutAction>
 ) {
-  const active = state.panelState[panel];
-  const isActuallyShown = active && active == overrides[panel];
+  const active = desiredState[panel];
+  const isActuallyShown = active && active == actualState[panel];
   return {
     active,
     intent: isActuallyShown ? Intent.PRIMARY : null,
@@ -130,7 +130,9 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
   const [size, ref] = useElementDimensions();
   const [mainSize, mainRef] = useElementDimensions();
 
-  let panelsOpen = { ...layoutState.panelState };
+  const panelDesiredState = { ...layoutState.panelState, ...panelState };
+
+  let panelActualState = { ...panelDesiredState };
   const nonKeyPanel =
     layoutState.keyPanel == SidePanel.Context
       ? SidePanel.Detail
@@ -142,11 +144,11 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
     Math.max((size?.width ?? 0) * 0.5, twoPanelBreakpoint * 0.66);
 
   if (layoutState.isReduced) {
-    panelsOpen[nonKeyPanel] = false;
+    panelActualState[nonKeyPanel] = false;
   }
 
   useEffect(() => {
-    if (openPanels(panelsOpen).size <= 1) {
+    if (openPanels(panelActualState).size <= 1) {
       return;
     }
     // Decide whether we need to reduce the layout ONLY when both panels are open
@@ -169,8 +171,8 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
               icon: "projects",
               ...buttonProps(
                 SidePanel.Context,
-                layoutState,
-                panelsOpen,
+                panelDesiredState,
+                panelActualState,
                 dispatch
               ),
             }),
@@ -178,8 +180,8 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
               icon: "properties",
               ...buttonProps(
                 SidePanel.Detail,
-                layoutState,
-                panelsOpen,
+                panelDesiredState,
+                panelActualState,
                 dispatch
               ),
             }),
@@ -187,13 +189,13 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
         ]),
       ]),
       h("div.three-column", [
-        h.if(contextPanel != null && panelsOpen.context)(
+        h.if(contextPanel != null && panelActualState.context)(
           "div.column.context-column",
           null,
           contextPanel
         ),
         h("div.column.main-column", { ref: mainRef }, children),
-        h.if(detailPanel != null && panelsOpen.detail)(
+        h.if(detailPanel != null && panelActualState.detail)(
           "div.column.detail-column",
           null,
           detailPanel

@@ -1,15 +1,15 @@
 import h from "@macrostrat/hyper";
 import { JSONView, ModalPanel } from "@macrostrat/ui-components";
 import { ButtonGroup, Button } from "@blueprintjs/core";
-import { useSelectedUnit, useUnitSelectionDispatch } from "common";
 import { useEffect } from "react";
+import { useSelectedUnit, useUnitSelectionDispatch } from "common";
 
 const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name);
 };
 
 function ModalUnitPanel(props) {
-  const { unitData } = props;
+  const { unitData, className } = props;
   const selectedUnit = useSelectedUnit();
   const selectUnit = useUnitSelectionDispatch();
 
@@ -63,6 +63,7 @@ function ModalUnitPanel(props) {
         selectUnit(null);
       },
       title: selectedUnit.unit_name,
+      className,
       minimal: true,
       headerChildren
     },
