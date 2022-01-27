@@ -11,17 +11,17 @@ module.exports = {
       test: /\.styl$/,
       use: [
         {
-          loader: "style-loader",
+          loader: "style-loader"
         },
         {
-          loader: "css-loader",
+          loader: "css-loader"
         },
         {
           loader: "stylus-loader",
-          options: { stylusOptions: {} },
-        },
+          options: { stylusOptions: {} }
+        }
       ],
-      include: path.resolve(__dirname, "../packages"),
+      include: path.resolve(__dirname, "../packages")
     });
 
     // Return the altered config
@@ -29,11 +29,12 @@ module.exports = {
   },
   stories: [
     "../packages/**/*.stories.mdx",
-    "../packages/**/*.stories.@(js|jsx|ts|tsx)",
+    "../packages/**/*.stories.@(js|jsx|ts|tsx)"
   ],
   addons: [
     "@storybook/addon-links",
     "@storybook/addon-essentials",
-    "storybook-dark-mode",
-  ],
+    "@storybook/addon-viewport",
+    "storybook-dark-mode"
+  ]
 };
