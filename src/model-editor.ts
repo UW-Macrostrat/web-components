@@ -137,9 +137,9 @@ class ModelEditor<T> extends StatefulComponent<
         changeset[k] = v;
       }
 
-      return (ret = await persistChanges(updatedModel, changeset));
+      ret = await persistChanges(updatedModel, changeset);
     } catch (err) {
-      return console.error(err);
+      console.error(err);
     } finally {
       spec = { isPersisting: { $set: false } };
 
