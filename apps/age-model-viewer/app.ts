@@ -127,7 +127,7 @@ const resolvePattern = id => patterns[id];
 function App() {
   return h(
     compose(
-      DarkModeProvider,
+      //DarkModeProvider,
       C(GeologicPatternProvider, { resolvePattern }),
       UnitSelectionProvider,
       C(MacrostratAPIProvider, { useDev: false }),
