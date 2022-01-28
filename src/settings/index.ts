@@ -27,6 +27,7 @@ function createSettingsContext<T extends object>(defaultValue: T) {
     let { storageID, children, ...defaultSettings } = props;
     // Update from local storage
     let storage = null;
+    console.log("Setting up SettingsProvider [ui-components]");
     if (storageID != null) {
       // Merge initial options if set
       storage = new LocalStorage(storageID);
@@ -63,11 +64,8 @@ function createSettingsContext<T extends object>(defaultValue: T) {
   return [Provider, useValue, useUpdater];
 }
 
-const [
-  SettingsProvider,
-  useSettings,
-  useSettingsUpdater,
-] = createSettingsContext<object>({});
+const [SettingsProvider, useSettings, useSettingsUpdater] =
+  createSettingsContext<object>({});
 
 // Deprecated: this is kind of confusing
 const updateSettings = function (func) {

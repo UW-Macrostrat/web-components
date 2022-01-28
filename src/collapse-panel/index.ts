@@ -1,23 +1,11 @@
 // This component should be refactored into a shared UI component
 
 import { Component } from "react";
-import h from "@macrostrat/hyper";
+import h, { classed } from "@macrostrat/hyper";
 import { Button, Collapse } from "@blueprintjs/core";
 import "./main.styl";
-import styled from "@emotion/styled";
 
-const HeaderButton = styled(Button)`\
-.bp3-button-text {
-  flex-grow: 1;
-  display: flex;
-}
-.bp3-button-text * {
-  display: inline;
-}
-span.expander {
-  flex-grow: 1;
-}\
-`;
+const HeaderButton = classed(Button, "ms-header-button");
 
 type P = {
   storageID?: string;
@@ -30,7 +18,7 @@ class CollapsePanel extends Component<P, { isOpen: boolean }> {
     title: "Panel",
     // `storageID` prop allows storage of state in
     // localStorage or equivalent.
-    storageID: null
+    storageID: null,
   };
   constructor(props) {
     super(props);
@@ -107,11 +95,11 @@ class CollapsePanel extends Component<P, { isOpen: boolean }> {
       h("div.panel-header", [
         h(HeaderButton, { icon, minimal: true, onClick, fill: true }, [
           h("h2", title),
-          h("span.expander")
+          h("span.expander"),
         ]),
-        headerRight
+        headerRight,
       ]),
-      h(Collapse, { isOpen }, children)
+      h(Collapse, { isOpen }, children),
     ]);
   }
 }

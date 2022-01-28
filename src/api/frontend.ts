@@ -1,20 +1,13 @@
-import {
-  Component,
-  createContext,
-  useContext,
-  cloneElement,
-  isValidElement
-} from "react";
+import { Component, cloneElement, isValidElement } from "react";
 import h from "@macrostrat/hyper";
 import { Spinner } from "@blueprintjs/core";
-import ReactJson from "react-json-view";
 import { APIContext, APIActions, APIHelpers } from "./provider";
 import { debounce } from "underscore";
 import { APIConfig } from "./types";
 import { QueryParams } from "../util/query-string";
-
-const APIViewContext = createContext<APIViewCTX<any> | null>(null);
-const APIViewConsumer = APIViewContext.Consumer;
+import { JSONView } from "../util/json-view";
+import { IndexingProvider } from "./indexing";
+import { number } from "fp-ts";
 
 interface APIPlaceholderProps {
   isLoading: boolean;
@@ -30,7 +23,8 @@ type APIChild<T> =
   | React.ReactElement<{ data: T; isLoading: boolean }>
   | ChildFunction<T>;
 
-type APIViewCTX<T> = {
+type APIViewProps<T> = {
+  children?: APIChild<T>;
   placeholder: React.ComponentType<APIPlaceholderProps>;
   params: QueryParams;
   route: string | null;
@@ -39,11 +33,6 @@ type APIViewCTX<T> = {
   totalCount?: number;
   pageCount?: number;
 };
-
-type APIViewProps<T> = {
-  children?: APIChild<T>;
-} & APIViewCTX<T> &
-  APIPlaceholderProps;
 
 interface APIResultProps<T> extends APIViewProps<T> {
   onSuccess: (d: T) => void;
@@ -66,9 +55,9 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     // method will be called with null data
     placeholder: APIResultPlaceholder,
     debounce: 300,
-    children: data => {
-      return h(ReactJson, { src: data });
-    }
+    children: (data) => {
+      return h(JSONView, { data });
+    },
   };
   _didFetch: boolean;
   _lazyGetData: () => Promise<void>;
@@ -118,64 +107,43 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     this.setState({ data, isLoading: false });
   }
 
+  renderInner() {
+    const { data, isLoading } = this.state;
+    const { children } = this.props;
+
+    if (typeof children == "function") {
+      return children(data) as React.ReactElement;
+    } else if (isValidElement(children)) {
+      return cloneElement(children, {
+        data,
+        isLoading,
+      });
+    } else {
+      throw new Error(
+        "The APIResultView component must have a single child element or a function"
+      );
+    }
+  }
+
   render() {
     const { data, isLoading } = this.state;
-    let { children, placeholder, params, route } = this.props;
-    return h(
-      APIView,
-      { data, placeholder, params, route, isLoading },
-      children
-    );
+    const { placeholder } = this.props;
+    if (data == null && placeholder != null) {
+      return h(placeholder, { isLoading });
+    }
+
+    if (Array.isArray(data)) {
+      return h(
+        IndexingProvider,
+        {
+          totalCount: data.length,
+          indexOffset: 0,
+        },
+        this.renderInner()
+      );
+    }
+    return this.renderInner();
   }
 }
 
-const APIView = <T>(props: APIViewProps<T>): React.ReactElement => {
-  const {
-    data,
-    children,
-    placeholder,
-    params,
-    route,
-    isLoading,
-    ...rest
-  } = props;
-  const value = { data, params, placeholder, route, isLoading, ...rest };
-
-  console.warn(
-    `The APIView component is deprecated in @macrostrat/ui-components "
-     v0.4.x and will be removed in the 0.5 series. Please migrate to react hooks.`
-  );
-
-  if (data == null && placeholder != null) {
-    return h(placeholder, { isLoading });
-  }
-  if (typeof children == "function") {
-    return h(APIViewContext.Provider, { value }, children(data));
-  } else if (isValidElement(children)) {
-    return h(
-      APIViewContext.Provider,
-      { value },
-      cloneElement(children, {
-        data,
-        isLoading
-      })
-    );
-  }
-  return null;
-};
-
-APIView.defaultProps = {
-  isLoading: false
-};
-
-const useAPIView = () => useContext(APIViewContext);
-
-export {
-  APIViewContext,
-  APIViewConsumer,
-  APIResultView,
-  APIResultProps,
-  APIPlaceholderProps,
-  APIView,
-  useAPIView
-};
+export { APIResultView, APIResultProps, APIPlaceholderProps };

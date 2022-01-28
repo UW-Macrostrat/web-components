@@ -1,11 +1,13 @@
-import InfiniteScroll from "react-infinite-scroller";
 import h from "@macrostrat/hyper";
 import update, { Spec } from "immutability-helper";
-import { useReducer, useEffect, useRef } from "react";
-import { Spinner } from "@blueprintjs/core";
+import React, { useReducer, useEffect, useRef, useCallback, memo } from "react";
+import { Spinner, NonIdealState } from "@blueprintjs/core";
 import { APIParams, QueryParams } from "./util/query-string";
+import { useInView } from "react-intersection-observer";
 
-import { APIView, APIResultProps, useAPIActions } from "./api";
+import { APIResultProps, useAPIActions } from "./api";
+import { JSONView } from "./util/json-view";
+import { IndexingProvider } from "./api/indexing";
 
 interface ScrollState<T = object> {
   items: T[];
@@ -14,6 +16,7 @@ interface ScrollState<T = object> {
   error?: any;
   hasMore: boolean;
   isLoadingPage: number | null;
+  pageIndex: number;
 }
 
 type ScrollResponseItems<T> = Pick<
@@ -30,6 +33,13 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   // Only allow more restrictive parameter types
   params: APIParams;
   className?: string;
+  itemComponent?: React.ComponentType<{ data: T; index: number }>;
+  loadingPlaceholder?: React.ComponentType;
+  emptyPlaceholder?: React.ComponentType;
+  finishedPlaceholder?: React.ComponentType;
+  resultsComponent?: React.ComponentType<{ data: T[] }>;
+  perPage?: number;
+  startPage?: number;
 }
 
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
@@ -63,9 +73,86 @@ function infiniteScrollReducer<T>(
       action.callback(action);
       return update(state, {
         // @ts-ignore
-        isLoadingPage: { $set: action.params.page ?? 0 }
+        isLoadingPage: { $set: action.params.page ?? 0 },
       });
   }
+}
+
+function InfiniteScroll(props) {
+  const { hasMore, children, className, loadMore } = props;
+  const { ref, inView } = useInView({ rootMargin: "0px 0px -100px 0px" });
+
+  useEffect(() => {
+    if (!hasMore || !inView) return;
+    loadMore();
+  }, [inView, hasMore]);
+
+  return h("div.infinite-scroll-container", { className }, [
+    children,
+    //h.if(state.isLoadingPage != null)(placeholder),
+    h("div.bottom-marker", { ref }),
+  ]);
+}
+
+const Placeholder = (props) => {
+  const {
+    loading,
+    title = "No results yet",
+    description = null,
+    ...rest
+  } = props;
+
+  return h("div.placeholder", [
+    h(NonIdealState, {
+      icon: "search-template",
+      className: "placeholder-inner",
+      title,
+      description,
+      ...rest,
+    }),
+  ]);
+};
+
+const LoadingPlaceholder = (props: {
+  itemName?: string;
+  scrollParams?: APIParams;
+  pageIndex?: number | null;
+  loadedCount?: number;
+  totalCount?: number;
+  perPage?: number;
+}) => {
+  const { perPage = 10, loadedCount = 0, itemName = "results" } = props;
+  const { totalCount = 0 } = props;
+
+  let description = null;
+  if (totalCount != null) {
+    const loadedPages = Math.ceil(loadedCount / perPage);
+    const totalPages = Math.ceil(totalCount / perPage);
+    description = `Page ${loadedPages} of ${totalPages}`;
+  }
+
+  return h(Placeholder, {
+    icon: h(Spinner),
+    title: "Loading " + itemName,
+    description,
+  });
+};
+
+function EmptyPlaceholder() {
+  return h(Placeholder, {
+    icon: "inbox",
+    title: "No results",
+  });
+}
+
+function FinishedPlaceholder({ totalCount, ...rest }: { totalCount?: number }) {
+  const description = totalCount != null ? `${totalCount} total items` : null;
+  return h(Placeholder, {
+    icon: null,
+    title: "No more results",
+    description,
+    ...rest,
+  });
 }
 
 function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
@@ -74,7 +161,20 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   the GeoDeepDive API right now, but it can likely be generalized
   for other uses.
   */
-  const { route, params, opts, children, placeholder, className } = props;
+  const {
+    route,
+    params,
+    opts,
+    placeholder,
+    className,
+    itemComponent = JSONView,
+    loadingPlaceholder = LoadingPlaceholder,
+    emptyPlaceholder = EmptyPlaceholder,
+    finishedPlaceholder = FinishedPlaceholder,
+    resultsComponent = "div.results",
+    perPage = 10,
+    startPage = 0,
+  } = props;
   const { get } = useAPIActions();
   const { getCount, getNextParams, getItems, hasMore } = props;
 
@@ -84,100 +184,131 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     count: null,
     error: null,
     hasMore: true,
-    isLoadingPage: null
+    isLoadingPage: null,
+    pageIndex: startPage,
   };
+
+  const pageOffset = 0;
 
   const [state, dispatch] = useReducer<Reducer<T>>(
     infiniteScrollReducer,
     initialState
   );
 
-  const loadPage = async (action: LoadPage<T>) => {
-    const res = await get(route, action.params, opts);
-    console.log("Loaded page with params", action.params);
-    const itemVals = getItems(res);
-    const ival = { $push: itemVals };
-    const nextLength = state.items.length + itemVals.length;
-    const count = getCount(res);
-    console.log(state.items);
-    // if (state.isLoadingPage == null) {
-    //   // We have externally cancelled this request (by e.g. moving to a new results set)
-    //   console.log("Loading cancelled")
-    //   return
-    // }
+  const loadPage = useCallback(
+    async (action: LoadPage<T>) => {
+      const res = await get(route, action.params, opts);
+      console.log("Loaded page with params", action.params);
+      const itemVals = getItems(res);
+      const ival = { $push: itemVals };
+      const nextLength = state.items.length + itemVals.length;
+      const count = getCount(res);
+      console.log(state.items);
+      // if (state.isLoadingPage == null) {
+      //   // We have externally cancelled this request (by e.g. moving to a new results set)
+      //   console.log("Loading cancelled")
+      //   return
+      // }
 
-    let p1: QueryParams = getNextParams(res, params);
-    let hasNextParams = p1 != null;
-    console.log("Next page parameters", p1);
+      let p1: QueryParams = getNextParams(res, params);
+      let hasNextParams = p1 != null;
+      console.log("Next page parameters", p1);
 
-    action.dispatch({
-      type: "update-state",
-      spec: {
-        items: ival,
-        // @ts-ignore
-        scrollParams: { $set: p1 },
-        count: { $set: count },
-        hasMore: { $set: hasMore(res) && itemVals.length > 0 && hasNextParams },
-        isLoadingPage: { $set: null }
-      }
+      action.dispatch({
+        type: "update-state",
+        spec: {
+          items: ival,
+          // @ts-ignore
+          scrollParams: { $set: p1 },
+          pageIndex: { $set: state.pageIndex + 1 },
+          count: { $set: count },
+          hasMore: {
+            $set: hasMore(res) && itemVals.length > 0 && hasNextParams,
+          },
+          isLoadingPage: { $set: null },
+        },
+      });
+    },
+    [state.items, route, params, opts]
+  );
+
+  const loadMore = useCallback(() => {
+    dispatch({
+      type: "load-page",
+      params: state.scrollParams,
+      dispatch,
+      // @ts-ignore
+      callback: loadPage,
     });
-  };
+  }, [state.scrollParams, loadPage, route, params, opts]);
 
   const isInitialRender = useRef(true);
-  const loadInitialData = function() {
-    // Don't run on initial render
-    if (isInitialRender.current) {
-      isInitialRender.current = false;
-      return;
-    }
-    console.log("Resetting to initial data");
-    /*
+  const loadInitialData = useCallback(
+    function () {
+      // Don't run on initial render
+      if (isInitialRender.current) {
+        isInitialRender.current = false;
+        return;
+      }
+      console.log("Resetting to initial data");
+      /*
     Get the initial dataset
     */
-    // const success = await get(route, params, opts);
-    // parseResponse(success, true)
-    //if (state.items.length == 0 && state.isLoadingPage == null) return
-    dispatch({ type: "update-state", spec: { $set: initialState } });
-    //await loadNext(0)
-  };
+      // const success = await get(route, params, opts);
+      // parseResponse(success, true)
+      //if (state.items.length == 0 && state.isLoadingPage == null) return
+      dispatch({ type: "update-state", spec: { $set: initialState } });
+      //await loadNext(0)
+    },
+    [isInitialRender, route, params, opts]
+  );
 
   useEffect(loadInitialData, [props.route, props.params]);
+
   if (state == null) return null;
 
   //useAsyncEffect(getInitialData, [route, params]);
 
   //const showLoader = state.isLoadingPage != null && state.items.length > 0
 
+  const data = state.items;
+  const isLoading = state.isLoadingPage != null;
+  const isEmpty = data.length == 0 && !isLoading;
+  const isFinished = !state.hasMore && !isLoading;
+  const totalCount = props.totalCount ?? state.count;
+
   return h(
     InfiniteScroll,
     {
       pageStart: -1,
-      loadMore: (page: number) => {
-        dispatch({
-          type: "load-page",
-          params: state.scrollParams,
-          dispatch,
-          // @ts-ignore
-          callback: loadPage
-        });
-      },
+      loadMore,
       hasMore: state.hasMore && state.isLoadingPage == null,
       loader: placeholder,
       useWindow: true,
-      className
+      className,
     },
-    h(
-      APIView,
-      {
-        data: state.items,
-        route,
-        params: state.scrollParams,
-        placeholder,
-        isLoading: state.isLoadingPage != null,
-        totalCount: props.totalCount ?? state.count
-      },
-      children
-    )
+    [
+      h.if(isEmpty)(emptyPlaceholder),
+      h.if(!isEmpty)(IndexingProvider, { totalCount, indexOffset: 0 }, [
+        h(
+          resultsComponent,
+          { data },
+          data.map((d, i) => {
+            return h(itemComponent, { key: i, data: d, index: i });
+          })
+        ),
+        // @ts-ignore
+        h.if(isLoading)(loadingPlaceholder, {
+          totalCount,
+          scrollParams: state.scrollParams,
+          pageIndex: state.pageIndex,
+          loadedCount: data.length,
+          perPage,
+        }),
+        // @ts-ignore
+        h.if(isFinished)(finishedPlaceholder, { totalCount }),
+      ]),
+    ]
   );
 }
 
@@ -195,7 +326,7 @@ InfiniteScrollView.defaultProps = {
     const lastPage = params.page ?? 0;
     return { ...params, page: lastPage + 1 };
   },
-  placeholder: h(Spinner)
+  placeholder: h(Spinner),
 };
 
 export { InfiniteScrollView };
