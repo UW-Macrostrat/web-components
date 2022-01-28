@@ -42,10 +42,10 @@ function DeleteButton(props: P) {
         onConfirm: () => {
           handleDelete();
           onCancel();
-        }
+        },
       },
       alertContent
-    )
+    ),
   ]);
 }
 

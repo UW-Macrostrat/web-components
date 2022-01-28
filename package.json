@@ -14,7 +14,9 @@
     "dev": "npm-run-all -p --aggregate-output watch:main watch:types",
     "build:types": "tsc --emitDeclarationOnly",
     "build": "rollup -c && npm run build:types",
-    "deploy-docs": "scripts/deploy-docs"
+    "prepare": "npm run build",
+    "deploy-docs": "scripts/deploy-docs",
+    "docs:build": "scripts/build-docs"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -63,7 +65,8 @@
     "rollup-plugin-postcss": "^3.1.8",
     "rollup-plugin-terser": "^7.0.2",
     "stylus": "^0.54.7",
-    "typescript": "^4"
+    "typedoc": "^0.20.36",
+    "typescript": "4.0"
   },
   "peerDependencies": {
     "react": "^16.8.6 || ^17",

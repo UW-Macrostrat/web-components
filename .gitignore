@@ -23,4 +23,6 @@ node_modules/
 lib
 .docz
 .parcel-cache
+
+#ignore docs
 docs
