@@ -5,7 +5,6 @@ export * from "./util";
 export * from "./context";
 export * from "./images";
 export * from "./notes";
-export * from "./photos";
 export * from "./axis";
 export * from "./lithology";
 export * from "./flooding-surface";
