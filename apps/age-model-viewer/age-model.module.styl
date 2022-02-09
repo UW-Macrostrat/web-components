@@ -2,6 +2,7 @@
   margin 0
   padding 0
   padding-left 1em
+  min-width 300px
   h1
     font-size 1.2em
     margin-bottom 0.2em
@@ -10,11 +11,31 @@
 .column-title
   font-weight: 600
 
+// .column-picker
+//   height: 100% 
+//   width: 500px
+//   max-width: 500px
+//   min-width: 200px
+//   position: absolute
+
+.column-map-container
+  min-width 400px
+  flex-grow 1
+  position relative
+
+  .controls
+    z-index: 100
+    position absolute
+    bottom 0
+    right 0
+    padding 0.5em
+
 .column-map
-  height: 100% 
-  width: 500px
-  max-width: 500px
-  min-width: 200px
+  position absolute
+  top: 0
+  bottom 0
+  left 0
+  right 0
 
 .unit-details
   width: 450px

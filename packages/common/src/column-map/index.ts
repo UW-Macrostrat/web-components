@@ -11,6 +11,11 @@ function ResizableMapFrame(props) {
   const [width, height] = useSize(ref);
   let scale = width;
 
+  const zoomScaleExtent = [
+    0.5 * Math.min(width, height),
+    2 * Math.max(width, height)
+  ];
+
   return h("div.map-area", { ref, style, className }, [
     h(
       Globe,
@@ -22,7 +27,8 @@ function ResizableMapFrame(props) {
         center,
         allowDrag: true,
         allowZoom: true,
-        keepNorthUp: true
+        keepNorthUp: true,
+        zoomScaleExtent
       },
       [h(Land), children]
     )

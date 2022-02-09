@@ -18,8 +18,8 @@ import {
   ThreeColumnLayout,
   useLayoutDispatch
 } from "@macrostrat/ui-components";
-import { NonIdealState, Spinner } from "@blueprintjs/core";
-import { useEffect } from "react";
+import { NonIdealState, Spinner, Button } from "@blueprintjs/core";
+import { useEffect, useState } from "react";
 
 const h = hyperStyled(styles);
 
@@ -50,6 +50,24 @@ function ColumnView({ unitData }) {
 
 //macrostrat.org/api/units?col_id=5156&status_code=in%20process&show_position=true&response=long
 
+function UnitDetailPanel({ units, selectedUnit }) {
+  const dispatch = useLayoutDispatch();
+
+  useEffect(() => {
+    dispatch({
+      type: "show-panel",
+      panel: ThreeColumnLayout.Panels.Detail,
+      shouldShow: selectedUnit != null
+    });
+  }, [selectedUnit]);
+
+  return h(ModalUnitPanel, {
+    className: "unit-details",
+    unitData: units,
+    setIsShown: () => {}
+  });
+}
+
 function AppMain() {
   const defaultArgs = {
     col_id: 5156,
@@ -71,39 +89,39 @@ function AppMain() {
     currentColumn
   ])?.features[0];
 
+  const [expandedContext, setExpandedContext] = useState(false);
+
   const unitData = useAPIResult("/units", unitParams, [currentColumn]);
 
   const units = preprocessUnits(unitData ?? []);
 
-  const dispatch = useLayoutDispatch();
-
-  useEffect(() => {
-    dispatch({
-      type: "show-panel",
-      panel: ThreeColumnLayout.Panels.Detail,
-      shouldShow: selectedUnit != null
-    });
-  }, [selectedUnit]);
-
-  const detailPanel = h(ModalUnitPanel, {
-    className: "unit-details",
-    unitData: units,
-    setIsShown: () => {}
-  });
-
+  const detailPanel = h(UnitDetailPanel, { units, selectedUnit });
   // 495
-  const contextPanel = h(ColumnMap, {
-    className: "column-map",
-    currentColumn: columnFeature,
-    setCurrentColumn,
-    margin: 0,
-    color: "dodgerblue",
-    apiRoute: "/defs/columns",
-    ...projectParams,
-    filterColumns(col) {
-      return col.properties.t_units > 0;
-    }
-  });
+  const contextPanel = h(
+    ColumnMap,
+    {
+      currentColumn: columnFeature,
+      setCurrentColumn,
+      margin: 0,
+      color: "dodgerblue",
+      apiRoute: "/defs/columns",
+      ...projectParams,
+      filterColumns(col) {
+        return col.properties.t_units > 0;
+      }
+    },
+    h("div.controls", [
+      h(
+        Button,
+        {
+          onClick: () => setExpandedContext(!expandedContext),
+          minimal: true,
+          small: true
+        },
+        "Expand map"
+      )
+    ])
+  );
 
   return h(
     ThreeColumnLayout,
@@ -116,7 +134,8 @@ function AppMain() {
       detailPanel,
       panelState: {
         detail: selectedUnit != null
-      }
+      },
+      expandedContext
     },
     h(ColumnView, { unitData })
   );

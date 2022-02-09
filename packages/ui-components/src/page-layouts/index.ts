@@ -13,6 +13,7 @@ import { useReducer, useEffect } from "react";
 import useElementDimensions from "use-element-dimensions";
 import { useContext, createContext } from "react";
 import { identity } from "fp-ts/lib/function";
+import classNames from "classnames";
 const h = hyper.styled(styles);
 
 interface ThreeColumnLayoutProps {
@@ -26,6 +27,7 @@ interface ThreeColumnLayoutProps {
   title?: string;
   twoPanelBreakpoint?: number;
   preferredMainWidth?: number;
+  expandedContext?: boolean;
   contextButtonPlacement?: "left" | "right";
 }
 
@@ -117,6 +119,7 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
     panelState = {},
     twoPanelBreakpoint = 800,
     preferredMainWidth,
+    expandedContext = false,
     contextButtonPlacement = Position.LEFT,
     ...rest
   } = props;
@@ -156,6 +159,11 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
 
   if (layoutState.isReduced) {
     panelActualState[nonKeyPanel] = false;
+  }
+
+  if (expandedContext) {
+    panelActualState[SidePanel.Context] = true;
+    panelActualState[SidePanel.Detail] = false;
   }
 
   useEffect(() => {
@@ -214,10 +222,14 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
         h("div.three-column", [
           h.if(contextPanel != null && panelActualState.context)(
             "div.column.context-column",
-            null,
+            { className: classNames({ expanded: expandedContext ?? false }) },
             contextPanel
           ),
-          h("div.column.main-column", { ref: mainRef }, children),
+          h.if(children != null)(
+            "div.column.main-column",
+            { ref: mainRef },
+            children
+          ),
           h.if(detailPanel != null && panelActualState.detail)(
             "div.column.detail-column",
             null,

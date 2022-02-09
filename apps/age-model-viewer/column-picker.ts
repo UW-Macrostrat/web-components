@@ -1,4 +1,3 @@
-import h from "@macrostrat/hyper";
 import { geoCentroid } from "d3-geo";
 import { ResizableMapFrame } from "common/column-map";
 import {
@@ -8,8 +7,13 @@ import {
   CurrentColumn
 } from "common/map/layers";
 import { useMemo } from "react";
+import { Tabs, Tab } from "@blueprintjs/core";
+import hyper from "@macrostrat/hyper";
+import styles from "./age-model.module.styl";
+const h = hyper.styled(styles);
 
 function useFilteredColumns({ apiRoute, status_code, project_id }) {
+  // Filter columns by whether they contain any units
   const features = useColumnData({ apiRoute, status_code, project_id });
 
   return useMemo(() => {
@@ -41,29 +45,43 @@ const ColumnMapView = props => {
     project_id
   });
 
-  return h(ResizableMapFrame, { center, className: "column-map", ...rest }, [
-    h(ColumnKeyboardNavigation, {
-      features: completedColumns,
-      col_id,
-      onChange: setCurrentColumn,
-      status_code,
-      project_id,
-      showLayers: false
-    }),
-    h(ColumnFeatures, {
-      features: emptyColumns,
-      color: "#888",
-      onClick: setCurrentColumn
-    }),
-    h(ColumnFeatures, {
-      features: completedColumns,
-      onClick: setCurrentColumn,
-      color
-    }),
-    h.if(currentColumn != null)(CurrentColumn, {
-      feature: currentColumn
-    })
+  let keyboardNavColumns = [
+    ...completedColumns,
+    // Add the current column to keyboard navigation so that we can navigate
+    // away from incomplete columns if we have them selected
+    ...emptyColumns.filter(d => d.properties.col_id == col_id)
+  ];
+
+  return h("div.column-map-container", [
+    h(ResizableMapFrame, { center, className: "column-map", ...rest }, [
+      h(ColumnKeyboardNavigation, {
+        features: keyboardNavColumns,
+        col_id,
+        onChange: setCurrentColumn,
+        status_code,
+        project_id,
+        showLayers: false
+      }),
+      h(ColumnFeatures, {
+        features: emptyColumns,
+        color: "#888",
+        onClick: setCurrentColumn
+      }),
+      h(ColumnFeatures, {
+        features: completedColumns,
+        onClick: setCurrentColumn,
+        color
+      }),
+      h.if(currentColumn != null)(CurrentColumn, {
+        feature: currentColumn
+      })
+    ]),
+    children
   ]);
 };
 
-export default ColumnMapView;
+function ColumnPickerPanel(props) {
+  return h(ColumnMapView, { className: "column-map", ...props });
+}
+
+export default ColumnPickerPanel;

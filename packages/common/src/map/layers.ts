@@ -112,7 +112,7 @@ function buildKeyMapping(neighbors, centroids, currentIndex, projection) {
   if (neighbors == null) return;
 
   const currentCentroid = projection(centroids[currentIndex]);
-  console.log(currentCentroid);
+  console.log(neighbors, currentCentroid);
 
   let edgeAngles = neighbors.map(index => {
     const centroid = projection(centroids[index]);
