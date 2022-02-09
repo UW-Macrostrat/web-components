@@ -127,6 +127,7 @@ interface GlobeProps extends ProjectionParams {
   allowZoom: boolean;
   onRotate?(v: RotationAngles): void;
   children?: React.ReactNode;
+  zoomScaleExtent?: [number, number];
 }
 
 export function Globe(_props: GlobeProps) {
@@ -143,6 +144,7 @@ export function Globe(_props: GlobeProps) {
     center,
     graticule,
     onRotate,
+    zoomScaleExtent,
   } = props;
   const { margin = 80, translate, ...rest } = props;
 
@@ -214,6 +216,7 @@ export function Globe(_props: GlobeProps) {
             initialScale,
             dragSensitivity: 0.1,
             allowZoom,
+            scaleExtent: zoomScaleExtent,
           }),
         ]
       )

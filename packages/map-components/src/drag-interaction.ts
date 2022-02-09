@@ -8,7 +8,11 @@ import { zoom, ZoomBehavior } from "d3-zoom";
 import { select, event as currentEvent, mouse } from "d3-selection";
 import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from "./math";
 
-class _DraggableOverlay extends Component<any, any> {
+interface DraggableOverlayProps {
+  scaleExtent?: [number, number];
+}
+
+class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
   static contextType = MapContext;
   static propTypes = {
     showMousePosition: T.bool,
