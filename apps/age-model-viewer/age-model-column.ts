@@ -220,9 +220,14 @@ function ReconstructedColumnAgeDataset(rest) {
   });
 }
 
-function AgeModelDataset({ showPoints = true, ...props }) {
+function useColumnAgeModel() {
   const [currentColumn, _] = useColumnNav();
-  const columnAgeData: any[] = useAPIResult("/age_model", currentColumn);
+  return useAPIResult("/age_model", currentColumn);
+}
+
+function AgeModelDataset({ data, showPoints = true, ...props }) {
+  const columnAgeData: any[] = data ?? useColumnAgeModel();
+
   const lineLocator = useLineLocator();
 
   if (columnAgeData == null) return null;
@@ -285,10 +290,15 @@ function AgeModelColumn(
     CrossAxisLayoutProvider,
     { width, domain },
     h("g.isotopes-column", { className: parameter, transform }, [
-      h(ColumnScale, { label: label ?? parameter, ...rest }),
+      h(ColumnScale, { showAxis: false, label: label ?? parameter, ...rest }),
       children
     ])
   );
 }
 
-export { AgeModelColumn, AgeModelDataset, ReconstructedColumnAgeDataset };
+export {
+  AgeModelColumn,
+  AgeModelDataset,
+  ReconstructedColumnAgeDataset,
+  useColumnAgeModel
+};

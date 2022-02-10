@@ -1,5 +1,5 @@
-import h from "@macrostrat/hyper";
-import { group } from "d3-array";
+import hyper from "@macrostrat/hyper";
+import { group, extent } from "d3-array";
 import {
   ColumnSVG,
   ColumnLayoutContext,
@@ -14,10 +14,15 @@ import { TrackedLabeledUnit } from "common";
 import {
   AgeModelColumn,
   AgeModelDataset,
-  ReconstructedColumnAgeDataset
+  ReconstructedColumnAgeDataset,
+  useColumnAgeModel
 } from "./age-model-column";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 import "@macrostrat/timescale/dist/timescale.css";
+import { Timescale } from "@macrostrat/timescale";
+import styles from "./age-model.module.styl";
+
+const h = hyper.styled(styles);
 
 interface ColumnProps {
   data: IUnit[];
@@ -26,6 +31,7 @@ interface ColumnProps {
   unitComponent: React.FunctionComponent<any>;
   unitComponentProps?: any;
   axisType?: ColumnAxisType;
+  width?: number;
 }
 
 function getRange(data, axisType: ColumnAxisType = ColumnAxisType.AGE) {
@@ -40,7 +46,11 @@ const Section = (props: ColumnProps) => {
     data,
     axisType,
     range = getRange(data, axisType),
-    unitComponent
+    unitComponent,
+    width = 550,
+    ageWidth,
+    ageData,
+    ageBounds
   } = props;
   let { pixelScale } = props;
 
@@ -65,53 +75,71 @@ const Section = (props: ColumnProps) => {
         width: 22,
         paddingV: 10,
         paddingBottom: 20,
-        padding: 20,
+        paddingLeft: 20,
         showLabel: false,
         showDomain: true
       }),
       h(
         ColumnSVG,
         {
-          width: 550,
+          width: 170 + 150,
           padding: 20,
           paddingLeft: 1,
           paddingV: 10,
-          paddingBottom: 20
+          paddingBottom: 20,
+          style: {
+            marginRight: -150
+          },
+          className: "main-section"
         },
-        [
-          h(AnnotatedUnitsColumn, {
-            width: 350,
-            columnWidth: 150,
-            gutterWidth: 0,
-            axisType,
-            unitComponent,
-            unitComponentProps: {
-              nColumns: 1
-            },
-            minimumLabelHeight: 0.5,
-            nameForDivision: d => {
-              return d.unit_name
-                .replace(/[\d\.]+-[\d\.]+( mbsf)?: /g, "")
-                .toLowerCase();
-            }
-          }),
+        h(AnnotatedUnitsColumn, {
+          width: 350,
+          columnWidth: 150,
+          gutterWidth: 0,
+          axisType,
+          unitComponent,
+          unitComponentProps: {
+            nColumns: 1
+          },
+          minimumLabelHeight: 0.5,
+          nameForDivision: d => {
+            return d.unit_name
+              .replace(/[\d\.]+-[\d\.]+( mbsf)?: /g, "")
+              .toLowerCase();
+          }
+        })
+      ),
+      h("div.age-model", [
+        h(
+          ColumnSVG,
+          {
+            width: width - 22,
+            padding: 20,
+            paddingLeft: 1,
+            paddingV: 10,
+            paddingBottom: 20
+          },
           h(
             AgeModelColumn,
             {
-              transform: "translate(160)",
-              width: 550 - 160 - 10,
-              nTicks: 10
+              width: ageWidth,
+              nTicks: 10,
+              domain: ageBounds
             },
             [
-              h(AgeModelDataset, { stroke: "green", strokeWidth: 2 })
+              h(AgeModelDataset, {
+                data: ageData,
+                stroke: "green",
+                strokeWidth: 2
+              })
               // h(ReconstructedColumnAgeDataset, {
               //   stroke: "red",
               //   strokeWidth: 2
               // })
             ]
           )
-        ]
-      )
+        )
+      ])
     ]
   );
 };
@@ -142,27 +170,53 @@ const AgeAxisLabel = ({ axisType: ColumnAxisType, axisLabel }) => {
 };
 
 const Column = (props: ColumnProps) => {
-  const { data, unitComponent = UnitComponent, axisType } = props;
+  const { data, unitComponent = UnitComponent, axisType, width = 550 } = props;
 
   let sectionGroups = Array.from(group(data, d => d.section_id));
 
   sectionGroups.sort((a, b) => a["t_" + axisType] - b["t_" + axisType]);
 
+  const ageWidth = width - 100 - 170 - 32;
+
+  const ageData = useColumnAgeModel() ?? [];
+
+  let ageBounds = extent(ageData, d => d.model_age);
+  ageBounds.reverse();
+
   return h("div.column", [
     h(AgeAxisLabel, { axisType, axisLabel: "Depth (meters below seafloor)" }),
-    h(
-      "div.main-column",
+    h("div.main-column", [
       sectionGroups.map(([id, values]) => {
         return h(`div.section.section-${id}`, [
           h(Section, {
-            pixelScale: 5,
+            //pixelScale: 5,
             data: values,
             axisType,
-            unitComponent
+            unitComponent,
+            width: width - 100,
+            ageWidth,
+            ageData,
+            ageBounds
           })
         ]);
-      })
-    )
+      }),
+      h(
+        "div.timescale-container",
+        {
+          style: { marginLeft: 170 + 22, paddingLeft: 2, width: ageWidth + 4 }
+        },
+        [
+          h(Timescale, {
+            orientation: "horizontal",
+            absoluteAgeScale: true,
+            length: ageWidth,
+            ageRange: ageBounds,
+            levels: [4, 5]
+          }),
+          h("div.axis-label", "Age (Ma)")
+        ]
+      )
+    ])
   ]);
 };
 

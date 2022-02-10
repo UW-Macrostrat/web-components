@@ -12,10 +12,12 @@ const AgeAxisCore = ({ ticks, tickSpacing = 40, showDomain = false }) => {
   // A tick roughly every 40 pixels
   let v = Math.max(Math.round(pixelHeight / tickSpacing), 1);
 
-  return h(ColumnAxis, {
-    ticks: v,
-    showDomain
-  });
+  return h("g.axis", { transform: "translate(-20 0)" }, [
+    h(ColumnAxis, {
+      ticks: v,
+      showDomain
+    })
+  ]);
 };
 
 export function AgeAxis(props) {

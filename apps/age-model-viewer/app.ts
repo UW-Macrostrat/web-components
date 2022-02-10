@@ -41,9 +41,13 @@ function ColumnView({ unitData }) {
       description: "No units have yet been captured for this core"
     });
 
-  return h("div.column-view", [
+  const ref = useRef<HTMLDivElement>(null);
+  const { width, height } = useElementSize(ref) ?? {};
+
+  return h("div.column-view", { ref }, [
     h.if(unitData != null)(Column, {
       data: unitData,
+      width,
       axisType: ColumnAxisType.HEIGHT
     })
   ]);
