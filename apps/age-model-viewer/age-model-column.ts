@@ -3,12 +3,14 @@ import h from "@macrostrat/hyper";
 import classNames from "classnames";
 import { AxisBottom } from "@vx/axis";
 import { useMemo } from "react";
-import { referenceMeasuresToColumn } from "@macrostrat/api-utils";
+import { useColumnNav } from "common/macrostrat-columns";
+
 import {
   CrossAxisLayoutProvider,
   ColumnLayoutContext,
   ColumnContext,
-  useColumnDivisions
+  useColumnDivisions,
+  useColumnLayout
 } from "@macrostrat/column-components";
 import T from "prop-types";
 
@@ -17,6 +19,7 @@ const fmt = format(".1f");
 import { line } from "d3-shape";
 import { createContext, useContext } from "react";
 import { UnitLong } from "@macrostrat/api-types";
+import { useAPIResult } from "@macrostrat/ui-components";
 
 const inDomain = (scale, num) => {
   const domain = scale.domain();
@@ -244,35 +247,7 @@ interface IsotopeColumnProps extends IsotopesDatasetProps {
   transform?: string;
 }
 
-function IsotopesDataset(props) {
-  const { parameter, color = "dodgerblue" } = props;
-  const divisions = useColumnDivisions();
-  const measures = useMeasurementData() ?? [];
-  const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
-    d => d.measurement == parameter
-  );
-  const points = unnestPoints(refMeasures);
-
-  return h(
-    IsotopesDataArea,
-    {
-      getHeight(d) {
-        return d.age;
-      }
-    },
-    h(
-      "g.data-points",
-      points.map(d => {
-        return h(IsotopeDataPoint, {
-          datum: d,
-          fill: color
-        });
-      })
-    )
-  );
-}
-
-function ColumnAgeDataset(rest) {
+function ReconstructedColumnAgeDataset(rest) {
   const divisions: UnitLong[] = useColumnDivisions();
   const lineLocator = useLineLocator();
   const xy = [];
@@ -281,13 +256,52 @@ function ColumnAgeDataset(rest) {
     xy.push({ x: d.b_age, y: d.b_pos });
   }
   const d = lineLocator(xy);
-  console.log(xy, d);
 
   return h("path.age-dataset", {
     d,
     fill: "transparent",
     ...rest
   });
+}
+
+function AgeModelDataset({ showPoints = true, ...props }) {
+  const [currentColumn, _] = useColumnNav();
+  const columnAgeData: any[] = useAPIResult("/age_model", currentColumn);
+  const lineLocator = useLineLocator();
+
+  if (columnAgeData == null) return null;
+  const xy = columnAgeData.map(d => {
+    return { x: d.model_age, y: d.boundary_position };
+  });
+  const d = lineLocator(xy);
+
+  return h("g.age-dataset", [
+    h("path.age-dataset", {
+      d,
+      fill: "transparent",
+      ...props
+    }),
+    h.if(showPoints)(AgeModelPoints, {
+      positions: xy,
+      fill: props.stroke,
+      r: props.strokeWidth * 1
+    })
+  ]);
+}
+
+function AgeModelPoints({ positions, ...rest }) {
+  const { xScale, scale } = useColumnLayout();
+  return h(
+    "g.age-model-points",
+    positions.map((d, i) => {
+      return h("circle", {
+        key: i,
+        cx: xScale(d.x),
+        cy: scale(d.y),
+        ...rest
+      });
+    })
+  );
 }
 
 function AgeModelColumn(
@@ -321,4 +335,4 @@ function AgeModelColumn(
   );
 }
 
-export { AgeModelColumn, IsotopesDataset, ColumnAgeDataset };
+export { AgeModelColumn, AgeModelDataset, ReconstructedColumnAgeDataset };

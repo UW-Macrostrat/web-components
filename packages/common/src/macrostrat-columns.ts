@@ -1,9 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext, createContext } from "react";
 import { getQueryString, setQueryString } from "@macrostrat/ui-components";
+import h from "@macrostrat/hyper";
 
-function useColumnNav(defaultArgs = { col_id: 495 }) {
-  const initArgs = getQueryString() ?? defaultArgs;
-  const [columnArgs, setColumnArgs] = useState(initArgs);
+interface ColumnArgs {
+  col_id?: number;
+  project?: number;
+  status?: "in process";
+}
+
+type ColumnManagerData = [ColumnArgs, (c: ColumnArgs) => void];
+
+const ColumnNavCtx = createContext<ColumnManagerData | null>(null);
+
+function useColumnNav(defaultArgs = { col_id: 495 }): ColumnManagerData {
+  const ctx = useContext(ColumnNavCtx);
+  if (ctx != null) return ctx;
+  const initArgs: ColumnArgs = getQueryString() ?? defaultArgs;
+  const [columnArgs, setColumnArgs] = useState<ColumnArgs>(initArgs);
 
   useEffect(() => setQueryString(columnArgs));
 
@@ -22,4 +35,9 @@ function useColumnNav(defaultArgs = { col_id: 495 }) {
   return [columnArgs, setCurrentColumn];
 }
 
-export { useColumnNav };
+function ColumnNavProvider({ children, ...defaultArgs }) {
+  const value = useColumnNav(defaultArgs);
+  return h(ColumnNavCtx.Provider, { value }, children);
+}
+
+export { useColumnNav, ColumnNavProvider };

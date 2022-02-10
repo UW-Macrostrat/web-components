@@ -10,7 +10,7 @@ import {
 import ColumnMap from "./column-picker";
 import Column from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
-import { useColumnNav } from "common/macrostrat-columns";
+import { ColumnNavProvider, useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -69,7 +69,8 @@ function UnitDetailPanel({ units, selectedUnit }) {
   });
 }
 
-function PageTitle({ setCurrentColumn, currentColumn, children }) {
+function PageTitle({ children }) {
+  const [currentColumn, setCurrentColumn] = useColumnNav();
   const shouldLinkTitle =
     currentColumn?.col_id != null && setCurrentColumn != null;
   let titleEl = "eODP column viewer";
@@ -77,9 +78,7 @@ function PageTitle({ setCurrentColumn, currentColumn, children }) {
     titleEl = h(
       "a.title-link",
       {
-        onClick: () => setCurrentColumn(defaultArgs),
-        minimal: true,
-        small: true
+        onClick: () => setCurrentColumn(defaultArgs)
       },
       titleEl
     );
@@ -122,12 +121,9 @@ function AppDetailView({ currentColumn, setCurrentColumn }) {
 
   const detailPanel = h(UnitDetailPanel, { units, selectedUnit });
   // 495
-  const contextPanel = h(ColumnMap, {
+  const contextPanel = h(ColumnMapPanel, {
     currentColumn: columnFeature,
     setCurrentColumn,
-    margin: 0,
-    color: "dodgerblue",
-    apiRoute: "/defs/columns",
     ...projectParams,
     filterColumns(col) {
       return col.properties.t_units > 0;
@@ -182,8 +178,8 @@ function MainMapPanel({ currentColumn, setCurrentColumn, ...projectParams }) {
 }
 
 function AppMain() {
-  const [currentColumn, setCurrentColumn] = useColumnNav(defaultArgs);
   const selectedUnit = useSelectedUnit();
+  const [currentColumn, setCurrentColumn] = useColumnNav();
   const { col_id, ...projectParams } = currentColumn;
 
   if (col_id != null) {
@@ -210,6 +206,7 @@ function App() {
       //DarkModeProvider,
       C(GeologicPatternProvider, { resolvePattern }),
       UnitSelectionProvider,
+      C(ColumnNavProvider, { ...defaultArgs }),
       C(MacrostratAPIProvider, { useDev: false }),
       AppMain
     )

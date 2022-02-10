@@ -1,7 +1,6 @@
 import h from "@macrostrat/hyper";
 import { group } from "d3-array";
 import {
-  ColumnProvider,
   ColumnSVG,
   ColumnLayoutContext,
   ColumnAxisType
@@ -10,11 +9,15 @@ import { useContext } from "react";
 import { AnnotatedUnitsColumn } from "common/units";
 import { IUnit, transformAxisType } from "common/units/types";
 import { AgeAxis } from "common";
-import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import "@macrostrat/timescale/dist/timescale.css";
-import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
-import { AgeModelColumn, ColumnAgeDataset } from "./age-model-column";
+import { TrackedLabeledUnit } from "common";
+
+import {
+  AgeModelColumn,
+  AgeModelDataset,
+  ReconstructedColumnAgeDataset
+} from "./age-model-column";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
+import "@macrostrat/timescale/dist/timescale.css";
 
 interface ColumnProps {
   data: IUnit[];
@@ -95,7 +98,13 @@ const Section = (props: ColumnProps) => {
               width: 550 - 160 - 10,
               nTicks: 10
             },
-            h(ColumnAgeDataset, { stroke: "red", strokeWidth: 2 })
+            [
+              h(AgeModelDataset, { stroke: "green", strokeWidth: 2 })
+              // h(ReconstructedColumnAgeDataset, {
+              //   stroke: "red",
+              //   strokeWidth: 2
+              // })
+            ]
           )
         ]
       )
