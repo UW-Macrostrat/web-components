@@ -93,32 +93,6 @@ const IsotopesDataArea = function(props: DataAreaProps) {
 
 IsotopesDataArea.defaultProps = { clipY: false };
 
-const IsotopeDataPoint = function(props) {
-  const { pointLocator } = useContext(IsotopesDataContext);
-  const { datum, strokeWidth, ...rest } = props;
-  const loc = pointLocator(datum);
-  if (loc == null) return null;
-  const [cx, cy] = loc;
-
-  return h("circle", {
-    key: datum.sample_id,
-    cx,
-    cy,
-    r: 2,
-    ...rest
-  });
-};
-
-const IsotopeDataLine = function(props) {
-  const { values: lineValues, ...rest } = props;
-  const { lineLocator } = useContext(IsotopesDataContext);
-  return h("path", {
-    d: lineLocator(lineValues),
-    fill: "transparent",
-    ...rest
-  });
-};
-
 const useDataLocator = () => useContext(IsotopesDataContext);
 
 const IsotopeText = function({ datum, text, ...rest }) {
@@ -215,24 +189,6 @@ ScaleLine.propTypes = {
   value: T.number.isRequired,
   labelBottom: T.bool
 };
-
-function unnestPoints(measures) {
-  let points = [];
-  for (const meas of measures) {
-    const vals = meas.measure_value.map((d, i) => {
-      return {
-        value: d,
-        age: meas.measure_age[i],
-        position: meas.measure_position[i],
-        unit_id: meas.unit_id,
-        sample_id: meas.sample_no[i],
-        measurement: meas.measurement
-      };
-    });
-    Array.prototype.push.apply(points, vals);
-  }
-  return points;
-}
 
 interface IsotopesDatasetProps {
   color: string;

@@ -62,9 +62,12 @@ const Section = (props: ColumnProps) => {
     },
     [
       h(AgeAxis, {
-        width: 20,
+        width: 22,
+        paddingV: 10,
+        paddingBottom: 20,
         padding: 20,
-        showLabel: false
+        showLabel: false,
+        showDomain: true
       }),
       h(
         ColumnSVG,
@@ -85,6 +88,7 @@ const Section = (props: ColumnProps) => {
             unitComponentProps: {
               nColumns: 1
             },
+            minimumLabelHeight: 0.5,
             nameForDivision: d => {
               return d.unit_name
                 .replace(/[\d\.]+-[\d\.]+( mbsf)?: /g, "")

@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { useContext } from "react";
+import { useContext, useCallback } from "react";
 import {
   ColumnContext,
   ColumnAxisType,
@@ -57,10 +57,14 @@ function UnitDataColumn(props: UnitDataProps) {
 
   const { scale } = ctx;
 
-  function minimumHeightFilter(d) {
-    scale(d.top_height) - scale(d.height);
-    return true;
-  }
+  const minimumHeightFilter = useCallback(
+    d => {
+      if (minimumHeight == 0) return true;
+      const dy = Math.abs(scale(d.top_height) - scale(d.height));
+      return dy > minimumHeight;
+    },
+    [scale, minimumHeight]
+  );
 
   if (divisions == null) return null;
   const notes: INote[] = divisions

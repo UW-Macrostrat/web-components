@@ -72,6 +72,7 @@ export type ICompositeUnitProps = BaseUnitProps & {
   gutterWidth?: number;
   labelOffset?: number;
   nameForDivision?: (division: BaseUnit) => string;
+  children?: React.ReactNode;
 };
 
 function TrackedLabeledUnit({
@@ -128,7 +129,9 @@ function _BaseUnitsColumn(
   ]);
 }
 
-function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
+type AnnotatedUnitProps = ICompositeUnitProps & { minimumLabelHeight?: number };
+
+function AnnotatedUnitsColumn(props: AnnotatedUnitProps) {
   /*
   A column with units and names either
   overlapping or offset to the right
@@ -140,6 +143,7 @@ function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
     labelOffset = 30,
     showLabels = true,
     nameForDivision,
+    minimumLabelHeight = 0,
     ...rest
   } = props;
 
@@ -154,6 +158,7 @@ function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
         transform: `translate(${columnWidth + gutterWidth})`,
         paddingLeft: labelOffset,
         width: width - columnWidth - gutterWidth,
+        minimumHeight: minimumLabelHeight,
         nameForDivision,
         ...rest
       })

@@ -65,6 +65,7 @@
   .column
     display: flex
     flex-direction row
+    position relative
     .age-axis-label
       writing-mode vertical-lr
       transform: rotate(180deg)
@@ -72,7 +73,7 @@
       text-align: center
       position: sticky
       top: 0
-      max-height: 100vh
+      max-height: 100%
     .tick text
       text-anchor middle
       font-weight 400 !important
@@ -203,7 +204,7 @@
   // Helps with darkreader on Firefox
   html[data-darkreader-scheme="dark"]
     .lithology-column .frame
-      stroke: white
+      stroke: transparent
     g.inner
       pattern image
         filter: invert(100%)
