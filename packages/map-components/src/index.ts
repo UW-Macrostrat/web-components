@@ -193,6 +193,11 @@ export function Globe(_props: GlobeProps) {
   const xmlns = "http://www.w3.org/2000/svg";
   const viewBox = `0 0 ${width} ${height}`;
 
+  useEffect(() => {
+    const newProj = projection.scale(scale);
+    dispatch({ type: "update", projection: newProj });
+  }, [scale]);
+
   return h(
     MapContext.Provider,
     { value },
