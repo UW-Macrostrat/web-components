@@ -12,6 +12,7 @@ import {
   useRef,
   useCallback
 } from "react";
+import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
 import styles from "./composite.module.styl";
 
@@ -27,9 +28,9 @@ const UnlabeledDivisionsContext = createContext(null);
 function LabelTrackerProvider(props) {
   const { children } = props;
   const { divisions } = useColumn();
-  const [unlabeledDivisions, setUnlabeledDivisions] = useState<IUnit[] | null>(
-    null
-  );
+  const [unlabeledDivisions, setUnlabeledDivisions] = useState<
+    BaseUnit[] | null
+  >(null);
   const labelTrackerRef = useRef<LabelTracker>({});
   const trackLabelVisibility = useCallback(
     (div, visible) => {
@@ -70,6 +71,7 @@ type BaseUnitProps =
 export type ICompositeUnitProps = BaseUnitProps & {
   gutterWidth?: number;
   labelOffset?: number;
+  nameForDivision?: (division: BaseUnit) => string;
 };
 
 function TrackedLabeledUnit({
@@ -110,14 +112,16 @@ function _BaseUnitsColumn(
     width,
     children,
     unitComponent = TrackedLabeledUnit,
-    unitComponentProps
+    unitComponentProps,
+    ...rest
   } = props;
 
   return h(LabelTrackerProvider, [
     h(LithologyColumn, { width }, [
       h(UnitBoxes, {
         unitComponent,
-        unitComponentProps
+        unitComponentProps,
+        ...rest
       })
     ]),
     children
@@ -135,22 +139,31 @@ function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
     gutterWidth = 10,
     labelOffset = 30,
     showLabels = true,
+    nameForDivision,
     ...rest
   } = props;
 
-  return h(_BaseUnitsColumn, { width: showLabels ? columnWidth : width }, [
-    h.if(showLabels)(UnlabeledUnitNames, {
-      transform: `translate(${columnWidth + gutterWidth})`,
-      paddingLeft: labelOffset,
-      width: width - columnWidth - gutterWidth
-    })
-    // h(UnitDataColumn, {
-    //   transform: `translate(${columnWidth + gutterWidth})`,
-    //   paddingLeft: labelOffset,
-    //   width: width - columnWidth - gutterWidth,
-    //   ...rest
-    // })
-  ]);
+  return h(
+    _BaseUnitsColumn,
+    {
+      width: showLabels ? columnWidth : width,
+      unitComponentProps: { nameForDivision }
+    },
+    [
+      h.if(showLabels)(UnlabeledUnitNames, {
+        transform: `translate(${columnWidth + gutterWidth})`,
+        paddingLeft: labelOffset,
+        width: width - columnWidth - gutterWidth,
+        nameForDivision
+      })
+      // h(UnitDataColumn, {
+      //   transform: `translate(${columnWidth + gutterWidth})`,
+      //   paddingLeft: labelOffset,
+      //   width: width - columnWidth - gutterWidth,
+      //   ...rest
+      // })
+    ]
+  );
 }
 
 function CompositeUnitsColumn(props: ICompositeUnitProps) {

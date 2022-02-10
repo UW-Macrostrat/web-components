@@ -99,7 +99,6 @@ function Unit(props: UnitProps) {
   const onClick = useUnitSelector(d);
   const selectedUnit = useSelectedUnit();
   const selected = selectedUnit?.unit_id == d.unit_id;
-  console.log(bounds, widthFraction);
 
   return h("g.unit", { className }, [
     h("rect.unit", {

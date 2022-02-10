@@ -87,6 +87,18 @@ function PageTitle({ setCurrentColumn, currentColumn, children }) {
   return h("span.title", [titleEl, children]);
 }
 
+function ColumnMapPanel(props) {
+  return h(ColumnMap, {
+    margin: 0,
+    color: "dodgerblue",
+    apiRoute: "/defs/columns",
+    filterColumns(col) {
+      return col.properties.t_units > 0;
+    },
+    ...props
+  });
+}
+
 function AppDetailView({ currentColumn, setCurrentColumn }) {
   const selectedUnit = useSelectedUnit();
   const { col_id, ...projectParams } = currentColumn;

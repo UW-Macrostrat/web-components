@@ -81,6 +81,11 @@ const Section = (props: ColumnProps) => {
             unitComponent,
             unitComponentProps: {
               nColumns: 1
+            },
+            nameForDivision: d => {
+              return d.unit_name
+                .replace(/^[\d\.]+-[\d\.]+: /g, "")
+                .toLowerCase();
             }
           }),
           h(
