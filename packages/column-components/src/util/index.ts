@@ -37,7 +37,7 @@ const SVG = forwardRef(function(props, ref) {
     "svg",
     {
       ref,
-      style: { ...style, ...margin },
+      style: { ...margin, ...style },
       ...realRest,
       ...SVGNamespaces
     },
@@ -55,7 +55,7 @@ const ForeignObject = props => createElement("foreignObject", props);
 
 const ColumnSVG = function(props) {
   //# Need to rework to use UI Box code
-  const { children, className, innerRef, ...rest } = props;
+  const { children, className, innerRef, style, ...rest } = props;
   const { pixelHeight } = useContext(ColumnContext);
   const nextProps = expandInnerSize({ innerHeight: pixelHeight, ...rest });
   const {
@@ -72,7 +72,9 @@ const ColumnSVG = function(props) {
       className: classNames(className, "section"),
       height,
       width,
-      innerRef
+      innerRef,
+      ...rest,
+      style
     },
     h(
       "g.backdrop",
