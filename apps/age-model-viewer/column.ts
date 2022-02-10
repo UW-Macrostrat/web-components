@@ -84,7 +84,7 @@ const Section = (props: ColumnProps) => {
             },
             nameForDivision: d => {
               return d.unit_name
-                .replace(/^[\d\.]+-[\d\.]+: /g, "")
+                .replace(/[\d\.]+-[\d\.]+( mbsf)?: /g, "")
                 .toLowerCase();
             }
           }),

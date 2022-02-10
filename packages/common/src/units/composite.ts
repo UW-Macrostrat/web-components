@@ -154,7 +154,8 @@ function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
         transform: `translate(${columnWidth + gutterWidth})`,
         paddingLeft: labelOffset,
         width: width - columnWidth - gutterWidth,
-        nameForDivision
+        nameForDivision,
+        ...rest
       })
       // h(UnitDataColumn, {
       //   transform: `translate(${columnWidth + gutterWidth})`,

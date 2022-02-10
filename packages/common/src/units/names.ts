@@ -16,6 +16,7 @@ interface UnitDataProps extends NotesColumnProps {
   noteComponent: React.ComponentType<any>;
   shouldRenderNote?(note: INote, index: number, array: INote[]): boolean;
   divisions?: IUnit[];
+  minimumHeight?: number;
 }
 interface UnitNamesProps extends Omit<UnitDataProps, "noteComponent"> {
   nameForDivision?(obj: IUnit): string;
@@ -49,14 +50,23 @@ function UnitDataColumn(props: UnitDataProps) {
     left,
     noteComponent,
     shouldRenderNote = () => true,
+    minimumHeight = 0,
     divisions = ctx?.divisions,
     ...rest
   } = props;
 
+  const { scale } = ctx;
+
+  function minimumHeightFilter(d) {
+    scale(d.top_height) - scale(d.height);
+    return true;
+  }
+
   if (divisions == null) return null;
   const notes: INote[] = divisions
     .filter(shouldRenderNote)
-    .map(d => noteForDivision(d, { axisType: ctx.axisType }));
+    .map(d => noteForDivision(d, { axisType: ctx.axisType }))
+    .filter(minimumHeightFilter);
 
   return h(NotesColumn, {
     transform: `translate(${left || 0})`,
