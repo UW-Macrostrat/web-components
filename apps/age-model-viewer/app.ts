@@ -151,7 +151,7 @@ function AppDetailView({ currentColumn, setCurrentColumn }) {
       ]),
       contextPanel,
       detailPanel,
-      headerActions: h(DetailSelector),
+      //headerActions: h(DetailSelector),
       panelState: {
         detail: selectedUnit != null
       },

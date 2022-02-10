@@ -201,7 +201,7 @@ const Column = (props: ColumnProps) => {
           })
         ]);
       }),
-      h(FossilData),
+      //h(FossilData),
       h(
         "div.timescale-container",
         {
@@ -213,7 +213,7 @@ const Column = (props: ColumnProps) => {
             absoluteAgeScale: true,
             length: ageWidth,
             ageRange: ageBounds,
-            levels: [4, 5]
+            levels: [3, 4]
           }),
           h("div.axis-label", "Age (Ma)")
         ]
@@ -226,10 +226,12 @@ function FossilData() {
   const { col_id } = useColumnNav();
   const data = useAPIResult(
     "http://strata.geology.wisc.edu/syenite/offshore_fossils.php",
-    { col_id }
+    { col_id },
+    res => res
   );
 
   console.log(data);
+  return null;
 }
 
 export { Section, AgeAxis };
