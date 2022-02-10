@@ -1,4 +1,4 @@
-import { geoCentroid } from "d3-geo";
+import { geoCentroid, geoStereographic, geoNaturalEarth1 } from "d3-geo";
 import { ResizableMapFrame } from "common/column-map";
 import {
   ColumnKeyboardNavigation,
@@ -6,7 +6,7 @@ import {
   useColumnData,
   CurrentColumn
 } from "common/map/layers";
-import { useMemo } from "react";
+import { useMemo, forwardRef } from "react";
 import { Tabs, Tab } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./age-model.module.styl";
@@ -31,7 +31,7 @@ function useFilteredColumns({ apiRoute, status_code, project_id }) {
   }, [features]);
 }
 
-const ColumnMapView = props => {
+const ColumnMapView = forwardRef((props, ref) => {
   const { currentColumn, setCurrentColumn, children, ...rest } = props;
   const center = geoCentroid?.(currentColumn);
 
@@ -52,36 +52,40 @@ const ColumnMapView = props => {
     ...emptyColumns.filter(d => d.properties.col_id == col_id)
   ];
 
-  return h("div.column-map-container", [
-    h(ResizableMapFrame, { center, className: "column-map", ...rest }, [
-      h(ColumnKeyboardNavigation, {
-        features: keyboardNavColumns,
-        col_id,
-        onChange: setCurrentColumn,
-        status_code,
-        project_id,
-        showLayers: false
-      }),
-      h(ColumnFeatures, {
-        features: emptyColumns,
-        color: "#888",
-        onClick: setCurrentColumn
-      }),
-      h(ColumnFeatures, {
-        features: completedColumns,
-        onClick: setCurrentColumn,
-        color
-      }),
-      h.if(currentColumn != null)(CurrentColumn, {
-        feature: currentColumn
-      })
-    ]),
+  return h("div.column-map-container", { ref }, [
+    h(
+      ResizableMapFrame,
+      {
+        center,
+        className: "column-map",
+        ...rest
+      },
+      [
+        h(ColumnKeyboardNavigation, {
+          features: keyboardNavColumns,
+          col_id,
+          onChange: setCurrentColumn,
+          status_code,
+          project_id,
+          showLayers: false
+        }),
+        h(ColumnFeatures, {
+          features: emptyColumns,
+          color: "#888",
+          onClick: setCurrentColumn
+        }),
+        h(ColumnFeatures, {
+          features: completedColumns,
+          onClick: setCurrentColumn,
+          color
+        }),
+        h.if(currentColumn != null)(CurrentColumn, {
+          feature: currentColumn
+        })
+      ]
+    ),
     children
   ]);
-};
+});
 
-function ColumnPickerPanel(props) {
-  return h(ColumnMapView, { className: "column-map", ...props });
-}
-
-export default ColumnPickerPanel;
+export default ColumnMapView;

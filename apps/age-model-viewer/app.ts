@@ -1,6 +1,7 @@
 import { C, compose, hyperStyled } from "@macrostrat/hyper";
-import { useAPIResult, DarkModeProvider } from "@macrostrat/ui-components";
+import { useAPIResult, useElementSize } from "@macrostrat/ui-components";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
+import { geoNaturalEarth1 } from "d3-geo";
 import {
   MacrostratAPIProvider,
   UnitSelectionProvider,
@@ -19,7 +20,7 @@ import {
   useLayoutDispatch
 } from "@macrostrat/ui-components";
 import { NonIdealState, Spinner, Button } from "@blueprintjs/core";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const h = hyperStyled(styles);
 
@@ -68,13 +69,25 @@ function UnitDetailPanel({ units, selectedUnit }) {
   });
 }
 
-function AppMain() {
-  const defaultArgs = {
-    col_id: 5156,
-    status_code: "in process",
-    project_id: 3
-  };
-  const [currentColumn, setCurrentColumn] = useColumnNav(defaultArgs);
+function PageTitle({ setCurrentColumn, currentColumn, children }) {
+  const shouldLinkTitle =
+    currentColumn?.col_id != null && setCurrentColumn != null;
+  let titleEl = "eODP column viewer";
+  if (shouldLinkTitle) {
+    titleEl = h(
+      "a.title-link",
+      {
+        onClick: () => setCurrentColumn(defaultArgs),
+        minimal: true,
+        small: true
+      },
+      titleEl
+    );
+  }
+  return h("span.title", [titleEl, children]);
+}
+
+function AppDetailView({ currentColumn, setCurrentColumn }) {
   const selectedUnit = useSelectedUnit();
   const { col_id, ...projectParams } = currentColumn;
 
@@ -97,37 +110,22 @@ function AppMain() {
 
   const detailPanel = h(UnitDetailPanel, { units, selectedUnit });
   // 495
-  const contextPanel = h(
-    ColumnMap,
-    {
-      currentColumn: columnFeature,
-      setCurrentColumn,
-      margin: 0,
-      color: "dodgerblue",
-      apiRoute: "/defs/columns",
-      ...projectParams,
-      filterColumns(col) {
-        return col.properties.t_units > 0;
-      }
-    },
-    h("div.controls", [
-      h(
-        Button,
-        {
-          onClick: () => setExpandedContext(!expandedContext),
-          minimal: true,
-          small: true
-        },
-        "Expand map"
-      )
-    ])
-  );
+  const contextPanel = h(ColumnMap, {
+    currentColumn: columnFeature,
+    setCurrentColumn,
+    margin: 0,
+    color: "dodgerblue",
+    apiRoute: "/defs/columns",
+    ...projectParams,
+    filterColumns(col) {
+      return col.properties.t_units > 0;
+    }
+  });
 
   return h(
     ThreeColumnLayout,
     {
-      title: h("span.title", [
-        "eODP age model viewer",
+      title: h(PageTitle, { setCurrentColumn, currentColumn }, [
         h(ColumnTitle, { data: columnFeature?.properties })
       ]),
       contextPanel,
@@ -135,9 +133,60 @@ function AppMain() {
       panelState: {
         detail: selectedUnit != null
       },
+      contextButtonPlacement: "right",
       expandedContext
     },
     h(ColumnView, { unitData })
+  );
+}
+
+const defaultArgs = {
+  status_code: "in process",
+  project_id: 3
+};
+
+function MainMapPanel({ currentColumn, setCurrentColumn, ...projectParams }) {
+  const ref = useRef();
+  // Size to fit the Natural Earth projection
+  const { width, height } = useElementSize(ref) ?? {};
+  const scale = Math.min(width / 5.6, height / 3);
+
+  return h(ColumnMap, {
+    ref,
+    currentColumn: null,
+    setCurrentColumn,
+    margin: 0,
+    color: "dodgerblue",
+    apiRoute: "/defs/columns",
+    ...projectParams,
+    filterColumns(col) {
+      return col.properties.t_units > 0;
+    },
+    projection: geoNaturalEarth1(),
+    allowZoom: false,
+    center: [-120, 0],
+    scale
+  });
+}
+
+function AppMain() {
+  const [currentColumn, setCurrentColumn] = useColumnNav(defaultArgs);
+  const selectedUnit = useSelectedUnit();
+  const { col_id, ...projectParams } = currentColumn;
+
+  if (col_id != null) {
+    return h(AppDetailView, { currentColumn, setCurrentColumn });
+  }
+  return h(
+    ThreeColumnLayout,
+    {
+      title: h(PageTitle, { setCurrentColumn, currentColumn })
+    },
+    h(MainMapPanel, {
+      currentColumn: null,
+      setCurrentColumn,
+      ...projectParams
+    })
   );
 }
 

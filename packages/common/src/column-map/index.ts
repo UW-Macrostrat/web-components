@@ -6,15 +6,27 @@ import { Land, Columns, CurrentColumn } from "common/map/layers";
 import useSize from "@react-hook/size";
 
 function ResizableMapFrame(props) {
-  const { center, children, style, margin, className } = props;
+  const {
+    center,
+    children,
+    style,
+    margin,
+    className,
+    allowZoom,
+    ...rest
+  } = props;
   const ref = useRef(null);
   const [width, height] = useSize(ref);
-  let scale = width;
+  const scale = Math.max(width, height);
 
-  const zoomScaleExtent = [
-    0.5 * Math.min(width, height),
-    2 * Math.max(width, height)
-  ];
+  let zoomScaleExtent = null;
+
+  if (allowZoom) {
+    zoomScaleExtent = [
+      0.1 * Math.min(width, height),
+      2 * Math.max(width, height)
+    ];
+  }
 
   return h("div.map-area", { ref, style, className }, [
     h(
@@ -26,9 +38,10 @@ function ResizableMapFrame(props) {
         scale,
         center,
         allowDrag: true,
-        allowZoom: true,
+        allowZoom,
         keepNorthUp: true,
-        zoomScaleExtent
+        zoomScaleExtent,
+        ...rest
       },
       [h(Land), children]
     )
@@ -42,12 +55,13 @@ const ColumnMapNavigator = props => {
     children,
     style,
     margin,
+    scale,
     ...rest
   } = props;
 
   const columnCenter = geoCentroid?.(currentColumn);
 
-  return h(ResizableMapFrame, { center: columnCenter, style, margin }, [
+  return h(ResizableMapFrame, { center: columnCenter, style, margin, scale }, [
     children,
     h(Columns, {
       onChange: setCurrentColumn,
