@@ -120,6 +120,7 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
     twoPanelBreakpoint = 800,
     preferredMainWidth,
     expandedContext = false,
+    headerActions = null,
     contextButtonPlacement = Position.LEFT,
     ...rest
   } = props;
@@ -204,6 +205,7 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
             h(Navbar.Heading, null, title),
           ]),
           h(NavbarGroup, { align: Alignment.RIGHT }, [
+            headerActions,
             h("div.spacer"),
             h(ButtonGroup, { minimal: true }, [
               h.if(contextButtonPlacement == "right")([contextButton]),

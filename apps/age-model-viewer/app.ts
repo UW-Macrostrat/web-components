@@ -19,7 +19,7 @@ import {
   ThreeColumnLayout,
   useLayoutDispatch
 } from "@macrostrat/ui-components";
-import { NonIdealState, Spinner, Button } from "@blueprintjs/core";
+import { NonIdealState, Spinner, Button, ButtonGroup } from "@blueprintjs/core";
 import { useEffect, useState, useRef } from "react";
 
 const h = hyperStyled(styles);
@@ -102,6 +102,15 @@ function ColumnMapPanel(props) {
   });
 }
 
+enum Mode {
+  AgeModel = "age-model",
+  Fossils = "fossils"
+}
+
+function DetailSelector({}) {
+  return h(ButtonGroup, [h(Button, {}, "Age model"), h(Button, {}, "Fossils")]);
+}
+
 function AppDetailView({ currentColumn, setCurrentColumn }) {
   const selectedUnit = useSelectedUnit();
   const { col_id, ...projectParams } = currentColumn;
@@ -142,6 +151,7 @@ function AppDetailView({ currentColumn, setCurrentColumn }) {
       ]),
       contextPanel,
       detailPanel,
+      headerActions: h(DetailSelector),
       panelState: {
         detail: selectedUnit != null
       },

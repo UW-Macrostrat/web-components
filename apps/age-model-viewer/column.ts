@@ -10,7 +10,8 @@ import { AnnotatedUnitsColumn } from "common/units";
 import { IUnit, transformAxisType } from "common/units/types";
 import { AgeAxis } from "common";
 import { TrackedLabeledUnit } from "common";
-
+import { useAPIResult } from "@macrostrat/ui-components";
+import { useColumnNav } from "common/macrostrat-columns";
 import {
   AgeModelColumn,
   AgeModelDataset,
@@ -200,6 +201,7 @@ const Column = (props: ColumnProps) => {
           })
         ]);
       }),
+      h(FossilData),
       h(
         "div.timescale-container",
         {
@@ -219,6 +221,16 @@ const Column = (props: ColumnProps) => {
     ])
   ]);
 };
+
+function FossilData() {
+  const { col_id } = useColumnNav();
+  const data = useAPIResult(
+    "http://strata.geology.wisc.edu/syenite/offshore_fossils.php",
+    { col_id }
+  );
+
+  console.log(data);
+}
 
 export { Section, AgeAxis };
 export default Column;
