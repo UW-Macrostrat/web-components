@@ -138,7 +138,7 @@ ParameterIntervals.propTypes = {
   fillForInterval: T.func.isRequired
 };
 
-const FaciesColumnInner = function(props){
+const FaciesIntervals = function(props){
   const {getFaciesColor} = useContext(FaciesContext);
   return h(ParameterIntervals, {
     parameter: 'facies',
@@ -149,6 +149,8 @@ const FaciesColumnInner = function(props){
     ...props
   });
 };
+
+const FaciesColumnInner = FaciesIntervals;
 
 class CoveredOverlay extends UUIDComponent {
   static contextType = ColumnLayoutContext;
@@ -360,6 +362,7 @@ export {ParameterIntervals,
         GeneralizedSectionColumn,
         defaultResolveID,
         FaciesColumnInner,
+        FaciesIntervals,
         LithologySymbolDefs,
         LithologyColumnInner,
         CarbonateDivisions,
