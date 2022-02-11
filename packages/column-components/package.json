@@ -18,8 +18,8 @@
   ],
   "scripts": {
     "watch:main": "rollup -c rollup.config.ts -w",
-    "watch:types": "tsc --emitDeclarationOnly -w",
-    "watch": "concurrently npm:watch:main npm:watch:types",
+    "watch:types": "tsc --emitDeclarationOnly -w 2&> /dev/null",
+    "watch": "npm-run-all --aggregate-output --parallel watch:**",
     "dev": "npm run prebuild && npm run watch",
     "start": "npm run dev",
     "prebuild": "rimraf dist"
@@ -35,7 +35,7 @@
     "@babel/preset-typescript": "^7.7.7",
     "@betit/rollup-plugin-rename-extensions": "^0.1.0",
     "@rollup/plugin-node-resolve": "^7.0.0",
-    "concurrently": "^5.0.2",
+    "npm-run-all": "^4.1.5",
     "postcss-modules": "^1.4.1",
     "rimraf": "^3.0.0",
     "rollup": "^1.29.0",
