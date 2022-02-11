@@ -31,7 +31,7 @@ const ColumnTitle = props => {
   ]);
 };
 
-function ColumnView({ unitData }) {
+function ColumnView({ unitData, mode }) {
   if (unitData == null)
     return h(NonIdealState, { title: "Loading" }, h(Spinner));
   if (unitData.length === 0)
@@ -48,7 +48,8 @@ function ColumnView({ unitData }) {
     h.if(unitData != null)(Column, {
       data: unitData,
       width,
-      axisType: ColumnAxisType.HEIGHT
+      axisType: ColumnAxisType.HEIGHT,
+      mode
     })
   ]);
 }
@@ -102,13 +103,30 @@ function ColumnMapPanel(props) {
   });
 }
 
-enum Mode {
+enum DetailMode {
   AgeModel = "age-model",
   Fossils = "fossils"
 }
 
-function DetailSelector({}) {
-  return h(ButtonGroup, [h(Button, {}, "Age model"), h(Button, {}, "Fossils")]);
+function DetailSelector({ mode, setMode }) {
+  return h(ButtonGroup, { minimal: true }, [
+    h(
+      Button,
+      {
+        active: mode === DetailMode.AgeModel,
+        onClick: () => setMode(DetailMode.AgeModel)
+      },
+      "Age model"
+    ),
+    h(
+      Button,
+      {
+        active: mode === DetailMode.Fossils,
+        onClick: () => setMode(DetailMode.Fossils)
+      },
+      "Nanofossils"
+    )
+  ]);
 }
 
 function AppDetailView({ currentColumn, setCurrentColumn }) {
@@ -126,7 +144,7 @@ function AppDetailView({ currentColumn, setCurrentColumn }) {
     currentColumn
   ])?.features[0];
 
-  const [expandedContext, setExpandedContext] = useState(false);
+  const [mode, setMode] = useState<DetailMode>(DetailMode.AgeModel);
 
   const unitData = useAPIResult("/units", unitParams, [currentColumn]);
 
@@ -151,14 +169,13 @@ function AppDetailView({ currentColumn, setCurrentColumn }) {
       ]),
       contextPanel,
       detailPanel,
-      //headerActions: h(DetailSelector),
+      headerActions: h(DetailSelector, { mode, setMode }),
       panelState: {
         detail: selectedUnit != null
       },
-      contextButtonPlacement: "right",
-      expandedContext
+      contextButtonPlacement: "right"
     },
-    h(ColumnView, { unitData })
+    h(ColumnView, { unitData, mode })
   );
 }
 

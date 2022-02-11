@@ -3,7 +3,8 @@ import { group, extent } from "d3-array";
 import {
   ColumnSVG,
   ColumnLayoutContext,
-  ColumnAxisType
+  ColumnAxisType,
+  NotesColumn
 } from "@macrostrat/column-components";
 import { useContext } from "react";
 import { AnnotatedUnitsColumn } from "common/units";
@@ -40,6 +41,43 @@ function getRange(data, axisType: ColumnAxisType = ColumnAxisType.AGE) {
   return [data[data.length - 1]["b_" + key], data[0]["t_" + key]];
 }
 
+function FossilData({ width }) {
+  const { col_id } = useColumnNav();
+  const data =
+    useAPIResult(
+      "http://strata.geology.wisc.edu/syenite/offshore_fossils.php",
+      { col_id },
+      res => res
+    ) ?? [];
+
+  const notes = data.map((d, i) => {
+    return {
+      note: d.name + ": " + d.taxa.map(d => d.taxon).join(", "),
+      height: d.depth,
+      id: i
+    };
+  });
+
+  return h(NotesColumn, { editable: false, notes, width });
+}
+
+function FossilColumn(props) {
+  const { width } = props;
+  return h("div.fossil-column", [
+    h(
+      ColumnSVG,
+      {
+        width: width - 22,
+        padding: 20,
+        paddingLeft: 50,
+        paddingV: 10,
+        paddingBottom: 20
+      },
+      [h(FossilData, { width: width - 200 })]
+    )
+  ]);
+}
+
 const Section = (props: ColumnProps) => {
   // Section with "squishy" time scale
 
@@ -51,7 +89,8 @@ const Section = (props: ColumnProps) => {
     width = 550,
     ageWidth,
     ageData,
-    ageBounds
+    ageBounds,
+    mode
   } = props;
   let { pixelScale } = props;
 
@@ -110,7 +149,8 @@ const Section = (props: ColumnProps) => {
           }
         })
       ),
-      h("div.age-model", [
+      h.if(mode == "fossils")(FossilColumn, { width }),
+      h.if(mode == "age-model")("div.age-model", [
         h(
           ColumnSVG,
           {
@@ -171,7 +211,13 @@ const AgeAxisLabel = ({ axisType: ColumnAxisType, axisLabel }) => {
 };
 
 const Column = (props: ColumnProps) => {
-  const { data, unitComponent = UnitComponent, axisType, width = 550 } = props;
+  const {
+    data,
+    unitComponent = UnitComponent,
+    axisType,
+    width = 550,
+    mode
+  } = props;
 
   let sectionGroups = Array.from(group(data, d => d.section_id));
 
@@ -197,12 +243,13 @@ const Column = (props: ColumnProps) => {
             width: width - 100,
             ageWidth,
             ageData,
-            ageBounds
+            ageBounds,
+            mode
           })
         ]);
       }),
       //h(FossilData),
-      h(
+      h.if(ageBounds != null && mode == "age-model")(
         "div.timescale-container",
         {
           style: { marginLeft: 170 + 22, paddingLeft: 2, width: ageWidth + 4 }
@@ -221,18 +268,6 @@ const Column = (props: ColumnProps) => {
     ])
   ]);
 };
-
-function FossilData() {
-  const { col_id } = useColumnNav();
-  const data = useAPIResult(
-    "http://strata.geology.wisc.edu/syenite/offshore_fossils.php",
-    { col_id },
-    res => res
-  );
-
-  console.log(data);
-  return null;
-}
 
 export { Section, AgeAxis };
 export default Column;
