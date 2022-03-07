@@ -12,7 +12,6 @@ import styles from "./main.module.styl";
 import { useReducer, useEffect } from "react";
 import useElementDimensions from "use-element-dimensions";
 import { useContext, createContext } from "react";
-import { identity } from "fp-ts/lib/function";
 import classNames from "classnames";
 const h = hyper.styled(styles);
 
@@ -55,8 +54,9 @@ function openPanels(panelState: PanelState): Set<SidePanel> {
   return new Set(keys.filter((k) => panelState[k]));
 }
 
-const LayoutDispatchContext =
-  createContext<React.Dispatch<LayoutAction>>(identity);
+const LayoutDispatchContext = createContext<React.Dispatch<LayoutAction>>(
+  (a) => a
+);
 
 function useLayoutDispatch() {
   return useContext(LayoutDispatchContext);
