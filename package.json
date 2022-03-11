@@ -42,6 +42,7 @@
     "react-dropzone": "^11.4.2",
     "react-intersection-observer": "^8.32.1",
     "react-json-tree": "^0.15.0",
+    "storybook": "^6.4.19",
     "stylus-loader": "^4.3.3",
     "underscore": "^1.9.1",
     "use-async-effect": "^2.2.1"
