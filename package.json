@@ -105,5 +105,11 @@
     "underscore": "^1.12.0",
     "use-async-effect": "^2.2.1"
   },
+  "resolutions": {
+    "@macrostrat/ui-components/react": "^16.8.6 || ^17",
+    "@macrostrat/ui-components/react-dom": "^16.8.6 || ^17",
+    "@macrostrat/ui-components/@types/react": "^17",
+    "@macrostrat/ui-components/@types/react-dom": "^17"
+  },
   "prettier": {}
 }
