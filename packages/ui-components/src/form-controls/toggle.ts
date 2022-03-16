@@ -1,10 +1,10 @@
 import React, { ComponentType } from "react";
 import h from "@macrostrat/hyper";
 
-interface SimpleToggleProps extends React.ComponentProps<"a"> {
+export interface SimpleToggleProps extends React.ComponentProps<"a"> {
   isOn: boolean;
   toggle: (a: boolean) => void;
-  component?: ComponentType<{ onClick(): void }> | string;
+  component?: ComponentType<{ onClick: () => void }> | string;
   name?: string;
 }
 
@@ -13,7 +13,8 @@ export function SimpleToggle(props: SimpleToggleProps) {
   return h(
     component,
     {
-      onClick() {
+      //@ts-ignore
+      onClick: () => {
         toggle(!isOn);
       },
       ...rest,

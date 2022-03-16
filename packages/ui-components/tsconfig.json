@@ -12,6 +12,7 @@
     "lib": ["es6", "es7", "esnext", "dom"]
   },
   "include": ["src"],
+  "exclude": ["lib/types", "src/**/*.stories.ts", "src/**/*.stories.tsx"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
     "out": "docs",

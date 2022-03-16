@@ -28,6 +28,7 @@ interface ThreeColumnLayoutProps {
   preferredMainWidth?: number;
   expandedContext?: boolean;
   contextButtonPlacement?: "left" | "right";
+  headerActions: any;
 }
 
 enum SidePanel {
