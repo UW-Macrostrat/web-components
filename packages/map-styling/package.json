@@ -1,0 +1,6 @@
+{
+  "name": "@macrostrat/map-styling",
+  "version": "1.0.0",
+  "description": "Utilities for working with Mapbox map styles",
+  "peerDependencies": {}
+}

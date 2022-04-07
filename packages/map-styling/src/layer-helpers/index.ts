@@ -2,11 +2,9 @@ import {
   createGeologyStyle,
   createBasicStyle,
   createGeologySource,
-  geologyLayerIDs,
   getMapboxStyle,
 } from "./geology-layers";
 import { createUnitFill } from "./pattern-fill";
-import io from "socket.io-client";
 import { get } from "axios";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
