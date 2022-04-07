@@ -9,7 +9,7 @@ import { get } from "axios";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lineSymbols } from "./symbol-layers";
-import { setupPointSymbols, MeasurementStyler } from "./point-features";
+//import { setupPointSymbols, MeasurementStyler } from "./point-features";
 import { loadImage } from "./utils";
 
 export interface LayerDescription {
@@ -38,8 +38,8 @@ const lineSymbolsURL = vizBaseURL + "/geologic-line-symbols/png";
 async function setupLineSymbols(map) {
   return Promise.all(
     lineSymbols.map(async function (symbol) {
-      const image = await loadImage(map, lineSymbolsURL + `/${symbol}.png`);
       if (map.hasImage(symbol)) return;
+      const image = await loadImage(map, lineSymbolsURL + `/${symbol}.png`);
       map.addImage(symbol, image, { sdf: true, pixelRatio: 3 });
     })
   );
@@ -108,7 +108,7 @@ class GeologyStyler {
     await Promise.all([
       setupLineSymbols(map),
       setupStyleImages(map, polygonTypes),
-      setupPointSymbols(map),
+      //setupPointSymbols(map),
     ]);
 
     let geologyStyle = createGeologyStyle(
@@ -130,4 +130,5 @@ class GeologyStyler {
   }
 }
 
-export { GeologyStyler, createGeologySource };
+export { GeologyStyler, createGeologySource, setupLineSymbols };
+export * from "./symbol-layers"

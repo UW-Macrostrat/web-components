@@ -24,55 +24,64 @@ const spacing = {
   ],
 };
 
+function symbolLayerPaintProperties(lyr: string, color = "#000000") {
+  let offset: any = [0, 0];
+  if (lyr == "thrust-fault") {
+    offset = [
+      "interpolate",
+      ["exponential", 2],
+      ["zoom"],
+      0,
+      ["literal", [0, 0]],
+      24,
+      ["literal", [0, 0]]
+    ];
+  }
+
+  return {
+    type: "symbol",
+    layout: {
+      "icon-image": lyr,
+      "icon-pitch-alignment": "map",
+      "icon-allow-overlap": true,
+      "symbol-avoid-edges": false,
+      "symbol-placement": "line",
+      "symbol-spacing": spacing[lyr] ?? 30,
+      "icon-offset": offset,
+      "icon-size": [
+        "interpolate",
+        ["exponential", 2],
+        ["zoom"],
+        0, // stop
+        0.5,
+        15,
+        1.2, // size
+        18,
+        4,
+        24,
+        30
+      ]
+    },
+    paint: {
+      "icon-color": color
+    }
+  };
+}
+
 function createLineSymbolLayers() {
   let symbolLayers = [];
   for (const lyr of lineSymbols) {
     let color: any = ["get", "color"];
-    let offset: any = [0, 0];
     if (lyr == "thrust-fault") {
       color = "#000000";
-      offset = [
-        "interpolate",
-        ["exponential", 2],
-        ["zoom"],
-        0,
-        ["literal", [0, 0]],
-        24,
-        ["literal", [0, 0]],
-      ];
     }
 
     const val = {
       id: `${lyr}-stroke`,
       source: "geology",
       "source-layer": "contact",
-      type: "symbol",
-      layout: {
-        "icon-image": lyr,
-        "icon-pitch-alignment": "map",
-        "icon-allow-overlap": true,
-        "symbol-avoid-edges": false,
-        "symbol-placement": "line",
-        "symbol-spacing": spacing[lyr] ?? 30,
-        "icon-offset": offset,
-        "icon-size": [
-          "interpolate",
-          ["exponential", 2],
-          ["zoom"],
-          0, // stop
-          0.5,
-          15,
-          1.2, // size
-          18,
-          4,
-          24,
-          30,
-        ],
-      },
-      paint: {
-        "icon-color": color,
-      },
       filter: ["==", ["get", "type"], lyr],
+      ...symbolLayerPaintProperties(lyr, color)
     };
 
     symbolLayers.push(val);
@@ -80,4 +89,4 @@ function createLineSymbolLayers() {
   return symbolLayers;
 }
 
-export { lineSymbols, createLineSymbolLayers };
+export { lineSymbols, createLineSymbolLayers, symbolLayerPaintProperties };
