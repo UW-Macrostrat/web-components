@@ -24,6 +24,9 @@ const spacing = {
   ],
 };
 
+// Bad sources
+// id: 225
+
 function symbolLayerPaintProperties(lyr: string, color = "#000000") {
   let offset: any = [0, 0];
   if (lyr == "thrust-fault") {
