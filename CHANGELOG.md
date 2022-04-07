@@ -1,5 +1,9 @@
 # Changelog
 
+## `[1.0.4]` - 12-01-2022
+
+- Add box model helpers (for plotting) to this library.
+
 ## `[1.0.0]` - 23-09-2021
 
 - Finally remove deprecated `APIView` component.
