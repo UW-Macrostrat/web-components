@@ -8,27 +8,18 @@ const lineSymbols = [
   "thrust-fault",
 ];
 
-const spacing = {
-  "anticline-hinge": 200,
-  "syncline-hinge": 200,
-  "thrust-fault": [
-    "interpolate",
-    ["exponential", 2],
-    ["zoom"],
-    0, // stop
-    5, // size
-    15,
-    80,
-    24,
-    200,
-  ],
-};
+
 
 // Bad sources
 // id: 225
 
 function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
-  const { color = "#000000", reverse = false, rotate } = opts;
+  const {
+    color = "#000000",
+    reverse = false,
+    rotate,
+    sizeExpression: sz = s => s
+  } = opts;
   let offset: any = [0, 0];
   if (lyr == "thrust-fault") {
     offset = [
@@ -41,6 +32,22 @@ function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
       ["literal", [0, 0]]
     ];
   }
+
+  const spacing = {
+    "anticline-hinge": 200,
+    "syncline-hinge": 200,
+    "thrust-fault": [
+      "interpolate",
+      ["exponential", 2],
+      ["zoom"],
+      0, // stop
+      5, // size
+      15,
+      150,
+      24,
+      300
+    ]
+  };
 
   return {
     type: "symbol",
@@ -58,13 +65,13 @@ function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
         ["exponential", 2],
         ["zoom"],
         0, // stop
-        0.5,
+        sz(0.5),
         15,
-        1.2, // size
+        sz(1.2), // size
         18,
-        4,
+        sz(4),
         24,
-        30
+        sz(30)
       ]
     },
     paint: {
