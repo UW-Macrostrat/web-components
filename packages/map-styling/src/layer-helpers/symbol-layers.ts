@@ -27,7 +27,8 @@ const spacing = {
 // Bad sources
 // id: 225
 
-function symbolLayerPaintProperties(lyr: string, color = "#000000") {
+function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
+  const { color = "#000000", reverse = false, rotate } = opts;
   let offset: any = [0, 0];
   if (lyr == "thrust-fault") {
     offset = [
@@ -51,6 +52,7 @@ function symbolLayerPaintProperties(lyr: string, color = "#000000") {
       "symbol-placement": "line",
       "symbol-spacing": spacing[lyr] ?? 30,
       "icon-offset": offset,
+      "icon-rotate": rotate ?? (reverse ? 180 : 0),
       "icon-size": [
         "interpolate",
         ["exponential", 2],
