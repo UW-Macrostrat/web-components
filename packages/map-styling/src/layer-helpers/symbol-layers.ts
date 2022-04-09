@@ -41,7 +41,7 @@ function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
       ["exponential", 2],
       ["zoom"],
       0, // stop
-      5, // size
+      3, // size
       15,
       150,
       24,
@@ -65,6 +65,8 @@ function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
         ["exponential", 2],
         ["zoom"],
         0, // stop
+        sz(0.3),
+        3,
         sz(0.5),
         15,
         sz(1.2), // size
