@@ -3,7 +3,7 @@
 import { Component } from "react";
 import h, { classed } from "@macrostrat/hyper";
 import { Button, Collapse } from "@blueprintjs/core";
-import "./main.styl";
+import "./main.sass";
 
 const HeaderButton = classed(Button, "ms-header-button");
 

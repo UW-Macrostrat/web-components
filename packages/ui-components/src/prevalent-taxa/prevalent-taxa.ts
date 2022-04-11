@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { hyperStyled } from "@macrostrat/hyper";
-import styles from "./taxa.module.styl";
+import styles from "./taxa.module.scss";
 import { Spinner } from "@blueprintjs/core";
 
 const h = hyperStyled(styles);

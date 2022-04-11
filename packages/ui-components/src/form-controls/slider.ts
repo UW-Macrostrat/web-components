@@ -9,15 +9,15 @@ import {
   Card,
   Intent,
   FormGroup,
-  ISliderProps
+  ISliderProps,
 } from "@blueprintjs/core";
 import { Spec } from "immutability-helper";
 import classNames from "classnames";
-import "./main.styl";
+import "./main.sass";
 
 const ControlledSlider = (props: ISliderProps) => {
   const [value, setValue] = useState<number>(props.value);
-  const onChange = v => {
+  const onChange = (v) => {
     setValue(v), props.onChange?.(v);
   };
   useEffect(() => setValue(props.value), [props.value]);
@@ -45,9 +45,9 @@ const NullableSlider = (props: ISliderProps) => {
         small: true,
         icon: "cross",
         disabled: props.value == null,
-        intent: props.value == null ? null : Intent.DANGER
-      })
-    ])
+        intent: props.value == null ? null : Intent.DANGER,
+      }),
+    ]),
   ]);
 };
 

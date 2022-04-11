@@ -1,6 +1,6 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
-import * as styles from "./main.module.styl";
+import * as styles from "./main.module.sass";
 import React from "react";
 
 const h = hyperStyled(styles);

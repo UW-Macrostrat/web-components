@@ -8,7 +8,7 @@ import {
   Position,
 } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
-import styles from "./main.module.styl";
+import styles from "./main.module.sass";
 import { useReducer, useEffect } from "react";
 import useElementDimensions from "use-element-dimensions";
 import { useContext, createContext } from "react";

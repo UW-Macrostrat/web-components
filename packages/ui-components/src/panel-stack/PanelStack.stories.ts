@@ -1,7 +1,7 @@
 import React from "react";
 import h from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
-import "./panel.styl";
+import "./panel.scss";
 
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import { PanelStack } from ".";
