@@ -14,7 +14,7 @@ const matcher = window?.matchMedia("(prefers-color-scheme: dark)");
 
 const systemDarkMode = (): DarkModeState => ({
   isEnabled: matcher?.matches ?? false,
-  isAutoset: true
+  isAutoset: true,
 });
 
 type DarkModeProps = {
@@ -31,7 +31,7 @@ const DarkModeProvider = (props: DarkModeProps) => {
   // Guards so that we don't error on an invalid stored value
   const value = {
     isEnabled: storedValue?.isEnabled ?? false,
-    isAutoset: storedValue?.isAutoset ?? false
+    isAutoset: storedValue?.isAutoset ?? false,
   };
 
   // Manage dark mode body classes
@@ -51,7 +51,7 @@ const DarkModeProvider = (props: DarkModeProps) => {
   };
 
   useEffect(() => {
-    matcher?.addEventListener?.("change", e => {
+    matcher?.addEventListener?.("change", (e) => {
       if (value.isAutoset) updateValue(systemDarkMode());
     });
   });
@@ -72,7 +72,7 @@ const DarkModeButton = (props: IButtonProps & { allowReset: boolean }) => {
   const { isEnabled, isAutoset } = useDarkMode();
   const icon = isEnabled ? "flash" : "moon";
   const update = darkModeUpdater();
-  const onClick: React.MouseEventHandler = event => {
+  const onClick: React.MouseEventHandler = (event) => {
     if (allowReset && event.shiftKey) {
       update(null);
       return;
@@ -89,5 +89,5 @@ export {
   useDarkMode,
   inDarkMode,
   darkModeUpdater,
-  DarkModeButton
+  DarkModeButton,
 };

@@ -23,7 +23,6 @@ function buildQueryString(
   if (typeof params === "string") {
     p = params;
   } else {
-    console.log(params, opts);
     p = stringify(params, { arrayFormat: "comma", ...opts });
   }
   return p;

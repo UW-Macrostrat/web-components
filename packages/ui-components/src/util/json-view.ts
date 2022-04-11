@@ -19,7 +19,7 @@ const monokai = {
   base0C: "#a1efe4",
   base0D: "#66d9ef",
   base0E: "#ae81ff",
-  base0F: "#cc6633"
+  base0F: "#cc6633",
 };
 
 const _JSONView = classed(JSONTree, "json-tree");
