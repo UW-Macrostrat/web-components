@@ -32,6 +32,7 @@ export default {
     postcss({
       // postfix with .module.css etc. for css modules (DISABLED)
       modules: true,
+      use: ["sass"],
       autoModules: true,
       namedExports: true,
       // CSS cannot be extracted outside of the bundle directory for rollup v2.
