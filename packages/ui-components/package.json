@@ -26,10 +26,12 @@
     "@babel/polyfill": "^7.4.4",
     "@blueprintjs/core": "^3.52.0",
     "@blueprintjs/datetime": "^3.23.19",
+    "@blueprintjs/popover2": "^1.1.2",
     "@macrostrat/hyper": "^2.0.1",
-    "@types/react": "^17.0.11",
-    "@types/react-dom": "^17.0.8",
+    "@types/react": "^16.8.6 || ^17",
+    "@types/react-dom": "^17",
     "axios": "^0.21.4",
+    "chroma-js": "^2.4.2",
     "classnames": "^2.3.0",
     "core-js": "^3.6.4",
     "d3-array": "^3.0.4",
@@ -38,7 +40,9 @@
     "immutability-helper": "^3.1.1",
     "io-ts": "^2.1.2",
     "query-string": "^7.0.0",
+    "react": "^17.0.2",
     "react-color": "^2.19.3",
+    "react-dom": "^17.0.2",
     "react-dropzone": "^11.4.2",
     "react-intersection-observer": "^8.32.1",
     "react-json-tree": "^0.15.0",
@@ -70,6 +74,10 @@
     "stylus": "^0.54.7",
     "typedoc": "^0.20.36",
     "typescript": "^4.4.4"
+  },
+  "peerDependencies": {
+    "@types/react": "^16.8.6 || ^17",
+    "@types/react-dom": "^17"
   },
   "resolutions": {
     "@macrostrat/ui-components/react": "^16.8.6 || ^17",
