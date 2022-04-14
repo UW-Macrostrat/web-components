@@ -1,7 +1,5 @@
-import { fetchStratNames } from "./fetch";
 import { hyperStyled } from "@macrostrat/hyper";
 import styles from "./hierarchy.module.scss";
-import { useEffect } from "react";
 
 const h = hyperStyled(styles);
 
