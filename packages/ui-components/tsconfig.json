@@ -9,7 +9,8 @@
     "downlevelIteration": true,
     "declarationDir": "lib/types",
     "typeRoots": ["node_modules/@types"],
-    "lib": ["es6", "es7", "esnext", "dom"]
+    "lib": ["es6", "es7", "esnext", "dom"],
+    "skipLibCheck": true
   },
   "include": ["src"],
   "exclude": ["lib/types", "src/**/*.stories.ts", "src/**/*.stories.tsx"],

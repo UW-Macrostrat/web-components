@@ -1,3 +1,4 @@
+// @ts-nocheck
 import h from "@macrostrat/hyper";
 import update, { Spec } from "immutability-helper";
 import React, { useReducer, useEffect, useRef, useCallback, memo } from "react";

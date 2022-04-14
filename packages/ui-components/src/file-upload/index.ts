@@ -1,3 +1,4 @@
+// @ts-nocheck
 import "./main.sass";
 import { Component } from "react";
 import h from "@macrostrat/hyper";
@@ -49,16 +50,16 @@ class FileUploadComponent extends Component<FileUploadProps> {
     });
     const inputProps = getInputProps();
     inputProps.style = {};
-    inputProps.className = "bp3-large";
+    inputProps.className = "bp4-large";
     let msg = "Drop files here";
     if (!isDragActive) {
       msg += ", or click to upload";
     }
 
     return h("div", { className, ...rootProps }, [
-      h("label.bp3-file-input.bp3-large", [
+      h("label.bp4-file-input.bp4-large", [
         h("input", inputProps),
-        h("div.bp3-file-upload-input", [
+        h("div.bp4-file-upload-input", [
           h(FileList, { files, placeholder: msg }),
         ]),
       ]),

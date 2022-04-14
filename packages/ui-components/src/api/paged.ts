@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Component } from "react";
 import h from "@macrostrat/hyper";
 import { Button, ButtonGroup, NonIdealState } from "@blueprintjs/core";
