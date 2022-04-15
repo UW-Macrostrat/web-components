@@ -43,7 +43,7 @@ export function BasePopup(props) {
 
 export function ColorEditor(props) {
   const { color = "#aaaaaa", onChange, ...rest } = props;
-  const [isOpen, setOpen] = useState(true);
+  const [isOpen, setOpen] = useState(false);
 
   return h(
     BasePopup,
@@ -54,13 +54,7 @@ export function ColorEditor(props) {
         disableAlpha: true,
         color,
         onChange(color, evt) {
-          let c = "";
-          try {
-            c = chroma(color.hex).name();
-          } finally {
-            onChange(c);
-            evt.stopPropagation();
-          }
+          return color.hex;
         },
       }),
     },
