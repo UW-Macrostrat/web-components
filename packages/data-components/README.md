@@ -1,11 +1,10 @@
-# React Library Template
+# Data-Components
 
-A boilerplate template for creating react component (hyperscript not JSX) libraries using Typescript. Comes
-preconfigured with Rollup, Jest/React-Testing-Library, and Storybook. Style configuration is currently for SASS, `.scss` but could easily be changed.
+A set of frontend React components custom tailored to Macrostrat data and API endpoints.
+
+Style configuration is currently for SASS, `.scss` but could easily be changed.
 
 Rollup compiles js and types to esm and cjs by default. ESM output is in the `dist/esm/index.js` while the CJS output is in the `dist/cjs/index.js`. Types are located at `dist/index.d.ts`.
-
-To run clone the repository and run:
 
 ```
 npm install
