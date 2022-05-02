@@ -1,7 +1,5 @@
 import { ComponentMeta } from "@storybook/react";
 import { hyperStyled } from "@macrostrat/hyper";
-import mapboxgl from "mapbox-gl";
-import MapboxDraw from "@mapbox/mapbox-gl-draw";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import React, { useEffect, useRef, useState } from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
@@ -10,7 +8,7 @@ import { Point, LngLatMap, LngLatInputs } from "../components";
 const h = hyperStyled(styles);
 
 export default {
-  title: "Geographic",
+  title: "Form-Components/Geographic",
   component: LngLatMap,
   subcomponents: { LngLatInputs },
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes

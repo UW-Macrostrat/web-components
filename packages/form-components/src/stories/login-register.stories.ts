@@ -9,7 +9,7 @@ import { Button } from "@blueprintjs/core";
 const h = hyperStyled(styles);
 
 export default {
-  title: "Register&Login/Forms",
+  title: "Form-Components/Login-and-Register",
   component: LoginForm,
   subcomponents: { Register },
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes

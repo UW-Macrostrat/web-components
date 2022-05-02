@@ -7,7 +7,7 @@ import { PubFinderI, Pub } from "../components";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Publications/Publication-Finder",
+  title: "Form-components/Publication-Finder",
   component: PublicationFinder,
 } as ComponentMeta<typeof PublicationFinder>;
 
