@@ -105,5 +105,6 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "emitDeclarationOnly": true
-  }
+  },
+  "exclude": ["lib/types", "src/**/*.stories.ts", "src/**/*.stories.tsx"]
 }
