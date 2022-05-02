@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { Modal, Anchor } from "@mantine/core";
-import { LoginForm, Register } from "./login-register";
+import { LoginForm, Register } from "../components";
 import { ComponentMeta } from "@storybook/react";
 import { hyperStyled } from "@macrostrat/hyper";
-import styles from "./forms.module.scss";
+import styles from "../components/login-register/forms.module.scss";
 import { Button } from "@blueprintjs/core";
 
 const h = hyperStyled(styles);
 
 export default {
-  title: "Example/Forms",
+  title: "Register&Login/Forms",
   component: LoginForm,
   subcomponents: { Register },
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
