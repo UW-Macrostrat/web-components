@@ -1,5 +1,6 @@
 import { Button as B } from "@blueprintjs/core";
 import { hyperStyled } from "@macrostrat/hyper";
+//@ts-ignore
 import styles from "./btn.module.scss";
 
 const h = hyperStyled(styles);

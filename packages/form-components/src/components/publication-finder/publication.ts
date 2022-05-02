@@ -1,4 +1,5 @@
 import { hyperStyled } from "@macrostrat/hyper";
+//@ts-ignore
 import styles from "./pub.module.scss";
 
 const h = hyperStyled(styles);

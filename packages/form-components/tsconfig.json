@@ -106,5 +106,7 @@
     "allowSyntheticDefaultImports": true,
     "emitDeclarationOnly": true,
     "jsx": "react"
-  }
+  },
+  "exclude": ["src/**/*.stories.ts", "src/**/*.stories.tsx"]
+
 }

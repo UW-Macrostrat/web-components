@@ -1,3 +1,4 @@
+//@ts-nocheck
 import { hyperStyled } from "@macrostrat/hyper";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
