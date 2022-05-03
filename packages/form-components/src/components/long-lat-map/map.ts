@@ -2,16 +2,11 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw from "@mapbox/mapbox-gl-draw";
-import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import React, { useEffect, useRef, useState } from "react";
-import "mapbox-gl/dist/mapbox-gl.css";
 import styles from "./map.module.scss";
 import { FormGroup, NumericInput } from "@blueprintjs/core";
 
 const h = hyperStyled(styles);
-
-mapboxgl.accessToken =
-  "pk.eyJ1IjoidGhlZmFsbGluZ2R1Y2siLCJhIjoiY2tsOHAzeDZ6MWtsaTJ2cXhpMDAxc3k5biJ9.FUMK57K0UP7PSrTUi3DiFQ";
 
 async function initializeMap(
   mapContainerRef: React.Ref<HTMLElement | string>,

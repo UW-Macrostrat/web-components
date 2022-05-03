@@ -1,11 +1,16 @@
 import { ComponentMeta } from "@storybook/react";
 import { hyperStyled } from "@macrostrat/hyper";
-import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import React, { useEffect, useRef, useState } from "react";
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import "mapbox-gl/dist/mapbox-gl.css";
+import mapboxgl from "mapbox-gl";
 import styles from "./stories.module.scss";
 import { Point, LngLatMap, LngLatInputs } from "../components";
 const h = hyperStyled(styles);
+
+mapboxgl.accessToken =
+  "pk.eyJ1IjoidGhlZmFsbGluZ2R1Y2siLCJhIjoiY2tsOHAzeDZ6MWtsaTJ2cXhpMDAxc3k5biJ9.FUMK57K0UP7PSrTUi3DiFQ";
+
 
 export default {
   title: "Form-Components/Geographic",

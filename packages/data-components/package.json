@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "A library of react components tailored for Macrostrat data and endpoints",
   "scripts": {
     "test": "jest",
@@ -50,10 +50,10 @@
     "webpack": "^5.67.0"
   },
   "peerDependencies": {
-    "react": "^17.0.2"
+    "react": "^17.0.2",
+    "@blueprintjs/core": "^4.2.1"
   },
   "dependencies": {
-    "@blueprintjs/core": "^4.2.1",
     "@macrostrat/hyper": "^2.0.1",
     "axios": "^0.27.2"
   },
