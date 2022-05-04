@@ -3,7 +3,6 @@ import { useArgs } from "@storybook/client-api";
 import h from "@macrostrat/hyper";
 
 import { ColorEditor } from "./color-editor";
-import { Button } from "@blueprintjs/core";
 
 export default {
   title: "Controls/ColorPicker",

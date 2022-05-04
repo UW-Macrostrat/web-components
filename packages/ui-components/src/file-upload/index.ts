@@ -1,5 +1,5 @@
 // @ts-nocheck
-import "./main.sass";
+//import "./main.sass";
 import { Component } from "react";
 import h from "@macrostrat/hyper";
 import { Tag } from "@blueprintjs/core";
