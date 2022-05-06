@@ -76,4 +76,5 @@ function ModalPanel(props: ModalPanelProps) {
 
 const ContentPanel = (props) => h("div.content-panel", props);
 
+export * from "./draggable-overlay";
 export { ModalPanel, PanelHeader, ContentPanel };
