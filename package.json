@@ -57,7 +57,7 @@
     "packages/*"
   ],
   "dependencies": {
-    "@blueprintjs/popover2": "^1.1.4",
+    "@blueprintjs/popover2": "^1.2.1",
     "@macrostrat/api-views": "file:./packages/api-views",
     "@macrostrat/column-components": "file:./packages/column-components",
     "@macrostrat/corelle": "^1.1.0",
