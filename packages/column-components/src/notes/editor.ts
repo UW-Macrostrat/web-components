@@ -4,7 +4,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { createContext, useState, useContext } from "react";
+import { createContext, useState, useContext, memo } from "react";
 import { ModelEditorProvider, useModelEditor, ColumnContext } from "../context";
 import { EditableText } from "@blueprintjs/core";
 import classNames from "classnames";
@@ -16,6 +16,7 @@ import { NoteLayoutContext, NoteRect } from "./layout";
 import { NotePositioner, NoteConnector } from "./connector";
 import Draggable from "react-draggable";
 import { hasSpan } from "./utils";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 import Box from "ui-box";
 
 const NoteEditorContext = createContext({ inEditMode: false });
@@ -143,7 +144,7 @@ const EditableNoteConnector = function(props) {
         height: 1,
         style: { overflowY: "visible" }
       },
-      [h(PositionEditorInner, { note })]
+      h(PositionEditorInner, { note })
     )
   ]);
 };
@@ -161,16 +162,16 @@ const PointHandle = function(props) {
       axis: "y",
       ...rest
     },
-    [
-      h(Box, {
+    h("div.handle", {
+      style: {
         height: size,
         width: size,
         marginLeft: -size / 2,
         marginTop: -size / 2,
-        position: "absolute",
-        className
-      })
-    ]
+        position: "absolute"
+      },
+      className
+    })
   );
 };
 
@@ -223,42 +224,47 @@ var PositionEditorInner = function(props) {
     return updateModel(spec);
   };
 
-  return h("div.position-editor", [
-    h.if(noteHasSpan)(
-      Draggable,
-      {
-        position: { x: 0, y: topHeight },
-        onDrag: moveEntireNote,
-        axis: "y"
-      },
-      [
-        h(
-          Box,
-          {
+  return h(
+    ErrorBoundary,
+    null,
+    h("div.position-editor", [
+      h(
+        Draggable,
+        {
+          handle: ".handle",
+          position: { x: 0, y: topHeight },
+          onDrag: moveEntireNote,
+          axis: "y"
+        },
+        h("div", [
+          h("div.handle", {
             className: "handle",
-            height,
-            width: 2 * margin,
-            marginLeft: -margin,
-            marginTop: -margin,
-            position: "absolute"
-          },
-          []
-        )
-      ]
-    ),
-    h(PointHandle, {
-      height: noteHasSpan ? topHeight : topHeight - 15,
-      onDrag: moveTop,
-      className: classNames("top-handle", { "add-span-handle": !noteHasSpan }),
-      bounds: { bottom: bottomHeight }
-    }),
-    h(PointHandle, {
-      height: bottomHeight,
-      onDrag: moveBottom,
-      className: "bottom-handle",
-      bounds: noteHasSpan ? { top: topHeight } : null
-    })
-  ]);
+            style: {
+              height,
+              width: 2 * margin,
+              marginLeft: -margin,
+              marginTop: -margin,
+              position: "absolute"
+            }
+          })
+        ])
+      ),
+      h(PointHandle, {
+        height: noteHasSpan ? topHeight : topHeight - 15,
+        onDrag: moveTop,
+        className: classNames("top-handle", {
+          "add-span-handle": !noteHasSpan
+        }),
+        bounds: { bottom: bottomHeight }
+      }),
+      h(PointHandle, {
+        height: bottomHeight,
+        onDrag: moveBottom,
+        className: "bottom-handle",
+        bounds: noteHasSpan ? { top: topHeight } : null
+      })
+    ])
+  );
 };
 
 const NoteEditorUnderlay = function({ padding }) {
@@ -302,18 +308,20 @@ const NoteEditor = function(props) {
     node = newNode;
   }
 
-  return h("g.note-editor.note", [
-    h(NoteEditorUnderlay),
-    h.if(!allowPositionEditing)(NoteConnector, { note: editedModel }),
-    h.if(allowPositionEditing)(EditableNoteConnector, {
-      note: editedModel,
-      node
-    }),
-    h(NotePositioner, { offsetY: node.currentPos, noteHeight }, [
-      h(noteEditor, {
+  return h(ErrorBoundary, [
+    h("g.note-editor.note", [
+      h(NoteEditorUnderlay),
+      h.if(!allowPositionEditing)(NoteConnector, { note: editedModel }),
+      h.if(allowPositionEditing)(EditableNoteConnector, {
         note: editedModel,
-        key: index
-      })
+        node
+      }),
+      h(NotePositioner, { offsetY: node.currentPos, noteHeight }, [
+        h(noteEditor, {
+          note: editedModel,
+          key: index
+        })
+      ])
     ])
   ]);
 };
