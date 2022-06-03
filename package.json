@@ -85,6 +85,7 @@
     "geologic-patterns": "github:davenquinn/geologic-patterns",
     "immutability-helper": "^3.0.1",
     "labella": "^1.1.4",
+    "node-fetch": "^3.2.5",
     "parcel": "^2.0.0-nightly.776",
     "postcss": "^8.3.11",
     "prop-types": "^15.7.2",
