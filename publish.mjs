@@ -3,7 +3,7 @@ import fetch, { Headers, Request, Response } from "node-fetch";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { exec, execSync } from "child_process";
+import { exec } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -56,7 +56,7 @@ async function gitHasChanges() {
   return (
     (await new Promise(resolve => {
       res.on("close", resolve);
-    })) == 0
+    })) != 0
   );
 }
 
@@ -77,7 +77,7 @@ async function main() {
   if (pkgsToPublish.length === 0) {
     console.log("All packages published");
     return;
-  } else if (gitHasChanges()) {
+  } else if (await gitHasChanges()) {
     console.log(
       "You have uncommitted changes in your git repository. Please commit or stash them before continuing."
     );
