@@ -53,9 +53,11 @@ async function packageExists(pkg) {
 async function gitHasChanges() {
   const gitCmd = "git update-index --refresh && git diff-index --quiet HEAD --";
   const res = await exec(gitCmd);
-  return await new Promise(resolve => {
-    res.on("close", resolve);
-  });
+  return (
+    (await new Promise(resolve => {
+      res.on("close", resolve);
+    })) == 0
+  );
 }
 
 function createModuleString(dir, long = false) {
