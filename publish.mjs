@@ -18,9 +18,27 @@ if (!globalThis.fetch) {
 const packages = ["ui-components"];
 
 function getPackageData(pkgName) {
-  const path_ = path.join(__dirname + "/packages/" + `${pkgName}`);
+  const path_ = getPkgDir(pkgName);
   const pkgData = fs.readFileSync(path_ + "/package.json");
   return JSON.parse(pkgData);
+}
+
+function getPkgDir(pkgName) {
+  return path.join(__dirname + "/packages/" + `${pkgName}`);
+}
+
+function prepareModule(dir) {
+  exec("npm run build", { cwd: dir });
+}
+
+function publishModule(dir) {
+  res = exec("npm publish", { cwd: dir });
+  if (res.code != 0) {
+    console.error(`Failed to publish ${createModuleString(dir)}`);
+  }
+  const tag = createModuleString(dir);
+  const msg = createModuleString(msg);
+  exec(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
 }
 
 async function packageExists(pkg) {
@@ -31,11 +49,17 @@ async function packageExists(pkg) {
   return res.status == 200;
 }
 
+// if I don't run refresh I don't see changes
 function gitHasChanges() {
-  const gitCmd = "git diff-index --quiet HEAD --";
-  exec("git diff", function(err, stdout, stderr) {
-    console.log(stdout == "");
-  });
+  const gitCmd = "git update-index --refresh && git diff-index --quiet HEAD --";
+  const res = exec(gitCmd);
+  return res.code != 0;
+}
+
+function createModuleString(dir, long = false) {
+  const pkg = fs.readFileSync(dir + "/package.json");
+  if (long) return `${pkg["name"]} version ${pkg["version"]}`;
+  return `${pkg["name"]} -v ${pkg["version"]}`;
 }
 
 async function main() {
@@ -49,7 +73,27 @@ async function main() {
   if (pkgsToPublish.length === 0) {
     console.log("All packages published");
     return;
+  } else if (gitHasChanges()) {
+    console.log(
+      "You have uncommitted changes in your git repository. Please commit or stash them before continuing."
+    );
+    return;
   }
+
+  pkgsToPublish.forEach(pkg => {
+    const dir = getPkgDir(pkg);
+    prepareModule(dir);
+  });
+
+  const msg = "Synced lock files for updated dependencies.";
+  exec("git add .");
+  exec(`git commit -m '${msg}'`);
+
+  pkgsToPublish.forEach(pkg => {
+    const dir = getPkgDir(pkg);
+    publishModule(dir);
+  });
 }
-gitHasChanges();
+
 //main();
+console.log(gitHasChanges());
