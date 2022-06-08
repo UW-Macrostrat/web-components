@@ -2,8 +2,9 @@
 import fetch, { Headers, Request, Response } from "node-fetch";
 import fs from "fs";
 import path from "path";
+import chalk from "chalk";
 import { fileURLToPath } from "url";
-import { exec, execSync } from "child_process";
+import { execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,32 +29,45 @@ function getPkgDir(pkgName) {
 }
 
 function prepareModule(dir) {
-  exec("npm run build", { cwd: dir });
+  console.log(chalk.blue.bold(`Building`), chalk.blue(` : ${dir}`));
+  //exec("npm run build", { cwd: dir });
 }
 
 function publishModule(dir) {
-  res = exec("npm publish", { cwd: dir });
-  if (res.code != 0) {
-    console.error(`Failed to publish ${createModuleString(dir)}`);
-  }
-  const tag = createModuleString(dir);
-  const msg = createModuleString(msg);
-  exec(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
+  console.log(chalk.magenta.bold("Publishing"), chalk.magenta(`: ${dir}`));
+  // res = exec("npm publish", { cwd: dir });
+  // if (res.code != 0) {
+  //   console.error(`Failed to publish ${createModuleString(dir)}`);
+  // }
+  // const tag = createModuleString(dir);
+  // const msg = createModuleString(msg);
+  // exec(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
 }
 
 async function packageExists(pkg) {
   const name = pkg["name"];
   const version = pkg["version"];
-  console.log(name, version);
   const res = await fetch(`https://registry.npmjs.org/${name}/${version}`);
+  const exists = res.status == 200;
+  if (!exists) {
+    console.log(
+      chalk.greenBright(`${pkg["name"]}@${pkg["version"]} will be published`)
+    );
+  } else {
+    console.log(
+      chalk.blueBright(
+        `${pkg["name"]}@${pkg["version"]} is already published on npm`
+      )
+    );
+  }
+
   return res.status == 200;
 }
 
-// if I don't run refresh I don't see changes
 function gitHasChanges() {
   const gitCmd = "git diff-index HEAD";
   const res = execSync(gitCmd);
-  return res.toString().length;
+  return res.toString().length != 0;
 }
 
 function createModuleString(dir, long = false) {
@@ -64,18 +78,21 @@ function createModuleString(dir, long = false) {
 
 async function main() {
   const pkgsToPublish = await packages.reduce(async (acc, pkg) => {
-    console.log(acc);
     const exists = await packageExists(getPackageData(pkg));
-    if (!exists) return acc.push(pkg);
+    if (!exists) {
+      return acc.push(pkg);
+    }
     return acc;
   }, []);
 
   if (pkgsToPublish.length === 0) {
-    console.log("All packages published");
+    console.log(chalk.magentaBright("All packages published"));
     return;
-  } else if (await gitHasChanges()) {
+  } else if (gitHasChanges()) {
     console.log(
-      "You have uncommitted changes in your git repository. Please commit or stash them before continuing."
+      chalk.bgRed(
+        "You have uncommitted changes in your git repository. Please commit or stash them before continuing."
+      )
     );
     return;
   }
@@ -86,8 +103,8 @@ async function main() {
   });
 
   const msg = "Synced lock files for updated dependencies.";
-  exec("git add .");
-  exec(`git commit -m '${msg}'`);
+  // execSync("git add .");
+  // execSync(`git commit -m '${msg}'`);
 
   pkgsToPublish.forEach(pkg => {
     const dir = getPkgDir(pkg);
@@ -95,5 +112,4 @@ async function main() {
   });
 }
 
-//main();
-console.log(gitHasChanges());
+main();
