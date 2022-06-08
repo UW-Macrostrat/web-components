@@ -3,7 +3,7 @@ import fetch, { Headers, Request, Response } from "node-fetch";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { exec } from "child_process";
+import { exec, execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,14 +50,16 @@ async function packageExists(pkg) {
 }
 
 // if I don't run refresh I don't see changes
-async function gitHasChanges() {
+function gitHasChanges() {
   const gitCmd = "git update-index --refresh && git diff-index --quiet HEAD --";
-  const res = await exec(gitCmd);
-  return (
-    (await new Promise(resolve => {
-      res.on("close", resolve);
-    })) != 0
-  );
+
+  try {
+    const res = execSync(gitCmd, { stdio: [null, null, null] });
+    console.log("NO ERROR");
+    return res.toString();
+  } catch (err) {
+    return err.stdout.toString();
+  }
 }
 
 function createModuleString(dir, long = false) {
@@ -100,4 +102,4 @@ async function main() {
 }
 
 //main();
-console.log(await gitHasChanges());
+console.log(gitHasChanges());
