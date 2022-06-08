@@ -55,7 +55,6 @@ function gitHasChanges() {
 
   try {
     const res = execSync(gitCmd, { stdio: [null, null, null] });
-    console.log("NO ERROR");
     return res.toString();
   } catch (err) {
     return err.stdout.toString();
@@ -102,4 +101,4 @@ async function main() {
 }
 
 //main();
-console.log(gitHasChanges());
+console.log(gitHasChanges().length);
