@@ -51,14 +51,9 @@ async function packageExists(pkg) {
 
 // if I don't run refresh I don't see changes
 function gitHasChanges() {
-  const gitCmd = "git update-index --refresh && git diff-index --quiet HEAD --";
-
-  try {
-    const res = execSync(gitCmd, { stdio: [null, null, null] });
-    return res.toString();
-  } catch (err) {
-    return err.stdout.toString();
-  }
+  const gitCmd = "git diff-index HEAD";
+  const res = execSync(gitCmd);
+  return res.toString().length;
 }
 
 function createModuleString(dir, long = false) {
@@ -101,4 +96,4 @@ async function main() {
 }
 
 //main();
-console.log(gitHasChanges().length);
+console.log(gitHasChanges());
