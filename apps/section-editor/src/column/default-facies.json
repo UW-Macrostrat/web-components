@@ -8,7 +8,7 @@
  {"id":"coarse-clastics","name":"Coarse sandstone","description":"Coarse-grained sandstone and pebbly conglomerate","color":"#006064","member_of":"clastics","used":true,"interpretation":"Upper shoreface sand, proximal sedimentary fans, or fluvial deposits","order":1},
  {"id":"intraclast-grainstone","name":"Intraclast grainstone","description":"Medium to thick-bedded, likely oolitic, grainstone with mudstone rip-up chips","color":"#7986cb","member_of":"carbonate","used":true,"interpretation":"Reworking of debris on a shallow, sandy platform margin","order":4},
  {"id":"carbonate-mudstone","name":"Wavy-laminated mudstone","description":"Planar to wavy-laminated dolomite mudstone","color":"#bbdefb","member_of":"carbonate","used":true,"interpretation":"Quiescent platform interior, sometimes with current ripples or stromatolites","order":9},
- {"id":"knobbly-stromatolites","name":"Knobbly stromatolites","description":"Branching, columnar stromatolites with mudstone fill","color":"#455a64","member_of":"carbonate","used":true,"interpretation":"Shallow-water reef growth","order":11},
+ {"id":"digitate-stromatolites","name":"Knobbly stromatolites","description":"Branching, columnar stromatolites with mudstone fill","color":"#455a64","member_of":"carbonate","used":true,"interpretation":"Shallow-water reef growth","order":11},
  {"id":"none","name":"Not categorized","description":null,"color":"#969696","member_of":null,"used":true,"interpretation":null,"order":null},
  {"id":"carbonate","name":null,"description":null,"color":null,"member_of":null,"used":false,"interpretation":null,"order":null},
  {"id":"clastics","name":null,"description":null,"color":null,"member_of":null,"used":false,"interpretation":null,"order":null}]
