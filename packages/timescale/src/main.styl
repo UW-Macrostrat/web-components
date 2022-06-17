@@ -14,6 +14,9 @@
     margin 0.5px
     position relative
     overflow hidden
+    display flex
+    align-items center
+    justify-content: center
     &:last-child
       flex 1
 
@@ -38,7 +41,8 @@
   .interval-label
     padding 5px 2px
     font-size 12px
-    display inline-block
+    display block
+    //display inline-block
 
   &.horizontal
     flex-direction column
@@ -76,13 +80,14 @@
     .children
       flex-direction column
     .interval-label
-      writing-mode vertical-lr
-      transform: rotate(180deg)
-      position: sticky
-      max-height: 100vh
-      display: block
-      height 100%
-      text-align center
+      width: 0px
+      .label-text
+        writing-mode vertical-lr
+        transform: rotate(180deg) translateX(8px)
+
+      // display: block
+      // height 100%
+      // text-align center
 
     .cursor
       left: 1px

@@ -1,4 +1,6 @@
-const defaultIntervals = [
+import { Interval } from "./types";
+
+const defaultIntervals: Interval[] = [
   {
     pid: null,
     oid: 0,
@@ -6,7 +8,7 @@ const defaultIntervals = [
     eag: 4000,
     lag: 0,
     col: "#000000",
-    nam: "Geologic Time",
+    nam: "Geologic Time"
   },
   {
     oid: 753,
@@ -17,7 +19,7 @@ const defaultIntervals = [
     col: "#F0047F",
     lag: 2500,
     eag: 4000,
-    rid: [15443],
+    rid: [15443]
   },
   {
     oid: 752,
@@ -28,7 +30,7 @@ const defaultIntervals = [
     col: "#F73563",
     lag: 541,
     eag: 2500,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 751,
@@ -39,7 +41,7 @@ const defaultIntervals = [
     col: "#9AD9DD",
     lag: 0,
     eag: 541,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 760,
@@ -50,7 +52,7 @@ const defaultIntervals = [
     col: "#DA037F",
     lag: 3600,
     eag: 4000,
-    rid: [15443],
+    rid: [15443]
   },
   {
     oid: 759,
@@ -61,7 +63,7 @@ const defaultIntervals = [
     col: "#F444A9",
     lag: 3200,
     eag: 3600,
-    rid: [15443],
+    rid: [15443]
   },
   {
     oid: 758,
@@ -72,7 +74,7 @@ const defaultIntervals = [
     col: "#F768A9",
     lag: 2800,
     eag: 3200,
-    rid: [15443],
+    rid: [15443]
   },
   {
     oid: 757,
@@ -83,7 +85,7 @@ const defaultIntervals = [
     col: "#F99BC1",
     lag: 2500,
     eag: 2800,
-    rid: [15443],
+    rid: [15443]
   },
   {
     oid: 756,
@@ -94,7 +96,7 @@ const defaultIntervals = [
     col: "#F74370",
     lag: 1600,
     eag: 2500,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 755,
@@ -105,7 +107,7 @@ const defaultIntervals = [
     col: "#FDB462",
     lag: 1000,
     eag: 1600,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 754,
@@ -116,7 +118,7 @@ const defaultIntervals = [
     col: "#FEB342",
     lag: 541,
     eag: 1000,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 3,
@@ -128,7 +130,7 @@ const defaultIntervals = [
     col: "#99C08D",
     lag: 252.2,
     eag: 541,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 2,
@@ -140,7 +142,7 @@ const defaultIntervals = [
     col: "#67C5CA",
     lag: 66,
     eag: 252.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1,
@@ -152,7 +154,7 @@ const defaultIntervals = [
     col: "#F2F91D",
     lag: 0,
     eag: 66,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 770,
@@ -163,7 +165,7 @@ const defaultIntervals = [
     col: "#F74F7C",
     lag: 2300,
     eag: 2500,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 769,
@@ -174,7 +176,7 @@ const defaultIntervals = [
     col: "#F75B89",
     lag: 2050,
     eag: 2300,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 768,
@@ -185,7 +187,7 @@ const defaultIntervals = [
     col: "#F76898",
     lag: 1800,
     eag: 2050,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 767,
@@ -196,7 +198,7 @@ const defaultIntervals = [
     col: "#F875A7",
     lag: 1600,
     eag: 1800,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 766,
@@ -207,7 +209,7 @@ const defaultIntervals = [
     col: "#FDC07A",
     lag: 1400,
     eag: 1600,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 765,
@@ -218,7 +220,7 @@ const defaultIntervals = [
     col: "#F3CC8A",
     lag: 1200,
     eag: 1400,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 764,
@@ -229,7 +231,7 @@ const defaultIntervals = [
     col: "#FED99A",
     lag: 1000,
     eag: 1200,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 763,
@@ -240,7 +242,7 @@ const defaultIntervals = [
     col: "#FEBF4E",
     lag: 850,
     eag: 1000,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 762,
@@ -251,7 +253,7 @@ const defaultIntervals = [
     col: "#FECC5C",
     lag: 635,
     eag: 850,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 761,
@@ -262,7 +264,7 @@ const defaultIntervals = [
     col: "#FED96A",
     lag: 541,
     eag: 635,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 22,
@@ -274,7 +276,7 @@ const defaultIntervals = [
     col: "#7FA056",
     lag: 485.4,
     eag: 541,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 21,
@@ -286,7 +288,7 @@ const defaultIntervals = [
     col: "#009270",
     lag: 443.4,
     eag: 485.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 20,
@@ -298,7 +300,7 @@ const defaultIntervals = [
     col: "#B3E1B6",
     lag: 419.2,
     eag: 443.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 19,
@@ -310,7 +312,7 @@ const defaultIntervals = [
     col: "#CB8C37",
     lag: 358.9,
     eag: 419.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 18,
@@ -322,7 +324,7 @@ const defaultIntervals = [
     col: "#67A599",
     lag: 298.9,
     eag: 358.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 17,
@@ -334,7 +336,7 @@ const defaultIntervals = [
     col: "#F04028",
     lag: 252.2,
     eag: 298.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 16,
@@ -346,7 +348,7 @@ const defaultIntervals = [
     col: "#812B92",
     lag: 201.3,
     eag: 252.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 15,
@@ -358,7 +360,7 @@ const defaultIntervals = [
     col: "#34B2C9",
     lag: 145,
     eag: 201.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 14,
@@ -370,7 +372,7 @@ const defaultIntervals = [
     col: "#7FC64E",
     lag: 66,
     eag: 145,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 26,
@@ -382,7 +384,7 @@ const defaultIntervals = [
     col: "#FD9A52",
     lag: 23.03,
     eag: 66,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 25,
@@ -394,7 +396,7 @@ const defaultIntervals = [
     col: "#FFE619",
     lag: 2.588,
     eag: 23.03,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 12,
@@ -405,7 +407,7 @@ const defaultIntervals = [
     col: "#F9F97F",
     lag: 0,
     eag: 2.588,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1111,
@@ -416,7 +418,7 @@ const defaultIntervals = [
     col: "#8CB06C",
     lag: 521,
     eag: 541,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1110,
@@ -427,7 +429,7 @@ const defaultIntervals = [
     col: "#99C078",
     lag: 509,
     eag: 521,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1109,
@@ -438,7 +440,7 @@ const defaultIntervals = [
     col: "#A6CF86",
     lag: 497,
     eag: 509,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 780,
@@ -449,7 +451,7 @@ const defaultIntervals = [
     col: "#B3E095",
     lag: 485.4,
     eag: 497,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 31,
@@ -460,7 +462,7 @@ const defaultIntervals = [
     col: "#1A9D6F",
     lag: 470,
     eag: 485.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 30,
@@ -471,7 +473,7 @@ const defaultIntervals = [
     col: "#4DB47E",
     lag: 458.4,
     eag: 470,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 29,
@@ -482,7 +484,7 @@ const defaultIntervals = [
     col: "#7FCA93",
     lag: 443.4,
     eag: 458.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 62,
@@ -493,7 +495,7 @@ const defaultIntervals = [
     col: "#99D7B3",
     lag: 433.4,
     eag: 443.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 61,
@@ -504,7 +506,7 @@ const defaultIntervals = [
     col: "#B3E1C2",
     lag: 427.4,
     eag: 433.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 60,
@@ -515,7 +517,7 @@ const defaultIntervals = [
     col: "#BFE6CF",
     lag: 423,
     eag: 427.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 59,
@@ -526,7 +528,7 @@ const defaultIntervals = [
     col: "#E6F5E1",
     lag: 419.2,
     eag: 423,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 58,
@@ -537,7 +539,7 @@ const defaultIntervals = [
     col: "#E5AC4D",
     lag: 393.3,
     eag: 419.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 57,
@@ -548,7 +550,7 @@ const defaultIntervals = [
     col: "#F1C868",
     lag: 382.7,
     eag: 393.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 56,
@@ -559,7 +561,7 @@ const defaultIntervals = [
     col: "#F1E19D",
     lag: 358.9,
     eag: 382.7,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 28,
@@ -570,7 +572,7 @@ const defaultIntervals = [
     col: "#678F66",
     lag: 323.2,
     eag: 358.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 27,
@@ -581,7 +583,7 @@ const defaultIntervals = [
     col: "#99C2B5",
     lag: 298.9,
     eag: 323.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 773,
@@ -592,7 +594,7 @@ const defaultIntervals = [
     col: "#EF5845",
     lag: 272.3,
     eag: 298.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 772,
@@ -603,7 +605,7 @@ const defaultIntervals = [
     col: "#FB745C",
     lag: 259.9,
     eag: 272.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 771,
@@ -614,7 +616,7 @@ const defaultIntervals = [
     col: "#FBA794",
     lag: 252.2,
     eag: 259.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 46,
@@ -625,7 +627,7 @@ const defaultIntervals = [
     col: "#983999",
     lag: 247.2,
     eag: 252.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 45,
@@ -636,7 +638,7 @@ const defaultIntervals = [
     col: "#B168B1",
     lag: 237,
     eag: 247.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 44,
@@ -647,7 +649,7 @@ const defaultIntervals = [
     col: "#BD8CC3",
     lag: 201.3,
     eag: 237,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 43,
@@ -658,7 +660,7 @@ const defaultIntervals = [
     col: "#42AED0",
     lag: 174.1,
     eag: 201.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 42,
@@ -669,7 +671,7 @@ const defaultIntervals = [
     col: "#80CFD8",
     lag: 163.5,
     eag: 174.1,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 41,
@@ -680,7 +682,7 @@ const defaultIntervals = [
     col: "#B3E3EE",
     lag: 145,
     eag: 163.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 40,
@@ -691,7 +693,7 @@ const defaultIntervals = [
     col: "#8CCD57",
     lag: 100.5,
     eag: 145,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 39,
@@ -702,7 +704,7 @@ const defaultIntervals = [
     col: "#A6D84A",
     lag: 66,
     eag: 100.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 38,
@@ -713,7 +715,7 @@ const defaultIntervals = [
     col: "#FDA75F",
     lag: 56,
     eag: 66,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 37,
@@ -724,7 +726,7 @@ const defaultIntervals = [
     col: "#FDB46C",
     lag: 33.9,
     eag: 56,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 36,
@@ -735,7 +737,7 @@ const defaultIntervals = [
     col: "#FDC07A",
     lag: 23.03,
     eag: 33.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 35,
@@ -746,7 +748,7 @@ const defaultIntervals = [
     col: "#FFFF00",
     lag: 5.333,
     eag: 23.03,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 34,
@@ -757,7 +759,7 @@ const defaultIntervals = [
     col: "#FFFF99",
     lag: 2.588,
     eag: 5.333,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 33,
@@ -768,7 +770,7 @@ const defaultIntervals = [
     col: "#FFF2AE",
     lag: 0.0117,
     eag: 2.588,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 32,
@@ -779,7 +781,7 @@ const defaultIntervals = [
     col: "#FEF2E0",
     lag: 0,
     eag: 0.0117,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1121,
@@ -790,7 +792,7 @@ const defaultIntervals = [
     col: "#99B575",
     lag: 529,
     eag: 541,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1120,
@@ -801,7 +803,7 @@ const defaultIntervals = [
     col: "#A6BA80",
     lag: 521,
     eag: 529,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1119,
@@ -812,7 +814,7 @@ const defaultIntervals = [
     col: "#A6C583",
     lag: 514,
     eag: 521,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1118,
@@ -823,7 +825,7 @@ const defaultIntervals = [
     col: "#B3CA8E",
     lag: 509,
     eag: 514,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1117,
@@ -834,7 +836,7 @@ const defaultIntervals = [
     col: "#B3D492",
     lag: 504.5,
     eag: 509,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1116,
@@ -845,7 +847,7 @@ const defaultIntervals = [
     col: "#BFD99D",
     lag: 500.5,
     eag: 504.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1087,
@@ -856,7 +858,7 @@ const defaultIntervals = [
     col: "#CCDFAA",
     lag: 497,
     eag: 500.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1114,
@@ -867,7 +869,7 @@ const defaultIntervals = [
     col: "#CCEBAE",
     lag: 494,
     eag: 497,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1113,
@@ -878,7 +880,7 @@ const defaultIntervals = [
     col: "#D9F0BB",
     lag: 489.5,
     eag: 494,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1112,
@@ -889,7 +891,7 @@ const defaultIntervals = [
     col: "#E6F5C9",
     lag: 485.4,
     eag: 489.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 559,
@@ -900,7 +902,7 @@ const defaultIntervals = [
     col: "#33A97E",
     lag: 477.7,
     eag: 485.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1010,
@@ -911,7 +913,7 @@ const defaultIntervals = [
     col: "#41B087",
     lag: 470,
     eag: 477.7,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1079,
@@ -922,7 +924,7 @@ const defaultIntervals = [
     col: "#66C092",
     lag: 467.3,
     eag: 470,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 556,
@@ -933,7 +935,7 @@ const defaultIntervals = [
     col: "#74C69C",
     lag: 458.4,
     eag: 467.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1009,
@@ -944,7 +946,7 @@ const defaultIntervals = [
     col: "#8CD094",
     lag: 453,
     eag: 458.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 1008,
@@ -955,7 +957,7 @@ const defaultIntervals = [
     col: "#99D69F",
     lag: 445.2,
     eag: 453,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 192,
@@ -966,7 +968,7 @@ const defaultIntervals = [
     col: "#A6DBAB",
     lag: 443.4,
     eag: 445.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 191,
@@ -977,7 +979,7 @@ const defaultIntervals = [
     col: "#A6DCB5",
     lag: 440.8,
     eag: 443.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 190,
@@ -988,7 +990,7 @@ const defaultIntervals = [
     col: "#B3E1C2",
     lag: 438.5,
     eag: 440.8,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 189,
@@ -999,7 +1001,7 @@ const defaultIntervals = [
     col: "#BFE6D1",
     lag: 433.4,
     eag: 438.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 188,
@@ -1010,7 +1012,7 @@ const defaultIntervals = [
     col: "#BFE6C3",
     lag: 430.5,
     eag: 433.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 785,
@@ -1021,7 +1023,7 @@ const defaultIntervals = [
     col: "#CCEBD1",
     lag: 427.4,
     eag: 430.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 185,
@@ -1032,7 +1034,7 @@ const defaultIntervals = [
     col: "#CCECDD",
     lag: 425.6,
     eag: 427.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 184,
@@ -1043,7 +1045,7 @@ const defaultIntervals = [
     col: "#D9F0DF",
     lag: 423,
     eag: 425.6,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 3001,
@@ -1054,7 +1056,7 @@ const defaultIntervals = [
     col: "#E6F5E1",
     lag: 419.2,
     eag: 423,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 183,
@@ -1065,7 +1067,7 @@ const defaultIntervals = [
     col: "#E5B75A",
     lag: 410.8,
     eag: 419.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 182,
@@ -1076,7 +1078,7 @@ const defaultIntervals = [
     col: "#E5C468",
     lag: 407.6,
     eag: 410.8,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 181,
@@ -1087,7 +1089,7 @@ const defaultIntervals = [
     col: "#E5D075",
     lag: 393.3,
     eag: 407.6,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 180,
@@ -1098,7 +1100,7 @@ const defaultIntervals = [
     col: "#F1D576",
     lag: 387.7,
     eag: 393.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 179,
@@ -1109,7 +1111,7 @@ const defaultIntervals = [
     col: "#F1E185",
     lag: 382.7,
     eag: 387.7,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 178,
@@ -1120,7 +1122,7 @@ const defaultIntervals = [
     col: "#F2EDAD",
     lag: 372.2,
     eag: 382.7,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 177,
@@ -1131,7 +1133,7 @@ const defaultIntervals = [
     col: "#F2EDC5",
     lag: 358.9,
     eag: 372.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 55,
@@ -1142,7 +1144,7 @@ const defaultIntervals = [
     col: "#8CB06C",
     lag: 346.7,
     eag: 358.9,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 54,
@@ -1153,7 +1155,7 @@ const defaultIntervals = [
     col: "#A6B96C",
     lag: 330.9,
     eag: 346.7,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 53,
@@ -1164,7 +1166,7 @@ const defaultIntervals = [
     col: "#BFC26B",
     lag: 323.2,
     eag: 330.9,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 52,
@@ -1175,7 +1177,7 @@ const defaultIntervals = [
     col: "#99C2B6",
     lag: 315.2,
     eag: 323.2,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 51,
@@ -1186,7 +1188,7 @@ const defaultIntervals = [
     col: "#B3CBB9",
     lag: 307,
     eag: 315.2,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 50,
@@ -1197,7 +1199,7 @@ const defaultIntervals = [
     col: "#BFD0C5",
     lag: 303.7,
     eag: 307,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 49,
@@ -1208,7 +1210,7 @@ const defaultIntervals = [
     col: "#CCD4C7",
     lag: 298.9,
     eag: 303.7,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 151,
@@ -1219,7 +1221,7 @@ const defaultIntervals = [
     col: "#E36350",
     lag: 295.5,
     eag: 298.9,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 150,
@@ -1230,7 +1232,7 @@ const defaultIntervals = [
     col: "#E36F5C",
     lag: 290.1,
     eag: 295.5,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 149,
@@ -1241,7 +1243,7 @@ const defaultIntervals = [
     col: "#E37B68",
     lag: 279.3,
     eag: 290.1,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 148,
@@ -1252,7 +1254,7 @@ const defaultIntervals = [
     col: "#E38776",
     lag: 272.3,
     eag: 279.3,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 717,
@@ -1263,7 +1265,7 @@ const defaultIntervals = [
     col: "#FB8069",
     lag: 268.8,
     eag: 272.3,
-    rid: [9184],
+    rid: [9184]
   },
   {
     oid: 146,
@@ -1274,7 +1276,7 @@ const defaultIntervals = [
     col: "#FB8D76",
     lag: 265.1,
     eag: 268.8,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 145,
@@ -1285,7 +1287,7 @@ const defaultIntervals = [
     col: "#FB9A85",
     lag: 259.9,
     eag: 265.1,
-    rid: [5954],
+    rid: [5954]
   },
   {
     oid: 716,
@@ -1296,7 +1298,7 @@ const defaultIntervals = [
     col: "#FCB4A2",
     lag: 254.2,
     eag: 259.9,
-    rid: [9184],
+    rid: [9184]
   },
   {
     oid: 715,
@@ -1307,7 +1309,7 @@ const defaultIntervals = [
     col: "#FCC0B2",
     lag: 252.2,
     eag: 254.2,
-    rid: [9184],
+    rid: [9184]
   },
   {
     oid: 653,
@@ -1318,7 +1320,7 @@ const defaultIntervals = [
     col: "#A4469F",
     lag: 251.2,
     eag: 252.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 652,
@@ -1329,7 +1331,7 @@ const defaultIntervals = [
     col: "#B051A5",
     lag: 247.2,
     eag: 251.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 139,
@@ -1340,7 +1342,7 @@ const defaultIntervals = [
     col: "#BC75B7",
     lag: 242,
     eag: 247.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 138,
@@ -1351,7 +1353,7 @@ const defaultIntervals = [
     col: "#C983BF",
     lag: 237,
     eag: 242,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 137,
@@ -1362,7 +1364,7 @@ const defaultIntervals = [
     col: "#C99BCB",
     lag: 228,
     eag: 237,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 136,
@@ -1373,7 +1375,7 @@ const defaultIntervals = [
     col: "#D6AAD3",
     lag: 208.5,
     eag: 228,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 135,
@@ -1384,7 +1386,7 @@ const defaultIntervals = [
     col: "#E3B9DB",
     lag: 201.3,
     eag: 208.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 134,
@@ -1395,7 +1397,7 @@ const defaultIntervals = [
     col: "#4EB3D3",
     lag: 199.3,
     eag: 201.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 133,
@@ -1406,7 +1408,7 @@ const defaultIntervals = [
     col: "#67BCD8",
     lag: 190.8,
     eag: 199.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 132,
@@ -1417,7 +1419,7 @@ const defaultIntervals = [
     col: "#80C5DD",
     lag: 182.7,
     eag: 190.8,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 131,
@@ -1428,7 +1430,7 @@ const defaultIntervals = [
     col: "#99CEE3",
     lag: 174.1,
     eag: 182.7,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 130,
@@ -1439,7 +1441,7 @@ const defaultIntervals = [
     col: "#9AD9DD",
     lag: 170.3,
     eag: 174.1,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 129,
@@ -1450,7 +1452,7 @@ const defaultIntervals = [
     col: "#A6DDE0",
     lag: 168.3,
     eag: 170.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 128,
@@ -1461,7 +1463,7 @@ const defaultIntervals = [
     col: "#B3E2E3",
     lag: 166.1,
     eag: 168.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 127,
@@ -1472,7 +1474,7 @@ const defaultIntervals = [
     col: "#BFE7E5",
     lag: 163.5,
     eag: 166.1,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 126,
@@ -1483,7 +1485,7 @@ const defaultIntervals = [
     col: "#BFE7F1",
     lag: 157.3,
     eag: 163.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 125,
@@ -1494,7 +1496,7 @@ const defaultIntervals = [
     col: "#CCECF4",
     lag: 152.1,
     eag: 157.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 124,
@@ -1505,7 +1507,7 @@ const defaultIntervals = [
     col: "#D9F1F7",
     lag: 145,
     eag: 152.1,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 123,
@@ -1516,7 +1518,7 @@ const defaultIntervals = [
     col: "#8CCD60",
     lag: 139.8,
     eag: 145,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 122,
@@ -1527,7 +1529,7 @@ const defaultIntervals = [
     col: "#99D36A",
     lag: 132.9,
     eag: 139.8,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 121,
@@ -1538,7 +1540,7 @@ const defaultIntervals = [
     col: "#A6D975",
     lag: 129.4,
     eag: 132.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 120,
@@ -1549,7 +1551,7 @@ const defaultIntervals = [
     col: "#B3DF7F",
     lag: 125,
     eag: 129.4,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 119,
@@ -1560,7 +1562,7 @@ const defaultIntervals = [
     col: "#BFE48A",
     lag: 113,
     eag: 125,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 118,
@@ -1571,7 +1573,7 @@ const defaultIntervals = [
     col: "#CCEA97",
     lag: 100.5,
     eag: 113,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 117,
@@ -1582,7 +1584,7 @@ const defaultIntervals = [
     col: "#B3DE53",
     lag: 93.9,
     eag: 100.5,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 116,
@@ -1593,7 +1595,7 @@ const defaultIntervals = [
     col: "#BFE35D",
     lag: 89.8,
     eag: 93.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 115,
@@ -1604,7 +1606,7 @@ const defaultIntervals = [
     col: "#CCE968",
     lag: 86.3,
     eag: 89.8,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 114,
@@ -1615,7 +1617,7 @@ const defaultIntervals = [
     col: "#D9EF74",
     lag: 83.6,
     eag: 86.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 113,
@@ -1626,7 +1628,7 @@ const defaultIntervals = [
     col: "#E6F47F",
     lag: 72.1,
     eag: 83.6,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 112,
@@ -1637,7 +1639,7 @@ const defaultIntervals = [
     col: "#F2FA8C",
     lag: 66,
     eag: 72.1,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 111,
@@ -1648,7 +1650,7 @@ const defaultIntervals = [
     col: "#FDB462",
     lag: 61.6,
     eag: 66,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 743,
@@ -1659,7 +1661,7 @@ const defaultIntervals = [
     col: "#FEBF65",
     lag: 59.2,
     eag: 61.6,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 110,
@@ -1670,7 +1672,7 @@ const defaultIntervals = [
     col: "#FDBF6F",
     lag: 56,
     eag: 59.2,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 109,
@@ -1681,7 +1683,7 @@ const defaultIntervals = [
     col: "#FCA773",
     lag: 47.8,
     eag: 56,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 108,
@@ -1692,7 +1694,7 @@ const defaultIntervals = [
     col: "#FCB482",
     lag: 41.3,
     eag: 47.8,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 107,
@@ -1703,7 +1705,7 @@ const defaultIntervals = [
     col: "#FDC091",
     lag: 38,
     eag: 41.3,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 106,
@@ -1714,7 +1716,7 @@ const defaultIntervals = [
     col: "#FDCDA1",
     lag: 33.9,
     eag: 38,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 105,
@@ -1725,7 +1727,7 @@ const defaultIntervals = [
     col: "#FED99A",
     lag: 28.1,
     eag: 33.9,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 104,
@@ -1736,7 +1738,7 @@ const defaultIntervals = [
     col: "#FEE6AA",
     lag: 23.03,
     eag: 28.1,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 103,
@@ -1747,7 +1749,7 @@ const defaultIntervals = [
     col: "#FFFF33",
     lag: 20.44,
     eag: 23.03,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 102,
@@ -1758,7 +1760,7 @@ const defaultIntervals = [
     col: "#FFFF41",
     lag: 15.97,
     eag: 20.44,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 101,
@@ -1769,7 +1771,7 @@ const defaultIntervals = [
     col: "#FFFF4D",
     lag: 13.82,
     eag: 15.97,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 100,
@@ -1780,7 +1782,7 @@ const defaultIntervals = [
     col: "#FFFF59",
     lag: 11.62,
     eag: 13.82,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 99,
@@ -1791,7 +1793,7 @@ const defaultIntervals = [
     col: "#FFFF66",
     lag: 7.246,
     eag: 11.62,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 98,
@@ -1802,7 +1804,7 @@ const defaultIntervals = [
     col: "#FFFF73",
     lag: 5.333,
     eag: 7.246,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 97,
@@ -1813,7 +1815,7 @@ const defaultIntervals = [
     col: "#FFFFB3",
     lag: 3.6,
     eag: 5.333,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 96,
@@ -1824,7 +1826,7 @@ const defaultIntervals = [
     col: "#FFFFBF",
     lag: 2.588,
     eag: 3.6,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 741,
@@ -1835,7 +1837,7 @@ const defaultIntervals = [
     col: "#FFEDB3",
     lag: 1.806,
     eag: 2.588,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 740,
@@ -1846,7 +1848,7 @@ const defaultIntervals = [
     col: "#FFF2BA",
     lag: 0.781,
     eag: 1.806,
-    rid: [47900],
+    rid: [47900]
   },
   {
     oid: 923,
@@ -1857,7 +1859,7 @@ const defaultIntervals = [
     col: "#FFF2C7",
     lag: 0.126,
     eag: 0.781,
-    rid: [15443],
+    rid: [15443]
   },
   {
     oid: 922,
@@ -1868,7 +1870,7 @@ const defaultIntervals = [
     col: "#FFF2D3",
     lag: 0.0117,
     eag: 0.126,
-    rid: [15443],
+    rid: [15443]
   },
   {
     oid: 3002,
@@ -1879,8 +1881,8 @@ const defaultIntervals = [
     col: "#FEF2E0",
     lag: 0,
     eag: 0.0117,
-    rid: [47900],
-  },
+    rid: [47900]
+  }
 ];
 
 export { defaultIntervals };
