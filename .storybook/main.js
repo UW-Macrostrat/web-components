@@ -1,5 +1,8 @@
 const path = require("path");
 
+const packageSrc = name =>
+  path.resolve(__dirname, "..", "packages", name, "src");
+
 module.exports = {
   webpackFinal: async (config, { configType }) => {
     // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
@@ -23,6 +26,15 @@ module.exports = {
       ],
       include: path.resolve(__dirname, "../packages")
     });
+
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      "@macrostrat/column-components": packageSrc("column-components"),
+      "@macrostrat/ui-components": packageSrc("ui-components"),
+      "@macrostrat/data-components": packageSrc("data-components")
+    };
+
+    console.log(config);
 
     // Return the altered config
     return config;
