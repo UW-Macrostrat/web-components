@@ -1,5 +1,3 @@
-const splitLines = (str) => str.split(/\r\n|\r|\n/);
-
 module.exports = function (source) {
   const options = this.getOptions();
 
@@ -24,3 +22,5 @@ module.exports = function (source) {
   return newSrc;
   // Apply some transformations to the source...
 };
+
+const splitLines = (str) => str.split(/\r\n|\r|\n/);
