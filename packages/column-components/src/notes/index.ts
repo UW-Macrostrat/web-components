@@ -16,18 +16,18 @@ import {
   NoteEditor,
   NoteTextEditor,
   NoteEditorContext,
-  NoteEditorProvider
+  NoteEditorProvider,
 } from "./editor";
 import { NewNotePositioner } from "./new";
 
-const NoteComponent = function(props) {
+const NoteComponent = function (props) {
   const { visibility, note, onClick } = props;
   const text = note.note;
   return h(
     "p.col-note-label",
     {
       style: { visibility },
-      onClick
+      onClick,
     },
     text
   );
@@ -35,17 +35,17 @@ const NoteComponent = function(props) {
 
 NoteComponent.propTypes = {
   onClick: T.func,
-  note: NoteShape.isRequired
+  note: NoteShape.isRequired,
 };
 
-const CancelEditUnderlay = function() {
+const CancelEditUnderlay = function () {
   const { setEditingNote } = useContext(NoteEditorContext);
   const { confirmChanges } = useModelEditor();
   return h(NoteUnderlay, {
     onClick() {
       console.log("Clicked to cancel note editing");
       return setEditingNote(null);
-    }
+    },
   });
 };
 
@@ -62,7 +62,7 @@ function EditableNotesColumn(props) {
     noteComponent = NoteComponent,
     noteEditor = NoteTextEditor,
     allowPositionEditing = false,
-    forceOptions
+    forceOptions,
   } = props;
 
   const innerWidth = width - paddingLeft;
@@ -74,7 +74,7 @@ function EditableNotesColumn(props) {
       width: innerWidth,
       paddingLeft,
       noteComponent,
-      forceOptions
+      forceOptions,
     },
     [
       h(
@@ -84,7 +84,7 @@ function EditableNotesColumn(props) {
           noteEditor,
           onCreateNote,
           onUpdateNote,
-          onDeleteNote
+          onDeleteNote,
         },
         [
           h("g.section-log", { transform }, [
@@ -92,13 +92,13 @@ function EditableNotesColumn(props) {
             h(CancelEditUnderlay),
             h(NotesList, {
               editHandler: inEditMode ? onUpdateNote : null,
-              inEditMode
+              inEditMode,
             }),
             h(NewNotePositioner),
-            h(NoteEditor, { allowPositionEditing })
-          ])
+            h(NoteEditor, { allowPositionEditing }),
+          ]),
         ]
-      )
+      ),
     ]
   );
 }
@@ -115,10 +115,10 @@ EditableNotesColumn.propTypes = {
   noteComponent: T.elementType,
   noteEditor: T.elementType,
   allowPositionEditing: T.bool,
-  forceOptions: T.options
+  forceOptions: T.options,
 };
 
-const StaticNotesColumn = function(props) {
+const StaticNotesColumn = function (props) {
   const { width, paddingLeft, transform, notes, noteComponent } = props;
 
   const innerWidth = width - paddingLeft;
@@ -129,32 +129,32 @@ const StaticNotesColumn = function(props) {
       notes,
       width: innerWidth,
       paddingLeft,
-      noteComponent
+      noteComponent,
     },
     [
       h("g.section-log", { transform }, [
         h(NoteDefs),
-        h(NotesList, { inEditMode: false })
-      ])
+        h(NotesList, { inEditMode: false }),
+      ]),
     ]
   );
 };
 
 StaticNotesColumn.defaultProps = {
   paddingLeft: 60,
-  noteComponent: NoteComponent
+  noteComponent: NoteComponent,
 };
 
 StaticNotesColumn.propTypes = {
   notes: T.arrayOf(NoteShape).isRequired,
   width: T.number.isRequired,
   paddingLeft: T.number,
-  noteComponent: T.elementType
+  noteComponent: T.elementType,
 };
 
-const NotesColumn = function(props) {
-  const { editable, ...rest } = props;
+const NotesColumn = function ({ editable = true, ...rest }) {
   const ctx = useContext(ColumnContext);
+  // not sure why we have this here.
   if (ctx?.scaleClamped == null) return null;
 
   const c = editable ? EditableNotesColumn : StaticNotesColumn;
@@ -173,5 +173,5 @@ export {
   NoteTextEditor,
   NoteEditor,
   NoteEditorContext,
-  NotesColumnProps
+  NotesColumnProps,
 };
