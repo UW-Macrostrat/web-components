@@ -11,7 +11,8 @@ module.exports = function (source) {
     `import hyper from "@macrostrat/hyper";`,
     `const styles = content && content.locals ? content.locals : {}`,
     `let h = hyper.styled(styles);`,
-    `Object.assign(h, styles);`, // For backwards compatibility with default style object.
+    // Keep backwards compatibility with the existing default style object.
+    `Object.assign(h, styles);`,
     `export default h;`,
   ];
 
