@@ -118,8 +118,23 @@ EditableNotesColumn.propTypes = {
   forceOptions: T.options,
 };
 
-const StaticNotesColumn = function (props) {
-  const { width, paddingLeft, transform, notes, noteComponent } = props;
+type Note = any;
+
+interface NotesColumnBaseProps {
+  width?: number;
+  paddingLeft?: number;
+  transform?: string;
+  notes?: Note[];
+  noteComponent?: React.ComponentType<any>;
+}
+function StaticNotesColumn(props: NotesColumnBaseProps) {
+  const {
+    width,
+    paddingLeft = 60,
+    transform,
+    notes,
+    noteComponent = NoteComponent,
+  } = props;
 
   const innerWidth = width - paddingLeft;
 
@@ -138,12 +153,7 @@ const StaticNotesColumn = function (props) {
       ]),
     ]
   );
-};
-
-StaticNotesColumn.defaultProps = {
-  paddingLeft: 60,
-  noteComponent: NoteComponent,
-};
+}
 
 StaticNotesColumn.propTypes = {
   notes: T.arrayOf(NoteShape).isRequired,
@@ -152,16 +162,15 @@ StaticNotesColumn.propTypes = {
   noteComponent: T.elementType,
 };
 
-const NotesColumn = function ({ editable = true, ...rest }) {
+function NotesColumn(props) {
+  const { editable = true, ...rest } = props;
   const ctx = useContext(ColumnContext);
   // not sure why we have this here.
   if (ctx?.scaleClamped == null) return null;
 
   const c = editable ? EditableNotesColumn : StaticNotesColumn;
   return h(c, rest);
-};
-
-NotesColumn.defaultProps = { editable: true };
+}
 
 interface NotesColumnProps {
   editable: boolean;
@@ -174,4 +183,5 @@ export {
   NoteEditor,
   NoteEditorContext,
   NotesColumnProps,
+  StaticNotesColumn,
 };

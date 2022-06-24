@@ -1,3 +1,6 @@
+interface ColumnSurface {
+  height: number;
+}
 interface ColumnDivision {
   id: number;
   surface: number;
@@ -6,4 +9,4 @@ interface ColumnDivision {
   top: number;
 }
 
-export { ColumnDivision };
+export { ColumnDivision, ColumnSurface };

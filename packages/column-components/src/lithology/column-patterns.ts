@@ -1,4 +1,10 @@
-import { useContext, createContext, useState, useCallback } from "react";
+import {
+  useContext,
+  createContext,
+  useState,
+  useCallback,
+  useEffect
+} from "react";
 import h, { compose, C } from "@macrostrat/hyper";
 import { ColumnContext } from "../context";
 import { GeologicPattern, GeologicPatternContext } from "./patterns";
@@ -77,12 +83,15 @@ function PatternDefsProvider(props: LithProviderProps) {
 }
 
 function useGeologicPattern(patternID: string, fallback: string = "#aaa") {
-  const { resolvePattern } = useContext(GeologicPatternContext);
+  const ctx1 = useContext(GeologicPatternContext);
   const ctx = useContext(PatternDefsContext);
   const UUID = useUUID();
-  let v = resolvePattern(patternID);
+  useEffect(() => {
+    ctx?.trackPattern(patternID);
+  }, [patternID, ctx]);
+  let v = ctx1?.resolvePattern(patternID);
   if (v == null) return fallback;
-  ctx?.trackPattern(patternID);
+
   return `url(#${UUID}-${patternID})`;
 }
 
