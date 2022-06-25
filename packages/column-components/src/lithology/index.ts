@@ -54,16 +54,10 @@ const isCarbonateSymbol = function (d) {
 
 const defaultResolveID = function (d) {
   // Changed pattern to lithology
-  if (d == null) {
-    return null;
-  }
-  if (!(d.fgdc_pattern != null || d.pattern != null)) {
-    return null;
-  }
-  if (d.fgdc_pattern != null) {
-    return `${d.fgdc_pattern}`;
-  }
-  return `${symbolIndex[d.pattern]}`;
+  if (d == null) return null;
+  const pat = d.fgdc_pattern ?? symbolIndex[d.pattern] ?? d.pattern;
+  if (pat == null) return null;
+  return `${pat}`;
 };
 
 const carbonateResolveID = function (d) {

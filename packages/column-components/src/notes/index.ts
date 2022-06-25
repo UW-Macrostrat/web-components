@@ -4,7 +4,7 @@
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { Component, useContext } from "react";
+import { useContext } from "react";
 import h from "../hyper";
 import T from "prop-types";
 import { NotesList } from "./note";
@@ -115,7 +115,7 @@ EditableNotesColumn.propTypes = {
   noteComponent: T.elementType,
   noteEditor: T.elementType,
   allowPositionEditing: T.bool,
-  forceOptions: T.options,
+  forceOptions: T.object,
 };
 
 type Note = any;
