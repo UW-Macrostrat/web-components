@@ -11,7 +11,7 @@ export * from "./util";
 export * from "./citations";
 export * from "./geodeepdive";
 export * from "./text";
-// export * from "./dark-mode";
+export * from "./dark-mode";
 export * from "./form-controls";
 export * from "./settings";
 export * from "./error-boundary";
