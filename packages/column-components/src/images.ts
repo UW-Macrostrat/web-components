@@ -1,7 +1,7 @@
 import { useContext } from "react";
 import h from "./hyper";
 import { ColumnContext } from "./context";
-import { expandMargin } from "./util/box-model";
+import { expandMargin } from "./util";
 
 interface ColumnImageProps {
   src: string;
@@ -17,7 +17,7 @@ interface ColumnImageProps {
 function ColumnImage(props: ColumnImageProps) {
   const { src, insets = {}, clip = true, ...rest } = props;
   const { pixelHeight } = useContext(ColumnContext);
-  let margins = {};
+  let margins: Margin = {};
   for (let key in insets) {
     margins["margin" + key[0].toUpperCase() + key.slice(1)] = -insets[key];
   }

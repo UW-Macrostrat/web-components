@@ -1,46 +1,34 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { scaleLinear, scaleOrdinal } from "d3-scale";
-import { Component } from "react";
-import { ColumnLayoutContext } from "./context";
-import h from "react-hyperscript";
+import { useColumnLayout } from "./context";
+import h from "@macrostrat/hyper";
 
 const grainSizes = ["ms", "s", "vf", "f", "m", "c", "vc", "p"];
-const createGrainsizeScale = function(range) {
-  const mn = grainSizes.length - 1;
+const createGrainsizeScale = function (range) {
+  /** A basic grainsize scale that will work in many situations */
   const scale = scaleLinear()
-    .domain([0, mn])
+    .domain([0, grainSizes.length - 1])
     .range(range);
   return scaleOrdinal()
     .domain(grainSizes)
     .range(grainSizes.map((d, i) => scale(i)));
 };
 
-class GrainsizeAxis extends Component {
-  static contextType = ColumnLayoutContext;
-  static defaultProps = { height: 20 };
-  render() {
-    const { grainsizeScale: gs, pixelHeight } = this.context;
-    if (gs == null) {
-      throw "GrainsizeFrame must be a child of a GrainsizeScaleProvider";
-    }
-    const sizes = gs.domain();
-    return h(
-      "g.grainsize.axis",
-      sizes.map(d => {
-        return h("g.tick", { transform: `translate(${gs(d)} 0)`, key: d }, [
-          h("text.top", { y: 0 }, d),
-          h("text.bottom", { y: pixelHeight }, d),
-          h("line", { y1: 0, x1: 0, x2: 0, y2: pixelHeight })
-        ]);
-      })
-    );
+function GrainsizeAxis({ height = 20 }) {
+  const { grainsizeScale: gs, pixelHeight } = useColumnLayout();
+  if (gs == null) {
+    throw "GrainsizeAxis must be a child of a GrainsizeScaleProvider";
   }
+  const sizes = gs.domain();
+  return h(
+    "g.grainsize.axis",
+    sizes.map((d) => {
+      return h("g.tick", { transform: `translate(${gs(d)} 0)`, key: d }, [
+        h("text.top", { y: 0 }, d),
+        h("text.bottom", { y: pixelHeight }, d),
+        h("line", { y1: 0, x1: 0, x2: 0, y2: pixelHeight }),
+      ]);
+    })
+  );
 }
 
 export { GrainsizeAxis, grainSizes, createGrainsizeScale };

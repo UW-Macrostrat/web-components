@@ -9,20 +9,20 @@ import { scaleLinear, scaleOrdinal } from "d3-scale";
 import { Component, createContext } from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
-import { ColumnContext } from "./column";
-import { useContext } from "react";
+import { ColumnContext, useColumnDivisions } from "./column";
+import { useContext, useMemo, useCallback } from "react";
 
 //# This isn't really used yet...
 
 const ColumnLayoutContext = createContext({
   scale: null,
   width: 0,
-  divisions: []
+  divisions: [],
 });
 
 class ColumnLayoutProvider extends Component {
   static propTypes = {
-    width: T.number.isRequired
+    width: T.number.isRequired,
   };
   static contextType = ColumnContext;
   render() {
@@ -36,7 +36,7 @@ class CrossAxisLayoutProvider extends Component {
   static propTypes = {
     width: T.number.isRequired,
     domain: T.arrayOf(T.number).isRequired,
-    range: T.arrayOf(T.number)
+    range: T.arrayOf(T.number),
   };
   static contextType = ColumnContext;
   render() {
@@ -44,89 +44,80 @@ class CrossAxisLayoutProvider extends Component {
     if (range == null) {
       range = [0, width];
     }
-    const xScale = scaleLinear()
-      .domain(domain)
-      .range(range);
+    const xScale = scaleLinear().domain(domain).range(range);
     return h(ColumnLayoutProvider, {
       xScale,
       width,
-      children
+      children,
     });
   }
 }
 
-class GrainsizeLayoutProvider extends Component {
+function GrainsizeLayoutProvider({
+  width,
+  grainSizes = ["ms", "s", "vf", "f", "m", "c", "vc", "p"],
+  grainsizeScaleStart = 50,
+  children,
+}) {
   /**
   Right now this provides a ColumnLayoutContext
   but it could be reworked to provide a
   separate "GrainsizeLayoutContext" if that seemed
   appropriate.
   */
-  constructor(...args) {
-    super(...args);
-    this.grainsizeScale = this.grainsizeScale.bind(this);
-    this.grainsizeForDivision = this.grainsizeForDivision.bind(this);
-    this.widthForDivision = this.widthForDivision.bind(this);
-  }
-  static contextType = ColumnContext;
-  static propTypes = {
-    width: T.number.isRequired,
-    grainsizeScaleStart: T.number,
-    grainSizes: T.arrayOf(T.string)
-  };
-  static defaultProps = {
-    grainSizes: ["ms", "s", "vf", "f", "m", "c", "vc", "p"],
-    grainsizeScaleStart: 50
-  };
-  grainsizeScale() {
-    const { grainSizes, width, grainsizeScaleStart } = this.props;
-    const scale = scaleLinear()
-      .domain([0, grainSizes.length - 1])
-      .range([grainsizeScaleStart, width]);
+
+  const grainsizeScaleRange = [grainsizeScaleStart, width];
+  const divisions = useColumnDivisions();
+
+  const scale = scaleLinear()
+    .domain([0, grainSizes.length - 1])
+    .range([grainsizeScaleStart, width]);
+  const grainsizeScale = useMemo(() => {
     return scaleOrdinal()
       .domain(grainSizes)
       .range(grainSizes.map((d, i) => scale(i)));
-  }
+  }, [grainSizes, scale]);
 
-  grainsizeForDivision(division) {
-    const { divisions } = this.context;
-    let ix = divisions.indexOf(division);
-    // Search backwards through divisions
-    while (ix > 0) {
-      const { grainsize } = divisions[ix];
-      if (grainsize != null) {
-        return grainsize;
+  // This function should probably be moved up a level
+  const grainsizeForDivision = useCallback(
+    (division) => {
+      let ix = divisions.indexOf(division);
+      // Search backwards through divisions
+      while (ix > 0) {
+        const { grainsize } = divisions[ix];
+        if (grainsize != null) {
+          return grainsize;
+        }
+        ix -= 1;
       }
-      ix -= 1;
-    }
-  }
+    },
+    [divisions]
+  );
 
-  widthForDivision(division) {
-    if (division == null) {
-      return this.props.width;
-    }
-    const gs = this.grainsizeScale();
-    return gs(this.grainsizeForDivision(division));
-  }
+  const widthForDivision = useCallback(
+    (division) => {
+      if (division == null) {
+        return width;
+      }
+      return grainsizeScale(grainsizeForDivision(division));
+    },
+    [grainsizeForDivision, grainsizeScale, width]
+  );
 
-  render() {
-    const { width, grainSizes, grainsizeScaleStart, children } = this.props;
-    const grainsizeScaleRange = [grainsizeScaleStart, width];
-    // This is slow to run each iteration
-    return h(
-      ColumnLayoutProvider,
-      {
-        width,
-        grainSizes,
-        grainsizeScale: this.grainsizeScale(),
-        grainsizeScaleStart,
-        grainsizeScaleRange,
-        grainsizeForDivision: this.grainsizeForDivision,
-        widthForDivision: this.widthForDivision
-      },
-      children
-    );
-  }
+  // This is slow to run each iteration
+  return h(
+    ColumnLayoutProvider,
+    {
+      width,
+      grainSizes,
+      grainsizeScale,
+      grainsizeScaleStart,
+      grainsizeScaleRange,
+      grainsizeForDivision,
+      widthForDivision,
+    },
+    children
+  );
 }
 
 const useColumnLayout = () => useContext(ColumnLayoutContext);
@@ -136,5 +127,5 @@ export {
   ColumnLayoutProvider,
   CrossAxisLayoutProvider,
   GrainsizeLayoutProvider,
-  useColumnLayout
+  useColumnLayout,
 };
