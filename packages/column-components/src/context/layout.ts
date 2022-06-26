@@ -46,6 +46,15 @@ class CrossAxisLayoutProvider extends Component {
   }
 }
 
+export type GrainsizeLayoutProps = {
+  grainSizes: string[];
+  children?: React.ReactNode;
+  width?: number;
+  grainsizeScaleStart?: number;
+  grainsizeScaleRange?: [number, number];
+  tickPositions?: number[];
+};
+
 function GrainsizeLayoutProvider({
   width,
   grainSizes = ["ms", "s", "vf", "f", "m", "c", "vc", "p"],
@@ -53,7 +62,7 @@ function GrainsizeLayoutProvider({
   grainsizeScaleRange,
   tickPositions,
   children,
-}) {
+}: GrainsizeLayoutProps) {
   /**
   Right now this provides a ColumnLayoutContext
   but it could be reworked to provide a

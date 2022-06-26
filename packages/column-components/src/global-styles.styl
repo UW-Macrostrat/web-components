@@ -38,6 +38,14 @@ div.section-outer
     z-index: 10
 
 .grainsize.axis
+  &.rotated
+    text
+      text-anchor start
+      &.top
+        transform: translate(0,-2px) rotate(-60deg)
+      &.bottom
+        transform: translate(0,10px) rotate(60deg) 
+
   text
     font-family: 'Helvetica Neue'
     text-anchor: middle
@@ -51,6 +59,11 @@ div.section-outer
     stroke: lighten(dodgerblue, 0.5)
     stroke-width: 1px
     stroke-dasharray: 2,2
+
+@media (prefers-color-scheme: dark)
+  .grainsize.axis
+    text
+      fill: white
 
 .note.error
   p
