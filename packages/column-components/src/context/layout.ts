@@ -1,10 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { scaleLinear, scaleOrdinal } from "d3-scale";
 import { Component, createContext } from "react";
 import h from "react-hyperscript";
@@ -57,6 +50,8 @@ function GrainsizeLayoutProvider({
   width,
   grainSizes = ["ms", "s", "vf", "f", "m", "c", "vc", "p"],
   grainsizeScaleStart = 50,
+  grainsizeScaleRange,
+  tickPositions,
   children,
 }) {
   /**
@@ -66,17 +61,24 @@ function GrainsizeLayoutProvider({
   appropriate.
   */
 
-  const grainsizeScaleRange = [grainsizeScaleStart, width];
+  if (grainsizeScaleRange == null) {
+    console.warn(
+      "GrainsizeLayoutProvider: grainsizeScaleStart and width are deprecated in favor of grainsizeScaleRange"
+    );
+  }
+
+  grainsizeScaleRange ??= [grainsizeScaleStart, width];
   const divisions = useColumnDivisions();
 
-  const scale = scaleLinear()
-    .domain([0, grainSizes.length - 1])
-    .range([grainsizeScaleStart, width]);
   const grainsizeScale = useMemo(() => {
-    return scaleOrdinal()
-      .domain(grainSizes)
-      .range(grainSizes.map((d, i) => scale(i)));
-  }, [grainSizes, scale]);
+    const scale = scaleLinear()
+      .domain([0, grainSizes.length - 1])
+      .range(grainsizeScaleRange);
+
+    tickPositions ??= grainSizes.map((d, i) => scale(i));
+
+    return scaleOrdinal().domain(grainSizes).range(tickPositions);
+  }, [grainSizes, grainsizeScaleRange, tickPositions]);
 
   // This function should probably be moved up a level
   const grainsizeForDivision = useCallback(

@@ -8,9 +8,8 @@ const createGrainsizeScale = function (range) {
   const scale = scaleLinear()
     .domain([0, grainSizes.length - 1])
     .range(range);
-  return scaleOrdinal()
-    .domain(grainSizes)
-    .range(grainSizes.map((d, i) => scale(i)));
+  const tickPositions = grainSizes.map((d, i) => scale(i));
+  return scaleOrdinal().domain(grainSizes).range(tickPositions);
 };
 
 function GrainsizeAxis({ height = 20 }) {
