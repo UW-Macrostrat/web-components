@@ -112,9 +112,9 @@ async function main() {
     prepareModule(dir, pkg);
   });
 
-  const msg = "Synced lock files for updated dependencies.";
-  execSync("git add .");
-  execSync(`git commit -m '${msg}'`);
+  // const msg = "Synced lock files for updated dependencies.";
+  // execSync("git add .");
+  // execSync(`git commit -m '${msg}'`);
 
   pkgsToPublish.forEach(pkg => {
     const dir = getPkgDir(pkg);
