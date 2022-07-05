@@ -4,7 +4,7 @@ import fs from "fs";
 import path from "path";
 import chalk from "chalk";
 import { fileURLToPath } from "url";
-import { execSync } from "child_process";
+import { execSync, exec } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -43,7 +43,7 @@ function publishModule(dir, pkg) {
     chalk.magenta.bold("Publishing") +
       chalk.magenta(`: ${pkg["name"]}@${pkg["version"]}`)
   );
-  res = execSync("npm publish", { cwd: dir });
+  res = exec("npm publish", { cwd: dir });
   if (res.code != 0) {
     console.error(`Failed to publish ${createModuleString(dir)}`);
   } else {
