@@ -34,7 +34,7 @@ function prepareModule(dir, pkg) {
     chalk.blue.bold(`Building`) +
       chalk.blueBright(`: ${pkg["name"]}@${pkg["version"]}`)
   );
-  //exec("npm run build", { cwd: dir });
+  exec("npm run build", { cwd: dir });
 }
 
 function publishModule(dir, pkg) {
@@ -43,13 +43,14 @@ function publishModule(dir, pkg) {
     chalk.magenta.bold("Publishing") +
       chalk.magenta(`: ${pkg["name"]}@${pkg["version"]}`)
   );
-  // res = exec("npm publish", { cwd: dir });
-  // if (res.code != 0) {
-  //   console.error(`Failed to publish ${createModuleString(dir)}`);
-  // }
-  // const tag = createModuleString(dir);
-  // const msg = createModuleString(msg);
-  // exec(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
+  res = exec("npm publish", { cwd: dir });
+  if (res.code != 0) {
+    console.error(`Failed to publish ${createModuleString(dir)}`);
+  } else {
+    const tag = createModuleString(dir);
+    const msg = createModuleString(msg);
+    exec(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
+  }
 }
 
 async function packageExists(pkg) {
@@ -69,7 +70,7 @@ async function packageExists(pkg) {
     );
   }
 
-  return res.status == 200;
+  return exists;
 }
 
 function gitHasChanges() {
@@ -112,8 +113,8 @@ async function main() {
   });
 
   const msg = "Synced lock files for updated dependencies.";
-  // execSync("git add .");
-  // execSync(`git commit -m '${msg}'`);
+  execSync("git add .");
+  execSync(`git commit -m '${msg}'`);
 
   pkgsToPublish.forEach(pkg => {
     const dir = getPkgDir(pkg);
