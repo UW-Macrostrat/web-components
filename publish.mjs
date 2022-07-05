@@ -46,8 +46,8 @@ function publishModule(dir, pkg) {
   try {
     execSync("npm publish", { cwd: dir, stdio: "inherit" });
     console.log(chalk.blueBright.bold("Creating version tag"));
-    const tag = createModuleString(dir);
-    const msg = createModuleString(msg);
+    const tag = `v${pkg["version"]}`;
+    const msg = `${pkg["name"]} version ${pkg["version"]}`;
     execSync(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
   } catch (error) {
     console.error(`Failed to publish ${createModuleString(dir)}, ${error}`);
