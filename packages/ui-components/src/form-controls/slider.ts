@@ -1,4 +1,4 @@
-import h from "@macrostrat/hyper";
+import {hyperStyled} from "@macrostrat/hyper";
 import { useState, useEffect } from "react";
 import {
   InputGroup,
@@ -13,7 +13,9 @@ import {
 } from "@blueprintjs/core";
 import { Spec } from "immutability-helper";
 import classNames from "classnames";
-import "./main.sass";
+import styles from "./main.module.sass";
+
+const h = hyperStyled(styles);
 
 const ControlledSlider = (props: ISliderProps) => {
   const [value, setValue] = useState<number>(props.value);

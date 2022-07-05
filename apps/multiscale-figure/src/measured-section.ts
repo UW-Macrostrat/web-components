@@ -151,7 +151,6 @@ const BaseSection = (
     divisions = mergeUnitData(unitData, divisions);
   }
 
-  console.log(divisions);
 
   return h("div.measured-section.column", [
     h(

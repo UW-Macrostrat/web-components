@@ -164,6 +164,9 @@ function PublicationFinder(props: PubFinderI) {
         },
       }),
     ]),
+    h.if(pubs.length == 0 && !searching)("div.pub-edit-card", [
+      "Search for a Paper by title (like/ fuzzy search) or DOI (exact)",
+    ]),
     h.if(searching)("div", { style: { marginTop: "20px" } }, [h(Spinner)]),
     h.if(pubs.length > 0 && !searching)("div.pub-results", [
       pubs.map((pub, i) => {

@@ -14,7 +14,6 @@ export interface IHierarchy {
 }
 
 function Hierarchy(props: IHierarchy): React.ReactElement {
-  console.log(props);
   const {
     subhierarchy = [],
     units = 0,
