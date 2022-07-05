@@ -34,7 +34,7 @@ function prepareModule(dir, pkg) {
     chalk.blue.bold(`Building`) +
       chalk.blueBright(`: ${pkg["name"]}@${pkg["version"]}`)
   );
-  execSync("npm run build", { cwd: dir });
+  execSync("npm run build", { cwd: dir, stdio: "inherit" });
 }
 
 function publishModule(dir, pkg) {
@@ -43,13 +43,14 @@ function publishModule(dir, pkg) {
     chalk.magenta.bold("Publishing") +
       chalk.magenta(`: ${pkg["name"]}@${pkg["version"]}`)
   );
-  res = exec("npm publish", { cwd: dir });
-  if (res.code != 0) {
-    console.error(`Failed to publish ${createModuleString(dir)}`);
-  } else {
+  try {
+    execSync("npm publish", { cwd: dir, stdio: "inherit" });
+    console.log(chalk.blueBright.bold("Creating version tag"));
     const tag = createModuleString(dir);
     const msg = createModuleString(msg);
     execSync(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
+  } catch (error) {
+    console.error(`Failed to publish ${createModuleString(dir)}, ${error}`);
   }
 }
 
