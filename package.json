@@ -14,7 +14,8 @@
     "deploy": "./deploy/deploy-steno.sh",
     "clean": "rm -rf .cache dist",
     "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build-storybook": "build-storybook",
+    "publish-libs": "node publish.mjs"
   },
   "author": "Daven Quinn",
   "license": "ISC",
