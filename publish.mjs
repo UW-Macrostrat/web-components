@@ -4,11 +4,15 @@ import fs from "fs";
 import path from "path";
 import chalk from "chalk";
 import { fileURLToPath } from "url";
-import { execSync, exec } from "child_process";
+import { execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
+// tries to copy this file but in NodeJs
+// https://github.com/UW-Macrostrat/python-libraries/blob/main/publish.py
+
+/* need this for fetching in node */
 if (!globalThis.fetch) {
   globalThis.fetch = fetch;
   globalThis.Headers = Headers;
@@ -18,6 +22,7 @@ if (!globalThis.fetch) {
 
 const packages = ["ui-components"];
 
+/* get package.json filr from correct dir */
 function getPackageData(pkgName) {
   const path_ = getPkgDir(pkgName);
   const pkgData = fs.readFileSync(path_ + "/package.json");
@@ -28,6 +33,7 @@ function getPkgDir(pkgName) {
   return path.join(__dirname + "/packages/" + `${pkgName}`);
 }
 
+/* Runs, npm build in the correct pkg directory*/
 function prepareModule(dir, pkg) {
   pkg = getPackageData(pkg);
   console.log(
@@ -37,6 +43,7 @@ function prepareModule(dir, pkg) {
   execSync("npm run build", { cwd: dir, stdio: "inherit" });
 }
 
+/* tries to run npm publish and if succeeds adds a tag to the repo*/
 function publishModule(dir, pkg) {
   pkg = getPackageData(pkg);
   console.log(
@@ -54,6 +61,7 @@ function publishModule(dir, pkg) {
   }
 }
 
+/* makes query to npm to see if package with version exists */
 async function packageExists(pkg) {
   const name = pkg["name"];
   const version = pkg["version"];
@@ -74,6 +82,7 @@ async function packageExists(pkg) {
   return exists;
 }
 
+/* checks for unstaged changes */
 function gitHasChanges() {
   const gitCmd = "git diff-index HEAD";
   const res = execSync(gitCmd);
@@ -102,20 +111,15 @@ async function main() {
   } else if (gitHasChanges()) {
     console.log(chalk.red.bold("Error: "));
     console.log(
-      chalk.bgRed(
-        "You have uncommitted changes in your git repository. Please commit or stash them before continuing."
-      )
+      chalk.bgRed("You have uncommitted changes in your git repository.")
     );
+    console.log(chalk.bgRed("Please commit or stash them before continuing."));
     return;
   }
   pkgsToPublish.map(pkg => {
     const dir = getPkgDir(pkg);
     prepareModule(dir, pkg);
   });
-
-  // const msg = "Synced lock files for updated dependencies.";
-  // execSync("git add .");
-  // execSync(`git commit -m '${msg}'`);
 
   pkgsToPublish.forEach(pkg => {
     const dir = getPkgDir(pkg);
