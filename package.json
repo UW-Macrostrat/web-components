@@ -1,5 +1,5 @@
 {
-  "name": "@macrostrat/ui-components-monorepo",
+  "name": "@macrostrat/web-components",
   "version": "1.0.0",
   "description": "A repository containing UI components managed by the Macrostrat lab",
   "private": true,
