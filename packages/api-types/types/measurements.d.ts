@@ -1,0 +1,30 @@
+export interface MeasurementLong {
+  measurement_id: number;
+  measuremeta_id: number;
+  measurement: string;
+  measure_units: string;
+  measure_phase: string;
+  method: string;
+  n: number;
+  ref_id: number;
+  sample_name: string;
+  geo_unit: string;
+  samp_lith: string;
+  samp_lith_id: number;
+  samp_desc: string;
+  samp_age: string;
+  lat: number;
+  lng: number;
+  unit_id: number;
+  unit_rel_pos?: null;
+  col_id: number;
+  strat_name_id: number;
+  match_basis: string;
+  ref: string;
+  measure_value?: number[];
+  measure_error?: number[];
+  measure_position?: number[];
+  measure_n?: number[];
+  sample_no?: string[];
+  error_units: string;
+}

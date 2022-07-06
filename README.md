@@ -1,52 +1,62 @@
-# Macrostrat UI Components
+# Macrostrat section renderer
 
-A library of common UI components implemented with React, for use in basic
-applications at the University of Wisconsin [Macrostrat lab](https://macrostrat.org).
-You can find the documentation for these components [here](https://dev.macrostrat.org/docs/ui-components).
+This repository contains the codebase for
+section-renderer applications using the Macrostrat API.
 
-## Installing
+We anticipate developing a variety of applications over the same input modules
+to showcase different overlays on the Macrostrat system. We are experimenting
+with a "monorepo" organization for this codebase, in which related applications
+can live in their own subdirectories and share common components. Right now, the
+only app is in the `basic-renderer` directory.
+A live version of this app
+is available [here](https://davenquinn.com/viz/macrostrat-column-renderer/).
 
-```
-> npm install --save @macrostrat/ui-components
-```
+The `packages` subdirectory contains development
+versions of several constituent modules, which are linked together at runtime
+in a [npm workspace](https://docs.npmjs.com/cli/v7/using-npm/workspaces).
+The `packages/common` module contains code that has not been formally split
+into a standalone module, but is used by multiple apps. Important
+functionality will eventually be standardized and independently versioned.
 
-## Requiring bundled code
+So far, the standalone packages included in this codebase are:
 
-These UI components are written in [Typescript](https://typescriptlang.org/),
-and styles are generally written in [Stylus](http://stylus-lang.com/).
-Everything is bundled to ES6 Javascript for use in other applications
-using [Rollup](https://rollupjs.org/guide/en/), [Babel](https://babeljs.io/), and a fleet of plugins.
+- [`@macrostrat/ui-components`](https://github.com/UW-Macrostrat/ui-components)
+- [`@macrorstat/map-components`](https://github.com/UW-Macrostrat/map-components)
+- [`@macrorstat/column-components`](https://github.com/UW-Macrostrat/column-components)
 
-Because CSS is stripped during packaging, it must be imported separately. Several
-CSS files from the BlueprintJS project are also required for this library to function.
-These can be imported directly into HTML (an exercise left to the developer) or
-included in Javascript for further processing by a bundler:
+## Development
 
-```js
-import "@blueprintjs/core/lib/css/blueprint.css";
-import "@blueprintjs/icons/lib/css/blueprint-icons.css";
-import "@macrostrat/ui-components/lib/esm/index.css";
-```
+_In order to install the 'workspaced' NPM modules, you will need to be using
+`npm` version 7 or newer, or a recent version of `yarn`._
 
-We also provide [`init.js`](init.js), a small helper that imports these styles
-and sets up common Babel and BlueprintJS configuration.
+Several of the dependencies in the `packages` directory are organized as
+[git submodules](https://git-scm.com/docs/git-submodule). To get the code for
+these, run `git submodule update --init`.
 
-## Extensions
+Then install packages using `npm install` and run the development server using
+`npm run dev`. Internally, this kicks off bundling watchers for module dependencies
+and the core application. The application is bundled using [Parcel](https://parceljs.org)
+and can be found on https://localhost:1234 by default.
 
-Some extensions require additional libraries that may or may not be installed. For
-instance, buttons in `@macrostrat/ui-components/lib/esm/
+## Related demos
 
-## Todo
+Several demo applications in development at Macrostrat are based on the same modules
+used here, but organized in their own codebases. Here are a few:
 
-- [ ] Come to a decision regarding whether BlueprintJS libraries should be
-      `dependencies` or `peerDependencies`.
-- [x] Use less aggressive transpilation for ES6 modules, if appropriate.
-- [x] Bundle ES6 modules as separate files to improve code-splitting
-      and allow direct importing of individual components when
-      aggressive bundle-size optimization is needed.
+- [Stratigraphic column editor](https://davenquinn.com/viz/stratigraphic-column-editor/)
+- [Corelle PBDB demo](https://davenquinn.com/viz/corelle-demo-pbdb/)
 
-## Credits
+## Changelog
 
-This library is primarily maintained by [Daven Quinn](https://davenquinn.com),
-who mostly wants to look at rocks but has to solve Javascript preprocessor issues
-instead.
+### December 2020
+
+Initial shifts towards a monorepo organizational pattern
+
+### June 2020
+
+- Shift to external `@macrostrat/map-components` module
+- Create a new animated map
+
+### January 2020
+
+Initial version

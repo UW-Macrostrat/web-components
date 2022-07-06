@@ -1,0 +1,26 @@
+.publication {
+  margin: 5px 0px;
+}
+.doi-info {
+  display: inline-block;
+  font-weight: 600;
+  color: #445e72;
+  .label {
+    font-size: 0.8em;
+    text-transform: uppercase;
+  }
+}
+
+.pub-edit-card {
+  display: flex;
+  background-color: #ebf1f5;
+  border-radius: 5px;
+  margin: 10px;
+  padding: 10px 15px;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+.pub-results {
+  height: 400px;
+  overflow-y: scroll;
+}
