@@ -53,11 +53,11 @@ function publishModule(dir, pkg) {
   try {
     execSync("npm publish", { cwd: dir, stdio: "inherit" });
     console.log(chalk.blueBright.bold("Creating version tag"));
-    const tag = `v${pkg["version"]}`;
-    const msg = `${pkg["name"]} version ${pkg["version"]}`;
+    const tag = createModuleString(pkg);
+    const msg = createModuleString(pkg, true);
     execSync(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
   } catch (error) {
-    console.error(`Failed to publish ${createModuleString(dir)}, ${error}`);
+    console.error(`Failed to publish ${createModuleString(pkg)}, ${error}`);
   }
 }
 
@@ -89,10 +89,9 @@ function gitHasChanges() {
   return res.toString().length != 0;
 }
 
-function createModuleString(dir, long = false) {
-  const pkg = fs.readFileSync(dir + "/package.json");
+function createModuleString(pkg, long = false) {
   if (long) return `${pkg["name"]} version ${pkg["version"]}`;
-  return `${pkg["name"]} -v ${pkg["version"]}`;
+  return `${pkg["name"]}v${pkg["version"]}`;
 }
 
 async function main() {
