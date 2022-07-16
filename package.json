@@ -29,6 +29,7 @@
     "react-dom": "./node_modules/react-dom"
   },
   "devDependencies": {
+    "@babel/core": "^7.18.6",
     "@parcel/resolver-glob": "^2.0.0-nightly.2338",
     "@parcel/transformer-postcss": "^2.0.0-nightly.778",
     "@storybook/addon-actions": "^6.5.5",
