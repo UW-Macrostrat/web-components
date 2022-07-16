@@ -25,3 +25,7 @@ lib
 docs
 dist
 storybook-static
+
+.yarn/cache
+.yarn/install-state.gz
+.yarn/unplugged
