@@ -17,6 +17,7 @@ interface TimescaleProps {
   length?: number;
   ageRange?: [number, number];
   absoluteAgeScale?: boolean;
+  showAgeAxis?: boolean;
   rootInterval?: number;
   /** Configuration for the axis */
   axisProps?: AgeAxisProps;
@@ -62,12 +63,13 @@ function Timescale(props: TimescaleProps) {
     ageRange,
     length: l,
     absoluteAgeScale = false,
+    showAgeAxis = true,
     levels,
     rootInterval,
     axisProps,
     cursorPosition,
     cursorComponent,
-    onClick,
+    onClick
   } = props;
 
   const [parentMap, timescale] = nestTimescale(rootInterval, intervals);
@@ -89,12 +91,12 @@ function Timescale(props: TimescaleProps) {
       ageRange: ageRange2,
       length,
       orientation,
-      levels,
+      levels
     },
     h(TimescaleContainer, { className, onClick }, [
       h(TimescaleBoxes, { interval: timescale }),
-      h(AgeAxis, axisProps),
-      h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
+      h.if(showAgeAxis)(AgeAxis, axisProps),
+      h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition })
     ])
   );
 }
@@ -105,12 +107,12 @@ Timescale.defaultProps = {
   cursorComponent: Cursor,
   rootInterval: 0,
   axisProps: {},
-  onClick: () => {},
+  onClick: () => {}
 };
 
 export {
   Timescale,
   TimescaleOrientation,
   TimescaleProps,
-  defaultIntervals as intervals,
+  defaultIntervals as intervals
 };

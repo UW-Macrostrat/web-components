@@ -37,6 +37,7 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {
+    "@macrostrat/column-components": "^0.8.2",
     "@macrostrat/hyper": "^1.2.11",
     "@types/classnames": "^2.2.10",
     "@types/d3-array": "^2.0.0",

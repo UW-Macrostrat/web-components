@@ -1,13 +1,15 @@
 import { ScaleLinear } from "d3-scale";
 
-interface Interval {
-  nam: string;
-  oid: number;
+export interface Interval {
   pid: number | null;
+  oid: number;
   lvl: number;
-  col: string;
-  lag: number;
   eag: number;
+  lag: number;
+  col: string;
+  nam: string;
+  typ?: string;
+  rid?: number[];
 }
 
 interface NestedInterval extends Interval {
@@ -18,7 +20,7 @@ type IntervalMap = Map<number, Interval[]>;
 
 enum TimescaleOrientation {
   VERTICAL = "vertical",
-  HORIZONTAL = "horizontal",
+  HORIZONTAL = "horizontal"
 }
 
 interface TimescaleProviderProps {
@@ -35,10 +37,4 @@ interface TimescaleCTX extends TimescaleProviderProps {
   scale: ScaleLinear<number, number> | null;
 }
 
-export {
-  TimescaleCTX,
-  Interval,
-  NestedInterval,
-  IntervalMap,
-  TimescaleOrientation,
-};
+export { TimescaleCTX, NestedInterval, IntervalMap, TimescaleOrientation };
