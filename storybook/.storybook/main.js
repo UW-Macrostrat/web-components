@@ -1,7 +1,7 @@
 const path = require("path");
 
 const packageSrc = name =>
-  path.resolve(__dirname, "..", "packages", name, "src");
+  path.resolve(__dirname, "..", "..", "packages", name, "src");
 
 module.exports = {
   webpackFinal: async (config, { configType }) => {
@@ -24,7 +24,7 @@ module.exports = {
           options: { stylusOptions: {} }
         }
       ],
-      include: path.resolve(__dirname, "../packages")
+      include: path.resolve(__dirname, "../../packages")
     });
 
     config.resolve.alias = {
@@ -40,8 +40,8 @@ module.exports = {
     return config;
   },
   stories: [
-    "../packages/**/*.stories.mdx",
-    "../packages/**/*.stories.@(js|jsx|ts|tsx)"
+    "../../packages/**/*.stories.mdx",
+    "../../packages/**/*.stories.@(js|jsx|ts|tsx)"
   ],
   addons: [
     "@storybook/addon-links",

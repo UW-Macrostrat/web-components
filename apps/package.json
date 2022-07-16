@@ -1,5 +1,5 @@
 {
-  "name": "@macrostrat/demo-apps",
+  "name": "@macrostrat/web-components-demos",
   "version": "1.0.0",
   "description": "A repository containing UI components managed by the Macrostrat lab",
   "private": true,
