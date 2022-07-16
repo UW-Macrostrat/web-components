@@ -38,9 +38,9 @@ const DarkModeProvider = (props: DarkModeProps) => {
   useEffect(() => {
     if (!addBodyClasses) return;
     if (value.isEnabled) {
-      document.body.classList.add("bp3-dark");
+      document.body.classList.add("bp4-dark");
     } else {
-      document.body.classList.remove("bp3-dark");
+      document.body.classList.remove("bp4-dark");
     }
   }, [storedValue]);
 

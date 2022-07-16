@@ -1,6 +1,6 @@
 import { Toaster } from "@blueprintjs/core";
 
 // We might want to refactor this
-const AppToaster = Toaster.create();
+const AppToaster = typeof window == "object" ? Toaster.create() : {};
 
 export { AppToaster };

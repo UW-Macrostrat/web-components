@@ -111,21 +111,21 @@ class IntervalEditor extends Component {
             "Next"
           )
         ]),
-        h("label.bp3-label", [
+        h("label.bp4-label", [
           "Lithology",
           h(LithologyPicker, {
             interval,
             onChange: lithology => this.update({ lithology })
           })
         ]),
-        h("label.bp3-label", [
+        h("label.bp4-label", [
           "Lithology symbol",
           h(LithologySymbolPicker, {
             interval,
             onChange: d => this.update({ fillPattern: d })
           })
         ]),
-        h("label.bp3-label", [
+        h("label.bp4-label", [
           "Grainsize",
           h(PickerControl, {
             vertical: false,
@@ -140,14 +140,14 @@ class IntervalEditor extends Component {
             }
           })
         ]),
-        h("label.bp3-label", [
+        h("label.bp4-label", [
           "Surface expression",
           h(BoundaryStyleControl, {
             interval,
             onUpdate: d => this.update({ definite_boundary: d })
           })
         ]),
-        h("label.bp3-label", [
+        h("label.bp4-label", [
           "Facies",
           h(FaciesPicker, {
             onClick: this.updateFacies,
@@ -155,7 +155,7 @@ class IntervalEditor extends Component {
             onChange: facies => this.update({ facies })
           })
         ]),
-        h("label.bp3-label", [
+        h("label.bp4-label", [
           "Surface type (parasequence)",
           h(PickerControl, {
             vertical: false,
@@ -167,7 +167,7 @@ class IntervalEditor extends Component {
             }
           })
         ]),
-        h("label.bp3-label", [
+        h("label.bp4-label", [
           "Surface order",
           h(SurfaceOrderSlider, {
             interval,

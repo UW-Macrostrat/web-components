@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Component, cloneElement, isValidElement } from "react";
 import h from "@macrostrat/hyper";
 import { Spinner } from "@blueprintjs/core";
