@@ -1,6 +1,5 @@
 import { C, compose, hyperStyled } from "@macrostrat/hyper";
 import { useAPIResult, useElementSize } from "@macrostrat/ui-components";
-import { GeologicPatternProvider } from "@macrostrat/column-components";
 import { geoNaturalEarth1 } from "d3-geo";
 import {
   MacrostratAPIProvider,
@@ -9,18 +8,18 @@ import {
 } from "common";
 import ColumnMap from "./column-picker";
 import Column from "./column";
-import patterns from "url:../../geologic-patterns/*.png";
 import { ColumnNavProvider, useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import styles from "./age-model.module.styl";
+import * as styles from "./age-model.module.styl";
 import {
   ThreeColumnLayout,
   useLayoutDispatch
 } from "@macrostrat/ui-components";
 import { NonIdealState, Spinner, Button, ButtonGroup } from "@blueprintjs/core";
 import { useEffect, useState, useRef } from "react";
+import PatternProvider from "../pattern-provider";
 
 const h = hyperStyled(styles);
 
@@ -229,19 +228,13 @@ function AppMain() {
   );
 }
 
-const resolvePattern = id => patterns[id];
-
-function App() {
-  return h(
-    compose(
-      //DarkModeProvider,
-      C(GeologicPatternProvider, { resolvePattern }),
-      UnitSelectionProvider,
-      C(ColumnNavProvider, { ...defaultArgs }),
-      C(MacrostratAPIProvider, { useDev: false }),
-      AppMain
-    )
-  );
-}
+const App = compose(
+  //DarkModeProvider,
+  PatternProvider,
+  UnitSelectionProvider,
+  C(ColumnNavProvider, { ...defaultArgs }),
+  C(MacrostratAPIProvider, { useDev: false }),
+  AppMain
+);
 
 export default App;

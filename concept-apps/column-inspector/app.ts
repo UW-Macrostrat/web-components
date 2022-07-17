@@ -1,6 +1,5 @@
-import h, { C, compose } from "@macrostrat/hyper";
+import h, { compose } from "@macrostrat/hyper";
 import { useAPIResult, DarkModeProvider } from "@macrostrat/ui-components";
-import { GeologicPatternProvider } from "@macrostrat/column-components";
 import {
   MacrostratAPIProvider,
   UnitSelectionProvider,
@@ -8,7 +7,7 @@ import {
 } from "common";
 import { ColumnMapNavigator } from "common/column-map";
 import Column from "./column";
-import patterns from "url:../../deps/geologic-patterns/assets/png/*.png";
+import GeologicPatternProvider from "../pattern-provider";
 import { useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
@@ -55,18 +54,12 @@ function ColumnManager() {
   ]);
 }
 
-const resolvePattern = id => patterns[id];
-
-function App() {
-  return h(
-    compose(
-      DarkModeProvider,
-      C(GeologicPatternProvider, { resolvePattern }),
-      UnitSelectionProvider,
-      MacrostratAPIProvider,
-      ColumnManager
-    )
-  );
-}
+const App = compose(
+  DarkModeProvider,
+  GeologicPatternProvider,
+  UnitSelectionProvider,
+  MacrostratAPIProvider,
+  ColumnManager
+);
 
 export default App;

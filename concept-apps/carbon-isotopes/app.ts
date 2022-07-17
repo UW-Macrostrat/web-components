@@ -1,10 +1,9 @@
 import h, { C, compose } from "@macrostrat/hyper";
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
-import { GeologicPatternProvider } from "@macrostrat/column-components";
 import Column from "./column";
 import { ColumnMapNavigator, MeasurementsLayer } from "common/column-map";
 import { MeasurementDataProvider } from "./data-provider";
-import patterns from "url:../../geologic-patterns/*.png";
+import PatternProvider from "../pattern-provider";
 import { useColumnNav } from "common/macrostrat-columns";
 
 const ColumnTitle = props => {
@@ -54,10 +53,8 @@ const ColumnManager = () => {
   ]);
 };
 
-const resolvePattern = id => patterns[id];
-
 const App = compose(
-  C(GeologicPatternProvider, { resolvePattern }),
+  PatternProvider,
   C(APIProvider, {
     baseURL: "https://dev.macrostrat.org/api/v2",
     unwrapResponse: res => res.success.data
