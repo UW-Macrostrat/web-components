@@ -8,7 +8,7 @@ import {
   MacrostratMeasurementsLayer
 } from "./point-overlay";
 import { Globe } from "@macrostrat/map-components";
-import styles from "./main.styl";
+import styles from "./main.module.styl";
 import chroma from "chroma-js";
 
 const h = hyperStyled(styles);
