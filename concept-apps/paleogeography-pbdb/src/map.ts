@@ -4,7 +4,7 @@ import { PlateFeatureLayer } from "@macrostrat/corelle";
 import { hyperStyled } from "@macrostrat/hyper";
 import { PBDBCollectionLayer } from "./point-overlay";
 import { Globe } from "@macrostrat/map-components";
-import styles from "./main.styl";
+import styles from "./main.module.styl";
 
 const h = hyperStyled(styles);
 
