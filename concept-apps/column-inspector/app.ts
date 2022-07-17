@@ -8,7 +8,7 @@ import {
 } from "common";
 import { ColumnMapNavigator } from "common/column-map";
 import Column from "./column";
-import patterns from "url:../../geologic-patterns/*.png";
+import patterns from "url:../../deps/geologic-patterns/assets/png/*.png";
 import { useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "./process-data";
