@@ -65,7 +65,7 @@ const MapViewFrame = props => {
 
 const MapView = props => {
   const { currentColumn, setCurrentColumn, children, ...rest } = props;
-  const center = geoCentroid?.(currentColumn);
+  const center = geoCentroid(currentColumn);
 
   return h(MapViewFrame, { center, ...rest }, [
     h(Columns, { onClick: setCurrentColumn, ...rest }),

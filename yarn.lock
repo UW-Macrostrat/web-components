@@ -3471,14 +3471,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/api-views@*, @macrostrat/api-views@workspace:packages/api-views":
-  version: 0.0.0-use.local
-  resolution: "@macrostrat/api-views@workspace:packages/api-views"
-  dependencies:
-    typescript: ^4.2.3
-  languageName: unknown
-  linkType: soft
-
 "@macrostrat/api-views@file:./packages/api-views::locator=%40macrostrat%2Fweb-components%40workspace%3A.":
   version: 1.0.0
   resolution: "@macrostrat/api-views@file:./packages/api-views#./packages/api-views::hash=af08ea&locator=%40macrostrat%2Fweb-components%40workspace%3A."
@@ -3486,7 +3478,15 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@macrostrat/column-components@*, @macrostrat/column-components@^0.8.0, @macrostrat/column-components@^0.8.2, @macrostrat/column-components@workspace:packages/column-components":
+"@macrostrat/api-views@workspace:packages/api-views":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/api-views@workspace:packages/api-views"
+  dependencies:
+    typescript: ^4.2.3
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/column-components@^0.8.0, @macrostrat/column-components@^0.8.2, @macrostrat/column-components@workspace:packages/column-components":
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-components@workspace:packages/column-components"
   dependencies:
@@ -3733,7 +3733,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@macrostrat/map-components@*, @macrostrat/map-components@^0.2.1, @macrostrat/map-components@workspace:packages/map-components":
+"@macrostrat/map-components@^0.2.1, @macrostrat/map-components@workspace:packages/map-components":
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-components@workspace:packages/map-components"
   dependencies:
@@ -3854,25 +3854,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@macrostrat/timescale@npm:*":
-  version: 1.0.3
-  resolution: "@macrostrat/timescale@npm:1.0.3"
-  dependencies:
-    "@macrostrat/hyper": ^1.2.11
-    "@types/classnames": ^2.2.10
-    "@types/d3-array": ^2.0.0
-    "@vx/axis": 0.0.198
-    "@vx/scale": 0.0.198
-    classnames: ^2.2.6
-    d3-array: ^2.5.1
-    d3-format: ^2.0.0
-  peerDependencies:
-    react: ^16.13.1
-    react-dom: ^16.13.1
-  checksum: 5795bbf7fa05e7de0ff98537c50e8b862f977b206a82094d45e1fa3a845bcb8ccb02080dba7d1c125436e95f2809020e9f39e6dfe4b073e53ee53bf9be9177da
-  languageName: node
-  linkType: hard
-
 "@macrostrat/timescale@workspace:packages/timescale":
   version: 0.0.0-use.local
   resolution: "@macrostrat/timescale@workspace:packages/timescale"
@@ -3910,66 +3891,6 @@ __metadata:
   peerDependencies:
     react: ^16.13.1
     react-dom: ^16.13.1
-  languageName: unknown
-  linkType: soft
-
-"@macrostrat/ui-components@*, @macrostrat/ui-components@workspace:packages/ui-components":
-  version: 0.0.0-use.local
-  resolution: "@macrostrat/ui-components@workspace:packages/ui-components"
-  dependencies:
-    "@babel/core": ^7.16.12
-    "@babel/plugin-proposal-class-properties": ^7.8.3
-    "@babel/plugin-proposal-nullish-coalescing-operator": ^7.8.3
-    "@babel/plugin-proposal-optional-chaining": ^7.9.0
-    "@babel/plugin-transform-typescript": ^7.11.0
-    "@babel/polyfill": ^7.4.4
-    "@babel/preset-env": ^7.16.11
-    "@babel/preset-react": ^7.16.7
-    "@babel/preset-typescript": ^7.16.7
-    "@blueprintjs/core": ^4.3.0
-    "@blueprintjs/datetime": ^4.1.2
-    "@blueprintjs/popover2": ^1.2.1
-    "@macrostrat/hyper": ^2.0.1
-    "@mantine/core": ^4.1.3
-    "@mantine/hooks": ^4.1.3
-    "@rollup/plugin-babel": ^5.3.0
-    "@rollup/plugin-node-resolve": ^13.1.3
-    axios: ^0.21.4
-    chroma-js: ^2.4.2
-    classnames: ^2.3.0
-    core-js: ^3.6.4
-    d3-array: ^3.0.4
-    date-fns: ^2.15.0
-    fp-ts: ^2.5.3
-    husky: ^4.2.5
-    immutability-helper: ^3.1.1
-    io-ts: ^2.1.2
-    npm-run-all: ^4.1.5
-    postcss-modules: ^3.2.0
-    prettier: ^2.4.1
-    pretty-quick: ^2.0.1
-    query-string: ^7.0.0
-    react: ^16.8.6 || ^17
-    react-color: ^2.19.3
-    react-dom: ^16.8.6 || ^17
-    react-dropzone: ^11.4.2
-    react-intersection-observer: ^8.32.1
-    react-json-tree: ^0.15.0
-    rollup: ^2.66.1
-    rollup-plugin-postcss: ^3.1.8
-    rollup-plugin-terser: ^7.0.2
-    sass: ^1.50.0
-    sass-loader: ^12.6.0
-    stylus: ^0.54.7
-    typedoc: ^0.20.36
-    typescript: ^4.4.4
-    underscore: ^1.9.1
-    use-async-effect: ^2.2.1
-    use-element-dimensions: ^2.1.3
-  peerDependencies:
-    "@types/react-dom": ^17
-    react: ^16.8.6 || ^17
-    react-dom: ^16.8.6 || ^17
   languageName: unknown
   linkType: soft
 
@@ -4084,6 +4005,66 @@ __metadata:
   checksum: 11f1294d7513f2baae384613cdd3e48fa914bde5a00272eb47025b9463a77f0c0e511882f7aa07a2d5817a3684b5bb6d04ca4b899d6dfbb64d93978b83d62975
   languageName: node
   linkType: hard
+
+"@macrostrat/ui-components@workspace:packages/ui-components":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/ui-components@workspace:packages/ui-components"
+  dependencies:
+    "@babel/core": ^7.16.12
+    "@babel/plugin-proposal-class-properties": ^7.8.3
+    "@babel/plugin-proposal-nullish-coalescing-operator": ^7.8.3
+    "@babel/plugin-proposal-optional-chaining": ^7.9.0
+    "@babel/plugin-transform-typescript": ^7.11.0
+    "@babel/polyfill": ^7.4.4
+    "@babel/preset-env": ^7.16.11
+    "@babel/preset-react": ^7.16.7
+    "@babel/preset-typescript": ^7.16.7
+    "@blueprintjs/core": ^4.3.0
+    "@blueprintjs/datetime": ^4.1.2
+    "@blueprintjs/popover2": ^1.2.1
+    "@macrostrat/hyper": ^2.0.1
+    "@mantine/core": ^4.1.3
+    "@mantine/hooks": ^4.1.3
+    "@rollup/plugin-babel": ^5.3.0
+    "@rollup/plugin-node-resolve": ^13.1.3
+    axios: ^0.21.4
+    chroma-js: ^2.4.2
+    classnames: ^2.3.0
+    core-js: ^3.6.4
+    d3-array: ^3.0.4
+    date-fns: ^2.15.0
+    fp-ts: ^2.5.3
+    husky: ^4.2.5
+    immutability-helper: ^3.1.1
+    io-ts: ^2.1.2
+    npm-run-all: ^4.1.5
+    postcss-modules: ^3.2.0
+    prettier: ^2.4.1
+    pretty-quick: ^2.0.1
+    query-string: ^7.0.0
+    react: ^16.8.6 || ^17
+    react-color: ^2.19.3
+    react-dom: ^16.8.6 || ^17
+    react-dropzone: ^11.4.2
+    react-intersection-observer: ^8.32.1
+    react-json-tree: ^0.15.0
+    rollup: ^2.66.1
+    rollup-plugin-postcss: ^3.1.8
+    rollup-plugin-terser: ^7.0.2
+    sass: ^1.50.0
+    sass-loader: ^12.6.0
+    stylus: ^0.54.7
+    typedoc: ^0.20.36
+    typescript: ^4.4.4
+    underscore: ^1.9.1
+    use-async-effect: ^2.2.1
+    use-element-dimensions: ^2.1.3
+  peerDependencies:
+    "@types/react-dom": ^17
+    react: ^16.8.6 || ^17
+    react-dom: ^16.8.6 || ^17
+  languageName: unknown
+  linkType: soft
 
 "@macrostrat/web-components@workspace:.":
   version: 0.0.0-use.local
@@ -11861,13 +11842,8 @@ __metadata:
   resolution: "concept-apps@workspace:concept-apps"
   dependencies:
     "@blueprintjs/popover2": ^1.1.2
-    "@macrostrat/api-views": "*"
-    "@macrostrat/column-components": "*"
     "@macrostrat/corelle": ^1.1.0
     "@macrostrat/hyper": ^2.0.0
-    "@macrostrat/map-components": "*"
-    "@macrostrat/timescale": "*"
-    "@macrostrat/ui-components": "*"
     "@parcel/config-default": ^2.6.2
     "@parcel/resolver-glob": ^2.6.2
     "@parcel/transformer-image": ^2.6.2

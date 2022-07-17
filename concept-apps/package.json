@@ -12,13 +12,6 @@
   },
   "author": "Daven Quinn",
   "license": "ISC",
-  "alias": {
-    "@macrostrat/column-components": "@macrostrat/column-components/src",
-    "@macrostrat/map-components": "@macrostrat/map-components/src",
-    "@macrostrat/ui-components": "@macrostrat/ui-components/src",
-    "@macrostrat/api-views": "@macrostrat/api-views/src",
-    "common": "../packages/common/src"
-  },
   "devDependencies": {
     "@parcel/config-default": "^2.6.2",
     "@parcel/resolver-glob": "^2.6.2",
@@ -33,13 +26,8 @@
   },
   "dependencies": {
     "@blueprintjs/popover2": "^1.1.2",
-    "@macrostrat/api-views": "*",
-    "@macrostrat/column-components": "*",
     "@macrostrat/corelle": "^1.1.0",
     "@macrostrat/hyper": "^2.0.0",
-    "@macrostrat/map-components": "*",
-    "@macrostrat/timescale": "*",
-    "@macrostrat/ui-components": "*",
     "@react-hook/size": "^2.1.1",
     "@types/react": "^16.14.2",
     "@vx/axis": "^0.0.199",

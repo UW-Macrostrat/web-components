@@ -7,6 +7,7 @@ export function MacrostratAPIProvider({ children, useDev = true, baseURL }: _) {
   baseURL ??= useDev
     ? "https://dev.macrostrat.org/api/v2"
     : "https://macrostrat.org/api/v2";
+  
   return h(
     APIProvider,
     {

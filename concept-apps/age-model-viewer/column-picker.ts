@@ -33,7 +33,7 @@ function useFilteredColumns({ apiRoute, status_code, project_id }) {
 
 const ColumnMapView = forwardRef((props, ref) => {
   const { currentColumn, setCurrentColumn, children, ...rest } = props;
-  const center = geoCentroid?.(currentColumn);
+  const center = geoCentroid(currentColumn);
 
   const { apiRoute = "/columns", status_code, project_id, color } = props;
 
