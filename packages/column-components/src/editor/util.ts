@@ -6,7 +6,7 @@
  */
 import T from "prop-types";
 import { hyperStyled } from "@macrostrat/hyper";
-import styles from "./main.styl";
+import styles from "./main.module.styl";
 import { format } from "d3-format";
 import { IntervalShape } from "./types";
 import Select from "react-select";

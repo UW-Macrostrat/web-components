@@ -16,7 +16,7 @@ import { symbolIndex } from "../lithology";
 import { GeologicPatternContext } from "../lithology";
 import { LithologyContext } from "../context";
 
-import styles from "./main.styl";
+import styles from "./main.module.styl";
 
 const h = hyper.styled(styles);
 
