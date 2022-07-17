@@ -1,6 +1,6 @@
 // With Parcel v1, this file needs to be in the root directory.
 // https://github.com/parcel-bundler/parcel/issues/2449
-import "../../node_modules/core-js/stable";
+import "core-js/stable";
 import "regenerator-runtime/runtime";
 
 import { FocusStyleManager } from "@blueprintjs/core";

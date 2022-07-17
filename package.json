@@ -1,11 +1,10 @@
 {
   "name": "@macrostrat/web-components",
   "version": "1.0.0",
-  "description": "A repository containing UI components managed by the Macrostrat lab",
+  "description": "Web components for stratigraphy and geologic mapping managed by Macrostrat",
   "private": true,
   "scripts": {
     "dev:legacy": "npm-run-all -l -p dev watch:**",
-    "dev": "parcel --no-autoinstall apps/index.html",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
     "watch:column": "npm --prefix packages/column-components run watch",
@@ -13,7 +12,9 @@
     "build": "parcel build --public-url . apps/index.html",
     "deploy": "./deploy/deploy-steno.sh",
     "clean": "rm -rf .cache dist",
-    "storybook": "yarn workspace storybook run dev",
+    "dev": "concurrently \"yarn dev:storybook\" \"yarn dev:concepts\"",
+    "dev:storybook": "yarn workspace storybook run dev",
+    "dev:concepts": "yarn workspace concept-apps run dev",
     "build-storybook": "build-storybook",
     "publish-libs": "node publish.mjs"
   },
@@ -24,9 +25,7 @@
     "@macrostrat/map-components": "@macrostrat/map-components/src",
     "@macrostrat/ui-components": "./packages/ui-components/src",
     "@macrostrat/api-views": "./packages/api-views/src",
-    "common": "./packages/common/src",
-    "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom"
+    "common": "./packages/common/src"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
@@ -35,6 +34,7 @@
     "@types/d3-geo": "^2.0.0",
     "@types/geojson": "^7946.0.7",
     "babel-loader": "^8.2.3",
+    "concurrently": "^7.2.2",
     "css-loader": "^3.6.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^4.3.5",
@@ -47,6 +47,7 @@
   },
   "workspaces": [
     "packages/*",
+    "concept-apps",
     "storybook"
   ],
   "dependencies": {
@@ -68,6 +69,7 @@
     "core-js": "^3.6.1",
     "d3": "^5.15.0",
     "d3-array": "^2.8.0",
+    "d3-geo": "^3.0.1",
     "d3-geo-voronoi": "^1.6.0",
     "d3-path": "^1.0.9",
     "d3-scale-chromatic": "^1.5.0",

@@ -16,7 +16,7 @@
     }
   },
   "include": [
-    "apps/**/*",
+    "concept-apps/**/*",
     "packages/common/src/**/*",
     "packages/api-types/types/*",
     "packages/api-views/src/**/*",

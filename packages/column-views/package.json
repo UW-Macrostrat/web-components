@@ -1,0 +1,8 @@
+{
+  "name": "@macrostrat/column-views",
+  "version": "0.0.1",
+  "description": "Data views for Macrostrat stratigraphic columns",
+  "dependencies": {
+    "@macrostrat/column-components": "^0.8.0"
+  }
+}
