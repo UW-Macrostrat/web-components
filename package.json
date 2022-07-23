@@ -1,11 +1,10 @@
 {
   "name": "@macrostrat/web-components",
   "version": "1.0.0",
-  "description": "A repository containing UI components managed by the Macrostrat lab",
+  "description": "Web components for stratigraphy and geologic mapping managed by Macrostrat",
   "private": true,
   "scripts": {
     "dev:legacy": "npm-run-all -l -p dev watch:**",
-    "dev": "parcel --no-autoinstall apps/index.html",
     "watch:map": "npm --prefix packages/map-components run watch:main",
     "watch:ui": "npm --prefix packages/ui-components run dev",
     "watch:column": "npm --prefix packages/column-components run watch",
@@ -13,7 +12,9 @@
     "build": "parcel build --public-url . apps/index.html",
     "deploy": "./deploy/deploy-steno.sh",
     "clean": "rm -rf .cache dist",
-    "storybook": "start-storybook -p 6006",
+    "dev": "concurrently \"yarn dev:storybook\" \"yarn dev:concepts\"",
+    "dev:storybook": "yarn workspace storybook run dev",
+    "dev:concepts": "yarn workspace concept-apps run dev",
     "build-storybook": "build-storybook",
     "publish-libs": "node publish.mjs"
   },
@@ -24,38 +25,30 @@
     "@macrostrat/map-components": "@macrostrat/map-components/src",
     "@macrostrat/ui-components": "./packages/ui-components/src",
     "@macrostrat/api-views": "./packages/api-views/src",
-    "common": "./packages/common/src",
-    "react": "./node_modules/react",
-    "react-dom": "./node_modules/react-dom"
+    "common": "./packages/common/src"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
-    "@parcel/resolver-glob": "^2.0.0-nightly.2338",
-    "@parcel/transformer-postcss": "^2.0.0-nightly.778",
-    "@storybook/addon-actions": "^6.5.5",
-    "@storybook/addon-essentials": "^6.5.5",
-    "@storybook/addon-links": "^6.5.5",
-    "@storybook/addon-viewport": "^6.5.5",
-    "@storybook/addons": "^6.5.5",
-    "@storybook/preset-scss": "^1.0.3",
-    "@storybook/react": "^6.5.5",
-    "@storybook/theming": "^6.5.5",
     "@types/d3-geo": "^2.0.0",
     "@types/geojson": "^7946.0.7",
     "babel-loader": "^8.2.3",
+    "concurrently": "^7.2.2",
     "css-loader": "^3.6.0",
     "html-webpack-plugin": "^5.5.0",
     "husky": "^4.3.5",
     "lerna": "^4.0.0",
     "npm-run-all": "^4.1.5",
+    "postcss-modules": "^4.3.0",
     "prettier": "^1.19.1",
-    "storybook-dark-mode": "^1.1.0",
     "style-loader": "^1.3.0",
     "stylus": "^0.54.7",
-    "stylus-loader": "^4.3.3"
+    "stylus-loader": "^4.3.3",
+    "typescript": "^4.7.4"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "concept-apps",
+    "storybook"
   ],
   "dependencies": {
     "@macrostrat/api-views": "file:./packages/api-views",
@@ -64,8 +57,8 @@
     "@macrostrat/map-components": "file:./packages/map-components",
     "@macrostrat/timescale": "file:./packages/timescale",
     "@macrostrat/ui-components": "file:./packages/ui-components",
+    "@parcel/transformer-postcss": "^2.6.2",
     "@react-hook/size": "^2.1.1",
-    "@storybook/components": "^6.5.5",
     "@types/react": "^16.14.2",
     "@vx/axis": "^0.0.199",
     "@vx/gradient": "^0.0.199",
@@ -77,6 +70,7 @@
     "core-js": "^3.6.1",
     "d3": "^5.15.0",
     "d3-array": "^2.8.0",
+    "d3-geo": "^3.0.1",
     "d3-geo-voronoi": "^1.6.0",
     "d3-path": "^1.0.9",
     "d3-scale-chromatic": "^1.5.0",
