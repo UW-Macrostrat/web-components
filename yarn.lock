@@ -5,14 +5,14 @@ __metadata:
   version: 6
   cacheKey: 8
 
-"#ansi-styles@npm:ansi-styles@6.1.0, ansi-styles@npm:^6.1.0":
+"#ansi-styles@npm:ansi-styles@6.1.0":
   version: 6.1.0
   resolution: "ansi-styles@npm:6.1.0"
   checksum: 7a7f8528c07a9d20c3a92bccd2b6bc3bb4d26e5cb775c02826921477377bd495d615d61f710d56216344b6238d1d11ef2b0348e146c5b128715578bfb3217229
   languageName: node
   linkType: hard
 
-"#supports-color@npm:supports-color@9.2.2":
+"#supports-color@npm:supports-color@9.2.2, supports-color@npm:*":
   version: 9.2.2
   resolution: "supports-color@npm:9.2.2"
   checksum: 976d84877402fc38c1d43b1fde20b0a8dc0283273f21cfebe4ff7507d27543cdfbeec7db108a96b82d694465f06d64e8577562b05d0520b41710088e0a33cc50
@@ -3485,13 +3485,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/api-views@file:./packages/api-views::locator=%40macrostrat%2Fweb-components%40workspace%3A.":
-  version: 1.0.0
-  resolution: "@macrostrat/api-views@file:./packages/api-views#./packages/api-views::hash=af08ea&locator=%40macrostrat%2Fweb-components%40workspace%3A."
-  checksum: 54b5ad264d383152f16c3ec7eeb0cb10e2c53e0e73f665b57230d9768efa0b6853bf7952e230130abf82ab9b82f0014571a13781b7e425aa2be37f68899df201
-  languageName: node
-  linkType: hard
-
 "@macrostrat/api-views@workspace:packages/api-views":
   version: 0.0.0-use.local
   resolution: "@macrostrat/api-views@workspace:packages/api-views"
@@ -3543,41 +3536,6 @@ __metadata:
     react-dom: ^16.12.0
   languageName: unknown
   linkType: soft
-
-"@macrostrat/column-components@file:./packages/column-components::locator=%40macrostrat%2Fweb-components%40workspace%3A.":
-  version: 0.8.2
-  resolution: "@macrostrat/column-components@file:./packages/column-components#./packages/column-components::hash=8773b2&locator=%40macrostrat%2Fweb-components%40workspace%3A."
-  dependencies:
-    "@macrostrat/hyper": ^1.2.0
-    chroma-js: ^2.1.0
-    classnames: ^2.2.6
-    d3-axis: ^1.0.12
-    d3-format: ^1.4.3
-    d3-path: ^1.0.9
-    d3-scale: ^3.2.1
-    d3-selection: ^1.4.1
-    fscreen: ^1.0.2
-    immutability-helper: ^3.0.2
-    labella: ^1.1.4
-    prop-types: ^15.7.2
-    react-color: ^2.18.0
-    react-draggable: ^4.2.0
-    react-hyperscript: ^3.2.0
-    react-images: ^1.1.0-beta.1
-    react-router-dom: ^5.1.2
-    react-scroll: ^1.7.16
-    react-select: ^3.0.8
-    react-svg-textures: ^1.4.7
-    ui-box: ^3.0.2
-    uuid: ^7.0.3
-  peerDependencies:
-    "@blueprintjs/core": ^4.3.0
-    "@macrostrat/ui-components": ^0.1.3
-    react: ^16.12.0
-    react-dom: ^16.12.0
-  checksum: b075633162f3d8ed6f5b546a427928903d2ea70b57dfa8b07e9ad92d21c7de6837c3e53c0b14679e459c84f9010f9329b2515d994d8dbbd55bb74f7add9550f7
-  languageName: node
-  linkType: hard
 
 "@macrostrat/column-views@workspace:packages/column-views":
   version: 0.0.0-use.local
@@ -3816,57 +3774,20 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/map-components@file:./packages/map-components::locator=%40macrostrat%2Fweb-components%40workspace%3A.":
-  version: 0.2.6
-  resolution: "@macrostrat/map-components@file:./packages/map-components#./packages/map-components::hash=c2e1bb&locator=%40macrostrat%2Fweb-components%40workspace%3A."
-  dependencies:
-    "@macrostrat/hyper": ^1.2.11
-    "@macrostrat/ui-components": ^1.0.2
-    "@types/d3-array": ^2.0.0
-    "@types/d3-drag": ^1.2.3
-    "@types/d3-geo": ^1.12.3
-    "@types/d3-selection": ^1.4.2
-    "@types/d3-zoom": ^1.7.4
-    "@types/geojson": ^7946.0.8
-    "@types/react-dom": ^16.9.8
-    d3-array: ^2.5.1
-    d3-drag: ^1.2.5
-    d3-geo: ^1.11.9
-    d3-selection: ^1.4.1
-    d3-zoom: ^1.8.3
-    prop-types: ^15.7.2
-  peerDependencies:
-    react: ^16.11.0
-    react-dom: ^16.11.0
-  checksum: 9d248c9c7d7e348dc554b0067e70f799422e07b826aaeb67d3e1fe09686227460b1f22d3ba3f1cb654a0cb2c3574f545c24da81955153c9db417f4b6f7960835
-  languageName: node
-  linkType: hard
-
 "@macrostrat/map-style-utils@workspace:packages/map-style-utils":
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-style-utils@workspace:packages/map-style-utils"
   languageName: unknown
   linkType: soft
 
-"@macrostrat/timescale@file:./packages/timescale::locator=%40macrostrat%2Fweb-components%40workspace%3A.":
-  version: 1.0.2-1
-  resolution: "@macrostrat/timescale@file:./packages/timescale#./packages/timescale::hash=c25d64&locator=%40macrostrat%2Fweb-components%40workspace%3A."
+"@macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/mapbox-utils@workspace:packages/mapbox-utils"
   dependencies:
-    "@macrostrat/column-components": ^0.8.2
-    "@macrostrat/hyper": ^1.2.11
-    "@types/classnames": ^2.2.10
-    "@types/d3-array": ^2.0.0
-    "@vx/axis": 0.0.198
-    "@vx/scale": 0.0.198
-    classnames: ^2.2.6
-    d3-array: ^2.5.1
-    d3-format: ^2.0.0
-  peerDependencies:
-    react: ^16.13.1
-    react-dom: ^16.13.1
-  checksum: bd30c2b38a38a992c404f83c841ec4c4c1e787806cecefea74c20082a5f628e04aeebf212583cd941a3171ef93d118e5ef3ac2a73c027d6a4fdb9ca7f52f91ac
-  languageName: node
-  linkType: hard
+    "@parcel/config-default": ^2.6.2
+    parcel: ^2.6.2
+  languageName: unknown
+  linkType: soft
 
 "@macrostrat/timescale@workspace:packages/timescale":
   version: 0.0.0-use.local
@@ -3907,46 +3828,6 @@ __metadata:
     react-dom: ^16.13.1
   languageName: unknown
   linkType: soft
-
-"@macrostrat/ui-components@file:./packages/ui-components::locator=%40macrostrat%2Fweb-components%40workspace%3A.":
-  version: 2.0.3
-  resolution: "@macrostrat/ui-components@file:./packages/ui-components#./packages/ui-components::hash=cf68c7&locator=%40macrostrat%2Fweb-components%40workspace%3A."
-  dependencies:
-    "@babel/polyfill": ^7.4.4
-    "@blueprintjs/core": ^4.3.0
-    "@blueprintjs/datetime": ^4.1.2
-    "@blueprintjs/popover2": ^1.2.1
-    "@macrostrat/hyper": ^2.0.1
-    "@mantine/core": ^4.1.3
-    "@mantine/hooks": ^4.1.3
-    axios: ^0.21.4
-    chroma-js: ^2.4.2
-    classnames: ^2.3.0
-    core-js: ^3.6.4
-    d3-array: ^3.0.4
-    date-fns: ^2.15.0
-    fp-ts: ^2.5.3
-    immutability-helper: ^3.1.1
-    io-ts: ^2.1.2
-    query-string: ^7.0.0
-    react: ^16.8.6 || ^17
-    react-color: ^2.19.3
-    react-dom: ^16.8.6 || ^17
-    react-dropzone: ^11.4.2
-    react-intersection-observer: ^8.32.1
-    react-json-tree: ^0.15.0
-    sass: ^1.50.0
-    sass-loader: ^12.6.0
-    underscore: ^1.9.1
-    use-async-effect: ^2.2.1
-    use-element-dimensions: ^2.1.3
-  peerDependencies:
-    "@types/react-dom": ^17
-    react: ^16.8.6 || ^17
-    react-dom: ^16.8.6 || ^17
-  checksum: 8b1002f3a3d6a9077365fe35b81afb46e733dbf5a1989882cf145a3fefce075da5675b14dc5795ac80dda90b0535afc538d26446621ff708859123e1d472c1b3
-  languageName: node
-  linkType: hard
 
 "@macrostrat/ui-components@npm:^0.5.0":
   version: 0.5.2
@@ -4084,69 +3965,14 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/web-components@workspace:."
   dependencies:
-    "@babel/core": ^7.18.6
-    "@macrostrat/api-views": "file:./packages/api-views"
-    "@macrostrat/column-components": "file:./packages/column-components"
-    "@macrostrat/hyper": ^2.0.0
-    "@macrostrat/map-components": "file:./packages/map-components"
-    "@macrostrat/timescale": "file:./packages/timescale"
-    "@macrostrat/ui-components": "file:./packages/ui-components"
-    "@parcel/transformer-postcss": ^2.6.2
-    "@react-hook/size": ^2.1.1
-    "@types/d3-geo": ^2.0.0
-    "@types/geojson": ^7946.0.7
-    "@types/react": ^16.14.2
-    "@vx/axis": ^0.0.199
-    "@vx/gradient": ^0.0.199
-    "@vx/scale": ^0.0.199
-    "@vx/shape": ^0.0.199
-    ansi-styles: ^6.1.0
-    axios: ^0.21.1
-    babel-loader: ^8.2.3
     chalk: ^5.0.1
-    chroma-js: ^2.1.0
     concurrently: ^7.2.2
-    core-js: ^3.6.1
-    css-loader: ^3.6.0
-    d3: ^5.15.0
-    d3-array: ^2.8.0
-    d3-geo: ^3.0.1
-    d3-geo-voronoi: ^1.6.0
-    d3-path: ^1.0.9
-    d3-scale-chromatic: ^1.5.0
-    d3-selection: ^1.4.1
     geologic-patterns: "github:davenquinn/geologic-patterns"
-    html-webpack-plugin: ^5.5.0
     husky: ^4.3.5
-    immutability-helper: ^3.0.1
-    labella: ^1.1.4
     lerna: ^4.0.0
     node-fetch: ^3.2.9
-    npm-run-all: ^4.1.5
-    postcss: ^8.3.11
-    postcss-modules: ^4.3.0
     prettier: ^1.19.1
-    prop-types: ^15.7.2
-    react-draggable: ^4.2.0
-    react-images: ^1.1.0-beta.0
-    react-json-view: ^1.19.1
-    react-router: ^5.1.2
-    react-router-dom: ^5.1.2
-    react-scroll: ^1.7.15
-    react-spring: ^8.0.27
-    react-svg-textures: ^1.4.7
-    regenerator-runtime: ^0.13.3
-    sass: ^1.50.0
-    sass-loader: ^10.2.1
-    style-loader: ^1.3.0
-    stylus: ^0.54.7
-    stylus-loader: ^4.3.3
-    supercluster: ^7.1.3
-    topojson-client: ^3.1.0
     typescript: ^4.7.4
-    ui-box: ^3.0.2
-    underscore: ^1.12.0
-    use-async-effect: ^2.2.1
   languageName: unknown
   linkType: soft
 
@@ -5436,7 +5262,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/transformer-postcss@npm:2.6.2, @parcel/transformer-postcss@npm:^2.6.2":
+"@parcel/transformer-postcss@npm:2.6.2":
   version: 2.6.2
   resolution: "@parcel/transformer-postcss@npm:2.6.2"
   dependencies:
@@ -12978,7 +12804,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-array@npm:2.5.0 - 3, d3-array@npm:^3.0.4":
+"d3-array@npm:^3.0.4":
   version: 3.2.0
   resolution: "d3-array@npm:3.2.0"
   dependencies:
@@ -13154,15 +12980,6 @@ __metadata:
   dependencies:
     d3-array: 1
   checksum: 8ede498e5fce65c127403646f5cc6181a858a1e401e23e2856ce50ad27e6fdf8b49aeb88d2fad02696879d5825a45420ca1b5db9fa9c935ee413fe15b5bc37c4
-  languageName: node
-  linkType: hard
-
-"d3-geo@npm:^3.0.1":
-  version: 3.0.1
-  resolution: "d3-geo@npm:3.0.1"
-  dependencies:
-    d3-array: 2.5.0 - 3
-  checksum: e0f7e6a2f0d4c26efe08a7aa2c40b9a1a5a037220c6aaa51fb527035597e6e8841222b433e5681f9b5588b5b6f9a1c2d7f032a76ccbac3a17b0c1cbfffd05c1b
   languageName: node
   linkType: hard
 
@@ -29323,6 +29140,8 @@ __metadata:
     postcss: ^8.3.11
     prettier: ^1.19.1
     prop-types: ^15.7.2
+    react: ^17.0.0
+    react-dom: ^17.0.0
     react-draggable: ^4.2.0
     react-images: ^1.1.0-beta.0
     react-json-view: ^1.19.1
@@ -29343,6 +29162,7 @@ __metadata:
     ui-box: ^3.0.2
     underscore: ^1.12.0
     use-async-effect: ^2.2.1
+    webpack: ^5.73.0
   languageName: unknown
   linkType: soft
 
@@ -32150,7 +31970,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"webpack@npm:>=4.43.0 <6.0.0, webpack@npm:^5.67.0, webpack@npm:^5.9.0":
+"webpack@npm:>=4.43.0 <6.0.0, webpack@npm:^5.67.0, webpack@npm:^5.73.0, webpack@npm:^5.9.0":
   version: 5.73.0
   resolution: "webpack@npm:5.73.0"
   dependencies:
