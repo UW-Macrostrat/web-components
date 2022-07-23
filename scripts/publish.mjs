@@ -1,5 +1,5 @@
 /* script to check versions on ui-packages and publish those that aren't on npm */
-import fetch, { Headers, Request, Response } from "node-fetch";
+import axios from "axios";
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
@@ -12,14 +12,6 @@ const projectDir = path.resolve(path.join(__dirname, ".."));
 
 // tries to copy this file but in NodeJs
 // https://github.com/UW-Macrostrat/python-libraries/blob/main/publish.py
-
-/* need this for fetching in node */
-if (!globalThis.fetch) {
-  globalThis.fetch = fetch;
-  globalThis.Headers = Headers;
-  globalThis.Request = Request;
-  globalThis.Response = Response;
-}
 
 const packages = ["ui-components", "mapbox-utils"];
 
@@ -50,7 +42,10 @@ function publishModule(dir, pkg) {
   pkg = getPackageData(pkg);
   logAction(pkg, "Publishing", chalk.magenta);
   try {
-    execSync("yarn npm publish", { cwd: dir, stdio: "inherit" });
+    execSync("yarn npm publish --access public", {
+      cwd: dir,
+      stdio: "inherit"
+    });
     console.log(chalk.blueBright.bold("Tagging version"));
     const tag = moduleString(pkg, "-v");
     const msg = moduleString(pkg, " version ");
@@ -64,12 +59,20 @@ function publishModule(dir, pkg) {
 async function packageExists(pkg) {
   const name = pkg["name"];
   const version = pkg["version"];
-  const res = await fetch(`https://registry.npmjs.org/${name}/${version}`);
-  const exists = res.status == 200;
+  let exists = false;
+  try {
+    const res = await axios.get(
+      `https://registry.npmjs.org/${name}/${version}`
+    );
+    exists = res.status == 200;
+  } catch {
+    exists = false;
+  }
+
   let msg = moduleString(pkg);
   let color = chalk.greenBright;
   if (!exists) {
-    msg += "will be published";
+    msg += " will be published";
   } else {
     msg += " is already published on npm";
     color = chalk.blueBright;

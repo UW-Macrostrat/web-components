@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Web components for stratigraphy and geologic mapping managed by Macrostrat",
   "private": true,
+  "repository": "https://github.com/UW-Macrostrat/web-components.git",
   "scripts": {
     "dev:legacy": "npm-run-all -l -p dev watch:**",
     "watch:map": "npm --prefix packages/map-components run watch:main",
@@ -28,6 +29,7 @@
   "devDependencies": {
     "@parcel/packager-ts": "2.6.2",
     "@parcel/transformer-typescript-types": "2.6.2",
+    "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "concurrently": "^7.2.2",
     "husky": "^4.3.5",
