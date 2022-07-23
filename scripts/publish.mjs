@@ -35,7 +35,7 @@ function getPkgDir(pkgName) {
 }
 
 function logAction(pkg, action, color = chalk.blue) {
-  console.log(color.bold(action) + color(`: ` + mod(pkg)));
+  console.log(color.bold(action) + color(`: ` + moduleString(pkg)));
 }
 
 /* Runs, npm build in the correct pkg directory*/
@@ -50,7 +50,7 @@ function publishModule(dir, pkg) {
   pkg = getPackageData(pkg);
   logAction(pkg, "Publishing", chalk.magenta);
   try {
-    execSync("yarn publish", { cwd: dir, stdio: "inherit" });
+    execSync("yarn npm publish", { cwd: dir, stdio: "inherit" });
     console.log(chalk.blueBright.bold("Tagging version"));
     const tag = moduleString(pkg, "-v");
     const msg = moduleString(pkg, " version ");
