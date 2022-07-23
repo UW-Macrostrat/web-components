@@ -8,6 +8,7 @@ import { execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectDir = path.resolve(path.join(__dirname, ".."));
 
 // tries to copy this file but in NodeJs
 // https://github.com/UW-Macrostrat/python-libraries/blob/main/publish.py
@@ -24,40 +25,38 @@ const packages = ["ui-components"];
 
 /* get package.json filr from correct dir */
 function getPackageData(pkgName) {
-  const path_ = getPkgDir(pkgName);
-  const pkgData = fs.readFileSync(path_ + "/package.json");
+  const rootDir = getPkgDir(pkgName);
+  const pkgData = fs.readFileSync(path.join(rootDir, "package.json"));
   return JSON.parse(pkgData);
 }
 
 function getPkgDir(pkgName) {
-  return path.join(__dirname + "/packages/" + `${pkgName}`);
+  return path.join(projectDir, "packages", pkgName);
+}
+
+function logAction(pkg, action, color = chalk.blue) {
+  console.log(color.bold(action) + color(`: ` + mod(pkg)));
 }
 
 /* Runs, npm build in the correct pkg directory*/
 function prepareModule(dir, pkg) {
   pkg = getPackageData(pkg);
-  console.log(
-    chalk.blue.bold(`Building`) +
-      chalk.blueBright(`: ${pkg["name"]}@${pkg["version"]}`)
-  );
-  execSync("npm run build", { cwd: dir, stdio: "inherit" });
+  logAction(pkg, "Building");
+  execSync("yarn run build", { cwd: dir, stdio: "inherit" });
 }
 
 /* tries to run npm publish and if succeeds adds a tag to the repo*/
 function publishModule(dir, pkg) {
   pkg = getPackageData(pkg);
-  console.log(
-    chalk.magenta.bold("Publishing") +
-      chalk.magenta(`: ${pkg["name"]}@${pkg["version"]}`)
-  );
+  logAction(pkg, "Publishing", chalk.magenta);
   try {
-    execSync("npm publish", { cwd: dir, stdio: "inherit" });
-    console.log(chalk.blueBright.bold("Creating version tag"));
-    const tag = createModuleString(pkg);
-    const msg = createModuleString(pkg, true);
+    execSync("yarn publish", { cwd: dir, stdio: "inherit" });
+    console.log(chalk.blueBright.bold("Tagging version"));
+    const tag = moduleString(pkg, "-v");
+    const msg = moduleString(pkg, " version ");
     execSync(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
   } catch (error) {
-    console.error(`Failed to publish ${createModuleString(pkg)}, ${error}`);
+    console.error(`Failed to publish ${moduleString(pkg)}, ${error}`);
   }
 }
 
@@ -67,17 +66,15 @@ async function packageExists(pkg) {
   const version = pkg["version"];
   const res = await fetch(`https://registry.npmjs.org/${name}/${version}`);
   const exists = res.status == 200;
+  let msg = moduleString(pkg);
+  let color = chalk.greenBright;
   if (!exists) {
-    console.log(
-      chalk.greenBright(`${pkg["name"]}@${pkg["version"]} will be published`)
-    );
+    msg += "will be published";
   } else {
-    console.log(
-      chalk.blueBright(
-        `${pkg["name"]}@${pkg["version"]} is already published on npm`
-      )
-    );
+    msg += " is already published on npm";
+    color = chalk.blueBright;
   }
+  console.log(color(msg));
 
   return exists;
 }
@@ -89,9 +86,8 @@ function gitHasChanges() {
   return res.toString().length != 0;
 }
 
-function createModuleString(pkg, long = false) {
-  if (long) return `${pkg["name"]} version ${pkg["version"]}`;
-  return `${pkg["name"]}v${pkg["version"]}`;
+function moduleString(pkg, separator = "@") {
+  return pkg["name"] + separator + pkg["version"];
 }
 
 async function main() {
