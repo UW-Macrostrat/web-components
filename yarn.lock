@@ -3785,6 +3785,7 @@ __metadata:
   resolution: "@macrostrat/mapbox-utils@workspace:packages/mapbox-utils"
   dependencies:
     "@parcel/config-default": ^2.6.2
+    axios: ^0.27.2
     parcel: ^2.6.2
   languageName: unknown
   linkType: soft

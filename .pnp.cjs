@@ -16502,6 +16502,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@macrostrat/mapbox-utils", "workspace:packages/mapbox-utils"],\
             ["@parcel/config-default", "virtual:fbcdf49e96812ce58307a041b0f24473cbff3d127abf8830678da26b082cf887f6a2a1b9bf02e864b38502e325ef0af1071d5d45e80812c634ec4c85cb2f6c3b#npm:2.6.2"],\
+            ["axios", "npm:0.27.2"],\
             ["parcel", "npm:2.6.2"]\
           ],\
           "linkType": "SOFT"\

@@ -14,5 +14,8 @@
   "scripts": {
     "dev": "parcel watch",
     "build": "parcel build"
+  },
+  "dependencies": {
+    "axios": "^0.27.2"
   }
 }
