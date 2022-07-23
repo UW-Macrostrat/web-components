@@ -21,7 +21,7 @@ if (!globalThis.fetch) {
   globalThis.Response = Response;
 }
 
-const packages = ["ui-components"];
+const packages = ["ui-components", "mapbox-utils"];
 
 /* get package.json filr from correct dir */
 function getPackageData(pkgName) {
@@ -91,14 +91,14 @@ function moduleString(pkg, separator = "@") {
 }
 
 async function main() {
-  const pkgsToPublish = await packages.reduce(async (acc, pkg) => {
-    const exists = await packageExists(getPackageData(pkg));
-    if (!exists) {
-      acc.push(pkg);
-      return acc;
+  let pkgsToPublish = [];
+
+  for (const pkg of packages) {
+    const isAvailable = await packageExists(getPackageData(pkg));
+    if (!isAvailable) {
+      pkgsToPublish.push(pkg);
     }
-    return acc;
-  }, []);
+  }
 
   if (pkgsToPublish.length === 0) {
     console.log(chalk.magentaBright("All packages published"));

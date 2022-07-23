@@ -1322,7 +1322,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "@npmcli/fs",\
-        "npm:1.1.1"\
+        "npm:2.1.0"\
       ],\
       [\
         "@npmcli/git",\
@@ -1334,7 +1334,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "@npmcli/move-file",\
-        "npm:1.1.2"\
+        "npm:2.0.0"\
       ],\
       [\
         "@npmcli/node-gyp",\
@@ -1545,6 +1545,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "npm:2.6.2"\
       ],\
       [\
+        "@parcel/packager-ts",\
+        "npm:2.6.2"\
+      ],\
+      [\
         "@parcel/plugin",\
         "npm:2.6.2"\
       ],\
@@ -1641,8 +1645,12 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "virtual:37ce899946f81c0c97a4dca590a795e2c9dcd2c704232c2dca2ba64c21941f044b02ff4a438886f9f50c26e8b6b44687a26ea8c121b549280bb36bc7ecd88878#npm:2.6.2"\
       ],\
       [\
+        "@parcel/transformer-typescript-types",\
+        "virtual:4d5699d41d8936cb0568456cb3ca97b6eb31f6baa6bac039dbfcdcae0619f88bc007bf5fc25eaafff251dd556c07cebfc90049ec4595acc39d40a7521247de54#npm:2.6.2"\
+      ],\
+      [\
         "@parcel/ts-utils",\
-        "virtual:04aafd4fe06cd52aa13c668cdd4682834e4f7893415cb0000f6bd4832c2918cf71cec1c486f1077043520ba7cf1d9e50cfc5342251e49f87639f5adfada1d2de#npm:2.6.2"\
+        "virtual:3d4eabe442cbd1c7d684e8035997f8ba78b81eedbca71a4a6800b33127b035e8b274f61494239dcf51dc6001642d7d80b115547cd2e403dcc64bc09f48299413#npm:2.6.2"\
       ],\
       [\
         "@parcel/types",\
@@ -1982,7 +1990,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "@tootallnate/once",\
-        "npm:1.1.2"\
+        "npm:2.0.0"\
       ],\
       [\
         "@trysound/sax",\
@@ -2582,7 +2590,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "are-we-there-yet",\
-        "npm:1.1.7"\
+        "npm:3.0.0"\
       ],\
       [\
         "arg",\
@@ -4594,7 +4602,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "gauge",\
-        "npm:2.7.4"\
+        "npm:4.0.4"\
       ],\
       [\
         "generic-names",\
@@ -6470,7 +6478,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "nopt",\
-        "npm:4.0.3"\
+        "npm:5.0.0"\
       ],\
       [\
         "normalize-package-data",\
@@ -8078,7 +8086,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "socks-proxy-agent",\
-        "npm:6.2.1"\
+        "npm:7.0.0"\
       ],\
       [\
         "sort-keys",\
@@ -8362,7 +8370,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "supports-color",\
-        "npm:9.2.2"\
+        "npm:7.2.0"\
       ],\
       [\
         "supports-hyperlinks",\
@@ -9222,6 +9230,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         [null, {\
           "packageLocation": "./",\
           "packageDependencies": [\
+            ["@parcel/packager-ts", "npm:2.6.2"],\
+            ["@parcel/transformer-typescript-types", "virtual:4d5699d41d8936cb0568456cb3ca97b6eb31f6baa6bac039dbfcdcae0619f88bc007bf5fc25eaafff251dd556c07cebfc90049ec4595acc39d40a7521247de54#npm:2.6.2"],\
             ["chalk", "npm:5.0.1"],\
             ["concurrently", "npm:7.2.2"],\
             ["geologic-patterns", "https://github.com/davenquinn/geologic-patterns.git#commit=f484081bdd444f693173e8be2906b1edd55723db"],\
@@ -16741,6 +16751,8 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageLocation": "./",\
           "packageDependencies": [\
             ["@macrostrat/web-components", "workspace:."],\
+            ["@parcel/packager-ts", "npm:2.6.2"],\
+            ["@parcel/transformer-typescript-types", "virtual:4d5699d41d8936cb0568456cb3ca97b6eb31f6baa6bac039dbfcdcae0619f88bc007bf5fc25eaafff251dd556c07cebfc90049ec4595acc39d40a7521247de54#npm:2.6.2"],\
             ["chalk", "npm:5.0.1"],\
             ["concurrently", "npm:7.2.2"],\
             ["geologic-patterns", "https://github.com/davenquinn/geologic-patterns.git#commit=f484081bdd444f693173e8be2906b1edd55723db"],\
@@ -17306,7 +17318,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["lru-cache", "npm:6.0.0"],\
             ["mkdirp", "npm:1.0.4"],\
             ["npm-pick-manifest", "npm:6.1.1"],\
-            ["promise-inflight", "virtual:b85bc3f444ffaf1ed05d97da5b876360753cc42baad9edde6f8dfa4ddd18626276fd2905a01d195754cbea1c14bf81b5ad60fc333b9e366358ec67cbe0379524#npm:1.0.1"],\
+            ["promise-inflight", "virtual:84a00badf32fd1afaf93817400747915046d2012712b8d0165c9b380a8ca122b717268023cb7925f79b92bac1d0305a8c7f77f430ac0705ca3d110cd76516a4c#npm:1.0.1"],\
             ["promise-retry", "npm:2.0.1"],\
             ["semver", "npm:7.3.7"],\
             ["which", "npm:2.0.2"]\
@@ -18260,6 +18272,16 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "linkType": "HARD"\
         }]\
       ]],\
+      ["@parcel/packager-ts", [\
+        ["npm:2.6.2", {\
+          "packageLocation": "./.yarn/cache/@parcel-packager-ts-npm-2.6.2-ad9294d147-e1ab181c77.zip/node_modules/@parcel/packager-ts/",\
+          "packageDependencies": [\
+            ["@parcel/packager-ts", "npm:2.6.2"],\
+            ["@parcel/plugin", "npm:2.6.2"]\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
       ["@parcel/plugin", [\
         ["npm:2.6.2", {\
           "packageLocation": "./.yarn/cache/@parcel-plugin-npm-2.6.2-d1ea2dda44-23da0fa372.zip/node_modules/@parcel/plugin/",\
@@ -18647,8 +18669,36 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@parcel/transformer-typescript-tsc", "virtual:37ce899946f81c0c97a4dca590a795e2c9dcd2c704232c2dca2ba64c21941f044b02ff4a438886f9f50c26e8b6b44687a26ea8c121b549280bb36bc7ecd88878#npm:2.6.2"],\
             ["@parcel/plugin", "npm:2.6.2"],\
             ["@parcel/source-map", "npm:2.1.0"],\
-            ["@parcel/ts-utils", "virtual:04aafd4fe06cd52aa13c668cdd4682834e4f7893415cb0000f6bd4832c2918cf71cec1c486f1077043520ba7cf1d9e50cfc5342251e49f87639f5adfada1d2de#npm:2.6.2"],\
+            ["@parcel/ts-utils", "virtual:3d4eabe442cbd1c7d684e8035997f8ba78b81eedbca71a4a6800b33127b035e8b274f61494239dcf51dc6001642d7d80b115547cd2e403dcc64bc09f48299413#npm:2.6.2"],\
             ["@types/typescript", null],\
+            ["typescript", "patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=7ad353"]\
+          ],\
+          "packagePeers": [\
+            "@types/typescript",\
+            "typescript"\
+          ],\
+          "linkType": "HARD"\
+        }]\
+      ]],\
+      ["@parcel/transformer-typescript-types", [\
+        ["npm:2.6.2", {\
+          "packageLocation": "./.yarn/cache/@parcel-transformer-typescript-types-npm-2.6.2-353e561790-2b5fa651f4.zip/node_modules/@parcel/transformer-typescript-types/",\
+          "packageDependencies": [\
+            ["@parcel/transformer-typescript-types", "npm:2.6.2"]\
+          ],\
+          "linkType": "SOFT"\
+        }],\
+        ["virtual:4d5699d41d8936cb0568456cb3ca97b6eb31f6baa6bac039dbfcdcae0619f88bc007bf5fc25eaafff251dd556c07cebfc90049ec4595acc39d40a7521247de54#npm:2.6.2", {\
+          "packageLocation": "./.yarn/__virtual__/@parcel-transformer-typescript-types-virtual-3d4eabe442/0/cache/@parcel-transformer-typescript-types-npm-2.6.2-353e561790-2b5fa651f4.zip/node_modules/@parcel/transformer-typescript-types/",\
+          "packageDependencies": [\
+            ["@parcel/transformer-typescript-types", "virtual:4d5699d41d8936cb0568456cb3ca97b6eb31f6baa6bac039dbfcdcae0619f88bc007bf5fc25eaafff251dd556c07cebfc90049ec4595acc39d40a7521247de54#npm:2.6.2"],\
+            ["@parcel/diagnostic", "npm:2.6.2"],\
+            ["@parcel/plugin", "npm:2.6.2"],\
+            ["@parcel/source-map", "npm:2.1.0"],\
+            ["@parcel/ts-utils", "virtual:3d4eabe442cbd1c7d684e8035997f8ba78b81eedbca71a4a6800b33127b035e8b274f61494239dcf51dc6001642d7d80b115547cd2e403dcc64bc09f48299413#npm:2.6.2"],\
+            ["@parcel/utils", "npm:2.6.2"],\
+            ["@types/typescript", null],\
+            ["nullthrows", "npm:1.1.1"],\
             ["typescript", "patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=7ad353"]\
           ],\
           "packagePeers": [\
@@ -18666,10 +18716,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "SOFT"\
         }],\
-        ["virtual:04aafd4fe06cd52aa13c668cdd4682834e4f7893415cb0000f6bd4832c2918cf71cec1c486f1077043520ba7cf1d9e50cfc5342251e49f87639f5adfada1d2de#npm:2.6.2", {\
-          "packageLocation": "./.yarn/__virtual__/@parcel-ts-utils-virtual-c2579fd75f/0/cache/@parcel-ts-utils-npm-2.6.2-fd8fecbabf-292c7be1f7.zip/node_modules/@parcel/ts-utils/",\
+        ["virtual:3d4eabe442cbd1c7d684e8035997f8ba78b81eedbca71a4a6800b33127b035e8b274f61494239dcf51dc6001642d7d80b115547cd2e403dcc64bc09f48299413#npm:2.6.2", {\
+          "packageLocation": "./.yarn/__virtual__/@parcel-ts-utils-virtual-8cc4258b69/0/cache/@parcel-ts-utils-npm-2.6.2-fd8fecbabf-292c7be1f7.zip/node_modules/@parcel/ts-utils/",\
           "packageDependencies": [\
-            ["@parcel/ts-utils", "virtual:04aafd4fe06cd52aa13c668cdd4682834e4f7893415cb0000f6bd4832c2918cf71cec1c486f1077043520ba7cf1d9e50cfc5342251e49f87639f5adfada1d2de#npm:2.6.2"],\
+            ["@parcel/ts-utils", "virtual:3d4eabe442cbd1c7d684e8035997f8ba78b81eedbca71a4a6800b33127b035e8b274f61494239dcf51dc6001642d7d80b115547cd2e403dcc64bc09f48299413#npm:2.6.2"],\
             ["@types/typescript", null],\
             ["nullthrows", "npm:1.1.1"],\
             ["typescript", "patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=7ad353"]\
@@ -28504,7 +28554,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["minipass-pipeline", "npm:1.2.4"],\
             ["mkdirp", "npm:1.0.4"],\
             ["p-map", "npm:4.0.0"],\
-            ["promise-inflight", "virtual:b85bc3f444ffaf1ed05d97da5b876360753cc42baad9edde6f8dfa4ddd18626276fd2905a01d195754cbea1c14bf81b5ad60fc333b9e366358ec67cbe0379524#npm:1.0.1"],\
+            ["promise-inflight", "virtual:84a00badf32fd1afaf93817400747915046d2012712b8d0165c9b380a8ca122b717268023cb7925f79b92bac1d0305a8c7f77f430ac0705ca3d110cd76516a4c#npm:1.0.1"],\
             ["rimraf", "npm:3.0.2"],\
             ["ssri", "npm:8.0.1"],\
             ["tar", "npm:6.1.11"],\
@@ -28529,7 +28579,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["minipass-pipeline", "npm:1.2.4"],\
             ["mkdirp", "npm:1.0.4"],\
             ["p-map", "npm:4.0.0"],\
-            ["promise-inflight", "virtual:b85bc3f444ffaf1ed05d97da5b876360753cc42baad9edde6f8dfa4ddd18626276fd2905a01d195754cbea1c14bf81b5ad60fc333b9e366358ec67cbe0379524#npm:1.0.1"],\
+            ["promise-inflight", "virtual:84a00badf32fd1afaf93817400747915046d2012712b8d0165c9b380a8ca122b717268023cb7925f79b92bac1d0305a8c7f77f430ac0705ca3d110cd76516a4c#npm:1.0.1"],\
             ["rimraf", "npm:3.0.2"],\
             ["ssri", "npm:9.0.1"],\
             ["tar", "npm:6.1.11"],\
@@ -45469,10 +45519,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           ],\
           "linkType": "HARD"\
         }],\
-        ["virtual:b85bc3f444ffaf1ed05d97da5b876360753cc42baad9edde6f8dfa4ddd18626276fd2905a01d195754cbea1c14bf81b5ad60fc333b9e366358ec67cbe0379524#npm:1.0.1", {\
-          "packageLocation": "./.yarn/__virtual__/promise-inflight-virtual-838f1babdd/0/cache/promise-inflight-npm-1.0.1-5bb925afac-2274948309.zip/node_modules/promise-inflight/",\
+        ["virtual:84a00badf32fd1afaf93817400747915046d2012712b8d0165c9b380a8ca122b717268023cb7925f79b92bac1d0305a8c7f77f430ac0705ca3d110cd76516a4c#npm:1.0.1", {\
+          "packageLocation": "./.yarn/__virtual__/promise-inflight-virtual-19d408057d/0/cache/promise-inflight-npm-1.0.1-5bb925afac-2274948309.zip/node_modules/promise-inflight/",\
           "packageDependencies": [\
-            ["promise-inflight", "virtual:b85bc3f444ffaf1ed05d97da5b876360753cc42baad9edde6f8dfa4ddd18626276fd2905a01d195754cbea1c14bf81b5ad60fc333b9e366358ec67cbe0379524#npm:1.0.1"],\
+            ["promise-inflight", "virtual:84a00badf32fd1afaf93817400747915046d2012712b8d0165c9b380a8ca122b717268023cb7925f79b92bac1d0305a8c7f77f430ac0705ca3d110cd76516a4c#npm:1.0.1"],\
             ["@types/bluebird", null],\
             ["bluebird", null]\
           ],\

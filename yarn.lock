@@ -3966,6 +3966,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/web-components@workspace:."
   dependencies:
+    "@parcel/packager-ts": 2.6.2
+    "@parcel/transformer-typescript-types": 2.6.2
     chalk: ^5.0.1
     concurrently: ^7.2.2
     geologic-patterns: "github:davenquinn/geologic-patterns"
@@ -5064,6 +5066,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@parcel/packager-ts@npm:2.6.2":
+  version: 2.6.2
+  resolution: "@parcel/packager-ts@npm:2.6.2"
+  dependencies:
+    "@parcel/plugin": 2.6.2
+  checksum: e1ab181c7728ff48bd1808317f8a25d24d5b2e84ebb1186a24744431322168c0851cc108e26b04f803fd52615bd9f256104f60638af92a419e8c9e6feae0e361
+  languageName: node
+  linkType: hard
+
 "@parcel/plugin@npm:2.6.2":
   version: 2.6.2
   resolution: "@parcel/plugin@npm:2.6.2"
@@ -5362,6 +5373,22 @@ __metadata:
   peerDependencies:
     typescript: ">=3.0.0"
   checksum: 0d364ac8854a1d1c1ba2246214cd32078ad71896f5add1592101b8a43718007d456047c165723da8d2b6c343651243a4b2517022040ed5ced1214b4f665999b9
+  languageName: node
+  linkType: hard
+
+"@parcel/transformer-typescript-types@npm:2.6.2":
+  version: 2.6.2
+  resolution: "@parcel/transformer-typescript-types@npm:2.6.2"
+  dependencies:
+    "@parcel/diagnostic": 2.6.2
+    "@parcel/plugin": 2.6.2
+    "@parcel/source-map": ^2.0.0
+    "@parcel/ts-utils": 2.6.2
+    "@parcel/utils": 2.6.2
+    nullthrows: ^1.1.1
+  peerDependencies:
+    typescript: ">=3.0.0"
+  checksum: 2b5fa651f4e90e9bdded868171474e295436f231bc03a72bd6ca7b456829410b61ebca0b25baf3565009c26b616372fe6711705d831ff1b8d21bc95bfeb14a6b
   languageName: node
   linkType: hard
 
