@@ -5,6 +5,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "downlevelIteration": true,
+    "target": "ES2015", // "ES3" (default), "ES5", "ES6"/"ES2015", "ES2016", "ES2017" or "ESNext".
     "paths": {
       "common": ["./packages/common/src"],
       "common/*": ["./packages/common/src/*"],
@@ -23,6 +24,7 @@
     "packages/column-components/src/**/*",
     "packages/map-components/src/**/*",
     "packages/ui-components/src/**/*",
-    "packages/api-utils/src/**/*"
+    "packages/api-utils/src/**/*",
+    "packages/**/*.ts"
   ]
 }
