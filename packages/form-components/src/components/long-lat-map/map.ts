@@ -39,15 +39,14 @@ async function initializeMap(
 async function editModeMap(
   map: mapboxgl.Map,
   point: Point,
-  changePoint: (e: FeaturesI) => void
+  changePoint: (e: FeaturesI) => void,
 ) {
-  console.log(map);
   const Draw = new MapboxDraw({
     controls: { point: true, trash: true },
     displayControlsDefault: false,
   });
   map.addControl(Draw, "top-left");
-
+  
   Draw.add(point);
 
   map.on("draw.create", changePoint);
@@ -66,6 +65,7 @@ interface LngLatMapI {
   setPoint: (p: Point) => void;
   width?: string;
   height?: string;
+  disabled?:boolean;
 }
 
 interface ViewPointI {
@@ -74,8 +74,8 @@ interface ViewPointI {
   zoom: number;
 }
 
-type PointCoords = [number, number];
-type PointGeom = { coordinates: PointCoords; type: string };
+export type PointCoords = [number, number];
+export type PointGeom = { coordinates: PointCoords; type: string };
 
 export interface Point {
   geometry: PointGeom;
@@ -85,10 +85,10 @@ export interface Point {
 }
 
 function LngLatMap(props: LngLatMapI) {
-  const { point, setPoint } = props;
+  const { point, setPoint, disabled = false } = props;
   const [viewport, setViewport] = useState<ViewPointI>({
-    longitude: -89,
-    latitude: 43,
+    longitude: point.geometry.coordinates[0],
+    latitude: point.geometry.coordinates[1],
     zoom: 1,
   });
 
@@ -98,6 +98,7 @@ function LngLatMap(props: LngLatMapI) {
   const drawRef = useRef();
 
   const changePoint = (e: FeaturesI) => {
+    if(disabled)return;
     console.log("Change Point Triggered!");
     setPoint(e.features[0]);
   };
@@ -121,7 +122,7 @@ function LngLatMap(props: LngLatMapI) {
     if (typeof map === "undefined") return;
     if (typeof window === "undefined") return;
 
-    editModeMap(map, point, changePoint).then((draw) => {
+    editModeMap(map, point, changePoint, disabled).then((draw) => {
       drawRef.current = draw;
     });
     return () => {
@@ -140,7 +141,7 @@ function LngLatMap(props: LngLatMapI) {
   return h("div", [
     h("div.map-container", {
       ref: mapContainerRef,
-      style: { width: props.width ?? "100%", height: props.height ?? "300px" },
+      style: { width: props.width ?? "100%", height: props.height ?? "300px",pointerEvents: disabled? "none": "all" },
     }),
   ]);
 }
