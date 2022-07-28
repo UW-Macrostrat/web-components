@@ -5,7 +5,7 @@ import {
   ColumnContext
 } from "@macrostrat/column-components";
 import { useContext } from "react";
-import "@macrostrat/timescale/dist/timescale.css";
+// import "@macrostrat/timescale/dist/timescale.css";
 //
 const AgeAxisCore = ({ ticks, tickSpacing = 40, showDomain = false }) => {
   const { pixelHeight } = useContext(ColumnContext);
