@@ -29,8 +29,6 @@
     "@rollup/plugin-node-resolve": "^9.0.0",
     "cssnano": "^4.1.10",
     "parcel": "^2.0.0-beta.1",
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1",
     "rollup": "^2.38.1",
     "rollup-plugin-postcss": "^3.1.6",
     "stylus": "^0.54.8",
@@ -39,6 +37,7 @@
   "dependencies": {
     "@macrostrat/column-components": "^0.8.2",
     "@macrostrat/hyper": "^1.2.11",
+    "@macrostrat/timescale": "*",
     "@types/classnames": "^2.2.10",
     "@types/d3-array": "^2.0.0",
     "@vx/axis": "0.0.198",
@@ -48,7 +47,7 @@
     "d3-format": "^2.0.0"
   },
   "peerDependencies": {
-    "react": "^16.13.1",
-    "react-dom": "^16.13.1"
+    "react": "^16.13.1||^17",
+    "react-dom": "^16.13.1||^17"
   }
 }
