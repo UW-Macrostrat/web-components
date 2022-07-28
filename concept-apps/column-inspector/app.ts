@@ -10,7 +10,7 @@ import Column from "./column";
 import GeologicPatternProvider from "../pattern-provider";
 import { useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
-import { preprocessUnits } from "./process-data";
+import { preprocessUnits } from "@macrostrat/concept-app-helpers";
 
 const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name);

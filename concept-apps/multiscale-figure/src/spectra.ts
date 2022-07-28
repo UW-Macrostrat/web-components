@@ -5,7 +5,7 @@ import {
   extractPadding
 } from "@macrostrat/column-components";
 import { AnnotatedUnitsColumn } from "common/units/composite";
-import { useMeasurementData } from "../../carbon-isotopes/data-provider";
+import { useMeasurementData } from "@macrostrat/concept-app-helpers";
 import { createContext, useContext, useMemo } from "react";
 import { scaleLinear } from "@vx/scale";
 import { AreaClosed } from "@vx/shape";

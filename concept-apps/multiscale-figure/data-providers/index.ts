@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import {
   useMeasurementData,
   MeasurementDataContext
-} from "../../carbon-isotopes/data-provider";
+} from "@macrostrat/concept-app-helpers";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { MeasurementLong, UnitLong, ColumnSpec } from "@macrostrat/api-types";
 import {

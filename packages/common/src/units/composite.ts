@@ -2,7 +2,8 @@ import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
   useColumn,
-  useColumnDivisions
+  useColumnDivisions,
+  ColumnLayoutContext
 } from "@macrostrat/column-components";
 import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
 import {
@@ -197,6 +198,20 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
       width: width - columnWidth - gutterWidth
     })
   ]);
+}
+
+export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
+  // This comes from CompositeUnits
+  const { width } = useContext(ColumnLayoutContext);
+
+  //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
+  //console.log(division);
+  return h(TrackedLabeledUnit, {
+    division,
+    ...rest,
+    width: division.overlappingUnits.length > 0 ? width / nColumns : width,
+    x: (division.column * width) / nColumns
+  });
 }
 
 export {

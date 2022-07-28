@@ -4,11 +4,11 @@ import {
   ColumnSVG,
   useColumn
 } from "@macrostrat/column-components";
-import { AgeAxis } from "../../enriched-timeline/column";
+import { AgeAxis } from "@macrostrat/concept-app-helpers";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-// import "@macrostrat/timescale/dist/timescale.css";
-import { preprocessUnits } from "../../column-inspector/process-data";
+//import "../../../packages/timescale/dist/timescale.css";
+import { preprocessUnits } from "@macrostrat/concept-app-helpers";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface IColumnProps {
@@ -46,8 +46,9 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
         h(AgeAxis, {
           tickSpacing: 80,
           width: 40,
-          padding: 30,
-          paddingRight: 30
+          padding: 0,
+          paddingRight: 30,
+          paddingV: 30
         }),
 
         h(Timescale, {
@@ -83,7 +84,7 @@ function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
         {
           width,
           padding: 5,
-          paddingLeft: 1,
+          paddingLeft: 0,
           paddingV: 30
         },
 

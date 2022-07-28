@@ -3545,6 +3545,12 @@ __metadata:
   languageName: unknown
   linkType: soft
 
+"@macrostrat/concept-app-helpers@workspace:packages/concept-app-helpers":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/concept-app-helpers@workspace:packages/concept-app-helpers"
+  languageName: unknown
+  linkType: soft
+
 "@macrostrat/corelle@npm:^1.1.0":
   version: 1.1.0
   resolution: "@macrostrat/corelle@npm:1.1.0"

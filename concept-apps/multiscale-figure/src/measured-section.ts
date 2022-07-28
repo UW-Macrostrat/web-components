@@ -12,7 +12,6 @@ import {
   ColumnSurface
 } from "@macrostrat/column-components";
 import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
-import { AgeAxis } from "../../enriched-timeline/column";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 // import "@macrostrat/timescale/dist/timescale.css";

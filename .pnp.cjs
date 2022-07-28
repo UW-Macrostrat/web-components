@@ -45,6 +45,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
         "reference": "workspace:packages/column-views"\
       },\
       {\
+        "name": "@macrostrat/concept-app-helpers",\
+        "reference": "workspace:packages/concept-app-helpers"\
+      },\
+      {\
         "name": "@macrostrat/data-components",\
         "reference": "workspace:packages/data-components"\
       },\
@@ -1147,6 +1151,10 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       [\
         "@macrostrat/column-views",\
         "workspace:packages/column-views"\
+      ],\
+      [\
+        "@macrostrat/concept-app-helpers",\
+        "workspace:packages/concept-app-helpers"\
       ],\
       [\
         "@macrostrat/corelle",\
@@ -16120,6 +16128,15 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
           "packageDependencies": [\
             ["@macrostrat/column-views", "workspace:packages/column-views"],\
             ["@macrostrat/column-components", "virtual:27b62e7445263042c45d8a0158ddae0e4b8d172da757506aae158a433a69ee82e45d9d9cb9d4a0bbb41ee319b03c3433bde6fda42209c4aa4e106750bcbdcc88#workspace:packages/column-components"]\
+          ],\
+          "linkType": "SOFT"\
+        }]\
+      ]],\
+      ["@macrostrat/concept-app-helpers", [\
+        ["workspace:packages/concept-app-helpers", {\
+          "packageLocation": "./packages/concept-app-helpers/",\
+          "packageDependencies": [\
+            ["@macrostrat/concept-app-helpers", "workspace:packages/concept-app-helpers"]\
           ],\
           "linkType": "SOFT"\
         }]\

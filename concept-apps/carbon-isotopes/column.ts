@@ -10,7 +10,7 @@ import {
 import { SimpleUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
 import { useContext } from "react";
-import { IsotopesColumn } from "./isotopes-column";
+import { IsotopesColumn } from "@macrostrat/concept-app-helpers";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface IColumnProps {
