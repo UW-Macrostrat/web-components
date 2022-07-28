@@ -7,7 +7,7 @@ import {
 import { AgeAxis } from "../../enriched-timeline/column";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import "@macrostrat/timescale/dist/timescale.css";
+// import "@macrostrat/timescale/dist/timescale.css";
 import { preprocessUnits } from "../../column-inspector/process-data";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 

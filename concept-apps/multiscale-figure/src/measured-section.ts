@@ -15,7 +15,7 @@ import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
 import { AgeAxis } from "../../enriched-timeline/column";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import "@macrostrat/timescale/dist/timescale.css";
+// import "@macrostrat/timescale/dist/timescale.css";
 import { useAPIResult } from "@macrostrat/ui-components";
 
 interface IColumnProps {
@@ -150,7 +150,6 @@ const BaseSection = (
   if (unitData != null) {
     divisions = mergeUnitData(unitData, divisions);
   }
-
 
   return h("div.measured-section.column", [
     h(

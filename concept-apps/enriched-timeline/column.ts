@@ -5,7 +5,7 @@ import { AgeAxis } from "common";
 import { CompositeUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import "@macrostrat/timescale/dist/timescale.css";
+// import "@macrostrat/timescale/dist/timescale.css";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface IColumnProps {

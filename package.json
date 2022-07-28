@@ -24,6 +24,7 @@
     "@macrostrat/map-components": "@macrostrat/map-components/src",
     "@macrostrat/ui-components": "./packages/ui-components/src",
     "@macrostrat/api-views": "./packages/api-views/src",
+    "@macrostrat/timescale": "./packages/timescale/src",
     "common": "./packages/common/src"
   },
   "devDependencies": {

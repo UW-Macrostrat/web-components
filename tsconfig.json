@@ -11,6 +11,8 @@
       "common/*": ["./packages/common/src/*"],
       "@macrostrat/column-components": ["./packages/column-components/src"],
       "@macrostrat/map-components": ["./packages/map-components/src"],
+      "@macrostrat/timescale": ["./packages/timescale/src"],
+      "@macrostrat/*": ["./packages/*/src"],
       "@macrostrat/ui-components": ["./packages/ui-components/src"],
       "@macrostrat/api-types": ["./packages/api-types/types"],
       "@macrostrat/api-views": ["./packages/api-views/src"]

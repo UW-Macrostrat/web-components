@@ -3,12 +3,9 @@ import { useState, useEffect } from "react";
 import { ResizeSensor } from "@blueprintjs/core";
 import { RotationsProvider } from "@macrostrat/corelle";
 import { Timescale } from "@macrostrat/timescale";
-import "@macrostrat/timescale/dist/timescale.css";
+// import "@macrostrat/timescale/dist/timescale.css";
 import { Map } from "./map";
-import {
-  getQueryString,
-  setQueryString,
-} from "@macrostrat/ui-components";
+import { getQueryString, setQueryString } from "@macrostrat/ui-components";
 
 function useTimeState(initialValue) {
   /** Time state hook that also manages query URL */
@@ -17,7 +14,7 @@ function useTimeState(initialValue) {
   const _init = isNaN(val) ? initialValue : val;
 
   const [time, _setTime] = useState(_init);
-  const setTime = (t) => {
+  const setTime = t => {
     _setTime(t);
     setQueryString({ time: t });
   };
@@ -54,7 +51,7 @@ function App() {
   const [time, setTime] = useTimeRange([542, 0], 300);
   const [size, setSize] = useState({
     width: 1100,
-    height: 800,
+    height: 800
   });
 
   return h(
@@ -63,12 +60,12 @@ function App() {
       onResize(entries) {
         const { width, height } = entries[0].contentRect;
         return setSize({ width, height });
-      },
+      }
     },
     [
       h("div.app", [
         h(RotationsProvider, { model, time, debounce: 1000 }, [
-          h(Map, { width: size.width, height: size.height - 100 }),
+          h(Map, { width: size.width, height: size.height - 100 })
         ]),
         // Many of these timescale options need to be simplified
         h(Timescale, {
@@ -83,13 +80,13 @@ function App() {
             orientation: "top",
             tickLength: 4,
             hideAxisLine: true,
-            labelOffset: 10,
+            labelOffset: 10
           },
           onClick(event, age) {
             setTime(Math.round(age));
-          },
-        }),
-      ]),
+          }
+        })
+      ])
     ]
   );
 }
