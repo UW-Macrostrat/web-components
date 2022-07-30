@@ -69,7 +69,6 @@ function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
   const { data, range, pixelScale, children, width = 350 } = props;
   const { pixelsPerMeter } = useColumn();
   const divisions = preprocessUnits(data);
-  console.log(divisions);
 
   return h(
     MacrostratColumnProvider,

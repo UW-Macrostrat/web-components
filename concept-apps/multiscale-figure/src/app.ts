@@ -99,16 +99,16 @@ const ColumnManager = () => {
         h(
           AlignedMeasurementProvider,
           { targetColumn: largestScaleColumn },
-          h(Column, { params: largestScaleColumn, width: 280 }, [
-            h(CompositeUnitsColumn, {
-              width: 240,
-              showLabels: false,
-              unitComponent: CompositeUnitComponent,
-              unitComponentProps: {
-                nColumns: 2
-              }
-            })
-            //h(IsotopesSpectraColumn)
+          h(Column, { params: largestScaleColumn, width: 400, nColumns: 2 }, [
+            // h(CompositeUnitsColumn, {
+            //   width: 240,
+            //   showLabels: false,
+            //   unitComponent: CompositeUnitComponent,
+            //   unitComponentProps: {
+            //     nColumns: 2
+            //   }
+            // }),
+            h(IsotopesSpectraColumn)
           ])
         ),
         h(AlignedMeasurementProvider, { targetColumn: regionalColumn }, [
@@ -143,7 +143,7 @@ const ColumnManager = () => {
 const App = compose(
   C(GeologicPatternProvider),
   C(APIProvider, {
-    baseURL: "https://dev.macrostrat.org/api/v2",
+    baseURL: "https://macrostrat.org/api/v2",
     unwrapResponse: res => res.success.data
   }),
   ColumnManager

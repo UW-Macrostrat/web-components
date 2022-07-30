@@ -87,7 +87,7 @@ function TrackedLabeledUnit({
     //halfWidth: div.bottomOverlap,
     label: nameForDivision(division),
     onLabelUpdated(label, visible) {
-      trackLabelVisibility(division, visible);
+      trackLabelVisibility(division, false);
     },
     ...rest
   });
@@ -183,6 +183,8 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     gutterWidth = 10,
     labelOffset = 30,
     showLabels = true,
+    noteComponent,
+    shouldRenderNote,
     ...rest
   } = props;
 
@@ -195,7 +197,9 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     h.if(showLabels)(UnlabeledUnitNames, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
-      width: width - columnWidth - gutterWidth
+      width: width - columnWidth - gutterWidth,
+      noteComponent,
+      shouldRenderNote
     })
   ]);
 }

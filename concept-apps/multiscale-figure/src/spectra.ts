@@ -17,6 +17,8 @@ import {
 } from "common/dz-spectrum/kernel-density";
 import { IUnit } from "common/units/types";
 import { PlotAreaContext, usePlotArea } from "common/dz-spectrum/index";
+import { CompositeUnitsColumn, CompositeUnitComponent } from "common/units";
+import chroma from "chroma-js";
 
 interface IsotopesSeriesProps {
   data: number[];
@@ -26,7 +28,7 @@ interface IsotopesSeriesProps {
 const noOp = d => d;
 
 function IsotopesSeries(props: IsotopesSeriesProps) {
-  const { data, accessor = noOp, bandwidth = 0.5 } = props;
+  const { data, accessor = noOp, bandwidth = 0.5, ...rest } = props;
   if (data == null) {
     return null;
   }
@@ -55,7 +57,8 @@ function IsotopesSeries(props: IsotopesSeriesProps) {
       return yScale(d[1]);
     },
     stroke: "magenta",
-    fill: "transparent"
+    fill: "transparent",
+    ...rest
     //fill: `url(#${id})`
   });
 }
@@ -71,10 +74,10 @@ interface IsotopesPlotProps extends Partial<Padding> {
 function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
   const {
     children,
-    width = 300,
-    height = 60,
+    width = 350,
+    height = 100,
     label,
-    tickFormat = d => d,
+    tickFormat = d => `${d}`,
     ...rest
   } = props;
 
@@ -85,7 +88,7 @@ function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
     paddingBottom
   } = extractPadding({ paddingBottom: 18, padding: 5, ...rest });
 
-  let minmax = [-10, 10];
+  let minmax = [-18, 10];
   const delta = minmax[1] - minmax[0];
   //minmax = [minmax[0] - bandwidth * 4, minmax[1] + bandwidth * 4]
 
@@ -121,7 +124,7 @@ function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
         [
           h(AxisBottom, {
             scale: xScale,
-            numTicks: 10,
+            numTicks: 5,
             tickLength: 4,
             tickFormat,
             strokeWidth: 1.5,
@@ -141,6 +144,28 @@ function getMeasureValues(measures) {
     res = res.concat(meas.measure_value);
   }
   return res;
+}
+
+function Series({ unit_id, parameter, color, ...rest }) {
+  const measures = useMeasurementData() ?? [];
+  const unitMeasures = measures.filter(
+    d => d.unit_id == unit_id && d.measurement == parameter
+  );
+  console.log(unitMeasures);
+
+  const values = getMeasureValues(unitMeasures);
+  if (values.length < 1) {
+    return null;
+  }
+  return h(IsotopesSeries, {
+    data: values,
+    strokeWidth: 2,
+    stroke: color,
+    fill: chroma(color)
+      .alpha(0.2)
+      .css(),
+    ...rest
+  });
 }
 
 function IsotopesSpectrum({
@@ -163,7 +188,14 @@ function IsotopesSpectrum({
   return h(
     IsotopesSpectrumPlot,
     { width: 140, height: 50, label: "Isotope value" },
-    h(IsotopesSeries, { data: values })
+    [
+      h(Series, {
+        parameter: "D13C",
+        unit_id,
+        color: "dodgerblue"
+      }),
+      h(Series, { parameter: "D18O", unit_id, color: "red" })
+    ]
   );
 }
 
@@ -181,16 +213,19 @@ function IsotopesSpectraColumn(props: {
   const { parameter = "D13C" } = props;
   const measures = useMeasurementData() ?? [];
 
-  return h(AnnotatedUnitsColumn, {
+  return h(CompositeUnitsColumn, {
     width: 400,
-    columnWidth: 140,
-    gutterWidth: 0,
+    columnWidth: 200,
+    showLabels: true,
+    unitComponent: CompositeUnitComponent,
+    unitComponentProps: {
+      nColumns: 2
+    },
     noteComponent: IsotopeSpectrumNote,
     shouldRenderNote(div: IUnit) {
       const unitMeasures = measures.filter(
         d => d.unit_id == div.unit_id && d.measurement == parameter
       );
-      console.log(unitMeasures);
       return unitMeasures.length > 0;
     }
   });

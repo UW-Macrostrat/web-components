@@ -72,13 +72,19 @@ const columnData: ColumnSurface[] = [
   }
 ];
 
+const patternIndex = {
+  sandstone: 607,
+  limestone: 627,
+  shale: 620
+};
+
 function buildDivisions<T extends ColumnSurface>(
   surfaces: T[],
   range: [number, number]
 ): (BaseUnit & UnitDivision & T)[] {
   const units = surfaces.filter(d => d.unit_id != null);
   return surfaces.map((surface, i) => {
-    const { height, ...rest } = surface;
+    const { height, pattern, ...rest } = surface;
     const bottom = height;
     const nextSurface = surfaces[i + 1];
     const nextHeight = nextSurface != null ? nextSurface.height : range[1];
@@ -89,6 +95,7 @@ function buildDivisions<T extends ColumnSurface>(
       bottom,
       t_age: bottom,
       b_age: bottom + nextUnitHeight, // this is wrong
+      pattern: patternIndex[pattern] ?? pattern,
       ...rest
     };
   });
