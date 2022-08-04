@@ -69,7 +69,6 @@ function preprocessUnits(units: UnitLong[]) {
       }
       d.column = col;
     }
-    console.log(d, d.column);
   }
 
   return divisions;
