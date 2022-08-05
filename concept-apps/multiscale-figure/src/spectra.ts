@@ -220,6 +220,7 @@ function IsotopesSpectraColumn(props: {
       nColumns: 2
     },
     noteComponent: IsotopeSpectrumNote,
+    noteMode: "all",
     shouldRenderNote(div: IUnit) {
       const unitMeasures = measures.filter(
         d => d.unit_id == div.unit_id && d.measurement == parameter
