@@ -132,8 +132,16 @@ div.map-column
     display block
 
   .lithology-column .frame
-    stroke: white
+    stroke: white !important
   g.inner
     rect.unit
       filter: invert(100%)
-      stroke: black !important
+      stroke: black
+
+// Helps with darkreader on Firefox
+html[data-darkreader-scheme="dark"]
+  .lithology-column .frame
+    stroke: white
+  g.inner
+    pattern image
+      filter: invert(100%)

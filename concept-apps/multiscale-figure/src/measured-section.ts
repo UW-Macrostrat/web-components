@@ -94,8 +94,9 @@ function buildDivisions<T extends ColumnSurface>(
       top: nextHeight,
       bottom,
       t_age: bottom,
-      b_age: bottom + nextUnitHeight, // this is wrong
-      pattern: patternIndex[pattern] ?? pattern,
+      b_age: bottom + nextUnitHeight, // this is wrong,
+      lithology: pattern,
+      pattern: `${patternIndex[pattern] ?? pattern}`,
       ...rest
     };
   });
@@ -157,6 +158,8 @@ const BaseSection = (
     divisions = mergeUnitData(unitData, divisions);
   }
 
+  console.log(divisions);
+
   return h("div.measured-section.column", [
     h(
       ColumnProvider,
@@ -196,7 +199,11 @@ const BaseSection = (
                 width: 80,
                 grainsizeScaleStart: 40
               },
-              [h(GeneralizedSectionColumn, [h(LithologyBoxes)])]
+              [
+                h(GeneralizedSectionColumn, [
+                  h(LithologyBoxes, { resolveID: d => d.pattern })
+                ])
+              ]
             ),
             children
           ]

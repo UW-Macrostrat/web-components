@@ -87,13 +87,14 @@ function TrackedLabeledUnit({
     //halfWidth: div.bottomOverlap,
     label: nameForDivision(division),
     onLabelUpdated(label, visible) {
-      trackLabelVisibility(division, false);
+      trackLabelVisibility(division, visible);
     },
     ...rest
   });
 }
 
 function UnlabeledUnitNames(props) {
+  // Returns only unlabeled divisions
   const divisions = useContext(UnlabeledDivisionsContext);
   if (divisions == null) return null;
   return h(UnitNamesColumn, { divisions, ...props });
@@ -182,6 +183,7 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     width = 100,
     gutterWidth = 10,
     labelOffset = 30,
+    noteMode = "unlabeled",
     showLabels = true,
     noteComponent,
     shouldRenderNote,
@@ -193,8 +195,11 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     columnWidth = width;
   }
 
+  const labelColumnComponent =
+    noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
+
   return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
-    h.if(showLabels)(UnlabeledUnitNames, {
+    h.if(showLabels)(labelColumnComponent, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
       width: width - columnWidth - gutterWidth,

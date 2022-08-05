@@ -249,7 +249,7 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
     showDebugLayers = false
   } = props;
 
-  let features = useColumnData(apiRoute, { status_code, project_id });
+  let features = useColumnData({ apiRoute, status_code, project_id });
 
   if (features == null) return null;
 

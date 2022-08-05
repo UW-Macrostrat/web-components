@@ -7,12 +7,12 @@ import {
   getQueryString,
   setQueryString
 } from "@macrostrat/ui-components";
-import { GeologicPatternProvider } from "@macrostrat/column-components";
 import Column, { IUnit } from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
 import { DetritalColumn } from "./detrital";
 import { ColumnMapNavigator, MeasurementsLayer } from "common/column-map";
 import { ColumnDataProvider, useColumnData } from "./column-data";
+import GeologicPatternProvider from "../pattern-provider";
 
 const ColumnTitle = props => {
   return h.if(props.data != null)("h1", props.data?.col_name);
@@ -72,7 +72,7 @@ const resolvePattern = id => patterns[id];
 const App = () => {
   return h(
     GeologicPatternProvider,
-    { resolvePattern },
+    null,
     h(
       APIProvider,
       {

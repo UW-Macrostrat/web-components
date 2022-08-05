@@ -151,7 +151,6 @@ function Series({ unit_id, parameter, color, ...rest }) {
   const unitMeasures = measures.filter(
     d => d.unit_id == unit_id && d.measurement == parameter
   );
-  console.log(unitMeasures);
 
   const values = getMeasureValues(unitMeasures);
   if (values.length < 1) {
@@ -179,7 +178,6 @@ function IsotopesSpectrum({
   const unitMeasures = measures.filter(
     d => d.unit_id == unit_id && d.measurement == parameter
   );
-  console.log(unitMeasures);
 
   const values = getMeasureValues(unitMeasures);
   if (values.length < 1) {
@@ -222,6 +220,7 @@ function IsotopesSpectraColumn(props: {
       nColumns: 2
     },
     noteComponent: IsotopeSpectrumNote,
+    noteMode: "all",
     shouldRenderNote(div: IUnit) {
       const unitMeasures = measures.filter(
         d => d.unit_id == div.unit_id && d.measurement == parameter
