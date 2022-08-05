@@ -20,7 +20,7 @@ import {
   useColumnAgeModel
 } from "./age-model-column";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
-import "@macrostrat/timescale/dist/timescale.css";
+// import "@macrostrat/timescale/dist/timescale.css";
 import { Timescale } from "@macrostrat/timescale";
 import styles from "./age-model.module.styl";
 

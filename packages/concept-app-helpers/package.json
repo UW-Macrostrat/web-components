@@ -1,0 +1,7 @@
+{
+  "name": "@macrostrat/concept-app-helpers",
+  "version": "1.0.0",
+  "description": "Concept applications to drive UI development work",
+  "private": true,
+  "source": "src/index.ts"
+}

@@ -1,0 +1,46 @@
+#!/usr/bin/env bash
+
+port=${1:-1234}
+
+echo "Welcome to Macrostrat's UI component workshop! Access the app at http://localhost:$port"
+sleep 1
+
+if ! which tmux >/dev/null; then
+  echo "tmux is not installed, using a simple concurrent runner"
+  yarn run concurrently "yarn run dev:concepts" "yarn run dev:storybook"
+  exit 0
+fi
+
+# https://maxschmitt.me/posts/tmux-script-speed-up-workflow/
+
+# TMux cheat sheet
+# https://gist.github.com/MohamedAlaa/2961058
+
+# Allow us to nest sessions
+unset TMUX
+
+# Create a new tmux session in the background
+tmux new -s macrostrat-ui-components -d
+# Navigate to api
+# Run `yarn dev`
+
+tmux select-pane -T "Dev concept apps (http://localhost:$port)"
+
+tmux send-keys "yarn run dev:concepts" C-m
+
+
+# Split the window vertically and navigate to website
+tmux split-window -v
+# Run `yarn dev`
+tmux select-pane -T "Storybook (/stories) ... close panes with Prefix-X"
+
+tmux send-keys "yarn run dev:storybook" C-m
+
+tmux set -g pane-border-status bottom   # For all windows
+
+tmux set -g status off
+
+tmux bind X confirm-before kill-session
+
+tmux a -t macrostrat-ui-components
+

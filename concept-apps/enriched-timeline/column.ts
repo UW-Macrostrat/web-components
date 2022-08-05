@@ -1,11 +1,11 @@
 import h from "@macrostrat/hyper";
 import { group } from "d3-array";
 import { ColumnProvider, ColumnSVG } from "@macrostrat/column-components";
-import { AgeAxis } from "common";
+import { AgeAxis } from "@macrostrat/concept-app-helpers";
 import { CompositeUnitsColumn } from "common/units";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import "@macrostrat/timescale/dist/timescale.css";
+// import "@macrostrat/timescale/dist/timescale.css";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 
 interface IColumnProps {

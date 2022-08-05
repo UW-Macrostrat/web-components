@@ -33,7 +33,8 @@ git submodule init --recursive
 
 This will automatically initialize all git submodules used in the monorepo.
 
-Next install all necesary node modules using your package manager of choice.
+Next install all necessary modules. The repository is set up to use **Yarn v2** by default, for
+quick installs and updates.
 
 ```
 npm install

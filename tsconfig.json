@@ -5,11 +5,14 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "downlevelIteration": true,
+    "target": "ES2015", // "ES3" (default), "ES5", "ES6"/"ES2015", "ES2016", "ES2017" or "ESNext".
     "paths": {
       "common": ["./packages/common/src"],
       "common/*": ["./packages/common/src/*"],
       "@macrostrat/column-components": ["./packages/column-components/src"],
       "@macrostrat/map-components": ["./packages/map-components/src"],
+      "@macrostrat/timescale": ["./packages/timescale/src"],
+      "@macrostrat/*": ["./packages/*/src"],
       "@macrostrat/ui-components": ["./packages/ui-components/src"],
       "@macrostrat/api-types": ["./packages/api-types/types"],
       "@macrostrat/api-views": ["./packages/api-views/src"]
@@ -23,6 +26,7 @@
     "packages/column-components/src/**/*",
     "packages/map-components/src/**/*",
     "packages/ui-components/src/**/*",
-    "packages/api-utils/src/**/*"
+    "packages/api-utils/src/**/*",
+    "packages/**/*.ts"
   ]
 }

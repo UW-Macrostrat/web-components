@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { ResizeSensor } from "@blueprintjs/core";
 import { RotationsProvider } from "@macrostrat/corelle";
 import { Timescale } from "@macrostrat/timescale";
-import "@macrostrat/timescale/dist/timescale.css";
+//// import "@macrostrat/timescale/dist/timescale.css";
 import { Map } from "./map";
 import { getQueryString, setQueryString } from "@macrostrat/ui-components";
 import { IntervalProvider, useSelectedInterval } from "./time-intervals";

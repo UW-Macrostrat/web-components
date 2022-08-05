@@ -1,17 +1,17 @@
 import h, { C, compose } from "@macrostrat/hyper";
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
-import { GeologicPatternProvider } from "@macrostrat/column-components";
-import { MeasurementDataProvider } from "../../carbon-isotopes/data-provider";
+import GeologicPatternProvider from "../../pattern-provider";
 import {
   AlignedMeasurementProvider,
   FilteredMeasurementProvider
 } from "../data-providers";
 import { BaseSection, InteriorSection } from "./section";
-import { CompositeUnitsColumn } from "common/units";
+import { CompositeUnitsColumn, CompositeUnitComponent } from "common/units";
 import {
   IsotopesColumn,
-  IsotopesDataset
-} from "../../carbon-isotopes/isotopes-column";
+  IsotopesDataset,
+  MeasurementDataProvider
+} from "@macrostrat/concept-app-helpers";
 import {
   IsotopesSpectraColumn,
   IsotopeSpectrumNote,
@@ -19,11 +19,8 @@ import {
 } from "./spectra";
 import { ColumnSpec } from "@macrostrat/api-types";
 import { IUnit } from "common/units";
-import patterns from "url:../../../geologic-patterns/*.png";
 import { MeasuredSection } from "./measured-section";
-import { preprocessUnits } from "../../column-inspector/process-data";
-import "./main.styl";
-import { UnitComponent } from "../../column-inspector/column";
+import { preprocessUnits } from "@macrostrat/concept-app-helpers";
 import { ColumnMap } from "./map";
 
 const timeRange = [650, 510];
@@ -102,16 +99,16 @@ const ColumnManager = () => {
         h(
           AlignedMeasurementProvider,
           { targetColumn: largestScaleColumn },
-          h(Column, { params: largestScaleColumn, width: 280 }, [
-            h(CompositeUnitsColumn, {
-              width: 240,
-              showLabels: false,
-              unitComponent: UnitComponent,
-              unitComponentProps: {
-                nColumns: 2
-              }
-            })
-            //h(IsotopesSpectraColumn)
+          h(Column, { params: largestScaleColumn, width: 400, nColumns: 2 }, [
+            // h(CompositeUnitsColumn, {
+            //   width: 240,
+            //   showLabels: false,
+            //   unitComponent: CompositeUnitComponent,
+            //   unitComponentProps: {
+            //     nColumns: 2
+            //   }
+            // }),
+            h(IsotopesSpectraColumn)
           ])
         ),
         h(AlignedMeasurementProvider, { targetColumn: regionalColumn }, [
@@ -143,12 +140,10 @@ const ColumnManager = () => {
   ]);
 };
 
-const resolvePattern = id => patterns[id];
-
 const App = compose(
-  C(GeologicPatternProvider, { resolvePattern }),
+  C(GeologicPatternProvider),
   C(APIProvider, {
-    baseURL: "https://dev.macrostrat.org/api/v2",
+    baseURL: "https://macrostrat.org/api/v2",
     unwrapResponse: res => res.success.data
   }),
   ColumnManager

@@ -12,10 +12,9 @@ import {
   ColumnSurface
 } from "@macrostrat/column-components";
 import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
-import { AgeAxis } from "../../enriched-timeline/column";
 import { IUnit } from "common/units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import "@macrostrat/timescale/dist/timescale.css";
+// import "@macrostrat/timescale/dist/timescale.css";
 import { useAPIResult } from "@macrostrat/ui-components";
 
 interface IColumnProps {
@@ -73,13 +72,19 @@ const columnData: ColumnSurface[] = [
   }
 ];
 
+const patternIndex = {
+  sandstone: 607,
+  limestone: 627,
+  shale: 620
+};
+
 function buildDivisions<T extends ColumnSurface>(
   surfaces: T[],
   range: [number, number]
 ): (BaseUnit & UnitDivision & T)[] {
   const units = surfaces.filter(d => d.unit_id != null);
   return surfaces.map((surface, i) => {
-    const { height, ...rest } = surface;
+    const { height, pattern, ...rest } = surface;
     const bottom = height;
     const nextSurface = surfaces[i + 1];
     const nextHeight = nextSurface != null ? nextSurface.height : range[1];
@@ -89,7 +94,9 @@ function buildDivisions<T extends ColumnSurface>(
       top: nextHeight,
       bottom,
       t_age: bottom,
-      b_age: bottom + nextUnitHeight, // this is wrong
+      b_age: bottom + nextUnitHeight, // this is wrong,
+      lithology: pattern,
+      pattern: `${patternIndex[pattern] ?? pattern}`,
       ...rest
     };
   });
@@ -151,6 +158,7 @@ const BaseSection = (
     divisions = mergeUnitData(unitData, divisions);
   }
 
+  console.log(divisions);
 
   return h("div.measured-section.column", [
     h(
@@ -191,7 +199,11 @@ const BaseSection = (
                 width: 80,
                 grainsizeScaleStart: 40
               },
-              [h(GeneralizedSectionColumn, [h(LithologyBoxes)])]
+              [
+                h(GeneralizedSectionColumn, [
+                  h(LithologyBoxes, { resolveID: d => d.pattern })
+                ])
+              ]
             ),
             children
           ]

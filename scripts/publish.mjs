@@ -1,5 +1,5 @@
 /* script to check versions on ui-packages and publish those that aren't on npm */
-import fetch, { Headers, Request, Response } from "node-fetch";
+import axios from "axios";
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";
@@ -8,56 +8,50 @@ import { execSync } from "child_process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const projectDir = path.resolve(path.join(__dirname, ".."));
 
 // tries to copy this file but in NodeJs
 // https://github.com/UW-Macrostrat/python-libraries/blob/main/publish.py
 
-/* need this for fetching in node */
-if (!globalThis.fetch) {
-  globalThis.fetch = fetch;
-  globalThis.Headers = Headers;
-  globalThis.Request = Request;
-  globalThis.Response = Response;
-}
-
-const packages = ["ui-components"];
+const packages = ["ui-components", "mapbox-utils"];
 
 /* get package.json filr from correct dir */
 function getPackageData(pkgName) {
-  const path_ = getPkgDir(pkgName);
-  const pkgData = fs.readFileSync(path_ + "/package.json");
+  const rootDir = getPkgDir(pkgName);
+  const pkgData = fs.readFileSync(path.join(rootDir, "package.json"));
   return JSON.parse(pkgData);
 }
 
 function getPkgDir(pkgName) {
-  return path.join(__dirname + "/packages/" + `${pkgName}`);
+  return path.join(projectDir, "packages", pkgName);
+}
+
+function logAction(pkg, action, color = chalk.blue) {
+  console.log(color.bold(action) + color(`: ` + moduleString(pkg)));
 }
 
 /* Runs, npm build in the correct pkg directory*/
 function prepareModule(dir, pkg) {
   pkg = getPackageData(pkg);
-  console.log(
-    chalk.blue.bold(`Building`) +
-      chalk.blueBright(`: ${pkg["name"]}@${pkg["version"]}`)
-  );
-  execSync("npm run build", { cwd: dir, stdio: "inherit" });
+  logAction(pkg, "Building");
+  execSync("yarn run build", { cwd: dir, stdio: "inherit" });
 }
 
 /* tries to run npm publish and if succeeds adds a tag to the repo*/
 function publishModule(dir, pkg) {
   pkg = getPackageData(pkg);
-  console.log(
-    chalk.magenta.bold("Publishing") +
-      chalk.magenta(`: ${pkg["name"]}@${pkg["version"]}`)
-  );
+  logAction(pkg, "Publishing", chalk.magenta);
   try {
-    execSync("npm publish", { cwd: dir, stdio: "inherit" });
-    console.log(chalk.blueBright.bold("Creating version tag"));
-    const tag = createModuleString(pkg);
-    const msg = createModuleString(pkg, true);
+    execSync("yarn npm publish --access public", {
+      cwd: dir,
+      stdio: "inherit"
+    });
+    console.log(chalk.blueBright.bold("Tagging version"));
+    const tag = moduleString(pkg, "-v");
+    const msg = moduleString(pkg, " version ");
     execSync(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
   } catch (error) {
-    console.error(`Failed to publish ${createModuleString(pkg)}, ${error}`);
+    console.error(`Failed to publish ${moduleString(pkg)}, ${error}`);
   }
 }
 
@@ -65,19 +59,25 @@ function publishModule(dir, pkg) {
 async function packageExists(pkg) {
   const name = pkg["name"];
   const version = pkg["version"];
-  const res = await fetch(`https://registry.npmjs.org/${name}/${version}`);
-  const exists = res.status == 200;
-  if (!exists) {
-    console.log(
-      chalk.greenBright(`${pkg["name"]}@${pkg["version"]} will be published`)
+  let exists = false;
+  try {
+    const res = await axios.get(
+      `https://registry.npmjs.org/${name}/${version}`
     );
-  } else {
-    console.log(
-      chalk.blueBright(
-        `${pkg["name"]}@${pkg["version"]} is already published on npm`
-      )
-    );
+    exists = res.status == 200;
+  } catch {
+    exists = false;
   }
+
+  let msg = moduleString(pkg);
+  let color = chalk.greenBright;
+  if (!exists) {
+    msg += " will be published";
+  } else {
+    msg += " is already published on npm";
+    color = chalk.blueBright;
+  }
+  console.log(color(msg));
 
   return exists;
 }
@@ -89,20 +89,19 @@ function gitHasChanges() {
   return res.toString().length != 0;
 }
 
-function createModuleString(pkg, long = false) {
-  if (long) return `${pkg["name"]} version ${pkg["version"]}`;
-  return `${pkg["name"]}v${pkg["version"]}`;
+function moduleString(pkg, separator = "@") {
+  return pkg["name"] + separator + pkg["version"];
 }
 
 async function main() {
-  const pkgsToPublish = await packages.reduce(async (acc, pkg) => {
-    const exists = await packageExists(getPackageData(pkg));
-    if (!exists) {
-      acc.push(pkg);
-      return acc;
+  let pkgsToPublish = [];
+
+  for (const pkg of packages) {
+    const isAvailable = await packageExists(getPackageData(pkg));
+    if (!isAvailable) {
+      pkgsToPublish.push(pkg);
     }
-    return acc;
-  }, []);
+  }
 
   if (pkgsToPublish.length === 0) {
     console.log(chalk.magentaBright("All packages published"));

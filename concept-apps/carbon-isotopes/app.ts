@@ -2,7 +2,7 @@ import h, { C, compose } from "@macrostrat/hyper";
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
 import Column from "./column";
 import { ColumnMapNavigator, MeasurementsLayer } from "common/column-map";
-import { MeasurementDataProvider } from "./data-provider";
+import { MeasurementDataProvider } from "@macrostrat/concept-app-helpers";
 import PatternProvider from "../pattern-provider";
 import { useColumnNav } from "common/macrostrat-columns";
 

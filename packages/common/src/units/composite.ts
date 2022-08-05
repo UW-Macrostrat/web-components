@@ -2,7 +2,8 @@ import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
   useColumn,
-  useColumnDivisions
+  useColumnDivisions,
+  ColumnLayoutContext
 } from "@macrostrat/column-components";
 import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
 import {
@@ -93,6 +94,7 @@ function TrackedLabeledUnit({
 }
 
 function UnlabeledUnitNames(props) {
+  // Returns only unlabeled divisions
   const divisions = useContext(UnlabeledDivisionsContext);
   if (divisions == null) return null;
   return h(UnitNamesColumn, { divisions, ...props });
@@ -181,7 +183,10 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     width = 100,
     gutterWidth = 10,
     labelOffset = 30,
+    noteMode = "unlabeled",
     showLabels = true,
+    noteComponent,
+    shouldRenderNote,
     ...rest
   } = props;
 
@@ -190,13 +195,32 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     columnWidth = width;
   }
 
+  const labelColumnComponent =
+    noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
+
   return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
-    h.if(showLabels)(UnlabeledUnitNames, {
+    h.if(showLabels)(labelColumnComponent, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
-      width: width - columnWidth - gutterWidth
+      width: width - columnWidth - gutterWidth,
+      noteComponent,
+      shouldRenderNote
     })
   ]);
+}
+
+export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
+  // This comes from CompositeUnits
+  const { width } = useContext(ColumnLayoutContext);
+
+  //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
+  //console.log(division);
+  return h(TrackedLabeledUnit, {
+    division,
+    ...rest,
+    width: division.overlappingUnits.length > 0 ? width / nColumns : width,
+    x: (division.column * width) / nColumns
+  });
 }
 
 export {
