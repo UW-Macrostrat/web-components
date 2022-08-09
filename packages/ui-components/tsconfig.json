@@ -7,7 +7,6 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "downlevelIteration": true,
-    "declarationDir": "lib/types",
     "typeRoots": ["node_modules/@types"],
     "lib": ["es6", "es7", "esnext", "dom"],
     "skipLibCheck": true,
