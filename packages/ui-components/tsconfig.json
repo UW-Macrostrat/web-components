@@ -10,10 +10,11 @@
     "declarationDir": "lib/types",
     "typeRoots": ["node_modules/@types"],
     "lib": ["es6", "es7", "esnext", "dom"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "isolatedModules": true
   },
   "include": ["src"],
-  "exclude": ["lib/types", "src/**/*.stories.ts", "src/**/*.stories.tsx"],
+  "exclude": ["src/**/*.stories.ts", "src/**/*.stories.tsx"],
   "typedocOptions": {
     "entryPoints": ["src/index.ts"],
     "out": "docs",
