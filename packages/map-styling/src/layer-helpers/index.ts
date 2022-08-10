@@ -5,7 +5,7 @@ import {
   getMapboxStyle,
 } from "./geology-layers";
 import { createUnitFill } from "./pattern-fill";
-import { get } from "axios";
+import axios from "axios";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lineSymbols } from "./symbol-layers";
@@ -78,6 +78,8 @@ interface GeologyStylerOptions {
 class GeologyStyler {
   opts: GeologyStylerOptions;
   sourceURL: string;
+  // @ts-ignore
+
   measurementsStyler: MeasurementStyler;
   constructor(sourceURL: string, options: Partial<GeologyStylerOptions> = {}) {
     this.sourceURL = sourceURL;
@@ -86,14 +88,16 @@ class GeologyStyler {
       enableMeasurements = true,
       showAllMeasurements = false,
     } = options;
+    // @ts-ignore
     this.opts = { enableGeology, enableMeasurements };
+    // @ts-ignore
     this.measurementsStyler = new MeasurementStyler(sourceURL, {
       showAll: showAllMeasurements,
     });
   }
 
   async createStyle(map: mapboxgl.Map, baseStyleURL: string) {
-    const { data: polygonTypes } = await get(
+    const { data: polygonTypes } = await axios.get(
       this.sourceURL + "/feature-server/polygon/types"
     );
     const baseURL = baseStyleURL.replace(
@@ -131,4 +135,4 @@ class GeologyStyler {
 }
 
 export { GeologyStyler, createGeologySource, setupLineSymbols };
-export * from "./symbol-layers"
+export * from "./symbol-layers";
