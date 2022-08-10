@@ -17,7 +17,7 @@ node_modules/
 # dotenv environment variables file
 .env
 
-lib
 .docz
 .parcel-cache
 docs
+dist

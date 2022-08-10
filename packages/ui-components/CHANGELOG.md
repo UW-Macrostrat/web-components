@@ -1,5 +1,14 @@
 # Changelog
 
+## `[3.0.0]` - August 2022
+
+- Modernize compilation toolchain to use Parcel
+
+## `[2.0.0]` - June 2022
+
+- Switch to Sass for stylesheets
+- Integrate with monorepo
+
 ## `[1.0.4]` - 12-01-2022
 
 - Add box model helpers (for plotting) to this library.
