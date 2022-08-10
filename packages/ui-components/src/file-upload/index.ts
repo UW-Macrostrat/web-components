@@ -1,16 +1,17 @@
-import "./main.styl";
+// @ts-nocheck
+//import "./main.sass";
 import { Component } from "react";
 import h from "@macrostrat/hyper";
 import { Tag } from "@blueprintjs/core";
 import Dropzone from "react-dropzone";
 import classNames from "classnames";
 
-const FileListItem = function(props) {
+const FileListItem = function (props) {
   const { file } = props;
   return h(Tag, { icon: "document" }, file.name);
 };
 
-const FileList = function(props) {
+const FileList = function (props) {
   let { files, placeholder } = props;
   if (placeholder == null) {
     placeholder = "Choose file...";
@@ -20,7 +21,7 @@ const FileList = function(props) {
   }
   return h(
     "div.files",
-    files.map(file => h(FileListItem, { file }))
+    files.map((file) => h(FileListItem, { file }))
   );
 };
 
@@ -33,7 +34,7 @@ interface FileUploadProps {
 class FileUploadComponent extends Component<FileUploadProps> {
   static defaultProps = {
     onAddFile() {},
-    onCancel() {}
+    onCancel() {},
   };
 
   constructor(props) {
@@ -45,23 +46,23 @@ class FileUploadComponent extends Component<FileUploadProps> {
     const { files } = this.props;
     const rootProps = getRootProps();
     const className = classNames("file-upload", {
-      "dropzone-active": isDragActive
+      "dropzone-active": isDragActive,
     });
     const inputProps = getInputProps();
     inputProps.style = {};
-    inputProps.className = "bp3-large";
+    inputProps.className = "bp4-large";
     let msg = "Drop files here";
     if (!isDragActive) {
       msg += ", or click to upload";
     }
 
     return h("div", { className, ...rootProps }, [
-      h("label.bp3-file-input.bp3-large", [
+      h("label.bp4-file-input.bp4-large", [
         h("input", inputProps),
-        h("div.bp3-file-upload-input", [
-          h(FileList, { files, placeholder: msg })
-        ])
-      ])
+        h("div.bp4-file-upload-input", [
+          h(FileList, { files, placeholder: msg }),
+        ]),
+      ]),
     ]);
   }
 
@@ -70,7 +71,7 @@ class FileUploadComponent extends Component<FileUploadProps> {
       Dropzone,
       {
         onDrop: this.props.onAddFile,
-        onFileDialogCancel: this.props.onCancel
+        onFileDialogCancel: this.props.onCancel,
       },
       this.renderDropzone
     );

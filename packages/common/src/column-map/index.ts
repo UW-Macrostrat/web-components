@@ -59,7 +59,7 @@ const ColumnMapNavigator = props => {
     ...rest
   } = props;
 
-  const columnCenter = geoCentroid?.(currentColumn);
+  const columnCenter = geoCentroid(currentColumn);
 
   return h(ResizableMapFrame, { center: columnCenter, style, margin, scale }, [
     children,

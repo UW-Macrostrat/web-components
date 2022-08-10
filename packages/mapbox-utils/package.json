@@ -1,0 +1,22 @@
+{
+  "name": "@macrostrat/mapbox-utils",
+  "version": "0.1.1",
+  "description": "Utilities for working with Mapbox maps",
+  "main": "dist/main.js",
+  "module": "dist/module.js",
+  "types": "dist/types.d.ts",
+  "source": "src/index.ts",
+  "packageManager": "yarn@3.2.1",
+  "devDependencies": {
+    "@parcel/config-default": "^2.6.2",
+    "parcel": "^2.6.2"
+  },
+  "scripts": {
+    "dev": "parcel watch",
+    "build": "parcel build"
+  },
+  "dependencies": {
+    "axios": "^0.27.2"
+  },
+  "browserslist": "defaults"
+}

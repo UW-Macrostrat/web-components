@@ -9,6 +9,6 @@ import "regenerator-runtime/runtime";
 
 import { FocusStyleManager } from "@blueprintjs/core";
 import "@blueprintjs/core/lib/css/blueprint.css";
-import "./lib/esm/index.css";
+import "./dist/ui-components.css";
 
 FocusStyleManager.onlyShowFocusOnTabs();

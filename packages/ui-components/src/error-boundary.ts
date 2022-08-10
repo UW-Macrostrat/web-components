@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Component, ReactNode } from "react";
 import { Callout } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";

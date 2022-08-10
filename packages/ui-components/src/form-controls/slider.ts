@@ -1,4 +1,4 @@
-import h from "@macrostrat/hyper";
+import {hyperStyled} from "@macrostrat/hyper";
 import { useState, useEffect } from "react";
 import {
   InputGroup,
@@ -9,15 +9,17 @@ import {
   Card,
   Intent,
   FormGroup,
-  ISliderProps
+  ISliderProps,
 } from "@blueprintjs/core";
 import { Spec } from "immutability-helper";
 import classNames from "classnames";
-import "./main.styl";
+import styles from "./main.module.sass";
+
+const h = hyperStyled(styles);
 
 const ControlledSlider = (props: ISliderProps) => {
   const [value, setValue] = useState<number>(props.value);
-  const onChange = v => {
+  const onChange = (v) => {
     setValue(v), props.onChange?.(v);
   };
   useEffect(() => setValue(props.value), [props.value]);
@@ -45,9 +47,9 @@ const NullableSlider = (props: ISliderProps) => {
         small: true,
         icon: "cross",
         disabled: props.value == null,
-        intent: props.value == null ? null : Intent.DANGER
-      })
-    ])
+        intent: props.value == null ? null : Intent.DANGER,
+      }),
+    ]),
   ]);
 };
 

@@ -85,14 +85,21 @@ function UnitDataColumn(props: UnitDataProps) {
 }
 
 const UnitNamesColumn = (props: UnitNamesProps) => {
-  const { nameForDivision = defaultNameFunction, ...rest } = props;
+  const {
+    nameForDivision = defaultNameFunction,
+    noteComponent,
+    ...rest
+  } = props;
 
   const NoteComponent = props => {
     const { note } = props;
     return h("p.col-note-label", nameForDivision(note.data));
   };
 
-  return h(UnitDataColumn, { noteComponent: NoteComponent, ...rest });
+  return h(UnitDataColumn, {
+    noteComponent: noteComponent ?? NoteComponent,
+    ...rest
+  });
 };
 
 export {

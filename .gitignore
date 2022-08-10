@@ -13,6 +13,7 @@ pids
 
 # Dependency directories
 node_modules
+package-lock.json
 
 # dotenv environment variables file
 .env
@@ -25,3 +26,9 @@ lib
 docs
 dist
 storybook-static
+
+.yarn/cache
+.yarn/install-state.gz
+.yarn/unplugged
+
+packages/*/dist
