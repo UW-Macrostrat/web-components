@@ -11,7 +11,7 @@ import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
 import { useMapElement, useMapRef } from "@macrostrat/mapbox-react";
 
-function MapControlWrapper({ className, control, ...controlOptions }) {
+export function MapControlWrapper({ className, control, options }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
   const map = useMapRef();
   const controlContainer = useRef<HTMLDivElement>();
@@ -19,29 +19,21 @@ function MapControlWrapper({ className, control, ...controlOptions }) {
 
   useEffect(() => {
     if (map.current == null) return;
-    const ctrl = new control(controlOptions);
+    const ctrl = new control(options);
+    console.log(ctrl);
+
     controlRef.current = ctrl;
-    console.log(map.current);
     const controlElement = ctrl.onAdd(map.current);
     controlContainer.current.appendChild(controlElement);
     return () => {
       controlRef.current?.onRemove();
     };
-  }, [map, controlRef, controlContainer, controlOptions]);
+  }, [map.current, controlRef, controlContainer, options]);
 
   return h("div.map-control-wrapper", { className, ref: controlContainer });
 }
 
-function createControlComponent(control, _className) {
-  return ({ className, ...controlOptions }) =>
-    h(MapControlWrapper, {
-      className: classNames(_className, className),
-      control,
-      controlOptions,
-    });
-}
-
-function GlobeControl({ className }) {
+export function GlobeControl({ className }) {
   const map = useMapElement();
 
   const [mapIsGlobe, setIsGlobe] = useState(false);
@@ -98,17 +90,23 @@ class _ThreeDControl extends Base {
   }
 }
 
-const CompassControl = createControlComponent(
-  _CompassControl,
-  "compass-control"
-);
-const ZoomControl = createControlComponent(_ZoomControl, "zoom-control");
-const ThreeDControl = createControlComponent(_ThreeDControl, "map-3d-control");
+export const CompassControl = ({ className, options }) =>
+  h(MapControlWrapper, {
+    className: classNames("compass-control", className),
+    control: _CompassControl,
+    options,
+  });
 
-export {
-  ThreeDControl,
-  CompassControl,
-  GlobeControl,
-  MapControlWrapper,
-  ZoomControl,
-};
+export const ZoomControl = ({ className, options }) =>
+  h(MapControlWrapper, {
+    className: classNames("zoom-control", className),
+    control: _ZoomControl,
+    options,
+  });
+
+export const ThreeDControl = ({ className, options }) =>
+  h(MapControlWrapper, {
+    className: classNames("map-3d-control", className),
+    control: _ThreeDControl,
+    options,
+  });
