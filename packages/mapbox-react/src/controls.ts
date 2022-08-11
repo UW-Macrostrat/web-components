@@ -8,7 +8,7 @@ import {
 import { Icon } from "@blueprintjs/core";
 import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
-import { useMapElement, useMapRef } from "@macrostrat/mapbox-react";
+import { useMapElement, useMapRef } from "./context";
 
 export function MapControlWrapper({ className, control, options }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
