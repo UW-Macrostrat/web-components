@@ -7174,7 +7174,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
       ],\
       [\
         "prettier",\
-        "npm:1.19.1"\
+        "npm:2.7.1"\
       ],\
       [\
         "pretty-error",\
@@ -9247,7 +9247,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["husky", "npm:4.3.8"],\
             ["lerna", "npm:4.0.0"],\
             ["node-fetch", "npm:3.2.9"],\
-            ["prettier", "npm:1.19.1"],\
+            ["prettier", "npm:2.7.1"],\
             ["typescript", "patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=7ad353"]\
           ],\
           "linkType": "SOFT"\
@@ -16548,6 +16548,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["@macrostrat/mapbox-utils", "workspace:packages/mapbox-utils"],\
             ["@parcel/config-default", "virtual:fbcdf49e96812ce58307a041b0f24473cbff3d127abf8830678da26b082cf887f6a2a1b9bf02e864b38502e325ef0af1071d5d45e80812c634ec4c85cb2f6c3b#npm:2.6.2"],\
             ["axios", "npm:0.27.2"],\
+            ["mapbox-gl", "npm:2.9.2"],\
             ["parcel", "npm:2.6.2"]\
           ],\
           "linkType": "SOFT"\
@@ -16782,7 +16783,7 @@ function $$SETUP_STATE(hydrateRuntimeState, basePath) {
             ["husky", "npm:4.3.8"],\
             ["lerna", "npm:4.0.0"],\
             ["node-fetch", "npm:3.2.9"],\
-            ["prettier", "npm:1.19.1"],\
+            ["prettier", "npm:2.7.1"],\
             ["typescript", "patch:typescript@npm%3A4.7.4#~builtin<compat/typescript>::version=4.7.4&hash=7ad353"]\
           ],\
           "linkType": "SOFT"\

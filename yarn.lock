@@ -3816,6 +3816,7 @@ __metadata:
   dependencies:
     "@parcel/config-default": ^2.6.2
     axios: ^0.27.2
+    mapbox-gl: ^2.0.0
     parcel: ^2.6.2
   languageName: unknown
   linkType: soft
@@ -3992,7 +3993,7 @@ __metadata:
     husky: ^4.3.5
     lerna: ^4.0.0
     node-fetch: ^3.2.9
-    prettier: ^1.19.1
+    prettier: ^2.7.1
     typescript: ^4.7.4
   languageName: unknown
   linkType: soft
@@ -21345,7 +21346,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mapbox-gl@npm:^2.8.2, mapbox-gl@npm:^2.9.1":
+"mapbox-gl@npm:^2.0.0, mapbox-gl@npm:^2.8.2, mapbox-gl@npm:^2.9.1":
   version: 2.9.2
   resolution: "mapbox-gl@npm:2.9.2"
   dependencies:
@@ -25388,7 +25389,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prettier@npm:^2.0.5":
+"prettier@npm:^2.0.5, prettier@npm:^2.7.1":
   version: 2.7.1
   resolution: "prettier@npm:2.7.1"
   bin:

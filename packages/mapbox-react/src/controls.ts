@@ -1,53 +1,61 @@
 import h from "@macrostrat/hyper";
 import Base from "mapbox-gl-controls/lib/Base/Base";
 import Button from "mapbox-gl-controls/lib/Button/Button";
-import { CompassControl as _CompassControl, ZoomControl as _ZoomControl } from "mapbox-gl-controls";
+import {
+  CompassControl as _CompassControl,
+  ZoomControl as _ZoomControl,
+} from "mapbox-gl-controls";
 import { Icon } from "@blueprintjs/core";
 
-import { useRef, useEffect } from "react";
-import { useMapElement, useMapRef } from "./context";
+import { useRef, useEffect, useState } from "react";
+import classNames from "classnames";
+import { useMapElement, useMapRef } from "@macrostrat/mapbox-react";
 
-
-function MapControlWrapper({ className, control, controlOptions }) {
+function MapControlWrapper({ className, control, ...controlOptions }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
   const map = useMapRef();
   const controlContainer = useRef<HTMLDivElement>();
   const controlRef = useRef<Base>();
 
   useEffect(() => {
-    if (map?.current == null) return;
+    if (map.current == null) return;
     const ctrl = new control(controlOptions);
     controlRef.current = ctrl;
+    console.log(map.current);
     const controlElement = ctrl.onAdd(map.current);
     controlContainer.current.appendChild(controlElement);
     return () => {
       controlRef.current?.onRemove();
     };
-  }, [map?.current, controlRef, controlContainer, controlOptions]);
+  }, [map, controlRef, controlContainer, controlOptions]);
 
   return h("div.map-control-wrapper", { className, ref: controlContainer });
 }
 
-const CompassControl = () =>
+function createControlComponent(control, _className) {
+  return ({ className, ...controlOptions }) =>
     h(MapControlWrapper, {
-      className: "compass-control",
-      control: CompassControl,
-    })
+      className: classNames(_className, className),
+      control,
+      controlOptions,
+    });
+}
 
-function GlobeControl() {
+function GlobeControl({ className }) {
   const map = useMapElement();
 
-  let mapIsGlobe = false;
-  // @ts-ignore
-  let proj = map?.getProjection().name;
-  if (proj == "globe") {
-    mapIsGlobe = true;
-  }
+  const [mapIsGlobe, setIsGlobe] = useState(false);
+  useEffect(() => {
+    // @ts-ignore
+    let proj = map?.getProjection().name;
+    setIsGlobe(proj == "globe");
+  }, [map]);
   const nextProj = mapIsGlobe ? "mercator" : "globe";
   const icon = mapIsGlobe ? "map" : "globe";
 
   return h(
     "div.map-control.globe-control.mapboxgl-ctrl-group.mapboxgl-ctrl.mapbox-control",
+    { className },
     [
       h(
         "button.globe-control-button",
@@ -56,6 +64,7 @@ function GlobeControl() {
             if (map == null) return;
             // @ts-ignore
             map.setProjection(nextProj);
+            setIsGlobe(nextProj == "globe");
           },
         },
         h(Icon, { icon })
@@ -63,9 +72,6 @@ function GlobeControl() {
     ]
   );
 }
-
-const ZoomControl = () =>
-  h(MapControlWrapper, { className: "zoom-control", control: _ZoomControl });
 
 // Control for managing map 3D settings
 
@@ -92,16 +98,17 @@ class _ThreeDControl extends Base {
   }
 }
 
-const ThreeDControl = () =>
-  h(MapControlWrapper, {
-      className: "map-3d-control",
-      control: _ThreeDControl,
-  })
+const CompassControl = createControlComponent(
+  _CompassControl,
+  "compass-control"
+);
+const ZoomControl = createControlComponent(_ZoomControl, "zoom-control");
+const ThreeDControl = createControlComponent(_ThreeDControl, "map-3d-control");
 
 export {
   ThreeDControl,
   CompassControl,
   GlobeControl,
   MapControlWrapper,
-  ZoomControl
-}
+  ZoomControl,
+};
