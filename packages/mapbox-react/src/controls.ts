@@ -6,7 +6,6 @@ import {
   ZoomControl as _ZoomControl,
 } from "mapbox-gl-controls";
 import { Icon } from "@blueprintjs/core";
-
 import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
 import { useMapElement, useMapRef } from "@macrostrat/mapbox-react";

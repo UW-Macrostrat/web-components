@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-utils",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Utilities for working with Mapbox maps",
   "main": "dist/main.js",
   "module": "dist/module.js",
@@ -16,6 +16,7 @@
     "build": "parcel build"
   },
   "dependencies": {
+    "@types/mapbox-gl": "^2.7.5",
     "axios": "^0.27.2",
     "mapbox-gl": "^2.0.0"
   },
