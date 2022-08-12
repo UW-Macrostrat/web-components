@@ -1,5 +1,5 @@
 /** Utilities for dealing with map coordinates. */
-import { FreeCameraOptions, MercatorCoordinate, Map } from 'mapbox-gl';
+import { FreeCameraOptions, MercatorCoordinate, Map } from "mapbox-gl";
 
 type LatLng = {
   lng: number;
@@ -56,4 +56,3 @@ export function setMapPosition(map: Map, pos: MapPosition) {
     map.setFreeCameraOptions(cameraOptions);
   }
 }
-
