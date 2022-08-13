@@ -1,11 +1,7 @@
 import { RefObject } from "react";
 import { useEffect } from "react";
 import mapboxgl from "mapbox-gl";
-import {
-  toggleMapLabelVisibility,
-} from "@macrostrat/mapbox-utils";
-
-
+import { toggleMapLabelVisibility } from "@macrostrat/mapbox-utils";
 
 export function useMapConditionalStyle<T = any>(
   mapRef: RefObject<mapboxgl.Map>,
@@ -17,7 +13,7 @@ export function useMapConditionalStyle<T = any>(
    * and on style load events. */
   useEffect(() => {
     const map = mapRef.current;
-    if (!map.isStyleLoaded()) return;
+    if (!map?.isStyleLoaded()) return;
     operator(map, state);
   }, [mapRef.current, state]);
 
