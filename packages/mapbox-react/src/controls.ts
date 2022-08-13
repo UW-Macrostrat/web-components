@@ -19,7 +19,6 @@ export function MapControlWrapper({ className, control, options }) {
   useEffect(() => {
     if (map.current == null) return;
     const ctrl = new control(options);
-    console.log(ctrl);
 
     controlRef.current = ctrl;
     const controlElement = ctrl.onAdd(map.current);
