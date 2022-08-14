@@ -16,7 +16,7 @@ export async function getMapboxStyle(
   let { data, status, statusText } = await axios.get(
     canonicalizeMapboxURL(style),
     {
-      params
+      params,
     }
   );
   if (status !== 200) {
@@ -26,9 +26,17 @@ export async function getMapboxStyle(
 }
 
 export function mergeStyles(s1, s2) {
-  let merged = { ...s2, ...s1 };
-  merged.sources = { ...(s2.sources ?? {}), ...(s1.sources ?? {}) };
-  merged.layers = [...(s1.layers ?? []), ...(s2.layers ?? [])];
+  let merged = { ...s1, ...s2 };
+  merged.sources = { ...(s1.sources ?? {}), ...(s2.sources ?? {}) };
+
+  // we need to overwrite layers that have the same id
+  merged.layers = s1.layers
+    .filter((l) => {
+      let found = s2.layers.find((l2) => l2.id === l.id);
+      return !found;
+    })
+    .concat(s2.layers);
+
   merged.sprite = s1.sprite ?? s2.sprite;
   merged.glyphs = s1.glyphs ?? s2.glyphs;
   return merged;
