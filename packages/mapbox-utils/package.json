@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-utils",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Utilities for working with Mapbox maps",
   "main": "dist/main.js",
   "module": "dist/module.js",
