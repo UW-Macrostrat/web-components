@@ -205,7 +205,9 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       params ??= {};
       opts ??= {};
 
-      const req = axiosInstance.post(route, payload, { params });
+      const [axiosConfig, _] = splitConfig(opts);
+
+      const req = axiosInstance.post(route, payload, { ...axiosConfig, params });
       const info = { route, params, method: APIMethod.POST, opts };
       return handleResult(ctx, req, info);
     },
@@ -219,10 +221,10 @@ const APIActions = (ctx: APIContextValue): APIActions => {
       params ??= {};
       opts ??= {};
 
-      const { get } = axiosInstance;
-      const fn = opts.memoize ? memoize(get) : get;
+      const [axiosConfig, cfg] = splitConfig(opts);
+      const fn = cfg.memoize ? memoize(axiosInstance.get) : axiosInstance.get;
 
-      const request = fn(route, { params });
+      const request = fn(route, { ...axiosConfig, params });
       const info = { route, params, method: APIMethod.GET, opts };
       return handleResult(ctx, request, info);
     },
