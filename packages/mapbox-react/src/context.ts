@@ -8,6 +8,10 @@ export function useMapRef() {
   return useContext(MapContext);
 }
 
+export function useMapElement() {
+  return useMapRef().current;
+}
+
 export function useMap(): Map | null {
   return useMapRef().current;
 }

@@ -13,7 +13,7 @@ const projectDir = path.resolve(path.join(__dirname, ".."));
 // tries to copy this file but in NodeJs
 // https://github.com/UW-Macrostrat/python-libraries/blob/main/publish.py
 
-const packages = ["ui-components", "mapbox-utils"];
+const packages = ["ui-components", "mapbox-utils", "mapbox-react"];
 
 /* get package.json filr from correct dir */
 function getPackageData(pkgName) {
@@ -44,7 +44,7 @@ function publishModule(dir, pkg) {
   try {
     execSync("yarn npm publish --access public", {
       cwd: dir,
-      stdio: "inherit"
+      stdio: "inherit",
     });
     console.log(chalk.blueBright.bold("Tagging version"));
     const tag = moduleString(pkg, "-v");
@@ -114,12 +114,12 @@ async function main() {
     console.log(chalk.bgRed("Please commit or stash them before continuing."));
     return;
   }
-  pkgsToPublish.map(pkg => {
+  pkgsToPublish.map((pkg) => {
     const dir = getPkgDir(pkg);
     prepareModule(dir, pkg);
   });
 
-  pkgsToPublish.forEach(pkg => {
+  pkgsToPublish.forEach((pkg) => {
     const dir = getPkgDir(pkg);
     publishModule(dir, pkg);
   });
