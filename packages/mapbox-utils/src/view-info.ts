@@ -1,6 +1,6 @@
 import { MapPosition } from "./position";
 
-interface MapViewInfo {
+export interface MapViewInfo {
   mapIsRotated: boolean;
   mapUse3D: boolean;
   mapIsGlobal: boolean;
@@ -23,6 +23,6 @@ export function mapViewInfo(mapPosition: MapPosition): MapViewInfo {
   return {
     mapIsRotated,
     mapUse3D,
-    mapIsGlobal
+    mapIsGlobal,
   };
 }
