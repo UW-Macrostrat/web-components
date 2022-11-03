@@ -25,19 +25,15 @@ export async function getMapboxStyle(
   return data;
 }
 
-export function mergeStyles(s1, s2) {
-  let merged = { ...s1, ...s2 };
-  merged.sources = { ...(s1.sources ?? {}), ...(s2.sources ?? {}) };
-
-  // we need to overwrite layers that have the same id
-  merged.layers = s1.layers
-    .filter((l) => {
-      let found = s2.layers.find((l2) => l2.id === l.id);
-      return !found;
-    })
-    .concat(s2.layers);
-
-  merged.sprite = s1.sprite ?? s2.sprite;
-  merged.glyphs = s1.glyphs ?? s2.glyphs;
+export function mergeStyles(...styles) {
+  let merged = { ...styles[0] };
+  merged.sources = {};
+  merged.layers = [];
+  for (let s of styles) {
+    merged.sources = { ...merged.sources, ...(s.sources ?? {}) };
+    merged.layers = merged.layers.concat(s.layers);
+    merged.sprite = s.sprite ?? merged.sprite;
+    merged.glyphs = s.glyphs ?? merged.glyphs;
+  }
   return merged;
 }
