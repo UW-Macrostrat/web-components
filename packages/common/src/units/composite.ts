@@ -3,7 +3,7 @@ import {
   LithologyColumn,
   useColumn,
   useColumnDivisions,
-  ColumnLayoutContext
+  ColumnLayoutContext,
 } from "@macrostrat/column-components";
 import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
 import {
@@ -11,7 +11,7 @@ import {
   useContext,
   useState,
   useRef,
-  useCallback
+  useCallback,
 } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
@@ -38,7 +38,7 @@ function LabelTrackerProvider(props) {
       labelTrackerRef.current[div.unit_id] = visible;
       if (Object.keys(labelTrackerRef.current).length == divisions.length) {
         setUnlabeledDivisions(
-          divisions.filter(d => labelTrackerRef.current[d.unit_id] == false)
+          divisions.filter((d) => labelTrackerRef.current[d.unit_id] == false)
         );
       }
     },
@@ -69,7 +69,7 @@ type BaseUnitProps =
       showLabels: true;
     };
 
-export type ICompositeUnitProps = BaseUnitProps & {
+type ICompositeUnitProps = BaseUnitProps & {
   gutterWidth?: number;
   labelOffset?: number;
   nameForDivision?: (division: BaseUnit) => string;
@@ -89,7 +89,7 @@ function TrackedLabeledUnit({
     onLabelUpdated(label, visible) {
       trackLabelVisibility(division, visible);
     },
-    ...rest
+    ...rest,
   });
 }
 
@@ -124,10 +124,10 @@ function _BaseUnitsColumn(
       h(UnitBoxes, {
         unitComponent,
         unitComponentProps,
-        ...rest
-      })
+        ...rest,
+      }),
     ]),
-    children
+    children,
   ]);
 }
 
@@ -153,7 +153,7 @@ function AnnotatedUnitsColumn(props: AnnotatedUnitProps) {
     _BaseUnitsColumn,
     {
       width: showLabels ? columnWidth : width,
-      unitComponentProps: { nameForDivision }
+      unitComponentProps: { nameForDivision },
     },
     [
       h.if(showLabels)(UnlabeledUnitNames, {
@@ -162,8 +162,8 @@ function AnnotatedUnitsColumn(props: AnnotatedUnitProps) {
         width: width - columnWidth - gutterWidth,
         minimumHeight: minimumLabelHeight,
         nameForDivision,
-        ...rest
-      })
+        ...rest,
+      }),
       // h(UnitDataColumn, {
       //   transform: `translate(${columnWidth + gutterWidth})`,
       //   paddingLeft: labelOffset,
@@ -204,8 +204,8 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
       paddingLeft: labelOffset,
       width: width - columnWidth - gutterWidth,
       noteComponent,
-      shouldRenderNote
-    })
+      shouldRenderNote,
+    }),
   ]);
 }
 
@@ -219,7 +219,7 @@ export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
     division,
     ...rest,
     width: division.overlappingUnits.length > 0 ? width / nColumns : width,
-    x: (division.column * width) / nColumns
+    x: (division.column * width) / nColumns,
   });
 }
 
@@ -227,5 +227,6 @@ export {
   UnitNamesColumn,
   CompositeUnitsColumn,
   AnnotatedUnitsColumn,
-  TrackedLabeledUnit
+  TrackedLabeledUnit,
+  ICompositeUnitProps,
 };
