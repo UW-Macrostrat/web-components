@@ -1755,7 +1755,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/core@npm:^3.31.0, @blueprintjs/core@npm:^3.52.0, @blueprintjs/core@npm:^3.54.0":
+"@blueprintjs/core@npm:^3.31.0, @blueprintjs/core@npm:^3.39.0, @blueprintjs/core@npm:^3.52.0, @blueprintjs/core@npm:^3.54.0":
   version: 3.54.0
   resolution: "@blueprintjs/core@npm:3.54.0"
   dependencies:
@@ -3689,6 +3689,13 @@ __metadata:
   resolution: "@macrostrat/column-components@workspace:packages/column-components"
   dependencies:
     "@babel/core": ^7.11.1
+    "@babel/plugin-proposal-class-properties": ^7.8.3
+    "@babel/plugin-proposal-nullish-coalescing-operator": ^7.8.3
+    "@babel/plugin-proposal-optional-chaining": ^7.9.0
+    "@babel/plugin-transform-typescript": ^7.11.0
+    "@babel/preset-env": ^7.7.7
+    "@babel/preset-react": ^7.7.4
+    "@babel/preset-typescript": ^7.7.7
     "@macrostrat/hyper": ^1.2.0
     "@rollup/plugin-babel": ^5.2.0
     "@rollup/plugin-json": ^4.0.3
@@ -3704,7 +3711,7 @@ __metadata:
     immutability-helper: ^3.0.2
     labella: ^1.1.4
     npm-run-all: ^4.1.5
-    postcss-modules: ^4.3.0
+    postcss-modules: ^3.2.0
     prop-types: ^15.7.2
     react-color: ^2.18.0
     react-draggable: ^4.2.0
@@ -3718,10 +3725,11 @@ __metadata:
     rollup: ^2.38.1
     rollup-plugin-postcss: ^3.1.8
     stylus: ^0.54.7
+    typescript: ^3.9.7
     ui-box: ^3.0.2
     uuid: ^7.0.3
   peerDependencies:
-    "@blueprintjs/core": ^4.3.0
+    "@blueprintjs/core": ^3.44.1
     "@macrostrat/ui-components": ^0.1.3
     react: ^16.12.0
     react-dom: ^16.12.0
@@ -3809,7 +3817,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/data-sheet@workspace:packages/data-sheet"
   dependencies:
-    "@blueprintjs/core": ^4.3.0
+    "@blueprintjs/core": ^3.39.0
     "@blueprintjs/popover2": ^0.12.9
     "@macrostrat/hyper": ^1.2.12
     d3-array: ^2.12.1
@@ -4013,25 +4021,6 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/timescale@npm:*":
-  version: 1.0.3
-  resolution: "@macrostrat/timescale@npm:1.0.3"
-  dependencies:
-    "@macrostrat/hyper": ^1.2.11
-    "@types/classnames": ^2.2.10
-    "@types/d3-array": ^2.0.0
-    "@vx/axis": 0.0.198
-    "@vx/scale": 0.0.198
-    classnames: ^2.2.6
-    d3-array: ^2.5.1
-    d3-format: ^2.0.0
-  peerDependencies:
-    react: ^16.13.1
-    react-dom: ^16.13.1
-  checksum: 5795bbf7fa05e7de0ff98537c50e8b862f977b206a82094d45e1fa3a845bcb8ccb02080dba7d1c125436e95f2809020e9f39e6dfe4b073e53ee53bf9be9177da
-  languageName: node
-  linkType: hard
-
 "@macrostrat/timescale@workspace:packages/timescale":
   version: 0.0.0-use.local
   resolution: "@macrostrat/timescale@workspace:packages/timescale"
@@ -4043,10 +4032,9 @@ __metadata:
     "@babel/plugin-transform-typescript": ^7.11.0
     "@babel/preset-env": ^7.7.7
     "@babel/preset-typescript": ^7.7.7
-    "@blueprintjs/core": ^4.3.0
+    "@blueprintjs/core": ^3.31.0
     "@macrostrat/column-components": ^0.8.2
     "@macrostrat/hyper": ^1.2.11
-    "@macrostrat/timescale": "*"
     "@parcel/transformer-typescript-tsc": ^2.0.0-alpha.3
     "@rehooks/local-storage": ^2.4.0
     "@rollup/plugin-babel": ^5.2.0
@@ -4061,13 +4049,15 @@ __metadata:
     d3-array: ^2.5.1
     d3-format: ^2.0.0
     parcel: ^2.0.0-beta.1
+    react: ^16.13.1
+    react-dom: ^16.13.1
     rollup: ^2.38.1
     rollup-plugin-postcss: ^3.1.6
     stylus: ^0.54.8
     typescript: ^4.0.2
   peerDependencies:
-    react: ^16.13.1||^17
-    react-dom: ^16.13.1||^17
+    react: ^16.13.1
+    react-dom: ^16.13.1
   languageName: unknown
   linkType: soft
 
@@ -25093,7 +25083,24 @@ __metadata:
   languageName: node
   linkType: hard
 
-"postcss-modules@npm:^4.0.0, postcss-modules@npm:^4.3.0, postcss-modules@npm:^4.3.1":
+"postcss-modules@npm:^3.2.0":
+  version: 3.2.2
+  resolution: "postcss-modules@npm:3.2.2"
+  dependencies:
+    generic-names: ^2.0.1
+    icss-replace-symbols: ^1.1.0
+    lodash.camelcase: ^4.3.0
+    postcss: ^7.0.32
+    postcss-modules-extract-imports: ^2.0.0
+    postcss-modules-local-by-default: ^3.0.2
+    postcss-modules-scope: ^2.2.0
+    postcss-modules-values: ^3.0.0
+    string-hash: ^1.1.1
+  checksum: 6e249518933288f6a8b9fcf988d96e4ea0e5e9d66ccb003ce6bb16bd7565f0c553d7c554497e0ca8feae7cfb049c5c951511b906e481cdd4647085d956b6c7b0
+  languageName: node
+  linkType: hard
+
+"postcss-modules@npm:^4.0.0, postcss-modules@npm:^4.3.1":
   version: 4.3.1
   resolution: "postcss-modules@npm:4.3.1"
   dependencies:
@@ -26353,6 +26360,20 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dom@npm:^16.13.1":
+  version: 16.14.0
+  resolution: "react-dom@npm:16.14.0"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+    prop-types: ^15.6.2
+    scheduler: ^0.19.1
+  peerDependencies:
+    react: ^16.14.0
+  checksum: 5a5c49da0f106b2655a69f96c622c347febcd10532db391c262b26aec225b235357d9da1834103457683482ab1b229af7a50f6927a6b70e53150275e31785544
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^17.0.0":
   version: 17.0.2
   resolution: "react-dom@npm:17.0.2"
@@ -26914,6 +26935,17 @@ __metadata:
     react: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
     react-dom: ^15.0.0 || ^16.0.0 || ^17.0.0 || ^18.0.0
   checksum: 1e122c29224781e70359978287a2e850ccdf509cd71ba16b16ea258725687a62f5c16ab69f52f732b4ed20df583196dbe2a04804f3e4a176bb3e62f3fc910452
+  languageName: node
+  linkType: hard
+
+"react@npm:^16.13.1":
+  version: 16.14.0
+  resolution: "react@npm:16.14.0"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+    prop-types: ^15.6.2
+  checksum: 8484f3ecb13414526f2a7412190575fc134da785c02695eb92bb6028c930bfe1c238d7be2a125088fec663cc7cda0a3623373c46807cf2c281f49c34b79881ac
   languageName: node
   linkType: hard
 
@@ -28272,6 +28304,16 @@ __metadata:
   dependencies:
     xmlchars: ^2.2.0
   checksum: 5636b55cf15f7cf0baa73f2797bf992bdcf75d1b39d82c0aa4608555c774368f6ac321cb641fd5f3d3ceb87805122cd47540da6a7b5960fe0dbdb8f8c263f000
+  languageName: node
+  linkType: hard
+
+"scheduler@npm:^0.19.1":
+  version: 0.19.1
+  resolution: "scheduler@npm:0.19.1"
+  dependencies:
+    loose-envify: ^1.1.0
+    object-assign: ^4.1.1
+  checksum: 73e185a59e2ff5aa3609f5b9cb97ddd376f89e1610579d29939d952411ca6eb7a24907a4ea4556569dacb931467a1a4a56d94fe809ef713aa76748642cd96a6c
   languageName: node
   linkType: hard
 
@@ -30952,7 +30994,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@npm:^3.8.3":
+"typescript@npm:^3.8.3, typescript@npm:^3.9.7":
   version: 3.9.10
   resolution: "typescript@npm:3.9.10"
   bin:
@@ -30982,7 +31024,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"typescript@patch:typescript@^3.8.3#~builtin<compat/typescript>":
+"typescript@patch:typescript@^3.8.3#~builtin<compat/typescript>, typescript@patch:typescript@^3.9.7#~builtin<compat/typescript>":
   version: 3.9.10
   resolution: "typescript@patch:typescript@npm%3A3.9.10#~builtin<compat/typescript>::version=3.9.10&hash=7ad353"
   bin:

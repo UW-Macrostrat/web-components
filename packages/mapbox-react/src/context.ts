@@ -17,6 +17,6 @@ export function useMap(): Map | null {
 }
 
 export function MapboxMapProvider({ children }) {
-  const mapRef = useRef<Map | null>();
+  const mapRef = useMapRef() ?? useRef<Map | null>();
   return h(MapContext.Provider, { value: mapRef }, children);
 }

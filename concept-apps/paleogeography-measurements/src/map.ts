@@ -5,7 +5,7 @@ import { hyperStyled } from "@macrostrat/hyper";
 import {
   PBDBCollectionLayer,
   SGPSamplesLayer,
-  MacrostratMeasurementsLayer
+  MacrostratMeasurementsLayer,
 } from "./point-overlay";
 import { Globe } from "@macrostrat/map-components";
 import styles from "./main.module.styl";
@@ -15,7 +15,7 @@ const h = hyperStyled(styles);
 
 const baseProjection = geoStereographic().precision(0.5);
 
-const Map = props => {
+const Map = (props) => {
   /** Map that implements callback to reset internal map state */
   const { width, height } = props;
   const projection = baseProjection;
@@ -36,7 +36,7 @@ const Map = props => {
         width,
         height,
         keepNorthUp: false,
-        scale: Math.min(width / 1.5, height / 1.5) - 10
+        scale: Math.min(width / 1.5, height / 1.5) - 10,
       },
       [
         h(PlatePolygons),
@@ -45,25 +45,22 @@ const Map = props => {
           useCanvas: false,
           style: {
             fill: "#ffffff",
-            stroke: "#9dc99f"
-          }
+            stroke: "#9dc99f",
+          },
         }),
         h(PlateFeatureLayer, {
           name: "macrostrat_columns",
           style: {
             fill: "transparent",
-            stroke: chroma("dodgerblue")
-              .darken(1.5)
-              .alpha(0.5)
-              .css()
-          }
+            stroke: chroma("dodgerblue").darken(1.5).alpha(0.5).css(),
+          },
         }),
         h(PBDBCollectionLayer),
         h(MacrostratMeasurementsLayer),
-        h(SGPSamplesLayer)
+        h(SGPSamplesLayer),
       ]
     ),
-    h("a.reset-map", { onClick: resetMap }, "Reset projection")
+    h("a.reset-map", { onClick: resetMap }, "Reset projection"),
   ]);
 };
 
