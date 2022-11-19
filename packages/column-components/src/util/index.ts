@@ -11,18 +11,18 @@ import {
   extractPadding,
   removePadding,
   extractMargin,
-  removeMargin
-} from "./box-model";
+  removeMargin,
+} from "@macrostrat/ui-components";
 import { ColumnContext } from "../context";
 import Box from "ui-box";
 import classNames from "classnames";
 
 const SVGNamespaces = {
   xmlns: "http://www.w3.org/2000/svg",
-  xmlnsXlink: "http://www.w3.org/1999/xlink"
+  xmlnsXlink: "http://www.w3.org/1999/xlink",
 };
 
-const SVG = forwardRef(function(props, ref) {
+const SVG = forwardRef(function (props, ref) {
   const { innerRef, children, style, ...rest } = expandInnerSize(props);
   if (innerRef != null) {
     ref = innerRef;
@@ -39,33 +39,27 @@ const SVG = forwardRef(function(props, ref) {
       ref,
       style: { ...margin, ...style },
       ...realRest,
-      ...SVGNamespaces
+      ...SVGNamespaces,
     },
     h(
       "g",
       {
-        transform: `translate(${paddingLeft},${paddingTop})`
+        transform: `translate(${paddingLeft},${paddingTop})`,
       },
       children
     )
   );
 });
 
-const ForeignObject = props => createElement("foreignObject", props);
+const ForeignObject = (props) => createElement("foreignObject", props);
 
-const ColumnSVG = function(props) {
+const ColumnSVG = function (props) {
   //# Need to rework to use UI Box code
   const { children, className, innerRef, style, ...rest } = props;
   const { pixelHeight } = useContext(ColumnContext);
   const nextProps = expandInnerSize({ innerHeight: pixelHeight, ...rest });
-  const {
-    paddingLeft,
-    paddingTop,
-    innerHeight,
-    innerWidth,
-    height,
-    width
-  } = nextProps;
+  const { paddingLeft, paddingTop, innerHeight, innerWidth, height, width } =
+    nextProps;
   return h(
     SVG,
     {
@@ -74,12 +68,12 @@ const ColumnSVG = function(props) {
       width,
       innerRef,
       ...rest,
-      style
+      style,
     },
     h(
       "g.backdrop",
       {
-        transform: `translate(${paddingLeft},${paddingTop})`
+        transform: `translate(${paddingLeft},${paddingTop})`,
       },
       children
     )
