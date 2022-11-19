@@ -1,0 +1,86 @@
+
+:local
+  .correlated-surface-row
+    display flex
+    flex-direction: row
+    &>div
+      flex 1
+      margin-right 1em
+
+
+  .facies-picker-row
+    display flex
+    flex-direction row
+    align-items: center
+    margin 0 8px
+    span
+      display block
+    .facies-picker-name
+      flex-grow 1
+      display block
+      text-align left
+      font-style italic
+      color #444
+    .facies-color-swatch, .lithology-swatch
+      margin-right 0.5em
+      margin-left -0.5em
+  .facies-picker-name, .lithology-swatch
+    border-radius 3px
+  .picker-label
+    font-style: italic
+
+  margin=0.5em
+
+  .editor-dialog-title
+    margin-right: -margin
+    display flex
+    flex-direction column
+    align-items: baseline
+    code
+      font-family: "Fira Code", monospace
+      color: #aaa
+    *
+      margin-bottom 0.2em
+      margin-top 0
+    .title-center
+      flex-grow 1
+    .height-range
+      font-weight 400
+
+  .lithology-swatch
+    height 2em
+    width 2em
+    background-size: 6em
+    image-rendering: crisp-edges
+    border 1px solid black
+
+  .lithology-symbol-picker
+    margin-top -10px
+    &.hidden
+      .lithology-symbol-picker-inner
+        display none
+    &.expanded
+      .expand-button
+        display none
+    margin-bottom 15px
+    margin-left 8px
+
+  .lithology-symbol-picker-inner
+    display: flex
+    flex-direction: row
+    align-items: center
+    *
+      margin-right margin
+    margin 0 4px
+    .picker-label
+      flex-grow 1
+
+  .labeled-control
+    :global(.bp3-label)
+      margin-bottom: 0
+      color: #444
+    margin-bottom: 15px
+
+
+  .label-text
+    font-weight 500
