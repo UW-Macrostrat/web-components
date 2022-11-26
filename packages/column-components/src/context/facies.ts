@@ -3,8 +3,8 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext} from "react";
-import {StatefulComponent} from "@macrostrat/ui-components";
+import { Component, createContext } from "react";
+import { StatefulComponent } from "@macrostrat/ui-components";
 import h from "react-hyperscript";
 
 const FaciesContext = createContext({
@@ -13,7 +13,7 @@ const FaciesContext = createContext({
 });
 
 class FaciesProvider extends StatefulComponent {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
       facies: props.initialFacies || [],
@@ -23,28 +23,30 @@ class FaciesProvider extends StatefulComponent {
     this.setFaciesColor = this.setFaciesColor.bind(this);
   }
 
-  getFaciesColor(id){
-    const {__colorMap} = this.state;
+  getFaciesColor(id) {
+    const { __colorMap } = this.state;
     return __colorMap[id] || null;
   }
 
-  setFaciesColor(id,color){
+  setFaciesColor(id, color) {
     const ix = this.state.facies.findIndex(d => d.id === id);
-    return this.updateState({facies: {[ix]: {color: {$set: color}}}});
+    return this.updateState({ facies: { [ix]: { color: { $set: color } } } });
   }
 
   render() {
-    const {facies} = this.state;
-    const {children, ...rest} = this.props;
-    const procedures = (() => { let getFaciesColor, setFaciesColor;
-    return ({getFaciesColor, setFaciesColor} = this); })();
+    const { facies } = this.state;
+    const { children, ...rest } = this.props;
+    const procedures = (() => {
+      let getFaciesColor, setFaciesColor;
+      return ({ getFaciesColor, setFaciesColor } = this);
+    })();
     const value = {
       facies,
       ...procedures,
       ...rest
     };
-    return h(FaciesContext.Provider, {value}, children);
+    return h(FaciesContext.Provider, { value }, children);
   }
 }
 
-export {FaciesContext, FaciesProvider};
+export { FaciesContext, FaciesProvider };

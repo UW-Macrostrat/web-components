@@ -4,9 +4,9 @@
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component, createContext} from "react";
-import T from 'prop-types';
-import h from '@macrostrat/hyper';
+import { Component, createContext } from "react";
+import T from "prop-types";
+import h from "@macrostrat/hyper";
 
 // Default value for computePhotoPath
 const computePhotoPath = src => src;
@@ -32,10 +32,10 @@ class PhotoLibraryProvider extends Component {
     };
   }
   render() {
-    const {children, ...rest} = this.props;
-    return h(PhotoLibraryContext.Provider, {value: rest, children});
+    const { children, ...rest } = this.props;
+    return h(PhotoLibraryContext.Provider, { value: rest, children });
   }
 }
 PhotoLibraryProvider.initClass();
 
-export {PhotoLibraryProvider, PhotoLibraryContext};
+export { PhotoLibraryProvider, PhotoLibraryContext };

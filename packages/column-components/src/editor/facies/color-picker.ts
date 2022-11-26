@@ -4,12 +4,12 @@
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import {Component} from "react";
+import { Component } from "react";
 import h from "react-hyperscript";
-import T from 'prop-types';
-import {SwatchesPicker} from "react-color";
-import {Popover} from "@blueprintjs/core";
-import {FaciesContext} from '../../context';
+import T from "prop-types";
+import { SwatchesPicker } from "react-color";
+import { Popover } from "@blueprintjs/core";
+import { FaciesContext } from "../../context";
 
 class FaciesColorPicker extends Component {
   static initClass() {
@@ -19,12 +19,12 @@ class FaciesColorPicker extends Component {
     };
   }
   render() {
-    const {setFaciesColor} = this.context;
-    const {facies: d} = this.props;
-    return h('div', [
+    const { setFaciesColor } = this.context;
+    const { facies: d } = this.props;
+    return h("div", [
       h(SwatchesPicker, {
-        color: d.color || 'black',
-        onChangeComplete(color){
+        color: d.color || "black",
+        onChangeComplete(color) {
           return setFaciesColor(d.id, color.hex);
         },
         styles: {
@@ -37,11 +37,15 @@ class FaciesColorPicker extends Component {
 }
 FaciesColorPicker.initClass();
 
-const BasicFaciesSwatch = ({facies: d, ...rest}) => h('div.color-swatch', {style: {
-  backgroundColor: d.color || 'black',
-  width: '2em',
-  height: '2em'
-}, ...rest});
+const BasicFaciesSwatch = ({ facies: d, ...rest }) =>
+  h("div.color-swatch", {
+    style: {
+      backgroundColor: d.color || "black",
+      width: "2em",
+      height: "2em"
+    },
+    ...rest
+  });
 
 class FaciesSwatch extends Component {
   constructor(...args) {
@@ -57,22 +61,25 @@ class FaciesSwatch extends Component {
     };
   }
   renderBasicSwatch() {
-    const {facies} = this.props;
-    return h(BasicFaciesSwatch, {facies});
+    const { facies } = this.props;
+    return h(BasicFaciesSwatch, { facies });
   }
   render() {
-    const {facies, isEditable} = this.props;
-    if (!this.props.isEditable) { return this.renderBasicSwatch; }
-    return h(Popover, {
-      tetherOptions:{
-        constraints: [{ attachment: "together", to: "scrollParent" }]
-      }
-    }, [
-      this.renderBasicSwatch(),
-      h(FaciesColorPicker, {facies})
-    ]);
+    const { facies, isEditable } = this.props;
+    if (!this.props.isEditable) {
+      return this.renderBasicSwatch;
+    }
+    return h(
+      Popover,
+      {
+        tetherOptions: {
+          constraints: [{ attachment: "together", to: "scrollParent" }]
+        }
+      },
+      [this.renderBasicSwatch(), h(FaciesColorPicker, { facies })]
+    );
   }
 }
 FaciesSwatch.initClass();
 
-export {FaciesSwatch, BasicFaciesSwatch};
+export { FaciesSwatch, BasicFaciesSwatch };

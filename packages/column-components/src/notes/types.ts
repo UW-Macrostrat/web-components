@@ -1,4 +1,4 @@
-import T from 'prop-types';
+import T from "prop-types";
 
 const NoteShape = T.shape({
   height: T.number.isRequired,
@@ -7,4 +7,11 @@ const NoteShape = T.shape({
   symbol: T.string
 });
 
-export {NoteShape};
+interface Note {
+  height: number;
+  note: string;
+  top_height?: number;
+  symbol?: string;
+}
+
+export { NoteShape, Note };
