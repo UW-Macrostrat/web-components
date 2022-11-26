@@ -4,7 +4,7 @@
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { Component, useContext } from "react";
+import { useContext } from "react";
 import h from "../hyper";
 import T from "prop-types";
 import { NotesList } from "./note";
@@ -16,18 +16,18 @@ import {
   NoteEditor,
   NoteTextEditor,
   NoteEditorContext,
-  NoteEditorProvider
+  NoteEditorProvider,
 } from "./editor";
 import { NewNotePositioner } from "./new";
 
-const NoteComponent = function(props) {
+const NoteComponent = function (props) {
   const { visibility, note, onClick } = props;
   const text = note.note;
   return h(
     "p.col-note-label",
     {
       style: { visibility },
-      onClick
+      onClick,
     },
     text
   );
@@ -35,17 +35,17 @@ const NoteComponent = function(props) {
 
 NoteComponent.propTypes = {
   onClick: T.func,
-  note: NoteShape.isRequired
+  note: NoteShape.isRequired,
 };
 
-const CancelEditUnderlay = function() {
+const CancelEditUnderlay = function () {
   const { setEditingNote } = useContext(NoteEditorContext);
   const { confirmChanges } = useModelEditor();
   return h(NoteUnderlay, {
     onClick() {
       console.log("Clicked to cancel note editing");
       return setEditingNote(null);
-    }
+    },
   });
 };
 
@@ -62,7 +62,7 @@ function EditableNotesColumn(props) {
     noteComponent = NoteComponent,
     noteEditor = NoteTextEditor,
     allowPositionEditing = false,
-    forceOptions
+    forceOptions,
   } = props;
 
   const innerWidth = width - paddingLeft;
@@ -74,7 +74,7 @@ function EditableNotesColumn(props) {
       width: innerWidth,
       paddingLeft,
       noteComponent,
-      forceOptions
+      forceOptions,
     },
     [
       h(
@@ -84,7 +84,7 @@ function EditableNotesColumn(props) {
           noteEditor,
           onCreateNote,
           onUpdateNote,
-          onDeleteNote
+          onDeleteNote,
         },
         [
           h("g.section-log", { transform }, [
@@ -92,13 +92,13 @@ function EditableNotesColumn(props) {
             h(CancelEditUnderlay),
             h(NotesList, {
               editHandler: inEditMode ? onUpdateNote : null,
-              inEditMode
+              inEditMode,
             }),
             h(NewNotePositioner),
-            h(NoteEditor, { allowPositionEditing })
-          ])
+            h(NoteEditor, { allowPositionEditing }),
+          ]),
         ]
-      )
+      ),
     ]
   );
 }
@@ -115,7 +115,7 @@ EditableNotesColumn.propTypes = {
   noteComponent: T.elementType,
   noteEditor: T.elementType,
   allowPositionEditing: T.bool,
-  forceOptions: T.options
+  forceOptions: T.object,
 };
 
 type Note = any;
@@ -133,7 +133,7 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
     paddingLeft = 60,
     transform,
     notes,
-    noteComponent = NoteComponent
+    noteComponent = NoteComponent,
   } = props;
 
   const innerWidth = width - paddingLeft;
@@ -144,13 +144,13 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
       notes,
       width: innerWidth,
       paddingLeft,
-      noteComponent
+      noteComponent,
     },
     [
       h("g.section-log", { transform }, [
         h(NoteDefs),
-        h(NotesList, { inEditMode: false })
-      ])
+        h(NotesList, { inEditMode: false }),
+      ]),
     ]
   );
 }
@@ -159,12 +159,13 @@ StaticNotesColumn.propTypes = {
   notes: T.arrayOf(NoteShape).isRequired,
   width: T.number.isRequired,
   paddingLeft: T.number,
-  noteComponent: T.elementType
+  noteComponent: T.elementType,
 };
 
 function NotesColumn(props) {
   const { editable = true, ...rest } = props;
   const ctx = useContext(ColumnContext);
+  // not sure why we have this here.
   if (ctx?.scaleClamped == null) return null;
 
   const c = editable ? EditableNotesColumn : StaticNotesColumn;
@@ -182,5 +183,5 @@ export {
   NoteEditor,
   NoteEditorContext,
   NotesColumnProps,
-  StaticNotesColumn
+  StaticNotesColumn,
 };

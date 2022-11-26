@@ -4,7 +4,7 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { createElement, useContext, forwardRef, createRef } from "react";
 import {
   expandInnerSize,
@@ -85,6 +85,5 @@ export { SVGNamespaces, SVG, ColumnSVG, ForeignObject };
 import LocalStorage from "./storage";
 
 export * from "./column-box";
-export * from "./box-model";
 export * from "./scroll-box";
 export { LocalStorage };

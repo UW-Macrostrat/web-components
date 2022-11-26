@@ -6,7 +6,7 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 import { Component } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { Switch, Slider, Button } from "@blueprintjs/core";
 import classNames from "classnames";
 
@@ -20,38 +20,38 @@ class PickerControl extends Component {
     this.defaultProps = {
       states: [
         { label: "State 1", value: "state1" },
-        { label: "State 2", value: "state2" }
+        { label: "State 2", value: "state2" },
       ],
       vertical: true,
-      isNullable: false
+      isNullable: false,
     };
   }
   render() {
     const { states, activeState, vertical } = this.props;
-    let className = classNames("bp3-button-group", "bp3-fill", {
-      "bp3-vertical": vertical,
-      "bp3-align-left": vertical
+    let className = classNames("bp4-button-group", "bp4-fill", {
+      "bp4-vertical": vertical,
+      "bp4-align-left": vertical,
     });
 
     return h("div.picker-control", [
       h(
         "div",
         { className },
-        states.map(d => {
-          className = classNames("bp3-button", {
-            "bp3-active": this.props.activeState === d.value
+        states.map((d) => {
+          className = classNames("bp4-button", {
+            "bp4-active": this.props.activeState === d.value,
           });
           return h(
             "button",
             {
               type: "button",
               className,
-              onClick: this.onUpdate(d.value)
+              onClick: this.onUpdate(d.value),
             },
             d.label
           );
         })
-      )
+      ),
     ]);
   }
   onUpdate(value) {
