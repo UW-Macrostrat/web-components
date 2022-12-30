@@ -65,5 +65,14 @@
     "underscore": "^1.12.0",
     "use-async-effect": "^2.2.1"
   },
-  "prettier": {}
+  "prettier": {},
+  "alias": {
+    "@macrostrat/column-components": "../packages/column-components/src",
+    "@macrostrat/map-components": "../packages/map-components/src",
+    "@macrostrat/ui-components": "../packages/ui-components/src",
+    "@macrostrat/api-views": "../packages/api-views/src",
+    "@macrostrat/timescale": "../packages/timescale/src",
+    "@macrostrat/concept-app-helpers": "../packages/concept-app-helpers/src",
+    "common": "../packages/common/src"
+  }
 }

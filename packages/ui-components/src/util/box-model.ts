@@ -18,10 +18,11 @@ const keys = function (main) {
 
 const keyRemover = (type) =>
   function (obj) {
-    for (let key of Array.from(keys(type))) {
-      delete obj[key];
+    let o1 = obj;
+    for (let key of keys(type)) {
+      delete o1[key];
     }
-    return obj;
+    return o1;
   };
 
 const removeMargin = keyRemover("margin");
@@ -119,18 +120,20 @@ const extractPadding = function (obj, remove = false) {
 
 const expandMargin = function (obj) {
   const margin = extractMargin(obj);
+  let o1 = { ...obj };
   for (let key of ["margin", "marginV", "marginH"]) {
-    delete obj[key];
+    delete o1[key];
   }
-  return { ...obj, ...margin };
+  return { ...o1, ...margin };
 };
 
 const expandPadding = function (obj) {
   const margin = extractPadding(obj);
+  let o1 = { ...obj };
   for (let key of ["padding", "paddingV", "paddingH"]) {
-    delete obj[key];
+    delete o1[key];
   }
-  return { ...obj, ...margin };
+  return { ...o1, ...margin };
 };
 
 const expandInnerSize = function (obj) {

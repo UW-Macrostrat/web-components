@@ -1,0 +1,100 @@
+// Column
+.column-container :global
+  .column
+    display: flex
+    flex-direction row
+    .age-axis-label
+      writing-mode vertical-lr
+      transform: rotate(180deg)
+      font-size 12px
+      text-align: center
+      position: sticky
+      top: 0
+      max-height: 100vh
+    .tick text
+      text-anchor middle
+      font-weight 400 !important
+      transform rotate(-90deg) translate(8px,-12px)
+
+  rect.unit
+    stroke: black
+    stroke-width: 1px
+
+  g.lithology-column use.frame
+    stroke black
+    stroke-width: 1.5px !important
+    pointer-events none
+
+  .unit-label
+    text-align center
+
+  .col-note-label
+    font-size: 10px
+    margin-top 3px
+    padding 2px
+    padding-left: 3px
+    line-height: 9px
+    border-left none !important
+
+  g.height-range
+    display none
+
+  .note-inner
+    border: none
+
+  .frame rect
+    fill transparent
+
+  .labeled-unit div.unit-overlay
+    font-size 10px
+    font-style: italic
+    display flex
+    align-items center
+    justify-content: center
+    span.unit-label
+      display block
+      $shadow-size=4px
+      text-shadow:
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff,
+        0px 0px $shadow-size #ffffff;
+
+  .default-buttons
+    width: 100%
+    margin 0 -10px
+
+  div.section
+    display flex
+    flex-direction row
+    div.timescale
+      padding 5px 0
+      width 10em
+      .interval-box
+        width: 12px
+        margin: 1px
+      .interval
+        &:last-child
+          flex-grow 1
+
+  .section .divisions .unit
+    cursor pointer
+
+  rect.selection-overlay
+    fill rgba(255,0,0,.5)
