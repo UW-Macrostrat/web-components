@@ -9,7 +9,7 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
-    "@blueprintjs/core": "^3.39.0",
+    "@blueprintjs/core": "^3||^4",
     "@blueprintjs/popover2": "^0.12.9",
     "@macrostrat/hyper": "^1.2.12",
     "d3-array": "^2.12.1",
