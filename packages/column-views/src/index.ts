@@ -14,7 +14,6 @@ import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 import styles from "./column.module.styl";
-import "common/deps.styl";
 
 const h = hyperStyled(styles);
 
@@ -125,5 +124,4 @@ const Column = (props: IColumnProps) => {
   );
 };
 
-export { Section, AgeAxis };
-export default Column;
+export { Section, AgeAxis, Column };

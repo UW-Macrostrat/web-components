@@ -2,7 +2,13 @@
   "name": "@macrostrat/column-views",
   "version": "0.0.1",
   "description": "Data views for Macrostrat stratigraphic columns",
+  "type": "module",
   "dependencies": {
-    "@macrostrat/column-components": "^0.8.0"
+    "@macrostrat/column-components": "^0.8.0",
+    "@macrostrat/hyper": "^2.2.1",
+    "d3-array": "^3.2.1"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6||^17.0.0||^18.0.0"
   }
 }

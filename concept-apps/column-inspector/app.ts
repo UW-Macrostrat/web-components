@@ -6,7 +6,7 @@ import {
   useSelectedUnit
 } from "common";
 import { ColumnMapNavigator } from "common/column-map";
-import Column from "./column";
+import {Column} from "@macrostrat/column-views";
 import GeologicPatternProvider from "../pattern-provider";
 import { useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
