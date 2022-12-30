@@ -17658,13 +17658,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"geologic-patterns@github:davenquinn/geologic-patterns":
-  version: 1.0.0
-  resolution: "geologic-patterns@https://github.com/davenquinn/geologic-patterns.git#commit=f484081bdd444f693173e8be2906b1edd55723db"
-  checksum: 5f03e040860cc13bfb3e68292caba39ea7796f4368d90b86a54846f120523bf665ae1940a968630c10b974bc3dea4ef5755396a5fc732ad2cdfbdcc01d7a20c6
-  languageName: node
-  linkType: hard
-
 "geologic-patterns@npm:2.0.0-dev1":
   version: 2.0.0-dev1
   resolution: "geologic-patterns@npm:2.0.0-dev1"
@@ -31075,7 +31068,7 @@ __metadata:
     d3-path: ^1.0.9
     d3-scale-chromatic: ^1.5.0
     d3-selection: ^1.4.1
-    geologic-patterns: "github:davenquinn/geologic-patterns"
+    geologic-patterns: 2.0.0-dev1
     html-webpack-plugin: ^5.5.0
     husky: ^4.3.5
     immutability-helper: ^3.0.1
