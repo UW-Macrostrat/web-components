@@ -31,4 +31,6 @@ storybook-static
 .yarn/install-state.gz
 .yarn/unplugged
 
+.pnp.*
+
 packages/*/dist
