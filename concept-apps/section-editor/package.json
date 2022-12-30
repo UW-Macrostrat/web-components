@@ -45,7 +45,6 @@
   },
   "alias": {
     "~": "./src",
-    "#": "@macrostrat/column-components/dist/esm",
-    "@macrostrat/ui-components": "@macrostrat/ui-components"
+    "#": "@macrostrat/column-components/dist/esm"
   }
 }
