@@ -10,6 +10,3 @@
 [submodule "packages/data-sheet"]
 	path = packages/data-sheet
 	url = https://github.com/UW-Macrostrat/data-sheet.git
-[submodule "deps/geologic-patterns"]
-	path = deps/geologic-patterns
-	url = https://github.com/davenquinn/geologic-patterns.git
