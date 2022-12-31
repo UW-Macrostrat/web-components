@@ -4,11 +4,11 @@ import {
   ColumnContext,
   ColumnAxisType,
   NotesColumn,
-  NotesColumnProps
+  NotesColumnProps,
 } from "@macrostrat/column-components";
 import { INote } from "@macrostrat/column-components";
 import { IUnit, transformAxisType } from "./types";
-import React from "packages/ui-components/node_modules/@types/react";
+import React from "react";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
@@ -33,11 +33,11 @@ function noteForDivision(
     height: div[`b_${key}`],
     top_height: div[`t_${key}`],
     data: div,
-    id: div.unit_id
+    id: div.unit_id,
   };
 }
 
-const defaultNameFunction = div => {
+const defaultNameFunction = (div) => {
   return div.unit_name
     .replace("Mbr", "Member")
     .replace("Fm", "Formation")
@@ -58,7 +58,7 @@ function UnitDataColumn(props: UnitDataProps) {
   const { scale } = ctx;
 
   const minimumHeightFilter = useCallback(
-    d => {
+    (d) => {
       if (minimumHeight == 0) return true;
       const dy = Math.abs(scale(d.top_height) - scale(d.height));
       return dy > minimumHeight;
@@ -69,7 +69,7 @@ function UnitDataColumn(props: UnitDataProps) {
   if (divisions == null) return null;
   const notes: INote[] = divisions
     .filter(shouldRenderNote)
-    .map(d => noteForDivision(d, { axisType: ctx.axisType }))
+    .map((d) => noteForDivision(d, { axisType: ctx.axisType }))
     .filter(minimumHeightFilter);
 
   return h(NotesColumn, {
@@ -78,9 +78,9 @@ function UnitDataColumn(props: UnitDataProps) {
     noteComponent,
     notes,
     forceOptions: {
-      nodeSpacing: 1
+      nodeSpacing: 1,
     },
-    ...rest
+    ...rest,
   });
 }
 
@@ -91,14 +91,14 @@ const UnitNamesColumn = (props: UnitNamesProps) => {
     ...rest
   } = props;
 
-  const NoteComponent = props => {
+  const NoteComponent = (props) => {
     const { note } = props;
     return h("p.col-note-label", nameForDivision(note.data));
   };
 
   return h(UnitDataColumn, {
     noteComponent: noteComponent ?? NoteComponent,
-    ...rest
+    ...rest,
   });
 };
 
@@ -107,5 +107,5 @@ export {
   defaultNameFunction,
   noteForDivision,
   UnitDataColumn,
-  UnitNamesProps
+  UnitNamesProps,
 };

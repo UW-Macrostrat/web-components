@@ -47,5 +47,8 @@
     "concept-apps",
     "storybook"
   ],
-  "prettier": {}
+  "prettier": {},
+  "dependencies": {
+    "@parcel/config-default": "^2.8.2"
+  }
 }

@@ -1,5 +1,4 @@
 import { BaseUnit, UnitLong } from "@macrostrat/api-types";
-import { EditableDateField } from "packages/ui-components/lib/types";
 
 // Time resolution is 100 years
 const dt = 0.0001;
@@ -20,7 +19,7 @@ function extendDivision(
   divisions: UnitLong[]
 ): ExtUnit {
   const overlappingUnits = divisions.filter(
-    d => d.unit_id != unit.unit_id && unitsOverlap(unit, d)
+    (d) => d.unit_id != unit.unit_id && unitsOverlap(unit, d)
   );
   let bottomOverlap = false;
   for (const d of overlappingUnits) {
@@ -36,21 +35,22 @@ function extendDivision(
     ...unit,
     bottomOverlap,
     column,
-    overlappingUnits: overlappingUnits.map(d => d.unit_id)
+    overlappingUnits: overlappingUnits.map((d) => d.unit_id),
   };
 }
 
 function preprocessUnits(units: UnitLong[]) {
   let divisions = units.map(extendDivision);
   for (let d of divisions) {
-    const overlappingUnits = divisions.filter(u =>
+    const overlappingUnits = divisions.filter((u) =>
       d.overlappingUnits.includes(u.unit_id)
     );
 
     const maxNOverlapping = Math.max(
       Math.max(
         ...d.overlappingUnits.map(
-          uid => divisions.find(u => u.unit_id == uid).overlappingUnits.length
+          (uid) =>
+            divisions.find((u) => u.unit_id == uid).overlappingUnits.length
         ),
         0
       )
@@ -59,7 +59,7 @@ function preprocessUnits(units: UnitLong[]) {
     //d.maxNOverlapping = maxNOverlapping;
 
     // Overlapping columns
-    const columns = overlappingUnits.map(d => d.column);
+    const columns = overlappingUnits.map((d) => d.column);
 
     if (columns.includes(d.column)) {
       let col = 0;

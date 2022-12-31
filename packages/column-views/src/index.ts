@@ -6,12 +6,12 @@ import {
   ColumnLayoutContext,
 } from "@macrostrat/column-components";
 import { useContext } from "react";
-import { CompositeUnitsColumn } from "common/units";
-import { IUnit } from "common/units/types";
-import { AgeAxis } from "common";
+import { CompositeUnitsColumn } from "../../common/src/units";
+import { IUnit } from "../../common/src/units/types";
+import { AgeAxis } from "../../common/src";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 // import "@macrostrat/timescale/dist/timescale.css";
-import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
+import { ICompositeUnitProps, TrackedLabeledUnit } from "../../common/src";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 import styles from "./column.module.styl";
 
@@ -124,4 +124,5 @@ const Column = (props: IColumnProps) => {
   );
 };
 
+export * from "./helpers";
 export { Section, AgeAxis, Column };
