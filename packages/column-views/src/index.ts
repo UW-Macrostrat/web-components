@@ -77,7 +77,7 @@ const Section = (props: IColumnProps) => {
         h(CompositeUnitsColumn, {
           width: 450,
           columnWidth: 250,
-          gutterWidth: 0,
+          gutterWidth: 5,
           unitComponent,
           unitComponentProps: {
             nColumns: Math.max(...data.map((d) => d.column)) + 1,

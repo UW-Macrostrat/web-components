@@ -83,15 +83,8 @@
   div.section
     display flex
     flex-direction row
-    div.timescale
-      padding 5px 0
-      width 10em
-      .interval-box
-        width: 12px
-        margin: 1px
-      .interval
-        &:last-child
-          flex-grow 1
+    :global(.timescale)
+      transform: translateY(0.5)
 
   .section .divisions .unit
     cursor pointer

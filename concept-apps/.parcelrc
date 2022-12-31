@@ -8,5 +8,8 @@
     "*.svg": [
       "@parcel/transformer-raw"
     ]
+  },
+  "optimizers": {
+    "*.svg": []
   }
 }
