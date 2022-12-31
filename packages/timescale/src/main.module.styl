@@ -38,19 +38,19 @@
       z-index 20
       border 1px solid white
 
-  .interval-label
+  :global(.interval-label)
     padding 5px 2px
     font-size 12px
     display block
     //display inline-block
 
-  &.horizontal
+  &:global(.horizontal)
     flex-direction column
     .interval
       flex-direction: column;
     .children
       flex-direction row-reverse
-    .interval-label
+    :global(.interval-label)
       position: sticky
       max-width: 100vw
       display block
@@ -71,7 +71,7 @@
         width 2px
         height 100%
 
-  &.vertical
+  &:global(.vertical)
     flex-direction row
     .interval-box
       min-width 2em
@@ -79,11 +79,12 @@
       flex-direction: row;
     .children
       flex-direction column
-    .interval-label
-      width: 0px
-      .label-text
-        writing-mode vertical-lr
-        transform: rotate(180deg) translateX(8px)
+    :global
+      .interval-label
+        width: 0px
+        .label-text
+          writing-mode vertical-lr
+          transform: rotate(180deg) translateX(8px)
 
       // display: block
       // height 100%

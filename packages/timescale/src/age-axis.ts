@@ -1,4 +1,4 @@
-import h from "@macrostrat/hyper";
+import h from "./hyper";
 import { Axis } from "@vx/axis";
 import { TimescaleOrientation } from "./types";
 import { useTimescale } from "./provider";
