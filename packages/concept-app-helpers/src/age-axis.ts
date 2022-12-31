@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import {
   ColumnSVG,
   ColumnAxis,
-  ColumnContext
+  ColumnContext,
 } from "@macrostrat/column-components";
 import { useContext } from "react";
 // import "@macrostrat/timescale/dist/timescale.css";
@@ -15,8 +15,8 @@ const AgeAxisCore = ({ ticks, tickSpacing = 40, showDomain = false }) => {
   return h("g.axis", { transform: "translate(20 0)" }, [
     h(ColumnAxis, {
       ticks: v,
-      showDomain
-    })
+      showDomain,
+    }),
   ]);
 };
 
@@ -37,6 +37,6 @@ export function AgeAxis(props) {
       ColumnSVG,
       { paddingV, ...rest },
       h(AgeAxisCore, { ticks, tickSpacing, showDomain })
-    )
+    ),
   ]);
 }

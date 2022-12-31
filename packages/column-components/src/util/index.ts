@@ -58,8 +58,15 @@ const ColumnSVG = function (props) {
   const { children, className, innerRef, style, ...rest } = props;
   const { pixelHeight } = useContext(ColumnContext);
   const nextProps = expandInnerSize({ innerHeight: pixelHeight, ...rest });
-  const { paddingLeft, paddingTop, innerHeight, innerWidth, height, width } =
-    nextProps;
+  const {
+    paddingLeft,
+    paddingTop,
+    innerHeight,
+    innerWidth,
+    height,
+    width,
+    ...remainingProps
+  } = nextProps;
   return h(
     SVG,
     {
@@ -67,7 +74,7 @@ const ColumnSVG = function (props) {
       height,
       width,
       innerRef,
-      ...rest,
+      ...remainingProps,
       style,
     },
     h(

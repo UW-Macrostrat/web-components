@@ -52,24 +52,27 @@ const Section = (props: IColumnProps) => {
     [
       h(AgeAxis, {
         width: 20,
-        padding: 20,
+        padding: 0,
+        paddingV: 10,
         showLabel: false,
       }),
-      h(Timescale, {
-        orientation: TimescaleOrientation.VERTICAL,
-        length: dAge * pixelScale,
-        levels: [2, 5],
-        absoluteAgeScale: true,
-        showAgeAxis: false,
-        ageRange: range,
-      }),
+      h("div.timescale-container", { style: { marginTop: `10px` } }, [
+        h(Timescale, {
+          orientation: TimescaleOrientation.VERTICAL,
+          length: dAge * pixelScale,
+          levels: [2, 5],
+          absoluteAgeScale: true,
+          showAgeAxis: false,
+          ageRange: range,
+        }),
+      ]),
       h(
         ColumnSVG,
         {
           width: 650,
           padding: 20,
           paddingLeft: 1,
-          paddingV: 5,
+          paddingV: 10,
         },
         h(CompositeUnitsColumn, {
           width: 450,
