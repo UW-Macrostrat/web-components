@@ -4871,9 +4871,8 @@ __metadata:
   resolution: "@macrostrat/web-components@workspace:."
   dependencies:
     "@babel/core": ^7.18.10
-    "@parcel/config-default": ^2.8.2
-    "@parcel/packager-ts": 2.6.2
-    "@parcel/transformer-typescript-types": 2.6.2
+    "@parcel/transformer-sass": 2.6.2
+    "@parcel/transformer-stylus": 2.6.2
     axios: ^0.27.2
     chalk: ^5.0.1
     concurrently: ^7.2.2
@@ -5648,7 +5647,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/config-default@npm:2.8.2, @parcel/config-default@npm:^2.8.2":
+"@parcel/config-default@npm:2.8.2":
   version: 2.8.2
   resolution: "@parcel/config-default@npm:2.8.2"
   dependencies:
@@ -6337,12 +6336,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/packager-ts@npm:2.6.2":
-  version: 2.6.2
-  resolution: "@parcel/packager-ts@npm:2.6.2"
+"@parcel/packager-ts@npm:^2.6.2":
+  version: 2.8.2
+  resolution: "@parcel/packager-ts@npm:2.8.2"
   dependencies:
-    "@parcel/plugin": 2.6.2
-  checksum: e1ab181c7728ff48bd1808317f8a25d24d5b2e84ebb1186a24744431322168c0851cc108e26b04f803fd52615bd9f256104f60638af92a419e8c9e6feae0e361
+    "@parcel/plugin": 2.8.2
+  checksum: 1cd7515339223a2436caaa8226c4ae748fd50d8f77efa833ad2aedca532dc5c12f671e7f7d6cbb9dc8d17082fdaa0182360b03649512da2086e16996a6f352fc
   languageName: node
   linkType: hard
 
@@ -6845,7 +6844,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/transformer-stylus@npm:^2.6.2":
+"@parcel/transformer-sass@npm:^2.6.2":
+  version: 2.8.2
+  resolution: "@parcel/transformer-sass@npm:2.8.2"
+  dependencies:
+    "@parcel/plugin": 2.8.2
+    "@parcel/source-map": ^2.1.1
+    sass: ^1.38.0
+  checksum: 42bbfa9401ad1bc63096e1f3fe8398eb5997d34ae586c5a10f5708fb654adf764188597462b1309b359afb31fb20e0eb533826bdbd01e2612efa153dae821523
+  languageName: node
+  linkType: hard
+
+"@parcel/transformer-stylus@npm:2.6.2":
   version: 2.6.2
   resolution: "@parcel/transformer-stylus@npm:2.6.2"
   dependencies:
@@ -6853,6 +6863,17 @@ __metadata:
     "@parcel/utils": 2.6.2
     stylus: ^0.55.0
   checksum: 6baa3fa97e259f170ac929e6d83b6c8ceea6b22877440fbda9a92bf10badc3b3dbb3da17f986a4ed84005eb572784041b5942592a57513d18821c4454de752d7
+  languageName: node
+  linkType: hard
+
+"@parcel/transformer-stylus@npm:^2.6.2":
+  version: 2.8.2
+  resolution: "@parcel/transformer-stylus@npm:2.8.2"
+  dependencies:
+    "@parcel/plugin": 2.8.2
+    "@parcel/utils": 2.8.2
+    stylus: ^0.55.0
+  checksum: 70c35e4647093581567eb02e160300f381939b828c04b7095a4307122aeac0411be97ca3d7a993c98eb52c41e18746ea5912867657baa7dd9027bf683491bc0b
   languageName: node
   linkType: hard
 
@@ -6901,30 +6922,19 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/transformer-typescript-types@npm:2.6.2":
-  version: 2.6.2
-  resolution: "@parcel/transformer-typescript-types@npm:2.6.2"
+"@parcel/transformer-typescript-types@npm:^2.6.2":
+  version: 2.8.2
+  resolution: "@parcel/transformer-typescript-types@npm:2.8.2"
   dependencies:
-    "@parcel/diagnostic": 2.6.2
-    "@parcel/plugin": 2.6.2
-    "@parcel/source-map": ^2.0.0
-    "@parcel/ts-utils": 2.6.2
-    "@parcel/utils": 2.6.2
+    "@parcel/diagnostic": 2.8.2
+    "@parcel/plugin": 2.8.2
+    "@parcel/source-map": ^2.1.1
+    "@parcel/ts-utils": 2.8.2
+    "@parcel/utils": 2.8.2
     nullthrows: ^1.1.1
   peerDependencies:
     typescript: ">=3.0.0"
-  checksum: 2b5fa651f4e90e9bdded868171474e295436f231bc03a72bd6ca7b456829410b61ebca0b25baf3565009c26b616372fe6711705d831ff1b8d21bc95bfeb14a6b
-  languageName: node
-  linkType: hard
-
-"@parcel/ts-utils@npm:2.6.2":
-  version: 2.6.2
-  resolution: "@parcel/ts-utils@npm:2.6.2"
-  dependencies:
-    nullthrows: ^1.1.1
-  peerDependencies:
-    typescript: ">=3.0.0"
-  checksum: 292c7be1f7f850d8fbf5935c662a3d2a550886aae2846801c0bed1f56bcd9841f4d4858ef3503441d4e399ec33fa23a7625e4b522ec224b0da1176b051da6b83
+  checksum: 007dbfce5b9aca7fc5ce17a41873147ff71c38fcf781598f5a33b23f18b4809068a0d1b29579def38d8ca79833dc163b4e6e09b1b0696b9a4b2ba76899e29965
   languageName: node
   linkType: hard
 
@@ -13466,10 +13476,12 @@ __metadata:
     "@macrostrat/corelle": ^1.1.0
     "@macrostrat/hyper": ^2.0.0
     "@parcel/config-default": ^2.6.2
+    "@parcel/packager-ts": ^2.6.2
     "@parcel/resolver-glob": ^2.6.2
     "@parcel/transformer-image": ^2.6.2
-    "@parcel/transformer-sass": 2.6.2
+    "@parcel/transformer-sass": ^2.6.2
     "@parcel/transformer-stylus": ^2.6.2
+    "@parcel/transformer-typescript-types": ^2.6.2
     "@react-hook/size": ^2.1.1
     "@types/d3-geo": ^2.0.0
     "@types/geojson": ^7946.0.7
