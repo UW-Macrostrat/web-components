@@ -42,7 +42,7 @@ function TimescaleContainer(props: {
     clickHandler(evt, scale.invert(pos));
   }
 
-  return h("div.timescale", { onClick, ...rest });
+  return h("div.timescale.timescale-container", { onClick, ...rest });
 }
 
 function Timescale(props: TimescaleProps) {

@@ -4,11 +4,15 @@
 .interval-box
   position relative
 
-.timescale
+.timescale-container
   display flex
   position relative
+  box-sizing border-box
 
   --timescale-cursor-color: black
+  --timescale-level-size: 2em
+  --timescale-level-width: var(--timescale-level-size)
+  --timescale-level-height: var(--timescale-level-size)
 
   .interval-box
     margin 0.5px
@@ -48,6 +52,8 @@
     flex-direction column
     .interval
       flex-direction: column;
+    .interval-box
+      min-height var(--timescale-level-height)
     .children
       flex-direction row-reverse
     :global(.interval-label)
@@ -73,10 +79,13 @@
 
   &:global(.vertical)
     flex-direction row
+
     .interval-box
-      min-width 2em
+      min-width var(--timescale-level-width)
     .interval
       flex-direction: row;
+      &:last-child
+        flex-grow 1
     .children
       flex-direction column
     :global
@@ -89,6 +98,7 @@
       // display: block
       // height 100%
       // text-align center
+
 
     .cursor
       left: 1px
