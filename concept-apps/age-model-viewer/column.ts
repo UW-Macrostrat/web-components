@@ -4,20 +4,20 @@ import {
   ColumnSVG,
   ColumnLayoutContext,
   ColumnAxisType,
-  NotesColumn
+  NotesColumn,
 } from "@macrostrat/column-components";
 import { useContext } from "react";
-import { AnnotatedUnitsColumn } from "common/units";
-import { IUnit, transformAxisType } from "common/units/types";
+import { AnnotatedUnitsColumn } from "@macrostrat/column-views";
+import { IUnit, transformAxisType } from "@macrostrat/column-views";
 import { AgeAxis } from "common";
-import { TrackedLabeledUnit } from "common";
+import { TrackedLabeledUnit } from "@macrostrat/column-views";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { useColumnNav } from "common/macrostrat-columns";
 import {
   AgeModelColumn,
   AgeModelDataset,
   ReconstructedColumnAgeDataset,
-  useColumnAgeModel
+  useColumnAgeModel,
 } from "./age-model-column";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 // import "@macrostrat/timescale/dist/timescale.css";
@@ -47,14 +47,14 @@ function FossilData({ width }) {
     useAPIResult(
       "http://strata.geology.wisc.edu/syenite/offshore_fossils.php",
       { col_id },
-      res => res
+      (res) => res
     ) ?? [];
 
   const notes = data.map((d, i) => {
     return {
-      note: d.name + ": " + d.taxa.map(d => d.taxon).join(", "),
+      note: d.name + ": " + d.taxa.map((d) => d.taxon).join(", "),
       height: d.depth,
-      id: i
+      id: i,
     };
   });
 
@@ -71,10 +71,10 @@ function FossilColumn(props) {
         padding: 20,
         paddingLeft: 50,
         paddingV: 10,
-        paddingBottom: 20
+        paddingBottom: 20,
       },
       [h(FossilData, { width: width - 200 })]
-    )
+    ),
   ]);
 }
 
@@ -90,7 +90,7 @@ const Section = (props: ColumnProps) => {
     ageWidth,
     ageData,
     ageBounds,
-    mode
+    mode,
   } = props;
   let { pixelScale } = props;
 
@@ -108,7 +108,7 @@ const Section = (props: ColumnProps) => {
       divisions: data,
       range,
       axisType: "depth",
-      pixelsPerMeter: pixelScale // Actually pixels per myr
+      pixelsPerMeter: pixelScale, // Actually pixels per myr
     },
     [
       h(AgeAxis, {
@@ -117,7 +117,7 @@ const Section = (props: ColumnProps) => {
         paddingBottom: 20,
         paddingLeft: 20,
         showLabel: false,
-        showDomain: true
+        showDomain: true,
       }),
       h(
         ColumnSVG,
@@ -128,9 +128,9 @@ const Section = (props: ColumnProps) => {
           paddingV: 10,
           paddingBottom: 20,
           style: {
-            marginRight: -150
+            marginRight: -150,
           },
-          className: "main-section"
+          className: "main-section",
         },
         h(AnnotatedUnitsColumn, {
           width: 350,
@@ -139,14 +139,14 @@ const Section = (props: ColumnProps) => {
           axisType,
           unitComponent,
           unitComponentProps: {
-            nColumns: 1
+            nColumns: 1,
           },
           minimumLabelHeight: 0.5,
-          nameForDivision: d => {
+          nameForDivision: (d) => {
             return d.unit_name
               .replace(/[\d\.]+-[\d\.]+( mbsf)?: /g, "")
               .toLowerCase();
-          }
+          },
         })
       ),
       h.if(mode == "fossils")(FossilColumn, { width }),
@@ -158,29 +158,29 @@ const Section = (props: ColumnProps) => {
             padding: 20,
             paddingLeft: 1,
             paddingV: 10,
-            paddingBottom: 20
+            paddingBottom: 20,
           },
           h(
             AgeModelColumn,
             {
               width: ageWidth,
               nTicks: 10,
-              domain: ageBounds
+              domain: ageBounds,
             },
             [
               h(AgeModelDataset, {
                 data: ageData,
                 stroke: "green",
-                strokeWidth: 2
-              })
+                strokeWidth: 2,
+              }),
               // h(ReconstructedColumnAgeDataset, {
               //   stroke: "red",
               //   strokeWidth: 2
               // })
             ]
           )
-        )
-      ])
+        ),
+      ]),
     ]
   );
 };
@@ -196,7 +196,7 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
     ...rest,
     axisType: "pos",
     width: nOverlaps > 0 ? width / nColumns : width,
-    x: (division.column * width) / nColumns
+    x: (division.column * width) / nColumns,
   });
 }
 
@@ -216,10 +216,10 @@ const Column = (props: ColumnProps) => {
     unitComponent = UnitComponent,
     axisType,
     width = 550,
-    mode
+    mode,
   } = props;
 
-  let sectionGroups = Array.from(group(data, d => d.section_id));
+  let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
   sectionGroups.sort((a, b) => a["t_" + axisType] - b["t_" + axisType]);
 
@@ -227,7 +227,7 @@ const Column = (props: ColumnProps) => {
 
   const ageData = useColumnAgeModel() ?? [];
 
-  let ageBounds = extent(ageData, d => d.model_age);
+  let ageBounds = extent(ageData, (d) => d.model_age);
   ageBounds.reverse();
 
   return h("div.column", [
@@ -244,15 +244,15 @@ const Column = (props: ColumnProps) => {
             ageWidth,
             ageData,
             ageBounds,
-            mode
-          })
+            mode,
+          }),
         ]);
       }),
       //h(FossilData),
       h.if(ageBounds != null && mode == "age-model")(
         "div.timescale-container",
         {
-          style: { marginLeft: 170 + 22, paddingLeft: 2, width: ageWidth + 4 }
+          style: { marginLeft: 170 + 22, paddingLeft: 2, width: ageWidth + 4 },
         },
         [
           h(Timescale, {
@@ -260,12 +260,12 @@ const Column = (props: ColumnProps) => {
             absoluteAgeScale: true,
             length: ageWidth,
             ageRange: ageBounds,
-            levels: [3, 4]
+            levels: [3, 4],
           }),
-          h("div.axis-label", "Age (Ma)")
+          h("div.axis-label", "Age (Ma)"),
         ]
-      )
-    ])
+      ),
+    ]),
   ]);
 };
 

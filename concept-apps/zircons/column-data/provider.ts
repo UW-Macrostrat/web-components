@@ -1,7 +1,7 @@
 import { useContext, createContext, useMemo } from "react";
 import { useDetritalMeasurements, MeasurementInfo } from "../detrital/provider";
 import { useAPIResult } from "@macrostrat/ui-components";
-import { IUnit } from "common/units";
+import { IUnit } from "@macrostrat/column-views";
 
 import h from "@macrostrat/hyper";
 

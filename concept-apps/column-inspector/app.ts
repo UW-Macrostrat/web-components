@@ -1,10 +1,11 @@
 import h, { compose, C } from "@macrostrat/hyper";
 import { useAPIResult, DarkModeProvider } from "@macrostrat/ui-components";
+import { MacrostratAPIProvider } from "common";
 import {
-  MacrostratAPIProvider,
   UnitSelectionProvider,
   useSelectedUnit,
-} from "common";
+} from "@macrostrat/column-views";
+
 import { ColumnMapNavigator } from "common/column-map";
 import { Column } from "@macrostrat/column-views";
 import GeologicPatternProvider from "../pattern-provider";

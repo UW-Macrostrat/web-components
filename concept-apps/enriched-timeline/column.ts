@@ -2,8 +2,7 @@ import h from "@macrostrat/hyper";
 import { group } from "d3-array";
 import { ColumnProvider, ColumnSVG } from "@macrostrat/column-components";
 import { AgeAxis } from "@macrostrat/concept-app-helpers";
-import { CompositeUnitsColumn } from "common/units";
-import { IUnit } from "common/units/types";
+import { CompositeUnitsColumn, IUnit } from "@macrostrat/column-views";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 // import "@macrostrat/timescale/dist/timescale.css";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
@@ -34,14 +33,14 @@ const Section = (props: IColumnProps) => {
     {
       divisions: data,
       range,
-      pixelsPerMeter: pixelScale // Actually pixels per myr
+      pixelsPerMeter: pixelScale, // Actually pixels per myr
     },
     [
       h(AgeAxis, {
         width: 20,
         padding: 20,
         paddingV: 10,
-        showLabel: false
+        showLabel: false,
       }),
       h(Timescale, {
         orientation: TimescaleOrientation.VERTICAL,
@@ -49,7 +48,7 @@ const Section = (props: IColumnProps) => {
         levels: [2, 5],
         absoluteAgeScale: true,
         showAgeAxis: false,
-        ageRange: range
+        ageRange: range,
       }),
       h(
         ColumnSVG,
@@ -57,16 +56,16 @@ const Section = (props: IColumnProps) => {
           width: 650,
           padding: 20,
           paddingLeft: 1,
-          paddingV: 5
+          paddingV: 5,
         },
         [
           h(CompositeUnitsColumn, {
             width: 400,
             columnWidth: 140,
-            gutterWidth: 0
-          })
+            gutterWidth: 0,
+          }),
         ]
-      )
+      ),
     ]
   );
 };
@@ -74,7 +73,7 @@ const Section = (props: IColumnProps) => {
 const Column = (props: IColumnProps) => {
   const { data } = props;
 
-  let sectionGroups = Array.from(group(data, d => d.section_id));
+  let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
   sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
@@ -85,7 +84,7 @@ const Column = (props: IColumnProps) => {
       sectionGroups.map(([id, values]) => {
         return h(`div.section.section-${id}`, [h(Section, { data: values })]);
       })
-    )
+    ),
   ]);
 };
 

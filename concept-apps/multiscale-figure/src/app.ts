@@ -3,22 +3,25 @@ import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
 import GeologicPatternProvider from "../../pattern-provider";
 import {
   AlignedMeasurementProvider,
-  FilteredMeasurementProvider
+  FilteredMeasurementProvider,
 } from "../data-providers";
 import { BaseSection, InteriorSection } from "./section";
-import { CompositeUnitsColumn, CompositeUnitComponent } from "common/units";
+import {
+  CompositeUnitsColumn,
+  CompositeUnitComponent,
+  IUnit,
+} from "@macrostrat/column-views";
 import {
   IsotopesColumn,
   IsotopesDataset,
-  MeasurementDataProvider
+  MeasurementDataProvider,
 } from "@macrostrat/concept-app-helpers";
 import {
   IsotopesSpectraColumn,
   IsotopeSpectrumNote,
-  shouldRenderNote
+  shouldRenderNote,
 } from "./spectra";
 import { ColumnSpec } from "@macrostrat/api-types";
-import { IUnit } from "common/units";
 import { MeasuredSection } from "./measured-section";
 import { preprocessUnits } from "@macrostrat/concept-app-helpers";
 import { ColumnMap } from "./map";
@@ -31,19 +34,19 @@ const largestScaleColumn: ColumnSpec = { col_id: 1666 };
 const regionalColumn: ColumnSpec = {
   col_id: 2163,
   project_id: 10,
-  status_code: "in process"
+  status_code: "in process",
 };
 
 const measuredColumn: ColumnSpec = {
   col_id: 2164,
   project_id: 10,
-  status_code: "in process"
+  status_code: "in process",
 };
 
 // For measurements, we combine Nadaleen area and Sekwi area.
 const measureSourceColumns: ColumnSpec = {
   ...regionalColumn,
-  col_id: "2163,2164,2158,2159"
+  col_id: "2163,2164,2158,2159",
 };
 
 function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
@@ -51,7 +54,7 @@ function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
   const res: IUnit[] = useAPIResult("/units", {
     all: true,
     ...params,
-    response: "long"
+    response: "long",
   });
   if (res == null) return null;
   const data = preprocessUnits(res);
@@ -63,8 +66,8 @@ function Column(props: React.PropsWithChildren<{ params: ColumnSpec }>) {
       range: [timeRange[1], timeRange[0]],
       pixelScale: 5,
       width,
-      children
-    })
+      children,
+    }),
   ]);
 }
 
@@ -77,7 +80,7 @@ function MultiIsotopesColumn({ transform }) {
       width: 50,
       nTicks: 2,
       showAxis: true,
-      parameter: "D13C"
+      parameter: "D13C",
     }),
     h(IsotopesColumn, {
       label: "δ¹⁸O",
@@ -87,8 +90,8 @@ function MultiIsotopesColumn({ transform }) {
       nTicks: 4,
       transform: "translate(70,0)",
       showAxis: true,
-      parameter: "D18O"
-    })
+      parameter: "D18O",
+    }),
   ]);
 }
 
@@ -108,35 +111,35 @@ const ColumnManager = () => {
             //     nColumns: 2
             //   }
             // }),
-            h(IsotopesSpectraColumn)
+            h(IsotopesSpectraColumn),
           ])
         ),
         h(AlignedMeasurementProvider, { targetColumn: regionalColumn }, [
           h(Column, { params: regionalColumn, width: 310 }, [
             h(CompositeUnitsColumn, {
               width: 140,
-              showLabels: false
+              showLabels: false,
             }),
-            h(MultiIsotopesColumn, { transform: "translate(160,0)" })
-          ])
+            h(MultiIsotopesColumn, { transform: "translate(160,0)" }),
+          ]),
         ]),
-        h("div.spacer")
+        h("div.spacer"),
       ]),
       h("div", [
         h(
           FilteredMeasurementProvider,
-          { filterFunc: d => d.sample_no.match(/^G3-/) != null },
+          { filterFunc: (d) => d.sample_no.match(/^G3-/) != null },
           h(MeasuredSection, { params: measuredColumn }, [
-            h(MultiIsotopesColumn, { transform: "translate(80,0)" })
+            h(MultiIsotopesColumn, { transform: "translate(80,0)" }),
           ])
         ),
         h(ColumnMap, {
           className: "column-map",
           col_id: 1666,
-          margin: 0
-        })
-      ])
-    ])
+          margin: 0,
+        }),
+      ]),
+    ]),
   ]);
 };
 
@@ -144,7 +147,7 @@ const App = compose(
   C(GeologicPatternProvider),
   C(APIProvider, {
     baseURL: "https://macrostrat.org/api/v2",
-    unwrapResponse: res => res.success.data
+    unwrapResponse: (res) => res.success.data,
   }),
   ColumnManager
 );

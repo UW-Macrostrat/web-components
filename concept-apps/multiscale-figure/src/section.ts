@@ -2,10 +2,10 @@ import h from "@macrostrat/hyper";
 import {
   ColumnProvider,
   ColumnSVG,
-  useColumn
+  useColumn,
 } from "@macrostrat/column-components";
 import { AgeAxis } from "@macrostrat/concept-app-helpers";
-import { IUnit } from "common/units/types";
+import { IUnit } from "@macrostrat/column-views";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 //import "../../../packages/timescale/dist/timescale.css";
 import { preprocessUnits } from "@macrostrat/concept-app-helpers";
@@ -22,7 +22,7 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
   const {
     data = [],
     range = [data[data.length - 1].b_age, data[0].t_age],
-    children
+    children,
   } = props;
   let { pixelScale } = props;
 
@@ -40,7 +40,7 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
       {
         divisions: data,
         range,
-        pixelsPerMeter: pixelScale // Actually pixels per myr
+        pixelsPerMeter: pixelScale, // Actually pixels per myr
       },
       [
         h(AgeAxis, {
@@ -48,7 +48,7 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
           width: 40,
           padding: 0,
           paddingRight: 30,
-          paddingV: 30
+          paddingV: 30,
         }),
 
         h(Timescale, {
@@ -57,11 +57,11 @@ const BaseSection = (props: IColumnProps & { children: React.ReactNode }) => {
           levels: [2, 3],
           absoluteAgeScale: true,
           showAgeAxis: false,
-          ageRange: range
-        })
+          ageRange: range,
+        }),
       ]
     ),
-    children
+    children,
   ]);
 };
 
@@ -75,7 +75,7 @@ function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
     {
       divisions,
       range,
-      pixelsPerMeter: pixelScale // Actually pixels per myr
+      pixelsPerMeter: pixelScale, // Actually pixels per myr
     },
     [
       h(
@@ -84,11 +84,11 @@ function InteriorSection(props: React.PropsWithChildren<IColumnProps>) {
           width,
           padding: 5,
           paddingLeft: 0,
-          paddingV: 30
+          paddingV: 30,
         },
 
         children
-      )
+      ),
     ]
   );
 }

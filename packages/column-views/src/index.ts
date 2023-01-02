@@ -6,14 +6,21 @@ import {
   ColumnLayoutContext,
 } from "@macrostrat/column-components";
 import { useContext } from "react";
-import { CompositeUnitsColumn } from "../../common/src/units";
-import { IUnit } from "../../common/src/units/types";
-import { AgeAxis } from "../../common/src";
+import { CompositeUnitsColumn } from "./units";
+import { IUnit } from "./units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 // import "@macrostrat/timescale/dist/timescale.css";
-import { ICompositeUnitProps, TrackedLabeledUnit } from "../../common/src";
-import { MacrostratColumnProvider } from "@macrostrat/api-views";
+import { ICompositeUnitProps, TrackedLabeledUnit } from "./units";
 import styles from "./column.module.styl";
+import { AgeAxis } from "@macrostrat/concept-app-helpers";
+export * from "./units";
+
+import { ColumnAxisType } from "@macrostrat/column-components";
+
+export function MacrostratColumnProvider(props) {
+  // A column provider specialized the Macrostrat API
+  return h(ColumnProvider, { axisType: ColumnAxisType.AGE, ...props });
+}
 
 const h = hyperStyled(styles);
 
@@ -42,6 +49,10 @@ const Section = (props: IColumnProps) => {
     pixelScale = Math.ceil(targetHeight / dAge);
   }
 
+  const height = dAge * pixelScale;
+
+  console.log(data);
+
   return h(
     MacrostratColumnProvider,
     {
@@ -59,7 +70,7 @@ const Section = (props: IColumnProps) => {
       h("div.timescale-container", { style: { marginTop: `10px` } }, [
         h(Timescale, {
           orientation: TimescaleOrientation.VERTICAL,
-          length: dAge * pixelScale,
+          length: height,
           levels: [2, 5],
           absoluteAgeScale: true,
           showAgeAxis: false,
@@ -73,6 +84,7 @@ const Section = (props: IColumnProps) => {
           padding: 20,
           paddingLeft: 1,
           paddingV: 10,
+          innerHeight: height,
         },
         h(CompositeUnitsColumn, {
           width: 450,
