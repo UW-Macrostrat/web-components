@@ -27,16 +27,12 @@ export function useMapConditionalStyle<T = any>(
 }
 
 const _toggleMapLabels = (map, state) =>
-  toggleMapLabelVisibility(map, state.mapShowLabels, state.omitLayers);
+  toggleMapLabelVisibility(map, state.showLabels, state.omitLayers);
 
 export function useMapLabelVisibility(
   mapRef: RefObject<mapboxgl.Map>,
-  mapShowLabels: boolean,
+  showLabels: boolean,
   omitLayers: string[] = []
 ) {
-  useMapConditionalStyle(
-    mapRef,
-    { mapShowLabels, omitLayers },
-    _toggleMapLabels
-  );
+  useMapConditionalStyle(mapRef, { showLabels, omitLayers }, _toggleMapLabels);
 }
