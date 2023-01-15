@@ -30,6 +30,8 @@ interface IColumnProps {
   range?: [number, number];
   unitComponent: React.FunctionComponent<any>;
   unitComponentProps?: any;
+  showLabels?: boolean;
+  targetUnitHeight?: number;
 }
 
 const Section = (props: IColumnProps) => {
@@ -38,6 +40,8 @@ const Section = (props: IColumnProps) => {
     data,
     range = [data[data.length - 1].b_age, data[0].t_age],
     unitComponent,
+    showLabels = true,
+    targetUnitHeight = 20,
   } = props;
   let { pixelScale } = props;
 
@@ -45,13 +49,11 @@ const Section = (props: IColumnProps) => {
 
   if (!pixelScale) {
     // Make up a pixel scale
-    const targetHeight = 20 * data.length;
+    const targetHeight = targetUnitHeight * data.length;
     pixelScale = Math.ceil(targetHeight / dAge);
   }
 
   const height = dAge * pixelScale;
-
-  console.log(data);
 
   return h(
     MacrostratColumnProvider,
@@ -80,16 +82,17 @@ const Section = (props: IColumnProps) => {
       h(
         ColumnSVG,
         {
-          width: 650,
-          padding: 20,
+          width: showLabels ? 300 : 150,
+          paddingRight: 1,
           paddingLeft: 1,
           paddingV: 10,
           innerHeight: height,
         },
         h(CompositeUnitsColumn, {
-          width: 450,
-          columnWidth: 250,
+          width: showLabels ? 300 : 150,
+          columnWidth: 150,
           gutterWidth: 5,
+          showLabels,
           unitComponent,
           unitComponentProps: {
             nColumns: Math.max(...data.map((d) => d.column)) + 1,
@@ -113,8 +116,28 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
   });
 }
 
-const Column = (props: IColumnProps) => {
-  const { data, unitComponent = UnitComponent } = props;
+function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
+  if (upperUnits.length == 0 || lowerUnits.length == 0) {
+    return null;
+  }
+  console.log(upperUnits, lowerUnits);
+
+  const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
+
+  return h(
+    "div.unconformity",
+    { style },
+    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`)
+  );
+}
+
+const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
+  const {
+    data,
+    unitComponent = UnitComponent,
+    unconformityLabels = false,
+    ...rest
+  } = props;
 
   let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
@@ -126,12 +149,20 @@ const Column = (props: IColumnProps) => {
       h("div.age-axis-label", "Age (Ma)"),
       h(
         "div.main-column",
-        sectionGroups.map(([id, values]) => {
-          return h(`div.section.section-${id}`, [
-            h(Section, {
-              data: values,
-              unitComponent,
+        sectionGroups.map(([id, values], i) => {
+          const lastGroup = sectionGroups[i - 1]?.[1];
+          return h([
+            h.if(unconformityLabels)(Unconformity, {
+              upperUnits: lastGroup,
+              lowerUnits: values,
             }),
+            h(`div.section.section-${id}`, [
+              h(Section, {
+                data: values,
+                unitComponent,
+                ...rest,
+              }),
+            ]),
           ]);
         })
       ),

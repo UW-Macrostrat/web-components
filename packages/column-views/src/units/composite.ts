@@ -190,10 +190,7 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     ...rest
   } = props;
 
-  let { columnWidth } = props;
-  if (!showLabels) {
-    columnWidth = width;
-  }
+  let { columnWidth = width } = props;
 
   const labelColumnComponent =
     noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
