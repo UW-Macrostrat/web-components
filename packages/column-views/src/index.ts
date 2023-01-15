@@ -31,6 +31,8 @@ interface IColumnProps {
   unitComponent: React.FunctionComponent<any>;
   unitComponentProps?: any;
   showLabels?: boolean;
+  width?: number;
+  columnWidth?: number;
   targetUnitHeight?: number;
 }
 
@@ -42,6 +44,8 @@ const Section = (props: IColumnProps) => {
     unitComponent,
     showLabels = true,
     targetUnitHeight = 20,
+    width = 300,
+    columnWidth = 150,
   } = props;
   let { pixelScale } = props;
 
@@ -82,15 +86,15 @@ const Section = (props: IColumnProps) => {
       h(
         ColumnSVG,
         {
-          width: showLabels ? 300 : 150,
+          innerWidth: showLabels ? width : columnWidth,
           paddingRight: 1,
           paddingLeft: 1,
           paddingV: 10,
           innerHeight: height,
         },
         h(CompositeUnitsColumn, {
-          width: showLabels ? 300 : 150,
-          columnWidth: 150,
+          width: showLabels ? width : columnWidth,
+          columnWidth,
           gutterWidth: 5,
           showLabels,
           unitComponent,
@@ -136,6 +140,9 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
     data,
     unitComponent = UnitComponent,
     unconformityLabels = false,
+    showLabels = true,
+    width = 300,
+    columnWidth = 150,
     ...rest
   } = props;
 
@@ -149,17 +156,21 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
       h("div.age-axis-label", "Age (Ma)"),
       h(
         "div.main-column",
-        sectionGroups.map(([id, values], i) => {
+        sectionGroups.map(([id, data], i) => {
           const lastGroup = sectionGroups[i - 1]?.[1];
           return h([
             h.if(unconformityLabels)(Unconformity, {
               upperUnits: lastGroup,
-              lowerUnits: values,
+              lowerUnits: data,
+              style: { width: showLabels ? columnWidth : width },
             }),
             h(`div.section.section-${id}`, [
               h(Section, {
-                data: values,
+                data,
                 unitComponent,
+                showLabels,
+                width,
+                columnWidth,
                 ...rest,
               }),
             ]),
