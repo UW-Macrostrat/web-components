@@ -1,0 +1,26 @@
+:global(.col-note-label)
+  cursor: pointer
+
+:global(.note-editor)
+  &:global(.bp3-editable-text)
+    user-select none
+    &:before
+      top: 0
+      left: 0
+      right: 0
+      bottom: 0
+
+.position-editor
+  .handle
+    background-color: lighten(dodgerblue, 80%)
+    border: 1px solid dodgerblue
+  .add-span-handle
+    background-color: lighten(dodgerblue, 90%)
+    border 1px dotted dodgerblue
+  .top-handle, .bottom-handle, .add-span-handle
+    border-radius 3px
+
+.note-editor
+  .note-connector
+    stroke: dodgerblue
+    stroke-width 3

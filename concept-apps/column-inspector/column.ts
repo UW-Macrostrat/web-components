@@ -1,9 +1,9 @@
-import h from "@macrostrat/hyper";
+import { hyperStyled } from "@macrostrat/hyper";
 import { group } from "d3-array";
 import {
   ColumnProvider,
   ColumnSVG,
-  ColumnLayoutContext
+  ColumnLayoutContext,
 } from "@macrostrat/column-components";
 import { useContext } from "react";
 import { CompositeUnitsColumn } from "common/units";
@@ -13,6 +13,10 @@ import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 // import "@macrostrat/timescale/dist/timescale.css";
 import { ICompositeUnitProps, TrackedLabeledUnit } from "common";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
+import styles from "./column.module.styl";
+import "common/deps.styl";
+
+const h = hyperStyled(styles);
 
 interface IColumnProps {
   data: IUnit[];
@@ -27,7 +31,7 @@ const Section = (props: IColumnProps) => {
   const {
     data,
     range = [data[data.length - 1].b_age, data[0].t_age],
-    unitComponent
+    unitComponent,
   } = props;
   let { pixelScale } = props;
 
@@ -44,13 +48,13 @@ const Section = (props: IColumnProps) => {
     {
       divisions: data,
       range,
-      pixelsPerMeter: pixelScale // Actually pixels per myr
+      pixelsPerMeter: pixelScale, // Actually pixels per myr
     },
     [
       h(AgeAxis, {
         width: 20,
         padding: 20,
-        showLabel: false
+        showLabel: false,
       }),
       h(Timescale, {
         orientation: TimescaleOrientation.VERTICAL,
@@ -58,7 +62,7 @@ const Section = (props: IColumnProps) => {
         levels: [2, 5],
         absoluteAgeScale: true,
         showAgeAxis: false,
-        ageRange: range
+        ageRange: range,
       }),
       h(
         ColumnSVG,
@@ -66,7 +70,7 @@ const Section = (props: IColumnProps) => {
           width: 650,
           padding: 20,
           paddingLeft: 1,
-          paddingV: 5
+          paddingV: 5,
         },
         h(CompositeUnitsColumn, {
           width: 450,
@@ -74,10 +78,10 @@ const Section = (props: IColumnProps) => {
           gutterWidth: 0,
           unitComponent,
           unitComponentProps: {
-            nColumns: Math.max(...data.map(d => d.column)) + 1
-          }
+            nColumns: Math.max(...data.map((d) => d.column)) + 1,
+          },
         })
-      )
+      ),
     ]
   );
 };
@@ -91,31 +95,34 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
     division,
     ...rest,
     width: division.overlappingUnits.length > 0 ? width / nColumns : width,
-    x: (division.column * width) / nColumns
+    x: (division.column * width) / nColumns,
   });
 }
 
 const Column = (props: IColumnProps) => {
   const { data, unitComponent = UnitComponent } = props;
 
-  let sectionGroups = Array.from(group(data, d => d.section_id));
+  let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
   sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
-  return h("div.column", [
-    h("div.age-axis-label", "Age (Ma)"),
-    h(
-      "div.main-column",
-      sectionGroups.map(([id, values]) => {
-        return h(`div.section.section-${id}`, [
-          h(Section, {
-            data: values,
-            unitComponent
-          })
-        ]);
-      })
-    )
-  ]);
+  return h(
+    "div.column-container",
+    h("div.column", [
+      h("div.age-axis-label", "Age (Ma)"),
+      h(
+        "div.main-column",
+        sectionGroups.map(([id, values]) => {
+          return h(`div.section.section-${id}`, [
+            h(Section, {
+              data: values,
+              unitComponent,
+            }),
+          ]);
+        })
+      ),
+    ])
+  );
 };
 
 export { Section, AgeAxis };

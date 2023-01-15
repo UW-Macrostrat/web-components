@@ -1,33 +1,44 @@
 import { useMapRef } from "./context";
 import { useEffect } from "react";
-import { AnySourceImpl, AnyLayer, RasterDemSource } from "mapbox-gl";
+import { AnySourceImpl, AnyLayer, RasterDemSource, Map } from "mapbox-gl";
+
+type SourceConfig = Partial<RasterDemSource>;
 
 export function use3DTerrain(
-  shouldEnable: boolean,
+  shouldEnable: boolean = true,
   sourceName: string = "terrain",
-  sourceCfg: Partial<RasterDemSource> = {}
+  sourceCfg: SourceConfig = {}
 ) {
   const mapRef = useMapRef();
   const map = mapRef.current;
   useEffect(() => {
-    const handler = () => {
-      if (!map?.isStyleLoaded()) {
-        return;
-      }
-      if (shouldEnable) {
-        addDefault3DStyles(map, sourceName, sourceCfg);
-      }
-      // Enable or disable terrain depending on our current desires...
-      const currentTerrain = map.getTerrain();
-      if (shouldEnable && currentTerrain == null) {
-        map.setTerrain({ source: sourceName, exaggeration: 1 });
-      } else if (!shouldEnable && currentTerrain != null) {
-        map.setTerrain(null);
-      }
-    };
-    handler();
-    map?.on("style.load", handler);
+    if (map == null) return;
+    setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
+    map.on("style.load", () => {
+      setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
+    });
   }, [map, shouldEnable, sourceName]);
+}
+
+export function setup3DTerrain(
+  map: mapboxgl.Map,
+  shouldEnable: boolean = true,
+  sourceName: string = "terrain",
+  sourceCfg: SourceConfig = {}
+) {
+  if (!map.isStyleLoaded()) {
+    return;
+  }
+  if (shouldEnable) {
+    addDefault3DStyles(map, sourceName, sourceCfg);
+  }
+  // Enable or disable terrain depending on our current desires...
+  const currentTerrain = map.getTerrain();
+  if (shouldEnable && currentTerrain == null) {
+    map.setTerrain({ source: sourceName, exaggeration: 1 });
+  } else if (!shouldEnable && currentTerrain != null) {
+    map.setTerrain(null);
+  }
 }
 
 function addDefault3DStyles(

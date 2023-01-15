@@ -20,13 +20,13 @@ const SimpleUnitsColumn = (props: ICompositeUnitProps) => {
 
   return h([
     h(UnitsColumn, {
-      width: columnWidth
+      width: columnWidth,
     }),
     h(UnitNamesColumn, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
-      width: width - columnWidth - gutterWidth
-    })
+      width: width - columnWidth - gutterWidth,
+    }),
   ]);
 };
 
@@ -35,7 +35,6 @@ export {
   UnitNamesColumn,
   SimpleUnitsColumn,
   CompositeUnitsColumn,
-  ICompositeUnitProps
 };
 export * from "./composite";
 export * from "./types";

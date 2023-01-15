@@ -1,4 +1,4 @@
-import h, { compose } from "@macrostrat/hyper";
+import h, { compose, C } from "@macrostrat/hyper";
 import { useAPIResult, DarkModeProvider } from "@macrostrat/ui-components";
 import {
   MacrostratAPIProvider,
@@ -54,11 +54,13 @@ function ColumnManager() {
   ]);
 }
 
+const APIProvider = C(MacrostratAPIProvider, {useDev: false})
+
 const App = compose(
   DarkModeProvider,
   GeologicPatternProvider,
   UnitSelectionProvider,
-  MacrostratAPIProvider,
+  APIProvider,
   ColumnManager
 );
 
