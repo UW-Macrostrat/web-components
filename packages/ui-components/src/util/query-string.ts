@@ -63,11 +63,13 @@ function updateURL(joinWith: string, args: QueryArgs, opts?: StringifyOptions) {
   window.history.replaceState({}, "", pathname);
 }
 
-const getHashString = () => parseParams(document.location.hash);
+const getHashString = (hashString: string | null) =>
+  parseParams(hashString ?? document.location.hash);
 const setHashString = (args: QueryArgs, opts?: StringifyOptions) =>
   updateURL("#", args, opts);
 
-const getQueryString = () => parseParams(document.location.search);
+const getQueryString = (queryString: string | null) =>
+  parseParams(queryString ?? document.location.search);
 const setQueryString = (args: QueryArgs, opts?: StringifyOptions) =>
   updateURL("?", args, opts);
 
