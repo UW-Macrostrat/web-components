@@ -22,7 +22,6 @@ function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
     label: labelText,
     onVisibilityChanged(viz) {
       if (!viz && labelText.length > 1) {
-        console.log("Trying to shorten label");
         setLabelText(labelText[0]);
       }
     },
