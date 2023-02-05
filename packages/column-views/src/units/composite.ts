@@ -79,6 +79,7 @@ type ICompositeUnitProps = BaseUnitProps & {
 function TrackedLabeledUnit({
   division,
   nameForDivision = defaultNameFunction,
+  axisType,
   ...rest
 }) {
   const trackLabelVisibility = useContext(LabelTrackerContext);
@@ -146,6 +147,7 @@ function AnnotatedUnitsColumn(props: AnnotatedUnitProps) {
     showLabels = true,
     nameForDivision,
     minimumLabelHeight = 0,
+    axisType,
     ...rest
   } = props;
 

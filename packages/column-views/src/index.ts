@@ -13,7 +13,9 @@ import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ICompositeUnitProps, TrackedLabeledUnit } from "./units";
 import styles from "./column.module.styl";
 import { AgeAxis } from "@macrostrat/concept-app-helpers";
+import {useDarkMode} from "@macrostrat/ui-components"
 export * from "./units";
+import classNames from "classnames";
 
 import { ColumnAxisType } from "@macrostrat/column-components";
 
@@ -124,7 +126,6 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
   if (upperUnits.length == 0 || lowerUnits.length == 0) {
     return null;
   }
-  console.log(upperUnits, lowerUnits);
 
   const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
 
@@ -143,15 +144,21 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
     showLabels = true,
     width = 300,
     columnWidth = 150,
+    className: baseClassName,
     ...rest
   } = props;
 
+  const darkMode = useDarkMode();
+
   let sectionGroups = Array.from(group(data, (d) => d.section_id));
+
+  const className = classNames(baseClassName, {"dark-mode": darkMode.isEnabled});
 
   sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
   return h(
     "div.column-container",
+    {className},
     h("div.column", [
       h("div.age-axis-label", "Age (Ma)"),
       h(
