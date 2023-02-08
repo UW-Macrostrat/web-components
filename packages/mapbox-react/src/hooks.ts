@@ -17,7 +17,11 @@ export function useMapConditionalStyle<T = any>(
     if (map.isStyleLoaded()) {
       operator(map, state);
     }
-    map.on("style.load", () => operator(map, state));
+    const fn = () => operator(map, state);
+    map.on("style.load", fn);
+    return () => {
+      map.off("style.load", fn);
+    };
   }, [mapRef.current, state]);
 }
 
