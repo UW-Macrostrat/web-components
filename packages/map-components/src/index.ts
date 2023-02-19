@@ -232,3 +232,4 @@ export function Globe(_props: GlobeProps) {
 export { MapContext };
 export * from "./canvas-layer";
 export * from "./feature";
+export * from "./base-layers";
