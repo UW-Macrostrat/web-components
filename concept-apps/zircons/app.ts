@@ -5,16 +5,19 @@ import { Button } from "@blueprintjs/core";
 import {
   APIProvider,
   getQueryString,
-  setQueryString
+  setQueryString,
 } from "@macrostrat/ui-components";
 import Column, { IUnit } from "./column";
 import patterns from "url:../../geologic-patterns/*.png";
 import { DetritalColumn } from "./detrital";
-import { ColumnMapNavigator, MeasurementsLayer } from "common/column-map";
+import {
+  ColumnMapNavigator,
+  MeasurementsLayer,
+} from "packages/column-views/src/map";
 import { ColumnDataProvider, useColumnData } from "./column-data";
 import GeologicPatternProvider from "../pattern-provider";
 
-const ColumnTitle = props => {
+const ColumnTitle = (props) => {
   return h.if(props.data != null)("h1", props.data?.col_name);
 };
 
@@ -27,8 +30,8 @@ const ColumnUI = ({ setCurrentColumn }) => {
       h(ColumnTitle, { data: footprint?.properties }),
       h("div.flex-container.columns", [
         h("div.column-view", [h(Column, { data: units })]),
-        h(DetritalColumn, params)
-      ])
+        h(DetritalColumn, params),
+      ]),
     ]),
     h("div.map-column", [
       h(
@@ -37,11 +40,11 @@ const ColumnUI = ({ setCurrentColumn }) => {
         [
           h(MeasurementsLayer, {
             measure_phase: "zircon",
-            measurement: "207Pb-206Pb"
-          })
+            measurement: "207Pb-206Pb",
+          }),
         ]
-      )
-    ])
+      ),
+    ]),
   ]);
 };
 
@@ -50,7 +53,7 @@ const ColumnManager = () => {
   const initArgs = getQueryString() ?? defaultArgs;
   const [columnArgs, setColumnArgs] = useState(initArgs);
 
-  const setCurrentColumn = obj => {
+  const setCurrentColumn = (obj) => {
     let args = obj;
     if ("properties" in obj) {
       args = { col_id: obj.properties.col_id };
@@ -67,7 +70,7 @@ const ColumnManager = () => {
   );
 };
 
-const resolvePattern = id => patterns[id];
+const resolvePattern = (id) => patterns[id];
 
 const App = () => {
   return h(
@@ -77,9 +80,9 @@ const App = () => {
       APIProvider,
       {
         baseURL: "https://dev.macrostrat.org/api/v2",
-        unwrapResponse: res => {
+        unwrapResponse: (res) => {
           return res.success.data;
-        }
+        },
       },
       h(ColumnManager)
     )

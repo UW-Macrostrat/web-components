@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
-import { ColumnMapNavigator } from "common/column-map";
+import { ColumnMapNavigator } from "packages/column-views/src/map";
 import patterns from "url:../../geologic-patterns/*.png";
 import { useColumnNav } from "common/macrostrat-columns";
 
@@ -22,12 +22,12 @@ const ColumnManager = () => {
       setCurrentColumn,
       margin: 0,
       apiRoute: "/defs/columns",
-      ...projectParams
-    })
+      ...projectParams,
+    }),
   ]);
 };
 
-const resolvePattern = id => patterns[id];
+const resolvePattern = (id) => patterns[id];
 
 const App = () => {
   return h(
@@ -37,7 +37,7 @@ const App = () => {
       APIProvider,
       {
         baseURL: "https://dev.macrostrat.org/api/v2",
-        unwrapResponse: res => res.success.data
+        unwrapResponse: (res) => res.success.data,
       },
       h(ColumnManager)
     )
