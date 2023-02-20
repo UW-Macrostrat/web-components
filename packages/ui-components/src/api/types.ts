@@ -1,3 +1,5 @@
+import { AxiosRequestConfig } from "axios";
+
 export type ResponseUnwrapper<T = any, U = any> = (input: T) => U;
 
 export interface APIConfig {
@@ -9,4 +11,4 @@ export interface APIConfig {
   unwrapResponse: ResponseUnwrapper;
 }
 
-export type APIConfigOptions = Partial<APIConfig>;
+export type APIConfigOptions = Partial<APIConfig> & AxiosRequestConfig;
