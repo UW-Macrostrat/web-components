@@ -151,6 +151,8 @@
     "d3-geo": "^1.11.9",
     "d3-selection": "^1.4.1",
     "d3-zoom": "^1.8.3",
+    "kld-intersections": "^0.7.0",
+    "kld-path-parser": "^0.2.1",
     "prop-types": "^15.7.2"
   },
   "peerDependencies": {
