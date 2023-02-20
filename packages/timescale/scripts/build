@@ -1,0 +1,9 @@
+#!/bin/sh
+
+rm -rf dist
+rollup -c
+(tsc --emitDeclarationOnly; exit 0)
+
+# rollup-plugin-postcss puts the files in a weird spot
+mv dist/esm/index.css dist/timescale.css
+rm -f dist/cjs/index.css

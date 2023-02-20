@@ -1,0 +1,5 @@
+dist/example
+.parcel-cache
+src
+example
+scripts
