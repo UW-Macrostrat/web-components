@@ -48,7 +48,8 @@
   "workspaces": [
     "packages/*",
     "concept-apps",
-    "storybook"
+    "storybook",
+    "toolchain/*"
   ],
   "prettier": {}
 }

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, ReactNode } from "react";
-import { Button, IButtonProps } from "@blueprintjs/core";
+import { Button, ButtonProps } from "@blueprintjs/core";
 import { useStoredState } from "./util/local-storage";
 import h from "@macrostrat/hyper";
 
@@ -67,8 +67,10 @@ const useDarkMode = () => useContext(ValueContext);
 const inDarkMode = () => useDarkMode()?.isEnabled ?? false;
 const darkModeUpdater = () => useContext(UpdaterContext);
 
-const DarkModeButton = (props: IButtonProps & { allowReset: boolean }) => {
-  const { allowReset = true, ...rest } = props;
+const DarkModeButton = (
+  props: ButtonProps & { allowReset: boolean; showText: boolean }
+) => {
+  const { allowReset = true, showText = false, children, ...rest } = props;
   const { isEnabled, isAutoset } = useDarkMode();
   const icon = isEnabled ? "flash" : "moon";
   const update = darkModeUpdater();
@@ -81,7 +83,10 @@ const DarkModeButton = (props: IButtonProps & { allowReset: boolean }) => {
   };
   const active = !isAutoset;
 
-  return h(Button, { active, ...rest, icon, onClick });
+  return h(Button, { active, ...rest, icon, onClick }, [
+    h.if(showText)([isEnabled ? "Light" : "Dark"]),
+    children,
+  ]);
 };
 
 export {

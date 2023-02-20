@@ -1,0 +1,9 @@
+{
+  "name": "@macrostrat/hyperstyle-loader",
+  "version": "0.1.0",
+  "main": "index.js",
+  "peerDependencies": {
+    "@macrostrat/hyper": "^2.0.0",
+    "weback": "^5.0.0"
+  }
+}

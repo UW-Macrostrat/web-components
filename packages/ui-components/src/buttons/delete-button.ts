@@ -21,9 +21,15 @@ function DeleteButton(props: P) {
     alertContent ??
     h(["Are you sure you want to delete ", itemDescription, "?"]);
 
-  const onCancel = () => setIsShown(false);
+  const onCancel = (e) => {
+    setIsShown(false);
+    e.stopPropagation();
+  };
 
-  const onClick = () => setIsShown(true);
+  const onClick = (e) => {
+    setIsShown(true);
+    e.stopPropagation();
+  };
 
   const intent = Intent.DANGER;
   const icon = "trash";
@@ -39,9 +45,9 @@ function DeleteButton(props: P) {
         icon,
         intent,
         onCancel,
-        onConfirm: () => {
+        onConfirm: (e) => {
           handleDelete();
-          onCancel();
+          onCancel(e);
         },
       },
       alertContent

@@ -1,10 +1,10 @@
 import { Component, useState } from "react";
 import update, { Spec } from "immutability-helper";
 
-const useImmutableState = function<S>(v: S) {
+const useImmutableState = function <S>(v: S): [S, (spec: Spec<S>) => void] {
   /** useState wrapper hook that requires updating using an "immutability-helper" spec */
   const [state, setState] = useState(v);
-  const updateState = function(cset: Spec<S>) {
+  const updateState = function (cset: Spec<S>) {
     const newState = update(state, cset);
     return setState(newState);
   };
