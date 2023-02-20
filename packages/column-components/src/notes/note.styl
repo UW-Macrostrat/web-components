@@ -1,8 +1,8 @@
 @require "./note-editor.styl"
 
-:global(.col-note-label)
+.col-note-label
   padding-left: 0.3em
-  border-left: 1px solid black
+  border-left: 1px solid var(--note-color)
   //margin-top: -8px
   //transform: translateY(-50%)
   font-style: italic
@@ -11,19 +11,20 @@
 
 g.height-range
   line
-    stroke: black
+    stroke: var(--note-color)
     stroke-width: 1.2px
-    marker-start: url('#arrow_start')
-    marker-end: url('#arrow_end')
+    //marker-start: url('#arrow_start')
+    //marker-end: url('#arrow_end')
 
 g.note, g.note-editor
+  --note-color: var(--column-note-color, black)
   circle
-    fill: black
+    fill: var(--note-color)
 
   //div.note-label
   // transform: translateY(30px)
   .link
-    stroke: #000
+    stroke: var(--note-color)
     stroke-width: 1
     fill: none
 

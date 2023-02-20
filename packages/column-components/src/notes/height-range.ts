@@ -11,7 +11,7 @@ import { NoteLayoutContext } from "./layout";
 
 const HeightRangeAnnotation = function(props) {
   const { scale } = useContext(NoteLayoutContext);
-  const { height, top_height, offsetX, color, ...rest } = props;
+  const { height, top_height, offsetX, color, lineInset = 2.5, ...rest } = props;
 
   const bottomHeight = scale(height);
   let pxHeight = 0;
@@ -20,7 +20,7 @@ const HeightRangeAnnotation = function(props) {
   }
   const topHeight = bottomHeight - pxHeight;
 
-  const isLine = pxHeight > 5;
+  const isLine = pxHeight > 2*lineInset;
 
   const transform = `translate(${offsetX},${topHeight})`;
 
@@ -28,10 +28,10 @@ const HeightRangeAnnotation = function(props) {
     h.if(isLine)("line", {
       x1: 0,
       x2: 0,
-      y1: 2.5,
-      y2: pxHeight - 2.5
+      y1: lineInset,
+      y2: pxHeight - lineInset
     }),
-    h.if(!isLine)("circle", { r: 2 })
+    h.if(!isLine)("circle", { r: 2, transform: `translate(0,${pxHeight/2})`}),
   ]);
 };
 

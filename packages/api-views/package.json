@@ -10,5 +10,11 @@
   "license": "ISC",
   "devDependencies": {
     "typescript": "^4.2.3"
+  },
+  "dependencies": {
+    "@macrostrat/hyper": "^2.2.1"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6||^17||^18"
   }
 }

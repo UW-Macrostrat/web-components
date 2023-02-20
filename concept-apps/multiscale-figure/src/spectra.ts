@@ -2,9 +2,9 @@ import h from "@macrostrat/hyper";
 import {
   useColumnDivisions,
   Padding,
-  extractPadding
+  extractPadding,
 } from "@macrostrat/column-components";
-import { AnnotatedUnitsColumn } from "common/units/composite";
+import { AnnotatedUnitsColumn } from "@macrostrat/column-views";
 import { useMeasurementData } from "@macrostrat/concept-app-helpers";
 import { createContext, useContext, useMemo } from "react";
 import { scaleLinear } from "@vx/scale";
@@ -13,11 +13,14 @@ import { AxisBottom, AxisScale } from "@vx/axis";
 import { max } from "d3-array";
 import {
   kernelDensityEstimator,
-  kernelGaussian
+  kernelGaussian,
 } from "common/dz-spectrum/kernel-density";
-import { IUnit } from "common/units/types";
+import { IUnit } from "@macrostrat/column-views";
 import { PlotAreaContext, usePlotArea } from "common/dz-spectrum/index";
-import { CompositeUnitsColumn, CompositeUnitComponent } from "common/units";
+import {
+  CompositeUnitsColumn,
+  CompositeUnitComponent,
+} from "@macrostrat/column-views";
 import chroma from "chroma-js";
 
 interface IsotopesSeriesProps {
@@ -25,7 +28,7 @@ interface IsotopesSeriesProps {
   accessor: (d: any) => number;
 }
 
-const noOp = d => d;
+const noOp = (d) => d;
 
 function IsotopesSeries(props: IsotopesSeriesProps) {
   const { data, accessor = noOp, bandwidth = 0.5, ...rest } = props;
@@ -40,11 +43,11 @@ function IsotopesSeries(props: IsotopesSeriesProps) {
   const kdeData = kde(data.map(accessor));
 
   // All KDEs should have same height
-  const maxProbability = max(kdeData, d => d[1]);
+  const maxProbability = max(kdeData, (d) => d[1]);
 
   const yScale = scaleLinear({
     range: [height, 0],
-    domain: [0, maxProbability]
+    domain: [0, maxProbability],
   });
 
   return h(AreaClosed, {
@@ -58,7 +61,7 @@ function IsotopesSeries(props: IsotopesSeriesProps) {
     },
     stroke: "magenta",
     fill: "transparent",
-    ...rest
+    ...rest,
     //fill: `url(#${id})`
   });
 }
@@ -77,16 +80,12 @@ function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
     width = 350,
     height = 100,
     label,
-    tickFormat = d => `${d}`,
+    tickFormat = (d) => `${d}`,
     ...rest
   } = props;
 
-  const {
-    paddingLeft,
-    paddingRight,
-    paddingTop,
-    paddingBottom
-  } = extractPadding({ paddingBottom: 18, padding: 5, ...rest });
+  const { paddingLeft, paddingRight, paddingTop, paddingBottom } =
+    extractPadding({ paddingBottom: 18, padding: 5, ...rest });
 
   let minmax = [-18, 10];
   const delta = minmax[1] - minmax[0];
@@ -97,7 +96,7 @@ function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
 
   const xScale = scaleLinear({
     range: [0, innerWidth],
-    domain: minmax
+    domain: minmax,
   });
 
   const labelProps = { label };
@@ -107,7 +106,7 @@ function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
   const value = {
     width: innerWidth,
     height: innerHeight,
-    xScale
+    xScale,
   };
 
   return h(
@@ -119,7 +118,7 @@ function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
       h(
         "g",
         {
-          transform: `translate(${paddingLeft},${paddingTop})`
+          transform: `translate(${paddingLeft},${paddingTop})`,
         },
         [
           h(AxisBottom, {
@@ -129,9 +128,9 @@ function IsotopesSpectrumPlot(props: IsotopesPlotProps) {
             tickFormat,
             strokeWidth: 1.5,
             top: innerHeight,
-            label
+            label,
           }),
-          children
+          children,
         ]
       )
     )
@@ -149,7 +148,7 @@ function getMeasureValues(measures) {
 function Series({ unit_id, parameter, color, ...rest }) {
   const measures = useMeasurementData() ?? [];
   const unitMeasures = measures.filter(
-    d => d.unit_id == unit_id && d.measurement == parameter
+    (d) => d.unit_id == unit_id && d.measurement == parameter
   );
 
   const values = getMeasureValues(unitMeasures);
@@ -160,23 +159,21 @@ function Series({ unit_id, parameter, color, ...rest }) {
     data: values,
     strokeWidth: 2,
     stroke: color,
-    fill: chroma(color)
-      .alpha(0.2)
-      .css(),
-    ...rest
+    fill: chroma(color).alpha(0.2).css(),
+    ...rest,
   });
 }
 
 function IsotopesSpectrum({
   unit_id,
-  parameter
+  parameter,
 }: {
   unit_id: number;
   parameter: string;
 }) {
   const measures = useMeasurementData() ?? [];
   const unitMeasures = measures.filter(
-    d => d.unit_id == unit_id && d.measurement == parameter
+    (d) => d.unit_id == unit_id && d.measurement == parameter
   );
 
   const values = getMeasureValues(unitMeasures);
@@ -190,9 +187,9 @@ function IsotopesSpectrum({
       h(Series, {
         parameter: "D13C",
         unit_id,
-        color: "dodgerblue"
+        color: "dodgerblue",
       }),
-      h(Series, { parameter: "D18O", unit_id, color: "red" })
+      h(Series, { parameter: "D18O", unit_id, color: "red" }),
     ]
   );
 }
@@ -200,7 +197,7 @@ function IsotopesSpectrum({
 function IsotopeSpectrumNote(props: { note: { data: IUnit } }) {
   const { note } = props;
   return h("div.isotopes-note", [
-    h(IsotopesSpectrum, { unit_id: note.data.unit_id, parameter: "D13C" })
+    h(IsotopesSpectrum, { unit_id: note.data.unit_id, parameter: "D13C" }),
   ]);
 }
 
@@ -217,16 +214,16 @@ function IsotopesSpectraColumn(props: {
     showLabels: true,
     unitComponent: CompositeUnitComponent,
     unitComponentProps: {
-      nColumns: 2
+      nColumns: 2,
     },
     noteComponent: IsotopeSpectrumNote,
     noteMode: "all",
     shouldRenderNote(div: IUnit) {
       const unitMeasures = measures.filter(
-        d => d.unit_id == div.unit_id && d.measurement == parameter
+        (d) => d.unit_id == div.unit_id && d.measurement == parameter
       );
       return unitMeasures.length > 0;
-    }
+    },
   });
 }
 

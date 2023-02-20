@@ -22,27 +22,19 @@ const GeologicPatternProvider = (props: IGeologicPatternProvider) => {
   const { resolvePattern, children } = props;
   return h(GeologicPatternContext.Provider, {
     value: { resolvePattern },
-    children
+    children,
   });
 };
 
 enum PatternType {
   Vector = "vector",
-  Raster = "raster"
+  Raster = "raster",
 }
 
 const RasterGeologicPattern = (props: IGeologicPatternBase) => {
   const { resolvePattern } = useContext(GeologicPatternContext);
-  let {
-    prefix,
-    backgroundColor,
-    color,
-    width,
-    height,
-    id,
-    name,
-    ...rest
-  } = props;
+  let { prefix, backgroundColor, color, width, height, id, name, ...rest } =
+    props;
   const patternSize = { width, height };
   const patternBounds = { x: 0, y: 0, ...patternSize };
 
@@ -69,14 +61,15 @@ const RasterGeologicPattern = (props: IGeologicPatternBase) => {
       id: patternID,
       patternUnits: "userSpaceOnUse",
       ...patternSize,
-      ...rest
+      ...rest,
     },
     h("image", { ref, ...patternSize })
   );
 };
 
 const VectorGeologicPattern = (props: IGeologicPatternBase) => {
-  const { resolvePattern } = useContext(GeologicPatternContext);
+  const { resolvePattern } = useContext(GeologicPatternContext) ?? {};
+  if (resolvePattern == null) return null;
   let {
     prefix,
     backgroundColor,
@@ -106,7 +99,7 @@ const VectorGeologicPattern = (props: IGeologicPatternBase) => {
       patternUnits: "userSpaceOnUse",
       shapeRendering: "crispEdges",
       ...patternSize,
-      ...rest
+      ...rest,
     },
     [
       h("g", { style: { isolation: "isolate" } }, [
@@ -114,25 +107,25 @@ const VectorGeologicPattern = (props: IGeologicPatternBase) => {
         h.if(color != null && id != null)("mask", { id: maskID }, [
           h("image", {
             xlinkHref: resolvePattern(id),
-            ...patternBounds
-          })
+            ...patternBounds,
+          }),
         ]),
         h.if(backgroundColor != null)("rect", {
           ...patternBounds,
-          fill: backgroundColor
+          fill: backgroundColor,
         }),
         // Render a masked colored image
         h.if(color != null)("rect", {
           ...patternBounds,
           fill: color,
-          mask: `url(#${maskID})`
+          mask: `url(#${maskID})`,
         }),
         // Or render the image as normal
         h.if(id != null && color == null)("image", {
           xlinkHref: resolvePattern(id),
-          ...patternBounds
-        })
-      ])
+          ...patternBounds,
+        }),
+      ]),
     ]
   );
 };
@@ -161,5 +154,5 @@ export {
   GeologicPattern,
   GeologicPatternProvider,
   GeologicPatternContext,
-  PatternType
+  PatternType,
 };

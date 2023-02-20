@@ -13,17 +13,16 @@ export function useMapConditionalStyle<T = any>(
    * and on style load events. */
   useEffect(() => {
     const map = mapRef.current;
-    if (!map?.isStyleLoaded()) return;
-    operator(map, state);
-  }, [mapRef.current, state]);
-
-  useEffect(() => {
-    const map = mapRef.current;
     if (map == null) return;
-    map.on("style.load", () => {
+    if (map.isStyleLoaded()) {
       operator(map, state);
-    });
-  }, [mapRef.current]);
+    }
+    const fn = () => operator(map, state);
+    map.on("style.load", fn);
+    return () => {
+      map.off("style.load", fn);
+    };
+  }, [mapRef.current, state]);
 }
 
 const _toggleMapLabels = (map, state) =>

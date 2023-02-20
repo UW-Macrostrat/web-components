@@ -1,6 +1,6 @@
 import { scaleLinear, scaleOrdinal } from "d3-scale";
 import { Component, createContext } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import T from "prop-types";
 import { ColumnContext, useColumnDivisions } from "./column";
 import { useContext, useMemo, useCallback } from "react";
@@ -13,16 +13,18 @@ const ColumnLayoutContext = createContext({
   divisions: [],
 });
 
-class ColumnLayoutProvider extends Component {
-  static propTypes = {
-    width: T.number.isRequired,
-  };
-  static contextType = ColumnContext;
-  render() {
-    const { children, ...rest } = this.props;
-    const value = { ...this.context, ...rest };
-    return h(ColumnLayoutContext.Provider, { value }, children);
-  }
+function ColumnLayoutProvider({ children, width }) {
+  const ctx = useContext(ColumnContext);
+  return h(
+    ColumnLayoutContext.Provider,
+    {
+      value: {
+        ...ctx,
+        width,
+      },
+    },
+    children
+  );
 }
 
 class CrossAxisLayoutProvider extends Component {

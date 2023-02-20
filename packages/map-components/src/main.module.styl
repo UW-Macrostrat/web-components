@@ -1,0 +1,30 @@
+div
+  color black
+
+rect.drag-mouse-target
+  fill transparent
+  cursor move
+  pointer-events none
+
+path.mouse-position
+  stroke-width 2px
+  stroke darken(red, 10%)
+  fill red
+
+g.map
+  all: inherit
+
+:global
+  .graticule
+    fill none
+    stroke #aaa
+    stroke-width 1px
+    stroke-dasharray 2,2
+
+  .neatline
+    fill none
+    stroke #444
+    stroke-width 1px
+
+  .background
+    fill: #AFE6F0

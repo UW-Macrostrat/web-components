@@ -1,10 +1,10 @@
 import { geoCentroid, geoStereographic, geoNaturalEarth1 } from "d3-geo";
-import { ResizableMapFrame } from "common/column-map";
+import { ResizableMapFrame } from "packages/column-views/src/map";
 import {
   ColumnKeyboardNavigation,
   ColumnFeatures,
   useColumnData,
-  CurrentColumn
+  CurrentColumn,
 } from "common/map/layers";
 import { useMemo, forwardRef } from "react";
 import { Tabs, Tab } from "@blueprintjs/core";
@@ -42,14 +42,14 @@ const ColumnMapView = forwardRef((props, ref) => {
   const [completedColumns, emptyColumns] = useFilteredColumns({
     apiRoute,
     status_code,
-    project_id
+    project_id,
   });
 
   let keyboardNavColumns = [
     ...completedColumns,
     // Add the current column to keyboard navigation so that we can navigate
     // away from incomplete columns if we have them selected
-    ...emptyColumns.filter(d => d.properties.col_id == col_id)
+    ...emptyColumns.filter((d) => d.properties.col_id == col_id),
   ];
 
   return h("div.column-map-container", { ref }, [
@@ -58,7 +58,7 @@ const ColumnMapView = forwardRef((props, ref) => {
       {
         center,
         className: "column-map",
-        ...rest
+        ...rest,
       },
       [
         h(ColumnKeyboardNavigation, {
@@ -67,24 +67,24 @@ const ColumnMapView = forwardRef((props, ref) => {
           onChange: setCurrentColumn,
           status_code,
           project_id,
-          showLayers: false
+          showLayers: false,
         }),
         h(ColumnFeatures, {
           features: emptyColumns,
           color: "#888",
-          onClick: setCurrentColumn
+          onClick: setCurrentColumn,
         }),
         h(ColumnFeatures, {
           features: completedColumns,
           onClick: setCurrentColumn,
-          color
+          color,
         }),
         h.if(currentColumn != null)(CurrentColumn, {
-          feature: currentColumn
-        })
+          feature: currentColumn,
+        }),
       ]
     ),
-    children
+    children,
   ]);
 });
 

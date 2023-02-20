@@ -1,18 +1,19 @@
 import h, { compose, C } from "@macrostrat/hyper";
 import { useAPIResult, DarkModeProvider } from "@macrostrat/ui-components";
+import { MacrostratAPIProvider } from "common";
 import {
-  MacrostratAPIProvider,
   UnitSelectionProvider,
-  useSelectedUnit
-} from "common";
-import { ColumnMapNavigator } from "common/column-map";
-import Column from "./column";
+  useSelectedUnit,
+} from "@macrostrat/column-views";
+
+import { ColumnMapNavigator } from "packages/column-views/src/map";
+import { Column } from "@macrostrat/column-views";
 import GeologicPatternProvider from "../pattern-provider";
 import { useColumnNav } from "common/macrostrat-columns";
 import ModalUnitPanel from "./modal-panel";
 import { preprocessUnits } from "@macrostrat/concept-app-helpers";
 
-const ColumnTitle = props => {
+const ColumnTitle = (props) => {
   return h.if(props.data != null)("h1", props.data?.col_name);
 };
 
@@ -38,8 +39,8 @@ function ColumnManager() {
     h("div.left-column", [
       h("div.column-view", [
         h(ColumnTitle, { data: columnFeature?.properties }),
-        h.if(unitData != null)(Column, { data: units })
-      ])
+        h.if(unitData != null)(Column, { data: units }),
+      ]),
     ]),
     h("div.right-column", [
       h.if(selectedUnit == null)(ColumnMapNavigator, {
@@ -47,14 +48,14 @@ function ColumnManager() {
         currentColumn: columnFeature,
         setCurrentColumn,
         margin: 0,
-        ...projectParams
+        ...projectParams,
       }),
-      h(ModalUnitPanel, { unitData: units })
-    ])
+      h(ModalUnitPanel, { unitData: units }),
+    ]),
   ]);
 }
 
-const APIProvider = C(MacrostratAPIProvider, {useDev: false})
+const APIProvider = C(MacrostratAPIProvider, { useDev: false });
 
 const App = compose(
   DarkModeProvider,

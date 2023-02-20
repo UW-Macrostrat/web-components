@@ -1,9 +1,9 @@
 import {
   DetritalSpectrumPlot,
   DetritalSeries,
-  usePlotArea
+  usePlotArea,
 } from "common/dz-spectrum";
-import { IUnit } from "common/units";
+import { IUnit } from "@macrostrat/column-views";
 import h from "@macrostrat/hyper";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { useColumnData } from "../column-data/provider";
@@ -32,17 +32,17 @@ function DetritalGroup(props: DetritalItemProps) {
     h("h5.geo-unit", geo_unit),
     h(DetritalSpectrumPlot, [
       h.if(unit != null)(DepositionalAge, { unit }),
-      data.map(d => {
+      data.map((d) => {
         return h(DetritalSeries, {
           bandwidth: 30,
-          data: d.measure_value
+          data: d.measure_value,
         });
-      })
-    ])
+      }),
+    ]),
   ]);
 }
 
-const matchingUnit = dz => d => d.unit_id == dz[0].unit_id;
+const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
 
 function DetritalColumn() {
   const { measurements: data, units } = useColumnData();
@@ -60,7 +60,7 @@ function DetritalColumn() {
   return h(
     "div.detrital-column",
     null,
-    dzUnitData.map(d => {
+    dzUnitData.map((d) => {
       const unit = units.find(matchingUnit(d));
       return h(DetritalGroup, { data: d, unit });
     })

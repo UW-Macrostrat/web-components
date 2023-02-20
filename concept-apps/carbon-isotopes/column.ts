@@ -5,10 +5,9 @@ import {
   ColumnProvider,
   ColumnSVG,
   ColumnAxis,
-  ColumnContext
+  ColumnContext,
 } from "@macrostrat/column-components";
-import { SimpleUnitsColumn } from "common/units";
-import { IUnit } from "common/units/types";
+import { SimpleUnitsColumn, IUnit } from "@macrostrat/column-views";
 import { useContext } from "react";
 import { IsotopesColumn } from "@macrostrat/concept-app-helpers";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
@@ -27,7 +26,7 @@ const AgeAxis = ({ ticks }) => {
 
   return h(ColumnAxis, {
     ticks: v,
-    showDomain: false
+    showDomain: false,
   });
 };
 
@@ -36,7 +35,7 @@ const Section = (props: IColumnProps) => {
   const {
     data,
     isOldestColumn = true,
-    range = [data[data.length - 1].b_age, data[0].t_age]
+    range = [data[data.length - 1].b_age, data[0].t_age],
   } = props;
   let { pixelScale } = props;
 
@@ -54,7 +53,7 @@ const Section = (props: IColumnProps) => {
     {
       divisions: data,
       range,
-      pixelsPerMeter: pixelScale // Actually pixels per myr
+      pixelsPerMeter: pixelScale, // Actually pixels per myr
     },
     [
       h(
@@ -63,13 +62,13 @@ const Section = (props: IColumnProps) => {
           width: 650,
           padding: 20,
           paddingTop: 5,
-          paddingBottom: 25
+          paddingBottom: 25,
         },
         [
           h(AgeAxis),
           h(SimpleUnitsColumn, {
             width: 400,
-            columnWidth: 90
+            columnWidth: 90,
           }),
           h(IsotopesColumn, {
             parameter: "D13C",
@@ -77,7 +76,7 @@ const Section = (props: IColumnProps) => {
             width: 100,
             nTicks: 4,
             showAxis: isOldestColumn,
-            transform: "translate(250,0)"
+            transform: "translate(250,0)",
           }),
           h(IsotopesColumn, {
             parameter: "D18O",
@@ -87,10 +86,10 @@ const Section = (props: IColumnProps) => {
             width: 100,
             nTicks: 4,
             showAxis: isOldestColumn,
-            transform: "translate(370,0)"
-          })
+            transform: "translate(370,0)",
+          }),
         ]
-      )
+      ),
     ]
   );
 };
@@ -100,11 +99,11 @@ function Column(props: IColumnProps) {
   const data: IUnit[] = useAPIResult("/units", {
     all: true,
     ...params,
-    response: "long"
+    response: "long",
   });
   if (data == null) return null;
 
-  let sectionGroups = Array.from(group(data, d => d.section_id));
+  let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
   sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
@@ -116,11 +115,11 @@ function Column(props: IColumnProps) {
         return h(`div.section-${id}`, [
           h(Section, {
             data: values,
-            isOldestColumn: i == sectionGroups.length - 1
-          })
+            isOldestColumn: i == sectionGroups.length - 1,
+          }),
         ]);
       })
-    )
+    ),
   ]);
 }
 

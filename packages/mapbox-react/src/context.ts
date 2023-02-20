@@ -4,6 +4,18 @@ import h from "@macrostrat/hyper";
 
 const MapContext = createContext<RefObject<Map | null>>(null);
 
+interface MapStatus {
+  isLoading: boolean;
+  isInitialized: boolean;
+  isStyleLoaded: boolean;
+}
+
+const MapStatusContext = createContext<MapStatus>({
+  isLoading: false,
+  isInitialized: false,
+  isStyleLoaded: false,
+});
+
 export function useMapRef() {
   return useContext(MapContext);
 }

@@ -27,6 +27,8 @@
     "packages/map-components/src/**/*",
     "packages/ui-components/src/**/*",
     "packages/api-utils/src/**/*",
-    "packages/**/*.ts"
+    "packages/**/*.ts",
+    "packages/column-views/src/units",
+    "packages/column-views/src/map"
   ]
 }

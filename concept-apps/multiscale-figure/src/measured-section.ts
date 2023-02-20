@@ -9,10 +9,10 @@ import {
   GeneralizedSectionColumn,
   GrainsizeLayoutProvider,
   ColumnDivision,
-  ColumnSurface
+  ColumnSurface,
 } from "@macrostrat/column-components";
 import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
-import { IUnit } from "common/units/types";
+import { IUnit } from "@macrostrat/column-views";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 // import "@macrostrat/timescale/dist/timescale.css";
 import { useAPIResult } from "@macrostrat/ui-components";
@@ -34,7 +34,7 @@ const columnData: ColumnSurface[] = [
     height: 0,
     pattern: "sandstone",
     grainsize: "ms",
-    unit_id: 41216
+    unit_id: 41216,
   },
   { height: 97, grainsize: "f", pattern: "limestone" },
   { height: 101, grainsize: "ms", pattern: "sandstone" },
@@ -46,43 +46,43 @@ const columnData: ColumnSurface[] = [
     lithology: "limestone",
     grainsize: "m",
     pattern: "limestone",
-    unit_id: 41217
+    unit_id: 41217,
   },
   {
     height: 192,
     grainsize: "p",
-    pattern: "limestone"
+    pattern: "limestone",
   },
   {
     height: 194,
     grainsize: "c",
-    pattern: "limestone"
+    pattern: "limestone",
   },
   {
     height: 196,
     grainsize: "m",
-    pattern: "limestone"
+    pattern: "limestone",
   },
   {
     height: 320,
     lithology: "shale",
     grainsize: "ms",
     pattern: "shale",
-    unit_id: 41218
-  }
+    unit_id: 41218,
+  },
 ];
 
 const patternIndex = {
   sandstone: 607,
   limestone: 627,
-  shale: 620
+  shale: 620,
 };
 
 function buildDivisions<T extends ColumnSurface>(
   surfaces: T[],
   range: [number, number]
 ): (BaseUnit & UnitDivision & T)[] {
-  const units = surfaces.filter(d => d.unit_id != null);
+  const units = surfaces.filter((d) => d.unit_id != null);
   return surfaces.map((surface, i) => {
     const { height, pattern, ...rest } = surface;
     const bottom = height;
@@ -97,7 +97,7 @@ function buildDivisions<T extends ColumnSurface>(
       b_age: bottom + nextUnitHeight, // this is wrong,
       lithology: pattern,
       pattern: `${patternIndex[pattern] ?? pattern}`,
-      ...rest
+      ...rest,
     };
   });
 }
@@ -107,8 +107,8 @@ function mergeUnitData<A extends HasUnitID, B extends HasUnitID>(
   sourceUnits: A[],
   result: B[]
 ): (A & B)[] {
-  return result.map(d => {
-    const foundMatch = sourceUnits.find(u => u.unit_id === d.unit_id);
+  return result.map((d) => {
+    const foundMatch = sourceUnits.find((u) => u.unit_id === d.unit_id);
     return { ...foundMatch, ...d };
   });
 }
@@ -121,7 +121,7 @@ const intervals: Interval[] = [
     eag: 341.3,
     lag: 0,
     oid: 0,
-    nam: "Rackla Group"
+    nam: "Rackla Group",
   },
   {
     lvl: 1,
@@ -129,7 +129,7 @@ const intervals: Interval[] = [
     lag: height - 182,
     pid: 0,
     oid: 1,
-    nam: "Blueflower"
+    nam: "Blueflower",
   },
   {
     nam: "Gametrail",
@@ -137,8 +137,8 @@ const intervals: Interval[] = [
     pid: 0,
     oid: 2,
     lag: height - 182,
-    eag: height
-  }
+    eag: height,
+  },
 ];
 
 const BaseSection = (
@@ -166,7 +166,7 @@ const BaseSection = (
       {
         divisions,
         range,
-        pixelsPerMeter: pixelScale
+        pixelsPerMeter: pixelScale,
       },
       [
         h(
@@ -176,7 +176,7 @@ const BaseSection = (
             padding: 30,
             paddingLeft: 40,
             paddingBottom: 30,
-            paddingRight: 1
+            paddingRight: 1,
           },
           [h(ColumnAxis)]
         ),
@@ -187,7 +187,7 @@ const BaseSection = (
           levels: [0, 1],
           absoluteAgeScale: true,
           showAgeAxis: false,
-          ageRange: range
+          ageRange: range,
         }),
         h(
           ColumnSVG,
@@ -197,20 +197,20 @@ const BaseSection = (
               GrainsizeLayoutProvider,
               {
                 width: 80,
-                grainsizeScaleStart: 40
+                grainsizeScaleStart: 40,
               },
               [
                 h(GeneralizedSectionColumn, [
-                  h(LithologyBoxes, { resolveID: d => d.pattern })
-                ])
+                  h(LithologyBoxes, { resolveID: (d) => d.pattern }),
+                ]),
               ]
             ),
-            children
+            children,
           ]
         ),
-        h("div.spacer")
+        h("div.spacer"),
       ]
-    )
+    ),
   ]);
 };
 

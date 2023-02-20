@@ -21,17 +21,21 @@
   "license": "ISC",
   "alias": {
     "@macrostrat/column-components": "./packages/column-components/src",
+    "@macrostrat/column-views": "./packages/column-views/src",
     "@macrostrat/map-components": "./packages/map-components/src",
     "@macrostrat/ui-components": "./packages/ui-components/src",
     "@macrostrat/api-views": "./packages/api-views/src",
     "@macrostrat/timescale": "./packages/timescale/src",
     "@macrostrat/concept-app-helpers": "./packages/concept-app-helpers/src",
+    "@macrostrat/mapbox-react": "./packages/mapbox-react/src",
+    "@macrostrat/mapbox-styles": "./packages/mapbox-styles/src",
+    "@macrostrat/mapbox-utils": "./packages/mapbox-utils/src",
     "common": "./packages/common/src"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
-    "@parcel/packager-ts": "2.6.2",
-    "@parcel/transformer-typescript-types": "2.6.2",
+    "@parcel/transformer-sass": "2.6.2",
+    "@parcel/transformer-stylus": "2.6.2",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "concurrently": "^7.2.2",

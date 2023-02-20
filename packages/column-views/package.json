@@ -2,7 +2,16 @@
   "name": "@macrostrat/column-views",
   "version": "0.0.1",
   "description": "Data views for Macrostrat stratigraphic columns",
+  "type": "module",
+  "main": "src/index.ts",
   "dependencies": {
-    "@macrostrat/column-components": "^0.8.0"
+    "@macrostrat/column-components": "workspace:*",
+    "@macrostrat/hyper": "^2.2.1",
+    "@macrostrat/timescale": "workspace:*",
+    "d3-array": "^3.2.1"
+  },
+  "peerDependencies": {
+    "@blueprintjs/core": "^3.43.0 || ^4.3.0",
+    "react": "^16.8.6||^17.0.0||^18.0.0"
   }
 }

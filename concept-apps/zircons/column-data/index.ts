@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { UnitsColumn } from "common/units";
+import { UnitsColumn } from "@macrostrat/column-views";
 import UnitNamesColumn from "./unit-names";
 
 const CompositeUnitsColumn = (props: ICompositeUnitProps) => {
@@ -11,19 +11,19 @@ const CompositeUnitsColumn = (props: ICompositeUnitProps) => {
 
   return h([
     h(UnitsColumn, {
-      width: columnWidth
+      width: columnWidth,
     }),
     h(UnitNamesColumn, {
       transform: `translate(${columnWidth + gutterWidth})`,
       paddingLeft: labelOffset,
-      width: width - columnWidth - gutterWidth
-    })
+      width: width - columnWidth - gutterWidth,
+    }),
   ]);
 };
 
 CompositeUnitsColumn.defaultProps = {
   gutterWidth: 10,
-  labelOffset: 30
+  labelOffset: 30,
 };
 
 export { CompositeUnitsColumn };

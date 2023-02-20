@@ -7,11 +7,10 @@ import {
   LithologyColumn,
   ColumnAxis,
   ColumnContext,
-  NotesColumn
+  NotesColumn,
 } from "@macrostrat/column-components";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
-import { CompositeUnitsColumn } from "common/units";
-import { IUnit } from "common/units/types";
+import { CompositeUnitsColumn, IUnit } from "@macrostrat/column-views";
 import { useContext } from "react";
 
 interface IColumnProps {
@@ -26,7 +25,7 @@ const AgeAxis = ({ ticks }) => {
 
   return h(ColumnAxis, {
     ticks: v,
-    showDomain: false
+    showDomain: false,
   });
 };
 
@@ -51,7 +50,7 @@ const Section = (props: IColumnProps) => {
     {
       divisions: data,
       range,
-      pixelsPerMeter: pixelScale // Actually pixels per myr
+      pixelsPerMeter: pixelScale, // Actually pixels per myr
     },
     [
       h(
@@ -59,16 +58,16 @@ const Section = (props: IColumnProps) => {
         {
           width: 450,
           padding: 20,
-          paddingV: 15
+          paddingV: 15,
         },
         [
           h(AgeAxis),
           h(CompositeUnitsColumn, {
             width: 400,
-            columnWidth: 90
-          })
+            columnWidth: 90,
+          }),
         ]
-      )
+      ),
     ]
   );
 };
@@ -77,7 +76,7 @@ const Column = (props: IColumnProps) => {
   const { data } = props;
   if (data == null) return null;
 
-  let sectionGroups = Array.from(group(data, d => d.section_id));
+  let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
   sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
@@ -88,7 +87,7 @@ const Column = (props: IColumnProps) => {
       sectionGroups.map(([id, values]) => {
         return h(`div.section-${id}`, [h(Section, { data: values })]);
       })
-    )
+    ),
   ]);
 };
 
