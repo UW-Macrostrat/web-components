@@ -1,4 +1,3 @@
-import h from "@macrostrat/hyper";
 import { defaultIntervals } from "./intervals";
 import { TimescaleProvider, useTimescale } from "./provider";
 import { Interval, TimescaleOrientation } from "./types";
@@ -6,7 +5,7 @@ import { TimescaleBoxes, Cursor } from "./components";
 import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
-import "./main.styl";
+import h from "./hyper";
 
 type ClickHandler = (event: Event, age: number) => void;
 
@@ -43,7 +42,7 @@ function TimescaleContainer(props: {
     clickHandler(evt, scale.invert(pos));
   }
 
-  return h("div.timescale", { onClick, ...rest });
+  return h("div.timescale.timescale-container", { onClick, ...rest });
 }
 
 function Timescale(props: TimescaleProps) {
@@ -69,7 +68,7 @@ function Timescale(props: TimescaleProps) {
     axisProps,
     cursorPosition,
     cursorComponent,
-    onClick
+    onClick,
   } = props;
 
   const [parentMap, timescale] = nestTimescale(rootInterval, intervals);
@@ -91,12 +90,12 @@ function Timescale(props: TimescaleProps) {
       ageRange: ageRange2,
       length,
       orientation,
-      levels
+      levels,
     },
     h(TimescaleContainer, { className, onClick }, [
       h(TimescaleBoxes, { interval: timescale }),
       h.if(showAgeAxis)(AgeAxis, axisProps),
-      h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition })
+      h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
     ])
   );
 }
@@ -107,12 +106,12 @@ Timescale.defaultProps = {
   cursorComponent: Cursor,
   rootInterval: 0,
   axisProps: {},
-  onClick: () => {}
+  onClick: () => {},
 };
 
 export {
   Timescale,
   TimescaleOrientation,
   TimescaleProps,
-  defaultIntervals as intervals
+  defaultIntervals as intervals,
 };

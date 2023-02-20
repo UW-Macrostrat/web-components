@@ -1,4 +1,4 @@
-import h from "@macrostrat/hyper";
+import h from "../hyper";
 import { useTimescale } from "../provider";
 import { TimescaleOrientation } from "../types";
 import { format } from "d3-format";
