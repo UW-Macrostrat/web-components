@@ -23,6 +23,7 @@ type DarkModeProps = {
 };
 
 const DarkModeProvider = (props: DarkModeProps) => {
+  const parentCtx = useContext(ValueContext);
   const { addBodyClasses = true, children } = props;
   const [storedValue, updateValue, resetState] = useStoredState(
     "ui-dark-mode",
@@ -55,6 +56,10 @@ const DarkModeProvider = (props: DarkModeProps) => {
       if (value.isAutoset) updateValue(systemDarkMode());
     });
   });
+
+  if (parentCtx != null) {
+    return h(React.Fragment, null, children);
+  }
 
   return h(
     ValueContext.Provider,
