@@ -137,8 +137,8 @@
     "typescript": "^3.8.3"
   },
   "dependencies": {
-    "@macrostrat/hyper": "^1.2.11",
-    "@macrostrat/ui-components": "^1.0.2",
+    "@macrostrat/hyper": "^2.2.0",
+    "@macrostrat/ui-components": "workspace:*",
     "@types/d3-array": "^2.0.0",
     "@types/d3-drag": "^1.2.3",
     "@types/d3-geo": "^1.12.3",
@@ -154,7 +154,7 @@
     "prop-types": "^15.7.2"
   },
   "peerDependencies": {
-    "react": "^16.11.0",
-    "react-dom": "^16.11.0"
+    "react": "^16.11.0||^17.0.0||^18.0.0",
+    "react-dom": "^16.11.0||^17.0.0||^18.0.0"
   }
 }
