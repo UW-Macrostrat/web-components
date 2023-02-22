@@ -7,17 +7,23 @@ import { drag, DragBehavior } from "d3-drag";
 import { zoom, ZoomBehavior } from "d3-zoom";
 import { select, event as currentEvent, mouse } from "d3-selection";
 import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from "./math";
+import { useMapRef } from "./context";
 
 interface DraggableOverlayProps {
   scaleExtent?: [number, number];
   showMousePosition?: boolean;
+  initialScale?: number;
   keepNorthUp?: boolean;
   allowZoom?: boolean;
-  dispatch(action: any): void;
   dragSensitivity?: number;
 }
 
-class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
+interface DraggableOverlayInternalProps extends DraggableOverlayProps {
+  dispatch(action: any): void;
+  mapRef: React.RefObject<SVGElement>;
+}
+
+class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
   static contextType = MapContext;
   static propTypes = {
     showMousePosition: T.bool,
@@ -186,9 +192,8 @@ class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
   }
 }
 
-function DraggableOverlay(props) {
+export function DraggableOverlay(props: DraggableOverlayProps) {
   const dispatch = useMapDispatch();
-  return h(_DraggableOverlay, { ...props, dispatch });
+  const mapRef = useMapRef();
+  return h(_DraggableOverlay, { ...props, dispatch, mapRef });
 }
-
-export { DraggableOverlay };

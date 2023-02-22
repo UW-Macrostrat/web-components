@@ -1,4 +1,12 @@
-import React, { createElement, useRef, useCallback, useReducer, useEffect, useMemo } from "react";
+import React, {
+  createElement,
+  useRef,
+  useCallback,
+  useReducer,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { addClassNames } from "@macrostrat/hyper";
 import h from "./hyper";
 import {
@@ -154,6 +162,7 @@ export function Globe(_props: GlobeProps) {
   const height = outerHeight - 2 * margin;
 
   //const actions = createActions(ref, actionHandler);
+  const [_center, setCenter] = useState(center);
 
   useEffect(() => {
     const rotation: [number, number] = [-center[0], -center[1]];
@@ -212,6 +221,7 @@ export function Globe(_props: GlobeProps) {
             dragSensitivity: 0.1,
             allowZoom,
             scaleExtent: zoomScaleExtent,
+            setCenter,
           }),
         ]
       )

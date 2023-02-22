@@ -1,6 +1,13 @@
-import { createContext, useState, useContext, Context } from "react";
+import {
+  createContext,
+  useState,
+  useContext,
+  Context,
+  useRef,
+  useEffect,
+} from "react";
 import h from "@macrostrat/hyper";
-import { memoize } from "underscore";
+import { memoize, isEqual } from "underscore";
 import axios, {
   AxiosPromise,
   AxiosInstance,
@@ -168,6 +175,16 @@ const APIHelpers = (ctx: APIContextValue) => ({
   },
 });
 
+function useStableObject(obj: any) {
+  const ref = useRef(obj);
+  if ((obj == ref.current, isEqual(obj, ref.current))) {
+    return ref.current;
+  } else {
+    ref.current = obj;
+    return obj;
+  }
+}
+
 interface APIActions {
   post(
     route: string,
@@ -207,7 +224,10 @@ const APIActions = (ctx: APIContextValue): APIActions => {
 
       const [axiosConfig, _] = splitConfig(opts);
 
-      const req = axiosInstance.post(route, payload, { ...axiosConfig, params });
+      const req = axiosInstance.post(route, payload, {
+        ...axiosConfig,
+        params,
+      });
       const info = { route, params, method: APIMethod.POST, opts };
       return handleResult(ctx, req, info);
     },
@@ -270,11 +290,13 @@ function useAxiosInstance(context: APIContextType = APIContext) {
 
 function useAPIResult<T>(
   route: string | null,
-  params: QueryParams = {},
+  params: QueryParams = null,
   opts: APIHookOpts | ResponseUnwrapper<any, T> = {}
 ): T {
   /* React hook for API results */
-  const deps = [route, ...Object.values(params ?? {})];
+
+  const paramsDep = useStableObject(params);
+  const deps = [route, paramsDep]; //...Object.values(params ?? {})];
 
   const [result, setResult] = useState<T | null>(null);
 
