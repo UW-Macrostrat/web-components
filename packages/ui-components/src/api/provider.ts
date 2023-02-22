@@ -1,13 +1,6 @@
-import {
-  createContext,
-  useState,
-  useContext,
-  Context,
-  useRef,
-  useEffect,
-} from "react";
+import { createContext, useState, useContext, Context } from "react";
 import h from "@macrostrat/hyper";
-import { memoize, isEqual } from "underscore";
+import { memoize } from "underscore";
 import axios, {
   AxiosPromise,
   AxiosInstance,
@@ -18,6 +11,7 @@ import useAsyncEffect from "use-async-effect";
 import { debounce } from "underscore";
 import { APIConfig, ResponseUnwrapper, APIConfigOptions } from "./types";
 import { QueryParams } from "../util/query-string";
+import { useMemoizedValue } from "../util";
 
 /*
 The baseURL is used to prefix paths if they are not already absolute
@@ -175,16 +169,6 @@ const APIHelpers = (ctx: APIContextValue) => ({
   },
 });
 
-function useStableObject(obj: any) {
-  const ref = useRef(obj);
-  if ((obj == ref.current, isEqual(obj, ref.current))) {
-    return ref.current;
-  } else {
-    ref.current = obj;
-    return obj;
-  }
-}
-
 interface APIActions {
   post(
     route: string,
@@ -295,7 +279,7 @@ function useAPIResult<T>(
 ): T {
   /* React hook for API results */
 
-  const paramsDep = useStableObject(params);
+  const paramsDep = useMemoizedValue(params);
   const deps = [route, paramsDep]; //...Object.values(params ?? {})];
 
   const [result, setResult] = useState<T | null>(null);

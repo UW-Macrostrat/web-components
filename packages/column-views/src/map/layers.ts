@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 import { Feature, FeatureLayer, MapContext } from "@macrostrat/map-components";
-import { useAPIResult } from "@macrostrat/ui-components";
+import { useAPIResult, useKeyHandler } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
 import { ExtendedFeature, geoCentroid } from "d3-geo";
 import { geoVoronoi } from "d3-geo-voronoi";
@@ -109,7 +109,6 @@ function buildKeyMapping(neighbors, centroids, currentIndex, projection) {
   if (neighbors == null) return;
 
   const currentCentroid = projection(centroids[currentIndex]);
-  console.log(neighbors, currentCentroid);
 
   let edgeAngles = neighbors.map((index) => {
     const centroid = projection(centroids[index]);
@@ -143,10 +142,7 @@ function buildKeyMapping(neighbors, centroids, currentIndex, projection) {
 }
 
 function ColumnKeyboardNavigation(props: KeyboardNavProps) {
-  /**
-  Feature to enable keyboard navigation of columns using a
-  delaunay triangulation
-  */
+  /** Keyboard navigation of columns using a Delaunay triangulation */
   const {
     features = [],
     col_id = null,
@@ -159,31 +155,28 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
     () => buildTriangulation(features),
     [features]
   );
-  const currentIndex = features.findIndex((d) => d.properties.col_id == col_id);
+
+  const currentIndex = useMemo(() => {
+    return features.findIndex((d) => d.properties.col_id == col_id);
+  }, [features, col_id]);
+
   const neighbors = tri.delaunay.neighbors[currentIndex];
 
-  useEffect(() => {
-    if (col_id == null || neighbors == null) return;
-    const keyMapping = buildKeyMapping(
-      neighbors,
-      centroids,
-      currentIndex,
-      projection
-    );
+  const keyMapping = useMemo(() => {
+    return buildKeyMapping(neighbors, centroids, currentIndex, projection);
+  }, [neighbors, currentIndex]);
 
-    const listener = (event) => {
+  useKeyHandler(
+    (event) => {
+      console.log(event, event.keyCode);
       const nextColumnIx = keyMapping[event.keyCode];
+      console.log(nextColumnIx);
       if (nextColumnIx == null) return;
       const { col_id } = features[nextColumnIx].properties;
-      console.log(`Loading column ${col_id}`);
       onChange({ col_id, ...projectArgs });
-    };
-
-    document.addEventListener("keydown", listener);
-    return () => {
-      document.removeEventListener("keydown", listener);
-    };
-  }, [neighbors, col_id]);
+    },
+    [keyMapping]
+  );
 
   if (neighbors == null) return null;
   const neighborFeatures = neighbors.map((d) => features[d]);

@@ -97,6 +97,7 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
     if (r1 == null) {
       return;
     }
+    console.log("drag event", r1);
     this.props.dispatch({ type: "rotate", rotation: r1 });
   }
 
@@ -143,11 +144,6 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
       .on("drag", forwardMousePos(this.dragged))
       .on("end", this.dragEnded);
     this.drag(el);
-    el.on("click", function () {
-      console.log("Clicking");
-      //dispatchEvent(currentEvent);
-      return false;
-    });
 
     if (this.props.allowZoom) {
       this.setupZoom();
@@ -171,7 +167,7 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
     this.zoomHandler?.scaleExtent(this.getScaleExtent()).scaleTo(el, scale);
   }
 
-  getScaleExtent() {
+  getScaleExtent(): [number, number] {
     const { initialScale, scaleExtent } = this.props;
     if (scaleExtent != null) {
       return scaleExtent;
