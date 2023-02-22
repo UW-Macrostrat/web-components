@@ -6,15 +6,13 @@ import {
   MapContext,
   RotationAngles,
   GlobeActions,
-  GlobeState,
   globeReducer,
   MapDispatchContext,
   GeoPath,
 } from "./context";
-import { useGraticule, Graticule } from "./graticule";
+import { Graticule } from "./graticule";
 import { DraggableOverlay } from "./drag-interaction";
-import { geoOrthographic, geoGraticule, geoPath, GeoProjection } from "d3-geo";
-import styles from "./main.module.styl";
+import { geoOrthographic, geoPath, GeoProjection } from "d3-geo";
 
 type Coord = [number, number];
 
