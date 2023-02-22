@@ -10,6 +10,11 @@ import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from "./ma
 
 interface DraggableOverlayProps {
   scaleExtent?: [number, number];
+  showMousePosition?: boolean;
+  keepNorthUp?: boolean;
+  allowZoom?: boolean;
+  dispatch(action: any): void;
+  dragSensitivity?: number;
 }
 
 class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
@@ -24,7 +29,7 @@ class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
   static defaultProps = {
     showMousePosition: false,
     allowZoom: true,
-    pinNorthUp: false,
+    keepNorthUp: false,
     dragSensitivity: 1,
   };
   zoomHandler: ZoomBehavior<any, any> | null;
