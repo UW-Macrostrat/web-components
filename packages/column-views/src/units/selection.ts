@@ -2,10 +2,12 @@ import {
   createContext,
   useContext,
   useState,
+  useEffect,
   Dispatch,
-  SetStateAction
+  SetStateAction,
 } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
+import { getQueryString, setQueryString } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 
 type UnitSelectDispatch = Dispatch<SetStateAction<BaseUnit | null>>;
@@ -38,3 +40,48 @@ export function UnitSelectionProvider<BaseUnit>(props: {
     h(UnitSelectionContext.Provider, { value: unit }, props.children)
   );
 }
+
+interface ColumnArgs {
+  col_id?: number;
+  unit_id?: number;
+  project?: number;
+  status?: "in process";
+}
+
+type ColumnManagerData = [ColumnArgs, (c: ColumnArgs) => void];
+
+const ColumnNavCtx = createContext<ColumnManagerData | null>(null);
+
+export function useColumnNav(
+  defaultArgs = { col_id: 495, unit_id: null }
+): ColumnManagerData {
+  const ctx = useContext(ColumnNavCtx);
+  if (ctx != null) return ctx;
+
+  const [columnArgs, setColumnArgs] = useState<ColumnArgs>(
+    getQueryString(window.location.search) ?? defaultArgs
+  );
+
+  useEffect(() => setQueryString(columnArgs), [columnArgs]);
+
+  const { col_id, ...projectParams } = columnArgs;
+
+  const setCurrentColumn = (obj) => {
+    let args = obj;
+    if ("properties" in obj) {
+      args = { col_id: obj.properties.col_id, ...projectParams };
+    }
+    // Set query string
+    setQueryString(args);
+    setColumnArgs(args);
+  };
+
+  return [columnArgs, setCurrentColumn];
+}
+
+function ColumnNavProvider({ children, ...defaultArgs }) {
+  const value = useColumnNav(defaultArgs);
+  return h(ColumnNavCtx.Provider, { value }, children);
+}
+
+export { ColumnNavProvider };
