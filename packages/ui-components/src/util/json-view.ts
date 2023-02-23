@@ -1,6 +1,10 @@
 import JSONTree from "react-json-tree";
-import h, { classed } from "@macrostrat/hyper";
+import { hyperStyled, classed } from "@macrostrat/hyper";
 import { inDarkMode, useDarkMode } from "../dark-mode";
+import classNames from "classnames";
+import styles from "./main.module.styl";
+
+const h = hyperStyled(styles);
 
 const monokai = {
   scheme: "monokai",
@@ -23,13 +27,20 @@ const monokai = {
   base0F: "#cc6633",
 };
 
-const _JSONView = classed(JSONTree, "json-tree");
-
 export function JSONView(props) {
   const invertTheme = !inDarkMode();
-  return h(_JSONView, {
-    theme: monokai,
-    invertTheme,
-    ...props,
-  });
+  return h(
+    "div.json-view-container",
+    {
+      className: classNames(props.className, {
+        "root-hidden": props.hideRoot,
+        "invert-theme": invertTheme,
+      }),
+    },
+    h(JSONTree, {
+      theme: monokai,
+      invertTheme,
+      ...props,
+    })
+  );
 }

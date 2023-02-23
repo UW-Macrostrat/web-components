@@ -7,12 +7,23 @@ import { drag, DragBehavior } from "d3-drag";
 import { zoom, ZoomBehavior } from "d3-zoom";
 import { select, event as currentEvent, mouse } from "d3-selection";
 import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from "./math";
+import { useMapRef } from "./context";
 
 interface DraggableOverlayProps {
   scaleExtent?: [number, number];
+  showMousePosition?: boolean;
+  initialScale?: number;
+  keepNorthUp?: boolean;
+  allowZoom?: boolean;
+  dragSensitivity?: number;
 }
 
-class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
+interface DraggableOverlayInternalProps extends DraggableOverlayProps {
+  dispatch(action: any): void;
+  mapRef: React.RefObject<SVGElement>;
+}
+
+class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
   static contextType = MapContext;
   static propTypes = {
     showMousePosition: T.bool,
@@ -24,7 +35,7 @@ class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
   static defaultProps = {
     showMousePosition: false,
     allowZoom: true,
-    pinNorthUp: false,
+    keepNorthUp: false,
     dragSensitivity: 1,
   };
   zoomHandler: ZoomBehavior<any, any> | null;
@@ -132,11 +143,6 @@ class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
       .on("drag", forwardMousePos(this.dragged))
       .on("end", this.dragEnded);
     this.drag(el);
-    el.on("click", function () {
-      console.log("Clicking");
-      //dispatchEvent(currentEvent);
-      return false;
-    });
 
     if (this.props.allowZoom) {
       this.setupZoom();
@@ -160,7 +166,7 @@ class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
     this.zoomHandler?.scaleExtent(this.getScaleExtent()).scaleTo(el, scale);
   }
 
-  getScaleExtent() {
+  getScaleExtent(): [number, number] {
     const { initialScale, scaleExtent } = this.props;
     if (scaleExtent != null) {
       return scaleExtent;
@@ -181,9 +187,8 @@ class _DraggableOverlay extends Component<DraggableOverlayProps, any> {
   }
 }
 
-function DraggableOverlay(props) {
+export function DraggableOverlay(props: DraggableOverlayProps) {
   const dispatch = useMapDispatch();
-  return h(_DraggableOverlay, { ...props, dispatch });
+  const mapRef = useMapRef();
+  return h(_DraggableOverlay, { ...props, dispatch, mapRef });
 }
-
-export { DraggableOverlay };

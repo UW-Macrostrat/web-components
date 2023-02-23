@@ -11,6 +11,7 @@ import useAsyncEffect from "use-async-effect";
 import { debounce } from "underscore";
 import { APIConfig, ResponseUnwrapper, APIConfigOptions } from "./types";
 import { QueryParams } from "../util/query-string";
+import { useMemoizedValue } from "../util";
 
 /*
 The baseURL is used to prefix paths if they are not already absolute
@@ -207,7 +208,10 @@ const APIActions = (ctx: APIContextValue): APIActions => {
 
       const [axiosConfig, _] = splitConfig(opts);
 
-      const req = axiosInstance.post(route, payload, { ...axiosConfig, params });
+      const req = axiosInstance.post(route, payload, {
+        ...axiosConfig,
+        params,
+      });
       const info = { route, params, method: APIMethod.POST, opts };
       return handleResult(ctx, req, info);
     },
@@ -270,11 +274,13 @@ function useAxiosInstance(context: APIContextType = APIContext) {
 
 function useAPIResult<T>(
   route: string | null,
-  params: QueryParams = {},
+  params: QueryParams = null,
   opts: APIHookOpts | ResponseUnwrapper<any, T> = {}
 ): T {
   /* React hook for API results */
-  const deps = [route, ...Object.values(params ?? {})];
+
+  const paramsDep = useMemoizedValue(params);
+  const deps = [route, paramsDep]; //...Object.values(params ?? {})];
 
   const [result, setResult] = useState<T | null>(null);
 

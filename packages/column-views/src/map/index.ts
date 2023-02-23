@@ -3,13 +3,18 @@ import h from "@macrostrat/hyper";
 import { Globe, LandLayer } from "@macrostrat/map-components";
 import { geoCentroid } from "d3-geo";
 import { useElementSize } from "@macrostrat/ui-components";
+import { Columns, CurrentColumn } from "./layers";
 
 function ResizableMapFrame(props) {
   const { center, children, style, margin, className, allowZoom, ...rest } =
     props;
+  let { scale } = props;
   const ref = useRef(null);
-  const { width, height } = useElementSize(ref);
-  const scale = Math.max(width, height);
+  const sz = useElementSize(ref);
+  const { width, height } = sz ?? { width: 0, height: 0 };
+  if (scale == null) {
+    scale = Math.min(width, height) + 2 * margin;
+  }
 
   let zoomScaleExtent = null;
 
@@ -27,13 +32,13 @@ function ResizableMapFrame(props) {
         width,
         height,
         margin,
-        scale,
         center,
         allowDrag: true,
         allowZoom,
         keepNorthUp: true,
         zoomScaleExtent,
         ...rest,
+        scale,
       },
       [h(LandLayer), children]
     ),
@@ -48,20 +53,25 @@ const ColumnNavigatorMap = (props) => {
     style,
     margin = 10,
     scale,
+    className,
     ...rest
   } = props;
 
   const columnCenter = geoCentroid(currentColumn);
 
-  return h(ResizableMapFrame, { center: columnCenter, style, margin, scale }, [
-    children,
-    h(Columns, {
-      onChange: setCurrentColumn,
-      col_id: currentColumn?.properties.col_id,
-      ...rest,
-    }),
-    h.if(currentColumn != null)(CurrentColumn, { feature: currentColumn }),
-  ]);
+  return h(
+    ResizableMapFrame,
+    { center: columnCenter, style, margin, scale, className },
+    [
+      children,
+      h(Columns, {
+        onChange: setCurrentColumn,
+        col_id: currentColumn?.properties.col_id,
+        ...rest,
+      }),
+      h.if(currentColumn != null)(CurrentColumn, { feature: currentColumn }),
+    ]
+  );
 };
 
 export * from "./layers";

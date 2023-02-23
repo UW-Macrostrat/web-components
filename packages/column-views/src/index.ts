@@ -18,12 +18,12 @@ import classNames from "classnames";
 
 import { ColumnAxisType } from "@macrostrat/column-components";
 
+const h = hyperStyled(styles);
+
 export function MacrostratColumnProvider(props) {
   // A column provider specialized the Macrostrat API
   return h(ColumnProvider, { axisType: ColumnAxisType.AGE, ...props });
 }
-
-const h = hyperStyled(styles);
 
 interface IColumnProps {
   data: IUnit[];

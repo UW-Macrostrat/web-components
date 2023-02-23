@@ -8,7 +8,8 @@
     "@macrostrat/column-components": "workspace:*",
     "@macrostrat/hyper": "^2.2.1",
     "@macrostrat/timescale": "workspace:*",
-    "d3-array": "^3.2.1"
+    "d3-array": "^3.2.1",
+    "d3-geo-voronoi": "^2.0.1"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.43.0 || ^4.3.0",

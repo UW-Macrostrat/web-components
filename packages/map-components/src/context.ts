@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, RefObject } from "react";
 import h from "@macrostrat/hyper";
 import { GeoProjection, GeoGeometryObjects, geoOrthographic } from "d3-geo";
 
@@ -16,6 +16,7 @@ type GlobeCtx = {
   margin: number;
   renderPath: (geom: GeoGeometryObjects) => string;
   projection: GeoProjection;
+  mapRef: RefObject<SVGElement> | null;
 };
 
 type UpdateProjection = { type: "update"; projection: GeoProjection };
@@ -31,6 +32,7 @@ const MapContext = createContext<GlobeCtx>({
   margin: 0,
   renderPath: (geom) => null,
   projection: geoOrthographic(),
+  mapRef: null,
 });
 
 const MapDispatchContext = createContext<(action: GlobeActions) => void>(() => {});
@@ -41,6 +43,10 @@ function useMapDispatch() {
 
 function useMap() {
   return useContext(MapContext);
+}
+
+function useMapRef() {
+  return useMap().mapRef;
 }
 
 function globeReducer(state: GlobeState, action: GlobeActions) {
@@ -79,6 +85,7 @@ export {
   useMapDispatch,
   MapDispatchContext,
   useMap,
+  useMapRef,
   globeReducer,
   GlobeActions,
   GlobeState,

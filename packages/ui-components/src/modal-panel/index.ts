@@ -1,6 +1,6 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
-import * as styles from "./main.module.sass";
+import styles from "./main.module.sass";
 import React from "react";
 
 const h = hyperStyled(styles);
@@ -8,13 +8,18 @@ const h = hyperStyled(styles);
 interface PanelHeaderProps {
   title: string | null;
   onClose: () => void;
+  allowTitleWrap?: boolean;
   children?: React.ReactNode;
 }
 
 const PanelHeader = function (props: PanelHeaderProps) {
-  const { title, onClose, children } = props;
+  const { title, onClose, children, allowTitleWrap = false } = props;
   return h("div.panel-header", [
-    h.if(title != null)("h1.title", null, title),
+    h.if(title != null)(
+      "h1.title",
+      { className: allowTitleWrap ? null : "overflow-hidden" },
+      title
+    ),
     h.if(children != null)([h("div.expander"), children, h("div.extra-space")]),
     h(Button, { minimal: true, icon: "cross", onClick: onClose }),
   ]);
@@ -36,9 +41,9 @@ export interface ModalPanelProps {
   onClose: () => void;
   children?: React.ReactNode;
   headerChildren?: React.ReactNode;
-  style: object;
-  minimal: boolean;
-  className: string;
+  style?: object;
+  minimal?: boolean;
+  className?: string;
 }
 
 function ModalPanel(props: ModalPanelProps) {

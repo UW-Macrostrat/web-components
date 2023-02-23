@@ -1,4 +1,12 @@
-import React, { createElement, useRef, useCallback, useReducer, useEffect, useMemo } from "react";
+import React, {
+  createElement,
+  useRef,
+  useCallback,
+  useReducer,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { addClassNames } from "@macrostrat/hyper";
 import h from "./hyper";
 import {
@@ -6,15 +14,14 @@ import {
   MapContext,
   RotationAngles,
   GlobeActions,
-  GlobeState,
   globeReducer,
   MapDispatchContext,
   GeoPath,
 } from "./context";
-import { useGraticule, Graticule } from "./graticule";
+import { Graticule } from "./graticule";
 import { DraggableOverlay } from "./drag-interaction";
-import { geoOrthographic, geoGraticule, geoPath, GeoProjection } from "d3-geo";
-import styles from "./main.module.styl";
+import { geoOrthographic, geoPath, GeoProjection } from "d3-geo";
+import { useMemoizedValue } from "@macrostrat/ui-components";
 
 type Coord = [number, number];
 
@@ -155,12 +162,12 @@ export function Globe(_props: GlobeProps) {
   const width = outerWidth - 2 * margin;
   const height = outerHeight - 2 * margin;
 
-  //const actions = createActions(ref, actionHandler);
+  const _center = useMemoizedValue(center);
 
   useEffect(() => {
-    const rotation: [number, number] = [-center[0], -center[1]];
+    const rotation: [number, number] = [-_center[0], -_center[1]];
     dispatch({ type: "rotate", rotation });
-  }, [center]);
+  }, [_center]);
 
   useEffect(() => {
     const trans = translate ?? [width / 2, height / 2];
