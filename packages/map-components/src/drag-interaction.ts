@@ -97,7 +97,6 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
     if (r1 == null) {
       return;
     }
-    console.log("drag event", r1);
     this.props.dispatch({ type: "rotate", rotation: r1 });
   }
 

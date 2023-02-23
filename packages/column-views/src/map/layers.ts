@@ -168,9 +168,7 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
   useKeyHandler(
     (event) => {
-      console.log(event, event.keyCode);
       const nextColumnIx = keyMapping[event.keyCode];
-      console.log(nextColumnIx);
       if (nextColumnIx == null) return;
       const { col_id } = features[nextColumnIx].properties;
       onChange({ col_id, ...projectArgs });

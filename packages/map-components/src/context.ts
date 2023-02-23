@@ -50,7 +50,6 @@ function useMapRef() {
 }
 
 function globeReducer(state: GlobeState, action: GlobeActions) {
-  console.log(action);
   switch (action.type) {
     case "update":
       return {

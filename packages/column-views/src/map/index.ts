@@ -59,8 +59,6 @@ const ColumnNavigatorMap = (props) => {
 
   const columnCenter = geoCentroid(currentColumn);
 
-  console.log("ColumnCenter", columnCenter);
-
   return h(
     ResizableMapFrame,
     { center: columnCenter, style, margin, scale, className },
