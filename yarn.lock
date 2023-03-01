@@ -4588,6 +4588,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@macrostrat/hyperstyle-loader@workspace:toolchain/hyperstyle-loader":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/hyperstyle-loader@workspace:toolchain/hyperstyle-loader"
+  peerDependencies:
+    "@macrostrat/hyper": ^2.0.0
+    weback: ^5.0.0
+  languageName: unknown
+  linkType: soft
+
 "@macrostrat/map-components@^0.2.1, @macrostrat/map-components@workspace:packages/map-components":
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-components@workspace:packages/map-components"
@@ -4839,6 +4848,7 @@ __metadata:
     axios: ^0.27.2
     chalk: ^5.0.1
     concurrently: ^7.2.2
+    geologic-patterns: ^2.0.0-dev1
     husky: ^4.3.5
     lerna: ^4.0.0
     node-fetch: ^3.2.9
@@ -17966,7 +17976,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"geologic-patterns@npm:2.0.0-dev1":
+"geologic-patterns@npm:2.0.0-dev1, geologic-patterns@npm:^2.0.0-dev1":
   version: 2.0.0-dev1
   resolution: "geologic-patterns@npm:2.0.0-dev1"
   checksum: 18fcc2fede7a255ed4813addec90126a50ad9cb106dee09146d8aeb8acc109694266a39d3fc31b1cef8096a690d1d348f6a87de8959b21f5a489da89c6c57d74

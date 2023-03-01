@@ -7,15 +7,15 @@ type DarkModeState = { isEnabled: boolean; isAutoset: boolean };
 
 type DarkModeUpdater = (enabled?: boolean) => void;
 
-const ValueContext = createContext<DarkModeState | null>(null);
-const UpdaterContext = createContext<DarkModeUpdater | null>(null);
-
-const matcher = window?.matchMedia("(prefers-color-scheme: dark)");
-
 const systemDarkMode = (): DarkModeState => ({
   isEnabled: matcher?.matches ?? false,
   isAutoset: true,
 });
+
+const ValueContext = createContext<DarkModeState>(systemDarkMode());
+const UpdaterContext = createContext<DarkModeUpdater | null>(null);
+
+const matcher = window?.matchMedia("(prefers-color-scheme: dark)");
 
 type DarkModeProps = {
   children?: ReactNode;

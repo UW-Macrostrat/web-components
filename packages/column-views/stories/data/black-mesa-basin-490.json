@@ -1,0 +1,2704 @@
+{
+  "success": {
+    "v": 2,
+    "license": "CC-BY 4.0",
+    "data": [
+      {
+        "unit_id": 14987,
+        "section_id": 3988,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Bidahochi Fm",
+        "strat_name_id": 159,
+        "Mbr": "",
+        "Fm": "Bidahochi",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 2.58,
+        "b_age": 5.333,
+        "max_thick": 272,
+        "min_thick": 0,
+        "outcrop": "",
+        "pbdb_collections": 2,
+        "pbdb_occurrences": 33,
+        "lith": [
+          {
+            "atts": ["argillaceous", "fine", "medium"],
+            "name": "sandstone",
+            "prop": 0.5,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "basalt",
+            "prop": 0.5,
+            "lith_id": 70,
+            "type": "volcanic",
+            "class": "igneous"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "lacustrine",
+            "name": "lacustrine indet.",
+            "environ_id": 68
+          },
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial indet.",
+            "environ_id": 45
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "geochemical",
+            "measure_type": "geochronological"
+          }
+        ],
+        "notes": "S.S. Desc: https://pubs.geoscienceworld.org/aapgbull/article/38/8/1821/34059/Bidahochi-Formation-of-Arizona-and-New-Mexico",
+        "color": "#A57B54",
+        "text_color": "#000000",
+        "t_int_id": 11,
+        "t_int_name": "Piacenzian",
+        "t_int_age": 2.58,
+        "t_prop": 1,
+        "units_above": [0],
+        "b_int_id": 12,
+        "b_int_name": "Zanclean",
+        "b_int_age": 5.333,
+        "b_prop": 0,
+        "units_below": [0],
+        "strat_name_long": "Bidahochi Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 36.638,
+        "t_plng": -109.013,
+        "b_plat": 37.356,
+        "b_plng": -108.046
+      },
+      {
+        "unit_id": 14988,
+        "section_id": 3989,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Yale Point Fm of Mesaverde Gp",
+        "strat_name_id": 7363,
+        "Mbr": "",
+        "Fm": "Yale Point Sandstone",
+        "Gp": "Mesaverde",
+        "SGp": "",
+        "t_age": 67.525,
+        "b_age": 74.975,
+        "max_thick": 90,
+        "min_thick": 62,
+        "outcrop": "surface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.7143,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "coal",
+            "prop": 0.1429,
+            "lith_id": 38,
+            "type": "organic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "siltstone",
+            "prop": 0.1429,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "coastal indet.",
+            "environ_id": 23
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "environ- USGS (as Yale Point Sandstone)",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 35,
+        "t_int_name": "Maastrichtian",
+        "t_int_age": 66,
+        "t_prop": 0.75,
+        "units_above": [0],
+        "b_int_id": 36,
+        "b_int_name": "Campanian",
+        "b_int_age": 83.6,
+        "b_prop": 0.75,
+        "units_below": [14989],
+        "strat_name_long": "Yale Point Sandstone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 48.399,
+        "t_plng": -76.608,
+        "b_plat": 47.282,
+        "b_plng": -73.809
+      },
+      {
+        "unit_id": 14989,
+        "section_id": 3989,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Wepo Fm of Mesaverde Gp",
+        "strat_name_id": 7361,
+        "Mbr": "",
+        "Fm": "Wepo",
+        "Gp": "Mesaverde",
+        "SGp": "",
+        "t_age": 74.975,
+        "b_age": 84.275,
+        "max_thick": 225,
+        "min_thick": 66,
+        "outcrop": "surface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "coal",
+            "prop": 0.0625,
+            "lith_id": 38,
+            "type": "organic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["arkosic"],
+            "name": "mudstone",
+            "prop": 0.3125,
+            "lith_id": 7,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.3125,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "siltstone",
+            "prop": 0.3125,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial indet.",
+            "environ_id": 45
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "lagoonal",
+            "environ_id": 22
+          },
+          {
+            "class": "non-marine",
+            "type": "landscape",
+            "name": "mire/swamp",
+            "environ_id": 84
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "geochemical",
+            "measure_type": "minor elements"
+          }
+        ],
+        "notes": "environ- NPS and Irby & Albright 2002",
+        "color": "#A57B54",
+        "text_color": "#000000",
+        "t_int_id": 36,
+        "t_int_name": "Campanian",
+        "t_int_age": 72.1,
+        "t_prop": 0.75,
+        "units_above": [14988],
+        "b_int_id": 37,
+        "b_int_name": "Santonian",
+        "b_int_age": 86.3,
+        "b_prop": 0.75,
+        "units_below": [14990],
+        "strat_name_long": "Wepo Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 47.282,
+        "t_plng": -73.809,
+        "b_plat": 44.994,
+        "b_plng": -71.379
+      },
+      {
+        "unit_id": 14990,
+        "section_id": 3989,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Toreva Fm of Mesaverde Gp",
+        "strat_name_id": 7358,
+        "Mbr": "",
+        "Fm": "Toreva",
+        "Gp": "Mesaverde",
+        "SGp": "",
+        "t_age": 84.275,
+        "b_age": 89.8,
+        "max_thick": 95,
+        "min_thick": 0,
+        "outcrop": "surface",
+        "pbdb_collections": 6,
+        "pbdb_occurrences": 100,
+        "lith": [
+          {
+            "atts": ["carbonaceous"],
+            "name": "shale",
+            "prop": 0.1667,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.8333,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "crevasse splay",
+            "environ_id": 56
+          },
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial indet.",
+            "environ_id": 45
+          },
+          {
+            "class": "non-marine",
+            "type": "landscape",
+            "name": "mire/swamp",
+            "environ_id": 84
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "delta front",
+            "environ_id": 32
+          },
+          {
+            "class": "marine",
+            "type": "fluvial",
+            "name": "estuary/bay",
+            "environ_id": 61
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "lagoonal",
+            "environ_id": 22
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "interdistributary bay",
+            "environ_id": 31
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "geochemical",
+            "measure_type": "minor elements"
+          }
+        ],
+        "notes": "environ- Irby & Albright 2002",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 37,
+        "t_int_name": "Santonian",
+        "t_int_age": 83.6,
+        "t_prop": 0.75,
+        "units_above": [14989],
+        "b_int_id": 38,
+        "b_int_name": "Coniacian",
+        "b_int_age": 89.8,
+        "b_prop": 0,
+        "units_below": [14992],
+        "strat_name_long": "Toreva Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 44.994,
+        "t_plng": -71.379,
+        "b_plat": 43.762,
+        "b_plng": -69.799
+      },
+      {
+        "unit_id": 14992,
+        "section_id": 3989,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Mancos Shale",
+        "strat_name_id": 1205,
+        "Mbr": "",
+        "Fm": "Mancos Shale",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 89.8,
+        "b_age": 93.9,
+        "max_thick": 610,
+        "min_thick": 0,
+        "outcrop": "surface",
+        "pbdb_collections": 185,
+        "pbdb_occurrences": 800,
+        "lith": [
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 0.0625,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "claystone",
+            "prop": 0.3125,
+            "lith_id": 6,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.3125,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "siltstone",
+            "prop": 0.3125,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "offshore",
+            "environ_id": 28
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "environ- Hart et al 2005",
+        "color": "#999999",
+        "text_color": "#000000",
+        "t_int_id": 39,
+        "t_int_name": "Turonian",
+        "t_int_age": 89.8,
+        "t_prop": 1,
+        "units_above": [14990],
+        "b_int_id": 39,
+        "b_int_name": "Turonian",
+        "b_int_age": 93.9,
+        "b_prop": 0,
+        "units_below": [14993],
+        "strat_name_long": "Mancos Shale",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 43.762,
+        "t_plng": -69.799,
+        "b_plat": 43.416,
+        "b_plng": -69.373
+      },
+      {
+        "unit_id": 14993,
+        "section_id": 3989,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Dakota Fm",
+        "strat_name_id": 490,
+        "Mbr": "",
+        "Fm": "Dakota",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 93.9,
+        "b_age": 100.5,
+        "max_thick": 36,
+        "min_thick": 24,
+        "outcrop": "surface",
+        "pbdb_collections": 13,
+        "pbdb_occurrences": 95,
+        "lith": [
+          {
+            "atts": [],
+            "name": "clay",
+            "prop": 0.1,
+            "lith_id": 93,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.1,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.5,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["red"],
+            "name": "claystone",
+            "prop": 0.1,
+            "lith_id": 6,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["calcareous"],
+            "name": "clay",
+            "prop": 0.1,
+            "lith_id": 93,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["calcareous"],
+            "name": "clay",
+            "prop": 0.1,
+            "lith_id": 93,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial indet.",
+            "environ_id": 45
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "coastal indet.",
+            "environ_id": 23
+          },
+          {
+            "class": "non-marine",
+            "type": "landscape",
+            "name": "mire/swamp",
+            "environ_id": 84
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "lagoonal",
+            "environ_id": 22
+          },
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "floodplain",
+            "environ_id": 52
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "geochemical",
+            "measure_type": "major elements"
+          }
+        ],
+        "notes": "environ- Young 1960",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 40,
+        "t_int_name": "Cenomanian",
+        "t_int_age": 93.9,
+        "t_prop": 1,
+        "units_above": [14992],
+        "b_int_id": 40,
+        "b_int_name": "Cenomanian",
+        "b_int_age": 100.5,
+        "b_prop": 0,
+        "units_below": [0],
+        "strat_name_long": "Dakota Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 43.416,
+        "t_plng": -69.373,
+        "b_plat": 42.65,
+        "b_plng": -67.278
+      },
+      {
+        "unit_id": 14994,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Morrison Fm",
+        "strat_name_id": 1351,
+        "Mbr": "",
+        "Fm": "Morrison",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 145,
+        "b_age": 150.6,
+        "max_thick": 100,
+        "min_thick": 0,
+        "outcrop": "both",
+        "pbdb_collections": 1,
+        "pbdb_occurrences": 1,
+        "lith": [
+          {
+            "atts": [],
+            "name": "conglomerate",
+            "prop": 0.0526,
+            "lith_id": 14,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.0526,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "claystone",
+            "prop": 0.2632,
+            "lith_id": 6,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.2632,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "siltstone",
+            "prop": 0.2632,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["red"],
+            "name": "shale",
+            "prop": 0.0526,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["glauconitic"],
+            "name": "sandstone",
+            "prop": 0.0526,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial indet.",
+            "environ_id": 45
+          },
+          {
+            "class": "non-marine",
+            "type": "lacustrine",
+            "name": "lacustrine indet.",
+            "environ_id": 68
+          },
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "floodplain",
+            "environ_id": 52
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "geochemical",
+            "measure_type": "minor elements"
+          }
+        ],
+        "notes": "environ- Demko et al 2004",
+        "color": "#999999",
+        "text_color": "#000000",
+        "t_int_id": 50,
+        "t_int_name": "Tithonian",
+        "t_int_age": 145,
+        "t_prop": 1,
+        "units_above": [0],
+        "b_int_id": 51,
+        "b_int_name": "Kimmeridgian",
+        "b_int_age": 154.8,
+        "b_prop": 0.75,
+        "units_below": [14995],
+        "strat_name_long": "Morrison Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 27.434,
+        "t_plng": -45.884,
+        "b_plat": 23.879,
+        "b_plng": -44.731
+      },
+      {
+        "unit_id": 14995,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Cow Springs Sandstone",
+        "strat_name_id": 3277,
+        "Mbr": "",
+        "Fm": "Cow Springs Sandstone",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 150.6,
+        "b_age": 156.475,
+        "max_thick": 100,
+        "min_thick": 0,
+        "outcrop": "",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "quartz arenite",
+            "prop": 1,
+            "lith_id": 169,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "eolian indet.",
+            "environ_id": 41
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "geochemical",
+            "measure_type": "minor elements"
+          }
+        ],
+        "notes": "environ- NPS\r\nS.S. Desc: Harshbarger 1949",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 51,
+        "t_int_name": "Kimmeridgian",
+        "t_int_age": 149.2,
+        "t_prop": 0.75,
+        "units_above": [14994],
+        "b_int_id": 52,
+        "b_int_name": "Oxfordian",
+        "b_int_age": 161.5,
+        "b_prop": 0.75,
+        "units_below": [14996],
+        "strat_name_long": "Cow Springs Sandstone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 23.879,
+        "t_plng": -44.731,
+        "b_plat": 23.899,
+        "b_plng": -42.476
+      },
+      {
+        "unit_id": 14996,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Entrada Fm",
+        "strat_name_id": 618,
+        "Mbr": "",
+        "Fm": "Entrada Sandstone",
+        "Gp": "San Rafael",
+        "SGp": "",
+        "t_age": 156.475,
+        "b_age": 162.45,
+        "max_thick": 95,
+        "min_thick": 0,
+        "outcrop": "",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "quartz arenite",
+            "prop": 1,
+            "lith_id": 169,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "",
+            "name": "non-marine",
+            "environ_id": 88
+          },
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "dune",
+            "environ_id": 42
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "coastal indet.",
+            "environ_id": 23
+          },
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "eolian indet.",
+            "environ_id": 41
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "environ- BLM and UND\r\nS.S. Desc: Harshbarger 1949",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 52,
+        "t_int_name": "Oxfordian",
+        "t_int_age": 154.8,
+        "t_prop": 0.75,
+        "units_above": [14995],
+        "b_int_id": 54,
+        "b_int_name": "Callovian",
+        "b_int_age": 165.3,
+        "b_prop": 0.75,
+        "units_below": [14997],
+        "strat_name_long": "Entrada Sandstone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 23.899,
+        "t_plng": -42.476,
+        "b_plat": 24.326,
+        "b_plng": -39.976
+      },
+      {
+        "unit_id": 14997,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Carmel Fm",
+        "strat_name_id": 320,
+        "Mbr": "",
+        "Fm": "Carmel",
+        "Gp": "San Rafael",
+        "SGp": "",
+        "t_age": 162.45,
+        "b_age": 171.85,
+        "max_thick": 200,
+        "min_thick": 0,
+        "outcrop": "both",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 1,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "eolian indet.",
+            "environ_id": 41
+          },
+          {
+            "class": "marine",
+            "type": "carbonate",
+            "name": "shallow subtidal",
+            "environ_id": 2
+          },
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial indet.",
+            "environ_id": 45
+          },
+          {
+            "class": "marine",
+            "type": "carbonate",
+            "name": "lagoonal/restricted shallow subtidal",
+            "environ_id": 4
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "environ- Blakey et al 1996",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 54,
+        "t_int_name": "Callovian",
+        "t_int_age": 161.5,
+        "t_prop": 0.75,
+        "units_above": [14996],
+        "b_int_id": 57,
+        "b_int_name": "Aalenian",
+        "b_int_age": 174.7,
+        "b_prop": 0.75,
+        "units_below": [14999],
+        "strat_name_long": "Carmel Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 24.326,
+        "t_plng": -39.976,
+        "b_plat": 24.292,
+        "b_plng": -36.738
+      },
+      {
+        "unit_id": 14999,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Navajo Sandstone",
+        "strat_name_id": 3361,
+        "Mbr": "",
+        "Fm": "Navajo Sandstone",
+        "Gp": "Glen Canyon",
+        "SGp": "",
+        "t_age": 171.85,
+        "b_age": 186.375,
+        "max_thick": 610,
+        "min_thick": 0,
+        "outcrop": "",
+        "pbdb_collections": 10,
+        "pbdb_occurrences": 11,
+        "lith": [
+          {
+            "atts": ["feldspathic"],
+            "name": "quartz arenite",
+            "prop": 1,
+            "lith_id": 169,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "dune",
+            "environ_id": 42
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "S.S. Desc: Harshbarger 1949, Freeman & Visher 1975",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 57,
+        "t_int_name": "Aalenian",
+        "t_int_age": 170.9,
+        "t_prop": 0.75,
+        "units_above": [14997],
+        "b_int_id": 60,
+        "b_int_name": "Pliensbachian",
+        "b_int_age": 192.9,
+        "b_prop": 0.75,
+        "units_below": [15000],
+        "strat_name_long": "Navajo Sandstone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 24.292,
+        "t_plng": -36.738,
+        "b_plat": 18.533,
+        "b_plng": -37.651
+      },
+      {
+        "unit_id": 15000,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Kayenta Fm",
+        "strat_name_id": 1014,
+        "Mbr": "",
+        "Fm": "Kayenta",
+        "Gp": "Glen Canyon",
+        "SGp": "",
+        "t_age": 186.375,
+        "b_age": 199.5,
+        "max_thick": 98,
+        "min_thick": 0,
+        "outcrop": "",
+        "pbdb_collections": 12,
+        "pbdb_occurrences": 25,
+        "lith": [
+          {
+            "atts": [],
+            "name": "siltstone",
+            "prop": 0.1667,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.8333,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial braided",
+            "environ_id": 46
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 60,
+        "t_int_name": "Pliensbachian",
+        "t_int_age": 184.2,
+        "t_prop": 0.75,
+        "units_above": [14999],
+        "b_int_id": 61,
+        "b_int_name": "Sinemurian",
+        "b_int_age": 199.5,
+        "b_prop": 0,
+        "units_below": [15001],
+        "strat_name_long": "Kayenta Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 18.533,
+        "t_plng": -37.651,
+        "b_plat": 12.029,
+        "b_plng": -38.869
+      },
+      {
+        "unit_id": 15001,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Moenave Fm",
+        "strat_name_id": 1317,
+        "Mbr": "",
+        "Fm": "Moenave",
+        "Gp": "Glen Canyon",
+        "SGp": "",
+        "t_age": 199.5,
+        "b_age": 201.4,
+        "max_thick": 120,
+        "min_thick": 0,
+        "outcrop": "",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": ["red"],
+            "name": "sandstone",
+            "prop": 1,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial-lacustrine indet.",
+            "environ_id": 89
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "sedimentological",
+            "measure_type": "environmental"
+          }
+        ],
+        "notes": "S.S. Desc: Tanner & Lucas 2007",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 62,
+        "t_int_name": "Hettangian",
+        "t_int_age": 199.5,
+        "t_prop": 1,
+        "units_above": [15000],
+        "b_int_id": 62,
+        "b_int_name": "Hettangian",
+        "b_int_age": 201.4,
+        "b_prop": 0,
+        "units_below": [15003],
+        "strat_name_long": "Moenave Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 12.029,
+        "t_plng": -38.869,
+        "b_plat": 11.279,
+        "b_plng": -38.935
+      },
+      {
+        "unit_id": 15003,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Chinle Fm",
+        "strat_name_id": 380,
+        "Mbr": "",
+        "Fm": "Chinle",
+        "Gp": "Dockum",
+        "SGp": "",
+        "t_age": 201.4,
+        "b_age": 232,
+        "max_thick": 300,
+        "min_thick": 0,
+        "outcrop": "both",
+        "pbdb_collections": 165,
+        "pbdb_occurrences": 522,
+        "lith": [
+          {
+            "atts": ["sandy"],
+            "name": "shale",
+            "prop": 0.7143,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["red"],
+            "name": "shale",
+            "prop": 0.1429,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["red"],
+            "name": "siltstone",
+            "prop": 0.1429,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "floodplain",
+            "environ_id": 52
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "geochemical",
+            "measure_type": "geochronological"
+          }
+        ],
+        "notes": "",
+        "color": "#999999",
+        "text_color": "#000000",
+        "t_int_id": 65,
+        "t_int_name": "Rhaetian",
+        "t_int_age": 201.4,
+        "t_prop": 1,
+        "units_above": [15001],
+        "b_int_id": 67,
+        "b_int_name": "Carnian",
+        "b_int_age": 237,
+        "b_prop": 0.5,
+        "units_below": [15004],
+        "strat_name_long": "Chinle Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 11.279,
+        "t_plng": -38.935,
+        "b_plat": 15.51,
+        "b_plng": -35.347
+      },
+      {
+        "unit_id": 15004,
+        "section_id": 3990,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Shinarump Conglomerate",
+        "strat_name_id": 4546,
+        "Mbr": "",
+        "Fm": "Shinarump Conglomerate",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 232,
+        "b_age": 237,
+        "max_thick": 30,
+        "min_thick": 0,
+        "outcrop": "both",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "conglomerate",
+            "prop": 1,
+            "lith_id": 14,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "fluvial indet.",
+            "environ_id": 45
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#F58D2C",
+        "text_color": "#000000",
+        "t_int_id": 67,
+        "t_int_name": "Carnian",
+        "t_int_age": 227,
+        "t_prop": 0.5,
+        "units_above": [15003],
+        "b_int_id": 67,
+        "b_int_name": "Carnian",
+        "b_int_age": 237,
+        "b_prop": 0,
+        "units_below": [0],
+        "strat_name_long": "Shinarump Conglomerate",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 15.51,
+        "t_plng": -35.347,
+        "b_plat": 16.921,
+        "b_plng": -34.672
+      },
+      {
+        "unit_id": 15005,
+        "section_id": 3991,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Moenkopi Fm",
+        "strat_name_id": 1318,
+        "Mbr": "",
+        "Fm": "Moenkopi",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 247.2,
+        "b_age": 251.902,
+        "max_thick": 210,
+        "min_thick": 0,
+        "outcrop": "both",
+        "pbdb_collections": 11,
+        "pbdb_occurrences": 43,
+        "lith": [
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.0833,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.4167,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "siltstone",
+            "prop": 0.4167,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["red"],
+            "name": "sandstone",
+            "prop": 0.0833,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "channel",
+            "environ_id": 48
+          },
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "floodplain",
+            "environ_id": 52
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "tidal flat",
+            "environ_id": 92
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "foreshore",
+            "environ_id": 24
+          },
+          {
+            "class": "marine",
+            "type": "siliciclastic",
+            "name": "coastal indet.",
+            "environ_id": 23
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "geochemical",
+            "measure_type": "geochronological"
+          }
+        ],
+        "notes": "environ- Baldwin 1973",
+        "color": "#999999",
+        "text_color": "#000000",
+        "t_int_id": 71,
+        "t_int_name": "Scythian",
+        "t_int_age": 247.2,
+        "t_prop": 1,
+        "units_above": [0],
+        "b_int_id": 71,
+        "b_int_name": "Scythian",
+        "b_int_age": 251.902,
+        "b_prop": 0,
+        "units_below": [0],
+        "strat_name_long": "Moenkopi Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 18.976,
+        "t_plng": -33.212,
+        "b_plat": 19.291,
+        "b_plng": -32.571
+      },
+      {
+        "unit_id": 15016,
+        "section_id": 3994,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Kaibab Fm",
+        "strat_name_id": 1001,
+        "Mbr": "",
+        "Fm": "Kaibab",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 262.885,
+        "b_age": 273.01,
+        "max_thick": 250,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 1,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "carbonate",
+            "name": "shallow subtidal",
+            "environ_id": 2
+          },
+          {
+            "class": "marine",
+            "type": "carbonate",
+            "name": "peritidal",
+            "environ_id": 1
+          },
+          {
+            "class": "marine",
+            "type": "carbonate",
+            "name": "open shallow subtidal",
+            "environ_id": 3
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 134,
+        "t_int_name": "Guadalupian",
+        "t_int_age": 259.51,
+        "t_prop": 0.75,
+        "units_above": [0],
+        "b_int_id": 134,
+        "b_int_name": "Guadalupian",
+        "b_int_age": 273.01,
+        "b_prop": 0,
+        "units_below": [15017, 15018],
+        "strat_name_long": "Kaibab Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 16.154,
+        "t_plng": -32.24,
+        "b_plat": 10.754,
+        "b_plng": -33.953
+      },
+      {
+        "unit_id": 15017,
+        "section_id": 3994,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Coconino Sandstone",
+        "strat_name_id": 3273,
+        "Mbr": "",
+        "Fm": "Coconino Sandstone",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 273.01,
+        "b_age": 275.2575,
+        "max_thick": 190,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 1,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "eolian indet.",
+            "environ_id": 41
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 79,
+        "t_int_name": "Kungurian",
+        "t_int_age": 273.01,
+        "t_prop": 1,
+        "units_above": [15016],
+        "b_int_id": 135,
+        "b_int_name": "Leonardian",
+        "b_int_age": 282,
+        "b_prop": 0.75,
+        "units_below": [15018, 15019],
+        "strat_name_long": "Coconino Sandstone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 10.754,
+        "t_plng": -33.953,
+        "b_plat": 9.541,
+        "b_plng": -34.519
+      },
+      {
+        "unit_id": 15018,
+        "section_id": 3994,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "De Chelly Sandstone",
+        "strat_name_id": 3284,
+        "Mbr": "",
+        "Fm": "De Chelly Sandstone",
+        "Gp": "Cutler",
+        "SGp": "",
+        "t_age": 273.01,
+        "b_age": 275.2575,
+        "max_thick": 180,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.0909,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "conglomerate",
+            "prop": 0.4545,
+            "lith_id": 14,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "quartz arenite",
+            "prop": 0.4545,
+            "lith_id": 169,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "eolian indet.",
+            "environ_id": 41
+          }
+        ],
+        "econ": [],
+        "measure": [
+          {
+            "measure_class": "sedimentological",
+            "measure_type": "environmental"
+          }
+        ],
+        "notes": "S.S. Desc: Scott 1965",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 79,
+        "t_int_name": "Kungurian",
+        "t_int_age": 273.01,
+        "t_prop": 1,
+        "units_above": [15016, 15017],
+        "b_int_id": 135,
+        "b_int_name": "Leonardian",
+        "b_int_age": 282,
+        "b_prop": 0.75,
+        "units_below": [15019],
+        "strat_name_long": "De Chelly Sandstone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 10.754,
+        "t_plng": -33.953,
+        "b_plat": 9.541,
+        "b_plng": -34.519
+      },
+      {
+        "unit_id": 15019,
+        "section_id": 3994,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Organ Rock Shale Mbr of Cutler Fm",
+        "strat_name_id": 7149,
+        "Mbr": "Organ Rock Shale Tongue",
+        "Fm": "Cutler",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 275.2575,
+        "b_age": 279.7525,
+        "max_thick": 170,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 1,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "eolian indet.",
+            "environ_id": 41
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#999999",
+        "text_color": "#000000",
+        "t_int_id": 135,
+        "t_int_name": "Leonardian",
+        "t_int_age": 273.01,
+        "t_prop": 0.75,
+        "units_above": [15017, 15018],
+        "b_int_id": 135,
+        "b_int_name": "Leonardian",
+        "b_int_age": 282,
+        "b_prop": 0.25,
+        "units_below": [15020],
+        "strat_name_long": "Organ Rock Shale Tongue",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 9.541,
+        "t_plng": -34.519,
+        "b_plat": 7.153,
+        "b_plng": -35.693
+      },
+      {
+        "unit_id": 15020,
+        "section_id": 3994,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Cedar Mesa Mbr of Cutler Fm",
+        "strat_name_id": 6966,
+        "Mbr": "Cedar Mesa Sandstone",
+        "Fm": "Cutler",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 279.7525,
+        "b_age": 286.225,
+        "max_thick": 300,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": ["quartz"],
+            "name": "sandstone",
+            "prop": 1,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "non-marine",
+            "type": "eolian",
+            "name": "eolian indet.",
+            "environ_id": 41
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "S.S. Desc: Witkind and Thaden 1963",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 135,
+        "t_int_name": "Leonardian",
+        "t_int_age": 273.01,
+        "t_prop": 0.25,
+        "units_above": [15019],
+        "b_int_id": 136,
+        "b_int_name": "Wolfcampian",
+        "b_int_age": 298.9,
+        "b_prop": 0.75,
+        "units_below": [15021],
+        "strat_name_long": "Cedar Mesa Sandstone Member",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 7.153,
+        "t_plng": -35.693,
+        "b_plat": 5.924,
+        "b_plng": -36.322
+      },
+      {
+        "unit_id": 15021,
+        "section_id": 3994,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Halgaito Mbr of Cutler Fm",
+        "strat_name_id": 7036,
+        "Mbr": "Halgaito",
+        "Fm": "Cutler",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 286.225,
+        "b_age": 298.9,
+        "max_thick": 130,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": ["red", "silty"],
+            "name": "sandstone",
+            "prop": 0.5,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["red"],
+            "name": "shale",
+            "prop": 0.5,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "marginal marine",
+            "environ_id": 39
+          },
+          {
+            "class": "non-marine",
+            "type": "fluvial",
+            "name": "floodplain",
+            "environ_id": 52
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "S.S. Desc: Hodgson 1961",
+        "color": "#A57B54",
+        "text_color": "#000000",
+        "t_int_id": 136,
+        "t_int_name": "Wolfcampian",
+        "t_int_age": 282,
+        "t_prop": 0.75,
+        "units_above": [15020],
+        "b_int_id": 136,
+        "b_int_name": "Wolfcampian",
+        "b_int_age": 298.9,
+        "b_prop": 0,
+        "units_below": [15023],
+        "strat_name_long": "Halgaito Member",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 5.924,
+        "t_plng": -36.322,
+        "b_plat": 5.155,
+        "b_plng": -36.753
+      },
+      {
+        "unit_id": 15023,
+        "section_id": 3994,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Hermosa Gp",
+        "strat_name_id": 2505,
+        "Mbr": "",
+        "Fm": "",
+        "Gp": "Hermosa",
+        "SGp": "",
+        "t_age": 298.9,
+        "b_age": 312,
+        "max_thick": 900,
+        "min_thick": 150,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.125,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.125,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "carbonate",
+            "prop": 0.625,
+            "lith_id": 18,
+            "type": "carbonate",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "evaporite",
+            "prop": 0.125,
+            "lith_id": 34,
+            "type": "evaporite",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 137,
+        "t_int_name": "Virgilian",
+        "t_int_age": 298.9,
+        "t_prop": 1,
+        "units_above": [15021],
+        "b_int_id": 139,
+        "b_int_name": "Desmoinesian",
+        "b_int_age": 312,
+        "b_prop": 0,
+        "units_below": [15024],
+        "strat_name_long": "Hermosa Group",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 5.155,
+        "t_plng": -36.753,
+        "b_plat": 0.987,
+        "b_plng": -39.659
+      },
+      {
+        "unit_id": 15024,
+        "section_id": 3994,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Molas Fm",
+        "strat_name_id": 1322,
+        "Mbr": "",
+        "Fm": "Molas",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 312,
+        "b_age": 320.05,
+        "max_thick": 23,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.4167,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["red"],
+            "name": "sandstone",
+            "prop": 0.4167,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 0.0833,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "chert",
+            "prop": 0.0833,
+            "lith_id": 45,
+            "type": "chemical",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "S.S. Desc: Havenor 1958",
+        "color": "#A57B54",
+        "text_color": "#000000",
+        "t_int_id": 140,
+        "t_int_name": "Atokan",
+        "t_int_age": 312,
+        "t_prop": 1,
+        "units_above": [15023],
+        "b_int_id": 141,
+        "b_int_name": "Morrowan",
+        "b_int_age": 323.2,
+        "b_prop": 0.75,
+        "units_below": [0],
+        "strat_name_long": "Molas Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 0.987,
+        "t_plng": -39.659,
+        "b_plat": -5.147,
+        "b_plng": -45.638
+      },
+      {
+        "unit_id": 15011,
+        "section_id": 3993,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Redwall Limestone",
+        "strat_name_id": 3779,
+        "Mbr": "",
+        "Fm": "Redwall Limestone",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 343.5,
+        "b_age": 358.9,
+        "max_thick": 240,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 0.4545,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "dolomite",
+            "prop": 0.4545,
+            "lith_id": 31,
+            "type": "carbonate",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "chert",
+            "prop": 0.0909,
+            "lith_id": 45,
+            "type": "chemical",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 144,
+        "t_int_name": "Osagean",
+        "t_int_age": 343.5,
+        "t_prop": 1,
+        "units_above": [0],
+        "b_int_id": 145,
+        "b_int_name": "Kinderhookian",
+        "b_int_age": 358.9,
+        "b_prop": 0,
+        "units_below": [15012],
+        "strat_name_long": "Redwall Limestone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": -14.274,
+        "t_plng": -60.019,
+        "b_plat": -18.425,
+        "b_plng": -65.486
+      },
+      {
+        "unit_id": 15012,
+        "section_id": 3993,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Ouray Fm",
+        "strat_name_id": 1490,
+        "Mbr": "",
+        "Fm": "Ouray",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 358.9,
+        "b_age": 372.2,
+        "max_thick": 20,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.0909,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 0.4545,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "dolomite",
+            "prop": 0.4545,
+            "lith_id": 31,
+            "type": "carbonate",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 96,
+        "t_int_name": "Famennian",
+        "t_int_age": 358.9,
+        "t_prop": 1,
+        "units_above": [15011],
+        "b_int_id": 147,
+        "b_int_name": "Cassadagan",
+        "b_int_age": 372.2,
+        "b_prop": 0,
+        "units_below": [15013, 15015],
+        "strat_name_long": "Ouray Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": -18.425,
+        "t_plng": -65.486,
+        "b_plat": -20.9,
+        "b_plng": -69.381
+      },
+      {
+        "unit_id": 15013,
+        "section_id": 3993,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Elbert Fm",
+        "strat_name_id": 596,
+        "Mbr": "",
+        "Fm": "Elbert",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 372.2,
+        "b_age": 379,
+        "max_thick": 90,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.1429,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "siltstone",
+            "prop": 0.1429,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "carbonate",
+            "prop": 0.7143,
+            "lith_id": 18,
+            "type": "carbonate",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 150,
+        "t_int_name": "Chemungian",
+        "t_int_age": 372.2,
+        "t_prop": 1,
+        "units_above": [15012],
+        "b_int_id": 150,
+        "b_int_name": "Chemungian",
+        "b_int_age": 379,
+        "b_prop": 0,
+        "units_below": [15014],
+        "strat_name_long": "Elbert Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": -20.9,
+        "t_plng": -69.381,
+        "b_plat": -22.287,
+        "b_plng": -71.199
+      },
+      {
+        "unit_id": 15015,
+        "section_id": 3993,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Martin Fm",
+        "strat_name_id": 1234,
+        "Mbr": "",
+        "Fm": "Martin",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 372.2,
+        "b_age": 382.7,
+        "max_thick": 100,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 0.8333,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.1667,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 150,
+        "t_int_name": "Chemungian",
+        "t_int_age": 372.2,
+        "t_prop": 1,
+        "units_above": [15012],
+        "b_int_id": 151,
+        "b_int_name": "Fingerlakesian",
+        "b_int_age": 382.7,
+        "b_prop": 0,
+        "units_below": [0],
+        "strat_name_long": "Martin Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": -20.9,
+        "t_plng": -69.381,
+        "b_plat": -23.785,
+        "b_plng": -72.674
+      },
+      {
+        "unit_id": 15014,
+        "section_id": 3993,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Aneth Fm",
+        "strat_name_id": 40,
+        "Mbr": "",
+        "Fm": "Aneth",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 379,
+        "b_age": 382.7,
+        "max_thick": 52,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.1429,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "siltstone",
+            "prop": 0.1429,
+            "lith_id": 9,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "dolomite",
+            "prop": 0.7143,
+            "lith_id": 31,
+            "type": "carbonate",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 151,
+        "t_int_name": "Fingerlakesian",
+        "t_int_age": 379,
+        "t_prop": 1,
+        "units_above": [15013],
+        "b_int_id": 151,
+        "b_int_name": "Fingerlakesian",
+        "b_int_age": 382.7,
+        "b_prop": 0,
+        "units_below": [0],
+        "strat_name_long": "Aneth Formation",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": -22.287,
+        "t_plng": -71.199,
+        "b_plat": -23.785,
+        "b_plng": -72.674
+      },
+      {
+        "unit_id": 15006,
+        "section_id": 3992,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Lynch Dolomite",
+        "strat_name_id": 3962,
+        "Mbr": "",
+        "Fm": "Lynch Dolomite",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 492.5,
+        "b_age": 497.85,
+        "max_thick": 300,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 0.5,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "dolomite",
+            "prop": 0.5,
+            "lith_id": 31,
+            "type": "carbonate",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 125,
+        "t_int_name": "Franconian",
+        "t_int_age": 492.5,
+        "t_prop": 1,
+        "units_above": [0],
+        "b_int_id": 127,
+        "b_int_name": "Dresbachian",
+        "b_int_age": 501,
+        "b_prop": 0.75,
+        "units_below": [15007],
+        "strat_name_long": "Lynch Dolomite",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 27.224,
+        "t_plng": -121.983,
+        "b_plat": 27.849,
+        "b_plng": -125.624
+      },
+      {
+        "unit_id": 15007,
+        "section_id": 3992,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Muav Limestone of Tonto Gp",
+        "strat_name_id": 3722,
+        "Mbr": "",
+        "Fm": "Muav Limestone",
+        "Gp": "Tonto",
+        "SGp": "",
+        "t_age": 497.85,
+        "b_age": 503.5,
+        "max_thick": 150,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.5,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 0.5,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#4D52E7",
+        "text_color": "#E0E0E0",
+        "t_int_id": 127,
+        "t_int_name": "Dresbachian",
+        "t_int_age": 496.8,
+        "t_prop": 0.75,
+        "units_above": [15006],
+        "b_int_id": 128,
+        "b_int_name": "Middle Cambrian",
+        "b_int_age": 511,
+        "b_prop": 0.75,
+        "units_below": [15008],
+        "strat_name_long": "Muav Limestone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 27.849,
+        "t_plng": -125.624,
+        "b_plat": 27.613,
+        "b_plng": -130.475
+      },
+      {
+        "unit_id": 15008,
+        "section_id": 3992,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Bright Angel Shale",
+        "strat_name_id": 4052,
+        "Mbr": "",
+        "Fm": "Bright Angel Shale",
+        "Gp": "Tonto",
+        "SGp": "",
+        "t_age": 503.5,
+        "b_age": 517.95,
+        "max_thick": 110,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "shale",
+            "prop": 0.7143,
+            "lith_id": 8,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": ["glauconitic"],
+            "name": "sandstone",
+            "prop": 0.1429,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "limestone",
+            "prop": 0.1429,
+            "lith_id": 30,
+            "type": "carbonate",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#999999",
+        "text_color": "#000000",
+        "t_int_id": 128,
+        "t_int_name": "Middle Cambrian",
+        "t_int_age": 501,
+        "t_prop": 0.75,
+        "units_above": [15007],
+        "b_int_id": 130,
+        "b_int_name": "Early Cambrian",
+        "b_int_age": 538.8,
+        "b_prop": 0.75,
+        "units_below": [15009],
+        "strat_name_long": "Bright Angel Shale",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 27.613,
+        "t_plng": -130.475,
+        "b_plat": 18.759,
+        "b_plng": -145.519
+      },
+      {
+        "unit_id": 15009,
+        "section_id": 3992,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "Tapeats Sandstone of Tonto Gp",
+        "strat_name_id": 3431,
+        "Mbr": "",
+        "Fm": "Tapeats Sandstone",
+        "Gp": "Tonto",
+        "SGp": "",
+        "t_age": 517.95,
+        "b_age": 538.8,
+        "max_thick": 87,
+        "min_thick": 0,
+        "outcrop": "subsurface",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": [],
+            "name": "sandstone",
+            "prop": 0.8333,
+            "lith_id": 10,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          },
+          {
+            "atts": [],
+            "name": "conglomerate",
+            "prop": 0.1667,
+            "lith_id": 14,
+            "type": "siliciclastic",
+            "class": "sedimentary"
+          }
+        ],
+        "environ": [
+          {
+            "class": "marine",
+            "type": "",
+            "name": "inferred marine",
+            "environ_id": 93
+          }
+        ],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#FCF768",
+        "text_color": "#000000",
+        "t_int_id": 130,
+        "t_int_name": "Early Cambrian",
+        "t_int_age": 511,
+        "t_prop": 0.75,
+        "units_above": [15008],
+        "b_int_id": 130,
+        "b_int_name": "Early Cambrian",
+        "b_int_age": 538.8,
+        "b_prop": 0,
+        "units_below": [0],
+        "strat_name_long": "Tapeats Sandstone",
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 18.759,
+        "t_plng": -145.519,
+        "b_plat": -24.309,
+        "b_plng": -177.384
+      },
+      {
+        "unit_id": 42765,
+        "section_id": 12023,
+        "col_id": 490,
+        "project_id": 1,
+        "col_area": 42252.383,
+        "unit_name": "unnamed",
+        "strat_name_id": null,
+        "Mbr": "",
+        "Fm": "",
+        "Gp": "",
+        "SGp": "",
+        "t_age": 1350,
+        "b_age": 1500,
+        "max_thick": 0,
+        "min_thick": 0,
+        "outcrop": "",
+        "pbdb_collections": 0,
+        "pbdb_occurrences": 0,
+        "lith": [
+          {
+            "atts": ["biotite"],
+            "name": "granite",
+            "prop": 0.8333,
+            "lith_id": 53,
+            "type": "plutonic",
+            "class": "igneous"
+          },
+          {
+            "atts": [],
+            "name": "syenogranite",
+            "prop": 0.1667,
+            "lith_id": 145,
+            "type": "plutonic",
+            "class": "igneous"
+          }
+        ],
+        "environ": [],
+        "econ": [],
+        "measure": [],
+        "notes": "",
+        "color": "#FDA2A2",
+        "text_color": "#000000",
+        "t_int_id": 267,
+        "t_int_name": "Ectasian",
+        "t_int_age": 1200,
+        "t_prop": 0.25,
+        "units_above": [0],
+        "b_int_id": 268,
+        "b_int_name": "Calymmian",
+        "b_int_age": 1600,
+        "b_prop": 0.5,
+        "units_below": [0],
+        "strat_name_long": null,
+        "refs": [1],
+        "clat": 35.951,
+        "clng": -109.905,
+        "t_plat": 0,
+        "t_plng": 0,
+        "b_plat": 0,
+        "b_plng": 0
+      }
+    ],
+    "refs": {
+      "1": "Childs, O.E. Correlation of stratigraphic units of North America; COSUNA. AAPG Bulletin 69:173-180. 1985. "
+    }
+  }
+}
