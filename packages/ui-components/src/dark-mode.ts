@@ -12,7 +12,7 @@ const systemDarkMode = (): DarkModeState => ({
   isAutoset: true,
 });
 
-const ValueContext = createContext<DarkModeState>(systemDarkMode());
+const ValueContext = createContext<DarkModeState>(null);
 const UpdaterContext = createContext<DarkModeUpdater | null>(null);
 
 const matcher = window?.matchMedia("(prefers-color-scheme: dark)");
