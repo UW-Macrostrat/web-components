@@ -4676,6 +4676,7 @@ __metadata:
     "@macrostrat/hyper": ^2.2.1
     "@macrostrat/mapbox-utils": ^1.0.0
     "@parcel/config-default": ^2.6.2
+    "@turf/centroid": ^6.5.0
     "@types/mapbox-gl": ^2.7.5
     classnames: ^2.3.1
     mapbox-gl: ^2.7.0
@@ -9041,6 +9042,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/centroid@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "@turf/centroid@npm:6.5.0"
+  dependencies:
+    "@turf/helpers": ^6.5.0
+    "@turf/meta": ^6.5.0
+  checksum: 1a37c26232f9aabde9174c6408c42863fd9718a541ad664abf063ffd4c59764c1e7e974b607cadb3a1dae62e8fa4632d6b431a6bfdc9d42e8c21911e43d07b21
+  languageName: node
+  linkType: hard
+
 "@turf/distance@npm:6.3.0":
   version: 6.3.0
   resolution: "@turf/distance@npm:6.3.0"
@@ -9064,6 +9075,15 @@ __metadata:
   dependencies:
     "@turf/helpers": ^6.5.0
   checksum: f45109ee41429d4aab49db9cfcc68f832cadf18b16c1b2c7031f0a6e52545bc4d64d0efd0a980f4d05f22532ed89d6e915aeaab9db44865898d4d030221d968e
+  languageName: node
+  linkType: hard
+
+"@turf/meta@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "@turf/meta@npm:6.5.0"
+  dependencies:
+    "@turf/helpers": ^6.5.0
+  checksum: c6bb936aa92bf3365e87a50dc65f248e070c5767a36fac390754c00c89bf2d1583418686ab19a10332bfa9340b8cac6aaf2c55dad7f5fcf77f1a2dda75ccf363
   languageName: node
   linkType: hard
 

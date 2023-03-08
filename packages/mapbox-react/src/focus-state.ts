@@ -7,6 +7,7 @@ import bbox from "@turf/bbox";
 import styles from "./main.module.styl";
 import hyper from "@macrostrat/hyper";
 import mapboxgl from "mapbox-gl";
+import centroid from "@turf/centroid";
 
 const h = hyper.styled(styles);
 
@@ -164,7 +165,7 @@ export function useFocusState(
   const [focusState, setFocusState] = useState<PositionFocusState | null>(null);
 
   useEffect(() => {
-    if (map.current == null) return;
+    if (map.current == null || position == null) return;
     const cb = () => {
       setFocusState(getFocusState(map.current, position));
     };
@@ -186,11 +187,48 @@ export function isCentered(focusState: PositionFocusState) {
   );
 }
 
+function getCenterAndBestZoom(
+  input: [number, number] | GeoJSON.Geometry | GeoJSON.BBox
+) {
+  let box: GeoJSON.BBox;
+  let center: [number, number] | null = null;
+  let zoom: number | null = null;
+
+  if (input instanceof Array) {
+    if (input.length === 2) {
+      point = input;
+    } else if (input.length === 4) {
+      box = input;
+    }
+  }
+
+  if (input.hasOwnProperty("lat") && input.hasOwnProperty("lng")) {
+    center = [input.lng, input.lat];
+  }
+
+  // If input is a geometry, get its bounding box
+  if (input.hasOwnProperty("type")) {
+    if (input.type === "Point") {
+      center = input.coordinates as [number, number];
+    } else {
+      box = bbox(input);
+    }
+  }
+
+  if (box != null) {
+    center = [(box[0] + box[2]) / 2, (box[1] + box[3]) / 2];
+    const dist = greatCircleDistance(center, [box[0], box[1]]);
+    zoom = Math.log2((Math.PI * 2) / dist) - 1;
+  }
+  return { center, zoom };
+}
+
 export function LocationFocusButton({
   location,
   className,
   easeDuration = 800,
   focusState = null,
+  ...rest
 }) {
   const map = useMapRef();
   focusState ??= useFocusState(location);
@@ -202,13 +240,20 @@ export function LocationFocusButton({
       minimal: true,
       icon: "map-marker",
       onClick() {
-        if (_isCentered) {
+        if (focusState == PositionFocusState.CENTERED) {
           map.current?.resetNorth();
         } else {
-          map.current?.flyTo({
-            center: location,
-            duration: easeDuration,
-          });
+          let opts = { duration: easeDuration };
+          const { center, zoom } = getCenterAndBestZoom(location);
+          if (center == null) {
+            return;
+          } else {
+            opts = { ...opts, center };
+          }
+          if (zoom != null) {
+            opts = { ...opts, zoom };
+          }
+          map.current?.flyTo(opts);
         }
       },
       className: classNames(
@@ -217,6 +262,7 @@ export function LocationFocusButton({
         classNameForFocusState(focusState)
       ),
       intent: intentForFocusState(focusState),
+      ...rest,
     },
     [_isCentered ? null : h("span.recenter-label", "Recenter")]
   );
