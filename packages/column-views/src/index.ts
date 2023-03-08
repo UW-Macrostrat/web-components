@@ -152,7 +152,7 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
   let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
   const className = classNames(baseClassName, {
-    "dark-mode": darkMode.isEnabled,
+    "dark-mode": darkMode?.isEnabled ?? false,
   });
 
   sectionGroups.sort((a, b) => a.t_age - b.t_age);
