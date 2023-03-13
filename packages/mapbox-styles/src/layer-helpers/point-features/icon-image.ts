@@ -26,22 +26,35 @@ export function getOrientationSymbolName(o: OrientationData) {
    * This straightforward construction is more or less
    * equivalent to the logic in the Mapbox GL style specification above.
    */
-  let { feature_type } = o;
+  if (o == null) return null;
+  let { feature_type, type } = o;
   const symbol_orientation = o.dip ?? o.plunge ?? 0;
 
   if (["fault", "fracture", "vein"].includes(feature_type)) {
     return feature_type;
   }
 
+  if (type == "planar_orientation") {
+    feature_type = "bedding";
+  }
+
+  if (type == "tabular_orientation") {
+    feature_type = "bedding";
+  }
+
+  if (type == "linear_orientation") {
+    return "lineationGeneral";
+  }
+
   if (o.facing == "overturned" && feature_type == "bedding") {
-    return "bedding-overturned";
+    return "beddingOverturned";
   }
 
   if (
     symbol_orientation == 0 &&
     (feature_type == "bedding" || feature_type == "foliation")
   ) {
-    return `${feature_type}_horizontal`;
+    return `${feature_type}Horizontal`;
   }
   if (
     symbol_orientation > 0 &&
@@ -49,16 +62,12 @@ export function getOrientationSymbolName(o: OrientationData) {
     ["bedding", "contact", "foliation", "shear_zone"].includes(feature_type)
   ) {
     if (symbol_orientation == 90) {
-      return `${feature_type}_vertical`;
+      return `${feature_type}Vertical`;
     }
-    return `${feature_type}_inclined`;
+    return `${feature_type}Inclined`;
   }
 
-  if (o.type == "linear_orientation") {
-    return "lineation_general";
-  }
-
-  return "default_point";
+  return "point";
 }
 
 export function preprocessMeasurement(measurement: MeasurementData) {
@@ -196,10 +205,5 @@ export function getIconImage() {
 
 export function getIconImageExt() {
   /** Extension to Strabo-provided getIconImage that modifies the style tree to use programmatic definition of icon image if provided. */
-  return [
-    "case",
-    ["has", "symbol_name"],
-    ["get", "symbol_name"],
-    getIconImage(),
-  ];
+  return ["case", ["has", "symbolName"], ["get", "symbolName"], getIconImage()];
 }

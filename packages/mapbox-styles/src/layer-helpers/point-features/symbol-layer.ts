@@ -4,9 +4,8 @@
  */
 import { getIconImageExt } from "./icon-image";
 
-const pointLayers = (opts: { showAll?: boolean } = {}) => {
-  const { showAll = false } = opts;
-  const isShowSpotLabelsOn = false;
+export function pointLayoutProperties(showLabels: boolean = false) {
+  const isShowSpotLabelsOn = showLabels;
 
   // Get the rotation of the symbol, either strike, trend or failing both, 0
   const getIconRotation = () => {
@@ -114,17 +113,24 @@ const pointLayers = (opts: { showAll?: boolean } = {}) => {
     ];
   };
 
-  const baseLayout = {
+  return {
     "text-anchor": "left",
     "text-offset": getLabelOffset(),
-    "text-field": isShowSpotLabelsOn ? getPointLabel() : "",
-    "icon-image": getIconImageExt(),
+    //"text-field": isShowSpotLabelsOn ? getPointLabel() : "",
+    "icon-image": ["get", "symbolName"], //getIconImageExt(),
     "icon-rotate": getIconRotation(),
     "icon-rotation-alignment": "map",
     "icon-size": 0.15,
-    "symbol-spacing": 1,
-    "icon-padding": 0,
+    // "symbol-spacing": 1,
+    //"icon-padding": 0,
   };
+}
+
+const pointLayers = (opts: { showAll?: boolean } = {}) => {
+  const { showAll = false } = opts;
+  const isShowSpotLabelsOn = false;
+
+  const baseLayout = pointLayoutProperties(isShowSpotLabelsOn);
 
   const allMeasurementsLayer = {
     id: "measurements",

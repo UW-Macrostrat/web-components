@@ -1,5 +1,5 @@
 import { loadImage } from "../utils";
-import pointSymbols from "./symbols/*.png";
+import pointSymbols from "./symbols";
 import { pointLayers } from "./symbol-layer";
 import axios from "axios";
 
@@ -81,13 +81,14 @@ async function setupPointSymbols(map) {
   /** Load and prepare all symbols for measurements */
   return Promise.all(
     Object.keys(pointSymbols).map(async function (symbol) {
-      console.log(pointSymbols[symbol]);
       const image = await loadImage(map, pointSymbols[symbol]);
       if (map.hasImage(symbol)) return;
-      console.log(image);
+      console.log("Adding image", symbol, image);
       map.addImage(symbol, image, { sdf: false, pixelRatio: 3 });
     })
   );
 }
 
+export * from "./icon-image";
+export * from "./symbol-layer";
 export { MeasurementStyler, setupPointSymbols };
