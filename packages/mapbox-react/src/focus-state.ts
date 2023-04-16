@@ -4,7 +4,7 @@ import { useMapRef } from "./context";
 import classNames from "classnames";
 import { useState, useRef, useEffect } from "react";
 import bbox from "@turf/bbox";
-import styles from "./main.module.styl";
+import styles from "./main.module.scss";
 import hyper from "@macrostrat/hyper";
 import mapboxgl from "mapbox-gl";
 import centroid from "@turf/centroid";

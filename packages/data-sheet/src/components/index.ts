@@ -4,7 +4,7 @@ import { ColumnInfo, useDataSheet } from "../provider";
 import { useColumnDropTarget, useColumnWidths } from "./column-utils";
 import { useDrag } from "react-dnd";
 import Draggable from "react-draggable";
-import styles from "../module.styl";
+import styles from "../module.scss";
 
 const h = hyperStyled(styles);
 

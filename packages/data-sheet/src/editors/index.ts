@@ -5,7 +5,7 @@ import { SketchPicker } from "react-color";
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import chroma from "chroma-js";
-import "./module.styl";
+import "./module.scss";
 
 export function BasePopupEditor(props) {
   const { children, ...rest } = props;

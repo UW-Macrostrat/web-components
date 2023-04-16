@@ -1,0 +1,29 @@
+.column-notes .col-note-label {
+  cursor: pointer;
+}
+.column-notes .note-editor.bp3-editable-text {
+  user-select: none;
+}
+.column-notes .note-editor.bp3-editable-text:before {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.position-editor .handle {
+  background-color: #d2e9ff;
+  border: 1px solid #1e90ff;
+}
+.position-editor .add-span-handle {
+  background-color: #e9f4ff;
+  border: 1px dotted #1e90ff;
+}
+.position-editor .top-handle,
+.position-editor .bottom-handle,
+.position-editor .add-span-handle {
+  border-radius: 3px;
+}
+.note-editor .note-connector {
+  stroke: #1e90ff;
+  stroke-width: 3;
+}

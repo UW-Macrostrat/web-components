@@ -13,7 +13,7 @@ import {
 import classNames from "classnames";
 import { useLocalStorage } from "@rehooks/local-storage";
 import "@blueprintjs/core/lib/css/blueprint.css";
-import "./main.styl";
+import "./main.scss";
 
 const defaultProps = {
   orientation: TimescaleOrientation.VERTICAL,
