@@ -6,15 +6,17 @@
 .header-cell .cell-content {
   width: 100%;
 }
+
 thead {
   position: relative;
+  .cell-drag-handle {
+    display: none;
+  }
+  &:hover .cell-drag-handle {
+    display: block;
+  }
 }
-thead .cell-drag-handle {
-  display: none;
-}
-thead:hover .cell-drag-handle {
-  display: block;
-}
+
 .cell-drag-handle {
   top: 0;
   left: -2px;
@@ -26,26 +28,27 @@ thead:hover .cell-drag-handle {
   cursor: ew-resize;
   z-index: 50;
 }
+
 .virtualized-sheet {
   overflow-y: scroll;
   overflow-x: hidden;
   position: relative;
-}
-.virtualized-sheet .ui {
-  position: sticky;
-  top: 0px;
-  bottom: 0px;
-  left: 0px;
-  right: 0px;
-}
-.virtualized-sheet .data-grid-container {
-  width: 100%;
-  height: 100%;
-}
-.virtualized-sheet .data-grid-container .data-grid {
-  width: 100%;
-  height: 100%;
-}
-.virtualized-sheet .data-grid-container .data-grid .cell.updated {
-  background-color: inherit;
+  .ui {
+    position: sticky;
+    top: 0px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+  }
+  .data-grid-container {
+    width: 100%;
+    height: 100%;
+  }
+  .data-grid {
+    width: 100%;
+    height: 100%;
+    .cell.updated {
+      background-color: inherit;
+    }
+  }
 }
