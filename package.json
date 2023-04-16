@@ -34,6 +34,8 @@
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
+    "@babel/preset-env": "^7.21.4",
+    "@babel/preset-typescript": "^7.21.4",
     "@parcel/transformer-sass": "2.6.2",
     "@parcel/transformer-stylus": "2.6.2",
     "axios": "^0.27.2",
