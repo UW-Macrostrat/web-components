@@ -27,7 +27,7 @@
     "stylus": "^0.59.0"
   },
   "dependencies": {
-    "@blueprintjs/popover2": "^1.1.2",
+    "@blueprintjs/popover2": "^1.13.12",
     "@macrostrat/corelle": "^1.1.0",
     "@macrostrat/hyper": "^2.0.0",
     "@react-hook/size": "^2.1.1",

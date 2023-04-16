@@ -4,7 +4,7 @@ import { hyperStyled } from "@macrostrat/hyper";
 import { useRef, useEffect } from "react";
 import { useScrollOffset } from "@macrostrat/ui-components";
 import { BaseSheet } from "./base";
-import styles from "./module.styl";
+import styles from "./module.scss";
 
 const h = hyperStyled(styles);
 

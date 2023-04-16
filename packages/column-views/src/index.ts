@@ -10,7 +10,7 @@ import { CompositeUnitsColumn } from "./units";
 import { IUnit } from "./units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { TrackedLabeledUnit } from "./units";
-import styles from "./column.module.styl";
+import styles from "./column.module.scss";
 import { AgeAxis } from "@macrostrat/concept-app-helpers";
 import { useDarkMode } from "@macrostrat/ui-components";
 export * from "./units";

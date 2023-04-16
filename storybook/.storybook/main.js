@@ -32,25 +32,9 @@ const config = {
     config.module.rules = [
       ...config.module.rules,
       {
-        test: /\.styl$/,
-        use: [
-          ...styleLoaders,
-          {
-            loader: "stylus-loader",
-            options: { stylusOptions: { disableCache: true } },
-          },
-        ],
-        exclude: /node_modules/,
-        //include: path.resolve(__dirname, "../../packages"),
-      },
-      {
         test: /\.(sass|scss)$/,
         use: [...styleLoaders, "sass-loader"],
       },
-      // {
-      //   test: /\.(sass|scss)$/,
-      //   use: [...styleLoaders, "sass-loader"],
-      // },
     ];
 
     config.resolve.alias = {

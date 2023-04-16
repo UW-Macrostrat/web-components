@@ -31,7 +31,7 @@ import { FaciesPicker } from "./facies/picker";
 import { grainSizes } from "../grainsize";
 import { RaisedSelect } from "./util";
 import h from "react-hyperscript";
-import styles from "./main.module.styl";
+import styles from "./main.module.scss";
 import T from "prop-types";
 import { IntervalShape } from "./types";
 

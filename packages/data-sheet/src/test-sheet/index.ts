@@ -5,7 +5,7 @@ import update, { Spec } from "immutability-helper";
 import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
-import "./attitude-sheet.styl";
+import "./attitude-sheet.scss";
 import { ColorEditor } from "../editors";
 
 //import classNames from "classnames";
