@@ -30,6 +30,7 @@
     "@macrostrat/mapbox-react": "./packages/mapbox-react/src",
     "@macrostrat/mapbox-styles": "./packages/mapbox-styles/src",
     "@macrostrat/mapbox-utils": "./packages/mapbox-utils/src",
+    "@macrostrat/map-interface": "./packages/map-interface/src",
     "common": "./packages/common/src"
   },
   "devDependencies": {
