@@ -9,6 +9,11 @@ find . -name "*.styl" | while read -r file; do
   basename=${file:r}
   echo ${file:h}
 
+  # If we've already converted this file, skip it
+  if [[ -f "${basename}.scss" ]]; then
+    continue
+  fi
+
   yarn exec stylus --ext .scss "$file" -o "${file:h}"
   # Convert the file
   #stylus2sass "$file" > "./src/styles/$filename.scss"
@@ -19,6 +24,11 @@ done
 find . -name "*.styl" | while read -r file; do
   # Get the file name without the extension
   basename=${file:r}
+  # If we've already added .old.styl to this file, skip it
+  if [ ${basename:t} = "old" ]; then
+    continue
+  fi
+
   mv "$file" "${basename}.old.styl" 
   # Convert the file
   #stylus2sass "$file" > "./src/styles/$filename.scss"
@@ -28,5 +38,6 @@ done
 
 # Find and replace all stylus imports with sass imports
 find . -name "*.ts" | while read -r file; do
-  sed -i '' 's/\.styl/\.scss/g' "$file"
+  # Replace stylus import statements with scss
+  sed -i 's/\.styl/\.scss/g' "$file"
 done
