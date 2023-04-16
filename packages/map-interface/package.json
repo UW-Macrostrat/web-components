@@ -1,4 +1,15 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "0.0.1"
+  "version": "0.0.1",
+  "description": "Map interface for Macrostrat",
+  "type": "module",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@macrostrat/hyper": "^2.2.1",
+    "d3-format": "^3.1.0"
+  },
+  "peerDependencies": {
+    "@blueprintjs/core": "^3.43.0 || ^4.3.0",
+    "react": "^16.8.6||^17.0.0||^18.0.0"
+  }
 }
