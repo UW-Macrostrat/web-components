@@ -1,12 +1,23 @@
 #!/usr/bin/env zsh
-# Convert all stylus files in this repository to sass
+# Convert all stylus files in packages directory to sass
+
+cd packages
 
 # Find and iterate through stylus files
 find . -name "*.styl" | while read -r file; do
   # Get the file name without the extension
-  filename=$(basename "$file" .styl)
-  echo $file
+  basename=${file:r}
+  echo ${file:h}
 
+  yarn exec stylus --ext .scss "$file" -o "${file:h}"
+  mv "$file" "${basename}.old.styl"
   # Convert the file
   #stylus2sass "$file" > "./src/styles/$filename.scss"
+
+
+done
+
+# Find and replace all stylus imports with sass imports
+find . -name "*.ts" | while read -r file; do
+  sed -i '' 's/\.styl/\.scss/g' "$file"
 done
