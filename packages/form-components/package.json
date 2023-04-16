@@ -40,9 +40,9 @@
     "react": "^16||^17.0.2"
   },
   "dependencies": {
-    "@blueprintjs/core": "^4.3.0",
-    "@blueprintjs/icons": "^4.2.6",
-    "@blueprintjs/popover2": "^1.2.1",
+    "@blueprintjs/core": "^4.17.8",
+    "@blueprintjs/icons": "^4.14.5",
+    "@blueprintjs/popover2": "^1.13.12",
     "@macrostrat/hyper": "^2.0.1",
     "@mantine/core": "^4.2.1",
     "@mantine/hooks": "^4.2.1",

@@ -12,7 +12,7 @@
     "parcel": "^2.6.2"
   },
   "dependencies": {
-    "@blueprintjs/core": "^4.8.0",
+    "@blueprintjs/core": "^4.17.8",
     "@macrostrat/hyper": "^2.2.1",
     "@macrostrat/mapbox-utils": "^1.0.0",
     "@turf/centroid": "^6.5.0",
