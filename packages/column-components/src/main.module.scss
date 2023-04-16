@@ -1,10 +1,10 @@
 .column-notes .col-note-label {
   cursor: pointer;
 }
-.column-notes .note-editor.bp3-editable-text {
+.column-notes .note-editor.bp4-editable-text {
   user-select: none;
 }
-.column-notes .note-editor.bp3-editable-text:before {
+.column-notes .note-editor.bp4-editable-text:before {
   top: 0;
   left: 0;
   right: 0;
@@ -83,7 +83,7 @@ g.note-editor .link {
   font-family: monospace;
   font-weight: 600;
 }
-.interval-editor-title :global .bp3-button {
+.interval-editor-title :global .bp4-button {
   transform: translate(0, -5px);
 }
 g.lithology-column use.frame {
@@ -194,7 +194,7 @@ div.Select-menu-outer {
 div.edit-overlay div.cursor-container {
   position: absolute;
 }
-div.edit-overlay div.cursor-container .bp3-popover-wrapper {
+div.edit-overlay div.cursor-container .bp4-popover-wrapper {
   display: block;
   width: 80px;
 }
