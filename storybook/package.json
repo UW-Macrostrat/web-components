@@ -33,8 +33,8 @@
     "storybook": "^7.0.5",
     "storybook-dark-mode": "^3.0.0",
     "style-loader": "^3.3.2",
-    "stylus": "^0.59.0",
-    "stylus-loader": "^7.1.0",
+    "stylus": "^0.54.0",
+    "stylus-loader": "^6.2.0",
     "underscore": "^1.12.0",
     "use-async-effect": "^2.2.1",
     "webpack": "^5.73.0"

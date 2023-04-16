@@ -1,4 +1,5 @@
 import path from "path";
+import loader from "stylus-loader";
 
 // Load the aliases
 import { readFileSync } from "fs";
@@ -33,7 +34,13 @@ const config = {
       ...config.module.rules,
       {
         test: /\.styl$/,
-        use: [...styleLoaders, "stylus-loader"],
+        use: [
+          ...styleLoaders,
+          {
+            loader: "stylus-loader",
+            options: { stylusOptions: { disableCache: true } },
+          },
+        ],
         exclude: /node_modules/,
         //include: path.resolve(__dirname, "../../packages"),
       },
