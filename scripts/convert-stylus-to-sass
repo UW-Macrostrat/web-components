@@ -10,7 +10,16 @@ find . -name "*.styl" | while read -r file; do
   echo ${file:h}
 
   yarn exec stylus --ext .scss "$file" -o "${file:h}"
-  mv "$file" "${basename}.old.styl"
+  # Convert the file
+  #stylus2sass "$file" > "./src/styles/$filename.scss"
+
+
+done
+
+find . -name "*.styl" | while read -r file; do
+  # Get the file name without the extension
+  basename=${file:r}
+  mv "$file" "${basename}.old.styl" 
   # Convert the file
   #stylus2sass "$file" > "./src/styles/$filename.scss"
 
