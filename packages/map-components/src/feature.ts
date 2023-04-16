@@ -26,7 +26,6 @@ function CanvasFeature({ geometry, style }) {
     if (style?.stroke != null) {
       context.strokeColor = style.stroke;
     }
-    console.log(style);
     geoPath(projection, context)(geometry);
   }
   return null;
