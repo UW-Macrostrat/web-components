@@ -13,7 +13,7 @@
     "deploy": "./scripts/deploy-steno",
     "dev": "./scripts/run-dev-server",
     "clean": "rm -rf .cache dist",
-    "dev:storybook": "yarn workspace storybook run dev",
+    "dev:storybook": "yarn workspace @macrostrat/storybook run dev",
     "dev:concepts": "yarn workspace concept-apps run dev",
     "publish": "node ./scripts/publish.mjs"
   },
@@ -54,5 +54,9 @@
     "storybook",
     "toolchain/*"
   ],
-  "prettier": {}
+  "prettier": {},
+  "dependencies": {
+    "@babel/preset-react": "^7.18.6"
+  },
+  "packageManager": "yarn@3.5.0"
 }

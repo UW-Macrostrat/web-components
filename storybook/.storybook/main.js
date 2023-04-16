@@ -24,11 +24,10 @@ const cssModuleLoader = {
 const styleLoaders = ["style-loader", cssModuleLoader];
 
 const config = {
-  webpackFinal: async (config, { configType }) => {
+  webpackFinal: (config, { configType }) => {
     // `configType` has a value of 'DEVELOPMENT' or 'PRODUCTION'
     // You can change the configuration based on that.
     // 'PRODUCTION' is used when building the static version of storybook.
-
     // Make whatever fine-grained changes you need
     config.module.rules = [
       ...config.module.rules,
@@ -37,6 +36,10 @@ const config = {
         use: [...styleLoaders, "stylus-loader"],
         exclude: /node_modules/,
         //include: path.resolve(__dirname, "../../packages"),
+      },
+      {
+        test: /\.(sass|scss)$/,
+        use: [...styleLoaders, "sass-loader"],
       },
       // {
       //   test: /\.(sass|scss)$/,
@@ -53,7 +56,7 @@ const config = {
     return config;
   },
   core: {
-    builder: "webpack5",
+    builder: "@storybook/builder-webpack5",
   },
   stories: [
     "../../packages/**/*.stories.mdx",
@@ -63,8 +66,7 @@ const config = {
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-viewport",
-    "@storybook/preset-scss",
-    "storybook-dark-mode",
+    //"storybook-dark-mode",
   ],
   framework: {
     name: "@storybook/react-webpack5",
