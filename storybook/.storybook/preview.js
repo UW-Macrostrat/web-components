@@ -1,5 +1,10 @@
 import macrostratTheme from "./theme";
 import "@blueprintjs/core/lib/css/blueprint.css";
+import { themes } from "@storybook/theming";
+
+import h from "@macrostrat/hyper";
+import { DarkModeProvider } from "@macrostrat/ui-components";
+import { useDarkMode } from "storybook-dark-mode";
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
@@ -12,4 +17,28 @@ export const parameters = {
   docs: {
     theme: macrostratTheme,
   },
+  backgrounds: {
+    disable: true,
+  },
+  darkMode: {
+    // Override the default light theme
+    //current: "light",
+    dark: { ...themes.dark },
+    light: { ...themes.light },
+    darkClass: ["bp4-dark"],
+    lightClass: [],
+    stylePreview: true,
+  },
 };
+
+// your theme provider
+
+// create a component that uses the dark mode hook
+function ThemeWrapper(props) {
+  // render your custom theme provider
+  return h(DarkModeProvider, { isEnabled: useDarkMode(), ...props });
+}
+
+export const decorators = [
+  (renderStory) => h(ThemeWrapper, null, renderStory()),
+];

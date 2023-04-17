@@ -20,11 +20,12 @@ const matcher = window?.matchMedia("(prefers-color-scheme: dark)");
 type DarkModeProps = {
   children?: ReactNode;
   addBodyClasses: boolean;
+  isEnabled?: boolean;
 };
 
 const DarkModeProvider = (props: DarkModeProps) => {
   const parentCtx = useContext(ValueContext);
-  const { addBodyClasses = true, children } = props;
+  const { addBodyClasses = true, isEnabled, children } = props;
   const [storedValue, updateValue, resetState] = useStoredState(
     "ui-dark-mode",
     systemDarkMode()
@@ -34,6 +35,11 @@ const DarkModeProvider = (props: DarkModeProps) => {
     isEnabled: storedValue?.isEnabled ?? false,
     isAutoset: storedValue?.isAutoset ?? false,
   };
+
+  useEffect(() => {
+    if (isEnabled == null) return;
+    updateValue({ isAutoset: false, isEnabled });
+  }, [isEnabled]);
 
   // Manage dark mode body classes
   useEffect(() => {

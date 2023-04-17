@@ -56,7 +56,7 @@ const config = {
     "@storybook/addon-links",
     "@storybook/addon-essentials",
     "@storybook/addon-viewport",
-    //"storybook-dark-mode",
+    "storybook-dark-mode",
   ],
   framework: {
     name: "@storybook/react-webpack5",
