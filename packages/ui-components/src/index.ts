@@ -6,7 +6,7 @@ export * from "./link-card";
 export * from "./file-upload";
 export * from "./image";
 export * from "./model-editor";
-export * from "./notify";
+export * from "./toaster";
 export * from "./util";
 export * from "./citations";
 export * from "./geodeepdive";
