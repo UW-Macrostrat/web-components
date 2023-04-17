@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { fmt3, normalizeLng } from "./utils";
+import { formatValue, normalizeLng } from "./utils";
 
 export function ValueWithUnit(props) {
   const { value, unit } = props;
@@ -11,10 +11,11 @@ export function ValueWithUnit(props) {
 }
 
 export function DegreeCoord(props) {
-  const { value, labels } = props;
+  const { value, labels, precision = 3 } = props;
   const direction = value < 0 ? labels[1] : labels[0];
+
   return h(ValueWithUnit, {
-    value: Math.abs(value) + "°",
+    value: formatValue(Math.abs(value), precision) + "°",
     unit: direction,
   });
 }
@@ -34,12 +35,12 @@ export function LngLatCoords(props) {
   return h("div.lnglat-container", { className }, [
     h("span.lnglat", [
       h(DegreeCoord, {
-        value: fmt3(lat),
+        value: lat,
         labels: ["N", "S"],
       }),
       ", ",
       h(DegreeCoord, {
-        value: fmt3(normalizeLng(Number(lng))),
+        value: normalizeLng(lng),
         labels: ["E", "W"],
       }),
     ]),
