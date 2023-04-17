@@ -37,6 +37,7 @@ const DarkModeProvider = (props: DarkModeProps) => {
   };
 
   useEffect(() => {
+    // Update value if isEnabled is provided
     if (isEnabled == null) return;
     updateValue({ isAutoset: false, isEnabled });
   }, [isEnabled]);
