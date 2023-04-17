@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { LngLatCoords } from "../src/coordinates";
+import { LngLatCoords } from "../src/location-info";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof LngLatCoords> = {

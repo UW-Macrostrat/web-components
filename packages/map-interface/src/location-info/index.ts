@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { formatValue, normalizeLng } from "./utils";
+import { formatValue, normalizeLng, metersToFeet } from "./utils";
 
 export function ValueWithUnit(props) {
   const { value, unit } = props;
@@ -21,7 +21,7 @@ export function DegreeCoord(props) {
 }
 
 export function LngLatCoords(props) {
-  const { position, className } = props;
+  const { position, className, precision } = props;
   if (position == null) {
     return null;
   }
@@ -37,12 +37,28 @@ export function LngLatCoords(props) {
       h(DegreeCoord, {
         value: lat,
         labels: ["N", "S"],
+        precision,
       }),
       ", ",
       h(DegreeCoord, {
         value: normalizeLng(lng),
         labels: ["E", "W"],
+        precision,
       }),
+    ]),
+  ]);
+}
+
+export function Elevation(props) {
+  /** Renders an elevation value in meters and a parenthetical conversion to feet. */
+  const { elevation, className, includeFeet = true } = props;
+  if (elevation == null) return null;
+  return h("div.elevation", { className }, [
+    h(ValueWithUnit, { value: elevation, unit: "m" }),
+    h.if(includeFeet)("span.secondary", [
+      " (",
+      h(ValueWithUnit, { value: metersToFeet(elevation), unit: "ft" }),
+      ")",
     ]),
   ]);
 }
