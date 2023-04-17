@@ -8,7 +8,7 @@
   display: flex
   flex-direction: row
   align-items: center
-  gap: 0.5em
+  gap: 1em
   border-bottom: 1px solid var(--panel-rule-color)
   .spacer
     flex-grow: 1
@@ -16,11 +16,11 @@
     padding: 7px
 
   .position-controls :global(.bp4-button)
-    font-size: 12px
+    font-size: 12px !important
 
 .infodrawer-header-item
-  margin-left: 0.5em
-  .secondary
+  font-size: 12px
+  :global(.secondary)
     font-size: 0.9em
     color: var(--text-subtle-color)
 

@@ -1,9 +1,11 @@
 .recenter-button :global(.bp4-icon):first-child {
   margin-left: -3px;
-  margin-right: 0px;
+  margin-right: -3px;
 }
-.recenter-button.off-center .recenter-label {
-  display: none;
+.recenter-button.off-center {
+  .recenter-label {
+    display: none;
+  }
 }
 .recenter-button.out-of-padding .recenter-label {
   opacity: 0.5;
