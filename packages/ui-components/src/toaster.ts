@@ -6,9 +6,10 @@ import {
   useState,
   useContext,
   RefObject,
-  useMemo,
+  useEffect,
 } from "react";
-import type { IToasterProps } from "@blueprintjs/core";
+import { createPortal } from "react-dom";
+import type { IToasterProps, ToasterInstance } from "@blueprintjs/core";
 
 // We might want to refactor this
 function createAppToaster() {
@@ -20,52 +21,35 @@ type ContextualToasterProps = Omit<IToasterProps, "ref" | "usePortal"> & {};
 export type ToasterContextProps = ContextualToasterProps & {
   children?: React.ReactNode;
   toasts?: React.ReactNode;
-  createToaster?: boolean;
+  containerRef?: RefObject<HTMLElement>;
 };
 
-interface IToasterCtx {
-  toaster: Toaster;
-  setToaster: (t: Toaster) => void;
-}
+const ToasterCtx = createContext<ToasterInstance>(null);
 
-const ToasterCtx = createContext<IToasterCtx>(null);
-
-function ContextualToaster(props: ContextualToasterProps) {
-  const ctx = useContext(ToasterCtx);
-  if (ctx == null) {
-    throw new Error(
-      "ContextualToaster must be rendered within a ToasterContext"
-    );
-  }
-  return h(Toaster, {
-    ref: (t: Toaster) => ctx.setToaster(t),
+function ContextualToaster({ containerRef, setToaster, ...rest }) {
+  const toaster = h(Toaster, {
     usePortal: false,
-    ...props,
+    ref: (t) => setToaster(t),
+    ...rest,
   });
+  if (containerRef?.current == null) {
+    return toaster;
+  }
+  return createPortal(toaster, containerRef.current);
 }
 
 function ToasterContext(props: ToasterContextProps) {
-  const [toaster, setToaster] = useState<Toaster>(null);
-  const { children, toasts, createToaster = true, ...rest } = props;
+  const { children, toasts, containerRef, ...rest } = props;
+  const [toaster, setToaster] = useState<ToasterInstance>(null);
 
-  const value = useMemo(() => {
-    console.log(toaster);
-    return {
-      toaster,
-      setToaster: (t: Toaster) => setToaster(t),
-    };
-  }, [toaster]);
-
-  return h(ToasterCtx.Provider, { value }, [
-    h.if(createToaster)(ToasterContext.Toaster, { ...rest }, toasts),
+  return h(ToasterCtx.Provider, { value: toaster }, [
+    h(ContextualToaster, { containerRef, setToaster, ...rest }, toasts),
     children,
   ]);
 }
 
-ToasterContext.Toaster = ContextualToaster;
-
-function useToaster(): Toaster | null {
-  return useContext(ToasterCtx)?.toaster;
+function useToaster(): ToasterInstance | null {
+  return useContext(ToasterCtx);
 }
 
 export { createAppToaster, ToasterContext, useToaster };

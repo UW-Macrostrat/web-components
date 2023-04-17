@@ -1,9 +1,10 @@
 import h from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
 import type { Meta, StoryObj } from "@storybook/react";
+import { useRef } from "react";
 
 import { ToasterContext, ToasterContextProps, useToaster } from "./toaster";
-import { FlexRow, FlexBox, Box } from "./util";
+import { FlexRow, Box } from "./util";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<ToasterContextProps> = {
@@ -17,12 +18,15 @@ type Story = StoryObj<ToasterContextProps>;
 
 function GetToastButton() {
   const toaster = useToaster();
-  console.log(toaster);
+  const counter = useRef(1);
   return h(
     Button,
     {
       disabled: toaster == null,
-      onClick: () => toaster.show({ message: "Hello" }),
+      onClick: () => {
+        toaster.show({ message: `Hello planet ${counter.current}` });
+        counter.current += 1;
+      },
     },
     ["Show toast"]
   );
@@ -30,11 +34,12 @@ function GetToastButton() {
 
 export const Primary: Story = {
   render: () => {
-    return h(ToasterContext, { createToaster: false }, [
+    const containerRef = useRef<HTMLElement>(null);
+
+    return h(ToasterContext, { containerRef }, [
       h(FlexRow, { gap: 10 }, [
         h(GetToastButton),
-        h(FlexBox, { grow: 1 }, [
-          h(ToasterContext.Toaster),
+        h(Box, { flexGrow: 1, innerRef: containerRef, position: "relative" }, [
           h(
             Box,
             { is: "p", textAlign: "center" },
