@@ -6,6 +6,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@macrostrat/hyper": "^2.2.1",
+    "@mapbox/tilebelt": "^1.0.2",
     "@turf/bbox": "^6.5.0",
     "classnames": "^2.3.2",
     "d3-format": "^3.1.0",
