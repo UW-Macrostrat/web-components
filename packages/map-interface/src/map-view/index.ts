@@ -1,16 +1,11 @@
 import hyper from "@macrostrat/hyper";
-import { useMapConditionalStyle, useMapRef } from "@macrostrat/mapbox-react";
+import { useMapRef } from "@macrostrat/mapbox-react";
 import { mapViewInfo } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
 import { useCallback, useEffect, useRef } from "react";
-import {
-  MapLayer,
-  useAppActions,
-  useAppState,
-} from "~/map-interface/app-state";
+import { useAppActions, useAppState } from "~/map-interface/app-state";
 import styles from "./main.module.sass";
-import { toggleLineSymbols } from "../map-style";
 import { enable3DTerrain } from "./terrain";
 import {
   MapLoadingReporter,
@@ -21,54 +16,37 @@ import {
 
 const h = hyper.styled(styles);
 
-interface MapViewProps {
+export interface MapViewProps {
   showLineSymbols?: boolean;
   children?: React.ReactNode;
   accessToken?: string;
+  terrainSourceID?: string;
+  enableTerrain?: boolean;
 }
 
 export function MapView(props: MapViewProps) {
-  const { mapLayers, mapPosition, mapSettings } = useAppState(
-    (state) => state.core
-  );
+  let { terrainSourceID } = props;
+  const { enableTerrain = true, children, accessToken } = props;
+  if (enableTerrain) {
+    terrainSourceID ??= "mapbox-3d-dem";
+  }
+
+  const { mapPosition } = useAppState((state) => state.core);
   const runAction = useAppActions();
 
   const infoMarkerPosition = useAppState(
     (state) => state.core.infoMarkerPosition
   );
 
-  const { children, accessToken } = props;
+  const {} = props;
 
   if (accessToken != null) {
     mapboxgl.accessToken = accessToken;
   }
 
-  let mapRef = useMapRef();
-
   const ref = useRef<HTMLDivElement>();
   const parentRef = useRef<HTMLDivElement>();
   const { mapUse3D, mapIsRotated } = mapViewInfo(mapPosition);
-
-  const hasLineSymbols =
-    mapLayers.has(MapLayer.LINE_SYMBOLS) && mapLayers.has(MapLayer.LINES);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null) return;
-    // Update line symbol visibility on map load
-    toggleLineSymbols(map, hasLineSymbols);
-  }, [mapRef.current]);
-
-  const demSourceID = mapSettings.highResolutionTerrain
-    ? "mapbox-3d-dem"
-    : null;
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null) return;
-    enable3DTerrain(map, mapUse3D, demSourceID);
-  }, [mapRef.current, mapUse3D]);
-
-  useMapConditionalStyle(mapRef, hasLineSymbols, toggleLineSymbols);
 
   const className = classNames({
     "is-rotated": mapIsRotated ?? false,
@@ -99,6 +77,24 @@ export function MapView(props: MapViewProps) {
     h(MapMovedReporter, { infoMarkerPosition, onMapMoved }),
     h(MapResizeManager, { containerRef: ref }),
     h(MapPaddingManager, { containerRef: ref, parentRef, infoMarkerPosition }),
+    h(MapTerrainManager, { mapUse3D, terrainSourceID }),
     children,
   ]);
+}
+
+export function MapTerrainManager({
+  mapUse3D,
+  terrainSourceID,
+}: {
+  mapUse3D?: boolean;
+  terrainSourceID?: string;
+}) {
+  const mapRef = useMapRef();
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+    enable3DTerrain(map, mapUse3D, terrainSourceID);
+  }, [mapRef.current, mapUse3D]);
+  return null;
 }

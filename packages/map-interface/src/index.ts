@@ -123,4 +123,5 @@ export function MapStyledContainer({
   return h("div", { className }, children);
 }
 
+export * from "./map-view";
 //const _MapPage = compose(HotkeysProvider, MapPage);
