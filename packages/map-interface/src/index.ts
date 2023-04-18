@@ -62,9 +62,12 @@ export function MapAreaContainer({
     {
       searching: false,
       "detail-panel-open": _detailPanelOpen,
+      "map-context-open": _detailPanelOpen,
     },
     `context-panel-${contextPanelTrans.stage}`,
-    `detail-panel-${detailPanelTrans.stage}`
+    `map-context-${contextPanelTrans.stage}`,
+    `detail-panel-${detailPanelTrans.stage}`,
+    `map-detail-${detailPanelTrans.stage}`
   );
 
   return h(
