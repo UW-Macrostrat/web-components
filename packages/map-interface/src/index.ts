@@ -33,6 +33,7 @@ export function MapAreaContainer({
   mapControls = h(MapBottomControls),
   contextStackProps = null,
   detailStackProps = null,
+  mapPosition = null,
   ...rest
 }: {
   navbar: AnyElement;
@@ -47,6 +48,7 @@ export function MapAreaContainer({
   contextPanelOpen?: boolean;
   contextStackProps?: HTMLDivProps;
   detailStackProps?: HTMLDivProps;
+  mapPosition?: MapPosition;
 }) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
   const contextPanelTrans = useTransition(contextPanelOpen, 800);
@@ -73,23 +75,27 @@ export function MapAreaContainer({
   return h(
     ToasterContext,
     h(MapboxMapProvider, [
-      h(MapStyledContainer, { className: classNames("map-page", className) }, [
-        h("div.main-ui", { className: _className, ...rest }, [
-          h("div.context-stack", contextStackProps, [
-            navbar,
-            h.if(contextPanelTrans.shouldMount)([contextPanel]),
+      h(
+        MapStyledContainer,
+        { className: classNames("map-page", className), mapPosition },
+        [
+          h("div.main-ui", { className: _className, ...rest }, [
+            h("div.context-stack", contextStackProps, [
+              navbar,
+              h.if(contextPanelTrans.shouldMount)([contextPanel]),
+            ]),
+            //h(MapView),
+            children ?? mainPanel,
+            h("div.detail-stack.infodrawer-container", detailStackProps, [
+              detailPanel,
+              h(ZoomControl, { className: "zoom-control" }),
+              h("div.spacer"),
+              mapControls,
+            ]),
           ]),
-          //h(MapView),
-          children ?? mainPanel,
-          h("div.detail-stack.infodrawer-container", detailStackProps, [
-            detailPanel,
-            h(ZoomControl, { className: "zoom-control" }),
-            h("div.spacer"),
-            mapControls,
-          ]),
-        ]),
-        h("div.bottom", null, bottomPanel),
-      ]),
+          h("div.bottom", null, bottomPanel),
+        ]
+      ),
     ])
   );
 }
