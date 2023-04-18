@@ -11,6 +11,7 @@ import { mapViewInfo, MapPosition } from "@macrostrat/mapbox-utils";
 import { ReactNode } from "react";
 
 export * from "./location-panel";
+export * from "./styles";
 
 export function MapInterface() {
   return h("div", "Hello world");
