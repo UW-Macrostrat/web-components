@@ -6,7 +6,10 @@
   "main": "src/index.ts",
   "dependencies": {
     "@macrostrat/hyper": "^2.2.1",
-    "d3-format": "^3.1.0"
+    "@turf/bbox": "^6.5.0",
+    "classnames": "^2.3.2",
+    "d3-format": "^3.1.0",
+    "transition-hook": "^1.5.2"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.43.0 || ^4.3.0",

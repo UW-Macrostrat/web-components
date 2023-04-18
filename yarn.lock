@@ -5210,7 +5210,10 @@ __metadata:
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
     "@macrostrat/hyper": ^2.2.1
+    "@turf/bbox": ^6.5.0
+    classnames: ^2.3.2
     d3-format: ^3.1.0
+    transition-hook: ^1.5.2
   peerDependencies:
     "@blueprintjs/core": ^3.43.0 || ^4.3.0
     react: ^16.8.6||^17.0.0||^18.0.0
@@ -9396,6 +9399,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/bbox@npm:^6.5.0":
+  version: 6.5.0
+  resolution: "@turf/bbox@npm:6.5.0"
+  dependencies:
+    "@turf/helpers": ^6.5.0
+    "@turf/meta": ^6.5.0
+  checksum: 537be56ae0c5ad44e71a691717b35745e947e19a6bd9f20fdac2ab4318caf98cd88472d7dbf576e8b32ead5da034d273ffb3f4559d6d386820ddcb88a1f7fedd
+  languageName: node
+  linkType: hard
+
 "@turf/centroid@npm:^6.5.0":
   version: 6.5.0
   resolution: "@turf/centroid@npm:6.5.0"
@@ -12968,6 +12981,13 @@ __metadata:
   version: 2.3.1
   resolution: "classnames@npm:2.3.1"
   checksum: 14db8889d56c267a591f08b0834989fe542d47fac659af5a539e110cc4266694e8de86e4e3bbd271157dbd831361310a8293e0167141e80b0f03a0f175c80960
+  languageName: node
+  linkType: hard
+
+"classnames@npm:^2.3.2":
+  version: 2.3.2
+  resolution: "classnames@npm:2.3.2"
+  checksum: 2c62199789618d95545c872787137262e741f9db13328e216b093eea91c85ef2bfb152c1f9e63027204e2559a006a92eb74147d46c800a9f96297ae1d9f96f4e
   languageName: node
   linkType: hard
 
@@ -31508,6 +31528,16 @@ __metadata:
   version: 0.0.3
   resolution: "tr46@npm:0.0.3"
   checksum: 726321c5eaf41b5002e17ffbd1fb7245999a073e8979085dacd47c4b4e8068ff5777142fc6726d6ca1fd2ff16921b48788b87225cbc57c72636f6efa8efbffe3
+  languageName: node
+  linkType: hard
+
+"transition-hook@npm:^1.5.2":
+  version: 1.5.2
+  resolution: "transition-hook@npm:1.5.2"
+  peerDependencies:
+    react: ^16.8.0  || ^17.0.0
+    react-dom: ^16.8.0  || ^17.0.0
+  checksum: 7b4ceb76b61dd3f34bb454181d914e3f21b40238db7b6712411fcd460a72c63d8807ee33a8169337473b65d32f268d89808e68485555bb73c219830dd2a9d14f
   languageName: node
   linkType: hard
 
