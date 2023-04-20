@@ -24,6 +24,6 @@ export function FlexCol(props) {
   return h(FlexBox, { display: "flex", flexDirection: "row", ...props });
 }
 
-export function FlexSpacer(props) {
+export function Spacer(props) {
   return h(FlexBox, { flex: 1, ...props });
 }

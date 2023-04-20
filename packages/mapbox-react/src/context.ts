@@ -3,16 +3,19 @@ import {
   useContext,
   RefObject,
   useRef,
-  useState,
+  useCallback,
   useMemo,
+  useReducer,
 } from "react";
 import { Map } from "mapbox-gl";
 import h from "@macrostrat/hyper";
+import { MapPosition } from "@macrostrat/mapbox-utils";
 
 interface MapStatus {
   isLoading: boolean;
   isInitialized: boolean;
   isStyleLoaded: boolean;
+  mapPosition: MapPosition;
 }
 
 interface MapCtx {
@@ -26,14 +29,11 @@ const MapContext = createContext<MapCtx>({
     isLoading: false,
     isInitialized: false,
     isStyleLoaded: false,
+    mapPosition: null,
   },
 });
 
-const MapActionContext = createContext({
-  setMap: (map: Map) => {},
-  setStyleLoaded: (isLoaded: boolean) => {},
-  setLoading: (isLoading: boolean) => {},
-});
+const MapDispatchContext = createContext<React.Dispatch<MapAction>>(null);
 
 export function useMapRef() {
   return useContext(MapContext).mapRef;
@@ -51,40 +51,59 @@ export function useMap(): Map | null {
   return useMapRef().current;
 }
 
-export function useMapActions() {
-  return useContext(MapActionContext);
+export function useMapDispatch() {
+  return useContext(MapDispatchContext);
+}
+
+type MapAction =
+  | { type: "set-loading"; payload: boolean }
+  | { type: "set-initialized"; payload: boolean }
+  | { type: "set-style-loaded"; payload: boolean }
+  | { type: "map-moved"; payload: MapPosition };
+
+type MapActionExt = MapAction | { type: "set-map"; payload: Map };
+
+function mapReducer(state: MapStatus, action: MapAction): MapStatus {
+  switch (action.type) {
+    case "set-loading":
+      return { ...state, isLoading: action.payload };
+    case "set-initialized":
+      return { ...state, isInitialized: action.payload };
+    case "set-style-loaded":
+      return { ...state, isStyleLoaded: action.payload };
+    case "map-moved":
+      return { ...state, mapPosition: action.payload };
+  }
 }
 
 export function MapboxMapProvider({ children }) {
   const mapRef = useRef<Map | null>();
-  const [status, setStatus] = useState<MapStatus>({
+  const [status, dispatch] = useReducer(mapReducer, {
     isLoading: false,
     isInitialized: false,
     isStyleLoaded: false,
+    mapPosition: null,
   });
 
   const value = useMemo(() => {
     return { mapRef, status };
   }, [mapRef, status]);
 
-  const actionContext = useMemo(() => {
-    return {
-      setMap: (map: Map) => {
-        mapRef.current = map;
-        setStatus((s) => ({ ...s, isInitialized: true }));
-      },
-      setStyleLoaded: () => {
-        setStatus((s) => ({ ...s, isStyleLoaded: true }));
-      },
-      setLoading: (isLoading: boolean) => {
-        setStatus((s) => ({ ...s, isLoading }));
-      },
-    };
-  }, []);
+  const mapDispatch = useCallback(
+    (action: MapActionExt) => {
+      if (action.type == "set-map") {
+        mapRef.current = action.payload;
+        dispatch({ type: "set-initialized", payload: true });
+      } else {
+        dispatch(action);
+      }
+    },
+    [dispatch]
+  );
 
   return h(
-    MapActionContext.Provider,
-    { value: actionContext },
+    MapDispatchContext.Provider,
+    { value: mapDispatch },
     h(MapContext.Provider, { value }, children)
   );
 }

@@ -11,6 +11,7 @@ import { mapViewInfo, MapPosition } from "@macrostrat/mapbox-utils";
 import { ReactNode } from "react";
 
 export * from "./location-panel";
+export * from "./context-panel";
 export * from "./styles";
 
 export function MapInterface() {
@@ -55,11 +56,13 @@ export function MapAreaContainer({
   const contextPanelTrans = useTransition(contextPanelOpen, 800);
   const detailPanelTrans = useTransition(_detailPanelOpen, 800);
 
-  /* We apply a custom style to the panel container when we are interacting
-    with the search bar, so that we can block map interactions until search
-    bar focus is lost.
-    We also apply a custom style when the infodrawer is open so we can hide
-    the search bar on mobile platforms
+  /*- We apply a custom style to the panel container when we are interacting
+      with the search bar, so that we can block map interactions until search
+      bar focus is lost.
+    - We also apply a custom style when the infodrawer is open so we can hide
+      the search bar on mobile platforms
+    - These styles are doubly applied so we can have both namespaced and
+      outside-accessible styles for each case.
   */
   const _className = classNames(
     {

@@ -1,4 +1,9 @@
-import { useMapRef, useMapEaseToCenter } from "@macrostrat/mapbox-react";
+import {
+  useMapRef,
+  useMapEaseToCenter,
+  useMapDispatch,
+  useMapStatus,
+} from "@macrostrat/mapbox-react";
 import { useRef } from "react";
 import { debounce } from "underscore";
 import useResizeObserver from "use-resize-observer";
@@ -65,14 +70,17 @@ export function MapPaddingManager({
   return null;
 }
 
-export function MapMovedReporter({ onMapMoved }) {
+export function MapMovedReporter({ onMapMoved = null }) {
   const mapRef = useMapRef();
+  const dispatch = useMapDispatch();
 
   const mapMovedCallback = useCallback(() => {
     const map = mapRef.current;
     if (map == null) return;
-    onMapMoved(getMapPosition(map), map);
-  }, [mapRef.current, onMapMoved]);
+    const mapPosition = getMapPosition(map);
+    dispatch({ type: "map-moved", payload: mapPosition });
+    onMapMoved?.(mapPosition, map);
+  }, [mapRef.current, onMapMoved, dispatch]);
 
   useEffect(() => {
     // Get the current value of the map. Useful for gradually moving away
@@ -92,14 +100,17 @@ export function MapMovedReporter({ onMapMoved }) {
 
 export function MapLoadingReporter({
   ignoredSources,
-  onMapLoading,
-  onMapIdle,
+  onMapLoading = null,
+  onMapIdle = null,
   mapIsLoading,
 }) {
   const mapRef = useMapRef();
+  const loadingRef = useRef(false);
+  const dispatch = useMapDispatch();
 
   useEffect(() => {
     const map = mapRef.current;
+    const mapIsLoading = loadingRef.current;
     if (map == null) return;
 
     let didSendLoading = false;
@@ -108,10 +119,14 @@ export function MapLoadingReporter({
       if (ignoredSources.includes(evt.sourceId) || mapIsLoading) return;
       if (didSendLoading) return;
       onMapLoading?.(evt);
+      dispatch({ type: "set-loading", payload: true });
+      loadingRef.current = true;
       didSendLoading = true;
     };
     const idleCallback = (evt) => {
       if (!mapIsLoading) return;
+      dispatch({ type: "set-loading", payload: false });
+      loadingRef.current = false;
       onMapIdle?.(evt);
     };
     map.on("sourcedataloading", loadingCallback);
