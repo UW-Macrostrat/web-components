@@ -28,7 +28,6 @@
     "babel-jest": "^27.4.6",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.4.7",
-    "react": "^17.0.2",
     "rollup": "^2.66.1",
     "rollup-plugin-dts": "^4.1.0",
     "rollup-plugin-peer-deps-external": "^2.2.4",
@@ -37,7 +36,7 @@
     "typescript": "^4.5.5"
   },
   "peerDependencies": {
-    "react": "^16||^17.0.2"
+    "react": "^17.0.2||^18"
   },
   "dependencies": {
     "@blueprintjs/core": "^4.17.8",

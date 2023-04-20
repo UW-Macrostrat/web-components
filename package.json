@@ -26,12 +26,10 @@
     "@macrostrat/ui-components": "./packages/ui-components/src",
     "@macrostrat/api-views": "./packages/api-views/src",
     "@macrostrat/timescale": "./packages/timescale/src",
-    "@macrostrat/concept-app-helpers": "./packages/concept-app-helpers/src",
     "@macrostrat/mapbox-react": "./packages/mapbox-react/src",
     "@macrostrat/mapbox-styles": "./packages/mapbox-styles/src",
     "@macrostrat/mapbox-utils": "./packages/mapbox-utils/src",
-    "@macrostrat/map-interface": "./packages/map-interface/src",
-    "common": "./packages/common/src"
+    "@macrostrat/map-interface": "./packages/map-interface/src"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",

@@ -39,7 +39,7 @@
   },
   "peerDependencies": {
     "@blueprintjs/core": "^4.3.0",
-    "react": "^16.8.6||^17.0.2"
+    "react": "^16.8.6||^17.0.2||^18"
   },
   "dependencies": {
     "@macrostrat/hyper": "^2.0.1",

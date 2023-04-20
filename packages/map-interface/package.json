@@ -8,6 +8,7 @@
     "@macrostrat/hyper": "^2.2.1",
     "@mapbox/tilebelt": "^1.0.2",
     "@turf/bbox": "^6.5.0",
+    "chroma-js": "^2.4.2",
     "classnames": "^2.3.2",
     "d3-format": "^3.1.0",
     "transition-hook": "^1.5.2"

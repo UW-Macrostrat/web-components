@@ -16,7 +16,7 @@
     "classnames": "^2.3.1",
     "d3-array": "^2.12.1",
     "immutability-helper": "^3.1.1",
-    "react": "^17.0.2",
+    "react": "^17.0.2||^18",
     "react-color": "^2.19.3",
     "react-datasheet": "^1.4.9",
     "react-dnd": "^14.0.2",

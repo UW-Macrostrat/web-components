@@ -13,6 +13,7 @@ import { ReactNode } from "react";
 export * from "./location-panel";
 export * from "./context-panel";
 export * from "./styles";
+export * from "./dev";
 
 export function MapInterface() {
   return h("div", "Hello world");
