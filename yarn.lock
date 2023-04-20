@@ -5416,6 +5416,7 @@ __metadata:
     react-json-tree: ^0.15.0
     sass: ^1.50.0
     typescript: ^4.4.4
+    ui-box: ^5.4.1
     underscore: ^1.9.1
     use-async-effect: ^2.2.1
     use-element-dimensions: ^2.1.3
@@ -32092,6 +32093,19 @@ __metadata:
   peerDependencies:
     react: ^16.0.0
   checksum: bdd6e0cbde012a81d1d287db117b50ac535783253f6cb66f16eb4f9f6214b46525ca05735846f3b268143d865acc277e3ec99660d594d84fcb5e46542c00cbd9
+  languageName: node
+  linkType: hard
+
+"ui-box@npm:^5.4.1":
+  version: 5.4.1
+  resolution: "ui-box@npm:5.4.1"
+  dependencies:
+    "@emotion/hash": ^0.7.1
+    inline-style-prefixer: ^5.0.4
+    prop-types: ^15.7.2
+  peerDependencies:
+    react: ^16.0.0 || ^17.0.0 || ^18.0.0
+  checksum: 13c1234583c123f65e80ad3ef68a8a67d9e25af64772df358289280493b2d72b6c438d5650915cf2d0c10cb74a3de6be7f0c912a486ffe91ab641eb57a939285
   languageName: node
   linkType: hard
 

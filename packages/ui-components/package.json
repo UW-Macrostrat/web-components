@@ -45,6 +45,7 @@
     "react-intersection-observer": "^8.32.1",
     "react-json-tree": "^0.15.0",
     "sass": "^1.50.0",
+    "ui-box": "^5.4.1",
     "underscore": "^1.9.1",
     "use-async-effect": "^2.2.1",
     "use-element-dimensions": "^2.1.3"
