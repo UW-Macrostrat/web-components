@@ -19,8 +19,7 @@ import {
 } from "./vector-tile-features";
 import { TileExtentLayer } from "./tile-extent";
 import { MapPosition } from "@macrostrat/mapbox-utils";
-import styles from "../main.module.styl";
-import { ParentRouteButton } from "./utils";
+import styles from "./main.module.sass";
 
 export enum MacrostratVectorTileset {
   Carto = "carto",
@@ -169,7 +168,7 @@ export function DevMapPage({
     MapAreaContainer,
     {
       navbar: h(FloatingNavbar, { className: "searchbar" }, [
-        h([h(ParentRouteButton), headerElement ?? h("h2", title)]),
+        headerElement ?? h("h2", title),
         h("div.spacer"),
         h(LoaderButton, {
           active: isOpen,

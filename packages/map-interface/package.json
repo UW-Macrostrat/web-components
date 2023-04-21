@@ -11,10 +11,14 @@
     "chroma-js": "^2.4.2",
     "classnames": "^2.3.2",
     "d3-format": "^3.1.0",
-    "transition-hook": "^1.5.2"
+    "transition-hook": "^1.5.2",
+    "use-resize-observer": "^9.1.0"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.43.0 || ^4.3.0",
     "react": "^16.8.6||^17.0.0||^18.0.0"
+  },
+  "exports": {
+    "typescript": "./src/index.ts"
   }
 }

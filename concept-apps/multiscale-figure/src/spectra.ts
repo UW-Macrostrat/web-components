@@ -1,9 +1,6 @@
 import h from "@macrostrat/hyper";
-import {
-  useColumnDivisions,
-  Padding,
-  extractPadding,
-} from "@macrostrat/column-components";
+import { useColumnDivisions } from "@macrostrat/column-components";
+import { Padding, extractPadding } from "@macrostrat/ui-components";
 import { AnnotatedUnitsColumn } from "@macrostrat/column-views";
 import { useMeasurementData } from "@macrostrat/concept-app-helpers";
 import { createContext, useContext, useMemo } from "react";

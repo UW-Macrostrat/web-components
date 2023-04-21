@@ -46,6 +46,9 @@
     "d3-array": "^2.5.1",
     "d3-format": "^2.0.0"
   },
+  "exports": {
+    "typescript": "./src/index.ts"
+  },
   "peerDependencies": {
     "react": "^16.13.1||^17||^18",
     "react-dom": "^16.13.1||^17||^18"

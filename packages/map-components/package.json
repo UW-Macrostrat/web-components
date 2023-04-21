@@ -158,5 +158,8 @@
   "peerDependencies": {
     "react": "^16.11.0||^17.0.0||^18.0.0",
     "react-dom": "^16.11.0||^17.0.0||^18.0.0"
+  },
+  "exports": {
+    "typescript": "./src/index.ts"
   }
 }

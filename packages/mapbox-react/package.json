@@ -29,5 +29,8 @@
     "dev": "parcel watch",
     "build": "parcel build"
   },
-  "browserslist": "defaults"
+  "browserslist": "defaults",
+  "exports": {
+    "typescript": "./src/index.ts"
+  }
 }

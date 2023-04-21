@@ -20,5 +20,8 @@
     "axios": "^0.27.2",
     "mapbox-gl": "^2.0.0"
   },
+  "exports": {
+    "typescript": "./src/index.ts"
+  },
   "browserslist": "defaults"
 }

@@ -10,6 +10,9 @@
   ],
   "main": "./dist/cjs",
   "module": "./dist/esm",
+  "exports": {
+    "typescript": "./src/index.ts"
+  },
   "style": "./dist/esm/index.css",
   "typings": "./dist/types/index.d.ts",
   "type": "module",

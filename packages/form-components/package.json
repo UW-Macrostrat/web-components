@@ -56,5 +56,8 @@
   "files": [
     "dist"
   ],
-  "types": "dist/index.d.ts"
+  "types": "dist/index.d.ts",
+  "exports": {
+    "typescript": "./src/index.ts"
+  }
 }
