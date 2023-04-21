@@ -33,7 +33,7 @@ const MapContext = createContext<MapCtx>({
   },
 });
 
-const MapDispatchContext = createContext<React.Dispatch<MapAction>>(null);
+const MapDispatchContext = createContext<React.Dispatch<MapActionExt>>(null);
 
 export function useMapRef() {
   return useContext(MapContext).mapRef;

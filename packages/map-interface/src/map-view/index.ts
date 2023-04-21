@@ -1,6 +1,14 @@
 import hyper from "@macrostrat/hyper";
-import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
-import { mapViewInfo } from "@macrostrat/mapbox-utils";
+import {
+  useMapRef,
+  useMapStatus,
+  useMapDispatch,
+} from "@macrostrat/mapbox-react";
+import {
+  mapViewInfo,
+  MapPosition,
+  setMapPosition,
+} from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef } from "react";
@@ -22,12 +30,42 @@ export interface MapViewProps {
   terrainSourceID?: string;
   enableTerrain?: boolean;
   infoMarkerPosition?: mapboxgl.LngLatLike;
+  style: mapboxgl.Style | string;
+  transformRequest?: mapboxgl.TransformRequestFunction;
+  mapPosition?: MapPosition;
 }
+
+function initializeMap(container, args = {}) {
+  const map = new mapboxgl.Map({
+    container,
+    maxZoom: 18,
+    //maxTileCacheSize: 0,
+    logoPosition: "bottom-left",
+    trackResize: true,
+    antialias: true,
+    optimizeForTerrain: true,
+    ...args,
+  });
+
+  //setMapPosition(map, mapPosition);
+  return map;
+}
+
+const defaultMapPosition: MapPosition = {
+  camera: {
+    lat: 34,
+    lng: -120,
+    altitude: 300000,
+  },
+};
 
 export function MapView(props: MapViewProps) {
   let { terrainSourceID } = props;
   const {
     enableTerrain = true,
+    style,
+    transformRequest,
+    mapPosition = defaultMapPosition,
     children,
     accessToken,
     infoMarkerPosition,
@@ -36,15 +74,37 @@ export function MapView(props: MapViewProps) {
     terrainSourceID ??= "mapbox-3d-dem";
   }
 
-  const { mapPosition } = useMapStatus();
-
   if (accessToken != null) {
     mapboxgl.accessToken = accessToken;
   }
 
+  const dispatch = useMapDispatch();
+  let mapRef = useMapRef();
   const ref = useRef<HTMLDivElement>();
   const parentRef = useRef<HTMLDivElement>();
-  const { mapUse3D, mapIsRotated } = mapViewInfo(mapPosition);
+
+  useEffect(() => {
+    if (style == null || ref.current == null || dispatch == null) return;
+    console.log("Initializing map");
+    const map = initializeMap(ref.current, { style, transformRequest });
+    dispatch({ type: "set-map", payload: map });
+    console.log("Map initialized");
+  }, [style, transformRequest, dispatch]);
+
+  // Map style updating
+  useEffect(() => {
+    if (mapRef?.current == null || style == null) return;
+    mapRef?.current?.setStyle(style);
+  }, [mapRef.current, style]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null || mapPosition == null) return;
+    setMapPosition(map, mapPosition);
+  }, [mapRef.current]);
+
+  const { mapPosition: _computedMapPosition } = useMapStatus();
+  const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
 
   const className = classNames({
     "is-rotated": mapIsRotated ?? false,

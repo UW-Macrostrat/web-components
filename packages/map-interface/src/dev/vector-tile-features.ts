@@ -1,5 +1,5 @@
 import { Spinner, Switch } from "@blueprintjs/core";
-import { useMapRef } from "@macrostrat/mapbox-react";
+import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
 import mapboxgl from "mapbox-gl";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
@@ -39,7 +39,7 @@ export function FeatureSelectionHandler({
   setFeatures: (features: mapboxgl.MapboxGeoJSONFeature[]) => void;
 }) {
   const mapRef = useMapRef();
-  const isLoading = useAppState((state) => state.core.mapIsLoading);
+  const { isLoading } = useMapStatus();
   const prevLocation = usePrevious(selectedLocation);
 
   useEffect(() => {

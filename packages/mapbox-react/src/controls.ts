@@ -10,23 +10,23 @@ import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
 import { useMapElement, useMapRef } from "./context";
 
-export function MapControlWrapper({ className, control, options }) {
+export function MapControlWrapper({ className, control, options = {} }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
-  const map = useMapRef();
+  const mapRef = useMapRef();
   const controlContainer = useRef<HTMLDivElement>();
   const controlRef = useRef<Base>();
 
   useEffect(() => {
-    if (map.current == null) return;
+    if (mapRef.current == null) return;
     const ctrl = new control(options);
 
     controlRef.current = ctrl;
-    const controlElement = ctrl.onAdd(map.current);
+    const controlElement = ctrl.onAdd(mapRef.current);
     controlContainer.current.appendChild(controlElement);
     return () => {
       controlRef.current?.onRemove();
     };
-  }, [map.current, controlRef, controlContainer, options]);
+  }, [mapRef.current, controlContainer.current, control, options]);
 
   return h("div.map-control-wrapper", { className, ref: controlContainer });
 }
