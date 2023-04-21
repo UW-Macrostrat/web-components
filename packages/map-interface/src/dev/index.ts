@@ -1,12 +1,17 @@
 // Import other components
 import hyper from "@macrostrat/hyper";
-import { useDarkMode, Spacer } from "@macrostrat/ui-components";
+import {
+  useDarkMode,
+  Spacer,
+  useStoredState,
+  DarkModeButton,
+} from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { FloatingNavbar, MapLoadingButton } from "../context-panel";
 import { LocationPanel } from "../location-panel";
 import { MapAreaContainer } from "../container";
-import { Card } from "@blueprintjs/core";
+import { Card, Switch } from "@blueprintjs/core";
 import classNames from "classnames";
 import { MapView } from "../map-view";
 import { MapMarker } from "../helpers";
@@ -45,7 +50,7 @@ export function DevMapPage({
   transformRequest = null,
   mapboxToken = null,
   children,
-  style = "mapbox://styles/mapbox/light-v10",
+  style,
 }: {
   headerElement?: React.ReactElement;
   transformRequest?: mapboxgl.TransformRequestFunction;
@@ -61,14 +66,24 @@ export function DevMapPage({
     the search bar on mobile platforms
   */
 
+  const dark = useDarkMode();
+  const isEnabled = dark?.isEnabled;
+
   if (mapboxToken != null) {
     mapboxgl.accessToken = mapboxToken;
   }
 
+  style ??= isEnabled
+    ? "mapbox://styles/mapbox/dark-v10"
+    : "mapbox://styles/mapbox/light-v10";
+
   const [isOpen, setOpen] = useState(false);
 
-  const [state, setState] = useState({ showTileExtent: false });
-  const { showTileExtent } = state;
+  const [state, setState] = useStoredState("macrostrat:vector-map-inspector", {
+    showTileExtent: false,
+    xRay: false,
+  });
+  const { showTileExtent, xRay } = state;
 
   const [inspectPosition, setInspectPosition] =
     useState<mapboxgl.LngLat | null>(null);
@@ -102,8 +117,6 @@ export function DevMapPage({
     );
   }
 
-  const isEnabled = useDarkMode()?.isEnabled;
-
   let tile = null;
   if (showTileExtent && data?.[0] != null) {
     let f = data[0];
@@ -113,7 +126,7 @@ export function DevMapPage({
   return h(
     MapAreaContainer,
     {
-      navbar: h(FloatingNavbar, { className: "searchbar" }, [
+      navbar: h(FloatingNavbar, [
         headerElement ?? h("h2", title),
         h(Spacer),
         h(MapLoadingButton, {
@@ -121,7 +134,16 @@ export function DevMapPage({
           onClick: () => setOpen(!isOpen),
         }),
       ]),
-      contextPanel: h(PanelCard, [children]),
+      contextPanel: h(PanelCard, [
+        h(Switch, {
+          checked: xRay,
+          label: "X-ray mode",
+          onChange() {
+            setState({ ...state, xRay: !xRay });
+          },
+        }),
+        children,
+      ]),
       detailPanel: detailElement,
       contextPanelOpen: isOpen,
     },
