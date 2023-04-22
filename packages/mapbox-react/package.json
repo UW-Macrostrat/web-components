@@ -15,6 +15,7 @@
     "@blueprintjs/core": "^4.17.8",
     "@macrostrat/hyper": "^2.2.1",
     "@macrostrat/mapbox-utils": "^1.0.0",
+    "@turf/bbox": "^6.5.0",
     "@turf/centroid": "^6.5.0",
     "@types/mapbox-gl": "^2.7.5",
     "classnames": "^2.3.1",
