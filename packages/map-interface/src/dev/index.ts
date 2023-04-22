@@ -1,28 +1,26 @@
 // Import other components
+import { Switch } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import {
-  useDarkMode,
   Spacer,
-  useStoredState,
-  DarkModeButton,
+  useDarkMode,
+  useStoredState
 } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
-import { useCallback, useEffect, useState, useMemo } from "react";
+import { useCallback, useState } from "react";
+import { MapAreaContainer, PanelCard } from "../container";
 import { FloatingNavbar, MapLoadingButton } from "../context-panel";
-import { LocationPanel } from "../location-panel";
-import { MapAreaContainer } from "../container";
-import { Card, Switch } from "@blueprintjs/core";
-import classNames from "classnames";
-import { MapView } from "../map-view";
 import { MapMarker } from "../helpers";
+import { LocationPanel } from "../location-panel";
+import { MapView } from "../map-view";
 
+import styles from "./main.module.sass";
+import { TileExtentLayer } from "./tile-extent";
 import {
   FeaturePanel,
   FeatureSelectionHandler,
   TileInfo,
 } from "./vector-tile-features";
-import { TileExtentLayer } from "./tile-extent";
-import styles from "./main.module.sass";
 
 export enum MacrostratVectorTileset {
   Carto = "carto",
@@ -37,8 +35,6 @@ export enum MacrostratRasterTileset {
 
 export const h = hyper.styled(styles);
 
-export const PanelCard = (props) =>
-  h(Card, { ...props, className: classNames("panel-card", props.className) });
 
 interface DevMapViewProps {
   accessToken?: string;

@@ -2860,6 +2860,35 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blueprintjs/core@npm:^4.18.0":
+  version: 4.18.0
+  resolution: "@blueprintjs/core@npm:4.18.0"
+  dependencies:
+    "@blueprintjs/colors": ^4.1.22
+    "@blueprintjs/icons": ^4.15.0
+    "@juggle/resize-observer": ^3.4.0
+    "@types/dom4": ^2.0.2
+    classnames: ^2.3.1
+    dom4: ^2.1.5
+    normalize.css: ^8.0.1
+    popper.js: ^1.16.1
+    react-popper: ^1.3.11
+    react-transition-group: ^4.4.5
+    tslib: ~2.5.0
+  peerDependencies:
+    "@types/react": ^16.14.32 || 17 || 18
+    react: ^16.8 || 17 || 18
+    react-dom: ^16.8 || 17 || 18
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  bin:
+    upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
+    upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
+  checksum: 62e4dfc7aa49daf7372df3d419dc31b75df8aa67310834c8a100cc57e22de2e94d0b49e352f9da24ecaefc41b3f31727c9cf6750abf31afa19dce89c0ec2a122
+  languageName: node
+  linkType: hard
+
 "@blueprintjs/core@npm:^4.6.0":
   version: 4.6.0
   resolution: "@blueprintjs/core@npm:4.6.0"
@@ -2934,6 +2963,17 @@ __metadata:
     classnames: ^2.3.1
     tslib: ~2.5.0
   checksum: 97a9d901d5adbc4e75438c48546b486d755bedfcc915445c995d0f7b3616503a26365cb11ec8a2c662b0b468159377fb274c32f9fda4a176c0425c3762390d1b
+  languageName: node
+  linkType: hard
+
+"@blueprintjs/icons@npm:^4.15.0":
+  version: 4.15.0
+  resolution: "@blueprintjs/icons@npm:4.15.0"
+  dependencies:
+    change-case: ^4.1.2
+    classnames: ^2.3.1
+    tslib: ~2.5.0
+  checksum: b4616563d0e5e1cc374655b7f5d3f3c39e26e3aecbd08dc7dcf7956142f5b5d81591e5f15dbf76f3f48b8160009a8a50cfefe383526f5f9bd02b64dc9699e439
   languageName: node
   linkType: hard
 
@@ -4952,6 +4992,7 @@ __metadata:
     postcss-modules: ^4.3.0
     prop-types: ^15.7.2
     react-color: ^2.18.0
+    react-dom: ^16.12.0||^17.0.0||^18
     react-draggable: ^4.4.5
     react-hyperscript: ^3.2.0
     react-images: ^1.1.0-beta.1
@@ -4967,9 +5008,8 @@ __metadata:
     uuid: ^7.0.3
   peerDependencies:
     "@blueprintjs/core": ^3.44.1||^4.3.0
-    "@macrostrat/ui-components": ^1.0.0
+    "@macrostrat/ui-components": "workspace:*"
     react: ^16.12.0||^17.0.0||^18
-    react-dom: ^16.12.0||^17.0.0||^18
   languageName: unknown
   linkType: soft
 
@@ -5216,6 +5256,8 @@ __metadata:
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
     "@macrostrat/hyper": ^2.2.1
+    "@macrostrat/mapbox-react": "workspace:*"
+    "@macrostrat/mapbox-utils": "workspace:*"
     "@mapbox/tilebelt": ^1.0.2
     "@turf/bbox": ^6.5.0
     chroma-js: ^2.4.2
@@ -5229,7 +5271,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/mapbox-react@workspace:packages/mapbox-react":
+"@macrostrat/mapbox-react@workspace:*, @macrostrat/mapbox-react@workspace:packages/mapbox-react":
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:
@@ -5262,7 +5304,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/mapbox-utils@^1.0.0, @macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
+"@macrostrat/mapbox-utils@^1.0.0, @macrostrat/mapbox-utils@workspace:*, @macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-utils@workspace:packages/mapbox-utils"
   dependencies:
@@ -5313,6 +5355,7 @@ __metadata:
   resolution: "@macrostrat/style-system@workspace:packages/style-system"
   dependencies:
     "@blueprintjs/colors": ^4.1.22
+    "@blueprintjs/core": ^4.18.0
     sass: ^1.32.8
   languageName: unknown
   linkType: soft
@@ -5429,6 +5472,7 @@ __metadata:
     io-ts: ^2.1.2
     query-string: ^7.0.0
     react-color: ^2.19.3
+    react-dom: ^16.8.6 || ^17 || ^18
     react-dropzone: ^11.4.2
     react-intersection-observer: ^8.32.1
     react-json-tree: ^0.15.0
@@ -5441,7 +5485,6 @@ __metadata:
   peerDependencies:
     "@types/react-dom": ^17 || ^18
     react: ^16.8.6 || ^17 || ^18
-    react-dom: ^16.8.6 || ^17 || ^18
   languageName: unknown
   linkType: soft
 
@@ -27612,6 +27655,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-dom@npm:^16.12.0||^17.0.0||^18, react-dom@npm:^16.8.6 || ^17 || ^18, react-dom@npm:^17.0.0||^18":
+  version: 18.2.0
+  resolution: "react-dom@npm:18.2.0"
+  dependencies:
+    loose-envify: ^1.1.0
+    scheduler: ^0.23.0
+  peerDependencies:
+    react: ^18.2.0
+  checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
+  languageName: node
+  linkType: hard
+
 "react-dom@npm:^17":
   version: 17.0.2
   resolution: "react-dom@npm:17.0.2"
@@ -27622,18 +27677,6 @@ __metadata:
   peerDependencies:
     react: 17.0.2
   checksum: 1c1eaa3bca7c7228d24b70932e3d7c99e70d1d04e13bb0843bbf321582bc25d7961d6b8a6978a58a598af2af496d1cedcfb1bf65f6b0960a0a8161cb8dab743c
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^17.0.0||^18":
-  version: 18.2.0
-  resolution: "react-dom@npm:18.2.0"
-  dependencies:
-    loose-envify: ^1.1.0
-    scheduler: ^0.23.0
-  peerDependencies:
-    react: ^18.2.0
-  checksum: 7d323310bea3a91be2965f9468d552f201b1c27891e45ddc2d6b8f717680c95a75ae0bc1e3f5cf41472446a2589a75aed4483aee8169287909fcd59ad149e8cc
   languageName: node
   linkType: hard
 

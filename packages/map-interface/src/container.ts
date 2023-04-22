@@ -7,6 +7,7 @@ import { MapboxMapProvider, ZoomControl } from "@macrostrat/mapbox-react";
 import { ToasterContext } from "@macrostrat/ui-components";
 import { MapBottomControls } from "./controls";
 import { mapViewInfo, MapPosition } from "@macrostrat/mapbox-utils";
+import { Card } from "@blueprintjs/core";
 
 import { ReactNode } from "react";
 
@@ -22,6 +23,10 @@ export function MapInterface() {
 const h = hyper.styled(styles);
 
 type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
+
+
+export const PanelCard = (props) =>
+  h(Card, { ...props, className: classNames("panel-card", props.className) });
 
 export function MapAreaContainer({
   children,
