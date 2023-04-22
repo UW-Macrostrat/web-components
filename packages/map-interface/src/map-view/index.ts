@@ -89,6 +89,10 @@ export function MapView(props: MapViewProps) {
     const map = initializeMap(ref.current, { style, transformRequest });
     dispatch({ type: "set-map", payload: map });
     console.log("Map initialized");
+    return () => {
+      map.remove();
+      dispatch({ type: "set-map", payload: null });
+    };
   }, [style, transformRequest, dispatch]);
 
   // Map style updating

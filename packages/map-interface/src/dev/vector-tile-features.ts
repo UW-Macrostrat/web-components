@@ -144,10 +144,16 @@ function UnitNumber({ value, unit, precision = 1 }) {
   ]);
 }
 
-export function FeaturePanel({ features }) {
+export function FeaturePanel({ features, focusedSource = null, focusedSourceTitle = null }) {
   if (features == null) return null;
-  return h("div.feature-panel", [
-    h(
+
+  let focusedSourcePanel = null;
+  let filteredFeatures = features;
+  let title = "Features";
+
+  if (focusedSource != null) {
+    title = "Basemap features"
+    focusedSourcePanel = h(
       ExpansionPanel,
       {
         title: "Macrostrat features",
@@ -157,16 +163,22 @@ export function FeaturePanel({ features }) {
       [
         h(LoadingAwareFeatureSet, {
           features,
-          sourceID: "burwell",
+          sourceID: focusedSource,
         }),
       ]
-    ),
+    )
+    filteredFeatures = features.filter((d) => d.source != focusedSource);
+  }
+
+
+  return h("div.feature-panel", [
+    focusedSourcePanel,
     h(
       ExpansionPanel,
-      { title: "Basemap features", className: "basemap-features" },
+      { title, className: "basemap-features", expanded: focusedSource == null },
       [
         h(Features, {
-          features: features.filter((d) => d.source != "burwell"),
+          features: filteredFeatures,
         }),
       ]
     ),

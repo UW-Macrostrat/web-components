@@ -7,13 +7,13 @@ import {
   useStoredState
 } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
+import { buildXRayStyle } from "./xray";
 import { MapAreaContainer, PanelCard } from "../container";
 import { FloatingNavbar, MapLoadingButton } from "../context-panel";
 import { MapMarker } from "../helpers";
 import { LocationPanel } from "../location-panel";
 import { MapView } from "../map-view";
-
 import styles from "./main.module.sass";
 import { TileExtentLayer } from "./tile-extent";
 import {
@@ -81,6 +81,16 @@ export function DevMapPage({
   });
   const { showTileExtent, xRay } = state;
 
+  const [actualStyle, setActualStyle] = useState(style);
+
+  useEffect(() => {
+    if (xRay) {
+      buildXRayStyle(style,{ mapboxToken, inDarkMode: isEnabled }).then(setActualStyle)
+    } else {
+      setActualStyle(style);
+    }
+  }, [style, xRay, mapboxToken, isEnabled]);
+
   const [inspectPosition, setInspectPosition] =
     useState<mapboxgl.LngLat | null>(null);
 
@@ -143,7 +153,7 @@ export function DevMapPage({
       detailPanel: detailElement,
       contextPanelOpen: isOpen,
     },
-    h(MapView, { style, transformRequest }, [
+    h(MapView, { style: actualStyle, transformRequest }, [
       h(FeatureSelectionHandler, {
         selectedLocation: inspectPosition,
         setFeatures: setData,

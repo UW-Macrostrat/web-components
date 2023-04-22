@@ -17,6 +17,6 @@ export function LocationPanel(props) {
   const cls = classNames("location-panel", className, { loading });
   return h(InfoDrawerContainer, { className: cls }, [
     h(InfoDrawerHeader, rest),
-    h("div.infodrawer-body", [h(ErrorBoundary, null, children)]),
+    h("div.infodrawer-body", h("div.infodrawer-contents", h(ErrorBoundary, null, children))),
   ]);
 }
