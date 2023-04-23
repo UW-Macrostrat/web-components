@@ -8,7 +8,7 @@ import {
 } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
 import { useCallback, useState, useEffect } from "react";
-import { buildXRayStyle } from "./xray";
+import { buildInspectorStyle, buildXRayStyle } from "./xray";
 import { MapAreaContainer, PanelCard } from "../container";
 import { FloatingNavbar, MapLoadingButton } from "../context-panel";
 import { MapMarker } from "../helpers";
@@ -21,6 +21,7 @@ import {
   FeatureSelectionHandler,
   TileInfo,
 } from "./vector-tile-features";
+import { MapPosition } from "@macrostrat/mapbox-utils";
 
 export enum MacrostratVectorTileset {
   Carto = "carto",
@@ -38,13 +39,17 @@ export const h = hyper.styled(styles);
 
 interface DevMapViewProps {
   accessToken?: string;
+  mapPosition?: MapPosition;
 }
+
 
 export function DevMapPage({
   title = "Map inspector",
   headerElement = null,
   transformRequest = null,
+  mapPosition = null,
   mapboxToken = null,
+  overlayStyle = null,
   children,
   style,
 }: {
@@ -54,6 +59,7 @@ export function DevMapPage({
   style: mapboxgl.Style | string;
   children?: React.ReactNode;
   mapboxToken?: string;
+  overlayStyle?: mapboxgl.Style | string;
 }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
@@ -84,12 +90,9 @@ export function DevMapPage({
   const [actualStyle, setActualStyle] = useState(style);
 
   useEffect(() => {
-    if (xRay) {
-      buildXRayStyle(style,{ mapboxToken, inDarkMode: isEnabled }).then(setActualStyle)
-    } else {
-      setActualStyle(style);
-    }
-  }, [style, xRay, mapboxToken, isEnabled]);
+    buildInspectorStyle(style, overlayStyle, { mapboxToken, inDarkMode: isEnabled, xRay })
+      .then(setActualStyle);
+  }, [style, xRay, mapboxToken, isEnabled, overlayStyle]);
 
   const [inspectPosition, setInspectPosition] =
     useState<mapboxgl.LngLat | null>(null);
@@ -153,7 +156,7 @@ export function DevMapPage({
       detailPanel: detailElement,
       contextPanelOpen: isOpen,
     },
-    h(MapView, { style: actualStyle, transformRequest }, [
+    h(MapView, { style: actualStyle, transformRequest, mapPosition}, [
       h(FeatureSelectionHandler, {
         selectedLocation: inspectPosition,
         setFeatures: setData,

@@ -83,8 +83,11 @@ export function MapView(props: MapViewProps) {
   const ref = useRef<HTMLDivElement>();
   const parentRef = useRef<HTMLDivElement>();
 
+  // Keep track of map position for reloads
+
   useEffect(() => {
     if (style == null || ref.current == null || dispatch == null) return;
+    if (mapRef?.current != null) return;
     console.log("Initializing map");
     const map = initializeMap(ref.current, { style, transformRequest });
     dispatch({ type: "set-map", payload: map });
@@ -93,7 +96,7 @@ export function MapView(props: MapViewProps) {
       map.remove();
       dispatch({ type: "set-map", payload: null });
     };
-  }, [style, transformRequest, dispatch]);
+  }, [transformRequest, dispatch, style]);
 
   // Map style updating
   useEffect(() => {

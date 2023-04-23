@@ -1,11 +1,12 @@
-import mapboxgl from "mapbox-gl";
-import { getMapboxStyle } from "@macrostrat/mapbox-utils";
+import { getMapboxStyle, mergeStyles } from "@macrostrat/mapbox-utils";
 import chroma from "chroma-js";
+import mapboxgl from "mapbox-gl";
 
 interface XRayOptions {
   color?: string;
   inDarkMode?: boolean;
   mapboxToken?: string;
+  xRaySources?: string[];
 }
 
 export async function buildXRayStyle(
@@ -16,13 +17,17 @@ export async function buildXRayStyle(
     inDarkMode = false,
     color = "rgb(74, 242, 161)",
     mapboxToken,
+    xRaySources
   } = params;
   const style = await getMapboxStyle(baseStyle, { access_token: mapboxToken });
-
-  const sources = Object.keys(style.sources);
+  const sources = xRaySources ?? Object.keys(style.sources);
 
   let layers = [];
   for (let layer of style.layers) {
+    if (!sources.includes(layer.source)) {
+      layers.push(layer);
+      continue;
+    }
     let newLayer = transformMapboxLayer(layer, color, inDarkMode);
     if (newLayer != null) {
       layers.push(newLayer);
@@ -77,4 +82,37 @@ function transformMapboxLayer(layer, color, inDarkMode) {
   }
 
   return newLayer;
+}
+
+type InspectorStyleOptions = XRayOptions & {
+  xRay?: boolean;
+};
+
+export async function buildInspectorStyle(
+  baseStyle: mapboxgl.Style | string,
+  overlayStyle: mapboxgl.Style | string | null = null,
+  params: InspectorStyleOptions = {}
+) {
+  const { mapboxToken, xRay = false, xRaySources: _xRaySources, ...rest } = params;
+  let xRaySources = _xRaySources;
+  let style = await getMapboxStyle(baseStyle, {
+    access_token: mapboxToken,
+  });
+
+  if (overlayStyle != null) {
+    const overlay = await getMapboxStyle(overlayStyle, {
+      access_token: mapboxToken,
+    });
+    style = mergeStyles(style, overlay);
+    xRaySources ??= Object.keys(overlay.sources);
+  }
+
+
+  if (xRay) {
+    // If we haven't specified sources, then we'll use all of them
+    xRaySources ??= Object.keys(style.sources);
+
+    style = await buildXRayStyle(style, { ...rest, mapboxToken, xRaySources });
+  }
+  return style;
 }
