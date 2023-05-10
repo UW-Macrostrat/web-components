@@ -70,11 +70,10 @@ export default {
     className: "stack",
     renderActivePanelOnly: true,
   },
-} as ComponentMeta<typeof PanelStack>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof PanelStack> = (args) =>
-  h(PanelStack, { ...args });
+const Template = (args) => h(PanelStack, { ...args });
 
 export const PanelStackExample = Template.bind({});
 PanelStackExample.args = {};

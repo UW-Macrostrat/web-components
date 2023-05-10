@@ -34,11 +34,10 @@ export default {
       iframeHeight: 345,
     },
   },
-} as ComponentMeta<typeof ThreeColumnLayout>;
+};
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof ThreeColumnLayout> = (args) =>
-  h(ThreeColumnLayout, { ...args });
+const Template = (args) => h(ThreeColumnLayout, { ...args });
 
 export const ThreePanelLayout = Template.bind({});
 

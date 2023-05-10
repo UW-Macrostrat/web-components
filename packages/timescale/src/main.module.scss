@@ -1,0 +1,122 @@
+.interval {
+  display: flex;
+}
+.interval-box {
+  position: relative;
+}
+.timescale-container {
+  display: flex;
+  position: relative;
+  box-sizing: border-box;
+  --timescale-cursor-color: #000;
+  --timescale-level-size: 2em;
+  --timescale-level-width: var(--timescale-level-size);
+  --timescale-level-height: var(--timescale-level-size);
+}
+.timescale-container .interval-box {
+  margin: 0.5px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.timescale-container .interval-box:last-child {
+  flex: 1;
+}
+.timescale-container .children {
+  flex: 1;
+  display: flex;
+}
+.timescale-container .cursor {
+  position: absolute;
+  display: flex;
+  align-items: center;
+}
+.timescale-container .cursor .cursor-text {
+  color: var(--timescale-cursor-color);
+  background-color: #fff;
+  white-space: nowrap;
+  text-align: center;
+}
+.timescale-container .cursor .cursor-line {
+  background-color: var(--timescale-cursor-color);
+  z-index: 20;
+  border: 1px solid #fff;
+}
+.timescale-container :global(.interval-label) {
+  padding: 5px 2px;
+  font-size: 12px;
+  display: block;
+}
+.timescale-container:global(.horizontal) {
+  flex-direction: column;
+}
+.timescale-container:global(.horizontal) .interval {
+  flex-direction: column;
+}
+.timescale-container:global(.horizontal) .interval-box {
+  min-height: var(--timescale-level-height);
+}
+.timescale-container:global(.horizontal) .children {
+  flex-direction: row-reverse;
+}
+.timescale-container:global(.horizontal) :global(.interval-label) {
+  position: sticky;
+  max-width: 100vw;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
+}
+.timescale-container:global(.horizontal) .cursor {
+  top: 1px;
+  transform: translate(-2px);
+  bottom: -1px;
+  width: 0;
+  flex-direction: column;
+}
+.timescale-container:global(.horizontal) .cursor .cursor-text {
+  transform: translate(0, 1px);
+  text-align: center;
+}
+.timescale-container:global(.horizontal) .cursor .cursor-line {
+  width: 2px;
+  height: 100%;
+}
+.timescale-container:global(.vertical) {
+  flex-direction: row;
+}
+.timescale-container:global(.vertical) .interval-box {
+  min-width: var(--timescale-level-width);
+}
+.timescale-container:global(.vertical) .interval {
+  flex-direction: row;
+}
+.timescale-container:global(.vertical) .interval:last-child {
+  flex-grow: 1;
+}
+.timescale-container:global(.vertical) .children {
+  flex-direction: column;
+}
+.timescale-container:global(.vertical) :global .interval-label {
+  width: 0px;
+}
+.timescale-container:global(.vertical) :global .interval-label .label-text {
+  writing-mode: vertical-lr;
+  transform: rotate(180deg) translateX(8px);
+}
+.timescale-container:global(.vertical) .cursor {
+  left: 1px;
+  transform: translate(0, -2px);
+  right: -1px;
+  width: 0;
+  flex-direction: row;
+}
+.timescale-container:global(.vertical) .cursor .cursor-text {
+  transform: translate(1px, 0);
+  text-align: center;
+}
+.timescale-container:global(.vertical) .cursor .cursor-line {
+  height: 2px;
+  width: 100%;
+}

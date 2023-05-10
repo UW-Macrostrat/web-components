@@ -1,0 +1,10 @@
+.popover-container span.popover-target,
+.popover-container span.bp4-popover2-target {
+  display: inline !important;
+  pointer-events: none;
+  width: 10px !important;
+  height: 10px !important;
+}
+.interaction-barrier {
+  pointer-events: all;
+}

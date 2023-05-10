@@ -10,7 +10,7 @@ import { CompositeUnitsColumn } from "./units";
 import { IUnit } from "./units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { TrackedLabeledUnit } from "./units";
-import styles from "./column.module.styl";
+import styles from "./column.module.scss";
 import { AgeAxis } from "@macrostrat/concept-app-helpers";
 import { useDarkMode } from "@macrostrat/ui-components";
 export * from "./units";
@@ -152,7 +152,7 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
   let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
   const className = classNames(baseClassName, {
-    "dark-mode": darkMode.isEnabled,
+    "dark-mode": darkMode?.isEnabled ?? false,
   });
 
   sectionGroups.sort((a, b) => a.t_age - b.t_age);
