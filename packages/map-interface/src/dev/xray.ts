@@ -77,7 +77,7 @@ function transformMapboxLayer(layer, color, inDarkMode) {
     newLayer.paint = {
       "circle-color": xRayColor(0.5, 0),
       "circle-stroke-color": xRayColor(0.5, 1),
-      "circle-radius": 3,
+      "circle-radius": 2,
     };
   }
 
