@@ -1,4 +1,10 @@
-import React, { createContext, useContext, useEffect, ReactNode } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from "react";
 import { Button, ButtonProps } from "@blueprintjs/core";
 import { useStoredState } from "./util/local-storage";
 import h from "@macrostrat/hyper";
@@ -12,7 +18,10 @@ const systemDarkMode = (): DarkModeState => ({
   isAutoset: true,
 });
 
-const ValueContext = createContext<DarkModeState>(null);
+const ValueContext = createContext<DarkModeState>({
+  isEnabled: false,
+  isAutoset: false,
+});
 const UpdaterContext = createContext<DarkModeUpdater | null>(null);
 
 const matcher = window?.matchMedia("(prefers-color-scheme: dark)");
@@ -21,11 +30,16 @@ type DarkModeProps = {
   children?: ReactNode;
   addBodyClasses: boolean;
   isEnabled?: boolean;
+  followSystem?: boolean;
 };
 
-const DarkModeProvider = (props: DarkModeProps) => {
-  const parentCtx = useContext(ValueContext);
-  const { addBodyClasses = true, isEnabled, children } = props;
+const _DarkModeProvider = (props: DarkModeProps) => {
+  const {
+    addBodyClasses = true,
+    isEnabled,
+    followSystem = false,
+    children,
+  } = props;
   const [storedValue, updateValue, resetState] = useStoredState(
     "ui-dark-mode",
     systemDarkMode()
@@ -35,6 +49,11 @@ const DarkModeProvider = (props: DarkModeProps) => {
     isEnabled: storedValue?.isEnabled ?? false,
     isAutoset: storedValue?.isAutoset ?? false,
   };
+
+  useEffect(() => {
+    if (!followSystem) return;
+    updateValue(systemDarkMode());
+  }, []);
 
   useEffect(() => {
     // Update value if isEnabled is provided
@@ -58,21 +77,33 @@ const DarkModeProvider = (props: DarkModeProps) => {
     updateValue({ isAutoset: false, isEnabled });
   };
 
-  useEffect(() => {
-    matcher?.addEventListener?.("change", (e) => {
-      if (value.isAutoset) updateValue(systemDarkMode());
-    });
-  });
+  const onSystemChange = useCallback(
+    (e) => {
+      if (value.isAutoset || followSystem) updateValue(systemDarkMode());
+    },
+    [value.isAutoset, followSystem]
+  );
 
-  if (parentCtx != null) {
-    return h(React.Fragment, null, children);
-  }
+  useEffect(() => {
+    if (matcher == null) return;
+    matcher.addEventListener("change", onSystemChange);
+    return () => {
+      matcher.removeEventListener("change", onSystemChange);
+    };
+  }, [onSystemChange]);
 
   return h(
     ValueContext.Provider,
     { value },
     h(UpdaterContext.Provider, { value: update }, children)
   );
+};
+
+const DarkModeProvider = (props: DarkModeProps) => {
+  // Ensure that only one provider is active for an application
+  const parentCtx = useContext(UpdaterContext);
+  if (parentCtx != null) return props.children ?? null;
+  return h(_DarkModeProvider, props);
 };
 
 const useDarkMode = () => useContext(ValueContext);
@@ -87,6 +118,10 @@ const DarkModeButton = (
   const icon = isEnabled ? "flash" : "moon";
   const update = darkModeUpdater();
   const onClick: React.MouseEventHandler = (event) => {
+    if (update == null) {
+      console.warn("No DarkModeProvider is available");
+      return;
+    }
     if (allowReset && event.shiftKey) {
       update(null);
       return;

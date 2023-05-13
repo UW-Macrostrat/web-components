@@ -39,9 +39,13 @@
 
 .panel-card
   padding: 10px
+  background-color: var(--panel-background-color)
 
   & >:last-child
     margin-bottom: 0
+
+:global(.bp4-dark) .panel-card
+  background-color: var(--panel-background-color)
 
 .context-stack
   display: flex

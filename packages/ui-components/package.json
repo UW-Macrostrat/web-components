@@ -41,6 +41,7 @@
     "io-ts": "^2.1.2",
     "query-string": "^7.0.0",
     "react-color": "^2.19.3",
+    "react-dom": "^16.8.6 || ^17 || ^18",
     "react-dropzone": "^11.4.2",
     "react-intersection-observer": "^8.32.1",
     "react-json-tree": "^0.15.0",
@@ -63,10 +64,12 @@
     "sass": "^1.50.0",
     "typescript": "^4.4.4"
   },
+  "exports": {
+    "typescript": "./src/index.ts"
+  },
   "peerDependencies": {
     "@types/react-dom": "^17 || ^18",
-    "react": "^16.8.6 || ^17 || ^18",
-    "react-dom": "^16.8.6 || ^17 || ^18"
+    "react": "^16.8.6 || ^17 || ^18"
   },
   "prettier": {}
 }

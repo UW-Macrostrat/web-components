@@ -1,4 +1,5 @@
 import axios from "axios";
+import { Style } from "mapbox-gl";
 
 export function canonicalizeMapboxURL(url: string) {
   return url.replace("mapbox://styles/", "https://api.mapbox.com/styles/v1/");
@@ -7,9 +8,9 @@ export function canonicalizeMapboxURL(url: string) {
 export async function getMapboxStyle(
   style: string | object,
   params: { access_token: string; [k: string]: any }
-): Promise<object> {
+): Promise<Style> {
   if (typeof style !== "string") {
-    return style;
+    return style as Style;
   }
 
   // We fetch styles if they aren't avaialable locally

@@ -15,13 +15,9 @@ import {
   ColumnLayoutProvider,
 } from "../context";
 import { GeologicPattern, PatternType } from "./patterns";
+import tex from "react-svg-textures";
 
-// Malformed es6 module
-let v = require("react-svg-textures");
-if (v.default != null) {
-  v = v.default;
-}
-const { Lines } = v;
+const Lines = tex.Lines;
 
 const symbolIndex = {
   "dolomite-limestone": 641,

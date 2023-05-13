@@ -1,5 +1,13 @@
 # Changelog
 
+## `[Unreleased]` - 2023-04-21
+
+- Added a `followSystem` option to `DarkModeProvider` to allow the user to follow the system's dark mode setting.
+- Added a `Box`, `FlexRow`, `FlexColumn`, and `Spacer` components
+  to improve layout capabilities.
+- Added a default validator for local storage items to prevent errors arising
+  from malformed stored objects.
+
 ## `[3.0.0]` - August 2022
 
 - Modernize compilation toolchain to use Parcel
