@@ -5,7 +5,6 @@ import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { useEffect, useState, useRef } from "react";
 import { JSONView } from "@macrostrat/ui-components";
-import { useAppState } from "~/map-interface/app-state";
 import { group } from "d3-array";
 import { ExpansionPanel } from "../expansion-panel";
 
