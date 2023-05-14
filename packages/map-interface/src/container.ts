@@ -3,7 +3,11 @@ import { HTMLDivProps } from "@blueprintjs/core";
 import styles from "./main.module.sass";
 import classNames from "classnames";
 import { useTransition } from "transition-hook";
-import { MapboxMapProvider, ZoomControl } from "@macrostrat/mapbox-react";
+import {
+  MapboxMapProvider,
+  ZoomControl,
+  useMapStatus,
+} from "@macrostrat/mapbox-react";
 import { ToasterContext } from "@macrostrat/ui-components";
 import { MapBottomControls } from "./controls";
 import { mapViewInfo, MapPosition } from "@macrostrat/mapbox-utils";
@@ -24,11 +28,10 @@ const h = hyper.styled(styles);
 
 type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
 
-
 export const PanelCard = (props) =>
   h(Card, { ...props, className: classNames("panel-card", props.className) });
 
-export function MapAreaContainer({
+function _MapAreaContainer({
   children,
   className,
   navbar,
@@ -83,32 +86,33 @@ export function MapAreaContainer({
   );
 
   return h(
-    ToasterContext,
-    h(MapboxMapProvider, [
-      h(
-        MapStyledContainer,
-        { className: classNames("map-page", className), mapPosition },
-        [
-          h("div.main-ui", { className: _className, ...rest }, [
-            h("div.context-stack", contextStackProps, [
-              navbar,
-              h.if(contextPanelTrans.shouldMount)([contextPanel]),
-            ]),
-            //h(MapView),
-            children ?? mainPanel,
-            h("div.detail-stack.infodrawer-container", detailStackProps, [
-              detailPanel,
-              h(ZoomControl, { className: "zoom-control" }),
-              h("div.spacer"),
-              mapControls,
-            ]),
-          ]),
-          h("div.bottom", null, bottomPanel),
-        ]
-      ),
-    ])
+    MapStyledContainer,
+    { className: classNames("map-page", className), mapPosition },
+    [
+      h("div.main-ui", { className: _className, ...rest }, [
+        h("div.context-stack", contextStackProps, [
+          navbar,
+          h.if(contextPanelTrans.shouldMount)([contextPanel]),
+        ]),
+        //h(MapView),
+        children ?? mainPanel,
+        h("div.detail-stack.infodrawer-container", detailStackProps, [
+          detailPanel,
+          h(ZoomControl, { className: "zoom-control" }),
+          h("div.spacer"),
+          mapControls,
+        ]),
+      ]),
+      h("div.bottom", null, bottomPanel),
+    ]
   );
 }
+
+const MapProviders = ({ children }) =>
+  h(ToasterContext, h(MapboxMapProvider, children));
+
+export const MapAreaContainer = (props) =>
+  h(MapProviders, h(_MapAreaContainer, props));
 
 interface MapContainerProps {
   className?: string;
@@ -116,11 +120,8 @@ interface MapContainerProps {
   children?: ReactNode;
 }
 
-export function MapStyledContainer({
-  className,
-  mapPosition,
-  children,
-}: MapContainerProps) {
+export function MapStyledContainer({ className, children }: MapContainerProps) {
+  const { mapPosition } = useMapStatus();
   if (mapPosition != null) {
     const { mapIsRotated, mapUse3D, mapIsGlobal } = mapViewInfo(mapPosition);
     className = classNames(className, {

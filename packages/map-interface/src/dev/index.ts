@@ -1,11 +1,7 @@
 // Import other components
 import { Switch } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
-import {
-  Spacer,
-  useDarkMode,
-  useStoredState
-} from "@macrostrat/ui-components";
+import { Spacer, useDarkMode, useStoredState } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
 import { useCallback, useState, useEffect } from "react";
 import { buildInspectorStyle, buildXRayStyle } from "./xray";
@@ -36,12 +32,10 @@ export enum MacrostratRasterTileset {
 
 export const h = hyper.styled(styles);
 
-
 interface DevMapViewProps {
   accessToken?: string;
   mapPosition?: MapPosition;
 }
-
 
 export function DevMapPage({
   title = "Map inspector",
@@ -52,6 +46,9 @@ export function DevMapPage({
   overlayStyle = null,
   children,
   style,
+  focusedSource = null,
+  focusedSourceTitle = null,
+  projection = null,
 }: {
   headerElement?: React.ReactElement;
   transformRequest?: mapboxgl.TransformRequestFunction;
@@ -60,6 +57,9 @@ export function DevMapPage({
   children?: React.ReactNode;
   mapboxToken?: string;
   overlayStyle?: mapboxgl.Style | string;
+  focusedSource?: string;
+  focusedSourceTitle?: string;
+  projection?: string;
 }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
@@ -81,7 +81,7 @@ export function DevMapPage({
 
   const [isOpen, setOpen] = useState(false);
 
-  const [state, setState] = useStoredState("macrostrat:vector-map-inspector", {
+  const [state, setState] = useStoredState("macrostrat:dev-map-page", {
     showTileExtent: false,
     xRay: false,
   });
@@ -90,8 +90,11 @@ export function DevMapPage({
   const [actualStyle, setActualStyle] = useState(style);
 
   useEffect(() => {
-    buildInspectorStyle(style, overlayStyle, { mapboxToken, inDarkMode: isEnabled, xRay })
-      .then(setActualStyle);
+    buildInspectorStyle(style, overlayStyle, {
+      mapboxToken,
+      inDarkMode: isEnabled,
+      xRay,
+    }).then(setActualStyle);
   }, [style, xRay, mapboxToken, isEnabled, overlayStyle]);
 
   const [inspectPosition, setInspectPosition] =
@@ -121,7 +124,7 @@ export function DevMapPage({
             setState({ ...state, showTileExtent: !showTileExtent });
           },
         }),
-        h(FeaturePanel, { features: data }),
+        h(FeaturePanel, { features: data, focusedSource, focusedSourceTitle }),
       ]
     );
   }
@@ -156,16 +159,20 @@ export function DevMapPage({
       detailPanel: detailElement,
       contextPanelOpen: isOpen,
     },
-    h(MapView, { style: actualStyle, transformRequest, mapPosition}, [
-      h(FeatureSelectionHandler, {
-        selectedLocation: inspectPosition,
-        setFeatures: setData,
-      }),
-      h(MapMarker, {
-        position: inspectPosition,
-        setPosition: onSelectPosition,
-      }),
-      h(TileExtentLayer, { tile, color: isEnabled ? "white" : "black" }),
-    ])
+    h(
+      MapView,
+      { style: actualStyle, transformRequest, mapPosition, projection },
+      [
+        h(FeatureSelectionHandler, {
+          selectedLocation: inspectPosition,
+          setFeatures: setData,
+        }),
+        h(MapMarker, {
+          position: inspectPosition,
+          setPosition: onSelectPosition,
+        }),
+        h(TileExtentLayer, { tile, color: isEnabled ? "white" : "black" }),
+      ]
+    )
   );
 }
