@@ -48,8 +48,9 @@ export function MapPaddingManager({
   );
 
   const updateMapPadding = useCallback(() => {
-    setPadding(getMapPadding(containerRef, parentRef));
-  }, [containerRef, parentRef]);
+    const newPadding = getMapPadding(containerRef, parentRef);
+    setPadding(newPadding);
+  }, [containerRef.current, parentRef.current]);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -65,6 +66,7 @@ export function MapPaddingManager({
     },
   });
 
+  console.log(padding);
   useMapEaseToCenter(infoMarkerPosition, padding);
 
   return null;

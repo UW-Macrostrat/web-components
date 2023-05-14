@@ -13,6 +13,7 @@ import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef } from "react";
 import styles from "./main.module.sass";
+import rootStyles from "../main.module.sass";
 import { enable3DTerrain } from "./terrain";
 import {
   MapLoadingReporter,
@@ -21,7 +22,7 @@ import {
   MapResizeManager,
 } from "../helpers";
 
-const h = hyper.styled(styles);
+const h = hyper.styled({ ...styles, ...rootStyles });
 
 export interface MapViewProps {
   showLineSymbols?: boolean;
