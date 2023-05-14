@@ -24,19 +24,21 @@ import {
 
 const h = hyper.styled({ ...styles, ...rootStyles });
 
-export interface MapViewProps {
+type MapboxCoreOptions = Omit<mapboxgl.MapboxOptions, "container">;
+
+export interface MapViewProps extends MapboxCoreOptions {
   showLineSymbols?: boolean;
   children?: React.ReactNode;
   accessToken?: string;
   terrainSourceID?: string;
   enableTerrain?: boolean;
   infoMarkerPosition?: mapboxgl.LngLatLike;
-  style: mapboxgl.Style | string;
-  transformRequest?: mapboxgl.TransformRequestFunction;
+  //style: mapboxgl.Style | string;
+  //transformRequest?: mapboxgl.TransformRequestFunction;
   mapPosition?: MapPosition;
 }
 
-function initializeMap(container, args = {}) {
+function initializeMap(container, args: MapboxCoreOptions = {}) {
   const map = new mapboxgl.Map({
     container,
     maxZoom: 18,
@@ -70,6 +72,7 @@ export function MapView(props: MapViewProps) {
     children,
     accessToken,
     infoMarkerPosition,
+    projection,
   } = props;
   if (enableTerrain) {
     terrainSourceID ??= "mapbox-3d-dem";
@@ -90,7 +93,11 @@ export function MapView(props: MapViewProps) {
     if (style == null || ref.current == null || dispatch == null) return;
     if (mapRef?.current != null) return;
     console.log("Initializing map");
-    const map = initializeMap(ref.current, { style, transformRequest });
+    const map = initializeMap(ref.current, {
+      style,
+      transformRequest,
+      projection,
+    });
     dispatch({ type: "set-map", payload: map });
     console.log("Map initialized");
     return () => {
@@ -115,14 +122,14 @@ export function MapView(props: MapViewProps) {
   const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
 
   // Get map projection
-  const projection = mapRef.current?.getProjection()?.name ?? "mercator";
+  const _projection = mapRef.current?.getProjection()?.name ?? "mercator";
 
   const className = classNames(
     {
       "is-rotated": mapIsRotated ?? false,
       "is-3d-available": mapUse3D ?? false,
     },
-    `${projection}-projection`
+    `${_projection}-projection`
   );
 
   return h("div.map-view-container.main-view", { ref: parentRef }, [

@@ -32,11 +32,6 @@ export enum MacrostratRasterTileset {
 
 export const h = hyper.styled(styles);
 
-interface DevMapViewProps {
-  accessToken?: string;
-  mapPosition?: MapPosition;
-}
-
 export function DevMapPage({
   title = "Map inspector",
   headerElement = null,
@@ -60,6 +55,7 @@ export function DevMapPage({
   focusedSource?: string;
   focusedSourceTitle?: string;
   projection?: string;
+  mapPosition?: MapPosition;
 }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
@@ -161,7 +157,12 @@ export function DevMapPage({
     },
     h(
       MapView,
-      { style: actualStyle, transformRequest, mapPosition, projection },
+      {
+        style: actualStyle,
+        transformRequest,
+        mapPosition,
+        projection: "globe",
+      },
       [
         h(FeatureSelectionHandler, {
           selectedLocation: inspectPosition,

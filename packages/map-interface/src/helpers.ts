@@ -66,7 +66,6 @@ export function MapPaddingManager({
     },
   });
 
-  console.log(padding);
   useMapEaseToCenter(infoMarkerPosition, padding);
 
   return null;
