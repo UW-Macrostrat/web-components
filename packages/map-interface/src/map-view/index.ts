@@ -114,10 +114,16 @@ export function MapView(props: MapViewProps) {
   const { mapPosition: _computedMapPosition } = useMapStatus();
   const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
 
-  const className = classNames({
-    "is-rotated": mapIsRotated ?? false,
-    "is-3d-available": mapUse3D ?? false,
-  });
+  // Get map projection
+  const projection = mapRef.current?.getProjection()?.name ?? "mercator";
+
+  const className = classNames(
+    {
+      "is-rotated": mapIsRotated ?? false,
+      "is-3d-available": mapUse3D ?? false,
+    },
+    `${projection}-projection`
+  );
 
   return h("div.map-view-container.main-view", { ref: parentRef }, [
     h("div.mapbox-map#map", { ref, className }),
