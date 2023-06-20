@@ -466,6 +466,8 @@ export function buildOverlayLayers() {
 
 export function buildMacrostratStyle({
   tileserverDomain = "https://tiles.macrostrat.org",
+  fillOpacity = 0.4,
+  strokeOpacity = 0.2,
 }) {
   return {
     version: 8,
@@ -495,7 +497,7 @@ export function buildMacrostratStyle({
             "case",
             ["boolean", ["feature-state", "hover"], false],
             0.75,
-            0.4,
+            fillOpacity,
           ],
 
           // "fill-opacity": {
@@ -545,7 +547,7 @@ export function buildMacrostratStyle({
           "line-opacity": {
             stops: [
               [0, 0],
-              [4, 0.2],
+              [4, strokeOpacity],
             ],
           },
         },
