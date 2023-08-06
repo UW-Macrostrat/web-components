@@ -26,6 +26,6 @@ export default {
   cacheDir: ".vite",
   resolve: {
     conditions: ["typescript"],
-    alias: aliases,
+    //alias: aliases,
   },
 };

@@ -4,6 +4,8 @@ import h from "@macrostrat/hyper";
 import T from "prop-types";
 import { ColumnContext, useColumnDivisions } from "./column";
 import { useContext, useMemo, useCallback } from "react";
+import { ColumnCtx } from "./column";
+import { ColumnDivision } from "../defs";
 
 //# This isn't really used yet...
 
@@ -11,9 +13,23 @@ const ColumnLayoutContext = createContext({
   scale: null,
   width: 0,
   divisions: [],
+  grainSizes: [],
+  grainsizeScale: (d) => 40,
 });
 
-function ColumnLayoutProvider({ children, width }) {
+interface ColumnLayoutProviderProps<T extends ColumnDivision>
+  extends ColumnCtx<T> {
+  grainSizes: string[];
+  grainsizeScale: any;
+  width: number;
+}
+
+function ColumnLayoutProvider<T extends ColumnDivision>({
+  children,
+  width,
+  grainSizes = [],
+  grainsizeScale = (d) => 40,
+}: ColumnLayoutProviderProps<T>) {
   const ctx = useContext(ColumnContext);
   return h(
     ColumnLayoutContext.Provider,
@@ -21,6 +37,8 @@ function ColumnLayoutProvider({ children, width }) {
       value: {
         ...ctx,
         width,
+        grainSizes,
+        grainsizeScale,
       },
     },
     children

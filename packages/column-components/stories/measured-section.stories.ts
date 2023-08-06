@@ -2,15 +2,15 @@ import h from "@macrostrat/hyper";
 import {
   ColumnProvider,
   ColumnSVG,
-  useColumn,
   ColumnAxis,
-  LithologyColumn,
   LithologyBoxes,
   GeneralizedSectionColumn,
   GrainsizeLayoutProvider,
   ColumnDivision,
   ColumnSurface,
+  ColumnLayoutContext,
 } from "@macrostrat/column-components";
+import { useContext } from "react";
 import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
 import { IUnit } from "@macrostrat/column-views";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
@@ -18,10 +18,20 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import "./measured-section.sass";
 import "../src/global-styles.scss";
 import "../src/main.module.scss";
-const patterns = import.meta.glob("/svg/*.svg");
+
+function patternPath(id) {
+  return `../../../deps/geologic-patterns/assets/svg/${id}.svg`;
+}
+
+const patterns = import.meta.glob(
+  "../../../deps/geologic-patterns/assets/svg/*.svg",
+  { eager: true, query: "url" }
+);
 import { GeologicPatternProvider } from "@macrostrat/column-components";
 
-const resolvePattern = (id) => patterns[id];
+console.log("Patterns", patterns);
+
+const resolvePattern = (id) => patterns[patternPath(id)].default;
 
 function PatternProvider({ children }) {
   return h(GeologicPatternProvider, { resolvePattern }, children);
@@ -210,6 +220,7 @@ const BaseSection = (
                 grainsizeScaleStart: 40,
               },
               [
+                h(ColumnReporter),
                 h(GeneralizedSectionColumn, [
                   h(LithologyBoxes, { resolveID: (d) => d.pattern }),
                 ]),
@@ -224,6 +235,12 @@ const BaseSection = (
   ]);
 };
 
+function ColumnReporter() {
+  const gs = useContext(ColumnLayoutContext);
+  console.log("Grainsize context", gs);
+  return null;
+}
+
 export function MeasuredSection(props) {
   return h(
     PatternProvider,
@@ -237,27 +254,10 @@ export function MeasuredSection(props) {
 //   //return h(BaseSection, { ...props, data: columnData });
 // }
 
-import { ColorEditor } from "@macrostrat/ui-components/src/form-controls/color-editor";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { useArgs } from "@storybook/client-api";
-
 export default {
   title: "Column components/Measured section",
-  component: ColorEditor,
+  component: MeasuredSection,
   args: {
     color: "#aaaaaa",
   },
-} as ComponentMeta<typeof ColorEditor>;
-
-const Template: ComponentStory<typeof ColorEditor> = (args) => {
-  const [{ ...rest }, updateArgs] = useArgs();
-  return h(ColorEditor, {
-    ...rest,
-    onChange(c) {
-      updateArgs({ ...rest, color: c });
-    },
-  });
-};
-
-export const TestEditor = Template.bind({});
-TestEditor.args = { color: "#aaaaaa" };
+} as ComponentMeta<typeof MeasuredSection>;
