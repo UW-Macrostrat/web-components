@@ -58,5 +58,10 @@
   "dependencies": {
     "@babel/preset-react": "^7.18.6"
   },
-  "packageManager": "yarn@3.5.0"
+  "packageManager": "yarn@3.5.0",
+  "dependenciesMeta": {
+    "geologic-patterns@2.0.0-dev1": {
+      "unplugged": true
+    }
+  }
 }
