@@ -9,9 +9,14 @@ import h from "./hyper";
 
 type ClickHandler = (event: Event, age: number) => void;
 
+export enum IncreaseDirection {
+  UP_RIGHT = "up-right",
+  DOWN_LEFT = "down-left",
+}
 interface TimescaleProps {
   intervals?: Interval[];
   orientation?: TimescaleOrientation;
+  increaseDirection?: IncreaseDirection;
   levels?: [number, number] | null;
   length?: number;
   ageRange?: [number, number];
@@ -69,15 +74,19 @@ function Timescale(props: TimescaleProps) {
     cursorPosition,
     cursorComponent,
     onClick,
+    increaseDirection = IncreaseDirection.DOWN_LEFT,
   } = props;
 
   const [parentMap, timescale] = nestTimescale(rootInterval, intervals);
 
-  const className = classNames(orientation);
+  const className = classNames(orientation, "increase-" + increaseDirection);
   const length = absoluteAgeScale ? l ?? 6000 : null;
 
   let ageRange2 = ageRange ?? [timescale.eag, timescale.lag];
-  if (orientation == TimescaleOrientation.VERTICAL) {
+  if (
+    orientation == TimescaleOrientation.VERTICAL &&
+    increaseDirection == IncreaseDirection.DOWN_LEFT
+  ) {
     ageRange2.reverse();
   }
 

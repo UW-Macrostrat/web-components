@@ -3,20 +3,50 @@ import { useRef, useEffect, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 import { SizeAwareLabel } from "@macrostrat/column-components";
+import chroma from "chroma-js";
 
 type SizeState = {
   label: number;
   container: number;
 };
 
-function IntervalBox(props: { interval: Interval; showLabel?: boolean }) {
-  const { interval: d, showLabel = true } = props;
+type LabelColorSetting = string | ((interval: Interval) => string) | null;
 
-  const [labelText, setLabelText] = useState<string>(d.nam);
+function IntervalBox(props: {
+  interval: Interval;
+  showLabel?: boolean;
+  labelColor: LabelColorSetting;
+  borderColor: LabelColorSetting;
+}) {
+  const { interval, showLabel = true, labelColor } = props;
+
+  const [labelText, setLabelText] = useState<string>(interval.nam);
+
+  const backgroundColor = interval.col;
+
+  let color: string;
+  if (typeof labelColor === "function") {
+    color = labelColor(interval);
+  } else {
+    color = labelColor;
+  }
+
+  let borderColor: string;
+  if (typeof props.borderColor === "function") {
+    borderColor = props.borderColor(interval);
+  } else {
+    borderColor = props.borderColor;
+  }
+
+  // if (backgroundColor != null && (color == null || borderColor == null)) {
+  //   const base = chroma(backgroundColor);
+  //   color ??= base.darken(0.3);
+  //   borderColor ??= base.darken(-0.1);
+  // }
 
   return h(SizeAwareLabel, {
-    key: d.oid,
-    style: { backgroundColor: d.col },
+    key: interval.oid,
+    style: { backgroundColor, color, borderColor },
     className: "interval-box",
     labelClassName: "interval-label",
     label: labelText,

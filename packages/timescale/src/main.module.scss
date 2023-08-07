@@ -85,6 +85,10 @@
 }
 .timescale-container:global(.vertical) {
   flex-direction: row;
+
+  &:global(.increase-up-right) .children {
+    flex-direction: column-reverse;
+  }
 }
 .timescale-container:global(.vertical) .interval-box {
   min-width: var(--timescale-level-width);
