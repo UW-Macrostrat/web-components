@@ -1,4 +1,4 @@
-import h from "@macrostrat/hyper";
+import h, { compose } from "@macrostrat/hyper";
 import {
   ColumnProvider,
   ColumnSVG,
@@ -77,7 +77,67 @@ function buildDivisions<T extends ColumnSurface>(
   });
 }
 
-const BaseSection = (
+function _MeasuredSectionContainer(
+  props: IColumnProps & {
+    children: React.ReactNode;
+    params: ColumnSpec;
+    timescaleIntervals: Interval[] | null;
+    timescaleLevels: number[];
+    className?: string;
+  }
+) {
+  // Section with "squishy" time scale
+  const {
+    data = [],
+    range,
+    children,
+    params,
+    showTimescale = true,
+    timescaleProps = {},
+    className,
+    width = 250,
+    showAxis = true,
+  } = props;
+  let { pixelScale = 1.3 } = props;
+
+  let divisions = buildDivisions(data, range);
+
+  return h("div.measured-section.column", { className }, [
+    h(
+      ColumnProvider,
+      {
+        divisions,
+        range,
+        pixelsPerMeter: pixelScale,
+      },
+      [
+        h.if(showAxis)(
+          ColumnSVG,
+          {
+            innerWidth: 0,
+            padding: 30,
+            paddingLeft: 40,
+            paddingBottom: 30,
+            paddingRight: 1,
+          },
+          h(ColumnAxis)
+        ),
+        h.if(showTimescale)(Timescale, {
+          orientation: TimescaleOrientation.VERTICAL,
+          increaseDirection: IncreaseDirection.UP_RIGHT,
+          length: (range[1] - range[0]) * pixelScale,
+          absoluteAgeScale: true,
+          showAgeAxis: false,
+          ageRange: range,
+          ...timescaleProps,
+        }),
+        children,
+      ]
+    ),
+  ]);
+}
+
+export const MeasuredSection = (
   props: IColumnProps & {
     children: React.ReactNode;
     params: ColumnSpec;
@@ -87,19 +147,7 @@ const BaseSection = (
   }
 ) => {
   // Section with "squishy" time scale
-  const {
-    data = [],
-    range,
-    children,
-    params,
-    timescaleIntervals,
-    timescaleLevels = [0, 1],
-    className,
-    width = 250,
-  } = props;
-  let { pixelScale = 1.3 } = props;
-
-  let divisions = buildDivisions(data, range);
+  const { children, className, width = 250, ...rest } = props;
 
   const grainsizeScaleStart = props.grainsizeScaleStart ?? 0.5 * width;
   // const unitData: UnitLong[] = useAPIResult("/units", params);
@@ -111,53 +159,22 @@ const BaseSection = (
   //   divisions = mergeUnitData(unitData, divisions);
   // }
 
-  return h("div.measured-section.column", { className }, [
+  return h(MeasuredSectionContainer, { className, children, ...rest }, [
     h(
-      ColumnProvider,
-      {
-        divisions,
-        range,
-        pixelsPerMeter: pixelScale,
-      },
+      ColumnSVG,
+      { innerWidth: 200, padding: 30, paddingLeft: 0, paddingBottom: 30 },
       [
         h(
-          ColumnSVG,
+          GrainsizeLayoutProvider,
           {
-            innerWidth: 0,
-            padding: 30,
-            paddingLeft: 40,
-            paddingBottom: 30,
-            paddingRight: 1,
+            width: 80,
+            grainsizeScaleStart: 40,
           },
-          h(ColumnAxis)
-        ),
-        h.if(timescaleIntervals != null)(Timescale, {
-          intervals: timescaleIntervals,
-          orientation: TimescaleOrientation.VERTICAL,
-          increaseDirection: IncreaseDirection.UP_RIGHT,
-          length: (range[1] - range[0]) * pixelScale,
-          levels: timescaleLevels,
-          absoluteAgeScale: true,
-          showAgeAxis: false,
-          ageRange: range,
-        }),
-        h(
-          ColumnSVG,
-          { innerWidth: 200, padding: 30, paddingLeft: 0, paddingBottom: 30 },
           [
-            h(
-              GrainsizeLayoutProvider,
-              {
-                width: 80,
-                grainsizeScaleStart: 40,
-              },
-              [
-                h(GeneralizedSectionColumn, [
-                  h(LithologyBoxes, { resolveID: (d) => d.pattern }),
-                ]),
-              ]
-            ),
-            children,
+            h(GeneralizedSectionColumn, [
+              children,
+              h(LithologyBoxes, { resolveID: (d) => d.pattern }),
+            ]),
           ]
         ),
       ]
@@ -165,6 +182,7 @@ const BaseSection = (
   ]);
 };
 
-export function MeasuredSection(props) {
-  return h(PatternProvider, null, h(BaseSection, { ...props }));
-}
+export const MeasuredSectionContainer = compose(
+  PatternProvider,
+  _MeasuredSectionContainer
+);

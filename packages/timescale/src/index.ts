@@ -1,7 +1,7 @@
 import { defaultIntervals } from "./intervals";
 import { TimescaleProvider, useTimescale } from "./provider";
 import { Interval, TimescaleOrientation } from "./types";
-import { TimescaleBoxes, Cursor } from "./components";
+import { TimescaleBoxes, Cursor, IntervalStyleBuilder } from "./components";
 import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
@@ -28,6 +28,7 @@ interface TimescaleProps {
   onClick?: ClickHandler;
   cursorPosition?: number | null;
   cursorComponent?: any;
+  intervalStyle: IntervalStyleBuilder;
 }
 
 function TimescaleContainer(props: {
@@ -74,6 +75,7 @@ function Timescale(props: TimescaleProps) {
     cursorPosition,
     cursorComponent,
     onClick,
+    intervalStyle,
     increaseDirection = IncreaseDirection.DOWN_LEFT,
   } = props;
 
@@ -102,7 +104,7 @@ function Timescale(props: TimescaleProps) {
       levels,
     },
     h(TimescaleContainer, { className, onClick }, [
-      h(TimescaleBoxes, { interval: timescale }),
+      h(TimescaleBoxes, { interval: timescale, intervalStyle }),
       h.if(showAgeAxis)(AgeAxis, axisProps),
       h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
     ])

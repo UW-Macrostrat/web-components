@@ -10,33 +10,30 @@ type SizeState = {
   container: number;
 };
 
-type LabelColorSetting = string | ((interval: Interval) => string) | null;
+import { CSSProperties } from "react";
+
+export type IntervalStyleBuilder =
+  | CSSProperties
+  | ((interval: Interval) => CSSProperties)
+  | null;
 
 function IntervalBox(props: {
   interval: Interval;
   showLabel?: boolean;
-  labelColor: LabelColorSetting;
-  borderColor: LabelColorSetting;
+  intervalStyle: IntervalStyleBuilder;
 }) {
-  const { interval, showLabel = true, labelColor } = props;
+  const { interval, showLabel = true, intervalStyle } = props;
 
   const [labelText, setLabelText] = useState<string>(interval.nam);
 
-  const backgroundColor = interval.col;
-
-  let color: string;
-  if (typeof labelColor === "function") {
-    color = labelColor(interval);
-  } else {
-    color = labelColor;
+  let style: CSSProperties = {};
+  if (typeof intervalStyle === "function") {
+    style = intervalStyle(interval);
+  } else if (intervalStyle != null) {
+    style = intervalStyle;
   }
 
-  let borderColor: string;
-  if (typeof props.borderColor === "function") {
-    borderColor = props.borderColor(interval);
-  } else {
-    borderColor = props.borderColor;
-  }
+  style = { backgroundColor: interval.col, ...style };
 
   // if (backgroundColor != null && (color == null || borderColor == null)) {
   //   const base = chroma(backgroundColor);
@@ -46,7 +43,7 @@ function IntervalBox(props: {
 
   return h(SizeAwareLabel, {
     key: interval.oid,
-    style: { backgroundColor, color, borderColor },
+    style,
     className: "interval-box",
     labelClassName: "interval-label",
     label: labelText,
@@ -58,12 +55,12 @@ function IntervalBox(props: {
   });
 }
 
-function IntervalChildren({ children }) {
+function IntervalChildren({ children, intervalStyle }) {
   if (children == null || children.length == 0) return null;
   return h(
     "div.children",
     children.map((d) => {
-      return h(TimescaleBoxes, { interval: d });
+      return h(TimescaleBoxes, { interval: d, intervalStyle });
     })
   );
 }
@@ -72,8 +69,11 @@ function ensureIncreasingAgeRange(ageRange) {
   return [Math.min(...ageRange), Math.max(...ageRange)];
 }
 
-function TimescaleBoxes(props: { interval: NestedInterval }) {
-  const { interval } = props;
+function TimescaleBoxes(props: {
+  interval: NestedInterval;
+  intervalStyle: IntervalStyleBuilder;
+}) {
+  const { interval, intervalStyle } = props;
   const { scale, orientation, levels, ageRange } = useTimescale();
   const { eag, lag, lvl } = interval;
 
@@ -106,8 +106,8 @@ function TimescaleBoxes(props: { interval: NestedInterval }) {
   if (lag > expandedAgeRange[1]) return null;
 
   return h("div.interval", { className: name, style }, [
-    h.if(lvl >= minLevel)(IntervalBox, { interval }),
-    h.if(lvl < maxLevel)(IntervalChildren, { children }),
+    h.if(lvl >= minLevel)(IntervalBox, { interval, intervalStyle }),
+    h.if(lvl < maxLevel)(IntervalChildren, { children, intervalStyle }),
   ]);
 }
 
