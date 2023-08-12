@@ -1,11 +1,14 @@
 .map-page
-  height: 100vh
-  width: 100vw
-  /* mobile viewport bug fix */
-  max-height: -webkit-fill-available
   display: flex
   flex-direction: column
   position: relative
+  width: 100%
+  height: 100%
+  &.fit-viewport
+    height: 100vh
+    width: 100vw
+    /* mobile viewport bug fix */
+    max-height: -webkit-fill-available
 
   // Compass display
   .compass-control
