@@ -105,10 +105,24 @@ function TimescaleBoxes(props: {
   if (eag < expandedAgeRange[0]) return null;
   if (lag > expandedAgeRange[1]) return null;
 
-  return h("div.interval", { className: name, style }, [
+  const className = slugify(name);
+
+  return h("div.interval", { className, style }, [
     h.if(lvl >= minLevel)(IntervalBox, { interval, intervalStyle }),
     h.if(lvl < maxLevel)(IntervalChildren, { children, intervalStyle }),
   ]);
+}
+
+// A simple slugify function
+function slugify(str) {
+  return String(str)
+    .normalize("NFKD") // split accented characters into their base characters and diacritical marks
+    .replace(/[\u0300-\u036f]/g, "") // remove all the accents, which happen to be all in the \u03xx UNICODE block.
+    .trim() // trim leading or trailing whitespace
+    .toLowerCase() // convert to lowercase
+    .replace(/[^a-z0-9 -]/g, "") // remove non-alphanumeric characters
+    .replace(/\s+/g, "-") // replace spaces with hyphens
+    .replace(/-+/g, "-"); // remove consecutive hyphens
 }
 
 export { TimescaleBoxes };
