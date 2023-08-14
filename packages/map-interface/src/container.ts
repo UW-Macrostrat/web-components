@@ -24,7 +24,6 @@ const h = hyper.styled(styles);
 
 type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
 
-
 export const PanelCard = (props) =>
   h(Card, { ...props, className: classNames("panel-card", props.className) });
 
@@ -42,6 +41,7 @@ export function MapAreaContainer({
   contextStackProps = null,
   detailStackProps = null,
   mapPosition = null,
+  fitViewport = true,
   ...rest
 }: {
   navbar: AnyElement;
@@ -57,6 +57,7 @@ export function MapAreaContainer({
   contextStackProps?: HTMLDivProps;
   detailStackProps?: HTMLDivProps;
   mapPosition?: MapPosition;
+  fitViewport?: boolean;
 }) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
   const contextPanelTrans = useTransition(contextPanelOpen, 800);
@@ -75,6 +76,7 @@ export function MapAreaContainer({
       searching: false,
       "detail-panel-open": _detailPanelOpen,
       "map-context-open": _detailPanelOpen,
+      "fit-viewport": fitViewport,
     },
     `context-panel-${contextPanelTrans.stage}`,
     `map-context-${contextPanelTrans.stage}`,
