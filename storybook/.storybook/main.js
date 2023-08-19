@@ -1,4 +1,4 @@
-import path from "path";
+import path, { dirname, join } from "path";
 
 // Load the aliases
 import { readFileSync } from "fs";
@@ -53,13 +53,13 @@ const config = {
     "../../packages/**/*.stories.@(js|jsx|ts|tsx)",
   ],
   addons: [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-viewport",
-    "storybook-dark-mode",
+    getAbsolutePath("@storybook/addon-links"),
+    getAbsolutePath("@storybook/addon-essentials"),
+    getAbsolutePath("@storybook/addon-viewport"),
+    getAbsolutePath("storybook-dark-mode"),
   ],
   framework: {
-    name: "@storybook/react-webpack5",
+    name: getAbsolutePath("@storybook/react-webpack5"),
     options: {},
   },
   docs: {
@@ -71,3 +71,7 @@ const config = {
 };
 
 export default config;
+
+function getAbsolutePath(value) {
+  return dirname(require.resolve(join(value, "package.json")));
+}
