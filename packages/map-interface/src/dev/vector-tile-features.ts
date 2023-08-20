@@ -5,7 +5,6 @@ import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { useEffect, useState, useRef } from "react";
 import { JSONView } from "@macrostrat/ui-components";
-import { useAppState } from "~/map-interface/app-state";
 import { group } from "d3-array";
 import { ExpansionPanel } from "../expansion-panel";
 
@@ -34,9 +33,11 @@ export function FeatureRecord({ feature }) {
 export function FeatureSelectionHandler({
   selectedLocation,
   setFeatures,
+  radius = 2,
 }: {
   selectedLocation: mapboxgl.LngLat;
   setFeatures: (features: mapboxgl.MapboxGeoJSONFeature[]) => void;
+  radius?: number;
 }) {
   const mapRef = useMapRef();
   const { isLoading } = useMapStatus();
@@ -50,9 +51,10 @@ export function FeatureSelectionHandler({
       return;
     }
 
-    if (isLoading && selectedLocation == prevLocation) return;
+    // Don't update if the location hasn't changed
+    if (selectedLocation == prevLocation) return;
 
-    const r = 2;
+    const r = radius;
     const pt = map.project(selectedLocation);
 
     const bbox: [mapboxgl.PointLike, mapboxgl.PointLike] = [
@@ -144,7 +146,11 @@ function UnitNumber({ value, unit, precision = 1 }) {
   ]);
 }
 
-export function FeaturePanel({ features, focusedSource = null, focusedSourceTitle = null }) {
+export function FeaturePanel({
+  features,
+  focusedSource = null,
+  focusedSourceTitle = null,
+}) {
   if (features == null) return null;
 
   let focusedSourcePanel = null;
@@ -152,7 +158,7 @@ export function FeaturePanel({ features, focusedSource = null, focusedSourceTitl
   let title = "Features";
 
   if (focusedSource != null) {
-    title = "Basemap features"
+    title = "Basemap features";
     focusedSourcePanel = h(
       ExpansionPanel,
       {
@@ -166,10 +172,9 @@ export function FeaturePanel({ features, focusedSource = null, focusedSourceTitl
           sourceID: focusedSource,
         }),
       ]
-    )
+    );
     filteredFeatures = features.filter((d) => d.source != focusedSource);
   }
-
 
   return h("div.feature-panel", [
     focusedSourcePanel,

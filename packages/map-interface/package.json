@@ -13,6 +13,7 @@
     "chroma-js": "^2.4.2",
     "classnames": "^2.3.2",
     "d3-format": "^3.1.0",
+    "mapbox-gl": "^2.11.0",
     "transition-hook": "^1.5.2",
     "use-resize-observer": "^9.1.0"
   },

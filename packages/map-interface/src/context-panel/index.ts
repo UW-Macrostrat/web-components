@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from "react";
+import { useMemo } from "react";
 import { Navbar, Button, InputGroup, Spinner, Card } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
@@ -25,7 +25,8 @@ export function LoadingButton({
 
 export function MapLoadingButton(props) {
   const { isLoading } = useMapStatus();
-  return h(LoadingButton, { ...props, isLoading });
+  const mapIsLoading = useMemo(() => isLoading, [isLoading]);
+  return h(LoadingButton, { ...props, isLoading: mapIsLoading });
 }
 
 type AnyChildren = React.ReactNode | React.ReactFragment;

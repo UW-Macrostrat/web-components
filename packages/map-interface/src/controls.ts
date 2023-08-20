@@ -45,7 +45,7 @@ export function MapBottomControls() {
   return h("div.map-controls", [
     h(ScaleControl),
     h(ThreeDControl, { className: "map-3d-control" }),
-    //h(CompassControl, { className: "compass-control" }),
+    h(CompassControl, { className: "compass-control" }),
     h(GlobeControl, { className: "globe-control" }),
     h(GeolocationControl, { className: "geolocation-control" }),
   ]);
