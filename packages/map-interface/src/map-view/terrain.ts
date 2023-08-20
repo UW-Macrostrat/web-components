@@ -9,7 +9,7 @@ export function enable3DTerrain(
 
   console.log("Enabling 3D terrain with source", demSourceID);
 
-  if (!map.style._loaded) {
+  if (!map.style?._loaded) {
     map.once("style.load", () => {
       enable3DTerrain(map, shouldEnable, demSourceID);
     });

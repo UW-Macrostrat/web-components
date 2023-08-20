@@ -21,6 +21,7 @@
     "@storybook/components": "^7.3.2",
     "@storybook/preset-scss": "^1.0.3",
     "@storybook/react": "^7.3.2",
+    "@storybook/react-vite": "^7.3.2",
     "@storybook/theming": "^7.3.2",
     "@types/d3-geo": "^2.0.0",
     "@types/geojson": "^7946.0.7",

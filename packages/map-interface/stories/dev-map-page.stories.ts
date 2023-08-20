@@ -12,9 +12,7 @@ const meta: Meta<typeof DevMapPage> = {
 
 export default meta;
 
-const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
-
-console.log("Mapbox token:", mapboxToken);
+const mapboxToken = import.meta.env.STORYBOOK_MAPBOX_API_TOKEN;
 
 export function DevMapPageTest() {
   return h(
