@@ -5,6 +5,10 @@ import { themes } from "@storybook/theming";
 import h from "@macrostrat/hyper";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "storybook-dark-mode";
+import "@macrostrat/style-system";
+import { FocusStyleManager } from "@blueprintjs/core";
+
+FocusStyleManager.onlyShowFocusOnTabs();
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },

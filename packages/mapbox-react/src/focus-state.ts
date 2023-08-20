@@ -231,7 +231,8 @@ export function LocationFocusButton({
   ...rest
 }) {
   const map = useMapRef();
-  focusState ??= useFocusState(location);
+  const defaultFocusState = useFocusState(location);
+  focusState ??= defaultFocusState;
   const _isCentered = isCentered(focusState);
 
   return h(
