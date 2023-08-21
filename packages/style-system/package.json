@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/style-system",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Style system for Macrostrat",
   "main": "dist/index.css",
   "source": "src/index.ts",
@@ -17,5 +17,24 @@
   "dependencies": {
     "@blueprintjs/colors": "^4.1.22",
     "@blueprintjs/core": "^4.18.0"
-  }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.css",
+      "require": "./dist/index.css"
+    },
+    "./src": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts"
+    }
+  },
+  "keywords": [
+    "macrostrat",
+    "style",
+    "geology"
+  ]
 }
