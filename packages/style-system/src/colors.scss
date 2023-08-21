@@ -1,5 +1,4 @@
 @use "sass:color";
-
 @import "@blueprintjs/colors/lib/scss/colors";
 
 $colors: (
@@ -13,10 +12,10 @@ $colors: (
   background-color: #fff,
   panel-background-color: #fff,
   panel-secondary-background-color: #f5f8fa,
-  translucent-panel-background-color: rgba(255,255,255,0.2),
+  translucent-panel-background-color: rgba(255, 255, 255, 0.2),
   panel-rule-color: #ddd,
-  accent-secondary-color: #F5F8FA,
-  accent-secondary-hover-color: #EBF1F5,
+  accent-secondary-color: #f5f8fa,
+  accent-secondary-hover-color: #ebf1f5,
   ui-color-accent: rgb(252, 217, 250),
   ui-color-accent-text: rgb(143, 39, 138),
   box-horizontal-padding: 0.8em,
@@ -24,7 +23,7 @@ $colors: (
   text-subtle-color: #444,
   text-emphasized-color: #000,
   card-shadow-color: rgba(17, 20, 24, 0.15),
-  error-text-color: #CD4246
+  error-text-color: #cd4246,
 );
 
 $dark-background: #141a1e;
@@ -37,19 +36,28 @@ $dark-colors: (
   text-subtle-color: $gray3,
   panel-background-color: $dark-background,
   background-color: $dark-background,
-  panel-secondary-background-color: color.scale($dark-background, $lightness: 5%),
-  translucent-panel-background-color: color.change($dark-background, $alpha: 0.6),
-  accent-color: $accent, // light gray 3,
+  panel-secondary-background-color:
+    color.scale($dark-background, $lightness: 5%),
+  translucent-panel-background-color:
+    color.change($dark-background, $alpha: 0.6),
+  accent-color: $accent,
+  // light gray 3,
   accent-secondary-color: lighten($accent, 0%),
   accent-secondary-hover-color: lighten($accent, 5%),
   panel-rule-color: #404854,
-  secondary-color: $gray1, // gray3,
-  tertiary-background: lighten($accent, 4%), // light gray 5,
-  tertiary-color: #383E47, // light gray 4,
-  tertiary-border-color: #5F6B7C, // gray 5,
-  accent-hover-color: lighten($accent, 4%), // light gray 1,
-  accent-border-color: #5F6B7C, // gray5,
+  secondary-color: $gray1,
+  // gray3,
+  tertiary-background: lighten($accent, 4%),
+  // light gray 5,
+  tertiary-color: #383e47,
+  // light gray 4,
+  tertiary-border-color: #5f6b7c,
+  // gray 5,
+  accent-hover-color: lighten($accent, 4%),
+  // light gray 1,
+  accent-border-color: #5f6b7c,
+  // gray5,
   card-shadow-color: color.adjust($gray1, $alpha: 0.2),
   ui-color-accent-text: rgb(252, 217, 250),
-  ui-color-accent: darken(rgb(143, 39, 138), 50%)
+  ui-color-accent: darken(rgb(143, 39, 138), 50%),
 );

@@ -13,19 +13,15 @@ const projectDir = path.resolve(path.join(__dirname, ".."));
 // tries to copy this file but in NodeJs
 // https://github.com/UW-Macrostrat/python-libraries/blob/main/publish.py
 
-const packages = [
-  "ui-components",
-  "mapbox-utils",
-  "mapbox-react",
-  "map-interface",
-  "style-system",
-];
+function readPackageJSON(dirname) {
+  const pkgPath = path.join(dirname, "package.json");
+  return JSON.parse(fs.readFileSync(pkgPath));
+}
 
 /* get package.json filr from correct dir */
 function getPackageData(pkgName) {
   const rootDir = getPkgDir(pkgName);
-  const pkgData = fs.readFileSync(path.join(rootDir, "package.json"));
-  return JSON.parse(pkgData);
+  return readPackageJSON(rootDir);
 }
 
 function getPkgDir(pkgName) {
@@ -101,6 +97,8 @@ function moduleString(pkg, separator = "@") {
 
 async function main() {
   let pkgsToPublish = [];
+
+  const { publishedPackages: packages } = readPackageJSON(projectDir);
 
   for (const pkg of packages) {
     const isAvailable = await packageExists(getPackageData(pkg));

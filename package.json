@@ -48,6 +48,13 @@
     "sass": "^1.62.0",
     "typescript": "^4.7.4"
   },
+  "publishedPackages": [
+    "ui-components",
+    "mapbox-utils",
+    "mapbox-react",
+    "map-interface",
+    "style-system"
+  ],
   "workspaces": [
     "packages/*",
     "concept-apps",
