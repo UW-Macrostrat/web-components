@@ -30,6 +30,7 @@
     "packages/api-utils/src/**/*",
     "packages/**/*.ts",
     "packages/column-views/src/units",
-    "packages/column-views/src/map"
+    "packages/column-views/src/map",
+    "packages/mapbox-styles/src/styles"
   ]
 }

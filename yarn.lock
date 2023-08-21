@@ -6881,9 +6881,11 @@ __metadata:
     "@turf/bbox": ^6.5.0
     chroma-js: ^2.4.2
     classnames: ^2.3.2
+    d3-array: ^3.2.4
     d3-format: ^3.1.0
     mapbox-gl: ^2.11.0
     transition-hook: ^1.5.2
+    underscore: ^1.13.6
     use-resize-observer: ^9.1.0
   peerDependencies:
     "@blueprintjs/core": ^3.43.0 || ^4.3.0
@@ -17327,6 +17329,15 @@ __metadata:
   dependencies:
     internmap: 1 - 2
   checksum: 0bed33cc33b70f9d48ccef3e7a5956e134862e09179bf14df0bf9c8fc0ec02b8f847d4f5e1d32729cd5e02032af1d0a32bcc968ff1333795028455a749994623
+  languageName: node
+  linkType: hard
+
+"d3-array@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "d3-array@npm:3.2.4"
+  dependencies:
+    internmap: 1 - 2
+  checksum: a5976a6d6205f69208478bb44920dd7ce3e788c9dceb86b304dbe401a4bfb42ecc8b04c20facde486e9adcb488b5d1800d49393a3f81a23902b68158e12cddd0
   languageName: node
   linkType: hard
 
@@ -35362,6 +35373,13 @@ __metadata:
   version: 1.13.4
   resolution: "underscore@npm:1.13.4"
   checksum: 6b04f66cd454e8793a552dc49c71e24e5208a29b9d9c0af988a96948af79103399c36fb15db43f3629bfed152f8b1fe94f44e1249e9d196069c0fc7edfadb636
+  languageName: node
+  linkType: hard
+
+"underscore@npm:^1.13.6":
+  version: 1.13.6
+  resolution: "underscore@npm:1.13.6"
+  checksum: d5cedd14a9d0d91dd38c1ce6169e4455bb931f0aaf354108e47bd46d3f2da7464d49b2171a5cf786d61963204a42d01ea1332a903b7342ad428deaafaf70ec36
   languageName: node
   linkType: hard
 

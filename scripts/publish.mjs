@@ -13,7 +13,13 @@ const projectDir = path.resolve(path.join(__dirname, ".."));
 // tries to copy this file but in NodeJs
 // https://github.com/UW-Macrostrat/python-libraries/blob/main/publish.py
 
-const packages = ["ui-components", "mapbox-utils", "mapbox-react"];
+const packages = [
+  "ui-components",
+  "mapbox-utils",
+  "mapbox-react",
+  "map-interface",
+  "style-system",
+];
 
 /* get package.json filr from correct dir */
 function getPackageData(pkgName) {
