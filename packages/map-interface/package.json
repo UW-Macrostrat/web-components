@@ -1,15 +1,15 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Map interface for Macrostrat",
   "type": "module",
   "source": "src/index.ts",
   "main": "dist/index.js",
-  "module": "dist/index.mjs",
   "dependencies": {
     "@macrostrat/hyper": "^2.2.1",
     "@macrostrat/mapbox-react": "workspace:*",
     "@macrostrat/mapbox-utils": "workspace:*",
+    "@macrostrat/ui-components": "workspace:*",
     "@mapbox/tilebelt": "^1.0.2",
     "@turf/bbox": "^6.5.0",
     "chroma-js": "^2.4.2",
