@@ -24,6 +24,7 @@
     "packages/api-types/types/*",
     "packages/api-views/src/**/*",
     "packages/column-components/src/**/*",
+    "packages/map-interface/src/**/*",
     "packages/map-components/src/**/*",
     "packages/ui-components/src/**/*",
     "packages/api-utils/src/**/*",

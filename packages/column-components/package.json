@@ -10,6 +10,9 @@
   ],
   "main": "./dist/cjs",
   "module": "./dist/esm",
+  "exports": {
+    "typescript": "./src/index.ts"
+  },
   "style": "./dist/esm/index.css",
   "typings": "./dist/types/index.d.ts",
   "type": "module",
@@ -39,7 +42,7 @@
     "rimraf": "^3.0.0",
     "rollup": "^2.38.1",
     "rollup-plugin-postcss": "^3.1.8",
-    "stylus": "^0.54.7"
+    "stylus": "^0.59.0"
   },
   "dependencies": {
     "@macrostrat/hyper": "^2.1.0",
@@ -56,6 +59,7 @@
     "labella": "^1.1.4",
     "prop-types": "^15.7.2",
     "react-color": "^2.18.0",
+    "react-dom": "^16.12.0||^17.0.0||^18",
     "react-draggable": "^4.4.5",
     "react-hyperscript": "^3.2.0",
     "react-images": "^1.1.0-beta.1",
@@ -68,9 +72,8 @@
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.44.1||^4.3.0",
-    "@macrostrat/ui-components": "^1.0.0",
-    "react": "^16.12.0||^17.0.0",
-    "react-dom": "^16.12.0||^17.0.0"
+    "@macrostrat/ui-components": "workspace:*",
+    "react": "^16.12.0||^17.0.0||^18"
   },
   "prettier": {}
 }

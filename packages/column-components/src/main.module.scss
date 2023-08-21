@@ -1,0 +1,200 @@
+.column-notes .col-note-label {
+  cursor: pointer;
+}
+.column-notes .note-editor.bp4-editable-text {
+  user-select: none;
+}
+.column-notes .note-editor.bp4-editable-text:before {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.position-editor .handle {
+  background-color: #d2e9ff;
+  border: 1px solid #1e90ff;
+}
+.position-editor .add-span-handle {
+  background-color: #e9f4ff;
+  border: 1px dotted #1e90ff;
+}
+.position-editor .top-handle,
+.position-editor .bottom-handle,
+.position-editor .add-span-handle {
+  border-radius: 3px;
+}
+.note-editor .note-connector {
+  stroke: #1e90ff;
+  stroke-width: 3;
+}
+.col-note-label {
+  padding-left: 0.3em;
+  border-left: 1px solid var(--note-color);
+  font-style: italic;
+  margin: 0;
+  z-index: 15;
+}
+g.height-range line {
+  stroke: var(--note-color);
+  stroke-width: 1.2px;
+}
+g.note,
+g.note-editor {
+  --note-color: var(--column-note-color, var(--stroke-color, #000));
+}
+g.note circle,
+g.note-editor circle {
+  fill: var(--note-color);
+}
+g.note .link,
+g.note-editor .link {
+  stroke: var(--note-color);
+  stroke-width: 1;
+  fill: none;
+}
+.new-note circle {
+  fill: #1e90ff;
+}
+.new-note line {
+  stroke: #1e90ff;
+  stroke-width: 3;
+  marker-start: url("#new_arrow_start");
+  marker-end: url("#new_arrow_end");
+}
+#new_arrow_start,
+#new_arrow_end {
+  fill: #1e90ff;
+}
+.column-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+.interval-editor-title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: middle;
+}
+.interval-editor-title h3 {
+  margin: 0;
+}
+.interval-editor-title code {
+  font-family: monospace;
+  font-weight: 600;
+}
+.interval-editor-title :global .bp4-button {
+  transform: translate(0, -5px);
+}
+g.lithology-column use.frame {
+  stroke: #000;
+  stroke-width: 1px;
+}
+g.lithology-column rect.lithology {
+  stroke: #aaa;
+  stroke-width: 0.25pt;
+}
+g.lithology-column rect.lithology.definite {
+  stroke: #000;
+}
+g.lithology-column rect.covered-area {
+  fill: #f00;
+  fill-opacity: 0.2;
+  pointer-events: none;
+}
+g.covered-column rect.covered-area {
+  fill: #f00;
+  fill-opacity: 1;
+}
+.y.axis line {
+  stroke: #000;
+  stroke-width: 2px;
+}
+.y.axis path {
+  stroke: #000;
+  stroke-width: 0;
+}
+.y.axis text {
+  font-size: 12px;
+  font-weight: bold;
+}
+div.section-outer {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+div.section-outer svg.overlay {
+  z-index: 10;
+}
+.grainsize.axis.rotated text {
+  text-anchor: start;
+}
+.grainsize.axis.rotated text.top {
+  transform: translate(0, -2px) rotate(-60deg);
+}
+.grainsize.axis.rotated text.bottom {
+  transform: translate(0, 10px) rotate(60deg);
+}
+.grainsize.axis text {
+  font-family: 'Helvetica Neue';
+  text-anchor: middle;
+  font-size: 10;
+  font-style: italic;
+}
+.grainsize.axis text.top {
+  transform: translate(0, -2px);
+}
+.grainsize.axis text.bottom {
+  transform: translate(0, 10px);
+}
+.grainsize.axis line {
+  stroke: #2191ff;
+  stroke-width: 1px;
+  stroke-dasharray: 2, 2;
+}
+@media (prefers-color-scheme: dark) {
+  .grainsize.axis text {
+    fill: #fff;
+  }
+}
+.note.error {
+  background: rgba(255,0,0,0.2) !important;
+}
+.note.error p {
+  color: #fe0000 !important;
+}
+g.samples g.sample text {
+  alignment-baseline: middle;
+  text-anchor: end;
+  font-size: 10px;
+  font-style: italic;
+}
+g.samples g.sample circle {
+  fill: #000;
+}
+div.photo-dialog {
+  width: 90%;
+  height: 80vh;
+  top: 10vh;
+}
+div.photo-dialog div.image-gallery-image img {
+  max-width: 100%;
+}
+rect.symbol-column-area {
+  fill: none;
+}
+g.triangle-bars path {
+  fill: #aaa;
+  stroke: #888;
+  stroke-width: 1.5px;
+}
+div.Select-menu-outer {
+  z-index: 15;
+}
+div.edit-overlay div.cursor-container {
+  position: absolute;
+}
+div.edit-overlay div.cursor-container .bp4-popover-wrapper {
+  display: block;
+  width: 80px;
+}

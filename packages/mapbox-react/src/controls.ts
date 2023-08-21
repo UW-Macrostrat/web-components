@@ -10,23 +10,29 @@ import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
 import { useMapElement, useMapRef } from "./context";
 
-export function MapControlWrapper({ className, control, options }) {
+export function MapControlWrapper({ className, control, options = {} }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
-  const map = useMapRef();
+  const mapRef = useMapRef();
   const controlContainer = useRef<HTMLDivElement>();
   const controlRef = useRef<Base>();
 
+  // Memoize the options object so that we don't continually recreate the control.
+  const _options = useRef(options);
   useEffect(() => {
-    if (map.current == null) return;
-    const ctrl = new control(options);
+    _options.current = options;
+  }, Object.values(options));
+
+  useEffect(() => {
+    if (mapRef.current == null) return;
+    const ctrl = new control(_options);
 
     controlRef.current = ctrl;
-    const controlElement = ctrl.onAdd(map.current);
+    const controlElement = ctrl.onAdd(mapRef.current);
     controlContainer.current.appendChild(controlElement);
     return () => {
       controlRef.current?.onRemove();
     };
-  }, [map.current, controlRef, controlContainer, options]);
+  }, [mapRef.current, controlContainer.current, control, _options]);
 
   return h("div.map-control-wrapper", { className, ref: controlContainer });
 }
@@ -88,12 +94,13 @@ class _ThreeDControl extends Base {
   }
 }
 
-export const CompassControl = ({ className, options }) =>
-  h(MapControlWrapper, {
+export function CompassControl({ className, options }) {
+  return h(MapControlWrapper, {
     className: classNames("compass-control", className),
     control: _CompassControl,
     options,
   });
+}
 
 export const ZoomControl = ({ className, options }) =>
   h(MapControlWrapper, {

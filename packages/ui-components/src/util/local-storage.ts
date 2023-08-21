@@ -35,22 +35,42 @@ class LocalStorage<T> {
 function useStoredState<S>(
   key: string,
   initialState: S | (() => S),
-  isValid: (S) => boolean = (d) => true
+  isValid: (S) => boolean = null
 ): [S, Dispatch<SetStateAction<S>>, VoidFunction] {
   /** React hook for setting and getting values on local storage */
   const storage = useMemo(() => new LocalStorage<S>(key), [key]);
   let initialValue = storage.get();
-  if (!isValid(initialValue)) initialValue = null;
+
+  const validator = useCallback(
+    (state: S) => {
+      if (isValid != null) return isValid(state);
+      if (state == null) return false;
+      if (typeof state != typeof initialState) return false;
+      if (typeof state == "object") {
+        const expectedKeys = Object.keys(initialState);
+        const actualKeys = Object.keys(state);
+        if (expectedKeys.length != actualKeys.length) return false;
+        for (const [key, value] of Object.entries(initialState)) {
+          if (!actualKeys.includes(key)) return false;
+          if (typeof value != typeof state[key]) return false;
+        }
+      }
+      return true;
+    },
+    [initialState, isValid]
+  );
+
+  if (!validator(initialValue)) initialValue = null;
   const [state, _setState] = useState<S>(initialValue ?? initialState);
 
   const setState = useCallback(
     (nextState: S, validate = true) => {
-      if (validate && !isValid(nextState))
+      if (validate && !validator(nextState))
         throw `State ${nextState} is not valid.`;
       _setState(nextState);
       storage.set(nextState);
     },
-    [isValid]
+    [validator]
   );
 
   const resetState = useCallback(() => {

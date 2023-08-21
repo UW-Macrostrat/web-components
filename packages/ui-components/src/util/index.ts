@@ -7,3 +7,4 @@ export * from "./scroll-helpers";
 export * from "./migration-helpers";
 export * from "./box-model";
 export * from "./event-hooks";
+export * from "./flexbox";

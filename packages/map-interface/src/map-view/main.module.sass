@@ -1,0 +1,13 @@
+.map-view-container
+  flex-grow: 1
+  position: relative
+  overflow: hidden
+
+/* Desktop styling is necessarily much more complicated than mobile
+ to handle a two-column layout. */
+@media screen and (min-width: 768px)
+  /* Make map fill page rather than containing div,
+   by unsetting map position */
+  // We should move this to another file.
+  .map-view-container
+    position: unset

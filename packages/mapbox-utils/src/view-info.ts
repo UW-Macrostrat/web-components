@@ -4,9 +4,18 @@ export interface MapViewInfo {
   mapIsRotated: boolean;
   mapUse3D: boolean;
   mapIsGlobal: boolean;
+  mapIsLoaded: boolean;
 }
 
-export function mapViewInfo(mapPosition: MapPosition): MapViewInfo {
+export function mapViewInfo(mapPosition: MapPosition | null): MapViewInfo {
+  if (mapPosition == null) {
+    return {
+      mapIsRotated: false,
+      mapUse3D: false,
+      mapIsGlobal: false,
+      mapIsLoaded: false,
+    };
+  }
   // Switch to 3D mode at high zoom levels or with a rotated map
   const pitch = mapPosition.camera.pitch ?? 0;
   const bearing = mapPosition.camera.bearing ?? 0;
@@ -24,5 +33,6 @@ export function mapViewInfo(mapPosition: MapPosition): MapViewInfo {
     mapIsRotated,
     mapUse3D,
     mapIsGlobal,
+    mapIsLoaded: true,
   };
 }

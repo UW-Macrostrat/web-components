@@ -10,7 +10,7 @@ import { hyperStyled } from "@macrostrat/hyper";
 import { FaciesContext } from "../../context";
 import { BasicFaciesSwatch } from "./color-picker";
 import { RaisedSelect } from "../util";
-import styles from "../main.module.styl";
+import styles from "../main.module.scss";
 
 const h = hyperStyled(styles);
 

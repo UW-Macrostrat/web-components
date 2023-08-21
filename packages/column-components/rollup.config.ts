@@ -38,7 +38,7 @@ export default {
     postcss({
       // postfix with .module.css etc. for css modules
       modules: true,
-      extensions: [".css", ".styl"],
+      extensions: [".css", ".scss"],
       extract: "index.css",
     }),
     babel({

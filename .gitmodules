@@ -1,0 +1,3 @@
+[submodule "deps/geologic-patterns"]
+	path = deps/geologic-patterns
+	url = ../geologic-patterns

@@ -8,7 +8,7 @@ FocusStyleManager.onlyShowFocusOnTabs();
 import { render } from "react-dom";
 import h from "@macrostrat/hyper";
 // Import styles shared between all apps
-import "./deps.styl";
+import "./deps.scss";
 
 export default function renderApp(
   Component: React.ComponentType,

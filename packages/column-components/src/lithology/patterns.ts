@@ -82,6 +82,11 @@ const VectorGeologicPattern = (props: IGeologicPatternBase) => {
   } = props;
   const patternSize = { width, height };
   const patternBounds = { x: 0, y: 0, ...patternSize };
+  const href = resolvePattern(id);
+
+  if (href == null) {
+    return null;
+  }
 
   // Compositing if we want to set overlay color
   // let overlayStyles = {}
@@ -106,7 +111,7 @@ const VectorGeologicPattern = (props: IGeologicPatternBase) => {
         // Mask, if required
         h.if(color != null && id != null)("mask", { id: maskID }, [
           h("image", {
-            xlinkHref: resolvePattern(id),
+            xlinkHref: href,
             ...patternBounds,
           }),
         ]),
@@ -122,7 +127,7 @@ const VectorGeologicPattern = (props: IGeologicPatternBase) => {
         }),
         // Or render the image as normal
         h.if(id != null && color == null)("image", {
-          xlinkHref: resolvePattern(id),
+          xlinkHref: href,
           ...patternBounds,
         }),
       ]),

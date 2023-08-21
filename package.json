@@ -13,7 +13,7 @@
     "deploy": "./scripts/deploy-steno",
     "dev": "./scripts/run-dev-server",
     "clean": "rm -rf .cache dist",
-    "dev:storybook": "yarn workspace storybook run dev",
+    "dev:storybook": "yarn workspace @macrostrat/storybook run dev",
     "dev:concepts": "yarn workspace concept-apps run dev",
     "publish": "node ./scripts/publish.mjs"
   },
@@ -26,14 +26,15 @@
     "@macrostrat/ui-components": "./packages/ui-components/src",
     "@macrostrat/api-views": "./packages/api-views/src",
     "@macrostrat/timescale": "./packages/timescale/src",
-    "@macrostrat/concept-app-helpers": "./packages/concept-app-helpers/src",
     "@macrostrat/mapbox-react": "./packages/mapbox-react/src",
     "@macrostrat/mapbox-styles": "./packages/mapbox-styles/src",
     "@macrostrat/mapbox-utils": "./packages/mapbox-utils/src",
-    "common": "./packages/common/src"
+    "@macrostrat/map-interface": "./packages/map-interface/src"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",
+    "@babel/preset-env": "^7.21.4",
+    "@babel/preset-typescript": "^7.21.4",
     "@parcel/transformer-sass": "2.6.2",
     "@parcel/transformer-stylus": "2.6.2",
     "axios": "^0.27.2",
@@ -44,6 +45,7 @@
     "lerna": "^4.0.0",
     "node-fetch": "^3.2.9",
     "prettier": "^2.7.1",
+    "sass": "^1.62.0",
     "typescript": "^4.7.4"
   },
   "workspaces": [
@@ -52,5 +54,14 @@
     "storybook",
     "toolchain/*"
   ],
-  "prettier": {}
+  "prettier": {},
+  "dependencies": {
+    "@babel/preset-react": "^7.18.6"
+  },
+  "packageManager": "yarn@3.5.0",
+  "dependenciesMeta": {
+    "geologic-patterns@2.0.0-dev1": {
+      "unplugged": true
+    }
+  }
 }

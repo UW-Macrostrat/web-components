@@ -1,0 +1,53 @@
+tr
+  height 20px
+
+
+col
+  width: 100px
+  &.color
+    width 120px
+  &.index-column
+    width 40px
+
+.data-grid-container .data-grid .cell
+  height 20px
+  &> input
+    margin 0
+    padding 0 4px
+    outline: none !important
+    height: 19px
+    width: calc(100% + 2px)
+  &>.value-viewer
+    padding 0 4px
+  &[data-status="invalid"]
+    box-shadow: inset 0 0 0 1px salmon;
+
+.neatline
+  fill: none
+  stroke: black
+  stroke-width: 2px
+
+.left-panel
+  max-width: 600px
+
+.data-area-main
+  display: flex
+  flex-direction row
+  &>*
+    margin-right 4px
+    &:last-child
+      margin-right 0
+
+.popover-container
+  span.popover-target, span.bp4-popover2-target
+    display inline !important
+    pointer-events none
+    width 10px !important
+    height: 10px !important
+
+.interaction-barrier
+  pointer-events: all
+
+p.description
+  color #aaa
+  font-style: italic

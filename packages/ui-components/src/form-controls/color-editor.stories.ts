@@ -14,12 +14,22 @@ export default {
 
 const Template: ComponentStory<typeof ColorEditor> = (args) => {
   const [{ ...rest }, updateArgs] = useArgs();
-  return h(ColorEditor, {
-    ...rest,
-    onChange(c) {
-      updateArgs({ ...rest, color: c });
+  return h(
+    "div.container",
+    {
+      style: {
+        height: "300px",
+        margin: "20px",
+        paddingTop: 100,
+      },
     },
-  });
+    h(ColorEditor, {
+      ...rest,
+      onChange(c) {
+        updateArgs({ ...rest, color: c });
+      },
+    })
+  );
 };
 
 export const TestEditor = Template.bind({});

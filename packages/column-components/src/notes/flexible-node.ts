@@ -1,4 +1,4 @@
-var Node = require("labella").Node;
+import { Node } from "labella";
 
 class FlexibleNode {
   constructor(allowedRange, width, data) {

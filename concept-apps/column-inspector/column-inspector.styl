@@ -18,46 +18,6 @@ body#column-inspector
   position relative
   .left-column
     flex-grow 1
-    overflow-y scroll
-    height 100vh
-  .right-column
-    min-width 200px
-    width 40%
-    max-width 500px
-    height 100vh
-    position relative
-    .map-area
-      width 100%
-      height 100%
-
-.column-view
-  margin 0
-  padding 0
-  h1
-    font-size 1.2em
-    margin-bottom 0.2em
-    padding-left 35px
-
-// Column
-.column
-  display: flex
-  flex-direction row
-  .age-axis-label
-    writing-mode vertical-lr
-    transform: rotate(180deg)
-    font-size 12px
-    text-align: center
-    position: sticky
-    top: 0
-    max-height: 100vh
-  .tick text
-    text-anchor middle
-    font-weight 400 !important
-    transform rotate(-90deg) translate(8px,-12px)
-
-rect.unit
-  stroke: black
-  stroke-width: 1px
 
 g.lithology-column use.frame
   stroke black

@@ -2,7 +2,7 @@ import JSONTree from "react-json-tree";
 import { hyperStyled, classed } from "@macrostrat/hyper";
 import { inDarkMode, useDarkMode } from "../dark-mode";
 import classNames from "classnames";
-import styles from "./main.module.styl";
+import styles from "./main.module.scss";
 
 const h = hyperStyled(styles);
 

@@ -1,0 +1,419 @@
+.map-page
+  display: flex
+  flex-direction: column
+  position: relative
+  width: 100%
+  height: 100%
+  &.fit-viewport
+    height: 100vh
+    width: 100vw
+    /* mobile viewport bug fix */
+    max-height: -webkit-fill-available
+
+  // Compass display
+  .compass-control
+    display: none
+  &.map-is-rotated
+    .compass-control
+      display: block
+
+  .map-3d-control
+    display: none
+  &.map-3d-available .map-3d-control
+    display: block
+  &.map-is-rotated.map-3d-available .map-3d-control
+    display: none
+
+  .globe-control
+    display: none
+    svg
+      color: var(--secondary-color)
+  &.map-is-global .globe-control
+    display: block
+
+.main-ui
+  flex: 1
+  position: relative
+  display: flex
+  flex-direction: column
+  max-height: 100%
+  height: 100%
+  box-shadow: 0 0 10px 4px var(--card-shadow-color)
+
+.panel-card
+  padding: 10px
+  background-color: var(--panel-background-color)
+
+  & >:last-child
+    margin-bottom: 0
+
+:global(.bp4-dark) .panel-card
+  background-color: var(--panel-background-color)
+
+.context-stack
+  display: flex
+  flex-direction: column
+  max-height: 100%
+
+  &>div
+    flex-shrink: 1
+
+  &>.searchbar
+    flex: 0
+
+.context-stack,
+.detail-stack
+  z-index: 100
+
+.panel-container
+  display: flex
+  flex-direction: column
+
+  &>div
+    pointer-events: all
+
+.panel-title
+  font-size: 16px
+
+.spacer
+  flex-grow: 1
+  pointer-events: none
+
+.map-view-container
+  flex-grow: 1
+  position: relative
+  overflow: hidden
+
+.searchbar-holder
+  margin-bottom: 0.5em
+
+.right-panel
+  width: 24em
+
+.buttons
+  display: flex
+  flex-direction: row
+  flex: 1
+  min-width: 0
+
+.tab-button
+  flex-shrink: 1
+  min-width: 40px
+  overflow: hidden
+  text-align: right
+
+  & :global(.bp4-button-text)
+    transition: all 0.2s
+    transition-delay: 0.1s
+
+  .menu-card.narrow-card .panel-header:not(.minimal) &:global(.bp4-active) ~ & :global(.bp4-button-text)
+    width: 0
+    opacity: 0
+    margin-left: -7px
+
+  .context-panel-leave .menu-card .panel-header & :global(.bp4-button-text)
+    opacity: 0
+    width: 0
+
+.narrow-card.narrow-enter .panel-header .buttons
+  margin-right: -500px
+
+.panel-header.minimal .tab-button:not(:hover):not(:global(.bp4-active))
+  padding-left: 0
+  padding-right: 0
+  min-width: 30px
+  width: 30px
+
+.panel-header.minimal .tab-button:not(:hover) :global(.bp4-button-text)
+  width: 0
+  opacity: 0
+  margin-left: -7px
+
+.menu-group
+  margin-bottom: 0.5em
+  margin-top: 0.2em
+
+.menu-card :global .bp4-text ul,
+.menu-card :global .text-panel ul
+  padding-left: 1em
+
+.menu-content
+  display: flex
+  flex-direction: column
+  margin-bottom: -8px
+
+  & .bp4-button-group
+    margin-bottom: 4px
+
+  & hr
+    width: 100%
+
+:global #map
+  position: absolute
+  top: 0
+  bottom: 0
+  left: 0
+  right: 0
+
+:global #map .mapbox-compass,
+:global #map .mapbox-3d
+  display: none
+
+:global .mapboxgl-ctrl.mapbox-3d.mapbox-control
+  width: unset
+
+:global .mapboxgl-ctrl.mapbox-3d.mapbox-control button
+  width: unset
+  padding-inline: 4px
+
+:global .mapboxgl-canvas-container
+  width: 100%
+  height: 100%
+
+:global .mapboxgl-ctrl.mapboxgl-ctrl-attrib
+  background-color: var(--translucent-panel-background-color) !important
+
+:global .mapboxgl-ctrl.mapboxgl-ctrl-attrib a
+  color: var(--text-color)
+
+:global .mapboxgl-marker svg path
+  fill: var(--panel-background-color) !important
+
+:global .mapboxgl-marker svg circle
+  fill: var(--secondary-color) !important
+
+:global .mapbox-control.mapbox-zoom
+  background: var(--translucent-panel-background-inner)
+
+:global .mapbox-control.mapbox-zoom svg
+  fill: var(--text-color) !important
+
+:global .mapboxgl-ctrl-logo
+  transform: scale(0.9) translate(-8px, 2px)
+
+:global .bp4-dark .mapboxgl-ctrl-logo
+  filter: invert(100%)
+
+:global .mapboxgl-ctrl-group button + button
+  border-top: 1px solid var(--panel-rule-color) !important
+
+:global .bp4-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon
+  filter: invert(40%)
+
+:global .bp4-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon:hover
+  filter: invert(50%)
+
+:global .mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon
+  filter: invert(40%)
+
+:global .mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon:hover
+  filter: invert(50%)
+
+.detail-stack
+  position: relative
+
+.main-ui.detail-panel-open .zoom-control
+  opacity: 0
+  display: none
+
+.zoom-control
+  transition: opacity 1s ease-in-out
+  width: 30px
+  position: absolute
+  top: 0
+  right: 0
+
+.main-ui.searching .map-view-container
+  pointer-events: none
+
+.map-controls
+  display: flex
+  flex-direction: row
+  justify-content: right
+  margin-bottom: 0
+
+  &>*
+    margin-left: 0.5em
+
+.map-controls :global(.mapbox-control),
+.map-controls :global(.map-control-wrapper),
+.map-controls .map-control
+  min-width: 22px
+  min-height: 22px
+  border-radius: 4px
+  background-color: var(--panel-background-color)
+  box-shadow: 0 0 0 1px var(--card-shadow-color)
+
+.map-controls :global(.mapbox-control) button,
+.map-controls :global(.map-control-wrapper) button,
+.map-controls .map-control button
+  width: 22px
+  height: 22px
+  background-position: center center
+  padding: 0
+  background-color: var(--panel-background-color)
+  color: var(--text-color)
+
+.map-controls :global(.mapbox-control) button:hover,
+.map-controls :global(.map-control-wrapper) button:hover,
+.map-controls .map-control button:hover
+  background-color: var(--panel-background-color) !important
+
+.map-controls .map-scale-control
+  background: none
+  box-shadow: none
+  padding-top: 8px
+
+  :global(.mapboxgl-ctrl-scale)
+    background-color: var(--translucent-panel-background-color)
+    border-color: var(--secondary-text-color)
+    color: var(--secondary-text-color)
+
+/* For mobile phones, we want to make the most of screen space,
+ which in some cases means adding complications to the basic page. */
+@media only screen and (max-width: 768px)
+  .main-ui.detail-panel-enter .context-stack
+    height: 0
+    visibility: hidden
+    transition: height 0.5s ease-in-out
+
+  .detail-stack
+    height: fit-content
+    position: inherit
+    max-height: 70%
+
+  .infodrawer-stack
+    max-height: 70%
+
+  :global(.exit-active)
+    max-height: 0
+
+  :global(.mapbox-control.mapbox-zoom)
+    display: none
+
+  .map-controls
+    position: absolute
+    top: -60px
+    right: 10px
+
+  .detail-panel
+    border-radius: 0px
+
+/* Desktop styling is necessarily much more complicated than mobile
+ to handle a two-column layout. */
+@media screen and (min-width: 768px)
+  .main-ui
+    flex-direction: row
+    padding: 1em 1em 2em
+    min-height: 80px
+    &>*
+      margin-right: 0.5em
+      &>*:last-child
+        margin-right: 0
+
+    &.searching .context-stack
+      width: 24em
+
+  .context-stack
+    max-width: 34em
+    min-width: 14em
+    width: 16em
+    transition: width 300ms ease
+    padding-bottom: 0.5em
+
+    &.panel-open
+      width: 34em
+      margin-right: 0.5em
+
+  .context-stack.layers,
+  .context-stack.settings
+    width: 18em
+    margin-right: 0.5em
+
+  .main-ui.detail-panel-open .detail-stack
+    width: 30em
+
+  .detail-stack
+    width: 30em
+    pointer-events: none
+    display: flex
+    flex-direction: column
+
+  .context-stack,
+  .detail-stack
+    pointer-events: none
+    z-index: 100
+
+  .context-stack>div,
+  .detail-stack>div
+    pointer-events: all
+    margin-bottom: 0.5em
+
+  .context-stack>div:last-child,
+  .detail-stack>div:last-child
+    margin-bottom: 0
+
+  .context-stack>div.spacer,
+  .detail-stack>div.spacer
+    pointer-events: none
+
+  .map-view-container
+    position: unset
+
+.main-ui .detail-panel
+  transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+
+.main-ui.detail-panel-from .detail-panel
+  opacity: 0
+
+.main-ui.detail-panel-enter .detail-panel
+  opacity: 1
+
+.main-ui.detail-panel-leave .detail-panel
+  opacity: 0
+
+.main-ui .context-panel
+  transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+
+.main-ui.context-panel-from .context-panel
+  opacity: 0
+
+.main-ui.context-panel-enter .context-panel
+  opacity: 1
+
+.main-ui.context-panel-leave .context-panel
+  opacity: 0
+
+@media only screen and (max-width: 768px)
+  .main-ui .detail-stack
+    transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+
+  .main-ui.detail-panel-from .detail-stack
+    max-height: 0
+    height: 0
+
+  .main-ui.detail-panel-leave .detail-stack
+    max-height: 0
+    max-height: 0
+
+  .main-ui .context-panel
+    transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+
+  .main-ui.context-panel-from .context-panel
+    max-height: 0
+    height: 0
+
+  .main-ui.context-panel-leave .context-panel
+    max-height: 0
+    max-height: 0
+
+// Shift UI around to center elements if we're in the global view 
+@media only screen and (min-width: 768px)
+  .map-page .main-ui.detail-panel-leave .map-view-container
+    margin-right: -14em
+
+  .map-page.map-is-global .main-ui.detail-panel-leave .map-view-container
+    margin-right: -30em
+
+  .map-page.map-is-global .main-ui.context-panel-leave .map-view-container
+    margin-left: -16em

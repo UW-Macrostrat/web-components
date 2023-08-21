@@ -3,7 +3,7 @@ import {
   createElement,
   createContext,
   useContext,
-  useRef
+  useRef,
 } from "react";
 import h from "react-hyperscript";
 import { path } from "d3-path";
@@ -31,7 +31,7 @@ class SimpleFrame extends Component {
   static initClass() {
     this.contextType = ColumnLayoutContext;
     this.propTypes = {
-      id: T.string.isRequired
+      id: T.string.isRequired,
     };
   }
   render() {
@@ -52,7 +52,6 @@ class GrainsizeFrame extends Component {
   render() {
     let div;
     const { scale, divisions, grainsizeScale: gs } = this.context;
-    //if (gs == null) return null
     let { id: frameID } = this.props;
     if (frameID.startsWith("#")) {
       frameID = frameID.slice(1);
@@ -63,14 +62,14 @@ class GrainsizeFrame extends Component {
 
     const [bottomOfSection, topOfSection] = scale.domain();
 
-    const topOf = function(d) {
+    const topOf = function (d) {
       let { top } = d;
       if (top > topOfSection) {
         top = topOfSection;
       }
       return scale(top);
     };
-    const bottomOf = function(d) {
+    const bottomOf = function (d) {
       let { bottom } = d;
       if (bottom < bottomOfSection) {
         bottom = bottomOfSection;
@@ -78,7 +77,7 @@ class GrainsizeFrame extends Component {
       return scale(bottom);
     };
 
-    const filteredDivisions = divisions.filter(function(d) {
+    const filteredDivisions = divisions.filter(function (d) {
       if (d.top <= bottomOfSection) {
         return false;
       }
@@ -108,13 +107,13 @@ class GrainsizeFrame extends Component {
     return h("path", {
       id: frameID,
       key: frameID,
-      d: _.toString()
+      d: _.toString(),
     });
   }
 }
 GrainsizeFrame.initClass();
 
-const ClipPath = function(props) {
+const ClipPath = function (props) {
   let { id, children, ...rest } = props;
   if (id.startsWith("#")) {
     id = id.slice(1);
@@ -122,17 +121,17 @@ const ClipPath = function(props) {
   return createElement("clipPath", { id, key: id, ...rest }, children);
 };
 
-const UseFrame = function(props) {
+const UseFrame = function (props) {
   const { id: frameID, ...rest } = props;
   return h("use.frame", {
     xlinkHref: frameID,
     fill: "transparent",
     key: "frame",
-    ...rest
+    ...rest,
   });
 };
 
-const prefixID = function(uuid, prefixes) {
+const prefixID = function (uuid, prefixes) {
   const res = {};
   for (let prefix of Array.from(prefixes)) {
     res[prefix + "ID"] = `#${uuid}-${prefix}`;
@@ -140,7 +139,7 @@ const prefixID = function(uuid, prefixes) {
   return res;
 };
 
-const widthOrFrame = function(props, propName) {
+const widthOrFrame = function (props, propName) {
   const { width, frame } = props;
   const widthExists = width != null;
   const frameExists = frame != null;
@@ -159,14 +158,14 @@ class ClipToFrame extends UUIDComponent {
   static initClass() {
     this.defaultProps = {
       onClick: null,
-      shiftY: 0
+      shiftY: 0,
     };
     this.propTypes = {
       left: T.number,
       shiftY: T.number,
       onClick: T.func,
       frame: widthOrFrame,
-      width: widthOrFrame
+      width: widthOrFrame,
     };
   }
   computeTransform() {
@@ -180,7 +179,7 @@ class ClipToFrame extends UUIDComponent {
     let { children, frame, className, onClick } = this.props;
     if (frame == null) {
       const { width } = this.props;
-      frame = props => h(SimpleFrame, { width, ...props });
+      frame = (props) => h(SimpleFrame, { width, ...props });
     }
 
     const transform = this.computeTransform();
@@ -189,16 +188,16 @@ class ClipToFrame extends UUIDComponent {
     return h("g", { className, transform, onClick }, [
       h("defs", { key: "defs" }, [
         h(frame, { id: frameID }),
-        h(ClipPath, { id: clipID }, h(UseFrame, { id: frameID }))
+        h(ClipPath, { id: clipID }, h(UseFrame, { id: frameID })),
       ]),
       h(
         "g.inner",
         {
-          clipPath: `url(${clipID})`
+          clipPath: `url(${clipID})`,
         },
         children
       ),
-      h(UseFrame, { id: frameID })
+      h(UseFrame, { id: frameID }),
     ]);
   }
 }
@@ -211,5 +210,5 @@ export {
   UUIDComponent,
   ClipToFrame,
   UUIDProvider,
-  useUUID
+  useUUID,
 };

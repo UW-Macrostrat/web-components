@@ -1,7 +1,7 @@
 import { defaultIntervals } from "./intervals";
 import { TimescaleProvider, useTimescale } from "./provider";
 import { Interval, TimescaleOrientation } from "./types";
-import { TimescaleBoxes, Cursor } from "./components";
+import { TimescaleBoxes, Cursor, IntervalStyleBuilder } from "./components";
 import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
@@ -9,9 +9,14 @@ import h from "./hyper";
 
 type ClickHandler = (event: Event, age: number) => void;
 
+export enum IncreaseDirection {
+  UP_RIGHT = "up-right",
+  DOWN_LEFT = "down-left",
+}
 interface TimescaleProps {
   intervals?: Interval[];
   orientation?: TimescaleOrientation;
+  increaseDirection?: IncreaseDirection;
   levels?: [number, number] | null;
   length?: number;
   ageRange?: [number, number];
@@ -23,6 +28,7 @@ interface TimescaleProps {
   onClick?: ClickHandler;
   cursorPosition?: number | null;
   cursorComponent?: any;
+  intervalStyle: IntervalStyleBuilder;
 }
 
 function TimescaleContainer(props: {
@@ -69,15 +75,20 @@ function Timescale(props: TimescaleProps) {
     cursorPosition,
     cursorComponent,
     onClick,
+    intervalStyle,
+    increaseDirection = IncreaseDirection.DOWN_LEFT,
   } = props;
 
   const [parentMap, timescale] = nestTimescale(rootInterval, intervals);
 
-  const className = classNames(orientation);
+  const className = classNames(orientation, "increase-" + increaseDirection);
   const length = absoluteAgeScale ? l ?? 6000 : null;
 
   let ageRange2 = ageRange ?? [timescale.eag, timescale.lag];
-  if (orientation == TimescaleOrientation.VERTICAL) {
+  if (
+    orientation == TimescaleOrientation.VERTICAL &&
+    increaseDirection == IncreaseDirection.DOWN_LEFT
+  ) {
     ageRange2.reverse();
   }
 
@@ -93,7 +104,7 @@ function Timescale(props: TimescaleProps) {
       levels,
     },
     h(TimescaleContainer, { className, onClick }, [
-      h(TimescaleBoxes, { interval: timescale }),
+      h(TimescaleBoxes, { interval: timescale, intervalStyle }),
       h.if(showAgeAxis)(AgeAxis, axisProps),
       h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
     ])
