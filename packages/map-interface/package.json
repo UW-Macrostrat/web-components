@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Map interface for Macrostrat",
   "type": "module",
   "source": "src/index.ts",
@@ -31,8 +31,14 @@
   },
   "exports": {
     "typescript": "./src/index.ts",
-    ".": "./dist/index.js",
-    "./dist/index.css": "./dist/index.css"
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.js"
+    },
+    "./src": {
+      "import": "./src/index.css",
+      "require": "./src/index.css"
+    }
   },
   "files": [
     "dist",
