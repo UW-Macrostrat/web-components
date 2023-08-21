@@ -1,9 +1,7 @@
 import { dirname, join } from "path";
 
 const config = {
-  core: {
-    builder: "@storybook/builder-vite",
-  },
+  // vite
   stories: [
     "../../packages/**/*.stories.mdx",
     "../../packages/**/*.stories.@(js|jsx|ts|tsx)",
@@ -15,7 +13,7 @@ const config = {
     getAbsolutePath("storybook-dark-mode"),
   ],
   framework: {
-    name: getAbsolutePath("@storybook/react-webpack5"),
+    name: getAbsolutePath("@storybook/react-vite"),
     options: {},
   },
   docs: {

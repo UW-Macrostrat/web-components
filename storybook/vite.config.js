@@ -23,9 +23,9 @@ for (const [key, value] of Object.entries(pkg.alias)) {
 }
 
 export default {
-  cacheDir: ".vite",
   resolve: {
     conditions: ["typescript"],
     //alias: aliases,
   },
+  root: path.resolve(__dirname, ".."),
 };
