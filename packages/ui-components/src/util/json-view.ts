@@ -28,18 +28,15 @@ const monokai = {
 };
 
 export function JSONView(props) {
-  const invertTheme = !inDarkMode();
   return h(
     "div.json-view-container",
     {
       className: classNames(props.className, {
         "root-hidden": props.hideRoot,
-        "invert-theme": invertTheme,
       }),
     },
     h(JSONTree, {
       theme: monokai,
-      invertTheme,
       ...props,
     })
   );
