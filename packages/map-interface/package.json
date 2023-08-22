@@ -1,10 +1,12 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "0.0.12",
+  "version": "0.1.0",
   "description": "Map interface for Macrostrat",
-  "source": "src/index.ts",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "types": "dist/types.d.ts",
-  "module": "dist/module.js",
+  "source": "src/index.ts",
+  "style": "dist/index.css",
   "dependencies": {
     "@macrostrat/hyper": "^2.2.1",
     "@macrostrat/mapbox-react": "^2.0.2",
@@ -32,10 +34,12 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/module.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     },
     "./dist/": {
-      "import": "./dist/"
+      "import": "./dist/",
+      "require": "./dist/"
     }
   },
   "files": [
