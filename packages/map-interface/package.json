@@ -7,9 +7,9 @@
   "module": "dist/module.js",
   "dependencies": {
     "@macrostrat/hyper": "^2.2.1",
-    "@macrostrat/mapbox-react": "^2.0.1",
-    "@macrostrat/mapbox-utils": "^1.2.0",
-    "@macrostrat/ui-components": "^3.0.0-b9",
+    "@macrostrat/mapbox-react": "^2.0.2",
+    "@macrostrat/mapbox-utils": "^1.2.1",
+    "@macrostrat/ui-components": "^3.0.0-b10",
     "@mapbox/tilebelt": "^1.0.2",
     "@turf/bbox": "^6.5.0",
     "chroma-js": "^2.4.2",
@@ -23,7 +23,8 @@
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.43.0 || ^4.3.0",
-    "react": "^16.8.6||^17.0.0||^18.0.0"
+    "react": "^16.8.6||^17.0.0||^18.0.0",
+    "react-dom": "^16.8.6||^17.0.0||^18.0.0"
   },
   "scripts": {
     "dev": "parcel watch",

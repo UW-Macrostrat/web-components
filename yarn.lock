@@ -6875,9 +6875,9 @@ __metadata:
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
     "@macrostrat/hyper": ^2.2.1
-    "@macrostrat/mapbox-react": ^2.0.1
-    "@macrostrat/mapbox-utils": ^1.2.0
-    "@macrostrat/ui-components": ^3.0.0-b9
+    "@macrostrat/mapbox-react": ^2.0.2
+    "@macrostrat/mapbox-utils": ^1.2.1
+    "@macrostrat/ui-components": ^3.0.0-b10
     "@mapbox/tilebelt": ^1.0.2
     "@turf/bbox": ^6.5.0
     chroma-js: ^2.4.2
@@ -6891,16 +6891,17 @@ __metadata:
   peerDependencies:
     "@blueprintjs/core": ^3.43.0 || ^4.3.0
     react: ^16.8.6||^17.0.0||^18.0.0
+    react-dom: ^16.8.6||^17.0.0||^18.0.0
   languageName: unknown
   linkType: soft
 
-"@macrostrat/mapbox-react@^2.0.1, @macrostrat/mapbox-react@workspace:packages/mapbox-react":
+"@macrostrat/mapbox-react@^2.0.2, @macrostrat/mapbox-react@workspace:packages/mapbox-react":
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:
     "@blueprintjs/core": ^4.17.8
     "@macrostrat/hyper": ^2.2.1
-    "@macrostrat/mapbox-utils": ^1.2.0
+    "@macrostrat/mapbox-utils": ^1.2.1
     "@parcel/config-default": ^2.6.2
     "@turf/bbox": ^6.5.0
     "@turf/centroid": ^6.5.0
@@ -6928,14 +6929,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/mapbox-utils@^1.2.0, @macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
+"@macrostrat/mapbox-utils@^1.2.1, @macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-utils@workspace:packages/mapbox-utils"
   dependencies:
     "@parcel/config-default": ^2.6.2
     "@types/mapbox-gl": ^2.7.5
     axios: ^0.27.2
-    mapbox-gl: ^2.0.0
+    mapbox-gl: ^2.7.0
     parcel: ^2.6.2
   languageName: unknown
   linkType: soft
@@ -7027,7 +7028,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/ui-components@^3.0.0-b9, @macrostrat/ui-components@workspace:*, @macrostrat/ui-components@workspace:packages/ui-components":
+"@macrostrat/ui-components@^3.0.0-b10, @macrostrat/ui-components@workspace:*, @macrostrat/ui-components@workspace:packages/ui-components":
   version: 0.0.0-use.local
   resolution: "@macrostrat/ui-components@workspace:packages/ui-components"
   dependencies:
