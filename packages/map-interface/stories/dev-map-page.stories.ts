@@ -1,5 +1,6 @@
 import h from "@macrostrat/hyper";
 import type { Meta } from "@storybook/react";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import { DevMapPage } from "../src";
 import Box from "ui-box";

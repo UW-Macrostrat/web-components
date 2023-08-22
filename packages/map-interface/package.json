@@ -1,10 +1,10 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Map interface for Macrostrat",
-  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
+  "types": "dist/types.d.ts",
+  "module": "dist/module.js",
   "dependencies": {
     "@macrostrat/hyper": "^2.2.1",
     "@macrostrat/mapbox-react": "^2.0.1",

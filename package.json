@@ -23,13 +23,9 @@
     "@macrostrat/column-components": "./packages/column-components/src",
     "@macrostrat/column-views": "./packages/column-views/src",
     "@macrostrat/map-components": "./packages/map-components/src",
-    "@macrostrat/ui-components": "./packages/ui-components/src",
     "@macrostrat/api-views": "./packages/api-views/src",
     "@macrostrat/timescale": "./packages/timescale/src",
-    "@macrostrat/mapbox-react": "./packages/mapbox-react/src",
-    "@macrostrat/mapbox-styles": "./packages/mapbox-styles/src",
-    "@macrostrat/mapbox-utils": "./packages/mapbox-utils/src",
-    "@macrostrat/map-interface": "./packages/map-interface/src"
+    "@macrostrat/mapbox-styles": "./packages/mapbox-styles/src"
   },
   "devDependencies": {
     "@babel/core": "^7.18.10",

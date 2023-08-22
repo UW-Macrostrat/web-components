@@ -1,6 +1,5 @@
 import JSONTree from "react-json-tree";
-import { hyperStyled, classed } from "@macrostrat/hyper";
-import { inDarkMode, useDarkMode } from "../dark-mode";
+import { hyperStyled } from "@macrostrat/hyper";
 import classNames from "classnames";
 import styles from "./main.module.scss";
 
@@ -37,6 +36,7 @@ export function JSONView(props) {
     },
     h(JSONTree, {
       theme: monokai,
+      invertTheme: false,
       ...props,
     })
   );
