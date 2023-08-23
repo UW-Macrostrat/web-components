@@ -6875,29 +6875,33 @@ __metadata:
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
     "@macrostrat/hyper": ^2.2.1
-    "@macrostrat/mapbox-react": "workspace:*"
-    "@macrostrat/mapbox-utils": "workspace:*"
+    "@macrostrat/mapbox-react": ^2.0.2
+    "@macrostrat/mapbox-utils": ^1.2.1
+    "@macrostrat/ui-components": ^3.0.0
     "@mapbox/tilebelt": ^1.0.2
     "@turf/bbox": ^6.5.0
     chroma-js: ^2.4.2
     classnames: ^2.3.2
+    d3-array: ^3.2.4
     d3-format: ^3.1.0
     mapbox-gl: ^2.11.0
     transition-hook: ^1.5.2
+    underscore: ^1.13.6
     use-resize-observer: ^9.1.0
   peerDependencies:
     "@blueprintjs/core": ^3.43.0 || ^4.3.0
     react: ^16.8.6||^17.0.0||^18.0.0
+    react-dom: ^16.8.6||^17.0.0||^18.0.0
   languageName: unknown
   linkType: soft
 
-"@macrostrat/mapbox-react@workspace:*, @macrostrat/mapbox-react@workspace:packages/mapbox-react":
+"@macrostrat/mapbox-react@^2.0.2, @macrostrat/mapbox-react@workspace:packages/mapbox-react":
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:
     "@blueprintjs/core": ^4.17.8
     "@macrostrat/hyper": ^2.2.1
-    "@macrostrat/mapbox-utils": ^1.0.0
+    "@macrostrat/mapbox-utils": ^1.2.1
     "@parcel/config-default": ^2.6.2
     "@turf/bbox": ^6.5.0
     "@turf/centroid": ^6.5.0
@@ -6925,14 +6929,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/mapbox-utils@^1.0.0, @macrostrat/mapbox-utils@workspace:*, @macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
+"@macrostrat/mapbox-utils@^1.2.1, @macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-utils@workspace:packages/mapbox-utils"
   dependencies:
     "@parcel/config-default": ^2.6.2
     "@types/mapbox-gl": ^2.7.5
     axios: ^0.27.2
-    mapbox-gl: ^2.0.0
+    mapbox-gl: ^2.7.0
     parcel: ^2.6.2
   languageName: unknown
   linkType: soft
@@ -6981,6 +6985,7 @@ __metadata:
     "@blueprintjs/colors": ^4.1.22
     "@blueprintjs/core": ^4.18.0
     sass: ^1.32.8
+    vite: ^4.4.9
   languageName: unknown
   linkType: soft
 
@@ -7020,6 +7025,54 @@ __metadata:
   peerDependencies:
     react: ^16.13.1||^17||^18
     react-dom: ^16.13.1||^17||^18
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/ui-components@^3.0.0, @macrostrat/ui-components@workspace:*, @macrostrat/ui-components@workspace:packages/ui-components":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/ui-components@workspace:packages/ui-components"
+  dependencies:
+    "@babel/core": ^7.16.12
+    "@babel/plugin-proposal-class-properties": ^7.8.3
+    "@babel/plugin-proposal-nullish-coalescing-operator": ^7.8.3
+    "@babel/plugin-proposal-optional-chaining": ^7.9.0
+    "@babel/plugin-transform-typescript": ^7.11.0
+    "@babel/polyfill": ^7.4.4
+    "@babel/preset-env": ^7.16.11
+    "@babel/preset-react": ^7.16.7
+    "@babel/preset-typescript": ^7.16.7
+    "@blueprintjs/core": ^4.17.8
+    "@blueprintjs/datetime": ^4.1.2
+    "@blueprintjs/popover2": ^1.13.12
+    "@macrostrat/hyper": ^2.2.1
+    "@mantine/core": ^4.1.3
+    "@mantine/hooks": ^4.1.3
+    "@rollup/plugin-babel": ^5.3.0
+    "@rollup/plugin-node-resolve": ^13.1.3
+    axios: ^0.27.2
+    chroma-js: ^2.4.2
+    classnames: ^2.3.0
+    core-js: ^3.6.4
+    d3-array: ^3.0.4
+    date-fns: ^2.15.0
+    fp-ts: ^2.5.3
+    immutability-helper: ^3.1.1
+    io-ts: ^2.1.2
+    query-string: ^7.0.0
+    react-color: ^2.19.3
+    react-dropzone: ^11.4.2
+    react-intersection-observer: ^8.32.1
+    react-json-tree: ^0.15.0
+    sass: ^1.50.0
+    typescript: ^4.4.4
+    ui-box: ^5.4.1
+    underscore: ^1.9.1
+    use-async-effect: ^2.2.1
+    use-element-dimensions: ^2.1.3
+  peerDependencies:
+    "@types/react-dom": ^17 || ^18
+    react: ^16.8.6 || ^17 || ^18
+    react-dom: ^16.8.6 || ^17 || ^18
   languageName: unknown
   linkType: soft
 
@@ -7064,54 +7117,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@macrostrat/ui-components@workspace:*, @macrostrat/ui-components@workspace:packages/ui-components":
-  version: 0.0.0-use.local
-  resolution: "@macrostrat/ui-components@workspace:packages/ui-components"
-  dependencies:
-    "@babel/core": ^7.16.12
-    "@babel/plugin-proposal-class-properties": ^7.8.3
-    "@babel/plugin-proposal-nullish-coalescing-operator": ^7.8.3
-    "@babel/plugin-proposal-optional-chaining": ^7.9.0
-    "@babel/plugin-transform-typescript": ^7.11.0
-    "@babel/polyfill": ^7.4.4
-    "@babel/preset-env": ^7.16.11
-    "@babel/preset-react": ^7.16.7
-    "@babel/preset-typescript": ^7.16.7
-    "@blueprintjs/core": ^4.17.8
-    "@blueprintjs/datetime": ^4.1.2
-    "@blueprintjs/popover2": ^1.13.12
-    "@macrostrat/hyper": ^2.0.1
-    "@mantine/core": ^4.1.3
-    "@mantine/hooks": ^4.1.3
-    "@rollup/plugin-babel": ^5.3.0
-    "@rollup/plugin-node-resolve": ^13.1.3
-    axios: ^0.27.2
-    chroma-js: ^2.4.2
-    classnames: ^2.3.0
-    core-js: ^3.6.4
-    d3-array: ^3.0.4
-    date-fns: ^2.15.0
-    fp-ts: ^2.5.3
-    immutability-helper: ^3.1.1
-    io-ts: ^2.1.2
-    query-string: ^7.0.0
-    react-color: ^2.19.3
-    react-dom: ^16.8.6 || ^17 || ^18
-    react-dropzone: ^11.4.2
-    react-intersection-observer: ^8.32.1
-    react-json-tree: ^0.15.0
-    sass: ^1.50.0
-    typescript: ^4.4.4
-    ui-box: ^5.4.1
-    underscore: ^1.9.1
-    use-async-effect: ^2.2.1
-    use-element-dimensions: ^2.1.3
-  peerDependencies:
-    "@types/react-dom": ^17 || ^18
-    react: ^16.8.6 || ^17 || ^18
-  languageName: unknown
-  linkType: soft
-
 "@macrostrat/web-components@workspace:.":
   version: 0.0.0-use.local
   resolution: "@macrostrat/web-components@workspace:."
@@ -7120,8 +7125,10 @@ __metadata:
     "@babel/preset-env": ^7.21.4
     "@babel/preset-react": ^7.18.6
     "@babel/preset-typescript": ^7.21.4
+    "@parcel/packager-ts": 2.6.2
     "@parcel/transformer-sass": 2.6.2
     "@parcel/transformer-stylus": 2.6.2
+    "@parcel/transformer-typescript-types": 2.6.2
     axios: ^0.27.2
     chalk: ^5.0.1
     concurrently: ^7.2.2
@@ -8684,6 +8691,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@parcel/packager-ts@npm:2.6.2":
+  version: 2.6.2
+  resolution: "@parcel/packager-ts@npm:2.6.2"
+  dependencies:
+    "@parcel/plugin": 2.6.2
+  checksum: e1ab181c7728ff48bd1808317f8a25d24d5b2e84ebb1186a24744431322168c0851cc108e26b04f803fd52615bd9f256104f60638af92a419e8c9e6feae0e361
+  languageName: node
+  linkType: hard
+
 "@parcel/packager-ts@npm:^2.6.2":
   version: 2.8.2
   resolution: "@parcel/packager-ts@npm:2.8.2"
@@ -9280,6 +9296,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@parcel/transformer-typescript-types@npm:2.6.2":
+  version: 2.6.2
+  resolution: "@parcel/transformer-typescript-types@npm:2.6.2"
+  dependencies:
+    "@parcel/diagnostic": 2.6.2
+    "@parcel/plugin": 2.6.2
+    "@parcel/source-map": ^2.0.0
+    "@parcel/ts-utils": 2.6.2
+    "@parcel/utils": 2.6.2
+    nullthrows: ^1.1.1
+  peerDependencies:
+    typescript: ">=3.0.0"
+  checksum: 2b5fa651f4e90e9bdded868171474e295436f231bc03a72bd6ca7b456829410b61ebca0b25baf3565009c26b616372fe6711705d831ff1b8d21bc95bfeb14a6b
+  languageName: node
+  linkType: hard
+
 "@parcel/transformer-typescript-types@npm:^2.6.2":
   version: 2.8.2
   resolution: "@parcel/transformer-typescript-types@npm:2.8.2"
@@ -9293,6 +9325,17 @@ __metadata:
   peerDependencies:
     typescript: ">=3.0.0"
   checksum: 007dbfce5b9aca7fc5ce17a41873147ff71c38fcf781598f5a33b23f18b4809068a0d1b29579def38d8ca79833dc163b4e6e09b1b0696b9a4b2ba76899e29965
+  languageName: node
+  linkType: hard
+
+"@parcel/ts-utils@npm:2.6.2":
+  version: 2.6.2
+  resolution: "@parcel/ts-utils@npm:2.6.2"
+  dependencies:
+    nullthrows: ^1.1.1
+  peerDependencies:
+    typescript: ">=3.0.0"
+  checksum: 292c7be1f7f850d8fbf5935c662a3d2a550886aae2846801c0bed1f56bcd9841f4d4858ef3503441d4e399ec33fa23a7625e4b522ec224b0da1176b051da6b83
   languageName: node
   linkType: hard
 
@@ -17330,6 +17373,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"d3-array@npm:^3.2.4":
+  version: 3.2.4
+  resolution: "d3-array@npm:3.2.4"
+  dependencies:
+    internmap: 1 - 2
+  checksum: a5976a6d6205f69208478bb44920dd7ce3e788c9dceb86b304dbe401a4bfb42ecc8b04c20facde486e9adcb488b5d1800d49393a3f81a23902b68158e12cddd0
+  languageName: node
+  linkType: hard
+
 "d3-axis@npm:1, d3-axis@npm:^1.0.12":
   version: 1.0.12
   resolution: "d3-axis@npm:1.0.12"
@@ -19201,7 +19253,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"esbuild@npm:^0.18.0":
+"esbuild@npm:^0.18.0, esbuild@npm:^0.18.10":
   version: 0.18.20
   resolution: "esbuild@npm:0.18.20"
   dependencies:
@@ -29934,6 +29986,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"postcss@npm:^8.4.27":
+  version: 8.4.28
+  resolution: "postcss@npm:8.4.28"
+  dependencies:
+    nanoid: ^3.3.6
+    picocolors: ^1.0.0
+    source-map-js: ^1.0.2
+  checksum: f605c24a36f7e400bad379735fbfc893ccb8d293ad6d419bb824db77cdcb69f43d614ef35f9f7091f32ca588d130ec60dbcf53b366e6bf88a8a64bbeb3c05f6d
+  languageName: node
+  linkType: hard
+
 "posthtml-parser@npm:^0.10.1":
   version: 0.10.2
   resolution: "posthtml-parser@npm:0.10.2"
@@ -30723,7 +30786,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^16.12.0||^17.0.0||^18, react-dom@npm:^16.8.6 || ^17 || ^18, react-dom@npm:^17.0.0||^18, react-dom@npm:^18":
+"react-dom@npm:^16.12.0||^17.0.0||^18, react-dom@npm:^17.0.0||^18, react-dom@npm:^18":
   version: 18.2.0
   resolution: "react-dom@npm:18.2.0"
   dependencies:
@@ -32381,7 +32444,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"rollup@npm:^2.25.0 || ^3.3.0":
+"rollup@npm:^2.25.0 || ^3.3.0, rollup@npm:^3.27.1":
   version: 3.28.0
   resolution: "rollup@npm:3.28.0"
   dependencies:
@@ -35365,6 +35428,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"underscore@npm:^1.13.6":
+  version: 1.13.6
+  resolution: "underscore@npm:1.13.6"
+  checksum: d5cedd14a9d0d91dd38c1ce6169e4455bb931f0aaf354108e47bd46d3f2da7464d49b2171a5cf786d61963204a42d01ea1332a903b7342ad428deaafaf70ec36
+  languageName: node
+  linkType: hard
+
 "unicode-canonical-property-names-ecmascript@npm:^2.0.0":
   version: 2.0.0
   resolution: "unicode-canonical-property-names-ecmascript@npm:2.0.0"
@@ -36033,6 +36103,46 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 99970cb1fed3330458e60f8341ec73c4260c82d815e51c95295321ab496e4c8cb447bc942daf4d94f78bbc8b2bed36cbc237f43fdc1cede19250fac737e5a0fc
+  languageName: node
+  linkType: hard
+
+"vite@npm:^4.4.9":
+  version: 4.4.9
+  resolution: "vite@npm:4.4.9"
+  dependencies:
+    esbuild: ^0.18.10
+    fsevents: ~2.3.2
+    postcss: ^8.4.27
+    rollup: ^3.27.1
+  peerDependencies:
+    "@types/node": ">= 14"
+    less: "*"
+    lightningcss: ^1.21.0
+    sass: "*"
+    stylus: "*"
+    sugarss: "*"
+    terser: ^5.4.0
+  dependenciesMeta:
+    fsevents:
+      optional: true
+  peerDependenciesMeta:
+    "@types/node":
+      optional: true
+    less:
+      optional: true
+    lightningcss:
+      optional: true
+    sass:
+      optional: true
+    stylus:
+      optional: true
+    sugarss:
+      optional: true
+    terser:
+      optional: true
+  bin:
+    vite: bin/vite.js
+  checksum: c511024ceae39c68c7dbf2ac4381ee655cd7bb62cf43867a14798bc835d3320b8fa7867a336143c30825c191c1fb4e9aa3348fce831ab617e96203080d3d2908
   languageName: node
   linkType: hard
 

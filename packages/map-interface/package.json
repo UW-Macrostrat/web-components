@@ -1,27 +1,49 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Map interface for Macrostrat",
-  "type": "module",
-  "main": "src/index.ts",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
+  "types": "dist/types.d.ts",
+  "source": "src/index.ts",
+  "style": "dist/index.css",
   "dependencies": {
     "@macrostrat/hyper": "^2.2.1",
-    "@macrostrat/mapbox-react": "workspace:*",
-    "@macrostrat/mapbox-utils": "workspace:*",
+    "@macrostrat/mapbox-react": "^2.0.2",
+    "@macrostrat/mapbox-utils": "^1.2.1",
+    "@macrostrat/ui-components": "^3.0.0",
     "@mapbox/tilebelt": "^1.0.2",
     "@turf/bbox": "^6.5.0",
     "chroma-js": "^2.4.2",
     "classnames": "^2.3.2",
+    "d3-array": "^3.2.4",
     "d3-format": "^3.1.0",
     "mapbox-gl": "^2.11.0",
     "transition-hook": "^1.5.2",
+    "underscore": "^1.13.6",
     "use-resize-observer": "^9.1.0"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.43.0 || ^4.3.0",
-    "react": "^16.8.6||^17.0.0||^18.0.0"
+    "react": "^16.8.6||^17.0.0||^18.0.0",
+    "react-dom": "^16.8.6||^17.0.0||^18.0.0"
+  },
+  "scripts": {
+    "dev": "parcel watch",
+    "build": "parcel build"
   },
   "exports": {
-    "typescript": "./src/index.ts"
-  }
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./dist/": {
+      "import": "./dist/",
+      "require": "./dist/"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
 }

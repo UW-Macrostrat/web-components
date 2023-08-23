@@ -15,11 +15,6 @@ import { Card } from "@blueprintjs/core";
 
 import { ReactNode } from "react";
 
-export * from "./location-panel";
-export * from "./context-panel";
-export * from "./styles";
-//export * from "./dev";
-
 export function MapInterface() {
   return h("div", "Hello world");
 }
@@ -137,5 +132,4 @@ export function MapStyledContainer({ className, children }: MapContainerProps) {
   return h("div", { className }, children);
 }
 
-export * from "./map-view";
 //const _MapPage = compose(HotkeysProvider, MapPage);
