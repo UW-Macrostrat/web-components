@@ -20,7 +20,6 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "alias": {
-    "@macrostrat/column-components": "./packages/column-components/src",
     "@macrostrat/column-views": "./packages/column-views/src",
     "@macrostrat/map-components": "./packages/map-components/src",
     "@macrostrat/api-views": "./packages/api-views/src",
