@@ -12,6 +12,7 @@ import {
   useState,
   useRef,
   useCallback,
+  memo,
 } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
@@ -198,15 +199,41 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
 
   return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
-    h.if(showLabels)(labelColumnComponent, {
-      transform: `translate(${columnWidth + gutterWidth})`,
-      paddingLeft: labelOffset,
-      width: width - columnWidth - gutterWidth,
+    h(ColumnLabel, {
+      showLabels,
+      component: labelColumnComponent,
+      columnWidth,
+      gutterWidth,
+      labelOffset,
+      width,
       noteComponent,
-      shouldRenderNote,
+      showNote: shouldRenderNote,
     }),
   ]);
 }
+
+function _ColumnLabel(props) {
+  const {
+    showLabels,
+    component,
+    columnWidth,
+    gutterWidth,
+    labelOffset,
+    width,
+    noteComponent,
+    showNote,
+  } = props;
+  if (!showLabels) return null;
+  return h(component, {
+    transform: `translate(${columnWidth + gutterWidth})`,
+    paddingLeft: labelOffset,
+    width: width - columnWidth - gutterWidth,
+    noteComponent,
+    shouldRenderNote: showNote,
+  });
+}
+
+const ColumnLabel = memo(_ColumnLabel);
 
 export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
   // This comes from CompositeUnits
