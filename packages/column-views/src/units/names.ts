@@ -44,7 +44,7 @@ const defaultNameFunction = (div) => {
     .replace("Gp", "Group");
 };
 
-function UnitDataColumn(props: UnitDataProps) {
+function UnitDataColumn_(props: UnitDataProps) {
   const ctx = useContext(ColumnContext);
   const {
     left,
@@ -83,6 +83,8 @@ function UnitDataColumn(props: UnitDataProps) {
     ...rest,
   });
 }
+
+const UnitDataColumn = React.memo(UnitDataColumn_);
 
 const UnitNamesColumn = (props: UnitNamesProps) => {
   const {

@@ -1,5 +1,5 @@
 import { scaleLinear, ScaleContinuousNumeric, ScaleLinear } from "d3-scale";
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
 
@@ -79,43 +79,61 @@ function ColumnProvider<T extends ColumnDivision>(
     ...rest
   } = props;
 
-  //# Calculate correct range and height
-  // Range overrides height if set
-  if (range != null) {
-    height = Math.abs(range[1] - range[0]);
-  } else {
-    range = [0, height];
+  // Check if "rest" actually changed
+  // This is a hack to avoid re-rendering the column
+  // when the "rest" props change
+  const restStr = JSON.stringify(rest);
+  const restRef = React.useRef(null);
+  if (restStr !== restRef.current) {
+    restRef.current = restStr;
+    if (Object.keys(rest).length > 0) {
+      console.warn(
+        "Passing extra properties to ColumnProvider is deprecated:",
+        rest
+      );
+    }
   }
 
-  // same as the old `innerHeight`
-  const pixelHeight = height * pixelsPerMeter * zoom;
+  //# Calculate correct range and height
+  // Range overrides height if set
+  const value: ColumnCtx<T> = useMemo(() => {
+    if (range != null) {
+      height = Math.abs(range[1] - range[0]);
+    } else {
+      range = [0, height];
+    }
 
-  const scale = scaleLinear().domain(range).range([pixelHeight, 0]);
-  const scaleClamped = scale.copy().clamp(true);
+    // same as the old `innerHeight`
+    const pixelHeight = height * pixelsPerMeter * zoom;
 
-  const value: ColumnCtx<T> = {
-    pixelsPerMeter,
-    pixelHeight,
-    zoom,
-    range,
+    const scale = scaleLinear().domain(range).range([pixelHeight, 0]);
+    const scaleClamped = scale.copy().clamp(true);
+
+    return {
+      pixelsPerMeter,
+      pixelHeight,
+      zoom,
+      range,
+      height,
+      scale,
+      scaleClamped,
+      divisions,
+      width,
+      axisType,
+      ...rest,
+    };
+  }, [
+    axisType,
     height,
-    scale,
-    scaleClamped,
+    pixelsPerMeter,
+    range,
+    zoom,
     divisions,
     width,
-    axisType,
-    ...rest,
-  };
+    restRef.current,
+  ]);
   return h(ColumnContext.Provider, { value }, children);
 }
-
-ColumnProvider.propTypes = {
-  divisions: T.arrayOf(T.object),
-  range: rangeOrHeight,
-  height: rangeOrHeight,
-  pixelsPerMeter: T.number.isRequired,
-  zoom: T.number,
-};
 
 const useColumn = () => useContext(ColumnContext);
 const useColumnDivisions = () => useContext(ColumnContext).divisions;
