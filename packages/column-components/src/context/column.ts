@@ -79,6 +79,21 @@ function ColumnProvider<T extends ColumnDivision>(
     ...rest
   } = props;
 
+  // Check if "rest" actually changed
+  // This is a hack to avoid re-rendering the column
+  // when the "rest" props change
+  const restStr = JSON.stringify(rest);
+  const restRef = React.useRef(null);
+  if (restStr !== restRef.current) {
+    restRef.current = restStr;
+    if (Object.keys(rest).length > 0) {
+      console.warn(
+        "Passing extra properties to ColumnProvider is deprecated:",
+        rest
+      );
+    }
+  }
+
   //# Calculate correct range and height
   // Range overrides height if set
   const value: ColumnCtx<T> = useMemo(() => {
@@ -107,7 +122,16 @@ function ColumnProvider<T extends ColumnDivision>(
       axisType,
       ...rest,
     };
-  }, [axisType, height, pixelsPerMeter, range, zoom, divisions, width]);
+  }, [
+    axisType,
+    height,
+    pixelsPerMeter,
+    range,
+    zoom,
+    divisions,
+    width,
+    restRef.current,
+  ]);
   return h(ColumnContext.Provider, { value }, children);
 }
 

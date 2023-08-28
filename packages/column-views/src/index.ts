@@ -165,14 +165,9 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
 
   const darkMode = useDarkMode();
 
-  useEffect(() => {
-    console.log("Column data changed");
-  }, [data]);
-
   let sectionGroups = useMemo(() => {
     let groups = Array.from(group(data, (d) => d.section_id));
     groups.sort((a, b) => a.t_age - b.t_age);
-    console.log("Rendering groups");
     return groups;
   }, [data]);
 
@@ -188,7 +183,6 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
       h(
         "div.main-column",
         sectionGroups.map(([id, data], i) => {
-          console.log("Rendering section", id, data);
           const lastGroup = sectionGroups[i - 1]?.[1];
           return h([
             h.if(unconformityLabels)(Unconformity, {
