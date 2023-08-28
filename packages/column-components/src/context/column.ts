@@ -1,5 +1,5 @@
 import { scaleLinear, ScaleContinuousNumeric, ScaleLinear } from "d3-scale";
-import React, { createContext, useContext } from "react";
+import React, { createContext, useContext, useMemo } from "react";
 import h from "react-hyperscript";
 import T from "prop-types";
 
@@ -81,41 +81,35 @@ function ColumnProvider<T extends ColumnDivision>(
 
   //# Calculate correct range and height
   // Range overrides height if set
-  if (range != null) {
-    height = Math.abs(range[1] - range[0]);
-  } else {
-    range = [0, height];
-  }
+  const value: ColumnCtx<T> = useMemo(() => {
+    if (range != null) {
+      height = Math.abs(range[1] - range[0]);
+    } else {
+      range = [0, height];
+    }
 
-  // same as the old `innerHeight`
-  const pixelHeight = height * pixelsPerMeter * zoom;
+    // same as the old `innerHeight`
+    const pixelHeight = height * pixelsPerMeter * zoom;
 
-  const scale = scaleLinear().domain(range).range([pixelHeight, 0]);
-  const scaleClamped = scale.copy().clamp(true);
+    const scale = scaleLinear().domain(range).range([pixelHeight, 0]);
+    const scaleClamped = scale.copy().clamp(true);
 
-  const value: ColumnCtx<T> = {
-    pixelsPerMeter,
-    pixelHeight,
-    zoom,
-    range,
-    height,
-    scale,
-    scaleClamped,
-    divisions,
-    width,
-    axisType,
-    ...rest,
-  };
+    return {
+      pixelsPerMeter,
+      pixelHeight,
+      zoom,
+      range,
+      height,
+      scale,
+      scaleClamped,
+      divisions,
+      width,
+      axisType,
+      ...rest,
+    };
+  }, [axisType, height, pixelsPerMeter, range, zoom, divisions, width]);
   return h(ColumnContext.Provider, { value }, children);
 }
-
-ColumnProvider.propTypes = {
-  divisions: T.arrayOf(T.object),
-  range: rangeOrHeight,
-  height: rangeOrHeight,
-  pixelsPerMeter: T.number.isRequired,
-  zoom: T.number,
-};
 
 const useColumn = () => useContext(ColumnContext);
 const useColumnDivisions = () => useContext(ColumnContext).divisions;

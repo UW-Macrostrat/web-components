@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { useContext, ReactNode } from "react";
+import { useContext, ReactNode, useMemo } from "react";
 import {
   ColumnContext,
   ColumnLayoutContext,
@@ -10,7 +10,7 @@ import {
   SizeAwareLabelProps,
   Clickable,
   ColumnAxisType,
-  useColumn
+  useColumn,
 } from "@macrostrat/column-components";
 import { IUnit, transformAxisType } from "./types";
 import { useSelectedUnit, useUnitSelector } from "./selection";
@@ -74,7 +74,7 @@ function useUnitRect(
     x: width * (1 - widthFraction),
     y,
     height,
-    width: widthFraction * width
+    width: widthFraction * width,
   };
 }
 
@@ -91,7 +91,7 @@ function Unit(props: UnitProps) {
   const { axisType } = useColumn();
   const bounds = {
     ...useUnitRect(d, { widthFraction, axisType }),
-    ...baseBounds
+    ...baseBounds,
   };
   const patternID = resolveID(d);
   const fill = useGeologicPattern(patternID, defaultFill);
@@ -107,26 +107,21 @@ function Unit(props: UnitProps) {
       onMouseOver() {
         console.log(d);
       },
-      onClick
+      onClick,
     }),
     h.if(selected)("rect.selection-overlay", bounds),
-    children
+    children,
   ]);
 }
 
 function LabeledUnit(props: LabeledUnitProps) {
-  const {
-    division,
-    label,
-    onLabelUpdated,
-    widthFraction,
-    ...baseBounds
-  } = props;
+  const { division, label, onLabelUpdated, widthFraction, ...baseBounds } =
+    props;
 
   const { axisType } = useColumn();
   const bounds = {
     ...useUnitRect(division, { widthFraction, axisType }),
-    ...baseBounds
+    ...baseBounds,
   };
   const onClick = useUnitSelector(division);
   const { width, height } = bounds;
@@ -142,9 +137,9 @@ function LabeledUnit(props: LabeledUnitProps) {
         label,
         onVisibilityChanged(viz) {
           onLabelUpdated(label, viz);
-        }
+        },
       })
-    )
+    ),
   ]);
 }
 
@@ -166,19 +161,20 @@ function UnitBoxes<T>(props: {
     return null;
   }
 
+  const children = useMemo(() => {
+    return divisions.map((division, i) => {
+      return h(unitComponent, {
+        division,
+        axisType: ColumnAxisType.HEIGHT,
+        ...unitComponentProps,
+      });
+    });
+  }, [divisions, unitComponent, unitComponentProps]);
+
   return h(
     PatternDefsProvider,
     { resolveID, scalePattern },
-    h(
-      "g.divisions",
-      divisions.map(div => {
-        return h(unitComponent, {
-          division: div,
-          axisType: ColumnAxisType.HEIGHT,
-          ...unitComponentProps
-        });
-      })
-    )
+    h("g.divisions", children)
   );
 }
 

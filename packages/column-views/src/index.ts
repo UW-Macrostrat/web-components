@@ -5,7 +5,7 @@ import {
   ColumnSVG,
   ColumnLayoutContext,
 } from "@macrostrat/column-components";
-import { useContext } from "react";
+import { useContext, useMemo, useEffect } from "react";
 import { CompositeUnitsColumn } from "./units";
 import { IUnit } from "./units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
@@ -37,28 +37,46 @@ interface IColumnProps {
   targetUnitHeight?: number;
 }
 
+const timescaleLevels = [2, 5];
+
 const Section = (props: IColumnProps) => {
   // Section with "squishy" time scale
   const {
     data,
-    range = [data[data.length - 1].b_age, data[0].t_age],
+    range: _range,
+    pixelScale: _pixelScale,
     unitComponent,
     showLabels = true,
     targetUnitHeight = 20,
     width = 300,
     columnWidth = 150,
   } = props;
-  let { pixelScale } = props;
 
-  const dAge = range[0] - range[1];
+  const b_age = data[data.length - 1].b_age;
+  const t_age = data[0].t_age;
 
-  if (!pixelScale) {
-    // Make up a pixel scale
+  const range = useMemo(() => {
+    if (_range == null) {
+      return [b_age, t_age];
+    }
+    return _range;
+  }, [_range, b_age, t_age]);
+
+  const dAge = useMemo(() => range[0] - range[1], [range]);
+
+  const pixelScale = useMemo(() => {
+    if (_pixelScale != null) return _pixelScale;
     const targetHeight = targetUnitHeight * data.length;
-    pixelScale = Math.ceil(targetHeight / dAge);
-  }
+    return Math.ceil(targetHeight / dAge);
+  }, [_pixelScale, targetUnitHeight, data.length, dAge]);
 
-  const height = dAge * pixelScale;
+  const height = useMemo(() => dAge * pixelScale, [dAge, pixelScale]);
+
+  const unitComponentProps = useMemo(() => {
+    return {
+      nColumns: Math.max(...data.map((d) => d.column)) + 1,
+    };
+  }, [data]);
 
   return h(
     MacrostratColumnProvider,
@@ -78,7 +96,7 @@ const Section = (props: IColumnProps) => {
         h(Timescale, {
           orientation: TimescaleOrientation.VERTICAL,
           length: height,
-          levels: [2, 5],
+          levels: timescaleLevels,
           absoluteAgeScale: true,
           showAgeAxis: false,
           ageRange: range,
@@ -99,9 +117,7 @@ const Section = (props: IColumnProps) => {
           gutterWidth: 5,
           showLabels,
           unitComponent,
-          unitComponentProps: {
-            nColumns: Math.max(...data.map((d) => d.column)) + 1,
-          },
+          unitComponentProps,
         })
       ),
     ]
@@ -149,13 +165,20 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
 
   const darkMode = useDarkMode();
 
-  let sectionGroups = Array.from(group(data, (d) => d.section_id));
+  useEffect(() => {
+    console.log("Column data changed");
+  }, [data]);
+
+  let sectionGroups = useMemo(() => {
+    let groups = Array.from(group(data, (d) => d.section_id));
+    groups.sort((a, b) => a.t_age - b.t_age);
+    console.log("Rendering groups");
+    return groups;
+  }, [data]);
 
   const className = classNames(baseClassName, {
     "dark-mode": darkMode?.isEnabled ?? false,
   });
-
-  sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
   return h(
     "div.column-container",
@@ -165,6 +188,7 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
       h(
         "div.main-column",
         sectionGroups.map(([id, data], i) => {
+          console.log("Rendering section", id, data);
           const lastGroup = sectionGroups[i - 1]?.[1];
           return h([
             h.if(unconformityLabels)(Unconformity, {

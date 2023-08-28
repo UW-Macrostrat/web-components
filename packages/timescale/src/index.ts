@@ -5,6 +5,7 @@ import { TimescaleBoxes, Cursor, IntervalStyleBuilder } from "./components";
 import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
+import { useMemo } from "react";
 import h from "./hyper";
 
 type ClickHandler = (event: Event, age: number) => void;
@@ -79,7 +80,10 @@ function Timescale(props: TimescaleProps) {
     increaseDirection = IncreaseDirection.DOWN_LEFT,
   } = props;
 
-  const [parentMap, timescale] = nestTimescale(rootInterval, intervals);
+  const [parentMap, timescale] = useMemo(
+    () => nestTimescale(rootInterval, intervals),
+    [rootInterval, intervals]
+  );
 
   const className = classNames(orientation, "increase-" + increaseDirection);
   const length = absoluteAgeScale ? l ?? 6000 : null;
