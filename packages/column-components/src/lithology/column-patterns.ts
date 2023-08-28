@@ -3,7 +3,8 @@ import {
   createContext,
   useState,
   useCallback,
-  useEffect
+  useEffect,
+  useMemo,
 } from "react";
 import h, { compose, C } from "@macrostrat/hyper";
 import { ColumnContext } from "../context";
@@ -22,13 +23,13 @@ interface GeologicPatternProps {
   UUID?: string;
 }
 
-const GeologicPatternDefs = function(props: GeologicPatternProps) {
+const GeologicPatternDefs = function (props: GeologicPatternProps) {
   let { patternIDs, scalePattern } = props;
   const UUID = props.UUID ?? useUUID();
 
   return h(
     "defs",
-    Array.from(patternIDs).map(function(id, i) {
+    Array.from(patternIDs).map(function (id, i) {
       if (id === -1) {
         return null;
       }
@@ -41,7 +42,7 @@ const GeologicPatternDefs = function(props: GeologicPatternProps) {
         prefix: UUID,
         id,
         width: sz,
-        height: sz
+        height: sz,
       });
     })
   );
@@ -66,19 +67,20 @@ function PatternDefsProvider(props: LithProviderProps) {
     [patternIDs]
   );
 
-  const value = { trackPattern };
-  const Provider = compose(
-    UUIDProvider,
-    C(PatternDefsContext.Provider, { value })
-  );
+  const value = useMemo(() => {
+    return { trackPattern };
+  }, [trackPattern]);
 
   return h(
-    Provider,
-    null,
-    h("g.patterns", [
-      h(GeologicPatternDefs, { scalePattern, patternIDs }),
-      children
-    ])
+    UUIDProvider,
+    h(
+      PatternDefsContext.Provider,
+      { value },
+      h("g.patterns", [
+        h(GeologicPatternDefs, { scalePattern, patternIDs }),
+        children,
+      ])
+    )
   );
 }
 

@@ -165,6 +165,7 @@ function UnitBoxes<T>(props: {
     return divisions.map((division, i) => {
       return h(unitComponent, {
         division,
+        key: division.unit_id,
         axisType: ColumnAxisType.HEIGHT,
         ...unitComponentProps,
       });
