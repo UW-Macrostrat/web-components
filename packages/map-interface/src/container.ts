@@ -75,7 +75,6 @@ function _MapAreaContainer({
       searching: false,
       "detail-panel-open": _detailPanelOpen,
       "map-context-open": _detailPanelOpen,
-      "fit-viewport": fitViewport,
     },
     `context-panel-${contextPanelTrans.stage}`,
     `map-context-${contextPanelTrans.stage}`,
@@ -85,7 +84,12 @@ function _MapAreaContainer({
 
   return h(
     MapStyledContainer,
-    { className: classNames("map-page", className), mapPosition },
+    {
+      className: classNames("map-page", className, {
+        "fit-viewport": fitViewport,
+      }),
+      mapPosition,
+    },
     [
       h("div.main-ui", { className: _className, ...rest }, [
         h("div.context-stack", contextStackProps, [
