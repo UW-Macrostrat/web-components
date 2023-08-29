@@ -7,6 +7,7 @@
   "dependencies": {
     "@macrostrat/column-components": "workspace:*",
     "@macrostrat/hyper": "^2.2.1",
+    "@macrostrat/map-components": "workspace:*",
     "@macrostrat/timescale": "workspace:*",
     "d3-array": "^3.2.1",
     "d3-geo-voronoi": "^2.0.1"
