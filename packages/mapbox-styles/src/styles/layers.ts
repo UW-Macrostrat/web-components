@@ -468,13 +468,19 @@ export function buildMacrostratStyle({
   tileserverDomain = "https://tiles.macrostrat.org",
   fillOpacity = 0.4,
   strokeOpacity = 0.2,
+  focusedMap = null,
 }) {
+  let tileURL = `${tileserverDomain}/carto-slim/{z}/{x}/{y}`;
+  if (focusedMap != null) {
+    tileURL = `${tileserverDomain}/map/{z}/{x}/{y}?source_id=${focusedMap}`;
+  }
+
   return {
     version: 8,
     sources: {
       burwell: {
         type: "vector",
-        tiles: [tileserverDomain + `/carto-slim/{z}/{x}/{y}`],
+        tiles: [tileURL],
         tileSize: 512,
       },
       ...overlaySources,

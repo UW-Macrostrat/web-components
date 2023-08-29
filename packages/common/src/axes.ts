@@ -1,2 +1,2 @@
-import { AgeAxis } from "@macrostrat/concept-app-helpers";
+import { AgeAxis } from "@macrostrat/column-views";
 export { AgeAxis };

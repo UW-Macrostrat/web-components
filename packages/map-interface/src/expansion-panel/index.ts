@@ -131,4 +131,5 @@ export {
   ExpandableDetailsPanel,
   SubExpansionPanel,
   ExpansionBody,
+  PanelSubhead,
 };

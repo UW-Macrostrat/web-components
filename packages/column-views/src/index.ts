@@ -11,7 +11,7 @@ import { IUnit } from "./units/types";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { TrackedLabeledUnit } from "./units";
 import styles from "./column.module.scss";
-import { AgeAxis } from "@macrostrat/concept-app-helpers";
+import { AgeAxis } from "./age-axis";
 import { useDarkMode } from "@macrostrat/ui-components";
 export * from "./units";
 import classNames from "classnames";
