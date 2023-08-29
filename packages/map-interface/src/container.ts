@@ -6,7 +6,7 @@ import { useTransition } from "transition-hook";
 import {
   MapboxMapProvider,
   ZoomControl,
-  useMapStatus,
+  useMapPosition,
 } from "@macrostrat/mapbox-react";
 import { ToasterContext } from "@macrostrat/ui-components";
 import { MapBottomControls } from "./controls";
@@ -123,7 +123,7 @@ interface MapContainerProps {
 }
 
 export function MapStyledContainer({ className, children }: MapContainerProps) {
-  const { mapPosition } = useMapStatus();
+  const mapPosition = useMapPosition();
   if (mapPosition != null) {
     const { mapIsRotated, mapUse3D, mapIsGlobal } = mapViewInfo(mapPosition);
     className = classNames(className, {

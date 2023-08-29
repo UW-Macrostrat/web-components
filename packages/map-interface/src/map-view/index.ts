@@ -1,8 +1,8 @@
 import hyper from "@macrostrat/hyper";
 import {
   useMapRef,
-  useMapStatus,
   useMapDispatch,
+  useMapPosition,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
@@ -118,7 +118,7 @@ export function MapView(props: MapViewProps) {
     setMapPosition(map, mapPosition);
   }, [mapRef.current]);
 
-  const { mapPosition: _computedMapPosition } = useMapStatus();
+  const _computedMapPosition = useMapPosition();
   const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
 
   // Get map projection

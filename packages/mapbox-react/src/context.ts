@@ -3,8 +3,6 @@ import {
   useContext,
   RefObject,
   useRef,
-  useCallback,
-  useMemo,
   useReducer,
   Reducer,
 } from "react";
@@ -25,34 +23,36 @@ interface MapCtx {
   position: MapPosition;
 }
 
+const defaultMapStatus: MapStatus = {
+  isLoading: false,
+  isInitialized: false,
+  isStyleLoaded: false,
+};
+
 const MapContext = createContext<MapCtx>({
   mapRef: null,
-  status: {
-    isLoading: false,
-    isInitialized: false,
-    isStyleLoaded: false,
-  },
+  status: defaultMapStatus,
   position: null,
 });
 
 const MapDispatchContext = createContext<React.Dispatch<MapAction>>(null);
+const MapRefContext = createContext<RefObject<Map | null>>(null);
+const MapStatusContext = createContext<MapStatus>(defaultMapStatus);
+const MapPositionContext = createContext<MapPosition>(null);
 
 export function useMapRef() {
-  const { mapRef } = useContext(MapContext);
-  return useMemo(() => mapRef, [mapRef]);
+  return useContext(MapRefContext);
 }
 
 export function useMapStatus() {
-  const { status } = useContext(MapContext);
-  return useMemo(() => status, [status]);
+  return useContext(MapStatusContext);
 }
 
 export function useMapPosition() {
-  const { position } = useContext(MapContext);
-  return useMemo(() => position, [position]);
+  return useContext(MapPositionContext);
 }
 
-export function useMapElement() {
+export function useMapElement(): Map | null {
   return useMapRef().current;
 }
 
@@ -97,17 +97,21 @@ export function MapboxMapProvider({ children }) {
   const mapRef = useRef<Map | null>();
   const [value, dispatch] = useReducer<Reducer<MapCtx, MapAction>>(mapReducer, {
     mapRef,
-    status: {
-      isLoading: false,
-      isInitialized: false,
-      isStyleLoaded: false,
-    },
+    status: defaultMapStatus,
     position: null,
   });
 
   return h(
     MapDispatchContext.Provider,
     { value: dispatch },
-    h(MapContext.Provider, { value }, children)
+    h(
+      MapRefContext.Provider,
+      { value: value.mapRef },
+      h(
+        MapStatusContext.Provider,
+        { value: value.status },
+        h(MapPositionContext.Provider, { value: value.position }, children)
+      )
+    )
   );
 }
