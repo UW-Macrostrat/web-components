@@ -26,10 +26,6 @@ type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
 export const PanelCard = (props) =>
   h(Card, { ...props, className: classNames("panel-card", props.className) });
 
-function _ContextStack({ children }) {
-  return h("div.context-stack", children);
-}
-
 function _MapAreaContainer({
   children,
   className,
@@ -98,7 +94,10 @@ function _MapAreaContainer({
       h("div.main-ui", { className: mainUIClassName, ...rest }, [
         h("div.context-stack", [
           navbar,
-          h.if(contextPanelTrans.shouldMount)([contextPanel]),
+          h("div.context-panel-holder", [
+            h.if(contextPanelTrans.shouldMount)([contextPanel]),
+          ]),
+          h("div.spacer"),
         ]),
         //h(MapView),
         children ?? mainPanel,

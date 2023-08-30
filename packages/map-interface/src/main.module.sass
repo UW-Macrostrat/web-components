@@ -317,6 +317,17 @@
     padding-bottom: 0.5em
     width: var(--map-context-stack-width, 16em)
     margin-right: 0.5em
+    display: flex
+    flex-direction: column
+
+    &>.spacer
+      flex-grow: 0
+
+  .context-panel-holder
+    min-height: 0
+    position: relative
+    &>div
+      max-height: 100%
 
   .main-ui.detail-panel-open .detail-stack
     width: var(--map-detail-stack-width, 30em)
@@ -341,6 +352,9 @@
       &.spacer
         pointer-events: none
 
+    .context-stack .spacer
+      min-height: 1em
+
   /* Make map fill page rather than containing div,
    by unsetting map position */
   .map-view-container
@@ -358,17 +372,19 @@
 .main-ui.detail-panel-leave .detail-panel
   opacity: 0
 
-.main-ui .context-panel
+.main-ui .context-panel-holder
   transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+  flex: 1
 
-.main-ui.context-panel-from .context-panel
+.main-ui.context-panel-from .context-panel-holder
   opacity: 0
 
-.main-ui.context-panel-enter .context-panel
+.main-ui.context-panel-enter .context-panel-holder
   opacity: 1
 
-.main-ui.context-panel-leave .context-panel
+.main-ui.context-panel-leave .context-panel-holder
   opacity: 0
+  max-height: 0
 
 @media only screen and (max-width: 768px)
   .main-ui .detail-stack
@@ -382,16 +398,16 @@
     max-height: 0
     max-height: 0
 
-  .main-ui .context-panel
-    transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
-
   .main-ui.context-panel-from .context-panel
     max-height: 0
     height: 0
 
-  .main-ui.context-panel-leave .context-panel
-    max-height: 0
-    max-height: 0
+  .main-ui.context-panel-leave
+    .context-stack
+      .context-panel-holder
+        flex: 0
+      .spacer
+        flex: 1
 
 // Shift UI around to center elements if we're in the global view 
 @media only screen and (min-width: 768px)
