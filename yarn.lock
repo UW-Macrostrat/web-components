@@ -20,9 +20,9 @@ __metadata:
   linkType: hard
 
 "@adobe/css-tools@npm:^4.0.1":
-  version: 4.2.0
-  resolution: "@adobe/css-tools@npm:4.2.0"
-  checksum: dc5cc92ba3d562e7ffddb79d6d222c7e00b65f255fd2725b3d71490ff268844be322f917415d8c4ab39eca646343b632058db8bd5b1d646193fcc94d1d3e420b
+  version: 4.3.1
+  resolution: "@adobe/css-tools@npm:4.3.1"
+  checksum: ad43456379ff391132aff687ece190cb23ea69395e23c9b96690eeabe2468da89a4aaf266e4f8b6eaab53db3d1064107ce0f63c3a974e864f4a04affc768da3f
   languageName: node
   linkType: hard
 
@@ -6581,6 +6581,7 @@ __metadata:
   resolution: "@macrostrat/api-views@workspace:packages/api-views"
   dependencies:
     "@macrostrat/hyper": ^2.2.1
+    "@macrostrat/ui-components": "workspace:*"
     typescript: ^4.2.3
   peerDependencies:
     react: ^16.8.6||^17||^18
@@ -6638,6 +6639,7 @@ __metadata:
   dependencies:
     "@macrostrat/column-components": "workspace:*"
     "@macrostrat/hyper": ^2.2.1
+    "@macrostrat/map-components": "workspace:*"
     "@macrostrat/timescale": "workspace:*"
     d3-array: ^3.2.1
     d3-geo-voronoi: ^2.0.1
@@ -6799,7 +6801,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/map-components@^0.2.1, @macrostrat/map-components@workspace:packages/map-components":
+"@macrostrat/map-components@^0.2.1, @macrostrat/map-components@workspace:*, @macrostrat/map-components@workspace:packages/map-components":
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-components@workspace:packages/map-components"
   dependencies:
