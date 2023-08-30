@@ -59,7 +59,9 @@ function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
   });
 
   // set initial map position
-  setMapPosition(map, mapPosition);
+  if (mapPosition != null) {
+    setMapPosition(map, mapPosition);
+  }
 
   //setMapPosition(map, mapPosition);
   return map;
@@ -114,14 +116,19 @@ export function MapView(props: MapViewProps) {
       projection,
       mapPosition,
     });
+    map.on("style.load", () => {
+      dispatch({ type: "set-style-loaded", payload: true });
+    });
     onMapLoad(map);
     dispatch({ type: "set-map", payload: map });
-    console.log("Map initialized");
+
+    console.log("Map loaded");
+
     return () => {
       map.remove();
       dispatch({ type: "set-map", payload: null });
     };
-  }, [transformRequest, dispatch, style]);
+  }, [transformRequest, dispatch]);
 
   // Map style updating
   useEffect(() => {
