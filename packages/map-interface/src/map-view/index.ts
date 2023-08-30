@@ -107,7 +107,7 @@ export function MapView(props: MapViewProps) {
 
     // Map is already initialized
     if (mapRef?.current != null) return;
-    console.log("Initializing map");
+    console.log("Initializing map (internal");
     const map = initializeMap(ref.current, {
       style,
       transformRequest,
