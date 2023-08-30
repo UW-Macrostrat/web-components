@@ -284,9 +284,8 @@
 
   .infodrawer-stack
     max-height: 70%
-
-  :global(.exit-active)
-    max-height: 0
+    &:global(.exit-active)
+      max-height: 0
 
   :global(.mapbox-control.mapbox-zoom)
     display: none
@@ -311,27 +310,16 @@
       &>*:last-child
         margin-right: 0
 
-    &.searching .context-stack
-      width: 24em
-
   .context-stack
     max-width: 34em
     min-width: 14em
-    width: 16em
     transition: width 300ms ease
     padding-bottom: 0.5em
-
-    &.panel-open
-      width: 34em
-      margin-right: 0.5em
-
-  .context-stack.layers,
-  .context-stack.settings
-    width: 18em
+    width: var(--map-context-stack-width, 16em)
     margin-right: 0.5em
 
   .main-ui.detail-panel-open .detail-stack
-    width: 30em
+    width: var(--map-detail-stack-width, 30em)
 
   .detail-stack
     width: 30em
@@ -339,24 +327,22 @@
     display: flex
     flex-direction: column
 
-  .context-stack,
-  .detail-stack
+  .context-stack, .detail-stack
     pointer-events: none
     z-index: 100
 
-  .context-stack>div,
-  .detail-stack>div
-    pointer-events: all
-    margin-bottom: 0.5em
+    &>div
+      pointer-events: all
+      margin-bottom: 0.5em
 
-  .context-stack>div:last-child,
-  .detail-stack>div:last-child
-    margin-bottom: 0
+      &:last-child
+        margin-bottom: 0
 
-  .context-stack>div.spacer,
-  .detail-stack>div.spacer
-    pointer-events: none
+      &.spacer
+        pointer-events: none
 
+  /* Make map fill page rather than containing div,
+   by unsetting map position */
   .map-view-container
     position: unset
 
