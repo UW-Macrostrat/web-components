@@ -21,6 +21,7 @@ import {
   MapPaddingManager,
   MapResizeManager,
 } from "../helpers";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const h = hyper.styled({ ...styles, ...rootStyles });
 
@@ -36,9 +37,16 @@ export interface MapViewProps extends MapboxCoreOptions {
   //style: mapboxgl.Style | string;
   //transformRequest?: mapboxgl.TransformRequestFunction;
   mapPosition?: MapPosition;
+  onMapLoad?: (map: mapboxgl.Map) => void;
 }
 
-function initializeMap(container, args: MapboxCoreOptions = {}) {
+export interface MapboxOptionsExt extends MapboxCoreOptions {
+  mapPosition?: MapPosition;
+}
+
+function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
+  const { mapPosition, ...rest } = args;
+
   const map = new mapboxgl.Map({
     container,
     maxZoom: 18,
@@ -47,8 +55,11 @@ function initializeMap(container, args: MapboxCoreOptions = {}) {
     trackResize: true,
     antialias: true,
     optimizeForTerrain: true,
-    ...args,
+    ...rest,
   });
+
+  // set initial map position
+  setMapPosition(map, mapPosition);
 
   //setMapPosition(map, mapPosition);
   return map;
@@ -69,10 +80,12 @@ export function MapView(props: MapViewProps) {
     style,
     transformRequest,
     mapPosition = defaultMapPosition,
+    initializeMap = defaultInitializeMap,
     children,
     accessToken,
     infoMarkerPosition,
     projection,
+    onMapLoad = () => null,
   } = props;
   if (enableTerrain) {
     terrainSourceID ??= "mapbox-3d-dem";
@@ -91,13 +104,17 @@ export function MapView(props: MapViewProps) {
 
   useEffect(() => {
     if (style == null || ref.current == null || dispatch == null) return;
+
+    // Map is already initialized
     if (mapRef?.current != null) return;
     console.log("Initializing map");
     const map = initializeMap(ref.current, {
       style,
       transformRequest,
       projection,
+      mapPosition,
     });
+    onMapLoad(map);
     dispatch({ type: "set-map", payload: map });
     console.log("Map initialized");
     return () => {
@@ -112,11 +129,12 @@ export function MapView(props: MapViewProps) {
     mapRef?.current?.setStyle(style);
   }, [mapRef.current, style]);
 
+  // Set map position if it changes
   useEffect(() => {
     const map = mapRef.current;
     if (map == null || mapPosition == null) return;
     setMapPosition(map, mapPosition);
-  }, [mapRef.current]);
+  }, [mapPosition]);
 
   const _computedMapPosition = useMapPosition();
   const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
