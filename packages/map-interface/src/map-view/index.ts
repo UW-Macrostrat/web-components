@@ -87,7 +87,8 @@ export function MapView(props: MapViewProps) {
     infoMarkerPosition,
     transformRequest,
     projection,
-    onMapLoad = () => null,
+    onMapLoaded = null,
+    onStyleLoaded = null,
     ...rest
   } = props;
   if (enableTerrain) {
@@ -110,6 +111,7 @@ export function MapView(props: MapViewProps) {
 
     // Map is already initialized
     if (mapRef?.current != null) {
+      dispatch({ type: "set-style-loaded", payload: false });
       mapRef.current.setStyle(style);
       return;
     }
@@ -121,20 +123,27 @@ export function MapView(props: MapViewProps) {
       mapPosition,
       ...rest,
     });
-    map.on("style.load", () => {
-      console.log("Map style loaded");
-      dispatch({ type: "set-style-loaded", payload: true });
-    });
-    onMapLoad(map);
+    onMapLoaded?.(map);
     dispatch({ type: "set-map", payload: map });
-
-    console.log("Map loaded");
 
     return () => {
       map.remove();
       dispatch({ type: "set-map", payload: null });
     };
   }, [style]);
+
+  // Style loading
+  useEffect(() => {
+    if (mapRef?.current == null) return;
+    const cb = () => {
+      onStyleLoaded?.(mapRef.current);
+      dispatch({ type: "set-style-loaded", payload: true });
+    };
+    mapRef.current.on("style.load", cb);
+    return () => {
+      mapRef.current.off("style.load", cb);
+    };
+  }, [mapRef.current]);
 
   // Map style updating
   // useEffect(() => {
