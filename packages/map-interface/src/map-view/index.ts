@@ -143,7 +143,7 @@ export function MapView(props: MapViewProps) {
     return () => {
       mapRef.current.off("style.load", cb);
     };
-  }, [mapRef.current]);
+  }, [mapRef.current, onStyleLoaded]);
 
   // Map style updating
   // useEffect(() => {
