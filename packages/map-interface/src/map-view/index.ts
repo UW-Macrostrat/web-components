@@ -80,14 +80,15 @@ export function MapView(props: MapViewProps) {
   const {
     enableTerrain = true,
     style,
-    transformRequest,
     mapPosition = defaultMapPosition,
     initializeMap = defaultInitializeMap,
     children,
     accessToken,
     infoMarkerPosition,
+    transformRequest,
     projection,
     onMapLoad = () => null,
+    ...rest
   } = props;
   if (enableTerrain) {
     terrainSourceID ??= "mapbox-3d-dem";
@@ -105,18 +106,23 @@ export function MapView(props: MapViewProps) {
   // Keep track of map position for reloads
 
   useEffect(() => {
-    if (style == null || ref.current == null || dispatch == null) return;
+    if (style == null || ref.current == null) return;
 
     // Map is already initialized
-    if (mapRef?.current != null) return;
-    console.log("Initializing map (internal");
+    if (mapRef?.current != null) {
+      mapRef.current.setStyle(style);
+      return;
+    }
+
+    console.log("Initializing map (internal)");
     const map = initializeMap(ref.current, {
       style,
-      transformRequest,
       projection,
       mapPosition,
+      ...rest,
     });
     map.on("style.load", () => {
+      console.log("Map style loaded");
       dispatch({ type: "set-style-loaded", payload: true });
     });
     onMapLoad(map);
@@ -128,20 +134,20 @@ export function MapView(props: MapViewProps) {
       map.remove();
       dispatch({ type: "set-map", payload: null });
     };
-  }, [transformRequest, dispatch]);
+  }, [style]);
 
   // Map style updating
-  useEffect(() => {
-    if (mapRef?.current == null || style == null) return;
-    mapRef?.current?.setStyle(style);
-  }, [mapRef.current, style]);
+  // useEffect(() => {
+  //   if (mapRef?.current == null || style == null) return;
+  //   mapRef?.current?.setStyle(style);
+  // }, [mapRef.current, style]);
 
   // Set map position if it changes
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null || mapPosition == null) return;
-    setMapPosition(map, mapPosition);
-  }, [mapPosition]);
+  // useEffect(() => {
+  //   const map = mapRef.current;
+  //   if (map == null || mapPosition == null) return;
+  //   setMapPosition(map, mapPosition);
+  // }, [mapPosition]);
 
   const _computedMapPosition = useMapPosition();
   const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
