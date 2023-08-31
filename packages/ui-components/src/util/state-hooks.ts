@@ -1,4 +1,4 @@
-import { Component, useState, useRef } from "react";
+import { Component, useState, useRef, useEffect } from "react";
 import { isEqual } from "underscore";
 import update, { Spec } from "immutability-helper";
 
@@ -38,4 +38,12 @@ export class StatefulComponent<Props, State> extends Component<Props, State> {
     const newState = update(this.state, spec);
     this.setState(newState);
   }
+}
+
+export function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
 }

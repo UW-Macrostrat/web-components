@@ -4,19 +4,11 @@ import mapboxgl from "mapbox-gl";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { useEffect, useState, useRef } from "react";
-import { JSONView } from "@macrostrat/ui-components";
+import { JSONView, usePrevious } from "@macrostrat/ui-components";
 import { group } from "d3-array";
 import { ExpansionPanel } from "../expansion-panel";
 
 const h = hyper.styled(styles);
-
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
 
 export function FeatureRecord({ feature }) {
   const props = feature.properties;
