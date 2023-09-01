@@ -141,9 +141,9 @@ export function MapView(props: MapViewProps) {
     };
     mapRef.current.on("style.load", cb);
     return () => {
-      mapRef.current.off("style.load", cb);
+      mapRef.current?.off("style.load", cb);
     };
-  }, [mapRef.current, onStyleLoaded]);
+  }, [mapRef.current, style, onStyleLoaded]);
 
   // Map style updating
   // useEffect(() => {
