@@ -11,7 +11,7 @@ import {
 } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import styles from "./main.module.sass";
 import rootStyles from "../main.module.sass";
 import { enable3DTerrain } from "./terrain";
@@ -107,43 +107,25 @@ export function MapView(props: MapViewProps) {
   // Keep track of map position for reloads
 
   useEffect(() => {
-    if (style == null || ref.current == null) return;
-
-    // Map is already initialized
-    if (mapRef?.current != null) {
-      dispatch({ type: "set-style-loaded", payload: false });
+    if (style == null) return;
+    if (mapRef.current != null) {
+      console.log("Setting style", style);
       mapRef.current.setStyle(style);
       return;
     }
-
-    console.log("Initializing map (internal)");
     const map = initializeMap(ref.current, {
       style,
       projection,
       mapPosition,
       ...rest,
     });
+    map.on("style.load", () => {
+      onStyleLoaded?.(map);
+      dispatch({ type: "set-style-loaded", payload: true });
+    });
     onMapLoaded?.(map);
     dispatch({ type: "set-map", payload: map });
-
-    return () => {
-      map.remove();
-      dispatch({ type: "set-map", payload: null });
-    };
   }, [style]);
-
-  // Style loading
-  useEffect(() => {
-    if (mapRef?.current == null) return;
-    const cb = () => {
-      onStyleLoaded?.(mapRef.current);
-      dispatch({ type: "set-style-loaded", payload: true });
-    };
-    mapRef.current.on("style.load", cb);
-    return () => {
-      mapRef.current?.off("style.load", cb);
-    };
-  }, [mapRef.current, style, onStyleLoaded]);
 
   // Map style updating
   // useEffect(() => {
