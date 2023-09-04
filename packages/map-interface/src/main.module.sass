@@ -44,6 +44,7 @@
 .panel-card
   padding: 10px
   background-color: var(--panel-background-color)
+  overflow: hidden
 
   & >:last-child
     margin-bottom: 0
@@ -368,18 +369,25 @@
   opacity: 0
 
 .main-ui .context-panel-holder
-  transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+  pointer-events: none
   flex: 1
+  &>div
+    pointer-events: all
+    transition: opacity 0.8s ease //, height 0.8s ease, max-height 0.8s ease, padding 0.8s ease
 
-.main-ui.context-panel-from .context-panel-holder
+.main-ui.context-panel-from .context-panel-holder>div
   opacity: 0
 
-.main-ui.context-panel-enter .context-panel-holder
+.main-ui.context-panel-enter .context-panel-holder>div
   opacity: 1
 
-.main-ui.context-panel-leave .context-panel-holder
+.main-ui.context-panel-leave .context-panel-holder>div
   opacity: 0
-  max-height: 0
+  // The max-height transition is a bit jerky because of panel padding.
+  // We could probably fix this by pulling the panel container itself into
+  // the class.
+  //max-height: 0
+  //padding: 0
 
 @media only screen and (max-width: 768px)
   .main-ui .detail-stack
