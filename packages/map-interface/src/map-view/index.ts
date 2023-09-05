@@ -22,6 +22,7 @@ import {
   MapResizeManager,
 } from "../helpers";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { getMapPadding } from "../utils";
 
 const h = hyper.styled({ ...styles, ...rootStyles });
 
@@ -117,6 +118,7 @@ export function MapView(props: MapViewProps) {
       style,
       projection,
       mapPosition,
+      padding: getMapPadding(ref, parentRef),
       ...rest,
     });
     map.on("style.load", () => {
