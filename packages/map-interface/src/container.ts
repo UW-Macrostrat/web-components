@@ -47,6 +47,7 @@ function _MapAreaContainer({
   children?: AnyElement;
   mapControls?: AnyElement;
   contextPanel?: AnyElement;
+  contextStack?: AnyElement;
   mainPanel?: AnyElement;
   detailPanel?: AnyElement;
   bottomPanel?: AnyElement;
@@ -70,11 +71,10 @@ function _MapAreaContainer({
     - These styles are doubly applied so we can have both namespaced and
       outside-accessible styles for each case.
   */
-  const _className = classNames(
+  const mainUIClassName = classNames(
     {
-      searching: false,
       "detail-panel-open": _detailPanelOpen,
-      "map-context-open": _detailPanelOpen,
+      "map-context-open": contextPanelOpen,
     },
     `context-panel-${contextPanelTrans.stage}`,
     `map-context-${contextPanelTrans.stage}`,
@@ -91,10 +91,13 @@ function _MapAreaContainer({
       mapPosition,
     },
     [
-      h("div.main-ui", { className: _className, ...rest }, [
-        h("div.context-stack", contextStackProps, [
+      h("div.main-ui", { className: mainUIClassName, ...rest }, [
+        h("div.context-stack", [
           navbar,
-          h.if(contextPanelTrans.shouldMount)([contextPanel]),
+          h("div.context-panel-holder", [
+            h.if(contextPanelTrans.shouldMount)([contextPanel]),
+          ]),
+          h("div.spacer"),
         ]),
         //h(MapView),
         children ?? mainPanel,

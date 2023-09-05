@@ -4,6 +4,7 @@ import {
   RefObject,
   useRef,
   useReducer,
+  useCallback,
   Reducer,
 } from "react";
 import update from "immutability-helper";
@@ -18,7 +19,6 @@ interface MapStatus {
 }
 
 interface MapCtx {
-  mapRef: RefObject<Map | null>;
   status: MapStatus;
   position: MapPosition;
 }
@@ -28,12 +28,6 @@ const defaultMapStatus: MapStatus = {
   isInitialized: false,
   isStyleLoaded: false,
 };
-
-const MapContext = createContext<MapCtx>({
-  mapRef: null,
-  status: defaultMapStatus,
-  position: null,
-});
 
 const MapDispatchContext = createContext<React.Dispatch<MapAction>>(null);
 const MapRefContext = createContext<RefObject<Map | null>>(null);
@@ -75,7 +69,6 @@ function mapReducer(state: MapCtx, action: MapAction): MapCtx {
   switch (action.type) {
     case "set-map":
       return update(state, {
-        mapRef: { current: { $set: action.payload } },
         status: { isInitialized: { $set: true } },
       });
     case "set-loading":
@@ -95,18 +88,27 @@ function mapReducer(state: MapCtx, action: MapAction): MapCtx {
 
 export function MapboxMapProvider({ children }) {
   const mapRef = useRef<Map | null>();
-  const [value, dispatch] = useReducer<Reducer<MapCtx, MapAction>>(mapReducer, {
-    mapRef,
-    status: defaultMapStatus,
-    position: null,
-  });
+  const [value, _dispatch] = useReducer<Reducer<MapCtx, MapAction>>(
+    mapReducer,
+    {
+      status: defaultMapStatus,
+      position: null,
+    }
+  );
+
+  const dispatch = useCallback((action: MapAction) => {
+    if (action.type === "set-map") {
+      mapRef.current = action.payload;
+    }
+    _dispatch(action);
+  }, []);
 
   return h(
     MapDispatchContext.Provider,
     { value: dispatch },
     h(
       MapRefContext.Provider,
-      { value: value.mapRef },
+      { value: mapRef },
       h(
         MapStatusContext.Provider,
         { value: value.status },

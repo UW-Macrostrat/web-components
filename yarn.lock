@@ -6581,6 +6581,7 @@ __metadata:
   resolution: "@macrostrat/api-views@workspace:packages/api-views"
   dependencies:
     "@macrostrat/hyper": ^2.2.1
+    "@macrostrat/ui-components": "workspace:*"
     typescript: ^4.2.3
   peerDependencies:
     react: ^16.8.6||^17||^18
@@ -6638,6 +6639,7 @@ __metadata:
   dependencies:
     "@macrostrat/column-components": "workspace:*"
     "@macrostrat/hyper": ^2.2.1
+    "@macrostrat/map-components": "workspace:*"
     "@macrostrat/timescale": "workspace:*"
     d3-array: ^3.2.1
     d3-geo-voronoi: ^2.0.1
@@ -6799,7 +6801,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/map-components@^0.2.1, @macrostrat/map-components@workspace:packages/map-components":
+"@macrostrat/map-components@^0.2.1, @macrostrat/map-components@workspace:*, @macrostrat/map-components@workspace:packages/map-components":
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-components@workspace:packages/map-components"
   dependencies:
@@ -6875,7 +6877,7 @@ __metadata:
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
     "@macrostrat/hyper": ^2.2.1
-    "@macrostrat/mapbox-react": ^2.0.2
+    "@macrostrat/mapbox-react": ^2.1.0
     "@macrostrat/mapbox-utils": ^1.2.1
     "@macrostrat/ui-components": ^3.0.0
     "@mapbox/tilebelt": ^1.0.2
@@ -6895,7 +6897,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/mapbox-react@^2.0.2, @macrostrat/mapbox-react@workspace:packages/mapbox-react":
+"@macrostrat/mapbox-react@^2.1.0, @macrostrat/mapbox-react@workspace:packages/mapbox-react":
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:

@@ -1,13 +1,5 @@
-import { useRef, useEffect } from "react";
-
-function usePrevious<T>(value: T): T {
-  /** Use the previous value of a value */
-  const ref = useRef<T>();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
-}
+import { useEffect } from "react";
+import { usePrevious } from "./state-hooks";
 
 export function useComponentDidUpdate<
   Props extends object,

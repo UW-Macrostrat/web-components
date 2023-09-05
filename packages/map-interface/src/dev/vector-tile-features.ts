@@ -3,30 +3,27 @@ import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
 import mapboxgl from "mapbox-gl";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { useEffect, useState, useRef } from "react";
-import { JSONView } from "@macrostrat/ui-components";
+import { useEffect, useState } from "react";
+import { JSONView, usePrevious } from "@macrostrat/ui-components";
 import { group } from "d3-array";
 import { ExpansionPanel } from "../expansion-panel";
 
 const h = hyper.styled(styles);
 
-function usePrevious(value) {
-  const ref = useRef();
-  useEffect(() => {
-    ref.current = value;
-  });
-  return ref.current;
+export function FeatureProperties({ data, ...rest }) {
+  return h("div.feature-properties", [
+    h(JSONView, {
+      data,
+      hideRoot: true,
+      ...rest,
+    }),
+  ]);
 }
 
 export function FeatureRecord({ feature }) {
   const props = feature.properties;
   return h("div.feature-record", [
-    h.if(Object.keys(props).length > 0)("div.feature-properties", [
-      h(JSONView, {
-        data: props,
-        hideRoot: true,
-      }),
-    ]),
+    h.if(Object.keys(props).length > 0)(FeatureProperties, { data: props }),
   ]);
 }
 
@@ -182,7 +179,7 @@ export function FeaturePanel({
       ExpansionPanel,
       { title, className: "basemap-features", expanded: focusedSource == null },
       [
-        h(Features, {
+        h(FeatureGroups, {
           features: filteredFeatures,
         }),
       ]
@@ -190,19 +187,26 @@ export function FeaturePanel({
   ]);
 }
 
-function Features({ features }) {
+function FeatureGroups({ features }) {
   /** Group features by source and sourceLayer */
   if (features == null) return null;
 
   const groups = group(features, (d) => `${d.source} - ${d.sourceLayer}`);
 
   return h(
-    "div.features",
+    "div.feature-groups",
     Array.from(groups).map(([key, features]) => {
       return h("div.feature-group", [
         h(FeatureHeader, { feature: features[0] }),
-        features.map((feature, i) => h(FeatureRecord, { key: i, feature })),
+        h(Features, { features }),
       ]);
     })
+  );
+}
+
+export function Features({ features }) {
+  return h(
+    "div.features",
+    features.map((feature, i) => h(FeatureRecord, { key: i, feature }))
   );
 }

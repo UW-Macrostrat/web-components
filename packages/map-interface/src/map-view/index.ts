@@ -11,7 +11,7 @@ import {
 } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import styles from "./main.module.sass";
 import rootStyles from "../main.module.sass";
 import { enable3DTerrain } from "./terrain";
@@ -21,6 +21,7 @@ import {
   MapPaddingManager,
   MapResizeManager,
 } from "../helpers";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 const h = hyper.styled({ ...styles, ...rootStyles });
 
@@ -36,9 +37,16 @@ export interface MapViewProps extends MapboxCoreOptions {
   //style: mapboxgl.Style | string;
   //transformRequest?: mapboxgl.TransformRequestFunction;
   mapPosition?: MapPosition;
+  onMapLoad?: (map: mapboxgl.Map) => void;
 }
 
-function initializeMap(container, args: MapboxCoreOptions = {}) {
+export interface MapboxOptionsExt extends MapboxCoreOptions {
+  mapPosition?: MapPosition;
+}
+
+function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
+  const { mapPosition, ...rest } = args;
+
   const map = new mapboxgl.Map({
     container,
     maxZoom: 18,
@@ -47,8 +55,13 @@ function initializeMap(container, args: MapboxCoreOptions = {}) {
     trackResize: true,
     antialias: true,
     optimizeForTerrain: true,
-    ...args,
+    ...rest,
   });
+
+  // set initial map position
+  if (mapPosition != null) {
+    setMapPosition(map, mapPosition);
+  }
 
   //setMapPosition(map, mapPosition);
   return map;
@@ -67,12 +80,16 @@ export function MapView(props: MapViewProps) {
   const {
     enableTerrain = true,
     style,
-    transformRequest,
     mapPosition = defaultMapPosition,
+    initializeMap = defaultInitializeMap,
     children,
     accessToken,
     infoMarkerPosition,
+    transformRequest,
     projection,
+    onMapLoaded = null,
+    onStyleLoaded = null,
+    ...rest
   } = props;
   if (enableTerrain) {
     terrainSourceID ??= "mapbox-3d-dem";
@@ -90,33 +107,38 @@ export function MapView(props: MapViewProps) {
   // Keep track of map position for reloads
 
   useEffect(() => {
-    if (style == null || ref.current == null || dispatch == null) return;
-    if (mapRef?.current != null) return;
-    console.log("Initializing map");
+    if (style == null) return;
+    if (mapRef.current != null) {
+      console.log("Setting style", style);
+      mapRef.current.setStyle(style);
+      return;
+    }
     const map = initializeMap(ref.current, {
       style,
-      transformRequest,
       projection,
+      mapPosition,
+      ...rest,
     });
+    map.on("style.load", () => {
+      onStyleLoaded?.(map);
+      dispatch({ type: "set-style-loaded", payload: true });
+    });
+    onMapLoaded?.(map);
     dispatch({ type: "set-map", payload: map });
-    console.log("Map initialized");
-    return () => {
-      map.remove();
-      dispatch({ type: "set-map", payload: null });
-    };
-  }, [transformRequest, dispatch, style]);
+  }, [style]);
 
   // Map style updating
-  useEffect(() => {
-    if (mapRef?.current == null || style == null) return;
-    mapRef?.current?.setStyle(style);
-  }, [mapRef.current, style]);
+  // useEffect(() => {
+  //   if (mapRef?.current == null || style == null) return;
+  //   mapRef?.current?.setStyle(style);
+  // }, [mapRef.current, style]);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null || mapPosition == null) return;
-    setMapPosition(map, mapPosition);
-  }, [mapRef.current]);
+  // Set map position if it changes
+  // useEffect(() => {
+  //   const map = mapRef.current;
+  //   if (map == null || mapPosition == null) return;
+  //   setMapPosition(map, mapPosition);
+  // }, [mapPosition]);
 
   const _computedMapPosition = useMapPosition();
   const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
