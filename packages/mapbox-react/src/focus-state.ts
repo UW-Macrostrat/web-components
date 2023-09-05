@@ -67,7 +67,11 @@ export function useMapEaseToCenter(position, padding) {
       opts.padding = padding;
     }
     if (opts == null) return;
-    opts.duration = 800;
+    if (prevPadding.current == null) {
+      opts.duration = 0;
+    } else {
+      opts.duration = 800;
+    }
     map.flyTo(opts);
     map.once("moveend", () => {
       /* Waiting until moveend to update the refs allows us to

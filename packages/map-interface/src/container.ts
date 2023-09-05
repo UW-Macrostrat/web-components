@@ -15,10 +15,6 @@ import { Card } from "@blueprintjs/core";
 
 import { ReactNode } from "react";
 
-export function MapInterface() {
-  return h("div", "Hello world");
-}
-
 const h = hyper.styled(styles);
 
 type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
