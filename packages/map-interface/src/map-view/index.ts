@@ -106,12 +106,21 @@ export function MapView(props: MapViewProps) {
   const parentRef = useRef<HTMLDivElement>();
 
   // Keep track of map position for reloads
+  useEffect(() => {
+    console.log("Map updated", mapRef.current);
+  }, [mapRef.current]);
 
   useEffect(() => {
     if (style == null) return;
     if (mapRef.current != null) {
       console.log("Setting style", style);
-      mapRef.current.setStyle(style);
+      if (mapRef.current.isStyleLoaded()) {
+        mapRef.current.setStyle(style);
+      } else {
+        mapRef.current.once("style.load", () => {
+          mapRef.current.setStyle(style);
+        });
+      }
       return;
     }
     const map = initializeMap(ref.current, {
