@@ -12,6 +12,7 @@ import { LocationPanel } from "../location-panel";
 import { MapView } from "../map-view";
 import styles from "./main.module.sass";
 import { TileExtentLayer } from "./tile-extent";
+import { useMapStatus } from "@macrostrat/mapbox-react";
 import {
   FeaturePanel,
   FeatureSelectionHandler,
@@ -83,6 +84,8 @@ export function DevMapPage({
   });
   const { showTileExtent, xRay } = state;
 
+  const { isLoading } = useMapStatus();
+
   const [actualStyle, setActualStyle] = useState(style);
 
   useEffect(() => {
@@ -130,8 +133,6 @@ export function DevMapPage({
     let f = data[0];
     tile = { x: f._x, y: f._y, z: f._z };
   }
-
-  console.log("Style", actualStyle);
 
   return h(
     MapAreaContainer,

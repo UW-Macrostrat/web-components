@@ -9,6 +9,7 @@ import { Icon } from "@blueprintjs/core";
 import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
 import { useMapElement, useMapRef } from "./context";
+import { NavigationControl } from "mapbox-gl";
 
 export function MapControlWrapper({ className, control, options = {} }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
@@ -17,14 +18,14 @@ export function MapControlWrapper({ className, control, options = {} }) {
   const controlRef = useRef<Base>();
 
   // Memoize the options object so that we don't continually recreate the control.
-  const _options = useRef(options);
-  useEffect(() => {
-    _options.current = options;
-  }, Object.values(options));
+  // const _options = useRef(options);
+  // useEffect(() => {
+  //   _options.current = options;
+  // }, Object.values(options));
 
   useEffect(() => {
     if (mapRef.current == null) return;
-    const ctrl = new control(_options);
+    const ctrl = new control(options);
 
     controlRef.current = ctrl;
     const controlElement = ctrl.onAdd(mapRef.current);
@@ -32,7 +33,7 @@ export function MapControlWrapper({ className, control, options = {} }) {
     return () => {
       controlRef.current?.onRemove();
     };
-  }, [mapRef.current, controlContainer.current, control, _options]);
+  }, [mapRef.current, controlContainer.current, control, options]);
 
   return h("div.map-control-wrapper", { className, ref: controlContainer });
 }
@@ -94,11 +95,16 @@ class _ThreeDControl extends Base {
   }
 }
 
-export function CompassControl({ className, options }) {
+export function CompassControl({ className }) {
+  const options = useRef({
+    showCompass: true,
+    showZoom: false,
+    visualizePitch: true,
+  });
   return h(MapControlWrapper, {
     className: classNames("compass-control", className),
-    control: _CompassControl,
-    options,
+    control: NavigationControl,
+    options: options.current,
   });
 }
 
