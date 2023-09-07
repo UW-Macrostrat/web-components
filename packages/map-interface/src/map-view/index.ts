@@ -114,13 +114,7 @@ export function MapView(props: MapViewProps) {
     if (style == null) return;
     if (mapRef.current != null) {
       console.log("Setting style", style);
-      if (mapRef.current.isStyleLoaded()) {
-        mapRef.current.setStyle(style);
-      } else {
-        mapRef.current.once("style.load", () => {
-          mapRef.current.setStyle(style);
-        });
-      }
+      mapRef.current.setStyle(style);
       return;
     }
     const map = initializeMap(ref.current, {

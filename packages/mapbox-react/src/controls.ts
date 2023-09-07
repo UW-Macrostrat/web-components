@@ -9,7 +9,7 @@ import { Icon } from "@blueprintjs/core";
 import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
 import { useMapElement, useMapRef } from "./context";
-import { NavigationControl } from "mapbox-gl";
+import { NavigationControl, Control } from "mapbox-gl";
 
 export function MapControlWrapper({ className, control, options = {} }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
