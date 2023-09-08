@@ -35,7 +35,6 @@ function _MapAreaContainer({
   mapControls = h(MapBottomControls),
   contextStackProps = null,
   detailStackProps = null,
-  mapPosition = null,
   fitViewport = true,
   ...rest
 }: {
@@ -52,7 +51,6 @@ function _MapAreaContainer({
   contextPanelOpen?: boolean;
   contextStackProps?: HTMLDivProps;
   detailStackProps?: HTMLDivProps;
-  mapPosition?: MapPosition;
   fitViewport?: boolean;
 }) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
@@ -84,7 +82,6 @@ function _MapAreaContainer({
       className: classNames("map-page", className, {
         "fit-viewport": fitViewport,
       }),
-      mapPosition,
     },
     [
       h("div.main-ui", { className: mainUIClassName, ...rest }, [
@@ -117,7 +114,6 @@ export const MapAreaContainer = (props) =>
 
 interface MapContainerProps {
   className?: string;
-  mapPosition?: MapPosition;
   children?: ReactNode;
 }
 
