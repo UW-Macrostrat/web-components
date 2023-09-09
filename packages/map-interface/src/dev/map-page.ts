@@ -48,7 +48,7 @@ export function DevMapPage({
   headerElement?: React.ReactElement;
   transformRequest?: mapboxgl.TransformRequestFunction;
   title?: string;
-  style: mapboxgl.Style | string;
+  style?: mapboxgl.Style | string;
   children?: React.ReactNode;
   mapboxToken?: string;
   overlayStyle?: mapboxgl.Style | string;

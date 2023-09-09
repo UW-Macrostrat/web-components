@@ -151,7 +151,7 @@ export function applyAgeModelStyles(
   return styles;
 }
 
-const overlaySources = {
+const overlaySources: { [k: string]: mapboxgl.Source } = {
   // "pbdb": {
   //     "type": "vector",
   //     "tiles": [
@@ -216,7 +216,7 @@ const overlaySources = {
   },
 };
 
-export function buildOverlayLayers() {
+export function buildOverlayLayers(): mapboxgl.Layer[] {
   // Get CSS colors from settings
   const ruleColor = getComputedStyle(document.body).getPropertyValue(
     "--panel-background-color"
@@ -469,7 +469,7 @@ export function buildMacrostratStyle({
   fillOpacity = 0.4,
   strokeOpacity = 0.2,
   focusedMap = null,
-}) {
+}): mapboxgl.Style {
   let tileURL = `${tileserverDomain}/carto-slim/{z}/{x}/{y}`;
   if (focusedMap != null) {
     tileURL = `${tileserverDomain}/map/{z}/{x}/{y}?source_id=${focusedMap}`;
@@ -481,7 +481,6 @@ export function buildMacrostratStyle({
       burwell: {
         type: "vector",
         tiles: [tileURL],
-        tileSize: 512,
       },
       ...overlaySources,
     },
