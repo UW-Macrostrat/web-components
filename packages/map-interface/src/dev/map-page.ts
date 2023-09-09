@@ -164,7 +164,8 @@ export function DevMapPage({
         style: actualStyle,
         transformRequest,
         mapPosition,
-        projection: "globe",
+        projection: { name: "globe" },
+        mapboxToken,
       },
       [
         h(FeatureSelectionHandler, {

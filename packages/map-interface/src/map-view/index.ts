@@ -31,14 +31,19 @@ type MapboxCoreOptions = Omit<mapboxgl.MapboxOptions, "container">;
 export interface MapViewProps extends MapboxCoreOptions {
   showLineSymbols?: boolean;
   children?: React.ReactNode;
+  mapboxToken?: string;
+  // Deprecated
   accessToken?: string;
   terrainSourceID?: string;
   enableTerrain?: boolean;
   infoMarkerPosition?: mapboxgl.LngLatLike;
-  //style: mapboxgl.Style | string;
-  //transformRequest?: mapboxgl.TransformRequestFunction;
   mapPosition?: MapPosition;
-  onMapLoad?: (map: mapboxgl.Map) => void;
+  initializeMap?: (
+    container: HTMLElement,
+    args: MapboxOptionsExt
+  ) => mapboxgl.Map;
+  onMapLoaded?: (map: mapboxgl.Map) => void;
+  onStyleLoaded?: (map: mapboxgl.Map) => void;
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {
@@ -84,6 +89,8 @@ export function MapView(props: MapViewProps) {
     mapPosition = defaultMapPosition,
     initializeMap = defaultInitializeMap,
     children,
+    mapboxToken,
+    // Deprecated
     accessToken,
     infoMarkerPosition,
     transformRequest,
@@ -96,8 +103,10 @@ export function MapView(props: MapViewProps) {
     terrainSourceID ??= "mapbox-3d-dem";
   }
 
-  if (accessToken != null) {
-    mapboxgl.accessToken = accessToken;
+  const _mapboxToken = mapboxToken ?? accessToken;
+
+  if (_mapboxToken != null) {
+    mapboxgl.accessToken = _mapboxToken;
   }
 
   const dispatch = useMapDispatch();
@@ -121,9 +130,9 @@ export function MapView(props: MapViewProps) {
       style,
       projection,
       mapPosition,
-      padding: getMapPadding(ref, parentRef),
       ...rest,
     });
+    map.setPadding(getMapPadding(ref, parentRef), { animate: false });
     map.on("style.load", () => {
       onStyleLoaded?.(map);
       dispatch({ type: "set-style-loaded", payload: true });
