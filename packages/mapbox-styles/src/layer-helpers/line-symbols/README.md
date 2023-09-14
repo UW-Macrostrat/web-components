@@ -12,9 +12,11 @@ and of [point symbols](../point-features/symbols/README.md).
 **These symbols are included in Macrostrat's geologic map on an experimental basis ([example from the Canadian Rockies](https://macrostrat.org/map/#x=-114.5797&y=50.1739&z=9.5&show=line-symbols,geology)).**
 
 Unlike our point symbol index, these line symbols are not indexed by priority — all of these are of high importance. We have not yet attempted
-to compile an index of all possible line symbols.
+to compile an index of all possible line symbols. Each symbol is overlaid on a line, which for the below examples is horizontal at the centerline of the image.
 
-Each symbol is overlaid on a line, which for the below examples is horizontal at the centerline of the image. Fault lines are typically shown in black or (less often) red. Folds axes are typically shown in magenta or blue.
+## Faults
+
+Fault lines are typically shown in black or (less often) red.
 
 | Name                | Symbol                                                                  |
 | ------------------- | ----------------------------------------------------------------------- |
@@ -23,8 +25,15 @@ Each symbol is overlaid on a line, which for the below examples is horizontal at
 | Right-lateral fault | <img src="./assets/svg/right-lateral-fault.svg" width="30" height="30"> |
 | Left-lateral fault  | <img src="./assets/svg/left-lateral-fault.svg" width="30" height="30">  |
 | Reverse fault       | <img src="./assets/svg/reverse-fault.svg" width="30" height="30">       |
-| Anticline hinge     | <img src="./assets/svg/anticline-hinge.svg" width="30" height="30">     |
-| Syncline hinge      | <img src="./assets/svg/syncline-hinge.svg" width="30" height="30">      |
+
+All fault symbols are "oriented" (i.e. they appear on one side of the line in a meaningful way).
+
+| Name                | Symbol                                                                  |
+| ------------------- | ----------------------------------------------------------------------- |
+| Anticline hinge (fold axis)    | <img src="./assets/svg/anticline-hinge.svg" width="30" height="30">     |
+| Syncline hinge  (fold axis    | <img src="./assets/svg/syncline-hinge.svg" width="30" height="30">      |
+
+Anticline and syncline hinges are symmetrical symbols, but fold lines are often still directional ("plunging"). These plunges are typically represented as solid triangular arrow
 
 ## Line dash patterns
 
