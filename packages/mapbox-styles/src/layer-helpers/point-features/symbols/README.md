@@ -44,6 +44,7 @@ to represent the dip, as that information is already encoded in the symbol.
 | Fault surface               | <img src="./unused/fault_surface_inclined.png" width="100" height="100">   |
 | Fault (with slip direction) | <img src="./fault.png" width="100" height="100">                           |
 | Fracture                    | <img src="./fracture.png" width="100" height="100">                        |
+| Fold axis                   | <img src="./unused/fold_axis.png" width="100" height="100">                |
 | Sample locality\*           | <img src="./unused/sample_locality.png" width="100" height="100">          |
 
 \*Not oriented
@@ -64,7 +65,6 @@ to represent the dip, as that information is already encoded in the symbol.
 | Cleavage        | <img src="./unused/cleavage_inclined.png" width="100" height="100"> |
 | Fault striation | <img src="./unused/fault_striation.png" width="100" height="100">   |
 | Flow            | <img src="./unused/flow.png" width="100" height="100">              |
-| Fold axis       | <img src="./unused/fold_axis.png" width="100" height="100">         |
 | Intersection    | <img src="./unused/intersection.png" width="100" height="100">      |
 | Striation       | <img src="./unused/striation.png" height="50">                      |
 | Solid state     | <img src="./unused/solid_state.png" width="100" height="100">       |
