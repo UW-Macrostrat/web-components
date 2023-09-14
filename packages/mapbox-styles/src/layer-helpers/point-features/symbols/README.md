@@ -7,8 +7,8 @@ and other web GIS software.
 This data comes from the [FGDC Geologic Map Symbolization Standard](https://ngmdb.usgs.gov/fgdc_gds/geolsymstd/download.php),
 and many of the symbols were digitized by the [StraboSpot](https://strabospot.org/) team.
 
-The attempt to compile an index is analogous to our [index of geologic patterns](https://davenquinn.com/projects/geologic-patterns/)
-and efforts to build line symbolization (not yet indexed).
+The attempt to compile an index is analogous to our indices of [geologic patterns](https://davenquinn.com/projects/geologic-patterns/)
+and of [line symbols](../../line-symbols/README.md).
 
 ## Most common
 
