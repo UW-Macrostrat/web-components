@@ -33,7 +33,7 @@ All fault symbols are "oriented" (i.e. they appear on one side of the line in a 
 | Anticline hinge (fold axis)    | <img src="./assets/svg/anticline-hinge.svg" width="30" height="30">     |
 | Syncline hinge  (fold axis    | <img src="./assets/svg/syncline-hinge.svg" width="30" height="30">      |
 
-Anticline and syncline hinges are symmetrical symbols, but fold lines are often still directional ("plunging"). These plunges are typically represented as solid triangular arrow
+Anticline and syncline hinges are symmetrical symbols, but fold lines are often still directional ("plunging"). These plunges are typically represented as a solid triangular arrow at the end of the line.
 
 ## Line dash patterns
 
