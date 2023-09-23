@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "A library of react components tailored for Macrostrat data and endpoints",
   "scripts": {
     "test": "jest",
@@ -52,6 +52,10 @@
   ],
   "types": "dist/index.d.ts",
   "exports": {
-    "typescript": "./src/index.ts"
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/esm",
+      "require": "./dist/cjs"
+    }
   }
 }

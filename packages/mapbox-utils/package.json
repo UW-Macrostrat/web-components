@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-utils",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "Utilities for working with Mapbox maps",
   "main": "dist/main.js",
   "module": "dist/module.js",
@@ -21,7 +21,11 @@
     "mapbox-gl": "^2.15.0"
   },
   "exports": {
-    "typescript": "./src/index.ts"
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/module.js",
+      "require": "./dist/main.js"
+    }
   },
   "browserslist": "defaults"
 }
