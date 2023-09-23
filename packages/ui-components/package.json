@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "3.1.1",
+  "version": "3.1.2",
   "description": "UI components for React and blueprint.js",
   "repository": "https://github.com/UW-Macrostrat/web-components.git",
   "main": "dist/ui-components.cjs",
@@ -64,7 +64,11 @@
     "typescript": "^4.4.4"
   },
   "exports": {
-    "typescript": "./src/index.ts"
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/ui-components.js",
+      "require": "./dist/ui-components.cjs"
+    }
   },
   "peerDependencies": {
     "@types/react-dom": "^17 || ^18",

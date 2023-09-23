@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/style-system",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Style system for Macrostrat",
   "main": "dist/index.css",
   "source": "src/index.ts",
@@ -21,10 +21,12 @@
   ],
   "exports": {
     ".": {
+      "typescript": "./src/index.ts",
       "import": "./dist/index.css",
       "require": "./dist/index.css"
     },
     "./src": {
+      "typescript": "./src/index.ts",
       "import": "./src/index.ts",
       "require": "./src/index.ts"
     }

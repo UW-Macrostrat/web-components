@@ -22,7 +22,7 @@
   },
   "exports": {
     ".": {
-      "typescript": "./src/index.ts",
+      "typescript": "./src",
       "import": "./dist/module.js",
       "require": "./dist/main.js"
     }

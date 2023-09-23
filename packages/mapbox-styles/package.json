@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-styles",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Utilities for working with Mapbox map styles",
   "main": "dist/main.js",
   "module": "dist/module.js",
@@ -20,6 +20,10 @@
     "mapbox-gl": "^2.15.0"
   },
   "exports": {
-    "typescript": "./src/index.ts"
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/module.js",
+      "require": "./dist/main.js"
+    }
   }
 }

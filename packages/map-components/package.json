@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-components",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "React components for vector maps",
   "keywords": [
     "gis",
@@ -160,6 +160,10 @@
     "react-dom": "^16.11.0||^17.0.0||^18.0.0"
   },
   "exports": {
-    "typescript": "./src/index.ts"
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/esm",
+      "require": "./dist/cjs"
+    }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/form-components",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A react library",
   "scripts": {
     "test": "jest",
@@ -58,6 +58,10 @@
   ],
   "types": "dist/index.d.ts",
   "exports": {
-    "typescript": "./src/index.ts"
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/esm",
+      "require": "./dist/cjs"
+    }
   }
 }
