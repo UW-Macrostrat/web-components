@@ -13,18 +13,20 @@ type DarkModeState = { isEnabled: boolean; isAutoset: boolean };
 
 type DarkModeUpdater = (enabled?: boolean) => void;
 
-const systemDarkMode = (): DarkModeState => ({
-  isEnabled: matcher?.matches ?? false,
-  isAutoset: true,
-});
+function systemDarkMode(): DarkModeState {
+  const win = window !== undefined ? window : null;
+  const matcher = win?.matchMedia("(prefers-color-scheme: dark)");
+  return {
+    isEnabled: matcher?.matches ?? false,
+    isAutoset: true,
+  };
+}
 
 const ValueContext = createContext<DarkModeState>({
   isEnabled: false,
   isAutoset: false,
 });
 const UpdaterContext = createContext<DarkModeUpdater | null>(null);
-
-const matcher = window?.matchMedia("(prefers-color-scheme: dark)");
 
 type DarkModeProps = {
   children?: ReactNode;
@@ -85,7 +87,10 @@ const _DarkModeProvider = (props: DarkModeProps) => {
   );
 
   useEffect(() => {
-    if (matcher == null) return;
+    if (window === undefined) return;
+
+    const matcher = window.matchMedia("(prefers-color-scheme: dark)");
+
     matcher.addEventListener("change", onSystemChange);
     return () => {
       matcher.removeEventListener("change", onSystemChange);
