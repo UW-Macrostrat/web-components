@@ -40,10 +40,10 @@ to represent the dip, as that information is already encoded in the symbol.
 
 | Name                        | Symbol                                                                     | Priority |
 | --------------------------- | -------------------------------------------------------------------------- | -------- |
+| Cleavage                    | <img src="./unused/cleavage_inclined.png" width="100" height="100">        |
 | Joint surface               | <img src="./unused/joint_surface_inclined_1.png" width="100" height="100"> |
 | Fault surface               | <img src="./unused/fault_surface_inclined.png" width="100" height="100">   |
 | Fault (with slip direction) | <img src="./fault.png" width="100" height="100">                           |
-| Fracture                    | <img src="./fracture.png" width="100" height="100">                        |
 | Fold axis                   | <img src="./unused/fold_axis.png" width="100" height="100">                |
 | Sample locality\*           | <img src="./unused/sample_locality.png" width="100" height="100">          |
 
@@ -53,8 +53,10 @@ to represent the dip, as that information is already encoded in the symbol.
 
 | Name                     | Symbol                                                                   | Priority |
 | ------------------------ | ------------------------------------------------------------------------ | -------- |
+| Cleavage (vertical)      | <img src="./unused/cleavage_vertical.png" width="100" height="100">      |
 | Joint surface (vertical) | <img src="./unused/joint_surface_vertical.png" width="100" height="100"> |
 | Fault surface (vertical) | <img src="./unused/fault_surface_vertical.png" width="100" height="100"> |
+
 
 ## Less common symbols
 
@@ -62,7 +64,7 @@ to represent the dip, as that information is already encoded in the symbol.
 | --------------- | ------------------------------------------------------------------- | -------- |
 | Shear zone      | <img src="./shear_zone_inclined.png" width="100" height="100">      |
 | Contact         | <img src="./contact_inclined.png" width="100" height="100">         |
-| Cleavage        | <img src="./unused/cleavage_inclined.png" width="100" height="100"> |
+| Fracture        | <img src="./fracture.png" width="100" height="100">                 |
 | Fault striation | <img src="./unused/fault_striation.png" width="100" height="100">   |
 | Flow            | <img src="./unused/flow.png" width="100" height="100">              |
 | Intersection    | <img src="./unused/intersection.png" width="100" height="100">      |
@@ -77,4 +79,3 @@ to represent the dip, as that information is already encoded in the symbol.
 | --------------------- | ------------------------------------------------------------------- | -------- |
 | Contact (vertical)    | <img src="./contact_vertical.png" width="100" height="100">         |
 | Shear zone (vertical) | <img src="./shear_zone_vertical.png" width="100" height="100">      |
-| Cleavage (vertical)   | <img src="./unused/cleavage_vertical.png" width="100" height="100"> |
