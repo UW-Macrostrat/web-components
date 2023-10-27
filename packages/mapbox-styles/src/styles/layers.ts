@@ -68,16 +68,19 @@ export function buildXRayStyle({
   });
 }
 
-export function applyAgeModelStyles(
-  age,
-  model,
-  baseStyle,
-  mapStyle,
-  inDarkMode = false
-) {
-  let mapTileURL = "https://dev.macrostrat.org/tiles/carto-slim/{z}/{x}/{y}";
+export function applyAgeModelStyles(baseStyle, mapStyle, opts) {
+  const {
+    model,
+    age,
+    inDarkMode = false,
+    tileserverDomain = "https://macrostrat.org/tiles",
+  } = opts;
+
+  let mapTileURL = tileserverDomain + "/carto-slim/{z}/{x}/{y}";
   if (age != null) {
-    mapTileURL = `https://dev.macrostrat.org/tiles/carto-slim-rotated/{z}/{x}/{y}?model_id=${model}&t_step=${age}`;
+    mapTileURL =
+      tileserverDomain +
+      `/carto-slim-rotated/{z}/{x}/{y}?model_id=${model}&t_step=${age}`;
   }
 
   let color = chroma("rgb(180, 180, 200)");
