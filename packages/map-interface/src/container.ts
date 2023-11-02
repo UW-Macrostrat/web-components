@@ -36,6 +36,7 @@ function _MapAreaContainer({
   contextStackProps = null,
   detailStackProps = null,
   fitViewport = true,
+  showPanelOutlines = false,
   ...rest
 }: {
   navbar: AnyElement;
@@ -52,6 +53,7 @@ function _MapAreaContainer({
   contextStackProps?: HTMLDivProps;
   detailStackProps?: HTMLDivProps;
   fitViewport?: boolean;
+  showPanelOutlines?: boolean;
 }) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
   const contextPanelTrans = useTransition(contextPanelOpen, 800);
@@ -80,6 +82,7 @@ function _MapAreaContainer({
     MapStyledContainer,
     {
       className: classNames("map-page", className, {
+        "show-panel-outlines": showPanelOutlines,
         "fit-viewport": fitViewport,
       }),
     },
