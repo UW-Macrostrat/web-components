@@ -12,8 +12,7 @@ import {
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useCallback } from "react";
-import styles from "./main.module.sass";
-import rootStyles from "../main.module.sass";
+import styles from "../main.module.sass";
 import { enable3DTerrain } from "./terrain";
 import {
   MapLoadingReporter,
@@ -24,7 +23,7 @@ import {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapPadding } from "../utils";
 
-const h = hyper.styled({ ...styles, ...rootStyles });
+const h = hyper.styled(styles);
 
 type MapboxCoreOptions = Omit<mapboxgl.MapboxOptions, "container">;
 

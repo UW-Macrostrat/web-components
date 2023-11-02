@@ -27,6 +27,11 @@ interface ContextStackProps extends HTMLDivProps {
   navbar: AnyElement;
 }
 
+export enum DetailPanelStyle {
+  FIXED = "fixed",
+  FLOATING = "floating",
+}
+
 function _MapAreaContainer({
   children,
   className,
@@ -40,8 +45,10 @@ function _MapAreaContainer({
   mapControls = h(MapBottomControls),
   contextStackProps = null,
   detailStackProps = null,
+  detailPanelStyle = DetailPanelStyle.FLOATING,
   fitViewport = true,
   showPanelOutlines = false,
+  preventMapInteraction = false,
   ...rest
 }: {
   navbar: AnyElement;
@@ -57,6 +64,7 @@ function _MapAreaContainer({
   contextPanelOpen?: boolean;
   contextStackProps?: ContextStackProps;
   detailStackProps?: HTMLDivProps;
+  detailPanelStyle: DetailPanelStyle;
   fitViewport?: boolean;
   showPanelOutlines?: boolean;
 }) {
@@ -72,42 +80,55 @@ function _MapAreaContainer({
     - These styles are doubly applied so we can have both namespaced and
       outside-accessible styles for each case.
   */
-  const mainUIClassName = classNames(
-    {
-      "detail-panel-open": _detailPanelOpen,
-      "map-context-open": contextPanelOpen,
-    },
+  const mainUIClassNames = classNames(
+    "map-container",
+    className,
+    `detail-panel-${detailPanelStyle}`,
     `context-panel-${contextPanelTrans.stage}`,
     `map-context-${contextPanelTrans.stage}`,
     `detail-panel-${detailPanelTrans.stage}`,
-    `map-detail-${detailPanelTrans.stage}`
+    `map-detail-${detailPanelTrans.stage}`,
+    {
+      "detail-panel-open": _detailPanelOpen,
+      "map-context-open": contextPanelOpen,
+      "show-panel-outlines": showPanelOutlines,
+      "fit-viewport": fitViewport,
+    }
   );
 
-  return h(
-    MapStyledContainer,
-    {
-      className: classNames("map-page", className, {
-        "show-panel-outlines": showPanelOutlines,
-        "fit-viewport": fitViewport,
-      }),
-    },
+  const mapControlsExt = h([
+    h(ZoomControl, { className: "zoom-control" }),
+    h("div.spacer"),
+    mapControls,
+  ]);
+
+  const detailStackExt = h(
+    "div.detail-stack.infodrawer-container",
+    detailStackProps,
     [
-      h("div.main-ui", { className: mainUIClassName, ...rest }, [
+      h("div.detail-panel-holder", null, detailPanel),
+      h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([mapControlsExt]),
+    ]
+  );
+
+  return h(MapStyledContainer, { className: mainUIClassNames }, [
+    h("div.main-row", [
+      h("div.map-ui", { ...rest }, [
         h(ContextStack, { navbar, ...contextStackProps }, [
           h.if(contextPanelTrans.shouldMount)([contextPanel]),
         ]),
         //h(MapView),
         children ?? mainPanel,
-        h("div.detail-stack.infodrawer-container", detailStackProps, [
-          detailPanel,
-          h(ZoomControl, { className: "zoom-control" }),
-          h("div.spacer"),
-          mapControls,
-        ]),
+        h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
+        h.if(detailPanelStyle == DetailPanelStyle.FIXED)(
+          "div.map-control-stack",
+          mapControlsExt
+        ),
       ]),
-      h("div.bottom", null, bottomPanel),
-    ]
-  );
+      h.if(detailPanelStyle == DetailPanelStyle.FIXED)([detailStackExt]),
+    ]),
+    h("div.bottom", null, bottomPanel),
+  ]);
 }
 
 function ContextStack(props: ContextStackProps) {

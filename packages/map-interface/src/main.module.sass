@@ -1,4 +1,4 @@
-.map-page
+.map-container
   display: flex
   flex-direction: column
   position: relative
@@ -35,7 +35,39 @@
   &.map-is-global .globe-control
     display: block
 
-.main-ui
+  &.detail-panel-open
+    .zoom-control
+      opacity: 0
+      display: none
+
+  &.detail-panel-fixed
+    .detail-panel-holder
+      &>*
+        border-radius: unset
+
+.detail-panel-holder
+  display: flex
+  flex-direction: column
+  flex-grow: 1
+  min-height: 0
+  &>*
+    flex: 1
+
+.map-control-stack
+  display: flex
+  flex-direction: column
+  width: 30em
+  margin-left: -30em
+  pointer-events: none
+
+.main-row
+  flex: 1
+  display: flex
+  flex-direction: row
+  position: relative
+  max-height: 100%
+
+.map-ui
   flex: 1
   position: relative
   display: flex
@@ -43,6 +75,23 @@
   max-height: 100%
   height: 100%
   box-shadow: 0 0 10px 4px var(--card-shadow-color)
+
+.map-view-container
+  flex-grow: 1
+  position: relative
+  overflow: hidden
+
+.mapbox-map
+  position: absolute
+  top: 0
+  bottom: 0
+  left: 0
+  right: 0
+  &:global(.mapboxgl-map)
+    // override the default mapbox position: relative in all cases
+    position: absolute
+
+
 
 .panel-card
   padding: 10px
@@ -56,10 +105,6 @@
   background-color: var(--panel-background-color)
 
 .context-stack
-  display: flex
-  flex-direction: column
-  max-height: 100%
-
   &>div
     flex-shrink: 1
 
@@ -69,6 +114,7 @@
 .context-stack,
 .detail-stack
   z-index: 100
+  max-height: 100%
 
 .panel-container
   display: flex
@@ -211,9 +257,11 @@
 .detail-stack
   position: relative
 
-.main-ui.detail-panel-open .zoom-control
-  opacity: 0
-  display: none
+.detail-panel-container, .map-right-controls
+  flex: 1
+  
+
+
 
 .zoom-control
   transition: opacity 1s ease-in-out
@@ -221,9 +269,6 @@
   position: absolute
   top: 0
   right: 0
-
-.main-ui.searching .map-view-container
-  pointer-events: none
 
 .map-controls
   display: flex
@@ -268,10 +313,13 @@
     border-color: var(--secondary-text-color)
     color: var(--secondary-text-color)
 
+// .map-container.detail-panel-fixed
+//   right: 30em
+
 /* For mobile phones, we want to make the most of screen space,
  which in some cases means adding complications to the basic page. */
 @media only screen and (max-width: 768px)
-  .main-ui.detail-panel-enter .context-stack
+  .map-container.detail-panel-enter .context-stack
     height: 0
     visibility: hidden
     transition: height 0.5s ease-in-out
@@ -297,17 +345,22 @@
   .detail-panel
     border-radius: 0px
 
+  
 /* Desktop styling is necessarily much more complicated than mobile
  to handle a two-column layout. */
 @media screen and (min-width: 768px)
-  .main-ui
+  /* Make map fill page rather than containing div,
+   by unsetting map position */
+  // We should move this to another file.
+  .map-view-container
+    position: unset
+
+
+  .map-ui
     flex-direction: row
     padding: 1em 1em 2em
     min-height: 80px
-    &>*
-      margin-right: 0.5em
-      &>*:last-child
-        margin-right: 0
+    gap: 0.5em
 
   .context-stack
     max-width: var(--map-context-stack-max-width, 34em)
@@ -339,12 +392,8 @@
     &>div
       max-height: 100%
 
-  .main-ui.detail-panel-open .detail-stack
-    width: var(--map-detail-stack-width, 30em)
-
   .detail-stack
-    width: 30em
-    pointer-events: none
+    width: var(--map-detail-stack-width, 30em)
     display: flex
     flex-direction: column
 
@@ -370,57 +419,73 @@
   .map-view-container
     position: unset
 
-.main-ui .detail-panel
-  transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
+/** CSS Transitions **/
 
-.main-ui.detail-panel-from .detail-panel
-  opacity: 0
+.map-container
+  // Context panel
+  .context-panel-holder
+    pointer-events: none
+    flex: 1
+    &>div
+      pointer-events: all
+      transition: opacity 0.8s ease //, height 0.8s ease, max-height 0.8s ease, padding 0.8s ease
 
-.main-ui.detail-panel-enter .detail-panel
-  opacity: 1
+  &.context-panel-from .context-panel-holder>div
+    opacity: 0
+  &.context-panel-enter .context-panel-holder>div
+    opacity: 1
+  &.context-panel-leave .context-panel-holder>div
+    opacity: 0
 
-.main-ui.detail-panel-leave .detail-panel
-  opacity: 0
+  // Detail panel (floating)
+  &.detail-panel-floating
+    // We assume that the relevant panel is the first child of the stack.
+    &.detail-panel-from .detail-panel-holder
+      opacity: 0
+    &.detail-panel-enter .detail-panel-holder
+      opacity: 1
+    &.detail-panel-leave .detail-panel-holder
+      opacity: 0
+    .detail-panel
+      transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
 
-.main-ui .context-panel-holder
-  pointer-events: none
-  flex: 1
-  &>div
-    pointer-events: all
-    transition: opacity 0.8s ease //, height 0.8s ease, max-height 0.8s ease, padding 0.8s ease
+  // TODO: these styles have not been evaluated for mobile
+  &.detail-panel-fixed
+    .map-ui
+      transition: margin-right 0.8s ease
+    .detail-stack
+      transition: margin-right 0.8s ease
 
-.main-ui.context-panel-from .context-panel-holder>div
-  opacity: 0
+    &.detail-panel-from .detail-panel-holder
+      margin-right: calc(-1 * var(--map-detail-stack-width, 30em)) 
+    &.detail-panel-enter .detail-panel-holder
+      margin-right: 0
+    &.detail-panel-leave .detail-panel-holder
+      margin-right: calc(-1 * var(--map-detail-stack-width, 30em)) 
 
-.main-ui.context-panel-enter .context-panel-holder>div
-  opacity: 1
 
-.main-ui.context-panel-leave .context-panel-holder>div
-  opacity: 0
   // The max-height transition is a bit jerky because of panel padding.
   // We could probably fix this by pulling the panel container itself into
   // the class.
   //max-height: 0
   //padding: 0i
 
-
 @media only screen and (max-width: 768px)
-  .main-ui .detail-stack
+  .map-container .detail-stack
     transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
 
-  .main-ui.detail-panel-from .detail-stack
+  .map-container.detail-panel-from .detail-stack
     max-height: 0
     height: 0
 
-  .main-ui.detail-panel-leave .detail-stack
-    max-height: 0
+  .map-container.detail-panel-leave .detail-stack
     max-height: 0
 
-  .main-ui.context-panel-from .context-panel
+  .map-container.context-panel-from .context-panel
     max-height: 0
     height: 0
 
-  .main-ui.context-panel-leave
+  .map-container.context-panel-leave
     .context-stack
       .context-panel-holder
         flex: 0
@@ -429,11 +494,11 @@
 
 // Shift UI around to center elements if we're in the global view 
 @media only screen and (min-width: 768px)
-  .map-page .main-ui.detail-panel-leave .map-view-container
+  .map-container.detail-panel-leave .map-view-container
     margin-right: -14em
 
-  .map-page.map-is-global .main-ui.detail-panel-leave .map-view-container
+  .map-container.map-is-global.detail-panel-leave .map-view-container
     margin-right: -30em
 
-  .map-page.map-is-global .main-ui.context-panel-leave .map-view-container
+  .map-container.map-is-global.context-panel-leave .map-view-container
     margin-left: -16em
