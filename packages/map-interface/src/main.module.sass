@@ -319,6 +319,11 @@
     display: flex
     flex-direction: column
 
+    &.adaptive-width
+      width: var(--map-context-stack-width, none)
+      max-width: var(--map-context-stack-max-width, none)
+      transition: width 300ms ease
+
     :global(.bp4-navbar)
       //height: unset
       //padding: 5px
