@@ -95,7 +95,7 @@ class _ThreeDControl extends Base {
   }
 }
 
-export function CompassControl({ className }) {
+export function CompassControl({ className = null }) {
   const options = useRef({
     showCompass: true,
     showZoom: false,
@@ -108,14 +108,14 @@ export function CompassControl({ className }) {
   });
 }
 
-export const ZoomControl = ({ className, options }) =>
+export const ZoomControl = ({ className = null, options = null }) =>
   h(MapControlWrapper, {
     className: classNames("zoom-control", className),
     control: _ZoomControl,
     options,
   });
 
-export const ThreeDControl = ({ className, options }) =>
+export const ThreeDControl = ({ className = null, options = null }) =>
   h(MapControlWrapper, {
     className: classNames("map-3d-control", className),
     control: _ThreeDControl,

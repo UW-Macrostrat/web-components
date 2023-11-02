@@ -1,4 +1,4 @@
-import hyper from "@macrostrat/hyper";
+import hyper, { addClassNames } from "@macrostrat/hyper";
 import { HTMLDivProps } from "@blueprintjs/core";
 import styles from "./main.module.sass";
 import classNames from "classnames";
@@ -22,6 +22,11 @@ type AnyElement = React.ReactNode | React.ReactElement | React.ReactFragment;
 export const PanelCard = (props) =>
   h(Card, { ...props, className: classNames("panel-card", props.className) });
 
+interface ContextStackProps extends HTMLDivProps {
+  adaptiveWidth: boolean;
+  navbar: AnyElement;
+}
+
 function _MapAreaContainer({
   children,
   className,
@@ -36,6 +41,7 @@ function _MapAreaContainer({
   contextStackProps = null,
   detailStackProps = null,
   fitViewport = true,
+  showPanelOutlines = false,
   ...rest
 }: {
   navbar: AnyElement;
@@ -49,9 +55,10 @@ function _MapAreaContainer({
   className?: string;
   detailPanelOpen?: boolean;
   contextPanelOpen?: boolean;
-  contextStackProps?: HTMLDivProps;
+  contextStackProps?: ContextStackProps;
   detailStackProps?: HTMLDivProps;
   fitViewport?: boolean;
+  showPanelOutlines?: boolean;
 }) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
   const contextPanelTrans = useTransition(contextPanelOpen, 800);
@@ -80,17 +87,14 @@ function _MapAreaContainer({
     MapStyledContainer,
     {
       className: classNames("map-page", className, {
+        "show-panel-outlines": showPanelOutlines,
         "fit-viewport": fitViewport,
       }),
     },
     [
       h("div.main-ui", { className: mainUIClassName, ...rest }, [
-        h("div.context-stack", [
-          navbar,
-          h("div.context-panel-holder", [
-            h.if(contextPanelTrans.shouldMount)([contextPanel]),
-          ]),
-          h("div.spacer"),
+        h(ContextStack, { navbar, ...contextStackProps }, [
+          h.if(contextPanelTrans.shouldMount)([contextPanel]),
         ]),
         //h(MapView),
         children ?? mainPanel,
@@ -104,6 +108,16 @@ function _MapAreaContainer({
       h("div.bottom", null, bottomPanel),
     ]
   );
+}
+
+function ContextStack(props: ContextStackProps) {
+  const { adaptiveWidth, navbar, children, ...rest } = props;
+  const props1 = addClassNames(rest, { "adaptive-width": adaptiveWidth });
+  return h("div.context-stack", props1, [
+    navbar,
+    h("div.context-panel-holder", null, children),
+    h("div.spacer"),
+  ]);
 }
 
 const MapProviders = ({ children }) =>

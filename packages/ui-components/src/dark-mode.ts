@@ -14,12 +14,24 @@ type DarkModeState = { isEnabled: boolean; isAutoset: boolean };
 type DarkModeUpdater = (enabled?: boolean) => void;
 
 function systemDarkMode(): DarkModeState {
-  const win = window !== undefined ? window : null;
-  const matcher = win?.matchMedia("(prefers-color-scheme: dark)");
+  if (typeof window === "undefined")
+    return { isEnabled: false, isAutoset: false };
+  const matcher = window.matchMedia("(prefers-color-scheme: dark)");
   return {
-    isEnabled: matcher?.matches ?? false,
+    isEnabled: matcher.matches ?? false,
     isAutoset: true,
   };
+}
+
+function setDarkReaderMeta(enabled: boolean = true) {
+  // Ensure that Dark Reader doesn't apply to this page
+  const meta = document.querySelector("meta[name=darkreader-lock]");
+  if (enabled && meta == null) {
+    const meta = document.createElement("meta");
+    meta.name = "darkreader-lock";
+    document.head.append(meta);
+  }
+  if (!enabled && meta != null) meta.remove();
 }
 
 const ValueContext = createContext<DarkModeState>({
@@ -33,6 +45,7 @@ type DarkModeProps = {
   addBodyClasses: boolean;
   isEnabled?: boolean;
   followSystem?: boolean;
+  bodyClasses?: string[];
 };
 
 const _DarkModeProvider = (props: DarkModeProps) => {
@@ -40,6 +53,7 @@ const _DarkModeProvider = (props: DarkModeProps) => {
     addBodyClasses = true,
     isEnabled,
     followSystem = false,
+    bodyClasses = ["dark-mode", "bp4-dark"],
     children,
   } = props;
   const [storedValue, updateValue, resetState] = useStoredState(
@@ -66,12 +80,13 @@ const _DarkModeProvider = (props: DarkModeProps) => {
   // Manage dark mode body classes
   useEffect(() => {
     if (!addBodyClasses) return;
+    setDarkReaderMeta(value.isEnabled);
     if (value.isEnabled) {
-      document.body.classList.add("bp4-dark");
+      document.body.classList.add(...bodyClasses);
     } else {
-      document.body.classList.remove("bp4-dark");
+      document.body.classList.remove(...bodyClasses);
     }
-  }, [storedValue]);
+  }, [storedValue, bodyClasses]);
 
   const update: DarkModeUpdater = (enabled: boolean | null) => {
     if (enabled == null) return resetState();
@@ -87,7 +102,7 @@ const _DarkModeProvider = (props: DarkModeProps) => {
   );
 
   useEffect(() => {
-    if (window === undefined) return;
+    if (typeof window === "undefined") return;
 
     const matcher = window.matchMedia("(prefers-color-scheme: dark)");
 

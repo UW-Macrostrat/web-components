@@ -38,8 +38,11 @@ function useStoredState<S>(
   isValid: (S) => boolean = null
 ): [S, Dispatch<SetStateAction<S>>, VoidFunction] {
   /** React hook for setting and getting values on local storage */
-  const storage = useMemo(() => new LocalStorage<S>(key), [key]);
-  let initialValue = storage.get();
+  const storage: LocalStorage<S> | null = useMemo(() => {
+    if (typeof window == "undefined") return null;
+    return new LocalStorage<S>(key);
+  }, [key]);
+  let initialValue = storage?.get();
 
   const validator = useCallback(
     (state: S) => {
@@ -68,14 +71,14 @@ function useStoredState<S>(
       if (validate && !validator(nextState))
         throw `State ${nextState} is not valid.`;
       _setState(nextState);
-      storage.set(nextState);
+      storage?.set(nextState);
     },
     [validator]
   );
 
   const resetState = useCallback(() => {
     _setState(initialState);
-    storage.remove();
+    storage?.remove();
   }, [initialState]);
 
   return [state, setState, resetState];
