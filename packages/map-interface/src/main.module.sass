@@ -35,12 +35,17 @@
   &.map-is-global .globe-control
     display: block
 
-  &.detail-panel-open .zoom-control
-    opacity: 0
-    display: none
+  &.detail-panel-open
+    .zoom-control
+      opacity: 0
+      display: none
 
   &.detail-panel-fixed
-    .detail-stack
+    .detail-panel-holder
+      display: flex
+      flex-direction: column
+      flex: 1
+      max-height: 100%
       &>*
         flex-grow: 1
         border-radius: unset
@@ -56,6 +61,8 @@
   flex: 1
   display: flex
   flex-direction: row
+  position: relative
+  max-height: 100%
 
 .map-ui
   flex: 1
@@ -432,11 +439,12 @@
 
   // Detail panel (floating)
   &.detail-panel-floating
-    &.detail-panel-from .detail-stack>div
+    // We assume that the relevant panel is the first child of the stack.
+    &.detail-panel-from .detail-panel-holder
       opacity: 0
-    &.detail-panel-enter .detail-stack>div
+    &.detail-panel-enter .detail-panel-holder
       opacity: 1
-    &.detail-panel-leave .detail-stack>div
+    &.detail-panel-leave .detail-panel-holder
       opacity: 0
     .detail-panel
       transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
@@ -448,11 +456,11 @@
     .detail-stack
       transition: margin-right 0.8s ease
 
-    &.detail-panel-from .detail-stack
+    &.detail-panel-from .detail-panel-holder
       margin-right: calc(-1 * var(--map-detail-stack-width, 30em)) 
-    &.detail-panel-enter .detail-stack
+    &.detail-panel-enter .detail-panel-holder
       margin-right: 0
-    &.detail-panel-leave .detail-stack
+    &.detail-panel-leave .detail-panel-holder
       margin-right: calc(-1 * var(--map-detail-stack-width, 30em)) 
 
 
@@ -471,7 +479,6 @@
     height: 0
 
   .map-container.detail-panel-leave .detail-stack
-    max-height: 0
     max-height: 0
 
   .map-container.context-panel-from .context-panel

@@ -106,7 +106,7 @@ function _MapAreaContainer({
     "div.detail-stack.infodrawer-container",
     detailStackProps,
     [
-      detailPanel,
+      h("div.detail-panel-holder", null, detailPanel),
       h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([mapControlsExt]),
     ]
   );
