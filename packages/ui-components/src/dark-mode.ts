@@ -9,16 +9,25 @@ import { Button, ButtonProps } from "@blueprintjs/core";
 import { useStoredState } from "./util/local-storage";
 import h from "@macrostrat/hyper";
 
-type DarkModeState = { isEnabled: boolean; isAutoset: boolean };
+type DarkModeState = {
+  isEnabled: boolean;
+  isAutoset: boolean;
+  isSystemPreferred: boolean | null;
+};
 
 type DarkModeUpdater = (enabled?: boolean) => void;
 
-function systemDarkMode(): DarkModeState {
-  if (typeof window === "undefined")
-    return { isEnabled: false, isAutoset: false };
+function systemPreferredDarkMode() {
+  if (typeof window === "undefined") return null;
   const matcher = window.matchMedia("(prefers-color-scheme: dark)");
+  return matcher?.matches;
+}
+
+function systemDarkMode(): DarkModeState {
+  const isSystemPreferred = systemPreferredDarkMode();
   return {
-    isEnabled: matcher.matches ?? false,
+    isSystemPreferred,
+    isEnabled: isSystemPreferred ?? false,
     isAutoset: true,
   };
 }
@@ -35,6 +44,7 @@ function setDarkReaderMeta(enabled: boolean = true) {
 }
 
 const ValueContext = createContext<DarkModeState>({
+  isSystemPreferred: null,
   isEnabled: false,
   isAutoset: false,
 });
@@ -42,11 +52,33 @@ const UpdaterContext = createContext<DarkModeUpdater | null>(null);
 
 type DarkModeProps = {
   children?: ReactNode;
-  addBodyClasses: boolean;
   isEnabled?: boolean;
+  /** Override with system dark mode setting on page load */
   followSystem?: boolean;
   bodyClasses?: string[];
+  // Deprecated
+  addBodyClasses?: boolean;
 };
+
+function applySystemDarkMode(
+  initialValue: DarkModeState,
+  forceFollowSystem: boolean,
+  systemPreferred: boolean | null
+): DarkModeState {
+  const _systemPreferred = systemPreferred ?? systemPreferredDarkMode();
+  if (initialValue.isAutoset || forceFollowSystem) {
+    return {
+      isSystemPreferred: _systemPreferred,
+      isEnabled: _systemPreferred ?? false,
+      isAutoset: true,
+    };
+  } else {
+    return {
+      ...initialValue,
+      isSystemPreferred: _systemPreferred,
+    };
+  }
+}
 
 const _DarkModeProvider = (props: DarkModeProps) => {
   const {
@@ -62,50 +94,63 @@ const _DarkModeProvider = (props: DarkModeProps) => {
   );
   // Guards so that we don't error on an invalid stored value
   const value = {
+    isSystemPreferred: storedValue?.isSystemPreferred ?? null,
     isEnabled: storedValue?.isEnabled ?? false,
     isAutoset: storedValue?.isAutoset ?? false,
   };
 
   useEffect(() => {
-    if (!followSystem) return;
-    updateValue(systemDarkMode());
-  }, []);
-
-  useEffect(() => {
     // Update value if isEnabled is provided
-    if (isEnabled == null) return;
-    updateValue({ isAutoset: false, isEnabled });
-  }, [isEnabled]);
+    if (isEnabled && followSystem) {
+      console.warn(
+        "DarkModeProvider: followSystem and isEnabled are mutually exclusive. Ignoring followSystem"
+      );
+    }
+    if (isEnabled == null) {
+      updateValue(applySystemDarkMode(value, followSystem, null));
+    } else {
+      updateValue({
+        isAutoset: false,
+        isEnabled,
+        isSystemPreferred: systemPreferredDarkMode(),
+      });
+    }
+  }, [isEnabled, followSystem]);
 
   // Manage dark mode body classes
   useEffect(() => {
-    if (!addBodyClasses) return;
+    // addBodyClasses will eventually be replaced
+    const _addBodyClasses = addBodyClasses ?? bodyClasses != null;
+    if (!_addBodyClasses) return;
     setDarkReaderMeta(value.isEnabled);
     if (value.isEnabled) {
       document.body.classList.add(...bodyClasses);
     } else {
       document.body.classList.remove(...bodyClasses);
     }
-  }, [storedValue, bodyClasses]);
+  }, [storedValue, bodyClasses, addBodyClasses]);
 
-  const update: DarkModeUpdater = (enabled: boolean | null) => {
-    if (enabled == null) return resetState();
-    const isEnabled = enabled ?? !value.isEnabled;
-    updateValue({ isAutoset: false, isEnabled });
-  };
+  const update: DarkModeUpdater = useCallback(
+    (enabled: boolean | null) => {
+      if (enabled == null) return resetState();
+      updateValue({
+        isAutoset: false,
+        isEnabled: enabled ?? isEnabled ?? false,
+        isSystemPreferred: value.isSystemPreferred,
+      });
+    },
+    [isEnabled]
+  );
 
   const onSystemChange = useCallback(
-    (e) => {
-      if (value.isAutoset || followSystem) updateValue(systemDarkMode());
-    },
-    [value.isAutoset, followSystem]
+    (e) => updateValue(applySystemDarkMode(value, followSystem, e.matches)),
+    [value, followSystem]
   );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const matcher = window.matchMedia("(prefers-color-scheme: dark)");
-
     matcher.addEventListener("change", onSystemChange);
     return () => {
       matcher.removeEventListener("change", onSystemChange);
