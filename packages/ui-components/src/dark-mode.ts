@@ -172,7 +172,11 @@ const DarkModeProvider = (props: DarkModeProps) => {
 };
 
 const useDarkMode = () => useContext(ValueContext);
-const inDarkMode = () => useDarkMode()?.isEnabled ?? false;
+const useInDarkMode = () => useDarkMode()?.isEnabled ?? false;
+const inDarkMode = () => {
+  console.warn("inDarkMode is deprecated. Use useInDarkMode instead");
+  return useInDarkMode();
+};
 const darkModeUpdater = () => useContext(UpdaterContext);
 
 const DarkModeButton = (
@@ -204,6 +208,7 @@ const DarkModeButton = (
 export {
   DarkModeProvider,
   useDarkMode,
+  useInDarkMode,
   inDarkMode,
   darkModeUpdater,
   DarkModeButton,
