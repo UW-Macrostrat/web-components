@@ -152,9 +152,11 @@ function DataSheetUI({
   let newData = data.map((d) => transformData(columns, d));
 
   if (finalizeCellProps != null) {
-    newData = newData.map((obj, row) =>
-      columns.map(({ key }, col) => finalizeCellProps(obj[key], row, key, col))
-    );
+    newData = newData.map((obj, row) => {
+      return columns.map(({ key }, col) =>
+        finalizeCellProps(obj[col].value, row, key, col)
+      );
+    });
   }
   return h(
     ErrorBoundary,
