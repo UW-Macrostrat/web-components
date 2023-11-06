@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
-import { ErrorBoundary } from "@macrostrat/ui-components";
-import { SketchPicker } from "react-color";
+import { ErrorBoundary, useInDarkMode } from "@macrostrat/ui-components";
+import { ChromePicker } from "react-color";
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import chroma from "chroma-js";
@@ -16,7 +16,7 @@ export function BasePopupEditor(props) {
         "div.interaction-barrier",
         {
           onMouseDown(evt) {
-            evt.nativeEvent.stopImmediatePropagation();
+            //evt.nativeEvent.stopImmediatePropagation();
           },
           onKeyDown(evt) {
             console.log(evt);
@@ -42,17 +42,26 @@ export function BasePopupEditor(props) {
 }
 
 export function ColorPicker({ value, onChange }) {
+  const darkMode = useInDarkMode();
+  const background = darkMode ? "#383e47;" : "#ffffff";
   let color = "#aaaaaa";
   try {
     color = chroma(value).hex();
   } catch {}
-  return h(SketchPicker, {
+  return h(ChromePicker, {
     disableAlpha: true,
     color,
+    styles: {
+      default: {
+        picker: {
+          background,
+        },
+      },
+    },
     onChange(color, evt) {
       let c = "";
       try {
-        c = chroma(color.hex).name();
+        c = chroma(color.hex);
       } finally {
         onChange(c);
         evt.stopPropagation();
