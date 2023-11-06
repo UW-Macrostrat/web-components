@@ -33,13 +33,13 @@ class LocalStorage<T> {
 }
 
 function useStoredState<S>(
-  key: string,
+  key: string | null,
   initialState: S | (() => S),
   isValid: (S) => boolean = null
 ): [S, Dispatch<SetStateAction<S>>, VoidFunction] {
   /** React hook for setting and getting values on local storage */
   const storage: LocalStorage<S> | null = useMemo(() => {
-    if (typeof window == "undefined") return null;
+    if (typeof window == "undefined" || key == null) return null;
     return new LocalStorage<S>(key);
   }, [key]);
   let initialValue = storage?.get();

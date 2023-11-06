@@ -15,6 +15,7 @@ export function LoadingButton({
   icon = "menu",
 }) {
   return h(Button, {
+    className: "loading-button",
     icon: isLoading ? spinnerElement : icon,
     large: true,
     minimal: true,
