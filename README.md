@@ -1,4 +1,4 @@
-# Macrostrat/Web-Components
+# Macrostrat web components
 
 Web-Components is a [React](https://reactjs.org/) based user interface ecosystem designed for
 efficiently developing data-dense web-frontends. Foundationally built upon other UI-Libraries, heavily
@@ -13,7 +13,7 @@ Web-Components is a monorepo that holds several libraries in the `/packages` dir
 - [`@macrostrat/ui-components`](https://www.npmjs.com/package/@macrostrat/ui-components)
 - [`@macrostrat/form-components`](https://www.npmjs.com/package/@macrostrat/form-components)
 - [`@macrostrat/data-components`](https://www.npmjs.com/package/@macrostrat/data-components)
-- [`@macrostrat/column-components`]
+- [`@macrostrat/column-components`](https://www.npmjs.com/package/@macrostrat/column-components)
 
 #### Apps
 
@@ -25,7 +25,7 @@ The libraries within Web-Components use [Storybook](https://storybook.js.org/) f
 
 ## For Developers
 
-To get started developing Web-Components, clone this repository to your machine and run:
+To get started developing web-components, clone this repository to your machine and run:
 
 ```
 git submodule init --recursive
@@ -37,14 +37,13 @@ Next install all necessary modules. The repository is set up to use **Yarn v2** 
 quick installs and updates.
 
 ```
-npm install
+yarn
 ```
 
 To build and view the story book you can run:
 
 ```
-npm run build-storybook
-npm run storybook
+yarn run:dev storybook
 ```
 
 The storybook will start at port `6006`
