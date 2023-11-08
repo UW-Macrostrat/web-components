@@ -43,6 +43,7 @@ export interface MapViewProps extends MapboxCoreOptions {
   ) => mapboxgl.Map;
   onMapLoaded?: (map: mapboxgl.Map) => void;
   onStyleLoaded?: (map: mapboxgl.Map) => void;
+  onMapMoved?: (mapPosition: MapPosition, map: mapboxgl.Map) => void;
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {
@@ -96,6 +97,7 @@ export function MapView(props: MapViewProps) {
     projection,
     onMapLoaded = null,
     onStyleLoaded = null,
+    onMapMoved = null,
     ...rest
   } = props;
   if (enableTerrain) {
@@ -172,7 +174,7 @@ export function MapView(props: MapViewProps) {
     h(MapLoadingReporter, {
       ignoredSources: ["elevationMarker", "crossSectionEndpoints"],
     }),
-    h(MapMovedReporter),
+    h(MapMovedReporter, { onMapMoved }),
     h(MapResizeManager, { containerRef: ref }),
     h(MapPaddingManager, { containerRef: ref, parentRef, infoMarkerPosition }),
     h(MapTerrainManager, { mapUse3D, terrainSourceID }),
