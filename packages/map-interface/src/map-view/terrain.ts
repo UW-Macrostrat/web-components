@@ -5,19 +5,21 @@ export function enable3DTerrain(
   shouldEnable: boolean,
   sourceID: string | null = null
 ) {
-  let demSourceID = sourceID ?? getTerrainSourceID(map) ?? "mapbox-dem";
-
-  console.log("Enabling 3D terrain with source", demSourceID);
-
   if (!map.style?._loaded) {
     map.once("style.load", () => {
-      enable3DTerrain(map, shouldEnable, demSourceID);
+      enable3DTerrain(map, shouldEnable, sourceID);
     });
     return;
   }
 
+  const currentTerrainSource = getTerrainSourceID(map);
+  let demSourceID = sourceID ?? currentTerrainSource ?? "mapbox-dem";
+
+  console.log("Enabling 3D terrain with source", demSourceID);
+
   // Enable or disable terrain depending on our current desires...
   const currentTerrain = map.getTerrain();
+
   if (!shouldEnable) {
     if (currentTerrain != null) map.setTerrain(null);
     return;
@@ -48,6 +50,7 @@ export function enable3DTerrain(
   }
 
   map.setTerrain({ source: demSourceID, exaggeration: 1 });
+  console.log(map.getTerrain());
 }
 
 function getTerrainSourceID(map) {
