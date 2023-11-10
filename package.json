@@ -34,7 +34,7 @@
     "@parcel/transformer-sass": "^2.9.3",
     "@parcel/transformer-stylus": "^2.9.3",
     "@parcel/transformer-typescript-types": "^2.9.3",
-    "axios": "^0.27.2",
+    "axios": "^1.6.0",
     "chalk": "^5.0.1",
     "concurrently": "^7.2.2",
     "geologic-patterns": "^2.0.0-dev1",
