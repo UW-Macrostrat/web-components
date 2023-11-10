@@ -16,7 +16,7 @@
     "build": "parcel build"
   },
   "dependencies": {
-    "axios": "^0.27.2",
+    "axios": "^1.6.0",
     "mapbox-gl": "^2.15.0"
   },
   "exports": {
