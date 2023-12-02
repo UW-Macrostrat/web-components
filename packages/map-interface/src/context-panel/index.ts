@@ -17,7 +17,7 @@ export function LoadingButton({
   return h(Button, {
     className: "loading-button",
     icon: isLoading ? spinnerElement : icon,
-    large: true,
+    large: false,
     minimal: true,
     onClick,
     active: active && !isLoading,
