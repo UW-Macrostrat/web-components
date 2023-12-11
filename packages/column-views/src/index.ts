@@ -29,7 +29,7 @@ interface IColumnProps {
   data: IUnit[];
   pixelScale?: number;
   range?: [number, number];
-  unitComponent: React.FunctionComponent<any>;
+  unitComponent?: React.FunctionComponent<any>;
   unitComponentProps?: any;
   showLabels?: boolean;
   width?: number;
@@ -151,7 +151,9 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
   );
 }
 
-const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
+function Column(
+  props: IColumnProps & { unconformityLabels: boolean; className?: string }
+) {
   const {
     data,
     unitComponent = UnitComponent,
@@ -205,7 +207,7 @@ const Column = (props: IColumnProps & { unconformityLabels: boolean }) => {
       ),
     ])
   );
-};
+}
 
 export * from "./helpers";
 export { Section, AgeAxis, Column };
