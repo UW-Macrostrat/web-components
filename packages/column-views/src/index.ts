@@ -1,20 +1,19 @@
-import { hyperStyled } from "@macrostrat/hyper";
-import { group } from "d3-array";
 import {
+  ColumnLayoutContext,
   ColumnProvider,
   ColumnSVG,
-  ColumnLayoutContext,
 } from "@macrostrat/column-components";
-import { useContext, useMemo, useEffect } from "react";
-import { CompositeUnitsColumn } from "./units";
-import { IUnit } from "./units/types";
+import { hyperStyled } from "@macrostrat/hyper";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import { TrackedLabeledUnit } from "./units";
-import styles from "./column.module.scss";
-import { AgeAxis } from "./age-axis";
 import { useDarkMode } from "@macrostrat/ui-components";
-export * from "./units";
 import classNames from "classnames";
+import { group } from "d3-array";
+import { useContext, useMemo } from "react";
+import { AgeAxis } from "./age-axis";
+import styles from "./column.module.scss";
+import { CompositeUnitsColumn, TrackedLabeledUnit } from "./units";
+import { IUnit } from "./units/types";
+export * from "./units";
 
 import { ColumnAxisType } from "@macrostrat/column-components";
 
@@ -50,6 +49,7 @@ const Section = (props: IColumnProps) => {
     targetUnitHeight = 20,
     width = 300,
     columnWidth = 150,
+    unitComponentProps,
   } = props;
 
   const b_age = data[data.length - 1].b_age;
@@ -72,11 +72,19 @@ const Section = (props: IColumnProps) => {
 
   const height = useMemo(() => dAge * pixelScale, [dAge, pixelScale]);
 
-  const unitComponentProps = useMemo(() => {
+  /** Ensure that we can arrange units into the maximum number
+   * of columns defined by unitComponentProps, but that we don't
+   * use more than necessary.
+   */
+  const _unitComponentProps = useMemo(() => {
     return {
-      nColumns: Math.max(...data.map((d) => d.column)) + 1,
+      ...unitComponentProps,
+      nColumns: Math.min(
+        Math.max(...data.map((d) => d.column)) + 1,
+        unitComponentProps?.nColumns ?? 2
+      ),
     };
-  }, [data]);
+  }, [data, unitComponentProps]);
 
   return h(
     MacrostratColumnProvider,
@@ -117,7 +125,7 @@ const Section = (props: IColumnProps) => {
           gutterWidth: 5,
           showLabels,
           unitComponent,
-          unitComponentProps,
+          unitComponentProps: _unitComponentProps,
         })
       ),
     ]
@@ -210,5 +218,5 @@ function Column(
 }
 
 export * from "./helpers";
-export { Section, AgeAxis, Column };
 export * from "./map";
+export { AgeAxis, Column, Section };
