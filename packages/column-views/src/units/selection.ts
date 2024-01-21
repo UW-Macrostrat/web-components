@@ -1,14 +1,15 @@
+import { BaseUnit } from "@macrostrat/api-types";
+import h from "@macrostrat/hyper";
+import { getQueryString, setQueryString } from "@macrostrat/ui-components";
 import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
   Dispatch,
   SetStateAction,
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
 } from "react";
-import { BaseUnit } from "@macrostrat/api-types";
-import { getQueryString, setQueryString } from "@macrostrat/ui-components";
-import h from "@macrostrat/hyper";
 
 type UnitSelectDispatch = Dispatch<SetStateAction<BaseUnit | null>>;
 
@@ -34,10 +35,12 @@ export function UnitSelectionProvider<BaseUnit>(props: {
   children: React.ReactNode;
 }) {
   const [unit, setUnit] = useState<BaseUnit | null>(null);
+  const value = useMemo(() => unit, [unit?.unit_id]);
+
   return h(
     DispatchContext.Provider,
     { value: setUnit },
-    h(UnitSelectionContext.Provider, { value: unit }, props.children)
+    h(UnitSelectionContext.Provider, { value }, props.children)
   );
 }
 
