@@ -1,20 +1,19 @@
-import h from "@macrostrat/hyper";
-import { useContext, ReactNode, useMemo } from "react";
 import {
-  ColumnContext,
-  ColumnLayoutContext,
-  PatternDefsProvider,
-  useGeologicPattern,
-  ForeignObject,
-  SizeAwareLabel,
-  SizeAwareLabelProps,
   Clickable,
   ColumnAxisType,
+  ColumnContext,
+  ColumnLayoutContext,
+  ForeignObject,
+  PatternDefsProvider,
+  SizeAwareLabel,
   useColumn,
+  useGeologicPattern,
 } from "@macrostrat/column-components";
-import { IUnit, transformAxisType } from "./types";
-import { useSelectedUnit, useUnitSelector } from "./selection";
+import h from "@macrostrat/hyper";
+import { ReactNode, useContext, useEffect, useMemo, useRef } from "react";
 import { resolveID, scalePattern } from "./resolvers";
+import { useSelectedUnit, useUnitSelector } from "./selection";
+import { IUnit, transformAxisType } from "./types";
 
 interface RectBounds {
   x: number;
@@ -96,12 +95,14 @@ function Unit(props: UnitProps) {
   const patternID = resolveID(d);
   const fill = useGeologicPattern(patternID, defaultFill);
   // Allow us to select this unit if in the proper context
-  const onClick = useUnitSelector(d);
-  const selectedUnit = useSelectedUnit();
-  const selected = selectedUnit?.unit_id == d.unit_id;
+
+  const ref = useRef<SVGRectElement>();
+
+  const [selected, onClick] = useUnitSelectionManager(ref, d);
 
   return h("g.unit", { className }, [
     h("rect.unit", {
+      ref,
       ...bounds,
       fill,
       onMouseOver() {
@@ -112,6 +113,26 @@ function Unit(props: UnitProps) {
     h.if(selected)("rect.selection-overlay", bounds),
     children,
   ]);
+}
+
+function useUnitSelectionManager(
+  ref: React.RefObject<SVGRectElement>,
+  unit: IUnit
+): [boolean, () => void] {
+  const selectedUnit = useSelectedUnit();
+  const selected = selectedUnit?.unit_id == unit.unit_id;
+  const onClick = useUnitSelector(unit);
+
+  useEffect(() => {
+    if (!selected) return;
+    ref.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "nearest",
+    });
+  }, [selected]);
+
+  return [selected, onClick];
 }
 
 function LabeledUnit(props: LabeledUnitProps) {
@@ -179,4 +200,4 @@ function UnitBoxes<T>(props: {
   );
 }
 
-export { Unit, UnitBoxes, UnitProps, LabeledUnit };
+export { LabeledUnit, Unit, UnitBoxes, UnitProps };
