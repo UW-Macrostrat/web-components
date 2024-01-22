@@ -19,6 +19,7 @@
     "d3-array": "^3.2.4",
     "d3-format": "^3.1.0",
     "mapbox-gl": "^2.15.0",
+    "query-string": "^8.1.0",
     "transition-hook": "^1.5.2",
     "underscore": "^1.13.6",
     "use-resize-observer": "^9.1.0"
