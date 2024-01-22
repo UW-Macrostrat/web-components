@@ -203,8 +203,18 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 }
 
 function processGeoJSON(res) {
-  return res?.success?.data.features;
+  return processGeoJSONBare(res?.success?.data);
 }
+
+function processGeoJSONBare(res) {
+  return res?.features;
+}
+
+const processors = {
+  topojson: processTopoJSON,
+  geojson: processGeoJSON,
+  geojson_bare: processGeoJSONBare,
+};
 
 function useColumnData({
   apiRoute = "/columns",
@@ -217,7 +227,7 @@ function useColumnData({
     all = true;
   }
 
-  const processor = format === "topojson" ? processTopoJSON : processGeoJSON;
+  const processor = processors[format];
 
   return useAPIResult(
     apiRoute,
@@ -236,9 +246,10 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
     color,
     filterColumns,
     showDebugLayers = false,
+    format = "topojson",
   } = props;
 
-  let features = useColumnData({ apiRoute, status_code, project_id });
+  let features = useColumnData({ apiRoute, status_code, project_id, format });
 
   if (features == null) return null;
 
