@@ -1,7 +1,7 @@
 /** Utilities for dealing with map coordinates. */
-import { FreeCameraOptions, MercatorCoordinate, Map } from "mapbox-gl";
+import { FreeCameraOptions, Map, MercatorCoordinate } from "mapbox-gl";
 
-type LatLng = {
+export type LatLng = {
   lng: number;
   lat: number;
 };

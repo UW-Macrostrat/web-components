@@ -1,10 +1,12 @@
 import h from "@macrostrat/hyper";
 import {
-  formatValue,
-  normalizeLng,
-  metersToFeet,
   formatCoordForZoomLevel,
-} from "./utils";
+  metersToFeet,
+  normalizeLng,
+} from "@macrostrat/mapbox-utils";
+import { formatValue } from "./utils";
+
+export * from "./hash-string";
 
 export function ValueWithUnit(props) {
   const { value, unit } = props;
