@@ -63,7 +63,7 @@ function CopyLinkButton({ itemName, children, onClick, ...rest }) {
   );
 }
 
-interface InfoDrawerHeaderProps {
+export interface InfoDrawerHeaderProps {
   onClose: () => void;
   position: mapboxgl.LngLat;
   zoom?: number;
@@ -76,7 +76,11 @@ export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
   return h("header.location-panel-header", [
     h(PositionButton, { position }),
     h("div.spacer"),
-    h(LngLatCoords, { position, zoom, className: "infodrawer-header-item" }),
+    h(LngLatCoords, {
+      position,
+      zoom,
+      className: "infodrawer-header-item",
+    }),
     h.if(elevation != null)(Elevation, {
       elevation,
       className: "infodrawer-header-item",
