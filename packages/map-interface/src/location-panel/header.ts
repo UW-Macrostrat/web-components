@@ -11,12 +11,14 @@ import {
 
 const h = hyper.styled(styles);
 
-function PositionButton({ position }) {
+function PositionButton({ position, showCopyLink = false }) {
   const focusState = useFocusState(position);
+
+  const copyLinkIsVisible = isCentered(focusState) && showCopyLink;
 
   return h("div.position-controls", [
     h(LocationFocusButton, { location: position, focusState }, []),
-    isCentered(focusState) ? h(CopyLinkButton, { itemName: "position" }) : null,
+    h.if(copyLinkIsVisible)(CopyLinkButton, { itemName: "position" }),
   ]);
 }
 
@@ -68,13 +70,20 @@ export interface InfoDrawerHeaderProps {
   position: mapboxgl.LngLat;
   zoom?: number;
   elevation?: number;
+  showCopyPositionButton?: boolean;
 }
 
 export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
-  const { onClose, position, zoom = 7, elevation } = props;
+  const {
+    onClose,
+    position,
+    zoom = 7,
+    elevation,
+    showCopyPositionButton,
+  } = props;
 
   return h("header.location-panel-header", [
-    h(PositionButton, { position }),
+    h(PositionButton, { position, showCopyLink: showCopyPositionButton }),
     h("div.spacer"),
     h(LngLatCoords, {
       position,
