@@ -33,4 +33,9 @@ storybook-static
 
 .pnp.*
 
+# We need to ignore Yarn Lockfile because otherwise this repository
+# can't be nested inside another repository that uses Yarn Workspaces
+# (e.g. https://github.com/UW-Macrostrat/web).
+yarn.lock
+
 packages/*/dist
