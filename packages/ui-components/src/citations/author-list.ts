@@ -1,4 +1,5 @@
 import h from "@macrostrat/hyper";
+import { last } from "fp-ts/lib/ReadonlyNonEmptyArray";
 
 const Author = function (props) {
   const { name, highlight } = props;
@@ -34,13 +35,17 @@ const AuthorList = function (props: AuthorListProps) {
   const limit = props.limit ?? n;
   const truncated = n > limit;
 
-  const penultimateIx = limit - 1;
+  const penultimateIx = limit - 2;
   const L = [];
+
   for (const [i, name] of names.entries()) {
     L.push(A(name));
     L.push(i < penultimateIx && n != 2 ? ", " : " ");
     if (i === penultimateIx - 1 && n != 1 && !truncated) {
-      L.push("and ");
+      const lastAuthor = names[penultimateIx];
+      if (!lastAuthor.startsWith("and ")) {
+        L.push("and ");
+      }
     }
     if (i >= limit - 1 && truncated) {
       L.push("et al.");

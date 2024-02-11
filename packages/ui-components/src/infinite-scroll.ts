@@ -79,7 +79,7 @@ function infiniteScrollReducer<T>(
   }
 }
 
-function InfiniteScroll(props) {
+export function InfiniteScroll(props) {
   const { hasMore, children, className, loadMore } = props;
   const { ref, inView } = useInView({ rootMargin: "0px 0px -100px 0px" });
 
@@ -314,7 +314,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
 }
 
 InfiniteScrollView.defaultProps = {
-  hasMore(a, b) {
+  hasMore(res) {
     return true;
   },
   getItems(d) {
@@ -327,7 +327,7 @@ InfiniteScrollView.defaultProps = {
     const lastPage = params.page ?? 0;
     return { ...params, page: lastPage + 1 };
   },
-  placeholder: h(Spinner),
+  placeholder: (p: APIPlaceholderProps) => h(Spinner),
 };
 
 export { InfiniteScrollView };

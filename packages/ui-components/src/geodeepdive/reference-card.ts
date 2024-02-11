@@ -1,13 +1,12 @@
 // @ts-nocheck
-import { Component } from "react";
 import h from "@macrostrat/hyper";
-import { Card, Classes } from "@blueprintjs/core";
+import { Card } from "@blueprintjs/core";
 
 import { APIResultView } from "../api";
 import { LinkCard } from "../link-card";
 import { AuthorList } from "../citations";
 
-const VolumeNumber = function(props) {
+const VolumeNumber = function (props) {
   const { volume, number } = props;
   const _ = [];
   if (volume != null && volume !== "") {
@@ -25,62 +24,70 @@ const VolumeNumber = function(props) {
   return h("span", null, _);
 };
 
-function InnerCard(props: { [k: string]: any }) {
+function xDDReferenceInformation(props: { [k: string]: any }) {
   let { title, author, doi, journal, identifier, volume, number, year } = props;
   try {
-    ({ id: doi } = identifier.find(d => d.type === "doi"));
+    ({ id: doi } = identifier.find((d) => d.type === "doi"));
   } catch (error) {
     doi = null;
   }
 
-  const names = author.map(function(d) {
+  const names = author.map(function (d) {
     const n = d.name.split(", ");
     n.reverse();
     return n.join(" ");
   });
 
   return h([
-    h(AuthorList, { names, limit: 3 }),
-    ", ",
+    h.if(author.length > 0)([h(AuthorList, { names, limit: 3 }), ", "]),
     h("span.title", title),
     ", ",
     h("span.journal", journal),
     ", ",
     h(VolumeNumber, { volume, number }),
     h("span.year", year),
-    ", ",
-    h("span.doi-title", "doi: "),
-    h("span.doi", doi)
+    h.if(doi != null)([
+      ", ",
+      h("span.doi-title", "doi: "),
+      h(
+        "a.doi",
+        { href: `https://doi.org/${doi}`, target: "_blank" },
+        h("code", doi)
+      ),
+    ]),
   ]);
 }
 
 function GeoDeepDiveSwatchInnerBare(props: any) {
   return h(Card, { interactive: false, className: "gdd-article" }, [
     // @ts-ignore
-    h(InnerCard, props)
+    h(InnerCard, props),
   ]);
 }
 
-class GeoDeepDiveSwatch extends Component<any, any> {
-  render() {
-    let url;
-    const { link, ...rest } = this.props;
-    try {
-      ({ url } = link.find(d => d.type === "publisher"));
-    } catch (error) {
-      url = null;
-    }
-    return h(
-      LinkCard,
-      {
-        href: url,
-        target: "_blank",
-        className: "gdd-article"
-      },
-      // @ts-ignore
-      h(InnerCard, rest)
-    );
+function GeoDeepDiveSwatch({ wrapper = xDDLinkCard, data, docid }) {
+  if (data == null) {
+    return h(wrapper, ["Loading... "]);
   }
+
+  let url;
+  const { link, ...rest } = data;
+  try {
+    ({ url } = link.find((d) => d.type === "publisher"));
+  } catch (error) {
+    url = null;
+  }
+  return h(wrapper, { href: url, docid }, h(xDDReferenceInformation, data));
+}
+
+function xDDLinkCard(props: { href: string }) {
+  const { href, children, ...rest } = props;
+  return h(LinkCard, {
+    target: "_blank",
+    className: "gdd-article",
+    href,
+    children,
+  });
 }
 
 function GeoDeepDiveRelatedTerms(props: { data: any[] }) {
@@ -89,40 +96,30 @@ function GeoDeepDiveRelatedTerms(props: { data: any[] }) {
     h("h1", "Related Terms"),
     h(
       "ul#related_terms",
-      data.map(item => h("li", item[0]))
-    )
+      data.map((item) => h("li", item[0]))
+    ),
   ]);
 }
 
-const PlaceholderReference = () => {
-  return h(
-    Card,
-    {
-      className: `gdd-article ${Classes.SKELETON}`
-    },
-    "word ".repeat(35)
-  );
-};
-
 const GDDReferenceCard = (props: { docid: string }) => {
-  const { docid } = props;
+  const { docid, wrapper } = props;
   return h(
     APIResultView,
     {
-      route: "https://geodeepdive.org/api/articles",
+      route: "https://xdd.wisc.edu/api/articles",
       params: { docid },
 
       opts: {
         unwrapResponse(res) {
           return res.success.data[0];
         },
-        memoize: true
+        memoize: true,
       },
-      placeholder: PlaceholderReference
+      placeholder: () => h(GeoDeepDiveSwatch, { wrapper, data: null, docid }),
     },
-    data => {
+    (data) => {
       try {
-        return h(GeoDeepDiveSwatch, data);
+        return h(GeoDeepDiveSwatch, { wrapper, data, docid });
       } catch (error) {
         return null;
       }
@@ -134,5 +131,5 @@ export {
   GDDReferenceCard,
   GeoDeepDiveSwatch,
   GeoDeepDiveSwatchInnerBare,
-  GeoDeepDiveRelatedTerms
+  GeoDeepDiveRelatedTerms,
 };
