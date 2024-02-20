@@ -7,6 +7,7 @@ import {
   GlobeControl,
   ThreeDControl,
   MapControlWrapper,
+  useMapStatus,
 } from "@macrostrat/mapbox-react";
 import { ScaleControl as BaseScaleControl } from "mapbox-gl";
 
@@ -41,12 +42,19 @@ function GeolocationControl(props) {
   });
 }
 
-export function MapBottomControls() {
+export function MapBottomControls({ children }) {
+  const { isInitialized } = useMapStatus();
+
+  if (!isInitialized) {
+    return null;
+  }
+
   return h("div.map-controls", [
     h(ScaleControl),
     h(ThreeDControl, { className: "map-3d-control" }),
     h(CompassControl, { className: "compass-control" }),
     h(GlobeControl, { className: "globe-control" }),
     h(GeolocationControl, { className: "geolocation-control" }),
+    children,
   ]);
 }

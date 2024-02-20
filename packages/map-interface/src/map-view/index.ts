@@ -52,6 +52,7 @@ export interface MapboxOptionsExt extends MapboxCoreOptions {
 
 function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
   const { mapPosition, ...rest } = args;
+  console.log("Initializing map (default)", args);
 
   const map = new mapboxgl.Map({
     container,

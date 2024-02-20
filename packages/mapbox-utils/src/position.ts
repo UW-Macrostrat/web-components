@@ -44,8 +44,9 @@ export function setMapPosition(map: Map, pos: MapPosition) {
   const zoom = pos.target?.zoom;
   if (zoom != null && altitude == null && pitch == 0 && bearing == 0) {
     const { lng, lat } = pos.target;
-    map.setCenter([lng, lat]);
+    // Zoom must be set before center to correctly recall position
     map.setZoom(zoom);
+    map.setCenter([lng, lat]);
   } else {
     const { altitude, lng, lat } = pos.camera;
     const cameraOptions = new FreeCameraOptions(
