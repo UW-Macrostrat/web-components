@@ -1,0 +1,27 @@
+name: Static Website Build
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Static Website Build
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Install Python
+        uses: actions/setup-node@v4
+        with:
+          python-version: '3.11'
+
+      - name: Build the static website
+        run: yarn run publish
+
+      - name: Deploy 🚀
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: site
