@@ -18,8 +18,8 @@ jobs:
 
       - name: Build the static website
         run: |
-          npm install
-          npm run publish
+          yarn install --pure-lockfile
+          yarn run publish
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
