@@ -18,7 +18,7 @@ jobs:
 
       - name: Build the static website
         run: |
-          yarn install --no-lockfile
+          npm install
           yarn run publish
 
       - name: Deploy 🚀
