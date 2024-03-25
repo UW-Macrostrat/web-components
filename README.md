@@ -23,6 +23,8 @@ Web-Components also holds a collection of web-applications that use the componen
 
 The libraries within Web-Components use [Storybook](https://storybook.js.org/) for development and collaboration. There is one main storybook at the root of the monorepo and each library has individual `stories` that are gathered at storybook runtime.
 
+Building the storybook: `yarn run build:storybook`
+
 ## For Developers
 
 To get started developing web-components, clone this repository to your machine and run:
