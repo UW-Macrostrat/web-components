@@ -10,6 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^4.17.8",
+    "poplar-annotation": "^2.0.3",
     "react": "^17.0.2||^18"
   },
   "devDependencies": {
