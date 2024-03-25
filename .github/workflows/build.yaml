@@ -19,7 +19,9 @@ jobs:
           python-version: '3.11'
 
       - name: Build the static website
-        run: yarn run publish
+        run: |
+          yarn install
+          yarn run publish
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
