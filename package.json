@@ -14,6 +14,7 @@
     "dev": "./scripts/run-dev-server",
     "clean": "rm -rf .cache dist",
     "dev:storybook": "yarn workspace @macrostrat/storybook run dev",
+    "build:storybook": "yarn workspace @macrostrat/storybook run build",
     "dev:concepts": "yarn workspace concept-apps run dev",
     "publish": "node ./scripts/publish.mjs"
   },
