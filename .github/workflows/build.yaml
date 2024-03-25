@@ -19,7 +19,7 @@ jobs:
       - name: Build the static website
         run: |
           npm install
-          yarn run publish
+          npm run publish
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
