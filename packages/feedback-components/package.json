@@ -1,0 +1,24 @@
+{
+  "name": "@macrostrat/feedback-components",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "dependencies": {
+    "@blueprintjs/core": "^4.17.8",
+    "react": "^17.0.2||^18"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.3||^5"
+  },
+  "exports": {
+    ".": {
+      "typescript": "./src",
+      "import": "./src"
+    }
+  }
+}
