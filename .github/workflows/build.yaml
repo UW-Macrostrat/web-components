@@ -15,12 +15,10 @@ jobs:
 
       - name: Install Python
         uses: actions/setup-node@v4
-        with:
-          python-version: '3.11'
 
       - name: Build the static website
         run: |
-          yarn install
+          yarn install --no-lockfile
           yarn run publish
 
       - name: Deploy 🚀
