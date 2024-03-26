@@ -21,8 +21,13 @@ jobs:
           yarn config set -H enableImmutableInstalls false
           yarn install
           yarn run build:storybook
-
-      - name: Deploy 🚀
-        uses: JamesIves/github-pages-deploy-action@v4
+          
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          folder: storybook/storybook-static
+          # Upload entire repository
+          path: './storybook/storybook-static'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
