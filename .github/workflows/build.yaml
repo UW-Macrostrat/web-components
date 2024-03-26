@@ -20,9 +20,9 @@ jobs:
         run: |
           yarn config set -H enableImmutableInstalls false
           yarn install
-          yarn run publish
+          yarn run build:storybook
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: site
+          folder: storybook/storybook-static
