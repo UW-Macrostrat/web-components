@@ -1,6 +1,5 @@
 import { Meta } from "@storybook/react";
 import { FeedbackComponent } from ".";
-import h from "@macrostrat/hyper";
 
 export default {
   title: "Feedback components/FeedbackComponent",
@@ -55,6 +54,91 @@ const data1 = {
 };
 
 export const Basic = { args: { data: data1 } };
+
+const data2 = {
+  content:
+    "The Noonday Formation contains stromatolitic dolomite and crystal fans.",
+  labelCategories: [
+    {
+      id: "unit",
+      text: "Geologic unit",
+      color: "#8888FF",
+      borderColor: "#8888AA",
+    },
+    {
+      id: "lith",
+      text: "Lithology",
+      color: "#2288FF",
+      borderColor: "#2288AA",
+    },
+    {
+      id: "lith_att",
+      text: "Attribute",
+      color: "#44AACC",
+      borderColor: "#44AACC",
+    },
+  ],
+  labels: [
+    {
+      id: "t3",
+      categoryId: "lith_att",
+      startIndex: 31,
+      endIndex: 44,
+    },
+    {
+      id: "t1",
+      categoryId: "unit",
+      startIndex: 4,
+      endIndex: 21,
+    },
+
+    {
+      id: "t2",
+      categoryId: "lith",
+      startIndex: 45,
+      endIndex: 53,
+    },
+    {
+      id: "t4",
+      categoryId: "lith_att",
+      startIndex: 58,
+      endIndex: 70,
+    },
+  ],
+  connectionCategories: [
+    {
+      id: "contains",
+      text: "contains",
+    },
+    {
+      id: "describes",
+      text: "describes",
+    },
+  ],
+  connections: [
+    {
+      id: "l0",
+      categoryId: "describes",
+      fromId: "t3", // Label's id
+      toId: "t2", // Label's id
+    },
+    {
+      id: "l1",
+      categoryId: "contains",
+      fromId: "t1", // Label's id
+      toId: "t2", // Label's id
+    },
+    {
+      id: "l2",
+      categoryId: "contains",
+      fromId: "t1", // Label's id
+      toId: "t4", // Label's id
+    },
+
+  ],
+};
+
+export const GeologicFormation = { args: { data: data2}}
 
 const content = `The Barstow Formation is well-known for its fossil mammals
 and is the type area for many species that define the Barstovian Land Mammal Age
