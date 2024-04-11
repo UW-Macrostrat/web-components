@@ -45,7 +45,7 @@ yarn
 To build and view the story book you can run:
 
 ```
-yarn run:dev storybook
+yarn run dev:storybook
 ```
 
 The storybook will start at port `6006`
