@@ -1,5 +1,5 @@
 import hyper from "@macrostrat/hyper";
-import { ColorPicker, EditorPopup } from "@macrostrat/data-sheet";
+import { EditorPopup } from "@macrostrat/data-sheet";
 import { ButtonGroup, Button, Intent } from "@blueprintjs/core";
 import {
   Column,
@@ -95,7 +95,7 @@ export default function DataSheet<T>({
       }
       setUpdatedData(update(updatedData, spec));
     },
-    [updatedData]
+    [updatedData, columnSpec]
   );
 
   const clearSelection = useCallback(() => {
@@ -196,6 +196,8 @@ function _cellRenderer(
 
   const _Cell = col.cellComponent ?? BaseCell;
 
+  const _renderedValue = valueRenderer(value);
+
   if (!topLeft) {
     // This should be the case for every cell except the focused one
     return h(
@@ -204,13 +206,13 @@ function _cellRenderer(
         intent,
         value,
       },
-      valueRenderer(value)
+      _renderedValue
     );
   }
 
   if (!focused) {
-    // This should be the case for the focused cell
-    // Selection
+    // Most cells are not focused and don't need to be editable.
+    // This will be the rendering logic for almost all cells
     return h(_Cell, { intent, value }, [
       h("input.hidden-input", {
         autoFocus: true,
@@ -222,7 +224,7 @@ function _cellRenderer(
           e.preventDefault();
         },
       }),
-      valueRenderer(value),
+      _renderedValue,
     ]);
     // Could probably put the hidden input elsewhere,
   }
@@ -235,7 +237,7 @@ function _cellRenderer(
   };
 
   let cellContents = null;
-  let cellClass = null;
+  let cellClass = "input-cell";
 
   if (col.dataEditor != null) {
     cellContents = h(
@@ -249,12 +251,12 @@ function _cellRenderer(
         }),
         className: cellClass,
       },
-      valueRenderer(value)
+      _renderedValue
     );
   } else {
     cellClass = "input-cell";
     cellContents = h("input", {
-      value: valueRenderer(value),
+      value: _renderedValue,
       autoFocus: true,
       onChange,
     });
@@ -268,18 +270,19 @@ function _cellRenderer(
       className: cellClass,
       truncated: false,
     },
-    [
-      cellContents,
-      // TODO: we might want to drag multiple columns
-      // This should be on the last cell of a selection
-      h("div.corner-drag-handle", {
-        onMouseDown(e) {
-          setFillValueBaseCell(focusedCell);
-          e.preventDefault();
-        },
-      }),
-    ]
+    [cellContents, h(DragHandle, { setFillValueBaseCell, focusedCell })]
   );
+}
+
+function DragHandle({ setFillValueBaseCell, focusedCell }) {
+  // TODO: we might want to drag multiple columns in some cases
+  // This should be on the last cell of a selection
+  return h("div.corner-drag-handle", {
+    onMouseDown(e) {
+      setFillValueBaseCell(focusedCell);
+      e.preventDefault();
+    },
+  });
 }
 
 function DataSheetEditToolbar({ hasUpdates, setUpdatedData }) {
