@@ -28,9 +28,14 @@ export default function DataSheet<T>({
   data: T[];
   columnSpec?: ColumnSpec[];
 }) {
+  /**
+   * @param data: The data to be displayed in the table
+   * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
+   *
+   */
+
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
-  //const [focusedCell, setFocusedCell] = useState<FocusedCellCoordinates>(null);
   const [selection, setSelection] = useState<Region[]>([]);
   const _topLeftCell = useMemo(() => topLeftCell(selection), [selection]);
   const focusedCell = useMemo(() => singleFocusedCell(selection), [selection]);
@@ -139,110 +144,24 @@ export default function DataSheet<T>({
               setSelection(val);
             }
           },
-          cellRendererDependencies: [selection, updatedData],
+          // The cell renderer is memoized internally based on these data dependencies
+          cellRendererDependencies: [selection, updatedData, focusedCell],
         },
         columnSpec.map((col, colIndex) => {
           return h(Column, {
             name: col.name,
             cellRenderer: (rowIndex) => {
-              const value =
-                updatedData[rowIndex]?.[col.key] ?? data[rowIndex][col.key];
-              const valueRenderer = col.valueRenderer ?? ((d) => d);
-              const focused =
-                focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
-              // Top left cell of a ranged selection
-              const topLeft =
-                _topLeftCell?.col === colIndex &&
-                _topLeftCell?.row === rowIndex;
-
-              const edited = updatedData[rowIndex]?.[col.key] != null;
-              const intent = edited ? "success" : undefined;
-
-              const _Cell = col.cellComponent ?? BaseCell;
-
-              if (!topLeft) {
-                // This should be the case for every cell except the focused one
-                return h(
-                  _Cell,
-                  {
-                    intent,
-                    value,
-                  },
-                  valueRenderer(value)
-                );
-              }
-
-              if (!focused) {
-                // This should be the case for the focused cell
-                // Selection
-                return h(_Cell, { intent, value }, [
-                  h("input.hidden-input", {
-                    autoFocus: true,
-                    onKeyDown(e) {
-                      console.log(e.key);
-                      if (e.key == "Backspace" || e.key == "Delete") {
-                        clearSelection();
-                      }
-                      e.preventDefault();
-                    },
-                  }),
-                  valueRenderer(value),
-                ]);
-                // Could probably put the hidden input elsewhere,
-              }
-
-              // Single focused cell
-
-              const onChange = (e) => {
-                const value = e.target.value;
-                onCellEdited(rowIndex, col.key, value);
-              };
-
-              let cellContents = null;
-              let cellClass = null;
-
-              if (col.dataEditor != null) {
-                cellContents = h(
-                  EditorPopup,
-                  {
-                    content: h(col.dataEditor, {
-                      value,
-                      onChange(value) {
-                        onCellEdited(rowIndex, col.key, value);
-                      },
-                    }),
-                    className: cellClass,
-                  },
-                  valueRenderer(value)
-                );
-              } else {
-                cellClass = "input-cell";
-                cellContents = h("input", {
-                  value: valueRenderer(value),
-                  autoFocus: true,
-                  onChange,
-                });
-              }
-
-              // Hidden html input
-              return h(
-                _Cell,
-                {
-                  intent,
-                  className: cellClass,
-                  truncated: false,
-                },
-                [
-                  cellContents,
-                  // TODO: we might want to drag multiple columns
-                  // This should be on the last cell of a selection
-                  h("div.corner-drag-handle", {
-                    onMouseDown(e) {
-                      setFillValueBase(focusedCell);
-                      e.preventDefault();
-                    },
-                  }),
-                ]
+              return _cellRenderer(
+                rowIndex,
+                data,
+                updatedData,
+                col,
+                colIndex,
+                focusedCell,
+                _topLeftCell,
+                onCellEdited,
+                clearSelection,
+                setFillValueBaseCell
               );
             },
           });
@@ -250,6 +169,117 @@ export default function DataSheet<T>({
       ),
     ]),
   ]);
+}
+
+function _cellRenderer(
+  rowIndex,
+  data,
+  updatedData,
+  col,
+  colIndex,
+  focusedCell,
+  _topLeftCell,
+  onCellEdited,
+  clearSelection,
+  setFillValueBaseCell
+): any {
+  const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex][col.key];
+  const valueRenderer = col.valueRenderer ?? ((d) => d);
+  const focused =
+    focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
+  // Top left cell of a ranged selection
+  const topLeft =
+    _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
+
+  const edited = updatedData[rowIndex]?.[col.key] != null;
+  const intent = edited ? "success" : undefined;
+
+  const _Cell = col.cellComponent ?? BaseCell;
+
+  if (!topLeft) {
+    // This should be the case for every cell except the focused one
+    return h(
+      _Cell,
+      {
+        intent,
+        value,
+      },
+      valueRenderer(value)
+    );
+  }
+
+  if (!focused) {
+    // This should be the case for the focused cell
+    // Selection
+    return h(_Cell, { intent, value }, [
+      h("input.hidden-input", {
+        autoFocus: true,
+        onKeyDown(e) {
+          console.log(e.key);
+          if (e.key == "Backspace" || e.key == "Delete") {
+            clearSelection();
+          }
+          e.preventDefault();
+        },
+      }),
+      valueRenderer(value),
+    ]);
+    // Could probably put the hidden input elsewhere,
+  }
+
+  // Single focused cell
+
+  const onChange = (e) => {
+    const value = e.target.value;
+    onCellEdited(rowIndex, col.key, value);
+  };
+
+  let cellContents = null;
+  let cellClass = null;
+
+  if (col.dataEditor != null) {
+    cellContents = h(
+      EditorPopup,
+      {
+        content: h(col.dataEditor, {
+          value,
+          onChange(value) {
+            onCellEdited(rowIndex, col.key, value);
+          },
+        }),
+        className: cellClass,
+      },
+      valueRenderer(value)
+    );
+  } else {
+    cellClass = "input-cell";
+    cellContents = h("input", {
+      value: valueRenderer(value),
+      autoFocus: true,
+      onChange,
+    });
+  }
+
+  // Hidden html input
+  return h(
+    _Cell,
+    {
+      intent,
+      className: cellClass,
+      truncated: false,
+    },
+    [
+      cellContents,
+      // TODO: we might want to drag multiple columns
+      // This should be on the last cell of a selection
+      h("div.corner-drag-handle", {
+        onMouseDown(e) {
+          setFillValueBaseCell(focusedCell);
+          e.preventDefault();
+        },
+      }),
+    ]
+  );
 }
 
 function DataSheetEditToolbar({ hasUpdates, setUpdatedData }) {
@@ -309,7 +339,7 @@ const defaultRenderers = {
   array: (d) => d?.join(", "),
 };
 
-function buildDefaultColumnSpec(data, n = 10): ColumnSpec[] {
+function buildDefaultColumnSpec<T>(data: Array<T>, n = 10): ColumnSpec[] {
   /** Build a default column spec from a dataset based on the first n rows */
   if (data == null) return [];
   // Get the first n rows
