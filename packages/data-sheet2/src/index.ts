@@ -229,7 +229,7 @@ function _cellRenderer(
     // Could probably put the hidden input elsewhere,
   }
 
-  // Single focused cell
+  /* The remaining logic covers cells that are focused and editable */
 
   const onChange = (e) => {
     const value = e.target.value;
