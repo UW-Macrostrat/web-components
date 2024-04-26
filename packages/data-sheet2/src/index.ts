@@ -13,6 +13,7 @@ import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import update from "immutability-helper";
 import styles from "./main.module.sass";
 import "@blueprintjs/table/lib/css/table.css";
+import chroma from "chroma-js";
 
 const h = hyper.styled(styles);
 
@@ -24,14 +25,16 @@ const h = hyper.styled(styles);
 export default function DataSheet<T>({
   data,
   columnSpec: _columnSpec,
+  columnSpecOptions,
 }: {
   data: T[];
   columnSpec?: ColumnSpec[];
+  columnSpecOptions?: ColumnSpecOptions;
 }) {
   /**
    * @param data: The data to be displayed in the table
    * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
-   *
+   * @param columnSpecOptions: Options for generating a column spec from data
    */
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
@@ -55,8 +58,8 @@ export default function DataSheet<T>({
     _columnSpec ??
     useMemo(() => {
       // Only build the column spec if it's not provided at the start
-      return buildDefaultColumnSpec(data);
-    }, [data]);
+      return generateColumnSpec(data, columnSpecOptions);
+    }, [data, columnSpecOptions]);
 
   // A sparse array to hold updates
   // TODO: create a "changeset" concept to facilitate undo/redo
@@ -342,15 +345,13 @@ const defaultRenderers = {
   array: (d) => d?.join(", "),
 };
 
-function buildDefaultColumnSpec<T>(data: Array<T>, n = 10): ColumnSpec[] {
+function generateDefaultColumnSpec<T>(data: Array<T>): ColumnSpec[] {
   /** Build a default column spec from a dataset based on the first n rows */
   if (data == null) return [];
-  // Get the first n rows
-  const rows = data.slice(0, n);
   // Get the keys
   const keys = new Set();
   const types = new Map();
-  for (const row of rows) {
+  for (const row of data) {
     for (const key of Object.keys(row)) {
       keys.add(key);
       const val = row[key];
@@ -398,32 +399,116 @@ function buildDefaultColumnSpec<T>(data: Array<T>, n = 10): ColumnSpec[] {
   return spec;
 }
 
+export { Cell };
+
 export interface ColumnSpec {
   name: string;
   key: string;
   required?: boolean;
   isValid?: (d: any) => boolean;
+  transformValue?: (d: any) => any;
   valueRenderer?: (d: any) => string;
   dataEditor?: any;
   cellComponent?: any;
   category?: string;
 }
 
-function ColorCell({ value, children, style, intent, ...rest }) {
-  const brighten = useInDarkMode() ? 0.5 : 0.1;
-  const color = value;
+export interface ColumnSpecOptions {
+  overrides: Record<string, Partial<ColumnSpec> | string>;
+  data?: any[]; // Data to use for type inference
+  nRows?: number; // Number of rows to use for type inference
+  omitColumns?: string[]; // Columns to omit. Takes precedence over includeColumns.
+  includeColumns?: string[]; // Columns to include.
+  humanizeFieldNames?: boolean; // Humanize field names
+}
+
+function generateColumnSpec<T>(
+  data: T[],
+  options: ColumnSpecOptions
+): ColumnSpec[] {
+  /** Generate a column spec from a dataset */
+  const { overrides, nRows = 10, omitColumns, includeColumns } = options;
+
+  if (data == null) return [];
+
+  let columnSpec = generateDefaultColumnSpec(data.slice(nRows));
+  let filteredSpec = columnSpec.filter((col) => {
+    if (omitColumns != null && omitColumns.includes(col.key)) {
+      return false;
+    }
+    if (includeColumns != null && !includeColumns.includes(col.key)) {
+      return false;
+    }
+    return true;
+  });
+
+  // Apply overrides
+  return filteredSpec.map((col) => {
+    let ovr = overrides[col.key];
+    if (ovr == null) return col;
+    if (typeof ovr === "string") {
+      return { ...col, name: ovr };
+    }
+    return { ...col, ...ovr };
+  });
+}
+
+export function ColorCell({ value, children, style, intent, ...rest }) {
+  const darkMode = useInDarkMode();
+
+  let color = value;
+  if (typeof value === "string") {
+    try {
+      color = chroma(value);
+    } catch (e) {
+      color = null;
+    }
+  }
+
   return h(
     Cell,
     {
       ...rest,
       style: {
         ...style,
-        color: color?.luminance?.(brighten).css(),
-        backgroundColor: color?.alpha?.(0.2).css(),
+        ...pleasantCombination(color, { darkMode }),
       },
     },
     children
   );
+}
+
+export function pleasantCombination(
+  color,
+  { luminance = null, backgroundAlpha = 0.2, darkMode = false } = {}
+) {
+  const brighten = luminance ?? darkMode ? 0.5 : 0.1;
+
+  // Check if is a chroma color
+  if (typeof color === "string") {
+    try {
+      color = chroma(color);
+    } catch (e) {
+      return {};
+    }
+  }
+  if (color == null) return {};
+  return {
+    color: color?.luminance?.(brighten).css(),
+    backgroundColor: color?.alpha?.(backgroundAlpha).css(),
+  };
+}
+
+export function asChromaColor(color): chroma.Color | null {
+  // Check if is a chroma color already
+  if (color instanceof chroma.Color) {
+    return color;
+  }
+  try {
+    return chroma(color);
+  } catch (e) {
+    return null;
+  }
 }
 
 function topLeftCell(
