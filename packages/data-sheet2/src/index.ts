@@ -259,7 +259,7 @@ function _cellRenderer(
       },
       _renderedValue
     );
-  } else if (inlineEditor != false) {
+  } else if (inlineEditor != false && typeof _renderedValue === "string") {
     cellClass = "input-cell";
     cellContents = h("input", {
       value: _renderedValue,
@@ -411,7 +411,7 @@ export interface ColumnSpec {
   required?: boolean;
   isValid?: (d: any) => boolean;
   transformValue?: (d: any) => any;
-  valueRenderer?: (d: any) => string;
+  valueRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
   cellComponent?: any;
   category?: string;
