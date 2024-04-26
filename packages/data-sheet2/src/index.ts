@@ -194,12 +194,15 @@ function _cellRenderer(
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
+  const editable = col.editable ?? true;
+
   const edited = updatedData[rowIndex]?.[col.key] != null;
   const intent = edited ? "success" : undefined;
 
   const _Cell = col.cellComponent ?? BaseCell;
 
   const _renderedValue = valueRenderer(value);
+  const inlineEditor = col.inlineEditor ?? true;
 
   if (!topLeft) {
     // This should be the case for every cell except the focused one
@@ -213,7 +216,7 @@ function _cellRenderer(
     );
   }
 
-  if (!focused) {
+  if (!focused || !editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
     return h(_Cell, { intent, value }, [
@@ -239,8 +242,8 @@ function _cellRenderer(
     onCellEdited(rowIndex, col.key, value);
   };
 
-  let cellContents = null;
-  let cellClass = "input-cell";
+  let cellContents = _renderedValue;
+  let cellClass = null;
 
   if (col.dataEditor != null) {
     cellContents = h(
@@ -256,7 +259,7 @@ function _cellRenderer(
       },
       _renderedValue
     );
-  } else {
+  } else if (inlineEditor != false) {
     cellClass = "input-cell";
     cellContents = h("input", {
       value: _renderedValue,
@@ -270,6 +273,7 @@ function _cellRenderer(
     _Cell,
     {
       intent,
+      value,
       className: cellClass,
       truncated: false,
     },
@@ -411,6 +415,8 @@ export interface ColumnSpec {
   dataEditor?: any;
   cellComponent?: any;
   category?: string;
+  editable?: boolean;
+  inlineEditor?: boolean;
 }
 
 export interface ColumnSpecOptions {
@@ -419,7 +425,6 @@ export interface ColumnSpecOptions {
   nRows?: number; // Number of rows to use for type inference
   omitColumns?: string[]; // Columns to omit. Takes precedence over includeColumns.
   includeColumns?: string[]; // Columns to include.
-  humanizeFieldNames?: boolean; // Humanize field names
 }
 
 function generateColumnSpec<T>(
@@ -456,22 +461,13 @@ function generateColumnSpec<T>(
 export function ColorCell({ value, children, style, intent, ...rest }) {
   const darkMode = useInDarkMode();
 
-  let color = value;
-  if (typeof value === "string") {
-    try {
-      color = chroma(value);
-    } catch (e) {
-      color = null;
-    }
-  }
-
   return h(
     Cell,
     {
       ...rest,
       style: {
         ...style,
-        ...pleasantCombination(color, { darkMode }),
+        ...pleasantCombination(value, { darkMode }),
       },
     },
     children
@@ -485,13 +481,7 @@ export function pleasantCombination(
   const brighten = luminance ?? darkMode ? 0.5 : 0.1;
 
   // Check if is a chroma color
-  if (typeof color === "string") {
-    try {
-      color = chroma(color);
-    } catch (e) {
-      return {};
-    }
-  }
+  color = asChromaColor(color);
   if (color == null) return {};
   return {
     color: color?.luminance?.(brighten).css(),
