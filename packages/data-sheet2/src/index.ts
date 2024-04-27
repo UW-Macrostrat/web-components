@@ -1,5 +1,5 @@
 import hyper from "@macrostrat/hyper";
-import { EditorPopup } from "@macrostrat/data-sheet";
+import { EditorPopup } from "./components";
 import { ButtonGroup, Button, Intent } from "@blueprintjs/core";
 import {
   Column,
@@ -246,19 +246,22 @@ function _cellRenderer(
   let cellClass = null;
 
   if (col.dataEditor != null) {
-    cellContents = h(
-      EditorPopup,
-      {
-        content: h(col.dataEditor, {
-          value,
-          onChange(value) {
-            onCellEdited(rowIndex, col.key, value);
-          },
-        }),
-        className: cellClass,
-      },
-      _renderedValue
-    );
+    cellContents = h([
+      h(
+        EditorPopup,
+        {
+          content: h(col.dataEditor, {
+            value,
+            onChange(value) {
+              onCellEdited(rowIndex, col.key, value);
+            },
+          }),
+        },
+        // Empty placeholder to ensure that the popup is rendered in the proper place
+        h("span.data-editor-anchor")
+      ),
+      _renderedValue,
+    ]);
   } else if (inlineEditor != false && typeof _renderedValue === "string") {
     cellClass = "input-cell";
     cellContents = h("input", {
@@ -275,7 +278,7 @@ function _cellRenderer(
       intent,
       value,
       className: cellClass,
-      truncated: false,
+      //truncated: false,
     },
     [cellContents, h(DragHandle, { setFillValueBaseCell, focusedCell })]
   );
