@@ -2,7 +2,7 @@ import hyper from "@macrostrat/hyper";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { Popover2 } from "@blueprintjs/popover2";
 import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
-import styles from "./main.module.scss";
+import styles from "./main.module.sass";
 
 const h = hyper.styled(styles);
 
@@ -35,6 +35,7 @@ export function EditorPopup(props) {
       onClose(evt) {
         props.onKeyDown(evt);
       },
+      // Portal must be used to avoid issues with the editor being clipped to the bounds of the cell
       usePortal: true,
     },
     h(
