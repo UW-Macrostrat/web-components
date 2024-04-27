@@ -1,5 +1,5 @@
 import hyper from "@macrostrat/hyper";
-import { EditorPopup } from "@macrostrat/data-sheet";
+import { EditorPopup } from "./components";
 import { ButtonGroup, Button, Intent } from "@blueprintjs/core";
 import {
   Column,
@@ -8,11 +8,12 @@ import {
   FocusedCellCoordinates,
   Region,
 } from "@blueprintjs/table";
-import { useInDarkMode } from "@macrostrat/ui-components";
 import { useMemo, useState, useRef, useCallback, useEffect } from "react";
 import update from "immutability-helper";
 import styles from "./main.module.sass";
 import "@blueprintjs/table/lib/css/table.css";
+
+export * from "./components";
 
 const h = hyper.styled(styles);
 
@@ -24,14 +25,16 @@ const h = hyper.styled(styles);
 export default function DataSheet<T>({
   data,
   columnSpec: _columnSpec,
+  columnSpecOptions,
 }: {
   data: T[];
   columnSpec?: ColumnSpec[];
+  columnSpecOptions?: ColumnSpecOptions;
 }) {
   /**
    * @param data: The data to be displayed in the table
    * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
-   *
+   * @param columnSpecOptions: Options for generating a column spec from data
    */
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
@@ -55,8 +58,8 @@ export default function DataSheet<T>({
     _columnSpec ??
     useMemo(() => {
       // Only build the column spec if it's not provided at the start
-      return buildDefaultColumnSpec(data);
-    }, [data]);
+      return generateColumnSpec(data, columnSpecOptions);
+    }, [data, columnSpecOptions]);
 
   // A sparse array to hold updates
   // TODO: create a "changeset" concept to facilitate undo/redo
@@ -191,12 +194,15 @@ function _cellRenderer(
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
+  const editable = col.editable ?? true;
+
   const edited = updatedData[rowIndex]?.[col.key] != null;
   const intent = edited ? "success" : undefined;
 
   const _Cell = col.cellComponent ?? BaseCell;
 
   const _renderedValue = valueRenderer(value);
+  const inlineEditor = col.inlineEditor ?? true;
 
   if (!topLeft) {
     // This should be the case for every cell except the focused one
@@ -210,7 +216,7 @@ function _cellRenderer(
     );
   }
 
-  if (!focused) {
+  if (!focused || !editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
     return h(_Cell, { intent, value }, [
@@ -229,31 +235,30 @@ function _cellRenderer(
     // Could probably put the hidden input elsewhere,
   }
 
-  // Single focused cell
+  /* The remaining logic covers cells that are focused and editable */
 
   const onChange = (e) => {
     const value = e.target.value;
     onCellEdited(rowIndex, col.key, value);
   };
 
-  let cellContents = null;
-  let cellClass = "input-cell";
+  let cellContents = _renderedValue;
+  let cellClass = null;
 
   if (col.dataEditor != null) {
-    cellContents = h(
-      EditorPopup,
-      {
+    cellClass = "editor-cell";
+    cellContents = h([
+      h(EditorPopup, {
         content: h(col.dataEditor, {
           value,
           onChange(value) {
             onCellEdited(rowIndex, col.key, value);
           },
         }),
-        className: cellClass,
-      },
-      _renderedValue
-    );
-  } else {
+      }),
+      _renderedValue,
+    ]);
+  } else if (inlineEditor != false && typeof _renderedValue === "string") {
     cellClass = "input-cell";
     cellContents = h("input", {
       value: _renderedValue,
@@ -267,8 +272,9 @@ function _cellRenderer(
     _Cell,
     {
       intent,
+      value,
       className: cellClass,
-      truncated: false,
+      //truncated: false,
     },
     [cellContents, h(DragHandle, { setFillValueBaseCell, focusedCell })]
   );
@@ -342,15 +348,13 @@ const defaultRenderers = {
   array: (d) => d?.join(", "),
 };
 
-function buildDefaultColumnSpec<T>(data: Array<T>, n = 10): ColumnSpec[] {
+function generateDefaultColumnSpec<T>(data: Array<T>): ColumnSpec[] {
   /** Build a default column spec from a dataset based on the first n rows */
   if (data == null) return [];
-  // Get the first n rows
-  const rows = data.slice(0, n);
   // Get the keys
   const keys = new Set();
   const types = new Map();
-  for (const row of rows) {
+  for (const row of data) {
     for (const key of Object.keys(row)) {
       keys.add(key);
       const val = row[key];
@@ -398,32 +402,59 @@ function buildDefaultColumnSpec<T>(data: Array<T>, n = 10): ColumnSpec[] {
   return spec;
 }
 
+export { Cell };
+
 export interface ColumnSpec {
   name: string;
   key: string;
   required?: boolean;
   isValid?: (d: any) => boolean;
-  valueRenderer?: (d: any) => string;
+  transformValue?: (d: any) => any;
+  valueRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
   cellComponent?: any;
   category?: string;
+  editable?: boolean;
+  inlineEditor?: boolean;
 }
 
-function ColorCell({ value, children, style, intent, ...rest }) {
-  const brighten = useInDarkMode() ? 0.5 : 0.1;
-  const color = value;
-  return h(
-    Cell,
-    {
-      ...rest,
-      style: {
-        ...style,
-        color: color?.luminance?.(brighten).css(),
-        backgroundColor: color?.alpha?.(0.2).css(),
-      },
-    },
-    children
-  );
+export interface ColumnSpecOptions {
+  overrides: Record<string, Partial<ColumnSpec> | string>;
+  data?: any[]; // Data to use for type inference
+  nRows?: number; // Number of rows to use for type inference
+  omitColumns?: string[]; // Columns to omit. Takes precedence over includeColumns.
+  includeColumns?: string[]; // Columns to include.
+}
+
+function generateColumnSpec<T>(
+  data: T[],
+  options: ColumnSpecOptions
+): ColumnSpec[] {
+  /** Generate a column spec from a dataset */
+  const { overrides, nRows = 10, omitColumns, includeColumns } = options;
+
+  if (data == null) return [];
+
+  let columnSpec = generateDefaultColumnSpec(data.slice(nRows));
+  let filteredSpec = columnSpec.filter((col) => {
+    if (omitColumns != null && omitColumns.includes(col.key)) {
+      return false;
+    }
+    if (includeColumns != null && !includeColumns.includes(col.key)) {
+      return false;
+    }
+    return true;
+  });
+
+  // Apply overrides
+  return filteredSpec.map((col) => {
+    let ovr = overrides[col.key];
+    if (ovr == null) return col;
+    if (typeof ovr === "string") {
+      return { ...col, name: ovr };
+    }
+    return { ...col, ...ovr };
+  });
 }
 
 function topLeftCell(

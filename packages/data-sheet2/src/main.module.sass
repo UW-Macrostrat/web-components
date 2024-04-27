@@ -31,10 +31,25 @@
     &:focus
       outline: none
 
+// Make sure popover target fills the entire cell
+.editor-cell :global(.bp4-popover2-target)
+  pointer-events: none
+  position: absolute
+  top: 0
+  left: 0
+  width: 100%
+  height: 100%
+
 .hidden-input
   opacity: 0
   position: absolute
   width: 0
+
+.data-editor-anchor
+  width: 100%
+  height: 100%
+  margin: 0
+  pointer-events: none
 
 .corner-drag-handle
   position: absolute
