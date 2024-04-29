@@ -63,7 +63,9 @@
   "prettier": {},
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
-    "poplar-annotation": "^2.0.3"
+    "poplar-annotation": "^2.0.3",
+    "react-arborist": "^3.4.0",
+    "react-text-annotate-blend": "^1.2.0"
   },
   "packageManager": "yarn@4.1.0",
   "dependenciesMeta": {
