@@ -1,17 +1,15 @@
 import h from "@macrostrat/hyper";
 import { ErrorBoundary } from "../error-boundary";
 import { SketchPicker } from "react-color";
-import { Button } from "@blueprintjs/core";
+import { Button, Popover } from "@blueprintjs/core";
 import { useState } from "react";
-import { Popover2 } from "@blueprintjs/popover2";
-import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
 import chroma from "chroma-js";
 
 export function BasePopup(props) {
   const { children, isOpen, content, ...rest } = props;
 
   return h(
-    Popover2,
+    Popover,
     {
       content: h(
         "div.interaction-barrier",

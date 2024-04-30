@@ -3,10 +3,15 @@ import { useState } from "react";
 import axios from "axios";
 //@ts-ignore
 import styles from "./pub.module.scss";
-import { InputGroup, Button, Intent, Spinner } from "@blueprintjs/core";
+import {
+  InputGroup,
+  Button,
+  Intent,
+  Spinner,
+  Tooltip,
+} from "@blueprintjs/core";
 import { Publication } from "./publication";
 import { SubmitButton } from "../button";
-import { Tooltip2 as Tooltip } from "@blueprintjs/popover2";
 
 const h = hyperStyled(styles);
 

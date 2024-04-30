@@ -41,7 +41,6 @@
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/icons": "^5.9.0",
-    "@blueprintjs/popover2": "^2.1.4",
     "@macrostrat/hyper": "^2.0.1",
     "@mantine/core": "^4.2.1",
     "@mantine/hooks": "^4.2.1",

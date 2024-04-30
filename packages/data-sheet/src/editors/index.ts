@@ -1,8 +1,7 @@
 import h from "@macrostrat/hyper";
 import { ErrorBoundary, useInDarkMode } from "@macrostrat/ui-components";
 import { ChromePicker } from "react-color";
-import { Popover2 } from "@blueprintjs/popover2";
-import "@blueprintjs/popover2/lib/css/blueprint-popover2.css";
+import { Popover } from "@blueprintjs/core";
 import chroma from "chroma-js";
 import "./styles.module.scss";
 
@@ -10,7 +9,7 @@ export function BasePopupEditor(props) {
   const { children, valueRenderer, value, ...rest } = props;
 
   return h(
-    Popover2,
+    Popover,
     {
       content: h(
         "div.interaction-barrier",

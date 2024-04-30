@@ -13,14 +13,14 @@ col.index-column {
 .data-grid-container .data-grid .cell {
   height: 20px;
 }
-.data-grid-container .data-grid .cell> input {
+.data-grid-container .data-grid .cell > input {
   margin: 0;
   padding: 0 4px;
   outline: none !important;
   height: 19px;
   width: calc(100% + 2px);
 }
-.data-grid-container .data-grid .cell>.value-viewer {
+.data-grid-container .data-grid .cell > .value-viewer {
   padding: 0 4px;
 }
 .data-grid-container .data-grid .cell[data-status="invalid"] {
@@ -38,10 +38,10 @@ col.index-column {
   display: flex;
   flex-direction: row;
 }
-.data-area-main>* {
+.data-area-main > * {
   margin-right: 4px;
 }
-.data-area-main>*:last-child {
+.data-area-main > *:last-child {
   margin-right: 0;
 }
 .popover-container span.popover-target,
