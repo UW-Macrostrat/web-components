@@ -1,10 +1,10 @@
 // @ts-nocheck
 //import "./main.sass";
-import { Component } from "react";
-import h from "@macrostrat/hyper";
 import { Tag } from "@blueprintjs/core";
-import Dropzone from "react-dropzone";
+import h from "@macrostrat/hyper";
 import classNames from "classnames";
+import { Component } from "react";
+import Dropzone from "react-dropzone";
 
 const FileListItem = function (props) {
   const { file } = props;
@@ -50,16 +50,16 @@ class FileUploadComponent extends Component<FileUploadProps> {
     });
     const inputProps = getInputProps();
     inputProps.style = {};
-    inputProps.className = "bp4-large";
+    inputProps.className = "bp5-large";
     let msg = "Drop files here";
     if (!isDragActive) {
       msg += ", or click to upload";
     }
 
     return h("div", { className, ...rootProps }, [
-      h("label.bp4-file-input.bp4-large", [
+      h("label.bp5-file-input.bp5-large", [
         h("input", inputProps),
-        h("div.bp4-file-upload-input", [
+        h("div.bp5-file-upload-input", [
           h(FileList, { files, placeholder: msg }),
         ]),
       ]),

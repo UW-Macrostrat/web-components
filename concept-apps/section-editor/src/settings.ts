@@ -4,13 +4,12 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
+import { Button, Switch } from "@blueprintjs/core";
 import h from "~/hyper";
-import { Switch, Button } from "@blueprintjs/core";
-import { Component } from "react";
 import { Panel } from "./ui";
 
 const Control = ({ title, children }) =>
-  h("label.bp4-label", [title, h(Switch)]);
+  h("label.bp5-label", [title, h(Switch)]);
 
 const SettingsPanel = function(props) {
   const {

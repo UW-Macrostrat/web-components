@@ -12,8 +12,8 @@
     "vite": "^4.4.9"
   },
   "dependencies": {
-    "@blueprintjs/colors": "^4.1.22",
-    "@blueprintjs/core": "^4.18.0"
+    "@blueprintjs/colors": "^5.1.1",
+    "@blueprintjs/core": "^5.10.2"
   },
   "files": [
     "dist",

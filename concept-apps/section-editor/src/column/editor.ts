@@ -6,36 +6,24 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { findDOMNode } from "react-dom";
-import { Component, createElement } from "react";
 import {
-  Dialog,
-  Button,
-  Intent,
-  ButtonGroup,
-  Alert,
-  Slider
+    Button
 } from "@blueprintjs/core";
 import { DeleteButton } from "@macrostrat/ui-components";
-import Select from "react-select";
 import { format } from "d3-format";
 import T from "prop-types";
+import { Component } from "react";
 
-import { FaciesContext, ColumnContext } from "@macrostrat/column-components";
+import { ColumnContext } from "@macrostrat/column-components";
 
-import { PickerControl } from "@macrostrat/column-components";
 import {
-  LithologyPicker,
-  LithologySymbolPicker,
-  SurfaceOrderSlider,
-  HorizontalPicker,
-  BoundaryStyleControl,
-  FaciesPicker,
-  grainSizes
+    BoundaryStyleControl,
+    FaciesPicker, LithologyPicker,
+    LithologySymbolPicker, PickerControl, SurfaceOrderSlider, grainSizes
 } from "@macrostrat/column-components";
 
-import { Panel } from "../ui";
 import h from "~/hyper";
+import { Panel } from "../ui";
 
 const fmt = format(".1f");
 
@@ -111,21 +99,21 @@ class IntervalEditor extends Component {
             "Next"
           )
         ]),
-        h("label.bp4-label", [
+        h("label.bp5-label", [
           "Lithology",
           h(LithologyPicker, {
             interval,
             onChange: lithology => this.update({ lithology })
           })
         ]),
-        h("label.bp4-label", [
+        h("label.bp5-label", [
           "Lithology symbol",
           h(LithologySymbolPicker, {
             interval,
             onChange: d => this.update({ fillPattern: d })
           })
         ]),
-        h("label.bp4-label", [
+        h("label.bp5-label", [
           "Grainsize",
           h(PickerControl, {
             vertical: false,
@@ -140,14 +128,14 @@ class IntervalEditor extends Component {
             }
           })
         ]),
-        h("label.bp4-label", [
+        h("label.bp5-label", [
           "Surface expression",
           h(BoundaryStyleControl, {
             interval,
             onUpdate: d => this.update({ definite_boundary: d })
           })
         ]),
-        h("label.bp4-label", [
+        h("label.bp5-label", [
           "Facies",
           h(FaciesPicker, {
             onClick: this.updateFacies,
@@ -155,7 +143,7 @@ class IntervalEditor extends Component {
             onChange: facies => this.update({ facies })
           })
         ]),
-        h("label.bp4-label", [
+        h("label.bp5-label", [
           "Surface type (parasequence)",
           h(PickerControl, {
             vertical: false,
@@ -167,7 +155,7 @@ class IntervalEditor extends Component {
             }
           })
         ]),
-        h("label.bp4-label", [
+        h("label.bp5-label", [
           "Surface order",
           h(SurfaceOrderSlider, {
             interval,

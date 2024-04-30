@@ -13,8 +13,8 @@ function LinkCard(props) {
 
   className = classNames(
     "link-card",
-    "bp4-card",
-    `bp4-elevation-${elevation}`,
+    "bp5-card",
+    `bp5-elevation-${elevation}`,
     className
   );
 
