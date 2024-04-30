@@ -1,17 +1,17 @@
-import hyper from "@macrostrat/hyper";
-import { EditorPopup } from "./components";
-import { ButtonGroup, Button, Intent } from "@blueprintjs/core";
+import { Button, ButtonGroup, Intent } from "@blueprintjs/core";
 import {
-  Column,
-  Table2,
   Cell,
+  Column,
   FocusedCellCoordinates,
   Region,
+  Table2,
 } from "@blueprintjs/table";
-import { useMemo, useState, useRef, useCallback, useEffect } from "react";
-import update from "immutability-helper";
-import styles from "./main.module.sass";
 import "@blueprintjs/table/lib/css/table.css";
+import hyper from "@macrostrat/hyper";
+import update from "immutability-helper";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { EditorPopup } from "./components";
+import styles from "./main.module.sass";
 
 export * from "./components";
 
@@ -22,15 +22,19 @@ const h = hyper.styled(styles);
 // TODO: add a "copy to selection" tool (the little square in the bottom right corner of a cell)
 // This should copy the value of a cell (or a set of cells in the same row) downwards.
 
+interface DataSheetProps<T> {
+  data: T[];
+  columnSpec?: ColumnSpec[];
+  columnSpecOptions?: ColumnSpecOptions;
+  editable?: boolean;
+}  
+
 export default function DataSheet<T>({
   data,
   columnSpec: _columnSpec,
   columnSpecOptions,
-}: {
-  data: T[];
-  columnSpec?: ColumnSpec[];
-  columnSpecOptions?: ColumnSpecOptions;
-}) {
+  editable = true,
+}: DataSheetProps<T>) {
   /**
    * @param data: The data to be displayed in the table
    * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
@@ -68,6 +72,7 @@ export default function DataSheet<T>({
 
   const onCellEdited = useCallback(
     (row: number, key: string, value: any) => {
+      if (!editable) return;
       let rowSpec = {};
       if (value != null) {
         const rowOp = updatedData[row] != null ? "$merge" : "$set";
@@ -78,12 +83,13 @@ export default function DataSheet<T>({
       const spec = { [row]: rowSpec };
       setUpdatedData(update(updatedData, spec));
     },
-    [setUpdatedData, updatedData]
+    [setUpdatedData, updatedData, editable]
   );
 
   const fillValues = useCallback(
     (fillValueBase, selection) => {
       // Fill values downwards
+      if (!editable) return;
       if (fillValueBase == null) return;
       const { col, row } = fillValueBase;
       const key = columnSpec[col].key;
@@ -98,7 +104,7 @@ export default function DataSheet<T>({
       }
       setUpdatedData(update(updatedData, spec));
     },
-    [updatedData, columnSpec]
+    [updatedData, columnSpec, editable]
   );
 
   const clearSelection = useCallback(() => {
@@ -123,7 +129,7 @@ export default function DataSheet<T>({
   if (data == null) return null;
 
   return h("div.data-sheet-container", [
-    h(DataSheetEditToolbar, { hasUpdates, setUpdatedData }),
+    h.if(editable)(DataSheetEditToolbar, { hasUpdates, setUpdatedData }),
     h("div.data-sheet-holder", [
       h(
         Table2,
@@ -164,7 +170,8 @@ export default function DataSheet<T>({
                 _topLeftCell,
                 onCellEdited,
                 clearSelection,
-                setFillValueBaseCell
+                setFillValueBaseCell,
+                editable
               );
             },
           });
@@ -184,7 +191,8 @@ function _cellRenderer(
   _topLeftCell,
   onCellEdited,
   clearSelection,
-  setFillValueBaseCell
+  setFillValueBaseCell,
+  _editable
 ): any {
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex][col.key];
   const valueRenderer = col.valueRenderer ?? ((d) => d);
@@ -194,7 +202,7 @@ function _cellRenderer(
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
-  const editable = col.editable ?? true;
+  const editable = col.editable ?? _editable;
 
   const edited = updatedData[rowIndex]?.[col.key] != null;
   const intent = edited ? "success" : undefined;
@@ -216,7 +224,7 @@ function _cellRenderer(
     );
   }
 
-  if (!focused || !editable) {
+  if (!focused) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
     return h(_Cell, { intent, value }, [
@@ -238,6 +246,7 @@ function _cellRenderer(
   /* The remaining logic covers cells that are focused and editable */
 
   const onChange = (e) => {
+    if (!editable) return;
     const value = e.target.value;
     onCellEdited(rowIndex, col.key, value);
   };
@@ -252,6 +261,7 @@ function _cellRenderer(
         content: h(col.dataEditor, {
           value,
           onChange(value) {
+            if (!editable) return;
             onCellEdited(rowIndex, col.key, value);
           },
         }),
@@ -276,7 +286,7 @@ function _cellRenderer(
       className: cellClass,
       //truncated: false,
     },
-    [cellContents, h(DragHandle, { setFillValueBaseCell, focusedCell })]
+    [cellContents, h.if(editable)(DragHandle, { setFillValueBaseCell, focusedCell })]
   );
 }
 
