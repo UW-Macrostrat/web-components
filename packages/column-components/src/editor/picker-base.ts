@@ -5,10 +5,9 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { Component } from "react";
 import h from "@macrostrat/hyper";
-import { Switch, Slider, Button } from "@blueprintjs/core";
 import classNames from "classnames";
+import { Component } from "react";
 
 class PickerControl extends Component {
   constructor(...args) {
@@ -28,9 +27,9 @@ class PickerControl extends Component {
   }
   render() {
     const { states, activeState, vertical } = this.props;
-    let className = classNames("bp4-button-group", "bp4-fill", {
-      "bp4-vertical": vertical,
-      "bp4-align-left": vertical,
+    let className = classNames("bp5-button-group", "bp5-fill", {
+      "bp5-vertical": vertical,
+      "bp5-align-left": vertical,
     });
 
     return h("div.picker-control", [
@@ -38,8 +37,8 @@ class PickerControl extends Component {
         "div",
         { className },
         states.map((d) => {
-          className = classNames("bp4-button", {
-            "bp4-active": this.props.activeState === d.value,
+          className = classNames("bp5-button", {
+            "bp5-active": this.props.activeState === d.value,
           });
           return h(
             "button",

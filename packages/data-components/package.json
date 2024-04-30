@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "A library of react components tailored for Macrostrat data and endpoints",
   "scripts": {
     "test": "jest",
@@ -18,7 +18,7 @@
     "@babel/preset-env": "^7.16.11",
     "@babel/preset-react": "^7.16.7",
     "@babel/preset-typescript": "^7.16.7",
-    "@blueprintjs/core": "^4.17.8",
+    "@blueprintjs/core": "^5.10.2",
     "@rollup/plugin-commonjs": "^21.0.1",
     "@rollup/plugin-json": "^4.1.0",
     "@rollup/plugin-node-resolve": "^13.1.3",

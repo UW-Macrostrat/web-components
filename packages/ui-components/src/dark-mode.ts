@@ -1,13 +1,13 @@
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  ReactNode,
-  useCallback,
-} from "react";
 import { Button, ButtonProps } from "@blueprintjs/core";
-import { useStoredState } from "./util/local-storage";
 import h from "@macrostrat/hyper";
+import React, {
+    ReactNode,
+    createContext,
+    useCallback,
+    useContext,
+    useEffect,
+} from "react";
+import { useStoredState } from "./util/local-storage";
 
 type DarkModeState = {
   isEnabled: boolean;
@@ -85,7 +85,7 @@ const _DarkModeProvider = (props: DarkModeProps) => {
     addBodyClasses = true,
     isEnabled,
     followSystem = false,
-    bodyClasses = ["dark-mode", "bp4-dark"],
+    bodyClasses = ["dark-mode", "bp5-dark"],
     children,
   } = props;
   const [storedValue, updateValue, resetState] = useStoredState(
@@ -206,10 +206,7 @@ const DarkModeButton = (
 };
 
 export {
-  DarkModeProvider,
-  useDarkMode,
-  useInDarkMode,
-  inDarkMode,
-  darkModeUpdater,
-  DarkModeButton,
+    DarkModeButton, DarkModeProvider, darkModeUpdater, inDarkMode, useDarkMode,
+    useInDarkMode
 };
+

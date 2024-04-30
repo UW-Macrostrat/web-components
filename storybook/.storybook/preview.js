@@ -1,12 +1,12 @@
-import macrostratTheme from "./theme";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { themes } from "@storybook/theming";
+import macrostratTheme from "./theme";
 
+import { FocusStyleManager } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
+import "@macrostrat/style-system";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "storybook-dark-mode";
-import "@macrostrat/style-system";
-import { FocusStyleManager } from "@blueprintjs/core";
 
 FocusStyleManager.onlyShowFocusOnTabs();
 
@@ -29,7 +29,7 @@ export const parameters = {
     //current: "light",
     dark: { ...themes.dark },
     light: { ...themes.light },
-    darkClass: ["bp4-dark"],
+    darkClass: ["bp5-dark"],
     lightClass: [],
     stylePreview: true,
   },

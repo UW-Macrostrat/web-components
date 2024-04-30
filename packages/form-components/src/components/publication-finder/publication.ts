@@ -19,7 +19,7 @@ export function Publication(props: PubI) {
       " – ",
       h("span.doi-info", [
         h("span.label", "DOI:"),
-        h("span.doi.bp4-monospace-text", doi),
+        h("span.doi.bp5-monospace-text", doi),
       ]),
     ]),
   ]);

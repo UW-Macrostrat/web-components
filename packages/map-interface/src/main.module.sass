@@ -101,7 +101,7 @@
   & >:last-child
     margin-bottom: 0
 
-:global(.bp4-dark) .panel-card
+:global(.bp5-dark) .panel-card
   background-color: var(--panel-background-color)
 
 .context-stack
@@ -153,29 +153,29 @@
   overflow: hidden
   text-align: right
 
-  & :global(.bp4-button-text)
+  & :global(.bp5-button-text)
     transition: all 0.2s
     transition-delay: 0.1s
 
-  .menu-card.narrow-card .panel-header:not(.minimal) &:global(.bp4-active) ~ & :global(.bp4-button-text)
+  .menu-card.narrow-card .panel-header:not(.minimal) &:global(.bp5-active) ~ & :global(.bp5-button-text)
     width: 0
     opacity: 0
     margin-left: -7px
 
-  .context-panel-leave .menu-card .panel-header & :global(.bp4-button-text)
+  .context-panel-leave .menu-card .panel-header & :global(.bp5-button-text)
     opacity: 0
     width: 0
 
 .narrow-card.narrow-enter .panel-header .buttons
   margin-right: -500px
 
-.panel-header.minimal .tab-button:not(:hover):not(:global(.bp4-active))
+.panel-header.minimal .tab-button:not(:hover):not(:global(.bp5-active))
   padding-left: 0
   padding-right: 0
   min-width: 30px
   width: 30px
 
-.panel-header.minimal .tab-button:not(:hover) :global(.bp4-button-text)
+.panel-header.minimal .tab-button:not(:hover) :global(.bp5-button-text)
   width: 0
   opacity: 0
   margin-left: -7px
@@ -184,7 +184,7 @@
   margin-bottom: 0.5em
   margin-top: 0.2em
 
-.menu-card :global .bp4-text ul,
+.menu-card :global .bp5-text ul,
 .menu-card :global .text-panel ul
   padding-left: 1em
 
@@ -193,7 +193,7 @@
   flex-direction: column
   margin-bottom: -8px
 
-  & .bp4-button-group
+  & .bp5-button-group
     margin-bottom: 4px
 
   & hr
@@ -236,16 +236,16 @@
   .mapboxgl-ctrl-logo
     transform: scale(0.9) translate(-8px, 2px)
 
-  .bp4-dark .mapboxgl-ctrl-logo
+  .bp5-dark .mapboxgl-ctrl-logo
     filter: invert(100%)
 
   .mapboxgl-ctrl-group button + button
     border-top: 1px solid var(--panel-rule-color) !important
 
-  .bp4-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon
+  .bp5-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon
     filter: invert(40%)
 
-  .bp4-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon:hover
+  .bp5-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon:hover
     filter: invert(50%)
 
   .mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon
@@ -377,7 +377,7 @@
       max-width: var(--map-context-stack-max-width, none)
       transition: width 300ms ease
 
-    :global(.bp4-navbar)
+    :global(.bp5-navbar)
       //height: unset
       //padding: 5px
       h1, h2, h3

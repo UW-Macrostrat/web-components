@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-sheet2",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "",
   "main": "src/index.ts",
   "scripts": {
@@ -9,9 +9,9 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
-    "@blueprintjs/core": "^4.17.8",
-    "@blueprintjs/popover2": "^1.13.12",
-    "@blueprintjs/table": "^4",
+    "@blueprintjs/core": "^5.10.2",
+    "@blueprintjs/popover2": "^2.1.4",
+    "@blueprintjs/table": "^5.1.4",
     "@macrostrat/hyper": "^1.2.12",
     "chroma-js": "^2.4.2",
     "classnames": "^2.3.1",
