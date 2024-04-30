@@ -67,7 +67,7 @@
     "react-arborist": "^3.4.0",
     "react-text-annotate-blend": "^1.2.0"
   },
-  "packageManager": "yarn@4.1.0",
+  "packageManager": "yarn@4.1.1",
   "dependenciesMeta": {
     "geologic-patterns@2.0.0-dev1": {
       "unplugged": true
