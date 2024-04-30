@@ -1,8 +1,8 @@
 import { Cell } from "@blueprintjs/table";
 import { useInDarkMode } from "@macrostrat/ui-components";
-import chroma from "chroma-js";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
+import { asChromaColor } from "@macrostrat/color-utils";
 
 const h = hyper.styled(styles);
 
@@ -35,16 +35,4 @@ export function pleasantCombination(
     color: color?.luminance?.(brighten).css(),
     backgroundColor: color?.alpha?.(backgroundAlpha).css(),
   };
-}
-
-export function asChromaColor(color): chroma.Color | null {
-  // Check if is a chroma color already
-  if (color instanceof chroma.Color) {
-    return color;
-  }
-  try {
-    return chroma(color);
-  } catch (e) {
-    return null;
-  }
 }
