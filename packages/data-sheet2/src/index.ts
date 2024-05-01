@@ -66,7 +66,7 @@ export default function DataSheet<T>({
       console.log("Generating column spec", data);
       // Only build the column spec if it's not provided at the start
       return generateColumnSpec(data, columnSpecOptions);
-    }, [data, columnSpecOptions]);
+    }, [data[0], columnSpecOptions]);
 
   // A sparse array to hold updates
   // TODO: create a "changeset" concept to facilitate undo/redo
@@ -157,7 +157,7 @@ export default function DataSheet<T>({
             }
           },
           // The cell renderer is memoized internally based on these data dependencies
-          cellRendererDependencies: [selection, updatedData, focusedCell],
+          cellRendererDependencies: [selection, updatedData, focusedCell, data],
           onVisibleCellsChange,
         },
         columnSpec.map((col, colIndex) => {
