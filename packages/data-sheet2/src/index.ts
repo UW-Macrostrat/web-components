@@ -27,13 +27,15 @@ interface DataSheetProps<T> {
   columnSpec?: ColumnSpec[];
   columnSpecOptions?: ColumnSpecOptions;
   editable?: boolean;
-}  
+  onVisibleCellsChange?: (visibleCells: Region[]) => void;
+}
 
 export default function DataSheet<T>({
   data,
   columnSpec: _columnSpec,
   columnSpecOptions,
   editable = true,
+  onVisibleCellsChange,
 }: DataSheetProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -61,6 +63,7 @@ export default function DataSheet<T>({
   const columnSpec =
     _columnSpec ??
     useMemo(() => {
+      console.log("Generating column spec", data);
       // Only build the column spec if it's not provided at the start
       return generateColumnSpec(data, columnSpecOptions);
     }, [data, columnSpecOptions]);
@@ -155,6 +158,7 @@ export default function DataSheet<T>({
           },
           // The cell renderer is memoized internally based on these data dependencies
           cellRendererDependencies: [selection, updatedData, focusedCell],
+          onVisibleCellsChange,
         },
         columnSpec.map((col, colIndex) => {
           return h(Column, {
@@ -194,7 +198,11 @@ function _cellRenderer(
   setFillValueBaseCell,
   _editable
 ): any {
-  const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex][col.key];
+  const row = data[rowIndex];
+  const loading = row == null;
+
+  const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
+
   const valueRenderer = col.valueRenderer ?? ((d) => d);
   const focused =
     focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
@@ -218,6 +226,7 @@ function _cellRenderer(
       _Cell,
       {
         intent,
+        loading,
         value,
       },
       _renderedValue
@@ -286,7 +295,10 @@ function _cellRenderer(
       className: cellClass,
       //truncated: false,
     },
-    [cellContents, h.if(editable)(DragHandle, { setFillValueBaseCell, focusedCell })]
+    [
+      cellContents,
+      h.if(editable)(DragHandle, { setFillValueBaseCell, focusedCell }),
+    ]
   );
 }
 
@@ -365,6 +377,7 @@ function generateDefaultColumnSpec<T>(data: Array<T>): ColumnSpec[] {
   const keys = new Set();
   const types = new Map();
   for (const row of data) {
+    if (row == null) continue;
     for (const key of Object.keys(row)) {
       keys.add(key);
       const val = row[key];
