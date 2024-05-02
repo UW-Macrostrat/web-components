@@ -126,19 +126,22 @@ function recordNode(node: TreeData, nodes_set : Set<string>) {
 
 export function FeedbackWrap({data}) {
   let input_data : Result = data;
-  let example_data = getExampleData();
   let [start_text, tree_entities] : [string, TreeData[]] = formatForVisualization(input_data);
   let [current_tree, setTree] = useState(tree_entities);
   let no_nodes : string[] = [];
   let [nodes_to_show, setNodesToShow] = useState(no_nodes);
   let [current_text, setCurrentText] = useState(start_text);
 
-  const onGenerateClick = () => {
-    fetch("http://localhost:3001").then(response => {
-      console.log("Okay of", response.ok);
-    }).catch(error => {
-      console.error("Fetch returned error", error);
-    })
+  const onGenerateClick = async () => {
+    // Get an example
+    getExampleData().then(result => {
+      let [start_text, tree_entities] : [string, TreeData[]] = formatForVisualization(result);
+      setTree(tree_entities);
+      setNodesToShow([]);
+      setCurrentText(start_text);
+    }).catch(err_msg => {
+      console.error("on Generate Click error of", err_msg);
+    });
   };
 
   // Processing update from the text visualization

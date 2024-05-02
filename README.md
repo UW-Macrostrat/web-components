@@ -45,10 +45,10 @@ yarn
 To build and view the story book you can run:
 
 ```
-yarn run dev:storybook
+yarn run dev:storybook --port 3000
 ```
 
-The storybook will start at port `6006`
+The storybook will start at port `3000`
 
 If you want to test the feedback component, and want to get data from the database then setup the express server using:
 ```
