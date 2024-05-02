@@ -4,6 +4,7 @@ import {StatefulBlendProps, StatefulBlend} from './TextVisualizer';
 import { NodeApi, Tree, TreeApi } from "react-arborist";
 import Node from './Node';
 import {Entity, Result, TreeData} from './types';
+import { getExampleData } from './data_fetcher';
 import { TextAnnotateBlend, AnnotateBlendTag } from "react-text-annotate-blend";
 
 
@@ -125,22 +126,29 @@ function recordNode(node: TreeData, nodes_set : Set<string>) {
 
 export function FeedbackWrap({data}) {
   let input_data : Result = data;
-  let [current_text, tree_entities] : [string, TreeData[]] = formatForVisualization(input_data);
+  let example_data = getExampleData();
+  let [start_text, tree_entities] : [string, TreeData[]] = formatForVisualization(input_data);
   let [current_tree, setTree] = useState(tree_entities);
   let no_nodes : string[] = [];
   let [nodes_to_show, setNodesToShow] = useState(no_nodes);
+  let [current_text, setCurrentText] = useState(start_text);
+
+  const onGenerateClick = () => {
+    fetch("http://localhost:3001").then(response => {
+      console.log("Okay of", response.ok);
+    }).catch(error => {
+      console.error("Fetch returned error", error);
+    })
+  };
 
   // Processing update from the text visualization
   let process_update = (nodes: string[]) => {
       let nodes_set = new Set<string>(nodes);
       let old_root = current_tree[0];
       let new_root = JSON.parse(JSON.stringify(old_root));
-      console.log("Old root of", old_root);
       
       // Update the tree
-      console.log("Nodes to keep", nodes);
       update_tree(new_root, nodes_set);
-      console.log("New root of", new_root);
 
       // Add the remaining children as 
       nodes_set.forEach((node) => {
@@ -213,6 +221,7 @@ export function FeedbackWrap({data}) {
     }
     setTree([new_root]);
   };
+  
 
   const onDelete = ({ ids } : any) => {
     let delete_ids : string[] = ids;
@@ -257,6 +266,10 @@ export function FeedbackWrap({data}) {
   <>
     <div style={{display:"grid",  gridTemplateColumns:"1fr 1fr"}}>
       <div>
+        <button onClick={onGenerateClick}>
+          Generate random example
+        </button>
+        <p></p>
         <p>
           Click on a entity to see its type as well as the type of its children. 
           You can also drag and drop entities up and down the heirachy, thus changing their type.

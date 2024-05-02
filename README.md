@@ -49,3 +49,9 @@ yarn run dev:storybook
 ```
 
 The storybook will start at port `6006`
+
+If you want to test the feedback component, and want to get data from the database then setup the express server using:
+```
+cd example_fetcher_server
+node ./index.js
+```
