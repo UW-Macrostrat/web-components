@@ -1,6 +1,6 @@
 import React from "react";
 import { TextAnnotateBlend, AnnotateBlendTag } from "react-text-annotate-blend";
-import { TreeData } from "./types";
+import { TreeData, TextData } from "./types";
 
 /*
 Stateful example with blended tags allowed
@@ -51,7 +51,7 @@ const LEVEL_TO_NAME : LEVEL_TO_NAME_TYPE = {
 }
 
 export interface StatefulBlendProps {
-  formatted_text: string;
+  formatted_text: TextData;
   nodes_to_show : string[];
   tree_data: TreeData[];
   update_nodes: (nodes: string[]) => void;
@@ -97,7 +97,7 @@ export function StatefulBlend(props : StatefulBlendProps) {
   let all_tags : AnnotateBlendTag[] = [];
   let mapping : RANGE_TO_LEVEL = {};
   for(var data of props.tree_data) {
-    perform_dfs(data, props.formatted_text, all_tags, nodes_set, mapping);
+    perform_dfs(data, props.formatted_text.paragraph_text, all_tags, nodes_set, mapping);
   }
 
   let [editMode, setEditMode] = React.useState(false);
@@ -144,7 +144,7 @@ export function StatefulBlend(props : StatefulBlendProps) {
           style={{
             fontSize: "1.2rem",
           }}
-          content={props.formatted_text}
+          content={props.formatted_text.paragraph_text}
           onChange={handleChange}
           value={all_tags}
           getSpan={(span) => ({

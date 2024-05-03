@@ -14,9 +14,10 @@ const getExample = async () => {
   try {
     return await new Promise(function (resolve, reject) {
       // Randomly get a source id
-      pool.query(`SELECT sources.source_id, sources.paragraph_text 
-      FROM macrostrat_kg_new.sources AS sources, macrostrat_kg_new.relationship AS relationships
+      pool.query(`SELECT sources.*, metadata.extraction_pipeline_id, metadata.model_id
+      FROM macrostrat_kg_new.sources AS sources, macrostrat_kg_new.relationship AS relationships, macrostrat_kg_new.metadata as metadata
       WHERE sources.source_id = relationships.source_id
+      AND sources.run_id = metadata.run_id
       ORDER BY random()
       LIMIT 1`, (error, results) => {
         // Check for error
@@ -24,9 +25,8 @@ const getExample = async () => {
           reject("Got source getter error of", error);
         }
 
-        let result_row = results["rows"][0];
-        let source_id = result_row["source_id"];
-        let paragraph_txt = result_row["paragraph_text"];
+        let sources_result_row = results["rows"][0];
+        let source_id = sources_result_row["source_id"];
 
         // Get the relationship for this source
         let relationship_query = `SELECT src_entity_table.entity_name AS src_name, dst_entity_table.entity_name AS dst_name, relationship_table.relationship_type
@@ -63,9 +63,12 @@ const getExample = async () => {
               }
             }
           });
-
+          
+          // Remove the source and run id as we will record this as a different source
+          delete sources_result_row.source_id;
+          delete sources_result_row.run_id;
           result_to_run = {
-            "paragraph" : paragraph_txt,
+            "text" : sources_result_row,
             "relationships" : relationship_rows,
             "just_entities" : just_entities
           };

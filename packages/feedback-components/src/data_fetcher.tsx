@@ -45,7 +45,7 @@ function convertToTree(responseJson : ServerResponse) : Result {
    let strats_map : Map<string, Entity> = new Map();
    let lith_maps : Map<string, Entity> = new Map();
    let att_maps : Map<string, Entity> = new Map();
-   let paragraph_txt = responseJson.paragraph;
+   let paragraph_txt = responseJson.text.paragraph_text;
 
    // Create the initial entity
    for(var curr_rel of responseJson.relationships) {
@@ -81,7 +81,7 @@ function convertToTree(responseJson : ServerResponse) : Result {
 
    // Create the result
    let result_to_return : Result = {
-      text: paragraph_txt,
+      text: responseJson.text,
       strats: []
    };
    strats_map.forEach((value, key, map) => {
@@ -102,8 +102,6 @@ export async function getExampleData(): Promise<Result> {
          throw new Error("Failed to get example from server");
       }
    } catch (error) {
-      return {
-         text: "", 
-      };
+      throw error;
    }
 }

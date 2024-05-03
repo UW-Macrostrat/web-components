@@ -3,12 +3,13 @@ import example_data from './tree_example.json';
 import {StatefulBlendProps, StatefulBlend} from './TextVisualizer';
 import { NodeApi, Tree, TreeApi } from "react-arborist";
 import Node from './Node';
-import {Entity, Result, TreeData} from './types';
+import {Entity, Result, TreeData, TextData} from './types';
 import { getExampleData } from './data_fetcher';
+import {recordFeedback} from './feedback_recorder';
 import { TextAnnotateBlend, AnnotateBlendTag } from "react-text-annotate-blend";
 
 
-function process_entity(paragraph : string, entity : Entity, depth: number) : TreeData {
+function process_entity(paragraph : TextData, entity : Entity, depth: number) : TreeData {
   // Record its children
   let curr_children : TreeData[] = [];
   if(entity.children) {
@@ -21,13 +22,13 @@ function process_entity(paragraph : string, entity : Entity, depth: number) : Tr
   let entity_tag = "" + depth;
   return {
     id : entity_tag + "_"  + entity.txt_range[0][0] + "_" + entity.txt_range[0][1],
-    name: paragraph.substring(entity.txt_range[0][0], entity.txt_range[0][1]),
+    name: paragraph.paragraph_text.substring(entity.txt_range[0][0], entity.txt_range[0][1]),
     children : curr_children
   }
 } 
 
-function formatForVisualization(initial_tree : Result) : [string, TreeData[]] {
-  let paragraph : string = initial_tree.text;
+function formatForVisualization(initial_tree : Result) : [TextData, TreeData[]] {
+  let paragraph : TextData = initial_tree.text;
   let tree_entities : TreeData[] = [];
   if(initial_tree.strats) {
     for(var curr_strat of initial_tree.strats) {
@@ -125,24 +126,39 @@ function recordNode(node: TreeData, nodes_set : Set<string>) {
 }
 
 export function FeedbackWrap({data}) {
+  // Get the input arguments
   let input_data : Result = data;
-  let [start_text, tree_entities] : [string, TreeData[]] = formatForVisualization(input_data);
-  let [current_tree, setTree] = useState(tree_entities);
+  console.log("Input data of", input_data);
+  let [start_text, tree_entities] : [TextData, TreeData[]] = formatForVisualization(input_data);
   let no_nodes : string[] = [];
+  let intial_show_save: boolean = false;
+
+  // Create state variables
+  let [current_tree, setTree] = useState(tree_entities);
   let [nodes_to_show, setNodesToShow] = useState(no_nodes);
   let [current_text, setCurrentText] = useState(start_text);
+  let [show_save, setShowSave] = useState(intial_show_save);
 
   const onGenerateClick = async () => {
     // Get an example
     getExampleData().then(result => {
-      let [start_text, tree_entities] : [string, TreeData[]] = formatForVisualization(result);
+      let [start_text, tree_entities] : [TextData, TreeData[]] = formatForVisualization(result);
       setTree(tree_entities);
       setNodesToShow([]);
       setCurrentText(start_text);
+      setShowSave(true);
     }).catch(err_msg => {
       console.error("on Generate Click error of", err_msg);
     });
   };
+
+  const onSaveClick = async () => {
+    recordFeedback(current_text, current_tree).then(result => {
+      onGenerateClick();
+    }).catch(err_msg => { 
+      console.error("On Save Click got error of", err_msg);
+    });
+  }
 
   // Processing update from the text visualization
   let process_update = (nodes: string[]) => {
@@ -162,7 +178,7 @@ export function FeedbackWrap({data}) {
 
         // Create the new node 
         let new_id : string = "0_" + start_idx.toString() + "_" + end_idx.toString();
-        let name : string = current_text.substring(start_idx, end_idx);
+        let name : string = current_text.paragraph_txt.substring(start_idx, end_idx);
         new_root.children.push({
           id : new_id,
           name : name,
@@ -277,6 +293,8 @@ export function FeedbackWrap({data}) {
           Click on a entity to see its type as well as the type of its children. 
           You can also drag and drop entities up and down the heirachy, thus changing their type.
         </p>
+        {show_save && <button onClick={onSaveClick}>Save result</button>}
+        <p></p>
         <Tree data={current_tree} ref={treeRef} onMove={onMove} onDelete={onDelete} onSelect={onSelect}>
           {Node}
         </Tree> 
