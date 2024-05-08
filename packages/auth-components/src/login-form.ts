@@ -2,9 +2,9 @@ import { hyperStyled } from "@macrostrat/hyper";
 import React, { useState } from "react";
 import { useAuth } from "./context";
 import { Button, Dialog, Callout, Intent, Classes } from "@blueprintjs/core";
-import { ServerStatus } from "~/components";
+//import { ServerStatus } from "~/components";
 import classNames from "classnames";
-import styles from "./module.styl";
+import styles from "./main.module.styl";
 
 const h = hyperStyled(styles);
 
@@ -75,10 +75,10 @@ function CredentialsDialog({
   );
 }
 
-function LogoutForm() {
+function LogoutForm({ serverStatusComponent = null }) {
   const { runAction, username } = useAuth();
   const actionButtons = h([
-    h(ServerStatus),
+    h(serverStatusComponent),
     h(
       Button,
       {
@@ -118,7 +118,7 @@ function _LoginForm() {
   };
 
   const actionButtons = h([
-    h(ServerStatus),
+    //h(ServerStatus),
     h(
       Button,
       {

@@ -33,6 +33,7 @@ type APIProviderProps = APIProviderCoreProps & {
 };
 
 type APIContextType = Context<APIContextValue>;
+export type APIContext = APIContextType;
 
 const apiDefaults: APIConfig = {
   fullResponse: false,
