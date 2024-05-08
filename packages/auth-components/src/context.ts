@@ -1,11 +1,16 @@
 import h from "@macrostrat/hyper";
-import { useAPIActions, APIContext } from "@macrostrat/ui-components";
+import {
+  useAPIActions,
+  APIContext,
+  APIActions,
+} from "@macrostrat/ui-components";
 import {
   createContext,
   useContext,
   useEffect,
   useReducer,
   Dispatch,
+  useCallback,
 } from "react";
 
 type AnyUser = string | object;
@@ -18,77 +23,110 @@ type LoginStatus<T = AnyUser> = {
   error: Error | null;
 };
 
-type UpdateStatus = {
+type UpdateStatus<T> = {
   type: "update-status";
-  payload: Partial<LoginStatus>;
+  payload: Partial<LoginStatus<T>>;
 };
-type AuthSuccess = {
+type AuthSuccess<T> = {
   type: "auth-form-success";
-  payload: LoginStatus;
+  payload: LoginStatus<T>;
 };
 
-type AuthFailure = { type: "auth-form-failure"; payload: LoginStatus };
+type AuthFailure<T> = { type: "auth-form-failure"; payload: LoginStatus<T> };
 
-type AuthAction = RequestForm | UpdateStatus | AuthSuccess | AuthFailure;
+export type AuthAction<T = AnyUser> =
+  | RequestForm
+  | UpdateStatus<T>
+  | AuthSuccess<T>
+  | AuthFailure<T>;
 
 type GetStatus = { type: "get-status" };
 type Login<T = AnyUser> = { type: "login"; payload: Credentials<T> };
 type Logout = { type: "logout" };
 
-type AsyncAuthAction = GetStatus | Login | Logout;
+export type AsyncAuthAction = GetStatus | Login | Logout;
 
-type AuthDispatch = Dispatch<AuthAction>;
+type AuthDispatch<T> = Dispatch<AuthAction<T>>;
+type AuthTransformer<T> = (
+  action: AuthAction<T> | AsyncAuthAction
+) => Promise<AuthAction<T> | null>;
 
-function useAuthActions(dispatch: AuthDispatch, context: APIContext) {
-  const { get, post } = useAPIActions(context);
+function useAuthActions<T>(
+  dispatch: AuthDispatch<T>,
+  transformer: AuthTransformer<T>
+) {
+  return useCallback(
+    async (action: AuthAction<T> | AsyncAuthAction) => {
+      const newAction = await transformer(action);
+      if (newAction == null) return;
+      dispatch(newAction);
+    },
+    [dispatch, transformer]
+  );
+}
+
+function useDefaultTransformer<T>(
+  dispatch: AuthDispatch<T>,
+  apiContext: APIContext
+): AuthTransformer<T> {
+  const apiActions = useAPIActions(apiContext);
   return async (action: AuthAction | AsyncAuthAction) => {
-    switch (action.type) {
-      case "get-status":
-        // Right now, we get login status from the
-        // /auth/refresh endpoint, which refreshes access
-        // tokens allowing us to extend our session.
-        // It could be desirable for security (especially
-        // when editing information becomes a factor) to
-        // only refresh tokens when access is proactively
-        // granted by the application.
-        try {
-          const { login, user } = await get("/auth/status");
-          return dispatch({
-            type: "update-status",
-            payload: { login, user, error: null },
-          });
-        } catch (error) {
-          return dispatch({ type: "update-status", payload: { error } });
-        }
-      case "login":
-        try {
-          const res = await post("/auth/login", action.payload);
-          const { login, user } = res;
-          return dispatch({
-            type: "auth-form-success",
-            payload: { user, login, error: null },
-          });
-        } catch (error) {
-          return dispatch({
-            type: "auth-form-failure",
-            payload: { login: false, user: null, error },
-          });
-        }
-      case "logout": {
-        const { login } = await post("/auth/logout", {});
-        return dispatch({
-          type: "auth-form-success",
-          payload: {
-            login,
-            user: null,
-            error: null,
-          },
-        });
-      }
-      default:
-        return dispatch(action);
-    }
+    return await defaultTransformer(action, apiActions);
   };
+}
+
+async function defaultTransformer(
+  action: AuthAction | AsyncAuthAction,
+  apiActions: APIActions
+) {
+  /** This transformer is taken directly from Sparrow */
+  const { get, post } = apiActions;
+  switch (action.type) {
+    case "get-status":
+      // Right now, we get login status from the
+      // /auth/refresh endpoint, which refreshes access
+      // tokens allowing us to extend our session.
+      // It could be desirable for security (especially
+      // when editing information becomes a factor) to
+      // only refresh tokens when access is proactively
+      // granted by the application.
+      try {
+        const { login, user } = await get("/auth/status");
+        return {
+          type: "update-status",
+          payload: { login, user, error: null },
+        };
+      } catch (error) {
+        return { type: "update-status", payload: { error } };
+      }
+    case "login":
+      try {
+        const res = await post("/auth/login", action.payload);
+        const { login, user } = res;
+        return {
+          type: "auth-form-success",
+          payload: { user, login, error: null },
+        };
+      } catch (error) {
+        return {
+          type: "auth-form-failure",
+          payload: { login: false, user: null, error },
+        };
+      }
+    case "logout": {
+      const { login } = await post("/auth/logout", {});
+      return {
+        type: "auth-form-success",
+        payload: {
+          login,
+          user: null,
+          error: null,
+        },
+      };
+    }
+    default:
+      return action;
+  }
 }
 
 interface AuthState<T extends AnyUser> {
@@ -101,9 +139,10 @@ interface AuthState<T extends AnyUser> {
 
 interface AuthCtx<T extends AnyUser> extends AuthState<T> {
   runAction(action: AuthAction | AsyncAuthAction): Promise<void>;
+  userIdentity(user: T): React.ReactNode;
 }
 
-const authDefaultState: AuthState<AnyUser> = {
+const authDefaultState: AuthState<string> = {
   login: false,
   user: null,
   isLoggingIn: false,
@@ -111,9 +150,14 @@ const authDefaultState: AuthState<AnyUser> = {
   error: null,
 };
 
-const AuthContext = createContext<AuthCtx>({
+function defaultUserIdentity(user: AnyUser) {
+  return user != null ? "Logged in" : null;
+}
+
+const AuthContext = createContext<AuthCtx<any>>({
   ...authDefaultState,
   async runAction() {},
+  userIdentity: defaultUserIdentity,
 });
 
 function authReducer(state = authDefaultState, action: AuthAction) {
@@ -158,18 +202,58 @@ interface AuthProviderProps<T = AnyUser> {
 function AuthProvider<T extends AnyUser>(props: AuthProviderProps<T>) {
   const { context, children, user } = props;
   const [state, dispatch] = useReducer(authReducer, authDefaultState);
-  const runAction = useAuthActions(dispatch, context);
+  const transformer = useDefaultTransformer(dispatch, context);
+
+  return h(
+    BaseAuthProvider,
+    {
+      user,
+      children,
+      transformer,
+      userIdentity: defaultUserIdentity,
+    },
+    children
+  );
+}
+
+interface BaseAuthProviderProps<T = AnyUser> {
+  user: T;
+  children: React.ReactNode;
+  transformer: AuthTransformer<T>;
+  userIdentity(user: T): React.ReactNode;
+}
+
+function BaseAuthProvider<T extends AnyUser>(props: BaseAuthProviderProps<T>) {
+  /** Base authentication provider for customization. Allows a custom implementation of API actions */
+  const {
+    children,
+    user,
+    transformer,
+    userIdentity = defaultUserIdentity,
+  } = props;
+  const [state, dispatch] = useReducer(authReducer, {
+    ...authDefaultState,
+    user,
+  });
+  const runAction = useAuthActions(dispatch, transformer);
   useEffect(() => {
     if (user == null) return;
     runAction({ type: "get-status" });
-  }, [user]);
+  }, [user, runAction]);
   return h(
     AuthContext.Provider,
-    { value: { ...state, user, runAction } },
+    { value: { ...state, user, runAction, userIdentity } },
     children
   );
 }
 
 const useAuth = () => useContext(AuthContext);
 
-export { AuthContext, AuthProvider, useAuth };
+export {
+  AuthContext,
+  AuthProvider,
+  useAuth,
+  BaseAuthProvider,
+  defaultUserIdentity,
+  useDefaultTransformer,
+};
