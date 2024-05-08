@@ -76,9 +76,9 @@ function CredentialsDialog({
 }
 
 function LogoutForm({ serverStatusComponent = null }) {
-  const { runAction, username } = useAuth();
+  const { runAction, user, userIdentity } = useAuth();
   const actionButtons = h([
-    h(serverStatusComponent),
+    h.if(serverStatusComponent != null)(serverStatusComponent),
     h(
       Button,
       {
@@ -93,11 +93,11 @@ function LogoutForm({ serverStatusComponent = null }) {
       Callout,
       {
         className: "login-info",
-        title: username,
+        //title: "User identity",
         intent: Intent.SUCCESS,
         icon: "person",
       },
-      h("p", ["Logged in as user ", h("em", username)])
+      userIdentity(user)
     ),
   ]);
 }

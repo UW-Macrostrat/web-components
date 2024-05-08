@@ -237,12 +237,12 @@ function BaseAuthProvider<T extends AnyUser>(props: BaseAuthProviderProps<T>) {
   });
   const runAction = useAuthActions(dispatch, transformer);
   useEffect(() => {
-    if (user == null) return;
+    if (user != null) return;
     runAction({ type: "get-status" });
   }, [user, runAction]);
   return h(
     AuthContext.Provider,
-    { value: { ...state, user, runAction, userIdentity } },
+    { value: { ...state, user, login: user != null, runAction, userIdentity } },
     children
   );
 }
