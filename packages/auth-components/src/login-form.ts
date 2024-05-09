@@ -76,6 +76,7 @@ function CredentialsDialog({
 }
 
 function LogoutForm({ serverStatusComponent = null }) {
+
   const { runAction, user, userIdentity } = useAuth();
   const actionButtons = h([
     h.if(serverStatusComponent != null)(serverStatusComponent),
@@ -164,8 +165,8 @@ function _LoginForm() {
 }
 
 function LoginForm() {
-  const { login } = useAuth();
-  return login ? h(LogoutForm) : h(_LoginForm);
+  const { user } = useAuth();
+  return user != null ? h(LogoutForm) : h(_LoginForm);
 }
 
-export { LoginForm };
+export { LogoutForm };
