@@ -19,9 +19,9 @@ type RequestForm = { type: "request-form"; enabled?: boolean };
 type Credentials<T = AnyUser> = { user: T; password: string };
 type LoginStatus<T = AnyUser> = {
   user: T;
-  login: boolean;
   error: Error | null;
 };
+type UpdateUser<T> = { type: "update-user"; user: T };
 
 type UpdateStatus<T> = {
   type: "update-status";
@@ -35,13 +35,15 @@ type AuthSuccess<T> = {
 type AuthFailure<T> = { type: "auth-form-failure"; payload: LoginStatus<T> };
 
 export type AuthAction<T = AnyUser> =
+  | Logout
   | RequestForm
   | UpdateStatus<T>
   | AuthSuccess<T>
-  | AuthFailure<T>;
+  | AuthFailure<T>
+  | UpdateUser<T>;
 
 type GetStatus = { type: "get-status" };
-type Login<T = AnyUser> = { type: "login"; payload: Credentials<T> };
+type Login = { type: "login" };
 type Logout = { type: "logout" };
 
 export type AsyncAuthAction = GetStatus | Login | Logout;
@@ -130,7 +132,6 @@ async function defaultTransformer(
 }
 
 interface AuthState<T extends AnyUser> {
-  login: boolean;
   user: T | null;
   isLoggingIn: boolean;
   invalidAttempt: boolean;
@@ -143,7 +144,6 @@ interface AuthCtx<T extends AnyUser> extends AuthState<T> {
 }
 
 const authDefaultState: AuthState<string> = {
-  login: false,
   user: null,
   isLoggingIn: false,
   invalidAttempt: false,
@@ -162,10 +162,19 @@ const AuthContext = createContext<AuthCtx<any>>({
 
 function authReducer(state = authDefaultState, action: AuthAction) {
   switch (action.type) {
+    case "update-user":
+      return { ...state, user: action.user };
+    case "logout":
+      return {
+        ...state,
+        user: null,
+        isLoggingIn: false,
+        invalidAttempt: false,
+      };
     case "update-status": {
       return {
         ...state,
-        ...action.payload,
+        ...action.payload
       };
     }
     case "auth-form-success": {
@@ -242,7 +251,7 @@ function BaseAuthProvider<T extends AnyUser>(props: BaseAuthProviderProps<T>) {
   }, [user, runAction]);
   return h(
     AuthContext.Provider,
-    { value: { ...state, user, login: user != null, runAction, userIdentity } },
+    { value: { user, runAction, userIdentity, ...state } },
     children
   );
 }
