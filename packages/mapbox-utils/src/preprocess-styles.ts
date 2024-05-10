@@ -27,14 +27,18 @@ export async function getMapboxStyle(
 }
 
 export function mergeStyles(...styles) {
-  let merged = { ...styles[0] };
-  merged.sources = {};
-  merged.layers = [];
+  let merged = {
+    version: 8,
+    sprite: "mapbox://sprites/mapbox/bright-v9",
+    glyphs: "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",
+    sources: {},
+    layers: [],
+  };
   for (let s of styles) {
-    merged.sources = { ...merged.sources, ...(s.sources ?? {}) };
-    merged.layers = merged.layers.concat(s.layers);
-    merged.sprite = s.sprite ?? merged.sprite;
-    merged.glyphs = s.glyphs ?? merged.glyphs;
+    merged.sources = { ...merged.sources, ...(s?.sources ?? {}) };
+    merged.layers = merged.layers.concat(s?.layers ?? []);
+    merged.sprite = s?.sprite ?? merged.sprite;
+    merged.glyphs = s?.glyphs ?? merged.glyphs;
   }
   return merged;
 }
