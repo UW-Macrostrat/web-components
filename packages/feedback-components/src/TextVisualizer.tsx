@@ -119,6 +119,8 @@ export function StatefulBlend(props: StatefulBlendProps) {
       return;
     }
 
+    console.log("Tagged words: ", tagged_words);
+
     let nodes_to_keep: string[] = [];
     for (var curr_word of tagged_words) {
       // Get the word level

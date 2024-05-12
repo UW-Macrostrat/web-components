@@ -197,7 +197,7 @@ export function FeedbackWrap({ data }) {
       // Create the new node
       let new_id: string =
         "0_" + start_idx.toString() + "_" + end_idx.toString();
-      let name: string = current_text.paragraph_txt.substring(
+      let name: string = current_text.paragraph_text.substring(
         start_idx,
         end_idx
       );
