@@ -11,3 +11,25 @@ export function asChromaColor(color): chroma.Color | null {
     return null;
   }
 }
+
+interface ColorPair {
+  color: string | null;
+  backgroundColor: string | null;
+}
+
+export function getColorPair(color, inDarkMode): ColorPair {
+  const chromaColor = asChromaColor(color);
+  if (!chromaColor) {
+    return { color: null, backgroundColor: null };
+  }
+  const nextChromaColor = inDarkMode
+    ? chromaColor.brighten(2)
+    : chromaColor.darken(2);
+  const backgroundColor = inDarkMode
+    ? chromaColor.darken(2)
+    : chromaColor.brighten(2);
+  return {
+    color: nextChromaColor.css(),
+    backgroundColor: backgroundColor.css(),
+  };
+}
