@@ -20,3 +20,5 @@ export function FeedbackComponent({ data }) {
 
   return h("div.feedback-component", { ref });
 }
+
+export { FeedbackWrap };

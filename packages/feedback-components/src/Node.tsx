@@ -1,17 +1,13 @@
-import { AiFillFolder, AiFillFile } from "react-icons/ai";
-import { MdArrowRight, MdArrowDropDown, MdEdit } from "react-icons/md";
-import { RxCross2 } from "react-icons/rx";
-import { NodeApi, Tree, TreeApi } from "react-arborist";
-import React from "react";
-import {Entity, Child, Result, TreeData} from './types';
+import { NodeApi, TreeApi } from "react-arborist";
+import { TreeData } from "./types";
 
-function isSelected(search_node : TreeData, tree_node: TreeData) {
-  if(search_node.id == tree_node.id) {
+function isSelected(search_node: TreeData, tree_node: TreeData) {
+  if (search_node.id == tree_node.id) {
     return true;
   }
 
-  for(var child of tree_node.children) {
-    if(isSelected(search_node, child)) {
+  for (var child of tree_node.children) {
+    if (isSelected(search_node, child)) {
       return true;
     }
   }
@@ -19,9 +15,9 @@ function isSelected(search_node : TreeData, tree_node: TreeData) {
   return false;
 }
 
-function isNodeSelected(node : NodeApi<TreeData>, tree: TreeApi<TreeData>) {
-  for(var selected_node of tree.selectedNodes) {
-    if(isSelected(node.data, selected_node.data)) {
+function isNodeSelected(node: NodeApi<TreeData>, tree: TreeApi<TreeData>) {
+  for (var selected_node of tree.selectedNodes) {
+    if (isSelected(node.data, selected_node.data)) {
       return true;
     }
   }
@@ -42,11 +38,11 @@ const COLORS: COLOR_TYPE = {
   2: "#4b46cd",
 };
 
-const Node = ({ node, style, dragHandle, tree } : any) => {
-  let selected : boolean = isNodeSelected(node, tree);
-  let node_level : string = node.data.id.split("_")[0];
+const Node = ({ node, style, dragHandle, tree }: any) => {
+  let selected: boolean = isNodeSelected(node, tree);
+  let node_level: string = node.data.id.split("_")[0];
   let nameStyle = selected ? { backgroundColor: COLORS[node_level] } : {};
-  
+
   return (
     <div style={{ ...style, ...nameStyle }} ref={dragHandle}>
       {"🍁"}
