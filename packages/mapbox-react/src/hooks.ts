@@ -9,11 +9,11 @@ export function useMapStyleOperator(
   dependencies: any[] = []
 ) {
   const mapRef = useMapRef();
-  const { isInitialized } = useMapStatus();
+  const { isStyleLoaded } = useMapStatus();
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
-    if (isInitialized) {
+    if (isStyleLoaded) {
       operator(map);
     }
     const fn = () => operator(map);
@@ -21,7 +21,7 @@ export function useMapStyleOperator(
     return () => {
       map.off("style.load", fn);
     };
-  }, [mapRef.current, isInitialized, ...dependencies]);
+  }, [mapRef.current, isStyleLoaded, ...dependencies]);
 }
 
 /**
