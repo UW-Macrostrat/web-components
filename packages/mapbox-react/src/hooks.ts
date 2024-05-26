@@ -1,7 +1,7 @@
-import { RefObject, useEffect, useRef } from "react";
+import { RefObject, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
 import { toggleMapLabelVisibility } from "@macrostrat/mapbox-utils";
-import { useMapRef } from "./context";
+import { useMapRef, useMapStatus } from "./context";
 
 /** A newer and more flexible version of useMapConditionalStyle */
 export function useMapStyleOperator(
@@ -9,15 +9,18 @@ export function useMapStyleOperator(
   dependencies: any[] = []
 ) {
   const mapRef = useMapRef();
-  const isInitialized = useStyleInitialized();
+  const { isInitialized } = useMapStatus();
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
-    if (map.isStyleLoaded()) {
+    if (isInitialized) {
       operator(map);
     }
     const fn = () => operator(map);
-    return fn();
+    map.on("style.load", fn);
+    return () => {
+      map.off("style.load", fn);
+    };
   }, [mapRef.current, isInitialized, ...dependencies]);
 }
 
@@ -59,31 +62,4 @@ export function useMapLabelVisibility(
     { mapShowLabels, omitLayers },
     _toggleMapLabels
   );
-}
-
-/**  This function tracks whether a style has been loaded.
- * This works around the fact that the isStyleLoaded method
- * sometimes returns false even when the style has been loaded,
- * resulting in the isStyleLoaded event not being fired.
- *
- * This may be related to the issue described here, which has
- * apparently been fixed in recent Mapbox GL JS versions:
- * https://github.com/mapbox/mapbox-gl-js/issues/8691
- */
-export function useStyleInitialized() {
-  const mapRef = useMapRef();
-  const isInitialized = useRef<Boolean>();
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null) return;
-    if (map.isStyleLoaded()) {
-      isInitialized.current = true;
-    }
-    const fn = () => (isInitialized.current = true);
-    map.on("style.load", fn);
-    return () => {
-      map.off("style.load", fn);
-    };
-  }, [mapRef.current]);
-  return isInitialized.current;
 }
