@@ -11,9 +11,12 @@ import { max } from "d3-array";
 import {
   kernelDensityEstimator,
   kernelGaussian,
-} from "common/dz-spectrum/kernel-density";
+} from "/Users/Daven/Projects/Macrostrat/Software/web/deps/web-components/packages/data-components/src/dz-spectrum/kernel-density";
 import { IUnit } from "@macrostrat/column-views";
-import { PlotAreaContext, usePlotArea } from "common/dz-spectrum/index";
+import {
+  PlotAreaContext,
+  usePlotArea,
+} from "/Users/Daven/Projects/Macrostrat/Software/web/deps/web-components/packages/data-components/src/dz-spectrum";
 import {
   CompositeUnitsColumn,
   CompositeUnitComponent,
