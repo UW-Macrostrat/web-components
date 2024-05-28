@@ -31,9 +31,6 @@
     "packages/**/*.ts",
     "packages/column-views/src/units",
     "packages/column-views/src/map",
-    "packages/mapbox-styles/src/styles",
-    "../../src/pages/dev/columns/carbon-isotopes",
-    "../../src/pages/dev/columns/detrital-zircon",
-    "packages/data-components/src/dz-spectrum"
+    "packages/mapbox-styles/src/styles"
   ]
 }
