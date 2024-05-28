@@ -8,8 +8,10 @@ import gradients from "./gradients";
 import {
   kernelDensityEstimator,
   kernelEpanechnikov,
-  kernelGaussian
+  kernelGaussian,
 } from "./kernel-density";
+
+export { kernelDensityEstimator, kernelEpanechnikov, kernelGaussian };
 
 interface PlotAreaCtx {
   xScale: AxisScale;
@@ -22,8 +24,8 @@ const PlotAreaContext = createContext<PlotAreaCtx>({
   height: 50,
   xScale: scaleLinear({
     range: [0, 200],
-    domain: [0, 4000]
-  })
+    domain: [0, 4000],
+  }),
 });
 
 const usePlotArea = () => useContext(PlotAreaContext);
@@ -33,7 +35,7 @@ interface DetritalSeriesProps {
   accessor: (d: any) => number;
 }
 
-const noOp = d => d;
+const noOp = (d) => d;
 
 function DetritalSeries(props: DetritalSeriesProps) {
   const { data, accessor = noOp, bandwidth = 60 } = props;
@@ -48,11 +50,11 @@ function DetritalSeries(props: DetritalSeriesProps) {
   const kdeData = kde(data.map(accessor));
 
   // All KDEs should have same height
-  const maxProbability = max(kdeData, d => d[1]);
+  const maxProbability = max(kdeData, (d) => d[1]);
 
   const yScale = scaleLinear({
     range: [height, 0],
-    domain: [0, maxProbability]
+    domain: [0, maxProbability],
   });
 
   return h(AreaClosed, {
@@ -65,7 +67,7 @@ function DetritalSeries(props: DetritalSeriesProps) {
       return yScale(d[1]);
     },
     stroke: "magenta",
-    fill: "transparent"
+    fill: "transparent",
     //fill: `url(#${id})`
   });
 }
@@ -86,14 +88,14 @@ function DetritalSpectrumPlot(props) {
 
   const xScale = scaleLinear({
     range: [0, width],
-    domain: minmax
+    domain: minmax,
   });
 
   let label = "Age (Ma)";
-  let tickFormat = d => d;
+  let tickFormat = (d) => d;
   if (delta > 1000) {
     label = "Age (Ga)";
-    tickFormat = d => d / 1000;
+    tickFormat = (d) => d / 1000;
   }
 
   const labelProps = { label };
@@ -103,7 +105,7 @@ function DetritalSpectrumPlot(props) {
   const value = {
     width: innerWidth,
     height: eachHeight,
-    xScale
+    xScale,
   };
 
   return h(
@@ -113,7 +115,7 @@ function DetritalSpectrumPlot(props) {
       h(
         "g",
         {
-          transform: `translate(${margin},${marginTop})`
+          transform: `translate(${margin},${marginTop})`,
         },
         [
           h(gradients[0], { id }),
@@ -124,11 +126,11 @@ function DetritalSpectrumPlot(props) {
             tickFormat,
             strokeWidth: 1.5,
             top: eachHeight,
-            ...labelProps
+            ...labelProps,
           }),
-          children
+          children,
         ]
-      )
+      ),
     ])
   );
 }

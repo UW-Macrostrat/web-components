@@ -3,13 +3,14 @@ import h from "@macrostrat/hyper";
 import { Globe } from "@macrostrat/map-components";
 import { Button } from "@blueprintjs/core";
 import { geoCentroid } from "d3-geo";
-import { Land, Columns, CurrentColumn } from "./layers";
+import { LandLayer } from "@macrostrat/map-components";
+import { Columns, CurrentColumn } from "@macrostrat/column-views";
 import classNames from "classnames";
 import { useSpring, animated } from "react-spring";
 
 const AnimatedGlobe = animated(Globe);
 
-const MapViewFrame = props => {
+const MapViewFrame = (props) => {
   const [expanded, setExpanded] = useState(false);
   const className = classNames({ expanded }, "context-map");
   const { children, center, margin = 10 } = props;
@@ -24,7 +25,7 @@ const MapViewFrame = props => {
   const targetProps = {
     width: sz,
     height: sz,
-    scale
+    scale,
   };
 
   const animationProps = useSpring(targetProps);
@@ -45,9 +46,9 @@ const MapViewFrame = props => {
             keepNorthUp: true,
             onClick() {
               setExpanded(true);
-            }
+            },
           },
-          [h(Land), children]
+          [h(LandLayer), children]
         ),
         h.if(expanded)(Button, {
           className: "close-button",
@@ -56,14 +57,14 @@ const MapViewFrame = props => {
           onClick() {
             setExpanded(false);
           },
-          intent: "danger"
-        })
-      ])
+          intent: "danger",
+        }),
+      ]),
     ]
   );
 };
 
-const MapView = props => {
+const MapView = (props) => {
   const { currentColumn, setCurrentColumn, children, ...rest } = props;
   const center = geoCentroid(currentColumn);
 
@@ -71,8 +72,8 @@ const MapView = props => {
     h(Columns, { onClick: setCurrentColumn, ...rest }),
     children,
     h.if(currentColumn != null)(CurrentColumn, {
-      feature: currentColumn
-    })
+      feature: currentColumn,
+    }),
   ]);
 };
 
