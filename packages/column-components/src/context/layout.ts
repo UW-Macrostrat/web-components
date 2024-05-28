@@ -44,6 +44,7 @@ function ColumnLayoutProvider<T extends ColumnDivision>({
         grainSizes,
         grainsizeScale,
         xScale,
+        widthForDivision: (d) => width,
       },
     },
     children
