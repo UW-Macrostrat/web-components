@@ -15,6 +15,7 @@ const ColumnLayoutContext = createContext({
   divisions: [],
   grainSizes: [],
   grainsizeScale: (d) => 40,
+  xScale: null,
 });
 
 interface ColumnLayoutProviderProps<T extends ColumnDivision>
@@ -22,6 +23,8 @@ interface ColumnLayoutProviderProps<T extends ColumnDivision>
   grainSizes: string[];
   grainsizeScale: any;
   width: number;
+  // @deprecated
+  xScale: any;
 }
 
 function ColumnLayoutProvider<T extends ColumnDivision>({
@@ -29,6 +32,7 @@ function ColumnLayoutProvider<T extends ColumnDivision>({
   width,
   grainSizes = [],
   grainsizeScale = (d) => 40,
+  xScale,
 }: ColumnLayoutProviderProps<T>) {
   const ctx = useContext(ColumnContext);
   return h(
@@ -39,6 +43,8 @@ function ColumnLayoutProvider<T extends ColumnDivision>({
         width,
         grainSizes,
         grainsizeScale,
+        xScale,
+        widthForDivision: (d) => width,
       },
     },
     children

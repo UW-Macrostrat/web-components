@@ -8,19 +8,19 @@ import { useMeasurementData } from "./data-provider";
 import {
   IsotopesDataArea,
   useDataLocator,
-  IsotopeDataPoint
+  IsotopeDataPoint,
 } from "./data-area";
 import { referenceMeasuresToColumn } from "@macrostrat/api-utils";
 import {
   CrossAxisLayoutProvider,
   ColumnLayoutContext,
-  useColumnDivisions
+  useColumnDivisions,
 } from "@macrostrat/column-components";
 import T from "prop-types";
 
 const fmt = format(".1f");
 
-const IsotopeText = function({ datum, text, ...rest }) {
+const IsotopeText = function ({ datum, text, ...rest }) {
   const { pointLocator } = useDataLocator();
   const [x, y] = pointLocator(datum);
   return h(
@@ -28,14 +28,14 @@ const IsotopeText = function({ datum, text, ...rest }) {
     {
       x,
       y,
-      ...rest
+      ...rest,
     },
     text
   );
 };
 
 IsotopeText.propTypes = {
-  datum: T.object.isRequired
+  datum: T.object.isRequired,
 };
 
 function ColumnScale(props) {
@@ -53,7 +53,7 @@ function ColumnScale(props) {
   return h("g.scale.isotope-scale-axis", [
     h(
       "g.scale-lines",
-      tickValues.map(value => {
+      tickValues.map((value) => {
         const strokeDasharray = value == 0 ? null : "2 6";
         return h(ScaleLine, { value, stroke: "#ddd", strokeDasharray });
       })
@@ -63,7 +63,7 @@ function ColumnScale(props) {
         x: 0,
         y: pixelHeight,
         width,
-        height: 30
+        height: 30,
       }),
       h(AxisBottom, {
         scale: xScale,
@@ -82,17 +82,17 @@ function ColumnScale(props) {
             dx,
             fontSize: 10,
             textAnchor: "middle",
-            fill: "#aaa"
+            fill: "#aaa",
           };
         },
         labelOffset: 0,
-        label
-      })
-    ])
+        label,
+      }),
+    ]),
   ]);
 }
 
-const ScaleLine = function(props) {
+const ScaleLine = function (props) {
   let { value, className, labelBottom, labelOffset, ...rest } = props;
   if (labelBottom == null) {
     labelBottom = false;
@@ -106,13 +106,13 @@ const ScaleLine = function(props) {
   className = classNames(className, { zero: value === 0 });
   return h("g.tick", { transform, className, key: value }, [
     h("line", { x0: 0, x1: 0, y0: 0, y1: pixelHeight, ...rest }),
-    h.if(labelBottom)("text", { y: pixelHeight + labelOffset }, `${value}`)
+    h.if(labelBottom)("text", { y: pixelHeight + labelOffset }, `${value}`),
   ]);
 };
 
 ScaleLine.propTypes = {
   value: T.number.isRequired,
-  labelBottom: T.bool
+  labelBottom: T.bool,
 };
 
 function unnestPoints(measures) {
@@ -125,7 +125,7 @@ function unnestPoints(measures) {
         position: meas.measure_position[i],
         unit_id: meas.unit_id,
         sample_id: meas.sample_no[i],
-        measurement: meas.measurement
+        measurement: meas.measurement,
       };
     });
     Array.prototype.push.apply(points, vals);
@@ -151,7 +151,7 @@ function IsotopesDataset(props) {
   const divisions = useColumnDivisions();
   const measures = useMeasurementData() ?? [];
   const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
-    d => d.measurement == parameter
+    (d) => d.measurement == parameter
   );
   const points = unnestPoints(refMeasures);
   console.log(refMeasures, points);
@@ -161,14 +161,14 @@ function IsotopesDataset(props) {
     {
       getHeight(d) {
         return d.age;
-      }
+      },
     },
     h(
       "g.data-points",
-      points.map(d => {
+      points.map((d) => {
         return h(IsotopeDataPoint, {
           datum: d,
-          fill: color
+          fill: color,
         });
       })
     )
@@ -200,7 +200,7 @@ function IsotopesColumn(
     { width, domain },
     h("g.isotopes-column", { className: parameter, transform }, [
       h(ColumnScale, { label: label ?? parameter, ...rest }),
-      _children
+      _children,
     ])
   );
 }

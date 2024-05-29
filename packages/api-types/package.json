@@ -2,8 +2,8 @@
   "name": "@macrostrat/api-types",
   "version": "1.0.0",
   "description": "Type definitions for Macrostrat's API",
-  "main": "./types/index.d.ts",
-  "typings": "./types/index.d.ts",
+  "main": "./src/index.d.ts",
+  "typings": "./src/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
