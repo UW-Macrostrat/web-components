@@ -25,7 +25,7 @@
     "use-resize-observer": "^9.1.0"
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^3.43.0 || ^4.3.0",
+    "@blueprintjs/core": "^3.43.0 || ^4.3.0 || ^5.0.0",
     "react": "^16.8.6||^17.0.0||^18.0.0",
     "react-dom": "^16.8.6||^17.0.0||^18.0.0"
   },
