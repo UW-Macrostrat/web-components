@@ -25,11 +25,11 @@ interface TimescaleProps {
   showAgeAxis?: boolean;
   rootInterval?: number;
   /** Configuration for the axis */
-  axisProps?: AgeAxisProps;
+  axisProps?: Partial<AgeAxisProps>;
   onClick?: ClickHandler;
   cursorPosition?: number | null;
   cursorComponent?: any;
-  intervalStyle: IntervalStyleBuilder;
+  intervalStyle?: IntervalStyleBuilder;
 }
 
 function TimescaleContainer(props: {
@@ -71,11 +71,11 @@ function Timescale(props: TimescaleProps) {
     absoluteAgeScale = false,
     showAgeAxis = true,
     levels,
-    rootInterval,
-    axisProps,
+    rootInterval = 0,
+    axisProps = {},
     cursorPosition,
-    cursorComponent,
-    onClick,
+    cursorComponent = Cursor,
+    onClick = () => {},
     intervalStyle,
     increaseDirection = IncreaseDirection.DOWN_LEFT,
   } = props;
@@ -114,15 +114,6 @@ function Timescale(props: TimescaleProps) {
     ])
   );
 }
-
-Timescale.defaultProps = {
-  intervals: defaultIntervals,
-  orientation: TimescaleOrientation.HORIZONTAL,
-  cursorComponent: Cursor,
-  rootInterval: 0,
-  axisProps: {},
-  onClick: () => {},
-};
 
 export {
   Timescale,

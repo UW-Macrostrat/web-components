@@ -156,7 +156,7 @@ export function Globe(_props: GlobeProps) {
   const { projection } = mapState;
   const initialScale = scale || projection.scale() || 500;
 
-  const ref = useRef<HTMLElement>(null);
+  const ref = useRef<SVGElement>(null);
   const mapElement = useRef<HTMLElement>(null);
 
   const width = outerWidth - 2 * margin;
@@ -182,7 +182,7 @@ export function Globe(_props: GlobeProps) {
   }, [props.projection, width, height, margin, translate, scale]);
 
   const renderPath = useMemo(() => geoPath(mapState.projection), [mapState.projection]); //, [mapState.projection]);
-  const value = { projection, renderPath, width, height, margin };
+  const value = { projection, renderPath, width, height, margin, mapRef: ref };
 
   const xmlns = "http://www.w3.org/2000/svg";
   const viewBox = `0 0 ${outerWidth} ${outerHeight}`;
