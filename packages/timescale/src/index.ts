@@ -88,10 +88,11 @@ function Timescale(props: TimescaleProps) {
   const className = classNames(orientation, "increase-" + increaseDirection);
   const length = absoluteAgeScale ? l ?? 6000 : null;
 
-  let ageRange2 = ageRange ?? [timescale.eag, timescale.lag];
+  let ageRange2 = [...ageRange] ?? [timescale.eag, timescale.lag];
   if (
     orientation == TimescaleOrientation.VERTICAL &&
-    increaseDirection == IncreaseDirection.DOWN_LEFT
+    increaseDirection == IncreaseDirection.DOWN_LEFT &&
+    ageRange2[0] < ageRange2[1]
   ) {
     ageRange2.reverse();
   }
