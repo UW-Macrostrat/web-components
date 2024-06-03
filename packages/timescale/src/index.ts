@@ -88,7 +88,13 @@ function Timescale(props: TimescaleProps) {
   const className = classNames(orientation, "increase-" + increaseDirection);
   const length = absoluteAgeScale ? l ?? 6000 : null;
 
-  let ageRange2 = [...ageRange] ?? [timescale.eag, timescale.lag];
+  let ageRange2 = null;
+  if (ageRange != null) {
+    ageRange2 = [...ageRange];
+  }
+  if (ageRange2 == null) {
+    ageRange2 = [timescale.eag, timescale.lag];
+  }
   if (
     orientation == TimescaleOrientation.VERTICAL &&
     increaseDirection == IncreaseDirection.DOWN_LEFT &&
