@@ -1,24 +1,34 @@
 import h from "@macrostrat/hyper";
 import { scaleLinear } from "@vx/scale";
 import { createContext, useContext } from "react";
-import { TimescaleCTX } from "./types";
+import { TimescaleCTX, TimescaleProviderProps } from "./types";
 
 const TimescaleContext = createContext<TimescaleCTX | null>(null);
 
 function TimescaleProvider(
-  props: React.PropsWithChildren<Omit<TimescaleCTX, "scale">>
+  props: React.PropsWithChildren<TimescaleProviderProps>
 ) {
-  const { children, timescale, ageRange, length, ...rest } = props;
+  const { children, timescale, ageRange, scale, length, ...rest } = props;
 
-  let scale = null;
-  if (length && ageRange) {
-    scale = scaleLinear({
+  let innerScale = scale;
+  let ageRange2 = ageRange;
+  if (length && ageRange && innerScale == null) {
+    innerScale = scaleLinear({
       range: [0, length],
       domain: ageRange,
     });
   }
+  if (scale != null) {
+    ageRange2 = scale.domain() as [number, number];
+  }
 
-  const value = { ...rest, scale, timescale, ageRange, length };
+  const value = {
+    ...rest,
+    scale: innerScale,
+    timescale,
+    ageRange: ageRange2,
+    length,
+  };
   return h(TimescaleContext.Provider, { value }, children);
 }
 

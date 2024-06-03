@@ -7,6 +7,7 @@ import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
 import { useMemo } from "react";
 import h from "./hyper";
+import { ScaleContinuousNumeric } from "d3-scale";
 
 type ClickHandler = (event: Event, age: number) => void;
 
@@ -30,6 +31,7 @@ interface TimescaleProps {
   cursorPosition?: number | null;
   cursorComponent?: any;
   intervalStyle?: IntervalStyleBuilder;
+  scale?: ScaleContinuousNumeric<number, number> | null;
 }
 
 function TimescaleContainer(props: {
@@ -78,6 +80,7 @@ function Timescale(props: TimescaleProps) {
     onClick = () => {},
     intervalStyle,
     increaseDirection = IncreaseDirection.DOWN_LEFT,
+    scale,
   } = props;
 
   const [parentMap, timescale] = useMemo(
@@ -88,13 +91,20 @@ function Timescale(props: TimescaleProps) {
   const className = classNames(orientation, "increase-" + increaseDirection);
   const length = absoluteAgeScale ? l ?? 6000 : null;
 
-  let ageRange2 = [...ageRange] ?? [timescale.eag, timescale.lag];
-  if (
-    orientation == TimescaleOrientation.VERTICAL &&
-    increaseDirection == IncreaseDirection.DOWN_LEFT &&
-    ageRange2[0] < ageRange2[1]
-  ) {
-    ageRange2.reverse();
+  let ageRange2 = null;
+  if (ageRange != null) {
+    let ageRange2 = [...ageRange];
+    if (
+      orientation == TimescaleOrientation.VERTICAL &&
+      increaseDirection == IncreaseDirection.DOWN_LEFT &&
+      ageRange2[0] < ageRange2[1]
+    ) {
+      ageRange2.reverse();
+    }
+  }
+
+  if (scale == null && ageRange2 == null) {
+    ageRange2 = [timescale.eag, timescale.lag];
   }
 
   return h(
@@ -107,6 +117,7 @@ function Timescale(props: TimescaleProps) {
       length,
       orientation,
       levels,
+      scale,
     },
     h(TimescaleContainer, { className, onClick }, [
       h(TimescaleBoxes, { interval: timescale, intervalStyle }),
