@@ -54,6 +54,7 @@ const ColumnNavigatorMap = (props) => {
     margin = 10,
     scale,
     className,
+    showInProcessColumns = false,
     ...rest
   } = props;
 
@@ -67,6 +68,13 @@ const ColumnNavigatorMap = (props) => {
       h(Columns, {
         onChange: setCurrentColumn,
         col_id: currentColumn?.properties.col_id,
+        ...rest,
+      }),
+      h.if(showInProcessColumns)(Columns, {
+        onChange: setCurrentColumn,
+        col_id: currentColumn?.properties.col_id,
+        status_code: "in process",
+        color: "rgba(200,150,150, 0.5)",
         ...rest,
       }),
       h.if(currentColumn != null)(CurrentColumn, { feature: currentColumn }),
