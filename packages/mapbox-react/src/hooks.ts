@@ -28,7 +28,7 @@ export function useMapStyleOperator(
  * Apply conditional style logic depending on a state value or object.
  * The operator function can operate on the Map and the state, and is applied on state changes
  * and on style load events.
- * @deprecated Use useMapStyleCallback instead
+ * @deprecated Use useMapStyleOperator instead
  */
 export function useMapConditionalStyle<T = any>(
   mapRef: RefObject<mapboxgl.Map>,

@@ -6,7 +6,11 @@ import { useState, useRef, useEffect } from "react";
 import bbox from "@turf/bbox";
 import styles from "./main.module.scss";
 import hyper from "@macrostrat/hyper";
-import mapboxgl from "mapbox-gl";
+import mapboxgl, {
+  LngLatBoundsLike,
+  LngLatLike,
+  PaddingOptions,
+} from "mapbox-gl";
 import centroid from "@turf/centroid";
 
 const h = hyper.styled(styles);
@@ -57,7 +61,7 @@ export function useMapEaseToCenter(position, padding) {
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
-    let opts = null;
+    let opts: mapboxgl.FlyToOptions = null;
     if (position != prevPosition.current) {
       opts ??= {};
       opts.center = position;
@@ -80,7 +84,38 @@ export function useMapEaseToCenter(position, padding) {
       prevPosition.current = position;
       prevPadding.current = padding;
     });
-  }, [position, padding]);
+  }, [position, padding, mapRef.current]);
+}
+
+export function useMapEaseToBounds(
+  bounds: LngLatBoundsLike,
+  padding: PaddingOptions | number = 0
+) {
+  const mapRef = useMapRef();
+
+  const prevPosition = useRef<any>(null);
+  const prevPadding = useRef<any>(null);
+  // Handle map position easing (for both map padding and markers)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+    if (bounds == prevPosition.current || padding == prevPadding.current) {
+      return;
+    }
+    let opts: mapboxgl.FlyToOptions = {
+      padding,
+      duration: prevPadding.current == null ? 0 : 800,
+    };
+
+    map.fitBounds(bounds, opts);
+    map.once("moveend", () => {
+      /* Waiting until moveend to update the refs allows us to
+      batch overlapping movements together, which increases UI
+      smoothness when, e.g., flying to new panels */
+      prevPosition.current = bounds;
+      prevPadding.current = padding;
+    });
+  }, [bounds, padding, mapRef.current]);
 }
 
 function greatCircleDistance(
