@@ -52,6 +52,10 @@ export function intentForFocusState(pos: PositionFocusState): Intent {
   }
 }
 
+/**
+ * Ease the map to a center position with optional padding.
+ * @deprecated Use useMapEaseTo instead
+ */
 export function useMapEaseToCenter(position, padding) {
   const mapRef = useMapRef();
 
@@ -87,6 +91,10 @@ export function useMapEaseToCenter(position, padding) {
   }, [position, padding, mapRef.current]);
 }
 
+/**
+ * Ease the map to a set of bounds, with optional padding.
+ * @deprecated Use useMapEaseTo instead
+ */
 export function useMapEaseToBounds(
   bounds: LngLatBoundsLike,
   padding: PaddingOptions | number = 0
@@ -116,6 +124,41 @@ export function useMapEaseToBounds(
       prevPadding.current = padding;
     });
   }, [bounds, padding, mapRef.current]);
+}
+
+type MapEaseToProps = {
+  bounds?: LngLatBoundsLike;
+  padding?: PaddingOptions | number;
+  center?: LngLatLike;
+  zoom?: number;
+  duration?: number;
+};
+
+export function useMapEaseTo(props: MapEaseToProps) {
+  const mapRef = useMapRef();
+  const { bounds, padding, center, zoom, duration = 800 } = props;
+  const initialized = useRef<boolean>(false);
+  const target = bounds ?? { center, zoom };
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+
+    let opts: mapboxgl.FlyToOptions = {
+      padding,
+      duration: initialized.current ? duration : 0,
+    };
+
+    if (target == bounds) {
+      map.fitBounds(bounds, opts);
+    } else if (center != null || zoom != null) {
+      map.flyTo({ ...target, ...opts });
+    }
+
+    map.once("moveend", () => {
+      initialized.current = true;
+    });
+  }, [bounds, padding, center, zoom, mapRef.current]);
 }
 
 function greatCircleDistance(
