@@ -2,6 +2,7 @@ import { RefObject, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
 import { toggleMapLabelVisibility } from "@macrostrat/mapbox-utils";
 import { useMapRef, useMapStatus } from "./context";
+import {useCallback} from "react";
 
 /** A newer and more flexible version of useMapConditionalStyle */
 export function useMapStyleOperator(
@@ -61,5 +62,21 @@ export function useMapLabelVisibility(
     mapRef,
     { mapShowLabels, omitLayers },
     _toggleMapLabels
+  );
+}
+
+export function useMapClickHandler(
+  fn: (e: mapboxgl.MapMouseEvent) => void,
+  deps: any[]
+) {
+  const clickFn = useCallback(fn, deps);
+  useMapStyleOperator(
+    (map) => {
+      map.on("click", clickFn);
+      return () => {
+        map.off("click", clickFn);
+      };
+    },
+    [clickFn]
   );
 }
