@@ -152,7 +152,14 @@ export function useMapEaseTo(props: MapEaseToProps) {
     if (target == bounds) {
       map.fitBounds(bounds, opts);
     } else if (center != null || zoom != null) {
-      map.flyTo({ ...target, ...opts });
+      let props = { ...opts };
+      if (center != null) {
+        props.center = center;
+      }
+      if (zoom != null) {
+        props.zoom = zoom;
+      }
+      map.flyTo(props);
     }
 
     map.once("moveend", () => {
