@@ -75,6 +75,8 @@ type ICompositeUnitProps = BaseUnitProps & {
   labelOffset?: number;
   nameForDivision?: (division: BaseUnit) => string;
   children?: React.ReactNode;
+  unitComponent?: React.FC<any>;
+  unitComponentProps?: any;
 };
 
 function TrackedLabeledUnit({
