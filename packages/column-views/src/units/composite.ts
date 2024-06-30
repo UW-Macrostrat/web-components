@@ -58,17 +58,12 @@ function LabelTrackerProvider(props) {
   );
 }
 
-type BaseUnitProps =
-  | {
-      width: number;
-      showLabels: false;
-      columnWidth?: number;
-    }
-  | {
-      width: number;
-      columnWidth: number;
-      showLabels: true;
-    };
+type BaseUnitProps = {
+  width: number;
+  showLabels: boolean;
+  columnWidth?: number;
+  clipToFrame?: boolean;
+};
 
 type ICompositeUnitProps = BaseUnitProps & {
   gutterWidth?: number;
@@ -109,6 +104,7 @@ function _BaseUnitsColumn(
     width: number;
     unitComponent?: React.FC<any>;
     unitComponentProps?: any;
+    clipToFrame?: boolean;
   }>
 ) {
   /*
@@ -120,11 +116,12 @@ function _BaseUnitsColumn(
     children,
     unitComponent = TrackedLabeledUnit,
     unitComponentProps,
+    clipToFrame,
     ...rest
   } = props;
 
   return h(LabelTrackerProvider, [
-    h(LithologyColumn, { width }, [
+    h(LithologyColumn, { width, clipToFrame }, [
       h(UnitBoxes, {
         unitComponent,
         unitComponentProps,
