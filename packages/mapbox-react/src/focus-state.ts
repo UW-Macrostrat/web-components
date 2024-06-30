@@ -1,6 +1,6 @@
 /* Reporters and buttons for evaluating a feature's focus on the map. */
 import { Intent, Button } from "@blueprintjs/core";
-import { useMapRef } from "./context";
+import { useMapRef, useMapStatus } from "./context";
 import classNames from "classnames";
 import { useState, useRef, useEffect } from "react";
 import bbox from "@turf/bbox";
@@ -132,13 +132,21 @@ type MapEaseToProps = {
   center?: LngLatLike;
   zoom?: number;
   duration?: number;
+  trackResize?: boolean;
 };
 
 export function useMapEaseTo(props: MapEaseToProps) {
   const mapRef = useMapRef();
-  const { bounds, padding, center, zoom, duration = 800 } = props;
+  const {
+    bounds,
+    padding,
+    center,
+    zoom,
+    duration = 800,
+    trackResize = false,
+  } = props;
   const initialized = useRef<boolean>(false);
-  const target = bounds ?? { center, zoom };
+  const [resizeCounter, setResizeCounter] = useState(0);
 
   useEffect(() => {
     const map = mapRef.current;
@@ -149,9 +157,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
       duration: initialized.current ? duration : 0,
     };
 
-    if (target == bounds) {
-      map.fitBounds(bounds, opts);
-    } else if (center != null || zoom != null) {
+    if (center != null || zoom != null) {
       let props = { ...opts };
       if (center != null) {
         props.center = center;
@@ -160,12 +166,28 @@ export function useMapEaseTo(props: MapEaseToProps) {
         props.zoom = zoom;
       }
       map.flyTo(props);
+    } else if (bounds != null) {
+      map.fitBounds(bounds, opts);
     }
 
     map.once("moveend", () => {
       initialized.current = true;
     });
-  }, [bounds, padding, center, zoom, mapRef.current]);
+  }, [bounds, padding, center, zoom, mapRef.current, resizeCounter]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+    if (props.trackResize) {
+      const cb = () => {
+        setResizeCounter((x) => x + 1);
+      };
+      map.on("resize", cb);
+      return () => {
+        map.off("resize", cb);
+      };
+    }
+  }, [trackResize, mapRef.current]);
 }
 
 function greatCircleDistance(
