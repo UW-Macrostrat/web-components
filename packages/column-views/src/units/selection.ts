@@ -18,8 +18,9 @@ const DispatchContext = createContext<UnitSelectDispatch | null>(null);
 
 export function useUnitSelector(u: BaseUnit | null) {
   const dispatch = useContext(DispatchContext);
-  return () => {
+  return (evt: Event) => {
     dispatch?.(u);
+    evt.stopPropagation();
   };
 }
 
