@@ -32,16 +32,44 @@ export function useSelectedUnit() {
   return useContext(UnitSelectionContext);
 }
 
-export function UnitSelectionProvider<BaseUnit>(props: {
+interface UnitSelectionProps<T extends BaseUnit> {
+  children: React.ReactNode;
+  unit: T | null;
+  setUnit: Dispatch<SetStateAction<T>>;
+}
+
+export function UnitSelectionProvider<T extends BaseUnit>(
+  props: Partial<UnitSelectionProps<T>>
+) {
+  const { unit, setUnit, children } = props;
+
+  if (unit == null && setUnit == null) {
+    return h(StatefulUnitSelectionProvider, props);
+  }
+
+  return h(BaseUnitSelectionProvider, { unit, setUnit }, children);
+}
+
+function StatefulUnitSelectionProvider<T extends BaseUnit>(props: {
   children: React.ReactNode;
 }) {
-  const [unit, setUnit] = useState<BaseUnit | null>(null);
+  const { children } = props;
+  const [unit, setUnit] = useState<T | null>(null);
+
+  return h(BaseUnitSelectionProvider, { children, unit, setUnit });
+}
+
+function BaseUnitSelectionProvider<T extends BaseUnit>({
+  children,
+  unit,
+  setUnit,
+}: UnitSelectionProps<T>) {
   const value = useMemo(() => unit, [unit?.unit_id]);
 
   return h(
     DispatchContext.Provider,
     { value: setUnit },
-    h(UnitSelectionContext.Provider, { value }, props.children)
+    h(UnitSelectionContext.Provider, { value }, children)
   );
 }
 
