@@ -157,7 +157,9 @@ export function useMapEaseTo(props: MapEaseToProps) {
       duration: initialized.current ? duration : 0,
     };
 
-    if (center != null || zoom != null) {
+    if (bounds != null) {
+      map.fitBounds(bounds, opts);
+    } else {
       let props = { ...opts };
       if (center != null) {
         props.center = center;
@@ -166,8 +168,6 @@ export function useMapEaseTo(props: MapEaseToProps) {
         props.zoom = zoom;
       }
       map.flyTo(props);
-    } else if (bounds != null) {
-      map.fitBounds(bounds, opts);
     }
 
     map.once("moveend", () => {
