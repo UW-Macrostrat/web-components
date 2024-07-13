@@ -1,12 +1,16 @@
 /* Reporters and buttons for evaluating a feature's focus on the map. */
 import { Intent, Button } from "@blueprintjs/core";
-import { useMapRef } from "./context";
+import { useMapRef, useMapStatus } from "./context";
 import classNames from "classnames";
 import { useState, useRef, useEffect } from "react";
 import bbox from "@turf/bbox";
 import styles from "./main.module.scss";
 import hyper from "@macrostrat/hyper";
-import mapboxgl from "mapbox-gl";
+import mapboxgl, {
+  LngLatBoundsLike,
+  LngLatLike,
+  PaddingOptions,
+} from "mapbox-gl";
 import centroid from "@turf/centroid";
 
 const h = hyper.styled(styles);
@@ -48,6 +52,10 @@ export function intentForFocusState(pos: PositionFocusState): Intent {
   }
 }
 
+/**
+ * Ease the map to a center position with optional padding.
+ * @deprecated Use useMapEaseTo instead
+ */
 export function useMapEaseToCenter(position, padding) {
   const mapRef = useMapRef();
 
@@ -57,7 +65,7 @@ export function useMapEaseToCenter(position, padding) {
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
-    let opts = null;
+    let opts: mapboxgl.FlyToOptions = null;
     if (position != prevPosition.current) {
       opts ??= {};
       opts.center = position;
@@ -80,7 +88,106 @@ export function useMapEaseToCenter(position, padding) {
       prevPosition.current = position;
       prevPadding.current = padding;
     });
-  }, [position, padding]);
+  }, [position, padding, mapRef.current]);
+}
+
+/**
+ * Ease the map to a set of bounds, with optional padding.
+ * @deprecated Use useMapEaseTo instead
+ */
+export function useMapEaseToBounds(
+  bounds: LngLatBoundsLike,
+  padding: PaddingOptions | number = 0
+) {
+  const mapRef = useMapRef();
+
+  const prevPosition = useRef<any>(null);
+  const prevPadding = useRef<any>(null);
+  // Handle map position easing (for both map padding and markers)
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+    if (bounds == prevPosition.current || padding == prevPadding.current) {
+      return;
+    }
+    let opts: mapboxgl.FlyToOptions = {
+      padding,
+      duration: prevPadding.current == null ? 0 : 800,
+    };
+
+    map.fitBounds(bounds, opts);
+    map.once("moveend", () => {
+      /* Waiting until moveend to update the refs allows us to
+      batch overlapping movements together, which increases UI
+      smoothness when, e.g., flying to new panels */
+      prevPosition.current = bounds;
+      prevPadding.current = padding;
+    });
+  }, [bounds, padding, mapRef.current]);
+}
+
+type MapEaseToProps = {
+  bounds?: LngLatBoundsLike;
+  padding?: PaddingOptions | number;
+  center?: LngLatLike;
+  zoom?: number;
+  duration?: number;
+  trackResize?: boolean;
+};
+
+export function useMapEaseTo(props: MapEaseToProps) {
+  const mapRef = useMapRef();
+  const {
+    bounds,
+    padding,
+    center,
+    zoom,
+    duration = 800,
+    trackResize = false,
+  } = props;
+  const initialized = useRef<boolean>(false);
+  const [resizeCounter, setResizeCounter] = useState(0);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+
+    let opts: mapboxgl.FlyToOptions = {
+      padding,
+      duration: initialized.current ? duration : 0,
+    };
+
+    if (bounds != null) {
+      map.fitBounds(bounds, opts);
+    } else if (center != null || zoom != null || padding != null) {
+      let props = { ...opts };
+      if (center != null) {
+        props.center = center;
+      }
+      if (zoom != null) {
+        props.zoom = zoom;
+      }
+      map.flyTo(props);
+    }
+
+    map.once("moveend", () => {
+      initialized.current = true;
+    });
+  }, [bounds, padding, center, zoom, mapRef.current, resizeCounter]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+    if (props.trackResize) {
+      const cb = () => {
+        setResizeCounter((x) => x + 1);
+      };
+      map.on("resize", cb);
+      return () => {
+        map.off("resize", cb);
+      };
+    }
+  }, [trackResize, mapRef.current]);
 }
 
 function greatCircleDistance(

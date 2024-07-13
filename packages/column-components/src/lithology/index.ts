@@ -1,5 +1,5 @@
 import React, { Component, useContext } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import classNames from "classnames";
 import T from "prop-types";
 import {
@@ -321,15 +321,17 @@ interface LithologyColumnProps {
   width: number;
   left?: number;
   children?: React.ReactNode;
+  clipToFrame?: boolean;
 }
 
-function LithologyColumn(props: LithologyColumnProps) {
-  const { left = 0, shiftY = 0.5, width, children } = props;
+export function LithologyColumn(props: LithologyColumnProps) {
+  const { left = 0, shiftY = 0.5, width, children, clipToFrame = true } = props;
 
   const transform = left != null ? `translate(${left} ${shiftY})` : null;
 
-  return h(ColumnLayoutProvider, { width }, [
-    h(
+  let inner: React.ReactNode;
+  if (clipToFrame) {
+    inner = h(
       ClipToFrame,
       {
         className: "lithology-column",
@@ -338,8 +340,12 @@ function LithologyColumn(props: LithologyColumnProps) {
         frame: SimpleFrame,
       },
       children
-    ),
-  ]);
+    );
+  } else {
+    inner = h("g.lithology-column", { transform }, children);
+  }
+
+  return h(ColumnLayoutProvider, { width }, inner);
 }
 
 const simplifiedResolveID = function (d) {
@@ -388,7 +394,6 @@ export * from "./patterns";
 export * from "./column-patterns";
 export {
   ParameterIntervals,
-  LithologyColumn,
   LithologyBoxes,
   GeneralizedSectionColumn,
   defaultResolveID,

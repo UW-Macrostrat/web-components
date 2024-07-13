@@ -14,6 +14,7 @@ import styles from "./column.module.scss";
 import { CompositeUnitsColumn, TrackedLabeledUnit } from "./units";
 import { IUnit } from "./units/types";
 export * from "./units";
+export * from "./age-axis";
 
 import { ColumnAxisType } from "@macrostrat/column-components";
 

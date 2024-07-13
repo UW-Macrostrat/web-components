@@ -1,6 +1,6 @@
 import {
   useMapRef,
-  useMapEaseToCenter,
+  useMapEaseTo,
   useMapDispatch,
   useMapStatus,
 } from "@macrostrat/mapbox-react";
@@ -67,7 +67,7 @@ export function MapPaddingManager({
   });
 
   // Ideally, we would not have to do this when we know the infobox is loaded
-  useMapEaseToCenter(infoMarkerPosition, padding);
+  useMapEaseTo({ center: infoMarkerPosition, padding });
 
   return null;
 }
