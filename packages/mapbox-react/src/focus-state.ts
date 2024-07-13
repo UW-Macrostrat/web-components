@@ -159,7 +159,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
 
     if (bounds != null) {
       map.fitBounds(bounds, opts);
-    } else {
+    } else if (center != null || zoom != null || padding != null) {
       let props = { ...opts };
       if (center != null) {
         props.center = center;
