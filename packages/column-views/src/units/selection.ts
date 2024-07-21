@@ -1,4 +1,4 @@
-import { BaseUnit } from "/Users/Daven/Projects/Macrostrat/Software/web/deps/web-components/packages/api-types/src";
+import { BaseUnit } from "@macrostrat/api-types";
 import h from "@macrostrat/hyper";
 import { getQueryString, setQueryString } from "@macrostrat/ui-components";
 import {

@@ -11,11 +11,7 @@ import {
   ColumnLayoutContext,
 } from "@macrostrat/column-components";
 import { useContext } from "react";
-import {
-  BaseUnit,
-  ColumnSpec,
-  UnitLong,
-} from "/Users/Daven/Projects/Macrostrat/Software/web/deps/web-components/packages/api-types/src";
+import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
 import { IUnit } from "@macrostrat/column-views";
 import {
   Timescale,

@@ -14,7 +14,7 @@ import {
   useCallback,
   memo,
 } from "react";
-import { BaseUnit } from "/Users/Daven/Projects/Macrostrat/Software/web/deps/web-components/packages/api-types/src";
+import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
 import styles from "./composite.module.scss";
 

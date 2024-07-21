@@ -3,7 +3,7 @@ import {
   MeasurementLong,
   ColumnSpec,
   StratUnit,
-} from "/Users/Daven/Projects/Macrostrat/Software/web/deps/web-components/packages/api-types/src";
+} from "@macrostrat/api-types";
 
 /* Reference measurements with relative heights to absolute age datum in column units.
 This produces data that can be plotted on column-based axes. */

@@ -1,7 +1,4 @@
-import {
-  BaseUnit,
-  UnitLong,
-} from "/Users/Daven/Projects/Macrostrat/Software/web/deps/web-components/packages/api-types/src";
+import { BaseUnit, UnitLong } from "@macrostrat/api-types";
 
 // Time resolution is 100 years
 const dt = 0.0001;
