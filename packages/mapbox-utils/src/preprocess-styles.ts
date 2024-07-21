@@ -35,10 +35,10 @@ export function mergeStyles(...styles) {
     layers: [],
   };
   for (let s of styles) {
-    merged.sources = { ...merged.sources, ...(s?.sources ?? {}) };
-    merged.layers = merged.layers.concat(s?.layers ?? []);
-    merged.sprite = s?.sprite ?? merged.sprite;
-    merged.glyphs = s?.glyphs ?? merged.glyphs;
+    const sources = { ...merged.sources, ...(s?.sources ?? {}) };
+    const layers = merged.layers.concat(s?.layers ?? []);
+
+    merged = { ...merged, ...s, sources, layers };
   }
   return merged;
 }
