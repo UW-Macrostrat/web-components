@@ -24,7 +24,7 @@ const VolumeNumber = function (props) {
   return h("span", null, _);
 };
 
-function xDDReferenceInformation(props: { [k: string]: any }) {
+export function xDDReferenceInformation(props: { [k: string]: any }) {
   let { title, author, doi, journal, identifier, volume, number, year } = props;
   try {
     ({ id: doi } = identifier.find((d) => d.type === "doi"));
