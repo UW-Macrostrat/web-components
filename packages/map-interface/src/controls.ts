@@ -10,6 +10,7 @@ import {
   useMapStatus,
 } from "@macrostrat/mapbox-react";
 import { ScaleControl as BaseScaleControl } from "mapbox-gl";
+import { DevToolsButtonSlot } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
 
@@ -55,6 +56,8 @@ export function MapBottomControls({ children }) {
     h(CompassControl, { className: "compass-control" }),
     h(GlobeControl, { className: "globe-control" }),
     h(GeolocationControl, { className: "geolocation-control" }),
+    // If we have global development tools enabled, show the button
+    h(DevToolsButtonSlot, { className: "map-control" }),
     children,
   ]);
 }

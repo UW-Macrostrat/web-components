@@ -275,33 +275,40 @@
   flex-direction: row
   justify-content: right
   margin-bottom: 0
+  gap: 0.5em
 
-  &>*
-    margin-left: 0.5em
+  :global(.map-control)
+    &>:global(.bp5-button)
+      padding: 0
+      transform: translate(-3.5px, -3.5px)
+      width: 22px !important
+
 
 .map-controls :global(.mapbox-control),
 .map-controls :global(.map-control-wrapper),
-.map-controls .map-control
-  min-width: 22px
-  min-height: 22px
+.map-controls :global(.map-control)
+  max-height: 22px
+  height: 22px
   border-radius: 4px
   background-color: var(--panel-background-color)
   box-shadow: 0 0 0 1px var(--card-shadow-color)
 
 .map-controls :global(.mapbox-control) button,
 .map-controls :global(.map-control-wrapper) button,
-.map-controls .map-control button
-  width: 22px
+.map-controls :global(.map-control) button
+  max-height: 22px
   height: 22px
+  width: 22px
+  max-width: 22px
   background-position: center center
   padding: 0
-  background-color: var(--panel-background-color)
-  color: var(--text-color)
+  //background-color: var(--panel-background-color)
+  //color: var(--text-color)
 
-.map-controls :global(.mapbox-control) button:hover,
-.map-controls :global(.map-control-wrapper) button:hover,
-.map-controls .map-control button:hover
-  background-color: var(--panel-background-color) !important
+//.map-controls :global(.mapbox-control) button:hover,
+//.map-controls :global(.map-control-wrapper) button:hover,
+//.map-controls .map-control button:hover
+//  background-color: var(--panel-background-color) !important
 
 .map-controls .map-scale-control
   background: none

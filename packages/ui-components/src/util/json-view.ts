@@ -27,17 +27,25 @@ const monokai = {
 };
 
 export function JSONView(props) {
+  const { hideRoot, showRoot, className, ...rest } = props;
+
+  let _hideRoot = hideRoot;
+  if (showRoot === false) {
+    _hideRoot = true;
+  }
+
   return h(
     "div.json-view-container",
     {
-      className: classNames(props.className, {
-        "root-hidden": props.hideRoot,
+      className: classNames(className, {
+        "root-hidden": _hideRoot,
       }),
     },
     h(JSONTree, {
       theme: monokai,
       invertTheme: false,
-      ...props,
+      hideRoot: _hideRoot,
+      ...rest,
     })
   );
 }
