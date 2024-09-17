@@ -1,10 +1,9 @@
 import { Button } from "@blueprintjs/core";
 import { useEffect } from "react";
 import hyper from "@macrostrat/hyper";
-import loadable from "@loadable/component";
 import { create } from "zustand";
 import styles from "./page-admin.module.sass";
-import classNames from "classnames";
+import { PageAdminInner } from "./_inner";
 
 const h = hyper.styled(styles);
 
@@ -34,12 +33,7 @@ const useStore: any = create((set) => {
 
 function DevToolsDialog({ isOpen, setIsOpen, children }) {
   if (!isOpen) return null;
-
-  const Window = loadable(() =>
-    import("./_inner").then((mod) => mod.PageAdminInner)
-  );
-
-  return h(Window, { isOpen, setIsOpen }, children);
+  return h(PageAdminInner, { isOpen, setIsOpen }, children);
 }
 
 export function DevToolsConsole({ className, children }) {
@@ -51,7 +45,7 @@ export function DevToolsConsole({ className, children }) {
 
   if (!isSystemEnabled) return null;
 
-  return h("div", { className }, [
+  return h("div.dev-tools-container", { className }, [
     h(DevToolsDialog, { isOpen, setIsOpen }, children),
     h.if(buttonRef == null)(DevToolsButtonSlot, { setRef: false }),
   ]);
