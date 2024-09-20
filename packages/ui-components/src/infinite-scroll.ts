@@ -80,7 +80,14 @@ function infiniteScrollReducer<T>(
 }
 
 export function InfiniteScroll(props) {
-  const { hasMore, children, className, loadMore, offset = 0 } = props;
+  const {
+    hasMore,
+    children,
+    className,
+    loadMore,
+    offset = 0,
+    isLoading,
+  } = props;
   const { ref, inView } = useInView({
     rootMargin: `0px 0px ${offset}px 0px`,
     trackVisibility: true,
@@ -90,7 +97,7 @@ export function InfiniteScroll(props) {
 
   useEffect(() => {
     if (shouldLoadMore) loadMore();
-  }, [shouldLoadMore]);
+  }, [shouldLoadMore, isLoading]);
 
   return h("div.infinite-scroll-container", { className }, [
     children,
@@ -118,7 +125,7 @@ const Placeholder = (props) => {
   ]);
 };
 
-const LoadingPlaceholder = (props: {
+export const LoadingPlaceholder = (props: {
   itemName?: string;
   scrollParams?: APIParams;
   pageIndex?: number | null;
