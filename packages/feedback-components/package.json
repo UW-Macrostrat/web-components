@@ -15,9 +15,6 @@
     "react-arborist": "^3.4.0",
     "react-text-annotate-blend": "^1.2.0"
   },
-  "devDependencies": {
-    "typescript": "^4.2.3||^5"
-  },
   "exports": {
     ".": {
       "typescript": "./src",

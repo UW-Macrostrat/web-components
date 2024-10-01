@@ -1,11 +1,11 @@
 import { Button, ButtonProps } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import React, {
-    ReactNode,
-    createContext,
-    useCallback,
-    useContext,
-    useEffect,
+  ReactNode,
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
 } from "react";
 import { useStoredState } from "./util/local-storage";
 
@@ -80,7 +80,7 @@ function applySystemDarkMode(
   }
 }
 
-const _DarkModeProvider = (props: DarkModeProps) => {
+function _DarkModeProvider(props: DarkModeProps) {
   const {
     addBodyClasses = true,
     isEnabled,
@@ -162,14 +162,14 @@ const _DarkModeProvider = (props: DarkModeProps) => {
     { value },
     h(UpdaterContext.Provider, { value: update }, children)
   );
-};
+}
 
-const DarkModeProvider = (props: DarkModeProps) => {
+function DarkModeProvider(props: DarkModeProps) {
   // Ensure that only one provider is active for an application
   const parentCtx = useContext(UpdaterContext);
   if (parentCtx != null) return props.children ?? null;
   return h(_DarkModeProvider, props);
-};
+}
 
 const useDarkMode = () => useContext(ValueContext);
 const useInDarkMode = () => useDarkMode()?.isEnabled ?? false;
@@ -206,7 +206,10 @@ const DarkModeButton = (
 };
 
 export {
-    DarkModeButton, DarkModeProvider, darkModeUpdater, inDarkMode, useDarkMode,
-    useInDarkMode
+  DarkModeButton,
+  DarkModeProvider,
+  darkModeUpdater,
+  inDarkMode,
+  useDarkMode,
+  useInDarkMode,
 };
-

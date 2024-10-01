@@ -34,15 +34,13 @@ export const parameters = {
     stylePreview: true,
   },
 };
-
+//
 // your theme provider
 
-// create a component that uses the dark mode hook
-function ThemeWrapper(props) {
-  // render your custom theme provider
-  return h(DarkModeProvider, { isEnabled: useDarkMode(), ...props });
-}
-
 export const decorators = [
-  (renderStory) => h(ThemeWrapper, null, renderStory()),
+  (renderStory) => {
+    const isEnabled = useDarkMode();
+    return h(DarkModeProvider, { isEnabled }, renderStory());
+  },
 ];
+export const tags = ["autodocs"];
