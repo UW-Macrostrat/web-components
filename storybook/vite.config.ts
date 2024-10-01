@@ -22,10 +22,12 @@ for (const [key, value] of Object.entries(pkg.alias)) {
   });
 }
 
+console.log(aliases);
+
 export default {
   resolve: {
     conditions: ["typescript"],
-    //alias: aliases,
+    alias: aliases,
   },
   root: path.resolve(__dirname, ".."),
 };
