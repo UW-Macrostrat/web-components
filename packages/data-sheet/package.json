@@ -10,7 +10,7 @@
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
-    "@macrostrat/hyper": "^1.2.12",
+    "@macrostrat/hyper": "^2.0.0",
     "chroma-js": "^2.4.2",
     "classnames": "^2.3.1",
     "d3-array": "^2.12.1",
@@ -23,7 +23,7 @@
     "react-draggable": "^4.4.3"
   },
   "devDependencies": {
-    "typescript": "^4.2.3"
+    "typescript": "^5.6.2"
   },
   "exports": {
     ".": {
