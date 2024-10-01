@@ -7,10 +7,6 @@
   "scripts": {
     "build": "vite build && mv dist/style.css dist/index.css && rm -f dist/*.js"
   },
-  "devDependencies": {
-    "sass": "^1.32.8",
-    "vite": "^4.4.9"
-  },
   "dependencies": {
     "@blueprintjs/colors": "^5.1.1",
     "@blueprintjs/core": "^5.10.2"

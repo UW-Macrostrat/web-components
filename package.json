@@ -23,6 +23,9 @@
     "@babel/core": "^7.18.10",
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-typescript": "^7.21.4",
+    "@parcel/packager-ts": "2.12.0",
+    "@parcel/transformer-sass": "2.12.0",
+    "@parcel/transformer-typescript-types": "2.12.0",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "concurrently": "^7.2.2",
@@ -31,7 +34,7 @@
     "lerna": "^4.0.0",
     "node-fetch": "^3.2.9",
     "prettier": "^2.7.1",
-    "sass": "^1.62.0",
+    "sass-embedded": "^1.79.4",
     "typescript": "^5.6.2"
   },
   "publishedPackages": [
