@@ -5,7 +5,7 @@ import {
   useContext,
   useRef,
 } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { path } from "d3-path";
 import { ColumnLayoutContext } from "./context";
 import T from "prop-types";

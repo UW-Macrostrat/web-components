@@ -15,6 +15,11 @@
   "sideEffects": [
     "**/*.css"
   ],
+  "files": [
+    "dist",
+    "src",
+    "init.js"
+  ],
   "author": "Daven Quinn",
   "contributors": [
     {

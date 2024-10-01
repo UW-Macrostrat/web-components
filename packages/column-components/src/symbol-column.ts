@@ -7,7 +7,7 @@
  */
 import { select } from "d3-selection";
 import { Component, createElement, useContext } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { join, resolve } from "path";
 import classNames from "classnames";
 import { path } from "d3-path";
@@ -21,10 +21,10 @@ const symbolIndex = {
   "Dessication cracks": "dessication-cracks.svg",
   Ooids: "ooids.svg",
   "Domal stromatolites": "domal-stromatolites.svg",
-  "Digitate stromatolites": "digitate-stromatolites.svg"
+  "Digitate stromatolites": "digitate-stromatolites.svg",
 };
 
-const Symbol = function(props) {
+const Symbol = function (props) {
   const { symbol, width, height, UUID } = props;
   const { resolveSymbol } = useContext(AssetPathContext);
   const id = `${UUID}-${symbol}`;
@@ -36,25 +36,25 @@ const Symbol = function(props) {
     {
       id,
       key: id,
-      ...symbolSize
+      ...symbolSize,
     },
     [
       h("image", {
         href,
         x: 0,
         y: 0,
-        ...symbolSize
-      })
+        ...symbolSize,
+      }),
     ]
   );
 };
 
-const SymbolDefs = function(props) {
+const SymbolDefs = function (props) {
   const { patterns, ...rest } = props;
   const ids = [];
   return h(
     "defs",
-    patterns.map(function(sym) {
+    patterns.map(function (sym) {
       const { symbol } = sym;
       if (ids.includes(symbol)) {
         return null;
@@ -75,12 +75,12 @@ class SymbolColumn extends UUIDComponent {
     this.contextType = ColumnContext;
     this.defaultProps = {
       width: 30,
-      left: 0
+      left: 0,
     };
     this.propTypes = {
       width: T.number,
       left: T.number,
-      symbols: T.arrayOf(T.object).isRequired
+      symbols: T.arrayOf(T.object).isRequired,
     };
   }
 
@@ -96,7 +96,7 @@ class SymbolColumn extends UUIDComponent {
     }
 
     symbols = symbols
-      .filter(d => d.symbol_min_zoom < zoom)
+      .filter((d) => d.symbol_min_zoom < zoom)
       .map(this.renderSymbol);
 
     const x = 0;
@@ -104,7 +104,7 @@ class SymbolColumn extends UUIDComponent {
     return h("g.symbol-column", { transform }, [
       h(SymbolDefs, { width, patterns, UUID: this.UUID }),
       h("rect.symbol-column-area", { width, height: pixelHeight }),
-      h("g.symbols", symbols)
+      h("g.symbols", symbols),
     ]);
   }
 
@@ -134,7 +134,7 @@ class SymbolLegend extends Component {
       const symbol = symbolIndex[name];
       const sym = h("div", { key: name }, [
         h("img", { src: resolveSymbol(symbol) }),
-        h("span.label", name)
+        h("span.label", name),
       ]);
       arr.push(sym);
     }

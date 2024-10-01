@@ -1,6 +1,6 @@
 import { scaleLinear, ScaleContinuousNumeric, ScaleLinear } from "d3-scale";
 import React, { createContext, useContext, useMemo } from "react";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import T from "prop-types";
 
 type HeightRange = [number, number];
