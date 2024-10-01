@@ -4,12 +4,6 @@
   "private": true,
   "repository": "https://github.com/UW-Macrostrat/web-components.git",
   "scripts": {
-    "watch:map": "npm --prefix packages/map-components run watch:main",
-    "watch:ui": "npm --prefix packages/ui-components run dev",
-    "watch:column": "npm --prefix packages/column-components run watch",
-    "watch:timescale": "npm --prefix packages/timescale run watch",
-    "deploy": "./scripts/deploy-steno",
-    "clean": "rm -rf .cache dist",
     "dev": "yarn workspace @macrostrat/storybook run dev",
     "build": "yarn workspace @macrostrat/storybook run build",
     "publish": "node ./scripts/publish.mjs"
@@ -29,7 +23,6 @@
     "@babel/core": "^7.18.10",
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-typescript": "^7.21.4",
-    "@types/pg": "^8",
     "axios": "^0.27.2",
     "chalk": "^5.0.1",
     "concurrently": "^7.2.2",
