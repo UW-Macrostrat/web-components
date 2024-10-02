@@ -31,12 +31,12 @@ function moduleString(pkg, separator = "@") {
 }
 
 async function main() {
-  let pkgsToPublish = status();
+  let pkgsToPublish = await status();
 
-  pkgsToPublish.forEach((pkg) => {
+  for (const pkg of pkgsToPublish) {
     const dir = getPackageDirectory(pkg);
     publishModule(dir, pkg);
-  });
+  }
 }
 
 main();

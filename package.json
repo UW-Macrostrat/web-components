@@ -8,7 +8,7 @@
     "build": "yarn workspace @macrostrat/storybook run build",
     "status": "tsx scripts/status.ts",
     "prepare": "tsx scripts/prepare.ts",
-    "publish": "node scripts/publish.ts"
+    "publish": "tsx scripts/publish.ts"
   },
   "author": "Daven Quinn",
   "license": "ISC",
