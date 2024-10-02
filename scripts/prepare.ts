@@ -44,9 +44,18 @@ export function logAction(pkg, action, color = chalk.blue) {
 
 /* Runs, npm build in the correct pkg directory*/
 function prepareModule(dir, pkg) {
-  pkg = getPackageData(pkg);
-  logAction(pkg, "Building");
-  execSync("yarn run build", { cwd: dir, stdio: "inherit" });
+  const pkgData = getPackageData(pkg);
+  logAction(pkgData, "Building");
+  try {
+    execSync(`yarn workspace ${pkgData.name} run build`, {
+      stdio: "inherit",
+      maxBuffer: 1024 * 1024 * 10,
+    });
+  } catch (error) {
+    console.log(chalk.red(`Failed to build ${pkgData.name}`));
+    console.log(error);
+    process.exit(1);
+  }
 }
 
 function getPackageInfo(pkg) {
@@ -193,7 +202,7 @@ export async function prepare(exitIfUncommittedChanges = true) {
 
   notifyUserOfUncommittedChanges(exitIfUncommittedChanges);
 
-  process.env.NODE_NO_WARNINGS = "1";
+  //process.env.NODE_NO_WARNINGS = "1";
   for (const pkg of pkgsToPublish) {
     console.log();
     const dir = getPackageDirectory(pkg);
