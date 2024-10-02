@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "yarn workspace @macrostrat/storybook run dev",
     "build": "yarn workspace @macrostrat/storybook run build",
-    "publish": "node ./scripts/publish.mjs"
+    "prepare": "tsx scripts/prepare.ts",
+    "publish": "node scripts/publish.ts"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -35,10 +36,12 @@
     "node-fetch": "^3.2.9",
     "prettier": "^2.7.1",
     "sass-embedded": "^1.79.4",
+    "tsx": "^4.19.1",
     "typescript": "^5.6.2"
   },
   "publishedPackages": [
     "ui-components",
+    "column-components",
     "mapbox-utils",
     "mapbox-react",
     "map-interface",

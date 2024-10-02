@@ -1,11 +1,12 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "module": "CommonJS",
+    "module": "nodenext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "types": ["node"]
   },
-  "include": ["vite.config.ts"]
+  "include": ["*.ts"],
+  "extends": "../tsconfig.json"
 }
