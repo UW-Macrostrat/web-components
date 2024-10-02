@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.0.1] - 2024-10-02
+
+Bug fix: missing package specifier
+
 ## [4.0.0] - 2024-10-02
 
 - Update BlueprintJS to version 5

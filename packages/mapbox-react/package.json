@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-react",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "Components to support using Mapbox maps in React",
   "main": "dist/main.js",
   "module": "dist/module.js",
@@ -37,6 +37,10 @@
       "typescript": "./src",
       "import": "./dist/module.js",
       "require": "./dist/main.js"
+    },
+    "./dist/": {
+      "import": "./dist/",
+      "require": "./dist/"
     }
   }
 }
