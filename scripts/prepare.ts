@@ -6,6 +6,7 @@ import chalk from "chalk";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
 import { formatDistance } from "date-fns";
+import { normalizeInterval } from "date-fns/_lib/normalizeInterval";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -138,17 +139,30 @@ function printChangeInfoForPublishedPackage(pkg, showChanges = false) {
 }
 
 /* checks for unstaged changes */
-function gitHasChanges() {
+export function gitHasChanges() {
   const gitCmd = "git diff-index HEAD";
   const res = execSync(gitCmd);
   return res.toString().length != 0;
+}
+
+export function notifyUserOfUncommittedChanges(raiseError: boolean = true) {
+  if (!gitHasChanges()) return;
+  console.log(
+    chalk.bgRed.bold("Error:"),
+    chalk.red.bold("You have uncommitted changes in your git repository.")
+  );
+  console.log(
+    chalk.red("       You must commit or stash them before publishing.")
+  );
+
+  if (raiseError) throw new Error("Uncommitted changes in git repository");
 }
 
 function moduleString(pkg, separator = "@") {
   return pkg["name"] + separator + pkg["version"];
 }
 
-export async function prepare() {
+export async function prepare(exitIfUncommittedChanges = true) {
   let pkgsToPublish = [];
 
   const { publishedPackages: packages } = readPackageJSON(projectDir);
@@ -175,18 +189,13 @@ export async function prepare() {
   if (pkgsToPublish.length === 0) {
     console.log(chalk.magentaBright("All packages published"));
     return;
-  } else if (gitHasChanges()) {
-    console.log(
-      chalk.bgRed.bold("Error:"),
-      chalk.red.bold("You have uncommitted changes in your git repository.")
-    );
-    console.log(
-      chalk.red("       Please commit or stash them before continuing.")
-    );
-    return [];
   }
 
+  notifyUserOfUncommittedChanges(exitIfUncommittedChanges);
+
+  process.env.NODE_NO_WARNINGS = "1";
   for (const pkg of pkgsToPublish) {
+    console.log();
     const dir = getPackageDirectory(pkg);
     prepareModule(dir, pkg);
   }
@@ -195,7 +204,7 @@ export async function prepare() {
 }
 
 async function main() {
-  await prepare();
+  await prepare(false);
 }
 
 main();
