@@ -5,6 +5,7 @@ import path from "path";
 import chalk from "chalk";
 import { fileURLToPath } from "url";
 import { execSync } from "child_process";
+import { formatDistance } from "date-fns";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -47,31 +48,53 @@ function prepareModule(dir, pkg) {
   execSync("yarn run build", { cwd: dir, stdio: "inherit" });
 }
 
-/* makes query to npm to see if package with version exists */
-async function packageExistsInRegistry(pkg) {
-  const name = pkg["name"];
-  const version = pkg["version"];
-  let exists = false;
+function getPackageInfo(pkg) {
+  const cmd = "npm info --json " + pkg.name;
   try {
-    const res = await axios.get(
-      `https://registry.npmjs.org/${name}/${version}`
-    );
-    exists = res.status == 200;
-  } catch {
-    exists = false;
+    return JSON.parse(execSync(cmd).toString());
+  } catch (error) {
+    return null;
   }
+}
+
+/* makes query to npm to see if package with version exists */
+async function packageVersionExistsInRegistry(pkg) {
+  const info = getPackageInfo(pkg);
+
+  if (info == null) {
+    console.log(chalk.red(`Failed to get info for ${moduleString(pkg)}`));
+    return false;
+  }
+
+  const exists = info.versions.includes(pkg.version);
 
   let msg = chalk.bold(moduleString(pkg));
-  let color = chalk.greenBright;
   if (!exists) {
     msg += " will be published";
+    console.log(chalk.greenBright(msg));
+
+    // Show last version
+    const lastVersion = info.versions[info.versions.length - 1];
+    if (lastVersion) {
+      const time = getNiceTimeSincePublished(info, lastVersion);
+      console.log(chalk.dim(`Version ${lastVersion} was published ${time}`));
+    }
   } else {
-    msg += " is already published";
-    color = chalk.blueBright;
+    // Print the publication date for the version
+    const time = getNiceTimeSincePublished(info, pkg.version);
+    msg += ` was published ${time}`;
+    console.log(chalk.blueBright(msg));
   }
-  console.log(color(msg));
 
   return exists;
+}
+
+function getNiceTimeSincePublished(info, version): string {
+  const time = info.time[version];
+
+  const now = new Date();
+  const then = new Date(time);
+  return formatDistance(then, now, { addSuffix: true });
 }
 
 function makeRelative(dir) {
@@ -102,10 +125,7 @@ function moduleHasChangesSinceTag(pkg) {
 
 function printChangeInfoForPublishedPackage(pkg, showChanges = false) {
   const cmd = buildModuleDiffCommand(pkg);
-  console.log(
-    chalk.bold(pkg.name),
-    `has uncommitted changes since v${pkg.version}.`
-  );
+  console.log(chalk.bold(pkg.name), `has changes since v${pkg.version}.`);
 
   if (showChanges) {
     const cmd = buildModuleDiffCommand(pkg, "--stat --color");
@@ -135,7 +155,9 @@ export async function prepare() {
 
   for (const pkg of packages) {
     console.log();
-    const isAvailable = await packageExistsInRegistry(getPackageData(pkg));
+    const isAvailable = await packageVersionExistsInRegistry(
+      getPackageData(pkg)
+    );
     if (!isAvailable) {
       pkgsToPublish.push(pkg);
       continue;
