@@ -49,7 +49,7 @@ function prepareModule(dir, pkg) {
   try {
     execSync(`yarn workspace ${pkgData.name} run build`, {
       stdio: "inherit",
-      maxBuffer: 1024 * 1024 * 10,
+      maxBuffer: 1024 * 1024 * 20,
     });
   } catch (error) {
     console.log(chalk.red(`Failed to build ${pkgData.name}`));
@@ -178,11 +178,14 @@ export async function prepare(exitIfUncommittedChanges = true) {
 
   for (const pkg of packages) {
     console.log();
-    const isAvailable = await packageVersionExistsInRegistry(
-      getPackageData(pkg)
-    );
+    const data = getPackageData(pkg);
+    const isAvailable = await packageVersionExistsInRegistry(data);
     if (!isAvailable) {
       pkgsToPublish.push(pkg);
+
+      // Check for changelog entry
+      checkForChangelogEntry(data);
+
       continue;
     }
 
@@ -210,6 +213,34 @@ export async function prepare(exitIfUncommittedChanges = true) {
   }
 
   return pkgsToPublish;
+}
+
+function checkForChangelogEntry(pkg: PackageData) {
+  const dir = getPackageDirectory(pkg.name);
+  const changelogPath = path.join(dir, "CHANGELOG.md");
+  if (!fs.existsSync(changelogPath)) {
+    console.log(chalk.red(`No CHANGELOG.md found for ${moduleString(pkg)}.`));
+    return false;
+  }
+
+  const changelog = fs.readFileSync(changelogPath, "utf-8");
+  const changelogHeader = `## [${pkg.version}]`;
+  const hasChangelogEntry = changelog.includes(changelogHeader);
+  if (!hasChangelogEntry) {
+    console.log(chalk.red(`No CHANGELOG.md entry for v${pkg.version}`));
+  } else {
+    // Snip the changelog entry
+    const entry = changelog.split(changelogHeader)[1];
+    // Get rid of the rest of the header line
+    const entryStart = entry.indexOf("\n") + 1;
+    const nextHeader = entry.match(/^## \[.+\]/);
+    const nextHeaderIndex = nextHeader?.index ?? entry.length;
+    const entrySnippet = entry.slice(entryStart, nextHeaderIndex).trim();
+    console.log(chalk.green(`CHANGELOG.md entry for ${pkg.version}:`));
+    console.log(entrySnippet);
+  }
+
+  return hasChangelogEntry;
 }
 
 async function main() {
