@@ -2,11 +2,11 @@
 import chalk from "chalk";
 import { execSync } from "child_process";
 import {
-  prepare,
+  status,
   getPackageDirectory,
   getPackageData,
   logAction,
-} from "./prepare";
+} from "./status";
 
 /* tries to run npm publish and if succeeds adds a tag to the repo*/
 function publishModule(dir, pkg) {
@@ -31,7 +31,7 @@ function moduleString(pkg, separator = "@") {
 }
 
 async function main() {
-  let pkgsToPublish = prepare();
+  let pkgsToPublish = status();
 
   pkgsToPublish.forEach((pkg) => {
     const dir = getPackageDirectory(pkg);
