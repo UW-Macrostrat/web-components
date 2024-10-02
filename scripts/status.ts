@@ -210,19 +210,21 @@ function checkForChangelogEntry(pkg: PackageData) {
     console.log(chalk.red(`No CHANGELOG.md entry for v${pkg.version}`));
   } else {
     // Snip the changelog entry
-    const entry = changelog.split(changelogHeader)[1];
+    let entry = changelog.split(changelogHeader)[1];
     // Get rid of the rest of the header line
     const entryStart = entry.indexOf("\n") + 1;
-    const nextHeader = entry.match(/^## \[.+\]/);
-    const nextHeaderIndex = nextHeader?.index ?? entry.length;
-    const entrySnippet = entry.slice(entryStart, nextHeaderIndex);
+    entry = entry.slice(entryStart);
+
+    const nextHeaderIndex = entry.indexOf("\n## [") ?? entry.length;
+    entry = entry.slice(0, nextHeaderIndex);
     console.log(chalk.green(`CHANGELOG.md entry for ${pkg.version}:`));
     console.log();
-    let formattedEntry = marked(entrySnippet);
+    let formattedEntry = marked(entry);
     // Reduce whitespace in front of lists
     formattedEntry = formattedEntry.replace(/^\s{4}/gm, "");
     // Replace list characters with bullets
     formattedEntry = formattedEntry.replace(/^(\s?)\* /gm, "$1• ");
+    formattedEntry = formattedEntry.trim();
 
     console.log(formattedEntry);
   }
