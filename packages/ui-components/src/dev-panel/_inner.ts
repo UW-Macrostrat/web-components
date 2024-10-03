@@ -11,7 +11,7 @@ export function PageAdminInner({ isOpen, setIsOpen, children }) {
       {
         isOpen,
         onClose: () => setIsOpen(false),
-        title: "Page info",
+        title: "Developer tools",
         className: "page-admin",
       },
       h("div.dialog-content.bp5-dialog-content", children)

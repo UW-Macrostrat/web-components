@@ -1,5 +1,3 @@
-// This component should be refactored into a shared UI component
-// @ts-nocheck
 import { Component } from "react";
 import h, { classed } from "@macrostrat/hyper";
 import { Button, Collapse } from "@blueprintjs/core";
@@ -20,6 +18,7 @@ class CollapsePanel extends Component<P, { isOpen: boolean }> {
     // localStorage or equivalent.
     storageID: null,
   };
+
   constructor(props) {
     super(props);
     this.state = { isOpen: false };
