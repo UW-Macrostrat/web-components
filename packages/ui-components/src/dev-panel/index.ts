@@ -13,7 +13,6 @@ const useStore: any = create((set) => {
     isOpen: false,
     isSystemEnabled: false,
     isInitialized: false,
-    tools: [],
     setIsOpen(isOpen) {
       set({ isOpen });
     },
@@ -34,29 +33,12 @@ const useStore: any = create((set) => {
   };
 });
 
-export const usePageDevTool = (title, component) => {
-  // This is kind of a hack. We should eventually integrate the dev tools system with Vike
-  useEffect(() => {
-    useStore.setState((state) => {
-      if (state.tools.some((t) => t.title === title)) return state;
-      return { tools: [...state.tools, { title, component }] };
-    });
-  }, []);
-};
-
 function DevToolsDialog({ isOpen, setIsOpen, children }) {
   if (!isOpen) return null;
   return h(PageAdminInner, { isOpen, setIsOpen }, children);
 }
 
-type DevTool = {
-  title: string;
-  component: React.ComponentType;
-};
-
-export function DevToolsProvider({ children }) {
-  return h("div", {}, children);
-}
+type DevTool = React.ComponentType & { title?: string };
 
 export function DevToolsConsole({
   className,
@@ -71,18 +53,11 @@ export function DevToolsConsole({
   useDevToolsKeyBinding();
 
   const isSystemEnabled = useStore((state) => state.isSystemEnabled);
-  const contextualTools = useStore((state) => state.tools);
 
   if (!isSystemEnabled) return null;
 
-  console.log(contextualTools, tools);
-
   return h("div.dev-tools-container", { className }, [
-    h(
-      DevToolsDialog,
-      { isOpen, setIsOpen },
-      h(Accordion, { tools: [...contextualTools, ...tools] })
-    ),
+    h(DevToolsDialog, { isOpen, setIsOpen }, h(Accordion, { tools })),
     h.if(buttonRef == null)(DevToolsButtonSlot, { setRef: false }),
   ]);
 }
@@ -94,7 +69,7 @@ function Accordion({ tools }: { tools: DevTool[] }) {
     {},
     tools.map((tool, i) => {
       return h(CollapseArea, {
-        title: tool.title,
+        title: tool.title ?? tool.displayName ?? "Dev Tool",
         isExpanded: i === openIndex,
         setExpanded: () => {
           if (i === openIndex) {
@@ -103,7 +78,7 @@ function Accordion({ tools }: { tools: DevTool[] }) {
             setOpenIndex(i);
           }
         },
-        component: tool.component,
+        component: tool,
       });
     })
   );
