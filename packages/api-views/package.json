@@ -8,9 +8,6 @@
   },
   "author": "Daven Quinn",
   "license": "ISC",
-  "devDependencies": {
-    "typescript": "^4.2.3"
-  },
   "dependencies": {
     "@macrostrat/hyper": "^2.2.1",
     "@macrostrat/ui-components": "workspace:*"

@@ -9,9 +9,11 @@
     "data-visualization"
   ],
   "main": "./dist/cjs",
-  "module": "./dist/esm",
+  "module": "./src/index.ts",
   "exports": {
-    "typescript": "./src/index.ts"
+    ".": {
+      "typescript": "./src/index.ts"
+    }
   },
   "style": "./dist/esm/index.css",
   "typings": "./dist/types/index.d.ts",

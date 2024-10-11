@@ -9,28 +9,11 @@
     "paths": {
       "common": ["./packages/common/src"],
       "common/*": ["./packages/common/src/*"],
-      "@macrostrat/column-components": ["./packages/column-components/src"],
-      "@macrostrat/map-components": ["./packages/map-components/src"],
-      "@macrostrat/timescale": ["./packages/timescale/src"],
       "@macrostrat/*": ["./packages/*/src"],
-      "@macrostrat/ui-components": ["./packages/ui-components/src"],
-      "@macrostrat/api-types": ["packages/api-types/src"],
-      "@macrostrat/api-views": ["./packages/api-views/src"]
     }
   },
   "include": [
-    "concept-apps/**/*",
-    "packages/common/src/**/*",
-    "packages/api-types/src/*",
-    "packages/api-views/src/**/*",
-    "packages/column-components/src/**/*",
-    "packages/map-interface/src/**/*",
-    "packages/map-components/src/**/*",
-    "packages/ui-components/src/**/*",
-    "packages/api-utils/src/**/*",
-    "packages/**/*.ts",
-    "packages/column-views/src/units",
-    "packages/column-views/src/map",
-    "packages/mapbox-styles/src/styles"
+    "./storybook/*.ts",
+    "./packages/**/src/*.ts",
   ]
 }
