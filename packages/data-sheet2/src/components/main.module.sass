@@ -8,3 +8,18 @@
   left: 0
   width: 100%
   height: 100%
+
+.editable-text-area
+  position: relative
+
+  textarea
+    min-width: var(--data-editor-width, 15em)
+    min-height: var(--data-editor-height, 10em)
+    font-family: inherit
+    font-size: inherit
+
+  .tools
+    position: absolute
+    top: 0.2em
+    right: 0.2em
+    transform: scale(0.8)

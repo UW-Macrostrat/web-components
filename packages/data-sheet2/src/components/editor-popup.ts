@@ -2,11 +2,14 @@ import hyper from "@macrostrat/hyper";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { Popover } from "@blueprintjs/core";
 import styles from "./main.module.sass";
+import { useState } from "react";
 
 const h = hyper.styled(styles);
 
 export function EditorPopup(props) {
   const { children, content, targetClassName } = props;
+
+  //const [isOpen, setIsOpen] = useState(true);
 
   return h(
     Popover,
@@ -32,7 +35,8 @@ export function EditorPopup(props) {
       interactionKind: "hover-target",
       isOpen: true,
       onClose(evt) {
-        props.onKeyDown(evt);
+        props.onKeyDown?.(evt);
+        //setIsOpen(false);
       },
       // Portal must be used to avoid issues with the editor being clipped to the bounds of the cell
       usePortal: true,

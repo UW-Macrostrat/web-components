@@ -63,9 +63,10 @@ export default function DataSheet<T>({
   const columnSpec =
     _columnSpec ??
     useMemo(() => {
-      console.log("Generating column spec", data);
       // Only build the column spec if it's not provided at the start
-      return generateColumnSpec(data, columnSpecOptions);
+      const spec = generateColumnSpec(data, columnSpecOptions);
+      console.log("Generating column spec", data, spec);
+      return spec;
     }, [data[0], columnSpecOptions]);
 
   // A sparse array to hold updates
@@ -113,7 +114,6 @@ export default function DataSheet<T>({
   const clearSelection = useCallback(() => {
     // Delete all selected cells
     let spec = {};
-    console.log(selection);
     for (const region of selection) {
       const { cols, rows } = region;
       for (const row of range(rows)) {
@@ -189,7 +189,7 @@ function _cellRenderer(
   rowIndex,
   data,
   updatedData,
-  col,
+  col: ColumnSpec,
   colIndex,
   focusedCell,
   _topLeftCell,
@@ -204,6 +204,9 @@ function _cellRenderer(
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
 
   const valueRenderer = col.valueRenderer ?? ((d) => d);
+
+  const { style } = col;
+
   const focused =
     focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
   // Top left cell of a ranged selection
@@ -228,6 +231,7 @@ function _cellRenderer(
         intent,
         loading,
         value,
+        style,
       },
       _renderedValue
     );
@@ -240,7 +244,6 @@ function _cellRenderer(
       h("input.hidden-input", {
         autoFocus: true,
         onKeyDown(e) {
-          console.log(e.key);
           if (e.key == "Backspace" || e.key == "Delete") {
             clearSelection();
           }
@@ -277,10 +280,18 @@ function _cellRenderer(
       }),
       _renderedValue,
     ]);
-  } else if (inlineEditor != false && typeof _renderedValue === "string") {
+  } else if (inlineEditor != false) {
     cellClass = "input-cell";
+    let _value = value;
+    if (
+      typeof _renderedValue === "string" ||
+      typeof _renderedValue === "number" ||
+      _renderedValue == null
+    ) {
+      _value = _renderedValue;
+    }
     cellContents = h("input", {
-      value: _renderedValue,
+      value: _value,
       autoFocus: true,
       onChange,
     });
@@ -293,6 +304,7 @@ function _cellRenderer(
       intent,
       value,
       className: cellClass,
+      style,
       //truncated: false,
     },
     [
@@ -344,7 +356,7 @@ function DataSheetEditToolbar({ hasUpdates, setUpdatedData }) {
   ]);
 }
 
-function BaseCell({ children, value, ...rest }) {
+export function BaseCell({ children, value, ...rest }) {
   return h(
     Cell,
     {
@@ -379,8 +391,9 @@ function generateDefaultColumnSpec<T>(data: Array<T>): ColumnSpec[] {
   for (const row of data) {
     if (row == null) continue;
     for (const key of Object.keys(row)) {
-      keys.add(key);
       const val = row[key];
+      keys.add(key);
+
       if (val == null) continue;
       let type: string = typeof val;
       // Special 'type' for integers
@@ -439,6 +452,7 @@ export interface ColumnSpec {
   category?: string;
   editable?: boolean;
   inlineEditor?: boolean;
+  style?: React.CSSProperties;
 }
 
 export interface ColumnSpecOptions {
@@ -454,11 +468,13 @@ function generateColumnSpec<T>(
   options: ColumnSpecOptions
 ): ColumnSpec[] {
   /** Generate a column spec from a dataset */
-  const { overrides, nRows = 10, omitColumns, includeColumns } = options;
+  const { overrides = {}, nRows = 10, omitColumns, includeColumns } = options;
 
   if (data == null) return [];
 
-  let columnSpec = generateDefaultColumnSpec(data.slice(nRows));
+  const _nRows = Math.min(nRows, data.length);
+
+  let columnSpec = generateDefaultColumnSpec(data.slice(0, _nRows));
   let filteredSpec = columnSpec.filter((col) => {
     if (omitColumns != null && omitColumns.includes(col.key)) {
       return false;
