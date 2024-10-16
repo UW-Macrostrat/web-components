@@ -67,7 +67,6 @@ export default function DataSheet<T>({
     useMemo(() => {
       // Only build the column spec if it's not provided at the start
       const spec = generateColumnSpec(data, columnSpecOptions);
-      console.log("Generating column spec", data, spec);
       return spec;
     }, [data[0], columnSpecOptions]);
 
