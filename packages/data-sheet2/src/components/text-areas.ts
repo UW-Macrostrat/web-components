@@ -8,15 +8,15 @@ const h = hyper.styled(styles);
 export function EditableTextArea({ value, onChange }) {
   const ref = useRef(null);
 
-  useEffect(() => {
-    if (ref.current == null) return;
-    ref.current.focus();
-  }, []);
+  // useEffect(() => {
+  //   if (ref.current == null) return;
+  //   ref.current.focus();
+  // }, []);
 
   return h("div.editable-text-area", [
     h("textarea.bp5-input", {
       ref,
-      value,
+      value: value ?? "",
       onChange: (evt) => onChange(evt.target.value),
       onKeyPress: (evt) => {
         console.log("key press", evt.key);

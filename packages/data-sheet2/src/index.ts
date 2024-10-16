@@ -28,6 +28,7 @@ interface DataSheetProps<T> {
   columnSpecOptions?: ColumnSpecOptions;
   editable?: boolean;
   onVisibleCellsChange?: (visibleCells: Region[]) => void;
+  onSaveData: (updatedData: any[], data: any[]) => void;
 }
 
 export default function DataSheet<T>({
@@ -36,6 +37,7 @@ export default function DataSheet<T>({
   columnSpecOptions,
   editable = true,
   onVisibleCellsChange,
+  onSaveData,
 }: DataSheetProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -129,10 +131,19 @@ export default function DataSheet<T>({
     setUpdatedData(update(updatedData, spec));
   }, [selection, updatedData, columnSpec]);
 
+  const _onSaveData = useCallback(() => {
+    onSaveData(updatedData, data);
+    setUpdatedData([]);
+  }, [updatedData, data, onSaveData]);
+
   if (data == null) return null;
 
   return h("div.data-sheet-container", [
-    h.if(editable)(DataSheetEditToolbar, { hasUpdates, setUpdatedData }),
+    h.if(editable)(DataSheetEditToolbar, {
+      hasUpdates,
+      setUpdatedData,
+      onSaveData: _onSaveData,
+    }),
     h("div.data-sheet-holder", [
       h(
         Table2,
@@ -294,6 +305,22 @@ function _cellRenderer(
       value: _value,
       autoFocus: true,
       onChange,
+      onKeyDown(e) {
+        if (e.key == "Enter") {
+          e.target.blur();
+        }
+        const isAtEnd = e.target.selectionStart === e.target.value.length;
+        const isAtStart = e.target.selectionStart === 0;
+        if ((e.key === "ArrowDown" || e.key === "ArrowRight") && isAtEnd) {
+          console.log("Jumping to next cell");
+          e.target.blur();
+        }
+        if ((e.key === "ArrowUp" || e.key === "ArrowLeft") && isAtStart) {
+          e.target.blur();
+        }
+        e.preventDefault();
+        // Pass the event to the parent
+      },
     });
   }
 
@@ -325,7 +352,7 @@ function DragHandle({ setFillValueBaseCell, focusedCell }) {
   });
 }
 
-function DataSheetEditToolbar({ hasUpdates, setUpdatedData }) {
+function DataSheetEditToolbar({ hasUpdates, setUpdatedData, onSaveData }) {
   return h("div.data-sheet-toolbar", [
     h("div.spacer"),
     h(ButtonGroup, [
@@ -346,9 +373,7 @@ function DataSheetEditToolbar({ hasUpdates, setUpdatedData }) {
           intent: Intent.SUCCESS,
           icon: "floppy-disk",
           disabled: !hasUpdates,
-          onClick() {
-            console.log("Here is where we would save data");
-          },
+          onClick: onSaveData,
         },
         "Save"
       ),
