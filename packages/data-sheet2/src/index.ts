@@ -22,12 +22,17 @@ const h = hyper.styled(styles);
 // TODO: add a "copy to selection" tool (the little square in the bottom right corner of a cell)
 // This should copy the value of a cell (or a set of cells in the same row) downwards.
 
+interface VisibleCells {
+  rowIndexStart: number;
+  rowIndexEnd: number;
+}
+
 interface DataSheetProps<T> {
   data: T[];
   columnSpec?: ColumnSpec[];
   columnSpecOptions?: ColumnSpecOptions;
   editable?: boolean;
-  onVisibleCellsChange?: (visibleCells: Region[]) => void;
+  onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onSaveData: (updatedData: any[], data: any[]) => void;
 }
 
@@ -135,6 +140,26 @@ export default function DataSheet<T>({
     setUpdatedData([]);
   }, [updatedData, data, onSaveData]);
 
+  const visibleCellsRef = useRef<VisibleCells>({
+    rowIndexStart: 0,
+    rowIndexEnd: 0,
+  });
+
+  const _onVisibleCellsChange = useCallback(
+    (visibleCells: VisibleCells) => {
+      if (
+        visibleCells.rowIndexEnd == visibleCellsRef.current.rowIndexEnd &&
+        visibleCells.rowIndexStart == visibleCellsRef.current.rowIndexStart
+      ) {
+        return;
+      }
+
+      visibleCellsRef.current = visibleCells;
+      onVisibleCellsChange?.(visibleCells);
+    },
+    [onVisibleCellsChange]
+  );
+
   if (data == null) return null;
 
   return h("div.data-sheet-container", [
@@ -168,7 +193,7 @@ export default function DataSheet<T>({
           },
           // The cell renderer is memoized internally based on these data dependencies
           cellRendererDependencies: [selection, updatedData, focusedCell, data],
-          onVisibleCellsChange,
+          onVisibleCellsChange: _onVisibleCellsChange,
         },
         columnSpec.map((col, colIndex) => {
           return h(Column, {
