@@ -4,6 +4,7 @@ import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { asChromaColor } from "@macrostrat/color-utils";
 import { HexColorPicker } from "react-colorful";
+import { useEffect, useRef } from "react";
 
 const h = hyper.styled(styles);
 
@@ -39,18 +40,34 @@ export function pleasantCombination(
 }
 
 export function ColorPicker({ value, onChange }) {
-  const darkMode = useInDarkMode();
   let color = "#aaaaaa";
+
+  const ref = useRef(null);
+  useEffect(() => {
+    if (ref.current == null) return;
+    ref.current.focus();
+  }, []);
+
   try {
     color = asChromaColor(value).hex();
   } catch {}
-  return h(HexColorPicker, {
-    color,
-    onChange(color) {
-      onChange(asChromaColor(color));
+  return h(
+    "div.color-picker-container",
+    {
+      onKeyDown(evt) {
+        console.log(evt);
+        if (evt.key === "Escape") {
+          evt.preventDefault();
+        }
+      },
+      ref,
+      tabindex: 0,
     },
-    onKeyDown(evt) {
-      console.log(evt);
-    },
-  });
+    h(HexColorPicker, {
+      color,
+      onChange(color) {
+        onChange(asChromaColor(color));
+      },
+    })
+  );
 }

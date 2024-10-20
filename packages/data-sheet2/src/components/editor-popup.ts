@@ -25,6 +25,7 @@ export function EditorPopup(props) {
           onKeyDown(evt) {
             if (evt.key === "Escape") {
               setIsOpen(false);
+              evt.preventDefault();
             }
             // if (!isOpen) {
             //   evt.preventDefault();

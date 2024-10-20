@@ -84,7 +84,8 @@ export default function DataSheet<T>({
     (row: number, key: string, value: any) => {
       if (!editable) return;
       let rowSpec = {};
-      if (value != null) {
+      // Check to see if the new value is the same as the old one
+      if (value !== data[row][key]) {
         const rowOp = updatedData[row] != null ? "$merge" : "$set";
         rowSpec = { [rowOp]: { [key]: value } };
       } else {
@@ -93,7 +94,7 @@ export default function DataSheet<T>({
       const spec = { [row]: rowSpec };
       setUpdatedData(update(updatedData, spec));
     },
-    [setUpdatedData, updatedData, editable]
+    [setUpdatedData, updatedData, data, editable]
   );
 
   const fillValues = useCallback(
@@ -296,8 +297,8 @@ function _cellRenderer(
 
   const onChange = (e) => {
     if (!editable) return;
-    const value = e.target.value;
-    onCellEdited(rowIndex, col.key, value);
+    if (value === e.target.value) return;
+    onCellEdited(rowIndex, col.key, e.target.value);
   };
 
   let cellContents = _renderedValue;
