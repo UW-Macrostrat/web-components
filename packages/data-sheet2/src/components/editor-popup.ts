@@ -2,7 +2,7 @@ import hyper from "@macrostrat/hyper";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { Popover } from "@blueprintjs/core";
 import styles from "./main.module.sass";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 const h = hyper.styled(styles);
 
@@ -10,6 +10,8 @@ export function EditorPopup(props) {
   const { children, content, targetClassName, autoFocus } = props;
 
   const [isOpen, setIsOpen] = useState(autoFocus);
+
+  const ref = useRef(null);
 
   return h(
     Popover,
@@ -21,8 +23,14 @@ export function EditorPopup(props) {
             evt.nativeEvent.stopImmediatePropagation();
           },
           onKeyDown(evt) {
-            setIsOpen(false);
-            evt.preventDefault();
+            if (evt.key === "Escape") {
+              setIsOpen(false);
+            }
+            // if (!isOpen) {
+            //   evt.preventDefault();
+            // }
+            // Climb over the interaction barrier to propagate the key event to the table
+            ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));
           },
         },
         h(ErrorBoundary, null, content)
@@ -36,7 +44,7 @@ export function EditorPopup(props) {
       interactionKind: "hover-target",
       isOpen,
       onClose(evt) {
-        props.onKeyDown?.(evt);
+        //props.onKeyDown?.(evt);
         //setIsOpen(false);
       },
       // Portal must be used to avoid issues with the editor being clipped to the bounds of the cell
@@ -48,7 +56,9 @@ export function EditorPopup(props) {
         tabIndex: 0,
         className: targetClassName,
         onClick: () => setIsOpen(!isOpen),
+        ref,
       },
+
       children
     )
   );

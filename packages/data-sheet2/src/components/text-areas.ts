@@ -8,6 +8,8 @@ const h = hyper.styled(styles);
 export function EditableTextArea({ value, onChange }) {
   const ref = useRef(null);
 
+  console.log(value);
+
   useEffect(() => {
     if (ref.current == null) return;
     ref.current.focus();
@@ -24,38 +26,20 @@ export function EditableTextArea({ value, onChange }) {
       onChange: (evt) => onChange(evt.target.value),
       onKeyDown: (evt) => {
         if (evt.key === "Enter") {
-          onChange(value + "\n");
-          evt.preventDefault();
-        }
-        // If we're at the end of the text and press the right arrow key, return focus to the data sheet
-        if (evt.key == "Escape") {
-          return;
-        }
-
-        if (
-          (evt.key === "ArrowLeft" ||
-            evt.key === "Tab" ||
-            evt.key === "Enter" ||
-            evt.key === "ArrowUp") &&
-          ref.current.selectionStart === 0
-        ) {
-          ref.current.blur();
+          console.log(value);
           evt.preventDefault();
           return;
         }
 
-        if (
-          (evt.key === "ArrowRight" ||
-            evt.key === "Tab" ||
-            evt.key === "Enter" ||
-            evt.key === "ArrowDown") &&
-          ref.current.selectionStart === evt.target.value.length
-        ) {
-          ref.current.blur();
+        if (evt.key === "Escape") {
           evt.preventDefault();
           return;
         }
-        evt.stopPropagation();
+
+        const shouldPropagate = handleSpecialKeys(evt, evt.target);
+        if (!shouldPropagate) {
+          evt.stopPropagation();
+        }
       },
     }),
     h("div.tools", [
@@ -78,4 +62,33 @@ export function EditableTextArea({ value, onChange }) {
       }),
     ]),
   ]);
+}
+
+export function handleSpecialKeys(evt, target): boolean {
+  if (
+    (evt.key === "ArrowLeft" ||
+      evt.key === "ArrowUp" ||
+      evt.key === "ArrowDown") &&
+    target.selectionStart === 0
+  ) {
+    target.blur();
+    evt.preventDefault();
+    return true;
+  }
+
+  if (
+    (evt.key === "ArrowRight" ||
+      evt.key === "ArrowUp" ||
+      evt.key === "Tab" ||
+      evt.key === "Enter" ||
+      evt.key === "ArrowDown") &&
+    target.selectionStart === evt.target.value.length
+  ) {
+    target.blur();
+    evt.preventDefault();
+    return true;
+  }
+
+  evt.stopPropagation();
+  return false;
 }

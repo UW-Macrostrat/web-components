@@ -10,7 +10,7 @@ import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { EditorPopup } from "./components";
+import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
 
 export * from "./components";
@@ -336,17 +336,17 @@ function _cellRenderer(
         if (e.key == "Enter") {
           e.target.blur();
         }
-        // const isAtEnd = e.target.selectionStart === e.target.value.length;
-        // const isAtStart = e.target.selectionStart === 0;
-        // if ((e.key === "ArrowDown" || e.key === "ArrowRight") && isAtEnd) {
-        //   console.log("Jumping to next cell");
-        //   e.target.blur();
-        // }
-        // if ((e.key === "ArrowUp" || e.key === "ArrowLeft") && isAtStart) {
-        //   e.target.blur();
-        // }
-        // e.preventDefault();
-        // Pass the event to the parent
+
+        const shouldPropagate = handleSpecialKeys(e, e.target);
+        if (!shouldPropagate) {
+          e.stopPropagation();
+        } else {
+          e.target.blur();
+          console.log(e.target);
+          if (e.key !== "Escape") {
+            e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
+          }
+        }
       },
     });
   }

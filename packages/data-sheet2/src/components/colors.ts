@@ -3,6 +3,7 @@ import { useInDarkMode } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { asChromaColor } from "@macrostrat/color-utils";
+import { HexColorPicker } from "react-colorful";
 
 const h = hyper.styled(styles);
 
@@ -35,4 +36,21 @@ export function pleasantCombination(
     color: color?.luminance?.(brighten).css(),
     backgroundColor: color?.alpha?.(backgroundAlpha).css(),
   };
+}
+
+export function ColorPicker({ value, onChange }) {
+  const darkMode = useInDarkMode();
+  let color = "#aaaaaa";
+  try {
+    color = asChromaColor(value).hex();
+  } catch {}
+  return h(HexColorPicker, {
+    color,
+    onChange(color) {
+      onChange(asChromaColor(color));
+    },
+    onKeyDown(evt) {
+      console.log(evt);
+    },
+  });
 }

@@ -66,6 +66,9 @@ export function ColorPicker({ value, onChange }) {
         evt.stopPropagation();
       }
     },
+    onKeyDown(evt) {
+      console.log(evt);
+    },
   });
 }
 
