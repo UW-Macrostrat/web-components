@@ -7,9 +7,9 @@ import { useState } from "react";
 const h = hyper.styled(styles);
 
 export function EditorPopup(props) {
-  const { children, content, targetClassName } = props;
+  const { children, content, targetClassName, autoFocus } = props;
 
-  //const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(autoFocus);
 
   return h(
     Popover,
@@ -21,7 +21,8 @@ export function EditorPopup(props) {
             evt.nativeEvent.stopImmediatePropagation();
           },
           onKeyDown(evt) {
-            console.log(evt);
+            setIsOpen(false);
+            evt.preventDefault();
           },
         },
         h(ErrorBoundary, null, content)
@@ -33,7 +34,7 @@ export function EditorPopup(props) {
         offset: { enabled: true, options: { offset: [0, 8] } },
       },
       interactionKind: "hover-target",
-      isOpen: true,
+      isOpen,
       onClose(evt) {
         props.onKeyDown?.(evt);
         //setIsOpen(false);
@@ -43,7 +44,11 @@ export function EditorPopup(props) {
     },
     h(
       "span.editor-popup-target",
-      { tabIndex: 0, className: targetClassName },
+      {
+        tabIndex: 0,
+        className: targetClassName,
+        onClick: () => setIsOpen(!isOpen),
+      },
       children
     )
   );

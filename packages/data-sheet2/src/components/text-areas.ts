@@ -8,22 +8,54 @@ const h = hyper.styled(styles);
 export function EditableTextArea({ value, onChange }) {
   const ref = useRef(null);
 
-  // useEffect(() => {
-  //   if (ref.current == null) return;
-  //   ref.current.focus();
-  // }, []);
+  useEffect(() => {
+    if (ref.current == null) return;
+    ref.current.focus();
+    // Get the current value
+    const val = ref.current.value;
+    // Move the cursor to the end of the text
+    ref.current.setSelectionRange(val.length, val.length);
+  }, []);
 
   return h("div.editable-text-area", [
     h("textarea.bp5-input", {
       ref,
       value: value ?? "",
       onChange: (evt) => onChange(evt.target.value),
-      onKeyPress: (evt) => {
-        console.log("key press", evt.key);
+      onKeyDown: (evt) => {
         if (evt.key === "Enter") {
           onChange(value + "\n");
           evt.preventDefault();
         }
+        // If we're at the end of the text and press the right arrow key, return focus to the data sheet
+        if (evt.key == "Escape") {
+          return;
+        }
+
+        if (
+          (evt.key === "ArrowLeft" ||
+            evt.key === "Tab" ||
+            evt.key === "Enter" ||
+            evt.key === "ArrowUp") &&
+          ref.current.selectionStart === 0
+        ) {
+          ref.current.blur();
+          evt.preventDefault();
+          return;
+        }
+
+        if (
+          (evt.key === "ArrowRight" ||
+            evt.key === "Tab" ||
+            evt.key === "Enter" ||
+            evt.key === "ArrowDown") &&
+          ref.current.selectionStart === evt.target.value.length
+        ) {
+          ref.current.blur();
+          evt.preventDefault();
+          return;
+        }
+        evt.stopPropagation();
       },
     }),
     h("div.tools", [

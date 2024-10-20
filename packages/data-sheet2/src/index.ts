@@ -240,6 +240,8 @@ function _cellRenderer(
 
   const valueRenderer = col.valueRenderer ?? ((d) => d);
 
+  const autoFocusEditor = true;
+
   const { style } = col;
 
   const focused =
@@ -305,6 +307,7 @@ function _cellRenderer(
     cellClass = "editor-cell";
     cellContents = h([
       h(EditorPopup, {
+        autoFocus: autoFocusEditor,
         content: h(col.dataEditor, {
           value,
           onChange(value) {
@@ -327,22 +330,22 @@ function _cellRenderer(
     }
     cellContents = h("input", {
       value: _value,
-      autoFocus: true,
+      autoFocus: autoFocusEditor,
       onChange,
       onKeyDown(e) {
         if (e.key == "Enter") {
           e.target.blur();
         }
-        const isAtEnd = e.target.selectionStart === e.target.value.length;
-        const isAtStart = e.target.selectionStart === 0;
-        if ((e.key === "ArrowDown" || e.key === "ArrowRight") && isAtEnd) {
-          console.log("Jumping to next cell");
-          e.target.blur();
-        }
-        if ((e.key === "ArrowUp" || e.key === "ArrowLeft") && isAtStart) {
-          e.target.blur();
-        }
-        e.preventDefault();
+        // const isAtEnd = e.target.selectionStart === e.target.value.length;
+        // const isAtStart = e.target.selectionStart === 0;
+        // if ((e.key === "ArrowDown" || e.key === "ArrowRight") && isAtEnd) {
+        //   console.log("Jumping to next cell");
+        //   e.target.blur();
+        // }
+        // if ((e.key === "ArrowUp" || e.key === "ArrowLeft") && isAtStart) {
+        //   e.target.blur();
+        // }
+        // e.preventDefault();
         // Pass the event to the parent
       },
     });
