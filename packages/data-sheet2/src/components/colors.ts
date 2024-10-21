@@ -39,18 +39,30 @@ export function pleasantCombination(
   };
 }
 
-export function ColorPicker({ value, onChange }) {
-  let color = "#aaaaaa";
+enum ColorConversionType {
+  HEX = "hex",
+  RGB = "rgb",
+  HSL = "hsl",
+  CSS = "css",
+}
 
+export function ColorPicker({
+  value,
+  onChange,
+  type = ColorConversionType.CSS,
+}) {
   const ref = useRef(null);
   useEffect(() => {
     if (ref.current == null) return;
     ref.current.focus();
   }, []);
 
+  let color: any;
   try {
     color = asChromaColor(value).hex();
-  } catch {}
+  } catch {
+    color = "#aaaaaa";
+  }
   return h(
     "div.color-picker-container",
     {
@@ -61,12 +73,12 @@ export function ColorPicker({ value, onChange }) {
         }
       },
       ref,
-      tabindex: 0,
+      tabIndex: 0,
     },
     h(HexColorPicker, {
       color,
       onChange(color) {
-        onChange(asChromaColor(color));
+        onChange(asChromaColor(color)[type]());
       },
     })
   );

@@ -36,6 +36,21 @@ interface DataSheetProps<T> {
   onSaveData: (updatedData: any[], data: any[]) => void;
 }
 
+export interface ColumnSpec {
+  name: string;
+  key: string;
+  required?: boolean;
+  isValid?: (d: any) => boolean;
+  transformValue?: (d: any) => any;
+  valueRenderer?: (d: any) => string | React.ReactNode;
+  dataEditor?: any;
+  cellComponent?: any;
+  category?: string;
+  editable?: boolean;
+  inlineEditor?: boolean | React.ComponentType<any> | string | null;
+  style?: React.CSSProperties;
+}
+
 export default function DataSheet<T>({
   data,
   columnSpec: _columnSpec,
@@ -85,7 +100,7 @@ export default function DataSheet<T>({
       if (!editable) return;
       let rowSpec = {};
       // Check to see if the new value is the same as the old one
-      if (value !== data[row][key]) {
+      if (value !== data[row]?.[key]) {
         const rowOp = updatedData[row] != null ? "$merge" : "$set";
         rowSpec = { [rowOp]: { [key]: value } };
       } else {
@@ -161,20 +176,38 @@ export default function DataSheet<T>({
     [onVisibleCellsChange]
   );
 
+  const onAddRow = useCallback(() => {
+    setUpdatedData((updatedData) => {
+      console.log(updatedData);
+      const ix = data.length;
+      const addRowSpec = { [ix]: { $set: {} } };
+      const newUpdatedData = update(updatedData, addRowSpec);
+      console.log(newUpdatedData);
+      return newUpdatedData;
+    });
+  }, [setUpdatedData, data]);
+
+  useEffect(() => {
+    console.log("Updated data", updatedData);
+  }, [updatedData]);
+
   if (data == null) return null;
+
+  const numRows = Math.max(updatedData.length, data.length);
 
   return h("div.data-sheet-container", [
     h.if(editable)(DataSheetEditToolbar, {
       hasUpdates,
       setUpdatedData,
       onSaveData: _onSaveData,
+      onAddRow,
     }),
     h("div.data-sheet-holder", [
       h(
         Table2,
         {
           ref,
-          numRows: data.length,
+          numRows,
           className: "data-sheet",
           enableFocusedCell: true,
           focusedCell,
@@ -234,7 +267,7 @@ function _cellRenderer(
   setFillValueBaseCell,
   _editable
 ): any {
-  const row = data[rowIndex];
+  const row = data[rowIndex] ?? updatedData[rowIndex];
   const loading = row == null;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
@@ -259,7 +292,7 @@ function _cellRenderer(
   const _Cell = col.cellComponent ?? BaseCell;
 
   const _renderedValue = valueRenderer(value);
-  const inlineEditor = col.inlineEditor ?? true;
+  let inlineEditor = editable ? col.inlineEditor ?? true : false;
 
   if (!topLeft) {
     // This should be the case for every cell except the focused one
@@ -304,6 +337,44 @@ function _cellRenderer(
   let cellContents = _renderedValue;
   let cellClass = null;
 
+  if (typeof inlineEditor == "boolean") {
+    let _value = value;
+    if (
+      typeof _renderedValue === "string" ||
+      typeof _renderedValue === "number" ||
+      _renderedValue == null
+    ) {
+      _value = _renderedValue;
+    }
+    inlineEditor = h("input", {
+      value: _value,
+      autoFocus: autoFocusEditor,
+      onChange,
+      onKeyDown(e) {
+        if (e.key == "Enter") {
+          e.target.blur();
+        }
+
+        if (e.key == "Escape") {
+          e.target.blur();
+          e.preventDefault();
+          return;
+        }
+
+        const shouldPropagate = handleSpecialKeys(e, e.target);
+        if (!shouldPropagate) {
+          e.stopPropagation();
+        } else {
+          e.target.blur();
+          console.log(e.target, e.key);
+          if (e.key !== "Escape") {
+            e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
+          }
+        }
+      },
+    });
+  }
+
   if (col.dataEditor != null) {
     cellClass = "editor-cell";
     cellContents = h([
@@ -316,40 +387,13 @@ function _cellRenderer(
             onCellEdited(rowIndex, col.key, value);
           },
         }),
+        inlineEditor,
+        valueViewer: _renderedValue,
       }),
-      _renderedValue,
     ]);
-  } else if (inlineEditor != false) {
+  } else if (inlineEditor != null) {
+    cellContents = inlineEditor;
     cellClass = "input-cell";
-    let _value = value;
-    if (
-      typeof _renderedValue === "string" ||
-      typeof _renderedValue === "number" ||
-      _renderedValue == null
-    ) {
-      _value = _renderedValue;
-    }
-    cellContents = h("input", {
-      value: _value,
-      autoFocus: autoFocusEditor,
-      onChange,
-      onKeyDown(e) {
-        if (e.key == "Enter") {
-          e.target.blur();
-        }
-
-        const shouldPropagate = handleSpecialKeys(e, e.target);
-        if (!shouldPropagate) {
-          e.stopPropagation();
-        } else {
-          e.target.blur();
-          console.log(e.target);
-          if (e.key !== "Escape") {
-            e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
-          }
-        }
-      },
-    });
   }
 
   // Hidden html input
@@ -380,8 +424,16 @@ function DragHandle({ setFillValueBaseCell, focusedCell }) {
   });
 }
 
-function DataSheetEditToolbar({ hasUpdates, setUpdatedData, onSaveData }) {
+function DataSheetEditToolbar({
+  hasUpdates,
+  setUpdatedData,
+  onSaveData,
+  onAddRow,
+}) {
   return h("div.data-sheet-toolbar", [
+    h(ButtonGroup, { minimal: true }, [
+      h.if(onAddRow != null)(AddRowButton, { onAddRow }),
+    ]),
     h("div.spacer"),
     h(ButtonGroup, [
       h(
@@ -407,6 +459,17 @@ function DataSheetEditToolbar({ hasUpdates, setUpdatedData, onSaveData }) {
       ),
     ]),
   ]);
+}
+
+function AddRowButton({ onAddRow }) {
+  return h(
+    Button,
+    {
+      icon: "plus",
+      onClick: onAddRow,
+    },
+    "Add row"
+  );
 }
 
 export function BaseCell({ children, value, ...rest }) {
@@ -492,21 +555,6 @@ function generateDefaultColumnSpec<T>(data: Array<T>): ColumnSpec[] {
 }
 
 export { Cell };
-
-export interface ColumnSpec {
-  name: string;
-  key: string;
-  required?: boolean;
-  isValid?: (d: any) => boolean;
-  transformValue?: (d: any) => any;
-  valueRenderer?: (d: any) => string | React.ReactNode;
-  dataEditor?: any;
-  cellComponent?: any;
-  category?: string;
-  editable?: boolean;
-  inlineEditor?: boolean;
-  style?: React.CSSProperties;
-}
 
 export interface ColumnSpecOptions {
   overrides: Record<string, Partial<ColumnSpec> | string>;

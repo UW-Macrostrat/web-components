@@ -8,8 +8,6 @@ const h = hyper.styled(styles);
 export function EditableTextArea({ value, onChange }) {
   const ref = useRef(null);
 
-  console.log(value);
-
   useEffect(() => {
     if (ref.current == null) return;
     ref.current.focus();
@@ -26,7 +24,6 @@ export function EditableTextArea({ value, onChange }) {
       onChange: (evt) => onChange(evt.target.value),
       onKeyDown: (evt) => {
         if (evt.key === "Enter") {
-          console.log(value);
           evt.preventDefault();
           return;
         }
@@ -72,7 +69,6 @@ export function handleSpecialKeys(evt, target): boolean {
     target.selectionStart === 0
   ) {
     target.blur();
-    evt.preventDefault();
     return true;
   }
 
@@ -85,10 +81,8 @@ export function handleSpecialKeys(evt, target): boolean {
     target.selectionStart === evt.target.value.length
   ) {
     target.blur();
-    evt.preventDefault();
     return true;
   }
 
-  evt.stopPropagation();
   return false;
 }

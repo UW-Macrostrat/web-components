@@ -7,7 +7,14 @@ import { useRef, useState } from "react";
 const h = hyper.styled(styles);
 
 export function EditorPopup(props) {
-  const { children, content, targetClassName, autoFocus } = props;
+  const {
+    children,
+    content,
+    targetClassName,
+    autoFocus,
+    valueViewer,
+    inlineEditor,
+  } = props;
 
   const [isOpen, setIsOpen] = useState(autoFocus);
 
@@ -27,9 +34,6 @@ export function EditorPopup(props) {
               setIsOpen(false);
               evt.preventDefault();
             }
-            // if (!isOpen) {
-            //   evt.preventDefault();
-            // }
             // Climb over the interaction barrier to propagate the key event to the table
             ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));
           },
@@ -54,13 +58,12 @@ export function EditorPopup(props) {
     h(
       "span.editor-popup-target",
       {
-        tabIndex: 0,
         className: targetClassName,
         onClick: () => setIsOpen(!isOpen),
         ref,
       },
-
-      children
+      // If the editor is open, show the inline editor, otherwise show the value viewer
+      isOpen ? valueViewer : inlineEditor ?? valueViewer
     )
   );
 }
