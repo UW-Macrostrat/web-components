@@ -34,6 +34,8 @@ interface DataSheetProps<T> {
   editable?: boolean;
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onSaveData: (updatedData: any[], data: any[]) => void;
+  onDeleteRows?: (selection: Region[]) => void;
+  verbose?: boolean;
 }
 
 export interface ColumnSpec {
@@ -58,6 +60,8 @@ export default function DataSheet<T>({
   editable = true,
   onVisibleCellsChange,
   onSaveData,
+  onDeleteRows,
+  verbose = true,
 }: DataSheetProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -182,16 +186,27 @@ export default function DataSheet<T>({
       const ix = data.length;
       const addRowSpec = { [ix]: { $set: {} } };
       const newUpdatedData = update(updatedData, addRowSpec);
-      console.log(newUpdatedData);
       return newUpdatedData;
     });
   }, [setUpdatedData, data]);
 
+  const _onDeleteRows = useCallback(() => {
+    onDeleteRows(selection);
+  }, [onDeleteRows, selection]);
+
   useEffect(() => {
+    if (!verbose) return;
     console.log("Updated data", updatedData);
   }, [updatedData]);
 
+  useEffect(() => {
+    if (!verbose) return;
+    console.log("Selection", selection);
+  }, [selection]);
+
   if (data == null) return null;
+
+  const nDeletionCandidates = getRowsToDelete(selection).length;
 
   const numRows = Math.max(updatedData.length, data.length);
 
@@ -201,6 +216,7 @@ export default function DataSheet<T>({
       setUpdatedData,
       onSaveData: _onSaveData,
       onAddRow,
+      onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
     }),
     h("div.data-sheet-holder", [
       h(
@@ -308,11 +324,11 @@ function _cellRenderer(
     );
   }
 
-  if (!focused) {
+  if (!editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
     return h(_Cell, { intent, value }, [
-      h("input.hidden-input", {
+      h.if(!focused)("input.hidden-input", {
         autoFocus: true,
         onKeyDown(e) {
           if (e.key == "Backspace" || e.key == "Delete") {
@@ -347,7 +363,7 @@ function _cellRenderer(
       _value = _renderedValue;
     }
     inlineEditor = h("input", {
-      value: _value,
+      value: _value ?? "",
       autoFocus: autoFocusEditor,
       onChange,
       onKeyDown(e) {
@@ -429,10 +445,22 @@ function DataSheetEditToolbar({
   setUpdatedData,
   onSaveData,
   onAddRow,
+  onDeleteRows,
 }) {
   return h("div.data-sheet-toolbar", [
     h(ButtonGroup, { minimal: true }, [
       h.if(onAddRow != null)(AddRowButton, { onAddRow }),
+      h(
+        Button,
+        {
+          intent: Intent.DANGER,
+          disabled: onDeleteRows == null,
+          onClick() {
+            onDeleteRows?.();
+          },
+        },
+        "Delete"
+      ),
     ]),
     h("div.spacer"),
     h(ButtonGroup, [
@@ -616,4 +644,18 @@ function singleFocusedCell(sel: Region[]): FocusedCellCoordinates | null {
   /** Derive a single focused cell from a selected region, if possible */
   if (sel?.length !== 1) return null;
   return topLeftCell(sel, true);
+}
+
+export function getRowsToDelete(selection) {
+  let rowIndices: number[] = [];
+  for (const sel of selection) {
+    // This isn't a full-row selection
+    if (sel.cols != null) continue;
+    if (sel.rows == null) continue;
+    const [startIndex, endIndex] = sel.rows;
+    for (let i = startIndex; i <= endIndex; i++) {
+      rowIndices.push(i);
+    }
+  }
+  return rowIndices;
 }
