@@ -1,23 +1,13 @@
-import {hyperStyled} from "@macrostrat/hyper";
+import { hyperStyled } from "@macrostrat/hyper";
 import { useState, useEffect } from "react";
-import {
-  InputGroup,
-  Button,
-  ButtonGroup,
-  Collapse,
-  Slider,
-  Card,
-  Intent,
-  FormGroup,
-  ISliderProps,
-} from "@blueprintjs/core";
-import { Spec } from "immutability-helper";
+import { Button, Slider, Intent, SliderProps } from "@blueprintjs/core";
+
 import classNames from "classnames";
 import styles from "./main.module.sass";
 
 const h = hyperStyled(styles);
 
-const ControlledSlider = (props: ISliderProps) => {
+const ControlledSlider = (props: SliderProps) => {
   const [value, setValue] = useState<number>(props.value);
   const onChange = (v) => {
     setValue(v), props.onChange?.(v);
@@ -27,7 +17,7 @@ const ControlledSlider = (props: ISliderProps) => {
   return h(Slider, { ...props, onChange, value });
 };
 
-const NullableSlider = (props: ISliderProps) => {
+const NullableSlider = (props: SliderProps) => {
   let { value, showTrackFill, className, ...rest } = props;
   if (value == null) {
     value = rest.min ?? 0;

@@ -5,11 +5,11 @@
  */
 import { Component, createContext } from "react";
 import { StatefulComponent } from "@macrostrat/ui-components";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 
 const FaciesContext = createContext({
   facies: [],
-  onColorChanged() {}
+  onColorChanged() {},
 });
 
 class FaciesProvider extends StatefulComponent {
@@ -17,7 +17,7 @@ class FaciesProvider extends StatefulComponent {
     super(props);
     this.state = {
       facies: props.initialFacies || [],
-      __colorMap: {}
+      __colorMap: {},
     };
     this.getFaciesColor = this.getFaciesColor.bind(this);
     this.setFaciesColor = this.setFaciesColor.bind(this);
@@ -29,7 +29,7 @@ class FaciesProvider extends StatefulComponent {
   }
 
   setFaciesColor(id, color) {
-    const ix = this.state.facies.findIndex(d => d.id === id);
+    const ix = this.state.facies.findIndex((d) => d.id === id);
     return this.updateState({ facies: { [ix]: { color: { $set: color } } } });
   }
 
@@ -43,7 +43,7 @@ class FaciesProvider extends StatefulComponent {
     const value = {
       facies,
       ...procedures,
-      ...rest
+      ...rest,
     };
     return h(FaciesContext.Provider, { value }, children);
   }

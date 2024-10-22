@@ -1,5 +1,4 @@
 import h from "@macrostrat/hyper";
-import { last } from "fp-ts/lib/ReadonlyNonEmptyArray";
 
 const Author = function (props) {
   const { name, highlight } = props;

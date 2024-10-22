@@ -3,14 +3,14 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import { useContext } from "react";
 import { ColumnContext } from "../context";
 import classNames from "classnames";
 import Box from "ui-box";
 
 // This could be merged with ColumnSVG
-const ColumnBox = function(props) {
+const ColumnBox = function (props) {
   const { offsetTop, absolutePosition, className, ...rest } = props;
   const { pixelsPerMeter, zoom } = useContext(ColumnContext);
 
@@ -19,14 +19,14 @@ const ColumnBox = function(props) {
   if (absolutePosition) {
     pos = {
       position: "absolute",
-      top: marginTop
+      top: marginTop,
     };
   }
 
   return h(Box, {
     className: classNames("column-box", className),
     ...pos,
-    ...rest
+    ...rest,
   });
 };
 

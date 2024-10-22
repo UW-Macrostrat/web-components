@@ -1,15 +1,11 @@
 {
   "name": "@macrostrat/style-system",
-  "version": "0.0.5",
+  "version": "0.1.0",
   "description": "Style system for Macrostrat",
   "main": "dist/index.css",
   "source": "src/index.ts",
   "scripts": {
     "build": "vite build && mv dist/style.css dist/index.css && rm -f dist/*.js"
-  },
-  "devDependencies": {
-    "sass": "^1.32.8",
-    "vite": "^4.4.9"
   },
   "dependencies": {
     "@blueprintjs/colors": "^5.1.1",
@@ -31,9 +27,17 @@
       "require": "./src/index.ts"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/style-system"
+  },
   "keywords": [
     "macrostrat",
     "style",
     "geology"
-  ]
+  ],
+  "devDependencies": {
+    "vite": "^5.4.8"
+  }
 }

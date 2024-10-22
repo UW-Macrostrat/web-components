@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "1.0.0-dev",
+  "version": "1.0.0-dev2",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -8,42 +8,37 @@
     "vector-graphics",
     "data-visualization"
   ],
-  "main": "./dist/cjs",
-  "module": "./src/index.ts",
+  "main": "./dist/main.js",
+  "module": "./dist/module.js",
+  "style": "./dist/main.css",
+  "source": "./src/index.ts",
   "exports": {
     ".": {
+      "import": "./dist/module.js",
+      "require": "./dist/main.js",
       "typescript": "./src/index.ts"
+    },
+    "./dist/main.css": {
+      "import": "./dist/main.css",
+      "require": "./dist/main.css"
     }
   },
-  "style": "./dist/esm/index.css",
-  "typings": "./dist/types/index.d.ts",
-  "type": "module",
   "files": [
     "dist"
   ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "scripts": {
-    "watch:main": "rollup -c rollup.config.ts -w",
-    "watch:types": "tsc --emitDeclarationOnly -w",
-    "watch": "npm-run-all --aggregate-output --parallel watch:**",
-    "dev": "npm run prebuild && npm run build:types && npm run watch",
-    "build:main": "rollup -c rollup.config.ts",
-    "build:types": "tsc --emitDeclarationOnly; exit 0",
-    "build": "npm-run-all -s prebuild build:types build:main",
-    "start": "npm run dev",
-    "prebuild": "rimraf dist"
+    "dev": "parcel watch",
+    "build": "parcel build"
   },
   "author": "Daven Quinn <dev@davenquinn.com>",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "^7.11.1",
-    "@rollup/plugin-babel": "^5.2.0",
-    "@rollup/plugin-json": "^4.0.3",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "npm-run-all": "^4.1.5",
+    "parcel": "^2.12.0",
+    "postcss": "^8.0.0",
     "postcss-modules": "^4.3.0",
-    "rimraf": "^3.0.0",
-    "rollup": "^2.38.1",
-    "rollup-plugin-postcss": "^3.1.8",
     "stylus": "^0.59.0"
   },
   "dependencies": {
@@ -63,7 +58,6 @@
     "react-color": "^2.18.0",
     "react-dom": "^16.12.0||^17.0.0||^18",
     "react-draggable": "^4.4.5",
-    "react-hyperscript": "^3.2.0",
     "react-images": "^1.1.0-beta.1",
     "react-router-dom": "^5.1.2",
     "react-scroll": "^1.7.16",
@@ -77,5 +71,9 @@
     "@macrostrat/ui-components": "workspace:*",
     "react": "^16.12.0||^17.0.0||^18"
   },
-  "prettier": {}
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/column-components"
+  }
 }

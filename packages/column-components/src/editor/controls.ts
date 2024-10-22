@@ -13,7 +13,7 @@ import {
   Intent,
   ButtonGroup,
   Alert,
-  Slider
+  Slider,
 } from "@blueprintjs/core";
 import { DeleteButton } from "@macrostrat/ui-components";
 import { format } from "d3-format";
@@ -25,12 +25,12 @@ import { FaciesContext, ColumnContext } from "../context";
 import {
   LithologyPicker,
   LithologySymbolPicker,
-  FillPatternControl
+  FillPatternControl,
 } from "./lithology-picker";
 import { FaciesPicker } from "./facies/picker";
 import { grainSizes } from "../grainsize";
 import { RaisedSelect } from "./util";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import styles from "./main.module.scss";
 import T from "prop-types";
 import { IntervalShape } from "./types";
@@ -39,10 +39,10 @@ const fmt = format(".1f");
 
 const surfaceTypes = [
   { value: "mfs", label: "Maximum flooding surface" },
-  { value: "sb", label: "Sequence boundary" }
+  { value: "sb", label: "Sequence boundary" },
 ];
 
-const SurfaceOrderSlider = function(props) {
+const SurfaceOrderSlider = function (props) {
   const { interval, onChange } = props;
   //if not interval.surface_type?
   //  return h 'p', 'Please set an surface type to access orders'
@@ -57,39 +57,39 @@ const SurfaceOrderSlider = function(props) {
     stepSize: 1,
     showTrackFill: false,
     value: val,
-    onChange: surface_order => {
+    onChange: (surface_order) => {
       if (interval.surface_type == null) {
         return;
       }
       return onChange({ surface_order });
-    }
+    },
   });
 };
 
-const HorizontalPicker = props =>
+const HorizontalPicker = (props) =>
   h(PickerControl, {
     vertical: false,
     isNullable: true,
-    ...props
+    ...props,
   });
 
 class BoundaryStyleControl extends Component {
   static initClass() {
     this.propTypes = {
-      interval: IntervalShape
+      interval: IntervalShape,
     };
   }
   render() {
     const { interval, onUpdate } = this.props;
     const states = [
       { label: "Abrupt", value: true },
-      { label: "Diffuse", value: false }
+      { label: "Diffuse", value: false },
     ];
 
     return h(HorizontalPicker, {
       states,
       activeState: interval.definite_boundary,
-      onUpdate
+      onUpdate,
     });
   }
 }

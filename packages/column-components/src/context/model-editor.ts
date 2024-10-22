@@ -3,15 +3,15 @@ import {
   useContext,
   useState,
   useEffect,
-  useCallback
+  useCallback,
 } from "react";
 import update from "immutability-helper";
-import h from "react-hyperscript";
+import h from "@macrostrat/hyper";
 import T from "prop-types";
 
 const ModelEditorContext = createContext(null);
 
-const ModelEditorProvider = function(props) {
+const ModelEditorProvider = function (props) {
   /*
   Context to assist with editing a model
   */
@@ -43,7 +43,7 @@ const ModelEditorProvider = function(props) {
   }, [model]);
 
   const updateModel = useCallback(
-    function(spec) {
+    function (spec) {
       const v = update(editedModel, spec);
       if (logUpdates) {
         console.log(v);
@@ -53,7 +53,7 @@ const ModelEditorProvider = function(props) {
     [logUpdates, editedModel]
   );
 
-  const deleteModel = function() {
+  const deleteModel = function () {
     setState(null);
     return props.onDelete(model);
   };
@@ -67,14 +67,14 @@ const ModelEditorProvider = function(props) {
     deleteModel,
     hasChanges,
     revertChanges,
-    confirmChanges
+    confirmChanges,
   };
   return h(ModelEditorContext.Provider, { value }, children);
 };
 
 ModelEditorProvider.propTypes = {
   onConfirmChanges: T.func.isRequired,
-  onDelete: T.func.isRequired
+  onDelete: T.func.isRequired,
 };
 
 const useModelEditor = () => useContext(ModelEditorContext);
