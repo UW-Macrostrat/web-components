@@ -5,5 +5,4 @@
   "private": true,
   "source": "src/index.ts",
   "main": "src/index.ts"
-
 }
