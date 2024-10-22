@@ -13,7 +13,7 @@
     }
   },
   "include": [
-    "./storybook/*.ts",
-    "./packages/**/src/*.ts",
+    "./_old/*.ts",
+    "./packages/**/src/*.ts"
   ]
 }
