@@ -60,7 +60,7 @@ export function FeatureSelectionHandler({
     ];
     const features = map.queryRenderedFeatures(bbox);
     setFeatures(features);
-  }, [mapRef?.current, selectedLocation, isLoading]);
+  }, [mapRef.current, prevLocation?.current, selectedLocation, isLoading]);
 
   return null;
 }

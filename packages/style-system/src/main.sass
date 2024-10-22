@@ -29,6 +29,7 @@ body
   margin: 0
   padding: 0
   font-family: 'Source Sans Pro', sans-serif
+
   &.bp5-dark
     color: $dark-text
     background-color: $dark-background
@@ -36,11 +37,12 @@ body
     @each $name, $color in $dark-colors
       --#{$name}: #{$color}
 
-    .bp5-card, .bp5-navbar
-      box-shadow: 0 0 0 1px var(--card-shadow-color)
-      background-color: var(--panel-background-color)
-
     .bp5-input
       &::placeholder
         color: var(--secondary-color)
         box-shadow: 0 0 0 0 color.change($light-gray3, $alpha: 0), 0 0 0 0 color.change($light-gray3, $alpha: 0), inset 0 0 0 1px color.change($light-gray1, $alpha: 0.15), inset 0 1px 1px color.change($light-gray1, $alpha: 0.2)
+
+.bp5-card, .bp5-navbar
+  border-radius: 4px
+  background-color: var(--panel-background-color)
+  box-shadow: 0 0 0 1px var(--card-shadow-color)
