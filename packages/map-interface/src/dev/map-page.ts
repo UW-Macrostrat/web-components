@@ -19,20 +19,9 @@ import {
 } from "./vector-tile-features";
 import { MapPosition } from "@macrostrat/mapbox-utils";
 
-export enum MacrostratVectorTileset {
-  Carto = "carto",
-  CartoSlim = "carto-slim",
-  IGCPOrogens = "igcp-orogens",
-}
-
-export enum MacrostratRasterTileset {
-  Carto = "carto",
-  Emphasized = "emphasized",
-}
-
 export const h = hyper.styled(styles);
 
-export function DevMapPage({
+export function MapInspector({
   title = "Map inspector",
   headerElement = null,
   transformRequest = null,
@@ -43,6 +32,7 @@ export function DevMapPage({
   style,
   focusedSource = null,
   focusedSourceTitle = null,
+  fitViewport = true,
   projection = null,
 }: {
   headerElement?: React.ReactElement;
@@ -56,6 +46,7 @@ export function DevMapPage({
   focusedSourceTitle?: string;
   projection?: string;
   mapPosition?: MapPosition;
+  fitViewport?: boolean;
 }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
@@ -154,6 +145,7 @@ export function DevMapPage({
       ]),
       detailPanel: detailElement,
       contextPanelOpen: isOpen,
+      fitViewport,
     },
     h(
       MapView,
@@ -178,3 +170,6 @@ export function DevMapPage({
     )
   );
 }
+
+// Legacy export
+export const DevMapPage = MapInspector;

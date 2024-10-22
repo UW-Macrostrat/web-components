@@ -7,6 +7,7 @@ import h from "@macrostrat/hyper";
 import "@macrostrat/style-system";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "storybook-dark-mode";
+import { DocsContainer } from "./docs-container";
 
 FocusStyleManager.onlyShowFocusOnTabs();
 
@@ -19,7 +20,7 @@ export const parameters = {
     },
   },
   docs: {
-    theme: macrostratTheme,
+    container: DocsContainer,
   },
   backgrounds: {
     disable: true,
