@@ -1,27 +1,45 @@
 import h from "@macrostrat/hyper";
 import type { Meta } from "@storybook/react";
-import "mapbox-gl/dist/mapbox-gl.css";
+import type { StoryObj } from "@storybook/react";
 
 import { DevMapPage } from "../src";
 import Box from "ui-box";
 
+const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
+
+function WrappedComponent(props) {
+  return h(DevMapPage, { ...props, mapboxToken });
+}
+
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof DevMapPage> = {
-  title: "Map interface/Dev map page",
-  component: DevMapPage,
+  title: "Map interface/Development map page",
+  component: WrappedComponent,
+  parameters: {
+    layout: "fullscreen",
+    docs: {
+      story: {
+        inline: false,
+        iframeHeight: 500,
+      },
+    },
+  },
 };
 
 export default meta;
 
-const mapboxToken = import.meta.env.STORYBOOK_MAPBOX_API_TOKEN;
+type Story = StoryObj<typeof DevMapPage>;
 
-export function DevMapPageTest() {
-  return h(
-    Box,
-    { className: "container", position: "relative", height: 500 },
-    h(DevMapPage, {
-      mapboxToken,
-      fitViewport: false,
-    })
-  );
-}
+export const Primary: Story = {};
+
+export const ZoomedIn: Story = {
+  args: {
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -74.006,
+        altitude: 300000,
+      },
+    },
+  },
+};
