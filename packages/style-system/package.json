@@ -27,6 +27,11 @@
       "require": "./src/index.ts"
     }
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/style-system"
+  },
   "keywords": [
     "macrostrat",
     "style",

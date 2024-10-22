@@ -15,5 +15,10 @@
   "peerDependencies": {
     "@blueprintjs/core": "^3.43.0 || ^4.3.0 || ^5.0.0",
     "react": "^16.8.6||^17.0.0||^18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/column-views"
   }
 }

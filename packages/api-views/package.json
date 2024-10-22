@@ -14,5 +14,10 @@
   },
   "peerDependencies": {
     "react": "^16.8.6||^17||^18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/api-views"
   }
 }

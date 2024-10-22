@@ -42,5 +42,10 @@
       "import": "./dist/",
       "require": "./dist/"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/mapbox-react"
   }
 }

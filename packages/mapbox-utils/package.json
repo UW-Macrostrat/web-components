@@ -27,5 +27,10 @@
       "require": "./dist/main.js"
     }
   },
-  "browserslist": "defaults"
+  "browserslist": "defaults",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/mapbox-utils"
+  }
 }

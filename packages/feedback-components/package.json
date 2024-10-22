@@ -20,5 +20,14 @@
       "typescript": "./src",
       "import": "./src"
     }
+  },
+  "peerDependencies": {
+    "react": "^17.0.2||^18",
+    "react-dom": "^17.0.2||^18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/feedback-components"
   }
 }

@@ -106,5 +106,10 @@
       "import": "./dist/esm",
       "require": "./dist/cjs"
     }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/map-components"
   }
 }
