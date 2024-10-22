@@ -1,5 +1,6 @@
 .copy-link-button:global(.bp5-minimal.bp5-button)
   color: var(--text-subtle-color)
+
   svg
     fill: var(--text-subtle-color)
 
@@ -10,8 +11,10 @@
   align-items: center
   gap: 1em
   border-bottom: 1px solid var(--panel-rule-color)
+
   .spacer
     flex-grow: 1
+
   .left-icon
     padding: 7px
 
@@ -20,6 +23,7 @@
 
 .infodrawer-header-item
   font-size: 12px
+
   :global(.secondary)
     font-size: 0.9em
     color: var(--text-subtle-color)
@@ -32,13 +36,18 @@
   display: flex
   flex-direction: column
   overflow: hidden
+  background-color: var(--panel-background-color)
+
   &:global(.bp5-card)
     padding: 0
+    background-color: var(--panel-background-color)
+
 
   &.loading
     .infodrawer-body
       overflow-y: hidden
       min-height: 70px
+
 
 .infodrawer-contents
   padding: 0 1em 1em

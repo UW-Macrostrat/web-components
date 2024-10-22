@@ -5,9 +5,11 @@
   width: 100%
   height: 100%
   overflow: hidden
+
   &.show-panel-outlines
     .map-view-container
       outline: 2px dotted dodgerblue
+
   &.fit-viewport
     height: 100vh
     width: 100vw
@@ -17,21 +19,26 @@
   // Compass display
   .compass-control
     display: none
+
   &.map-is-rotated
     .compass-control
       display: block
 
   .map-3d-control
     display: none
+
   &.map-3d-available .map-3d-control
     display: block
+
   &.map-is-rotated.map-3d-available .map-3d-control
     display: none
 
   .globe-control
     display: none
+
     svg
       color: var(--secondary-color)
+
   &.map-is-global .globe-control
     display: block
 
@@ -42,14 +49,15 @@
 
   &.detail-panel-fixed
     .detail-panel-holder
-      &>*
+      & > *
         border-radius: unset
 
 .detail-panel-holder
   display: flex
   flex-direction: column
   min-height: 0
-  &>*
+
+  & > *
     flex: 1
 
 .map-control-stack
@@ -87,10 +95,10 @@
   bottom: 0
   left: 0
   right: 0
+
   &:global(.mapboxgl-map)
     // override the default mapbox position: relative in all cases
     position: absolute
-
 
 
 .panel-card
@@ -98,17 +106,17 @@
   background-color: var(--panel-background-color)
   overflow: hidden
 
-  & >:last-child
+  & > :last-child
     margin-bottom: 0
 
 :global(.bp5-dark) .panel-card
   background-color: var(--panel-background-color)
 
 .context-stack
-  &>div
+  & > div
     flex-shrink: 1
 
-  &>.searchbar
+  & > .searchbar
     flex: 0
 
 .context-stack,
@@ -120,7 +128,7 @@
   display: flex
   flex-direction: column
 
-  &>div
+  & > div
     pointer-events: all
 
 .panel-title
@@ -236,8 +244,12 @@
   .mapboxgl-ctrl-logo
     transform: scale(0.9) translate(-8px, 2px)
 
-  .bp5-dark .mapboxgl-ctrl-logo
-    filter: invert(100%)
+  .bp5-dark
+    .mapboxgl-ctrl-group
+      background-color: var(--panel-background-color)
+
+    .mapboxgl-ctrl-logo
+      filter: invert(100%)
 
   .mapboxgl-ctrl-group button + button
     border-top: 1px solid var(--panel-rule-color) !important
@@ -259,8 +271,6 @@
 
 .detail-panel-container, .map-right-controls
   flex: 1
-  
-
 
 
 .zoom-control
@@ -278,7 +288,7 @@
   gap: 0.5em
 
   :global(.map-control)
-    &>:global(.bp5-button)
+    & > :global(.bp5-button)
       padding: 0
       transform: translate(-3.5px, -3.5px)
       width: 22px !important
@@ -302,8 +312,8 @@
   max-width: 22px
   background-position: center center
   padding: 0
-  //background-color: var(--panel-background-color)
-  //color: var(--text-color)
+//background-color: var(--panel-background-color)
+//color: var(--text-color)
 
 //.map-controls :global(.mapbox-control) button:hover,
 //.map-controls :global(.map-control-wrapper) button:hover,
@@ -338,6 +348,7 @@
 
   .infodrawer-stack
     max-height: 70%
+
     &:global(.exit-active)
       max-height: 0
 
@@ -352,7 +363,7 @@
   .detail-panel
     border-radius: 0px
 
-  
+
 /* Desktop styling is necessarily much more complicated than mobile
  to handle a two-column layout. */
 @media screen and (min-width: 768px)
@@ -390,13 +401,14 @@
       h1, h2, h3
         margin: 0
 
-    &>.spacer
+    & > .spacer
       flex-grow: 0
 
   .context-panel-holder
     min-height: 0
     position: relative
-    &>div
+
+    & > div
       max-height: 100%
 
   .detail-stack
@@ -408,7 +420,7 @@
     pointer-events: none
     z-index: 10
 
-    &>div
+    & > div
       pointer-events: all
       margin-bottom: 0.5em
 
@@ -433,15 +445,19 @@
   .context-panel-holder
     pointer-events: none
     flex: 1
-    &>div
-      pointer-events: all
-      transition: opacity 0.8s ease //, height 0.8s ease, max-height 0.8s ease, padding 0.8s ease
 
-  &.context-panel-from .context-panel-holder>div
+    & > div
+      pointer-events: all
+      transition: opacity 0.8s ease
+  //, height 0.8s ease, max-height 0.8s ease, padding 0.8s ease
+
+  &.context-panel-from .context-panel-holder > div
     opacity: 0
-  &.context-panel-enter .context-panel-holder>div
+
+  &.context-panel-enter .context-panel-holder > div
     opacity: 1
-  &.context-panel-leave .context-panel-holder>div
+
+  &.context-panel-leave .context-panel-holder > div
     opacity: 0
 
   // Detail panel (floating)
@@ -449,10 +465,13 @@
     // We assume that the relevant panel is the first child of the stack.
     &.detail-panel-from .detail-panel-holder
       opacity: 0
+
     &.detail-panel-enter .detail-panel-holder
       opacity: 1
+
     &.detail-panel-leave .detail-panel-holder
       opacity: 0
+
     .detail-panel
       transition: opacity 0.8s ease, height 0.8s ease, max-height 0.8s ease
 
@@ -460,22 +479,25 @@
   &.detail-panel-fixed
     .map-ui
       transition: margin-right 0.8s ease
+
     .detail-stack
       transition: margin-right 0.8s ease
 
     &.detail-panel-from .detail-panel-holder
-      margin-right: calc(-1 * var(--map-detail-stack-width, 30em)) 
+      margin-right: calc(-1 * var(--map-detail-stack-width, 30em))
+
     &.detail-panel-enter .detail-panel-holder
       margin-right: 0
+
     &.detail-panel-leave .detail-panel-holder
-      margin-right: calc(-1 * var(--map-detail-stack-width, 30em)) 
+      margin-right: calc(-1 * var(--map-detail-stack-width, 30em))
 
 
-  // The max-height transition is a bit jerky because of panel padding.
-  // We could probably fix this by pulling the panel container itself into
-  // the class.
-  //max-height: 0
-  //padding: 0i
+// The max-height transition is a bit jerky because of panel padding.
+// We could probably fix this by pulling the panel container itself into
+// the class.
+//max-height: 0
+//padding: 0i
 
 @media only screen and (max-width: 768px)
   .map-container .detail-stack
@@ -496,6 +518,7 @@
     .context-stack
       .context-panel-holder
         flex: 0
+
       .spacer
         flex: 1
 
