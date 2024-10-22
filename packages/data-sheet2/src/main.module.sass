@@ -2,11 +2,11 @@
 
 .data-sheet-container, .data-sheet-holder
   flex: 1
-  position: relative
   min-height: 0
 
 .data-sheet-container
   display: flex
+  position: relative
   flex-direction: column
 
 .data-sheet
@@ -17,6 +17,7 @@
 
 .input-cell
   padding: 0 2px !important
+
   input
     width: 100%
     height: 100%
@@ -25,15 +26,17 @@
     position: relative
     border: none
     margin: 0
-    font-size: 1em
     pointer-events: all
     background: transparent
+    font-family: inherit
+    font-size: inherit
+
     &:focus
       outline: none
 
 // Make sure popover target fills the entire cell
 .editor-cell :global(.bp5-popover-target)
-  pointer-events: none
+  //pointer-events: none
   position: absolute
   top: 0
   left: 0

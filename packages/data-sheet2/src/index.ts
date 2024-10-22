@@ -10,7 +10,7 @@ import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { EditorPopup } from "./components";
+import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
 
 export * from "./components";
@@ -22,12 +22,35 @@ const h = hyper.styled(styles);
 // TODO: add a "copy to selection" tool (the little square in the bottom right corner of a cell)
 // This should copy the value of a cell (or a set of cells in the same row) downwards.
 
+interface VisibleCells {
+  rowIndexStart: number;
+  rowIndexEnd: number;
+}
+
 interface DataSheetProps<T> {
   data: T[];
   columnSpec?: ColumnSpec[];
   columnSpecOptions?: ColumnSpecOptions;
   editable?: boolean;
-  onVisibleCellsChange?: (visibleCells: Region[]) => void;
+  onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
+  onSaveData: (updatedData: any[], data: any[]) => void;
+  onDeleteRows?: (selection: Region[]) => void;
+  verbose?: boolean;
+}
+
+export interface ColumnSpec {
+  name: string;
+  key: string;
+  required?: boolean;
+  isValid?: (d: any) => boolean;
+  transformValue?: (d: any) => any;
+  valueRenderer?: (d: any) => string | React.ReactNode;
+  dataEditor?: any;
+  cellComponent?: any;
+  category?: string;
+  editable?: boolean;
+  inlineEditor?: boolean | React.ComponentType<any> | string | null;
+  style?: React.CSSProperties;
 }
 
 export default function DataSheet<T>({
@@ -36,6 +59,9 @@ export default function DataSheet<T>({
   columnSpecOptions,
   editable = true,
   onVisibleCellsChange,
+  onSaveData,
+  onDeleteRows,
+  verbose = true,
 }: DataSheetProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -63,9 +89,9 @@ export default function DataSheet<T>({
   const columnSpec =
     _columnSpec ??
     useMemo(() => {
-      console.log("Generating column spec", data);
       // Only build the column spec if it's not provided at the start
-      return generateColumnSpec(data, columnSpecOptions);
+      const spec = generateColumnSpec(data, columnSpecOptions);
+      return spec;
     }, [data[0], columnSpecOptions]);
 
   // A sparse array to hold updates
@@ -77,7 +103,8 @@ export default function DataSheet<T>({
     (row: number, key: string, value: any) => {
       if (!editable) return;
       let rowSpec = {};
-      if (value != null) {
+      // Check to see if the new value is the same as the old one
+      if (value !== data[row]?.[key]) {
         const rowOp = updatedData[row] != null ? "$merge" : "$set";
         rowSpec = { [rowOp]: { [key]: value } };
       } else {
@@ -86,7 +113,7 @@ export default function DataSheet<T>({
       const spec = { [row]: rowSpec };
       setUpdatedData(update(updatedData, spec));
     },
-    [setUpdatedData, updatedData, editable]
+    [setUpdatedData, updatedData, data, editable]
   );
 
   const fillValues = useCallback(
@@ -113,7 +140,6 @@ export default function DataSheet<T>({
   const clearSelection = useCallback(() => {
     // Delete all selected cells
     let spec = {};
-    console.log(selection);
     for (const region of selection) {
       const { cols, rows } = region;
       for (const row of range(rows)) {
@@ -129,16 +155,75 @@ export default function DataSheet<T>({
     setUpdatedData(update(updatedData, spec));
   }, [selection, updatedData, columnSpec]);
 
+  const _onSaveData = useCallback(() => {
+    onSaveData(updatedData, data);
+    setUpdatedData([]);
+  }, [updatedData, data, onSaveData]);
+
+  const visibleCellsRef = useRef<VisibleCells>({
+    rowIndexStart: 0,
+    rowIndexEnd: 0,
+  });
+
+  const _onVisibleCellsChange = useCallback(
+    (visibleCells: VisibleCells) => {
+      if (
+        visibleCells.rowIndexEnd == visibleCellsRef.current.rowIndexEnd &&
+        visibleCells.rowIndexStart == visibleCellsRef.current.rowIndexStart
+      ) {
+        return;
+      }
+
+      visibleCellsRef.current = visibleCells;
+      onVisibleCellsChange?.(visibleCells);
+    },
+    [onVisibleCellsChange]
+  );
+
+  const onAddRow = useCallback(() => {
+    setUpdatedData((updatedData) => {
+      console.log(updatedData);
+      const ix = data.length;
+      const addRowSpec = { [ix]: { $set: {} } };
+      const newUpdatedData = update(updatedData, addRowSpec);
+      return newUpdatedData;
+    });
+  }, [setUpdatedData, data]);
+
+  const _onDeleteRows = useCallback(() => {
+    onDeleteRows(selection);
+  }, [onDeleteRows, selection]);
+
+  useEffect(() => {
+    if (!verbose) return;
+    console.log("Updated data", updatedData);
+  }, [updatedData]);
+
+  useEffect(() => {
+    if (!verbose) return;
+    console.log("Selection", selection);
+  }, [selection]);
+
   if (data == null) return null;
 
+  const nDeletionCandidates = getRowsToDelete(selection).length;
+
+  const numRows = Math.max(updatedData.length, data.length);
+
   return h("div.data-sheet-container", [
-    h.if(editable)(DataSheetEditToolbar, { hasUpdates, setUpdatedData }),
+    h.if(editable)(DataSheetEditToolbar, {
+      hasUpdates,
+      setUpdatedData,
+      onSaveData: _onSaveData,
+      onAddRow,
+      onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
+    }),
     h("div.data-sheet-holder", [
       h(
         Table2,
         {
           ref,
-          numRows: data.length,
+          numRows,
           className: "data-sheet",
           enableFocusedCell: true,
           focusedCell,
@@ -158,7 +243,7 @@ export default function DataSheet<T>({
           },
           // The cell renderer is memoized internally based on these data dependencies
           cellRendererDependencies: [selection, updatedData, focusedCell, data],
-          onVisibleCellsChange,
+          onVisibleCellsChange: _onVisibleCellsChange,
         },
         columnSpec.map((col, colIndex) => {
           return h(Column, {
@@ -189,7 +274,7 @@ function _cellRenderer(
   rowIndex,
   data,
   updatedData,
-  col,
+  col: ColumnSpec,
   colIndex,
   focusedCell,
   _topLeftCell,
@@ -198,12 +283,17 @@ function _cellRenderer(
   setFillValueBaseCell,
   _editable
 ): any {
-  const row = data[rowIndex];
+  const row = data[rowIndex] ?? updatedData[rowIndex];
   const loading = row == null;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
 
   const valueRenderer = col.valueRenderer ?? ((d) => d);
+
+  const autoFocusEditor = true;
+
+  const { style } = col;
+
   const focused =
     focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
   // Top left cell of a ranged selection
@@ -218,7 +308,7 @@ function _cellRenderer(
   const _Cell = col.cellComponent ?? BaseCell;
 
   const _renderedValue = valueRenderer(value);
-  const inlineEditor = col.inlineEditor ?? true;
+  let inlineEditor = editable ? col.inlineEditor ?? true : false;
 
   if (!topLeft) {
     // This should be the case for every cell except the focused one
@@ -228,19 +318,19 @@ function _cellRenderer(
         intent,
         loading,
         value,
+        style,
       },
       _renderedValue
     );
   }
 
-  if (!focused) {
+  if (!editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
     return h(_Cell, { intent, value }, [
-      h("input.hidden-input", {
+      h.if(!focused)("input.hidden-input", {
         autoFocus: true,
         onKeyDown(e) {
-          console.log(e.key);
           if (e.key == "Backspace" || e.key == "Delete") {
             clearSelection();
           }
@@ -256,17 +346,56 @@ function _cellRenderer(
 
   const onChange = (e) => {
     if (!editable) return;
-    const value = e.target.value;
-    onCellEdited(rowIndex, col.key, value);
+    if (value === e.target.value) return;
+    onCellEdited(rowIndex, col.key, e.target.value);
   };
 
   let cellContents = _renderedValue;
   let cellClass = null;
 
+  if (typeof inlineEditor == "boolean") {
+    let _value = value;
+    if (
+      typeof _renderedValue === "string" ||
+      typeof _renderedValue === "number" ||
+      _renderedValue == null
+    ) {
+      _value = _renderedValue;
+    }
+    inlineEditor = h("input", {
+      value: _value ?? "",
+      autoFocus: autoFocusEditor,
+      onChange,
+      onKeyDown(e) {
+        if (e.key == "Enter") {
+          e.target.blur();
+        }
+
+        if (e.key == "Escape") {
+          e.target.blur();
+          e.preventDefault();
+          return;
+        }
+
+        const shouldPropagate = handleSpecialKeys(e, e.target);
+        if (!shouldPropagate) {
+          e.stopPropagation();
+        } else {
+          e.target.blur();
+          console.log(e.target, e.key);
+          if (e.key !== "Escape") {
+            e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
+          }
+        }
+      },
+    });
+  }
+
   if (col.dataEditor != null) {
     cellClass = "editor-cell";
     cellContents = h([
       h(EditorPopup, {
+        autoFocus: autoFocusEditor,
         content: h(col.dataEditor, {
           value,
           onChange(value) {
@@ -274,16 +403,13 @@ function _cellRenderer(
             onCellEdited(rowIndex, col.key, value);
           },
         }),
+        inlineEditor,
+        valueViewer: _renderedValue,
       }),
-      _renderedValue,
     ]);
-  } else if (inlineEditor != false && typeof _renderedValue === "string") {
+  } else if (inlineEditor != null) {
+    cellContents = inlineEditor;
     cellClass = "input-cell";
-    cellContents = h("input", {
-      value: _renderedValue,
-      autoFocus: true,
-      onChange,
-    });
   }
 
   // Hidden html input
@@ -293,6 +419,7 @@ function _cellRenderer(
       intent,
       value,
       className: cellClass,
+      style,
       //truncated: false,
     },
     [
@@ -313,8 +440,28 @@ function DragHandle({ setFillValueBaseCell, focusedCell }) {
   });
 }
 
-function DataSheetEditToolbar({ hasUpdates, setUpdatedData }) {
+function DataSheetEditToolbar({
+  hasUpdates,
+  setUpdatedData,
+  onSaveData,
+  onAddRow,
+  onDeleteRows,
+}) {
   return h("div.data-sheet-toolbar", [
+    h(ButtonGroup, { minimal: true }, [
+      h.if(onAddRow != null)(AddRowButton, { onAddRow }),
+      h(
+        Button,
+        {
+          intent: Intent.DANGER,
+          disabled: onDeleteRows == null,
+          onClick() {
+            onDeleteRows?.();
+          },
+        },
+        "Delete"
+      ),
+    ]),
     h("div.spacer"),
     h(ButtonGroup, [
       h(
@@ -334,9 +481,7 @@ function DataSheetEditToolbar({ hasUpdates, setUpdatedData }) {
           intent: Intent.SUCCESS,
           icon: "floppy-disk",
           disabled: !hasUpdates,
-          onClick() {
-            console.log("Here is where we would save data");
-          },
+          onClick: onSaveData,
         },
         "Save"
       ),
@@ -344,7 +489,18 @@ function DataSheetEditToolbar({ hasUpdates, setUpdatedData }) {
   ]);
 }
 
-function BaseCell({ children, value, ...rest }) {
+function AddRowButton({ onAddRow }) {
+  return h(
+    Button,
+    {
+      icon: "plus",
+      onClick: onAddRow,
+    },
+    "Add row"
+  );
+}
+
+export function BaseCell({ children, value, ...rest }) {
   return h(
     Cell,
     {
@@ -379,8 +535,9 @@ function generateDefaultColumnSpec<T>(data: Array<T>): ColumnSpec[] {
   for (const row of data) {
     if (row == null) continue;
     for (const key of Object.keys(row)) {
-      keys.add(key);
       const val = row[key];
+      keys.add(key);
+
       if (val == null) continue;
       let type: string = typeof val;
       // Special 'type' for integers
@@ -427,20 +584,6 @@ function generateDefaultColumnSpec<T>(data: Array<T>): ColumnSpec[] {
 
 export { Cell };
 
-export interface ColumnSpec {
-  name: string;
-  key: string;
-  required?: boolean;
-  isValid?: (d: any) => boolean;
-  transformValue?: (d: any) => any;
-  valueRenderer?: (d: any) => string | React.ReactNode;
-  dataEditor?: any;
-  cellComponent?: any;
-  category?: string;
-  editable?: boolean;
-  inlineEditor?: boolean;
-}
-
 export interface ColumnSpecOptions {
   overrides: Record<string, Partial<ColumnSpec> | string>;
   data?: any[]; // Data to use for type inference
@@ -454,11 +597,13 @@ function generateColumnSpec<T>(
   options: ColumnSpecOptions
 ): ColumnSpec[] {
   /** Generate a column spec from a dataset */
-  const { overrides, nRows = 10, omitColumns, includeColumns } = options;
+  const { overrides = {}, nRows = 10, omitColumns, includeColumns } = options;
 
   if (data == null) return [];
 
-  let columnSpec = generateDefaultColumnSpec(data.slice(nRows));
+  const _nRows = Math.min(nRows, data.length);
+
+  let columnSpec = generateDefaultColumnSpec(data.slice(0, _nRows));
   let filteredSpec = columnSpec.filter((col) => {
     if (omitColumns != null && omitColumns.includes(col.key)) {
       return false;
@@ -499,4 +644,18 @@ function singleFocusedCell(sel: Region[]): FocusedCellCoordinates | null {
   /** Derive a single focused cell from a selected region, if possible */
   if (sel?.length !== 1) return null;
   return topLeftCell(sel, true);
+}
+
+export function getRowsToDelete(selection) {
+  let rowIndices: number[] = [];
+  for (const sel of selection) {
+    // This isn't a full-row selection
+    if (sel.cols != null) continue;
+    if (sel.rows == null) continue;
+    const [startIndex, endIndex] = sel.rows;
+    for (let i = startIndex; i <= endIndex; i++) {
+      rowIndices.push(i);
+    }
+  }
+  return rowIndices;
 }
