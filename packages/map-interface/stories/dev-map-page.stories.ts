@@ -30,7 +30,17 @@ export default meta;
 
 type Story = StoryObj<typeof DevMapPage>;
 
-export const Primary: Story = {};
+export const Primary: Story = {
+  args: {
+    mapPosition: {
+      camera: {
+        lat: 0,
+        lng: 0,
+        altitude: 50000000,
+      },
+    },
+  },
+};
 
 export const ZoomedIn: Story = {
   args: {

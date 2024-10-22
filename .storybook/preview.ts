@@ -20,11 +20,6 @@ export const parameters = {
     },
   },
   docs: {
-    // get theme() {
-    //   console.log("parent", parent.document.body.classList);
-    //   let isDarkMode = parent.document.body.classList.contains("bp5-dark");
-    //   return isDarkMode ? themes.dark : themes.light;
-    // },
     container: DocsContainer,
   },
   backgrounds: {
