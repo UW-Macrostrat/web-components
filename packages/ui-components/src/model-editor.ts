@@ -205,14 +205,20 @@ class EditableDateField extends Component<any, any> {
     const { field } = this.props;
     const { actions, model, isEditing } = this.context;
     const value = model[field];
+
+    let valueText = value;
+    if (value instanceof Date) {
+      valueText = value.toLocaleDateString();
+    }
+
     if (!isEditing) {
-      return h("div.date-input.disabled", value);
+      return h("div.date-input.disabled", valueText);
     }
     return h(DateInput, {
       className: "date-input",
       value: new Date(value),
       formatDate: (date) => date.toLocaleDateString(),
-      placeholder: "MM/DD/YYYY",
+      placeholder: valueText ?? "Select date...",
       showActionsBar: true,
       onChange: actions.onChange(field),
       parseDate(d) {
