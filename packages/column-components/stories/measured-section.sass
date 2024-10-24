@@ -1,6 +1,8 @@
 //:global
 //  @require "./imported"
 
+@use "sass:color"
+
 #app
   width: 40em
 
@@ -57,10 +59,10 @@ g.lithology-column use.frame
 @mixin interval($color)
   &>.interval-box
     margin: 0px
-    background-color: lighten($color, 50%)
-    border: 2px solid lighten($color, 10%) !important
+    background-color: color.adjust($color, $lightness: 50%)
+    border: 2px solid color.adjust($color, $lightness: 10%) !important
     .interval-label
-      color: darken($color, 30%)
+      color: color.adjust($color, $lightness: -30%)
 
 .interval
   &.Blueflower
