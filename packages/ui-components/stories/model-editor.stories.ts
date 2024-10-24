@@ -4,10 +4,11 @@ import {
   EditableDateField,
   ModelEditor,
   ModelEditButton,
-} from "./model-editor";
+} from "../src/model-editor";
 import h from "@macrostrat/hyper";
+import "./stories.sass";
 
-import { LngLatCoords, LngLatProps } from "@macrostrat/map-interface";
+import { LngLatCoords, LngLatProps } from "packages/map-interface/src";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<LngLatProps> = {
@@ -32,10 +33,12 @@ export function ModelEditorExample(props) {
       canEdit: true,
     },
     [
-      h(EditableMultilineText, { field: "title" }),
-      h(EditableMultilineText, { field: "description" }),
-      h(EditableDateField, { field: "embargoDate" }),
-      h(ModelEditButton),
+      h("div.model-editor-example", [
+        h(EditableMultilineText, { field: "title", className: "title-text" }),
+        h(EditableMultilineText, { field: "description" }),
+        h(EditableDateField, { field: "embargoDate" }),
+        h(ModelEditButton),
+      ]),
     ]
   );
 }

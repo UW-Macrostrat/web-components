@@ -185,7 +185,9 @@ function EditableMultilineText(props: any): React.ReactNode {
   const { actions, model, isEditing } = useContext(ModelEditorContext);
   let value = model[field];
   const onChange = actions.onChange(field);
-  className = classNames(className, `field-${field}`);
+  className = classNames(className, `field-${field}`, {
+    edited: useFieldHasChanges(field),
+  });
 
   if (isEditing) {
     value = h(EditableText, {
@@ -199,6 +201,11 @@ function EditableMultilineText(props: any): React.ReactNode {
   return h("div.text", { className }, value);
 }
 
+const useFieldHasChanges = (field) => {
+  const { hasChanges } = useContext(ModelEditorContext);
+  return hasChanges(field);
+};
+
 class EditableDateField extends Component<any, any> {
   static contextType = ModelEditorContext;
   render() {
@@ -206,16 +213,21 @@ class EditableDateField extends Component<any, any> {
     const { actions, model, isEditing } = this.context;
     const value = model[field];
 
+    const className = classNames("date-input", {
+      edited: this.context.hasChanges(field),
+      disabled: !isEditing,
+    });
+
     let valueText = value;
     if (value instanceof Date) {
       valueText = value.toLocaleDateString();
     }
 
     if (!isEditing) {
-      return h("div.date-input.disabled", valueText);
+      return h("div", { className }, valueText);
     }
     return h(DateInput, {
-      className: "date-input",
+      className,
       value: new Date(value),
       formatDate: (date) => date.toLocaleDateString(),
       placeholder: valueText ?? "Select date...",

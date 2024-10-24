@@ -3,8 +3,12 @@ import { Button } from "@blueprintjs/core";
 import type { Meta, StoryObj } from "@storybook/react";
 import { useRef } from "react";
 
-import { ToasterContext, ToasterContextProps, useToaster } from "./toaster";
-import { FlexRow, Box } from "./util";
+import {
+  ToasterContext,
+  ToasterContextProps,
+  useToaster,
+} from "../src/toaster";
+import { FlexRow, Box } from "../src/util";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<ToasterContextProps> = {
