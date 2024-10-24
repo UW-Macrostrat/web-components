@@ -8,7 +8,6 @@ import { APIConfig } from "./types";
 import { QueryParams } from "../util/query-string";
 import { JSONView } from "../util/json-view";
 import { IndexingProvider } from "./indexing";
-import { number } from "fp-ts";
 
 interface APIPlaceholderProps {
   isLoading: boolean;
@@ -56,9 +55,9 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     // method will be called with null data
     placeholder: APIResultPlaceholder,
     debounce: 300,
-    children: data => {
+    children: (data) => {
       return h(JSONView, { data });
-    }
+    },
   };
   _didFetch: boolean;
   _lazyGetData: () => Promise<void>;
@@ -117,7 +116,7 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
     } else if (isValidElement(children)) {
       return cloneElement(children, {
         data,
-        isLoading
+        isLoading,
       });
     } else {
       throw new Error(
@@ -138,7 +137,7 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
         IndexingProvider,
         {
           totalCount: data.length,
-          indexOffset: 0
+          indexOffset: 0,
         },
         this.renderInner()
       );
