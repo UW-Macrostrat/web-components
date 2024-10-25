@@ -13,6 +13,11 @@ function prepareModule(dir, pkg) {
   const pkgData = getPackageData(pkg);
   logAction(pkgData, "Building");
   try {
+    // Clean the dist directory
+    execSync(`rm -rf ${dir}/dist`, {
+      stdio: "inherit",
+    });
+
     execSync(`yarn workspace ${pkgData.name} run build`, {
       stdio: "inherit",
       maxBuffer: 1024 * 1024 * 20,
