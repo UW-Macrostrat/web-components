@@ -37,7 +37,13 @@ export function getPackageDirectory(pkgName) {
   // Remove namespace if it exists
   pkgName = pkgName.split("/").pop();
 
-  return path.join(projectDir, "packages", pkgName);
+  const d1 = path.join(projectDir, "packages", pkgName);
+  if (fs.existsSync(d1)) return d1;
+
+  const d2 = path.join(projectDir, "toolchain", pkgName);
+  if (fs.existsSync(d2)) return d2;
+
+  throw new Error(`Package ${pkgName} not found`);
 }
 
 export function logAction(pkg, action, color = chalk.blue) {

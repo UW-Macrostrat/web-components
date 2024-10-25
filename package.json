@@ -70,7 +70,8 @@
     "mapbox-utils",
     "mapbox-react",
     "map-interface",
-    "style-system"
+    "style-system",
+    "vite-plugin-hyperstyles"
   ],
   "workspaces": [
     "packages/*",
