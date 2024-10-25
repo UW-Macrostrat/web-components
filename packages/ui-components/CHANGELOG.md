@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.0.3] - 2024-10-24
+
+- Fix package specifiers
+- Upgrade `@macrostrat/hyper` to version 3
+- Upgrade `query-string` to version 9
+
 ## [4.0.2] - 2024-10-24
 
 - Migrate from `@blueprintjs/datetime` to `@blueprintjs/datetime2` to allow

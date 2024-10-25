@@ -1,4 +1,4 @@
-import { stringify, parse, StringifyOptions, ParseOptions } from "query-string";
+import queryString, { StringifyOptions, ParseOptions } from "query-string";
 
 // API query string management
 export type APIParams = Record<string, string>;
@@ -23,7 +23,7 @@ function buildQueryString(
   if (typeof params === "string") {
     p = params;
   } else {
-    p = stringify(params, { arrayFormat: "comma", ...opts });
+    p = queryString.stringify(params, { arrayFormat: "comma", ...opts });
   }
   return p;
 }
@@ -44,7 +44,7 @@ function buildQueryURL(
 // Base query string management
 
 function parseParams(paramString: string, opts?: ParseOptions) {
-  const params = parse(paramString, {
+  const params = queryString.parse(paramString, {
     parseBooleans: true,
     parseNumbers: true,
     arrayFormat: "comma",

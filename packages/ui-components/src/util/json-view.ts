@@ -1,4 +1,4 @@
-import JSONTree from "react-json-tree";
+import { JSONTree } from "react-json-tree";
 import { hyperStyled } from "@macrostrat/hyper";
 import classNames from "classnames";
 import styles from "./main.module.scss";

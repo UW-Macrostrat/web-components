@@ -31,7 +31,7 @@ function moduleString(pkg, separator = "@") {
 }
 
 async function main() {
-  let pkgsToPublish = await status();
+  let pkgsToPublish = (await status()) ?? [];
 
   for (const pkg of pkgsToPublish) {
     const dir = getPackageDirectory(pkg);

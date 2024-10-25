@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Map interface for Macrostrat",
   "main": "dist/main.js",
   "module": "dist/module.js",
@@ -8,10 +8,10 @@
   "source": "src/index.ts",
   "style": "dist/main.css",
   "dependencies": {
-    "@macrostrat/hyper": "^2.2.1||^3.0.0",
-    "@macrostrat/mapbox-react": "^2.2.2",
-    "@macrostrat/mapbox-utils": "^1.3.1",
-    "@macrostrat/ui-components": "^4.0.2",
+    "@macrostrat/hyper": "^3.0.0",
+    "@macrostrat/mapbox-react": "^2.2.3",
+    "@macrostrat/mapbox-utils": "^1.3.2",
+    "@macrostrat/ui-components": "^4.0.3",
     "@mapbox/tilebelt": "^2.0.0",
     "chroma-js": "^3.0.0",
     "classnames": "^2.5.1",
@@ -36,7 +36,8 @@
     ".": {
       "typescript": "./src",
       "import": "./dist/module.js",
-      "require": "./dist/main.js"
+      "require": "./dist/main.js",
+      "types:": "./dist/types.d.ts"
     },
     "./dist/": {
       "import": "./dist/",
