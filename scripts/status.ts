@@ -1,5 +1,4 @@
 /* script to check versions on ui-packages and publish those that aren't on npm */
-import axios from "axios";
 import fs from "fs";
 import path from "path";
 import chalk from "chalk";

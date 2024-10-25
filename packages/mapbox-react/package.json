@@ -1,21 +1,20 @@
 {
   "name": "@macrostrat/mapbox-react",
-  "version": "2.2.1",
+  "version": "2.2.2",
   "description": "Components to support using Mapbox maps in React",
   "main": "dist/main.js",
   "module": "dist/module.js",
   "types": "dist/types.d.ts",
   "source": "src/index.ts",
-  "packageManager": "yarn@3.2.1",
   "devDependencies": {
     "@parcel/config-default": "^2.6.2",
     "parcel": "^2.6.2"
   },
   "dependencies": {
-    "@macrostrat/hyper": "^2.2.1",
+    "@macrostrat/hyper": "^2.2.1||^3.0.0",
     "@macrostrat/mapbox-utils": "^1.2.2",
-    "@turf/bbox": "^6.5.0",
-    "@turf/centroid": "^6.5.0",
+    "@turf/bbox": "^7.1.0",
+    "@turf/centroid": "^7.1.0",
     "@types/mapbox-gl": "^2.7.5",
     "classnames": "^2.3.1",
     "immutability-helper": "^3.1.1",
@@ -31,7 +30,6 @@
     "dev": "parcel watch",
     "build": "parcel build"
   },
-  "browserslist": "defaults",
   "exports": {
     ".": {
       "typescript": "./src",
