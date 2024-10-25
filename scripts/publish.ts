@@ -11,19 +11,19 @@ import { prepareModule } from "./prepare";
 
 /* tries to run npm publish and if succeeds adds a tag to the repo*/
 function publishModule(dir, pkg) {
-  pkg = getPackageData(pkg);
-  logAction(pkg, "Publishing", chalk.magenta);
+  const pkgData = getPackageData(pkg);
+  logAction(pkgData, "Publishing", chalk.magenta);
   try {
     execSync("yarn npm publish --access public", {
       cwd: dir,
       stdio: "inherit",
     });
     console.log(chalk.blueBright.bold("Tagging version"));
-    const tag = moduleString(pkg, "-v");
-    const msg = moduleString(pkg, " version ");
+    const tag = moduleString(pkgData, "-v");
+    const msg = moduleString(pkgData, " version ");
     execSync(`git tag -a ${tag} -m '${msg}'`, { cwd: dir });
   } catch (error) {
-    console.error(`Failed to publish ${moduleString(pkg)}, ${error}`);
+    console.error(`Failed to publish ${moduleString(pkgData)}, ${error}`);
   }
 }
 
