@@ -1,14 +1,14 @@
 // @ts-nocheck
 import { Component, createContext, ReactElement, useContext } from "react";
 import h from "@macrostrat/hyper";
-import { DateInput } from "@blueprintjs/datetime";
+import { DateInput3 } from "@blueprintjs/datetime2";
 import { EditableText } from "@blueprintjs/core";
 import { EditButton, DeleteButton } from "./buttons";
 import { StatefulComponent } from "./util";
 import classNames from "classnames";
 import update, { Spec } from "immutability-helper";
 
-import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
+import "@blueprintjs/datetime2/lib/css/blueprint-datetime2.css";
 
 const ModelEditorContext = createContext<any>({});
 
@@ -40,11 +40,8 @@ class ModelEditor<T> extends StatefulComponent<
   ModelEditorProps<T>,
   ModelEditorState<T>
 > {
-  static defaultProps = {
-    canEdit: true,
-  };
-  constructor(props) {
-    super(props);
+  constructor({ canEdit = true, ...props }) {
+    super(...arguments);
     this.getValue = this.getValue.bind(this);
     this.hasChanges = this.hasChanges.bind(this);
     this.onChange = this.onChange.bind(this);
@@ -185,7 +182,9 @@ function EditableMultilineText(props: any): React.ReactNode {
   const { actions, model, isEditing } = useContext(ModelEditorContext);
   let value = model[field];
   const onChange = actions.onChange(field);
-  className = classNames(className, `field-${field}`);
+  className = classNames(className, `field-${field}`, {
+    edited: useFieldHasChanges(field),
+  });
 
   if (isEditing) {
     value = h(EditableText, {
@@ -199,20 +198,36 @@ function EditableMultilineText(props: any): React.ReactNode {
   return h("div.text", { className }, value);
 }
 
+const useFieldHasChanges = (field) => {
+  const { hasChanges } = useContext(ModelEditorContext);
+  return hasChanges(field);
+};
+
 class EditableDateField extends Component<any, any> {
   static contextType = ModelEditorContext;
   render() {
     const { field } = this.props;
     const { actions, model, isEditing } = this.context;
     const value = model[field];
-    if (!isEditing) {
-      return h("div.date-input.disabled", value);
+
+    const className = classNames("date-input", {
+      edited: this.context.hasChanges(field),
+      disabled: !isEditing,
+    });
+
+    let valueText = value;
+    if (value instanceof Date) {
+      valueText = value.toLocaleDateString();
     }
-    return h(DateInput, {
-      className: "date-input",
+
+    if (!isEditing) {
+      return h("div", { className }, valueText);
+    }
+    return h(DateInput3, {
+      className,
       value: new Date(value),
       formatDate: (date) => date.toLocaleDateString(),
-      placeholder: "MM/DD/YYYY",
+      placeholder: valueText ?? "Select date...",
       showActionsBar: true,
       onChange: actions.onChange(field),
       parseDate(d) {
