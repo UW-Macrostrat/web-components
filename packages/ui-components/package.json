@@ -1,9 +1,9 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "4.0.4",
+  "version": "4.0.5",
   "description": "UI components for React and Blueprint.js",
-  "main": "dist/main.js",
-  "module": "dist/module.js",
+  "main": "dist/main.cjs",
+  "module": "dist/module.mjs",
   "types": "dist/types.d.ts",
   "style": "dist/main.css",
   "source": "src/index.ts",
@@ -56,8 +56,8 @@
   "exports": {
     ".": {
       "typescript": "./src",
-      "import": "./dist/module.js",
-      "require": "./dist/main.js",
+      "import": "./dist/module.mjs",
+      "require": "./dist/main.cjs",
       "types": "./dist/types.d.ts",
       "style": "./dist/main.css"
     },
