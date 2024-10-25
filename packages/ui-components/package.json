@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "4.0.5",
+  "version": "4.0.6",
   "description": "UI components for React and Blueprint.js",
   "main": "dist/main.cjs",
   "module": "dist/module.mjs",

@@ -7,6 +7,7 @@ import {
   getPackageData,
   logAction,
 } from "./status";
+import { prepareModule } from "./prepare";
 
 /* tries to run npm publish and if succeeds adds a tag to the repo*/
 function publishModule(dir, pkg) {
@@ -35,6 +36,7 @@ async function main() {
 
   for (const pkg of pkgsToPublish) {
     const dir = getPackageDirectory(pkg);
+    prepareModule(dir, pkg);
     publishModule(dir, pkg);
   }
 }

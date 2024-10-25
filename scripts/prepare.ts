@@ -9,7 +9,7 @@ import {
 } from "./status";
 
 /* Runs, npm build in the correct pkg directory*/
-function prepareModule(dir, pkg) {
+export function prepareModule(dir, pkg) {
   const pkgData = getPackageData(pkg);
   logAction(pkgData, "Building");
   try {
