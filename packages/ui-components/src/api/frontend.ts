@@ -5,8 +5,7 @@ import { Spinner } from "@blueprintjs/core";
 import { APIContext, APIActions, APIHelpers } from "./provider";
 import { debounce } from "underscore";
 import { APIConfig } from "./types";
-import { QueryParams } from "../util/query-string";
-import { JSONView } from "../util/json-view";
+import { QueryParams, JSONView } from "../util";
 import { IndexingProvider } from "./indexing";
 
 interface APIPlaceholderProps {
