@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.0.4] - 2024-10-24
+
+Fix bad build instructions
+
 ## [4.0.3] - 2024-10-24
 
 - Fix package specifiers
