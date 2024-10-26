@@ -1,8 +1,9 @@
 import { useMemo } from "react";
-import { Navbar, Button, InputGroup, Spinner, Card } from "@blueprintjs/core";
+import { Navbar, Button, Spinner, Card, Text } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { useMapStatus } from "@macrostrat/mapbox-react";
+import { Spacer } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
 
@@ -12,15 +13,18 @@ export function LoadingButton({
   isLoading = false,
   onClick,
   active = false,
+  large = false,
   icon = "menu",
+  style,
 }) {
   return h(Button, {
     className: "loading-button",
     icon: isLoading ? spinnerElement : icon,
-    large: false,
+    large,
     minimal: true,
     onClick,
     active: active && !isLoading,
+    style,
   });
 }
 
@@ -35,15 +39,52 @@ type AnyChildren = React.ReactNode | React.ReactFragment;
 export function FloatingNavbar({
   className,
   children,
+  headerElement = null,
+  title = null,
   statusElement = null,
+  rightElement = null,
+  height,
+  width,
+  style = {},
 }: {
   className?: string;
-  children?: AnyChildren;
+  children: AnyChildren;
+  rightElement?: AnyChildren;
+  headerElement?: AnyChildren;
   statusElement?: AnyChildren;
+  title?: string;
+  height?: number | string;
+  width?: number | string;
+  style?: React.CSSProperties;
 }) {
-  return h("div.searchbar-holder", { className }, [
+  let _rightElement: React.ReactNode | null = null;
+  if (rightElement != null) {
+    _rightElement = h("div.right-element", rightElement);
+  }
+
+  let _headerElement: React.ReactNode | null = headerElement;
+  if (title != null && _headerElement == null) {
+    if (typeof title === "string") {
+      _headerElement = h(Text, { tagName: "h2", ellipsize: true }, title);
+    } else {
+      _headerElement = title;
+    }
+  }
+
+  if (_headerElement != null) {
+    _headerElement = h([_headerElement, h(Spacer)]);
+  }
+
+  return h("div.searchbar-holder", { className, style: { width } }, [
     h("div.navbar-holder", [
-      h(Navbar, { className: "searchbar panel" }, children),
+      h(
+        Navbar,
+        {
+          className: "searchbar navbar panel",
+          style: { height, ...style },
+        },
+        [_headerElement, children, _rightElement]
+      ),
     ]),
     h.if(statusElement != null)(
       Card,

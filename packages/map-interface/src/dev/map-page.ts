@@ -33,7 +33,6 @@ export function MapInspector({
   focusedSource = null,
   focusedSourceTitle = null,
   fitViewport = true,
-  projection = null,
 }: {
   headerElement?: React.ReactElement;
   transformRequest?: mapboxgl.TransformRequestFunction;
@@ -127,14 +126,18 @@ export function MapInspector({
   return h(
     MapAreaContainer,
     {
-      navbar: h(FloatingNavbar, [
-        headerElement ?? h("h2", title),
-        h(Spacer),
-        h(MapLoadingButton, {
+      navbar: h(FloatingNavbar, {
+        rightElement: h(MapLoadingButton, {
+          large: true,
           active: isOpen,
           onClick: () => setOpen(!isOpen),
+          style: {
+            marginRight: "-5px",
+          },
         }),
-      ]),
+        headerElement,
+        title,
+      }),
       contextPanel: h(PanelCard, [
         h(Switch, {
           checked: xRay,
