@@ -1,7 +1,7 @@
 {
   "name": "@macrostrat/color-utils",
   "version": "1.0.0",
-  "description": "Color utitity functions",
+  "description": "Color utility functions",
   "type": "module",
   "main": "dist/main.js",
   "types": "dist/types.d.ts",
