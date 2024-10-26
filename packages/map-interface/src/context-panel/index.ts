@@ -36,6 +36,18 @@ export function MapLoadingButton(props) {
 
 type AnyChildren = React.ReactNode | React.ReactFragment;
 
+export interface FloatingNavbarProps {
+  className?: string;
+  children: AnyChildren;
+  headerElement?: AnyChildren;
+  title?: AnyChildren;
+  statusElement?: AnyChildren;
+  rightElement?: AnyChildren;
+  height: number | string;
+  width: number | string;
+  style?: object;
+}
+
 export function FloatingNavbar({
   className,
   children,
@@ -46,17 +58,7 @@ export function FloatingNavbar({
   height,
   width,
   style = {},
-}: {
-  className?: string;
-  children: AnyChildren;
-  rightElement?: AnyChildren;
-  headerElement?: AnyChildren;
-  statusElement?: AnyChildren;
-  title?: string;
-  height?: number | string;
-  width?: number | string;
-  style?: React.CSSProperties;
-}) {
+}: FloatingNavbarProps) {
   let _rightElement: React.ReactNode | null = null;
   if (rightElement != null) {
     _rightElement = h("div.right-element", rightElement);

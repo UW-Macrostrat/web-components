@@ -1,17 +1,11 @@
 import h from "@macrostrat/hyper";
 import type { Meta, StoryObj } from "@storybook/react";
 
-import { Text } from "@blueprintjs/core";
-import { FloatingNavbar, MapLoadingButton } from "../src";
+import { Breadcrumbs, Text } from "@blueprintjs/core";
+import { FloatingNavbar, MapLoadingButton, FloatingNavbarProps } from "../src";
 import { Box } from "@macrostrat/ui-components";
 
-interface BasicNavbarProps {
-  title: string;
-  width: number | string | null;
-  height: number | string | null;
-}
-
-function BasicNavbar(props: BasicNavbarProps) {
+function BasicNavbar(props: FloatingNavbarProps) {
   return h(FloatingNavbar, {
     rightElement: h(MapLoadingButton),
     ...props,
@@ -19,14 +13,14 @@ function BasicNavbar(props: BasicNavbarProps) {
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-const meta: Meta<BasicNavbarProps> = {
+const meta: Meta<FloatingNavbarProps> = {
   title: "Map interface/Components/Floating navbar",
   component: BasicNavbar,
 };
 
 export default meta;
 
-type Story = StoryObj<BasicNavbarProps>;
+type Story = StoryObj<FloatingNavbarProps>;
 
 export const Primary: Story = {
   args: {
@@ -61,7 +55,22 @@ export const WithStatusBar: Story = {
   },
 };
 
-export const NoTitle: Story = {
+export const WithExpandedNavigation: Story = {
+  args: {
+    headerElement: h(
+      Box,
+      { display: "flex", flexDirection: "column", gap: 5, marginX: 5 },
+      [
+        h(Breadcrumbs, { items: [{ icon: "home" }, { text: "Map" }] }),
+        h(Text, { tagName: "h3", style: { margin: 0 } }, "Map inspector"),
+      ]
+    ),
+    width: 250,
+    height: "fit-content",
+  },
+};
+
+export const WithoutTitle: Story = {
   args: {
     title: null,
     width: "fit-content",
