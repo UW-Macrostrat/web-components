@@ -76,6 +76,8 @@ export function MapInspector({
 
   const [actualStyle, setActualStyle] = useState(style);
 
+  console.log("actualStyle", actualStyle);
+
   useEffect(() => {
     buildInspectorStyle(style, overlayStyle, {
       mapboxToken,

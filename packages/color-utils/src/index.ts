@@ -33,3 +33,18 @@ export function getColorPair(color, inDarkMode): ColorPair {
     backgroundColor: backgroundColor.css(),
   };
 }
+
+export function toRGBAString(color: chroma.Color) {
+  /** Format color as a comma-separated RGBA string. This is required
+   * to get a CSS color in the legacy format (no longer supported by
+   * chroma-js v3).
+   */
+  const colorStr = color
+    .rgba()
+    .map((c, i) => {
+      const precision = i == 3 ? 2 : 0;
+      return c.toFixed(precision);
+    })
+    .join(", ");
+  return `rgba(${colorStr})`;
+}

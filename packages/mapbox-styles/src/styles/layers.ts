@@ -668,10 +668,15 @@ export function buildMacrostratStyle({
   focusedMap = null,
 }): mapboxgl.Style {
   /** Build a style for Macrostrat's geologic map */
+  let tileSuffix = "";
+  if (tileserverDomain == "https://tiles.macrostrat.org") {
+    // The production tileserver uses a different suffix
+    tileSuffix = ".mvt";
+  }
 
-  let tileURL = `${tileserverDomain}/carto-slim/{z}/{x}/{y}`;
+  let tileURL = `${tileserverDomain}/carto-slim/{z}/{x}/{y}${tileSuffix}`;
   if (focusedMap != null) {
-    tileURL = `${tileserverDomain}/map/{z}/{x}/{y}?source_id=${focusedMap}`;
+    tileURL = `${tileserverDomain}/map/{z}/{x}/{y}${tileSuffix}?source_id=${focusedMap}`;
   }
 
   return {

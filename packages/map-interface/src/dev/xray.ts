@@ -1,5 +1,5 @@
 import { getMapboxStyle, mergeStyles } from "@macrostrat/mapbox-utils";
-import chroma from "chroma-js";
+import { asChromaColor, toRGBAString } from "@macrostrat/color-utils";
 import mapboxgl from "mapbox-gl";
 
 interface XRayOptions {
@@ -17,7 +17,7 @@ export async function buildXRayStyle(
     inDarkMode = false,
     color = "rgb(74, 242, 161)",
     mapboxToken,
-    xRaySources
+    xRaySources,
   } = params;
   const style = await getMapboxStyle(baseStyle, { access_token: mapboxToken });
   const sources = xRaySources ?? Object.keys(style.sources);
@@ -41,15 +41,12 @@ export async function buildXRayStyle(
 }
 
 function transformMapboxLayer(layer, color, inDarkMode) {
-  const c = chroma(color);
+  const c = asChromaColor(color);
   const xRayColor = (opacity = 1, darken = 0) => {
     if (!inDarkMode) {
-      return chroma(color)
-        .darken(2 - darken)
-        .alpha(opacity)
-        .css();
+      return toRGBAString(c.darken(2 - darken).alpha(opacity));
     }
-    return c.alpha(opacity).darken(darken).css();
+    return toRGBAString(c.alpha(opacity).darken(darken));
   };
 
   if (layer.type == "background") {
@@ -57,6 +54,8 @@ function transformMapboxLayer(layer, color, inDarkMode) {
   }
 
   let newLayer = { ...layer };
+
+  console.log(xRayColor(0.5));
 
   if (layer.type == "fill") {
     newLayer.paint = {
@@ -93,7 +92,12 @@ export async function buildInspectorStyle(
   overlayStyle: mapboxgl.Style | string | null = null,
   params: InspectorStyleOptions = {}
 ) {
-  const { mapboxToken, xRay = false, xRaySources: _xRaySources, ...rest } = params;
+  const {
+    mapboxToken,
+    xRay = false,
+    xRaySources: _xRaySources,
+    ...rest
+  } = params;
   let xRaySources = _xRaySources;
   let style = await getMapboxStyle(baseStyle, {
     access_token: mapboxToken,
@@ -106,7 +110,6 @@ export async function buildInspectorStyle(
     style = mergeStyles(style, overlay);
     xRaySources ??= Object.keys(overlay.sources);
   }
-
 
   if (xRay) {
     // If we haven't specified sources, then we'll use all of them

@@ -1,9 +1,9 @@
 import h from "@macrostrat/hyper";
 import type { Meta } from "@storybook/react";
 import type { StoryObj } from "@storybook/react";
+import { buildMacrostratStyle } from "../../mapbox-styles/src";
 
 import { DevMapPage } from "../src";
-import Box from "ui-box";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -51,5 +51,19 @@ export const ZoomedIn: Story = {
         altitude: 300000,
       },
     },
+  },
+};
+
+export const WithMacrostratOverlay: Story = {
+  args: {
+    title: "Macrostrat",
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -74.006,
+        altitude: 300000,
+      },
+    },
+    overlayStyle: buildMacrostratStyle({}),
   },
 };
