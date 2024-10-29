@@ -19,8 +19,6 @@ import {
   IncreaseDirection,
 } from "@macrostrat/timescale";
 import "./measured-section.sass";
-import "../src/global-styles.scss";
-import "../src/main.module.scss";
 
 function patternPath(id) {
   return `../../../deps/geologic-patterns/assets/svg/${id}.svg`;

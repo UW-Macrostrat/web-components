@@ -1,10 +1,9 @@
 import { scaleLinear, ScaleContinuousNumeric, ScaleLinear } from "d3-scale";
 import React, { createContext, useContext, useMemo } from "react";
 import h from "@macrostrat/hyper";
-import T from "prop-types";
 
 type HeightRange = [number, number];
-type ColumnScale = ScaleContinuousNumeric<HeightRange, number>;
+type ColumnScale = ScaleContinuousNumeric<HeightRange, number> | any;
 
 type ColumnScaleClamped = ScaleLinear<number, number>;
 
@@ -14,6 +13,8 @@ declare interface ColumnDivision {
   surface: number;
   bottom: number;
   top: number;
+  // Extra properties that are there for legacy purposes
+  flooding_surface_order?: number;
 }
 
 enum ColumnAxisType {
@@ -50,13 +51,13 @@ const rangeOrHeight = function (props, propName) {
 
 interface ColumnProviderProps<T extends ColumnDivision> {
   pixelsPerMeter?: number;
-  divisions: T;
-  range?: HeightRange;
+  divisions: T[];
+  range?: HeightRange | any;
   height?: number;
   zoom?: number;
   width?: number;
   axisType?: ColumnAxisType;
-  children?: React.ReactChild;
+  children?: any;
 }
 
 function ColumnProvider<T extends ColumnDivision>(

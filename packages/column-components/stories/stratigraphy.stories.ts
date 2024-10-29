@@ -6,8 +6,6 @@ import {
 } from "@macrostrat/column-components";
 import { BaseUnit } from "@macrostrat/api-types";
 import "./measured-section.sass";
-import "../src/global-styles.scss";
-import "../src/main.module.scss";
 import zebraNappeIntervals from "./naukluft-intervals.json";
 import namaIntervals from "./nama-intervals.json";
 import "./zebra-nappe.sass";

@@ -1,16 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import { select } from "d3-selection";
-import { Component, createElement, useContext } from "react";
+import { Component, useContext } from "react";
 import h from "@macrostrat/hyper";
-import { join, resolve } from "path";
 import classNames from "classnames";
-import { path } from "d3-path";
 import { ColumnContext, AssetPathContext } from "./context";
 import { UUIDComponent } from "./frame";
 import T from "prop-types";

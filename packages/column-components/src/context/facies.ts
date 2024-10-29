@@ -3,7 +3,7 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { Component, createContext } from "react";
+import { Component, createContext, ExoticComponent } from "react";
 import { StatefulComponent } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 
@@ -12,7 +12,7 @@ const FaciesContext = createContext({
   onColorChanged() {},
 });
 
-class FaciesProvider extends StatefulComponent {
+class FaciesProvider extends StatefulComponent<any, any> {
   constructor(props) {
     super(props);
     this.state = {
@@ -45,6 +45,7 @@ class FaciesProvider extends StatefulComponent {
       ...procedures,
       ...rest,
     };
+
     return h(FaciesContext.Provider, { value }, children);
   }
 }

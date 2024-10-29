@@ -8,8 +8,9 @@ import h from "@macrostrat/hyper";
 
 const LithologyContext = createContext({ lithologies: [] });
 
-const LithologyProvider = function(props) {
+const LithologyProvider = function (props) {
   const { lithologies, children } = props;
+  // @ts-ignore
   return h(LithologyContext.Provider, { value: { lithologies } }, children);
 };
 
