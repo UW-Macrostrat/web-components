@@ -3,8 +3,6 @@ import { ColumnDivision, ColumnSurface } from "@macrostrat/column-components";
 import { BaseUnit } from "@macrostrat/api-types";
 import { IUnit } from "@macrostrat/column-views";
 import "./measured-section.sass";
-import "../src/global-styles.scss";
-import "../src/main.module.scss";
 
 import { MeasuredSection } from "./base-section";
 

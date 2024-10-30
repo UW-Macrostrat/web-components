@@ -83,5 +83,8 @@
     "geologic-patterns@2.0.0-dev1": {
       "unplugged": true
     }
+  },
+  "dependencies": {
+    "@types/react": "^18.3.12"
   }
 }

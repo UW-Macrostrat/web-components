@@ -5,25 +5,31 @@
  */
 import { createContext } from "react";
 import h from "@macrostrat/hyper";
-import T from "prop-types";
 
-const AssetPathContext = createContext({
-  resolveSymbol() {},
+interface AssetPathCtx {
+  resolveSymbol: (symbol: string) => string | null;
+}
+
+const AssetPathContext = createContext<AssetPathCtx>({
+  resolveSymbol(): string | null {
+    return null;
+  },
 });
 
-const AssetPathProvider = function (props) {
+interface AssetPathProviderProps extends AssetPathCtx {
+  children: React.ReactNode;
+}
+
+function AssetPathProvider(props: AssetPathProviderProps) {
   const { children, resolveSymbol } = props;
   return h(
+    // @ts-ignore
     AssetPathContext.Provider,
     {
       value: { resolveSymbol },
     },
     children
   );
-};
-
-AssetPathProvider.propTypes = {
-  resolveSymbol: T.func.isRequired,
-};
+}
 
 export { AssetPathContext, AssetPathProvider };

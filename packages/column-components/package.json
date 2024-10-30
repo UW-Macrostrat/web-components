@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "1.0.0-dev2",
+  "version": "1.0.0-dev3",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -37,12 +37,10 @@
   "license": "MIT",
   "devDependencies": {
     "parcel": "^2.12.0",
-    "postcss": "^8.0.0",
-    "postcss-modules": "^4.3.0",
     "stylus": "^0.59.0"
   },
   "dependencies": {
-    "@macrostrat/hyper": "^2.1.0",
+    "@macrostrat/hyper": "^3.0.2",
     "chroma-js": "^2.1.0",
     "classnames": "^2.2.6",
     "d3-axis": "^1.0.12",
@@ -63,7 +61,7 @@
     "react-scroll": "^1.7.16",
     "react-select": "^3.0.8",
     "react-svg-textures": "^1.4.7",
-    "ui-box": "^3.0.2",
+    "ui-box": "^5.4.1",
     "uuid": "^7.0.3"
   },
   "peerDependencies": {

@@ -1,7 +1,6 @@
 import { useContext } from "react";
 import h from "./hyper";
 import { ColumnContext } from "./context";
-import { expandMargin } from "./util";
 
 interface ColumnImageProps {
   src: string;
