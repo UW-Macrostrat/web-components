@@ -172,8 +172,7 @@ export async function checkIfPackageCanBePublished(
     canPublish = true;
     checkForChangelogEntry(data);
   }
-  const hasChanges = moduleHasChangesSinceTag(data);
-  if (hasChanges) {
+  if (isAvailable && moduleHasChangesSinceTag(data)) {
     // the module code has changed since the current published version
     printChangeInfoForPublishedPackage(data, true);
   }
@@ -187,8 +186,10 @@ export async function status(exitIfUncommittedChanges = true) {
   const { publishedPackages: packages } = readPackageJSON(projectDir);
 
   for (const pkg of packages) {
-    console.log();
+    console.log("\n");
     const data = getPackageData(pkg);
+
+    console.log(chalk.bold.underline(data.name), "\n");
     const canPublish = await checkIfPackageCanBePublished(data);
     if (canPublish) {
       pkgsToPublish.push(pkg);

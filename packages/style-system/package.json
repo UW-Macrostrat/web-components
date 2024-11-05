@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/style-system",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Style system for Macrostrat",
   "main": "dist/index.css",
   "source": "src/index.ts",

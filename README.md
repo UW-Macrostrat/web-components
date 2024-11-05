@@ -21,13 +21,12 @@ Web-Components also holds a collection of web-applications that use the componen
 
 ## Storybook
 
-The libraries within Web-Components use [Storybook](https://storybook.js.org/) for development and collaboration. There is one main storybook at the root of the monorepo and each library has individual `stories` that are gathered at storybook runtime.
+We use [Storybook](https://storybook.js.org/) for developing components in an isolated environment. To start the storybook, run `yarn run dev` in the root directory.
 
-Building the storybook: `yarn run build:storybook`
 
 ## For Developers
 
-To get started developing web-components, clone this repository to your machine and run:
+To get started developing web-components, clone this repository to your machine and run 
 
 ```
 git submodule init --recursive
@@ -42,16 +41,14 @@ quick installs and updates.
 yarn
 ```
 
-To build and view the story book you can run:
+# Storybook
+
+To build and view the Storybook you can run:
 
 ```
-yarn run dev:storybook --port 3000
+yarn run dev
 ```
 
-The storybook will start at port `3000`
+The storybook will start at port `6006`
 
-If you want to test the feedback component, and want to get data from the database then setup the express server using:
-```
-cd example_fetcher_server
-node ./index.js
-```
+#
