@@ -15,18 +15,9 @@ Web-Components is a monorepo that holds several libraries in the `/packages` dir
 - [`@macrostrat/data-components`](https://www.npmjs.com/package/@macrostrat/data-components)
 - [`@macrostrat/column-components`](https://www.npmjs.com/package/@macrostrat/column-components)
 
-#### Apps
+## Contributing to web components
 
-Web-Components also holds a collection of web-applications that use the component libraries discussed above. These apps can be found in the `/apps` directory.
-
-## Storybook
-
-We use [Storybook](https://storybook.js.org/) for developing components in an isolated environment. To start the storybook, run `yarn run dev` in the root directory.
-
-
-## For Developers
-
-To get started developing web-components, clone this repository to your machine and run 
+To get started developing Macrostrat web components, clone this repository to your machine and run 
 
 ```
 git submodule init --recursive
@@ -41,14 +32,10 @@ quick installs and updates.
 yarn
 ```
 
-# Storybook
+## Storybook
 
-To build and view the Storybook you can run:
-
-```
-yarn run dev
-```
+We use [Storybook](https://storybook.js.org/) for developing components in an isolated environment.
+To start the storybook, run `yarn run dev` in the root directory.
 
 The storybook will start at port `6006`
 
-#
