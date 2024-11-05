@@ -63,6 +63,9 @@ export function useMapEaseToCenter(position, padding) {
   const prevPadding = useRef<any>(null);
   // Handle map position easing (for both map padding and markers)
   useEffect(() => {
+    console.warn(
+      "Using deprecated function useMapEaseToCenter, consider using useMapEaseTo instead"
+    );
     const map = mapRef.current;
     if (map == null) return;
     let opts: mapboxgl.FlyToOptions = null;
@@ -105,6 +108,9 @@ export function useMapEaseToBounds(
   const prevPadding = useRef<any>(null);
   // Handle map position easing (for both map padding and markers)
   useEffect(() => {
+    console.warn(
+      "Using deprecated function useMapEaseToBounds, consider using useMapEaseTo instead"
+    );
     const map = mapRef.current;
     if (map == null) return;
     if (bounds == prevPosition.current || padding == prevPadding.current) {
@@ -126,11 +132,14 @@ export function useMapEaseToBounds(
   }, [bounds, padding, mapRef.current]);
 }
 
-type MapEaseToProps = {
+type MapEaseToState = {
   bounds?: LngLatBoundsLike;
   padding?: PaddingOptions | number;
   center?: LngLatLike;
   zoom?: number;
+};
+
+type MapEaseToProps = MapEaseToState & {
   duration?: number;
   trackResize?: boolean;
 };
@@ -145,49 +154,80 @@ export function useMapEaseTo(props: MapEaseToProps) {
     duration = 800,
     trackResize = false,
   } = props;
-  const initialized = useRef<boolean>(false);
-  const [resizeCounter, setResizeCounter] = useState(0);
+  const prevState = useRef<MapEaseToState | null>(null);
 
+  /** Handle changes to any map props */
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
+
+    const initialized = prevState.current != null;
 
     let opts: mapboxgl.FlyToOptions = {
       padding,
-      duration: initialized.current ? duration : 0,
+      duration: initialized ? duration : 0,
     };
 
-    if (bounds != null) {
-      map.fitBounds(bounds, opts);
-    } else if (center != null || zoom != null || padding != null) {
-      let props = { ...opts };
-      if (center != null) {
-        props.center = center;
-      }
-      if (zoom != null) {
-        props.zoom = zoom;
-      }
-      map.flyTo(props);
-    }
+    const state = { bounds, padding, center, zoom };
 
+    moveMap(map, filterChanges(state, prevState.current), opts);
     map.once("moveend", () => {
-      initialized.current = true;
+      prevState.current = state;
     });
-  }, [bounds, padding, center, zoom, mapRef.current, resizeCounter]);
+  }, [bounds, padding, center, zoom, mapRef.current]);
 
+  /** Handle map resize events */
   useEffect(() => {
     const map = mapRef.current;
-    if (map == null) return;
-    if (props.trackResize) {
-      const cb = () => {
-        setResizeCounter((x) => x + 1);
-      };
-      map.on("resize", cb);
-      return () => {
-        map.off("resize", cb);
-      };
-    }
+    if (map == null || !props.trackResize) return;
+    const cb = () => {
+      if (prevState.current == null) return;
+      moveMap(map, prevState.current, { duration: 0 });
+    };
+    map.on("resize", cb);
+    return () => {
+      map.off("resize", cb);
+    };
   }, [trackResize, mapRef.current]);
+}
+
+function filterChanges(
+  a: MapEaseToState,
+  b: MapEaseToState | null
+): Partial<MapEaseToState> {
+  if (b == null) return a;
+  return getChangedKeys(a, b);
+}
+
+function getChangedKeys<T = object>(a: T, b: T): Partial<T> {
+  /** Find the keys of an object that have changed */
+  const keys = Object.keys(a) as (keyof T)[];
+  return keys.reduce((acc, key) => {
+    if (a[key] !== b[key]) {
+      acc[key] = a[key];
+    }
+    return acc;
+  }, {} as Partial<T>);
+}
+
+function moveMap(
+  map: mapboxgl.Map,
+  state: MapEaseToState,
+  opts: mapboxgl.FlyToOptions
+) {
+  const { bounds, center, zoom, padding } = state;
+  if (bounds != null) {
+    map.fitBounds(bounds, opts);
+  } else if (center != null || zoom != null || padding != null) {
+    let props = { ...opts };
+    if (center != null) {
+      props.center = center;
+    }
+    if (zoom != null) {
+      props.zoom = zoom;
+    }
+    map.flyTo(props);
+  }
 }
 
 function greatCircleDistance(
