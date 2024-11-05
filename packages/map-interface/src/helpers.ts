@@ -4,7 +4,7 @@ import {
   useMapDispatch,
   useMapStatus,
 } from "@macrostrat/mapbox-react";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 import { debounce } from "underscore";
 import useResizeObserver from "use-resize-observer";
 
@@ -34,12 +34,14 @@ interface MapPaddingManagerProps {
   containerRef: React.RefObject<HTMLDivElement>;
   parentRef: React.RefObject<HTMLDivElement>;
   infoMarkerPosition: mapboxgl.LngLatLike;
+  debounceTime?: number;
 }
 
 export function MapPaddingManager({
   containerRef,
   parentRef,
   infoMarkerPosition,
+  debounceTime = 200,
 }: MapPaddingManagerProps) {
   const mapRef = useMapRef();
 
@@ -47,10 +49,15 @@ export function MapPaddingManager({
     getMapPadding(containerRef, parentRef)
   );
 
-  const updateMapPadding = useCallback(() => {
+  const _updateMapPadding = useCallback(() => {
     const newPadding = getMapPadding(containerRef, parentRef);
     setPadding(newPadding);
   }, [containerRef.current, parentRef.current]);
+
+  const updateMapPadding = useMemo(
+    () => debounce(_updateMapPadding, debounceTime),
+    [_updateMapPadding, debounceTime]
+  );
 
   useEffect(() => {
     const map = mapRef.current;
@@ -63,6 +70,9 @@ export function MapPaddingManager({
     ref: parentRef,
     onResize(sz) {
       updateMapPadding();
+    },
+    round(n) {
+      return Math.round(n);
     },
   });
 
