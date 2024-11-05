@@ -132,7 +132,7 @@ export function useMapEaseToBounds(
   }, [bounds, padding, mapRef.current]);
 }
 
-type MapEaseToState = {
+export type MapEaseToState = {
   bounds?: LngLatBoundsLike;
   padding?: PaddingOptions | number;
   center?: LngLatLike;
@@ -158,7 +158,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
 
   /** Handle changes to any map props */
   useEffect(() => {
-    const map = mapRef.current;
+    const map = mapRef?.current;
     if (map == null) return;
 
     const initialized = prevState.current != null;
@@ -174,11 +174,11 @@ export function useMapEaseTo(props: MapEaseToProps) {
     map.once("moveend", () => {
       prevState.current = state;
     });
-  }, [bounds, padding, center, zoom, mapRef.current]);
+  }, [bounds, padding, center, zoom, mapRef?.current]);
 
   /** Handle map resize events */
   useEffect(() => {
-    const map = mapRef.current;
+    const map = mapRef?.current;
     if (map == null || !props.trackResize) return;
     const cb = () => {
       if (prevState.current == null) return;
@@ -188,7 +188,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
     return () => {
       map.off("resize", cb);
     };
-  }, [trackResize, mapRef.current]);
+  }, [trackResize, mapRef?.current]);
 }
 
 function filterChanges(

@@ -2,7 +2,8 @@ import { RefObject, useEffect } from "react";
 import mapboxgl from "mapbox-gl";
 import { toggleMapLabelVisibility } from "@macrostrat/mapbox-utils";
 import { useMapRef, useMapStatus } from "./context";
-import {useCallback} from "react";
+import { useCallback } from "react";
+import { useInDarkMode } from "@macrostrat/ui-components";
 
 /** A newer and more flexible version of useMapConditionalStyle */
 export function useMapStyleOperator(
@@ -79,4 +80,11 @@ export function useMapClickHandler(
     },
     [clickFn]
   );
+}
+
+export function useBasicStylePair() {
+  const inDarkMode = useInDarkMode();
+  return inDarkMode
+    ? "mapbox://styles/mapbox/dark-v10"
+    : "mapbox://styles/mapbox/light-v10";
 }
