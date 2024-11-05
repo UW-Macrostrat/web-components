@@ -163,6 +163,24 @@ function moduleString(pkg, separator = "@") {
   return pkg["name"] + separator + pkg["version"];
 }
 
+export async function checkIfPackageCanBePublished(
+  data: PackageData
+): Promise<boolean> {
+  const isAvailable = await packageVersionExistsInRegistry(data);
+  let canPublish = false;
+  if (!isAvailable) {
+    canPublish = true;
+    checkForChangelogEntry(data);
+  }
+  const hasChanges = moduleHasChangesSinceTag(data);
+  if (hasChanges) {
+    // the module code has changed since the current published version
+    printChangeInfoForPublishedPackage(data, true);
+  }
+
+  return canPublish;
+}
+
 export async function status(exitIfUncommittedChanges = true) {
   let pkgsToPublish = [];
 
@@ -171,23 +189,11 @@ export async function status(exitIfUncommittedChanges = true) {
   for (const pkg of packages) {
     console.log();
     const data = getPackageData(pkg);
-    const isAvailable = await packageVersionExistsInRegistry(data);
-    if (!isAvailable) {
+    const canPublish = await checkIfPackageCanBePublished(data);
+    if (canPublish) {
       pkgsToPublish.push(pkg);
-
-      // Check for changelog entry
-      checkForChangelogEntry(data);
-
-      continue;
-    }
-
-    const hasChanges = moduleHasChangesSinceTag(getPackageData(pkg));
-    if (hasChanges) {
-      // the module code has changed since the current published version
-      printChangeInfoForPublishedPackage(getPackageData(pkg), true);
     }
   }
-
   console.log();
 
   if (pkgsToPublish.length === 0) {
