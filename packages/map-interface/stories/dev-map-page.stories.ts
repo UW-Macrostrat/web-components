@@ -1,12 +1,13 @@
-import h from "@macrostrat/hyper";
 import type { Meta } from "@storybook/react";
 import type { StoryObj } from "@storybook/react";
 import { buildMacrostratStyle } from "../../mapbox-styles/src";
-import * as mapboxgl from "mapbox-gl";
+import { DevMapPage as _DevMapPage } from "../src";
 
-import { DevMapPage } from "../src";
+const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
+function DevMapPage(props) {
+  return _DevMapPage({ ...props, mapboxToken });
+}
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof DevMapPage> = {

@@ -10,7 +10,6 @@ import {
   useBasicStylePair,
 } from "../src";
 
-import mapboxgl from "mapbox-gl";
 import { useEffect, useState } from "react";
 import {
   useMapRef,
@@ -19,7 +18,7 @@ import {
   useMapStatus,
 } from "@macrostrat/mapbox-react";
 
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
+const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 type Location = { name: string } & MapEaseToState;
 
@@ -43,52 +42,6 @@ const locations: Location[] = [
     zoom: 0.002,
   },
 ];
-
-function MapEaseContainer({
-  children,
-  locationName,
-  nextLocation,
-  description,
-}) {
-  /* We apply a custom style to the panel container when we are interacting
-    with the search bar, so that we can block map interactions until search
-    bar focus is lost.
-    We also apply a custom style when the infodrawer is open so we can hide
-    the search bar on mobile platforms
-  */
-  const style = useBasicStylePair();
-
-  return h(
-    MapAreaContainer,
-    {
-      navbar: h(FloatingNavbar, {
-        rightElement: h(MapLoadingButton, {
-          large: true,
-          style: {
-            marginRight: "-5px",
-          },
-        }),
-        title: "Map easing",
-      }),
-      contextPanel: h(Card, [
-        description,
-        h("p", ["Viewing ", h("strong", locationName)]),
-        h("button", { onClick: nextLocation }, ["Next location"]),
-      ]),
-    },
-    [
-      h(
-        MapView,
-        {
-          style,
-          projection: { name: "globe" },
-          mapPosition: null,
-        },
-        children
-      ),
-    ]
-  );
-}
 
 function MapEaseWrapper({
   children,
@@ -136,6 +89,7 @@ function MapEaseWrapper({
           style,
           projection: { name: "globe" },
           mapPosition,
+          mapboxToken,
         },
         children
       ),

@@ -41,6 +41,7 @@ export const parameters = {
 export const decorators = [
   (renderStory) => {
     const isEnabled = useDarkMode();
+    console.log("Dark mode is enabled", isEnabled);
     return h(DarkModeProvider, { isEnabled }, renderStory());
   },
 ];
