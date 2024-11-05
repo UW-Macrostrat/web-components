@@ -203,7 +203,7 @@ function getChangedKeys<T = object>(a: T, b: T): Partial<T> {
   /** Find the keys of an object that have changed */
   const keys = Object.keys(a) as (keyof T)[];
   return keys.reduce((acc, key) => {
-    if (a[key] !== b[key]) {
+    if (a[key] !== b[key] && a[key] != null) {
       acc[key] = a[key];
     }
     return acc;
@@ -216,10 +216,14 @@ function moveMap(
   opts: mapboxgl.FlyToOptions
 ) {
   const { bounds, center, zoom, padding } = state;
+  console.log(state);
   if (bounds != null) {
     map.fitBounds(bounds, opts);
   } else if (center != null || zoom != null || padding != null) {
     let props = { ...opts };
+    if (padding != null) {
+      props.padding = padding;
+    }
     if (center != null) {
       props.center = center;
     }

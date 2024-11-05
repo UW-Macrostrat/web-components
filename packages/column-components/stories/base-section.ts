@@ -8,9 +8,7 @@ import {
   GrainsizeLayoutProvider,
   ColumnDivision,
   ColumnSurface,
-  ColumnLayoutContext,
 } from "@macrostrat/column-components";
-import { useContext } from "react";
 import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
 import { IUnit } from "@macrostrat/column-views";
 import {

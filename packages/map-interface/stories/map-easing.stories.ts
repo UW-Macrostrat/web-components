@@ -3,11 +3,6 @@ import type { Meta } from "@storybook/react";
 import type { StoryObj } from "@storybook/react";
 import { Card } from "@blueprintjs/core";
 import {
-  useBasicStylePair,
-  MapEaseToState,
-  useMapEaseTo,
-} from "../../mapbox-react/src";
-import {
   FloatingNavbar,
   MapAreaContainer,
   MapLoadingButton,
@@ -15,7 +10,14 @@ import {
 } from "../src";
 
 import mapboxgl from "mapbox-gl";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import {
+  useMapRef,
+  useBasicStylePair,
+  MapEaseToState,
+  useMapEaseTo,
+  useMapStatus,
+} from "@macrostrat/mapbox-react";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -86,14 +88,21 @@ export function MapEaseToDemo() {
           style,
           projection: { name: "globe" },
         },
-        h(MapEaseWrapper, loc)
+        h(MapEaseWrapper, { location: loc })
       ),
     ]
   );
 }
 
-function MapEaseWrapper(props: MapEaseToState) {
-  useMapEaseTo(props);
+function MapEaseWrapper(props: { location: MapEaseToState }) {
+  const ref = useMapRef();
+  const { isInitialized } = useMapStatus();
+  const { location } = props;
+  useEffect(() => {
+    if (ref.current == null) return;
+    console.log("Easing to", location);
+    ref.current.easeTo(location);
+  }, [ref.current, location, isInitialized]);
   return null;
 }
 
