@@ -8,8 +8,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Improve the internal design of the `useMapEaseTo` hook
 - Add some stories for testing
-- Add a `useBasicStylePair` hook for getting a basemap in dark or light mode
 - Added deprecation warnings to `useMapEaseToCenter` and `useMapEaseToBounds`
+- Add a `useBasicStylePair` hook for getting a basemap in dark or light mode
+
 
 ## [2.2.3] - 2024-10-24
 

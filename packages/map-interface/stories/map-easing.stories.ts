@@ -7,13 +7,13 @@ import {
   MapAreaContainer,
   MapLoadingButton,
   MapView,
+  useBasicStylePair,
 } from "../src";
 
 import mapboxgl from "mapbox-gl";
 import { useEffect, useState } from "react";
 import {
   useMapRef,
-  useBasicStylePair,
   MapEaseToState,
   useMapEaseTo,
   useMapStatus,

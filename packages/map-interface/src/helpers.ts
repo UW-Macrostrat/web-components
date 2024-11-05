@@ -12,6 +12,7 @@ import { getMapPosition } from "@macrostrat/mapbox-utils";
 import mapboxgl from "mapbox-gl";
 import { useCallback, useEffect, useState } from "react";
 import { getMapPadding, useMapMarker } from "./utils";
+import { useInDarkMode } from "@macrostrat/ui-components";
 
 export function MapResizeManager({ containerRef }) {
   const mapRef = useMapRef();
@@ -179,4 +180,11 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
   }, [mapRef.current, setPosition]);
 
   return null;
+}
+
+export function useBasicStylePair() {
+  const inDarkMode = useInDarkMode();
+  return inDarkMode
+    ? "mapbox://styles/mapbox/dark-v10"
+    : "mapbox://styles/mapbox/light-v10";
 }

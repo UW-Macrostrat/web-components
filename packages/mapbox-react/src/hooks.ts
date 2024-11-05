@@ -81,10 +81,3 @@ export function useMapClickHandler(
     [clickFn]
   );
 }
-
-export function useBasicStylePair() {
-  const inDarkMode = useInDarkMode();
-  return inDarkMode
-    ? "mapbox://styles/mapbox/dark-v10"
-    : "mapbox://styles/mapbox/light-v10";
-}
