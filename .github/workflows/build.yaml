@@ -30,9 +30,8 @@ jobs:
 
       - name: Build the static website
         run: |
-          yarn config set -H enableImmutableInstalls false
           yarn install
-          yarn run build:storybook
+          yarn run build
           
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
