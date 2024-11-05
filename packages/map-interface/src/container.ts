@@ -32,6 +32,9 @@ export enum DetailPanelStyle {
   FLOATING = "floating",
 }
 
+export const MapAreaContainer = (props) =>
+  h(MapProviders, h(_MapAreaContainer, props));
+
 function _MapAreaContainer({
   children,
   className,
@@ -143,9 +146,6 @@ function ContextStack(props: ContextStackProps) {
 
 const MapProviders = ({ children }) =>
   h(ToasterContext, h(MapboxMapProvider, children));
-
-export const MapAreaContainer = (props) =>
-  h(MapProviders, h(_MapAreaContainer, props));
 
 interface MapContainerProps {
   className?: string;
