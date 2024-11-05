@@ -12,11 +12,12 @@
   "module": "./dist/module.js",
   "style": "./dist/main.css",
   "source": "./src/index.ts",
+  "type": "module",
   "exports": {
     ".": {
+      "typescript": "./src/index.ts",
       "import": "./dist/module.js",
-      "require": "./dist/main.js",
-      "typescript": "./src/index.ts"
+      "require": "./dist/main.js"
     },
     "./dist/main.css": {
       "import": "./dist/main.css",
