@@ -2,25 +2,30 @@ import h from "@macrostrat/hyper";
 import type { Meta } from "@storybook/react";
 import type { StoryObj } from "@storybook/react";
 import { buildMacrostratStyle } from "../../mapbox-styles/src";
+import * as mapboxgl from "mapbox-gl";
 
 import { DevMapPage } from "../src";
 
-const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
-
-function WrappedComponent(props) {
-  return h(DevMapPage, { ...props, mapboxToken });
-}
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof DevMapPage> = {
   title: "Map interface/Development map page",
-  component: WrappedComponent,
+  component: DevMapPage,
   parameters: {
     layout: "fullscreen",
     docs: {
       story: {
         inline: false,
         iframeHeight: 500,
+      },
+    },
+    argTypes: {
+      mapboxToken: {
+        table: {
+          disable: true,
+        },
+        control: false,
       },
     },
   },

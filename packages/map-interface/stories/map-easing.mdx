@@ -1,0 +1,22 @@
+import { Canvas, Meta } from '@storybook/blocks';
+
+import * as MapEasingStories from './map-easing.stories';
+
+<Meta of={MapEasingStories} />
+
+# Map easing
+
+One of the most difficult interactions to get right is moving the map to a
+position on click.
+
+This example shows how to use the `useMapEaseTo` hook, which is intended to batch and sequence
+updates to produce smooth animations.
+
+<Canvas of={MapEasingStories.UseMapEaseTo} />
+
+
+The following example shows an extremely basic implementation of easing, for comparative testing.
+
+
+
+<Canvas of={MapEasingStories.BasicMapEaseTo} />

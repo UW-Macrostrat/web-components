@@ -101,6 +101,10 @@
     position: absolute
 
 
+.context-panel-holder>:global(.bp5-card)
+  padding: 10px
+  background-color: var(--panel-background-color)
+
 .panel-card
   padding: 10px
   background-color: var(--panel-background-color)
@@ -522,7 +526,8 @@
       .spacer
         flex: 1
 
-// Shift UI around to center elements if we're in the global view 
+
+// Shift UI around to center elements if we're in the global view
 @media only screen and (min-width: 768px)
   .map-container.detail-panel-leave .map-view-container
     margin-right: -14em

@@ -132,7 +132,7 @@ export function useMapEaseToBounds(
   }, [bounds, padding, mapRef.current]);
 }
 
-type MapEaseToState = {
+export type MapEaseToState = {
   bounds?: LngLatBoundsLike;
   padding?: PaddingOptions | number;
   center?: LngLatLike;
@@ -155,30 +155,46 @@ export function useMapEaseTo(props: MapEaseToProps) {
     trackResize = false,
   } = props;
   const prevState = useRef<MapEaseToState | null>(null);
+  /** We need an update queue to batch together updates, especially during map initialization.
+   * If we don't have this, early position updates are not respected unless they are
+   * controlled outside of the component. */
+  const updateQueue = useRef<MapEaseToState[]>([]);
+  // This forces a re-render after initialization, I guess
+  const { isInitialized } = useMapStatus();
 
   /** Handle changes to any map props */
   useEffect(() => {
-    const map = mapRef.current;
-    if (map == null) return;
+    // Add the proposed update to the queue
+    updateQueue.current.push({ bounds, padding, center, zoom });
+
+    const map = mapRef?.current;
+    if (map == null) {
+      return;
+    }
 
     const initialized = prevState.current != null;
+
+    const state = updateQueue.current.reduce((acc, val) => {
+      return { ...acc, ...val };
+    });
+    updateQueue.current = [];
+
+    const positionChanges = filterChanges(state, prevState.current);
 
     let opts: mapboxgl.FlyToOptions = {
       padding,
       duration: initialized ? duration : 0,
     };
 
-    const state = { bounds, padding, center, zoom };
-
-    moveMap(map, filterChanges(state, prevState.current), opts);
+    moveMap(map, positionChanges, opts);
     map.once("moveend", () => {
       prevState.current = state;
     });
-  }, [bounds, padding, center, zoom, mapRef.current]);
+  }, [bounds, padding, center, zoom, mapRef?.current, isInitialized]);
 
   /** Handle map resize events */
   useEffect(() => {
-    const map = mapRef.current;
+    const map = mapRef?.current;
     if (map == null || !props.trackResize) return;
     const cb = () => {
       if (prevState.current == null) return;
@@ -188,26 +204,37 @@ export function useMapEaseTo(props: MapEaseToProps) {
     return () => {
       map.off("resize", cb);
     };
-  }, [trackResize, mapRef.current]);
+  }, [trackResize, mapRef?.current]);
 }
 
 function filterChanges(
   a: MapEaseToState,
   b: MapEaseToState | null
 ): Partial<MapEaseToState> {
-  if (b == null) return a;
+  if (b == null) return stripNullKeys(a);
   return getChangedKeys(a, b);
 }
 
 function getChangedKeys<T = object>(a: T, b: T): Partial<T> {
   /** Find the keys of an object that have changed */
   const keys = Object.keys(a) as (keyof T)[];
-  return keys.reduce((acc, key) => {
-    if (a[key] !== b[key]) {
+  let reduced = keys.reduce((acc, key) => {
+    if (a[key] !== b[key] && a[key] != null) {
       acc[key] = a[key];
     }
     return acc;
   }, {} as Partial<T>);
+  return stripNullKeys(reduced);
+}
+
+function stripNullKeys(obj: object) {
+  let newObj = { ...obj };
+  for (const [key, val] of Object.entries(newObj)) {
+    if (val == null) {
+      delete newObj[key];
+    }
+  }
+  return newObj;
 }
 
 function moveMap(
@@ -220,13 +247,17 @@ function moveMap(
     map.fitBounds(bounds, opts);
   } else if (center != null || zoom != null || padding != null) {
     let props = { ...opts };
+    if (padding != null) {
+      props.padding = padding;
+    }
     if (center != null) {
       props.center = center;
     }
     if (zoom != null) {
       props.zoom = zoom;
     }
-    map.flyTo(props);
+    console.log("Flying to props", props);
+    map.flyTo(stripNullKeys(props));
   }
 }
 
