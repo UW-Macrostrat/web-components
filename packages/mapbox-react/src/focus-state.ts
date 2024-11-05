@@ -216,7 +216,6 @@ function moveMap(
   opts: mapboxgl.FlyToOptions
 ) {
   const { bounds, center, zoom, padding } = state;
-  console.log(state);
   if (bounds != null) {
     map.fitBounds(bounds, opts);
   } else if (center != null || zoom != null || padding != null) {
@@ -230,6 +229,7 @@ function moveMap(
     if (zoom != null) {
       props.zoom = zoom;
     }
+    console.log(state, props);
     map.flyTo(props);
   }
 }

@@ -44,7 +44,7 @@ const locations: Location[] = [
   },
 ];
 
-export function MapEaseToDemo() {
+function MapEaseWrapper({ children, locationName, nextLocation, description }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
     bar focus is lost.
@@ -52,9 +52,6 @@ export function MapEaseToDemo() {
     the search bar on mobile platforms
   */
   const style = useBasicStylePair();
-
-  const [ix, setIx] = useState(0);
-  const { name, ...loc } = locations[ix];
 
   return h(
     MapAreaContainer,
@@ -69,16 +66,9 @@ export function MapEaseToDemo() {
         title: "Map easing",
       }),
       contextPanel: h(Card, [
-        h("h3", "Map easing demo"),
-        h("p", [
-          "This story demonstrates the ",
-          h("code", "useMapEaseTo"),
-          " hook",
-        ]),
-        h("p", ["Viewing ", h("strong", name)]),
-        h("button", { onClick: () => setIx((ix + 1) % locations.length) }, [
-          "Next location",
-        ]),
+        description,
+        h("p", ["Viewing ", h("strong", locationName)]),
+        h("button", { onClick: nextLocation }, ["Next location"]),
       ]),
     },
     [
@@ -88,28 +78,71 @@ export function MapEaseToDemo() {
           style,
           projection: { name: "globe" },
         },
-        h(MapEaseWrapper, { location: loc })
+        children
       ),
     ]
   );
 }
 
-function MapEaseWrapper(props: { location: MapEaseToState }) {
+function BasicMapEaseTo(props: { position: MapEaseToState }) {
   const ref = useMapRef();
   const { isInitialized } = useMapStatus();
-  const { location } = props;
+  const { position } = props;
   useEffect(() => {
-    if (ref.current == null) return;
-    console.log("Easing to", location);
-    ref.current.easeTo(location);
-  }, [ref.current, location, isInitialized]);
+    if (ref.current == null || !isInitialized) return;
+    console.log("Easing to", position);
+    ref.current.easeTo(position);
+  }, [ref.current, position, isInitialized]);
   return null;
+}
+
+function MapEaseToInner({ position }: { position: MapEaseToState }) {
+  useMapEaseTo(position);
+  return null;
+}
+
+export function UseMapEaseToStory() {
+  const [location, nextLocation] = useLocation();
+  const { name, ...position } = location;
+  return h(
+    MapEaseWrapper,
+    {
+      locationName: name,
+      nextLocation,
+      description: h("p", [
+        "This story demonstrates the ",
+        h("code", "useMapEaseTo"),
+        " hook",
+      ]),
+    },
+    h(MapEaseToInner, { position })
+  );
+}
+
+export function BasicMapEaseToStory() {
+  const [location, nextLocation] = useLocation();
+  const { name, ...position } = location;
+  return h(
+    MapEaseWrapper,
+    {
+      locationName: name,
+      nextLocation,
+      description: "This story demonstrates basic map easing",
+    },
+    h(BasicMapEaseTo, { position })
+  );
+}
+
+function useLocation() {
+  const [ix, setIx] = useState(0);
+  const nextLocation = () => setIx((ix + 1) % locations.length);
+  return [locations[ix], nextLocation];
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Mapbox React/useMapEaseTo",
-  component: MapEaseToDemo,
+  component: BasicMapEaseToStory,
   parameters: {
     layout: "fullscreen",
     docs: {
@@ -119,6 +152,6 @@ export default {
       },
     },
   },
-} as Meta<typeof MapEaseToDemo>;
+} as Meta<typeof BasicMapEaseToStory>;
 
-type Story = StoryObj<typeof MapEaseToDemo>;
+type Story = StoryObj<typeof BasicMapEaseToStory>;
