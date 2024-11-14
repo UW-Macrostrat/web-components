@@ -2,11 +2,11 @@
   "name": "@macrostrat/map-interface",
   "version": "1.0.11",
   "description": "Map interface for Macrostrat",
-  "main": "dist/main.cjs",
-  "module": "dist/module.mjs",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
   "types": "dist/types.d.ts",
   "source": "src/index.ts",
-  "style": "dist/main.css",
+  "style": "dist/index.css",
   "dependencies": {
     "@macrostrat/color-utils": "^1.0.0",
     "@macrostrat/hyper": "^3.0.0",
@@ -35,14 +35,24 @@
   "exports": {
     ".": {
       "typescript": "./src",
-      "import": "./dist/module.mjs",
-      "require": "./dist/main.cjs",
+      "import": {
+        "types": "./dist/types.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/types.d.ts",
+        "default": "./dist/index.cjs.js"
+      },
       "types:": "./dist/types.d.ts",
-      "style": "./dist/main.css"
+      "style": "./dist/index.css"
     },
     "./dist/": {
       "import": "./dist/",
       "require": "./dist/"
+    },
+    "./dist/index.css": {
+      "import": "./dist/index.css",
+      "require": "./dist/index.css"
     }
   },
   "files": [
