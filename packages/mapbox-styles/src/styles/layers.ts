@@ -1,6 +1,4 @@
-import chroma from "chroma-js";
-import { intervals } from "@macrostrat/timescale";
-import { mergeStyles } from "@macrostrat/mapbox-utils";
+import { toRGBAString, asChromaColor } from "@macrostrat/color-utils";
 
 export function buildBasicStyle({
   color = "rgb(74, 242, 161)",
@@ -10,13 +8,11 @@ export function buildBasicStyle({
   tileURL,
 }): mapboxgl.Style {
   const xRayColor = (opacity = 1, darken = 0) => {
+    const c = asChromaColor(color);
     if (!inDarkMode) {
-      return chroma(color)
-        .darken(2 - darken)
-        .alpha(opacity)
-        .css();
+      return toRGBAString(c.darken(2 - darken).alpha(opacity));
     }
-    return chroma(color).alpha(opacity).darken(darken).css();
+    return toRGBAString(c.alpha(opacity).darken(darken));
   };
 
   return {
