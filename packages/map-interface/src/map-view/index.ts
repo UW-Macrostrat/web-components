@@ -3,6 +3,7 @@ import {
   useMapRef,
   useMapDispatch,
   useMapPosition,
+  useMapStatus,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
@@ -116,11 +117,6 @@ export function MapView(props: MapViewProps) {
   const ref = useRef<HTMLDivElement>();
   const parentRef = useRef<HTMLDivElement>();
 
-  // Keep track of map position for reloads
-  useEffect(() => {
-    console.log("Map updated", mapRef.current);
-  }, [mapRef.current]);
-
   useEffect(() => {
     if (style == null) return;
     if (mapRef.current != null) {
@@ -128,6 +124,8 @@ export function MapView(props: MapViewProps) {
       mapRef.current.setStyle(style);
       return;
     }
+
+    console.log("Initializing map", style);
     const map = initializeMap(ref.current, {
       style,
       projection,
@@ -142,19 +140,6 @@ export function MapView(props: MapViewProps) {
     onMapLoaded?.(map);
     dispatch({ type: "set-map", payload: map });
   }, [style]);
-
-  // Map style updating
-  // useEffect(() => {
-  //   if (mapRef?.current == null || style == null) return;
-  //   mapRef?.current?.setStyle(style);
-  // }, [mapRef.current, style]);
-
-  // Set map position if it changes
-  // useEffect(() => {
-  //   const map = mapRef.current;
-  //   if (map == null || mapPosition == null) return;
-  //   setMapPosition(map, mapPosition);
-  // }, [mapPosition]);
 
   const _computedMapPosition = useMapPosition();
   const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
