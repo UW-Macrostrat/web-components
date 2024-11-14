@@ -30,6 +30,7 @@ export function MapInspector({
   overlayStyle = null,
   children,
   style,
+  bounds = null,
   focusedSource = null,
   focusedSourceTitle = null,
   fitViewport = true,
@@ -45,6 +46,7 @@ export function MapInspector({
   focusedSourceTitle?: string;
   projection?: string;
   mapPosition?: MapPosition;
+  bounds?: [number, number, number, number];
   fitViewport?: boolean;
 }) {
   /* We apply a custom style to the panel container when we are interacting
@@ -160,6 +162,7 @@ export function MapInspector({
         mapPosition,
         projection: { name: "globe" },
         mapboxToken,
+        bounds,
       },
       [
         h(FeatureSelectionHandler, {

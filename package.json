@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "storybook dev -p 6006 --no-open",
     "build": "storybook build --debug",
-    "status": "tsx scripts/status.ts",
-    "prepare": "tsx scripts/prepare.ts",
-    "publish": "tsx scripts/publish.ts"
+    "status": "tsx scripts/publish-helpers status",
+    "prepare": "tsx scripts/publish-helpers prepare",
+    "publish": "tsx scripts/publish-helpers publish"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -63,6 +63,9 @@
     "typescript": "^5.6.2",
     "underscore": "^1.12.0",
     "use-async-effect": "^2.2.1"
+  },
+  "resolutions": {
+    "@types/react": "18.3.12"
   },
   "publishedPackages": [
     "ui-components",

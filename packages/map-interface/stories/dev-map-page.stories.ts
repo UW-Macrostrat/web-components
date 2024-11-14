@@ -73,3 +73,12 @@ export const WithMacrostratOverlay: Story = {
     overlayStyle: buildMacrostratStyle({}),
   },
 };
+
+export const WithBounds: Story = {
+  args: {
+    title: "Macrostrat",
+    overlayStyle: buildMacrostratStyle({}),
+    // Zoom to Utah
+    bounds: [-114.052885, 36.997966, -109.04106, 42.001567],
+  },
+};

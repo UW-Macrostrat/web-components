@@ -7,33 +7,44 @@ import { execSync } from "child_process";
 import { formatDistance } from "date-fns";
 import { marked } from "marked";
 import { markedTerminal } from "marked-terminal";
-
-marked.use(markedTerminal());
+import process from "process";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectDir = path.resolve(path.join(__dirname, ".."));
+const projectDir = path.resolve(path.join(__dirname, "..", ".."));
 
 // tries to copy this file but in NodeJs
 // https://github.com/UW-Macrostrat/python-libraries/blob/main/publish.py
 
-function readPackageJSON(dirname) {
-  const pkgPath = path.join(dirname, "package.json");
-  return JSON.parse(fs.readFileSync(pkgPath));
+export function setupTerminal() {
+  marked.use(markedTerminal());
 }
 
-type PackageData = {
+export type PackageJSONData = any;
+
+export function readPackageJSON(dirname): PackageJSONData {
+  const pkgPath = path.join(dirname, "package.json");
+  return JSON.parse(fs.readFileSync(pkgPath), { encoding: "utf-8" });
+}
+
+export function readProjectPackageJSON() {
+  return readPackageJSON(projectDir);
+}
+
+export type PackageData = {
   name: string;
   version: string;
+  directory: string;
 };
 
 /* get package.json filr from correct dir */
 export function getPackageData(pkgName: string): PackageData {
   const rootDir = getPackageDirectory(pkgName);
-  return readPackageJSON(rootDir);
+  const { name, version } = readPackageJSON(rootDir);
+  return { name, version, directory: rootDir };
 }
 
-export function getPackageDirectory(pkgName) {
+function getPackageDirectory(pkgName) {
   // Remove namespace if it exists
   pkgName = pkgName.split("/").pop();
 
@@ -180,33 +191,6 @@ export async function checkIfPackageCanBePublished(
   return canPublish;
 }
 
-export async function status(exitIfUncommittedChanges = true) {
-  let pkgsToPublish = [];
-
-  const { publishedPackages: packages } = readPackageJSON(projectDir);
-
-  for (const pkg of packages) {
-    console.log("\n");
-    const data = getPackageData(pkg);
-
-    console.log(chalk.bold.underline(data.name), "\n");
-    const canPublish = await checkIfPackageCanBePublished(data);
-    if (canPublish) {
-      pkgsToPublish.push(pkg);
-    }
-  }
-  console.log();
-
-  if (pkgsToPublish.length === 0) {
-    console.log(chalk.magentaBright("All packages published"));
-    return;
-  }
-
-  notifyUserOfUncommittedChanges(exitIfUncommittedChanges);
-
-  return pkgsToPublish;
-}
-
 function checkForChangelogEntry(pkg: PackageData) {
   const dir = getPackageDirectory(pkg.name);
   const changelogPath = path.join(dir, "CHANGELOG.md");
@@ -243,9 +227,3 @@ function checkForChangelogEntry(pkg: PackageData) {
 
   return hasChangelogEntry;
 }
-
-async function main() {
-  await status(false);
-}
-
-main();
