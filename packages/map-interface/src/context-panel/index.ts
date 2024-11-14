@@ -34,7 +34,7 @@ export function MapLoadingButton(props) {
   return h(LoadingButton, { ...props, isLoading: mapIsLoading });
 }
 
-type AnyChildren = React.ReactNode | React.ReactFragment;
+type AnyChildren = React.ReactNode;
 
 export interface FloatingNavbarProps {
   className?: string;

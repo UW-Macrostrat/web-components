@@ -63,7 +63,7 @@ type MapAction =
   | { type: "set-initialized"; payload: boolean }
   | { type: "set-style-loaded"; payload: boolean }
   | { type: "map-moved"; payload: MapPosition }
-  | { type: "set-map"; payload: Map; mapPosition?: MapPosition };
+  | { type: "set-map"; payload: Map };
 
 function mapReducer(state: MapCtx, action: MapAction): MapCtx {
   switch (action.type) {
@@ -72,7 +72,6 @@ function mapReducer(state: MapCtx, action: MapAction): MapCtx {
         status: {
           isInitialized: { $set: true },
         },
-        position: { $set: action.mapPosition ?? state.position },
       });
     case "set-loading":
       return update(state, { status: { isLoading: { $set: action.payload } } });
@@ -100,7 +99,6 @@ export function MapboxMapProvider({ children }) {
   );
 
   const dispatch = useCallback((action: MapAction) => {
-    console.log("Dispatching", action);
     if (action.type === "set-map") {
       mapRef.current = action.payload;
     }

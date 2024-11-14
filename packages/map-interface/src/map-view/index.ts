@@ -131,7 +131,7 @@ export function MapView(props: MapViewProps) {
         mapPosition,
         ...rest,
       });
-      dispatch({ type: "set-map", payload: map, mapPosition });
+      dispatch({ type: "set-map", payload: map });
       map.setPadding(getMapPadding(ref, parentRef), { animate: false });
       onMapLoaded?.(map);
     }

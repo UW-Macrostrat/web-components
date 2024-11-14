@@ -35,7 +35,7 @@ export function MapInspector({
   focusedSourceTitle = null,
   fitViewport = true,
 }: {
-  headerElement?: React.ReactElement;
+  headerElement?: React.ReactNode;
   transformRequest?: mapboxgl.TransformRequestFunction;
   title?: string;
   style?: mapboxgl.Style | string;
