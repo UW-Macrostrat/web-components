@@ -9,8 +9,6 @@ import { marked } from "marked";
 import { markedTerminal } from "marked-terminal";
 import process from "process";
 
-marked.use(markedTerminal());
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const projectDir = path.resolve(path.join(__dirname, "..", ".."));
@@ -22,27 +20,31 @@ export function setupTerminal() {
   marked.use(markedTerminal());
 }
 
-export function readPackageJSON(dirname) {
+export type PackageJSONData = any;
+
+export function readPackageJSON(dirname): PackageJSONData {
   const pkgPath = path.join(dirname, "package.json");
-  return JSON.parse(fs.readFileSync(pkgPath));
+  return JSON.parse(fs.readFileSync(pkgPath), { encoding: "utf-8" });
 }
 
 export function readProjectPackageJSON() {
   return readPackageJSON(projectDir);
 }
 
-type PackageData = {
+export type PackageData = {
   name: string;
   version: string;
+  directory: string;
 };
 
 /* get package.json filr from correct dir */
 export function getPackageData(pkgName: string): PackageData {
   const rootDir = getPackageDirectory(pkgName);
-  return readPackageJSON(rootDir);
+  const { name, version } = readPackageJSON(rootDir);
+  return { name, version, directory: rootDir };
 }
 
-export function getPackageDirectory(pkgName) {
+function getPackageDirectory(pkgName) {
   // Remove namespace if it exists
   pkgName = pkgName.split("/").pop();
 

@@ -6,9 +6,9 @@
   "scripts": {
     "dev": "storybook dev -p 6006 --no-open",
     "build": "storybook build --debug",
-    "status": "tsx scripts/status.ts",
-    "prepare": "tsx scripts/prepare.ts",
-    "publish": "tsx scripts/publish.ts"
+    "status": "tsx scripts/publish-helpers status",
+    "prepare": "tsx scripts/publish-helpers prepare",
+    "publish": "tsx scripts/publish-helpers publish"
   },
   "author": "Daven Quinn",
   "license": "ISC",
