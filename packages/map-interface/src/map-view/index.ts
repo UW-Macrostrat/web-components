@@ -119,26 +119,37 @@ export function MapView(props: MapViewProps) {
 
   useEffect(() => {
     if (style == null) return;
-    if (mapRef.current != null) {
+    let map = mapRef.current;
+    if (map != null) {
       console.log("Setting style", style);
-      mapRef.current.setStyle(style);
-      return;
+      map.setStyle(style);
+    } else {
+      console.log("Initializing map", style);
+      const map = initializeMap(ref.current, {
+        style,
+        projection,
+        mapPosition,
+        ...rest,
+      });
+      dispatch({ type: "set-map", payload: map, mapPosition });
+      map.setPadding(getMapPadding(ref, parentRef), { animate: false });
+      onMapLoaded?.(map);
     }
 
-    console.log("Initializing map", style);
-    const map = initializeMap(ref.current, {
-      style,
-      projection,
-      mapPosition,
-      ...rest,
-    });
-    map.setPadding(getMapPadding(ref, parentRef), { animate: false });
-    map.on("style.load", () => {
+    const loadCallback = () => {
       onStyleLoaded?.(map);
       dispatch({ type: "set-style-loaded", payload: true });
-    });
-    onMapLoaded?.(map);
-    dispatch({ type: "set-map", payload: map });
+    };
+
+    map = mapRef.current;
+    if (map.isStyleLoaded()) {
+      // Catch a race condition where the style is loaded before the callback is set
+      loadCallback();
+    }
+    map.on("style.load", loadCallback);
+    return () => {
+      map.off("style.load", loadCallback);
+    };
   }, [style]);
 
   const _computedMapPosition = useMapPosition();

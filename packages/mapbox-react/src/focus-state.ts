@@ -167,7 +167,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
     // Add the proposed update to the queue
     updateQueue.current.push({ bounds, padding, center, zoom });
 
-    const map = mapRef?.current;
+    const map = mapRef.current;
     if (map == null) {
       return;
     }
@@ -190,7 +190,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
     map.once("moveend", () => {
       prevState.current = state;
     });
-  }, [bounds, padding, center, zoom, mapRef?.current, isInitialized]);
+  }, [bounds, padding, center, zoom, isInitialized]);
 
   /** Handle map resize events */
   useEffect(() => {
@@ -345,6 +345,7 @@ export function useFocusState(
 ) {
   const map = useMapRef();
   const [focusState, setFocusState] = useState<PositionFocusState | null>(null);
+  const { isInitialized } = useMapStatus();
 
   useEffect(() => {
     if (map.current == null || position == null) return;
@@ -357,7 +358,7 @@ export function useFocusState(
     return () => {
       map.current?.off("move", cb);
     };
-  }, [map.current, position]);
+  }, [isInitialized, position]);
 
   return focusState;
 }
