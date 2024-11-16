@@ -78,6 +78,10 @@ export function useMapStatus(
   return useMapStore(useSubSelector("status", selector));
 }
 
+export function useMapInitialized() {
+  return useMapStore((state) => state.status.isInitialized);
+}
+
 function useSubSelector(
   key: string,
   selector: (state: any) => any | null

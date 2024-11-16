@@ -3,6 +3,7 @@ import {
   useMapEaseTo,
   useMapDispatch,
   useMapStatus,
+  useMapInitialized,
 } from "@macrostrat/mapbox-react";
 import { useMemo, useRef } from "react";
 import { debounce } from "underscore";
@@ -86,7 +87,7 @@ export function MapPaddingManager({
 export function MapMovedReporter({ onMapMoved = null }) {
   const mapRef = useMapRef();
   const dispatch = useMapDispatch();
-  const { isInitialized } = useMapStatus();
+  const isInitialized = useMapInitialized();
 
   const mapMovedCallback = useCallback(() => {
     const map = mapRef.current;
@@ -121,7 +122,7 @@ export function MapLoadingReporter({
   const mapRef = useMapRef();
   const loadingRef = useRef(false);
   const dispatch = useMapDispatch();
-  const { isInitialized } = useMapStatus();
+  const isInitialized = useMapInitialized();
 
   useEffect(() => {
     const map = mapRef.current;
@@ -157,7 +158,7 @@ export function MapLoadingReporter({
 export function MapMarker({ position, setPosition, centerMarker = true }) {
   const mapRef = useMapRef();
   const markerRef = useRef(null);
-  const { isInitialized } = useMapStatus();
+  const isInitialized = useMapInitialized();
 
   useMapMarker(mapRef, markerRef, position);
 

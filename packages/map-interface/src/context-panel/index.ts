@@ -29,9 +29,8 @@ export function LoadingButton({
 }
 
 export function MapLoadingButton(props) {
-  const { isLoading } = useMapStatus();
-  const mapIsLoading = useMemo(() => isLoading, [isLoading]);
-  return h(LoadingButton, { ...props, isLoading: mapIsLoading });
+  const isLoading = useMapStatus((s) => s.isLoading);
+  return h(LoadingButton, { ...props, isLoading });
 }
 
 type AnyChildren = React.ReactNode;
