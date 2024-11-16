@@ -34,6 +34,7 @@ export function MapInspector({
   focusedSource = null,
   focusedSourceTitle = null,
   fitViewport = true,
+  styleType = "macrostrat",
 }: {
   headerElement?: React.ReactNode;
   transformRequest?: mapboxgl.TransformRequestFunction;
@@ -48,6 +49,7 @@ export function MapInspector({
   mapPosition?: MapPosition;
   bounds?: [number, number, number, number];
   fitViewport?: boolean;
+  styleType: "standard" | "macrostrat";
 }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
@@ -63,9 +65,15 @@ export function MapInspector({
     mapboxgl.accessToken = mapboxToken;
   }
 
-  style ??= isEnabled
-    ? "mapbox://styles/mapbox/dark-v10"
-    : "mapbox://styles/mapbox/light-v10";
+  if (styleType == "macrostrat") {
+    style ??= isEnabled
+      ? "mapbox://styles/jczaplewski/cl5uoqzzq003614o6url9ou9z?optimize=true"
+      : "mapbox://styles/jczaplewski/clatdbkw4002q14lov8zx0bm0?optimize=true";
+  } else {
+    style ??= isEnabled
+      ? "mapbox://styles/mapbox/dark-v10"
+      : "mapbox://styles/mapbox/light-v10";
+  }
 
   const [isOpen, setOpen] = useState(false);
 
