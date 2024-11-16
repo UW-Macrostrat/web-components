@@ -1,5 +1,3 @@
-@import "@blueprintjs/core/lib/scss/variables.scss"
-
 .data-sheet-container, .data-sheet-holder
   flex: 1
   min-height: 0
@@ -12,9 +10,8 @@
 
 .data-sheet
   height: 100%
-
-:global(.bp5-dark) .data-sheet :global(.bp5-table-quadrant)
-  background-color: $dark-gray1
+  :global(.bp5-table-quadrant)
+    background-color: var(--panel-secondary-background-color)
 
 .input-cell
   padding: 0 2px !important
