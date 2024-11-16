@@ -233,7 +233,7 @@ export default function DataSheet<T>({
               let regions = val.map((region) => {
                 const { cols, rows } = region;
                 const [col] = cols;
-                return { cols: <[number, number]>[col, col], rows };
+                return { cols: [col, col], rows };
               });
               fillValues(fillValueBaseCell, regions);
               setSelection(regions);
