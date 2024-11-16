@@ -69,7 +69,9 @@ function mapReducer(state: MapCtx, action: MapAction): MapCtx {
   switch (action.type) {
     case "set-map":
       return update(state, {
-        status: { isInitialized: { $set: true } },
+        status: {
+          isInitialized: { $set: true },
+        },
       });
     case "set-loading":
       return update(state, { status: { isLoading: { $set: action.payload } } });

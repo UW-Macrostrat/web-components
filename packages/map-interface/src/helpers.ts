@@ -86,6 +86,7 @@ export function MapPaddingManager({
 export function MapMovedReporter({ onMapMoved = null }) {
   const mapRef = useMapRef();
   const dispatch = useMapDispatch();
+  const { isInitialized } = useMapStatus();
 
   const mapMovedCallback = useCallback(() => {
     const map = mapRef.current;
@@ -93,7 +94,7 @@ export function MapMovedReporter({ onMapMoved = null }) {
     const mapPosition = getMapPosition(map);
     dispatch({ type: "map-moved", payload: mapPosition });
     onMapMoved?.(mapPosition, map);
-  }, [mapRef.current, onMapMoved, dispatch]);
+  }, [onMapMoved, dispatch, isInitialized]);
 
   useEffect(() => {
     // Get the current value of the map. Useful for gradually moving away
@@ -120,6 +121,7 @@ export function MapLoadingReporter({
   const mapRef = useMapRef();
   const loadingRef = useRef(false);
   const dispatch = useMapDispatch();
+  const { isInitialized } = useMapStatus();
 
   useEffect(() => {
     const map = mapRef.current;
@@ -148,36 +150,35 @@ export function MapLoadingReporter({
       map?.off("sourcedataloading", loadingCallback);
       map?.off("idle", idleCallback);
     };
-  }, [ignoredSources, mapRef.current, mapIsLoading]);
+  }, [ignoredSources, mapIsLoading, isInitialized]);
   return null;
 }
 
 export function MapMarker({ position, setPosition, centerMarker = true }) {
   const mapRef = useMapRef();
   const markerRef = useRef(null);
+  const { isInitialized } = useMapStatus();
 
   useMapMarker(mapRef, markerRef, position);
 
-  const handleMapClick = useCallback(
-    (event: mapboxgl.MapMouseEvent) => {
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null || setPosition == null) return;
+
+    const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
       setPosition(event.lngLat, event, mapRef.current);
       // We should integrate this with the "easeToCenter" hook
       if (centerMarker) {
         mapRef.current?.flyTo({ center: event.lngLat, duration: 800 });
       }
-    }, // eslint-disable-next-line react-hooks/exhaustive-deps
-    [mapRef.current, setPosition]
-  );
+    };
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map != null && setPosition != null) {
-      map.on("click", handleMapClick);
-    }
+    map.on("click", handleMapClick);
+
     return () => {
       map?.off("click", handleMapClick);
     };
-  }, [mapRef.current, setPosition]);
+  }, [setPosition, isInitialized]);
 
   return null;
 }

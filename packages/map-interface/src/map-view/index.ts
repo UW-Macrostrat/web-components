@@ -3,6 +3,7 @@ import {
   useMapRef,
   useMapDispatch,
   useMapPosition,
+  useMapStatus,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
@@ -116,45 +117,40 @@ export function MapView(props: MapViewProps) {
   const ref = useRef<HTMLDivElement>();
   const parentRef = useRef<HTMLDivElement>();
 
-  // Keep track of map position for reloads
-  useEffect(() => {
-    console.log("Map updated", mapRef.current);
-  }, [mapRef.current]);
-
   useEffect(() => {
     if (style == null) return;
-    if (mapRef.current != null) {
+    let map = mapRef.current;
+    if (map != null) {
       console.log("Setting style", style);
-      mapRef.current.setStyle(style);
-      return;
+      map.setStyle(style);
+    } else {
+      console.log("Initializing map", style);
+      const map = initializeMap(ref.current, {
+        style,
+        projection,
+        mapPosition,
+        ...rest,
+      });
+      dispatch({ type: "set-map", payload: map });
+      map.setPadding(getMapPadding(ref, parentRef), { animate: false });
+      onMapLoaded?.(map);
     }
-    const map = initializeMap(ref.current, {
-      style,
-      projection,
-      mapPosition,
-      ...rest,
-    });
-    map.setPadding(getMapPadding(ref, parentRef), { animate: false });
-    map.on("style.load", () => {
+
+    const loadCallback = () => {
       onStyleLoaded?.(map);
       dispatch({ type: "set-style-loaded", payload: true });
-    });
-    onMapLoaded?.(map);
-    dispatch({ type: "set-map", payload: map });
+    };
+
+    map = mapRef.current;
+    if (map.isStyleLoaded()) {
+      // Catch a race condition where the style is loaded before the callback is set
+      loadCallback();
+    }
+    map.on("style.load", loadCallback);
+    return () => {
+      map.off("style.load", loadCallback);
+    };
   }, [style]);
-
-  // Map style updating
-  // useEffect(() => {
-  //   if (mapRef?.current == null || style == null) return;
-  //   mapRef?.current?.setStyle(style);
-  // }, [mapRef.current, style]);
-
-  // Set map position if it changes
-  // useEffect(() => {
-  //   const map = mapRef.current;
-  //   if (map == null || mapPosition == null) return;
-  //   setMapPosition(map, mapPosition);
-  // }, [mapPosition]);
 
   const _computedMapPosition = useMapPosition();
   const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);

@@ -4,7 +4,7 @@ import hyper from "@macrostrat/hyper";
 import { Spacer, useDarkMode, useStoredState } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
 import { useCallback, useState, useEffect } from "react";
-import { buildInspectorStyle, buildXRayStyle } from "./xray";
+import { buildInspectorStyle } from "./xray";
 import { MapAreaContainer, PanelCard } from "../container";
 import { FloatingNavbar, MapLoadingButton } from "../context-panel";
 import { MapMarker } from "../helpers";
@@ -35,7 +35,7 @@ export function MapInspector({
   focusedSourceTitle = null,
   fitViewport = true,
 }: {
-  headerElement?: React.ReactElement;
+  headerElement?: React.ReactNode;
   transformRequest?: mapboxgl.TransformRequestFunction;
   title?: string;
   style?: mapboxgl.Style | string;
@@ -75,9 +75,7 @@ export function MapInspector({
   });
   const { showTileExtent, xRay } = state;
 
-  const [actualStyle, setActualStyle] = useState(style);
-
-  console.log("actualStyle", actualStyle);
+  const [actualStyle, setActualStyle] = useState(null);
 
   useEffect(() => {
     buildInspectorStyle(style, overlayStyle, {
@@ -141,6 +139,7 @@ export function MapInspector({
         title,
       }),
       contextPanel: h(PanelCard, [
+        children,
         h(Switch, {
           checked: xRay,
           label: "X-ray mode",
@@ -148,7 +147,6 @@ export function MapInspector({
             setState({ ...state, xRay: !xRay });
           },
         }),
-        children,
       ]),
       detailPanel: detailElement,
       contextPanelOpen: isOpen,
