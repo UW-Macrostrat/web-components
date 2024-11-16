@@ -1,6 +1,6 @@
 /* Reporters and buttons for evaluating a feature's focus on the map. */
 import { Intent, Button } from "@blueprintjs/core";
-import { useMapRef, useMapStatus } from "./context";
+import { useMapInitialized, useMapRef, useMapStatus } from "./context";
 import classNames from "classnames";
 import { useState, useRef, useEffect } from "react";
 import bbox from "@turf/bbox";
@@ -160,7 +160,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
    * controlled outside of the component. */
   const updateQueue = useRef<MapEaseToState[]>([]);
   // This forces a re-render after initialization, I guess
-  const { isInitialized } = useMapStatus();
+  const isInitialized = useMapInitialized();
 
   /** Handle changes to any map props */
   useEffect(() => {
@@ -345,7 +345,7 @@ export function useFocusState(
 ) {
   const map = useMapRef();
   const [focusState, setFocusState] = useState<PositionFocusState | null>(null);
-  const { isInitialized } = useMapStatus();
+  const isInitialized = useMapInitialized();
 
   useEffect(() => {
     if (map.current == null || position == null) return;
