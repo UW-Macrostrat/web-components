@@ -21,14 +21,15 @@ import { MapPosition } from "@macrostrat/mapbox-utils";
 
 export const h = hyper.styled(styles);
 
-export function MapInspector({
+export function MapInspectorV2({
   title = "Map inspector",
   headerElement = null,
   transformRequest = null,
   mapPosition = null,
   mapboxToken = null,
   overlayStyle = null,
-  children,
+  controls = null,
+  children = null,
   style,
   bounds = null,
   focusedSource = null,
@@ -40,6 +41,7 @@ export function MapInspector({
   transformRequest?: mapboxgl.TransformRequestFunction;
   title?: string;
   style?: mapboxgl.Style | string;
+  controls?: React.ReactNode;
   children?: React.ReactNode;
   mapboxToken?: string;
   overlayStyle?: mapboxgl.Style | string;
@@ -49,7 +51,7 @@ export function MapInspector({
   mapPosition?: MapPosition;
   bounds?: [number, number, number, number];
   fitViewport?: boolean;
-  styleType: "standard" | "macrostrat";
+  styleType?: "standard" | "macrostrat";
 }) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
@@ -147,7 +149,7 @@ export function MapInspector({
         title,
       }),
       contextPanel: h(PanelCard, [
-        children,
+        controls,
         h(Switch, {
           checked: xRay,
           label: "X-ray mode",
@@ -180,9 +182,22 @@ export function MapInspector({
           setPosition: onSelectPosition,
         }),
         h(TileExtentLayer, { tile, color: isEnabled ? "white" : "black" }),
+        children,
       ]
     )
   );
+}
+
+function MapInspector(props) {
+  const { children, controls, ...rest } = props;
+  /** Compatibility wrapper for MapInspectorV2 */
+  // React warning about this legacy usage
+  console.warn("MapInspector is deprecated. Use MapInspectorV2 instead");
+
+  return h(MapInspectorV2, {
+    ...rest,
+    controls: [children, controls],
+  });
 }
 
 // Legacy export

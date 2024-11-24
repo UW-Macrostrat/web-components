@@ -37,13 +37,13 @@ type AnyChildren = React.ReactNode;
 
 export interface FloatingNavbarProps {
   className?: string;
-  children: AnyChildren;
+  children?: AnyChildren;
   headerElement?: AnyChildren;
   title?: AnyChildren;
   statusElement?: AnyChildren;
   rightElement?: AnyChildren;
-  height: number | string;
-  width: number | string;
+  height?: number | string;
+  width?: number | string;
   style?: object;
 }
 
