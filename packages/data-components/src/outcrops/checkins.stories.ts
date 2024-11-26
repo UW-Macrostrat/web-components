@@ -19,6 +19,15 @@ const checkinExamples = {
     rating: 3,
     year: 2022,
   },
+  "Coal in West Virginia": {
+    id: 11477,
+    person: 27398,
+    photo: 26390,
+    notes:
+      "Very compact shaly sandstone above a coal layer. Fossils prevalent beneath coal layer. All plant fossils. Calamites, Lepidodendron, seed ferns, etc.",
+    rating: 5,
+    year: 2020,
+  },
 };
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
