@@ -1,5 +1,5 @@
 import hyper from "@macrostrat/hyper";
-import { AnchorButton, Icon } from "@blueprintjs/core";
+import { Icon } from "@blueprintjs/core";
 import styles from "./base.module.sass";
 
 const h = hyper.styled(styles);
@@ -30,8 +30,8 @@ export function LocationBasicInfo({
 
   return h("div.location-basic-info", { className }, [
     h("div.location-header", { className: headerClassName }, [
-      h("h2", [title]),
-      h("h3.year", [year]),
+      h("h3.title", [title]),
+      h("h4.year", [year]),
       h(LocationLink, { href: link }),
     ]),
     h.if(description != null)("p.description", [description]),

@@ -1,21 +1,37 @@
 .location-basic-info
   max-width: 650px
   position: relative
-  img
-    max-width: 100%
+  margin: 0.3em 0 0.5em
 
 .location-header
   display: flex
   flex-direction: row
   gap: 1em
   align-items: baseline
-  h2
-    flex-grow: 1
-  h2, h3
+  h2, h3, h4
     margin: 0
+  h3.title
+    flex-grow: 1
   .year
     color: var(--secondary-color)
-  margin: 0.2em 0 1em
+  margin: 0.2em 0 0.8em
 
 .location-link
   color: var(--secondary-color)
+  transform: scale(0.8)
+
+.image-panel
+  position: relative
+  img
+    border-radius: 6px
+    border: 1px solid var(--accent-color)
+    max-width: 100%
+
+.star-rating
+  position: absolute
+  bottom: 8px
+  right: 5px
+  border-radius: 4px
+  color: #fff
+  background-color: var(--translucent-panel-background-color)
+  padding: 0.1em 0.3em 0.2em
