@@ -4,6 +4,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 import { Breadcrumbs, Text } from "@blueprintjs/core";
 import { FloatingNavbar, MapLoadingButton, FloatingNavbarProps } from "../src";
 import { Box } from "@macrostrat/ui-components";
+import { MapboxMapProvider } from "@macrostrat/mapbox-react";
 
 function BasicNavbar(props: FloatingNavbarProps) {
   return h(FloatingNavbar, {
@@ -16,6 +17,11 @@ function BasicNavbar(props: FloatingNavbarProps) {
 const meta: Meta<FloatingNavbarProps> = {
   title: "Map interface/Components/Floating navbar",
   component: BasicNavbar,
+  decorators: [
+    (Story) => {
+      return h(MapboxMapProvider, h(Story));
+    },
+  ],
 };
 
 export default meta;

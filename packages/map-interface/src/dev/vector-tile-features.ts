@@ -27,6 +27,7 @@ export function FeatureRecord({ feature }) {
   ]);
 }
 
+/** This component wraps queryRenderedFeatures to get features at a given location */
 export function FeatureSelectionHandler({
   selectedLocation,
   setFeatures,
