@@ -1,15 +1,15 @@
-import { Card } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import { InfoDrawerHeader, InfoDrawerHeaderProps } from "./header";
 import classNames from "classnames";
 import styles from "./main.module.sass";
 import { ErrorBoundary } from "@macrostrat/ui-components";
+import { PanelCard } from "../container";
 
 const h = hyper.styled(styles);
 
 export function InfoDrawerContainer(props) {
   const className = classNames("infodrawer", props.className);
-  return h(Card, { ...props, className });
+  return h(PanelCard, { ...props, className });
 }
 
 interface BaseInfoDrawerProps extends InfoDrawerHeaderProps {

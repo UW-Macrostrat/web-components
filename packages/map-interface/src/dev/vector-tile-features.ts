@@ -143,11 +143,7 @@ function UnitNumber({ value, unit, precision = 1 }) {
   ]);
 }
 
-export function FeaturePanel({
-  features,
-  focusedSource = null,
-  focusedSourceTitle = null,
-}) {
+export function FeaturePanel({ features, focusedSource = null }) {
   if (features == null) return null;
 
   let focusedSourcePanel = null;
