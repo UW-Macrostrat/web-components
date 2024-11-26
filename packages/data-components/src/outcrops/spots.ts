@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { AnchorButton, Icon } from "@blueprintjs/core";
+import { LocationBasicInfo } from "./base";
 
 export interface SpotBasicData {
   id: number;
@@ -44,35 +44,12 @@ export function SpotListing(props: SpotListingProps) {
 
   let year = new Date(spot.date).getFullYear();
 
-  return h("div.spot", [
-    h(SpotBasicInfo, {
-      title: spot.name,
-      year,
-      description: spot.notes,
-      imageURL,
-    }),
-    h(SpotLink, { href: spot.landing_page }, "View on StraboSpot"),
-  ]);
-}
-
-function SpotLink({ href, children }: { href: string; children: any }) {
-  return h(
-    AnchorButton,
-    {
-      href,
-      icon: "link",
-      small: true,
-      minimal: true,
-    },
-    children
-  );
-}
-
-function SpotBasicInfo({ title, year, description, imageURL }) {
-  return h("div.spot-basic-info", [
-    h("h2", [title]),
-    h("h3", [year]),
-    h.if(description != null)("p", [description]),
-    h.if(imageURL != null)("img", { src: imageURL }),
-  ]);
+  return h(LocationBasicInfo, {
+    title: spot.name,
+    year,
+    description: spot.notes,
+    imageURL,
+    link: spot.landing_page,
+    className: "spot",
+  });
 }

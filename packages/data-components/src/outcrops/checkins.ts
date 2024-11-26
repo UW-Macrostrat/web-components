@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { AnchorButton, Icon } from "@blueprintjs/core";
+import { LocationBasicInfo } from "./base";
 
 export interface CheckinListingData {
   id: number;
@@ -23,44 +23,20 @@ export function CheckinListing(props: CheckinListingProps) {
 
   const { title, description } = synthesizeTitleAndDescription(checkin.notes);
 
-  return h("div.checkin", [
-    h("h2", [title]),
-    h("h3", [checkin.year]),
-    h.if(description != null)("p", [description]),
-    h("img", { src: imageURL }),
-    h(RatingComponent, { rating: checkin.rating }),
-    h(CheckinLink, { checkinID: checkin.id, showID: true }),
-  ]);
-}
-
-export function RatingComponent({ rating: r }) {
-  const stars = Array.from({ length: 5 }, (_, i) => {
-    const icon = i < r ? "star" : "star-empty";
-    return h(Icon, { icon });
+  return h(LocationBasicInfo, {
+    title,
+    year: checkin.year.toString(),
+    description,
+    imageURL,
+    link: `${rockdBaseURL}/checkin/${checkin.id}`,
+    rating: checkin.rating,
+    className: "checkin",
   });
-  return h("div.rating", stars);
-}
-
-function CheckinLink({
-  checkinID,
-  rockdBaseURL = "https://rockd.org",
-  showID = false,
-}) {
-  return h(
-    AnchorButton,
-    {
-      href: `${rockdBaseURL}/checkin/${checkinID}`,
-      icon: "link",
-      small: true,
-      minimal: true,
-    },
-    [h.if(showID)("span.checkin-id", checkinID)]
-  );
 }
 
 export function synthesizeTitleAndDescription(notes): {
-  title: string;
-  description: string;
+  title: string | null;
+  description: string | null;
 } {
   // Title and description management taken from the Rockd app
   /** We have a pretty awkward approach to checkin 'notes' that encompasses the
