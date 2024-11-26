@@ -1,4 +1,4 @@
-import { Spinner, Switch } from "@blueprintjs/core";
+import { Spinner, Switch, Button, Intent } from "@blueprintjs/core";
 import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
 import mapboxgl from "mapbox-gl";
 import hyper from "@macrostrat/hyper";
@@ -11,13 +11,29 @@ import { ExpansionPanel } from "../expansion-panel";
 const h = hyper.styled(styles);
 
 export function FeatureProperties({ data, ...rest }) {
-  return h("div.feature-properties", [
-    h(JSONView, {
-      data,
-      hideRoot: true,
-      ...rest,
-    }),
-  ]);
+  // Instead of managing hover state with CSS, we use a state variable,
+  // so that the button re-renders when the state changes
+  const [showControls, setShowControls] = useState(false);
+
+  return h(
+    "div.feature-properties",
+    {
+      onMouseEnter() {
+        setShowControls(true);
+      },
+      onMouseLeave() {
+        setShowControls(false);
+      },
+    },
+    [
+      h.if(showControls)("div.controls", h(CopyJSONButton, { data })),
+      h(JSONView, {
+        data,
+        hideRoot: true,
+        ...rest,
+      }),
+    ]
+  );
 }
 
 export function FeatureRecord({ feature }) {
@@ -25,6 +41,20 @@ export function FeatureRecord({ feature }) {
   return h("div.feature-record", [
     h.if(Object.keys(props).length > 0)(FeatureProperties, { data: props }),
   ]);
+}
+
+function CopyJSONButton({ data }) {
+  const [copied, setCopied] = useState(false);
+  return h(Button, {
+    icon: copied ? "tick" : "clipboard",
+    intent: copied ? Intent.SUCCESS : Intent.NONE,
+    minimal: true,
+    small: true,
+    onClick() {
+      navigator.clipboard.writeText(JSON.stringify(data, null, 2));
+      setCopied(true);
+    },
+  });
 }
 
 export function FeatureSelectionHandler({
