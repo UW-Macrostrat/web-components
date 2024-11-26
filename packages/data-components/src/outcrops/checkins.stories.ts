@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 import type { Meta, StoryObj } from "@storybook/react";
-import { CheckinListingProps, CheckinListing } from "./index";
+import { CheckinListingProps, CheckinListing } from "./checkins";
 
 const checkinExamples = {
   "New York City": {
