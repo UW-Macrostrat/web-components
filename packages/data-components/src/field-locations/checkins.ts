@@ -18,8 +18,12 @@ export interface CheckinListingProps {
 export function CheckinListing(props: CheckinListingProps) {
   const { checkin, rockdBaseURL = "https://rockd.org" } = props;
   const { person, photo } = checkin;
-  const imageURL =
-    rockdBaseURL + `/api/v1/protected/image/${person}/banner/${photo}`;
+
+  let imageURL = null;
+  if (photo != null) {
+    imageURL =
+      rockdBaseURL + `/api/v1/protected/image/${person}/banner/${photo}`;
+  }
 
   const { title, description } = synthesizeTitleAndDescription(checkin.notes);
 
@@ -44,10 +48,11 @@ export function synthesizeTitleAndDescription(notes): {
    * notes into a more readable form, as preparation for doing so in a more
    * structured way in the future (perhaps using a database update?).
    */
+
   let title = notes;
   let description = null;
 
-  if (title.length > 80) {
+  if (title.length > 60) {
     // See if we can shorten the title
     // We'll try to find the first punctuation mark (.,;:), and cut off there
     let punctuationIndex = title.search(/[.,;:]/);

@@ -33,6 +33,8 @@ export function LocationBasicInfo({
     headerClassName = "unnamed";
   }
 
+  const hasImage = imageURL != null;
+
   return h("div.location-basic-info", { className }, [
     h("div.location-header", { className: headerClassName }, [
       h.if(location != null)(LocationButton, { location }),
@@ -41,8 +43,8 @@ export function LocationBasicInfo({
       h(LocationLink, { href: link }),
     ]),
     h.if(description != null)("p.description", [description]),
-    h("div.image-panel", [
-      h.if(imageURL != null)("img", { src: imageURL }),
+    h("div.image-panel", { className: hasImage ? "has-image" : "no-image" }, [
+      h.if(hasImage)("img", { src: imageURL }),
       h.if(rating != null)(StarRatingComponent, { rating }),
     ]),
   ]);
