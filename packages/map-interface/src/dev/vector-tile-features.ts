@@ -3,8 +3,8 @@ import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
 import mapboxgl from "mapbox-gl";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { useCallback, useEffect, useState } from "react";
-import { JSONView, usePrevious } from "@macrostrat/ui-components";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { JSONView } from "@macrostrat/ui-components";
 import { group } from "d3-array";
 import { ExpansionPanel } from "../expansion-panel";
 
@@ -59,8 +59,10 @@ export function FeatureSelectionHandler({
   radius?: number;
 }) {
   const mapRef = useMapRef();
-  const { isLoading } = useMapStatus();
-  const prevLocation = usePrevious(selectedLocation);
+  const isLoading = useMapStatus((s) => s.isLoading);
+  const isInitialized = useMapStatus((s) => s.isInitialized);
+  const prevLocation = useRef(null);
+  const prevFeatures = useRef([]);
 
   useEffect(() => {
     const map = mapRef?.current;
@@ -70,8 +72,18 @@ export function FeatureSelectionHandler({
       return;
     }
 
+    if (!isInitialized) return;
+
+    const hasPreviouslyLoadedFeatures = prevFeatures.current.length > 0;
+
+    const locationMemo = JSON.stringify(selectedLocation);
+    if (locationMemo == prevLocation.current && hasPreviouslyLoadedFeatures)
+      return;
+
+    prevLocation.current = locationMemo;
+
     // Don't update if the location hasn't changed
-    if (selectedLocation == prevLocation) return;
+    //if (selectedLocation == prevLocation) return;
 
     const r = radius;
     const pt = map.project(selectedLocation);
@@ -81,8 +93,9 @@ export function FeatureSelectionHandler({
       [pt.x + r, pt.y + r],
     ];
     const features = map.queryRenderedFeatures(bbox);
+    prevFeatures.current = features ?? [];
     setFeatures(features);
-  }, [mapRef.current, prevLocation?.current, selectedLocation, isLoading]);
+  }, [isInitialized, selectedLocation, isLoading]);
 
   return null;
 }

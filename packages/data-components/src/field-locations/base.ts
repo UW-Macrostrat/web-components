@@ -69,9 +69,6 @@ export function LocationLink({
     "a",
     {
       href,
-      icon: "link",
-      small: true,
-      minimal: true,
       className: "location-link",
       target: "_blank",
     },

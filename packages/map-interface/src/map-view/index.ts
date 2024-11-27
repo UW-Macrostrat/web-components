@@ -3,7 +3,6 @@ import {
   useMapRef,
   useMapDispatch,
   useMapPosition,
-  useMapStatus,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
