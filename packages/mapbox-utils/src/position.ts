@@ -39,7 +39,7 @@ export function getMapPosition(map: Map): MapPosition {
   };
 }
 
-export function setMapPosition(map: Map, pos: MapPosition) {
+function _setMapPosition(map: Map, pos: MapPosition) {
   const { pitch = 0, bearing = 0, altitude } = pos.camera;
   const zoom = pos.target?.zoom;
   if (zoom != null && altitude == null && pitch == 0 && bearing == 0) {
@@ -55,5 +55,30 @@ export function setMapPosition(map: Map, pos: MapPosition) {
     );
     cameraOptions.setPitchBearing(pitch, bearing);
     map.setFreeCameraOptions(cameraOptions);
+  }
+}
+
+/* A set of position-setting functions that are hopefully more ergonomic than
+  a fully resolved map target and camera position. */
+export type AnyMapPosition =
+  | MapPosition
+  | TargetPosition
+  | CameraPosition
+  | LatLng
+  | [number, number];
+
+export function setMapPosition(map: Map, pos: AnyMapPosition) {
+  if (Array.isArray(pos)) {
+    map.setCenter(pos);
+  } else if ("lng" in pos) {
+    const { lng, lat } = pos;
+    if ("zoom" in pos) {
+      map.setZoom(pos.zoom);
+    }
+    map.setCenter([lng, lat]);
+  } else if ("altitude" in pos) {
+    _setMapPosition(map, { camera: pos });
+  } else if ("camera" in pos) {
+    _setMapPosition(map, pos);
   }
 }

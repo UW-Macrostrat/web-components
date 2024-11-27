@@ -1,8 +1,20 @@
 import hyper from "@macrostrat/hyper";
 import { Icon } from "@blueprintjs/core";
 import styles from "./base.module.sass";
+import type { AnyMapPosition } from "@macrostrat/mapbox-utils";
 
 const h = hyper.styled(styles);
+
+interface LocationBasicInfoProps {
+  title: string | null;
+  year: string;
+  description?: string;
+  imageURL?: string;
+  link: string;
+  rating?: number;
+  className?: string;
+  location: AnyMapPosition;
+}
 
 export function LocationBasicInfo({
   title,
@@ -12,15 +24,8 @@ export function LocationBasicInfo({
   link,
   rating,
   className,
-}: {
-  title: string | null;
-  year: string;
-  description?: string;
-  imageURL?: string;
-  link: string;
-  rating?: number;
-  className?: string;
-}) {
+  location,
+}: LocationBasicInfoProps) {
   let _title = title ?? "";
   let headerClassName = null;
   if (title == "") {
@@ -30,6 +35,7 @@ export function LocationBasicInfo({
 
   return h("div.location-basic-info", { className }, [
     h("div.location-header", { className: headerClassName }, [
+      h.if(location != null)(LocationButton, { location }),
       h("h3.title", [title]),
       h("h4.year", [year]),
       h(LocationLink, { href: link }),
@@ -69,4 +75,16 @@ export function LocationLink({
     },
     [h(Icon, { icon: "link", size: 14 }), children]
   );
+}
+
+function LocationButton({
+  location,
+  onClick,
+}: {
+  location: AnyMapPosition;
+  onClick?: () => void;
+}) {
+  return h("button.location-button", { onClick }, [
+    h(Icon, { icon: "map-marker" }),
+  ]);
 }
