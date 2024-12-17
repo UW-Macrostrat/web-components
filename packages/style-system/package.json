@@ -36,8 +36,5 @@
     "macrostrat",
     "style",
     "geology"
-  ],
-  "devDependencies": {
-    "vite": "^5.4.8"
-  }
+  ]
 }

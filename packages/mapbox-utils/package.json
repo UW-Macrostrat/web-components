@@ -6,10 +6,6 @@
   "module": "dist/module.js",
   "types": "dist/types.d.ts",
   "source": "src/index.ts",
-  "devDependencies": {
-    "@parcel/config-default": "^2.6.2",
-    "parcel": "^2.6.2"
-  },
   "scripts": {
     "dev": "parcel watch",
     "build": "parcel build"
