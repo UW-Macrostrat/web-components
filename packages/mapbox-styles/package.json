@@ -7,8 +7,6 @@
   "types": "dist/types.d.ts",
   "source": "src/index.ts",
   "devDependencies": {
-    "@parcel/config-default": "^2.6.2",
-    "parcel": "^2.6.2",
     "ts-node": "^10.7.0"
   },
   "scripts": {

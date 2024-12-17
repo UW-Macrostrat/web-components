@@ -26,9 +26,6 @@
     "dist",
     "src"
   ],
-  "devDependencies": {
-    "parcel": "^2.12.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",

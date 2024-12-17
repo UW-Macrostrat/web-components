@@ -60,7 +60,6 @@
     "src"
   ],
   "devDependencies": {
-    "parcel": "^2.12.0",
     "postcss": "^8.0.0",
     "postcss-modules": "^4.3.0"
   },

@@ -9,7 +9,7 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
-    "@macrostrat/hyper": "^2.2.1",
+    "@macrostrat/hyper": "^3.0.0",
     "@macrostrat/ui-components": "workspace:*"
   },
   "peerDependencies": {
