@@ -4,17 +4,19 @@ import hyper from "@macrostrat/hyper";
 import { Tree, TreeApi } from "react-arborist";
 import Node from "./node";
 import { FeedbackText } from "./text-visualizer";
-import { Entity, InternalEntity, TreeData } from "./types";
+import type { InternalEntity, TreeData } from "./types";
+import type { Entity } from "../extractions";
 import { ModelInfo } from "../extractions";
 import { TreeDispatchContext, useUpdatableTree } from "./edit-state";
 import { useCallback, useEffect, useRef } from "react";
 import { ButtonGroup, Card } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
-import { CancelButton, SaveButton, DataField } from "@macrostrat/ui-components";
+import { CancelButton, DataField, SaveButton } from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
 
-export { GraphData, treeToGraph } from "./edit-state";
-export { TreeData } from "./types";
+export type { GraphData } from "./edit-state";
+export { treeToGraph } from "./edit-state";
+export type { TreeData } from "./types";
 
 const h = hyper.styled(styles);
 

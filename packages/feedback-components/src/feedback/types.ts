@@ -1,6 +1,4 @@
-import { Entity, EntityExt } from "../extractions/types";
-
-export { Entity };
+import { EntityExt } from "../extractions/types";
 
 export interface InternalEntity extends EntityExt {
   term_type: string;

@@ -304,29 +304,13 @@ export interface EntityOutput {
   type: number | null;
   txt_range: number[][];
   name: string;
-  match: MatchInfo | null;
+  match: any | null;
   reasoning: string | null;
 }
-
-// We will extend this in the future, probably,
-// to handle ages and other things
-type MatchInfo = { type: "lith" | "lith_att" | "strat_name"; id: number };
 
 export interface GraphData {
   nodes: EntityOutput[];
   edges: { source: number; dest: number }[];
-}
-
-function normalizeMatch(match: any): MatchInfo | null {
-  if (match == null) return null;
-  if (match.lith_id) return { type: "lith", id: match.lith_id };
-  if (match.lith_att_id) {
-    return { type: "lith_att", id: match.lith_att_id };
-  }
-  if (match.strat_name_id) {
-    return { type: "strat_name", id: match.strat_name_id };
-  }
-  return null;
 }
 
 export function treeToGraph(tree: TreeData[]): GraphData {
@@ -350,7 +334,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
       name,
       txt_range: [indices],
       reasoning: null,
-      match: normalizeMatch(node.match),
+      match: node.match,
     };
 
     nodeMap.set(node.id, node);

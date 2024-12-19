@@ -1,10 +1,12 @@
 import styles from "./main.module.sass";
 import classNames from "classnames";
 import { Tag } from "@blueprintjs/core";
-import { Entity, EntityExt, Highlight, EntityType } from "./types";
+import type { Entity, EntityExt, Highlight, EntityType } from "./types";
 import { CSSProperties } from "react";
 import { asChromaColor } from "@macrostrat/color-utils";
 import hyper from "@macrostrat/hyper";
+
+export type { Entity, EntityExt };
 
 const h = hyper.styled(styles);
 
