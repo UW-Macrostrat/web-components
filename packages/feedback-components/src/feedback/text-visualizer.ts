@@ -35,7 +35,10 @@ function buildTags(
 
     tags.push({
       markStyle: {
-        ...getTagStyle(highlight.backgroundColor, { highlighted, active }),
+        ...getTagStyle(highlight.backgroundColor, {
+          highlighted,
+          active,
+        }),
         borderRadius: "0.2em",
         padding: "0.1em",
         borderWidth: "1.5px",

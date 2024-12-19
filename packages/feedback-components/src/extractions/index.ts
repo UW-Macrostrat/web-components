@@ -148,7 +148,7 @@ export function EntityTag({
     "entity"
   );
 
-  const style = getTagStyle(type.color, { highlighted, active });
+  const style = getTagStyle(type.color ?? "#aaaaaa", { highlighted, active });
 
   let _matchLink = null;
   if (match != null && matchComponent != null) {

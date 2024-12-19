@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from "@storybook/react";
 
 import { FeedbackComponent } from "../src";
 import { data, entityTypes } from "./test-data";
+import h from "@macrostrat/hyper";
 
 function FeedbackInterface({ data, types }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
@@ -10,7 +11,7 @@ function FeedbackInterface({ data, types }) {
     entities,
     text: paragraph_text,
     model,
-    entityTypes: types,
+    entityTypes: createMap(types),
     sourceTextID: source_text,
     runID: model_run,
   });
@@ -29,3 +30,11 @@ export const Primary: StoryObj<{}> = {
     types: entityTypes,
   },
 };
+
+function createMap(arr) {
+  const out = new Map();
+  for (const d of arr) {
+    out.set(d.id, d);
+  }
+  return out;
+}
