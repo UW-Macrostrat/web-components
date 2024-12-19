@@ -1,8 +1,11 @@
 import { NodeApi, TreeApi } from "react-arborist";
 import { TreeData } from "./types";
-import h from "./feedback.module.sass";
 import { EntityTag } from "../extractions";
 import { useTreeDispatch } from "./edit-state";
+import styles from "./feedback.module.sass";
+import hyper from "@macrostrat/hyper";
+
+const h = hyper.styled(styles);
 
 function isSelected(searchNode: TreeData, treeNode: TreeData) {
   return searchNode.id == treeNode.id;

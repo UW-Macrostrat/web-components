@@ -51,7 +51,9 @@ export type TreeDispatch = Dispatch<TreeAction | TreeAsyncAction>;
 
 export function useUpdatableTree(
   initialTree: TreeData[],
-  entityTypes: Map<number, EntityType>
+  entityTypes: Map<number, EntityType>,
+  onSave: (tree: TreeData[]) => Promise<void>,
+  toaster: Toaster | null = null
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
   const type = entityTypes.values().next().value;
@@ -68,18 +70,16 @@ export function useUpdatableTree(
 
   const handler = useCallback(
     (action: TreeAsyncAction | TreeAction) => {
-      treeActionHandler(action).then((action) => {
+      treeActionHandler(action, state.tree, onSave, toaster).then((action) => {
         if (action == null) return;
         dispatch(action);
       });
     },
-    [dispatch]
+    [dispatch, state.tree, onSave]
   );
 
   return [state, handler];
 }
-
-const AppToaster = Toaster.create();
 
 export const TreeDispatchContext = createContext<TreeDispatch | null>(null);
 
@@ -92,44 +92,28 @@ export function useTreeDispatch() {
 }
 
 async function treeActionHandler(
-  action: TreeAsyncAction | TreeAction
+  action: TreeAsyncAction | TreeAction,
+  tree: TreeData[],
+  onSave: (tree: TreeData[]) => Promise<void>,
+  toaster: Toaster | null = null
 ): Promise<TreeAction> {
   switch (action.type) {
     case "save":
-      // Save the tree to the server
-      const data = prepareDataForServer(
-        action.tree,
-        action.sourceTextID,
-        action.supersedesRunIDs
-      );
-      console.log(JSON.stringify(data, null, 2));
-
       try {
-        throw new Error("Saving is not implemented");
+        await onSave(tree);
 
-        // const response = await fetch(knowledgeGraphAPIURL + "/record_run", {
-        //   method: "POST",
-        //   headers: {
-        //     "Content-Type": "application/json",
-        //   },
-        //   body: JSON.stringify(data),
-        // });
-        // if (!response.ok) {
-        //   throw new Error("Failed to save model information");
-        // }
-        // AppToaster.show({
-        //   message: "Model information saved",
-        //   intent: "success",
-        // });
+        toaster?.show({
+          message: "Model information saved",
+          intent: "success",
+        });
       } catch (e) {
         // Show the error in the toaster
         console.error(e);
-        AppToaster.show({
+        toaster?.show({
           message: "Failed to save model information",
           intent: "danger",
         });
       }
-
       return null;
     default:
       return action;
@@ -328,14 +312,9 @@ export interface EntityOutput {
 // to handle ages and other things
 type MatchInfo = { type: "lith" | "lith_att" | "strat_name"; id: number };
 
-interface GraphData {
+export interface GraphData {
   nodes: EntityOutput[];
   edges: { source: number; dest: number }[];
-}
-
-interface ServerResults extends GraphData {
-  sourceTextId: number;
-  supersedesRunIds: number[];
 }
 
 function normalizeMatch(match: any): MatchInfo | null {
@@ -350,7 +329,7 @@ function normalizeMatch(match: any): MatchInfo | null {
   return null;
 }
 
-function prepareGraphForServer(tree: TreeData[]): GraphData {
+export function treeToGraph(tree: TreeData[]): GraphData {
   // Convert the tree to a graph
   let nodes: EntityOutput[] = [];
   let edges: { source: number; dest: number }[] = [];
@@ -383,7 +362,7 @@ function prepareGraphForServer(tree: TreeData[]): GraphData {
       }
 
       // Now process the children
-      const { nodes: childNodes, edges: childEdges } = prepareGraphForServer(
+      const { nodes: childNodes, edges: childEdges } = treeToGraph(
         node.children
       );
       nodes.push(...childNodes);
@@ -392,19 +371,4 @@ function prepareGraphForServer(tree: TreeData[]): GraphData {
   }
 
   return { nodes, edges };
-}
-
-function prepareDataForServer(
-  tree: TreeData[],
-  sourceTextID,
-  supersedesRunIDs
-): ServerResults {
-  /** This function should be used before sending the data to the server */
-  const { nodes, edges } = prepareGraphForServer(tree);
-  return {
-    nodes,
-    edges,
-    sourceTextId: sourceTextID,
-    supersedesRunIds: supersedesRunIDs ?? [],
-  };
 }

@@ -1,4 +1,6 @@
-import h from "./feedback.module.sass";
+import styles from "./feedback.module.sass";
+import hyper from "@macrostrat/hyper";
+
 import { Tree, TreeApi } from "react-arborist";
 import Node from "./node";
 import { FeedbackText } from "./text-visualizer";
@@ -10,6 +12,11 @@ import { ButtonGroup, Card } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import { CancelButton, SaveButton, DataField } from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
+
+export { GraphData, treeToGraph } from "./edit-state";
+export { TreeData } from "./types";
+
+const h = hyper.styled(styles);
 
 function setsAreTheSame<T>(a: Set<T>, b: Set<T>) {
   if (a.size !== b.size) return false;
@@ -24,15 +31,17 @@ export function FeedbackComponent({
   text,
   model,
   entityTypes,
-  sourceTextID,
-  runID,
   matchComponent,
+  onSave,
+  toaster,
 }) {
   // Get the input arguments
 
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity),
-    entityTypes
+    entityTypes,
+    onSave,
+    toaster
   );
 
   const { selectedNodes, tree, selectedEntityType, isSelectingEntityType } =
@@ -81,9 +90,6 @@ export function FeedbackComponent({
                   onClick() {
                     dispatch({
                       type: "save",
-                      tree,
-                      sourceTextID: sourceTextID,
-                      supersedesRunIDs: [runID],
                     });
                   },
                   disabled: state.initialTree == state.tree,
