@@ -38,7 +38,7 @@ function isNodeActive(node: NodeApi<TreeData>, tree: TreeApi<TreeData>) {
   return false;
 }
 
-function Node({ node, style, dragHandle, tree }: any) {
+function Node({ node, style, dragHandle, tree, matchComponent }: any) {
   let highlighted: boolean = isNodeHighlighted(node, tree);
   let active: boolean = isNodeActive(node, tree);
 
@@ -51,6 +51,7 @@ function Node({ node, style, dragHandle, tree }: any) {
       data: node.data,
       active,
       highlighted,
+      matchComponent,
       onClickType() {
         dispatch({ type: "toggle-entity-type-selector" });
       },

@@ -5,7 +5,7 @@ import { FeedbackText } from "./text-visualizer";
 import { Entity, InternalEntity, TreeData } from "./types";
 import { ModelInfo } from "../extractions";
 import { TreeDispatchContext, useUpdatableTree } from "./edit-state";
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { ButtonGroup, Card } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import { CancelButton, SaveButton, DataField } from "@macrostrat/ui-components";
@@ -26,6 +26,7 @@ export function FeedbackComponent({
   entityTypes,
   sourceTextID,
   runID,
+  matchComponent,
 }) {
   // Get the input arguments
 
@@ -111,6 +112,7 @@ export function FeedbackComponent({
           tree,
           width,
           height,
+          matchComponent,
         }),
       ]
     ),
@@ -161,9 +163,22 @@ function EntityTypeSelector({
 }
 
 function ManagedSelectionTree(props) {
-  const { selectedNodes, dispatch, tree, height, width, ...rest } = props;
+  const {
+    selectedNodes,
+    dispatch,
+    tree,
+    height,
+    width,
+    matchComponent,
+    ...rest
+  } = props;
 
   const ref = useRef<TreeApi<TreeData>>();
+
+  const _Node = useCallback(
+    (props) => h(Node, { ...props, matchComponent }),
+    [matchComponent]
+  );
 
   useEffect(() => {
     if (ref.current == null) return;
@@ -211,7 +226,7 @@ function ManagedSelectionTree(props) {
       }
       dispatch({ type: "select-node", payload: { ids } });
     },
-    children: Node,
+    children: _Node,
     idAccessor(d: TreeData) {
       return d.id.toString();
     },
