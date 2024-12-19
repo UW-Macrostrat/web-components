@@ -5,11 +5,10 @@ import { FeedbackText } from "./text-visualizer";
 import { Entity, InternalEntity, TreeData } from "./types";
 import { ModelInfo } from "../extractions";
 import { TreeDispatchContext, useUpdatableTree } from "./edit-state";
-import { useEffect, useRef, useState } from "react";
-import { DataField } from "~/components/unit-details";
+import { useEffect, useRef } from "react";
 import { ButtonGroup, Card } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
-import { CancelButton, SaveButton } from "@macrostrat/ui-components";
+import { CancelButton, SaveButton, DataField } from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
 
 function setsAreTheSame<T>(a: Set<T>, b: Set<T>) {

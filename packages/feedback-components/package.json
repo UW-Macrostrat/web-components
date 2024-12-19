@@ -11,6 +11,9 @@
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
     "@blueprintjs/core": "^5.10.2",
+    "@macrostrat/color-utils": "workspace:*",
+    "@macrostrat/hyper": "^3.0.0",
+    "@macrostrat/ui-components": "workspace:*",
     "react": "^17.0.2||^18",
     "react-arborist": "^3.4.0",
     "react-text-annotate-blend": "^1.2.0"
