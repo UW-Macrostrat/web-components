@@ -35,15 +35,13 @@ export function FeedbackComponent({
   entityTypes,
   matchComponent,
   onSave,
-  toaster,
 }) {
   // Get the input arguments
 
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity),
     entityTypes,
-    onSave,
-    toaster
+    onSave
   );
 
   const { selectedNodes, tree, selectedEntityType, isSelectingEntityType } =

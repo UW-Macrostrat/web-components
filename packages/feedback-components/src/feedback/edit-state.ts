@@ -8,7 +8,6 @@ import {
 } from "react";
 import update, { Spec } from "immutability-helper";
 import { EntityType } from "../extractions/types";
-import { Toaster } from "@blueprintjs/core";
 
 interface TreeState {
   initialTree: TreeData[];
@@ -52,8 +51,7 @@ export type TreeDispatch = Dispatch<TreeAction | TreeAsyncAction>;
 export function useUpdatableTree(
   initialTree: TreeData[],
   entityTypes: Map<number, EntityType>,
-  onSave: (tree: TreeData[]) => Promise<void>,
-  toaster: Toaster | null = null
+  onSave: (tree: TreeData[]) => Promise<void>
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
   const type = entityTypes.values().next().value;
@@ -70,7 +68,7 @@ export function useUpdatableTree(
 
   const handler = useCallback(
     (action: TreeAsyncAction | TreeAction) => {
-      treeActionHandler(action, state.tree, onSave, toaster).then((action) => {
+      treeActionHandler(action, state.tree, onSave).then((action) => {
         if (action == null) return;
         dispatch(action);
       });
@@ -94,26 +92,11 @@ export function useTreeDispatch() {
 async function treeActionHandler(
   action: TreeAsyncAction | TreeAction,
   tree: TreeData[],
-  onSave: (tree: TreeData[]) => Promise<void>,
-  toaster: Toaster | null = null
+  onSave: (tree: TreeData[]) => Promise<void>
 ): Promise<TreeAction> {
   switch (action.type) {
     case "save":
-      try {
-        await onSave(tree);
-
-        toaster?.show({
-          message: "Model information saved",
-          intent: "success",
-        });
-      } catch (e) {
-        // Show the error in the toaster
-        console.error(e);
-        toaster?.show({
-          message: "Failed to save model information",
-          intent: "danger",
-        });
-      }
+      await onSave(tree);
       return null;
     default:
       return action;
