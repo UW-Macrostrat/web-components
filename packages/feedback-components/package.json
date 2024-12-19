@@ -16,6 +16,7 @@
     "@macrostrat/ui-components": "workspace:*",
     "react": "^17.0.2||^18",
     "react-arborist": "^3.4.0",
+    "react-flow": "^1.0.3",
     "react-text-annotate-blend": "^1.2.0"
   },
   "exports": {

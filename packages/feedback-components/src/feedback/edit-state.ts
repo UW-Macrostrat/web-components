@@ -3,6 +3,11 @@ import { createContext, Dispatch, useContext, useReducer } from "react";
 import update, { Spec } from "immutability-helper";
 import { EntityType } from "../extractions/types";
 
+export enum ViewMode {
+  Tree = "tree",
+  Graph = "graph",
+}
+
 interface TreeState {
   initialTree: TreeData[];
   tree: TreeData[];
@@ -11,6 +16,7 @@ interface TreeState {
   selectedEntityType: EntityType;
   lastInternalId: number;
   isSelectingEntityType: boolean;
+  viewMode: ViewMode;
 }
 
 type TextRange = {
@@ -27,6 +33,7 @@ type TreeAction =
   | { type: "delete-node"; payload: { ids: number[] } }
   | { type: "select-node"; payload: { ids: number[] } }
   | { type: "toggle-node-selected"; payload: { ids: number[] } }
+  | { type: "set-view-mode"; payload: ViewMode }
   | { type: "create-node"; payload: TextRange }
   | { type: "select-entity-type"; payload: EntityType }
   | { type: "toggle-entity-type-selector"; payload?: boolean | null }
@@ -50,6 +57,7 @@ export function useUpdatableTree(
     selectedEntityType: type,
     lastInternalId: 0,
     isSelectingEntityType: false,
+    viewMode: ViewMode.Tree,
   });
 }
 
@@ -169,6 +177,8 @@ function treeReducer(state: TreeState, action: TreeAction) {
         tree: state.initialTree,
         selectedNodes: [],
       };
+    case "set-view-mode":
+      return { ...state, viewMode: action.payload };
   }
 }
 

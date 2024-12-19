@@ -7,11 +7,17 @@ import { FeedbackText } from "./text-visualizer";
 import type { InternalEntity, TreeData } from "./types";
 import type { Entity } from "../extractions";
 import { ModelInfo } from "../extractions";
-import { TreeDispatchContext, useUpdatableTree } from "./edit-state";
+import { TreeDispatchContext, useUpdatableTree, ViewMode } from "./edit-state";
 import { useCallback, useEffect, useRef } from "react";
-import { ButtonGroup, Card } from "@blueprintjs/core";
+import { ButtonGroup, Card, SegmentedControl } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
-import { CancelButton, DataField, SaveButton } from "@macrostrat/ui-components";
+import {
+  CancelButton,
+  DataField,
+  FlexBox,
+  FlexRow,
+  SaveButton,
+} from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
 
 export type { GraphData } from "./edit-state";
@@ -55,7 +61,21 @@ export function FeedbackComponent({
       nodes: tree,
       selectedNodes,
     }),
-    h(ModelInfo, { data: model }),
+    h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
+      h(ModelInfo, { data: model }),
+      h(SegmentedControl, {
+        options: [
+          { label: "Tree", value: "tree" },
+          { label: "Graph", value: "graph" },
+        ],
+        value: state.viewMode,
+        small: true,
+        onValueChange(value: ViewMode) {
+          console.log("Setting view mode", value);
+          dispatch({ type: "set-view-mode", payload: value });
+        },
+      }),
+    ]),
     h(
       "div.entity-panel",
       {
@@ -109,7 +129,7 @@ export function FeedbackComponent({
               }),
           }),
         ]),
-        h(ManagedSelectionTree, {
+        h.if(state.viewMode == "tree")(ManagedSelectionTree, {
           selectedNodes,
           dispatch,
           tree,
