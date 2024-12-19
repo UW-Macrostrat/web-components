@@ -1,10 +1,13 @@
 import { AnnotateBlendTag, TextAnnotateBlend } from "react-text-annotate-blend";
 import { InternalEntity } from "./types";
 import { TreeDispatch } from "./edit-state";
-import h from "./feedback.module.sass";
+import styles from "./feedback.module.sass";
+import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useCallback } from "react";
+
+const h = hyper.styled(styles);
 
 export interface FeedbackTextProps {
   text: string;
