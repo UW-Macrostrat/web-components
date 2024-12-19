@@ -40,8 +40,7 @@ export function FeedbackComponent({
 
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity),
-    entityTypes,
-    onSave
+    entityTypes
   );
 
   const { selectedNodes, tree, selectedEntityType, isSelectingEntityType } =
@@ -88,9 +87,7 @@ export function FeedbackComponent({
                 SaveButton,
                 {
                   onClick() {
-                    dispatch({
-                      type: "save",
-                    });
+                    onSave(state.tree);
                   },
                   disabled: state.initialTree == state.tree,
                 },

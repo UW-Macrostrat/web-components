@@ -1,11 +1,5 @@
 import { TreeData } from "./types";
-import {
-  createContext,
-  Dispatch,
-  useCallback,
-  useContext,
-  useReducer,
-} from "react";
+import { createContext, Dispatch, useContext, useReducer } from "react";
 import update, { Spec } from "immutability-helper";
 import { EntityType } from "../extractions/types";
 
@@ -25,13 +19,6 @@ type TextRange = {
   text: string;
 };
 
-type TreeAsyncAction = {
-  type: "save";
-  tree: TreeData[];
-  sourceTextID: number;
-  supersedesRunIDs: number[];
-};
-
 type TreeAction =
   | {
       type: "move-node";
@@ -46,17 +33,16 @@ type TreeAction =
   | { type: "deselect" }
   | { type: "reset" };
 
-export type TreeDispatch = Dispatch<TreeAction | TreeAsyncAction>;
+export type TreeDispatch = Dispatch<TreeAction>;
 
 export function useUpdatableTree(
   initialTree: TreeData[],
-  entityTypes: Map<number, EntityType>,
-  onSave: (tree: TreeData[]) => Promise<void>
+  entityTypes: Map<number, EntityType>
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
   const type = entityTypes.values().next().value;
 
-  const [state, dispatch] = useReducer(treeReducer, {
+  return useReducer(treeReducer, {
     initialTree,
     tree: initialTree,
     selectedNodes: [],
@@ -65,18 +51,6 @@ export function useUpdatableTree(
     lastInternalId: 0,
     isSelectingEntityType: false,
   });
-
-  const handler = useCallback(
-    (action: TreeAsyncAction | TreeAction) => {
-      treeActionHandler(action, state.tree, onSave).then((action) => {
-        if (action == null) return;
-        dispatch(action);
-      });
-    },
-    [dispatch, state.tree, onSave]
-  );
-
-  return [state, handler];
 }
 
 export const TreeDispatchContext = createContext<TreeDispatch | null>(null);
@@ -87,20 +61,6 @@ export function useTreeDispatch() {
     throw new Error("No dispatch context available");
   }
   return dispatch;
-}
-
-async function treeActionHandler(
-  action: TreeAsyncAction | TreeAction,
-  tree: TreeData[],
-  onSave: (tree: TreeData[]) => Promise<void>
-): Promise<TreeAction> {
-  switch (action.type) {
-    case "save":
-      await onSave(tree);
-      return null;
-    default:
-      return action;
-  }
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
