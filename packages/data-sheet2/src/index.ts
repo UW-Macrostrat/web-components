@@ -17,7 +17,7 @@ import update from "immutability-helper";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
-import { DataSheetProvider, useSelector } from "./provider";
+import { DataSheetProvider, useSelector, topLeftCell } from "./provider";
 
 export * from "./components";
 
@@ -97,14 +97,7 @@ function _DataSheet<T>({
   );
 
   const _topLeftCell = useMemo(() => topLeftCell(selection), [selection]);
-  const focusedCell = useMemo(() => singleFocusedCell(selection), [selection]);
-
-  useEffect(() => {
-    // Cancel value filling if we change the selection
-    if (focusedCell != null) {
-      setFillValueBaseCell(null);
-    }
-  }, [focusedCell]);
+  const focusedCell = useSelector((state) => state.focusedCell);
 
   const ref = useRef<HTMLDivElement>(null);
 
@@ -206,7 +199,6 @@ function _DataSheet<T>({
 
   const onAddRow = useCallback(() => {
     setUpdatedData((updatedData) => {
-      console.log(updatedData);
       const ix = data.length;
       const addRowSpec = { [ix]: { $set: {} } };
       const newUpdatedData = update(updatedData, addRowSpec);
@@ -649,27 +641,6 @@ function generateColumnSpec<T>(
     }
     return { ...col, ...ovr };
   });
-}
-
-function topLeftCell(
-  regions: Region[],
-  requireSolitaryCell: boolean = false
-): FocusedCellCoordinates | null {
-  /** Top left cell of a ranged selection  */
-  if (regions == null) return null;
-  const [region] = regions;
-  if (region == null) return null;
-  const { cols, rows } = region;
-  if (cols == null || rows == null) return null;
-  if (requireSolitaryCell && (cols[0] !== cols[1] || rows[0] !== rows[1]))
-    return null;
-  return { col: cols[0], row: rows[0], focusSelectionIndex: 0 };
-}
-
-function singleFocusedCell(sel: Region[]): FocusedCellCoordinates | null {
-  /** Derive a single focused cell from a selected region, if possible */
-  if (sel?.length !== 1) return null;
-  return topLeftCell(sel, true);
 }
 
 export function getRowsToDelete(selection) {
