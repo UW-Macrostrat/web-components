@@ -5,7 +5,7 @@ import { useMemo } from "react";
 import chroma from "chroma-js";
 import styles from "./index.module.sass";
 import "@blueprintjs/table/lib/css/table.css";
-import DataSheet from "../../src/core";
+import { DataSheet } from "../../src";
 import { asChromaColor } from "@macrostrat/color-utils";
 
 const h = hyper.styled(styles);
