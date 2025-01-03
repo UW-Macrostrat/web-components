@@ -17,7 +17,7 @@ import update from "immutability-helper";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
-import { DataSheetProvider } from "./provider";
+import { DataSheetProvider, useSelector } from "./provider";
 
 export * from "./components";
 
@@ -66,7 +66,7 @@ export interface ColumnSpec {
 }
 
 export default function DataSheet<T>(props: DataSheetProps<T>) {
-  return h(HotkeysProvider, h(DataSheetProvider, h(_DataSheet, props)));
+  return h(HotkeysProvider, h(DataSheetProvider<T>, h(_DataSheet, props)));
 }
 
 function _DataSheet<T>({
@@ -89,11 +89,15 @@ function _DataSheet<T>({
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
-  const [selection, setSelection] = useState<Region[]>([]);
+  const selection = useSelector<T>((state) => state.selection);
+  const setSelection = useSelector((state) => state.setSelection);
+  const fillValueBaseCell = useSelector((state) => state.fillValueBaseCell);
+  const setFillValueBaseCell = useSelector(
+    (state) => state.setFillValueBaseCell
+  );
+
   const _topLeftCell = useMemo(() => topLeftCell(selection), [selection]);
   const focusedCell = useMemo(() => singleFocusedCell(selection), [selection]);
-  const [fillValueBaseCell, setFillValueBaseCell] =
-    useState<FocusedCellCoordinates>(null);
 
   useEffect(() => {
     // Cancel value filling if we change the selection
@@ -114,7 +118,9 @@ function _DataSheet<T>({
 
   // A sparse array to hold updates
   // TODO: create a "changeset" concept to facilitate undo/redo
-  const [updatedData, setUpdatedData] = useState([]);
+  const updatedData = useSelector((state) => state.updatedData);
+  const setUpdatedData = useSelector((state) => state.setUpdatedData);
+
   const hasUpdates = updatedData.length > 0;
 
   const onCellEdited = useCallback(
