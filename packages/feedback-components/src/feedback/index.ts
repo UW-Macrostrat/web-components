@@ -7,7 +7,12 @@ import { FeedbackText } from "./text-visualizer";
 import type { InternalEntity, TreeData } from "./types";
 import type { Entity } from "../extractions";
 import { ModelInfo } from "../extractions";
-import { TreeDispatchContext, useUpdatableTree, ViewMode } from "./edit-state";
+import {
+  TreeDispatchContext,
+  treeToGraph,
+  useUpdatableTree,
+  ViewMode,
+} from "./edit-state";
 import { useCallback, useEffect, useRef } from "react";
 import { ButtonGroup, Card, SegmentedControl } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
@@ -19,6 +24,7 @@ import {
   SaveButton,
 } from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
+import { GraphView } from "./graph";
 
 export type { GraphData } from "./edit-state";
 export { treeToGraph } from "./edit-state";
@@ -136,6 +142,11 @@ export function FeedbackComponent({
           width,
           height,
           matchComponent,
+        }),
+        h.if(state.viewMode == "graph")(GraphView, {
+          tree,
+          width,
+          height,
         }),
       ]
     ),
