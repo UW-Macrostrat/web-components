@@ -1,9 +1,9 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, useStore } from "zustand";
 import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
 import { generateColumnSpec } from "./utils";
-import update from "immutability-helper";
+import update, { Spec } from "immutability-helper";
 import { range } from "./utils";
 
 export interface ColumnSpec {
@@ -41,15 +41,17 @@ export interface DataSheetState<T> {
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
   updatedData: T[];
+  initialized: boolean;
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
 
-interface DataSheetStore<T> extends DataSheetState<T> {
+interface DataSheetStore<T> extends DataSheetVals<T> {
   setSelection: (selection: Region[]) => void;
   setFillValueBaseCell: (cell: FocusedCellCoordinates | null) => void;
   setUpdatedData: (data: T[]) => void;
-  clearSelection: () => void;
+  onCellEdited: (rowIndex: number, columnName: string, value: any) => void;
+  initialize: (props: DataSheetCoreProps<T>) => void;
 }
 
 type ProviderProps<T> = DataSheetCoreProps<T> & {
@@ -76,6 +78,7 @@ export function DataSheetProvider<T>({
         fillValueBaseCell: null,
         updatedData: [],
         focusedCell: null,
+        initialized: false,
         setSelection(selection: Region[]) {
           const focusedCell = singleFocusedCell(selection);
           let spec: Partial<DataSheetState<T>> = { selection, focusedCell };
@@ -90,9 +93,34 @@ export function DataSheetProvider<T>({
         setFillValueBaseCell(cell: FocusedCellCoordinates | null) {
           set({ fillValueBaseCell: cell });
         },
+        onCellEdited(rowIndex: number, columnName: string, value: any) {
+          set((state) => {
+            const { editable, updatedData, data } = state;
+            if (!editable) return {};
+            let rowSpec: any;
+            // Check to see if the new value is the same as the old one
+            if (value !== data[rowIndex]?.[columnName]) {
+              const rowOp = updatedData[rowIndex] != null ? "$merge" : "$set";
+              rowSpec = { [rowOp]: { [columnName]: value } };
+            } else {
+              rowSpec = { $unset: [columnName] };
+            }
+            const spec: Spec<T[]> = { [rowIndex]: rowSpec };
+            return { updatedData: update(updatedData, spec) };
+          });
+        },
+        initialize(props: DataSheetCoreProps<T>) {
+          set({ ...props, initialized: true });
+        },
       };
     });
   });
+
+  // Not sure how required this initialization is
+  useEffect(() => {
+    const { initialize } = store.getState();
+    initialize({ data, columnSpec, columnSpecOptions, editable });
+  }, [data, editable, columnSpec, columnSpecOptions]);
 
   return h(DataSheetContext.Provider, { value: store }, children);
 }

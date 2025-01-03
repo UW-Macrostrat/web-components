@@ -50,7 +50,13 @@ interface DataSheetProps<T> extends DataSheetCoreProps<T> {
 }
 
 export default function DataSheet<T>(props: DataSheetProps<T>) {
-  const { data, columnSpec, columnSpecOptions, editable, ...rest } = props;
+  const {
+    data,
+    columnSpec,
+    columnSpecOptions,
+    editable = true,
+    ...rest
+  } = props;
 
   return h(
     HotkeysProvider,
@@ -115,22 +121,7 @@ function _DataSheet<T>({
 
   const hasUpdates = updatedData.length > 0;
 
-  const onCellEdited = useCallback(
-    (row: number, key: string, value: any) => {
-      if (!editable) return;
-      let rowSpec = {};
-      // Check to see if the new value is the same as the old one
-      if (value !== data[row]?.[key]) {
-        const rowOp = updatedData[row] != null ? "$merge" : "$set";
-        rowSpec = { [rowOp]: { [key]: value } };
-      } else {
-        rowSpec = { $unset: [key] };
-      }
-      const spec = { [row]: rowSpec };
-      setUpdatedData(update(updatedData, spec));
-    },
-    [setUpdatedData, updatedData, data, editable]
-  );
+  const onCellEdited = useSelector((state) => state.onCellEdited);
 
   const fillValues = useCallback(
     (fillValueBase, selection) => {
