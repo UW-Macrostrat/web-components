@@ -48,11 +48,12 @@ export interface DataSheetState<T> {
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
 
 export interface DataSheetStore<T> extends DataSheetVals<T> {
-  setSelection: (selection: Region[]) => void;
-  setFillValueBaseCell: (cell: FocusedCellCoordinates | null) => void;
-  setUpdatedData: (data: T[]) => void;
-  onCellEdited: (rowIndex: number, columnName: string, value: any) => void;
-  initialize: (props: DataSheetCoreProps<T>) => void;
+  setSelection(selection: Region[]): void;
+  setFillValueBaseCell(cell: FocusedCellCoordinates | null): void;
+  setUpdatedData(data: T[]): void;
+  onCellEdited(rowIndex: number, columnName: string, value: any): void;
+  clearSelection(): void;
+  initialize(props: DataSheetCoreProps<T>): void;
 }
 
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
@@ -117,6 +118,28 @@ export function DataSheetProvider<T>({
         },
         initialize(props: DataSheetCoreProps<T>) {
           set({ ...props, initialized: true });
+        },
+        clearSelection() {
+          set((state) => {
+            // Delete all selected cells
+            const { selection, updatedData, columnSpec } = state;
+            let spec = {};
+            for (const region of selection) {
+              const { cols, rows } = region;
+              for (const row of range(rows)) {
+                let vals = {};
+                for (const col of range(cols)) {
+                  const key = columnSpec[col].key;
+                  vals[key] = "";
+                }
+                let op = updatedData[row] == null ? "$set" : "$merge";
+                spec[row] = { [op]: vals };
+              }
+            }
+            return {
+              updatedData: update(updatedData, spec),
+            };
+          });
         },
       };
     });

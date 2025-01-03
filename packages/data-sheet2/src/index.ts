@@ -8,7 +8,7 @@ import { Cell, Column, Region, Table2 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
 import {
@@ -17,11 +17,10 @@ import {
   DataSheetProvider,
   DataSheetProviderProps,
   DataSheetStore,
-  topLeftCell,
   useSelector,
   useStoreAPI,
 } from "./provider";
-import { generateColumnSpec, range } from "./utils";
+import { range } from "./utils";
 
 export type { ColumnSpec, ColumnSpecOptions };
 export * from "./components";
@@ -97,9 +96,7 @@ function _DataSheet<T>({
   const selection = useSelector<T>((state) => state.selection);
   const setSelection = useSelector((state) => state.setSelection);
   const fillValueBaseCell = useSelector((state) => state.fillValueBaseCell);
-  const setFillValueBaseCell = useSelector(
-    (state) => state.setFillValueBaseCell
-  );
+
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
 
@@ -115,8 +112,6 @@ function _DataSheet<T>({
   const setUpdatedData = useSelector((state) => state.setUpdatedData);
 
   const hasUpdates = updatedData.length > 0;
-
-  const onCellEdited = useSelector((state) => state.onCellEdited);
 
   const storeAPI = useStoreAPI<T>();
 
@@ -140,24 +135,6 @@ function _DataSheet<T>({
     },
     [updatedData, columnSpec, editable]
   );
-
-  const clearSelection = useCallback(() => {
-    // Delete all selected cells
-    let spec = {};
-    for (const region of selection) {
-      const { cols, rows } = region;
-      for (const row of range(rows)) {
-        let vals = {};
-        for (const col of range(cols)) {
-          const key = columnSpec[col].key;
-          vals[key] = "";
-        }
-        let op = updatedData[row] == null ? "$set" : "$merge";
-        spec[row] = { [op]: vals };
-      }
-    }
-    setUpdatedData(update(updatedData, spec));
-  }, [selection, updatedData, columnSpec]);
 
   const _onSaveData = useCallback(() => {
     onSaveData(updatedData, data);
@@ -258,9 +235,6 @@ function _DataSheet<T>({
               return basicCellRenderer<T>(rowIndex, colIndex, col, state, {
                 data,
                 updatedData,
-                onCellEdited,
-                clearSelection,
-                setFillValueBaseCell,
               });
             },
           });
@@ -275,7 +249,7 @@ function basicCellRenderer<T>(
   colIndex: number,
   columnSpec: ColumnSpec,
   state: DataSheetStore<T>,
-  { data, updatedData, clearSelection }
+  { data, updatedData }
 ): any {
   const row = data[rowIndex] ?? updatedData[rowIndex];
   const loading = row == null;
@@ -284,6 +258,7 @@ function basicCellRenderer<T>(
   const focusedCell = state.focusedCell;
   const _topLeftCell = state.topLeftCell;
   const onCellEdited = state.onCellEdited;
+  const clearSelection = state.clearSelection;
   const setFillValueBaseCell = state.setFillValueBaseCell;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
@@ -382,7 +357,6 @@ function basicCellRenderer<T>(
           e.stopPropagation();
         } else {
           e.target.blur();
-          console.log(e.target, e.key);
           if (e.key !== "Escape") {
             e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
           }
