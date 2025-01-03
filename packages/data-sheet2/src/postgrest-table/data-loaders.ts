@@ -13,7 +13,6 @@ interface ChunkIndex {
 
 import { PostgrestClient, PostgrestQueryBuilder } from "@supabase/postgrest-js";
 
-
 interface LazyLoaderState<T> {
   data: (T | null)[];
   loading: boolean;
@@ -58,7 +57,7 @@ function lazyLoadingReducer<T>(
       };
     case "update-data":
       return {
-        ...state
+        ...state,
         loading: false,
         data: update(state.data, action.changes),
       };
@@ -131,7 +130,10 @@ interface QueryConfig {
   after?: any;
 }
 
-function buildQuery<T>(client: PostgrestQueryBuilder<T, any>, endpoint: string, config: QueryConfig) {
+function buildQuery<T>(
+  client: PostgrestQueryBuilder<T, any>,
+  config: QueryConfig
+) {
   const { columns = "*", count } = config;
   const opts = { count };
 
@@ -260,7 +262,7 @@ export function usePostgRESTLazyLoader(
     loading,
     onScroll,
     dispatch,
-    client
+    client,
   };
 }
 

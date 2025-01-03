@@ -4,7 +4,6 @@ import styles from "./main.module.sass";
 import DataSheet, { ColorCell } from "../core"; //getRowsToDelete
 import { LithologyTag } from "./cell-renderers";
 import { usePostgRESTLazyLoader } from "./data-loaders";
-import { HotkeysProvider } from "@blueprintjs/core";
 import { Spinner } from "@blueprintjs/core";
 
 export * from "./data-loaders";
@@ -80,7 +79,7 @@ export function _PostgRESTTableView({
     return h(Spinner);
   }
 
-  return h(HotkeysProvider, [
+  return h("div.data-sheet-outer", [
     h(OverlayToaster, { usePortal: false, ref: toasterRef }),
     h(DataSheet, {
       data,
