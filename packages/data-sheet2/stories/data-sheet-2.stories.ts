@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
+import h from "@macrostrat/hyper";
 
-import { DataSheetTest } from "./data-sheet-test";
+import { TestDataSheet, useTestData } from "./data-sheet-test";
+
+function DataSheetTest() {
+  const [data, columnSpec] = useTestData();
+  return h(TestDataSheet, { data, columnSpec });
+}
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<any> = {
