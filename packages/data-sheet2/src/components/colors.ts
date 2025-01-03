@@ -5,6 +5,7 @@ import styles from "./main.module.sass";
 import { asChromaColor } from "@macrostrat/color-utils";
 import { HexColorPicker } from "react-colorful";
 import { useEffect, useRef } from "react";
+import { memoize } from "underscore";
 
 const h = hyper.styled(styles);
 
@@ -17,12 +18,16 @@ export function ColorCell({ value, children, style, intent, ...rest }) {
       ...rest,
       style: {
         ...style,
-        ...pleasantCombination(value, { darkMode }),
+        ...colorCombo(value, darkMode),
       },
     },
     children
   );
 }
+
+const colorCombo = memoize((color, darkMode) =>
+  pleasantCombination(color, { darkMode })
+);
 
 export function pleasantCombination(
   color,
