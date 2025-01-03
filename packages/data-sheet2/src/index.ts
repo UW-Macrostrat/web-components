@@ -19,6 +19,7 @@ import {
   DataSheetStore,
   useSelector,
   useStoreAPI,
+  VisibleCells,
 } from "./provider";
 
 export type { ColumnSpec, ColumnSpecOptions };
@@ -30,11 +31,6 @@ const h = hyper.styled(styles);
 
 // TODO: add a "copy to selection" tool (the little square in the bottom right corner of a cell)
 // This should copy the value of a cell (or a set of cells in the same row) downwards.
-
-interface VisibleCells {
-  rowIndexStart: number;
-  rowIndexEnd: number;
-}
 
 interface DataSheetInternalProps<T> {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
@@ -93,8 +89,6 @@ function _DataSheet<T>({
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
   const selection = useSelector<T>((state) => state.selection);
-  const setSelection = useSelector((state) => state.setSelection);
-  const fillValueBaseCell = useSelector((state) => state.fillValueBaseCell);
 
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
@@ -121,24 +115,14 @@ function _DataSheet<T>({
     setUpdatedData([]);
   }, [updatedData, data, onSaveData]);
 
-  const visibleCellsRef = useRef<VisibleCells>({
-    rowIndexStart: 0,
-    rowIndexEnd: 0,
-  });
+  const setVisibleCells = useSelector((state) => state.setVisibleCells);
 
   const _onVisibleCellsChange = useCallback(
     (visibleCells: VisibleCells) => {
-      if (
-        visibleCells.rowIndexEnd == visibleCellsRef.current.rowIndexEnd &&
-        visibleCells.rowIndexStart == visibleCellsRef.current.rowIndexStart
-      ) {
-        return;
-      }
-
-      visibleCellsRef.current = visibleCells;
+      setVisibleCells(visibleCells);
       onVisibleCellsChange?.(visibleCells);
     },
-    [onVisibleCellsChange]
+    [onVisibleCellsChange, setVisibleCells]
   );
 
   const onAddRow = useCallback(() => {
@@ -226,7 +210,6 @@ function basicCellRenderer<T>(
   const _topLeftCell = state.topLeftCell;
   const onCellEdited = state.onCellEdited;
   const clearSelection = state.clearSelection;
-  const setFillValueBaseCell = state.setFillValueBaseCell;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
 
@@ -363,19 +346,18 @@ function basicCellRenderer<T>(
       style,
       //truncated: false,
     },
-    [
-      cellContents,
-      h.if(editable)(DragHandle, { setFillValueBaseCell, focusedCell }),
-    ]
+    [cellContents, h.if(editable)(DragHandle, { focusedCell })]
   );
 }
 
-function DragHandle({ setFillValueBaseCell, focusedCell }) {
+function DragHandle({ focusedCell }) {
   // TODO: we might want to drag multiple columns in some cases
   // This should be on the last cell of a selection
+  const onDragValue = useSelector((state) => state.onDragValue);
+
   return h("div.corner-drag-handle", {
     onMouseDown(e) {
-      setFillValueBaseCell(focusedCell);
+      onDragValue(focusedCell);
       e.preventDefault();
     },
   });

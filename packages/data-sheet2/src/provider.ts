@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
@@ -49,12 +49,14 @@ type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
 
 export interface DataSheetStore<T> extends DataSheetVals<T> {
   setSelection(selection: Region[]): void;
-  setFillValueBaseCell(cell: FocusedCellCoordinates | null): void;
+  onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: T[]): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
   clearSelection(): void;
   initialize(props: DataSheetCoreProps<T>): void;
   onSelection(selection: Region[]): void;
+  // Internal method used for infinite scrolling
+  setVisibleCells(visibleCells: VisibleCells): void;
 }
 
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
@@ -64,6 +66,11 @@ export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
 
 const DataSheetContext = createContext<StoreApi<DataSheetStore<any>>>(null);
 
+export interface VisibleCells {
+  rowIndexStart: number;
+  rowIndexEnd: number;
+}
+
 export function DataSheetProvider<T>({
   children,
   data,
@@ -71,6 +78,11 @@ export function DataSheetProvider<T>({
   columnSpecOptions,
   editable,
 }: DataSheetProviderProps<T>) {
+  const visibleCellsRef = useRef<VisibleCells>({
+    rowIndexStart: 0,
+    rowIndexEnd: 0,
+  });
+
   const [store] = useState(() => {
     return createStore<DataSheetStore<T>>((set) => {
       return {
@@ -89,7 +101,12 @@ export function DataSheetProvider<T>({
         setUpdatedData(data: T[]) {
           set({ updatedData: data });
         },
-        setFillValueBaseCell(cell: FocusedCellCoordinates | null) {
+        setVisibleCells(visibleCells: VisibleCells) {
+          // Visible cells are used for infinite scrolling
+          // Right now we don't store this in the state
+          visibleCellsRef.current = visibleCells;
+        },
+        onDragValue(cell: FocusedCellCoordinates | null) {
           set({ fillValueBaseCell: cell });
         },
         onCellEdited(rowIndex: number, columnName: string, value: any) {
