@@ -1,24 +1,27 @@
 import {
   Button,
   ButtonGroup,
-  Intent,
   HotkeysProvider,
+  Intent,
 } from "@blueprintjs/core";
-import {
-  Cell,
-  Column,
-  FocusedCellCoordinates,
-  Region,
-  Table2,
-} from "@blueprintjs/table";
+import { Cell, Column, Region, Table2 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
-import { DataSheetProvider, useSelector, topLeftCell } from "./provider";
+import {
+  ColumnSpec,
+  ColumnSpecOptions,
+  DataSheetCoreProps,
+  DataSheetProvider,
+  topLeftCell,
+  useSelector,
+} from "./provider";
+import { generateColumnSpec } from "./utils";
 
+export type { ColumnSpec, ColumnSpecOptions };
 export * from "./components";
 
 const h = hyper.styled(styles);
@@ -33,11 +36,7 @@ interface VisibleCells {
   rowIndexEnd: number;
 }
 
-interface DataSheetProps<T> {
-  data: T[];
-  columnSpec?: ColumnSpec[];
-  columnSpecOptions?: ColumnSpecOptions;
-  editable?: boolean;
+interface DataSheetProps<T> extends DataSheetCoreProps<T> {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onSaveData: (updatedData: any[], data: any[]) => void;
   onDeleteRows?: (selection: Region[]) => void;
@@ -50,23 +49,23 @@ interface DataSheetProps<T> {
   ) => void;
 }
 
-export interface ColumnSpec {
-  name: string;
-  key: string;
-  required?: boolean;
-  isValid?: (d: any) => boolean;
-  transformValue?: (d: any) => any;
-  valueRenderer?: (d: any) => string | React.ReactNode;
-  dataEditor?: any;
-  cellComponent?: any;
-  category?: string;
-  editable?: boolean;
-  inlineEditor?: boolean | React.ComponentType<any> | string | null;
-  style?: React.CSSProperties;
-}
-
 export default function DataSheet<T>(props: DataSheetProps<T>) {
-  return h(HotkeysProvider, h(DataSheetProvider<T>, h(_DataSheet, props)));
+  const { data, columnSpec, columnSpecOptions, editable, ...rest } = props;
+
+  return h(
+    HotkeysProvider,
+    h(
+      DataSheetProvider<T>,
+      {
+        data,
+        columnSpec,
+        columnSpecOptions: columnSpecOptions,
+        editable,
+        ...rest,
+      },
+      h(_DataSheet, props)
+    )
+  );
 }
 
 function _DataSheet<T>({
@@ -535,113 +534,7 @@ function range(arr: number[]) {
   return Array.from({ length: end - start + 1 }, (_, i) => i + start);
 }
 
-const defaultRenderers = {
-  string: (d) => d,
-  number: (d) => d?.toFixed(2),
-  boolean: (d) => (d ? "T" : "F"),
-  object: (d) => JSON.stringify(d),
-  integer: (d) => d?.toFixed(0),
-  array: (d) => d?.join(", "),
-};
-
-function generateDefaultColumnSpec<T>(data: Array<T>): ColumnSpec[] {
-  /** Build a default column spec from a dataset based on the first n rows */
-  if (data == null) return [];
-  // Get the keys
-  const keys = new Set();
-  const types = new Map();
-  for (const row of data) {
-    if (row == null) continue;
-    for (const key of Object.keys(row)) {
-      const val = row[key];
-      keys.add(key);
-
-      if (val == null) continue;
-      let type: string = typeof val;
-      // Special 'type' for integers
-      if (Number.isInteger(val)) {
-        type = "integer";
-      }
-
-      // Special 'type' for arrays of simple values
-      if (
-        Array.isArray(val) &&
-        val.every((d) => typeof d === "string" || typeof d === "number")
-      ) {
-        type = "array";
-      }
-
-      if (types.has(key)) {
-        if (types.get(key) !== type) {
-          if (type === "number" && types.get(key) === "integer") {
-            types.set(key, "number");
-          }
-          if (type === "object" && types.get(key) === "array") {
-            types.set(key, "object");
-          }
-
-          types.set(key, "string");
-        }
-      } else {
-        types.set(key, type);
-      }
-    }
-  }
-
-  // Build a column spec
-  const spec = [];
-  for (const key of keys) {
-    spec.push({
-      name: key,
-      key,
-      valueRenderer: defaultRenderers[types.get(key)],
-    });
-  }
-  return spec;
-}
-
 export { Cell };
-
-export interface ColumnSpecOptions {
-  overrides: Record<string, Partial<ColumnSpec> | string>;
-  data?: any[]; // Data to use for type inference
-  nRows?: number; // Number of rows to use for type inference
-  omitColumns?: string[]; // Columns to omit. Takes precedence over includeColumns.
-  includeColumns?: string[]; // Columns to include.
-}
-
-function generateColumnSpec<T>(
-  data: T[],
-  options: ColumnSpecOptions
-): ColumnSpec[] {
-  /** Generate a column spec from a dataset */
-  const { overrides = {}, nRows = 10, omitColumns, includeColumns } = options;
-
-  if (data == null) return [];
-
-  const _nRows = Math.min(nRows, data.length);
-
-  let columnSpec = generateDefaultColumnSpec(data.slice(0, _nRows));
-  let filteredSpec = columnSpec.filter((col) => {
-    if (omitColumns != null && omitColumns.includes(col.key)) {
-      return false;
-    }
-    if (includeColumns != null && !includeColumns.includes(col.key)) {
-      return false;
-    }
-    return true;
-  });
-
-  // Apply overrides
-  return filteredSpec.map((col) => {
-    let ovr = overrides[col.key];
-    if (ovr == null) return col;
-    if (typeof ovr === "string") {
-      return { ...col, name: ovr };
-    }
-    return { ...col, ...ovr };
-  });
-}
 
 export function getRowsToDelete(selection) {
   let rowIndices: number[] = [];

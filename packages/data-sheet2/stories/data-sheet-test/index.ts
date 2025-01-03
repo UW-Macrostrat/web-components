@@ -33,10 +33,9 @@ function valueRenderer(d) {
 
 export function TestDataSheet(props) {
   /** Data sheet wrapped with some providers for standalone use */
-  return h(
-    HotkeysProvider,
-    h("div.main", [h("div.data-sheet-test-container", h(DataSheet, props))])
-  );
+  return h("div.main", [
+    h("div.data-sheet-test-container", h(DataSheet, props)),
+  ]);
 }
 
 export function buildColumnSpec() {
