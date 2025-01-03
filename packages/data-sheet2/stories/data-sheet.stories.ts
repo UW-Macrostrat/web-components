@@ -24,7 +24,7 @@ export const Primary: StoryObj<{}> = {
 };
 
 // Now try a version reordering the columns
-export const Reorderable: StoryObj<{}> = {
+export const ReorderableColumns: StoryObj<{}> = {
   args: {
     enableColumnReordering: true,
     onColumnsReordered: (oldIndex, newIndex, length) => {
