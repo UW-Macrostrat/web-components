@@ -33,6 +33,7 @@ export interface DataSheetCoreProps<T> {
   data: T[];
   columnSpec?: ColumnSpec[];
   editable?: boolean;
+  enableColumnReordering: boolean;
 }
 
 export interface DataSheetState<T> {
@@ -77,6 +78,7 @@ export function DataSheetProvider<T>({
   columnSpec,
   columnSpecOptions,
   editable,
+  enableColumnReordering,
 }: DataSheetProviderProps<T>) {
   const visibleCellsRef = useRef<VisibleCells>({
     rowIndexStart: 0,
@@ -159,6 +161,16 @@ export function DataSheetProvider<T>({
             return spec;
           });
         },
+        onColumnsReordered(oldIndex: number, newIndex: number, length: number) {
+          set((state) => {
+            if (!state.enableColumnReordering) return {};
+            const { columnSpec } = state;
+            const newSpec = [...columnSpec];
+            const removed = newSpec.splice(oldIndex, length);
+            newSpec.splice(newIndex, 0, ...removed);
+            return { columnSpec: newSpec };
+          });
+        },
       };
     });
   });
@@ -170,8 +182,9 @@ export function DataSheetProvider<T>({
       data,
       columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
       editable,
+      enableColumnReordering,
     });
-  }, [data, editable, columnSpec, columnSpecOptions]);
+  }, [data, editable, columnSpec, columnSpecOptions, enableColumnReordering]);
 
   return h(DataSheetContext.Provider, { value: store }, children);
 }

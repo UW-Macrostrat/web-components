@@ -12,34 +12,19 @@ import {
 
 const h = hyper.styled(styles);
 
-// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-const meta: Meta<any> = {
-  title: "Data sheet/PostgREST sheet",
-  component: TestPostgRESTVIew,
-  parameters: {
-    layout: "fullscreen",
-  },
-};
-
-export default meta;
-
-export const Primary: StoryObj<{}> = {
-  args: {},
-};
-
-export function TestPostgRESTVIew() {
+function TestPostgRESTVIew(props) {
   return h(
     "div.postgrest-sheet-container",
     h(PostgRESTTableView, {
       endpoint: "https://dev2.macrostrat.org/api/pg",
       table: "legend",
       order: { key: "legend_id", ascending: true },
-      columnOptions,
+      ...(props ?? {}),
     })
   );
 }
 
-const columnOptions = {
+const defaultColumnOptions = {
   overrides: {
     source_id: "Source",
     liths: {
@@ -67,5 +52,33 @@ const columnOptions = {
       name: "Description",
       dataEditor: LongTextViewer,
     },
+  },
+};
+
+// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
+const meta: Meta<any> = {
+  title: "Data sheet/PostgREST sheet",
+  component: TestPostgRESTVIew,
+  parameters: {
+    layout: "fullscreen",
+  },
+};
+
+export default meta;
+
+export const Primary: StoryObj<{}> = {
+  args: {
+    columnOptions: defaultColumnOptions,
+  },
+};
+
+export const Simple = {
+  args: {},
+};
+
+export const ReorderableColumns = {
+  args: {
+    columnOptions: defaultColumnOptions,
+    enableColumnReordering: true,
   },
 };

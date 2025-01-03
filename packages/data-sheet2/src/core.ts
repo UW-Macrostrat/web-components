@@ -38,11 +38,6 @@ interface DataSheetInternalProps<T> {
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
-  onColumnsReordered?: (
-    oldIndex: number,
-    newIndex: number,
-    length: number
-  ) => void;
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
@@ -53,6 +48,7 @@ export default function DataSheet<T>(props: DataSheetProps<T>) {
     columnSpec,
     columnSpecOptions,
     editable = true,
+    enableColumnReordering = false,
     ...rest
   } = props;
 
@@ -64,18 +60,18 @@ export default function DataSheet<T>(props: DataSheetProps<T>) {
         data,
         columnSpec,
         columnSpecOptions: columnSpecOptions,
+        enableColumnReordering,
         editable,
         ...rest,
       },
-      h(_DataSheet, { ...rest, editable })
+      h(_DataSheet, { ...rest, editable, enableColumnReordering })
     )
   );
 }
 
 function _DataSheet<T>({
-  enableColumnReordering = false,
-  onColumnsReordered,
   onVisibleCellsChange,
+  enableColumnReordering,
   onSaveData,
   onDeleteRows,
   verbose = true,
@@ -109,6 +105,8 @@ function _DataSheet<T>({
   const onSelection = useSelector((state) => state.onSelection);
 
   const storeAPI = useStoreAPI<T>();
+
+  const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
   const _onSaveData = useCallback(() => {
     onSaveData(updatedData, data);

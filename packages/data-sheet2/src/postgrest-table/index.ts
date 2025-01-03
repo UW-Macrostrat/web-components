@@ -10,10 +10,11 @@ export * from "./data-loaders";
 import { useCallback, useRef } from "react";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
+import { DataSheetProviderProps } from "../provider";
 
 const h = hyper.styled(styles);
 
-interface PostgRESTTableViewProps {
+interface PostgRESTTableViewProps<T> extends DataSheetProviderProps<T> {
   endpoint: string;
   table: string;
   columnOptions?: any;
@@ -22,20 +23,21 @@ interface PostgRESTTableViewProps {
   editable?: boolean;
 }
 
-export function PostgRESTTableView(props: PostgRESTTableViewProps) {
+export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
   return h(ErrorBoundary, h(_PostgRESTTableView, props));
 }
 
 const successResponses = [200, 201];
 
-export function _PostgRESTTableView({
+function _PostgRESTTableView<T>({
   endpoint,
   table,
   columnOptions,
   order,
   columns,
   editable = false,
-}: PostgRESTTableViewProps) {
+  ...rest
+}: PostgRESTTableViewProps<T>) {
   const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
     endpoint,
     table,
@@ -82,6 +84,7 @@ export function _PostgRESTTableView({
   return h("div.data-sheet-outer", [
     h(OverlayToaster, { usePortal: false, ref: toasterRef }),
     h(DataSheet, {
+      ...rest,
       data,
       columnSpecOptions: columnOptions ?? {},
       editable,
