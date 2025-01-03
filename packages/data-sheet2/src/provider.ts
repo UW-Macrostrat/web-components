@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import h from "@macrostrat/hyper";
-import { createStore, useStore } from "zustand";
+import { createStore, StoreApi, useStore } from "zustand";
 import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
 import { generateColumnSpec } from "./utils";
 import update, { Spec } from "immutability-helper";
@@ -40,13 +40,14 @@ export interface DataSheetState<T> {
   columnSpec: ColumnSpec[];
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
+  topLeftCell: FocusedCellCoordinates | null;
   updatedData: T[];
   initialized: boolean;
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
 
-interface DataSheetStore<T> extends DataSheetVals<T> {
+export interface DataSheetStore<T> extends DataSheetVals<T> {
   setSelection: (selection: Region[]) => void;
   setFillValueBaseCell: (cell: FocusedCellCoordinates | null) => void;
   setUpdatedData: (data: T[]) => void;
@@ -59,7 +60,7 @@ export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
   columnSpecOptions?: ColumnSpecOptions;
 };
 
-const DataSheetContext = createContext(null);
+const DataSheetContext = createContext<StoreApi<DataSheetStore<any>>>(null);
 
 export function DataSheetProvider<T>({
   children,
@@ -67,7 +68,7 @@ export function DataSheetProvider<T>({
   columnSpec,
   columnSpecOptions,
   editable,
-}: ProviderProps<T>) {
+}: DataSheetProviderProps<T>) {
   const [store] = useState(() => {
     return createStore<DataSheetStore<T>>((set) => {
       return {
@@ -78,10 +79,15 @@ export function DataSheetProvider<T>({
         fillValueBaseCell: null,
         updatedData: [],
         focusedCell: null,
+        topLeftCell: null,
         initialized: false,
         setSelection(selection: Region[]) {
           const focusedCell = singleFocusedCell(selection);
-          let spec: Partial<DataSheetState<T>> = { selection, focusedCell };
+          let spec: Partial<DataSheetState<T>> = {
+            selection,
+            focusedCell,
+            topLeftCell: topLeftCell(selection),
+          };
           if (focusedCell != null) {
             spec.fillValueBaseCell = null;
           }
@@ -129,13 +135,18 @@ export function DataSheetProvider<T>({
   return h(DataSheetContext.Provider, { value: store }, children);
 }
 
-export function useSelector<T = any, A = any>(
-  selector: (state: DataSheetStore<T>) => A
-): A {
+export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
   const store = useContext(DataSheetContext);
   if (!store) {
     throw new Error("Missing DataSheetProvider");
   }
+  return store;
+}
+
+export function useSelector<T = any, A = any>(
+  selector: (state: DataSheetStore<T>) => A
+): A {
+  const store = useStoreAPI<T>();
   return useStore(store, selector);
 }
 

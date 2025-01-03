@@ -16,8 +16,10 @@ import {
   ColumnSpecOptions,
   DataSheetProvider,
   DataSheetProviderProps,
+  DataSheetStore,
   topLeftCell,
   useSelector,
+  useStoreAPI,
 } from "./provider";
 import { generateColumnSpec, range } from "./utils";
 
@@ -101,7 +103,6 @@ function _DataSheet<T>({
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
 
-  const _topLeftCell = useMemo(() => topLeftCell(selection), [selection]);
   const focusedCell = useSelector((state) => state.focusedCell);
 
   const ref = useRef<HTMLDivElement>(null);
@@ -116,6 +117,8 @@ function _DataSheet<T>({
   const hasUpdates = updatedData.length > 0;
 
   const onCellEdited = useSelector((state) => state.onCellEdited);
+
+  const storeAPI = useStoreAPI<T>();
 
   const fillValues = useCallback(
     (fillValueBase, selection) => {
@@ -251,19 +254,14 @@ function _DataSheet<T>({
           return h(Column, {
             name: col.name,
             cellRenderer: (rowIndex) => {
-              return _cellRenderer(
-                rowIndex,
+              const state = storeAPI.getState();
+              return basicCellRenderer<T>(rowIndex, colIndex, col, state, {
                 data,
                 updatedData,
-                col,
-                colIndex,
-                focusedCell,
-                _topLeftCell,
                 onCellEdited,
                 clearSelection,
                 setFillValueBaseCell,
-                editable
-              );
+              });
             },
           });
         })
@@ -272,21 +270,21 @@ function _DataSheet<T>({
   ]);
 }
 
-function _cellRenderer(
-  rowIndex,
-  data,
-  updatedData,
-  col: ColumnSpec,
-  colIndex,
-  focusedCell,
-  _topLeftCell,
-  onCellEdited,
-  clearSelection,
-  setFillValueBaseCell,
-  _editable
+function basicCellRenderer<T>(
+  rowIndex: number,
+  colIndex: number,
+  columnSpec: ColumnSpec,
+  state: DataSheetStore<T>,
+  { data, updatedData, clearSelection }
 ): any {
   const row = data[rowIndex] ?? updatedData[rowIndex];
   const loading = row == null;
+  const col = columnSpec;
+
+  const focusedCell = state.focusedCell;
+  const _topLeftCell = state.topLeftCell;
+  const onCellEdited = state.onCellEdited;
+  const setFillValueBaseCell = state.setFillValueBaseCell;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
 
@@ -302,7 +300,7 @@ function _cellRenderer(
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
-  const editable = col.editable ?? _editable;
+  const editable = col.editable ?? state.editable;
 
   const edited = updatedData[rowIndex]?.[col.key] != null;
   const intent = edited ? "success" : undefined;
