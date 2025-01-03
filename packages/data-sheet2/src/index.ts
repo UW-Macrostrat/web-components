@@ -58,6 +58,7 @@ export default function DataSheet<T>({
   columnSpec: _columnSpec,
   columnSpecOptions,
   editable = true,
+  enableColumnReordering = false,
   onVisibleCellsChange,
   onSaveData,
   onDeleteRows,
@@ -226,6 +227,7 @@ export default function DataSheet<T>({
           numRows,
           className: "data-sheet",
           enableFocusedCell: true,
+          enableColumnReordering,
           focusedCell,
           selectedRegions: selection,
           onSelection(val: Region[]) {
