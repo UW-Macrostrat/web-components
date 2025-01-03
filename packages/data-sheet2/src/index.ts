@@ -232,10 +232,7 @@ function _DataSheet<T>({
             name: col.name,
             cellRenderer: (rowIndex) => {
               const state = storeAPI.getState();
-              return basicCellRenderer<T>(rowIndex, colIndex, col, state, {
-                data,
-                updatedData,
-              });
+              return basicCellRenderer<T>(rowIndex, colIndex, col, state);
             },
           });
         })
@@ -248,9 +245,11 @@ function basicCellRenderer<T>(
   rowIndex: number,
   colIndex: number,
   columnSpec: ColumnSpec,
-  state: DataSheetStore<T>,
-  { data, updatedData }
+  state: DataSheetStore<T>
 ): any {
+  const data = state.data;
+  const updatedData = state.updatedData;
+
   const row = data[rowIndex] ?? updatedData[rowIndex];
   const loading = row == null;
   const col = columnSpec;
