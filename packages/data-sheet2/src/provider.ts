@@ -31,13 +31,13 @@ export interface ColumnSpecOptions {
 
 export interface DataSheetCoreProps<T> {
   data: T[];
-  columnSpec: ColumnSpec[];
-  columnSpecOptions?: ColumnSpecOptions;
+  columnSpec?: ColumnSpec[];
   editable?: boolean;
 }
 
 export interface DataSheetState<T> {
   selection: Region[];
+  columnSpec: ColumnSpec[];
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
   updatedData: T[];
@@ -54,8 +54,9 @@ interface DataSheetStore<T> extends DataSheetVals<T> {
   initialize: (props: DataSheetCoreProps<T>) => void;
 }
 
-type ProviderProps<T> = DataSheetCoreProps<T> & {
+export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
   children: React.ReactNode;
+  columnSpecOptions?: ColumnSpecOptions;
 };
 
 const DataSheetContext = createContext(null);
@@ -71,8 +72,7 @@ export function DataSheetProvider<T>({
     return createStore<DataSheetStore<T>>((set) => {
       return {
         data,
-        columnSpec,
-        columnSpecOptions,
+        columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
         editable,
         selection: [],
         fillValueBaseCell: null,
@@ -119,7 +119,11 @@ export function DataSheetProvider<T>({
   // Not sure how required this initialization is
   useEffect(() => {
     const { initialize } = store.getState();
-    initialize({ data, columnSpec, columnSpecOptions, editable });
+    initialize({
+      data,
+      columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
+      editable,
+    });
   }, [data, editable, columnSpec, columnSpecOptions]);
 
   return h(DataSheetContext.Provider, { value: store }, children);

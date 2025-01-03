@@ -14,8 +14,8 @@ import styles from "./main.module.sass";
 import {
   ColumnSpec,
   ColumnSpecOptions,
-  DataSheetCoreProps,
   DataSheetProvider,
+  DataSheetProviderProps,
   topLeftCell,
   useSelector,
 } from "./provider";
@@ -36,7 +36,7 @@ interface VisibleCells {
   rowIndexEnd: number;
 }
 
-interface DataSheetProps<T> extends DataSheetCoreProps<T> {
+interface DataSheetInternalProps<T> {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onSaveData: (updatedData: any[], data: any[]) => void;
   onDeleteRows?: (selection: Region[]) => void;
@@ -48,6 +48,8 @@ interface DataSheetProps<T> extends DataSheetCoreProps<T> {
     length: number
   ) => void;
 }
+
+type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
 
 export default function DataSheet<T>(props: DataSheetProps<T>) {
   const {
@@ -69,23 +71,19 @@ export default function DataSheet<T>(props: DataSheetProps<T>) {
         editable,
         ...rest,
       },
-      h(_DataSheet, props)
+      h(_DataSheet, { ...rest, editable })
     )
   );
 }
 
 function _DataSheet<T>({
-  data,
-  columnSpec: _columnSpec,
-  columnSpecOptions,
-  editable = true,
   enableColumnReordering = false,
   onColumnsReordered,
   onVisibleCellsChange,
   onSaveData,
   onDeleteRows,
   verbose = true,
-}: DataSheetProps<T>) {
+}: DataSheetInternalProps<T>) {
   /**
    * @param data: The data to be displayed in the table
    * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
@@ -100,19 +98,15 @@ function _DataSheet<T>({
   const setFillValueBaseCell = useSelector(
     (state) => state.setFillValueBaseCell
   );
+  const data = useSelector((state) => state.data);
+  const editable = useSelector((state) => state.editable);
 
   const _topLeftCell = useMemo(() => topLeftCell(selection), [selection]);
   const focusedCell = useSelector((state) => state.focusedCell);
 
   const ref = useRef<HTMLDivElement>(null);
 
-  const columnSpec =
-    _columnSpec ??
-    useMemo(() => {
-      // Only build the column spec if it's not provided at the start
-      const spec = generateColumnSpec(data, columnSpecOptions);
-      return spec;
-    }, [data[0], columnSpecOptions]);
+  const columnSpec = useSelector((state) => state.columnSpec);
 
   // A sparse array to hold updates
   // TODO: create a "changeset" concept to facilitate undo/redo
