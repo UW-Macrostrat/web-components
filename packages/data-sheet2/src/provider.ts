@@ -2,6 +2,9 @@ import { createContext, useContext, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, useStore } from "zustand";
 import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
+import { generateColumnSpec } from "./utils";
+import update from "immutability-helper";
+import { range } from "./utils";
 
 export interface ColumnSpec {
   name: string;
@@ -46,6 +49,7 @@ interface DataSheetStore<T> extends DataSheetState<T> {
   setSelection: (selection: Region[]) => void;
   setFillValueBaseCell: (cell: FocusedCellCoordinates | null) => void;
   setUpdatedData: (data: T[]) => void;
+  clearSelection: () => void;
 }
 
 type ProviderProps<T> = DataSheetCoreProps<T> & {

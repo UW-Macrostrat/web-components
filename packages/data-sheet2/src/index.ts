@@ -19,7 +19,7 @@ import {
   topLeftCell,
   useSelector,
 } from "./provider";
-import { generateColumnSpec } from "./utils";
+import { generateColumnSpec, range } from "./utils";
 
 export type { ColumnSpec, ColumnSpecOptions };
 export * from "./components";
@@ -526,12 +526,6 @@ export function BaseCell({ children, value, ...rest }) {
     },
     children
   );
-}
-
-function range(arr: number[]) {
-  if (arr.length != 2) throw new Error("Range must have two elements");
-  const [start, end] = arr;
-  return Array.from({ length: end - start + 1 }, (_, i) => i + start);
 }
 
 export { Cell };
