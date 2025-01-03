@@ -20,7 +20,6 @@ import {
   useSelector,
   useStoreAPI,
 } from "./provider";
-import { range } from "./utils";
 
 export type { ColumnSpec, ColumnSpecOptions };
 export * from "./components";
@@ -113,28 +112,9 @@ function _DataSheet<T>({
 
   const hasUpdates = updatedData.length > 0;
 
-  const storeAPI = useStoreAPI<T>();
+  const onSelection = useSelector((state) => state.onSelection);
 
-  const fillValues = useCallback(
-    (fillValueBase, selection) => {
-      // Fill values downwards
-      if (!editable) return;
-      if (fillValueBase == null) return;
-      const { col, row } = fillValueBase;
-      const key = columnSpec[col].key;
-      const value = updatedData[row]?.[key] ?? data[row][key];
-      const spec = {};
-      for (const region of selection) {
-        const { cols, rows } = region;
-        for (const row of range(rows)) {
-          let op = updatedData[row] == null ? "$set" : "$merge";
-          spec[row] = { [op]: { [key]: value } };
-        }
-      }
-      setUpdatedData(update(updatedData, spec));
-    },
-    [updatedData, columnSpec, editable]
-  );
+  const storeAPI = useStoreAPI<T>();
 
   const _onSaveData = useCallback(() => {
     onSaveData(updatedData, data);
@@ -210,19 +190,7 @@ function _DataSheet<T>({
           onColumnsReordered,
           focusedCell,
           selectedRegions: selection,
-          onSelection(val: Region[]) {
-            if (fillValueBaseCell != null) {
-              let regions = val.map((region) => {
-                const { cols, rows } = region;
-                const [col] = cols;
-                return { cols: [col, col], rows };
-              });
-              fillValues(fillValueBaseCell, regions);
-              setSelection(regions);
-            } else {
-              setSelection(val);
-            }
-          },
+          onSelection,
           // The cell renderer is memoized internally based on these data dependencies
           cellRendererDependencies: [selection, updatedData, focusedCell, data],
           onVisibleCellsChange: _onVisibleCellsChange,

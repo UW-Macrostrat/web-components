@@ -54,6 +54,7 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
   clearSelection(): void;
   initialize(props: DataSheetCoreProps<T>): void;
+  onSelection(selection: Region[]): void;
 }
 
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
@@ -83,16 +84,7 @@ export function DataSheetProvider<T>({
         topLeftCell: null,
         initialized: false,
         setSelection(selection: Region[]) {
-          const focusedCell = singleFocusedCell(selection);
-          let spec: Partial<DataSheetState<T>> = {
-            selection,
-            focusedCell,
-            topLeftCell: topLeftCell(selection),
-          };
-          if (focusedCell != null) {
-            spec.fillValueBaseCell = null;
-          }
-          set(spec);
+          set(updateSelection(selection));
         },
         setUpdatedData(data: T[]) {
           set({ updatedData: data });
@@ -141,6 +133,15 @@ export function DataSheetProvider<T>({
             };
           });
         },
+        onSelection(selection: Region[]) {
+          set((state) => {
+            let spec = updateSelection(selection);
+            if (state.fillValueBaseCell != null) {
+              spec.updatedData = fillValues(state, selection);
+            }
+            return spec;
+          });
+        },
       };
     });
   });
@@ -173,6 +174,19 @@ export function useSelector<T = any, A = any>(
   return useStore(store, selector);
 }
 
+function updateSelection(selection: Region[]) {
+  const focusedCell = singleFocusedCell(selection);
+  let spec: Partial<DataSheetState<T>> = {
+    selection,
+    focusedCell,
+    topLeftCell: topLeftCell(selection),
+  };
+  if (focusedCell != null) {
+    spec.fillValueBaseCell = null;
+  }
+  return spec;
+}
+
 export function topLeftCell(
   regions: Region[],
   requireSolitaryCell: boolean = false
@@ -192,4 +206,31 @@ function singleFocusedCell(sel: Region[]): FocusedCellCoordinates | null {
   /** Derive a single focused cell from a selected region, if possible */
   if (sel?.length !== 1) return null;
   return topLeftCell(sel, true);
+}
+
+function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
+  const { updatedData, columnSpec, editable, fillValueBaseCell, data } = state;
+
+  // Prepare regions by unnesting columns
+  let regions = selection.map((region) => {
+    const { cols, rows } = region;
+    // Get the first column (maybe should be the last)
+    const [col] = cols;
+    return { cols: [col, col], rows };
+  });
+
+  // Fill values downwards
+  if (!editable || fillValueBaseCell == null) return updatedData;
+  const { col, row } = fillValueBaseCell;
+  const key = columnSpec[col].key;
+  const value = updatedData[row]?.[key] ?? data[row][key];
+  const spec = {};
+  for (const region of regions) {
+    const { cols, rows } = region;
+    for (const row of range(rows)) {
+      let op = updatedData[row] == null ? "$set" : "$merge";
+      spec[row] = { [op]: { [key]: value } };
+    }
+  }
+  return update(updatedData, spec);
 }
