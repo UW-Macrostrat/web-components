@@ -1,4 +1,9 @@
-import { Button, ButtonGroup, Intent } from "@blueprintjs/core";
+import {
+  Button,
+  ButtonGroup,
+  Intent,
+  HotkeysProvider,
+} from "@blueprintjs/core";
 import {
   Cell,
   Column,
@@ -12,6 +17,7 @@ import update from "immutability-helper";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
+import { DataSheetProvider } from "./provider";
 
 export * from "./components";
 
@@ -36,6 +42,12 @@ interface DataSheetProps<T> {
   onSaveData: (updatedData: any[], data: any[]) => void;
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
+  enableColumnReordering?: boolean;
+  onColumnsReordered?: (
+    oldIndex: number,
+    newIndex: number,
+    length: number
+  ) => void;
 }
 
 export interface ColumnSpec {
@@ -53,12 +65,17 @@ export interface ColumnSpec {
   style?: React.CSSProperties;
 }
 
-export default function DataSheet<T>({
+export default function DataSheet<T>(props: DataSheetProps<T>) {
+  return h(HotkeysProvider, h(DataSheetProvider, h(_DataSheet, props)));
+}
+
+function _DataSheet<T>({
   data,
   columnSpec: _columnSpec,
   columnSpecOptions,
   editable = true,
   enableColumnReordering = false,
+  onColumnsReordered,
   onVisibleCellsChange,
   onSaveData,
   onDeleteRows,
@@ -228,6 +245,7 @@ export default function DataSheet<T>({
           className: "data-sheet",
           enableFocusedCell: true,
           enableColumnReordering,
+          onColumnsReordered,
           focusedCell,
           selectedRegions: selection,
           onSelection(val: Region[]) {
