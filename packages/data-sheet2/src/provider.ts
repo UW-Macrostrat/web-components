@@ -1,10 +1,15 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
-import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
+import type {
+  FocusedCellCoordinates,
+  Region,
+  Table2,
+} from "@blueprintjs/table";
 import { generateColumnSpec } from "./utils";
 import update, { Spec } from "immutability-helper";
 import { range } from "./utils";
+import React from "react";
 
 export interface ColumnSpec {
   name: string;
@@ -58,6 +63,8 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   onSelection(selection: Region[]): void;
   // Internal method used for infinite scrolling
   setVisibleCells(visibleCells: VisibleCells): void;
+  scrollToRow(rowIndex: number): void;
+  tableRef: React.MutableRefObject<Table2>;
 }
 
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
@@ -85,6 +92,8 @@ export function DataSheetProvider<T>({
     rowIndexEnd: 0,
   });
 
+  const tableRef = useRef<Table2>(null);
+
   const [store] = useState(() => {
     return createStore<DataSheetStore<T>>((set) => {
       return {
@@ -97,6 +106,7 @@ export function DataSheetProvider<T>({
         focusedCell: null,
         topLeftCell: null,
         initialized: false,
+        tableRef,
         setSelection(selection: Region[]) {
           set(updateSelection(selection));
         },
@@ -169,6 +179,12 @@ export function DataSheetProvider<T>({
             const removed = newSpec.splice(oldIndex, length);
             newSpec.splice(newIndex, 0, ...removed);
             return { columnSpec: newSpec };
+          });
+        },
+        scrollToRow(rowIndex: number, columnIndex: number) {
+          if (tableRef.current == null) return;
+          tableRef.current.scrollToRegion({
+            rows: [rowIndex, rowIndex],
           });
         },
       };

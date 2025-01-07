@@ -2,13 +2,14 @@ import {
   Button,
   ButtonGroup,
   HotkeysProvider,
+  InputGroup,
   Intent,
 } from "@blueprintjs/core";
 import { Cell, Column, Region, Table2 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
-import { useCallback, useEffect, useRef } from "react";
+import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
 import {
@@ -21,6 +22,7 @@ import {
   useStoreAPI,
   VisibleCells,
 } from "./provider";
+import { DataSheetAction } from "./components/actions";
 
 export type { ColumnSpec, ColumnSpecOptions };
 export * from "./components";
@@ -38,6 +40,7 @@ interface DataSheetInternalProps<T> {
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
+  dataSheetActions?: ReactNode | null;
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
@@ -75,6 +78,7 @@ function _DataSheet<T>({
   onSaveData,
   onDeleteRows,
   verbose = true,
+  dataSheetActions = null,
 }: DataSheetInternalProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -91,7 +95,7 @@ function _DataSheet<T>({
 
   const focusedCell = useSelector((state) => state.focusedCell);
 
-  const ref = useRef<HTMLDivElement>(null);
+  const ref = useSelector((state) => state.tableRef);
 
   const columnSpec = useSelector((state) => state.columnSpec);
 
@@ -160,6 +164,7 @@ function _DataSheet<T>({
       onAddRow,
       onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
     }),
+    dataSheetActions,
     h("div.data-sheet-holder", [
       h(
         Table2,
@@ -407,6 +412,33 @@ function DataSheetEditToolbar({
         "Save"
       ),
     ]),
+  ]);
+}
+
+export function ScrollToRowControl() {
+  const [value, setValue] = useState("");
+  const scrollToRow = useSelector((state) => state.scrollToRow);
+
+  return h(DataSheetAction, [
+    h(InputGroup, {
+      type: "number",
+      placeholder: "Row number",
+      value,
+      onValueChange(value) {
+        setValue(value);
+      },
+    }),
+    h(
+      Button,
+      {
+        icon: "arrow-right",
+        onClick() {
+          const row = parseInt(value);
+          scrollToRow(row - 1);
+        },
+      },
+      "Scroll to row"
+    ),
   ]);
 }
 

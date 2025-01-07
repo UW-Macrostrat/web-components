@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import hyper from "@macrostrat/hyper";
 import styles from "./postgrest-sheet.stories.module.sass";
-import { ColorCell } from "@macrostrat/data-sheet2";
+import { ColorCell, ScrollToRowControl } from "@macrostrat/data-sheet2";
 import {
   LongTextViewer,
   IntervalCell,
@@ -9,14 +9,24 @@ import {
   ExpandedLithologies,
   PostgRESTTableView,
 } from "../src";
+import { useSelector } from "../src/provider";
+import { useRef, useState } from "react";
+import { Button, InputGroup } from "@blueprintjs/core";
+import {
+  DataSheetAction,
+  DataSheetActionsRow,
+} from "../src/components/actions";
+import { PostgrestClient } from "@supabase/postgrest-js";
 
 const h = hyper.styled(styles);
 
-function TestPostgRESTVIew(props) {
+const endpoint = "https://macrostrat.local/api/pg";
+
+function TestPostgRESTView(props) {
   return h(
     "div.postgrest-sheet-container",
     h(PostgRESTTableView, {
-      endpoint: "https://dev2.macrostrat.org/api/pg",
+      endpoint,
       table: "legend",
       order: { key: "legend_id", ascending: true },
       ...(props ?? {}),
@@ -58,7 +68,7 @@ const defaultColumnOptions = {
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<any> = {
   title: "Data sheet/PostgREST sheet",
-  component: TestPostgRESTVIew,
+  component: TestPostgRESTView,
   parameters: {
     layout: "fullscreen",
   },
@@ -82,3 +92,46 @@ export const ReorderableColumns = {
     enableColumnReordering: true,
   },
 };
+
+export const ScrollToRow = {
+  args: {
+    columnOptions: defaultColumnOptions,
+    dataSheetActions: h(DataSheetActionsRow, [
+      h(ScrollToRowControl),
+      h(SelectLegendIDControl),
+    ]),
+  },
+};
+
+export function SelectLegendIDControl() {
+  const [value, setValue] = useState("");
+  const scrollToRow = useSelector((state) => state.scrollToRow);
+
+  // This should be provided by the table context
+  const queryBuilder = useRef(new PostgrestClient(endpoint));
+
+  return h(DataSheetAction, [
+    h(InputGroup, {
+      type: "number",
+      placeholder: "Legend ID",
+      value,
+      onValueChange(value) {
+        setValue(value);
+      },
+      rightElement: h(Button, {
+        icon: "arrow-right",
+        onClick() {
+          // Get offset
+          queryBuilder.current
+            .from("legend")
+            .select("count()")
+            .lte("legend_id", value)
+            .then((res) => {
+              const rowCount = res.data[0].count;
+              scrollToRow(rowCount - 1);
+            });
+        },
+      }),
+    }),
+  ]);
+}
