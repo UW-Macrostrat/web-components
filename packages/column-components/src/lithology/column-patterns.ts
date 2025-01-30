@@ -87,7 +87,6 @@ function PatternDefsProvider(props: LithProviderProps) {
 function useGeologicPattern(patternID: string, fallback: string = "#aaa") {
   const ctx1 = useContext(GeologicPatternContext);
   const ctx = useContext(PatternDefsContext);
-  console.log(ctx, ctx1);
   const UUID = useUUID();
   useEffect(() => {
     ctx?.trackPattern(patternID);

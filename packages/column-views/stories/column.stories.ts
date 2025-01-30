@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import type { Meta } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react";
 import { useAPIResult } from "@macrostrat/ui-components";
 
 import { Column, preprocessUnits } from "../src";
@@ -8,7 +8,7 @@ import { PatternProvider } from "@macrostrat/column-components/stories/base-sect
 
 interface ColumnProps {
   id: number;
-  name: string;
+  unconformityLabels?: boolean;
 }
 
 function useColumnUnits(col_id) {
@@ -21,24 +21,38 @@ function useColumnUnits(col_id) {
   );
 }
 
+function useColumnBasicInfo(col_id) {
+  return useAPIResult(
+    "https://macrostrat.org/api/v2/columns",
+    { col_id },
+    (res) => {
+      return res.success.data[0];
+    }
+  );
+}
+
 function BasicColumn(props: ColumnProps) {
+  const info = useColumnBasicInfo(props.id);
   const units = useColumnUnits(props.id);
 
-  if (units == null) {
+  if (units == null || info == null) {
     return h(Spinner);
   }
 
-  console.log(units);
-
-  return h(Column, { data: units });
+  return h("div", [
+    h("h2", info.col_name),
+    h(Column, { ...props, data: units }),
+  ]);
 }
+
+type Story = StoryObj<typeof BasicColumn>;
 
 const meta: Meta<ColumnProps> = {
   title: "Column views/Stratigraphic columns",
   component: BasicColumn,
   args: {
     id: 432,
-    name: "Western Illinois",
+    unconformityLabels: true,
   },
   decorators: [
     (Story) => {
@@ -49,8 +63,10 @@ const meta: Meta<ColumnProps> = {
 
 export default meta;
 
-export function WesternIllinois() {
-  return h(BasicColumn, { id: 432, name: "Western Illinois" });
-}
+export const Primary: Story = {
+  args: {
+    id: 432,
+  },
+};
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
