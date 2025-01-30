@@ -17,7 +17,7 @@ import {
   TimescaleOrientation,
   IncreaseDirection,
 } from "@macrostrat/timescale";
-import styles from "./measured-section.module.sass";
+import styles from "./measured-section.stories.module.sass";
 
 const h = hyper.styled(styles);
 

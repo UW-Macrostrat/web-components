@@ -1,8 +1,7 @@
 import h from "@macrostrat/hyper";
 import { ColumnDivision, ColumnSurface } from "@macrostrat/column-components";
 import { BaseUnit } from "@macrostrat/api-types";
-import { IUnit } from "@macrostrat/column-views";
-import "./measured-section.module.sass";
+import "./measured-section.stories.module.sass";
 
 import { MeasuredSection } from "./base-section";
 

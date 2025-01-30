@@ -1,14 +1,15 @@
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import {
   ColumnDivision,
   ColumnSurface,
   ParameterIntervals,
 } from "@macrostrat/column-components";
 import { BaseUnit } from "@macrostrat/api-types";
-import "./measured-section.module.sass";
 import zebraNappeIntervals from "./naukluft-intervals.json";
 import namaIntervals from "./nama-intervals.json";
-import "./zebra-nappe.sass";
+import styles from "./zebra-nappe.stories.module.sass";
+
+const h = hyper.styled(styles);
 
 import { MeasuredSection } from "./base-section";
 import { defaultResolveID } from "@macrostrat/column-components";
@@ -40,6 +41,7 @@ export function ZebraRiverGroup() {
     MeasuredSection,
     {
       data: surfaces,
+      className: "zebra-nappe-section",
       timescaleProps: {
         intervals,
         levels: [0, 2],
@@ -88,6 +90,7 @@ export function NamaGroup() {
     MeasuredSection,
     {
       data: surfaces,
+      className: "zebra-nappe-section",
       timescaleProps: {
         intervals,
         levels: [0, 2],

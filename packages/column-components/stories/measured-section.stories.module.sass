@@ -1,0 +1,66 @@
+//:global
+//  @require "./imported"
+
+@use "sass:color"
+
+.measured-section
+  display: flex
+  flex-direction: row
+
+  :global
+    .timescale
+      margin-top: 30px
+    .spacer
+      flex-grow: 2
+
+    // Move units a bit to the right to avoid cut-off stroke
+    .lithology-column
+      transform: translate(1px, 0px)
+
+    .labeled-unit div.unit-overlay
+      font-size: 14px
+      text-align: center
+
+    g.unit
+      rect.unit
+        stroke-width: 1.5px
+
+    g.lithology-column use.frame
+      stroke: black
+
+    @media (prefers-color-scheme: dark)
+      .lithology-column .frame
+        stroke: white
+      g.inner
+        pattern: image
+        filter: invert(100%)
+
+    .column.age-axis
+      width: 55px
+
+    .column .tick text
+      font-size: 14px
+
+    .column
+      flex: 0
+      .age-axis-label
+        font-size: 14px
+
+    .map-area
+      height: 220px
+
+    @mixin interval($color)
+      &>.interval-box
+        margin: 0px
+        background-color: color.adjust($color, $lightness: 50%)
+        border: 2px solid color.adjust($color, $lightness: 10%) !important
+        .interval-label
+          color: color.adjust($color, $lightness: -30%)
+
+    .interval
+      &.Blueflower
+        @include interval(dodgerblue)
+      &.Gametrail
+        @include  interval(#c0ddc6)
+      &.Rackla
+        @include interval(#aaa)
