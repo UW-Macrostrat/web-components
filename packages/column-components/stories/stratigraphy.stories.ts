@@ -5,7 +5,7 @@ import {
   ParameterIntervals,
 } from "@macrostrat/column-components";
 import { BaseUnit } from "@macrostrat/api-types";
-import "./measured-section.sass";
+import "./measured-section.module.sass";
 import zebraNappeIntervals from "./naukluft-intervals.json";
 import namaIntervals from "./nama-intervals.json";
 import "./zebra-nappe.sass";

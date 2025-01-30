@@ -1,4 +1,4 @@
-import h, { compose } from "@macrostrat/hyper";
+import hyper, { compose } from "@macrostrat/hyper";
 import {
   ColumnProvider,
   ColumnSVG,
@@ -17,7 +17,9 @@ import {
   TimescaleOrientation,
   IncreaseDirection,
 } from "@macrostrat/timescale";
-import "./measured-section.sass";
+import styles from "./measured-section.module.sass";
+
+const h = hyper.styled(styles);
 
 function patternPath(id) {
   return `../../../deps/geologic-patterns/assets/svg/${id}.svg`;
