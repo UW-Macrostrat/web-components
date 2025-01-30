@@ -6,6 +6,7 @@ import {
   LithologyBoxes,
   GeneralizedSectionColumn,
   GrainsizeLayoutProvider,
+  GeologicPatternProvider,
   ColumnDivision,
   ColumnSurface,
 } from "@macrostrat/column-components";
@@ -26,16 +27,13 @@ const patterns = import.meta.glob(
   "../../../deps/geologic-patterns/assets/svg/*.svg",
   { eager: true, query: "url" }
 );
-import { GeologicPatternProvider } from "@macrostrat/column-components";
-
-console.log("Patterns", patterns);
 
 const resolvePattern = (id) => {
   const _id = patternPath(id);
   return patterns[_id]?.default;
 };
 
-function PatternProvider({ children }) {
+export function PatternProvider({ children }) {
   return h(GeologicPatternProvider, { resolvePattern }, children);
 }
 

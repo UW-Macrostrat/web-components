@@ -22,6 +22,9 @@
     "./dist/main.css": {
       "import": "./dist/main.css",
       "require": "./dist/main.css"
+    },
+    "./stories/base-section": {
+      "typescript": "./stories/base-section.ts"
     }
   },
   "files": [
