@@ -1,7 +1,7 @@
 import { OverlayToaster, Tag } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import DataSheet, { ColorCell } from "../core"; //getRowsToDelete
+import { DataSheet, ColorCell } from "../core"; //getRowsToDelete
 import { LithologyTag } from "./cell-renderers";
 import { usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner } from "@blueprintjs/core";

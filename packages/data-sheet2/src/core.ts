@@ -45,7 +45,7 @@ interface DataSheetInternalProps<T> {
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
 
-export default function DataSheet<T>(props: DataSheetProps<T>) {
+export function DataSheet<T>(props: DataSheetProps<T>) {
   const {
     data,
     columnSpec,

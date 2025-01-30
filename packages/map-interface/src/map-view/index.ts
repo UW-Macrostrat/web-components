@@ -128,6 +128,7 @@ export function MapView(props: MapViewProps) {
         style,
         projection,
         mapPosition,
+        transformRequest,
         ...rest,
       });
       dispatch({ type: "set-map", payload: map });
