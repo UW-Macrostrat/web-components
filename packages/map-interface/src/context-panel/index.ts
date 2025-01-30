@@ -13,7 +13,7 @@ export function LoadingButton({
   isLoading = false,
   onClick,
   active = false,
-  large = false,
+  large = true,
   icon = "menu",
   style,
 }) {

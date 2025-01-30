@@ -1,13 +1,12 @@
 import hyper from "@macrostrat/hyper";
 import { ColorPicker } from "../../../data-sheet";
 import { ColorCell } from "../../src/components/colors";
-import { useInDarkMode } from "@macrostrat/ui-components";
 import { useMemo } from "react";
 import chroma from "chroma-js";
 import styles from "./index.module.sass";
 import "@blueprintjs/table/lib/css/table.css";
-import DataSheet from "../../src";
-import { HotkeysProvider } from "@blueprintjs/core";
+import { DataSheet } from "../../src";
+import { asChromaColor } from "@macrostrat/color-utils";
 
 const h = hyper.styled(styles);
 
@@ -16,17 +15,11 @@ const h = hyper.styled(styles);
 // TODO: add a "copy to selection" tool (the little square in the bottom right corner of a cell)
 // This should copy the value of a cell (or a set of cells in the same row) downwards.
 
-export function DataSheetTest() {
-  const darkMode = useInDarkMode();
-  const columnSpec = buildColumnSpec(darkMode);
+export function useTestData() {
+  const columnSpec = useMemo(buildColumnSpec, []);
   const data = useMemo(buildTestData, []);
 
-  return h(
-    HotkeysProvider,
-    h("div.main", [
-      h("div.data-sheet-test-container", h(DataSheet, { data, columnSpec })),
-    ])
-  );
+  return [data, columnSpec];
 }
 
 function valueRenderer(d) {
@@ -37,7 +30,14 @@ function valueRenderer(d) {
   }
 }
 
-function buildColumnSpec() {
+export function TestDataSheet(props) {
+  /** Data sheet wrapped with some providers for standalone use */
+  return h("div.main", [
+    h("div.data-sheet-test-container", h(DataSheet, props)),
+  ]);
+}
+
+export function buildColumnSpec() {
   return [
     { name: "Strike", key: "strike", valueRenderer },
     { name: "Dip", key: "dip", valueRenderer },
@@ -52,12 +52,7 @@ function buildColumnSpec() {
       transform: (d) => d,
       dataEditor: ColorPicker,
       valueRenderer: (d) => {
-        let color = d;
-        try {
-          color = chroma(d);
-        } catch (e) {
-          color = null;
-        }
+        const color = asChromaColor(d);
         return color?.name() ?? "";
       },
       // Maybe this should be changed to CellProps?
@@ -66,7 +61,7 @@ function buildColumnSpec() {
   ];
 }
 
-function buildTestData() {
+export function buildTestData() {
   const repeatedData = [];
 
   for (const i of Array(5000).keys()) {

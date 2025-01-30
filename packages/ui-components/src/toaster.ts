@@ -1,4 +1,4 @@
-import { OverlayToaster } from "@blueprintjs/core";
+import { OverlayToaster, Toaster } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import {
   createContext,
