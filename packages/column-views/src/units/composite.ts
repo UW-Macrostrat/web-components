@@ -16,7 +16,7 @@ import {
 } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
-import styles from "./composite.module.scss";
+import styles from "./composite.module.sass";
 
 const h = hyperStyled(styles);
 

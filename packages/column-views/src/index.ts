@@ -10,7 +10,7 @@ import classNames from "classnames";
 import { group } from "d3-array";
 import { useContext, useMemo } from "react";
 import { AgeAxis } from "./age-axis";
-import styles from "./column.module.scss";
+import styles from "./column.module.sass";
 import { CompositeUnitsColumn, TrackedLabeledUnit } from "./units";
 import { IUnit } from "./units/types";
 export * from "./units";
