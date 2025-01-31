@@ -1,33 +1,39 @@
-.column-container :global
+.column-container
   --background-color: var(--column-background-color, #fff)
   --stroke-color: var(--column-stroke-color, #000)
 
-.column-container :global .column
-  display: flex
-  flex-direction: row
+@media (prefers-color-scheme: dark)
+  .column-container
+    --background-color: var(--column-background-color, #000)
+    --stroke-color: var(--column-stroke-color, #fff)
 
-.column-container :global .column .age-axis-label
-  writing-mode: vertical-lr
-  transform: rotate(180deg)
-  font-size: 12px
-  text-align: center
-  position: sticky
-  top: 0
-  max-height: 100vh
+.column-container :global
+  .column
+    display: flex
+    flex-direction: row
 
-.column-container :global .column .tick text
-  text-anchor: middle
-  font-weight: 400 !important
-  transform: rotate(-90deg) translate(8px, -12px)
+    .age-axis-label
+      writing-mode: vertical-lr
+      transform: rotate(180deg)
+      font-size: 12px
+      text-align: center
+      position: sticky
+      top: 0
+      max-height: 100vh
 
-.column-container :global rect.unit
-  stroke: var(--stroke-color)
-  stroke-width: 1px
+    .tick text
+      text-anchor: middle
+      font-weight: 400 !important
+      transform: rotate(-90deg) translate(8px, -12px)
 
-.column-container :global g.lithology-column use.frame
-  stroke: var(--stroke-color)
-  stroke-width: 1.5px !important
-  pointer-events: none
+  rect.unit
+    stroke: var(--stroke-color)
+    stroke-width: 1px
+
+  g.lithology-column use.frame
+    stroke: var(--stroke-color)
+    stroke-width: 1.5px !important
+    pointer-events: none
 
 .column-container :global .unit-label
   text-align: center
@@ -91,10 +97,10 @@
 .unconformity-text
   transform: translateY(-0.5em)
   width: var(--column-width)
-  color: var(--stroke-color)
+  color: var(--column-stroke-color)
 
 .column-container.dark-mode :global
-  color: var(--text-color)
+  color: var(--c-text-color)
 
 .column-container.dark-mode :global .timescale
   color: #000

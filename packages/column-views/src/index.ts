@@ -51,6 +51,7 @@ const Section = (props: IColumnProps) => {
     width = 300,
     columnWidth = 150,
     unitComponentProps,
+    showLabelColumn = true,
   } = props;
 
   const b_age = data[data.length - 1].b_age;
@@ -121,6 +122,7 @@ const Section = (props: IColumnProps) => {
           innerHeight: height,
         },
         h(CompositeUnitsColumn, {
+          showLabelColumn: showLabelColumn,
           width: showLabels ? width : columnWidth,
           columnWidth,
           gutterWidth: 5,
@@ -171,6 +173,7 @@ function Column(
     width = 300,
     columnWidth = 150,
     className: baseClassName,
+    showLabelColumn = true,
     ...rest
   } = props;
 
@@ -208,6 +211,7 @@ function Column(
                 showLabels,
                 width,
                 columnWidth,
+                showLabelColumn,
                 ...rest,
               }),
             ]),

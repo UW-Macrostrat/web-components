@@ -187,6 +187,7 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     labelOffset = 30,
     noteMode = "unlabeled",
     showLabels = true,
+    showLabelColumn = true,
     noteComponent,
     shouldRenderNote,
     ...rest
@@ -198,7 +199,7 @@ function CompositeUnitsColumn(props: ICompositeUnitProps) {
     noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
 
   return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
-    h(ColumnLabel, {
+    h.if(showLabelColumn)(ColumnLabel, {
       showLabels,
       component: labelColumnComponent,
       columnWidth,

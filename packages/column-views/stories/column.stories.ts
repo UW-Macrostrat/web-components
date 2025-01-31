@@ -1,14 +1,16 @@
 import h from "@macrostrat/hyper";
 import { Meta, StoryObj } from "@storybook/react";
-import { useAPIResult } from "@macrostrat/ui-components";
+import { DarkModeProvider, useAPIResult } from "@macrostrat/ui-components";
 
 import { Column, preprocessUnits } from "../src";
 import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
+import "@macrostrat/style-system";
 
 interface ColumnProps {
   id: number;
   unconformityLabels?: boolean;
+  showLabelColumn?: boolean;
 }
 
 function useColumnUnits(col_id) {
@@ -53,10 +55,11 @@ const meta: Meta<ColumnProps> = {
   args: {
     id: 432,
     unconformityLabels: true,
+    showLabels: true,
   },
   decorators: [
     (Story) => {
-      return h(PatternProvider, h(Story));
+      return h(DarkModeProvider, h(PatternProvider, h(Story)));
     },
   ],
 };
@@ -66,6 +69,7 @@ export default meta;
 export const Primary: Story = {
   args: {
     id: 432,
+    showLabelColumn: true,
   },
 };
 
