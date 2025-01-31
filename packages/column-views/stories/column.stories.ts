@@ -1,11 +1,23 @@
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
+import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react";
-import { DarkModeProvider, useAPIResult } from "@macrostrat/ui-components";
+import {
+  DarkModeProvider,
+  JSONView,
+  useAPIResult,
+} from "@macrostrat/ui-components";
 
-import { Column, preprocessUnits } from "../src";
+import {
+  Column,
+  preprocessUnits,
+  UnitSelectionProvider,
+  useSelectedUnit,
+} from "../src";
 import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
+
+const h = hyper.styled(styles);
 
 interface ColumnProps {
   id: number;
@@ -69,6 +81,14 @@ const meta: Meta<ColumnProps> = {
       return h(DarkModeProvider, h(PatternProvider, h(Story)));
     },
   ],
+  parameters: {
+    docs: {
+      story: {
+        inline: false,
+        iframeHeight: 700,
+      },
+    },
+  },
 };
 
 export default meta;
@@ -90,3 +110,34 @@ export const FilteredToAgeRange: Story = {
     b_age: 66,
   },
 };
+
+export const Wide: Story = {
+  args: {
+    id: 432,
+    showLabelColumn: true,
+    t_age: 0,
+    b_age: 66,
+    width: 500,
+    columnWidth: 500,
+    showLabelColumn: false,
+    unitComponentProps: {
+      nColumns: 2,
+    },
+  },
+};
+
+export function BasicUnitViewer() {
+  const unit = useSelectedUnit();
+  if (unit == null) {
+    return null;
+  }
+
+  return h("div.unit-viewer", JSONView({ data: unit, showRoot: false }));
+}
+
+export function WithUnitSelection() {
+  return h(
+    UnitSelectionProvider,
+    h(BasicColumn, { id: 432, showLabelColumn: true }, [h(BasicUnitViewer)])
+  );
+}
