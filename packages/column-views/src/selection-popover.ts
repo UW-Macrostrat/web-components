@@ -1,4 +1,3 @@
-import classNames from "classnames";
 import hyper from "@macrostrat/hyper";
 import { Button, Popover } from "@blueprintjs/core";
 import { DOMElement } from "react";
@@ -58,5 +57,8 @@ export function UnitSelectionPopover(props) {
     return null;
   }
 
-  return h("div.unit-selection-popover", JSONView({ data: unit }));
+  return h(
+    "div.unit-popover-container",
+    h(UnitDetailsPopover, h(JSONView, { data: unit, showRoot: false }))
+  );
 }

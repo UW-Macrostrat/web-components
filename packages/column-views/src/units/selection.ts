@@ -9,23 +9,28 @@ import {
   useEffect,
   useMemo,
   useState,
+  ReactNode,
+  RefObject,
+  useCallback,
 } from "react";
+import { IUnit } from "@macrostrat/column-views";
 
-type UnitSelectDispatch = Dispatch<SetStateAction<BaseUnit | null>>;
+type UnitSelectDispatch = (
+  unit: BaseUnit | null,
+  target: HTMLElement,
+  event: Event
+) => void;
 
 const UnitSelectionContext = createContext<BaseUnit | null>(null);
 const DispatchContext = createContext<UnitSelectDispatch | null>(null);
 
 export function useUnitSelector(u: BaseUnit | null) {
   const dispatch = useContext(DispatchContext);
-  return (evt: Event) => {
-    dispatch?.(u);
+  return (target: HTMLElement, evt: Event) => {
+    console.log("Dispatch", u, target, evt);
+    dispatch?.(u, target, evt);
     evt.stopPropagation();
   };
-}
-
-export function useUnitSelectionDispatch() {
-  return useContext(DispatchContext);
 }
 
 export function useSelectedUnit() {
@@ -36,39 +41,53 @@ interface UnitSelectionProps<T extends BaseUnit> {
   children: React.ReactNode;
   unit: T | null;
   setUnit: Dispatch<SetStateAction<T>>;
+  onUnitSelected?: (unit: T, target: HTMLElement, event: Event) => void;
 }
 
 export function UnitSelectionProvider<T extends BaseUnit>(
   props: Partial<UnitSelectionProps<T>>
 ) {
-  const { unit, setUnit, children } = props;
+  const { unit, setUnit, onUnitSelected, children } = props;
 
   if (unit == null && setUnit == null) {
     return h(StatefulUnitSelectionProvider, props);
   }
 
-  return h(BaseUnitSelectionProvider, { unit, setUnit }, children);
+  return h(
+    BaseUnitSelectionProvider,
+    { unit, setUnit, onUnitSelected },
+    children
+  );
 }
 
 function StatefulUnitSelectionProvider<T extends BaseUnit>(props: {
-  children: React.ReactNode;
+  children: ReactNode;
+  onUnitSelected?: (unit: T, target: HTMLElement, event: Event) => void;
 }) {
-  const { children } = props;
   const [unit, setUnit] = useState<T | null>(null);
 
-  return h(BaseUnitSelectionProvider, { children, unit, setUnit });
+  return h(BaseUnitSelectionProvider, { ...props, unit, setUnit });
 }
 
 function BaseUnitSelectionProvider<T extends BaseUnit>({
   children,
   unit,
   setUnit,
+  onUnitSelected,
 }: UnitSelectionProps<T>) {
   const value = useMemo(() => unit, [unit?.unit_id]);
 
+  const _onUnitSelected = useCallback(
+    (unit: T, target: HTMLElement, event: Event) => {
+      setUnit(unit);
+      onUnitSelected?.(unit, target, event);
+    },
+    [setUnit, onUnitSelected]
+  );
+
   return h(
     DispatchContext.Provider,
-    { value: setUnit },
+    { value: _onUnitSelected },
     h(UnitSelectionContext.Provider, { value }, children)
   );
 }

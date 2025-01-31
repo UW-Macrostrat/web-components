@@ -8,7 +8,7 @@ import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
 import { group } from "d3-array";
-import { useContext, useMemo } from "react";
+import { RefObject, useContext, useMemo } from "react";
 import { AgeAxis } from "./age-axis";
 import styles from "./column.module.sass";
 import { CompositeUnitsColumn, TrackedLabeledUnit } from "./units";
@@ -225,6 +225,7 @@ function Column(
     className?: string;
     mergeOverlappingSections?: boolean;
     showLabelColumn?: boolean;
+    columnRef?: RefObject<HTMLDivElement>;
   }
 ) {
   const {
@@ -237,6 +238,7 @@ function Column(
     className: baseClassName,
     showLabelColumn = true,
     mergeOverlappingSections = true,
+    columnRef,
     children,
     ...rest
   } = props;
@@ -257,7 +259,7 @@ function Column(
   return h(
     "div.column-container",
     { className },
-    h("div.column", [
+    h("div.column", { ref: columnRef }, [
       h("div.age-axis-label", "Age (Ma)"),
       h(
         "div.main-column",

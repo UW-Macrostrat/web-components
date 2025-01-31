@@ -16,6 +16,8 @@ import {
 import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
+import { UnitSelectionPopover } from "../src/selection-popover";
+import { createRef, DOMElement, useEffect, useState } from "react";
 
 const h = hyper.styled(styles);
 
@@ -135,9 +137,53 @@ export function BasicUnitViewer() {
   return h("div.unit-viewer", JSONView({ data: unit, showRoot: false }));
 }
 
-export function WithUnitSelection() {
+export function WithBasicUnitSelection() {
   return h(
     UnitSelectionProvider,
     h(BasicColumn, { id: 432, showLabelColumn: true }, [h(BasicUnitViewer)])
+  );
+}
+
+interface ItemPosition {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
+export function WithUnitSelectionPopover() {
+  const ref = createRef<HTMLElement>();
+  // Selected item position
+  const [position, setPosition] = useState<ItemPosition | null>(null);
+
+  useEffect(() => {
+    if (position == null) return;
+    console.log("Position", position);
+  }, [position]);
+
+  return h(
+    UnitSelectionProvider,
+    {
+      onUnitSelected: (unit, target: SVGElement | HTMLElement) => {
+        console.log(target);
+        if (unit == null) {
+          setPosition(null);
+          return;
+        }
+        const el: HTMLElement = ref.current;
+        if (el == null) return;
+        const rect = el.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        setPosition({
+          x: targetRect.left - rect.left,
+          y: targetRect.top - rect.top,
+          width: targetRect.width,
+          height: targetRect.height,
+        });
+      },
+    },
+    h(BasicColumn, { id: 432, showLabelColumn: true, columnRef: ref }, [
+      h(UnitSelectionPopover),
+    ])
   );
 }

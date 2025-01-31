@@ -9,11 +9,21 @@ import {
   useColumn,
   useGeologicPattern,
 } from "@macrostrat/column-components";
-import h from "@macrostrat/hyper";
-import { ReactNode, useContext, useEffect, useMemo, useRef } from "react";
+import hyper from "@macrostrat/hyper";
+import {
+  ReactNode,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { resolveID, scalePattern } from "./resolvers";
 import { useSelectedUnit, useUnitSelector } from "./selection";
 import { IUnit, transformAxisType } from "./types";
+import styles from "./boxes.module.sass";
+
+const h = hyper.styled(styles);
 
 interface RectBounds {
   x: number;
@@ -121,7 +131,15 @@ function useUnitSelectionManager(
 ): [boolean, () => void] {
   const selectedUnit = useSelectedUnit();
   const selected = selectedUnit?.unit_id == unit.unit_id;
-  const onClick = useUnitSelector(unit);
+  const selectUnit = useUnitSelector(unit);
+
+  const onClick = useCallback(
+    (evt: Event) => {
+      console.log(ref.current, evt);
+      selectUnit(ref.current, evt);
+    },
+    [unit, ref, selectUnit]
+  );
 
   useEffect(() => {
     if (!selected) return;
@@ -144,17 +162,15 @@ function LabeledUnit(props: LabeledUnitProps) {
     ...useUnitRect(division, { widthFraction, axisType }),
     ...baseBounds,
   };
-  const onClick = useUnitSelector(division);
   const { width, height } = bounds;
-  return h(Unit, { className: "labeled-unit", division, onClick, ...bounds }, [
+  return h(Unit, { className: "labeled-unit", division, ...bounds }, [
     h(
       ForeignObject,
-      bounds,
+      { ...bounds, className: "unit-label-container" },
       h(SizeAwareLabel, {
         className: "unit-overlay",
         labelClassName: "unit-label",
         style: { width, height },
-        onClick,
         label,
         onVisibilityChanged(viz) {
           onLabelUpdated(label, viz);
