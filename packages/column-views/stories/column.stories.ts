@@ -150,16 +150,10 @@ export function WithUnitSelectionPopover() {
   // Selected item position
   const [position, setPosition] = useState<RectBounds | null>(null);
 
-  useEffect(() => {
-    if (position == null) return;
-    console.log("Position", position);
-  }, [position]);
-
   return h(
     UnitSelectionProvider,
     {
       onUnitSelected: (unit, target: SVGElement | HTMLElement) => {
-        console.log(target);
         if (unit == null) {
           setPosition(null);
           return;

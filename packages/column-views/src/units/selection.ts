@@ -10,10 +10,8 @@ import {
   useMemo,
   useState,
   ReactNode,
-  RefObject,
   useCallback,
 } from "react";
-import { IUnit } from "@macrostrat/column-views";
 
 type UnitSelectDispatch = (
   unit: BaseUnit | null,
@@ -24,13 +22,8 @@ type UnitSelectDispatch = (
 const UnitSelectionContext = createContext<BaseUnit | null>(null);
 const DispatchContext = createContext<UnitSelectDispatch | null>(null);
 
-export function useUnitSelector(u: BaseUnit | null) {
-  const dispatch = useContext(DispatchContext);
-  return (target: HTMLElement, evt: Event) => {
-    console.log("Dispatch", u, target, evt);
-    dispatch?.(u, target, evt);
-    evt.stopPropagation();
-  };
+export function useUnitSelectionDispatch() {
+  return useContext(DispatchContext);
 }
 
 export function useSelectedUnit() {
@@ -78,9 +71,15 @@ function BaseUnitSelectionProvider<T extends BaseUnit>({
   const value = useMemo(() => unit, [unit?.unit_id]);
 
   const _onUnitSelected = useCallback(
-    (unit: T, target: HTMLElement, event: Event) => {
-      setUnit(unit);
-      onUnitSelected?.(unit, target, event);
+    (u: T, target: HTMLElement, event: Event) => {
+      let newUnit = u;
+      if (u == unit) {
+        // If the same unit is selected, deselect it
+        newUnit = null;
+      }
+
+      setUnit(newUnit);
+      onUnitSelected?.(newUnit, target, event);
     },
     [setUnit, onUnitSelected]
   );

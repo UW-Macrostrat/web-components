@@ -11,7 +11,11 @@ import { group } from "d3-array";
 import { RefObject, useContext, useMemo } from "react";
 import { AgeAxis } from "./age-axis";
 import styles from "./column.module.sass";
-import { CompositeUnitsColumn, TrackedLabeledUnit } from "./units";
+import {
+  CompositeUnitsColumn,
+  TrackedLabeledUnit,
+  useUnitSelectionDispatch,
+} from "./units";
 import { IUnit } from "./units/types";
 export * from "./units";
 export * from "./age-axis";
@@ -256,9 +260,17 @@ function Column(
     "dark-mode": darkMode?.isEnabled ?? false,
   });
 
+  // Clear unit selection on click outside of units, if we have a dispatch function
+  const dispatch = useUnitSelectionDispatch();
+
   return h(
     "div.column-container",
-    { className },
+    {
+      className,
+      onClick(evt) {
+        dispatch?.(null, null, evt);
+      },
+    },
     h("div.column", { ref: columnRef }, [
       h("div.age-axis-label", "Age (Ma)"),
       h(

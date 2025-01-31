@@ -19,7 +19,7 @@ import {
   useRef,
 } from "react";
 import { resolveID, scalePattern } from "./resolvers";
-import { useSelectedUnit, useUnitSelector } from "./selection";
+import { useSelectedUnit, useUnitSelectionDispatch } from "./selection";
 import { IUnit, transformAxisType } from "./types";
 import styles from "./boxes.module.sass";
 
@@ -128,13 +128,15 @@ function useUnitSelectionManager(
 ): [boolean, () => void] {
   const selectedUnit = useSelectedUnit();
   const selected = selectedUnit?.unit_id == unit.unit_id;
-  const selectUnit = useUnitSelector(unit);
+
+  const dispatch = useUnitSelectionDispatch();
 
   const onClick = useCallback(
     (evt: Event) => {
-      selectUnit(ref.current, evt);
+      dispatch(unit, ref.current, evt);
+      evt.stopPropagation();
     },
-    [unit, ref, selectUnit]
+    [unit, ref, dispatch]
   );
 
   useEffect(() => {

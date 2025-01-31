@@ -1,12 +1,17 @@
 .popover-main
   position: absolute
-  outline: 2px solid #f22
+  pointer-events: none
+
+  :global(.bp5-overlay)
+    pointer-events: all
 
   :global(.bp5-popover-target)
     height: 100%
     width: 100%
     display: block
     line-height: 0
+    pointer-events: none
+    outline: 2px solid #f22
 
 .legend-panel-outer
   width: 25em
