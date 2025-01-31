@@ -235,7 +235,7 @@ function Column(
   const {
     data,
     unitComponent = UnitComponent,
-    unconformityLabels = false,
+    unconformityLabels = true,
     showLabels = true,
     width = 300,
     columnWidth = 150,
@@ -277,10 +277,10 @@ function Column(
         "div.main-column",
         sectionGroups.map((group, i) => {
           const { section_id: id, units: data } = group;
-          const lastGroup = sectionGroups[i - 1]?.[1];
+          const lastGroup = sectionGroups[i - 1];
           return h([
             h.if(unconformityLabels)(Unconformity, {
-              upperUnits: lastGroup,
+              upperUnits: lastGroup?.units,
               lowerUnits: data,
               style: { width: showLabels ? columnWidth : width },
             }),

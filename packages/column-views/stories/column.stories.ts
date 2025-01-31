@@ -122,7 +122,6 @@ export const Wide: Story = {
     b_age: 66,
     width: 500,
     columnWidth: 500,
-    showLabelColumn: false,
     unitComponentProps: {
       nColumns: 2,
     },
