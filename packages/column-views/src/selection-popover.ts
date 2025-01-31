@@ -25,7 +25,7 @@ export function UnitDetailsPopover({
     },
     h(
       Popover,
-      { content, isOpen: true, usePortal: false, boundary },
+      { content, isOpen: true, usePortal: false, boundary, position: "right" },
       h("span.popover-target")
     )
   );
@@ -52,6 +52,7 @@ export function LegendPanelHeader({ title, id, onClose }) {
 }
 
 export function UnitSelectionPopover(props) {
+  const { position } = props;
   const unit = useSelectedUnit();
   if (unit == null) {
     return null;
@@ -59,6 +60,18 @@ export function UnitSelectionPopover(props) {
 
   return h(
     "div.unit-popover-container",
-    h(UnitDetailsPopover, h(JSONView, { data: unit, showRoot: false }))
+    h(
+      UnitDetailsPopover,
+      {
+        style: {
+          position: "absolute",
+          top: position?.y,
+          width: position?.width,
+          left: position?.x,
+          height: position?.height,
+        },
+      },
+      h(JSONView, { data: unit, showRoot: false })
+    )
   );
 }

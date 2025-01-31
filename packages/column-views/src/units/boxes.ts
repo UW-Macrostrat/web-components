@@ -25,7 +25,7 @@ import styles from "./boxes.module.sass";
 
 const h = hyper.styled(styles);
 
-interface RectBounds {
+export interface RectBounds {
   x: number;
   y: number;
   width: number;
@@ -115,9 +115,6 @@ function Unit(props: UnitProps) {
       ref,
       ...bounds,
       fill,
-      onMouseOver() {
-        console.log(d);
-      },
       onClick,
     }),
     h.if(selected)("rect.selection-overlay", bounds),
@@ -135,7 +132,6 @@ function useUnitSelectionManager(
 
   const onClick = useCallback(
     (evt: Event) => {
-      console.log(ref.current, evt);
       selectUnit(ref.current, evt);
     },
     [unit, ref, selectUnit]

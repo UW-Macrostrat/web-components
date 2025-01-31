@@ -18,6 +18,7 @@ import { PatternProvider } from "@macrostrat/column-components/stories/base-sect
 import "@macrostrat/style-system";
 import { UnitSelectionPopover } from "../src/selection-popover";
 import { createRef, DOMElement, useEffect, useState } from "react";
+import { RectBounds } from "../src/units/boxes";
 
 const h = hyper.styled(styles);
 
@@ -144,17 +145,10 @@ export function WithBasicUnitSelection() {
   );
 }
 
-interface ItemPosition {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
-
 export function WithUnitSelectionPopover() {
   const ref = createRef<HTMLElement>();
   // Selected item position
-  const [position, setPosition] = useState<ItemPosition | null>(null);
+  const [position, setPosition] = useState<RectBounds | null>(null);
 
   useEffect(() => {
     if (position == null) return;
@@ -183,7 +177,7 @@ export function WithUnitSelectionPopover() {
       },
     },
     h(BasicColumn, { id: 432, showLabelColumn: true, columnRef: ref }, [
-      h(UnitSelectionPopover),
+      h(UnitSelectionPopover, { position }),
     ])
   );
 }
