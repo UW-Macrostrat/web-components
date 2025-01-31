@@ -11,15 +11,15 @@ interface ColumnProps {
   id: number;
   unconformityLabels?: boolean;
   showLabelColumn?: boolean;
+  t_age?: number;
+  b_age?: number;
 }
 
 function useColumnUnits(col_id) {
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
     { col_id, response: "long" },
-    (res) => {
-      return preprocessUnits(res.success.data);
-    }
+    (res) => res.success.data
   );
 }
 
@@ -41,10 +41,17 @@ function BasicColumn(props: ColumnProps) {
     return h(Spinner);
   }
 
-  return h("div", [
-    h("h2", info.col_name),
-    h(Column, { ...props, data: units }),
-  ]);
+  let units1 = units;
+  if (props.t_age != null) {
+    units1 = units.filter((d) => d.t_age >= props.t_age);
+  }
+  if (props.b_age != null) {
+    units1 = units1.filter((d) => d.b_age <= props.b_age);
+  }
+
+  const data = preprocessUnits(units1);
+
+  return h("div", [h("h2", info.col_name), h(Column, { ...props, data })]);
 }
 
 type Story = StoryObj<typeof BasicColumn>;
@@ -74,3 +81,12 @@ export const Primary: Story = {
 };
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
+
+export const FilteredToAgeRange: Story = {
+  args: {
+    id: 432,
+    showLabelColumn: true,
+    t_age: 0,
+    b_age: 66,
+  },
+};
