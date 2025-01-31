@@ -7,7 +7,7 @@ import { hyperStyled } from "@macrostrat/hyper";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { group } from "d3-array";
+import { group, merge } from "d3-array";
 import { useContext, useMemo } from "react";
 import { AgeAxis } from "./age-axis";
 import styles from "./column.module.sass";
@@ -178,6 +178,45 @@ function groupUnitsIntoSections(units: IUnit[]): SectionInfo[] {
   });
 }
 
+function mergeOverlappingSections(sections: SectionInfo[]): SectionInfo[] {
+  /** Columns can have sections that overlap in time. Here, we merge overlapping
+   * sections into a single section to correctly render gap-bound packages.
+   */
+  const [firstSection, ...rest] = sections;
+  const newSections = [firstSection];
+  for (const section of rest) {
+    const lastSection = newSections[newSections.length - 1];
+    if (
+      lastSection.b_age < section.t_age ||
+      lastSection.t_age > section.b_age
+    ) {
+      // No overlap, add the section as normal
+      newSections.push(section);
+      continue;
+    }
+    // Overlap, merge the sections
+    lastSection.section_id = [
+      ...ensureArray(lastSection.section_id),
+      ...ensureArray(section.section_id),
+    ];
+    lastSection.units.push(...section.units);
+    lastSection.b_age = Math.max(lastSection.b_age, section.b_age);
+    lastSection.t_age = Math.min(lastSection.t_age, section.t_age);
+  }
+  return newSections;
+}
+
+function ensureArray<T>(x: T | T[]): T[] {
+  if (Array.isArray(x)) {
+    return x;
+  }
+  return [x];
+}
+
+function sectionClassName(section: SectionInfo) {
+  return `section-${ensureArray(section.section_id).join("-")}`;
+}
+
 function Column(
   props: IColumnProps & { unconformityLabels: boolean; className?: string }
 ) {
@@ -194,7 +233,10 @@ function Column(
   } = props;
 
   const darkMode = useDarkMode();
-  const sectionGroups = useMemo(() => groupUnitsIntoSections(data), [data]);
+  const sectionGroups = useMemo(
+    () => mergeOverlappingSections(groupUnitsIntoSections(data)),
+    [data]
+  );
 
   const className = classNames(baseClassName, {
     "dark-mode": darkMode?.isEnabled ?? false,
@@ -216,7 +258,7 @@ function Column(
               lowerUnits: data,
               style: { width: showLabels ? columnWidth : width },
             }),
-            h(`div.section.section-${id}`, [
+            h(`div.section`, { className: sectionClassName(group) }, [
               h(Section, {
                 data,
                 unitComponent,
