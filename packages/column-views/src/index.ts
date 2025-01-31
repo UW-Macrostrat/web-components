@@ -14,6 +14,7 @@ import styles from "./column.module.sass";
 import {
   CompositeUnitsColumn,
   TrackedLabeledUnit,
+  UnitKeyboardNavigation,
   useUnitSelectionDispatch,
 } from "./units";
 import { IUnit } from "./units/types";
@@ -230,6 +231,7 @@ function Column(
     mergeOverlappingSections?: boolean;
     showLabelColumn?: boolean;
     columnRef?: RefObject<HTMLDivElement>;
+    keyboardNavigation?: boolean;
   }
 ) {
   const {
@@ -242,6 +244,7 @@ function Column(
     className: baseClassName,
     showLabelColumn = true,
     mergeOverlappingSections = true,
+    keyboardNavigation = false,
     columnRef,
     children,
     ...rest
@@ -298,6 +301,7 @@ function Column(
           ]);
         })
       ),
+      h.if(keyboardNavigation)(UnitKeyboardNavigation, { units: data }),
       children,
     ])
   );

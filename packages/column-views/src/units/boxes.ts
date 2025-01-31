@@ -141,6 +141,10 @@ function useUnitSelectionManager(
 
   useEffect(() => {
     if (!selected) return;
+    // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
+    dispatch(unit, ref.current, null);
+
+    // Scroll the unit into view
     ref.current?.scrollIntoView({
       behavior: "smooth",
       block: "center",

@@ -1,6 +1,10 @@
 import { BaseUnit } from "@macrostrat/api-types";
 import h from "@macrostrat/hyper";
-import { getQueryString, setQueryString } from "@macrostrat/ui-components";
+import {
+  getQueryString,
+  setQueryString,
+  useKeyHandler,
+} from "@macrostrat/ui-components";
 import {
   Dispatch,
   SetStateAction,
@@ -15,8 +19,8 @@ import {
 
 type UnitSelectDispatch = (
   unit: BaseUnit | null,
-  target: HTMLElement,
-  event: Event
+  target: HTMLElement | null,
+  event: Event | null
 ) => void;
 
 const UnitSelectionContext = createContext<BaseUnit | null>(null);
@@ -73,11 +77,6 @@ function BaseUnitSelectionProvider<T extends BaseUnit>({
   const _onUnitSelected = useCallback(
     (u: T, target: HTMLElement, event: Event) => {
       let newUnit = u;
-      if (u == unit) {
-        // If the same unit is selected, deselect it
-        newUnit = null;
-      }
-
       setUnit(newUnit);
       onUnitSelected?.(newUnit, target, event);
     },
@@ -129,9 +128,34 @@ export function useColumnNav(
   return [columnArgs, setCurrentColumn];
 }
 
-function ColumnNavProvider({ children, ...defaultArgs }) {
+export function ColumnNavProvider({ children, ...defaultArgs }) {
   const value = useColumnNav(defaultArgs);
   return h(ColumnNavCtx.Provider, { value }, children);
 }
 
-export { ColumnNavProvider };
+export function UnitKeyboardNavigation<T extends BaseUnit>({
+  units,
+}: {
+  units: T[];
+}) {
+  const selectedUnit = useSelectedUnit();
+  const selectUnit = useUnitSelectionDispatch();
+
+  const ix = units.findIndex((unit) => unit.unit_id === selectedUnit?.unit_id);
+
+  const keyMap = {
+    38: ix - 1,
+    40: ix + 1,
+  };
+
+  useKeyHandler(
+    (event) => {
+      const nextIx = keyMap[event.keyCode];
+      if (nextIx == null || nextIx < 0 || nextIx >= units.length) return;
+      selectUnit(units[nextIx], null, null);
+      event.stopPropagation();
+    },
+    [units, ix]
+  );
+  return null;
+}

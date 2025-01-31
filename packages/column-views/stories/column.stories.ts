@@ -10,6 +10,7 @@ import {
 import {
   Column,
   preprocessUnits,
+  UnitKeyboardNavigation,
   UnitSelectionProvider,
   useSelectedUnit,
 } from "../src";
@@ -152,13 +153,13 @@ export function WithUnitSelectionPopover() {
   return h(
     UnitSelectionProvider,
     {
-      onUnitSelected: (unit, target: SVGElement | HTMLElement) => {
+      onUnitSelected: (unit, target: SVGElement | HTMLElement | null) => {
         if (unit == null) {
           setPosition(null);
           return;
         }
         const el: HTMLElement = ref.current;
-        if (el == null) return;
+        if (el == null || target == null) return;
         const rect = el.getBoundingClientRect();
         const targetRect = target.getBoundingClientRect();
         setPosition({
@@ -169,8 +170,15 @@ export function WithUnitSelectionPopover() {
         });
       },
     },
-    h(BasicColumn, { id: 432, showLabelColumn: true, columnRef: ref }, [
-      h(UnitSelectionPopover, { position }),
-    ])
+    h(
+      BasicColumn,
+      {
+        id: 432,
+        showLabelColumn: true,
+        columnRef: ref,
+        keyboardNavigation: true,
+      },
+      [h(UnitSelectionPopover, { position })]
+    )
   );
 }
