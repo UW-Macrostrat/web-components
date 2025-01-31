@@ -162,6 +162,22 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
   );
 }
 
+interface SectionInfo {
+  section_id: number | number[];
+  t_age: number;
+  b_age: number;
+  units: IUnit[];
+}
+
+function groupUnitsIntoSections(units: IUnit[]): SectionInfo[] {
+  let groups = Array.from(group(units, (d) => d.section_id));
+  return groups.map(([section_id, units]) => {
+    const t_age = Math.min(...units.map((d) => d.t_age));
+    const b_age = Math.max(...units.map((d) => d.b_age));
+    return { section_id, t_age, b_age, units };
+  });
+}
+
 function Column(
   props: IColumnProps & { unconformityLabels: boolean; className?: string }
 ) {
@@ -178,12 +194,7 @@ function Column(
   } = props;
 
   const darkMode = useDarkMode();
-
-  let sectionGroups = useMemo(() => {
-    let groups = Array.from(group(data, (d) => d.section_id));
-    groups.sort((a, b) => a.t_age - b.t_age);
-    return groups;
-  }, [data]);
+  const sectionGroups = useMemo(() => groupUnitsIntoSections(data), [data]);
 
   const className = classNames(baseClassName, {
     "dark-mode": darkMode?.isEnabled ?? false,
@@ -196,7 +207,8 @@ function Column(
       h("div.age-axis-label", "Age (Ma)"),
       h(
         "div.main-column",
-        sectionGroups.map(([id, data], i) => {
+        sectionGroups.map((group, i) => {
+          const { section_id: id, units: data } = group;
           const lastGroup = sectionGroups[i - 1]?.[1];
           return h([
             h.if(unconformityLabels)(Unconformity, {
