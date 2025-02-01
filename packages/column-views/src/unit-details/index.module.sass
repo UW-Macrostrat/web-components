@@ -5,7 +5,7 @@
   gap: 1em
   border-bottom: 1px solid var(--panel-rule-color)
   position: sticky
-  top: -1em
+  top: 0
   background-color: var(--panel-secondary-background-color)
   margin: -1em -1em 0
   padding: 0.5em 1em
@@ -28,7 +28,24 @@
   margin-top: 1em
   margin-bottom: -0.5em
 
-.proportion, .sep
+.proportion, .sep, .no-units
   color: var(--secondary-color)
   font-style: italic
   font-size: 0.9em
+
+.strat-name-id, .unit-id
+  font-family: var(--monospace-font)
+  color: var(--secondary-color)
+  font-size: 0.9em
+
+  &::before
+    content: '#'
+    color: var(--tertiary-color)
+
+.color-swatch
+  width: 1em
+  height: 1em
+  border-radius: 0.2em
+  margin-right: 0.2em
+  border: 1px solid var(--panel-rule-color)
+  display: inline-block

@@ -63,6 +63,11 @@ export function LegendPanelHeader({ title, id, onClose, actions = null }) {
 }
 
 function UnitDetailsContent({ unit }) {
+  let outcrop = unit.outcrop;
+  if (outcrop == "both") {
+    outcrop = "surface and subsurface";
+  }
+
   return h("div.unit-details-content", [
     h(DataField, {
       label: "Thickness",
@@ -70,7 +75,6 @@ function UnitDetailsContent({ unit }) {
       unit: "m",
     }),
     h(LithologyList, { lithologies: unit.lith }),
-    h(DataField, { label: "Outcrop", value: unit.outcrop }),
     h(DataField, {
       label: "Age range",
       value: `${unit.b_age}–${unit.t_age}`,
@@ -78,6 +82,42 @@ function UnitDetailsContent({ unit }) {
     }),
     h(IntervalField, { unit }),
     h(EnvironmentsList, { environments: unit.environ }),
+    h(DataField, { label: "Outcrop", value: outcrop }),
+    h(
+      DataField,
+      {
+        label: "Stratigraphic name",
+      },
+      h("span.strat-name-id", unit.strat_name_id)
+    ),
+    h(
+      DataField,
+      { label: "Above" },
+      h(UnitIDList, { units: unit.units_above })
+    ),
+    h(
+      DataField,
+      { label: "Below" },
+      h(UnitIDList, { units: unit.units_below })
+    ),
+    h(
+      DataField,
+      { label: "Color" },
+      h("span.color-swatch", { style: { backgroundColor: unit.color } })
+    ),
+  ]);
+}
+
+function UnitIDList({ units }) {
+  const u1 = units.filter((d) => d != 0);
+  if (u1.length === 0) {
+    return h("span.no-units", "None");
+  }
+
+  return h(ItemList, { className: "unit-id-list" }, [
+    u1.map((unit) => {
+      return h("span.unit-id", unit);
+    }),
   ]);
 }
 
