@@ -71,7 +71,7 @@ export function IntervalField({ intervals }: { intervals: IntervalShort[] }) {
   ]);
 }
 
-function Value({
+export function Value({
   value,
   unit,
   children,
@@ -87,7 +87,7 @@ function Value({
   ]);
 }
 
-function Interval({
+export function Interval({
   interval,
   showAgeRange = false,
 }: {

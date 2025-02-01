@@ -39,7 +39,8 @@ export function LithologyList({ lithologies }) {
     DataField,
     { label: "Lithologies" },
     h(
-      "span.lithology-list",
+      ItemList,
+      { className: "lithology-list" },
       lithologies.map((lith) => {
         return h(LithologyTag, { data: lith });
       })
@@ -47,12 +48,17 @@ export function LithologyList({ lithologies }) {
   );
 }
 
+export function ItemList({ children, className }) {
+  return h("span.item-list", { className }, children);
+}
+
 export function EnvironmentsList({ environments }) {
   return h(
     DataField,
     { label: "Environments" },
     h(
-      "span.environments-list",
+      ItemList,
+      { className: "environments-list" },
       environments.map((lith) => {
         return h(LithologyTag, { data: lith });
       })

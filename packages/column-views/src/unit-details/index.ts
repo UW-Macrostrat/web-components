@@ -6,8 +6,10 @@ import { useState } from "react";
 import {
   DataField,
   EnvironmentsList,
-  IntervalField,
+  Interval,
+  ItemList,
   LithologyList,
+  Value,
 } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
@@ -43,40 +45,6 @@ export function UnitDetailsPanel({ unit, onClose }) {
   ]);
 }
 
-function UnitDetailsContent({ unit }) {
-  return h("div.unit-details-content", [
-    h(DataField, {
-      label: "Thickness",
-      value: `${unit.min_thick}–${unit.max_thick}`,
-      unit: "m",
-    }),
-    h(LithologyList, { lithologies: unit.lith }),
-    h(DataField, { label: "Outcrop", value: unit.outcrop }),
-    h(DataField, {
-      label: "Age range",
-      value: `${unit.b_age}–${unit.t_age}`,
-      unit: "Ma",
-    }),
-    h(IntervalField, {
-      intervals: [
-        {
-          id: unit.b_int_id,
-          name: unit.b_int_name,
-          b_age: unit.b_int_age,
-          t_age: unit.t_int_age,
-        },
-        {
-          id: unit.t_int_id,
-          name: unit.t_int_name,
-          t_age: unit.t_int_age,
-          b_age: unit.b_int_age,
-        },
-      ],
-    }),
-    h(EnvironmentsList, { environments: unit.environ }),
-  ]);
-}
-
 export function LegendPanelHeader({ title, id, onClose, actions = null }) {
   return h("header.legend-panel-header", [
     h.if(title != null)("h3", title),
@@ -92,4 +60,90 @@ export function LegendPanelHeader({ title, id, onClose, actions = null }) {
       },
     }),
   ]);
+}
+
+function UnitDetailsContent({ unit }) {
+  return h("div.unit-details-content", [
+    h(DataField, {
+      label: "Thickness",
+      value: `${unit.min_thick}–${unit.max_thick}`,
+      unit: "m",
+    }),
+    h(LithologyList, { lithologies: unit.lith }),
+    h(DataField, { label: "Outcrop", value: unit.outcrop }),
+    h(DataField, {
+      label: "Age range",
+      value: `${unit.b_age}–${unit.t_age}`,
+      unit: "Ma",
+    }),
+    h(IntervalField, { unit }),
+    h(EnvironmentsList, { environments: unit.environ }),
+  ]);
+}
+
+function IntervalField({ unit }) {
+  return h([
+    h(
+      DataField,
+      {
+        label: "Intervals",
+      },
+      h(IntervalProportions, { unit })
+    ),
+  ]);
+}
+
+function IntervalProportions({ unit }) {
+  const i0 = unit.b_int_id;
+  const i1 = unit.t_int_id;
+  let b_prop = unit.b_prop ?? 0;
+  let t_prop = unit.t_prop ?? 1;
+
+  if (i0 === i1 && b_prop === 0 && t_prop === 1) {
+    // We have a single interval with undefined proportions
+    return h(Interval, {
+      interval: {
+        id: i0,
+        name: unit.b_int_name,
+      },
+    });
+  }
+
+  return h(ItemList, { className: "interval-proportions" }, [
+    h(Proportion, { value: b_prop }),
+    h.if(i0 != i1)(Interval, {
+      interval: {
+        id: i0,
+        name: unit.b_int_name,
+      },
+      proportion: b_prop,
+    }),
+    h("span.sep", "to"),
+    h(Proportion, { value: t_prop }),
+    h(Interval, {
+      interval: {
+        id: i1,
+        name: unit.t_int_name,
+      },
+      proportion: t_prop,
+    }),
+  ]);
+}
+
+const formatProportion = (d) => {
+  if (d == null) return null;
+  return d.toFixed(1);
+};
+
+function Proportion({ value }) {
+  let content = null;
+  if (value == 0) {
+    content = "base";
+  } else if (value == 1) {
+    content = "top";
+  } else {
+    content = formatProportion(value * 100) + "%";
+  }
+
+  return h("span.proportion", content);
 }
