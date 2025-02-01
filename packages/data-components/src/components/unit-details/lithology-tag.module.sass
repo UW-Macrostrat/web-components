@@ -1,0 +1,31 @@
+.lithology-id
+  color: var(--secondary-color)
+  &::before
+    content: '#'
+  padding-left: 0.5em
+
+.tight-list
+  padding-left: 1em
+
+
+.lithology-tag
+  margin: 0.2em 0.5em 0.3em 0
+  align-items: baseline
+  span, code
+    display: inline-block
+
+  .lithology-id
+    width: 0
+    overflow: hidden
+    white-space: nowrap
+    transition: width 0.3s
+
+  &:hover
+    .lithology-id
+      width: 100%
+
+.lithology-list, .environment-list
+  display: inline-flex
+  gap: 0.5em
+  .lithology-tag
+    margin-right: 0
