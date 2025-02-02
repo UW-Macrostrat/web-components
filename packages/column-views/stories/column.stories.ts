@@ -10,16 +10,12 @@ import {
 import {
   Column,
   preprocessUnits,
-  UnitKeyboardNavigation,
   UnitSelectionProvider,
   useSelectedUnit,
 } from "../src";
 import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
-import { UnitSelectionPopover } from "../src/selection-popover";
-import { createRef, DOMElement, useEffect, useState } from "react";
-import { RectBounds } from "../src/units/boxes";
 import { ColumnProps as BaseColumnProps } from "../src";
 
 const h = hyper.styled(styles);

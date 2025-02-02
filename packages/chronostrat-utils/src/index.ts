@@ -29,7 +29,7 @@ export function mergeAgeRanges(
   return [min, max];
 }
 
-enum AgeRangeRelationship {
+export enum AgeRangeRelationship {
   Disjoint,
   Contains,
   Contained,
@@ -48,10 +48,18 @@ function convertToForwardOrdinal(a: AgeRange): AgeRange {
 
 export function compareAgeRanges(
   a: AgeRange,
-  b: AgeRange
+  b: AgeRange,
+  dt: number = 0
 ): AgeRangeRelationship {
-  const a1 = convertToForwardOrdinal(a);
-  const b1 = convertToForwardOrdinal(b);
+  let a1 = convertToForwardOrdinal(a);
+  let b1 = convertToForwardOrdinal(b);
+
+  if (dt > 0) {
+    // Shrink age ranges by dt
+    a1 = [a1[0] + dt, a1[1] - dt];
+    b1 = [b1[0] + dt, b1[1] - dt];
+  }
+
   /** Compare two age ranges */
   if (a1[0] > b1[1] || a1[1] < b1[0]) {
     return AgeRangeRelationship.Disjoint;

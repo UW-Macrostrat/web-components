@@ -2,12 +2,21 @@ import { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { IUnit } from "./units";
 import { SectionInfo } from "./section";
 import { group } from "d3-array";
+import {
+  AgeRange,
+  compareAgeRanges,
+  AgeRangeRelationship,
+} from "@macrostrat/chronostrat-utils";
 
-// Time resolution is 100 years
-const dt = 0.0001;
+const dt = 0.001;
 
 function unitsOverlap<T extends BaseUnit>(a: T, b: T) {
-  return !(a.b_age <= b.t_age + dt || a.t_age >= b.b_age - dt);
+  const rel = compareAgeRanges(unitAgeRange(a), unitAgeRange(b), 0.001);
+  return rel != AgeRangeRelationship.Disjoint;
+}
+
+function unitAgeRange<T extends BaseUnit>(unit: T): AgeRange {
+  return [unit.b_age, unit.t_age];
 }
 
 interface ExtUnit extends UnitLong {
@@ -26,7 +35,7 @@ export function extendDivision(
   );
   let bottomOverlap = false;
   for (const d of overlappingUnits) {
-    if (d.b_age < unit.b_age) bottomOverlap = true;
+    if (d.b_age < unit.b_age + dt) bottomOverlap = true;
   }
 
   let column = 0;
