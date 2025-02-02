@@ -9,10 +9,8 @@ import {
   Interval,
   ItemList,
   LithologyList,
-  Value,
 } from "@macrostrat/data-components";
 import { useUnitSelectionDispatch } from "@macrostrat/column-views";
-import { useColumnDivisions } from "@macrostrat/column-components";
 import { useMacrostratUnits } from "../store";
 
 const h = hyper.styled(styles);

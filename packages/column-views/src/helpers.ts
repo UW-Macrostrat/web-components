@@ -1,4 +1,6 @@
 import { BaseUnit, UnitLong } from "@macrostrat/api-types";
+import { IUnit } from "./units";
+import { group } from "d3-array";
 
 // Time resolution is 100 years
 const dt = 0.0001;
@@ -13,7 +15,7 @@ interface ExtUnit extends UnitLong {
   column?: number;
 }
 
-function extendDivision(
+export function extendDivision(
   unit: UnitLong,
   i: number,
   divisions: UnitLong[]
@@ -39,7 +41,7 @@ function extendDivision(
   };
 }
 
-function preprocessUnits(units: UnitLong[]) {
+export function preprocessUnits(units: UnitLong[]) {
   let divisions = units.map(extendDivision);
   for (let d of divisions) {
     const overlappingUnits = divisions.filter((u) =>
@@ -74,4 +76,55 @@ function preprocessUnits(units: UnitLong[]) {
   return divisions;
 }
 
-export { extendDivision, preprocessUnits };
+export interface SectionInfo {
+  section_id: number | number[];
+  t_age: number;
+  b_age: number;
+  units: IUnit[];
+}
+
+export function groupUnitsIntoSections(units: IUnit[]): SectionInfo[] {
+  let groups = Array.from(group(units, (d) => d.section_id));
+  return groups.map(([section_id, units]) => {
+    const t_age = Math.min(...units.map((d) => d.t_age));
+    const b_age = Math.max(...units.map((d) => d.b_age));
+    return { section_id, t_age, b_age, units };
+  });
+}
+
+export function _mergeOverlappingSections(
+  sections: SectionInfo[]
+): SectionInfo[] {
+  /** Columns can have sections that overlap in time. Here, we merge overlapping
+   * sections into a single section to correctly render gap-bound packages.
+   */
+  const [firstSection, ...rest] = sections;
+  const newSections = [firstSection];
+  for (const section of rest) {
+    const lastSection = newSections[newSections.length - 1];
+    if (
+      lastSection.b_age < section.t_age ||
+      lastSection.t_age > section.b_age
+    ) {
+      // No overlap, add the section as normal
+      newSections.push(section);
+      continue;
+    }
+    // Overlap, merge the sections
+    lastSection.section_id = [
+      ...ensureArray(lastSection.section_id),
+      ...ensureArray(section.section_id),
+    ];
+    lastSection.units.push(...section.units);
+    lastSection.b_age = Math.max(lastSection.b_age, section.b_age);
+    lastSection.t_age = Math.min(lastSection.t_age, section.t_age);
+  }
+  return newSections;
+}
+
+export function ensureArray<T>(x: T | T[]): T[] {
+  if (Array.isArray(x)) {
+    return x;
+  }
+  return [x];
+}
