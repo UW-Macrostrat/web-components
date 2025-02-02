@@ -8,13 +8,14 @@ import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
 import { group } from "d3-array";
-import { RefObject, useContext, useMemo } from "react";
+import { createRef, RefObject, useContext, useMemo, useState } from "react";
 import { AgeAxis } from "./age-axis";
 import styles from "./column.module.sass";
 import {
   CompositeUnitsColumn,
   TrackedLabeledUnit,
   UnitKeyboardNavigation,
+  UnitSelectionProvider,
   useUnitSelectionDispatch,
 } from "./units";
 import { IUnit } from "./units/types";
@@ -23,6 +24,8 @@ export * from "./age-axis";
 import { ReactNode } from "react";
 
 import { ColumnAxisType } from "@macrostrat/column-components";
+import { RectBounds } from "./units/boxes";
+import { UnitSelectionPopover } from "./selection-popover";
 
 const h = hyperStyled(styles);
 
@@ -224,16 +227,59 @@ function sectionClassName(section: SectionInfo) {
   return `section-${ensureArray(section.section_id).join("-")}`;
 }
 
-function Column(
-  props: IColumnProps & {
-    unconformityLabels: boolean;
-    className?: string;
-    mergeOverlappingSections?: boolean;
-    showLabelColumn?: boolean;
-    columnRef?: RefObject<HTMLDivElement>;
-    keyboardNavigation?: boolean;
+export interface ColumnProps extends IColumnProps {
+  unconformityLabels?: boolean;
+  className?: string;
+  mergeOverlappingSections?: boolean;
+  showLabelColumn?: boolean;
+  columnRef?: RefObject<HTMLDivElement>;
+  keyboardNavigation?: boolean;
+  showUnitPopover?: boolean;
+  t_age?: number;
+  b_age?: number;
+}
+
+export function Column(props: ColumnProps) {
+  const { showUnitPopover = false, ...rest } = props;
+  const ref = createRef<HTMLElement>();
+  // Selected item position
+  const [position, setPosition] = useState<RectBounds | null>(null);
+
+  if (!showUnitPopover) {
+    return h(_Column, rest);
   }
-) {
+
+  return h(
+    UnitSelectionProvider,
+    {
+      onUnitSelected: (unit, target: SVGElement | HTMLElement | null) => {
+        if (!showUnitPopover) return;
+
+        if (unit == null) {
+          setPosition(null);
+          return;
+        }
+        const el: HTMLElement = ref.current;
+        if (el == null || target == null) return;
+        const rect = el.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        setPosition({
+          x: targetRect.left - rect.left,
+          y: targetRect.top - rect.top,
+          width: targetRect.width,
+          height: targetRect.height,
+        });
+      },
+    },
+    h(
+      _Column,
+      { ...rest, columnRef: ref },
+      h(UnitSelectionPopover, { position })
+    )
+  );
+}
+
+function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
   const {
     data,
     unitComponent = UnitComponent,
@@ -309,4 +355,4 @@ function Column(
 
 export * from "./helpers";
 export * from "./map";
-export { AgeAxis, Column, Section };
+export { AgeAxis, Section };
