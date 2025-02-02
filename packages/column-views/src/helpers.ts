@@ -1,5 +1,6 @@
 import { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { IUnit } from "./units";
+import { SectionInfo } from "./section";
 import { group } from "d3-array";
 
 // Time resolution is 100 years
@@ -74,13 +75,6 @@ export function preprocessUnits(units: UnitLong[]) {
   }
 
   return divisions;
-}
-
-export interface SectionInfo {
-  section_id: number | number[];
-  t_age: number;
-  b_age: number;
-  units: IUnit[];
 }
 
 export function groupUnitsIntoSections(units: IUnit[]): SectionInfo[] {
