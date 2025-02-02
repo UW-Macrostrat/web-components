@@ -84,6 +84,12 @@ function PatternDefsProvider(props: LithProviderProps) {
   );
 }
 
+export function usePatternResolver() {
+  const ctx = useContext(PatternDefsContext);
+  console.log(ctx);
+  return ctx?.resolvePattern;
+}
+
 function useGeologicPattern(patternID: string, fallback: string = "#aaa") {
   const ctx1 = useContext(GeologicPatternContext);
   const ctx = useContext(PatternDefsContext);

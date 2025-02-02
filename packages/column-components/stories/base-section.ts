@@ -21,18 +21,9 @@ import styles from "./measured-section.stories.module.sass";
 
 const h = hyper.styled(styles);
 
-function patternPath(id) {
-  return `../../../deps/geologic-patterns/assets/svg/${id}.svg`;
-}
-
-const patterns = import.meta.glob(
-  "../../../deps/geologic-patterns/assets/svg/*.svg",
-  { eager: true, query: "url" }
-);
-
-const resolvePattern = (id) => {
-  const _id = patternPath(id);
-  return patterns[_id]?.default;
+// Patterns are included as static files in the storybook main.ts
+export const resolvePattern = (id) => {
+  return `/patterns/${id}.svg`;
 };
 
 export function PatternProvider({ children }) {
