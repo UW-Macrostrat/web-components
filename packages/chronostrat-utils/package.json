@@ -1,0 +1,31 @@
+{
+  "name": "@macrostrat/chronostrat-utils",
+  "version": "1.0.0",
+  "description": "Chronostratigraphy utility functions",
+  "type": "module",
+  "main": "dist/main.js",
+  "types": "dist/types.d.ts",
+  "source": "src/index.ts",
+  "scripts": {
+    "build": "parcel build"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "exports": {
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/main.js",
+      "require": "./dist/main.js",
+      "types:": "./dist/types.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/chronostrat-utils"
+  }
+}

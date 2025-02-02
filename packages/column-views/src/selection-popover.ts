@@ -4,6 +4,7 @@ import { DOMElement } from "react";
 import { JSONView } from "@macrostrat/ui-components";
 import styles from "./selection-popover.module.sass";
 import { useSelectedUnit } from "./units";
+import { UnitDetailsPanel } from "./unit-details";
 
 const h = hyper.styled(styles);
 
@@ -32,23 +33,16 @@ export function UnitDetailsPopover({
 }
 
 export function LegendPopoverContainer({ children }) {
-  return h("div.legend-panel-outer", [h("div.legend-info-panel", children)]);
-}
-
-export function LegendPanelHeader({ title, id, onClose }) {
-  return h("header.legend-panel-header", [
-    h.if(title != null)("h3", title),
-    h("div.spacer"),
-    h.if(id != null)("code", id),
-    h.if(onClose != null)(Button, {
-      icon: "cross",
-      minimal: true,
-      small: true,
-      onClick() {
-        onClose();
+  return h(
+    "div.legend-panel-outer",
+    {
+      onClick(e) {
+        // Stop events from leaking to the parent
+        e.stopPropagation();
       },
-    }),
-  ]);
+    },
+    [h("div.legend-info-panel", children)]
+  );
 }
 
 export function UnitSelectionPopover(props) {
@@ -71,7 +65,7 @@ export function UnitSelectionPopover(props) {
           height: position?.height,
         },
       },
-      h(JSONView, { data: unit, showRoot: false })
+      h(UnitDetailsPanel, { unit })
     )
   );
 }

@@ -7,6 +7,12 @@ const config: StorybookConfig = {
     "../packages/**/*.mdx",
     "../packages/**/*.stories.@(mdx|js|jsx|ts|tsx)",
   ],
+  staticDirs: [
+    {
+      from: "../deps/geologic-patterns/assets/svg",
+      to: "/patterns",
+    },
+  ],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
     getAbsolutePath("@storybook/addon-essentials"),

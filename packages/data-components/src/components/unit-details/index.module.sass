@@ -1,0 +1,21 @@
+.data-field
+  margin: 0.2em 0 0.4em
+  &.inline
+    display: flex
+    flex-direction: row
+    align-items: baseline
+    gap: 1em
+    justify-content: space-between
+    .data-container
+      text-align: right
+  .label
+    font-size: 0.9em
+    font-weight: bold
+    display: block
+    color: var(--secondary-color)
+  .value-container
+    font-size: 0.9em
+    display: inline-block
+    break-inside: avoid
+  .unit
+    color: var(--secondary-color)

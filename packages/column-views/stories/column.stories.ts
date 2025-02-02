@@ -20,15 +20,12 @@ import "@macrostrat/style-system";
 import { UnitSelectionPopover } from "../src/selection-popover";
 import { createRef, DOMElement, useEffect, useState } from "react";
 import { RectBounds } from "../src/units/boxes";
+import { ColumnProps as BaseColumnProps } from "../src";
 
 const h = hyper.styled(styles);
 
-interface ColumnProps {
+interface ColumnProps extends BaseColumnProps {
   id: number;
-  unconformityLabels?: boolean;
-  showLabelColumn?: boolean;
-  t_age?: number;
-  b_age?: number;
 }
 
 function useColumnUnits(col_id) {
@@ -145,40 +142,27 @@ export function WithBasicUnitSelection() {
   );
 }
 
-export function WithUnitSelectionPopover() {
-  const ref = createRef<HTMLElement>();
-  // Selected item position
-  const [position, setPosition] = useState<RectBounds | null>(null);
+export const WithUnitSelectionPopover: Story = {
+  args: {
+    id: 432,
+    showLabelColumn: true,
+    keyboardNavigation: true,
+    showUnitPopover: true,
+  },
+};
 
-  return h(
-    UnitSelectionProvider,
-    {
-      onUnitSelected: (unit, target: SVGElement | HTMLElement | null) => {
-        if (unit == null) {
-          setPosition(null);
-          return;
-        }
-        const el: HTMLElement = ref.current;
-        if (el == null || target == null) return;
-        const rect = el.getBoundingClientRect();
-        const targetRect = target.getBoundingClientRect();
-        setPosition({
-          x: targetRect.left - rect.left,
-          y: targetRect.top - rect.top,
-          width: targetRect.width,
-          height: targetRect.height,
-        });
-      },
+export const SuperWide: Story = {
+  args: {
+    id: 432,
+    showLabelColumn: false,
+    t_age: 0,
+    b_age: 66,
+    width: 600,
+    columnWidth: 600,
+    unitComponentProps: {
+      nColumns: 5,
     },
-    h(
-      BasicColumn,
-      {
-        id: 432,
-        showLabelColumn: true,
-        columnRef: ref,
-        keyboardNavigation: true,
-      },
-      [h(UnitSelectionPopover, { position })]
-    )
-  );
-}
+    showUnitPopover: true,
+    keyboardNavigation: true,
+  },
+};
