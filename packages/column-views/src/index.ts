@@ -26,6 +26,7 @@ import { ReactNode } from "react";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { RectBounds } from "./units/boxes";
 import { UnitSelectionPopover } from "./selection-popover";
+import { MacrostratUnitsProvider } from "./store";
 
 const h = hyperStyled(styles);
 
@@ -320,35 +321,37 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
         dispatch?.(null, null, evt);
       },
     },
-    h("div.column", { ref: columnRef }, [
-      h("div.age-axis-label", "Age (Ma)"),
-      h(
-        "div.main-column",
-        sectionGroups.map((group, i) => {
-          const { section_id: id, units: data } = group;
-          const lastGroup = sectionGroups[i - 1];
-          return h([
-            h.if(unconformityLabels)(Unconformity, {
-              upperUnits: lastGroup?.units,
-              lowerUnits: data,
-              style: { width: showLabels ? columnWidth : width },
-            }),
-            h(`div.section`, { className: sectionClassName(group) }, [
-              h(Section, {
-                data,
-                unitComponent,
-                showLabels,
-                width,
-                columnWidth,
-                showLabelColumn,
-                ...rest,
+    h(MacrostratUnitsProvider, { units: data }, [
+      h("div.column", { ref: columnRef }, [
+        h("div.age-axis-label", "Age (Ma)"),
+        h(
+          "div.main-column",
+          sectionGroups.map((group, i) => {
+            const { section_id: id, units: data } = group;
+            const lastGroup = sectionGroups[i - 1];
+            return h([
+              h.if(unconformityLabels)(Unconformity, {
+                upperUnits: lastGroup?.units,
+                lowerUnits: data,
+                style: { width: showLabels ? columnWidth : width },
               }),
-            ]),
-          ]);
-        })
-      ),
-      h.if(keyboardNavigation)(UnitKeyboardNavigation, { units: data }),
-      children,
+              h(`div.section`, { className: sectionClassName(group) }, [
+                h(Section, {
+                  data,
+                  unitComponent,
+                  showLabels,
+                  width,
+                  columnWidth,
+                  showLabelColumn,
+                  ...rest,
+                }),
+              ]),
+            ]);
+          })
+        ),
+        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units: data }),
+        children,
+      ]),
     ])
   );
 }

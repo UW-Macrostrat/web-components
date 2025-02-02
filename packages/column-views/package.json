@@ -10,7 +10,8 @@
     "@macrostrat/map-components": "workspace:*",
     "@macrostrat/timescale": "workspace:*",
     "d3-array": "^3.2.1",
-    "d3-geo-voronoi": "^2.0.1"
+    "d3-geo-voronoi": "^2.0.1",
+    "zustand": "^5.0.3"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.43.0 || ^4.3.0 || ^5.0.0",

@@ -11,6 +11,9 @@ import {
   LithologyList,
   Value,
 } from "@macrostrat/data-components";
+import { useUnitSelectionDispatch } from "@macrostrat/column-views";
+import { useColumnDivisions } from "@macrostrat/column-components";
+import { useMacrostratUnits } from "../store";
 
 const h = hyper.styled(styles);
 
@@ -110,13 +113,32 @@ function UnitDetailsContent({ unit }) {
 
 function UnitIDList({ units }) {
   const u1 = units.filter((d) => d != 0);
+  const dispatch = useUnitSelectionDispatch();
+  const allUnits = useMacrostratUnits();
+
   if (u1.length === 0) {
     return h("span.no-units", "None");
   }
 
+  let onClickHandler = null;
+  let tag = "span";
+  if (dispatch != null) {
+    onClickHandler = (id: number) => (evt) => {
+      console.log(units);
+      const unit = allUnits.find((d) => d.unit_id == id);
+      dispatch(unit, null, null);
+      evt.stopPropagation();
+    };
+    tag = "a";
+  }
+
   return h(ItemList, { className: "unit-id-list" }, [
     u1.map((unit) => {
-      return h("span.unit-id", unit);
+      return h(
+        tag,
+        { className: "unit-id", onClick: onClickHandler?.(unit) },
+        unit
+      );
     }),
   ]);
 }
