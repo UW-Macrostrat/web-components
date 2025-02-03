@@ -10,16 +10,12 @@ import {
 import {
   Column,
   preprocessUnits,
-  UnitKeyboardNavigation,
   UnitSelectionProvider,
   useSelectedUnit,
 } from "../src";
 import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
-import { UnitSelectionPopover } from "../src/selection-popover";
-import { createRef, DOMElement, useEffect, useState } from "react";
-import { RectBounds } from "../src/units/boxes";
 import { ColumnProps as BaseColumnProps } from "../src";
 
 const h = hyper.styled(styles);
@@ -151,6 +147,17 @@ export const WithUnitSelectionPopover: Story = {
   },
 };
 
+export const ManyColumns: Story = {
+  args: {
+    id: 432,
+    showLabelColumn: true,
+    unitComponentProps: {
+      nColumns: 8,
+    },
+    showUnitPopover: true,
+  },
+};
+
 export const SuperWide: Story = {
   args: {
     id: 432,
@@ -159,6 +166,20 @@ export const SuperWide: Story = {
     b_age: 66,
     width: 600,
     columnWidth: 600,
+    unitComponentProps: {
+      nColumns: 5,
+    },
+    showUnitPopover: true,
+    keyboardNavigation: true,
+  },
+};
+
+export const MarysvilleUtah: Story = {
+  args: {
+    id: 483,
+    showLabelColumn: true,
+    width: 500,
+    columnWidth: 500,
     unitComponentProps: {
       nColumns: 5,
     },

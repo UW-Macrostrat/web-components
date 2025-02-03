@@ -9,6 +9,13 @@ import styles from "./column.module.sass";
 
 const h = hyper.styled(styles);
 
+export interface SectionInfo {
+  section_id: number | number[];
+  t_age: number;
+  b_age: number;
+  units: IUnit[];
+}
+
 export interface IColumnProps {
   data: IUnit[];
   pixelScale?: number;
@@ -20,6 +27,7 @@ export interface IColumnProps {
   columnWidth?: number;
   targetUnitHeight?: number;
   children?: ReactNode;
+  showLabelColumn?: boolean;
 }
 
 export function Section(props: IColumnProps) {
@@ -37,8 +45,8 @@ export function Section(props: IColumnProps) {
     showLabelColumn = true,
   } = props;
 
-  const b_age = data[data.length - 1].b_age;
-  const t_age = data[0].t_age;
+  const b_age = Math.max(...data.map((d) => d.b_age));
+  const t_age = Math.min(...data.map((d) => d.t_age));
 
   const range = useMemo(() => {
     if (_range == null) {
