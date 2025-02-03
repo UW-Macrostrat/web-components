@@ -114,12 +114,17 @@ function _MapAreaContainer({
     ]
   );
 
+  let contextStack = null;
+  if (navbar != null && contextPanel != null) {
+    contextStack = h(ContextStack, { navbar, ...contextStackProps }, [
+      h.if(contextPanelTrans.shouldMount)([contextPanel]),
+    ]);
+  }
+
   return h(MapStyledContainer, { className: mainUIClassNames }, [
     h("div.main-row", [
       h("div.map-ui", { ...rest }, [
-        h(ContextStack, { navbar, ...contextStackProps }, [
-          h.if(contextPanelTrans.shouldMount)([contextPanel]),
-        ]),
+        contextStack,
         //h(MapView),
         children ?? mainPanel,
         h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
