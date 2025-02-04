@@ -1,3 +1,0 @@
-[submodule "deps/geologic-patterns"]
-	path = deps/geologic-patterns
-	url = https://github.com/davenquinn/geologic-patterns.git

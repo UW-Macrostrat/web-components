@@ -1,6 +1,11 @@
 import { dirname, join } from "path";
 import type { StorybookConfig } from "@storybook/react-vite";
 
+// Resolve geologic patterns from the package
+// If we're using PnP mode, we have to have an "unplugged" version of the package
+// to allow node_modules to be resolved.
+const geologicPatterns = dirname(require.resolve("geologic-patterns"));
+
 const config: StorybookConfig = {
   // vite
   stories: [
@@ -9,7 +14,7 @@ const config: StorybookConfig = {
   ],
   staticDirs: [
     {
-      from: "../deps/geologic-patterns/assets/svg",
+      from: join(geologicPatterns, "assets/svg"),
       to: "/patterns",
     },
   ],
