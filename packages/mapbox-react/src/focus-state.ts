@@ -451,3 +451,43 @@ export function LocationFocusButton({
     [_isCentered ? null : h("span.recenter-label", "Recenter")]
   );
 }
+
+export function BoundsFocusButton({
+  bounds,
+  className,
+  easeDuration = 800,
+  focusState = null,
+  ...rest
+}) {
+  const map = useMapRef();
+
+  const center = [(bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2];
+
+  const defaultFocusState = useFocusState({ lat: center[1], lng: center[0] });
+  focusState ??= defaultFocusState;
+  const _isCentered = isCentered(focusState);
+
+  return h(
+    Button,
+    {
+      minimal: true,
+      icon: "detection",
+      onClick() {
+        if (focusState == PositionFocusState.CENTERED) {
+          map.current?.resetNorth();
+        } else {
+          let opts = { duration: easeDuration };
+          map.current?.fitBounds(bounds, opts);
+        }
+      },
+      className: classNames(
+        "recenter-button",
+        className,
+        classNameForFocusState(focusState)
+      ),
+      intent: intentForFocusState(focusState),
+      ...rest,
+    },
+    [_isCentered ? null : h("span.recenter-label", "Recenter")]
+  );
+}

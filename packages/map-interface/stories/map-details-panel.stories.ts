@@ -31,12 +31,13 @@ function DetailPanelMap(props) {
 }
 
 export function PositionInformation(props) {
-  const { position, onClose, title, children, ...rest } = props;
+  const { position, bounds, onClose, title, children, ...rest } = props;
 
   const detailPanel = h(
     LocationPanel,
     {
       position,
+      bounds,
       title,
       onClose,
     },
@@ -48,6 +49,7 @@ export function PositionInformation(props) {
     {
       ...rest,
       detailPanel,
+      bounds,
     },
     [
       h.if(position != null)(MapMarker, {
@@ -136,7 +138,7 @@ export const WithBounds: Story = {
     bounds,
     position: null,
     mapPosition: null,
-    title: "New York City",
+    title: "Where it all happens",
     onClose() {
       console.log("Close");
     },

@@ -7,6 +7,7 @@ import {
   LocationFocusButton,
   useFocusState,
   isCentered,
+  BoundsFocusButton,
 } from "@macrostrat/mapbox-react";
 
 const h = hyper.styled(styles);
@@ -66,28 +67,37 @@ function CopyLinkButton({ itemName, children, onClick, ...rest }) {
 }
 
 export interface InfoDrawerHeaderProps {
-  onClose: () => void;
-  position: mapboxgl.LngLat;
+  onClose?: () => void;
+  position?: mapboxgl.LngLat;
   zoom?: number;
   elevation?: number;
   showCopyPositionButton?: boolean;
+  bounds?: mapboxgl.LngLatBounds;
 }
 
 export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
   const {
     onClose,
     position,
+    bounds,
     zoom = 7,
     elevation,
     showCopyPositionButton,
     children,
   } = props;
 
-  return h("header.location-panel-header", [
-    h.if(position != null)(PositionButton, {
+  let leftButton = null;
+  if (bounds != null) {
+    leftButton = h(BoundsFocusButton, { bounds });
+  } else if (position != null) {
+    leftButton = h(PositionButton, {
       position,
       showCopyLink: showCopyPositionButton,
-    }),
+    });
+  }
+
+  return h("header.location-panel-header", [
+    leftButton,
     children,
     h("div.spacer"),
     h.if(position != null)(LngLatCoords, {
