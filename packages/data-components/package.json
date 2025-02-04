@@ -27,11 +27,11 @@
   "dependencies": {
     "@macrostrat/hyper": "^3.0.0",
     "@macrostrat/stratigraphy-utils": "workspace:*",
-    "@vx/axis": "^0.0.199",
-    "@vx/gradient": "^0.0.199",
-    "@vx/scale": "^0.0.199",
-    "@vx/shape": "^0.0.199",
-    "axios": "^1.7.7",
+    "@visx/axis": "^3.12.0",
+    "@visx/gradient": "^3.12.0",
+    "@visx/scale": "^3.12.0",
+    "@visx/shape": "^3.12.0",
+    "axios": "^1.7.9",
     "d3-array": "^3.2.4"
   },
   "files": [

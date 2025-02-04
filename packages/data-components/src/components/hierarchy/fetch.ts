@@ -1,5 +1,4 @@
 //@ts-nocheck
-import axios from "axios";
 import { IHierarchy } from ".";
 
 const url = "https://macrostrat.org/api/v2/defs/strat_names";
@@ -22,16 +21,18 @@ var rankMapOrder = { SGp: 1, Gp: 2, SubGp: 3, Fm: 4, Mbr: 5, Bed: 6 };
 
 const fetchStratNames = async (id: number) => {
   // function to fetch stratnames and orgnize hierarchy
+  const params = { rule: "all", strat_name_id: id };
+  const url_ = url + "?" + new URLSearchParams(params).toString();
 
-  const res = await axios.get(url, {
-    params: { rule: "all", strat_name_id: id },
-  });
+  const res = await fetch(url_);
 
   if (res.status != 200) {
-    return res.data;
+    return await res.json();
   }
 
-  const data = res.data.success.data;
+  const _data = await res.json();
+
+  const data = _data.success.data;
 
   data.forEach((d) => {
     // Figure out if this is the target name or not

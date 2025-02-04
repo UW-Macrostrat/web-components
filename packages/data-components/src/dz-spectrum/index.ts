@@ -1,8 +1,8 @@
 import { createContext, useContext, ReactNode } from "react";
 import h from "@macrostrat/hyper";
-import { scaleLinear } from "@vx/scale";
-import { AreaClosed } from "@vx/shape";
-import { AxisBottom, Axis } from "@vx/axis";
+import { scaleLinear, AnyD3Scale } from "@visx/scale";
+import { AreaClosed } from "@visx/shape";
+import { AxisBottom } from "@visx/axis";
 import { max } from "d3-array";
 import gradients from "./gradients";
 import {
@@ -14,7 +14,7 @@ import {
 export { kernelDensityEstimator, kernelEpanechnikov, kernelGaussian };
 
 interface PlotAreaCtx {
-  xScale: Axis;
+  xScale: AnyD3Scale;
   width: number;
   height: number;
 }
