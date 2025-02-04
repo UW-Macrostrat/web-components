@@ -78,9 +78,11 @@
     "map-interface",
     "style-system",
     "vite-plugin-hyperstyles",
+    "data-sheet",
     "color-utils",
     "stratigraphy-utils",
-    "data-components"
+    "data-components",
+    "api-types"
   ],
   "workspaces": [
     "packages/*",

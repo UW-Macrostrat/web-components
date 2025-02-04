@@ -1,13 +1,13 @@
 import h from "@macrostrat/hyper";
 
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { ColumnNavigatorMap, MacrostratAPIProvider } from "../src/providers";
+import { Meta } from "@storybook/react";
+import { ColumnNavigatorMap, MacrostratAPIProvider } from "../src";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Column views/Index map",
   component: ColumnNavigatorMap,
-} as ComponentMeta<typeof ColumnNavigatorMap>;
+} as Meta<typeof ColumnNavigatorMap>;
 
 interface ColumnIndexMapProps {
   col_id: number;

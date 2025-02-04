@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import hyper from "@macrostrat/hyper";
 import styles from "./postgrest-sheet.stories.module.sass";
-import { ColorCell, ScrollToRowControl } from "@macrostrat/data-sheet2";
+import { ColorCell, ScrollToRowControl } from "../src";
 import {
   LongTextViewer,
   IntervalCell,
