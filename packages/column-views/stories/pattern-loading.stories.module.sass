@@ -1,3 +1,4 @@
+@use "sass:color"
 
 .pattern-container
   width: 100px
@@ -23,4 +24,4 @@
       stroke-linecap: round
     rect:not([style*="fill:none"])
       fill: #00a396
-  background-color: darken(#00a396, 20%)
+  background-color: color.adjust(#00a396, $lightness: -20%)

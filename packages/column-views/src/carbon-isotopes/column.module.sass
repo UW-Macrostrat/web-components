@@ -1,3 +1,5 @@
+@use "sass:color"
+
 .column-ui
   width: 100vw
   height: 100vh
@@ -108,7 +110,7 @@ div.map-column
     .macrostrat-map
       .graticule
         stroke-dasharray: inherit
-        stroke: darken(#AFE6F0, 5%)
+        stroke: color.adjust(#AFE6F0, $lightness: -5%)
       .neatline
         stroke-width: 1.5px
 
