@@ -2,7 +2,7 @@ import { hyperStyled } from "@macrostrat/hyper";
 import { NonIdealState, Button, Callout } from "@blueprintjs/core";
 
 import { useAuth } from "./context";
-import styles from "./main.module.styl";
+import styles from "./main.module.sass";
 
 const h = hyperStyled(styles);
 

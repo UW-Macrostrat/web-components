@@ -4,7 +4,7 @@ import { useAuth } from "./context";
 import { Button, Dialog, Callout, Intent, Classes } from "@blueprintjs/core";
 //import { ServerStatus } from "~/components";
 import classNames from "classnames";
-import styles from "./main.module.styl";
+import styles from "./main.module.sass";
 
 const h = hyperStyled(styles);
 
@@ -76,7 +76,6 @@ function CredentialsDialog({
 }
 
 function LogoutForm({ serverStatusComponent = null }) {
-
   const { runAction, user, userIdentity } = useAuth();
   const actionButtons = h([
     h.if(serverStatusComponent != null)(serverStatusComponent),

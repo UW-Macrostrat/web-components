@@ -2,7 +2,12 @@
 
 A set of reusable react components for forms and data entry.
 
-Rollup compiles js and types to esm and cjs by default. ESM output is in the `dist/esm/index.js` while the CJS output is in the `dist/cjs/index.js`. Types are located at `dist/index.d.ts`.
+This includes authentication and user-management components extracted from
+Sparrow.
+
+Rollup compiles js and types to esm and cjs by default. ESM output is in the
+`dist/esm/index.js` while the CJS output is in the `dist/cjs/index.js`. Types
+are located at `dist/index.d.ts`.
 
 To run clone the repository and run:
 

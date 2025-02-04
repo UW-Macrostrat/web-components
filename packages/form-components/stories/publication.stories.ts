@@ -1,14 +1,14 @@
 import h from "@macrostrat/hyper";
 
-import { Publication } from "..";
-import "../global.scss";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { Publication } from "../stories";
+import "./global.scss";
+import { ComponentStory, Meta } from "@storybook/react";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Form-components/Publication",
+  title: "Form components/Publication",
   component: Publication,
-} as ComponentMeta<typeof Publication>;
+} as Meta<typeof Publication>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template: ComponentStory<typeof Publication> = (args) =>

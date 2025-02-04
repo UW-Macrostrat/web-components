@@ -2,7 +2,7 @@ import { hyperStyled } from "@macrostrat/hyper";
 import { Button, IconName } from "@blueprintjs/core";
 import { LogoutForm } from "./login-form";
 import { useAuth } from "./context";
-import styles from "./main.module.styl";
+import styles from "./main.module.sass";
 const h = hyperStyled(styles);
 
 function AuthStatus(props) {

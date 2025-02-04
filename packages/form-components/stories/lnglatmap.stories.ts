@@ -1,24 +1,24 @@
-import { ComponentMeta } from "@storybook/react";
+import { Meta } from "@storybook/react";
 import { hyperStyled } from "@macrostrat/hyper";
 import React, { useEffect, useRef, useState } from "react";
 import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import mapboxgl from "mapbox-gl";
 import styles from "./stories.module.scss";
-import { Point, LngLatMap, LngLatInputs } from "../components";
+import { Point, LngLatMap, LngLatInputs } from "../src";
 const h = hyperStyled(styles);
 
-mapboxgl.accessToken =
-  "pk.eyJ1IjoidGhlZmFsbGluZ2R1Y2siLCJhIjoiY2tsOHAzeDZ6MWtsaTJ2cXhpMDAxc3k5biJ9.FUMK57K0UP7PSrTUi3DiFQ";
+const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
+mapboxgl.accessToken = mapboxToken;
 
 export default {
-  title: "Form-Components/Geographic",
+  title: "Form Components/Geographic",
   component: LngLatMap,
   subcomponents: { LngLatInputs },
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   args: {},
-} as ComponentMeta<typeof LngLatMap>;
+} as Meta<typeof LngLatMap>;
 
 function roundCoordinates(p: Point) {
   let [long, lat] = p.geometry.coordinates;
