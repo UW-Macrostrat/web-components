@@ -1,4 +1,4 @@
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import { group } from "d3-array";
 import { useAPIResult } from "@macrostrat/ui-components";
 import {
@@ -10,7 +10,9 @@ import { SimpleUnitsColumn, IUnit } from "@macrostrat/column-views";
 import { useContext } from "react";
 import { IsotopesColumn } from "@macrostrat/concept-app-helpers";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
-import "./main.styl";
+import styles from "./column.module.sass";
+
+const h = hyper.styled(styles);
 
 interface IColumnProps {
   data: IUnit[];

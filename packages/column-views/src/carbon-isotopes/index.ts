@@ -1,10 +1,14 @@
-import h from "@macrostrat/hyper";
-import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
+import hyper from "@macrostrat/hyper";
+import styles from "./column.module.sass";
+
+import { useAPIResult } from "@macrostrat/ui-components";
 import Column from "./column";
 import { ColumnNavigatorMap, MeasurementsLayer } from "../map";
 import { MeasurementDataProvider } from "@macrostrat/concept-app-helpers";
 import { MacrostratAPIProvider } from "@macrostrat/api-views";
 import { useColumnNav } from "@macrostrat/column-views";
+
+const h = hyper.styled(styles);
 
 const ColumnTitle = (props) => {
   return h.if(props.data != null)("h1", props.data?.col_name);
