@@ -16,6 +16,8 @@ monorepo.
   `@macrostrat/stratigraphy-utils` packages
 - Merge `@macrostrat/auth-components` into `@macrostrat/form-components`
 - Remove some legacy stylus styles
+- Rename `@macrostrat/map-components` to `@macrostrat/svg-map-components` to
+  avoid confusion with more general-purpose map components
 
 # `[2.0.0]` - 2023-04-16
 
