@@ -36,12 +36,12 @@
     "rollup-plugin-terser": "^7.0.2"
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^4.3.0",
+    "@blueprintjs/core": "^5.0.0",
     "react": "^16.8.6||^17.0.2||^18"
   },
   "dependencies": {
-    "@macrostrat/chronostrat-utils": "workspace:*",
-    "@macrostrat/hyper": "^2.0.1",
+    "@macrostrat/hyper": "^3.0.0",
+    "@macrostrat/stratigraphy-utils": "workspace:*",
     "@vx/gradient": "^0.0.199",
     "axios": "^1.7.7"
   },

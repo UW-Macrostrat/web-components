@@ -20,7 +20,7 @@
     "@macrostrat/mapbox-styles": "./packages/mapbox-styles/src",
     "@macrostrat/ui-components": "./packages/ui-components/src",
     "@macrostrat/column-components": "./packages/column-components/src",
-    "@macrostrat/chronostrat-utils": "./packages/chronostrat-utils/src"
+    "@macrostrat/stratigraphy-utils": "./packages/stratigraphy-utils/src"
   },
   "devDependencies": {
     "@babel/core": "^7.18.6",
@@ -79,7 +79,7 @@
     "style-system",
     "vite-plugin-hyperstyles",
     "color-utils",
-    "chronostrat-utils"
+    "stratigraphy-utils"
   ],
   "workspaces": [
     "packages/*",
