@@ -5,10 +5,10 @@
   margin: 0 auto;
 }
 .hierarchy-container {
-  border: 2px solid rgb(208, 208, 208);
+  border: 2px solid var(--accent-color);
   border-radius: 2px;
   cursor: pointer;
-  background-color: #ffffff;
+  background-color: var(--background-color);
 }
 .active {
   background-color: rgba(153, 0, 0, 0.3) !important;
@@ -40,9 +40,8 @@
 }
 
 .badge {
-  background-color: #aaaaaa;
-  color: #ffffff;
-  padding: 3px;
+  background-color: var(--bac);
+  color: var(--text-color);
   border-radius: 10px;
   font-weight: 200;
   display: inline-block;
@@ -50,7 +49,6 @@
   min-width: 10px;
   padding: 3px 7px;
   font-size: 12px;
-  color: #fff;
   vertical-align: middle;
   border-radius: 10px;
 }

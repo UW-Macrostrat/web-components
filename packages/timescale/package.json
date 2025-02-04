@@ -41,7 +41,7 @@
     "@vx/axis": "0.0.198",
     "@vx/scale": "0.0.198",
     "classnames": "^2.2.6",
-    "d3-array": "^2.5.1",
+    "d3-array": "^3.2.4",
     "d3-format": "^2.0.0"
   },
   "exports": {

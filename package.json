@@ -79,7 +79,8 @@
     "style-system",
     "vite-plugin-hyperstyles",
     "color-utils",
-    "stratigraphy-utils"
+    "stratigraphy-utils",
+    "data-components"
   ],
   "workspaces": [
     "packages/*",
