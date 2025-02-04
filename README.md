@@ -56,6 +56,12 @@ directory.
 
 The storybook will start at port `6006`
 
+#### Upgrading storybook
+
+```
+yarn dlx storybook@latest upgrade
+```
+
 ### Publishing packages
 
 This monorepo has a custom script that helps with publishing packages.
