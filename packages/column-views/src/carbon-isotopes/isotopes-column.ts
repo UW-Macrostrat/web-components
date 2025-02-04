@@ -2,7 +2,7 @@ import { format } from "d3-format";
 import { useContext } from "react";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
-import { AxisBottom } from "@vx/axis";
+import { AxisBottom } from "@visx/axis";
 import { useMeasurementData } from "./data-provider";
 
 import {

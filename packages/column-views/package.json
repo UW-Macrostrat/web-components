@@ -12,8 +12,10 @@
     "@macrostrat/timescale": "workspace:*",
     "@macrostrat/ui-components": "workspace:*",
     "d3-array": "^3.2.4",
-    "d3-geo-voronoi": "^2.0.1",
+    "d3-geo": "^3.1.1",
+    "d3-geo-voronoi": "^2.1.0",
     "react-spring": "^9.7.5",
+    "topojson-client": "^3.1.0",
     "zustand": "^5.0.3"
   },
   "peerDependencies": {
@@ -24,5 +26,9 @@
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/column-views"
+  },
+  "devDependencies": {
+    "@types/d3-geo": "^3",
+    "@types/topojson-client": "^3"
   }
 }
