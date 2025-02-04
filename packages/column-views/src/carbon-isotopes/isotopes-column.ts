@@ -10,7 +10,7 @@ import {
   useDataLocator,
   IsotopeDataPoint,
 } from "./data-area";
-import { referenceMeasuresToColumn } from "@macrostrat/api-utils";
+import { referenceMeasuresToColumn } from "@macrostrat/stratigraphy-utils";
 import {
   CrossAxisLayoutProvider,
   ColumnLayoutContext,
