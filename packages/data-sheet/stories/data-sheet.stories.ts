@@ -10,7 +10,7 @@ function DataSheetTest(rest) {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<any> = {
-  title: "Data sheet/Data sheet (v2)",
+  title: "Data sheet/Data sheet",
   component: DataSheetTest,
   parameters: {
     layout: "fullscreen",
