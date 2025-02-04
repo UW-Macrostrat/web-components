@@ -33,7 +33,7 @@ your machine, install dependencies, and start the storybook begin developing.
 
 Run `yarn install` in the root directory to install dependencies.
 
-### Package manager
+#### Package manager
 
 This repository is optimized for [Yarn](https://yarnpkg.com/) v4 or greater and
 may not work with NPM or other package managers.

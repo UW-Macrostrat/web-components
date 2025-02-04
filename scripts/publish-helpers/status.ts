@@ -8,6 +8,7 @@ import { formatDistance } from "date-fns";
 import { marked } from "marked";
 import { markedTerminal } from "marked-terminal";
 import process from "process";
+import glob from "glob";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,8 +28,14 @@ export function readPackageJSON(dirname): PackageJSONData {
   return JSON.parse(fs.readFileSync(pkgPath), { encoding: "utf-8" });
 }
 
-export function readProjectPackageJSON() {
-  return readPackageJSON(projectDir);
+export function getPackages(...globPatterns: string[]): string[] {
+  const packages = [];
+  for (const pattern of globPatterns) {
+    let paths = glob.sync(pattern);
+    // Remove prefix
+    packages.push(...paths);
+  }
+  return packages;
 }
 
 export type PackageData = {
@@ -37,11 +44,15 @@ export type PackageData = {
   directory: string;
 };
 
+export function getPackageDataFromDirectory(pkgDir: string): PackageData {
+  const { name, version } = readPackageJSON(pkgDir);
+  return { name, version, directory: pkgDir };
+}
+
 /* get package.json filr from correct dir */
 export function getPackageData(pkgName: string): PackageData {
   const rootDir = getPackageDirectory(pkgName);
-  const { name, version } = readPackageJSON(rootDir);
-  return { name, version, directory: rootDir };
+  return getPackageDataFromDirectory(rootDir);
 }
 
 function getPackageDirectory(pkgName) {

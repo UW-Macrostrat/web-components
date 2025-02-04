@@ -3,11 +3,17 @@ import chalk from "chalk";
 import {
   checkIfPackageCanBePublished,
   notifyUserOfUncommittedChanges,
-  getPackageData,
-  readProjectPackageJSON,
+  getPackages,
+  getPackageDataFromDirectory,
 } from "./status";
 import { prepareModule, ensureEntryFilesExist } from "./prepare";
 import { publishModule } from "./publish";
+
+function getCandidatePackages() {
+  /** Candidate packages to publish. These are all subdirectories of the packages or toolchain directories */
+  let packages: string[] = [];
+  // Find subdirectories of the packages directory
+}
 
 export async function runScript(
   { build = true, publish = true },
@@ -15,10 +21,10 @@ export async function runScript(
 ) {
   let packagesToPublish: any[] = [];
 
-  const { publishedPackages: packages } = readProjectPackageJSON();
+  const candidatePackages = getPackages("packages/*", "toolchain/*");
 
-  for (const packageName of packages) {
-    const pkg = getPackageData(packageName);
+  for (const packageDir of candidatePackages) {
+    const pkg = getPackageDataFromDirectory(packageDir);
 
     if (modules.length > 0 && !modules.includes(pkg.name)) {
       continue;
@@ -62,10 +68,11 @@ export async function runScript(
   }
 
   if (failedPackages.length > 0) {
-    console.log(
-      chalk.red.bold("Failed to prepare the following packages:"),
-      failedPackages.map((pkg) => pkg.name).join(", ")
-    );
+    console.log();
+    console.log(chalk.red.bold("Failed to prepare the following packages:"));
+    for (const pkg of failedPackages) {
+      console.log(chalk.red("- " + chalk.bold(pkg.name)));
+    }
     return;
   }
 

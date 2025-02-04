@@ -13,16 +13,6 @@
   },
   "author": "Daven Quinn",
   "license": "ISC",
-  "alias": {
-    "@macrostrat/column-views": "./packages/column-views/src",
-    "@macrostrat/map-components": "./packages/map-components/src",
-    "@macrostrat/api-views": "./packages/api-views/src",
-    "@macrostrat/timescale": "./packages/timescale/src",
-    "@macrostrat/mapbox-styles": "./packages/mapbox-styles/src",
-    "@macrostrat/ui-components": "./packages/ui-components/src",
-    "@macrostrat/column-components": "./packages/column-components/src",
-    "@macrostrat/stratigraphy-utils": "./packages/stratigraphy-utils/src"
-  },
   "devDependencies": {
     "@babel/core": "^7.18.6",
     "@babel/preset-env": "^7.21.4",
@@ -71,21 +61,6 @@
   "resolutions": {
     "@types/react": "18.3.12"
   },
-  "publishedPackages": [
-    "ui-components",
-    "column-components",
-    "map-components",
-    "mapbox-utils",
-    "mapbox-react",
-    "map-interface",
-    "style-system",
-    "vite-plugin-hyperstyles",
-    "data-sheet",
-    "color-utils",
-    "stratigraphy-utils",
-    "data-components",
-    "api-types"
-  ],
   "workspaces": [
     "packages/*",
     "toolchain/*"
