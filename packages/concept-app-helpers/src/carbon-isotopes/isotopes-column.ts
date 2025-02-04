@@ -154,7 +154,6 @@ function IsotopesDataset(props) {
     (d) => d.measurement == parameter
   );
   const points = unnestPoints(refMeasures);
-  console.log(refMeasures, points);
 
   return h(
     IsotopesDataArea,

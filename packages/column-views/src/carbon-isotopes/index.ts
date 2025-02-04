@@ -28,8 +28,6 @@ function ColumnManager() {
   const [columnArgs, setCurrentColumn] = useColumnNav(defaultArgs);
   const { col_id, ...projectParams } = columnArgs;
 
-  console.log(columnArgs);
-
   const colParams = { ...columnArgs, format: "geojson" };
   const res = useAPIResult("/columns", colParams, [columnArgs]);
   const columnFeature = res?.features[0];

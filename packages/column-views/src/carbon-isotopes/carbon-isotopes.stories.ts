@@ -1,4 +1,4 @@
-import { CarbonIsotopesColumn } from "./index";
+import { CarbonIsotopesColumn, CarbonIsotopesApp } from "./index";
 import h from "@macrostrat/hyper";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import { DarkModeProvider } from "@macrostrat/ui-components";
@@ -19,4 +19,8 @@ export const Primary = {
     project_id: 10,
     status_code: "in process",
   },
+};
+
+export const App = () => {
+  return h(CarbonIsotopesApp, { project_id: 10, status_code: "in process" });
 };

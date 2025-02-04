@@ -2,7 +2,6 @@ import h from "@macrostrat/hyper";
 import { group } from "d3-array";
 import { useAPIResult } from "@macrostrat/ui-components";
 import {
-  ColumnProvider,
   ColumnSVG,
   ColumnAxis,
   ColumnContext,
