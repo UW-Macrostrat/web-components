@@ -1,9 +1,9 @@
-import { Component, createElement, createContext, useContext } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import h from "@macrostrat/hyper";
 import { scaleLinear } from "@vx/scale";
 import { AreaClosed } from "@vx/shape";
-import { AxisLeft, AxisBottom, AxisScale } from "@vx/axis";
-import { extent, min, max, histogram } from "d3-array";
+import { AxisBottom, Axis } from "@vx/axis";
+import { max } from "d3-array";
 import gradients from "./gradients";
 import {
   kernelDensityEstimator,
@@ -14,7 +14,7 @@ import {
 export { kernelDensityEstimator, kernelEpanechnikov, kernelGaussian };
 
 interface PlotAreaCtx {
-  xScale: AxisScale;
+  xScale: Axis;
   width: number;
   height: number;
 }
@@ -32,13 +32,22 @@ const usePlotArea = () => useContext(PlotAreaContext);
 
 interface DetritalSeriesProps {
   data: number[];
-  accessor: (d: any) => number;
+  accessor?: (d: any) => number;
+  color?: string;
+  bandwidth?: number;
+  filled?: boolean;
 }
 
 const noOp = (d) => d;
 
 function DetritalSeries(props: DetritalSeriesProps) {
-  const { data, accessor = noOp, bandwidth = 60 } = props;
+  const {
+    data,
+    accessor = noOp,
+    bandwidth = 60,
+    color = "magenta",
+    filled = true,
+  } = props;
   if (data == null) {
     return null;
   }
@@ -57,6 +66,13 @@ function DetritalSeries(props: DetritalSeriesProps) {
     domain: [0, maxProbability],
   });
 
+  let colorProps: object = {
+    fill: "transparent",
+  };
+  if (filled) {
+    colorProps = { fill: color, fillOpacity: 0.2 };
+  }
+
   return h(AreaClosed, {
     data: kdeData,
     yScale,
@@ -66,13 +82,17 @@ function DetritalSeries(props: DetritalSeriesProps) {
     y(d) {
       return yScale(d[1]);
     },
-    stroke: "magenta",
-    fill: "transparent",
+    stroke: color,
+    ...colorProps,
     //fill: `url(#${id})`
   });
 }
 
-function DetritalSpectrumPlot(props) {
+type DetritalSpectrumProps = {
+  children: ReactNode;
+};
+
+function DetritalSpectrumPlot(props: DetritalSpectrumProps) {
   const { children } = props;
   let minmax = [0, 4000]; // extent(data, accessor);
   const delta = minmax[1] - minmax[0];

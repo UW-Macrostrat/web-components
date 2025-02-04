@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "Utility functions for dealing with stratigraphy",
   "type": "module",
+  "source": "src/index.ts",
   "main": "dist/main.js",
   "types": "dist/types.d.ts",
-  "source": "src/index.ts",
   "scripts": {
     "build": "parcel build"
   },

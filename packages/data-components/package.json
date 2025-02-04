@@ -17,7 +17,8 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@blueprintjs/core": "^5.10.2"
+    "@blueprintjs/core": "^5.10.2",
+    "@types/d3-array": "^3"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^5.0.0",
@@ -26,8 +27,12 @@
   "dependencies": {
     "@macrostrat/hyper": "^3.0.0",
     "@macrostrat/stratigraphy-utils": "workspace:*",
+    "@vx/axis": "^0.0.199",
     "@vx/gradient": "^0.0.199",
-    "axios": "^1.7.7"
+    "@vx/scale": "^0.0.199",
+    "@vx/shape": "^0.0.199",
+    "axios": "^1.7.7",
+    "d3-array": "^3.2.4"
   },
   "files": [
     "src",
