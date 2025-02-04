@@ -1,12 +1,12 @@
 {
   "name": "@macrostrat/timescale",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "A configurable geologic timescale written with React and Typescript",
   "main": "dist/cjs",
   "module": "dist/esm",
   "types": "dist/types",
   "scripts": {
-    "dev": "parcel serve --dist-dir dist/example --no-autoinstall example/index.html",
+    "dev": "parcel serve --dist-dir dist/example --no-autoinstall stories/index.html",
     "build": "./scripts/build",
     "watch": "./scripts/watch",
     "prepublish": "npm run build"

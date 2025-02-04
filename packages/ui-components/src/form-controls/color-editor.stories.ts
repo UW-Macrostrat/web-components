@@ -5,7 +5,7 @@ import h from "@macrostrat/hyper";
 import { ColorEditor } from "./color-editor";
 
 export default {
-  title: "Controls/ColorPicker",
+  title: "UI Components/Controls/ColorPicker",
   component: ColorEditor,
   args: {
     color: "#aaaaaa",

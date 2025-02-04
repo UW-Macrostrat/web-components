@@ -1,12 +1,13 @@
 * {
   box-sizing: border-box;
 }
-body {
-  margin: 0;
-  height: 100vh;
-  width: 100vw;
-  overflow: scroll;
+
+:global {
+  body {
+    --timescale-level-width: 2em;
+  }
 }
+
 .timescale-ui {
   display: flex;
   margin: 0 auto;
