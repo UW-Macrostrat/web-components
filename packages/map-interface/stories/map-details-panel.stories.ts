@@ -9,11 +9,13 @@ import {
 } from "../src";
 import h from "@macrostrat/hyper";
 import { DarkModeProvider } from "@macrostrat/ui-components";
+import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
+import { useEffect } from "react";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 function DetailPanelMap(props) {
-  const { mapPosition, children, ...rest } = props;
+  const { mapPosition, children, bounds, ...rest } = props;
 
   const style = useBasicStylePair();
 
@@ -24,12 +26,12 @@ function DetailPanelMap(props) {
       contextPanel: null,
       ...rest,
     },
-    h(MapView, { style, mapPosition, mapboxToken }, children)
+    h(MapView, { style, mapPosition, mapboxToken, bounds }, children)
   );
 }
 
 export function PositionInformation(props) {
-  const { position, onClose, title, ...rest } = props;
+  const { position, onClose, title, children, ...rest } = props;
 
   const detailPanel = h(
     LocationPanel,
@@ -48,9 +50,10 @@ export function PositionInformation(props) {
       detailPanel,
     },
     [
-      h(MapMarker, {
+      h.if(position != null)(MapMarker, {
         position,
       }),
+      children,
     ]
   );
 }
@@ -125,3 +128,61 @@ export const NotCloseable = {
     onClose: null,
   },
 };
+
+const bounds = [-74.2591, 40.4774, -73.7004, 40.9176];
+
+export const WithBounds: Story = {
+  args: {
+    bounds,
+    position: null,
+    mapPosition: null,
+    title: "New York City",
+    onClose() {
+      console.log("Close");
+    },
+    children: [h(MapBoundsLayer, { bounds })],
+  },
+};
+
+function MapBoundsLayer(props) {
+  const { bounds } = props;
+  const isLoaded = useMapStatus((map) => map.isStyleLoaded);
+  const ref = useMapRef();
+  useEffect(() => {
+    const map = ref.current;
+    if (map == null) return;
+    if (!isLoaded) return;
+
+    map.addSource("bounds", {
+      type: "geojson",
+      data: {
+        type: "Feature",
+        geometry: {
+          type: "Polygon",
+          coordinates: [
+            [
+              [bounds[0], bounds[1]],
+              [bounds[2], bounds[1]],
+              [bounds[2], bounds[3]],
+              [bounds[0], bounds[3]],
+              [bounds[0], bounds[1]],
+            ],
+          ],
+        },
+      },
+    });
+
+    map.addLayer({
+      id: "bounds",
+      type: "line",
+      source: "bounds",
+      layout: {},
+      paint: {
+        "line-color": "red",
+        "line-width": 2,
+      },
+    });
+  }, [isLoaded]);
+
+  return null;
+}
