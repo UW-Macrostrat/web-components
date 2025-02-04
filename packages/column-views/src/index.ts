@@ -28,6 +28,7 @@ import {
 
 export * from "./units";
 export * from "./age-axis";
+export * from "./carbon-isotopes";
 
 const h = hyperStyled(styles);
 
