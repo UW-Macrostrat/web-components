@@ -5,7 +5,7 @@ import h from "@macrostrat/hyper";
 import { ModalPanel } from ".";
 
 export default {
-  title: "Example/ModalPanel",
+  title: "UI components/Modal panel",
   component: ModalPanel,
   args: {
     onClose: () => console.log("Close Action Triggered"),

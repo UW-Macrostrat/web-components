@@ -1,9 +1,8 @@
-import React from "react";
 import h from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
 //import "./panel.scss";
 
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { Meta } from "@storybook/react";
 import { PanelStack } from ".";
 
 function First(props) {
@@ -62,7 +61,7 @@ const initialPanel = {
 };
 
 export default {
-  title: "Example/PanelStack",
+  title: "UI components/Panel stack",
   component: PanelStack,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   args: {
@@ -70,7 +69,7 @@ export default {
     className: "stack",
     renderActivePanelOnly: true,
   },
-};
+} as Meta<typeof PanelStack>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 const Template = (args) => h(PanelStack, { ...args });

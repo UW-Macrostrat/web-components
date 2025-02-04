@@ -1,8 +1,8 @@
 import h from "@macrostrat/hyper";
 
-import { Publication } from "../stories";
+import { Publication } from "../src";
 import "./global.scss";
-import { ComponentStory, Meta } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -11,7 +11,7 @@ export default {
 } as Meta<typeof Publication>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Publication> = (args) =>
+const Template: StoryFn<typeof Publication> = (args) =>
   h(Publication, { ...args });
 
 export const HelloWorld = Template.bind({});
