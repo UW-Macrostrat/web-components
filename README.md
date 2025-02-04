@@ -29,38 +29,26 @@ Several of the most important modules are:
 ### Installation
 
 To get started developing Macrostrat web components, clone this repository to
-your machine and run
+your machine, install dependencies, and start the storybook begin developing.
 
-```
-git submodule init --recursive
-```
+Run `yarn install` in the root directory to install dependencies.
 
-This will automatically initialize all git submodules used in the monorepo.
+### Package manager
 
-Next install all necessary modules. The repository is set up to use **Yarn v2**
-by default, for quick installs and updates.
+This repository is optimized for [Yarn](https://yarnpkg.com/) v4 or greater and
+may not work with NPM or other package managers.
 
-```
-yarn
-```
+### Environment variables
 
 In order to make map-based examples work, you will have to set the
 `VITE_MAPBOX_API_TOKEN` environment variable to a valid Mapbox token. You can do
 this by creating a `.env` file in the root of the repository.
 
-### Storybook
+### Developing components with storybook
 
 We use [Storybook](https://storybook.js.org/) for developing components in an
 isolated environment. To start the storybook, run `yarn run dev` in the root
-directory.
-
-The storybook will start at port `6006`
-
-#### Upgrading storybook
-
-```
-yarn dlx storybook@latest upgrade
-```
+directory. The storybook will start at port `6006`
 
 ### Publishing packages
 
@@ -75,3 +63,19 @@ This monorepo has a custom script that helps with publishing packages.
 
 You will need the NPM organizational credentials (to the `@macrostrat`
 organization) to publish packages.
+
+### Maintenance
+
+#### Upgrading storybook
+
+```
+yarn dlx storybook@latest upgrade
+```
+
+#### Upgrading dependencies
+
+It can be useful to upgrade a specific dependency to its latest version:
+
+```
+yarn up -i <package-name>
+```
