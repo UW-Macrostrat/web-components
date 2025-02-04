@@ -23,6 +23,11 @@
     "underscore": "^1.13.6",
     "use-resize-observer": "^9.1.0"
   },
+  "devDependencies": {
+    "postcss": "^8.0.0",
+    "postcss-modules": "^4.3.0",
+    "ui-box": "^5.4.1"
+  },
   "peerDependencies": {
     "@blueprintjs/core": "^5.0.0",
     "react": "^16.8.6||^17.0.0||^18.0.0",
@@ -59,10 +64,6 @@
     "dist",
     "src"
   ],
-  "devDependencies": {
-    "postcss": "^8.0.0",
-    "postcss-modules": "^4.3.0"
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
