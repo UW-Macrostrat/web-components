@@ -1,9 +1,9 @@
 import { useState } from "react";
 import h from "@macrostrat/hyper";
-import { Globe } from "@macrostrat/map-components";
+import { Globe } from "@macrostrat/svg-map-components";
 import { Button } from "@blueprintjs/core";
 import { geoCentroid } from "d3-geo";
-import { LandLayer } from "@macrostrat/map-components";
+import { LandLayer } from "@macrostrat/svg-map-components";
 import { Columns, CurrentColumn } from "./layers";
 import classNames from "classnames";
 import { useSpring, animated } from "react-spring";

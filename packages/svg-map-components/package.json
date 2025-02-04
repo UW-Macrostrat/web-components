@@ -1,0 +1,61 @@
+{
+  "name": "@macrostrat/svg-map-components",
+  "version": "1.0.0",
+  "description": "React components for vector maps",
+  "keywords": [
+    "gis",
+    "react",
+    "maps",
+    "vector-graphics"
+  ],
+  "main": "dist/cjs",
+  "module": "dist/esm",
+  "typings": "dist/types",
+  "style": "dist/esm/index.css",
+  "files": [
+    "dist"
+  ],
+  "author": "Daven Quinn <dev@davenquinn.com>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/svg-map-components"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "scripts": {
+    "build": "parcel build"
+  },
+  "dependencies": {
+    "@macrostrat/hyper": "^2.2.0",
+    "@macrostrat/ui-components": "workspace:*",
+    "@types/d3-array": "^2.0.0",
+    "@types/d3-drag": "^1.2.3",
+    "@types/d3-geo": "^1.12.3",
+    "@types/d3-selection": "^1.4.2",
+    "@types/d3-zoom": "^1.7.4",
+    "@types/geojson": "^7946.0.8",
+    "@types/react-dom": "^16.9.8",
+    "d3-array": "^3.2.4",
+    "d3-drag": "^1.2.5",
+    "d3-geo": "^1.11.9",
+    "d3-selection": "^1.4.1",
+    "d3-zoom": "^1.8.3",
+    "kld-intersections": "^0.7.0",
+    "kld-path-parser": "^0.2.1",
+    "topojson-client": "^3.1.0"
+  },
+  "peerDependencies": {
+    "react": "^16.11.0||^17.0.0||^18.0.0",
+    "react-dom": "^16.11.0||^17.0.0||^18.0.0"
+  },
+  "exports": {
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/esm",
+      "require": "./dist/cjs"
+    }
+  }
+}

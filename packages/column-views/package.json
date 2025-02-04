@@ -7,8 +7,8 @@
   "dependencies": {
     "@macrostrat/column-components": "workspace:*",
     "@macrostrat/hyper": "^3.0.2",
-    "@macrostrat/map-components": "workspace:*",
     "@macrostrat/stratigraphy-utils": "workspace:*",
+    "@macrostrat/svg-map-components": "workspace:*",
     "@macrostrat/timescale": "workspace:*",
     "@macrostrat/ui-components": "workspace:*",
     "d3-array": "^3.2.4",

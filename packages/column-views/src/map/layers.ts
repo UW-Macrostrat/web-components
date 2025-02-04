@@ -1,5 +1,9 @@
 import h from "@macrostrat/hyper";
-import { Feature, FeatureLayer, MapContext } from "@macrostrat/map-components";
+import {
+  Feature,
+  FeatureLayer,
+  MapContext,
+} from "@macrostrat/svg-map-components";
 import { useAPIResult, useKeyHandler } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
 import { ExtendedFeature, geoCentroid } from "d3-geo";

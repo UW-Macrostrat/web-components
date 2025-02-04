@@ -5,7 +5,10 @@
   "scripts": {
     "build": "parcel build"
   },
-  "authors": ["Casey Idzikowski", "Daven Quinn"],
+  "authors": [
+    "Casey Idzikowski",
+    "Daven Quinn"
+  ],
   "license": "MIT",
   "publishConfig": {
     "access": "public"

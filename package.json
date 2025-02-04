@@ -3,6 +3,7 @@
   "description": "Web components for stratigraphy and geologic mapping managed by Macrostrat",
   "private": true,
   "repository": "https://github.com/UW-Macrostrat/web-components.git",
+  "version": "3.0.0",
   "scripts": {
     "dev": "storybook dev -p 6006 --no-open",
     "build": "storybook build --debug",
