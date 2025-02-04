@@ -7,7 +7,6 @@ import {
   LocationFocusButton,
   useFocusState,
   isCentered,
-  BoundsFocusButton,
 } from "@macrostrat/mapbox-react";
 
 const h = hyper.styled(styles);

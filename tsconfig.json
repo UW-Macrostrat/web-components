@@ -9,8 +9,6 @@
     "lib": ["es2017", "dom"],
     "target": "ES2017", // "ES3" (default), "ES5", "ES6"/"ES2015", "ES2016", "ES2017" or "ESNext".
     "paths": {
-      "common": ["./packages/common/src"],
-      "common/*": ["./packages/common/src/*"],
       "@macrostrat/*": ["./packages/*/src"],
     }
   },

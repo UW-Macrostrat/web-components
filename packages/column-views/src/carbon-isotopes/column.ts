@@ -6,10 +6,10 @@ import {
   ColumnAxis,
   ColumnContext,
 } from "@macrostrat/column-components";
-import { SimpleUnitsColumn, IUnit } from "@macrostrat/column-views";
+import { SimpleUnitsColumn, IUnit } from "../units";
 import { useContext } from "react";
 import { IsotopesColumn } from "./isotopes-column";
-import { MacrostratColumnProvider } from "@macrostrat/api-views";
+import { MacrostratColumnProvider } from "../providers";
 import styles from "./column.module.sass";
 
 const h = hyper.styled(styles);

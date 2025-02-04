@@ -1,8 +1,7 @@
 import h from "@macrostrat/hyper";
 
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { ColumnNavigatorMap } from "../src";
-import { MacrostratAPIProvider } from "../../common/src";
+import { ColumnNavigatorMap, MacrostratAPIProvider } from "../src/providers";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {

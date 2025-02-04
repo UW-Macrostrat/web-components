@@ -4,7 +4,7 @@ import { Globe } from "@macrostrat/map-components";
 import { Button } from "@blueprintjs/core";
 import { geoCentroid } from "d3-geo";
 import { LandLayer } from "@macrostrat/map-components";
-import { Columns, CurrentColumn } from "@macrostrat/column-views";
+import { Columns, CurrentColumn } from "./layers";
 import classNames from "classnames";
 import { useSpring, animated } from "react-spring";
 
@@ -64,7 +64,7 @@ const MapViewFrame = (props) => {
   );
 };
 
-const MapView = (props) => {
+export const AnimatedMapView = (props) => {
   const { currentColumn, setCurrentColumn, children, ...rest } = props;
   const center = geoCentroid(currentColumn);
 
@@ -76,6 +76,3 @@ const MapView = (props) => {
     }),
   ]);
 };
-
-export { MapViewFrame };
-export default MapView;

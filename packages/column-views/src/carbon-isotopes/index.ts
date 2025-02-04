@@ -5,7 +5,7 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import Column from "./column";
 import { ColumnNavigatorMap, MeasurementsLayer } from "../map";
 import { MeasurementDataProvider } from "./data-provider";
-import { MacrostratAPIProvider } from "@macrostrat/api-views";
+import { MacrostratAPIProvider } from "../providers";
 import { useColumnNav } from "@macrostrat/column-views";
 
 const h = hyper.styled(styles);
