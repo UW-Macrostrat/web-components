@@ -25,13 +25,16 @@
     "react": "^16.8.6||^17.0.2||^18"
   },
   "dependencies": {
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.0",
     "@macrostrat/stratigraphy-utils": "workspace:*",
+    "@macrostrat/ui-components": "workspace:*",
     "@visx/axis": "^3.12.0",
     "@visx/gradient": "^3.12.0",
     "@visx/scale": "^3.12.0",
     "@visx/shape": "^3.12.0",
     "axios": "^1.7.9",
+    "classnames": "^2.5.1",
     "d3-array": "^3.2.4"
   },
   "files": [

@@ -9,14 +9,21 @@ import {
 import { prepareModule, ensureEntryFilesExist } from "./prepare";
 import { publishModule } from "./publish";
 
-export async function runScript({ build = true, publish = true }) {
+export async function runScript(
+  { build = true, publish = true },
+  modules: string[]
+) {
   let packagesToPublish: any[] = [];
 
   const { publishedPackages: packages } = readProjectPackageJSON();
 
   for (const packageName of packages) {
-    console.log("\n");
     const pkg = getPackageData(packageName);
+
+    if (modules.length > 0 && !modules.includes(pkg.name)) {
+      continue;
+    }
+    console.log("\n");
 
     console.log(chalk.bold.underline(pkg.name), "\n");
     const canPublish = await checkIfPackageCanBePublished(pkg);
@@ -39,10 +46,6 @@ export async function runScript({ build = true, publish = true }) {
   }
 
   console.log(chalk.blueBright.bold("Preparing packages"));
-  // Build the packages that need to be built
-  for (const pkg of packagesToPublish) {
-    prepareModule(pkg);
-  }
 
   let packagesToPush = [];
   let failedPackages = [];
