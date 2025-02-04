@@ -4,7 +4,7 @@ import styles from "./column.module.sass";
 import { useAPIResult } from "@macrostrat/ui-components";
 import Column from "./column";
 import { ColumnNavigatorMap, MeasurementsLayer } from "../map";
-import { MeasurementDataProvider } from "@macrostrat/concept-app-helpers";
+import { MeasurementDataProvider } from "./data-provider";
 import { MacrostratAPIProvider } from "@macrostrat/api-views";
 import { useColumnNav } from "@macrostrat/column-views";
 

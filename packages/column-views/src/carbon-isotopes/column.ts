@@ -8,7 +8,7 @@ import {
 } from "@macrostrat/column-components";
 import { SimpleUnitsColumn, IUnit } from "@macrostrat/column-views";
 import { useContext } from "react";
-import { IsotopesColumn } from "@macrostrat/concept-app-helpers";
+import { IsotopesColumn } from "./isotopes-column";
 import { MacrostratColumnProvider } from "@macrostrat/api-views";
 import styles from "./column.module.sass";
 
