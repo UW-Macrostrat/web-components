@@ -15,7 +15,7 @@ import {
   UnitSelectionProvider,
   useUnitSelectionDispatch,
 } from "./units";
-import { SectionInfo } from "./helpers";
+import { SectionInfo } from "./section";
 import { RectBounds } from "./units/boxes";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
@@ -58,11 +58,9 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
 
   const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
 
-  return h(
-    "div.unconformity",
-    { style },
-    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`)
-  );
+  return h("div.unconformity", { style }, [
+    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
+  ]);
 }
 
 function sectionClassName(section: SectionInfo) {

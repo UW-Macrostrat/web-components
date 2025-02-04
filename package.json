@@ -73,6 +73,7 @@
   "publishedPackages": [
     "ui-components",
     "column-components",
+    "map-components",
     "mapbox-utils",
     "mapbox-react",
     "map-interface",
