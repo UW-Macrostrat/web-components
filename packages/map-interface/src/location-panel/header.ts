@@ -80,12 +80,17 @@ export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
     zoom = 7,
     elevation,
     showCopyPositionButton,
+    children,
   } = props;
 
   return h("header.location-panel-header", [
-    h(PositionButton, { position, showCopyLink: showCopyPositionButton }),
+    h.if(position != null)(PositionButton, {
+      position,
+      showCopyLink: showCopyPositionButton,
+    }),
+    children,
     h("div.spacer"),
-    h(LngLatCoords, {
+    h.if(position != null)(LngLatCoords, {
       position,
       zoom,
       className: "infodrawer-header-item",
@@ -94,6 +99,10 @@ export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
       elevation,
       className: "infodrawer-header-item",
     }),
-    h(Button, { minimal: true, icon: "cross", onClick: onClose }),
+    h.if(onClose != null)(Button, {
+      minimal: true,
+      icon: "cross",
+      onClick: onClose,
+    }),
   ]);
 }

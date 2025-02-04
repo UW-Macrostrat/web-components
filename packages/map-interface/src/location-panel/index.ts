@@ -42,6 +42,8 @@ export function BaseInfoDrawer(props: BaseInfoDrawerProps) {
   ]);
 }
 
+export const DetailsPanel = BaseInfoDrawer;
+
 export function LocationPanel(props) {
   const { children, className, loading = false, ...rest } = props;
   const cls = classNames("location-panel", className, { loading });
