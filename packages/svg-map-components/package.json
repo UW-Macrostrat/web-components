@@ -8,10 +8,10 @@
     "maps",
     "vector-graphics"
   ],
-  "main": "dist/cjs",
-  "module": "dist/esm",
-  "typings": "dist/types",
-  "style": "dist/esm/index.css",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "source": "src/index.ts",
   "files": [
     "dist"
   ],
@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "@macrostrat/hyper": "^3.0.5",
-    "@macrostrat/ui-components": "^4.0.4",
+    "@macrostrat/ui-components": "workspace:^",
+    "@swc/helpers": "^0.5.15",
     "@types/d3-array": "^2.0.0",
     "@types/d3-drag": "^1.2.3",
     "@types/d3-geo": "^1.12.3",
@@ -38,6 +39,7 @@
     "@types/d3-zoom": "^1.7.4",
     "@types/geojson": "^7946.0.8",
     "@types/react-dom": "^16.9.8",
+    "axios": "^1.7.9",
     "d3-array": "^3.2.4",
     "d3-drag": "^1.2.5",
     "d3-geo": "^1.11.9",
@@ -45,6 +47,7 @@
     "d3-zoom": "^1.8.3",
     "kld-intersections": "^0.7.0",
     "kld-path-parser": "^0.2.1",
+    "prop-types": "^15.8.1",
     "topojson-client": "^3.1.0"
   },
   "peerDependencies": {
@@ -54,11 +57,12 @@
   "exports": {
     ".": {
       "typescript": "./src",
-      "import": "./dist/esm",
-      "require": "./dist/cjs"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js"
     }
   },
   "devDependencies": {
+    "@types/prop-types": "^15",
     "parcel": "^2.13.3"
   }
 }

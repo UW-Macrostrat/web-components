@@ -6,8 +6,20 @@
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
   "sideEffects": [
     "**/*.css"
+  ],
+  "files": [
+    "src",
+    "dist"
   ],
   "scripts": {
     "build": "parcel build"
