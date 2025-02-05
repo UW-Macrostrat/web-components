@@ -18,6 +18,7 @@ monorepo.
 - Remove some legacy stylus styles
 - Rename `@macrostrat/map-components` to `@macrostrat/svg-map-components` to
   avoid confusion with more general-purpose map components
+- Rename `@macrostrat/mapbox-styles` to `@macrostrat/map-styles`
 
 # `[2.0.0]` - 2023-04-16
 
