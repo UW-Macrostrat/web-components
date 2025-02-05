@@ -49,12 +49,6 @@ export function getPackageDataFromDirectory(pkgDir: string): PackageData {
   return { name, version, directory: pkgDir };
 }
 
-/* get package.json filr from correct dir */
-export function getPackageData(pkgName: string): PackageData {
-  const rootDir = getPackageDirectory(pkgName);
-  return getPackageDataFromDirectory(rootDir);
-}
-
 function getPackageDirectory(pkgName) {
   // Remove namespace if it exists
   pkgName = pkgName.split("/").pop();
@@ -73,7 +67,7 @@ export function logAction(pkg, action, color = chalk.blue) {
 }
 
 function getPackageInfo(pkg) {
-  const cmd = "npm info --json " + pkg.name;
+  const cmd = `npm info --json ${pkg.name} 2> /dev/null`;
   try {
     return JSON.parse(execSync(cmd).toString());
   } catch (error) {
@@ -86,7 +80,9 @@ async function packageVersionExistsInRegistry(pkg) {
   const info = getPackageInfo(pkg);
 
   if (info == null) {
-    console.log(chalk.red(`Failed to get info for ${moduleString(pkg)}`));
+    console.log(
+      chalk.red("No published version found for " + chalk.bold(pkg.name))
+    );
     return false;
   }
 
@@ -205,8 +201,10 @@ export async function checkIfPackageCanBePublished(
 function checkForChangelogEntry(pkg: PackageData) {
   const dir = getPackageDirectory(pkg.name);
   const changelogPath = path.join(dir, "CHANGELOG.md");
+  const CHANGELOG = chalk.bold("CHANGELOG");
+
   if (!fs.existsSync(changelogPath)) {
-    console.log(chalk.red(`No CHANGELOG.md found for ${pkg.name}.`));
+    console.log(chalk.red(`No ${CHANGELOG} found for ${pkg.name}.`));
     return false;
   }
 
@@ -214,7 +212,7 @@ function checkForChangelogEntry(pkg: PackageData) {
   const changelogHeader = `## [${pkg.version}]`;
   const hasChangelogEntry = changelog.includes(changelogHeader);
   if (!hasChangelogEntry) {
-    console.log(chalk.red(`No CHANGELOG.md entry for v${pkg.version}`));
+    console.log(chalk.red(`No ${CHANGELOG} entry for v${pkg.version}`));
   } else {
     // Snip the changelog entry
     let entry = changelog.split(changelogHeader)[1];
@@ -224,7 +222,7 @@ function checkForChangelogEntry(pkg: PackageData) {
 
     const nextHeaderIndex = entry.indexOf("\n## [") ?? entry.length;
     entry = entry.slice(0, nextHeaderIndex);
-    console.log(chalk.green(`CHANGELOG.md entry for ${pkg.version}:`));
+    console.log(chalk.green(`${CHANGELOG} entry for v${pkg.version}:`));
     console.log();
     let formattedEntry = marked(entry);
     // Reduce whitespace in front of lists

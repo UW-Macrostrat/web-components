@@ -9,12 +9,6 @@ import {
 import { prepareModule, ensureEntryFilesExist } from "./prepare";
 import { publishModule } from "./publish";
 
-function getCandidatePackages() {
-  /** Candidate packages to publish. These are all subdirectories of the packages or toolchain directories */
-  let packages: string[] = [];
-  // Find subdirectories of the packages directory
-}
-
 export async function runScript(
   { build = true, publish = true },
   modules: string[]

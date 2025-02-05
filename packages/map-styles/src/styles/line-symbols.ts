@@ -1,6 +1,5 @@
 /** Experimental line symbol support */
-import { symbolLayerPaintProperties } from "@macrostrat/mapbox-styles";
-import { setupLineSymbols } from "@macrostrat/mapbox-styles";
+import { setupLineSymbols, symbolLayerPaintProperties } from "../layer-helpers";
 import { useMapConditionalStyle, useMapRef } from "@macrostrat/mapbox-react";
 import mapboxgl from "mapbox-gl";
 import { useEffect } from "react";
@@ -17,6 +16,9 @@ const symbolIndex = {
   anticline: "anticline-hinge",
 };
 
+/** TODO: This is Macrostrat-specific map source information that
+ * needs to be incorporated into the Macrostrat database
+ */
 const reverseSources = [229, 210, 133, 74, 75, 40, 205, 154];
 
 function sizeExpression(sz) {
