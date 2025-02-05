@@ -36,5 +36,8 @@
     "macrostrat",
     "style",
     "geology"
-  ]
+  ],
+  "devDependencies": {
+    "parcel": "^2.13.3"
+  }
 }

@@ -45,5 +45,8 @@
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/mapbox-react"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
   }
 }

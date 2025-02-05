@@ -36,6 +36,6 @@
     "directory": "packages/feedback-components"
   },
   "devDependencies": {
-    "@types/d3-force": "^3"
+    "parcel": "^2.13.3"
   }
 }

@@ -8,28 +8,32 @@ const inDomain = (scale, num) => {
   return domain[0] < num < domain[1];
 };
 
-const createPointLocator = function(opts) {
+const createPointLocator = function (opts) {
   const { xScale, scale, getHeight, ...rest } = opts;
-  return function(d, s = 0) {
+  return function (d, s = 0) {
     const height = getHeight(d);
     if (!inDomain(scale, height)) return null;
     return [xScale(d.value), scale(height)];
   };
 };
 
-const IsotopesDataContext = createContext();
+const IsotopesDataContext = createContext(null);
 
 interface DataAreaProps {
   clipY: boolean;
   parameter: string;
+  corrected: boolean;
+  system: string;
+  children: React.ReactNode;
+  getHeight?: Function;
 }
 
-const IsotopesDataArea = function(props: DataAreaProps) {
+const IsotopesDataArea = function (props: DataAreaProps) {
   const { xScale, scale } = useContext(ColumnLayoutContext) ?? {};
 
   let { corrected, system, children, getHeight, clipY } = props;
   if (getHeight == null) {
-    getHeight = function(d) {
+    getHeight = function (d) {
       if (d.height == null) {
         console.log(d);
       }
@@ -43,7 +47,7 @@ const IsotopesDataArea = function(props: DataAreaProps) {
     scale,
     corrected,
     system,
-    getHeight
+    getHeight,
   });
 
   let column = "avg_" + system;
@@ -51,20 +55,16 @@ const IsotopesDataArea = function(props: DataAreaProps) {
     column += "_corr";
   }
   const lineLocator = line()
-    .x(d => xScale(d[column]))
-    .y(d => scale(d.height));
+    .x((d) => xScale(d[column]))
+    .y((d) => scale(d.height));
 
   const value = { pointLocator, lineLocator, corrected, system, clipY };
-  return h(
-    IsotopesDataContext.Provider,
-    { value },
-    h("g.data", null, children)
-  );
+  return h(IsotopesDataContext.Provider, { value }, h("g.data", children));
 };
 
 IsotopesDataArea.defaultProps = { clipY: false };
 
-const IsotopeDataPoint = function(props) {
+const IsotopeDataPoint = function (props) {
   const { pointLocator } = useContext(IsotopesDataContext);
   const { datum, strokeWidth, ...rest } = props;
   const loc = pointLocator(datum);
@@ -76,17 +76,17 @@ const IsotopeDataPoint = function(props) {
     cx,
     cy,
     r: 2,
-    ...rest
+    ...rest,
   });
 };
 
-const IsotopeDataLine = function(props) {
+const IsotopeDataLine = function (props) {
   const { values: lineValues, ...rest } = props;
   const { lineLocator } = useContext(IsotopesDataContext);
   return h("path", {
     d: lineLocator(lineValues),
     fill: "transparent",
-    ...rest
+    ...rest,
   });
 };
 

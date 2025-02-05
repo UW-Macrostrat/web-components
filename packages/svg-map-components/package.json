@@ -57,5 +57,8 @@
       "import": "./dist/esm",
       "require": "./dist/cjs"
     }
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
   }
 }

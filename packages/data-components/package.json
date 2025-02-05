@@ -18,7 +18,8 @@
   "license": "MIT",
   "devDependencies": {
     "@blueprintjs/core": "^5.10.2",
-    "@types/d3-array": "^3"
+    "@types/d3-array": "^3",
+    "parcel": "^2.13.3"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^5.0.0",

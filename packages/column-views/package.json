@@ -6,6 +6,7 @@
   "module": "dist/index.js",
   "style": "dist/column-views.css",
   "source": "src/index.ts",
+  "types": "dist/types.d.ts",
   "scripts": {
     "build": "parcel build"
   },
@@ -43,7 +44,8 @@
     "@types/d3-format": "^3",
     "@types/d3-geo": "^3",
     "@types/d3-shape": "^3",
-    "@types/topojson-client": "^3",
+    "@types/topojson-client": "^3.1.5",
+    "parcel": "^2.13.3",
     "postcss": "^8.0.0",
     "postcss-modules": "^6.0.0"
   },

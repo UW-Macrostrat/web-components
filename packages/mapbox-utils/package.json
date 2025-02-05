@@ -27,5 +27,8 @@
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/mapbox-utils"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
   }
 }

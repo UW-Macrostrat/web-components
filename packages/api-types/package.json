@@ -13,5 +13,8 @@
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/api-types"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
   }
 }

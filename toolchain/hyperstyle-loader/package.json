@@ -8,5 +8,8 @@
   "peerDependencies": {
     "@macrostrat/hyper": "^3.0.0",
     "webpack": "^5.0.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
   }
 }
