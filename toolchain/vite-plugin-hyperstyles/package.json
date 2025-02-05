@@ -6,7 +6,7 @@
   "source": "src/index.ts",
   "type": "module",
   "dependencies": {
-    "@macrostrat/hyper": "^3.0.0",
+    "@macrostrat/hyper": "^3.0.5",
     "vite": "^5.0.0"
   },
   "devDependencies": {

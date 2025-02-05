@@ -43,7 +43,7 @@
     "stylus": "^0.59.0"
   },
   "dependencies": {
-    "@macrostrat/hyper": "^3.0.2",
+    "@macrostrat/hyper": "^3.0.5",
     "@macrostrat/timescale": "^2.1.0",
     "@macrostrat/ui-components": "^4.0.7",
     "chroma-js": "^2.1.0",

@@ -13,7 +13,7 @@
   "dependencies": {
     "@macrostrat/column-components": "workspace:*",
     "@macrostrat/data-components": "workspace:*",
-    "@macrostrat/hyper": "^3.0.2",
+    "@macrostrat/hyper": "^3.0.5",
     "@macrostrat/stratigraphy-utils": "workspace:*",
     "@macrostrat/svg-map-components": "workspace:*",
     "@macrostrat/timescale": "workspace:*",

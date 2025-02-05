@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@macrostrat/color-utils": "workspace:^1.0.0",
-    "@macrostrat/hyper": "^3.0.0",
+    "@macrostrat/hyper": "^3.0.5",
     "@macrostrat/stratigraphy-utils": "workspace:*",
     "@macrostrat/ui-components": "^4.0.7",
     "@visx/axis": "^3.12.0",

@@ -11,7 +11,7 @@
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/table": "^5.1.4",
-    "@macrostrat/hyper": "^2.0.0",
+    "@macrostrat/hyper": "^3.0.5",
     "@supabase/postgrest-js": "^1.17.7",
     "chroma-js": "^2.4.2",
     "classnames": "^2.3.1",
