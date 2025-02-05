@@ -16,11 +16,15 @@ import {
   ColumnLayoutContext,
   useColumnDivisions,
 } from "@macrostrat/column-components";
-import T from "prop-types";
 
 const fmt = format(".1f");
 
-const IsotopeText = function ({ datum, text, ...rest }) {
+type IsotopesTextProps = {
+  datum: any;
+  text: string;
+};
+
+function IsotopeText({ datum, text, ...rest }: IsotopesTextProps) {
   const { pointLocator } = useDataLocator();
   const [x, y] = pointLocator(datum);
   return h(
@@ -32,11 +36,7 @@ const IsotopeText = function ({ datum, text, ...rest }) {
     },
     text
   );
-};
-
-IsotopeText.propTypes = {
-  datum: T.object.isRequired,
-};
+}
 
 function ColumnScale(props) {
   const {
@@ -92,7 +92,14 @@ function ColumnScale(props) {
   ]);
 }
 
-const ScaleLine = function (props) {
+interface ScaleLineProps {
+  value: number;
+  className?: string;
+  labelBottom?: boolean;
+  labelOffset?: number;
+}
+
+function ScaleLine(props: ScaleLineProps) {
   let { value, className, labelBottom, labelOffset, ...rest } = props;
   if (labelBottom == null) {
     labelBottom = false;
@@ -108,12 +115,7 @@ const ScaleLine = function (props) {
     h("line", { x0: 0, x1: 0, y0: 0, y1: pixelHeight, ...rest }),
     h.if(labelBottom)("text", { y: pixelHeight + labelOffset }, `${value}`),
   ]);
-};
-
-ScaleLine.propTypes = {
-  value: T.number.isRequired,
-  labelBottom: T.bool,
-};
+}
 
 function unnestPoints(measures) {
   let points = [];

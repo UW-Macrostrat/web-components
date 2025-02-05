@@ -2,18 +2,29 @@
   "name": "@macrostrat/column-views",
   "version": "1.0.0",
   "description": "Data views for Macrostrat stratigraphic columns",
-  "type": "module",
-  "main": "src/index.ts",
+  "main": "dist/index.cjs.js",
+  "module": "dist/index.js",
+  "style": "dist/column-views.css",
+  "source": "src/index.ts",
+  "scripts": {
+    "build": "parcel build"
+  },
   "dependencies": {
     "@macrostrat/column-components": "workspace:*",
+    "@macrostrat/data-components": "workspace:*",
     "@macrostrat/hyper": "^3.0.2",
     "@macrostrat/stratigraphy-utils": "workspace:*",
     "@macrostrat/svg-map-components": "workspace:*",
     "@macrostrat/timescale": "workspace:*",
     "@macrostrat/ui-components": "workspace:*",
+    "@visx/axis": "^3.12.0",
+    "chroma-js": "^3.1.2",
+    "classnames": "^2.5.1",
     "d3-array": "^3.2.4",
+    "d3-format": "^3.1.0",
     "d3-geo": "^3.1.1",
     "d3-geo-voronoi": "^2.1.0",
+    "d3-shape": "^3.2.0",
     "react-spring": "^9.7.5",
     "topojson-client": "^3.1.0",
     "zustand": "^5.0.3"
@@ -28,7 +39,16 @@
     "directory": "packages/column-views"
   },
   "devDependencies": {
+    "@types/chroma-js": "^3",
+    "@types/d3-format": "^3",
     "@types/d3-geo": "^3",
-    "@types/topojson-client": "^3"
-  }
+    "@types/d3-shape": "^3",
+    "@types/topojson-client": "^3",
+    "postcss": "^8.0.0",
+    "postcss-modules": "^6.0.0"
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
 }

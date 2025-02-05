@@ -4,7 +4,6 @@
   "description": "Map interface for Macrostrat",
   "main": "dist/index.cjs.js",
   "module": "dist/index.js",
-  "types": "dist/types.d.ts",
   "source": "src/index.ts",
   "style": "dist/index.css",
   "dependencies": {
@@ -48,7 +47,6 @@
         "types": "./dist/types.d.ts",
         "default": "./dist/index.cjs.js"
       },
-      "types:": "./dist/types.d.ts",
       "style": "./dist/index.css"
     },
     "./dist/": {

@@ -6,7 +6,7 @@ import Column from "./column";
 import { ColumnNavigatorMap, MeasurementsLayer } from "../map";
 import { MeasurementDataProvider } from "./data-provider";
 import { MacrostratAPIProvider } from "../providers";
-import { useColumnNav } from "@macrostrat/column-views";
+import { useColumnNav } from "../units";
 
 const h = hyper.styled(styles);
 

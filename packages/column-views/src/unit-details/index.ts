@@ -10,7 +10,7 @@ import {
   ItemList,
   LithologyList,
 } from "@macrostrat/data-components";
-import { useUnitSelectionDispatch } from "@macrostrat/column-views";
+import { useUnitSelectionDispatch } from "../units/selection";
 import { useMacrostratUnits } from "../store";
 
 const h = hyper.styled(styles);
