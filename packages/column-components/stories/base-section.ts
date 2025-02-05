@@ -128,7 +128,7 @@ function _MeasuredSectionContainer(
   ]);
 }
 
-function MeasuredSection(
+export function MeasuredSection(
   props: IColumnProps & {
     children: React.ReactNode;
     timescaleIntervals: Interval[] | null;

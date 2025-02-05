@@ -9,8 +9,7 @@ const geologicPatterns = dirname(require.resolve("geologic-patterns"));
 const config: StorybookConfig = {
   // vite
   stories: [
-    "../packages/*/src/**/*.mdx",
-    "../packages/*/stories/*.mdx",
+    "../packages/**/*.mdx",
     "../packages/**/*.stories.@(mdx|js|jsx|ts|tsx)",
   ],
   staticDirs: [
