@@ -1,15 +1,12 @@
 import { TreeData } from "./types";
-import {
-  createContext,
-  Dispatch,
-  useCallback,
-  useContext,
-  useReducer,
-} from "react";
+import { createContext, Dispatch, useContext, useReducer } from "react";
 import update, { Spec } from "immutability-helper";
-import { EntityType } from "#/integrations/xdd/extractions/lib/data-service";
-import { knowledgeGraphAPIURL } from "@macrostrat-web/settings";
-import { Toaster } from "@blueprintjs/core";
+import { EntityType } from "../extractions/types";
+
+export enum ViewMode {
+  Tree = "tree",
+  Graph = "graph",
+}
 
 interface TreeState {
   initialTree: TreeData[];
@@ -19,19 +16,13 @@ interface TreeState {
   selectedEntityType: EntityType;
   lastInternalId: number;
   isSelectingEntityType: boolean;
+  viewMode: ViewMode;
 }
 
 type TextRange = {
   start: number;
   end: number;
   text: string;
-};
-
-type TreeAsyncAction = {
-  type: "save";
-  tree: TreeData[];
-  sourceTextID: number;
-  supersedesRunIDs: number[];
 };
 
 type TreeAction =
@@ -42,13 +33,14 @@ type TreeAction =
   | { type: "delete-node"; payload: { ids: number[] } }
   | { type: "select-node"; payload: { ids: number[] } }
   | { type: "toggle-node-selected"; payload: { ids: number[] } }
+  | { type: "set-view-mode"; payload: ViewMode }
   | { type: "create-node"; payload: TextRange }
   | { type: "select-entity-type"; payload: EntityType }
   | { type: "toggle-entity-type-selector"; payload?: boolean | null }
   | { type: "deselect" }
   | { type: "reset" };
 
-export type TreeDispatch = Dispatch<TreeAction | TreeAsyncAction>;
+export type TreeDispatch = Dispatch<TreeAction>;
 
 export function useUpdatableTree(
   initialTree: TreeData[],
@@ -57,7 +49,7 @@ export function useUpdatableTree(
   // Get the first entity type
   const type = entityTypes.values().next().value;
 
-  const [state, dispatch] = useReducer(treeReducer, {
+  return useReducer(treeReducer, {
     initialTree,
     tree: initialTree,
     selectedNodes: [],
@@ -65,22 +57,9 @@ export function useUpdatableTree(
     selectedEntityType: type,
     lastInternalId: 0,
     isSelectingEntityType: false,
+    viewMode: ViewMode.Tree,
   });
-
-  const handler = useCallback(
-    (action: TreeAsyncAction | TreeAction) => {
-      treeActionHandler(action).then((action) => {
-        if (action == null) return;
-        dispatch(action);
-      });
-    },
-    [dispatch]
-  );
-
-  return [state, handler];
 }
-
-const AppToaster = Toaster.create();
 
 export const TreeDispatchContext = createContext<TreeDispatch | null>(null);
 
@@ -90,49 +69,6 @@ export function useTreeDispatch() {
     throw new Error("No dispatch context available");
   }
   return dispatch;
-}
-
-async function treeActionHandler(
-  action: TreeAsyncAction | TreeAction
-): Promise<TreeAction> {
-  switch (action.type) {
-    case "save":
-      // Save the tree to the server
-      const data = prepareDataForServer(
-        action.tree,
-        action.sourceTextID,
-        action.supersedesRunIDs
-      );
-      console.log(JSON.stringify(data, null, 2));
-
-      try {
-        const response = await fetch(knowledgeGraphAPIURL + "/record_run", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        });
-        if (!response.ok) {
-          throw new Error("Failed to save model information");
-        }
-        AppToaster.show({
-          message: "Model information saved",
-          intent: "success",
-        });
-      } catch (e) {
-        // Show the error in the toaster
-        console.error(e);
-        AppToaster.show({
-          message: "Failed to save model information",
-          intent: "danger",
-        });
-      }
-
-      return null;
-    default:
-      return action;
-  }
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
@@ -241,6 +177,8 @@ function treeReducer(state: TreeState, action: TreeAction) {
         tree: state.initialTree,
         selectedNodes: [],
       };
+    case "set-view-mode":
+      return { ...state, viewMode: action.payload };
   }
 }
 
@@ -319,37 +257,16 @@ export interface EntityOutput {
   type: number | null;
   txt_range: number[][];
   name: string;
-  match: MatchInfo | null;
+  match: any | null;
   reasoning: string | null;
 }
 
-// We will extend this in the future, probably,
-// to handle ages and other things
-type MatchInfo = { type: "lith" | "lith_att" | "strat_name"; id: number };
-
-interface GraphData {
+export interface GraphData {
   nodes: EntityOutput[];
   edges: { source: number; dest: number }[];
 }
 
-interface ServerResults extends GraphData {
-  sourceTextId: number;
-  supersedesRunIds: number[];
-}
-
-function normalizeMatch(match: any): MatchInfo | null {
-  if (match == null) return null;
-  if (match.lith_id) return { type: "lith", id: match.lith_id };
-  if (match.lith_att_id) {
-    return { type: "lith_att", id: match.lith_att_id };
-  }
-  if (match.strat_name_id) {
-    return { type: "strat_name", id: match.strat_name_id };
-  }
-  return null;
-}
-
-function prepareGraphForServer(tree: TreeData[]): GraphData {
+export function treeToGraph(tree: TreeData[]): GraphData {
   // Convert the tree to a graph
   let nodes: EntityOutput[] = [];
   let edges: { source: number; dest: number }[] = [];
@@ -370,7 +287,7 @@ function prepareGraphForServer(tree: TreeData[]): GraphData {
       name,
       txt_range: [indices],
       reasoning: null,
-      match: normalizeMatch(node.match),
+      match: node.match,
     };
 
     nodeMap.set(node.id, node);
@@ -382,7 +299,7 @@ function prepareGraphForServer(tree: TreeData[]): GraphData {
       }
 
       // Now process the children
-      const { nodes: childNodes, edges: childEdges } = prepareGraphForServer(
+      const { nodes: childNodes, edges: childEdges } = treeToGraph(
         node.children
       );
       nodes.push(...childNodes);
@@ -391,19 +308,4 @@ function prepareGraphForServer(tree: TreeData[]): GraphData {
   }
 
   return { nodes, edges };
-}
-
-function prepareDataForServer(
-  tree: TreeData[],
-  sourceTextID,
-  supersedesRunIDs
-): ServerResults {
-  /** This function should be used before sending the data to the server */
-  const { nodes, edges } = prepareGraphForServer(tree);
-  return {
-    nodes,
-    edges,
-    sourceTextId: sourceTextID,
-    supersedesRunIds: supersedesRunIDs ?? [],
-  };
 }

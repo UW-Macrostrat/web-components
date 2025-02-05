@@ -1,8 +1,11 @@
 import { NodeApi, TreeApi } from "react-arborist";
 import { TreeData } from "./types";
-import h from "./feedback.module.sass";
 import { EntityTag } from "../extractions";
 import { useTreeDispatch } from "./edit-state";
+import styles from "./feedback.module.sass";
+import hyper from "@macrostrat/hyper";
+
+const h = hyper.styled(styles);
 
 function isSelected(searchNode: TreeData, treeNode: TreeData) {
   return searchNode.id == treeNode.id;
@@ -38,7 +41,7 @@ function isNodeActive(node: NodeApi<TreeData>, tree: TreeApi<TreeData>) {
   return false;
 }
 
-function Node({ node, style, dragHandle, tree }: any) {
+function Node({ node, style, dragHandle, tree, matchComponent }: any) {
   let highlighted: boolean = isNodeHighlighted(node, tree);
   let active: boolean = isNodeActive(node, tree);
 
@@ -51,6 +54,7 @@ function Node({ node, style, dragHandle, tree }: any) {
       data: node.data,
       active,
       highlighted,
+      matchComponent,
       onClickType() {
         dispatch({ type: "toggle-entity-type-selector" });
       },

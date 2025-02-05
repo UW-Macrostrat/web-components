@@ -20,3 +20,4 @@ export * from "./collapse-card";
 export * from "./modal-panel";
 export * from "./page-layouts";
 export * from "./dev-panel";
+export * from "./data";
