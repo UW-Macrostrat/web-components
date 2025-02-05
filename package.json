@@ -7,9 +7,9 @@
   "scripts": {
     "dev": "storybook dev -p 6006 --no-open",
     "build": "storybook build --debug",
-    "status": "tsx scripts/publish-helpers status",
-    "prepare": "tsx scripts/publish-helpers prepare",
-    "publish": "tsx scripts/publish-helpers publish"
+    "status": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers status",
+    "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
+    "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish"
   },
   "author": "Daven Quinn",
   "license": "ISC",

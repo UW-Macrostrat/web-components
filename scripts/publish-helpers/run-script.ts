@@ -39,9 +39,9 @@ export async function runScript(
   }
 
   // Make sure we don't publish if we have uncommitted changes
-  notifyUserOfUncommittedChanges(publish);
   // Stop here if we aren't building or publishing
   if (!build && !publish) {
+    notifyUserOfUncommittedChanges(false);
     return;
   }
 
@@ -71,7 +71,7 @@ export async function runScript(
   }
 
   // Check again for uncommitted changes
-  notifyUserOfUncommittedChanges(true);
+  notifyUserOfUncommittedChanges(publish);
 
   if (!publish) {
     return;
