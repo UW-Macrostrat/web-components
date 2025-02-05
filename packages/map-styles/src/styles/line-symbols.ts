@@ -1,8 +1,6 @@
 /** Experimental line symbol support */
 import { setupLineSymbols, symbolLayerPaintProperties } from "../layer-helpers";
-import { useMapConditionalStyle, useMapRef } from "@macrostrat/mapbox-react";
 import mapboxgl from "mapbox-gl";
-import { useEffect } from "react";
 
 const symbolIndex = {
   //"anticline-hinge",
@@ -81,17 +79,4 @@ export async function toggleLineSymbols(map: mapboxgl.Map, isOn: boolean) {
   } else {
     removeLineSymbolLayers(map);
   }
-}
-
-export function MacrostratLineSymbolManager({ showLineSymbols = true }) {
-  const mapRef = useMapRef();
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null) return;
-    // Update line symbol visibility on map load
-    toggleLineSymbols(map, showLineSymbols);
-  }, [mapRef.current]);
-
-  useMapConditionalStyle(mapRef, showLineSymbols, toggleLineSymbols);
-  return null;
 }

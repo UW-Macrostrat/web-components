@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react";
 import type { StoryObj } from "@storybook/react";
-import { buildMacrostratStyle } from "../../mapbox-styles/src";
+import { buildMacrostratStyle } from "@macrostrat/map-styles";
 import { DevMapPage as _DevMapPage } from "../src";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
