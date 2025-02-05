@@ -8,7 +8,7 @@ import { formatDistance } from "date-fns";
 import { marked } from "marked";
 import { markedTerminal } from "marked-terminal";
 import process from "process";
-import glob from "glob";
+import { globSync } from "glob";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -31,7 +31,7 @@ export function readPackageJSON(dirname): PackageJSONData {
 export function getPackages(...globPatterns: string[]): string[] {
   const packages = [];
   for (const pattern of globPatterns) {
-    let paths = glob.sync(pattern);
+    let paths = globSync(pattern);
     // Remove prefix
     packages.push(...paths);
   }

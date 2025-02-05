@@ -61,8 +61,8 @@ This monorepo has a custom script that helps with publishing packages.
 - If desired, you can run `yarn run prepare` to try building the packages.
 - If the build is successful, you can run `yarn run publish` to publish new
   versions.
-- Other workspace-management tools, such as `yarn version`, can also be helpful
-  for version management
+- Other workspace-management tools, such as `yarn version check`, can also be
+  helpful for version management
 
 You will need the NPM organizational credentials (to the `@macrostrat`
 organization) to publish packages.
