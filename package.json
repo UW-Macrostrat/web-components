@@ -73,6 +73,7 @@
     }
   },
   "dependencies": {
+    "@parcel/bundler-library": "^2.13.3",
     "@types/react": "^18.3.12"
   }
 }

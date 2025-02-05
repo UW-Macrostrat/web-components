@@ -3,10 +3,14 @@
   "version": "1.0.0",
   "description": "Type definitions for Macrostrat's API",
   "main": "./src/index.d.ts",
-  "typings": "./src/index.d.ts",
+  "types": "./src/index.d.ts",
   "scripts": {
+    "build": "echo 'No build step required'",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "files": [
+    "src"
+  ],
   "author": "",
   "license": "ISC",
   "repository": {

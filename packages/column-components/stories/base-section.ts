@@ -7,11 +7,7 @@ import {
   GeneralizedSectionColumn,
   GrainsizeLayoutProvider,
   GeologicPatternProvider,
-  ColumnDivision,
-  ColumnSurface,
 } from "@macrostrat/column-components";
-import { BaseUnit, ColumnSpec, UnitLong } from "@macrostrat/api-types";
-import { IUnit } from "@macrostrat/column-views";
 import {
   Timescale,
   TimescaleOrientation,
@@ -31,21 +27,31 @@ export function PatternProvider({ children }) {
 }
 
 interface IColumnProps {
-  data: IUnit[];
+  data: ColumnSurface[];
   pixelScale?: number;
   range?: [number, number];
+  showTimescale?: boolean;
+  width?: number;
 }
 
-type UnitDivision = ColumnDivision & BaseUnit;
+interface MacrostratBaseUnit {
+  top: number;
+  bottom: number;
+  t_age: number;
+  b_age: number;
+}
+
+type UnitDivision = MacrostratBaseUnit;
 
 interface ColumnSurface {
+  unit_id: number;
   height: number;
 }
 
 function buildDivisions<T extends ColumnSurface>(
   surfaces: T[],
   range: [number, number]
-): (BaseUnit & UnitDivision & T)[] {
+): (UnitDivision & T)[] {
   const units = surfaces.filter((d) => d.unit_id != null);
   return surfaces.map((surface, i) => {
     const { height, ...rest } = surface;
@@ -60,14 +66,13 @@ function buildDivisions<T extends ColumnSurface>(
       t_age: bottom,
       b_age: bottom + nextUnitHeight, // this is wrong,
       ...rest,
-    };
+    } as UnitDivision & T;
   });
 }
 
 function _MeasuredSectionContainer(
   props: IColumnProps & {
     children: React.ReactNode;
-    params: ColumnSpec;
     timescaleIntervals: Interval[] | null;
     timescaleLevels: number[];
     className?: string;
@@ -78,7 +83,6 @@ function _MeasuredSectionContainer(
     data = [],
     range,
     children,
-    params,
     showTimescale = true,
     timescaleProps = {},
     className,
@@ -124,15 +128,14 @@ function _MeasuredSectionContainer(
   ]);
 }
 
-export const MeasuredSection = (
+function MeasuredSection(
   props: IColumnProps & {
     children: React.ReactNode;
-    params: ColumnSpec;
     timescaleIntervals: Interval[] | null;
     timescaleLevels: number[];
     className?: string;
   }
-) => {
+) {
   // Section with "squishy" time scale
   const { children, className, width = 250, ...rest } = props;
 
@@ -167,7 +170,7 @@ export const MeasuredSection = (
       ]
     ),
   ]);
-};
+}
 
 export const MeasuredSectionContainer = compose(
   PatternProvider,

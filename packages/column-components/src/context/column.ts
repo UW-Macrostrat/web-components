@@ -7,7 +7,7 @@ type ColumnScale = ScaleContinuousNumeric<HeightRange, number> | any;
 
 type ColumnScaleClamped = ScaleLinear<number, number>;
 
-declare interface ColumnDivision {
+export declare interface ColumnDivision {
   section_id: string;
   id: number;
   surface: number;
