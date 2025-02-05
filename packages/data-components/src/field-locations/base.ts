@@ -13,7 +13,7 @@ interface LocationBasicInfoProps {
   link: string;
   rating?: number;
   className?: string;
-  location: AnyMapPosition;
+  location?: AnyMapPosition;
 }
 
 export function LocationBasicInfo({

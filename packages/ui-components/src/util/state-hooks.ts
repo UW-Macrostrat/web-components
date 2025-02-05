@@ -1,4 +1,11 @@
-import { Component, useState, useRef, useEffect } from "react";
+import {
+  Component,
+  useState,
+  useRef,
+  useEffect,
+  RefObject,
+  MutableRefObject,
+} from "react";
 import { isEqual } from "underscore";
 import update, { Spec } from "immutability-helper";
 
@@ -40,8 +47,8 @@ export class StatefulComponent<Props, State> extends Component<Props, State> {
   }
 }
 
-export function usePrevious(value) {
-  const ref = useRef();
+export function usePrevious<T>(value: T) {
+  const ref: MutableRefObject<T> = useRef();
   useEffect(() => {
     ref.current = value;
   });
