@@ -2,10 +2,14 @@
  * Entity type selector
  */
 
-import h from "./main.module.sass";
+import styles from "./main.module.sass";
+import hyper from "@macrostrat/hyper";
+
 import classNames from "classnames";
 import { Omnibar, OmnibarProps } from "@blueprintjs/select";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
+
+const h = hyper.styled(styles);
 
 interface TagItemProps<T> {
   selected: boolean;

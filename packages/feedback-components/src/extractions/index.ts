@@ -1,10 +1,12 @@
 import styles from "./main.module.sass";
 import classNames from "classnames";
 import { Tag } from "@blueprintjs/core";
-import { Entity, EntityExt, Highlight, EntityType } from "./types";
+import type { Entity, EntityExt, Highlight, EntityType } from "./types";
 import { CSSProperties } from "react";
 import { asChromaColor } from "@macrostrat/color-utils";
 import hyper from "@macrostrat/hyper";
+
+export type { Entity, EntityExt };
 
 const h = hyper.styled(styles);
 
@@ -98,9 +100,11 @@ function addColor(entityType: EntityType, match = false) {
 export function ExtractionContext({
   data,
   entityTypes,
+  matchComponent,
 }: {
   data: any;
   entityTypes: Map<number, EntityType>;
+  matchComponent: MatchComponent;
 }) {
   const highlights = buildHighlights(data.entities);
 
@@ -109,7 +113,7 @@ export function ExtractionContext({
     h(ModelInfo, { data: data.model }),
     h(
       "ul.entities",
-      data.entities.map((d) => h(ExtractionInfo, { data: d }))
+      data.entities.map((d) => h(ExtractionInfo, { data: d, matchComponent }))
     ),
   ]);
 }
@@ -118,12 +122,23 @@ export function ModelInfo({ data }) {
   return h("p.model-name", ["Model: ", h("code.bp5-code", data.name)]);
 }
 
+export type MatchComponent = (props: { data: any }) => any;
+
+type EntityTagProps = {
+  data: EntityExt;
+  highlighted?: boolean;
+  active?: boolean;
+  onClickType?: (type: EntityType) => void;
+  matchComponent?: MatchComponent;
+};
+
 export function EntityTag({
   data,
   highlighted = true,
   active = false,
   onClickType,
-}) {
+  matchComponent = null,
+}: EntityTagProps) {
   const { name, type, match } = data;
   const className = classNames(
     {
@@ -133,7 +148,12 @@ export function EntityTag({
     "entity"
   );
 
-  const style = getTagStyle(type.color, { highlighted, active });
+  const style = getTagStyle(type.color ?? "#aaaaaa", { highlighted, active });
+
+  let _matchLink = null;
+  if (match != null && matchComponent != null) {
+    _matchLink = h(matchComponent, { data: match });
+  }
 
   return h(Tag, { style, className }, [
     h("span.entity-name", name),
@@ -148,59 +168,29 @@ export function EntityTag({
           }
         },
       },
-      [type.name, h(Match, { data: match })]
+      [type.name, _matchLink]
     ),
   ]);
 }
 
-function ExtractionInfo({ data }: { data: EntityExt }) {
+function ExtractionInfo({
+  data,
+  matchComponent = null,
+}: {
+  data: EntityExt;
+  matchComponent: MatchComponent;
+}) {
   const children = data.children ?? [];
 
   return h("li.entity-row", [
-    h(EntityTag, { data }),
+    h(EntityTag, { data, matchComponent }),
     h.if(children.length > 0)([
       h(
         "ul.children",
-        children.map((d) => h(ExtractionInfo, { data: d }))
+        children.map((d) => h(ExtractionInfo, { data: d, matchComponent }))
       ),
     ]),
   ]);
-}
-
-function Match({ data }) {
-  if (data == null) return null;
-  const href = buildHref(data);
-  return h([" ", h("a.match", { href }, `#${matchID(data)}`)]);
-}
-
-function buildHref(match) {
-  /** Build a URL for a matched term */
-  if (match == null) return null;
-
-  if (match.strat_name_id != null) {
-    return `/lex/strat-names/${match.strat_name_id}`;
-  }
-
-  if (match.lith_id != null) {
-    return `/lex/lithologies`;
-  }
-
-  if (match.lith_att_id != null) {
-    return `/lex/lithologies`;
-  }
-
-  return null;
-}
-
-function matchID(match) {
-  if (match == null) return null;
-
-  for (const id of ["strat_name_id", "lith_id", "lith_att_id"]) {
-    if (match[id]) {
-      return match[id];
-    }
-  }
-  return null;
 }
 
 function HighlightedText(props: { text: string; highlights: Highlight[] }) {

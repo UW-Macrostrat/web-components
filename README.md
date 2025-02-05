@@ -44,6 +44,10 @@ by default, for quick installs and updates.
 yarn
 ```
 
+In order to make map-based examples work, you will have to set the
+`VITE_MAPBOX_API_TOKEN` environment variable to a valid Mapbox token. You can do
+this by creating a `.env` file in the root of the repository.
+
 ### Storybook
 
 We use [Storybook](https://storybook.js.org/) for developing components in an

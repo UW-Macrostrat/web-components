@@ -1,10 +1,13 @@
 import { AnnotateBlendTag, TextAnnotateBlend } from "react-text-annotate-blend";
 import { InternalEntity } from "./types";
 import { TreeDispatch } from "./edit-state";
-import h from "./feedback.module.sass";
+import styles from "./feedback.module.sass";
+import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useCallback } from "react";
+
+const h = hyper.styled(styles);
 
 export interface FeedbackTextProps {
   text: string;
@@ -32,7 +35,10 @@ function buildTags(
 
     tags.push({
       markStyle: {
-        ...getTagStyle(highlight.backgroundColor, { highlighted, active }),
+        ...getTagStyle(highlight.backgroundColor, {
+          highlighted,
+          active,
+        }),
         borderRadius: "0.2em",
         padding: "0.1em",
         borderWidth: "1.5px",

@@ -1,16 +1,36 @@
-import h from "./feedback.module.sass";
+import styles from "./feedback.module.sass";
+import hyper from "@macrostrat/hyper";
+
 import { Tree, TreeApi } from "react-arborist";
 import Node from "./node";
 import { FeedbackText } from "./text-visualizer";
-import { Entity, InternalEntity, TreeData } from "./types";
+import type { InternalEntity, TreeData } from "./types";
+import type { Entity } from "../extractions";
 import { ModelInfo } from "../extractions";
-import { TreeDispatchContext, useUpdatableTree } from "./edit-state";
-import { useEffect, useRef, useState } from "react";
-import { DataField } from "~/components/unit-details";
-import { ButtonGroup, Card } from "@blueprintjs/core";
+import {
+  TreeDispatchContext,
+  treeToGraph,
+  useUpdatableTree,
+  ViewMode,
+} from "./edit-state";
+import { useCallback, useEffect, useRef } from "react";
+import { ButtonGroup, Card, SegmentedControl } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
-import { CancelButton, SaveButton } from "@macrostrat/ui-components";
+import {
+  CancelButton,
+  DataField,
+  FlexBox,
+  FlexRow,
+  SaveButton,
+} from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
+import { GraphView } from "./graph";
+
+export type { GraphData } from "./edit-state";
+export { treeToGraph } from "./edit-state";
+export type { TreeData } from "./types";
+
+const h = hyper.styled(styles);
 
 function setsAreTheSame<T>(a: Set<T>, b: Set<T>) {
   if (a.size !== b.size) return false;
@@ -25,8 +45,8 @@ export function FeedbackComponent({
   text,
   model,
   entityTypes,
-  sourceTextID,
-  runID,
+  matchComponent,
+  onSave,
 }) {
   // Get the input arguments
 
@@ -47,7 +67,21 @@ export function FeedbackComponent({
       nodes: tree,
       selectedNodes,
     }),
-    h(ModelInfo, { data: model }),
+    h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
+      h(ModelInfo, { data: model }),
+      h(SegmentedControl, {
+        options: [
+          { label: "Tree", value: "tree" },
+          { label: "Graph", value: "graph" },
+        ],
+        value: state.viewMode,
+        small: true,
+        onValueChange(value: ViewMode) {
+          console.log("Setting view mode", value);
+          dispatch({ type: "set-view-mode", payload: value });
+        },
+      }),
+    ]),
     h(
       "div.entity-panel",
       {
@@ -79,12 +113,7 @@ export function FeedbackComponent({
                 SaveButton,
                 {
                   onClick() {
-                    dispatch({
-                      type: "save",
-                      tree,
-                      sourceTextID: sourceTextID,
-                      supersedesRunIDs: [runID],
-                    });
+                    onSave(state.tree);
                   },
                   disabled: state.initialTree == state.tree,
                 },
@@ -106,9 +135,15 @@ export function FeedbackComponent({
               }),
           }),
         ]),
-        h(ManagedSelectionTree, {
+        h.if(state.viewMode == "tree")(ManagedSelectionTree, {
           selectedNodes,
           dispatch,
+          tree,
+          width,
+          height,
+          matchComponent,
+        }),
+        h.if(state.viewMode == "graph")(GraphView, {
           tree,
           width,
           height,
@@ -162,9 +197,22 @@ function EntityTypeSelector({
 }
 
 function ManagedSelectionTree(props) {
-  const { selectedNodes, dispatch, tree, height, width, ...rest } = props;
+  const {
+    selectedNodes,
+    dispatch,
+    tree,
+    height,
+    width,
+    matchComponent,
+    ...rest
+  } = props;
 
   const ref = useRef<TreeApi<TreeData>>();
+
+  const _Node = useCallback(
+    (props) => h(Node, { ...props, matchComponent }),
+    [matchComponent]
+  );
 
   useEffect(() => {
     if (ref.current == null) return;
@@ -212,7 +260,7 @@ function ManagedSelectionTree(props) {
       }
       dispatch({ type: "select-node", payload: { ids } });
     },
-    children: Node,
+    children: _Node,
     idAccessor(d: TreeData) {
       return d.id.toString();
     },
