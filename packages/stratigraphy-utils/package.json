@@ -2,23 +2,15 @@
   "name": "@macrostrat/stratigraphy-utils",
   "version": "1.0.0",
   "description": "Utility functions for dealing with stratigraphy",
-  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/main.js",
-  "types": "dist/types.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "scripts": {
     "build": "parcel build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
-  "exports": {
-    ".": {
-      "typescript": "./src",
-      "import": "./dist/main.js",
-      "require": "./dist/main.js",
-      "types:": "./dist/types.d.ts"
-    }
-  },
   "files": [
     "dist",
     "src"

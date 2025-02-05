@@ -5,6 +5,7 @@ import { asChromaColor } from "@macrostrat/color-utils";
 import styles from "./lithology-tag.module.sass";
 import classNames from "classnames";
 import { DataField } from "./index";
+import { ReactNode } from "react";
 
 const h = hyper.styled(styles);
 
@@ -48,7 +49,13 @@ export function LithologyList({ lithologies }) {
   );
 }
 
-export function ItemList({ children, className }) {
+export function ItemList({
+  children,
+  className,
+}: {
+  children?: ReactNode;
+  className: string;
+}) {
   return h("span.item-list", { className }, children);
 }
 
@@ -59,7 +66,7 @@ export function EnvironmentsList({ environments }) {
     h(
       ItemList,
       { className: "environments-list" },
-      environments.map((lith) => {
+      environments.map((lith: any) => {
         return h(LithologyTag, { data: lith });
       })
     )

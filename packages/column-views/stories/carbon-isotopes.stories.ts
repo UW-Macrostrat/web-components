@@ -1,6 +1,6 @@
-import { CarbonIsotopesColumn, CarbonIsotopesApp } from "./index";
+import { CarbonIsotopesColumn, CarbonIsotopesApp } from "../src";
 import h from "@macrostrat/hyper";
-import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
+import { PatternProvider } from "../../column-components/stories/base-section";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 
 export default {

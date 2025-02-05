@@ -36,7 +36,8 @@ Run `yarn install` in the root directory to install dependencies.
 #### Package manager
 
 This repository is optimized for [Yarn](https://yarnpkg.com/) v4 or greater and
-may not work with NPM or other package managers.
+may not work with NPM or other package managers. Run `corepack enable` to enable
+the `yarn` command that is bundled with this repository.
 
 ### Environment variables
 
