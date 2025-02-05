@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@macrostrat/hyper": "^2.2.0",
-    "@macrostrat/ui-components": "workspace:*",
+    "@macrostrat/ui-components": "^4.0.4",
     "@types/d3-array": "^2.0.0",
     "@types/d3-drag": "^1.2.3",
     "@types/d3-geo": "^1.12.3",
