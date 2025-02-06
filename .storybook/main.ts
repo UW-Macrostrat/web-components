@@ -25,15 +25,25 @@ const config: StorybookConfig = {
     getAbsolutePath("storybook-dark-mode"),
   ],
   core: {
-    builder: {
-      name: getAbsolutePath("@storybook/builder-vite"),
-      options: {
-        viteConfigPath: require.resolve("../vite.config.ts"),
-      },
-    },
+    builder: "@storybook/builder-vite",
   },
   framework: getAbsolutePath("@storybook/react-vite"),
   docs: {},
+  async viteFinal(config) {
+    // Merge custom configuration into the default config
+    const { mergeConfig } = await import("vite");
+
+    return mergeConfig(config, {
+      // Add dependencies to pre-optimization
+      optimizeDeps: {
+        include: ["storybook-dark-mode"],
+      },
+      // Resolve dependencies with the "typescript" entry point
+      resolve: {
+        conditions: ["typescript"],
+      },
+    });
+  },
 };
 
 export default config;

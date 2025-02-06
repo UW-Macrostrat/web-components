@@ -16,12 +16,12 @@ export default defineConfig({
     conditions: ["typescript"],
     dedupe: [...packages, "react", "react-dom"],
   },
-  css: {
-    preprocessorOptions: {
-      // https://vite.dev/config/shared-options.html#css-preprocessoroptions
-      sass: {
-        api: "modern-compiler", // or "modern", "legacy"
-      },
-    },
-  },
+  // css: {
+  //   preprocessorOptions: {
+  //     // https://vite.dev/config/shared-options.html#css-preprocessoroptions
+  //     sass: {
+  //       api: "modern-compiler", // or "modern", "legacy"
+  //     },
+  //   },
+  // },
 });
