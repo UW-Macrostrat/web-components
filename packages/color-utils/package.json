@@ -18,7 +18,6 @@
     ".": {
       "typescript": "./src",
       "import": "./dist/main.js",
-      "require": "./dist/main.js",
       "types:": "./dist/types.d.ts"
     }
   },

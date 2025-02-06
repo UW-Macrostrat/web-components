@@ -15,7 +15,8 @@
   "exports": {
     ".": {
       "typescript": "./src/index.ts",
-      "import": "./dist/index.js"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     },
     "./stories/base-section": {
       "typescript": "./stories/base-section.ts"

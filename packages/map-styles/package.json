@@ -6,6 +6,14 @@
   "module": "dist/module.js",
   "types": "dist/types.d.ts",
   "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "typescript": "./src",
+      "import": "./dist/module.js",
+      "require": "./dist/main.js",
+      "types": "./dist/types.d.ts"
+    }
+  },
   "devDependencies": {
     "parcel": "^2.13.3",
     "ts-node": "^10.7.0"
@@ -18,13 +26,5 @@
     "@macrostrat/color-utils": "workspace:*",
     "axios": "^1.7.9",
     "mapbox-gl": "^2.15.0"
-  },
-  "exports": {
-    ".": {
-      "typescript": "./src",
-      "import": "./dist/module.js",
-      "require": "./dist/main.js",
-      "types": "./dist/types.d.ts"
-    }
   }
 }

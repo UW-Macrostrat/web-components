@@ -28,9 +28,14 @@
   "exports": {
     ".": {
       "typescript": "./src",
-      "import": "./src"
+      "import": "./src/index.js",
+      "types": "./src/index.d.ts"
     }
   },
+  "files": [
+    "src",
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",

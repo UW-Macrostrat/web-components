@@ -33,17 +33,23 @@
     "axios": "^1.7.9",
     "mapbox-gl": "^2.15.0"
   },
+  "source": "src/index.ts",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "files": [
+    "src",
     "dist"
   ],
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "typescript": "./src",
-      "import": "./dist/esm",
-      "require": "./dist/cjs"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
     }
   },
   "repository": {

@@ -2,9 +2,9 @@
   "name": "@macrostrat/mapbox-react",
   "version": "2.4.0",
   "description": "Components to support using Mapbox maps in React",
-  "main": "dist/main.js",
-  "module": "dist/module.js",
-  "types": "dist/types.d.ts",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
   "source": "src/index.ts",
   "dependencies": {
     "@macrostrat/hyper": "^3.0.5",
@@ -32,15 +32,22 @@
   "exports": {
     ".": {
       "typescript": "./src",
-      "import": "./dist/module.js",
-      "require": "./dist/main.js",
-      "types": "./dist/types.d.ts"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
     },
     "./dist/": {
       "import": "./dist/",
       "require": "./dist/"
     }
   },
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "files": [
+    "dist",
+    "src"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",

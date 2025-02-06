@@ -2,6 +2,7 @@ import "@blueprintjs/core/lib/css/blueprint.css";
 import { themes } from "@storybook/theming";
 import macrostratTheme from "./theme";
 
+import { Preview } from "@storybook/react";
 import { FocusStyleManager } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import "@macrostrat/style-system";
@@ -11,7 +12,7 @@ import { DocsContainer } from "./docs-container";
 
 FocusStyleManager.onlyShowFocusOnTabs();
 
-export const parameters = {
+const preview: Preview = {
   actions: { argTypesRegex: "^on[A-Z].*" },
   controls: {
     matchers: {
@@ -34,15 +35,16 @@ export const parameters = {
     lightClass: [],
     stylePreview: true,
   },
+  decorators: [
+    // (Story) => {
+    //   return h("div", [h("p", "Zorba is great"), h(Story)]);
+    // },
+    (Story) => {
+      const isEnabled = useDarkMode();
+      return h(DarkModeProvider, { isEnabled }, h(Story));
+    },
+  ],
+  tags: ["autodocs"],
 };
-//
-// your theme provider
 
-export const decorators = [
-  (renderStory) => {
-    const isEnabled = useDarkMode();
-    console.log("Dark mode is enabled", isEnabled);
-    return h(DarkModeProvider, { isEnabled }, renderStory());
-  },
-];
-export const tags = ["autodocs"];
+export default preview;
