@@ -29,7 +29,6 @@
   "dependencies": {
     "@macrostrat/column-components": "workspace:*",
     "@macrostrat/hyper": "^3.0.5",
-    "@macrostrat/timescale": "workspace:*",
     "@types/classnames": "^2.2.10",
     "@types/d3-array": "^2.0.0",
     "@visx/axis": "^3.12.0",

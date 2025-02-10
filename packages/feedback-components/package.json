@@ -19,7 +19,6 @@
     "@macrostrat/ui-components": "workspace:*",
     "@xyflow/react": "^12.3.6",
     "d3-force": "^3.0.0",
-    "react": "^17.0.2||^18",
     "react-arborist": "^3.4.0",
     "react-text-annotate-blend": "^1.2.0"
   },
