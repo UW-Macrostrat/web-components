@@ -30,4 +30,8 @@ export default {
   },
   framework: "@storybook/react-vite",
   docs: {},
+  async viteFinal(config) {
+    console.log(config);
+    return config;
+  },
 } as StorybookConfig;

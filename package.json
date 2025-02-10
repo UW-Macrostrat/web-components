@@ -5,7 +5,7 @@
   "repository": "https://github.com/UW-Macrostrat/web-components.git",
   "version": "3.0.0",
   "scripts": {
-    "dev": "rm -rf node_modules && storybook dev -p 6006 --no-open",
+    "dev": "storybook dev -p 6006 --no-open",
     "build": "storybook build --debug",
     "status": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers status",
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
