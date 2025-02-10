@@ -16,7 +16,7 @@ for (const pkg of packages) {
   alias["@macrostrat/" + pkg] = resolve(`packages/${pkg}/src/index.ts`);
 }
 
-console.log(packages);
+console.log(alias);
 
 export default defineConfig({
   optimizeDeps: {
