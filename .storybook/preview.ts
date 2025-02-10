@@ -36,9 +36,6 @@ const preview: Preview = {
     stylePreview: true,
   },
   decorators: [
-    // (Story) => {
-    //   return h("div", [h("p", "Zorba is great"), h(Story)]);
-    // },
     (Story) => {
       const isEnabled = useDarkMode();
       return h(DarkModeProvider, { isEnabled }, h(Story));

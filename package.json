@@ -11,6 +11,7 @@
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
     "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish"
   },
+  "type": "module",
   "author": "Daven Quinn",
   "license": "ISC",
   "devDependencies": {
@@ -19,6 +20,7 @@
     "@babel/preset-typescript": "^7.21.4",
     "@blueprintjs/core": "^5.10.2",
     "@macrostrat/hyper": "^3.0.5",
+    "@macrostrat/ui-components": "workspace:^",
     "@parcel/packager-ts": "^2.13.3",
     "@parcel/transformer-sass": "^2.13.3",
     "@parcel/transformer-typescript-types": "^2.13.3",

@@ -3500,6 +3500,7 @@ __metadata:
     "@babel/preset-typescript": "npm:^7.21.4"
     "@blueprintjs/core": "npm:^5.10.2"
     "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/ui-components": "workspace:^"
     "@parcel/bundler-library": "npm:^2.13.3"
     "@parcel/packager-ts": "npm:^2.13.3"
     "@parcel/transformer-sass": "npm:^2.13.3"
