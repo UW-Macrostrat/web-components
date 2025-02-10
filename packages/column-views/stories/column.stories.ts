@@ -14,7 +14,7 @@ import {
   useSelectedUnit,
 } from "../src";
 import { Spinner } from "@blueprintjs/core";
-import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
+import { PatternProvider } from "../../column-components/stories/base-section";
 import "@macrostrat/style-system";
 import { ColumnProps as BaseColumnProps } from "../src";
 

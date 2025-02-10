@@ -20,9 +20,9 @@ const preview: Preview = {
       date: /Date$/,
     },
   },
-  docs: {
-    container: DocsContainer,
-  },
+  // docs: {
+  //   container: DocsContainer,
+  // },
   backgrounds: {
     disable: true,
   },
