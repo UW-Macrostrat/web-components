@@ -34,3 +34,6 @@ storybook-static
 .pnp.*
 
 packages/*/dist
+
+.idea/workspace.xml
+.idea/tasks.xml
