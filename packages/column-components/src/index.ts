@@ -1,5 +1,3 @@
-import h from "./hyper";
-
 import { useUUID } from "./frame";
 export { useUUID };
 

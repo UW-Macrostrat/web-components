@@ -2,10 +2,9 @@ import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
   useColumn,
-  useColumnDivisions,
   ColumnLayoutContext,
 } from "@macrostrat/column-components";
-import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
+import { defaultNameFunction, UnitNamesColumn } from "./names";
 import {
   createContext,
   useContext,
@@ -250,7 +249,6 @@ export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
 }
 
 export {
-  UnitNamesColumn,
   CompositeUnitsColumn,
   AnnotatedUnitsColumn,
   TrackedLabeledUnit,

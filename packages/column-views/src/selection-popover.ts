@@ -1,7 +1,6 @@
 import hyper from "@macrostrat/hyper";
 import { Button, Popover } from "@blueprintjs/core";
 import { DOMElement } from "react";
-import { JSONView } from "@macrostrat/ui-components";
 import styles from "./selection-popover.module.sass";
 import { useSelectedUnit } from "./units";
 import { UnitDetailsPanel } from "./unit-details";

@@ -86,7 +86,7 @@ function UnitDataColumn_(props: UnitDataProps) {
 
 const UnitDataColumn = React.memo(UnitDataColumn_);
 
-const UnitNamesColumn = (props: UnitNamesProps) => {
+export function UnitNamesColumn(props: UnitNamesProps) {
   const {
     nameForDivision = defaultNameFunction,
     noteComponent,
@@ -102,12 +102,6 @@ const UnitNamesColumn = (props: UnitNamesProps) => {
     noteComponent: noteComponent ?? NoteComponent,
     ...rest,
   });
-};
+}
 
-export {
-  UnitNamesColumn,
-  defaultNameFunction,
-  noteForDivision,
-  UnitDataColumn,
-  UnitNamesProps,
-};
+export { defaultNameFunction, noteForDivision, UnitDataColumn, UnitNamesProps };

@@ -7,7 +7,6 @@ import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
 import { createRef, RefObject, useContext, useMemo, useState } from "react";
-import { AgeAxis } from "./age-axis";
 import styles from "./column.module.sass";
 import {
   TrackedLabeledUnit,
@@ -30,13 +29,10 @@ export * from "./units";
 export * from "./age-axis";
 export * from "./carbon-isotopes";
 export * from "./providers";
+export * from "./helpers";
+export * from "./map";
 
 const h = hyperStyled(styles);
-
-export function MacrostratColumnProvider(props) {
-  // A column provider specialized the Macrostrat API
-  return h(ColumnProvider, { axisType: ColumnAxisType.AGE, ...props });
-}
 
 export function UnitComponent({ division, nColumns = 2, ...rest }) {
   const { width } = useContext(ColumnLayoutContext);
@@ -151,6 +147,7 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
 
   // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
+  console.log("Unit selection dispatch", dispatch);
 
   return h(
     "div.column-container",
@@ -194,7 +191,3 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
     ])
   );
 }
-
-export * from "./helpers";
-export * from "./map";
-export { AgeAxis };

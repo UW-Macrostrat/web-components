@@ -19,6 +19,9 @@
   "scripts": {
     "build": "parcel build"
   },
+  "targets": {
+    "types": false
+  },
   "dependencies": {
     "@macrostrat/api-types": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
