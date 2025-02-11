@@ -3,7 +3,7 @@ import { defineConfig } from "vite";
 export default defineConfig({
   resolve: {
     conditions: ["typescript"],
-    dedupe: ["react", "react-dom"]
+    dedupe: ["react", "react-dom", "@macrostrat/ui-components", "@macrostrat/column-components"],
   },
   optimizeDeps: {
     exclude: ["node_modules/.cache/storybook"],

@@ -36,11 +36,11 @@ export const parameters = {
   },
 };
 
-export const decorators = [
-  (renderStory) => {
-    const isEnabled = useDarkMode();
-    return h(DarkModeProvider, { isEnabled }, renderStory());
-  },
-];
+// export const decorators = [
+//   (renderStory) => {
+//     const isEnabled = useDarkMode();
+//     return h(DarkModeProvider, { isEnabled }, renderStory());
+//   },
+// ];
 
 export const tags = ["autodocs"];

@@ -12,11 +12,11 @@ import {
   preprocessUnits,
   UnitSelectionProvider,
   useSelectedUnit,
-} from "../src";
+} from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
-import { PatternProvider } from "../../column-components/stories/base-section";
+import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
-import { ColumnProps as BaseColumnProps } from "../src";
+import { ColumnProps as BaseColumnProps } from "@macrostrat/column-views";
 
 const h = hyper.styled(styles);
 

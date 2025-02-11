@@ -1,7 +1,6 @@
-import React from "react";
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-
-import { SaveButton } from ".";
+import h from "@macrostrat/hyper";
+import { SaveButton } from "@macrostrat/ui-components";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
@@ -12,9 +11,8 @@ export default {
 } as ComponentMeta<typeof SaveButton>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof SaveButton> = (args) => (
-  <SaveButton {...args} />
-);
+const Template: ComponentStory<typeof SaveButton> = (args) =>
+  h(SaveButton, args);
 
 export const Primary = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
