@@ -1,6 +1,7 @@
 import { useAPIResult } from "@macrostrat/ui-components";
 import { Spinner } from "@blueprintjs/core";
 import { Column, preprocessUnits } from "@macrostrat/column-views";
+import { GeologicPatternProvider } from "@macrostrat/column-components";
 import h from "@macrostrat/hyper";
 import { createRoot } from "react-dom/client";
 import { StrictMode } from "react";
@@ -23,6 +24,15 @@ function useColumnBasicInfo(col_id) {
   );
 }
 
+function PatternProvider(props) {
+  return h(GeologicPatternProvider, {
+    resolvePattern(d) {
+      return `/patterns/${d}.svg`;
+    },
+    ...props,
+  });
+}
+
 function StratigraphicColumn(props: { id: number }) {
   const info = useColumnBasicInfo(props.id);
   const units = useColumnUnits(props.id);
@@ -37,7 +47,8 @@ function StratigraphicColumn(props: { id: number }) {
 }
 
 function App() {
-  return h(StratigraphicColumn, { id: 490 });
+  // Note: we need to add a pattern provider
+  return h(PatternProvider, h(StratigraphicColumn, { id: 490 }));
 }
 
 const root = createRoot(document.getElementById("root"));

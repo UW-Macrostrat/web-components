@@ -1,23 +1,33 @@
 import { UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { resolve } from "path";
+import { dirname, resolve } from "path";
+import serveStatic from "vite-plugin-serve-static";
 
-function packageSrc(pkg: string) {
-  return resolve(`../../packages/${pkg}/src/index.ts`);
-}
+const servePatterns = serveStatic([
+  {
+    pattern: /^\/patterns\/(.+).svg/,
+    resolve: (groups) => {
+      const pattern = groups[1];
+      return `${patternBaseURL}/assets/svg/${pattern}.svg`;
+    },
+  },
+]);
+
+const geologicPatterns = dirname(
+  import.meta.resolve("geologic-patterns").replace("file://", "")
+);
+
+const patternBaseURL = geologicPatterns;
+
+console.log("Pattern base URL", patternBaseURL);
 
 const config: UserConfig = {
   resolve: {
     // Allow local resolution of TypeScript packages
     conditions: ["source", "typescript"],
-    dedupe: ["react", "react-dom"],
-    alias: {
-      "@macrostrat/ui-components": packageSrc("ui-components"),
-      "@macrostrat/column-views": packageSrc("column-views"),
-      "@macrostrat/column-components": packageSrc("column-components"),
-    },
   },
-  plugins: [react()],
+  plugins: [react(), servePatterns],
+  server: {},
 };
 
 export default config;

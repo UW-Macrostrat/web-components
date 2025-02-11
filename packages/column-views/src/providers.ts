@@ -5,14 +5,7 @@ import { ReactNode } from "react";
 
 export function MacrostratColumnProvider(props) {
   // A column provider specialized the Macrostrat API
-  console.log("Macrostrat column provider children", props.children);
-  const children = props.children;
-
-  return h(
-    ColumnProvider,
-    { axisType: ColumnAxisType.AGE, ...props },
-    props.children
-  );
+  return h(ColumnProvider, { axisType: ColumnAxisType.AGE, ...props });
 }
 
 type APIProviderProps = {

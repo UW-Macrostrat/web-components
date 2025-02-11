@@ -69,8 +69,6 @@ function ColumnProvider<T extends ColumnDivision>(
     (time-domain) framework.
     */
 
-  console.log("Column provider props", props);
-
   let {
     children,
     pixelsPerMeter = 20,
@@ -82,8 +80,6 @@ function ColumnProvider<T extends ColumnDivision>(
     axisType = ColumnAxisType.HEIGHT,
     ...rest
   } = props;
-
-  console.log("Column provider children", children);
 
   // Check if "rest" actually changed
   // This is a hack to avoid re-rendering the column
