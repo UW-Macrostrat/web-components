@@ -147,7 +147,6 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
 
   // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
-  console.log("Unit selection dispatch", dispatch);
 
   return h(
     "div.column-container",

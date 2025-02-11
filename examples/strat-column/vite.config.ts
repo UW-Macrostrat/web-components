@@ -7,16 +7,16 @@ function packageSrc(pkg: string) {
 }
 
 const config: UserConfig = {
-  // override the cache dir because we don't have a node_modules folder with yarn PnP
-  // resolve: {
-  //   // Allow local resolution of TypeScript packages
-  //   conditions: ["source", "typescript"],
-  //   alias: {
-  //     "@macrostrat/ui-components": packageSrc("ui-components"),
-  //     "@macrostrat/column-views": packageSrc("column-views"),
-  //     "@macrostrat/column-components": packageSrc("column-components"),
-  //   },
-  // },
+  resolve: {
+    // Allow local resolution of TypeScript packages
+    conditions: ["source", "typescript"],
+    dedupe: ["react", "react-dom"],
+    alias: {
+      "@macrostrat/ui-components": packageSrc("ui-components"),
+      "@macrostrat/column-views": packageSrc("column-views"),
+      "@macrostrat/column-components": packageSrc("column-components"),
+    },
+  },
   plugins: [react()],
 };
 

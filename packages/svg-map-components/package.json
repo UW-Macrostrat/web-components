@@ -29,7 +29,7 @@
     "build": "parcel build"
   },
   "dependencies": {
-    "@macrostrat/hyper": "^3.0.5",
+    "@macrostrat/hyper": "^3.0.6",
     "@swc/helpers": "^0.5.15",
     "@types/d3-array": "^2.0.0",
     "@types/d3-drag": "^1.2.3",

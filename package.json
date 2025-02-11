@@ -19,7 +19,7 @@
     "@babel/preset-env": "^7.21.4",
     "@babel/preset-typescript": "^7.21.4",
     "@blueprintjs/core": "^5.10.2",
-    "@macrostrat/hyper": "^3.0.5",
+    "@macrostrat/hyper": "^3.0.6",
     "@parcel/bundler-library": "^2.13.3",
     "@parcel/packager-ts": "^2.13.3",
     "@parcel/transformer-sass": "^2.13.3",

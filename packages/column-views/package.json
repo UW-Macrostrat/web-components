@@ -26,7 +26,7 @@
     "@macrostrat/api-types": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
-    "@macrostrat/hyper": "^3.0.5",
+    "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/svg-map-components": "workspace:^",
     "@macrostrat/timescale": "workspace:^",

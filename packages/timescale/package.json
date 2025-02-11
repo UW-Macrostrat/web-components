@@ -27,7 +27,7 @@
   "author": "Daven Quinn",
   "license": "MIT",
   "dependencies": {
-    "@macrostrat/hyper": "^3.0.5",
+    "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
     "@types/classnames": "^2.2.10",
     "@types/d3-array": "^2.0.0",

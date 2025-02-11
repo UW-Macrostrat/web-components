@@ -2476,7 +2476,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-components@workspace:packages/column-components"
   dependencies:
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/timescale": "workspace:^"
     chroma-js: "npm:^2.1.0"
     classnames: "npm:^2.2.6"
@@ -2509,14 +2509,14 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/column-views@workspace:^, @macrostrat/column-views@workspace:packages/column-views":
+"@macrostrat/column-views@workspace:packages/column-views":
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-views@workspace:packages/column-views"
   dependencies:
     "@macrostrat/api-types": "workspace:^"
     "@macrostrat/column-components": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/svg-map-components": "workspace:^"
     "@macrostrat/timescale": "workspace:^"
@@ -2552,7 +2552,7 @@ __metadata:
   dependencies:
     "@blueprintjs/core": "npm:^5.10.2"
     "@macrostrat/color-utils": "workspace:^1.0.0"
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/stratigraphy-utils": "workspace:*"
     "@macrostrat/ui-components": "npm:^4.0.7"
     "@types/d3-array": "npm:^3"
@@ -2576,7 +2576,7 @@ __metadata:
   dependencies:
     "@blueprintjs/core": "npm:^5.10.2"
     "@blueprintjs/table": "npm:^5.1.4"
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@supabase/postgrest-js": "npm:^1.17.7"
     "@types/underscore": "npm:^1"
     chroma-js: "npm:^2.4.2"
@@ -2598,7 +2598,7 @@ __metadata:
     "@babel/preset-react": "npm:^7.18.6"
     "@blueprintjs/core": "npm:^5.10.2"
     "@macrostrat/color-utils": "workspace:^1.0.0"
-    "@macrostrat/hyper": "npm:^3.0.0"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/ui-components": "workspace:*"
     "@types/d3-force": "npm:^3"
     "@xyflow/react": "npm:^12.3.6"
@@ -2618,7 +2618,7 @@ __metadata:
   dependencies:
     "@blueprintjs/core": "npm:^5.10.2"
     "@blueprintjs/icons": "npm:^5.9.0"
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@mantine/core": "npm:^4.2.1"
     "@mantine/hooks": "npm:^4.2.1"
     "@mapbox/mapbox-gl-draw": "npm:^1.3.0"
@@ -2634,15 +2634,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/hyper@npm:^3.0.0, @macrostrat/hyper@npm:^3.0.5":
-  version: 3.0.5
-  resolution: "@macrostrat/hyper@npm:3.0.5"
+"@macrostrat/hyper@npm:^3.0.6":
+  version: 3.0.6
+  resolution: "@macrostrat/hyper@npm:3.0.6"
   dependencies:
     "@types/react": "npm:>= 16.0.0 < 20.0.0"
     classnames: "npm:^2.5.1"
   peerDependencies:
     react: ">= 0.12.0 < 20.0.0"
-  checksum: 10c0/2d06dd9fda966a69a8fbf2c5181aa884836f9b142374a8b8267a54567de4af1b9645b681ecc2499ed042f706f78c603cb5040011301299fe811ea53c91099894
+  checksum: 10c0/8faed4cd532450dce2dc414694d7de4fecda167c561db6cb30ac72db10fe0fad4fd9e653198e6421cd24a52eed33133a00ae1d340ddb3bb8cc62a73fc5eddd2d
   languageName: node
   linkType: hard
 
@@ -2662,7 +2662,7 @@ __metadata:
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
     "@macrostrat/color-utils": "npm:^1.0.0"
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/mapbox-react": "npm:^2.4.0"
     "@macrostrat/mapbox-utils": "npm:^1.3.2"
     "@macrostrat/ui-components": "npm:^4.0.4"
@@ -2702,7 +2702,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/map-styles": "npm:^1.0.2"
     "@macrostrat/mapbox-utils": "npm:^1.3.2"
     "@macrostrat/ui-components": "npm:^4.0.4"
@@ -2758,7 +2758,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/svg-map-components@workspace:packages/svg-map-components"
   dependencies:
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@swc/helpers": "npm:^0.5.15"
     "@types/d3-array": "npm:^2.0.0"
     "@types/d3-drag": "npm:^1.2.3"
@@ -2790,7 +2790,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/timescale@workspace:packages/timescale"
   dependencies:
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/ui-components": "workspace:^"
     "@types/classnames": "npm:^2.2.10"
     "@types/d3-array": "npm:^2.0.0"
@@ -2812,7 +2812,7 @@ __metadata:
   dependencies:
     "@blueprintjs/core": "npm:^5.10.2"
     "@blueprintjs/datetime2": "npm:^2.3.11"
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@types/react": "npm:^16.14.41 || 17 || 18"
     "@types/react-dom": "npm:^17 || ^18"
     axios: "npm:^1.7.9"
@@ -2841,7 +2841,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/vite-plugin-hyperstyles@workspace:toolchain/vite-plugin-hyperstyles"
   dependencies:
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@types/node": "npm:^22.7.9"
     parcel: "npm:^2.13.3"
     typescript: "npm:^5.6.3"
@@ -2857,7 +2857,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.21.4"
     "@babel/preset-typescript": "npm:^7.21.4"
     "@blueprintjs/core": "npm:^5.10.2"
-    "@macrostrat/hyper": "npm:^3.0.5"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@parcel/bundler-library": "npm:^2.13.3"
     "@parcel/packager-ts": "npm:^2.13.3"
     "@parcel/transformer-sass": "npm:^2.13.3"
@@ -7793,9 +7793,7 @@ __metadata:
   resolution: "example-strat-column@workspace:examples/strat-column"
   dependencies:
     "@blueprintjs/core": "npm:^5.16.5"
-    "@macrostrat/column-views": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.5"
-    "@macrostrat/ui-components": "workspace:^"
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@types/react": "npm:^18"
     "@types/react-dom": "npm:^18"
     "@vitejs/plugin-react": "npm:^4.3.4"

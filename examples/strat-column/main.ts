@@ -3,6 +3,7 @@ import { Spinner } from "@blueprintjs/core";
 import { Column, preprocessUnits } from "@macrostrat/column-views";
 import h from "@macrostrat/hyper";
 import { createRoot } from "react-dom/client";
+import { StrictMode } from "react";
 
 function useColumnUnits(col_id) {
   return useAPIResult(
@@ -40,4 +41,4 @@ function App() {
 }
 
 const root = createRoot(document.getElementById("root"));
-root.render(h(App));
+root.render(h(StrictMode, h(App)));
