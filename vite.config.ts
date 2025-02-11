@@ -3,6 +3,10 @@ import { defineConfig } from "vite";
 export default defineConfig({
   resolve: {
     conditions: ["typescript"],
+    dedupe: ["react", "react-dom"]
+  },
+  optimizeDeps: {
+    exclude: ["node_modules/.cache/storybook"],
   },
   css: {
     preprocessorOptions: {

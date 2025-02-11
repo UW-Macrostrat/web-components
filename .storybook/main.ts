@@ -25,9 +25,6 @@ export default {
     "@storybook/addon-viewport",
     "storybook-dark-mode",
   ],
-  core: {
-    builder: "@storybook/builder-vite",
-  },
   framework: "@storybook/react-vite",
   docs: {},
   async viteFinal(config) {

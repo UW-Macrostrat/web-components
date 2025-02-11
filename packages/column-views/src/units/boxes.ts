@@ -5,10 +5,10 @@ import {
   ColumnLayoutContext,
   ForeignObject,
   PatternDefsProvider,
-  SizeAwareLabel,
   useColumn,
   useGeologicPattern,
 } from "@macrostrat/column-components";
+import { SizeAwareLabel } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import {
   ReactNode,

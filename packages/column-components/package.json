@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "@macrostrat/hyper": "^3.0.5",
-    "@macrostrat/timescale": "^2.1.0",
+    "@macrostrat/timescale": "workspace:^",
     "chroma-js": "^2.1.0",
     "classnames": "^2.2.6",
     "d3-axis": "^1.0.12",

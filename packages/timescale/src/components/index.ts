@@ -2,7 +2,7 @@ import h from "../hyper";
 import { useRef, useEffect, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
-import { SizeAwareLabel } from "@macrostrat/column-components";
+import { SizeAwareLabel } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
 
 type SizeState = {

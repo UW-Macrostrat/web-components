@@ -82,3 +82,9 @@ It can be useful to upgrade a specific dependency to its latest version:
 ```
 yarn up -i <package-name>
 ```
+
+#### Maintaining references
+
+```sh
+yarn why @macrostrat/column-components
+```

@@ -15,4 +15,3 @@ export * from "./symbol-column";
 export * from "./edit-overlay";
 export * from "./editor";
 export * from "./grainsize";
-export * from "./boxes";

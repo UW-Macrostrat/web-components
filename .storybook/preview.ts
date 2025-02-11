@@ -2,14 +2,15 @@ import "@blueprintjs/core/lib/css/blueprint.css";
 import { themes } from "@storybook/theming";
 import macrostratTheme from "./theme";
 
-import { FocusStyleManager } from "@blueprintjs/core";
+// import { FocusStyleManager } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import "@macrostrat/style-system";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "storybook-dark-mode";
 import { DocsContainer } from "./docs-container";
+import React from "react";
 
-FocusStyleManager.onlyShowFocusOnTabs();
+//FocusStyleManager.onlyShowFocusOnTabs();
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
