@@ -4,15 +4,16 @@ import {
   createContext,
   useContext,
   useRef,
+  ReactNode,
 } from "react";
 import h from "@macrostrat/hyper";
 import { path } from "d3-path";
-import { ColumnLayoutContext } from "./context";
-import T from "prop-types";
+import { ColumnLayoutContext, ColumnLayoutCtx } from "./context";
 import { v4 } from "uuid";
 
-class UUIDComponent extends Component {
-  constructor(props) {
+class UUIDComponent<T> extends Component<T> {
+  UUID: string;
+  constructor(props: T) {
     super(props);
     this.UUID = v4();
   }
@@ -27,13 +28,14 @@ function UUIDProvider({ children }) {
   return h(UUIDContext.Provider, { value: ref.current, children });
 }
 
-class SimpleFrame extends Component {
-  static initClass() {
-    this.contextType = ColumnLayoutContext;
-    this.propTypes = {
-      id: T.string.isRequired,
-    };
-  }
+interface FrameProps {
+  id: string;
+}
+
+class SimpleFrame extends Component<FrameProps> {
+  static contextType = ColumnLayoutContext;
+  context: ColumnLayoutCtx<any>;
+
   render() {
     const { pixelHeight: height, width } = this.context;
     let { id: frameID } = this.props;
@@ -43,12 +45,14 @@ class SimpleFrame extends Component {
     return h("rect", { id: frameID, x: 0, y: 0, width, height, key: frameID });
   }
 }
-SimpleFrame.initClass();
 
-class GrainsizeFrame extends Component {
-  static initClass() {
-    this.contextType = ColumnLayoutContext;
-  }
+interface GrainsizeFrameProps {
+  id: string;
+}
+
+class GrainsizeFrame extends Component<GrainsizeFrameProps> {
+  static contextType = ColumnLayoutContext;
+  context: ColumnLayoutCtx<any>;
   render() {
     let div;
     const { scale, divisions, grainsizeScale: gs } = this.context;
@@ -111,7 +115,6 @@ class GrainsizeFrame extends Component {
     });
   }
 }
-GrainsizeFrame.initClass();
 
 const ClipPath = function (props) {
   let { id, children, ...rest } = props;
@@ -131,7 +134,10 @@ const UseFrame = function (props) {
   });
 };
 
-const prefixID = function (uuid, prefixes) {
+const prefixID = function (
+  uuid: string,
+  prefixes: string[]
+): Record<string, string> {
   const res = {};
   for (let prefix of Array.from(prefixes)) {
     res[prefix + "ID"] = `#${uuid}-${prefix}`;
@@ -139,35 +145,26 @@ const prefixID = function (uuid, prefixes) {
   return res;
 };
 
-const widthOrFrame = function (props, propName) {
-  const { width, frame } = props;
-  const widthExists = width != null;
-  const frameExists = frame != null;
-  if (widthExists || frameExists) {
-    return;
-  }
-  return new Error("Provide either 'width' or 'frame' props");
-};
+interface ClipToFrameProps {
+  left: number;
+  shiftY: number;
+  onClick: () => void;
+  frame?: any;
+  width?: number;
+  className?: string;
+  children?: ReactNode;
+}
 
-class ClipToFrame extends UUIDComponent {
-  constructor(...args) {
-    super(...args);
+class ClipToFrame extends UUIDComponent<ClipToFrameProps> {
+  constructor(props: ClipToFrameProps) {
+    if (props.width == null && props.frame == null) {
+      throw new Error("Provide either 'width' or 'frame' props");
+    }
+
+    super({ onClick: null, shiftY: 0, frame: null, width: null, ...props });
     this.computeTransform = this.computeTransform.bind(this);
   }
 
-  static initClass() {
-    this.defaultProps = {
-      onClick: null,
-      shiftY: 0,
-    };
-    this.propTypes = {
-      left: T.number,
-      shiftY: T.number,
-      onClick: T.func,
-      frame: widthOrFrame,
-      width: widthOrFrame,
-    };
-  }
   computeTransform() {
     const { left, shiftY } = this.props;
     if (left == null) {
@@ -201,7 +198,6 @@ class ClipToFrame extends UUIDComponent {
     ]);
   }
 }
-ClipToFrame.initClass();
 
 export {
   SimpleFrame,

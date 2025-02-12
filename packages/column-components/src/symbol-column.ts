@@ -55,7 +55,13 @@ const SymbolDefs = function (props) {
   );
 };
 
-class SymbolColumn extends UUIDComponent {
+interface SymbolColumnProps {
+  width: number;
+  left: number;
+  symbols: any[];
+}
+
+class SymbolColumn extends UUIDComponent<SymbolColumnProps> {
   constructor(...args) {
     super(...args);
     this.renderSymbol = this.renderSymbol.bind(this);

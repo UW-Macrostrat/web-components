@@ -15,6 +15,7 @@ export declare interface ColumnDivision {
   top: number;
   // Extra properties that are there for legacy purposes
   flooding_surface_order?: number;
+  grainsize?: string;
 }
 
 enum ColumnAxisType {
@@ -28,6 +29,7 @@ export interface ColumnCtx<T extends ColumnDivision> {
   pixelsPerMeter: number;
   scale: ColumnScale;
   axisType?: ColumnAxisType;
+  pixelHeight?: number;
   zoom: number;
 }
 

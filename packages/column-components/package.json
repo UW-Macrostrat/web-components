@@ -22,22 +22,21 @@
       "source": "./stories/base-section.ts"
     }
   },
-  "targets": {
-    "types": false
-  },
   "files": [
     "src",
     "dist"
   ],
   "scripts": {
     "dev": "parcel watch",
-    "build": "rm -rf dist && parcel build"
+    "build": "rm -rf dist && parcel build",
+    "check": "tsc --noCheck --noEmit"
   },
   "author": "Daven Quinn <dev@davenquinn.com>",
   "license": "MIT",
   "devDependencies": {
     "parcel": "^2.13.3",
-    "stylus": "^0.59.0"
+    "stylus": "^0.59.0",
+    "typescript": "^5.7.3"
   },
   "dependencies": {
     "@macrostrat/hyper": "^3.0.6",
