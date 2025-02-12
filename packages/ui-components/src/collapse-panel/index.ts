@@ -1,17 +1,24 @@
-import { Component } from "react";
+import { Component, ReactNode } from "react";
 import h, { classed } from "@macrostrat/hyper";
 import { Button, Collapse } from "@blueprintjs/core";
-//import "./main.sass";
 
 const HeaderButton = classed(Button, "ms-header-button");
 
-type P = {
+type CollapsePanelProps = {
   storageID?: string;
   title: string;
-  headerRight: React.ReactNode;
+  headerRight: ReactNode;
+  children?: ReactNode;
 };
 
-class CollapsePanel extends Component<P, { isOpen: boolean }> {
+type CollapsePanelState = {
+  isOpen: boolean;
+};
+
+export class CollapsePanel extends Component<
+  CollapsePanelProps,
+  CollapsePanelState
+> {
   static defaultProps = {
     title: "Panel",
     // `storageID` prop allows storage of state in
@@ -19,7 +26,7 @@ class CollapsePanel extends Component<P, { isOpen: boolean }> {
     storageID: null,
   };
 
-  constructor(props) {
+  constructor(props: CollapsePanelProps) {
     super(props);
     this.state = { isOpen: false };
   }
@@ -63,7 +70,10 @@ class CollapsePanel extends Component<P, { isOpen: boolean }> {
     return this.setState({ isOpen });
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate(
+    prevProps: CollapsePanelProps,
+    prevState: CollapsePanelState
+  ) {
     // Refresh object in local storage
     const { storageID } = this.props;
     if (storageID == null) {
@@ -102,5 +112,3 @@ class CollapsePanel extends Component<P, { isOpen: boolean }> {
     ]);
   }
 }
-
-export { CollapsePanel };

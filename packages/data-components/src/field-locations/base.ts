@@ -5,7 +5,7 @@ import type { AnyMapPosition } from "@macrostrat/mapbox-utils";
 
 const h = hyper.styled(styles);
 
-interface LocationBasicInfoProps {
+export interface LocationBasicInfoProps {
   title: string | null;
   year: string;
   description?: string;

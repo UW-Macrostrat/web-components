@@ -75,6 +75,8 @@
     }
   },
   "devDependencies": {
-    "@parcel/packager-ts": "2.13.3"
+    "@parcel/packager-ts": "2.13.3",
+    "@types/d3-array": "^3.2.1",
+    "@types/underscore": "^1.13.0"
   }
 }

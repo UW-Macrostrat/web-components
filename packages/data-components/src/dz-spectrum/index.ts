@@ -10,11 +10,28 @@ import {
   kernelEpanechnikov,
   kernelGaussian,
 } from "./kernel-density";
+import {
+  ScaleOrdinal,
+  ScaleLinear,
+  ScaleLogarithmic,
+  ScalePower,
+  ScaleRadial,
+  ScaleTime,
+  ScaleQuantize,
+} from "@visx/vendor/d3-scale";
 
 export { kernelDensityEstimator, kernelEpanechnikov, kernelGaussian };
 
+type ContinuousScale =
+  | ScaleLinear<number, number>
+  | ScaleLogarithmic<number, number>
+  | ScalePower<number, number>
+  | ScaleRadial<number, number>
+  | ScaleTime<number, number>
+  | ScaleQuantize<number>;
+
 interface PlotAreaCtx {
-  xScale: AnyD3Scale;
+  xScale: ContinuousScale;
   width: number;
   height: number;
 }
@@ -59,7 +76,7 @@ function DetritalSeries(props: DetritalSeriesProps) {
   const kdeData = kde(data.map(accessor));
 
   // All KDEs should have same height
-  const maxProbability = max(kdeData, (d) => d[1]);
+  const maxProbability: number = max(kdeData, (d: [number, number]) => d[1]);
 
   const yScale = scaleLinear({
     range: [height, 0],

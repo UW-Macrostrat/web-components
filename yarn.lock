@@ -2463,7 +2463,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/color-utils@npm:^1.0.0, @macrostrat/color-utils@workspace:*, @macrostrat/color-utils@workspace:^1.0.0, @macrostrat/color-utils@workspace:packages/color-utils":
+"@macrostrat/color-utils@npm:^1.0.0, @macrostrat/color-utils@workspace:*, @macrostrat/color-utils@workspace:^, @macrostrat/color-utils@workspace:^1.0.0, @macrostrat/color-utils@workspace:packages/color-utils":
   version: 0.0.0-use.local
   resolution: "@macrostrat/color-utils@workspace:packages/color-utils"
   dependencies:
@@ -2552,11 +2552,12 @@ __metadata:
   resolution: "@macrostrat/data-components@workspace:packages/data-components"
   dependencies:
     "@blueprintjs/core": "npm:^5.10.2"
-    "@macrostrat/color-utils": "workspace:^1.0.0"
+    "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
-    "@macrostrat/stratigraphy-utils": "workspace:*"
-    "@macrostrat/ui-components": "npm:^4.0.7"
+    "@macrostrat/stratigraphy-utils": "workspace:^"
+    "@macrostrat/ui-components": "workspace:^"
     "@types/d3-array": "npm:^3"
+    "@types/prop-types": "npm:^15"
     "@visx/axis": "npm:^3.12.0"
     "@visx/gradient": "npm:^3.12.0"
     "@visx/scale": "npm:^3.12.0"
@@ -2565,6 +2566,7 @@ __metadata:
     classnames: "npm:^2.5.1"
     d3-array: "npm:^3.2.4"
     parcel: "npm:^2.13.3"
+    prop-types: "npm:^15.8.1"
   peerDependencies:
     "@blueprintjs/core": ^5.0.0
     react: ^16.8.6||^17.0.2||^18
@@ -2733,7 +2735,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/stratigraphy-utils@workspace:*, @macrostrat/stratigraphy-utils@workspace:^, @macrostrat/stratigraphy-utils@workspace:packages/stratigraphy-utils":
+"@macrostrat/stratigraphy-utils@workspace:^, @macrostrat/stratigraphy-utils@workspace:packages/stratigraphy-utils":
   version: 0.0.0-use.local
   resolution: "@macrostrat/stratigraphy-utils@workspace:packages/stratigraphy-utils"
   dependencies:
@@ -2806,7 +2808,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/ui-components@npm:^4.0.4, @macrostrat/ui-components@npm:^4.0.7, @macrostrat/ui-components@workspace:*, @macrostrat/ui-components@workspace:^, @macrostrat/ui-components@workspace:packages/ui-components":
+"@macrostrat/ui-components@npm:^4.0.4, @macrostrat/ui-components@workspace:*, @macrostrat/ui-components@workspace:^, @macrostrat/ui-components@workspace:packages/ui-components":
   version: 0.0.0-use.local
   resolution: "@macrostrat/ui-components@workspace:packages/ui-components"
   dependencies:
@@ -2875,9 +2877,11 @@ __metadata:
     "@storybook/react": "npm:^8.5.3"
     "@storybook/react-vite": "npm:^8.5.3"
     "@storybook/theming": "npm:^8.5.3"
+    "@types/d3-array": "npm:^3.2.1"
     "@types/d3-geo": "npm:^2.0.0"
     "@types/geojson": "npm:^7946.0.7"
     "@types/react": "npm:^18.3.12"
+    "@types/underscore": "npm:^1.13.0"
     chalk: "npm:^5.0.1"
     concurrently: "npm:^7.2.2"
     date-fns: "npm:^4.1.0"
@@ -5198,7 +5202,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-array@npm:^3":
+"@types/d3-array@npm:^3, @types/d3-array@npm:^3.2.1":
   version: 3.2.1
   resolution: "@types/d3-array@npm:3.2.1"
   checksum: 10c0/38bf2c778451f4b79ec81a2288cb4312fe3d6449ecdf562970cc339b60f280f31c93a024c7ff512607795e79d3beb0cbda123bb07010167bce32927f71364bca
@@ -5519,7 +5523,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/node@npm:^22.7.9":
+"@types/node@npm:*, @types/node@npm:^22.7.9":
   version: 22.13.1
   resolution: "@types/node@npm:22.13.1"
   dependencies:
@@ -5603,7 +5607,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/underscore@npm:^1":
+"@types/underscore@npm:^1, @types/underscore@npm:^1.13.0":
   version: 1.13.0
   resolution: "@types/underscore@npm:1.13.0"
   checksum: 10c0/240d3f36f694e177b1896c464b1254249e64b51a2afc703a1dda61f0c544d6e3b081ac4d955fb057e873982a62a7ba78e3a0aaa252c9d766f6cbe5e85283bc04
@@ -6611,6 +6615,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"csstype@npm:*, csstype@npm:^3.0.2, csstype@npm:^3.1.3":
+  version: 3.1.3
+  resolution: "csstype@npm:3.1.3"
+  checksum: 10c0/80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
+  languageName: node
+  linkType: hard
+
 "csstype@npm:3.0.9":
   version: 3.0.9
   resolution: "csstype@npm:3.0.9"
@@ -6622,13 +6633,6 @@ __metadata:
   version: 2.6.21
   resolution: "csstype@npm:2.6.21"
   checksum: 10c0/e07f27f2100bce9890bb4c3cb9263af97388f0d99b50073b663f1e363fa51b68ac7e2c8a612cd911d2b33c52d83afd1b0b8bc4de1d3ca76ee019a230295daffb
-  languageName: node
-  linkType: hard
-
-"csstype@npm:^3.0.2, csstype@npm:^3.1.3":
-  version: 3.1.3
-  resolution: "csstype@npm:3.1.3"
-  checksum: 10c0/80c089d6f7e0c5b2bd83cf0539ab41474198579584fa10d86d0cafe0642202343cbc119e076a0b1aece191989477081415d66c9fefbf3c957fc2fc4b7009f248
   languageName: node
   linkType: hard
 
@@ -10194,7 +10198,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"prop-types@npm:^15.5.10, prop-types@npm:^15.5.7, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
+"prop-types@npm:*, prop-types@npm:^15.5.10, prop-types@npm:^15.5.7, prop-types@npm:^15.5.8, prop-types@npm:^15.6.0, prop-types@npm:^15.6.2, prop-types@npm:^15.7.2, prop-types@npm:^15.8.1":
   version: 15.8.1
   resolution: "prop-types@npm:15.8.1"
   dependencies:

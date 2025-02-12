@@ -6,7 +6,6 @@
   "main": "dist/index.js",
   "type": "module",
   "types": "dist/index.d.ts",
-  "style": "dist/index.css",
   "scripts": {
     "dev": "parcel watch",
     "build": "parcel build"
@@ -19,17 +18,19 @@
   "devDependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@types/d3-array": "^3",
-    "parcel": "^2.13.3"
+    "@types/prop-types": "^15",
+    "parcel": "^2.13.3",
+    "prop-types": "^15.8.1"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^5.0.0",
     "react": "^16.8.6||^17.0.2||^18"
   },
   "dependencies": {
-    "@macrostrat/color-utils": "workspace:^1.0.0",
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
-    "@macrostrat/stratigraphy-utils": "workspace:*",
-    "@macrostrat/ui-components": "^4.0.7",
+    "@macrostrat/stratigraphy-utils": "workspace:^",
+    "@macrostrat/ui-components": "workspace:^",
     "@visx/axis": "^3.12.0",
     "@visx/gradient": "^3.12.0",
     "@visx/scale": "^3.12.0",
@@ -44,17 +45,12 @@
   ],
   "exports": {
     ".": {
-      "typescript": "./src",
+      "source": "./src/index.ts",
       "import": {
-        "types": "./dist/types.d.ts",
+        "types": "./dist/index.d.ts",
         "default": "./dist/index.js"
       },
-      "require": {
-        "types": "./dist/types.d.ts",
-        "default": "./dist/index.cjs.js"
-      },
-      "types:": "./dist/types.d.ts",
-      "style": "./dist/index.css"
+      "types:": "./dist/index.d.ts"
     }
   }
 }
