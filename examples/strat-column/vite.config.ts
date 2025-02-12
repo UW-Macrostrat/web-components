@@ -1,6 +1,6 @@
 import { UserConfig } from "vite";
 import react from "@vitejs/plugin-react";
-import { dirname, resolve } from "path";
+import { dirname } from "path";
 import serveStatic from "vite-plugin-serve-static";
 
 const servePatterns = serveStatic([
@@ -18,8 +18,6 @@ const geologicPatterns = dirname(
 );
 
 const patternBaseURL = geologicPatterns;
-
-console.log("Pattern base URL", patternBaseURL);
 
 const config: UserConfig = {
   resolve: {

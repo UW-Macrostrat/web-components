@@ -21,7 +21,7 @@
     "@blueprintjs/core": "^5.10.2",
     "@macrostrat/hyper": "^3.0.6",
     "@parcel/bundler-library": "^2.13.3",
-    "@parcel/packager-ts": "^2.13.3",
+    "@parcel/config-default": "^2.13.3",
     "@parcel/transformer-sass": "^2.13.3",
     "@parcel/transformer-typescript-types": "^2.13.3",
     "@storybook/addon-actions": "^8.5.3",
@@ -73,5 +73,8 @@
     "geologic-patterns@2.0.0-dev1": {
       "unplugged": true
     }
+  },
+  "devDependencies": {
+    "@parcel/packager-ts": "2.13.3"
   }
 }

@@ -12,6 +12,7 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
+    "@types/chroma-js": "^3.1.1",
     "chroma-js": "^3.0.0"
   },
   "exports": {

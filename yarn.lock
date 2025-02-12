@@ -2467,6 +2467,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/color-utils@workspace:packages/color-utils"
   dependencies:
+    "@types/chroma-js": "npm:^3.1.1"
     chroma-js: "npm:^3.0.0"
     parcel: "npm:^2.13.3"
   languageName: unknown
@@ -2858,7 +2859,8 @@ __metadata:
     "@blueprintjs/core": "npm:^5.10.2"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@parcel/bundler-library": "npm:^2.13.3"
-    "@parcel/packager-ts": "npm:^2.13.3"
+    "@parcel/config-default": "npm:^2.13.3"
+    "@parcel/packager-ts": "npm:2.13.3"
     "@parcel/transformer-sass": "npm:^2.13.3"
     "@parcel/transformer-typescript-types": "npm:^2.13.3"
     "@storybook/addon-actions": "npm:^8.5.3"
@@ -3203,7 +3205,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/config-default@npm:2.13.3":
+"@parcel/config-default@npm:2.13.3, @parcel/config-default@npm:^2.13.3":
   version: 2.13.3
   resolution: "@parcel/config-default@npm:2.13.3"
   dependencies:
@@ -3244,7 +3246,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/core@npm:2.13.3":
+"@parcel/core@npm:2.13.3, @parcel/core@npm:^2.13.3":
   version: 2.13.3
   resolution: "@parcel/core@npm:2.13.3"
   dependencies:
@@ -3524,7 +3526,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@parcel/packager-ts@npm:^2.13.3":
+"@parcel/packager-ts@npm:2.13.3":
   version: 2.13.3
   resolution: "@parcel/packager-ts@npm:2.13.3"
   dependencies:
@@ -5166,7 +5168,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/chroma-js@npm:^3":
+"@types/chroma-js@npm:^3, @types/chroma-js@npm:^3.1.1":
   version: 3.1.1
   resolution: "@types/chroma-js@npm:3.1.1"
   checksum: 10c0/2b2d2eb44fd6e7103696c890c04a84c55441e9fea2f3913949bb377ec7249fe8a95e8117108b6e837422dbb23dee8180ad6907a29a8ae6d9443e7423cd0b2f6a
