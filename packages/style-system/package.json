@@ -1,11 +1,12 @@
 {
   "name": "@macrostrat/style-system",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Style system for Macrostrat",
-  "main": "dist/index.css",
+  "main": "dist/style-system.css",
   "source": "src/index.ts",
+  "type": "module",
   "scripts": {
-    "build": "vite build && mv dist/style.css dist/index.css && rm -f dist/*.js"
+    "build": "vite build"
   },
   "dependencies": {
     "@blueprintjs/colors": "^5.1.1",
@@ -21,14 +22,21 @@
   ],
   "exports": {
     ".": {
-      "typescript": "./src/index.ts",
-      "import": "./dist/index.css",
-      "require": "./dist/index.css"
+      "source": "./src/index.ts",
+      "import": "./dist/style-system.css",
+      "require": "./dist/style-system.css"
     },
-    "./src": {
-      "typescript": "./src/index.ts",
-      "import": "./src/index.ts",
-      "require": "./src/index.ts"
+    "./src/colors.scss": {
+      "source": "./src/colors.scss",
+      "import": "./src/colors.scss"
+    },
+    "./src/main.scss": {
+      "source": "./src/main.scss",
+      "import": "./src/main.scss"
+    },
+    "./src/index.ts": {
+      "source": "./src/index.ts",
+      "import": "./dist/style-system.css"
     }
   },
   "repository": {
@@ -42,6 +50,6 @@
     "geology"
   ],
   "devDependencies": {
-    "parcel": "^2.13.3"
+    "vite": "^6.1.0"
   }
 }
