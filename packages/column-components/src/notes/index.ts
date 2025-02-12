@@ -4,7 +4,7 @@
  * DS206: Consider reworking classes to avoid initClass
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-import { useContext } from "react";
+import { ComponentType, useContext } from "react";
 import h from "../hyper";
 import T from "prop-types";
 import { NotesList } from "./note";
@@ -39,7 +39,7 @@ NoteComponent.propTypes = {
 };
 
 const CancelEditUnderlay = function () {
-  const { setEditingNote } = useContext(NoteEditorContext);
+  const { setEditingNote } = useContext(NoteEditorContext) as any;
   const { confirmChanges } = useModelEditor();
   return h(NoteUnderlay, {
     onClick() {
@@ -168,7 +168,7 @@ function NotesColumn(props) {
   // not sure why we have this here.
   if (ctx?.scaleClamped == null) return null;
 
-  const c = editable ? EditableNotesColumn : StaticNotesColumn;
+  const c: ComponentType = editable ? EditableNotesColumn : StaticNotesColumn;
   return h(c, rest);
 }
 

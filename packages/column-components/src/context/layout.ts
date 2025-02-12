@@ -32,12 +32,12 @@ const ColumnLayoutContext = createContext<ColumnLayoutCtx<ColumnDivision>>({
 });
 
 interface ColumnLayoutProviderProps<T extends ColumnDivision>
-  extends ColumnCtx<T> {
+  extends Partial<ColumnCtx<T>> {
   grainSizes?: string[];
   grainsizeScale?: (d: string) => number;
   width: number;
   // @deprecated
-  xScale: any;
+  xScale?: any;
   children?: ReactNode;
 }
 
@@ -123,7 +123,7 @@ function GrainsizeLayoutProvider({
   grainsizeScaleRange ??= [grainsizeScaleStart, width];
   const divisions = useColumnDivisions();
 
-  const grainsizeScale = useMemo(() => {
+  const grainsizeScale: any = useMemo(() => {
     const scale = scaleLinear()
       .domain([0, grainSizes.length - 1])
       .range(grainsizeScaleRange);
@@ -170,7 +170,7 @@ function GrainsizeLayoutProvider({
       grainsizeScaleRange,
       grainsizeForDivision,
       widthForDivision,
-    },
+    } as any,
     children
   );
 }

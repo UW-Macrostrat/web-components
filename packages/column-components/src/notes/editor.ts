@@ -10,17 +10,22 @@ import { EditableText } from "@blueprintjs/core";
 import classNames from "classnames";
 import h from "../hyper";
 import T from "prop-types";
-import { NoteShape } from "./types";
+import { NoteData, NoteShape } from "./types";
 import { ForeignObject } from "../util";
 import { NoteLayoutContext, NoteRect } from "./layout";
 import { NotePositioner, NoteConnector } from "./connector";
 import Draggable from "react-draggable";
 import { hasSpan } from "./utils";
 import { ErrorBoundary } from "@macrostrat/ui-components";
+import { Spec } from "immutability-helper";
 
 const NoteEditorContext = createContext({ inEditMode: false });
 
-const NoteTextEditor = function (props) {
+interface NoteEditorProps {
+  note: NoteData;
+}
+
+const NoteTextEditor = function (props: NoteEditorProps) {
   const { updateModel } = useModelEditor();
   const { note } = props;
   return h(EditableText, {
@@ -32,10 +37,6 @@ const NoteTextEditor = function (props) {
       return updateModel({ note: { $set: newText } });
     },
   });
-};
-
-NoteTextEditor.propTypes = {
-  note: NoteShape.isRequired,
 };
 
 function NoteEditorProvider(props) {
@@ -194,7 +195,7 @@ var PositionEditorInner = function (props) {
   const moveEntireNote = function (e, data) {
     const { y } = data;
     // Set note height
-    const spec = { height: { $set: scale.invert(y + height) } };
+    const spec: Spec<any> = { height: { $set: scale.invert(y + height) } };
     if (noteHasSpan) {
       // Set note top height
       spec.top_height = { $set: scale.invert(y) };
@@ -211,7 +212,7 @@ var PositionEditorInner = function (props) {
   };
 
   const moveBottom = function (e, data) {
-    const spec = { height: { $set: scale.invert(data.y) } };
+    const spec: Spec<any> = { height: { $set: scale.invert(data.y) } };
     if (Math.abs(data.y - topHeight) < 2) {
       spec.top_height = { $set: null };
     }
@@ -263,7 +264,7 @@ var PositionEditorInner = function (props) {
 
 const NoteEditorUnderlay = function ({ padding }) {
   const { width } = useContext(NoteLayoutContext);
-  const { setEditingNote } = useContext(NoteEditorContext);
+  const { setEditingNote } = useContext(NoteEditorContext) as any;
   return h(NoteRect, {
     fill: "rgba(255,255,255,0.8)",
     style: { pointerEvents: "none" },
@@ -273,7 +274,7 @@ const NoteEditorUnderlay = function ({ padding }) {
 
 const NoteEditor = function (props) {
   const { allowPositionEditing } = props;
-  const { noteEditor } = useContext(NoteEditorContext);
+  const { noteEditor } = useContext(NoteEditorContext) as any;
   const { notes, nodes, elementHeights, createNodeForNote } =
     useContext(NoteLayoutContext);
   const { editedModel } = useModelEditor();

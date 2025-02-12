@@ -6,7 +6,7 @@
 import { createContext } from "react";
 import h from "@macrostrat/hyper";
 
-interface AssetPathCtx {
+export interface AssetPathCtx {
   resolveSymbol: (symbol: string) => string | null;
 }
 

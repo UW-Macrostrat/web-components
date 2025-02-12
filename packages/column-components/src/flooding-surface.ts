@@ -2,12 +2,12 @@ import { scaleLinear } from "d3-scale";
 import { useContext, createElement } from "react";
 import h from "@macrostrat/hyper";
 import { path } from "d3-path";
-import { ColumnContext } from "./context";
+import { ColumnContext, ColumnCtx, ColumnDivision } from "./context";
 import { UUIDComponent } from "./frame";
 
-const FloodingSurface = (props) => {
+export function FloodingSurface(props: any) {
   const { scale, divisions } = useContext(ColumnContext);
-  const { offsetLeft, lineWidth, onClick } = props;
+  const { offsetLeft = -90, lineWidth = 50, onClick } = props;
   const floodingSurfaces = divisions.filter(
     (d) => d.flooding_surface_order != null
   );
@@ -32,32 +32,36 @@ const FloodingSurface = (props) => {
       });
     })
   );
-};
-
-FloodingSurface.defaultProps = {
-  offsetLeft: -90,
-  lineWidth: 50,
-};
+}
 
 function range(start: number, end: number): number[] {
   if (start === end) return [start];
   return [start, ...range(start + 1, end)];
 }
 
-class TriangleBars extends UUIDComponent {
-  constructor(...args) {
-    super(...args);
+interface TriangleBarsProps {
+  offsetLeft: number;
+  lineWidth: number;
+  order: number;
+  orders: number[];
+  minOrder: number;
+  maxOrder: number;
+}
+
+export class TriangleBars extends UUIDComponent<TriangleBarsProps> {
+  constructor(props: TriangleBarsProps) {
+    super(props);
     this.renderSurfaces = this.renderSurfaces.bind(this);
   }
 
-  static initClass() {
-    this.contextType = ColumnContext;
-    this.defaultProps = {
-      offsetLeft: -90,
-      lineWidth: 50,
-      order: 2,
-    };
-  }
+  static contextType = ColumnContext;
+  static defaultProps = {
+    offsetLeft: -90,
+    lineWidth: 50,
+    order: 2,
+  };
+
+  context: ColumnCtx<ColumnDivision>;
 
   render() {
     let { offsetLeft, lineWidth, order, orders, minOrder, maxOrder } =
@@ -195,6 +199,3 @@ class TriangleBars extends UUIDComponent {
     );
   }
 }
-TriangleBars.initClass();
-
-export { FloodingSurface, TriangleBars };

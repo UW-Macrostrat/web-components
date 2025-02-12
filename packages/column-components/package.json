@@ -29,7 +29,7 @@
   "scripts": {
     "dev": "parcel watch",
     "build": "rm -rf dist && parcel build",
-    "check": "tsc --noCheck --noEmit"
+    "check": "tsc --noEmit"
   },
   "author": "Daven Quinn <dev@davenquinn.com>",
   "license": "MIT",
@@ -39,8 +39,10 @@
     "typescript": "^5.7.3"
   },
   "dependencies": {
+    "@blueprintjs/core": "^5.0.0",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/timescale": "workspace:^",
+    "@macrostrat/ui-components": "workspace:^",
     "chroma-js": "^2.1.0",
     "classnames": "^2.2.6",
     "d3-axis": "^1.0.12",
@@ -64,8 +66,6 @@
     "uuid": "^7.0.3"
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^5.0.0",
-    "@macrostrat/ui-components": "workspace:^",
     "react": "^16.12.0||^17.0.0||^18",
     "react-dom": "^16.12.0||^17.0.0||^18"
   },

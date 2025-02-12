@@ -16,6 +16,7 @@ export declare interface ColumnDivision {
   // Extra properties that are there for legacy purposes
   flooding_surface_order?: number;
   grainsize?: string;
+  covered?: boolean;
 }
 
 enum ColumnAxisType {

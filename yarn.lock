@@ -1348,6 +1348,34 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blueprintjs/core@npm:^5.0.0, @blueprintjs/core@npm:^5.16.5":
+  version: 5.16.5
+  resolution: "@blueprintjs/core@npm:5.16.5"
+  dependencies:
+    "@blueprintjs/colors": "npm:^5.1.6"
+    "@blueprintjs/icons": "npm:^5.18.0"
+    "@popperjs/core": "npm:^2.11.8"
+    classnames: "npm:^2.3.1"
+    normalize.css: "npm:^8.0.1"
+    react-popper: "npm:^2.3.0"
+    react-transition-group: "npm:^4.4.5"
+    react-uid: "npm:^2.3.3"
+    tslib: "npm:~2.6.2"
+    use-sync-external-store: "npm:^1.2.0"
+  peerDependencies:
+    "@types/react": ^16.14.41 || 17 || 18
+    react: ^16.8 || 17 || 18
+    react-dom: ^16.8 || 17 || 18
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  bin:
+    upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
+    upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
+  checksum: 10c0/4596d3f96706af9fe7e61a987f36b56f888c0736e2b9011e955dbb791b1b1197864bbc0a05ad237d019c8b7dd1b7500ddd0d25203fdc6b3ce32f3f25f76732d1
+  languageName: node
+  linkType: hard
+
 "@blueprintjs/core@npm:^5.10.2, @blueprintjs/core@npm:^5.16.4":
   version: 5.16.4
   resolution: "@blueprintjs/core@npm:5.16.4"
@@ -1373,34 +1401,6 @@ __metadata:
     upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
     upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
   checksum: 10c0/4f7208af067ae30e5c4ad68160eaf5b00d1c1847688f86a73c564e0452c84287c442050d2a5bc47a5125b0b1587db163038a208ae7ca4cd8d99d4931fb34a1d6
-  languageName: node
-  linkType: hard
-
-"@blueprintjs/core@npm:^5.16.5":
-  version: 5.16.5
-  resolution: "@blueprintjs/core@npm:5.16.5"
-  dependencies:
-    "@blueprintjs/colors": "npm:^5.1.6"
-    "@blueprintjs/icons": "npm:^5.18.0"
-    "@popperjs/core": "npm:^2.11.8"
-    classnames: "npm:^2.3.1"
-    normalize.css: "npm:^8.0.1"
-    react-popper: "npm:^2.3.0"
-    react-transition-group: "npm:^4.4.5"
-    react-uid: "npm:^2.3.3"
-    tslib: "npm:~2.6.2"
-    use-sync-external-store: "npm:^1.2.0"
-  peerDependencies:
-    "@types/react": ^16.14.41 || 17 || 18
-    react: ^16.8 || 17 || 18
-    react-dom: ^16.8 || 17 || 18
-  peerDependenciesMeta:
-    "@types/react":
-      optional: true
-  bin:
-    upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
-    upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
-  checksum: 10c0/4596d3f96706af9fe7e61a987f36b56f888c0736e2b9011e955dbb791b1b1197864bbc0a05ad237d019c8b7dd1b7500ddd0d25203fdc6b3ce32f3f25f76732d1
   languageName: node
   linkType: hard
 
@@ -2515,8 +2515,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-components@workspace:packages/column-components"
   dependencies:
+    "@blueprintjs/core": "npm:^5.0.0"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/timescale": "workspace:^"
+    "@macrostrat/ui-components": "workspace:^"
     chroma-js: "npm:^2.1.0"
     classnames: "npm:^2.2.6"
     d3-axis: "npm:^1.0.12"
@@ -2542,8 +2544,6 @@ __metadata:
     ui-box: "npm:^5.4.1"
     uuid: "npm:^7.0.3"
   peerDependencies:
-    "@blueprintjs/core": ^5.0.0
-    "@macrostrat/ui-components": "workspace:^"
     react: ^16.12.0||^17.0.0||^18
     react-dom: ^16.12.0||^17.0.0||^18
   languageName: unknown

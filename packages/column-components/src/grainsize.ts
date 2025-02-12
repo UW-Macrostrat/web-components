@@ -18,7 +18,7 @@ function GrainsizeAxis({ height = 20 }) {
   if (gs == null) {
     throw "GrainsizeAxis must be a child of a GrainsizeScaleProvider";
   }
-  const sizes = gs.domain();
+  const sizes = (gs as any).domain();
 
   // check length of sizes and rotate labels if necessary
   let strlen = sizes.reduce((acc, d) => acc + d.length, 0) / sizes.length;

@@ -1,7 +1,19 @@
 import { Node } from "labella";
 
 class FlexibleNode {
-  constructor(allowedRange, width, data) {
+  allowedRange: [number, number];
+  centerPos: number;
+  currentPos: number;
+  width: number;
+  data: any | null;
+  layerIndex: number;
+  parent: FlexibleNode | null;
+  child: FlexibleNode | null;
+  constructor(
+    allowedRange: [number, number],
+    width: number,
+    data: any | null = null
+  ) {
     this.allowedRange = allowedRange;
     this.centerPos = (this.allowedRange[0] + this.allowedRange[1]) / 2;
     this.currentPos = this.centerPos;
@@ -98,7 +110,7 @@ class FlexibleNode {
 
   getPathToRoot() {
     const path = [];
-    let current = this;
+    let current: FlexibleNode = this;
     while (current) {
       path.push(current);
       current = current.parent;
@@ -112,7 +124,7 @@ class FlexibleNode {
 
   getPathToRootLength() {
     let length = 0;
-    let current = this;
+    let current: FlexibleNode = this;
     while (current) {
       const targetPos = current.parent
         ? current.parent.currentPos
@@ -126,8 +138,8 @@ class FlexibleNode {
 
   // Trace back to the node without parent
   getRoot() {
-    let previous = this;
-    let current = this;
+    let previous: FlexibleNode = this;
+    let current: FlexibleNode = this;
     while (current) {
       previous = current;
       current = current.parent;

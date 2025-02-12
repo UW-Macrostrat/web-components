@@ -1,10 +1,10 @@
-import { createContext, useContext, useEffect, useRef } from "react";
+import { createContext, ReactNode, useContext, useEffect, useRef } from "react";
 import h from "@macrostrat/hyper";
 import { geologyPatternURL, useAsyncEffect } from "@macrostrat/ui-components";
 
 interface IGeologicPatternBase {
   prefix: string;
-  color: string;
+  color?: string;
   id: string;
   width: number;
   height: number;
@@ -14,6 +14,7 @@ interface IGeologicPatternBase {
 
 interface IGeologicPatternProvider {
   resolvePattern(string): string;
+  children?: ReactNode;
 }
 
 const GeologicPatternContext = createContext<any>(null);
@@ -136,10 +137,11 @@ const VectorGeologicPattern = (props: IGeologicPatternBase) => {
 };
 
 interface IGeologicPattern extends IGeologicPatternBase {
+  type?: PatternType;
   invert?: boolean;
 }
 
-const GeologicPattern = (props: IGeologicPattern & { type: PatternType }) => {
+const GeologicPattern = (props: IGeologicPattern) => {
   let { type = PatternType.Vector, invert, ...rest } = props;
 
   if (invert ?? false) {

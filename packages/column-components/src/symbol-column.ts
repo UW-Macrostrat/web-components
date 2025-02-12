@@ -1,7 +1,13 @@
 import { Component, useContext } from "react";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
-import { ColumnContext, AssetPathContext } from "./context";
+import {
+  ColumnContext,
+  AssetPathContext,
+  ColumnCtx,
+  ColumnDivision,
+  AssetPathCtx,
+} from "./context";
 import { UUIDComponent } from "./frame";
 import T from "prop-types";
 
@@ -61,24 +67,18 @@ interface SymbolColumnProps {
   symbols: any[];
 }
 
-class SymbolColumn extends UUIDComponent<SymbolColumnProps> {
-  constructor(...args) {
-    super(...args);
+export class SymbolColumn extends UUIDComponent<SymbolColumnProps> {
+  constructor(props) {
+    super(props);
     this.renderSymbol = this.renderSymbol.bind(this);
   }
 
-  static initClass() {
-    this.contextType = ColumnContext;
-    this.defaultProps = {
-      width: 30,
-      left: 0,
-    };
-    this.propTypes = {
-      width: T.number,
-      left: T.number,
-      symbols: T.arrayOf(T.object).isRequired,
-    };
-  }
+  static contextType = ColumnContext;
+  context: ColumnCtx<ColumnDivision>;
+  static defaultProps = {
+    width: 30,
+    left: 0,
+  };
 
   render() {
     const { scale, pixelHeight, zoom } = this.context;
@@ -117,12 +117,11 @@ class SymbolColumn extends UUIDComponent<SymbolColumnProps> {
     return h("use", { className, y, x: 0, width, xlinkHref: href, key: id });
   }
 }
-SymbolColumn.initClass();
 
-class SymbolLegend extends Component {
-  static initClass() {
-    this.contextType = AssetPathContext;
-  }
+export class SymbolLegend extends Component {
+  static contextType = AssetPathContext;
+  context: AssetPathCtx;
+
   render() {
     const { resolveSymbol } = this.context;
     const arr = [];
@@ -138,6 +137,3 @@ class SymbolLegend extends Component {
     return h("div.symbol-legend", arr);
   }
 }
-SymbolLegend.initClass();
-
-export { SymbolColumn, SymbolLegend };

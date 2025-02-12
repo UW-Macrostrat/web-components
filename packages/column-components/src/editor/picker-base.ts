@@ -9,22 +9,29 @@ import h from "@macrostrat/hyper";
 import classNames from "classnames";
 import { Component } from "react";
 
-class PickerControl extends Component {
-  constructor(...args) {
-    super(...args);
+interface PickerControlProps {
+  states: { label: string; value: string }[];
+  activeState: string;
+  vertical: boolean;
+  isNullable: boolean;
+  onUpdate: (value: string) => void;
+}
+
+export class PickerControl extends Component<PickerControlProps> {
+  constructor(props) {
+    super(props);
     this.onUpdate = this.onUpdate.bind(this);
   }
 
-  static initClass() {
-    this.defaultProps = {
-      states: [
-        { label: "State 1", value: "state1" },
-        { label: "State 2", value: "state2" },
-      ],
-      vertical: true,
-      isNullable: false,
-    };
-  }
+  static defaultProps = {
+    states: [
+      { label: "State 1", value: "state1" },
+      { label: "State 2", value: "state2" },
+    ],
+    vertical: true,
+    isNullable: false,
+  };
+
   render() {
     const { states, activeState, vertical } = this.props;
     let className = classNames("bp5-button-group", "bp5-fill", {
@@ -68,6 +75,3 @@ class PickerControl extends Component {
     };
   }
 }
-PickerControl.initClass();
-
-export { PickerControl };

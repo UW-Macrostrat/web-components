@@ -148,7 +148,7 @@ const prefixID = function (
 interface ClipToFrameProps {
   left: number;
   shiftY: number;
-  onClick: () => void;
+  onClick?: () => void;
   frame?: any;
   width?: number;
   className?: string;

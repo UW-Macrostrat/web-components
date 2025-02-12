@@ -1,5 +1,3 @@
-import "./index.d.ts";
-
 export * from "./labels";
 export * from "./position";
 export * from "./preprocess-styles";

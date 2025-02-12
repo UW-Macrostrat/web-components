@@ -16,7 +16,7 @@ interface ColumnImageProps {
 function ColumnImage(props: ColumnImageProps) {
   const { src, insets = {}, clip = true, ...rest } = props;
   const { pixelHeight } = useContext(ColumnContext);
-  let margins: Margin = {};
+  let margins: any = {};
   for (let key in insets) {
     margins["margin" + key[0].toUpperCase() + key.slice(1)] = -insets[key];
   }

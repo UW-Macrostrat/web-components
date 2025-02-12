@@ -6,8 +6,7 @@ import {
   useEffect,
   useMemo,
 } from "react";
-import h, { compose, C } from "@macrostrat/hyper";
-import { ColumnContext } from "../context";
+import h from "@macrostrat/hyper";
 import { GeologicPattern, GeologicPatternContext } from "./patterns";
 import { UUIDProvider, useUUID } from "../frame";
 
@@ -48,6 +47,8 @@ const GeologicPatternDefs = function (props: GeologicPatternProps) {
   );
 };
 
+type LithologySymbolCtx = any;
+
 type LithProviderProps = React.PropsWithChildren<LithologySymbolCtx>;
 
 function PatternDefsProvider(props: LithProviderProps) {
@@ -82,12 +83,6 @@ function PatternDefsProvider(props: LithProviderProps) {
       ])
     )
   );
-}
-
-export function usePatternResolver() {
-  const ctx = useContext(PatternDefsContext);
-  console.log(ctx);
-  return ctx?.resolvePattern;
 }
 
 function useGeologicPattern(patternID: string, fallback: string = "#aaa") {
