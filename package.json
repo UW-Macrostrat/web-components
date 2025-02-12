@@ -6,10 +6,12 @@
   "version": "3.0.0",
   "scripts": {
     "dev": "storybook dev -p 6006 --no-open",
-    "build": "storybook build --debug",
+    "build": "yarn workspaces foreach -A -p run build",
+    "build:storybook": "storybook build --debug",
     "status": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers status",
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
-    "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish"
+    "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish",
+    "check": "tsc --noEmit"
   },
   "type": "module",
   "author": "Daven Quinn",

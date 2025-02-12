@@ -51,6 +51,11 @@ We use [Storybook](https://storybook.js.org/) for developing components in an
 isolated environment. To start the storybook, run `yarn run dev` in the root
 directory. The storybook will start at port `6006`
 
+### Other commands
+
+- Check types: `yarn run check`
+- Build all packages locally: `yarn run build`
+
 ### Publishing packages
 
 This monorepo has a custom script that helps with publishing packages.
