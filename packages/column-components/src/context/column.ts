@@ -17,6 +17,9 @@ export declare interface ColumnDivision {
   flooding_surface_order?: number;
   grainsize?: string;
   covered?: boolean;
+  // Used for boundary management control
+  definite_boundary?: boolean;
+  facies?: string;
 }
 
 enum ColumnAxisType {

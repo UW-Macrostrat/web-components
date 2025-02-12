@@ -1,33 +1,17 @@
-import { Component, createElement } from "react";
+import { Component } from "react";
 import { Slider } from "@blueprintjs/core";
-import { DeleteButton } from "@macrostrat/ui-components";
-import { format } from "d3-format";
 
-import { FaciesDescriptionSmall, FaciesCard } from "./facies";
 import { PickerControl } from "./picker-base";
-import { FaciesContext, ColumnContext } from "../context";
+import { ColumnDivision } from "../context";
 
-import {
-  LithologyPicker,
-  LithologySymbolPicker,
-  FillPatternControl,
-} from "./lithology-picker";
-import { FaciesPicker } from "./facies/picker";
-import { grainSizes } from "../grainsize";
-import { RaisedSelect } from "./util";
 import h from "@macrostrat/hyper";
-import styles from "./main.module.scss";
-import T from "prop-types";
-import { IntervalShape } from "./types";
-
-const fmt = format(".1f");
 
 const surfaceTypes = [
   { value: "mfs", label: "Maximum flooding surface" },
   { value: "sb", label: "Sequence boundary" },
 ];
 
-const SurfaceOrderSlider = function (props) {
+export function SurfaceOrderSlider(props) {
   const { interval, onChange } = props;
   //if not interval.surface_type?
   //  return h 'p', 'Please set an surface type to access orders'
@@ -49,21 +33,22 @@ const SurfaceOrderSlider = function (props) {
       return onChange({ surface_order });
     },
   });
-};
+}
 
-const HorizontalPicker = (props) =>
-  h(PickerControl, {
+export function HorizontalPicker(props) {
+  return h(PickerControl, {
     vertical: false,
     isNullable: true,
     ...props,
   });
+}
 
-class BoundaryStyleControl extends Component {
-  static initClass() {
-    this.propTypes = {
-      interval: IntervalShape,
-    };
-  }
+interface BoundaryStyleProps {
+  interval: ColumnDivision;
+  onUpdate: (d: any) => void;
+}
+
+export class BoundaryStyleControl extends Component<BoundaryStyleProps> {
   render() {
     const { interval, onUpdate } = this.props;
     const states = [
@@ -78,6 +63,3 @@ class BoundaryStyleControl extends Component {
     });
   }
 }
-BoundaryStyleControl.initClass();
-
-export { SurfaceOrderSlider, BoundaryStyleControl, HorizontalPicker };

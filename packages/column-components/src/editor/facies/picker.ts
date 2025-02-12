@@ -1,13 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { Component } from "react";
 import { hyperStyled } from "@macrostrat/hyper";
-import { FaciesContext } from "../../context";
+import { ColumnDivision, FaciesContext } from "../../context";
 import { BasicFaciesSwatch } from "./color-picker";
 import { RaisedSelect } from "../util";
 import styles from "../main.module.scss";
@@ -17,23 +10,27 @@ const h = hyperStyled(styles);
 const FaciesRow = ({ facies }) =>
   h("span.facies-picker-row", [
     h(BasicFaciesSwatch, { facies, className: "facies-color-swatch" }),
-    h("span.facies-picker-name", facies.name)
+    h("span.facies-picker-name", facies.name),
   ]);
 
-class FaciesPicker extends Component {
-  static initClass() {
-    this.contextType = FaciesContext;
-  }
+interface FaciesPickerProps {
+  interval: ColumnDivision;
+  onChange: (f: number) => void;
+}
+
+export class FaciesPicker extends Component<FaciesPickerProps> {
+  static contextType = FaciesContext;
+  context: any;
   render() {
     const { facies } = this.context;
     const { interval, onChange } = this.props;
 
-    const options = facies.map(f => ({
+    const options = facies.map((f) => ({
       value: f.id,
-      label: h(FaciesRow, { facies: f })
+      label: h(FaciesRow, { facies: f }),
     }));
 
-    let value = options.find(d => d.value === interval.facies);
+    let value = options.find((d) => d.value === interval.facies);
     if (value == null) {
       value = null;
     }
@@ -48,10 +45,7 @@ class FaciesPicker extends Component {
         console.log("Changing", res);
         const f = res != null ? res.value : null;
         return onChange(f);
-      }
+      },
     });
   }
 }
-FaciesPicker.initClass();
-
-export { FaciesPicker };
