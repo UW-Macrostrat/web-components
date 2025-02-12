@@ -3,10 +3,13 @@ import { format } from "d3-format";
 import { Component, useContext, MouseEvent, ReactNode } from "react";
 import h from "./hyper";
 import { Popover, Position, Button, Intent } from "@blueprintjs/core";
-import { ColumnLayoutContext, ColumnLayoutCtx } from "./context";
+import {
+  ColumnLayoutContext,
+  ColumnLayoutCtx,
+  ColumnDivision,
+} from "./context";
 import chroma from "chroma-js";
 import Box from "ui-box";
-import { ColumnDivision } from "./defs";
 
 const fmt = format(".1f");
 const fmt2 = format(".2f");
@@ -116,7 +119,7 @@ interface DivisionEditOverlayState {
   popoverIsOpen: boolean;
 }
 
-class DivisionEditOverlay extends Component<
+export class DivisionEditOverlay extends Component<
   DivisionEditOverlayProps,
   DivisionEditOverlayState
 > {
@@ -371,5 +374,3 @@ class DivisionEditOverlay extends Component<
     );
   }
 }
-
-export { DivisionEditOverlay };

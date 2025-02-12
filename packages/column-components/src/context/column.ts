@@ -45,16 +45,6 @@ const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
   zoom: 1,
 });
 
-const rangeOrHeight = function (props, propName) {
-  const { range, height } = props;
-  const rangeExists = range != null && range.length === 2;
-  const heightExists = height != null;
-  if (rangeExists || heightExists) {
-    return;
-  }
-  return new Error("Provide either 'range' or 'height' props");
-};
-
 interface ColumnProviderProps<T extends ColumnDivision> {
   pixelsPerMeter?: number;
   divisions: T[];

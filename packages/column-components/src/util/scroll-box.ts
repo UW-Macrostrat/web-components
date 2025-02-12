@@ -10,8 +10,7 @@ import { findDOMNode } from "react-dom";
 import Box from "ui-box";
 import h from "@macrostrat/hyper";
 
-import { ColumnContext, ColumnCtx } from "../context";
-import { ColumnDivision } from "../defs";
+import { ColumnContext, ColumnCtx, ColumnDivision } from "../context";
 
 interface ColumnScrollerProps {
   scrollToHeight: number;

@@ -1,10 +1,13 @@
 import { scaleLinear, scaleOrdinal } from "d3-scale";
 import { Component, createContext } from "react";
 import h from "@macrostrat/hyper";
-import { ColumnContext, useColumnDivisions } from "./column";
+import {
+  ColumnContext,
+  useColumnDivisions,
+  ColumnCtx,
+  ColumnDivision,
+} from "./column";
 import { useContext, useMemo, useCallback } from "react";
-import { ColumnCtx } from "./column";
-import { ColumnDivision } from "../defs";
 import { ReactNode } from "react";
 
 //# This isn't really used yet...
