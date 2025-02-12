@@ -1,11 +1,13 @@
 .column-container
-  --background-color: var(--column-background-color, #fff)
-  --stroke-color: var(--column-stroke-color, #000)
+  --column-background-color: var(--background-color, #fff)
+  --column-stroke-color: var(--text-color, #000)
+  --column-text-color: var(--text-color, #000)
 
 @media (prefers-color-scheme: dark)
   .column-container
-    --background-color: var(--column-background-color, #000)
-    --stroke-color: var(--column-stroke-color, #fff)
+    --column-background-color: var(--background-color, #000)
+    --column-stroke-color: var(--text-color, #fff)
+    --column-text-color: var(--text-color, #fff)
     color-scheme: dark
 
 .column-container :global
@@ -29,11 +31,11 @@
       transform: rotate(-90deg) translate(8px, -12px)
 
   rect.unit
-    stroke: var(--stroke-color)
+    stroke: var(--column-stroke-color)
     stroke-width: 1px
 
   g.lithology-column use.frame
-    stroke: var(--stroke-color)
+    stroke: var(--column-stroke-color)
     stroke-width: 1.5px !important
     pointer-events: none
 
@@ -66,7 +68,7 @@
 
 .column-container :global .labeled-unit .unit-overlay .unit-label
   display: block
-  text-shadow: 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color), 0px 0px 4px var(--background-color)
+  text-shadow: 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color)
 
 .column-container :global .default-buttons
   width: 100%
@@ -102,7 +104,7 @@
   color: var(--column-stroke-color)
 
 .column-container.dark-mode :global
-  color: var(--c-text-color)
+  color: var(--column-text-color)
 
 .column-container.dark-mode :global .timescale
   color: #000
