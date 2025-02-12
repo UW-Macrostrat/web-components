@@ -2600,7 +2600,6 @@ __metadata:
     "@macrostrat/color-utils": "workspace:^1.0.0"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/ui-components": "workspace:*"
-    "@types/d3-force": "npm:^3"
     "@xyflow/react": "npm:^12.3.6"
     d3-force: "npm:^3.0.0"
     parcel: "npm:^2.13.3"
@@ -5247,13 +5246,6 @@ __metadata:
   dependencies:
     "@types/d3-selection": "npm:*"
   checksum: 10c0/65e29fa32a87c72d26c44b5e2df3bf15af21cd128386bcc05bcacca255927c0397d0cd7e6062aed5f0abd623490544a9d061c195f5ed9f018fe0b698d99c079d
-  languageName: node
-  linkType: hard
-
-"@types/d3-force@npm:^3":
-  version: 3.0.10
-  resolution: "@types/d3-force@npm:3.0.10"
-  checksum: 10c0/c82b459079a106b50e346c9b79b141f599f2fc4f598985a5211e72c7a2e20d35bd5dc6e91f306b323c8bfa325c02c629b1645f5243f1c6a55bd51bc85cccfa92
   languageName: node
   linkType: hard
 

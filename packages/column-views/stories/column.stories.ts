@@ -75,7 +75,7 @@ const meta: Meta<ColumnProps> = {
   },
   decorators: [
     (Story) => {
-      return h(DarkModeProvider, h(PatternProvider, h(Story)));
+      return h(PatternProvider, h(Story));
     },
   ],
   parameters: {
