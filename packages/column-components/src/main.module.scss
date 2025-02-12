@@ -61,10 +61,12 @@ g.height-range line {
   transform: translate(0, -5px);
 }
 
+
+
 :global {
   g.note,
   g.note-editor {
-    --note-color: var(--column-note-color, var(--stroke-color, #000));
+    --note-color: var(--column-note-color, var(--column-stroke-color, var(--text-color, #000)));
   }
   g.note circle,
   g.note-editor circle {

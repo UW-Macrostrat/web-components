@@ -19,7 +19,7 @@
       "types": "./dist/index.d.ts"
     },
     "./stories/base-section": {
-      "typescript": "./stories/base-section.ts"
+      "source": "./stories/base-section.ts"
     }
   },
   "targets": {
