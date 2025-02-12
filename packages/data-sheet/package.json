@@ -7,14 +7,17 @@
   "type": "module",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "parcel build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/table": "^5.1.4",
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/ui-components": "workspace:^",
     "@supabase/postgrest-js": "^1.17.7",
     "chroma-js": "^2.4.2",
     "classnames": "^2.3.1",
@@ -27,7 +30,7 @@
   },
   "exports": {
     ".": {
-      "typescript": "./src",
+      "source": "./src/index.ts",
       "import": "./src/index.js",
       "types": "./src/index.d.ts"
     }

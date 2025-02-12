@@ -6,6 +6,7 @@ import styles from "./main.module.sass";
 import hyper from "@macrostrat/hyper";
 
 import classNames from "classnames";
+import React from "react";
 import { Omnibar, OmnibarProps } from "@blueprintjs/select";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 
@@ -44,7 +45,7 @@ const TagListItem: React.ComponentType<TagItemProps<T>> = (props) => {
 
 type BoxLifecycleProps<T> = Pick<OmnibarProps<T>, "onClose" | "isOpen">;
 
-interface OmniboxProps<T, ID = number | string> extends BoxLifecycleProps<T> {
+interface OmniboxProps<T> extends BoxLifecycleProps<T> {
   items: T[];
   selectedItem: T;
   onSelectItem: (t: T) => void;
@@ -61,7 +62,7 @@ export function OmniboxSelector<T>(props: OmniboxProps<T>) {
     resetOnSelect: false,
     isOpen,
     onClose,
-    itemRenderer(item, { handleClick, modifiers }) {
+    itemRenderer(item: T, { handleClick, modifiers }) {
       return h(TagListItem, {
         key: item.id,
         item,

@@ -7,24 +7,29 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "parcel build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
     "@babel/preset-react": "^7.18.6",
     "@blueprintjs/core": "^5.10.2",
-    "@macrostrat/color-utils": "workspace:^1.0.0",
+    "@blueprintjs/select": "^5.3.10",
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
-    "@macrostrat/ui-components": "workspace:*",
+    "@macrostrat/ui-components": "workspace:^",
     "@xyflow/react": "^12.3.6",
+    "classnames": "^2.5.1",
     "d3-force": "^3.0.0",
+    "immutability-helper": "^3.1.1",
     "react-arborist": "^3.4.0",
-    "react-text-annotate-blend": "^1.2.0"
+    "react-text-annotate-blend": "^1.2.0",
+    "use-element-dimensions": "^2.1.3"
   },
   "exports": {
     ".": {
-      "typescript": "./src",
+      "source": "./src/index.ts",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
