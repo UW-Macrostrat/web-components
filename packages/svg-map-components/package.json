@@ -8,9 +8,9 @@
     "maps",
     "vector-graphics"
   ],
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
   "source": "src/index.ts",
   "files": [
     "dist"
@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/ui-components": "workspace:^",
     "@swc/helpers": "^0.5.15",
     "@types/d3-array": "^2.0.0",
     "@types/d3-drag": "^1.2.3",
@@ -50,15 +51,14 @@
     "topojson-client": "^3.1.0"
   },
   "peerDependencies": {
-    "@macrostrat/ui-components": "workspace:^",
     "react": "^16.11.0||^17.0.0||^18.0.0",
     "react-dom": "^16.11.0||^17.0.0||^18.0.0"
   },
   "exports": {
     ".": {
-      "typescript": "./src",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js"
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "devDependencies": {

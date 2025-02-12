@@ -2809,6 +2809,7 @@ __metadata:
   resolution: "@macrostrat/svg-map-components@workspace:packages/svg-map-components"
   dependencies:
     "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/ui-components": "workspace:^"
     "@swc/helpers": "npm:^0.5.15"
     "@types/d3-array": "npm:^2.0.0"
     "@types/d3-drag": "npm:^1.2.3"
@@ -2830,7 +2831,6 @@ __metadata:
     prop-types: "npm:^15.8.1"
     topojson-client: "npm:^3.1.0"
   peerDependencies:
-    "@macrostrat/ui-components": "workspace:^"
     react: ^16.11.0||^17.0.0||^18.0.0
     react-dom: ^16.11.0||^17.0.0||^18.0.0
   languageName: unknown
