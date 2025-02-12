@@ -2,27 +2,23 @@
   "name": "@macrostrat/timescale",
   "version": "2.1.0",
   "description": "A configurable geologic timescale written with React and Typescript",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "source": "src/index.ts",
+  "type": "module",
   "exports": {
     ".": {
-      "typescript": "./src",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
-  "sideEffects": [
-    "**/*.css"
-  ],
   "files": [
     "src",
     "dist"
   ],
   "scripts": {
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
   "author": "Daven Quinn",
   "license": "MIT",

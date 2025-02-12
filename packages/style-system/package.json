@@ -6,7 +6,7 @@
   "source": "src/index.ts",
   "type": "module",
   "scripts": {
-    "build": "vite build"
+    "build": "rm -rf dist && vite build"
   },
   "dependencies": {
     "@blueprintjs/colors": "^5.1.1",
@@ -19,6 +19,9 @@
   "files": [
     "dist",
     "src"
+  ],
+  "sideEffects": [
+    "**/*.css"
   ],
   "exports": {
     ".": {

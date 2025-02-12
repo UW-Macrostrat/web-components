@@ -1,4 +1,5 @@
 import { toRGBAString, asChromaColor } from "@macrostrat/color-utils";
+import mapboxgl from "mapbox-gl";
 
 export function buildBasicStyle({
   color = "rgb(74, 242, 161)",
@@ -22,7 +23,6 @@ export function buildBasicStyle({
       tileLayer: {
         type: "vector",
         tiles: [tileURL],
-        tileSize: 512,
       },
     },
     layers: [
@@ -68,7 +68,7 @@ export function buildMacrostratStyleLayers({
   fillOpacity = 0.4,
   strokeOpacity = 0.8,
   lineOpacity = 1,
-}) {
+}): mapboxgl.AnyLayer[] {
   strokeOpacity = Math.max(Math.min(strokeOpacity, 1), 0);
   fillOpacity = Math.max(Math.min(fillOpacity, 1), 0);
   lineOpacity = Math.max(Math.min(lineOpacity, 1), 0);

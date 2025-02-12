@@ -11,7 +11,7 @@ import mapboxgl, {
   LngLatLike,
   PaddingOptions,
 } from "mapbox-gl";
-import centroid from "@turf/centroid";
+import type { GeoJSON } from "geojson";
 
 const h = hyper.styled(styles);
 
@@ -371,7 +371,11 @@ export function isCentered(focusState: PositionFocusState) {
 }
 
 function getCenterAndBestZoom(
-  input: [number, number] | GeoJSON.Geometry | GeoJSON.BBox
+  input:
+    | [number, number]
+    | GeoJSON.Geometry
+    | GeoJSON.BBox
+    | mapboxgl.LngLatLike
 ) {
   let box: GeoJSON.BBox;
   let center: [number, number] | null = null;

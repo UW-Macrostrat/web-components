@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "A react library",
   "scripts": {
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
   "authors": [
     "Casey Idzikowski",

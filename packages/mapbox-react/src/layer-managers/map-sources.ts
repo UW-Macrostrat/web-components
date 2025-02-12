@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useMapElement } from "@macrostrat/mapbox-react";
+import { useMapElement } from "../context";
 import { useAPIResult } from "@macrostrat/ui-components";
 
 const sourceMapStyle = {

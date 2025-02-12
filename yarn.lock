@@ -2736,7 +2736,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/map-styles@npm:^1.0.2, @macrostrat/map-styles@workspace:packages/map-styles":
+"@macrostrat/map-styles@workspace:^, @macrostrat/map-styles@workspace:packages/map-styles":
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-styles@workspace:packages/map-styles"
   dependencies:
@@ -2753,9 +2753,9 @@ __metadata:
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:
     "@macrostrat/hyper": "npm:^3.0.6"
-    "@macrostrat/map-styles": "npm:^1.0.2"
-    "@macrostrat/mapbox-utils": "npm:^1.3.2"
-    "@macrostrat/ui-components": "npm:^4.0.4"
+    "@macrostrat/map-styles": "workspace:^"
+    "@macrostrat/mapbox-utils": "workspace:^"
+    "@macrostrat/ui-components": "workspace:^"
     "@turf/bbox": "npm:^7.1.0"
     "@turf/centroid": "npm:^7.1.0"
     "@types/mapbox-gl": "npm:^2.7.5"
@@ -2772,7 +2772,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/mapbox-utils@npm:^1.3.2, @macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
+"@macrostrat/mapbox-utils@npm:^1.3.2, @macrostrat/mapbox-utils@workspace:^, @macrostrat/mapbox-utils@workspace:packages/mapbox-utils":
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-utils@workspace:packages/mapbox-utils"
   dependencies:

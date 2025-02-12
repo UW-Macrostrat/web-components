@@ -29,12 +29,9 @@
     "src",
     "dist"
   ],
-  "sideEffects": [
-    "**/*.css"
-  ],
   "scripts": {
     "dev": "parcel watch",
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
   "author": "Daven Quinn <dev@davenquinn.com>",
   "license": "MIT",

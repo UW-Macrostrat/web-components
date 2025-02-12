@@ -16,11 +16,8 @@
   },
   "scripts": {
     "dev": "parcel watch",
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
-  "sideEffects": [
-    "**/*.css"
-  ],
   "files": [
     "dist",
     "src"

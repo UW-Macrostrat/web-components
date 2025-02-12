@@ -14,7 +14,7 @@
     }
   },
   "scripts": {
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
   "author": "Daven Quinn",
   "license": "ISC",

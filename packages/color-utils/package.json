@@ -3,11 +3,11 @@
   "version": "1.0.0",
   "description": "Color utility functions",
   "type": "module",
-  "main": "dist/main.js",
-  "types": "dist/types.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "scripts": {
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -17,7 +17,7 @@
   },
   "exports": {
     ".": {
-      "typescript": "./src",
+      "source": "./src/index.ts",
       "import": "./dist/main.js",
       "types:": "./dist/types.d.ts"
     }

@@ -35,11 +35,11 @@
   },
   "scripts": {
     "dev": "parcel watch",
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
   "exports": {
     ".": {
-      "typescript": "./src",
+      "source": "./src/index.ts",
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
       "types": "./dist/esm/index.d.ts"

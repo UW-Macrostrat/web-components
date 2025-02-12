@@ -1,5 +1,6 @@
 /** Experimental line symbol support */
-import { useMapConditionalStyle, useMapRef } from "@macrostrat/mapbox-react";
+import { useMapRef } from "../context";
+import { useMapConditionalStyle } from "../hooks";
 import { useEffect } from "react";
 import { toggleLineSymbols } from "@macrostrat/map-styles";
 

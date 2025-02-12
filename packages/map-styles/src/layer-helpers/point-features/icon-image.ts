@@ -1,4 +1,5 @@
 /** Functions for getting the proper icon symbol for measurement features. */
+import { PointSymbolName } from "./symbols";
 
 interface PlanarOrientationData {
   dip: number;
@@ -6,6 +7,7 @@ interface PlanarOrientationData {
   foliation_type: string;
   foliation_defined_by?: string;
   type: string;
+  facing?: string;
 }
 
 interface LinearOrientationData {
@@ -18,59 +20,85 @@ interface LinearOrientationData {
 type OrientationData = PlanarOrientationData | LinearOrientationData;
 
 interface MeasurementData {
-  orientation: OrientationData;
+  properties: {
+    symbology: Record<string, any>;
+    symbol_name?: PointSymbolName;
+    orientation: OrientationData;
+  };
 }
 
-export function getOrientationSymbolName(o: OrientationData) {
+export function getOrientationSymbolName(o: OrientationData): PointSymbolName {
   /** Get a symbol for a measurement based on its orientation.
    * This straightforward construction is more or less
    * equivalent to the logic in the Mapbox GL style specification above.
    */
   if (o == null) return null;
-  let { feature_type, type } = o;
-  const symbol_orientation = o.dip ?? o.plunge ?? 0;
 
-  if (["fault", "fracture", "vein"].includes(feature_type)) {
-    return feature_type;
-  }
+  let featureType: string | null = null;
+  let symbolInclination = 0;
+  let symbolBase: "bedding" | "contact" | "foliation" | "shearZone";
 
-  if (type == "planar_orientation") {
-    feature_type = "bedding";
-  }
+  if (o.hasOwnProperty("dip")) {
+    const data = o as PlanarOrientationData;
+    symbolInclination = data.dip;
+    const { type, facing } = data;
 
-  if (type == "tabular_orientation") {
-    feature_type = "bedding";
-  }
-
-  if (type == "linear_orientation") {
-    return "lineationGeneral";
-  }
-
-  if (o.facing == "overturned" && feature_type == "bedding") {
-    return "beddingOverturned";
-  }
-
-  if (
-    symbol_orientation == 0 &&
-    (feature_type == "bedding" || feature_type == "foliation")
-  ) {
-    return `${feature_type}Horizontal`;
-  }
-  if (
-    symbol_orientation > 0 &&
-    symbol_orientation <= 90 &&
-    ["bedding", "contact", "foliation", "shear_zone"].includes(feature_type)
-  ) {
-    if (symbol_orientation == 90) {
-      return `${feature_type}Vertical`;
+    if (type == "planar_orientation") {
+      featureType = "bedding";
     }
-    return `${feature_type}Inclined`;
+
+    if (type == "tabular_orientation") {
+      featureType = "bedding";
+    }
+
+    if (type == "linear_orientation") {
+      return "lineationGeneral";
+    }
+
+    if (facing == "overturned" && featureType == "bedding") {
+      return "beddingOverturned";
+    }
+  }
+  if (o.hasOwnProperty("plunge")) {
+    const data = o as LinearOrientationData;
+    symbolInclination = data.plunge;
+    featureType = data.feature_type;
+  }
+
+  if (["fault", "fracture", "vein"].includes(featureType)) {
+    return featureType as "fault" | "fracture" | "vein";
+  }
+
+  if (
+    symbolInclination == 0 &&
+    (featureType == "bedding" || featureType == "foliation")
+  ) {
+    symbolBase = featureType as "bedding" | "foliation";
+    return `${symbolBase}Horizontal`;
+  }
+  if (
+    symbolInclination > 0 &&
+    symbolInclination <= 90 &&
+    ["bedding", "contact", "foliation", "shear_zone"].includes(featureType)
+  ) {
+    if (featureType == "shear_zone") {
+      symbolBase = "shearZone";
+    } else {
+      symbolBase = featureType as "bedding" | "contact" | "foliation";
+    }
+
+    if (symbolInclination == 90) {
+      return `${symbolBase}Vertical`;
+    }
+    return `${symbolBase}Inclined`;
   }
 
   return "point";
 }
 
-export function preprocessMeasurement(measurement: MeasurementData) {
+export function preprocessMeasurement(
+  measurement: MeasurementData
+): MeasurementData {
   /**
    * Prepare a measurement for use on the map, by programmatically setting the
    * name of the appropriate orientation symbol.

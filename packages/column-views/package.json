@@ -11,13 +11,13 @@
   ],
   "exports": {
     ".": {
-      "typescript": "./src",
+      "source": "./src/index.ts",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     }
   },
   "scripts": {
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
   "targets": {
     "types": false
