@@ -24,7 +24,11 @@
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/icons": "^5.9.0",
+    "@blueprintjs/select": "^5.3.10",
+    "@blueprintjs/table": "^5.3.4",
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/ui-components": "workspace:^",
     "@mantine/core": "^4.2.1",
     "@mantine/hooks": "^4.2.1",
     "@mapbox/mapbox-gl-draw": "^1.3.0",
@@ -33,23 +37,19 @@
     "axios": "^1.7.9",
     "mapbox-gl": "^2.15.0"
   },
+  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "sideEffects": [
-    "**/*.css"
-  ],
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
     "src",
     "dist"
   ],
   "exports": {
     ".": {
-      "typescript": "./src",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "repository": {

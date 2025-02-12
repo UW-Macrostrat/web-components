@@ -5,7 +5,7 @@ export function asChromaColor(
 ): Color | null {
   // Check if is a chroma color already
   // @ts-ignore
-  if (color instanceof Color) {
+  if (color instanceof chroma.Color) {
     return color as Color;
   }
   try {

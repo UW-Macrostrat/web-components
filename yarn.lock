@@ -1486,6 +1486,25 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blueprintjs/select@npm:^5.3.10":
+  version: 5.3.10
+  resolution: "@blueprintjs/select@npm:5.3.10"
+  dependencies:
+    "@blueprintjs/core": "npm:^5.16.5"
+    "@blueprintjs/icons": "npm:^5.18.0"
+    classnames: "npm:^2.3.1"
+    tslib: "npm:~2.6.2"
+  peerDependencies:
+    "@types/react": ^16.14.41 || 17 || 18
+    react: ^16.8 || 17 || 18
+    react-dom: ^16.8 || 17 || 18
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/7ce21111388eca5fef1905c973b86d59a35b709ad409ba7e3bb5a57db61b8076e73d435dff53fbcbc29108260225f9e2e63062cf26505663ae118dba28dc859f
+  languageName: node
+  linkType: hard
+
 "@blueprintjs/select@npm:^5.3.9":
   version: 5.3.9
   resolution: "@blueprintjs/select@npm:5.3.9"
@@ -1521,6 +1540,25 @@ __metadata:
     "@types/react":
       optional: true
   checksum: 10c0/6dd3dcb06e3c5afd740785e5a7a9aab0a126ca67b334512a05ab10e664c9fabf05ba6389b913066b5bd34ee0f6b76914359b183e86e8bef90070a46f2ad89c44
+  languageName: node
+  linkType: hard
+
+"@blueprintjs/table@npm:^5.3.4":
+  version: 5.3.4
+  resolution: "@blueprintjs/table@npm:5.3.4"
+  dependencies:
+    "@blueprintjs/core": "npm:^5.16.5"
+    classnames: "npm:^2.3.1"
+    react-innertext: "npm:^1.1.5"
+    tslib: "npm:~2.6.2"
+  peerDependencies:
+    "@types/react": ^16.14.41 || 17 || 18
+    react: ^16.8 || 17 || 18
+    react-dom: ^16.8 || 17 || 18
+  peerDependenciesMeta:
+    "@types/react":
+      optional: true
+  checksum: 10c0/5c45a11b79f79aea5104791f92d9f8c7eb2527ef0e397425fb5f902df76811592dc4a0047facbb492187b1316e2d7a567d289c55932c572ba0ec18218edcb6eb
   languageName: node
   linkType: hard
 
@@ -2620,7 +2658,11 @@ __metadata:
   dependencies:
     "@blueprintjs/core": "npm:^5.10.2"
     "@blueprintjs/icons": "npm:^5.9.0"
+    "@blueprintjs/select": "npm:^5.3.10"
+    "@blueprintjs/table": "npm:^5.3.4"
+    "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/ui-components": "workspace:^"
     "@mantine/core": "npm:^4.2.1"
     "@mantine/hooks": "npm:^4.2.1"
     "@mapbox/mapbox-gl-draw": "npm:^1.3.0"
