@@ -145,7 +145,7 @@ const prefixID = function (
   return res;
 };
 
-interface ClipToFrameProps {
+export interface ClipToFrameProps {
   left: number;
   shiftY: number;
   onClick?: () => void;

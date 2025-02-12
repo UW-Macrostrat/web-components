@@ -31,7 +31,7 @@ const ColumnLayoutContext = createContext<ColumnLayoutCtx<ColumnDivision>>({
   zoom: 1,
 });
 
-interface ColumnLayoutProviderProps<T extends ColumnDivision>
+export interface ColumnLayoutProviderProps<T extends ColumnDivision>
   extends Partial<ColumnCtx<T>> {
   grainSizes?: string[];
   grainsizeScale?: (d: string) => number;
