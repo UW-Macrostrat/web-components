@@ -122,7 +122,7 @@ export const Wide: Story = {
   },
 };
 
-export function BasicUnitViewer() {
+function BasicUnitViewer() {
   const unit = useSelectedUnit();
   if (unit == null) {
     return null;
@@ -131,7 +131,7 @@ export function BasicUnitViewer() {
   return h("div.unit-viewer", JSONView({ data: unit, showRoot: false }));
 }
 
-export function WithBasicUnitSelection() {
+export function WithBasicUnitViewer() {
   return h(
     UnitSelectionProvider,
     h(BasicColumn, { id: 432, showLabelColumn: true }, [h(BasicUnitViewer)])
