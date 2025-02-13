@@ -2678,6 +2678,7 @@ __metadata:
     "@types/react": "npm:^17.0.38"
     "@types/react-dom": "npm:^17.0.16||^18.0.0"
     axios: "npm:^1.7.9"
+    classnames: "npm:^2.5.1"
     mapbox-gl: "npm:^2.15.0"
     parcel: "npm:^2.13.3"
   peerDependencies:
