@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/svg-map-components",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React components for vector maps",
   "keywords": [
     "gis",
@@ -13,6 +13,7 @@
   "type": "module",
   "source": "src/index.ts",
   "files": [
+    "src",
     "dist"
   ],
   "author": "Daven Quinn <dev@davenquinn.com>",
