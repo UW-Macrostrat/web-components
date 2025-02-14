@@ -196,6 +196,11 @@ export async function checkIfPackageCanBePublished(
     await packageVersionExistsInRegistry(data);
   let canPublish = !isAvailable;
 
+  if (lastVersionAvailable == null) {
+    // no published versions
+    return canPublish;
+  }
+
   const lastVersionInfo = {
     name: data.name,
     version: lastVersionAvailable,

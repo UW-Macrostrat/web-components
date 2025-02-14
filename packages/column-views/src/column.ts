@@ -61,7 +61,7 @@ export interface ColumnProps extends IColumnProps {
   className?: string;
   mergeOverlappingSections?: boolean;
   showLabelColumn?: boolean;
-  columnRef?: RefObject<HTMLDivElement>;
+  columnRef?: RefObject<HTMLElement>;
   keyboardNavigation?: boolean;
   showUnitPopover?: boolean;
   t_age?: number;
@@ -146,7 +146,7 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
     {
       className,
       onClick(evt) {
-        dispatch?.(null, null, evt);
+        dispatch?.(null, null, evt as any);
       },
     },
     h(MacrostratUnitsProvider, { units: data }, [

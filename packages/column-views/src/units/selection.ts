@@ -135,7 +135,7 @@ function extractColumnArgs(search: any): ColumnArgs | null {
 }
 
 export function ColumnNavProvider({ children, ...defaultArgs }) {
-  const value = useColumnNav(defaultArgs);
+  const value = useColumnNav(defaultArgs as any);
   return h(ColumnNavCtx.Provider, { value }, children);
 }
 

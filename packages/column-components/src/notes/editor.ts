@@ -1,16 +1,9 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import { createContext, useState, useContext, memo } from "react";
+import { createContext, useState, useContext, ComponentType } from "react";
 import { ModelEditorProvider, useModelEditor, ColumnContext } from "../context";
 import { EditableText } from "@blueprintjs/core";
 import classNames from "classnames";
 import h from "../hyper";
-import T from "prop-types";
-import { NoteData, NoteShape } from "./types";
+import { NoteData } from "./types";
 import { ForeignObject } from "../util";
 import { NoteLayoutContext, NoteRect } from "./layout";
 import { NotePositioner, NoteConnector } from "./connector";
@@ -39,7 +32,16 @@ const NoteTextEditor = function (props: NoteEditorProps) {
   });
 };
 
-function NoteEditorProvider(props) {
+interface NoteEditorProviderProps {
+  inEditMode: boolean;
+  noteEditor: ComponentType<NoteEditorProps>;
+  onUpdateNote: (n: NoteData) => void;
+  onDeleteNote: (n: NoteData) => void;
+  onCreateNote: Function;
+  children?: React.ReactNode;
+}
+
+function NoteEditorProvider(props: NoteEditorProviderProps) {
   let { children, inEditMode = false, noteEditor } = props;
   const { notes } = useContext(NoteLayoutContext);
 
@@ -92,13 +94,6 @@ function NoteEditorProvider(props) {
     ),
   ]);
 }
-
-NoteEditorProvider.propTypes = {
-  inEditMode: T.bool,
-  noteEditor: T.elementType.isRequired,
-  onUpdateNote: T.func.isRequired,
-  onDeleteNote: T.func.isRequired,
-};
 
 const NoteConnectorPath = function (props) {
   const { d, offsetX, className } = props;
@@ -170,7 +165,7 @@ const PointHandle = function (props) {
   );
 };
 
-var PositionEditorInner = function (props) {
+function PositionEditorInner(props) {
   let updateModel;
   let { note, margin } = props;
   if (margin == null) {
@@ -260,7 +255,7 @@ var PositionEditorInner = function (props) {
       }),
     ])
   );
-};
+}
 
 const NoteEditorUnderlay = function ({ padding }) {
   const { width } = useContext(NoteLayoutContext);
@@ -320,4 +315,5 @@ const NoteEditor = function (props) {
   ]);
 };
 
+export type { NoteData };
 export { NoteEditorProvider, NoteEditorContext, NoteTextEditor, NoteEditor };

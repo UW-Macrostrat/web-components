@@ -1,9 +1,8 @@
 import { ComponentType, useContext } from "react";
 import h from "../hyper";
-import T from "prop-types";
 import { NotesList } from "./note";
 import NoteDefs from "./defs";
-import { NoteShape } from "./types";
+import { NoteData } from "./types";
 import { useModelEditor, ColumnContext } from "../context";
 import { NoteLayoutProvider, NoteUnderlay } from "./layout";
 import {
@@ -13,8 +12,15 @@ import {
   NoteEditorProvider,
 } from "./editor";
 import { NewNotePositioner } from "./new";
+export * from "./types";
 
-const NoteComponent = function (props) {
+interface NoteComponentProps {
+  visibility: string;
+  note: NoteData;
+  onClick: Function;
+}
+
+function NoteComponent(props: NoteComponentProps) {
   const { visibility, note, onClick } = props;
   const text = note.note;
   return h(
@@ -25,12 +31,7 @@ const NoteComponent = function (props) {
     },
     text
   );
-};
-
-NoteComponent.propTypes = {
-  onClick: T.func,
-  note: NoteShape.isRequired,
-};
+}
 
 const CancelEditUnderlay = function () {
   const { setEditingNote } = useContext(NoteEditorContext) as any;
@@ -43,7 +44,22 @@ const CancelEditUnderlay = function () {
   });
 };
 
-function EditableNotesColumn(props) {
+interface EditableNotesColumnProps {
+  width?: number;
+  paddingLeft?: number;
+  transform?: string;
+  notes?: NoteData[];
+  inEditMode?: boolean;
+  onUpdateNote?: (n: NoteData) => void;
+  onDeleteNote?: (n: NoteData) => void;
+  onCreateNote?: Function;
+  noteComponent?: ComponentType<any>;
+  noteEditor?: ComponentType<any>;
+  allowPositionEditing?: boolean;
+  forceOptions?: object;
+}
+
+function EditableNotesColumn(props: EditableNotesColumnProps) {
   const {
     width,
     paddingLeft = 60,
@@ -96,31 +112,15 @@ function EditableNotesColumn(props) {
     ]
   );
 }
-EditableNotesColumn.propTypes = {
-  notes: T.arrayOf(NoteShape).isRequired,
-  width: T.number.isRequired,
-  paddingLeft: T.number,
-  onUpdateNote: T.func,
-  onCreateNote: T.func,
-  onDeleteNote: T.func,
-  editingNote: NoteShape,
-  onEditNote: T.func,
-  inEditMode: T.bool,
-  noteComponent: T.elementType,
-  noteEditor: T.elementType,
-  allowPositionEditing: T.bool,
-  forceOptions: T.object,
-};
-
-type Note = any;
 
 interface NotesColumnBaseProps {
   width?: number;
   paddingLeft?: number;
   transform?: string;
-  notes?: Note[];
-  noteComponent?: React.ComponentType<any>;
+  notes?: NoteData[];
+  noteComponent?: ComponentType<any>;
 }
+
 function StaticNotesColumn(props: NotesColumnBaseProps) {
   const {
     width,
@@ -149,13 +149,6 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
   );
 }
 
-StaticNotesColumn.propTypes = {
-  notes: T.arrayOf(NoteShape).isRequired,
-  width: T.number.isRequired,
-  paddingLeft: T.number,
-  noteComponent: T.elementType,
-};
-
 function NotesColumn(props) {
   const { editable = true, ...rest } = props;
   const ctx = useContext(ColumnContext);
@@ -167,7 +160,7 @@ function NotesColumn(props) {
 }
 
 interface NotesColumnProps {
-  editable: boolean;
+  editable?: boolean;
 }
 
 export {
