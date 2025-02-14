@@ -35,6 +35,9 @@ export function getPackages(...globPatterns: string[]): string[] {
     // Remove prefix
     packages.push(...paths);
   }
+  // sort packages by name
+  packages.sort();
+
   return packages;
 }
 
@@ -136,15 +139,17 @@ function buildModuleDiffCommand(pkg, flags = "", tag = null) {
   return `git diff ${flags} ${tag} -- ${moduleDir}`.replace(/\s+/g, " ");
 }
 
-function moduleHasChangesSinceTag(pkg) {
+function moduleHasChangesSinceTag(pkg): boolean | null {
   /** Check if a module has changes since the tag matching the current release */
   try {
-    execSync(buildModuleDiffCommand(pkg, "--exit-code"));
+    execSync(buildModuleDiffCommand(pkg, "--exit-code"), { stdio: "ignore" });
     // if the command exits with 0, there are no changes
+    return false;
   } catch (res) {
     if (res.status == 128) {
       // if the command exits with 128, the tag doesn't exist
       console.log(chalk.red(`Tag ${moduleString(pkg)} doesn't exist.`));
+      return null;
     }
 
     return res.status != 0;
@@ -205,7 +210,9 @@ export async function checkIfPackageCanBePublished(
     name: data.name,
     version: lastVersionAvailable,
   };
-  if (moduleHasChangesSinceTag(lastVersionInfo)) {
+  const hasChanges = moduleHasChangesSinceTag(lastVersionInfo);
+
+  if (hasChanges != null && hasChanges) {
     // the module code has changed since the current published version
     printChangeInfoForPublishedPackage(lastVersionInfo, true);
   }
