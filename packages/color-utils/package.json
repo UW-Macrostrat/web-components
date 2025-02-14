@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/color-utils",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Color utility functions",
   "type": "module",
   "main": "dist/index.js",
@@ -19,7 +19,7 @@
     ".": {
       "source": "./src/index.ts",
       "import": "./dist/index.js",
-      "types:": "./dist/types.d.ts"
+      "types:": "./dist/index.d.ts"
     }
   },
   "files": [
