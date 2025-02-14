@@ -2,12 +2,15 @@
 
 ### `[1.0.0]` - 2025-02-04
 
-Renamed to `@macrostrat/svg-map-components` to avoid confusion with other map
-libraries.
+- Renamed to `@macrostrat/svg-map-components` to avoid confusion with other map
+  libraries.
+- Moved some UI components to `@macrostrat/ui-components` package.
+- Improved typings and documentation.
 
 ### [0.2.1]
 
 - Add better state handling and ability to reset projection.
+- Last release as `@macrostrat/map-components`
 
 ### [0.2.0] August 2020
 

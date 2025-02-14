@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "2.0.1",
+  "version": "2.0.0",
   "description": "",
   "source": "src/index.ts",
   "main": "dist/index.js",
