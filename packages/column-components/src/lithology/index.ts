@@ -329,7 +329,7 @@ class LithologyBoxes extends UUIDComponent<any> {
 
 const LithologyColumnInner = LithologyBoxes;
 
-interface LithologyColumnProps {
+export interface LithologyColumnProps {
   width: number;
   left?: number;
   children?: React.ReactNode;

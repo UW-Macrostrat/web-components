@@ -45,7 +45,7 @@ const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
   zoom: 1,
 });
 
-interface ColumnProviderProps<T extends ColumnDivision> {
+export interface ColumnProviderProps<T extends ColumnDivision> {
   pixelsPerMeter?: number;
   divisions: T[];
   range?: HeightRange | any;

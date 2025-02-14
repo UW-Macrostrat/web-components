@@ -46,7 +46,7 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   className?: string;
 }
 
-interface LabeledUnitProps
+export interface LabeledUnitProps
   extends UnitRectOptions,
     Clickable,
     Partial<RectBounds> {

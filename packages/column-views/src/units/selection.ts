@@ -34,7 +34,7 @@ export function useSelectedUnit() {
   return useContext(UnitSelectionContext);
 }
 
-interface UnitSelectionProps<T extends BaseUnit> {
+export interface UnitSelectionProps<T extends BaseUnit> {
   children: React.ReactNode;
   unit: T | null;
   setUnit: Dispatch<SetStateAction<T>>;
