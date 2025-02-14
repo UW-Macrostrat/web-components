@@ -29,13 +29,18 @@
       "import": "./dist/style-system.css",
       "require": "./dist/style-system.css"
     },
+    "./dist/style-system.css": {
+      "source": "./src/index.ts",
+      "import": "./dist/style-system.css",
+      "require": "./dist/style-system.css"
+    },
     "./src/colors.scss": {
       "source": "./src/colors.scss",
       "import": "./src/colors.scss"
     },
     "./src/main.scss": {
-      "source": "./src/main.scss",
-      "import": "./src/main.scss"
+      "source": "./src/main.sass",
+      "import": "./src/main.sass"
     },
     "./src/index.ts": {
       "source": "./src/index.ts",

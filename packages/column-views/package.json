@@ -19,9 +19,6 @@
   "scripts": {
     "build": "rm -rf dist && parcel build"
   },
-  "targets": {
-    "types": false
-  },
   "dependencies": {
     "@macrostrat/api-types": "workspace:^",
     "@macrostrat/column-components": "workspace:^",

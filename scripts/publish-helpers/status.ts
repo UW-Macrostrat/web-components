@@ -76,37 +76,45 @@ function getPackageInfo(pkg) {
 }
 
 /* makes query to npm to see if package with version exists */
-async function packageVersionExistsInRegistry(pkg) {
+async function packageVersionExistsInRegistry(
+  pkg
+): Promise<[boolean, string | null]> {
   const info = getPackageInfo(pkg);
 
   if (info == null) {
     console.log(
       chalk.red("No published version found for " + chalk.bold(pkg.name))
     );
-    return false;
+    return [false, null];
   }
 
-  const exists = info.versions.includes(pkg.version);
+  const currentVersionExists: boolean = info.versions.includes(pkg.version);
 
   let msg = chalk.bold(moduleString(pkg));
-  if (!exists) {
+  // Show last version
+  const lastVersion: string | null =
+    info.versions[info.versions.length - 1] ?? null;
+  if (!currentVersionExists) {
     msg += " will be published";
     console.log(chalk.greenBright(msg));
+    checkForChangelogEntry(pkg);
+  }
 
-    // Show last version
-    const lastVersion = info.versions[info.versions.length - 1];
-    if (lastVersion) {
-      const time = getNiceTimeSincePublished(info, lastVersion);
-      console.log(chalk.dim(`Version ${lastVersion} was published ${time}`));
-    }
-  } else {
+  if (currentVersionExists) {
     // Print the publication date for the version
     const time = getNiceTimeSincePublished(info, pkg.version);
     msg += ` was published ${time}`;
     console.log(chalk.blueBright(msg));
+    console.log();
+  } else {
+    if (lastVersion != null) {
+      console.log();
+      const time = getNiceTimeSincePublished(info, lastVersion);
+      console.log(chalk.dim(`Version ${lastVersion} was published ${time}`));
+    }
   }
 
-  return exists;
+  return [currentVersionExists, lastVersion];
 }
 
 function getNiceTimeSincePublished(info, version): string {
@@ -121,8 +129,8 @@ function makeRelative(dir) {
   return path.relative(process.cwd(), dir);
 }
 
-function buildModuleDiffCommand(pkg, flags = "") {
-  const tag = moduleString(pkg, "-v");
+function buildModuleDiffCommand(pkg, flags = "", tag = null) {
+  tag ??= moduleString(pkg, "-v");
   const moduleDir = makeRelative(getPackageDirectory(pkg["name"]));
 
   return `git diff ${flags} ${tag} -- ${moduleDir}`.replace(/\s+/g, " ");
@@ -184,15 +192,17 @@ function moduleString(pkg, separator = "@") {
 export async function checkIfPackageCanBePublished(
   data: PackageData
 ): Promise<boolean> {
-  const isAvailable = await packageVersionExistsInRegistry(data);
-  let canPublish = false;
-  if (!isAvailable) {
-    canPublish = true;
-    checkForChangelogEntry(data);
-  }
-  if (isAvailable && moduleHasChangesSinceTag(data)) {
+  const [isAvailable, lastVersionAvailable] =
+    await packageVersionExistsInRegistry(data);
+  let canPublish = !isAvailable;
+
+  const lastVersionInfo = {
+    name: data.name,
+    version: lastVersionAvailable,
+  };
+  if (moduleHasChangesSinceTag(lastVersionInfo)) {
     // the module code has changed since the current published version
-    printChangeInfoForPublishedPackage(data, true);
+    printChangeInfoForPublishedPackage(lastVersionInfo, true);
   }
 
   return canPublish;
