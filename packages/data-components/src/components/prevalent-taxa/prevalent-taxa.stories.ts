@@ -3,12 +3,12 @@ import h from "@macrostrat/hyper";
 import { PrevalentTaxa } from "./prevalent-taxa";
 
 export default {
-  title: "Data components/Prevalent taxa (PBDB integration)",
+  title: "Data components/PBDB integration/Prevalent taxa",
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-  args: {}
+  args: {},
 } as ComponentMeta<any>;
 
-const Template: ComponentStory<typeof PrevalentTaxa> = args =>
+const Template: ComponentStory<typeof PrevalentTaxa> = (args) =>
   h(PrevalentTaxa, { ...args });
 
 export const PrevalentTaxaExample = Template.bind();

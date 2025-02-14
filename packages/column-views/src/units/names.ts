@@ -6,26 +6,30 @@ import {
   NotesColumn,
   NotesColumnProps,
 } from "@macrostrat/column-components";
-import { INote } from "@macrostrat/column-components";
+import type { ColumnDivision } from "@macrostrat/column-components";
 import { IUnit, transformAxisType } from "./types";
 import React from "react";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
-  transform: string;
-  noteComponent: React.ComponentType<any>;
-  shouldRenderNote?(note: INote, index: number, array: INote[]): boolean;
+  transform?: string;
+  noteComponent?: React.ComponentType<any>;
+  shouldRenderNote?(div: ColumnDivision | IUnit, index: number): boolean;
   divisions?: IUnit[];
   minimumHeight?: number;
 }
-interface UnitNamesProps extends Omit<UnitDataProps, "noteComponent"> {
-  nameForDivision?(obj: IUnit): string;
-}
+
+type UnitNote = {
+  height: number;
+  top_height: number;
+  data: IUnit;
+  id: number;
+};
 
 function noteForDivision(
   div: IUnit,
   opts: { axisType: ColumnAxisType }
-): INote {
+): UnitNote {
   const { axisType } = opts;
 
   const key = transformAxisType(axisType);
@@ -49,7 +53,7 @@ function UnitDataColumn_(props: UnitDataProps) {
   const {
     left,
     noteComponent,
-    shouldRenderNote = () => true,
+    shouldRenderNote = (note: ColumnDivision | IUnit, i: number) => true,
     minimumHeight = 0,
     divisions = ctx?.divisions,
     ...rest
@@ -67,9 +71,9 @@ function UnitDataColumn_(props: UnitDataProps) {
   );
 
   if (divisions == null) return null;
-  const notes: INote[] = divisions
+  const notes: UnitNote[] = divisions
     .filter(shouldRenderNote)
-    .map((d) => noteForDivision(d, { axisType: ctx.axisType }))
+    .map((d: IUnit) => noteForDivision(d, { axisType: ctx.axisType }))
     .filter(minimumHeightFilter);
 
   return h(NotesColumn, {
@@ -86,7 +90,13 @@ function UnitDataColumn_(props: UnitDataProps) {
 
 const UnitDataColumn = React.memo(UnitDataColumn_);
 
-const UnitNamesColumn = (props: UnitNamesProps) => {
+interface UnitNamesProps extends UnitDataProps {
+  nameForDivision?(obj: IUnit): string;
+  paddingLeft?: number;
+  width: number;
+}
+
+export function UnitNamesColumn(props: UnitNamesProps) {
   const {
     nameForDivision = defaultNameFunction,
     noteComponent,
@@ -102,12 +112,7 @@ const UnitNamesColumn = (props: UnitNamesProps) => {
     noteComponent: noteComponent ?? NoteComponent,
     ...rest,
   });
-};
+}
 
-export {
-  UnitNamesColumn,
-  defaultNameFunction,
-  noteForDivision,
-  UnitDataColumn,
-  UnitNamesProps,
-};
+export type { UnitNamesProps };
+export { defaultNameFunction, noteForDivision, UnitDataColumn };

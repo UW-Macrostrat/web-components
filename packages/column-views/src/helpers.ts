@@ -6,7 +6,7 @@ import {
   AgeRange,
   compareAgeRanges,
   AgeRangeRelationship,
-} from "@macrostrat/chronostrat-utils";
+} from "@macrostrat/stratigraphy-utils";
 
 const dt = 0.001;
 

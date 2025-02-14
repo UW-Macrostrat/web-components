@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 import { LithologyColumn } from "@macrostrat/column-components";
 import { UnitNamesColumn } from "./names";
-import { CompositeUnitsColumn, ICompositeUnitProps } from "./composite";
+import { ICompositeUnitProps } from "./composite";
 import { UnitBoxes } from "./boxes";
 
 const UnitsColumn = ({ width = 100 }) => {
@@ -30,12 +30,7 @@ const SimpleUnitsColumn = (props: ICompositeUnitProps) => {
   ]);
 };
 
-export {
-  UnitsColumn,
-  UnitNamesColumn,
-  SimpleUnitsColumn,
-  CompositeUnitsColumn,
-};
+export { UnitsColumn, SimpleUnitsColumn };
 export * from "./composite";
 export * from "./types";
 export * from "./selection";

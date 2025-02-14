@@ -8,6 +8,7 @@ import { formatDistance } from "date-fns";
 import { marked } from "marked";
 import { markedTerminal } from "marked-terminal";
 import process from "process";
+import { globSync } from "glob";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,8 +28,17 @@ export function readPackageJSON(dirname): PackageJSONData {
   return JSON.parse(fs.readFileSync(pkgPath), { encoding: "utf-8" });
 }
 
-export function readProjectPackageJSON() {
-  return readPackageJSON(projectDir);
+export function getPackages(...globPatterns: string[]): string[] {
+  const packages = [];
+  for (const pattern of globPatterns) {
+    let paths = globSync(pattern);
+    // Remove prefix
+    packages.push(...paths);
+  }
+  // sort packages by name
+  packages.sort();
+
+  return packages;
 }
 
 export type PackageData = {
@@ -37,11 +47,9 @@ export type PackageData = {
   directory: string;
 };
 
-/* get package.json filr from correct dir */
-export function getPackageData(pkgName: string): PackageData {
-  const rootDir = getPackageDirectory(pkgName);
-  const { name, version } = readPackageJSON(rootDir);
-  return { name, version, directory: rootDir };
+export function getPackageDataFromDirectory(pkgDir: string): PackageData {
+  const { name, version } = readPackageJSON(pkgDir);
+  return { name, version, directory: pkgDir };
 }
 
 function getPackageDirectory(pkgName) {
@@ -62,7 +70,7 @@ export function logAction(pkg, action, color = chalk.blue) {
 }
 
 function getPackageInfo(pkg) {
-  const cmd = "npm info --json " + pkg.name;
+  const cmd = `npm info --json ${pkg.name} 2> /dev/null`;
   try {
     return JSON.parse(execSync(cmd).toString());
   } catch (error) {
@@ -71,35 +79,45 @@ function getPackageInfo(pkg) {
 }
 
 /* makes query to npm to see if package with version exists */
-async function packageVersionExistsInRegistry(pkg) {
+async function packageVersionExistsInRegistry(
+  pkg
+): Promise<[boolean, string | null]> {
   const info = getPackageInfo(pkg);
 
   if (info == null) {
-    console.log(chalk.red(`Failed to get info for ${moduleString(pkg)}`));
-    return false;
+    console.log(
+      chalk.red("No published version found for " + chalk.bold(pkg.name))
+    );
+    return [false, null];
   }
 
-  const exists = info.versions.includes(pkg.version);
+  const currentVersionExists: boolean = info.versions.includes(pkg.version);
 
   let msg = chalk.bold(moduleString(pkg));
-  if (!exists) {
+  // Show last version
+  const lastVersion: string | null =
+    info.versions[info.versions.length - 1] ?? null;
+  if (!currentVersionExists) {
     msg += " will be published";
     console.log(chalk.greenBright(msg));
+    checkForChangelogEntry(pkg);
+  }
 
-    // Show last version
-    const lastVersion = info.versions[info.versions.length - 1];
-    if (lastVersion) {
-      const time = getNiceTimeSincePublished(info, lastVersion);
-      console.log(chalk.dim(`Version ${lastVersion} was published ${time}`));
-    }
-  } else {
+  if (currentVersionExists) {
     // Print the publication date for the version
     const time = getNiceTimeSincePublished(info, pkg.version);
     msg += ` was published ${time}`;
     console.log(chalk.blueBright(msg));
+    console.log();
+  } else {
+    if (lastVersion != null) {
+      console.log();
+      const time = getNiceTimeSincePublished(info, lastVersion);
+      console.log(chalk.dim(`Version ${lastVersion} was published ${time}`));
+    }
   }
 
-  return exists;
+  return [currentVersionExists, lastVersion];
 }
 
 function getNiceTimeSincePublished(info, version): string {
@@ -114,22 +132,24 @@ function makeRelative(dir) {
   return path.relative(process.cwd(), dir);
 }
 
-function buildModuleDiffCommand(pkg, flags = "") {
-  const tag = moduleString(pkg, "-v");
+function buildModuleDiffCommand(pkg, flags = "", tag = null) {
+  tag ??= moduleString(pkg, "-v");
   const moduleDir = makeRelative(getPackageDirectory(pkg["name"]));
 
   return `git diff ${flags} ${tag} -- ${moduleDir}`.replace(/\s+/g, " ");
 }
 
-function moduleHasChangesSinceTag(pkg) {
+function moduleHasChangesSinceTag(pkg): boolean | null {
   /** Check if a module has changes since the tag matching the current release */
   try {
-    execSync(buildModuleDiffCommand(pkg, "--exit-code"));
+    execSync(buildModuleDiffCommand(pkg, "--exit-code"), { stdio: "ignore" });
     // if the command exits with 0, there are no changes
+    return false;
   } catch (res) {
     if (res.status == 128) {
       // if the command exits with 128, the tag doesn't exist
       console.log(chalk.red(`Tag ${moduleString(pkg)} doesn't exist.`));
+      return null;
     }
 
     return res.status != 0;
@@ -177,15 +197,24 @@ function moduleString(pkg, separator = "@") {
 export async function checkIfPackageCanBePublished(
   data: PackageData
 ): Promise<boolean> {
-  const isAvailable = await packageVersionExistsInRegistry(data);
-  let canPublish = false;
-  if (!isAvailable) {
-    canPublish = true;
-    checkForChangelogEntry(data);
+  const [isAvailable, lastVersionAvailable] =
+    await packageVersionExistsInRegistry(data);
+  let canPublish = !isAvailable;
+
+  if (lastVersionAvailable == null) {
+    // no published versions
+    return canPublish;
   }
-  if (isAvailable && moduleHasChangesSinceTag(data)) {
+
+  const lastVersionInfo = {
+    name: data.name,
+    version: lastVersionAvailable,
+  };
+  const hasChanges = moduleHasChangesSinceTag(lastVersionInfo);
+
+  if (hasChanges != null && hasChanges) {
     // the module code has changed since the current published version
-    printChangeInfoForPublishedPackage(data, true);
+    printChangeInfoForPublishedPackage(lastVersionInfo, true);
   }
 
   return canPublish;
@@ -194,8 +223,10 @@ export async function checkIfPackageCanBePublished(
 function checkForChangelogEntry(pkg: PackageData) {
   const dir = getPackageDirectory(pkg.name);
   const changelogPath = path.join(dir, "CHANGELOG.md");
+  const CHANGELOG = chalk.bold("CHANGELOG");
+
   if (!fs.existsSync(changelogPath)) {
-    console.log(chalk.red(`No CHANGELOG.md found for ${pkg.name}.`));
+    console.log(chalk.red(`No ${CHANGELOG} found for ${pkg.name}.`));
     return false;
   }
 
@@ -203,7 +234,7 @@ function checkForChangelogEntry(pkg: PackageData) {
   const changelogHeader = `## [${pkg.version}]`;
   const hasChangelogEntry = changelog.includes(changelogHeader);
   if (!hasChangelogEntry) {
-    console.log(chalk.red(`No CHANGELOG.md entry for v${pkg.version}`));
+    console.log(chalk.red(`No ${CHANGELOG} entry for v${pkg.version}`));
   } else {
     // Snip the changelog entry
     let entry = changelog.split(changelogHeader)[1];
@@ -213,7 +244,7 @@ function checkForChangelogEntry(pkg: PackageData) {
 
     const nextHeaderIndex = entry.indexOf("\n## [") ?? entry.length;
     entry = entry.slice(0, nextHeaderIndex);
-    console.log(chalk.green(`CHANGELOG.md entry for ${pkg.version}:`));
+    console.log(chalk.green(`${CHANGELOG} entry for v${pkg.version}:`));
     console.log();
     let formattedEntry = marked(entry);
     // Reduce whitespace in front of lists

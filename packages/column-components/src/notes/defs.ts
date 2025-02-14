@@ -65,14 +65,14 @@ const EndpointTick = function ({ id, fill, size: sz }) {
   );
 };
 
-const NoteDefs = function ({ fill, prefix }) {
+const NoteDefs = function ({ fill, prefix, size }) {
   if (prefix == null) {
     prefix = "";
   }
   return h("defs", [
-    h(ArrowMarker, { id: prefix + "arrow_start", orient: 270, fill }),
-    h(ArrowMarker, { id: prefix + "arrow_end", orient: 90, fill }),
-    h(EndpointTick, { id: prefix + "tick", fill }),
+    h(ArrowMarker, { id: prefix + "arrow_start", orient: 270, fill, size }),
+    h(ArrowMarker, { id: prefix + "arrow_end", orient: 90, fill, size }),
+    h(EndpointTick, { id: prefix + "tick", fill, size }),
   ]);
 };
 

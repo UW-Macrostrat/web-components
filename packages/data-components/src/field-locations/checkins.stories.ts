@@ -32,7 +32,7 @@ const checkinExamples = {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<CheckinListingProps> = {
-  title: "Field locations/Checkin listing",
+  title: "Data components/Field locations/Checkin listing",
   component: CheckinListing,
   argTypes: {
     checkin: {

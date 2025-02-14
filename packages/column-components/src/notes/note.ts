@@ -1,24 +1,13 @@
-import { findDOMNode } from "react-dom";
-import {
-  Component,
-  createElement,
-  useContext,
-  createRef,
-  forwardRef
-} from "react";
+import { Component, useContext, createRef, forwardRef, RefObject } from "react";
 import h from "../hyper";
-import T from "prop-types";
-import { NoteLayoutContext } from "./layout";
+import { NoteLayoutContext, NoteLayoutCtx } from "./layout";
 import { NoteEditorContext } from "./editor";
-import { HeightRangeAnnotation } from "./height-range";
-import { hasSpan } from "./utils";
-import { ForeignObject } from "../util";
-import { NoteShape } from "./types";
+import type { NoteData } from "./types";
 import { NotePositioner, NoteConnector } from "./connector";
 
-const NoteBody = function(props) {
+const NoteBody = function (props) {
   const { note } = props;
-  const { setEditingNote, editingNote } = useContext(NoteEditorContext);
+  const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
   const { noteComponent } = useContext(NoteLayoutContext);
   const isEditing = editingNote === note;
 
@@ -28,9 +17,9 @@ const NoteBody = function(props) {
   return h(noteComponent, { visibility, note, onClick });
 };
 
-const NoteMain = forwardRef(function(props, ref) {
+const NoteMain = forwardRef(function (props: any, ref) {
   const { note, offsetY, noteHeight } = props;
-  const { editingNote } = useContext(NoteEditorContext);
+  const { editingNote } = useContext(NoteEditorContext) as any;
   if (editingNote === note) {
     return null;
   }
@@ -41,22 +30,25 @@ const NoteMain = forwardRef(function(props, ref) {
       {
         offsetY,
         noteHeight,
-        ref
+        ref,
       },
       [h(NoteBody, { note })]
-    )
+    ),
   ]);
 });
 
-class Note extends Component {
-  static initClass() {
-    this.propTypes = {
-      editable: T.bool,
-      note: NoteShape.isRequired,
-      editHandler: T.func
-    };
-    this.contextType = NoteLayoutContext;
-  }
+interface NoteProps {
+  editable: boolean;
+  note: NoteData;
+  editHandler: Function;
+  style?: object;
+}
+
+class Note extends Component<NoteProps, any> {
+  static contextType = NoteLayoutContext;
+  element: RefObject<HTMLElement>;
+  context: NoteLayoutCtx;
+
   constructor(props) {
     super(props);
     this.updateHeight = this.updateHeight.bind(this);
@@ -82,7 +74,7 @@ class Note extends Component {
       offsetY,
       note,
       noteHeight,
-      ref: this.element
+      ref: this.element,
     });
   }
 
@@ -110,9 +102,8 @@ class Note extends Component {
     return this.updateHeight.apply(this, arguments);
   }
 }
-Note.initClass();
 
-const NotesList = function(props) {
+const NotesList = function (props) {
   let { inEditMode: editable, ...rest } = props;
   if (editable == null) {
     editable = false;
@@ -120,7 +111,7 @@ const NotesList = function(props) {
   const { notes } = useContext(NoteLayoutContext);
   return h(
     "g",
-    notes.map(note => {
+    notes.map((note) => {
       return h(Note, { key: note.id, note, editable, ...rest });
     })
   );

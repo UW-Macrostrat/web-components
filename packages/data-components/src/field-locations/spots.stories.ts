@@ -136,7 +136,7 @@ const spotExamples = {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<SpotListingProps> = {
-  title: "Field locations/StraboSpot featured spots",
+  title: "Data components/Field locations/StraboSpot featured spots",
   component: SpotListing,
   argTypes: {
     spot: {

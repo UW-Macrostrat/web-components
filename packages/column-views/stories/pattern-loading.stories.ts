@@ -4,7 +4,7 @@ import { Meta } from "@storybook/react";
 
 const h = hyper.styled(styles);
 
-import { resolvePattern } from "@macrostrat/column-components/stories/base-section";
+import { resolvePattern } from "../../column-components/stories/base-section";
 import { useEffect, useRef, useState } from "react";
 
 const meta: Meta<any> = {
@@ -42,14 +42,14 @@ export function SVGDirectLoadPattern({ pattern_id }) {
 
   return h("div.pattern-container.svg-pattern", {
     args: {
-      pattern_id: "659"
+      pattern_id: "659",
     },
 
     ref,
 
     dangerouslySetInnerHTML: {
       __html: svgContent,
-    }
+    },
   });
 }
 

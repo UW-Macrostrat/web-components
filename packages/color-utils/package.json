@@ -3,22 +3,22 @@
   "version": "1.0.0",
   "description": "Color utility functions",
   "type": "module",
-  "main": "dist/main.js",
-  "types": "dist/types.d.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "scripts": {
-    "build": "parcel build"
+    "build": "rm -rf dist && parcel build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
+    "@types/chroma-js": "^3.1.1",
     "chroma-js": "^3.0.0"
   },
   "exports": {
     ".": {
-      "typescript": "./src",
-      "import": "./dist/main.js",
-      "require": "./dist/main.js",
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
       "types:": "./dist/types.d.ts"
     }
   },
@@ -30,5 +30,8 @@
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/color-utils"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
   }
 }

@@ -4,7 +4,7 @@ import { IntervalSelection, IntervalSelectionProps } from ".";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Interval selection",
+  title: "Form components/Interval selection",
   component: IntervalSelection,
 } as Meta<IntervalSelectionProps>;
 

@@ -11,7 +11,7 @@ import mapboxgl, {
   LngLatLike,
   PaddingOptions,
 } from "mapbox-gl";
-import centroid from "@turf/centroid";
+import type { GeoJSON } from "geojson";
 
 const h = hyper.styled(styles);
 
@@ -371,7 +371,11 @@ export function isCentered(focusState: PositionFocusState) {
 }
 
 function getCenterAndBestZoom(
-  input: [number, number] | GeoJSON.Geometry | GeoJSON.BBox
+  input:
+    | [number, number]
+    | GeoJSON.Geometry
+    | GeoJSON.BBox
+    | mapboxgl.LngLatLike
 ) {
   let box: GeoJSON.BBox;
   let center: [number, number] | null = null;
@@ -408,12 +412,23 @@ function getCenterAndBestZoom(
 
 export function LocationFocusButton({
   location,
+  bounds,
   className,
   easeDuration = 800,
   focusState = null,
+  icon = null,
   ...rest
 }) {
   const map = useMapRef();
+
+  const _icon = icon ?? (bounds == null ? "map-marker" : "detection");
+  if (location == null && bounds != null) {
+    location = {
+      lat: (bounds[1] + bounds[3]) / 2,
+      lng: (bounds[0] + bounds[2]) / 2,
+    };
+  }
+
   const defaultFocusState = useFocusState(location);
   focusState ??= defaultFocusState;
   const _isCentered = isCentered(focusState);
@@ -422,12 +437,14 @@ export function LocationFocusButton({
     Button,
     {
       minimal: true,
-      icon: "map-marker",
+      icon: _icon,
       onClick() {
+        let opts = { duration: easeDuration };
         if (focusState == PositionFocusState.CENTERED) {
           map.current?.resetNorth();
-        } else {
-          let opts = { duration: easeDuration };
+        } else if (bounds != null) {
+          map.current?.fitBounds(bounds, opts);
+        } else if (location != null) {
           const { center, zoom } = getCenterAndBestZoom(location);
           if (center == null) {
             return;
@@ -438,52 +455,15 @@ export function LocationFocusButton({
             opts = { ...opts, zoom };
           }
           map.current?.flyTo(opts);
-        }
-      },
-      className: classNames(
-        "recenter-button",
-        className,
-        classNameForFocusState(focusState)
-      ),
-      intent: intentForFocusState(focusState),
-      ...rest,
-    },
-    [_isCentered ? null : h("span.recenter-label", "Recenter")]
-  );
-}
-
-export function BoundsFocusButton({
-  bounds,
-  className,
-  easeDuration = 800,
-  focusState = null,
-  ...rest
-}) {
-  const map = useMapRef();
-
-  const center = [(bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2];
-
-  const defaultFocusState = useFocusState({ lat: center[1], lng: center[0] });
-  focusState ??= defaultFocusState;
-  const _isCentered = isCentered(focusState);
-
-  return h(
-    Button,
-    {
-      minimal: true,
-      icon: "detection",
-      onClick() {
-        if (focusState == PositionFocusState.CENTERED) {
-          map.current?.resetNorth();
         } else {
-          let opts = { duration: easeDuration };
-          map.current?.fitBounds(bounds, opts);
+          console.warn("No location or bounds provided");
         }
       },
       className: classNames(
         "recenter-button",
         className,
-        classNameForFocusState(focusState)
+        classNameForFocusState(focusState),
+        bounds == null ? "position" : "bounds"
       ),
       intent: intentForFocusState(focusState),
       ...rest,

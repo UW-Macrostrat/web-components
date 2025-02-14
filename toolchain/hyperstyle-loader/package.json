@@ -1,9 +1,15 @@
 {
   "name": "@macrostrat/hyperstyle-loader",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "main": "index.js",
+  "scripts": {
+    "build": "echo 'Nothing to be done!'"
+  },
   "peerDependencies": {
     "@macrostrat/hyper": "^3.0.0",
     "webpack": "^5.0.0"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
   }
 }

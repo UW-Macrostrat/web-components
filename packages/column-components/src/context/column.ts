@@ -7,7 +7,7 @@ type ColumnScale = ScaleContinuousNumeric<HeightRange, number> | any;
 
 type ColumnScaleClamped = ScaleLinear<number, number>;
 
-declare interface ColumnDivision {
+export declare interface ColumnDivision {
   section_id: string;
   id: number;
   surface: number;
@@ -15,6 +15,11 @@ declare interface ColumnDivision {
   top: number;
   // Extra properties that are there for legacy purposes
   flooding_surface_order?: number;
+  grainsize?: string;
+  covered?: boolean;
+  // Used for boundary management control
+  definite_boundary?: boolean;
+  facies?: string;
 }
 
 enum ColumnAxisType {
@@ -28,6 +33,7 @@ export interface ColumnCtx<T extends ColumnDivision> {
   pixelsPerMeter: number;
   scale: ColumnScale;
   axisType?: ColumnAxisType;
+  pixelHeight?: number;
   zoom: number;
 }
 
@@ -39,17 +45,7 @@ const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
   zoom: 1,
 });
 
-const rangeOrHeight = function (props, propName) {
-  const { range, height } = props;
-  const rangeExists = range != null && range.length === 2;
-  const heightExists = height != null;
-  if (rangeExists || heightExists) {
-    return;
-  }
-  return new Error("Provide either 'range' or 'height' props");
-};
-
-interface ColumnProviderProps<T extends ColumnDivision> {
+export interface ColumnProviderProps<T extends ColumnDivision> {
   pixelsPerMeter?: number;
   divisions: T[];
   range?: HeightRange | any;
@@ -68,6 +64,7 @@ function ColumnProvider<T extends ColumnDivision>(
     This component would be swapped to provide eventual generalization to a Wheeler-diagram
     (time-domain) framework.
     */
+
   let {
     children,
     pixelsPerMeter = 20,

@@ -1,5 +1,13 @@
 # Changelog
 
+## [4.1.0] - 2025-02-14
+
+- New compilation pipeline
+- New storybook examples
+- Improved Typescript coverage
+- Added `SizeAwareLabel` component (originally from `@macrostrat/timescale`)
+- Improved flexbox styling
+
 ## [4.0.7] - 2024-10-24
 
 ## [4.0.6] - 2024-10-24

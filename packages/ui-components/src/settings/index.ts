@@ -9,9 +9,11 @@ interface SettingsProviderProps {
   storageID?: string;
 }
 
-// Could rework this to use `constate` or similar
+// Could rework this to use `zustand` or similar
 
-function createSettingsContext<T extends object>(defaultValue: T) {
+function createSettingsContext<T extends object>(
+  defaultValue: T
+): [any, any, any] {
   /** Function that creates a context with an updateable settings object
    */
   const Context = createContext<T>(defaultValue);
@@ -54,7 +56,9 @@ function createSettingsContext<T extends object>(defaultValue: T) {
 
   const useValue = () => useContext(Context);
 
-  const useUpdater = (key: string | undefined) => {
+  const useUpdater: (key?: string) => Updater = (
+    key: string | undefined = null
+  ) => {
     const updater = useContext(UpdateContext);
     if (key == null) return updater;
     //@ts-ignore

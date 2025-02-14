@@ -1,11 +1,11 @@
 import h from "./hyper";
-import { Axis } from "@vx/axis";
+import { Axis } from "@visx/axis";
 import { TimescaleOrientation } from "./types";
 import { useTimescale } from "./provider";
 
 type AgeAxisProps = {
-  width: number;
-  margin: number;
+  width?: number;
+  margin?: number;
 };
 
 function AgeAxis(props: AgeAxisProps) {
@@ -27,7 +27,11 @@ function AgeAxis(props: AgeAxisProps) {
         marginBottom: -margin,
       };
 
-  const axProps = isHorizontal
+  const axProps: {
+    orientation: "bottom" | "right" | "top" | "left";
+    left?: number;
+    top?: number;
+  } = isHorizontal
     ? { orientation: "bottom", left: margin }
     : { orientation: "right", top: margin };
 

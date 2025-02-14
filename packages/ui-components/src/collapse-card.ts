@@ -1,9 +1,9 @@
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
-import { Collapse, Card, ICardProps, ICollapseProps } from "@blueprintjs/core";
+import { Collapse, Card, CardProps, CollapseProps } from "@blueprintjs/core";
 
-type CollapseCardProps = ICardProps &
-  Pick<ICollapseProps, "isOpen" | "keepChildrenMounted" | "transitionDuration">;
+type CollapseCardProps = CardProps &
+  Pick<CollapseProps, "isOpen" | "keepChildrenMounted" | "transitionDuration">;
 
 export function CollapseCard(props: CollapseCardProps) {
   /** Collapsible card taken from COSMOS visualizer */

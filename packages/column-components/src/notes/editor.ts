@@ -1,26 +1,24 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import { createContext, useState, useContext, memo } from "react";
+import { createContext, useState, useContext, ComponentType } from "react";
 import { ModelEditorProvider, useModelEditor, ColumnContext } from "../context";
 import { EditableText } from "@blueprintjs/core";
 import classNames from "classnames";
 import h from "../hyper";
-import T from "prop-types";
-import { NoteShape } from "./types";
+import { NoteData } from "./types";
 import { ForeignObject } from "../util";
 import { NoteLayoutContext, NoteRect } from "./layout";
 import { NotePositioner, NoteConnector } from "./connector";
 import Draggable from "react-draggable";
 import { hasSpan } from "./utils";
 import { ErrorBoundary } from "@macrostrat/ui-components";
+import { Spec } from "immutability-helper";
 
 const NoteEditorContext = createContext({ inEditMode: false });
 
-const NoteTextEditor = function (props) {
+interface NoteEditorProps {
+  note: NoteData;
+}
+
+const NoteTextEditor = function (props: NoteEditorProps) {
   const { updateModel } = useModelEditor();
   const { note } = props;
   return h(EditableText, {
@@ -34,11 +32,16 @@ const NoteTextEditor = function (props) {
   });
 };
 
-NoteTextEditor.propTypes = {
-  note: NoteShape.isRequired,
-};
+interface NoteEditorProviderProps {
+  inEditMode: boolean;
+  noteEditor: ComponentType<NoteEditorProps>;
+  onUpdateNote: (n: NoteData) => void;
+  onDeleteNote: (n: NoteData) => void;
+  onCreateNote: Function;
+  children?: React.ReactNode;
+}
 
-function NoteEditorProvider(props) {
+function NoteEditorProvider(props: NoteEditorProviderProps) {
   let { children, inEditMode = false, noteEditor } = props;
   const { notes } = useContext(NoteLayoutContext);
 
@@ -91,13 +94,6 @@ function NoteEditorProvider(props) {
     ),
   ]);
 }
-
-NoteEditorProvider.propTypes = {
-  inEditMode: T.bool,
-  noteEditor: T.elementType.isRequired,
-  onUpdateNote: T.func.isRequired,
-  onDeleteNote: T.func.isRequired,
-};
 
 const NoteConnectorPath = function (props) {
   const { d, offsetX, className } = props;
@@ -169,7 +165,7 @@ const PointHandle = function (props) {
   );
 };
 
-var PositionEditorInner = function (props) {
+function PositionEditorInner(props) {
   let updateModel;
   let { note, margin } = props;
   if (margin == null) {
@@ -194,7 +190,7 @@ var PositionEditorInner = function (props) {
   const moveEntireNote = function (e, data) {
     const { y } = data;
     // Set note height
-    const spec = { height: { $set: scale.invert(y + height) } };
+    const spec: Spec<any> = { height: { $set: scale.invert(y + height) } };
     if (noteHasSpan) {
       // Set note top height
       spec.top_height = { $set: scale.invert(y) };
@@ -211,7 +207,7 @@ var PositionEditorInner = function (props) {
   };
 
   const moveBottom = function (e, data) {
-    const spec = { height: { $set: scale.invert(data.y) } };
+    const spec: Spec<any> = { height: { $set: scale.invert(data.y) } };
     if (Math.abs(data.y - topHeight) < 2) {
       spec.top_height = { $set: null };
     }
@@ -259,11 +255,11 @@ var PositionEditorInner = function (props) {
       }),
     ])
   );
-};
+}
 
 const NoteEditorUnderlay = function ({ padding }) {
   const { width } = useContext(NoteLayoutContext);
-  const { setEditingNote } = useContext(NoteEditorContext);
+  const { setEditingNote } = useContext(NoteEditorContext) as any;
   return h(NoteRect, {
     fill: "rgba(255,255,255,0.8)",
     style: { pointerEvents: "none" },
@@ -273,7 +269,7 @@ const NoteEditorUnderlay = function ({ padding }) {
 
 const NoteEditor = function (props) {
   const { allowPositionEditing } = props;
-  const { noteEditor } = useContext(NoteEditorContext);
+  const { noteEditor } = useContext(NoteEditorContext) as any;
   const { notes, nodes, elementHeights, createNodeForNote } =
     useContext(NoteLayoutContext);
   const { editedModel } = useModelEditor();
@@ -319,4 +315,5 @@ const NoteEditor = function (props) {
   ]);
 };
 
+export type { NoteData };
 export { NoteEditorProvider, NoteEditorContext, NoteTextEditor, NoteEditor };

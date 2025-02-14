@@ -1,4 +1,4 @@
-import { Button, MenuItem } from "@blueprintjs/core";
+import { Button, MenuItem, MenuItemProps } from "@blueprintjs/core";
 import { ItemPredicate, ItemRenderer, Select2 } from "@blueprintjs/select";
 import { Cell, EditableCell2Props } from "@blueprintjs/table";
 import React, { useMemo, memo } from "react";
@@ -24,10 +24,23 @@ export interface Interval {
   color: string;
 }
 
-const IntervalOption: React.FC = ({
+interface IntervalOptionProps extends MenuItemProps {
+  interval: Interval;
+  handleClick: (e: React.MouseEvent<HTMLElement>) => void;
+  handleFocus: (e: React.FocusEvent<HTMLElement>) => void;
+  modifiers: {
+    active: boolean;
+    disabled: boolean;
+  };
+}
+
+function IntervalOption({
   interval,
-  props: { handleClick, handleFocus, modifiers, ...restProps },
-}) => {
+  handleClick,
+  handleFocus,
+  modifiers,
+  ...restProps
+}: IntervalOptionProps) {
   const inDarkMode = useInDarkMode();
   const colors = getColorPair(interval?.color, inDarkMode);
 
@@ -67,18 +80,18 @@ const IntervalOption: React.FC = ({
     },
     []
   );
-};
+}
 
 const IntervalOptionMemo = memo(IntervalOption);
 
-const IntervalOptionRenderer: ItemRenderer<Interval> = (
+const intervalOptionRenderer: ItemRenderer<Interval> = (
   interval: Interval,
-  props
+  props: any
 ) => {
   return h(IntervalOptionMemo, {
     key: interval.int_id,
     interval,
-    props,
+    ...props,
   });
 };
 
@@ -107,8 +120,6 @@ export const IntervalSelection = ({
   const [active, setActive] = React.useState(false);
 
   const intervals = providedIntervals ?? useIntervals();
-
-  console.log(intervals);
 
   const interval = useMemo(() => {
     if (intervals == null) {
@@ -149,7 +160,7 @@ export const IntervalSelection = ({
             onWheelCapture: (event) => event.stopPropagation(),
           },
           itemPredicate: filterInterval,
-          itemRenderer: IntervalOptionRenderer,
+          itemRenderer: intervalOptionRenderer,
           onItemSelect: (interval: Interval, e) => {
             onConfirm(interval.int_id.toString());
           },
@@ -184,11 +195,10 @@ function IntervalButton({ interval, intent, setActive }) {
       text: h(
         "span",
         { style: { overflow: "hidden", textOverflow: "ellipses" } },
-        interval?.name ?? "Select an Interval"
+        interval?.name ?? "Select an interval"
       ),
       rightIcon: "double-caret-vertical",
       className: "update-input-group",
-      placeholder: "Select A Filter",
       onClick: () => setActive(true),
     },
     []

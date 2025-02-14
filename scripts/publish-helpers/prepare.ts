@@ -28,11 +28,16 @@ export function ensureEntryFilesExist(pkg: PackageData) {
   // Check if the entry files exist for a package
   const pkgJSON = readPackageJSON(pkg.directory);
 
-  for (const entry of ["main", "module"]) {
-    checkExists(pkg.directory, pkgJSON, entry, true);
+  // The 'main' entry must exist in all circumstances
+  checkExists(pkg.directory, pkgJSON, "main", true);
+  if (pkgJSON.module != null) {
+    if (pkgJSON.type == "module") {
+      throw new Error(`Package ${pkg.name} has a superfluous 'module' field`);
+    }
+    checkExists(pkg.directory, pkgJSON, "module", false);
   }
 
-  for (const entry in ["source", "types", "style"]) {
+  for (const entry in ["source", "types", "style", "typings"]) {
     checkExists(pkg.directory, pkgJSON, entry, false);
   }
 

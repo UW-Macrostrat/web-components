@@ -10,6 +10,7 @@ export interface Interval {
   nam: string;
   typ?: string;
   rid?: number[];
+  abr?: string;
 }
 
 interface NestedInterval extends Interval {
@@ -20,7 +21,7 @@ type IntervalMap = Map<number, Interval[]>;
 
 enum TimescaleOrientation {
   VERTICAL = "vertical",
-  HORIZONTAL = "horizontal"
+  HORIZONTAL = "horizontal",
 }
 
 interface TimescaleProviderProps {

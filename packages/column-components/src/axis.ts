@@ -11,11 +11,25 @@ import { findDOMNode } from "react-dom";
 import h from "@macrostrat/hyper";
 import { select } from "d3-selection";
 import { axisLeft } from "d3-axis";
-import { ColumnContext } from "./context";
+import { ColumnContext, ColumnCtx, ColumnDivision } from "./context";
 
-class ColumnAxis extends Component {
+interface ColumnAxisProps {
+  ticks?: number;
+  tickArguments?: any;
+  tickValues?: any;
+  tickFormat?: any;
+  tickSize?: any;
+  tickSizeInner?: any;
+  tickSizeOuter?: any;
+  tickPadding?: any;
+  showLabel?: (d: any) => boolean;
+  showDomain?: boolean;
+}
+
+export class ColumnAxis extends Component<ColumnAxisProps> {
   // https://github.com/d3/d3-axis
   static contextType = ColumnContext;
+  context: ColumnCtx<ColumnDivision>;
   static __d3axisKeys = [
     "ticks",
     "tickArguments",
@@ -26,6 +40,8 @@ class ColumnAxis extends Component {
     "tickSizeOuter",
     "tickPadding",
   ];
+  yAxis: any;
+
   static defaultProps = {
     ticks: 4,
     showLabel() {
@@ -41,12 +57,12 @@ class ColumnAxis extends Component {
     const { showLabel } = this.props;
     this.yAxis.scale(scale);
 
-    for (let k of this.constructor.__d3axisKeys) {
+    for (let k of ColumnAxis.__d3axisKeys) {
       if (this.props[k] == null) continue;
       this.yAxis[k](this.props[k]);
     }
 
-    const ax = select(findDOMNode(this)).call(this.yAxis);
+    const ax = select(findDOMNode(this) as HTMLElement).call(this.yAxis);
 
     if (!this.props.showDomain) {
       ax.select(".domain").remove();
@@ -67,5 +83,3 @@ class ColumnAxis extends Component {
     this.componentDidUpdate();
   }
 }
-
-export { ColumnAxis };

@@ -1,6 +1,6 @@
 import { useRef } from "react";
 import h from "@macrostrat/hyper";
-import { Globe, LandLayer } from "@macrostrat/map-components";
+import { Globe, LandLayer } from "@macrostrat/svg-map-components";
 import { geoCentroid } from "d3-geo";
 import { useElementSize } from "@macrostrat/ui-components";
 import { Columns, CurrentColumn } from "./layers";

@@ -1,16 +1,17 @@
 {
   "name": "@macrostrat/vite-plugin-hyperstyles",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "source": "src/index.ts",
   "type": "module",
   "dependencies": {
-    "@macrostrat/hyper": "^3.0.0",
+    "@macrostrat/hyper": "^3.0.6",
     "vite": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^22.7.9",
+    "parcel": "^2.13.3",
     "typescript": "^5.6.3"
   },
   "scripts": {

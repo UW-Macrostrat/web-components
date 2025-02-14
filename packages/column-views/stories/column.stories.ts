@@ -12,11 +12,11 @@ import {
   preprocessUnits,
   UnitSelectionProvider,
   useSelectedUnit,
-} from "../src";
+} from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
-import { ColumnProps as BaseColumnProps } from "../src";
+import { ColumnProps as BaseColumnProps } from "@macrostrat/column-views";
 
 const h = hyper.styled(styles);
 
@@ -75,7 +75,7 @@ const meta: Meta<ColumnProps> = {
   },
   decorators: [
     (Story) => {
-      return h(DarkModeProvider, h(PatternProvider, h(Story)));
+      return h(PatternProvider, h(Story));
     },
   ],
   parameters: {
@@ -122,7 +122,7 @@ export const Wide: Story = {
   },
 };
 
-export function BasicUnitViewer() {
+function BasicUnitViewer() {
   const unit = useSelectedUnit();
   if (unit == null) {
     return null;
@@ -131,7 +131,7 @@ export function BasicUnitViewer() {
   return h("div.unit-viewer", JSONView({ data: unit, showRoot: false }));
 }
 
-export function WithBasicUnitSelection() {
+export function WithBasicUnitViewer() {
   return h(
     UnitSelectionProvider,
     h(BasicColumn, { id: 432, showLabelColumn: true }, [h(BasicUnitViewer)])

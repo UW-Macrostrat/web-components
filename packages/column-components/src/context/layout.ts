@@ -1,30 +1,47 @@
 import { scaleLinear, scaleOrdinal } from "d3-scale";
 import { Component, createContext } from "react";
 import h from "@macrostrat/hyper";
-import T from "prop-types";
-import { ColumnContext, useColumnDivisions } from "./column";
+import {
+  ColumnContext,
+  useColumnDivisions,
+  ColumnCtx,
+  ColumnDivision,
+} from "./column";
 import { useContext, useMemo, useCallback } from "react";
-import { ColumnCtx } from "./column";
-import { ColumnDivision } from "../defs";
+import { ReactNode } from "react";
 
 //# This isn't really used yet...
 
-const ColumnLayoutContext = createContext({
-  scale: null,
+export interface ColumnLayoutCtx<T extends ColumnDivision>
+  extends ColumnCtx<T> {
+  width: number;
+  grainSizes?: string[];
+  grainsizeScale?: (d: string) => number;
+  xScale: any;
+  widthForDivision: (d: ColumnDivision) => number;
+}
+
+const ColumnLayoutContext = createContext<ColumnLayoutCtx<ColumnDivision>>({
+  scale: scaleLinear(),
+  scaleClamped: scaleLinear().clamp(true),
   width: 0,
   divisions: [],
   grainSizes: [],
   grainsizeScale: (d) => 40,
   xScale: null,
+  widthForDivision: (d) => 0,
+  pixelsPerMeter: 1,
+  zoom: 1,
 });
 
-interface ColumnLayoutProviderProps<T extends ColumnDivision>
-  extends ColumnCtx<T> {
-  grainSizes: string[];
-  grainsizeScale: any;
+export interface ColumnLayoutProviderProps<T extends ColumnDivision>
+  extends Partial<ColumnCtx<T>> {
+  grainSizes?: string[];
+  grainsizeScale?: (d: string) => number;
   width: number;
   // @deprecated
-  xScale: any;
+  xScale?: any;
+  children?: ReactNode;
 }
 
 function ColumnLayoutProvider<T extends ColumnDivision>({
@@ -51,13 +68,16 @@ function ColumnLayoutProvider<T extends ColumnDivision>({
   );
 }
 
-class CrossAxisLayoutProvider extends Component {
-  static propTypes = {
-    width: T.number.isRequired,
-    domain: T.arrayOf(T.number).isRequired,
-    range: T.arrayOf(T.number),
-  };
+export interface CrossAxisLayoutProviderProps {
+  width: number;
+  domain: number[];
+  range?: number[];
+  children?: ReactNode;
+}
+
+class CrossAxisLayoutProvider extends Component<CrossAxisLayoutProviderProps> {
   static contextType = ColumnContext;
+  context: ColumnCtx<ColumnDivision>;
   render() {
     let { domain, range, width, children } = this.props;
     if (range == null) {
@@ -65,6 +85,7 @@ class CrossAxisLayoutProvider extends Component {
     }
     const xScale = scaleLinear().domain(domain).range(range);
     return h(ColumnLayoutProvider, {
+      ...this.context,
       xScale,
       width,
       children,
@@ -105,7 +126,7 @@ function GrainsizeLayoutProvider({
   grainsizeScaleRange ??= [grainsizeScaleStart, width];
   const divisions = useColumnDivisions();
 
-  const grainsizeScale = useMemo(() => {
+  const grainsizeScale: any = useMemo(() => {
     const scale = scaleLinear()
       .domain([0, grainSizes.length - 1])
       .range(grainsizeScaleRange);
@@ -152,7 +173,7 @@ function GrainsizeLayoutProvider({
       grainsizeScaleRange,
       grainsizeForDivision,
       widthForDivision,
-    },
+    } as any,
     children
   );
 }

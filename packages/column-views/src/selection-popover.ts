@@ -1,7 +1,6 @@
 import hyper from "@macrostrat/hyper";
 import { Button, Popover } from "@blueprintjs/core";
 import { DOMElement } from "react";
-import { JSONView } from "@macrostrat/ui-components";
 import styles from "./selection-popover.module.sass";
 import { useSelectedUnit } from "./units";
 import { UnitDetailsPanel } from "./unit-details";
@@ -26,6 +25,7 @@ export function UnitDetailsPopover({
     },
     h(
       Popover,
+      // @ts-ignore
       { content, isOpen: true, usePortal: false, boundary, position: "right" },
       h("span.popover-target")
     )

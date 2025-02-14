@@ -4,6 +4,7 @@ import { hyperStyled } from "@macrostrat/hyper";
 //@ts-ignore
 import styles from "./taxa.module.scss";
 import { Spinner } from "@blueprintjs/core";
+import fetch from "node-fetch";
 
 const h = hyperStyled(styles);
 

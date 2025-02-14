@@ -1,23 +1,16 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-class LocalStorage {
+export class LocalStorage {
+  name: string;
   constructor(name) {
     this.get = this.get.bind(this);
     this.set = this.set.bind(this);
     this.name = name;
   }
-  get() {
+  get(): object {
     const str = window.localStorage.getItem(this.name);
-    const obj = JSON.parse(str);
-    return obj;
+    return JSON.parse(str) as object;
   }
-  set(obj) {
+  set(obj: object) {
     const str = JSON.stringify(obj);
     return window.localStorage.setItem(this.name, str);
   }
 }
-
-export default LocalStorage;

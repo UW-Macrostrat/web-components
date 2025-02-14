@@ -1,12 +1,16 @@
 # hyperstyle-loader
 
-This loader for `webpack` (Version 5) adds a convenient way to work
-with Hyperscript and styles. It is designed to sit after `style-loader`,
-which exposes CSS class names as a Javascript object, and apply those
-styles dynamically to a hyperscript instance (from `@macrostrat/hyper`).
+This loader for `webpack` (Version 5) adds a convenient way to work with
+Hyperscript and styles. It is designed to sit after `style-loader`, which
+exposes CSS class names as a Javascript object, and apply those styles
+dynamically to a hyperscript instance (from `@macrostrat/hyper`).
 
-This allows CSSs classes to be transparently used in Javascript and
-Typescript files, with a minimum of boilerplate code.
+This allows CSSs classes to be transparently used in Javascript and Typescript
+files, with a minimum of boilerplate code.
+
+**Note**: Macrostrat now prefers the usage of Vite for compiling front-end
+assets. See the `@macrostrat/vite-plugin-hyperstyles` package for a similar
+solution targeting Vite.
 
 ## Usage
 

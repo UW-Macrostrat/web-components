@@ -13,6 +13,9 @@ import {
   ColumnContext,
   ColumnLayoutContext,
   ColumnLayoutProvider,
+  ColumnCtx,
+  ColumnDivision,
+  ColumnLayoutCtx,
 } from "../context";
 import { GeologicPattern, PatternType } from "./patterns";
 import tex from "react-svg-textures";
@@ -58,7 +61,7 @@ const defaultResolveID = function (d) {
 
 const carbonateResolveID = function (d) {
   // Just whether a carbonate or not
-  v = defaultResolveID(d);
+  const v = defaultResolveID(d);
   if (v == null) {
     return v;
   }
@@ -77,17 +80,25 @@ const __divisionSize = function (d) {
   return [bottom, top];
 };
 
-class ColumnRect extends Component {
-  static initClass() {
-    this.contextType = ColumnContext;
-    this.propTypes = {
-      division: T.object.isRequired,
-      padWidth: T.bool,
-    };
-    this.defaultProps = {
-      padWidth: false,
-    };
+interface ColumnRectProps {
+  division: any;
+  padWidth?: boolean;
+  key?: string;
+  width: number;
+}
+
+class ColumnRect extends Component<ColumnRectProps> {
+  static contextType = ColumnContext;
+  context: ColumnCtx<ColumnDivision>;
+
+  static defaultProps = {
+    padWidth: false,
+  };
+
+  constructor(props) {
+    super(props);
   }
+
   render() {
     const { scale } = this.context;
     let { division: d, padWidth, key, width, ...rest } = this.props;
@@ -105,9 +116,11 @@ class ColumnRect extends Component {
     return h("rect", { x, y, width, height, key, ...rest });
   }
 }
-ColumnRect.initClass();
 
-const expandDivisionsByKey = function (divisions, key) {
+const expandDivisionsByKey = function (
+  divisions: ColumnDivision[],
+  key: any
+): ColumnDivision[] | null {
   const __ = [{ ...divisions[0] }];
   for (let d of Array.from(divisions)) {
     const ix = __.length - 1;
@@ -153,7 +166,7 @@ ParameterIntervals.propTypes = {
 };
 
 const FaciesIntervals = function (props) {
-  const { getFaciesColor } = useContext(FaciesContext);
+  const { getFaciesColor } = useContext(FaciesContext) as any;
   return h(ParameterIntervals, {
     parameter: "facies",
     fillForInterval(param, division) {
@@ -166,8 +179,9 @@ const FaciesIntervals = function (props) {
 
 const FaciesColumnInner = FaciesIntervals;
 
-class CoveredOverlay extends UUIDComponent {
+class CoveredOverlay extends UUIDComponent<{}> {
   static contextType = ColumnLayoutContext;
+  context: ColumnLayoutCtx<ColumnDivision>;
   render() {
     const { divisions, width } = this.context;
     const fill = `url(#${this.UUID}-covered)`;
@@ -227,21 +241,20 @@ const LithologySymbolDefs = function (props) {
   );
 };
 
-class LithologyBoxes extends UUIDComponent {
-  constructor(...args) {
-    super(...args);
+class LithologyBoxes extends UUIDComponent<any> {
+  static contextType = ColumnLayoutContext;
+  static defaultProps = {
+    resolveID: defaultResolveID,
+    minimumHeight: 0,
+  };
+  context: ColumnLayoutCtx<ColumnDivision>;
+  constructor(props) {
+    super(props);
     this.constructLithologyDivisions =
       this.constructLithologyDivisions.bind(this);
     this.renderEach = this.renderEach.bind(this);
   }
 
-  static initClass() {
-    this.contextType = ColumnLayoutContext;
-    this.defaultProps = {
-      resolveID: defaultResolveID,
-      minimumHeight: 0,
-    };
-  }
   constructLithologyDivisions() {
     let d, patternID;
     const { divisions } = this.context;
@@ -313,15 +326,15 @@ class LithologyBoxes extends UUIDComponent {
     ]);
   }
 }
-LithologyBoxes.initClass();
 
 const LithologyColumnInner = LithologyBoxes;
 
-interface LithologyColumnProps {
+export interface LithologyColumnProps {
   width: number;
   left?: number;
   children?: React.ReactNode;
   clipToFrame?: boolean;
+  shiftY?: number;
 }
 
 export function LithologyColumn(props: LithologyColumnProps) {

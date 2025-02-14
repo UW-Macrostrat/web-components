@@ -5,7 +5,7 @@ import h from "@macrostrat/hyper";
 import { SimpleToggle } from "./toggle";
 
 export default {
-  title: "Controls/SimpleToggle",
+  title: "UI Components/Controls/SimpleToggle",
   component: SimpleToggle,
   args: {
     name: "value",

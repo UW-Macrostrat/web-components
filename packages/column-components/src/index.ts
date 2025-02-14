@@ -1,5 +1,3 @@
-import h from "./hyper";
-
 import { useUUID } from "./frame";
 export { useUUID };
 
@@ -15,4 +13,3 @@ export * from "./symbol-column";
 export * from "./edit-overlay";
 export * from "./editor";
 export * from "./grainsize";
-export * from "./boxes";

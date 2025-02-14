@@ -205,7 +205,7 @@ function buildNestedSpec(
   for (let i = keyPath.length - 1; i >= 0; i--) {
     spec = { [keyPath[i]]: spec };
   }
-  return spec;
+  return spec as any;
   // Since we don't have a "children" key at the root, we make the top-level spec an array
 }
 

@@ -2,10 +2,10 @@ import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
   useColumn,
-  useColumnDivisions,
   ColumnLayoutContext,
+  ColumnAxisType,
 } from "@macrostrat/column-components";
-import { defaultNameFunction, UnitNamesColumn, UnitDataColumn } from "./names";
+import { defaultNameFunction, UnitNamesColumn } from "./names";
 import {
   createContext,
   useContext,
@@ -39,6 +39,7 @@ function LabelTrackerProvider(props) {
       labelTrackerRef.current[div.unit_id] = visible;
       if (Object.keys(labelTrackerRef.current).length == divisions.length) {
         setUnlabeledDivisions(
+          // @ts-ignore
           divisions.filter((d) => labelTrackerRef.current[d.unit_id] == false)
         );
       }
@@ -57,22 +58,6 @@ function LabelTrackerProvider(props) {
     )
   );
 }
-
-type BaseUnitProps = {
-  width: number;
-  showLabels: boolean;
-  columnWidth?: number;
-  clipToFrame?: boolean;
-};
-
-type ICompositeUnitProps = BaseUnitProps & {
-  gutterWidth?: number;
-  labelOffset?: number;
-  nameForDivision?: (division: BaseUnit) => string;
-  children?: React.ReactNode;
-  unitComponent?: React.FC<any>;
-  unitComponentProps?: any;
-};
 
 function TrackedLabeledUnit({
   division,
@@ -132,7 +117,31 @@ function _BaseUnitsColumn(
   ]);
 }
 
-type AnnotatedUnitProps = ICompositeUnitProps & { minimumLabelHeight?: number };
+type BaseUnitProps = {
+  width: number;
+  showLabels?: boolean;
+  columnWidth?: number;
+  clipToFrame?: boolean;
+};
+
+type ICompositeUnitProps = BaseUnitProps & {
+  gutterWidth?: number;
+  labelOffset?: number;
+  paddingLeft?: number;
+  nameForDivision?: (division: BaseUnit) => string;
+  children?: React.ReactNode;
+  unitComponent?: React.FC<any>;
+  unitComponentProps?: any;
+  noteMode?: "labeled" | "unlabeled";
+  showLabelColumn?: boolean;
+  noteComponent?: React.FC<any>;
+  shouldRenderNote?: (d: BaseUnit) => boolean;
+};
+
+type AnnotatedUnitProps = ICompositeUnitProps & {
+  minimumLabelHeight?: number;
+  axisType: ColumnAxisType;
+};
 
 function AnnotatedUnitsColumn(props: AnnotatedUnitProps) {
   /*
@@ -250,7 +259,6 @@ export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
 }
 
 export {
-  UnitNamesColumn,
   CompositeUnitsColumn,
   AnnotatedUnitsColumn,
   TrackedLabeledUnit,

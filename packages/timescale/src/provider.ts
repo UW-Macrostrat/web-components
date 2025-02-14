@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { scaleLinear } from "@vx/scale";
+import { scaleLinear } from "@visx/scale";
 import { createContext, useContext } from "react";
 import { TimescaleCTX } from "./types";
 

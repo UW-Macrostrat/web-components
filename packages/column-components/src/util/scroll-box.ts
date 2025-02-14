@@ -1,20 +1,25 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import { Component, createRef } from "react";
+import { Component, Context } from "react";
 import { findDOMNode } from "react-dom";
-import { animateScroll, scroller, Element } from "react-scroll";
 import Box from "ui-box";
-import T from "prop-types";
 import h from "@macrostrat/hyper";
 
-import { ColumnContext } from "../context";
+import { ColumnContext, ColumnCtx, ColumnDivision } from "../context";
 
-const splitProps = function(keys, props) {
+interface ColumnScrollerProps {
+  scrollToHeight: number;
+  alignment: "center" | "top" | "bottom";
+  animated: boolean;
+  onScrolled: (height: number) => void;
+  paddingTop: number;
+  scrollContainer: () => HTMLElement;
+}
+
+interface ScrollToOpts {
+  animated?: boolean;
+  alignment?: "center" | "top" | "bottom";
+}
+
+const splitProps = function (keys, props) {
   const obj = {};
   const rest = {};
   for (let k in props) {
@@ -28,46 +33,47 @@ const splitProps = function(keys, props) {
   return [obj, rest];
 };
 
-class ColumnScroller extends Component {
-  constructor(...args) {
-    super(...args);
+export class ColumnScroller extends Component<ColumnScrollerProps> {
+  constructor(props) {
+    super(props);
     this.scrollTo = this.scrollTo.bind(this);
   }
 
-  static initClass() {
-    this.contextType = ColumnContext;
-    this.propTypes = {
-      scrollToHeight: T.number,
-      alignment: T.oneOf(["center", "top", "bottom"]),
-      animated: T.bool,
-      onScrolled: T.func,
-      paddingTop: T.number,
-      scrollContainer: T.func.isRequired
-    };
-    this.defaultProps = {
-      animated: true,
-      alignment: "center",
-      onScrolled(height) {
-        return console.log(`Scrolled to ${height} m`);
-      },
-      scrollContainer() {
-        return document.querySelector(".panel-container");
-      }
-    };
-  }
+  private static defaultProps: Partial<ColumnScrollerProps> = {
+    animated: true,
+    alignment: "center",
+    onScrolled(height) {
+      return console.log(`Scrolled to ${height} m`);
+    },
+    scrollContainer() {
+      return document.querySelector(".panel-container");
+    },
+  };
+
+  static contextType: Context<ColumnCtx<ColumnDivision>> = ColumnContext;
+
+  context: ColumnCtx<ColumnDivision>;
+
   render() {
-    const keys = Object.keys(this.constructor.propTypes);
+    const keys = [
+      "scrollToHeight",
+      "alignment",
+      "animated",
+      "onScrolled",
+      "paddingTop",
+      "scrollContainer",
+    ];
     const [props, rest] = splitProps(keys, this.props);
     const { pixelHeight } = this.context;
     return h(Box, {
       height: pixelHeight,
       position: "absolute",
-      ...rest
+      ...rest,
     });
   }
 
-  scrollTo(height, opts = {}) {
-    let node = findDOMNode(this);
+  scrollTo(height, opts: ScrollToOpts = {}) {
+    let node = findDOMNode(this) as HTMLElement;
     let { animated, alignment, ...rest } = opts;
     if (animated == null) {
       animated = false;
@@ -111,6 +117,3 @@ class ColumnScroller extends Component {
     return this.props.onScrolled(scrollToHeight);
   }
 }
-ColumnScroller.initClass();
-
-export { ColumnScroller };

@@ -10,12 +10,18 @@ import {
   ItemList,
   LithologyList,
 } from "@macrostrat/data-components";
-import { useUnitSelectionDispatch } from "@macrostrat/column-views";
+import { useUnitSelectionDispatch } from "../units/selection";
 import { useMacrostratUnits } from "../store";
 
 const h = hyper.styled(styles);
 
-export function UnitDetailsPanel({ unit, onClose }) {
+export function UnitDetailsPanel({
+  unit,
+  onClose,
+}: {
+  unit: any;
+  onClose?: any;
+}) {
   const [showJSON, setShowJSON] = useState(false);
 
   let content = null;

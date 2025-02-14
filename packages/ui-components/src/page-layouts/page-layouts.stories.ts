@@ -17,7 +17,7 @@ function ColoredPanel({ color, children, width = "100%" }) {
 }
 
 export default {
-  title: "Layout/Three-column user interface",
+  title: "UI components/Page layouts/Three-column user interface",
   component: ThreeColumnLayout,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   args: {

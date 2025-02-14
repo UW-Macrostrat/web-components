@@ -14,7 +14,6 @@ import {
   removeMargin,
 } from "@macrostrat/ui-components";
 import { ColumnContext } from "../context";
-import Box from "ui-box";
 import classNames from "classnames";
 
 const SVGNamespaces = {
@@ -89,8 +88,6 @@ const ColumnSVG = function (props) {
 
 export { SVGNamespaces, SVG, ColumnSVG, ForeignObject };
 
-import LocalStorage from "./storage";
-
+export * from "./storage";
 export * from "./column-box";
 export * from "./scroll-box";
-export { LocalStorage };

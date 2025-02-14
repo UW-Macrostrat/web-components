@@ -1,38 +1,22 @@
 {
   "name": "@macrostrat/form-components",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "A react library",
   "scripts": {
-    "test": "jest",
-    "rollup": "rollup -c",
-    "storybook": "start-storybook -p 6006",
-    "build-storybook": "build-storybook"
+    "build": "rm -rf dist && parcel build"
   },
-  "author": "Casey Idzikowski",
+  "authors": [
+    "Casey Idzikowski",
+    "Daven Quinn"
+  ],
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
   "devDependencies": {
-    "@babel/core": "^7.16.12",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
-    "@babel/preset-typescript": "^7.16.7",
-    "@rollup/plugin-commonjs": "^21.0.1",
-    "@rollup/plugin-node-resolve": "^13.1.3",
-    "@rollup/plugin-typescript": "^8.3.0",
-    "@testing-library/react": "^12.1.2",
-    "@types/jest": "^27.4.0",
     "@types/mapbox-gl": "^2.7.0",
     "@types/react": "^17.0.38",
-    "babel-jest": "^27.4.6",
-    "identity-obj-proxy": "^3.0.0",
-    "jest": "^27.4.7",
-    "rollup": "^2.66.1",
-    "rollup-plugin-dts": "^4.1.0",
-    "rollup-plugin-peer-deps-external": "^2.2.4",
-    "rollup-plugin-postcss": "^4.0.2",
-    "rollup-plugin-terser": "^7.0.2"
+    "parcel": "^2.13.3"
   },
   "peerDependencies": {
     "react": "^17.0.2||^18"
@@ -40,26 +24,33 @@
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/icons": "^5.9.0",
-    "@macrostrat/hyper": "^2.0.1",
+    "@blueprintjs/select": "^5.3.10",
+    "@blueprintjs/table": "^5.3.4",
+    "@macrostrat/color-utils": "workspace:^",
+    "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/ui-components": "workspace:^",
     "@mantine/core": "^4.2.1",
     "@mantine/hooks": "^4.2.1",
     "@mapbox/mapbox-gl-draw": "^1.3.0",
     "@types/mapbox__mapbox-gl-draw": "^1.2.3",
-    "@types/react-dom": "^17.0.16",
-    "axios": "^1.7.7",
+    "@types/react-dom": "^17.0.16||^18.0.0",
+    "axios": "^1.7.9",
+    "classnames": "^2.5.1",
     "mapbox-gl": "^2.15.0"
   },
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
+  "type": "module",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
+    "src",
     "dist"
   ],
-  "types": "dist/index.d.ts",
   "exports": {
     ".": {
-      "typescript": "./src",
-      "import": "./dist/esm",
-      "require": "./dist/cjs"
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
   "repository": {

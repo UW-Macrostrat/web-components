@@ -3,20 +3,27 @@ import chalk from "chalk";
 import {
   checkIfPackageCanBePublished,
   notifyUserOfUncommittedChanges,
-  getPackageData,
-  readProjectPackageJSON,
+  getPackages,
+  getPackageDataFromDirectory,
 } from "./status";
 import { prepareModule, ensureEntryFilesExist } from "./prepare";
 import { publishModule } from "./publish";
 
-export async function runScript({ build = true, publish = true }) {
+export async function runScript(
+  { build = true, publish = true },
+  modules: string[]
+) {
   let packagesToPublish: any[] = [];
 
-  const { publishedPackages: packages } = readProjectPackageJSON();
+  const candidatePackages = getPackages("packages/*", "toolchain/*");
 
-  for (const packageName of packages) {
+  for (const packageDir of candidatePackages) {
+    const pkg = getPackageDataFromDirectory(packageDir);
+
+    if (modules.length > 0 && !modules.includes(pkg.name)) {
+      continue;
+    }
     console.log("\n");
-    const pkg = getPackageData(packageName);
 
     console.log(chalk.bold.underline(pkg.name), "\n");
     const canPublish = await checkIfPackageCanBePublished(pkg);
@@ -32,17 +39,13 @@ export async function runScript({ build = true, publish = true }) {
   }
 
   // Make sure we don't publish if we have uncommitted changes
-  notifyUserOfUncommittedChanges(publish);
   // Stop here if we aren't building or publishing
   if (!build && !publish) {
+    notifyUserOfUncommittedChanges(false);
     return;
   }
 
   console.log(chalk.blueBright.bold("Preparing packages"));
-  // Build the packages that need to be built
-  for (const pkg of packagesToPublish) {
-    prepareModule(pkg);
-  }
 
   let packagesToPush = [];
   let failedPackages = [];
@@ -59,15 +62,16 @@ export async function runScript({ build = true, publish = true }) {
   }
 
   if (failedPackages.length > 0) {
-    console.log(
-      chalk.red.bold("Failed to prepare the following packages:"),
-      failedPackages.map((pkg) => pkg.name).join(", ")
-    );
+    console.log();
+    console.log(chalk.red.bold("Failed to prepare the following packages:"));
+    for (const pkg of failedPackages) {
+      console.log(chalk.red("- " + chalk.bold(pkg.name)));
+    }
     return;
   }
 
   // Check again for uncommitted changes
-  notifyUserOfUncommittedChanges(true);
+  notifyUserOfUncommittedChanges(publish);
 
   if (!publish) {
     return;

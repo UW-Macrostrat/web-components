@@ -1,30 +1,50 @@
 {
   "name": "@macrostrat/style-system",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Style system for Macrostrat",
-  "main": "dist/index.css",
+  "main": "dist/style-system.css",
   "source": "src/index.ts",
+  "type": "module",
   "scripts": {
-    "build": "vite build && mv dist/style.css dist/index.css && rm -f dist/*.js"
+    "build": "rm -rf dist && vite build"
   },
   "dependencies": {
     "@blueprintjs/colors": "^5.1.1",
     "@blueprintjs/core": "^5.10.2"
   },
+  "peerDependencies": {
+    "react": "^16.13.1||^17||^18",
+    "react-dom": "^16.13.1||^17||^18"
+  },
   "files": [
     "dist",
     "src"
   ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
-      "typescript": "./src/index.ts",
-      "import": "./dist/index.css",
-      "require": "./dist/index.css"
+      "source": "./src/index.ts",
+      "import": "./dist/style-system.css",
+      "require": "./dist/style-system.css"
     },
-    "./src": {
-      "typescript": "./src/index.ts",
-      "import": "./src/index.ts",
-      "require": "./src/index.ts"
+    "./dist/style-system.css": {
+      "source": "./src/index.ts",
+      "import": "./dist/style-system.css",
+      "require": "./dist/style-system.css"
+    },
+    "./src/colors.scss": {
+      "source": "./src/colors.scss",
+      "import": "./src/colors.scss"
+    },
+    "./src/main.scss": {
+      "source": "./src/main.sass",
+      "import": "./src/main.sass"
+    },
+    "./src/index.ts": {
+      "source": "./src/index.ts",
+      "import": "./dist/style-system.css"
     }
   },
   "repository": {
@@ -36,5 +56,8 @@
     "macrostrat",
     "style",
     "geology"
-  ]
+  ],
+  "devDependencies": {
+    "vite": "^6.1.0"
+  }
 }

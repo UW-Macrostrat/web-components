@@ -1,0 +1,33 @@
+{
+  "name": "@macrostrat/stratigraphy-utils",
+  "version": "1.0.0",
+  "description": "Utility functions for dealing with stratigraphy",
+  "source": "src/index.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && parcel build"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "files": [
+    "dist",
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/stratigraphy-utils"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
+  }
+}

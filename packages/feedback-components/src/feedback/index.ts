@@ -51,7 +51,7 @@ export function FeedbackComponent({
   // Get the input arguments
 
   const [state, dispatch] = useUpdatableTree(
-    entities.map(processEntity),
+    entities.map(processEntity) as any,
     entityTypes
   );
 
@@ -64,6 +64,7 @@ export function FeedbackComponent({
     h(FeedbackText, {
       text,
       dispatch,
+      // @ts-ignore
       nodes: tree,
       selectedNodes,
     }),
@@ -154,8 +155,10 @@ export function FeedbackComponent({
 }
 
 function processEntity(entity: Entity): InternalEntity {
+  // @ts-ignore
   return {
     ...entity,
+    // @ts-ignore
     term_type: entity.type.name,
     txt_range: [entity.indices],
     children: entity.children?.map(processEntity) ?? [],

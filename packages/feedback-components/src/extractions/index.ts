@@ -90,9 +90,9 @@ function enhanceEntity(
 }
 
 function addColor(entityType: EntityType, match = false) {
-  let color = entityType.color ?? "#ddd";
-
-  color = asChromaColor(color).brighten(match ? 1 : 2);
+  const color = asChromaColor(entityType.color ?? "#ddd").brighten(
+    match ? 1 : 2
+  );
 
   return { ...entityType, color: color.css() };
 }
@@ -106,7 +106,7 @@ export function ExtractionContext({
   entityTypes: Map<number, EntityType>;
   matchComponent: MatchComponent;
 }) {
-  const highlights = buildHighlights(data.entities);
+  const highlights = buildHighlights(data.entities, null);
 
   return h("div", [
     h("p", h(HighlightedText, { text: data.paragraph_text, highlights })),

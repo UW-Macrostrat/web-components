@@ -1,12 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { useContext, useState } from "react";
 import hyper from "@macrostrat/hyper";
 import { RaisedSelect } from "./util";
@@ -56,8 +47,6 @@ const LithologyPicker = (props) => {
       label: h(LithologyItem, { lithology: id, symbol }),
     });
   }
-
-  console.log(options);
 
   let value = options.find((d) => d.value === interval.lithology_id);
 

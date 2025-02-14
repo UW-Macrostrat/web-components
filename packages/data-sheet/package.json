@@ -1,36 +1,50 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "2.0.1-dev",
+  "version": "2.0.0",
   "description": "",
-  "main": "src/index.ts",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "type": "module",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rm -rf dist && parcel build"
   },
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
-    "@macrostrat/hyper": "^2.0.0",
+    "@blueprintjs/table": "^5.1.4",
+    "@macrostrat/color-utils": "workspace:^",
+    "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/ui-components": "workspace:^",
+    "@supabase/postgrest-js": "^1.17.7",
     "chroma-js": "^2.4.2",
     "classnames": "^2.3.1",
-    "d3-array": "^2.12.1",
     "immutability-helper": "^3.1.1",
     "react": "^17.0.2||^18",
     "react-color": "^2.19.3",
-    "react-datasheet": "^1.4.9",
-    "react-dnd": "^14.0.2",
-    "react-dnd-html5-backend": "^14.0.0",
-    "react-draggable": "^4.4.3"
+    "react-colorful": "^5.6.1",
+    "underscore": "^1.13.7",
+    "zustand": "^5.0.2"
   },
   "exports": {
     ".": {
-      "typescript": "./src",
-      "import": "./src"
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
     }
   },
+  "files": [
+    "src",
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/data-sheet"
+  },
+  "devDependencies": {
+    "@types/underscore": "^1",
+    "parcel": "^2.13.3"
   }
 }

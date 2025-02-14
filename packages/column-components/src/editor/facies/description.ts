@@ -1,36 +1,37 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { Component } from "react";
 import h from "@macrostrat/hyper";
-import T from "prop-types";
 import classNames from "classnames";
 import { FaciesContext } from "../../context";
 import { FaciesSwatch } from "./color-picker";
 
-const FaciesCard = ({ facies }) =>
+type FaciesData = any;
+
+export const FaciesCard = ({ facies }) =>
   h("div.header", [
     h("p.name", { style: { marginRight: 20, textAlign: "left" } }, facies.name),
     h(FaciesSwatch, { facies }),
   ]);
 
-class FaciesDescriptionSmall extends Component {
-  constructor(...args) {
-    super(...args);
+interface FaciesDescriptionSmallProps {
+  selected: string;
+  onClick: (d: any) => void;
+  isEditable: boolean;
+}
+
+export class FaciesDescriptionSmall extends Component<FaciesDescriptionSmallProps> {
+  constructor(props: FaciesDescriptionSmallProps) {
+    super(props);
     this.renderEach = this.renderEach.bind(this);
   }
 
-  static initClass() {
-    this.contextType = FaciesContext;
-    this.defaultProps = { selected: null, isEditable: false };
-  }
-  renderEach(d) {
+  static contextType = FaciesContext;
+  static defaultProps = { selected: null, isEditable: false };
+
+  context: any;
+
+  renderEach(d: FaciesData) {
     let onClick = null;
-    const style = {};
+    const style: any = {};
     if (this.props.onClick != null) {
       onClick = () => this.props.onClick(d);
       style.cursor = "pointer";
@@ -62,6 +63,3 @@ class FaciesDescriptionSmall extends Component {
     ]);
   }
 }
-FaciesDescriptionSmall.initClass();
-
-export { FaciesDescriptionSmall };

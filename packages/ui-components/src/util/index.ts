@@ -8,3 +8,4 @@ export * from "./migration-helpers";
 export * from "./box-model";
 export * from "./event-hooks";
 export * from "./flexbox";
+export * from "./size-aware-label";

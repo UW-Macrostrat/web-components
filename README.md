@@ -29,32 +29,63 @@ Several of the most important modules are:
 ### Installation
 
 To get started developing Macrostrat web components, clone this repository to
-your machine and run
+your machine, install dependencies, and start the storybook begin developing.
 
-```
-git submodule init --recursive
-```
+Run `yarn install` in the root directory to install dependencies.
 
-This will automatically initialize all git submodules used in the monorepo.
+#### Package manager
 
-Next install all necessary modules. The repository is set up to use **Yarn v2**
-by default, for quick installs and updates.
+This repository is optimized for [Yarn](https://yarnpkg.com/) v4 or greater and
+may not work with NPM or other package managers. Run `corepack enable` to enable
+the `yarn` command that is bundled with this repository.
 
-```
-yarn
-```
+#### Environment variables
 
 In order to make map-based examples work, you will have to set the
 `VITE_MAPBOX_API_TOKEN` environment variable to a valid Mapbox token. You can do
 this by creating a `.env` file in the root of the repository.
 
-### Storybook
+### Developing components
+
+#### Using Storybook as a component workbench
 
 We use [Storybook](https://storybook.js.org/) for developing components in an
 isolated environment. To start the storybook, run `yarn run dev` in the root
-directory.
+directory. The storybook will start at port `6006`. You can then create new
+'stories' referencing components to create standalone views. This is the main
+approach for component development preferred by the Macrostrat team.
 
-The storybook will start at port `6006`
+#### Developing components in a consuming application
+
+Sometimes, it can be useful to prototype components as you are developing a
+consuming application. To do this, you can use `yarn link` (or an equivalent
+command in your package manager) to link the packages in this monorepo to your
+application.
+
+For instance, if you were working on the
+[Macrostrat web](https://github.com/UW-Macrostrat/web) repository, you could run
+the following commands:
+
+```sh
+# In the `web` directory with a `web-components` directory at the same level
+yarn link -A -r ../web-components
+# Creates relative links to the packages in the `web-components` directory
+```
+
+This will link the packages in the `web-components` directory to the `web`
+application using the ["portal" protocol](https://yarnpkg.com/protocol/portal).
+
+The `package.json` `resolutions` entries created by this linking process should
+be removed before publishing the application, as they will prevent the
+application from being compiled correctly in CI or a new environment.
+
+### Other useful commands
+
+- Check types: `yarn run check`
+- Build all packages locally: `yarn run build`
+- Check how a package is consumed: `yarn why <package-name>`
+- General information about packages and dependencies:
+  `yarn info -A -R <package-name>`
 
 ### Publishing packages
 
@@ -66,6 +97,34 @@ This monorepo has a custom script that helps with publishing packages.
 - If desired, you can run `yarn run prepare` to try building the packages.
 - If the build is successful, you can run `yarn run publish` to publish new
   versions.
+- Other workspace-management tools, such as `yarn version check`, can also be
+  helpful for version management
 
 You will need the NPM organizational credentials (to the `@macrostrat`
 organization) to publish packages.
+
+### Maintenance
+
+#### Upgrading storybook
+
+```
+
+yarn dlx storybook@latest upgrade
+
+```
+
+#### Upgrading dependencies
+
+It can be useful to upgrade a specific dependency to its latest version:
+
+```
+
+yarn up -i <package-name>
+
+```
+
+#### Maintaining references
+
+```sh
+yarn why @macrostrat/column-components
+```

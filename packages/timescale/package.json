@@ -1,55 +1,37 @@
 {
   "name": "@macrostrat/timescale",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "A configurable geologic timescale written with React and Typescript",
-  "main": "dist/cjs",
-  "module": "dist/esm",
-  "types": "dist/types",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "type": "module",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "src",
+    "dist"
+  ],
   "scripts": {
-    "dev": "parcel serve --dist-dir dist/example --no-autoinstall example/index.html",
-    "build": "./scripts/build",
-    "watch": "./scripts/watch",
-    "prepublish": "npm run build"
+    "build": "rm -rf dist && parcel build"
   },
   "author": "Daven Quinn",
   "license": "MIT",
-  "devDependencies": {
-    "@babel/core": "^7.11.1",
-    "@babel/plugin-proposal-class-properties": "^7.8.3",
-    "@babel/plugin-proposal-nullish-coalescing-operator": "^7.8.3",
-    "@babel/plugin-proposal-optional-chaining": "^7.9.0",
-    "@babel/plugin-transform-typescript": "^7.11.0",
-    "@babel/preset-env": "^7.7.7",
-    "@babel/preset-typescript": "^7.7.7",
-    "@blueprintjs/core": "^5.10.2",
-    "@rehooks/local-storage": "^2.4.0",
-    "@rollup/plugin-babel": "^5.2.0",
-    "@rollup/plugin-commonjs": "^15.0.0",
-    "@rollup/plugin-node-resolve": "^9.0.0",
-    "cssnano": "^4.1.10",
-    "rollup": "^2.38.1",
-    "rollup-plugin-postcss": "^3.1.6",
-    "stylus": "^0.59.0",
-    "typescript": "^5.6.2"
-  },
   "dependencies": {
-    "@macrostrat/column-components": "workspace:*",
-    "@macrostrat/hyper": "^2.0",
-    "@macrostrat/timescale": "workspace:*",
+    "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/ui-components": "workspace:^",
     "@types/classnames": "^2.2.10",
     "@types/d3-array": "^2.0.0",
-    "@vx/axis": "0.0.198",
-    "@vx/scale": "0.0.198",
+    "@visx/axis": "^3.12.0",
+    "@visx/scale": "^3.12.0",
     "classnames": "^2.2.6",
-    "d3-array": "^2.5.1",
+    "d3-array": "^3.2.4",
     "d3-format": "^2.0.0"
-  },
-  "exports": {
-    ".": {
-      "typescript": "./src",
-      "import": "./dist/esm",
-      "require": "./dist/cjs"
-    }
   },
   "peerDependencies": {
     "react": "^16.13.1||^17||^18",
@@ -59,5 +41,8 @@
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/timescale"
+  },
+  "devDependencies": {
+    "parcel": "^2.13.3"
   }
 }

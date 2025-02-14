@@ -6,18 +6,21 @@
  */
 import { Component } from "react";
 import h from "@macrostrat/hyper";
-import T from "prop-types";
 import { SwatchesPicker } from "react-color";
 import { Popover } from "@blueprintjs/core";
 import { FaciesContext } from "../../context";
 
-class FaciesColorPicker extends Component {
-  static initClass() {
-    this.contextType = FaciesContext;
-    this.propTypes = {
-      facies: T.object.isRequired,
-    };
-  }
+interface FaciesColorPickerProps {
+  facies: {
+    id: number;
+    color: string;
+  };
+}
+
+class FaciesColorPicker extends Component<FaciesColorPickerProps> {
+  static contextType = FaciesContext;
+  context: any;
+
   render() {
     const { setFaciesColor } = this.context;
     const { facies: d } = this.props;
@@ -35,7 +38,6 @@ class FaciesColorPicker extends Component {
     ]);
   }
 }
-FaciesColorPicker.initClass();
 
 const BasicFaciesSwatch = ({ facies: d, ...rest }) =>
   h("div.color-swatch", {
@@ -47,39 +49,39 @@ const BasicFaciesSwatch = ({ facies: d, ...rest }) =>
     ...rest,
   });
 
-class FaciesSwatch extends Component {
-  constructor(...args) {
-    super(...args);
-    this.renderBasicSwatch = this.renderBasicSwatch.bind(this);
-    this.render = this.render.bind(this);
+interface FaciesSwatchProps {
+  isEditable: boolean;
+  facies: {
+    id: number;
+    color: string;
+  } | null;
+}
+
+class FaciesSwatch extends Component<FaciesSwatchProps> {
+  static defaultProps = {
+    isEditable: true,
+    facies: null,
+  };
+  constructor(props) {
+    super(props);
   }
 
-  static initClass() {
-    this.defaultProps = {
-      isEditable: true,
-      facies: null,
-    };
-  }
-  renderBasicSwatch() {
-    const { facies } = this.props;
-    return h(BasicFaciesSwatch, { facies });
-  }
   render() {
     const { facies, isEditable } = this.props;
-    if (!this.props.isEditable) {
-      return this.renderBasicSwatch;
+    const basic = h(BasicFaciesSwatch, { facies });
+    if (!isEditable) {
+      return basic;
     }
     return h(
       Popover,
       {
-        tetherOptions: {
-          constraints: [{ attachment: "together", to: "scrollParent" }],
-        },
+        // tetherOptions: {
+        //   constraints: [{ attachment: "together", to: "scrollParent" }],
+        // },
       },
-      [this.renderBasicSwatch(), h(FaciesColorPicker, { facies })]
+      [basic, h(FaciesColorPicker, { facies })]
     );
   }
 }
-FaciesSwatch.initClass();
 
 export { FaciesSwatch, BasicFaciesSwatch };

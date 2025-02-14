@@ -5,10 +5,25 @@ import { create } from "zustand";
 import styles from "./page-admin.module.sass";
 import { PageAdminInner } from "./_inner";
 import { ErrorBoundary } from "../error-boundary";
+import type { ComponentType } from "react";
 
 const h = hyper.styled(styles);
 
-const useStore: any = create((set) => {
+type DevToolsState = {
+  isOpen: boolean;
+  isSystemEnabled: boolean;
+  isInitialized: boolean;
+};
+
+export interface DevToolsStore extends DevToolsState {
+  buttonRef: HTMLElement;
+  setIsOpen: (isOpen: boolean) => void;
+  toggle: () => void;
+  toggleButton: () => void;
+  setButtonRef: (ref: HTMLElement) => void;
+}
+
+const useStore: any = create<DevToolsStore>((set) => {
   return {
     isOpen: false,
     isSystemEnabled: false,
@@ -38,7 +53,7 @@ function DevToolsDialog({ isOpen, setIsOpen, children }) {
   return h(PageAdminInner, { isOpen, setIsOpen }, children);
 }
 
-type DevTool = React.ComponentType & { title?: string };
+type DevTool = ComponentType & { title?: string };
 
 export function DevToolsConsole({
   className,
@@ -102,7 +117,13 @@ function CollapseArea({ title, isExpanded, setExpanded, component }) {
   ]);
 }
 
-export function DevToolsButtonSlot({ setRef = true, className }) {
+export function DevToolsButtonSlot({
+  setRef = true,
+  className,
+}: {
+  setRef?: boolean;
+  className?: string;
+}) {
   const onClick = useStore((state) => state.toggle);
   const _setRef = useStore((state) => state.setButtonRef);
   const isShown = useStore((state) => state.isSystemEnabled);
@@ -147,11 +168,11 @@ function useDevToolsQueryParameter() {
     const url = new URL(window.location.href);
     const params = url.searchParams;
     const opt = params.get("dev-tools");
-    let res = { isInitialized: true };
+    let res: Partial<DevToolsState> = { isInitialized: true };
     if (opt != null) {
       res = { ...res, isSystemEnabled: true, isOpen: opt === "open" };
     }
-    // Setup the initial state
+    // Set up the initial state
     useStore.setState(res);
   }, []);
 

@@ -3,10 +3,13 @@ import { format } from "d3-format";
 import { Component, useContext, MouseEvent, ReactNode } from "react";
 import h from "./hyper";
 import { Popover, Position, Button, Intent } from "@blueprintjs/core";
-import { ColumnLayoutContext } from "./context";
+import {
+  ColumnLayoutContext,
+  ColumnLayoutCtx,
+  ColumnDivision,
+} from "./context";
 import chroma from "chroma-js";
 import Box from "ui-box";
-import { ColumnDivision } from "./defs";
 
 const fmt = format(".1f");
 const fmt2 = format(".2f");
@@ -95,9 +98,13 @@ interface DivisionEditOverlayProps {
   left: number;
   top: number;
   showInfoBox: boolean;
-  onClick(evt: MouseEvent): void;
+  onClick(ctx: {
+    event?: MouseEvent;
+    height: number;
+    division?: ColumnDivision;
+  }): void;
   allowEditing: boolean;
-  renderEditorPopup(): ReactNode;
+  renderEditorPopup(d: ColumnDivision): ReactNode;
   scaleToGrainsize: boolean;
   editingInterval: ColumnDivision;
   color: color;
@@ -106,7 +113,16 @@ interface DivisionEditOverlayProps {
   selectedHeight: number;
 }
 
-class DivisionEditOverlay extends Component {
+interface DivisionEditOverlayState {
+  height: number | null;
+  hoveredDivision: ColumnDivision | null;
+  popoverIsOpen: boolean;
+}
+
+export class DivisionEditOverlay extends Component<
+  DivisionEditOverlayProps,
+  DivisionEditOverlayState
+> {
   static contextType = ColumnLayoutContext;
   static defaultProps = {
     onHoverInterval() {},
@@ -121,6 +137,9 @@ class DivisionEditOverlay extends Component {
     color: "red",
     popoverWidth: 340,
   };
+
+  timeout: any;
+  context: ColumnLayoutCtx<ColumnDivision>;
   constructor(props: DivisionEditOverlayProps) {
     super(props);
     this.onHoverInterval = this.onHoverInterval.bind(this);
@@ -186,7 +205,7 @@ class DivisionEditOverlay extends Component {
     }
     // This could be moved to the actual interval
     // wrapped with a withRouter
-    const { history, showInfoBox } = this.props;
+    const { showInfoBox } = this.props;
     const { hoveredDivision } = this.state;
     const height = this.heightForEvent(event);
     event.stopPropagation();
@@ -262,11 +281,11 @@ class DivisionEditOverlay extends Component {
         background,
       },
       [
-        h.if(this.props.renderEditorPopup)(
+        h.if(this.props.renderEditorPopup != null)(
           Popover,
           {
             isOpen: popoverIsOpen && division != null,
-            style: { display: "block", width },
+            //style: { display: "block", width },
             position: Position.LEFT,
           },
           [
@@ -355,5 +374,3 @@ class DivisionEditOverlay extends Component {
     );
   }
 }
-
-export { DivisionEditOverlay };

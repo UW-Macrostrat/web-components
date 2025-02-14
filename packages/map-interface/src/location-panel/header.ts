@@ -7,19 +7,20 @@ import {
   LocationFocusButton,
   useFocusState,
   isCentered,
-  BoundsFocusButton,
 } from "@macrostrat/mapbox-react";
 
 const h = hyper.styled(styles);
 
-function PositionButton({ position, showCopyLink = false }) {
+function PositionButton({ position, bounds, showCopyLink = false }) {
   const focusState = useFocusState(position);
 
   const copyLinkIsVisible = isCentered(focusState) && showCopyLink;
 
   return h("div.position-controls", [
-    h(LocationFocusButton, { location: position, focusState }, []),
-    h.if(copyLinkIsVisible)(CopyLinkButton, { itemName: "position" }),
+    h(LocationFocusButton, { location: position, bounds, focusState }, []),
+    h.if(copyLinkIsVisible && position != null)(CopyLinkButton, {
+      itemName: "position",
+    }),
   ]);
 }
 
@@ -87,11 +88,10 @@ export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
   } = props;
 
   let leftButton = null;
-  if (bounds != null) {
-    leftButton = h(BoundsFocusButton, { bounds });
-  } else if (position != null) {
+  if (bounds != null || position != null) {
     leftButton = h(PositionButton, {
       position,
+      bounds,
       showCopyLink: showCopyPositionButton,
     });
   }

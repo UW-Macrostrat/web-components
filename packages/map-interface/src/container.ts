@@ -35,6 +35,26 @@ export enum DetailPanelStyle {
 export const MapAreaContainer = (props) =>
   h(MapProviders, h(_MapAreaContainer, props));
 
+interface MapAreaContainerProps {
+  navbar: AnyElement;
+  children?: AnyElement;
+  mapControls?: AnyElement;
+  contextPanel?: AnyElement;
+  contextStack?: AnyElement;
+  mainPanel?: AnyElement;
+  detailPanel?: AnyElement;
+  bottomPanel?: AnyElement;
+  className?: string;
+  detailPanelOpen?: boolean;
+  contextPanelOpen?: boolean;
+  contextStackProps?: ContextStackProps;
+  detailStackProps?: HTMLDivProps;
+  detailPanelStyle: DetailPanelStyle;
+  fitViewport?: boolean;
+  showPanelOutlines?: boolean;
+  preventMapInteraction?: boolean;
+}
+
 function _MapAreaContainer({
   children,
   className,
@@ -53,24 +73,7 @@ function _MapAreaContainer({
   showPanelOutlines = false,
   preventMapInteraction = false,
   ...rest
-}: {
-  navbar: AnyElement;
-  children?: AnyElement;
-  mapControls?: AnyElement;
-  contextPanel?: AnyElement;
-  contextStack?: AnyElement;
-  mainPanel?: AnyElement;
-  detailPanel?: AnyElement;
-  bottomPanel?: AnyElement;
-  className?: string;
-  detailPanelOpen?: boolean;
-  contextPanelOpen?: boolean;
-  contextStackProps?: ContextStackProps;
-  detailStackProps?: HTMLDivProps;
-  detailPanelStyle: DetailPanelStyle;
-  fitViewport?: boolean;
-  showPanelOutlines?: boolean;
-}) {
+}: MapAreaContainerProps) {
   const _detailPanelOpen = detailPanelOpen ?? detailPanel != null;
   const contextPanelTrans = useTransition(contextPanelOpen, 800);
   const detailPanelTrans = useTransition(_detailPanelOpen, 800);

@@ -1,13 +1,8 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-import { Component, createContext, ExoticComponent } from "react";
+import { createContext } from "react";
 import { StatefulComponent } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 
-const FaciesContext = createContext({
+const FaciesContext = createContext<any>({
   facies: [],
   onColorChanged() {},
 });

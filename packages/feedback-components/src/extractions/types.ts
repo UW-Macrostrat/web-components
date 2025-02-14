@@ -1,4 +1,4 @@
-type EntityType = string;
+type EntityType = { name: string; color: string; id: number };
 type Match = any;
 
 export interface Entity {
@@ -26,4 +26,5 @@ export type Highlight = {
 export interface EntityExt extends Omit<Entity, "type" | "children"> {
   type: EntityType;
   children: EntityExt[];
+  parents?: number[];
 }

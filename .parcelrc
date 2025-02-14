@@ -1,0 +1,9 @@
+{
+  "extends": "@parcel/config-default",
+  /* Using the bundler-library extension allows parcel to
+     split the output into multiple files, which is useful
+     to create more easily tree-shakable libraries.
+     https://parceljs.org/getting-started/library/#improving-tree-shaking
+  */
+  "bundler": "@parcel/bundler-library"
+}

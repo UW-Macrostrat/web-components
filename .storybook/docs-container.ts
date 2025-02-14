@@ -9,8 +9,6 @@ export const DocsContainer = ({ children, context }) => {
     document.body.classList.contains("bp5-dark")
   );
 
-  console.log(context);
-
   useEffect(() => {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {

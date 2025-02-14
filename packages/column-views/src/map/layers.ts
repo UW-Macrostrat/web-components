@@ -1,10 +1,14 @@
 import h from "@macrostrat/hyper";
-import { Feature, FeatureLayer, MapContext } from "@macrostrat/map-components";
+import {
+  Feature,
+  FeatureLayer,
+  MapContext,
+} from "@macrostrat/svg-map-components";
 import { useAPIResult, useKeyHandler } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
 import { ExtendedFeature, geoCentroid } from "d3-geo";
 import { geoVoronoi } from "d3-geo-voronoi";
-import { Polygon } from "geojson";
+import { FeatureCollection, GeometryCollection, Polygon } from "geojson";
 import { useContext, useEffect, useMemo } from "react";
 import { feature } from "topojson-client";
 
@@ -15,7 +19,7 @@ const defaultStyle = {
 
 export function MeasurementsLayer(props) {
   const { style = defaultStyle, ...params } = props;
-  const res = useAPIResult("/measurements", {
+  const res: any = useAPIResult("/measurements", {
     ...params,
     format: "geojson",
     response: "light",
@@ -36,7 +40,7 @@ type ColumnFeature = ExtendedFeature<Polygon, ColumnProps>;
 function processTopoJSON(res) {
   try {
     const { data } = res.success;
-    const { features: f } = feature(data, data.objects.output);
+    const { features: f } = feature(data, data.objects.output) as any;
     return f;
   } catch (err) {
     console.error(err);
@@ -171,6 +175,8 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
       const nextColumnIx = keyMapping[event.keyCode];
       if (nextColumnIx == null) return;
       const { col_id } = features[nextColumnIx].properties;
+
+      // @ts-ignore
       onChange({ col_id, ...projectArgs });
     },
     [keyMapping]
@@ -236,7 +242,15 @@ function useColumnData({
   );
 }
 
-const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
+interface ColumnExtraInfo {
+  apiRoute?: string;
+  color?: string;
+  filterColumns?(d: ColumnFeature): boolean;
+  showDebugLayers?: boolean;
+  format?: "topojson" | "geojson";
+}
+
+const Columns = (props: ColumnNavProps & ColumnExtraInfo) => {
   const {
     apiRoute = "/columns",
     onChange,
@@ -249,7 +263,12 @@ const Columns = (props: ColumnNavProps & { apiRoute: string }) => {
     format = "topojson",
   } = props;
 
-  let features = useColumnData({ apiRoute, status_code, project_id, format });
+  let features: any[] = useColumnData({
+    apiRoute,
+    status_code,
+    project_id,
+    format,
+  }) as any;
 
   if (features == null) return null;
 

@@ -97,10 +97,10 @@ export function Section(props: IColumnProps) {
         h(Timescale, {
           orientation: TimescaleOrientation.VERTICAL,
           length: height,
-          levels: timescaleLevels,
+          levels: timescaleLevels as [number, number],
           absoluteAgeScale: true,
           showAgeAxis: false,
-          ageRange: range,
+          ageRange: range as [number, number],
         }),
       ]),
       h(

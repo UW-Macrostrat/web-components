@@ -8,17 +8,18 @@ async function main() {
   let argv = process.argv.slice(2);
 
   let op = "status";
+  let modules = [];
 
-  if (argv.length == 1) {
-    op = argv[0];
+  if (argv.length >= 1) {
+    [op, ...modules] = argv;
   }
 
   if (op === "status") {
-    await runScript({ build: false, publish: false });
+    await runScript({ build: false, publish: false }, modules);
   } else if (op === "prepare") {
-    await runScript({ build: true, publish: false });
+    await runScript({ build: true, publish: false }, modules);
   } else if (op === "publish") {
-    await runScript({ build: true, publish: true });
+    await runScript({ build: true, publish: true }, modules);
   } else {
     console.log("Invalid operation. Use 'status', 'prepare', or 'publish'");
   }
