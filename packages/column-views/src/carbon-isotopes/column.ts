@@ -6,7 +6,7 @@ import {
   ColumnAxis,
   ColumnContext,
 } from "@macrostrat/column-components";
-import { SimpleUnitsColumn, IUnit } from "../units";
+import { SimpleUnitsColumn, IUnit, ColumnArgs } from "../units";
 import { useContext } from "react";
 import { IsotopesColumn } from "./isotopes-column";
 import { MacrostratColumnProvider } from "../providers";
@@ -76,6 +76,7 @@ const Section = (props: IColumnProps) => {
             parameter: "D13C",
             label: "δ¹³C",
             width: 100,
+            // @ts-ignore
             nTicks: 4,
             showAxis: isOldestColumn,
             transform: "translate(250,0)",
@@ -86,6 +87,7 @@ const Section = (props: IColumnProps) => {
             color: "red",
             domain: [-40, 0],
             width: 100,
+            // @ts-ignore
             nTicks: 4,
             showAxis: isOldestColumn,
             transform: "translate(370,0)",
@@ -96,7 +98,7 @@ const Section = (props: IColumnProps) => {
   );
 };
 
-function Column(props: IColumnProps) {
+function Column(props: Omit<IColumnProps, "data"> & { params: ColumnArgs }) {
   const { params } = props;
   const data: IUnit[] = useAPIResult("/units", {
     all: true,
@@ -107,7 +109,7 @@ function Column(props: IColumnProps) {
 
   let sectionGroups = Array.from(group(data, (d) => d.section_id));
 
-  sectionGroups.sort((a, b) => a.t_age - b.t_age);
+  //sectionGroups.sort((a, b) => a.t_age - b.t_age);
 
   return h("div.column", [
     h("div.age-axis-label", "Age (Ma)"),

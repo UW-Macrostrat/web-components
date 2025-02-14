@@ -10,13 +10,14 @@ type GlobeState = {
   updateCount: number;
 };
 
-type GlobeCtx = {
+export type GlobeCtx = {
   width: number;
   height: number;
   margin: number;
   renderPath: (geom: GeoGeometryObjects) => string;
   projection: GeoProjection;
   mapRef: RefObject<SVGElement> | null;
+  dispatchEvent?: (event: Event) => void;
 };
 
 type UpdateProjection = { type: "update"; projection: GeoProjection };
@@ -24,7 +25,11 @@ type ScaleProjection = { type: "scale"; scale: number };
 type RotateProjection = { type: "rotate"; rotation: RotationAngles };
 type UpdateState = { type: "update-state"; state: GlobeState };
 
-type GlobeActions = UpdateProjection | RotateProjection | UpdateState | ScaleProjection;
+type GlobeActions =
+  | UpdateProjection
+  | RotateProjection
+  | UpdateState
+  | ScaleProjection;
 
 const MapContext = createContext<GlobeCtx>({
   width: 0,
@@ -35,7 +40,9 @@ const MapContext = createContext<GlobeCtx>({
   mapRef: null,
 });
 
-const MapDispatchContext = createContext<(action: GlobeActions) => void>(() => {});
+const MapDispatchContext = createContext<(action: GlobeActions) => void>(
+  () => {}
+);
 
 function useMapDispatch() {
   return useContext(MapDispatchContext);

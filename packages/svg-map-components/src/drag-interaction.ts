@@ -2,11 +2,17 @@ import { Component } from "react";
 import { findDOMNode } from "react-dom";
 import T from "prop-types";
 import h from "./hyper";
-import { MapContext, useMapDispatch } from "./context";
+import { GlobeCtx, MapContext, useMapDispatch } from "./context";
 import { drag, DragBehavior } from "d3-drag";
 import { zoom, ZoomBehavior } from "d3-zoom";
 import { select, event as currentEvent, mouse } from "d3-selection";
-import { sph2cart, quat2euler, euler2quat, quatMultiply, quaternion } from "./math";
+import {
+  sph2cart,
+  quat2euler,
+  euler2quat,
+  quatMultiply,
+  quaternion,
+} from "./math";
 import { useMapRef } from "./context";
 
 interface DraggableOverlayProps {
@@ -25,6 +31,7 @@ interface DraggableOverlayInternalProps extends DraggableOverlayProps {
 
 class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
   static contextType = MapContext;
+  context: GlobeCtx;
   static propTypes = {
     showMousePosition: T.bool,
     keepNorthUp: T.bool,
@@ -40,10 +47,11 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
   };
   zoomHandler: ZoomBehavior<any, any> | null;
   drag: DragBehavior<any, any, any>;
-  r0: number;
+  r0: number[];
   p0: number[];
   qa: number[];
   q0: number[];
+  zoom: number;
 
   constructor(props) {
     super(props);

@@ -68,7 +68,7 @@ function ColumnLayoutProvider<T extends ColumnDivision>({
   );
 }
 
-interface CrossAxisLayoutProviderProps {
+export interface CrossAxisLayoutProviderProps {
   width: number;
   domain: number[];
   range?: number[];

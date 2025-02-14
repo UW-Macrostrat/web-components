@@ -19,7 +19,7 @@ const createPointLocator = function (opts) {
 
 const IsotopesDataContext = createContext(null);
 
-interface DataAreaProps {
+export interface DataAreaProps {
   clipY: boolean;
   parameter: string;
   corrected: boolean;
@@ -56,6 +56,7 @@ const IsotopesDataArea = function (props: DataAreaProps) {
   }
   const lineLocator = line()
     .x((d) => xScale(d[column]))
+    // @ts-ignore
     .y((d) => scale(d.height));
 
   const value = { pointLocator, lineLocator, corrected, system, clipY };

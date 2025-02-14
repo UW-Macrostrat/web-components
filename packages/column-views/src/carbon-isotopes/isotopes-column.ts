@@ -16,6 +16,8 @@ import {
   ColumnLayoutContext,
   useColumnDivisions,
 } from "@macrostrat/column-components";
+import { BaseUnit } from "@macrostrat/api-types";
+import { AxisProps } from "@visx/axis/lib/axis/Axis";
 
 const fmt = format(".1f");
 
@@ -97,6 +99,8 @@ interface ScaleLineProps {
   className?: string;
   labelBottom?: boolean;
   labelOffset?: number;
+  strokeDasharray?: string;
+  stroke?: string | number;
 }
 
 function ScaleLine(props: ScaleLineProps) {
@@ -146,11 +150,12 @@ interface IsotopeColumnProps extends IsotopesDatasetProps {
   label: string;
   domain: [number, number];
   transform?: string;
+  getHeight?: Function;
 }
 
 function IsotopesDataset(props) {
   const { parameter, color = "dodgerblue" } = props;
-  const divisions = useColumnDivisions();
+  const divisions: BaseUnit[] = useColumnDivisions() as any;
   const measures = useMeasurementData() ?? [];
   const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
     (d) => d.measurement == parameter
@@ -163,7 +168,7 @@ function IsotopesDataset(props) {
       getHeight(d) {
         return d.age;
       },
-    },
+    } as any,
     h(
       "g.data-points",
       points.map((d) => {
@@ -177,7 +182,7 @@ function IsotopesDataset(props) {
 }
 
 function IsotopesColumn(
-  props: IsotopeColumnProps & { children?: React.ReactNode }
+  props: IsotopeColumnProps & { children?: React.ReactNode } & AxisProps<any>
 ) {
   const {
     width = 120,
@@ -191,7 +196,7 @@ function IsotopesColumn(
     ...rest
   } = props;
 
-  let _children = children;
+  let _children: any = children;
   if (children == null && parameter != null) {
     _children = h(IsotopesDataset, { parameter, color, getHeight });
   }

@@ -25,6 +25,7 @@ export function UnitDetailsPopover({
     },
     h(
       Popover,
+      // @ts-ignore
       { content, isOpen: true, usePortal: false, boundary, position: "right" },
       h("span.popover-target")
     )

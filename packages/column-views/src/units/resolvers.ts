@@ -40,12 +40,12 @@ const symbolIndex = {
   tonalite: 727,
   granodiorite: 725,
   monzonite: 723,
-  argillite: 624
+  argillite: 624,
 };
 
-const resolveID = (d: object) => {
+const resolveID = (d: any) => {
   let liths = d.lith;
-  let environs = d.environ.map(d => d.name).join(" ");
+  let environs = d.environ.map((d) => d.name).join(" ");
   liths.sort((a, b) => b.prop - a.prop);
 
   //console.log(d, d.unit_name, liths.map(d => d.name), environs)
@@ -101,10 +101,10 @@ const resolveID = (d: object) => {
 
 const patternScale = {
   "609": 1.5,
-  "603": 1.5
+  "603": 1.5,
 };
 
-const scalePattern = id => {
+const scalePattern = (id) => {
   return patternScale[`${id}`] ?? 1;
 };
 

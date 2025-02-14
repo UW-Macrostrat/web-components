@@ -1,7 +1,14 @@
-import { Component, createContext, createRef, createElement, RefObject } from "react";
+import {
+  Component,
+  createContext,
+  createRef,
+  createElement,
+  RefObject,
+} from "react";
 import h from "./hyper";
 import { MapContext } from "./context";
 import { geoPath } from "d3-geo";
+import { GlobeCtx } from "./context";
 
 // https://philna.sh/blog/2018/09/27/techniques-for-animating-on-the-canvas-in-react/
 
@@ -13,6 +20,7 @@ const MapCanvasContext = createContext({
 
 class CanvasLayer extends Component<any, any> {
   static contextType = MapContext;
+  context: GlobeCtx;
   canvas: RefObject<HTMLCanvasElement>;
   constructor(props, ctx) {
     super(props, ctx);

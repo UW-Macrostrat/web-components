@@ -90,7 +90,7 @@ function BaseUnitSelectionProvider<T extends BaseUnit>({
   );
 }
 
-interface ColumnArgs {
+export interface ColumnArgs {
   col_id?: number;
   unit_id?: number;
   project_id?: number;
@@ -102,7 +102,7 @@ type ColumnManagerData = [ColumnArgs, (c: ColumnArgs) => void];
 const ColumnNavCtx = createContext<ColumnManagerData | null>(null);
 
 export function useColumnNav(
-  defaultArgs = { col_id: 495, unit_id: null }
+  defaultArgs: ColumnArgs = { col_id: 495, unit_id: null }
 ): ColumnManagerData {
   const ctx = useContext(ColumnNavCtx);
   if (ctx != null) return ctx;

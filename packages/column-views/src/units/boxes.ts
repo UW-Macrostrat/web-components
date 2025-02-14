@@ -1,5 +1,4 @@
 import {
-  Clickable,
   ColumnAxisType,
   ColumnContext,
   ColumnLayoutContext,
@@ -8,7 +7,7 @@ import {
   useColumn,
   useGeologicPattern,
 } from "@macrostrat/column-components";
-import { SizeAwareLabel } from "@macrostrat/ui-components";
+import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import {
   ReactNode,
@@ -39,8 +38,8 @@ interface UnitRectOptions {
 
 interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   division: IUnit;
-  resolveID(IUnit): string;
-  UUID: string;
+  resolveID?(IUnit): string;
+  UUID?: string;
   defaultFill?: string;
   widthFraction?: number;
   children?: ReactNode;
@@ -106,7 +105,7 @@ function Unit(props: UnitProps) {
   const fill = useGeologicPattern(patternID, defaultFill);
   // Allow us to select this unit if in the proper context
 
-  const ref = useRef<SVGRectElement>();
+  const ref = useRef<HTMLElement>();
 
   const [selected, onClick] = useUnitSelectionManager(ref, d);
 
@@ -123,9 +122,9 @@ function Unit(props: UnitProps) {
 }
 
 function useUnitSelectionManager(
-  ref: React.RefObject<SVGRectElement>,
+  ref: React.RefObject<HTMLElement>,
   unit: IUnit
-): [boolean, () => void] {
+): [boolean, (evt: Event) => void] {
   const selectedUnit = useSelectedUnit();
   const selected = selectedUnit?.unit_id == unit.unit_id;
 
@@ -201,7 +200,8 @@ function UnitBoxes<T>(props: {
   }
 
   const children = useMemo(() => {
-    return divisions.map((division, i) => {
+    return divisions.map((division: any, i) => {
+      // @ts-ignore
       return h(unitComponent, {
         division,
         key: division.unit_id,

@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import { useRef, useEffect, useState } from "react";
 
 export interface Clickable {
-  onClick: (evt: MouseEvent) => void;
+  onClick?: (evt: MouseEvent) => void;
 }
 
 interface ElementSize {
@@ -73,7 +73,7 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
       {
         className: labelClassName,
         ref: labelRef,
-        style: { visibility: shouldShow ? "visible" : "hidden" }
+        style: { visibility: shouldShow ? "visible" : "hidden" },
       },
       h("span.label-text", null, label)
     )

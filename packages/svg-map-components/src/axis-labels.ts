@@ -1,11 +1,3 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { geoPath } from "d3-geo";
 import { Shapes, Intersection, ShapeInfo } from "kld-intersections";
 import { PathParser } from "kld-path-parser";
@@ -41,8 +33,14 @@ export enum CoordinateAxis {
 }
 
 type PixelCoord = { x: number; y: number };
-type ShapeData = { shape?: Shapes.Shape } & { start?: PixelCoord; end?: PixelCoord };
-type IntersectionOptions = { axis: CoordinateAxis; spacing: number } & ShapeData;
+type ShapeData = { shape?: Shapes.Shape } & {
+  start?: PixelCoord;
+  end?: PixelCoord;
+};
+type IntersectionOptions = {
+  axis: CoordinateAxis;
+  spacing: number;
+} & ShapeData;
 
 type IntersectionResult = PixelCoord & { value: number };
 
@@ -54,7 +52,7 @@ function useIntersections({
   spacing = 10,
 }: IntersectionOptions): IntersectionResult[] {
   shape ??= Shapes.line(start.x, start.y, end.x, end.y);
-  let graticuleSpacing = [spacing, spacing];
+  let graticuleSpacing: [number, number] = [spacing, spacing];
   if (axis == CoordinateAxis.Longitude) {
     graticuleSpacing[1] = 0.5;
   }
@@ -69,8 +67,9 @@ function useIntersections({
     if (d == null) continue;
     const path = ShapeInfo.path(d);
 
-    const { points } = Intersection.intersect(path, shape);
+    const { points } = Intersection.intersect(path, shape) as any;
     for (let point of Array.from(points)) {
+      // @ts-ignore
       point.value = coords[0][axis];
       intersections.push(point);
     }
@@ -79,14 +78,22 @@ function useIntersections({
 }
 
 class _GraticuleLabels {
-  static initClass() {
-    this.prototype.type = "lat";
-    this.prototype.showCircles = false;
-    this.prototype._offs = [0, 0];
-    this.prototype._rot = 0;
-    this.prototype.labelText = "Latitude";
-  }
+  type: string;
+  showCircles: boolean;
+  _offs: [number, number];
+  _rot: number;
+  labelText: string;
+  stereonet: any;
+  shape: any;
+  container: any;
+
   constructor(stereonet) {
+    this.type = "lat";
+    this.showCircles = false;
+    this._offs = [0, 0];
+    this._rot = 0;
+    this.labelText = "Latitude";
+
     this.stereonet = stereonet;
   }
   format(d) {
@@ -120,7 +127,7 @@ class _GraticuleLabels {
     const intersections = [];
     const values = coordinates.filter((d) => d[0][ix] === d[1][ix]);
     for (let coords of Array.from(values)) {
-      const obj = { type: "LineString", coordinates: coords };
+      const obj: any = { type: "LineString", coordinates: coords };
       const d = pth(obj);
       const parser = new PathParser();
       const handler = new PathHandler();
@@ -131,8 +138,8 @@ class _GraticuleLabels {
         continue;
       }
       const path = Shapes.path(handler.shapes);
-      const { points } = Intersection.intersect(path, this.shape);
-      for (let point of Array.from(points)) {
+      const { points }: any = Intersection.intersect(path, this.shape) as any;
+      for (let point of Array.from(points) as any) {
         point.value = coords[0][ix];
         intersections.push(point);
       }
@@ -153,7 +160,10 @@ class _GraticuleLabels {
     sel
       .append("text")
       .text(this.format)
-      .attr("transform", `translate(${this._offs[0]},${this._offs[1]}) rotate(${this._rot})`);
+      .attr(
+        "transform",
+        `translate(${this._offs[0]},${this._offs[1]}) rotate(${this._rot})`
+      );
 
     if (this.showCircles) {
       sel.append("circle").attr("r", 2);
@@ -174,15 +184,29 @@ class _GraticuleLabels {
   }
 }
 
-class _AzimuthLabels extends GraticuleLabels {
-  static initClass() {
-    this.prototype.type = "lon";
-    this.prototype.labelText = "Dip azimuth";
-    this.prototype.format = formatAzimuthLabel;
+class _AzimuthLabels extends _GraticuleLabels {
+  type: string;
+  labelText: string;
+  format: (d: any) => string;
+
+  constructor(stereonet: any) {
+    super(stereonet);
+    this.labelText = "Dip azimuth";
+    this.format = formatAzimuthLabel;
+    this.type = "lon";
   }
 }
 
-class _DipLabels extends GraticuleLabels {
+class _DipLabels extends _GraticuleLabels {
+  type: string;
+  labelText: string;
+
+  constructor(stereonet: any) {
+    super(stereonet);
+    this.labelText = "Dip";
+    this.type = "lat";
+  }
+
   static initClass() {
     this.prototype.type = "lat";
     this.prototype.labelText = "Dip";
@@ -199,7 +223,7 @@ type GraticuleLabelProps = {
   labelProps?: any;
   padding?: number;
   showPoints?: boolean;
-  children?: React.Node;
+  children?: React.ReactNode;
 } & IntersectionOptions &
   React.SVGProps<SVGGElement>;
 
@@ -234,7 +258,11 @@ export function GraticuleLabels({
         h.if(showPoints)("circle", { r: 2 }),
       ]);
     }),
-    h.if(axisLabel)("text.axis-label", { transform: "translate(0, -10)" }, axisLabel),
+    h.if(axisLabel != null)(
+      "text.axis-label",
+      { transform: "translate(0, -10)" },
+      axisLabel
+    ),
     children,
   ]);
 }

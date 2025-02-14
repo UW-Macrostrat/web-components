@@ -42,7 +42,7 @@ function Feature(props: IFeatureProps) {
   if (inCanvas) {
     return h(CanvasFeature, { geometry, style });
   } else {
-    const d = renderPath(geometry);
+    const d = renderPath(geometry as any);
     return h("path.feature", {
       className: `feature-${id}`,
       style,

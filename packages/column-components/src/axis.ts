@@ -14,16 +14,16 @@ import { axisLeft } from "d3-axis";
 import { ColumnContext, ColumnCtx, ColumnDivision } from "./context";
 
 interface ColumnAxisProps {
-  ticks: number;
-  tickArguments: any;
-  tickValues: any;
-  tickFormat: any;
-  tickSize: any;
-  tickSizeInner: any;
-  tickSizeOuter: any;
-  tickPadding: any;
-  showLabel: (d: any) => boolean;
-  showDomain: boolean;
+  ticks?: number;
+  tickArguments?: any;
+  tickValues?: any;
+  tickFormat?: any;
+  tickSize?: any;
+  tickSizeInner?: any;
+  tickSizeOuter?: any;
+  tickPadding?: any;
+  showLabel?: (d: any) => boolean;
+  showDomain?: boolean;
 }
 
 export class ColumnAxis extends Component<ColumnAxisProps> {

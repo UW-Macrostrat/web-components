@@ -39,11 +39,14 @@ export function DataField({
   ]);
 }
 
-export type IntervalShort = {
+export type IntervalID = {
   id: number;
+  name: string;
+};
+
+export type IntervalShort = IntervalID & {
   b_age: number;
   t_age: number;
-  name: string;
   color: string;
   rank: number;
 };
@@ -91,7 +94,8 @@ export function Interval({
   interval,
   showAgeRange = false,
 }: {
-  interval: IntervalShort;
+  interval: IntervalID;
+  proportion?: number;
   showAgeRange?: boolean;
 }) {
   return h(LithologyTag, {

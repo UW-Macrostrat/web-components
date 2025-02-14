@@ -119,7 +119,7 @@ function _BaseUnitsColumn(
 
 type BaseUnitProps = {
   width: number;
-  showLabels: boolean;
+  showLabels?: boolean;
   columnWidth?: number;
   clipToFrame?: boolean;
 };

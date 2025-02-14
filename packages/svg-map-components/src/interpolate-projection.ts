@@ -10,7 +10,7 @@ NOTE: this code is currently non-functional and is here as a placeholder!
 */
 
 function interpolatedProjection(a, b) {
-  var projection = geoProjection(raw).scale(1),
+  var projection = geoProjection(raw as any).scale(1),
     center = projection.center,
     translate = projection.translate,
     α;
@@ -21,6 +21,7 @@ function interpolatedProjection(a, b) {
     return [(1 - α) * pa[0] + α * pb[0], (α - 1) * pa[1] - α * pb[1]];
   }
 
+  // @ts-ignore
   projection.alpha = function (_) {
     if (!arguments.length) return α;
     α = +_;
@@ -36,6 +37,7 @@ function interpolatedProjection(a, b) {
   delete projection.scale;
   delete projection.translate;
   delete projection.center;
+  // @ts-ignore
   return projection.alpha(0);
 }
 
