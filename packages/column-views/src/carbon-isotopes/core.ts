@@ -24,7 +24,9 @@ const defaultArgs = {
 export function CarbonIsotopesColumn(columnArgs) {
   return h(
     MacrostratAPIProvider,
-    h(MeasurementDataProvider, columnArgs, [h(Column, { params: columnArgs })])
+    h(MeasurementDataProvider, columnArgs, [
+      h(BaseColumn, { params: columnArgs }),
+    ])
   );
 }
 

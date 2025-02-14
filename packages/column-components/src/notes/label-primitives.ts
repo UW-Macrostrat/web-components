@@ -1,6 +1,8 @@
-import { Node } from "labella";
+import labella from "labella";
 
-class FlexibleNode {
+const { Node, Renderer, Force } = labella;
+
+export class FlexibleNode {
   allowedRange: [number, number];
   centerPos: number;
   currentPos: number;
@@ -159,4 +161,4 @@ class FlexibleNode {
   }
 }
 
-export default FlexibleNode;
+export { Node, Renderer, Force };

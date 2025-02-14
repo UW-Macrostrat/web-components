@@ -58,12 +58,12 @@ interface FaciesSwatchProps {
 }
 
 class FaciesSwatch extends Component<FaciesSwatchProps> {
+  static defaultProps = {
+    isEditable: true,
+    facies: null,
+  };
   constructor(props) {
-    super({
-      isEditable: true,
-      facies: null,
-      ...props,
-    });
+    super(props);
   }
 
   render() {

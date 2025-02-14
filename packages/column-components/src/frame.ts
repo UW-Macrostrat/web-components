@@ -156,12 +156,19 @@ export interface ClipToFrameProps {
 }
 
 class ClipToFrame extends UUIDComponent<ClipToFrameProps> {
+  static defaultProps = {
+    shiftY: 0,
+    onClick: null,
+    frame: null,
+    width: null,
+  };
+
   constructor(props: ClipToFrameProps) {
     if (props.width == null && props.frame == null) {
       throw new Error("Provide either 'width' or 'frame' props");
     }
 
-    super({ onClick: null, shiftY: 0, frame: null, width: null, ...props });
+    super(props);
     this.computeTransform = this.computeTransform.bind(this);
   }
 

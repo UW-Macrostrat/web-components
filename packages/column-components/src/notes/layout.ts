@@ -1,10 +1,9 @@
 import { createContext, ReactNode, useContext } from "react";
 import { StatefulComponent } from "@macrostrat/ui-components";
-import { Node, Renderer, Force } from "labella";
 import h from "@macrostrat/hyper";
 
 import { hasSpan } from "./utils";
-import FlexibleNode from "./flexible-node";
+import { FlexibleNode, Node, Renderer, Force } from "./label-primitives";
 import {
   ColumnLayoutProvider,
   ColumnContext,
@@ -74,11 +73,11 @@ interface NoteLayoutState {
   generatePath: Function;
   createNodeForNote?: Function;
   noteComponent?: any;
-  renderer?: Renderer;
+  renderer?: typeof Renderer;
 }
 
 export interface NoteLayoutCtx {
-  renderer: Renderer;
+  renderer: typeof Renderer;
   paddingLeft: number;
   scale: Function;
   width: number;
@@ -93,19 +92,19 @@ class NoteLayoutProvider extends StatefulComponent<
   NoteLayoutState
 > {
   static contextType = ColumnContext;
+  static defaultProps = {
+    paddingLeft: 60,
+    estimatedTextHeight(note, width) {
+      const txt = note.note || "";
+      return 12;
+    },
+  };
   context: ColumnCtx<ColumnDivision>;
   _previousContext: ColumnCtx<ColumnDivision>;
   _rendererIndex: object;
 
   constructor(props) {
-    super({
-      paddingLeft: 60,
-      estimatedTextHeight(note, width) {
-        const txt = note.note || "";
-        return 12;
-      },
-      ...props,
-    });
+    super(props);
     this.computeContextValue = this.computeContextValue.bind(this);
     this.savedRendererForWidth = this.savedRendererForWidth.bind(this);
     this.generatePath = this.generatePath.bind(this);

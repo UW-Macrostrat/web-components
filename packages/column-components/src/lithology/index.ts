@@ -91,11 +91,12 @@ class ColumnRect extends Component<ColumnRectProps> {
   static contextType = ColumnContext;
   context: ColumnCtx<ColumnDivision>;
 
+  static defaultProps = {
+    padWidth: false,
+  };
+
   constructor(props) {
-    super({
-      padWidth: false,
-      ...props,
-    });
+    super(props);
   }
 
   render() {
@@ -242,13 +243,13 @@ const LithologySymbolDefs = function (props) {
 
 class LithologyBoxes extends UUIDComponent<any> {
   static contextType = ColumnLayoutContext;
+  static defaultProps = {
+    resolveID: defaultResolveID,
+    minimumHeight: 0,
+  };
   context: ColumnLayoutCtx<ColumnDivision>;
   constructor(props) {
-    super({
-      resolveID: defaultResolveID,
-      minimumHeight: 0,
-      ...props,
-    });
+    super(props);
     this.constructLithologyDivisions =
       this.constructLithologyDivisions.bind(this);
     this.renderEach = this.renderEach.bind(this);
