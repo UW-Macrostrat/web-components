@@ -1,11 +1,10 @@
 import { Component } from "react";
 import { findDOMNode } from "react-dom";
-import T from "prop-types";
 import h from "./hyper";
 import { GlobeCtx, MapContext, useMapDispatch } from "./context";
 import { drag, DragBehavior } from "d3-drag";
 import { zoom, ZoomBehavior } from "d3-zoom";
-import { select, event as currentEvent, mouse } from "d3-selection";
+import { select, pointer } from "d3-selection";
 import {
   sph2cart,
   quat2euler,
@@ -32,13 +31,7 @@ interface DraggableOverlayInternalProps extends DraggableOverlayProps {
 class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
   static contextType = MapContext;
   context: GlobeCtx;
-  static propTypes = {
-    showMousePosition: T.bool,
-    keepNorthUp: T.bool,
-    allowZoom: T.bool,
-    initialScale: T.number,
-    dragSensitivity: T.number,
-  };
+
   static defaultProps = {
     showMousePosition: false,
     allowZoom: true,
@@ -112,8 +105,8 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
     return this.setState({ mousePosition: null });
   }
 
-  zoomed() {
-    const scale = currentEvent?.transform.k;
+  zoomed(event) {
+    const scale = event?.transform.k;
     if (scale == null) {
       return;
     }
@@ -130,8 +123,8 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
     const { dragSensitivity: sens } = this.props;
 
     const forwardMousePos = (func) =>
-      function () {
-        return func(mouse(this), currentEvent);
+      function (event) {
+        return func(pointer(event), event);
       };
 
     const eventSubject = function (d) {

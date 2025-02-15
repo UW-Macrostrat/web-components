@@ -134,7 +134,12 @@ export function Globe(_props: GlobeProps) {
     zoomScaleExtent,
     graticuleSpacing = 10,
   } = props;
-  const { width: outerWidth, height: outerHeight, margin = 80, translate, ...rest } = props;
+  const {
+    width: outerWidth,
+    height: outerHeight,
+    margin = 80,
+    translate,
+  } = props;
 
   const [mapState, dispatch] = useReducer(globeReducer, {
     projection: props.projection,
@@ -181,7 +186,10 @@ export function Globe(_props: GlobeProps) {
     dispatch({ type: "update", projection: newProj });
   }, [props.projection, width, height, margin, translate, scale]);
 
-  const renderPath = useMemo(() => geoPath(mapState.projection), [mapState.projection]); //, [mapState.projection]);
+  const renderPath = useMemo(
+    () => geoPath(mapState.projection),
+    [mapState.projection]
+  ); //, [mapState.projection]);
   const value = { projection, renderPath, width, height, margin, mapRef: ref };
 
   const xmlns = "http://www.w3.org/2000/svg";
@@ -205,16 +213,20 @@ export function Globe(_props: GlobeProps) {
           ref,
           xmlns,
           width: outerWidth,
-          height: outerWidth,
+          height: outerHeight,
           viewBox,
         },
         [
-          h("g.map", { ref: mapElement, transform: `translate(${margin} ${margin})` }, [
-            h(Background),
-            h(graticule, { stepSize: graticuleSpacing }),
-            children,
-            h(Sphere),
-          ]),
+          h(
+            "g.map",
+            { ref: mapElement, transform: `translate(${margin} ${margin})` },
+            [
+              h(Background),
+              h(graticule, { stepSize: graticuleSpacing }),
+              children,
+              h(Sphere),
+            ]
+          ),
           h.if(allowDrag)(DraggableOverlay, {
             keepNorthUp,
             initialScale,

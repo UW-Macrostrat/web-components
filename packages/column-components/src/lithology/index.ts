@@ -1,7 +1,6 @@
 import React, { Component, useContext } from "react";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
-import T from "prop-types";
 import {
   SimpleFrame,
   GrainsizeFrame,
@@ -95,10 +94,6 @@ class ColumnRect extends Component<ColumnRectProps> {
     padWidth: false,
   };
 
-  constructor(props) {
-    super(props);
-  }
-
   render() {
     const { scale } = this.context;
     let { division: d, padWidth, key, width, ...rest } = this.props;
@@ -137,9 +132,15 @@ const expandDivisionsByKey = function (
   }
 };
 
-const ParameterIntervals = function (props) {
+interface ParameterIntervalsProps {
+  padWidth: number;
+  parameter: string;
+  fillForInterval(param: any, division: ColumnDivision): any;
+}
+
+function ParameterIntervals(props: ParameterIntervalsProps) {
   const { divisions, width } = useContext(ColumnLayoutContext);
-  const { padWidth, parameter: key, fillForInterval, minimumHeight } = props;
+  const { padWidth, parameter: key, fillForInterval } = props;
   const newDivisions = expandDivisionsByKey(divisions, key);
   if (newDivisions.length === 1) {
     return null;
@@ -157,13 +158,7 @@ const ParameterIntervals = function (props) {
       })
     )
   );
-};
-
-ParameterIntervals.propTypes = {
-  padWidth: T.number,
-  parameter: T.string.isRequired,
-  fillForInterval: T.func.isRequired,
-};
+}
 
 const FaciesIntervals = function (props) {
   const { getFaciesColor } = useContext(FaciesContext) as any;

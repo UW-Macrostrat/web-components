@@ -9,7 +9,6 @@ import {
   AssetPathCtx,
 } from "./context";
 import { UUIDComponent } from "./frame";
-import T from "prop-types";
 
 const symbolIndex = {
   "Hummocky cross-stratified": "hcs.svg",

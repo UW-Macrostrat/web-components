@@ -4,14 +4,23 @@ import {
   useState,
   useEffect,
   useCallback,
+  ReactNode,
 } from "react";
 import update from "immutability-helper";
 import h from "@macrostrat/hyper";
-import T from "prop-types";
 
 const ModelEditorContext = createContext(null);
 
-const ModelEditorProvider = function (props) {
+interface ModelEditorProviderProps {
+  model: any;
+  onConfirmChanges: (model: any) => void;
+  onDelete: (model: any) => void;
+  logUpdates?: boolean;
+  alwaysConfirm?: boolean;
+  children: ReactNode;
+}
+
+function ModelEditorProvider(props: ModelEditorProviderProps) {
   /*
   Context to assist with editing a model
   */
@@ -70,12 +79,7 @@ const ModelEditorProvider = function (props) {
     confirmChanges,
   };
   return h(ModelEditorContext.Provider, { value }, children);
-};
-
-ModelEditorProvider.propTypes = {
-  onConfirmChanges: T.func.isRequired,
-  onDelete: T.func.isRequired,
-};
+}
 
 const useModelEditor = () => useContext(ModelEditorContext);
 
