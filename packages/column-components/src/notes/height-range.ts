@@ -1,17 +1,25 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { useContext } from "react";
 import h from "../hyper";
-import T from "prop-types";
 import { NoteLayoutContext } from "./layout";
 
-const HeightRangeAnnotation = function(props) {
+interface HeightRangeAnnotationProps {
+  height: number;
+  top_height?: number;
+  offsetX?: number;
+  color?: string;
+  lineInset?: number;
+}
+
+function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
   const { scale } = useContext(NoteLayoutContext);
-  const { height, top_height, offsetX, color, lineInset = 2.5, ...rest } = props;
+  const {
+    height,
+    top_height,
+    offsetX = 0,
+    color,
+    lineInset = 2.5,
+    ...rest
+  } = props;
 
   const bottomHeight = scale(height);
   let pxHeight = 0;
@@ -20,7 +28,7 @@ const HeightRangeAnnotation = function(props) {
   }
   const topHeight = bottomHeight - pxHeight;
 
-  const isLine = pxHeight > 2*lineInset;
+  const isLine = pxHeight > 2 * lineInset;
 
   const transform = `translate(${offsetX},${topHeight})`;
 
@@ -29,20 +37,13 @@ const HeightRangeAnnotation = function(props) {
       x1: 0,
       x2: 0,
       y1: lineInset,
-      y2: pxHeight - lineInset
+      y2: pxHeight - lineInset,
     }),
-    h.if(!isLine)("circle", { r: 2, transform: `translate(0,${pxHeight/2})`}),
+    h.if(!isLine)("circle", {
+      r: 2,
+      transform: `translate(0,${pxHeight / 2})`,
+    }),
   ]);
-};
-
-HeightRangeAnnotation.propTypes = {
-  height: T.number.isRequired,
-  top_height: T.number,
-  offsetX: T.number
-};
-
-HeightRangeAnnotation.defaultProps = {
-  offsetX: 0
-};
+}
 
 export { HeightRangeAnnotation };

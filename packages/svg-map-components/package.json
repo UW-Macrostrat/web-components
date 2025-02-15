@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/svg-map-components",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React components for vector maps",
   "keywords": [
     "gis",
@@ -22,17 +22,12 @@
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/svg-map-components"
   },
-  "license": "MIT",
-  "engines": {
-    "node": ">=6.0.0"
-  },
   "scripts": {
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
-    "@swc/helpers": "^0.5.15",
     "@types/d3-array": "^3.0.0",
     "@types/d3-drag": "^3.0.0",
     "@types/d3-geo": "^3.0.0",
@@ -48,7 +43,6 @@
     "d3-zoom": "^3.0.0",
     "kld-intersections": "^0.7.0",
     "kld-path-parser": "^0.2.1",
-    "prop-types": "^15.8.1",
     "topojson-client": "^3.1.0"
   },
   "peerDependencies": {
@@ -63,7 +57,6 @@
     }
   },
   "devDependencies": {
-    "@types/prop-types": "^15",
     "parcel": "^2.13.3"
   }
 }

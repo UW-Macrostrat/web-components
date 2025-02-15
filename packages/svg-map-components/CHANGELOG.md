@@ -1,5 +1,10 @@
 ## Changelog
 
+### [1.0.2] - 2025-02-14
+
+- Fix an issue with map sizing (height was mistakenly set to width).
+- Upgrade D3 dependencies to latest [v6](https://observablehq.com/@d3/d3v6-migration-guide) versions 
+
 ### [1.0.1] - 2025-02-14
 
 - Added `src` files to deployment package.

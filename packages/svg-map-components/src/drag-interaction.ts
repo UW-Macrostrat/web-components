@@ -1,6 +1,5 @@
 import { Component } from "react";
 import { findDOMNode } from "react-dom";
-import T from "prop-types";
 import h from "./hyper";
 import { GlobeCtx, MapContext, useMapDispatch } from "./context";
 import { drag, DragBehavior } from "d3-drag";
@@ -32,13 +31,7 @@ interface DraggableOverlayInternalProps extends DraggableOverlayProps {
 class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
   static contextType = MapContext;
   context: GlobeCtx;
-  static propTypes = {
-    showMousePosition: T.bool,
-    keepNorthUp: T.bool,
-    allowZoom: T.bool,
-    initialScale: T.number,
-    dragSensitivity: T.number,
-  };
+
   static defaultProps = {
     showMousePosition: false,
     allowZoom: true,

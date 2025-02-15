@@ -2530,7 +2530,6 @@ __metadata:
     immutability-helper: "npm:^3.0.2"
     labella: "npm:^1.1.4"
     parcel: "npm:^2.13.3"
-    prop-types: "npm:^15.7.2"
     react-color: "npm:^2.18.0"
     react-draggable: "npm:^4.4.5"
     react-images: "npm:^1.1.0-beta.1"
@@ -2809,14 +2808,12 @@ __metadata:
   dependencies:
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/ui-components": "workspace:^"
-    "@swc/helpers": "npm:^0.5.15"
     "@types/d3-array": "npm:^3.0.0"
     "@types/d3-drag": "npm:^3.0.0"
     "@types/d3-geo": "npm:^3.0.0"
     "@types/d3-selection": "npm:^3.0.0"
     "@types/d3-zoom": "npm:^3.0.0"
     "@types/geojson": "npm:^7946.0.8"
-    "@types/prop-types": "npm:^15"
     "@types/react-dom": "npm:^16.9.8||^17.0.6||^18.0.0"
     axios: "npm:^1.7.9"
     d3-array: "npm:^3.2.4"
@@ -2827,7 +2824,6 @@ __metadata:
     kld-intersections: "npm:^0.7.0"
     kld-path-parser: "npm:^0.2.1"
     parcel: "npm:^2.13.3"
-    prop-types: "npm:^15.8.1"
     topojson-client: "npm:^3.1.0"
   peerDependencies:
     react: ^16.11.0||^17.0.0||^18.0.0
@@ -5195,7 +5191,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@swc/helpers@npm:^0.5.0, @swc/helpers@npm:^0.5.15":
+"@swc/helpers@npm:^0.5.0":
   version: 0.5.15
   resolution: "@swc/helpers@npm:0.5.15"
   dependencies:
