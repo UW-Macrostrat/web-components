@@ -1,19 +1,28 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Data views for Macrostrat stratigraphic columns",
-  "main": "dist/index.js",
   "type": "module",
   "source": "src/index.ts",
-  "types": "dist/index.d.ts",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "node": "dist/node/index.js",
   "sideEffects": [
     "**/*.css"
   ],
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts",
+      "node": "./dist/node/index.js"
+    }
+  },
+  "targets": {
+    "node": {
+      "engines": {
+        "node": ">=14"
+      }
     }
   },
   "scripts": {

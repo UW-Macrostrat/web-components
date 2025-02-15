@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.1] - 2025-02-15
+
+- Add a `node` target to bundle without imported CSS
+- Move from `typescript` to `source` export in `package.json`
+
 ## [4.1.0] - 2025-02-14
 
 - New compilation pipeline

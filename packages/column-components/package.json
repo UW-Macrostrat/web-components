@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -8,18 +8,27 @@
     "vector-graphics",
     "data-visualization"
   ],
-  "main": "./dist/index.js",
+  "main": "./dist/esm/index.js",
   "type": "module",
   "source": "./src/index.ts",
-  "types": "./dist/index.d.ts",
+  "types": "./dist/esm/index.d.ts",
+  "node": "./dist/node/index.js",
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts",
+      "node": "./dist/node/index.js"
     },
     "./stories/base-section": {
       "source": "./stories/base-section.ts"
+    }
+  },
+  "targets": {
+    "node": {
+      "engines": {
+        "node": ">=14"
+      }
     }
   },
   "files": [
