@@ -1,3 +1,10 @@
+# Changelog
+
+## [0.1.2] - 2025-02-15
+
+Added `files` specifier to `package.json` to ensure that all `dist` files are
+included in the package.
+
 ## [0.1.1] - 2025-02-15
 
 Addd a `node` target to bundle without imported CSS.
