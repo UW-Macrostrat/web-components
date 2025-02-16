@@ -2594,7 +2594,6 @@ __metadata:
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@types/d3-array": "npm:^3"
-    "@types/prop-types": "npm:^15"
     "@visx/axis": "npm:^3.12.0"
     "@visx/gradient": "npm:^3.12.0"
     "@visx/scale": "npm:^3.12.0"
@@ -2603,9 +2602,8 @@ __metadata:
     classnames: "npm:^2.5.1"
     d3-array: "npm:^3.2.4"
     parcel: "npm:^2.13.3"
-    prop-types: "npm:^15.8.1"
   peerDependencies:
-    "@blueprintjs/core": ^5.0.0
+    "@blueprintjs/core": ^5.10.2
     react: ^16.8.6||^17.0.2||^18
   languageName: unknown
   linkType: soft
@@ -5671,7 +5669,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/prop-types@npm:*, @types/prop-types@npm:^15":
+"@types/prop-types@npm:*":
   version: 15.7.14
   resolution: "@types/prop-types@npm:15.7.14"
   checksum: 10c0/1ec775160bfab90b67a782d735952158c7e702ca4502968aa82565bd8e452c2de8601c8dfe349733073c31179116cf7340710160d3836aa8a1ef76d1532893b1

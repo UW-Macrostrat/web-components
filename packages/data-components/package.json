@@ -37,6 +37,7 @@
     "parcel": "^2.13.3"
   },
   "peerDependencies": {
+    "@blueprintjs/core": "^5.10.2",
     "react": "^16.8.6||^17.0.2||^18"
   },
   "dependencies": {
