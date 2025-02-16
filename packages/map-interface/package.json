@@ -6,7 +6,7 @@
   "module": "dist/esm/index.js",
   "source": "src/index.ts",
   "types": "dist/esm/index.d.ts",
-  "node": "/dist/node/index.js",
+  "node": "dist/node/index.js",
   "dependencies": {
     "@blueprintjs/core": "^5.0.0",
     "@macrostrat/color-utils": "workspace:^",

@@ -3,6 +3,7 @@
   "version": "0.1.1",
   "description": "Form components for user input into Macrostrat apps",
   "type": "module",
+  "source": "src/index.ts",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "node": "dist/node/index.js",
