@@ -56,6 +56,7 @@ type DarkModeProps = {
   /** Override with system dark mode setting on page load */
   followSystem?: boolean;
   bodyClasses?: string[];
+  disabledBodyClasses?: string[];
   // Deprecated
   addBodyClasses?: boolean;
 };
@@ -86,6 +87,7 @@ function _DarkModeProvider(props: DarkModeProps) {
     isEnabled,
     followSystem = false,
     bodyClasses = ["dark-mode", "bp5-dark"],
+    disabledBodyClasses = ["bp5-light", "light-mode"],
     children,
   } = props;
   const [storedValue, updateValue, resetState] = useStoredState(
@@ -124,9 +126,11 @@ function _DarkModeProvider(props: DarkModeProps) {
     if (!_addBodyClasses) return;
     setDarkReaderMeta(value.isEnabled);
     if (value.isEnabled) {
+      document.body.classList.remove(...disabledBodyClasses);
       document.body.classList.add(...bodyClasses);
     } else {
       document.body.classList.remove(...bodyClasses);
+      document.body.classList.add(...disabledBodyClasses);
     }
   }, [storedValue, bodyClasses, addBodyClasses]);
 
