@@ -4,6 +4,7 @@ import classNames from "classnames";
 import styles from "./main.module.sass";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { PanelCard } from "../container";
+import { ComponentType } from "react";
 
 const h = hyper.styled(styles);
 
@@ -12,11 +13,14 @@ export function InfoDrawerContainer(props) {
   return h(PanelCard, { ...props, className });
 }
 
+type Component = string | ComponentType<any>;
+
 interface BaseInfoDrawerProps extends InfoDrawerHeaderProps {
   className?: string;
   title?: string;
   headerElement?: JSX.Element;
   children?: React.ReactNode;
+  contentContainer?: Component;
 }
 
 export function BaseInfoDrawer(props: BaseInfoDrawerProps) {
@@ -26,6 +30,7 @@ export function BaseInfoDrawer(props: BaseInfoDrawerProps) {
     title,
     onClose,
     children,
+    contentContainer = "div.infodrawer-contents",
     ...rest
   } = props;
   const header =
@@ -35,10 +40,7 @@ export function BaseInfoDrawer(props: BaseInfoDrawerProps) {
     ]);
   return h(InfoDrawerContainer, { className }, [
     header,
-    h(
-      "div.infodrawer-body",
-      h(ErrorBoundary, h("div.infodrawer-contents", children))
-    ),
+    h("div.infodrawer-body", h(ErrorBoundary, h(contentContainer, children))),
   ]);
 }
 

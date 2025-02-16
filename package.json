@@ -46,6 +46,7 @@
     "date-fns": "^4.1.0",
     "geologic-patterns": "^2.0.0-dev1",
     "glob": "^11.0.1",
+    "lorem-ipsum": "^2.0.8",
     "marked": "^11.0",
     "marked-terminal": "^7.1.0",
     "node-fetch": "^3.2.9",

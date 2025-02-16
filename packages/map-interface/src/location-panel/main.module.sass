@@ -49,7 +49,7 @@
   height: fit-content
   display: flex
   flex-direction: column
-  overflow: hidden
+  overflow-y: hidden
   background-color: var(--panel-background-color)
 
   &:global(.bp5-card)
@@ -65,11 +65,12 @@
 
 .infodrawer-contents
   padding: 0 1em
-  :first-child
+  &>:first-child
     margin-top: 1rem
-  :last-child
+  &>:last-child
     margin-bottom: 1rem
 
+// The scrollable body of the infodrawer
 .infodrawer-body
   flex-shrink: 1
   min-height: 0
