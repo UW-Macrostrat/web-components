@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.0.6] - 2025-02-14
+
+Add `node` target to bundle without imported CSS
+
 ## [0.0.5] - 2025-01-04
 
 - Migrate from `vx` to `visx` for charts

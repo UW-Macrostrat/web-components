@@ -1,11 +1,27 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "A library of react components tailored for Macrostrat data and endpoints",
   "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "node": "dist/node/index.js",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts",
+      "node": "./dist/node/index.js"
+    }
+  },
+  "targets": {
+    "node": {
+      "engines": {
+        "node": ">=14"
+      }
+    }
+  },
   "scripts": {
     "dev": "parcel watch",
     "build": "rm -rf dist && parcel build"
@@ -18,12 +34,9 @@
   "devDependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@types/d3-array": "^3",
-    "@types/prop-types": "^15",
-    "parcel": "^2.13.3",
-    "prop-types": "^15.8.1"
+    "parcel": "^2.13.3"
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^5.0.0",
     "react": "^16.8.6||^17.0.2||^18"
   },
   "dependencies": {
@@ -42,12 +55,5 @@
   "files": [
     "src",
     "dist"
-  ],
-  "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js"
-    }
-  }
+  ]
 }

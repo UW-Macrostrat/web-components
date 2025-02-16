@@ -1,7 +1,26 @@
 {
   "name": "@macrostrat/form-components",
-  "version": "0.1.0",
-  "description": "A react library",
+  "version": "0.1.1",
+  "description": "Form components for user input into Macrostrat apps",
+  "type": "module",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "node": "dist/node/index.js",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts",
+      "node": "./dist/node/index.js"
+    }
+  },
+  "targets": {
+    "node": {
+      "engines": {
+        "node": ">=14"
+      }
+    }
+  },
   "scripts": {
     "build": "rm -rf dist && parcel build"
   },
@@ -37,21 +56,6 @@
     "axios": "^1.7.9",
     "classnames": "^2.5.1",
     "mapbox-gl": "^2.15.0"
-  },
-  "type": "module",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "files": [
-    "src",
-    "dist"
-  ],
-  "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
   },
   "repository": {
     "type": "git",

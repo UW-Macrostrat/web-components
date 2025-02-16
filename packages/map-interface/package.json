@@ -1,11 +1,12 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Map interface for Macrostrat",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
   "source": "src/index.ts",
   "types": "dist/esm/index.d.ts",
+  "node": "/dist/node/index.js",
   "dependencies": {
     "@blueprintjs/core": "^5.0.0",
     "@macrostrat/color-utils": "workspace:^",
@@ -40,7 +41,15 @@
       "source": "./src/index.ts",
       "import": "./dist/esm/index.js",
       "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
+      "types": "./dist/esm/index.d.ts",
+      "node": "./dist/node/index.js"
+    }
+  },
+  "targets": {
+    "node": {
+      "engines": {
+        "node": ">=14"
+      }
     }
   },
   "files": [

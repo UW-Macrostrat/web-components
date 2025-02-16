@@ -1,3 +1,7 @@
+## [0.1.1] - 2025-02-15
+
+Addd a `node` target to bundle without imported CSS.
+
 ## [0.1.0] - 2025-02-14
 
 - Added authentication components to the initial form components from Sparrow
