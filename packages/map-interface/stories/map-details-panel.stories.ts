@@ -1,64 +1,23 @@
 import type { Meta } from "@storybook/react";
 import type { StoryObj } from "@storybook/react";
-import {
-  LocationPanel,
-  MapAreaContainer,
-  MapMarker,
-  MapView,
-  useBasicStylePair,
-} from "../src";
+import { ExpansionPanel, LocationPanel } from "../src";
 import h from "@macrostrat/hyper";
-import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
 import { useEffect } from "react";
+import { InfoDrawerHeader } from "../src/location-panel/header";
+import Box from "ui-box";
+import { LoremIpsum } from "lorem-ipsum";
 
-const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
-
-function DetailPanelMap(props) {
-  const { mapPosition, children, bounds, ...rest } = props;
-
-  const style = useBasicStylePair();
-
-  return h(
-    MapAreaContainer,
-    {
-      navbar: null,
-      contextPanel: null,
-      ...rest,
-    },
-    h(MapView, { style, mapPosition, mapboxToken, bounds }, children)
-  );
-}
-
-export function PositionInformation(props) {
-  const { position, bounds, onClose, title, children, ...rest } = props;
-
-  const detailPanel = h(
-    LocationPanel,
-    {
-      position,
-      bounds,
-      title,
-      onClose,
-    },
-    [h("h1", "New York City"), h("p", "New York is a pretty cool place")]
-  );
-
-  return h(
-    DetailPanelMap,
-    {
-      ...rest,
-      detailPanel,
-      bounds,
-    },
-    [
-      h.if(position != null)(MapMarker, {
-        position,
-      }),
-      children,
-    ]
-  );
-}
+const lorem = new LoremIpsum({
+  sentencesPerParagraph: {
+    max: 8,
+    min: 4,
+  },
+  wordsPerSentence: {
+    max: 16,
+    min: 4,
+  },
+});
 
 const position = {
   lat: 40.7128,
@@ -66,125 +25,114 @@ const position = {
 };
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-const meta: Meta<typeof PositionInformation> = {
-  title: "Map interface/Map details panel",
-  component: PositionInformation,
+export default {
+  title: "Map interface/Details panel",
+  component: LocationPanel,
   parameters: {
     layout: "fullscreen",
     docs: {
       story: {
         inline: false,
-        iframeHeight: 500,
+        iframeHeight: 550,
       },
     },
-    decorators: [
-      (Story) => {
-        return h(DarkModeProvider, h(Story));
-      },
-    ],
   },
-  args: {
-    mapPosition: {
-      camera: {
-        ...position,
-        altitude: 300000,
-      },
+  decorators: [
+    (Story) => {
+      return h(
+        Box,
+        {
+          width: 440,
+          margin: 10,
+          maxHeight: 450,
+          position: "relative",
+          display: "flex",
+          flexDirection: "column",
+        },
+        h(Story)
+      );
     },
+  ],
+  args: {
     position,
     onClose() {
       console.log("Close");
     },
   },
-};
+} as Meta<typeof LocationPanel>;
 
-export default meta;
-
-type Story = StoryObj<typeof PositionInformation>;
+type Story = StoryObj<typeof LocationPanel>;
 
 export const WithoutPosition = {
   args: {
-    mapPosition: {
-      camera: {
-        ...position,
-        altitude: 300000,
-      },
-    },
     position: null,
     title: "New York City",
     onClose() {
       console.log("Close");
     },
+    children: [
+      h("h1", "New York City"),
+      h("p", "New York is a pretty cool place"),
+    ],
   },
 };
 
 export const NotCloseable = {
   args: {
-    mapPosition: {
-      camera: {
-        ...position,
-        altitude: 300000,
-      },
-    },
     title: "New York City",
     position: null,
     onClose: null,
+    children: [
+      h("h1", "New York City"),
+      h("p", "New York is a pretty cool place"),
+    ],
   },
 };
 
-const bounds = [-74.2591, 40.4774, -73.7004, 40.9176];
+const loremContent = lorem.generateParagraphs(5).split("\n");
 
-export const WithBounds: Story = {
+export const FilledPanel: Story = {
   args: {
-    bounds,
+    bounds: null,
     position: null,
-    mapPosition: null,
     title: "Where it all happens",
+    style: { flexShrink: 1 },
     onClose() {
       console.log("Close");
     },
-    children: [h(MapBoundsLayer, { bounds })],
+    children: loremContent.map((t) => h("p", t)),
   },
 };
 
-function MapBoundsLayer(props) {
-  const { bounds } = props;
-  const isLoaded = useMapStatus((map) => map.isStyleLoaded);
-  const ref = useMapRef();
-  useEffect(() => {
-    const map = ref.current;
-    if (map == null) return;
-    if (!isLoaded) return;
+const ExpansionPanelContainer = (props) => {
+  const { children } = props;
+  return h(Box, children);
+};
 
-    map.addSource("bounds", {
-      type: "geojson",
-      data: {
-        type: "Feature",
-        geometry: {
-          type: "Polygon",
-          coordinates: [
-            [
-              [bounds[0], bounds[1]],
-              [bounds[2], bounds[1]],
-              [bounds[2], bounds[3]],
-              [bounds[0], bounds[3]],
-              [bounds[0], bounds[1]],
-            ],
-          ],
+export const AccordionFilledPanel: Story = {
+  args: {
+    style: { flexShrink: 1 },
+    headerElement: h(
+      InfoDrawerHeader,
+      {
+        bounds: null,
+        position: null,
+        fixedHeight: true,
+        onClose() {
+          console.log("Close");
         },
       },
-    });
-
-    map.addLayer({
-      id: "bounds",
-      type: "line",
-      source: "bounds",
-      layout: {},
-      paint: {
-        "line-color": "red",
-        "line-width": 2,
-      },
-    });
-  }, [isLoaded]);
-
-  return null;
-}
+      h("h1", "Where it all happens")
+    ),
+    contentContainer: ExpansionPanelContainer,
+    children: [
+      loremContent.map((t, i) => {
+        return h(
+          ExpansionPanel,
+          { title: `Section ${i + 1}`, expanded: i == 2 },
+          [h("p", t)]
+        );
+      }),
+    ],
+  },
+};

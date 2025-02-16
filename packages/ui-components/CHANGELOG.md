@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.2] - 2025-02-16
+
+Add body classes `light-mode` and `bp5-light` to `DarkModeProvider` when it is
+explicitly disabled.
+
 ## [4.1.1] - 2025-02-15
 
 - Add a `node` target to bundle without imported CSS. This is a stopgap measure

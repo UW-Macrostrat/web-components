@@ -8,6 +8,7 @@ import {
   useFocusState,
   isCentered,
 } from "@macrostrat/mapbox-react";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -74,6 +75,9 @@ export interface InfoDrawerHeaderProps {
   elevation?: number;
   showCopyPositionButton?: boolean;
   bounds?: mapboxgl.LngLatBounds;
+  fixedHeight?: boolean;
+  children?: React.ReactNode;
+  className?: string;
 }
 
 export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
@@ -84,7 +88,9 @@ export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
     zoom = 7,
     elevation,
     showCopyPositionButton,
+    fixedHeight = false,
     children,
+    className,
   } = props;
 
   let leftButton = null;
@@ -96,23 +102,29 @@ export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
     });
   }
 
-  return h("header.location-panel-header", [
-    leftButton,
-    children,
-    h("div.spacer"),
-    h.if(position != null)(LngLatCoords, {
-      position,
-      zoom,
-      className: "infodrawer-header-item",
-    }),
-    h.if(elevation != null)(Elevation, {
-      elevation,
-      className: "infodrawer-header-item",
-    }),
-    h.if(onClose != null)(Button, {
-      minimal: true,
-      icon: "cross",
-      onClick: onClose,
-    }),
-  ]);
+  return h(
+    "header.location-panel-header",
+    {
+      className: classNames(className, { "fixed-height": fixedHeight }),
+    },
+    [
+      leftButton,
+      children,
+      h("div.spacer"),
+      h.if(position != null)(LngLatCoords, {
+        position,
+        zoom,
+        className: "infodrawer-header-item",
+      }),
+      h.if(elevation != null)(Elevation, {
+        elevation,
+        className: "infodrawer-header-item",
+      }),
+      h.if(onClose != null)(Button, {
+        minimal: true,
+        icon: "cross",
+        onClick: onClose,
+      }),
+    ]
+  );
 }

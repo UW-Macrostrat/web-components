@@ -61,6 +61,22 @@ g.height-range line {
   transform: translate(0, -5px);
 }
 
+.column-axis:global(.y.axis) {
+  line {
+    stroke: var(--column-stroke-color, var(--text-color, #000));
+    stroke-width: 2px;
+  }
+
+  path {
+    stroke: var(--column-stroke-color, var(--text-color, #000));
+    stroke-width: 0;
+  }
+
+  text {
+    font-size: var(--column-axis-font-size, 12px);
+    font-weight: bold;
+  }
+}
 
 
 :global {
@@ -116,21 +132,6 @@ g.height-range line {
   g.covered-column rect.covered-area {
     fill: #f00;
     fill-opacity: 1;
-  }
-
-  .y.axis line {
-    stroke: #000;
-    stroke-width: 2px;
-  }
-
-  .y.axis path {
-    stroke: #000;
-    stroke-width: 0;
-  }
-
-  .y.axis text {
-    font-size: 12px;
-    font-weight: bold;
   }
 
   div.section-outer {

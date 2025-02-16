@@ -20,7 +20,7 @@ function ExpansionPanelSummary(props) {
       title,
       component: titleComponent,
     },
-    [children, h(Icon, { icon })]
+    [children, h(Icon, { icon, className: "expansion-panel-icon" })]
   );
 }
 

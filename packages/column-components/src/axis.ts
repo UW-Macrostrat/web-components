@@ -1,14 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { Component } from "react";
 import { findDOMNode } from "react-dom";
-import h from "@macrostrat/hyper";
+import h from "./hyper";
 import { select } from "d3-selection";
 import { axisLeft } from "d3-axis";
 import { ColumnContext, ColumnCtx, ColumnDivision } from "./context";
@@ -50,7 +42,7 @@ export class ColumnAxis extends Component<ColumnAxisProps> {
     showDomain: true,
   };
   render() {
-    return h("g.y.axis");
+    return h("g.y.axis.column-axis");
   }
   componentDidUpdate() {
     const { scale } = this.context;

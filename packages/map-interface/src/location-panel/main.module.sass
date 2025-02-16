@@ -9,12 +9,16 @@
   display: flex
   flex-direction: row
   align-items: center
-  gap: 1em
-  min-height: 40px
+  gap: var(--panel-header-gap, 0.5rem)
+  min-height: var(--panel-header-height, 40px)
   border-bottom: 1px solid var(--panel-rule-color)
+  &.fixed-height
+    height: var(--panel-header-height, 40px)
 
   .spacer
     flex-grow: 1
+    // Ensure the spacer is not extra wide
+    margin-right: calc(-1 * var(--panel-header-gap, 0.5rem))
 
   .left-icon
     padding: 7px
@@ -25,6 +29,9 @@
   // Text elements should
   h1, h2, h3, h4, h5, h6, p
     margin: 0
+    font-size: 16px
+    overflow: hidden
+    text-overflow: ellipsis
     &:first-child
       margin-left: 10px
 
@@ -42,7 +49,7 @@
   height: fit-content
   display: flex
   flex-direction: column
-  overflow: hidden
+  overflow-y: hidden
   background-color: var(--panel-background-color)
 
   &:global(.bp5-card)
@@ -57,8 +64,13 @@
 
 
 .infodrawer-contents
-  padding: 0 1em 1em
+  padding: 0 1em
+  &>:first-child
+    margin-top: 1rem
+  &>:last-child
+    margin-bottom: 1rem
 
+// The scrollable body of the infodrawer
 .infodrawer-body
   flex-shrink: 1
   min-height: 0
