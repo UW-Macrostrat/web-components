@@ -1,16 +1,25 @@
 {
   "name": "@macrostrat/timescale",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "A configurable geologic timescale written with React and Typescript",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "source": "src/index.ts",
   "type": "module",
+  "source": "src/index.ts",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "node": "dist/node/index.js",
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts",
+      "node": "./dist/node/index.js"
+    }
+  },
+  "targets": {
+    "node": {
+      "engines": {
+        "node": ">=14"
+      }
     }
   },
   "files": [

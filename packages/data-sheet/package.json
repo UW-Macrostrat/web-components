@@ -1,11 +1,27 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "2.0.0",
-  "description": "",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
+  "version": "2.0.1",
+  "description": "Scalable data sheet with optional editing capabilities",
   "type": "module",
-  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "node": "dist/node/index.js",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts",
+      "node": "./dist/node/index.js"
+    }
+  },
+  "targets": {
+    "node": {
+      "engines": {
+        "node": ">=14"
+      }
+    }
+  },
   "scripts": {
     "build": "rm -rf dist && parcel build"
   },
@@ -26,13 +42,6 @@
     "react-colorful": "^5.6.1",
     "underscore": "^1.13.7",
     "zustand": "^5.0.2"
-  },
-  "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    }
   },
   "files": [
     "src",
