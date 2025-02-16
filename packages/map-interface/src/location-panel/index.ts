@@ -37,7 +37,7 @@ export function BaseInfoDrawer(props: BaseInfoDrawerProps) {
     header,
     h(
       "div.infodrawer-body",
-      h("div.infodrawer-contents", h(ErrorBoundary, null, children))
+      h(ErrorBoundary, h("div.infodrawer-contents", children))
     ),
   ]);
 }

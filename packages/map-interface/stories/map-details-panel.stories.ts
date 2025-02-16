@@ -11,6 +11,7 @@ import h from "@macrostrat/hyper";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
 import { useEffect } from "react";
+import { InfoDrawerHeader } from "../src/location-panel/header";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -31,24 +32,27 @@ function DetailPanelMap(props) {
 }
 
 export function PositionInformation(props) {
-  const { position, bounds, onClose, title, children, ...rest } = props;
+  const { position, bounds, onClose, title, children, detailPanel, ...rest } =
+    props;
 
-  const detailPanel = h(
-    LocationPanel,
-    {
-      position,
-      bounds,
-      title,
-      onClose,
-    },
-    [h("h1", "New York City"), h("p", "New York is a pretty cool place")]
-  );
+  const _detailPanel =
+    detailPanel ??
+    h(
+      LocationPanel,
+      {
+        position,
+        bounds,
+        title,
+        onClose,
+      },
+      [h("h1", "New York City"), h("p", "New York is a pretty cool place")]
+    );
 
   return h(
     DetailPanelMap,
     {
       ...rest,
-      detailPanel,
+      detailPanel: _detailPanel,
       bounds,
     },
     [
@@ -143,6 +147,41 @@ export const WithBounds: Story = {
       console.log("Close");
     },
     children: [h(MapBoundsLayer, { bounds })],
+  },
+};
+
+export const ShouldRecenter: Story = {
+  args: {
+    mapPosition: {
+      camera: {
+        // Offset the camera towards Long Island to show the "recenter" button
+        lat: 40.7128,
+        lng: -72,
+        altitude: 150000,
+      },
+    },
+    detailPanel: h(
+      LocationPanel,
+      {
+        headerElement: h(
+          InfoDrawerHeader,
+          {
+            position,
+            elevation: 1457,
+            onClose() {
+              console.log("Close");
+            },
+          },
+          h("h1", "New York City")
+        ),
+      },
+      [
+        h(
+          "p",
+          "New York is home of the United Nations and other important institutions"
+        ),
+      ]
+    ),
   },
 };
 
