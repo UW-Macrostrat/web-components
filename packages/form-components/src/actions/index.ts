@@ -3,6 +3,7 @@ import styles from "./index.module.scss";
 import {
   Button,
   Card,
+  Icon,
   IconName,
   Intent,
   Menu,
@@ -10,6 +11,7 @@ import {
   NonIdealState,
 } from "@blueprintjs/core";
 import { ComponentType, ReactNode, useState } from "react";
+import { FlexRow } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
 
@@ -85,7 +87,16 @@ function ActionDetailsContent({
   setState(state: any): void;
   onRunAction(action: ActionDef, state: any): void;
 }) {
-  const { description, intent = "primary", detailsForm } = action;
+  const { description, icon, intent = "primary", detailsForm } = action;
+
+  let leftItem = null;
+  if (icon != null) {
+    if (typeof icon === "string") {
+      leftItem = h(Icon, { icon, size: 20 });
+    } else {
+      leftItem = icon;
+    }
+  }
 
   let disabled = false;
   if (action.isReady != null) {
@@ -93,6 +104,13 @@ function ActionDetailsContent({
   }
 
   return h("div.action-details-content", [
+    h(FlexRow, { gap: "1.2em", alignItems: "center" }, [
+      leftItem,
+      h("h3", action.name),
+    ]),
+    h.if(description != null)("p.description", description),
+    h.if(detailsForm != null)(detailsForm, { state, setState }),
+    h("div.spacer"),
     h(
       Button,
       {
@@ -107,8 +125,5 @@ function ActionDetailsContent({
       },
       action.name
     ),
-    h.if(description != null)("p.description", description),
-    h.if(detailsForm != null)(detailsForm, { state, setState }),
-    h("div.spacer"),
   ]);
 }
