@@ -66,6 +66,7 @@ const actions: ActionDef[] = [
     icon: "horizontal-distribution",
     disabled: true,
     detailsForm: AdjustWidthForm,
+    defaultState: 5,
     isReady(state) {
       return state != null;
     },

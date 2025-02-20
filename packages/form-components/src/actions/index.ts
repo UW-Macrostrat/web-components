@@ -2,6 +2,7 @@ import hyper from "@macrostrat/hyper";
 import styles from "./index.module.scss";
 import {
   Button,
+  Card,
   IconName,
   Intent,
   Menu,
@@ -29,10 +30,16 @@ export function ActionsPreflightPanel({ actions, onRunAction }) {
   const [selectedAction, setSelectedAction] = useState(null);
   const [state, setState] = useState<Record<string, any>>({});
 
-  const actionState = selectedAction != null ? state[selectedAction.id] : null;
+  let actionState = null;
+  if (selectedAction != null) {
+    actionState = state[selectedAction.id] ?? selectedAction.defaultState;
+  }
 
   const title = selectedAction?.name ?? "No action selected";
-  let content: ReactNode = h(NonIdealState, { icon: "flows" });
+  let content: ReactNode = h(NonIdealState, {
+    title: "No action selected",
+    icon: "flows",
+  });
   if (selectedAction != null) {
     content = h(ActionDetailsContent, {
       action: selectedAction,
@@ -54,6 +61,7 @@ export function ActionsPreflightPanel({ actions, onRunAction }) {
         return h(MenuItem, {
           icon: d.icon,
           active: isSelected,
+          disabled: d.disabled,
           intent: isSelected ? intent : "none",
           onClick() {
             setSelectedAction(d.id == selectedAction?.id ? null : d);
@@ -62,14 +70,7 @@ export function ActionsPreflightPanel({ actions, onRunAction }) {
         });
       })
     ),
-    h(ActionFrame, { title }, content),
-  ]);
-}
-
-function ActionFrame({ title, children }) {
-  return h("div.action-details", [
-    h("h2", title),
-    h("div.action-details-content", children),
+    h("div.action-details", content),
   ]);
 }
 
@@ -92,20 +93,22 @@ function ActionDetailsContent({
   }
 
   return h("div.action-details-content", [
-    h.if(description != null)("p", description),
-    h.if(detailsForm != null)(detailsForm, { state, setState }),
-    h("div.spacer"),
     h(
       Button,
       {
         intent,
-        icon: "play",
+        rightIcon: "play",
         disabled,
+        large: true,
+        className: "action-button",
         onClick() {
           onRunAction(action, state);
         },
       },
-      "Run"
+      action.name
     ),
+    h.if(description != null)("p.description", description),
+    h.if(detailsForm != null)(detailsForm, { state, setState }),
+    h("div.spacer"),
   ]);
 }
