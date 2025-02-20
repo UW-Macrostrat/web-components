@@ -10,7 +10,7 @@ import {
 } from "@blueprintjs/core";
 import { ComponentType, ReactNode, useState } from "react";
 import classNames from "classnames";
-import { ItemSelect } from "@macrostrat/form-components";
+import { ItemSelect } from "../item-select";
 
 const h = hyper.styled(styles);
 
