@@ -2,8 +2,6 @@ import hyper from "@macrostrat/hyper";
 import styles from "./index.module.scss";
 import {
   Button,
-  Card,
-  Icon,
   IconName,
   Intent,
   Menu,
@@ -16,16 +14,16 @@ import { ItemSelect } from "@macrostrat/form-components";
 
 const h = hyper.styled(styles);
 
-export type ActionDef = {
+export type ActionDef<ID extends string = string, T = null> = {
   name: string;
   icon: IconName;
-  id: string;
+  id: ID;
   description?: string;
   intent?: Intent;
-  defaultState?: any;
-  detailsForm?: ComponentType<{ state: any; setState: any }>;
+  defaultState?: T;
+  detailsForm?: ComponentType<{ state: T; setState(state: T): void }>;
   disabled?: boolean;
-  isReady?: (state: any) => boolean;
+  isReady?: (state: T) => boolean;
 };
 
 export function ActionsPreflightPanel({
@@ -132,15 +130,6 @@ function ActionDetailsContent({
 }) {
   const { description, icon, intent = "primary", detailsForm } = action;
 
-  let leftItem = null;
-  if (icon != null) {
-    if (typeof icon === "string") {
-      leftItem = h(Icon, { icon, size: 20 });
-    } else {
-      leftItem = icon;
-    }
-  }
-
   let disabled = false;
   if (action.isReady != null) {
     disabled = !action.isReady(state);
@@ -161,14 +150,10 @@ function ActionDetailsContent({
       },
       compact ? "Run" : action.name
     ),
-    // h.if(!compact)(FlexRow, { gap: "1.2em", alignItems: "center" }, [
-    //   leftItem,
-    //   h("h3", action.name),
-    // ]),
     h("div.action-details", [
       h.if(description != null)("p.description", description),
       h.if(detailsForm != null)(detailsForm, { state, setState }),
-      h("div.spacer"),
+      //h("div.spacer"),
     ]),
   ]);
 }

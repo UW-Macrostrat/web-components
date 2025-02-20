@@ -50,14 +50,17 @@
   box-shadow: none;
   padding: 1rem;
   border-radius: 6px;
-  background-color: var(--panel-secondary-background-color);
-}
-
-.action-details {
-  display: flex;
-  flex-direction: column;
-  flex-grow: 1;
   position: relative;
+  background-color: var(--panel-secondary-background-color);
+  &:global(.bp5-non-ideal-state) {
+    grid-row: span 2;
+  }
+  &>:first-child {
+    margin-top: 0;
+  }
+  &>:last-child {
+    margin-bottom: 0;
+  }
 }
 
 .spacer {

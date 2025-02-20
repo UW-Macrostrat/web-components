@@ -2,13 +2,17 @@ import type { Meta, StoryFn, StoryObj } from "@storybook/react";
 import h from "@macrostrat/hyper";
 import { ActionDef, ActionsPreflightPanel } from ".";
 import Box from "ui-box";
-import { FormGroup, MenuItem, NumericInput, Spinner } from "@blueprintjs/core";
+import { FormGroup, NumericInput, Spinner } from "@blueprintjs/core";
 import {
   NullableSlider,
   ToasterContext,
   useToaster,
 } from "@macrostrat/ui-components";
-import { useState } from "react";
+import {
+  BaseDataTypeSelect,
+  exampleMapLayers,
+  MapLayer,
+} from "../item-select/examples";
 import { ItemSelect } from "../item-select";
 
 export enum SelectionActionType {
@@ -22,7 +26,17 @@ export enum SelectionActionType {
   RecalculateTopology = "recalculateTopology",
 }
 
-const actions: ActionDef[] = [
+type MapboardActionDef =
+  | ActionDef<SelectionActionType.Delete>
+  | ActionDef<SelectionActionType.Heal>
+  | ActionDef<SelectionActionType.RecalculateTopology>
+  | ActionDef<SelectionActionType.ChangeType, string>
+  | ActionDef<SelectionActionType.ChangeLayer, ChangeLayerState>
+  | ActionDef<SelectionActionType.AdjustWidth, number>
+  | ActionDef<SelectionActionType.AdjustCertainty, number | null>
+  | ActionDef<SelectionActionType.ReverseLines>;
+
+const actions: MapboardActionDef[] = [
   {
     id: SelectionActionType.Delete,
     name: "Delete",
@@ -130,81 +144,8 @@ interface ChangeLayerState {
   selectedLayerID: number;
 }
 
-interface MapLayer {
-  id: number;
-  name: string;
-}
-
-interface DataType {
-  id: string;
-  name: string;
-  color: string;
-}
-
-const dataTypes: DataType[] = [
-  { id: "1", name: "Type 1", color: "#f00" },
-  { id: "2", name: "Type 2", color: "#0f0" },
-  { id: "3", name: "Type 3", color: "#00f" },
-  { id: "4", name: "Type 4", color: "#ff0" },
-  { id: "5", name: "Type 5", color: "#f0f" },
-  { id: "6", name: "Type 6", color: "#0ff" },
-  { id: "7", name: "Type 7", color: "#000" },
-  { id: "8", name: "Type 8", color: "#fff" },
-  { id: "9", name: "Type 9", color: "#888" },
-  { id: "10", name: "Type 10", color: "#444" },
-];
-
-const defaultLayers: MapLayer[] = [
-  { id: 1, name: "Layer 1" },
-  { id: 2, name: "Layer 2" },
-  { id: 3, name: "Layer 3" },
-  { id: 4, name: "Layer 4" },
-  { id: 5, name: "Layer 5" },
-];
-
 function ChangeDataTypeForm({ state, setState }) {
-  return h(_DataTypeSelect, { state, setState });
-}
-
-export function MapLayerSelect() {
-  const [state, setState] = useState<MapLayer | null>(null);
-  return h(ItemSelect, {
-    items: defaultLayers,
-    selectedItem: state,
-    onSelectItem: (layer) => {
-      setState(layer);
-    },
-    label: "layer",
-    icon: "layers",
-  });
-}
-
-function _DataTypeSelect({ state, setState }) {
-  return h(ItemSelect<DataType>, {
-    items: dataTypes,
-    selectedItem: state,
-    onSelectItem: setState,
-    label: "data type",
-    icon: "tag",
-    itemComponent: ({ item, ...rest }) => {
-      return h(MenuItem, {
-        ...rest,
-        icon: h(Box, {
-          is: "span",
-          width: "1em",
-          height: "1em",
-          backgroundColor: item.color,
-          borderRadius: "3px",
-        }),
-        text: item.name,
-      });
-    },
-  });
-}
-
-export function DataTypeSelect() {
-  const [state, setState] = useState<DataType | null>(null);
-  return h(_DataTypeSelect, { state, setState });
+  return h(BaseDataTypeSelect, { state, setState });
 }
 
 function ChangeLayerForm({
@@ -214,19 +155,14 @@ function ChangeLayerForm({
   state: ChangeLayerState | null;
   setState(state: ChangeLayerState): void;
 }) {
-  const layers = defaultLayers;
+  const layers = exampleMapLayers;
   const currentLayer = null;
 
-  if (layers == null) {
-    return h(Spinner);
-  }
-
-  const possibleLayers = layers.filter((d) => d.id != currentLayer);
   const selectedLayerID = state?.selectedLayerID ?? currentLayer;
-
+  const possibleLayers = layers.filter((d) => d.id != selectedLayerID);
   const currentLayerItem = layers.find((d) => d.id == selectedLayerID);
 
-  return h(ItemSelect, {
+  return h(ItemSelect<MapLayer>, {
     items: possibleLayers,
     selectedItem: currentLayerItem,
     onSelectItem: (layer) => {

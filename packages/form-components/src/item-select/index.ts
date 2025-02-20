@@ -1,7 +1,10 @@
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import { IconName, Menu, MenuItem, Spinner } from "@blueprintjs/core";
 import { ComponentType, MouseEventHandler, ReactNode } from "react";
 import { Select } from "@blueprintjs/select";
+import styles from "./index.module.sass";
+
+const h = hyper.styled(styles);
 
 /** A generic select component for selecting an item from a list */
 export function ItemSelect<T extends Nameable>({
@@ -30,7 +33,7 @@ export function ItemSelect<T extends Nameable>({
   let content: ReactNode = h(MenuItem, {
     icon: _icon,
     text: placeholder,
-    disabled: true,
+    className: "placeholder",
   });
   if (selectedItem != null) {
     content = h(itemComponent, {
@@ -84,6 +87,7 @@ function DefaultItemComponent<T extends Nameable>({
   item: T;
   className?: string;
   onClick?: MouseEventHandler<HTMLElement>;
+  icon?: IconName | ReactNode;
 }) {
   return h(MenuItem, {
     icon: item.icon ?? icon,
