@@ -42,6 +42,7 @@ export function ActionsPreflightPanel({
   }
 
   let content: ReactNode = h(NonIdealState, {
+    className: "action-details",
     title: "No action selected",
     icon: "flows",
   });
@@ -158,7 +159,7 @@ function ActionDetailsContent({
           onRunAction(action, state);
         },
       },
-      action.name
+      compact ? "Run" : action.name
     ),
     // h.if(!compact)(FlexRow, { gap: "1.2em", alignItems: "center" }, [
     //   leftItem,
