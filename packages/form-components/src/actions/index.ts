@@ -7,8 +7,10 @@ import {
   Menu,
   MenuItem,
   NonIdealState,
+  Spinner,
 } from "@blueprintjs/core";
-import { ComponentType, ReactNode, useState } from "react";
+import { ComponentType, MouseEventHandler, ReactNode, useState } from "react";
+import { Select } from "@blueprintjs/select";
 
 const h = hyper.styled(styles);
 
@@ -18,7 +20,7 @@ export type ActionCfg = {
   id: any;
   description?: string;
   intent?: Intent;
-  detailsForm?: ComponentType<{ state: any; updateState: any }>;
+  detailsForm?: ComponentType<{ state: any; setState: any }>;
   disabled?: boolean;
   isReady?: (state: any) => boolean;
 };
@@ -106,4 +108,95 @@ function ActionDetailsContent({
       "Run"
     ),
   ]);
+}
+
+function singularReferent(label: string) {
+  let n = "";
+  for (let v of ["a", "e", "i", "o", "u"]) {
+    if (label.startsWith(v)) {
+      n = "n";
+      break;
+    }
+  }
+  return `a${n} ${label}`;
+}
+
+/** A generic select component for selecting an item from a list */
+export function ItemSelect<T extends Nameable>({
+  items,
+  selectedItem,
+  onSelectItem,
+  label = "item",
+  icon = null,
+  itemComponent = DefaultItemComponent,
+}: {
+  items: T[] | null;
+  selectedItem: T | null;
+  onSelectItem(item: T): void;
+  label: string;
+  icon: IconName | ReactNode | null;
+  itemComponent?: ComponentType<ItemComponentProps<T>>;
+}) {
+  let placeholder = `Select ${singularReferent(label)}`;
+  let _icon: IconName | ReactNode = icon;
+  if (items == null) {
+    _icon = h(Spinner);
+    placeholder = "Loading...";
+  }
+  let content: ReactNode = h(MenuItem, {
+    icon: _icon,
+    text: placeholder,
+    disabled: true,
+  });
+  if (selectedItem != null) {
+    content = h(itemComponent, {
+      item: selectedItem,
+      icon,
+    });
+  }
+
+  return h(
+    Select<T>,
+    {
+      items: items ?? [],
+      itemRenderer: (item, { handleClick }) => {
+        return h(itemComponent, { item, onClick: handleClick, icon });
+      },
+      onItemSelect: onSelectItem,
+      popoverProps: { minimal: true, usePortal: false, matchTargetWidth: true },
+      filterable: false,
+      fill: true,
+    },
+    h(Menu, content)
+  );
+}
+
+interface Nameable {
+  name: string;
+  icon?: IconName | ReactNode;
+}
+
+interface ItemComponentProps<T> {
+  item: T;
+  className?: string;
+  onClick?: MouseEventHandler<HTMLElement>;
+  icon?: IconName | ReactNode;
+}
+
+function DefaultItemComponent<T extends Nameable>({
+  item,
+  className,
+  onClick,
+  icon,
+}: {
+  item: T;
+  className?: string;
+  onClick?: MouseEventHandler<HTMLElement>;
+}) {
+  return h(MenuItem, {
+    icon: item.icon ?? icon,
+    text: item.name,
+    className,
+    onClick,
+  });
 }

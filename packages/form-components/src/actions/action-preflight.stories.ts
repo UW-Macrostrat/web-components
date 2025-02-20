@@ -1,9 +1,10 @@
 import type { Meta, StoryFn, StoryObj } from "@storybook/react";
 import h from "@macrostrat/hyper";
-import { ActionCfg, ActionsPreflightPanel } from ".";
+import { ActionCfg, ActionsPreflightPanel, ItemSelect } from ".";
 import Box from "ui-box";
 import {
   FormGroup,
+  IconName,
   Menu,
   MenuItem,
   NumericInput,
@@ -14,8 +15,7 @@ import {
   ToasterContext,
   useToaster,
 } from "@macrostrat/ui-components";
-import { Select } from "@blueprintjs/select";
-import { MouseEventHandler } from "react";
+import { MouseEventHandler, useState } from "react";
 
 export enum SelectionActionType {
   Delete = "delete",
@@ -48,7 +48,15 @@ const actions: ActionCfg[] = [
     icon: "polygon-filter",
     description: "Recalculate the topology of selected features",
   },
-  { id: SelectionActionType.ChangeType, name: "Change type", icon: "edit" },
+  {
+    id: SelectionActionType.ChangeType,
+    name: "Change type",
+    icon: "edit",
+    detailsForm: ChangeDataTypeForm,
+    isReady(state) {
+      return state != null;
+    },
+  },
   {
     id: SelectionActionType.ChangeLayer,
     name: "Change layer",
@@ -125,6 +133,25 @@ interface MapLayer {
   name: string;
 }
 
+interface DataType {
+  id: string;
+  name: string;
+  color: string;
+}
+
+const dataTypes: DataType[] = [
+  { id: "1", name: "Type 1", color: "#f00" },
+  { id: "2", name: "Type 2", color: "#0f0" },
+  { id: "3", name: "Type 3", color: "#00f" },
+  { id: "4", name: "Type 4", color: "#ff0" },
+  { id: "5", name: "Type 5", color: "#f0f" },
+  { id: "6", name: "Type 6", color: "#0ff" },
+  { id: "7", name: "Type 7", color: "#000" },
+  { id: "8", name: "Type 8", color: "#fff" },
+  { id: "9", name: "Type 9", color: "#888" },
+  { id: "10", name: "Type 10", color: "#444" },
+];
+
 const defaultLayers: MapLayer[] = [
   { id: 1, name: "Layer 1" },
   { id: 2, name: "Layer 2" },
@@ -132,6 +159,51 @@ const defaultLayers: MapLayer[] = [
   { id: 4, name: "Layer 4" },
   { id: 5, name: "Layer 5" },
 ];
+
+function ChangeDataTypeForm({ state, setState }) {
+  return h(_DataTypeSelect, { state, setState });
+}
+
+export function MapLayerSelect() {
+  const [state, setState] = useState<MapLayer | null>(null);
+  return h(ItemSelect, {
+    items: defaultLayers,
+    selectedItem: state,
+    onSelectItem: (layer) => {
+      setState(layer);
+    },
+    label: "layer",
+    icon: "layers",
+  });
+}
+
+function _DataTypeSelect({ state, setState }) {
+  return h(ItemSelect<DataType>, {
+    items: dataTypes,
+    selectedItem: state,
+    onSelectItem: setState,
+    label: "data type",
+    icon: "tag",
+    itemComponent: ({ item, ...rest }) => {
+      return h(MenuItem, {
+        ...rest,
+        icon: h(Box, {
+          is: "span",
+          width: "1em",
+          height: "1em",
+          backgroundColor: item.color,
+          borderRadius: "3px",
+        }),
+        text: item.name,
+      });
+    },
+  });
+}
+
+export function DataTypeSelect() {
+  const [state, setState] = useState<DataType | null>(null);
+  return h(_DataTypeSelect, { state, setState });
+}
 
 function ChangeLayerForm({
   state,
@@ -152,51 +224,14 @@ function ChangeLayerForm({
 
   const currentLayerItem = layers.find((d) => d.id == selectedLayerID);
 
-  return h(
-    Select<MapLayer>,
-    {
-      items: possibleLayers,
-      itemRenderer: (layer, { handleClick }) => {
-        return h(LayerItem, { layer, onClick: handleClick });
-      },
-      onItemSelect: (layer) => {
-        setState({ selectedLayerID: layer.id });
-      },
-      popoverProps: { minimal: true, usePortal: false, matchTargetWidth: true },
-      filterable: false,
-      fill: true,
+  return h(ItemSelect, {
+    items: possibleLayers,
+    selectedItem: currentLayerItem,
+    onSelectItem: (layer) => {
+      setState({ selectedLayerID: layer.id });
     },
-    h(
-      Menu,
-      h(LayerItem, {
-        className: "select-placeholder",
-        layer: currentLayerItem,
-        disabled: selectedLayerID == currentLayer,
-      })
-    )
-  );
-}
-
-function LayerItem({
-  selected,
-  layer,
-  className,
-  onClick,
-  disabled,
-}: {
-  selected?: boolean;
-  layer: any;
-  className?: string;
-  onClick?: MouseEventHandler<HTMLElement>;
-  disabled?: boolean;
-}) {
-  return h(MenuItem, {
+    label: "layer",
     icon: "layers",
-    text: layer?.name ?? "No layer selected",
-    active: selected,
-    className,
-    onClick,
-    disabled,
   });
 }
 
