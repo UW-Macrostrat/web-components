@@ -32,3 +32,14 @@ export function DataTypeSelect() {
   const [state, setState] = useState<DataType | null>(null);
   return h(BaseDataTypeSelect, { state, setState });
 }
+
+export function Nullable() {
+  const [state, setState] = useState<DataType | null>(null);
+  return h(BaseDataTypeSelect, {
+    state,
+    setState(dt) {
+      console.log(dt), setState(dt);
+    },
+    nullable: true,
+  });
+}

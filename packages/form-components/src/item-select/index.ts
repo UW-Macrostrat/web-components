@@ -1,5 +1,5 @@
 import hyper from "@macrostrat/hyper";
-import { IconName, Menu, MenuItem, Spinner } from "@blueprintjs/core";
+import { IconName, MenuItem, Spinner, Button } from "@blueprintjs/core";
 import { ComponentType, MouseEventHandler, ReactNode } from "react";
 import { Select } from "@blueprintjs/select";
 import styles from "./index.module.sass";
@@ -15,14 +15,22 @@ export function ItemSelect<T extends Nameable>({
   icon = null,
   itemComponent = DefaultItemComponent,
   className,
+  filterable = false,
+  minimal = true,
+  usePortal = true,
+  nullable = false,
 }: {
   items: T[] | null;
   selectedItem: T | null;
-  onSelectItem(item: T): void;
+  onSelectItem(item: T | null): void;
   label: string;
   icon: IconName | ReactNode | null;
   itemComponent?: ComponentType<ItemComponentProps<T>>;
   className?: string;
+  filterable?: boolean;
+  minimal?: boolean;
+  usePortal?: boolean;
+  nullable?: boolean;
 }) {
   let placeholder = `Select ${singularReferent(label)}`;
   let _icon: IconName | ReactNode = icon;
@@ -54,14 +62,26 @@ export function ItemSelect<T extends Nameable>({
         },
         onItemSelect: onSelectItem,
         popoverProps: {
-          minimal: true,
-          usePortal: false,
+          minimal,
+          usePortal,
           matchTargetWidth: true,
         },
-        filterable: false,
+        filterable,
         fill: true,
       },
-      h(Menu, content)
+      h("div.target-container", [
+        h("ul.target-select", content),
+        h.if(nullable)(Button, {
+          minimal: true,
+          icon: "cross",
+          intent: "danger",
+          onClick(evt) {
+            onSelectItem(null);
+            evt.stopPropagation();
+          },
+          disabled: selectedItem == null,
+        }),
+      ])
     )
   );
 }

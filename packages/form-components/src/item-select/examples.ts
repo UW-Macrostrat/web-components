@@ -38,8 +38,9 @@ export const exampleMapLayers: MapLayer[] = [
   { id: 5, name: "Layer 5" },
 ];
 
-export function BaseDataTypeSelect({ state, setState }) {
+export function BaseDataTypeSelect({ state, setState, ...rest }) {
   return h(ItemSelect<DataType>, {
+    ...rest,
     items: exampleDataTypes,
     selectedItem: state,
     onSelectItem: setState,
@@ -47,7 +48,6 @@ export function BaseDataTypeSelect({ state, setState }) {
     icon: "tag",
     itemComponent: ({ item, ...rest }) => {
       return h(MenuItem, {
-        ...rest,
         icon: h(Box, {
           is: "span",
           width: "1em",
@@ -56,13 +56,15 @@ export function BaseDataTypeSelect({ state, setState }) {
           borderRadius: "3px",
         }),
         text: item.name,
+        ...rest,
       });
     },
   });
 }
 
-export function BaseMapLayerSelect({ state, setState }) {
+export function BaseMapLayerSelect({ state, setState, ...rest }) {
   return h(ItemSelect<MapLayer>, {
+    ...rest,
     items: exampleMapLayers,
     selectedItem: state,
     onSelectItem: (layer) => {
