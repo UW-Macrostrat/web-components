@@ -23,7 +23,7 @@ export type ActionCfg = {
   intent?: Intent;
   detailsForm?: React.ComponentType<{ state: any; updateState: any }>;
   disabled?: boolean;
-  ready?: (state: any) => boolean;
+  isReady?: (state: any) => boolean;
 };
 
 export function ActionsPreflightPanel({ actions }) {
@@ -81,25 +81,21 @@ function ActionDetailsPanel({
   return h("div.action-details", [h("h2", title), content]);
 }
 
-function ActionDetailsContent({
-  action,
-  state,
-}: {
-  action: ActionCfg;
-  state: any | null;
-}) {
+function ActionDetailsContent({ action }: { action: ActionCfg }) {
   const { description, intent = "primary", detailsForm } = action;
 
   //const updateState = useMapActions((state) => state.setSelectionActionState);
 
+  const [state, updateState] = useState(null);
+
   let disabled = false;
-  if (action.ready != null) {
-    disabled = !action.ready(state);
+  if (action.isReady != null) {
+    disabled = !action.isReady(state);
   }
 
   return h("div.action-details-content", [
     h.if(description != null)("p", description),
-    h.if(detailsForm != null)(detailsForm, { state }),
+    h.if(detailsForm != null)(detailsForm, { state, updateState }),
     h("div.spacer"),
     h(Button, { intent, icon: "play", disabled }, "Run"),
   ]);

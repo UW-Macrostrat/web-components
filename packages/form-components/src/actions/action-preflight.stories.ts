@@ -2,6 +2,8 @@ import type { Meta, StoryFn, StoryObj } from "@storybook/react";
 import h from "@macrostrat/hyper";
 import { ActionCfg, ActionsPreflightPanel, ChangeLayerForm } from ".";
 import Box from "ui-box";
+import { FormGroup, NumericInput, Slider } from "@blueprintjs/core";
+import { NullableSlider } from "@macrostrat/ui-components";
 
 export enum SelectionActionType {
   Delete = "delete",
@@ -40,18 +42,26 @@ const actions: ActionCfg[] = [
     name: "Change layer",
     icon: "layers",
     detailsForm: ChangeLayerForm,
+    isReady(state) {
+      return state?.selectedLayerID != null;
+    },
   },
   {
     id: SelectionActionType.AdjustWidth,
     name: "Adjust width",
     icon: "horizontal-distribution",
     disabled: true,
+    detailsForm: AdjustWidthForm,
+    isReady(state) {
+      return state != null;
+    },
   },
   {
     id: SelectionActionType.AdjustCertainty,
     name: "Adjust certainty",
     icon: "confirm",
     disabled: true,
+    detailsForm: AdjustCertaintyForm,
   },
   {
     id: SelectionActionType.ReverseLines,
@@ -60,6 +70,38 @@ const actions: ActionCfg[] = [
     disabled: true,
   },
 ];
+
+function AdjustWidthForm({ state, updateState }) {
+  return h(
+    FormGroup,
+    { label: "Width", labelInfo: "pixels" },
+    h(NumericInput, {
+      min: 0,
+      max: 10,
+      value: state,
+      majorStepSize: 1,
+      minorStepSize: 0.2,
+      onValueChange(value) {
+        updateState(Math.max(Math.min(value, 10), 0));
+      },
+    })
+  );
+}
+
+function AdjustCertaintyForm({ state, updateState }) {
+  return h(
+    FormGroup,
+    { label: "Certainty" },
+    h(NullableSlider, {
+      min: 0,
+      max: 10,
+      value: state,
+      onChange(value) {
+        updateState(value);
+      },
+    })
+  );
+}
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
