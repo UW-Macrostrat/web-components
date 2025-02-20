@@ -1,21 +1,15 @@
 import type { Meta, StoryFn, StoryObj } from "@storybook/react";
 import h from "@macrostrat/hyper";
-import { ActionCfg, ActionsPreflightPanel, ItemSelect } from ".";
+import { ActionDef, ActionsPreflightPanel } from ".";
 import Box from "ui-box";
-import {
-  FormGroup,
-  IconName,
-  Menu,
-  MenuItem,
-  NumericInput,
-  Spinner,
-} from "@blueprintjs/core";
+import { FormGroup, MenuItem, NumericInput, Spinner } from "@blueprintjs/core";
 import {
   NullableSlider,
   ToasterContext,
   useToaster,
 } from "@macrostrat/ui-components";
-import { MouseEventHandler, useState } from "react";
+import { useState } from "react";
+import { ItemSelect } from "../item-select";
 
 export enum SelectionActionType {
   Delete = "delete",
@@ -28,7 +22,7 @@ export enum SelectionActionType {
   RecalculateTopology = "recalculateTopology",
 }
 
-const actions: ActionCfg[] = [
+const actions: ActionDef[] = [
   {
     id: SelectionActionType.Delete,
     name: "Delete",
@@ -94,7 +88,7 @@ const actions: ActionCfg[] = [
 function InstrumentedActionsPanel(props) {
   const Toaster = useToaster();
   return h(ActionsPreflightPanel, {
-    onRunAction(action: ActionCfg, state) {
+    onRunAction(action: ActionDef, state) {
       Toaster.show({
         message: h("div.action", [
           h("h3", action.name),
