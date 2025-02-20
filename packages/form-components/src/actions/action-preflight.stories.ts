@@ -119,6 +119,13 @@ export const Primary: StoryObj<typeof ActionsPreflightPanel> = {
   },
 };
 
+export const Compact: StoryObj<typeof ActionsPreflightPanel> = {
+  args: {
+    actions,
+    compact: true,
+  },
+};
+
 interface ChangeLayerState {
   selectedLayerID: number;
 }

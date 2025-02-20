@@ -1,13 +1,26 @@
-.selection-actions {
+.actions-preflight {
   position: relative;
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 1em;
+  grid-template-rows: auto 1fr;
+  gap: 1rem;
+  &.compact {
+    display: flex;
+    flex-direction: column;
+
+    .actions-list :global(.bp5-menu) {
+      width: 100%;
+    }
+  }
 }
 
-.actions-list:global(.bp5-menu) {
-  width: 12em;
+.actions-list {
   grid-column: 1/2;
+  grid-row: span 2;
+}
+
+.actions-list :global(.bp5-menu) {
+  width: 12em;
   border-radius: 6px
 }
 
@@ -47,6 +60,7 @@
 }
 
 .action-button:global(.bp5-button) {
+  border-radius: 6px;
   :global(.bp5-button-text) {
     flex: 1 1 auto;
     font-weight: 600;

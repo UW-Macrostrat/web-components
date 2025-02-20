@@ -11,6 +11,7 @@ export function ItemSelect<T extends Nameable>({
   label = "item",
   icon = null,
   itemComponent = DefaultItemComponent,
+  className,
 }: {
   items: T[] | null;
   selectedItem: T | null;
@@ -18,6 +19,7 @@ export function ItemSelect<T extends Nameable>({
   label: string;
   icon: IconName | ReactNode | null;
   itemComponent?: ComponentType<ItemComponentProps<T>>;
+  className?: string;
 }) {
   let placeholder = `Select ${singularReferent(label)}`;
   let _icon: IconName | ReactNode = icon;
@@ -38,18 +40,26 @@ export function ItemSelect<T extends Nameable>({
   }
 
   return h(
-    Select<T>,
-    {
-      items: items ?? [],
-      itemRenderer: (item, { handleClick }) => {
-        return h(itemComponent, { item, onClick: handleClick, icon });
+    "div.item-select-container",
+    { className },
+    h(
+      Select<T>,
+      {
+        items: items ?? [],
+        itemRenderer: (item, { handleClick }) => {
+          return h(itemComponent, { item, onClick: handleClick, icon });
+        },
+        onItemSelect: onSelectItem,
+        popoverProps: {
+          minimal: true,
+          usePortal: false,
+          matchTargetWidth: true,
+        },
+        filterable: false,
+        fill: true,
       },
-      onItemSelect: onSelectItem,
-      popoverProps: { minimal: true, usePortal: false, matchTargetWidth: true },
-      filterable: false,
-      fill: true,
-    },
-    h(Menu, content)
+      h(Menu, content)
+    )
   );
 }
 

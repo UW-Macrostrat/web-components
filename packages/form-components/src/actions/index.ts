@@ -11,7 +11,8 @@ import {
   NonIdealState,
 } from "@blueprintjs/core";
 import { ComponentType, ReactNode, useState } from "react";
-import { FlexRow } from "@macrostrat/ui-components";
+import classNames from "classnames";
+import { ItemSelect } from "@macrostrat/form-components";
 
 const h = hyper.styled(styles);
 
@@ -27,17 +28,19 @@ export type ActionDef = {
   isReady?: (state: any) => boolean;
 };
 
-export function ActionsPreflightPanel({ actions, onRunAction }) {
-  // test vvv
+export function ActionsPreflightPanel({
+  actions,
+  onRunAction,
+  compact = false,
+}) {
   const [selectedAction, setSelectedAction] = useState(null);
-  const [state, setState] = useState<Record<string, any>>({});
+  const [state, updateState] = useState<Record<string, any>>({});
 
   let actionState = null;
   if (selectedAction != null) {
     actionState = state[selectedAction.id] ?? selectedAction.defaultState;
   }
 
-  const title = selectedAction?.name ?? "No action selected";
   let content: ReactNode = h(NonIdealState, {
     title: "No action selected",
     icon: "flows",
@@ -47,33 +50,70 @@ export function ActionsPreflightPanel({ actions, onRunAction }) {
       action: selectedAction,
       state: actionState,
       setState(state) {
-        setState({ ...state, [selectedAction.id]: state });
+        updateState({ ...state, [selectedAction.id]: state });
       },
       onRunAction,
+      compact,
     });
   }
 
-  return h("div.selection-actions", [
-    h(
-      Menu,
-      { className: "actions-list" },
-      actions.map((d) => {
-        const isSelected = selectedAction?.id == d.id;
-        const intent: Intent = d.intent ?? "primary";
-        return h(MenuItem, {
-          icon: d.icon,
-          active: isSelected,
-          disabled: d.disabled,
-          intent: isSelected ? intent : "none",
-          onClick() {
-            setSelectedAction(d.id == selectedAction?.id ? null : d);
-          },
-          text: d.name,
-        });
-      })
-    ),
-    h("div.action-details", content),
+  return h("div.actions-preflight", { className: classNames({ compact }) }, [
+    h("div.actions-list", [
+      h(ActionsList, {
+        actions,
+        selectedAction,
+        onSelectAction: setSelectedAction,
+        compact,
+      }),
+    ]),
+    content,
   ]);
+}
+
+function ActionsList({
+  actions,
+  selectedAction,
+  onSelectAction,
+  compact = false,
+}) {
+  if (compact) {
+    return h(ItemSelect<ActionDef>, {
+      items: actions,
+      onSelectItem(item) {
+        onSelectAction(item);
+      },
+      icon: "flows",
+      selectedItem: selectedAction,
+      label: "action",
+      itemComponent: ItemRenderer,
+    });
+  }
+
+  return h(
+    Menu,
+    actions.map((item) => {
+      const isSelected = selectedAction?.id == item.id;
+      return h(ItemRenderer, {
+        item,
+        isSelected,
+        onClick() {
+          onSelectAction(item.id == selectedAction?.id ? null : item);
+        },
+      });
+    })
+  );
+}
+
+function ItemRenderer({ item, onClick, isSelected }) {
+  const intent: Intent = item.intent ?? "primary";
+  return h(MenuItem, {
+    icon: item.icon,
+    active: isSelected,
+    disabled: item.disabled,
+    intent,
+    onClick,
+    text: item.name,
+  });
 }
 
 function ActionDetailsContent({
@@ -81,11 +121,13 @@ function ActionDetailsContent({
   state,
   onRunAction,
   setState,
+  compact = false,
 }: {
   action: ActionDef;
   state: any;
   setState(state: any): void;
   onRunAction(action: ActionDef, state: any): void;
+  compact?: boolean;
 }) {
   const { description, icon, intent = "primary", detailsForm } = action;
 
@@ -103,14 +145,7 @@ function ActionDetailsContent({
     disabled = !action.isReady(state);
   }
 
-  return h("div.action-details-content", [
-    h(FlexRow, { gap: "1.2em", alignItems: "center" }, [
-      leftItem,
-      h("h3", action.name),
-    ]),
-    h.if(description != null)("p.description", description),
-    h.if(detailsForm != null)(detailsForm, { state, setState }),
-    h("div.spacer"),
+  return h([
     h(
       Button,
       {
@@ -125,5 +160,14 @@ function ActionDetailsContent({
       },
       action.name
     ),
+    // h.if(!compact)(FlexRow, { gap: "1.2em", alignItems: "center" }, [
+    //   leftItem,
+    //   h("h3", action.name),
+    // ]),
+    h("div.action-details", [
+      h.if(description != null)("p.description", description),
+      h.if(detailsForm != null)(detailsForm, { state, setState }),
+      h("div.spacer"),
+    ]),
   ]);
 }
