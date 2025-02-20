@@ -7,11 +7,8 @@ import {
   Menu,
   MenuItem,
   NonIdealState,
-  Spinner,
 } from "@blueprintjs/core";
-
-import { Select } from "@blueprintjs/select";
-import { MouseEventHandler, useState } from "react";
+import { ComponentType, ReactNode, useState } from "react";
 
 const h = hyper.styled(styles);
 
@@ -21,72 +18,71 @@ export type ActionCfg = {
   id: any;
   description?: string;
   intent?: Intent;
-  detailsForm?: React.ComponentType<{ state: any; updateState: any }>;
+  detailsForm?: ComponentType<{ state: any; updateState: any }>;
   disabled?: boolean;
   isReady?: (state: any) => boolean;
 };
 
-export function ActionsPreflightPanel({ actions }) {
+export function ActionsPreflightPanel({ actions, onRunAction }) {
   // test vvv
-  const [action, setAction] = useState(null);
+  const [selectedAction, setSelectedAction] = useState(null);
+  const [state, setState] = useState<Record<string, any>>({});
+
+  const actionState = selectedAction != null ? state[selectedAction.id] : null;
+
+  const title = selectedAction?.name ?? "No action selected";
+  let content: ReactNode = h(NonIdealState, { icon: "flows" });
+  if (selectedAction != null) {
+    content = h(ActionDetailsContent, {
+      action: selectedAction,
+      state: actionState,
+      setState(state) {
+        setState({ ...state, [selectedAction.id]: state });
+      },
+      onRunAction,
+    });
+  }
 
   return h("div.selection-actions", [
     h(
       Menu,
       { className: "actions-list" },
       actions.map((d) => {
-        const isSelected = action?.id == d.id;
+        const isSelected = selectedAction?.id == d.id;
         return h(MenuItem, {
           icon: d.icon,
           active: isSelected,
           intent: isSelected ? "primary" : "none",
           onClick() {
-            setAction((selected) => {
-              return d.id == selected?.id ? null : d;
-            });
+            setSelectedAction(d.id == selectedAction?.id ? null : d);
           },
           text: d.name,
         });
       })
     ),
-    h(ActionDetailsPanel, { actions, action }),
+    h(ActionFrame, { title }, content),
   ]);
 }
 
-function ActionDetailsPanel({
-  actions,
-  action,
-}: {
-  action: object | null;
-  actions: any;
-}) {
-  let title = "No action selected";
-  const actionCfg = actions.find((d) => d.id == action?.id);
-  if (action != null) {
-    title = actionCfg?.name ?? "Unknown action";
-  }
-
-  let content: any = h(NonIdealState, {
-    icon: "flows",
-  });
-  title = actionCfg?.name ?? "No action selected";
-
-  if (action != null && actionCfg != null) {
-    content = h(ActionDetailsContent, {
-      action: actionCfg,
-      state: action?.state,
-    });
-  }
-
-  return h("div.action-details", [h("h2", title), content]);
+function ActionFrame({ title, children }) {
+  return h("div.action-details", [
+    h("h2", title),
+    h("div.action-details-content", children),
+  ]);
 }
 
-function ActionDetailsContent({ action }: { action: ActionCfg }) {
+function ActionDetailsContent({
+  action,
+  state,
+  onRunAction,
+  setState,
+}: {
+  action: ActionCfg;
+  state: any;
+  setState(state: any): void;
+  onRunAction(action: ActionCfg, state: any): void;
+}) {
   const { description, intent = "primary", detailsForm } = action;
-
-  //const updateState = useMapActions((state) => state.setSelectionActionState);
-
-  const [state, updateState] = useState(null);
 
   let disabled = false;
   if (action.isReady != null) {
@@ -95,92 +91,19 @@ function ActionDetailsContent({ action }: { action: ActionCfg }) {
 
   return h("div.action-details-content", [
     h.if(description != null)("p", description),
-    h.if(detailsForm != null)(detailsForm, { state, updateState }),
+    h.if(detailsForm != null)(detailsForm, { state, setState }),
     h("div.spacer"),
-    h(Button, { intent, icon: "play", disabled }, "Run"),
-  ]);
-}
-
-interface ChangeLayerState {
-  selectedLayerID: number;
-}
-
-interface MapLayer {
-  id: number;
-  name: string;
-}
-
-const defaultLayers: MapLayer[] = [
-  { id: 1, name: "Layer 1" },
-  { id: 2, name: "Layer 2" },
-  { id: 3, name: "Layer 3" },
-  { id: 4, name: "Layer 4" },
-  { id: 5, name: "Layer 5" },
-];
-
-export function ChangeLayerForm({
-  state,
-  updateState,
-}: {
-  state: ChangeLayerState | null;
-  updateState(state: ChangeLayerState): void;
-}) {
-  const layers = defaultLayers;
-  const currentLayer = null;
-
-  if (layers == null) {
-    return h(Spinner);
-  }
-
-  const possibleLayers = layers.filter((d) => d.id != currentLayer);
-  const selectedLayerID = state?.selectedLayerID ?? currentLayer;
-
-  const currentLayerItem = layers.find((d) => d.id == selectedLayerID);
-
-  return h(
-    Select<MapLayer>,
-    {
-      items: possibleLayers,
-      itemRenderer: (layer, { handleClick }) => {
-        return h(LayerItem, { layer, onClick: handleClick });
-      },
-      onItemSelect: (layer) => {
-        updateState({ selectedLayerID: layer.id });
-      },
-      popoverProps: { minimal: true, usePortal: false, matchTargetWidth: true },
-      filterable: false,
-      fill: true,
-    },
     h(
-      Menu,
-      h(LayerItem, {
-        className: "select-placeholder",
-        layer: currentLayerItem,
-        disabled: selectedLayerID == currentLayer,
-      })
-    )
-  );
-}
-
-function LayerItem({
-  selected,
-  layer,
-  className,
-  onClick,
-  disabled,
-}: {
-  selected?: boolean;
-  layer: any;
-  className?: string;
-  onClick?: MouseEventHandler<HTMLElement>;
-  disabled?: boolean;
-}) {
-  return h(MenuItem, {
-    icon: "layers",
-    text: layer?.name ?? "No layer selected",
-    active: selected,
-    className,
-    onClick,
-    disabled,
-  });
+      Button,
+      {
+        intent,
+        icon: "play",
+        disabled,
+        onClick() {
+          onRunAction(action, state);
+        },
+      },
+      "Run"
+    ),
+  ]);
 }
