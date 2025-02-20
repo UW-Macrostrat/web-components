@@ -11,9 +11,8 @@
     "target": "ES2017", // "ES3" (default), "ES5", "ES6"/"ES2015", "ES2016", "ES2017" or "ESNext".
     "paths": {
       "@macrostrat/*": ["./packages/*/src"]
-    }
+    },
+    "types": ["vite/client", "vike-react", "./global.d.ts"]
   },
-  "include": [
-    "./packages/**/src/*.ts",
-  ]
+  "include": ["./packages/**/src/*.ts"]
 }

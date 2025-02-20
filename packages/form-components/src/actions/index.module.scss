@@ -1,0 +1,37 @@
+.selection-actions {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1em;
+}
+
+.actions-list {
+  width: 12em;
+  grid-column: 1/2;
+  border-radius: 6px
+}
+
+.action-details {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  grid-column: 2/2;
+
+  h2:first-child {
+    margin-top: 0;
+  }
+}
+
+.action-details-content {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.spacer {
+  flex-grow: 1;
+}
+
+.select-placeholder {
+  width: 100%;
+}
