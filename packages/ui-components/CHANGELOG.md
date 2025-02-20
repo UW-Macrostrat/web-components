@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.1.3] - 2025-02-20
+
+- Improved styling for numeric sliders when disabled
+- TODO: move numeric slider to `@macrostrat/form-components`
+
 ## [4.1.2] - 2025-02-16
 
 Add body classes `light-mode` and `bp5-light` to `DarkModeProvider` when it is

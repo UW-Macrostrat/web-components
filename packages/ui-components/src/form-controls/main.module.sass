@@ -8,7 +8,11 @@
   align-items: center
   margin-left: 0.5em
   gap: 1em
-  .bp5-slider
+  :global(.bp5-slider)
     flex-grow: 1
   .controls
     margin-top: -22px
+
+.slider-disabled
+  :global(.bp5-slider-handle)
+    display: none

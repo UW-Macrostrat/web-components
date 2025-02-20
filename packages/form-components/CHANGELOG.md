@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.0] - 2025-02-20
+
+- Add `ItemSelect` component for general selections (items must have a `name`
+  property)
+- Add `ActionPreflight` component for staging actions that require configuration
+  and confirmation
+- Add appropriate stories for new components
+
 ## [0.1.2] - 2025-02-15
 
 Added `files` specifier to `package.json` to ensure that all `dist` files are

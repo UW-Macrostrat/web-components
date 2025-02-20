@@ -22,7 +22,7 @@ const NullableSlider = (props: SliderProps) => {
   if (value == null) {
     value = rest.min ?? 0;
     showTrackFill = false;
-    className = classNames(className, "mui-slider-disabled");
+    className = classNames(className, "slider-disabled");
   }
 
   const handleChange = props.onRelease ?? props.onChange;
