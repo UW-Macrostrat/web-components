@@ -5,8 +5,13 @@
   display: flex
   flex-direction: row
 
+  &.fill-width .target-select
+    flex-grow: 1
+
 .target-select
   list-style: none
   padding: 0
   margin: 0
-  flex-grow: 1
+
+.selected
+  font-weight: 600

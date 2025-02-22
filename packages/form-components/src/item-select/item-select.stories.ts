@@ -43,3 +43,15 @@ export function Nullable() {
     nullable: true,
   });
 }
+
+export function NotFillArea() {
+  const [state, setState] = useState<DataType | null>(null);
+  return h(BaseDataTypeSelect, {
+    state,
+    setState(dt) {
+      console.log(dt), setState(dt);
+    },
+    nullable: true,
+    fill: false,
+  });
+}

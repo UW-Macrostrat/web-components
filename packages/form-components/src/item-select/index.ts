@@ -1,8 +1,9 @@
 import hyper from "@macrostrat/hyper";
-import { IconName, MenuItem, Spinner, Button } from "@blueprintjs/core";
+import { IconName, MenuItem, Spinner, Button, Intent } from "@blueprintjs/core";
 import { ComponentType, MouseEventHandler, ReactNode } from "react";
 import { Select } from "@blueprintjs/select";
 import styles from "./index.module.sass";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -19,6 +20,7 @@ export function ItemSelect<T extends Nameable>({
   minimal = true,
   usePortal = true,
   nullable = false,
+  fill = true,
 }: {
   items: T[] | null;
   selectedItem: T | null;
@@ -31,6 +33,7 @@ export function ItemSelect<T extends Nameable>({
   minimal?: boolean;
   usePortal?: boolean;
   nullable?: boolean;
+  fill?: boolean;
 }) {
   let placeholder = `Select ${singularReferent(label)}`;
   let _icon: IconName | ReactNode = icon;
@@ -58,30 +61,42 @@ export function ItemSelect<T extends Nameable>({
       {
         items: items ?? [],
         itemRenderer: (item, { handleClick }) => {
-          return h(itemComponent, { item, onClick: handleClick, icon });
+          return h(itemComponent, {
+            key: item.name,
+            item,
+            onClick: handleClick,
+            icon,
+            selected: selectedItem == item,
+          });
         },
         onItemSelect: onSelectItem,
         popoverProps: {
           minimal,
           usePortal,
-          matchTargetWidth: true,
+          matchTargetWidth: fill,
         },
         filterable,
-        fill: true,
+        fill,
       },
-      h("div.target-container", [
-        h("ul.target-select", content),
-        h.if(nullable)(Button, {
-          minimal: true,
-          icon: "cross",
-          intent: "danger",
-          onClick(evt) {
-            onSelectItem(null);
-            evt.stopPropagation();
-          },
-          disabled: selectedItem == null,
-        }),
-      ])
+      h(
+        "div.target-container",
+        {
+          className: classNames({ "fill-width": fill }),
+        },
+        [
+          h("ul.target-select", content),
+          h.if(nullable)(Button, {
+            minimal: true,
+            icon: "cross",
+            intent: "danger",
+            onClick(evt) {
+              onSelectItem(null);
+              evt.stopPropagation();
+            },
+            disabled: selectedItem == null,
+          }),
+        ]
+      )
     )
   );
 }
@@ -89,6 +104,7 @@ export function ItemSelect<T extends Nameable>({
 interface Nameable {
   name: string;
   icon?: IconName | ReactNode;
+  intent?: Intent;
 }
 
 interface ItemComponentProps<T> {
@@ -96,6 +112,8 @@ interface ItemComponentProps<T> {
   className?: string;
   onClick?: MouseEventHandler<HTMLElement>;
   icon?: IconName | ReactNode;
+  selected?: boolean;
+  intent?: Intent;
 }
 
 function DefaultItemComponent<T extends Nameable>({
@@ -103,16 +121,15 @@ function DefaultItemComponent<T extends Nameable>({
   className,
   onClick,
   icon,
-}: {
-  item: T;
-  className?: string;
-  onClick?: MouseEventHandler<HTMLElement>;
-  icon?: IconName | ReactNode;
-}) {
+  selected,
+  intent,
+}: ItemComponentProps<T>) {
   return h(MenuItem, {
     icon: item.icon ?? icon,
     text: item.name,
-    className,
+    intent: item.intent ?? intent,
+    className: classNames({ selected }),
+    active: selected,
     onClick,
   });
 }

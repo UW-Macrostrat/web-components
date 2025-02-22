@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.1] - 2025-02-22
+
+- `ItemSelect` component: add option to not fill width, and add active highlight
+
 ## [0.2.0] - 2025-02-20
 
 - Add `ItemSelect` component for general selections (items must have a `name`

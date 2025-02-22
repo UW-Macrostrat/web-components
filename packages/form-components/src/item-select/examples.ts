@@ -46,7 +46,7 @@ export function BaseDataTypeSelect({ state, setState, ...rest }) {
     onSelectItem: setState,
     label: "data type",
     icon: "tag",
-    itemComponent: ({ item, ...rest }) => {
+    itemComponent: ({ item, selected, icon, ...rest }) => {
       return h(MenuItem, {
         icon: h(Box, {
           is: "span",
@@ -56,6 +56,7 @@ export function BaseDataTypeSelect({ state, setState, ...rest }) {
           borderRadius: "3px",
         }),
         text: item.name,
+        active: selected,
         ...rest,
       });
     },
