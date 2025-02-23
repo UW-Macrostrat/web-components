@@ -5,6 +5,7 @@ import {
   useMapPosition,
   setup3DTerrain,
   use3DTerrain,
+  addTerrainToStyle,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
@@ -122,20 +123,44 @@ export function MapView(props: MapViewProps) {
     /** Manager to update map style */
     if (style == null) return;
     let map = mapRef.current;
-    let estMapPosition: MapPosition = null;
+
+    /** If we can, we try to update the map style with terrain information
+     * immediately, before the style is loaded. This allows us to avoid a
+     * flash of the map without terrain.
+     *
+     * To do this, we need to estimate the map position before load, which
+     * doesn't always work.
+     */
+    // We either get the map position directly from the map or from props
+    const estMapPosition: MapPosition | null =
+      map == null ? mapPosition : getMapPosition(map);
+    let needsPostLoadTerrainUpdate = true;
+    let newStyle = style;
+    const { mapUse3D } = mapViewInfo(estMapPosition);
+    if (mapUse3D && typeof style !== "string") {
+      // We can update the style with terrain layers immediately
+      newStyle = addTerrainToStyle(style, terrainSourceID);
+      if (map != null) {
+        needsPostLoadTerrainUpdate = false;
+      }
+    }
+    if (!mapUse3D) {
+      // If we're not in a position where we need terrain, we can skip the update
+      needsPostLoadTerrainUpdate = false;
+    }
+
     if (map != null) {
-      console.log("Setting style", style);
-      map.setStyle(style);
+      console.log("Setting style", newStyle);
+      map.setStyle(newStyle);
     } else {
-      console.log("Initializing map", style);
+      console.log("Initializing map", newStyle);
       const map = initializeMap(ref.current, {
-        style,
+        style: newStyle,
         projection,
         mapPosition,
         transformRequest,
         ...rest,
       });
-      estMapPosition = mapPosition;
       dispatch({ type: "set-map", payload: map });
       map.setPadding(getMapPadding(ref, parentRef), { animate: false });
       onMapLoaded?.(map);
@@ -143,10 +168,11 @@ export function MapView(props: MapViewProps) {
 
     const loadCallback = () => {
       onStyleLoaded?.(map);
-      estMapPosition ??= getMapPosition(map);
       // Set initial terrain state
-      const { mapUse3D } = mapViewInfo(estMapPosition);
-      setup3DTerrain(map, mapUse3D, terrainSourceID);
+      if (needsPostLoadTerrainUpdate) {
+        const { mapUse3D } = mapViewInfo(estMapPosition);
+        setup3DTerrain(map, mapUse3D, terrainSourceID);
+      }
 
       dispatch({ type: "set-style-loaded", payload: true });
     };

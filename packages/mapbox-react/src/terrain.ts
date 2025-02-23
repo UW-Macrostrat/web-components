@@ -1,6 +1,13 @@
 import { useMapRef } from "./context";
 import { useEffect } from "react";
-import { AnySourceImpl, AnyLayer, RasterDemSource, Style } from "mapbox-gl";
+import {
+  AnySourceImpl,
+  AnyLayer,
+  RasterDemSource,
+  Style,
+  AnySourceData,
+} from "mapbox-gl";
+import { mergeStyles } from "@macrostrat/mapbox-utils";
 
 type SourceConfig = Partial<RasterDemSource>;
 
@@ -49,6 +56,44 @@ export function setup3DTerrain(
   }
 }
 
+export function addTerrainToStyle(
+  style: Style,
+  sourceName: string = null
+): Style {
+  /** Add required elements for terrain directly to a style object */
+
+  const currentTerrainSource = getTerrainSourceID(style);
+  console.log("Current source", currentTerrainSource);
+  const demSourceID = currentTerrainSource ?? sourceName ?? "mapbox-dem";
+
+  let newStyle: Partial<Style> = {
+    sources: {},
+    layers: [],
+  };
+
+  const hasTerrainSource = currentTerrainSource != null;
+  if (!hasTerrainSource) {
+    newStyle.sources[demSourceID] = defaultRasterDEM as AnySourceData;
+  }
+
+  if (!hasSkyLayer(style)) {
+    newStyle.layers.push(defaultSkyLayer as AnyLayer);
+  }
+
+  const hasTerrain = "terrain" in style;
+  if (!hasTerrain) {
+    newStyle.terrain = { source: demSourceID, exaggeration: 1 };
+  }
+
+  console.log(newStyle);
+
+  return mergeStyles(style, newStyle);
+}
+
+function hasSkyLayer(style: Style): boolean {
+  return Object.values(style.layers).some((lyr: AnyLayer) => lyr.type == "sky");
+}
+
 function getTerrainSourceID(style: Style): string | null {
   for (const [key, source] of Object.entries(style.sources)) {
     if (source.type == "raster-dem") {
@@ -81,7 +126,7 @@ function addDefault3DStyles(
     });
   }
 
-  if (!hasSky) {
+  if (!hasSkyLayer(style)) {
     map.addLayer(defaultSkyLayer);
   }
   // Fog requires knowledge of whether we have a light or dark style
