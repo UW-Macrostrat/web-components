@@ -1,28 +1,23 @@
-import type { Meta } from "@storybook/react";
-import type { StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react";
 import { buildMacrostratStyle } from "@macrostrat/map-styles";
 // Import other components
-import { Switch } from "@blueprintjs/core";
+import { Spinner, Switch } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
-import { Spacer, useDarkMode, useStoredState } from "@macrostrat/ui-components";
+import { useDarkMode, useStoredState } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
-import { useCallback, useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { buildInspectorStyle } from "../src/dev/xray";
 import { MapAreaContainer, PanelCard } from "../src/container";
-import { FloatingNavbar, MapLoadingButton } from "../src/context-panel";
-import { MapMarker } from "../src/helpers";
-import { LocationPanel } from "../src/location-panel";
+import { FloatingNavbar } from "../src/context-panel";
 import { MapView } from "../src/map-view";
 import styles from "./map-reloading.stories.module.sass";
-import { TileExtentLayer } from "../src/dev/tile-extent";
-import {
-  FeaturePanel,
-  FeatureSelectionHandler,
-  TileInfo,
-} from "../src/dev/vector-tile-features";
 import { MapPosition } from "@macrostrat/mapbox-utils";
+import { useMapStatus } from "@macrostrat/mapbox-react";
+
+const h = hyper.styled(styles);
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
+mapboxgl.accessToken = mapboxToken;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof MapInspector> = {
@@ -56,43 +51,45 @@ export const Default: Story = {
     title: "Terrain reloading",
     mapPosition: {
       camera: {
-        lat: 40.7128,
-        lng: -74.006,
-        altitude: 300000,
+        lat: 39.58,
+        lng: -105.15,
+        altitude: 2000,
+        bearing: 0,
+        pitch: 80,
       },
     },
-    overlayStyle: buildMacrostratStyle({}),
+    overlayStyle: buildMacrostratStyle(),
   },
 };
 
-export const h = hyper.styled(styles);
+function useDevBasemapURL(styleType: "macrostrat" | "standard" = "macrostrat") {
+  const dark = useDarkMode();
+  const isEnabled = dark?.isEnabled;
+  if (styleType == "macrostrat") {
+    return isEnabled
+      ? "mapbox://styles/jczaplewski/cl5uoqzzq003614o6url9ou9z?optimize=true"
+      : "mapbox://styles/jczaplewski/clatdbkw4002q14lov8zx0bm0?optimize=true";
+  } else {
+    return isEnabled
+      ? "mapbox://styles/mapbox/dark-v10"
+      : "mapbox://styles/mapbox/light-v10";
+  }
+}
 
-function MapInspectorV2({
+function MapInspector({
   title = "Map inspector",
-  headerElement = null,
-  transformRequest = null,
   mapPosition = null,
-  mapboxToken = null,
   overlayStyle = null,
-  controls = null,
-  children = null,
   style,
   bounds = null,
-  focusedSource = null,
-  focusedSourceTitle = null,
-  fitViewport = true,
-  styleType = "macrostrat",
 }: {
   headerElement?: React.ReactNode;
-  transformRequest?: mapboxgl.TransformRequestFunction;
   title?: string;
   style?: mapboxgl.Style | string;
   controls?: React.ReactNode;
   children?: React.ReactNode;
   mapboxToken?: string;
   overlayStyle?: mapboxgl.Style | string;
-  focusedSource?: string;
-  focusedSourceTitle?: string;
   projection?: string;
   mapPosition?: MapPosition;
   bounds?: [number, number, number, number];
@@ -108,28 +105,9 @@ function MapInspectorV2({
 
   const dark = useDarkMode();
   const isEnabled = dark?.isEnabled;
+  style ??= useDevBasemapURL();
 
-  if (mapboxToken != null) {
-    mapboxgl.accessToken = mapboxToken;
-  }
-
-  if (styleType == "macrostrat") {
-    style ??= isEnabled
-      ? "mapbox://styles/jczaplewski/cl5uoqzzq003614o6url9ou9z?optimize=true"
-      : "mapbox://styles/jczaplewski/clatdbkw4002q14lov8zx0bm0?optimize=true";
-  } else {
-    style ??= isEnabled
-      ? "mapbox://styles/mapbox/dark-v10"
-      : "mapbox://styles/mapbox/light-v10";
-  }
-
-  const [isOpen, setOpen] = useState(false);
-
-  const [state, setState] = useStoredState("macrostrat:dev-map-page", {
-    showTileExtent: false,
-    xRay: false,
-  });
-  const { showTileExtent, xRay } = state;
+  const [xRay, setXRay] = useState(false);
 
   const [actualStyle, setActualStyle] = useState(null);
 
@@ -141,108 +119,44 @@ function MapInspectorV2({
     }).then(setActualStyle);
   }, [style, xRay, mapboxToken, isEnabled, overlayStyle]);
 
-  const [inspectPosition, setInspectPosition] =
-    useState<mapboxgl.LngLat | null>(null);
-
-  const [data, setData] = useState(null);
-
-  const onSelectPosition = useCallback((position: mapboxgl.LngLat) => {
-    setInspectPosition(position);
-  }, []);
-
-  let detailElement = null;
-  if (inspectPosition != null) {
-    detailElement = h(
-      LocationPanel,
-      {
-        onClose() {
-          setInspectPosition(null);
-        },
-        position: inspectPosition,
-      },
-      [
-        h(TileInfo, {
-          feature: data?.[0] ?? null,
-          showExtent: showTileExtent,
-          setShowExtent() {
-            setState({ ...state, showTileExtent: !showTileExtent });
-          },
-        }),
-        h(FeaturePanel, { features: data, focusedSource, focusedSourceTitle }),
-      ]
-    );
-  }
-
-  let tile = null;
-  if (showTileExtent && data?.[0] != null) {
-    let f = data[0];
-    tile = { x: f._x, y: f._y, z: f._z };
-  }
-
   return h(
     MapAreaContainer,
     {
-      navbar: h(FloatingNavbar, {
-        rightElement: h(MapLoadingButton, {
-          large: true,
-          active: isOpen,
-          onClick: () => setOpen(!isOpen),
-          style: {
-            marginRight: "-5px",
-          },
-        }),
-        headerElement,
-        title,
-      }),
-      contextPanel: h(PanelCard, [
-        controls,
-        h(Switch, {
-          checked: xRay,
-          label: "X-ray mode",
-          onChange() {
-            setState({ ...state, xRay: !xRay });
-          },
-        }),
-      ]),
-      detailPanel: detailElement,
-      contextPanelOpen: isOpen,
-      fitViewport,
+      navbar: h(
+        FloatingNavbar,
+        {
+          height: "fit-content",
+        },
+        h("div.header-block", [
+          h("div.top-row", [h("h3.header-title", title), h(MapLoadingSpinner)]),
+          h("div.controls", [
+            h(
+              "p",
+              "When styles are updated, 3D terrain should remain enabled."
+            ),
+            h(Switch, {
+              checked: xRay,
+              label: "X-ray mode",
+              onChange() {
+                setXRay(!xRay);
+              },
+            }),
+          ]),
+        ])
+      ),
+      fitViewport: true,
     },
-    h(
-      MapView,
-      {
-        style: actualStyle,
-        transformRequest,
-        mapPosition,
-        projection: { name: "globe" },
-        mapboxToken,
-        bounds,
-      },
-      [
-        h(FeatureSelectionHandler, {
-          selectedLocation: inspectPosition,
-          setFeatures: setData,
-        }),
-        h(MapMarker, {
-          position: inspectPosition,
-          setPosition: onSelectPosition,
-        }),
-        h(TileExtentLayer, { tile, color: isEnabled ? "white" : "black" }),
-        children,
-      ]
-    )
+    h(MapView, {
+      style: actualStyle,
+      mapPosition,
+      projection: { name: "globe" },
+      bounds,
+    })
   );
 }
 
-function MapInspector(props) {
-  const { children, controls, ...rest } = props;
-  /** Compatibility wrapper for MapInspectorV2 */
-  // React warning about this legacy usage
-  console.warn("MapInspector is deprecated. Use MapInspectorV2 instead");
-
-  return h(MapInspectorV2, {
-    mapboxToken,
-    ...rest,
-    controls: [children, controls],
-  });
+function MapLoadingSpinner() {
+  const isLoading = useMapStatus((state) => state.isLoading);
+  if (!isLoading) return null;
+  return h(Spinner, { size: 20 });
 }
