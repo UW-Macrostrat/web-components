@@ -49,22 +49,6 @@ export function setup3DTerrain(
   }
 }
 
-export function enable3DTerrain(
-  map,
-  shouldEnable: boolean,
-  sourceID: string | null = null
-) {
-  /** Enable 3D terrain on a one-off basis */
-  // Ensure that we have access to a stylesheet object
-  if (!map.style?._loaded) {
-    map.once("style.load", () => {
-      enable3DTerrain(map, shouldEnable, sourceID);
-    });
-    return;
-  }
-  setup3DTerrain(map, shouldEnable, sourceID);
-}
-
 function getTerrainSourceID(style: Style): string | null {
   for (const [key, source] of Object.entries(style.sources)) {
     if (source.type == "raster-dem") {

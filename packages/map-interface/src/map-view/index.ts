@@ -3,8 +3,8 @@ import {
   useMapRef,
   useMapDispatch,
   useMapPosition,
-  use3DTerrain,
   setup3DTerrain,
+  use3DTerrain,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
@@ -186,7 +186,7 @@ export function MapView(props: MapViewProps) {
     h(MapMovedReporter, { onMapMoved }),
     h(MapResizeManager, { containerRef: ref }),
     h(MapPaddingManager, { containerRef: ref, parentRef, infoMarkerPosition }),
-    h(MapTerrainManager, { mapUse3D, terrainSourceID }),
+    h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
     children,
   ]);
 }
@@ -194,16 +194,14 @@ export function MapView(props: MapViewProps) {
 export function MapTerrainManager({
   mapUse3D,
   terrainSourceID,
+  style,
 }: {
   mapUse3D?: boolean;
   terrainSourceID?: string;
+  style?: mapboxgl.Style | string;
 }) {
-  const mapRef = useMapRef();
+  //const mapRef = useMapRef();
+  use3DTerrain(mapUse3D, terrainSourceID);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null) return;
-    enable3DTerrain(map, mapUse3D, terrainSourceID);
-  }, [mapRef.current, mapUse3D]);
   return null;
 }
