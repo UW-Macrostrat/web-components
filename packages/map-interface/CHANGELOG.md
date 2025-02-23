@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.2.3] - 2025-02-23
+
+- Allow map interface to be rendered without a context panel
+- Create a story for streamlining style reloading with 3D terrain
+- Move all terrain management to `@macrostrat/mapbox-react`
+- New approach to setting up map styles that reduces the chance of full
+  re-renders of terrain layers. This enables smoother transitions between
+  minimally varying map styles.
+
 ## [1.2.2] - 2025-02-16
 
 - Improve styles for map sidebar and expansion panels
