@@ -1,6 +1,6 @@
 import { useMapRef } from "./context";
 import { useEffect } from "react";
-import { AnySourceImpl, AnyLayer, RasterDemSource, Map } from "mapbox-gl";
+import { AnySourceImpl, AnyLayer, RasterDemSource, Style } from "mapbox-gl";
 
 type SourceConfig = Partial<RasterDemSource>;
 
@@ -41,14 +41,85 @@ export function setup3DTerrain(
   }
 }
 
+export function enable3DTerrainLegacy(
+  map,
+  shouldEnable: boolean,
+  sourceID: string | null = null
+) {
+  if (!map.style?._loaded) {
+    map.once("style.load", () => {
+      enable3DTerrainLegacy(map, shouldEnable, sourceID);
+    });
+    return;
+  }
+  setup3DTerrainLegacy(map, shouldEnable, sourceID);
+}
+
+function setup3DTerrainLegacy(
+  map,
+  shouldEnable: boolean,
+  sourceID: string | null = null
+) {
+  const currentTerrainSource = getTerrainSourceID(map);
+  let demSourceID = sourceID ?? currentTerrainSource ?? "mapbox-dem";
+
+  console.log("Enabling 3D terrain with source", demSourceID);
+
+  // Enable or disable terrain depending on our current desires...
+  const currentTerrain = map.getTerrain();
+
+  if (!shouldEnable) {
+    if (currentTerrain != null) map.setTerrain(null);
+    return;
+  }
+  if (currentTerrain != null) return;
+
+  // Add a DEM source if one is not found already.
+  if (map.getSource(demSourceID) == null) {
+    map.addSource(demSourceID, {
+      type: "raster-dem",
+      url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+      tileSize: 512,
+      maxzoom: 14,
+    });
+  }
+
+  // add a sky layer that will show when the map is highly pitched
+  if (map.getLayer("sky") == null) {
+    map.addLayer({
+      id: "sky",
+      type: "sky",
+      paint: {
+        "sky-type": "atmosphere",
+        "sky-atmosphere-sun": [0.0, 0.0],
+        "sky-atmosphere-sun-intensity": 15,
+      },
+    });
+  }
+
+  map.setTerrain({ source: demSourceID, exaggeration: 1 });
+  console.log(map.getTerrain());
+}
+
+function getTerrainSourceID(map) {
+  for (const [key, source] of Object.entries(map.getStyle().sources)) {
+    if (source.type == "raster-dem") {
+      return key;
+    }
+  }
+  return null;
+}
+
 function addDefault3DStyles(
   map,
   sourceName = "terrain",
   sourceCfg: Partial<RasterDemSource> = {}
 ) {
   const style = map.getStyle();
-  const hasTerrain = Object.values(style.sources).some(
-    (source: AnySourceImpl) => source.type === "raster-dem"
+
+  const hasTerrain = Object.entries(style.sources).some(
+    ([key, source]: [string, AnySourceImpl]) =>
+      source.type === "raster-dem" && key === sourceName
   );
 
   const hasSky = Object.values(style.layers).some(
