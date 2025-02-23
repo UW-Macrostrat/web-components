@@ -16,9 +16,7 @@ export async function getMapboxStyle(
   // We fetch styles if they aren't avaialable locally
   let { data, status, statusText } = await axios.get(
     canonicalizeMapboxURL(style),
-    {
-      params,
-    }
+    { params }
   );
   if (status !== 200) {
     throw new Error(`Returned ${status}: ${statusText}`);

@@ -656,14 +656,25 @@ export function buildMacrostratStyleLayers({
   ];
 }
 
-export function buildMacrostratStyle({
-  tileserverDomain = "https://tiles.macrostrat.org",
-  fillOpacity = 0.4,
-  strokeOpacity = 0.2,
-  lineOpacity = 1,
-  focusedMap = null,
-}): mapboxgl.Style {
+interface MacrostratStyleOpts {
+  tileserverDomain?: string;
+  fillOpacity?: number;
+  strokeOpacity?: number;
+  lineOpacity?: number;
+  focusedMap?: string;
+}
+
+export function buildMacrostratStyle(
+  opts?: MacrostratStyleOpts
+): mapboxgl.Style {
   /** Build a style for Macrostrat's geologic map */
+  const {
+    tileserverDomain = "https://tiles.macrostrat.org",
+    fillOpacity = 0.4,
+    strokeOpacity = 0.2,
+    lineOpacity = 1,
+    focusedMap = null,
+  } = opts ?? {};
   let tileSuffix = "";
   if (tileserverDomain == "https://tiles.macrostrat.org") {
     // The production tileserver uses a different suffix

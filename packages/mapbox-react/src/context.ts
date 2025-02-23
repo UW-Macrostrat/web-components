@@ -36,12 +36,18 @@ export function MapboxMapProvider({ children }) {
   return h(MapStoreContext.Provider, { value: store }, children);
 }
 
-function useMapStore<T>(selector: (state: MapState) => T): T {
+function internal_useMapSelector<T>(selector: (state: MapState) => T): T {
+  const store = useMapStore();
+  return useStore(store, selector);
+}
+
+function useMapStore() {
+  /** Function to get the map state object itself */
   const store = useContext(MapStoreContext);
   if (!store) {
     throw new Error("Missing MapStoreProvider");
   }
-  return useStore(store, selector);
+  return store;
 }
 
 interface MapState {
@@ -69,17 +75,17 @@ const defaultMapStatus: MapStatus = {
 };
 
 export function useMapRef() {
-  return useMapStore((state) => state.ref);
+  return internal_useMapSelector((state) => state.ref);
 }
 
 export function useMapStatus(
   selector: (state: MapStatus) => any | null = null
 ) {
-  return useMapStore(useSubSelector("status", selector));
+  return internal_useMapSelector(useSubSelector("status", selector));
 }
 
 export function useMapInitialized() {
-  return useMapStore((state) => state.status.isInitialized);
+  return internal_useMapSelector((state) => state.status.isInitialized);
 }
 
 function useSubSelector(
@@ -96,7 +102,7 @@ function useSubSelector(
 }
 
 export function useMapPosition() {
-  return useMapStore((state) => state.position);
+  return internal_useMapSelector((state) => state.position);
 }
 
 export function useMapElement(): Map | null {
@@ -106,7 +112,7 @@ export function useMapElement(): Map | null {
 export const useMap = useMapElement;
 
 export function useMapDispatch() {
-  return useMapStore((state) => state.dispatch);
+  return internal_useMapSelector((state) => state.dispatch);
 }
 
 type MapAction =

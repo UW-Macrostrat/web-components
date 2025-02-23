@@ -1,6 +1,13 @@
 import { useMapRef } from "./context";
 import { useEffect } from "react";
-import { AnySourceImpl, AnyLayer, RasterDemSource, Map } from "mapbox-gl";
+import {
+  AnySourceImpl,
+  AnyLayer,
+  RasterDemSource,
+  Style,
+  AnySourceData,
+} from "mapbox-gl";
+import { mergeStyles } from "@macrostrat/mapbox-utils";
 
 type SourceConfig = Partial<RasterDemSource>;
 
@@ -13,32 +20,87 @@ export function use3DTerrain(
   const map = mapRef.current;
   useEffect(() => {
     if (map == null) return;
-    setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
-    map.on("style.load", () => {
+    if (map.style?._loaded ?? false) {
       setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
-    });
+    }
+    const cb = () => {
+      setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
+    };
+    map.on("style.load", cb);
+    return () => {
+      map.off("style.load", cb);
+    };
   }, [map, shouldEnable, sourceName]);
 }
 
 export function setup3DTerrain(
-  map: mapboxgl.Map,
+  map: Map,
   shouldEnable: boolean = true,
-  sourceName: string = "terrain",
+  sourceID: string = null,
   sourceCfg: SourceConfig = {}
 ) {
-  if (!map.isStyleLoaded()) {
-    return;
-  }
+  const style = map.getStyle();
+  const currentTerrainSource = getTerrainSourceID(style);
+  let demSourceID = sourceID ?? currentTerrainSource ?? "mapbox-dem";
+
   if (shouldEnable) {
-    addDefault3DStyles(map, sourceName, sourceCfg);
+    addDefault3DStyles(map, demSourceID, sourceCfg);
   }
+
   // Enable or disable terrain depending on our current desires...
   const currentTerrain = map.getTerrain();
   if (shouldEnable && currentTerrain == null) {
-    map.setTerrain({ source: sourceName, exaggeration: 1 });
+    map.setTerrain({ source: demSourceID, exaggeration: 1 });
   } else if (!shouldEnable && currentTerrain != null) {
     map.setTerrain(null);
   }
+}
+
+export function addTerrainToStyle(
+  style: Style,
+  sourceName: string = null
+): Style {
+  /** Add required elements for terrain directly to a style object */
+
+  const currentTerrainSource = getTerrainSourceID(style);
+  console.log("Current source", currentTerrainSource);
+  const demSourceID = currentTerrainSource ?? sourceName ?? "mapbox-dem";
+
+  let newStyle: Partial<Style> = {
+    sources: {},
+    layers: [],
+  };
+
+  const hasTerrainSource = currentTerrainSource != null;
+  if (!hasTerrainSource) {
+    newStyle.sources[demSourceID] = defaultRasterDEM as AnySourceData;
+  }
+
+  if (!hasSkyLayer(style)) {
+    newStyle.layers.push(defaultSkyLayer as AnyLayer);
+  }
+
+  const hasTerrain = "terrain" in style;
+  if (!hasTerrain) {
+    newStyle.terrain = { source: demSourceID, exaggeration: 1 };
+  }
+
+  console.log(newStyle);
+
+  return mergeStyles(style, newStyle);
+}
+
+function hasSkyLayer(style: Style): boolean {
+  return Object.values(style.layers).some((lyr: AnyLayer) => lyr.type == "sky");
+}
+
+function getTerrainSourceID(style: Style): string | null {
+  for (const [key, source] of Object.entries(style.sources)) {
+    if (source.type == "raster-dem") {
+      return key;
+    }
+  }
+  return null;
 }
 
 function addDefault3DStyles(
@@ -47,8 +109,10 @@ function addDefault3DStyles(
   sourceCfg: Partial<RasterDemSource> = {}
 ) {
   const style = map.getStyle();
-  const hasTerrain = Object.values(style.sources).some(
-    (source: AnySourceImpl) => source.type === "raster-dem"
+
+  const hasTerrain = Object.entries(style.sources).some(
+    ([key, source]: [string, AnySourceImpl]) =>
+      source.type === "raster-dem" && key === sourceName
   );
 
   const hasSky = Object.values(style.layers).some(
@@ -57,40 +121,58 @@ function addDefault3DStyles(
 
   if (!hasTerrain) {
     map.addSource(sourceName, {
-      type: "raster-dem",
-      url: "mapbox://mapbox.mapbox-terrain-dem-v1",
-      tileSize: 512,
-      maxzoom: 14,
+      ...defaultRasterDEM,
       ...sourceCfg,
     });
   }
 
-  if (!hasSky) {
-    map.addLayer({
-      id: "sky",
-      type: "sky",
-      paint: {
-        "sky-type": "atmosphere",
-        "sky-atmosphere-sun": [0.0, 0.0],
-        "sky-atmosphere-sun-intensity": 15,
-      },
-    });
+  if (!hasSkyLayer(style)) {
+    map.addLayer(defaultSkyLayer);
   }
-  if (map.getFog() == null) {
-    map.setFog({
-      color: "#ffffff",
-      // @ts-ignore
-      "space-color": [
-        "interpolate",
-        ["linear"],
-        ["zoom"],
-        4,
-        "hsl(215, 28%, 64%)",
-        7,
-        "hsl(209, 92%, 85%)",
-      ],
-      "star-intensity": ["interpolate", ["linear"], ["zoom"], 5, 0.35, 6, 0],
-      range: [5, 15],
-    });
-  }
+  // Fog requires knowledge of whether we have a light or dark style
+  // if (map.getFog() == null) {
+  //   map.setFog(defaultFog);
+  // }
 }
+
+const defaultRasterDEM = {
+  type: "raster-dem",
+  url: "mapbox://mapbox.mapbox-terrain-dem-v1",
+  tileSize: 512,
+  maxzoom: 14,
+};
+
+const defaultSkyLayer = {
+  id: "sky",
+  type: "sky",
+  paint: {
+    "sky-type": "atmosphere",
+    "sky-atmosphere-sun": [0.0, 0.0],
+    "sky-atmosphere-sun-intensity": 15,
+  },
+};
+
+const defaultFogLight = {
+  color: "#ffffff",
+  // @ts-ignore
+  "space-color": [
+    "interpolate",
+    ["linear"],
+    ["zoom"],
+    4,
+    "hsl(215, 28%, 64%)",
+    7,
+    "hsl(209, 92%, 85%)",
+  ],
+  "star-intensity": ["interpolate", ["linear"], ["zoom"], 5, 0.35, 6, 0],
+  range: [5, 15],
+};
+
+const defaultFogDark = {
+  range: [10, 20],
+  color: "hsla(0, 0%, 0%, 0.43)",
+  "high-color": "hsl(207, 23%, 5%)",
+  "space-color": "hsl(207, 23%, 10%)",
+  "horizon-blend": 0.1,
+  "star-intensity": 0.5,
+};

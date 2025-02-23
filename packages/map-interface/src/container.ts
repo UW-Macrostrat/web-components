@@ -118,7 +118,7 @@ function _MapAreaContainer({
   );
 
   let contextStack = null;
-  if (navbar != null && contextPanel != null) {
+  if (navbar != null || contextPanel != null) {
     contextStack = h(ContextStack, { navbar, ...contextStackProps }, [
       h.if(contextPanelTrans.shouldMount)([contextPanel]),
     ]);

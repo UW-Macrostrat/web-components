@@ -3,25 +3,30 @@ import {
   useMapRef,
   useMapDispatch,
   useMapPosition,
+  setup3DTerrain,
+  use3DTerrain,
+  addTerrainToStyle,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
   MapPosition,
   setMapPosition,
+  getMapPosition,
+  getMapboxStyle,
 } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
-import { useEffect, useRef, useCallback } from "react";
-import styles from "../main.module.sass";
-import { enable3DTerrain } from "./terrain";
+import { useEffect, useRef } from "react";
+import styles from "./main.module.sass";
 import {
   MapLoadingReporter,
   MapMovedReporter,
   MapPaddingManager,
   MapResizeManager,
-} from "../helpers";
+} from "./helpers";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { getMapPadding } from "../utils";
+import { getMapPadding } from "./utils";
+import { useAsyncEffect } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
 
@@ -116,16 +121,45 @@ export function MapView(props: MapViewProps) {
   const ref = useRef<HTMLDivElement>();
   const parentRef = useRef<HTMLDivElement>();
 
-  useEffect(() => {
+  useAsyncEffect(async () => {
+    /** Manager to update map style */
     if (style == null) return;
     let map = mapRef.current;
+
+    /** If we can, we try to update the map style with terrain information
+     * immediately, before the style is loaded. This allows us to avoid a
+     * flash of the map without terrain.
+     *
+     * To do this, we need to estimate the map position before load, which
+     * doesn't always work.
+     */
+    // We either get the map position directly from the map or from props
+    const estMapPosition: MapPosition | null =
+      map == null ? mapPosition : getMapPosition(map);
+    let newStyle = style;
+    const { mapUse3D } = mapViewInfo(estMapPosition);
+
+    /** If style is a string, we can't update it with terrain layers immediately.
+     * We need to wait for the style to load and then update it.
+     */
+    if (typeof style === "string") {
+      newStyle = await getMapboxStyle(style, {
+        access_token: mapboxgl.accessToken,
+      });
+    }
+
+    if (mapUse3D) {
+      // We can update the style with terrain layers immediately
+      newStyle = addTerrainToStyle(newStyle as mapboxgl.Style, terrainSourceID);
+    }
+
     if (map != null) {
-      console.log("Setting style", style);
-      map.setStyle(style);
+      console.log("Setting style", newStyle);
+      map.setStyle(newStyle);
     } else {
-      console.log("Initializing map", style);
+      console.log("Initializing map", newStyle);
       const map = initializeMap(ref.current, {
-        style,
+        style: newStyle,
         projection,
         mapPosition,
         transformRequest,
@@ -138,11 +172,13 @@ export function MapView(props: MapViewProps) {
 
     const loadCallback = () => {
       onStyleLoaded?.(map);
+      // Set initial terrain state
       dispatch({ type: "set-style-loaded", payload: true });
     };
 
     map = mapRef.current;
-    if (map.isStyleLoaded()) {
+
+    if (map.style?._loaded) {
       // Catch a race condition where the style is loaded before the callback is set
       loadCallback();
     }
@@ -174,7 +210,7 @@ export function MapView(props: MapViewProps) {
     h(MapMovedReporter, { onMapMoved }),
     h(MapResizeManager, { containerRef: ref }),
     h(MapPaddingManager, { containerRef: ref, parentRef, infoMarkerPosition }),
-    h(MapTerrainManager, { mapUse3D, terrainSourceID }),
+    h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
     children,
   ]);
 }
@@ -182,16 +218,13 @@ export function MapView(props: MapViewProps) {
 export function MapTerrainManager({
   mapUse3D,
   terrainSourceID,
+  style,
 }: {
   mapUse3D?: boolean;
   terrainSourceID?: string;
+  style?: mapboxgl.Style | string;
 }) {
-  const mapRef = useMapRef();
+  use3DTerrain(mapUse3D, terrainSourceID);
 
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null) return;
-    enable3DTerrain(map, mapUse3D, terrainSourceID);
-  }, [mapRef.current, mapUse3D]);
   return null;
 }
