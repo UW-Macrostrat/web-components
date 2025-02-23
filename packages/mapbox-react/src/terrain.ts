@@ -13,79 +13,56 @@ export function use3DTerrain(
   const map = mapRef.current;
   useEffect(() => {
     if (map == null) return;
-    setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
-    map.on("style.load", () => {
+    if (map.style?._loaded ?? false) {
       setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
-    });
+    }
+    const cb = () => {
+      setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
+    };
+    map.on("style.load", cb);
+    return () => {
+      map.off("style.load", cb);
+    };
   }, [map, shouldEnable, sourceName]);
 }
 
 export function setup3DTerrain(
-  map: mapboxgl.Map,
+  map: Map,
   shouldEnable: boolean = true,
-  sourceName: string = "terrain",
+  sourceID: string = null,
   sourceCfg: SourceConfig = {}
-) {
-  if (!map.isStyleLoaded()) {
-    return;
-  }
-  if (shouldEnable) {
-    addDefault3DStyles(map, sourceName, sourceCfg);
-  }
-  // Enable or disable terrain depending on our current desires...
-  const currentTerrain = map.getTerrain();
-  if (shouldEnable && currentTerrain == null) {
-    map.setTerrain({ source: sourceName, exaggeration: 1 });
-  } else if (!shouldEnable && currentTerrain != null) {
-    map.setTerrain(null);
-  }
-}
-
-export function enable3DTerrainLegacy(
-  map,
-  shouldEnable: boolean,
-  sourceID: string | null = null
-) {
-  if (!map.style?._loaded) {
-    map.once("style.load", () => {
-      enable3DTerrainLegacy(map, shouldEnable, sourceID);
-    });
-    return;
-  }
-  setup3DTerrainLegacy(map, shouldEnable, sourceID);
-}
-
-function setup3DTerrainLegacy(
-  map,
-  shouldEnable: boolean,
-  sourceID: string | null = null
 ) {
   const style = map.getStyle();
   const currentTerrainSource = getTerrainSourceID(style);
   let demSourceID = sourceID ?? currentTerrainSource ?? "mapbox-dem";
 
-  console.log("Enabling 3D terrain with source", demSourceID);
+  if (shouldEnable) {
+    addDefault3DStyles(map, demSourceID, sourceCfg);
+  }
 
   // Enable or disable terrain depending on our current desires...
   const currentTerrain = map.getTerrain();
+  if (shouldEnable && currentTerrain == null) {
+    map.setTerrain({ source: demSourceID, exaggeration: 1 });
+  } else if (!shouldEnable && currentTerrain != null) {
+    map.setTerrain(null);
+  }
+}
 
-  if (!shouldEnable) {
-    if (currentTerrain != null) map.setTerrain(null);
+export function enable3DTerrain(
+  map,
+  shouldEnable: boolean,
+  sourceID: string | null = null
+) {
+  /** Enable 3D terrain on a one-off basis */
+  // Ensure that we have access to a stylesheet object
+  if (!map.style?._loaded) {
+    map.once("style.load", () => {
+      enable3DTerrain(map, shouldEnable, sourceID);
+    });
     return;
   }
-  if (currentTerrain != null) return;
-
-  // Add a DEM source if one is not found already.
-  if (map.getSource(demSourceID) == null) {
-    map.addSource(demSourceID, defaultRasterDEM);
-  }
-
-  // add a sky layer that will show when the map is highly pitched
-  if (map.getLayer("sky") == null) {
-    map.addLayer(defaultSkyLayer);
-  }
-
-  map.setTerrain({ source: demSourceID, exaggeration: 1 });
+  setup3DTerrain(map, shouldEnable, sourceID);
 }
 
 function getTerrainSourceID(style: Style): string | null {

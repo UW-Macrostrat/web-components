@@ -3,6 +3,8 @@ import {
   useMapRef,
   useMapDispatch,
   useMapPosition,
+  use3DTerrain,
+  setup3DTerrain,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
@@ -121,11 +123,10 @@ export function MapView(props: MapViewProps) {
     /** Manager to update map style */
     if (style == null) return;
     let map = mapRef.current;
-    let estMapPosition: MapPosition;
+    let estMapPosition: MapPosition = null;
     if (map != null) {
       console.log("Setting style", style);
       map.setStyle(style);
-      estMapPosition = getMapPosition(mapRef.current);
     } else {
       console.log("Initializing map", style);
       const map = initializeMap(ref.current, {
@@ -143,16 +144,17 @@ export function MapView(props: MapViewProps) {
 
     const loadCallback = () => {
       onStyleLoaded?.(map);
+      estMapPosition ??= getMapPosition(map);
+      // Set initial terrain state
+      const { mapUse3D } = mapViewInfo(estMapPosition);
+      setup3DTerrain(map, mapUse3D, terrainSourceID);
+
       dispatch({ type: "set-style-loaded", payload: true });
     };
 
     map = mapRef.current;
 
-    // Set initial terrain state
-    const { mapUse3D } = mapViewInfo(estMapPosition);
-    enable3DTerrain(map, mapUse3D, terrainSourceID);
-
-    if (map.isStyleLoaded()) {
+    if (map.style?._loaded) {
       // Catch a race condition where the style is loaded before the callback is set
       loadCallback();
     }
@@ -192,7 +194,6 @@ export function MapView(props: MapViewProps) {
 export function MapTerrainManager({
   mapUse3D,
   terrainSourceID,
-  style = null,
 }: {
   mapUse3D?: boolean;
   terrainSourceID?: string;
@@ -203,6 +204,6 @@ export function MapTerrainManager({
     const map = mapRef.current;
     if (map == null) return;
     enable3DTerrain(map, mapUse3D, terrainSourceID);
-  }, [mapRef.current, mapUse3D, style]);
+  }, [mapRef.current, mapUse3D]);
   return null;
 }
