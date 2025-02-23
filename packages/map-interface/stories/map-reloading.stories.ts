@@ -3,9 +3,9 @@ import { buildMacrostratStyle } from "@macrostrat/map-styles";
 // Import other components
 import { Spinner, Switch } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
-import { useDarkMode } from "@macrostrat/ui-components";
+import { useAsyncEffect, useDarkMode } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FloatingNavbar,
   MapView,
@@ -81,7 +81,6 @@ function useDevBasemapURL(styleType: "macrostrat" | "standard" = "macrostrat") {
 function MapInspector({
   title = "Map inspector",
   mapPosition = null,
-  overlayStyle = null,
   style,
   bounds = null,
 }: {
@@ -91,7 +90,6 @@ function MapInspector({
   controls?: React.ReactNode;
   children?: React.ReactNode;
   mapboxToken?: string;
-  overlayStyle?: mapboxgl.Style | string;
   projection?: string;
   mapPosition?: MapPosition;
   bounds?: [number, number, number, number];
@@ -109,11 +107,25 @@ function MapInspector({
   const isEnabled = dark?.isEnabled;
   style ??= useDevBasemapURL();
 
+  const [macrostrat, setMacrostrat] = useState(true);
   const [xRay, setXRay] = useState(false);
+
+  let overlayStyle: mapboxgl.Style | null =
+    useMemo((): mapboxgl.Style | null => {
+      if (macrostrat) {
+        return buildMacrostratStyle();
+      }
+      return null;
+    }, [macrostrat]);
 
   const [actualStyle, setActualStyle] = useState(null);
 
   useEffect(() => {
+    if (overlayStyle == null) {
+      setActualStyle(style);
+      return;
+    }
+
     buildInspectorStyle(style, overlayStyle, {
       mapboxToken,
       inDarkMode: isEnabled,
@@ -136,6 +148,13 @@ function MapInspector({
               "p",
               "When styles are updated, 3D terrain should remain enabled."
             ),
+            h(Switch, {
+              checked: macrostrat,
+              label: "Macrostrat",
+              onChange() {
+                setMacrostrat(!macrostrat);
+              },
+            }),
             h(Switch, {
               checked: xRay,
               label: "X-ray mode",

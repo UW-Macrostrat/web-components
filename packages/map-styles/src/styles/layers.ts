@@ -665,7 +665,7 @@ interface MacrostratStyleOpts {
 }
 
 export function buildMacrostratStyle(
-  opts: MacrostratStyleOpts
+  opts?: MacrostratStyleOpts
 ): mapboxgl.Style {
   /** Build a style for Macrostrat's geologic map */
   const {
