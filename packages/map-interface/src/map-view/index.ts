@@ -8,6 +8,7 @@ import {
   mapViewInfo,
   MapPosition,
   setMapPosition,
+  getMapPosition,
 } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
@@ -117,11 +118,14 @@ export function MapView(props: MapViewProps) {
   const parentRef = useRef<HTMLDivElement>();
 
   useEffect(() => {
+    /** Manager to update map style */
     if (style == null) return;
     let map = mapRef.current;
+    let estMapPosition: MapPosition;
     if (map != null) {
       console.log("Setting style", style);
       map.setStyle(style);
+      estMapPosition = getMapPosition(mapRef.current);
     } else {
       console.log("Initializing map", style);
       const map = initializeMap(ref.current, {
@@ -131,6 +135,7 @@ export function MapView(props: MapViewProps) {
         transformRequest,
         ...rest,
       });
+      estMapPosition = mapPosition;
       dispatch({ type: "set-map", payload: map });
       map.setPadding(getMapPadding(ref, parentRef), { animate: false });
       onMapLoaded?.(map);
@@ -142,6 +147,11 @@ export function MapView(props: MapViewProps) {
     };
 
     map = mapRef.current;
+
+    // Set initial terrain state
+    const { mapUse3D } = mapViewInfo(estMapPosition);
+    enable3DTerrain(map, mapUse3D, terrainSourceID);
+
     if (map.isStyleLoaded()) {
       // Catch a race condition where the style is loaded before the callback is set
       loadCallback();
@@ -182,6 +192,7 @@ export function MapView(props: MapViewProps) {
 export function MapTerrainManager({
   mapUse3D,
   terrainSourceID,
+  style = null,
 }: {
   mapUse3D?: boolean;
   terrainSourceID?: string;
@@ -192,6 +203,6 @@ export function MapTerrainManager({
     const map = mapRef.current;
     if (map == null) return;
     enable3DTerrain(map, mapUse3D, terrainSourceID);
-  }, [mapRef.current, mapUse3D]);
+  }, [mapRef.current, mapUse3D, style]);
   return null;
 }
