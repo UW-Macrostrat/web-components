@@ -84,9 +84,10 @@ function addDefault3DStyles(
   if (!hasSky) {
     map.addLayer(defaultSkyLayer);
   }
-  if (map.getFog() == null) {
-    map.setFog(defaultFog);
-  }
+  // Fog requires knowledge of whether we have a light or dark style
+  // if (map.getFog() == null) {
+  //   map.setFog(defaultFog);
+  // }
 }
 
 const defaultRasterDEM = {
@@ -106,7 +107,7 @@ const defaultSkyLayer = {
   },
 };
 
-const defaultFog = {
+const defaultFogLight = {
   color: "#ffffff",
   // @ts-ignore
   "space-color": [
@@ -120,4 +121,13 @@ const defaultFog = {
   ],
   "star-intensity": ["interpolate", ["linear"], ["zoom"], 5, 0.35, 6, 0],
   range: [5, 15],
+};
+
+const defaultFogDark = {
+  range: [10, 20],
+  color: "hsla(0, 0%, 0%, 0.43)",
+  "high-color": "hsl(207, 23%, 5%)",
+  "space-color": "hsl(207, 23%, 10%)",
+  "horizon-blend": 0.1,
+  "star-intensity": 0.5,
 };
