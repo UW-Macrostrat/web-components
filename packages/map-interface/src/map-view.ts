@@ -14,17 +14,16 @@ import {
 } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
-import { useEffect, useRef, useCallback } from "react";
-import styles from "../main.module.sass";
-import { enable3DTerrain } from "./terrain";
+import { useEffect, useRef } from "react";
+import styles from "./main.module.sass";
 import {
   MapLoadingReporter,
   MapMovedReporter,
   MapPaddingManager,
   MapResizeManager,
-} from "../helpers";
+} from "./helpers";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { getMapPadding } from "../utils";
+import { getMapPadding } from "./utils";
 
 const h = hyper.styled(styles);
 
@@ -200,7 +199,6 @@ export function MapTerrainManager({
   terrainSourceID?: string;
   style?: mapboxgl.Style | string;
 }) {
-  //const mapRef = useMapRef();
   use3DTerrain(mapUse3D, terrainSourceID);
 
   return null;

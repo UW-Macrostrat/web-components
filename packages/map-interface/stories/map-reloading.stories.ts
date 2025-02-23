@@ -3,13 +3,15 @@ import { buildMacrostratStyle } from "@macrostrat/map-styles";
 // Import other components
 import { Spinner, Switch } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
-import { useDarkMode, useStoredState } from "@macrostrat/ui-components";
+import { useDarkMode } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useState } from "react";
-import { buildInspectorStyle } from "../src/dev/xray";
-import { MapAreaContainer, PanelCard } from "../src/container";
-import { FloatingNavbar } from "../src/context-panel";
-import { MapView } from "../src/map-view";
+import {
+  FloatingNavbar,
+  MapView,
+  MapAreaContainer,
+  buildInspectorStyle,
+} from "../src";
 import styles from "./map-reloading.stories.module.sass";
 import { MapPosition } from "@macrostrat/mapbox-utils";
 import { useMapStatus } from "@macrostrat/mapbox-react";
