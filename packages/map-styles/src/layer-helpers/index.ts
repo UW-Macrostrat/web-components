@@ -17,19 +17,6 @@ export interface LayerDescription {
   url: string;
 }
 
-export const baseLayers: LayerDescription[] = [
-  {
-    id: "satellite",
-    name: "Satellite",
-    url: "mapbox://styles/mapbox/satellite-v9",
-  },
-  {
-    id: "hillshade",
-    name: "Hillshade",
-    url: "mapbox://styles/jczaplewski/ckml6tqii4gvn17o073kujk75",
-  },
-];
-
 const vizBaseURL = "//visualization-assets.s3.amazonaws.com";
 const patternBaseURL = vizBaseURL + "/geologic-patterns/png";
 const lineSymbolsURL = vizBaseURL + "/geologic-line-symbols/png";

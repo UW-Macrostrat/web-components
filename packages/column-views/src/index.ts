@@ -5,3 +5,4 @@ export * from "./providers";
 export * from "./helpers";
 export * from "./map";
 export * from "./column";
+export * from "./unit-details";
