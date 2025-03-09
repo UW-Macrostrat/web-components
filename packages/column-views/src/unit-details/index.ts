@@ -42,8 +42,9 @@ export function UnitDetailsPanel({
           small: true,
           minimal: true,
           className: "json-view-toggle",
-          onClick() {
+          onClick(evt) {
             setShowJSON(!showJSON);
+            evt.stopPropagation()
           },
         }),
       ],
