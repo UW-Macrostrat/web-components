@@ -9,6 +9,7 @@ import {
 
 import {
   Column,
+  LithologiesProvider,
   preprocessUnits,
   UnitSelectionProvider,
   useSelectedUnit,
@@ -75,7 +76,7 @@ const meta: Meta<ColumnProps> = {
   },
   decorators: [
     (Story) => {
-      return h(PatternProvider, h(Story));
+      return h(LithologiesProvider, h(PatternProvider, h(Story)));
     },
   ],
   parameters: {

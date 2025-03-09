@@ -12,6 +12,7 @@ import {
 } from "@macrostrat/data-components";
 import { useUnitSelectionDispatch } from "../units/selection";
 import { useMacrostratUnits } from "../store";
+import { useLithologies } from "../providers";
 
 const h = hyper.styled(styles);
 
@@ -44,7 +45,7 @@ export function UnitDetailsPanel({
           className: "json-view-toggle",
           onClick(evt) {
             setShowJSON(!showJSON);
-            evt.stopPropagation()
+            evt.stopPropagation();
           },
         }),
       ],
@@ -71,6 +72,8 @@ export function LegendPanelHeader({ title, id, onClose, actions = null }) {
 }
 
 function UnitDetailsContent({ unit }) {
+  const lithMap = useLithologies();
+
   let outcrop = unit.outcrop;
   if (outcrop == "both") {
     outcrop = "surface and subsurface";
@@ -82,7 +85,7 @@ function UnitDetailsContent({ unit }) {
       value: `${unit.min_thick}–${unit.max_thick}`,
       unit: "m",
     }),
-    h(LithologyList, { lithologies: unit.lith }),
+    h(LithologyList, { lithologies: unit.lith, lithologyMap: lithMap }),
     h(DataField, {
       label: "Age range",
       value: `${unit.b_age}–${unit.t_age}`,

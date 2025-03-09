@@ -11,12 +11,13 @@ const h = hyper.styled(styles);
 
 export function LithologyTag({
   data,
+  color,
   className = null,
   expandOnHover = false,
 }) {
   const darkMode = useInDarkMode();
   const luminance = darkMode ? 0.9 : 0.4;
-  const color = asChromaColor(data.color);
+  const _color = asChromaColor(color ?? data.color);
   return h(
     Tag,
     {
@@ -24,8 +25,8 @@ export function LithologyTag({
       className: classNames("lithology-tag", className),
       minimal: true,
       style: {
-        color: color?.luminance(luminance).hex(),
-        backgroundColor: color?.luminance(1 - luminance).hex(),
+        color: _color?.luminance(luminance).hex(),
+        backgroundColor: _color?.luminance(1 - luminance).hex(),
       },
     },
     h("span.contents", [
@@ -35,7 +36,13 @@ export function LithologyTag({
   );
 }
 
-export function LithologyList({ lithologies }) {
+export function LithologyList({
+  lithologies,
+  lithologyMap,
+}: {
+  lithologies: any[];
+  lithologyMap?: Map<number, any>;
+}) {
   return h(
     DataField,
     { label: "Lithologies" },
@@ -43,7 +50,8 @@ export function LithologyList({ lithologies }) {
       ItemList,
       { className: "lithology-list" },
       lithologies.map((lith) => {
-        return h(LithologyTag, { data: lith });
+        let color = lithologyMap?.get(lith.lith_id)?.color;
+        return h(LithologyTag, { data: lith, color });
       })
     )
   );
