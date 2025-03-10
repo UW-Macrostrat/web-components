@@ -11,6 +11,7 @@ import {
   Column,
   LithologiesProvider,
   preprocessUnits,
+  UnitComponent,
   UnitSelectionProvider,
   useSelectedUnit,
 } from "@macrostrat/column-views";
@@ -181,6 +182,31 @@ export const MarysvilleUtah: Story = {
     showLabelColumn: true,
     width: 500,
     columnWidth: 500,
+    unitComponentProps: {
+      nColumns: 5,
+    },
+    showUnitPopover: true,
+    keyboardNavigation: true,
+  },
+};
+
+function ColoredUnitComponent(props) {
+  const { division } = props;
+  const { color } = division;
+  return h(UnitComponent, {
+    ...props,
+    backgroundColor: color,
+    patternColor: "yellow",
+  });
+}
+
+export const WithColoredUnits: Story = {
+  args: {
+    id: 483,
+    showLabelColumn: true,
+    width: 500,
+    columnWidth: 500,
+    unitComponent: ColoredUnitComponent,
     unitComponentProps: {
       nColumns: 5,
     },

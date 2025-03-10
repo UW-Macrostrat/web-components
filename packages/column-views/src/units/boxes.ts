@@ -44,6 +44,9 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   widthFraction?: number;
   children?: ReactNode;
   className?: string;
+  fill?: string;
+  backgroundColor?: string;
+  patternColor?: string;
 }
 
 export interface LabeledUnitProps
@@ -90,9 +93,12 @@ function Unit(props: UnitProps) {
   const {
     division: d,
     children,
+    fill,
     defaultFill = "transparent",
     className,
     widthFraction = 1,
+    backgroundColor,
+    patternColor,
     ...baseBounds
   } = props;
 
@@ -102,18 +108,37 @@ function Unit(props: UnitProps) {
     ...baseBounds,
   };
   const patternID = resolveID(d);
-  const fill = useGeologicPattern(patternID, defaultFill);
+  let _fill = fill ?? useGeologicPattern(patternID, defaultFill);
   // Allow us to select this unit if in the proper context
+
+  // Handle masking of patterns
+  // let mask = null;
+  // let maskElement = null;
+  //
+  // if (patternColor != null) {
+  //   maskElement = h("mask", { id: `${patternID}-mask` }, [
+  //     h("rect", { ...bounds, fill: _fill }),
+  //   ]);
+  //
+  //   _fill = patternColor;
+  //   mask = `url(#${patternID}-mask)`;
+  // }
 
   const ref = useRef<HTMLElement>();
 
   const [selected, onClick] = useUnitSelectionManager(ref, d);
 
   return h("g.unit", { className }, [
+    h.if(backgroundColor != null)("rect.background", {
+      ...bounds,
+      fill: backgroundColor,
+    }),
+    //maskElement,
     h("rect.unit", {
       ref,
       ...bounds,
-      fill,
+      fill: _fill,
+      //mask,
       onClick,
     }),
     h.if(selected)("rect.selection-overlay", bounds),
