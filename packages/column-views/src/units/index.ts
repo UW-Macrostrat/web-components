@@ -34,3 +34,4 @@ export { UnitsColumn, SimpleUnitsColumn };
 export * from "./composite";
 export * from "./types";
 export * from "./selection";
+export * from "./colors";
