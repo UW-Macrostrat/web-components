@@ -19,9 +19,11 @@ const h = hyper.styled(styles);
 export function UnitDetailsPanel({
   unit,
   onClose,
+  showLithologyProportions = false,
 }: {
   unit: any;
   onClose?: any;
+  showLithologyProportions?: boolean;
 }) {
   const [showJSON, setShowJSON] = useState(false);
 
@@ -29,7 +31,7 @@ export function UnitDetailsPanel({
   if (showJSON) {
     content = h(JSONView, { data: unit, showRoot: false });
   } else {
-    content = h(UnitDetailsContent, { unit });
+    content = h(UnitDetailsContent, { unit, showLithologyProportions });
   }
 
   return h("div.unit-details-panel", [
@@ -71,7 +73,7 @@ export function LegendPanelHeader({ title, id, onClose, actions = null }) {
   ]);
 }
 
-function UnitDetailsContent({ unit }) {
+function UnitDetailsContent({ unit, showLithologyProportions = true }) {
   const lithMap = useLithologies();
 
   let outcrop = unit.outcrop;
@@ -85,7 +87,11 @@ function UnitDetailsContent({ unit }) {
       value: `${unit.min_thick}–${unit.max_thick}`,
       unit: "m",
     }),
-    h(LithologyList, { lithologies: unit.lith, lithologyMap: lithMap }),
+    h(LithologyList, {
+      lithologies: unit.lith,
+      lithologyMap: lithMap,
+      showProportions: showLithologyProportions,
+    }),
     h(DataField, {
       label: "Age range",
       value: `${unit.b_age}–${unit.t_age}`,

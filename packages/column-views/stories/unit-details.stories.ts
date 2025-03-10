@@ -5,6 +5,7 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { UnitDetailsPanel } from "../src/unit-details";
+import { LithologiesProvider } from "../src";
 
 function useUnitData(unit_id) {
   return useAPIResult(
@@ -21,7 +22,7 @@ function UnitDetailsExt({ unit_id, ...rest }: UnitDetailsProps) {
     return h(Spinner);
   }
 
-  return h(UnitDetailsPanel, { unit, ...rest });
+  return h(LithologiesProvider, h(UnitDetailsPanel, { unit, ...rest }));
 }
 
 type Story = StoryObj<typeof UnitDetailsExt>;
@@ -29,6 +30,7 @@ type Story = StoryObj<typeof UnitDetailsExt>;
 interface UnitDetailsProps {
   unit_id: number;
   onClose?: () => void;
+  showLithologyProportions?: boolean;
 }
 
 const meta: Meta<UnitDetailsProps> = {
@@ -44,6 +46,13 @@ export default meta;
 export const Primary: Story = {
   args: {
     unit_id: 13103,
+  },
+};
+
+export const WithLithologyProportions: Story = {
+  args: {
+    unit_id: 13103,
+    showLithologyProportions: true,
   },
 };
 

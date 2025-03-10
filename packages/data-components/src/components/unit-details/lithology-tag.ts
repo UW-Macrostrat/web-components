@@ -14,10 +14,19 @@ export function LithologyTag({
   color,
   className = null,
   expandOnHover = false,
+  showProportion = true,
 }) {
   const darkMode = useInDarkMode();
   const luminance = darkMode ? 0.9 : 0.4;
   const _color = asChromaColor(color ?? data.color);
+  const mainColor = _color?.luminance(luminance).hex();
+
+  let proportion = null;
+  if (data.prop != null && showProportion) {
+    const prop = Math.round(data.prop * 100);
+    proportion = h("span.lithology-proportion", `${prop}%`);
+  }
+
   return h(
     Tag,
     {
@@ -25,13 +34,14 @@ export function LithologyTag({
       className: classNames("lithology-tag", className),
       minimal: true,
       style: {
-        color: _color?.luminance(luminance).hex(),
+        color: mainColor,
         backgroundColor: _color?.luminance(1 - luminance).hex(),
       },
     },
     h("span.contents", [
       h("span.name", data.name),
       h.if(expandOnHover)("code.lithology-id", `${data.lith_id}`),
+      proportion,
     ])
   );
 }
@@ -39,9 +49,11 @@ export function LithologyTag({
 export function LithologyList({
   lithologies,
   lithologyMap,
+  showProportions = false,
 }: {
   lithologies: any[];
   lithologyMap?: Map<number, any>;
+  showProportions?: boolean;
 }) {
   return h(
     DataField,
@@ -51,7 +63,11 @@ export function LithologyList({
       { className: "lithology-list" },
       lithologies.map((lith) => {
         let color = lithologyMap?.get(lith.lith_id)?.color;
-        return h(LithologyTag, { data: lith, color });
+        return h(LithologyTag, {
+          data: lith,
+          color,
+          showProportion: showProportions,
+        });
       })
     )
   );
