@@ -42,7 +42,6 @@ export function LithologiesProvider({
   children,
   baseURL = "https://macrostrat.org/api/v2",
 }) {
-  console.log("base URL", baseURL);
   const lithologies = useAPIResult(baseURL + "/defs/lithologies", {
     all: true,
   });
