@@ -2,6 +2,7 @@ import h from "@macrostrat/hyper";
 import { ColumnProvider, ColumnAxisType } from "@macrostrat/column-components";
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
 import { ReactNode, useMemo } from "react";
+import type { Lithology } from "@macrostrat/api-types";
 
 export function MacrostratColumnProvider(props) {
   // A column provider specialized the Macrostrat API
@@ -35,13 +36,16 @@ export function MacrostratAPIProvider({
 
 import { createContext, useContext } from "react";
 
-const LithologiesContext = createContext<Map<number, any>>(null);
+const LithologiesContext = createContext<Map<number, Lithology>>(null);
 
-export function LithologiesProvider({ children }) {
-  const lithologies = useAPIResult(
-    "https://macrostrat.org/api/v2/defs/lithologies",
-    { all: true }
-  );
+export function LithologiesProvider({
+  children,
+  baseURL = "https://macrostrat.org/api/v2",
+}) {
+  console.log("base URL", baseURL);
+  const lithologies = useAPIResult(baseURL + "/defs/lithologies", {
+    all: true,
+  });
 
   const lithMap = useMemo(() => {
     const data = lithologies?.success?.data;

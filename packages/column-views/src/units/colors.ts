@@ -1,6 +1,7 @@
 import chroma from "chroma-js";
+import { UnitLong } from "@macrostrat/api-types";
 
-export function getMixedUnitColor(unit, lithMap) {
+export function getMixedUnitColor(unit: UnitLong, lithMap) {
   const liths = unit.lith;
   if (liths == null) {
     return "gray";

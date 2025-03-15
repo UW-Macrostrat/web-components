@@ -1,3 +1,5 @@
+import type { LithologyCore } from "./lithology";
+
 export interface BaseUnit {
   unit_id: number;
   b_age: number;
@@ -18,13 +20,9 @@ export interface Environment {
   environ_id: number;
 }
 
-export interface Lithology {
+export interface UnitLithology extends LithologyCore {
   atts?: string[];
-  name: string;
   prop: number;
-  lith_id: number;
-  type: string;
-  class: string;
 }
 
 export interface MeasureInfo {
@@ -46,7 +44,7 @@ export interface UnitLong extends BaseUnit, StratUnit {
   outcrop: string;
   pbdb_collections: number;
   pbdb_occurrences: number;
-  lith?: Lithology[];
+  lith?: UnitLithology[];
   environ?: Environment[];
   econ?: any[];
   measure?: MeasureInfo[];

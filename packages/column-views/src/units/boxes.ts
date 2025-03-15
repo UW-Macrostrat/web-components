@@ -57,6 +57,7 @@ export interface LabeledUnitProps
   label: string;
   onLabelUpdated?(label: string, shown: boolean);
   halfWidth?: boolean;
+  showLabel?: boolean;
 }
 
 function useUnitRect(
@@ -180,8 +181,14 @@ function useUnitSelectionManager(
 }
 
 function LabeledUnit(props: LabeledUnitProps) {
-  const { division, label, onLabelUpdated, widthFraction, ...baseBounds } =
-    props;
+  const {
+    division,
+    label,
+    onLabelUpdated,
+    widthFraction,
+    showLabel = true,
+    ...baseBounds
+  } = props;
 
   const { axisType } = useColumn();
   const bounds = {
@@ -190,7 +197,7 @@ function LabeledUnit(props: LabeledUnitProps) {
   };
   const { width, height } = bounds;
   return h(Unit, { className: "labeled-unit", division, ...bounds }, [
-    h(
+    h.if(showLabel)(
       ForeignObject,
       { ...bounds, className: "unit-label-container" },
       h(SizeAwareLabel, {
