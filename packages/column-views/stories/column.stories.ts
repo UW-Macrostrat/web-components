@@ -204,7 +204,7 @@ function ColoredUnitComponent(props) {
 export const WithColoredUnits: Story = {
   args: {
     id: 483,
-    showLabelColumn: true,
+    showLabelColumn: false,
     width: 500,
     columnWidth: 500,
     unitComponent: ColoredUnitComponent,

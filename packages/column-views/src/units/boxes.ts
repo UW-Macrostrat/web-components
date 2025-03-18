@@ -129,22 +129,31 @@ function Unit(props: UnitProps) {
 
   const [selected, onClick] = useUnitSelectionManager(ref, d);
 
-  return h("g.unit", { className }, [
-    h.if(backgroundColor != null)("rect.background", {
-      ...bounds,
-      fill: backgroundColor,
-    }),
-    //maskElement,
-    h("rect.unit", {
-      ref,
-      ...bounds,
-      fill: _fill,
-      //mask,
-      onClick,
-    }),
-    h.if(selected)("rect.selection-overlay", bounds),
-    children,
-  ]);
+  return h(
+    "g.unit",
+    {
+      className,
+      style: {
+        "--column-unit-background-color": backgroundColor,
+      },
+    },
+    [
+      h.if(backgroundColor != null)("rect.background", {
+        ...bounds,
+        fill: backgroundColor,
+      }),
+      //maskElement,
+      h("rect.unit", {
+        ref,
+        ...bounds,
+        fill: _fill,
+        //mask,
+        onClick,
+      }),
+      h.if(selected)("rect.selection-overlay", bounds),
+      children,
+    ]
+  );
 }
 
 function useUnitSelectionManager(

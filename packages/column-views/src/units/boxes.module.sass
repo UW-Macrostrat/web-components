@@ -1,3 +1,14 @@
 .unit-label-container
   pointer-events: none
 
+.labeled-unit :global(.unit-overlay)
+  font-size: 10px
+  font-style: italic
+  display: flex
+  align-items: center
+  justify-content: center
+  --column-unit-background-internal: var(--column-unit-background-color, var(--column-background-color))
+
+  :global(.unit-label)
+    display: block
+    text-shadow: 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal), 0px 0px 4px var(--column-unit-background-internal)
