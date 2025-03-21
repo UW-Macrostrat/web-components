@@ -20,5 +20,8 @@
   },
   "devDependencies": {
     "parcel": "^2.13.3"
+  },
+  "dependencies": {
+    "@types/geojson": "^7946.0.16"
   }
 }

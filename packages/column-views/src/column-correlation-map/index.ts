@@ -8,12 +8,15 @@ import {
 import { LngLatBounds } from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection, LineString } from "geojson";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 import { useBasicMapStyle } from "@macrostrat/map-interface";
 //import { useCorrelationDiagramStore } from "./state";
 
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
+import { useCorrelationMapStore } from "./state";
+import { useAsyncEffect } from "@macrostrat/ui-components";
+import { fetchAllColumns } from "@macrostrat/column-views";
 
 export function InsetMap({
   controls,
@@ -51,8 +54,26 @@ export function InsetMap({
   ]);
 }
 
+export function ColumnCorrelationMap(props) {
+  const focusedLine = useCorrelationMapStore((state) => state.focusedLine);
+  const columns = useCorrelationMapStore((state) => state.columns);
+  const startup = useCorrelationMapStore((state) => state.startup);
+
+  useAsyncEffect(async () => {
+    const columns = await fetchAllColumns("https://macrostrat.org/api/v2");
+    await startup({ columns, focusedLine: null });
+  }, []);
+
+  return h(InsetMap, props, [
+    h(MapClickHandler),
+    h(SectionLine, { focusedLine }),
+    h(ColumnsLayer, { columns }),
+    h(SelectedColumnsLayer),
+  ]);
+}
+
 function MapClickHandler() {
-  const onClickMap = useCorrelationDiagramStore((state) => state.onClickMap);
+  const onClickMap = useCorrelationMapStore((state) => state.onClickMap);
 
   useMapClickHandler(
     (e) => {
@@ -66,7 +87,7 @@ function MapClickHandler() {
 }
 
 function SelectedColumnsLayer({ columns, focusedLine }) {
-  const focusedColumns = useCorrelationDiagramStore(
+  const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns
   );
   useMapStyleOperator(
