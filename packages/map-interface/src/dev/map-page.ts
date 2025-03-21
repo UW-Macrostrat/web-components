@@ -7,7 +7,7 @@ import { useCallback, useState, useEffect } from "react";
 import { buildInspectorStyle } from "./xray";
 import { MapAreaContainer, PanelCard } from "../container";
 import { FloatingNavbar, MapLoadingButton } from "../context-panel";
-import { MapMarker } from "../helpers";
+import { MapMarker, useBasicMapStyle } from "../helpers";
 import { LocationPanel } from "../location-panel";
 import { MapView } from "../map-view";
 import styles from "./main.module.sass";
@@ -67,15 +67,7 @@ export function MapInspectorV2({
     mapboxgl.accessToken = mapboxToken;
   }
 
-  if (styleType == "macrostrat") {
-    style ??= isEnabled
-      ? "mapbox://styles/jczaplewski/cl5uoqzzq003614o6url9ou9z?optimize=true"
-      : "mapbox://styles/jczaplewski/clatdbkw4002q14lov8zx0bm0?optimize=true";
-  } else {
-    style ??= isEnabled
-      ? "mapbox://styles/mapbox/dark-v10"
-      : "mapbox://styles/mapbox/light-v10";
-  }
+  style ??= useBasicMapStyle({ styleType });
 
   const [isOpen, setOpen] = useState(false);
 

@@ -10,7 +10,7 @@ import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection, LineString } from "geojson";
 import { useMemo } from "react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
-import { useBasicMapStyle } from "@macrostrat/mapbox-react";
+import { useBasicMapStyle } from "@macrostrat/map-interface";
 //import { useCorrelationDiagramStore } from "./state";
 
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
@@ -37,6 +37,7 @@ export function InsetMap({
         {
           style: _style,
           accessToken,
+          standalone: true,
         },
         [
           //h(MapClickHandler),

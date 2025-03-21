@@ -14,7 +14,7 @@ export default {
 
 export function CrossSectionCreatorMap() {
   return h(InsetMap, {
-    style: { width: "100%", height: "400px" },
+    style: { width: "800px", height: "600px" },
     accessToken: mapboxToken,
   });
 }

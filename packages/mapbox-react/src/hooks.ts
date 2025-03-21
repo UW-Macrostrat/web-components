@@ -82,11 +82,3 @@ export function useMapClickHandler(
     [clickFn]
   );
 }
-
-export function useBasicMapStyle() {
-  /** Return a basic map style URL */
-  const dark = useInDarkMode();
-  return dark
-    ? "mapbox://styles/mapbox/dark-v10"
-    : "mapbox://styles/mapbox/light-v10";
-}

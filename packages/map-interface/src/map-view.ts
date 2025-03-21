@@ -49,6 +49,9 @@ export interface MapViewProps extends MapboxCoreOptions {
   onMapLoaded?: (map: mapboxgl.Map) => void;
   onStyleLoaded?: (map: mapboxgl.Map) => void;
   onMapMoved?: (mapPosition: MapPosition, map: mapboxgl.Map) => void;
+  /** This map sets its own viewport, rather than being positioned by a parent.
+   * This is a hack to ensure that the map can overflow its "safe area" when false */
+  standalone?: boolean;
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {
@@ -104,6 +107,7 @@ export function MapView(props: MapViewProps) {
     onMapLoaded = null,
     onStyleLoaded = null,
     onMapMoved = null,
+    standalone = false,
     ...rest
   } = props;
   if (enableTerrain) {
@@ -202,17 +206,29 @@ export function MapView(props: MapViewProps) {
     `${_projection}-projection`
   );
 
-  return h("div.map-view-container.main-view", { ref: parentRef }, [
-    h("div.mapbox-map#map", { ref, className }),
-    h(MapLoadingReporter, {
-      ignoredSources: ["elevationMarker", "crossSectionEndpoints"],
-    }),
-    h(MapMovedReporter, { onMapMoved }),
-    h(MapResizeManager, { containerRef: ref }),
-    h(MapPaddingManager, { containerRef: ref, parentRef, infoMarkerPosition }),
-    h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
-    children,
-  ]);
+  const parentClassName = classNames({
+    standalone,
+  });
+
+  return h(
+    "div.map-view-container.main-view",
+    { ref: parentRef, className: parentClassName },
+    [
+      h("div.mapbox-map#map", { ref, className }),
+      h(MapLoadingReporter, {
+        ignoredSources: ["elevationMarker", "crossSectionEndpoints"],
+      }),
+      h(MapMovedReporter, { onMapMoved }),
+      h(MapResizeManager, { containerRef: ref }),
+      h(MapPaddingManager, {
+        containerRef: ref,
+        parentRef,
+        infoMarkerPosition,
+      }),
+      h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
+      children,
+    ]
+  );
 }
 
 export function MapTerrainManager({

@@ -61,6 +61,7 @@
   & > *
     flex: 1
 
+
 .map-control-stack
   display: flex
   flex-direction: column
@@ -89,6 +90,9 @@
   flex-grow: 1
   position: relative
   overflow: hidden
+  &.standalone
+    height: 100%
+    width: 100%
 
 .mapbox-map
   position: absolute
@@ -376,7 +380,8 @@
   /* Make map fill page rather than containing div,
    by unsetting map position */
   // We should move this to another file.
-  .map-view-container
+
+  .map-view-container:not(.standalone)
     position: unset
 
 
@@ -439,11 +444,6 @@
 
     .context-stack .spacer
       min-height: 1em
-
-  /* Make map fill page rather than containing div,
-   by unsetting map position */
-  .map-view-container
-    position: unset
 
 /** CSS Transitions **/
 
