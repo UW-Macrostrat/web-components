@@ -26,6 +26,6 @@ export function getMixedUnitColor(unit: UnitLong, lithMap, inDarkMode = false) {
   if (inDarkMode) {
     return baseColor.set("hsl.l", 0.2).hex();
   } else {
-    return baseColor.set("hsl.s", 0.7).set("hsl.l", 0.9).hex();
+    return baseColor.set("hsl.l", 0.9).hex();
   }
 }
