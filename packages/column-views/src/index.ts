@@ -6,3 +6,4 @@ export * from "./helpers";
 export * from "./map";
 export * from "./column";
 export * from "./unit-details";
+export * from "./column-correlation-map";

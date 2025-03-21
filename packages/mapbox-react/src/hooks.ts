@@ -3,6 +3,7 @@ import mapboxgl from "mapbox-gl";
 import { toggleMapLabelVisibility } from "@macrostrat/mapbox-utils";
 import { useMapRef, useMapStatus } from "./context";
 import { useCallback } from "react";
+import { useInDarkMode } from "@macrostrat/ui-components";
 
 /** A newer and more flexible version of useMapConditionalStyle */
 export function useMapStyleOperator(
@@ -80,4 +81,12 @@ export function useMapClickHandler(
     },
     [clickFn]
   );
+}
+
+export function useBasicMapStyle() {
+  /** Return a basic map style URL */
+  const dark = useInDarkMode();
+  return dark
+    ? "mapbox://styles/mapbox/dark-v10"
+    : "mapbox://styles/mapbox/light-v10";
 }
