@@ -21,6 +21,7 @@ import { resolveID, scalePattern } from "./resolvers";
 import { useSelectedUnit, useUnitSelectionDispatch } from "./selection";
 import { IUnit, transformAxisType } from "./types";
 import styles from "./boxes.module.sass";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -110,20 +111,10 @@ function Unit(props: UnitProps) {
   };
   const patternID = resolveID(d);
   let _fill = fill ?? useGeologicPattern(patternID, defaultFill);
-  // Allow us to select this unit if in the proper context
 
-  // Handle masking of patterns
-  // let mask = null;
-  // let maskElement = null;
-  //
-  // if (patternColor != null) {
-  //   maskElement = h("mask", { id: `${patternID}-mask` }, [
-  //     h("rect", { ...bounds, fill: _fill }),
-  //   ]);
-  //
-  //   _fill = patternColor;
-  //   mask = `url(#${patternID}-mask)`;
-  // }
+  const hasBackgroundColor = backgroundColor != null;
+
+  const _className = classNames(className, { colored: hasBackgroundColor });
 
   const ref = useRef<HTMLElement>();
 
@@ -132,13 +123,13 @@ function Unit(props: UnitProps) {
   return h(
     "g.unit",
     {
-      className,
+      className: _className,
       style: {
         "--column-unit-background-color": backgroundColor,
       },
     },
     [
-      h.if(backgroundColor != null)("rect.background", {
+      h.if(hasBackgroundColor)("rect.background", {
         ...bounds,
         fill: backgroundColor,
       }),
