@@ -21,6 +21,7 @@ import { resolveID, scalePattern } from "./resolvers";
 import { useSelectedUnit, useUnitSelectionDispatch } from "./selection";
 import { IUnit, transformAxisType } from "./types";
 import styles from "./boxes.module.sass";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -44,6 +45,9 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   widthFraction?: number;
   children?: ReactNode;
   className?: string;
+  fill?: string;
+  backgroundColor?: string;
+  patternColor?: string;
 }
 
 export interface LabeledUnitProps
@@ -54,6 +58,7 @@ export interface LabeledUnitProps
   label: string;
   onLabelUpdated?(label: string, shown: boolean);
   halfWidth?: boolean;
+  showLabel?: boolean;
 }
 
 function useUnitRect(
@@ -90,9 +95,12 @@ function Unit(props: UnitProps) {
   const {
     division: d,
     children,
+    fill,
     defaultFill = "transparent",
     className,
     widthFraction = 1,
+    backgroundColor,
+    patternColor,
     ...baseBounds
   } = props;
 
@@ -102,23 +110,41 @@ function Unit(props: UnitProps) {
     ...baseBounds,
   };
   const patternID = resolveID(d);
-  const fill = useGeologicPattern(patternID, defaultFill);
-  // Allow us to select this unit if in the proper context
+  let _fill = fill ?? useGeologicPattern(patternID, defaultFill);
+
+  const hasBackgroundColor = backgroundColor != null;
+
+  const _className = classNames(className, { colored: hasBackgroundColor });
 
   const ref = useRef<HTMLElement>();
 
   const [selected, onClick] = useUnitSelectionManager(ref, d);
 
-  return h("g.unit", { className }, [
-    h("rect.unit", {
-      ref,
-      ...bounds,
-      fill,
-      onClick,
-    }),
-    h.if(selected)("rect.selection-overlay", bounds),
-    children,
-  ]);
+  return h(
+    "g.unit",
+    {
+      className: _className,
+      style: {
+        "--column-unit-background-color": backgroundColor,
+      },
+    },
+    [
+      h.if(hasBackgroundColor)("rect.background", {
+        ...bounds,
+        fill: backgroundColor,
+      }),
+      //maskElement,
+      h("rect.unit", {
+        ref,
+        ...bounds,
+        fill: _fill,
+        //mask,
+        onClick,
+      }),
+      h.if(selected)("rect.selection-overlay", bounds),
+      children,
+    ]
+  );
 }
 
 function useUnitSelectionManager(
@@ -155,8 +181,14 @@ function useUnitSelectionManager(
 }
 
 function LabeledUnit(props: LabeledUnitProps) {
-  const { division, label, onLabelUpdated, widthFraction, ...baseBounds } =
-    props;
+  const {
+    division,
+    label,
+    onLabelUpdated,
+    widthFraction,
+    showLabel = true,
+    ...baseBounds
+  } = props;
 
   const { axisType } = useColumn();
   const bounds = {
@@ -165,7 +197,7 @@ function LabeledUnit(props: LabeledUnitProps) {
   };
   const { width, height } = bounds;
   return h(Unit, { className: "labeled-unit", division, ...bounds }, [
-    h(
+    h.if(showLabel)(
       ForeignObject,
       { ...bounds, className: "unit-label-container" },
       h(SizeAwareLabel, {

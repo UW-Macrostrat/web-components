@@ -1,7 +1,7 @@
 .column-container, body:global(.light-mode) .column-container
   --column-background-color: var(--background-color, #fff)
-  --column-stroke-color: var(--text-color, #000)
-  --column-text-color: var(--text-color, #000)
+  --column-stroke-color: var(--text-emphasized-color, #000)
+  --column-text-color: var(--text-emphasized-color, #000)
 
 /* We have to duplicate the dark mode styles here
   because we want to set them either if the preferred
@@ -11,27 +11,27 @@
 @media (prefers-color-scheme: dark)
   body:not(:global(.light-mode)) .column-container
     --column-background-color: var(--background-color, #000)
-    --column-stroke-color: var(--text-color, #fff)
-    --column-text-color: var(--text-color, #fff)
+    --column-stroke-color: var(--text-emphasized-color, #fff)
+    --column-text-color: var(--text-emphasized-color, #fff)
     color-scheme: dark
     color: var(--column-text-color)
     :global
       .timescale
         color: #000
       g.inner pattern image
-        filter: invert(80%)
+        filter: invert(100%)
 
 body:global(.dark-mode) .column-container
   --column-background-color: var(--background-color, #000)
-  --column-stroke-color: var(--text-color, #fff)
-  --column-text-color: var(--text-color, #fff)
+  --column-stroke-color: var(--text-emphasized-color, #fff)
+  --column-text-color: var(--text-emphasized-color, #fff)
   color-scheme: dark
   color: var(--column-text-color)
   :global
     .timescale
       color: #000
     g.inner pattern image
-      filter: invert(80%)
+      filter: invert(100%)
 
 .column-container :global
   .column
@@ -81,17 +81,6 @@ body:global(.dark-mode) .column-container
 
 .column-container :global .frame rect
   fill: transparent
-
-.column-container :global .labeled-unit .unit-overlay
-  font-size: 10px
-  font-style: italic
-  display: flex
-  align-items: center
-  justify-content: center
-
-.column-container :global .labeled-unit .unit-overlay .unit-label
-  display: block
-  text-shadow: 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color), 0px 0px 4px var(--column-background-color)
 
 .column-container :global .default-buttons
   width: 100%

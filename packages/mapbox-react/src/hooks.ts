@@ -14,7 +14,8 @@ export function useMapStyleOperator(
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
-    if (isStyleLoaded) {
+    // TODO: figure out what is wrong with the isStyleLoaded state
+    if (isStyleLoaded && map.isStyleLoaded()) {
       operator(map);
     }
     const fn = () => operator(map);

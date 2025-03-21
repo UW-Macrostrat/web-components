@@ -44,6 +44,7 @@ export function UnitDetailsPanel({
           icon: "code",
           small: true,
           minimal: true,
+          key: "json-view-toggle",
           className: "json-view-toggle",
           onClick(evt) {
             setShowJSON(!showJSON);
@@ -150,7 +151,7 @@ function UnitIDList({ units }) {
     u1.map((unit) => {
       return h(
         tag,
-        { className: "unit-id", onClick: onClickHandler?.(unit) },
+        { className: "unit-id", onClick: onClickHandler?.(unit), key: unit.id },
         unit
       );
     }),

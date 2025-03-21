@@ -65,7 +65,7 @@ export function UnitSelectionPopover(props) {
           height: position?.height,
         },
       },
-      h(UnitDetailsPanel, { unit })
+      h(UnitDetailsPanel, { unit, showLithologyProportions: true })
     )
   );
 }

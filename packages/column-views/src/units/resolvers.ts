@@ -41,6 +41,7 @@ const symbolIndex = {
   granodiorite: 725,
   monzonite: 723,
   argillite: 624,
+  diamictite: 681,
 };
 
 const resolveID = (d: any) => {
