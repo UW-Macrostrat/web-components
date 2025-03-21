@@ -1,11 +1,10 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react";
-import chroma from "chroma-js";
 import {
-  DarkModeProvider,
   JSONView,
   useAPIResult,
+  useInDarkMode,
 } from "@macrostrat/ui-components";
 
 import {
@@ -195,9 +194,10 @@ export const MarysvilleUtah: Story = {
 
 function ColoredUnitComponent(props) {
   const lithMap = useLithologies();
+  const inDarkMode = useInDarkMode();
   return h(UnitComponent, {
     ...props,
-    backgroundColor: getMixedUnitColor(props.division, lithMap),
+    backgroundColor: getMixedUnitColor(props.division, lithMap, inDarkMode),
   });
 }
 
