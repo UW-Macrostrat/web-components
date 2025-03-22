@@ -8,9 +8,9 @@ import { ColumnCorrelationMap, InsetMap } from "../src";
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Column views/Cross section creation map",
-  component: InsetMap,
+  component: ColumnCorrelationMap,
   description: "Cross section creation map",
-} as Meta<typeof InsetMap>;
+} as Meta<typeof ColumnCorrelationMap>;
 
 export function BasicInsetMap() {
   return h(InsetMap, {
@@ -19,10 +19,35 @@ export function BasicInsetMap() {
   });
 }
 
-export function ColumnCorrelationMapTest() {
+export const ColumnCorrelation = {
+  args: {
+    style: { width: "800px", height: "600px" },
+    accessToken: mapboxToken,
+    padding: 100,
+  },
+};
+
+export function withPreloadedCrossSection() {
   return h(ColumnCorrelationMap, {
     style: { width: "800px", height: "600px" },
     accessToken: mapboxToken,
     padding: 100,
+    focusedLine: {
+      type: "LineString",
+      coordinates: [
+        [-122.399, 37.791],
+        [-100, 45],
+      ],
+    },
   });
 }
+
+// export function ColumnCorrelationMapTest() {
+//   return h(ColumnCorrelationMap, {
+//     style: { width: "800px", height: "600px" },
+//     accessToken: mapboxToken,
+//     padding: 100,
+//   });
+// }
+//
+// export function

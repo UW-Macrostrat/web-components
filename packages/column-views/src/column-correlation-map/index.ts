@@ -54,7 +54,7 @@ export function ColumnCorrelationMap(props) {
 
   useAsyncEffect(async () => {
     const columns = await fetchAllColumns("https://macrostrat.org/api/v2");
-    await startup({ columns, focusedLine: null });
+    await startup({ columns, focusedLine: props.focusedLine });
   }, []);
 
   return h(InsetMap, { ...rest, boxZoom: false, dragRotate: false }, [
