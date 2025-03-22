@@ -1,5 +1,5 @@
 import { LineString, Point } from "geojson";
-import { create } from "zustand";
+import { create, StoreApi, useStore } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
 // Turf intersection
 import { lineIntersect } from "@turf/line-intersect";
@@ -7,6 +7,11 @@ import distance from "@turf/distance";
 import { nearestPointOnLine } from "@turf/nearest-point-on-line";
 import { centroid } from "@turf/centroid";
 import mapboxgl from "mapbox-gl";
+import { useRef, createContext, useState, useContext, ReactNode } from "react";
+import h from "@macrostrat/hyper";
+import { useAsyncEffect } from "@macrostrat/ui-components";
+import { fetchAllColumns } from "@macrostrat/column-views";
+import { devtools } from "zustand/middleware";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
@@ -20,64 +25,87 @@ export interface CorrelationMapState extends CorrelationMapInput {
 }
 
 export interface CorrelationMapProps extends CorrelationMapInput {
-  onSelectColumns: (
+  columns: ColumnGeoJSONRecord[] | null;
+  children: ReactNode;
+  apiBaseURL?: string;
+  onSelectColumns?: (
     columns: FocusedColumnGeoJSONRecord[],
     line: LineString | null
   ) => void;
 }
 
-/** Store management with Zustand.
- * This is a newer and somewhat more subtle approach than the Redux store
- * used in the mapping application.
- * */
-export const useCorrelationMapStore = create<CorrelationMapState>(
-  (set, get) => {
-    return {
-      focusedLine: null,
-      columns: [],
-      columnUnits: [],
-      focusedColumns: [],
-      onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
-        const state = get();
+const CorrelationStoreContext =
+  createContext<StoreApi<CorrelationMapState> | null>(null);
 
-        // Check if shift key is pressed
-        const shiftKeyPressed = event.originalEvent.shiftKey;
+export function ColumnCorrelationProvider({
+  children,
+  columns,
+  apiBaseURL = "https://macrostrat.org/api/v2",
+  focusedLine,
+}: CorrelationMapProps) {
+  const [store] = useState(() => {
+    return create<CorrelationMapState>((set, get) => {
+      return {
+        focusedLine,
+        columns,
+        focusedColumns: [],
+        onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
+          const state = get();
+          // Check if shift key is pressed
+          const shiftKeyPressed = event.originalEvent.shiftKey;
 
-        console.log("Shift key pressed: ", shiftKeyPressed);
+          if (
+            state.focusedLine == null ||
+            (state.focusedLine.coordinates.length >= 2 && !shiftKeyPressed)
+          ) {
+            return set({
+              focusedLine: {
+                type: "LineString",
+                coordinates: [point.coordinates],
+              },
+              focusedColumns: [],
+            });
+          }
+          const focusedLine: LineString = {
+            type: "LineString",
+            coordinates: [...state.focusedLine.coordinates, point.coordinates],
+          };
 
-        if (
-          state.focusedLine == null ||
-          (state.focusedLine.coordinates.length >= 2 && !shiftKeyPressed)
-        ) {
-          return set({
-            focusedLine: {
-              type: "LineString",
-              coordinates: [point.coordinates],
-            },
-            focusedColumns: [],
+          const columns = buildCorrelationColumns(state.columns, focusedLine);
+
+          set({
+            focusedLine,
+            focusedColumns: columns,
           });
-        }
-        const focusedLine: LineString = {
-          type: "LineString",
-          coordinates: [...state.focusedLine.coordinates, point.coordinates],
-        };
+        },
+        async startup({ columns = [], focusedLine = null }) {
+          set({ columns, focusedLine });
+          const focusedColumns = buildCorrelationColumns(columns, focusedLine);
+          set({ focusedColumns });
+        },
+      };
+    });
+  });
 
-        const columns = buildCorrelationColumns(state.columns, focusedLine);
+  // Set up the store
+  useAsyncEffect(async () => {
+    let _columns = columns ?? (await fetchAllColumns(apiBaseURL));
+    const startup = store.getState().startup;
+    await startup({ columns: _columns, focusedLine });
+  }, []);
 
-        set({
-          focusedLine,
-          focusedColumns: columns,
-        });
-      },
-      async startup({ columns = [], focusedLine = null }) {
-        console.log("Booting up map store", columns, focusedLine);
-        set({ columns, focusedLine });
-        const focusedColumns = buildCorrelationColumns(columns, focusedLine);
-        set({ focusedColumns });
-      },
-    };
+  return h(CorrelationStoreContext.Provider, { value: store }, children);
+}
+
+export function useCorrelationMapStore(
+  selector: (state: CorrelationMapState) => any
+) {
+  const storeApi = useContext(CorrelationStoreContext);
+  if (storeApi == null) {
+    throw new Error("Missing CorrelationMapProvider");
   }
-);
+  return useStore(storeApi, selector);
+}
 
 function buildCorrelationColumns(
   columns: ColumnGeoJSONRecord[],

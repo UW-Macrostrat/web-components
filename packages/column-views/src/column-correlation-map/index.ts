@@ -1,4 +1,4 @@
-import { MapView } from "@macrostrat/map-interface";
+import { MapView, MapViewProps } from "@macrostrat/map-interface";
 import {
   MapboxMapProvider,
   useMapClickHandler,
@@ -8,14 +8,16 @@ import {
 import { LngLatBounds } from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection, LineString } from "geojson";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 import { useBasicMapStyle } from "@macrostrat/map-interface";
 
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
-import { useCorrelationMapStore } from "./state";
-import { useAsyncEffect } from "@macrostrat/ui-components";
-import { fetchAllColumns } from "@macrostrat/column-views";
+import {
+  ColumnCorrelationProvider,
+  CorrelationMapProps,
+  useCorrelationMapStore,
+} from "./state";
 
 export function InsetMap({
   controls,
@@ -45,22 +47,36 @@ export function InsetMap({
   ]);
 }
 
-export function ColumnCorrelationMap(props) {
-  const focusedLine = useCorrelationMapStore((state) => state.focusedLine);
-  const columns = useCorrelationMapStore((state) => state.columns);
-  const startup = useCorrelationMapStore((state) => state.startup);
+interface CorrelationMapInnerProps extends MapViewProps {
+  padding?: number;
+  children?: ReactNode;
+  accessToken?: string;
+}
 
+export function ColumnCorrelationMap(
+  props: CorrelationMapProps & CorrelationMapInnerProps
+) {
+  const { focusedLine, columns, apiBaseURL, onSelectColumns, ...rest } = props;
+
+  return h(
+    ColumnCorrelationProvider,
+    {
+      focusedLine,
+      columns,
+      apiBaseURL,
+      onSelectColumns,
+    },
+    h(ColumnCorrelationMapInner, rest)
+  );
+}
+
+function ColumnCorrelationMapInner(props: CorrelationMapInnerProps) {
   const { padding = 50, ...rest } = props;
-
-  useAsyncEffect(async () => {
-    const columns = await fetchAllColumns("https://macrostrat.org/api/v2");
-    await startup({ columns, focusedLine: props.focusedLine });
-  }, []);
 
   return h(InsetMap, { ...rest, boxZoom: false, dragRotate: false }, [
     h(MapClickHandler),
-    h(SectionLine, { focusedLine, padding }),
-    h(ColumnsLayer, { columns }),
+    h(SectionLine, { padding }),
+    h(ColumnsLayer),
     h(SelectedColumnsLayer),
   ]);
 }
@@ -115,7 +131,9 @@ function SelectedColumnsLayer() {
   return null;
 }
 
-function ColumnsLayer({ columns, enabled = true }) {
+function ColumnsLayer({ enabled = true }) {
+  const columns = useCorrelationMapStore((state) => state.columns);
+
   useMapStyleOperator(
     (map) => {
       if (columns == null) {
@@ -192,13 +210,9 @@ function buildColumnLayers(sourceID: string) {
   ];
 }
 
-function SectionLine({
-  focusedLine,
-  padding,
-}: {
-  focusedLine: LineString;
-  padding: number;
-}) {
+function SectionLine({ padding }: { padding: number }) {
+  const focusedLine = useCorrelationMapStore((state) => state.focusedLine);
+
   // Setup focused line
   useMapStyleOperator(
     (map) => {
