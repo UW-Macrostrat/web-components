@@ -3,7 +3,6 @@ import mapboxgl from "mapbox-gl";
 import { toggleMapLabelVisibility } from "@macrostrat/mapbox-utils";
 import { useMapRef, useMapStatus } from "./context";
 import { useCallback } from "react";
-import { useInDarkMode } from "@macrostrat/ui-components";
 
 /** A newer and more flexible version of useMapConditionalStyle */
 export function useMapStyleOperator(
@@ -16,7 +15,7 @@ export function useMapStyleOperator(
     const map = mapRef.current;
     if (map == null) return;
     // TODO: figure out what is wrong with the isStyleLoaded state
-    if (isStyleLoaded && map.isStyleLoaded()) {
+    if (isStyleLoaded) {
       operator(map);
     }
     const fn = () => operator(map);

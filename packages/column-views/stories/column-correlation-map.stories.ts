@@ -23,5 +23,6 @@ export function ColumnCorrelationMapTest() {
   return h(ColumnCorrelationMap, {
     style: { width: "800px", height: "600px" },
     accessToken: mapboxToken,
+    padding: 100,
   });
 }

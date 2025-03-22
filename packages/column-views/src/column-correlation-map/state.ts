@@ -43,6 +43,8 @@ export const useCorrelationMapStore = create<CorrelationMapState>(
         // Check if shift key is pressed
         const shiftKeyPressed = event.originalEvent.shiftKey;
 
+        console.log("Shift key pressed: ", shiftKeyPressed);
+
         if (
           state.focusedLine == null ||
           (state.focusedLine.coordinates.length >= 2 && !shiftKeyPressed)

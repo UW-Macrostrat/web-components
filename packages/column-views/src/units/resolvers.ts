@@ -20,6 +20,7 @@ const symbolIndex = {
   quartzite: 702,
   halite: 668,
   basalt: 717,
+  diabase: 717,
   rhyolite: 722,
   andesite: 723,
   till: 681,

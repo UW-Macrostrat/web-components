@@ -8,10 +8,9 @@ import {
 import { LngLatBounds } from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection, LineString } from "geojson";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 import { useBasicMapStyle } from "@macrostrat/map-interface";
-//import { useCorrelationDiagramStore } from "./state";
 
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
 import { useCorrelationMapStore } from "./state";
@@ -25,11 +24,8 @@ export function InsetMap({
   style,
   mapStyle,
   accessToken,
-  padding = 20,
+  ...rest
 }: any) {
-  //const focusedLine = useCorrelationDiagramStore((state) => state.focusedLine);
-  //const columns = useCorrelationDiagramStore((state) => state.columns);
-
   const _style = mapStyle ?? useBasicMapStyle();
 
   return h("div.inset-map", { className, style }, [
@@ -41,14 +37,9 @@ export function InsetMap({
           style: _style,
           accessToken,
           standalone: true,
+          ...rest,
         },
-        [
-          //h(MapClickHandler),
-          // h(SectionLine, { focusedLine, padding }),
-          // h(ColumnsLayer, { columns }),
-          //h(SelectedColumnsLayer),
-          children,
-        ]
+        children
       ),
     ]),
   ]);
@@ -59,14 +50,16 @@ export function ColumnCorrelationMap(props) {
   const columns = useCorrelationMapStore((state) => state.columns);
   const startup = useCorrelationMapStore((state) => state.startup);
 
+  const { padding = 50, ...rest } = props;
+
   useAsyncEffect(async () => {
     const columns = await fetchAllColumns("https://macrostrat.org/api/v2");
     await startup({ columns, focusedLine: null });
   }, []);
 
-  return h(InsetMap, props, [
+  return h(InsetMap, { ...rest, boxZoom: false, dragRotate: false }, [
     h(MapClickHandler),
-    h(SectionLine, { focusedLine }),
+    h(SectionLine, { focusedLine, padding }),
     h(ColumnsLayer, { columns }),
     h(SelectedColumnsLayer),
   ]);
@@ -77,7 +70,6 @@ function MapClickHandler() {
 
   useMapClickHandler(
     (e) => {
-      console.log("Map click", e);
       onClickMap(e, { type: "Point", coordinates: e.lngLat.toArray() });
     },
     [onClickMap]
@@ -86,7 +78,7 @@ function MapClickHandler() {
   return null;
 }
 
-function SelectedColumnsLayer({ columns, focusedLine }) {
+function SelectedColumnsLayer() {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns
   );
@@ -136,7 +128,7 @@ function ColumnsLayer({ columns, enabled = true }) {
       const sourceID = "columns";
       setGeoJSON(map, sourceID, data);
 
-      const columnLayers = buildColumnLayers(sourceID);
+      const columnLayers: any[] = buildColumnLayers(sourceID);
       for (let layer of columnLayers) {
         if (map.getSource(layer.source) == null) {
           continue;
@@ -200,7 +192,13 @@ function buildColumnLayers(sourceID: string) {
   ];
 }
 
-function SectionLine({ focusedLine }: { focusedLine: LineString }) {
+function SectionLine({
+  focusedLine,
+  padding,
+}: {
+  focusedLine: LineString;
+  padding: number;
+}) {
   // Setup focused line
   useMapStyleOperator(
     (map) => {
@@ -258,7 +256,7 @@ function SectionLine({ focusedLine }: { focusedLine: LineString }) {
     return bounds;
   }, [focusedLine]);
 
-  useMapEaseTo({ bounds, padding: 50, trackResize: true });
+  useMapEaseTo({ bounds, padding, trackResize: true });
 
   return null;
 }
