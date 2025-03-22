@@ -7,21 +7,25 @@ import distance from "@turf/distance";
 import { nearestPointOnLine } from "@turf/nearest-point-on-line";
 import { centroid } from "@turf/centroid";
 import mapboxgl from "mapbox-gl";
-import { useRef, createContext, useState, useContext, ReactNode } from "react";
+import {
+  createContext,
+  useState,
+  useContext,
+  ReactNode,
+  useEffect,
+} from "react";
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { fetchAllColumns } from "@macrostrat/column-views";
-import { devtools } from "zustand/middleware";
+import { createComputed } from "zustand-computed";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
   focusedLine: LineString | null;
 }
 
-export interface CorrelationMapState extends CorrelationMapInput {
-  focusedColumns: FocusedColumnGeoJSONRecord[];
+export interface CorrelationMapStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
-  startup: (startup: CorrelationMapInput) => Promise<void>;
 }
 
 export interface CorrelationMapProps extends CorrelationMapInput {
@@ -35,70 +39,72 @@ export interface CorrelationMapProps extends CorrelationMapInput {
 }
 
 const CorrelationStoreContext =
-  createContext<StoreApi<CorrelationMapState> | null>(null);
+  createContext<StoreApi<CorrelationMapStore> | null>(null);
+
+type ComputedStore = {
+  focusedColumns: FocusedColumnGeoJSONRecord[];
+};
+
+/** A computed store that will automatically update when the state changes */
+const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
+  return {
+    // We compute the focused columns based on columns and focusedLine
+    focusedColumns: buildCorrelationColumns(state.columns, state.focusedLine),
+  };
+}) as any;
 
 export function ColumnCorrelationProvider({
   children,
   columns,
   apiBaseURL = "https://macrostrat.org/api/v2",
   focusedLine,
+  onSelectColumns,
 }: CorrelationMapProps) {
   const [store] = useState(() => {
-    return create<CorrelationMapState>((set, get) => {
-      return {
-        focusedLine,
-        columns,
-        focusedColumns: [],
-        onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
-          const state = get();
-          // Check if shift key is pressed
-          const shiftKeyPressed = event.originalEvent.shiftKey;
+    return create<CorrelationMapStore & ComputedStore>(
+      computed((set, get): CorrelationMapStore => {
+        return {
+          focusedLine,
+          columns,
+          onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
+            const state = get();
+            // Check if shift key is pressed
+            const shiftKeyPressed = event.originalEvent.shiftKey;
+            let existingCoords = state.focusedLine?.coordinates ?? [];
 
-          if (
-            state.focusedLine == null ||
-            (state.focusedLine.coordinates.length >= 2 && !shiftKeyPressed)
-          ) {
-            return set({
+            if (state.focusedLine.coordinates.length >= 2 && !shiftKeyPressed) {
+              // Reset the line to zero length
+              existingCoords = [];
+            }
+            set({
               focusedLine: {
                 type: "LineString",
-                coordinates: [point.coordinates],
+                coordinates: [...existingCoords, point.coordinates],
               },
-              focusedColumns: [],
             });
-          }
-          const focusedLine: LineString = {
-            type: "LineString",
-            coordinates: [...state.focusedLine.coordinates, point.coordinates],
-          };
-
-          const columns = buildCorrelationColumns(state.columns, focusedLine);
-
-          set({
-            focusedLine,
-            focusedColumns: columns,
-          });
-        },
-        async startup({ columns = [], focusedLine = null }) {
-          set({ columns, focusedLine });
-          const focusedColumns = buildCorrelationColumns(columns, focusedLine);
-          set({ focusedColumns });
-        },
-      };
-    });
+          },
+        };
+      })
+    );
   });
 
   // Set up the store
   useAsyncEffect(async () => {
     let _columns = columns ?? (await fetchAllColumns(apiBaseURL));
-    const startup = store.getState().startup;
-    await startup({ columns: _columns, focusedLine });
+    store.setState({ columns: _columns, focusedLine });
   }, []);
+
+  // Kind of an awkward way to do this but we need to allow the selector to run
+  const focusedColumns = useStore(store, (state) => state.focusedColumns);
+  useEffect(() => {
+    onSelectColumns?.(focusedColumns, focusedLine);
+  }, [focusedColumns]);
 
   return h(CorrelationStoreContext.Provider, { value: store }, children);
 }
 
 export function useCorrelationMapStore(
-  selector: (state: CorrelationMapState) => any
+  selector: (state: CorrelationMapStore) => any
 ) {
   const storeApi = useContext(CorrelationStoreContext);
   if (storeApi == null) {
@@ -111,8 +117,7 @@ function buildCorrelationColumns(
   columns: ColumnGeoJSONRecord[],
   line: LineString
 ): FocusedColumnGeoJSONRecord[] {
-  let features = [];
-  if (columns == null && line == null) {
+  if ((columns == null && line == null) || line.coordinates.length < 2) {
     return [];
   }
   return orderColumnsByDistance(
