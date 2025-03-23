@@ -56,14 +56,13 @@ export function setup3DTerrain(
   }
 }
 
-export function addTerrainToStyle(
+export function getTerrainLayerForStyle(
   style: Style,
   sourceName: string = null
-): Style {
+): Partial<Style> {
   /** Add required elements for terrain directly to a style object */
 
   const currentTerrainSource = getTerrainSourceID(style);
-  console.log("Current source", currentTerrainSource);
   const demSourceID = currentTerrainSource ?? sourceName ?? "mapbox-dem";
 
   let newStyle: Partial<Style> = {
@@ -84,9 +83,14 @@ export function addTerrainToStyle(
   if (!hasTerrain) {
     newStyle.terrain = { source: demSourceID, exaggeration: 1 };
   }
+  return newStyle;
+}
 
-  console.log(newStyle);
-
+export function addTerrainToStyle(
+  style: Style,
+  sourceName: string = null
+): Style {
+  const newStyle = getTerrainLayerForStyle(style, sourceName);
   return mergeStyles(style, newStyle);
 }
 

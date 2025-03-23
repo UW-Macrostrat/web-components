@@ -28,7 +28,7 @@ export interface CorrelationMapStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
 }
 
-export interface CorrelationMapProps extends CorrelationMapInput {
+export interface CorrelationProviderProps extends CorrelationMapInput {
   columns: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
   apiBaseURL?: string;
@@ -59,20 +59,21 @@ export function ColumnCorrelationProvider({
   apiBaseURL = "https://macrostrat.org/api/v2",
   focusedLine,
   onSelectColumns,
-}: CorrelationMapProps) {
+}: CorrelationProviderProps) {
   const [store] = useState(() => {
     return create<CorrelationMapStore & ComputedStore>(
       computed((set, get): CorrelationMapStore => {
         return {
           focusedLine,
-          columns,
+          columns: null,
           onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
+            console.log("Map clicked", point);
             const state = get();
             // Check if shift key is pressed
             const shiftKeyPressed = event.originalEvent.shiftKey;
             let existingCoords = state.focusedLine?.coordinates ?? [];
 
-            if (state.focusedLine.coordinates.length >= 2 && !shiftKeyPressed) {
+            if (existingCoords.length >= 2 && !shiftKeyPressed) {
               // Reset the line to zero length
               existingCoords = [];
             }
@@ -90,7 +91,9 @@ export function ColumnCorrelationProvider({
 
   // Set up the store
   useAsyncEffect(async () => {
+    console.log("Settng up columns", columns);
     let _columns = columns ?? (await fetchAllColumns(apiBaseURL));
+    console.log("Fetched columns", _columns);
     store.setState({ columns: _columns, focusedLine });
   }, []);
 
@@ -117,7 +120,7 @@ function buildCorrelationColumns(
   columns: ColumnGeoJSONRecord[],
   line: LineString
 ): FocusedColumnGeoJSONRecord[] {
-  if ((columns == null && line == null) || line.coordinates.length < 2) {
+  if (columns == null || line == null || line.coordinates.length < 2) {
     return [];
   }
   return orderColumnsByDistance(
