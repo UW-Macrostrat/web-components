@@ -4,13 +4,35 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 import { Meta } from "@storybook/react";
 import { ColumnCorrelationMap, InsetMap } from "../src";
+import {
+  ColumnCorrelationProvider,
+  CorrelationMapProps,
+  CorrelationProviderProps,
+} from "../src";
+
+export function ColumnCorrelationMapExt(
+  props: CorrelationMapProps & CorrelationProviderProps
+) {
+  const { focusedLine, columns, apiBaseURL, onSelectColumns, ...rest } = props;
+
+  return h(
+    ColumnCorrelationProvider,
+    {
+      focusedLine,
+      columns,
+      apiBaseURL,
+      onSelectColumns,
+    },
+    h(ColumnCorrelationMap, rest)
+  );
+}
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Column views/Cross section creation map",
-  component: ColumnCorrelationMap,
+  component: ColumnCorrelationMapExt,
   description: "Cross section creation map",
-} as Meta<typeof ColumnCorrelationMap>;
+} as Meta<typeof ColumnCorrelationMapExt>;
 
 export function BasicInsetMap() {
   return h(InsetMap, {
@@ -27,8 +49,8 @@ export const ColumnCorrelation = {
   },
 };
 
-export function withPreloadedCrossSection() {
-  return h(ColumnCorrelationMap, {
+export const withPreloadedCrossSection = {
+  args: {
     style: { width: "800px", height: "600px" },
     accessToken: mapboxToken,
     padding: 100,
@@ -39,8 +61,8 @@ export function withPreloadedCrossSection() {
         [-100, 45],
       ],
     },
-  });
-}
+  },
+};
 
 // export function ColumnCorrelationMapTest() {
 //   return h(ColumnCorrelationMap, {

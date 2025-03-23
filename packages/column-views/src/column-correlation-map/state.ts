@@ -28,7 +28,7 @@ export interface CorrelationMapStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
 }
 
-export interface CorrelationMapProps extends CorrelationMapInput {
+export interface CorrelationProviderProps extends CorrelationMapInput {
   columns: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
   apiBaseURL?: string;
@@ -59,7 +59,7 @@ export function ColumnCorrelationProvider({
   apiBaseURL = "https://macrostrat.org/api/v2",
   focusedLine,
   onSelectColumns,
-}: CorrelationMapProps) {
+}: CorrelationProviderProps) {
   const [store] = useState(() => {
     return create<CorrelationMapStore & ComputedStore>(
       computed((set, get): CorrelationMapStore => {

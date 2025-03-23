@@ -3,9 +3,7 @@ import {
   useMapRef,
   useMapDispatch,
   useMapPosition,
-  setup3DTerrain,
   use3DTerrain,
-  addTerrainToStyle,
   getTerrainLayerForStyle,
 } from "@macrostrat/mapbox-react";
 import {
@@ -18,7 +16,7 @@ import {
 } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./main.module.sass";
 import {
   MapLoadingReporter,
