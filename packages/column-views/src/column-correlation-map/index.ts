@@ -28,7 +28,9 @@ export function InsetMap({
   accessToken,
   ...rest
 }: any) {
-  const _style = mapStyle ?? useBasicMapStyle();
+  const _style = useMemo(() => {
+    return mapStyle ?? useBasicMapStyle();
+  }, [mapStyle]);
 
   return h("div.inset-map", { className, style }, [
     h(MapboxMapProvider, [
@@ -66,23 +68,25 @@ export function ColumnCorrelationMap(
       apiBaseURL,
       onSelectColumns,
     },
-    h(ColumnCorrelationMapInner, rest)
+    h(ColumnCorrelationMapCore, rest)
   );
 }
 
-function ColumnCorrelationMapInner(props: CorrelationMapInnerProps) {
-  const { padding = 50, ...rest } = props;
+function ColumnCorrelationMapCore(props: CorrelationMapInnerProps) {
+  const { padding = 50, children, ...rest } = props;
 
   return h(InsetMap, { ...rest, boxZoom: false, dragRotate: false }, [
-    h(MapClickHandler),
-    h(SectionLine, { padding }),
     h(ColumnsLayer),
     h(SelectedColumnsLayer),
+    h(MapClickHandler),
+    h(SectionLine, { padding }),
+    children,
   ]);
 }
 
 function MapClickHandler() {
   const onClickMap = useCorrelationMapStore((state) => state.onClickMap);
+  console.log("onClickMap", onClickMap);
 
   useMapClickHandler(
     (e) => {
@@ -98,10 +102,9 @@ function SelectedColumnsLayer() {
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns
   );
+
   useMapStyleOperator(
     (map) => {
-      console.log("Setting up focused columns");
-
       let features = focusedColumns;
 
       const data: FeatureCollection = {
@@ -133,6 +136,7 @@ function SelectedColumnsLayer() {
 
 function ColumnsLayer({ enabled = true }) {
   const columns = useCorrelationMapStore((state) => state.columns);
+  console.log("Setting up columns layer", columns);
 
   useMapStyleOperator(
     (map) => {

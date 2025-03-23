@@ -18,7 +18,9 @@ export function useMapStyleOperator(
     if (isStyleLoaded) {
       operator(map);
     }
-    const fn = () => operator(map);
+    const fn = () => {
+      operator(map);
+    };
     map.on("style.load", fn);
     return () => {
       map.off("style.load", fn);

@@ -106,6 +106,13 @@
     position: absolute
 
 
+  /** These styles seem to help with weird map zooming behavior */
+  :global(.mapboxgl-canvas), :global(.mapboxgl-canvas-container)
+    position: relative
+    left: 0
+    top: 0
+
+
 .context-panel-holder > :global(.bp5-card)
   padding: 10px
   background-color: var(--panel-background-color)
