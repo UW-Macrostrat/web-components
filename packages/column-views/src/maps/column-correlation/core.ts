@@ -1,6 +1,5 @@
-import { MapView, MapViewProps } from "@macrostrat/map-interface";
+import { MapViewProps } from "@macrostrat/map-interface";
 import {
-  MapboxMapProvider,
   useMapClickHandler,
   useMapEaseTo,
   useMapStyleOperator,
@@ -10,40 +9,10 @@ import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection } from "geojson";
 import { ReactNode, useMemo } from "react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
-import { useBasicMapStyle } from "@macrostrat/map-interface";
 
 import { useCorrelationMapStore } from "./state";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
-
-export function InsetMap({
-  controls,
-  className,
-  children,
-  style,
-  mapStyle,
-  accessToken,
-  ...rest
-}: any) {
-  const _style = useMemo(() => {
-    return mapStyle ?? useBasicMapStyle();
-  }, [mapStyle]);
-
-  return h("div.inset-map", { className, style }, [
-    h(MapboxMapProvider, [
-      controls,
-      h(
-        MapView,
-        {
-          style: _style,
-          accessToken,
-          standalone: true,
-          ...rest,
-        },
-        children
-      ),
-    ]),
-  ]);
-}
+import { InsetMap } from "@macrostrat/column-views";
 
 export interface CorrelationMapProps extends MapViewProps {
   padding?: number;

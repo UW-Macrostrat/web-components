@@ -19,7 +19,7 @@ function BasicColumnNavigatorMap(props: ColumnIndexMapProps) {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Column navigation",
+  title: "Column views/Maps/Column navigation (SVG)",
   component: BasicColumnNavigatorMap,
 } as Meta<typeof ColumnNavigatorMap>;
 

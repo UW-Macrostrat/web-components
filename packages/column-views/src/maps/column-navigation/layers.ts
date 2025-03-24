@@ -105,7 +105,6 @@ function normalize(angle) {
 }
 
 function buildTriangulation(features) {
-  console.log("Computing triangulation");
   const centroids = features.map(geoCentroid);
   const tri = geoVoronoi(centroids);
   return { centroids, tri };

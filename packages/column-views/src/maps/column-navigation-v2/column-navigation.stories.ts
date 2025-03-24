@@ -8,7 +8,7 @@ import {
   ColumnCorrelationProvider,
   CorrelationMapProps,
   CorrelationProviderProps,
-} from ".";
+} from "../column-correlation";
 import { InsetMap } from "../_shared/inset-map";
 
 function ColumnCorrelationMapExt(
@@ -30,15 +30,22 @@ function ColumnCorrelationMapExt(
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Maps/Column correlation",
+  title: "Column views/Maps/Column navigation",
   component: ColumnCorrelationMapExt,
-  description: "Cross section creation map",
+  description: "Column navigation map",
 } as Meta<typeof ColumnCorrelationMapExt>;
 
 export function BasicInsetMap() {
   return h(InsetMap, {
     style: { width: "800px", height: "600px" },
     accessToken: mapboxToken,
+    mapPosition: {
+      camera: {
+        lng: -100,
+        lat: 38,
+        altitude: 5000000,
+      },
+    },
   });
 }
 
