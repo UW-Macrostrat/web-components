@@ -8,8 +8,8 @@ import { useAPIResult, useKeyHandler } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
 import { ExtendedFeature, geoCentroid } from "d3-geo";
 import { geoVoronoi } from "d3-geo-voronoi";
-import { FeatureCollection, GeometryCollection, Polygon } from "geojson";
-import { useContext, useEffect, useMemo } from "react";
+import { Polygon } from "geojson";
+import { useContext, useMemo } from "react";
 import { feature } from "topojson-client";
 
 const defaultStyle = {
@@ -184,16 +184,6 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
   if (neighbors == null) return null;
   const neighborFeatures = neighbors.map((d) => features[d]);
-
-  const centerPoints = centroids.map((d) => {
-    return {
-      type: "Feature",
-      geometry: {
-        type: "Point",
-        coordinates: d,
-      },
-    };
-  });
 
   return h.if(showLayers)([
     h(FeatureLayer, {

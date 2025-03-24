@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 
 import { Meta } from "@storybook/react";
 import { ColumnNavigatorMap, ColumnNavigatorProps } from ".";
-import { MacrostratAPIProvider } from "../providers";
+import { MacrostratAPIProvider } from "../../providers";
 import { useState } from "react";
 
 interface ColumnIndexMapProps extends ColumnNavigatorProps {
@@ -19,17 +19,17 @@ function BasicColumnNavigatorMap(props: ColumnIndexMapProps) {
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
-  title: "Column views/Column navigator map",
+  title: "Column views/Maps/Column navigation",
   component: BasicColumnNavigatorMap,
 } as Meta<typeof ColumnNavigatorMap>;
 
-export const Default = {
+export const StaticColumnView = {
   args: {
     center: [-100, 38],
   },
 };
 
-export function WithSelectedColumn() {
+export function Interactive() {
   const [currentColumn, setCurrentColumn] = useState(null);
   return h(BasicColumnNavigatorMap, {
     currentColumn,
@@ -37,7 +37,7 @@ export function WithSelectedColumn() {
   });
 }
 
-export function ShowTriangulation() {
+export function ShowingTriangulation() {
   const [currentColumn, setCurrentColumn] = useState(null);
   return h(BasicColumnNavigatorMap, {
     currentColumn,
