@@ -71,7 +71,7 @@
     "toolchain/*",
     "examples/*"
   ],
-  "packageManager": "yarn@4.6.0",
+  "packageManager": "yarn@4.7.0",
   "dependenciesMeta": {
     "geologic-patterns@2.0.0-dev1": {
       "unplugged": true
