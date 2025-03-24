@@ -42,14 +42,14 @@ export function LithologiesProvider({
   children,
   baseURL = "https://macrostrat.org/api/v2",
 }) {
-  const lithologies = useAPIResult(baseURL + "/defs/lithologies", {
+  const lithologies: any = useAPIResult(baseURL + "/defs/lithologies", {
     all: true,
   });
 
-  const lithMap = useMemo(() => {
+  const lithMap: Map<number, Lithology> = useMemo(() => {
     const data = lithologies?.success?.data;
     if (data == null) return null;
-    return new Map(data.map((d) => [d.lith_id, d]));
+    return new Map(data.map((d) => [d.lith_id as number, d as Lithology]));
   }, [lithologies]);
   return h(LithologiesContext.Provider, { value: lithMap }, children);
 }

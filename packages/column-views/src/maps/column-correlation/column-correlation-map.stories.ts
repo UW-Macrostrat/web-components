@@ -9,7 +9,7 @@ import {
   CorrelationMapProps,
   CorrelationProviderProps,
 } from ".";
-import { InsetMap } from "../_shared/inset-map";
+import { InsetMap } from "../_shared";
 
 function ColumnCorrelationMapExt(
   props: CorrelationMapProps & CorrelationProviderProps

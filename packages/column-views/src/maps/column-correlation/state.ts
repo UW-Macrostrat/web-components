@@ -106,7 +106,7 @@ export function ColumnCorrelationProvider({
 }
 
 export function useCorrelationMapStore(
-  selector: (state: CorrelationMapStore) => any
+  selector: (state: CorrelationMapStore & ComputedStore) => any
 ) {
   const storeApi = useContext(CorrelationStoreContext);
   if (storeApi == null) {
