@@ -14,7 +14,16 @@ import { InsetMap } from "../_shared";
 function ColumnCorrelationMapExt(
   props: CorrelationMapProps & CorrelationProviderProps
 ) {
-  const { focusedLine, columns, apiBaseURL, onSelectColumns, ...rest } = props;
+  const {
+    focusedLine,
+    columns,
+    apiBaseURL,
+    onSelectColumns,
+    projectID,
+    format,
+    statusCode,
+    ...rest
+  } = props;
 
   return h(
     ColumnCorrelationProvider,
@@ -23,6 +32,9 @@ function ColumnCorrelationMapExt(
       columns,
       apiBaseURL,
       onSelectColumns,
+      projectID,
+      format,
+      statusCode,
     },
     h(ColumnCorrelationMap, rest)
   );
@@ -65,12 +77,19 @@ export const withPreloadedCrossSection = {
   },
 };
 
-// export function ColumnCorrelationMapTest() {
-//   return h(ColumnCorrelationMap, {
-//     style: { width: "800px", height: "600px" },
-//     accessToken: mapboxToken,
-//     padding: 100,
-//   });
-// }
-//
-// export function
+export const nonStandardProject = {
+  args: {
+    style: { width: "800px", height: "600px" },
+    accessToken: mapboxToken,
+    padding: 100,
+    projectID: 10,
+    statusCode: "in process",
+    mapPosition: {
+      camera: {
+        lng: -100,
+        lat: 38,
+        altitude: 5000000,
+      },
+    },
+  },
+};

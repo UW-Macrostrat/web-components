@@ -92,7 +92,6 @@ function SelectedColumnsLayer() {
 
 function ColumnsLayer({ enabled = true }) {
   const columns = useCorrelationMapStore((state) => state.columns);
-  console.log("Setting up columns layer", columns);
 
   useMapStyleOperator(
     (map) => {

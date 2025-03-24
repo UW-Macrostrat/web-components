@@ -6,14 +6,27 @@ import {
 } from "@macrostrat/ui-components";
 import { feature } from "topojson-client";
 
+export interface ColumnFetchOptions {
+  apiBaseURL?: string;
+  projectID?: number;
+  statusCode?: "in process";
+  format?: "geojson" | "topojson" | "geojson_bare";
+}
+
 export async function fetchAllColumns(
-  base: string
+  options: ColumnFetchOptions = {}
 ): Promise<ColumnGeoJSONRecord[]> {
+  const { apiBaseURL, projectID, format = "topojson", statusCode } = options;
+
+  let args: any = { format };
+  if (projectID != null || statusCode != null) {
+    args = { ...args, project_id: projectID, status_code: statusCode };
+  } else {
+    args = { ...args, all: true };
+  }
+
   // Try with fetch
-  const url = addQueryString(joinURL(base, "/columns"), {
-    format: "geojson_bare",
-    all: "true",
-  });
+  const url = addQueryString(joinURL(apiBaseURL, "/columns"), args);
 
   const res = await fetch(url, {
     method: "GET",
@@ -24,7 +37,7 @@ export async function fetchAllColumns(
 
   // Get JSON
   const data = await res.json();
-  return data.features;
+  return processors[format](data);
 }
 
 export function useColumnData({

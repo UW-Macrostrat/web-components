@@ -17,7 +17,7 @@ import {
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { createComputed } from "zustand-computed";
-import { fetchAllColumns } from "../../data-fetching";
+import { fetchAllColumns, ColumnFetchOptions } from "../../data-fetching";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
@@ -28,10 +28,11 @@ export interface CorrelationMapStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
 }
 
-export interface CorrelationProviderProps extends CorrelationMapInput {
+export interface CorrelationProviderProps
+  extends CorrelationMapInput,
+    ColumnFetchOptions {
   columns: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
-  apiBaseURL?: string;
   onSelectColumns?: (
     columns: FocusedColumnGeoJSONRecord[],
     line: LineString | null
@@ -57,6 +58,9 @@ export function ColumnCorrelationProvider({
   children,
   columns,
   apiBaseURL = "https://macrostrat.org/api/v2",
+  format,
+  projectID,
+  statusCode,
   focusedLine,
   onSelectColumns,
 }: CorrelationProviderProps) {
@@ -92,9 +96,11 @@ export function ColumnCorrelationProvider({
   // Set up the store
   /** TODO: unify handling of columns between parts of application */
   useAsyncEffect(async () => {
-    let _columns = columns ?? (await fetchAllColumns(apiBaseURL));
+    let _columns =
+      columns ??
+      (await fetchAllColumns({ apiBaseURL, projectID, statusCode, format }));
     store.setState({ columns: _columns, focusedLine });
-  }, []);
+  }, [apiBaseURL, projectID, statusCode, format, columns]);
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   const focusedColumns = useStore(store, (state) => state.focusedColumns);
@@ -138,6 +144,10 @@ function computeIntersectingColumns(
 
   return columns.filter((col) => {
     const poly = col.geometry;
+
+    // Some in-process datasets seem to have null geometries
+    if (poly == null) return false;
+
     const intersection = lineIntersect(line, poly);
     return intersection.features.length > 0;
   });
