@@ -90,10 +90,9 @@ export function ColumnCorrelationProvider({
   });
 
   // Set up the store
+  /** TODO: unify handling of columns between parts of application */
   useAsyncEffect(async () => {
-    console.log("Settng up columns", columns);
     let _columns = columns ?? (await fetchAllColumns(apiBaseURL));
-    console.log("Fetched columns", _columns);
     store.setState({ columns: _columns, focusedLine });
   }, []);
 

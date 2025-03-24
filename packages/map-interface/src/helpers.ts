@@ -184,11 +184,24 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
   return null;
 }
 
-export function useBasicStylePair(
-  opts: { styleType?: "macrostrat" | "standard" } = {}
-) {
+export function useBasicMapStyle(opts: {
+  styleType?: "macrostrat" | "standard";
+}) {
+  const { styleType } = opts ?? {};
   const inDarkMode = useInDarkMode();
-  const { styleType = "macrostrat" } = opts;
+
+  const props = useMemo(() => {
+    return { styleType, inDarkMode };
+  }, [styleType, inDarkMode]);
+
+  return getBasicMapStyle(props);
+}
+
+export function getBasicMapStyle(opts: {
+  styleType?: "macrostrat" | "standard";
+  inDarkMode?: boolean;
+}) {
+  const { styleType = "macrostrat", inDarkMode = false } = opts ?? {};
 
   if (styleType == "macrostrat") {
     return inDarkMode
@@ -201,4 +214,4 @@ export function useBasicStylePair(
   }
 }
 
-export const useBasicMapStyle = useBasicStylePair;
+export const useBasicStylePair = useBasicMapStyle;

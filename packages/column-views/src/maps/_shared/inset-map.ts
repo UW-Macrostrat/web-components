@@ -1,7 +1,8 @@
 import { useMemo } from "react";
-import { MapView, useBasicMapStyle } from "@macrostrat/map-interface";
+import { MapView, getBasicMapStyle } from "@macrostrat/map-interface";
 import h from "@macrostrat/hyper";
 import { MapboxMapProvider } from "@macrostrat/mapbox-react";
+import { useInDarkMode } from "@macrostrat/ui-components";
 
 export function InsetMap({
   controls,
@@ -12,9 +13,10 @@ export function InsetMap({
   accessToken,
   ...rest
 }: any) {
+  const inDarkMode = useInDarkMode();
   const _style = useMemo(() => {
-    return mapStyle ?? useBasicMapStyle();
-  }, [mapStyle]);
+    return mapStyle ?? getBasicMapStyle({ inDarkMode });
+  }, [mapStyle, inDarkMode]);
 
   return h("div.inset-map", { className, style }, [
     h(MapboxMapProvider, [

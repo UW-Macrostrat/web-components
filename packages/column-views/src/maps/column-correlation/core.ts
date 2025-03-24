@@ -11,8 +11,8 @@ import { ReactNode, useMemo } from "react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
 import { useCorrelationMapStore } from "./state";
+import { InsetMap } from "../_shared";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
-import { InsetMap } from "@macrostrat/column-views";
 
 export interface CorrelationMapProps extends MapViewProps {
   padding?: number;
