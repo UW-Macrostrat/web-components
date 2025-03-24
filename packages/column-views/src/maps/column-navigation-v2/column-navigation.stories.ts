@@ -7,12 +7,11 @@ import {
   ColumnNavigationMap,
   ColumnNavigationProvider,
   CorrelationMapProps,
-  CorrelationProviderProps,
+  NavigationProviderProps,
 } from ".";
-import { InsetMap } from "../_shared";
 
 function ColumnNavigationMapExt(
-  props: CorrelationMapProps & CorrelationProviderProps
+  props: CorrelationMapProps & NavigationProviderProps
 ) {
   const {
     focusedLine,

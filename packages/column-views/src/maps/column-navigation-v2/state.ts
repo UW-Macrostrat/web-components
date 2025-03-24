@@ -1,11 +1,6 @@
-import { LineString, Point } from "geojson";
+import { Point } from "geojson";
 import { create, StoreApi, useStore } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
-// Turf intersection
-import { lineIntersect } from "@turf/line-intersect";
-import distance from "@turf/distance";
-import { nearestPointOnLine } from "@turf/nearest-point-on-line";
-import { centroid } from "@turf/centroid";
 import mapboxgl from "mapbox-gl";
 import {
   createContext,
@@ -16,81 +11,49 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
-import { createComputed } from "zustand-computed";
 import { fetchAllColumns, ColumnFetchOptions } from "../../data-fetching";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
-  focusedLine: LineString | null;
+  selectedColumn: number;
 }
 
-export interface CorrelationMapStore extends CorrelationMapInput {
+export interface NavigationStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
 }
 
-export interface CorrelationProviderProps
+export interface NavigationProviderProps
   extends CorrelationMapInput,
     ColumnFetchOptions {
   columns: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
-  onSelectColumns?: (
-    columns: FocusedColumnGeoJSONRecord[],
-    line: LineString | null
-  ) => void;
+  onSelectColumn?: (column: FocusedColumnGeoJSONRecord[]) => void;
 }
 
-const NavigationStoreContext =
-  createContext<StoreApi<CorrelationMapStore> | null>(null);
-
-type ComputedStore = {
-  focusedColumns: FocusedColumnGeoJSONRecord[];
-};
-
-/** A computed store that will automatically update when the state changes */
-const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
-  return {
-    // We compute the focused columns based on columns and focusedLine
-    focusedColumns: buildCorrelationColumns(state.columns, state.focusedLine),
-  };
-}) as any;
+const NavigationStoreContext = createContext<StoreApi<NavigationStore> | null>(
+  null
+);
 
 export function ColumnNavigationProvider({
   children,
   columns,
   apiBaseURL = "https://macrostrat.org/api/v2",
   format,
+  selectedColumn,
   projectID,
   statusCode,
-  focusedLine,
-  onSelectColumns,
-}: CorrelationProviderProps) {
+  onSelectColumn,
+}: NavigationProviderProps) {
   const [store] = useState(() => {
-    return create<CorrelationMapStore & ComputedStore>(
-      computed((set, get): CorrelationMapStore => {
-        return {
-          focusedLine,
-          columns: null,
-          onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
-            console.log("Map clicked", point);
-            const state = get();
-            // Check if shift key is pressed
-            const shiftKeyPressed = event.originalEvent.shiftKey;
-            let existingCoords = state.focusedLine?.coordinates ?? [];
-
-            if (existingCoords.length >= 2 && !shiftKeyPressed) {
-              // Reset the line to zero length
-              existingCoords = [];
-            }
-            set({
-              focusedLine: {
-                type: "LineString",
-                coordinates: [...existingCoords, point.coordinates],
-              },
-            });
-          },
-        };
-      })
-    );
+    return create<NavigationStore>((set, get): NavigationStore => {
+      return {
+        columns: null,
+        selectedColumn: null,
+        onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
+          console.log(event);
+        },
+      };
+    });
   });
 
   // Set up the store
@@ -99,20 +62,19 @@ export function ColumnNavigationProvider({
     let _columns =
       columns ??
       (await fetchAllColumns({ apiBaseURL, projectID, statusCode, format }));
-    store.setState({ columns: _columns, focusedLine });
+    store.setState({ columns: _columns, selectedColumn });
   }, [apiBaseURL, projectID, statusCode, format, columns]);
 
   // Kind of an awkward way to do this but we need to allow the selector to run
-  const focusedColumns = useStore(store, (state) => state.focusedColumns);
   useEffect(() => {
-    onSelectColumns?.(focusedColumns, focusedLine);
-  }, [focusedColumns]);
+    onSelectColumn?.(selectedColumn);
+  }, [selectedColumn]);
 
   return h(NavigationStoreContext.Provider, { value: store }, children);
 }
 
 export function useColumnNavigationStore(
-  selector: (state: CorrelationMapStore & ComputedStore) => any
+  selector: (state: NavigationStore) => any
 ) {
   const storeApi = useContext(NavigationStoreContext);
   if (storeApi == null) {
@@ -121,74 +83,10 @@ export function useColumnNavigationStore(
   return useStore(storeApi, selector);
 }
 
-function buildCorrelationColumns(
-  columns: ColumnGeoJSONRecord[],
-  line: LineString
-): FocusedColumnGeoJSONRecord[] {
-  if (columns == null || line == null || line.coordinates.length < 2) {
-    return [];
-  }
-  return orderColumnsByDistance(
-    computeIntersectingColumns(columns, line),
-    line
-  );
-}
-
-function computeIntersectingColumns(
-  columns: ColumnGeoJSONRecord[],
-  line: LineString
-): ColumnGeoJSONRecord[] {
-  if (columns == null || line == null) {
-    return [];
-  }
-
-  return columns.filter((col) => {
-    const poly = col.geometry;
-
-    // Some in-process datasets seem to have null geometries
-    if (poly == null) return false;
-    if (poly.type != "Polygon" && poly.type != "MultiPolygon") return false;
-
-    const intersection = lineIntersect(line, poly);
-    return intersection.features.length > 0;
-  });
-}
-
 interface FocusedColumnGeoJSONRecord extends ColumnGeoJSONRecord {
   properties: {
     centroid: Point;
     nearestPointOnLine: Point;
     distanceAlongLine: number;
   } & ColumnGeoJSONRecord["properties"];
-}
-
-function orderColumnsByDistance(
-  columns: ColumnGeoJSONRecord[],
-  line: LineString
-): FocusedColumnGeoJSONRecord[] {
-  const centroids = columns.map((col) => centroid(col.geometry));
-  const projectedPoints = centroids.map((point) =>
-    nearestPointOnLine(line, point)
-  );
-  const distances = projectedPoints.map((point) =>
-    distance(point.geometry.coordinates, line.coordinates[0])
-  );
-
-  let newColumns = columns.map((col, i) => {
-    return {
-      ...col,
-      properties: {
-        ...col.properties,
-        centroid: centroids[i],
-        nearestPointOnLine: projectedPoints[i],
-        distanceAlongLine: distances[i],
-      },
-    };
-  });
-
-  return sorted(newColumns, (d) => d.properties.distanceAlongLine);
-}
-
-function sorted(data, accessor: (d) => number) {
-  return data.sort((a, b) => accessor(a) - accessor(b));
 }

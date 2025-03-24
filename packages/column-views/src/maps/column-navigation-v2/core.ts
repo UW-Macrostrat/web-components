@@ -4,7 +4,6 @@ import {
   useMapEaseTo,
   useMapStyleOperator,
 } from "@macrostrat/mapbox-react";
-import { LngLatBounds } from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection } from "geojson";
 import { ReactNode, useMemo } from "react";
@@ -31,7 +30,7 @@ export function ColumnNavigationMap(props: CorrelationMapProps) {
       dragRotate: false,
       overlayStyles: _overlayStyles,
     },
-    [h(ColumnsLayer), h(SelectedColumnsLayer), h(MapClickHandler), children]
+    [h(ColumnsLayer), h(MapClickHandler), children]
   );
 }
 
@@ -45,42 +44,6 @@ function MapClickHandler() {
     [onClickMap]
   );
 
-  return null;
-}
-
-function SelectedColumnsLayer() {
-  const focusedColumns = useColumnNavigationStore(
-    (state) => state.focusedColumns
-  );
-
-  useMapStyleOperator(
-    (map) => {
-      let features = focusedColumns;
-
-      const data: FeatureCollection = {
-        type: "FeatureCollection",
-        features,
-      };
-
-      const columnCentroidLine: Feature = {
-        type: "Feature",
-        geometry: {
-          type: "LineString",
-          coordinates: features.map(
-            (col) => col.properties.centroid.geometry.coordinates
-          ),
-        },
-        properties: {},
-      };
-
-      setGeoJSON(map, "selected-columns", data);
-      setGeoJSON(map, "selected-column-centroids", {
-        type: "FeatureCollection",
-        features: [columnCentroidLine],
-      });
-    },
-    [focusedColumns]
-  );
   return null;
 }
 
