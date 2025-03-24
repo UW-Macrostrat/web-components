@@ -3,14 +3,15 @@ import h from "@macrostrat/hyper";
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 import { Meta } from "@storybook/react";
-import { ColumnCorrelationMap, InsetMap } from "../src";
 import {
+  ColumnCorrelationMap,
+  InsetMap,
   ColumnCorrelationProvider,
   CorrelationMapProps,
   CorrelationProviderProps,
-} from "../src";
+} from ".";
 
-export function ColumnCorrelationMapExt(
+function ColumnCorrelationMapExt(
   props: CorrelationMapProps & CorrelationProviderProps
 ) {
   const { focusedLine, columns, apiBaseURL, onSelectColumns, ...rest } = props;

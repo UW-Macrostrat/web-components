@@ -4,6 +4,7 @@ import { Globe, LandLayer } from "@macrostrat/svg-map-components";
 import { geoCentroid } from "d3-geo";
 import { useElementSize } from "@macrostrat/ui-components";
 import { Columns, CurrentColumn } from "./layers";
+import mapboxgl from "mapbox-gl";
 
 function ResizableMapFrame(props) {
   const { center, children, style, margin, className, allowZoom, ...rest } =
@@ -45,6 +46,9 @@ function ResizableMapFrame(props) {
   ]);
 }
 
+type ColumnNavigatorProps = any;
+export type { ColumnNavigatorProps };
+
 const ColumnNavigatorMap = (props) => {
   const {
     currentColumn,
@@ -55,19 +59,28 @@ const ColumnNavigatorMap = (props) => {
     scale,
     className,
     showInProcessColumns = false,
+    showDebugLayers = false,
+    center,
     ...rest
   } = props;
 
-  const columnCenter = geoCentroid(currentColumn);
+  let _center: mapboxgl.LngLatLike | null = center ?? [-100, 38];
+  // Override center if currentColumn is set
+  if (currentColumn != null) {
+    _center = geoCentroid(currentColumn);
+  }
+
+  console.log(currentColumn);
 
   return h(
     ResizableMapFrame,
-    { center: columnCenter, style, margin, scale, className },
+    { center: _center, style, margin, scale, className },
     [
       children,
       h(Columns, {
         onChange: setCurrentColumn,
         col_id: currentColumn?.properties.col_id,
+        showDebugLayers,
         ...rest,
       }),
       h.if(showInProcessColumns)(Columns, {

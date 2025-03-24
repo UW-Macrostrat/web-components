@@ -13,10 +13,11 @@ export interface IFeature {
 interface IFeatureProps {
   feature: IFeature;
   onClick(feature: IFeature): void;
+  pointRadius?: number;
   [key: string]: any;
 }
 
-function CanvasFeature({ geometry, style }) {
+function CanvasFeature({ geometry, style, pointRadius = 2 }) {
   const { projection } = useContext(MapContext);
   const { context } = useContext(MapCanvasContext);
   if (context != null) {
@@ -26,23 +27,34 @@ function CanvasFeature({ geometry, style }) {
     if (style?.stroke != null) {
       context.strokeColor = style.stroke;
     }
-    geoPath(projection, context)(geometry);
+    const pathRenderer = geoPath(projection, context).pointRadius(pointRadius);
+
+    pathRenderer(geometry);
   }
   return null;
 }
 
 function Feature(props: IFeatureProps) {
-  const { feature, onClick, id: _id, style, ...rest } = props;
+  const { feature, pointRadius = 2, onClick, id: _id, style, ...rest } = props;
   const { inCanvas } = useContext(MapCanvasContext);
   const { geometry, properties } = feature;
   const id = _id ?? feature.id;
   const { projection, renderPath } = useContext(MapContext);
   //const renderPath = geoPath(projection);
 
+  let pathRenderer = renderPath;
+  if ("pointRadius" in renderPath) {
+    try {
+      pathRenderer = renderPath.pointRadius(pointRadius);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   if (inCanvas) {
-    return h(CanvasFeature, { geometry, style });
+    return h(CanvasFeature, { geometry, style, pointRadius });
   } else {
-    const d = renderPath(geometry as any);
+    const d = pathRenderer(geometry as any);
     return h("path.feature", {
       className: `feature-${id}`,
       style,

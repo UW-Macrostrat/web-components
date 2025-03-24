@@ -55,6 +55,8 @@ function ColumnFeatures(props) {
     singleFeature = true,
   } = props;
 
+  console.log(features);
+
   const c = chroma(color);
 
   return h(
@@ -174,16 +176,24 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
     (event) => {
       const nextColumnIx = keyMapping[event.keyCode];
       if (nextColumnIx == null) return;
-      const { col_id } = features[nextColumnIx].properties;
-
       // @ts-ignore
-      onChange({ col_id, ...projectArgs });
+      onChange(features[nextColumnIx]);
     },
     [keyMapping]
   );
 
   if (neighbors == null) return null;
   const neighborFeatures = neighbors.map((d) => features[d]);
+
+  const centerPoints = centroids.map((d) => {
+    return {
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: d,
+      },
+    };
+  });
 
   return h.if(showLayers)([
     h(FeatureLayer, {
@@ -203,8 +213,22 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
         fill: "rgba(93, 101, 212, 0.5)",
       },
     }),
-
-    //h(FeatureLayer, {features: tri.centers, useCanvas: false})
+    h(FeatureLayer, {
+      features: [
+        {
+          type: "Feature",
+          geometry: {
+            type: "MultiPoint",
+            coordinates: centroids,
+          },
+        },
+      ],
+      useCanvas: false,
+      style: {
+        r: 1,
+        fill: "purple",
+      },
+    }),
   ]);
 }
 
