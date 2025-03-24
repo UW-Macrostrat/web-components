@@ -147,6 +147,7 @@ function computeIntersectingColumns(
 
     // Some in-process datasets seem to have null geometries
     if (poly == null) return false;
+    if (poly.type != "Polygon" && poly.type != "MultiPolygon") return false;
 
     const intersection = lineIntersect(line, poly);
     return intersection.features.length > 0;
