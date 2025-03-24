@@ -102,6 +102,8 @@ function ColumnsLayer({ enabled = true }) {
         type: "FeatureCollection",
         features: columns,
       };
+
+      console.log("Setting columns", data);
       setGeoJSON(map, "columns", data);
     },
     [columns, enabled]
@@ -128,8 +130,18 @@ const columnsStyle = {
       source: "columns",
       paint: {
         "line-color": "rgba(0, 0, 0, 0.5)",
-        "line-width": 1,
+        "line-width": 2,
       },
+    },
+    {
+      id: "columns-points",
+      type: "circle",
+      source: "columns",
+      paint: {
+        "circle-radius": 4,
+        "circle-color": "rgba(0, 0, 0, 0.5)",
+      },
+      filter: ["==", "$type", "Point"],
     },
   ],
 };

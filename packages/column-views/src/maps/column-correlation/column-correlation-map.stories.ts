@@ -93,3 +93,20 @@ export const nonStandardProject = {
     },
   },
 };
+
+export const eODP = {
+  args: {
+    style: { width: "800px", height: "600px" },
+    accessToken: mapboxToken,
+    padding: 100,
+    projectID: 3,
+    statusCode: "in process",
+    mapPosition: {
+      camera: {
+        lng: -100,
+        lat: 38,
+        altitude: 5000000,
+      },
+    },
+  },
+};

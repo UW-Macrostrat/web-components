@@ -5,6 +5,7 @@ import {
   useAPIResult,
 } from "@macrostrat/ui-components";
 import { feature } from "topojson-client";
+import { geoArea, geoCentroid } from "d3-geo";
 
 export interface ColumnFetchOptions {
   apiBaseURL?: string;
@@ -72,11 +73,28 @@ function processTopoJSON(res) {
   try {
     const { data } = res.success;
     const { features: f } = feature(data, data.objects.output) as any;
-    return f;
+    return convertSmallAreasToPoints(removeFeaturesWithoutGeometry(f));
   } catch (err) {
     console.error(err);
     return [];
   }
+}
+
+function removeFeaturesWithoutGeometry(features) {
+  return features.filter((f) => f.geometry != null);
+}
+
+function convertSmallAreasToPoints(features) {
+  return features.map((f) => {
+    if (geoArea(f.geometry) < 1e-8) {
+      const centroid = geoCentroid(f.geometry);
+      f.geometry = {
+        type: "Point",
+        coordinates: centroid,
+      };
+    }
+    return f;
+  });
 }
 
 const processors = {
