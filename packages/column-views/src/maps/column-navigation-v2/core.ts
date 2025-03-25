@@ -52,6 +52,8 @@ function ColumnsLayer({ enabled = true }) {
 
   useMapStyleOperator(
     (map) => {
+      let hoveredID: number | null = null;
+
       if (columns == null) {
         return;
       }
@@ -60,8 +62,44 @@ function ColumnsLayer({ enabled = true }) {
         features: columns,
       };
 
-      console.log("Setting columns", data);
       setGeoJSON(map, "columns", data);
+
+      const removeFeatureState = () => {
+        if (hoveredID == null) return;
+        map.setFeatureState(
+          { source: "columns", id: hoveredID },
+          { hover: false }
+        );
+        hoveredID = null;
+      };
+
+      const mouseMove = (event) => {
+        if (event.features.length == 0) return;
+        const newHoveredID = event.features[0].id;
+        if (hoveredID != newHoveredID) {
+          removeFeatureState();
+        }
+        map.setFeatureState(
+          { source: "columns", id: newHoveredID },
+          { hover: true }
+        );
+        map.getCanvas().style.cursor = "pointer";
+        hoveredID = newHoveredID;
+      };
+      const mouseLeave = () => {
+        removeFeatureState();
+        map.getCanvas().style.cursor = "";
+      };
+
+      // Setup hover styles on map
+      const layers = ["columns-points", "columns-fill"];
+      map.on("mousemove", layers, mouseMove);
+      map.on("mouseleave", layers, mouseLeave);
+
+      return () => {
+        map.off("mouseenter", layers, mouseMove);
+        map.off("mouseleave", layers, mouseLeave);
+      };
     },
     [columns, enabled]
   );
@@ -78,7 +116,13 @@ const columnsStyle = {
       type: "fill",
       source: "columns",
       paint: {
-        "fill-color": "rgba(0, 0, 0, 0.1)",
+        "fill-color": "#000",
+        "fill-opacity": [
+          "case",
+          ["boolean", ["feature-state", "hover"], false],
+          0.3,
+          0.1,
+        ],
       },
     },
     {

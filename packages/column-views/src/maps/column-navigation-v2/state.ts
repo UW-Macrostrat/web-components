@@ -1,7 +1,6 @@
 import { Point } from "geojson";
 import { create, StoreApi, useStore } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
-import mapboxgl from "mapbox-gl";
 import {
   createContext,
   useState,
@@ -16,10 +15,12 @@ import { fetchAllColumns, ColumnFetchOptions } from "../../data-fetching";
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
   selectedColumn: number;
+  hoveredColumn: number;
 }
 
 export interface NavigationStore extends CorrelationMapInput {
-  onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
+  onSelectColumn: (columnID: number | null) => void;
+  onHoverColumn: (columnID: number | null) => void;
 }
 
 export interface NavigationProviderProps
@@ -27,7 +28,7 @@ export interface NavigationProviderProps
     ColumnFetchOptions {
   columns: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
-  onSelectColumn?: (column: FocusedColumnGeoJSONRecord[]) => void;
+  onSelectColumn?: (column: number) => void;
 }
 
 const NavigationStoreContext = createContext<StoreApi<NavigationStore> | null>(
@@ -49,8 +50,13 @@ export function ColumnNavigationProvider({
       return {
         columns: null,
         selectedColumn: null,
-        onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
-          console.log(event);
+        hoveredColumn: null,
+        onSelectColumn(columnID: number | null) {
+          set({ selectedColumn: columnID });
+          onSelectColumn?.(columnID);
+        },
+        onHoverColumn(columnID: number | null) {
+          set({ hoveredColumn: columnID });
         },
       };
     });

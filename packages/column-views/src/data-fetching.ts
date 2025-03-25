@@ -38,7 +38,7 @@ export async function fetchAllColumns(
 
   // Get JSON
   const data = await res.json();
-  return processors[format](data);
+  return postProcessColumns(processors[format](data));
 }
 
 export function useColumnData({
@@ -73,11 +73,27 @@ function processTopoJSON(res) {
   try {
     const { data } = res.success;
     const { features: f } = feature(data, data.objects.output) as any;
-    return convertSmallAreasToPoints(removeFeaturesWithoutGeometry(f));
+    return f;
   } catch (err) {
     console.error(err);
     return [];
   }
+}
+
+function postProcessColumns(columns) {
+  return promoteColumnIDs(
+    convertSmallAreasToPoints(removeFeaturesWithoutGeometry(columns))
+  );
+}
+
+function promoteColumnIDs(features) {
+  return features.map((f, i) => {
+    /** col_id property should be promoted to top level in order to be used as GeoJSON-compliant unique identifier */
+    if (f.properties.col_id != null && f.id == null) {
+      f.id = f.properties.col_id;
+    }
+    return f;
+  });
 }
 
 function removeFeaturesWithoutGeometry(features) {
@@ -87,7 +103,7 @@ function removeFeaturesWithoutGeometry(features) {
 function convertSmallAreasToPoints(features) {
   return features.map((f) => {
     if (geoArea(f.geometry) < 1e-8) {
-      const centroid = geoCentroid(f.geometry);
+      const centroid = f.geometry.coordinates[0][0];
       f.geometry = {
         type: "Point",
         coordinates: centroid,
