@@ -12,6 +12,7 @@ import { setGeoJSON } from "@macrostrat/mapbox-utils";
 import { useColumnNavigationStore } from "./state";
 import { InsetMap } from "../_shared";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
+import { geoCentroid } from "d3-geo";
 
 export interface CorrelationMapProps extends MapViewProps {
   padding?: number;
@@ -130,8 +131,16 @@ function ColumnsLayer({ enabled = true }) {
           selected: true,
         }
       );
+
+      // Center the selected column
+      const columnGeometry = columns.find(
+        (d) => d.id == selectedColumn
+      )?.geometry;
+      if (columnGeometry == null) return;
+      const center = geoCentroid(columnGeometry);
+      map.easeTo({ center }, { duration: 500 });
     },
-    [selectedColumn]
+    [selectedColumn, columns]
   );
 
   return null;
