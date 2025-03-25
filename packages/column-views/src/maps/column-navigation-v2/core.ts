@@ -6,7 +6,7 @@ import {
 } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection } from "geojson";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo, useRef } from "react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
 import { useColumnNavigationStore } from "./state";
@@ -30,25 +30,16 @@ export function ColumnNavigationMap(props: CorrelationMapProps) {
       dragRotate: false,
       overlayStyles: _overlayStyles,
     },
-    [h(ColumnsLayer), h(MapClickHandler), children]
+    [h(ColumnsLayer), children]
   );
-}
-
-function MapClickHandler() {
-  const onClickMap = useColumnNavigationStore((state) => state.onClickMap);
-
-  useMapClickHandler(
-    (e) => {
-      onClickMap(e, { type: "Point", coordinates: e.lngLat.toArray() });
-    },
-    [onClickMap]
-  );
-
-  return null;
 }
 
 function ColumnsLayer({ enabled = true }) {
   const columns = useColumnNavigationStore((state) => state.columns);
+  const selectedColumn = useColumnNavigationStore(
+    (state) => state.selectedColumn
+  );
+  const selectColumn = useColumnNavigationStore((state) => state.selectColumn);
 
   useMapStyleOperator(
     (map) => {
@@ -75,7 +66,8 @@ function ColumnsLayer({ enabled = true }) {
 
       const mouseMove = (event) => {
         if (event.features.length == 0) return;
-        const newHoveredID = event.features[0].id;
+        const hoveredFeature = event.features[0];
+        const newHoveredID = hoveredFeature.id;
         if (hoveredID != newHoveredID) {
           removeFeatureState();
         }
@@ -91,18 +83,57 @@ function ColumnsLayer({ enabled = true }) {
         map.getCanvas().style.cursor = "";
       };
 
+      const clickHandler = (event) => {
+        if (event.features.length == 0) return;
+        const id = event.features[0].id;
+        selectColumn(id);
+      };
+
       // Setup hover styles on map
       const layers = ["columns-points", "columns-fill"];
       map.on("mousemove", layers, mouseMove);
       map.on("mouseleave", layers, mouseLeave);
+      map.on("click", layers, clickHandler);
 
       return () => {
         map.off("mouseenter", layers, mouseMove);
         map.off("mouseleave", layers, mouseLeave);
+        map.off("click", layers, clickHandler);
       };
     },
     [columns, enabled]
   );
+
+  /** Set feature state for selected columns */
+  const selectedColumnRef = useRef(selectedColumn);
+  useMapStyleOperator(
+    (map) => {
+      const prevSelectedColumn = selectedColumnRef.current;
+      if (selectedColumn == prevSelectedColumn) return;
+      if (prevSelectedColumn != null) {
+        // Deselect previous column
+        map.setFeatureState(
+          { source: "columns", id: prevSelectedColumn },
+          { selected: false }
+        );
+      }
+
+      selectedColumnRef.current = selectedColumn;
+
+      // Select the current column
+      map.setFeatureState(
+        {
+          source: "columns",
+          id: selectedColumn,
+        },
+        {
+          selected: true,
+        }
+      );
+    },
+    [selectedColumn]
+  );
+
   return null;
 }
 
@@ -119,6 +150,8 @@ const columnsStyle = {
         "fill-color": "#000",
         "fill-opacity": [
           "case",
+          ["boolean", ["feature-state", "selected"], false],
+          0.5,
           ["boolean", ["feature-state", "hover"], false],
           0.3,
           0.1,

@@ -15,12 +15,10 @@ import { fetchAllColumns, ColumnFetchOptions } from "../../data-fetching";
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
   selectedColumn: number;
-  hoveredColumn: number;
 }
 
 export interface NavigationStore extends CorrelationMapInput {
-  onSelectColumn: (columnID: number | null) => void;
-  onHoverColumn: (columnID: number | null) => void;
+  selectColumn: (columnID: number | null) => void;
 }
 
 export interface NavigationProviderProps
@@ -50,13 +48,9 @@ export function ColumnNavigationProvider({
       return {
         columns: null,
         selectedColumn: null,
-        hoveredColumn: null,
-        onSelectColumn(columnID: number | null) {
+        selectColumn(columnID: number | null) {
           set({ selectedColumn: columnID });
           onSelectColumn?.(columnID);
-        },
-        onHoverColumn(columnID: number | null) {
-          set({ hoveredColumn: columnID });
         },
       };
     });
@@ -71,9 +65,16 @@ export function ColumnNavigationProvider({
     store.setState({ columns: _columns, selectedColumn });
   }, [apiBaseURL, projectID, statusCode, format, columns]);
 
+  // Update selected colun if it is changed externally
+
   // Kind of an awkward way to do this but we need to allow the selector to run
   useEffect(() => {
-    onSelectColumn?.(selectedColumn);
+    const { selectColumn, selectedColumn: _internalSelectedColumn } =
+      store.getState();
+    if (selectedColumn == _internalSelectedColumn) {
+      return;
+    }
+    selectColumn(selectedColumn);
   }, [selectedColumn]);
 
   return h(NavigationStoreContext.Provider, { value: store }, children);
