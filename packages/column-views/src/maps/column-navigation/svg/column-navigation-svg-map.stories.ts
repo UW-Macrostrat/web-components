@@ -1,11 +1,11 @@
 import h from "@macrostrat/hyper";
 
 import { Meta } from "@storybook/react";
-import { ColumnNavigatorMap, ColumnNavigatorProps } from ".";
-import { MacrostratAPIProvider } from "../../providers";
+import { ColumnNavigationSVGMap, ColumnNavigationSVGMapProps } from ".";
+import { MacrostratAPIProvider } from "../../../providers";
 import { useState } from "react";
 
-interface ColumnIndexMapProps extends ColumnNavigatorProps {
+interface ColumnIndexMapProps extends ColumnNavigationSVGMapProps {
   col_id: number;
 }
 

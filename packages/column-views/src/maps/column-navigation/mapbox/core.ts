@@ -1,26 +1,26 @@
 import { MapViewProps } from "@macrostrat/map-interface";
-import {
-  useMapClickHandler,
-  useMapEaseTo,
-  useMapStyleOperator,
-} from "@macrostrat/mapbox-react";
+import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
-import { Feature, FeatureCollection } from "geojson";
-import { ReactNode, useEffect, useMemo, useRef } from "react";
-import { setGeoJSON } from "@macrostrat/mapbox-utils";
+import { FeatureCollection } from "geojson";
+import { ReactNode, useRef } from "react";
+import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 
 import { useColumnNavigationStore } from "./state";
-import { InsetMap } from "../_shared";
+import { InsetMap } from "../../_shared";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
 import { geoCentroid } from "d3-geo";
+import {
+  keyboardNavigationStyle,
+  ColumnKeyboardNavigation,
+} from "./keyboard-navigation";
 
-export interface CorrelationMapProps extends MapViewProps {
+export interface ColumnNavigationMapProps extends MapViewProps {
   padding?: number;
   children?: ReactNode;
   accessToken?: string;
 }
 
-export function ColumnNavigationMap(props: CorrelationMapProps) {
+export function ColumnNavigationMap(props: ColumnNavigationMapProps) {
   const { padding = 50, children, ...rest } = props;
 
   return h(
@@ -31,7 +31,7 @@ export function ColumnNavigationMap(props: CorrelationMapProps) {
       dragRotate: false,
       overlayStyles: _overlayStyles,
     },
-    [h(ColumnsLayer), children]
+    [h(ColumnsLayer), h(ColumnKeyboardNavigation), children]
   );
 }
 
@@ -123,13 +123,8 @@ function ColumnsLayer({ enabled = true }) {
 
       // Select the current column
       map.setFeatureState(
-        {
-          source: "columns",
-          id: selectedColumn,
-        },
-        {
-          selected: true,
-        }
+        { source: "columns", id: selectedColumn },
+        { selected: true }
       );
 
       // Center the selected column
@@ -156,7 +151,7 @@ const columnsStyle = {
       type: "fill",
       source: "columns",
       paint: {
-        "fill-color": "#000",
+        "fill-color": "#000000",
         "fill-opacity": [
           "case",
           ["boolean", ["feature-state", "selected"], false],
@@ -172,8 +167,9 @@ const columnsStyle = {
       type: "line",
       source: "columns",
       paint: {
-        "line-color": "rgba(0, 0, 0, 0.5)",
+        "line-color": "rgb(0, 0, 0)",
         "line-width": 2,
+        "line-opacity": 0.5,
       },
     },
     {
@@ -234,14 +230,9 @@ const lineOfSectionStyle = {
   layers: buildCrossSectionLayers(),
 };
 
-const _overlayStyles = [columnsStyle, selectedColumnsStyle, lineOfSectionStyle];
-
-function buildGeoJSONSource(data: FeatureCollection | null = null) {
-  return {
-    type: "geojson",
-    data: data ?? {
-      type: "FeatureCollection",
-      features: [],
-    },
-  };
-}
+const _overlayStyles = [
+  columnsStyle,
+  selectedColumnsStyle,
+  lineOfSectionStyle,
+  keyboardNavigationStyle,
+];

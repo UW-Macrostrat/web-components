@@ -6,11 +6,14 @@ import {
 } from "@macrostrat/svg-map-components";
 import { useAPIResult, useKeyHandler } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
-import { ExtendedFeature, geoCentroid } from "d3-geo";
-import { geoVoronoi } from "d3-geo-voronoi";
+import { ExtendedFeature } from "d3-geo";
 import { Polygon } from "geojson";
 import { useContext, useMemo } from "react";
-import { useColumnData } from "../../data-fetching";
+import { useColumnData } from "../../../data-fetching";
+import {
+  buildKeyMapping,
+  buildTriangulation,
+} from "../utils/keyboard-navigation";
 
 const defaultStyle = {
   fill: "rgb(239, 180, 249)",
@@ -83,57 +86,6 @@ interface ColumnNavProps {
 interface KeyboardNavProps extends ColumnNavProps {
   features: ColumnFeature[];
   showLayers: boolean;
-}
-
-function normalize(angle) {
-  if (angle > Math.PI) {
-    angle -= 2 * Math.PI;
-  } else if (angle <= -Math.PI) {
-    angle += 2 * Math.PI;
-  }
-  return angle;
-}
-
-function buildTriangulation(features) {
-  const centroids = features.map(geoCentroid);
-  const tri = geoVoronoi(centroids);
-  return { centroids, tri };
-}
-
-function buildKeyMapping(neighbors, centroids, currentIndex, projection) {
-  if (neighbors == null) return;
-
-  const currentCentroid = projection(centroids[currentIndex]);
-
-  let edgeAngles = neighbors.map((index) => {
-    const centroid = projection(centroids[index]);
-    const dx = centroid[0] - currentCentroid[0];
-    const dy = centroid[1] - currentCentroid[1];
-    return { col_index: index, angle: Math.atan2(dy, dx) };
-  });
-
-  edgeAngles.sort((d) => d.angle);
-
-  function closestAngle(num) {
-    // Find closest angle in array of neighbors
-    let curr = edgeAngles[0];
-    for (let next of edgeAngles) {
-      if (
-        Math.abs(normalize(num - next.angle)) <
-        Math.abs(normalize(num - curr.angle))
-      ) {
-        curr = next;
-      }
-    }
-    return curr.col_index;
-  }
-
-  return {
-    37: closestAngle(Math.PI), // left
-    38: closestAngle((3 * Math.PI) / 2), // up
-    39: closestAngle(0), // right
-    40: closestAngle(Math.PI / 2), // down
-  };
 }
 
 function ColumnKeyboardNavigation(props: KeyboardNavProps) {

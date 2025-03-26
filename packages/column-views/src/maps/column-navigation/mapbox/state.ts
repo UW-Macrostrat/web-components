@@ -10,21 +10,17 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
-import { fetchAllColumns, ColumnFetchOptions } from "../../data-fetching";
+import { fetchAllColumns, ColumnFetchOptions } from "../../../data-fetching";
 
-export interface CorrelationMapInput {
+export interface NavigationStore {
   columns: ColumnGeoJSONRecord[];
-  selectedColumn: number;
-}
-
-export interface NavigationStore extends CorrelationMapInput {
+  selectedColumn: number | null;
   selectColumn: (columnID: number | null) => void;
 }
 
-export interface NavigationProviderProps
-  extends CorrelationMapInput,
-    ColumnFetchOptions {
-  columns: ColumnGeoJSONRecord[] | null;
+export interface NavigationProviderProps extends ColumnFetchOptions {
+  selectedColumn?: number | null;
+  columns?: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
   onSelectColumn?: (column: number) => void;
 }
