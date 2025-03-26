@@ -4,6 +4,7 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 import { Meta } from "@storybook/react";
 import { ColumnNavigationMap } from ".";
+import { useState } from "react";
 
 function ColumnNavigationMapExt(props) {
   return h(ColumnNavigationMap, {
@@ -67,3 +68,23 @@ export const onlyPhysicalBasemap = {
     showRoads: false,
   },
 };
+
+export function ControlledColumnNavigation() {
+  const [selectedColumn, setSelectedColumn] = useState(157);
+  const [hoveredColumn, setHoveredColumn] = useState(null);
+
+  return h("div.controlled-navigation", [
+    h(ColumnNavigationMapExt, {
+      selectedColumn,
+      hoveredColumn,
+      onSelectColumn: setSelectedColumn,
+      onHoverColumn: setHoveredColumn,
+    }),
+    h("div.column-info", [
+      h("h3", "Selected column"),
+      h("p", selectedColumn),
+      h("h3", "Hovered column"),
+      h("p", hoveredColumn),
+    ]),
+  ]);
+}

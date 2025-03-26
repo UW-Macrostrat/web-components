@@ -187,8 +187,10 @@ function ColumnsLayer({ enabled = true }) {
 
   /** Set feature state for selected columns */
   const selectedColumnRef = useRef(null);
+  const initialRenderRef = useRef(true);
   useMapStyleOperator(
     (map) => {
+      if (columns == null) return;
       const prevSelectedColumn = selectedColumnRef.current;
       if (selectedColumn == prevSelectedColumn) return;
       if (prevSelectedColumn != null) {
@@ -213,7 +215,12 @@ function ColumnsLayer({ enabled = true }) {
       )?.geometry;
       if (columnGeometry == null) return;
       const center = geoCentroid(columnGeometry);
-      map.easeTo({ center }, { duration: 500 });
+
+      const isInitialRender = initialRenderRef.current;
+      map.easeTo({ center }, { duration: isInitialRender ? 0 : 500 });
+      if (isInitialRender) {
+        initialRenderRef.current = false;
+      }
     },
     [selectedColumn, columns]
   );

@@ -25,8 +25,8 @@ export interface NavigationProviderProps extends ColumnFetchOptions {
   hoveredColumn?: number | null;
   columns?: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
-  onSelectColumn?: (column: number | null) => void;
-  onHoverColumn?: (column: number | null) => void;
+  onSelectColumn?: (col_id: number | null, column: any) => void;
+  onHoverColumn?: (col_id: number | null, column: any) => void;
 }
 
 const NavigationStoreContext = createContext<StoreApi<NavigationStore> | null>(
@@ -52,11 +52,15 @@ export function ColumnNavigationProvider({
         hoveredColumn: null,
         selectColumn(columnID: number | null) {
           set({ selectedColumn: columnID, hoveredColumn: null });
-          onSelectColumn?.(columnID);
+          const { columns } = get();
+          const column = columns?.find((d) => d.id == columnID);
+          onSelectColumn?.(columnID, column);
         },
         setHoveredColumn(columnID: number | null) {
           set({ hoveredColumn: columnID });
-          onHoverColumn?.(columnID);
+          const { columns } = get();
+          const column = columns?.find((d) => d.id == columnID);
+          onHoverColumn?.(columnID, column);
         },
       };
     });
