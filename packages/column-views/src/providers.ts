@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 import { ColumnProvider, ColumnAxisType } from "@macrostrat/column-components";
 import { APIProvider, useAPIResult } from "@macrostrat/ui-components";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useEffect, useMemo } from "react";
 import type { Lithology } from "@macrostrat/api-types";
 
 export function MacrostratColumnProvider(props) {
@@ -35,25 +35,23 @@ export function MacrostratAPIProvider({
 }
 
 import { createContext, useContext } from "react";
+import { useMacrostratStore } from "./data-provider";
 
-const LithologiesContext = createContext<Map<number, Lithology>>(null);
-
-export function LithologiesProvider({
-  children,
-  baseURL = "https://macrostrat.org/api/v2",
-}) {
-  const lithologies: any = useAPIResult(baseURL + "/defs/lithologies", {
-    all: true,
-  });
-
-  const lithMap: Map<number, Lithology> = useMemo(() => {
-    const data = lithologies?.success?.data;
-    if (data == null) return null;
-    return new Map(data.map((d) => [d.lith_id as number, d as Lithology]));
-  }, [lithologies]);
-  return h(LithologiesContext.Provider, { value: lithMap }, children);
+/** This is now a legacy provider */
+export function LithologiesProvider({ children }) {
+  useEffect(() => {
+    console.warn(
+      "LithologiesProvider is deprecated. Replace with MacrostratDataProvider"
+    );
+  }, []);
+  return children;
 }
 
 export function useLithologies() {
-  return useContext(LithologiesContext);
+  const getLithologies = useMacrostratStore((s) => s.getLithologies);
+  const lithologies = useMacrostratStore((s) => s.lithologies);
+  useEffect(() => {
+    if (lithologies == null) getLithologies();
+  }, [lithologies, getLithologies]);
+  return lithologies;
 }

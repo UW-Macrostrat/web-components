@@ -7,3 +7,4 @@ export * from "./column";
 export * from "./unit-details";
 export * from "./maps";
 export * from "./data-fetching";
+export * from "./data-provider";

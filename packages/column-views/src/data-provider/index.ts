@@ -1,13 +1,23 @@
 /** Data provider for information that needs to be loaded in bulk for frontend views */
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import h from "@macrostrat/hyper";
-import { create } from "zustand";
+import { create, useStore } from "zustand";
 import { ColumnGeoJSONRecord } from "@macrostrat/api-types";
+import { fetchAllColumns } from "../data-fetching";
+import useAsyncEffect from "use-async-effect";
 
 interface MacrostratDataProviderProps {
   baseURL: string;
   children: React.ReactNode;
+}
+
+interface ColumnFootprintsStorage {
+  project_id: number;
+  // Whether the "in process" flag was used
+  inProcess: boolean;
+  // The column footprints
+  columns: ColumnGeoJSONRecord[];
 }
 
 interface MacrostratStore {
@@ -16,7 +26,11 @@ interface MacrostratStore {
   getLithologies(ids: number[] | null): Promise<any>;
   intervals: Map<number, any> | null;
   getIntervals(ids: number[] | null, timescaleID: number | null): Promise<any>;
-  columnFootprints: Map<number, ColumnGeoJSONRecord[]> = new Map();
+  columnFootprints: Map<number, ColumnFootprintsStorage>;
+  getColumns(
+    projectID: number | null,
+    inProcess: boolean
+  ): Promise<ColumnGeoJSONRecord[]>;
 }
 
 function createMacrostratStore(
@@ -57,8 +71,64 @@ function createMacrostratStore(
         }
         return ids.map((id) => intervals.get(id));
       },
+      // Column footprints separated by project
+      columnFootprints: new Map(),
+      async getColumns(projectID: number | null, inProcess: boolean) {
+        const { columnFootprints } = get();
+        const key = projectID ?? -1;
+        let footprints = columnFootprints.get(key);
+        if (footprints == null || footprints.inProcess != inProcess) {
+          // Fetch the columns
+          const statusCode = inProcess ? "in process" : null;
+          const columns = await fetchAllColumns({
+            apiBaseURL: baseURL,
+            projectID,
+            statusCode,
+          });
+          footprints = {
+            project_id: projectID,
+            inProcess,
+            columns,
+          };
+          // We could break multi-project result sets into separate caches here...
+          columnFootprints.set(key, footprints);
+        }
+        return footprints.columns;
+      },
     };
   });
+}
+
+type MacrostratSelector = (store: MacrostratStore) => any;
+
+export function useMacrostratStore(selector: MacrostratSelector | "api") {
+  const ctx = useContext(MacrostratDataProviderContext);
+  if (ctx == null) {
+    throw new Error("Missing MacrostratDataProvider");
+  }
+  if (selector === "api") {
+    return ctx;
+  }
+
+  return useStore(ctx, selector);
+}
+
+export function useMacrostratData(dataType: string, ...args: any[]) {
+  const dataTypeMapping = {
+    lithologies: (store) => store.getLithologies,
+    intervals: (store) => store.getIntervals,
+    columns: (store) => store.getColumns,
+  };
+  const selector = dataTypeMapping[dataType];
+  const operator = useMacrostratStore(selector);
+
+  const [value, setValue] = useState(null);
+
+  useEffect(() => {
+    operator(...args).then(setValue);
+  }, [operator, ...args]);
+
+  return value;
 }
 
 /** By default, we provide a store linked to the production API */
@@ -72,7 +142,7 @@ export function MacrostratDataProvider(props: MacrostratDataProviderProps) {
 }
 
 async function fetchLithologies(baseURL: string) {
-  const res = await fetch(baseURL + "/defs/lithologies");
+  const res = await fetch(baseURL + "/defs/lithologies?all");
   const resData = await res.json();
   return resData["success"]["data"];
 }
