@@ -51,7 +51,7 @@ export function ColumnNavigationProvider({
         selectedColumn: null,
         hoveredColumn: null,
         selectColumn(columnID: number | null) {
-          set({ selectedColumn: columnID });
+          set({ selectedColumn: columnID, hoveredColumn: null });
           onSelectColumn?.(columnID);
         },
         setHoveredColumn(columnID: number | null) {

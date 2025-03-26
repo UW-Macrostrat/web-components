@@ -110,12 +110,16 @@ function ColumnsLayer({ enabled = true }) {
   const selectedColumn = useColumnNavigationStore(
     (state) => state.selectedColumn
   );
+  const hoveredColumn = useColumnNavigationStore(
+    (state) => state.hoveredColumn
+  );
   const selectColumn = useColumnNavigationStore((state) => state.selectColumn);
+  const setHoveredColumn = useColumnNavigationStore(
+    (state) => state.setHoveredColumn
+  );
 
   useMapStyleOperator(
     (map) => {
-      let hoveredID: number | null = null;
-
       if (columns == null) {
         return;
       }
@@ -126,37 +130,19 @@ function ColumnsLayer({ enabled = true }) {
 
       setGeoJSON(map, "columns", data);
 
-      const removeHoveredState = () => {
-        if (hoveredID == null) return;
-        map.setFeatureState(
-          { source: "columns", id: hoveredID },
-          { hover: false }
-        );
-        hoveredID = null;
-      };
-
       const mouseMove = (event) => {
         if (event.features.length == 0) return;
         const hoveredFeature = event.features[0];
-        const newHoveredID = hoveredFeature.id;
-        if (hoveredID != newHoveredID) {
-          removeHoveredState();
-        }
-        map.setFeatureState(
-          { source: "columns", id: newHoveredID },
-          { hover: true }
-        );
+        setHoveredColumn(hoveredFeature.id);
         map.getCanvas().style.cursor = "pointer";
-        hoveredID = newHoveredID;
       };
       const mouseLeave = () => {
-        removeHoveredState();
+        setHoveredColumn(null);
         map.getCanvas().style.cursor = "";
       };
 
       const clickHandler = (event) => {
         if (event.features.length == 0) return;
-        removeHoveredState();
         const selectedColumn = event.features[0];
         const id = selectedColumn.id;
         selectColumn(id);
@@ -177,8 +163,30 @@ function ColumnsLayer({ enabled = true }) {
     [columns, enabled]
   );
 
+  const hoveredColumnRef = useRef(null);
+  useMapStyleOperator(
+    (map) => {
+      const prevHoveredColumn = hoveredColumnRef.current;
+      if (hoveredColumn == prevHoveredColumn) return;
+      if (prevHoveredColumn != null) {
+        // Deselect previous column
+        map.setFeatureState(
+          { source: "columns", id: prevHoveredColumn },
+          { hover: false }
+        );
+      }
+      hoveredColumnRef.current = hoveredColumn;
+      // Select the current column
+      map.setFeatureState(
+        { source: "columns", id: hoveredColumn },
+        { hover: true }
+      );
+    },
+    [hoveredColumn, columns]
+  );
+
   /** Set feature state for selected columns */
-  const selectedColumnRef = useRef(selectedColumn);
+  const selectedColumnRef = useRef(null);
   useMapStyleOperator(
     (map) => {
       const prevSelectedColumn = selectedColumnRef.current;
