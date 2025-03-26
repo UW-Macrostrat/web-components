@@ -5,33 +5,36 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 import { Meta } from "@storybook/react";
 import { ColumnNavigationMap } from ".";
 
+function ColumnNavigationMapExt(props) {
+  return h(ColumnNavigationMap, {
+    style: { width: "800px", height: "600px" },
+    padding: 100,
+    accessToken: mapboxToken,
+    ...props,
+  });
+}
+
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Column views/Maps/Column navigation",
-  component: ColumnNavigationMap,
+  component: ColumnNavigationMapExt,
   description: "Cross section creation map",
 } as Meta<typeof ColumnNavigationMap>;
 
 export const ColumnNavigation = {
-  args: {
-    style: { width: "800px", height: "600px" },
-    accessToken: mapboxToken,
-    padding: 100,
-  },
+  args: {},
 };
 
 export const nonStandardProject = {
   args: {
-    style: { width: "800px", height: "600px" },
-    accessToken: mapboxToken,
     padding: 100,
     projectID: 10,
     statusCode: "in process",
     mapPosition: {
       camera: {
-        lng: -100,
-        lat: 38,
-        altitude: 5000000,
+        lng: -72,
+        lat: 44,
+        altitude: 600000,
       },
     },
   },
@@ -39,17 +42,16 @@ export const nonStandardProject = {
 
 export const eODP = {
   args: {
-    style: { width: "800px", height: "600px" },
-    accessToken: mapboxToken,
-    padding: 100,
     projectID: 3,
     statusCode: "in process",
-    mapPosition: {
-      camera: {
-        lng: -100,
-        lat: 38,
-        altitude: 5000000,
-      },
-    },
+  },
+};
+
+export const showTriangulation = {
+  description: "Show the triangulation used for keyboard navigation",
+  args: {
+    showTriangulation: true,
+    columnColor: "#1fff53",
+    triangulationColor: "#9a33bb",
   },
 };

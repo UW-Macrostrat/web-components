@@ -2,7 +2,7 @@ import { MapViewProps } from "@macrostrat/map-interface";
 import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
 import { FeatureCollection } from "geojson";
-import { ReactNode, useRef } from "react";
+import { ReactNode, useMemo, useRef } from "react";
 import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 
 import {
@@ -11,12 +11,13 @@ import {
   useColumnNavigationStore,
 } from "./state";
 import { InsetMap } from "../../_shared";
-import { buildCrossSectionLayers } from "@macrostrat/map-styles";
 import { geoCentroid } from "d3-geo";
 import {
   keyboardNavigationStyle,
   ColumnKeyboardNavigation,
+  buildKeyboardNavigationStyle,
 } from "./keyboard-navigation";
+import mapboxgl from "mapbox-gl";
 
 export interface ColumnNavigationMapProps extends MapViewProps {
   padding?: number;
@@ -26,6 +27,9 @@ export interface ColumnNavigationMapProps extends MapViewProps {
   hoveredColumn?: number;
   onSelectColumn?: (colID: number | null) => void;
   onHoverColumn?: (colID: number | null) => void;
+  showTriangulation?: boolean;
+  columnColor?: string;
+  triangulationColor?: string;
 }
 
 export function ColumnNavigationMap(
@@ -62,7 +66,22 @@ export function ColumnNavigationMap(
 }
 
 function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
-  const { padding = 50, children, ...rest } = props;
+  const {
+    padding = 50,
+    children,
+    columnColor,
+    showTriangulation,
+    triangulationColor,
+    ...rest
+  } = props;
+
+  const overlayStyles = useMemo(() => {
+    let styles: any[] = [buildColumnsStyle(columnColor)];
+    if (showTriangulation) {
+      styles.push(buildKeyboardNavigationStyle(triangulationColor));
+    }
+    return styles;
+  }, [columnColor, showTriangulation, triangulationColor]);
 
   return h(
     InsetMap,
@@ -70,9 +89,13 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
       ...rest,
       boxZoom: false,
       dragRotate: false,
-      overlayStyles: _overlayStyles,
+      overlayStyles,
     },
-    [h(ColumnsLayer), h(ColumnKeyboardNavigation), children]
+    [
+      h(ColumnsLayer),
+      h(ColumnKeyboardNavigation, { showTriangulation }),
+      children,
+    ]
   );
 }
 
@@ -184,61 +207,56 @@ function ColumnsLayer({ enabled = true }) {
   return null;
 }
 
-const columnsStyle = {
-  sources: {
-    columns: buildGeoJSONSource(),
-  },
-  layers: [
-    {
-      id: "columns-fill",
-      type: "fill",
-      source: "columns",
-      paint: {
-        "fill-color": "#000000",
-        "fill-opacity": [
-          "case",
-          ["boolean", ["feature-state", "selected"], false],
-          0.5,
-          ["boolean", ["feature-state", "hover"], false],
-          0.3,
-          0.1,
-        ],
-      },
+function buildColumnsStyle(columnColor: string = "black") {
+  return {
+    sources: {
+      columns: buildGeoJSONSource(),
     },
-    {
-      id: "columns-line",
-      type: "line",
-      source: "columns",
-      paint: {
-        "line-color": "rgb(0, 0, 0)",
-        "line-width": 2,
-        "line-opacity": 0.5,
+    layers: [
+      {
+        id: "columns-fill",
+        type: "fill",
+        source: "columns",
+        paint: {
+          "fill-color": columnColor,
+          "fill-opacity": [
+            "case",
+            ["boolean", ["feature-state", "selected"], false],
+            0.5,
+            ["boolean", ["feature-state", "hover"], false],
+            0.3,
+            0.1,
+          ],
+        },
       },
-    },
-    {
-      id: "columns-points",
-      type: "circle",
-      source: "columns",
-      paint: {
-        "circle-radius": 4,
-        "circle-color": "rgba(0, 0, 0, 0.5)",
+      {
+        id: "columns-line",
+        type: "line",
+        source: "columns",
+        paint: {
+          "line-color": columnColor,
+          "line-width": 2,
+          "line-opacity": 0.5,
+        },
       },
-      filter: ["==", "$type", "Point"],
-    },
-  ],
-};
-
-const lineOfSectionStyle = {
-  sources: {
-    elevationMarker: buildGeoJSONSource(),
-    crossSectionLine: buildGeoJSONSource(),
-    crossSectionEndpoints: buildGeoJSONSource(),
-  },
-  layers: buildCrossSectionLayers(),
-};
-
-const _overlayStyles = [
-  columnsStyle,
-  lineOfSectionStyle,
-  keyboardNavigationStyle,
-];
+      {
+        id: "columns-points",
+        type: "circle",
+        source: "columns",
+        paint: {
+          "circle-radius": 4,
+          "circle-color": columnColor,
+          "circle-opacity": [
+            "case",
+            ["boolean", ["feature-state", "selected"], false],
+            1,
+            ["boolean", ["feature-state", "hover"], false],
+            0.7,
+            0.5,
+          ],
+        },
+        filter: ["==", "$type", "Point"],
+      },
+    ],
+  };
+}

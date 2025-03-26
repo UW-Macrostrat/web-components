@@ -8,12 +8,12 @@ import {
 } from "../utils/keyboard-navigation";
 
 interface KeyboardNavProps {
-  showLayers: boolean;
+  showTriangulation: boolean;
 }
 
 export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   /** Keyboard navigation of columns using a Delaunay triangulation */
-  const { showLayers = false } = props;
+  const { showTriangulation = false } = props;
   const columns = useColumnNavigationStore((state) => state.columns);
   const col_id = useColumnNavigationStore((state) => state.selectedColumn);
   const selectColumn = useColumnNavigationStore((state) => state.selectColumn);
@@ -75,15 +75,16 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
   useMapStyleOperator(
     (map) => {
-      if (!showLayers) return;
-      if (voronoi == null) return;
+      if (voronoi == null || !showTriangulation) return;
+      console.log("Setting triangulation");
       const { features } = voronoi.tri.links();
-      setGeoJSON(map, "links", {
+
+      setGeoJSON(map, "column-links", {
         type: "FeatureCollection",
         features,
       });
     },
-    [voronoi]
+    [voronoi, showTriangulation]
   );
 
   //if (neighbors == null) return null;
@@ -92,29 +93,31 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   return null;
 }
 
-export const keyboardNavigationStyle = {
-  sources: {
-    links: buildGeoJSONSource(),
-    //neighbors: buildGeoJSONSource(),
-  },
-  layers: [
-    {
-      id: "column-links",
-      type: "line",
-      source: "links",
-      paint: {
-        "line-color": "purple",
-        "line-width": 1,
-      },
+export function buildKeyboardNavigationStyle(color: string = "purple") {
+  return {
+    sources: {
+      "column-links": buildGeoJSONSource(),
+      //neighbors: buildGeoJSONSource(),
     },
-    {
-      id: "column-centers",
-      type: "circle",
-      source: "links",
-      paint: {
-        "circle-radius": 2,
-        "circle-color": "purple",
+    layers: [
+      {
+        id: "column-links",
+        type: "line",
+        source: "column-links",
+        paint: {
+          "line-color": color,
+          "line-width": 1.5,
+        },
       },
-    },
-  ],
-};
+      {
+        id: "column-centers",
+        type: "circle",
+        source: "column-links",
+        paint: {
+          "circle-radius": 2,
+          "circle-color": color,
+        },
+      },
+    ],
+  };
+}

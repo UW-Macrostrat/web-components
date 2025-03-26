@@ -27,6 +27,15 @@ export function InsetMap({
           style: _style,
           accessToken,
           standalone: true,
+          /* Default map position that centers on the bulk of Macrostrat columns
+           */
+          mapPosition: {
+            camera: {
+              lng: -100,
+              lat: 38,
+              altitude: 5000000,
+            },
+          },
           ...rest,
         },
         children
