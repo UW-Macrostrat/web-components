@@ -3,7 +3,7 @@ import styles from "./column.module.sass";
 
 import { useAPIResult } from "@macrostrat/ui-components";
 import BaseColumn from "./column";
-import { ColumnNavigatorMap, MeasurementsLayer } from "../maps";
+import { ColumnNavigationSVGMap, MeasurementsLayer } from "../maps";
 import { MeasurementDataProvider } from "./data-provider";
 import { MacrostratAPIProvider } from "../providers";
 import { ColumnArgs, useColumnNav } from "../units";
@@ -53,7 +53,7 @@ function ColumnManager() {
       ]),
       h("div.map-column", [
         h(
-          ColumnNavigatorMap,
+          ColumnNavigationSVGMap,
           {
             currentColumn: columnFeature,
             setCurrentColumn,

@@ -3,48 +3,14 @@ import h from "@macrostrat/hyper";
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 import { Meta } from "@storybook/react";
-import {
-  ColumnNavigationMap,
-  ColumnNavigationProvider,
-  CorrelationMapProps,
-  NavigationProviderProps,
-} from ".";
-
-function ColumnNavigationMapExt(
-  props: CorrelationMapProps & NavigationProviderProps
-) {
-  const {
-    focusedLine,
-    columns,
-    apiBaseURL,
-    onSelectColumns,
-    projectID,
-    format,
-    statusCode,
-    ...rest
-  } = props;
-
-  return h(
-    ColumnNavigationProvider,
-    {
-      focusedLine,
-      columns,
-      apiBaseURL,
-      onSelectColumns,
-      projectID,
-      format,
-      statusCode,
-    },
-    h(ColumnNavigationMap, rest)
-  );
-}
+import { ColumnNavigationMap } from ".";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Column views/Maps/Column navigation",
-  component: ColumnNavigationMapExt,
+  component: ColumnNavigationMap,
   description: "Cross section creation map",
-} as Meta<typeof ColumnNavigationMapExt>;
+} as Meta<typeof ColumnNavigationMap>;
 
 export const ColumnNavigation = {
   args: {

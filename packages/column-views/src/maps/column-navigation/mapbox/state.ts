@@ -15,14 +15,18 @@ import { fetchAllColumns, ColumnFetchOptions } from "../../../data-fetching";
 export interface NavigationStore {
   columns: ColumnGeoJSONRecord[];
   selectedColumn: number | null;
+  hoveredColumn: number | null;
   selectColumn: (columnID: number | null) => void;
+  setHoveredColumn: (columnID: number | null) => void;
 }
 
 export interface NavigationProviderProps extends ColumnFetchOptions {
   selectedColumn?: number | null;
+  hoveredColumn?: number | null;
   columns?: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
-  onSelectColumn?: (column: number) => void;
+  onSelectColumn?: (column: number | null) => void;
+  onHoverColumn?: (column: number | null) => void;
 }
 
 const NavigationStoreContext = createContext<StoreApi<NavigationStore> | null>(
@@ -38,15 +42,21 @@ export function ColumnNavigationProvider({
   projectID,
   statusCode,
   onSelectColumn,
+  onHoverColumn,
 }: NavigationProviderProps) {
   const [store] = useState(() => {
     return create<NavigationStore>((set, get): NavigationStore => {
       return {
         columns: null,
         selectedColumn: null,
+        hoveredColumn: null,
         selectColumn(columnID: number | null) {
           set({ selectedColumn: columnID });
           onSelectColumn?.(columnID);
+        },
+        setHoveredColumn(columnID: number | null) {
+          set({ hoveredColumn: columnID });
+          onHoverColumn?.(columnID);
         },
       };
     });

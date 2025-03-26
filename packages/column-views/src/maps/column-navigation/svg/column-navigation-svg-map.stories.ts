@@ -9,19 +9,19 @@ interface ColumnIndexMapProps extends ColumnNavigationSVGMapProps {
   col_id: number;
 }
 
-function BasicColumnNavigatorMap(props: ColumnIndexMapProps) {
+function BasicColumnNavigationSVGMap(props: ColumnIndexMapProps) {
   return h(
     MacrostratAPIProvider,
     { baseURL: "https://macrostrat.org/api/v2" },
-    h(ColumnNavigatorMap, { style: { width: 500, height: 500 }, ...props })
+    h(ColumnNavigationSVGMap, { style: { width: 500, height: 500 }, ...props })
   );
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Column views/Maps/Column navigation (SVG)",
-  component: BasicColumnNavigatorMap,
-} as Meta<typeof ColumnNavigatorMap>;
+  component: BasicColumnNavigationSVGMap,
+} as Meta<typeof ColumnNavigationSVGMap>;
 
 export const StaticColumnView = {
   args: {
@@ -31,7 +31,7 @@ export const StaticColumnView = {
 
 export function Interactive() {
   const [currentColumn, setCurrentColumn] = useState(null);
-  return h(BasicColumnNavigatorMap, {
+  return h(BasicColumnNavigationSVGMap, {
     currentColumn,
     setCurrentColumn,
   });
@@ -39,7 +39,7 @@ export function Interactive() {
 
 export function ShowingTriangulation() {
   const [currentColumn, setCurrentColumn] = useState(null);
-  return h(BasicColumnNavigatorMap, {
+  return h(BasicColumnNavigationSVGMap, {
     currentColumn,
     setCurrentColumn,
     showDebugLayers: true,
