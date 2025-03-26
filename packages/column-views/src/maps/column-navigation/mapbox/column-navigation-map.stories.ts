@@ -22,7 +22,9 @@ export default {
 } as Meta<typeof ColumnNavigationMap>;
 
 export const ColumnNavigation = {
-  args: {},
+  args: {
+    showTriangulation: false,
+  },
 };
 
 export const nonStandardProject = {
@@ -30,6 +32,7 @@ export const nonStandardProject = {
     padding: 100,
     projectID: 10,
     statusCode: "in process",
+    showTriangulation: false,
     mapPosition: {
       camera: {
         lng: -72,

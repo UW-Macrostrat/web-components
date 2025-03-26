@@ -5,6 +5,7 @@ import {
   useMapPosition,
   use3DTerrain,
   getTerrainLayerForStyle,
+  useMapStatus,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
@@ -133,6 +134,7 @@ export function MapView(props: MapViewProps) {
   const parentRef = useRef<HTMLDivElement>();
 
   const [baseStyle, setBaseStyle] = useState<mapboxgl.Style>(null);
+  const isStyleLoaded = useMapStatus((state) => state.isStyleLoaded);
 
   useEffect(() => {
     /** Manager to update map style */
@@ -171,6 +173,7 @@ export function MapView(props: MapViewProps) {
 
     if (map != null) {
       console.log("Setting style", newStyle);
+      dispatch({ type: "set-style-loaded", payload: false });
       map.setStyle(newStyle);
     } else {
       console.log("Initializing map", newStyle);
@@ -185,24 +188,25 @@ export function MapView(props: MapViewProps) {
       map.setPadding(getMapPadding(ref, parentRef), { animate: false });
       onMapLoaded?.(map);
     }
-
-    const loadCallback = () => {
-      onStyleLoaded?.(map);
-      // Set initial terrain state
-      dispatch({ type: "set-style-loaded", payload: true });
-    };
-
-    map = mapRef.current;
-
-    if (map.isStyleLoaded()) {
-      // Catch a race condition where the style is loaded before the callback is set
-      loadCallback();
-    }
-    map.on("style.load", loadCallback);
-    return () => {
-      map.off("style.load", loadCallback);
-    };
   }, [baseStyle, overlayStyles, transformStyle]);
+
+  /** Check back every 0.1 seconds to see if the map has loaded.
+   * We do it this way because mapboxgl loading events are unreliable */
+  useEffect(() => {
+    if (isStyleLoaded) return;
+    const interval = setInterval(() => {
+      const map = mapRef.current;
+      if (map == null) return;
+      if (map.isStyleLoaded()) {
+        console.log("Style loaded");
+        // Wait a tick before setting the style loaded state
+        dispatch({ type: "set-style-loaded", payload: true });
+        onStyleLoaded?.(map);
+        clearInterval(interval);
+      }
+    }, 50);
+    return () => clearInterval(interval);
+  }, [isStyleLoaded]);
 
   useAsyncEffect(async () => {
     /** Manager to update map style */

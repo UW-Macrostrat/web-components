@@ -75,8 +75,13 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
   useMapStyleOperator(
     (map) => {
+      console.log(
+        "Setting triangulation",
+        map.isStyleLoaded(),
+        voronoi,
+        showTriangulation
+      );
       if (voronoi == null || !showTriangulation) return;
-      console.log("Setting triangulation");
       const { features } = voronoi.tri.links();
 
       setGeoJSON(map, "column-links", {

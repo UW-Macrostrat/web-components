@@ -30,6 +30,7 @@ export interface ColumnNavigationMapProps extends MapViewProps {
   showTriangulation?: boolean;
   columnColor?: string;
   triangulationColor?: string;
+  keyboardNavigation?: boolean;
 }
 
 export function ColumnNavigationMap(
@@ -72,6 +73,7 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
     columnColor,
     showTriangulation,
     triangulationColor,
+    keyboardNavigation = true,
     ...rest
   } = props;
 
@@ -93,7 +95,7 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
     },
     [
       h(ColumnsLayer),
-      h(ColumnKeyboardNavigation, { showTriangulation }),
+      h.if(keyboardNavigation)(ColumnKeyboardNavigation, { showTriangulation }),
       children,
     ]
   );
