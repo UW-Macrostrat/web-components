@@ -71,7 +71,6 @@ function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
   const map = new mapboxgl.Map({
     container,
     maxZoom: 18,
-    //maxTileCacheSize: 0,
     logoPosition: "bottom-left",
     trackResize: true,
     antialias: true,
@@ -193,6 +192,7 @@ export function MapView(props: MapViewProps) {
   /** Check back every 0.1 seconds to see if the map has loaded.
    * We do it this way because mapboxgl loading events are unreliable */
   useEffect(() => {
+    console.log("Responding to style loaded event", isStyleLoaded);
     if (isStyleLoaded) return;
     const interval = setInterval(() => {
       const map = mapRef.current;

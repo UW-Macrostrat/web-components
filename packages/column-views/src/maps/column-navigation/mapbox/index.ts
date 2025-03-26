@@ -3,7 +3,11 @@ import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
 import { FeatureCollection } from "geojson";
 import { ReactNode, useMemo, useRef } from "react";
-import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
+import {
+  setGeoJSON,
+  buildGeoJSONSource,
+  removeMapLabels,
+} from "@macrostrat/mapbox-utils";
 
 import {
   ColumnNavigationProvider,

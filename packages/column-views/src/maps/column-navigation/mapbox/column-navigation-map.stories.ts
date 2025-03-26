@@ -58,3 +58,12 @@ export const showTriangulation = {
     triangulationColor: "#9a33bb",
   },
 };
+
+export const onlyPhysicalBasemap = {
+  args: {
+    mapStyle: "mapbox://styles/mapbox/outdoors-v11",
+    showLabels: true,
+    showAdmin: false,
+    showRoads: false,
+  },
+};
