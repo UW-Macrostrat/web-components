@@ -3,12 +3,17 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import h from "@macrostrat/hyper";
 import { create, useStore } from "zustand";
-import { ColumnGeoJSONRecord, Environment } from "@macrostrat/api-types";
+import {
+  ColumnGeoJSONRecord,
+  Environment,
+  MacrostratRef,
+} from "@macrostrat/api-types";
 import {
   fetchAllColumns,
   fetchEnvironments,
   fetchIntervals,
   fetchLithologies,
+  fetchRefs,
 } from "./fetch";
 export * from "./fetch";
 
@@ -25,7 +30,12 @@ interface ColumnFootprintsStorage {
   columns: ColumnGeoJSONRecord[];
 }
 
-interface MacrostratStore {
+interface RefsSlice {
+  refs: Map<number, MacrostratRef>;
+  getRefs(ids: number[]): MacrostratRef[];
+}
+
+interface MacrostratStore extends RefsSlice {
   baseURL: string;
   lithologies: Map<number, any> | null;
   getLithologies(ids: number[] | null): Promise<any>;
@@ -50,8 +60,28 @@ function createMacrostratStore(
       ...createIntervalsSlice(set, get),
       ...createEnvironmentsSlice(set, get),
       ...createColumnsSlice(set, get),
+      ...createRefsSlice(set, get),
     };
   });
+}
+
+function createRefsSlice(set, get) {
+  return {
+    refs: new Map(),
+    async getRefs(ids: number[]): Promise<MacrostratRef[]> {
+      const { refs, baseURL } = get();
+      const missing = ids.filter((id) => !refs.has(id));
+      if (missing.length == 0) {
+        return ids.map((id) => refs.get(id));
+      }
+      const data = await fetchRefs(baseURL, missing);
+      for (const d of data) {
+        refs.set(d.ref_id, d);
+      }
+      set({ refs });
+      return ids.map((id) => refs.get(id));
+    },
+  };
 }
 
 function createColumnsSlice(set, get) {
@@ -167,6 +197,7 @@ const dataTypeMapping = {
   intervals: (store) => store.getIntervals,
   columns: (store) => store.getColumns,
   environments: (store) => store.getEnvironments,
+  refs: (store) => store.getRefs,
 };
 
 export function useMacrostratDefs(dataType: string): Map<number, any> | null {

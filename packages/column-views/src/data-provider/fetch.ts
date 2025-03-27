@@ -1,4 +1,4 @@
-import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
+import type { ColumnGeoJSONRecord, MacrostratRef } from "@macrostrat/api-types";
 import {
   addQueryString,
   joinURL,
@@ -147,6 +147,21 @@ export async function fetchIntervals(
 
 export async function fetchEnvironments(baseURL: string) {
   const res = await fetch(baseURL + "/defs/environments?all");
+  const resData = await res.json();
+  return resData["success"]["data"];
+}
+
+export async function fetchRefs(
+  baseURL: string,
+  refs: number[]
+): Promise<MacrostratRef[]> {
+  let url = `${baseURL}/defs/refs`;
+  if (refs.length == 0) {
+    return [];
+  }
+  url += "?ref_id=" + refs.join(",");
+  const res = await fetch(url);
+
   const resData = await res.json();
   return resData["success"]["data"];
 }

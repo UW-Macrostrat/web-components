@@ -13,7 +13,7 @@ import {
 } from "@macrostrat/data-components";
 import { useUnitSelectionDispatch } from "../units/selection";
 import { useMacrostratUnits } from "../store";
-import { useMacrostratDefs } from "@macrostrat/column-views";
+import { useMacrostratData, useMacrostratDefs } from "@macrostrat/column-views";
 import { Environment } from "@macrostrat/api-types";
 
 const h = hyper.styled(styles);
@@ -91,11 +91,23 @@ function UnitDetailsContent({
     outcrop = "surface and subsurface";
   }
 
+  let minThickness = unit.min_thick ?? 0;
+  let maxThickness = unit.max_thick ?? unit.min_thick ?? 0;
+  let thicknessUnit = "m";
+  let thickness = `${unit.min_thick}–${unit.max_thick}`;
+  if (minThickness == maxThickness) {
+    thickness = `${minThickness}`;
+  }
+  if (minThickness == 0 && maxThickness == 0) {
+    thickness = "Unknown";
+    thicknessUnit = null;
+  }
+
   return h("div.unit-details-content", [
     h(DataField, {
       label: "Thickness",
-      value: `${unit.min_thick}–${unit.max_thick}`,
-      unit: "m",
+      value: thickness,
+      unit: thicknessUnit,
     }),
     h(LithologyList, {
       lithologies: unit.lith,
@@ -133,6 +145,30 @@ function UnitDetailsContent({
       { label: "Color" },
       h("span.color-swatch", { style: { backgroundColor: unit.color } })
     ),
+    h(DataField, { label: "Source" }, h(BibInfo, { refs: unit.refs })),
+  ]);
+}
+
+function BibInfo({ refs }) {
+  const refData = useMacrostratData("refs", refs);
+
+  if (refData == null) {
+    return null;
+  }
+
+  return h(
+    "ul.refs",
+    refData.map((data) => h(Citation, { data }))
+  );
+}
+
+function Citation({ data }) {
+  return h("li.citation", [
+    h("span.authors", data.author),
+    ", ",
+    h("span.year", data.pub_year),
+    ", ",
+    h("span.title", data.ref),
   ]);
 }
 
@@ -141,7 +177,6 @@ function enhanceEnvironments(
   envMap: Map<number, Environment>
 ) {
   return environments.map((env) => {
-    console.log(env);
     return {
       ...(envMap?.get(env.environ_id) ?? {}),
       ...env,
@@ -170,15 +205,18 @@ function UnitIDList({ units }) {
     tag = "a";
   }
 
-  return h(ItemList, { className: "unit-id-list" }, [
+  return h(
+    ItemList,
+    { className: "unit-id-list" },
     u1.map((unit) => {
       return h(
         tag,
+
         { className: "unit-id", onClick: onClickHandler?.(unit), key: unit.id },
         unit
       );
-    }),
-  ]);
+    })
+  );
 }
 
 function IntervalField({ unit }) {

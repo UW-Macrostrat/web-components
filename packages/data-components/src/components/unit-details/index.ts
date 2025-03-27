@@ -5,7 +5,6 @@ const h = hyper.styled(styles);
 
 import classNames from "classnames";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
-import { LithologyTag } from "./lithology-tag";
 import { BaseTag, BaseTagProps } from "@macrostrat/data-components";
 
 export * from "./base-tag";
