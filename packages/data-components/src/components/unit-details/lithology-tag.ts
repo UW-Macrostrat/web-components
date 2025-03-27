@@ -1,6 +1,9 @@
 import { useInDarkMode } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
-import { asChromaColor } from "@macrostrat/color-utils";
+import {
+  asCSSVariables,
+  getLuminanceAdjustedColorScheme,
+} from "@macrostrat/color-utils";
 import styles from "./lithology-tag.module.sass";
 import { DataField } from "./index";
 import { ReactNode } from "react";
@@ -20,25 +23,18 @@ export function LithologyTag({
   expandOnHover = false,
   showProportion = true,
   showAttributes = false,
-  size = LithologyTagSize.Normal,
+  size,
 }) {
   const darkMode = useInDarkMode();
-  const luminance = darkMode ? 0.9 : 0.2;
-  const _color = asChromaColor(color ?? data.color);
-  const backgroundLuminance = darkMode ? 0.1 : 0.9;
-  const mainColor = _color?.luminance(luminance).hex();
-  const backgroundColor = _color?.luminance(backgroundLuminance).hex();
-
-  const secondaryColor = _color?.luminance(darkMode ? 0.7 : 0.4).hex();
+  const scheme: any = getLuminanceAdjustedColorScheme(
+    color ?? data.color,
+    darkMode
+  );
 
   let proportion = null;
   if (data.prop != null && showProportion) {
     const prop = Math.round(data.prop * 100);
-    proportion = h(
-      "span.lithology-proportion",
-      { style: { color: secondaryColor } },
-      `${prop}%`
-    );
+    proportion = h("span.lithology-proportion", `${prop}%`);
   }
 
   const coreTag = h(
@@ -56,29 +52,24 @@ export function LithologyTag({
       return h("span.lithology-attribute", att);
     });
     atts = commaSeparated(atts);
-    console.log(atts);
     atts = h("span.lithology-attributes", atts);
   }
 
-  let fontSize = "1em";
+  let fontSize = null;
   if (size === LithologyTagSize.Small) {
     fontSize = "12px";
+  } else if (size === LithologyTagSize.Normal) {
+    fontSize = "1em";
   } else if (size === LithologyTagSize.Large) {
     fontSize = "1.4em";
   }
 
   return h(
     "span.lithology-tag",
-
     {
       key: data.id,
       className,
-      style: {
-        "--text-color": mainColor,
-        "--secondary-color": secondaryColor,
-        "--background-color": backgroundColor,
-        "--tag-font-size": fontSize,
-      },
+      style: asCSSVariables({ ...scheme, fontSize }),
     },
     [atts, coreTag]
   );
