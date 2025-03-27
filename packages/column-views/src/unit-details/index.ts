@@ -74,7 +74,11 @@ export function LegendPanelHeader({ title, id, onClose, actions = null }) {
   ]);
 }
 
-function UnitDetailsContent({ unit, showLithologyProportions = true }) {
+function UnitDetailsContent({
+  unit,
+  showLithologyProportions = true,
+  showLithologyAttributes = true,
+}) {
   const lithMap = useLithologies();
 
   let outcrop = unit.outcrop;
@@ -92,6 +96,7 @@ function UnitDetailsContent({ unit, showLithologyProportions = true }) {
       lithologies: unit.lith,
       lithologyMap: lithMap,
       showProportions: showLithologyProportions,
+      showAttributes: showLithologyAttributes,
     }),
     h(DataField, {
       label: "Age range",
