@@ -8,10 +8,64 @@ import chroma from "chroma-js";
 
 const h = hyper.styled(styles);
 
-export enum LithologyTagSize {
+export enum TagSize {
   Small = "small",
   Normal = "normal",
   Large = "large",
+}
+
+interface BaseTagProps {
+  prefix?: ReactNode;
+  name: ReactNode;
+  details?: ReactNode;
+  classNames?: {
+    prefix?: string;
+    details?: string;
+    main?: string;
+  };
+  className: string;
+  children?: ReactNode;
+  size?: TagSize;
+  color?: chroma.ChromaInput;
+}
+
+export function BaseTag(props: BaseTagProps) {
+  const inDarkMode = useInDarkMode();
+  const {
+    prefix,
+    name,
+    details,
+    classNames = {},
+    className,
+    children,
+    size,
+    color,
+  } = props;
+
+  let _details = null;
+  if (details != null) {
+    _details = h("span.details", { className: classNames.details }, details);
+  }
+
+  const mainTag = h("span.main", { className: classNames.main }, [
+    h("span.name", name),
+    children,
+    _details,
+  ]);
+
+  let _prefix = null;
+  if (prefix != null) {
+    _prefix = h("span.prefix", { className: classNames.prefix }, prefix);
+  }
+
+  return h(
+    "span.tag",
+    {
+      className,
+      style: buildTagStyle({ color, size, inDarkMode }),
+    },
+    [_prefix, mainTag]
+  );
 }
 
 interface LithologyTagProps {
@@ -21,14 +75,12 @@ interface LithologyTagProps {
   expandOnHover?: boolean;
   showProportion?: boolean;
   showAttributes?: boolean;
-  size?: LithologyTagSize;
+  size?: TagSize;
 }
 
 export function LithologyTag({
   data,
   color,
-  className = null,
-  expandOnHover = false,
   showProportion = true,
   showAttributes = false,
   size,
@@ -41,38 +93,27 @@ export function LithologyTag({
     proportion = h("span.lithology-proportion", `${prop}%`);
   }
 
-  const coreTag = h(
-    "span.lithology-tag-main",
-    h("span.contents", [
-      h("span.name", data.name),
-      h.if(expandOnHover)("code.lithology-id", `${data.lith_id}`),
-      proportion,
-    ])
-  );
-
   let atts = null;
   if (showAttributes && data.atts != null && data.atts.length > 0) {
     atts = data.atts.map((att) => {
       return h("span.lithology-attribute", att);
     });
     atts = commaSeparated(atts);
-    atts = h("span.lithology-attributes", atts);
   }
 
-  return h(
-    "span.lithology-tag",
-    {
-      key: data.id,
-      className,
-      style: buildTagStyle({ color, size, inDarkMode }),
-    },
-    [atts, coreTag]
-  );
+  return h(BaseTag, {
+    prefix: atts,
+    details: proportion,
+    name: data.name,
+    className: "lithology-tag",
+    size,
+    color: color ?? data.color,
+  });
 }
 
 interface TagStyleProps {
   color?: chroma.ChromaInput;
-  size?: LithologyTagSize;
+  size?: TagSize;
   inDarkMode?: boolean;
 }
 
@@ -80,11 +121,11 @@ function buildTagStyle({ color, size, inDarkMode }: TagStyleProps = {}) {
   const scheme: any = getLuminanceAdjustedColorScheme(color, inDarkMode);
 
   let fontSize: string | null = null;
-  if (size === LithologyTagSize.Small) {
+  if (size === TagSize.Small) {
     fontSize = "12px";
-  } else if (size === LithologyTagSize.Normal) {
+  } else if (size === TagSize.Normal) {
     fontSize = "1em";
-  } else if (size === LithologyTagSize.Large) {
+  } else if (size === TagSize.Large) {
     fontSize = "1.4em";
   }
 
@@ -133,15 +174,26 @@ export function LithologyList({
     h(
       ItemList,
       { className: "lithology-list" },
-      lithologies.map((lith) => {
-        let color = lithologyMap?.get(lith.lith_id)?.color;
-        return h(LithologyTag, {
-          data: lith,
-          color,
-          showProportion: showProportions,
-          showAttributes: showAttributes,
-        });
-      })
+      lithologies
+        .toSorted((a, b) => {
+          let dx = (b.prop ?? 0) - (a.prop ?? 0);
+          if (dx == 0) {
+            dx = (b.atts?.length ?? 0) - (a.atts?.length ?? 0);
+          }
+          if (dx == 0) {
+            return a.name.localeCompare(b.name);
+          }
+          return dx;
+        })
+        .map((lith) => {
+          let color = lithologyMap?.get(lith.lith_id)?.color;
+          return h(LithologyTag, {
+            data: lith,
+            color,
+            showProportion: showProportions,
+            showAttributes: showAttributes,
+          });
+        })
     )
   );
 }

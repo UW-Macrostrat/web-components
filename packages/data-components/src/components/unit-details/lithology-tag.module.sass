@@ -6,42 +6,40 @@
 .tight-list
   padding-left: 1em
 
-.lithology-tag
-  font-size: var(--font-size, 12px)
+.tag
+  font-size: var(--font-size)
   align-items: baseline
   display: inline-flex
   border-radius: 0.3em
   flex-direction: row
   background-color: var(--tag-secondary-background, var(--secondary-background))
-
-.lithology-attributes
-  display: inline-block
-  padding: 0 0.5em
-
-.lithology-tag, .lithology-attributes, .lithology-proportion, .lithology-id
   color: var(--secondary-color)
 
-.lithology-tag-main
-  align-items: baseline
-  display: inline-flex
-  padding: 0.2em 0.5em
-  border-radius: 0.3em
-  color: var(--text-color)
-  background-color: var(--tag-background, var(--tertiary-background))
+  .prefix
+    display: inline-block
+    padding: 0 0.5em
 
-  .lithology-id
-    width: 0
-    overflow: hidden
-    white-space: nowrap
-    transition: width 0.3s
+  .main
+    align-items: baseline
+    display: inline-flex
+    padding: 0.2em 0.5em
+    border-radius: 0.3em
+    color: var(--text-color)
+    background-color: var(--tag-background, var(--tertiary-background))
 
-  &:hover
-    .lithology-id
-      width: 100%
+  //.lithology-id
+  //  width: 0
+  //  overflow: hidden
+  //  white-space: nowrap
+  //  transition: width 0.3s
+  //&:hover
+  //  .lithology-id
+  //    width: 100%
 
-.lithology-proportion
-  font-style: italic
-  padding-left: 0.5em
+  .details
+    color: var(--secondary-color)
+    font-style: italic
+    padding-left: 0.3em
 
 .item-list
   display: inline-flex
