@@ -1,5 +1,4 @@
 .lithology-id
-  color: var(--secondary-color)
   &::before
     content: '#'
   padding-left: 0.5em
@@ -8,17 +7,18 @@
   padding-left: 1em
 
 .lithology-tag
-  //border: 2px solid var(--background-color)
   font-size: var(--font-size, 12px)
   align-items: baseline
   display: inline-flex
   border-radius: 0.3em
   flex-direction: row
-  background-color: var(--secondary-background-color)
+  background-color: var(--tag-secondary-background, var(--secondary-background))
 
 .lithology-attributes
   display: inline-block
   padding: 0 0.5em
+
+.lithology-tag, .lithology-attributes, .lithology-proportion, .lithology-id
   color: var(--secondary-color)
 
 .lithology-tag-main
@@ -27,7 +27,7 @@
   padding: 0.2em 0.5em
   border-radius: 0.3em
   color: var(--text-color)
-  background-color: var(--background-color)
+  background-color: var(--tag-background, var(--tertiary-background))
 
   .lithology-id
     width: 0
@@ -42,7 +42,6 @@
 .lithology-proportion
   font-style: italic
   padding-left: 0.5em
-  color: var(--secondary-color)
 
 .item-list
   display: inline-flex

@@ -1,12 +1,10 @@
 import { useInDarkMode } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
-import {
-  asCSSVariables,
-  getLuminanceAdjustedColorScheme,
-} from "@macrostrat/color-utils";
+import { getLuminanceAdjustedColorScheme } from "@macrostrat/color-utils";
 import styles from "./lithology-tag.module.sass";
 import { DataField } from "./index";
 import { ReactNode } from "react";
+import chroma from "chroma-js";
 
 const h = hyper.styled(styles);
 
@@ -14,6 +12,16 @@ export enum LithologyTagSize {
   Small = "small",
   Normal = "normal",
   Large = "large",
+}
+
+interface LithologyTagProps {
+  data: any;
+  color?: chroma.ChromaInput;
+  className?: string;
+  expandOnHover?: boolean;
+  showProportion?: boolean;
+  showAttributes?: boolean;
+  size?: LithologyTagSize;
 }
 
 export function LithologyTag({
@@ -24,12 +32,8 @@ export function LithologyTag({
   showProportion = true,
   showAttributes = false,
   size,
-}) {
-  const darkMode = useInDarkMode();
-  const scheme: any = getLuminanceAdjustedColorScheme(
-    color ?? data.color,
-    darkMode
-  );
+}: LithologyTagProps) {
+  const inDarkMode = useInDarkMode();
 
   let proportion = null;
   if (data.prop != null && showProportion) {
@@ -55,7 +59,27 @@ export function LithologyTag({
     atts = h("span.lithology-attributes", atts);
   }
 
-  let fontSize = null;
+  return h(
+    "span.lithology-tag",
+    {
+      key: data.id,
+      className,
+      style: buildTagStyle({ color, size, inDarkMode }),
+    },
+    [atts, coreTag]
+  );
+}
+
+interface TagStyleProps {
+  color?: chroma.ChromaInput;
+  size?: LithologyTagSize;
+  inDarkMode?: boolean;
+}
+
+function buildTagStyle({ color, size, inDarkMode }: TagStyleProps = {}) {
+  const scheme: any = getLuminanceAdjustedColorScheme(color, inDarkMode);
+
+  let fontSize: string | null = null;
   if (size === LithologyTagSize.Small) {
     fontSize = "12px";
   } else if (size === LithologyTagSize.Normal) {
@@ -64,15 +88,23 @@ export function LithologyTag({
     fontSize = "1.4em";
   }
 
-  return h(
-    "span.lithology-tag",
-    {
-      key: data.id,
-      className,
-      style: asCSSVariables({ ...scheme, fontSize }),
-    },
-    [atts, coreTag]
-  );
+  let style: Record<string, string> = {};
+
+  if (fontSize != null) {
+    style = { ...style, "--font-size": fontSize };
+  }
+
+  if (color != null) {
+    style = {
+      ...style,
+      "--text-color": scheme.textColor,
+      "--tag-background": scheme.backgroundColor,
+      "--secondary-color": scheme.secondaryColor,
+      "--tag-secondary-background": scheme.secondaryBackgroundColor,
+    };
+  }
+
+  return style;
 }
 
 function commaSeparated(children) {
