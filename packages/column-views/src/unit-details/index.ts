@@ -13,6 +13,11 @@ import {
 import { useUnitSelectionDispatch } from "../units/selection";
 import { useMacrostratUnits } from "../store";
 import { useLithologies } from "../providers";
+import {
+  useMacrostratDataRaw,
+  useMacrostratDefs,
+  useMacrostratStore,
+} from "@macrostrat/column-views";
 
 const h = hyper.styled(styles);
 
@@ -79,7 +84,7 @@ function UnitDetailsContent({
   showLithologyProportions = true,
   showLithologyAttributes = true,
 }) {
-  const lithMap = useLithologies();
+  const lithMap = useMacrostratDefs("lithologies");
 
   let outcrop = unit.outcrop;
   if (outcrop == "both") {
@@ -181,29 +186,38 @@ function IntervalProportions({ unit }) {
   let b_prop = unit.b_prop ?? 0;
   let t_prop = unit.t_prop ?? 1;
 
+  const intervalMap = useMacrostratDefs("intervals");
+  console.log(intervalMap);
+  const int0 = intervalMap?.get(i0) ?? {};
+
+  const interval0 = {
+    ...int0,
+    id: i0,
+    name: unit.b_int_name,
+  };
+
+  console.log(interval0);
+
   if (i0 === i1 && b_prop === 0 && t_prop === 1) {
     // We have a single interval with undefined proportions
     return h(Interval, {
-      interval: {
-        id: i0,
-        name: unit.b_int_name,
-      },
+      interval: interval0,
     });
   }
+
+  const int1 = intervalMap?.get(i1) ?? {};
 
   return h(ItemList, { className: "interval-proportions" }, [
     h(Proportion, { value: b_prop }),
     h.if(i0 != i1)(Interval, {
-      interval: {
-        id: i0,
-        name: unit.b_int_name,
-      },
+      interval: interval0,
       proportion: b_prop,
     }),
     h("span.sep", "to"),
     h(Proportion, { value: t_prop }),
     h(Interval, {
       interval: {
+        ...int1,
         id: i1,
         name: unit.t_int_name,
       },

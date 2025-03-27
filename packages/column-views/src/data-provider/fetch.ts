@@ -137,6 +137,8 @@ export async function fetchIntervals(
   let url = `${baseURL}/defs/intervals`;
   if (timescaleID != null) {
     url += `?timescale_id=${timescaleID}`;
+  } else {
+    url += "?all";
   }
   const res = await fetch(url);
   const resData = await res.json();

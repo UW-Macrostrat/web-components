@@ -9,7 +9,7 @@ import chroma from "chroma-js";
 import { ExtendedFeature } from "d3-geo";
 import { Polygon } from "geojson";
 import { useContext, useMemo } from "react";
-import { useColumnData } from "../../../data-fetching";
+import { useColumnData } from "../../../data-provider";
 import {
   buildKeyMapping,
   buildTriangulation,

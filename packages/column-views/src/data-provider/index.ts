@@ -55,17 +55,21 @@ function createMacrostratStore(
       },
       async getIntervals(ids: number[] | null, timescaleID: number | null) {
         const { intervals } = get();
+        let _intervals = intervals;
         if (intervals == null || !includesTimescale(intervals, timescaleID)) {
           // Fetch the intervals
           const data = await fetchIntervals(baseURL, timescaleID);
           const intervalMap = intervals ?? new Map();
           for (const d of data) {
-            intervalMap.set(d.interval_id, d);
+            intervalMap.set(d.int_id, d);
           }
+          _intervals = intervalMap;
+          set({ intervals: _intervals });
         }
-        if (ids == null && timescaleID == null) return intervals.values();
+        if (ids == null && timescaleID == null)
+          return Array.from(_intervals.values());
         if (timescaleID != null) {
-          return Array.from(intervals.values()).filter(
+          return Array.from(_intervals.values()).filter(
             (d) => d.timescale_id == timescaleID
           );
         }
@@ -113,12 +117,24 @@ export function useMacrostratStore(selector: MacrostratSelector | "api") {
   return useStore(ctx, selector);
 }
 
+const dataTypeMapping = {
+  lithologies: (store) => store.getLithologies,
+  intervals: (store) => store.getIntervals,
+  columns: (store) => store.getColumns,
+};
+
+export function useMacrostratDefs(dataType: string): Map<number, any> | null {
+  if (dataType == "columns") {
+    throw new Error("Columns are not provided as a map");
+  }
+  const operator = useMacrostratStore(dataTypeMapping[dataType]);
+  useEffect(() => {
+    operator();
+  }, []);
+  return useMacrostratStore((state) => state[dataType]);
+}
+
 export function useMacrostratData(dataType: string, ...args: any[]) {
-  const dataTypeMapping = {
-    lithologies: (store) => store.getLithologies,
-    intervals: (store) => store.getIntervals,
-    columns: (store) => store.getColumns,
-  };
   const selector = dataTypeMapping[dataType];
   const operator = useMacrostratStore(selector);
 
