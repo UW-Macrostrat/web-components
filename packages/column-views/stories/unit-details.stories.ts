@@ -64,3 +64,10 @@ export const Closeable: Story = {
     },
   },
 };
+
+export const ChinleFormation: Story = {
+  args: {
+    unit_id: 14779,
+    showLithologyProportions: true,
+  },
+};

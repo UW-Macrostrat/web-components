@@ -3,11 +3,7 @@ import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
 import { FeatureCollection } from "geojson";
 import { ReactNode, useMemo, useRef } from "react";
-import {
-  setGeoJSON,
-  buildGeoJSONSource,
-  removeMapLabels,
-} from "@macrostrat/mapbox-utils";
+import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 
 import {
   ColumnNavigationProvider,
@@ -17,11 +13,9 @@ import {
 import { InsetMap } from "../../_shared";
 import { geoCentroid } from "d3-geo";
 import {
-  keyboardNavigationStyle,
   ColumnKeyboardNavigation,
   buildKeyboardNavigationStyle,
 } from "./keyboard-navigation";
-import mapboxgl from "mapbox-gl";
 
 export interface ColumnNavigationMapProps extends MapViewProps {
   padding?: number;
@@ -42,14 +36,12 @@ export function ColumnNavigationMap(
 ) {
   const {
     columns,
-    apiBaseURL,
     onSelectColumn,
     onHoverColumn,
     selectedColumn,
     hoveredColumn,
     projectID,
-    format,
-    statusCode,
+    inProcess,
     ...rest
   } = props;
 
@@ -57,14 +49,12 @@ export function ColumnNavigationMap(
     ColumnNavigationProvider,
     {
       columns,
-      apiBaseURL,
       onSelectColumn,
       onHoverColumn,
       selectedColumn,
       hoveredColumn,
       projectID,
-      format,
-      statusCode,
+      inProcess,
     },
     h(_ColumnNavigationMap, rest)
   );

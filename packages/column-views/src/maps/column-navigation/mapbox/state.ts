@@ -1,4 +1,3 @@
-import { Point } from "geojson";
 import { create, StoreApi, useStore } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
 import {
@@ -10,7 +9,7 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
-import { fetchAllColumns, ColumnFetchOptions } from "../../../data-fetching";
+import { useMacrostratStore } from "../../../data-provider";
 
 export interface NavigationStore {
   columns: ColumnGeoJSONRecord[];
@@ -20,7 +19,9 @@ export interface NavigationStore {
   setHoveredColumn: (columnID: number | null) => void;
 }
 
-export interface NavigationProviderProps extends ColumnFetchOptions {
+export interface NavigationProviderProps {
+  projectID?: number;
+  inProcess?: boolean;
   selectedColumn?: number | null;
   hoveredColumn?: number | null;
   columns?: ColumnGeoJSONRecord[] | null;
@@ -36,14 +37,14 @@ const NavigationStoreContext = createContext<StoreApi<NavigationStore> | null>(
 export function ColumnNavigationProvider({
   children,
   columns,
-  apiBaseURL = "https://macrostrat.org/api/v2",
-  format,
   selectedColumn,
   projectID,
-  statusCode,
+  inProcess,
   onSelectColumn,
   onHoverColumn,
 }: NavigationProviderProps) {
+  const getColumns = useMacrostratStore((s) => s.getColumns);
+
   const [store] = useState(() => {
     return create<NavigationStore>((set, get): NavigationStore => {
       return {
@@ -69,11 +70,9 @@ export function ColumnNavigationProvider({
   // Set up the store
   /** TODO: unify handling of columns between parts of application */
   useAsyncEffect(async () => {
-    let _columns =
-      columns ??
-      (await fetchAllColumns({ apiBaseURL, projectID, statusCode, format }));
+    let _columns = columns ?? (await getColumns(projectID, inProcess));
     store.setState({ columns: _columns, selectedColumn });
-  }, [apiBaseURL, projectID, statusCode, format, columns]);
+  }, [projectID, inProcess, columns, getColumns]);
 
   // Update selected colun if it is changed externally
 
@@ -98,12 +97,4 @@ export function useColumnNavigationStore(
     throw new Error("Missing ColumnNavigationProvider");
   }
   return useStore(storeApi, selector);
-}
-
-interface FocusedColumnGeoJSONRecord extends ColumnGeoJSONRecord {
-  properties: {
-    centroid: Point;
-    nearestPointOnLine: Point;
-    distanceAlongLine: number;
-  } & ColumnGeoJSONRecord["properties"];
 }

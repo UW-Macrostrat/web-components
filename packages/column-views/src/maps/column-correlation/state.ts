@@ -17,7 +17,7 @@ import {
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { createComputed } from "zustand-computed";
-import { fetchAllColumns, ColumnFetchOptions } from "../../data-fetching";
+import { useMacrostratStore } from "../../data-provider";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
@@ -28,9 +28,9 @@ export interface CorrelationMapStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
 }
 
-export interface CorrelationProviderProps
-  extends CorrelationMapInput,
-    ColumnFetchOptions {
+export interface CorrelationProviderProps extends CorrelationMapInput {
+  projectID?: number;
+  inProcess?: boolean;
   columns: ColumnGeoJSONRecord[] | null;
   children: ReactNode;
   onSelectColumns?: (
@@ -57,13 +57,13 @@ const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
 export function ColumnCorrelationProvider({
   children,
   columns,
-  apiBaseURL = "https://macrostrat.org/api/v2",
-  format,
   projectID,
-  statusCode,
+  inProcess,
   focusedLine,
   onSelectColumns,
 }: CorrelationProviderProps) {
+  const getColumns = useMacrostratStore((state) => state.getColumns);
+
   const [store] = useState(() => {
     return create<CorrelationMapStore & ComputedStore>(
       computed((set, get): CorrelationMapStore => {
@@ -96,11 +96,9 @@ export function ColumnCorrelationProvider({
   // Set up the store
   /** TODO: unify handling of columns between parts of application */
   useAsyncEffect(async () => {
-    let _columns =
-      columns ??
-      (await fetchAllColumns({ apiBaseURL, projectID, statusCode, format }));
+    let _columns = columns ?? (await getColumns(projectID, inProcess));
     store.setState({ columns: _columns, focusedLine });
-  }, [apiBaseURL, projectID, statusCode, format, columns]);
+  }, [projectID, inProcess, columns]);
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   const focusedColumns = useStore(store, (state) => state.focusedColumns);

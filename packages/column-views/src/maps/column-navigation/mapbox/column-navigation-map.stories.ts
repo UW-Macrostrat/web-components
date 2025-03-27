@@ -32,7 +32,7 @@ export const nonStandardProject = {
   args: {
     padding: 100,
     projectID: 10,
-    statusCode: "in process",
+    inProcess: true,
     showTriangulation: false,
     mapPosition: {
       camera: {
@@ -47,7 +47,7 @@ export const nonStandardProject = {
 export const eODP = {
   args: {
     projectID: 3,
-    statusCode: "in process",
+    inProcess: true,
   },
 };
 

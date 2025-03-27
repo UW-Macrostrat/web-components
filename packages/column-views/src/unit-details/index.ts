@@ -2,17 +2,19 @@ import hyper from "@macrostrat/hyper";
 import styles from "./index.module.sass";
 import { JSONView } from "@macrostrat/ui-components";
 import { Button } from "@blueprintjs/core";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import {
   DataField,
   EnvironmentsList,
-  Interval,
+  IntervalShort,
+  IntervalTag,
   ItemList,
   LithologyList,
 } from "@macrostrat/data-components";
 import { useUnitSelectionDispatch } from "../units/selection";
 import { useMacrostratUnits } from "../store";
-import { useLithologies } from "../providers";
+import { useMacrostratData, useMacrostratDefs } from "@macrostrat/column-views";
+import { Environment } from "@macrostrat/api-types";
 
 const h = hyper.styled(styles);
 
@@ -74,24 +76,44 @@ export function LegendPanelHeader({ title, id, onClose, actions = null }) {
   ]);
 }
 
-function UnitDetailsContent({ unit, showLithologyProportions = true }) {
-  const lithMap = useLithologies();
+function UnitDetailsContent({
+  unit,
+  showLithologyProportions = true,
+  showLithologyAttributes = true,
+}) {
+  const lithMap = useMacrostratDefs("lithologies");
+  const envMap = useMacrostratDefs("environments");
+
+  const environments = enhanceEnvironments(unit.environ, envMap);
 
   let outcrop = unit.outcrop;
   if (outcrop == "both") {
     outcrop = "surface and subsurface";
   }
 
+  let minThickness = unit.min_thick ?? 0;
+  let maxThickness = unit.max_thick ?? unit.min_thick ?? 0;
+  let thicknessUnit = "m";
+  let thickness = `${unit.min_thick}–${unit.max_thick}`;
+  if (minThickness == maxThickness) {
+    thickness = `${minThickness}`;
+  }
+  if (minThickness == 0 && maxThickness == 0) {
+    thickness = "Unknown";
+    thicknessUnit = null;
+  }
+
   return h("div.unit-details-content", [
     h(DataField, {
       label: "Thickness",
-      value: `${unit.min_thick}–${unit.max_thick}`,
-      unit: "m",
+      value: thickness,
+      unit: thicknessUnit,
     }),
     h(LithologyList, {
       lithologies: unit.lith,
       lithologyMap: lithMap,
       showProportions: showLithologyProportions,
+      showAttributes: showLithologyAttributes,
     }),
     h(DataField, {
       label: "Age range",
@@ -99,7 +121,7 @@ function UnitDetailsContent({ unit, showLithologyProportions = true }) {
       unit: "Ma",
     }),
     h(IntervalField, { unit }),
-    h(EnvironmentsList, { environments: unit.environ }),
+    h(EnvironmentsList, { environments }),
     h(DataField, { label: "Outcrop", value: outcrop }),
     h(
       DataField,
@@ -123,7 +145,43 @@ function UnitDetailsContent({ unit, showLithologyProportions = true }) {
       { label: "Color" },
       h("span.color-swatch", { style: { backgroundColor: unit.color } })
     ),
+    h(DataField, { label: "Source" }, h(BibInfo, { refs: unit.refs })),
   ]);
+}
+
+function BibInfo({ refs }) {
+  const refData = useMacrostratData("refs", refs);
+
+  if (refData == null) {
+    return null;
+  }
+
+  return h(
+    "ul.refs",
+    refData.map((data) => h(Citation, { data }))
+  );
+}
+
+function Citation({ data }) {
+  return h("li.citation", [
+    h("span.authors", data.author),
+    ", ",
+    h("span.year", data.pub_year),
+    ", ",
+    h("span.title", data.ref),
+  ]);
+}
+
+function enhanceEnvironments(
+  environments: Partial<Environment>,
+  envMap: Map<number, Environment>
+) {
+  return environments.map((env) => {
+    return {
+      ...(envMap?.get(env.environ_id) ?? {}),
+      ...env,
+    };
+  });
 }
 
 function UnitIDList({ units }) {
@@ -147,15 +205,18 @@ function UnitIDList({ units }) {
     tag = "a";
   }
 
-  return h(ItemList, { className: "unit-id-list" }, [
+  return h(
+    ItemList,
+    { className: "unit-id-list" },
     u1.map((unit) => {
       return h(
         tag,
+
         { className: "unit-id", onClick: onClickHandler?.(unit), key: unit.id },
         unit
       );
-    }),
-  ]);
+    })
+  );
 }
 
 function IntervalField({ unit }) {
@@ -176,33 +237,45 @@ function IntervalProportions({ unit }) {
   let b_prop = unit.b_prop ?? 0;
   let t_prop = unit.t_prop ?? 1;
 
+  const intervalMap = useMacrostratDefs("intervals");
+  const int0 = intervalMap?.get(i0) ?? {};
+
+  const interval0: IntervalShort = {
+    ...int0,
+    id: i0,
+    name: unit.b_int_name,
+  };
+
   if (i0 === i1 && b_prop === 0 && t_prop === 1) {
     // We have a single interval with undefined proportions
-    return h(Interval, {
-      interval: {
-        id: i0,
-        name: unit.b_int_name,
-      },
+    return h(IntervalTag, {
+      interval: interval0,
     });
   }
 
+  const int1 = intervalMap?.get(i1) ?? {};
+  const p0 = h(Proportion, { value: b_prop });
+
+  let p1: ReactNode = h(Proportion, { value: t_prop });
+  if (i0 === i1) {
+    p1 = h("span.joint-proportion", [p0, h("span.sep", " to "), p1]);
+  }
+
   return h(ItemList, { className: "interval-proportions" }, [
-    h(Proportion, { value: b_prop }),
-    h.if(i0 != i1)(Interval, {
+    h.if(i0 != i1)([
+      h(IntervalTag, {
+        interval: interval0,
+        prefix: p0,
+      }),
+      h("span.sep", " to "),
+    ]),
+    h(IntervalTag, {
       interval: {
-        id: i0,
-        name: unit.b_int_name,
-      },
-      proportion: b_prop,
-    }),
-    h("span.sep", "to"),
-    h(Proportion, { value: t_prop }),
-    h(Interval, {
-      interval: {
+        ...int1,
         id: i1,
         name: unit.t_int_name,
       },
-      proportion: t_prop,
+      prefix: p1,
     }),
   ]);
 }
