@@ -4,11 +4,12 @@ import {
   ColumnProvider,
 } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useDarkMode } from "@macrostrat/ui-components";
+import { useDarkMode, useInDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
 import { createRef, RefObject, useContext, useMemo, useState } from "react";
 import styles from "./column.module.sass";
 import {
+  getMixedUnitColor,
   TrackedLabeledUnit,
   UnitKeyboardNavigation,
   UnitSelectionProvider,
@@ -24,6 +25,7 @@ import {
   ensureArray,
   groupUnitsIntoSections,
 } from "./helpers";
+import { useLithologies } from "./data-provider";
 
 const h = hyperStyled(styles);
 
@@ -37,6 +39,17 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
     ...rest,
     width: division.overlappingUnits.length > 0 ? width / nColumns : width,
     x: (division.column * width) / nColumns,
+  });
+}
+
+export function ColoredUnitComponent(props) {
+  /** A unit component that is colored using a mixture of lithologies.
+   * This is a separate component because it depends on more providers/contexts to determine coloring. */
+  const lithMap = useLithologies();
+  const inDarkMode = useInDarkMode();
+  return h(UnitComponent, {
+    ...props,
+    backgroundColor: getMixedUnitColor(props.division, lithMap, inDarkMode),
   });
 }
 

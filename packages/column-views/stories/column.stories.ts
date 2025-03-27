@@ -1,21 +1,15 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react";
-import {
-  JSONView,
-  useAPIResult,
-  useInDarkMode,
-} from "@macrostrat/ui-components";
+import { JSONView, useAPIResult } from "@macrostrat/ui-components";
 
 import {
   Column,
   LithologiesProvider,
   preprocessUnits,
-  UnitComponent,
   UnitSelectionProvider,
-  useLithologies,
   useSelectedUnit,
-  getMixedUnitColor,
+  ColoredUnitComponent,
 } from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
@@ -191,15 +185,6 @@ export const MarysvilleUtah: Story = {
     keyboardNavigation: true,
   },
 };
-
-function ColoredUnitComponent(props) {
-  const lithMap = useLithologies();
-  const inDarkMode = useInDarkMode();
-  return h(UnitComponent, {
-    ...props,
-    backgroundColor: getMixedUnitColor(props.division, lithMap, inDarkMode),
-  });
-}
 
 export const WithColoredUnits: Story = {
   args: {

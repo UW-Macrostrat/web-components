@@ -30,6 +30,7 @@ export function LithologyTag({
     atts = h(List, {
       className: "lithology-attributes",
       items: data.atts.map((att) => h("span.lithology-attribute", att)),
+      commaSeparated: true,
     });
   }
 
@@ -46,12 +47,12 @@ export function LithologyTag({
 function List({ items, commaSeparated = false, lastSep = null, className }) {
   let items1 = items;
   if (commaSeparated) {
-    items1 = commaSeparated(items1, lastSep);
+    items1 = separateElementsWithCommas(items1, lastSep);
   }
   return h("span.list", { className }, items1);
 }
 
-function commaSeparated(children: any[], lastSep = null) {
+function separateElementsWithCommas(children: any[], lastSep = null) {
   return children.reduce((acc, el, i) => {
     if (i > 0) {
       let sep = ", ";

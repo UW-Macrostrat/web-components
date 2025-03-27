@@ -26,15 +26,14 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   const mapRef = useMapRef();
   const map = mapRef.current;
 
-  const projection = useMemo(() => {
-    return (d) => {
+  const keyMapping = useMemo(() => {
+    if (columns == null || voronoi == null || map == null) return null;
+
+    const projection = (d) => {
       const pt = map.project(d);
       return [pt.x, pt.y];
     };
-  }, [map]);
 
-  const keyMapping = useMemo(() => {
-    if (columns == null || voronoi == null) return null;
     const currentIndex = columns.findIndex(
       (d) => d.properties.col_id == col_id
     );
@@ -46,7 +45,7 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
       currentIndex,
       projection
     );
-  }, [col_id, columns, voronoi]);
+  }, [col_id, columns, voronoi, map]);
 
   const onKeyDown = useCallback(
     (event: KeyboardEvent) => {

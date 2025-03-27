@@ -1,7 +1,7 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./index.module.sass";
 import { JSONView } from "@macrostrat/ui-components";
-import { Button } from "@blueprintjs/core";
+import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ReactNode, useState } from "react";
 import {
   DataField,
@@ -21,11 +21,15 @@ const h = hyper.styled(styles);
 export function UnitDetailsPanel({
   unit,
   onClose,
+  className,
   showLithologyProportions = false,
+  actions,
 }: {
   unit: any;
   onClose?: any;
   showLithologyProportions?: boolean;
+  className?: string;
+  actions?: ReactNode;
 }) {
   const [showJSON, setShowJSON] = useState(false);
 
@@ -36,12 +40,13 @@ export function UnitDetailsPanel({
     content = h(UnitDetailsContent, { unit, showLithologyProportions });
   }
 
-  return h("div.unit-details-panel", [
+  return h("div.unit-details-panel", { className }, [
     h(LegendPanelHeader, {
       onClose,
       title: unit.unit_name,
       id: unit.unit_id,
       actions: [
+        actions ?? null,
         h(Button, {
           icon: "code",
           small: true,
@@ -64,7 +69,7 @@ export function LegendPanelHeader({ title, id, onClose, actions = null }) {
     h.if(title != null)("h3", title),
     h("div.spacer"),
     h.if(id != null)("code", id),
-    actions,
+    h(ButtonGroup, { minimal: true }, actions),
     h.if(onClose != null)(Button, {
       icon: "cross",
       minimal: true,
@@ -254,29 +259,29 @@ function IntervalProportions({ unit }) {
   }
 
   const int1 = intervalMap?.get(i1) ?? {};
-  const p0 = h(Proportion, { value: b_prop });
+  let p0: ReactNode = h(Proportion, { value: b_prop });
 
-  let p1: ReactNode = h(Proportion, { value: t_prop });
+  const p1: ReactNode = h(Proportion, { value: t_prop });
   if (i0 === i1) {
-    p1 = h("span.joint-proportion", [p0, h("span.sep", " to "), p1]);
+    p0 = h("span.joint-proportion", [p0, h("span.sep", " to "), p1]);
   }
 
   return h(ItemList, { className: "interval-proportions" }, [
-    h.if(i0 != i1)([
-      h(IntervalTag, {
-        interval: interval0,
-        prefix: p0,
-      }),
-      h("span.sep", " to "),
-    ]),
     h(IntervalTag, {
-      interval: {
-        ...int1,
-        id: i1,
-        name: unit.t_int_name,
-      },
-      prefix: p1,
+      interval: interval0,
+      prefix: p0,
     }),
+    h.if(i0 != i1)("span.discourage-break", [
+      h("span.sep", "to"),
+      h(IntervalTag, {
+        interval: {
+          ...int1,
+          id: i1,
+          name: unit.t_int_name,
+        },
+        prefix: p1,
+      }),
+    ]),
   ]);
 }
 

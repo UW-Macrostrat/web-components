@@ -71,3 +71,10 @@ export const ChinleFormation: Story = {
     showLithologyProportions: true,
   },
 };
+
+export const IndianolaGroup: Story = {
+  args: {
+    unit_id: 14737,
+    showLithologyProportions: true,
+  },
+};
