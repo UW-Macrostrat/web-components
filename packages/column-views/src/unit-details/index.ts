@@ -2,22 +2,19 @@ import hyper from "@macrostrat/hyper";
 import styles from "./index.module.sass";
 import { JSONView } from "@macrostrat/ui-components";
 import { Button } from "@blueprintjs/core";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import {
   DataField,
   EnvironmentsList,
-  Interval,
+  IntervalShort,
+  IntervalTag,
   ItemList,
   LithologyList,
 } from "@macrostrat/data-components";
 import { useUnitSelectionDispatch } from "../units/selection";
 import { useMacrostratUnits } from "../store";
-import { useLithologies } from "../providers";
-import {
-  useMacrostratDataRaw,
-  useMacrostratDefs,
-  useMacrostratStore,
-} from "@macrostrat/column-views";
+import { useMacrostratDefs } from "@macrostrat/column-views";
+import { Environment } from "@macrostrat/api-types";
 
 const h = hyper.styled(styles);
 
@@ -85,6 +82,9 @@ function UnitDetailsContent({
   showLithologyAttributes = true,
 }) {
   const lithMap = useMacrostratDefs("lithologies");
+  const envMap = useMacrostratDefs("environments");
+
+  const environments = enhanceEnvironments(unit.environ, envMap);
 
   let outcrop = unit.outcrop;
   if (outcrop == "both") {
@@ -109,7 +109,7 @@ function UnitDetailsContent({
       unit: "Ma",
     }),
     h(IntervalField, { unit }),
-    h(EnvironmentsList, { environments: unit.environ }),
+    h(EnvironmentsList, { environments }),
     h(DataField, { label: "Outcrop", value: outcrop }),
     h(
       DataField,
@@ -134,6 +134,19 @@ function UnitDetailsContent({
       h("span.color-swatch", { style: { backgroundColor: unit.color } })
     ),
   ]);
+}
+
+function enhanceEnvironments(
+  environments: Partial<Environment>,
+  envMap: Map<number, Environment>
+) {
+  return environments.map((env) => {
+    console.log(env);
+    return {
+      ...(envMap?.get(env.environ_id) ?? {}),
+      ...env,
+    };
+  });
 }
 
 function UnitIDList({ units }) {
@@ -187,41 +200,44 @@ function IntervalProportions({ unit }) {
   let t_prop = unit.t_prop ?? 1;
 
   const intervalMap = useMacrostratDefs("intervals");
-  console.log(intervalMap);
   const int0 = intervalMap?.get(i0) ?? {};
 
-  const interval0 = {
+  const interval0: IntervalShort = {
     ...int0,
     id: i0,
     name: unit.b_int_name,
   };
 
-  console.log(interval0);
-
   if (i0 === i1 && b_prop === 0 && t_prop === 1) {
     // We have a single interval with undefined proportions
-    return h(Interval, {
+    return h(IntervalTag, {
       interval: interval0,
     });
   }
 
   const int1 = intervalMap?.get(i1) ?? {};
+  const p0 = h(Proportion, { value: b_prop });
+
+  let p1: ReactNode = h(Proportion, { value: t_prop });
+  if (i0 === i1) {
+    p1 = h("span.joint-proportion", [p0, h("span.sep", " to "), p1]);
+  }
 
   return h(ItemList, { className: "interval-proportions" }, [
-    h(Proportion, { value: b_prop }),
-    h.if(i0 != i1)(Interval, {
-      interval: interval0,
-      proportion: b_prop,
-    }),
-    h("span.sep", "to"),
-    h(Proportion, { value: t_prop }),
-    h(Interval, {
+    h.if(i0 != i1)([
+      h(IntervalTag, {
+        interval: interval0,
+        prefix: p0,
+      }),
+      h("span.sep", " to "),
+    ]),
+    h(IntervalTag, {
       interval: {
         ...int1,
         id: i1,
         name: unit.t_int_name,
       },
-      proportion: t_prop,
+      prefix: p1,
     }),
   ]);
 }

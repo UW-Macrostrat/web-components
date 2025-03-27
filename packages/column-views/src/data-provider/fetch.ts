@@ -144,3 +144,9 @@ export async function fetchIntervals(
   const resData = await res.json();
   return resData["success"]["data"];
 }
+
+export async function fetchEnvironments(baseURL: string) {
+  const res = await fetch(baseURL + "/defs/environments?all");
+  const resData = await res.json();
+  return resData["success"]["data"];
+}

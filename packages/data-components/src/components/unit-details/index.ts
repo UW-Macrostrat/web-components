@@ -6,6 +6,7 @@ const h = hyper.styled(styles);
 import classNames from "classnames";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 import { LithologyTag } from "./lithology-tag";
+import { BaseTag, BaseTagProps } from "@macrostrat/data-components";
 
 export * from "./base-tag";
 export * from "./lithology-tag";
@@ -63,7 +64,7 @@ export function IntervalField({ intervals }: { intervals: IntervalShort[] }) {
       },
       [
         unique.map((interval) => {
-          return h(Interval, {
+          return h(IntervalTag, {
             key: interval.id,
             interval,
             showAgeRange: true,
@@ -91,18 +92,25 @@ export function Value({
   ]);
 }
 
-export function Interval({
+interface IntervalTagProps extends Omit<BaseTagProps, "name"> {
+  interval: IntervalShort;
+  showAgeRange?: boolean;
+}
+
+export function IntervalTag({
   interval,
   showAgeRange = false,
-}: {
-  interval: IntervalID;
-  proportion?: number;
-  showAgeRange?: boolean;
-}) {
-  return h(LithologyTag, {
-    data: interval,
+  color,
+  ...rest
+}: IntervalTagProps) {
+  return h(BaseTag, {
+    name: interval.name,
+    color: color ?? interval.color,
+    ...rest,
   });
 }
+
+export const Interval = IntervalTag;
 
 function uniqueIntervals(
   ...intervals: (IntervalShort | undefined)[]

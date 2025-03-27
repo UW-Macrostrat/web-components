@@ -13,7 +13,7 @@ export enum TagSize {
   Large = "large",
 }
 
-interface BaseTagProps {
+export interface BaseTagProps {
   prefix?: ReactNode;
   name: ReactNode;
   details?: ReactNode;
@@ -22,7 +22,7 @@ interface BaseTagProps {
     details?: string;
     main?: string;
   };
-  className: string;
+  className?: string;
   children?: ReactNode;
   size?: TagSize;
   color?: chroma.ChromaInput;
