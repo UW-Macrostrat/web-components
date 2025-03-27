@@ -17,11 +17,9 @@ function ColumnCorrelationMapExt(
   const {
     focusedLine,
     columns,
-    apiBaseURL,
     onSelectColumns,
     projectID,
-    format,
-    statusCode,
+    inProcess,
     ...rest
   } = props;
 
@@ -30,11 +28,9 @@ function ColumnCorrelationMapExt(
     {
       focusedLine,
       columns,
-      apiBaseURL,
       onSelectColumns,
       projectID,
-      format,
-      statusCode,
+      inProcess,
     },
     h(ColumnCorrelationMap, rest)
   );

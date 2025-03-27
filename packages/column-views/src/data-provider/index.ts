@@ -4,8 +4,8 @@ import { createContext, useContext, useEffect, useState } from "react";
 import h from "@macrostrat/hyper";
 import { create, useStore } from "zustand";
 import { ColumnGeoJSONRecord } from "@macrostrat/api-types";
-import { fetchAllColumns } from "../data-fetching";
-import useAsyncEffect from "use-async-effect";
+import { fetchAllColumns, fetchIntervals, fetchLithologies } from "./fetch";
+export * from "./fetch";
 
 interface MacrostratDataProviderProps {
   baseURL: string;
@@ -141,26 +141,10 @@ export function MacrostratDataProvider(props: MacrostratDataProviderProps) {
   return h(MacrostratDataProviderContext.Provider, { value: store }, children);
 }
 
-async function fetchLithologies(baseURL: string) {
-  const res = await fetch(baseURL + "/defs/lithologies?all");
-  const resData = await res.json();
-  return resData["success"]["data"];
-}
-
 function includesTimescale(intervals: Map<number, any>, timescaleID: number) {
   if (intervals == null) return false;
   if (timescaleID == null) return true;
   return Array.from(intervals.values()).some(
     (d) => d.timescale_id == timescaleID
   );
-}
-
-async function fetchIntervals(baseURL: string, timescaleID: number | null) {
-  const url = `${baseURL}/defs/intervals`;
-  if (timescaleID != null) {
-    url += `?timescale_id=${timescaleID}`;
-  }
-  const res = await fetch(url);
-  const resData = await res.json();
-  return resData["success"]["data"];
 }

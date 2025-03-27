@@ -1,76 +1,10 @@
-import { useInDarkMode } from "@macrostrat/ui-components";
-import hyper from "@macrostrat/hyper";
-import { getLuminanceAdjustedColorScheme } from "@macrostrat/color-utils";
-import styles from "./lithology-tag.module.sass";
+import h from "@macrostrat/hyper";
 import { DataField } from "./index";
-import { ReactNode } from "react";
-import chroma from "chroma-js";
-
-const h = hyper.styled(styles);
-
-export enum TagSize {
-  Small = "small",
-  Normal = "normal",
-  Large = "large",
-}
-
-interface BaseTagProps {
-  prefix?: ReactNode;
-  name: ReactNode;
-  details?: ReactNode;
-  classNames?: {
-    prefix?: string;
-    details?: string;
-    main?: string;
-  };
-  className: string;
-  children?: ReactNode;
-  size?: TagSize;
-  color?: chroma.ChromaInput;
-}
-
-export function BaseTag(props: BaseTagProps) {
-  const inDarkMode = useInDarkMode();
-  const {
-    prefix,
-    name,
-    details,
-    classNames = {},
-    className,
-    children,
-    size,
-    color,
-  } = props;
-
-  let _details = null;
-  if (details != null) {
-    _details = h("span.details", { className: classNames.details }, details);
-  }
-
-  const mainTag = h("span.main", { className: classNames.main }, [
-    h("span.name", name),
-    children,
-    _details,
-  ]);
-
-  let _prefix = null;
-  if (prefix != null) {
-    _prefix = h("span.prefix", { className: classNames.prefix }, prefix);
-  }
-
-  return h(
-    "span.tag",
-    {
-      className,
-      style: buildTagStyle({ color, size, inDarkMode }),
-    },
-    [_prefix, mainTag]
-  );
-}
+import { BaseTag, TagSize, ItemList } from "./base-tag";
 
 interface LithologyTagProps {
   data: any;
-  color?: chroma.ChromaInput;
+  color?: string;
   className?: string;
   expandOnHover?: boolean;
   showProportion?: boolean;
@@ -85,8 +19,6 @@ export function LithologyTag({
   showAttributes = false,
   size,
 }: LithologyTagProps) {
-  const inDarkMode = useInDarkMode();
-
   let proportion = null;
   if (data.prop != null && showProportion) {
     const prop = Math.round(data.prop * 100);
@@ -95,10 +27,10 @@ export function LithologyTag({
 
   let atts = null;
   if (showAttributes && data.atts != null && data.atts.length > 0) {
-    atts = data.atts.map((att) => {
-      return h("span.lithology-attribute", att);
+    atts = h(List, {
+      className: "lithology-attributes",
+      items: data.atts.map((att) => h("span.lithology-attribute", att)),
     });
-    atts = commaSeparated(atts);
   }
 
   return h(BaseTag, {
@@ -111,47 +43,24 @@ export function LithologyTag({
   });
 }
 
-interface TagStyleProps {
-  color?: chroma.ChromaInput;
-  size?: TagSize;
-  inDarkMode?: boolean;
+function List({ items, commaSeparated = false, lastSep = null, className }) {
+  let items1 = items;
+  if (commaSeparated) {
+    items1 = commaSeparated(items1, lastSep);
+  }
+  return h("span.list", { className }, items1);
 }
 
-function buildTagStyle({ color, size, inDarkMode }: TagStyleProps = {}) {
-  const scheme: any = getLuminanceAdjustedColorScheme(color, inDarkMode);
-
-  let fontSize: string | null = null;
-  if (size === TagSize.Small) {
-    fontSize = "12px";
-  } else if (size === TagSize.Normal) {
-    fontSize = "1em";
-  } else if (size === TagSize.Large) {
-    fontSize = "1.4em";
-  }
-
-  let style: Record<string, string> = {};
-
-  if (fontSize != null) {
-    style = { ...style, "--font-size": fontSize };
-  }
-
-  if (color != null) {
-    style = {
-      ...style,
-      "--text-color": scheme.textColor,
-      "--tag-background": scheme.backgroundColor,
-      "--secondary-color": scheme.secondaryColor,
-      "--tag-secondary-background": scheme.secondaryBackgroundColor,
-    };
-  }
-
-  return style;
-}
-
-function commaSeparated(children) {
+function commaSeparated(children: any[], lastSep = null) {
   return children.reduce((acc, el, i) => {
     if (i > 0) {
-      acc.push(h("span.lithology-attribute-sep", ", "));
+      let sep = ", ";
+      let className = null;
+      if (i === children.length - 1 && lastSep != null) {
+        sep += lastSep + " ";
+        className = "last-sep";
+      }
+      acc.push(h("span.list-sep", { className }, sep));
     }
     acc.push(el);
     return acc;
@@ -174,38 +83,28 @@ export function LithologyList({
     h(
       ItemList,
       { className: "lithology-list" },
-      lithologies
-        .toSorted((a, b) => {
-          let dx = (b.prop ?? 0) - (a.prop ?? 0);
-          if (dx == 0) {
-            dx = (b.atts?.length ?? 0) - (a.atts?.length ?? 0);
-          }
-          if (dx == 0) {
-            return a.name.localeCompare(b.name);
-          }
-          return dx;
-        })
-        .map((lith) => {
-          let color = lithologyMap?.get(lith.lith_id)?.color;
-          return h(LithologyTag, {
-            data: lith,
-            color,
-            showProportion: showProportions,
-            showAttributes: showAttributes,
-          });
-        })
+      lithologies.toSorted(lithologyComparison).map((lith) => {
+        let color = lithologyMap?.get(lith.lith_id)?.color;
+        return h(LithologyTag, {
+          data: lith,
+          color,
+          showProportion: showProportions,
+          showAttributes: showAttributes,
+        });
+      })
     )
   );
 }
 
-export function ItemList({
-  children,
-  className,
-}: {
-  children?: ReactNode;
-  className: string;
-}) {
-  return h("span.item-list", { className }, children);
+function lithologyComparison(a, b) {
+  let dx = (b.prop ?? 0) - (a.prop ?? 0);
+  if (dx == 0) {
+    dx = (b.atts?.length ?? 0) - (a.atts?.length ?? 0);
+  }
+  if (dx == 0) {
+    return a.name.localeCompare(b.name);
+  }
+  return dx;
 }
 
 export function EnvironmentsList({ environments }) {

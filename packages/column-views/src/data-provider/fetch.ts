@@ -20,9 +20,14 @@ export async function fetchAllColumns(
   const { apiBaseURL, projectID, format = "topojson", statusCode } = options;
 
   let args: any = { format };
-  if (projectID != null || statusCode != null) {
-    args = { ...args, project_id: projectID, status_code: statusCode };
-  } else {
+  if (projectID != null) {
+    args = { ...args, project_id: projectID };
+  }
+  if (statusCode != null) {
+    args = { ...args, status_code: statusCode };
+  }
+
+  if (projectID == null) {
     args = { ...args, all: true };
   }
 
@@ -38,7 +43,7 @@ export async function fetchAllColumns(
 
   // Get JSON
   const data = await res.json();
-  return postProcessColumns(processors[format](data));
+  return postProcessColumns(columnProcessors[format](data));
 }
 
 export function useColumnData({
@@ -52,7 +57,7 @@ export function useColumnData({
     all = true;
   }
 
-  const processor = processors[format];
+  const processor = columnProcessors[format];
 
   return useAPIResult(
     apiRoute,
@@ -113,8 +118,27 @@ function convertSmallAreasToPoints(features) {
   });
 }
 
-const processors = {
+const columnProcessors = {
   topojson: processTopoJSON,
   geojson: processGeoJSON,
   geojson_bare: processGeoJSONBare,
 };
+
+export async function fetchLithologies(baseURL: string) {
+  const res = await fetch(baseURL + "/defs/lithologies?all");
+  const resData = await res.json();
+  return resData["success"]["data"];
+}
+
+export async function fetchIntervals(
+  baseURL: string,
+  timescaleID: number | null
+) {
+  let url = `${baseURL}/defs/intervals`;
+  if (timescaleID != null) {
+    url += `?timescale_id=${timescaleID}`;
+  }
+  const res = await fetch(url);
+  const resData = await res.json();
+  return resData["success"]["data"];
+}

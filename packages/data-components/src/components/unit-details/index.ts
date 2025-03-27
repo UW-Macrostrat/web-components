@@ -7,6 +7,7 @@ import classNames from "classnames";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 import { LithologyTag } from "./lithology-tag";
 
+export * from "./base-tag";
 export * from "./lithology-tag";
 
 export function DataField({

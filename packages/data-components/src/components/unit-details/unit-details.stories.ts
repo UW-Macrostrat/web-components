@@ -1,9 +1,7 @@
 import { Meta, StoryObj } from "@storybook/react";
 import h from "@macrostrat/hyper";
-import {
-  LithologyTag as _LithologyTag,
-  LithologyTagSize,
-} from "./lithology-tag";
+import { LithologyTag as _LithologyTag } from "./lithology-tag";
+import { TagSize } from "./base-tag";
 import {
   DataField as _DataField,
   IntervalField as _IntervalField,
@@ -85,7 +83,7 @@ export const LithologyTagWithAtts = {
     },
     showProportion: true,
     showAttributes: true,
-    size: LithologyTagSize.Normal,
+    size: TagSize.Normal,
   },
 };
 
