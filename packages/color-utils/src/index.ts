@@ -64,8 +64,7 @@ interface ColorScheme {
 
 export function getLuminanceAdjustedColorScheme(
   color: chroma.ChromaInput,
-  darkMode: boolean = false,
-  asCSSVariables: boolean = false
+  darkMode: boolean = false
 ): ColorScheme | null {
   /** Luminance-adjusted color scheme for tags, etc. with dark mode support */
   if (!color) {
@@ -73,12 +72,12 @@ export function getLuminanceAdjustedColorScheme(
   }
   const _color = asChromaColor(color);
   const luminance = darkMode ? 0.9 : 0.2;
-  const backgroundLuminance = darkMode ? 0.1 : 0.9;
+  const backgroundLuminance = darkMode ? 0.1 : 0.8;
   const mainColor = _color?.luminance(luminance).css();
   const backgroundColor = _color?.luminance(backgroundLuminance).css();
 
   const secondaryBackgroundColor = _color
-    ?.luminance(darkMode ? 0.04 : 0.96)
+    ?.luminance(darkMode ? 0.04 : 0.9)
     .css();
 
   const secondaryColor = _color?.luminance(0.5).css();

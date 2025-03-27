@@ -4,8 +4,8 @@ import styles from "./column.module.sass";
 import { useAPIResult } from "@macrostrat/ui-components";
 import BaseColumn from "./column";
 import { ColumnNavigationSVGMap, MeasurementsLayer } from "../maps";
+import { MacrostratDataProvider } from "../data-provider";
 import { MeasurementDataProvider } from "./data-provider";
-import { MacrostratAPIProvider } from "../providers";
 import { ColumnArgs, useColumnNav } from "../units";
 import { useMemo } from "react";
 import { FeatureCollection } from "geojson";
@@ -25,7 +25,7 @@ const defaultArgs: ColumnArgs = {
 
 export function CarbonIsotopesColumn(columnArgs) {
   return h(
-    MacrostratAPIProvider,
+    MacrostratDataProvider,
     h(MeasurementDataProvider, columnArgs, [
       // @ts-ignore
       h(BaseColumn, { params: columnArgs }),

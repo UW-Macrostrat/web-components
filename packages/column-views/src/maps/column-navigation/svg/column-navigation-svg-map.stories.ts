@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 
 import { Meta } from "@storybook/react";
 import { ColumnNavigationSVGMap, ColumnNavigationSVGMapProps } from ".";
-import { MacrostratAPIProvider } from "../../../providers";
+import { MacrostratDataProvider } from "../../../data-provider";
 import { useState } from "react";
 
 interface ColumnIndexMapProps extends ColumnNavigationSVGMapProps {
@@ -11,8 +11,7 @@ interface ColumnIndexMapProps extends ColumnNavigationSVGMapProps {
 
 function BasicColumnNavigationSVGMap(props: ColumnIndexMapProps) {
   return h(
-    MacrostratAPIProvider,
-    { baseURL: "https://macrostrat.org/api/v2" },
+    MacrostratDataProvider,
     h(ColumnNavigationSVGMap, { style: { width: 500, height: 500 }, ...props })
   );
 }

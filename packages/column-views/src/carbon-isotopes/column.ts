@@ -9,7 +9,7 @@ import {
 import { SimpleUnitsColumn, IUnit, ColumnArgs } from "../units";
 import { useContext } from "react";
 import { IsotopesColumn } from "./isotopes-column";
-import { MacrostratColumnProvider } from "../providers";
+import { MacrostratColumnProvider } from "../data-provider";
 import styles from "./column.module.sass";
 
 const h = hyper.styled(styles);

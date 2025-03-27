@@ -9,7 +9,7 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
-import { useMacrostratStore } from "../../../data-provider";
+import { useMacrostratStore } from "../../../data-provider/base";
 
 export interface NavigationStore {
   columns: ColumnGeoJSONRecord[];

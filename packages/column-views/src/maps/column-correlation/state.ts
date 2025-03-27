@@ -17,7 +17,7 @@ import {
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { createComputed } from "zustand-computed";
-import { useMacrostratStore } from "../../data-provider";
+import { useMacrostratStore } from "../../data-provider/base";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
