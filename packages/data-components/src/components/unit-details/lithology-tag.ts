@@ -86,8 +86,13 @@ export function LithologyList({
       { className: "lithology-list" },
       lithologies.toSorted(lithologyComparison).map((lith) => {
         let color = lithologyMap?.get(lith.lith_id)?.color;
+        let l1 = { ...lith };
+        if (l1.prop == 0) {
+          l1.prop = null;
+        }
+
         return h(LithologyTag, {
-          data: lith,
+          data: l1,
           color,
           showProportion: showProportions,
           showAttributes: showAttributes,

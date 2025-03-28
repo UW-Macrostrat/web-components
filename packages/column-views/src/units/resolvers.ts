@@ -29,6 +29,7 @@ const symbolIndex = {
   till: 681,
   loess: 684,
   "calcareous ooze": 653,
+  "siliceous ooze": 653,
   chalk: 626,
   gravel: 601,
   plutonic: 721,
