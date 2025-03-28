@@ -9,13 +9,21 @@ import {
 import h from "@macrostrat/hyper";
 import { path } from "d3-path";
 import { ColumnLayoutContext, ColumnLayoutCtx } from "./context";
-import { v4 } from "uuid";
+
+let sequence = 0; // Initialize a sequence counter
+function getUniqueIdentifier() {
+  // Generate a unique identifier using a sequential method that is stable across repeated
+  // re-renders. This evolves from a UUID-based approach for SSR (server-side rendering) compatibility.
+  const id = `uuid-${sequence}`;
+  sequence += 1; // Increment the sequence for the next call
+  return id;
+}
 
 class UUIDComponent<T> extends Component<T> {
   UUID: string;
   constructor(props: T) {
     super(props);
-    this.UUID = v4();
+    this.UUID = getUniqueIdentifier();
   }
 }
 
@@ -24,7 +32,7 @@ const UUIDContext = createContext<string | null>(null);
 const useUUID = () => useContext(UUIDContext) ?? v4();
 
 function UUIDProvider({ children }) {
-  const ref = useRef<string>(v4());
+  const ref = useRef<string>(getUniqueIdentifier());
   return h(UUIDContext.Provider, { value: ref.current, children });
 }
 

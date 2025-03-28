@@ -1,5 +1,5 @@
 /** Data provider for information that needs to be loaded in bulk for frontend views */
-
+import baseFetch from "cross-fetch";
 import { createContext, useContext, useEffect, useState } from "react";
 import h from "@macrostrat/hyper";
 import { create, useStore } from "zustand";
@@ -35,11 +35,13 @@ interface ColumnFootprintsStorage {
 
 interface RefsSlice {
   refs: Map<number, MacrostratRef>;
+  inFlightRequests: Set<string>; // Track requests to avoid duplicates
   getRefs(ids: number[]): Promise<MacrostratRef[]>;
 }
 
 interface MacrostratStore extends RefsSlice {
   baseURL: string;
+  fetch: any;
   lithologies: Map<number, any> | null;
   getLithologies(ids: number[] | null): Promise<any>;
   intervals: Map<number, any> | null;
@@ -59,6 +61,21 @@ function createMacrostratStore(
   return create<MacrostratStore>((set, get): MacrostratStore => {
     return {
       baseURL,
+      inFlightRequests: new Set(),
+      async fetch(url: string, options?: RequestInit) {
+        const url1 = baseURL + url;
+        // Avoid duplicate requests
+        const { inFlightRequests } = get();
+        if (inFlightRequests.has(url1)) {
+          return null; // Return null if already in flight
+        }
+        inFlightRequests.add(url1);
+        //set({ inFlightRequests });
+        const res = await baseFetch(url1, options);
+        inFlightRequests.delete(url1);
+        //set({in})
+        return res;
+      },
       ...createLithologiesSlice(set, get),
       ...createIntervalsSlice(set, get),
       ...createEnvironmentsSlice(set, get),
@@ -72,12 +89,13 @@ function createRefsSlice(set, get) {
   return {
     refs: new Map(),
     async getRefs(ids: number[]): Promise<MacrostratRef[]> {
-      const { refs, baseURL } = get();
+      const { refs, fetch } = get();
       const missing = ids.filter((id) => !refs.has(id));
       if (missing.length == 0) {
         return ids.map((id) => refs.get(id));
       }
-      const data = await fetchRefs(baseURL, missing);
+      const data = await fetchRefs(fetch, missing);
+      if (data == null) return [];
       for (const d of data) {
         refs.set(d.ref_id, d);
       }
@@ -92,17 +110,38 @@ function createColumnsSlice(set, get) {
   return {
     columnFootprints: new Map(),
     async getColumns(projectID: number | null, inProcess: boolean) {
-      const { columnFootprints, baseURL } = get();
+      const { columnFootprints, baseURL, fetch } = get();
       const key = projectID ?? -1;
+      let _inProcess = inProcess;
+      if (projectID == null) {
+        // If no project is specified, in process columns cannot be included
+        _inProcess = false;
+      }
       let footprints = columnFootprints.get(key);
-      if (footprints == null || footprints.inProcess != inProcess) {
+      if (footprints == null || footprints.inProcess != _inProcess) {
         // Fetch the columns
         const statusCode = inProcess ? "in process" : null;
-        const columns = await fetchAllColumns({
-          apiBaseURL: baseURL,
+        let columns = await fetchAllColumns({
           projectID,
-          statusCode,
+          statusCode: null,
+          fetch,
         });
+        if (columns == null) {
+          return;
+        }
+        if (_inProcess) {
+          const inProcessColumns = await fetchAllColumns({
+            projectID,
+            statusCode: "in process",
+            fetch,
+          });
+          if (inProcessColumns == null) {
+            return;
+          }
+          // Combine active and in-process columns
+          columns = columns.concat(inProcessColumns);
+        }
+
         footprints = {
           project_id: projectID,
           inProcess,
@@ -111,6 +150,7 @@ function createColumnsSlice(set, get) {
         // We could break multi-project result sets into separate caches here...
         columnFootprints.set(key, footprints);
         set({ columnFootprints });
+        console.log("Set column footprints to store");
       }
       return footprints.columns;
     },
@@ -121,10 +161,11 @@ function createLithologiesSlice(set, get) {
   return {
     lithologies: null,
     async getLithologies(ids: number[] | null) {
-      const { lithologies, baseURL } = get();
+      const { lithologies, fetch } = get();
       let lithMap = lithologies;
       if (lithMap == null) {
-        const data = await fetchLithologies(baseURL);
+        const data = await fetchLithologies(fetch);
+        if (data == null) return;
         lithMap = new Map(data.map((d) => [d.lith_id, d]));
         set({ lithologies: lithMap });
       }
@@ -139,10 +180,11 @@ function createEnvironmentsSlice(set, get) {
   return {
     environments: null,
     async getEnvironments(ids: number[] | null): Promise<Environment[]> {
-      const { environments, baseURL } = get();
+      const { environments, fetch } = get();
       let envMap = environments;
       if (envMap == null) {
-        const data = await fetchEnvironments(baseURL);
+        const data = await fetchEnvironments(fetch);
+        if (data == null) return [];
         envMap = new Map(data.map((d) => [d.environ_id, d]));
         set({ environments: envMap });
       }
@@ -157,11 +199,14 @@ function createIntervalsSlice(set, get) {
   return {
     intervals: null,
     async getIntervals(ids: number[] | null, timescaleID: number | null) {
-      const { intervals, baseURL } = get();
+      const { intervals, fetch } = get();
       let _intervals = intervals;
       if (intervals == null || !includesTimescale(intervals, timescaleID)) {
         // Fetch the intervals
-        const data = await fetchIntervals(baseURL, timescaleID);
+        const data = await fetchIntervals(fetch, timescaleID);
+        if (data == null) {
+          return [];
+        }
         const intervalMap = intervals ?? new Map();
         for (const d of data) {
           intervalMap.set(d.int_id, d);

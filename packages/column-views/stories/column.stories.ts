@@ -22,18 +22,20 @@ interface ColumnProps extends BaseColumnProps {
   id: number;
 }
 
-function useColumnUnits(col_id) {
+function useColumnUnits(col_id, inProcess) {
+  const status_code = inProcess ? "in process" : undefined;
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
-    { col_id, response: "long" },
+    { col_id, response: "long", status_code },
     (res) => res.success.data
   );
 }
 
-function useColumnBasicInfo(col_id) {
+function useColumnBasicInfo(col_id, inProcess = false) {
+  const status_code = inProcess ? "in process" : undefined;
   return useAPIResult(
     "https://macrostrat.org/api/v2/columns",
-    { col_id },
+    { col_id, status_code },
     (res) => {
       return res.success.data[0];
     }
@@ -41,8 +43,9 @@ function useColumnBasicInfo(col_id) {
 }
 
 function BasicColumn(props: ColumnProps) {
-  const info = useColumnBasicInfo(props.id);
-  const units = useColumnUnits(props.id);
+  const { id, inProcess, ...rest } = props;
+  const info = useColumnBasicInfo(id, inProcess);
+  const units = useColumnUnits(id, inProcess);
 
   if (units == null || info == null) {
     return h(Spinner);
@@ -56,9 +59,11 @@ function BasicColumn(props: ColumnProps) {
     units1 = units1.filter((d) => d.b_age <= props.b_age);
   }
 
+  console.log(info, units);
+
   const data = preprocessUnits(units1);
 
-  return h("div", [h("h2", info.col_name), h(Column, { ...props, data })]);
+  return h("div", [h("h2", info.col_name), h(Column, { ...rest, data })]);
 }
 
 type Story = StoryObj<typeof BasicColumn>;
@@ -192,6 +197,22 @@ export const WithColoredUnits: Story = {
     showLabelColumn: false,
     width: 500,
     columnWidth: 500,
+    unitComponent: ColoredUnitComponent,
+    unitComponentProps: {
+      nColumns: 5,
+    },
+    showUnitPopover: true,
+    keyboardNavigation: true,
+  },
+};
+
+export const eODPColumn: Story = {
+  args: {
+    id: 5576,
+    width: 500,
+    columnWidth: 500,
+    showLabelColumn: false,
+    inProcess: true,
     unitComponent: ColoredUnitComponent,
     unitComponentProps: {
       nColumns: 5,

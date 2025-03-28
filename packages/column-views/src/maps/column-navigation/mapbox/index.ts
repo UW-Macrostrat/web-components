@@ -118,6 +118,7 @@ function ColumnsLayer({ enabled = true }) {
         features: columns,
       };
 
+      console.log("Setting columns", columns);
       setGeoJSON(map, "columns", data);
 
       const mouseMove = (event) => {

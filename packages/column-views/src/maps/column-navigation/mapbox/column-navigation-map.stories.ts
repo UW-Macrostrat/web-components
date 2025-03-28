@@ -28,7 +28,7 @@ export const ColumnNavigation = {
   },
 };
 
-export const nonStandardProject = {
+export const nonStandardProjectInProcess = {
   args: {
     padding: 100,
     projectID: 10,
@@ -41,6 +41,18 @@ export const nonStandardProject = {
         altitude: 600000,
       },
     },
+  },
+};
+
+export const DeepSea = {
+  args: {
+    padding: 100,
+    projectID: 4,
+    inProcess: true,
+    showTriangulation: false,
+    center: [0, 0],
+    zoom: 2,
+    mapPosition: null,
   },
 };
 

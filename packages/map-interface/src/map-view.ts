@@ -66,7 +66,6 @@ export interface MapboxOptionsExt extends MapboxCoreOptions {
 
 function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
   const { mapPosition, ...rest } = args;
-  console.log("Initializing map (default)", args);
 
   const map = new mapboxgl.Map({
     container,
@@ -78,12 +77,17 @@ function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
     ...rest,
   });
 
-  // set initial map position
-  if (mapPosition != null) {
-    setMapPosition(map, mapPosition);
+  let _mapPosition = mapPosition;
+  if (_mapPosition == null && rest.center == null && rest.bounds == null) {
+    // If no map positioning information is provided, we use the default
+    _mapPosition = defaultMapPosition;
   }
 
-  //setMapPosition(map, mapPosition);
+  // set initial map position
+  if (_mapPosition != null) {
+    setMapPosition(map, _mapPosition);
+  }
+
   return map;
 }
 
@@ -100,7 +104,7 @@ export function MapView(props: MapViewProps) {
   const {
     enableTerrain = true,
     style,
-    mapPosition = defaultMapPosition,
+    mapPosition,
     initializeMap = defaultInitializeMap,
     children,
     mapboxToken,
@@ -192,13 +196,11 @@ export function MapView(props: MapViewProps) {
   /** Check back every 0.1 seconds to see if the map has loaded.
    * We do it this way because mapboxgl loading events are unreliable */
   useEffect(() => {
-    console.log("Responding to style loaded event", isStyleLoaded);
     if (isStyleLoaded) return;
     const interval = setInterval(() => {
       const map = mapRef.current;
       if (map == null) return;
       if (map.isStyleLoaded()) {
-        console.log("Style loaded");
         // Wait a tick before setting the style loaded state
         dispatch({ type: "set-style-loaded", payload: true });
         onStyleLoaded?.(map);

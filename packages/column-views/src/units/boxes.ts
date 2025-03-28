@@ -187,6 +187,7 @@ function LabeledUnit(props: LabeledUnitProps) {
     onLabelUpdated,
     widthFraction,
     showLabel = true,
+    backgroundColor,
     ...baseBounds
   } = props;
 
@@ -196,21 +197,25 @@ function LabeledUnit(props: LabeledUnitProps) {
     ...baseBounds,
   };
   const { width, height } = bounds;
-  return h(Unit, { className: "labeled-unit", division, ...bounds }, [
-    h.if(showLabel)(
-      ForeignObject,
-      { ...bounds, className: "unit-label-container" },
-      h(SizeAwareLabel, {
-        className: "unit-overlay",
-        labelClassName: "unit-label",
-        style: { width, height },
-        label,
-        onVisibilityChanged(viz) {
-          onLabelUpdated(label, viz);
-        },
-      })
-    ),
-  ]);
+  return h(
+    Unit,
+    { className: "labeled-unit", division, backgroundColor, ...bounds },
+    [
+      h.if(showLabel)(
+        ForeignObject,
+        { ...bounds, className: "unit-label-container" },
+        h(SizeAwareLabel, {
+          className: "unit-overlay",
+          labelClassName: "unit-label",
+          style: { width, height },
+          label,
+          onVisibilityChanged(viz) {
+            onLabelUpdated(label, viz);
+          },
+        })
+      ),
+    ]
+  );
 }
 
 function UnitBoxes<T>(props: {

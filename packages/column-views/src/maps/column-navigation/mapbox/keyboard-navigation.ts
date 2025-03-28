@@ -49,9 +49,7 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
   const onKeyDown = useCallback(
     (event: KeyboardEvent) => {
-      console.log(event, keyMapping);
       if (keyMapping == null) return;
-      console.log(keyMapping, event.which);
       const nextColumnIx = keyMapping[event.which];
       if (nextColumnIx == null) return;
       event.preventDefault();
@@ -74,12 +72,6 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
   useMapStyleOperator(
     (map) => {
-      console.log(
-        "Setting triangulation",
-        map.isStyleLoaded(),
-        voronoi,
-        showTriangulation
-      );
       if (voronoi == null || !showTriangulation) return;
       const { features } = voronoi.tri.links();
 

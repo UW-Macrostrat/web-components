@@ -4,7 +4,7 @@ import {
   joinURL,
   useAPIResult,
 } from "@macrostrat/ui-components";
-import fetch from "cross-fetch";
+import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
 import { geoArea, geoCentroid } from "d3-geo";
 
@@ -13,12 +13,19 @@ export interface ColumnFetchOptions {
   projectID?: number;
   statusCode?: "in process";
   format?: "geojson" | "topojson" | "geojson_bare";
+  fetch?: any;
 }
 
 export async function fetchAllColumns(
   options: ColumnFetchOptions = {}
 ): Promise<ColumnGeoJSONRecord[]> {
-  const { apiBaseURL, projectID, format = "topojson", statusCode } = options;
+  const {
+    apiBaseURL,
+    projectID,
+    format = "topojson",
+    statusCode,
+    fetch = crossFetch,
+  } = options;
 
   let args: any = { format };
   if (projectID != null) {
@@ -32,8 +39,13 @@ export async function fetchAllColumns(
     args = { ...args, all: true };
   }
 
+  let url = "/columns";
+  if (apiBaseURL != null) {
+    url = joinURL(apiBaseURL, url);
+  }
+
   // Try with fetch
-  const url = addQueryString(joinURL(apiBaseURL, "/columns"), args);
+  url = addQueryString(url, args);
 
   const res = await fetch(url, {
     method: "GET",
@@ -41,6 +53,10 @@ export async function fetchAllColumns(
       "Content-Type": "application/json",
     },
   });
+
+  if (res == null) {
+    return null;
+  }
 
   // Get JSON
   const data = await res.json();
@@ -51,7 +67,7 @@ export function useColumnData({
   apiRoute = "/columns",
   status_code,
   project_id,
-  format = "topojson",
+  format = "geojson",
 }) {
   let all: boolean = undefined;
   if (status_code == null && project_id == null) {
@@ -94,11 +110,10 @@ function postProcessColumns(columns) {
 
 function promoteColumnIDs(features) {
   return features.map((f, i) => {
-    /** col_id property should be promoted to top level in order to be used as GeoJSON-compliant unique identifier */
-    if (f.properties.col_id != null && f.id == null) {
-      f.id = f.properties.col_id;
-    }
-    return f;
+    return {
+      id: f.properties?.col_id,
+      ...f,
+    };
   });
 }
 
@@ -108,6 +123,7 @@ function removeFeaturesWithoutGeometry(features) {
 
 function convertSmallAreasToPoints(features) {
   return features.map((f) => {
+    // GeoArea takes a long time to run. We are really more worried about points that are zero-area
     if (geoArea(f.geometry) < 1e-8) {
       const centroid = f.geometry.coordinates[0][0];
       f.geometry = {
@@ -125,44 +141,44 @@ const columnProcessors = {
   geojson_bare: processGeoJSONBare,
 };
 
-export async function fetchLithologies(baseURL: string) {
-  const res = await fetch(baseURL + "/defs/lithologies?all");
+async function unwrapResponse(res) {
+  if (res == null) {
+    return null;
+  }
   const resData = await res.json();
   return resData["success"]["data"];
 }
 
-export async function fetchIntervals(
-  baseURL: string,
-  timescaleID: number | null
-) {
-  let url = `${baseURL}/defs/intervals`;
+export async function fetchLithologies(fetch) {
+  const res = await fetch("/defs/lithologies?all");
+  return await unwrapResponse(res);
+}
+
+export async function fetchIntervals(fetch: any, timescaleID: number | null) {
+  let url = `/defs/intervals`;
   if (timescaleID != null) {
     url += `?timescale_id=${timescaleID}`;
   } else {
     url += "?all";
   }
   const res = await fetch(url);
-  const resData = await res.json();
-  return resData["success"]["data"];
+  return await unwrapResponse(res);
 }
 
-export async function fetchEnvironments(baseURL: string) {
-  const res = await fetch(baseURL + "/defs/environments?all");
-  const resData = await res.json();
-  return resData["success"]["data"];
+export async function fetchEnvironments(fetch) {
+  const res = await fetch("/defs/environments?all");
+  return await unwrapResponse(res);
 }
 
 export async function fetchRefs(
-  baseURL: string,
+  fetch,
   refs: number[]
 ): Promise<MacrostratRef[]> {
-  let url = `${baseURL}/defs/refs`;
+  let url = `/defs/refs`;
   if (refs.length == 0) {
     return [];
   }
   url += "?ref_id=" + refs.join(",");
   const res = await fetch(url);
-
-  const resData = await res.json();
-  return resData["success"]["data"];
+  return await unwrapResponse(res);
 }

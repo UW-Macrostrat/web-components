@@ -1,7 +1,7 @@
 import { Button, Collapse, Icon } from "@blueprintjs/core";
 import { useEffect, useState } from "react";
 import hyper from "@macrostrat/hyper";
-import { create } from "zustand";
+import { create, useStore as useStoreCreator } from "zustand";
 import styles from "./page-admin.module.sass";
 import { PageAdminInner } from "./_inner";
 import { ErrorBoundary } from "../error-boundary";
@@ -62,6 +62,7 @@ export function DevToolsConsole({
   className?: string;
   tools: DevTool[];
 }) {
+  // Disable totally for now
   const [isOpen, setIsOpen] = useIsOpen();
   const buttonRef = useStore((state) => state.buttonRef);
   useDevToolsQueryParameter();
@@ -163,6 +164,7 @@ function useDevToolsKeyBinding() {
 }
 
 function useDevToolsQueryParameter() {
+  // On initial load, check if the dev-tools query parameter is set
   useEffect(() => {
     if (typeof window === "undefined") return;
     const url = new URL(window.location.href);
@@ -177,19 +179,23 @@ function useDevToolsQueryParameter() {
   }, []);
 
   // Set the query parameter
-  useStore((state) => {
+  const isSystemEnabled = useStore((state) => state.isSystemEnabled);
+  const isOpen = useStore((state) => state.isOpen);
+  const isInitialized = useStore((state) => state.isInitialized);
+
+  useEffect(() => {
     // Check if window exists
     if (typeof window === "undefined") return;
-    if (!state.isInitialized) return;
+    if (!isInitialized) return;
     const url = new URL(window.location.href);
-    if (state.isSystemEnabled) {
-      const opt = state.isOpen ? "open" : "enabled";
+    if (isSystemEnabled) {
+      const opt = isOpen ? "open" : "enabled";
       url.searchParams.set("dev-tools", opt);
     } else {
       url.searchParams.delete("dev-tools");
     }
     window.history.replaceState({}, "", url.toString());
-  });
+  }, [isSystemEnabled, isInitialized, isOpen]);
 
   return null;
 }
