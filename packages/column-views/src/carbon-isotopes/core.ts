@@ -74,5 +74,5 @@ function ColumnManager() {
 }
 
 export function CarbonIsotopesApp() {
-  return h(MacrostratAPIProvider, h(ColumnManager));
+  return h(MacrostratDataProvider, h(ColumnManager));
 }

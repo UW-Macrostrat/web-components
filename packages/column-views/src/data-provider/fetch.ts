@@ -4,6 +4,7 @@ import {
   joinURL,
   useAPIResult,
 } from "@macrostrat/ui-components";
+import fetch from "cross-fetch";
 import { feature } from "topojson-client";
 import { geoArea, geoCentroid } from "d3-geo";
 

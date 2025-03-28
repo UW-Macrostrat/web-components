@@ -1,11 +1,22 @@
+function getCSSVariable(variableName: string, fallbackValue: string) {
+  // If we're not in a browser environment, return the fallback value
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return fallbackValue;
+  }
+  const value = getComputedStyle(document.body).getPropertyValue(variableName);
+  return value.trim() || fallbackValue;
+}
+
 export function buildCrossSectionLayers(): mapboxgl.Layer[] {
   /** Build standardized layers for cross-sections */
-  const ruleColor = getComputedStyle(document.body).getPropertyValue(
-    "--panel-background-color"
+  const ruleColor = getCSSVariable(
+    "--panel-background-color",
+    "#f0f0f0" // Fallback to a default color if the variable is not set
   );
 
-  const centerColor = getComputedStyle(document.body).getPropertyValue(
-    "--panel-rule-color"
+  const centerColor = getCSSVariable(
+    "--panel-rule-color",
+    "#4bc0c0" // Fallback to a default color if the variable is not set
   );
 
   const crossSectionPointPaint = {

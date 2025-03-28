@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "@macrostrat/api-types": "workspace:^",
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
@@ -49,6 +50,7 @@
     "@visx/axis": "^3.12.0",
     "chroma-js": "^3.1.2",
     "classnames": "^2.5.1",
+    "cross-fetch": "^4.1.0",
     "d3-array": "^3.2.4",
     "d3-format": "^3.1.0",
     "d3-geo": "^3.1.1",

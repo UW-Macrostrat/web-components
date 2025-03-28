@@ -16,6 +16,8 @@ import {
   fetchRefs,
 } from "./fetch";
 import { APIProvider } from "@macrostrat/ui-components";
+import { ColumnProvider, ColumnAxisType } from "@macrostrat/column-components";
+
 import { ReactNode } from "react";
 
 interface MacrostratDataProviderProps {
@@ -238,6 +240,7 @@ const MacrostratDataProviderContext = createContext(createMacrostratStore());
 
 export function MacrostratDataProvider(props: MacrostratDataProviderProps) {
   const { baseURL = "https://macrostrat.org/api/v2", children } = props;
+
   const [store] = useState(() => createMacrostratStore(baseURL));
 
   return h(
@@ -272,4 +275,28 @@ export function MacrostratAPIProvider({
     },
     children
   );
+}
+
+export function MacrostratColumnProvider(props) {
+  // A column provider specialized the Macrostrat API
+  return h(ColumnProvider, { axisType: ColumnAxisType.AGE, ...props });
+}
+
+/** This is now a legacy provider */
+export function LithologiesProvider({ children }) {
+  useEffect(() => {
+    console.warn(
+      "LithologiesProvider is deprecated. Replace with MacrostratDataProvider"
+    );
+  }, []);
+  return children;
+}
+
+export function useLithologies() {
+  const getLithologies = useMacrostratStore((s) => s.getLithologies);
+  const lithologies = useMacrostratStore((s) => s.lithologies);
+  useEffect(() => {
+    if (lithologies == null) getLithologies();
+  }, [lithologies, getLithologies]);
+  return lithologies;
 }
