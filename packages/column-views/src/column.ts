@@ -6,7 +6,7 @@ import {
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode, useInDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { createRef, RefObject, useContext, useMemo, useState } from "react";
+import { createRef, RefObject, useContext, useMemo } from "react";
 import styles from "./column.module.sass";
 import {
   getMixedUnitColor,
@@ -90,38 +90,14 @@ export function Column(props: ColumnProps) {
   const { showUnitPopover = false, ...rest } = props;
   const ref = createRef<HTMLElement>();
   // Selected item position
-  const [position, setPosition] = useState<RectBounds | null>(null);
-
-  if (!showUnitPopover) {
-    return h(_Column, rest);
-  }
 
   return h(
     UnitSelectionProvider,
-    {
-      onUnitSelected: (unit, target: SVGElement | HTMLElement | null) => {
-        if (!showUnitPopover) return;
-
-        if (unit == null) {
-          setPosition(null);
-          return;
-        }
-        const el: HTMLElement = ref.current;
-        if (el == null || target == null) return;
-        const rect = el.getBoundingClientRect();
-        const targetRect = target.getBoundingClientRect();
-        setPosition({
-          x: targetRect.left - rect.left,
-          y: targetRect.top - rect.top,
-          width: targetRect.width,
-          height: targetRect.height,
-        });
-      },
-    },
+    { columnRef: ref },
     h(
       _Column,
       { ...rest, columnRef: ref },
-      h(UnitSelectionPopover, { position })
+      h.if(showUnitPopover)(UnitSelectionPopover)
     )
   );
 }

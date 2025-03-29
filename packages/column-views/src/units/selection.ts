@@ -6,16 +6,14 @@ import {
   useKeyHandler,
 } from "@macrostrat/ui-components";
 import {
-  Dispatch,
-  SetStateAction,
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
   ReactNode,
-  useCallback,
 } from "react";
+import { createStore, StoreApi, useStore } from "zustand";
+import { RectBounds } from "./boxes";
 
 type UnitSelectDispatch = (
   unit: BaseUnit | null,
@@ -23,71 +21,67 @@ type UnitSelectDispatch = (
   event: Event | null
 ) => void;
 
-const UnitSelectionContext = createContext<BaseUnit | null>(null);
-const DispatchContext = createContext<UnitSelectDispatch | null>(null);
+const UnitSelectionContext = createContext<StoreApi<UnitSelectionStore>>(null);
 
-export function useUnitSelectionDispatch() {
-  return useContext(DispatchContext);
+export function useUnitSelectionDispatch(): UnitSelectDispatch {
+  return useUnitSelectionStore((state) => state.onUnitSelected);
+}
+
+export function useUnitSelectionStore<T>(
+  selector: (state: UnitSelectionStore) => T
+): T {
+  const store = useContext(UnitSelectionContext);
+  if (store == null) {
+    throw new Error(
+      "useUnitSelectionStore must be used within a UnitSelectionProvider"
+    );
+  }
+  return useStore(store, selector);
 }
 
 export function useSelectedUnit() {
-  return useContext(UnitSelectionContext);
+  return useUnitSelectionStore((state) => state.unit);
 }
 
 export interface UnitSelectionProps<T extends BaseUnit> {
   children: React.ReactNode;
   unit: T | null;
-  setUnit: Dispatch<SetStateAction<T>>;
   onUnitSelected?: (unit: T, target: HTMLElement, event: Event) => void;
 }
 
-export function UnitSelectionProvider<T extends BaseUnit>(
-  props: Partial<UnitSelectionProps<T>>
-) {
-  const { unit, setUnit, onUnitSelected, children } = props;
-
-  if (unit == null && setUnit == null) {
-    return h(StatefulUnitSelectionProvider, props);
-  }
-
-  return h(
-    BaseUnitSelectionProvider,
-    { unit, setUnit, onUnitSelected },
-    children
-  );
+interface UnitSelectionStore {
+  unit: BaseUnit | null;
+  overlayPosition: RectBounds | null;
+  onUnitSelected: UnitSelectDispatch;
 }
 
-function StatefulUnitSelectionProvider<T extends BaseUnit>(props: {
+export function UnitSelectionProvider<T extends BaseUnit>(props: {
   children: ReactNode;
-  onUnitSelected?: (unit: T, target: HTMLElement, event: Event) => void;
+  columnRef?: React.RefObject<HTMLElement>;
 }) {
-  const [unit, setUnit] = useState<T | null>(null);
-
-  return h(BaseUnitSelectionProvider, { ...props, unit, setUnit });
-}
-
-function BaseUnitSelectionProvider<T extends BaseUnit>({
-  children,
-  unit,
-  setUnit,
-  onUnitSelected,
-}: UnitSelectionProps<T>) {
-  const value = useMemo(() => unit, [unit?.unit_id]);
-
-  const _onUnitSelected = useCallback(
-    (u: T, target: HTMLElement, event: Event) => {
-      let newUnit = u;
-      setUnit(newUnit);
-      onUnitSelected?.(newUnit, target, event);
-    },
-    [setUnit, onUnitSelected]
+  const [store] = useState(() =>
+    createStore<UnitSelectionStore>((set) => ({
+      unit: null,
+      overlayPosition: null,
+      onUnitSelected: (unit, target, event) => {
+        const el = props.columnRef?.current;
+        let overlayPosition = null;
+        if (unit != null && el != null && target != null) {
+          const rect = el.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
+          overlayPosition = {
+            x: targetRect.left - rect.left,
+            y: targetRect.top - rect.top,
+            width: targetRect.width,
+            height: targetRect.height,
+          };
+        }
+        return set({ unit, overlayPosition });
+      },
+    }))
   );
 
-  return h(
-    DispatchContext.Provider,
-    { value: _onUnitSelected },
-    h(UnitSelectionContext.Provider, { value }, children)
-  );
+  return h(UnitSelectionContext.Provider, { value: store }, props.children);
 }
 
 export interface ColumnArgs {

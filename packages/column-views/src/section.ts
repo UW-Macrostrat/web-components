@@ -81,14 +81,16 @@ export function Section(props: IColumnProps) {
   let timescale = null;
 
   if (axisType == ColumnAxisType.AGE) {
-    timescale = h(Timescale, {
-      orientation: TimescaleOrientation.VERTICAL,
-      length: height,
-      levels: timescaleLevels as [number, number],
-      absoluteAgeScale: true,
-      showAgeAxis: false,
-      ageRange: range as [number, number],
-    });
+    timescale = h("div.timescale-container", { style: { marginTop: `10px` } }, [
+      h(Timescale, {
+        orientation: TimescaleOrientation.VERTICAL,
+        length: height,
+        levels: timescaleLevels as [number, number],
+        absoluteAgeScale: true,
+        showAgeAxis: false,
+        ageRange: range as [number, number],
+      }),
+    ]);
   }
 
   return h(

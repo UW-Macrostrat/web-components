@@ -140,3 +140,8 @@ export function TagField({
     children
   );
 }
+
+export function Parenthetical({ children }) {
+  if (children == null) return null;
+  return h("span.parenthetical", ["(", children, ")"]);
+}

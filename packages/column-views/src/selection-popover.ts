@@ -2,7 +2,11 @@ import hyper from "@macrostrat/hyper";
 import { Button, Popover } from "@blueprintjs/core";
 import { DOMElement } from "react";
 import styles from "./selection-popover.module.sass";
-import { useSelectedUnit } from "./units";
+import {
+  useSelectedUnit,
+  useUnitSelectionDispatch,
+  useUnitSelectionStore,
+} from "./units";
 import { UnitDetailsPanel } from "./unit-details";
 
 const h = hyper.styled(styles);
@@ -45,9 +49,9 @@ export function LegendPopoverContainer({ children }) {
   );
 }
 
-export function UnitSelectionPopover(props) {
-  const { position } = props;
+export function UnitSelectionPopover() {
   const unit = useSelectedUnit();
+  const position = useUnitSelectionStore((state) => state.overlayPosition);
   if (unit == null) {
     return null;
   }

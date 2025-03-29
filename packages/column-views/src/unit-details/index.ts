@@ -11,6 +11,7 @@ import {
   ItemList,
   LithologyList,
   LithologyTagFeature,
+  Parenthetical,
   Value,
 } from "@macrostrat/data-components";
 import { useUnitSelectionDispatch } from "../units/selection";
@@ -169,7 +170,8 @@ function UnitDetailsContent({
       unit: u1,
       label,
       value: formatRange(unit.t_pos, unit.b_pos),
-      children: wrapWithParentheses(
+      children: h(
+        Parenthetical,
         h(Value, { value: thickness, unit: thicknessUnit })
       ),
     });
@@ -191,7 +193,7 @@ function UnitDetailsContent({
         unit: "Ma",
       },
       [
-        wrapWithParentheses(h(Duration, { value: unit.b_age - unit.t_age })),
+        h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),
         h(IntervalProportions, { unit }),
       ]
     ),
@@ -500,9 +502,4 @@ function getPrecision(value) {
   if (value > 0.01) {
     return 4;
   }
-}
-
-function wrapWithParentheses(value) {
-  if (value == null) return null;
-  return h("span.parenthetical", ["(", value, ")"]);
 }
