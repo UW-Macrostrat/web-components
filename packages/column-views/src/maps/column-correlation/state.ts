@@ -71,7 +71,6 @@ export function ColumnCorrelationProvider({
           focusedLine,
           columns: null,
           onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
-            console.log("Map clicked", point);
             const state = get();
             // Check if shift key is pressed
             const shiftKeyPressed = event.originalEvent.shiftKey;
@@ -102,9 +101,11 @@ export function ColumnCorrelationProvider({
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   const focusedColumns = useStore(store, (state) => state.focusedColumns);
+  const _focusedLine = useStore(store, (state) => state.focusedLine);
+
   useEffect(() => {
-    onSelectColumns?.(focusedColumns, focusedLine);
-  }, [focusedColumns]);
+    onSelectColumns?.(focusedColumns, _focusedLine);
+  }, [focusedColumns, _focusedLine]);
 
   return h(CorrelationStoreContext.Provider, { value: store }, children);
 }

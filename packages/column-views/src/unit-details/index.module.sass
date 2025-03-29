@@ -10,6 +10,23 @@
   margin: -1em -1em 0
   padding: 0.5em 1em
   z-index: 50
+  .title-container
+    display: flex
+    flex-direction: row
+    gap: 0.5em
+    align-items: center
+    margin: -0.5em 0
+    &:hover
+      .hidden-actions
+        display: flex
+        opacity: 0.5
+    h1, h2, h3
+      margin: 0.5em 0
+    .hidden-actions
+      display: none
+    button
+      transform: translateY(0px)
+
   code
     font-size: 0.9em
     color: var(--secondary-color)
@@ -54,7 +71,10 @@
   padding-left: 0
 
 .interval-proportions
+  flex-grow: 1
+  width: 100%
+  text-align: right
   .discourage-break
     white-space: nowrap
   .sep
-    margin-left: 0.5em
+    margin: 0 0.5em

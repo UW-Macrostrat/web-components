@@ -6,6 +6,7 @@ const h = hyper.styled(styles);
 import classNames from "classnames";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 import { BaseTag, BaseTagProps } from "@macrostrat/data-components";
+import { ReactNode } from "react";
 
 export * from "./base-tag";
 export * from "./lithology-tag";
@@ -13,7 +14,7 @@ export * from "./lithology-tag";
 export function DataField({
   label,
   value,
-  inline = true,
+  inline = false,
   showIfEmpty = false,
   className,
   children,
@@ -31,13 +32,15 @@ export function DataField({
     return null;
   }
 
-  return h("div.data-field", { className: classNames(className, { inline }) }, [
-    h("div.label", label),
-    h("div.data-container", [
-      h.if(value != null)(Value, { value, unit }),
+  return h(
+    "div.data-field",
+    { className: classNames(className, { inline, flex: !inline }) },
+    [
+      h("div.label", label),
+      h.if(value != null)("div.value-container", h(Value, { value, unit })),
       children,
-    ]),
-  ]);
+    ]
+  );
 }
 
 export type IntervalID = {
@@ -120,4 +123,20 @@ function uniqueIntervals(
     unique.set(interval.id, interval);
   }
   return Array.from(unique.values()).sort((a, b) => b.b_age - a.b_age);
+}
+
+export function TagField({
+  label,
+  className,
+  children,
+}: {
+  label?: string;
+  className?: string;
+  children?: ReactNode;
+}) {
+  return h(
+    DataField,
+    { className: classNames("tag-field", className), label },
+    children
+  );
 }

@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { DataField } from "./index";
+import { DataField, TagField } from "./index";
 import { BaseTag, TagSize, ItemList } from "./base-tag";
 
 interface LithologyTagProps {
@@ -7,19 +7,24 @@ interface LithologyTagProps {
   color?: string;
   className?: string;
   expandOnHover?: boolean;
-  showProportion?: boolean;
-  showAttributes?: boolean;
   size?: TagSize;
+  features?: Set<LithologyTagFeature>;
+}
+
+export enum LithologyTagFeature {
+  Proportion = "proportion",
+  Attributes = "attributes",
 }
 
 export function LithologyTag({
   data,
   color,
-  showProportion = true,
-  showAttributes = false,
+  features,
   size,
 }: LithologyTagProps) {
   let proportion = null;
+  const showProportion = features?.has(LithologyTagFeature.Proportion) ?? false;
+  const showAttributes = features?.has(LithologyTagFeature.Attributes) ?? false;
   if (data.prop != null && showProportion) {
     const prop = Math.round(data.prop * 100);
     proportion = h("span.lithology-proportion", `${prop}%`);
@@ -69,36 +74,31 @@ function separateElementsWithCommas(children: any[], lastSep = null) {
 }
 
 export function LithologyList({
+  label,
   lithologies,
-  lithologyMap,
-  showProportions = false,
-  showAttributes = false,
+  features = new Set([
+    LithologyTagFeature.Proportion,
+    LithologyTagFeature.Attributes,
+  ]),
 }: {
+  label?: string;
   lithologies: any[];
-  lithologyMap?: Map<number, any>;
-  showProportions?: boolean;
+  features?: Set<LithologyTagFeature>;
 }) {
   return h(
-    DataField,
-    { label: "Lithologies" },
-    h(
-      ItemList,
-      { className: "lithology-list" },
-      lithologies.toSorted(lithologyComparison).map((lith) => {
-        let color = lithologyMap?.get(lith.lith_id)?.color;
-        let l1 = { ...lith };
-        if (l1.prop == 0) {
-          l1.prop = null;
-        }
+    TagField,
+    { label },
+    lithologies.toSorted(lithologyComparison).map((lith) => {
+      let l1 = { ...lith };
+      if (l1.prop == 0) {
+        l1.prop = null;
+      }
 
-        return h(LithologyTag, {
-          data: l1,
-          color,
-          showProportion: showProportions,
-          showAttributes: showAttributes,
-        });
-      })
-    )
+      return h(LithologyTag, {
+        data: l1,
+        features,
+      });
+    })
   );
 }
 
@@ -115,14 +115,10 @@ function lithologyComparison(a, b) {
 
 export function EnvironmentsList({ environments }) {
   return h(
-    DataField,
-    { label: "Environments" },
-    h(
-      ItemList,
-      { className: "environments-list" },
-      environments.map((lith: any) => {
-        return h(LithologyTag, { data: lith });
-      })
-    )
+    TagField,
+    { label: "Environments", className: "environments-list" },
+    environments.map((lith: any) => {
+      return h(LithologyTag, { data: lith });
+    })
   );
 }

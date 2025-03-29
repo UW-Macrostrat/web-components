@@ -221,3 +221,19 @@ export const eODPColumn: Story = {
     keyboardNavigation: true,
   },
 };
+
+export const eODPColumnV2: Story = {
+  args: {
+    id: 5248,
+    width: 500,
+    columnWidth: 500,
+    showLabelColumn: false,
+    inProcess: true,
+    unitComponent: ColoredUnitComponent,
+    unitComponentProps: {
+      nColumns: 5,
+    },
+    showUnitPopover: true,
+    keyboardNavigation: true,
+  },
+};
