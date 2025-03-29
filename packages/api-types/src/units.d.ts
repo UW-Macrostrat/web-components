@@ -68,6 +68,8 @@ export interface UnitLong extends BaseUnit, StratUnit {
   t_plng: number;
   b_plat: number;
   b_plng: number;
-  b_pos?: number;
-  t_pos?: number;
+  // positions are formatted as strings in the v2 API
+  // need to pass show_position=true to get these
+  b_pos?: number | string;
+  t_pos?: number | string;
 }

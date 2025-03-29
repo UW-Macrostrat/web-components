@@ -1,11 +1,12 @@
 import { CompositeUnitsColumn, IUnit } from "./units";
 import { ReactNode, useMemo } from "react";
-import { AgeAxis } from "./age-axis";
+import { AgeAxis, ColumnVerticalAxis } from "./age-axis";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import { ColumnSVG } from "@macrostrat/column-components";
+import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
 import { MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
+import { UnitLong } from "@macrostrat/api-types";
 
 const h = hyper.styled(styles);
 
@@ -28,6 +29,7 @@ export interface IColumnProps {
   targetUnitHeight?: number;
   children?: ReactNode;
   showLabelColumn?: boolean;
+  axisType?: ColumnAxisType;
 }
 
 export function Section(props: IColumnProps) {
@@ -43,19 +45,15 @@ export function Section(props: IColumnProps) {
     columnWidth = 150,
     unitComponentProps,
     showLabelColumn = true,
+    axisType = ColumnAxisType.AGE,
   } = props;
 
-  const b_age = Math.max(...data.map((d) => d.b_age));
-  const t_age = Math.min(...data.map((d) => d.t_age));
+  const range = useMemo(
+    () => _range ?? findColumnRange(data as UnitLong[], axisType),
+    [_range, axisType]
+  );
 
-  const range = useMemo(() => {
-    if (_range == null) {
-      return [b_age, t_age];
-    }
-    return _range;
-  }, [_range, b_age, t_age]);
-
-  const dAge = useMemo(() => range[0] - range[1], [range]);
+  const dAge = range[0] - range[1];
 
   const pixelScale = useMemo(() => {
     if (_pixelScale != null) return _pixelScale;
@@ -76,33 +74,39 @@ export function Section(props: IColumnProps) {
         Math.max(...data.map((d) => d.column)) + 1,
         unitComponentProps?.nColumns ?? 2
       ),
+      axisType,
     };
-  }, [data, unitComponentProps]);
+  }, [data, unitComponentProps, axisType]);
+
+  let timescale = null;
+
+  if (axisType == ColumnAxisType.AGE) {
+    timescale = h(Timescale, {
+      orientation: TimescaleOrientation.VERTICAL,
+      length: height,
+      levels: timescaleLevels as [number, number],
+      absoluteAgeScale: true,
+      showAgeAxis: false,
+      ageRange: range as [number, number],
+    });
+  }
 
   return h(
     MacrostratColumnProvider,
     {
       divisions: data,
       range,
-      pixelsPerMeter: pixelScale, // Actually pixels per myr
+      pixelsPerMeter: pixelScale, // Actually pixels per myr,
+      axisType,
     },
     [
-      h(AgeAxis, {
+      h(ColumnVerticalAxis, {
         width: 20,
         padding: 0,
         paddingV: 10,
         showLabel: false,
       }),
-      h("div.timescale-container", { style: { marginTop: `10px` } }, [
-        h(Timescale, {
-          orientation: TimescaleOrientation.VERTICAL,
-          length: height,
-          levels: timescaleLevels as [number, number],
-          absoluteAgeScale: true,
-          showAgeAxis: false,
-          ageRange: range as [number, number],
-        }),
-      ]),
+      timescale,
       h(
         ColumnSVG,
         {
@@ -124,6 +128,22 @@ export function Section(props: IColumnProps) {
       ),
     ]
   );
+}
+
+function findColumnRange(data: UnitLong[], axisType: ColumnAxisType) {
+  if (axisType === ColumnAxisType.AGE) {
+    const t_age = Math.min(...data.map((d) => d.t_age));
+    const b_age = Math.max(...data.map((d) => d.b_age));
+    return [b_age, t_age];
+  } else if (axisType == ColumnAxisType.DEPTH) {
+    const t_pos = Math.min(...data.map((d) => d.t_pos));
+    const b_pos = Math.max(...data.map((d) => d.b_pos));
+    return [b_pos, t_pos];
+  } else if (axisType == ColumnAxisType.HEIGHT) {
+    const t_pos = Math.max(...data.map((d) => d.t_pos));
+    const b_pos = Math.min(...data.map((d) => d.b_pos));
+    return [b_pos, t_pos];
+  }
 }
 
 const timescaleLevels = [2, 5];

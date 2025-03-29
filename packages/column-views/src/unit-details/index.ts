@@ -11,6 +11,7 @@ import {
   ItemList,
   LithologyList,
   LithologyTagFeature,
+  Value,
 } from "@macrostrat/data-components";
 import { useUnitSelectionDispatch } from "../units/selection";
 import { useMacrostratUnits } from "../store";
@@ -27,9 +28,9 @@ export function UnitDetailsPanel({
   className,
   features = new Set<UnitDetailsFeature>([
     UnitDetailsFeature.AdjacentUnits,
-    UnitDetailsFeature.Color,
     UnitDetailsFeature.OutcropType,
     UnitDetailsFeature.JSONToggle,
+    UnitDetailsFeature.DepthRange,
   ]),
   lithologyFeatures,
   actions,
@@ -117,6 +118,7 @@ enum UnitDetailsFeature {
   Color = "color",
   OutcropType = "outcrop-type",
   JSONToggle = "json-toggle",
+  DepthRange = "depth-range",
 }
 
 function UnitDetailsContent({
@@ -127,7 +129,6 @@ function UnitDetailsContent({
   ]),
   features = new Set<UnitDetailsFeature>([
     UnitDetailsFeature.AdjacentUnits,
-    UnitDetailsFeature.Color,
     UnitDetailsFeature.OutcropType,
   ]),
 }: {
@@ -154,8 +155,29 @@ function UnitDetailsContent({
     });
   }
 
+  let depthRange = null;
+  if (
+    features.has(UnitDetailsFeature.DepthRange) &&
+    unit.t_pos != null &&
+    unit.b_pos != null
+  ) {
+    const label = unit.t_pos < unit.b_pos ? "Depth" : "Height";
+    const u1 = "m";
+
+    const [thickness, thicknessUnit] = getThickness(unit);
+    depthRange = h(DataField, {
+      unit: u1,
+      label,
+      value: formatRange(unit.t_pos, unit.b_pos),
+      children: wrapWithParentheses(
+        h(Value, { value: thickness, unit: thicknessUnit })
+      ),
+    });
+  }
+
   return h("div.unit-details-content", [
-    h(ThicknessField, { unit }),
+    h.if(depthRange == null)(ThicknessField, { unit }),
+    depthRange,
     h(LithologyList, {
       label: "Lithology",
       lithologies,
@@ -165,13 +187,16 @@ function UnitDetailsContent({
       DataField,
       {
         label: "Age",
-        value: `${unit.b_age}–${unit.t_age}`,
+        value: formatRange(unit.b_age, unit.t_age),
         unit: "Ma",
       },
-      h(IntervalProportions, { unit })
+      [
+        wrapWithParentheses(h(Duration, { value: unit.b_age - unit.t_age })),
+        h(IntervalProportions, { unit }),
+      ]
     ),
     h(EnvironmentsList, { environments }),
-    h(
+    h.if(unit.strat_name_id != null)(
       DataField,
       {
         label: "Stratigraphic name",
@@ -204,23 +229,42 @@ function UnitDetailsContent({
   ]);
 }
 
-function ThicknessField({ unit, label = "Thickness" }) {
+function getThickness(unit): [string, string] {
   let minThickness = unit.min_thick ?? 0;
   let maxThickness = unit.max_thick ?? unit.min_thick ?? 0;
-  let thicknessUnit = "m";
-  let thickness = `${minThickness}–${maxThickness}`;
+  let _unit = "m";
+
+  if (minThickness == 0 && maxThickness == 0) {
+    return ["Unknown", null];
+  }
+
+  let significantDigits = 2;
+  if (minThickness < 0.8 && maxThickness < 1.2) {
+    // Convert to cm
+    minThickness = minThickness * 100;
+    maxThickness = maxThickness * 100;
+    _unit = "cm";
+    significantDigits = 0;
+  } else if (minThickness > 800 && maxThickness > 1200) {
+    // Convert to km
+    minThickness = minThickness / 1000;
+    maxThickness = maxThickness / 1000;
+    _unit = "km";
+    significantDigits = 2;
+  }
 
   if (minThickness == maxThickness) {
-    thickness = `${minThickness}`;
-  }
-  if (minThickness == 0 && maxThickness == 0) {
-    thickness = "Unknown";
-    thicknessUnit = null;
+    return [formatSignificance(minThickness, significantDigits), _unit];
   }
 
+  return [formatRange(minThickness, maxThickness, significantDigits), _unit];
+}
+
+function ThicknessField({ unit, label = "Thickness" }) {
+  const [value, thicknessUnit] = getThickness(unit);
   return h(DataField, {
     label,
-    value: thickness,
+    value,
     unit: thicknessUnit,
   });
 }
@@ -250,6 +294,25 @@ function Citation({ data, tag = "p" }) {
     ", ",
     h("span.title", data.ref),
   ]);
+}
+
+function Duration({ value }) {
+  let unit = "Myr";
+  if (value < 0.8) {
+    unit = "kyr";
+    value = value * 1000;
+    if (value < 5) {
+      unit = "yr";
+      value = value * 1000;
+    }
+  } else if (value > 1000) {
+    unit = "Gyr";
+    value = value / 1000;
+  }
+
+  let _value = formatSignificance(value);
+
+  return h(Value, { value: _value, unit });
 }
 
 function enhanceEnvironments(
@@ -387,4 +450,59 @@ function Proportion({ value }) {
   }
 
   return h("span.proportion", content);
+}
+
+function formatRange(min, max, precision = null) {
+  if (min == null || max == null) return null;
+  if (min === max) {
+    return min.toFixed(precision);
+  }
+  if (min > max) {
+    [min, max] = [max, min];
+  }
+
+  return `${formatSignificance(min, precision)}–${formatSignificance(
+    max,
+    precision
+  )}`;
+}
+
+function formatSignificance(value, precision = null) {
+  // Format to preserve a reasonable number of significant figures
+  // this could be done with an easier algorithm, probably:
+
+  if (precision == null) {
+    return value.toFixed(getPrecision(value));
+  }
+  if (precision >= 0) {
+    return value.toFixed(precision);
+  }
+  if (precision < 0) {
+    return (
+      (value / Math.pow(10, -precision)).toFixed(0) + "0".repeat(-precision)
+    );
+  }
+}
+
+function getPrecision(value) {
+  if (value > 100) {
+    return 0;
+  }
+  if (value > 10) {
+    return 1;
+  }
+  if (value > 1) {
+    return 2;
+  }
+  if (value > 0.1) {
+    return 3;
+  }
+  if (value > 0.01) {
+    return 4;
+  }
+}
+
+function wrapWithParentheses(value) {
+  if (value == null) return null;
+  return h("span.parenthetical", ["(", value, ")"]);
 }

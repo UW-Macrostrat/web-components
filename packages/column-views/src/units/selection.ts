@@ -129,7 +129,7 @@ export function useColumnNav(
 }
 
 function extractColumnArgs(search: any): ColumnArgs | null {
-  const { col_id, unit_id, project_id, status_code } = search;
+  const { col_id, unit_id, project_id, status_code } = search ?? {};
   if (col_id == null) return null;
   return { col_id, unit_id, project_id, status_code };
 }

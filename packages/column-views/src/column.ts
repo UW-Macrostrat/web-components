@@ -26,19 +26,23 @@ import {
   groupUnitsIntoSections,
 } from "./helpers";
 import { useLithologies } from "./data-provider";
+import { VerticalAxisLabel } from "./age-axis";
 
 const h = hyperStyled(styles);
 
 export function UnitComponent({ division, nColumns = 2, ...rest }) {
   const { width } = useContext(ColumnLayoutContext);
 
+  const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
+  const columnIx = division.column ?? 0;
+
   //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
   //console.log(division);
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
-    width: division.overlappingUnits.length > 0 ? width / nColumns : width,
-    x: (division.column * width) / nColumns,
+    width: nOverlappingUnits > 0 ? width / nColumns : width,
+    x: (columnIx * width) / nColumns,
   });
 }
 
@@ -79,6 +83,7 @@ export interface ColumnProps extends IColumnProps {
   showUnitPopover?: boolean;
   t_age?: number;
   b_age?: number;
+  axisType?: ColumnAxisType;
 }
 
 export function Column(props: ColumnProps) {
@@ -133,6 +138,7 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
     showLabelColumn = true,
     mergeOverlappingSections = true,
     keyboardNavigation = false,
+    axisType = ColumnAxisType.AGE,
     columnRef,
     children,
     ...rest
@@ -154,6 +160,16 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
   // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
 
+  let axisLabel = "Age";
+  let axisUnit = "Ma";
+  if (axisType == ColumnAxisType.DEPTH) {
+    axisLabel = "Depth";
+    axisUnit = "m";
+  } else if (axisType == ColumnAxisType.HEIGHT) {
+    axisLabel = "Height";
+    axisUnit = "m";
+  }
+
   return h(
     "div.column-container",
     {
@@ -164,7 +180,7 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
     },
     h(MacrostratUnitsProvider, { units: data }, [
       h("div.column", { ref: columnRef }, [
-        h("div.age-axis-label", "Age (Ma)"),
+        h(VerticalAxisLabel, { label: axisLabel, unit: axisUnit }),
         h(
           "div.main-column",
           sectionGroups.map((group, i) => {
@@ -184,6 +200,7 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
                   width,
                   columnWidth,
                   showLabelColumn,
+                  axisType,
                   ...rest,
                 }),
               ]),

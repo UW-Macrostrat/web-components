@@ -62,7 +62,6 @@ function LabelTrackerProvider(props) {
 function TrackedLabeledUnit({
   division,
   nameForDivision = defaultNameFunction,
-  axisType,
   ...rest
 }) {
   const trackLabelVisibility = useContext(LabelTrackerContext);

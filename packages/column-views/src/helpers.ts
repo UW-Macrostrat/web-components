@@ -7,6 +7,7 @@ import {
   compareAgeRanges,
   AgeRangeRelationship,
 } from "@macrostrat/stratigraphy-utils";
+import { ColumnAxisType } from "@macrostrat/column-components";
 
 const dt = 0.001;
 
@@ -52,6 +53,7 @@ export function extendDivision(
 }
 
 export function preprocessUnits(units: UnitLong[]) {
+  /** Preprocess units to add overlapping units and columns. */
   let divisions = units.map(extendDivision);
   for (let d of divisions) {
     const overlappingUnits = divisions.filter((u) =>
@@ -130,4 +132,66 @@ export function ensureArray<T>(x: T | T[]): T[] {
     return x;
   }
   return [x];
+}
+
+export interface SectionUnit extends UnitLong {
+  t_pos: number;
+  b_pos: number;
+}
+
+export function preprocessSectionUnits(
+  units: UnitLong[],
+  axisType: ColumnAxisType = ColumnAxisType.DEPTH
+): SectionUnit[] {
+  /** Preprocess units for a "section" column type, which is guaranteed to be simpler. */
+  // We have to assume the units are ordered...
+  let thickness = 0;
+  return units.map((unit, i) => {
+    let u1 = preprocessSectionUnit(unit, i, units, thickness);
+    thickness += Math.abs(u1.t_pos - u1.b_pos);
+    return u1;
+  });
+}
+
+function preprocessSectionUnit(
+  unit: UnitLong,
+  i: number,
+  units: UnitLong[],
+  accumulatedThickness: number = 0
+): SectionUnit {
+  /** Preprocess a single unit for a "section" column type.
+   * No provision for overlapping units.
+   * */
+
+  let b_pos = unit.b_pos;
+  let t_pos = unit.t_pos;
+  let unit_name = unit.unit_name;
+
+  // eODP columns sometimes have overlapping core sections, which are encoded in the name field
+  // Match eODP section names
+  const match = unit.unit_name.match(/^(\d+(\.\d+)?)-(\d+(\.\d+)?): (.+)/);
+
+  if (match) {
+    // These values should already be set if we've used the show_positions flag
+    t_pos ??= match[1];
+    b_pos ??= match[3];
+    unit_name = match[5];
+  }
+
+  return {
+    ...unit,
+    b_pos: ensureRealFloat(b_pos),
+    t_pos: ensureRealFloat(t_pos),
+    unit_name,
+  };
+}
+
+function ensureRealFloat(x: number | string | null): number | null {
+  if (typeof x == "string") {
+    x = parseFloat(x);
+  }
+  if (isNaN(x)) {
+    return null;
+  }
+  return x;
 }
