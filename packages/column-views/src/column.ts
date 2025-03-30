@@ -16,7 +16,6 @@ import {
   useUnitSelectionDispatch,
 } from "./units";
 import { SectionInfo } from "./section";
-import { RectBounds } from "./units/boxes";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
 import { IColumnProps, Section } from "./section";

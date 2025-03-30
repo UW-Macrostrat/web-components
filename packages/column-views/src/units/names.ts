@@ -9,7 +9,7 @@ import {
 import type { ColumnDivision } from "@macrostrat/column-components";
 import { IUnit } from "./types";
 import React from "react";
-import { getPositions } from "./boxes";
+import { getUnitHeightRange } from "@macrostrat/column-views";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
@@ -33,7 +33,7 @@ function noteForDivision(
 ): UnitNote {
   const { axisType } = opts;
 
-  const [top_height, height] = getPositions(div, axisType);
+  const [height, top_height] = getUnitHeightRange(div, axisType);
 
   return {
     height,

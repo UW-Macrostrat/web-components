@@ -8,6 +8,7 @@ import {
   LithologiesProvider,
   ColoredUnitComponent,
   preprocessSectionUnits,
+  preprocessUnits,
 } from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
@@ -50,7 +51,7 @@ function BasicSection(props: ColumnProps & { inProcess?: boolean }) {
     return h(Spinner);
   }
 
-  const data = preprocessSectionUnits(units, rest.axisType);
+  const data = preprocessUnits(units, rest.axisType);
 
   return h("div", [h("h2", info.col_name), h(Column, { ...rest, data })]);
 }

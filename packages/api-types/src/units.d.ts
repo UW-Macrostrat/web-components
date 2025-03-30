@@ -4,6 +4,8 @@ export interface BaseUnit {
   unit_id: number;
   b_age: number;
   t_age: number;
+  t_pos?: number;
+  b_pos?: number;
 }
 
 export interface StratUnit {
