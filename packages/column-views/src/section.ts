@@ -30,6 +30,7 @@ export interface IColumnProps {
   children?: ReactNode;
   showLabelColumn?: boolean;
   axisType?: ColumnAxisType;
+  className?: string;
 }
 
 export function Section(props: IColumnProps) {
@@ -46,6 +47,8 @@ export function Section(props: IColumnProps) {
     unitComponentProps,
     showLabelColumn = true,
     axisType = ColumnAxisType.AGE,
+    className,
+    children,
   } = props;
 
   const range = useMemo(
@@ -93,10 +96,10 @@ export function Section(props: IColumnProps) {
     ]);
   }
 
-  let _axisType = axisType;
-  if (axisType == ColumnAxisType.ORDINAL) {
-    _axisType = ColumnAxisType.DEPTH;
-  }
+  const style = {
+    "--section-height": `${height}px`,
+    "--section-width": `${columnWidth}px`,
+  };
 
   return h(
     MacrostratColumnProvider,
@@ -104,35 +107,40 @@ export function Section(props: IColumnProps) {
       divisions: data,
       range,
       pixelsPerMeter: pixelScale, // Actually pixels per myr,
-      axisType: _axisType,
+      axisType,
     },
     [
-      h(ColumnVerticalAxis, {
-        width: 20,
-        padding: 0,
-        paddingV: 10,
-        showLabel: false,
-      }),
-      timescale,
-      h(
-        ColumnSVG,
-        {
-          innerWidth: showLabels ? width : columnWidth,
-          paddingRight: 1,
-          paddingLeft: 1,
+      h("div.section", { className, style }, [
+        h.if(axisType != ColumnAxisType.ORDINAL)(ColumnVerticalAxis, {
+          width: 20,
+          padding: 0,
           paddingV: 10,
-          innerHeight: height,
-        },
-        h(CompositeUnitsColumn, {
-          showLabelColumn: showLabelColumn,
-          width: showLabels ? width : columnWidth,
-          columnWidth,
-          gutterWidth: 5,
-          showLabels,
-          unitComponent,
-          unitComponentProps: _unitComponentProps,
-        })
-      ),
+          showLabel: false,
+        }),
+        timescale,
+        h("div.section-main", [
+          h(
+            ColumnSVG,
+            {
+              innerWidth: showLabels ? width : columnWidth,
+              paddingRight: 1,
+              paddingLeft: 1,
+              paddingV: 10,
+              innerHeight: height,
+            },
+            h(CompositeUnitsColumn, {
+              showLabelColumn: showLabelColumn,
+              width: showLabels ? width : columnWidth,
+              columnWidth,
+              gutterWidth: 5,
+              showLabels,
+              unitComponent,
+              unitComponentProps: _unitComponentProps,
+            })
+          ),
+          children,
+        ]),
+      ]),
     ]
   );
 }

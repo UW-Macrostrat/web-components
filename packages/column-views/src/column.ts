@@ -122,7 +122,11 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
   const darkMode = useDarkMode();
   const sectionGroups = useMemo(() => {
     let res = groupUnitsIntoSections(data);
-    if (mergeOverlappingSections) {
+    /** Merging overlapping sections really only makes sense for age/height/depth
+     * columns. Ordinal columns are numbered by section so merging them
+     * results in collisions.
+     */
+    if (mergeOverlappingSections && axisType != ColumnAxisType.ORDINAL) {
       res = _mergeOverlappingSections(res);
     }
     return res;
@@ -167,25 +171,24 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
           sectionGroups.map((group, i) => {
             const { section_id: id, units: data } = group;
             const lastGroup = sectionGroups[i - 1];
-            return h([
+            return h(
+              Section,
+              {
+                data,
+                unitComponent,
+                showLabels,
+                width,
+                columnWidth,
+                showLabelColumn,
+                axisType,
+                ...rest,
+              },
               h.if(unconformityLabels)(Unconformity, {
                 upperUnits: lastGroup?.units,
                 lowerUnits: data,
                 style: { width: showLabels ? columnWidth : width },
-              }),
-              h(`div.section`, { className: sectionClassName(group) }, [
-                h(Section, {
-                  data,
-                  unitComponent,
-                  showLabels,
-                  width,
-                  columnWidth,
-                  showLabelColumn,
-                  axisType,
-                  ...rest,
-                }),
-              ]),
-            ]);
+              })
+            );
           })
         ),
         h.if(keyboardNavigation)(UnitKeyboardNavigation, { units: data }),

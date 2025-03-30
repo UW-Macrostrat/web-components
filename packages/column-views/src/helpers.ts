@@ -78,10 +78,6 @@ export function preprocessUnits(
   units: UnitLong[],
   axisType: ColumnAxisType = ColumnAxisType.AGE
 ) {
-  if (axisType != ColumnAxisType.AGE) {
-    return preprocessSectionUnits(units, axisType);
-  }
-
   /** Preprocess units to add overlapping units and columns. */
   let divisions = units.map((...args) => extendDivision(...args, axisType));
   for (let d of divisions) {
@@ -112,6 +108,10 @@ export function preprocessUnits(
       }
       d.column = col;
     }
+  }
+
+  if (axisType != ColumnAxisType.AGE) {
+    return preprocessSectionUnits(divisions, axisType);
   }
 
   return divisions;

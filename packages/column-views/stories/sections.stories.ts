@@ -107,5 +107,8 @@ export const NormalColumnOrdinalPosition: Story = {
   args: {
     id: 432,
     axisType: ColumnAxisType.ORDINAL,
+    unitComponentProps: {
+      nColumns: 5,
+    },
   },
 };
