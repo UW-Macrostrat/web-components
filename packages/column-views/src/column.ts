@@ -1,7 +1,6 @@
 import {
   ColumnAxisType,
   ColumnLayoutContext,
-  ColumnProvider,
 } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode, useInDarkMode } from "@macrostrat/ui-components";
@@ -175,6 +174,7 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
               Section,
               {
                 data,
+                key: id,
                 unitComponent,
                 showLabels,
                 width,

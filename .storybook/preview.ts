@@ -8,6 +8,7 @@ import "@macrostrat/style-system";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "storybook-dark-mode";
 import { DocsContainer } from "./docs-container";
+import { GeologicPatternProvider } from "@macrostrat/column-components";
 
 FocusStyleManager.onlyShowFocusOnTabs();
 
@@ -39,8 +40,25 @@ export const parameters = {
 export const decorators = [
   (renderStory) => {
     const isEnabled = useDarkMode();
-    return h(DarkModeProvider, { isEnabled }, renderStory());
+    return h(
+      PatternProvider,
+      h(DarkModeProvider, { isEnabled }, renderStory())
+    );
   },
 ];
 
 export const tags = ["autodocs"];
+
+// Patterns are included as static files in the storybook main.ts
+const resolvePattern = (id) => {
+  return `/patterns/${id}.svg`;
+};
+
+function PatternProvider({ children }) {
+  return h(GeologicPatternProvider, {
+    resolvePattern(id: string) {
+      return `/patterns/${id}.svg`;
+    },
+    children,
+  });
+}

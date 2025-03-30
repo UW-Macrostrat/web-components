@@ -103,7 +103,7 @@ export const eODPColumnV2: Story = {
   },
 };
 
-export const NormalColumnOrdinalPosition: Story = {
+export const OrdinalPosition: Story = {
   args: {
     id: 432,
     axisType: ColumnAxisType.ORDINAL,

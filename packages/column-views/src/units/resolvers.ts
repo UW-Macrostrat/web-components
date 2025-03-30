@@ -7,6 +7,7 @@ const symbolIndex = {
   sand: 608,
   siltstone: 616,
   silt: 616,
+  siliciclastic: 615,
   mud: 620,
   "dolomitic siltstone": 616,
   shale: 620,
