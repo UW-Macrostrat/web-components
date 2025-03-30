@@ -4,9 +4,12 @@ import styles from "./column.module.sass";
 import { useAPIResult } from "@macrostrat/ui-components";
 import BaseColumn from "./column";
 import { ColumnNavigationSVGMap, MeasurementsLayer } from "../maps";
-import { MacrostratDataProvider } from "../data-provider";
+import {
+  MacrostratDataProvider,
+  ColumnArgs,
+  useColumnNav,
+} from "../data-provider";
 import { MeasurementDataProvider } from "./data-provider";
-import { ColumnArgs, useColumnNav } from "../units";
 import { useMemo } from "react";
 import { FeatureCollection } from "geojson";
 

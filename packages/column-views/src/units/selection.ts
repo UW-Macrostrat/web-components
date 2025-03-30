@@ -1,19 +1,18 @@
 import { BaseUnit } from "@macrostrat/api-types";
 import h from "@macrostrat/hyper";
-import {
-  getQueryString,
-  setQueryString,
-  useKeyHandler,
-} from "@macrostrat/ui-components";
+import { useKeyHandler } from "@macrostrat/ui-components";
 import {
   createContext,
   useContext,
   useEffect,
   useState,
   ReactNode,
+  useRef,
+  useCallback,
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import { RectBounds } from "./boxes";
+import { IUnit } from "@macrostrat/column-views";
 
 type UnitSelectDispatch = (
   unit: BaseUnit | null,
@@ -45,12 +44,6 @@ export function useUnitSelectionStore<T>(
 
 export function useSelectedUnit() {
   return useUnitSelectionStore((state) => state.unit);
-}
-
-export interface UnitSelectionProps<T extends BaseUnit> {
-  children: React.ReactNode;
-  unit: T | null;
-  onUnitSelected?: (unit: T, target: HTMLElement, event: Event) => void;
 }
 
 interface UnitSelectionStore {
@@ -108,53 +101,36 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
   return h(UnitSelectionContext.Provider, { value: store }, props.children);
 }
 
-export interface ColumnArgs {
-  col_id?: number;
-  unit_id?: number;
-  project_id?: number;
-  status_code?: "in process";
-}
+export function useUnitSelectionTarget(
+  unit: IUnit
+): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void] {
+  const ref = useRef<HTMLElement>();
+  const selectedUnit = useSelectedUnit();
+  const onSelectUnit = useUnitSelectionStore((state) => state.onUnitSelected);
+  const selected = selectedUnit?.unit_id == unit.unit_id;
 
-type ColumnManagerData = [ColumnArgs, (c: ColumnArgs) => void];
-
-const ColumnNavCtx = createContext<ColumnManagerData | null>(null);
-
-export function useColumnNav(
-  defaultArgs: ColumnArgs = { col_id: 495, unit_id: null }
-): ColumnManagerData {
-  const ctx = useContext(ColumnNavCtx);
-  if (ctx != null) return ctx;
-
-  const [columnArgs, setColumnArgs] = useState<ColumnArgs>(
-    extractColumnArgs(getQueryString(window.location.search)) ?? defaultArgs
+  const onClick = useCallback(
+    (evt: Event) => {
+      onSelectUnit(unit, ref.current, evt);
+      evt.stopPropagation();
+    },
+    [unit, onSelectUnit]
   );
 
-  useEffect(() => setQueryString(columnArgs), [columnArgs]);
+  useEffect(() => {
+    if (!selected) return;
+    // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
+    onSelectUnit(unit, ref.current, null);
 
-  const { col_id, project_id, status_code } = columnArgs;
+    // Scroll the unit into view
+    ref.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "nearest",
+    });
+  }, [selected, onSelectUnit]);
 
-  const setCurrentColumn = (obj) => {
-    let args = obj;
-    if ("properties" in obj) {
-      args = { col_id: obj.properties.col_id, project_id, status_code };
-    }
-    // Set query string
-    setQueryString(args);
-    setColumnArgs(args);
-  };
-
-  return [columnArgs, setCurrentColumn];
-}
-
-function extractColumnArgs(search: any): ColumnArgs | null {
-  const { col_id, unit_id, project_id, status_code } = search ?? {};
-  if (col_id == null) return null;
-  return { col_id, unit_id, project_id, status_code };
-}
-
-export function ColumnNavProvider({ children, ...defaultArgs }) {
-  const value = useColumnNav(defaultArgs as any);
-  return h(ColumnNavCtx.Provider, { value }, children);
+  return [ref, selected, onClick];
 }
 
 export function UnitKeyboardNavigation<T extends BaseUnit>({

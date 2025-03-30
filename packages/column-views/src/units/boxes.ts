@@ -9,20 +9,12 @@ import {
 } from "@macrostrat/column-components";
 import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
-import {
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { ReactNode, useContext, useMemo } from "react";
 import { resolveID, scalePattern } from "./resolvers";
-import { useSelectedUnit, useUnitSelectionDispatch } from "./selection";
+import { useUnitSelectionTarget } from "./selection";
 import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
-import { UnitLong } from "@macrostrat/api-types";
 import { getUnitHeightRange } from "@macrostrat/column-views";
 
 const h = hyper.styled(styles);
@@ -109,9 +101,7 @@ function Unit(props: UnitProps) {
 
   const _className = classNames(className, { colored: hasBackgroundColor });
 
-  const ref = useRef<HTMLElement>();
-
-  const [selected, onClick] = useUnitSelectionManager(ref, d);
+  const [ref, selected, onClick] = useUnitSelectionTarget(d);
 
   return h(
     "g.unit",
@@ -138,39 +128,6 @@ function Unit(props: UnitProps) {
       children,
     ]
   );
-}
-
-function useUnitSelectionManager(
-  ref: React.RefObject<HTMLElement>,
-  unit: IUnit
-): [boolean, (evt: Event) => void] {
-  const selectedUnit = useSelectedUnit();
-  const selected = selectedUnit?.unit_id == unit.unit_id;
-
-  const dispatch = useUnitSelectionDispatch();
-
-  const onClick = useCallback(
-    (evt: Event) => {
-      dispatch(unit, ref.current, evt);
-      evt.stopPropagation();
-    },
-    [unit, ref, dispatch]
-  );
-
-  useEffect(() => {
-    if (!selected) return;
-    // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
-    dispatch(unit, ref.current, null);
-
-    // Scroll the unit into view
-    ref.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-      inline: "nearest",
-    });
-  }, [selected]);
-
-  return [selected, onClick];
 }
 
 function LabeledUnit(props: LabeledUnitProps) {
