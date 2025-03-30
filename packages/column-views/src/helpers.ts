@@ -4,8 +4,8 @@ import { SectionInfo } from "./section";
 import { group } from "d3-array";
 import {
   AgeRange,
-  compareAgeRanges,
   AgeRangeRelationship,
+  compareAgeRanges,
 } from "@macrostrat/stratigraphy-utils";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
@@ -146,18 +146,24 @@ export function preprocessSectionUnits(
   /** Preprocess units for a "section" column type, which is guaranteed to be simpler. */
   // We have to assume the units are ordered...
   let thickness = 0;
-  return units.map((unit, i) => {
-    let u1 = preprocessSectionUnit(unit, i, units, thickness);
+  const units1 = units.map((unit, i) => {
+    let u1 = preprocessSectionUnit(unit, i, units, thickness, axisType);
     thickness += Math.abs(u1.t_pos - u1.b_pos);
     return u1;
   });
+
+  // Sort the units by t_pos
+  //units1.sort((a, b) => a.t_pos - b.t_pos);
+  //console.log(units1);
+  return units1;
 }
 
 function preprocessSectionUnit(
   unit: UnitLong,
   i: number,
   units: UnitLong[],
-  accumulatedThickness: number = 0
+  accumulatedThickness: number = 0,
+  axisType: ColumnAxisType = ColumnAxisType.DEPTH
 ): SectionUnit {
   /** Preprocess a single unit for a "section" column type.
    * No provision for overlapping units.
@@ -165,6 +171,11 @@ function preprocessSectionUnit(
 
   let b_pos = unit.b_pos;
   let t_pos = unit.t_pos;
+
+  if (b_pos == t_pos && axisType == ColumnAxisType.ORDINAL) {
+    t_pos = t_pos - 1;
+  }
+
   let unit_name = unit.unit_name;
 
   // eODP columns sometimes have overlapping core sections, which are encoded in the name field

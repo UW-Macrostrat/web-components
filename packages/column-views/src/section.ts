@@ -93,13 +93,18 @@ export function Section(props: IColumnProps) {
     ]);
   }
 
+  let _axisType = axisType;
+  if (axisType == ColumnAxisType.ORDINAL) {
+    _axisType = ColumnAxisType.DEPTH;
+  }
+
   return h(
     MacrostratColumnProvider,
     {
       divisions: data,
       range,
       pixelsPerMeter: pixelScale, // Actually pixels per myr,
-      axisType,
+      axisType: _axisType,
     },
     [
       h(ColumnVerticalAxis, {
@@ -137,7 +142,10 @@ function findColumnRange(data: UnitLong[], axisType: ColumnAxisType) {
     const t_age = Math.min(...data.map((d) => d.t_age));
     const b_age = Math.max(...data.map((d) => d.b_age));
     return [b_age, t_age];
-  } else if (axisType == ColumnAxisType.DEPTH) {
+  } else if (
+    axisType == ColumnAxisType.DEPTH ||
+    axisType == ColumnAxisType.ORDINAL
+  ) {
     const t_pos = Math.min(...data.map((d) => d.t_pos));
     const b_pos = Math.max(...data.map((d) => d.b_pos));
     return [b_pos, t_pos];

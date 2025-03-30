@@ -7,8 +7,9 @@ import {
   NotesColumnProps,
 } from "@macrostrat/column-components";
 import type { ColumnDivision } from "@macrostrat/column-components";
-import { IUnit, transformAxisType } from "./types";
+import { IUnit } from "./types";
 import React from "react";
+import { getPositions } from "./boxes";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
@@ -32,10 +33,11 @@ function noteForDivision(
 ): UnitNote {
   const { axisType } = opts;
 
-  const key = transformAxisType(axisType);
+  const [top_height, height] = getPositions(div, axisType);
+
   return {
-    height: div[`b_${key}`],
-    top_height: div[`t_${key}`],
+    height,
+    top_height,
     data: div,
     id: div.unit_id,
   };

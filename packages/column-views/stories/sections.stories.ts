@@ -13,6 +13,7 @@ import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
 import { ColumnProps as BaseColumnProps } from "@macrostrat/column-views";
+import { ColumnAxisType } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
 
@@ -40,7 +41,7 @@ function useColumnBasicInfo(col_id, inProcess = false) {
   );
 }
 
-function BasicSection(props: ColumnProps) {
+function BasicSection(props: ColumnProps & { inProcess?: boolean }) {
   const { id, inProcess, ...rest } = props;
   const info = useColumnBasicInfo(id, inProcess);
   const units = useColumnUnits(id, inProcess);
@@ -49,20 +50,9 @@ function BasicSection(props: ColumnProps) {
     return h(Spinner);
   }
 
-  let units1 = units;
-  if (props.t_age != null) {
-    units1 = units.filter((d) => d.t_age >= props.t_age);
-  }
-  if (props.b_age != null) {
-    units1 = units1.filter((d) => d.b_age <= props.b_age);
-  }
+  const data = preprocessSectionUnits(units, rest.axisType);
 
-  const data = preprocessSectionUnits(units1);
-
-  return h("div", [
-    h("h2", info.col_name),
-    h(Column, { ...rest, data, axisType: "depth" }),
-  ]);
+  return h("div", [h("h2", info.col_name), h(Column, { ...rest, data })]);
 }
 
 type Story = StoryObj<typeof BasicSection>;
@@ -72,7 +62,6 @@ const meta: Meta<ColumnProps> = {
   component: BasicSection,
   args: {
     id: 432,
-    inProcess: true,
     unconformityLabels: true,
     showLabelColumn: true,
     columnWidth: 200,
@@ -80,6 +69,7 @@ const meta: Meta<ColumnProps> = {
     unitComponent: ColoredUnitComponent,
     showUnitPopover: true,
     keyboardNavigation: true,
+    axisType: ColumnAxisType.DEPTH,
   },
   decorators: [
     (Story) => {
@@ -109,5 +99,12 @@ export const eODPColumnV2: Story = {
   args: {
     id: 5248,
     inProcess: true,
+  },
+};
+
+export const NormalColumnOrdinalPosition: Story = {
+  args: {
+    id: 432,
+    axisType: ColumnAxisType.ORDINAL,
   },
 };

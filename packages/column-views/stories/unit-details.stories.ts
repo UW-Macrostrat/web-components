@@ -7,16 +7,25 @@ import "@macrostrat/style-system";
 import { UnitDetailsPanel } from "../src/unit-details";
 import { LithologiesProvider } from "../src";
 
-function useUnitData(unit_id) {
+function useUnitData(unit_id, inProcess = false) {
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
-    { unit_id, response: "long" },
+    {
+      unit_id,
+      response: "long",
+      show_position: true,
+      status_code: inProcess ? "in process" : undefined,
+    },
     (res) => res.success.data[0]
   );
 }
 
-function UnitDetailsExt({ unit_id, ...rest }: UnitDetailsProps) {
-  const unit = useUnitData(unit_id);
+function UnitDetailsExt({
+  unit_id,
+  inProcess,
+  ...rest
+}: UnitDetailsProps & { inProcess?: boolean }) {
+  const unit = useUnitData(unit_id, inProcess);
 
   if (unit == null) {
     return h(Spinner);
@@ -76,5 +85,19 @@ export const IndianolaGroup: Story = {
   args: {
     unit_id: 14737,
     showLithologyProportions: true,
+  },
+};
+
+export const MoenkopiFormation: Story = {
+  args: {
+    unit_id: 14778,
+    showLithologyProportions: true,
+  },
+};
+
+export const eODPMudstone: Story = {
+  args: {
+    unit_id: 62623,
+    inProcess: true,
   },
 };

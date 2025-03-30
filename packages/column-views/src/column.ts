@@ -136,7 +136,7 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
   // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
 
-  let axisLabel = "Age";
+  let axisLabel: string | null = "Age";
   let axisUnit = "Ma";
   if (axisType == ColumnAxisType.DEPTH) {
     axisLabel = "Depth";
@@ -144,19 +144,25 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
   } else if (axisType == ColumnAxisType.HEIGHT) {
     axisLabel = "Height";
     axisUnit = "m";
+  } else if (axisType == ColumnAxisType.ORDINAL) {
+    axisLabel = null;
   }
 
   return h(
     "div.column-container",
     {
       className,
+      // TODO: this could probably be done using the columnRef
       onClick(evt) {
         dispatch?.(null, null, evt as any);
       },
     },
     h(MacrostratUnitsProvider, { units: data }, [
       h("div.column", { ref: columnRef }, [
-        h(VerticalAxisLabel, { label: axisLabel, unit: axisUnit }),
+        h.if(axisLabel != null)(VerticalAxisLabel, {
+          label: axisLabel,
+          unit: axisUnit,
+        }),
         h(
           "div.main-column",
           sectionGroups.map((group, i) => {

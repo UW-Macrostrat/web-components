@@ -156,47 +156,45 @@ function UnitDetailsContent({
     });
   }
 
-  let depthRange = null;
+  let thicknessOrHeightRange = null;
+  const [thickness, thicknessUnit] = getThickness(unit);
+  // Proxy for actual heights in t_pos and b_pos
   if (
     features.has(UnitDetailsFeature.DepthRange) &&
     unit.t_pos != null &&
-    unit.b_pos != null
+    unit.b_pos != null &&
+    unit.min_thick == unit.max_thick // We have an actual fixed height
   ) {
     const label = unit.t_pos < unit.b_pos ? "Depth" : "Height";
     const u1 = "m";
 
-    const [thickness, thicknessUnit] = getThickness(unit);
-    depthRange = h(DataField, {
+    thicknessOrHeightRange = h(DataField, {
       unit: u1,
       label,
-      value: formatRange(unit.t_pos, unit.b_pos),
+      value: formatRange(unit.b_pos, unit.t_pos),
       children: h(
         Parenthetical,
         h(Value, { value: thickness, unit: thicknessUnit })
       ),
     });
   }
+  thicknessOrHeightRange ??= h(DataField, {
+    label: "Thickness",
+    value: thickness,
+    unit: thicknessUnit,
+  });
 
   return h("div.unit-details-content", [
-    h.if(depthRange == null)(ThicknessField, { unit }),
-    depthRange,
+    thicknessOrHeightRange,
     h(LithologyList, {
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
     }),
-    h(
-      DataField,
-      {
-        label: "Age",
-        value: formatRange(unit.b_age, unit.t_age),
-        unit: "Ma",
-      },
-      [
-        h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),
-        h(IntervalProportions, { unit }),
-      ]
-    ),
+    h(AgeField, { unit }, [
+      h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),
+      h(IntervalProportions, { unit }),
+    ]),
     h(EnvironmentsList, { environments }),
     h.if(unit.strat_name_id != null)(
       DataField,
@@ -240,26 +238,23 @@ function getThickness(unit): [string, string] {
     return ["Unknown", null];
   }
 
-  let significantDigits = 2;
   if (minThickness < 0.8 && maxThickness < 1.2) {
     // Convert to cm
     minThickness = minThickness * 100;
     maxThickness = maxThickness * 100;
     _unit = "cm";
-    significantDigits = 0;
   } else if (minThickness > 800 && maxThickness > 1200) {
     // Convert to km
     minThickness = minThickness / 1000;
     maxThickness = maxThickness / 1000;
     _unit = "km";
-    significantDigits = 2;
   }
 
   if (minThickness == maxThickness) {
-    return [formatSignificance(minThickness, significantDigits), _unit];
+    return [formatSignificance(minThickness), _unit];
   }
 
-  return [formatRange(minThickness, maxThickness, significantDigits), _unit];
+  return [formatRange(minThickness, maxThickness), _unit];
 }
 
 function ThicknessField({ unit, label = "Thickness" }) {
@@ -296,6 +291,38 @@ function Citation({ data, tag = "p" }) {
     ", ",
     h("span.title", data.ref),
   ]);
+}
+
+function AgeField({ unit, children }) {
+  const [b_age, t_age, _unit] = getAgeRange(unit);
+
+  return h(
+    DataField,
+    {
+      label: "Age",
+      value: formatRange(b_age, t_age),
+      unit: _unit,
+    },
+    children
+  );
+}
+
+function getAgeRange(_unit) {
+  let b_age = _unit.b_age;
+  let t_age = _unit.t_age;
+  let unit = "Ma";
+
+  if (b_age < 0.8 && t_age < 1.2) {
+    b_age = b_age * 1000;
+    t_age = t_age * 1000;
+    unit = "ka";
+  } else if (b_age > 800 && t_age > 1200) {
+    b_age = b_age / 1000;
+    t_age = t_age / 1000;
+    unit = "Ga";
+  }
+
+  return [b_age, t_age, unit];
 }
 
 function Duration({ value }) {
@@ -376,18 +403,6 @@ function UnitIDList({ units }) {
   );
 }
 
-function IntervalField({ unit }) {
-  return h([
-    h(
-      DataField,
-      {
-        label: "Intervals",
-      },
-      h(IntervalProportions, { unit })
-    ),
-  ]);
-}
-
 function IntervalProportions({ unit }) {
   const i0 = unit.b_int_id;
   const i1 = unit.t_int_id;
@@ -404,16 +419,15 @@ function IntervalProportions({ unit }) {
   };
 
   let p0: ReactNode = null;
+  const int1 = intervalMap?.get(i1) ?? {};
+  const p1: ReactNode = h(Proportion, { value: t_prop });
 
   if (i0 !== i1 || b_prop !== 0 || t_prop !== 1) {
     // We have a single interval with undefined proportions
     p0 = h(Proportion, { value: b_prop });
   }
 
-  const int1 = intervalMap?.get(i1) ?? {};
-
-  const p1: ReactNode = h(Proportion, { value: t_prop });
-  if (i0 === i1) {
+  if (i0 === i1 && (b_prop !== 0 || t_prop !== 1)) {
     p0 = h("span.joint-proportion", [p0, h("span.sep", "to"), p1]);
   }
 
@@ -459,9 +473,6 @@ function formatRange(min, max, precision = null) {
   if (min === max) {
     return min.toFixed(precision);
   }
-  if (min > max) {
-    [min, max] = [max, min];
-  }
 
   return `${formatSignificance(min, precision)}–${formatSignificance(
     max,
@@ -474,7 +485,7 @@ function formatSignificance(value, precision = null) {
   // this could be done with an easier algorithm, probably:
 
   if (precision == null) {
-    return value.toFixed(getPrecision(value));
+    return value.toLocaleString();
   }
   if (precision >= 0) {
     return value.toFixed(precision);
@@ -483,23 +494,5 @@ function formatSignificance(value, precision = null) {
     return (
       (value / Math.pow(10, -precision)).toFixed(0) + "0".repeat(-precision)
     );
-  }
-}
-
-function getPrecision(value) {
-  if (value > 100) {
-    return 0;
-  }
-  if (value > 10) {
-    return 1;
-  }
-  if (value > 1) {
-    return 2;
-  }
-  if (value > 0.1) {
-    return 3;
-  }
-  if (value > 0.01) {
-    return 4;
   }
 }

@@ -26,6 +26,7 @@ enum ColumnAxisType {
   AGE = "age",
   HEIGHT = "height",
   DEPTH = "depth",
+  ORDINAL = "ordinal",
 }
 export interface ColumnCtx<T extends ColumnDivision> {
   divisions: T[];

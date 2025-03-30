@@ -24,7 +24,11 @@ type UnitSelectDispatch = (
 const UnitSelectionContext = createContext<StoreApi<UnitSelectionStore>>(null);
 
 export function useUnitSelectionDispatch(): UnitSelectDispatch {
-  return useUnitSelectionStore((state) => state.onUnitSelected);
+  const store = useContext(UnitSelectionContext);
+  if (store == null) {
+    return () => {};
+  }
+  return useStore(store, (state) => state.onUnitSelected);
 }
 
 export function useUnitSelectionStore<T>(

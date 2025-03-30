@@ -19,9 +19,10 @@ import {
 } from "react";
 import { resolveID, scalePattern } from "./resolvers";
 import { useSelectedUnit, useUnitSelectionDispatch } from "./selection";
-import { IUnit, transformAxisType } from "./types";
+import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
+import { UnitLong } from "@macrostrat/api-types";
 
 const h = hyper.styled(styles);
 
@@ -68,17 +69,8 @@ function useUnitRect(
   const { widthFraction = 1, axisType = ColumnAxisType.AGE } = options;
   const { scale } = useContext(ColumnContext);
   const { width } = useContext(ColumnLayoutContext);
-  const macrostratAxisKey = transformAxisType(axisType);
-  const t_key = "t_" + macrostratAxisKey;
-  const b_key = "b_" + macrostratAxisKey;
 
-  const topHeight = division[t_key];
-  const bottomHeight = division[b_key];
-  if (topHeight == null && bottomHeight == null) {
-    console.warn(
-      `Missing keys ${t_key} and ${b_key} for ${division.unit_id} (${division.unit_name})`
-    );
-  }
+  const [topHeight, bottomHeight] = getPositions(division, axisType);
 
   const y = scale(topHeight);
   const height = Math.abs(scale(bottomHeight) - y);
@@ -89,6 +81,22 @@ function useUnitRect(
     height,
     width: widthFraction * width,
   };
+}
+
+export function getPositions(
+  unit: IUnit | UnitLong,
+  axisType: ColumnAxisType
+): [number, number] {
+  switch (axisType) {
+    case ColumnAxisType.AGE:
+      return [unit.t_age, unit.b_age];
+    case ColumnAxisType.DEPTH:
+    case ColumnAxisType.ORDINAL:
+    case ColumnAxisType.HEIGHT:
+      return [unit.t_pos, unit.b_pos];
+    default:
+      throw new Error(`Unknown axis type: ${axisType}`);
+  }
 }
 
 function Unit(props: UnitProps) {
