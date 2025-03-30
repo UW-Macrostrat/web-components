@@ -143,6 +143,8 @@ export function UnitKeyboardNavigation<T extends BaseUnit>({
 
   const ix = units.findIndex((unit) => unit.unit_id === selectedUnit?.unit_id);
 
+  console.log("UnitKeyboardNavigation", ix, selectedUnit?.t_pos);
+
   const keyMap = {
     38: ix - 1,
     40: ix + 1,

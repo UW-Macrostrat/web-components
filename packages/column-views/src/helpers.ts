@@ -117,13 +117,37 @@ export function preprocessUnits(
   return divisions;
 }
 
-export function groupUnitsIntoSections(units: IUnit[]): SectionInfo[] {
+const unitsComparator = (axisType: ColumnAxisType) => {
+  return (a: UnitLong, b: UnitLong) => {
+    const a_pos = getUnitHeightRange(a, axisType);
+    const b_pos = getUnitHeightRange(b, axisType);
+    const d_top = a_pos[1] - b_pos[1];
+    if (d_top != 0) {
+      return d_top;
+    }
+    return a_pos[0] - b_pos[0];
+  };
+};
+
+export function groupUnitsIntoSections(
+  units: IUnit[],
+  axisType: ColumnAxisType = ColumnAxisType.AGE
+): SectionInfo[] {
   let groups = Array.from(group(units, (d) => d.section_id));
-  return groups.map(([section_id, units]) => {
-    const t_age = Math.min(...units.map((d) => d.t_age));
-    const b_age = Math.max(...units.map((d) => d.b_age));
-    return { section_id, t_age, b_age, units };
+  const unitComparator = unitsComparator(axisType);
+
+  const groups1 = groups.map(([section_id, sectionUnits]) => {
+    const t_age = Math.min(...sectionUnits.map((d) => d.t_age));
+    const b_age = Math.max(...sectionUnits.map((d) => d.b_age));
+    // sort units by position
+    sectionUnits.sort(unitComparator);
+    return { section_id, t_age, b_age, units: sectionUnits };
   });
+  // Sort sections by increasing top age, then increasing bottom age.
+  // Sections have no relative ordinal position other than age...
+  const compareSections = unitsComparator(ColumnAxisType.AGE);
+  groups1.sort(compareSections);
+  return groups1;
 }
 
 export function _mergeOverlappingSections(

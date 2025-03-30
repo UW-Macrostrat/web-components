@@ -86,6 +86,7 @@ function Unit(props: UnitProps) {
     widthFraction = 1,
     backgroundColor,
     patternColor,
+    axisType: _, // not sure why this is brought in...
     ...baseBounds
   } = props;
 
@@ -138,6 +139,7 @@ function LabeledUnit(props: LabeledUnitProps) {
     widthFraction,
     showLabel = true,
     backgroundColor,
+    axisType: _, // not sure why this is brought in...
     ...baseBounds
   } = props;
 
@@ -192,7 +194,6 @@ function UnitBoxes<T>(props: {
       return h(unitComponent, {
         division,
         key: division.unit_id,
-        axisType: ColumnAxisType.HEIGHT,
         ...unitComponentProps,
       });
     });

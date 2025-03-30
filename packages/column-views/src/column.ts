@@ -17,6 +17,7 @@ import {
 import styles from "./column.module.sass";
 import {
   getMixedUnitColor,
+  IUnit,
   TrackedLabeledUnit,
   UnitKeyboardNavigation,
   UnitSelectionProvider,
@@ -75,10 +76,6 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
   ]);
 }
 
-function sectionClassName(section: SectionInfo) {
-  return `section-${ensureArray(section.section_id).join("-")}`;
-}
-
 interface BaseColumnProps extends IColumnProps {
   unconformityLabels?: boolean;
   className?: string;
@@ -103,46 +100,20 @@ export interface ColumnProps extends BaseColumnProps {
 export function Column(props: ColumnProps) {
   const {
     showUnitPopover = false,
+    keyboardNavigation = false,
+    mergeOverlappingSections = true,
     onUnitSelected,
     selectedUnit,
     children,
     data,
+    axisType,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
   // Selected item position
 
-  return h(
-    UnitSelectionProvider,
-    { columnRef: ref, onUnitSelected, selectedUnit, units: data },
-    h(_Column, { columnRef: ref, data, ...rest }, [
-      children,
-      h.if(showUnitPopover)(UnitSelectionPopover),
-    ])
-  );
-}
-
-function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
-  const {
-    data,
-    unitComponent = UnitComponent,
-    unconformityLabels = true,
-    showLabels = true,
-    width = 300,
-    columnWidth = 150,
-    className: baseClassName,
-    showLabelColumn = true,
-    mergeOverlappingSections = true,
-    keyboardNavigation = false,
-    axisType = ColumnAxisType.AGE,
-    columnRef,
-    children,
-    ...rest
-  } = props;
-
-  const darkMode = useDarkMode();
-  const sectionGroups = useMemo(() => {
-    let res = groupUnitsIntoSections(data);
+  const [sectionGroups, units] = useMemo(() => {
+    let res = groupUnitsIntoSections(data, axisType);
     /** Merging overlapping sections really only makes sense for age/height/depth
      * columns. Ordinal columns are numbered by section so merging them
      * results in collisions.
@@ -150,8 +121,55 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
     if (mergeOverlappingSections && axisType != ColumnAxisType.ORDINAL) {
       res = _mergeOverlappingSections(res);
     }
-    return res;
-  }, [data, mergeOverlappingSections]);
+
+    /** Reconstitute the units so that they are sorted by section.
+     * This is mostly important so that unit keyboard navigation
+     * predictably selects adjacent units.
+     */
+    const units = res.reduce((acc, group) => {
+      const { units } = group;
+      for (const unit of units) {
+        acc.push(unit);
+      }
+      return acc;
+    }, []);
+
+    return [res, units];
+  }, [data, mergeOverlappingSections, axisType]);
+
+  return h(
+    UnitSelectionProvider,
+    { columnRef: ref, onUnitSelected, selectedUnit, units },
+    h(
+      ColumnInner,
+      { columnRef: ref, data: units, axisType, sectionGroups, ...rest },
+      [
+        children,
+        h.if(showUnitPopover)(UnitSelectionPopover),
+        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
+      ]
+    )
+  );
+}
+
+function ColumnInner(props: Omit<ColumnProps, "showUnitPopover">) {
+  const {
+    data,
+    sectionGroups,
+    unitComponent = UnitComponent,
+    unconformityLabels = true,
+    showLabels = true,
+    width = 300,
+    columnWidth = 150,
+    className: baseClassName,
+    showLabelColumn = true,
+    axisType = ColumnAxisType.AGE,
+    columnRef,
+    children,
+    ...rest
+  } = props;
+
+  const darkMode = useDarkMode();
 
   const className = classNames(baseClassName, {
     "dark-mode": darkMode?.isEnabled ?? false,
@@ -213,7 +231,6 @@ function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
             );
           })
         ),
-        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units: data }),
         children,
       ]),
     ])
