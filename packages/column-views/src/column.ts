@@ -5,7 +5,15 @@ import {
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode, useInDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { createRef, RefObject, useContext, useMemo } from "react";
+import {
+  createRef,
+  forwardRef,
+  RefObject,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import styles from "./column.module.sass";
 import {
   getMixedUnitColor,
@@ -71,32 +79,46 @@ function sectionClassName(section: SectionInfo) {
   return `section-${ensureArray(section.section_id).join("-")}`;
 }
 
-export interface ColumnProps extends IColumnProps {
+interface BaseColumnProps extends IColumnProps {
   unconformityLabels?: boolean;
   className?: string;
   mergeOverlappingSections?: boolean;
   showLabelColumn?: boolean;
   columnRef?: RefObject<HTMLElement>;
   keyboardNavigation?: boolean;
-  showUnitPopover?: boolean;
   t_age?: number;
   b_age?: number;
   axisType?: ColumnAxisType;
+  unitComponent?: any;
+  showLabels?: boolean;
+  data: IUnit[];
+}
+
+export interface ColumnProps extends BaseColumnProps {
+  showUnitPopover?: boolean;
+  selectedUnit?: number | null;
+  onUnitSelected?: (unitID: number | null, unit: any) => void;
 }
 
 export function Column(props: ColumnProps) {
-  const { showUnitPopover = false, ...rest } = props;
-  const ref = createRef<HTMLElement>();
+  const {
+    showUnitPopover = false,
+    onUnitSelected,
+    selectedUnit,
+    children,
+    data,
+    ...rest
+  } = props;
+  const ref = useRef<HTMLElement>();
   // Selected item position
 
   return h(
     UnitSelectionProvider,
-    { columnRef: ref },
-    h(
-      _Column,
-      { ...rest, columnRef: ref },
-      h.if(showUnitPopover)(UnitSelectionPopover)
-    )
+    { columnRef: ref, onUnitSelected, selectedUnit, units: data },
+    h(_Column, { columnRef: ref, data, ...rest }, [
+      children,
+      h.if(showUnitPopover)(UnitSelectionPopover),
+    ])
   );
 }
 

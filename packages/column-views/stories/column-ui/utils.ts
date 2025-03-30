@@ -1,19 +1,26 @@
 import { useAPIResult } from "@macrostrat/ui-components";
+import { useMemo } from "react";
 
 export function useColumnUnits(col_id, inProcess = false) {
   const status_code = inProcess ? "in process" : undefined;
+  const params = useMemo(() => {
+    return { col_id, response: "long", status_code };
+  }, [col_id, status_code]);
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
-    { col_id, response: "long", status_code },
+    params,
     (res) => res.success.data
   );
 }
 
 export function useColumnBasicInfo(col_id, inProcess = false) {
   const status_code = inProcess ? "in process" : undefined;
+  const params = useMemo(() => {
+    return { col_id, status_code };
+  }, [col_id, status_code]);
   return useAPIResult(
     "https://macrostrat.org/api/v2/columns",
-    { col_id, status_code },
+    params,
     (res) => {
       return res.success.data[0];
     }

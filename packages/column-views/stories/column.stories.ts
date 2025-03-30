@@ -15,6 +15,7 @@ import { Spinner } from "@blueprintjs/core";
 import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
 import { ColumnProps as BaseColumnProps } from "@macrostrat/column-views";
+import { useState } from "react";
 
 const h = hyper.styled(styles);
 
@@ -58,8 +59,6 @@ function BasicColumn(props: ColumnProps) {
   if (props.b_age != null) {
     units1 = units1.filter((d) => d.b_age <= props.b_age);
   }
-
-  console.log(info, units);
 
   const data = preprocessUnits(units1);
 
@@ -125,20 +124,29 @@ export const Wide: Story = {
   },
 };
 
-function BasicUnitViewer() {
-  const unit = useSelectedUnit();
-  if (unit == null) {
-    return null;
-  }
+export function WithExternalUnitViewer() {
+  const [unitID, setUnitID] = useState(13102);
+  const [unit, setSelectedUnit] = useState(null);
 
-  return h("div.unit-viewer", JSONView({ data: unit, showRoot: false }));
-}
-
-export function WithBasicUnitViewer() {
-  return h(
-    UnitSelectionProvider,
-    h(BasicColumn, { id: 432, showLabelColumn: true }, [h(BasicUnitViewer)])
-  );
+  return h("div", [
+    h(
+      BasicColumn,
+      {
+        id: 432,
+        showLabelColumn: true,
+        selectedUnit: unitID,
+        keyboardNavigation: true,
+        onUnitSelected(unitID, unit) {
+          setSelectedUnit(unit);
+          setUnitID(unitID);
+        },
+      },
+      h.if(unit != null)(
+        "div.unit-viewer",
+        h(JSONView, { data: unit, showRoot: false })
+      )
+    ),
+  ]);
 }
 
 export const WithUnitSelectionPopover: Story = {
@@ -149,6 +157,28 @@ export const WithUnitSelectionPopover: Story = {
     showUnitPopover: true,
   },
 };
+
+export function WithControlledPopover() {
+  const [unitID, setUnitID] = useState(13102);
+  const [unit, setSelectedUnit] = useState(null);
+
+  return h("div", [
+    h(BasicColumn, {
+      id: 432,
+      showLabelColumn: true,
+      selectedUnit: unitID,
+      onUnitSelected(unitID, unit) {
+        setSelectedUnit(unit);
+        setUnitID(unitID);
+      },
+      showUnitPopover: true,
+      keyboardNavigation: true,
+      unitComponentProps: {
+        nColumns: 12,
+      },
+    }),
+  ]);
+}
 
 export const ManyColumns: Story = {
   args: {

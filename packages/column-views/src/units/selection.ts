@@ -57,16 +57,24 @@ interface UnitSelectionStore {
   unit: BaseUnit | null;
   overlayPosition: RectBounds | null;
   onUnitSelected: UnitSelectDispatch;
+  setSelectedUnit: (unit: null) => void;
 }
 
 export function UnitSelectionProvider<T extends BaseUnit>(props: {
   children: ReactNode;
   columnRef?: React.RefObject<HTMLElement>;
+  units: T[];
+  selectedUnit: number | null;
+  onUnitSelected?: (unitID: number | null, unit: T | null) => void;
 }) {
   const [store] = useState(() =>
     createStore<UnitSelectionStore>((set) => ({
       unit: null,
       overlayPosition: null,
+      setSelectedUnit(unit: number | null) {
+        console.log("setSelectedUnit", unit);
+        set({ unit });
+      },
       onUnitSelected: (unit, target, event) => {
         const el = props.columnRef?.current;
         let overlayPosition = null;
@@ -80,10 +88,22 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
             height: targetRect.height,
           };
         }
+        props.onUnitSelected?.(unit?.unit_id, unit);
+
         return set({ unit, overlayPosition });
       },
     }))
   );
+
+  const { units, selectedUnit } = props;
+
+  useEffect(() => {
+    const { setSelectedUnit } = store.getState();
+    if (selectedUnit != null) {
+      const unitData = units.find((u) => u.unit_id === selectedUnit);
+      setSelectedUnit(unitData);
+    }
+  }, [selectedUnit, units]);
 
   return h(UnitSelectionContext.Provider, { value: store }, props.children);
 }

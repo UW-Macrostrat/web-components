@@ -2,11 +2,7 @@ import hyper from "@macrostrat/hyper";
 import { Button, Popover } from "@blueprintjs/core";
 import { DOMElement } from "react";
 import styles from "./selection-popover.module.sass";
-import {
-  useSelectedUnit,
-  useUnitSelectionDispatch,
-  useUnitSelectionStore,
-} from "./units";
+import { useSelectedUnit, useUnitSelectionStore } from "./units";
 import { UnitDetailsPanel } from "./unit-details";
 
 const h = hyper.styled(styles);

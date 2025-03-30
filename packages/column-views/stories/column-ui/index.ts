@@ -56,6 +56,7 @@ function ColumnCore({ col_id }) {
   return h("div.column-container", [
     h("h2", info.col_name),
     h(Column, {
+      key: col_id,
       data,
       unconformityLabels: true,
       keyboardNavigation: true,
