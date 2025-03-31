@@ -5,21 +5,23 @@ import {
   preprocessUnits,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import styles from "./index.module.sass";
 
 import { Spinner } from "@blueprintjs/core";
 import { useColumnBasicInfo, useColumnUnits } from "./utils";
+import { ColumnAxisType } from "@macrostrat/column-components/src";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 const h = hyperStyled(styles);
 
-export function ColumnUI({
+export function ColumnStoryUI({
   columnID,
   setColumn,
   selectedUnit,
   setSelectedUnit,
+  ...rest
 }) {
   const columnInfo = useColumnBasicInfo(columnID);
   const units = useColumnUnits(columnID);
@@ -31,7 +33,12 @@ export function ColumnUI({
   return h("div.column-ui", [
     h(
       "div.column-container",
-      h(ColumnCore, { col_id: columnID, selectedUnit, setSelectedUnit })
+      h(ColumnCore, {
+        col_id: columnID,
+        selectedUnit,
+        setSelectedUnit,
+        ...rest,
+      })
     ),
     h("div.right-column", [
       h(ColumnNavigationMap, {
@@ -46,16 +53,11 @@ export function ColumnUI({
   ]);
 }
 
-function ColumnCore({ col_id, selectedUnit, setSelectedUnit }) {
+function ColumnCore({ col_id, selectedUnit, setSelectedUnit, ...rest }) {
   const units = useColumnUnits(col_id);
   const info = useColumnBasicInfo(col_id);
 
-  const data = useMemo(() => {
-    if (units == null) return null;
-    return preprocessUnits(units);
-  }, [units]);
-
-  if (data == null || info == null) {
+  if (units == null || info == null) {
     return h(Spinner);
   }
 
@@ -63,7 +65,7 @@ function ColumnCore({ col_id, selectedUnit, setSelectedUnit }) {
     h("h2", info.col_name),
     h(Column, {
       key: col_id,
-      data,
+      units,
       selectedUnit,
       onUnitSelected: (unit_id) => {
         setSelectedUnit(unit_id);
@@ -77,6 +79,7 @@ function ColumnCore({ col_id, selectedUnit, setSelectedUnit }) {
       unitComponentProps: {
         nColumns: 10,
       },
+      ...rest,
     }),
   ]);
 }

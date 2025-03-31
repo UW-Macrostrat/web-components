@@ -15,7 +15,7 @@ import { useUnitSelectionTarget } from "./selection";
 import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
-import { getUnitHeightRange } from "@macrostrat/column-views";
+import { getUnitHeightRange } from "../prepare-units/utils";
 
 const h = hyper.styled(styles);
 

@@ -1,52 +1,56 @@
-import { BaseUnit, UnitLong } from "@macrostrat/api-types";
-import { IUnit } from "./units";
-import { SectionInfo } from "./section";
+import type { BaseUnit, UnitLong } from "@macrostrat/api-types";
+import type { IUnit } from "../units";
+import type { SectionInfo } from "../section";
 import { group } from "d3-array";
-import {
-  AgeRangeRelationship,
-  compareAgeRanges,
-} from "@macrostrat/stratigraphy-utils";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import {
+  unitsOverlap,
+  getUnitHeightRange,
+  createUnitSorter,
+  ensureArray,
+  ensureRealFloat,
+} from "./utils";
 
 const dt = 0.001;
 
-function unitsOverlap<T extends BaseUnit>(
-  a: T,
-  b: T,
-  axisType: ColumnAxisType = ColumnAxisType.AGE,
-  tolerance: number = 0.001
-): boolean {
-  const rel = compareAgeRanges(
-    getUnitHeightRange(a, axisType),
-    getUnitHeightRange(b, axisType),
-    tolerance
-  );
-  return rel != AgeRangeRelationship.Disjoint;
-}
-
-export function getUnitHeightRange(
-  unit: BaseUnit,
-  axisType: ColumnAxisType
-): [number, number] {
-  switch (axisType) {
-    case ColumnAxisType.AGE:
-      return [unit.b_age, unit.t_age];
-    case ColumnAxisType.DEPTH:
-    case ColumnAxisType.ORDINAL:
-    case ColumnAxisType.HEIGHT:
-      return [unit.b_pos, unit.t_pos];
-    default:
-      throw new Error(`Unknown axis type: ${axisType}`);
-  }
-}
-
-interface ExtUnit extends UnitLong {
+export interface ExtUnit extends BaseUnit {
   bottomOverlap: boolean;
   overlappingUnits: number[];
   column?: number;
 }
 
-export function extendDivision(
+export function preprocessUnits(
+  units: BaseUnit[],
+  axisType: ColumnAxisType = ColumnAxisType.AGE
+) {
+  /** Preprocess units to add overlapping units and columns. */
+  let divisions = units.map((...args) => extendDivision(...args, axisType));
+  for (let d of divisions) {
+    const overlappingUnits = divisions.filter((u) =>
+      d.overlappingUnits.includes(u.unit_id)
+    );
+
+    // Overlapping columns
+    const columns = overlappingUnits.map((d) => d.column);
+
+    if (columns.includes(d.column)) {
+      let col = 0;
+      // Go through columns to find a better index
+      while (columns.includes(col)) {
+        col++;
+      }
+      d.column = col;
+    }
+  }
+
+  if (axisType != ColumnAxisType.AGE) {
+    return preprocessSectionUnits(divisions, axisType);
+  }
+
+  return divisions;
+}
+
+function extendDivision(
   unit: UnitLong,
   i: number,
   divisions: UnitLong[],
@@ -74,67 +78,12 @@ export function extendDivision(
   };
 }
 
-export function preprocessUnits(
-  units: UnitLong[],
-  axisType: ColumnAxisType = ColumnAxisType.AGE
-) {
-  /** Preprocess units to add overlapping units and columns. */
-  let divisions = units.map((...args) => extendDivision(...args, axisType));
-  for (let d of divisions) {
-    const overlappingUnits = divisions.filter((u) =>
-      d.overlappingUnits.includes(u.unit_id)
-    );
-
-    const maxNOverlapping = Math.max(
-      Math.max(
-        ...d.overlappingUnits.map(
-          (uid) =>
-            divisions.find((u) => u.unit_id == uid).overlappingUnits.length
-        ),
-        0
-      )
-    );
-
-    //d.maxNOverlapping = maxNOverlapping;
-
-    // Overlapping columns
-    const columns = overlappingUnits.map((d) => d.column);
-
-    if (columns.includes(d.column)) {
-      let col = 0;
-      // Go through columns to find a better index
-      while (columns.includes(col)) {
-        col++;
-      }
-      d.column = col;
-    }
-  }
-
-  if (axisType != ColumnAxisType.AGE) {
-    return preprocessSectionUnits(divisions, axisType);
-  }
-
-  return divisions;
-}
-
-const unitsComparator = (axisType: ColumnAxisType) => {
-  return (a: UnitLong, b: UnitLong) => {
-    const a_pos = getUnitHeightRange(a, axisType);
-    const b_pos = getUnitHeightRange(b, axisType);
-    const d_top = a_pos[1] - b_pos[1];
-    if (d_top != 0) {
-      return d_top;
-    }
-    return a_pos[0] - b_pos[0];
-  };
-};
-
 export function groupUnitsIntoSections(
   units: IUnit[],
   axisType: ColumnAxisType = ColumnAxisType.AGE
 ): SectionInfo[] {
   let groups = Array.from(group(units, (d) => d.section_id));
-  const unitComparator = unitsComparator(axisType);
+  const unitComparator = createUnitSorter(axisType);
 
   const groups1 = groups.map(([section_id, sectionUnits]) => {
     const t_age = Math.min(...sectionUnits.map((d) => d.t_age));
@@ -145,7 +94,7 @@ export function groupUnitsIntoSections(
   });
   // Sort sections by increasing top age, then increasing bottom age.
   // Sections have no relative ordinal position other than age...
-  const compareSections = unitsComparator(ColumnAxisType.AGE);
+  const compareSections = createUnitSorter(ColumnAxisType.AGE);
   groups1.sort(compareSections);
   return groups1;
 }
@@ -178,13 +127,6 @@ export function _mergeOverlappingSections(
     lastSection.t_age = Math.min(lastSection.t_age, section.t_age);
   }
   return newSections;
-}
-
-export function ensureArray<T>(x: T | T[]): T[] {
-  if (Array.isArray(x)) {
-    return x;
-  }
-  return [x];
 }
 
 export interface SectionUnit extends UnitLong {
@@ -248,14 +190,4 @@ function preprocessSectionUnit(
     t_pos: ensureRealFloat(t_pos),
     unit_name,
   };
-}
-
-function ensureRealFloat(x: number | string | null): number | null {
-  if (typeof x == "string") {
-    x = parseFloat(x);
-  }
-  if (isNaN(x)) {
-    return null;
-  }
-  return x;
 }

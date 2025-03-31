@@ -9,7 +9,7 @@ import {
 import type { ColumnDivision } from "@macrostrat/column-components";
 import { IUnit } from "./types";
 import React from "react";
-import { getUnitHeightRange } from "@macrostrat/column-views";
+import { getUnitHeightRange } from "../prepare-units/utils";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;

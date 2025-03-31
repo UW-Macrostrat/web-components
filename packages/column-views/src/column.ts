@@ -5,15 +5,7 @@ import {
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode, useInDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import {
-  createRef,
-  forwardRef,
-  RefObject,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { RefObject, useContext, useMemo, useRef } from "react";
 import styles from "./column.module.sass";
 import {
   getMixedUnitColor,
@@ -27,13 +19,10 @@ import { SectionInfo } from "./section";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
 import { IColumnProps, Section } from "./section";
-import {
-  _mergeOverlappingSections,
-  ensureArray,
-  groupUnitsIntoSections,
-} from "./helpers";
+import { usePreparedColumnUnits } from "./prepare-units";
 import { useLithologies } from "./data-provider";
 import { VerticalAxisLabel } from "./age-axis";
+import { BaseUnit } from "@macrostrat/api-types";
 
 const h = hyperStyled(styles);
 
@@ -81,14 +70,13 @@ interface BaseColumnProps extends IColumnProps {
   className?: string;
   mergeOverlappingSections?: boolean;
   showLabelColumn?: boolean;
-  columnRef?: RefObject<HTMLElement>;
   keyboardNavigation?: boolean;
   t_age?: number;
   b_age?: number;
   axisType?: ColumnAxisType;
   unitComponent?: any;
   showLabels?: boolean;
-  data: IUnit[];
+  units: BaseUnit[];
   maxInternalColumns?: number;
   clipUnits?: boolean;
 }
@@ -107,44 +95,36 @@ export function Column(props: ColumnProps) {
     onUnitSelected,
     selectedUnit,
     children,
-    data,
+    units: rawUnits,
     axisType,
+    t_age,
+    b_age,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
   // Selected item position
 
-  const [sectionGroups, units] = useMemo(() => {
-    let res = groupUnitsIntoSections(data, axisType);
-    /** Merging overlapping sections really only makes sense for age/height/depth
-     * columns. Ordinal columns are numbered by section so merging them
-     * results in collisions.
-     */
-    if (mergeOverlappingSections && axisType != ColumnAxisType.ORDINAL) {
-      res = _mergeOverlappingSections(res);
-    }
-
-    /** Reconstitute the units so that they are sorted by section.
-     * This is mostly important so that unit keyboard navigation
-     * predictably selects adjacent units.
-     */
-    const units = res.reduce((acc, group) => {
-      const { units } = group;
-      for (const unit of units) {
-        acc.push(unit);
-      }
-      return acc;
-    }, []);
-
-    return [res, units];
-  }, [data, mergeOverlappingSections, axisType]);
+  const [sectionGroups, units] = usePreparedColumnUnits(rawUnits, {
+    axisType,
+    t_age,
+    b_age,
+    mergeOverlappingSections,
+  });
 
   return h(
     UnitSelectionProvider,
     { columnRef: ref, onUnitSelected, selectedUnit, units },
     h(
       ColumnInner,
-      { columnRef: ref, data: units, axisType, sectionGroups, ...rest },
+      {
+        columnRef: ref,
+        units,
+        axisType,
+        sectionGroups,
+        t_age,
+        b_age,
+        ...rest,
+      },
       [
         children,
         h.if(showUnitPopover)(UnitSelectionPopover),
@@ -156,11 +136,12 @@ export function Column(props: ColumnProps) {
 
 interface ColumnInnerProps extends BaseColumnProps {
   sectionGroups: SectionInfo[];
+  columnRef: RefObject<HTMLElement>;
 }
 
 function ColumnInner(props: ColumnInnerProps) {
   const {
-    data,
+    units,
     sectionGroups,
     unitComponent = UnitComponent,
     unitComponentProps,
@@ -216,7 +197,7 @@ function ColumnInner(props: ColumnInnerProps) {
         dispatch?.(null, null, evt as any);
       },
     },
-    h(MacrostratUnitsProvider, { units: data }, [
+    h(MacrostratUnitsProvider, { units }, [
       h("div.column", { ref: columnRef }, [
         h.if(axisLabel != null)(VerticalAxisLabel, {
           label: axisLabel,

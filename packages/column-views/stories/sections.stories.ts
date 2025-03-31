@@ -51,9 +51,7 @@ function BasicSection(props: ColumnProps & { inProcess?: boolean }) {
     return h(Spinner);
   }
 
-  const data = preprocessUnits(units, rest.axisType);
-
-  return h("div", [h("h2", info.col_name), h(Column, { ...rest, data })]);
+  return h("div", [h("h2", info.col_name), h(Column, { ...rest, units })]);
 }
 
 type Story = StoryObj<typeof BasicSection>;
@@ -72,11 +70,6 @@ const meta: Meta<ColumnProps> = {
     keyboardNavigation: true,
     axisType: ColumnAxisType.DEPTH,
   },
-  decorators: [
-    (Story) => {
-      return h(LithologiesProvider, h(PatternProvider, h(Story)));
-    },
-  ],
   parameters: {
     docs: {
       story: {

@@ -52,17 +52,7 @@ function BasicColumn(props: ColumnProps) {
     return h(Spinner);
   }
 
-  let units1 = units;
-  if (props.t_age != null) {
-    units1 = units.filter((d) => d.t_age >= props.t_age);
-  }
-  if (props.b_age != null) {
-    units1 = units1.filter((d) => d.b_age <= props.b_age);
-  }
-
-  const data = preprocessUnits(units1);
-
-  return h("div", [h("h2", info.col_name), h(Column, { ...rest, data })]);
+  return h("div", [h("h2", info.col_name), h(Column, { ...rest, units })]);
 }
 
 type Story = StoryObj<typeof BasicColumn>;

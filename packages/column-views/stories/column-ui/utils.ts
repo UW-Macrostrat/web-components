@@ -1,10 +1,11 @@
 import { useAPIResult } from "@macrostrat/ui-components";
 import { useMemo } from "react";
+import { BaseUnit } from "@macrostrat/api-types";
 
-export function useColumnUnits(col_id, inProcess = false) {
+export function useColumnUnits(col_id, inProcess = false): BaseUnit[] | null {
   const status_code = inProcess ? "in process" : undefined;
   const params = useMemo(() => {
-    return { col_id, response: "long", status_code };
+    return { col_id, response: "long", status_code, show_position: true };
   }, [col_id, status_code]);
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",

@@ -163,7 +163,8 @@ function UnitDetailsContent({
     features.has(UnitDetailsFeature.DepthRange) &&
     unit.t_pos != null &&
     unit.b_pos != null &&
-    unit.min_thick == unit.max_thick // We have an actual fixed height
+    unit.min_thick == unit.max_thick && // We have an actual fixed height
+    unit.min_thick != 0 // Not a zero thickness
   ) {
     const label = unit.t_pos < unit.b_pos ? "Depth" : "Height";
     const u1 = "m";
