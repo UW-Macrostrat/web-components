@@ -65,7 +65,6 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
       unit: null,
       overlayPosition: null,
       setSelectedUnit(unit: number | null) {
-        console.log("setSelectedUnit", unit);
         set({ unit });
       },
       onUnitSelected: (unit, target, event) => {
@@ -142,8 +141,6 @@ export function UnitKeyboardNavigation<T extends BaseUnit>({
   const selectUnit = useUnitSelectionDispatch();
 
   const ix = units.findIndex((unit) => unit.unit_id === selectedUnit?.unit_id);
-
-  console.log("UnitKeyboardNavigation", ix, selectedUnit?.t_pos);
 
   const keyMap = {
     38: ix - 1,

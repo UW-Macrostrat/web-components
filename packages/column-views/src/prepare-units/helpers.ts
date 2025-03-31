@@ -79,15 +79,14 @@ function extendDivision(
 }
 
 export function groupUnitsIntoSections(
-  units: IUnit[],
+  units: BaseUnit[],
   axisType: ColumnAxisType = ColumnAxisType.AGE
 ): SectionInfo[] {
   let groups = Array.from(group(units, (d) => d.section_id));
   const unitComparator = createUnitSorter(axisType);
 
   const groups1 = groups.map(([section_id, sectionUnits]) => {
-    const t_age = Math.min(...sectionUnits.map((d) => d.t_age));
-    const b_age = Math.max(...sectionUnits.map((d) => d.b_age));
+    const [b_age, t_age] = getSectionAgeRange(sectionUnits);
     // sort units by position
     sectionUnits.sort(unitComparator);
     return { section_id, t_age, b_age, units: sectionUnits };
@@ -97,6 +96,15 @@ export function groupUnitsIntoSections(
   const compareSections = createUnitSorter(ColumnAxisType.AGE);
   groups1.sort(compareSections);
   return groups1;
+}
+
+export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
+  /** Get the overall age range of a set of units. */
+  const t_ages = units.map((d) => d.t_age);
+  const b_ages = units.map((d) => d.b_age);
+  const t_age = Math.min(...t_ages);
+  const b_age = Math.max(...b_ages);
+  return [b_age, t_age];
 }
 
 export function _mergeOverlappingSections(
@@ -135,7 +143,7 @@ export interface SectionUnit extends UnitLong {
 }
 
 function preprocessSectionUnits(
-  units: UnitLong[],
+  units: ExtUnit[],
   axisType: ColumnAxisType = ColumnAxisType.DEPTH
 ): SectionUnit[] {
   /** Preprocess units for a "section" column type, which is guaranteed to be simpler. */

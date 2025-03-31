@@ -18,8 +18,8 @@ import {
 import { SectionInfo } from "./section";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
-import { IColumnProps, Section } from "./section";
-import { usePreparedColumnUnits } from "./prepare-units";
+import { SectionSharedProps, Section } from "./section";
+import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { useLithologies } from "./data-provider";
 import { VerticalAxisLabel } from "./age-axis";
 import { BaseUnit } from "@macrostrat/api-types";
@@ -65,10 +65,10 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
   ]);
 }
 
-interface BaseColumnProps extends IColumnProps {
+interface BaseColumnProps extends SectionSharedProps {
   unconformityLabels?: boolean;
   className?: string;
-  mergeOverlappingSections?: boolean;
+  mergeSections?: MergeSectionsMode;
   showLabelColumn?: boolean;
   keyboardNavigation?: boolean;
   t_age?: number;
@@ -79,6 +79,7 @@ interface BaseColumnProps extends IColumnProps {
   units: BaseUnit[];
   maxInternalColumns?: number;
   clipUnits?: boolean;
+  showTimescale?: boolean;
 }
 
 export interface ColumnProps extends BaseColumnProps {
@@ -91,7 +92,7 @@ export function Column(props: ColumnProps) {
   const {
     showUnitPopover = false,
     keyboardNavigation = false,
-    mergeOverlappingSections = true,
+    mergeSections,
     onUnitSelected,
     selectedUnit,
     children,
@@ -108,7 +109,7 @@ export function Column(props: ColumnProps) {
     axisType,
     t_age,
     b_age,
-    mergeOverlappingSections,
+    mergeSections,
   });
 
   return h(
@@ -206,8 +207,18 @@ function ColumnInner(props: ColumnInnerProps) {
         h(
           "div.main-column",
           sectionGroups.map((group, i) => {
-            const { section_id: id, units: data } = group;
+            const { section_id: id, units: data, t_age, b_age } = group;
             const lastGroup = sectionGroups[i - 1];
+            let range = null;
+            // if t_age and b_age are set, use them to define the range...
+            if (
+              t_age != null &&
+              b_age != null &&
+              axisType == ColumnAxisType.AGE
+            ) {
+              range = [b_age, t_age];
+            }
+
             return h(
               Section,
               {
@@ -221,6 +232,7 @@ function ColumnInner(props: ColumnInnerProps) {
                 showLabelColumn,
                 axisType,
                 clipUnits,
+                range,
                 ...rest,
               },
               h.if(unconformityLabels)(Unconformity, {

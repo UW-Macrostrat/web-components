@@ -4,7 +4,8 @@ import { UnitLong } from "@macrostrat/api-types";
 export function getMixedUnitColor(
   unit: UnitLong,
   lithMap,
-  inDarkMode = false
+  inDarkMode = false,
+  asBackground = true
 ): string | null {
   const liths = unit.lith;
   if (liths == null) {
@@ -48,6 +49,10 @@ export function getMixedUnitColor(
     "lrgb",
     lithsWithProp.map((d) => d.prop)
   );
+
+  if (!asBackground) {
+    return baseColor.hex();
+  }
 
   if (inDarkMode) {
     return baseColor.set("hsl.l", 0.2).hex();

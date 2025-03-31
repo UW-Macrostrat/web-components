@@ -7,7 +7,11 @@ import {
   useColumn,
   useGeologicPattern,
 } from "@macrostrat/column-components";
-import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
+import {
+  SizeAwareLabel,
+  Clickable,
+  useInDarkMode,
+} from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { ReactNode, useContext, useMemo } from "react";
 import { resolveID, scalePattern } from "./resolvers";
@@ -16,6 +20,8 @@ import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
 import { getUnitHeightRange } from "../prepare-units/utils";
+import { useLithologies } from "../data-provider";
+import { getMixedUnitColor } from "./colors";
 
 const h = hyper.styled(styles);
 
@@ -53,6 +59,7 @@ export interface LabeledUnitProps
   onLabelUpdated?(label: string, shown: boolean);
   halfWidth?: boolean;
   showLabel?: boolean;
+  backgroundColor?: string;
 }
 
 function useUnitRect(
@@ -74,6 +81,51 @@ function useUnitRect(
     height,
     width: widthFraction * width,
   };
+}
+
+export function MinimalUnit(props) {
+  const {
+    division: d,
+    children,
+    className,
+    widthFraction = 1,
+    axisType: _, // not sure why this is brought in...
+    nColumns: __,
+    ...baseBounds
+  } = props;
+
+  const { axisType } = useColumn();
+  const lithMap = useLithologies();
+  const bounds = {
+    ...useUnitRect(d, { widthFraction, axisType }),
+    ...baseBounds,
+  };
+
+  const backgroundColor = getMixedUnitColor(d, lithMap, null, false);
+
+  const [ref, selected, onClick] = useUnitSelectionTarget(d);
+
+  return h(
+    "g.unit",
+    {
+      className,
+      style: {
+        "--column-unit-background-color": backgroundColor,
+        "--column-stroke-color": backgroundColor,
+      },
+    },
+    [
+      h("rect.unit.background", {
+        ref,
+        ...bounds,
+        fill: backgroundColor,
+        fillOpacity: 0.8,
+        stroke: backgroundColor,
+        onClick,
+      }),
+      h.if(selected)("rect.selection-overlay", bounds),
+    ]
+  );
 }
 
 function Unit(props: UnitProps) {
@@ -116,6 +168,7 @@ function Unit(props: UnitProps) {
       h("rect.background", {
         ...bounds,
         fill: backgroundColor,
+        onClick,
       }),
       //maskElement,
       h("rect.unit", {

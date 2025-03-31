@@ -5,12 +5,10 @@ import {
   preprocessUnits,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useMemo } from "react";
 import styles from "./index.module.sass";
 
 import { Spinner } from "@blueprintjs/core";
 import { useColumnBasicInfo, useColumnUnits } from "./utils";
-import { ColumnAxisType } from "@macrostrat/column-components/src";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 

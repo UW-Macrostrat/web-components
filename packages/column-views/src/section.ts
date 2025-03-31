@@ -6,7 +6,8 @@ import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
 import { MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
-import { UnitLong } from "@macrostrat/api-types";
+import { BaseUnit, UnitLong } from "@macrostrat/api-types";
+import type { ExtUnit } from "./prepare-units/helpers";
 
 const h = hyper.styled(styles);
 
@@ -14,26 +15,34 @@ export interface SectionInfo {
   section_id: number | number[];
   t_age: number;
   b_age: number;
-  units: IUnit[];
+  units: ExtUnit[];
 }
 
-export interface IColumnProps {
-  data: IUnit[];
-  pixelScale?: number;
+export interface SectionSharedProps {
+  data: BaseUnit[];
   range?: [number, number];
   unitComponent?: React.FunctionComponent<any>;
   unitComponentProps?: any;
   showLabels?: boolean;
   width?: number;
   columnWidth?: number;
-  targetUnitHeight?: number;
   children?: ReactNode;
   showLabelColumn?: boolean;
   axisType?: ColumnAxisType;
   className?: string;
+  clipUnits?: boolean;
+  showTimescale?: boolean;
+  timescaleLevels?: [number, number];
+  /** A fixed pixel scale to use for the section (pixels per Myr) */
+  pixelScale?: number;
+  /** The target height of a constituent unit in pixels, for dynamic
+   * scale generation */
+  targetUnitHeight?: number;
+  /** The minimum pixel scale to use for the section (pixels per Myr) */
+  minPixelScale?: number;
 }
 
-export function Section(props: IColumnProps) {
+export function Section(props: SectionSharedProps) {
   // Section with "squishy" time scale
   const {
     data,
@@ -50,6 +59,9 @@ export function Section(props: IColumnProps) {
     className,
     children,
     clipUnits = true,
+    minPixelScale = 0.2,
+    showTimescale = true,
+    timescaleLevels,
   } = props;
 
   const range = useMemo(
@@ -62,7 +74,8 @@ export function Section(props: IColumnProps) {
   const pixelScale = useMemo(() => {
     if (_pixelScale != null) return _pixelScale;
     const targetHeight = targetUnitHeight * data.length;
-    return Math.ceil(targetHeight / dAge);
+    // 1 pixel per myr is the floor scale
+    return Math.max(targetHeight / dAge, minPixelScale);
   }, [_pixelScale, targetUnitHeight, data.length, dAge]);
 
   const height = useMemo(() => dAge * pixelScale, [dAge, pixelScale]);
@@ -84,12 +97,18 @@ export function Section(props: IColumnProps) {
 
   let timescale = null;
 
-  if (axisType == ColumnAxisType.AGE) {
+  // Check whether we should show the timescale
+  let _showTimescale = showTimescale;
+  if (timescaleLevels !== null) {
+    _showTimescale = true;
+  }
+
+  if (axisType == ColumnAxisType.AGE && _showTimescale) {
     timescale = h("div.timescale-container", { style: { marginTop: `10px` } }, [
       h(Timescale, {
         orientation: TimescaleOrientation.VERTICAL,
         length: height,
-        levels: timescaleLevels as [number, number],
+        levels: timescaleLevels ?? [2, 5],
         absoluteAgeScale: true,
         showAgeAxis: false,
         ageRange: range as [number, number],
@@ -165,5 +184,3 @@ function findColumnRange(data: UnitLong[], axisType: ColumnAxisType) {
     return [b_pos, t_pos];
   }
 }
-
-const timescaleLevels = [2, 5];
