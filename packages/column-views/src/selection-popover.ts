@@ -10,11 +10,11 @@ const h = hyper.styled(styles);
 export function UnitDetailsPopover({
   style,
   children,
-  boundary,
+  viewportPadding = 20,
 }: {
   style: object;
+  viewportPadding?: number;
   children: React.ReactNode;
-  boundary?: DOMElement<any, any>;
 }) {
   const content = h(LegendPopoverContainer, children);
 
@@ -26,7 +26,15 @@ export function UnitDetailsPopover({
     h(
       Popover,
       // @ts-ignore
-      { content, isOpen: true, usePortal: false, boundary, position: "right" },
+      {
+        content,
+        isOpen: true,
+        usePortal: false,
+        position: "right",
+        modifiers: {
+          preventOverflow: { options: { padding: viewportPadding } },
+        },
+      },
       h("span.popover-target")
     )
   );

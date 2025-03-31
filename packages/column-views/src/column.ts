@@ -174,6 +174,8 @@ function ColumnInner(props: ColumnInnerProps) {
     };
   }, [unitComponentProps, maxInternalColumns, columnWidth]);
 
+  console.log(_unitComponentProps, maxInternalColumns, unitComponentProps);
+
   // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
 

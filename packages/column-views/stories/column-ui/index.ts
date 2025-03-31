@@ -19,15 +19,10 @@ export function ColumnStoryUI({
   setColumn,
   selectedUnit,
   setSelectedUnit,
+  inProcess,
+  projectID,
   ...rest
 }) {
-  const columnInfo = useColumnBasicInfo(columnID);
-  const units = useColumnUnits(columnID);
-
-  if (units == null || columnInfo == null) {
-    return h(Spinner);
-  }
-
   return h("div.column-ui", [
     h(
       "div.column-container",
@@ -35,13 +30,14 @@ export function ColumnStoryUI({
         col_id: columnID,
         selectedUnit,
         setSelectedUnit,
+        inProcess,
         ...rest,
       })
     ),
     h("div.right-column", [
       h(ColumnNavigationMap, {
-        inProcess: false,
-        projectID: null,
+        inProcess,
+        projectID,
         accessToken: mapboxToken,
         selectedColumn: columnID,
         onSelectColumn: setColumn,
@@ -51,9 +47,15 @@ export function ColumnStoryUI({
   ]);
 }
 
-function ColumnCore({ col_id, selectedUnit, setSelectedUnit, ...rest }) {
-  const units = useColumnUnits(col_id);
-  const info = useColumnBasicInfo(col_id);
+function ColumnCore({
+  col_id,
+  inProcess,
+  selectedUnit,
+  setSelectedUnit,
+  ...rest
+}) {
+  const units = useColumnUnits(col_id, inProcess);
+  const info = useColumnBasicInfo(col_id, inProcess);
 
   if (units == null || info == null) {
     return h(Spinner);
@@ -74,9 +76,6 @@ function ColumnCore({ col_id, selectedUnit, setSelectedUnit, ...rest }) {
       showUnitPopover: true,
       width: 450,
       unitComponent: ColoredUnitComponent,
-      unitComponentProps: {
-        nColumns: 10,
-      },
       ...rest,
     }),
   ]);

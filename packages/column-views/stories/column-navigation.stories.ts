@@ -4,7 +4,6 @@ import { Meta } from "@storybook/react";
 import "@macrostrat/style-system";
 import { ColumnStoryUI } from "./column-ui";
 import { useArgs } from "@storybook/client-api";
-import { ColumnAxisType } from "@macrostrat/column-components";
 import { MinimalUnit } from "../src/units/boxes";
 
 const h = hyper.styled(styles);
@@ -38,22 +37,28 @@ export default {
   args: {
     columnID: 432,
     selectedUnit: undefined,
-    axisType: ColumnAxisType.AGE,
+    axisType: "age",
   },
   argTypes: {
     ...baseArgTypes,
     axisType: {
-      options: ["age", "ordinal"],
+      options: ["age", "ordinal", "depth"],
       control: { type: "radio" },
+    },
+    mergeSections: {
+      options: ["all", "overlapping", null],
+      control: { type: "radio" },
+    },
+    pixelScale: {
+      control: {
+        type: "number",
+      },
     },
   },
 } as Meta<ColumnStoryUI>;
 
-export function ColumnSelector() {
-  const [
-    { columnID, selectedUnit, axisType, minimal, t_age, b_age },
-    updateArgs,
-  ] = useArgs();
+function useColumnSelection() {
+  const [{ columnID, selectedUnit }, updateArgs] = useArgs();
   const setColumn = (columnID) => {
     updateArgs({ columnID, selectedUnit: undefined });
   };
@@ -62,24 +67,39 @@ export function ColumnSelector() {
     updateArgs({ selectedUnit });
   };
 
-  let minimalArgs = {};
-  if (minimal) {
-    minimalArgs = {
-      mergeSections: "all",
-      showLabels: false,
-      pixelScale: 1.2,
-      //t_age: 0,
-      //b_age: 650,
-      unitComponent: MinimalUnit,
-    };
-  }
-
-  return h(ColumnStoryUI, {
+  return {
     columnID,
-    setColumn,
     selectedUnit,
+    setColumn,
     setSelectedUnit,
-    axisType,
-    ...minimalArgs,
+  };
+}
+
+function Template(args) {
+  return h(ColumnStoryUI, {
+    ...useColumnSelection(),
+    ...args,
   });
 }
+
+export const Primary = Template.bind({});
+
+export const Minimal = Template.bind({});
+Minimal.args = {
+  mergeSections: "all",
+  axisType: "age",
+  showLabels: false,
+  pixelScale: 0.4,
+  unitComponent: MinimalUnit,
+  showTimescale: true,
+};
+
+export const eODP = Template.bind({});
+eODP.args = {
+  columnID: 5576,
+  inProcess: true,
+  axisType: "depth",
+  projectID: 3,
+  pixelScale: undefined,
+  maxInternalColumns: 1,
+};
