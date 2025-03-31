@@ -49,6 +49,7 @@ export function Section(props: IColumnProps) {
     axisType = ColumnAxisType.AGE,
     className,
     children,
+    clipUnits = true,
   } = props;
 
   const range = useMemo(
@@ -136,7 +137,7 @@ export function Section(props: IColumnProps) {
               showLabels,
               unitComponent,
               unitComponentProps: _unitComponentProps,
-              //clipToFrame: false,
+              clipToFrame: clipUnits,
             })
           ),
           children,

@@ -1,11 +1,4 @@
-function getCSSVariable(variableName: string, fallbackValue: string) {
-  // If we're not in a browser environment, return the fallback value
-  if (typeof window === "undefined" || typeof document === "undefined") {
-    return fallbackValue;
-  }
-  const value = getComputedStyle(document.body).getPropertyValue(variableName);
-  return value.trim() || fallbackValue;
-}
+import { getCSSVariable } from "@macrostrat/color-utils";
 
 export function buildCrossSectionLayers(): mapboxgl.Layer[] {
   /** Build standardized layers for cross-sections */

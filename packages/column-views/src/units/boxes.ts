@@ -113,7 +113,7 @@ function Unit(props: UnitProps) {
       },
     },
     [
-      h.if(hasBackgroundColor)("rect.background", {
+      h("rect.background", {
         ...bounds,
         fill: backgroundColor,
       }),

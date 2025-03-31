@@ -1,6 +1,5 @@
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { themes } from "@storybook/theming";
-import macrostratTheme from "./theme";
 
 import { FocusStyleManager } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";

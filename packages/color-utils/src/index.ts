@@ -114,3 +114,12 @@ const convertToKebabCase = (str) =>
     /[A-Z]+(?![a-z])|[A-Z]/g,
     ($, ofs) => (ofs ? "-" : "") + $.toLowerCase()
   );
+
+export function getCSSVariable(variableName: string, fallbackValue: string) {
+  // If we're not in a browser environment, return the fallback value
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return fallbackValue;
+  }
+  const value = getComputedStyle(document.body).getPropertyValue(variableName);
+  return value.trim() || fallbackValue;
+}

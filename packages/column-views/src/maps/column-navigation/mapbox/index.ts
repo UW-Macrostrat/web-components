@@ -4,6 +4,7 @@ import h from "@macrostrat/hyper";
 import { FeatureCollection } from "geojson";
 import { ReactNode, useMemo, useRef } from "react";
 import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
+import { getCSSVariable } from "@macrostrat/color-utils";
 
 import {
   ColumnNavigationProvider,
@@ -219,7 +220,8 @@ function ColumnsLayer({ enabled = true }) {
   return null;
 }
 
-function buildColumnsStyle(columnColor: string = "black") {
+function buildColumnsStyle(color: string) {
+  const columnColor = color ?? getCSSVariable("--text-subtle-color", "black");
   return {
     sources: {
       columns: buildGeoJSONSource(),

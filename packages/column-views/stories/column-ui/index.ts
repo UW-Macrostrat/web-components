@@ -15,9 +15,12 @@ const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 const h = hyperStyled(styles);
 
-export function ColumnUI() {
-  const [columnID, setColumn] = useState(432);
-
+export function ColumnUI({
+  columnID,
+  setColumn,
+  selectedUnit,
+  setSelectedUnit,
+}) {
   const columnInfo = useColumnBasicInfo(columnID);
   const units = useColumnUnits(columnID);
 
@@ -26,7 +29,10 @@ export function ColumnUI() {
   }
 
   return h("div.column-ui", [
-    h("div.column-container", h(ColumnCore, { col_id: columnID })),
+    h(
+      "div.column-container",
+      h(ColumnCore, { col_id: columnID, selectedUnit, setSelectedUnit })
+    ),
     h("div.right-column", [
       h(ColumnNavigationMap, {
         inProcess: false,
@@ -40,7 +46,7 @@ export function ColumnUI() {
   ]);
 }
 
-function ColumnCore({ col_id }) {
+function ColumnCore({ col_id, selectedUnit, setSelectedUnit }) {
   const units = useColumnUnits(col_id);
   const info = useColumnBasicInfo(col_id);
 
@@ -58,6 +64,10 @@ function ColumnCore({ col_id }) {
     h(Column, {
       key: col_id,
       data,
+      selectedUnit,
+      onUnitSelected: (unit_id) => {
+        setSelectedUnit(unit_id);
+      },
       unconformityLabels: true,
       keyboardNavigation: true,
       columnWidth: 300,

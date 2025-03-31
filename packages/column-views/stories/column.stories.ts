@@ -180,13 +180,11 @@ export function WithControlledPopover() {
   ]);
 }
 
-export const ManyColumns: Story = {
+export const SingleColumn: Story = {
   args: {
     id: 432,
     showLabelColumn: true,
-    unitComponentProps: {
-      nColumns: 8,
-    },
+    maxInternalColumns: 1,
     showUnitPopover: true,
   },
 };

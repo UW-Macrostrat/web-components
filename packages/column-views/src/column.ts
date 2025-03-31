@@ -41,7 +41,7 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
   const { width } = useContext(ColumnLayoutContext);
 
   const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
-  const columnIx = division.column ?? 0;
+  const columnIx = (division.column ?? 0) % nColumns;
 
   //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
   //console.log(division);
@@ -89,6 +89,8 @@ interface BaseColumnProps extends IColumnProps {
   unitComponent?: any;
   showLabels?: boolean;
   data: IUnit[];
+  maxInternalColumns?: number;
+  clipUnits?: boolean;
 }
 
 export interface ColumnProps extends BaseColumnProps {
@@ -152,11 +154,17 @@ export function Column(props: ColumnProps) {
   );
 }
 
-function ColumnInner(props: Omit<ColumnProps, "showUnitPopover">) {
+interface ColumnInnerProps extends BaseColumnProps {
+  sectionGroups: SectionInfo[];
+}
+
+function ColumnInner(props: ColumnInnerProps) {
   const {
     data,
     sectionGroups,
     unitComponent = UnitComponent,
+    unitComponentProps,
+    maxInternalColumns,
     unconformityLabels = true,
     showLabels = true,
     width = 300,
@@ -165,6 +173,7 @@ function ColumnInner(props: Omit<ColumnProps, "showUnitPopover">) {
     showLabelColumn = true,
     axisType = ColumnAxisType.AGE,
     columnRef,
+    clipUnits = false,
     children,
     ...rest
   } = props;
@@ -174,6 +183,14 @@ function ColumnInner(props: Omit<ColumnProps, "showUnitPopover">) {
   const className = classNames(baseClassName, {
     "dark-mode": darkMode?.isEnabled ?? false,
   });
+
+  const _unitComponentProps = useMemo(() => {
+    return {
+      // We allow internal columns at minimum ~10 px wide
+      nColumns: maxInternalColumns ?? Math.floor(columnWidth / 10),
+      ...unitComponentProps,
+    };
+  }, [unitComponentProps, maxInternalColumns, columnWidth]);
 
   // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
@@ -216,11 +233,13 @@ function ColumnInner(props: Omit<ColumnProps, "showUnitPopover">) {
                 data,
                 key: id,
                 unitComponent,
+                unitComponentProps: _unitComponentProps,
                 showLabels,
                 width,
                 columnWidth,
                 showLabelColumn,
                 axisType,
+                clipUnits,
                 ...rest,
               },
               h.if(unconformityLabels)(Unconformity, {

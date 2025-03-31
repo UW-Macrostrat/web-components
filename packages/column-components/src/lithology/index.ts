@@ -4,7 +4,7 @@ import classNames from "classnames";
 import {
   SimpleFrame,
   GrainsizeFrame,
-  ClipToFrame,
+  ClippingFrame,
   UUIDComponent,
 } from "../frame";
 import {
@@ -333,27 +333,23 @@ export interface LithologyColumnProps {
 }
 
 export function LithologyColumn(props: LithologyColumnProps) {
-  const { left = 0, shiftY = 0.5, width, children, clipToFrame = true } = props;
+  const { left = 0, shiftY = 0, width, children, clipToFrame = true } = props;
 
-  const transform = left != null ? `translate(${left} ${shiftY})` : null;
-
-  let inner: React.ReactNode;
-  if (clipToFrame) {
-    inner = h(
-      ClipToFrame,
+  return h(
+    ColumnLayoutProvider,
+    { width },
+    h(
+      ClippingFrame,
       {
         className: "lithology-column",
         left,
         shiftY,
         frame: SimpleFrame,
+        clip: clipToFrame,
       },
       children
-    );
-  } else {
-    inner = h("g.lithology-column", { transform }, children);
-  }
-
-  return h(ColumnLayoutProvider, { width }, inner);
+    )
+  );
 }
 
 const simplifiedResolveID = function (d) {
@@ -382,7 +378,7 @@ const GeneralizedSectionColumn = function (props) {
     frame = GrainsizeFrame;
   }
   return h(
-    ClipToFrame,
+    ClippingFrame,
     {
       className: "lithology-column",
       frame,
