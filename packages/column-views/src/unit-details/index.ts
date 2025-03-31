@@ -78,7 +78,7 @@ export function UnitDetailsPanel({
       actions,
       hiddenActions,
     }),
-    h("div.unit-details-content", content),
+    h("div.unit-details-content-holder", content),
   ]);
 }
 

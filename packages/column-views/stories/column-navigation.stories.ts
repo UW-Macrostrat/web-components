@@ -36,7 +36,6 @@ export default {
   component: ColumnStoryUI,
   args: {
     columnID: 432,
-    selectedUnit: undefined,
     axisType: "age",
   },
   argTypes: {
@@ -60,10 +59,12 @@ export default {
 function useColumnSelection() {
   const [{ columnID, selectedUnit }, updateArgs] = useArgs();
   const setColumn = (columnID) => {
-    updateArgs({ columnID, selectedUnit: undefined });
+    console.log("setColumn", columnID);
+    updateArgs({ columnID });
   };
 
   const setSelectedUnit = (selectedUnit) => {
+    console.log("setSelectedUnit", selectedUnit);
     updateArgs({ selectedUnit });
   };
 
@@ -77,8 +78,8 @@ function useColumnSelection() {
 
 function Template(args) {
   return h(ColumnStoryUI, {
-    ...useColumnSelection(),
     ...args,
+    ...useColumnSelection(),
   });
 }
 

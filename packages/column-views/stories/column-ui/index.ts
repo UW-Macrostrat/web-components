@@ -23,6 +23,8 @@ export function ColumnStoryUI({
   projectID,
   ...rest
 }) {
+  console.log("ColumnStoryUI", columnID, selectedUnit, inProcess);
+
   return h("div.column-ui", [
     h(
       "div.column-container",

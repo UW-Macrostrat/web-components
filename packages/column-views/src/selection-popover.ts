@@ -1,6 +1,5 @@
 import hyper from "@macrostrat/hyper";
-import { Button, Popover } from "@blueprintjs/core";
-import { DOMElement } from "react";
+import { Popover } from "@blueprintjs/core";
 import styles from "./selection-popover.module.sass";
 import { useSelectedUnit, useUnitSelectionStore } from "./units";
 import { UnitDetailsPanel } from "./unit-details";
@@ -27,7 +26,7 @@ export function UnitDetailsPopover({
       Popover,
       // @ts-ignore
       {
-        content,
+        content: children,
         isOpen: true,
         usePortal: false,
         position: "right",
@@ -73,7 +72,11 @@ export function UnitSelectionPopover() {
           height: position?.height,
         },
       },
-      h(UnitDetailsPanel, { unit, showLithologyProportions: true })
+      h(UnitDetailsPanel, {
+        unit,
+        showLithologyProportions: true,
+        className: "legend-panel",
+      })
     )
   );
 }

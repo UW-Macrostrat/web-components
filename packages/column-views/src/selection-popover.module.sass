@@ -13,10 +13,12 @@
     pointer-events: none
     outline: 2px solid #f22
 
-.legend-panel-outer
+  :global(.bp5-popover-content)
+    overflow: hidden
+
+.legend-panel
   width: 25em
   max-height: 60vh
-  overflow-y: scroll
   background-color: var(--panel-background-color)
 
 .legend-info-panel
