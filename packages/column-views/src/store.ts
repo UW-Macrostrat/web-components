@@ -9,7 +9,7 @@ interface MacrostratColumnContext {
   columnID?: number;
 }
 
-export function MacrostratColumnProvider({
+export function MacrostratUnitsProvider({
   children,
   units,
   sectionGroups,

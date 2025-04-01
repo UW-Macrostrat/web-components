@@ -65,7 +65,7 @@ export function Section(props: SectionSharedProps) {
   } = props;
 
   const range = useMemo(
-    () => _range ?? findColumnRange(data as UnitLong[], axisType),
+    () => _range ?? findSectionHeightRange(data as UnitLong[], axisType),
     [_range, axisType]
   );
 
@@ -168,7 +168,58 @@ export function Section(props: SectionSharedProps) {
   );
 }
 
-function findColumnRange(data: UnitLong[], axisType: ColumnAxisType) {
+interface SectionScaleOptions {
+  axisType: ColumnAxisType;
+  domain?: [number, number];
+  pixelScale?: number;
+  minPixelScale?: number;
+  targetUnitHeight?: number;
+}
+
+/** Output of a section scale. For now, this assumes that the
+ * mapping is linear, but it could be extended to support arbitrary
+ * scale functions.
+ */
+interface SectionScaleInfo {
+  domain: [number, number];
+  pixelScale: number;
+  pixelHeight: number;
+  // TODO: add a function
+}
+
+function computeSectionHeight(
+  units: ExtUnit[],
+  opts: SectionScaleOptions
+): SectionScaleInfo {
+  const {
+    targetUnitHeight = 20,
+    minPixelScale = 0.2,
+    axisType = ColumnAxisType.AGE,
+  } = opts;
+
+  const domain = opts.domain ?? findSectionHeightRange(units, axisType);
+
+  const dAge = Math.abs(domain[0] - domain[1]);
+
+  let _pixelScale = opts.pixelScale;
+  if (_pixelScale == null) {
+    // 0.2 pixel per myr is the floor scale
+    _pixelScale = Math.max(targetUnitHeight / dAge, minPixelScale);
+  }
+
+  const height = dAge * _pixelScale;
+
+  return {
+    domain,
+    pixelScale: _pixelScale,
+    pixelHeight: height,
+  };
+}
+
+function findSectionHeightRange(
+  data: ExtUnit[],
+  axisType: ColumnAxisType
+): [number, number] {
   if (axisType === ColumnAxisType.AGE) {
     const t_age = Math.min(...data.map((d) => d.t_age));
     const b_age = Math.max(...data.map((d) => d.b_age));
