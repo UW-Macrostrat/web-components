@@ -17,6 +17,18 @@ export interface SectionInfo {
   units: ExtUnit[];
 }
 
+export interface ColumnHeightScaleOptions {
+  /** A fixed pixel scale to use for the section (pixels per Myr) */
+  pixelScale?: number;
+  /** The target height of a constituent unit in pixels, for dynamic
+   * scale generation */
+  targetUnitHeight?: number;
+  /** The minimum pixel scale to use for the section (pixels per Myr) */
+  minPixelScale?: number;
+  // Axis scale type
+  axisType?: ColumnAxisType;
+}
+
 export interface SectionSharedProps {
   units: ExtUnit[];
   range?: [number, number];
@@ -33,26 +45,21 @@ export interface SectionSharedProps {
   showTimescale?: boolean;
   maxInternalColumns?: number;
   timescaleLevels?: [number, number];
-  /** A fixed pixel scale to use for the section (pixels per Myr) */
-  pixelScale?: number;
-  /** The target height of a constituent unit in pixels, for dynamic
-   * scale generation */
-  targetUnitHeight?: number;
-  /** The minimum pixel scale to use for the section (pixels per Myr) */
-  minPixelScale?: number;
   // Space between sections
   verticalSpacing?: number;
 }
 
-export function Section(props: SectionSharedProps) {
+export interface SectionProps extends SectionSharedProps {
+  scaleInfo: SectionScaleInfo;
+}
+
+export function Section(props: SectionProps) {
   // Section with "squishy" time scale
   const {
     units,
-    range: _range,
-    pixelScale: _pixelScale,
+    scaleInfo,
     unitComponent,
     showLabels = true,
-    targetUnitHeight = 20,
     width = 300,
     columnWidth = 150,
     unitComponentProps,
@@ -61,24 +68,13 @@ export function Section(props: SectionSharedProps) {
     className,
     children,
     clipUnits = true,
-    minPixelScale = 0.2,
     showTimescale = true,
     timescaleLevels,
     maxInternalColumns,
     verticalSpacing = 20,
   } = props;
 
-  const heightInfo = useMemo(() => {
-    return computeSectionHeight(units, {
-      axisType,
-      domain: _range,
-      pixelScale: _pixelScale,
-      targetUnitHeight,
-      minPixelScale,
-    });
-  }, [units, _range, _pixelScale, targetUnitHeight, minPixelScale, axisType]);
-
-  const { domain, pixelScale, pixelHeight } = heightInfo;
+  const { domain, pixelScale, pixelHeight } = scaleInfo;
 
   /** Ensure that we can arrange units into the maximum number
    * of columns defined by unitComponentProps, but that we don't
@@ -175,12 +171,9 @@ export function Section(props: SectionSharedProps) {
   );
 }
 
-export interface SectionScaleOptions {
+export interface SectionScaleOptions extends ColumnHeightScaleOptions {
   axisType: ColumnAxisType;
   domain: [number, number];
-  pixelScale?: number;
-  minPixelScale?: number;
-  targetUnitHeight?: number;
 }
 
 /** Output of a section scale. For now, this assumes that the
@@ -205,11 +198,21 @@ interface CompositeScaleInformation {
   groups: SectionInfoExt[];
 }
 
-interface ColumnScaleOptions extends Omit<SectionScaleOptions, "domain"> {
+export interface ColumnScaleOptions
+  extends Omit<SectionScaleOptions, "domain"> {
   unconformityHeight: number;
 }
 
-export function buildSectionScaleInformation(
+export function useCompositeScaledGroups(
+  groups: SectionInfo[],
+  opts: ColumnScaleOptions
+): CompositeScaleInformation {
+  return useMemo(() => {
+    return buildSectionScaleInformation(groups, opts);
+  }, [groups, Object.values(opts)]);
+}
+
+function buildSectionScaleInformation(
   sectionGroups: SectionInfo[],
   opts: ColumnScaleOptions
 ): CompositeScaleInformation {

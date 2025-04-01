@@ -16,10 +16,13 @@ import {
 } from "./units";
 import {
   buildSectionScaleInformation,
+  ColumnHeightScaleOptions,
+  ColumnScaleOptions,
   computeSectionHeight,
   SectionInfo,
   SectionScaleInfo,
   SectionScaleOptions,
+  useCompositeScaledGroups,
 } from "./section";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
@@ -70,7 +73,7 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
   ]);
 }
 
-interface BaseColumnProps extends SectionSharedProps {
+interface BaseColumnProps extends SectionSharedProps, ColumnHeightScaleOptions {
   unconformityLabels?: boolean;
   className?: string;
   mergeSections?: MergeSectionsMode;
@@ -78,10 +81,10 @@ interface BaseColumnProps extends SectionSharedProps {
   keyboardNavigation?: boolean;
   t_age?: number;
   b_age?: number;
-  axisType?: ColumnAxisType;
   showLabels?: boolean;
   units: BaseUnit[];
   maxInternalColumns?: number;
+  // Unconformity height in pixels
   unconformityHeight?: number;
 }
 
@@ -159,6 +162,9 @@ function ColumnInner(props: ColumnInnerProps) {
     columnRef,
     clipUnits = false,
     children,
+    targetUnitHeight = 20,
+    pixelScale,
+    minPixelScale = 0.2,
     ...rest
   } = props;
 
@@ -182,10 +188,13 @@ function ColumnInner(props: ColumnInnerProps) {
     axisLabel = null;
   }
 
-  const { groups, totalHeight } = buildSectionScaleInformation(
-    sectionGroups,
-    {}
-  );
+  const { groups } = useCompositeScaledGroups(sectionGroups, {
+    axisType,
+    targetUnitHeight,
+    unconformityHeight,
+    pixelScale,
+    minPixelScale,
+  });
 
   return h(
     "div.column-container",
@@ -204,23 +213,15 @@ function ColumnInner(props: ColumnInnerProps) {
         }),
         h(
           "div.main-column",
-          sectionGroups.map((group, i) => {
-            const { units, t_age, b_age } = group;
-            const lastGroup = sectionGroups[i - 1];
-            let range = null;
-            // if t_age and b_age are set, use them to define the range...
-            if (
-              t_age != null &&
-              b_age != null &&
-              axisType == ColumnAxisType.AGE
-            ) {
-              range = [b_age, t_age];
-            }
+          groups.map((group, i) => {
+            const { units, scaleInfo } = group;
+            const lastGroup = groups[i - 1];
 
             return h(
               Section,
               {
                 units,
+                scaleInfo,
                 key: i,
                 unitComponent,
                 showLabels,
@@ -229,7 +230,6 @@ function ColumnInner(props: ColumnInnerProps) {
                 showLabelColumn,
                 axisType,
                 clipUnits,
-                range,
                 verticalSpacing: unconformityHeight,
                 ...rest,
               },
