@@ -3,10 +3,14 @@ import h from "@macrostrat/hyper";
 
 const MacrostratUnitsContext = createContext(null);
 
-export function MacrostratUnitsProvider({ children, units }) {
-  return h(MacrostratUnitsContext.Provider, { value: units }, children);
+export function MacrostratUnitsProvider({ children, units, sectionGroups }) {
+  return h(
+    MacrostratUnitsContext.Provider,
+    { value: { units, sectionGroups } },
+    children
+  );
 }
 
 export function useMacrostratUnits() {
-  return useContext(MacrostratUnitsContext);
+  return useContext(MacrostratUnitsContext).units;
 }

@@ -148,16 +148,18 @@ export function Section(props: SectionSharedProps) {
               paddingV: 10,
               innerHeight: height,
             },
-            h(CompositeUnitsColumn, {
-              showLabelColumn: showLabelColumn,
-              width: showLabels ? width : columnWidth,
-              columnWidth,
-              gutterWidth: 5,
-              showLabels,
-              unitComponent,
-              unitComponentProps: _unitComponentProps,
-              clipToFrame: clipUnits,
-            })
+            [
+              h(CompositeUnitsColumn, {
+                showLabelColumn: showLabelColumn,
+                width: showLabels ? width : columnWidth,
+                columnWidth,
+                gutterWidth: 5,
+                showLabels,
+                unitComponent,
+                unitComponentProps: _unitComponentProps,
+                clipToFrame: clipUnits,
+              }),
+            ]
           ),
           children,
         ]),

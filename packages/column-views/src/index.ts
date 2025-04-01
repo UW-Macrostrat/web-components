@@ -6,3 +6,4 @@ export * from "./prepare-units";
 export * from "./column";
 export * from "./unit-details";
 export * from "./maps";
+export * from "./age-model-overlay";

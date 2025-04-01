@@ -5,6 +5,7 @@ import "@macrostrat/style-system";
 import { ColumnStoryUI } from "./column-ui";
 import { useArgs } from "@storybook/client-api";
 import { MinimalUnit } from "../src/units/boxes";
+import { BoundaryAgeModelOverlay } from "../src";
 
 const h = hyper.styled(styles);
 
@@ -103,4 +104,11 @@ eODP.args = {
   projectID: 3,
   pixelScale: undefined,
   maxInternalColumns: 1,
+};
+
+export const withBoundaryAgeModel = Template.bind({});
+withBoundaryAgeModel.args = {
+  columnID: 432,
+  axisType: "age",
+  children: h(BoundaryAgeModelOverlay),
 };

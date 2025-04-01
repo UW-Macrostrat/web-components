@@ -9,7 +9,6 @@ import { RefObject, useContext, useMemo, useRef } from "react";
 import styles from "./column.module.sass";
 import {
   getMixedUnitColor,
-  IUnit,
   TrackedLabeledUnit,
   UnitKeyboardNavigation,
   UnitSelectionProvider,
@@ -74,12 +73,9 @@ interface BaseColumnProps extends SectionSharedProps {
   t_age?: number;
   b_age?: number;
   axisType?: ColumnAxisType;
-  unitComponent?: any;
   showLabels?: boolean;
   units: BaseUnit[];
   maxInternalColumns?: number;
-  clipUnits?: boolean;
-  showTimescale?: boolean;
 }
 
 export interface ColumnProps extends BaseColumnProps {
@@ -200,7 +196,7 @@ function ColumnInner(props: ColumnInnerProps) {
         dispatch?.(null, null, evt as any);
       },
     },
-    h(MacrostratUnitsProvider, { units }, [
+    h(MacrostratUnitsProvider, { units, sectionGroups }, [
       h("div.column", { ref: columnRef }, [
         h.if(axisLabel != null)(VerticalAxisLabel, {
           label: axisLabel,
@@ -240,7 +236,9 @@ function ColumnInner(props: ColumnInnerProps) {
               h.if(unconformityLabels)(Unconformity, {
                 upperUnits: lastGroup?.units,
                 lowerUnits: data,
-                style: { width: showLabels ? columnWidth : width },
+                style: {
+                  width: showLabels ? columnWidth : width,
+                },
               })
             );
           })
