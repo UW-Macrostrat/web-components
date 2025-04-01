@@ -16,7 +16,7 @@ import {
 } from "./units";
 import { SectionInfo } from "./section";
 import { UnitSelectionPopover } from "./selection-popover";
-import { MacrostratUnitsProvider } from "./store";
+import { MacrostratColumnProvider } from "./store";
 import { SectionSharedProps, Section } from "./section";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { useLithologies } from "./data-provider";
@@ -170,8 +170,6 @@ function ColumnInner(props: ColumnInnerProps) {
     };
   }, [unitComponentProps, maxInternalColumns, columnWidth]);
 
-  console.log(_unitComponentProps, maxInternalColumns, unitComponentProps);
-
   // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
 
@@ -196,7 +194,7 @@ function ColumnInner(props: ColumnInnerProps) {
         dispatch?.(null, null, evt as any);
       },
     },
-    h(MacrostratUnitsProvider, { units, sectionGroups }, [
+    h(MacrostratColumnProvider, { units, sectionGroups }, [
       h("div.column", { ref: columnRef }, [
         h.if(axisLabel != null)(VerticalAxisLabel, {
           label: axisLabel,

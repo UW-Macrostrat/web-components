@@ -3,7 +3,18 @@ import h from "@macrostrat/hyper";
 
 const MacrostratUnitsContext = createContext(null);
 
-export function MacrostratUnitsProvider({ children, units, sectionGroups }) {
+interface MacrostratColumnContext {
+  units: any[];
+  sectionGroups: any[];
+  columnID?: number;
+}
+
+export function MacrostratColumnProvider({
+  children,
+  units,
+  sectionGroups,
+}: MacrostratColumnContext) {
+  /** Provider for Macrostrat column data */
   return h(
     MacrostratUnitsContext.Provider,
     { value: { units, sectionGroups } },
@@ -12,5 +23,5 @@ export function MacrostratUnitsProvider({ children, units, sectionGroups }) {
 }
 
 export function useMacrostratUnits() {
-  return useContext(MacrostratUnitsContext).units;
+  return useContext(MacrostratUnitsContext)?.units;
 }
