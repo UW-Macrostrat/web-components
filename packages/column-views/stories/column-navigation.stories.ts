@@ -96,6 +96,7 @@ Minimal.args = {
   pixelScale: 0.4,
   unitComponent: MinimalUnit,
   showTimescale: true,
+  timescaleLevels: [1, 2],
 };
 
 export const eODP = Template.bind({});

@@ -23,6 +23,7 @@ interface PrepareColumnOptions extends ColumnScaleOptions {
   t_age?: number;
   b_age?: number;
   mergeSections?: MergeSectionsMode;
+  collapseSmallUnconformities?: boolean;
 }
 
 export enum MergeSectionsMode {
@@ -103,7 +104,10 @@ function prepareColumnUnits(
     sections = _mergeOverlappingSections(sections);
   }
 
-  // For each section, find units that are overlapping
+  /** For each section, find units that are overlapping.
+   * We do this after merging sections so that we can
+   * handle cases where there are overlapping units across sections
+   * */
   sections = sections.map((section): SectionInfo => {
     return {
       ...section,

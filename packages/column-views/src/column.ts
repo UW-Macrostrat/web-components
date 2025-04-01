@@ -13,9 +13,6 @@ import {
 
 import {
   ColumnHeightScaleOptions,
-  ColumnScaleOptions,
-  SectionInfo,
-  buildSectionScaleInformation,
   SectionInfoExt,
 } from "./prepare-units/composite-scale";
 import {} from "./units";

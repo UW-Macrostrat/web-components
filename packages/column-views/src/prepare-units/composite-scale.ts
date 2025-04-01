@@ -22,6 +22,8 @@ export interface ColumnHeightScaleOptions {
   minPixelScale?: number;
   // Axis scale type
   axisType?: ColumnAxisType;
+  // Unconformity height in pixels
+  unconformityHeight?: number;
 }
 
 export interface SectionScaleOptions extends ColumnHeightScaleOptions {
@@ -52,8 +54,8 @@ export interface CompositeScaleInformation {
   sections: SectionInfoExt[];
 }
 
-export interface ColumnScaleOptions
-  extends Omit<SectionScaleOptions, "domain"> {
+export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
+  axisType: ColumnAxisType;
   unconformityHeight: number;
 }
 
@@ -64,24 +66,25 @@ export function buildSectionScaleInformation(
   /** Get a set of heights for sections */
 
   const { unconformityHeight, axisType = ColumnAxisType.AGE, ...rest } = opts;
-  const sections: SectionInfoExt[] = [];
+
+  const sections1 = computeSectionHeights(sectionGroups, opts);
+  return finalizeSectionHeights(sections1, unconformityHeight);
+}
+
+function finalizeSectionHeights(
+  sections: SectionInfoWithScale[],
+  unconformityHeight: number
+): CompositeScaleInformation {
+  /** Finalize the heights of sections, including the heights of unconformities
+   * between them.
+   */
 
   let totalHeight = unconformityHeight / 2;
-  for (const group of sectionGroups) {
-    const { t_age, b_age, units } = group;
-    let _range = null;
-    // if t_age and b_age are set for a group, use them to define the range...
-    if (t_age != null && b_age != null && axisType == ColumnAxisType.AGE) {
-      _range = [b_age, t_age];
-    }
+  const sections1: SectionInfoExt[] = [];
+  for (const group of sections) {
+    const { scaleInfo } = group;
 
-    const scaleInfo = computeSectionHeight(units, {
-      ...rest,
-      axisType,
-      domain: _range,
-    });
-
-    sections.push({
+    sections1.push({
       ...group,
       scaleInfo: {
         ...scaleInfo,
@@ -96,11 +99,46 @@ export function buildSectionScaleInformation(
   totalHeight += unconformityHeight / 2;
   return {
     totalHeight,
-    sections,
+    sections: sections1,
   };
 }
 
-function computeSectionHeight(
+interface SectionInfoWithScale extends SectionInfo {
+  scaleInfo: SectionScaleInfo;
+}
+
+function computeSectionHeights(
+  sections: SectionInfo[],
+  opts: ColumnHeightScaleOptions
+): SectionInfoWithScale[] {
+  return sections.map((group) => {
+    return addScaleToSection(group, opts);
+  });
+}
+
+function addScaleToSection(
+  group: SectionInfo,
+  opts: ColumnScaleOptions
+): SectionInfoWithScale {
+  const { t_age, b_age, units } = group;
+  let _range = null;
+  // if t_age and b_age are set for a group, use them to define the range...
+  if (t_age != null && b_age != null && opts.axisType == ColumnAxisType.AGE) {
+    _range = [b_age, t_age];
+  }
+
+  const scaleInfo = buildSectionScale(units, {
+    ...opts,
+    domain: _range,
+  });
+
+  return {
+    ...group,
+    scaleInfo,
+  };
+}
+
+function buildSectionScale(
   data: ExtUnit[],
   opts: SectionScaleOptions
 ): SectionScaleInfo {

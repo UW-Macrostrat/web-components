@@ -19,8 +19,6 @@ export interface SectionInfo {
 }
 
 export interface SectionSharedProps {
-  units: ExtUnit[];
-  range?: [number, number];
   unitComponent?: React.FunctionComponent<any>;
   unitComponentProps?: any;
   showLabels?: boolean;
@@ -39,6 +37,7 @@ export interface SectionSharedProps {
 }
 
 export interface SectionProps extends SectionSharedProps {
+  units: ExtUnit[];
   scaleInfo: SectionScaleInfo;
 }
 
