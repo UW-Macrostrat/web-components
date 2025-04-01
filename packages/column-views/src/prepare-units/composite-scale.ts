@@ -43,10 +43,11 @@ export interface SectionScaleInfo {
 export type SectionInfoExt = SectionInfo & {
   scaleInfo: SectionScaleInfo & {
     offset: number;
+    unconformityHeight: number;
   };
 };
 
-interface CompositeScaleInformation {
+export interface CompositeScaleInformation {
   totalHeight: number;
   sections: SectionInfoExt[];
 }
@@ -85,6 +86,8 @@ export function buildSectionScaleInformation(
       scaleInfo: {
         ...scaleInfo,
         offset: totalHeight,
+        // Unconformity height above this particular section
+        unconformityHeight,
       },
     });
     // Add a fudge factor of 4 pixels to the height of each section.

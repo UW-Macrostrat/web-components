@@ -16,6 +16,7 @@ import {
   ColumnScaleOptions,
   SectionInfo,
   buildSectionScaleInformation,
+  SectionInfoExt,
 } from "./prepare-units/composite-scale";
 import {} from "./units";
 import { UnitSelectionPopover } from "./selection-popover";
@@ -61,16 +62,26 @@ export function Column(props: ColumnProps) {
     axisType,
     t_age,
     b_age,
+    unconformityHeight = 30,
+    targetUnitHeight = 20,
+    pixelScale,
+    minPixelScale = 0.2,
+    minSectionHeight = 30,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
   // Selected item position
 
-  const [sectionGroups, units] = usePreparedColumnUnits(rawUnits, {
+  const { sections, units, totalHeight } = usePreparedColumnUnits(rawUnits, {
     axisType,
     t_age,
     b_age,
     mergeSections,
+    targetUnitHeight,
+    unconformityHeight,
+    pixelScale,
+    minPixelScale,
+    minSectionHeight,
   });
 
   return h(
@@ -80,9 +91,11 @@ export function Column(props: ColumnProps) {
       ColumnInner,
       {
         columnRef: ref,
+        unconformityHeight,
         units,
         axisType,
-        sectionGroups,
+        sections,
+        totalHeight,
         t_age,
         b_age,
         ...rest,
@@ -96,17 +109,10 @@ export function Column(props: ColumnProps) {
   );
 }
 
-export function useCompositeScaledGroups(
-  groups: SectionInfo[],
-  opts: ColumnScaleOptions
-): CompositeScaleInformation {
-  return useMemo(() => {
-    return buildSectionScaleInformation(groups, opts);
-  }, [groups, Object.values(opts)]);
-}
-
 interface ColumnInnerProps extends BaseColumnProps {
-  sectionGroups: SectionInfo[];
+  sections: SectionInfoExt[];
+  unconformityHeight: number;
+  totalHeight: number;
   columnRef: RefObject<HTMLElement>;
   units: ExtUnit[];
 }
@@ -114,10 +120,11 @@ interface ColumnInnerProps extends BaseColumnProps {
 function ColumnInner(props: ColumnInnerProps) {
   const {
     units,
-    sectionGroups,
+    sections,
+    totalHeight,
     unitComponent = UnitComponent,
+    unconformityHeight,
     unconformityLabels = true,
-    unconformityHeight = 30,
     showLabels = true,
     width = 300,
     columnWidth = 150,
@@ -127,10 +134,6 @@ function ColumnInner(props: ColumnInnerProps) {
     columnRef,
     clipUnits = false,
     children,
-    targetUnitHeight = 20,
-    pixelScale,
-    minPixelScale = 0.2,
-    minSectionHeight = 30,
     ...rest
   } = props;
 
@@ -153,15 +156,6 @@ function ColumnInner(props: ColumnInnerProps) {
   } else if (axisType == ColumnAxisType.ORDINAL) {
     axisLabel = null;
   }
-
-  const { sections, totalHeight } = useCompositeScaledGroups(sectionGroups, {
-    axisType,
-    targetUnitHeight,
-    unconformityHeight,
-    pixelScale,
-    minPixelScale,
-    minSectionHeight,
-  });
 
   return h(
     "div.column-container",
@@ -228,4 +222,18 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
   return h("div.unconformity", { style }, [
     h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
   ]);
+}
+
+function extractFromObj<T, K extends keyof T>(
+  obj: T,
+  ...keys: K[]
+): [Pick<T, K>, Omit<T, K>] {
+  /** Extract keys from an object and return the rest */
+  const extracted = {} as Pick<T, K>;
+  const rest = { ...obj };
+  for (const key of keys) {
+    extracted[key] = obj[key];
+    delete rest[key];
+  }
+  return [extracted, rest];
 }

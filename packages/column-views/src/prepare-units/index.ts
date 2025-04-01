@@ -6,13 +6,19 @@ import {
 } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useMemo } from "react";
-import type { SectionInfo } from "../section";
 import type { ExtUnit } from "./helpers";
 import { BaseUnit } from "@macrostrat/api-types";
+import {
+  buildSectionScaleInformation,
+  ColumnScaleOptions,
+  CompositeScaleInformation,
+  SectionInfo,
+  SectionInfoExt,
+} from "./composite-scale";
 
 export { preprocessUnits, groupUnitsIntoSections };
 
-interface PrepareColumnOptions {
+interface PrepareColumnOptions extends ColumnScaleOptions {
   axisType: ColumnAxisType;
   t_age?: number;
   b_age?: number;
@@ -24,24 +30,27 @@ export enum MergeSectionsMode {
   OVERLAPPING = "overlapping",
 }
 
+export interface PreparedColumnData extends CompositeScaleInformation {
+  sections: SectionInfoExt[];
+  units: ExtUnit[];
+}
+
 export function usePreparedColumnUnits(
   data: BaseUnit[],
   options: PrepareColumnOptions
-): [SectionInfo[], ExtUnit[]] {
+): ColumnPreparedData {
   /** This function wraps and memoizes all preparation steps for converting
    * an array of units from the /units route to a form ready for usage.
    */
-  const [sectionGroups, units] = useMemo(() => {
+  return useMemo(() => {
     return prepareColumnUnits(data, options);
   }, [data, ...Object.values(options)]);
-
-  return [sectionGroups, units];
 }
 
 function prepareColumnUnits(
   units: BaseUnit[],
   options: PrepareColumnOptions
-): [SectionInfo[], ExtUnit[]] {
+): PreparedColumnData {
   /** Prepare units for rendering into Macrostrat columns */
 
   const {
@@ -114,5 +123,11 @@ function prepareColumnUnits(
     return acc;
   }, []);
 
-  return [sections, units2];
+  /** Prepare section scale information using groups */
+  const scaleInfo = buildSectionScaleInformation(sections, options);
+
+  return {
+    units: units2,
+    ...scaleInfo,
+  };
 }
