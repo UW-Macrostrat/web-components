@@ -1,5 +1,4 @@
 import type { BaseUnit, UnitLong } from "@macrostrat/api-types";
-import type { IUnit } from "../units";
 import type { SectionInfo } from "../section";
 import { group } from "d3-array";
 import { ColumnAxisType } from "@macrostrat/column-components";

@@ -1,6 +1,9 @@
 import { createContext, useContext, ReactNode } from "react";
 import h from "@macrostrat/hyper";
-import { createCompositeScale, SectionInfoExt } from "./section";
+import {
+  createCompositeScale,
+  SectionInfoExt,
+} from "./prepare-units/composite-scale";
 import { ExtUnit } from "./prepare-units/helpers";
 
 const MacrostratUnitsContext = createContext(null);

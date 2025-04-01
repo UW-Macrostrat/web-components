@@ -14,13 +14,13 @@ import {
   UnitSelectionProvider,
   useUnitSelectionDispatch,
 } from "./units";
+
 import {
-  buildSectionScaleInformation,
   ColumnHeightScaleOptions,
-  computeSectionHeight,
+  ColumnScaleOptions,
   SectionInfo,
-  useCompositeScaledGroups,
-} from "./section";
+  buildSectionScaleInformation,
+} from "./prepare-units/composite-scale";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
 import { SectionSharedProps, Section } from "./section";
@@ -38,8 +38,6 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
   const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
   const columnIx = (division.column ?? 0) % nColumns;
 
-  //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
-  //console.log(division);
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
@@ -139,6 +137,15 @@ export function Column(props: ColumnProps) {
   );
 }
 
+export function useCompositeScaledGroups(
+  groups: SectionInfo[],
+  opts: ColumnScaleOptions
+): CompositeScaleInformation {
+  return useMemo(() => {
+    return buildSectionScaleInformation(groups, opts);
+  }, [groups, Object.values(opts)]);
+}
+
 interface ColumnInnerProps extends BaseColumnProps {
   sectionGroups: SectionInfo[];
   columnRef: RefObject<HTMLElement>;
@@ -164,6 +171,7 @@ function ColumnInner(props: ColumnInnerProps) {
     targetUnitHeight = 20,
     pixelScale,
     minPixelScale = 0.2,
+    minSectionHeight = 30,
     ...rest
   } = props;
 
@@ -193,6 +201,7 @@ function ColumnInner(props: ColumnInnerProps) {
     unconformityHeight,
     pixelScale,
     minPixelScale,
+    minSectionHeight,
   });
 
   return h(

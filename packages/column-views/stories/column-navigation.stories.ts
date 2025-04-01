@@ -6,6 +6,7 @@ import { ColumnStoryUI } from "./column-ui";
 import { useArgs } from "@storybook/client-api";
 import { MinimalUnit } from "../src/units/boxes";
 import { BoundaryAgeModelOverlay } from "../src";
+import { useCallback } from "react";
 
 const h = hyper.styled(styles);
 
@@ -60,14 +61,15 @@ export default {
 function useColumnSelection() {
   const [{ columnID, selectedUnit }, updateArgs] = useArgs();
   const setColumn = (columnID) => {
-    console.log("setColumn", columnID);
     updateArgs({ columnID });
   };
 
-  const setSelectedUnit = (selectedUnit) => {
-    console.log("setSelectedUnit", selectedUnit);
-    updateArgs({ selectedUnit });
-  };
+  const setSelectedUnit = useCallback(
+    (selectedUnit) => {
+      updateArgs({ selectedUnit });
+    },
+    [updateArgs]
+  );
 
   return {
     columnID,

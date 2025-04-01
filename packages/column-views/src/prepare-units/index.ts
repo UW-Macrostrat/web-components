@@ -9,7 +9,6 @@ import { useMemo } from "react";
 import type { SectionInfo } from "../section";
 import type { ExtUnit } from "./helpers";
 import { BaseUnit } from "@macrostrat/api-types";
-import { getUnitHeightRange } from "./utils";
 
 export { preprocessUnits, groupUnitsIntoSections };
 
@@ -43,6 +42,8 @@ function prepareColumnUnits(
   units: BaseUnit[],
   options: PrepareColumnOptions
 ): [SectionInfo[], ExtUnit[]] {
+  /** Prepare units for rendering into Macrostrat columns */
+
   const {
     t_age,
     b_age,
