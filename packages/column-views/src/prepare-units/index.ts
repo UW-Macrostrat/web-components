@@ -1,7 +1,7 @@
 import {
-  _mergeOverlappingSections,
   getSectionAgeRange,
   groupUnitsIntoSections,
+  mergeOverlappingSections,
   preprocessUnits,
 } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -9,9 +9,10 @@ import { useMemo } from "react";
 import type { ExtUnit } from "./helpers";
 import { BaseUnit } from "@macrostrat/api-types";
 import {
-  buildSectionScaleInformation,
   ColumnScaleOptions,
   CompositeScaleInformation,
+  computeSectionHeights,
+  finalizeSectionHeights,
   SectionInfo,
   SectionInfoExt,
 } from "./composite-scale";
@@ -59,6 +60,7 @@ function prepareColumnUnits(
     b_age,
     mergeSections = MergeSectionsMode.OVERLAPPING,
     axisType,
+    unconformityHeight,
   } = options;
 
   /** Prototype filtering to age range */
@@ -70,13 +72,13 @@ function prepareColumnUnits(
   /** Add some elements that help with sorting, cross-axis positioning, etc. */
   const data1 = preprocessUnits(units1, axisType);
 
-  let sections: SectionInfo[];
+  let sections0: SectionInfo[];
   if (
     mergeSections == MergeSectionsMode.ALL &&
     axisType != ColumnAxisType.ORDINAL
   ) {
     const [b_unit_age, t_unit_age] = getSectionAgeRange(data1);
-    sections = [
+    sections0 = [
       {
         section_id: 0,
         /**
@@ -90,8 +92,11 @@ function prepareColumnUnits(
       },
     ];
   } else {
-    sections = groupUnitsIntoSections(data1, axisType);
+    sections0 = groupUnitsIntoSections(data1, axisType);
   }
+
+  // Compute pixel scales etc. for sections
+  let sections = computeSectionHeights(sections0, options);
 
   /** Merging overlapping sections really only makes sense for age/height/depth
    * columns. Ordinal columns are numbered by section so merging them
@@ -101,7 +106,7 @@ function prepareColumnUnits(
     mergeSections == MergeSectionsMode.OVERLAPPING &&
     axisType != ColumnAxisType.ORDINAL
   ) {
-    sections = _mergeOverlappingSections(sections);
+    sections = mergeOverlappingSections(sections);
   }
 
   /** For each section, find units that are overlapping.
@@ -128,7 +133,7 @@ function prepareColumnUnits(
   }, []);
 
   /** Prepare section scale information using groups */
-  const scaleInfo = buildSectionScaleInformation(sections, options);
+  const scaleInfo = finalizeSectionHeights(sections, unconformityHeight);
 
   return {
     units: units2,

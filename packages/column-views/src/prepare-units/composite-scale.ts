@@ -59,19 +59,7 @@ export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
   unconformityHeight: number;
 }
 
-export function buildSectionScaleInformation(
-  sectionGroups: SectionInfo[],
-  opts: ColumnScaleOptions
-): CompositeScaleInformation {
-  /** Get a set of heights for sections */
-
-  const { unconformityHeight, axisType = ColumnAxisType.AGE, ...rest } = opts;
-
-  const sections1 = computeSectionHeights(sectionGroups, opts);
-  return finalizeSectionHeights(sections1, unconformityHeight);
-}
-
-function finalizeSectionHeights(
+export function finalizeSectionHeights(
   sections: SectionInfoWithScale[],
   unconformityHeight: number
 ): CompositeScaleInformation {
@@ -107,7 +95,7 @@ interface SectionInfoWithScale extends SectionInfo {
   scaleInfo: SectionScaleInfo;
 }
 
-function computeSectionHeights(
+export function computeSectionHeights(
   sections: SectionInfo[],
   opts: ColumnHeightScaleOptions
 ): SectionInfoWithScale[] {

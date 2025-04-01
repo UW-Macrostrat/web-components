@@ -106,9 +106,9 @@ export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
   return [b_age, t_age];
 }
 
-export function _mergeOverlappingSections(
-  sections: SectionInfo[]
-): SectionInfo[] {
+export function mergeOverlappingSections<T extends SectionInfo>(
+  sections: T[]
+): T[] {
   /** Columns can have sections that overlap in time. Here, we merge overlapping
    * sections into a single section to correctly render gap-bound packages.
    */
