@@ -14,7 +14,13 @@ import {
   UnitSelectionProvider,
   useUnitSelectionDispatch,
 } from "./units";
-import { SectionInfo } from "./section";
+import {
+  buildSectionScaleInformation,
+  computeSectionHeight,
+  SectionInfo,
+  SectionScaleInfo,
+  SectionScaleOptions,
+} from "./section";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
 import { SectionSharedProps, Section } from "./section";
@@ -76,6 +82,7 @@ interface BaseColumnProps extends SectionSharedProps {
   showLabels?: boolean;
   units: BaseUnit[];
   maxInternalColumns?: number;
+  unconformityHeight?: number;
 }
 
 export interface ColumnProps extends BaseColumnProps {
@@ -141,9 +148,8 @@ function ColumnInner(props: ColumnInnerProps) {
     units,
     sectionGroups,
     unitComponent = UnitComponent,
-    unitComponentProps,
-    maxInternalColumns,
     unconformityLabels = true,
+    unconformityHeight = 30,
     showLabels = true,
     width = 300,
     columnWidth = 150,
@@ -162,15 +168,6 @@ function ColumnInner(props: ColumnInnerProps) {
     "dark-mode": darkMode?.isEnabled ?? false,
   });
 
-  const _unitComponentProps = useMemo(() => {
-    return {
-      // We allow internal columns at minimum ~10 px wide
-      nColumns: maxInternalColumns ?? Math.floor(columnWidth / 10),
-      ...unitComponentProps,
-    };
-  }, [unitComponentProps, maxInternalColumns, columnWidth]);
-
-  // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
 
   let axisLabel: string | null = "Age";
@@ -184,6 +181,11 @@ function ColumnInner(props: ColumnInnerProps) {
   } else if (axisType == ColumnAxisType.ORDINAL) {
     axisLabel = null;
   }
+
+  const { groups, totalHeight } = buildSectionScaleInformation(
+    sectionGroups,
+    {}
+  );
 
   return h(
     "div.column-container",
@@ -203,7 +205,7 @@ function ColumnInner(props: ColumnInnerProps) {
         h(
           "div.main-column",
           sectionGroups.map((group, i) => {
-            const { section_id: id, units: data, t_age, b_age } = group;
+            const { units, t_age, b_age } = group;
             const lastGroup = sectionGroups[i - 1];
             let range = null;
             // if t_age and b_age are set, use them to define the range...
@@ -218,10 +220,9 @@ function ColumnInner(props: ColumnInnerProps) {
             return h(
               Section,
               {
-                data,
-                key: id,
+                units,
+                key: i,
                 unitComponent,
-                unitComponentProps: _unitComponentProps,
                 showLabels,
                 width,
                 columnWidth,
@@ -229,13 +230,15 @@ function ColumnInner(props: ColumnInnerProps) {
                 axisType,
                 clipUnits,
                 range,
+                verticalSpacing: unconformityHeight,
                 ...rest,
               },
               h.if(unconformityLabels)(Unconformity, {
                 upperUnits: lastGroup?.units,
-                lowerUnits: data,
+                lowerUnits: units,
                 style: {
                   width: showLabels ? columnWidth : width,
+                  height: unconformityHeight,
                 },
               })
             );

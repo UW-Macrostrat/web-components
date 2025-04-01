@@ -1,12 +1,11 @@
-import { CompositeUnitsColumn, IUnit } from "./units";
+import { CompositeUnitsColumn } from "./units";
 import { ReactNode, useMemo } from "react";
-import { AgeAxis, ColumnVerticalAxis } from "./age-axis";
+import { ColumnVerticalAxis } from "./age-axis";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
 import { MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
-import { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import type { ExtUnit } from "./prepare-units/helpers";
 
 const h = hyper.styled(styles);
@@ -19,7 +18,7 @@ export interface SectionInfo {
 }
 
 export interface SectionSharedProps {
-  data: ExtUnit[];
+  units: ExtUnit[];
   range?: [number, number];
   unitComponent?: React.FunctionComponent<any>;
   unitComponentProps?: any;
@@ -32,6 +31,7 @@ export interface SectionSharedProps {
   className?: string;
   clipUnits?: boolean;
   showTimescale?: boolean;
+  maxInternalColumns?: number;
   timescaleLevels?: [number, number];
   /** A fixed pixel scale to use for the section (pixels per Myr) */
   pixelScale?: number;
@@ -40,12 +40,14 @@ export interface SectionSharedProps {
   targetUnitHeight?: number;
   /** The minimum pixel scale to use for the section (pixels per Myr) */
   minPixelScale?: number;
+  // Space between sections
+  verticalSpacing?: number;
 }
 
 export function Section(props: SectionSharedProps) {
   // Section with "squishy" time scale
   const {
-    data,
+    units,
     range: _range,
     pixelScale: _pixelScale,
     unitComponent,
@@ -62,17 +64,19 @@ export function Section(props: SectionSharedProps) {
     minPixelScale = 0.2,
     showTimescale = true,
     timescaleLevels,
+    maxInternalColumns,
+    verticalSpacing = 20,
   } = props;
 
   const heightInfo = useMemo(() => {
-    return computeSectionHeight(data, {
+    return computeSectionHeight(units, {
       axisType,
       domain: _range,
       pixelScale: _pixelScale,
       targetUnitHeight,
       minPixelScale,
     });
-  }, [data, _range, _pixelScale, targetUnitHeight, minPixelScale, axisType]);
+  }, [units, _range, _pixelScale, targetUnitHeight, minPixelScale, axisType]);
 
   const { domain, pixelScale, pixelHeight } = heightInfo;
 
@@ -84,12 +88,13 @@ export function Section(props: SectionSharedProps) {
     return {
       ...unitComponentProps,
       nColumns: Math.min(
-        Math.max(...data.map((d) => d.column)) + 1,
-        unitComponentProps?.nColumns ?? 2
+        maxInternalColumns ?? Math.floor(columnWidth / 10),
+        unitComponentProps?.nColumns ?? Infinity,
+        Math.max(...units.map((d) => d.column)) + 1
       ),
-      axisType,
+      //axisType,
     };
-  }, [data, unitComponentProps, axisType]);
+  }, [units, unitComponentProps, maxInternalColumns, columnWidth, axisType]);
 
   let timescale = null;
 
@@ -99,17 +104,23 @@ export function Section(props: SectionSharedProps) {
     _showTimescale = true;
   }
 
+  const paddingV = verticalSpacing / 2;
+
   if (axisType == ColumnAxisType.AGE && _showTimescale) {
-    timescale = h("div.timescale-container", { style: { marginTop: `10px` } }, [
-      h(Timescale, {
-        orientation: TimescaleOrientation.VERTICAL,
-        length: pixelHeight,
-        levels: timescaleLevels ?? [2, 5],
-        absoluteAgeScale: true,
-        showAgeAxis: false,
-        ageRange: domain as [number, number],
-      }),
-    ]);
+    timescale = h(
+      "div.timescale-container",
+      { style: { marginTop: paddingV } },
+      [
+        h(Timescale, {
+          orientation: TimescaleOrientation.VERTICAL,
+          length: pixelHeight,
+          levels: timescaleLevels ?? [2, 5],
+          absoluteAgeScale: true,
+          showAgeAxis: false,
+          ageRange: domain as [number, number],
+        }),
+      ]
+    );
   }
 
   const style = {
@@ -120,7 +131,7 @@ export function Section(props: SectionSharedProps) {
   return h(
     MacrostratColumnProvider,
     {
-      units: data,
+      units,
       domain,
       pixelScale, // Actually pixels per myr,
       axisType,
@@ -130,7 +141,7 @@ export function Section(props: SectionSharedProps) {
         h.if(axisType != ColumnAxisType.ORDINAL)(ColumnVerticalAxis, {
           width: 20,
           padding: 0,
-          paddingV: 10,
+          paddingV,
           showLabel: false,
         }),
         timescale,
@@ -141,7 +152,7 @@ export function Section(props: SectionSharedProps) {
               innerWidth: showLabels ? width : columnWidth,
               paddingRight: 1,
               paddingLeft: 1,
-              paddingV: 10,
+              paddingV,
               innerHeight: pixelHeight,
             },
             [
@@ -164,7 +175,7 @@ export function Section(props: SectionSharedProps) {
   );
 }
 
-interface SectionScaleOptions {
+export interface SectionScaleOptions {
   axisType: ColumnAxisType;
   domain: [number, number];
   pixelScale?: number;
@@ -176,11 +187,64 @@ interface SectionScaleOptions {
  * mapping is linear, but it could be extended to support arbitrary
  * scale functions.
  */
-interface SectionScaleInfo {
+export interface SectionScaleInfo {
   domain: [number, number];
   pixelScale: number;
   pixelHeight: number;
   // TODO: add a function
+}
+
+type SectionInfoExt = SectionInfo & {
+  scaleInfo: SectionScaleInfo & {
+    offset: number;
+  };
+};
+
+interface CompositeScaleInformation {
+  totalHeight: number;
+  groups: SectionInfoExt[];
+}
+
+interface ColumnScaleOptions extends Omit<SectionScaleOptions, "domain"> {
+  unconformityHeight: number;
+}
+
+export function buildSectionScaleInformation(
+  sectionGroups: SectionInfo[],
+  opts: ColumnScaleOptions
+): CompositeScaleInformation {
+  const { unconformityHeight, axisType = ColumnAxisType.AGE, ...rest } = opts;
+  const groups: SectionInfoExt[] = [];
+
+  let totalHeight = unconformityHeight / 2;
+  for (const group of sectionGroups) {
+    const { t_age, b_age, units } = group;
+    let _range = null;
+    // if t_age and b_age are set for a group, use them to define the range...
+    if (t_age != null && b_age != null && axisType == ColumnAxisType.AGE) {
+      _range = [b_age, t_age];
+    }
+
+    const scaleInfo = computeSectionHeight(units, {
+      ...rest,
+      axisType,
+      domain: _range,
+    });
+
+    groups.push({
+      ...group,
+      scaleInfo: {
+        ...scaleInfo,
+        offset: totalHeight,
+      },
+    });
+    totalHeight += scaleInfo.pixelHeight + unconformityHeight;
+  }
+  totalHeight += unconformityHeight / 2;
+  return {
+    totalHeight,
+    groups,
+  };
 }
 
 function computeSectionHeight(

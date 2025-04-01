@@ -280,7 +280,7 @@ function BibInfo({ refs }) {
 
   return h(
     "ul.refs",
-    refData.map((data) => h(Citation, { data, tag: "li", key: data.ref_id }))
+    refData.map((data, i) => h(Citation, { data, tag: "li", key: i }))
   );
 }
 
