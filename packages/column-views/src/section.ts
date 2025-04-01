@@ -19,7 +19,7 @@ export interface SectionInfo {
 }
 
 export interface SectionSharedProps {
-  data: BaseUnit[];
+  data: ExtUnit[];
   range?: [number, number];
   unitComponent?: React.FunctionComponent<any>;
   unitComponentProps?: any;
@@ -64,21 +64,17 @@ export function Section(props: SectionSharedProps) {
     timescaleLevels,
   } = props;
 
-  const range = useMemo(
-    () => _range ?? findSectionHeightRange(data as UnitLong[], axisType),
-    [_range, axisType]
-  );
+  const heightInfo = useMemo(() => {
+    return computeSectionHeight(data, {
+      axisType,
+      domain: _range,
+      pixelScale: _pixelScale,
+      targetUnitHeight,
+      minPixelScale,
+    });
+  }, [data, _range, _pixelScale, targetUnitHeight, minPixelScale, axisType]);
 
-  const dAge = range[0] - range[1];
-
-  const pixelScale = useMemo(() => {
-    if (_pixelScale != null) return _pixelScale;
-    const targetHeight = targetUnitHeight * data.length;
-    // 1 pixel per myr is the floor scale
-    return Math.max(targetHeight / dAge, minPixelScale);
-  }, [_pixelScale, targetUnitHeight, data.length, dAge]);
-
-  const height = useMemo(() => dAge * pixelScale, [dAge, pixelScale]);
+  const { domain, pixelScale, pixelHeight } = heightInfo;
 
   /** Ensure that we can arrange units into the maximum number
    * of columns defined by unitComponentProps, but that we don't
@@ -107,26 +103,26 @@ export function Section(props: SectionSharedProps) {
     timescale = h("div.timescale-container", { style: { marginTop: `10px` } }, [
       h(Timescale, {
         orientation: TimescaleOrientation.VERTICAL,
-        length: height,
+        length: pixelHeight,
         levels: timescaleLevels ?? [2, 5],
         absoluteAgeScale: true,
         showAgeAxis: false,
-        ageRange: range as [number, number],
+        ageRange: domain as [number, number],
       }),
     ]);
   }
 
   const style = {
-    "--section-height": `${height}px`,
+    "--section-height": `${pixelHeight}px`,
     "--section-width": `${columnWidth}px`,
   };
 
   return h(
     MacrostratColumnProvider,
     {
-      divisions: data,
-      range,
-      pixelsPerMeter: pixelScale, // Actually pixels per myr,
+      units: data,
+      domain,
+      pixelScale, // Actually pixels per myr,
       axisType,
     },
     [
@@ -146,7 +142,7 @@ export function Section(props: SectionSharedProps) {
               paddingRight: 1,
               paddingLeft: 1,
               paddingV: 10,
-              innerHeight: height,
+              innerHeight: pixelHeight,
             },
             [
               h(CompositeUnitsColumn, {
@@ -170,7 +166,7 @@ export function Section(props: SectionSharedProps) {
 
 interface SectionScaleOptions {
   axisType: ColumnAxisType;
-  domain?: [number, number];
+  domain: [number, number];
   pixelScale?: number;
   minPixelScale?: number;
   targetUnitHeight?: number;
@@ -188,23 +184,20 @@ interface SectionScaleInfo {
 }
 
 function computeSectionHeight(
-  units: ExtUnit[],
+  data: ExtUnit[],
   opts: SectionScaleOptions
 ): SectionScaleInfo {
-  const {
-    targetUnitHeight = 20,
-    minPixelScale = 0.2,
-    axisType = ColumnAxisType.AGE,
-  } = opts;
-
-  const domain = opts.domain ?? findSectionHeightRange(units, axisType);
+  const { targetUnitHeight = 20, minPixelScale = 0.2, axisType } = opts;
+  const domain = opts.domain ?? findSectionHeightRange(data, axisType);
 
   const dAge = Math.abs(domain[0] - domain[1]);
 
   let _pixelScale = opts.pixelScale;
   if (_pixelScale == null) {
     // 0.2 pixel per myr is the floor scale
-    _pixelScale = Math.max(targetUnitHeight / dAge, minPixelScale);
+    const targetHeight = targetUnitHeight * data.length;
+    // 1 pixel per myr is the floor scale
+    _pixelScale = Math.max(targetHeight / dAge, minPixelScale);
   }
 
   const height = dAge * _pixelScale;

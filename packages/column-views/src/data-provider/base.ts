@@ -323,8 +323,21 @@ export function MacrostratAPIProvider({
 }
 
 export function MacrostratColumnProvider(props) {
-  // A column provider specialized the Macrostrat API
-  return h(ColumnProvider, { axisType: ColumnAxisType.AGE, ...props });
+  /** A column provider specialized the Macrostrat API. Maps more
+   * generic concepts to Macrostrat-specific ones.
+   */
+  const {
+    units,
+    domain,
+    pixelScale,
+    axisType = ColumnAxisType.AGE,
+    children,
+  } = props;
+  return h(
+    ColumnProvider,
+    { axisType, divisions: units, range: domain, pixelsPerMeter: pixelScale },
+    children
+  );
 }
 
 /** This is now a legacy provider */
