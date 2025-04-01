@@ -11,17 +11,19 @@ export function getMixedUnitColor(
   if (liths == null) {
     return "gray";
   }
-  const lithData = liths.map((d) => {
-    let prop = d.prop;
-    if (prop == null || isNaN(prop) || prop <= 0) {
-      prop = null;
-    }
-    return {
-      lith_id: d.lith_id,
-      prop,
-      color: lithMap?.get(d.lith_id)?.color ?? "gray",
-    };
-  });
+  const lithData = liths
+    .map((d) => {
+      let prop = d.prop;
+      if (prop == null || isNaN(prop) || prop <= 0) {
+        prop = null;
+      }
+      return {
+        lith_id: d.lith_id,
+        prop,
+        color: lithMap?.get(d.lith_id)?.color,
+      };
+    })
+    .filter((d) => d.color != null);
 
   const lithsWithProp = lithData.filter((d) => d.prop != null);
   const lithsWithoutProp = lithData.filter((d) => d.prop == null);

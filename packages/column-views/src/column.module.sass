@@ -90,9 +90,6 @@ body:global(.dark-mode) .column-container
   display: flex
   flex-direction: row
 
-.column-container :global div.section :global(.timescale)
-  transform: translateY(0.5)
-
 .column-container :global .section .divisions .unit
   cursor: pointer
 
@@ -111,9 +108,9 @@ body:global(.dark-mode) .column-container
   font-style: italic
   text-align: center
   position: absolute
-  top: -3px
+  top: 0px
 
 .unconformity-text
-  transform: translateY(-0.5em)
+  transform: translateY(-0.8em)
   width: var(--column-width)
   color: var(--column-stroke-color)

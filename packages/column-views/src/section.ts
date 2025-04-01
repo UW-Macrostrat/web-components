@@ -216,6 +216,8 @@ function buildSectionScaleInformation(
   sectionGroups: SectionInfo[],
   opts: ColumnScaleOptions
 ): CompositeScaleInformation {
+  /** Get a set of heights for sections */
+
   const { unconformityHeight, axisType = ColumnAxisType.AGE, ...rest } = opts;
   const sections: SectionInfoExt[] = [];
 
@@ -241,7 +243,8 @@ function buildSectionScaleInformation(
         offset: totalHeight,
       },
     });
-    totalHeight += scaleInfo.pixelHeight + unconformityHeight;
+    // Add a fudge factor of 4 pixels to the height of each section.
+    totalHeight += scaleInfo.pixelHeight + unconformityHeight + 4;
   }
   totalHeight += unconformityHeight / 2;
   return {
@@ -302,22 +305,20 @@ export function createCompositeScale(
   sections: SectionInfoExt[],
   interpolateUnconformities: boolean = false
 ): (age: number) => number | null {
+  // Get surfaces at which scale breaks
+  let scaleBreaks: [number, number][] = [];
+  for (const section of sections) {
+    const { pixelHeight, pixelScale, offset, domain } = section.scaleInfo;
+
+    scaleBreaks.push([domain[1], offset]);
+    scaleBreaks.push([domain[0], offset + pixelHeight]);
+  }
+  // Sort the scale breaks by age
+  scaleBreaks.sort((a, b) => a[0] - b[0]);
+
   return (age) => {
     /** Given an age, find the corresponding pixel position */
     // Iterate through the sections to find the correct one
-
-    // Get surfaces at which scale breaks
-    let lastSection = null;
-    let scaleBreaks: [number, number][] = [];
-    for (const section of sections) {
-      const { pixelHeight, pixelScale, offset, domain } = section.scaleInfo;
-
-      scaleBreaks.push([domain[1], offset]);
-      scaleBreaks.push([domain[0], offset + pixelHeight]);
-    }
-    // Sort the scale breaks by age
-    scaleBreaks.sort((a, b) => a[0] - b[0]);
-    console.log(scaleBreaks);
 
     // Accumulate scale breaks and pixel height
     let pixelHeight = 0;

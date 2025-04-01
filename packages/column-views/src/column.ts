@@ -17,11 +17,8 @@ import {
 import {
   buildSectionScaleInformation,
   ColumnHeightScaleOptions,
-  ColumnScaleOptions,
   computeSectionHeight,
   SectionInfo,
-  SectionScaleInfo,
-  SectionScaleOptions,
   useCompositeScaledGroups,
 } from "./section";
 import { UnitSelectionPopover } from "./selection-popover";
@@ -235,6 +232,7 @@ function ColumnInner(props: ColumnInnerProps) {
                 verticalSpacing: unconformityHeight,
                 ...rest,
               },
+              // This unconformity is with the section _above_
               h.if(unconformityLabels)(Unconformity, {
                 upperUnits: lastGroup?.units,
                 lowerUnits: units,
