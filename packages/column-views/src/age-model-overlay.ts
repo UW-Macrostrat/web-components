@@ -64,8 +64,6 @@ export function BoundaryAgeModelOverlay() {
     ageModel.map((surface) => {
       const height = scale(surface.model_age);
 
-      console.log(surface.model_age, height);
-
       return h("div.boundary-age-model-surface", {
         key: surface.boundary_id,
         style: { top: `${height}px` },

@@ -1,17 +1,13 @@
-import {
-  ColumnAxisType,
-  ColumnLayoutContext,
-} from "@macrostrat/column-components";
+import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useDarkMode, useInDarkMode } from "@macrostrat/ui-components";
+import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { RefObject, useContext, useMemo, useRef } from "react";
+import { RefObject, useMemo, useRef } from "react";
 import styles from "./column.module.sass";
 import {
-  getMixedUnitColor,
-  TrackedLabeledUnit,
-  UnitKeyboardNavigation,
   UnitSelectionProvider,
+  UnitComponent,
+  UnitKeyboardNavigation,
   useUnitSelectionDispatch,
 } from "./units";
 
@@ -21,53 +17,16 @@ import {
   SectionInfo,
   buildSectionScaleInformation,
 } from "./prepare-units/composite-scale";
+import {} from "./units";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
 import { SectionSharedProps, Section } from "./section";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
-import { useLithologies } from "./data-provider";
 import { VerticalAxisLabel } from "./age-axis";
 import { BaseUnit } from "@macrostrat/api-types";
 import { ExtUnit } from "./prepare-units/helpers";
 
 const h = hyperStyled(styles);
-
-export function UnitComponent({ division, nColumns = 2, ...rest }) {
-  const { width } = useContext(ColumnLayoutContext);
-
-  const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
-  const columnIx = (division.column ?? 0) % nColumns;
-
-  return h(TrackedLabeledUnit, {
-    division,
-    ...rest,
-    width: nOverlappingUnits > 0 ? width / nColumns : width,
-    x: (columnIx * width) / nColumns,
-  });
-}
-
-export function ColoredUnitComponent(props) {
-  /** A unit component that is colored using a mixture of lithologies.
-   * This is a separate component because it depends on more providers/contexts to determine coloring. */
-  const lithMap = useLithologies();
-  const inDarkMode = useInDarkMode();
-  return h(UnitComponent, {
-    ...props,
-    backgroundColor: getMixedUnitColor(props.division, lithMap, inDarkMode),
-  });
-}
-
-function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
-  if (upperUnits.length == 0 || lowerUnits.length == 0) {
-    return null;
-  }
-
-  const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
-
-  return h("div.unconformity", { style }, [
-    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
-  ]);
-}
 
 interface BaseColumnProps extends SectionSharedProps, ColumnHeightScaleOptions {
   unconformityLabels?: boolean;
@@ -257,4 +216,16 @@ function ColumnInner(props: ColumnInnerProps) {
       ]),
     ])
   );
+}
+
+function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
+  if (upperUnits.length == 0 || lowerUnits.length == 0) {
+    return null;
+  }
+
+  const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
+
+  return h("div.unconformity", { style }, [
+    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
+  ]);
 }
