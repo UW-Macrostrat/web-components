@@ -31,6 +31,7 @@ import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { useLithologies } from "./data-provider";
 import { VerticalAxisLabel } from "./age-axis";
 import { BaseUnit } from "@macrostrat/api-types";
+import { ExtUnit } from "./prepare-units/helpers";
 
 const h = hyperStyled(styles);
 
@@ -144,6 +145,7 @@ export function Column(props: ColumnProps) {
 interface ColumnInnerProps extends BaseColumnProps {
   sectionGroups: SectionInfo[];
   columnRef: RefObject<HTMLElement>;
+  units: ExtUnit[];
 }
 
 function ColumnInner(props: ColumnInnerProps) {
@@ -188,7 +190,7 @@ function ColumnInner(props: ColumnInnerProps) {
     axisLabel = null;
   }
 
-  const { groups } = useCompositeScaledGroups(sectionGroups, {
+  const { sections, totalHeight } = useCompositeScaledGroups(sectionGroups, {
     axisType,
     targetUnitHeight,
     unconformityHeight,
@@ -205,7 +207,7 @@ function ColumnInner(props: ColumnInnerProps) {
         dispatch?.(null, null, evt as any);
       },
     },
-    h(MacrostratUnitsProvider, { units, sectionGroups }, [
+    h(MacrostratUnitsProvider, { units, sections, totalHeight }, [
       h("div.column", { ref: columnRef }, [
         h.if(axisLabel != null)(VerticalAxisLabel, {
           label: axisLabel,
@@ -213,9 +215,9 @@ function ColumnInner(props: ColumnInnerProps) {
         }),
         h(
           "div.main-column",
-          groups.map((group, i) => {
+          sections.map((group, i) => {
             const { units, scaleInfo } = group;
-            const lastGroup = groups[i - 1];
+            const lastGroup = sections[i - 1];
 
             return h(
               Section,

@@ -187,7 +187,7 @@ export interface SectionScaleInfo {
   // TODO: add a function
 }
 
-type SectionInfoExt = SectionInfo & {
+export type SectionInfoExt = SectionInfo & {
   scaleInfo: SectionScaleInfo & {
     offset: number;
   };
@@ -195,7 +195,7 @@ type SectionInfoExt = SectionInfo & {
 
 interface CompositeScaleInformation {
   totalHeight: number;
-  groups: SectionInfoExt[];
+  sections: SectionInfoExt[];
 }
 
 export interface ColumnScaleOptions
@@ -217,7 +217,7 @@ function buildSectionScaleInformation(
   opts: ColumnScaleOptions
 ): CompositeScaleInformation {
   const { unconformityHeight, axisType = ColumnAxisType.AGE, ...rest } = opts;
-  const groups: SectionInfoExt[] = [];
+  const sections: SectionInfoExt[] = [];
 
   let totalHeight = unconformityHeight / 2;
   for (const group of sectionGroups) {
@@ -234,7 +234,7 @@ function buildSectionScaleInformation(
       domain: _range,
     });
 
-    groups.push({
+    sections.push({
       ...group,
       scaleInfo: {
         ...scaleInfo,
@@ -246,7 +246,7 @@ function buildSectionScaleInformation(
   totalHeight += unconformityHeight / 2;
   return {
     totalHeight,
-    groups,
+    sections,
   };
 }
 
@@ -296,4 +296,42 @@ function findSectionHeightRange(
     const b_pos = Math.min(...data.map((d) => d.b_pos));
     return [b_pos, t_pos];
   }
+}
+
+export function createCompositeScale(
+  sections: SectionInfoExt[],
+  interpolateUnconformities: boolean = false
+): (age: number) => number | null {
+  return (age) => {
+    /** Given an age, find the corresponding pixel position */
+    // Iterate through the sections to find the correct one
+
+    // Get surfaces at which scale breaks
+    let lastSection = null;
+    let scaleBreaks: [number, number][] = [];
+    for (const section of sections) {
+      const { pixelHeight, pixelScale, offset, domain } = section.scaleInfo;
+
+      scaleBreaks.push([domain[1], offset]);
+      scaleBreaks.push([domain[0], offset + pixelHeight]);
+    }
+    // Sort the scale breaks by age
+    scaleBreaks.sort((a, b) => a[0] - b[0]);
+    console.log(scaleBreaks);
+
+    // Accumulate scale breaks and pixel height
+    let pixelHeight = 0;
+    let pixelScale = 0;
+    let lastAge = null;
+    for (const [age1, height] of scaleBreaks) {
+      if (age <= age1) {
+        if (lastAge != null) {
+          pixelHeight += (age - lastAge) * pixelScale;
+          return pixelHeight;
+        }
+        lastAge = age;
+        pixelHeight = height;
+      }
+    }
+  };
 }
