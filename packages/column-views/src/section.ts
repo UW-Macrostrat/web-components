@@ -1,6 +1,5 @@
 import { CompositeUnitsColumn } from "./units";
 import { ReactNode, useMemo } from "react";
-import { ColumnVerticalAxis } from "./age-axis";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
 import { MacrostratColumnProvider } from "./index";
@@ -39,6 +38,61 @@ export interface SectionProps extends SectionSharedProps {
   scaleInfo: SectionScaleInfo;
 }
 
+export function SectionsColumn(props: SectionSharedProps) {
+  const {
+    sections,
+    unconformityLabels = true,
+    unitComponent,
+    unitComponentProps,
+    showLabels = true,
+    width = 300,
+    columnWidth = 150,
+    showLabelColumn = true,
+    axisType = ColumnAxisType.AGE,
+    className,
+    clipUnits = true,
+    maxInternalColumns,
+  } = props;
+
+  return h(
+    "div.main-column",
+    sections.map((group, i) => {
+      const { units, scaleInfo, section_id } = group;
+      const lastGroup = sections[i - 1];
+      const unconformityHeight = scaleInfo.paddingTop;
+
+      const key = `section-${section_id}`;
+      return h(
+        Section,
+        {
+          units,
+          scaleInfo,
+          key,
+          unitComponent,
+          unitComponentProps,
+          showLabels,
+          width,
+          columnWidth,
+          showLabelColumn,
+          axisType,
+          className: className ?? "section",
+          clipUnits,
+          maxInternalColumns,
+        }, // This unconformity is with the section _above_
+        h.if(unconformityLabels)(Unconformity, {
+          upperUnits: lastGroup?.units,
+          lowerUnits: units,
+          style: {
+            width: showLabels ? columnWidth : width,
+            height: unconformityHeight,
+            top: `-${unconformityHeight}px`,
+          },
+        })
+      );
+    })
+  );
+}
+
 export function Section(props: SectionProps) {
   // Section with "squishy" time scale
   const {
@@ -54,13 +108,11 @@ export function Section(props: SectionProps) {
     className,
     children,
     clipUnits = true,
-    showTimescale = true,
-    timescaleLevels,
     maxInternalColumns,
     verticalSpacing = 20,
   } = props;
 
-  const { domain, pixelScale, pixelHeight } = scaleInfo;
+  const { domain, pixelScale, pixelHeight, paddingTop } = scaleInfo;
 
   /** Ensure that we can arrange units into the maximum number
    * of columns defined by unitComponentProps, but that we don't
@@ -83,6 +135,7 @@ export function Section(props: SectionProps) {
   const style = {
     "--section-height": `${pixelHeight}px`,
     "--section-width": `${columnWidth}px`,
+    paddingTop,
   };
 
   return h(
@@ -104,6 +157,7 @@ export function Section(props: SectionProps) {
               paddingLeft: 1,
               paddingV,
               innerHeight: pixelHeight,
+              marginV: -paddingV,
             },
             [
               h(CompositeUnitsColumn, {
@@ -126,26 +180,17 @@ export function Section(props: SectionProps) {
 }
 
 export function CompositeTimescale(props) {
-  const { sections, levels = [2, 5], unconformityHeight } = props;
+  const { sections, levels = [2, 5] } = props;
 
-  let totalHeight = 0;
   return h(
     "div.main-column",
     sections.map((group, i) => {
       const { scaleInfo, section_id } = group;
-
-      const { pixelHeight, offset } = scaleInfo;
-
-      totalHeight = offset + pixelHeight;
-
       const key = `section-${section_id}`;
-      console.log("Rendering section", key, group, scaleInfo);
-
       return h(CompositeTimescaleSection, {
         scaleInfo,
         key,
         levels,
-        verticalSpacing: unconformityHeight,
       });
     })
   );
@@ -165,5 +210,17 @@ export function CompositeTimescaleSection(props: SectionProps) {
       showAgeAxis: false,
       ageRange: domain as [number, number],
     }),
+  ]);
+}
+
+function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
+  if (upperUnits.length == 0 || lowerUnits.length == 0) {
+    return null;
+  }
+
+  const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
+
+  return h("div.unconformity", { style }, [
+    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
   ]);
 }

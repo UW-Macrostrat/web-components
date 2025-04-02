@@ -173,7 +173,7 @@ function buildSectionScale(
     domain,
     pixelScale: _pixelScale,
     pixelHeight: height,
-    scale: scaleLinear().domain(domain).range([0, height]),
+    scale: scaleLinear().domain([domain[1], domain[0]]).range([0, height]),
   };
 }
 

@@ -82,7 +82,12 @@ export function CompositeAgeAxis(props) {
     }),
     h(
       SVG,
-      { className: "age-axis-column", width: 21, height: totalHeight },
+      {
+        className: "age-axis-column",
+        style: { width: `21px`, height: `${totalHeight}px` },
+        width: 21,
+        height: totalHeight,
+      },
       sections.map((group, i) => {
         const { scaleInfo, section_id } = group;
 

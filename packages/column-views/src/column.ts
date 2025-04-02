@@ -18,7 +18,12 @@ import {
 import {} from "./units";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
-import { SectionSharedProps, Section, CompositeTimescale } from "./section";
+import {
+  SectionSharedProps,
+  Section,
+  CompositeTimescale,
+  SectionsColumn,
+} from "./section";
 import { ColumnAgeAxis, CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { VerticalAxisLabel } from "./age-axis";
@@ -174,59 +179,21 @@ function ColumnInner(props: ColumnInnerProps) {
         }),
         h.if(_showTimescale)(CompositeTimescale, {
           sections,
-          unconformityHeight,
         }),
-        h(
-          "div.main-column",
-          sections.map((group, i) => {
-            const { units, scaleInfo, section_id } = group;
-            const lastGroup = sections[i - 1];
-
-            const key = `section-${section_id}`;
-            console.log("Rendering section", key, group, scaleInfo);
-
-            return h(
-              Section,
-              {
-                units,
-                scaleInfo,
-                key,
-                unitComponent,
-                showLabels,
-                width,
-                columnWidth,
-                showLabelColumn,
-                axisType,
-                clipUnits,
-                verticalSpacing: unconformityHeight,
-                ...rest,
-              },
-              // This unconformity is with the section _above_
-              h.if(unconformityLabels)(Unconformity, {
-                upperUnits: lastGroup?.units,
-                lowerUnits: units,
-                style: {
-                  width: showLabels ? columnWidth : width,
-                  height: unconformityHeight,
-                },
-              })
-            );
-          })
-        ),
+        h(SectionsColumn, {
+          sections,
+          unitComponent,
+          showLabels,
+          width,
+          columnWidth,
+          showLabelColumn,
+          axisType,
+          clipUnits,
+          unconformityHeight,
+          unconformityLabels,
+        }),
         children,
       ]),
     ])
   );
-}
-
-function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
-  if (upperUnits.length == 0 || lowerUnits.length == 0) {
-    return null;
-  }
-
-  const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
-
-  return h("div.unconformity", { style }, [
-    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
-  ]);
 }
