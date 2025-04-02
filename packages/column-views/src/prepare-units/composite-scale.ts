@@ -48,7 +48,7 @@ export interface SectionScaleInfo {
 export type SectionInfoExt = SectionInfo & {
   scaleInfo: SectionScaleInfo & {
     offset: number;
-    unconformityHeight: number;
+    paddingTop: number;
   };
 };
 
@@ -71,6 +71,8 @@ export function finalizeSectionHeights(
    */
 
   let totalHeight = unconformityHeight / 2;
+  let lastSectionTopHeight = 0;
+
   const sections1: SectionInfoExt[] = [];
   for (const group of sections) {
     const { scaleInfo } = group;
@@ -85,12 +87,12 @@ export function finalizeSectionHeights(
         ...scaleInfo,
         offset: totalHeight,
         // Unconformity height above this particular section
-        unconformityHeight,
+        paddingTop: totalHeight - lastSectionTopHeight,
         scale: scale1,
       },
     });
-    // Add a fudge factor of 4 pixels to the height of each section.
-    totalHeight += scaleInfo.pixelHeight + unconformityHeight;
+    lastSectionTopHeight = totalHeight + scaleInfo.pixelHeight;
+    totalHeight = lastSectionTopHeight + unconformityHeight;
   }
   totalHeight += unconformityHeight / 2;
   return {

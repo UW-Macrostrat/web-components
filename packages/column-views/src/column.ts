@@ -18,7 +18,7 @@ import {
 import {} from "./units";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
-import { SectionSharedProps, Section } from "./section";
+import { SectionSharedProps, Section, CompositeTimescale } from "./section";
 import { ColumnAgeAxis, CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { VerticalAxisLabel } from "./age-axis";
@@ -40,6 +40,9 @@ interface BaseColumnProps extends SectionSharedProps, ColumnHeightScaleOptions {
   maxInternalColumns?: number;
   // Unconformity height in pixels
   unconformityHeight?: number;
+  // Timescale properties
+  showTimescale?: boolean;
+  timescaleLevels?: [number, number];
 }
 
 export interface ColumnProps extends BaseColumnProps {
@@ -134,6 +137,8 @@ function ColumnInner(props: ColumnInnerProps) {
     columnRef,
     clipUnits = false,
     children,
+    showTimescale,
+    timescaleLevels,
     ...rest
   } = props;
 
@@ -144,6 +149,12 @@ function ColumnInner(props: ColumnInnerProps) {
   });
 
   const dispatch = useUnitSelectionDispatch();
+
+  let _showTimescale = showTimescale;
+  if (timescaleLevels !== null) {
+    _showTimescale = true;
+  }
+  _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
 
   return h(
     "div.column-container",
@@ -156,16 +167,14 @@ function ColumnInner(props: ColumnInnerProps) {
     },
     h(MacrostratUnitsProvider, { units, sections, totalHeight }, [
       h("div.column", { ref: columnRef }, [
-        h.if(axisType != ColumnAxisType.ORDINAL)(CompositeAgeAxis, {
+        h(CompositeAgeAxis, {
           sections,
           totalHeight,
           axisType,
+        }),
+        h.if(_showTimescale)(CompositeTimescale, {
+          sections,
           unconformityHeight,
-          showLabelColumn,
-          width,
-          columnWidth,
-          showLabels,
-          clipUnits,
         }),
         h(
           "div.main-column",

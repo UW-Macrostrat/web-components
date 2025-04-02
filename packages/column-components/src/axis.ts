@@ -80,7 +80,6 @@ export function AgeAxis(props: AgeAxisProps) {
     axisRef.current.scale(scale);
     for (let k of __d3axisKeys) {
       const val = props[k] ?? defaultProps[k];
-      console.log("axis", k, val);
       if (val == null) continue;
       axisRef.current[k](val);
     }

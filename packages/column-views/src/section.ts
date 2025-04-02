@@ -29,9 +29,7 @@ export interface SectionSharedProps {
   axisType?: ColumnAxisType;
   className?: string;
   clipUnits?: boolean;
-  showTimescale?: boolean;
   maxInternalColumns?: number;
-  timescaleLevels?: [number, number];
   // Space between sections
   verticalSpacing?: number;
 }
@@ -80,32 +78,7 @@ export function Section(props: SectionProps) {
     };
   }, [units, unitComponentProps, maxInternalColumns, columnWidth, axisType]);
 
-  let timescale = null;
-
-  // Check whether we should show the timescale
-  let _showTimescale = showTimescale;
-  if (timescaleLevels !== null) {
-    _showTimescale = true;
-  }
-
   const paddingV = verticalSpacing / 2;
-
-  if (axisType == ColumnAxisType.AGE && _showTimescale) {
-    timescale = h(
-      "div.timescale-container",
-      { style: { marginTop: paddingV } },
-      [
-        h(Timescale, {
-          orientation: TimescaleOrientation.VERTICAL,
-          length: pixelHeight,
-          levels: timescaleLevels ?? [2, 5],
-          absoluteAgeScale: true,
-          showAgeAxis: false,
-          ageRange: domain as [number, number],
-        }),
-      ]
-    );
-  }
 
   const style = {
     "--section-height": `${pixelHeight}px`,
@@ -122,7 +95,6 @@ export function Section(props: SectionProps) {
     },
     [
       h("div.section", { className, style }, [
-        timescale,
         h("div.section-main", [
           h(
             ColumnSVG,
@@ -151,4 +123,47 @@ export function Section(props: SectionProps) {
       ]),
     ]
   );
+}
+
+export function CompositeTimescale(props) {
+  const { sections, levels = [2, 5], unconformityHeight } = props;
+
+  let totalHeight = 0;
+  return h(
+    "div.main-column",
+    sections.map((group, i) => {
+      const { scaleInfo, section_id } = group;
+
+      const { pixelHeight, offset } = scaleInfo;
+
+      totalHeight = offset + pixelHeight;
+
+      const key = `section-${section_id}`;
+      console.log("Rendering section", key, group, scaleInfo);
+
+      return h(CompositeTimescaleSection, {
+        scaleInfo,
+        key,
+        levels,
+        verticalSpacing: unconformityHeight,
+      });
+    })
+  );
+}
+
+export function CompositeTimescaleSection(props: SectionProps) {
+  const { scaleInfo, levels } = props;
+
+  const { domain, pixelHeight, paddingTop } = scaleInfo;
+
+  return h("div.timescale-container", { style: { paddingTop } }, [
+    h(Timescale, {
+      orientation: TimescaleOrientation.VERTICAL,
+      length: pixelHeight,
+      levels,
+      absoluteAgeScale: true,
+      showAgeAxis: false,
+      ageRange: domain as [number, number],
+    }),
+  ]);
 }

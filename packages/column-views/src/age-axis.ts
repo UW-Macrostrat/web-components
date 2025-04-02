@@ -61,7 +61,11 @@ export function ColumnVerticalAxis(props) {
 export function CompositeAgeAxis(props) {
   const { axisType = ColumnAxisType.AGE, sections, totalHeight } = props;
 
-  let axisLabel: string | null = "Age";
+  if (axisType == ColumnAxisType.ORDINAL) {
+    return null;
+  }
+
+  let axisLabel: string = "Age";
   let axisUnit = "Ma";
   if (axisType == ColumnAxisType.DEPTH) {
     axisLabel = "Depth";
@@ -69,12 +73,10 @@ export function CompositeAgeAxis(props) {
   } else if (axisType == ColumnAxisType.HEIGHT) {
     axisLabel = "Height";
     axisUnit = "m";
-  } else if (axisType == ColumnAxisType.ORDINAL) {
-    axisLabel = null;
   }
 
   return h([
-    h.if(axisLabel != null)(VerticalAxisLabel, {
+    h(VerticalAxisLabel, {
       label: axisLabel,
       unit: axisUnit,
     }),
