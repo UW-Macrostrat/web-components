@@ -26,6 +26,8 @@ export interface ColumnHeightScaleOptions {
   axisType?: ColumnAxisType;
   // Unconformity height in pixels
   unconformityHeight?: number;
+  // Whether to collapse unconformities that are less than a height threshold
+  collapseSmallUnconformities?: boolean | number;
 }
 
 export interface SectionScaleOptions extends ColumnHeightScaleOptions {

@@ -39,20 +39,6 @@ body:global(.dark-mode) .column-container
     flex-direction: row
     position: relative
 
-    .age-axis-label
-      writing-mode: vertical-lr
-      transform: rotate(180deg)
-      font-size: 12px
-      text-align: center
-      position: sticky
-      top: 0
-      max-height: 100vh
-
-    .tick text
-      text-anchor: middle
-      font-weight: 400 !important
-      transform: rotate(-90deg) translate(8px, -12px)
-
   rect.unit
     stroke: var(--column-stroke-color)
     stroke-width: 1px
@@ -103,6 +89,9 @@ body:global(.dark-mode) .column-container
 .section-main
   position: relative
   margin-bottom: -4px
+
+.section-units-container
+  position: relative
 
 //.timescale-container
 //  transform: translateY(-1px)

@@ -1,7 +1,7 @@
 import { CompositeUnitsColumn } from "./units";
 import { ReactNode, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
+import { ColumnAxisType, ColumnSVG, SVG } from "@macrostrat/column-components";
 import { MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
@@ -55,13 +55,51 @@ export function SectionsColumn(props: SectionSharedProps) {
     totalHeight,
   } = props;
 
-  return h("div.main-column", {}, [
+  return h([
+    h("div.section-units-container", { style: { width: columnWidth + 2 } }, [
+      h(
+        SVG,
+        {
+          className: "sections",
+          height: totalHeight,
+          innerWidth: columnWidth,
+          paddingH: 1,
+        },
+        sections.map((group, i) => {
+          const { units, scaleInfo, section_id } = group;
+
+          const key = `section-${section_id}`;
+          return h(
+            SectionUnits,
+            {
+              units,
+              scaleInfo,
+              key,
+              unitComponent,
+              unitComponentProps,
+              showLabels,
+              width,
+              columnWidth,
+              showLabelColumn,
+              axisType,
+              className: className ?? "section",
+              clipUnits,
+              maxInternalColumns,
+            } // This unconformity is with the section _above_
+          );
+        })
+      ),
+      h.if(unconformityLabels)(UnconformityLabels, {
+        sections,
+        totalHeight,
+        width: columnWidth,
+      }),
+    ]),
     h(
-      "div.sections",
+      "div.main-column",
+      { className: "sections", height: totalHeight },
       sections.map((group, i) => {
         const { units, scaleInfo, section_id } = group;
-        const lastGroup = sections[i - 1];
-        const unconformityHeight = scaleInfo.paddingTop;
 
         const key = `section-${section_id}`;
         return h(
@@ -81,45 +119,82 @@ export function SectionsColumn(props: SectionSharedProps) {
             clipUnits,
             maxInternalColumns,
           } // This unconformity is with the section _above_
-          // h.if(unconformityLabels)(Unconformity, {
-          //   upperUnits: lastGroup?.units,
-          //   lowerUnits: units,
-          //   style: {
-          //     width: showLabels ? columnWidth : width,
-          //     height: unconformityHeight,
-          //     top: `-${unconformityHeight}px`,
-          //   },
-          // })
         );
-      })
-    ),
-    h.if(unconformityLabels)(
-      "div.unconformity-labels",
-      {
-        style: {
-          width: showLabels ? columnWidth : width,
-          height: totalHeight,
-        },
-      },
-      sections.map((group, i) => {
-        const { units, scaleInfo } = group;
-        const lastGroup = sections[i - 1];
-        const top = scaleInfo.offset - scaleInfo.paddingTop;
-        return h(Unconformity, {
-          upperUnits: lastGroup?.units,
-          lowerUnits: units,
-          style: {
-            width: showLabels ? columnWidth : width,
-            height: scaleInfo.paddingTop,
-            top,
-          },
-        });
       })
     ),
   ]);
 }
 
-export function Section(props: SectionProps) {
+function SectionUnits(props: SectionProps) {
+  // Section with "squishy" time scale
+  const {
+    units,
+    scaleInfo,
+    unitComponent,
+    showLabels = true,
+    width = 300,
+    columnWidth = 150,
+    unitComponentProps,
+    showLabelColumn = true,
+    axisType = ColumnAxisType.AGE,
+    className,
+    children,
+    clipUnits = true,
+    maxInternalColumns,
+    verticalSpacing = 20,
+  } = props;
+
+  const { domain, pixelScale, pixelHeight, paddingTop } = scaleInfo;
+
+  /** Ensure that we can arrange units into the maximum number
+   * of columns defined by unitComponentProps, but that we don't
+   * use more than necessary.
+   */
+  const _unitComponentProps = useMemo(() => {
+    return {
+      ...unitComponentProps,
+      nColumns: Math.min(
+        maxInternalColumns ?? Math.floor(columnWidth / 10),
+        unitComponentProps?.nColumns ?? Infinity,
+        Math.max(...units.map((d) => d.column)) + 1
+      ),
+      //axisType,
+    };
+  }, [units, unitComponentProps, maxInternalColumns, columnWidth, axisType]);
+
+  const paddingV = verticalSpacing / 2;
+
+  const style = {
+    "--section-height": `${pixelHeight}px`,
+    "--section-width": `${columnWidth}px`,
+  };
+
+  return h(
+    "g.section",
+    { className, style, transform: `translate(0 ${scaleInfo.offset})` },
+    h(
+      MacrostratColumnProvider,
+      {
+        units,
+        domain,
+        pixelScale, // Actually pixels per myr,
+        axisType,
+      },
+      h(CompositeUnitsColumn, {
+        showLabelColumn: showLabelColumn,
+        width: showLabels ? width : columnWidth,
+        columnWidth,
+        gutterWidth: 5,
+        showLabels,
+        unitComponent,
+        unitComponentProps: _unitComponentProps,
+        clipToFrame: clipUnits,
+      })
+    )
+  );
+}
+
+function Section(props: SectionProps) {
   // Section with "squishy" time scale
   const {
     units,
@@ -233,6 +308,34 @@ export function CompositeTimescaleSection(props: SectionProps) {
       ageRange: domain as [number, number],
     }),
   ]);
+}
+
+function UnconformityLabels(props) {
+  const { sections, totalHeight, width } = props;
+
+  return h(
+    "div.unconformity-labels",
+    {
+      style: {
+        width,
+        height: totalHeight,
+      },
+    },
+    sections.map((group, i) => {
+      const { units, scaleInfo } = group;
+      const lastGroup = sections[i - 1];
+      const top = scaleInfo.offset - scaleInfo.paddingTop;
+      return h(Unconformity, {
+        upperUnits: lastGroup?.units,
+        lowerUnits: units,
+        style: {
+          width,
+          height: scaleInfo.paddingTop,
+          top,
+        },
+      });
+    })
+  );
 }
 
 function Unconformity({ upperUnits = [], lowerUnits = [], style }) {

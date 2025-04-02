@@ -1,6 +1,7 @@
 import hyper from "@macrostrat/hyper";
 import {
   SVG,
+  ColumnSVG,
   ColumnAxis,
   ColumnContext,
   ColumnAxisType,
@@ -84,8 +85,8 @@ export function CompositeAgeAxis(props) {
       SVG,
       {
         className: "age-axis-column",
-        style: { width: `21px`, height: `${totalHeight}px` },
-        width: 21,
+        style: { width: `22px`, height: `${totalHeight}px` },
+        width: 22,
         height: totalHeight,
       },
       sections.map((group, i) => {
@@ -95,6 +96,7 @@ export function CompositeAgeAxis(props) {
           key: `section-${section_id}`,
           className: "age-axis",
           scale: scaleInfo.scale,
+          tickSizeOuter: 3,
         });
       })
     ),

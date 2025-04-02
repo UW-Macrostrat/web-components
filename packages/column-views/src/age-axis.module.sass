@@ -1,13 +1,24 @@
-.age-axis :global(.visx-axis-tick) svg
-  font-size: 12px
-  font-weight: 400 !important
-  text-anchor: middle
-  transform: rotate(-90deg) translate(8px, -12px)
-  fill: var(--column-text-color)
-  color: var(--column-text-color)
-
 .age-axis
   transform: translateX(20px)
 
+  :global(.tick)
+    text
+      text-anchor: middle
+      // TODO: allow font size to vary without this..
+      font-weight: 400 !important
+      transform: rotate(-90deg) translate(8px, -12px)
+
+    line
+      stroke-width: 1px !important
+
 .age-axis-column
   flex-shrink: 0
+
+.age-axis-label
+  writing-mode: vertical-lr
+  transform: rotate(180deg)
+  font-size: 12px
+  text-align: center
+  position: sticky
+  top: 0
+  max-height: 100vh

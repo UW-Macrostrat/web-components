@@ -20,13 +20,11 @@ import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
 import {
   SectionSharedProps,
-  Section,
   CompositeTimescale,
   SectionsColumn,
 } from "./section";
-import { ColumnAgeAxis, CompositeAgeAxis } from "./age-axis";
+import { CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
-import { VerticalAxisLabel } from "./age-axis";
 import { BaseUnit } from "@macrostrat/api-types";
 import { ExtUnit } from "./prepare-units/helpers";
 
