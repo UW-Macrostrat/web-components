@@ -19,7 +19,7 @@ import {} from "./units";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
 import { SectionSharedProps, Section } from "./section";
-import { ColumnAgeAxis } from "./age-axis";
+import { ColumnAgeAxis, CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { VerticalAxisLabel } from "./age-axis";
 import { BaseUnit } from "@macrostrat/api-types";
@@ -145,18 +145,6 @@ function ColumnInner(props: ColumnInnerProps) {
 
   const dispatch = useUnitSelectionDispatch();
 
-  let axisLabel: string | null = "Age";
-  let axisUnit = "Ma";
-  if (axisType == ColumnAxisType.DEPTH) {
-    axisLabel = "Depth";
-    axisUnit = "m";
-  } else if (axisType == ColumnAxisType.HEIGHT) {
-    axisLabel = "Height";
-    axisUnit = "m";
-  } else if (axisType == ColumnAxisType.ORDINAL) {
-    axisLabel = null;
-  }
-
   return h(
     "div.column-container",
     {
@@ -168,28 +156,17 @@ function ColumnInner(props: ColumnInnerProps) {
     },
     h(MacrostratUnitsProvider, { units, sections, totalHeight }, [
       h("div.column", { ref: columnRef }, [
-        h.if(axisLabel != null)(VerticalAxisLabel, {
-          label: axisLabel,
-          unit: axisUnit,
+        h.if(axisType != ColumnAxisType.ORDINAL)(CompositeAgeAxis, {
+          sections,
+          totalHeight,
+          axisType,
+          unconformityHeight,
+          showLabelColumn,
+          width,
+          columnWidth,
+          showLabels,
+          clipUnits,
         }),
-        h.if(axisType != ColumnAxisType.ORDINAL)(
-          "div.age-axis-column",
-          sections.map((group, i) => {
-            const { units, scaleInfo, section_id } = group;
-
-            const key = `section-${section_id}`;
-
-            return h(ColumnAgeAxis, {
-              units,
-              scaleInfo,
-              key,
-              axisType,
-              clipUnits,
-              verticalSpacing: unconformityHeight,
-              ...rest,
-            });
-          })
-        ),
         h(
           "div.main-column",
           sections.map((group, i) => {
@@ -243,18 +220,4 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
   return h("div.unconformity", { style }, [
     h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
   ]);
-}
-
-function extractFromObj<T, K extends keyof T>(
-  obj: T,
-  ...keys: K[]
-): [Pick<T, K>, Omit<T, K>] {
-  /** Extract keys from an object and return the rest */
-  const extracted = {} as Pick<T, K>;
-  const rest = { ...obj };
-  for (const key of keys) {
-    extracted[key] = obj[key];
-    delete rest[key];
-  }
-  return [extracted, rest];
 }

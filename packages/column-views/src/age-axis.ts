@@ -1,10 +1,10 @@
 import hyper from "@macrostrat/hyper";
 import {
-  ColumnSVG,
+  SVG,
   ColumnAxis,
   ColumnContext,
   ColumnAxisType,
-  ColumnAxis2,
+  AgeAxis,
 } from "@macrostrat/column-components";
 import { useContext } from "react";
 import styles from "./age-axis.module.sass";
@@ -58,44 +58,38 @@ export function ColumnVerticalAxis(props) {
   ]);
 }
 
-export function AgeAxis(props) {
-  return h(ColumnVerticalAxis, {
-    ...props,
-    label: "Age",
-    unit: "Ma",
-  });
-}
+export function CompositeAgeAxis(props) {
+  const { axisType = ColumnAxisType.AGE, sections, totalHeight } = props;
 
-export function ColumnAgeAxis(props: SectionProps) {
-  // Section with "squishy" time scale
-  const {
-    units,
-    scaleInfo,
-    axisType = ColumnAxisType.AGE,
-    className,
-    verticalSpacing = 20,
-  } = props;
+  let axisLabel: string | null = "Age";
+  let axisUnit = "Ma";
+  if (axisType == ColumnAxisType.DEPTH) {
+    axisLabel = "Depth";
+    axisUnit = "m";
+  } else if (axisType == ColumnAxisType.HEIGHT) {
+    axisLabel = "Height";
+    axisUnit = "m";
+  } else if (axisType == ColumnAxisType.ORDINAL) {
+    axisLabel = null;
+  }
 
-  const { domain, pixelScale } = scaleInfo;
-  const paddingV = verticalSpacing / 2;
+  return h([
+    h.if(axisLabel != null)(VerticalAxisLabel, {
+      label: axisLabel,
+      unit: axisUnit,
+    }),
+    h(
+      SVG,
+      { className: "age-axis-column", width: 21, height: totalHeight },
+      sections.map((group, i) => {
+        const { scaleInfo, section_id } = group;
 
-  return h(
-    MacrostratColumnProvider,
-    {
-      units,
-      domain,
-      pixelScale, // Actually pixels per myr,
-      axisType,
-    },
-    [
-      h("div.section", { className }, [
-        h(
-          ColumnSVG,
-          { paddingV, width: 21, padding: 0 },
-          h(ColumnAxis, { className: "age-axis" })
-          //h(AgeAxisCore, { ticks, tickSpacing, showDomain })
-        ),
-      ]),
-    ]
-  );
+        return h(AgeAxis, {
+          key: `section-${section_id}`,
+          className: "age-axis",
+          scale: scaleInfo.scale,
+        });
+      })
+    ),
+  ]);
 }

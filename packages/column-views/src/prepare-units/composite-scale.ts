@@ -1,6 +1,7 @@
 import type { ExtUnit } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray } from "./utils";
+import { ScaleLinear, scaleLinear } from "d3-scale";
 
 export interface SectionInfo {
   section_id: number | number[];
@@ -41,6 +42,7 @@ export interface SectionScaleInfo {
   pixelScale: number;
   pixelHeight: number;
   // TODO: add a function
+  scale: ScaleLinear<number, number>;
 }
 
 export type SectionInfoExt = SectionInfo & {
@@ -73,6 +75,10 @@ export function finalizeSectionHeights(
   for (const group of sections) {
     const { scaleInfo } = group;
 
+    const scale1 = scaleInfo.scale
+      .copy()
+      .range(scaleInfo.scale.range().map((d) => d + totalHeight));
+
     sections1.push({
       ...group,
       scaleInfo: {
@@ -80,10 +86,11 @@ export function finalizeSectionHeights(
         offset: totalHeight,
         // Unconformity height above this particular section
         unconformityHeight,
+        scale: scale1,
       },
     });
     // Add a fudge factor of 4 pixels to the height of each section.
-    totalHeight += scaleInfo.pixelHeight + unconformityHeight + 4;
+    totalHeight += scaleInfo.pixelHeight + unconformityHeight;
   }
   totalHeight += unconformityHeight / 2;
   return {
@@ -164,6 +171,7 @@ function buildSectionScale(
     domain,
     pixelScale: _pixelScale,
     pixelHeight: height,
+    scale: scaleLinear().domain(domain).range([0, height]),
   };
 }
 

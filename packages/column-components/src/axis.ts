@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef } from "react";
 import h from "./hyper";
 import { select } from "d3-selection";
 import { axisLeft } from "d3-axis";
+import { scaleLinear, ScaleLinear } from "d3-scale";
 import { useColumn } from "./context";
 
 interface ColumnAxisProps {
@@ -19,6 +20,10 @@ interface ColumnAxisProps {
   className?: string;
 }
 
+interface AgeAxisProps extends ColumnAxisProps {
+  scale?: ScaleLinear<number, number>;
+}
+
 const __d3axisKeys = [
   "ticks",
   "tickArguments",
@@ -31,10 +36,23 @@ const __d3axisKeys = [
 ];
 
 export function ColumnAxis(props: ColumnAxisProps) {
-  const { showLabel, className, showDomain = true, tickSpacing = 60 } = props;
-  const { scale, pixelHeight } = useColumn();
+  const { scale } = useColumn();
+  return h(AgeAxis, { scale, ...props });
+}
 
-  let tickValues = undefined;
+export function AgeAxis(props: AgeAxisProps) {
+  const {
+    showLabel,
+    className,
+    showDomain = true,
+    tickSpacing = 60,
+    scale,
+  } = props;
+
+  const range = scale.range();
+  const pixelHeight = Math.abs(range[0] - range[1]);
+
+  let tickValues: number[] = undefined;
 
   if (pixelHeight < 2 * tickSpacing) {
     // Push ticks towards extrema
