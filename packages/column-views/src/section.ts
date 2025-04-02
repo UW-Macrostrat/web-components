@@ -52,45 +52,71 @@ export function SectionsColumn(props: SectionSharedProps) {
     className,
     clipUnits = true,
     maxInternalColumns,
+    totalHeight,
   } = props;
 
-  return h(
-    "div.main-column",
-    sections.map((group, i) => {
-      const { units, scaleInfo, section_id } = group;
-      const lastGroup = sections[i - 1];
-      const unconformityHeight = scaleInfo.paddingTop;
+  return h("div.main-column", {}, [
+    h(
+      "div.sections",
+      sections.map((group, i) => {
+        const { units, scaleInfo, section_id } = group;
+        const lastGroup = sections[i - 1];
+        const unconformityHeight = scaleInfo.paddingTop;
 
-      const key = `section-${section_id}`;
-      return h(
-        Section,
-        {
-          units,
-          scaleInfo,
-          key,
-          unitComponent,
-          unitComponentProps,
-          showLabels,
-          width,
-          columnWidth,
-          showLabelColumn,
-          axisType,
-          className: className ?? "section",
-          clipUnits,
-          maxInternalColumns,
-        }, // This unconformity is with the section _above_
-        h.if(unconformityLabels)(Unconformity, {
+        const key = `section-${section_id}`;
+        return h(
+          Section,
+          {
+            units,
+            scaleInfo,
+            key,
+            unitComponent,
+            unitComponentProps,
+            showLabels,
+            width,
+            columnWidth,
+            showLabelColumn,
+            axisType,
+            className: className ?? "section",
+            clipUnits,
+            maxInternalColumns,
+          } // This unconformity is with the section _above_
+          // h.if(unconformityLabels)(Unconformity, {
+          //   upperUnits: lastGroup?.units,
+          //   lowerUnits: units,
+          //   style: {
+          //     width: showLabels ? columnWidth : width,
+          //     height: unconformityHeight,
+          //     top: `-${unconformityHeight}px`,
+          //   },
+          // })
+        );
+      })
+    ),
+    h.if(unconformityLabels)(
+      "div.unconformity-labels",
+      {
+        style: {
+          width: showLabels ? columnWidth : width,
+          height: totalHeight,
+        },
+      },
+      sections.map((group, i) => {
+        const { units, scaleInfo } = group;
+        const lastGroup = sections[i - 1];
+        const top = scaleInfo.offset - scaleInfo.paddingTop;
+        return h(Unconformity, {
           upperUnits: lastGroup?.units,
           lowerUnits: units,
           style: {
             width: showLabels ? columnWidth : width,
-            height: unconformityHeight,
-            top: `-${unconformityHeight}px`,
+            height: scaleInfo.paddingTop,
+            top,
           },
-        })
-      );
-    })
-  );
+        });
+      })
+    ),
+  ]);
 }
 
 export function Section(props: SectionProps) {
@@ -138,52 +164,48 @@ export function Section(props: SectionProps) {
     paddingTop,
   };
 
-  return h(
-    MacrostratColumnProvider,
-    {
-      units,
-      domain,
-      pixelScale, // Actually pixels per myr,
-      axisType,
-    },
-    [
-      h("div.section", { className, style }, [
-        h("div.section-main", [
-          h(
-            ColumnSVG,
-            {
-              innerWidth: showLabels ? width : columnWidth,
-              paddingRight: 1,
-              paddingLeft: 1,
-              paddingV,
-              innerHeight: pixelHeight,
-              marginV: -paddingV,
-            },
-            [
-              h(CompositeUnitsColumn, {
-                showLabelColumn: showLabelColumn,
-                width: showLabels ? width : columnWidth,
-                columnWidth,
-                gutterWidth: 5,
-                showLabels,
-                unitComponent,
-                unitComponentProps: _unitComponentProps,
-                clipToFrame: clipUnits,
-              }),
-            ]
-          ),
-          children,
-        ]),
-      ]),
-    ]
-  );
+  return h("div.section", { className, style }, [
+    h("div.section-main", [
+      h(
+        ColumnSVG,
+        {
+          innerWidth: showLabels ? width : columnWidth,
+          paddingRight: 1,
+          paddingLeft: 1,
+          paddingV,
+          innerHeight: pixelHeight,
+          marginV: -paddingV,
+        },
+        h(
+          MacrostratColumnProvider,
+          {
+            units,
+            domain,
+            pixelScale, // Actually pixels per myr,
+            axisType,
+          },
+          h(CompositeUnitsColumn, {
+            showLabelColumn: showLabelColumn,
+            width: showLabels ? width : columnWidth,
+            columnWidth,
+            gutterWidth: 5,
+            showLabels,
+            unitComponent,
+            unitComponentProps: _unitComponentProps,
+            clipToFrame: clipUnits,
+          })
+        )
+      ),
+      children,
+    ]),
+  ]);
 }
 
 export function CompositeTimescale(props) {
   const { sections, levels = [2, 5] } = props;
 
   return h(
-    "div.main-column",
+    "div.timescale-column",
     sections.map((group, i) => {
       const { scaleInfo, section_id } = group;
       const key = `section-${section_id}`;

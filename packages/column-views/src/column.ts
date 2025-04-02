@@ -191,6 +191,7 @@ function ColumnInner(props: ColumnInnerProps) {
           clipUnits,
           unconformityHeight,
           unconformityLabels,
+          totalHeight,
         }),
         children,
       ]),
