@@ -103,31 +103,13 @@ export function SectionsColumn(props: SectionSharedProps) {
         width: columnWidth,
       }),
     ]),
-    h.if(showLabelColumn)(
-      "div.section-labels-column",
-      sections.map((group, i) => {
-        const { units, scaleInfo, section_id } = group;
-
-        const key = `section-${section_id}`;
-        return h(
-          SectionLabels,
-          {
-            units,
-            scaleInfo,
-            key,
-            unitComponent,
-            unitComponentProps,
-            showLabels,
-            width,
-            showLabelColumn,
-            axisType,
-            className: className ?? "section",
-            clipUnits,
-            maxInternalColumns,
-          } // This unconformity is with the section _above_
-        );
-      })
-    ),
+    h.if(showLabelColumn)(SectionLabelsColumn, {
+      sections,
+      totalHeight,
+      showLabels,
+      width: width - columnWidth,
+      axisType,
+    }),
   ]);
 }
 
@@ -191,59 +173,52 @@ function SectionUnits(props: SectionProps) {
   );
 }
 
-function SectionLabels(props: SectionProps) {
+function SectionLabelsColumn(props: SectionProps) {
   // Section with "squishy" time scale
   const {
-    units,
-    scaleInfo,
-    showLabels = true,
+    sections,
+    totalHeight,
     width = 300,
-    columnWidth = 150,
     axisType = ColumnAxisType.AGE,
-    className,
-    children,
-    verticalSpacing = 20,
   } = props;
 
-  const { domain, pixelScale, pixelHeight, paddingTop } = scaleInfo;
+  return h("div.section-labels-column", [
+    h(
+      SVG,
+      {
+        height: totalHeight,
+        innerWidth: width - 4,
+        paddingH: 1,
+        paddingLeft: 3,
+      },
+      sections.map((group, i) => {
+        const { units, scaleInfo, section_id } = group;
+        const { domain, pixelScale } = scaleInfo;
 
-  const paddingV = verticalSpacing / 2;
-
-  const style = {
-    "--section-height": `${pixelHeight}px`,
-    paddingTop,
-  };
-
-  return h("div.section", { className, style }, [
-    h("div.section-main", [
-      h(
-        ColumnSVG,
-        {
-          innerWidth: width,
-          paddingRight: 1,
-          paddingLeft: 1,
-          paddingV,
-          innerHeight: pixelHeight,
-          marginV: -paddingV,
-        },
-        h(
-          MacrostratColumnProvider,
+        const key = `section-${section_id}`;
+        return h(
+          "g.section",
           {
-            units,
-            domain,
-            pixelScale, // Actually pixels per myr,
-            axisType,
+            key,
+            transform: `translate(0 ${scaleInfo.offset})`,
           },
-          h(CompositeLabelsColumn, {
-            width,
-            columnWidth,
-            gutterWidth: 5,
-            showLabels,
-          })
-        )
-      ),
-      children,
-    ]),
+          [
+            h(
+              MacrostratColumnProvider,
+              {
+                units,
+                domain,
+                pixelScale, // Actually pixels per myr,
+                axisType,
+              },
+              h(CompositeLabelsColumn, {
+                width,
+              })
+            ),
+          ]
+        );
+      })
+    ),
   ]);
 }
 
