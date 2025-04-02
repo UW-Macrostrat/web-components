@@ -1,4 +1,8 @@
-import { CompositeLabelsColumn, CompositeUnitsColumn } from "./units";
+import {
+  CompositeLabelsColumn,
+  CompositeUnitsColumn,
+  LabelTrackerProvider,
+} from "./units";
 import { ReactNode, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, ColumnSVG, SVG } from "@macrostrat/column-components";
@@ -7,6 +11,7 @@ import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
 import type { ExtUnit } from "./prepare-units/helpers";
 import { SectionScaleInfo } from "./prepare-units/composite-scale";
+import { useMacrostratUnits } from "./store";
 
 const h = hyper.styled(styles);
 
@@ -55,7 +60,11 @@ export function SectionsColumn(props: SectionSharedProps) {
     totalHeight,
   } = props;
 
-  return h([
+  const units = useMacrostratUnits();
+
+  console.log(units);
+
+  return h(LabelTrackerProvider, { units }, [
     h("div.section-units-container", { style: { width: columnWidth + 2 } }, [
       h(
         SVG,

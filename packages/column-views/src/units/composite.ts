@@ -29,12 +29,11 @@ const UnlabeledDivisionsContext = createContext(null);
 
 const findMacrostratUnitID = (u) => u.unit_id;
 
-function LabelTrackerProvider(props) {
-  /** Tracker for units to dictate whether they are labeled inline or not.
+export function LabelTrackerProvider(props) {
+  /** Tracker for units to handle state for whether their labels fit inline or not.
    * Designed to work for single or composite columns.
    */
   const { children, units, findUnitID = findMacrostratUnitID } = props;
-  const { divisions } = useColumn();
   const [unlabeledDivisions, setUnlabeledDivisions] = useState<
     BaseUnit[] | null
   >(null);
@@ -43,17 +42,17 @@ function LabelTrackerProvider(props) {
     (div, visible) => {
       const id = findUnitID(div);
       labelTrackerRef.current[id] = visible;
-      if (Object.keys(labelTrackerRef.current).length == divisions.length) {
+      if (Object.keys(labelTrackerRef.current).length == units.length) {
         setUnlabeledDivisions(
           // @ts-ignore
-          divisions.filter((d) => {
+          units.filter((d) => {
             const id = findUnitID(d);
             return labelTrackerRef.current[id] == false;
           })
         );
       }
     },
-    [labelTrackerRef, divisions, findUnitID]
+    [labelTrackerRef, units, findUnitID]
   );
 
   const value = trackLabelVisibility;
@@ -79,7 +78,8 @@ function TrackedLabeledUnit({
     //halfWidth: div.bottomOverlap,
     label: nameForDivision(division),
     onLabelUpdated(label, visible) {
-      trackLabelVisibility(division, visible);
+      // If there is al LabelTrackerContext, update the label visibility
+      trackLabelVisibility?.(division, visible);
     },
     ...rest,
   });
@@ -113,9 +113,7 @@ function _BaseUnitsColumn(
     ...rest
   } = props;
 
-  const { divisions: units } = useColumn();
-
-  return h(LabelTrackerProvider, { units }, [
+  return h([
     h(LithologyColumn, { width, clipToFrame }, [
       h(UnitBoxes, {
         unitComponent,
