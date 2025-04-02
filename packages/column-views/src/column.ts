@@ -64,6 +64,7 @@ export function Column(props: ColumnProps) {
     pixelScale,
     minPixelScale = 0.2,
     minSectionHeight = 30,
+    collapseSmallUnconformities = true,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
@@ -79,6 +80,7 @@ export function Column(props: ColumnProps) {
     pixelScale,
     minPixelScale,
     minSectionHeight,
+    collapseSmallUnconformities,
   });
 
   return h(
@@ -172,15 +174,18 @@ function ColumnInner(props: ColumnInnerProps) {
         h(
           "div.main-column",
           sections.map((group, i) => {
-            const { units, scaleInfo } = group;
+            const { units, scaleInfo, section_id } = group;
             const lastGroup = sections[i - 1];
+
+            const key = `section-${section_id}`;
+            console.log("Rendering section", key, group, scaleInfo);
 
             return h(
               Section,
               {
                 units,
                 scaleInfo,
-                key: i,
+                key,
                 unitComponent,
                 showLabels,
                 width,

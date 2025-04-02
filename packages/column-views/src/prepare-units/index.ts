@@ -9,6 +9,8 @@ import { useMemo } from "react";
 import type { ExtUnit } from "./helpers";
 import { BaseUnit } from "@macrostrat/api-types";
 import {
+  _collapseSmallUnconformities,
+  collapseUnconformitiesByPixelHeight,
   ColumnScaleOptions,
   CompositeScaleInformation,
   computeSectionHeights,
@@ -24,7 +26,7 @@ interface PrepareColumnOptions extends ColumnScaleOptions {
   t_age?: number;
   b_age?: number;
   mergeSections?: MergeSectionsMode;
-  collapseSmallUnconformities?: boolean;
+  collapseSmallUnconformities?: boolean | number;
 }
 
 export enum MergeSectionsMode {
@@ -40,7 +42,7 @@ export interface PreparedColumnData extends CompositeScaleInformation {
 export function usePreparedColumnUnits(
   data: BaseUnit[],
   options: PrepareColumnOptions
-): ColumnPreparedData {
+): PreparedColumnData {
   /** This function wraps and memoizes all preparation steps for converting
    * an array of units from the /units route to a form ready for usage.
    */
@@ -61,6 +63,7 @@ function prepareColumnUnits(
     mergeSections = MergeSectionsMode.OVERLAPPING,
     axisType,
     unconformityHeight,
+    collapseSmallUnconformities = false,
   } = options;
 
   /** Prototype filtering to age range */
@@ -69,15 +72,12 @@ function prepareColumnUnits(
     return d.t_age >= (t_age ?? -Infinity) && d.b_age <= (b_age ?? Infinity);
   });
 
-  /** Add some elements that help with sorting, cross-axis positioning, etc. */
-  const data1 = preprocessUnits(units1, axisType);
-
   let sections0: SectionInfo[];
   if (
     mergeSections == MergeSectionsMode.ALL &&
     axisType != ColumnAxisType.ORDINAL
   ) {
-    const [b_unit_age, t_unit_age] = getSectionAgeRange(data1);
+    const [b_unit_age, t_unit_age] = getSectionAgeRange(units1);
     sections0 = [
       {
         section_id: 0,
@@ -88,20 +88,18 @@ function prepareColumnUnits(
          * */
         t_age: t_age ?? t_unit_age,
         b_age: b_age ?? b_unit_age,
-        units: data1,
+        units: units1,
       },
     ];
   } else {
-    sections0 = groupUnitsIntoSections(data1, axisType);
+    sections0 = groupUnitsIntoSections(units1, axisType);
   }
-
-  // Compute pixel scales etc. for sections
-  let sections = computeSectionHeights(sections0, options);
 
   /** Merging overlapping sections really only makes sense for age/height/depth
    * columns. Ordinal columns are numbered by section so merging them
    * results in collisions.
    */
+  let sections = sections0;
   if (
     mergeSections == MergeSectionsMode.OVERLAPPING &&
     axisType != ColumnAxisType.ORDINAL
@@ -109,16 +107,37 @@ function prepareColumnUnits(
     sections = mergeOverlappingSections(sections);
   }
 
+  /* Compute pixel scales etc. for sections
+   * We need to do this now to determine which unconformities
+   * are small enough to collapse.
+   */
+  sections = computeSectionHeights(sections, options);
+
+  if (collapseSmallUnconformities ?? false) {
+    let threshold = unconformityHeight ?? 30;
+    if (typeof collapseSmallUnconformities == "number") {
+      threshold = collapseSmallUnconformities;
+    }
+
+    sections = collapseUnconformitiesByPixelHeight(
+      sections,
+      threshold,
+      options
+    );
+  }
+
   /** For each section, find units that are overlapping.
    * We do this after merging sections so that we can
    * handle cases where there are overlapping units across sections
    * */
-  sections = sections.map((section): SectionInfo => {
+  sections = sections.map((section) => {
     return {
       ...section,
       units: preprocessUnits(section.units, axisType),
     };
   });
+
+  console.log("sections", sections);
 
   /** Reconstitute the units so that they are sorted by section.
    * This is mostly important so that unit keyboard navigation

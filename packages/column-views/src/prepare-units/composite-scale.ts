@@ -1,5 +1,6 @@
 import type { ExtUnit } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import { ensureArray } from "./utils";
 
 export interface SectionInfo {
   section_id: number | number[];
@@ -120,6 +121,8 @@ function addScaleToSection(
     domain: _range,
   });
 
+  console.log(group.section_id, scaleInfo);
+
   return {
     ...group,
     scaleInfo,
@@ -220,4 +223,51 @@ export function createCompositeScale(
       }
     }
   };
+}
+
+/** Collapse sections separated by unconformities that are smaller than a given pixel height. */
+export function collapseUnconformitiesByPixelHeight(
+  sections: SectionInfoWithScale[],
+  threshold: number,
+  opts: ColumnScaleOptions
+): SectionInfoWithScale[] {
+  const newSections = [];
+  let currentSection: SectionInfoWithScale | null = null;
+  for (const nextSection of sections) {
+    if (currentSection == null) {
+      currentSection = nextSection;
+      continue;
+    }
+    const dAge = Math.abs(nextSection.t_age - currentSection.b_age);
+    const pxHeight =
+      dAge *
+      Math.max(
+        currentSection.scaleInfo.pixelScale,
+        nextSection.scaleInfo.pixelScale
+      );
+    if (pxHeight < threshold) {
+      // We need to merge the sections
+      const compositeSection0: SectionInfo = {
+        units: [...currentSection.units, ...nextSection.units],
+        section_id: [
+          ...ensureArray(currentSection.section_id),
+          ...ensureArray(nextSection.section_id),
+        ],
+        t_age: Math.min(currentSection.t_age, nextSection.t_age),
+        b_age: Math.max(currentSection.b_age, nextSection.b_age),
+      };
+
+      const compositeSection = addScaleToSection(compositeSection0, opts);
+      currentSection = compositeSection;
+    } else {
+      // We need to keep the section
+      newSections.push(currentSection);
+      currentSection = nextSection;
+    }
+  }
+  if (currentSection != null) {
+    newSections.push(currentSection);
+  }
+
+  return newSections;
 }

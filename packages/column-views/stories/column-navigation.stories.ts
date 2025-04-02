@@ -39,6 +39,8 @@ export default {
   args: {
     columnID: 432,
     axisType: "age",
+    collapseSmallUnconformities: false,
+    targetUnitHeight: 20,
   },
   argTypes: {
     ...baseArgTypes,
@@ -51,6 +53,21 @@ export default {
       control: { type: "radio" },
     },
     pixelScale: {
+      control: {
+        type: "number",
+      },
+    },
+    collapseSmallUnconformities: {
+      control: {
+        type: "boolean",
+      },
+    },
+    minSectionHeight: {
+      control: {
+        type: "number",
+      },
+    },
+    targetUnitHeight: {
       control: {
         type: "number",
       },

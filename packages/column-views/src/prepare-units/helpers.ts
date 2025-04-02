@@ -124,6 +124,7 @@ export function mergeOverlappingSections<T extends SectionInfo>(
       newSections.push(section);
       continue;
     }
+
     // Overlap, merge the sections
     lastSection.section_id = [
       ...ensureArray(lastSection.section_id),
@@ -134,6 +135,15 @@ export function mergeOverlappingSections<T extends SectionInfo>(
     lastSection.t_age = Math.min(lastSection.t_age, section.t_age);
   }
   return newSections;
+}
+
+function mergeSections(a: SectionInfo, b: SectionInfo): SectionInfo {
+  return {
+    units: [...a.units, ...b.units],
+    section_id: [...ensureArray(a.section_id), ...ensureArray(b.section_id)],
+    t_age: Math.min(a.t_age, b.t_age),
+    b_age: Math.max(a.b_age, b.b_age),
+  };
 }
 
 export interface SectionUnit extends UnitLong {
