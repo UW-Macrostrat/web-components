@@ -19,6 +19,7 @@ import {} from "./units";
 import { UnitSelectionPopover } from "./selection-popover";
 import { MacrostratUnitsProvider } from "./store";
 import { SectionSharedProps, Section } from "./section";
+import { ColumnAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { VerticalAxisLabel } from "./age-axis";
 import { BaseUnit } from "@macrostrat/api-types";
@@ -171,6 +172,24 @@ function ColumnInner(props: ColumnInnerProps) {
           label: axisLabel,
           unit: axisUnit,
         }),
+        h.if(axisType != ColumnAxisType.ORDINAL)(
+          "div.age-axis-column",
+          sections.map((group, i) => {
+            const { units, scaleInfo, section_id } = group;
+
+            const key = `section-${section_id}`;
+
+            return h(ColumnAgeAxis, {
+              units,
+              scaleInfo,
+              key,
+              axisType,
+              clipUnits,
+              verticalSpacing: unconformityHeight,
+              ...rest,
+            });
+          })
+        ),
         h(
           "div.main-column",
           sections.map((group, i) => {

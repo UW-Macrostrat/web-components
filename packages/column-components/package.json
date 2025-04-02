@@ -52,6 +52,7 @@
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/timescale": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
+    "@visx/axis": "^3.12.0",
     "chroma-js": "^2.1.0",
     "classnames": "^2.2.6",
     "d3-axis": "^3.0.0",

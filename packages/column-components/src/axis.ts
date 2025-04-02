@@ -1,9 +1,8 @@
-import { Component } from "react";
-import { findDOMNode } from "react-dom";
+import { useContext, useEffect, useRef } from "react";
 import h from "./hyper";
 import { select } from "d3-selection";
 import { axisLeft } from "d3-axis";
-import { ColumnContext, ColumnCtx, ColumnDivision } from "./context";
+import { useColumn } from "./context";
 
 interface ColumnAxisProps {
   ticks?: number;
@@ -14,64 +13,76 @@ interface ColumnAxisProps {
   tickSizeInner?: any;
   tickSizeOuter?: any;
   tickPadding?: any;
+  tickSpacing?: number;
   showLabel?: (d: any) => boolean;
   showDomain?: boolean;
+  className?: string;
 }
 
-export class ColumnAxis extends Component<ColumnAxisProps> {
-  // https://github.com/d3/d3-axis
-  static contextType = ColumnContext;
-  context: ColumnCtx<ColumnDivision>;
-  static __d3axisKeys = [
-    "ticks",
-    "tickArguments",
-    "tickValues",
-    "tickFormat",
-    "tickSize",
-    "tickSizeInner",
-    "tickSizeOuter",
-    "tickPadding",
-  ];
-  yAxis: any;
+const __d3axisKeys = [
+  "ticks",
+  "tickArguments",
+  "tickValues",
+  "tickFormat",
+  "tickSize",
+  "tickSizeInner",
+  "tickSizeOuter",
+  "tickPadding",
+];
 
-  static defaultProps = {
-    ticks: 4,
-    showLabel() {
-      return true;
-    },
-    showDomain: true,
-  };
-  render() {
-    return h("g.y.axis.column-axis");
+export function ColumnAxis(props: ColumnAxisProps) {
+  const { showLabel, className, showDomain = true, tickSpacing = 60 } = props;
+  const { scale, pixelHeight } = useColumn();
+
+  let tickValues = undefined;
+
+  if (pixelHeight < 2 * tickSpacing) {
+    // Push ticks towards extrema
+    const t0 = scale.ticks(4);
+
+    tickValues = [t0[0], t0[t0.length - 1]];
   }
-  componentDidUpdate() {
-    const { scale } = this.context;
-    const { showLabel } = this.props;
-    this.yAxis.scale(scale);
 
-    for (let k of ColumnAxis.__d3axisKeys) {
-      if (this.props[k] == null) continue;
-      this.yAxis[k](this.props[k]);
+  const defaultProps = {
+    ticks: Math.max(Math.round(pixelHeight / tickSpacing), 2),
+    // Suppress domain endpoints
+    tickSizeOuter: 0,
+    tickValues,
+  };
+
+  const ref = useRef(null);
+  const axisRef = useRef(axisLeft());
+
+  const deps = __d3axisKeys.map((k) => props[k]);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    axisRef.current.scale(scale);
+    for (let k of __d3axisKeys) {
+      const val = props[k] ?? defaultProps[k];
+      console.log("axis", k, val);
+      if (val == null) continue;
+      axisRef.current[k](val);
     }
 
-    const ax = select(findDOMNode(this) as HTMLElement).call(this.yAxis);
+    const ax = select(el).call(axisRef.current);
 
-    if (!this.props.showDomain) {
+    if (!showDomain) {
       ax.select(".domain").remove();
     }
 
-    // Hide labels if they match the showLabel predicate
-    return ax.selectAll(".tick text").each(function (d) {
-      const v = showLabel(d);
-      if (v) {
-        return;
+    ax.selectAll(".tick text").each(function (d) {
+      if (!(showLabel?.(d) ?? true)) {
+        select(this).attr("visibility", "hidden");
       }
-      return select(this).attr("visibility", "hidden");
     });
-  }
 
-  componentDidMount() {
-    this.yAxis = axisLeft();
-    this.componentDidUpdate();
-  }
+    return () => {
+      select(el).selectAll("*").remove();
+    };
+  }, [scale, ref.current, showDomain, showLabel, ...deps]);
+
+  return h("g.y.axis.column-axis", { className, ref });
 }

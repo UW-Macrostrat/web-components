@@ -122,12 +122,6 @@ export function Section(props: SectionProps) {
     },
     [
       h("div.section", { className, style }, [
-        h.if(axisType != ColumnAxisType.ORDINAL)(ColumnVerticalAxis, {
-          width: 20,
-          padding: 0,
-          paddingV,
-          showLabel: false,
-        }),
         timescale,
         h("div.section-main", [
           h(
