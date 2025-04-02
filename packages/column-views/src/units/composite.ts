@@ -2,6 +2,9 @@ import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
   ColumnLayoutContext,
+  ColumnAxisType,
+  SVG,
+  ColumnContext,
 } from "@macrostrat/column-components";
 import { defaultNameFunction, UnitNamesColumn } from "./names";
 import {
@@ -14,6 +17,8 @@ import {
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
 import styles from "./composite.module.sass";
+import { MacrostratColumnProvider } from "@macrostrat/column-views";
+import { SectionProps } from "../section";
 
 const h = hyperStyled(styles);
 
@@ -82,13 +87,6 @@ function TrackedLabeledUnit({
   });
 }
 
-function UnlabeledUnitNames(props) {
-  // Returns only unlabeled divisions
-  const divisions = useContext(UnlabeledDivisionsContext);
-  if (divisions == null) return null;
-  return h(UnitNamesColumn, { divisions, ...props });
-}
-
 type BaseUnitProps = {
   width: number;
   showLabels?: boolean;
@@ -140,29 +138,91 @@ export function CompositeUnitsColumn(props: CompositeUnitProps) {
   ]);
 }
 
-export function CompositeLabelsColumn(props: ICompositeUnitProps) {
-  /*
-  A column with units and names either
-  overlapping or offset to the right
-  */
+export function SectionLabelsColumn(props: ICompositeUnitProps) {
+  // Section with "squishy" time scale
   const {
-    width = 100,
-    labelOffset = 30,
-    // Which units to show labels for
+    sections,
+    totalHeight,
+    width = 300,
+    axisType = ColumnAxisType.AGE,
     noteMode = "unlabeled",
+    labelOffset = 30,
     noteComponent,
     shouldRenderNote,
   } = props;
 
-  const labelColumnComponent =
-    noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
+  const unlabeledUnits = useContext(UnlabeledDivisionsContext);
+  const unitsToLabel = noteMode == "unlabeled" ? unlabeledUnits : undefined;
 
-  return h(labelColumnComponent, {
-    paddingLeft: labelOffset,
-    width,
-    noteComponent,
-    shouldRenderNote,
-  });
+  return h("div.section-labels-column", [
+    h(
+      SVG,
+      {
+        height: totalHeight,
+        innerWidth: width - 4,
+        paddingH: 1,
+        paddingLeft: 3,
+      },
+      sections.map((group, i) => {
+        const { scaleInfo, section_id } = group;
+        const { domain, pixelScale, scale, totalHeight } = scaleInfo;
+
+        const key = `section-${section_id}`;
+        return h(
+          "g.section",
+          {
+            key,
+            //transform: `translate(0 ${scaleInfo.offset})`,
+          },
+          [
+            h(
+              ColumnNotesProvider,
+              // {
+              //   units: [],
+              //   domain,
+              //   pixelScale, // Actually pixels per myr,
+              //   axisType,
+              // },
+              {
+                units: [],
+                scale,
+                totalHeight,
+                pixelScale, // Actually pixels per myr,
+                axisType,
+              },
+              h(UnitNamesColumn, {
+                divisions: unitsToLabel,
+                paddingLeft: labelOffset,
+                width,
+                noteComponent,
+                shouldRenderNote,
+                scale,
+              })
+            ),
+          ]
+        );
+      })
+    ),
+  ]);
+}
+
+function ColumnNotesProvider(props) {
+  const { children, scale, totalHeight, pixelScale, axisType } = props;
+
+  return h(
+    ColumnContext.Provider,
+    {
+      value: {
+        divisions: [],
+        scale,
+        scaleClamped: scale.copy().clamp(true),
+        pixelHeight: totalHeight,
+        pixelsPerMeter: pixelScale,
+        axisType,
+      },
+    },
+    children
+  );
 }
 
 export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {

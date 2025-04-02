@@ -1,11 +1,16 @@
 import {
-  CompositeLabelsColumn,
   CompositeUnitsColumn,
   LabelTrackerProvider,
+  SectionLabelsColumn,
 } from "./units";
 import { ReactNode, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
-import { ColumnAxisType, ColumnSVG, SVG } from "@macrostrat/column-components";
+import {
+  ColumnAxisType,
+  ColumnContext,
+  ColumnSVG,
+  SVG,
+} from "@macrostrat/column-components";
 import { MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
@@ -173,53 +178,22 @@ function SectionUnits(props: SectionProps) {
   );
 }
 
-function SectionLabelsColumn(props: SectionProps) {
-  // Section with "squishy" time scale
-  const {
-    sections,
-    totalHeight,
-    width = 300,
-    axisType = ColumnAxisType.AGE,
-  } = props;
+function ColumnNotesProvider(props) {
+  const { children, scale, totalHeight, pixelScale } = props;
 
-  return h("div.section-labels-column", [
-    h(
-      SVG,
-      {
-        height: totalHeight,
-        innerWidth: width - 4,
-        paddingH: 1,
-        paddingLeft: 3,
+  return h(
+    ColumnContext.Provider,
+    {
+      value: {
+        divisions: [],
+        scale,
+        scaleClamped: scale.copy().clamp(true),
+        pixelHeight: totalHeight,
+        pixelsPerMeter: pixelScale,
       },
-      sections.map((group, i) => {
-        const { units, scaleInfo, section_id } = group;
-        const { domain, pixelScale } = scaleInfo;
-
-        const key = `section-${section_id}`;
-        return h(
-          "g.section",
-          {
-            key,
-            transform: `translate(0 ${scaleInfo.offset})`,
-          },
-          [
-            h(
-              MacrostratColumnProvider,
-              {
-                units,
-                domain,
-                pixelScale, // Actually pixels per myr,
-                axisType,
-              },
-              h(CompositeLabelsColumn, {
-                width,
-              })
-            ),
-          ]
-        );
-      })
-    ),
-  ]);
+    },
+    children
+  );
 }
 
 export function CompositeTimescale(props) {

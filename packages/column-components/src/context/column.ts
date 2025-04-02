@@ -38,7 +38,7 @@ export interface ColumnCtx<T extends ColumnDivision> {
   zoom: number;
 }
 
-const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
+export const ColumnContext = createContext<ColumnCtx<ColumnDivision>>({
   scale: scaleLinear(),
   divisions: [],
   scaleClamped: scaleLinear().clamp(true),
@@ -137,10 +137,4 @@ function ColumnProvider<T extends ColumnDivision>(
 const useColumn = () => useContext(ColumnContext);
 const useColumnDivisions = () => useContext(ColumnContext).divisions;
 
-export {
-  ColumnContext,
-  ColumnProvider,
-  ColumnAxisType,
-  useColumnDivisions,
-  useColumn,
-};
+export { ColumnProvider, ColumnAxisType, useColumnDivisions, useColumn };
