@@ -87,8 +87,7 @@ export function SectionsColumn(props: SectionSharedProps) {
               unitComponent,
               unitComponentProps,
               showLabels,
-              width,
-              columnWidth,
+              width: columnWidth,
               showLabelColumn,
               axisType,
               className: className ?? "section",
@@ -104,9 +103,8 @@ export function SectionsColumn(props: SectionSharedProps) {
         width: columnWidth,
       }),
     ]),
-    h(
-      "div.main-column",
-      { className: "sections", height: totalHeight },
+    h.if(showLabelColumn)(
+      "div.section-labels-column",
       sections.map((group, i) => {
         const { units, scaleInfo, section_id } = group;
 
@@ -121,7 +119,6 @@ export function SectionsColumn(props: SectionSharedProps) {
             unitComponentProps,
             showLabels,
             width,
-            columnWidth,
             showLabelColumn,
             axisType,
             className: className ?? "section",
@@ -142,15 +139,11 @@ function SectionUnits(props: SectionProps) {
     unitComponent,
     showLabels = true,
     width = 300,
-    columnWidth = 150,
     unitComponentProps,
-    showLabelColumn = true,
     axisType = ColumnAxisType.AGE,
     className,
-    children,
     clipUnits = true,
     maxInternalColumns,
-    verticalSpacing = 20,
   } = props;
 
   const { domain, pixelScale, pixelHeight, paddingTop } = scaleInfo;
@@ -163,17 +156,17 @@ function SectionUnits(props: SectionProps) {
     return {
       ...unitComponentProps,
       nColumns: Math.min(
-        maxInternalColumns ?? Math.floor(columnWidth / 10),
+        maxInternalColumns ?? Math.floor(width / 10),
         unitComponentProps?.nColumns ?? Infinity,
         Math.max(...units.map((d) => d.column)) + 1
       ),
       //axisType,
     };
-  }, [units, unitComponentProps, maxInternalColumns, columnWidth, axisType]);
+  }, [units, unitComponentProps, maxInternalColumns, width, axisType]);
 
   const style = {
     "--section-height": `${pixelHeight}px`,
-    "--section-width": `${columnWidth}px`,
+    "--section-width": `${width}px`,
   };
 
   return h(
@@ -188,10 +181,7 @@ function SectionUnits(props: SectionProps) {
         axisType,
       },
       h(CompositeUnitsColumn, {
-        showLabelColumn: showLabelColumn,
-        width: showLabels ? width : columnWidth,
-        columnWidth,
-        gutterWidth: 5,
+        width,
         showLabels,
         unitComponent,
         unitComponentProps: _unitComponentProps,
@@ -206,43 +196,21 @@ function SectionLabels(props: SectionProps) {
   const {
     units,
     scaleInfo,
-    unitComponent,
     showLabels = true,
     width = 300,
     columnWidth = 150,
-    unitComponentProps,
-    showLabelColumn = true,
     axisType = ColumnAxisType.AGE,
     className,
     children,
-    clipUnits = true,
-    maxInternalColumns,
     verticalSpacing = 20,
   } = props;
 
   const { domain, pixelScale, pixelHeight, paddingTop } = scaleInfo;
 
-  /** Ensure that we can arrange units into the maximum number
-   * of columns defined by unitComponentProps, but that we don't
-   * use more than necessary.
-   */
-  const _unitComponentProps = useMemo(() => {
-    return {
-      ...unitComponentProps,
-      nColumns: Math.min(
-        maxInternalColumns ?? Math.floor(columnWidth / 10),
-        unitComponentProps?.nColumns ?? Infinity,
-        Math.max(...units.map((d) => d.column)) + 1
-      ),
-      //axisType,
-    };
-  }, [units, unitComponentProps, maxInternalColumns, columnWidth, axisType]);
-
   const paddingV = verticalSpacing / 2;
 
   const style = {
     "--section-height": `${pixelHeight}px`,
-    "--section-width": `${columnWidth}px`,
     paddingTop,
   };
 
@@ -251,7 +219,7 @@ function SectionLabels(props: SectionProps) {
       h(
         ColumnSVG,
         {
-          innerWidth: showLabels ? width : columnWidth,
+          innerWidth: width,
           paddingRight: 1,
           paddingLeft: 1,
           paddingV,
@@ -266,15 +234,11 @@ function SectionLabels(props: SectionProps) {
             pixelScale, // Actually pixels per myr,
             axisType,
           },
-          h.if(showLabelColumn)(CompositeLabelsColumn, {
-            showLabelColumn: showLabelColumn,
-            width: showLabels ? width : columnWidth,
+          h(CompositeLabelsColumn, {
+            width,
             columnWidth,
             gutterWidth: 5,
             showLabels,
-            unitComponent,
-            unitComponentProps: _unitComponentProps,
-            clipToFrame: clipUnits,
           })
         )
       ),

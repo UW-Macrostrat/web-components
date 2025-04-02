@@ -1,9 +1,7 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
-  useColumn,
   ColumnLayoutContext,
-  ColumnAxisType,
 } from "@macrostrat/column-components";
 import { defaultNameFunction, UnitNamesColumn } from "./names";
 import {
@@ -12,7 +10,6 @@ import {
   useState,
   useRef,
   useCallback,
-  memo,
 } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
@@ -92,39 +89,6 @@ function UnlabeledUnitNames(props) {
   return h(UnitNamesColumn, { divisions, ...props });
 }
 
-function _BaseUnitsColumn(
-  props: React.PropsWithChildren<{
-    width: number;
-    unitComponent?: React.FC<any>;
-    unitComponentProps?: any;
-    clipToFrame?: boolean;
-  }>
-) {
-  /*
-  A column with units and names either
-  overlapping or offset to the right
-  */
-  const {
-    width,
-    children,
-    unitComponent = TrackedLabeledUnit,
-    unitComponentProps,
-    clipToFrame,
-    ...rest
-  } = props;
-
-  return h([
-    h(LithologyColumn, { width, clipToFrame }, [
-      h(UnitBoxes, {
-        unitComponent,
-        unitComponentProps,
-        ...rest,
-      }),
-    ]),
-    children,
-  ]);
-}
-
 type BaseUnitProps = {
   width: number;
   showLabels?: boolean;
@@ -146,85 +110,32 @@ type ICompositeUnitProps = BaseUnitProps & {
   shouldRenderNote?: (d: BaseUnit) => boolean;
 };
 
-type AnnotatedUnitProps = ICompositeUnitProps & {
-  minimumLabelHeight?: number;
-  axisType: ColumnAxisType;
-};
-
-function AnnotatedUnitsColumn(props: AnnotatedUnitProps) {
-  /*
-  A column with units and names either
-  overlapping or offset to the right
-  */
-  const {
-    columnWidth,
-    width = 100,
-    gutterWidth = 10,
-    labelOffset = 30,
-    showLabels = true,
-    nameForDivision,
-    minimumLabelHeight = 0,
-    axisType,
-    ...rest
-  } = props;
-
-  return h(
-    _BaseUnitsColumn,
-    {
-      width: showLabels ? columnWidth : width,
-      unitComponentProps: { nameForDivision },
-    },
-    [
-      h.if(showLabels)(UnlabeledUnitNames, {
-        transform: `translate(${columnWidth + gutterWidth})`,
-        paddingLeft: labelOffset,
-        width: width - columnWidth - gutterWidth,
-        minimumHeight: minimumLabelHeight,
-        nameForDivision,
-        ...rest,
-      }),
-      // h(UnitDataColumn, {
-      //   transform: `translate(${columnWidth + gutterWidth})`,
-      //   paddingLeft: labelOffset,
-      //   width: width - columnWidth - gutterWidth,
-      //   ...rest
-      // })
-    ]
-  );
+interface CompositeUnitProps {
+  unitComponent: React.FC<any>;
+  unitComponentProps?: any;
+  width: number;
+  showLabels: boolean;
+  cliptoFrame: boolean;
 }
 
-function CompositeUnitsColumn(props: ICompositeUnitProps) {
+export function CompositeUnitsColumn(props: CompositeUnitProps) {
   /*
   A column with units and names either
   overlapping or offset to the right
   */
   const {
-    width = 100,
-    gutterWidth = 10,
-    labelOffset = 30,
-    noteMode = "unlabeled",
-    showLabels = true,
-    showLabelColumn = true,
-    noteComponent,
-    shouldRenderNote,
+    width,
+    unitComponent = TrackedLabeledUnit,
+    unitComponentProps,
+    clipToFrame,
     ...rest
   } = props;
 
-  let { columnWidth = width } = props;
-
-  const labelColumnComponent =
-    noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
-
-  return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
-    h.if(showLabelColumn)(ColumnLabel, {
-      showLabels,
-      component: labelColumnComponent,
-      columnWidth,
-      gutterWidth,
-      labelOffset,
-      width,
-      noteComponent,
-      showNote: shouldRenderNote,
+  return h(LithologyColumn, { width, clipToFrame }, [
+    h(UnitBoxes, {
+      unitComponent,
+      unitComponentProps,
+      ...rest,
     }),
   ]);
 }
@@ -236,57 +147,23 @@ export function CompositeLabelsColumn(props: ICompositeUnitProps) {
   */
   const {
     width = 100,
-    gutterWidth = 10,
     labelOffset = 30,
+    // Which units to show labels for
     noteMode = "unlabeled",
-    showLabels = true,
-    showLabelColumn = true,
     noteComponent,
     shouldRenderNote,
-    ...rest
   } = props;
-
-  let { columnWidth = width } = props;
 
   const labelColumnComponent =
     noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
 
-  return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
-    h.if(showLabelColumn)(ColumnLabel, {
-      showLabels,
-      component: labelColumnComponent,
-      columnWidth,
-      gutterWidth,
-      labelOffset,
-      width,
-      noteComponent,
-      showNote: shouldRenderNote,
-    }),
-  ]);
-}
-
-function _ColumnLabel(props) {
-  const {
-    showLabels,
-    component,
-    columnWidth,
-    gutterWidth,
-    labelOffset,
+  return h(labelColumnComponent, {
+    paddingLeft: labelOffset,
     width,
     noteComponent,
-    showNote,
-  } = props;
-  if (!showLabels) return null;
-  return h(component, {
-    transform: `translate(${columnWidth + gutterWidth})`,
-    paddingLeft: labelOffset,
-    width: width - columnWidth - gutterWidth,
-    noteComponent,
-    shouldRenderNote: showNote,
+    shouldRenderNote,
   });
 }
-
-const ColumnLabel = memo(_ColumnLabel);
 
 export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
   // This comes from CompositeUnits
@@ -302,9 +179,4 @@ export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
   });
 }
 
-export {
-  CompositeUnitsColumn,
-  AnnotatedUnitsColumn,
-  TrackedLabeledUnit,
-  ICompositeUnitProps,
-};
+export { TrackedLabeledUnit, ICompositeUnitProps };
