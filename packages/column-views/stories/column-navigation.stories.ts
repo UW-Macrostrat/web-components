@@ -72,6 +72,11 @@ export default {
         type: "number",
       },
     },
+    showLabelColumn: {
+      control: {
+        type: "boolean",
+      },
+    },
   },
 } as Meta<ColumnStoryUI>;
 

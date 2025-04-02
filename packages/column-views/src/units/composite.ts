@@ -27,8 +27,13 @@ interface LabelTracker {
 const LabelTrackerContext = createContext(null);
 const UnlabeledDivisionsContext = createContext(null);
 
+const findMacrostratUnitID = (u) => u.unit_id;
+
 function LabelTrackerProvider(props) {
-  const { children } = props;
+  /** Tracker for units to dictate whether they are labeled inline or not.
+   * Designed to work for single or composite columns.
+   */
+  const { children, units, findUnitID = findMacrostratUnitID } = props;
   const { divisions } = useColumn();
   const [unlabeledDivisions, setUnlabeledDivisions] = useState<
     BaseUnit[] | null
@@ -36,15 +41,19 @@ function LabelTrackerProvider(props) {
   const labelTrackerRef = useRef<LabelTracker>({});
   const trackLabelVisibility = useCallback(
     (div, visible) => {
-      labelTrackerRef.current[div.unit_id] = visible;
+      const id = findUnitID(div);
+      labelTrackerRef.current[id] = visible;
       if (Object.keys(labelTrackerRef.current).length == divisions.length) {
         setUnlabeledDivisions(
           // @ts-ignore
-          divisions.filter((d) => labelTrackerRef.current[d.unit_id] == false)
+          divisions.filter((d) => {
+            const id = findUnitID(d);
+            return labelTrackerRef.current[id] == false;
+          })
         );
       }
     },
-    [labelTrackerRef, divisions]
+    [labelTrackerRef, divisions, findUnitID]
   );
 
   const value = trackLabelVisibility;
@@ -104,7 +113,9 @@ function _BaseUnitsColumn(
     ...rest
   } = props;
 
-  return h(LabelTrackerProvider, [
+  const { divisions: units } = useColumn();
+
+  return h(LabelTrackerProvider, { units }, [
     h(LithologyColumn, { width, clipToFrame }, [
       h(UnitBoxes, {
         unitComponent,
@@ -185,6 +196,42 @@ function AnnotatedUnitsColumn(props: AnnotatedUnitProps) {
 }
 
 function CompositeUnitsColumn(props: ICompositeUnitProps) {
+  /*
+  A column with units and names either
+  overlapping or offset to the right
+  */
+  const {
+    width = 100,
+    gutterWidth = 10,
+    labelOffset = 30,
+    noteMode = "unlabeled",
+    showLabels = true,
+    showLabelColumn = true,
+    noteComponent,
+    shouldRenderNote,
+    ...rest
+  } = props;
+
+  let { columnWidth = width } = props;
+
+  const labelColumnComponent =
+    noteMode == "unlabeled" ? UnlabeledUnitNames : UnitNamesColumn;
+
+  return h(_BaseUnitsColumn, { width: columnWidth, ...rest }, [
+    h.if(showLabelColumn)(ColumnLabel, {
+      showLabels,
+      component: labelColumnComponent,
+      columnWidth,
+      gutterWidth,
+      labelOffset,
+      width,
+      noteComponent,
+      showNote: shouldRenderNote,
+    }),
+  ]);
+}
+
+export function CompositeLabelsColumn(props: ICompositeUnitProps) {
   /*
   A column with units and names either
   overlapping or offset to the right

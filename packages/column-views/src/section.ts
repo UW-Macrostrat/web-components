@@ -1,4 +1,4 @@
-import { CompositeUnitsColumn } from "./units";
+import { CompositeLabelsColumn, CompositeUnitsColumn } from "./units";
 import { ReactNode, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, ColumnSVG, SVG } from "@macrostrat/column-components";
@@ -103,7 +103,7 @@ export function SectionsColumn(props: SectionSharedProps) {
 
         const key = `section-${section_id}`;
         return h(
-          Section,
+          SectionLabels,
           {
             units,
             scaleInfo,
@@ -162,8 +162,6 @@ function SectionUnits(props: SectionProps) {
     };
   }, [units, unitComponentProps, maxInternalColumns, columnWidth, axisType]);
 
-  const paddingV = verticalSpacing / 2;
-
   const style = {
     "--section-height": `${pixelHeight}px`,
     "--section-width": `${columnWidth}px`,
@@ -194,7 +192,7 @@ function SectionUnits(props: SectionProps) {
   );
 }
 
-function Section(props: SectionProps) {
+function SectionLabels(props: SectionProps) {
   // Section with "squishy" time scale
   const {
     units,
@@ -259,7 +257,7 @@ function Section(props: SectionProps) {
             pixelScale, // Actually pixels per myr,
             axisType,
           },
-          h(CompositeUnitsColumn, {
+          h.if(showLabelColumn)(CompositeLabelsColumn, {
             showLabelColumn: showLabelColumn,
             width: showLabels ? width : columnWidth,
             columnWidth,
