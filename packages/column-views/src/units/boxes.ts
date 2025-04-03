@@ -22,6 +22,7 @@ import classNames from "classnames";
 import { getUnitHeightRange } from "../prepare-units/utils";
 import { useLithologies } from "../data-provider";
 import { getMixedUnitColor } from "./colors";
+import { path } from "d3-path";
 
 const h = hyper.styled(styles);
 
@@ -35,6 +36,8 @@ export interface RectBounds {
 interface UnitRectOptions {
   widthFraction?: number;
   axisType?: ColumnAxisType;
+  // Padding to create overflow for zig-zags or other ornamented edges
+  padding?: number;
 }
 
 interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
@@ -66,7 +69,11 @@ function useUnitRect(
   division: IUnit,
   options: UnitRectOptions = {}
 ): RectBounds {
-  const { widthFraction = 1, axisType = ColumnAxisType.AGE } = options;
+  const {
+    widthFraction = 1,
+    axisType = ColumnAxisType.AGE,
+    padding = 0,
+  } = options;
   const { scale } = useContext(ColumnContext);
   const { width } = useContext(ColumnLayoutContext);
 
@@ -76,10 +83,10 @@ function useUnitRect(
   const height = Math.abs(scale(bottomHeight) - y);
 
   return {
-    x: width * (1 - widthFraction),
-    y,
-    height,
-    width: widthFraction * width,
+    x: width * (1 - widthFraction) - padding,
+    y: y - padding,
+    height: height + padding * 2,
+    width: widthFraction * width + padding * 2,
   };
 }
 
@@ -143,9 +150,15 @@ function Unit(props: UnitProps) {
   } = props;
 
   const { axisType } = useColumn();
+
+  const hasOverflowTop = d.t_clip_pos != null;
+  const hasOverflowBottom = d.b_clip_pos != null;
+
   const bounds = {
     ...useUnitRect(d, { widthFraction, axisType }),
     ...baseBounds,
+    overflowTop: hasOverflowTop,
+    overflowBottom: hasOverflowBottom,
   };
   const patternID = resolveID(d);
   let _fill = fill ?? useGeologicPattern(patternID, defaultFill);
@@ -156,6 +169,8 @@ function Unit(props: UnitProps) {
 
   const [ref, selected, onClick] = useUnitSelectionTarget(d);
 
+  //const key = `unit-${d.unit_id}`;
+
   return h(
     "g.unit",
     {
@@ -165,23 +180,120 @@ function Unit(props: UnitProps) {
       },
     },
     [
-      h("rect.background", {
+      h(UnitRect, {
         ...bounds,
         fill: backgroundColor,
         onClick,
+        className: "background",
       }),
-      //maskElement,
-      h("rect.unit", {
+      h(UnitRect, {
         ref,
         ...bounds,
         fill: _fill,
         //mask,
         onClick,
+        className: "unit",
       }),
-      h.if(selected)("rect.selection-overlay", bounds),
+      h.if(selected)(UnitRect, { ...bounds, className: "selection-overlay" }),
+      //defs,
       children,
     ]
   );
+}
+
+interface UnitRectProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  className: string;
+  // Used to determine if the rect should have a zig-zag edge on the top or bottom
+  overflowTop?: boolean;
+  overflowBottom?: boolean;
+  [key: string]: any;
+}
+
+function UnitRect(props: UnitRectProps) {
+  const {
+    x,
+    y,
+    width,
+    height,
+    overflowTop = false,
+    overflowBottom = false,
+    ...rest
+  } = props;
+
+  if (!overflowTop && !overflowBottom) {
+    return h("rect", {
+      x,
+      y,
+      width,
+      height,
+      ...rest,
+    });
+  } else {
+    const d = zigZagBoxPath(x, y, width, height, overflowTop, overflowBottom);
+    return h("path", {
+      d,
+      ...rest,
+    });
+  }
+}
+
+function zigZagBoxPath(x, y, width, height, top: boolean, bottom: boolean) {
+  const zigZagWidth = 8;
+  const zigZagHeight = 3;
+
+  const d = path();
+
+  const nZigZags = Math.floor(width / zigZagWidth);
+  const zigZagWidthOverall = nZigZags * zigZagWidth;
+  const zigZagWidthOffset = (width - zigZagWidthOverall) / 2;
+
+  d.moveTo(x, y);
+  const dy = zigZagHeight;
+  // Each zig-zag consists of a short outward motion
+  const dx = zigZagWidth / 2;
+
+  if (true) {
+    // Move to the offset
+    let cx = x + zigZagWidthOffset;
+    d.lineTo(cx, y);
+    // Draw the zig-zags
+    for (let i = 0; i < nZigZags; i++) {
+      cx += dx;
+      d.lineTo(cx, y - dy);
+      cx += dx;
+      d.lineTo(cx, y);
+    }
+    // Draw the last line to the right edge
+    //d.lineTo(x + zigZagWidthOverall, y);
+  }
+  // Draw the right edge
+  d.lineTo(x + width, y);
+  const yBottom = y + height;
+  d.lineTo(x + width, y + height);
+
+  if (bottom) {
+    const y = yBottom;
+    // Draw the bottom zig-zags
+    let cx = x + width - zigZagWidthOffset;
+    d.lineTo(cx, y);
+    for (let i = 0; i < nZigZags; i++) {
+      cx -= dx;
+      d.lineTo(cx, y + zigZagHeight);
+      cx -= dx;
+      d.lineTo(cx, y);
+    }
+  }
+  // Draw the last line to the left edge
+  d.lineTo(x, y + height);
+  // Draw the left edge
+  d.closePath();
+
+  // Now render the path;
+  return d.toString();
 }
 
 function LabeledUnit(props: LabeledUnitProps) {

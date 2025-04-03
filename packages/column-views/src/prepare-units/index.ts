@@ -9,7 +9,6 @@ import { useMemo } from "react";
 import type { ExtUnit } from "./helpers";
 import { BaseUnit } from "@macrostrat/api-types";
 import {
-  _collapseSmallUnconformities,
   collapseUnconformitiesByPixelHeight,
   ColumnScaleOptions,
   CompositeScaleInformation,
@@ -18,6 +17,7 @@ import {
   SectionInfo,
   SectionInfoExt,
 } from "./composite-scale";
+import { unitsOverlap } from "./utils";
 
 export { preprocessUnits, groupUnitsIntoSections };
 
@@ -68,8 +68,8 @@ function prepareColumnUnits(
 
   /** Prototype filtering to age range */
   let units1 = units.filter((d) => {
-    // Filter by t_age and b_age
-    return d.t_age >= (t_age ?? -Infinity) && d.b_age <= (b_age ?? Infinity);
+    // Filter units by t_age and b_age, inclusive
+    return unitsOverlap(d, { unit_id: -1, t_age, b_age }, ColumnAxisType.AGE);
   });
 
   let sections0: SectionInfo[];
@@ -77,14 +77,13 @@ function prepareColumnUnits(
     mergeSections == MergeSectionsMode.ALL &&
     axisType != ColumnAxisType.ORDINAL
   ) {
+    // For the "merge sections" mode, we need to create a single section
     const [b_unit_age, t_unit_age] = getSectionAgeRange(units1);
     sections0 = [
       {
         section_id: 0,
         /**
          * If ages limits are directly specified, use them to define the section bounds.
-         * NOTE: we only do this for "mergeSections=ALL" and may separately configure
-         * this behavior
          * */
         t_age: t_age ?? t_unit_age,
         b_age: b_age ?? b_unit_age,
@@ -106,6 +105,18 @@ function prepareColumnUnits(
   ) {
     sections = mergeOverlappingSections(sections);
   }
+
+  /* Now that we are done merging sections, we can ensure that our sections
+   * are correctly limited to the t_age and b_age applied to the overall column.
+   */
+  sections = sections.map((section) => {
+    const { t_age, b_age } = section;
+    return {
+      ...section,
+      t_age: Math.max(t_age, options.t_age ?? -Infinity),
+      b_age: Math.min(b_age, options.b_age ?? Infinity),
+    };
+  });
 
   /* Compute pixel scales etc. for sections
    * We need to do this now to determine which unconformities
@@ -133,7 +144,7 @@ function prepareColumnUnits(
   sections = sections.map((section) => {
     return {
       ...section,
-      units: preprocessUnits(section.units, axisType),
+      units: preprocessUnits(section, axisType),
     };
   });
 

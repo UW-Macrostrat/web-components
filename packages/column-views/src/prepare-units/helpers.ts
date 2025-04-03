@@ -16,13 +16,19 @@ export interface ExtUnit extends BaseUnit {
   bottomOverlap: boolean;
   overlappingUnits: number[];
   column?: number;
+  /* Positions (ages or heights) where the unit is clipped to its containing section.
+   * This is relevant if we are filtering by age/height/depth range.
+   */
+  t_clip_pos?: number;
+  b_clip_pos?: number;
 }
 
 export function preprocessUnits(
-  units: BaseUnit[],
+  section: SectionInfo,
   axisType: ColumnAxisType = ColumnAxisType.AGE
 ) {
   /** Preprocess units to add overlapping units and columns. */
+  const units = section.units;
   let divisions = units.map((...args) => extendDivision(...args, axisType));
   for (let d of divisions) {
     const overlappingUnits = divisions.filter((u) =>
@@ -39,6 +45,15 @@ export function preprocessUnits(
         col++;
       }
       d.column = col;
+    }
+
+    // If unit overlaps the edges of a section, set the clip positions
+    const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
+    if (b_pos > section.b_age) {
+      d.b_clip_pos = section.b_age;
+    }
+    if (t_pos < section.t_age) {
+      d.t_clip_pos = section.t_age;
     }
   }
 

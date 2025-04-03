@@ -213,7 +213,7 @@ export const BrokenAxis: Story = {
     width: 300,
     columnWidth: 500,
     t_age: 0,
-    b_age: 110,
+    b_age: 210,
     targetUnitHeight: 50,
     timescaleLevels: 2,
     showUnitPopover: true,

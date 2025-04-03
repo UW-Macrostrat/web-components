@@ -21,17 +21,23 @@ export function unitsOverlap<T extends BaseUnit>(
   return rel != AgeRangeRelationship.Disjoint;
 }
 
+interface PossiblyClippedUnit extends BaseUnit {
+  // Internally created clipped positions
+  t_clip_pos?: number;
+  b_clip_pos?: number;
+}
+
 export function getUnitHeightRange(
-  unit: BaseUnit,
+  unit: PossiblyClippedUnit,
   axisType: ColumnAxisType
 ): [number, number] {
   switch (axisType) {
     case ColumnAxisType.AGE:
-      return [unit.b_age, unit.t_age];
+      return [unit.b_clip_pos ?? unit.b_age, unit.t_clip_pos ?? unit.t_age];
     case ColumnAxisType.DEPTH:
     case ColumnAxisType.ORDINAL:
     case ColumnAxisType.HEIGHT:
-      return [unit.b_pos, unit.t_pos];
+      return [unit.b_clip_pos ?? unit.b_pos, unit.t_clip_pos ?? unit.t_pos];
     default:
       throw new Error(`Unknown axis type: ${axisType}`);
   }
