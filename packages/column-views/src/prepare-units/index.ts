@@ -105,10 +105,13 @@ function prepareColumnUnits(
   ) {
     sections = mergeOverlappingSections(sections);
   }
+  // Filter out undefined sections just in case
+  sections = sections.filter((d) => d != null);
 
   /* Now that we are done merging sections, we can ensure that our sections
    * are correctly limited to the t_age and b_age applied to the overall column.
    */
+  console.log("sections", sections);
   sections = sections.map((section) => {
     const { t_age, b_age } = section;
     return {

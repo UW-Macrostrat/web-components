@@ -242,50 +242,58 @@ function UnitRect(props: UnitRectProps) {
 }
 
 function zigZagBoxPath(x, y, width, height, top: boolean, bottom: boolean) {
-  const zigZagWidth = 8;
-  const zigZagHeight = 3;
+  const zigZagWidth = 10;
+  const zigZagHeight = 4;
 
   const d = path();
 
-  const nZigZags = Math.floor(width / zigZagWidth);
-  const zigZagWidthOverall = nZigZags * zigZagWidth;
-  const zigZagWidthOffset = (width - zigZagWidthOverall) / 2;
+  const nZigZags = Math.floor(width / zigZagWidth - 0.5);
+  const _zigZagWidth = width / (nZigZags + 0.5);
 
   d.moveTo(x, y);
-  const dy = zigZagHeight;
+  let dy = zigZagHeight / 2;
   // Each zig-zag consists of a short outward motion
-  const dx = zigZagWidth / 2;
+  let dx = _zigZagWidth / 4;
 
-  if (true) {
+  let cx = x;
+  let cy = y;
+
+  const doZigZag = (last = false) => {
+    cx += dx;
+    cy -= dy;
+    d.lineTo(cx, cy);
+    let scalar = last ? 1 : 2;
+    cx += dx * scalar;
+    cy += dy * scalar;
+    d.lineTo(cx, cy);
+    cx += dx;
+    cy -= dy;
+  };
+
+  if (top) {
     // Move to the offset
-    let cx = x + zigZagWidthOffset;
-    d.lineTo(cx, y);
+    //d.lineTo(cx, y);
     // Draw the zig-zags
     for (let i = 0; i < nZigZags; i++) {
-      cx += dx;
-      d.lineTo(cx, y - dy);
-      cx += dx;
-      d.lineTo(cx, y);
+      doZigZag();
     }
-    // Draw the last line to the right edge
-    //d.lineTo(x + zigZagWidthOverall, y);
+    // Draw the last half zig-zag
+    doZigZag(true);
   }
   // Draw the right edge
   d.lineTo(x + width, y);
-  const yBottom = y + height;
   d.lineTo(x + width, y + height);
 
   if (bottom) {
-    const y = yBottom;
-    // Draw the bottom zig-zags
-    let cx = x + width - zigZagWidthOffset;
-    d.lineTo(cx, y);
+    dx = -dx;
+    dy = -dy;
+    cx = x + width;
+    cy = y + height;
+
     for (let i = 0; i < nZigZags; i++) {
-      cx -= dx;
-      d.lineTo(cx, y + zigZagHeight);
-      cx -= dx;
-      d.lineTo(cx, y);
+      doZigZag();
     }
+    doZigZag(true);
   }
   // Draw the last line to the left edge
   d.lineTo(x, y + height);

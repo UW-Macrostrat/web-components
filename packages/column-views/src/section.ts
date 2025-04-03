@@ -60,7 +60,7 @@ export function SectionsColumn(props: SectionSharedProps) {
 
   const units = useMacrostratUnits();
 
-  const col_id = units[0].col_id;
+  const col_id = units[0]?.col_id ?? -1;
 
   return h(LabelTrackerProvider, { units, key: col_id }, [
     h(SectionUnitsColumn, {

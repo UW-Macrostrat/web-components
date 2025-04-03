@@ -25,6 +25,7 @@ import {
 import { CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { BaseUnit } from "@macrostrat/api-types";
+import { NonIdealState } from "@blueprintjs/core";
 
 const h = hyperStyled(styles);
 
@@ -87,6 +88,17 @@ export function Column(props: ColumnProps) {
     minSectionHeight,
     collapseSmallUnconformities,
   });
+
+  if (sections.length === 0) {
+    return h(
+      "div.column-container.empty",
+      h(NonIdealState, {
+        title: "Empty column",
+        description: "No sections found in this column.",
+        icon: "warning-sign",
+      })
+    );
+  }
 
   return h(
     MacrostratColumnDataProvider,
