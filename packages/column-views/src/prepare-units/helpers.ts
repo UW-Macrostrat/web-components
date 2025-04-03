@@ -48,12 +48,14 @@ export function preprocessUnits(
     }
 
     // If unit overlaps the edges of a section, set the clip positions
-    const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
-    if (b_pos > section.b_age) {
-      d.b_clip_pos = section.b_age;
-    }
-    if (t_pos < section.t_age) {
-      d.t_clip_pos = section.t_age;
+    if (axisType == ColumnAxisType.AGE) {
+      const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
+      if (b_pos > section.b_age) {
+        d.b_clip_pos = section.b_age;
+      }
+      if (t_pos < section.t_age) {
+        d.t_clip_pos = section.t_age;
+      }
     }
   }
 

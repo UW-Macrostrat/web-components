@@ -43,6 +43,10 @@ body:global(.dark-mode) .column-container
     stroke: var(--column-stroke-color)
     stroke-width: 1px
 
+  .selection-overlay
+    fill: var(--selection-overlay-color, red)
+    fill-opacity: var(--selection-overlay-opacity, 0.5)
+
   g.lithology-column use.frame
     stroke: var(--column-stroke-color)
     stroke-width: 1.5px !important
@@ -78,9 +82,6 @@ body:global(.dark-mode) .column-container
 
 .column-container :global .section .divisions .unit
   cursor: pointer
-
-.column-container :global rect.selection-overlay
-  fill: rgba(255,0,0,0.5)
 
 .column-container :global(.timescale)
   width: calc(calc(1.5em + 1.5px) * var(--timescale-level-count, 4))

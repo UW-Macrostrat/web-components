@@ -70,9 +70,12 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
       onUnitSelected: (unit, target, event) => {
         const el = props.columnRef?.current;
         let overlayPosition = null;
+        console.log("unit selected", unit, target, event);
         if (unit != null && el != null && target != null) {
           const rect = el.getBoundingClientRect();
           const targetRect = target.getBoundingClientRect();
+          console.log(target, targetRect);
+
           overlayPosition = {
             x: targetRect.left - rect.left,
             y: targetRect.top - rect.top,

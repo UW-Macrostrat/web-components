@@ -13,7 +13,7 @@ import {
   useInDarkMode,
 } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
-import { ReactNode, useContext, useMemo } from "react";
+import { forwardRef, ReactNode, useContext, useMemo } from "react";
 import { resolveID, scalePattern } from "./resolvers";
 import { useUnitSelectionTarget } from "./selection";
 import { IUnit } from "./types";
@@ -213,7 +213,7 @@ interface UnitRectProps {
   [key: string]: any;
 }
 
-function UnitRect(props: UnitRectProps) {
+const UnitRect = forwardRef((props: UnitRectProps, ref) => {
   const {
     x,
     y,
@@ -230,16 +230,18 @@ function UnitRect(props: UnitRectProps) {
       y,
       width,
       height,
+      ref,
       ...rest,
     });
   } else {
     const d = zigZagBoxPath(x, y, width, height, overflowTop, overflowBottom);
     return h("path", {
       d,
+      ref,
       ...rest,
     });
   }
-}
+});
 
 function zigZagBoxPath(x, y, width, height, top: boolean, bottom: boolean) {
   const zigZagWidth = 10;
