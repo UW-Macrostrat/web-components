@@ -1,5 +1,8 @@
 import h from "@macrostrat/hyper";
-import { LithologyColumn } from "@macrostrat/column-components";
+import {
+  LithologyColumn,
+  useGeologicPattern,
+} from "@macrostrat/column-components";
 import { UnitNamesColumn } from "./names";
 import { ICompositeUnitProps } from "./composite";
 import { UnitBoxes } from "./boxes";
@@ -8,6 +11,8 @@ import { useInDarkMode } from "@macrostrat/ui-components";
 import { getMixedUnitColor } from "./colors";
 import { TrackedLabeledUnit } from "./composite";
 import { useLithologies } from "../data-provider";
+import { useMemo } from "react";
+import { resolveID } from "./resolvers";
 
 export * from "./composite";
 export * from "./types";
@@ -59,8 +64,40 @@ export function ColoredUnitComponent(props) {
    * This is a separate component because it depends on more providers/contexts to determine coloring. */
   const lithMap = useLithologies();
   const inDarkMode = useInDarkMode();
+
+  const backgroundColor = useMemo(() => {
+    return getMixedUnitColor(props.division, lithMap, inDarkMode);
+  }, [props.division?.unit_id, lithMap, inDarkMode]);
+
+  const patternID = useMemo(() => {
+    const patternID =
+      resolveID(props.division) ?? getPatternID(props.division.lith, lithMap);
+
+    return patternID;
+  }, [props.division?.unit_id, lithMap]);
+
+  const fill = useGeologicPattern(patternID);
+
   return h(UnitComponent, {
+    fill,
+    backgroundColor,
     ...props,
-    backgroundColor: getMixedUnitColor(props.division, lithMap, inDarkMode),
   });
+}
+
+function getPatternID(
+  liths: Array<{ lith_id: number }>,
+  lithMap: Map<number, { pattern_id: string }>
+): string | null {
+  if (lithMap == null || liths == null || liths.length == 0) {
+    return null;
+  }
+  const patternIDs = new Set<string>();
+  for (const lith of liths) {
+    const lithData = lithMap.get(lith.lith_id);
+    if (lithData) {
+      patternIDs.add(lithData.fill);
+    }
+  }
+  return [...patternIDs][0];
 }

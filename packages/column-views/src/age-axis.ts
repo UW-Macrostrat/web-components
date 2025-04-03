@@ -10,6 +10,7 @@ import {
 import { useContext } from "react";
 import styles from "./age-axis.module.sass";
 import { useMacrostratColumnData } from "./data-provider";
+import { Parenthetical } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
@@ -30,7 +31,8 @@ export function VerticalAxisLabel(props) {
   const { label, unit, className } = props;
   return h("div.column-axis-label.age-axis-label", { className }, [
     label,
-    h.if(unit)("span.age-axis-unit-container", [" (", unit, ")"]),
+    " ",
+    h.if(unit)(Parenthetical, { className: "age-axis-unit" }, unit),
   ]);
 }
 

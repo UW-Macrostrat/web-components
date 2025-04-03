@@ -7,6 +7,7 @@
       // TODO: allow font size to vary without this..
       font-weight: 400 !important
       transform: rotate(-90deg) translate(8px, -12px)
+      font-size: var(--column-axis-font-size, 0.8rem)
 
     line
       stroke-width: 1px !important
@@ -17,8 +18,10 @@
 .age-axis-label
   writing-mode: vertical-lr
   transform: rotate(180deg)
-  font-size: 12px
+  font-size: var(--column-axis-font-size, 0.8rem)
   text-align: center
   position: sticky
   top: 0
   max-height: 100vh
+.age-axis-unit
+  color: var(--text-subtle-color)

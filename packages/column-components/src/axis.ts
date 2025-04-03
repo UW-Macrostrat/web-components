@@ -54,7 +54,7 @@ export function AgeAxis(props: AgeAxisProps) {
 
   let tickValues: number[] = undefined;
 
-  if (pixelHeight < 2 * tickSpacing) {
+  if (pixelHeight < 3 * tickSpacing || scale.ticks(2).length < 2) {
     // Push ticks towards extrema
     const t0 = scale.ticks(4);
 

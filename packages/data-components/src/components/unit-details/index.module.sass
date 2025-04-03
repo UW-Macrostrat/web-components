@@ -25,16 +25,20 @@
     //font-size: 0.9em
     //display: inline-block
     break-inside: avoid
-  .unit
-    color: var(--text-subtle-color)
 
   &.tag-field
     &>*
       margin: 0
       display: block
 
+.unit
+  color: var(--text-subtle-color)
+  font-style: var(--text-font-style)
 
 .parenthetical
-  color: var(--text-subtle-color)
+  .content
+    color: var(--parenthetical-text-color, var(--text-subtle-color))
+  .sep
+    color: var(--parenthetical-sep-color, var(--secondary-color))
   .unit
     color: var(--secondary-color)

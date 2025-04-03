@@ -6,7 +6,7 @@ import {
 import { ReactNode, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
-import { MacrostratColumnProvider } from "./index";
+import { Duration, MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
 import type { ExtUnit } from "./prepare-units/helpers";
@@ -264,7 +264,19 @@ function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
 
   const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
 
-  return h("div.unconformity", { style }, [
-    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
+  let className: string = null;
+  const absAgeGap = Math.abs(ageGap);
+  if (absAgeGap > 1000) {
+    className = "giga";
+  } else if (absAgeGap > 100) {
+    className = "mega";
+  } else if (absAgeGap > 10) {
+    className = "large";
+  } else if (absAgeGap < 1) {
+    className = "small";
+  }
+
+  return h("div.unconformity", { style, className }, [
+    h("div.unconformity-text", h(Duration, { value: ageGap })),
   ]);
 }

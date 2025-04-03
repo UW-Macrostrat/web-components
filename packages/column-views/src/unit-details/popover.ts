@@ -1,8 +1,8 @@
 import hyper from "@macrostrat/hyper";
 import { Popover } from "@blueprintjs/core";
-import styles from "./selection-popover.module.sass";
-import { useSelectedUnit, useUnitSelectionStore } from "./units";
-import { UnitDetailsPanel } from "./unit-details";
+import styles from "./popover.module.sass";
+import { useSelectedUnit, useUnitSelectionStore } from "../units";
+import { UnitDetailsPanel } from "./panel";
 
 const h = hyper.styled(styles);
 

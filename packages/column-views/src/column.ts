@@ -12,7 +12,7 @@ import {
 } from "./units";
 
 import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
-import { UnitSelectionPopover } from "./selection-popover";
+import { UnitSelectionPopover } from "./unit-details";
 import {
   MacrostratColumnDataProvider,
   useMacrostratColumnData,
@@ -69,7 +69,7 @@ export function Column(props: ColumnProps) {
     targetUnitHeight = 20,
     pixelScale,
     minPixelScale = 0.2,
-    minSectionHeight = 30,
+    minSectionHeight = 50,
     collapseSmallUnconformities = true,
     ...rest
   } = props;

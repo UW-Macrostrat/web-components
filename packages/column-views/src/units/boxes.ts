@@ -7,11 +7,7 @@ import {
   useColumn,
   useGeologicPattern,
 } from "@macrostrat/column-components";
-import {
-  SizeAwareLabel,
-  Clickable,
-  useInDarkMode,
-} from "@macrostrat/ui-components";
+import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { forwardRef, ReactNode, useContext, useMemo } from "react";
 import { resolveID, scalePattern } from "./resolvers";
