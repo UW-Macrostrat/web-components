@@ -77,6 +77,11 @@ export default {
         type: "boolean",
       },
     },
+    maxInternalColumns: {
+      control: {
+        type: "number",
+      },
+    },
   },
 } as Meta<ColumnStoryUI>;
 

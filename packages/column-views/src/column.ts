@@ -133,6 +133,7 @@ function ColumnInner(props: ColumnInnerProps) {
     children,
     showTimescale,
     timescaleLevels,
+    maxInternalColumns,
   } = props;
 
   const darkMode = useDarkMode();
@@ -180,6 +181,7 @@ function ColumnInner(props: ColumnInnerProps) {
         showLabelColumn,
         clipUnits,
         unconformityLabels,
+        maxInternalColumns,
       }),
       children,
     ])
