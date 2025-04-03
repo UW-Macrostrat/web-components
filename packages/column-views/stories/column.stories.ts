@@ -6,9 +6,6 @@ import { JSONView, useAPIResult } from "@macrostrat/ui-components";
 import {
   Column,
   LithologiesProvider,
-  preprocessUnits,
-  UnitSelectionProvider,
-  useSelectedUnit,
   ColoredUnitComponent,
 } from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
@@ -206,6 +203,20 @@ export const MarysvilleUtah: Story = {
     },
     showUnitPopover: true,
     keyboardNavigation: true,
+  },
+};
+
+export const BrokenAxis: Story = {
+  args: {
+    id: 69,
+    showLabelColumn: false,
+    width: 300,
+    columnWidth: 500,
+    t_age: 0,
+    b_age: 110,
+    targetUnitHeight: 50,
+    timescaleLevels: 2,
+    showUnitPopover: true,
   },
 };
 

@@ -1,7 +1,6 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
-  ColumnLayoutContext,
   ColumnAxisType,
   SVG,
   ColumnContext,
@@ -17,8 +16,7 @@ import {
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
 import styles from "./composite.module.sass";
-import { MacrostratColumnProvider } from "@macrostrat/column-views";
-import { SectionProps } from "../section";
+import { useMacrostratColumnData } from "../data-provider";
 
 const h = hyperStyled(styles);
 
@@ -77,7 +75,6 @@ function TrackedLabeledUnit({
   const trackLabelVisibility = useContext(LabelTrackerContext);
   return h(LabeledUnit, {
     division,
-    //halfWidth: div.bottomOverlap,
     label: nameForDivision(division),
     onLabelUpdated(label, visible) {
       // If there is al LabelTrackerContext, update the label visibility
@@ -141,15 +138,14 @@ export function CompositeUnitsColumn(props: CompositeUnitProps) {
 export function SectionLabelsColumn(props: ICompositeUnitProps) {
   // Section with "squishy" time scale
   const {
-    sections,
-    totalHeight,
     width = 300,
-    axisType = ColumnAxisType.AGE,
     noteMode = "unlabeled",
     labelOffset = 30,
     noteComponent,
     shouldRenderNote,
   } = props;
+
+  const { sections, totalHeight, axisType } = useMacrostratColumnData();
 
   const unlabeledUnits = useContext(UnlabeledDivisionsContext);
   const unitsToLabel = noteMode == "unlabeled" ? unlabeledUnits : undefined;
@@ -186,7 +182,7 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
   ]);
 }
 
-function compositeScale(sections, opts = {}) {
+export function compositeScale(sections, opts = {}) {
   /** A basic composite scale that works across all sections. This isn't a fully featured,
    * contiuous D3 scale, but it shares enough attributes to be useful for
    * laying out notes.
@@ -226,7 +222,9 @@ function compositeScale(sections, opts = {}) {
 
 function ColumnNotesProvider(props) {
   // A fake column axis provider that allows scales to cross
-  const { children, scale, totalHeight, pixelScale, axisType } = props;
+  const { children, scale, totalHeight, pixelScale } = props;
+
+  const { axisType } = useMacrostratColumnData();
 
   return h(
     ColumnContext.Provider,
@@ -242,20 +240,6 @@ function ColumnNotesProvider(props) {
     },
     children
   );
-}
-
-export function CompositeUnitComponent({ division, nColumns = 2, ...rest }) {
-  // This comes from CompositeUnits
-  const { width } = useContext(ColumnLayoutContext);
-
-  //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
-  //console.log(division);
-  return h(TrackedLabeledUnit, {
-    division,
-    ...rest,
-    width: division.overlappingUnits.length > 0 ? width / nColumns : width,
-    x: (division.column * width) / nColumns,
-  });
 }
 
 export { TrackedLabeledUnit, ICompositeUnitProps };

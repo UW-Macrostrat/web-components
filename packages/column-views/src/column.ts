@@ -2,7 +2,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { RefObject, useMemo, useRef } from "react";
+import { RefObject, useRef } from "react";
 import styles from "./column.module.sass";
 import {
   UnitSelectionProvider,
@@ -11,13 +11,13 @@ import {
   useUnitSelectionDispatch,
 } from "./units";
 
-import {
-  ColumnHeightScaleOptions,
-  SectionInfoExt,
-} from "./prepare-units/composite-scale";
+import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
 import {} from "./units";
 import { UnitSelectionPopover } from "./selection-popover";
-import { MacrostratUnitsProvider } from "./store";
+import {
+  MacrostratColumnDataProvider,
+  useMacrostratColumnData,
+} from "./data-provider";
 import {
   SectionSharedProps,
   CompositeTimescale,
@@ -26,12 +26,10 @@ import {
 import { CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { BaseUnit } from "@macrostrat/api-types";
-import { ExtUnit } from "./prepare-units/helpers";
 
 const h = hyperStyled(styles);
 
 interface BaseColumnProps extends SectionSharedProps, ColumnHeightScaleOptions {
-  unconformityLabels?: boolean;
   className?: string;
   mergeSections?: MergeSectionsMode;
   showLabelColumn?: boolean;
@@ -63,7 +61,7 @@ export function Column(props: ColumnProps) {
     selectedUnit,
     children,
     units: rawUnits,
-    axisType,
+    axisType = ColumnAxisType.AGE,
     t_age,
     b_age,
     unconformityHeight = 30,
@@ -91,67 +89,70 @@ export function Column(props: ColumnProps) {
   });
 
   return h(
-    UnitSelectionProvider,
-    { columnRef: ref, onUnitSelected, selectedUnit, units },
-    h(
-      ColumnInner,
-      {
-        columnRef: ref,
-        unconformityHeight,
-        units,
-        axisType,
-        sections,
-        totalHeight,
-        t_age,
-        b_age,
-        ...rest,
-      },
-      [
-        children,
-        h.if(showUnitPopover)(UnitSelectionPopover),
-        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
-      ]
-    )
+    MacrostratColumnDataProvider,
+    { units, sections, totalHeight, axisType },
+    [
+      h(
+        UnitSelectionProvider,
+        { columnRef: ref, onUnitSelected, selectedUnit, units },
+        h(
+          ColumnInner,
+          {
+            columnRef: ref,
+            unconformityHeight,
+            t_age,
+            b_age,
+            ...rest,
+          },
+          [
+            children,
+            h.if(showUnitPopover)(UnitSelectionPopover),
+            h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
+          ]
+        )
+      ),
+    ]
   );
 }
 
 interface ColumnInnerProps extends BaseColumnProps {
-  sections: SectionInfoExt[];
-  unconformityHeight: number;
-  totalHeight: number;
   columnRef: RefObject<HTMLElement>;
-  units: ExtUnit[];
 }
 
 function ColumnInner(props: ColumnInnerProps) {
   const {
-    units,
-    sections,
-    totalHeight,
     unitComponent = UnitComponent,
-    unconformityHeight,
     unconformityLabels = true,
     showLabels = true,
-    width = 300,
-    columnWidth = 150,
+    width: _width = 300,
+    columnWidth: _columnWidth = 150,
+    showLabelColumn: _showLabelColumn = true,
     className: baseClassName,
-    showLabelColumn = true,
-    axisType = ColumnAxisType.AGE,
     columnRef,
     clipUnits = false,
     children,
     showTimescale,
     timescaleLevels,
-    ...rest
   } = props;
 
   const darkMode = useDarkMode();
+  const { axisType } = useMacrostratColumnData();
 
   const className = classNames(baseClassName, {
     "dark-mode": darkMode?.isEnabled ?? false,
   });
 
   const dispatch = useUnitSelectionDispatch();
+
+  let width = _width;
+  let columnWidth = _columnWidth;
+  if (columnWidth > width) {
+    columnWidth = width;
+  }
+  let showLabelColumn = _showLabelColumn;
+  if (columnWidth > width - 10) {
+    showLabelColumn = false;
+  }
 
   let _showTimescale = showTimescale;
   if (timescaleLevels !== null) {
@@ -168,31 +169,19 @@ function ColumnInner(props: ColumnInnerProps) {
         dispatch?.(null, null, evt as any);
       },
     },
-    h(MacrostratUnitsProvider, { units, sections, totalHeight }, [
-      h("div.column", { ref: columnRef }, [
-        h(CompositeAgeAxis, {
-          sections,
-          totalHeight,
-          axisType,
-        }),
-        h.if(_showTimescale)(CompositeTimescale, {
-          sections,
-        }),
-        h(SectionsColumn, {
-          sections,
-          unitComponent,
-          showLabels,
-          width,
-          columnWidth,
-          showLabelColumn,
-          axisType,
-          clipUnits,
-          unconformityHeight,
-          unconformityLabels,
-          totalHeight,
-        }),
-        children,
-      ]),
+    h("div.column", { ref: columnRef }, [
+      h(CompositeAgeAxis),
+      h.if(_showTimescale)(CompositeTimescale, { levels: timescaleLevels }),
+      h(SectionsColumn, {
+        unitComponent,
+        showLabels,
+        width,
+        columnWidth,
+        showLabelColumn,
+        clipUnits,
+        unconformityLabels,
+      }),
+      children,
     ])
   );
 }

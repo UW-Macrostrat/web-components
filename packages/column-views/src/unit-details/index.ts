@@ -15,7 +15,7 @@ import {
   Value,
 } from "@macrostrat/data-components";
 import { useUnitSelectionDispatch } from "../units/selection";
-import { useMacrostratUnits } from "../store";
+import { useMacrostratUnits } from "../data-provider";
 import { useMacrostratData, useMacrostratDefs } from "@macrostrat/column-views";
 import { Environment, UnitLong } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";

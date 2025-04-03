@@ -52,6 +52,8 @@ export type SectionInfoExt = SectionInfo & {
     offset: number;
     paddingTop: number;
   };
+  // A unique key for the section to use in React
+  key: string;
 };
 
 export interface CompositeScaleInformation {
@@ -85,6 +87,7 @@ export function finalizeSectionHeights(
 
     sections1.push({
       ...group,
+      key: `section-${group.section_id}`,
       scaleInfo: {
         ...scaleInfo,
         offset: totalHeight,
@@ -183,6 +186,9 @@ function findSectionHeightRange(
   data: ExtUnit[],
   axisType: ColumnAxisType
 ): [number, number] {
+  if (axisType == null) {
+    throw new Error("Axis type is not set");
+  }
   if (axisType === ColumnAxisType.AGE) {
     const t_age = Math.min(...data.map((d) => d.t_age));
     const b_age = Math.max(...data.map((d) => d.b_age));

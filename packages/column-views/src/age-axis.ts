@@ -9,8 +9,7 @@ import {
 } from "@macrostrat/column-components";
 import { useContext } from "react";
 import styles from "./age-axis.module.sass";
-import { MacrostratColumnProvider } from "./data-provider";
-import { SectionProps } from "./section";
+import { useMacrostratColumnData } from "./data-provider";
 
 const h = hyper.styled(styles);
 
@@ -59,8 +58,8 @@ export function ColumnVerticalAxis(props) {
   ]);
 }
 
-export function CompositeAgeAxis(props) {
-  const { axisType = ColumnAxisType.AGE, sections, totalHeight } = props;
+export function CompositeAgeAxis() {
+  const { axisType, sections, totalHeight } = useMacrostratColumnData();
 
   if (axisType == ColumnAxisType.ORDINAL) {
     return null;

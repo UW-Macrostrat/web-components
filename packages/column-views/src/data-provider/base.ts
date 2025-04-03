@@ -19,6 +19,7 @@ import { APIProvider } from "@macrostrat/ui-components";
 import { ColumnProvider, ColumnAxisType } from "@macrostrat/column-components";
 
 import { ReactNode } from "react";
+import { useMacrostratColumnData } from "./store";
 
 interface MacrostratDataProviderProps {
   baseURL: string;
@@ -326,13 +327,9 @@ export function MacrostratColumnProvider(props) {
   /** A column provider specialized the Macrostrat API. Maps more
    * generic concepts to Macrostrat-specific ones.
    */
-  const {
-    units,
-    domain,
-    pixelScale,
-    axisType = ColumnAxisType.AGE,
-    children,
-  } = props;
+
+  const { axisType } = useMacrostratColumnData();
+  const { units, domain, pixelScale, children } = props;
   return h(
     ColumnProvider,
     { axisType, divisions: units, range: domain, pixelsPerMeter: pixelScale },

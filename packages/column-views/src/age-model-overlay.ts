@@ -24,7 +24,7 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./age-model-overlay.module.sass";
 import { useAPIResult } from "@macrostrat/ui-components";
-import { useCompositeScale, useMacrostratUnits } from "./store";
+import { useCompositeScale, useMacrostratUnits } from "./data-provider";
 const h = hyper.styled(styles);
 
 interface AgeModelSurface {
