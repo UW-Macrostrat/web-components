@@ -82,8 +82,8 @@ body:global(.dark-mode) .column-container
 .column-container :global rect.selection-overlay
   fill: rgba(255,0,0,0.5)
 
-.column-container :global div.timescale
-  width: calc(6em + 4px)
+.column-container :global(.timescale)
+  width: calc(calc(1.5em + 1.5px) * var(--timescale-level-count, 4))
   --timescale-level-size: 1.5em
 
 .section-main
@@ -92,9 +92,6 @@ body:global(.dark-mode) .column-container
 
 .section-units-container
   position: relative
-
-//.timescale-container
-//  transform: translateY(-1px)
 
 .main-column
   position: relative

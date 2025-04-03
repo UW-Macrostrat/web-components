@@ -199,26 +199,32 @@ export function CompositeTimescale(props: CompositeTimescaleProps) {
   let _levels: [number, number];
   if (typeof levels === "number") {
     // If levels is a number, use the most common starting level
-    _levels = [2, 2 + levels];
+    _levels = [2, Math.max(2 + Math.min(levels, 5) - 1, 1)];
   } else {
     _levels = levels;
   }
+
+  const nCols = _levels[1] - _levels[0] + 1;
 
   return h(
     "div.timescale-column",
     sections.map((group, i) => {
       const { scaleInfo, key } = group;
       const { domain, pixelHeight, paddingTop } = scaleInfo;
-      return h("div.timescale-container", { style: { paddingTop }, key }, [
-        h(Timescale, {
-          orientation: TimescaleOrientation.VERTICAL,
-          length: pixelHeight,
-          levels: _levels,
-          absoluteAgeScale: true,
-          showAgeAxis: false,
-          ageRange: domain as [number, number],
-        }),
-      ]);
+      return h(
+        "div.timescale-container",
+        { style: { paddingTop, "--timescale-level-count": nCols }, key },
+        [
+          h(Timescale, {
+            orientation: TimescaleOrientation.VERTICAL,
+            length: pixelHeight,
+            levels: _levels,
+            absoluteAgeScale: true,
+            showAgeAxis: false,
+            ageRange: domain as [number, number],
+          }),
+        ]
+      );
     })
   );
 }

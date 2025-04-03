@@ -12,7 +12,6 @@ import {
 } from "./units";
 
 import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
-import {} from "./units";
 import { UnitSelectionPopover } from "./selection-popover";
 import {
   MacrostratColumnDataProvider,
@@ -29,27 +28,28 @@ import { BaseUnit } from "@macrostrat/api-types";
 
 const h = hyperStyled(styles);
 
-interface BaseColumnProps extends SectionSharedProps, ColumnHeightScaleOptions {
+interface BaseColumnProps extends SectionSharedProps {
   className?: string;
-  mergeSections?: MergeSectionsMode;
   showLabelColumn?: boolean;
   keyboardNavigation?: boolean;
-  t_age?: number;
-  b_age?: number;
   showLabels?: boolean;
-  units: BaseUnit[];
   maxInternalColumns?: number;
-  // Unconformity height in pixels
-  unconformityHeight?: number;
   // Timescale properties
   showTimescale?: boolean;
   timescaleLevels?: [number, number];
 }
 
-export interface ColumnProps extends BaseColumnProps {
+export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
+  // Macrostrat units
+  units: BaseUnit[];
+  t_age?: number;
+  b_age?: number;
+  mergeSections?: MergeSectionsMode;
   showUnitPopover?: boolean;
   selectedUnit?: number | null;
   onUnitSelected?: (unitID: number | null, unit: any) => void;
+  // Unconformity height in pixels
+  unconformityHeight?: number;
 }
 
 export function Column(props: ColumnProps) {
@@ -91,27 +91,15 @@ export function Column(props: ColumnProps) {
   return h(
     MacrostratColumnDataProvider,
     { units, sections, totalHeight, axisType },
-    [
-      h(
-        UnitSelectionProvider,
-        { columnRef: ref, onUnitSelected, selectedUnit, units },
-        h(
-          ColumnInner,
-          {
-            columnRef: ref,
-            unconformityHeight,
-            t_age,
-            b_age,
-            ...rest,
-          },
-          [
-            children,
-            h.if(showUnitPopover)(UnitSelectionPopover),
-            h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
-          ]
-        )
-      ),
-    ]
+    h(
+      UnitSelectionProvider,
+      { columnRef: ref, onUnitSelected, selectedUnit, units },
+      h(ColumnInner, { columnRef: ref, ...rest }, [
+        children,
+        h.if(showUnitPopover)(UnitSelectionPopover),
+        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
+      ])
+    )
   );
 }
 
