@@ -154,59 +154,78 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
   const unlabeledUnits = useContext(UnlabeledDivisionsContext);
   const unitsToLabel = noteMode == "unlabeled" ? unlabeledUnits : undefined;
 
+  const _compositeScale = compositeScale(sections);
+
   return h("div.section-labels-column", [
     h(
-      SVG,
+      ColumnNotesProvider,
       {
-        height: totalHeight,
-        innerWidth: width - 4,
-        paddingH: 1,
-        paddingLeft: 3,
+        units: [],
+        scale: _compositeScale,
+        totalHeight,
+        axisType,
       },
-      sections.map((group, i) => {
-        const { scaleInfo, section_id } = group;
-        const { domain, pixelScale, scale, totalHeight } = scaleInfo;
-
-        const key = `section-${section_id}`;
-        return h(
-          "g.section",
-          {
-            key,
-            //transform: `translate(0 ${scaleInfo.offset})`,
-          },
-          [
-            h(
-              ColumnNotesProvider,
-              // {
-              //   units: [],
-              //   domain,
-              //   pixelScale, // Actually pixels per myr,
-              //   axisType,
-              // },
-              {
-                units: [],
-                scale,
-                totalHeight,
-                pixelScale, // Actually pixels per myr,
-                axisType,
-              },
-              h(UnitNamesColumn, {
-                divisions: unitsToLabel,
-                paddingLeft: labelOffset,
-                width,
-                noteComponent,
-                shouldRenderNote,
-                scale,
-              })
-            ),
-          ]
-        );
-      })
+      h(
+        SVG,
+        {
+          height: totalHeight,
+          innerWidth: width - 4,
+          paddingH: 1,
+          paddingLeft: 3,
+        },
+        h(UnitNamesColumn, {
+          divisions: unitsToLabel,
+          paddingLeft: labelOffset,
+          width,
+          noteComponent,
+          shouldRenderNote,
+          scale: _compositeScale,
+        })
+      )
     ),
   ]);
 }
 
+function compositeScale(sections, opts = {}) {
+  /** A basic composite scale that works across all sections. This isn't a fully featured,
+   * contiuous D3 scale, but it shares enough attributes to be useful for
+   * laying out notes.
+   */
+  const { clamped = true } = opts;
+
+  const scales = sections.map((group) => {
+    const { scaleInfo } = group;
+    return scaleInfo.scale.copy().clamp(clamped);
+  });
+
+  let baseScale = (val) => {
+    // Find the scale for the section that contains the value
+    const scale = scales.find((scale) => {
+      return scale.domain()[0] <= val && val <= scale.domain()[1];
+    });
+
+    if (scale) {
+      return scale(val);
+    } else {
+      // return nan
+      return NaN;
+    }
+  };
+
+  baseScale.copy = () => {
+    return baseScale;
+  };
+
+  baseScale.domain = () => {
+    // Return a domain that covers all sections
+    return [scales[0].domain()[0], scales[scales.length - 1].domain()[1]];
+  };
+
+  return baseScale;
+}
+
 function ColumnNotesProvider(props) {
+  // A fake column axis provider that allows scales to cross
   const { children, scale, totalHeight, pixelScale, axisType } = props;
 
   return h(
@@ -215,7 +234,7 @@ function ColumnNotesProvider(props) {
       value: {
         divisions: [],
         scale,
-        scaleClamped: scale.copy().clamp(true),
+        scaleClamped: scale,
         pixelHeight: totalHeight,
         pixelsPerMeter: pixelScale,
         axisType,

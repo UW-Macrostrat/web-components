@@ -2,6 +2,7 @@ import {
   CompositeUnitsColumn,
   LabelTrackerProvider,
   SectionLabelsColumn,
+  SectionLabelsColumn2,
 } from "./units";
 import { ReactNode, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
@@ -67,9 +68,9 @@ export function SectionsColumn(props: SectionSharedProps) {
 
   const units = useMacrostratUnits();
 
-  console.log(units);
+  const col_id = units[0].col_id;
 
-  return h(LabelTrackerProvider, { units }, [
+  return h(LabelTrackerProvider, { units, key: col_id }, [
     h("div.section-units-container", { style: { width: columnWidth + 2 } }, [
       h(
         SVG,
@@ -111,7 +112,6 @@ export function SectionsColumn(props: SectionSharedProps) {
     h.if(showLabelColumn)(SectionLabelsColumn, {
       sections,
       totalHeight,
-      showLabels,
       width: width - columnWidth,
       axisType,
     }),
@@ -175,24 +175,6 @@ function SectionUnits(props: SectionProps) {
         clipToFrame: clipUnits,
       })
     )
-  );
-}
-
-function ColumnNotesProvider(props) {
-  const { children, scale, totalHeight, pixelScale } = props;
-
-  return h(
-    ColumnContext.Provider,
-    {
-      value: {
-        divisions: [],
-        scale,
-        scaleClamped: scale.copy().clamp(true),
-        pixelHeight: totalHeight,
-        pixelsPerMeter: pixelScale,
-      },
-    },
-    children
   );
 }
 

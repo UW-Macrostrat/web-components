@@ -211,7 +211,7 @@ class NoteLayoutProvider extends StatefulComponent<
 
   computeForceLayout(prevProps, prevState) {
     let { notes, nodes, elementHeights } = this.state;
-    const { pixelHeight, scale } = this.context;
+    const { pixelHeight } = this.context;
     const { width, paddingLeft, forceOptions } = this.props;
 
     if (notes.length === 0) {
