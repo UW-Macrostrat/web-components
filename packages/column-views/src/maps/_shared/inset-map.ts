@@ -1,5 +1,9 @@
 import { useCallback, useMemo } from "react";
-import { MapView, getBasicMapStyle } from "@macrostrat/map-interface";
+import {
+  MapView,
+  getBasicMapStyle,
+  MapViewProps,
+} from "@macrostrat/map-interface";
 import h from "@macrostrat/hyper";
 import { MapboxMapProvider } from "@macrostrat/mapbox-react";
 import { useInDarkMode } from "@macrostrat/ui-components";
@@ -7,6 +11,18 @@ import {
   removeMapLabels,
   removeSourceFromStyle,
 } from "@macrostrat/mapbox-utils";
+import type { ReactNode, CSSProperties } from "react";
+
+export interface InsetMapProps extends Omit<MapViewProps, "style"> {
+  controls?: ReactNode;
+  className?: string;
+  children?: ReactNode;
+  style?: CSSProperties;
+  mapStyle?: mapboxgl.Style | string;
+  showLabels?: boolean;
+  showAdmin?: boolean;
+  showRoads?: boolean;
+}
 
 export function InsetMap({
   controls,
@@ -19,9 +35,9 @@ export function InsetMap({
   showAdmin = false,
   showRoads = false,
   ...rest
-}: any) {
+}: InsetMapProps) {
   const inDarkMode = useInDarkMode();
-  const _style = useMemo(() => {
+  const _style = useMemo((): mapboxgl.Style | string => {
     return mapStyle ?? getBasicMapStyle({ inDarkMode });
   }, [mapStyle, inDarkMode]);
 

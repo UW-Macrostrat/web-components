@@ -49,7 +49,7 @@ function CorrelationStoryUI({
           accessToken: mapboxToken,
           className: "correlation-map",
           showLogo: false,
-          apiBaseURL: apiV2Prefix,
+          focusedLine: null,
         }),
         h(ColumnNavigationMap, {
           inProcess,

@@ -17,7 +17,10 @@ import {
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { createComputed } from "zustand-computed";
-import { useMacrostratStore } from "../../data-provider/base";
+import {
+  useMacrostratColumns,
+  useMacrostratStore,
+} from "../../data-provider/base";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
@@ -94,10 +97,13 @@ export function ColumnCorrelationProvider({
 
   // Set up the store
   /** TODO: unify handling of columns between parts of application */
-  useAsyncEffect(async () => {
-    let _columns = columns ?? (await getColumns(projectID, inProcess));
-    store.setState({ columns: _columns, focusedLine });
-  }, [projectID, inProcess, columns]);
+  const _columns = useMacrostratColumns(projectID, inProcess);
+  useEffect(() => {
+    console.log("Setting columns", _columns);
+    if (_columns != null) {
+      store.setState({ columns: _columns });
+    }
+  }, [_columns]);
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   const focusedColumns = useStore(store, (state) => state.focusedColumns);

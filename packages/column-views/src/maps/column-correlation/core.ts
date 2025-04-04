@@ -11,17 +11,26 @@ import { ReactNode, useMemo } from "react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
 import { useCorrelationMapStore } from "./state";
-import { InsetMap } from "../_shared";
+import { buildColumnsStyle, InsetMap, InsetMapProps } from "../_shared";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
 
-export interface CorrelationMapProps extends MapViewProps {
+export interface CorrelationMapProps extends InsetMapProps {
   padding?: number;
   children?: ReactNode;
   accessToken?: string;
+  columnColor?: string;
 }
 
 export function ColumnCorrelationMap(props: CorrelationMapProps) {
-  const { padding = 50, children, ...rest } = props;
+  const { padding = 50, children, columnColor, ...rest } = props;
+
+  const overlayStyles = useMemo(() => {
+    return [
+      buildColumnsStyle(columnColor),
+      selectedColumnsStyle,
+      lineOfSectionStyle,
+    ];
+  }, [columnColor]);
 
   return h(
     InsetMap,
@@ -29,7 +38,7 @@ export function ColumnCorrelationMap(props: CorrelationMapProps) {
       ...rest,
       boxZoom: false,
       dragRotate: false,
-      overlayStyles: _overlayStyles,
+      overlayStyles,
     },
     [
       h(ColumnsLayer),
@@ -111,41 +120,6 @@ function ColumnsLayer({ enabled = true }) {
   return null;
 }
 
-const columnsStyle = {
-  sources: {
-    columns: buildGeoJSONSource(),
-  },
-  layers: [
-    {
-      id: "columns-fill",
-      type: "fill",
-      source: "columns",
-      paint: {
-        "fill-color": "rgba(0, 0, 0, 0.1)",
-      },
-    },
-    {
-      id: "columns-line",
-      type: "line",
-      source: "columns",
-      paint: {
-        "line-color": "rgba(0, 0, 0, 0.5)",
-        "line-width": 2,
-      },
-    },
-    {
-      id: "columns-points",
-      type: "circle",
-      source: "columns",
-      paint: {
-        "circle-radius": 4,
-        "circle-color": "rgba(0, 0, 0, 0.5)",
-      },
-      filter: ["==", "$type", "Point"],
-    },
-  ],
-};
-
 const selectedColumnsStyle = {
   sources: {
     "selected-columns": buildGeoJSONSource(),
@@ -190,8 +164,6 @@ const lineOfSectionStyle = {
   },
   layers: buildCrossSectionLayers(),
 };
-
-const _overlayStyles = [columnsStyle, selectedColumnsStyle, lineOfSectionStyle];
 
 function buildGeoJSONSource(data: FeatureCollection | null = null) {
   return {

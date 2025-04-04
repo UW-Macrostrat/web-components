@@ -3,8 +3,8 @@ import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
 import { FeatureCollection } from "geojson";
 import { ReactNode, useMemo, useRef } from "react";
-import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
-import { getCSSVariable } from "@macrostrat/color-utils";
+import { buildColumnsStyle } from "../../_shared";
+import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
 import {
   ColumnNavigationProvider,
@@ -217,59 +217,4 @@ function ColumnsLayer({ enabled = true }) {
   );
 
   return null;
-}
-
-function buildColumnsStyle(color: string) {
-  const columnColor = color ?? getCSSVariable("--text-subtle-color", "black");
-  return {
-    sources: {
-      columns: buildGeoJSONSource(),
-    },
-    layers: [
-      {
-        id: "columns-fill",
-        type: "fill",
-        source: "columns",
-        paint: {
-          "fill-color": columnColor,
-          "fill-opacity": [
-            "case",
-            ["boolean", ["feature-state", "selected"], false],
-            0.5,
-            ["boolean", ["feature-state", "hover"], false],
-            0.3,
-            0.1,
-          ],
-        },
-      },
-      {
-        id: "columns-line",
-        type: "line",
-        source: "columns",
-        paint: {
-          "line-color": columnColor,
-          "line-width": 2,
-          "line-opacity": 0.5,
-        },
-      },
-      {
-        id: "columns-points",
-        type: "circle",
-        source: "columns",
-        paint: {
-          "circle-radius": 4,
-          "circle-color": columnColor,
-          "circle-opacity": [
-            "case",
-            ["boolean", ["feature-state", "selected"], false],
-            1,
-            ["boolean", ["feature-state", "hover"], false],
-            0.7,
-            0.5,
-          ],
-        },
-        filter: ["==", "$type", "Point"],
-      },
-    ],
-  };
 }

@@ -55,7 +55,7 @@ export interface MapViewProps extends MapboxCoreOptions {
   standalone?: boolean;
   /** Overlay styles to apply to the map: a list of mapbox style objects or fragments to
    * overlay on top of the main map style at runtime */
-  overlayStyles?: mapboxgl.Style[];
+  overlayStyles?: Partial<mapboxgl.Style>[];
   /** A function to transform the map style before it is loaded */
   transformStyle?: (style: mapboxgl.Style) => mapboxgl.Style;
 }

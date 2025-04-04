@@ -9,7 +9,10 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import { useAsyncEffect } from "@macrostrat/ui-components";
-import { useMacrostratStore } from "../../../data-provider/base";
+import {
+  useMacrostratColumns,
+  useMacrostratStore,
+} from "../../../data-provider/base";
 
 export interface NavigationStore {
   columns: ColumnGeoJSONRecord[];
@@ -74,6 +77,12 @@ export function ColumnNavigationProvider({
     store.setState({ columns: _columns, selectedColumn });
   }, [projectID, inProcess, columns, getColumns]);
 
+  const _columns = useMacrostratColumns(projectID, inProcess);
+  useEffect(() => {
+    if (_columns != null) {
+      store.setState({ columns: _columns, selectedColumn });
+    }
+  }, [_columns]);
   // Update selected colun if it is changed externally
 
   // Kind of an awkward way to do this but we need to allow the selector to run

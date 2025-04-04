@@ -149,9 +149,10 @@ function createColumnsSlice(set, get) {
           columns,
         };
         // We could break multi-project result sets into separate caches here...
-        columnFootprints.set(key, footprints);
-        set({ columnFootprints });
-        console.log("Set column footprints to store");
+        // Copy the original map
+        const columnFootprints2 = new Map(columnFootprints);
+        columnFootprints2.set(key, footprints);
+        set({ columnFootprints: columnFootprints2 });
       }
       return footprints.columns;
     },
@@ -266,6 +267,30 @@ export function useMacrostratDefs(dataType: string): Map<number, any> | null {
     operator();
   }, []);
   return useMacrostratStore((state) => state[dataType]);
+}
+
+export function useMacrostratColumns(
+  projectID: number | null,
+  inProcess: boolean
+) {
+  const getColumns = useMacrostratStore((s) => s.getColumns);
+  const columnsMap = useMacrostratStore((s) => s.columnFootprints);
+  const key = projectID ?? -1;
+  const colData = columnsMap?.get(key);
+  useEffect(() => {
+    if (colData != null || !inProcess || (inProcess && !colData.inProcess)) {
+      return;
+    }
+    getColumns(projectID, inProcess);
+  }, [colData, inProcess, getColumns]);
+  if (colData == null) return null;
+  let columns = colData.columns;
+  if (!inProcess && colData.inProcess) {
+    columns.features = columns.features?.filter(
+      (d) => d.properties.status != "in process"
+    );
+  }
+  return columns;
 }
 
 export function useMacrostratData(dataType: string, ...args: any[]) {
