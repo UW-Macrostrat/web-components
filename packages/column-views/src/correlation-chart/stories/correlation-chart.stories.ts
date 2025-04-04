@@ -14,6 +14,7 @@ import { hyperStyled } from "@macrostrat/hyper";
 import { Spinner } from "@blueprintjs/core";
 import { useColumnBasicInfo, useColumnUnits } from "./utils";
 import styles from "./stories.module.sass";
+import { LineString } from "geojson";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -22,6 +23,7 @@ const apiV2Prefix = "https://macrostrat.org/api/v2";
 const h = hyperStyled(styles);
 
 function CorrelationStoryUI({
+  focusedLine,
   columnID,
   setColumn,
   selectedUnit,
@@ -32,7 +34,7 @@ function CorrelationStoryUI({
 }) {
   return h(
     ColumnCorrelationProvider,
-    { focusedLine: null, baseURL: apiV2Prefix },
+    { focusedLine: convertLineToGeoJSON(focusedLine), baseURL: apiV2Prefix },
     h("div.column-ui", [
       h(
         "div.column-container",
@@ -54,6 +56,14 @@ function CorrelationStoryUI({
       ]),
     ])
   );
+}
+
+function convertLineToGeoJSON(line: [number, number][]): LineString | null {
+  if (line == null) return null;
+  return {
+    type: "LineString",
+    coordinates: line,
+  };
 }
 
 function ColumnCore({
@@ -94,6 +104,10 @@ export default {
   title: "Column views/Correlation chart",
   component: CorrelationStoryUI,
   args: {
+    focusedLine: [
+      [-100, 45],
+      [-90, 50],
+    ],
     columnID: 432,
     axisType: "age",
     collapseSmallUnconformities: false,
