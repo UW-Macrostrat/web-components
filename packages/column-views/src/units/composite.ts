@@ -12,6 +12,7 @@ import {
   useState,
   useRef,
   useCallback,
+  useEffect,
 } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
@@ -84,6 +85,8 @@ function TrackedLabeledUnit({
   });
 }
 
+export const CompositeUnitComponent = TrackedLabeledUnit;
+
 type BaseUnitProps = {
   width: number;
   showLabels?: boolean;
@@ -133,6 +136,15 @@ export function CompositeUnitsColumn(props: CompositeUnitProps) {
       ...rest,
     }),
   ]);
+}
+
+export function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
+  useEffect(() => {
+    console.warn(
+      "AnnotatedUnitsColumn is deprecated and currently renders a no-op for transition purposes"
+    );
+  }, []);
+  return null;
 }
 
 export function SectionLabelsColumn(props: ICompositeUnitProps) {

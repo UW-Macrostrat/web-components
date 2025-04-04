@@ -19,9 +19,10 @@ import {
 } from "./composite-scale";
 import { unitsOverlap } from "./utils";
 
+export * from "./utils";
 export { preprocessUnits, groupUnitsIntoSections };
 
-interface PrepareColumnOptions extends ColumnScaleOptions {
+export interface PrepareColumnOptions extends ColumnScaleOptions {
   axisType: ColumnAxisType;
   t_age?: number;
   b_age?: number;
@@ -51,7 +52,7 @@ export function usePreparedColumnUnits(
   }, [data, ...Object.values(options)]);
 }
 
-function prepareColumnUnits(
+export function prepareColumnUnits(
   units: BaseUnit[],
   options: PrepareColumnOptions
 ): PreparedColumnData {
