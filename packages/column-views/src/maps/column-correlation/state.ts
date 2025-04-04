@@ -65,8 +65,6 @@ export function ColumnCorrelationProvider({
   focusedLine,
   onSelectColumns,
 }: CorrelationProviderProps) {
-  const getColumns = useMacrostratStore((state) => state.getColumns);
-
   const [store] = useState(() => {
     return create<CorrelationMapStore & ComputedStore>(
       computed((set, get): CorrelationMapStore => {
@@ -96,10 +94,9 @@ export function ColumnCorrelationProvider({
   });
 
   // Set up the store
-  /** TODO: unify handling of columns between parts of application */
+  /** TODO: move the fetching of all columns to within the map */
   const _columns = useMacrostratColumns(projectID, inProcess);
   useEffect(() => {
-    console.log("Setting columns", _columns);
     if (_columns != null) {
       store.setState({ columns: _columns });
     }

@@ -2,10 +2,6 @@ import { LineString, Point } from "geojson";
 import { create } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
 import { runColumnQuery } from "#/map/map-interface/app-state/handlers/fetch";
-import {
-  getCorrelationHashParams,
-  setHashStringForCorrelation,
-} from "./hash-string";
 import { ColumnIdentifier } from "./correlation-chart";
 import { UnitLong } from "@macrostrat/api-types";
 import { LocalStorage } from "@macrostrat/ui-components";

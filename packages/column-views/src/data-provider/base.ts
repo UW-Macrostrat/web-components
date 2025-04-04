@@ -16,7 +16,7 @@ import {
   fetchRefs,
 } from "./fetch";
 import { APIProvider } from "@macrostrat/ui-components";
-import { ColumnProvider, ColumnAxisType } from "@macrostrat/column-components";
+import { ColumnProvider } from "@macrostrat/column-components";
 
 import { ReactNode } from "react";
 import { useMacrostratColumnData } from "./store";
@@ -278,7 +278,7 @@ export function useMacrostratColumns(
   const key = projectID ?? -1;
   const colData = columnsMap?.get(key);
   useEffect(() => {
-    if (colData != null || !inProcess || (inProcess && !colData.inProcess)) {
+    if (colData != null && (!inProcess || (inProcess && !colData.inProcess))) {
       return;
     }
     getColumns(projectID, inProcess);

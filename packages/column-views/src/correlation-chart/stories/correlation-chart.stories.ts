@@ -51,14 +51,6 @@ function CorrelationStoryUI({
           showLogo: false,
           focusedLine: null,
         }),
-        h(ColumnNavigationMap, {
-          inProcess,
-          projectID,
-          accessToken: mapboxToken,
-          selectedColumn: columnID,
-          onSelectColumn: setColumn,
-          className: "column-selector-map",
-        }),
       ]),
     ])
   );
