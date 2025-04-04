@@ -2,7 +2,6 @@ import {
   ColoredUnitComponent,
   Column,
   ColumnNavigationMap,
-  preprocessUnits,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
 import styles from "./index.module.sass";
@@ -23,8 +22,6 @@ export function ColumnStoryUI({
   projectID,
   ...rest
 }) {
-  console.log("ColumnStoryUI", columnID, selectedUnit, inProcess);
-
   return h("div.column-ui", [
     h(
       "div.column-container",

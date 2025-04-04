@@ -112,8 +112,8 @@ interface CompositeUnitProps {
   unitComponent: React.FC<any>;
   unitComponentProps?: any;
   width: number;
-  showLabels: boolean;
-  cliptoFrame: boolean;
+  showLabels?: boolean;
+  clipToFrame?: boolean;
 }
 
 export function CompositeUnitsColumn(props: CompositeUnitProps) {

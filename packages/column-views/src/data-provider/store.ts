@@ -7,14 +7,15 @@ import {
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
-const MacrostratColumnDataContext = createContext(null);
-
 interface MacrostratColumnDataContext {
   units: ExtUnit[];
   sections: SectionInfoExt[];
   totalHeight?: number;
   axisType?: ColumnAxisType;
 }
+
+const MacrostratColumnDataContext =
+  createContext<MacrostratColumnDataContext>(null);
 
 export function MacrostratColumnDataProvider({
   children,

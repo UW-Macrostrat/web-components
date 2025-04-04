@@ -9,7 +9,6 @@ import {
   CorrelationMapProps,
   CorrelationProviderProps,
 } from ".";
-import { InsetMap } from "../_shared";
 
 function ColumnCorrelationMapExt(
   props: CorrelationMapProps & CorrelationProviderProps
@@ -32,7 +31,7 @@ function ColumnCorrelationMapExt(
       projectID,
       inProcess,
     },
-    h(ColumnCorrelationMap, rest)
+    h(ColumnCorrelationMap, { accessToken: mapboxToken, ...rest })
   );
 }
 
@@ -43,17 +42,9 @@ export default {
   description: "Cross section creation map",
 } as Meta<typeof ColumnCorrelationMapExt>;
 
-export function BasicInsetMap() {
-  return h(InsetMap, {
-    style: { width: "800px", height: "600px" },
-    accessToken: mapboxToken,
-  });
-}
-
 export const ColumnCorrelation = {
   args: {
     style: { width: "800px", height: "600px" },
-    accessToken: mapboxToken,
     padding: 100,
   },
 };
@@ -61,7 +52,6 @@ export const ColumnCorrelation = {
 export const withPreloadedCrossSection = {
   args: {
     style: { width: "800px", height: "600px" },
-    accessToken: mapboxToken,
     padding: 100,
     focusedLine: {
       type: "LineString",
@@ -76,10 +66,9 @@ export const withPreloadedCrossSection = {
 export const nonStandardProject = {
   args: {
     style: { width: "800px", height: "600px" },
-    accessToken: mapboxToken,
     padding: 100,
     projectID: 10,
-    statusCode: "in process",
+    inProcess: true,
     mapPosition: {
       camera: {
         lng: -100,
@@ -93,10 +82,9 @@ export const nonStandardProject = {
 export const eODP = {
   args: {
     style: { width: "800px", height: "600px" },
-    accessToken: mapboxToken,
     padding: 100,
     projectID: 3,
-    statusCode: "in process",
+    inProcess: true,
     mapPosition: {
       camera: {
         lng: -100,

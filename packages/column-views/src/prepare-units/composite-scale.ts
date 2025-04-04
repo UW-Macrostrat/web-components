@@ -47,11 +47,13 @@ export interface SectionScaleInfo {
   scale: ScaleLinear<number, number>;
 }
 
+export type SectionScaleInfoExt = SectionScaleInfo & {
+  offset: number;
+  paddingTop: number;
+};
+
 export type SectionInfoExt = SectionInfo & {
-  scaleInfo: SectionScaleInfo & {
-    offset: number;
-    paddingTop: number;
-  };
+  scaleInfo: SectionScaleInfoExt;
   // A unique key for the section to use in React
   key: string;
 };

@@ -3,14 +3,14 @@ import {
   LabelTrackerProvider,
   SectionLabelsColumn,
 } from "./units";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, FunctionComponent, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
 import { Duration, MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
 import type { ExtUnit } from "./prepare-units/helpers";
-import { SectionScaleInfo } from "./prepare-units/composite-scale";
+import { SectionScaleInfoExt } from "./prepare-units/composite-scale";
 import { useMacrostratColumnData, useMacrostratUnits } from "./data-provider";
 
 const h = hyper.styled(styles);
@@ -23,7 +23,7 @@ export interface SectionInfo {
 }
 
 export interface SectionSharedProps {
-  unitComponent?: React.FunctionComponent<any>;
+  unitComponent?: FunctionComponent<any>;
   unitComponentProps?: any;
   showLabels?: boolean;
   width?: number;
@@ -42,7 +42,7 @@ export interface SectionSharedProps {
 
 export interface SectionProps extends SectionSharedProps {
   units: ExtUnit[];
-  scaleInfo: SectionScaleInfo;
+  scaleInfo: SectionScaleInfoExt;
 }
 
 export function SectionsColumn(props: SectionSharedProps) {
@@ -60,9 +60,10 @@ export function SectionsColumn(props: SectionSharedProps) {
 
   const units = useMacrostratUnits();
 
-  const col_id = units[0]?.col_id ?? -1;
+  // Get a unique key for the column
+  const key = units[0]?.unit_id;
 
-  return h(LabelTrackerProvider, { units, key: col_id }, [
+  return h(LabelTrackerProvider, { units, key }, [
     h(SectionUnitsColumn, {
       width: columnWidth,
       unitComponent,
@@ -102,7 +103,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
         innerWidth,
         paddingH: 1,
       },
-      sections.map((group, i) => {
+      sections.map((group) => {
         const { units, scaleInfo, section_id } = group;
 
         const key = `section-${section_id}`;
@@ -122,16 +123,12 @@ function SectionUnitsColumn(props: SectionSharedProps) {
         );
       })
     ),
-    h.if(unconformityLabels)(UnconformityLabels, {
-      sections,
-      totalHeight,
-      width,
-    }),
+    h.if(unconformityLabels)(UnconformityLabels, { width }),
   ]);
 }
 
 function SectionUnits(props: SectionProps) {
-  // Section with "squishy" time scale
+  // Section with "squishy" timescale
   const {
     units,
     scaleInfo,
@@ -208,7 +205,7 @@ export function CompositeTimescale(props: CompositeTimescaleProps) {
 
   return h(
     "div.timescale-column",
-    sections.map((group, i) => {
+    sections.map((group) => {
       const { scaleInfo, key } = group;
       const { domain, pixelHeight, paddingTop } = scaleInfo;
       return h(
@@ -229,8 +226,9 @@ export function CompositeTimescale(props: CompositeTimescaleProps) {
   );
 }
 
-function UnconformityLabels(props) {
-  const { sections, totalHeight, width } = props;
+function UnconformityLabels(props: { width: number }) {
+  const { width } = props;
+  const { sections, totalHeight } = useMacrostratColumnData();
 
   return h(
     "div.unconformity-labels",
