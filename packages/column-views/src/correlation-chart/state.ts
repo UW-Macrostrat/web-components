@@ -1,4 +1,4 @@
-import { LineString, Point } from "geojson";
+import { Point } from "geojson";
 import { create } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
 import { runColumnQuery } from "#/map/map-interface/app-state/handlers/fetch";
@@ -6,7 +6,6 @@ import { ColumnIdentifier } from "./correlation-chart";
 import { UnitLong } from "@macrostrat/api-types";
 import { LocalStorage } from "@macrostrat/ui-components";
 import { SectionRenderData } from "./types";
-import { preprocessUnits } from "@macrostrat/column-views";
 
 export interface CorrelationState extends CorrelationLocalStorageState {
   focusedColumns: FocusedColumnGeoJSONRecord[];
@@ -95,7 +94,16 @@ type ColumnData = {
 };
 
 async function fetchUnitsForColumn(col_id: number): Promise<ColumnData> {
-  const units = await runColumnQuery({ col_id }, null);
+  const url = "https://macrostrat.org/api/v2/units";
+  const params = new URLSearchParams();
+  params.append("response", "long");
+  params.append("col_id", col_id.toString());
+  const res = await fetch(url + "?" + params.toString());
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error("Failed to fetch column units");
+  }
+  const units = data.successdata;
   return { columnID: col_id, units };
 }
 
@@ -146,4 +154,18 @@ export function columnGeoJSONRecordToColumnIdentifier(
     col_name: col.properties.col_name,
     project_id: col.properties.project_id,
   };
+}
+
+export async function fetchColumnUnits(columnID: number) {
+  const url = api;
+  const res = await axios.get(base + "/units", {
+    cancelToken,
+    responseType: "json",
+    params: { response: "long", col_id: column.col_id },
+  });
+  try {
+    return res.data.success.data;
+  } catch (error) {
+    return [];
+  }
 }

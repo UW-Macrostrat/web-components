@@ -72,12 +72,12 @@ export function ColumnNavigationProvider({
 
   // Set up the store
   /** TODO: unify handling of columns between parts of application */
-  useAsyncEffect(async () => {
-    let _columns = columns ?? (await getColumns(projectID, inProcess));
-    store.setState({ columns: _columns, selectedColumn });
-  }, [projectID, inProcess, columns, getColumns]);
+  // useAsyncEffect(async () => {
+  //   let _columns = columns ?? (await getColumns(projectID, inProcess));
+  //   store.setState({ columns: _columns, selectedColumn });
+  // }, [projectID, inProcess, columns, getColumns]);
 
-  const _columns = useMacrostratColumns(projectID, inProcess);
+  const _columns = columns ?? useMacrostratColumns(projectID, inProcess);
   useEffect(() => {
     if (_columns != null) {
       store.setState({ columns: _columns, selectedColumn });

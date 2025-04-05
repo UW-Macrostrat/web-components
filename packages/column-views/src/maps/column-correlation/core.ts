@@ -112,7 +112,7 @@ function ColumnsLayer({ enabled = true }) {
         features: columns,
       };
 
-      console.log("Setting columns", data);
+      console.log(" columns", data);
       setGeoJSON(map, "columns", data);
     },
     [columns, enabled]

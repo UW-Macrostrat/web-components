@@ -6,7 +6,6 @@ import {
   ColoredUnitComponent,
   Column,
   ColumnCorrelationMap,
-  ColumnNavigationMap,
   ColumnCorrelationProvider,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
@@ -15,6 +14,12 @@ import { Spinner } from "@blueprintjs/core";
 import { useColumnBasicInfo, useColumnUnits } from "./utils";
 import styles from "./stories.module.sass";
 import { LineString } from "geojson";
+import {
+  CorrelationChart,
+  useCorrelationChartData,
+} from "../correlation-chart";
+import { ErrorBoundary } from "@macrostrat/ui-components";
+import { OverlaysProvider } from "@blueprintjs/core";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -56,6 +61,17 @@ function CorrelationStoryUI({
       ]),
     ])
   );
+}
+
+function CorrelationDiagramWrapper() {
+  const chartData = useCorrelationChartData();
+
+  return h("div.correlation-diagram", [
+    h(
+      ErrorBoundary,
+      h(OverlaysProvider, [h(CorrelationChart, { data: chartData })])
+    ),
+  ]);
 }
 
 function convertLineToGeoJSON(line: [number, number][]): LineString | null {

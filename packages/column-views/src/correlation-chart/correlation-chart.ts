@@ -8,7 +8,7 @@ import { Column, TimescaleColumn } from "./column";
 import { UnitLong } from "@macrostrat/api-types";
 import { AgeComparable, GapBoundPackage, SectionRenderData } from "./types";
 import { DisplayDensity, useCorrelationDiagramStore } from "./state";
-import { mergeAgeRanges } from "@macrostrat-web/utility-functions";
+import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 import styles from "./main.module.sass";
 import hyper from "@macrostrat/hyper";
 import { ColumnAxisType } from "@macrostrat/column-components";
