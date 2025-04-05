@@ -4,14 +4,17 @@ import {
   prepareColumnUnits,
   SectionInfo,
 } from "@macrostrat/column-views";
+import { UnitSelectionProvider, UnitKeyboardNavigation } from "../units";
+import { UnitSelectionPopover } from "../unit-details";
 import { Column, TimescaleColumn } from "./column";
 import { UnitLong } from "@macrostrat/api-types";
 import { AgeComparable, GapBoundPackage, SectionRenderData } from "./types";
 import { DisplayDensity, useCorrelationDiagramStore } from "./state";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
-import styles from "./main.module.sass";
 import hyper from "@macrostrat/hyper";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import styles from "./correlation-chart.module.sass";
+import { useRef } from "react";
 
 const h = hyper.styled(styles);
 
@@ -70,9 +73,15 @@ function regridChartData(data: CorrelationChartData) {
 export function CorrelationChart({ data }: { data: CorrelationChartData }) {
   const chartData = data;
 
+  const columnRef = useRef(null);
+
   if (chartData == null || chartData.columnData.length == 0) {
     return null;
   }
+
+  const units = chartData.columnData
+    .map((d0) => d0.map((d) => d.units).flat())
+    .flat();
 
   const columnWidth = 130;
   const columnSpacing = 0;
@@ -81,19 +90,26 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
 
   const firstColumn = chartData.columnData[0];
 
-  return h(ChartArea, [
-    h(TimescaleColumnExt, {
-      key: "timescale",
-      packages: firstColumn,
-    }),
-    h("div.main-chart", [
-      h(
-        packages.map((pkg, i) =>
-          h(Package, { data: pkg, key: i, columnWidth, columnSpacing })
-        )
-      ),
-    ]),
-  ]);
+  return h(
+    UnitSelectionProvider,
+    { columnRef },
+    h(ChartArea, [
+      h(TimescaleColumnExt, {
+        key: "timescale",
+        packages: firstColumn,
+      }),
+      h("div.main-chart", { ref: columnRef }, [
+        h(
+          packages.map((pkg, i) =>
+            h(Package, { data: pkg, key: i, columnWidth, columnSpacing })
+          )
+        ),
+        h(UnitSelectionPopover),
+        // Navigation only works within a column for now...
+        h(UnitKeyboardNavigation, { units }),
+      ]),
+    ])
+  );
 }
 
 export function useCorrelationChartData() {

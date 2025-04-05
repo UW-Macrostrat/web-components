@@ -66,10 +66,10 @@ export function UnitSelectionPopover() {
       {
         style: {
           position: "absolute",
-          top: position?.y,
-          width: position?.width,
-          left: position?.x,
-          height: position?.height,
+          top: position?.y ?? 0,
+          width: position?.width ?? 100,
+          left: position?.x ?? 0,
+          height: position?.height ?? 100,
         },
       },
       h(UnitDetailsPanel, {

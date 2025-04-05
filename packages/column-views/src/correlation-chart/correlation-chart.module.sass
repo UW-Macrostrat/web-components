@@ -102,37 +102,9 @@ $map-size-inset: 12em
   display: flex
   flex-direction: column
 
+.main-chart
+  position: relative
 
 .correlation-chart-inner
   display: flex
   flex-direction: row
-
-.overlay-safe-area
-  position: absolute
-  top: 1em
-  left: 1em
-  right: 1em
-  bottom: 1em
-  pointer-events: none
-
-.map-inset
-  .overlay-safe-area
-    margin-right: $map-size-inset + 1em
-
-  .column-selection-map
-    z-index: 1000
-
-.assistant
-  display: flex
-  flex-direction: column
-  gap: 1em
-
-.settings
-  padding: 1em
-  min-width: 10em
-
-  > :first-child
-    margin-top: 0
-
-  > :last-child
-    margin-bottom: 0

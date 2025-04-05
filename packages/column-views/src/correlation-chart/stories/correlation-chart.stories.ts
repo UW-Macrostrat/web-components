@@ -46,19 +46,16 @@ function CorrelationStoryUI({
         setFocusedLine(line?.coordinates);
       },
     },
-    h(
-      UnitSelectionManager,
-      h("div.correlation-ui", [
-        h("div.correlation-container", [h(CorrelationDiagramWrapper)]),
-        h("div.right-column", [
-          h(ColumnCorrelationMap, {
-            accessToken: mapboxToken,
-            className: "correlation-map",
-            showLogo: false,
-          }),
-        ]),
-      ])
-    )
+    h("div.correlation-ui", [
+      h("div.correlation-container", [h(CorrelationDiagramWrapper)]),
+      h("div.right-column", [
+        h(ColumnCorrelationMap, {
+          accessToken: mapboxToken,
+          className: "correlation-map",
+          showLogo: false,
+        }),
+      ]),
+    ])
   );
 }
 

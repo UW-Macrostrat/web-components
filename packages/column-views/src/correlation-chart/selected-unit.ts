@@ -67,7 +67,6 @@ function SelectedUnitPopover<T>({
         width,
         height: bottom - top,
       },
-      boundary: scrollParentRef?.current,
       usePortal: true,
     },
     content

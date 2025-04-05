@@ -104,7 +104,7 @@ function Section(props: ISectionProps) {
           unitComponentProps: _unitComponentProps,
           clipToFrame: false,
         }),
-        h.if(!expanded)(SelectedUnitPopoverContainer, {
+        h(SelectedUnitPopoverContainer, {
           width: columnWidth,
           height,
           padding: 2,
