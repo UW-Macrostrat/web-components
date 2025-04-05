@@ -3,8 +3,6 @@ import "@macrostrat/style-system";
 import { useArgs } from "@storybook/client-api";
 import { useCallback, useEffect } from "react";
 import {
-  ColoredUnitComponent,
-  Column,
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   UnitSelectionProvider,
@@ -12,8 +10,6 @@ import {
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
 
-import { Spinner } from "@blueprintjs/core";
-import { useColumnBasicInfo, useColumnUnits } from "./utils";
 import styles from "./stories.module.sass";
 import { LineString } from "geojson";
 import {
@@ -32,6 +28,7 @@ const h = hyperStyled(styles);
 
 function CorrelationStoryUI({
   focusedLine,
+  setFocusedLine,
   columnID,
   setColumn,
   selectedUnit,
@@ -42,26 +39,22 @@ function CorrelationStoryUI({
 }) {
   return h(
     ColumnCorrelationProvider,
-    { focusedLine: convertLineToGeoJSON(focusedLine), baseURL: apiV2Prefix },
+    {
+      focusedLine: convertLineToGeoJSON(focusedLine),
+      baseURL: apiV2Prefix,
+      onSelectColumns(cols, line) {
+        setFocusedLine(line?.coordinates);
+      },
+    },
     h(
       UnitSelectionManager,
-      h("div.column-ui", [
-        h("div.column-container", [
-          h(CorrelationDiagramWrapper),
-          h(ColumnCore, {
-            col_id: columnID,
-            selectedUnit,
-            setSelectedUnit,
-            inProcess,
-            ...rest,
-          }),
-        ]),
+      h("div.correlation-ui", [
+        h("div.correlation-container", [h(CorrelationDiagramWrapper)]),
         h("div.right-column", [
           h(ColumnCorrelationMap, {
             accessToken: mapboxToken,
             className: "correlation-map",
             showLogo: false,
-            focusedLine: null,
           }),
         ]),
       ])
@@ -122,43 +115,12 @@ function convertLineToGeoJSON(line: [number, number][]): LineString | null {
   };
 }
 
-function ColumnCore({
-  col_id,
-  inProcess,
-  selectedUnit,
-  setSelectedUnit,
-  ...rest
-}) {
-  const units = useColumnUnits(col_id, inProcess);
-  const info = useColumnBasicInfo(col_id, inProcess);
-
-  if (units == null || info == null) {
-    return h(Spinner);
-  }
-
-  return h("div.column-container", [
-    h("h2", info.col_name),
-    h(Column, {
-      key: col_id,
-      units,
-      selectedUnit,
-      onUnitSelected: (unit_id) => {
-        setSelectedUnit(unit_id);
-      },
-      unconformityLabels: true,
-      keyboardNavigation: true,
-      columnWidth: 300,
-      showUnitPopover: true,
-      width: 450,
-      unitComponent: ColoredUnitComponent,
-      ...rest,
-    }),
-  ]);
-}
-
 export default {
   title: "Column views/Correlation chart",
   component: CorrelationStoryUI,
+  parameters: {
+    layout: "fullscreen",
+  },
   args: {
     focusedLine: [
       [-100, 45],
@@ -231,10 +193,10 @@ export default {
   },
 } as Meta<CorrelationStoryUI>;
 
-function useColumnSelection() {
-  const [{ columnID, selectedUnit }, updateArgs] = useArgs();
-  const setColumn = (columnID) => {
-    updateArgs({ columnID });
+function useCorrelationLine() {
+  const [{ focusedLine, selectedUnit }, updateArgs] = useArgs();
+  const setFocusedLine = (line) => {
+    updateArgs({ focusedLine: line });
   };
 
   const setSelectedUnit = useCallback(
@@ -245,9 +207,9 @@ function useColumnSelection() {
   );
 
   return {
-    columnID,
+    focusedLine,
+    setFocusedLine,
     selectedUnit,
-    setColumn,
     setSelectedUnit,
   };
 }
@@ -255,7 +217,7 @@ function useColumnSelection() {
 function Template(args) {
   return h(CorrelationStoryUI, {
     ...args,
-    ...useColumnSelection(),
+    ...useCorrelationLine(),
   });
 }
 
