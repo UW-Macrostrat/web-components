@@ -267,6 +267,11 @@ export enum AgeScaleMode {
   Broken = "broken",
 }
 
+interface ColumnData {
+  columnID: number;
+  units: UnitLong[];
+}
+
 function buildColumnData(
   columns: ColumnData[],
   settings: CorrelationChartSettings | undefined
@@ -276,6 +281,8 @@ function buildColumnData(
 
   const opts: PrepareColumnOptions = {
     axisType: ColumnAxisType.AGE,
+    targetUnitHeight,
+    unconformityHeight: 20,
   };
 
   // Preprocess column data
@@ -286,10 +293,6 @@ function buildColumnData(
       ...prepareColumnUnits(units, opts),
     };
   });
-
-  console.log(columns1);
-
-  console.log(columns1);
 
   // Create a single gap-bound package for each column
   const units = columns1.map((d) => d.units);
@@ -316,7 +319,7 @@ function buildColumnData(
   }
 
   let pkgs: GapBoundPackage[] = [];
-  for (const column of columns) {
+  for (const column of columns1) {
     pkgs.push(...findGapBoundPackages(column));
   }
   pkgs = mergeOverlappingGapBoundPackages(pkgs);
@@ -327,7 +330,7 @@ function buildColumnData(
     findBestPixelScale(pkg, { targetUnitHeight })
   );
 
-  const columnData = columns.map((d) => {
+  const columnData = columns1.map((d) => {
     return pkgs
       .map((pkg, i): SectionRenderData => {
         const { t_age, b_age } = pkg;

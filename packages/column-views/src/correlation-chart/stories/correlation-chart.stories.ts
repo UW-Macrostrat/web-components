@@ -1,12 +1,14 @@
 import { Meta } from "@storybook/react";
 import "@macrostrat/style-system";
 import { useArgs } from "@storybook/client-api";
-import { useCallback } from "react";
+import { useCallback, useEffect } from "react";
 import {
   ColoredUnitComponent,
   Column,
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
+  UnitSelectionProvider,
+  useCorrelationMapStore,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
 
@@ -20,6 +22,7 @@ import {
 } from "../correlation-chart";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
+import { useCorrelationDiagramStore } from "../state";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -40,31 +43,68 @@ function CorrelationStoryUI({
   return h(
     ColumnCorrelationProvider,
     { focusedLine: convertLineToGeoJSON(focusedLine), baseURL: apiV2Prefix },
-    h("div.column-ui", [
-      h(
-        "div.column-container",
-        h(ColumnCore, {
-          col_id: columnID,
-          selectedUnit,
-          setSelectedUnit,
-          inProcess,
-          ...rest,
-        })
-      ),
-      h("div.right-column", [
-        h(ColumnCorrelationMap, {
-          accessToken: mapboxToken,
-          className: "correlation-map",
-          showLogo: false,
-          focusedLine: null,
-        }),
-      ]),
-    ])
+    h(
+      UnitSelectionManager,
+      h("div.column-ui", [
+        h("div.column-container", [
+          h(CorrelationDiagramWrapper),
+          h(ColumnCore, {
+            col_id: columnID,
+            selectedUnit,
+            setSelectedUnit,
+            inProcess,
+            ...rest,
+          }),
+        ]),
+        h("div.right-column", [
+          h(ColumnCorrelationMap, {
+            accessToken: mapboxToken,
+            className: "correlation-map",
+            showLogo: false,
+            focusedLine: null,
+          }),
+        ]),
+      ])
+    )
+  );
+}
+
+function UnitSelectionManager({ children }) {
+  const selectedUnit = useCorrelationDiagramStore(
+    (state) => state.selectedUnit
+  );
+  const setSelectedUnit = useCorrelationDiagramStore(
+    (state) => state.setSelectedUnit
+  );
+
+  return h(
+    UnitSelectionProvider,
+    {
+      unit: selectedUnit,
+      setUnit: setSelectedUnit,
+    },
+    children
   );
 }
 
 function CorrelationDiagramWrapper() {
+  /** This state management is a bit too complicated, but it does kinda sorta work */
   const chartData = useCorrelationChartData();
+
+  const setFocusedColumns = useCorrelationDiagramStore(
+    (s) => s.setSelectedColumns
+  );
+
+  // Sync focused columns with map
+  const focusedColumns = useCorrelationMapStore(
+    (state) => state.focusedColumns
+  );
+
+  useEffect(() => {
+    setFocusedColumns(focusedColumns);
+  }, [focusedColumns]);
+
+  console.log("Correlation chart data", chartData);
 
   return h("div.correlation-diagram", [
     h(

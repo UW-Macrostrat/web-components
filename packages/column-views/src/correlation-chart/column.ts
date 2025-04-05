@@ -4,6 +4,7 @@ import {
   ColumnProvider,
   SVG,
   AgeAxis,
+  ColumnAxis,
 } from "@macrostrat/column-components";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import {
@@ -283,12 +284,12 @@ function TimescaleSection(props: {
       pixelsPerMeter: pixelScale, // Actually pixels per myr
     },
     [
-      h(AgeAxis, {
-        width: 20,
-        padding: 0,
-        paddingV: 10,
-        showLabel: false,
-      }),
+      // h(ColumnAxis, {
+      //   width: 20,
+      //   padding: 0,
+      //   paddingV: 10,
+      //   showLabel: false,
+      // }),
       h("div.timescale-container", { style: { marginTop: `10px` } }, [
         h(Timescale, {
           orientation: TimescaleOrientation.VERTICAL,

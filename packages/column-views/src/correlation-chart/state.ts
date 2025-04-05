@@ -1,7 +1,6 @@
 import { Point } from "geojson";
 import { create } from "zustand";
 import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
-import { runColumnQuery } from "#/map/map-interface/app-state/handlers/fetch";
 import { ColumnIdentifier } from "./correlation-chart";
 import { UnitLong } from "@macrostrat/api-types";
 import { LocalStorage } from "@macrostrat/ui-components";
@@ -103,7 +102,7 @@ async function fetchUnitsForColumn(col_id: number): Promise<ColumnData> {
   if (!data.success) {
     throw new Error("Failed to fetch column units");
   }
-  const units = data.successdata;
+  const units = data.success.data;
   return { columnID: col_id, units };
 }
 

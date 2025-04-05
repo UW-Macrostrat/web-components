@@ -44,8 +44,6 @@ export function MacrostratColumnDataProvider({
     };
   }, [units, sections, totalHeight, axisType]);
 
-  console.log(value);
-
   return h(MacrostratColumnDataContext.Provider, { value }, children);
 }
 
