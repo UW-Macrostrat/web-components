@@ -14,7 +14,7 @@ import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 import hyper from "@macrostrat/hyper";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import styles from "./correlation-chart.module.sass";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
 const h = hyper.styled(styles);
 
@@ -75,16 +75,19 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
 
   const columnRef = useRef(null);
 
-  if (chartData == null || chartData.columnData.length == 0) {
-    return null;
-  }
-
-  const units = chartData.columnData
-    .map((d0) => d0.map((d) => d.units).flat())
-    .flat();
+  // A flattened units array is used to support keyboard navigation
+  const units = useMemo(() => {
+    return chartData.columnData
+      .map((d0) => d0.map((d) => d.units).flat())
+      .flat();
+  }, [chartData]);
 
   const columnWidth = 130;
   const columnSpacing = 0;
+
+  if (chartData == null || chartData.columnData.length == 0) {
+    return null;
+  }
 
   const packages = regridChartData(data);
 

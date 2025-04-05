@@ -24,7 +24,6 @@ import { SectionRenderData } from "./types";
 import { useCorrelationDiagramStore } from "./state";
 import hyper from "@macrostrat/hyper";
 import { ColumnIdentifier } from "./correlation-chart";
-import { SelectedUnitPopoverContainer } from "./selected-unit";
 import styles from "./column.module.scss";
 
 const h = hyper.styled(styles);
@@ -103,11 +102,6 @@ function Section(props: ISectionProps) {
           unitComponent,
           unitComponentProps: _unitComponentProps,
           clipToFrame: false,
-        }),
-        h(SelectedUnitPopoverContainer, {
-          width: columnWidth,
-          height,
-          padding: 2,
         }),
       ]
     )
