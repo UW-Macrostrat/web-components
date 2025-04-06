@@ -11,7 +11,7 @@ import { BaseUnit } from "@macrostrat/api-types";
 import {
   collapseUnconformitiesByPixelHeight,
   ColumnScaleOptions,
-  CompositeScaleInformation,
+  CompositeColumnData,
   computeSectionHeights,
   finalizeSectionHeights,
   SectionInfo,
@@ -35,7 +35,7 @@ export enum MergeSectionsMode {
   OVERLAPPING = "overlapping",
 }
 
-export interface PreparedColumnData extends CompositeScaleInformation {
+export interface PreparedColumnData extends CompositeColumnData {
   sections: SectionInfoExt[];
   units: ExtUnit[];
 }

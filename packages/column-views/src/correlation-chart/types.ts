@@ -17,11 +17,6 @@ export interface AgeComparable {
   t_age: number;
 }
 
-export interface CorrelatedGapBoundPackage extends AgeComparable {
-  units: UnitLong[][];
-  bestPixelScale: number;
-}
-
 type ColumnID = number;
 
 export type ColumnUnitIndex = Map<ColumnID, UnitLong[]>;

@@ -1,8 +1,8 @@
 import { AgeComparable, GapBoundPackage, SectionRenderData } from "./types";
 import { CompositeStratigraphicScaleInfo } from "../age-axis";
 import {
-  PackageScaleInfo,
-  PackageScaleLayoutData,
+  buildCompositeScaleInfo,
+  LinearScaleDef,
   SectionInfo,
 } from "../prepare-units/composite-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -10,57 +10,28 @@ import { UnitLong } from "@macrostrat/api-types";
 import { PrepareColumnOptions, prepareColumnUnits } from "../prepare-units";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 import { CorrelationChartData } from "./types";
-import { scaleLinear } from "d3-scale";
 
 export function deriveScale(
   packages: SectionRenderData[],
   unconformityHeight: number = 20
 ): CompositeStratigraphicScaleInfo {
   /** Find the total height and scale for each package */
-  let totalHeight = unconformityHeight / 2;
-  let lastSectionTopHeight = 0;
+  const scales: LinearScaleDef[] = packages.map((d) => {
+    return {
+      domain: [d.b_age, d.t_age],
+      pixelScale: d.bestPixelScale,
+    };
+  });
 
-  const packages2: PackageScaleLayoutData[] = [];
+  const { sections, totalHeight } = buildCompositeScaleInfo(
+    scales,
+    unconformityHeight
+  );
 
-  for (const group of packages) {
-    const scaleInfo = buildScaleInfo(group);
-
-    const scale1 = scaleInfo.scale
-      .copy()
-      .range(scaleInfo.scale.range().map((d) => d + totalHeight));
-
-    const [b_age, t_age] = scaleInfo.domain;
-
-    const key = `package-${b_age}-${t_age}`;
-    packages2.push({
-      ...scaleInfo,
-      key,
-      offset: totalHeight,
-      // Unconformity height above this particular section
-      paddingTop: totalHeight - lastSectionTopHeight,
-      scale: scale1,
-    });
-    lastSectionTopHeight = totalHeight + scaleInfo.pixelHeight;
-    totalHeight = lastSectionTopHeight + unconformityHeight;
-  }
-  totalHeight += unconformityHeight / 2;
   return {
-    axisType: ColumnAxisType.AGE,
+    packages: sections,
     totalHeight,
-    packages: packages2,
-  };
-}
-
-function buildScaleInfo(data: SectionRenderData): PackageScaleInfo {
-  const { b_age, t_age, bestPixelScale } = data;
-  const pixelHeight = Math.abs(b_age - t_age) * bestPixelScale;
-  const domain: [number, number] = [b_age, t_age];
-  const scale = scaleLinear().domain([t_age, b_age]).range([0, pixelHeight]);
-  return {
-    domain,
-    pixelScale: bestPixelScale,
-    pixelHeight,
-    scale,
+    axisType: ColumnAxisType.AGE,
   };
 }
 

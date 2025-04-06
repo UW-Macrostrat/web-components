@@ -41,13 +41,16 @@ export interface SectionScaleOptions extends ColumnHeightScaleOptions {
   domain: [number, number];
 }
 
+export interface LinearScaleDef {
+  domain: [number, number];
+  pixelScale: number;
+}
+
 /** Output of a section scale. For now, this assumes that the
  * mapping is linear, but it could be extended to support arbitrary
  * scale functions.
  */
-export interface PackageScaleInfo {
-  domain: [number, number];
-  pixelScale: number;
+export interface PackageScaleInfo extends LinearScaleDef {
   pixelHeight: number;
   // TODO: add a function
   scale: ScaleLinear<number, number>;
@@ -67,9 +70,9 @@ export type PackageLayoutData = SectionInfo & {
   key: string;
 };
 
-export interface CompositeScaleInformation {
+export interface CompositeScaleData {
   totalHeight: number;
-  sections: PackageLayoutData[];
+  sections: PackageScaleLayoutData[];
 }
 
 export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
@@ -77,10 +80,17 @@ export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
   unconformityHeight: number;
 }
 
-export function finalizeSectionHeights(
-  sections: SectionInfoWithScale[],
+// Composite scale information augmented with units in each package
+
+export interface CompositeColumnData
+  extends Omit<CompositeScaleData, "sections"> {
+  sections: PackageLayoutData[];
+}
+
+export function buildCompositeScaleInfo(
+  inputScales: LinearScaleDef[],
   unconformityHeight: number
-): CompositeScaleInformation {
+): CompositeScaleData {
   /** Finalize the heights of sections, including the heights of unconformities
    * between them.
    */
@@ -88,31 +98,55 @@ export function finalizeSectionHeights(
   let totalHeight = unconformityHeight / 2;
   let lastSectionTopHeight = 0;
 
-  const sections1: PackageLayoutData[] = [];
-  for (const group of sections) {
-    const { scaleInfo } = group;
+  const packages2: PackageScaleLayoutData[] = [];
+  for (const group of inputScales) {
+    const { domain, pixelScale } = group;
+    const [b_age, t_age] = domain;
+    const key = `package-${b_age}-${t_age}`;
 
-    const scale1 = scaleInfo.scale
-      .copy()
-      .range(scaleInfo.scale.range().map((d) => d + totalHeight));
-
-    const key = `section-${group.section_id}`;
-    sections1.push({
-      ...group,
+    packages2.push({
+      ...createPackageScale(group, totalHeight),
       key,
-      scaleInfo: {
-        ...scaleInfo,
-        key,
-        offset: totalHeight,
-        // Unconformity height above this particular section
-        paddingTop: totalHeight - lastSectionTopHeight,
-        scale: scale1,
-      },
+      offset: totalHeight,
+      // Unconformity height above this particular section
+      paddingTop: totalHeight - lastSectionTopHeight,
     });
-    lastSectionTopHeight = totalHeight + scaleInfo.pixelHeight;
+    const pixelHeight = pixelScale * Math.abs(b_age - t_age);
+    lastSectionTopHeight = totalHeight + pixelHeight;
     totalHeight = lastSectionTopHeight + unconformityHeight;
   }
   totalHeight += unconformityHeight / 2;
+  return {
+    totalHeight,
+    sections: packages2,
+  };
+}
+
+export function finalizeSectionHeights(
+  sections: SectionInfoWithScale[],
+  unconformityHeight: number
+): CompositeColumnData {
+  /** Finalize the heights of sections, including the heights of unconformities
+   * between them.
+   */
+
+  const sectionScales = sections.map((d) => d.scaleInfo);
+  const { totalHeight, sections: packages } = buildCompositeScaleInfo(
+    sectionScales,
+    unconformityHeight
+  );
+
+  // This could perhaps be simplified.
+  const sections1: PackageLayoutData[] = [];
+  for (const i in sections) {
+    const group = sections[i];
+    const scaleInfo = packages[i];
+    sections1.push({
+      ...group,
+      key: scaleInfo.key,
+      scaleInfo,
+    });
+  }
   return {
     totalHeight,
     sections: sections1,
@@ -181,17 +215,28 @@ function buildSectionScale(
   let height = dAge * _pixelScale;
 
   // If height is less than minSectionHeight, set it to minSectionHeight
-  const _minSectionHeight = minSectionHeight ?? targetUnitHeight;
-  if (height < _minSectionHeight) {
-    height = _minSectionHeight;
-    _pixelScale = _minSectionHeight / dAge;
-  }
+  const _minSectionHeight = minSectionHeight ?? targetUnitHeight ?? 0;
+  height = Math.max(height, _minSectionHeight);
+  _pixelScale = height / dAge;
 
+  return createPackageScale({ domain, pixelScale: _pixelScale }, 0);
+}
+
+export function createPackageScale(
+  def: LinearScaleDef,
+  offset: number = 0
+): PackageScaleInfo {
+  /** Build a section scale */
+  // Domain should be oriented from bottom to top, but scale is oriented from top to bottom
+  const { domain, pixelScale } = def;
+  const pixelHeight = pixelScale * Math.abs(domain[0] - domain[1]);
   return {
     domain,
-    pixelScale: _pixelScale,
-    pixelHeight: height,
-    scale: scaleLinear().domain([domain[1], domain[0]]).range([0, height]),
+    pixelScale,
+    pixelHeight,
+    scale: scaleLinear()
+      .domain([domain[1], domain[0]])
+      .range([offset, pixelHeight + offset]),
   };
 }
 
@@ -224,6 +269,7 @@ export function createCompositeScale(
   sections: PackageLayoutData[],
   interpolateUnconformities: boolean = false
 ): (age: number) => number | null {
+  /** Create a scale that works across multiple packages */
   // Get surfaces at which scale breaks
   let scaleBreaks: [number, number][] = [];
   for (const section of sections) {
