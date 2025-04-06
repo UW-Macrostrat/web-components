@@ -364,3 +364,26 @@ function findOverlapping<T extends AgeComparable>(
 function ageOverlaps(a: AgeComparable, b: AgeComparable) {
   return a.t_age <= b.b_age && a.b_age >= b.t_age;
 }
+
+// Regrid chart data to go by package
+export function regridChartData(data: CorrelationChartData) {
+  const { columnData } = data;
+  let packages: MultiColumnPackageData[] = columnData[0].map((d, i) => {
+    return {
+      b_age: d.b_age,
+      t_age: d.t_age,
+      bestPixelScale: d.bestPixelScale,
+      columnData: [] as ColumnExt[],
+    };
+  });
+  for (let column of columnData) {
+    for (let i = 0; i < column.length; i++) {
+      packages[i].columnData.push({
+        columnID: column[i].columnID,
+        units: column[i].units,
+      });
+    }
+  }
+
+  return packages;
+}
