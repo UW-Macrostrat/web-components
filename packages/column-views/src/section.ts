@@ -6,11 +6,7 @@ import {
 import { ReactNode, FunctionComponent, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
-import {
-  CompositeStratigraphicScaleInfo,
-  Duration,
-  MacrostratColumnProvider,
-} from "./index";
+import { Duration, MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
 import type { ExtUnit } from "./prepare-units/helpers";

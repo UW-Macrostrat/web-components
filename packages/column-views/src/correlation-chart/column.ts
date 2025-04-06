@@ -1,24 +1,14 @@
 import {
   ColumnAxisType,
-  ColumnLayoutContext,
   ColumnProvider,
   SVG,
 } from "@macrostrat/column-components";
-import {
-  expandInnerSize,
-  useDarkMode,
-  useInDarkMode,
-} from "@macrostrat/ui-components";
+import { expandInnerSize, useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { useContext, useMemo } from "react";
-import {
-  CompositeUnitsColumn,
-  getMixedUnitColor,
-  TrackedLabeledUnit,
-  useLithologies,
-} from "@macrostrat/column-views";
+import { useMemo } from "react";
+import { CompositeUnitsColumn } from "@macrostrat/column-views";
 import { SectionRenderData, ColumnIdentifier } from "./types";
-import { useCorrelationDiagramStore } from "./state";
+import { ColoredUnitComponent } from "../units";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.scss";
 
@@ -49,8 +39,6 @@ function Section(props: ISectionProps) {
     unitComponentProps,
     columnSpacing = 0,
   } = props;
-
-  const expanded = useCorrelationDiagramStore((s) => s.mapExpanded);
 
   const columnWidth = width;
   const { units, bestPixelScale: pixelScale, t_age, b_age } = data;
@@ -137,36 +125,6 @@ function ColumnSVG(props) {
   );
 }
 
-export function UnitComponent({ division, nColumns = 2, ...rest }) {
-  const { width } = useContext(ColumnLayoutContext);
-  const lithMap = useLithologies();
-  const inDarkMode = useInDarkMode();
-
-  const backgroundColor = getMixedUnitColor(division, lithMap, inDarkMode);
-
-  return h(TrackedLabeledUnit, {
-    division,
-    ...rest,
-    backgroundColor,
-    width: division.overlappingUnits.length > 0 ? width / nColumns : width,
-    x: (division.column * width) / nColumns,
-  });
-}
-
-function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
-  if (upperUnits.length == 0 || lowerUnits.length == 0) {
-    return null;
-  }
-
-  const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
-
-  return h(
-    "div.unconformity",
-    { style },
-    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`)
-  );
-}
-
 export function Column({
   data,
   columnSpacing,
@@ -190,7 +148,7 @@ export function Column({
       h(`div.section`, [
         h(Section, {
           data,
-          unitComponent: UnitComponent,
+          unitComponent: ColoredUnitComponent,
           showLabels: false,
           width,
           columnSpacing,
