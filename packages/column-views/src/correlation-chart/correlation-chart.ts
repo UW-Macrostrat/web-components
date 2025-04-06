@@ -1,10 +1,9 @@
 /** Correlation chart */
 import {
-  CompositeAgeAxisCore,
-  SectionInfo,
+  UnitSelectionProvider,
+  UnitKeyboardNavigation,
   useUnitSelectionStore,
-} from "@macrostrat/column-views";
-import { UnitSelectionProvider, UnitKeyboardNavigation } from "../units";
+} from "../units";
 import { UnitSelectionPopover } from "../unit-details";
 import { Column } from "./column";
 import { SectionRenderData } from "./types";
@@ -24,6 +23,8 @@ import {
   AgeScaleMode,
   regridChartData,
 } from "./prepare-data";
+import { CompositeAgeAxisCore } from "../age-axis";
+import { CorrelationChartData } from "./types";
 
 const h = hyper.styled(styles);
 

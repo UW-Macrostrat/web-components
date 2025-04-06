@@ -3,10 +3,7 @@ import {
   ColumnLayoutContext,
   ColumnProvider,
   SVG,
-  AgeAxis,
-  ColumnAxis,
 } from "@macrostrat/column-components";
-import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import {
   expandInnerSize,
   useDarkMode,
@@ -15,20 +12,15 @@ import {
 import classNames from "classnames";
 import { useContext, useMemo } from "react";
 import {
-  CompositeAgeAxisCore,
-  CompositeStratigraphicScaleInfo,
   CompositeUnitsColumn,
   getMixedUnitColor,
   TrackedLabeledUnit,
   useLithologies,
-  VerticalAxisLabel,
 } from "@macrostrat/column-views";
-import { SectionRenderData } from "./types";
+import { SectionRenderData, ColumnIdentifier } from "./types";
 import { useCorrelationDiagramStore } from "./state";
 import hyper from "@macrostrat/hyper";
-import { ColumnIdentifier } from "./correlation-chart";
 import styles from "./column.module.scss";
-import { CompositeTimescaleCore } from "../section";
 
 const h = hyper.styled(styles);
 
@@ -204,32 +196,6 @@ export function Column({
           columnSpacing,
         }),
       ]),
-    ])
-  );
-}
-
-interface TimescaleColumnProps {
-  scaleInfo: CompositeStratigraphicScaleInfo;
-  className?: string;
-  showLabels?: boolean;
-  unconformityLabels: boolean;
-}
-
-export function TimescaleColumn(props: TimescaleColumnProps) {
-  const { className: baseClassName, scaleInfo } = props;
-
-  const darkMode = useDarkMode();
-
-  const className = classNames(baseClassName, {
-    "dark-mode": darkMode?.isEnabled ?? false,
-  });
-
-  return h(
-    "div.column-container",
-    { className },
-    h("div.column", [
-      h(CompositeAgeAxisCore, { ...scaleInfo }),
-      h(CompositeTimescaleCore, { ...scaleInfo }),
     ])
   );
 }

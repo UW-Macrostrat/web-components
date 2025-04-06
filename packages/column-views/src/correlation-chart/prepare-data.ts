@@ -9,7 +9,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { UnitLong } from "@macrostrat/api-types";
 import { PrepareColumnOptions, prepareColumnUnits } from "../prepare-units";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
-import { CorrelationChartData } from "./correlation-chart";
+import { CorrelationChartData } from "./types";
 import { scaleLinear } from "d3-scale";
 
 export function deriveScale(

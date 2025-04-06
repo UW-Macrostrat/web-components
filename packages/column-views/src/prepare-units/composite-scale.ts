@@ -221,7 +221,7 @@ function findSectionHeightRange(
 }
 
 export function createCompositeScale(
-  sections: PackageLayoutInfo[],
+  sections: PackageLayoutData[],
   interpolateUnconformities: boolean = false
 ): (age: number) => number | null {
   // Get surfaces at which scale breaks
