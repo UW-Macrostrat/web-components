@@ -3,10 +3,17 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray } from "./utils";
 import { ScaleLinear, scaleLinear } from "d3-scale";
 
-export interface SectionInfo {
-  section_id: number | number[];
+export interface StratigraphicPackage {
+  /** A collection of stratigraphic information organized in time, corresponding
+   * to single or multiple columns. */
   t_age: number;
   b_age: number;
+}
+
+export interface SectionInfo extends StratigraphicPackage {
+  /** A time-bounded part of a single stratigraphic column.
+   */
+  section_id: number | number[];
   units: ExtUnit[];
 }
 

@@ -28,7 +28,7 @@ const AgeAxisCore = ({ ticks, tickSpacing = 40, showDomain = false }) => {
 };
 
 export function VerticalAxisLabel(props) {
-  const { label, unit, className } = props;
+  const { label = "Age", unit = "Ma", className } = props;
   return h("div.column-axis-label.age-axis-label", { className }, [
     label,
     " ",
@@ -58,6 +58,10 @@ export function ColumnVerticalAxis(props) {
       h(AgeAxisCore, { ticks, tickSpacing, showDomain })
     ),
   ]);
+}
+
+interface CompositeStratigraphicScaleInfo {
+  axisType: ColumnAxisType;
 }
 
 export function CompositeAgeAxis() {

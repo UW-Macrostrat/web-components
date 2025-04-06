@@ -19,6 +19,7 @@ import {
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { useCorrelationDiagramStore } from "../state";
+import { parseLineFromString, stringifyLine } from "../hash-string";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -40,10 +41,10 @@ function CorrelationStoryUI({
   return h(
     ColumnCorrelationProvider,
     {
-      focusedLine: convertLineToGeoJSON(focusedLine),
+      focusedLine,
       baseURL: apiV2Prefix,
       onSelectColumns(cols, line) {
-        setFocusedLine(line?.coordinates);
+        setFocusedLine(line);
       },
     },
     h("div.correlation-ui", [
@@ -119,10 +120,7 @@ export default {
     layout: "fullscreen",
   },
   args: {
-    focusedLine: [
-      [-100, 45],
-      [-90, 50],
-    ],
+    focusedLine: "-100,45 -90,50",
     columnID: 432,
     axisType: "age",
     collapseSmallUnconformities: false,
@@ -193,7 +191,7 @@ export default {
 function useCorrelationLine() {
   const [{ focusedLine, selectedUnit }, updateArgs] = useArgs();
   const setFocusedLine = (line) => {
-    updateArgs({ focusedLine: line });
+    updateArgs({ focusedLine: stringifyLine(line) });
   };
 
   const setSelectedUnit = useCallback(
@@ -204,7 +202,7 @@ function useCorrelationLine() {
   );
 
   return {
-    focusedLine,
+    focusedLine: parseLineFromString(focusedLine),
     setFocusedLine,
     selectedUnit,
     setSelectedUnit,

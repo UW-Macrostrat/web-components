@@ -19,6 +19,7 @@ import {
   getMixedUnitColor,
   TrackedLabeledUnit,
   useLithologies,
+  VerticalAxisLabel,
 } from "@macrostrat/column-views";
 import { SectionRenderData } from "./types";
 import { useCorrelationDiagramStore } from "./state";
@@ -229,7 +230,7 @@ export function TimescaleColumn(props: TimescaleColumnProps) {
     "div.column-container",
     { className },
     h("div.column", [
-      h("div.age-axis-label", "Age (Ma)"),
+      h(VerticalAxisLabel),
       h(
         "div.main-column",
         packages.map((data, i) => {

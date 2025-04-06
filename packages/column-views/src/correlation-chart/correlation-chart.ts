@@ -3,6 +3,7 @@ import {
   PrepareColumnOptions,
   prepareColumnUnits,
   SectionInfo,
+  useUnitSelectionStore,
 } from "@macrostrat/column-views";
 import { UnitSelectionProvider, UnitKeyboardNavigation } from "../units";
 import { UnitSelectionPopover } from "../unit-details";
@@ -254,7 +255,7 @@ function splitStratIntoBoxes(pkg: UnitGroup): UnitGroupBox[] {
 }
 
 function ChartArea({ children }) {
-  const setSelectedUnit = useCorrelationDiagramStore(
+  const setSelectedUnit = useUnitSelectionStore(
     (state) => state.setSelectedUnit
   );
 
