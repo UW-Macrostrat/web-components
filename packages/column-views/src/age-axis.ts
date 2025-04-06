@@ -37,30 +37,6 @@ export function VerticalAxisLabel(props) {
   ]);
 }
 
-export function ColumnVerticalAxis(props) {
-  const {
-    ticks,
-    tickSpacing,
-    showLabel = true,
-    label,
-    unit,
-    paddingV = 10,
-    showDomain,
-    className,
-    ...rest
-  } = props;
-
-  // Not sure where this extra 5px comes from.
-  return h("div.column.vertical-axis", { className }, [
-    h.if(showLabel)(VerticalAxisLabel, { label, unit }),
-    h(
-      ColumnSVG,
-      { paddingV, ...rest },
-      h(AgeAxisCore, { ticks, tickSpacing, showDomain })
-    ),
-  ]);
-}
-
 export function CompositeAgeAxis() {
   const { axisType, sections, totalHeight } = useMacrostratColumnData();
 

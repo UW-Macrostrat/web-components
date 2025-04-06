@@ -28,6 +28,7 @@ import { useCorrelationDiagramStore } from "./state";
 import hyper from "@macrostrat/hyper";
 import { ColumnIdentifier } from "./correlation-chart";
 import styles from "./column.module.scss";
+import { CompositeTimescaleCore } from "../section";
 
 const h = hyper.styled(styles);
 
@@ -215,14 +216,7 @@ interface TimescaleColumnProps {
 }
 
 export function TimescaleColumn(props: TimescaleColumnProps) {
-  const {
-    className: baseClassName,
-    scaleInfo,
-    columnWidth = 100,
-    unconformityLabels = true,
-  } = props;
-
-  const { packages } = scaleInfo;
+  const { className: baseClassName, scaleInfo } = props;
 
   const darkMode = useDarkMode();
 
@@ -233,44 +227,9 @@ export function TimescaleColumn(props: TimescaleColumnProps) {
   return h(
     "div.column-container",
     { className },
-    h("div.column", [h(CompositeAgeAxisCore, { ...scaleInfo })])
-  );
-}
-
-function TimescaleSection(props: {
-  range: [number, number];
-  pixelScale: number;
-}) {
-  // Section with "squishy" timescale
-  const { range, pixelScale } = props;
-
-  const dAge = range[0] - range[1];
-  const height = dAge * pixelScale;
-
-  return h(
-    MacrostratColumnProvider,
-    {
-      divisions: [],
-      range,
-      pixelsPerMeter: pixelScale, // Actually pixels per myr
-    },
-    [
-      // h(ColumnAxis, {
-      //   width: 20,
-      //   padding: 0,
-      //   paddingV: 10,
-      //   showLabel: false,
-      // }),
-      h("div.timescale-container", { style: { marginTop: `10px` } }, [
-        h(Timescale, {
-          orientation: TimescaleOrientation.VERTICAL,
-          length: height,
-          levels: [2, 4],
-          absoluteAgeScale: true,
-          showAgeAxis: false,
-          ageRange: range,
-        }),
-      ]),
-    ]
+    h("div.column", [
+      h(CompositeAgeAxisCore, { ...scaleInfo }),
+      h(CompositeTimescaleCore, { ...scaleInfo }),
+    ])
   );
 }

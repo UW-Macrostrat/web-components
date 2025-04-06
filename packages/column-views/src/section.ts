@@ -6,7 +6,11 @@ import {
 import { ReactNode, FunctionComponent, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
-import { Duration, MacrostratColumnProvider } from "./index";
+import {
+  CompositeStratigraphicScaleInfo,
+  Duration,
+  MacrostratColumnProvider,
+} from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
 import type { ExtUnit } from "./prepare-units/helpers";
@@ -191,7 +195,22 @@ interface CompositeTimescaleProps {
 
 export function CompositeTimescale(props: CompositeTimescaleProps) {
   const { sections } = useMacrostratColumnData();
-  const { levels = 3 } = props;
+  const sectionScales = sections.map((section) => {
+    return section.scaleInfo;
+  });
+
+  return h(CompositeTimescaleCore, {
+    packages: sectionScales,
+    ...props,
+  });
+}
+
+type CompositeTimescaleCoreProps = CompositeTimescaleProps & {
+  packages: PackageScaleLayoutData[];
+};
+
+export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
+  const { levels = 3, packages } = props;
 
   let _levels: [number, number];
   if (typeof levels === "number") {
@@ -205,9 +224,8 @@ export function CompositeTimescale(props: CompositeTimescaleProps) {
 
   return h(
     "div.timescale-column",
-    sections.map((group) => {
-      const { scaleInfo, key } = group;
-      const { domain, pixelHeight, paddingTop } = scaleInfo;
+    packages.map((group) => {
+      const { domain, pixelHeight, paddingTop, key } = group;
       return h(
         "div.timescale-container",
         { style: { paddingTop, "--timescale-level-count": nCols }, key },

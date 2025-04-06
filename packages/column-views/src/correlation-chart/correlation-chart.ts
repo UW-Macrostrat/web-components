@@ -1,5 +1,6 @@
 /** Correlation chart */
 import {
+  CompositeAgeAxisCore,
   CompositeStratigraphicScaleInfo,
   PrepareColumnOptions,
   prepareColumnUnits,
@@ -8,7 +9,7 @@ import {
 } from "@macrostrat/column-views";
 import { UnitSelectionProvider, UnitKeyboardNavigation } from "../units";
 import { UnitSelectionPopover } from "../unit-details";
-import { Column, TimescaleColumn } from "./column";
+import { Column } from "./column";
 import { UnitLong } from "@macrostrat/api-types";
 import { AgeComparable, GapBoundPackage, SectionRenderData } from "./types";
 import { DisplayDensity, useCorrelationDiagramStore } from "./state";
@@ -24,6 +25,9 @@ import {
   PackageScaleLayoutData,
 } from "../prepare-units/composite-scale";
 import { scaleLinear } from "d3-scale";
+import { useDarkMode } from "@macrostrat/ui-components";
+import { CompositeTimescaleCore } from "../section";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -94,6 +98,12 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
   const columnWidth = 130;
   const columnSpacing = 0;
 
+  const darkMode = useDarkMode();
+
+  const className = classNames({
+    "dark-mode": darkMode?.isEnabled ?? false,
+  });
+
   if (chartData == null || chartData.columnData.length == 0) {
     return null;
   }
@@ -103,24 +113,28 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
   const firstColumn = chartData.columnData[0];
 
   return h(
-    UnitSelectionProvider,
-    { columnRef },
-    h(ChartArea, [
-      h(TimescaleColumnExt, {
-        key: "timescale",
-        packages: firstColumn,
-      }),
-      h("div.main-chart", { ref: columnRef }, [
-        h(
-          packages.map((pkg, i) =>
-            h(Package, { data: pkg, key: i, columnWidth, columnSpacing })
-          )
-        ),
-        h(UnitSelectionPopover),
-        // Navigation only works within a column for now...
-        h(UnitKeyboardNavigation, { units }),
-      ]),
-    ])
+    "div.correlation-container",
+    { className },
+    h(
+      UnitSelectionProvider,
+      { columnRef },
+      h(ChartArea, [
+        h(TimescaleColumn, {
+          key: "timescale",
+          packages: firstColumn,
+        }),
+        h("div.main-chart", { ref: columnRef }, [
+          h(
+            packages.map((pkg, i) =>
+              h(Package, { data: pkg, key: i, columnWidth, columnSpacing })
+            )
+          ),
+          h(UnitSelectionPopover),
+          // Navigation only works within a column for now...
+          h(UnitKeyboardNavigation, { units }),
+        ]),
+      ])
+    )
   );
 }
 
@@ -278,16 +292,20 @@ function ChartArea({ children }) {
   );
 }
 
-function TimescaleColumnExt({ packages }: { packages: SectionRenderData[] }) {
+interface TimescaleColumnProps {
+  packages: SectionRenderData[];
+  showLabels?: boolean;
+  unconformityLabels?: boolean;
+}
+
+export function TimescaleColumn(props: TimescaleColumnProps) {
+  const { packages } = props;
+
   const scaleInfo = deriveScale(packages);
-  return h("div.column", [
-    h(TimescaleColumn, {
-      showLabels: false,
-      unconformityLabels: true,
-      width: 100,
-      columnWidth: 100,
-      scaleInfo,
-    }),
+
+  return h("div.column-container.age-axis-container", [
+    h(CompositeAgeAxisCore, { ...scaleInfo }),
+    h(CompositeTimescaleCore, { ...scaleInfo }),
   ]);
 }
 
