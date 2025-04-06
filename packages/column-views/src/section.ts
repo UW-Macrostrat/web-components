@@ -10,7 +10,7 @@ import { Duration, MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
 import type { ExtUnit } from "./prepare-units/helpers";
-import { SectionScaleInfoExt } from "./prepare-units/composite-scale";
+import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
 import { useMacrostratColumnData, useMacrostratUnits } from "./data-provider";
 
 const h = hyper.styled(styles);
@@ -42,7 +42,7 @@ export interface SectionSharedProps {
 
 export interface SectionProps extends SectionSharedProps {
   units: ExtUnit[];
-  scaleInfo: SectionScaleInfoExt;
+  scaleInfo: PackageScaleLayoutData;
 }
 
 export function SectionsColumn(props: SectionSharedProps) {

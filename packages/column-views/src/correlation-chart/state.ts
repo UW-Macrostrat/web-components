@@ -154,17 +154,3 @@ export function columnGeoJSONRecordToColumnIdentifier(
     project_id: col.properties.project_id,
   };
 }
-
-export async function fetchColumnUnits(columnID: number) {
-  const url = api;
-  const res = await axios.get(base + "/units", {
-    cancelToken,
-    responseType: "json",
-    params: { response: "long", col_id: column.col_id },
-  });
-  try {
-    return res.data.success.data;
-  } catch (error) {
-    return [];
-  }
-}

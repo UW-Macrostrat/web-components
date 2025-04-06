@@ -5,13 +5,11 @@ import { useCallback, useEffect } from "react";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  UnitSelectionProvider,
   useCorrelationMapStore,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
 
 import styles from "./stories.module.sass";
-import { LineString } from "geojson";
 import {
   CorrelationChart,
   useCorrelationChartData,
@@ -60,24 +58,6 @@ function CorrelationStoryUI({
   );
 }
 
-function UnitSelectionManager({ children }) {
-  const selectedUnit = useCorrelationDiagramStore(
-    (state) => state.selectedUnit
-  );
-  const setSelectedUnit = useCorrelationDiagramStore(
-    (state) => state.setSelectedUnit
-  );
-
-  return h(
-    UnitSelectionProvider,
-    {
-      unit: selectedUnit,
-      setUnit: setSelectedUnit,
-    },
-    children
-  );
-}
-
 function CorrelationDiagramWrapper() {
   /** This state management is a bit too complicated, but it does kinda sorta work */
   const chartData = useCorrelationChartData();
@@ -103,14 +83,6 @@ function CorrelationDiagramWrapper() {
       h(OverlaysProvider, [h(CorrelationChart, { data: chartData })])
     ),
   ]);
-}
-
-function convertLineToGeoJSON(line: [number, number][]): LineString | null {
-  if (line == null) return null;
-  return {
-    type: "LineString",
-    coordinates: line,
-  };
 }
 
 export default {

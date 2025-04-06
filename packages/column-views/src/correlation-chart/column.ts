@@ -15,6 +15,8 @@ import {
 import classNames from "classnames";
 import { useContext, useMemo } from "react";
 import {
+  CompositeAgeAxisCore,
+  CompositeStratigraphicScaleInfo,
   CompositeUnitsColumn,
   getMixedUnitColor,
   TrackedLabeledUnit,
@@ -206,7 +208,7 @@ export function Column({
 }
 
 interface TimescaleColumnProps {
-  packages: SectionRenderData[];
+  scaleInfo: CompositeStratigraphicScaleInfo;
   className?: string;
   showLabels?: boolean;
   unconformityLabels: boolean;
@@ -215,10 +217,12 @@ interface TimescaleColumnProps {
 export function TimescaleColumn(props: TimescaleColumnProps) {
   const {
     className: baseClassName,
-    packages,
+    scaleInfo,
     columnWidth = 100,
     unconformityLabels = true,
   } = props;
+
+  const { packages } = scaleInfo;
 
   const darkMode = useDarkMode();
 
@@ -229,35 +233,7 @@ export function TimescaleColumn(props: TimescaleColumnProps) {
   return h(
     "div.column-container",
     { className },
-    h("div.column", [
-      h(VerticalAxisLabel),
-      h(
-        "div.main-column",
-        packages.map((data, i) => {
-          const range = [data.b_age, data.t_age];
-          const pixelScale = data.bestPixelScale;
-          let upperUnits = [];
-          if (i != 0) {
-            upperUnits = [packages[i - 1]];
-          }
-          const lowerUnits = [data];
-
-          return h([
-            h.if(unconformityLabels)(Unconformity, {
-              upperUnits,
-              lowerUnits,
-              style: { width: columnWidth },
-            }),
-            h(`div.section.section-${i}`, [
-              h(TimescaleSection, {
-                range,
-                pixelScale,
-              }),
-            ]),
-          ]);
-        })
-      ),
-    ])
+    h("div.column", [h(CompositeAgeAxisCore, { ...scaleInfo })])
   );
 }
 

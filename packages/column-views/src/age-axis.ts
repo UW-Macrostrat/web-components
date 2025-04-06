@@ -11,6 +11,7 @@ import { useContext } from "react";
 import styles from "./age-axis.module.sass";
 import { useMacrostratColumnData } from "./data-provider";
 import { Parenthetical } from "@macrostrat/data-components";
+import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
 
 const h = hyper.styled(styles);
 
@@ -60,12 +61,31 @@ export function ColumnVerticalAxis(props) {
   ]);
 }
 
-interface CompositeStratigraphicScaleInfo {
-  axisType: ColumnAxisType;
-}
-
 export function CompositeAgeAxis() {
   const { axisType, sections, totalHeight } = useMacrostratColumnData();
+
+  const packages = sections.map((section) => {
+    return {
+      key: `section-${section.section_id}`,
+      ...section.scaleInfo,
+    };
+  });
+
+  return h(CompositeAgeAxisCore, {
+    axisType,
+    packages,
+    totalHeight,
+  });
+}
+
+export interface CompositeStratigraphicScaleInfo {
+  axisType: ColumnAxisType;
+  totalHeight: number;
+  packages: PackageScaleLayoutData[];
+}
+
+export function CompositeAgeAxisCore(props: CompositeStratigraphicScaleInfo) {
+  const { axisType, totalHeight, packages } = props;
 
   if (axisType == ColumnAxisType.ORDINAL) {
     return null;
@@ -94,13 +114,13 @@ export function CompositeAgeAxis() {
         width: 22,
         height: totalHeight,
       },
-      sections.map((group, i) => {
-        const { scaleInfo, section_id } = group;
+      packages.map((group, i) => {
+        const { key, scale } = group;
 
         return h(AgeAxis, {
-          key: `section-${section_id}`,
+          key,
           className: "age-axis",
-          scale: scaleInfo.scale,
+          scale,
           tickSizeOuter: 3,
         });
       })

@@ -2,14 +2,14 @@ import { createContext, useContext, ReactNode, useMemo } from "react";
 import h from "@macrostrat/hyper";
 import {
   createCompositeScale,
-  SectionInfoExt,
+  PackageLayoutData,
 } from "../prepare-units/composite-scale";
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
 interface MacrostratColumnDataContext {
   units: ExtUnit[];
-  sections: SectionInfoExt[];
+  sections: PackageLayoutData[];
   totalHeight?: number;
   axisType?: ColumnAxisType;
 }

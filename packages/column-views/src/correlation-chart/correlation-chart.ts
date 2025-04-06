@@ -1,5 +1,6 @@
 /** Correlation chart */
 import {
+  CompositeStratigraphicScaleInfo,
   PrepareColumnOptions,
   prepareColumnUnits,
   SectionInfo,
@@ -16,6 +17,13 @@ import hyper from "@macrostrat/hyper";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import styles from "./correlation-chart.module.sass";
 import { useMemo, useRef } from "react";
+import {
+  CompositeScaleInformation,
+  PackageLayoutData,
+  PackageScaleInfo,
+  PackageScaleLayoutData,
+} from "../prepare-units/composite-scale";
+import { scaleLinear } from "d3-scale";
 
 const h = hyper.styled(styles);
 
@@ -271,15 +279,68 @@ function ChartArea({ children }) {
 }
 
 function TimescaleColumnExt({ packages }: { packages: SectionRenderData[] }) {
+  const scaleInfo = deriveScale(packages);
   return h("div.column", [
     h(TimescaleColumn, {
       showLabels: false,
       unconformityLabels: true,
       width: 100,
       columnWidth: 100,
-      packages,
+      scaleInfo,
     }),
   ]);
+}
+
+function deriveScale(
+  packages: SectionRenderData[],
+  unconformityHeight: number = 20
+): CompositeStratigraphicScaleInfo {
+  /** Find the total height and scale for each package */
+  let totalHeight = unconformityHeight / 2;
+  let lastSectionTopHeight = 0;
+
+  const packages2: PackageScaleLayoutData[] = [];
+
+  for (const group of packages) {
+    const scaleInfo = buildScaleInfo(group);
+
+    const scale1 = scaleInfo.scale
+      .copy()
+      .range(scaleInfo.scale.range().map((d) => d + totalHeight));
+
+    const [b_age, t_age] = scaleInfo.domain;
+
+    const key = `package-${b_age}-${t_age}`;
+    packages2.push({
+      ...scaleInfo,
+      key,
+      offset: totalHeight,
+      // Unconformity height above this particular section
+      paddingTop: totalHeight - lastSectionTopHeight,
+      scale: scale1,
+    });
+    lastSectionTopHeight = totalHeight + scaleInfo.pixelHeight;
+    totalHeight = lastSectionTopHeight + unconformityHeight;
+  }
+  totalHeight += unconformityHeight / 2;
+  return {
+    axisType: ColumnAxisType.AGE,
+    totalHeight,
+    packages: packages2,
+  };
+}
+
+function buildScaleInfo(data: SectionRenderData): PackageScaleInfo {
+  const { b_age, t_age, bestPixelScale } = data;
+  const pixelHeight = Math.abs(b_age - t_age) * bestPixelScale;
+  const domain: [number, number] = [b_age, t_age];
+  const scale = scaleLinear().domain([t_age, b_age]).range([0, pixelHeight]);
+  return {
+    domain,
+    pixelScale: bestPixelScale,
+    pixelHeight,
+    scale,
+  };
 }
 
 export enum AgeScaleMode {

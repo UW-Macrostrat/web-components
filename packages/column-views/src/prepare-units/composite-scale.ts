@@ -11,8 +11,7 @@ export interface StratigraphicPackage {
 }
 
 export interface SectionInfo extends StratigraphicPackage {
-  /** A time-bounded part of a single stratigraphic column.
-   */
+  /** A time-bounded part of a single stratigraphic column. */
   section_id: number | number[];
   units: ExtUnit[];
 }
@@ -46,7 +45,7 @@ export interface SectionScaleOptions extends ColumnHeightScaleOptions {
  * mapping is linear, but it could be extended to support arbitrary
  * scale functions.
  */
-export interface SectionScaleInfo {
+export interface PackageScaleInfo {
   domain: [number, number];
   pixelScale: number;
   pixelHeight: number;
@@ -54,20 +53,23 @@ export interface SectionScaleInfo {
   scale: ScaleLinear<number, number>;
 }
 
-export type SectionScaleInfoExt = SectionScaleInfo & {
+export type PackageScaleLayoutData = PackageScaleInfo & {
+  // A unique key for the section to use in React
+  key: string;
   offset: number;
+  // How much to
   paddingTop: number;
 };
 
-export type SectionInfoExt = SectionInfo & {
-  scaleInfo: SectionScaleInfoExt;
+export type PackageLayoutData = SectionInfo & {
+  scaleInfo: PackageScaleLayoutData;
   // A unique key for the section to use in React
   key: string;
 };
 
 export interface CompositeScaleInformation {
   totalHeight: number;
-  sections: SectionInfoExt[];
+  sections: PackageLayoutData[];
 }
 
 export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
@@ -86,7 +88,7 @@ export function finalizeSectionHeights(
   let totalHeight = unconformityHeight / 2;
   let lastSectionTopHeight = 0;
 
-  const sections1: SectionInfoExt[] = [];
+  const sections1: PackageLayoutData[] = [];
   for (const group of sections) {
     const { scaleInfo } = group;
 
@@ -94,11 +96,13 @@ export function finalizeSectionHeights(
       .copy()
       .range(scaleInfo.scale.range().map((d) => d + totalHeight));
 
+    const key = `section-${group.section_id}`;
     sections1.push({
       ...group,
-      key: `section-${group.section_id}`,
+      key,
       scaleInfo: {
         ...scaleInfo,
+        key,
         offset: totalHeight,
         // Unconformity height above this particular section
         paddingTop: totalHeight - lastSectionTopHeight,
@@ -116,7 +120,7 @@ export function finalizeSectionHeights(
 }
 
 interface SectionInfoWithScale extends SectionInfo {
-  scaleInfo: SectionScaleInfo;
+  scaleInfo: PackageScaleInfo;
 }
 
 export function computeSectionHeights(
@@ -155,7 +159,7 @@ function addScaleToSection(
 function buildSectionScale(
   data: ExtUnit[],
   opts: SectionScaleOptions
-): SectionScaleInfo {
+): PackageScaleInfo {
   const {
     targetUnitHeight = 20,
     minPixelScale = 0.2,
@@ -217,7 +221,7 @@ function findSectionHeightRange(
 }
 
 export function createCompositeScale(
-  sections: SectionInfoExt[],
+  sections: PackageLayoutInfo[],
   interpolateUnconformities: boolean = false
 ): (age: number) => number | null {
   // Get surfaces at which scale breaks
