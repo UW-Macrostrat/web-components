@@ -30,7 +30,7 @@ interface ISectionProps {
   targetUnitHeight?: number;
 }
 
-function Section(props: ISectionProps) {
+export function Column(props: ISectionProps) {
   // Section with "squishy" timescale
   const {
     data,
@@ -62,79 +62,15 @@ function Section(props: ISectionProps) {
     };
   }, [units, unitComponentProps]);
 
-  return h(
-    ColumnSVG,
-    {
-      innerWidth: columnWidth,
-      paddingH: columnSpacing / 2,
-      paddingV: 10,
-      innerHeight: height,
-    },
-    h(
-      MacrostratColumnProvider,
-      {
-        divisions: units,
-        range,
-        pixelsPerMeter: pixelScale, // Actually pixels per myr
-      },
-      [
-        h(CompositeUnitsColumn, {
-          width: columnWidth,
-          columnWidth,
-          gutterWidth: 5,
-          showLabels: false,
-          unitComponent,
-          unitComponentProps: _unitComponentProps,
-          clipToFrame: false,
-        }),
-      ]
-    )
-  );
-}
+  const nextProps = expandInnerSize({
+    innerWidth: columnWidth,
+    paddingH: columnSpacing / 2,
+    paddingV: 10,
+    innerHeight: height,
+  });
 
-function ColumnSVG(props) {
-  //# Need to rework to use UI Box code
-  const { children, className, innerRef, style, ...rest } = props;
-  const nextProps = expandInnerSize(rest);
-  const {
-    paddingLeft,
-    paddingTop,
-    innerHeight,
-    innerWidth,
-    height,
-    width,
-    ...remainingProps
-  } = nextProps;
-  return h(
-    SVG,
-    {
-      className: classNames(className, "section"),
-      height,
-      width,
-      innerRef,
-      ...remainingProps,
-      style,
-    },
-    h(
-      "g.backdrop",
-      {
-        transform: `translate(${paddingLeft},${paddingTop})`,
-      },
-      children
-    )
-  );
-}
+  const { paddingLeft, paddingTop } = nextProps;
 
-export function Column({
-  data,
-  columnSpacing,
-  width,
-}: {
-  column: ColumnIdentifier;
-  data: SectionRenderData;
-  width: number;
-  columnSpacing: number;
-}) {
   const darkMode = useDarkMode();
 
   const className = classNames({
@@ -145,14 +81,28 @@ export function Column({
     "div.column-container",
     { className },
     h("div.column", [
-      h(`div.section`, [
-        h(Section, {
-          data,
-          unitComponent: ColoredUnitComponent,
-          showLabels: false,
-          width,
-          columnSpacing,
-        }),
+      h(SVG, { className: "section", ...nextProps }, [
+        h(
+          "g.backdrop",
+          {
+            transform: `translate(${paddingLeft},${paddingTop})`,
+          },
+          h(
+            MacrostratColumnProvider,
+            {
+              divisions: units,
+              range,
+              pixelsPerMeter: pixelScale, // Actually pixels per myr
+            },
+            h(CompositeUnitsColumn, {
+              width: columnWidth,
+              showLabels: false,
+              unitComponent: ColoredUnitComponent,
+              unitComponentProps: _unitComponentProps,
+              clipToFrame: false,
+            })
+          )
+        ),
       ]),
     ])
   );
