@@ -5,7 +5,6 @@ import {
   useUnitSelectionStore,
 } from "../units";
 import { UnitSelectionPopover } from "../unit-details";
-import { Column } from "./column";
 import { SectionRenderData } from "./types";
 import { DisplayDensity, useCorrelationDiagramStore } from "./state";
 import hyper from "@macrostrat/hyper";
@@ -25,7 +24,14 @@ import {
 } from "./prepare-data";
 import { CompositeAgeAxisCore } from "../age-axis";
 import { CorrelationChartData } from "./types";
-import { SVG } from "@macrostrat/column-components";
+import {
+  ColumnAxisType,
+  ColumnProvider,
+  SVG,
+} from "@macrostrat/column-components";
+import { expandInnerSize } from "@macrostrat/ui-components";
+import { CompositeUnitsColumn } from "@macrostrat/column-views";
+import { ColoredUnitComponent } from "../units";
 
 const h = hyper.styled(styles);
 
@@ -74,13 +80,25 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
           packages: firstColumn,
         }),
         h("div.main-chart", { ref: columnRef }, [
-          h(SVG, {
-            className,
-            width: mainWidth,
-            height: scaleInfo.totalHeight,
-          }),
-          packages.map((pkg, i) =>
-            h(Package, { data: pkg, key: i, columnWidth, columnSpacing })
+          h(
+            SVG,
+            {
+              className,
+              width: mainWidth,
+              height: scaleInfo.totalHeight,
+            },
+            packages.map((pkg, i) => {
+              const { offset, scale, pixelHeight, key } = scaleInfo.packages[i];
+              return h(Package, {
+                data: pkg,
+                key,
+                columnWidth,
+                columnSpacing,
+                offset,
+                scale,
+                pixelHeight,
+              });
+            })
           ),
           h(UnitSelectionPopover),
           // Navigation only works within a column for now...
@@ -109,13 +127,20 @@ export function useCorrelationChartData() {
   });
 }
 
-function Package({ data, columnSpacing, columnWidth }) {
+function Package({
+  data,
+  columnSpacing,
+  columnWidth,
+  offset,
+  scale,
+  pixelHeight,
+}) {
   const { columnData, b_age, t_age, bestPixelScale } = data;
 
-  return h("div.package", [
+  return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
     //h(PackageSVGOverlay, { data, columnSpacing }),
-    h("div.column-container", [
+    h("g.column-container", [
       columnData.map((d, i) => {
         return h(Column, {
           data: {
@@ -131,6 +156,79 @@ function Package({ data, columnSpacing, columnWidth }) {
       }),
     ]),
   ]);
+}
+
+function MacrostratColumnProvider(props) {
+  // A column provider specialized the Macrostrat API
+  return h(ColumnProvider, { axisType: ColumnAxisType.AGE, ...props });
+}
+
+interface ISectionProps {
+  data: SectionRenderData;
+  unitComponent?: React.FunctionComponent<any>;
+  unitComponentProps?: any;
+  showLabels?: boolean;
+  width?: number;
+  columnWidth?: number;
+  columnSpacing?: number;
+  targetUnitHeight?: number;
+}
+
+function Column(props: ISectionProps) {
+  const { data, width = 150, unitComponentProps, columnSpacing = 0 } = props;
+
+  const columnWidth = width;
+  const { units, bestPixelScale: pixelScale, t_age, b_age } = data;
+  const range = [b_age, t_age];
+
+  const dAge = range[0] - range[1];
+
+  const height = dAge * pixelScale;
+
+  /** Ensure that we can arrange units into the maximum number
+   * of columns defined by unitComponentProps, but that we don't
+   * use more than necessary.
+   */
+  const _unitComponentProps = useMemo(() => {
+    return {
+      ...unitComponentProps,
+      nColumns: Math.min(
+        Math.max(...units.map((d) => d.column)) + 1,
+        unitComponentProps?.nColumns ?? 2
+      ),
+    };
+  }, [units, unitComponentProps]);
+
+  const nextProps = expandInnerSize({
+    innerWidth: columnWidth,
+    paddingH: columnSpacing / 2,
+    paddingV: 10,
+    innerHeight: height,
+  });
+
+  const { paddingLeft, paddingTop } = nextProps;
+
+  return h(
+    "g.section",
+    {
+      transform: `translate(${paddingLeft},${paddingTop})`,
+    },
+    h(
+      MacrostratColumnProvider,
+      {
+        divisions: units,
+        range,
+        pixelsPerMeter: pixelScale, // Actually pixels per myr
+      },
+      h(CompositeUnitsColumn, {
+        width: columnWidth,
+        showLabels: false,
+        unitComponent: ColoredUnitComponent,
+        unitComponentProps: _unitComponentProps,
+        clipToFrame: false,
+      })
+    )
+  );
 }
 
 function PackageSVGOverlay({ data, columnWidth = 100, columnSpacing = 0 }) {
