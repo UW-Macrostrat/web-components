@@ -13,7 +13,7 @@ import { CorrelationChartData } from "./types";
 
 export function deriveScale(
   packages: SectionRenderData[],
-  unconformityHeight: number = 20
+  unconformityHeight: number = 24
 ): CompositeStratigraphicScaleInfo {
   /** Find the total height and scale for each package */
   const scales: LinearScaleDef[] = packages.map((d) => {

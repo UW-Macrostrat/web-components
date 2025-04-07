@@ -151,7 +151,6 @@ export function prepareColumnUnits(
     };
   });
 
-  console.log("sections", sections);
 
   /** Reconstitute the units so that they are sorted by section.
    * This is mostly important so that unit keyboard navigation

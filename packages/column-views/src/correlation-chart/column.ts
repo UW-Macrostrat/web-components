@@ -10,7 +10,7 @@ import { CompositeUnitsColumn } from "@macrostrat/column-views";
 import { SectionRenderData, ColumnIdentifier } from "./types";
 import { ColoredUnitComponent } from "../units";
 import hyper from "@macrostrat/hyper";
-import styles from "./column.module.scss";
+import styles from "./correlation-chart.module.sass";
 
 const h = hyper.styled(styles);
 
