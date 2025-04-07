@@ -25,6 +25,7 @@ import {
 } from "./prepare-data";
 import { CompositeAgeAxisCore } from "../age-axis";
 import { CorrelationChartData } from "./types";
+import { SVG } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
 
@@ -57,8 +58,12 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
 
   const firstColumn = chartData.columnData[0];
 
+  const mainWidth = (columnWidth + columnSpacing) * chartData.columnData.length;
+
+  const scaleInfo = deriveScale(firstColumn);
+
   return h(
-    "div.correlation-container",
+    "div.correlation-diagram.column-container",
     { className },
     h(
       UnitSelectionProvider,
@@ -69,6 +74,11 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
           packages: firstColumn,
         }),
         h("div.main-chart", { ref: columnRef }, [
+          h(SVG, {
+            className,
+            width: mainWidth,
+            height: scaleInfo.totalHeight,
+          }),
           packages.map((pkg, i) =>
             h(Package, { data: pkg, key: i, columnWidth, columnSpacing })
           ),
@@ -102,16 +112,10 @@ export function useCorrelationChartData() {
 function Package({ data, columnSpacing, columnWidth }) {
   const { columnData, b_age, t_age, bestPixelScale } = data;
 
-  const darkMode = useDarkMode();
-
-  const className = classNames({
-    "dark-mode": darkMode?.isEnabled ?? false,
-  });
-
   return h("div.package", [
     // Disable the SVG overlay for now
     //h(PackageSVGOverlay, { data, columnSpacing }),
-    h("div.column-container", { className }, [
+    h("div.column-container", [
       columnData.map((d, i) => {
         return h(Column, {
           data: {
