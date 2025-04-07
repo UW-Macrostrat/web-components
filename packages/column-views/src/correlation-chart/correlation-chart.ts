@@ -69,10 +69,8 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
           packages: firstColumn,
         }),
         h("div.main-chart", { ref: columnRef }, [
-          h(
-            packages.map((pkg, i) =>
-              h(Package, { data: pkg, key: i, columnWidth, columnSpacing })
-            )
+          packages.map((pkg, i) =>
+            h(Package, { data: pkg, key: i, columnWidth, columnSpacing })
           ),
           h(UnitSelectionPopover),
           // Navigation only works within a column for now...
@@ -104,10 +102,16 @@ export function useCorrelationChartData() {
 function Package({ data, columnSpacing, columnWidth }) {
   const { columnData, b_age, t_age, bestPixelScale } = data;
 
+  const darkMode = useDarkMode();
+
+  const className = classNames({
+    "dark-mode": darkMode?.isEnabled ?? false,
+  });
+
   return h("div.package", [
     // Disable the SVG overlay for now
     //h(PackageSVGOverlay, { data, columnSpacing }),
-    h("div.column-container", [
+    h("div.column-container", { className }, [
       columnData.map((d, i) => {
         return h(Column, {
           data: {

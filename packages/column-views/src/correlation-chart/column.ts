@@ -3,18 +3,17 @@ import {
   ColumnProvider,
   SVG,
 } from "@macrostrat/column-components";
-import { expandInnerSize, useDarkMode } from "@macrostrat/ui-components";
-import classNames from "classnames";
+import { expandInnerSize } from "@macrostrat/ui-components";
 import { useMemo } from "react";
 import { CompositeUnitsColumn } from "@macrostrat/column-views";
-import { SectionRenderData, ColumnIdentifier } from "./types";
+import { SectionRenderData } from "./types";
 import { ColoredUnitComponent } from "../units";
 import hyper from "@macrostrat/hyper";
 import styles from "./correlation-chart.module.sass";
 
 const h = hyper.styled(styles);
 
-export function MacrostratColumnProvider(props) {
+function MacrostratColumnProvider(props) {
   // A column provider specialized the Macrostrat API
   return h(ColumnProvider, { axisType: ColumnAxisType.AGE, ...props });
 }
@@ -31,14 +30,7 @@ interface ISectionProps {
 }
 
 export function Column(props: ISectionProps) {
-  // Section with "squishy" timescale
-  const {
-    data,
-    unitComponent,
-    width = 150,
-    unitComponentProps,
-    columnSpacing = 0,
-  } = props;
+  const { data, width = 150, unitComponentProps, columnSpacing = 0 } = props;
 
   const columnWidth = width;
   const { units, bestPixelScale: pixelScale, t_age, b_age } = data;
@@ -71,39 +63,27 @@ export function Column(props: ISectionProps) {
 
   const { paddingLeft, paddingTop } = nextProps;
 
-  const darkMode = useDarkMode();
-
-  const className = classNames({
-    "dark-mode": darkMode?.isEnabled ?? false,
-  });
-
-  return h(
-    "div.column-container",
-    { className },
-    h("div.column", [
-      h(SVG, { className: "section", ...nextProps }, [
-        h(
-          "g.backdrop",
-          {
-            transform: `translate(${paddingLeft},${paddingTop})`,
-          },
-          h(
-            MacrostratColumnProvider,
-            {
-              divisions: units,
-              range,
-              pixelsPerMeter: pixelScale, // Actually pixels per myr
-            },
-            h(CompositeUnitsColumn, {
-              width: columnWidth,
-              showLabels: false,
-              unitComponent: ColoredUnitComponent,
-              unitComponentProps: _unitComponentProps,
-              clipToFrame: false,
-            })
-          )
-        ),
-      ]),
-    ])
-  );
+  return h(SVG, { className: "section", ...nextProps }, [
+    h(
+      "g.backdrop",
+      {
+        transform: `translate(${paddingLeft},${paddingTop})`,
+      },
+      h(
+        MacrostratColumnProvider,
+        {
+          divisions: units,
+          range,
+          pixelsPerMeter: pixelScale, // Actually pixels per myr
+        },
+        h(CompositeUnitsColumn, {
+          width: columnWidth,
+          showLabels: false,
+          unitComponent: ColoredUnitComponent,
+          unitComponentProps: _unitComponentProps,
+          clipToFrame: false,
+        })
+      )
+    ),
+  ]);
 }
