@@ -1,4 +1,8 @@
-import type { ColumnGeoJSONRecord, MacrostratRef } from "@macrostrat/api-types";
+import {
+  ColumnGeoJSONRecord,
+  MacrostratRef,
+  UnitLong,
+} from "@macrostrat/api-types";
 import {
   addQueryString,
   joinURL,
@@ -6,7 +10,13 @@ import {
 } from "@macrostrat/ui-components";
 import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
-import { geoArea, geoCentroid } from "d3-geo";
+import { geoArea } from "d3-geo";
+import { ColumnIdentifier } from "../correlation-chart/types";
+
+function defaultFetch(url: string, options: RequestInit) {
+  const baseURL = "https://macrostrat.org/api/v2";
+  return crossFetch(baseURL + url, options);
+}
 
 export interface ColumnFetchOptions {
   apiBaseURL?: string;
@@ -63,7 +73,7 @@ export async function fetchAllColumns(
   return postProcessColumns(columnProcessors[format](data));
 }
 
-export function useColumnData({
+export function useColumnFeatures({
   apiRoute = "/columns",
   status_code,
   project_id,
@@ -149,12 +159,15 @@ async function unwrapResponse(res) {
   return resData["success"]["data"];
 }
 
-export async function fetchLithologies(fetch) {
+export async function fetchLithologies(fetch = defaultFetch) {
   const res = await fetch("/defs/lithologies?all");
   return await unwrapResponse(res);
 }
 
-export async function fetchIntervals(fetch: any, timescaleID: number | null) {
+export async function fetchIntervals(
+  timescaleID: number | null,
+  fetch = defaultFetch
+) {
   let url = `/defs/intervals`;
   if (timescaleID != null) {
     url += `?timescale_id=${timescaleID}`;
@@ -165,14 +178,14 @@ export async function fetchIntervals(fetch: any, timescaleID: number | null) {
   return await unwrapResponse(res);
 }
 
-export async function fetchEnvironments(fetch) {
+export async function fetchEnvironments(fetch = defaultFetch) {
   const res = await fetch("/defs/environments?all");
   return await unwrapResponse(res);
 }
 
 export async function fetchRefs(
-  fetch,
-  refs: number[]
+  refs: number[],
+  fetch = defaultFetch
 ): Promise<MacrostratRef[]> {
   let url = `/defs/refs`;
   if (refs.length == 0) {
@@ -181,4 +194,33 @@ export async function fetchRefs(
   url += "?ref_id=" + refs.join(",");
   const res = await fetch(url);
   return await unwrapResponse(res);
+}
+
+export type ColumnData = {
+  units: UnitLong[];
+  columnID: number;
+};
+
+export async function fetchUnits(
+  columns: number[],
+  fetch = defaultFetch
+): Promise<ColumnData[]> {
+  const promises = columns.map((col_id) => fetchColumnUnits(col_id, fetch));
+  return await Promise.all(promises);
+}
+
+export async function fetchColumnUnits(
+  col_id: number,
+  fetch = defaultFetch
+): Promise<ColumnData> {
+  const params = new URLSearchParams();
+  params.append("response", "long");
+  params.append("col_id", col_id.toString());
+  const res = await fetch("/units" + "?" + params.toString());
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error("Failed to fetch column units");
+  }
+  const units = data.success.data;
+  return { columnID: col_id, units };
 }

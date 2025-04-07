@@ -5,6 +5,7 @@ import { useCallback, useMemo } from "react";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
+  fetchUnits,
   useCorrelationMapStore,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
@@ -13,9 +14,8 @@ import styles from "./stories.module.sass";
 import { CorrelationChart, CorrelationChartProps } from "../correlation-chart";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
-import { getCorrelationUnits } from "../utils";
 import { parseLineFromString, stringifyLine } from "../hash-string";
-import { AgeScaleMode, buildColumnData } from "../prepare-data";
+import { AgeScaleMode, buildCorrelationChartData } from "../prepare-data";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -67,23 +67,16 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   );
 
   const columnUnits = useAsyncMemo(async () => {
-    return await getCorrelationUnits(focusedColumns);
+    const col_ids = focusedColumns.map((col) => col.properties.col_id);
+    return await fetchUnits(col_ids);
   }, [focusedColumns]);
-
-  const chartData = useMemo(() => {
-    if (!columnUnits) return null;
-    return buildColumnData(columnUnits, {
-      targetUnitHeight,
-      ageMode,
-    });
-  }, [columnUnits, targetUnitHeight, ageMode]);
-
-  if (!chartData || chartData.columnData.length == 0) return null;
 
   return h("div.correlation-diagram", [
     h(
       ErrorBoundary,
-      h(OverlaysProvider, [h(CorrelationChart, { data: chartData, ...props })])
+      h(OverlaysProvider, [
+        h(CorrelationChart, { data: columnUnits, ...props }),
+      ])
     ),
   ]);
 }

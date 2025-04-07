@@ -95,7 +95,7 @@ function createRefsSlice(set, get) {
       if (missing.length == 0) {
         return ids.map((id) => refs.get(id));
       }
-      const data = await fetchRefs(fetch, missing);
+      const data = await fetchRefs(missing, fetch);
       if (data == null) return [];
       for (const d of data) {
         refs.set(d.ref_id, d);
@@ -205,7 +205,7 @@ function createIntervalsSlice(set, get) {
       let _intervals = intervals;
       if (intervals == null || !includesTimescale(intervals, timescaleID)) {
         // Fetch the intervals
-        const data = await fetchIntervals(fetch, timescaleID);
+        const data = await fetchIntervals(timescaleID, fetch);
         if (data == null) {
           return [];
         }

@@ -19,9 +19,10 @@ import {
   UnitGroupBox,
   AgeScaleMode,
   regridChartData,
+  CorrelationChartSettings,
+  buildCorrelationChartData,
 } from "./prepare-data";
 import { CompositeAgeAxisCore } from "../age-axis";
-import { CorrelationChartData } from "./types";
 import {
   ColumnAxisType,
   ColumnProvider,
@@ -31,11 +32,12 @@ import { ColoredUnitComponent } from "../units";
 import { UnitBoxes } from "../units/boxes";
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnContainer } from "../column";
+import { ColumnData } from "../data-provider";
 
 const h = hyper.styled(styles);
 
-export interface CorrelationChartProps {
-  data: CorrelationChartData;
+export interface CorrelationChartProps extends CorrelationChartSettings {
+  data: ColumnData[];
   columnWidth?: number;
   columnSpacing?: number;
   targetUnitHeight?: number;
@@ -46,17 +48,25 @@ export function CorrelationChart({
   data,
   columnSpacing = 0,
   columnWidth = 130,
+  targetUnitHeight = 10,
+  unconformityHeight = 40,
+  ageMode = AgeScaleMode.Broken,
 }: CorrelationChartProps) {
-  const chartData = data;
+  const chartData = useMemo(() => {
+    if (!data) return null;
+    return buildCorrelationChartData(data, {
+      targetUnitHeight,
+      ageMode,
+      unconformityHeight,
+    });
+  }, [data, targetUnitHeight, ageMode]);
 
   const columnRef = useRef(null);
 
   // A flattened units array is used to support keyboard navigation
   const units = useMemo(() => {
-    return chartData.columnData
-      .map((d0) => d0.map((d) => d.units).flat())
-      .flat();
-  }, [chartData]);
+    return data?.map((d0) => d0.units).flat() ?? [];
+  }, [data]);
 
   const darkMode = useDarkMode();
 
@@ -68,7 +78,7 @@ export function CorrelationChart({
     return null;
   }
 
-  const packages = regridChartData(data);
+  const packages = regridChartData(chartData);
   const firstColumn = chartData.columnData[0];
   const mainWidth = (columnWidth + columnSpacing) * chartData.columnData.length;
   const scaleInfo = deriveScale(firstColumn);
@@ -275,7 +285,7 @@ interface TimescaleColumnProps {
   unconformityLabels?: boolean;
 }
 
-export function TimescaleColumn(props: TimescaleColumnProps) {
+function TimescaleColumn(props: TimescaleColumnProps) {
   const { packages } = props;
   const scaleInfo = deriveScale(packages);
   return h("div.column-container.age-axis-container", [

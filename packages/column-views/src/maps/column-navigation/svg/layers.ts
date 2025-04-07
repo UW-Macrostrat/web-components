@@ -9,7 +9,7 @@ import chroma from "chroma-js";
 import { ExtendedFeature } from "d3-geo";
 import { Polygon } from "geojson";
 import { useContext, useMemo } from "react";
-import { useColumnData } from "../../../data-provider";
+import { useColumnFeatures } from "../../../data-provider";
 import {
   buildKeyMapping,
   buildTriangulation,
@@ -184,7 +184,7 @@ const Columns = (props: ColumnNavProps & ColumnExtraInfo) => {
     format = "topojson",
   } = props;
 
-  let features: any[] = useColumnData({
+  let features: any[] = useColumnFeatures({
     apiRoute,
     status_code,
     project_id,

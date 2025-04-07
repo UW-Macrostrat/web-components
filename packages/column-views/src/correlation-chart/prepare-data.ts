@@ -1,4 +1,9 @@
-import { AgeComparable, GapBoundPackage, SectionRenderData } from "./types";
+import {
+  AgeComparable,
+  ColumnIdentifier,
+  GapBoundPackage,
+  SectionRenderData,
+} from "./types";
 import { CompositeStratigraphicScaleInfo } from "../age-axis";
 import {
   buildCompositeScaleInfo,
@@ -6,7 +11,7 @@ import {
   SectionInfo,
 } from "../prepare-units/composite-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { UnitLong } from "@macrostrat/api-types";
+import { type ColumnGeoJSONRecord, UnitLong } from "@macrostrat/api-types";
 import { PrepareColumnOptions, prepareColumnUnits } from "../prepare-units";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 import { CorrelationChartData } from "./types";
@@ -45,12 +50,13 @@ interface ColumnData {
   units: UnitLong[];
 }
 
-interface CorrelationChartSettings {
+export interface CorrelationChartSettings
+  extends Omit<PrepareColumnOptions, "axisType"> {
   ageMode?: AgeScaleMode;
   targetUnitHeight?: number;
 }
 
-export function buildColumnData(
+export function buildCorrelationChartData(
   columns: ColumnData[],
   settings: CorrelationChartSettings | undefined
 ): CorrelationChartData {
@@ -357,4 +363,14 @@ export function regridChartData(data: CorrelationChartData) {
   }
 
   return packages;
+}
+
+export function columnGeoJSONRecordToColumnIdentifier(
+  col: ColumnGeoJSONRecord
+): ColumnIdentifier {
+  return {
+    col_id: col.properties.col_id,
+    col_name: col.properties.col_name,
+    project_id: col.properties.project_id,
+  };
 }
