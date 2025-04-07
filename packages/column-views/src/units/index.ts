@@ -46,7 +46,7 @@ export function SimpleUnitsColumn(props: ICompositeUnitProps) {
 }
 
 export function UnitComponent({ division, nColumns = 2, ...rest }) {
-  const { width } = useColumnLayout();
+  const width = rest.width ?? useColumnLayout()?.width;
 
   const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
   const columnIx = (division.column ?? 0) % nColumns;
@@ -99,5 +99,7 @@ function getPatternID(
       patternIDs.add(lithData.fill);
     }
   }
-  return [...patternIDs][0];
+  let id = patternIDs.values()[0];
+  if (id == "0") return null;
+  return id;
 }

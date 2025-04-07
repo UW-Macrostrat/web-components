@@ -182,8 +182,6 @@ function addScaleToSection(
     domain: _range,
   });
 
-  console.log(group.section_id, scaleInfo);
-
   return {
     ...group,
     scaleInfo,

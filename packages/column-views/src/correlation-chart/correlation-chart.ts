@@ -29,12 +29,23 @@ import {
   ColumnProvider,
   SVG,
 } from "@macrostrat/column-components";
-import { CompositeUnitsColumn } from "@macrostrat/column-views";
 import { ColoredUnitComponent } from "../units";
+import { UnitBoxes } from "../units/boxes";
+import { ExtUnit } from "../prepare-units/helpers";
 
 const h = hyper.styled(styles);
 
-export function CorrelationChart({ data }: { data: CorrelationChartData }) {
+export interface CorrelationChartProps {
+  data: CorrelationChartData;
+  columnWidth?: number;
+  columnSpacing?: number;
+}
+
+export function CorrelationChart({
+  data,
+  columnSpacing = 0,
+  columnWidth = 130,
+}: CorrelationChartProps) {
   const chartData = data;
 
   const columnRef = useRef(null);
@@ -45,9 +56,6 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
       .map((d0) => d0.map((d) => d.units).flat())
       .flat();
   }, [chartData]);
-
-  const columnWidth = 130;
-  const columnSpacing = 0;
 
   const darkMode = useDarkMode();
 
@@ -60,11 +68,8 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
   }
 
   const packages = regridChartData(data);
-
   const firstColumn = chartData.columnData[0];
-
   const mainWidth = (columnWidth + columnSpacing) * chartData.columnData.length;
-
   const scaleInfo = deriveScale(firstColumn);
 
   return h(
@@ -87,15 +92,15 @@ export function CorrelationChart({ data }: { data: CorrelationChartData }) {
               height: scaleInfo.totalHeight,
             },
             packages.map((pkg, i) => {
-              const { offset, scale, pixelHeight, key } = scaleInfo.packages[i];
+              const { offset, domain, pixelScale, key } = scaleInfo.packages[i];
               return h(Package, {
-                data: pkg,
+                columnData: pkg.columnData,
                 key,
                 columnWidth,
                 columnSpacing,
                 offset,
-                scale,
-                pixelHeight,
+                domain,
+                pixelScale,
               });
             })
           ),
@@ -126,24 +131,25 @@ export function useCorrelationChartData() {
   });
 }
 
-function Package({ data, columnSpacing, columnWidth, offset }) {
-  const { columnData, b_age, t_age, bestPixelScale } = data;
-
+function Package({
+  columnData,
+  columnSpacing,
+  columnWidth,
+  offset,
+  domain,
+  pixelScale,
+}) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
     //h(PackageSVGOverlay, { data, columnSpacing }),
     h("g.column-container", [
-      columnData.map((d, i) => {
+      columnData.map((data, i) => {
         return h(Column, {
-          data: {
-            ...d,
-            b_age,
-            t_age,
-            bestPixelScale,
-          },
+          units: data.units,
           width: columnWidth,
-          columnSpacing,
           key: i,
+          domain,
+          pixelScale,
           offsetLeft: i * (columnWidth + columnSpacing),
         });
       }),
@@ -151,8 +157,8 @@ function Package({ data, columnSpacing, columnWidth, offset }) {
   ]);
 }
 
-interface ISectionProps {
-  data: SectionRenderData;
+interface ColumnProps {
+  units: ExtUnit[];
   unitComponent?: React.FunctionComponent<any>;
   unitComponentProps?: any;
   showLabels?: boolean;
@@ -160,14 +166,19 @@ interface ISectionProps {
   columnWidth?: number;
   columnSpacing?: number;
   targetUnitHeight?: number;
+  offsetLeft?: number;
+  domain: [number, number];
+  pixelScale: number;
 }
 
-function Column(props: ISectionProps) {
-  const { data, width = 150, unitComponentProps, offsetLeft } = props;
+function Column(props: ColumnProps) {
+  const { units, width = 150, offsetLeft, domain, pixelScale } = props;
 
   const columnWidth = width;
-  const { units, bestPixelScale: pixelScale, t_age, b_age } = data;
-  const range = [b_age, t_age];
+
+  if (units.length == 0) {
+    return null;
+  }
 
   return h(
     "g.section",
@@ -178,19 +189,16 @@ function Column(props: ISectionProps) {
       ColumnProvider,
       {
         divisions: units,
-        range,
+        range: domain,
         pixelsPerMeter: pixelScale, // Actually pixels per myr
         axisType: ColumnAxisType.AGE,
       },
-      h(CompositeUnitsColumn, {
-        width: columnWidth,
-        showLabels: false,
+      h(UnitBoxes, {
         unitComponent: ColoredUnitComponent,
         unitComponentProps: {
-          // Could make this more adjustable
           nColumns: 1,
+          width: columnWidth,
         },
-        clipToFrame: false,
       })
     )
   );

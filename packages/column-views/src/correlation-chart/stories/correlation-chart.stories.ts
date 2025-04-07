@@ -13,6 +13,7 @@ import styles from "./stories.module.sass";
 import {
   CorrelationChart,
   useCorrelationChartData,
+  CorrelationChartProps,
 } from "../correlation-chart";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
@@ -46,7 +47,7 @@ function CorrelationStoryUI({
       },
     },
     h("div.correlation-ui", [
-      h("div.correlation-container", [h(CorrelationDiagramWrapper)]),
+      h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
       h("div.right-column", [
         h(ColumnCorrelationMap, {
           accessToken: mapboxToken,
@@ -58,7 +59,7 @@ function CorrelationStoryUI({
   );
 }
 
-function CorrelationDiagramWrapper() {
+function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
   const chartData = useCorrelationChartData();
 
@@ -75,12 +76,10 @@ function CorrelationDiagramWrapper() {
     setFocusedColumns(focusedColumns);
   }, [focusedColumns]);
 
-  console.log("Correlation chart data", chartData);
-
   return h("div.correlation-diagram", [
     h(
       ErrorBoundary,
-      h(OverlaysProvider, [h(CorrelationChart, { data: chartData })])
+      h(OverlaysProvider, [h(CorrelationChart, { data: chartData, ...props })])
     ),
   ]);
 }
@@ -93,17 +92,12 @@ export default {
   },
   args: {
     focusedLine: "-100,45 -90,50",
-    columnID: 432,
-    axisType: "age",
+    columnSpacing: 0,
+    columnWidth: 100,
     collapseSmallUnconformities: false,
     targetUnitHeight: 20,
   },
   argTypes: {
-    columnID: {
-      control: {
-        type: "number",
-      },
-    },
     selectedUnit: {
       control: {
         type: "number",
@@ -119,9 +113,15 @@ export default {
         type: "number",
       },
     },
-    axisType: {
-      options: ["age", "ordinal", "depth"],
-      control: { type: "radio" },
+    columnSpacing: {
+      control: {
+        type: "number",
+      },
+    },
+    columnWidth: {
+      control: {
+        type: "number",
+      },
     },
     mergeSections: {
       options: ["all", "overlapping", null],
