@@ -1,7 +1,7 @@
 import { Meta } from "@storybook/react";
 import "@macrostrat/style-system";
 import { useArgs } from "@storybook/client-api";
-import { useCallback, useEffect } from "react";
+import { useCallback, useMemo } from "react";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
@@ -10,15 +10,12 @@ import {
 import { hyperStyled } from "@macrostrat/hyper";
 
 import styles from "./stories.module.sass";
-import {
-  CorrelationChart,
-  useCorrelationChartData,
-  CorrelationChartProps,
-} from "../correlation-chart";
-import { ErrorBoundary } from "@macrostrat/ui-components";
+import { CorrelationChart, CorrelationChartProps } from "../correlation-chart";
+import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
-import { useCorrelationDiagramStore } from "../state";
+import { getCorrelationUnits } from "../utils";
 import { parseLineFromString, stringifyLine } from "../hash-string";
+import { AgeScaleMode, buildColumnData } from "../prepare-data";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -61,20 +58,27 @@ function CorrelationStoryUI({
 
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
-  const chartData = useCorrelationChartData();
 
-  const setFocusedColumns = useCorrelationDiagramStore(
-    (s) => s.setSelectedColumns
-  );
+  const { targetUnitHeight = 10, ageMode = AgeScaleMode.Broken } = props;
 
   // Sync focused columns with map
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns
   );
 
-  useEffect(() => {
-    setFocusedColumns(focusedColumns);
+  const columnUnits = useAsyncMemo(async () => {
+    return await getCorrelationUnits(focusedColumns);
   }, [focusedColumns]);
+
+  const chartData = useMemo(() => {
+    if (!columnUnits) return null;
+    return buildColumnData(columnUnits, {
+      targetUnitHeight,
+      ageMode,
+    });
+  }, [columnUnits, targetUnitHeight, ageMode]);
+
+  if (!chartData || chartData.columnData.length == 0) return null;
 
   return h("div.correlation-diagram", [
     h(

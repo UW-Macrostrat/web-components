@@ -6,7 +6,6 @@ import {
 } from "../units";
 import { UnitSelectionPopover } from "../unit-details";
 import { SectionRenderData } from "./types";
-import { DisplayDensity, useCorrelationDiagramStore } from "./state";
 import hyper from "@macrostrat/hyper";
 import styles from "./correlation-chart.module.sass";
 import { useMemo, useRef } from "react";
@@ -18,7 +17,6 @@ import {
   findLaterallyExtensiveUnits,
   splitStratIntoBoxes,
   UnitGroupBox,
-  buildColumnData,
   AgeScaleMode,
   regridChartData,
 } from "./prepare-data";
@@ -32,6 +30,7 @@ import {
 import { ColoredUnitComponent } from "../units";
 import { UnitBoxes } from "../units/boxes";
 import { ExtUnit } from "../prepare-units/helpers";
+import { ColumnContainer } from "../column";
 
 const h = hyper.styled(styles);
 
@@ -39,6 +38,8 @@ export interface CorrelationChartProps {
   data: CorrelationChartData;
   columnWidth?: number;
   columnSpacing?: number;
+  targetUnitHeight?: number;
+  ageMode?: AgeScaleMode;
 }
 
 export function CorrelationChart({
@@ -73,8 +74,8 @@ export function CorrelationChart({
   const scaleInfo = deriveScale(firstColumn);
 
   return h(
-    "div.correlation-diagram.column-container",
-    { className },
+    ColumnContainer,
+    { className: "correlation-diagram" },
     h(
       UnitSelectionProvider,
       { columnRef },
@@ -88,8 +89,9 @@ export function CorrelationChart({
             SVG,
             {
               className,
-              width: mainWidth,
+              innerWidth: mainWidth,
               height: scaleInfo.totalHeight,
+              paddingH: 4,
             },
             packages.map((pkg, i) => {
               const { offset, domain, pixelScale, key } = scaleInfo.packages[i];
@@ -113,24 +115,6 @@ export function CorrelationChart({
   );
 }
 
-export function useCorrelationChartData() {
-  const columnUnits = useCorrelationDiagramStore((state) => state.columnUnits);
-  const displayDensity = useCorrelationDiagramStore((d) => d.displayDensity);
-
-  let targetUnitHeight = 15;
-  if (displayDensity === DisplayDensity.LOW) {
-    targetUnitHeight = 30;
-  }
-  if (displayDensity === DisplayDensity.HIGH) {
-    targetUnitHeight = 5;
-  }
-
-  return buildColumnData(columnUnits, {
-    ageMode: AgeScaleMode.Broken,
-    targetUnitHeight,
-  });
-}
-
 function Package({
   columnData,
   columnSpacing,
@@ -142,7 +126,7 @@ function Package({
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
     //h(PackageSVGOverlay, { data, columnSpacing }),
-    h("g.column-container", [
+    h("g.column-units", [
       columnData.map((data, i) => {
         return h(Column, {
           units: data.units,

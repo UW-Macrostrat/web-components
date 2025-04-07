@@ -7,6 +7,7 @@ import {
   useEffect,
   useState,
   ReactNode,
+  RefObject,
   useRef,
   useCallback,
 } from "react";
@@ -55,7 +56,7 @@ interface UnitSelectionStore {
 
 export function UnitSelectionProvider<T extends BaseUnit>(props: {
   children: ReactNode;
-  columnRef?: React.RefObject<HTMLElement>;
+  columnRef?: RefObject<HTMLElement>;
   units: T[];
   selectedUnit: number | null;
   onUnitSelected?: (unitID: number | null, unit: T | null) => void;

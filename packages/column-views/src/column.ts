@@ -136,12 +136,7 @@ function ColumnInner(props: ColumnInnerProps) {
     maxInternalColumns,
   } = props;
 
-  const darkMode = useDarkMode();
   const { axisType } = useMacrostratColumnData();
-
-  const className = classNames(baseClassName, {
-    "dark-mode": darkMode?.isEnabled ?? false,
-  });
 
   const dispatch = useUnitSelectionDispatch();
 
@@ -162,10 +157,8 @@ function ColumnInner(props: ColumnInnerProps) {
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
 
   return h(
-    "div.column-container",
+    ColumnContainer,
     {
-      className,
-      // TODO: this could probably be done using the columnRef
       onClick(evt) {
         dispatch?.(null, null, evt as any);
       },
@@ -186,4 +179,20 @@ function ColumnInner(props: ColumnInnerProps) {
       children,
     ])
   );
+}
+
+interface ColumnContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+export function ColumnContainer(props: ColumnContainerProps) {
+  const { className, ...rest } = props;
+  const darkMode = useDarkMode();
+
+  return h("div.column-container", {
+    className: classNames(className, {
+      "dark-mode": darkMode?.isEnabled ?? false,
+    }),
+    ...rest,
+  });
 }

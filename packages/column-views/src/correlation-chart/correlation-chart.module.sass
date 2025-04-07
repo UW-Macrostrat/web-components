@@ -113,23 +113,3 @@ $map-size-inset: 12em
   display: flex
   flex-direction: row
 
-
-/** Column styles (should be deduplicated) **/
-.column-container
-  --background-color: var(--column-background-color, #fff)
-  --stroke-color: var(--column-stroke-color, #000)
-
-.column-container :global .unit-label
-  text-align: center
-
-.column-container :global .unit
-  stroke: var(--stroke-color)
-  stroke-width: 1px
-
-
-.column-container.dark-mode :global g.lithology-column pattern image
-  filter: invert(100%)
-  opacity: 0.4
-
-.column-container :global rect.selection-overlay
-  fill: rgba(255, 0, 0, 0.5)
