@@ -58,8 +58,6 @@ function CorrelationStoryUI({
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
 
-  const { targetUnitHeight = 10 } = props;
-
   // Sync focused columns with map
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns

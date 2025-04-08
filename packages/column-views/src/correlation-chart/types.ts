@@ -1,4 +1,5 @@
 import { UnitLong } from "@macrostrat/api-types";
+import { ExtUnit } from "../prepare-units/helpers";
 
 export interface ColumnIdentifier {
   col_id: number;
@@ -13,7 +14,7 @@ export interface AgeComparable {
 
 type ColumnID = number;
 
-export type ColumnUnitIndex = Map<ColumnID, UnitLong[]>;
+export type ColumnUnitIndex = Map<ColumnID, ExtUnit[]>;
 
 export interface GapBoundPackage extends AgeComparable {
   unitIndex: ColumnUnitIndex;

@@ -18,6 +18,7 @@ import {
   prepareColumnUnits,
 } from "../prepare-units";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
+import { ExtUnit, getSectionAgeRange } from "../prepare-units/helpers";
 
 interface ColumnData {
   columnID: number;
@@ -39,11 +40,12 @@ export function buildCorrelationChartData(
   columns: ColumnData[],
   settings: CorrelationChartSettings
 ): CorrelationChartData {
+  console.log(settings);
   const {
     mergeSections = MergeSectionsMode.OVERLAPPING,
     targetUnitHeight,
     ...rest
-  } = settings ?? {};
+  } = settings;
 
   const opts: PrepareColumnOptions = {
     axisType: ColumnAxisType.AGE,
@@ -67,33 +69,28 @@ export function buildCorrelationChartData(
   // Create a single gap-bound package for each column
   const units = columns1.map((d) => d.units);
 
-  if (mergeSections == MergeSectionsMode.ALL) {
-    const [b_age, t_age] = findEncompassingScaleBounds(units.flat());
-    const dAge = b_age - t_age;
-    const maxNUnits = Math.max(...units.map((d) => d.length));
-    const targetHeight = targetUnitHeight * maxNUnits;
-    const pixelScale = Math.ceil(targetHeight / dAge);
-
-    const columnData: SectionRenderData[][] = columns1.map((d) => {
-      return [
-        {
-          b_age,
-          t_age,
-          bestPixelScale: pixelScale,
-          ...d,
-        },
-      ];
-    });
-
-    return { columnData };
-  }
-
   let pkgs: GapBoundPackage[] = [];
-  for (const column of columns1) {
-    pkgs.push(...findGapBoundPackages(column));
+
+  if (mergeSections == MergeSectionsMode.OVERLAPPING) {
+    for (const column of columns1) {
+      pkgs.push(...findGapBoundPackages(column));
+    }
+    pkgs = mergeOverlappingGapBoundPackages(pkgs);
+    pkgs.sort((a, b) => a.b_age - b.b_age);
+  } else if (mergeSections == MergeSectionsMode.ALL) {
+    const _units = units.flat();
+    const [b_age, t_age] = getSectionAgeRange(_units);
+    const unitIndex = new Map<number, ExtUnit[]>();
+    for (const column of columns1) {
+      unitIndex.set(column.columnID, column.units);
+    }
+
+    pkgs.push({
+      b_age,
+      t_age,
+      unitIndex,
+    });
   }
-  pkgs = mergeOverlappingGapBoundPackages(pkgs);
-  pkgs.sort((a, b) => a.b_age - b.b_age);
 
   // Get the best pixel scale for each gap-bound package
   const pixelScales = pkgs.map((pkg) =>
@@ -287,12 +284,6 @@ function mergeOverlappingGapBoundPackages(
   // Chunk by divisions where t_age is less than the next b_age
 }
 
-function findEncompassingScaleBounds(units: AgeComparable[]) {
-  const b_age = Math.max(...units.map((d) => d.b_age));
-  const t_age = Math.min(...units.map((d) => d.t_age));
-  return [b_age, t_age];
-}
-
 function mergePackages(...packages: GapBoundPackage[]): GapBoundPackage {
   return packages.reduce(
     (a: GapBoundPackage, b: GapBoundPackage) => {
@@ -319,7 +310,7 @@ function findGapBoundPackages(columnData: ColumnData): GapBoundPackage[] {
   /** Find chunks of units overlapping in time, separated by unconformities */
   const { units, columnID } = columnData;
   let packages: GapBoundPackage[] = [];
-  for (let unit of columnData.units) {
+  for (let unit of units) {
     const newPackage: GapBoundPackage = {
       b_age: unit.b_age,
       t_age: unit.t_age,

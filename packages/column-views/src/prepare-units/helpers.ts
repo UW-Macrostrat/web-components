@@ -21,6 +21,8 @@ export interface ExtUnit extends BaseUnit {
    */
   t_clip_pos?: number;
   b_clip_pos?: number;
+  col_id?: number;
+  section_id?: number;
 }
 
 export function preprocessUnits(
