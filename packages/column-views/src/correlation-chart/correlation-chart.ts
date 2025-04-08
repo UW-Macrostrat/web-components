@@ -9,7 +9,7 @@ import hyper from "@macrostrat/hyper";
 import styles from "./correlation-chart.module.sass";
 import { useMemo, useRef } from "react";
 import { useInDarkMode } from "@macrostrat/ui-components";
-import { CompositeTimescaleCore } from "../section";
+import { CompositeTimescaleCore, UnconformityLabels } from "../section";
 import classNames from "classnames";
 import {
   findLaterallyExtensiveUnits,
@@ -40,12 +40,14 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   columnWidth?: number;
   columnSpacing?: number;
   targetUnitHeight?: number;
+  unconformityLabels?: boolean;
 }
 
 export function CorrelationChart({
   data,
   columnSpacing = 0,
   columnWidth = 130,
+  unconformityLabels = true,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -82,6 +84,8 @@ export function CorrelationChart({
 
   const { packages, scaleInfo, nColumns } = chartData;
 
+  const { totalHeight } = scaleInfo;
+
   const mainWidth = (columnWidth + columnSpacing) * nColumns;
 
   return h(
@@ -94,6 +98,7 @@ export function CorrelationChart({
         h(TimescaleColumn, {
           key: "timescale",
           scaleInfo,
+          unconformityLabels,
         }),
         h("div.main-chart", { ref: columnRef }, [
           h(
@@ -256,7 +261,6 @@ function StratColSpan({
   const left = startCol * (columnWidth + columnSpacing);
   const width = (endCol - startCol + 1) * (columnWidth + columnSpacing);
   const height = (b_age - t_age) * pixelScale;
-  console.log(b_age, t_age, height);
   return h(
     "div.strat-col-span",
     { style: { top, height, width, left } },
@@ -287,9 +291,9 @@ interface TimescaleColumnProps {
 }
 
 function TimescaleColumn(props: TimescaleColumnProps) {
-  const { scaleInfo } = props;
+  const { scaleInfo, unconformityLabels = true } = props;
   return h("div.column-container.age-axis-container", [
     h(CompositeAgeAxisCore, { ...scaleInfo }),
-    h(CompositeTimescaleCore, { ...scaleInfo }),
+    h(CompositeTimescaleCore, { ...scaleInfo, unconformityLabels }),
   ]);
 }

@@ -67,6 +67,7 @@ $map-size-inset: 12em
 
 .correlation-diagram
   padding: 1em
+  padding-left: 0
   background-color: var(--panel-secondary-background-color)
   //box-shadow: 0 0 0.3em 0 var(--card-shadow-color)
   --column-background-color: var(--background-color)
@@ -108,8 +109,14 @@ $map-size-inset: 12em
 .correlation-chart-inner
   display: flex
   flex-direction: row
+  position: relative
 
 .age-axis-container
   display: flex
   flex-direction: row
-
+  position: sticky
+  left: 0
+  z-index: 100
+  padding-left: 1em
+  padding-right: 2px
+  background-color: var(--panel-secondary-background-color)

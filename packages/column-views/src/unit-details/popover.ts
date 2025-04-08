@@ -15,7 +15,7 @@ export function UnitDetailsPopover({
   viewportPadding?: number;
   children: React.ReactNode;
 }) {
-  const content = h(LegendPopoverContainer, children);
+  const content = h(InteractionBarrier, children);
 
   return h(
     "div.popover-main",
@@ -26,7 +26,7 @@ export function UnitDetailsPopover({
       Popover,
       // @ts-ignore
       {
-        content: children,
+        content,
         isOpen: true,
         usePortal: false,
         position: "right",
@@ -39,16 +39,16 @@ export function UnitDetailsPopover({
   );
 }
 
-export function LegendPopoverContainer({ children }) {
+function InteractionBarrier({ children }) {
   return h(
-    "div.legend-panel-outer",
+    "div",
     {
       onClick(e) {
         // Stop events from leaking to the parent
         e.stopPropagation();
       },
     },
-    [h("div.legend-info-panel", children)]
+    children
   );
 }
 

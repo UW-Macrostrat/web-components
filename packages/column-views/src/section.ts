@@ -10,7 +10,10 @@ import { Duration, MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
 import type { ExtUnit } from "./prepare-units/helpers";
-import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
+import {
+  PackageLayoutData,
+  PackageScaleLayoutData,
+} from "./prepare-units/composite-scale";
 import { useMacrostratColumnData, useMacrostratUnits } from "./data-provider";
 
 const h = hyper.styled(styles);
@@ -92,6 +95,10 @@ function SectionUnitsColumn(props: SectionSharedProps) {
 
   const { sections, totalHeight } = useMacrostratColumnData();
 
+  const scaleData: PackageScaleLayoutData[] = sections.map((section) => {
+    return section.scaleInfo;
+  });
+
   const innerWidth = width - 2;
 
   return h("div.section-units-container", { style: { width } }, [
@@ -123,7 +130,11 @@ function SectionUnitsColumn(props: SectionSharedProps) {
         );
       })
     ),
-    h.if(unconformityLabels)(UnconformityLabels, { width }),
+    h.if(unconformityLabels)(UnconformityLabels, {
+      width,
+      sections: scaleData,
+      totalHeight,
+    }),
   ]);
 }
 
@@ -203,10 +214,11 @@ export function CompositeTimescale(props: CompositeTimescaleProps) {
 
 type CompositeTimescaleCoreProps = CompositeTimescaleProps & {
   packages: PackageScaleLayoutData[];
+  unconformityLabels?: boolean;
 };
 
 export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
-  const { levels = 3, packages } = props;
+  const { levels = 3, packages, unconformityLabels = false } = props;
 
   let _levels: [number, number];
   if (typeof levels === "number") {
@@ -218,47 +230,58 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
 
   const nCols = _levels[1] - _levels[0] + 1;
 
-  return h(
-    "div.timescale-column",
-    packages.map((group) => {
-      const { domain, pixelHeight, paddingTop, key } = group;
-      return h(
-        "div.timescale-container",
-        { style: { paddingTop, "--timescale-level-count": nCols }, key },
-        [
-          h(Timescale, {
-            orientation: TimescaleOrientation.VERTICAL,
-            length: pixelHeight,
-            levels: _levels,
-            absoluteAgeScale: true,
-            showAgeAxis: false,
-            ageRange: domain as [number, number],
-          }),
-        ]
-      );
-    })
-  );
+  return h("div.timescale-column", [
+    h(
+      "div.timescales",
+      packages.map((group) => {
+        const { domain, pixelHeight, paddingTop, key } = group;
+        return h(
+          "div.timescale-container",
+          { style: { paddingTop, "--timescale-level-count": nCols }, key },
+          [
+            h(Timescale, {
+              orientation: TimescaleOrientation.VERTICAL,
+              length: pixelHeight,
+              levels: _levels,
+              absoluteAgeScale: true,
+              showAgeAxis: false,
+              ageRange: domain as [number, number],
+            }),
+          ]
+        );
+      })
+    ),
+    h.if(unconformityLabels)(UnconformityLabels, {
+      width: "100%",
+      sections: packages,
+      className: "unconformity-labels",
+    }),
+  ]);
 }
 
-function UnconformityLabels(props: { width: number }) {
-  const { width } = props;
-  const { sections, totalHeight } = useMacrostratColumnData();
+export function UnconformityLabels(props: {
+  width: number;
+  sections: PackageScaleLayoutData[];
+  className?: string;
+}) {
+  const { width, sections, className } = props;
 
   return h(
     "div.unconformity-labels",
     {
       style: {
         width,
-        height: totalHeight,
       },
+      className,
     },
-    sections.map((group, i) => {
-      const { units, scaleInfo } = group;
+    sections.map((scaleInfo, i) => {
       const lastGroup = sections[i - 1];
       const top = scaleInfo.offset - scaleInfo.paddingTop;
+      const upperAge = lastGroup?.domain[0];
+      const lowerAge = scaleInfo.domain[1];
       return h(Unconformity, {
-        upperUnits: lastGroup?.units,
-        lowerUnits: units,
+        upperAge,
+        lowerAge,
         style: {
           width,
           height: scaleInfo.paddingTop,
@@ -269,22 +292,21 @@ function UnconformityLabels(props: { width: number }) {
   );
 }
 
-function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
-  if (upperUnits.length == 0 || lowerUnits.length == 0) {
+function Unconformity({ upperAge, lowerAge, style }) {
+  if (upperAge == null || lowerAge == null) {
     return null;
   }
 
-  const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
+  const ageGap = Math.abs(upperAge - lowerAge);
 
   let className: string = null;
-  const absAgeGap = Math.abs(ageGap);
-  if (absAgeGap > 1000) {
+  if (ageGap > 1000) {
     className = "giga";
-  } else if (absAgeGap > 100) {
+  } else if (ageGap > 100) {
     className = "mega";
-  } else if (absAgeGap > 10) {
+  } else if (ageGap > 10) {
     className = "large";
-  } else if (absAgeGap < 1) {
+  } else if (ageGap < 1) {
     className = "small";
   }
 

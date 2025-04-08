@@ -70,8 +70,7 @@ export function ColoredUnitComponent(props) {
   }, [props.division?.unit_id, lithMap, inDarkMode]);
 
   const patternID = useMemo(() => {
-    const patternID =
-      resolveID(props.division) ?? getPatternID(props.division.lith, lithMap);
+    const patternID = resolveID(props.division); // ?? getPatternID(props.division.lith, lithMap);
 
     return patternID;
   }, [props.division?.unit_id, lithMap]);
