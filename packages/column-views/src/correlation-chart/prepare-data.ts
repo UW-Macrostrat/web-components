@@ -14,36 +14,6 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { type ColumnGeoJSONRecord, UnitLong } from "@macrostrat/api-types";
 import { PrepareColumnOptions, prepareColumnUnits } from "../prepare-units";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
-import { CorrelationChartData } from "./types";
-
-export function deriveScale(
-  packages: SectionRenderData[],
-  unconformityHeight: number = 24
-): CompositeStratigraphicScaleInfo {
-  /** Find the total height and scale for each package */
-  const scales: LinearScaleDef[] = packages.map((d) => {
-    return {
-      domain: [d.b_age, d.t_age],
-      pixelScale: d.bestPixelScale,
-    };
-  });
-
-  const { sections, totalHeight } = buildCompositeScaleInfo(
-    scales,
-    unconformityHeight
-  );
-
-  return {
-    packages: sections,
-    totalHeight,
-    axisType: ColumnAxisType.AGE,
-  };
-}
-
-export enum AgeScaleMode {
-  Continuous = "continuous",
-  Broken = "broken",
-}
 
 interface ColumnData {
   columnID: number;
@@ -56,18 +26,31 @@ export interface CorrelationChartSettings
   targetUnitHeight?: number;
 }
 
+export interface CorrelationChartData {
+  packages: MultiColumnPackageData[];
+  scaleInfo: CompositeStratigraphicScaleInfo;
+  nColumns: number;
+}
+
 export function buildCorrelationChartData(
   columns: ColumnData[],
-  settings: CorrelationChartSettings | undefined
+  settings: CorrelationChartSettings
 ): CorrelationChartData {
-  const { ageMode = AgeScaleMode.Continuous, targetUnitHeight = 10 } =
-    settings ?? {};
+  const {
+    ageMode = AgeScaleMode.Broken,
+    targetUnitHeight,
+    ...rest
+  } = settings ?? {};
 
   const opts: PrepareColumnOptions = {
     axisType: ColumnAxisType.AGE,
     targetUnitHeight,
-    unconformityHeight: 20,
+    ...rest,
   };
+
+  if (columns.length == 0) {
+    return null;
+  }
 
   // Preprocess column data
   const columns1 = columns.map((d) => {
@@ -80,9 +63,9 @@ export function buildCorrelationChartData(
 
   // Create a single gap-bound package for each column
   const units = columns1.map((d) => d.units);
-  const [b_age, t_age] = findEncompassingScaleBounds(units.flat());
 
   if (ageMode == AgeScaleMode.Continuous) {
+    const [b_age, t_age] = findEncompassingScaleBounds(units.flat());
     const dAge = b_age - t_age;
     const maxNUnits = Math.max(...units.map((d) => d.length));
     const targetHeight = targetUnitHeight * maxNUnits;
@@ -99,7 +82,7 @@ export function buildCorrelationChartData(
       ];
     });
 
-    return { columnData, b_age, t_age };
+    return { columnData };
   }
 
   let pkgs: GapBoundPackage[] = [];
@@ -133,7 +116,42 @@ export function buildCorrelationChartData(
       .sort((a, b) => a.b_age - b.b_age);
   });
 
-  return { columnData, b_age, t_age };
+  const firstColumn = columnData[0];
+
+  const packages = regridChartData(columnData);
+
+  const scaleInfo = deriveScale(firstColumn);
+
+  return { scaleInfo, packages, nColumns: columnData.length };
+}
+
+function deriveScale(
+  packages: SectionRenderData[],
+  unconformityHeight: number = 24
+): CompositeStratigraphicScaleInfo {
+  /** Find the total height and scale for each package */
+  const scales: LinearScaleDef[] = packages.map((d) => {
+    return {
+      domain: [d.b_age, d.t_age],
+      pixelScale: d.bestPixelScale,
+    };
+  });
+
+  const { sections, totalHeight } = buildCompositeScaleInfo(
+    scales,
+    unconformityHeight
+  );
+
+  return {
+    packages: sections,
+    totalHeight,
+    axisType: ColumnAxisType.AGE,
+  };
+}
+
+export enum AgeScaleMode {
+  Continuous = "continuous",
+  Broken = "broken",
 }
 
 interface UnitGroup {
@@ -343,8 +361,7 @@ function ageOverlaps(a: AgeComparable, b: AgeComparable) {
 }
 
 // Regrid chart data to go by package
-export function regridChartData(data: CorrelationChartData) {
-  const { columnData } = data;
+function regridChartData(columnData: SectionRenderData[][]) {
   let packages: MultiColumnPackageData[] = columnData[0].map((d, i) => {
     return {
       b_age: d.b_age,

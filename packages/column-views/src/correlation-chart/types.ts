@@ -6,12 +6,6 @@ export interface ColumnIdentifier {
   project_id: number;
 }
 
-export interface CorrelationChartData {
-  t_age: number;
-  b_age: number;
-  columnData: SectionRenderData[][]; // Units for each column
-}
-
 export interface AgeComparable {
   b_age: number;
   t_age: number;

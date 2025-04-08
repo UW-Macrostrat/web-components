@@ -5,24 +5,24 @@ import {
   useUnitSelectionStore,
 } from "../units";
 import { UnitSelectionPopover } from "../unit-details";
-import { SectionRenderData } from "./types";
 import hyper from "@macrostrat/hyper";
 import styles from "./correlation-chart.module.sass";
 import { useMemo, useRef } from "react";
-import { useDarkMode } from "@macrostrat/ui-components";
+import { useInDarkMode } from "@macrostrat/ui-components";
 import { CompositeTimescaleCore } from "../section";
 import classNames from "classnames";
 import {
-  deriveScale,
   findLaterallyExtensiveUnits,
   splitStratIntoBoxes,
   UnitGroupBox,
   AgeScaleMode,
-  regridChartData,
   CorrelationChartSettings,
   buildCorrelationChartData,
 } from "./prepare-data";
-import { CompositeAgeAxisCore } from "../age-axis";
+import {
+  CompositeAgeAxisCore,
+  CompositeStratigraphicScaleInfo,
+} from "../age-axis";
 import {
   ColumnAxisType,
   ColumnProvider,
@@ -48,18 +48,23 @@ export function CorrelationChart({
   data,
   columnSpacing = 0,
   columnWidth = 130,
-  targetUnitHeight = 10,
-  unconformityHeight = 40,
-  ageMode = AgeScaleMode.Broken,
+  ...scaleProps
 }: CorrelationChartProps) {
+  const defaultScaleProps = {
+    targetUnitHeight: 10,
+    unconformityHeight: 60,
+    ageMode: AgeScaleMode.Broken,
+    minSectionHeight: 60,
+    collapseSmallUnconformities: true,
+  };
+
   const chartData = useMemo(() => {
     if (!data) return null;
     return buildCorrelationChartData(data, {
-      targetUnitHeight,
-      ageMode,
-      unconformityHeight,
+      ...defaultScaleProps,
+      ...scaleProps,
     });
-  }, [data, targetUnitHeight, ageMode]);
+  }, [data, ...Object.values(scaleProps)]);
 
   const columnRef = useRef(null);
 
@@ -68,20 +73,19 @@ export function CorrelationChart({
     return data?.map((d0) => d0.units).flat() ?? [];
   }, [data]);
 
-  const darkMode = useDarkMode();
+  const inDarkMode = useInDarkMode();
 
   const className = classNames({
-    "dark-mode": darkMode?.isEnabled ?? false,
+    "dark-mode": inDarkMode,
   });
 
-  if (chartData == null || chartData.columnData.length == 0) {
+  if (chartData == null) {
     return null;
   }
 
-  const packages = regridChartData(chartData);
-  const firstColumn = chartData.columnData[0];
-  const mainWidth = (columnWidth + columnSpacing) * chartData.columnData.length;
-  const scaleInfo = deriveScale(firstColumn);
+  const { packages, scaleInfo, nColumns } = chartData;
+
+  const mainWidth = (columnWidth + columnSpacing) * nColumns;
 
   return h(
     ColumnContainer,
@@ -92,7 +96,7 @@ export function CorrelationChart({
       h(ChartArea, [
         h(TimescaleColumn, {
           key: "timescale",
-          packages: firstColumn,
+          scaleInfo,
         }),
         h("div.main-chart", { ref: columnRef }, [
           h(
@@ -280,14 +284,13 @@ function ChartArea({ children }) {
 }
 
 interface TimescaleColumnProps {
-  packages: SectionRenderData[];
+  scaleInfo: CompositeStratigraphicScaleInfo;
   showLabels?: boolean;
   unconformityLabels?: boolean;
 }
 
 function TimescaleColumn(props: TimescaleColumnProps) {
-  const { packages } = props;
-  const scaleInfo = deriveScale(packages);
+  const { scaleInfo } = props;
   return h("div.column-container.age-axis-container", [
     h(CompositeAgeAxisCore, { ...scaleInfo }),
     h(CompositeTimescaleCore, { ...scaleInfo }),
