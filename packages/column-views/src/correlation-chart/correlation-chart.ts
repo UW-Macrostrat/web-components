@@ -191,7 +191,7 @@ function Column(props: ColumnProps) {
       h(UnitBoxes, {
         unitComponent: ColoredUnitComponent,
         unitComponentProps: {
-          nColumns: 1,
+          nColumns: 2,
           width: columnWidth,
         },
       })

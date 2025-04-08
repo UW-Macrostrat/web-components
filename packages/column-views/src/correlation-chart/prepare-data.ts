@@ -1,25 +1,15 @@
-import {
-  AgeComparable,
-  ColumnIdentifier,
-  GapBoundPackage,
-  SectionRenderData,
-} from "./types";
+import { ColumnIdentifier } from "./types";
 import { CompositeStratigraphicScaleInfo } from "../age-axis";
-import {
-  buildCompositeScaleInfo,
-  LinearScaleDef,
-  PackageLayoutData,
-  SectionInfo,
-} from "../prepare-units/composite-scale";
+import { PackageLayoutData } from "../prepare-units/composite-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { type ColumnGeoJSONRecord, UnitLong } from "@macrostrat/api-types";
 import {
   MergeSectionsMode,
   PrepareColumnOptions,
   prepareColumnUnits,
+  preprocessUnits,
 } from "../prepare-units";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
-import { ExtUnit, getSectionAgeRange } from "../prepare-units/helpers";
 
 interface ColumnData {
   columnID: number;
@@ -35,6 +25,12 @@ export interface CorrelationChartData {
   packages: MultiColumnPackageData[];
   scaleInfo: CompositeStratigraphicScaleInfo;
   nColumns: number;
+}
+
+export interface ColumnIdentifier {
+  col_id: number;
+  col_name: string;
+  project_id: number;
 }
 
 export function buildCorrelationChartData(
@@ -58,53 +54,26 @@ export function buildCorrelationChartData(
     return null;
   }
 
-  // Flatten the units array
+  // Flatten the units array to pretend that all units are in the same column
   const _units = columns.map((d) => d.units).flat();
 
   const columnIDs = columns.map((d) => d.columnID);
 
   const preparedUnits = prepareColumnUnits(_units, opts);
 
-  const { units, sections } = preparedUnits;
+  const { sections, totalHeight } = preparedUnits;
+
+  const scaleInfo: CompositeStratigraphicScaleInfo = {
+    axisType: ColumnAxisType.AGE,
+    totalHeight,
+    packages: sections.map((d) => d.scaleInfo),
+  };
 
   const packages = sections.map((d) => {
     return separateColumns(d, columnIDs);
   });
 
-  const scaleInputs = packages.map((d) => {
-    return {
-      b_age: d.b_age,
-      t_age: d.t_age,
-      bestPixelScale: d.bestPixelScale,
-    };
-  });
-
-  const scaleInfo = deriveScale(scaleInputs, settings.unconformityHeight);
   return { scaleInfo, packages, nColumns: columnIDs.length };
-}
-
-function deriveScale(
-  packages: SectionRenderData[],
-  unconformityHeight: number = 24
-): CompositeStratigraphicScaleInfo {
-  /** Find the total height and scale for each package */
-  const scales: LinearScaleDef[] = packages.map((d) => {
-    return {
-      domain: [d.b_age, d.t_age],
-      pixelScale: d.bestPixelScale,
-    };
-  });
-
-  const { sections, totalHeight } = buildCompositeScaleInfo(
-    scales,
-    unconformityHeight
-  );
-
-  return {
-    packages: sections,
-    totalHeight,
-    axisType: ColumnAxisType.AGE,
-  };
 }
 
 interface UnitGroup {
@@ -203,115 +172,12 @@ export function splitStratIntoBoxes(pkg: UnitGroup): UnitGroupBox[] {
   return boxes;
 }
 
-interface PixelScaleOptions {
-  targetUnitHeight: number;
-}
-
-function findBestPixelScale(
-  pkg: SectionInfo,
-  options: PixelScaleOptions
-): number {
-  const { targetUnitHeight } = options;
-  const dAge = pkg.b_age - pkg.t_age;
-  const maxNUnits = Math.max(
-    ...Array.from(pkg.unitIndex.values()).map((d) => d.length)
-  );
-  let targetHeight = targetUnitHeight * maxNUnits;
-
-  targetHeight = Math.max(targetHeight, 25, dAge / 25);
-
-  return targetHeight / dAge;
-}
-
-function mergeOverlappingGapBoundPackages(
-  packages: GapBoundPackage[]
-): GapBoundPackage[] {
-  // Sort by t_age
-  let remainingPackages: GapBoundPackage[] = packages;
-  let newPackages: GapBoundPackage[] = [];
-  while (remainingPackages.length > 0) {
-    const pkg = remainingPackages.pop();
-    const overlapping = findOverlapping(pkg, remainingPackages);
-    newPackages.push(mergePackages(pkg, ...overlapping));
-    remainingPackages = remainingPackages.filter(
-      (d) => !overlapping.includes(d)
-    );
-  }
-  if (newPackages.length < packages.length) {
-    return mergeOverlappingGapBoundPackages(newPackages);
-  } else {
-    return newPackages;
-  }
-  // Chunk by divisions where t_age is less than the next b_age
-}
-
-function mergePackages(...packages: GapBoundPackage[]): GapBoundPackage {
-  return packages.reduce(
-    (a: GapBoundPackage, b: GapBoundPackage) => {
-      a.b_age = Math.max(a.b_age, b.b_age);
-      a.t_age = Math.min(a.t_age, b.t_age);
-      for (let [columnID, units] of b.unitIndex) {
-        if (a.unitIndex.has(columnID)) {
-          a.unitIndex.set(columnID, a.unitIndex.get(columnID).concat(units));
-        } else {
-          a.unitIndex.set(columnID, units);
-        }
-      }
-      return a;
-    },
-    {
-      b_age: -Infinity,
-      t_age: Infinity,
-      unitIndex: new Map(),
-    }
-  );
-}
-
-function findGapBoundPackages(columnData: ColumnData): GapBoundPackage[] {
-  /** Find chunks of units overlapping in time, separated by unconformities */
-  const { units, columnID } = columnData;
-  let packages: GapBoundPackage[] = [];
-  for (let unit of units) {
-    const newPackage: GapBoundPackage = {
-      b_age: unit.b_age,
-      t_age: unit.t_age,
-      unitIndex: new Map([[columnID, [unit]]]),
-    };
-
-    const overlappingPackages: GapBoundPackage[] = findOverlapping(
-      newPackage,
-      packages
-    );
-
-    // If the unit overlaps with some packages, remove them.
-    packages = packages.filter((d) => !overlappingPackages.includes(d));
-
-    // Merge the overlapping packages with the new package
-    if (overlappingPackages.length > 0) {
-      packages.push(mergePackages(newPackage, ...overlappingPackages));
-    } else {
-      packages.push(newPackage);
-    }
-  }
-  return packages;
-}
-
-function findOverlapping<T extends AgeComparable>(
-  a: AgeComparable,
-  collection: T[]
-): T[] {
-  return collection.filter((d) => ageOverlaps(a, d));
-}
-
-function ageOverlaps(a: AgeComparable, b: AgeComparable) {
-  return a.t_age <= b.b_age && a.b_age >= b.t_age;
-}
-
 function separateColumns(
   pkg: PackageLayoutData,
   columnIDs: number[]
 ): MultiColumnPackageData {
-  const { units, t_age, b_age, scaleInfo } = pkg;
+  /** Separate columns by col_id */
+  const { units, t_age, b_age } = pkg;
 
   return {
     columnData: columnIDs.map((d) => {
@@ -319,35 +185,20 @@ function separateColumns(
       u1.sort((a, b) => a.t_age - b.t_age);
       return {
         columnID: d,
-        units: u1,
+        // Ensure that the units correctly show overlap
+        units: preprocessUnits(
+          {
+            ...pkg,
+            units: u1,
+          },
+          ColumnAxisType.AGE
+        ),
       };
     }),
     bestPixelScale: pkg.scaleInfo.pixelScale,
     t_age,
     b_age,
   };
-}
-
-// Regrid chart data to go by package
-function regridChartData(columnData: SectionRenderData[][]) {
-  let packages: MultiColumnPackageData[] = columnData[0].map((d, i) => {
-    return {
-      b_age: d.b_age,
-      t_age: d.t_age,
-      bestPixelScale: d.bestPixelScale,
-      columnData: [] as ColumnExt[],
-    };
-  });
-  for (let column of columnData) {
-    for (let i = 0; i < column.length; i++) {
-      packages[i].columnData.push({
-        columnID: column[i].columnID,
-        units: column[i].units,
-      });
-    }
-  }
-
-  return packages;
 }
 
 export function columnGeoJSONRecordToColumnIdentifier(
