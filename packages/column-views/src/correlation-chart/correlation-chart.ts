@@ -15,7 +15,6 @@ import {
   findLaterallyExtensiveUnits,
   splitStratIntoBoxes,
   UnitGroupBox,
-  AgeScaleMode,
   CorrelationChartSettings,
   buildCorrelationChartData,
 } from "./prepare-data";
@@ -41,7 +40,6 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   columnWidth?: number;
   columnSpacing?: number;
   targetUnitHeight?: number;
-  ageMode?: AgeScaleMode;
 }
 
 export function CorrelationChart({
@@ -53,7 +51,6 @@ export function CorrelationChart({
   const defaultScaleProps = {
     targetUnitHeight: 10,
     unconformityHeight: 60,
-    ageMode: AgeScaleMode.Broken,
     minSectionHeight: 60,
     collapseSmallUnconformities: true,
   };

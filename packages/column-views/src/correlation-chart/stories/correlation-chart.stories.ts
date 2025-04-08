@@ -15,7 +15,6 @@ import { CorrelationChart, CorrelationChartProps } from "../correlation-chart";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { parseLineFromString, stringifyLine } from "../hash-string";
-import { AgeScaleMode, buildCorrelationChartData } from "../prepare-data";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -59,7 +58,7 @@ function CorrelationStoryUI({
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
 
-  const { targetUnitHeight = 10, ageMode = AgeScaleMode.Broken } = props;
+  const { targetUnitHeight = 10 } = props;
 
   // Sync focused columns with map
   const focusedColumns = useCorrelationMapStore(

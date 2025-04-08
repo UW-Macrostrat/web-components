@@ -12,7 +12,11 @@ import {
 } from "../prepare-units/composite-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { type ColumnGeoJSONRecord, UnitLong } from "@macrostrat/api-types";
-import { PrepareColumnOptions, prepareColumnUnits } from "../prepare-units";
+import {
+  MergeSectionsMode,
+  PrepareColumnOptions,
+  prepareColumnUnits,
+} from "../prepare-units";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 
 interface ColumnData {
@@ -22,7 +26,6 @@ interface ColumnData {
 
 export interface CorrelationChartSettings
   extends Omit<PrepareColumnOptions, "axisType"> {
-  ageMode?: AgeScaleMode;
   targetUnitHeight?: number;
 }
 
@@ -37,7 +40,7 @@ export function buildCorrelationChartData(
   settings: CorrelationChartSettings
 ): CorrelationChartData {
   const {
-    ageMode = AgeScaleMode.Broken,
+    mergeSections = MergeSectionsMode.OVERLAPPING,
     targetUnitHeight,
     ...rest
   } = settings ?? {};
@@ -64,7 +67,7 @@ export function buildCorrelationChartData(
   // Create a single gap-bound package for each column
   const units = columns1.map((d) => d.units);
 
-  if (ageMode == AgeScaleMode.Continuous) {
+  if (mergeSections == MergeSectionsMode.ALL) {
     const [b_age, t_age] = findEncompassingScaleBounds(units.flat());
     const dAge = b_age - t_age;
     const maxNUnits = Math.max(...units.map((d) => d.length));
@@ -117,11 +120,8 @@ export function buildCorrelationChartData(
   });
 
   const firstColumn = columnData[0];
-
   const packages = regridChartData(columnData);
-
   const scaleInfo = deriveScale(firstColumn);
-
   return { scaleInfo, packages, nColumns: columnData.length };
 }
 
@@ -147,11 +147,6 @@ function deriveScale(
     totalHeight,
     axisType: ColumnAxisType.AGE,
   };
-}
-
-export enum AgeScaleMode {
-  Continuous = "continuous",
-  Broken = "broken",
 }
 
 interface UnitGroup {
