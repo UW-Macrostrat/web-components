@@ -140,18 +140,6 @@ export function prepareColumnUnits(
     );
   }
 
-  /** For each section, find units that are overlapping.
-   * We do this after merging sections so that we can
-   * handle cases where there are overlapping units across sections
-   * */
-  sections = sections.map((section) => {
-    return {
-      ...section,
-      units: preprocessUnits(section, axisType),
-    };
-  });
-
-
   /** Reconstitute the units so that they are sorted by section.
    * This is mostly important so that unit keyboard navigation
    * predictably selects adjacent units.
@@ -165,10 +153,25 @@ export function prepareColumnUnits(
   }, []);
 
   /** Prepare section scale information using groups */
-  const scaleInfo = finalizeSectionHeights(sections, unconformityHeight);
+  const { totalHeight, sections: sections2 } = finalizeSectionHeights(
+    sections,
+    unconformityHeight
+  );
+
+  /** For each section, find units that are overlapping.
+   * We do this after merging sections so that we can
+   * handle cases where there are overlapping units across sections
+   * */
+  sections = sections2.map((section) => {
+    return {
+      ...section,
+      units: preprocessUnits(section, axisType),
+    };
+  });
 
   return {
     units: units2,
-    ...scaleInfo,
+    totalHeight,
+    sections,
   };
 }

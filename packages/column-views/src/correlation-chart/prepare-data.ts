@@ -57,6 +57,11 @@ export function buildCorrelationChartData(
     return null;
   }
 
+  // Flatten the units array
+  const _units = columns.map((d) => d.units).flat();
+
+  //const preparedUnits = prepareColumnUnits(_units, opts);
+
   // Preprocess column data
   const columns1 = columns.map((d) => {
     const { columnID, units } = d;

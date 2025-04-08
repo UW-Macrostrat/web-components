@@ -1,6 +1,6 @@
 import type { ExtUnit } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { ensureArray } from "./utils";
+import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleLinear, scaleLinear } from "d3-scale";
 
 export interface StratigraphicPackage {
@@ -204,10 +204,15 @@ function buildSectionScale(
 
   let _pixelScale = opts.pixelScale;
   if (_pixelScale == null) {
+    const avgAgeRange = findAverageUnitHeight(data, axisType);
+    // Get pixel height necessary to render average unit at target height
+    _pixelScale = Math.max(targetUnitHeight / avgAgeRange, minPixelScale);
+
+    // OLD METHOD that cares about overall section height vs. individual unit height
     // 0.2 pixel per myr is the floor scale
-    const targetHeight = targetUnitHeight * data.length;
+    //const targetHeight = targetUnitHeight * data.length;
     // 1 pixel per myr is the floor scale
-    _pixelScale = Math.max(targetHeight / dAge, minPixelScale);
+    //_pixelScale = Math.max(targetHeight / dAge, minPixelScale);
   }
 
   let height = dAge * _pixelScale;
@@ -261,6 +266,17 @@ function findSectionHeightRange(
     const b_pos = Math.min(...data.map((d) => d.b_pos));
     return [b_pos, t_pos];
   }
+}
+
+function findAverageUnitHeight(
+  data: ExtUnit[],
+  axisType: ColumnAxisType
+): number {
+  const unitHeights = data.map((d) => {
+    const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
+    return Math.abs(b_pos - t_pos);
+  });
+  return unitHeights.reduce((a, b) => a + b, 0) / unitHeights.length;
 }
 
 export function createCompositeScale(
