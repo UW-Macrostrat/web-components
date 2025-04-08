@@ -14,6 +14,7 @@ import {
   CompositeColumnData,
   computeSectionHeights,
   finalizeSectionHeights,
+  PackageLayoutData,
   SectionInfo,
   SectionInfoExt,
 } from "./composite-scale";
@@ -36,7 +37,7 @@ export enum MergeSectionsMode {
 }
 
 export interface PreparedColumnData extends CompositeColumnData {
-  sections: SectionInfoExt[];
+  sections: PackageLayoutData[];
   units: ExtUnit[];
 }
 
