@@ -1,6 +1,7 @@
 import h from "@macrostrat/hyper";
-import { DataField, TagField } from "./index";
-import { BaseTag, TagSize, ItemList } from "./base-tag";
+import { TagField } from "./base";
+import { Tag, TagSize } from "./tag";
+import { useMemo } from "react";
 
 interface LithologyTagProps {
   data: any;
@@ -39,7 +40,7 @@ export function LithologyTag({
     });
   }
 
-  return h(BaseTag, {
+  return h(Tag, {
     prefix: atts,
     details: proportion,
     name: data.name,
@@ -85,10 +86,16 @@ export function LithologyList({
   lithologies: any[];
   features?: Set<LithologyTagFeature>;
 }) {
+  const sortedLiths = useMemo(() => {
+    const l1 = [...lithologies];
+    l1.sort(lithologyComparison);
+    return l1;
+  }, [lithologies]);
+
   return h(
     TagField,
     { label },
-    lithologies.toSorted(lithologyComparison).map((lith) => {
+    sortedLiths.map((lith) => {
       let l1 = { ...lith };
       if (l1.prop == 0) {
         l1.prop = null;

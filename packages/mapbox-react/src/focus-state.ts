@@ -7,6 +7,7 @@ import bbox from "@turf/bbox";
 import styles from "./main.module.scss";
 import hyper from "@macrostrat/hyper";
 import mapboxgl, {
+  FlyToOptions,
   LngLatBoundsLike,
   LngLatLike,
   PaddingOptions,
@@ -287,12 +288,13 @@ export function getFocusState(
   const mapCenter = map.getCenter();
 
   if (location.hasOwnProperty("lng") && location.hasOwnProperty("lat")) {
-    location = [location.lng, location.lat];
+    const loc = location as { lng: number; lat: number };
+    location = [loc.lng, loc.lat];
   }
 
   if (!(location instanceof Array)) {
     // Get geometry bounding box
-    const bounds = bbox(location);
+    const bounds = bbox(location as any);
     location = [(bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2];
     // For non-points this is extremely simplistic at the moment
   }
@@ -383,18 +385,20 @@ function getCenterAndBestZoom(
 
   if (input instanceof Array) {
     if (input.length === 2) {
-      point = input;
+      center = input;
     } else if (input.length === 4) {
       box = input;
     }
   }
 
   if (input.hasOwnProperty("lat") && input.hasOwnProperty("lng")) {
-    center = [input.lng, input.lat];
+    let coords = input as { lat: number; lng: number };
+    center = [coords.lng, coords.lat];
   }
 
   // If input is a geometry, get its bounding box
-  if (input.hasOwnProperty("type")) {
+  if (input.hasOwnProperty("type") && input.hasOwnProperty("coordinates")) {
+    input = input as GeoJSON.Geometry;
     if (input.type === "Point") {
       center = input.coordinates as [number, number];
     } else {
@@ -439,7 +443,7 @@ export function LocationFocusButton({
       minimal: true,
       icon: _icon,
       onClick() {
-        let opts = { duration: easeDuration };
+        let opts: FlyToOptions = { duration: easeDuration };
         if (focusState == PositionFocusState.CENTERED) {
           map.current?.resetNorth();
         } else if (bounds != null) {

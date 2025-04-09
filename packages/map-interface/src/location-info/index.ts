@@ -5,6 +5,7 @@ import {
   normalizeLng,
 } from "@macrostrat/mapbox-utils";
 import { formatValue } from "./utils";
+import { LngLat } from "mapbox-gl";
 
 export * from "./hash-string";
 
@@ -29,12 +30,12 @@ export function DegreeCoord(props) {
 
 export interface LngLatProps {
   /** Map position */
-  position: [number, number] | { lat: number; lng: number };
+  position: mapboxgl.LngLatLike | null;
   className?: string;
   /** Zoom level (used to infer coordinate rounding if provided) */
-  zoom?: number | null;
+  zoom?: number;
   /** Number of decimal places to round coordinates to */
-  precision: number | null;
+  precision?: number;
   /** Function to format coordinates */
   format?: (val: number, precision: number) => string;
 }
@@ -46,11 +47,19 @@ export function LngLatCoords(props: LngLatProps) {
   if (position == null) {
     return null;
   }
-  let lat, lng;
+
+  let lat: number;
+  let lng: number;
   if (Array.isArray(position)) {
     [lng, lat] = position;
-  } else {
-    ({ lat, lng } = position);
+  } else if (position instanceof LngLat) {
+    [lng, lat] = position.toArray();
+  } else if ("lng" in position) {
+    lat = position.lat;
+    lng = position.lng;
+  } else if ("lon" in position) {
+    lat = position.lat;
+    lng = position.lon;
   }
 
   if (zoom != null && format == null && precision == null) {

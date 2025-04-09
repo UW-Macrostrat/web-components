@@ -1,7 +1,7 @@
 import { useInDarkMode } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { getLuminanceAdjustedColorScheme } from "@macrostrat/color-utils";
-import styles from "./base-tag.module.sass";
+import styles from "./tag.module.sass";
 import { ReactNode } from "react";
 import chroma from "chroma-js";
 
@@ -28,7 +28,7 @@ export interface BaseTagProps {
   color?: chroma.ChromaInput;
 }
 
-export function BaseTag(props: BaseTagProps) {
+export function Tag(props: BaseTagProps) {
   const inDarkMode = useInDarkMode();
   const {
     prefix,

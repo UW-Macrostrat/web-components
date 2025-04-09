@@ -1,12 +1,14 @@
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta } from "@storybook/react";
 import h from "@macrostrat/hyper";
-import { LithologyTag as _LithologyTag } from "./lithology-tag";
-import { TagSize } from "./base-tag";
+import {
+  LithologyTag as _LithologyTag,
+  LithologyList as _LithologyList,
+} from "./lithology-tag";
+import { TagSize } from "./tag";
 import {
   DataField as _DataField,
   IntervalField as _IntervalField,
-  LithologyList as _LithologyList,
-} from "./index";
+} from "./base";
 
 export default {
   title: "Data components/Unit details",
@@ -45,7 +47,7 @@ export function IntervalField() {
   });
 }
 
-const LithologyTag = _LithologyTag;
+const LithologyTag = _LithologyTag as any;
 
 LithologyTag.args = {
   data: {

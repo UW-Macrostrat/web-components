@@ -9,6 +9,8 @@ import {
   isCentered,
 } from "@macrostrat/mapbox-react";
 import classNames from "classnames";
+import type { ReactNode } from "react";
+import type { LngLatBounds, LngLatLike } from "mapbox-gl";
 
 const h = hyper.styled(styles);
 
@@ -70,13 +72,13 @@ function CopyLinkButton({ itemName, children, onClick, ...rest }) {
 
 export interface InfoDrawerHeaderProps {
   onClose?: () => void;
-  position?: mapboxgl.LngLat;
+  position?: LngLatLike;
   zoom?: number;
   elevation?: number;
   showCopyPositionButton?: boolean;
-  bounds?: mapboxgl.LngLatBounds;
+  bounds?: LngLatBounds;
   fixedHeight?: boolean;
-  children?: React.ReactNode;
+  children?: ReactNode;
   className?: string;
 }
 

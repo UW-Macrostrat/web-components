@@ -184,10 +184,12 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
   return null;
 }
 
-export function useBasicMapStyle(opts: {
-  styleType?: "macrostrat" | "standard";
-}) {
-  const { styleType } = opts ?? {};
+export function useBasicMapStyle(
+  opts: {
+    styleType?: "macrostrat" | "standard";
+  } = {}
+) {
+  const { styleType } = opts;
   const inDarkMode = useInDarkMode();
 
   const props = useMemo(() => {

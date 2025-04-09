@@ -52,7 +52,7 @@ function MapEaseWrapper({
 }: {
   children: React.ReactNode;
   locationName: string;
-  nextLocation: () => void;
+  nextLocation: Location;
   description: React.ReactNode;
   mapPosition?: MapEaseToState;
 }) {
@@ -88,8 +88,8 @@ function MapEaseWrapper({
         {
           style,
           projection: { name: "globe" },
-          mapPosition,
           mapboxToken,
+          ...mapPosition,
         },
         children
       ),
