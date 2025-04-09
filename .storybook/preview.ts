@@ -3,7 +3,7 @@ import { themes } from "@storybook/theming";
 
 import { FocusStyleManager } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import "@macrostrat/style-system";
+import "@macrostrat/style-system/src/main.sass";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "storybook-dark-mode";
 import { DocsContainer } from "./docs-container";
@@ -48,15 +48,10 @@ export const decorators = [
 
 export const tags = ["autodocs"];
 
-// Patterns are included as static files in the storybook main.ts
-const resolvePattern = (id) => {
-  return `/patterns/${id}.svg`;
-};
-
 function PatternProvider({ children }) {
   return h(GeologicPatternProvider, {
     resolvePattern(id: string) {
-      return `/patterns/${id}.svg`;
+      return `https://dev2.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
     },
     children,
   });

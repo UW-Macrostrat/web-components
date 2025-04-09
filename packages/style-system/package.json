@@ -38,7 +38,7 @@
       "source": "./src/colors.scss",
       "import": "./src/colors.scss"
     },
-    "./src/main.scss": {
+    "./src/main.sass": {
       "source": "./src/main.sass",
       "import": "./src/main.sass"
     },
