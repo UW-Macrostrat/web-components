@@ -1,5 +1,6 @@
 import {
   ColumnGeoJSONRecord,
+  ColumnGeoJSONRecordWithID,
   MacrostratRef,
   UnitLong,
 } from "@macrostrat/api-types";
@@ -12,7 +13,10 @@ import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
 import { geoArea } from "d3-geo";
 
-function defaultFetch(url: string, options: RequestInit) {
+function defaultFetch(
+  url: string,
+  options: RequestInit | undefined = undefined
+) {
   const baseURL = "https://macrostrat.org/api/v2";
   return crossFetch(baseURL + url, options);
 }
@@ -119,7 +123,7 @@ function postProcessColumns(columns) {
 
 function promoteColumnIDs(
   features: ColumnGeoJSONRecord[]
-): ColumnGeoJSONRecordWithIDs[] {
+): ColumnGeoJSONRecordWithID[] {
   return features.map((f, i) => {
     return {
       id: f.properties?.col_id,

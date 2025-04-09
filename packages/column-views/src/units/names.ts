@@ -10,6 +10,7 @@ import type { ColumnDivision } from "@macrostrat/column-components";
 import { IUnit } from "./types";
 import React from "react";
 import { getUnitHeightRange } from "../prepare-units/utils";
+import { CompositeColumnScale } from "./composite";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
@@ -18,6 +19,7 @@ interface UnitDataProps extends NotesColumnProps {
   shouldRenderNote?(div: ColumnDivision | IUnit, index: number): boolean;
   divisions?: IUnit[];
   minimumHeight?: number;
+  scale?: CompositeColumnScale;
 }
 
 type UnitNote = {

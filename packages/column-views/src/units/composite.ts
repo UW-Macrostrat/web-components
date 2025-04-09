@@ -105,7 +105,7 @@ type ICompositeUnitProps = BaseUnitProps & {
   noteMode?: "labeled" | "unlabeled";
   showLabelColumn?: boolean;
   noteComponent?: React.FC<any>;
-  shouldRenderNote?: (d: BaseUnit) => boolean;
+  shouldRenderNote?: (d: any) => boolean;
 };
 
 interface CompositeUnitProps {
@@ -194,7 +194,20 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
   ]);
 }
 
-export function compositeScale(sections, opts = {}) {
+type CompositeScaleOpts = {
+  clamped?: boolean;
+};
+
+export interface CompositeColumnScale {
+  (val: number): number;
+  copy(): CompositeColumnScale;
+  domain(): number[];
+}
+
+export function compositeScale(
+  sections,
+  opts: CompositeScaleOpts = {}
+): CompositeColumnScale {
   /** A basic composite scale that works across all sections. This isn't a fully featured,
    * contiuous D3 scale, but it shares enough attributes to be useful for
    * laying out notes.
@@ -206,7 +219,7 @@ export function compositeScale(sections, opts = {}) {
     return scaleInfo.scale.copy().clamp(clamped);
   });
 
-  let baseScale = (val) => {
+  let baseScale: any = (val) => {
     // Find the scale for the section that contains the value
     const scale = scales.find((scale) => {
       return scale.domain()[0] <= val && val <= scale.domain()[1];
@@ -229,7 +242,7 @@ export function compositeScale(sections, opts = {}) {
     return [scales[0].domain()[0], scales[scales.length - 1].domain()[1]];
   };
 
-  return baseScale;
+  return baseScale as CompositeColumnScale;
 }
 
 function ColumnNotesProvider(props) {
@@ -248,6 +261,7 @@ function ColumnNotesProvider(props) {
         pixelHeight: totalHeight,
         pixelsPerMeter: pixelScale,
         axisType,
+        zoom: 1,
       },
     },
     children

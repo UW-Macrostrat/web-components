@@ -1,4 +1,4 @@
-import React, { Component, useContext } from "react";
+import React, { useContext } from "react";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
 import {
@@ -12,7 +12,6 @@ import {
   ColumnContext,
   ColumnLayoutContext,
   ColumnLayoutProvider,
-  ColumnCtx,
   ColumnDivision,
   ColumnLayoutCtx,
 } from "../context";
@@ -84,32 +83,25 @@ interface ColumnRectProps {
   padWidth?: boolean;
   key?: string;
   width: number;
+  className?: string;
+  fill?: string;
 }
 
-class ColumnRect extends Component<ColumnRectProps> {
-  static contextType = ColumnContext;
-  context: ColumnCtx<ColumnDivision>;
-
-  static defaultProps = {
-    padWidth: false,
-  };
-
-  render() {
-    const { scale } = this.context;
-    let { division: d, padWidth, key, width, ...rest } = this.props;
-    const [bottom, top] = __divisionSize(d);
-    const y = scale(top);
-    let x = 0;
-    if (padWidth) {
-      x -= 5;
-      width += 10;
-    }
-    const height = scale(bottom) - y;
-    if (key == null) {
-      key = d.id;
-    }
-    return h("rect", { x, y, width, height, key, ...rest });
+function ColumnRect(props: ColumnRectProps) {
+  let { division: d, padWidth = false, key, width, ...rest } = props;
+  const scale = useContext(ColumnContext).scale;
+  const [bottom, top] = __divisionSize(d);
+  const y = scale(top);
+  let x = 0;
+  if (padWidth) {
+    x -= 5;
+    width += 10;
   }
+  const height = scale(bottom) - y;
+  if (key == null) {
+    key = d.id;
+  }
+  return h("rect", { x, y, width, height, key, ...rest });
 }
 
 const expandDivisionsByKey = function (
@@ -133,7 +125,7 @@ const expandDivisionsByKey = function (
 };
 
 interface ParameterIntervalsProps {
-  padWidth: number;
+  padWidth: boolean;
   parameter: string;
   fillForInterval(param: any, division: ColumnDivision): any;
 }

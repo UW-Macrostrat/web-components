@@ -11,8 +11,9 @@ import { useState } from "react";
 
 const h = hyper.styled(styles);
 
-interface ColumnProps extends BaseColumnProps {
+interface ColumnProps extends Omit<BaseColumnProps, "units"> {
   id: number;
+  inProcess?: boolean;
 }
 
 function useColumnUnits(col_id, inProcess) {

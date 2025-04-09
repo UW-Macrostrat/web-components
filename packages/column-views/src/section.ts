@@ -127,7 +127,6 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     h.if(unconformityLabels)(UnconformityLabels, {
       width,
       sections: scaleData,
-      totalHeight,
     }),
   ]);
 }
@@ -254,7 +253,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
 }
 
 export function UnconformityLabels(props: {
-  width: number;
+  width: string | number;
   sections: PackageScaleLayoutData[];
   className?: string;
 }) {

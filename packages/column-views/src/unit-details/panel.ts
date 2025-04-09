@@ -15,7 +15,7 @@ import {
   Value,
 } from "@macrostrat/data-components";
 import { useMacrostratData, useMacrostratDefs } from "@macrostrat/column-views";
-import { Environment, UnitLong } from "@macrostrat/api-types";
+import { Environment, UnitLong, UnitLongFull } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
 
@@ -41,7 +41,7 @@ export function UnitDetailsPanel({
   showLithologyProportions?: boolean;
   className?: string;
   actions?: ReactNode;
-  features: Set<UnitDetailsFeature>;
+  features?: Set<UnitDetailsFeature>;
   lithologyFeatures?: Set<LithologyTagFeature>;
   columnUnits?: UnitLong[];
   selectUnit?: (unitID: number) => void;
@@ -200,6 +200,15 @@ function UnitDetailsContent({
     unit: thicknessUnit,
   });
 
+  /** We are trying to move away from passing the "color" parameter in the API */
+  let colorSwatch: ReactNode = null;
+  if ("color" in unit) {
+    const unit1 = unit as UnitLongFull;
+    colorSwatch = h("div.color-swatch", {
+      style: { backgroundColor: unit1.color },
+    });
+  }
+
   return h("div.unit-details-content", [
     thicknessOrHeightRange,
     h(LithologyList, {
@@ -232,11 +241,7 @@ function UnitDetailsContent({
         h(UnitIDList, { units: unit.units_below, selectUnit })
       ),
     ]),
-    h.if(features.has(UnitDetailsFeature.Color))(
-      DataField,
-      { label: "Color" },
-      h("span.color-swatch", { style: { backgroundColor: unit.color } })
-    ),
+    colorSwatch,
     h(
       DataField,
       { label: "Source", inline: true },
@@ -368,7 +373,7 @@ export function Duration({
 }
 
 function enhanceEnvironments(
-  environments: Partial<Environment>,
+  environments: Partial<Environment>[],
   envMap: Map<number, Environment>
 ) {
   return environments.map((env) => {

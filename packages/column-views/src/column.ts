@@ -2,7 +2,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { RefObject, useRef } from "react";
+import { RefObject, useRef, HTMLAttributes } from "react";
 import styles from "./column.module.sass";
 import {
   UnitSelectionProvider,
@@ -24,7 +24,7 @@ import {
 } from "./section";
 import { CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
-import { BaseUnit } from "@macrostrat/api-types";
+import { UnitLong } from "@macrostrat/api-types";
 import { NonIdealState } from "@blueprintjs/core";
 
 const h = hyperStyled(styles);
@@ -37,12 +37,12 @@ interface BaseColumnProps extends SectionSharedProps {
   maxInternalColumns?: number;
   // Timescale properties
   showTimescale?: boolean;
-  timescaleLevels?: [number, number];
+  timescaleLevels?: number | [number, number];
 }
 
 export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
   // Macrostrat units
-  units: BaseUnit[];
+  units: UnitLong[];
   t_age?: number;
   b_age?: number;
   mergeSections?: MergeSectionsMode;
@@ -127,7 +127,7 @@ function ColumnInner(props: ColumnInnerProps) {
     width: _width = 300,
     columnWidth: _columnWidth = 150,
     showLabelColumn: _showLabelColumn = true,
-    className: baseClassName,
+    className,
     columnRef,
     clipUnits = false,
     children,
@@ -162,6 +162,7 @@ function ColumnInner(props: ColumnInnerProps) {
       onClick(evt) {
         dispatch?.(null, null, evt as any);
       },
+      className,
     },
     h("div.column", { ref: columnRef }, [
       h(CompositeAgeAxis),
@@ -181,7 +182,7 @@ function ColumnInner(props: ColumnInnerProps) {
   );
 }
 
-interface ColumnContainerProps extends React.HTMLAttributes<HTMLDivElement> {
+interface ColumnContainerProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 

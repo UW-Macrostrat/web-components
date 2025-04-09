@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  PropsWithChildren,
 } from "react";
 import h from "@macrostrat/hyper";
 import { GeologicPattern, GeologicPatternContext } from "./patterns";
@@ -49,7 +50,7 @@ const GeologicPatternDefs = function (props: GeologicPatternProps) {
 
 type LithologySymbolCtx = any;
 
-type LithProviderProps = React.PropsWithChildren<LithologySymbolCtx>;
+type LithProviderProps = PropsWithChildren<LithologySymbolCtx>;
 
 function PatternDefsProvider(props: LithProviderProps) {
   /** A next-generation provider for lithology patterns in the context of an SVG.

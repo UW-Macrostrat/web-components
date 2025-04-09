@@ -80,7 +80,7 @@ export default {
       },
     },
   },
-} as Meta<ColumnStoryUI>;
+} as Meta<typeof ColumnStoryUI>;
 
 function useColumnSelection() {
   const [{ columnID, selectedUnit }, updateArgs] = useArgs();

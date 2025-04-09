@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useEffect, useRef } from "react";
+import { createContext, ReactNode, useContext, useRef } from "react";
 import h from "@macrostrat/hyper";
 import { geologyPatternURL, useAsyncEffect } from "@macrostrat/ui-components";
 

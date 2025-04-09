@@ -14,5 +14,5 @@ export interface LithologyCore {
 export interface Lithology extends LithologyCore {
   group: string | null; // Group classification (e.g., unconsolidated)
   color: string; // Color code for visualization (e.g., hex color)
-  fill?: number; // Optional fill value for visualization
+  fill?: string | number; // Optional fill value for visualization
 }

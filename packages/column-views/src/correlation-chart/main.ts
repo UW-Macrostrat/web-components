@@ -91,8 +91,6 @@ export function CorrelationChart({
 
   const { packages, scaleInfo, nColumns } = chartData;
 
-  const { totalHeight } = scaleInfo;
-
   const mainWidth = (columnWidth + columnSpacing) * nColumns;
 
   return h(
@@ -100,7 +98,7 @@ export function CorrelationChart({
     { className: "correlation-diagram" },
     h(
       UnitSelectionProvider,
-      { columnRef, selectedUnit, onUnitSelected },
+      { columnRef, selectedUnit, onUnitSelected, units },
       h(ChartArea, [
         h(TimescaleColumn, {
           key: "timescale",
@@ -195,7 +193,8 @@ function Column(props: ColumnProps) {
     h(
       ColumnProvider,
       {
-        divisions: units,
+        // Need to tighten up types here...
+        divisions: units as any[],
         range: domain,
         pixelsPerMeter: pixelScale, // Actually pixels per myr
         axisType: ColumnAxisType.AGE,

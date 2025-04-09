@@ -18,8 +18,6 @@ import { parseLineFromString, stringifyLine } from "../hash-string";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
-const apiV2Prefix = "https://macrostrat.org/api/v2";
-
 const h = hyperStyled(styles);
 
 function CorrelationStoryUI({
@@ -32,12 +30,12 @@ function CorrelationStoryUI({
   inProcess,
   projectID,
   ...rest
-}) {
+}: any) {
   return h(
     ColumnCorrelationProvider,
     {
       focusedLine,
-      baseURL: apiV2Prefix,
+      columns: null,
       onSelectColumns(cols, line) {
         setFocusedLine(line);
       },
@@ -48,7 +46,7 @@ function CorrelationStoryUI({
         h(ColumnCorrelationMap, {
           accessToken: mapboxToken,
           className: "correlation-map",
-          showLogo: false,
+          //showLogo: false,
         }),
       ]),
     ])
@@ -161,7 +159,7 @@ export default {
       },
     },
   },
-} as Meta<CorrelationStoryUI>;
+} as Meta<typeof CorrelationStoryUI>;
 
 function useCorrelationLine() {
   const [{ focusedLine, selectedUnit }, updateArgs] = useArgs();

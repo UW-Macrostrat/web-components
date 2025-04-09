@@ -1,4 +1,4 @@
-import type { LithologyCore } from "./lithology";
+import type { LithologyCore } from "./lithologies.d";
 
 export interface BaseUnit {
   unit_id: number;

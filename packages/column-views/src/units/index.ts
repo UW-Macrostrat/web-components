@@ -13,6 +13,7 @@ import { TrackedLabeledUnit } from "./composite";
 import { useLithologies } from "../data-provider";
 import { useMemo } from "react";
 import { resolveID } from "./resolvers";
+import { Lithology } from "@macrostrat/api-types";
 
 export * from "./composite";
 export * from "./types";
@@ -70,9 +71,7 @@ export function ColoredUnitComponent(props) {
   }, [props.division?.unit_id, lithMap, inDarkMode]);
 
   const patternID = useMemo(() => {
-    const patternID = resolveID(props.division); // ?? getPatternID(props.division.lith, lithMap);
-
-    return patternID;
+    return resolveID(props.division); // ?? getPatternID(props.division.lith, lithMap);
   }, [props.division?.unit_id, lithMap]);
 
   const fill = useGeologicPattern(patternID);
@@ -85,8 +84,8 @@ export function ColoredUnitComponent(props) {
 }
 
 function getPatternID(
-  liths: Array<{ lith_id: number }>,
-  lithMap: Map<number, { pattern_id: string }>
+  liths: Array<Lithology>,
+  lithMap: Map<number, Lithology>
 ): string | null {
   if (lithMap == null || liths == null || liths.length == 0) {
     return null;
@@ -95,7 +94,7 @@ function getPatternID(
   for (const lith of liths) {
     const lithData = lithMap.get(lith.lith_id);
     if (lithData) {
-      patternIDs.add(lithData.fill);
+      patternIDs.add(`${lithData.fill}`);
     }
   }
   let id = patternIDs.values()[0];

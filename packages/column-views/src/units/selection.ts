@@ -43,14 +43,15 @@ export function useUnitSelectionStore<T>(
 }
 
 export function useSelectedUnit() {
-  return useUnitSelectionStore((state) => state.unit);
+  return useUnitSelectionStore((state) => state.selectedUnitData);
 }
 
 interface UnitSelectionStore {
-  unit: BaseUnit | null;
+  selectedUnit: number | null;
+  selectedUnitData: BaseUnit | null;
   overlayPosition: RectBounds | null;
   onUnitSelected: UnitSelectDispatch;
-  setSelectedUnit: (unit: null) => void;
+  setSelectedUnit: (unit: number | null) => void;
 }
 
 export function UnitSelectionProvider<T extends BaseUnit>(props: {
@@ -62,12 +63,24 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
 }) {
   const [store] = useState(() =>
     createStore<UnitSelectionStore>((set) => ({
-      unit: null,
+      selectedUnit: null,
+      selectedUnitData: null,
       overlayPosition: null,
-      setSelectedUnit(unit: number | null) {
-        set({ unit });
+      setSelectedUnit(selectedUnit: number | null | BaseUnit) {
+        if (selectedUnit == null) {
+          set({ selectedUnit: null, selectedUnitData: null });
+          return;
+          // If it's a number, set the selected unit
+        } else if (typeof selectedUnit === "number") {
+          set({ selectedUnit, selectedUnitData: null });
+        } else if ("unit_id" in selectedUnit) {
+          set({
+            selectedUnit: selectedUnit.unit_id,
+            selectedUnitData: selectedUnit,
+          });
+        }
       },
-      onUnitSelected: (unit, target, event) => {
+      onUnitSelected: (unit: T, target: HTMLElement, event: Event) => {
         console.log("onUnitSelected", unit, target, event);
         const el = props.columnRef?.current;
         let overlayPosition = null;
@@ -84,7 +97,11 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
         }
         props.onUnitSelected?.(unit?.unit_id, unit);
 
-        return set({ unit, overlayPosition });
+        return set({
+          selectedUnit: unit?.unit_id,
+          selectedUnitData: unit,
+          overlayPosition,
+        });
       },
     }))
   );
@@ -92,10 +109,9 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
   const { units, selectedUnit } = props;
 
   useEffect(() => {
-    const { setSelectedUnit } = store.getState();
     if (selectedUnit != null) {
       const unitData = units?.find((u) => u.unit_id === selectedUnit);
-      setSelectedUnit(unitData);
+      store.setState({ selectedUnitData: unitData });
     }
   }, [selectedUnit, units]);
 
