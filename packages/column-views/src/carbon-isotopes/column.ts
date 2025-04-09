@@ -6,7 +6,7 @@ import {
   ColumnAxis,
   ColumnContext,
 } from "@macrostrat/column-components";
-import { SimpleUnitsColumn, IUnit, ColumnArgs } from "../units";
+import { SimpleUnitsColumn, IUnit } from "../units";
 import { useContext } from "react";
 import { IsotopesColumn } from "./isotopes-column";
 import { MacrostratColumnProvider } from "../data-provider";
@@ -97,6 +97,8 @@ const Section = (props: IColumnProps) => {
     ]
   );
 };
+
+type ColumnArgs = any;
 
 function Column(props: Omit<IColumnProps, "data"> & { params: ColumnArgs }) {
   const { params } = props;

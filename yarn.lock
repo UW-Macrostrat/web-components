@@ -2588,17 +2588,24 @@ __metadata:
     "@macrostrat/column-components": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/map-interface": "workspace:^"
+    "@macrostrat/map-styles": "workspace:^"
+    "@macrostrat/mapbox-react": "workspace:^"
+    "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/svg-map-components": "workspace:^"
     "@macrostrat/timescale": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@turf/buffer": "npm:^7.2.0"
+    "@turf/centroid": "npm:^7.2.0"
     "@turf/distance": "npm:^7.2.0"
     "@turf/line-intersect": "npm:^7.2.0"
     "@turf/nearest-point-on-line": "npm:^7.2.0"
     "@types/chroma-js": "npm:^3"
     "@types/d3-format": "npm:^3"
     "@types/d3-geo": "npm:^3"
+    "@types/d3-path": "npm:^3"
+    "@types/d3-scale": "npm:^4"
     "@types/d3-shape": "npm:^3"
     "@types/topojson-client": "npm:^3.1.5"
     "@visx/axis": "npm:^3.12.0"
@@ -2609,7 +2616,10 @@ __metadata:
     d3-format: "npm:^3.1.0"
     d3-geo: "npm:^3.1.1"
     d3-geo-voronoi: "npm:^2.1.0"
+    d3-path: "npm:^3.1.0"
+    d3-scale: "npm:^4.0.2"
     d3-shape: "npm:^3.2.0"
+    mapbox-gl: "npm:^2.11.0"
     parcel: "npm:^2.13.3"
     postcss: "npm:^8.0.0"
     postcss-modules: "npm:^6.0.0"
@@ -2744,7 +2754,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/map-interface@workspace:packages/map-interface":
+"@macrostrat/map-interface@workspace:^, @macrostrat/map-interface@workspace:packages/map-interface":
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
@@ -5257,7 +5267,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@turf/centroid@npm:^7.1.0":
+"@turf/centroid@npm:^7.1.0, @turf/centroid@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/centroid@npm:7.2.0"
   dependencies:
@@ -5555,7 +5565,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/d3-path@npm:*":
+"@types/d3-path@npm:*, @types/d3-path@npm:^3":
   version: 3.1.1
   resolution: "@types/d3-path@npm:3.1.1"
   checksum: 10c0/2c36eb31ebaf2ce4712e793fd88087117976f7c4ed69cc2431825f999c8c77cca5cea286f3326432b770739ac6ccd5d04d851eb65e7a4dbcc10c982b49ad2c02
@@ -5575,6 +5585,15 @@ __metadata:
   dependencies:
     "@types/d3-time": "npm:*"
   checksum: 10c0/2c21be0a715f104bbc3cbfe648a7a1f0b1ccfb0ec93aad5df0ba1a342dced0bfa19761f5378a8790e9073bd001df176b814390c555984ce0917744d40e8efd3d
+  languageName: node
+  linkType: hard
+
+"@types/d3-scale@npm:^4":
+  version: 4.0.9
+  resolution: "@types/d3-scale@npm:4.0.9"
+  dependencies:
+    "@types/d3-time": "npm:*"
+  checksum: 10c0/4ac44233c05cd50b65b33ecb35d99fdf07566bcdbc55bc1306b2f27d1c5134d8c560d356f2c8e76b096e9125ffb8d26d95f78d56e210d1c542cb255bdf31d6c8
   languageName: node
   linkType: hard
 
@@ -7238,7 +7257,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"d3-scale@npm:4, d3-scale@npm:4.0.2":
+"d3-scale@npm:4, d3-scale@npm:4.0.2, d3-scale@npm:^4.0.2":
   version: 4.0.2
   resolution: "d3-scale@npm:4.0.2"
   dependencies:
@@ -9964,7 +9983,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mapbox-gl@npm:^2.15.0":
+"mapbox-gl@npm:^2.11.0, mapbox-gl@npm:^2.15.0":
   version: 2.15.0
   resolution: "mapbox-gl@npm:2.15.0"
   dependencies:

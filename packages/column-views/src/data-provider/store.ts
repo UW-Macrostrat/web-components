@@ -7,7 +7,7 @@ import {
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
-interface MacrostratColumnDataContext {
+export interface MacrostratColumnDataContext {
   units: ExtUnit[];
   sections: PackageLayoutData[];
   totalHeight?: number;

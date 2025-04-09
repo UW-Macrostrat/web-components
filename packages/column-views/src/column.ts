@@ -182,7 +182,7 @@ function ColumnInner(props: ColumnInnerProps) {
   );
 }
 
-interface ColumnContainerProps extends HTMLAttributes<HTMLDivElement> {
+export interface ColumnContainerProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
 }
 

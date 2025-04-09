@@ -22,7 +22,7 @@ import { ColumnProvider } from "@macrostrat/column-components";
 import { ReactNode } from "react";
 import { useMacrostratColumnData } from "./store";
 
-interface MacrostratDataProviderProps {
+export interface MacrostratDataProviderProps {
   baseURL: string;
   children: React.ReactNode;
 }

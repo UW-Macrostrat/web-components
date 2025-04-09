@@ -14,7 +14,7 @@ import {
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
-import { useMacrostratData, useMacrostratDefs } from "@macrostrat/column-views";
+import { useMacrostratData, useMacrostratDefs } from "../data-provider";
 import { Environment, UnitLong, UnitLongFull } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
