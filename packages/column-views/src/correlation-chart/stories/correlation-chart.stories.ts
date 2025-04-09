@@ -1,7 +1,7 @@
 import { Meta } from "@storybook/react";
 import "@macrostrat/style-system";
 import { useArgs } from "@storybook/preview-api";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
@@ -11,7 +11,7 @@ import {
 import { hyperStyled } from "@macrostrat/hyper";
 
 import styles from "./stories.module.sass";
-import { CorrelationChart, CorrelationChartProps } from "../correlation-chart";
+import { CorrelationChart, CorrelationChartProps } from "../main";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { parseLineFromString, stringifyLine } from "../hash-string";

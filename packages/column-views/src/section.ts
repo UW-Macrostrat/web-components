@@ -6,24 +6,18 @@ import {
 import { ReactNode, FunctionComponent, useMemo } from "react";
 import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
-import { Duration, MacrostratColumnProvider } from "./index";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
 import type { ExtUnit } from "./prepare-units/helpers";
+import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
 import {
-  PackageLayoutData,
-  PackageScaleLayoutData,
-} from "./prepare-units/composite-scale";
-import { useMacrostratColumnData, useMacrostratUnits } from "./data-provider";
+  useMacrostratColumnData,
+  useMacrostratUnits,
+  MacrostratColumnProvider,
+} from "./data-provider";
+import { Duration } from "./unit-details";
 
 const h = hyper.styled(styles);
-
-export interface SectionInfo {
-  section_id: number | number[];
-  t_age: number;
-  b_age: number;
-  units: ExtUnit[];
-}
 
 export interface SectionSharedProps {
   unitComponent?: FunctionComponent<any>;

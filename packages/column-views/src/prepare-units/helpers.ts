@@ -1,5 +1,4 @@
 import type { BaseUnit, UnitLong } from "@macrostrat/api-types";
-import type { SectionInfo } from "../section";
 import { group } from "d3-array";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import {
@@ -11,6 +10,19 @@ import {
 } from "./utils";
 
 const dt = 0.001;
+
+export interface StratigraphicPackage {
+  /** A collection of stratigraphic information organized in time, corresponding
+   * to single or multiple columns. */
+  t_age: number;
+  b_age: number;
+}
+
+export interface SectionInfo extends StratigraphicPackage {
+  /** A time-bounded part of a single stratigraphic column. */
+  section_id: number | number[];
+  units: ExtUnit[];
+}
 
 export interface ExtUnit extends BaseUnit {
   bottomOverlap: boolean;

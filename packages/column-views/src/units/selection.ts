@@ -12,8 +12,7 @@ import {
   useCallback,
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
-import { RectBounds } from "./boxes";
-import { IUnit } from "@macrostrat/column-views";
+import type { RectBounds, IUnit } from "./types";
 
 type UnitSelectDispatch = (
   unit: BaseUnit | null,
@@ -69,6 +68,7 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
         set({ unit });
       },
       onUnitSelected: (unit, target, event) => {
+        console.log("onUnitSelected", unit, target, event);
         const el = props.columnRef?.current;
         let overlayPosition = null;
         if (unit != null && el != null && target != null) {
@@ -94,7 +94,7 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
   useEffect(() => {
     const { setSelectedUnit } = store.getState();
     if (selectedUnit != null) {
-      const unitData = units.find((u) => u.unit_id === selectedUnit);
+      const unitData = units?.find((u) => u.unit_id === selectedUnit);
       setSelectedUnit(unitData);
     }
   }, [selectedUnit, units]);

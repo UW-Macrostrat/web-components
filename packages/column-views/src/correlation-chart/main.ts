@@ -6,10 +6,10 @@ import {
 } from "../units";
 import { UnitSelectionPopover } from "../unit-details";
 import hyper from "@macrostrat/hyper";
-import styles from "./correlation-chart.module.sass";
+import styles from "./main.module.sass";
 import { useMemo, useRef } from "react";
 import { useInDarkMode } from "@macrostrat/ui-components";
-import { CompositeTimescaleCore, UnconformityLabels } from "../section";
+import { CompositeTimescaleCore } from "../section";
 import classNames from "classnames";
 import {
   findLaterallyExtensiveUnits,
@@ -32,6 +32,7 @@ import { UnitBoxes } from "../units/boxes";
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnContainer } from "../column";
 import { ColumnData } from "../data-provider";
+import { BaseUnit } from "@macrostrat/api-types";
 
 const h = hyper.styled(styles);
 
@@ -41,6 +42,9 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   columnSpacing?: number;
   targetUnitHeight?: number;
   unconformityLabels?: boolean;
+  selectedUnit?: number | null;
+  showUnitPopover?: boolean;
+  onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
 }
 
 export function CorrelationChart({
@@ -48,6 +52,9 @@ export function CorrelationChart({
   columnSpacing = 0,
   columnWidth = 130,
   unconformityLabels = true,
+  showUnitPopover = true,
+  selectedUnit,
+  onUnitSelected,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -93,7 +100,7 @@ export function CorrelationChart({
     { className: "correlation-diagram" },
     h(
       UnitSelectionProvider,
-      { columnRef },
+      { columnRef, selectedUnit, onUnitSelected },
       h(ChartArea, [
         h(TimescaleColumn, {
           key: "timescale",
@@ -122,7 +129,7 @@ export function CorrelationChart({
               });
             })
           ),
-          h(UnitSelectionPopover),
+          h.if(showUnitPopover)(UnitSelectionPopover),
           // Navigation only works within a column for now...
           h(UnitKeyboardNavigation, { units }),
         ]),

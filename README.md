@@ -128,3 +128,11 @@ yarn up -i <package-name>
 ```sh
 yarn why @macrostrat/column-components
 ```
+
+#### Find circular dependencies
+
+Circular dependencies prevent building and Vite compilation in some cases
+
+```sh
+yarn dlx madge --circular --extensions ts packages/column-views
+```

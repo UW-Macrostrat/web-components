@@ -6,3 +6,10 @@ export interface IUnit {
   b_age: number;
   [x: string]: any;
 }
+
+export interface RectBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}

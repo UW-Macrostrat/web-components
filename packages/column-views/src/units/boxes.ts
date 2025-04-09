@@ -19,15 +19,9 @@ import { getUnitHeightRange } from "../prepare-units/utils";
 import { useLithologies } from "../data-provider";
 import { getMixedUnitColor } from "./colors";
 import { path } from "d3-path";
+import type { RectBounds } from "./types";
 
 const h = hyper.styled(styles);
-
-export interface RectBounds {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 interface UnitRectOptions {
   widthFraction?: number;

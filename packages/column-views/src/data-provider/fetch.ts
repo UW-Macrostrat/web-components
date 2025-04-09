@@ -11,7 +11,6 @@ import {
 import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
 import { geoArea } from "d3-geo";
-import { ColumnIdentifier } from "../correlation-chart/types";
 
 function defaultFetch(url: string, options: RequestInit) {
   const baseURL = "https://macrostrat.org/api/v2";

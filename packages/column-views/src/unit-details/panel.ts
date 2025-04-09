@@ -18,7 +18,6 @@ import { useMacrostratData, useMacrostratDefs } from "@macrostrat/column-views";
 import { Environment, UnitLong } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
-export * from "./popover";
 
 const h = hyper.styled(styles);
 

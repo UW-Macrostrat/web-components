@@ -3,13 +3,8 @@ import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react";
 import { JSONView, useAPIResult } from "@macrostrat/ui-components";
 
-import {
-  Column,
-  LithologiesProvider,
-  ColoredUnitComponent,
-} from "@macrostrat/column-views";
+import { Column, ColoredUnitComponent } from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
-import { PatternProvider } from "@macrostrat/column-components/stories/base-section";
 import "@macrostrat/style-system";
 import { ColumnProps as BaseColumnProps } from "@macrostrat/column-views";
 import { useState } from "react";
@@ -55,18 +50,13 @@ function BasicColumn(props: ColumnProps) {
 type Story = StoryObj<typeof BasicColumn>;
 
 const meta: Meta<ColumnProps> = {
-  title: "Column views/Stratigraphic columns",
+  title: "Column views/Stratigraphic column rendering",
   component: BasicColumn,
   args: {
     id: 432,
     unconformityLabels: true,
     showLabels: true,
   },
-  decorators: [
-    (Story) => {
-      return h(LithologiesProvider, h(PatternProvider, h(Story)));
-    },
-  ],
   parameters: {
     docs: {
       story: {

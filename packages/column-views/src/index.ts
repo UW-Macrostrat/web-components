@@ -7,3 +7,4 @@ export * from "./column";
 export * from "./unit-details";
 export * from "./maps";
 export * from "./age-model-overlay";
+export * from "./correlation-chart";

@@ -1,1 +1,2 @@
-export * from "./correlation-chart";
+export * from "./main";
+export * from "./hash-string";

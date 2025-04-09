@@ -31,7 +31,7 @@ const baseArgTypes = {
 };
 
 export default {
-  title: "Column views/Column navigation",
+  title: "Column views/Stratigraphic columns",
   component: ColumnStoryUI,
   args: {
     columnID: 432,

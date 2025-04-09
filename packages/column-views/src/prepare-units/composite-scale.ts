@@ -1,20 +1,7 @@
-import type { ExtUnit } from "./helpers";
+import type { ExtUnit, SectionInfo } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleLinear, scaleLinear } from "d3-scale";
-
-export interface StratigraphicPackage {
-  /** A collection of stratigraphic information organized in time, corresponding
-   * to single or multiple columns. */
-  t_age: number;
-  b_age: number;
-}
-
-export interface SectionInfo extends StratigraphicPackage {
-  /** A time-bounded part of a single stratigraphic column. */
-  section_id: number | number[];
-  units: ExtUnit[];
-}
 
 export interface ColumnHeightScaleOptions {
   /** A fixed pixel scale to use for the section (pixels per Myr) */
