@@ -3,7 +3,7 @@ import { themes } from "@storybook/theming";
 
 import { FocusStyleManager } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import "@macrostrat/style-system";
+import "@macrostrat/style-system/src/main.sass";
 import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "storybook-dark-mode";
 import { DocsContainer } from "./docs-container";
