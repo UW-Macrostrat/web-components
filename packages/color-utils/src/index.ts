@@ -56,7 +56,7 @@ export function toRGBAString(color: Color): string {
 }
 
 interface ColorScheme {
-  textColor: string;
+  mainColor: string;
   backgroundColor: string;
   secondaryColor: string;
   secondaryBackgroundColor: string;
@@ -83,7 +83,7 @@ export function getLuminanceAdjustedColorScheme(
   const secondaryColor = _color?.luminance(0.5).css();
 
   return {
-    textColor: mainColor,
+    mainColor,
     backgroundColor,
     secondaryColor,
     secondaryBackgroundColor,

@@ -94,7 +94,7 @@ function buildTagStyle({ color, size, inDarkMode }: TagStyleProps = {}) {
   if (color != null) {
     style = {
       ...style,
-      "--text-color": scheme.textColor,
+      "--text-color": scheme.mainColor,
       "--tag-background": scheme.backgroundColor,
       "--secondary-color": scheme.secondaryColor,
       "--tag-secondary-background": scheme.secondaryBackgroundColor,

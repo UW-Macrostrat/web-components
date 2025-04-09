@@ -2551,7 +2551,6 @@ __metadata:
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/timescale": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
-    "@visx/axis": "npm:^3.12.0"
     chroma-js: "npm:^2.1.0"
     classnames: "npm:^2.2.6"
     d3-axis: "npm:^3.0.0"

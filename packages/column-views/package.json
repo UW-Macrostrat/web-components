@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Data views for Macrostrat stratigraphic columns",
   "type": "module",
   "source": "src/index.ts",
