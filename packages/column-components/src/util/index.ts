@@ -29,38 +29,43 @@ interface SVGProps extends SVGAttributes<any>, Padding, Margin {
   innerRef?: RefObject<SVGElement>;
 }
 
-const SVG = forwardRef((props: SVGProps, ref: ForwardedRef<SVGElement>) => {
-  const { innerRef, children, style, ...rest } = expandInnerSize(props);
-  if (innerRef != null) {
-    ref = innerRef;
-  }
+interface SVGPropsWithNumericSize extends Omit<SVGProps, "width" | "height"> {
+  width?: number;
+  height?: number;
+}
 
-  // Sizing
-  const { paddingLeft, paddingTop } = extractPadding(props);
-  const margin = extractMargin(props);
-  const realRest = removeMargin(removePadding(rest));
+const SVG = forwardRef(
+  (props: SVGPropsWithNumericSize, ref: ForwardedRef<SVGElement>) => {
+    const { children, innerRef, ...props1 } = props;
+    const { style, ...rest } = expandInnerSize(props1);
 
-  return h(
-    "svg",
-    {
-      ref,
-      style: { ...margin, ...style },
-      ...realRest,
-      ...SVGNamespaces,
-    },
-    h(
-      "g",
+    // Sizing
+    const { paddingLeft, paddingTop } = extractPadding(props);
+    const margin = extractMargin(props);
+    const realRest = removeMargin(removePadding(rest));
+
+    return h(
+      "svg",
       {
-        transform: `translate(${paddingLeft},${paddingTop})`,
+        ref,
+        style: { ...margin, ...style },
+        ...realRest,
+        ...SVGNamespaces,
       },
-      children
-    )
-  );
-});
+      h(
+        "g",
+        {
+          transform: `translate(${paddingLeft},${paddingTop})`,
+        },
+        children
+      )
+    );
+  }
+);
 
 const ForeignObject = (props) => createElement("foreignObject", props);
 
-const ColumnSVG = function (props: SVGProps) {
+const ColumnSVG = function (props: SVGPropsWithNumericSize) {
   //# Need to rework to use UI Box code
   const { children, className, innerRef, style, ...rest } = props;
   const { pixelHeight } = useColumn();

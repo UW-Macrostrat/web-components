@@ -110,7 +110,7 @@ function _DataSheet<T>({
 
   const storeAPI = useStoreAPI<T>();
 
-  const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
+  //const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
   const _onSaveData = useCallback(() => {
     onSaveData(updatedData, data);
@@ -174,7 +174,7 @@ function _DataSheet<T>({
           className: "data-sheet",
           enableFocusedCell: true,
           enableColumnReordering,
-          onColumnsReordered,
+          //onColumnsReordered,
           focusedCell,
           selectedRegions: selection,
           onSelection,
