@@ -44,7 +44,6 @@
     "chalk": "^5.0.1",
     "concurrently": "^7.2.2",
     "date-fns": "^4.1.0",
-    "geologic-patterns": "^2.0.0-dev1",
     "glob": "^11.0.1",
     "lorem-ipsum": "^2.0.8",
     "marked": "^11.0",
@@ -71,15 +70,9 @@
     "toolchain/*",
     "examples/*"
   ],
-  "packageManager": "yarn@4.7.0",
-  "dependenciesMeta": {
-    "geologic-patterns@2.0.0-dev1": {
-      "unplugged": true
-    }
-  },
+  "packageManager": "yarn@4.8.1",
   "devDependencies": {
     "@parcel/packager-ts": "2.13.3",
-    "@storybook/client-api": "7.6.17",
     "@types/d3-array": "^3.2.1",
     "@types/underscore": "^1.13.0"
   }

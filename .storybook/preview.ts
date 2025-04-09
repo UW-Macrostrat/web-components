@@ -48,15 +48,10 @@ export const decorators = [
 
 export const tags = ["autodocs"];
 
-// Patterns are included as static files in the storybook main.ts
-const resolvePattern = (id) => {
-  return `/patterns/${id}.svg`;
-};
-
 function PatternProvider({ children }) {
   return h(GeologicPatternProvider, {
     resolvePattern(id: string) {
-      return `/patterns/${id}.svg`;
+      return `https://dev2.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
     },
     children,
   });

@@ -1,6 +1,6 @@
 import { Meta } from "@storybook/react";
 import "@macrostrat/style-system";
-import { useArgs } from "@storybook/client-api";
+import { useArgs } from "@storybook/preview-api";
 import { useCallback, useMemo } from "react";
 import {
   ColumnCorrelationMap,
