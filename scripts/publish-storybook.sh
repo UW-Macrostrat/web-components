@@ -12,7 +12,7 @@ export $(grep -v '^#' .env | xargs)
 echo "Uploading to S3 bucket: $S3_BUCKET"
 
 rclone sync ./storybook-static \
-  :s3:"$S3_BUCKET/$S3_SITE_ROOT" \
+  :s3:"$S3_BUCKET/$S3_PATH" \
   --s3-provider=Ceph \
   --s3-endpoint="$S3_ENDPOINT" \
   --s3-access-key-id="$S3_ACCESS_KEY" \
