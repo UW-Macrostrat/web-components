@@ -109,9 +109,12 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
   const { units, selectedUnit } = props;
 
   useEffect(() => {
+    // Synchronize store with provided props
     if (selectedUnit != null) {
       const unitData = units?.find((u) => u.unit_id === selectedUnit);
-      store.setState({ selectedUnitData: unitData });
+      store.setState({ selectedUnit, selectedUnitData: unitData });
+    } else {
+      store.setState({ selectedUnit: null, selectedUnitData: null });
     }
   }, [selectedUnit, units]);
 

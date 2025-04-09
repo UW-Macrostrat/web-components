@@ -1,6 +1,6 @@
 /** Data provider for information that needs to be loaded in bulk for frontend views */
 import baseFetch from "cross-fetch";
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import h from "@macrostrat/hyper";
 import { create, useStore } from "zustand";
 import {
@@ -279,19 +279,24 @@ export function useMacrostratColumns(
   const key = projectID ?? -1;
   const colData = columnsMap?.get(key);
   useEffect(() => {
-    if (colData != null && (!inProcess || (inProcess && !colData.inProcess))) {
-      return;
+    // Refetch if the columns are not available, or if we have requested inProcess columns where we didn't before
+    if (colData == null || (inProcess && !colData.inProcess)) {
+      getColumns(projectID, inProcess);
     }
-    getColumns(projectID, inProcess);
+    // If we've already fetched the columns there's nothing to do...
   }, [colData, inProcess, getColumns]);
-  if (colData == null) return null;
-  let columns = colData.columns;
-  if (!inProcess && colData.inProcess) {
-    columns.features = columns.features?.filter(
-      (d) => d.properties.status != "in process"
-    );
-  }
-  return columns;
+
+  return useMemo(() => {
+    if (colData == null) return null;
+    let columns = colData.columns;
+    if (!inProcess && colData.inProcess) {
+      // Our available set of columns includes 'in process' columns, but we don't want them
+      columns.features = columns.features?.filter(
+        (d) => d.properties.status != "in process"
+      );
+    }
+    return columns;
+  }, [colData, inProcess]);
 }
 
 export function useMacrostratData(dataType: string, ...args: any[]) {
