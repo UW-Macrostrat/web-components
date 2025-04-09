@@ -83,6 +83,15 @@ export default {
   component: CorrelationStoryUI,
   parameters: {
     layout: "fullscreen",
+    docs: {
+      description: {
+        component: "Correlation chart for Macrostrat columns",
+      },
+      story: {
+        inline: false,
+        iframeHeight: 500,
+      },
+    },
   },
   args: {
     focusedLine: "-100,45 -90,50",

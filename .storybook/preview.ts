@@ -34,6 +34,19 @@ export const parameters = {
     lightClass: [],
     stylePreview: true,
   },
+  parameters: {
+    options: {
+      storySort: {
+        order: [
+          "Web components",
+          "Map interface",
+          "Column views",
+          "Timescale",
+          "Column components",
+        ],
+      },
+    },
+  },
 };
 
 export const decorators = [
