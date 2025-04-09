@@ -1,9 +1,8 @@
-import { MapViewProps } from "@macrostrat/map-interface";
 import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
 import { FeatureCollection } from "geojson";
 import { ReactNode, useMemo, useRef } from "react";
-import { buildColumnsStyle } from "../../_shared";
+import { buildColumnsStyle, InsetMapProps } from "../../_shared";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
 import {
@@ -18,7 +17,7 @@ import {
   buildKeyboardNavigationStyle,
 } from "./keyboard-navigation";
 
-export interface ColumnNavigationMapProps extends MapViewProps {
+export interface ColumnNavigationMapProps extends InsetMapProps {
   padding?: number;
   children?: ReactNode;
   accessToken?: string;

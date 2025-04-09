@@ -12,7 +12,8 @@
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
     "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish",
     "publish:storybook": "./scripts/publish-storybook.sh",
-    "check": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "check-circular": "madge --circular --extensions ts,tsx ."
   },
   "type": "module",
   "author": "Daven Quinn",

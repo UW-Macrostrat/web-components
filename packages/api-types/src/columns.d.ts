@@ -21,3 +21,7 @@ export interface ColumnGeoJSONRecord {
   geometry: Polygon | MultiPolygon;
   properties: ColumnProperties;
 }
+
+export interface ColumnGeoJSONRecordWithID extends ColumnGeoJSONRecord {
+  id: number;
+}

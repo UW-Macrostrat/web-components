@@ -7,7 +7,7 @@ import {
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useMemo } from "react";
 import type { ExtUnit } from "./helpers";
-import { BaseUnit } from "@macrostrat/api-types";
+import { UnitLong } from "@macrostrat/api-types";
 import {
   collapseUnconformitiesByPixelHeight,
   ColumnScaleOptions,
@@ -15,10 +15,9 @@ import {
   computeSectionHeights,
   finalizeSectionHeights,
   PackageLayoutData,
-  SectionInfo,
-  SectionInfoExt,
 } from "./composite-scale";
-import { unitsOverlap } from "./utils";
+import type { SectionInfo } from "./helpers";
+import { agesOverlap, unitsOverlap } from "./utils";
 
 export * from "./utils";
 export { preprocessUnits, groupUnitsIntoSections };
@@ -42,7 +41,7 @@ export interface PreparedColumnData extends CompositeColumnData {
 }
 
 export function usePreparedColumnUnits(
-  data: BaseUnit[],
+  data: UnitLong[],
   options: PrepareColumnOptions
 ): PreparedColumnData {
   /** This function wraps and memoizes all preparation steps for converting
@@ -54,7 +53,7 @@ export function usePreparedColumnUnits(
 }
 
 export function prepareColumnUnits(
-  units: BaseUnit[],
+  units: UnitLong[],
   options: PrepareColumnOptions
 ): PreparedColumnData {
   /** Prepare units for rendering into Macrostrat columns */
@@ -71,10 +70,10 @@ export function prepareColumnUnits(
   /** Prototype filtering to age range */
   let units1 = units.filter((d) => {
     // Filter units by t_age and b_age, inclusive
-    return unitsOverlap(d, { unit_id: -1, t_age, b_age }, ColumnAxisType.AGE);
+    return agesOverlap(d, { t_age, b_age });
   });
 
-  let sections0: SectionInfo[];
+  let sections0: SectionInfo<UnitLong>[];
   if (
     mergeSections == MergeSectionsMode.ALL &&
     axisType != ColumnAxisType.ORDINAL
@@ -126,7 +125,7 @@ export function prepareColumnUnits(
    * We need to do this now to determine which unconformities
    * are small enough to collapse.
    */
-  sections = computeSectionHeights(sections, options);
+  let sectionsWithScales = computeSectionHeights(sections, options);
 
   if (collapseSmallUnconformities ?? false) {
     let threshold = unconformityHeight ?? 30;
@@ -134,8 +133,8 @@ export function prepareColumnUnits(
       threshold = collapseSmallUnconformities;
     }
 
-    sections = collapseUnconformitiesByPixelHeight(
-      sections,
+    sectionsWithScales = collapseUnconformitiesByPixelHeight(
+      sectionsWithScales,
       threshold,
       options
     );
@@ -145,7 +144,7 @@ export function prepareColumnUnits(
    * This is mostly important so that unit keyboard navigation
    * predictably selects adjacent units.
    */
-  const units2 = sections.reduce((acc, group) => {
+  const units2 = sectionsWithScales.reduce((acc, group) => {
     const { units } = group;
     for (const unit of units) {
       acc.push(unit);
@@ -155,7 +154,7 @@ export function prepareColumnUnits(
 
   /** Prepare section scale information using groups */
   const { totalHeight, sections: sections2 } = finalizeSectionHeights(
-    sections,
+    sectionsWithScales,
     unconformityHeight
   );
 
@@ -163,7 +162,7 @@ export function prepareColumnUnits(
    * We do this after merging sections so that we can
    * handle cases where there are overlapping units across sections
    * */
-  sections = sections2.map((section) => {
+  const sectionsOut = sections2.map((section) => {
     return {
       ...section,
       units: preprocessUnits(section, axisType),
@@ -173,6 +172,6 @@ export function prepareColumnUnits(
   return {
     units: units2,
     totalHeight,
-    sections,
+    sections: sectionsOut,
   };
 }

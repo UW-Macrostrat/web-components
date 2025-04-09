@@ -2,6 +2,7 @@ import type { ExtUnit, SectionInfo } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleLinear, scaleLinear } from "d3-scale";
+import { UnitLong } from "@macrostrat/api-types";
 
 export interface ColumnHeightScaleOptions {
   /** A fixed pixel scale to use for the section (pixels per Myr) */
@@ -51,7 +52,7 @@ export type PackageScaleLayoutData = PackageScaleInfo & {
   paddingTop: number;
 };
 
-export type PackageLayoutData = SectionInfo & {
+export type PackageLayoutData<T extends UnitLong = ExtUnit> = SectionInfo<T> & {
   scaleInfo: PackageScaleLayoutData;
   // A unique key for the section to use in React
   key: string;
@@ -69,9 +70,9 @@ export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
 
 // Composite scale information augmented with units in each package
 
-export interface CompositeColumnData
+export interface CompositeColumnData<T extends UnitLong = ExtUnit>
   extends Omit<CompositeScaleData, "sections"> {
-  sections: PackageLayoutData[];
+  sections: PackageLayoutData<T>[];
 }
 
 export function buildCompositeScaleInfo(
@@ -109,10 +110,10 @@ export function buildCompositeScaleInfo(
   };
 }
 
-export function finalizeSectionHeights(
-  sections: SectionInfoWithScale[],
+export function finalizeSectionHeights<T extends UnitLong>(
+  sections: SectionInfoWithScale<T>[],
   unconformityHeight: number
-): CompositeColumnData {
+): CompositeColumnData<T> {
   /** Finalize the heights of sections, including the heights of unconformities
    * between them.
    */
@@ -124,7 +125,7 @@ export function finalizeSectionHeights(
   );
 
   // This could perhaps be simplified.
-  const sections1: PackageLayoutData[] = [];
+  const sections1: PackageLayoutData<T>[] = [];
   for (const i in sections) {
     const group = sections[i];
     const scaleInfo = packages[i];
@@ -140,23 +141,24 @@ export function finalizeSectionHeights(
   };
 }
 
-interface SectionInfoWithScale extends SectionInfo {
+interface SectionInfoWithScale<T extends UnitLong = ExtUnit>
+  extends SectionInfo<T> {
   scaleInfo: PackageScaleInfo;
 }
 
-export function computeSectionHeights(
-  sections: SectionInfo[],
-  opts: ColumnHeightScaleOptions
-): SectionInfoWithScale[] {
+export function computeSectionHeights<T extends UnitLong>(
+  sections: SectionInfo<T>[],
+  opts: ColumnScaleOptions
+): SectionInfoWithScale<T>[] {
   return sections.map((group) => {
-    return addScaleToSection(group, opts);
+    return addScaleToSection<T>(group, opts);
   });
 }
 
-function addScaleToSection(
-  group: SectionInfo,
+function addScaleToSection<T extends UnitLong = ExtUnit>(
+  group: SectionInfo<T>,
   opts: ColumnScaleOptions
-): SectionInfoWithScale {
+): SectionInfoWithScale<T> {
   const { t_age, b_age, units } = group;
   let _range = null;
   // if t_age and b_age are set for a group, use them to define the range...
@@ -164,7 +166,7 @@ function addScaleToSection(
     _range = [b_age, t_age];
   }
 
-  const scaleInfo = buildSectionScale(units, {
+  const scaleInfo = buildSectionScale<T>(units, {
     ...opts,
     domain: _range,
   });
@@ -175,8 +177,8 @@ function addScaleToSection(
   };
 }
 
-function buildSectionScale(
-  data: ExtUnit[],
+function buildSectionScale<T extends UnitLong>(
+  data: T[],
   opts: SectionScaleOptions
 ): PackageScaleInfo {
   const {
@@ -231,7 +233,7 @@ export function createPackageScale(
 }
 
 function findSectionHeightRange(
-  data: ExtUnit[],
+  data: UnitLong[],
   axisType: ColumnAxisType
 ): [number, number] {
   if (axisType == null) {
@@ -256,7 +258,7 @@ function findSectionHeightRange(
 }
 
 function findAverageUnitHeight(
-  data: ExtUnit[],
+  data: UnitLong[],
   axisType: ColumnAxisType
 ): number {
   const unitHeights = data.map((d) => {
@@ -304,13 +306,13 @@ export function createCompositeScale(
 }
 
 /** Collapse sections separated by unconformities that are smaller than a given pixel height. */
-export function collapseUnconformitiesByPixelHeight(
-  sections: SectionInfoWithScale[],
+export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
+  sections: SectionInfoWithScale<T>[],
   threshold: number,
   opts: ColumnScaleOptions
-): SectionInfoWithScale[] {
+): SectionInfoWithScale<T>[] {
   const newSections = [];
-  let currentSection: SectionInfoWithScale | null = null;
+  let currentSection: SectionInfoWithScale<T> | null = null;
   for (const nextSection of sections) {
     if (currentSection == null) {
       currentSection = nextSection;
@@ -325,7 +327,7 @@ export function collapseUnconformitiesByPixelHeight(
       );
     if (pxHeight < threshold) {
       // We need to merge the sections
-      const compositeSection0: SectionInfo = {
+      const compositeSection0: SectionInfo<T> = {
         units: [...currentSection.units, ...nextSection.units],
         section_id: [
           ...ensureArray(currentSection.section_id),

@@ -1,15 +1,31 @@
-import type { BaseUnit, UnitLong } from "@macrostrat/api-types";
+import type { BaseUnit } from "@macrostrat/api-types";
 import {
   AgeRangeRelationship,
   compareAgeRanges,
 } from "@macrostrat/stratigraphy-utils";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import { StratigraphicPackage } from "./helpers";
 
 const dt = 0.001;
 
-export function unitsOverlap<T extends BaseUnit>(
-  a: T,
-  b: T,
+interface UnitsOverlap {
+  (
+    a: StratigraphicPackage,
+    b: StratigraphicPackage,
+    axisType?: ColumnAxisType.AGE,
+    tolerance?: number
+  ): boolean;
+  (
+    a: BaseUnit,
+    b: BaseUnit,
+    axisType: ColumnAxisType,
+    tolerance?: number
+  ): boolean;
+}
+
+export const unitsOverlap: UnitsOverlap = function (
+  a,
+  b,
   axisType: ColumnAxisType = ColumnAxisType.AGE,
   tolerance: number = 0.001
 ): boolean {
@@ -19,6 +35,15 @@ export function unitsOverlap<T extends BaseUnit>(
     tolerance
   );
   return rel != AgeRangeRelationship.Disjoint;
+};
+
+/** A more permissive overlap function in the age space */
+export function agesOverlap(
+  a: StratigraphicPackage,
+  b: StratigraphicPackage,
+  tolerance: number = dt
+): boolean {
+  return unitsOverlap(a, b, ColumnAxisType.AGE, tolerance);
 }
 
 interface PossiblyClippedUnit extends BaseUnit {
@@ -44,7 +69,7 @@ export function getUnitHeightRange(
 }
 
 export const createUnitSorter = (axisType: ColumnAxisType) => {
-  return (a: UnitLong, b: UnitLong) => {
+  return (a: BaseUnit, b: BaseUnit) => {
     const a_pos = getUnitHeightRange(a, axisType);
     const b_pos = getUnitHeightRange(b, axisType);
     const d_top = a_pos[1] - b_pos[1];

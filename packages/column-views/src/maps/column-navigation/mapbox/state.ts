@@ -1,5 +1,5 @@
 import { create, StoreApi, useStore } from "zustand";
-import type { ColumnGeoJSONRecord } from "@macrostrat/api-types";
+import type { ColumnGeoJSONRecordWithID } from "@macrostrat/api-types";
 import {
   createContext,
   useState,
@@ -8,14 +8,13 @@ import {
   useEffect,
 } from "react";
 import h from "@macrostrat/hyper";
-import { useAsyncEffect } from "@macrostrat/ui-components";
 import {
   useMacrostratColumns,
   useMacrostratStore,
-} from "../../../data-provider/base";
+} from "@macrostrat/column-views";
 
 export interface NavigationStore {
-  columns: ColumnGeoJSONRecord[];
+  columns: ColumnGeoJSONRecordWithID[];
   selectedColumn: number | null;
   hoveredColumn: number | null;
   selectColumn: (columnID: number | null) => void;
@@ -27,7 +26,7 @@ export interface NavigationProviderProps {
   inProcess?: boolean;
   selectedColumn?: number | null;
   hoveredColumn?: number | null;
-  columns?: ColumnGeoJSONRecord[] | null;
+  columns?: ColumnGeoJSONRecordWithID[] | null;
   children: ReactNode;
   onSelectColumn?: (col_id: number | null, column: any) => void;
   onHoverColumn?: (col_id: number | null, column: any) => void;

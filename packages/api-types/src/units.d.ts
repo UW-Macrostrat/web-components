@@ -36,23 +36,17 @@ export interface UnitLong extends BaseUnit, StratUnit {
   section_id: number;
   col_id: number;
   project_id: number;
-  col_area: number;
+  max_thick: number;
+  min_thick: number;
+  outcrop: string;
   Mbr: string;
   Fm: string;
   Gp: string;
   SGp: string;
-  max_thick: number;
-  min_thick: number;
-  outcrop: string;
-  pbdb_collections: number;
-  pbdb_occurrences: number;
   lith?: UnitLithology[];
   environ?: Environment[];
   econ?: any[];
-  measure?: MeasureInfo[];
   notes: string;
-  color: string;
-  text_color: string;
   t_int_id: number;
   t_int_name: string;
   t_int_age: number;
@@ -64,14 +58,25 @@ export interface UnitLong extends BaseUnit, StratUnit {
   b_prop: number;
   units_below?: number[] | null;
   refs?: number[] | null;
+  // positions are formatted as strings in the v2 API
+  // need to pass show_position=true to get these
+  b_pos?: number;
+  t_pos?: number;
+}
+
+export interface UnitLongFull extends UnitLong {
+  col_area: number;
+  pbdb_collections: number;
+  pbdb_occurrences: number;
+  measure?: MeasureInfo[];
+  color: string;
+  text_color: string;
   clat: number;
   clng: number;
   t_plat: number;
   t_plng: number;
   b_plat: number;
   b_plng: number;
-  // positions are formatted as strings in the v2 API
-  // need to pass show_position=true to get these
   b_pos?: number | string;
   t_pos?: number | string;
 }

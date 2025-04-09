@@ -5,6 +5,7 @@ import h from "@macrostrat/hyper";
 import { create, useStore } from "zustand";
 import {
   ColumnGeoJSONRecord,
+  ColumnGeoJSONRecordWithID,
   Environment,
   MacrostratRef,
 } from "@macrostrat/api-types";
@@ -31,7 +32,7 @@ interface ColumnFootprintsStorage {
   // Whether the "in process" flag was used
   inProcess: boolean;
   // The column footprints
-  columns: ColumnGeoJSONRecord[];
+  columns: ColumnGeoJSONRecordWithID[];
 }
 
 interface RefsSlice {
@@ -219,7 +220,7 @@ function createIntervalsSlice(set, get) {
       if (ids == null && timescaleID == null)
         return Array.from(_intervals.values());
       if (timescaleID != null) {
-        return Array.from(_intervals.values()).filter(
+        return Array.from(_intervals.values() as any[]).filter(
           (d) => d.timescale_id == timescaleID
         );
       }

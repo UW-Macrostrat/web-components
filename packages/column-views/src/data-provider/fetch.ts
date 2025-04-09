@@ -117,7 +117,9 @@ function postProcessColumns(columns) {
   );
 }
 
-function promoteColumnIDs(features) {
+function promoteColumnIDs(
+  features: ColumnGeoJSONRecord[]
+): ColumnGeoJSONRecordWithIDs[] {
   return features.map((f, i) => {
     return {
       id: f.properties?.col_id,

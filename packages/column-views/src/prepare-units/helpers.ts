@@ -18,13 +18,14 @@ export interface StratigraphicPackage {
   b_age: number;
 }
 
-export interface SectionInfo extends StratigraphicPackage {
+export interface SectionInfo<T extends UnitLong = ExtUnit>
+  extends StratigraphicPackage {
   /** A time-bounded part of a single stratigraphic column. */
   section_id: number | number[];
-  units: ExtUnit[];
+  units: T[];
 }
 
-export interface ExtUnit extends BaseUnit {
+export interface ExtUnit extends UnitLong {
   bottomOverlap: boolean;
   overlappingUnits: number[];
   column?: number;
@@ -33,14 +34,12 @@ export interface ExtUnit extends BaseUnit {
    */
   t_clip_pos?: number;
   b_clip_pos?: number;
-  col_id?: number;
-  section_id?: number;
 }
 
-export function preprocessUnits(
-  section: SectionInfo,
+export function preprocessUnits<T extends UnitLong = UnitLong>(
+  section: SectionInfo<T>,
   axisType: ColumnAxisType = ColumnAxisType.AGE
-) {
+): ExtUnit[] {
   /** Preprocess units to add overlapping units and columns. */
   const units = section.units;
   let divisions = units.map((...args) => extendDivision(...args, axisType));
@@ -108,10 +107,10 @@ function extendDivision(
   };
 }
 
-export function groupUnitsIntoSections(
-  units: BaseUnit[],
+export function groupUnitsIntoSections<T extends UnitLong>(
+  units: T[],
   axisType: ColumnAxisType = ColumnAxisType.AGE
-): SectionInfo[] {
+): SectionInfo<T>[] {
   let groups = Array.from(group(units, (d) => d.section_id));
   const unitComparator = createUnitSorter(axisType);
 
@@ -123,7 +122,10 @@ export function groupUnitsIntoSections(
   });
   // Sort sections by increasing top age, then increasing bottom age.
   // Sections have no relative ordinal position other than age...
-  const compareSections = createUnitSorter(ColumnAxisType.AGE);
+  const compareSections = createUnitSorter(ColumnAxisType.AGE) as (
+    a: StratigraphicPackage,
+    b: StratigraphicPackage
+  ) => number;
   groups1.sort(compareSections);
   return groups1;
 }
@@ -137,9 +139,9 @@ export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
   return [b_age, t_age];
 }
 
-export function mergeOverlappingSections<T extends SectionInfo>(
-  sections: T[]
-): T[] {
+export function mergeOverlappingSections<T extends UnitLong>(
+  sections: SectionInfo<T>[]
+): SectionInfo<T>[] {
   /** Columns can have sections that overlap in time. Here, we merge overlapping
    * sections into a single section to correctly render gap-bound packages.
    */
@@ -168,37 +170,18 @@ export function mergeOverlappingSections<T extends SectionInfo>(
   return newSections;
 }
 
-function mergeSections(a: SectionInfo, b: SectionInfo): SectionInfo {
-  return {
-    units: [...a.units, ...b.units],
-    section_id: [...ensureArray(a.section_id), ...ensureArray(b.section_id)],
-    t_age: Math.min(a.t_age, b.t_age),
-    b_age: Math.max(a.b_age, b.b_age),
-  };
-}
-
-export interface SectionUnit extends UnitLong {
-  t_pos: number;
-  b_pos: number;
-}
-
 function preprocessSectionUnits(
-  units: ExtUnit[],
+  units: UnitLong[],
   axisType: ColumnAxisType = ColumnAxisType.DEPTH
-): SectionUnit[] {
+): ExtUnit[] {
   /** Preprocess units for a "section" column type, which is guaranteed to be simpler. */
   // We have to assume the units are ordered...
   let thickness = 0;
-  const units1 = units.map((unit, i) => {
+  return units.map((unit, i) => {
     let u1 = preprocessSectionUnit(unit, i, units, thickness, axisType);
     thickness += Math.abs(u1.t_pos - u1.b_pos);
     return u1;
   });
-
-  // Sort the units by t_pos
-  //units1.sort((a, b) => a.t_pos - b.t_pos);
-  //console.log(units1);
-  return units1;
 }
 
 function preprocessSectionUnit(
@@ -207,7 +190,7 @@ function preprocessSectionUnit(
   units: UnitLong[],
   accumulatedThickness: number = 0,
   axisType: ColumnAxisType = ColumnAxisType.DEPTH
-): SectionUnit {
+): ExtUnit {
   /** Preprocess a single unit for a "section" column type.
    * No provision for overlapping units.
    * */
@@ -227,8 +210,8 @@ function preprocessSectionUnit(
 
   if (match) {
     // These values should already be set if we've used the show_positions flag
-    t_pos ??= match[1];
-    b_pos ??= match[3];
+    t_pos ??= ensureRealFloat(match[1]);
+    b_pos ??= ensureRealFloat(match[3]);
     unit_name = match[5];
   }
 
@@ -237,5 +220,7 @@ function preprocessSectionUnit(
     b_pos: ensureRealFloat(b_pos),
     t_pos: ensureRealFloat(t_pos),
     unit_name,
+    bottomOverlap: false,
+    overlappingUnits: [],
   };
 }
