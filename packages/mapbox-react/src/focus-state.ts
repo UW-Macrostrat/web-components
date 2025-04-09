@@ -392,8 +392,8 @@ function getCenterAndBestZoom(
   }
 
   if (input.hasOwnProperty("lat") && input.hasOwnProperty("lng")) {
-    let coords = input as { lat: number; lng: number };
-    center = [coords.lng, coords.lat];
+    input = input as { lat: number; lng: number };
+    center = [input.lng, input.lat];
   }
 
   // If input is a geometry, get its bounding box

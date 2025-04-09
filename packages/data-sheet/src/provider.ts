@@ -107,11 +107,19 @@ export function DataSheetProvider<T>({
         topLeftCell: null,
         initialized: false,
         tableRef,
+        // This is a placeholder
+        enableColumnReordering: false,
         setSelection(selection: Region[]) {
           set(updateSelection(selection));
         },
-        setUpdatedData(data: T[]) {
-          set({ updatedData: data });
+        setUpdatedData(data: T[] | ((state: T[]) => T[])) {
+          if (Array.isArray(data)) {
+            set({ updatedData: data });
+          } else {
+            set((state) => {
+              return { updatedData: data(state.updatedData) };
+            });
+          }
         },
         setVisibleCells(visibleCells: VisibleCells) {
           // Visible cells are used for infinite scrolling
@@ -220,7 +228,7 @@ export function useSelector<T = any, A = any>(
   return useStore(store, selector);
 }
 
-function updateSelection(selection: Region[]) {
+function updateSelection<T>(selection: Region[]) {
   const focusedCell = singleFocusedCell(selection);
   let spec: Partial<DataSheetState<T>> = {
     selection,

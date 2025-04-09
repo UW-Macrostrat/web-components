@@ -41,6 +41,7 @@ interface DataSheetInternalProps<T> {
   verbose?: boolean;
   enableColumnReordering?: boolean;
   dataSheetActions?: ReactNode | null;
+  editable?: boolean;
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
