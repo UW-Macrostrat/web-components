@@ -61,6 +61,7 @@ interface MapStatus {
   isLoading: boolean;
   isInitialized: boolean;
   isStyleLoaded: boolean;
+  styleLoadedCount: number;
 }
 
 interface MapCtx {
@@ -72,6 +73,7 @@ const defaultMapStatus: MapStatus = {
   isLoading: false,
   isInitialized: false,
   isStyleLoaded: false,
+  styleLoadedCount: 0,
 };
 
 export function useMapRef() {
@@ -128,6 +130,8 @@ function mapReducer(state: MapState, action: MapAction): MapCtx {
       return update(state, {
         status: {
           isInitialized: { $set: true },
+          isStyleLoaded: { $set: false },
+          styleLoadedCount: { $set: 0 },
         },
       });
     case "set-loading":
@@ -137,9 +141,16 @@ function mapReducer(state: MapState, action: MapAction): MapCtx {
         status: { isInitialized: { $set: action.payload } },
       });
     case "set-style-loaded":
-      return update(state, {
+      let spec = {
         status: { isStyleLoaded: { $set: action.payload } },
-      });
+      };
+      spec.status["styleLoadedCount"] = {
+        $apply: (x) => {
+          if (!action.payload) return x;
+          return x + 1;
+        },
+      };
+      return update(state, spec);
     case "map-moved":
       return { ...state, position: action.payload };
   }

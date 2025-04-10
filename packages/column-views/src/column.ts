@@ -1,185 +1,199 @@
-import {
-  ColumnAxisType,
-  ColumnLayoutContext,
-  ColumnProvider,
-} from "@macrostrat/column-components";
+import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { createRef, RefObject, useContext, useMemo, useState } from "react";
+import { RefObject, useRef, HTMLAttributes } from "react";
 import styles from "./column.module.sass";
 import {
-  TrackedLabeledUnit,
-  UnitKeyboardNavigation,
   UnitSelectionProvider,
+  UnitComponent,
+  UnitKeyboardNavigation,
   useUnitSelectionDispatch,
 } from "./units";
-import { SectionInfo } from "./section";
-import { RectBounds } from "./units/boxes";
-import { UnitSelectionPopover } from "./selection-popover";
-import { MacrostratUnitsProvider } from "./store";
-import { IColumnProps, Section } from "./section";
+
+import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
+import { UnitSelectionPopover } from "./unit-details";
 import {
-  _mergeOverlappingSections,
-  ensureArray,
-  groupUnitsIntoSections,
-} from "./helpers";
+  MacrostratColumnDataProvider,
+  useMacrostratColumnData,
+} from "./data-provider";
+import {
+  SectionSharedProps,
+  CompositeTimescale,
+  SectionsColumn,
+} from "./section";
+import { CompositeAgeAxis } from "./age-axis";
+import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
+import { UnitLong } from "@macrostrat/api-types";
+import { NonIdealState } from "@blueprintjs/core";
 
 const h = hyperStyled(styles);
 
-export function UnitComponent({ division, nColumns = 2, ...rest }) {
-  const { width } = useContext(ColumnLayoutContext);
-
-  //const nCols = Math.min(nColumns, division.overlappingUnits.length+1)
-  //console.log(division);
-  return h(TrackedLabeledUnit, {
-    division,
-    ...rest,
-    width: division.overlappingUnits.length > 0 ? width / nColumns : width,
-    x: (division.column * width) / nColumns,
-  });
-}
-
-function Unconformity({ upperUnits = [], lowerUnits = [], style }) {
-  if (upperUnits.length == 0 || lowerUnits.length == 0) {
-    return null;
-  }
-
-  const ageGap = lowerUnits[0].t_age - upperUnits[upperUnits.length - 1].b_age;
-
-  return h("div.unconformity", { style }, [
-    h("div.unconformity-text", `${ageGap.toFixed(1)} Ma`),
-  ]);
-}
-
-function sectionClassName(section: SectionInfo) {
-  return `section-${ensureArray(section.section_id).join("-")}`;
-}
-
-export interface ColumnProps extends IColumnProps {
-  unconformityLabels?: boolean;
+interface BaseColumnProps extends SectionSharedProps {
   className?: string;
-  mergeOverlappingSections?: boolean;
   showLabelColumn?: boolean;
-  columnRef?: RefObject<HTMLElement>;
   keyboardNavigation?: boolean;
-  showUnitPopover?: boolean;
+  showLabels?: boolean;
+  maxInternalColumns?: number;
+  // Timescale properties
+  showTimescale?: boolean;
+  timescaleLevels?: number | [number, number];
+}
+
+export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
+  // Macrostrat units
+  units: UnitLong[];
   t_age?: number;
   b_age?: number;
+  mergeSections?: MergeSectionsMode;
+  showUnitPopover?: boolean;
+  selectedUnit?: number | null;
+  onUnitSelected?: (unitID: number | null, unit: any) => void;
+  // Unconformity height in pixels
+  unconformityHeight?: number;
 }
 
 export function Column(props: ColumnProps) {
-  const { showUnitPopover = false, ...rest } = props;
-  const ref = createRef<HTMLElement>();
+  const {
+    showUnitPopover = false,
+    keyboardNavigation = false,
+    mergeSections,
+    onUnitSelected,
+    selectedUnit,
+    children,
+    units: rawUnits,
+    axisType = ColumnAxisType.AGE,
+    t_age,
+    b_age,
+    unconformityHeight = 30,
+    targetUnitHeight = 20,
+    pixelScale,
+    minPixelScale = 0.2,
+    minSectionHeight = 50,
+    collapseSmallUnconformities = true,
+    ...rest
+  } = props;
+  const ref = useRef<HTMLElement>();
   // Selected item position
-  const [position, setPosition] = useState<RectBounds | null>(null);
 
-  if (!showUnitPopover) {
-    return h(_Column, rest);
+  const { sections, units, totalHeight } = usePreparedColumnUnits(rawUnits, {
+    axisType,
+    t_age,
+    b_age,
+    mergeSections,
+    targetUnitHeight,
+    unconformityHeight,
+    pixelScale,
+    minPixelScale,
+    minSectionHeight,
+    collapseSmallUnconformities,
+  });
+
+  if (sections.length === 0) {
+    return h(
+      "div.column-container.empty",
+      h(NonIdealState, {
+        title: "Empty column",
+        description: "No sections found in this column.",
+        icon: "warning-sign",
+      })
+    );
   }
 
   return h(
-    UnitSelectionProvider,
-    {
-      onUnitSelected: (unit, target: SVGElement | HTMLElement | null) => {
-        if (!showUnitPopover) return;
-
-        if (unit == null) {
-          setPosition(null);
-          return;
-        }
-        const el: HTMLElement = ref.current;
-        if (el == null || target == null) return;
-        const rect = el.getBoundingClientRect();
-        const targetRect = target.getBoundingClientRect();
-        setPosition({
-          x: targetRect.left - rect.left,
-          y: targetRect.top - rect.top,
-          width: targetRect.width,
-          height: targetRect.height,
-        });
-      },
-    },
+    MacrostratColumnDataProvider,
+    { units, sections, totalHeight, axisType },
     h(
-      _Column,
-      { ...rest, columnRef: ref },
-      h(UnitSelectionPopover, { position })
+      UnitSelectionProvider,
+      { columnRef: ref, onUnitSelected, selectedUnit, units },
+      h(ColumnInner, { columnRef: ref, ...rest }, [
+        children,
+        h.if(showUnitPopover)(UnitSelectionPopover),
+        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
+      ])
     )
   );
 }
 
-function _Column(props: Omit<ColumnProps, "showUnitPopover">) {
+interface ColumnInnerProps extends BaseColumnProps {
+  columnRef: RefObject<HTMLElement>;
+}
+
+function ColumnInner(props: ColumnInnerProps) {
   const {
-    data,
     unitComponent = UnitComponent,
     unconformityLabels = true,
     showLabels = true,
-    width = 300,
-    columnWidth = 150,
-    className: baseClassName,
-    showLabelColumn = true,
-    mergeOverlappingSections = true,
-    keyboardNavigation = false,
+    width: _width = 300,
+    columnWidth: _columnWidth = 150,
+    showLabelColumn: _showLabelColumn = true,
+    className,
     columnRef,
+    clipUnits = false,
     children,
-    ...rest
+    showTimescale,
+    timescaleLevels,
+    maxInternalColumns,
   } = props;
 
-  const darkMode = useDarkMode();
-  const sectionGroups = useMemo(() => {
-    let res = groupUnitsIntoSections(data);
-    if (mergeOverlappingSections) {
-      res = _mergeOverlappingSections(res);
-    }
-    return res;
-  }, [data, mergeOverlappingSections]);
+  const { axisType } = useMacrostratColumnData();
 
-  const className = classNames(baseClassName, {
-    "dark-mode": darkMode?.isEnabled ?? false,
-  });
-
-  // Clear unit selection on click outside of units, if we have a dispatch function
   const dispatch = useUnitSelectionDispatch();
 
+  let width = _width;
+  let columnWidth = _columnWidth;
+  if (columnWidth > width) {
+    columnWidth = width;
+  }
+  let showLabelColumn = _showLabelColumn;
+  if (columnWidth > width - 10) {
+    showLabelColumn = false;
+  }
+
+  let _showTimescale = showTimescale;
+  if (timescaleLevels !== null) {
+    _showTimescale = true;
+  }
+  _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
+
   return h(
-    "div.column-container",
+    ColumnContainer,
     {
-      className,
       onClick(evt) {
         dispatch?.(null, null, evt as any);
       },
+      className,
     },
-    h(MacrostratUnitsProvider, { units: data }, [
-      h("div.column", { ref: columnRef }, [
-        h("div.age-axis-label", "Age (Ma)"),
-        h(
-          "div.main-column",
-          sectionGroups.map((group, i) => {
-            const { section_id: id, units: data } = group;
-            const lastGroup = sectionGroups[i - 1];
-            return h([
-              h.if(unconformityLabels)(Unconformity, {
-                upperUnits: lastGroup?.units,
-                lowerUnits: data,
-                style: { width: showLabels ? columnWidth : width },
-              }),
-              h(`div.section`, { className: sectionClassName(group) }, [
-                h(Section, {
-                  data,
-                  unitComponent,
-                  showLabels,
-                  width,
-                  columnWidth,
-                  showLabelColumn,
-                  ...rest,
-                }),
-              ]),
-            ]);
-          })
-        ),
-        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units: data }),
-        children,
-      ]),
+    h("div.column", { ref: columnRef }, [
+      h(CompositeAgeAxis),
+      h.if(_showTimescale)(CompositeTimescale, { levels: timescaleLevels }),
+      h(SectionsColumn, {
+        unitComponent,
+        showLabels,
+        width,
+        columnWidth,
+        showLabelColumn,
+        clipUnits,
+        unconformityLabels,
+        maxInternalColumns,
+      }),
+      children,
     ])
   );
+}
+
+export interface ColumnContainerProps extends HTMLAttributes<HTMLDivElement> {
+  className?: string;
+}
+
+export function ColumnContainer(props: ColumnContainerProps) {
+  const { className, ...rest } = props;
+  const darkMode = useDarkMode();
+
+  return h("div.column-container", {
+    className: classNames(className, {
+      "dark-mode": darkMode?.isEnabled ?? false,
+    }),
+    ...rest,
+  });
 }

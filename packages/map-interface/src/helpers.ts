@@ -184,9 +184,36 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
   return null;
 }
 
-export function useBasicStylePair() {
+export function useBasicMapStyle(
+  opts: {
+    styleType?: "macrostrat" | "standard";
+  } = {}
+) {
+  const { styleType } = opts;
   const inDarkMode = useInDarkMode();
-  return inDarkMode
-    ? "mapbox://styles/mapbox/dark-v10"
-    : "mapbox://styles/mapbox/light-v10";
+
+  const props = useMemo(() => {
+    return { styleType, inDarkMode };
+  }, [styleType, inDarkMode]);
+
+  return getBasicMapStyle(props);
 }
+
+export function getBasicMapStyle(opts: {
+  styleType?: "macrostrat" | "standard";
+  inDarkMode?: boolean;
+}) {
+  const { styleType = "macrostrat", inDarkMode = false } = opts ?? {};
+
+  if (styleType == "macrostrat") {
+    return inDarkMode
+      ? "mapbox://styles/jczaplewski/cl5uoqzzq003614o6url9ou9z?optimize=true"
+      : "mapbox://styles/jczaplewski/clatdbkw4002q14lov8zx0bm0?optimize=true";
+  } else {
+    return inDarkMode
+      ? "mapbox://styles/mapbox/dark-v10"
+      : "mapbox://styles/mapbox/light-v10";
+  }
+}
+
+export const useBasicStylePair = useBasicMapStyle;

@@ -8,6 +8,10 @@ import {
 } from "react";
 import { isEqual } from "underscore";
 import update, { Spec } from "immutability-helper";
+import { useAsyncEffect } from "use-async-effect";
+
+// Re-export useAsyncEffect
+export { useAsyncEffect };
 
 export function useImmutableState<S>(v: S): [S, (spec: Spec<S>) => void] {
   /** useState wrapper hook that requires updating using an "immutability-helper" spec */
@@ -53,4 +57,13 @@ export function usePrevious<T>(value: T) {
     ref.current = value;
   });
   return ref.current;
+}
+
+export function useAsyncMemo<T>(fn: () => Promise<T>, deps: any[]): T | null {
+  const [value, setValue] = useState<T | null>(null);
+  useAsyncEffect(async () => {
+    const result = await fn();
+    setValue(result);
+  }, deps);
+  return value;
 }

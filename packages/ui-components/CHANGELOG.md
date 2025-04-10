@@ -1,5 +1,14 @@
 # Changelog
 
+## [4.2.0] - 2025-04-09
+
+- Updated `zustand` dependency
+- Updated "dev tools" manager
+- Improved typings for padding and margin management utilities
+- Internal reorganization of hook functions
+- Added `addQueryString` and `joinURL` query management utilities
+- Added `useAsyncMemo` hook for cached async values
+
 ## [4.1.3] - 2025-02-20
 
 - Improved styling for numeric sliders when disabled

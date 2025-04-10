@@ -9,31 +9,25 @@ import {
 } from "@macrostrat/column-components";
 import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
-import {
-  ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { forwardRef, ReactNode, useContext, useMemo } from "react";
 import { resolveID, scalePattern } from "./resolvers";
-import { useSelectedUnit, useUnitSelectionDispatch } from "./selection";
-import { IUnit, transformAxisType } from "./types";
+import { useUnitSelectionTarget } from "./selection";
+import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
+import classNames from "classnames";
+import { getUnitHeightRange } from "../prepare-units/utils";
+import { useLithologies } from "../data-provider";
+import { getMixedUnitColor } from "./colors";
+import { path } from "d3-path";
+import type { RectBounds } from "./types";
 
 const h = hyper.styled(styles);
-
-export interface RectBounds {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
 
 interface UnitRectOptions {
   widthFraction?: number;
   axisType?: ColumnAxisType;
+  // Padding to create overflow for zig-zags or other ornamented edges
+  padding?: number;
 }
 
 interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
@@ -44,6 +38,9 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   widthFraction?: number;
   children?: ReactNode;
   className?: string;
+  fill?: string;
+  backgroundColor?: string;
+  patternColor?: string;
 }
 
 export interface LabeledUnitProps
@@ -54,109 +51,262 @@ export interface LabeledUnitProps
   label: string;
   onLabelUpdated?(label: string, shown: boolean);
   halfWidth?: boolean;
+  showLabel?: boolean;
+  backgroundColor?: string;
 }
 
 function useUnitRect(
   division: IUnit,
   options: UnitRectOptions = {}
 ): RectBounds {
-  const { widthFraction = 1, axisType = ColumnAxisType.AGE } = options;
+  const {
+    widthFraction = 1,
+    axisType = ColumnAxisType.AGE,
+    padding = 0,
+  } = options;
   const { scale } = useContext(ColumnContext);
   const { width } = useContext(ColumnLayoutContext);
-  const macrostratAxisKey = transformAxisType(axisType);
-  const t_key = "t_" + macrostratAxisKey;
-  const b_key = "b_" + macrostratAxisKey;
 
-  const topHeight = division[t_key];
-  const bottomHeight = division[b_key];
-  if (topHeight == null && bottomHeight == null) {
-    console.warn(
-      `Missing keys ${t_key} and ${b_key} for ${division.unit_id} (${division.unit_name})`
-    );
-  }
+  const [bottomHeight, topHeight] = getUnitHeightRange(division, axisType);
 
   const y = scale(topHeight);
   const height = Math.abs(scale(bottomHeight) - y);
 
   return {
-    x: width * (1 - widthFraction),
-    y,
-    height,
-    width: widthFraction * width,
+    x: width * (1 - widthFraction) - padding,
+    y: y - padding,
+    height: height + padding * 2,
+    width: widthFraction * width + padding * 2,
   };
+}
+
+export function MinimalUnit(props) {
+  const {
+    division: d,
+    children,
+    className,
+    widthFraction = 1,
+    axisType: _, // not sure why this is brought in...
+    nColumns: __,
+    ...baseBounds
+  } = props;
+
+  const { axisType } = useColumn();
+  const lithMap = useLithologies();
+  const bounds = {
+    ...useUnitRect(d, { widthFraction, axisType }),
+    ...baseBounds,
+  };
+
+  const backgroundColor = getMixedUnitColor(d, lithMap, null, false);
+
+  const [ref, selected, onClick] = useUnitSelectionTarget(d);
+
+  return h(
+    "g.unit",
+    {
+      className,
+      style: {
+        "--column-unit-background-color": backgroundColor,
+        "--column-stroke-color": backgroundColor,
+      },
+    },
+    [
+      h("rect.unit.background", {
+        ref,
+        ...bounds,
+        fill: backgroundColor,
+        fillOpacity: 0.8,
+        stroke: backgroundColor,
+        onClick,
+      }),
+      h.if(selected)("rect.selection-overlay", bounds),
+    ]
+  );
 }
 
 function Unit(props: UnitProps) {
   const {
     division: d,
     children,
+    fill,
     defaultFill = "transparent",
     className,
     widthFraction = 1,
+    backgroundColor,
+    patternColor,
+    axisType: _, // not sure why this is brought in...
     ...baseBounds
   } = props;
 
   const { axisType } = useColumn();
+
+  const hasOverflowTop = d.t_clip_pos != null;
+  const hasOverflowBottom = d.b_clip_pos != null;
+
   const bounds = {
     ...useUnitRect(d, { widthFraction, axisType }),
     ...baseBounds,
+    overflowTop: hasOverflowTop,
+    overflowBottom: hasOverflowBottom,
   };
   const patternID = resolveID(d);
-  const fill = useGeologicPattern(patternID, defaultFill);
-  // Allow us to select this unit if in the proper context
+  let _fill = fill ?? useGeologicPattern(patternID, defaultFill);
 
-  const ref = useRef<HTMLElement>();
+  const hasBackgroundColor = backgroundColor != null;
 
-  const [selected, onClick] = useUnitSelectionManager(ref, d);
+  const _className = classNames(className, { colored: hasBackgroundColor });
 
-  return h("g.unit", { className }, [
-    h("rect.unit", {
-      ref,
-      ...bounds,
-      fill,
-      onClick,
-    }),
-    h.if(selected)("rect.selection-overlay", bounds),
-    children,
-  ]);
+  const [ref, selected, onClick] = useUnitSelectionTarget(d);
+
+  //const key = `unit-${d.unit_id}`;
+
+  return h(
+    "g.unit",
+    {
+      className: _className,
+      style: {
+        "--column-unit-background-color": backgroundColor,
+      },
+    },
+    [
+      h(UnitRect, {
+        ...bounds,
+        fill: backgroundColor,
+        onClick,
+        className: "background",
+      }),
+      h(UnitRect, {
+        ref,
+        ...bounds,
+        fill: _fill,
+        //mask,
+        onClick,
+        className: "unit",
+      }),
+      h.if(selected)(UnitRect, { ...bounds, className: "selection-overlay" }),
+      //defs,
+      children,
+    ]
+  );
 }
 
-function useUnitSelectionManager(
-  ref: React.RefObject<HTMLElement>,
-  unit: IUnit
-): [boolean, (evt: Event) => void] {
-  const selectedUnit = useSelectedUnit();
-  const selected = selectedUnit?.unit_id == unit.unit_id;
+interface UnitRectProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  className: string;
+  // Used to determine if the rect should have a zig-zag edge on the top or bottom
+  overflowTop?: boolean;
+  overflowBottom?: boolean;
+  [key: string]: any;
+}
 
-  const dispatch = useUnitSelectionDispatch();
+const UnitRect = forwardRef((props: UnitRectProps, ref) => {
+  const {
+    x,
+    y,
+    width,
+    height,
+    overflowTop = false,
+    overflowBottom = false,
+    ...rest
+  } = props;
 
-  const onClick = useCallback(
-    (evt: Event) => {
-      dispatch(unit, ref.current, evt);
-      evt.stopPropagation();
-    },
-    [unit, ref, dispatch]
-  );
-
-  useEffect(() => {
-    if (!selected) return;
-    // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
-    dispatch(unit, ref.current, null);
-
-    // Scroll the unit into view
-    ref.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-      inline: "nearest",
+  if (!overflowTop && !overflowBottom) {
+    return h("rect", {
+      x,
+      y,
+      width,
+      height,
+      ref,
+      ...rest,
     });
-  }, [selected]);
+  } else {
+    const d = zigZagBoxPath(x, y, width, height, overflowTop, overflowBottom);
+    return h("path", {
+      d,
+      ref,
+      ...rest,
+    });
+  }
+});
 
-  return [selected, onClick];
+function zigZagBoxPath(x, y, width, height, top: boolean, bottom: boolean) {
+  const zigZagWidth = 10;
+  const zigZagHeight = 4;
+
+  const d = path();
+
+  const nZigZags = Math.floor(width / zigZagWidth - 0.5);
+  const _zigZagWidth = width / (nZigZags + 0.5);
+
+  d.moveTo(x, y);
+  let dy = zigZagHeight / 2;
+  // Each zig-zag consists of a short outward motion
+  let dx = _zigZagWidth / 4;
+
+  let cx = x;
+  let cy = y;
+
+  const doZigZag = (last = false) => {
+    cx += dx;
+    cy -= dy;
+    d.lineTo(cx, cy);
+    let scalar = last ? 1 : 2;
+    cx += dx * scalar;
+    cy += dy * scalar;
+    d.lineTo(cx, cy);
+    cx += dx;
+    cy -= dy;
+  };
+
+  if (top) {
+    // Move to the offset
+    //d.lineTo(cx, y);
+    // Draw the zig-zags
+    for (let i = 0; i < nZigZags; i++) {
+      doZigZag();
+    }
+    // Draw the last half zig-zag
+    doZigZag(true);
+  }
+  // Draw the right edge
+  d.lineTo(x + width, y);
+  d.lineTo(x + width, y + height);
+
+  if (bottom) {
+    dx = -dx;
+    dy = -dy;
+    cx = x + width;
+    cy = y + height;
+
+    for (let i = 0; i < nZigZags; i++) {
+      doZigZag();
+    }
+    doZigZag(true);
+  }
+  // Draw the last line to the left edge
+  d.lineTo(x, y + height);
+  // Draw the left edge
+  d.closePath();
+
+  // Now render the path;
+  return d.toString();
 }
 
 function LabeledUnit(props: LabeledUnitProps) {
-  const { division, label, onLabelUpdated, widthFraction, ...baseBounds } =
-    props;
+  const {
+    division,
+    label,
+    onLabelUpdated,
+    widthFraction,
+    showLabel = true,
+    backgroundColor,
+    axisType: _, // not sure why this is brought in...
+    ...baseBounds
+  } = props;
 
   const { axisType } = useColumn();
   const bounds = {
@@ -164,21 +314,25 @@ function LabeledUnit(props: LabeledUnitProps) {
     ...baseBounds,
   };
   const { width, height } = bounds;
-  return h(Unit, { className: "labeled-unit", division, ...bounds }, [
-    h(
-      ForeignObject,
-      { ...bounds, className: "unit-label-container" },
-      h(SizeAwareLabel, {
-        className: "unit-overlay",
-        labelClassName: "unit-label",
-        style: { width, height },
-        label,
-        onVisibilityChanged(viz) {
-          onLabelUpdated(label, viz);
-        },
-      })
-    ),
-  ]);
+  return h(
+    Unit,
+    { className: "labeled-unit", division, backgroundColor, ...bounds },
+    [
+      h.if(showLabel)(
+        ForeignObject,
+        { ...bounds, className: "unit-label-container" },
+        h(SizeAwareLabel, {
+          className: "unit-overlay",
+          labelClassName: "unit-label",
+          style: { width, height },
+          label,
+          onVisibilityChanged(viz) {
+            onLabelUpdated(label, viz);
+          },
+        })
+      ),
+    ]
+  );
 }
 
 function UnitBoxes<T>(props: {
@@ -205,7 +359,6 @@ function UnitBoxes<T>(props: {
       return h(unitComponent, {
         division,
         key: division.unit_id,
-        axisType: ColumnAxisType.HEIGHT,
         ...unitComponentProps,
       });
     });

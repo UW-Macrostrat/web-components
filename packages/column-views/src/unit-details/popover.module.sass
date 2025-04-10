@@ -1,0 +1,29 @@
+.popover-main
+  position: absolute
+  pointer-events: none
+
+  :global(.bp5-overlay)
+    pointer-events: all
+
+  :global(.bp5-popover-target)
+    height: 100%
+    width: 100%
+    display: block
+    line-height: 0
+    pointer-events: none
+    outline: 2px solid #f22
+
+  :global(.bp5-popover-content)
+    overflow: hidden
+
+.legend-panel
+  width: 25em
+  max-height: 60vh
+  background-color: var(--panel-background-color)
+
+.legend-info-panel
+  padding: 1em
+
+.legend-json-view
+  padding-left: 0
+  margin-left: -0.5em

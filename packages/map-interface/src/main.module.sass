@@ -61,6 +61,7 @@
   & > *
     flex: 1
 
+
 .map-control-stack
   display: flex
   flex-direction: column
@@ -89,6 +90,9 @@
   flex-grow: 1
   position: relative
   overflow: hidden
+  &.standalone
+    height: 100%
+    width: 100%
 
 .mapbox-map
   position: absolute
@@ -100,6 +104,13 @@
   &:global(.mapboxgl-map)
     // override the default mapbox position: relative in all cases
     position: absolute
+
+
+  /** These styles seem to help with weird map zooming behavior */
+  :global(.mapboxgl-canvas), :global(.mapboxgl-canvas-container)
+    position: relative
+    left: 0
+    top: 0
 
 
 .context-panel-holder > :global(.bp5-card)
@@ -376,7 +387,8 @@
   /* Make map fill page rather than containing div,
    by unsetting map position */
   // We should move this to another file.
-  .map-view-container
+
+  .map-view-container:not(.standalone)
     position: unset
 
 
@@ -439,11 +451,6 @@
 
     .context-stack .spacer
       min-height: 1em
-
-  /* Make map fill page rather than containing div,
-   by unsetting map position */
-  .map-view-container
-    position: unset
 
 /** CSS Transitions **/
 

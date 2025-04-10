@@ -1,19 +1,21 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import h from "@macrostrat/hyper";
-import { createElement, useContext, forwardRef, createRef } from "react";
+import {
+  createElement,
+  forwardRef,
+  ForwardedRef,
+  SVGAttributes,
+  RefObject,
+} from "react";
 import {
   expandInnerSize,
   extractPadding,
   removePadding,
   extractMargin,
   removeMargin,
+  Padding,
+  Margin,
 } from "@macrostrat/ui-components";
-import { ColumnContext } from "../context";
+import { useColumn } from "../context";
 import classNames from "classnames";
 
 const SVGNamespaces = {
@@ -21,41 +23,52 @@ const SVGNamespaces = {
   xmlnsXlink: "http://www.w3.org/1999/xlink",
 };
 
-const SVG = forwardRef(function (props, ref) {
-  const { innerRef, children, style, ...rest } = expandInnerSize(props);
-  if (innerRef != null) {
-    ref = innerRef;
-  }
+interface SVGProps extends SVGAttributes<any>, Padding, Margin {
+  innerHeight?: number;
+  innerWidth?: number;
+  innerRef?: RefObject<SVGElement>;
+}
 
-  // Sizing
-  const { paddingLeft, paddingTop } = extractPadding(props);
-  const margin = extractMargin(props);
-  const realRest = removeMargin(removePadding(rest));
+interface SVGPropsWithNumericSize extends Omit<SVGProps, "width" | "height"> {
+  width?: number;
+  height?: number;
+}
 
-  return h(
-    "svg",
-    {
-      ref,
-      style: { ...margin, ...style },
-      ...realRest,
-      ...SVGNamespaces,
-    },
-    h(
-      "g",
+const SVG = forwardRef(
+  (props: SVGPropsWithNumericSize, ref: ForwardedRef<SVGElement>) => {
+    const { children, innerRef, ...props1 } = props;
+    const { style, ...rest } = expandInnerSize(props1);
+
+    // Sizing
+    const { paddingLeft, paddingTop } = extractPadding(props);
+    const margin = extractMargin(props);
+    const realRest = removeMargin(removePadding(rest));
+
+    return h(
+      "svg",
       {
-        transform: `translate(${paddingLeft},${paddingTop})`,
+        ref,
+        style: { ...margin, ...style },
+        ...realRest,
+        ...SVGNamespaces,
       },
-      children
-    )
-  );
-});
+      h(
+        "g",
+        {
+          transform: `translate(${paddingLeft},${paddingTop})`,
+        },
+        children
+      )
+    );
+  }
+);
 
 const ForeignObject = (props) => createElement("foreignObject", props);
 
-const ColumnSVG = function (props) {
+const ColumnSVG = function (props: SVGPropsWithNumericSize) {
   //# Need to rework to use UI Box code
   const { children, className, innerRef, style, ...rest } = props;
-  const { pixelHeight } = useContext(ColumnContext);
+  const { pixelHeight } = useColumn();
   const nextProps = expandInnerSize({ innerHeight: pixelHeight, ...rest });
   const {
     paddingLeft,

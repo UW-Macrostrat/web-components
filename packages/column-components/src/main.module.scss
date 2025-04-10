@@ -69,7 +69,7 @@ g.height-range line {
 
   path {
     stroke: var(--column-stroke-color, var(--text-color, #000));
-    stroke-width: 0;
+    stroke-width: 1px;
   }
 
   text {

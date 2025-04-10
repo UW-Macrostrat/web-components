@@ -5,10 +5,23 @@ export interface StrictPadding {
   paddingBottom: number;
 }
 
-export interface Padding extends StrictPadding {
-  paddingV: number;
-  paddingH: number;
-  padding: number;
+export interface Padding extends Partial<StrictPadding> {
+  paddingV?: number;
+  paddingH?: number;
+  padding?: number;
+}
+
+export interface StrictMargin {
+  marginLeft: number;
+  marginRight: number;
+  marginTop: number;
+  marginBottom: number;
+}
+
+export interface Margin extends Partial<StrictMargin> {
+  marginV?: number;
+  marginH?: number;
+  margin?: number;
 }
 
 const keys = function (main) {
@@ -28,7 +41,10 @@ const keyRemover = (type) =>
 const removeMargin = keyRemover("margin");
 const removePadding = keyRemover("padding");
 
-const extractMargin = function (obj, remove = false) {
+function extractMargin<T extends object>(
+  obj: T & Margin,
+  remove = false
+): StrictMargin {
   /*
   I'm really annoyed I can't find a third-party implementation
   of this that covers edge cases...
@@ -71,9 +87,9 @@ const extractMargin = function (obj, remove = false) {
   }
 
   return { marginLeft, marginRight, marginTop, marginBottom };
-};
+}
 
-const extractPadding = function (obj, remove = false) {
+function extractPadding<T>(obj: Padding & T, remove = false): StrictPadding {
   /*
   I'm really annoyed I can't find a third-party implementation
   of this that covers edge cases...
@@ -116,27 +132,38 @@ const extractPadding = function (obj, remove = false) {
   }
 
   return { paddingLeft, paddingRight, paddingTop, paddingBottom };
-};
+}
 
-const expandMargin = function (obj) {
+function expandMargin<T extends object>(obj: T & Margin): T & StrictMargin {
   const margin = extractMargin(obj);
   let o1 = { ...obj };
   for (let key of ["margin", "marginV", "marginH"]) {
     delete o1[key];
   }
   return { ...o1, ...margin };
-};
+}
 
-const expandPadding = function (obj) {
+function expandPadding<T extends object>(obj: T & Padding): T & StrictPadding {
   const margin = extractPadding(obj);
   let o1 = { ...obj };
   for (let key of ["padding", "paddingV", "paddingH"]) {
     delete o1[key];
   }
   return { ...o1, ...margin };
-};
+}
 
-const expandInnerSize = function (obj) {
+function expandInnerSize<T>(
+  obj: T &
+    Padding & {
+      innerHeight?: number;
+      innerWidth?: number;
+      width?: number;
+      height?: number;
+    }
+): T & {
+  height?: number;
+  width?: number;
+} {
   const n = expandPadding(obj);
   const { innerHeight, innerWidth, height, width, ...rest } = n;
   if (innerHeight != null) {
@@ -152,7 +179,7 @@ const expandInnerSize = function (obj) {
   delete n.innerHeight;
   delete n.innerWidth;
   return n;
-};
+}
 
 export {
   extractMargin,

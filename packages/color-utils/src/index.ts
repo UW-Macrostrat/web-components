@@ -54,3 +54,72 @@ export function toRGBAString(color: Color): string {
     .join(", ");
   return `rgba(${colorStr})`;
 }
+
+interface ColorScheme {
+  mainColor: string;
+  backgroundColor: string;
+  secondaryColor: string;
+  secondaryBackgroundColor: string;
+}
+
+export function getLuminanceAdjustedColorScheme(
+  color: chroma.ChromaInput,
+  darkMode: boolean = false
+): ColorScheme | null {
+  /** Luminance-adjusted color scheme for tags, etc. with dark mode support */
+  if (!color) {
+    return null;
+  }
+  const _color = asChromaColor(color);
+  const luminance = darkMode ? 0.9 : 0.2;
+  const backgroundLuminance = darkMode ? 0.1 : 0.8;
+  const mainColor = _color?.luminance(luminance).css();
+  const backgroundColor = _color?.luminance(backgroundLuminance).css();
+
+  const secondaryBackgroundColor = _color
+    ?.luminance(darkMode ? 0.04 : 0.9)
+    .css();
+
+  const secondaryColor = _color?.luminance(0.5).css();
+
+  return {
+    mainColor,
+    backgroundColor,
+    secondaryColor,
+    secondaryBackgroundColor,
+  };
+}
+
+export function asCSSVariables(
+  anyScheme: Record<string, string>,
+  prefix: string = ""
+): { [key: string]: string } {
+  if (!anyScheme) {
+    return {};
+  }
+  let _prefix = "";
+  if (prefix.length > 0 && !prefix.endsWith("-")) {
+    _prefix = `${prefix}-`;
+  }
+  _prefix = `--${_prefix}`;
+  /** Convert camelCase to kebab-case and add a prefix */
+  return Object.entries(anyScheme).reduce((acc, [key, value]) => {
+    acc[`${_prefix}${convertToKebabCase(key)}`] = value;
+    return acc;
+  }, {});
+}
+
+const convertToKebabCase = (str) =>
+  str.replace(
+    /[A-Z]+(?![a-z])|[A-Z]/g,
+    ($, ofs) => (ofs ? "-" : "") + $.toLowerCase()
+  );
+
+export function getCSSVariable(variableName: string, fallbackValue: string) {
+  // If we're not in a browser environment, return the fallback value
+  if (typeof window === "undefined" || typeof document === "undefined") {
+    return fallbackValue;
+  }
+  const value = getComputedStyle(document.body).getPropertyValue(variableName);
+  return value.trim() || fallbackValue;
+}

@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.0] - 2025-04-09
+
+- Added fields for data and tags, which can be used for rendering lists of
+  complex lithology, interval, and other information from Macrostrat.
+- Added helper components for comma-separated lists
+
 ## [0.0.6] - 2025-02-14
 
 Add `node` target to bundle without imported CSS

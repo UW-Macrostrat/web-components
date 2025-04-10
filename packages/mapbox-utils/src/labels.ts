@@ -5,14 +5,19 @@ export function removeMapLabels(
   shouldRemove: boolean = true
 ): mapboxgl.Style {
   // Disable labels on the map
-  for (let lyr of style.layers) {
-    if (!("layout" in lyr)) continue;
+  let newStyle = { ...style };
+  newStyle.layers = style.layers.map((lyr) => {
+    if (!("layout" in lyr)) return lyr;
     const isLabelLayer = lyr.layout["text-field"] != null;
-    if (isLabelLayer) {
-      lyr.layout.visibility = shouldRemove ? "none" : "visible";
-    }
-  }
-  return style;
+    if (isLabelLayer && shouldRemove) return null;
+    const visibility = isLabelLayer ? "none" : "visible";
+    return {
+      ...lyr,
+      layout: { ...lyr.layout, visibility },
+    };
+  });
+  newStyle.layers = newStyle.layers.filter((d) => d != null);
+  return newStyle;
 }
 
 export function toggleMapLabelVisibility(

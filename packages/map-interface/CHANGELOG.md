@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.0] - 2025-04-09
+
+- Improve types for latitude and longitude
+- Add `useBasicMapStyle` hook and supporting `getBasicMapStyle` function
+- Improve initialization logic to avoid rendering before the map is ready. We
+  fall back to timeouts because Mapbox GL events aren't called consistently
+- Add a `standalone` option for map rendering
+- Add internal support for `overlayStyles`, which are added after the basic map
+  style is loaded, and `transformStyle`, which can adjust the style after load
+
 ## [1.2.4] - 2025-03-08
 
 Fix some small styling errors

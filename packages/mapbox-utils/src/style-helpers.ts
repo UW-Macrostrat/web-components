@@ -1,5 +1,5 @@
 import { FeatureCollection } from "geojson";
-import {GeoJSONSource} from "mapbox-gl";
+import { GeoJSONSource, Style } from "mapbox-gl";
 
 export function setGeoJSON(
   map: mapboxgl.Map,
@@ -14,3 +14,35 @@ export function setGeoJSON(
   }
 }
 
+export function buildGeoJSONSource(data: FeatureCollection | null = null) {
+  return {
+    type: "geojson",
+    data: data ?? {
+      type: "FeatureCollection",
+      features: [],
+    },
+  };
+}
+
+export function removeSourceFromStyle(
+  style: Style,
+  sourceID: string,
+  sourceLayer: string | null = null
+) {
+  const newStyle = { ...style };
+  const sources = style.sources;
+  if (sourceID != null && sourceLayer == null) {
+    newStyle.sources = { ...sources };
+    delete newStyle.sources[sourceID];
+  }
+  newStyle.layers = newStyle.layers.filter((d) => {
+    if ("source" in d) {
+      if (d.source == sourceID || sourceID == null) {
+        if (sourceLayer == null) return sourceID == null;
+        if (d["source-layer"] == sourceLayer) return false;
+      }
+    }
+    return true;
+  });
+  return newStyle;
+}

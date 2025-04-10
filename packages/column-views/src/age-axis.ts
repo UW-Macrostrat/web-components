@@ -1,12 +1,20 @@
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import {
+  SVG,
   ColumnSVG,
   ColumnAxis,
   ColumnContext,
+  ColumnAxisType,
+  AgeAxis,
 } from "@macrostrat/column-components";
 import { useContext } from "react";
-// import "@macrostrat/timescale/dist/timescale.css";
-//
+import styles from "./age-axis.module.sass";
+import { useMacrostratColumnData } from "./data-provider";
+import { Parenthetical } from "@macrostrat/data-components";
+import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
+
+const h = hyper.styled(styles);
+
 const AgeAxisCore = ({ ticks, tickSpacing = 40, showDomain = false }) => {
   const { pixelHeight } = useContext(ColumnContext);
   // A tick roughly every 40 pixels
@@ -20,23 +28,78 @@ const AgeAxisCore = ({ ticks, tickSpacing = 40, showDomain = false }) => {
   ]);
 };
 
-export function AgeAxis(props) {
-  const {
-    ticks,
-    tickSpacing,
-    showLabel = true,
-    paddingV = 10,
-    showDomain,
-    ...rest
-  } = props;
+export function VerticalAxisLabel(props) {
+  const { label = "Age", unit = "Ma", className } = props;
+  return h("div.column-axis-label.age-axis-label", { className }, [
+    label,
+    " ",
+    h.if(unit)(Parenthetical, { className: "age-axis-unit" }, unit),
+  ]);
+}
 
-  // Not sure where this extra 5px comes from.
-  return h("div.column.age-axis", [
-    h.if(showLabel)("div.age-axis-label", "Age (Ma)"),
+export function CompositeAgeAxis() {
+  const { axisType, sections, totalHeight } = useMacrostratColumnData();
+
+  const packages = sections.map((section) => {
+    return {
+      key: `section-${section.section_id}`,
+      ...section.scaleInfo,
+    };
+  });
+
+  return h(CompositeAgeAxisCore, {
+    axisType,
+    packages,
+    totalHeight,
+  });
+}
+
+export interface CompositeStratigraphicScaleInfo {
+  axisType: ColumnAxisType;
+  totalHeight: number;
+  packages: PackageScaleLayoutData[];
+}
+
+export function CompositeAgeAxisCore(props: CompositeStratigraphicScaleInfo) {
+  const { axisType, totalHeight, packages } = props;
+
+  if (axisType == ColumnAxisType.ORDINAL) {
+    return null;
+  }
+
+  let axisLabel: string = "Age";
+  let axisUnit = "Ma";
+  if (axisType == ColumnAxisType.DEPTH) {
+    axisLabel = "Depth";
+    axisUnit = "m";
+  } else if (axisType == ColumnAxisType.HEIGHT) {
+    axisLabel = "Height";
+    axisUnit = "m";
+  }
+
+  return h([
+    h(VerticalAxisLabel, {
+      label: axisLabel,
+      unit: axisUnit,
+    }),
     h(
-      ColumnSVG,
-      { paddingV, ...rest },
-      h(AgeAxisCore, { ticks, tickSpacing, showDomain })
+      SVG,
+      {
+        className: "age-axis-column",
+        style: { width: `22px`, height: `${totalHeight}px` },
+        width: 22,
+        height: totalHeight,
+      },
+      packages.map((group, i) => {
+        const { key, scale } = group;
+
+        return h(AgeAxis, {
+          key,
+          className: "age-axis",
+          scale,
+          tickSizeOuter: 3,
+        });
+      })
     ),
   ]);
 }

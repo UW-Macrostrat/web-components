@@ -1,0 +1,82 @@
+.legend-panel-header
+  display: flex
+  justify-content: space-between
+  align-items: baseline
+  gap: 1em
+  border-bottom: 1px solid var(--panel-rule-color)
+  position: sticky
+  top: 0
+  background-color: var(--panel-secondary-background-color)
+  padding: 0.5em 1em
+  z-index: 50
+  .title-container
+    display: flex
+    flex-direction: row
+    gap: 0.5em
+    align-items: center
+    margin: -0.5em 0
+    &:hover
+      .hidden-actions
+        display: flex
+        opacity: 0.5
+    h1, h2, h3
+      margin: 0.5em 0
+    .hidden-actions
+      display: none
+    button
+      transform: translateY(0px)
+
+  code
+    font-size: 0.9em
+    color: var(--secondary-color)
+  .spacer
+    flex: 1
+  button
+    line-height: 1.5
+    transform: translateY(2px)
+
+.unit-details-panel
+  display: flex
+  flex-direction: column
+  .unit-details-content-holder
+    flex: 1
+    overflow-y: scroll
+
+.unit-details-content
+  position: relative
+  margin: 1em
+
+.proportion, .sep, .no-units
+  color: var(--secondary-color)
+  font-style: italic
+
+.strat-name-id, .unit-id
+  font-family: var(--monospace-font)
+  color: var(--secondary-color)
+
+  &::before
+    content: '#'
+    color: var(--tertiary-color)
+
+.color-swatch
+  width: 1em
+  height: 1em
+  border-radius: 0.2em
+  margin-right: 0.2em
+  border: 1px solid var(--panel-rule-color)
+  display: inline-block
+
+.refs
+  list-style: none
+  margin: 0
+  padding-left: 0
+
+.interval-proportions
+  flex-grow: 1
+  width: 100%
+  text-align: right
+  .discourage-break
+    white-space: nowrap
+  .sep
+    margin: 0 0.3em
+

@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.4] - 2025-04-09
+
+Added a `pointRadius` prop to `Feature`s to allow points to be shown
+
 ## [1.0.3] - 2025-02-15
 
 Add `node` target to bundle without imported CSS.

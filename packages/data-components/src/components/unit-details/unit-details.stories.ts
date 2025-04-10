@@ -1,14 +1,18 @@
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta } from "@storybook/react";
 import h from "@macrostrat/hyper";
-import { LithologyTag as _LithologyTag } from "./lithology-tag";
+import {
+  LithologyTag as _LithologyTag,
+  LithologyList as _LithologyList,
+} from "./lithology-tag";
+import { TagSize } from "./tag";
 import {
   DataField as _DataField,
   IntervalField as _IntervalField,
-  LithologyList as _LithologyList,
-} from "./index";
+} from "./base";
 
 export default {
   title: "Data components/Unit details",
+  component: _LithologyTag,
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
 } as Meta<any>;
 
@@ -43,7 +47,7 @@ export function IntervalField() {
   });
 }
 
-const LithologyTag = _LithologyTag;
+const LithologyTag = _LithologyTag as any;
 
 LithologyTag.args = {
   data: {
@@ -52,9 +56,38 @@ LithologyTag.args = {
     lith_id: 1,
   },
   expandOnHover: false,
+  size: "normal",
 };
 
 export { LithologyTag };
+
+export const LithologyTagWithProportion = {
+  args: {
+    data: {
+      name: "Shale",
+      color: "#708090",
+      lith_id: 2,
+      prop: 0.5,
+    },
+    showProportion: true,
+    size: "normal",
+  },
+};
+
+export const LithologyTagWithAtts = {
+  args: {
+    data: {
+      name: "shale",
+      color: "#708090",
+      lith_id: 8,
+      prop: 0.125,
+      atts: ["red", "purple"],
+    },
+    showProportion: true,
+    showAttributes: true,
+    size: TagSize.Normal,
+  },
+};
 
 export function LithologyList() {
   return h(_LithologyList, {

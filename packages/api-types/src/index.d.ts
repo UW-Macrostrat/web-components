@@ -1,9 +1,7 @@
-//export * from "./columns.d";
 export * from "./measurements.d";
 export * from "./units.d";
+export * from "./columns.d";
 
-export type ColumnSpec = {
-  col_id: number | string;
-  status_code?: string;
-  project_id?: number;
-};
+export type { Lithology } from "./lithologies.d";
+export * from "./environments.d";
+export * from "./defs.d";

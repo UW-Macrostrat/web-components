@@ -3,9 +3,9 @@ import {
   useMapRef,
   useMapDispatch,
   useMapPosition,
-  setup3DTerrain,
   use3DTerrain,
-  addTerrainToStyle,
+  getTerrainLayerForStyle,
+  useMapStatus,
 } from "@macrostrat/mapbox-react";
 import {
   mapViewInfo,
@@ -13,10 +13,11 @@ import {
   setMapPosition,
   getMapPosition,
   getMapboxStyle,
+  mergeStyles,
 } from "@macrostrat/mapbox-utils";
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from "./main.module.sass";
 import {
   MapLoadingReporter,
@@ -49,6 +50,14 @@ export interface MapViewProps extends MapboxCoreOptions {
   onMapLoaded?: (map: mapboxgl.Map) => void;
   onStyleLoaded?: (map: mapboxgl.Map) => void;
   onMapMoved?: (mapPosition: MapPosition, map: mapboxgl.Map) => void;
+  /** This map sets its own viewport, rather than being positioned by a parent.
+   * This is a hack to ensure that the map can overflow its "safe area" when false */
+  standalone?: boolean;
+  /** Overlay styles to apply to the map: a list of mapbox style objects or fragments to
+   * overlay on top of the main map style at runtime */
+  overlayStyles?: Partial<mapboxgl.Style>[];
+  /** A function to transform the map style before it is loaded */
+  transformStyle?: (style: mapboxgl.Style) => mapboxgl.Style;
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {
@@ -57,12 +66,10 @@ export interface MapboxOptionsExt extends MapboxCoreOptions {
 
 function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
   const { mapPosition, ...rest } = args;
-  console.log("Initializing map (default)", args);
 
   const map = new mapboxgl.Map({
     container,
     maxZoom: 18,
-    //maxTileCacheSize: 0,
     logoPosition: "bottom-left",
     trackResize: true,
     antialias: true,
@@ -70,12 +77,17 @@ function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
     ...rest,
   });
 
-  // set initial map position
-  if (mapPosition != null) {
-    setMapPosition(map, mapPosition);
+  let _mapPosition = mapPosition;
+  if (_mapPosition == null && rest.center == null && rest.bounds == null) {
+    // If no map positioning information is provided, we use the default
+    _mapPosition = defaultMapPosition;
   }
 
-  //setMapPosition(map, mapPosition);
+  // set initial map position
+  if (_mapPosition != null) {
+    setMapPosition(map, _mapPosition);
+  }
+
   return map;
 }
 
@@ -92,7 +104,7 @@ export function MapView(props: MapViewProps) {
   const {
     enableTerrain = true,
     style,
-    mapPosition = defaultMapPosition,
+    mapPosition,
     initializeMap = defaultInitializeMap,
     children,
     mapboxToken,
@@ -104,6 +116,9 @@ export function MapView(props: MapViewProps) {
     onMapLoaded = null,
     onStyleLoaded = null,
     onMapMoved = null,
+    standalone = false,
+    overlayStyles,
+    transformStyle,
     ...rest
   } = props;
   if (enableTerrain) {
@@ -121,9 +136,12 @@ export function MapView(props: MapViewProps) {
   const ref = useRef<HTMLDivElement>();
   const parentRef = useRef<HTMLDivElement>();
 
-  useAsyncEffect(async () => {
+  const [baseStyle, setBaseStyle] = useState<mapboxgl.Style>(null);
+  const isStyleLoaded = useMapStatus((state) => state.isStyleLoaded);
+
+  useEffect(() => {
     /** Manager to update map style */
-    if (style == null) return;
+    if (baseStyle == null) return;
     let map = mapRef.current;
 
     /** If we can, we try to update the map style with terrain information
@@ -136,25 +154,29 @@ export function MapView(props: MapViewProps) {
     // We either get the map position directly from the map or from props
     const estMapPosition: MapPosition | null =
       map == null ? mapPosition : getMapPosition(map);
-    let newStyle = style;
     const { mapUse3D } = mapViewInfo(estMapPosition);
 
-    /** If style is a string, we can't update it with terrain layers immediately.
-     * We need to wait for the style to load and then update it.
-     */
-    if (typeof style === "string") {
-      newStyle = await getMapboxStyle(style, {
-        access_token: mapboxgl.accessToken,
-      });
+    let newStyle: mapboxgl.Style = baseStyle;
+
+    const overlayStyles = props.overlayStyles ?? [];
+
+    if (overlayStyles.length > 0) {
+      newStyle = mergeStyles(newStyle, ...overlayStyles);
     }
 
     if (mapUse3D) {
       // We can update the style with terrain layers immediately
-      newStyle = addTerrainToStyle(newStyle as mapboxgl.Style, terrainSourceID);
+      const terrainStyle = getTerrainLayerForStyle(newStyle, terrainSourceID);
+      newStyle = mergeStyles(newStyle, terrainStyle);
+    }
+
+    if (transformStyle != null) {
+      newStyle = transformStyle(newStyle);
     }
 
     if (map != null) {
       console.log("Setting style", newStyle);
+      dispatch({ type: "set-style-loaded", payload: false });
       map.setStyle(newStyle);
     } else {
       console.log("Initializing map", newStyle);
@@ -169,23 +191,36 @@ export function MapView(props: MapViewProps) {
       map.setPadding(getMapPadding(ref, parentRef), { animate: false });
       onMapLoaded?.(map);
     }
+  }, [baseStyle, overlayStyles, transformStyle]);
 
-    const loadCallback = () => {
-      onStyleLoaded?.(map);
-      // Set initial terrain state
-      dispatch({ type: "set-style-loaded", payload: true });
-    };
+  /** Check back every 0.1 seconds to see if the map has loaded.
+   * We do it this way because mapboxgl loading events are unreliable */
+  useEffect(() => {
+    if (isStyleLoaded) return;
+    const interval = setInterval(() => {
+      const map = mapRef.current;
+      if (map == null) return;
+      if (map.isStyleLoaded()) {
+        // Wait a tick before setting the style loaded state
+        dispatch({ type: "set-style-loaded", payload: true });
+        onStyleLoaded?.(map);
+        clearInterval(interval);
+      }
+    }, 50);
+    return () => clearInterval(interval);
+  }, [isStyleLoaded]);
 
-    map = mapRef.current;
-
-    if (map.style?._loaded) {
-      // Catch a race condition where the style is loaded before the callback is set
-      loadCallback();
+  useAsyncEffect(async () => {
+    /** Manager to update map style */
+    let newStyle: mapboxgl.Style;
+    if (typeof style === "string") {
+      newStyle = await getMapboxStyle(style, {
+        access_token: mapboxgl.accessToken,
+      });
+    } else {
+      newStyle = style;
     }
-    map.on("style.load", loadCallback);
-    return () => {
-      map.off("style.load", loadCallback);
-    };
+    setBaseStyle(newStyle);
   }, [style]);
 
   const _computedMapPosition = useMapPosition();
@@ -202,17 +237,29 @@ export function MapView(props: MapViewProps) {
     `${_projection}-projection`
   );
 
-  return h("div.map-view-container.main-view", { ref: parentRef }, [
-    h("div.mapbox-map#map", { ref, className }),
-    h(MapLoadingReporter, {
-      ignoredSources: ["elevationMarker", "crossSectionEndpoints"],
-    }),
-    h(MapMovedReporter, { onMapMoved }),
-    h(MapResizeManager, { containerRef: ref }),
-    h(MapPaddingManager, { containerRef: ref, parentRef, infoMarkerPosition }),
-    h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
-    children,
-  ]);
+  const parentClassName = classNames({
+    standalone,
+  });
+
+  return h(
+    "div.map-view-container.main-view",
+    { ref: parentRef, className: parentClassName },
+    [
+      h("div.mapbox-map#map", { ref, className }),
+      h(MapLoadingReporter, {
+        ignoredSources: ["elevationMarker", "crossSectionEndpoints"],
+      }),
+      h(MapMovedReporter, { onMapMoved }),
+      h(MapResizeManager, { containerRef: ref }),
+      h(MapPaddingManager, {
+        containerRef: ref,
+        parentRef,
+        infoMarkerPosition,
+      }),
+      h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
+      children,
+    ]
+  );
 }
 
 export function MapTerrainManager({

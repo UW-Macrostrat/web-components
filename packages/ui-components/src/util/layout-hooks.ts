@@ -1,4 +1,3 @@
-import { useAsyncEffect } from "use-async-effect";
 import {
   useLayoutEffect,
   useEffect,
@@ -55,4 +54,4 @@ function useScrollOffset(ref: RefObject<HTMLElement>): number {
   return offset;
 }
 
-export { useElementSize, useScrollOffset, useAsyncEffect };
+export { useElementSize, useScrollOffset };

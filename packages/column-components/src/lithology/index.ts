@@ -1,10 +1,10 @@
-import React, { Component, useContext } from "react";
+import React, { useContext } from "react";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
 import {
   SimpleFrame,
   GrainsizeFrame,
-  ClipToFrame,
+  ClippingFrame,
   UUIDComponent,
 } from "../frame";
 import {
@@ -12,7 +12,6 @@ import {
   ColumnContext,
   ColumnLayoutContext,
   ColumnLayoutProvider,
-  ColumnCtx,
   ColumnDivision,
   ColumnLayoutCtx,
 } from "../context";
@@ -84,32 +83,25 @@ interface ColumnRectProps {
   padWidth?: boolean;
   key?: string;
   width: number;
+  className?: string;
+  fill?: string;
 }
 
-class ColumnRect extends Component<ColumnRectProps> {
-  static contextType = ColumnContext;
-  context: ColumnCtx<ColumnDivision>;
-
-  static defaultProps = {
-    padWidth: false,
-  };
-
-  render() {
-    const { scale } = this.context;
-    let { division: d, padWidth, key, width, ...rest } = this.props;
-    const [bottom, top] = __divisionSize(d);
-    const y = scale(top);
-    let x = 0;
-    if (padWidth) {
-      x -= 5;
-      width += 10;
-    }
-    const height = scale(bottom) - y;
-    if (key == null) {
-      key = d.id;
-    }
-    return h("rect", { x, y, width, height, key, ...rest });
+function ColumnRect(props: ColumnRectProps) {
+  let { division: d, padWidth = false, key, width, ...rest } = props;
+  const scale = useContext(ColumnContext).scale;
+  const [bottom, top] = __divisionSize(d);
+  const y = scale(top);
+  let x = 0;
+  if (padWidth) {
+    x -= 5;
+    width += 10;
   }
+  const height = scale(bottom) - y;
+  if (key == null) {
+    key = d.id;
+  }
+  return h("rect", { x, y, width, height, key, ...rest });
 }
 
 const expandDivisionsByKey = function (
@@ -133,7 +125,7 @@ const expandDivisionsByKey = function (
 };
 
 interface ParameterIntervalsProps {
-  padWidth: number;
+  padWidth: boolean;
   parameter: string;
   fillForInterval(param: any, division: ColumnDivision): any;
 }
@@ -333,27 +325,23 @@ export interface LithologyColumnProps {
 }
 
 export function LithologyColumn(props: LithologyColumnProps) {
-  const { left = 0, shiftY = 0.5, width, children, clipToFrame = true } = props;
+  const { left = 0, shiftY = 0, width, children, clipToFrame = true } = props;
 
-  const transform = left != null ? `translate(${left} ${shiftY})` : null;
-
-  let inner: React.ReactNode;
-  if (clipToFrame) {
-    inner = h(
-      ClipToFrame,
+  return h(
+    ColumnLayoutProvider,
+    { width },
+    h(
+      ClippingFrame,
       {
         className: "lithology-column",
         left,
         shiftY,
         frame: SimpleFrame,
+        clip: clipToFrame,
       },
       children
-    );
-  } else {
-    inner = h("g.lithology-column", { transform }, children);
-  }
-
-  return h(ColumnLayoutProvider, { width }, inner);
+    )
+  );
 }
 
 const simplifiedResolveID = function (d) {
@@ -382,7 +370,7 @@ const GeneralizedSectionColumn = function (props) {
     frame = GrainsizeFrame;
   }
   return h(
-    ClipToFrame,
+    ClippingFrame,
     {
       className: "lithology-column",
       frame,

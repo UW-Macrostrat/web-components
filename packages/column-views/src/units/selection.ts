@@ -1,21 +1,18 @@
 import { BaseUnit } from "@macrostrat/api-types";
 import h from "@macrostrat/hyper";
+import { useKeyHandler } from "@macrostrat/ui-components";
 import {
-  getQueryString,
-  setQueryString,
-  useKeyHandler,
-} from "@macrostrat/ui-components";
-import {
-  Dispatch,
-  SetStateAction,
   createContext,
   useContext,
   useEffect,
-  useMemo,
   useState,
   ReactNode,
+  RefObject,
+  useRef,
   useCallback,
 } from "react";
+import { createStore, StoreApi, useStore } from "zustand";
+import type { RectBounds, IUnit } from "./types";
 
 type UnitSelectDispatch = (
   unit: BaseUnit | null,
@@ -23,120 +20,137 @@ type UnitSelectDispatch = (
   event: Event | null
 ) => void;
 
-const UnitSelectionContext = createContext<BaseUnit | null>(null);
-const DispatchContext = createContext<UnitSelectDispatch | null>(null);
+const UnitSelectionContext = createContext<StoreApi<UnitSelectionStore>>(null);
 
-export function useUnitSelectionDispatch() {
-  return useContext(DispatchContext);
+export function useUnitSelectionDispatch(): UnitSelectDispatch {
+  const store = useContext(UnitSelectionContext);
+  if (store == null) {
+    return () => {};
+  }
+  return useStore(store, (state) => state.onUnitSelected);
+}
+
+export function useUnitSelectionStore<T>(
+  selector: (state: UnitSelectionStore) => T
+): T {
+  const store = useContext(UnitSelectionContext);
+  if (store == null) {
+    throw new Error(
+      "useUnitSelectionStore must be used within a UnitSelectionProvider"
+    );
+  }
+  return useStore(store, selector);
 }
 
 export function useSelectedUnit() {
-  return useContext(UnitSelectionContext);
+  return useUnitSelectionStore((state) => state.selectedUnitData);
 }
 
-export interface UnitSelectionProps<T extends BaseUnit> {
-  children: React.ReactNode;
-  unit: T | null;
-  setUnit: Dispatch<SetStateAction<T>>;
-  onUnitSelected?: (unit: T, target: HTMLElement, event: Event) => void;
+interface UnitSelectionStore {
+  selectedUnit: number | null;
+  selectedUnitData: BaseUnit | null;
+  overlayPosition: RectBounds | null;
+  onUnitSelected: UnitSelectDispatch;
+  setSelectedUnit: (unit: number | null) => void;
 }
 
-export function UnitSelectionProvider<T extends BaseUnit>(
-  props: Partial<UnitSelectionProps<T>>
-) {
-  const { unit, setUnit, onUnitSelected, children } = props;
-
-  if (unit == null && setUnit == null) {
-    return h(StatefulUnitSelectionProvider, props);
-  }
-
-  return h(
-    BaseUnitSelectionProvider,
-    { unit, setUnit, onUnitSelected },
-    children
-  );
-}
-
-function StatefulUnitSelectionProvider<T extends BaseUnit>(props: {
+export function UnitSelectionProvider<T extends BaseUnit>(props: {
   children: ReactNode;
-  onUnitSelected?: (unit: T, target: HTMLElement, event: Event) => void;
+  columnRef?: RefObject<HTMLElement>;
+  units: T[];
+  selectedUnit: number | null;
+  onUnitSelected?: (unitID: number | null, unit: T | null) => void;
 }) {
-  const [unit, setUnit] = useState<T | null>(null);
+  const [store] = useState(() =>
+    createStore<UnitSelectionStore>((set) => ({
+      selectedUnit: null,
+      selectedUnitData: null,
+      overlayPosition: null,
+      setSelectedUnit(selectedUnit: number | null | BaseUnit) {
+        if (selectedUnit == null) {
+          set({ selectedUnit: null, selectedUnitData: null });
+          return;
+          // If it's a number, set the selected unit
+        } else if (typeof selectedUnit === "number") {
+          set({ selectedUnit, selectedUnitData: null });
+        } else if ("unit_id" in selectedUnit) {
+          set({
+            selectedUnit: selectedUnit.unit_id,
+            selectedUnitData: selectedUnit,
+          });
+        }
+      },
+      onUnitSelected: (unit: T, target: HTMLElement, event: Event) => {
+        console.log("onUnitSelected", unit, target, event);
+        const el = props.columnRef?.current;
+        let overlayPosition = null;
+        if (unit != null && el != null && target != null) {
+          const rect = el.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
 
-  return h(BaseUnitSelectionProvider, { ...props, unit, setUnit });
-}
+          overlayPosition = {
+            x: targetRect.left - rect.left,
+            y: targetRect.top - rect.top,
+            width: targetRect.width,
+            height: targetRect.height,
+          };
+        }
+        props.onUnitSelected?.(unit?.unit_id, unit);
 
-function BaseUnitSelectionProvider<T extends BaseUnit>({
-  children,
-  unit,
-  setUnit,
-  onUnitSelected,
-}: UnitSelectionProps<T>) {
-  const value = useMemo(() => unit, [unit?.unit_id]);
-
-  const _onUnitSelected = useCallback(
-    (u: T, target: HTMLElement, event: Event) => {
-      let newUnit = u;
-      setUnit(newUnit);
-      onUnitSelected?.(newUnit, target, event);
-    },
-    [setUnit, onUnitSelected]
+        return set({
+          selectedUnit: unit?.unit_id,
+          selectedUnitData: unit,
+          overlayPosition,
+        });
+      },
+    }))
   );
 
-  return h(
-    DispatchContext.Provider,
-    { value: _onUnitSelected },
-    h(UnitSelectionContext.Provider, { value }, children)
-  );
-}
+  const { units, selectedUnit } = props;
 
-export interface ColumnArgs {
-  col_id?: number;
-  unit_id?: number;
-  project_id?: number;
-  status_code?: "in process";
-}
-
-type ColumnManagerData = [ColumnArgs, (c: ColumnArgs) => void];
-
-const ColumnNavCtx = createContext<ColumnManagerData | null>(null);
-
-export function useColumnNav(
-  defaultArgs: ColumnArgs = { col_id: 495, unit_id: null }
-): ColumnManagerData {
-  const ctx = useContext(ColumnNavCtx);
-  if (ctx != null) return ctx;
-
-  const [columnArgs, setColumnArgs] = useState<ColumnArgs>(
-    extractColumnArgs(getQueryString(window.location.search)) ?? defaultArgs
-  );
-
-  useEffect(() => setQueryString(columnArgs), [columnArgs]);
-
-  const { col_id, project_id, status_code } = columnArgs;
-
-  const setCurrentColumn = (obj) => {
-    let args = obj;
-    if ("properties" in obj) {
-      args = { col_id: obj.properties.col_id, project_id, status_code };
+  useEffect(() => {
+    // Synchronize store with provided props
+    if (selectedUnit != null) {
+      const unitData = units?.find((u) => u.unit_id === selectedUnit);
+      store.setState({ selectedUnit, selectedUnitData: unitData });
+    } else {
+      store.setState({ selectedUnit: null, selectedUnitData: null });
     }
-    // Set query string
-    setQueryString(args);
-    setColumnArgs(args);
-  };
+  }, [selectedUnit, units]);
 
-  return [columnArgs, setCurrentColumn];
+  return h(UnitSelectionContext.Provider, { value: store }, props.children);
 }
 
-function extractColumnArgs(search: any): ColumnArgs | null {
-  const { col_id, unit_id, project_id, status_code } = search;
-  if (col_id == null) return null;
-  return { col_id, unit_id, project_id, status_code };
-}
+export function useUnitSelectionTarget(
+  unit: IUnit
+): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void] {
+  const ref = useRef<HTMLElement>();
+  const selectedUnit = useSelectedUnit();
+  const onSelectUnit = useUnitSelectionStore((state) => state.onUnitSelected);
+  const selected = selectedUnit?.unit_id == unit.unit_id;
 
-export function ColumnNavProvider({ children, ...defaultArgs }) {
-  const value = useColumnNav(defaultArgs as any);
-  return h(ColumnNavCtx.Provider, { value }, children);
+  const onClick = useCallback(
+    (evt: Event) => {
+      onSelectUnit(unit, ref.current, evt);
+      evt.stopPropagation();
+    },
+    [unit, onSelectUnit]
+  );
+
+  useEffect(() => {
+    if (!selected) return;
+    // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
+    onSelectUnit(unit, ref.current, null);
+
+    // Scroll the unit into view
+    ref.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+      inline: "nearest",
+    });
+  }, [selected, onSelectUnit]);
+
+  return [ref, selected, onClick];
 }
 
 export function UnitKeyboardNavigation<T extends BaseUnit>({

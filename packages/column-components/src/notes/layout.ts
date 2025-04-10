@@ -140,7 +140,7 @@ class NoteLayoutProvider extends StatefulComponent<
     const { width, paddingLeft } = this.props;
     // Clamp notes to within scale boundaries
     // (we could turn this off if desired)
-    const { pixelHeight, scaleClamped: scale } = this.context;
+    const { scaleClamped: scale } = this.context;
 
     const forwardedValues = {
       // Forwarded values from column context
@@ -191,9 +191,9 @@ class NoteLayoutProvider extends StatefulComponent<
 
   createNodeForNote(note) {
     const { notes, elementHeights } = this.state;
-    let { pixelHeight, scaleClamped: scale } = this.context;
+    let { scaleClamped: scale } = this.context;
     const { id: noteID } = note;
-    pixelHeight = elementHeights[noteID] || 10;
+    const pixelHeight = elementHeights[noteID] || 10;
     const padding = 5;
     const lowerHeight = scale(note.height);
     if (hasSpan(note)) {
@@ -211,7 +211,7 @@ class NoteLayoutProvider extends StatefulComponent<
 
   computeForceLayout(prevProps, prevState) {
     let { notes, nodes, elementHeights } = this.state;
-    const { pixelHeight, scale } = this.context;
+    const { pixelHeight } = this.context;
     const { width, paddingLeft, forceOptions } = this.props;
 
     if (notes.length === 0) {

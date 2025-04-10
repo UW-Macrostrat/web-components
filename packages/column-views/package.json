@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "1.0.3",
+  "version": "2.0.0",
   "description": "Data views for Macrostrat stratigraphic columns",
   "type": "module",
   "source": "src/index.ts",
@@ -30,13 +30,23 @@
   },
   "dependencies": {
     "@macrostrat/api-types": "workspace:^",
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/map-interface": "workspace:^",
+    "@macrostrat/map-styles": "workspace:^",
+    "@macrostrat/mapbox-react": "workspace:^",
+    "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/svg-map-components": "workspace:^",
     "@macrostrat/timescale": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
+    "@turf/buffer": "^7.2.0",
+    "@turf/centroid": "^7.2.0",
+    "@turf/distance": "^7.2.0",
+    "@turf/line-intersect": "^7.2.0",
+    "@turf/nearest-point-on-line": "^7.2.0",
     "@types/chroma-js": "^3",
     "@types/d3-format": "^3",
     "@types/d3-geo": "^3",
@@ -45,14 +55,19 @@
     "@visx/axis": "^3.12.0",
     "chroma-js": "^3.1.2",
     "classnames": "^2.5.1",
+    "cross-fetch": "^4.1.0",
     "d3-array": "^3.2.4",
     "d3-format": "^3.1.0",
     "d3-geo": "^3.1.1",
     "d3-geo-voronoi": "^2.1.0",
+    "d3-path": "^3.1.0",
+    "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
+    "mapbox-gl": "^2.11.0",
     "react-spring": "^9.7.5",
     "topojson-client": "^3.1.0",
-    "zustand": "^5.0.3"
+    "zustand": "^5.0.3",
+    "zustand-computed": "^2.0.2"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3.43.0 || ^4.3.0 || ^5.0.0",
@@ -64,6 +79,8 @@
     "directory": "packages/column-views"
   },
   "devDependencies": {
+    "@types/d3-path": "^3",
+    "@types/d3-scale": "^4",
     "parcel": "^2.13.3",
     "postcss": "^8.0.0",
     "postcss-modules": "^6.0.0"

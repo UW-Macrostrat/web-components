@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2025-04-09
+
+Major update for columns and correlation diagrams:
+
+- Add Mapbox-based column selection and correlation-line selection maps
+- Add `ColoredUnitComponent` based on mixing unit colors by lithology
+- Fully integrated management of composite column scales, allowing for much more
+  flexible column creation
+- Added the ability to have zig-zag cutoffs when units overflow the time bounds
+  of the column
+- Added a unified `MacrostratDataProvider` that allows frontend caching of data
+  dictionaries in the UI
+- Major improvements to columns and styling
+
+This release will support rendering of stratigraphic columns in Rockd and
+Macrostrat.
+
 ## [1.0.3] - 2025-03-08
 
 Export `UnitDetailsPanel`

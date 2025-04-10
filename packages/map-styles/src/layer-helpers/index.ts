@@ -123,3 +123,4 @@ class GeologyStyler {
 export { GeologyStyler, createGeologySource, setupLineSymbols };
 export * from "./symbol-layers";
 export * from "./point-features";
+export * from "./cross-sections";

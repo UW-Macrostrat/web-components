@@ -58,6 +58,7 @@ export function PositionInformation(props) {
     [
       h.if(position != null)(MapMarker, {
         position,
+        setPosition: null,
       }),
       children,
     ]
@@ -210,7 +211,7 @@ function MapBoundsLayer(props) {
             ],
           ],
         },
-      },
+      } as any,
     });
 
     map.addLayer({

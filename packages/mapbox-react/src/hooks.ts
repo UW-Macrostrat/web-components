@@ -11,18 +11,20 @@ export function useMapStyleOperator(
 ) {
   const mapRef = useMapRef();
   const isStyleLoaded = useMapStatus((s) => s.isStyleLoaded);
+
+  const callback = useCallback((map) => {
+    if (map == null) return;
+    operator(map);
+  }, dependencies);
+
   useEffect(() => {
     const map = mapRef.current;
     if (map == null) return;
+    // TODO: figure out what is wrong with the isStyleLoaded state
     if (isStyleLoaded) {
-      operator(map);
+      callback(map);
     }
-    const fn = () => operator(map);
-    map.on("style.load", fn);
-    return () => {
-      map.off("style.load", fn);
-    };
-  }, [mapRef.current, isStyleLoaded, ...dependencies]);
+  }, [callback, isStyleLoaded]);
 }
 
 /**

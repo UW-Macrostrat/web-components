@@ -1,4 +1,3 @@
-import { ColumnAxisType } from "@macrostrat/column-components";
 export interface IUnit {
   unit_id: number;
   col_id: number;
@@ -8,19 +7,9 @@ export interface IUnit {
   [x: string]: any;
 }
 
-enum MacrostratAxisKey {
-  AGE = "age",
-  POS = "pos"
+export interface RectBounds {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
-
-function transformAxisType(t: ColumnAxisType): MacrostratAxisKey {
-  switch (t) {
-    case "age":
-      return MacrostratAxisKey.AGE;
-    case "height":
-    case "depth":
-      return MacrostratAxisKey.POS;
-  }
-}
-
-export { MacrostratAxisKey, transformAxisType };

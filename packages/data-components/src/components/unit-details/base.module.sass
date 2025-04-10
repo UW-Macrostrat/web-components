@@ -1,0 +1,44 @@
+.data-field
+  margin: 0.5em 0 1em
+  &.flex
+    display: flex
+    flex-flow: row wrap
+    align-items: baseline
+    justify-content: end
+    gap: 0.5em
+    .data-container
+      text-align: right
+  &.inline
+    .label
+      display: inline-block
+
+  .label
+    //font-size: 0.9em
+    padding-right: 1em
+    font-weight: bold
+    flex-grow: 1
+    display: block
+    color: var(--secondary-color)
+    text-align: left
+  .value-container
+    text-align: right
+    //font-size: 0.9em
+    //display: inline-block
+    break-inside: avoid
+
+  &.tag-field
+    &>*
+      margin: 0
+      display: block
+
+.unit
+  color: var(--text-subtle-color)
+  font-style: var(--text-font-style)
+
+.parenthetical
+  .content
+    color: var(--parenthetical-text-color, var(--text-subtle-color))
+  .sep
+    color: var(--parenthetical-sep-color, var(--secondary-color))
+  .unit
+    color: var(--secondary-color)
