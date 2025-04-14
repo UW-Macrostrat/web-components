@@ -8,6 +8,8 @@ export default defineConfig({
       "react-dom",
       "@macrostrat/ui-components",
       "@macrostrat/column-components",
+      "@macrostrat/mapbox-react",
+      "@macrostrat/column-views"
     ],
   },
   optimizeDeps: {
