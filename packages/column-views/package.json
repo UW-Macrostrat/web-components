@@ -47,10 +47,10 @@
     "@turf/distance": "^7.2.0",
     "@turf/line-intersect": "^7.2.0",
     "@turf/nearest-point-on-line": "^7.2.0",
-    "@types/chroma-js": "^3",
-    "@types/d3-format": "^3",
-    "@types/d3-geo": "^3",
-    "@types/d3-shape": "^3",
+    "@types/chroma-js": "^3.1.1",
+    "@types/d3-format": "^3.0.4",
+    "@types/d3-geo": "^3.1.0",
+    "@types/d3-shape": "^3.1.7",
     "@types/topojson-client": "^3.1.5",
     "@visx/axis": "^3.12.0",
     "chroma-js": "^3.1.2",
@@ -63,14 +63,14 @@
     "d3-path": "^3.1.0",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
-    "mapbox-gl": "^2.11.0",
+    "mapbox-gl": "^2.15.0",
     "react-spring": "^9.7.5",
     "topojson-client": "^3.1.0",
     "zustand": "^5.0.3",
     "zustand-computed": "^2.0.2"
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^3.43.0 || ^4.3.0 || ^5.0.0",
+    "@blueprintjs/core": "^5.0.0",
     "react": "^16.8.6||^17.0.0||^18.0.0"
   },
   "repository": {
@@ -79,8 +79,8 @@
     "directory": "packages/column-views"
   },
   "devDependencies": {
-    "@types/d3-path": "^3",
-    "@types/d3-scale": "^4",
+    "@types/d3-path": "^3.1.1",
+    "@types/d3-scale": "^4.0.9",
     "parcel": "^2.13.3",
     "postcss": "^8.0.0",
     "postcss-modules": "^6.0.0"

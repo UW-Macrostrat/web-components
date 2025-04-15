@@ -53,7 +53,7 @@
     "directory": "packages/data-sheet"
   },
   "devDependencies": {
-    "@types/underscore": "^1",
+    "@types/underscore": "^1.13.0",
     "parcel": "^2.13.3"
   }
 }
