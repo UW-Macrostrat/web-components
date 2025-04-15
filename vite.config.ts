@@ -9,6 +9,7 @@ export default defineConfig({
       "@macrostrat/ui-components",
       "@macrostrat/column-components",
       "@macrostrat/mapbox-react",
+      "@macrostrat/map-interface",
       "@macrostrat/column-views"
     ],
   },
