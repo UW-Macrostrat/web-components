@@ -1,5 +1,6 @@
 import {
   getSectionAgeRange,
+  groupUnitsIntoImplicitSections,
   groupUnitsIntoSections,
   mergeOverlappingSections,
   preprocessUnits,
@@ -10,6 +11,7 @@ import type { ExtUnit } from "./helpers";
 import { UnitLong } from "@macrostrat/api-types";
 import {
   collapseUnconformitiesByPixelHeight,
+  expandImplicitUnconformities,
   ColumnScaleOptions,
   CompositeColumnData,
   computeSectionHeights,
@@ -123,10 +125,11 @@ export function prepareColumnUnits(
 
   /* Compute pixel scales etc. for sections
    * We need to do this now to determine which unconformities
-   * are small enough to collapse.
+   * need to be collapsed or expanded
    */
   let sectionsWithScales = computeSectionHeights(sections, options);
 
+  // Collapse sections separated by age/height gaps that are less than a pixel threshold
   if (collapseSmallUnconformities ?? false) {
     let threshold = unconformityHeight ?? 30;
     if (typeof collapseSmallUnconformities == "number") {
@@ -139,6 +142,14 @@ export function prepareColumnUnits(
       options
     );
   }
+
+  /* Expand gaps within sections that are less than a certain pixel height. This must
+   be greater than the 'collapseSmallUnconformities' threshold to avoid conflicts. */
+  sectionsWithScales = expandImplicitUnconformities(
+    sectionsWithScales,
+    50,
+    axisType
+  );
 
   /** Reconstitute the units so that they are sorted by section.
    * This is mostly important so that unit keyboard navigation

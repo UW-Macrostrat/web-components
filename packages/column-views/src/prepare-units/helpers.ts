@@ -111,6 +111,7 @@ export function groupUnitsIntoSections<T extends UnitLong>(
   units: T[],
   axisType: ColumnAxisType = ColumnAxisType.AGE
 ): SectionInfo<T>[] {
+  /** Group units into sections based on their section_id. */
   let groups = Array.from(group(units, (d) => d.section_id));
   const unitComparator = createUnitSorter(axisType);
 
@@ -128,6 +129,46 @@ export function groupUnitsIntoSections<T extends UnitLong>(
   ) => number;
   groups1.sort(compareSections);
   return groups1;
+}
+
+export function groupUnitsIntoImplicitSections<T extends UnitLong>(
+  units: T[],
+  delta: number = dt,
+  axisType: ColumnAxisType = ColumnAxisType.AGE
+): SectionInfo<T>[] {
+  /** Group units into implicit sections by accumulating units that are close in age. */
+  const sections: SectionInfo<T>[] = [];
+
+  // sort the units by age
+  const unitComparator = createUnitSorter(axisType);
+  units.sort(unitComparator);
+
+  // iterate through the units and group them into sections
+  let currentSection: SectionInfo<T> | null = null;
+  for (const unit of units) {
+    const [b_age, t_age] = getUnitHeightRange(unit, axisType);
+
+    if (
+      currentSection == null ||
+      Math.abs(currentSection.b_age - t_age) > delta
+    ) {
+      // create a new section
+      currentSection = {
+        section_id: sections.length,
+        t_age,
+        b_age,
+        units: [unit],
+      };
+      sections.push(currentSection);
+    } else {
+      // add the unit to the current section
+      currentSection.units.push(unit);
+      currentSection.t_age = Math.min(currentSection.t_age, t_age);
+      currentSection.b_age = Math.max(currentSection.b_age, b_age);
+    }
+  }
+
+  return sections;
 }
 
 export function getSectionAgeRange(units: BaseUnit[]): [number, number] {

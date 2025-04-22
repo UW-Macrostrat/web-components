@@ -79,6 +79,11 @@ export default {
         type: "number",
       },
     },
+    unconformityHeight: {
+      control: {
+        type: "number",
+      },
+    },
   },
 } as Meta<typeof ColumnStoryUI>;
 

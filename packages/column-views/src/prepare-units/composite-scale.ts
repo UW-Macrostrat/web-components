@@ -1,4 +1,8 @@
-import type { ExtUnit, SectionInfo } from "./helpers";
+import {
+  ExtUnit,
+  groupUnitsIntoImplicitSections,
+  SectionInfo,
+} from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleLinear, scaleLinear } from "d3-scale";
@@ -350,4 +354,30 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
   }
 
   return newSections;
+}
+
+export function expandImplicitUnconformities<T extends UnitLong>(
+  sections: SectionInfoWithScale<T>[],
+  minHeight: number,
+  axisType: ColumnAxisType
+): PackageLayoutData[] {
+  /** Expand implicit unconformities to a minimum height */
+  const out: SectionInfoWithScale<T>[] = [];
+
+  for (const section of sections) {
+    const delta = minHeight / section.scaleInfo.pixelScale;
+
+    const newSections = groupUnitsIntoImplicitSections(
+      section.units,
+      delta,
+      axisType
+    );
+    const s1 = computeSectionHeights(newSections, {
+      axisType,
+      unconformityHeight: minHeight,
+    });
+
+    out.push(...s1);
+  }
+  return out;
 }
