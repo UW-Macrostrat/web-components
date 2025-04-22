@@ -16,6 +16,7 @@ import {
   MacrostratColumnProvider,
 } from "./data-provider";
 import { Duration } from "./unit-details";
+import { Value } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
@@ -87,7 +88,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     unconformityLabels = true,
   } = props;
 
-  const { sections, totalHeight } = useMacrostratColumnData();
+  const { sections, totalHeight, axisType } = useMacrostratColumnData();
 
   const scaleData: PackageScaleLayoutData[] = sections.map((section) => {
     return section.scaleInfo;
@@ -127,6 +128,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     h.if(unconformityLabels)(UnconformityLabels, {
       width,
       sections: scaleData,
+      axisType,
     }),
   ]);
 }
@@ -248,6 +250,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
       width: "100%",
       sections: packages,
       className: "unconformity-labels",
+      axisType: ColumnAxisType.AGE,
     }),
   ]);
 }
@@ -256,8 +259,9 @@ export function UnconformityLabels(props: {
   width: string | number;
   sections: PackageScaleLayoutData[];
   className?: string;
+  axisType?: ColumnAxisType;
 }) {
-  const { width, sections, className } = props;
+  const { width, sections, className, axisType = ColumnAxisType.AGE } = props;
 
   return h(
     "div.unconformity-labels",
@@ -275,6 +279,7 @@ export function UnconformityLabels(props: {
       return h(Unconformity, {
         upperAge,
         lowerAge,
+        axisType,
         style: {
           width,
           height: scaleInfo.paddingTop,
@@ -285,7 +290,12 @@ export function UnconformityLabels(props: {
   );
 }
 
-function Unconformity({ upperAge, lowerAge, style }) {
+function Unconformity({
+  upperAge,
+  lowerAge,
+  style,
+  axisType = ColumnAxisType.AGE,
+}) {
   if (upperAge == null || lowerAge == null) {
     return null;
   }
@@ -303,7 +313,20 @@ function Unconformity({ upperAge, lowerAge, style }) {
     className = "small";
   }
 
+  let value = null;
+  if (axisType === ColumnAxisType.AGE) {
+    value = h(Duration, { value: ageGap });
+  } else if (axisType !== ColumnAxisType.ORDINAL) {
+    let _value = ageGap.toLocaleString("en-US", {
+      maximumFractionDigits: 2,
+      minimumFractionDigits: 0,
+    });
+    value = h(Value, { value: _value, unit: "m" });
+  } else {
+    value = h(Value, { value: ageGap });
+  }
+
   return h("div.unconformity", { style, className }, [
-    h("div.unconformity-text", h(Duration, { value: ageGap })),
+    h("div.unconformity-text", value),
   ]);
 }
