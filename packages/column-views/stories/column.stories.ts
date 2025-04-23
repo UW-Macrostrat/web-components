@@ -21,7 +21,7 @@ function useColumnUnits(col_id, inProcess) {
   const status_code = inProcess ? "in process" : undefined;
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
-    { col_id, response: "long", status_code },
+    { col_id, response: "long", status_code, show_position: true },
     (res) => res.success.data
   );
 }
@@ -270,6 +270,21 @@ export const eODPColumnByHeight: Story = {
     showUnitPopover: true,
     keyboardNavigation: true,
     unconformityHeight: 50,
+    axisType: ColumnAxisType.DEPTH,
+  },
+};
+
+export const eODPColumnByHeightWithSetScale: Story = {
+  args: {
+    id: 5576,
+    width: 400,
+    columnWidth: 150,
+    inProcess: true,
+    maxInternalColumns: 1,
+    showUnitPopover: true,
+    keyboardNavigation: true,
+    unconformityHeight: 100,
+    pixelScale: 20,
     axisType: ColumnAxisType.DEPTH,
   },
 };

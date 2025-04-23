@@ -7,6 +7,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleLinear, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
+import { findSectionHeightRange } from "./helpers";
 
 export interface ColumnHeightScaleOptions {
   /** A fixed pixel scale to use for the section (pixels per Myr, or pixels per
@@ -167,7 +168,7 @@ function addScaleToSection<T extends UnitLong = ExtUnit>(
   const { t_age, b_age, units } = group;
   let _range = null;
   // if t_age and b_age are set for a group, use them to define the range...
-  if (t_age != null && b_age != null && opts.axisType == ColumnAxisType.AGE) {
+  if (t_age != null && b_age != null) {
     _range = [b_age, t_age];
   }
 
@@ -235,31 +236,6 @@ export function createPackageScale(
       .domain([domain[1], domain[0]])
       .range([offset, pixelHeight + offset]),
   };
-}
-
-function findSectionHeightRange(
-  data: UnitLong[],
-  axisType: ColumnAxisType
-): [number, number] {
-  if (axisType == null) {
-    throw new Error("Axis type is not set");
-  }
-  if (axisType === ColumnAxisType.AGE) {
-    const t_age = Math.min(...data.map((d) => d.t_age));
-    const b_age = Math.max(...data.map((d) => d.b_age));
-    return [b_age, t_age];
-  } else if (
-    axisType == ColumnAxisType.DEPTH ||
-    axisType == ColumnAxisType.ORDINAL
-  ) {
-    const t_pos = Math.min(...data.map((d) => d.t_pos));
-    const b_pos = Math.max(...data.map((d) => d.b_pos));
-    return [b_pos, t_pos];
-  } else if (axisType == ColumnAxisType.HEIGHT) {
-    const t_pos = Math.max(...data.map((d) => d.t_pos));
-    const b_pos = Math.min(...data.map((d) => d.b_pos));
-    return [b_pos, t_pos];
-  }
 }
 
 function findAverageUnitHeight(

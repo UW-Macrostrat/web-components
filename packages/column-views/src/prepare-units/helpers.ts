@@ -116,7 +116,7 @@ export function groupUnitsIntoSections<T extends UnitLong>(
   const unitComparator = createUnitSorter(axisType);
 
   const groups1 = groups.map(([section_id, sectionUnits]) => {
-    const [b_age, t_age] = getSectionAgeRange(sectionUnits);
+    const [b_age, t_age] = findSectionHeightRange(sectionUnits, axisType);
     // sort units by position
     sectionUnits.sort(unitComparator);
     return { section_id, t_age, b_age, units: sectionUnits };
@@ -180,26 +180,29 @@ export function groupUnitsIntoImplicitSections<T extends UnitLong>(
   return sections;
 }
 
-export function getSectionHeightRange(
-  units: BaseUnit[],
+export function findSectionHeightRange(
+  data: UnitLong[],
   axisType: ColumnAxisType
 ): [number, number] {
-  const unitRanges = units.map((d) => getUnitHeightRange(d, axisType));
-
-  let min = Infinity;
-  let max = -Infinity;
-
-  for (const [b_pos, t_pos] of unitRanges) {
-    min = Math.min(min, t_pos, b_pos);
-    max = Math.max(max, t_pos, b_pos);
+  if (axisType == null) {
+    throw new Error("Axis type is not set");
   }
-
-  return [max, min];
-}
-
-export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
-  /** Get the overall age range of a set of units. */
-  return getSectionHeightRange(units, ColumnAxisType.AGE);
+  if (axisType === ColumnAxisType.AGE) {
+    const t_age = Math.min(...data.map((d) => d.t_age));
+    const b_age = Math.max(...data.map((d) => d.b_age));
+    return [b_age, t_age];
+  } else if (
+    axisType == ColumnAxisType.DEPTH ||
+    axisType == ColumnAxisType.ORDINAL
+  ) {
+    const t_pos = Math.min(...data.map((d) => d.t_pos));
+    const b_pos = Math.max(...data.map((d) => d.b_pos));
+    return [b_pos, t_pos];
+  } else if (axisType == ColumnAxisType.HEIGHT) {
+    const t_pos = Math.max(...data.map((d) => d.t_pos));
+    const b_pos = Math.min(...data.map((d) => d.b_pos));
+    return [b_pos, t_pos];
+  }
 }
 
 export function mergeOverlappingSections<T extends UnitLong>(

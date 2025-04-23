@@ -1,5 +1,5 @@
 import {
-  getSectionAgeRange,
+  findSectionHeightRange,
   groupUnitsIntoSections,
   mergeOverlappingSections,
   preprocessUnits,
@@ -7,7 +7,7 @@ import {
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useMemo } from "react";
 import type { ExtUnit } from "./helpers";
-import { UnitLong } from "@macrostrat/api-types";
+import { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import {
   collapseUnconformitiesByPixelHeight,
   expandImplicitUnconformities,
@@ -68,6 +68,8 @@ export function prepareColumnUnits(
     collapseSmallUnconformities = false,
   } = options;
 
+  checkForInputErrors(units, axisType);
+
   /** Prototype filtering to age range */
   let units1 = units.filter((d) => {
     // Filter units by t_age and b_age, inclusive
@@ -80,7 +82,7 @@ export function prepareColumnUnits(
     axisType != ColumnAxisType.ORDINAL
   ) {
     // For the "merge sections" mode, we need to create a single section
-    const [b_unit_age, t_unit_age] = getSectionAgeRange(units1);
+    const [b_unit_age, t_unit_age] = findSectionHeightRange(units1, axisType);
     sections0 = [
       {
         section_id: 0,
@@ -180,7 +182,7 @@ export function prepareColumnUnits(
   });
 
   // Validate the result
-  checkForErrors(sectionsOut, axisType);
+  checkForOutputErrors(sectionsOut, axisType);
 
   return {
     units: units2,
@@ -189,7 +191,20 @@ export function prepareColumnUnits(
   };
 }
 
-function checkForErrors(
+function checkForInputErrors(units: BaseUnit[], axisType: ColumnAxisType) {
+  // If the axis is type height or depth, units need to have t_pos and b_pos information
+  if (axisType == ColumnAxisType.HEIGHT || axisType == ColumnAxisType.DEPTH) {
+    for (const unit of units) {
+      if (unit.t_pos == null || unit.b_pos == null) {
+        throw new Error(
+          `Unit ${unit.unit_id}: t_pos or b_pos not found, required for height/depth axis type`
+        );
+      }
+    }
+  }
+}
+
+function checkForOutputErrors(
   sections: PackageLayoutData[],
   axisType: ColumnAxisType
 ) {
