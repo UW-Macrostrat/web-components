@@ -142,15 +142,19 @@ export function prepareColumnUnits(
       threshold,
       options
     );
-  }
 
-  /* Expand gaps within sections that are less than a certain pixel height. This must
-   be greater than the 'collapseSmallUnconformities' threshold to avoid conflicts. */
-  sectionsWithScales = expandImplicitUnconformities(
-    sectionsWithScales,
-    unconformityHeight ?? 30,
-    axisType
-  );
+    /* Expand gaps within sections that are less than a certain pixel height. This must
+      be greater than the 'collapseSmallUnconformities' threshold to avoid conflicts.
+
+      For now we use the same threshold as the collapse function, but this may change in the future.
+    */
+    sectionsWithScales = expandImplicitUnconformities(
+      sectionsWithScales,
+      threshold,
+      options
+    );
+    //
+  }
 
   /** Reconstitute the units so that they are sorted by section.
    * This is mostly important so that unit keyboard navigation

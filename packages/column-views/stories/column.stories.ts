@@ -284,6 +284,7 @@ export const eODPColumnByHeightWithSetScale: Story = {
     showUnitPopover: true,
     keyboardNavigation: true,
     unconformityHeight: 100,
+    collapseSmallUnconformities: 20,
     pixelScale: 20,
     axisType: ColumnAxisType.DEPTH,
   },

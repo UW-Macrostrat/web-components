@@ -335,24 +335,23 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
 
 export function expandImplicitUnconformities<T extends UnitLong>(
   sections: SectionInfoWithScale<T>[],
-  minHeight: number,
-  axisType: ColumnAxisType
-): PackageLayoutData[] {
+  threshold: number,
+  opts: ColumnScaleOptions
+): SectionInfoWithScale<T>[] {
   /** Expand implicit unconformities to a minimum height */
   const out: SectionInfoWithScale<T>[] = [];
 
+  const { axisType } = opts;
+
   for (const section of sections) {
-    const delta = minHeight / section.scaleInfo.pixelScale;
+    const delta = threshold / section.scaleInfo.pixelScale;
 
     const newSections = groupUnitsIntoImplicitSections(
       section,
       delta,
       axisType
     );
-    const s1 = computeSectionHeights(newSections, {
-      axisType,
-      unconformityHeight: minHeight,
-    });
+    const s1 = computeSectionHeights(newSections, opts);
 
     out.push(...s1);
   }
