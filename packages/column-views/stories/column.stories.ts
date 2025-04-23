@@ -8,6 +8,7 @@ import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { ColumnProps as BaseColumnProps } from "@macrostrat/column-views";
 import { useState } from "react";
+import { ColumnAxisType } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
 
@@ -211,6 +212,21 @@ export const BrokenAxis: Story = {
   },
 };
 
+export const BrokenAxis2: Story = {
+  args: {
+    id: 74,
+    showLabelColumn: false,
+    width: 300,
+    columnWidth: 500,
+    t_age: 280,
+    b_age: 340,
+    targetUnitHeight: 30,
+    showTimescale: false,
+    timescaleLevels: null,
+    showUnitPopover: true,
+  },
+};
+
 export const WithColoredUnits: Story = {
   args: {
     id: 483,
@@ -239,6 +255,22 @@ export const eODPColumn: Story = {
     },
     showUnitPopover: true,
     keyboardNavigation: true,
+  },
+};
+
+export const eODPColumnByHeight: Story = {
+  args: {
+    id: 5576,
+    width: 500,
+    columnWidth: 300,
+    showLabelColumn: false,
+    inProcess: true,
+    unitComponent: ColoredUnitComponent,
+    maxInternalColumns: 1,
+    showUnitPopover: true,
+    keyboardNavigation: true,
+    unconformityHeight: 50,
+    //axisType: ColumnAxisType.DEPTH,
   },
 };
 

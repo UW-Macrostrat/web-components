@@ -9,7 +9,8 @@ import { ScaleLinear, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
 
 export interface ColumnHeightScaleOptions {
-  /** A fixed pixel scale to use for the section (pixels per Myr) */
+  /** A fixed pixel scale to use for the section (pixels per Myr, or pixels per
+   * meter if in height/depth space) */
   pixelScale?: number;
   /** The target height of a constituent unit in pixels, for dynamic
    * scale generation */
@@ -368,7 +369,7 @@ export function expandImplicitUnconformities<T extends UnitLong>(
     const delta = minHeight / section.scaleInfo.pixelScale;
 
     const newSections = groupUnitsIntoImplicitSections(
-      section.units,
+      section,
       delta,
       axisType
     );

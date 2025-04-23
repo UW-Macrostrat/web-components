@@ -1,6 +1,5 @@
 import {
   getSectionAgeRange,
-  groupUnitsIntoImplicitSections,
   groupUnitsIntoSections,
   mergeOverlappingSections,
   preprocessUnits,
@@ -147,7 +146,7 @@ export function prepareColumnUnits(
    be greater than the 'collapseSmallUnconformities' threshold to avoid conflicts. */
   sectionsWithScales = expandImplicitUnconformities(
     sectionsWithScales,
-    50,
+    unconformityHeight ?? 30,
     axisType
   );
 

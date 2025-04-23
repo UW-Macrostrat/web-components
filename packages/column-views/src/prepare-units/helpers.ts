@@ -132,12 +132,14 @@ export function groupUnitsIntoSections<T extends UnitLong>(
 }
 
 export function groupUnitsIntoImplicitSections<T extends UnitLong>(
-  units: T[],
+  section: SectionInfo<T>,
   delta: number = dt,
   axisType: ColumnAxisType = ColumnAxisType.AGE
 ): SectionInfo<T>[] {
   /** Group units into implicit sections by accumulating units that are close in age. */
   const sections: SectionInfo<T>[] = [];
+
+  const units = section.units;
 
   // sort the units by age
   const unitComparator = createUnitSorter(axisType);
@@ -168,16 +170,36 @@ export function groupUnitsIntoImplicitSections<T extends UnitLong>(
     }
   }
 
+  // Ensure the created sections do not expand beyond the bounds of the original section.
+  // This is important for sections that are explicitly filtered by age.
+  for (const s1 of sections) {
+    s1.t_age = Math.max(s1.t_age, section.t_age);
+    s1.b_age = Math.min(s1.b_age, section.b_age);
+  }
+
   return sections;
+}
+
+export function getSectionHeightRange(
+  units: BaseUnit[],
+  axisType: ColumnAxisType
+): [number, number] {
+  const unitRanges = units.map((d) => getUnitHeightRange(d, axisType));
+
+  let min = Infinity;
+  let max = -Infinity;
+
+  for (const [b_pos, t_pos] of unitRanges) {
+    min = Math.min(min, t_pos, b_pos);
+    max = Math.max(max, t_pos, b_pos);
+  }
+
+  return [max, min];
 }
 
 export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
   /** Get the overall age range of a set of units. */
-  const t_ages = units.map((d) => d.t_age);
-  const b_ages = units.map((d) => d.b_age);
-  const t_age = Math.min(...t_ages);
-  const b_age = Math.max(...b_ages);
-  return [b_age, t_age];
+  return getSectionHeightRange(units, ColumnAxisType.AGE);
 }
 
 export function mergeOverlappingSections<T extends UnitLong>(
