@@ -179,9 +179,33 @@ export function prepareColumnUnits(
     };
   });
 
+  // Validate the result
+  checkForErrors(sectionsOut, axisType);
+
   return {
     units: units2,
     totalHeight,
     sections: sectionsOut,
   };
+}
+
+function checkForErrors(
+  sections: PackageLayoutData[],
+  axisType: ColumnAxisType
+) {
+  /** Check that columns have valid scale information */
+  for (const section of sections) {
+    const { scaleInfo, units, section_id } = section;
+
+    const { pixelScale, domain } = scaleInfo;
+
+    const [min, max] = domain;
+    if (min == null || max == null) {
+      throw new Error("Invalid domain for section " + section_id);
+    }
+
+    if (pixelScale == null || isNaN(pixelScale)) {
+      throw new Error("Invalid pixel scale for section " + section_id);
+    }
+  }
 }

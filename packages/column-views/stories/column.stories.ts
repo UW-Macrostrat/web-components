@@ -270,7 +270,7 @@ export const eODPColumnByHeight: Story = {
     showUnitPopover: true,
     keyboardNavigation: true,
     unconformityHeight: 50,
-    //axisType: ColumnAxisType.DEPTH,
+    axisType: ColumnAxisType.DEPTH,
   },
 };
 
