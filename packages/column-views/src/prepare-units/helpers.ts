@@ -250,6 +250,15 @@ function preprocessSectionUnits(
   });
 }
 
+function enhanceUnitName(name: string): string {
+  const match = name.match(/^(\d+(\.\d+)?)-(\d+(\.\d+)?): (.+)/);
+
+  if (match) {
+    return match[5];
+  }
+  return name;
+}
+
 function preprocessSectionUnit(
   unit: UnitLong,
   i: number,
@@ -268,24 +277,11 @@ function preprocessSectionUnit(
     t_pos = t_pos - 1;
   }
 
-  let unit_name = unit.unit_name;
-
-  // eODP columns sometimes have overlapping core sections, which are encoded in the name field
-  // Match eODP section names
-  const match = unit.unit_name.match(/^(\d+(\.\d+)?)-(\d+(\.\d+)?): (.+)/);
-
-  if (match) {
-    // These values should already be set if we've used the show_positions flag
-    t_pos ??= ensureRealFloat(match[1]);
-    b_pos ??= ensureRealFloat(match[3]);
-    unit_name = match[5];
-  }
-
   return {
     ...unit,
     b_pos: ensureRealFloat(b_pos),
     t_pos: ensureRealFloat(t_pos),
-    unit_name,
+    unit_name: enhanceUnitName(unit.unit_name),
     bottomOverlap: false,
     overlappingUnits: [],
   };

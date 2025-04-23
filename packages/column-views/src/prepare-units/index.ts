@@ -156,18 +156,6 @@ export function prepareColumnUnits(
     //
   }
 
-  /** Reconstitute the units so that they are sorted by section.
-   * This is mostly important so that unit keyboard navigation
-   * predictably selects adjacent units.
-   */
-  const units2 = sectionsWithScales.reduce((acc, group) => {
-    const { units } = group;
-    for (const unit of units) {
-      acc.push(unit);
-    }
-    return acc;
-  }, []);
-
   /** Prepare section scale information using groups */
   const { totalHeight, sections: sections2 } = finalizeSectionHeights(
     sectionsWithScales,
@@ -184,6 +172,18 @@ export function prepareColumnUnits(
       units: preprocessUnits(section, axisType),
     };
   });
+
+  /** Reconstitute the units so that they are sorted by section and enhanced.
+   * This is mostly important so that unit keyboard navigation
+   * predictably selects adjacent units.
+   */
+  const units2 = sectionsOut.reduce((acc, group) => {
+    const { units } = group;
+    for (const unit of units) {
+      acc.push(unit);
+    }
+    return acc;
+  }, []);
 
   // Validate the result
   checkForOutputErrors(sectionsOut, axisType);
