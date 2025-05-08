@@ -55,7 +55,7 @@ const symbolIndex = {
 };
 
 const resolveID = (d: any) => {
-  let liths = d.lith;
+  let liths = [...d.lith];
   let environs = d.environ.map((d) => d.name).join(" ");
   liths.sort((a, b) => b.prop - a.prop);
 
