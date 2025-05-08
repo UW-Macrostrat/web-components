@@ -34,7 +34,7 @@
   "devDependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@types/d3-array": "^3.2.1",
-    "parcel": "^2.13.3"
+    "parcel": "^2.14.4"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^5.10.2",

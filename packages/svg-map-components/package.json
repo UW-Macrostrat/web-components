@@ -66,6 +66,6 @@
     "react-dom": "^16.11.0||^17.0.0||^18.0.0"
   },
   "devDependencies": {
-    "parcel": "^2.13.3"
+    "parcel": "^2.14.4"
   }
 }

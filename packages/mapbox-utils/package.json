@@ -33,6 +33,6 @@
     "directory": "packages/mapbox-utils"
   },
   "devDependencies": {
-    "parcel": "^2.13.3"
+    "parcel": "^2.14.4"
   }
 }
