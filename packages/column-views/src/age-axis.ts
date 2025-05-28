@@ -1,7 +1,6 @@
 import hyper from "@macrostrat/hyper";
 import {
   SVG,
-  ColumnSVG,
   ColumnAxis,
   ColumnContext,
   ColumnAxisType,
