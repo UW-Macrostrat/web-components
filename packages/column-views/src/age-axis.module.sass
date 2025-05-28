@@ -25,3 +25,22 @@
   max-height: 100vh
 .age-axis-unit
   color: var(--text-subtle-color)
+
+.age-cursor
+  position: absolute
+  left: 30px
+  right: 0
+  pointer-events: none
+  .line
+    border-bottom: 2px solid var(--column-axis-cursor-color, var(--column-cursor-color, var(--column-stroke-color)))
+    transform: translateY(-1px)
+
+  .label
+    writing-mode: vertical-lr
+    transform: rotate(180deg) translate(16px, 50%)
+    background-color: var(--column-background-color)
+    text-align: center
+
+
+
+    

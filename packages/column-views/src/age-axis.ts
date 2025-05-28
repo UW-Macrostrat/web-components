@@ -9,9 +9,10 @@ import {
 } from "@macrostrat/column-components";
 import { useContext } from "react";
 import styles from "./age-axis.module.sass";
-import { useMacrostratColumnData } from "./data-provider";
+import { useCompositeScale, useMacrostratColumnData } from "./data-provider";
 import { Parenthetical } from "@macrostrat/data-components";
 import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
+import { AgeLabel } from "./unit-details";
 
 const h = hyper.styled(styles);
 
@@ -102,4 +103,26 @@ export function CompositeAgeAxisCore(props: CompositeStratigraphicScaleInfo) {
       })
     ),
   ]);
+}
+
+export function AgeCursor({ age }) {
+  /** A cursor that shows the age at a specific point on the age axis. */
+  const scale = useCompositeScale();
+  const heightPx = scale(age);
+
+  console.log(age, heightPx);
+
+  if (age == null || heightPx == null) {
+    return null;
+  }
+
+  return h(
+    "div.age-cursor",
+    {
+      style: {
+        top: heightPx,
+      },
+    },
+    [h("div.line"), h(AgeLabel, { age, className: "label" })]
+  );
 }

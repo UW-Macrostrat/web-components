@@ -2,7 +2,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { RefObject, useRef, HTMLAttributes } from "react";
+import { RefObject, useRef, HTMLAttributes, useCallback } from "react";
 import styles from "./column.module.sass";
 import {
   UnitSelectionProvider,
@@ -15,6 +15,7 @@ import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
 import { UnitSelectionPopover } from "./unit-details";
 import {
   MacrostratColumnDataProvider,
+  useCompositeScale,
   useMacrostratColumnData,
 } from "./data-provider";
 import {
@@ -38,6 +39,11 @@ interface BaseColumnProps extends SectionSharedProps {
   // Timescale properties
   showTimescale?: boolean;
   timescaleLevels?: number | [number, number];
+  onMouseOver?: (
+    unit: UnitLong | null,
+    height: number | null,
+    evt: MouseEvent
+  ) => void;
 }
 
 export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
@@ -134,6 +140,7 @@ function ColumnInner(props: ColumnInnerProps) {
     showTimescale,
     timescaleLevels,
     maxInternalColumns,
+    onMouseOver,
   } = props;
 
   const { axisType } = useMacrostratColumnData();
@@ -156,12 +163,31 @@ function ColumnInner(props: ColumnInnerProps) {
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
 
+  const scale = useCompositeScale();
+
+  const onMouseOver_ = useCallback(
+    (evt) => {
+      const height = scale.invert(
+        evt.clientY - evt.currentTarget.getBoundingClientRect().top
+      );
+      onMouseOver(null, height, evt);
+    },
+    [scale, onMouseOver]
+  );
+
   return h(
     ColumnContainer,
     {
       onClick(evt) {
         dispatch?.(null, null, evt as any);
       },
+      onMouseMove: onMouseOver == null ? undefined : onMouseOver_,
+      onMouseOut:
+        onMouseOver == null
+          ? undefined
+          : () => {
+              onMouseOver(null, null, null);
+            },
       className,
     },
     h("div.column", { ref: columnRef }, [

@@ -10,6 +10,7 @@ import {
   RefObject,
   useRef,
   useCallback,
+  MouseEvent,
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { RectBounds, IUnit } from "./types";
@@ -54,11 +55,20 @@ interface UnitSelectionStore {
   setSelectedUnit: (unit: number | null) => void;
 }
 
+export interface ColumnClickData {
+  unitID: number | null;
+  unit: BaseUnit | null;
+  target: HTMLElement | null;
+  height: number;
+  // Room for boundary IDs eventually
+}
+
 export function UnitSelectionProvider<T extends BaseUnit>(props: {
   children: ReactNode;
   columnRef?: RefObject<HTMLElement>;
   units: T[];
   selectedUnit: number | null;
+  onClickedColumn?: (columnClickData: ColumnClickData, event: Event) => void;
   onUnitSelected?: (unitID: number | null, unit: T | null) => void;
 }) {
   const [store] = useState(() =>
@@ -80,10 +90,31 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
           });
         }
       },
-      onUnitSelected: (unit: T, target: HTMLElement, event: Event) => {
+      onUnitSelected: (unit: T, target: HTMLElement, event: PointerEvent) => {
         console.log("onUnitSelected", unit, target, event);
         const el = props.columnRef?.current;
         let overlayPosition = null;
+
+        /** This is not the natural place to get positions within the column,
+         * but it will work for now.
+         */
+        if (props.onClickedColumn) {
+          // Infer height from top and bottom height of unit (because that's passed back with the call)
+          const py = event.y;
+          const top = unit.t_height;
+          const bottom = unit.b_height;
+          const height = Math.abs(bottom - top);
+
+          /** Ideally this would be defined at the column level */
+          const columnClickData: ColumnClickData = {
+            unitID: unit?.unit_id,
+            unit,
+            target,
+            height: el?.getBoundingClientRect().height || 0,
+          };
+          props.onClickedColumn(columnClickData, event);
+        }
+
         if (unit != null && el != null && target != null) {
           const rect = el.getBoundingClientRect();
           const targetRect = target.getBoundingClientRect();
