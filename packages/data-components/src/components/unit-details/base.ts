@@ -78,6 +78,7 @@ export function IntervalField({ intervals }: { intervals: IntervalShort[] }) {
 export function Value({
   value,
   unit,
+  className,
   children,
 }: {
   value?: any;
@@ -85,7 +86,7 @@ export function Value({
   children?: any;
 }) {
   const val = value ?? children;
-  return h("span.value-container", [
+  return h("span.value-container", { className }, [
     h("span.value", val),
     h.if(unit != null)([" ", h("span.unit", unit)]),
   ]);
