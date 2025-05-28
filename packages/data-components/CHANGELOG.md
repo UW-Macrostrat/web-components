@@ -2,7 +2,7 @@
 
 ## [unreleased]
 
-- onClick capability added to Tag, LithologyTag, and IntervalTag
+- onClick capability added to LithologyTag, where event returns field `lithId` with corresponding lith_id
 
 ## [0.1.0] - 2025-04-09
 
