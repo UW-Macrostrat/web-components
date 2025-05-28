@@ -145,8 +145,6 @@ function ColumnInner(props: ColumnInnerProps) {
 
   const { axisType } = useMacrostratColumnData();
 
-  const dispatch = useUnitSelectionDispatch();
-
   let width = _width;
   let columnWidth = _columnWidth;
   if (columnWidth > width) {
@@ -163,31 +161,10 @@ function ColumnInner(props: ColumnInnerProps) {
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
 
-  const scale = useCompositeScale();
-
-  const onMouseOver_ = useCallback(
-    (evt) => {
-      const height = scale.invert(
-        evt.clientY - evt.currentTarget.getBoundingClientRect().top
-      );
-      onMouseOver(null, height, evt);
-    },
-    [scale, onMouseOver]
-  );
-
   return h(
     ColumnContainer,
     {
-      onClick(evt) {
-        dispatch?.(null, null, evt as any);
-      },
-      onMouseMove: onMouseOver == null ? undefined : onMouseOver_,
-      onMouseOut:
-        onMouseOver == null
-          ? undefined
-          : () => {
-              onMouseOver(null, null, null);
-            },
+      ...useMouseEventHandlers(onMouseOver),
       className,
     },
     h("div.column", { ref: columnRef }, [
@@ -206,6 +183,55 @@ function ColumnInner(props: ColumnInnerProps) {
       children,
     ])
   );
+}
+
+type ColumnMouseOverHandler = (
+  unit: UnitLong | null,
+  height: number | null,
+  evt: MouseEvent
+) => void;
+
+function useMouseEventHandlers(
+  _onMouseOver: ColumnMouseOverHandler | null = null
+) {
+  /** Click event handler */
+
+  // Click handler for unit selection
+  const dispatch = useUnitSelectionDispatch();
+  const onClick = useCallback(
+    (evt) => {
+      dispatch?.(null, null, evt as any);
+    },
+    [dispatch]
+  );
+
+  /** Hover event handlers */
+  const scale = useCompositeScale();
+
+  const onMouseOver = useCallback(
+    (evt) => {
+      const height = scale.invert(
+        evt.clientY - evt.currentTarget.getBoundingClientRect().top
+      );
+      _onMouseOver?.(null, height, evt);
+    },
+    [scale, _onMouseOver]
+  );
+
+  const onMouseOut = useCallback(() => {
+    _onMouseOver?.(null, null, null);
+  }, [_onMouseOver]);
+
+  if (_onMouseOver == null) {
+    return {
+      onClick,
+      onMouseOver: undefined,
+      onMouseMove: undefined,
+      onMouseOut: undefined,
+    };
+  }
+
+  return { onMouseOver, onMouseMove: onMouseOver, onMouseOut, onClick };
 }
 
 export interface ColumnContainerProps extends HTMLAttributes<HTMLDivElement> {
