@@ -231,9 +231,7 @@ function UnitDetailsContent({
     ]),
     h(EnvironmentsList, { 
       environments,
-      onClick: (e) => {
-        console.log("Environment clicked", e);
-      }
+      onClickItem,
      }),
     h.if(unit.strat_name_id != null)(
       DataField,

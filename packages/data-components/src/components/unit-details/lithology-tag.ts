@@ -46,7 +46,11 @@ export function LithologyTag({
 
   const handleClick = (event: MouseEvent) => {
     if (onClick) {
-      onClick({ event, lith_id: data.lith_id });
+      if(data.environ_id) {
+        onClick({ event, environ_id: data.environ_id });
+      } else {
+        onClick({ event, lith_id: data.lith_id });
+      }
     }
   };
 
@@ -137,12 +141,14 @@ function lithologyComparison(a, b) {
   return dx;
 }
 
-export function EnvironmentsList({ environments }) {
+export function EnvironmentsList({ environments, onClickItem }) {
+
+
   return h(
     TagField,
     { label: "Environments", className: "environments-list"},
     environments.map((lith: any) => {
-      return h(LithologyTag, { data: lith, onClick: () => window.open("/lex/environments/" + lith.environ_id, "_blank")});
+      return h(LithologyTag, { data: lith, onClick: onClickItem});
     })
   );
 }
