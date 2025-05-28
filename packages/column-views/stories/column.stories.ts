@@ -1,13 +1,14 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react";
-import { JSONView, useAPIResult } from "@macrostrat/ui-components";
+import { FlexRow, JSONView, useAPIResult } from "@macrostrat/ui-components";
 
 import { Column, ColoredUnitComponent } from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { ColumnProps as BaseColumnProps } from "@macrostrat/column-views";
 import { useState } from "react";
+import { AgeCursor, AgeLabel, useCompositeScale } from "../src";
 
 const h = hyper.styled(styles);
 
@@ -257,3 +258,41 @@ export const eODPColumnV2: Story = {
     keyboardNavigation: true,
   },
 };
+
+export function ColumnClickHandler() {
+  const [hoveredHeight, setHoveredHeight] = useState(null);
+
+  return h(FlexRow, { gap: "2em" }, [
+    h(
+      BasicColumn,
+      {
+        id: 483,
+        showLabelColumn: false,
+        width: 200,
+        columnWidth: 200,
+        unitComponent: ColoredUnitComponent,
+        unitComponentProps: {
+          nColumns: 5,
+        },
+        showUnitPopover: true,
+        keyboardNavigation: true,
+        onMouseOver(unit, height, event) {
+          setHoveredHeight(height);
+        },
+      },
+      h(AgeCursor, {
+        age: hoveredHeight,
+      })
+    ),
+    h("div.column-height-info", [
+      h("h3", "Column height info"),
+      h("p", "Hover over the column to see the height at that point."),
+      h(
+        "p",
+        hoveredHeight
+          ? h(AgeLabel, { age: hoveredHeight })
+          : "No height selected"
+      ),
+    ]),
+  ]);
+}

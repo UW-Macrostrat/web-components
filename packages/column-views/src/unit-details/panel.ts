@@ -346,6 +346,48 @@ function getAgeRange(_unit) {
   return [b_age, t_age, unit];
 }
 
+function getAge(value) {
+  /** Get the age value in Ma, ka, or Ga as appropriate */
+  let unit = "Ma";
+  if (value < 0.8) {
+    unit = "ka";
+    value *= 1000;
+    if (value < 5) {
+      unit = "yr";
+      value *= 1000;
+    }
+  } else if (value > 1000) {
+    unit = "Ga";
+    value /= 1000;
+  }
+
+  return [value, unit];
+}
+
+export function AgeLabel({
+  age,
+  maximumFractionDigits = 2,
+  minimumFractionDigits = 0,
+  className,
+}: {
+  age: number;
+  className?: string;
+  maximumFractionDigits?: number;
+  minimumFractionDigits?: number;
+}) {
+  /** Component to display a single age value with unit conversion from
+   * Ma to ka or Ga as appropriate.
+   */
+  const [value, unit] = getAge(age);
+
+  const _value = value.toLocaleString("en-US", {
+    maximumFractionDigits,
+    minimumFractionDigits,
+  });
+
+  return h(Value, { value: _value, unit, className });
+}
+
 export function Duration({
   value,
   maximumFractionDigits = 2,
