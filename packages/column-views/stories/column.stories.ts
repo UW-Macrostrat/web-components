@@ -1,59 +1,22 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react";
-import { FlexRow, JSONView, useAPIResult } from "@macrostrat/ui-components";
+import { FlexRow, JSONView } from "@macrostrat/ui-components";
 
-import { Column, ColoredUnitComponent } from "@macrostrat/column-views";
-import { Spinner } from "@blueprintjs/core";
+import { ColoredUnitComponent } from "@macrostrat/column-views";
 import "@macrostrat/style-system";
-import { ColumnProps as BaseColumnProps } from "@macrostrat/column-views";
 import { useState } from "react";
-import { AgeCursor, AgeLabel, useCompositeScale } from "../src";
+import { AgeCursor, AgeLabel } from "../src";
+
+import { StandaloneColumn, StandaloneColumnProps } from "./standalone-column";
 
 const h = hyper.styled(styles);
 
-interface ColumnProps extends Omit<BaseColumnProps, "units"> {
-  id: number;
-  inProcess?: boolean;
-}
+type Story = StoryObj<typeof StandaloneColumn>;
 
-function useColumnUnits(col_id, inProcess) {
-  const status_code = inProcess ? "in process" : undefined;
-  return useAPIResult(
-    "https://macrostrat.org/api/v2/units",
-    { col_id, response: "long", status_code },
-    (res) => res.success.data
-  );
-}
-
-function useColumnBasicInfo(col_id, inProcess = false) {
-  const status_code = inProcess ? "in process" : undefined;
-  return useAPIResult(
-    "https://macrostrat.org/api/v2/columns",
-    { col_id, status_code },
-    (res) => {
-      return res.success.data[0];
-    }
-  );
-}
-
-function BasicColumn(props: ColumnProps) {
-  const { id, inProcess, ...rest } = props;
-  const info = useColumnBasicInfo(id, inProcess);
-  const units = useColumnUnits(id, inProcess);
-
-  if (units == null || info == null) {
-    return h(Spinner);
-  }
-
-  return h("div", [h("h2", info.col_name), h(Column, { ...rest, units })]);
-}
-
-type Story = StoryObj<typeof BasicColumn>;
-
-const meta: Meta<ColumnProps> = {
+const meta: Meta<StandaloneColumnProps> = {
   title: "Column views/Stratigraphic column rendering",
-  component: BasicColumn,
+  component: StandaloneColumn,
   args: {
     id: 432,
     unconformityLabels: true,
@@ -109,7 +72,7 @@ export function WithExternalUnitViewer() {
 
   return h("div", [
     h(
-      BasicColumn,
+      StandaloneColumn,
       {
         id: 432,
         showLabelColumn: true,
@@ -142,7 +105,7 @@ export function WithControlledPopover() {
   const [unit, setSelectedUnit] = useState(null);
 
   return h("div", [
-    h(BasicColumn, {
+    h(StandaloneColumn, {
       id: 432,
       showLabelColumn: true,
       selectedUnit: unitID,
