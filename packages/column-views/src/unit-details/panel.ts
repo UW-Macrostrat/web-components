@@ -501,6 +501,7 @@ function IntervalProportions({ unit, onClick }) {
     h.if(i0 != i1)("span.discourage-break", [
       h("span.sep", "to"),
       h(IntervalTag, {
+        className: "int_id-" + interval0?.int_id + (clickable ? " clickable" : ""),
         onClick,
         interval: {
           ...int1,
