@@ -84,10 +84,12 @@ export function LithologyList({
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
   ]),
+  onClick
 }: {
   label?: string;
   lithologies: any[];
   features?: Set<LithologyTagFeature>;
+  onClick?: (data: any) => void;
 }) {
   const sortedLiths = useMemo(() => {
     const l1 = [...lithologies];
@@ -107,6 +109,7 @@ export function LithologyList({
       return h(LithologyTag, {
         data: l1,
         features,
+        onClick,
       });
     })
   );

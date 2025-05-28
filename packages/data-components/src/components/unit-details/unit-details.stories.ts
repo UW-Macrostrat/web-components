@@ -106,5 +106,8 @@ export function LithologyList() {
         lith_id: 2,
       },
     ],
+    onClick: (data) => {
+      console.log("Clicked lithology:", data);
+    },
   });
 }
