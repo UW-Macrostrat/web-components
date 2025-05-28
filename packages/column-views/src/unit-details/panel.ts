@@ -36,7 +36,7 @@ export function UnitDetailsPanel({
   actions,
   selectUnit,
   columnUnits,
-  onClickLith,
+  onClickItem,
 }: {
   unit: any;
   onClose?: any;
@@ -47,7 +47,7 @@ export function UnitDetailsPanel({
   lithologyFeatures?: Set<LithologyTagFeature>;
   columnUnits?: UnitLong[];
   selectUnit?: (unitID: number) => void;
-  onClickLith?: (item: any) => void;
+  onClickItem?: (item: any) => void;
 }) {
   const [showJSON, setShowJSON] = useState(false);
 
@@ -55,7 +55,7 @@ export function UnitDetailsPanel({
   if (showJSON) {
     content = h(JSONView, { data: unit, showRoot: false });
   } else {
-    content = h(UnitDetailsContent, { unit, features, lithologyFeatures, onClickLith });
+    content = h(UnitDetailsContent, { unit, features, lithologyFeatures, onClickItem });
   }
 
   let title = defaultNameFunction(unit);
@@ -139,14 +139,14 @@ function UnitDetailsContent({
     UnitDetailsFeature.AdjacentUnits,
     UnitDetailsFeature.OutcropType,
   ]),
-  onClickLith,
+  onClickItem,
 }: {
   unit: UnitLong;
   selectUnit?: (unitID: number) => void;
   columnUnits?: UnitLong[];
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
-  onClickLith?: (item: any) => void;
+  onClickItem?: (item: any) => void;
 }) {
   const lithMap = useMacrostratDefs("lithologies");
   const envMap = useMacrostratDefs("environments");
@@ -220,7 +220,7 @@ function UnitDetailsContent({
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
-      onClickItem: onClickLith,
+      onClickItem,
     }),
     h(AgeField, { unit }, [
       h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),
