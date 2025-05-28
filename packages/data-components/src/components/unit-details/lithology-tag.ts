@@ -10,6 +10,7 @@ interface LithologyTagProps {
   expandOnHover?: boolean;
   size?: TagSize;
   features?: Set<LithologyTagFeature>;
+  onClick?: (data: any) => void;
 }
 
 export enum LithologyTagFeature {
@@ -22,6 +23,7 @@ export function LithologyTag({
   color,
   features,
   size,
+  onClick,
 }: LithologyTagProps) {
   let proportion = null;
   const showProportion = features?.has(LithologyTagFeature.Proportion) ?? false;
@@ -40,13 +42,16 @@ export function LithologyTag({
     });
   }
 
+  const clickable = onClick != null;
+
   return h(Tag, {
     prefix: atts,
     details: proportion,
     name: data.name,
-    className: "lithology-tag",
+    className: "lithology-tag lith_id-" + data.lith_id + (clickable ? " clickable" : ""),
     size,
     color: color ?? data.color,
+    onClick,
   });
 }
 
@@ -81,10 +86,12 @@ export function LithologyList({
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
   ]),
+  onClick
 }: {
   label?: string;
   lithologies: any[];
   features?: Set<LithologyTagFeature>;
+  onClick?: (data: any) => void;
 }) {
   const sortedLiths = useMemo(() => {
     const l1 = [...lithologies];
@@ -104,6 +111,7 @@ export function LithologyList({
       return h(LithologyTag, {
         data: l1,
         features,
+        onClick,
       });
     })
   );
@@ -123,9 +131,9 @@ function lithologyComparison(a, b) {
 export function EnvironmentsList({ environments }) {
   return h(
     TagField,
-    { label: "Environments", className: "environments-list" },
+    { label: "Environments", className: "environments-list"},
     environments.map((lith: any) => {
-      return h(LithologyTag, { data: lith });
+      return h(LithologyTag, { data: lith, onClick: () => window.open("/lex/environments/" + lith.environ_id, "_blank")});
     })
   );
 }

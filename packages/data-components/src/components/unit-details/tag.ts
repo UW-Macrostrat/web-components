@@ -26,6 +26,7 @@ export interface BaseTagProps {
   children?: ReactNode;
   size?: TagSize;
   color?: chroma.ChromaInput;
+  onClick?: (data: any) => void;
 }
 
 export function Tag(props: BaseTagProps) {
@@ -39,6 +40,7 @@ export function Tag(props: BaseTagProps) {
     children,
     size,
     color,
+    onClick,
   } = props;
 
   let _details = null;
@@ -62,6 +64,7 @@ export function Tag(props: BaseTagProps) {
     {
       className,
       style: buildTagStyle({ color, size, inDarkMode }),
+      onClick,
     },
     [_prefix, mainTag]
   );

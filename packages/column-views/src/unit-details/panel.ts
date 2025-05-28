@@ -5,15 +5,16 @@ import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ReactNode, useMemo, useState } from "react";
 import {
   DataField,
-  EnvironmentsList,
+  // EnvironmentsList,
   IntervalShort,
   IntervalTag,
   ItemList,
-  LithologyList,
+  // LithologyList,
   LithologyTagFeature,
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
+import { LithologyList, EnvironmentsList } from "../../../data-components/src";
 import { useMacrostratData, useMacrostratDefs } from "../data-provider";
 import { Environment, UnitLong, UnitLongFull } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
@@ -215,12 +216,44 @@ function UnitDetailsContent({
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
+      onClick: (e) => {
+        const parent = e.target.parentElement;
+        const grandparent = parent.parentElement;
+        const greatgrandparent = grandparent.parentElement;
+        const check = [parent, grandparent, greatgrandparent].filter(
+          (el) => el.className.includes("lith_id")
+        );
+        const id = check[0]?.className.match(/lith_id-(\d+)/)?.[1];
+
+        window.open("/lex/lithology/" + id, "_blank");
+      }
     }),
     h(AgeField, { unit }, [
       h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),
-      h(IntervalProportions, { unit }),
+      h(IntervalProportions, { 
+        unit,
+        onClick: (e) => {
+          const child = e.target;
+          const parent = e.target.parentElement;;
+          const grandparent = parent.parentElement;
+          const greatgrandparent = grandparent.parentElement;
+
+          const check = [child, parent, grandparent, greatgrandparent].filter(
+            (el) => el.className.includes("int_id")
+          );
+
+          const id = check[0]?.className.match(/int_id-(\d+)/)?.[1];
+
+          window.open("/lex/intervals/" + id, "_blank");
+        },
+       }),
     ]),
-    h(EnvironmentsList, { environments }),
+    h(EnvironmentsList, { 
+      environments,
+      onClick: (e) => {
+        console.log("Environment clicked", e);
+      }
+     }),
     h.if(unit.strat_name_id != null)(
       DataField,
       {
@@ -470,7 +503,7 @@ function UnitIDList({ units, selectUnit }) {
   );
 }
 
-function IntervalProportions({ unit }) {
+function IntervalProportions({ unit, onClick }) {
   const i0 = unit.b_int_id;
   const i1 = unit.t_int_id;
   let b_prop = unit.b_prop ?? 0;
@@ -498,14 +531,20 @@ function IntervalProportions({ unit }) {
     p0 = h("span.joint-proportion", [p0, h("span.sep", "to"), p1]);
   }
 
+  const clickable = onClick != null;
+
   return h("div.interval-proportions", [
     h(IntervalTag, {
+      className: "int_id-" + interval0?.int_id + (clickable ? " clickable" : ""),
+      onClick,
       interval: interval0,
       prefix: p0,
     }),
     h.if(i0 != i1)("span.discourage-break", [
       h("span.sep", "to"),
       h(IntervalTag, {
+        className: "int_id-" + interval0?.int_id + (clickable ? " clickable" : ""),
+        onClick,
         interval: {
           ...int1,
           id: i1,

@@ -101,9 +101,11 @@ export function IntervalTag({
   interval,
   showAgeRange = false,
   color,
+  onClick,
   ...rest
 }: IntervalTagProps) {
   return h(Tag, {
+    onClick,
     name: interval.name,
     color: color ?? interval.color,
     ...rest,
@@ -127,10 +129,12 @@ export function TagField({
   label,
   className,
   children,
+  onClick,
 }: {
   label?: string;
   className?: string;
   children?: ReactNode;
+  onClick?: () => void;
 }) {
   return h(
     DataField,
