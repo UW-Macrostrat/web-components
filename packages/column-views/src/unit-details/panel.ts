@@ -9,11 +9,12 @@ import {
   IntervalShort,
   IntervalTag,
   ItemList,
-  LithologyList,
+  // LithologyList,
   LithologyTagFeature,
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
+import { LithologyList } from "../../../data-components/src";
 import { useMacrostratData, useMacrostratDefs } from "../data-provider";
 import { Environment, UnitLong, UnitLongFull } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
@@ -215,6 +216,18 @@ function UnitDetailsContent({
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
+      onClick: (e) => {
+        const parent = e.target.parentElement;
+        const grandparent = parent.parentElement;
+        const greatgrandparent = grandparent.parentElement;
+        const check = [parent, grandparent, greatgrandparent].filter(
+          (el) => el.className.includes("lith_id")
+        );
+        const id = check[0]?.className.match(/lith_id-(\d+)/)?.[1];
+
+        console.log("Lithology clicked id: ", id);
+        window.open("/lex/lithology/" + id, "_blank");
+      }
     }),
     h(AgeField, { unit }, [
       h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),

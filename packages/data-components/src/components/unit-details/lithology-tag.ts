@@ -46,7 +46,7 @@ export function LithologyTag({
     prefix: atts,
     details: proportion,
     name: data.name,
-    className: "lithology-tag",
+    className: "lithology-tag lith_id-" + data.lith_id,
     size,
     color: color ?? data.color,
     onClick,
