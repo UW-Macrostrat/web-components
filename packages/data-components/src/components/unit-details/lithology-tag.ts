@@ -42,11 +42,13 @@ export function LithologyTag({
     });
   }
 
+  const clickable = onClick != null;
+
   return h(Tag, {
     prefix: atts,
     details: proportion,
     name: data.name,
-    className: "lithology-tag lith_id-" + data.lith_id,
+    className: "lithology-tag lith_id-" + data.lith_id + (clickable ? " clickable" : ""),
     size,
     color: color ?? data.color,
     onClick,

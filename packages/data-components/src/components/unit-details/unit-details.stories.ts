@@ -57,9 +57,6 @@ LithologyTag.args = {
   },
   expandOnHover: false,
   size: "normal",
-  onClick: () => {
-    window.open("https://macrostrat.org/lex/lithology/1", "_blank");
-  }
 };
 
 export { LithologyTag };
@@ -106,8 +103,5 @@ export function LithologyList() {
         lith_id: 2,
       },
     ],
-    onClick: (data) => {
-      console.log("Clicked lithology:", data);
-    },
   });
 }
