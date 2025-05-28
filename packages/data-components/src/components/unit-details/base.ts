@@ -84,6 +84,7 @@ export function Value({
   value?: any;
   unit?: string;
   children?: any;
+  className?: string;
 }) {
   const val = value ?? children;
   return h("span.value-container", { className }, [
@@ -109,8 +110,6 @@ export function IntervalTag({
     ...rest,
   });
 }
-
-export const Interval = IntervalTag;
 
 function uniqueIntervals(
   ...intervals: (IntervalShort | undefined)[]
