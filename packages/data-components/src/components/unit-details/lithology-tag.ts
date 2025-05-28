@@ -131,9 +131,9 @@ function lithologyComparison(a, b) {
 export function EnvironmentsList({ environments }) {
   return h(
     TagField,
-    { label: "Environments", className: "environments-list" },
+    { label: "Environments", className: "environments-list"},
     environments.map((lith: any) => {
-      return h(LithologyTag, { data: lith });
+      return h(LithologyTag, { data: lith, onClick: () => window.open("/lex/environments/" + lith.environ_id, "_blank")});
     })
   );
 }

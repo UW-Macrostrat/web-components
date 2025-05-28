@@ -128,10 +128,12 @@ export function TagField({
   label,
   className,
   children,
+  onClick,
 }: {
   label?: string;
   className?: string;
   children?: ReactNode;
+  onClick?: () => void;
 }) {
   return h(
     DataField,

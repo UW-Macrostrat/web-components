@@ -5,7 +5,7 @@ import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ReactNode, useMemo, useState } from "react";
 import {
   DataField,
-  EnvironmentsList,
+  // EnvironmentsList,
   IntervalShort,
   IntervalTag,
   ItemList,
@@ -14,7 +14,7 @@ import {
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
-import { LithologyList } from "../../../data-components/src";
+import { LithologyList, EnvironmentsList } from "../../../data-components/src";
 import { useMacrostratData, useMacrostratDefs } from "../data-provider";
 import { Environment, UnitLong, UnitLongFull } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
@@ -248,7 +248,12 @@ function UnitDetailsContent({
         },
        }),
     ]),
-    h(EnvironmentsList, { environments }),
+    h(EnvironmentsList, { 
+      environments,
+      onClick: (e) => {
+        console.log("Environment clicked", e);
+      }
+     }),
     h.if(unit.strat_name_id != null)(
       DataField,
       {
