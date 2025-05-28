@@ -57,6 +57,9 @@ LithologyTag.args = {
   },
   expandOnHover: false,
   size: "normal",
+  onClick: () => {
+    window.open("https://macrostrat.org/lex/lithology/1", "_blank");
+  }
 };
 
 export { LithologyTag };

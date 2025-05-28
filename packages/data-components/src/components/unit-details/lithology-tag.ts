@@ -10,6 +10,7 @@ interface LithologyTagProps {
   expandOnHover?: boolean;
   size?: TagSize;
   features?: Set<LithologyTagFeature>;
+  onClick?: (data: any) => void;
 }
 
 export enum LithologyTagFeature {
@@ -22,6 +23,7 @@ export function LithologyTag({
   color,
   features,
   size,
+  onClick,
 }: LithologyTagProps) {
   let proportion = null;
   const showProportion = features?.has(LithologyTagFeature.Proportion) ?? false;
@@ -47,6 +49,7 @@ export function LithologyTag({
     className: "lithology-tag",
     size,
     color: color ?? data.color,
+    onClick,
   });
 }
 
