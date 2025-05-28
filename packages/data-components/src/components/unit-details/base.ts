@@ -100,9 +100,11 @@ export function IntervalTag({
   interval,
   showAgeRange = false,
   color,
+  onClick,
   ...rest
 }: IntervalTagProps) {
   return h(Tag, {
+    onClick,
     name: interval.name,
     color: color ?? interval.color,
     ...rest,
