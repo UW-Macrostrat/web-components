@@ -44,6 +44,12 @@ export function LithologyTag({
 
   const clickable = onClick != null;
 
+  const handleClick = (event: MouseEvent) => {
+    if (onClick) {
+      onClick({ event, lithId: data.lith_id });
+    }
+  };
+
   return h(Tag, {
     prefix: atts,
     details: proportion,
@@ -51,9 +57,10 @@ export function LithologyTag({
     className: "lithology-tag lith_id-" + data.lith_id + (clickable ? " clickable" : ""),
     size,
     color: color ?? data.color,
-    onClick,
+    onClick: clickable ? handleClick : undefined,
   });
 }
+
 
 function List({ items, commaSeparated = false, lastSep = null, className }) {
   let items1 = items;
@@ -86,12 +93,12 @@ export function LithologyList({
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
   ]),
-  onClick
+  onClickItem,
 }: {
   label?: string;
   lithologies: any[];
   features?: Set<LithologyTagFeature>;
-  onClick?: (data: any) => void;
+  onClickItem?: (data: any) => void;
 }) {
   const sortedLiths = useMemo(() => {
     const l1 = [...lithologies];
@@ -111,7 +118,9 @@ export function LithologyList({
       return h(LithologyTag, {
         data: l1,
         features,
-        onClick,
+        onClick: onClickItem
+          ? (data) => onClickItem({ ...data, lithId: l1.lith_id })
+          : undefined,
       });
     })
   );

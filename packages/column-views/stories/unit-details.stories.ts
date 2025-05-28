@@ -31,7 +31,7 @@ function UnitDetailsExt({
     return h(Spinner);
   }
 
-  return h(LithologiesProvider, h(UnitDetailsPanel, { unit, ...rest }));
+  return h(LithologiesProvider, h(UnitDetailsPanel, { onClickItem: (e) => console.log(e), unit, ...rest }));
 }
 
 type Story = StoryObj<typeof UnitDetailsExt>;

@@ -57,6 +57,9 @@ LithologyTag.args = {
   },
   expandOnHover: false,
   size: "normal",
+  onClick: (e) => {
+    console.log("Clicked lith id:", e.lithId);
+  }
 };
 
 export { LithologyTag };
@@ -103,5 +106,8 @@ export function LithologyList() {
         lith_id: 2,
       },
     ],
+    onClickItem: (e) => {
+      console.log("Clicked lith id:", e.lithId);
+    }
   });
 }
