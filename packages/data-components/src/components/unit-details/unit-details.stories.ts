@@ -58,7 +58,7 @@ LithologyTag.args = {
   expandOnHover: false,
   size: "normal",
   onClick: (e) => {
-    console.log("Clicked lith id:", e.lithId);
+    console.log("Clicked lith id:", e.lith_id);
   }
 };
 

@@ -46,7 +46,7 @@ export function LithologyTag({
 
   const handleClick = (event: MouseEvent) => {
     if (onClick) {
-      onClick({ event, lithId: data.lith_id });
+      onClick({ event, lith_id: data.lith_id });
     }
   };
 
@@ -54,7 +54,7 @@ export function LithologyTag({
     prefix: atts,
     details: proportion,
     name: data.name,
-    className: "lithology-tag lith_id-" + data.lith_id + (clickable ? " clickable" : ""),
+    className: clickable ? " clickable" : "",
     size,
     color: color ?? data.color,
     onClick: clickable ? handleClick : undefined,
@@ -119,7 +119,7 @@ export function LithologyList({
         data: l1,
         features,
         onClick: onClickItem
-          ? (data) => onClickItem({ ...data, lithId: l1.lith_id })
+          ? (data) => onClickItem({ ...data, lith_id: l1.lith_id })
           : undefined,
       });
     })
