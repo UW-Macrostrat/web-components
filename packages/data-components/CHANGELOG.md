@@ -1,5 +1,9 @@
 # Changelog
 
+## [unreleased]
+
+- onClick capability added to Tag, LithologyTag, and IntervalTag
+
 ## [0.1.0] - 2025-04-09
 
 - Added fields for data and tags, which can be used for rendering lists of
