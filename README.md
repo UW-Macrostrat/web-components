@@ -47,13 +47,25 @@ this by creating a `.env` file in the root of the repository.
 
 ### Developing components
 
-#### Using Storybook as a component workbench
+#### The Storybook component workbench
 
 We use [Storybook](https://storybook.js.org/) for developing components in an
 isolated environment. To start the storybook, run `yarn run dev` in the root
 directory. The storybook will start at port `6006`. You can then create new
-'stories' referencing components to create standalone views. This is the main
-approach for component development preferred by the Macrostrat team.
+'stories' referencing components to create standalone views.
+
+When you make a change to a component, it is crucial to make sure that the
+examples in the Storybook continue to work. If you have to update existing
+stories, it is likely you will need to update API documentation and Changelog to
+reflect the breaking change.
+
+#### Changelog
+
+If you make a change to a component, you should update the changelog for the
+containing package (the `CHANGELOG.md` file in the package directory).
+Unreleased changes can be described in an `Unreleased` section at the top of the
+changelog. Upon publishing the package, the full changelog will be compiled from
+the `Unreleased` section and any prerelease changes.
 
 #### Developing components in a consuming application
 
