@@ -1,5 +1,5 @@
 import { format } from "d3-format";
-import { useContext } from "react";
+import { useContext, useMemo } from "react";
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
 import { AxisBottom } from "@visx/axis";
@@ -22,6 +22,7 @@ import {
   useMacrostratUnits,
 } from "@macrostrat/column-views";
 import styles from "./isotopes-column.module.sass";
+import { scaleLinear } from "d3-scale";
 
 const h = hyper.styled(styles);
 
@@ -44,52 +45,6 @@ function IsotopeText({ datum, text, ...rest }: IsotopesTextProps) {
     },
     text
   );
-}
-
-function ColumnScale(props) {
-  const {
-    label,
-    showAxis = true,
-    nTicks = 6,
-    tickValues: _tickVals,
-    ...rest
-  } = props;
-
-  const { totalHeight, sections } = useMacrostratColumnData();
-  const { xScale, width } = useContext(ColumnLayoutContext);
-
-  const { scaleInfo } = sections[sections.length - 1];
-  const bottomHeight = scaleInfo.offset + scaleInfo.pixelHeight;
-
-  const tickValues = _tickVals ?? xScale.ticks(nTicks);
-
-  return h("g.scale.isotope-scale-axis", [
-    h(
-      "g.scale-lines",
-      tickValues.map((value) => {
-        const strokeDasharray = value == 0 ? null : "2 6";
-        return h(ScaleLine, { value, stroke: "#ddd", strokeDasharray });
-      })
-    ),
-    h.if(showAxis)([
-      h("rect.underlay", {
-        x: 0,
-        y: totalHeight,
-        width,
-        height: 30,
-      }),
-      h(AxisBottom, {
-        scale: xScale,
-        tickLength: 5,
-        tickValues,
-        stroke: "var(--column-stroke-color)",
-        tickStroke: "var(--column-stroke-color)",
-        ...rest,
-        top: bottomHeight,
-        label,
-      }),
-    ]),
-  ]);
 }
 
 interface ScaleLineProps {
@@ -200,31 +155,92 @@ function IsotopesColumn(
     children = null,
     transform,
     getHeight,
+    showAxis = true,
+    tickValues: _tickVals,
+    nTicks = 6,
     ...rest
   } = props;
 
-  const { sections, totalHeight } = useMacrostratColumnData();
+  const { totalHeight } = useMacrostratColumnData();
 
   let _children: any = children;
   if (children == null && parameter != null) {
     _children = h(IsotopesDataset, { parameter, color, getHeight });
   }
 
-  return h(
-    SVG,
-    {
-      height: totalHeight,
-      innerWidth: width,
-      paddingH: 15,
-    },
+  const xScale = useMemo(
+    () => scaleLinear().domain(domain).range([0, width]),
+    [domain, width]
+  );
+
+  const tickValues = _tickVals ?? xScale.ticks(nTicks);
+
+  return h("div.isotopes-column", [
     h(
-      CrossAxisLayoutProvider,
-      { width, domain },
-      h("g.isotopes-column", { className: parameter, transform }, [
-        h(ColumnScale, { label: label ?? parameter, ...rest }),
-        _children,
-      ])
-    )
+      SVG,
+      {
+        height: totalHeight,
+        innerWidth: width,
+        paddingH: 15,
+      },
+      h(
+        CrossAxisLayoutProvider,
+        { width, domain },
+        h("g.isotopes-column", { className: parameter, transform }, [
+          h(ColumnScaleLines, {
+            xScale,
+            tickValues,
+            width,
+            ...rest,
+          }),
+          _children,
+        ])
+      )
+    ),
+    h.if(showAxis)(ColumnScaleAxis, {
+      width,
+      label: label ?? parameter,
+      xScale,
+      tickValues,
+      ...rest,
+    }),
+  ]);
+}
+
+function ColumnScaleAxis(props) {
+  const { label, xScale, width, showAxis = true, tickValues, ...rest } = props;
+
+  return h("div.isotopes-scale-axis", [
+    h(
+      SVG,
+      {
+        innerWidth: width,
+        height: 45,
+        paddingH: 15,
+      },
+      [
+        h(AxisBottom, {
+          scale: xScale,
+          tickLength: 5,
+          tickValues,
+          stroke: "var(--column-stroke-color)",
+          tickStroke: "var(--column-stroke-color)",
+          ...rest,
+          label,
+        }),
+      ]
+    ),
+  ]);
+}
+
+function ColumnScaleLines(props) {
+  const { tickValues, xScale } = props;
+
+  return h(
+    "g.scale-lines",
+    tickValues.map((value) => {
+      return h(ScaleLine, { value });
+    })
   );
 }
 

@@ -1,10 +1,31 @@
-.isotope-scale-axis
-  .tick line
-    stroke: var(--column-text-color)
+.isotopes-column
+  position: relative
 
-  path
+.isotopes-scale-axis
+  position: sticky
+  bottom: 0
+  left: 0
+  pointer-events: none
+  margin-top: -45px
+  height: 45px
+
+  svg
+    background-color: var(--column-background-color)
+
+  path, line
     stroke: var(--column-text-color)
     fill: none
 
   text
     fill: var(--column-text-color)
+
+.scale-lines
+  .tick
+    &.zero
+      line
+        stroke-width: 1px
+        stroke-dasharray: none
+    line
+      stroke: var(--column-text-color)
+      stroke-dasharray: 1 4
+
