@@ -144,7 +144,7 @@ function IsotopesDataset(props) {
 }
 
 function IsotopesColumn(
-  props: IsotopeColumnProps & { children?: React.ReactNode } & AxisProps<any>
+  props: IsotopeColumnProps & { children?: React.ReactNode }
 ) {
   const {
     width = 120,

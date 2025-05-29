@@ -1,12 +1,9 @@
-import hyper from "@macrostrat/hyper";
-import styles from "./column.stories.module.sass";
+import h from "@macrostrat/hyper";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { Column } from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { ColumnProps } from "@macrostrat/column-views";
-
-const h = hyper.styled(styles);
 
 function useColumnUnits(col_id, inProcess) {
   const status_code = inProcess ? "in process" : undefined;

@@ -8,7 +8,7 @@ import "@macrostrat/style-system";
 import { useState } from "react";
 import { AgeCursor, AgeLabel } from "../src";
 
-import { StandaloneColumn, StandaloneColumnProps } from "./standalone-column";
+import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 
 const h = hyper.styled(styles);
 
