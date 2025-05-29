@@ -1,5 +1,4 @@
-import { format } from "d3-format";
-import { useContext, useMemo } from "react";
+import { useMemo } from "react";
 import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
 import { AxisBottom } from "@visx/axis";
@@ -12,9 +11,9 @@ import {
 } from "./data-area";
 import { referenceMeasuresToColumn } from "@macrostrat/stratigraphy-utils";
 import {
-  CrossAxisLayoutProvider,
-  ColumnLayoutContext,
   SVG,
+  ColumnLayoutProvider,
+  useColumnLayout,
 } from "@macrostrat/column-components";
 import { AxisProps } from "@visx/axis/lib/axis/Axis";
 import {
@@ -25,8 +24,6 @@ import styles from "./isotopes-column.module.sass";
 import { scaleLinear } from "d3-scale";
 
 const h = hyper.styled(styles);
-
-const fmt = format(".1f");
 
 type IsotopesTextProps = {
   datum: any;
@@ -60,7 +57,7 @@ function ScaleLine(props: ScaleLineProps) {
   let { value, className, labelBottom, labelOffset, ...rest } = props;
   const { sections } = useMacrostratColumnData();
 
-  const { xScale } = useContext(ColumnLayoutContext);
+  const { xScale } = useColumnLayout();
   const x = xScale(value);
   const transform = `translate(${x})`;
   className = classNames(className, { zero: value === 0 });
@@ -112,6 +109,8 @@ interface IsotopeColumnProps extends IsotopesDatasetProps {
   domain: [number, number];
   transform?: string;
   getHeight?: Function;
+  nTicks?: number;
+  showAxis?: boolean;
 }
 
 function IsotopesDataset(props) {
@@ -119,10 +118,11 @@ function IsotopesDataset(props) {
   const units = useMacrostratUnits();
   const measures = useMeasurementData() ?? [];
 
-  const refMeasures = referenceMeasuresToColumn(units, measures).filter(
-    (d) => d.measurement == parameter
-  );
-  const points = unnestPoints(refMeasures);
+  const points = useMemo(() => {
+    const data = measures.filter((d) => d.measurement === parameter);
+    const refMeasures = referenceMeasuresToColumn(units, data);
+    return unnestPoints(refMeasures);
+  }, [measures, parameter, units]);
 
   return h(
     IsotopesDataArea,
@@ -184,8 +184,8 @@ function IsotopesColumn(
         paddingH: 15,
       },
       h(
-        CrossAxisLayoutProvider,
-        { width, domain },
+        ColumnLayoutProvider,
+        { width, xScale },
         h("g.isotopes-column", { className: parameter, transform }, [
           h(ColumnScaleLines, {
             xScale,

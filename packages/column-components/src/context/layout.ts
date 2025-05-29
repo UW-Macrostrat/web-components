@@ -178,12 +178,19 @@ function GrainsizeLayoutProvider({
   );
 }
 
-const useColumnLayout = () => useContext(ColumnLayoutContext);
+export function useColumnLayout() {
+  const ctx = useContext(ColumnLayoutContext);
+  if (ctx == null) {
+    throw new Error(
+      "useColumnLayout must be used within a ColumnLayoutProvider"
+    );
+  }
+  return ctx;
+}
 
 export {
   ColumnLayoutContext,
   ColumnLayoutProvider,
   CrossAxisLayoutProvider,
   GrainsizeLayoutProvider,
-  useColumnLayout,
 };
