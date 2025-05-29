@@ -2,6 +2,7 @@ import { line } from "d3-shape";
 import { createContext, useContext } from "react";
 import h from "@macrostrat/hyper";
 import { ColumnLayoutContext } from "@macrostrat/column-components";
+import { useCompositeScale } from "@macrostrat/column-views";
 
 const inDomain = (scale, num) => {
   const domain = scale.domain();
@@ -29,9 +30,11 @@ export interface DataAreaProps {
 }
 
 const IsotopesDataArea = function (props: DataAreaProps) {
-  const { xScale, scale } = useContext(ColumnLayoutContext) ?? {};
+  const xScale = useContext(ColumnLayoutContext)?.xScale;
 
-  let { corrected, system, children, getHeight, clipY } = props;
+  const scale = useCompositeScale();
+
+  let { corrected, system, children, getHeight, clipY = false } = props;
   if (getHeight == null) {
     getHeight = function (d) {
       if (d.height == null) {
@@ -62,8 +65,6 @@ const IsotopesDataArea = function (props: DataAreaProps) {
   const value = { pointLocator, lineLocator, corrected, system, clipY };
   return h(IsotopesDataContext.Provider, { value }, h("g.data", children));
 };
-
-IsotopesDataArea.defaultProps = { clipY: false };
 
 const IsotopeDataPoint = function (props) {
   const { pointLocator } = useContext(IsotopesDataContext);

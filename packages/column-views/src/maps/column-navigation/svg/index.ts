@@ -70,8 +70,6 @@ export function ColumnNavigationSVGMap(props) {
     _center = geoCentroid(currentColumn);
   }
 
-  console.log(currentColumn);
-
   return h(
     ResizableMapFrame,
     { center: _center, style, margin, scale, className },

@@ -53,6 +53,7 @@ export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
   b_age?: number;
   mergeSections?: MergeSectionsMode;
   showUnitPopover?: boolean;
+  allowUnitSelection?: boolean;
   selectedUnit?: number | null;
   onUnitSelected?: (unitID: number | null, unit: any) => void;
   // Unconformity height in pixels
@@ -77,6 +78,7 @@ export function Column(props: ColumnProps) {
     minPixelScale = 0.2,
     minSectionHeight = 50,
     collapseSmallUnconformities = true,
+    allowUnitSelection,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
@@ -106,18 +108,37 @@ export function Column(props: ColumnProps) {
     );
   }
 
+  let main: any = h(ColumnInner, { columnRef: ref, ...rest }, [
+    children,
+    h.if(showUnitPopover)(UnitSelectionPopover),
+    h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
+  ]);
+
+  /* By default, unit selection is disabled. However, if any related props are passed,
+   we enable it.
+   */
+  let _allowUnitSelection = allowUnitSelection ?? false;
+  if (showUnitPopover || selectedUnit != null || onUnitSelected != null) {
+    _allowUnitSelection = true;
+  }
+
+  if (_allowUnitSelection) {
+    main = h(
+      UnitSelectionProvider,
+      {
+        columnRef: ref,
+        onUnitSelected,
+        selectedUnit,
+        units,
+      },
+      main
+    );
+  }
+
   return h(
     MacrostratColumnDataProvider,
     { units, sections, totalHeight, axisType },
-    h(
-      UnitSelectionProvider,
-      { columnRef: ref, onUnitSelected, selectedUnit, units },
-      h(ColumnInner, { columnRef: ref, ...rest }, [
-        children,
-        h.if(showUnitPopover)(UnitSelectionPopover),
-        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
-      ])
-    )
+    main
   );
 }
 
@@ -156,7 +177,7 @@ function ColumnInner(props: ColumnInnerProps) {
   }
 
   let _showTimescale = showTimescale;
-  if (timescaleLevels !== null) {
+  if (timescaleLevels != null) {
     _showTimescale = true;
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;

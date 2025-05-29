@@ -341,7 +341,7 @@ export function MacrostratAPIProvider({
   baseURL,
 }: APIProviderProps) {
   baseURL ??= useDev
-    ? "https://dev2.macrostrat.org/api/v2"
+    ? "https://dev.macrostrat.org/api/v2"
     : "https://macrostrat.org/api/v2";
 
   return h(

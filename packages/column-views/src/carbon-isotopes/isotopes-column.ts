@@ -1,6 +1,5 @@
-import { format } from "d3-format";
-import { useContext } from "react";
-import h from "@macrostrat/hyper";
+import { useMemo } from "react";
+import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
 import { AxisBottom } from "@visx/axis";
 import { useMeasurementData } from "./data-provider";
@@ -12,14 +11,18 @@ import {
 } from "./data-area";
 import { referenceMeasuresToColumn } from "@macrostrat/stratigraphy-utils";
 import {
-  CrossAxisLayoutProvider,
-  ColumnLayoutContext,
-  useColumnDivisions,
+  SVG,
+  ColumnLayoutProvider,
+  useColumnLayout,
 } from "@macrostrat/column-components";
-import { BaseUnit } from "@macrostrat/api-types";
-import { AxisProps } from "@visx/axis/lib/axis/Axis";
+import {
+  useMacrostratColumnData,
+  useMacrostratUnits,
+} from "@macrostrat/column-views";
+import styles from "./isotopes-column.module.sass";
+import { scaleLinear } from "d3-scale";
 
-const fmt = format(".1f");
+const h = hyper.styled(styles);
 
 type IsotopesTextProps = {
   datum: any;
@@ -40,60 +43,6 @@ function IsotopeText({ datum, text, ...rest }: IsotopesTextProps) {
   );
 }
 
-function ColumnScale(props) {
-  const {
-    label,
-    showAxis = true,
-    nTicks = 6,
-    tickValues: _tickVals,
-    ...rest
-  } = props;
-  const { xScale, pixelHeight, width } = useContext(ColumnLayoutContext);
-
-  const tickValues = _tickVals ?? xScale.ticks(nTicks);
-
-  return h("g.scale.isotope-scale-axis", [
-    h(
-      "g.scale-lines",
-      tickValues.map((value) => {
-        const strokeDasharray = value == 0 ? null : "2 6";
-        return h(ScaleLine, { value, stroke: "#ddd", strokeDasharray });
-      })
-    ),
-    h.if(showAxis)([
-      h("rect.underlay", {
-        x: 0,
-        y: pixelHeight,
-        width,
-        height: 30,
-      }),
-      h(AxisBottom, {
-        scale: xScale,
-        tickLength: 3,
-        tickValues,
-        ...rest,
-        top: pixelHeight,
-        tickLabelProps(tickValue, i) {
-          // Compensate for negative sign
-          let dx;
-          if (tickValue < 0) {
-            dx = -2;
-          }
-          return {
-            dy: "-1px",
-            dx,
-            fontSize: 10,
-            textAnchor: "middle",
-            fill: "#aaa",
-          };
-        },
-        labelOffset: 0,
-        label,
-      }),
-    ]),
-  ]);
-}
-
 interface ScaleLineProps {
   value: number;
   className?: string;
@@ -105,19 +54,27 @@ interface ScaleLineProps {
 
 function ScaleLine(props: ScaleLineProps) {
   let { value, className, labelBottom, labelOffset, ...rest } = props;
-  if (labelBottom == null) {
-    labelBottom = false;
-  }
-  if (labelOffset == null) {
-    labelOffset = 12;
-  }
-  const { xScale, pixelHeight } = useContext(ColumnLayoutContext);
+  const { sections } = useMacrostratColumnData();
+
+  const { xScale } = useColumnLayout();
   const x = xScale(value);
   const transform = `translate(${x})`;
   className = classNames(className, { zero: value === 0 });
   return h("g.tick", { transform, className, key: value }, [
-    h("line", { x0: 0, x1: 0, y0: 0, y1: pixelHeight, ...rest }),
-    h.if(labelBottom)("text", { y: pixelHeight + labelOffset }, `${value}`),
+    h(
+      "g.tick-lines",
+      sections.map((d) => {
+        const { scaleInfo } = d;
+        const y1 = scaleInfo.offset;
+        const y2 = y1 + scaleInfo.pixelHeight;
+        return h("line", {
+          y1,
+          y2,
+          strokeDasharray: props.strokeDasharray,
+          strokeWidth: 1,
+        });
+      })
+    ),
   ]);
 }
 
@@ -151,16 +108,20 @@ interface IsotopeColumnProps extends IsotopesDatasetProps {
   domain: [number, number];
   transform?: string;
   getHeight?: Function;
+  nTicks?: number;
+  showAxis?: boolean;
 }
 
 function IsotopesDataset(props) {
   const { parameter, color = "dodgerblue" } = props;
-  const divisions: BaseUnit[] = useColumnDivisions() as any;
+  const units = useMacrostratUnits();
   const measures = useMeasurementData() ?? [];
-  const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
-    (d) => d.measurement == parameter
-  );
-  const points = unnestPoints(refMeasures);
+
+  const points = useMemo(() => {
+    const data = measures.filter((d) => d.measurement === parameter);
+    const refMeasures = referenceMeasuresToColumn(units, data);
+    return unnestPoints(refMeasures);
+  }, [measures, parameter, units]);
 
   return h(
     IsotopesDataArea,
@@ -182,7 +143,7 @@ function IsotopesDataset(props) {
 }
 
 function IsotopesColumn(
-  props: IsotopeColumnProps & { children?: React.ReactNode } & AxisProps<any>
+  props: IsotopeColumnProps & { children?: React.ReactNode }
 ) {
   const {
     width = 120,
@@ -193,21 +154,92 @@ function IsotopesColumn(
     children = null,
     transform,
     getHeight,
+    showAxis = true,
+    tickValues: _tickVals,
+    nTicks = 6,
     ...rest
   } = props;
+
+  const { totalHeight } = useMacrostratColumnData();
 
   let _children: any = children;
   if (children == null && parameter != null) {
     _children = h(IsotopesDataset, { parameter, color, getHeight });
   }
 
+  const xScale = useMemo(
+    () => scaleLinear().domain(domain).range([0, width]),
+    [domain, width]
+  );
+
+  const tickValues = _tickVals ?? xScale.ticks(nTicks);
+
+  return h("div.isotopes-column", [
+    h(
+      SVG,
+      {
+        height: totalHeight,
+        innerWidth: width,
+        paddingH: 15,
+      },
+      h(
+        ColumnLayoutProvider,
+        { width, xScale },
+        h("g.isotopes-column", { className: parameter, transform }, [
+          h(ColumnScaleLines, {
+            xScale,
+            tickValues,
+            width,
+            ...rest,
+          }),
+          _children,
+        ])
+      )
+    ),
+    h.if(showAxis)(ColumnScaleAxis, {
+      width,
+      label: label ?? parameter,
+      xScale,
+      tickValues,
+      ...rest,
+    }),
+  ]);
+}
+
+function ColumnScaleAxis(props) {
+  const { label, xScale, width, showAxis = true, tickValues, ...rest } = props;
+
+  return h("div.isotopes-scale-axis", [
+    h(
+      SVG,
+      {
+        innerWidth: width,
+        height: 45,
+        paddingH: 15,
+      },
+      [
+        h(AxisBottom, {
+          scale: xScale,
+          tickLength: 5,
+          tickValues,
+          stroke: "var(--column-stroke-color)",
+          tickStroke: "var(--column-stroke-color)",
+          ...rest,
+          label,
+        }),
+      ]
+    ),
+  ]);
+}
+
+function ColumnScaleLines(props) {
+  const { tickValues, xScale } = props;
+
   return h(
-    CrossAxisLayoutProvider,
-    { width, domain },
-    h("g.isotopes-column", { className: parameter, transform }, [
-      h(ColumnScale, { label: label ?? parameter, ...rest }),
-      _children,
-    ])
+    "g.scale-lines",
+    tickValues.map((value) => {
+      return h(ScaleLine, { value });
+    })
   );
 }
 

@@ -8,6 +8,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Add mouseover handlers to allow age cursor to be reported
 - Add an `AgeCursor` component
+- Reactivate carbon isotopes column rendering
+- Make unit selection entirely optional
 
 ## [2.0.1] - 2025-05-08
 
