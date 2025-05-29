@@ -15,7 +15,6 @@ import {
   ColumnLayoutProvider,
   useColumnLayout,
 } from "@macrostrat/column-components";
-import { AxisProps } from "@visx/axis/lib/axis/Axis";
 import {
   useMacrostratColumnData,
   useMacrostratUnits,
