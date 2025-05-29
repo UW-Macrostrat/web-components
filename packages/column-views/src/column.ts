@@ -156,7 +156,7 @@ function ColumnInner(props: ColumnInnerProps) {
   }
 
   let _showTimescale = showTimescale;
-  if (timescaleLevels !== null) {
+  if (timescaleLevels != null) {
     _showTimescale = true;
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;

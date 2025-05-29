@@ -52,6 +52,15 @@ export const FilteredToAgeRange: Story = {
   },
 };
 
+export const WithoutTimescale = {
+  args: {
+    id: 2192,
+    project_id: 10,
+    inProcess: true,
+    showTimescale: false,
+  },
+};
+
 export const Wide: Story = {
   args: {
     id: 432,

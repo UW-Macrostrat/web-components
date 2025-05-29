@@ -10,7 +10,7 @@ const h = hyper.styled(styles);
 
 function useColumnUnits(col_id, inProcess) {
   const status_code = inProcess ? "in process" : undefined;
-  // show_position is needed to properly deal with `section` column types
+  // show_position is needed to properly deal with `section` column types.
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
     { col_id, response: "long", status_code, show_position: true },

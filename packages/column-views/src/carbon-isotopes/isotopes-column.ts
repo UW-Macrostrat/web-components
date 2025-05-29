@@ -1,6 +1,6 @@
 import { format } from "d3-format";
 import { useContext } from "react";
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import classNames from "classnames";
 import { AxisBottom } from "@visx/axis";
 import { useMeasurementData } from "./data-provider";
@@ -14,10 +14,16 @@ import { referenceMeasuresToColumn } from "@macrostrat/stratigraphy-utils";
 import {
   CrossAxisLayoutProvider,
   ColumnLayoutContext,
-  useColumnDivisions,
+  SVG,
 } from "@macrostrat/column-components";
-import { BaseUnit } from "@macrostrat/api-types";
 import { AxisProps } from "@visx/axis/lib/axis/Axis";
+import {
+  useMacrostratColumnData,
+  useMacrostratUnits,
+} from "@macrostrat/column-views";
+import styles from "./isotopes-column.module.sass";
+
+const h = hyper.styled(styles);
 
 const fmt = format(".1f");
 
@@ -48,7 +54,12 @@ function ColumnScale(props) {
     tickValues: _tickVals,
     ...rest
   } = props;
-  const { xScale, pixelHeight, width } = useContext(ColumnLayoutContext);
+
+  const { totalHeight, sections } = useMacrostratColumnData();
+  const { xScale, width } = useContext(ColumnLayoutContext);
+
+  const { scaleInfo } = sections[sections.length - 1];
+  const bottomHeight = scaleInfo.offset + scaleInfo.pixelHeight;
 
   const tickValues = _tickVals ?? xScale.ticks(nTicks);
 
@@ -63,31 +74,18 @@ function ColumnScale(props) {
     h.if(showAxis)([
       h("rect.underlay", {
         x: 0,
-        y: pixelHeight,
+        y: totalHeight,
         width,
         height: 30,
       }),
       h(AxisBottom, {
         scale: xScale,
-        tickLength: 3,
+        tickLength: 5,
         tickValues,
+        stroke: "var(--column-stroke-color)",
+        tickStroke: "var(--column-stroke-color)",
         ...rest,
-        top: pixelHeight,
-        tickLabelProps(tickValue, i) {
-          // Compensate for negative sign
-          let dx;
-          if (tickValue < 0) {
-            dx = -2;
-          }
-          return {
-            dy: "-1px",
-            dx,
-            fontSize: 10,
-            textAnchor: "middle",
-            fill: "#aaa",
-          };
-        },
-        labelOffset: 0,
+        top: bottomHeight,
         label,
       }),
     ]),
@@ -105,19 +103,27 @@ interface ScaleLineProps {
 
 function ScaleLine(props: ScaleLineProps) {
   let { value, className, labelBottom, labelOffset, ...rest } = props;
-  if (labelBottom == null) {
-    labelBottom = false;
-  }
-  if (labelOffset == null) {
-    labelOffset = 12;
-  }
-  const { xScale, pixelHeight } = useContext(ColumnLayoutContext);
+  const { sections } = useMacrostratColumnData();
+
+  const { xScale } = useContext(ColumnLayoutContext);
   const x = xScale(value);
   const transform = `translate(${x})`;
   className = classNames(className, { zero: value === 0 });
   return h("g.tick", { transform, className, key: value }, [
-    h("line", { x0: 0, x1: 0, y0: 0, y1: pixelHeight, ...rest }),
-    h.if(labelBottom)("text", { y: pixelHeight + labelOffset }, `${value}`),
+    h(
+      "g.tick-lines",
+      sections.map((d) => {
+        const { scaleInfo } = d;
+        const y1 = scaleInfo.offset;
+        const y2 = y1 + scaleInfo.pixelHeight;
+        return h("line", {
+          y1,
+          y2,
+          strokeDasharray: props.strokeDasharray,
+          strokeWidth: 1,
+        });
+      })
+    ),
   ]);
 }
 
@@ -155,9 +161,10 @@ interface IsotopeColumnProps extends IsotopesDatasetProps {
 
 function IsotopesDataset(props) {
   const { parameter, color = "dodgerblue" } = props;
-  const divisions: BaseUnit[] = useColumnDivisions() as any;
+  const units = useMacrostratUnits();
   const measures = useMeasurementData() ?? [];
-  const refMeasures = referenceMeasuresToColumn(divisions, measures).filter(
+
+  const refMeasures = referenceMeasuresToColumn(units, measures).filter(
     (d) => d.measurement == parameter
   );
   const points = unnestPoints(refMeasures);
@@ -196,18 +203,28 @@ function IsotopesColumn(
     ...rest
   } = props;
 
+  const { sections, totalHeight } = useMacrostratColumnData();
+
   let _children: any = children;
   if (children == null && parameter != null) {
     _children = h(IsotopesDataset, { parameter, color, getHeight });
   }
 
   return h(
-    CrossAxisLayoutProvider,
-    { width, domain },
-    h("g.isotopes-column", { className: parameter, transform }, [
-      h(ColumnScale, { label: label ?? parameter, ...rest }),
-      _children,
-    ])
+    SVG,
+    {
+      height: totalHeight,
+      innerWidth: width,
+      paddingH: 15,
+    },
+    h(
+      CrossAxisLayoutProvider,
+      { width, domain },
+      h("g.isotopes-column", { className: parameter, transform }, [
+        h(ColumnScale, { label: label ?? parameter, ...rest }),
+        _children,
+      ])
+    )
   );
 }
 
