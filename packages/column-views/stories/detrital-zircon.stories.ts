@@ -1,7 +1,9 @@
 import {
-  IsotopesColumn,
   MacrostratDataProvider,
   MeasurementDataProvider,
+  SectionLabelsColumn,
+  useMacrostratColumnData,
+  useMacrostratUnits,
 } from "../src";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "./column-ui";
@@ -10,63 +12,66 @@ import { ColumnNavigationSVGMap, MeasurementsLayer } from "../src/maps";
 import { useColumnNav } from "../src/data-provider";
 import { useMemo } from "react";
 import { FeatureCollection } from "geojson";
+import { DetritalColumn } from "../src/detrital-zircon/detrital";
+import { UnitDataColumn, UnitNamesColumn } from "../src/units/names";
+import { SVG } from "@macrostrat/column-components";
 
-function StableIsotopesOverlay(props) {
-  return h(MeasurementDataProvider, { col_id: props.columnID }, [
-    h(IsotopesColumn, {
-      parameter: "D13C",
-      label: "δ¹³C",
-      width: 100,
-      nTicks: 4,
-    }),
-    h(IsotopesColumn, {
-      parameter: "D18O",
-      label: "δ¹⁸O",
-      color: "red",
-      domain: [-40, 0],
-      width: 100,
-      nTicks: 4,
-    }),
-  ]);
-}
-
-function CarbonIsotopesColumn(props) {
+function DetritalZirconColumn(props) {
   const { id, children, ...rest } = props;
 
   return h(
     MacrostratDataProvider,
-    h(StandaloneColumn, {
-      id,
-      ...rest,
-      children: [h(StableIsotopesOverlay, { columnID: id }), children],
+    h(
+      StandaloneColumn,
+      {
+        id,
+        showTimescale: false,
+        showLabelColumn: false,
+        allowUnitSelection: false,
+        ...rest,
+      },
+      [h(DZColumn), h(DetritalColumn, { columnID: id })]
+    )
+  );
+}
+
+function DZColumn() {
+  const { totalHeight, units } = useMacrostratColumnData();
+  return h(
+    SVG,
+    { innerWidth: 200, height: totalHeight },
+    h(UnitNamesColumn, {
+      width: 200,
+      divisions: units,
+      shouldRenderNote() {
+        return true;
+      },
     })
   );
 }
 
 export default {
-  title: "Column views/Facets/Carbon isotopes",
-  component: CarbonIsotopesColumn,
+  title: "Column views/Facets/Detrital zircons",
+  component: DetritalZirconColumn,
 };
 
-export const BasicCarbonIsotopesColumn = {
+export const ParadoxBasin = {
   args: {
-    id: 2192,
-    project_id: 10,
-    inProcess: true,
-    showTimescale: false,
-    showLabelColumn: false,
-    allowUnitSelection: false,
+    id: 495,
   },
 };
 
-export function EdiacaranCompilation(defaultArgs) {
+export const UintaBasin = {
+  args: {
+    id: 502,
+  },
+};
+
+export function DetritalZirconCompilation(defaultArgs) {
   const [columnArgs, setCurrentColumn] = useColumnNav({
     ...(defaultArgs ?? {}),
-    col_id: 2192,
-    project_id: 10,
-    status_code: "in process",
+    col_id: 495,
   });
-  const { col_id, ...projectParams } = columnArgs;
 
   const colParams = useMemo(
     () => ({ ...columnArgs, format: "geojson" }),
@@ -86,21 +91,15 @@ export function EdiacaranCompilation(defaultArgs) {
             setCurrentColumn,
             margin: 0,
             style: { width: 400, height: 500 },
-            ...projectParams,
           },
           h(MeasurementsLayer, {
-            ...projectParams,
-            style: {
-              fill: "dodgerblue",
-              stroke: "blue",
-            },
+            measure_phase: "zircon",
+            measurement: "207Pb-206Pb",
+            style: { fill: "purple" },
           })
         ),
-      ]),
-      h("div.column-view", [
-        h(CarbonIsotopesColumn, {
+        h(DetritalZirconColumn, {
           id: columnArgs.col_id,
-          inProcess: true,
           showLabelColumn: false,
         }),
       ]),

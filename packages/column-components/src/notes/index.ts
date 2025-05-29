@@ -122,6 +122,7 @@ interface NotesColumnBaseProps {
 }
 
 function StaticNotesColumn(props: NotesColumnBaseProps) {
+  /** A non-editable notes column. */
   const {
     width,
     paddingLeft = 60,

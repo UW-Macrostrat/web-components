@@ -3,13 +3,17 @@ import { StatefulComponent } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 
 import { hasSpan } from "./utils";
-import { FlexibleNode, Node, Renderer, Force } from "./label-primitives";
+import { FlexibleNode, Force, Node, Renderer } from "./label-primitives";
 import {
-  ColumnLayoutProvider,
   ColumnContext,
   ColumnCtx,
   ColumnDivision,
+  ColumnLayoutProvider,
 } from "../context";
+import {
+  AgeRangeRelationship,
+  compareAgeRanges,
+} from "@macrostrat/stratigraphy-utils";
 
 const NoteLayoutContext = createContext(null);
 
@@ -42,19 +46,16 @@ const buildColumnIndex = function () {
   };
 };
 
-const withinDomain = (scale) =>
-  function (d) {
-    const [start, end] = scale.domain();
-    // end height greater than beginning
-    const end_height = d.top_height || d.height;
-    if (start < end) {
-      // Normal scale (e.g. height)
-      return end_height >= start && d.height <= end;
-    } else {
-      // Inverted scale (e.g. time)
-      return end_height <= start && d.height >= end;
-    }
+function withinDomain(scale) {
+  const scaleDomain = scale.domain();
+  return (d) => {
+    const noteRange: [number, number] = [d.height, d.top_height ?? d.height];
+
+    const rel = compareAgeRanges(scaleDomain, noteRange);
+
+    return rel !== AgeRangeRelationship.Disjoint;
   };
+}
 
 interface NoteLayoutProviderProps {
   notes: any[];

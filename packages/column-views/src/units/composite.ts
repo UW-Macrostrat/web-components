@@ -245,7 +245,7 @@ export function compositeScale(
   return baseScale as CompositeColumnScale;
 }
 
-function ColumnNotesProvider(props) {
+export function ColumnNotesProvider(props) {
   // A fake column axis provider that allows scales to cross
   const { children, scale, totalHeight, pixelScale } = props;
 

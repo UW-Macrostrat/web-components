@@ -314,7 +314,12 @@ export function createCompositeScale(
     /** Return the domain of the scale */
     const firstSection = sections[0].scaleInfo.domain;
     const lastSection = sections[sections.length - 1].scaleInfo.domain;
-    return [firstSection[0], lastSection[1]];
+    if (firstSection[0] < lastSection[0]) {
+      return [Math.min(...firstSection), Math.max(...lastSection)];
+    } else {
+      // Catches "normal" axes like height
+      return [Math.max(...firstSection), Math.min(...lastSection)];
+    }
   };
 
   scale.invert = (pixelHeight) => {
