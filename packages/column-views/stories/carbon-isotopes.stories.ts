@@ -18,7 +18,6 @@ function StableIsotopesOverlay(props) {
       label: "δ¹³C",
       width: 100,
       nTicks: 4,
-      showAxis: true,
     }),
     h(IsotopesColumn, {
       parameter: "D18O",
@@ -27,7 +26,6 @@ function StableIsotopesOverlay(props) {
       domain: [-40, 0],
       width: 100,
       nTicks: 4,
-      showAxis: true,
     }),
   ]);
 }
@@ -57,6 +55,7 @@ export const BasicCarbonIsotopesColumn = {
     inProcess: true,
     showTimescale: false,
     showLabelColumn: false,
+    allowUnitSelection: false,
   },
 };
 

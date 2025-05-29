@@ -236,7 +236,7 @@ export function ColumnClickHandler() {
 
   return h(FlexRow, { gap: "2em" }, [
     h(
-      BasicColumn,
+      StandaloneColumn,
       {
         id: 483,
         showLabelColumn: false,

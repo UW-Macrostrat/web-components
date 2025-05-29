@@ -36,9 +36,7 @@ export function useUnitSelectionStore<T>(
 ): T {
   const store = useContext(UnitSelectionContext);
   if (store == null) {
-    throw new Error(
-      "useUnitSelectionStore must be used within a UnitSelectionProvider"
-    );
+    return null;
   }
   return useStore(store, selector);
 }

@@ -3,7 +3,7 @@ import { Meta, StoryObj } from "@storybook/react";
 import { ColoredUnitComponent } from "@macrostrat/column-views";
 import "@macrostrat/style-system";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { StandaloneColumn, StandaloneColumnProps } from "./standalone-column";
+import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 
 type Story = StoryObj<typeof StandaloneColumn>;
 
