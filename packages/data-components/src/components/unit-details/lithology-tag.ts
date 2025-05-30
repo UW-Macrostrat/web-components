@@ -119,7 +119,7 @@ export function LithologyList({
         data: l1,
         features,
         onClick: onClickItem
-          ? (data) => onClickItem({ ...data, lith_id: l1.lith_id })
+          ? (data) => onClickItem({ ...data, data: l1 })
           : undefined,
       });
     })
