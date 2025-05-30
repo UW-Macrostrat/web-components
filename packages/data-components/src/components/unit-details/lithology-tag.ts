@@ -10,7 +10,7 @@ interface LithologyTagProps {
   expandOnHover?: boolean;
   size?: TagSize;
   features?: Set<LithologyTagFeature>;
-  onClick?: (data: any) => void;
+  onClick?: (event: any) => void;
 }
 
 export enum LithologyTagFeature {
@@ -46,11 +46,7 @@ export function LithologyTag({
 
   const handleClick = (event: MouseEvent) => {
     if (onClick) {
-      if(data.environ_id) {
-        onClick({ event, environ_id: data.environ_id });
-      } else {
-        onClick({ event, lith_id: data.lith_id });
-      }
+      onClick({ event, data });
     }
   };
 

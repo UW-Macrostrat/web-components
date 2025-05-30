@@ -146,7 +146,7 @@ function UnitDetailsContent({
   columnUnits?: UnitLong[];
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
-  onClickItem?: (item: any) => void;
+  onClickItem?: (event: any) => void;
 }) {
   const lithMap = useMacrostratDefs("lithologies");
   const envMap = useMacrostratDefs("environments");
@@ -472,7 +472,7 @@ function IntervalProportions({ unit, onClickItem }) {
 
   const handleClick = (event: MouseEvent) => {
     if (onClickItem) {
-      onClickItem({ event, int_id: interval0.int_id });
+      onClickItem({ event, data: interval0 });
     }
   };
 

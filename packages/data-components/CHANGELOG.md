@@ -2,9 +2,7 @@
 
 ## [unreleased]
 
-- onClick capability added to LithologyTag, where event returns field `lith_id` with corresponding lith_id
-- onClick capability added to IntervalTag, where event returns field `int_id` with corresponding int_id
-- onClick capability added to EnvironmentList, where event returns field `environ_id` with corresponding environ_id
+- onClick capability added to LithologyTag, IntervalTag, and EnvironmentList, returning event and associated data
 
 ## [0.1.0] - 2025-04-09
 
