@@ -5,7 +5,21 @@ import { ColumnNotesProvider } from "./units";
 import { StaticNotesColumn, SVG } from "@macrostrat/column-components";
 import { useCompositeScale, useMacrostratColumnData } from "./data-provider";
 
-export function ColumnNotes({ notes, width = 200 }) {
+interface ColumnNotesProps {
+  notes: any[];
+  width?: number;
+  noteComponent?: any;
+  paddingLeft?: number;
+  deltaConnectorAttachment?: string;
+}
+
+export function ColumnNotes({
+  notes,
+  width = 200,
+  noteComponent,
+  paddingLeft = 60,
+  deltaConnectorAttachment,
+}: ColumnNotesProps) {
   const { totalHeight } = useMacrostratColumnData();
   const scale = useCompositeScale();
 
@@ -17,7 +31,13 @@ export function ColumnNotes({ notes, width = 200 }) {
       pixelScale: -1,
     },
     h(SVG, { width, height: totalHeight, paddingH: 4 }, [
-      h(StaticNotesColumn, { width, notes }),
+      h(StaticNotesColumn, {
+        width,
+        notes,
+        noteComponent,
+        paddingLeft,
+        deltaConnectorAttachment,
+      }),
     ])
   );
 }

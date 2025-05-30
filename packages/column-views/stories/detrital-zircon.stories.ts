@@ -1,9 +1,7 @@
 import {
+  ColumnNotes,
   MacrostratDataProvider,
   MeasurementDataProvider,
-  SectionLabelsColumn,
-  useMacrostratColumnData,
-  useMacrostratUnits,
 } from "../src";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "./column-ui";
@@ -12,9 +10,7 @@ import { ColumnNavigationSVGMap, MeasurementsLayer } from "../src/maps";
 import { useColumnNav } from "../src/data-provider";
 import { useMemo } from "react";
 import { FeatureCollection } from "geojson";
-import { DetritalColumn } from "../src/detrital-zircon/detrital";
-import { UnitDataColumn, UnitNamesColumn } from "../src/units/names";
-import { SVG } from "@macrostrat/column-components";
+import { DetritalColumn } from "../src/detrital-zircon";
 
 function DetritalZirconColumn(props) {
   const { id, children, ...rest } = props;
@@ -30,29 +26,20 @@ function DetritalZirconColumn(props) {
         allowUnitSelection: false,
         ...rest,
       },
-      [h(DZColumn), h(DetritalColumn, { columnID: id })]
+      h(DetritalColumn, { columnID: id })
     )
-  );
-}
-
-function DZColumn() {
-  const { totalHeight, units } = useMacrostratColumnData();
-  return h(
-    SVG,
-    { innerWidth: 200, height: totalHeight },
-    h(UnitNamesColumn, {
-      width: 200,
-      divisions: units,
-      shouldRenderNote() {
-        return true;
-      },
-    })
   );
 }
 
 export default {
   title: "Column views/Facets/Detrital zircons",
   component: DetritalZirconColumn,
+};
+
+export const PlateauProvince = {
+  args: {
+    id: 491,
+  },
 };
 
 export const ParadoxBasin = {

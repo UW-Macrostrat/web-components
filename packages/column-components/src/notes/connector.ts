@@ -23,12 +23,6 @@ const NotePositioner = forwardRef(function (
 
   let y = offsetY - noteHeight / 2 - outerPad;
 
-  // HACK: override y position for Safari
-  // (foreign objects don't work too well)
-  if (navigator.userAgent.includes("Safari")) {
-    y += 5;
-  }
-
   return h(
     ForeignObject,
     {
@@ -56,8 +50,18 @@ const findIndex = function (note) {
   return notes.indexOf(note);
 };
 
-const NoteConnector = function (props) {
-  let { note, node, index } = props;
+export type NodeConnectorOptions = {
+  deltaConnectorAttachment?: number; // Delta for connector attachment
+};
+
+type NodeConnectorProps = NodeConnectorOptions & {
+  note: any; // Note data type
+  node?: any; // Node data type
+  index?: number; // Index of the note in the layout
+};
+
+const NoteConnector = function (props: NodeConnectorProps) {
+  let { note, node, deltaConnectorAttachment, index } = props;
   // Try to avoid scanning for index if we can
   if (index == null) {
     index = findIndex(note);
@@ -68,6 +72,11 @@ const NoteConnector = function (props) {
   if (node == null) {
     node = nodes[note.id];
   }
+
+  if (node != null && deltaConnectorAttachment != null) {
+    node.currentPos += deltaConnectorAttachment;
+  }
+
   const offsetX = (columnIndex[index] || 0) * 5;
 
   return h([

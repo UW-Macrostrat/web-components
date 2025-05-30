@@ -12,6 +12,7 @@ import {
   NoteEditorProvider,
 } from "./editor";
 import { NewNotePositioner } from "./new";
+import { NodeConnectorOptions } from "./connector";
 export * from "./types";
 
 interface NoteComponentProps {
@@ -113,7 +114,7 @@ function EditableNotesColumn(props: EditableNotesColumnProps) {
   );
 }
 
-interface NotesColumnBaseProps {
+interface NotesColumnBaseProps extends NodeConnectorOptions {
   width?: number;
   paddingLeft?: number;
   transform?: string;
@@ -129,6 +130,7 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
     transform,
     notes,
     noteComponent = NoteComponent,
+    deltaConnectorAttachment,
   } = props;
 
   const innerWidth = width - paddingLeft;
@@ -144,7 +146,7 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
     [
       h("g.section-log", { transform }, [
         h(NoteDefs),
-        h(NotesList, { inEditMode: false }),
+        h(NotesList, { inEditMode: false, deltaConnectorAttachment }),
       ]),
     ]
   );

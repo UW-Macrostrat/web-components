@@ -3,7 +3,11 @@ import h from "../hyper";
 import { NoteLayoutContext, NoteLayoutCtx } from "./layout";
 import { NoteEditorContext } from "./editor";
 import type { NoteData } from "./types";
-import { NotePositioner, NoteConnector } from "./connector";
+import {
+  NotePositioner,
+  NoteConnector,
+  NodeConnectorOptions,
+} from "./connector";
 
 const NoteBody = function (props) {
   const { note } = props;
@@ -18,13 +22,13 @@ const NoteBody = function (props) {
 };
 
 const NoteMain = forwardRef(function (props: any, ref) {
-  const { note, offsetY, noteHeight } = props;
+  const { note, offsetY, noteHeight, deltaConnectorAttachment } = props;
   const { editingNote } = useContext(NoteEditorContext) as any;
   if (editingNote === note) {
     return null;
   }
   return h("g.note", [
-    h(NoteConnector, { note }),
+    h(NoteConnector, { note, deltaConnectorAttachment }),
     h(
       NotePositioner,
       {
@@ -42,6 +46,7 @@ interface NoteProps {
   note: NoteData;
   editHandler: Function;
   style?: object;
+  deltaConnectorAttachment?: number;
 }
 
 class Note extends Component<NoteProps, any> {
@@ -75,6 +80,7 @@ class Note extends Component<NoteProps, any> {
       note,
       noteHeight,
       ref: this.element,
+      deltaConnectorAttachment: this.props.deltaConnectorAttachment,
     });
   }
 
@@ -103,7 +109,12 @@ class Note extends Component<NoteProps, any> {
   }
 }
 
-const NotesList = function (props) {
+type NoteListProps = NodeConnectorOptions & {
+  inEditMode?: boolean;
+  editable?: boolean;
+};
+
+const NotesList = function (props: NoteListProps) {
   let { inEditMode: editable, ...rest } = props;
   if (editable == null) {
     editable = false;

@@ -17,7 +17,7 @@ function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
     top_height,
     offsetX = 0,
     color,
-    lineInset = 2.5,
+    lineInset = 1,
     ...rest
   } = props;
 

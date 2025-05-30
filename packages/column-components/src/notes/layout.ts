@@ -196,18 +196,19 @@ class NoteLayoutProvider extends StatefulComponent<
     const { id: noteID } = note;
     const pixelHeight = elementHeights[noteID] || 10;
     const padding = 5;
-    const lowerHeight = scale(note.height);
+    let noteHeight = scale(note.height);
     if (hasSpan(note)) {
       const upperHeight = scale(note.top_height);
       const harr: [number, number] = [
-        lowerHeight - padding,
+        noteHeight - padding,
         upperHeight + padding,
       ];
       if (harr[0] - harr[1] > 0) {
         return new FlexibleNode(harr, pixelHeight);
       }
+      noteHeight = (harr[0] + harr[1]) / 2;
     }
-    return new Node(lowerHeight, pixelHeight);
+    return new Node(noteHeight, pixelHeight);
   }
 
   computeForceLayout(prevProps, prevState) {
