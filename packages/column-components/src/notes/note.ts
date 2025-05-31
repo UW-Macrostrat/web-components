@@ -8,6 +8,7 @@ import {
   NoteConnector,
   NodeConnectorOptions,
 } from "./connector";
+import { useColumn } from "@macrostrat/column-components";
 
 type NoteListProps = NodeConnectorOptions & {
   inEditMode?: boolean;
@@ -23,25 +24,49 @@ export function NotesList(props: NoteListProps) {
   const {
     notes,
     nodes: nodeIndex,
-    scale,
     updateHeight,
     noteComponent,
+    scale,
   } = useNoteLayout();
 
-  const notesInfo = useMemo(
-    () =>
-      notes.map((note) => {
-        const node = nodeIndex[note.id];
-        const pixelHeight = node?.width ?? 10;
-        const pixelOffset = node?.currentPos ?? scale(note.top_height);
-        return { note, node, pixelOffset, pixelHeight };
-      }),
-    [notes, nodeIndex, scale]
-  );
+  const { pixelHeight: columnHeight } = useColumn();
+
+  const notesInfo = useMemo(() => {
+    let notes1 = notes.map((note) => {
+      const node = nodeIndex[note.id];
+      const pixelHeight = node?.width ?? 10;
+      const pixelOffset = node?.currentPos ?? scale(note.top_height);
+      return {
+        note,
+        node,
+        pixelOffset,
+        pixelHeight,
+        spacing: {
+          above: pixelOffset - pixelHeight,
+          below: columnHeight - pixelOffset,
+        },
+      };
+    });
+
+    // Adjust spacing to account for nearby nodes
+    for (let i = 0; i < notes1.length; i++) {
+      const { spacing, pixelOffset } = notes1[i];
+      if (i > 0) {
+        const prevNote = notes1[i - 1];
+        // Get distance from the previous note's bottom
+        // to the current note's top
+        spacing.above =
+          pixelOffset - prevNote.pixelOffset - prevNote.pixelHeight;
+        prevNote.spacing.below = spacing.above;
+      }
+    }
+
+    return notes1;
+  }, [notes, nodeIndex, scale]);
 
   return h(
     "g",
-    notesInfo.map(({ note, pixelOffset, pixelHeight }) => {
+    notesInfo.map(({ note, pixelOffset, pixelHeight, spacing }) => {
       return h(Note, {
         key: note.id,
         note,
@@ -51,18 +76,23 @@ export function NotesList(props: NoteListProps) {
         updateHeight,
         onClick: onClickNote,
         noteBodyComponent: noteComponent,
+        spacing,
         ...rest,
       });
     })
   );
 }
 
+type NodeSpacing = {
+  above: number;
+  below: number;
+};
+
 type NodeInfo = any;
 
 interface NoteProps {
   editable: boolean;
   note: NoteData;
-  node: NodeInfo;
   editHandler?: Function;
   style?: object;
   deltaConnectorAttachment?: number;
@@ -70,7 +100,8 @@ interface NoteProps {
   pixelHeight?: number;
   updateHeight?: (id: string | number, height: number) => void;
   onClick?: (note: NoteData) => void;
-  noteBodyComponent: any;
+  noteBodyComponent: (props: { note: NoteData; spacing?: NodeSpacing }) => any;
+  spacing?: NodeSpacing;
 }
 
 function Note(props: NoteProps) {
@@ -81,6 +112,7 @@ function Note(props: NoteProps) {
     updateHeight,
     deltaConnectorAttachment,
     noteBodyComponent,
+    spacing,
     onClick,
   } = props;
   const ref = useRef<HTMLElement>(null);
@@ -116,7 +148,7 @@ function Note(props: NoteProps) {
         ref,
         onClick: _onClickHandler,
       },
-      h(noteBodyComponent, { note })
+      h(noteBodyComponent, { note, spacing })
     ),
   ]);
 }

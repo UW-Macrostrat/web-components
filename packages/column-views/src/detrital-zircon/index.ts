@@ -20,6 +20,10 @@ interface DetritalItemProps {
     data: MeasurementInfo[];
     unit?: IUnit;
   };
+  spacing?: {
+    below?: number;
+    above?: number;
+  };
   width?: number;
   height?: number;
   color?: string;
@@ -36,24 +40,35 @@ function DepositionalAge({ unit }) {
 }
 
 function DetritalGroup(props: DetritalItemProps) {
-  const { note, width, height, color, showAxisLabels = true } = props;
+  const { note, width, height, color, spacing } = props;
   const { data, unit } = note;
   const { geo_unit } = data[0];
 
   const _color = color;
 
-  return h("div.detrital-group", [
-    h(DetritalSpectrumPlot, { width, innerHeight: height, showAxisLabels }, [
-      h.if(unit != null)(DepositionalAge, { unit }),
-      data.map((d) => {
-        return h(DetritalSeries, {
-          bandwidth: 20,
-          data: d.measure_value,
-          color: _color,
-        });
-      }),
-    ]),
-  ]);
+  const spaceBelow = spacing?.below ?? 100;
+  const hideAxisLabels = spaceBelow < 60;
+
+  return h(
+    "div.detrital-group",
+    { className: classNames({ "hide-axis": hideAxisLabels }) },
+    [
+      h(
+        DetritalSpectrumPlot,
+        { width, innerHeight: height, showAxisLabels: true, paddingBottom: 40 },
+        [
+          h.if(unit != null)(DepositionalAge, { unit }),
+          data.map((d) => {
+            return h(DetritalSeries, {
+              bandwidth: 20,
+              data: d.measure_value,
+              color: _color,
+            });
+          }),
+        ]
+      ),
+    ]
+  );
 }
 
 const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
