@@ -1,6 +1,13 @@
-import { Component, useContext, createRef, forwardRef, RefObject } from "react";
+import {
+  Component,
+  useContext,
+  createRef,
+  forwardRef,
+  RefObject,
+  useMemo,
+} from "react";
 import h from "../hyper";
-import { NoteLayoutContext, NoteLayoutCtx } from "./layout";
+import { NoteLayoutContext, NoteLayoutCtx, useNoteLayout } from "./layout";
 import { NoteEditorContext } from "./editor";
 import type { NoteData } from "./types";
 import {
@@ -8,6 +15,38 @@ import {
   NoteConnector,
   NodeConnectorOptions,
 } from "./connector";
+
+export function NotesList(props: NoteListProps) {
+  let { inEditMode: editable, ...rest } = props;
+  if (editable == null) {
+    editable = false;
+  }
+  const { notes, nodes: nodeIndex, scale, updateHeight } = useNoteLayout();
+
+  const notesInfo = useMemo(
+    () =>
+      notes.map((note) => {
+        const node = nodeIndex[note.id];
+        const pixelOffsetTop = scale(note.height);
+        return { note, node, pixelOffsetTop };
+      }),
+    [notes, nodeIndex, scale]
+  );
+
+  return h(
+    "g",
+    notesInfo.map(({ note, node }) => {
+      return h(Note, {
+        key: note.id,
+        note,
+        node,
+        editable,
+        updateHeight,
+        ...rest,
+      });
+    })
+  );
+}
 
 const NoteBody = function (props) {
   const { note } = props;
@@ -41,12 +80,16 @@ const NoteMain = forwardRef(function (props: any, ref) {
   ]);
 });
 
+type NodeInfo = any;
+
 interface NoteProps {
   editable: boolean;
   note: NoteData;
+  node: NodeInfo;
   editHandler: Function;
   style?: object;
   deltaConnectorAttachment?: number;
+  pixelOffsetTop?: number;
 }
 
 class Note extends Component<NoteProps, any> {
@@ -56,7 +99,7 @@ class Note extends Component<NoteProps, any> {
 
   constructor(props) {
     super(props);
-    this.updateHeight = this.updateHeight.bind(this);
+    this._updateHeight = this._updateHeight.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.componentDidUpdate = this.componentDidUpdate.bind(this);
     this.element = createRef();
@@ -64,14 +107,9 @@ class Note extends Component<NoteProps, any> {
   }
 
   render() {
-    const { style, note, editHandler, editable } = this.props;
-    const { scale, nodes, columnIndex, width, paddingLeft } = this.context;
+    const { note, node, pixelOffsetTop } = this.props;
 
-    const node = nodes[note.id];
-    let offsetY = scale(note.height);
-    if (node != null) {
-      offsetY = node.currentPos;
-    }
+    const offsetY = node?.currentPos ?? pixelOffsetTop;
 
     const noteHeight = this.state.height || 0;
 
@@ -84,7 +122,7 @@ class Note extends Component<NoteProps, any> {
     });
   }
 
-  updateHeight(prevProps) {
+  _updateHeight(prevProps) {
     const node = this.element.current;
     if (node == null) {
       return;
@@ -97,15 +135,15 @@ class Note extends Component<NoteProps, any> {
       return;
     }
     this.setState({ height });
-    return this.context.registerHeight(this.props.note.id, height);
+    return this.context.updateHeight(this.props.note.id, height);
   }
 
   componentDidMount() {
-    return this.updateHeight.apply(this, arguments);
+    return this._updateHeight.apply(this, arguments);
   }
 
   componentDidUpdate() {
-    return this.updateHeight.apply(this, arguments);
+    return this._updateHeight.apply(this, arguments);
   }
 }
 
@@ -114,18 +152,4 @@ type NoteListProps = NodeConnectorOptions & {
   editable?: boolean;
 };
 
-const NotesList = function (props: NoteListProps) {
-  let { inEditMode: editable, ...rest } = props;
-  if (editable == null) {
-    editable = false;
-  }
-  const { notes } = useContext(NoteLayoutContext);
-  return h(
-    "g",
-    notes.map((note) => {
-      return h(Note, { key: note.id, note, editable, ...rest });
-    })
-  );
-};
-
-export { Note, NotesList, NotePositioner, NoteConnector };
+export { NotePositioner, NoteConnector };

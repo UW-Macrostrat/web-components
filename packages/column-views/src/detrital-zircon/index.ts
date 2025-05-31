@@ -8,8 +8,10 @@ import hyper from "@macrostrat/hyper";
 import { useDetritalMeasurements, MeasurementInfo } from "./provider";
 import { useMacrostratUnits } from "../data-provider";
 import { ColumnNotes } from "../notes";
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import styles from "./index.module.sass";
+import { useInView } from "react-spring";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -34,27 +36,23 @@ function DepositionalAge({ unit }) {
 }
 
 function DetritalGroup(props: DetritalItemProps) {
-  const { note, width, height, color } = props;
+  const { note, width, height, color, showAxisLabels = true } = props;
   const { data, unit } = note;
   const { geo_unit } = data[0];
 
   const _color = color;
 
   return h("div.detrital-group", [
-    h(
-      DetritalSpectrumPlot,
-      { width, innerHeight: height, showAxisLabels: false },
-      [
-        h.if(unit != null)(DepositionalAge, { unit }),
-        data.map((d) => {
-          return h(DetritalSeries, {
-            bandwidth: 20,
-            data: d.measure_value,
-            color: _color,
-          });
-        }),
-      ]
-    ),
+    h(DetritalSpectrumPlot, { width, innerHeight: height, showAxisLabels }, [
+      h.if(unit != null)(DepositionalAge, { unit }),
+      data.map((d) => {
+        return h(DetritalSeries, {
+          bandwidth: 20,
+          data: d.measure_value,
+          color: _color,
+        });
+      }),
+    ]),
   ]);
 }
 
@@ -107,19 +105,13 @@ function DetritalColumn({ columnID, color = "magenta" }) {
 
   return h(
     "div.dz-spectra",
-    h(
-      ColumnNotes,
-      {
-        width,
-        paddingLeft,
-        notes,
-        noteComponent,
-        deltaConnectorAttachment: 20,
-      },
-      h("div.floating-axis", { style: { marginLeft: paddingLeft - 5 } }, [
-        h(DetritalSpectrumPlot, { width: spectrumWidth, innerHeight: 0 }),
-      ])
-    )
+    h(ColumnNotes, {
+      width,
+      paddingLeft,
+      notes,
+      noteComponent,
+      deltaConnectorAttachment: 20,
+    })
   );
 }
 

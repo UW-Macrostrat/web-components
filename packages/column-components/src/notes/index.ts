@@ -131,6 +131,7 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
     notes,
     noteComponent = NoteComponent,
     deltaConnectorAttachment,
+    children,
   } = props;
 
   const innerWidth = width - paddingLeft;
@@ -147,6 +148,7 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
       h("g.section-log", { transform }, [
         h(NoteDefs),
         h(NotesList, { inEditMode: false, deltaConnectorAttachment }),
+        children,
       ]),
     ]
   );

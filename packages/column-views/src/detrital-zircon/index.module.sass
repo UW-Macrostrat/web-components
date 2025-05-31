@@ -8,6 +8,15 @@
 .detrital-group
   margin: -5px
   margin-left: -10px
+  margin-bottom: -36px
+
+  :global .visx-axis
+    tspan, text
+      display: none
+
+  &.in-view :global(.visx-axis)
+    tspan, text
+      display: inline-block
 
 .dz-spectra
   position: relative
