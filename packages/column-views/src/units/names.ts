@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { useContext, useCallback } from "react";
+import { useContext, useCallback, useMemo } from "react";
 import {
   ColumnContext,
   ColumnAxisType,
@@ -101,6 +101,7 @@ interface UnitNamesProps extends UnitDataProps {
   nameForDivision?(obj: IUnit): string;
   paddingLeft?: number;
   width: number;
+  onClickNote?: (note: any) => void;
 }
 
 export function UnitNamesColumn(props: UnitNamesProps) {
@@ -110,13 +111,16 @@ export function UnitNamesColumn(props: UnitNamesProps) {
     ...rest
   } = props;
 
-  const NoteComponent = (props) => {
-    const { note } = props;
-    return h("p.col-note-label", nameForDivision(note.data));
-  };
+  const defaultNoteComponent = useMemo(
+    () => (props) => {
+      const { note } = props;
+      return h("p.col-note-label", nameForDivision(note.data));
+    },
+    [nameForDivision]
+  );
 
   return h(UnitDataColumn, {
-    noteComponent: noteComponent ?? NoteComponent,
+    noteComponent: noteComponent ?? defaultNoteComponent,
     ...rest,
   });
 }

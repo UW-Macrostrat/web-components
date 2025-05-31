@@ -12,10 +12,11 @@ import {
 type NoteListProps = NodeConnectorOptions & {
   inEditMode?: boolean;
   editable?: boolean;
+  onClickNote?: (note: NoteData) => void;
 };
 
 export function NotesList(props: NoteListProps) {
-  let { inEditMode: editable, ...rest } = props;
+  let { inEditMode: editable, onClickNote, ...rest } = props;
   if (editable == null) {
     editable = false;
   }
@@ -47,6 +48,7 @@ export function NotesList(props: NoteListProps) {
         pixelOffsetTop,
         editable,
         updateHeight,
+        onClick: onClickNote,
         noteBodyComponent: noteComponent,
         ...rest,
       });
@@ -65,7 +67,7 @@ interface NoteProps {
   deltaConnectorAttachment?: number;
   pixelOffsetTop?: number;
   updateHeight?: (id: string | number, height: number) => void;
-  onClick?: (note: NoteData, evt: MouseEvent) => void;
+  onClick?: (note: NoteData) => void;
   noteBodyComponent: any;
 }
 
@@ -77,6 +79,7 @@ function Note(props: NoteProps) {
     updateHeight,
     deltaConnectorAttachment,
     noteBodyComponent,
+    onClick,
   } = props;
   const ref = useRef<HTMLElement>(null);
   const [height, setHeight] = useState<number | null>(null);
@@ -95,9 +98,11 @@ function Note(props: NoteProps) {
   const noteHeight = height || 0;
 
   const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
-  const isEditing = editingNote === note;
-  const visibility = isEditing ? "hidden" : "inherit";
-  const onClick = () => setEditingNote(note);
+  const onClick_ = onClick ?? setEditingNote;
+  const _onClickHandler = (evt) => {
+    onClick_(note);
+    //evt.stopPropagation();
+  };
 
   if (editingNote === note) {
     return null;
@@ -110,8 +115,9 @@ function Note(props: NoteProps) {
         offsetY,
         noteHeight,
         ref,
+        onClick: _onClickHandler,
       },
-      h(noteBodyComponent, { visibility, note, onClick })
+      h(noteBodyComponent, { note })
     ),
   ]);
 }

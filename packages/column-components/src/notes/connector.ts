@@ -8,13 +8,14 @@ interface NotePositionerProps {
   offsetY: number;
   noteHeight: number;
   children?: ReactNode;
+  onClick?: (event: React.MouseEvent) => void;
 }
 
 const NotePositioner = forwardRef(function (
   props: NotePositionerProps,
   ref: any
 ) {
-  let { offsetY, noteHeight, children } = props;
+  let { offsetY, noteHeight, onClick, children } = props;
   const { width, paddingLeft } = useContext(NoteLayoutContext);
   if (noteHeight == null) {
     noteHeight = 0;
@@ -37,6 +38,7 @@ const NotePositioner = forwardRef(function (
         "div.note-inner",
         {
           ref,
+          onClick,
           style: { margin: outerPad },
         },
         children

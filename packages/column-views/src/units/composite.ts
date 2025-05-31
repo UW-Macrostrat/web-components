@@ -1,7 +1,6 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import {
   LithologyColumn,
-  ColumnAxisType,
   SVG,
   ColumnContext,
 } from "@macrostrat/column-components";
@@ -18,6 +17,7 @@ import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
 import styles from "./composite.module.sass";
 import { useMacrostratColumnData } from "../data-provider";
+import { useUnitSelectionDispatch } from "@macrostrat/column-views";
 
 const h = hyperStyled(styles);
 
@@ -164,6 +164,8 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
 
   const _compositeScale = compositeScale(sections);
 
+  const selectUnit = useUnitSelectionDispatch();
+
   return h("div.section-labels-column", [
     h(
       ColumnNotesProvider,
@@ -188,6 +190,9 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
           noteComponent,
           shouldRenderNote,
           scale: _compositeScale,
+          onClickNote(note) {
+            selectUnit(note.data, null, null);
+          },
         })
       )
     ),
