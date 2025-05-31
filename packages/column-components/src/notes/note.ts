@@ -32,20 +32,21 @@ export function NotesList(props: NoteListProps) {
     () =>
       notes.map((note) => {
         const node = nodeIndex[note.id];
-        const pixelOffset = scale(note.height);
-        return { note, node, pixelOffset };
+        const pixelHeight = node?.width ?? 10;
+        const pixelOffset = node?.currentPos ?? scale(note.top_height);
+        return { note, node, pixelOffset, pixelHeight };
       }),
     [notes, nodeIndex, scale]
   );
 
   return h(
     "g",
-    notesInfo.map(({ note, node, pixelOffset }) => {
+    notesInfo.map(({ note, pixelOffset, pixelHeight }) => {
       return h(Note, {
         key: note.id,
         note,
-        node,
         pixelOffset,
+        pixelHeight,
         editable,
         updateHeight,
         onClick: onClickNote,
@@ -66,6 +67,7 @@ interface NoteProps {
   style?: object;
   deltaConnectorAttachment?: number;
   pixelOffset?: number;
+  pixelHeight?: number;
   updateHeight?: (id: string | number, height: number) => void;
   onClick?: (note: NoteData) => void;
   noteBodyComponent: any;
@@ -74,28 +76,26 @@ interface NoteProps {
 function Note(props: NoteProps) {
   const {
     note,
-    node,
     pixelOffset,
+    pixelHeight,
     updateHeight,
     deltaConnectorAttachment,
     noteBodyComponent,
     onClick,
   } = props;
   const ref = useRef<HTMLElement>(null);
-  const [height, setHeight] = useState<number | null>(null);
 
   useEffect(() => {
     if (ref.current) {
       const newHeight = ref.current.offsetHeight;
-      if (newHeight !== height) {
-        setHeight(newHeight);
+      if (newHeight !== pixelHeight) {
         updateHeight(note.id, newHeight);
       }
     }
-  }, [note, pixelOffset, updateHeight]);
+  }, [note, pixelHeight, updateHeight]);
 
-  const offsetY = node?.currentPos ?? pixelOffset;
-  const noteHeight = height || 0;
+  const offsetY = pixelOffset;
+  const noteHeight = pixelHeight;
 
   const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
   const onClick_ = onClick ?? setEditingNote;
