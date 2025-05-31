@@ -160,6 +160,7 @@ export function useUnitSelectionTarget(
 
   const onClick = useCallback(
     (evt: Event) => {
+      if (onSelectUnit == null) return;
       onSelectUnit(unit, ref.current, evt);
       evt.stopPropagation();
     },
@@ -167,7 +168,7 @@ export function useUnitSelectionTarget(
   );
 
   useEffect(() => {
-    if (!selected) return;
+    if (!selected || onSelectUnit == null) return;
     // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
     onSelectUnit(unit, ref.current, null);
 

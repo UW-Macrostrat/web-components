@@ -60,19 +60,30 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
   });
 }
 
+interface UnitColorOptions {
+  asBackground?: boolean;
+}
+
+export function useUnitColor(unit, opts: UnitColorOptions = {}): string | null {
+  /** Get the color for a unit based on its lithology */
+  const lithMap = useLithologies();
+  const inDarkMode = useInDarkMode();
+  const { asBackground = true } = opts;
+
+  return useMemo(() => {
+    if (unit == null || lithMap == null) return null;
+    return getMixedUnitColor(unit, lithMap, inDarkMode, asBackground);
+  }, [unit?.unit_id, lithMap, inDarkMode, asBackground]);
+}
+
 export function ColoredUnitComponent(props) {
   /** A unit component that is colored using a mixture of lithologies.
    * This is a separate component because it depends on more providers/contexts to determine coloring. */
-  const lithMap = useLithologies();
-  const inDarkMode = useInDarkMode();
-
-  const backgroundColor = useMemo(() => {
-    return getMixedUnitColor(props.division, lithMap, inDarkMode);
-  }, [props.division?.unit_id, lithMap, inDarkMode]);
+  const backgroundColor = useUnitColor(props.division);
 
   const patternID = useMemo(() => {
     return resolveID(props.division); // ?? getPatternID(props.division.lith, lithMap);
-  }, [props.division?.unit_id, lithMap]);
+  }, [props.division?.unit_id]);
 
   const fill = useGeologicPattern(patternID);
 

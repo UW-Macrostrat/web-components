@@ -68,5 +68,8 @@ export function useCompositeScale() {
       "useCompositeScale must be used within a MacrostratUnitsProvider"
     );
   }
-  return createCompositeScale(ctx.sections, true);
+  return useMemo(
+    () => createCompositeScale(ctx.sections, true),
+    [ctx.sections]
+  );
 }

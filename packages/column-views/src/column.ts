@@ -176,7 +176,7 @@ function ColumnInner(props: ColumnInnerProps) {
     showLabelColumn = false;
   }
 
-  let _showTimescale = showTimescale;
+  let _showTimescale = showTimescale ?? true;
   if (timescaleLevels != null) {
     _showTimescale = true;
   }

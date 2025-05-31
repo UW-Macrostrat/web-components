@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { useAPIResult } from "@macrostrat/ui-components";
+import { FlexRow, Spacer, useAPIResult } from "@macrostrat/ui-components";
 import { Column } from "@macrostrat/column-views";
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
@@ -40,5 +40,12 @@ export function StandaloneColumn(props: StandaloneColumnProps) {
     return h(Spinner);
   }
 
-  return h("div", [h("h2", info.col_name), h(Column, { ...rest, units })]);
+  return h("div", [
+    h(FlexRow, { alignmentBaseline: "baseline" }, [
+      h("h2", info.col_name),
+      h(Spacer),
+      h("code", info.col_id),
+    ]),
+    h(Column, { ...rest, units }),
+  ]);
 }
