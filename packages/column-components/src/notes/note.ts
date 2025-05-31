@@ -1,13 +1,6 @@
-import {
-  Component,
-  useContext,
-  createRef,
-  forwardRef,
-  RefObject,
-  useMemo,
-} from "react";
+import { useContext, useMemo, useEffect, useRef, useState } from "react";
 import h from "../hyper";
-import { NoteLayoutContext, NoteLayoutCtx, useNoteLayout } from "./layout";
+import { useNoteLayout } from "./layout";
 import { NoteEditorContext } from "./editor";
 import type { NoteData } from "./types";
 import {
@@ -16,12 +9,23 @@ import {
   NodeConnectorOptions,
 } from "./connector";
 
+type NoteListProps = NodeConnectorOptions & {
+  inEditMode?: boolean;
+  editable?: boolean;
+};
+
 export function NotesList(props: NoteListProps) {
   let { inEditMode: editable, ...rest } = props;
   if (editable == null) {
     editable = false;
   }
-  const { notes, nodes: nodeIndex, scale, updateHeight } = useNoteLayout();
+  const {
+    notes,
+    nodes: nodeIndex,
+    scale,
+    updateHeight,
+    noteComponent,
+  } = useNoteLayout();
 
   const notesInfo = useMemo(
     () =>
@@ -35,34 +39,66 @@ export function NotesList(props: NoteListProps) {
 
   return h(
     "g",
-    notesInfo.map(({ note, node }) => {
+    notesInfo.map(({ note, node, pixelOffsetTop }) => {
       return h(Note, {
         key: note.id,
         note,
         node,
+        pixelOffsetTop,
         editable,
         updateHeight,
+        noteBodyComponent: noteComponent,
         ...rest,
       });
     })
   );
 }
 
-const NoteBody = function (props) {
-  const { note } = props;
-  const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
-  const { noteComponent } = useContext(NoteLayoutContext);
-  const isEditing = editingNote === note;
+type NodeInfo = any;
 
+interface NoteProps {
+  editable: boolean;
+  note: NoteData;
+  node: NodeInfo;
+  editHandler?: Function;
+  style?: object;
+  deltaConnectorAttachment?: number;
+  pixelOffsetTop?: number;
+  updateHeight?: (id: string | number, height: number) => void;
+  onClick?: (note: NoteData, evt: MouseEvent) => void;
+  noteBodyComponent: any;
+}
+
+function Note(props: NoteProps) {
+  const {
+    note,
+    node,
+    pixelOffsetTop,
+    updateHeight,
+    deltaConnectorAttachment,
+    noteBodyComponent,
+  } = props;
+  const ref = useRef<HTMLElement>(null);
+  const [height, setHeight] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      const newHeight = ref.current.offsetHeight;
+      if (newHeight !== height) {
+        setHeight(newHeight);
+        updateHeight(note.id, newHeight);
+      }
+    }
+  }, [note, pixelOffsetTop, updateHeight]);
+
+  const offsetY = node?.currentPos ?? pixelOffsetTop;
+  const noteHeight = height || 0;
+
+  const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
+  const isEditing = editingNote === note;
+  const visibility = isEditing ? "hidden" : "inherit";
   const onClick = () => setEditingNote(note);
 
-  const visibility = isEditing ? "hidden" : "inherit";
-  return h(noteComponent, { visibility, note, onClick });
-};
-
-const NoteMain = forwardRef(function (props: any, ref) {
-  const { note, offsetY, noteHeight, deltaConnectorAttachment } = props;
-  const { editingNote } = useContext(NoteEditorContext) as any;
   if (editingNote === note) {
     return null;
   }
@@ -75,81 +111,9 @@ const NoteMain = forwardRef(function (props: any, ref) {
         noteHeight,
         ref,
       },
-      [h(NoteBody, { note })]
+      h(noteBodyComponent, { visibility, note, onClick })
     ),
   ]);
-});
-
-type NodeInfo = any;
-
-interface NoteProps {
-  editable: boolean;
-  note: NoteData;
-  node: NodeInfo;
-  editHandler: Function;
-  style?: object;
-  deltaConnectorAttachment?: number;
-  pixelOffsetTop?: number;
 }
-
-class Note extends Component<NoteProps, any> {
-  static contextType = NoteLayoutContext;
-  element: RefObject<HTMLElement>;
-  context: NoteLayoutCtx;
-
-  constructor(props) {
-    super(props);
-    this._updateHeight = this._updateHeight.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
-    this.componentDidUpdate = this.componentDidUpdate.bind(this);
-    this.element = createRef();
-    this.state = { height: null };
-  }
-
-  render() {
-    const { note, node, pixelOffsetTop } = this.props;
-
-    const offsetY = node?.currentPos ?? pixelOffsetTop;
-
-    const noteHeight = this.state.height || 0;
-
-    return h(NoteMain, {
-      offsetY,
-      note,
-      noteHeight,
-      ref: this.element,
-      deltaConnectorAttachment: this.props.deltaConnectorAttachment,
-    });
-  }
-
-  _updateHeight(prevProps) {
-    const node = this.element.current;
-    if (node == null) {
-      return;
-    }
-    const height = node.offsetHeight;
-    if (height == null) {
-      return;
-    }
-    if (prevProps != null && prevProps.note === this.props.note) {
-      return;
-    }
-    this.setState({ height });
-    return this.context.updateHeight(this.props.note.id, height);
-  }
-
-  componentDidMount() {
-    return this._updateHeight.apply(this, arguments);
-  }
-
-  componentDidUpdate() {
-    return this._updateHeight.apply(this, arguments);
-  }
-}
-
-type NoteListProps = NodeConnectorOptions & {
-  inEditMode?: boolean;
-  editable?: boolean;
-};
 
 export { NotePositioner, NoteConnector };
