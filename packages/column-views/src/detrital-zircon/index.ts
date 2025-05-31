@@ -20,6 +20,7 @@ interface DetritalItemProps {
   };
   width?: number;
   height?: number;
+  color?: string;
 }
 
 function DepositionalAge({ unit }) {
@@ -33,9 +34,11 @@ function DepositionalAge({ unit }) {
 }
 
 function DetritalGroup(props: DetritalItemProps) {
-  const { note, width, height } = props;
+  const { note, width, height, color } = props;
   const { data, unit } = note;
   const { geo_unit } = data[0];
+
+  const _color = color;
 
   return h("div.detrital-group", [
     h(
@@ -47,6 +50,7 @@ function DetritalGroup(props: DetritalItemProps) {
           return h(DetritalSeries, {
             bandwidth: 20,
             data: d.measure_value,
+            color: _color,
           });
         }),
       ]
@@ -56,7 +60,7 @@ function DetritalGroup(props: DetritalItemProps) {
 
 const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
 
-function DetritalColumn({ columnID }) {
+function DetritalColumn({ columnID, color = "magenta" }) {
   const data = useDetritalMeasurements({ col_id: columnID });
   const units = useMacrostratUnits();
 
@@ -86,25 +90,37 @@ function DetritalColumn({ columnID }) {
   const width = 400;
   const paddingLeft = 40;
 
+  const spectrumWidth = width - paddingLeft;
+
   const noteComponent = useMemo(() => {
     return (props) => {
       return h(DetritalGroup, {
-        width: width - paddingLeft,
+        width: spectrumWidth,
         height: 40,
+        color,
         ...props,
       });
     };
-  }, [width]);
+  }, [width, color]);
 
   if (data == null || units == null) return null;
 
-  return h(ColumnNotes, {
-    width,
-    paddingLeft,
-    notes,
-    noteComponent,
-    deltaConnectorAttachment: 20,
-  });
+  return h(
+    "div.dz-spectra",
+    h(
+      ColumnNotes,
+      {
+        width,
+        paddingLeft,
+        notes,
+        noteComponent,
+        deltaConnectorAttachment: 20,
+      },
+      h("div.floating-axis", { style: { marginLeft: paddingLeft - 5 } }, [
+        h(DetritalSpectrumPlot, { width: spectrumWidth, innerHeight: 0 }),
+      ])
+    )
+  );
 }
 
 export { DetritalColumn, DetritalGroup };

@@ -1,6 +1,5 @@
 import {
   ColoredUnitComponent,
-  ColumnNotes,
   MacrostratDataProvider,
   MeasurementDataProvider,
 } from "../src";
@@ -14,7 +13,7 @@ import { FeatureCollection } from "geojson";
 import { DetritalColumn } from "../src/detrital-zircon";
 
 function DetritalZirconColumn(props) {
-  const { id, children, ...rest } = props;
+  const { id, children, spectraColor, ...rest } = props;
 
   return h(
     MacrostratDataProvider,
@@ -27,7 +26,7 @@ function DetritalZirconColumn(props) {
         allowUnitSelection: false,
         ...rest,
       },
-      h(DetritalColumn, { columnID: id })
+      h(DetritalColumn, { columnID: id, color: spectraColor })
     )
   );
 }
@@ -61,6 +60,7 @@ export const BighornBasinColored = {
     showTimescale: true,
     allowUnitSelection: true,
     unitComponent: ColoredUnitComponent,
+    spectraColor: "lightgreen",
   },
 };
 

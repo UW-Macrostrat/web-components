@@ -19,6 +19,7 @@ export function ColumnNotes({
   noteComponent,
   paddingLeft = 60,
   deltaConnectorAttachment,
+  children,
 }: ColumnNotesProps) {
   const { totalHeight } = useMacrostratColumnData();
   const scale = useCompositeScale();
@@ -30,14 +31,17 @@ export function ColumnNotes({
       totalHeight,
       pixelScale: -1,
     },
-    h(SVG, { width, height: totalHeight, paddingH: 4 }, [
-      h(StaticNotesColumn, {
-        width,
-        notes,
-        noteComponent,
-        paddingLeft,
-        deltaConnectorAttachment,
-      }),
-    ])
+    [
+      h(SVG, { width, height: totalHeight, paddingH: 4 }, [
+        h(StaticNotesColumn, {
+          width,
+          notes,
+          noteComponent,
+          paddingLeft,
+          deltaConnectorAttachment,
+        }),
+      ]),
+      children,
+    ]
   );
 }
