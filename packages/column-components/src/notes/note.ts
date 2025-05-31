@@ -32,20 +32,20 @@ export function NotesList(props: NoteListProps) {
     () =>
       notes.map((note) => {
         const node = nodeIndex[note.id];
-        const pixelOffsetTop = scale(note.height);
-        return { note, node, pixelOffsetTop };
+        const pixelOffset = scale(note.height);
+        return { note, node, pixelOffset };
       }),
     [notes, nodeIndex, scale]
   );
 
   return h(
     "g",
-    notesInfo.map(({ note, node, pixelOffsetTop }) => {
+    notesInfo.map(({ note, node, pixelOffset }) => {
       return h(Note, {
         key: note.id,
         note,
         node,
-        pixelOffsetTop,
+        pixelOffset,
         editable,
         updateHeight,
         onClick: onClickNote,
@@ -65,7 +65,7 @@ interface NoteProps {
   editHandler?: Function;
   style?: object;
   deltaConnectorAttachment?: number;
-  pixelOffsetTop?: number;
+  pixelOffset?: number;
   updateHeight?: (id: string | number, height: number) => void;
   onClick?: (note: NoteData) => void;
   noteBodyComponent: any;
@@ -75,7 +75,7 @@ function Note(props: NoteProps) {
   const {
     note,
     node,
-    pixelOffsetTop,
+    pixelOffset,
     updateHeight,
     deltaConnectorAttachment,
     noteBodyComponent,
@@ -92,16 +92,15 @@ function Note(props: NoteProps) {
         updateHeight(note.id, newHeight);
       }
     }
-  }, [note, pixelOffsetTop, updateHeight]);
+  }, [note, pixelOffset, updateHeight]);
 
-  const offsetY = node?.currentPos ?? pixelOffsetTop;
+  const offsetY = node?.currentPos ?? pixelOffset;
   const noteHeight = height || 0;
 
   const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
   const onClick_ = onClick ?? setEditingNote;
   const _onClickHandler = (evt) => {
     onClick_(note);
-    //evt.stopPropagation();
   };
 
   if (editingNote === note) {
