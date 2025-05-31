@@ -50,9 +50,9 @@ const findIndex = function (note) {
   return notes.indexOf(note);
 };
 
-export type NodeConnectorOptions = {
+export interface NodeConnectorOptions {
   deltaConnectorAttachment?: number; // Delta for connector attachment
-};
+}
 
 type NodeConnectorProps = NodeConnectorOptions & {
   note: any; // Note data type

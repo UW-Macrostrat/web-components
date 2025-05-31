@@ -1,4 +1,5 @@
 import {
+  ColoredUnitComponent,
   ColumnNotes,
   MacrostratDataProvider,
   MeasurementDataProvider,
@@ -51,6 +52,15 @@ export const ParadoxBasin = {
 export const UintaBasin = {
   args: {
     id: 502,
+  },
+};
+
+export const BighornBasinColored = {
+  args: {
+    id: 515,
+    showTimescale: true,
+    allowUnitSelection: true,
+    unitComponent: ColoredUnitComponent,
   },
 };
 

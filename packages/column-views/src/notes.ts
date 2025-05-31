@@ -10,7 +10,7 @@ interface ColumnNotesProps {
   width?: number;
   noteComponent?: any;
   paddingLeft?: number;
-  deltaConnectorAttachment?: string;
+  deltaConnectorAttachment?: number;
 }
 
 export function ColumnNotes({
