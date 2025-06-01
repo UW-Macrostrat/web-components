@@ -1,6 +1,6 @@
 import { IUnit } from "@macrostrat/column-views";
 import hyper from "@macrostrat/hyper";
-import { FossilDataType, useFossilData } from "./provider";
+import { FossilDataType, PBDBCollection, useFossilData } from "./provider";
 import { useMacrostratUnits } from "../../data-provider";
 import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
@@ -9,9 +9,9 @@ import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
-interface DetritalItemProps {
+interface FossilItemProps {
   note: {
-    data: any[];
+    data: PBDBCollection[];
     unit?: IUnit;
   };
   spacing?: {
@@ -23,43 +23,43 @@ interface DetritalItemProps {
   color?: string;
 }
 
-function FossilInfo(props: DetritalItemProps) {
+function FossilInfo(props: FossilItemProps) {
   const { note, spacing } = props;
   const { data, unit } = note;
 
-  console.log(data);
+  let d1 = data;
 
-  const spaceBelow = spacing?.below ?? 100;
-  const hideAxisLabels = spaceBelow < 60;
-
-  return h(
-    "ul.fossil-collections",
-    { className: classNames({ "hide-axis": hideAxisLabels }) },
-    data.map((d) => {
-      return h("li.collection", [h(PBDBCollectionLink, { oid: d.oid })]);
-    })
-  );
-}
-
-function PBDBCollectionLink({ oid }) {
-  let id = `${oid}`;
-  if (id.startsWith("col:")) {
-    id = id.substring(4);
+  let tooMany = null;
+  if (data.length > 5) {
+    const n = data.length - 5;
+    d1 = data.slice(0, 5);
+    tooMany = h("li.too-many", `and ${n} more`);
   }
 
+  const spaceBelow = spacing?.below ?? 100;
+
+  return h("ul.fossil-collections", [
+    d1.map((d) => {
+      return h("li.collection", [h(PBDBCollectionLink, { collection: d })]);
+    }),
+    tooMany,
+  ]);
+}
+
+function PBDBCollectionLink({ collection }: { collection: PBDBCollection }) {
   return h(
     "a.link-id",
     {
-      href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${id}`,
+      href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${collection.cltn_id}`,
     },
-    `${id}`
+    collection.cltn_name
   );
 }
 
 const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
 
 export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
-  const data = useFossilData(FossilDataType.Collections, { col_id: columnID });
+  const data = useFossilData({ col_id: columnID });
   const units = useMacrostratUnits();
 
   const notes: any[] = useMemo(() => {
@@ -85,10 +85,8 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
     return data1.filter((d) => d.unit != null);
   }, [data, units]);
 
-  const width = 400;
+  const width = 500;
   const paddingLeft = 40;
-
-  const spectrumWidth = width - paddingLeft;
 
   const noteComponent = useMemo(() => {
     return (props) => {
@@ -108,7 +106,6 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
       paddingLeft,
       notes,
       noteComponent,
-      deltaConnectorAttachment: 20,
     })
   );
 }
