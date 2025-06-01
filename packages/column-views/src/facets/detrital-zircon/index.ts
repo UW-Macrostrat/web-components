@@ -6,11 +6,10 @@ import {
 import { IUnit } from "@macrostrat/column-views";
 import hyper from "@macrostrat/hyper";
 import { useDetritalMeasurements, MeasurementInfo } from "./provider";
-import { useMacrostratUnits } from "../data-provider";
-import { ColumnNotes } from "../notes";
-import { useMemo, useRef } from "react";
+import { useMacrostratUnits } from "../../data-provider";
+import { ColumnNotes } from "../../notes";
+import { useMemo } from "react";
 import styles from "./index.module.sass";
-import { useInView } from "react-spring";
 import classNames from "classnames";
 
 const h = hyper.styled(styles);

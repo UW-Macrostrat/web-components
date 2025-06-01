@@ -2,12 +2,13 @@ import {
   IsotopesColumn,
   MacrostratDataProvider,
   MeasurementDataProvider,
-} from "../src";
+  ColumnNavigationSVGMap,
+  MeasurementsLayer,
+  useColumnNav,
+} from "../../src";
 import h from "@macrostrat/hyper";
-import { StandaloneColumn } from "./column-ui";
+import { StandaloneColumn } from "../column-ui";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
-import { ColumnNavigationSVGMap, MeasurementsLayer } from "../src/maps";
-import { useColumnNav } from "../src/data-provider";
 import { useMemo } from "react";
 import { FeatureCollection } from "geojson";
 

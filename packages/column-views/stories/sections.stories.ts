@@ -4,6 +4,7 @@ import { ColoredUnitComponent } from "@macrostrat/column-views";
 import "@macrostrat/style-system";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
+import { MergeSectionsMode } from "../src";
 
 type Story = StoryObj<typeof StandaloneColumn>;
 
@@ -37,6 +38,8 @@ export const eODPColumn: Story = {
   args: {
     id: 5576,
     inProcess: true,
+    collapseSmallUnconformities: false,
+    mergeSections: MergeSectionsMode.OVERLAPPING,
   },
 };
 
