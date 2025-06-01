@@ -95,8 +95,6 @@ export function prepareColumnUnits(
     sections0 = groupUnitsIntoSections(units1, axisType);
   }
 
-  console.log(sections0);
-
   /** Merging overlapping sections really only makes sense for age/height/depth
    * columns. Ordinal columns are numbered by section so merging them
    * results in collisions.
