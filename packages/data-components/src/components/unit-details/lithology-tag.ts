@@ -10,6 +10,7 @@ interface LithologyTagProps {
   expandOnHover?: boolean;
   size?: TagSize;
   features?: Set<LithologyTagFeature>;
+  onClick?: (event: any) => void;
 }
 
 export enum LithologyTagFeature {
@@ -22,6 +23,7 @@ export function LithologyTag({
   color,
   features,
   size,
+  onClick,
 }: LithologyTagProps) {
   let proportion = null;
   const showProportion = features?.has(LithologyTagFeature.Proportion) ?? false;
@@ -40,15 +42,25 @@ export function LithologyTag({
     });
   }
 
+  const clickable = onClick != null;
+
+  const handleClick = (event: MouseEvent) => {
+    if (onClick) {
+      onClick({ event, data });
+    }
+  };
+
   return h(Tag, {
     prefix: atts,
     details: proportion,
     name: data.name,
-    className: "lithology-tag",
+    className: clickable ? " clickable" : "",
     size,
     color: color ?? data.color,
+    onClick: clickable ? handleClick : undefined,
   });
 }
+
 
 function List({ items, commaSeparated = false, lastSep = null, className }) {
   let items1 = items;
@@ -81,10 +93,12 @@ export function LithologyList({
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
   ]),
+  onClickItem,
 }: {
   label?: string;
   lithologies: any[];
   features?: Set<LithologyTagFeature>;
+  onClickItem?: (data: any) => void;
 }) {
   const sortedLiths = useMemo(() => {
     const l1 = [...lithologies];
@@ -104,6 +118,9 @@ export function LithologyList({
       return h(LithologyTag, {
         data: l1,
         features,
+        onClick: onClickItem
+          ? (data) => onClickItem({ ...data, data: l1 })
+          : undefined,
       });
     })
   );
@@ -120,12 +137,14 @@ function lithologyComparison(a, b) {
   return dx;
 }
 
-export function EnvironmentsList({ environments }) {
+export function EnvironmentsList({ environments, onClickItem }) {
+
+
   return h(
     TagField,
-    { label: "Environments", className: "environments-list" },
+    { label: "Environments", className: "environments-list"},
     environments.map((lith: any) => {
-      return h(LithologyTag, { data: lith });
+      return h(LithologyTag, { data: lith, onClick: onClickItem});
     })
   );
 }

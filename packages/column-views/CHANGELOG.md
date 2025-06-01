@@ -6,6 +6,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+- `UnitDetailsContent` automatically handles clicks on Lithologies, Intervals, and Environment tags and routes to their specific individual lexicon page.
 - Add mouseover handlers to allow age cursor to be reported
 - Add an `AgeCursor` component
 - Reactivate carbon isotopes column rendering

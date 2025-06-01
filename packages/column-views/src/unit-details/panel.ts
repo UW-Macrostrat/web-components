@@ -5,15 +5,16 @@ import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ReactNode, useMemo, useState } from "react";
 import {
   DataField,
-  EnvironmentsList,
+  // EnvironmentsList,
   IntervalShort,
   IntervalTag,
   ItemList,
-  LithologyList,
+  // LithologyList,
   LithologyTagFeature,
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
+import { LithologyList, EnvironmentsList } from "../../../data-components/src";
 import { useMacrostratData, useMacrostratDefs } from "../data-provider";
 import { Environment, UnitLong, UnitLongFull } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
@@ -35,6 +36,7 @@ export function UnitDetailsPanel({
   actions,
   selectUnit,
   columnUnits,
+  onClickItem,
 }: {
   unit: any;
   onClose?: any;
@@ -45,6 +47,7 @@ export function UnitDetailsPanel({
   lithologyFeatures?: Set<LithologyTagFeature>;
   columnUnits?: UnitLong[];
   selectUnit?: (unitID: number) => void;
+  onClickItem?: (item: any) => void;
 }) {
   const [showJSON, setShowJSON] = useState(false);
 
@@ -52,7 +55,7 @@ export function UnitDetailsPanel({
   if (showJSON) {
     content = h(JSONView, { data: unit, showRoot: false });
   } else {
-    content = h(UnitDetailsContent, { unit, features, lithologyFeatures });
+    content = h(UnitDetailsContent, { unit, features, lithologyFeatures, onClickItem });
   }
 
   let title = defaultNameFunction(unit);
@@ -136,12 +139,14 @@ function UnitDetailsContent({
     UnitDetailsFeature.AdjacentUnits,
     UnitDetailsFeature.OutcropType,
   ]),
+  onClickItem,
 }: {
   unit: UnitLong;
   selectUnit?: (unitID: number) => void;
   columnUnits?: UnitLong[];
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
+  onClickItem?: (event: any) => void;
 }) {
   const lithMap = useMacrostratDefs("lithologies");
   const envMap = useMacrostratDefs("environments");
@@ -215,12 +220,19 @@ function UnitDetailsContent({
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
+      onClickItem,
     }),
     h(AgeField, { unit }, [
       h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),
-      h(IntervalProportions, { unit }),
+      h(IntervalProportions, { 
+        unit,
+        onClickItem,
+       }),
     ]),
-    h(EnvironmentsList, { environments }),
+    h(EnvironmentsList, { 
+      environments,
+      onClickItem,
+     }),
     h.if(unit.strat_name_id != null)(
       DataField,
       {
@@ -470,7 +482,7 @@ function UnitIDList({ units, selectUnit }) {
   );
 }
 
-function IntervalProportions({ unit }) {
+function IntervalProportions({ unit, onClickItem }) {
   const i0 = unit.b_int_id;
   const i1 = unit.t_int_id;
   let b_prop = unit.b_prop ?? 0;
@@ -498,14 +510,26 @@ function IntervalProportions({ unit }) {
     p0 = h("span.joint-proportion", [p0, h("span.sep", "to"), p1]);
   }
 
+  const clickable = onClickItem != null;
+
+  const handleClick = (event: MouseEvent) => {
+    if (onClickItem) {
+      onClickItem({ event, data: interval0 });
+    }
+  };
+
   return h("div.interval-proportions", [
     h(IntervalTag, {
+      className: clickable ? "clickable" : "",
+      onClick: clickable ? handleClick : undefined,
       interval: interval0,
       prefix: p0,
     }),
     h.if(i0 != i1)("span.discourage-break", [
       h("span.sep", "to"),
       h(IntervalTag, {
+        className: clickable ? "clickable" : "",
+        onClick: clickable ? handleClick : undefined,
         interval: {
           ...int1,
           id: i1,
