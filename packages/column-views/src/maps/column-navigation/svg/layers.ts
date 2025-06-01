@@ -32,7 +32,7 @@ export function MeasurementsLayer(props) {
   return h(FeatureLayer, {
     useCanvas: false,
     style,
-    features: res.features.filter((d) => d.properties.unit_id != null),
+    features: res?.features.filter((d) => d.properties.unit_id != null) ?? [],
   });
 }
 
