@@ -2,17 +2,19 @@ import {
   ColoredUnitComponent,
   MacrostratDataProvider,
   MeasurementDataProvider,
-} from "../src";
+  MergeSectionsMode,
+  ColumnNavigationSVGMap,
+  MeasurementsLayer,
+  useColumnNav,
+  PBDBFossilsColumn,
+} from "../../src";
 import h from "@macrostrat/hyper";
-import { StandaloneColumn } from "./column-ui";
+import { StandaloneColumn } from "../column-ui";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
-import { ColumnNavigationSVGMap, MeasurementsLayer } from "../src/maps";
-import { useColumnNav } from "../src/data-provider";
 import { useMemo } from "react";
 import { FeatureCollection } from "geojson";
-import { DetritalColumn } from "../src/detrital-zircon";
 
-function DetritalZirconColumn(props) {
+function PBDBFossilsDemoColumn(props) {
   const { id, children, spectraColor, ...rest } = props;
 
   return h(
@@ -26,19 +28,22 @@ function DetritalZirconColumn(props) {
         allowUnitSelection: false,
         ...rest,
       },
-      h(DetritalColumn, { columnID: id, color: spectraColor })
+      h(PBDBFossilsColumn, { columnID: id, color: spectraColor })
     )
   );
 }
 
 export default {
-  title: "Column views/Facets/Detrital zircons",
-  component: DetritalZirconColumn,
+  title: "Column views/Facets/Fossil occurrences",
+  component: PBDBFossilsDemoColumn,
 };
 
-export const PlateauProvince = {
+export const eODPColumn: Story = {
   args: {
-    id: 491,
+    id: 5576,
+    inProcess: true,
+    collapseSmallUnconformities: false,
+    mergeSections: MergeSectionsMode.OVERLAPPING,
   },
 };
 
