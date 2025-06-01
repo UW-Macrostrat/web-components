@@ -17,7 +17,7 @@ import {
   PackageLayoutData,
 } from "./composite-scale";
 import type { SectionInfo } from "./helpers";
-import { agesOverlap, unitsOverlap } from "./utils";
+import { agesOverlap, getUnitHeightRange, unitsOverlap } from "./utils";
 
 export * from "./utils";
 export { preprocessUnits, groupUnitsIntoSections };
@@ -94,6 +94,8 @@ export function prepareColumnUnits(
   } else {
     sections0 = groupUnitsIntoSections(units1, axisType);
   }
+
+  console.log(sections0);
 
   /** Merging overlapping sections really only makes sense for age/height/depth
    * columns. Ordinal columns are numbered by section so merging them
