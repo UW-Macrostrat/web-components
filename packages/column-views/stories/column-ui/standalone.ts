@@ -41,9 +41,8 @@ export function StandaloneColumn(props: StandaloneColumnProps) {
   }
 
   return h("div", [
-    h(FlexRow, { alignmentBaseline: "baseline" }, [
+    h(FlexRow, { gap: "2em", alignItems: "baseline" }, [
       h("h2", info.col_name),
-      h(Spacer),
       h("code", info.col_id),
     ]),
     h(Column, { ...rest, units }),

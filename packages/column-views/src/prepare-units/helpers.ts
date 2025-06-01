@@ -7,7 +7,9 @@ import {
   createUnitSorter,
   ensureArray,
   ensureRealFloat,
+  PossiblyClippedUnit,
 } from "./utils";
+import { compareAgeRanges } from "@macrostrat/stratigraphy-utils";
 
 const dt = 0.001;
 
@@ -111,6 +113,13 @@ export function groupUnitsIntoSections<T extends UnitLong>(
   units: T[],
   axisType: ColumnAxisType = ColumnAxisType.AGE
 ): SectionInfo<T>[] {
+  if (axisType != ColumnAxisType.AGE) {
+    return groupUnitsIntoSectionByOverlap(units, axisType);
+  }
+
+  /** Group units into sections by section_id.
+   * This works for large-scale Macrostrat columns, where units are grouped by section_id.
+   * */
   let groups = Array.from(group(units, (d) => d.section_id));
   const unitComparator = createUnitSorter(axisType);
 
@@ -128,6 +137,60 @@ export function groupUnitsIntoSections<T extends UnitLong>(
   ) => number;
   groups1.sort(compareSections);
   return groups1;
+}
+
+interface WorkingSection {
+  units: UnitLong[];
+  // Position or age
+  heightRange?: [number, number];
+}
+
+function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
+  units: T[],
+  axisType: ColumnAxisType = ColumnAxisType.AGE
+): SectionInfo<T>[] {
+  /** Group units into sections by overlap.
+   * This creates "synthetic" sections that correspond to packages bound by scale gaps.
+   * This is most useful in the height and depth domains, where gaps (e.g., missing core) are
+   * common.
+   * */
+  // Start with each unit as its own "section", and progressively merge...
+  const sectionList: WorkingSection[] = [];
+  for (const unit of units) {
+    // Check if the unit overlaps with any existing section
+    const heightRange = getUnitHeightRange(unit, axisType);
+    let section: WorkingSection | undefined = sectionList.find((s) =>
+      compareAgeRanges(heightRange, s.heightRange)
+    );
+    if (section == null) {
+      // No overlap, create a new section
+      sectionList.push({
+        heightRange,
+        units: [unit],
+      });
+    } else {
+      // Overlap, merge the unit into the section
+      section.units.push(unit);
+      // Update the height range
+      section.heightRange = [
+        Math.max(section.heightRange[0], heightRange[0]),
+        Math.min(section.heightRange[1], heightRange[1]),
+      ];
+    }
+  }
+  // We should have a section for each unit, now we can convert to SectionInfo
+  // Ages have to be really actually ages, not heights
+
+  return sectionList.map((section, i) => {
+    const [b_age, t_age] = getSectionAgeRange(section.units);
+    return {
+      // Negative section IDs are used to indicate that these are synthetic sections
+      section_id: -i,
+      t_age: t_age,
+      b_age: b_age,
+      units: section.units as T[],
+    };
+  });
 }
 
 export function getSectionAgeRange(units: BaseUnit[]): [number, number] {

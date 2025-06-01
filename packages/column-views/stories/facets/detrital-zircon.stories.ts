@@ -33,6 +33,7 @@ function DetritalZirconColumn(props) {
 }
 
 export default {
+  tags: ["!autodocs"],
   title: "Column views/Facets/Detrital zircons",
   component: DetritalZirconColumn,
 };

@@ -84,10 +84,7 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
 
     return unitRefData.map((d) => {
       const { unit, data } = d;
-      console.log(unit);
       const heightRange = getUnitHeightRange(unit, axisType);
-
-      console.log(heightRange);
 
       return {
         top_height: heightRange[1],

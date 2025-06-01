@@ -46,7 +46,7 @@ export function agesOverlap(
   return unitsOverlap(a, b, ColumnAxisType.AGE, tolerance);
 }
 
-interface PossiblyClippedUnit extends BaseUnit {
+export interface PossiblyClippedUnit extends BaseUnit {
   // Internally created clipped positions
   t_clip_pos?: number;
   b_clip_pos?: number;
