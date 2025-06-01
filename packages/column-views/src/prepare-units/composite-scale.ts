@@ -3,6 +3,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleLinear, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
+import { CompositeColumnScale } from "@macrostrat/column-views";
 
 export interface ColumnHeightScaleOptions {
   /** A fixed pixel scale to use for the section (pixels per Myr) */
@@ -268,15 +269,22 @@ function findAverageUnitHeight(
   return unitHeights.reduce((a, b) => a + b, 0) / unitHeights.length;
 }
 
+interface CompositeColumnScale {
+  (age: number): number | null;
+  copy(): CompositeColumnScale;
+  domain(): [number, number];
+  invert(pixelHeight: number): number | null;
+}
+
 export function createCompositeScale(
   sections: PackageLayoutData[],
   interpolateUnconformities: boolean = false
-): (age: number) => number | null {
+): CompositeColumnScale {
   /** Create a scale that works across multiple packages */
   // Get surfaces at which scale breaks
   let scaleBreaks: [number, number][] = [];
   for (const section of sections) {
-    const { pixelHeight, pixelScale, offset, domain } = section.scaleInfo;
+    const { pixelHeight, offset, domain } = section.scaleInfo;
 
     scaleBreaks.push([domain[1], offset]);
     scaleBreaks.push([domain[0], offset + pixelHeight]);
@@ -284,25 +292,61 @@ export function createCompositeScale(
   // Sort the scale breaks by age
   scaleBreaks.sort((a, b) => a[0] - b[0]);
 
-  return (age) => {
-    /** Given an age, find the corresponding pixel position */
-    // Iterate through the sections to find the correct one
-
+  const scale = (age) => {
     // Accumulate scale breaks and pixel height
-    let pixelHeight = 0;
-    let pixelScale = 0;
+    let lastHeight = 0;
     let lastAge = null;
     for (const [age1, height] of scaleBreaks) {
       if (age <= age1) {
-        if (lastAge != null) {
-          pixelHeight += (age - lastAge) * pixelScale;
-          return pixelHeight;
-        }
-        lastAge = age;
-        pixelHeight = height;
+        let pixelScale = (height - lastHeight) / (age1 - lastAge);
+        return lastHeight + (age - lastAge) * pixelScale;
       }
+      lastAge = age1;
+      lastHeight = height;
     }
   };
+
+  scale.copy = () => {
+    return createCompositeScale(sections, interpolateUnconformities);
+  };
+
+  scale.domain = () => {
+    /** Return the domain of the scale */
+    const firstSection = sections[0].scaleInfo.domain;
+    const lastSection = sections[sections.length - 1].scaleInfo.domain;
+    if (firstSection[0] < lastSection[0]) {
+      return [Math.min(...firstSection), Math.max(...lastSection)];
+    } else {
+      // Catches "normal" axes like height
+      return [Math.max(...firstSection), Math.min(...lastSection)];
+    }
+  };
+
+  scale.invert = (pixelHeight) => {
+    /** Invert the scale to get the age at a given pixel height */
+    // Iterate through the sections to find the correct one
+    let lastAge = null;
+    for (const section of sections) {
+      const {
+        pixelHeight: sectionHeight,
+        pixelScale,
+        offset,
+        domain,
+      } = section.scaleInfo;
+      if (
+        pixelHeight >= offset &&
+        pixelHeight <= offset + sectionHeight &&
+        pixelScale > 0
+      ) {
+        const age = domain[1] + (pixelHeight - offset) / pixelScale;
+        return age;
+      }
+      lastAge = domain[1];
+    }
+    return null;
+  };
+
+  return scale as CompositeColumnScale;
 }
 
 /** Collapse sections separated by unconformities that are smaller than a given pixel height. */

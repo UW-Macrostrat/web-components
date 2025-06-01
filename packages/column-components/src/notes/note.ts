@@ -1,120 +1,156 @@
-import { Component, useContext, createRef, forwardRef, RefObject } from "react";
+import { useContext, useMemo, useEffect, useRef, useState } from "react";
 import h from "../hyper";
-import { NoteLayoutContext, NoteLayoutCtx } from "./layout";
+import { useNoteLayout } from "./layout";
 import { NoteEditorContext } from "./editor";
 import type { NoteData } from "./types";
-import { NotePositioner, NoteConnector } from "./connector";
+import {
+  NotePositioner,
+  NoteConnector,
+  NodeConnectorOptions,
+} from "./connector";
+import { useColumn } from "@macrostrat/column-components";
 
-const NoteBody = function (props) {
-  const { note } = props;
-  const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
-  const { noteComponent } = useContext(NoteLayoutContext);
-  const isEditing = editingNote === note;
-
-  const onClick = () => setEditingNote(note);
-
-  const visibility = isEditing ? "hidden" : "inherit";
-  return h(noteComponent, { visibility, note, onClick });
+type NoteListProps = NodeConnectorOptions & {
+  inEditMode?: boolean;
+  editable?: boolean;
+  onClickNote?: (note: NoteData) => void;
 };
 
-const NoteMain = forwardRef(function (props: any, ref) {
-  const { note, offsetY, noteHeight } = props;
-  const { editingNote } = useContext(NoteEditorContext) as any;
+export function NotesList(props: NoteListProps) {
+  let { inEditMode: editable, onClickNote, ...rest } = props;
+  if (editable == null) {
+    editable = false;
+  }
+  const {
+    notes,
+    nodes: nodeIndex,
+    updateHeight,
+    noteComponent,
+    scale,
+  } = useNoteLayout();
+
+  const { pixelHeight: columnHeight } = useColumn();
+
+  const notesInfo = useMemo(() => {
+    let notes1 = notes.map((note) => {
+      const node = nodeIndex[note.id];
+      const pixelHeight = node?.width ?? 10;
+      const pixelOffset = node?.currentPos ?? scale(note.top_height);
+      return {
+        note,
+        node,
+        pixelOffset,
+        pixelHeight,
+        spacing: {
+          above: pixelOffset - pixelHeight,
+          below: columnHeight - pixelOffset,
+        },
+      };
+    });
+
+    // Adjust spacing to account for nearby nodes
+    for (let i = 0; i < notes1.length; i++) {
+      const { spacing, pixelOffset } = notes1[i];
+      if (i > 0) {
+        const prevNote = notes1[i - 1];
+        // Get distance from the previous note's bottom
+        // to the current note's top
+        spacing.above =
+          pixelOffset - prevNote.pixelOffset - prevNote.pixelHeight;
+        prevNote.spacing.below = spacing.above;
+      }
+    }
+
+    return notes1;
+  }, [notes, nodeIndex, scale]);
+
+  return h(
+    "g",
+    notesInfo.map(({ note, pixelOffset, pixelHeight, spacing }) => {
+      return h(Note, {
+        key: note.id,
+        note,
+        pixelOffset,
+        pixelHeight,
+        editable,
+        updateHeight,
+        onClick: onClickNote,
+        noteBodyComponent: noteComponent,
+        spacing,
+        ...rest,
+      });
+    })
+  );
+}
+
+type NodeSpacing = {
+  above: number;
+  below: number;
+};
+
+type NodeInfo = any;
+
+interface NoteProps {
+  editable: boolean;
+  note: NoteData;
+  editHandler?: Function;
+  style?: object;
+  deltaConnectorAttachment?: number;
+  pixelOffset?: number;
+  pixelHeight?: number;
+  updateHeight?: (id: string | number, height: number) => void;
+  onClick?: (note: NoteData) => void;
+  noteBodyComponent: (props: { note: NoteData; spacing?: NodeSpacing }) => any;
+  spacing?: NodeSpacing;
+}
+
+function Note(props: NoteProps) {
+  const {
+    note,
+    pixelOffset,
+    pixelHeight,
+    updateHeight,
+    deltaConnectorAttachment,
+    noteBodyComponent,
+    spacing,
+    onClick,
+  } = props;
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    if (ref.current) {
+      const newHeight = ref.current.offsetHeight;
+      if (newHeight !== pixelHeight) {
+        updateHeight(note.id, newHeight);
+      }
+    }
+  }, [note, pixelHeight, updateHeight]);
+
+  const offsetY = pixelOffset;
+  const noteHeight = pixelHeight;
+
+  const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
+  const onClick_ = onClick ?? setEditingNote;
+  const _onClickHandler = (evt) => {
+    onClick_(note);
+  };
+
   if (editingNote === note) {
     return null;
   }
   return h("g.note", [
-    h(NoteConnector, { note }),
+    h(NoteConnector, { note, deltaConnectorAttachment }),
     h(
       NotePositioner,
       {
         offsetY,
         noteHeight,
         ref,
+        onClick: _onClickHandler,
       },
-      [h(NoteBody, { note })]
+      h(noteBodyComponent, { note, spacing })
     ),
   ]);
-});
-
-interface NoteProps {
-  editable: boolean;
-  note: NoteData;
-  editHandler: Function;
-  style?: object;
 }
 
-class Note extends Component<NoteProps, any> {
-  static contextType = NoteLayoutContext;
-  element: RefObject<HTMLElement>;
-  context: NoteLayoutCtx;
-
-  constructor(props) {
-    super(props);
-    this.updateHeight = this.updateHeight.bind(this);
-    this.componentDidMount = this.componentDidMount.bind(this);
-    this.componentDidUpdate = this.componentDidUpdate.bind(this);
-    this.element = createRef();
-    this.state = { height: null };
-  }
-
-  render() {
-    const { style, note, editHandler, editable } = this.props;
-    const { scale, nodes, columnIndex, width, paddingLeft } = this.context;
-
-    const node = nodes[note.id];
-    let offsetY = scale(note.height);
-    if (node != null) {
-      offsetY = node.currentPos;
-    }
-
-    const noteHeight = this.state.height || 0;
-
-    return h(NoteMain, {
-      offsetY,
-      note,
-      noteHeight,
-      ref: this.element,
-    });
-  }
-
-  updateHeight(prevProps) {
-    const node = this.element.current;
-    if (node == null) {
-      return;
-    }
-    const height = node.offsetHeight;
-    if (height == null) {
-      return;
-    }
-    if (prevProps != null && prevProps.note === this.props.note) {
-      return;
-    }
-    this.setState({ height });
-    return this.context.registerHeight(this.props.note.id, height);
-  }
-
-  componentDidMount() {
-    return this.updateHeight.apply(this, arguments);
-  }
-
-  componentDidUpdate() {
-    return this.updateHeight.apply(this, arguments);
-  }
-}
-
-const NotesList = function (props) {
-  let { inEditMode: editable, ...rest } = props;
-  if (editable == null) {
-    editable = false;
-  }
-  const { notes } = useContext(NoteLayoutContext);
-  return h(
-    "g",
-    notes.map((note) => {
-      return h(Note, { key: note.id, note, editable, ...rest });
-    })
-  );
-};
-
-export { Note, NotesList, NotePositioner, NoteConnector };
+export { NotePositioner, NoteConnector };

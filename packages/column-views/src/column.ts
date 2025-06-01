@@ -2,7 +2,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
 import { useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { RefObject, useRef, HTMLAttributes } from "react";
+import { RefObject, useRef, HTMLAttributes, useCallback } from "react";
 import styles from "./column.module.sass";
 import {
   UnitSelectionProvider,
@@ -15,6 +15,7 @@ import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
 import { UnitSelectionPopover } from "./unit-details";
 import {
   MacrostratColumnDataProvider,
+  useCompositeScale,
   useMacrostratColumnData,
 } from "./data-provider";
 import {
@@ -38,6 +39,11 @@ interface BaseColumnProps extends SectionSharedProps {
   // Timescale properties
   showTimescale?: boolean;
   timescaleLevels?: number | [number, number];
+  onMouseOver?: (
+    unit: UnitLong | null,
+    height: number | null,
+    evt: MouseEvent
+  ) => void;
 }
 
 export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
@@ -47,6 +53,7 @@ export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
   b_age?: number;
   mergeSections?: MergeSectionsMode;
   showUnitPopover?: boolean;
+  allowUnitSelection?: boolean;
   selectedUnit?: number | null;
   onUnitSelected?: (unitID: number | null, unit: any) => void;
   // Unconformity height in pixels
@@ -71,6 +78,7 @@ export function Column(props: ColumnProps) {
     minPixelScale = 0.2,
     minSectionHeight = 50,
     collapseSmallUnconformities = true,
+    allowUnitSelection,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
@@ -100,18 +108,37 @@ export function Column(props: ColumnProps) {
     );
   }
 
+  let main: any = h(ColumnInner, { columnRef: ref, ...rest }, [
+    children,
+    h.if(showUnitPopover)(UnitSelectionPopover),
+    h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
+  ]);
+
+  /* By default, unit selection is disabled. However, if any related props are passed,
+   we enable it.
+   */
+  let _allowUnitSelection = allowUnitSelection ?? false;
+  if (showUnitPopover || selectedUnit != null || onUnitSelected != null) {
+    _allowUnitSelection = true;
+  }
+
+  if (_allowUnitSelection) {
+    main = h(
+      UnitSelectionProvider,
+      {
+        columnRef: ref,
+        onUnitSelected,
+        selectedUnit,
+        units,
+      },
+      main
+    );
+  }
+
   return h(
     MacrostratColumnDataProvider,
     { units, sections, totalHeight, axisType },
-    h(
-      UnitSelectionProvider,
-      { columnRef: ref, onUnitSelected, selectedUnit, units },
-      h(ColumnInner, { columnRef: ref, ...rest }, [
-        children,
-        h.if(showUnitPopover)(UnitSelectionPopover),
-        h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
-      ])
-    )
+    main
   );
 }
 
@@ -134,11 +161,10 @@ function ColumnInner(props: ColumnInnerProps) {
     showTimescale,
     timescaleLevels,
     maxInternalColumns,
+    onMouseOver,
   } = props;
 
   const { axisType } = useMacrostratColumnData();
-
-  const dispatch = useUnitSelectionDispatch();
 
   let width = _width;
   let columnWidth = _columnWidth;
@@ -150,8 +176,8 @@ function ColumnInner(props: ColumnInnerProps) {
     showLabelColumn = false;
   }
 
-  let _showTimescale = showTimescale;
-  if (timescaleLevels !== null) {
+  let _showTimescale = showTimescale ?? true;
+  if (timescaleLevels != null) {
     _showTimescale = true;
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
@@ -159,9 +185,7 @@ function ColumnInner(props: ColumnInnerProps) {
   return h(
     ColumnContainer,
     {
-      onClick(evt) {
-        dispatch?.(null, null, evt as any);
-      },
+      ...useMouseEventHandlers(onMouseOver),
       className,
     },
     h("div.column", { ref: columnRef }, [
@@ -180,6 +204,55 @@ function ColumnInner(props: ColumnInnerProps) {
       children,
     ])
   );
+}
+
+type ColumnMouseOverHandler = (
+  unit: UnitLong | null,
+  height: number | null,
+  evt: MouseEvent
+) => void;
+
+function useMouseEventHandlers(
+  _onMouseOver: ColumnMouseOverHandler | null = null
+) {
+  /** Click event handler */
+
+  // Click handler for unit selection
+  const dispatch = useUnitSelectionDispatch();
+  const onClick = useCallback(
+    (evt) => {
+      dispatch?.(null, null, evt as any);
+    },
+    [dispatch]
+  );
+
+  /** Hover event handlers */
+  const scale = useCompositeScale();
+
+  const onMouseOver = useCallback(
+    (evt) => {
+      const height = scale.invert(
+        evt.clientY - evt.currentTarget.getBoundingClientRect().top
+      );
+      _onMouseOver?.(null, height, evt);
+    },
+    [scale, _onMouseOver]
+  );
+
+  const onMouseOut = useCallback(() => {
+    _onMouseOver?.(null, null, null);
+  }, [_onMouseOver]);
+
+  if (_onMouseOver == null) {
+    return {
+      onClick,
+      onMouseOver: undefined,
+      onMouseMove: undefined,
+      onMouseOut: undefined,
+    };
+  }
+
+  return { onMouseOver, onMouseMove: onMouseOver, onMouseOut, onClick };
 }
 
 export interface ColumnContainerProps extends HTMLAttributes<HTMLDivElement> {

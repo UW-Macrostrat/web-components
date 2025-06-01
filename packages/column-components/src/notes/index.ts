@@ -12,7 +12,9 @@ import {
   NoteEditorProvider,
 } from "./editor";
 import { NewNotePositioner } from "./new";
+import { NodeConnectorOptions } from "./connector";
 export * from "./types";
+import type { ReactNode } from "react";
 
 interface NoteComponentProps {
   visibility: string;
@@ -73,6 +75,7 @@ function EditableNotesColumn(props: EditableNotesColumnProps) {
     noteEditor = NoteTextEditor,
     allowPositionEditing = false,
     forceOptions,
+    onClickNote,
   } = props;
 
   const innerWidth = width - paddingLeft;
@@ -103,6 +106,7 @@ function EditableNotesColumn(props: EditableNotesColumnProps) {
             h(NotesList, {
               editHandler: inEditMode ? onUpdateNote : null,
               inEditMode,
+              onClickNote,
             }),
             h(NewNotePositioner),
             h(NoteEditor, { allowPositionEditing }),
@@ -113,21 +117,27 @@ function EditableNotesColumn(props: EditableNotesColumnProps) {
   );
 }
 
-interface NotesColumnBaseProps {
+interface NotesColumnBaseProps extends NodeConnectorOptions {
   width?: number;
   paddingLeft?: number;
   transform?: string;
   notes?: NoteData[];
   noteComponent?: ComponentType<any>;
+  onClickNote?: (note: NoteData) => void;
+  children?: ReactNode;
 }
 
 function StaticNotesColumn(props: NotesColumnBaseProps) {
+  /** A non-editable notes column. */
   const {
     width,
     paddingLeft = 60,
     transform,
     notes,
     noteComponent = NoteComponent,
+    deltaConnectorAttachment,
+    onClickNote,
+    children,
   } = props;
 
   const innerWidth = width - paddingLeft;
@@ -143,7 +153,12 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
     [
       h("g.section-log", { transform }, [
         h(NoteDefs),
-        h(NotesList, { inEditMode: false }),
+        h(NotesList, {
+          inEditMode: false,
+          deltaConnectorAttachment,
+          onClickNote,
+        }),
+        children,
       ]),
     ]
   );

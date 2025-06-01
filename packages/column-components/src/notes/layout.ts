@@ -3,13 +3,17 @@ import { StatefulComponent } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 
 import { hasSpan } from "./utils";
-import { FlexibleNode, Node, Renderer, Force } from "./label-primitives";
+import { FlexibleNode, Force, Node, Renderer } from "./label-primitives";
 import {
-  ColumnLayoutProvider,
   ColumnContext,
   ColumnCtx,
   ColumnDivision,
+  ColumnLayoutProvider,
 } from "../context";
+import {
+  AgeRangeRelationship,
+  compareAgeRanges,
+} from "@macrostrat/stratigraphy-utils";
 
 const NoteLayoutContext = createContext(null);
 
@@ -42,19 +46,16 @@ const buildColumnIndex = function () {
   };
 };
 
-const withinDomain = (scale) =>
-  function (d) {
-    const [start, end] = scale.domain();
-    // end height greater than beginning
-    const end_height = d.top_height || d.height;
-    if (start < end) {
-      // Normal scale (e.g. height)
-      return end_height >= start && d.height <= end;
-    } else {
-      // Inverted scale (e.g. time)
-      return end_height <= start && d.height >= end;
-    }
+function withinDomain(scale) {
+  const scaleDomain = scale.domain();
+  return (d) => {
+    const noteRange: [number, number] = [d.height, d.top_height ?? d.height];
+
+    const rel = compareAgeRanges(scaleDomain, noteRange);
+
+    return rel !== AgeRangeRelationship.Disjoint;
   };
+}
 
 interface NoteLayoutProviderProps {
   notes: any[];
@@ -70,6 +71,7 @@ interface NoteLayoutState {
   elementHeights?: object;
   columnIndex?: object;
   nodes?: object;
+  updateHeight?: Function;
   generatePath: Function;
   createNodeForNote?: Function;
   noteComponent?: any;
@@ -81,7 +83,7 @@ export interface NoteLayoutCtx {
   paddingLeft: number;
   scale: Function;
   width: number;
-  registerHeight: Function;
+  updateHeight: Function;
   generatePath: Function;
   columnIndex?: any;
   nodes?: any;
@@ -110,7 +112,7 @@ class NoteLayoutProvider extends StatefulComponent<
     this.generatePath = this.generatePath.bind(this);
     this.createNodeForNote = this.createNodeForNote.bind(this);
     this.computeForceLayout = this.computeForceLayout.bind(this);
-    this.registerHeight = this.registerHeight.bind(this);
+    this.updateHeight = this.updateHeight.bind(this);
     this.updateNotes = this.updateNotes.bind(this);
     this.componentDidMount = this.componentDidMount.bind(this);
     this.componentDidUpdate = this.componentDidUpdate.bind(this);
@@ -148,8 +150,6 @@ class NoteLayoutProvider extends StatefulComponent<
       paddingLeft,
       scale,
       width,
-      registerHeight: this.registerHeight,
-      generatePath: this.generatePath,
     };
 
     // Compute force layout
@@ -161,6 +161,8 @@ class NoteLayoutProvider extends StatefulComponent<
 
     return this.setState({
       renderer,
+      updateHeight: this.updateHeight,
+      generatePath: this.generatePath,
       ...forwardedValues,
     });
   }
@@ -195,18 +197,19 @@ class NoteLayoutProvider extends StatefulComponent<
     const { id: noteID } = note;
     const pixelHeight = elementHeights[noteID] || 10;
     const padding = 5;
-    const lowerHeight = scale(note.height);
+    let noteHeight = scale(note.height);
     if (hasSpan(note)) {
       const upperHeight = scale(note.top_height);
       const harr: [number, number] = [
-        lowerHeight - padding,
+        noteHeight - padding,
         upperHeight + padding,
       ];
       if (harr[0] - harr[1] > 0) {
         return new FlexibleNode(harr, pixelHeight);
       }
+      noteHeight = (harr[0] + harr[1]) / 2;
     }
-    return new Node(lowerHeight, pixelHeight);
+    return new Node(noteHeight, pixelHeight);
   }
 
   computeForceLayout(prevProps, prevState) {
@@ -250,7 +253,7 @@ class NoteLayoutProvider extends StatefulComponent<
     return this.updateState({ nodes: { $set: nodesObj } });
   }
 
-  registerHeight(id, height) {
+  updateHeight(id, height) {
     if (height == null) {
       return;
     }
@@ -331,5 +334,13 @@ const NoteUnderlay = function ({ fill, ...rest }) {
     ...rest,
   });
 };
+
+export function useNoteLayout() {
+  const ctx = useContext(NoteLayoutContext);
+  if (ctx == null) {
+    throw new Error("useNoteLayout must be used within a NoteLayoutProvider");
+  }
+  return ctx;
+}
 
 export { NoteLayoutContext, NoteLayoutProvider, NoteRect, NoteUnderlay };

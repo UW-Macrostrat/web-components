@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import { scaleLinear, AnyD3Scale } from "@visx/scale";
 import { AreaClosed } from "@visx/shape";
 import { AxisBottom } from "@visx/axis";
@@ -19,6 +19,10 @@ import {
   ScaleTime,
   ScaleQuantize,
 } from "@visx/vendor/d3-scale";
+import styles from "./index.module.sass";
+import { expandInnerSize } from "@macrostrat/ui-components";
+
+const h = hyper.styled(styles);
 
 export { kernelDensityEstimator, kernelEpanechnikov, kernelGaussian };
 
@@ -107,24 +111,32 @@ function DetritalSeries(props: DetritalSeriesProps) {
 
 type DetritalSpectrumProps = {
   children: ReactNode;
+  innerWidth: number;
+  showAxisLabels?: boolean;
 };
 
 function DetritalSpectrumPlot(props: DetritalSpectrumProps) {
-  const { children } = props;
+  const { children, showAxisLabels = true, ...sizeProps } = props;
   let minmax = [0, 4000]; // extent(data, accessor);
   const delta = minmax[1] - minmax[0];
   //minmax = [minmax[0] - bandwidth * 4, minmax[1] + bandwidth * 4]
 
-  const margin = 10;
-  const marginTop = 30;
-  const marginBottom = 50;
-  const innerWidth = 300;
-  const eachHeight = 60;
-  const height = eachHeight + marginTop + marginBottom;
-  const width = innerWidth + 2 * margin;
+  const ez = expandInnerSize(
+    {
+      padding: 10,
+      paddingBottom: showAxisLabels ? 40 : undefined,
+      innerHeight: 60,
+      width: 300,
+      ...sizeProps,
+    },
+    false
+  );
+
+  const { width, height, paddingLeft, paddingTop, innerWidth, innerHeight } =
+    ez;
 
   const xScale = scaleLinear({
-    range: [0, width],
+    range: [0, innerWidth],
     domain: minmax,
   });
 
@@ -135,24 +147,25 @@ function DetritalSpectrumPlot(props: DetritalSpectrumProps) {
     tickFormat = (d) => d / 1000;
   }
 
-  const labelProps = { label };
+  const fill = "var(--text-color)";
+  const labelProps = { fill };
 
   const id = "gradient_1";
 
   const value = {
     width: innerWidth,
-    height: eachHeight,
+    height: innerHeight,
     xScale,
   };
 
   return h(
     PlotAreaContext.Provider,
     { value },
-    h("svg", { width, height }, [
+    h("svg.detrital-spectrum-plot", { width, height }, [
       h(
         "g",
         {
-          transform: `translate(${margin},${marginTop})`,
+          transform: `translate(${paddingLeft},${paddingTop})`,
         },
         [
           h(gradients[0], { id }),
@@ -162,8 +175,14 @@ function DetritalSpectrumPlot(props: DetritalSpectrumProps) {
             tickLength: 4,
             tickFormat,
             strokeWidth: 1.5,
-            top: eachHeight,
-            ...labelProps,
+            top: innerHeight + 1,
+            tickStroke: fill,
+            stroke: fill,
+            tickLabelProps: {
+              fill,
+            },
+            label,
+            labelProps,
           }),
           children,
         ]

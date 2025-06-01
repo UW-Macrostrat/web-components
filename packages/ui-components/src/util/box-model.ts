@@ -159,11 +159,12 @@ function expandInnerSize<T>(
       innerWidth?: number;
       width?: number;
       height?: number;
-    }
+    },
+  stripExtraKeys: boolean = true
 ): T & {
   height?: number;
   width?: number;
-} {
+} & StrictPadding {
   const n = expandPadding(obj);
   const { innerHeight, innerWidth, height, width, ...rest } = n;
   if (innerHeight != null) {
@@ -176,9 +177,23 @@ function expandInnerSize<T>(
       n.width = innerWidth + n.paddingLeft + n.paddingRight;
     }
   }
-  delete n.innerHeight;
-  delete n.innerWidth;
+  if (stripExtraKeys) {
+    return removeInnerSize(n);
+  }
+  if (n.height != null) {
+    n.innerHeight ??= n.height - n.paddingTop - n.paddingBottom;
+  }
+  if (n.width != null) {
+    n.innerWidth ??= n.width - n.paddingLeft - n.paddingRight;
+  }
+
   return n;
+}
+
+function removeInnerSize<T extends object>(obj: any) {
+  delete obj.innerHeight;
+  delete obj.innerWidth;
+  return obj;
 }
 
 export {

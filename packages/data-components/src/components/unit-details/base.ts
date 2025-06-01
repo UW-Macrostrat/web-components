@@ -78,14 +78,16 @@ export function IntervalField({ intervals }: { intervals: IntervalShort[] }) {
 export function Value({
   value,
   unit,
+  className,
   children,
 }: {
   value?: any;
   unit?: string;
   children?: any;
+  className?: string;
 }) {
   const val = value ?? children;
-  return h("span.value-container", [
+  return h("span.value-container", { className }, [
     h("span.value", val),
     h.if(unit != null)([" ", h("span.unit", unit)]),
   ]);
@@ -110,8 +112,6 @@ export function IntervalTag({
     ...rest,
   });
 }
-
-export const Interval = IntervalTag;
 
 function uniqueIntervals(
   ...intervals: (IntervalShort | undefined)[]

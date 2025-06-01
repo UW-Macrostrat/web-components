@@ -17,7 +17,7 @@ import {
   PackageLayoutData,
 } from "./composite-scale";
 import type { SectionInfo } from "./helpers";
-import { agesOverlap, unitsOverlap } from "./utils";
+import { agesOverlap, getUnitHeightRange, unitsOverlap } from "./utils";
 
 export * from "./utils";
 export { preprocessUnits, groupUnitsIntoSections };

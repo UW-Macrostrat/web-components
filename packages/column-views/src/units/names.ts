@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { useContext, useCallback } from "react";
+import { useContext, useCallback, useMemo } from "react";
 import {
   ColumnContext,
   ColumnAxisType,
@@ -11,6 +11,10 @@ import { IUnit } from "./types";
 import React from "react";
 import { getUnitHeightRange } from "../prepare-units/utils";
 import { CompositeColumnScale } from "./composite";
+import {
+  useCompositeScale,
+  useMacrostratColumnData,
+} from "@macrostrat/column-views";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
@@ -53,17 +57,16 @@ const defaultNameFunction = (div) => {
 };
 
 function UnitDataColumn_(props: UnitDataProps) {
-  const ctx = useContext(ColumnContext);
+  const { axisType, units } = useMacrostratColumnData();
+  const scale = useCompositeScale();
   const {
-    left,
+    left = 0,
     noteComponent,
     shouldRenderNote = (note: ColumnDivision | IUnit, i: number) => true,
     minimumHeight = 0,
-    divisions = ctx?.divisions,
+    divisions = units,
     ...rest
   } = props;
-
-  const { scale } = ctx;
 
   const minimumHeightFilter = useCallback(
     (d) => {
@@ -77,11 +80,11 @@ function UnitDataColumn_(props: UnitDataProps) {
   if (divisions == null) return null;
   const notes: UnitNote[] = divisions
     .filter(shouldRenderNote)
-    .map((d: IUnit) => noteForDivision(d, { axisType: ctx.axisType }))
+    .map((d: IUnit) => noteForDivision(d, { axisType }))
     .filter(minimumHeightFilter);
 
   return h(NotesColumn, {
-    transform: `translate(${left || 0})`,
+    transform: `translate(${left})`,
     editable: false,
     noteComponent,
     notes,
@@ -98,6 +101,7 @@ interface UnitNamesProps extends UnitDataProps {
   nameForDivision?(obj: IUnit): string;
   paddingLeft?: number;
   width: number;
+  onClickNote?: (note: any) => void;
 }
 
 export function UnitNamesColumn(props: UnitNamesProps) {
@@ -107,13 +111,16 @@ export function UnitNamesColumn(props: UnitNamesProps) {
     ...rest
   } = props;
 
-  const NoteComponent = (props) => {
-    const { note } = props;
-    return h("p.col-note-label", nameForDivision(note.data));
-  };
+  const defaultNoteComponent = useMemo(
+    () => (props) => {
+      const { note } = props;
+      return h("p.col-note-label", nameForDivision(note.data));
+    },
+    [nameForDivision]
+  );
 
   return h(UnitDataColumn, {
-    noteComponent: noteComponent ?? NoteComponent,
+    noteComponent: noteComponent ?? defaultNoteComponent,
     ...rest,
   });
 }

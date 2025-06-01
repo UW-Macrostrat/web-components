@@ -43,7 +43,12 @@ function convertToForwardOrdinal(a: AgeRange): AgeRange {
    * expressed as negative numbers. This assists with intuitive ordering
    * in certain cases.
    */
-  return [-a[0], -a[1]];
+  if (a[0] < a[1]) {
+    // Already in forward ordinal form
+    return a;
+  }
+  // Convert to forward ordinal form
+  return [a[1], a[0]];
 }
 
 export function compareAgeRanges(
