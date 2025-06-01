@@ -7,6 +7,7 @@ import {
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
 import { Meta } from "@storybook/react";
+import { ColumnAxisType } from "@macrostrat/column-components";
 
 function PBDBFossilsDemoColumn(props) {
   const { id, children, spectraColor, ...rest } = props;
@@ -34,6 +35,14 @@ export default {
 } as Meta;
 
 export const eODPColumn: Story = {
+  args: {
+    id: 5576,
+    inProcess: true,
+    axisType: ColumnAxisType.DEPTH,
+  },
+};
+
+export const eODPColumnAgeFramework: Story = {
   args: {
     id: 5576,
     inProcess: true,

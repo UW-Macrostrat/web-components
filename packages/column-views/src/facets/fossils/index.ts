@@ -1,11 +1,15 @@
-import { IUnit } from "@macrostrat/column-views";
+import {
+  getUnitHeightRange,
+  IUnit,
+  useMacrostratColumnData,
+} from "@macrostrat/column-views";
 import hyper from "@macrostrat/hyper";
-import { FossilDataType, PBDBCollection, useFossilData } from "./provider";
+import { PBDBCollection, useFossilData } from "./provider";
 import { useMacrostratUnits } from "../../data-provider";
 import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
 import styles from "./index.module.sass";
-import classNames from "classnames";
+import { useColumn } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
 
@@ -36,8 +40,6 @@ function FossilInfo(props: FossilItemProps) {
     tooMany = h("li.too-many", `and ${n} more`);
   }
 
-  const spaceBelow = spacing?.below ?? 100;
-
   return h("ul.fossil-collections", [
     d1.map((d) => {
       return h("li.collection", [h(PBDBCollectionLink, { collection: d })]);
@@ -56,33 +58,45 @@ function PBDBCollectionLink({ collection }: { collection: PBDBCollection }) {
   );
 }
 
-const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
+const matchingUnit = (dz) => (d) => d.unit_id == dz.unit_id;
 
 export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
   const data = useFossilData({ col_id: columnID });
   const units = useMacrostratUnits();
+  const { axisType } = useMacrostratColumnData();
 
   const notes: any[] = useMemo(() => {
     if (data == null || units == null) return [];
-    let dzUnitData = Array.from(data.values());
-    dzUnitData.sort((a, b) => {
-      const v1 = units.findIndex(matchingUnit(a));
-      const v2 = units.findIndex(matchingUnit(b));
+    let unitRefData = Array.from(data.values())
+      .map((d) => {
+        return {
+          data: d,
+          unit: units.find(matchingUnit(d[0])),
+        };
+      })
+      .filter((d) => d.unit != null);
+
+    unitRefData.sort((a, b) => {
+      const v1 = units.indexOf(a.unit);
+      const v2 = units.indexOf(b.unit);
       return v1 > v2;
     });
 
-    const data1 = dzUnitData.map((d) => {
-      const unit = units.find(matchingUnit(d));
+    return unitRefData.map((d) => {
+      const { unit, data } = d;
+      console.log(unit);
+      const heightRange = getUnitHeightRange(unit, axisType);
+
+      console.log(heightRange);
+
       return {
-        top_height: unit?.t_age,
-        height: unit?.b_age,
-        data: d,
+        top_height: heightRange[1],
+        height: heightRange[0],
+        data,
         unit,
-        id: unit?.unit_id,
+        id: unit.unit_id,
       };
     });
-
-    return data1.filter((d) => d.unit != null);
   }, [data, units]);
 
   const width = 500;
