@@ -45,6 +45,7 @@ function CarbonIsotopesColumn(props) {
 }
 
 export default {
+  tags: ["!autodocs"],
   title: "Column views/Facets/Carbon isotopes",
   component: CarbonIsotopesColumn,
 };
@@ -97,13 +98,13 @@ export function EdiacaranCompilation(defaultArgs) {
             },
           })
         ),
-      ]),
-      h("div.column-view", [
-        h(CarbonIsotopesColumn, {
-          id: columnArgs.col_id,
-          inProcess: true,
-          showLabelColumn: false,
-        }),
+        h("div.column-view", [
+          h(CarbonIsotopesColumn, {
+            id: columnArgs.col_id,
+            inProcess: true,
+            showLabelColumn: false,
+          }),
+        ]),
       ]),
     ])
   );

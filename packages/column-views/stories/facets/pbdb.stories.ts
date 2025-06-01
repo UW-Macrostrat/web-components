@@ -31,7 +31,13 @@ function PBDBFossilsDemoColumn(props) {
 export default {
   title: "Column views/Facets/Fossil occurrences",
   component: PBDBFossilsDemoColumn,
-  autodocs: false,
+  tags: ["!autodocs"],
+  argTypes: {
+    axisType: {
+      options: ["age", "depth"],
+      control: { type: "radio" },
+    },
+  },
 } as Meta;
 
 export const eODPColumn: Story = {
@@ -39,7 +45,26 @@ export const eODPColumn: Story = {
     id: 5576,
     inProcess: true,
     axisType: ColumnAxisType.DEPTH,
+    pixelScale: 5,
+    allowUnitSelection: true,
+    showUnitPopover: true,
+    collapseSmallUnconformities: true,
+    keyboardNavigation: true,
   },
+};
+
+export const eODPColumnMoreComplete: Story = {
+  args: {
+    id: 5278,
+    inProcess: true,
+    axisType: ColumnAxisType.DEPTH,
+    pixelScale: 5,
+    allowUnitSelection: true,
+    showUnitPopover: true,
+    collapseSmallUnconformities: true,
+    keyboardNavigation: true,
+  },
+  title: "eODP Column (more complete)",
 };
 
 export const eODPColumnAgeFramework: Story = {
@@ -49,6 +74,7 @@ export const eODPColumnAgeFramework: Story = {
     collapseSmallUnconformities: false,
     mergeSections: MergeSectionsMode.OVERLAPPING,
   },
+  title: "eODP Column (with age model applied)",
 };
 
 export const ParadoxBasin = {
@@ -70,5 +96,8 @@ export const BighornBasinColored = {
     allowUnitSelection: true,
     unitComponent: ColoredUnitComponent,
     spectraColor: "lightgreen",
+    showUnitPopover: true,
+    collapseSmallUnconformities: true,
+    keyboardNavigation: true,
   },
 };
