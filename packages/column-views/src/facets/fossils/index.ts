@@ -1,14 +1,9 @@
-import {
-  DetritalSpectrumPlot,
-  DetritalSeries,
-  usePlotArea,
-} from "@macrostrat/data-components";
 import { IUnit } from "@macrostrat/column-views";
 import hyper from "@macrostrat/hyper";
-import { useDetritalMeasurements, MeasurementInfo } from "./provider";
+import { FossilDataType, useFossilData } from "./provider";
 import { useMacrostratUnits } from "../../data-provider";
 import { ColumnNotes } from "../../notes";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import styles from "./index.module.sass";
 import classNames from "classnames";
 
@@ -16,7 +11,7 @@ const h = hyper.styled(styles);
 
 interface DetritalItemProps {
   note: {
-    data: MeasurementInfo[];
+    data: any[];
     unit?: IUnit;
   };
   spacing?: {
@@ -28,52 +23,43 @@ interface DetritalItemProps {
   color?: string;
 }
 
-function DepositionalAge({ unit }) {
-  const { xScale, height } = usePlotArea();
-
-  const { t_age, b_age } = unit;
-  const x = xScale(t_age);
-  const x1 = xScale(b_age);
-
-  return h("rect.depositional-age", { x, width: x1 - x, y: 0, height });
-}
-
-function DetritalGroup(props: DetritalItemProps) {
-  const { note, width, height, color, spacing } = props;
+function FossilInfo(props: DetritalItemProps) {
+  const { note, spacing } = props;
   const { data, unit } = note;
-  const { geo_unit } = data[0];
 
-  const _color = color;
+  console.log(data);
 
   const spaceBelow = spacing?.below ?? 100;
   const hideAxisLabels = spaceBelow < 60;
 
   return h(
-    "div.detrital-group",
+    "ul.fossil-collections",
     { className: classNames({ "hide-axis": hideAxisLabels }) },
-    [
-      h(
-        DetritalSpectrumPlot,
-        { width, innerHeight: height, showAxisLabels: true, paddingBottom: 40 },
-        [
-          h.if(unit != null)(DepositionalAge, { unit }),
-          data.map((d) => {
-            return h(DetritalSeries, {
-              bandwidth: 20,
-              data: d.measure_value,
-              color: _color,
-            });
-          }),
-        ]
-      ),
-    ]
+    data.map((d) => {
+      return h("li.collection", [h(PBDBCollectionLink, { oid: d.oid })]);
+    })
+  );
+}
+
+function PBDBCollectionLink({ oid }) {
+  let id = `${oid}`;
+  if (id.startsWith("col:")) {
+    id = id.substring(4);
+  }
+
+  return h(
+    "a.link-id",
+    {
+      href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${id}`,
+    },
+    `${id}`
   );
 }
 
 const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
 
 export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
-  const data = useDetritalMeasurements({ col_id: columnID });
+  const data = useFossilData(FossilDataType.Collections, { col_id: columnID });
   const units = useMacrostratUnits();
 
   const notes: any[] = useMemo(() => {
@@ -106,9 +92,7 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
 
   const noteComponent = useMemo(() => {
     return (props) => {
-      return h(DetritalGroup, {
-        width: spectrumWidth,
-        height: 40,
+      return h(FossilInfo, {
         color,
         ...props,
       });
