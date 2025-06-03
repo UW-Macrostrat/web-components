@@ -27,7 +27,7 @@ export interface NavigationProviderProps {
   inProcess?: boolean;
   selectedColumn?: number | null;
   hoveredColumn?: number | null;
-  columns?: ColumnGeoJSONRecordWithID[] | null;
+  columns?: number[] | null;
   children: ReactNode;
   onSelectColumn?: (col_id: number | null, column: any) => void;
   onHoverColumn?: (col_id: number | null, column: any) => void;
@@ -77,15 +77,7 @@ export function ColumnNavigationProvider({
   //   store.setState({ columns: _columns, selectedColumn });
   // }, [projectID, inProcess, columns, getColumns]);
 
-  let newColumns = getColsData({columns})
-  newColumns = newColumns?.map((d) => {
-    // Add an ID to each column feature
-    return {
-      ...d,
-      id: d.properties.col_id,
-    };
-  });
-
+  const newColumns = getColsData({columns});
   const _columns = columns ? newColumns : useMacrostratColumns(projectID, inProcess);
 
   useEffect(() => {
@@ -123,6 +115,11 @@ function getColsData({columns}) {
   let res = useAPIResult(
     "https://macrostrat.org/api/v2/columns?col_id=" + columns?.join(",") + "&response=long&format=geojson"
   )
-  
-  return res?.success?.data.features;
+
+  return res?.success?.data.features?.map((d) => {
+    return {
+      ...d,
+      id: d.properties.col_id,
+    };
+  });
 }
