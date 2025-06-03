@@ -386,3 +386,12 @@ export function useLithologies() {
   }, [lithologies, getLithologies]);
   return lithologies;
 }
+
+export function useEnvironments() {
+  const getEnvironments = useMacrostratStore((s) => s.getEnvironments);
+  const environments = useMacrostratStore((s) => s.environments);
+  useEffect(() => {
+    if (environments == null) getEnvironments();
+  }, [environments, getEnvironments]);
+  return environments;
+}

@@ -10,10 +10,11 @@ import { useColumnLayout } from "@macrostrat/column-components";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { getMixedUnitColor } from "./colors";
 import { TrackedLabeledUnit } from "./composite";
-import { useLithologies } from "../data-provider";
+import { useEnvironments, useLithologies } from "../data-provider";
 import { useMemo } from "react";
 import { resolveID } from "./resolvers";
 import { Lithology } from "@macrostrat/api-types";
+import { asChromaColor } from "@macrostrat/color-utils";
 
 export * from "./composite";
 export * from "./types";
@@ -80,6 +81,48 @@ export function ColoredUnitComponent(props) {
   /** A unit component that is colored using a mixture of lithologies.
    * This is a separate component because it depends on more providers/contexts to determine coloring. */
   const backgroundColor = useUnitColor(props.division);
+
+  const patternID = useMemo(() => {
+    return resolveID(props.division); // ?? getPatternID(props.division.lith, lithMap);
+  }, [props.division?.unit_id]);
+
+  const fill = useGeologicPattern(patternID);
+
+  return h(UnitComponent, {
+    fill,
+    backgroundColor,
+    ...props,
+  });
+}
+
+export function useUnitColorByEnvironment(
+  unit,
+  opts: UnitColorOptions = {}
+): string | null {
+  /** Get the color for a unit based on its lithology */
+  const environmentMap = useEnvironments();
+  const lithMap = useLithologies();
+  const inDarkMode = useInDarkMode();
+  const { asBackground = true } = opts;
+
+  return useMemo(() => {
+    if (unit == null || environmentMap == null) return null;
+    let c = getMixedUnitColor(unit, environmentMap, inDarkMode, asBackground, {
+      key: "environ",
+      id_key: "environ_id",
+    });
+    if (c != null) {
+      return c;
+    }
+    // Fallback to lithology color if no environment color is found
+    return getMixedUnitColor(unit, lithMap, inDarkMode, asBackground);
+  }, [unit?.unit_id, environmentMap, lithMap, inDarkMode, asBackground]);
+}
+
+export function EnvironmentColoredUnitComponent(props) {
+  /** A unit component that is colored using a mixture of lithologies.
+   * This is a separate component because it depends on more providers/contexts to determine coloring. */
+  const backgroundColor = useUnitColorByEnvironment(props.division);
 
   const patternID = useMemo(() => {
     return resolveID(props.division); // ?? getPatternID(props.division.lith, lithMap);

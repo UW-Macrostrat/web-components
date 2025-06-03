@@ -15,6 +15,7 @@ import { CorrelationChart, CorrelationChartProps } from "../main";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { parseLineFromString, stringifyLine } from "../hash-string";
+import { EnvironmentColoredUnitComponent } from "../../units";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -190,3 +191,8 @@ function Template(args) {
 }
 
 export const Primary = Template.bind({});
+
+export const ColoredByEnvironment = Template.bind({});
+ColoredByEnvironment.args = {
+  unitComponent: EnvironmentColoredUnitComponent,
+};

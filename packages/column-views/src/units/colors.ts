@@ -1,13 +1,20 @@
 import chroma from "chroma-js";
 import { UnitLong } from "@macrostrat/api-types";
 
+interface KeyOptions {
+  key?: string;
+  id_key?: string;
+}
+
 export function getMixedUnitColor(
   unit: UnitLong,
   lithMap,
   inDarkMode = false,
-  asBackground = true
+  asBackground = true,
+  keyOpts: KeyOptions = null
 ): string | null {
-  const liths = unit.lith;
+  const { key = "lith", id_key = "lith_id" } = keyOpts ?? {};
+  const liths = unit[key];
   if (liths == null) {
     return "gray";
   }
@@ -18,9 +25,9 @@ export function getMixedUnitColor(
         prop = null;
       }
       return {
-        lith_id: d.lith_id,
+        lith_id: d[id_key],
         prop,
-        color: lithMap?.get(d.lith_id)?.color,
+        color: lithMap?.get(d[id_key])?.color,
       };
     })
     .filter((d) => d.color != null);
