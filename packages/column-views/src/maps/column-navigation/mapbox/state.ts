@@ -12,6 +12,7 @@ import {
   useMacrostratColumns,
   useMacrostratStore,
 } from "../../../data-provider";
+import { useAPIResult } from "@macrostrat/ui-components";
 
 export interface NavigationStore {
   columns: ColumnGeoJSONRecordWithID[];
@@ -76,13 +77,23 @@ export function ColumnNavigationProvider({
   //   store.setState({ columns: _columns, selectedColumn });
   // }, [projectID, inProcess, columns, getColumns]);
 
-  const _columns = columns ?? useMacrostratColumns(projectID, inProcess);
+  let newColumns = getColsData({columns})
+  newColumns = newColumns?.map((d) => {
+    // Add an ID to each column feature
+    return {
+      ...d,
+      id: d.properties.col_id,
+    };
+  });
+
+  const _columns = columns ? newColumns : useMacrostratColumns(projectID, inProcess);
+
   useEffect(() => {
     if (_columns != null) {
       store.setState({ columns: _columns, selectedColumn });
     }
   }, [_columns]);
-  // Update selected colun if it is changed externally
+  // Update selected column if it is changed externally
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   useEffect(() => {
@@ -106,4 +117,12 @@ export function useColumnNavigationStore(
     throw new Error("Missing ColumnNavigationProvider");
   }
   return useStore(storeApi, selector);
+}
+
+function getColsData({columns}) {
+  let res = useAPIResult(
+    "https://macrostrat.org/api/v2/columns?col_id=" + columns?.join(",") + "&response=long&format=geojson"
+  )
+  
+  return res?.success?.data.features;
 }
