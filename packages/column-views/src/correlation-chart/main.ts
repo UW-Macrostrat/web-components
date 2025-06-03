@@ -44,6 +44,7 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   unconformityLabels?: boolean;
   selectedUnit?: number | null;
   showUnitPopover?: boolean;
+  unitComponent?: any;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
 }
 
@@ -55,6 +56,7 @@ export function CorrelationChart({
   showUnitPopover = true,
   selectedUnit,
   onUnitSelected,
+  unitComponent,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -124,6 +126,7 @@ export function CorrelationChart({
                 offset,
                 domain,
                 pixelScale,
+                unitComponent,
               });
             })
           ),
@@ -140,6 +143,7 @@ function Package({
   columnData,
   columnSpacing,
   columnWidth,
+  unitComponent,
   offset,
   domain,
   pixelScale,
@@ -151,6 +155,7 @@ function Package({
       columnData.map((data, i) => {
         return h(Column, {
           units: data.units,
+          unitComponent,
           width: columnWidth,
           key: i,
           domain,
@@ -177,7 +182,14 @@ interface ColumnProps {
 }
 
 function Column(props: ColumnProps) {
-  const { units, width = 150, offsetLeft, domain, pixelScale } = props;
+  const {
+    units,
+    width = 150,
+    offsetLeft,
+    domain,
+    pixelScale,
+    unitComponent = ColoredUnitComponent,
+  } = props;
 
   const columnWidth = width;
 
@@ -200,10 +212,11 @@ function Column(props: ColumnProps) {
         axisType: ColumnAxisType.AGE,
       },
       h(UnitBoxes, {
-        unitComponent: ColoredUnitComponent,
+        unitComponent,
         unitComponentProps: {
           nColumns: 2,
           width: columnWidth,
+          showLabel: false,
         },
       })
     )

@@ -4,7 +4,10 @@ import "@macrostrat/style-system";
 import { ColumnStoryUI } from "./column-ui";
 import { useArgs } from "@storybook/preview-api";
 import { MinimalUnit } from "../src/units/boxes";
-import { BoundaryAgeModelOverlay } from "../src";
+import {
+  BoundaryAgeModelOverlay,
+  EnvironmentColoredUnitComponent,
+} from "../src";
 import { useCallback } from "react";
 
 const baseArgTypes = {
@@ -111,6 +114,13 @@ function Template(args) {
 }
 
 export const Primary = Template.bind({});
+
+export const ColoredByEnvironment = Template.bind({});
+ColoredByEnvironment.args = {
+  columnID: 432,
+  axisType: "age",
+  unitComponent: EnvironmentColoredUnitComponent,
+};
 
 export const Minimal = Template.bind({});
 Minimal.args = {
