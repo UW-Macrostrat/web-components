@@ -32,7 +32,7 @@ export function MeasurementsLayer(props) {
   return h(FeatureLayer, {
     useCanvas: false,
     style,
-    features: res?.features.filter((d) => d.properties.unit_id != null) ?? [],
+    features: res.features?.filter((d) => d.properties.unit_id != null) ?? [],
   });
 }
 
@@ -48,8 +48,6 @@ function ColumnFeatures(props) {
     singleFeature = true,
   } = props;
 
-  console.log(features);
-
   const c = chroma(color);
 
   return h(
@@ -62,7 +60,7 @@ function ColumnFeatures(props) {
         stroke: c.alpha(0.4).css(),
       },
     },
-    features.map((f) => {
+    features?.map((f) => {
       return h(Feature, {
         id: f.id ?? f.properties.col_id,
         onClick,
