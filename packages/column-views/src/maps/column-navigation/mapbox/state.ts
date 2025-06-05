@@ -12,7 +12,6 @@ import {
   useMacrostratColumns,
   useMacrostratStore,
 } from "../../../data-provider";
-import { useAPIResult } from "@macrostrat/ui-components";
 
 export interface NavigationStore {
   columns: ColumnGeoJSONRecordWithID[];
@@ -77,11 +76,15 @@ export function ColumnNavigationProvider({
   //   store.setState({ columns: _columns, selectedColumn });
   // }, [projectID, inProcess, columns, getColumns]);
 
-  const newColumns = getColsData({columns});
-  const _columns = columns ? newColumns : useMacrostratColumns(projectID, inProcess);
+  let _columns = useMacrostratColumns(projectID, inProcess);
+
+  // filter columns if specified
+  if (columns.length > 0) {
+    _columns = _columns?.filter((d) => columns.includes(d.id));
+  }
 
   useEffect(() => {
-    if (_columns != null) {
+    if (_columns?.length > 0) {
       store.setState({ columns: _columns, selectedColumn });
     }
   }, [_columns]);
@@ -109,17 +112,4 @@ export function useColumnNavigationStore(
     throw new Error("Missing ColumnNavigationProvider");
   }
   return useStore(storeApi, selector);
-}
-
-function getColsData({columns}) {
-  let res = useAPIResult(
-    "https://macrostrat.org/api/v2/columns?col_id=" + columns?.join(",") + "&response=long&format=geojson"
-  )
-
-  return res?.success?.data.features?.map((d) => {
-    return {
-      ...d,
-      id: d.properties.col_id,
-    };
-  });
 }
