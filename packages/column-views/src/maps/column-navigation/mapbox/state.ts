@@ -79,7 +79,7 @@ export function ColumnNavigationProvider({
   let _columns = useMacrostratColumns(projectID, inProcess);
 
   // filter columns if specified
-  if (columns.length > 0) {
+  if (columns?.length > 0) {
     _columns = _columns?.filter((d) => columns.includes(d.id));
   }
 
