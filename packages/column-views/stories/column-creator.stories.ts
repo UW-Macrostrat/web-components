@@ -10,6 +10,53 @@ export default {
   description: "A column rendered using static units",
 } as ComponentMeta<typeof Column>;
 
+export function EmptyColumn() {
+  return h("div", [
+    h(Column, {
+      units: [
+        {
+          unit_id: -1,
+          empty: true,
+          unit_name: "Empty Unit",
+          t_pos: 200,
+          b_pos: 0,
+        },
+      ],
+      axisType: ColumnAxisType.HEIGHT,
+      pixelScale: 0.8,
+      allowUnitSelection: true,
+      unitComponent: BasicUnitComponent,
+    }),
+  ]);
+}
+
+export function ColumnWithSingleUnit() {
+  return h("div", [
+    h(Column, {
+      units: [
+        {
+          unit_id: -1,
+          empty: true,
+          unit_name: "Empty Unit",
+          t_pos: 200,
+          b_pos: 0,
+        },
+        {
+          unit_id: 1,
+          unit_name: "Single Unit",
+          t_pos: 70,
+          b_pos: 50,
+          color: "#f0e68c",
+        },
+      ],
+      axisType: ColumnAxisType.HEIGHT,
+      pixelScale: 0.8,
+      allowUnitSelection: true,
+      unitComponent: BasicUnitComponent,
+    }),
+  ]);
+}
+
 const demoUnits = [
   {
     unit_id: 1,
@@ -47,9 +94,6 @@ export function ColumnCreator() {
       pixelScale: 0.8,
       allowUnitSelection: true,
       unitComponent: BasicUnitComponent,
-      onClick(props) {
-        console.log("Column clicked!", props);
-      },
     }),
   ]);
 }
