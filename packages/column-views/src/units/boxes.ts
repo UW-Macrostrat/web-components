@@ -41,6 +41,7 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
   fill?: string;
   backgroundColor?: string;
   patternColor?: string;
+  patternID?: string | number;
 }
 
 export interface LabeledUnitProps
@@ -135,6 +136,7 @@ function Unit(props: UnitProps) {
     widthFraction = 1,
     backgroundColor,
     patternColor,
+    patternID,
     axisType: _, // not sure why this is brought in...
     ...baseBounds
   } = props;
@@ -150,8 +152,8 @@ function Unit(props: UnitProps) {
     overflowTop: hasOverflowTop,
     overflowBottom: hasOverflowBottom,
   };
-  const patternID = resolveID(d);
-  let _fill = fill ?? useGeologicPattern(patternID, defaultFill);
+  const _patternID = patternID ?? resolveID(d);
+  let _fill = fill ?? useGeologicPattern(_patternID, defaultFill);
 
   const hasBackgroundColor = backgroundColor != null;
 

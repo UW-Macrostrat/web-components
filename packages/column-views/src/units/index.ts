@@ -5,7 +5,7 @@ import {
 } from "@macrostrat/column-components";
 import { UnitNamesColumn } from "./names";
 import { ICompositeUnitProps } from "./composite";
-import { UnitBoxes } from "./boxes";
+import { UnitBoxes, UnitProps } from "./boxes";
 import { useColumnLayout } from "@macrostrat/column-components";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { getMixedUnitColor } from "./colors";
@@ -14,7 +14,6 @@ import { useEnvironments, useLithologies } from "../data-provider";
 import { useMemo } from "react";
 import { resolveID } from "./resolvers";
 import { Lithology } from "@macrostrat/api-types";
-import { asChromaColor } from "@macrostrat/color-utils";
 
 export * from "./composite";
 export * from "./types";
@@ -45,6 +44,16 @@ export function SimpleUnitsColumn(props: ICompositeUnitProps) {
       width: width - columnWidth - gutterWidth,
     }),
   ]);
+}
+
+export function BasicUnitComponent({ division, ...rest }) {
+  /** A unit that allows directly setting colors and patterns. */
+  return h(UnitComponent, {
+    division,
+    ...rest,
+    backgroundColor: division.color,
+    patternID: division.patternID,
+  });
 }
 
 export function UnitComponent({ division, nColumns = 2, ...rest }) {
