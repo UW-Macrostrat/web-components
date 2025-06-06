@@ -57,8 +57,6 @@ export function FeedbackComponent({
   const { selectedNodes, tree, selectedEntityType, isSelectingEntityType } =
     state;
 
-  console.log("selected nodes", selectedNodes, selectedEntityType);
-
   const [{ width, height }, ref] = useElementDimensions();
 
   return h(TreeDispatchContext.Provider, { value: dispatch }, [
@@ -198,6 +196,23 @@ function EntityTypeSelector({
       },
     }),
   ]);
+}
+
+function countNodes(tree) {
+  if (!tree) return 0;
+  let count = 0;
+
+  function recurse(nodes) {
+    for (const node of nodes) {
+      count++;
+      if (node.children && Array.isArray(node.children)) {
+        recurse(node.children);
+      }
+    }
+  }
+
+  recurse(tree);
+  return count;
 }
 
 function ManagedSelectionTree(props) {

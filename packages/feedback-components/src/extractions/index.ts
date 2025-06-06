@@ -141,8 +141,6 @@ export function EntityTag({
 }: EntityTagProps) {
   const { name, type, match } = data;
 
-  console.log("got type", type)
-
   const className = classNames(
     {
       matched: match != null,
