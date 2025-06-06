@@ -25,8 +25,8 @@ export function buildHighlights(
       start: entity.indices[0],
       end: entity.indices[1],
       text: entity.name,
-      backgroundColor: entity.type.color ?? "#ddd",
-      tag: entity.type.name,
+      backgroundColor: entity.type?.color ?? "rgb(107, 255, 91)",
+      tag: entity.type?.name ?? "lith",
       id: entity.id,
       parents,
     });
@@ -140,15 +140,18 @@ export function EntityTag({
   matchComponent = null,
 }: EntityTagProps) {
   const { name, type, match } = data;
+
+  console.log("got type", type)
+
   const className = classNames(
     {
       matched: match != null,
-      type: data.type.name,
+      type: data.type?.name ?? "lith",
     },
     "entity"
   );
 
-  const style = getTagStyle(type.color ?? "#aaaaaa", { highlighted, active });
+  const style = getTagStyle(type?.color ?? "#aaaaaa", { highlighted, active });
 
   let _matchLink = null;
   if (match != null && matchComponent != null) {
@@ -168,7 +171,7 @@ export function EntityTag({
           }
         },
       },
-      [type.name, _matchLink]
+      [type?.name, _matchLink]
     ),
   ]);
 }
