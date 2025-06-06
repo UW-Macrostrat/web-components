@@ -121,8 +121,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
       const type = action.payload.ids.length > 0
         ? findNodeById(state.tree, ids[0])?.type
         : null;
-
-      console.log("type", type);  
       
       return { ...state, selectedNodes: ids, selectedEntityType: type };
     // otherwise fall through to toggle-node-selected for a single ID
