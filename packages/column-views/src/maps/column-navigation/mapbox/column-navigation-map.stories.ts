@@ -28,12 +28,22 @@ export const ColumnNavigation = {
   },
 };
 
-export const ColumnNavigationFilterable = {
+export const ColumnNavigationFilterableByIds = {
   args: {
     showTriangulation: false,
-    columns: [1,2,3,4,5,6,7,8,9,10],
+    columnIDs: [1,2,3,4,5,6,7,8,9,10],
   },
 };
+
+const colData = "nothing";
+
+export const ColumnNavigationFilterableByGeojson = {
+  args: {
+    showTriangulation: false,
+    columns: colData,
+  },
+};
+
 
 export const nonStandardProjectInProcess = {
   args: {

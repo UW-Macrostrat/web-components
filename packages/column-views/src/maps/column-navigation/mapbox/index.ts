@@ -36,6 +36,7 @@ export function ColumnNavigationMap(
 ) {
   const {
     columns,
+    columnIDs,
     onSelectColumn,
     onHoverColumn,
     selectedColumn,
@@ -50,6 +51,7 @@ export function ColumnNavigationMap(
     ColumnNavigationProvider,
     {
       columns,
+      columnIDs,
       onSelectColumn,
       onHoverColumn,
       selectedColumn,

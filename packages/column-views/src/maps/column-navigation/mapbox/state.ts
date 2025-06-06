@@ -6,6 +6,7 @@ import {
   useContext,
   ReactNode,
   useEffect,
+  useMemo,
 } from "react";
 import h from "@macrostrat/hyper";
 import {
@@ -26,7 +27,8 @@ export interface NavigationProviderProps {
   inProcess?: boolean;
   selectedColumn?: number | null;
   hoveredColumn?: number | null;
-  columns?: number[] | null;
+  columns?: ColumnGeoJSONRecordWithID[] | null;
+  columnIDs?: number[] | null;
   children: ReactNode;
   onSelectColumn?: (col_id: number | null, column: any) => void;
   onHoverColumn?: (col_id: number | null, column: any) => void;
@@ -39,6 +41,7 @@ const NavigationStoreContext = createContext<StoreApi<NavigationStore> | null>(
 export function ColumnNavigationProvider({
   children,
   columns,
+  columnIDs,
   selectedColumn,
   projectID,
   inProcess,
@@ -76,11 +79,13 @@ export function ColumnNavigationProvider({
   //   store.setState({ columns: _columns, selectedColumn });
   // }, [projectID, inProcess, columns, getColumns]);
 
-  let _columns = useMacrostratColumns(projectID, inProcess);
+  let _columns = columns ?? useMacrostratColumns(projectID, inProcess);
 
   // filter columns if specified
-  if (columns?.length > 0) {
-    _columns = _columns?.filter((d) => columns.includes(d.id));
+  if (columnIDs?.length > 0) {
+    _columns = useMemo(() => {
+      return _columns?.filter((d) => columnIDs.includes(d.properties.col_id));
+    }, [columnIDs, _columns]);
   }
 
   useEffect(() => {
