@@ -85,6 +85,9 @@ export function FeedbackText(props: FeedbackTextProps) {
         const { start, end } = newTags[0];
         let payload = { start, end, text: text.slice(start, end) };
 
+        console.log("Creating new tag", payload);
+        console.log("All tags", allTags);
+
         // check if blank
         if (payload.text === " ") {
           console.log("Blank tag found, ignoring");
@@ -101,6 +104,12 @@ export function FeedbackText(props: FeedbackTextProps) {
           return;
         }
 
+        // remove ending whitespace if needed
+        if( payload.text.endsWith(" ")) {
+          payload.text = payload.text.slice(0, -1);
+          payload.end -= 1;
+        }
+
         // check if inside
         if (
           tags.some(
@@ -112,12 +121,6 @@ export function FeedbackText(props: FeedbackTextProps) {
         ) {
           console.log("Tag is inside another tag, ignoring");
           return;
-        }
-
-        // remove ending whitespace if needed
-        if( payload.text.endsWith(" ")) {
-          payload.text = payload.text.slice(0, -1);
-          payload.end -= 1;
         }
 
         dispatch({ type: "create-node", payload });
