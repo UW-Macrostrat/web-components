@@ -103,7 +103,7 @@ export function FeedbackText(props: FeedbackTextProps) {
 
         // check if inside
         if (
-          allTags.some(
+          tags.some(
             (tag) =>
               tag.start <= payload.start &&
               tag.end >= payload.end &&
