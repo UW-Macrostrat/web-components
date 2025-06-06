@@ -47,6 +47,7 @@ export function useUpdatableTree(
   entityTypes: Map<number, EntityType>
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
+  // issue: grabs second entity instead of selected one
   const type = entityTypes.values().next().value;
 
   return useReducer(treeReducer, {
@@ -72,7 +73,6 @@ export function useTreeDispatch() {
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
-  console.log(action);
   switch (action.type) {
     case "move-node":
       // For each node in the tree, if the node is in the dragIds, remove it from the tree and collect it
@@ -117,7 +117,12 @@ function treeReducer(state: TreeState, action: TreeAction) {
       };
     case "select-node":
       const { ids } = action.payload;
-      return { ...state, selectedNodes: ids };
+
+      const type = action.payload.ids.length > 0
+        ? findNodeById(state.tree, ids[0])?.type
+        : null;
+      
+      return { ...state, selectedNodes: ids, selectedEntityType: type };
     // otherwise fall through to toggle-node-selected for a single ID
     case "toggle-node-selected":
       const nodesToAdd = action.payload.ids.filter(
@@ -308,4 +313,17 @@ export function treeToGraph(tree: TreeData[]): GraphData {
   }
 
   return { nodes, edges };
+}
+
+function findNodeById(tree, id) {
+  for (const node of tree) {
+    if (node.id === id) {
+      return node;
+    }
+    if (node.children) {
+      const found = findNodeById(node.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
 }

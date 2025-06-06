@@ -242,19 +242,7 @@ export const data = {
             color: "rgb(165, 255, 142)",
           },
           indices: [713, 723],
-          children: [
-            {
-              id: 433869,
-              name: "sedimentary",
-              type: {
-                id: 3,
-                name: "lith_att",
-                description: "Test",
-                color: "rgb(255, 144, 255)",
-              },
-              indices: [644, 655],
-            },
-          ],
+          children: [],
         },
       ],
     },
