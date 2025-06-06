@@ -49,7 +49,6 @@ export function FeedbackComponent({
   onSave,
 }) {
   // Get the input arguments
-
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity) as any,
     entityTypes
@@ -57,6 +56,8 @@ export function FeedbackComponent({
 
   const { selectedNodes, tree, selectedEntityType, isSelectingEntityType } =
     state;
+
+  console.log("selected nodes", selectedNodes, selectedEntityType);
 
   const [{ width, height }, ref] = useElementDimensions();
 
@@ -182,7 +183,7 @@ function EntityTypeSelector({
           setOpen((d) => !d);
         },
       },
-      selected.name
+      selected?.name ?? "None"
     ),
     h(OmniboxSelector, {
       isOpen,
