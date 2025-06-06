@@ -81,6 +81,8 @@ export function ColumnNavigationProvider({
 
   let _columns = columns ?? useMacrostratColumns(projectID, inProcess);
 
+  console.log("Columns in navigation store", _columns);
+
   // filter columns if specified
   if (columnIDs?.length > 0) {
     _columns = useMemo(() => {
