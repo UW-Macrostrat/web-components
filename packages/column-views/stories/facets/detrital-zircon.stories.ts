@@ -3,7 +3,6 @@ import {
   MacrostratDataProvider,
   MeasurementDataProvider,
   ColumnNavigationMap,
-  ColumnNavigationSVGMap,
   MeasurementsLayer,
   useColumnNav,
   DetritalColumn,
@@ -11,10 +10,7 @@ import {
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
-import { useMemo, useState, useEffect } from "react";
-import { FeatureCollection } from "geojson";
-import { setGeoJSON } from "@macrostrat/mapbox-utils";
-import { useMapStyleOperator } from "@macrostrat/mapbox-react";
+import { useMapRef } from "@macrostrat/mapbox-react";
 
 
 function DetritalZirconColumn(props) {
@@ -71,24 +67,11 @@ export const BighornBasinColored = {
 };
 
 export function DetritalZirconCompilation(defaultArgs) {
-  const [mapInstance, setMapInstance] = useState(null);
   const [columnArgs, setCurrentColumn] = useColumnNav({
     ...(defaultArgs ?? {}),
     col_id: 495,
   });
-
-  const handleMapLoaded = (map) => {
-    setMapInstance(map);
-  };
-
-  const layer = h.if(mapInstance)(MeasurementsLayer, {
-    id: "measurements",
-    measure_phase: "zircon",
-    measurement: "207Pb-206Pb",
-    style: { fill: "purple" },
-  });
-
-  console.log("layer", layer);
+  // const mapRef = useMapRef()
 
   return h(
     MacrostratDataProvider,
@@ -102,11 +85,14 @@ export function DetritalZirconCompilation(defaultArgs) {
               col_id: e
             }),
             selectedColumn: columnArgs?.col_id,
-            margin: 0,
             accessToken: import.meta.env.VITE_MAPBOX_API_TOKEN,
-            onMapLoaded: handleMapLoaded, 
           },
-          layer,
+          h(MeasurementsLayer, {
+            id: "measurements",
+            measure_phase: "zircon",
+            measurement: "207Pb-206Pb",
+            style: { fill: "purple" },
+          }),
         ),
         h(DetritalZirconColumn, {
           id: columnArgs.col_id,
@@ -115,23 +101,4 @@ export function DetritalZirconCompilation(defaultArgs) {
       ]),
     ])
   );
-}
-
-function getLayer(props) {
-  const defaultStyle = {
-    fill: "rgb(239, 180, 249)",
-    stroke: "magenta",
-  };
-  const { style = defaultStyle, ...params } = props;
-
-  console.log("/measurements", {
-    ...params,
-    format: "geojson",
-    response: "light",
-  })
-  return useAPIResult("https://macrostrat.org/api/v2/measurements", {
-    ...params,
-    format: "geojson",
-    response: "light",
-  })?.success?.data
 }
