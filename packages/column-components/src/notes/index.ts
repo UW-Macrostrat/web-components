@@ -59,6 +59,7 @@ interface EditableNotesColumnProps {
   noteEditor?: ComponentType<any>;
   allowPositionEditing?: boolean;
   forceOptions?: object;
+  onClickNote?: (note: NoteData) => void;
 }
 
 function EditableNotesColumn(props: EditableNotesColumnProps) {

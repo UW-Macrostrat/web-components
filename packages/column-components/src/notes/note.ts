@@ -8,12 +8,13 @@ import {
   NoteConnector,
   NodeConnectorOptions,
 } from "./connector";
-import { useColumn } from "@macrostrat/column-components";
+import { useColumn } from "../context";
 
 type NoteListProps = NodeConnectorOptions & {
   inEditMode?: boolean;
   editable?: boolean;
   onClickNote?: (note: NoteData) => void;
+  editHandler?: Function;
 };
 
 export function NotesList(props: NoteListProps) {
