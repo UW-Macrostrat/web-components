@@ -80,9 +80,20 @@ export function FeedbackText(props: FeedbackTextProps) {
   const onChange = useCallback(
     (tags) => {
       // New tags
-      console.log(tags);
+      console.log("onChange", tags);
       const newTags = tags.filter((d) => !("id" in d));
       if (newTags.length > 0) {
+        console.log("newTags", newTags);
+
+        // check if duplicate
+        const duplicate = tags.find(
+          (tag) => tag.start === newTags[0].start && tag.end === newTags[0].end - 1
+        );
+        if (duplicate) {
+          console.log("Duplicate tag found, ignoring");
+          return;
+        }
+
         const { start, end } = newTags[0];
         const payload = { start, end, text: text.slice(start, end) };
         dispatch({ type: "create-node", payload });
