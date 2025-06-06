@@ -119,8 +119,10 @@ function treeReducer(state: TreeState, action: TreeAction) {
       const { ids } = action.payload;
 
       const type = action.payload.ids.length > 0
-        ? state.tree.find((node) => node.id === ids[0])?.type
+        ? findNodeById(state.tree, ids[0])?.type
         : null;
+
+      console.log("type", type);  
       
       return { ...state, selectedNodes: ids, selectedEntityType: type };
     // otherwise fall through to toggle-node-selected for a single ID
@@ -313,4 +315,17 @@ export function treeToGraph(tree: TreeData[]): GraphData {
   }
 
   return { nodes, edges };
+}
+
+function findNodeById(tree, id) {
+  for (const node of tree) {
+    if (node.id === id) {
+      return node;
+    }
+    if (node.children) {
+      const found = findNodeById(node.children, id);
+      if (found) return found;
+    }
+  }
+  return null;
 }
