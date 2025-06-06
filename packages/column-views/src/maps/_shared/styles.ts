@@ -1,12 +1,14 @@
 import { getCSSVariable } from "@macrostrat/color-utils";
 import { buildGeoJSONSource } from "@macrostrat/mapbox-utils";
+import type { Style } from "mapbox-gl";
 
-export function buildColumnsStyle(color: string) {
+export function buildColumnsStyle(color: string): Style {
   const columnColor = color ?? getCSSVariable("--text-subtle-color", "black");
   return {
     sources: {
       columns: buildGeoJSONSource(),
     },
+    version: 8,
     layers: [
       {
         id: "columns-fill",

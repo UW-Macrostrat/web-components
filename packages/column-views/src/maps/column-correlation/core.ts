@@ -4,7 +4,12 @@ import {
   useMapEaseTo,
   useMapStyleOperator,
 } from "@macrostrat/mapbox-react";
-import { LngLatBounds } from "mapbox-gl";
+import {
+  GeoJSONSource,
+  GeoJSONSourceRaw,
+  LngLatBounds,
+  Style,
+} from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection } from "geojson";
 import { ReactNode, useMemo } from "react";
@@ -24,11 +29,11 @@ export interface CorrelationMapProps extends InsetMapProps {
 export function ColumnCorrelationMap(props: CorrelationMapProps) {
   const { padding = 50, children, columnColor, ...rest } = props;
 
-  const overlayStyles = useMemo(() => {
+  const overlayStyles: Partial<Style>[] = useMemo(() => {
     return [
-      buildColumnsStyle(columnColor),
-      selectedColumnsStyle,
-      lineOfSectionStyle,
+      buildColumnsStyle(columnColor) as Style,
+      selectedColumnsStyle as Style,
+      lineOfSectionStyle as Style,
     ];
   }, [columnColor]);
 
@@ -120,7 +125,8 @@ function ColumnsLayer({ enabled = true }) {
   return null;
 }
 
-const selectedColumnsStyle = {
+const selectedColumnsStyle: Style = {
+  version: 8,
   sources: {
     "selected-columns": buildGeoJSONSource(),
     "selected-column-centroids": buildGeoJSONSource(),
@@ -156,7 +162,8 @@ const selectedColumnsStyle = {
   ],
 };
 
-const lineOfSectionStyle = {
+const lineOfSectionStyle: Style = {
+  version: 8,
   sources: {
     elevationMarker: buildGeoJSONSource(),
     crossSectionLine: buildGeoJSONSource(),
@@ -165,7 +172,9 @@ const lineOfSectionStyle = {
   layers: buildCrossSectionLayers(),
 };
 
-function buildGeoJSONSource(data: FeatureCollection | null = null) {
+function buildGeoJSONSource(
+  data: FeatureCollection | null = null
+): GeoJSONSourceRaw {
   return {
     type: "geojson",
     data: data ?? {

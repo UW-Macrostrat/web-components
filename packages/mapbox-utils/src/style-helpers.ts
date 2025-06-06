@@ -1,8 +1,8 @@
 import { FeatureCollection } from "geojson";
-import { GeoJSONSource, Style } from "mapbox-gl";
+import type { GeoJSONSourceRaw, GeoJSONSource, Style, Map } from "mapbox-gl";
 
 export function setGeoJSON(
-  map: mapboxgl.Map,
+  map: Map,
   sourceID: string,
   data: FeatureCollection
 ) {
@@ -14,7 +14,9 @@ export function setGeoJSON(
   }
 }
 
-export function buildGeoJSONSource(data: FeatureCollection | null = null) {
+export function buildGeoJSONSource(
+  data: FeatureCollection | null = null
+): GeoJSONSourceRaw {
   return {
     type: "geojson",
     data: data ?? {

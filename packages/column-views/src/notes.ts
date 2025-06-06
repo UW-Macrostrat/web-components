@@ -4,6 +4,7 @@ import { ColumnNotesProvider } from "./units";
 
 import { StaticNotesColumn, SVG } from "@macrostrat/column-components";
 import { useCompositeScale, useMacrostratColumnData } from "./data-provider";
+import type { ReactNode } from "react";
 
 interface ColumnNotesProps {
   notes: any[];
@@ -11,6 +12,7 @@ interface ColumnNotesProps {
   noteComponent?: any;
   paddingLeft?: number;
   deltaConnectorAttachment?: number;
+  children?: ReactNode;
 }
 
 export function ColumnNotes({

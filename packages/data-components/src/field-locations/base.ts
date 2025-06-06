@@ -7,7 +7,7 @@ const h = hyper.styled(styles);
 
 export interface LocationBasicInfoProps {
   title: string | null;
-  year: string;
+  year: string | number;
   description?: string;
   imageURL?: string;
   link: string;

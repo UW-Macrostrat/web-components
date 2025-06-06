@@ -1,9 +1,9 @@
-import { useMemo } from "react";
 import { Navbar, Button, Spinner, Card, Text } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { useMapStatus } from "@macrostrat/mapbox-react";
 import { Spacer } from "@macrostrat/ui-components";
+import type { ReactNode } from "react";
 
 const h = hyper.styled(styles);
 
@@ -19,7 +19,7 @@ export function LoadingButton({
 }) {
   return h(Button, {
     className: "loading-button",
-    icon: isLoading ? spinnerElement : icon,
+    icon: (isLoading ? spinnerElement : icon) as any,
     large,
     minimal: true,
     onClick,
@@ -28,12 +28,12 @@ export function LoadingButton({
   });
 }
 
-export function MapLoadingButton(props) {
+export function MapLoadingButton(props: any) {
   const isLoading = useMapStatus((s) => s.isLoading);
   return h(LoadingButton, { ...props, isLoading });
 }
 
-type AnyChildren = React.ReactNode;
+type AnyChildren = ReactNode;
 
 export interface FloatingNavbarProps {
   className?: string;
@@ -58,12 +58,12 @@ export function FloatingNavbar({
   width,
   style = {},
 }: FloatingNavbarProps) {
-  let _rightElement: React.ReactNode | null = null;
+  let _rightElement: ReactNode | null = null;
   if (rightElement != null) {
     _rightElement = h("div.right-element", rightElement);
   }
 
-  let _headerElement: React.ReactNode | null = headerElement;
+  let _headerElement: ReactNode | null = headerElement;
   if (title != null && _headerElement == null) {
     if (typeof title === "string") {
       _headerElement = h(Text, { tagName: "h2", ellipsize: true }, title);

@@ -6,6 +6,7 @@ import {
 } from "../prepare-units/composite-scale";
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import { CompositeColumnScale } from "@macrostrat/column-views";
 
 export interface MacrostratColumnDataContext {
   units: ExtUnit[];
@@ -61,7 +62,7 @@ export function useMacrostratUnits() {
   return useMacrostratColumnData().units;
 }
 
-export function useCompositeScale() {
+export function useCompositeScale(): CompositeColumnScale {
   const ctx = useContext(MacrostratColumnDataContext);
   if (!ctx) {
     throw new Error(
