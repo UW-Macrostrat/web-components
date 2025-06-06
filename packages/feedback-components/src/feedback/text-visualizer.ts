@@ -80,22 +80,46 @@ export function FeedbackText(props: FeedbackTextProps) {
   const onChange = useCallback(
     (tags) => {
       // New tags
-      console.log("onChange", tags);
       const newTags = tags.filter((d) => !("id" in d));
       if (newTags.length > 0) {
-        console.log("newTags", newTags);
+        const { start, end } = newTags[0];
+        let payload = { start, end, text: text.slice(start, end) };
+
+        // check if blank
+        if (payload.text === " ") {
+          console.log("Blank tag found, ignoring");
+          return;
+        }
 
         // check if duplicate
         const duplicate = tags.find(
-          (tag) => tag.start === newTags[0].start && tag.end === newTags[0].end - 1
+          (tag) => tag.start === payload.start && tag.end === payload.end - 1
         );
+
         if (duplicate) {
           console.log("Duplicate tag found, ignoring");
           return;
         }
 
-        const { start, end } = newTags[0];
-        const payload = { start, end, text: text.slice(start, end) };
+        // check if inside
+        if (
+          allTags.some(
+            (tag) =>
+              tag.start <= payload.start &&
+              tag.end >= payload.end &&
+              tag.id !== undefined
+          )
+        ) {
+          console.log("Tag is inside another tag, ignoring");
+          return;
+        }
+
+        // remove ending whitespace if needed
+        if( payload.text.endsWith(" ")) {
+          payload.text = payload.text.slice(0, -1);
+          payload.end -= 1;
+        }
+
         dispatch({ type: "create-node", payload });
         return;
       }
