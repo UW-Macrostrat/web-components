@@ -14,7 +14,7 @@ import {
   ViewMode,
 } from "./edit-state";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ButtonGroup, Card, SegmentedControl } from "@blueprintjs/core";
+import { ButtonGroup, Card, SegmentedControl, Tag } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
@@ -25,6 +25,8 @@ import {
 } from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
 import { GraphView } from "./graph";
+import { useInDarkMode } from "@macrostrat/ui-components";
+import { asChromaColor } from "@macrostrat/color-utils";
 
 export type { GraphData } from "./edit-state";
 export { treeToGraph } from "./edit-state";
@@ -180,7 +182,8 @@ function EntityTypeSelector({
     d.name.toLowerCase().includes(inputValue.toLowerCase())
   ) : types;
 
-  return h(DataField, { label: "Entity type", inline: true }, [
+  return h('div.entity-type-selector', [
+    /*
     h(
       "code.bp5-code",
       {
@@ -190,6 +193,9 @@ function EntityTypeSelector({
       },
       selected?.name ?? "None"
     ),
+    */
+    h('p', "Entity Type:"),
+    h(TypeList, { types: entityTypes, selected: _selected }),
     h(OmniboxSelector, {
       isOpen,
       items,
@@ -294,4 +300,31 @@ function ManagedSelectionTree(props) {
       return d.id.toString();
     },
   });
+}
+
+function TypeList({ types, selected }) {
+  console.log("selected", selected);
+
+  return h(
+    "div.type-list",
+    Array.from(types.values()).map((type) => {
+      const { color, name, id } = type;
+      const darkMode = useInDarkMode();
+      const luminance = darkMode ? 0.9 : 0.4;
+      const chromaColor = asChromaColor(color ?? "#000000")
+
+      return h(
+        Tag, 
+        { 
+          className: "type-tag",
+          style: {
+            color: chromaColor?.luminance(luminance).hex(),
+            backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
+            border: id === selected?.id ? `1px solid white` : `1px solid black`,
+          },
+        }, 
+        name
+      );
+    })
+  );
 }
