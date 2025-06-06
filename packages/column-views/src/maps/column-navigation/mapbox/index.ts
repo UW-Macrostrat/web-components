@@ -41,6 +41,7 @@ export function ColumnNavigationMap(
     selectedColumn,
     hoveredColumn,
     projectID,
+    children,
     inProcess,
     ...rest
   } = props;
@@ -56,7 +57,7 @@ export function ColumnNavigationMap(
       projectID,
       inProcess,
     },
-    h(_ColumnNavigationMap, rest)
+    h(_ColumnNavigationMap, props)
   );
 }
 
@@ -70,6 +71,8 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
     keyboardNavigation = true,
     ...rest
   } = props;
+
+  console.log("children", children);
 
   const overlayStyles = useMemo(() => {
     let styles: any[] = [buildColumnsStyle(columnColor)];

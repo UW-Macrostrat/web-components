@@ -14,6 +14,8 @@ import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
 import { useMemo, useState, useEffect } from "react";
 import { FeatureCollection } from "geojson";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
+import { useMapStyleOperator } from "@macrostrat/mapbox-react";
+
 
 function DetritalZirconColumn(props) {
   const { id, children, spectraColor, ...rest } = props;
@@ -75,47 +77,37 @@ export function DetritalZirconCompilation(defaultArgs) {
     col_id: 495,
   });
 
-  const data = getLayer({
-            measure_phase: "zircon",
-            measurement: "207Pb-206Pb",
-            style: { fill: "purple" },
-          });
-
   const handleMapLoaded = (map) => {
     setMapInstance(map);
   };
 
-  useEffect(() => {
-    if (!mapInstance || !data) return;
-    console.log("Setting measurements layer", data);
-    setGeoJSON(mapInstance, "measurements", data);
-    mapInstance.addLayer({
-      id: "measurement-points",
-      type: "circle",
-      source: "measurements",
-      paint: {
-        "circle-color": "purple",
-        "circle-radius": 3,
-        "circle-opacity": 0.8,
-      },
-    });
-  }, [data, mapInstance]);
+  const layer = h.if(mapInstance)(MeasurementsLayer, {
+    id: "measurements",
+    measure_phase: "zircon",
+    measurement: "207Pb-206Pb",
+    style: { fill: "purple" },
+  });
+
+  console.log("layer", layer);
 
   return h(
     MacrostratDataProvider,
     h(MeasurementDataProvider, columnArgs, [
       h(FlexRow, { className: "column-ui", margin: "2em", gap: "1em" }, [
-        h(ColumnNavigationMap, {
-          style: { width: 400, height: 500 },
-          onSelectColumn: (e) => setCurrentColumn({
-            ...(defaultArgs ?? {}),
-            col_id: e
-          }),
-          selectedColumn: columnArgs?.col_id,
-          margin: 0,
-          accessToken: import.meta.env.VITE_MAPBOX_API_TOKEN,
-          onMapLoaded: handleMapLoaded,
-        }),
+        h(ColumnNavigationMap, 
+          {
+            style: { width: 400, height: 500 },
+            onSelectColumn: (e) => setCurrentColumn({
+              ...(defaultArgs ?? {}),
+              col_id: e
+            }),
+            selectedColumn: columnArgs?.col_id,
+            margin: 0,
+            accessToken: import.meta.env.VITE_MAPBOX_API_TOKEN,
+            onMapLoaded: handleMapLoaded, 
+          },
+          layer,
+        ),
         h(DetritalZirconColumn, {
           id: columnArgs.col_id,
           showLabelColumn: false,
