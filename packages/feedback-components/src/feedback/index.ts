@@ -129,6 +129,9 @@ export function FeedbackComponent({
             onChange(payload) {
               dispatch({ type: "select-entity-type", payload });
             },
+            dispatch,
+            tree,
+            selectedNodes,
             isOpen: isSelectingEntityType,
             setOpen: (isOpen: boolean) =>
               dispatch({
@@ -172,6 +175,9 @@ function EntityTypeSelector({
   isOpen,
   setOpen,
   onChange,
+  tree,
+  dispatch,
+  selectedNodes = [],
 }) {
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;
@@ -195,7 +201,7 @@ function EntityTypeSelector({
     ),
     */
     h('p', "Entity Type:"),
-    h(TypeList, { types: entityTypes, selected: _selected }),
+    h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree, selectedNodes }),
     h(OmniboxSelector, {
       isOpen,
       items,
@@ -302,9 +308,7 @@ function ManagedSelectionTree(props) {
   });
 }
 
-function TypeList({ types, selected }) {
-  console.log("selected", selected);
-
+function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
   return h(
     "div.type-list",
     Array.from(types.values()).map((type) => {
@@ -312,6 +316,8 @@ function TypeList({ types, selected }) {
       const darkMode = useInDarkMode();
       const luminance = darkMode ? 0.9 : 0.4;
       const chromaColor = asChromaColor(color ?? "#000000")
+      const ids = collectMatchingIds(tree, name);
+      const alreadySelected = ids.length === selectedNodes.length && ids.every((v, i) => v === selectedNodes[i])
 
       return h(
         Tag, 
@@ -322,9 +328,28 @@ function TypeList({ types, selected }) {
             backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
             border: id === selected?.id ? `1px solid white` : `1px solid black`,
           },
+          onClick: () => {
+            dispatch({ type: "select-node", payload: { ids: alreadySelected ? [] : ids } });  
+          } 
         }, 
         name
       );
     })
   );
+}
+
+function collectMatchingIds(tree, name) {
+  const ids = [];
+
+  function traverse(node) {
+    if (node.term_type === name) {
+      ids.push(node.id);
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach(traverse);
+    }
+  }
+
+  tree.forEach(traverse);
+  return ids;
 }
