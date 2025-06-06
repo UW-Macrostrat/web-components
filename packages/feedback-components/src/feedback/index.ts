@@ -13,7 +13,7 @@ import {
   useUpdatableTree,
   ViewMode,
 } from "./edit-state";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ButtonGroup, Card, SegmentedControl } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import {
@@ -173,6 +173,13 @@ function EntityTypeSelector({
 }) {
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;
+  const [inputValue, setInputValue] = useState("");
+  const types = Array.from(entityTypes.values());
+
+  const items = inputValue !== "" ? types.filter((d) =>
+    d.name.toLowerCase().includes(inputValue.toLowerCase())
+  ) : types;
+
   return h(DataField, { label: "Entity type", inline: true }, [
     h(
       "code.bp5-code",
@@ -185,11 +192,14 @@ function EntityTypeSelector({
     ),
     h(OmniboxSelector, {
       isOpen,
-      items: Array.from(entityTypes.values()),
+      items,
       selectedItem: _selected,
       onSelectItem(item) {
         setOpen(false);
         onChange(item);
+      },
+      onQueryChange(query) {
+        setInputValue(query);
       },
       onClose() {
         setOpen(false);

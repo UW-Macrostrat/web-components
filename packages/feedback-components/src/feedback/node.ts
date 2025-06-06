@@ -47,7 +47,7 @@ function Node({ node, style, dragHandle, tree, matchComponent }: any) {
 
   const dispatch = useTreeDispatch();
 
-  console.log("Node render", node.data, highlighted, active);
+  // console.log("Node render", node.data, highlighted, active);
 
   if(!node.data?.type) {
     node.data.type = { name: "lith", color: "rgb(107, 255, 91)" };
