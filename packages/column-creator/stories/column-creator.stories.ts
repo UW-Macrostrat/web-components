@@ -1,14 +1,14 @@
 import h from "@macrostrat/hyper";
 
-import { ComponentMeta } from "@storybook/react";
-import { BasicUnitComponent, Column } from "../src";
+import { BasicUnitComponent, Column } from "@macrostrat/column-views";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import { FlexRow } from "@macrostrat/ui-components";
 
 export default {
-  title: "Column views/Column creation",
+  title: "Column creator/Column creator",
   component: Column,
   description: "A column rendered using static units",
-} as ComponentMeta<typeof Column>;
+};
 
 export function EmptyColumn() {
   return h("div", [
