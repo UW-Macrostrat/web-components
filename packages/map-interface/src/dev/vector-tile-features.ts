@@ -178,7 +178,11 @@ function UnitNumber({ value, unit, precision = 1 }) {
   ]);
 }
 
-export function FeaturePanel({ features, focusedSource = null }) {
+export function FeaturePanel({
+  features,
+  focusedSource = null,
+  focusedSourceTitle = null,
+}) {
   if (features == null) return null;
 
   let focusedSourcePanel = null;
@@ -190,7 +194,7 @@ export function FeaturePanel({ features, focusedSource = null }) {
     focusedSourcePanel = h(
       ExpansionPanel,
       {
-        title: "Macrostrat features",
+        title: focusedSourceTitle ?? "Macrostrat features",
         className: "macrostrat-features",
         expanded: true,
       },
@@ -222,7 +226,7 @@ function FeatureGroups({ features }) {
   /** Group features by source and sourceLayer */
   if (features == null) return null;
 
-  const groups = group(features, (d) => `${d.source} - ${d.sourceLayer}`);
+  const groups = group(features, (d: any) => `${d.source} - ${d.sourceLayer}`);
 
   return h(
     "div.feature-groups",

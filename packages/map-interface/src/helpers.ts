@@ -113,12 +113,19 @@ export function MapMovedReporter({ onMapMoved = null }) {
   return null;
 }
 
+interface MapLoadingReporterProps {
+  ignoredSources?: string[];
+  onMapLoading?: (evt: mapboxgl.EventData) => void;
+  onMapIdle?: (evt: mapboxgl.EventData) => void;
+  mapIsLoading?: boolean;
+}
+
 export function MapLoadingReporter({
   ignoredSources,
   onMapLoading = null,
   onMapIdle = null,
   mapIsLoading,
-}) {
+}: MapLoadingReporterProps) {
   const mapRef = useMapRef();
   const loadingRef = useRef(false);
   const dispatch = useMapDispatch();

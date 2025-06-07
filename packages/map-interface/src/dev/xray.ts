@@ -24,7 +24,11 @@ export async function buildXRayStyle(
 
   let layers = [];
   for (let layer of style.layers) {
-    if (!sources.includes(layer.source)) {
+    if (
+      "source" in layer &&
+      typeof layer.source === "string" &&
+      !sources.includes(layer.source)
+    ) {
       layers.push(layer);
       continue;
     }

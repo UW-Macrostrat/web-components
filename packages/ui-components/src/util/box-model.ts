@@ -152,14 +152,15 @@ function expandPadding<T extends object>(obj: T & Padding): T & StrictPadding {
   return { ...o1, ...margin };
 }
 
+export type InnerSizeProps = Padding & {
+  innerHeight?: number;
+  innerWidth?: number;
+  width?: number;
+  height?: number;
+};
+
 function expandInnerSize<T>(
-  obj: T &
-    Padding & {
-      innerHeight?: number;
-      innerWidth?: number;
-      width?: number;
-      height?: number;
-    },
+  obj: T & InnerSizeProps,
   stripExtraKeys: boolean = true
 ): T & {
   height?: number;

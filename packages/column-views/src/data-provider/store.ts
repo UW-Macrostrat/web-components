@@ -3,6 +3,7 @@ import h from "@macrostrat/hyper";
 import {
   createCompositeScale,
   PackageLayoutData,
+  CompositeColumnScale,
 } from "../prepare-units/composite-scale";
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -61,7 +62,7 @@ export function useMacrostratUnits() {
   return useMacrostratColumnData().units;
 }
 
-export function useCompositeScale() {
+export function useCompositeScale(): CompositeColumnScale {
   const ctx = useContext(MacrostratColumnDataContext);
   if (!ctx) {
     throw new Error(

@@ -68,16 +68,20 @@ export type AnyMapPosition =
   | [number, number];
 
 export function setMapPosition(map: Map, pos: AnyMapPosition) {
+  const hasLngLat = "lng" in pos && "lat" in pos;
   if (Array.isArray(pos)) {
+    // A simple [lng, lat] array
     map.setCenter(pos);
-  } else if ("lng" in pos) {
+  } else if (hasLngLat && "altitude" in pos) {
+    // This is a CameraPosition
+    _setMapPosition(map, { camera: pos });
+  } else if (hasLngLat) {
+    // Other cases with lng and lat (e.g., TargetPosition)
     const { lng, lat } = pos;
     if ("zoom" in pos) {
       map.setZoom(pos.zoom);
     }
     map.setCenter([lng, lat]);
-  } else if ("altitude" in pos) {
-    _setMapPosition(map, { camera: pos });
   } else if ("camera" in pos) {
     _setMapPosition(map, pos);
   }

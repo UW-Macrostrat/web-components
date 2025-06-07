@@ -14,6 +14,10 @@ import {
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { RectBounds, IUnit } from "./types";
+import {
+  getUnitHeightRange,
+  useMacrostratColumnData,
+} from "@macrostrat/column-views";
 
 type UnitSelectDispatch = (
   unit: BaseUnit | null,
@@ -98,10 +102,9 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
          */
         if (props.onClickedColumn) {
           // Infer height from top and bottom height of unit (because that's passed back with the call)
-          const py = event.y;
-          const top = unit.t_height;
-          const bottom = unit.b_height;
-          const height = Math.abs(bottom - top);
+          //const py = event.y;
+          //const [bottom, top] = getUnitHeightRange(unit, axisType);
+          //const height = Math.abs(bottom - top);
 
           /** Ideally this would be defined at the column level */
           const columnClickData: ColumnClickData = {

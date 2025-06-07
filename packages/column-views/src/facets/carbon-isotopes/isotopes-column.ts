@@ -18,7 +18,7 @@ import {
 import {
   useMacrostratColumnData,
   useMacrostratUnits,
-} from "@macrostrat/column-views";
+} from "../../data-provider";
 import styles from "./isotopes-column.module.sass";
 import { scaleLinear } from "d3-scale";
 

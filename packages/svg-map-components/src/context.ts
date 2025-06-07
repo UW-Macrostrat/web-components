@@ -10,11 +10,16 @@ type GlobeState = {
   updateCount: number;
 };
 
+interface PathRenderer {
+  (geom: GeoGeometryObjects): string;
+  pointRadius(radius: number): PathRenderer;
+}
+
 export type GlobeCtx = {
   width: number;
   height: number;
   margin: number;
-  renderPath: (geom: GeoGeometryObjects) => string;
+  renderPath: PathRenderer | null;
   projection: GeoProjection;
   mapRef: RefObject<SVGElement> | null;
   dispatchEvent?: (event: Event) => void;
@@ -35,7 +40,7 @@ const MapContext = createContext<GlobeCtx>({
   width: 0,
   height: 0,
   margin: 0,
-  renderPath: (geom) => null,
+  renderPath: null,
   projection: geoOrthographic(),
   mapRef: null,
 });

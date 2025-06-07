@@ -1,13 +1,15 @@
 import { useMapRef } from "./context";
 import { useEffect } from "react";
 import {
-  AnySourceImpl,
   AnyLayer,
   RasterDemSource,
   Style,
   AnySourceData,
+  SkyLayer,
 } from "mapbox-gl";
+import type mapboxgl from "mapbox-gl";
 import { mergeStyles } from "@macrostrat/mapbox-utils";
+import { useMapStyleOperator } from "./hooks";
 
 type SourceConfig = Partial<RasterDemSource>;
 
@@ -17,24 +19,17 @@ export function use3DTerrain(
   sourceCfg: SourceConfig = {}
 ) {
   const mapRef = useMapRef();
-  const map = mapRef.current;
-  useEffect(() => {
-    if (map == null) return;
-    if (map.style?._loaded ?? false) {
+  return useMapStyleOperator(
+    (style) => {
+      const map = mapRef.current;
       setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
-    }
-    const cb = () => {
-      setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
-    };
-    map.on("style.load", cb);
-    return () => {
-      map.off("style.load", cb);
-    };
-  }, [map, shouldEnable, sourceName]);
+    },
+    [sourceName, shouldEnable, sourceCfg]
+  );
 }
 
 export function setup3DTerrain(
-  map: Map,
+  map: mapboxgl.Map,
   shouldEnable: boolean = true,
   sourceID: string = null,
   sourceCfg: SourceConfig = {}
@@ -108,14 +103,14 @@ function getTerrainSourceID(style: Style): string | null {
 }
 
 function addDefault3DStyles(
-  map,
+  map: mapboxgl.Map,
   sourceName = "terrain",
   sourceCfg: Partial<RasterDemSource> = {}
 ) {
   const style = map.getStyle();
 
   const hasTerrain = Object.entries(style.sources).some(
-    ([key, source]: [string, AnySourceImpl]) =>
+    ([key, source]: [string, AnySourceData]) =>
       source.type === "raster-dem" && key === sourceName
   );
 
@@ -127,7 +122,7 @@ function addDefault3DStyles(
     map.addSource(sourceName, {
       ...defaultRasterDEM,
       ...sourceCfg,
-    });
+    } as AnySourceData);
   }
 
   if (!hasSkyLayer(style)) {
@@ -139,14 +134,14 @@ function addDefault3DStyles(
   // }
 }
 
-const defaultRasterDEM = {
+const defaultRasterDEM: RasterDemSource = {
   type: "raster-dem",
   url: "mapbox://mapbox.mapbox-terrain-dem-v1",
   tileSize: 512,
   maxzoom: 14,
 };
 
-const defaultSkyLayer = {
+const defaultSkyLayer: SkyLayer = {
   id: "sky",
   type: "sky",
   paint: {
@@ -156,7 +151,7 @@ const defaultSkyLayer = {
   },
 };
 
-const defaultFogLight = {
+const defaultFogLight: mapboxgl.Fog = {
   color: "#ffffff",
   // @ts-ignore
   "space-color": [
@@ -172,7 +167,7 @@ const defaultFogLight = {
   range: [5, 15],
 };
 
-const defaultFogDark = {
+const defaultFogDark: mapboxgl.Fog = {
   range: [10, 20],
   color: "hsla(0, 0%, 0%, 0.43)",
   "high-color": "hsl(207, 23%, 5%)",
