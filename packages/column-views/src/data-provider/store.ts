@@ -3,10 +3,10 @@ import h from "@macrostrat/hyper";
 import {
   createCompositeScale,
   PackageLayoutData,
+  CompositeColumnScale,
 } from "../prepare-units/composite-scale";
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { CompositeColumnScale } from "@macrostrat/column-views";
 
 export interface MacrostratColumnDataContext {
   units: ExtUnit[];

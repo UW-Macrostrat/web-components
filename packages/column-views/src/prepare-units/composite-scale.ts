@@ -268,7 +268,7 @@ function findAverageUnitHeight(
   return unitHeights.reduce((a, b) => a + b, 0) / unitHeights.length;
 }
 
-interface CompositeColumnScale {
+export interface CompositeColumnScale {
   (age: number): number | null;
   copy(): CompositeColumnScale;
   domain(): [number, number];
