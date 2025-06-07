@@ -3,6 +3,7 @@ import h from "@macrostrat/hyper";
 import { BasicUnitComponent, Column } from "@macrostrat/column-views";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { FlexRow } from "@macrostrat/ui-components";
+import { ColumnCreator } from "../src";
 
 export default {
   title: "Column creator/Column creator",
@@ -86,14 +87,9 @@ export function BasicColumn() {
   ]);
 }
 
-export function ColumnCreator() {
-  return h(FlexRow, { gap: "1em" }, [
-    h(Column, {
-      units: demoUnits,
-      axisType: ColumnAxisType.HEIGHT,
-      pixelScale: 0.8,
-      allowUnitSelection: true,
-      unitComponent: BasicUnitComponent,
-    }),
-  ]);
-}
+export const ColumnCreatorStory = {
+  name: "Column Creator",
+  render() {
+    return h(ColumnCreator, { initialUnits: demoUnits });
+  },
+};
