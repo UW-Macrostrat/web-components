@@ -36,7 +36,8 @@ const h = hyper.styled(styles);
 
 interface DataSheetInternalProps<T> {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
-  onSaveData: (updatedData: any[], data: any[]) => void;
+  onSaveData: (updatedData: any[], data: T[]) => void;
+  onUpdateData?: (updatedData: any[], data: T[]) => void;
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
@@ -77,6 +78,7 @@ function _DataSheet<T>({
   onVisibleCellsChange,
   enableColumnReordering,
   onSaveData,
+  onUpdateData,
   onDeleteRows,
   verbose = true,
   dataSheetActions = null,
@@ -145,6 +147,11 @@ function _DataSheet<T>({
     if (!verbose) return;
     console.log("Updated data", updatedData);
   }, [updatedData]);
+
+  useEffect(() => {
+    if (updatedData.length == 0) return;
+    onUpdateData?.(updatedData, data);
+  }, [onUpdateData, data, updatedData]);
 
   useEffect(() => {
     if (!verbose) return;
