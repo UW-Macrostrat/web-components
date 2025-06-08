@@ -42,7 +42,7 @@ function createColumnStore(initialState: ColumnCreatorState) {
 function sortUnits(units: any[]): any[] {
   // This function should synthesize or transform the units as needed.
   // For now, it just returns the input units sorted by their b_pos.
-  const u1 = units.filter((unit) => unit?.b_pos != null || unit?.b_pos !== "");
+  const u1 = units.filter((unit) => unit?.b_pos != null && unit?.b_pos !== "");
   // Make positions into numbers
   u1.forEach((unit) => {
     if (typeof unit.b_pos === "string") {
@@ -59,7 +59,9 @@ function sortUnits(units: any[]): any[] {
     if (isNaN(unit.t_pos)) unit.t_pos = null;
   });
 
-  u1.sort((a, b) => b.b_pos - a.b_pos);
+  u1.sort((a, b) => a.b_pos - b.b_pos);
+
+  console.log("Sorted units:", u1);
   return u1;
 }
 

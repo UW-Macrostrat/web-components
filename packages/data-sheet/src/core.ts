@@ -132,12 +132,12 @@ function _DataSheet<T>({
 
   const onAddRow = useCallback(() => {
     setUpdatedData((updatedData) => {
-      const ix = data.length;
+      const ix = Math.max(updatedData.length, data.length);
       const addRowSpec = { [ix]: { $set: {} } };
       const newUpdatedData = update(updatedData, addRowSpec);
       return newUpdatedData;
     });
-  }, [setUpdatedData, data]);
+  }, [setUpdatedData]);
 
   const _onDeleteRows = useCallback(() => {
     onDeleteRows(selection);
