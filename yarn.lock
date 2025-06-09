@@ -1418,6 +1418,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@derschmale/array-utils@npm:^1.0.6":
+  version: 1.2.0
+  resolution: "@derschmale/array-utils@npm:1.2.0"
+  checksum: 10c0/762eba17c4bcecc35d8bd2ac38ce15f5044592ab073d9c7521cc13d02bf0a745cd115c5676b74afb76074120663d3eb4bc96b67db2f561c0968f9686e1d9c5cc
+  languageName: node
+  linkType: hard
+
+"@derschmale/tympanum@npm:^1.3.6":
+  version: 1.3.6
+  resolution: "@derschmale/tympanum@npm:1.3.6"
+  dependencies:
+    "@derschmale/array-utils": "npm:^1.0.6"
+  checksum: 10c0/448aab82818ed01b03c0938489231fa2bab6ffebad4276bb9d08ecb20680f894368e895a7125cb95c66b57fb2a40fbb8d58e243d37934e050a31ceb1f336dbb7
+  languageName: node
+  linkType: hard
+
 "@emotion/cache@npm:11.7.1":
   version: 11.7.1
   resolution: "@emotion/cache@npm:11.7.1"
@@ -2266,6 +2282,15 @@ __metadata:
   peerDependencies:
     "@blueprintjs/core": ^5.0.0
     react: ^16.8.6||^17.0.0||^18.0.0
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/cross-section-utils@workspace:packages/cross-section-utils":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/cross-section-utils@workspace:packages/cross-section-utils"
+  dependencies:
+    "@derschmale/tympanum": "npm:^1.3.6"
+    "@macrostrat/hyper": "npm:^3.0.6"
   languageName: unknown
   linkType: soft
 
