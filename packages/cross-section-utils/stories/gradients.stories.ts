@@ -1,6 +1,5 @@
 import h from "@macrostrat/hyper";
 import { Meta } from "@storybook/react";
-import * as natninter from "natninter";
 import { useEffect, useRef } from "react";
 import { useElementSize } from "@macrostrat/ui-components";
 import {
@@ -17,8 +16,8 @@ interface UncertaintyVertex {
 }
 
 function UncertaintyGradientExample(props) {
-  // Overlay to show a a gradient between points of variable uncertainty
-  const { points, ...rest } = props;
+  // Overlay to show a gradient between points of variable uncertainty
+  const { points, width: _width = 500, height: _height = 500, ...rest } = props;
   const ref = useRef();
   const { width, height } = useElementSize(ref) ?? {};
 
@@ -26,13 +25,13 @@ function UncertaintyGradientExample(props) {
     "div.container",
     {
       style: {
-        width: "500px",
-        height: "500px",
+        width: `${_width}px`,
+        height: `${_height}px`,
         backgroundColor: "lightgreen",
       },
       ref,
     },
-    h(UncertaintyOverlay, { points, width: 500, height: 500, ...rest })
+    h(UncertaintyOverlay, { points, width, height, ...rest })
   );
 }
 
@@ -181,36 +180,6 @@ function createUncertaintyGradientVoronoi(
   };
 }
 
-function createUncertaintyGradientNatural(
-  points: UncertaintyVertex[],
-  options: UncertaityGradientOptions | null
-): GradientOutput {
-  const { width, height } = options ?? {};
-  const seeds = points.map(({ x, y, uncertainty }) => {
-    return {
-      x,
-      y,
-      value: uncertainty * 255,
-    };
-  });
-
-  // Creating the nni interpolator instance
-  const nnInter = new natninter.Interpolator();
-
-  // setting the output size
-  nnInter.setOutputSize(width, height);
-
-  // add a list of seeds
-  nnInter.addSeeds(seeds);
-
-  // Create the interpolation map
-  // (this may take some seconds, start with a small image to benchmark it)
-  nnInter.generateMap();
-
-  // generate the output image witha  nice interpolation
-  return nnInter.generateImage();
-}
-
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Cross sections/Uncertainty gradient",
@@ -235,11 +204,10 @@ export const Default = {
   },
 };
 
-export const NaturalInterpolation = {
+export const BlackAndWhite = {
   args: {
     points: basicPoints,
-    interpolator: createUncertaintyGradientNatural,
     quantizeSteps: 20,
-    alphaGradient: true,
+    alphaGradient: false,
   },
 };

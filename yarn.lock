@@ -2291,7 +2291,6 @@ __metadata:
   dependencies:
     "@derschmale/tympanum": "npm:^1.3.6"
     "@macrostrat/hyper": "npm:^3.0.6"
-    natninter: "npm:^0.1.3"
   languageName: unknown
   linkType: soft
 
@@ -5864,13 +5863,6 @@ __metadata:
   version: 2.2.0
   resolution: "app-module-path@npm:2.2.0"
   checksum: 10c0/0d6d581dcee268271af1e611934b4fed715de55c382b2610de67ba6f87d01503fc0426cff687f06210e54cd57545f7a6172e1dd192914a3709ad89c06a4c3a0b
-  languageName: node
-  linkType: hard
-
-"area-polygon@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "area-polygon@npm:1.0.1"
-  checksum: 10c0/391ee32e4c71a9fa34b7983290eb12781e572d201d321d18dcce20a82e17f5b2458e623541276da969bc945fd8af73c61dcfc98d89b3cfabca240dfec200e73b
   languageName: node
   linkType: hard
 
@@ -9836,17 +9828,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"natninter@npm:^0.1.3":
-  version: 0.1.3
-  resolution: "natninter@npm:0.1.3"
-  dependencies:
-    area-polygon: "npm:^1.0.1"
-    point-in-polygon: "npm:^1.0.1"
-    voronoi: "npm:^1.0.0"
-  checksum: 10c0/5d64ac0654bc54a56c9fbd1abd83be6618533b8b38d04a28198bf6fa398f4845e122afa7353e4da3ca8b2b10971a980f555a995bcacc8b316f52bdebba821ef7
-  languageName: node
-  linkType: hard
-
 "negotiator@npm:^1.0.0":
   version: 1.0.0
   resolution: "negotiator@npm:1.0.0"
@@ -10336,13 +10317,6 @@ __metadata:
   version: 8.0.0
   resolution: "pluralize@npm:8.0.0"
   checksum: 10c0/2044cfc34b2e8c88b73379ea4a36fc577db04f651c2909041b054c981cd863dd5373ebd030123ab058d194ae615d3a97cfdac653991e499d10caf592e8b3dc33
-  languageName: node
-  linkType: hard
-
-"point-in-polygon@npm:^1.0.1":
-  version: 1.1.0
-  resolution: "point-in-polygon@npm:1.1.0"
-  checksum: 10c0/de00419585ee25555d97585b7a23eeb2464a87ef29404264bee55654ca2ecab5a5a99d33e689c07d045faf80091e838f44a1fd130bdd6134493df53114947343
   languageName: node
   linkType: hard
 
@@ -13157,13 +13131,6 @@ __metadata:
   bin:
     vite: bin/vite.js
   checksum: 10c0/68a2ed3e61bdd654c59b817b4f3203065241c66d1739faa707499130f3007bc3a666c7a8320a4198e275e62b5e4d34d9b78a6533f69e321d366e76f5093b2071
-  languageName: node
-  linkType: hard
-
-"voronoi@npm:^1.0.0":
-  version: 1.0.0
-  resolution: "voronoi@npm:1.0.0"
-  checksum: 10c0/e0214ce26c5a45f190085b9969734098be2774c10668c76c7485524b1e688cee22307a3caa0a1eba8d628571ce892c62d4bc3da20b5c4fb1cb95b4a3d60fbd27
   languageName: node
   linkType: hard
 
