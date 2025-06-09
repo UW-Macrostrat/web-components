@@ -39,7 +39,6 @@ function UncertaintyOverlay({
   points,
   width,
   height,
-  interpolator = createUncertaintyGradientVoronoi,
   quantizeSteps = null,
   alphaGradient = false, // If true, use a gradient for the alpha channel
 }) {
@@ -49,7 +48,7 @@ function UncertaintyOverlay({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas == null || width == null || height == null) return;
-    const imageData = interpolator(points, {
+    const imageData = createUncertaintyGradient(points, {
       width,
       height,
     });
@@ -84,7 +83,7 @@ function UncertaintyOverlay({
     }
 
     ctx.putImageData(canvasImageData, 0, 0);
-  }, [points, width, height, interpolator]);
+  }, [points, width, height]);
 
   return h("canvas", {
     style: { imageRendering: "pixelated", width, height },
@@ -105,7 +104,7 @@ interface UncertaityGradientOptions {
   height: number;
 }
 
-function createUncertaintyGradientVoronoi(
+function createUncertaintyGradient(
   points: UncertaintyVertex[],
   options: UncertaityGradientOptions | null
 ): GradientOutput {
@@ -131,20 +130,57 @@ function createUncertaintyGradientVoronoi(
   //uncertaintyValues.push(-1, -1, -1, -1); // Negative uncertainty for corners
 
   // Create a Delaunay triangulation from the points
-  const triangulation = delaunay(seeds);
+  let triangulation = null;
+  if (seeds.length > 2) {
+    triangulation = delaunay(seeds);
+  }
+
+  // Check if corners are in the triangulation
+  // If not, add them as seeds with negative uncertainty
+  const corners = [
+    [0, 0],
+    [width - 1, 0],
+    [0, height - 1],
+    [width - 1, height - 1],
+  ];
+
+  // Weed out corners that are already seeds
+  const cornerSet = new Set(seeds.map((s) => s.join(",")));
+  const filteredCorners = corners.filter(
+    (corner) => !cornerSet.has(corner.join(","))
+  );
+
+  const facets = filteredCorners.map((corner) => {
+    if (triangulation == null) return null;
+    return visibilityWalk(corner, triangulation, seeds);
+  });
+
+  // If any corner is not in the triangulation, we need to update the triangulation
+  for (let i = 0; i < facets.length; i++) {
+    if (facets[i] == null) {
+      triangulation = null; // Reset triangulation
+      seeds.push(filteredCorners[i]);
+      uncertaintyValues.push(-1); // Negative uncertainty for corners
+    }
+  }
+
+  // If necessary, recreate the triangulation with the updated seeds
+  triangulation ??= delaunay(seeds);
 
   // Iterate through pixels and assign uncertainty values based on barycentric coordinates
   const pixelValues = new Float32Array(width * height);
+  let lastFacet = null;
 
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       // Find the triangle that contains the pixel
-      const facet = visibilityWalk([x, y], triangulation, seeds);
+      const facet = visibilityWalk([x, y], triangulation, seeds, lastFacet);
       if (facet == null) {
         // If no triangle is found, skip this pixel
         pixelValues[y * width + x] = 0; // or some default value
         continue;
       }
+      lastFacet = facet; // Update the last facet for the next iteration
       // Get the triangle index from the facet
       const bary = barycentricCoords([x, y], facet, seeds);
 
@@ -161,11 +197,11 @@ function createUncertaintyGradientVoronoi(
           continue;
         }
         weightedUncertainty += bary[i] * c;
-        n += 1;
+        n += bary[i];
       }
       // Rescale if we had edge points
-      if (n < 3) {
-        weightedUncertainty *= 3 / n;
+      if (n < 1) {
+        weightedUncertainty *= 1 / n;
       }
       pixelValues[y * width + x] = weightedUncertainty * 255; // Scale to 0-255 range
     }
@@ -207,7 +243,29 @@ export const Default = {
 export const BlackAndWhite = {
   args: {
     points: basicPoints,
+    alphaGradient: false,
+  },
+};
+
+export const Simple = {
+  args: {
+    points: [
+      { x: 0, y: 0, uncertainty: 0 },
+      { x: 350, y: 500, uncertainty: 1 },
+    ] as UncertaintyVertex[],
     quantizeSteps: 20,
     alphaGradient: false,
+  },
+};
+
+export const Large = {
+  args: {
+    width: 900,
+    height: 300,
+    points: [
+      { x: 0, y: 0, uncertainty: 0 },
+      { x: 450, y: 300, uncertainty: 1 },
+    ] as UncertaintyVertex[],
+    quantizeSteps: 20,
   },
 };
