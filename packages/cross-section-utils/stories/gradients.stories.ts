@@ -21,9 +21,8 @@ function UncertaintyGradientExample(props) {
     "div.container",
     {
       style: {
-        width: "100%",
-        height: "500px",
-        position: "relative",
+        width: "250px",
+        height: "250px",
         backgroundColor: "lightgreen",
       },
       ref,
@@ -43,7 +42,10 @@ function UncertaintyOverlay({ points, width, height }) {
 
     const ctx = canvas.getContext("2d");
 
-    const canvasImageData = ctx.getImageData(0, 0, width, height);
+    const _width = imageData._metadata.width;
+    const _height = imageData._metadata.height;
+
+    const canvasImageData = ctx.getImageData(0, 0, _width, _height);
     const canvasImageDataArray = canvasImageData.data;
 
     for (var i = 0; i < imageData._data.length; i++) {
@@ -118,11 +120,11 @@ export default {
 export const Default = {
   args: {
     points: [
-      { x: 0, y: 0, uncertainty: 0 },
-      { x: 500, y: 0, uncertainty: 0 },
-      //{ x: 500, y: 0, uncertainty: 0 },
-      //{ x: 0, y: 300, uncertainty: 1 },
-      { x: 500, y: 300, uncertainty: 1 },
+      { x: 0, y: 0, uncertainty: 1 },
+      //{ x: 499, y: 0, uncertainty: 0 },
+      { x: 125, y: 125, uncertainty: 0 },
+      //{ x: 0, y: 499, uncertainty: 1 },
+      { x: 249, y: 249, uncertainty: 1 },
     ] as UncertaintyVertex[],
   },
 };
