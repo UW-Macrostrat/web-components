@@ -15,6 +15,7 @@ export interface FeedbackTextProps {
   nodes: InternalEntity[];
   updateNodes: (nodes: string[]) => void;
   dispatch: TreeDispatch;
+  lineHeight: string;
 }
 
 function buildTags(
@@ -71,7 +72,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch } = props;
+  const { text, selectedNodes, nodes, dispatch, lineHeight } = props;
   let allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes
@@ -145,6 +146,7 @@ export function FeedbackText(props: FeedbackTextProps) {
   return h(TextAnnotateBlend, {
     style: {
       fontSize: "1.2em",
+      lineHeight,
     },
     className: "feedback-text",
     content: text,

@@ -4,7 +4,7 @@ import { FeedbackComponent } from "../src";
 import { data, entityTypes } from "./test-data";
 import h from "@macrostrat/hyper";
 
-function FeedbackInterface({ data, types }) {
+function FeedbackInterface({ data, types, lineHeight }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
   return h(FeedbackComponent, {
@@ -14,6 +14,7 @@ function FeedbackInterface({ data, types }) {
     entityTypes: createMap(types),
     sourceTextID: source_text,
     runID: model_run,
+    lineHeight: `${lineHeight}em`,
   });
 }
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -28,6 +29,7 @@ export const Primary: StoryObj<{}> = {
   args: {
     data,
     types: entityTypes,
+    lineHeight: 2,
   },
 };
 

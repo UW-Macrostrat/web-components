@@ -49,6 +49,7 @@ export function FeedbackComponent({
   entityTypes,
   matchComponent,
   onSave,
+  lineHeight
 }) {
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
@@ -68,6 +69,7 @@ export function FeedbackComponent({
       // @ts-ignore
       nodes: tree,
       selectedNodes,
+      lineHeight,
     }),
     h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
       h(ModelInfo, { data: model }),
