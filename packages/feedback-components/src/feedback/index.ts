@@ -202,7 +202,7 @@ function EntityTypeSelector({
       selected?.name ?? "None"
     ),
     */
-    h('p', "Entity Type:"),
+    h('p', "Change Selected Nodes to:"),
     h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree, selectedNodes }),
     h(OmniboxSelector, {
       isOpen,
@@ -282,6 +282,7 @@ function ManagedSelectionTree(props) {
     (nodes) => {
       if (!clickedRef.current) return;
       clickedRef.current = false;
+      console.log("Clicked nodes:", nodes);
 
       let ids = nodes.map((d) => parseInt(d.id));
       if (ids.length === 1 && ids[0] === selectedNodes[0]) {
@@ -331,12 +332,18 @@ function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
   return h(
     "div.type-list",
     Array.from(types.values()).map((type) => {
-      const { color, name, id } = type;
+      const { color, name, id, description } = type;
       const darkMode = useInDarkMode();
       const luminance = darkMode ? 0.9 : 0.4;
       const chromaColor = asChromaColor(color ?? "#000000")
       const ids = collectMatchingIds(tree, name);
-      const alreadySelected = ids.length === selectedNodes.length && ids.every((v, i) => v === selectedNodes[i])
+
+      const payload = {
+        id,
+        name,
+        color,
+        description,
+      };
 
       return h(
         Tag, 
@@ -348,7 +355,7 @@ function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
             border: id === selected?.id ? `1px solid white` : `1px solid black`,
           },
           onClick: () => {
-            dispatch({ type: "select-node", payload: { ids: alreadySelected ? [] : ids } });  
+            dispatch({ type: "select-entity-type", payload }); 
           } 
         }, 
         name

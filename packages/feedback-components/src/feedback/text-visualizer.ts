@@ -79,7 +79,7 @@ export function FeedbackText(props: FeedbackTextProps) {
   );
 
   const onChange = useCallback(
-    (tags) => {
+    (tags, e) => {
       // New tags
       const newTags = tags.filter((d) => !("id" in d));
       if (newTags.length > 0) {
@@ -131,6 +131,8 @@ export function FeedbackText(props: FeedbackTextProps) {
       const tagIDs = new Set(tags.map((d) => d.id));
       const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
 
+      console.log("Removed IDs", removedIds);
+
       /* Find the id that was removed: that is the one that will be selected
        (we are hijacking the 'click to delete' functionality to select instead) */
       if (removedIds.length > 0) {
@@ -143,14 +145,27 @@ export function FeedbackText(props: FeedbackTextProps) {
     [allTags, text]
   );
 
-  return h(TextAnnotateBlend, {
-    style: {
-      fontSize: "1.2em",
-      lineHeight,
-    },
-    className: "feedback-text",
-    content: text,
-    onChange,
-    value: allTags,
-  });
+  return h('div.feedback-text-wrapper', { 
+    tabIndex: 0,
+    onKeyDown: (e) => {
+      if( e.key === "Backspace") {
+        console.log("Backspace pressed, deleting selected nodes");
+        dispatch({
+          type: "delete-node",
+          payload: { ids: selectedNodes },
+        });
+      }
+    }
+  },
+    h(TextAnnotateBlend, {
+      style: {
+        fontSize: "1.2em",
+        lineHeight,
+      },
+      className: "feedback-text",
+      content: text,
+      onChange,
+      value: allTags,
+    })
+  );
 }
