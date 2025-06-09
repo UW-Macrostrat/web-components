@@ -3,6 +3,11 @@ import { Meta } from "@storybook/react";
 import * as natninter from "natninter";
 import { useEffect, useRef } from "react";
 import { useElementSize } from "@macrostrat/ui-components";
+import {
+  barycentricCoords,
+  delaunay,
+  visibilityWalk,
+} from "@derschmale/tympanum";
 
 interface UncertaintyVertex {
   x: number;
@@ -21,13 +26,13 @@ function UncertaintyGradientExample(props) {
     "div.container",
     {
       style: {
-        width: "250px",
-        height: "250px",
+        width: "500px",
+        height: "500px",
         backgroundColor: "lightgreen",
       },
       ref,
     },
-    h(UncertaintyOverlay, { points, width, height })
+    h(UncertaintyOverlay, { points, width: 500, height: 500 })
   );
 }
 
@@ -41,6 +46,8 @@ function UncertaintyOverlay({ points, width, height }) {
     const imageData = createUncertaintyGradient(points, { width, height });
 
     const ctx = canvas.getContext("2d");
+    canvas.width = imageData._metadata.width;
+    canvas.height = imageData._metadata.height;
 
     const _width = imageData._metadata.width;
     const _height = imageData._metadata.height;
@@ -50,12 +57,12 @@ function UncertaintyOverlay({ points, width, height }) {
 
     for (var i = 0; i < imageData._data.length; i++) {
       var index1D = i * 4;
-      //var val = Math.floor(imageData._data[i]);
-      var val = Math.floor(imageData._data[i] / 10) * 10;
-      canvasImageDataArray[index1D] = val;
-      canvasImageDataArray[index1D + 1] = val;
-      canvasImageDataArray[index1D + 2] = val;
-      canvasImageDataArray[index1D + 3] = 255;
+      var val = Math.floor(imageData._data[i]);
+      //var val = Math.floor(imageData._data[i] / 10) * 10;
+      canvasImageDataArray[index1D] = 255;
+      canvasImageDataArray[index1D + 1] = 255;
+      canvasImageDataArray[index1D + 2] = 255;
+      canvasImageDataArray[index1D + 3] = val;
     }
 
     ctx.putImageData(canvasImageData, 0, 0);
@@ -86,28 +93,73 @@ function createUncertaintyGradient(
 ): GradientOutput {
   const { width, height } = options ?? {};
   const seeds = points.map(({ x, y, uncertainty }) => {
-    return {
-      x,
-      y,
-      value: uncertainty * 255,
-    };
+    return [y, x];
+    //return Float32Array.from([x, y]);
   });
 
-  // Creating the nni interpolator instance
-  const nnInter = new natninter.Interpolator();
+  // Put seeds at all image corners, with negative uncertainty
+  // Note: we should only do this when corners are outside of the convex hull of the points.
 
-  // setting the output size
-  nnInter.setOutputSize(width, height);
+  // seeds.push([0, 0]);
+  // seeds.push([width - 1, 0]);
+  // seeds.push([0, height - 1]);
+  // seeds.push([width - 1, height - 1]);
 
-  // add a list of seeds
-  nnInter.addSeeds(seeds);
+  const uncertaintyValues = points.map(({ uncertainty }) => {
+    // Normalize uncertainty to a value between 0 and 255
+    return uncertainty;
+  });
 
-  // Create the interpolation map
-  // (this may take some seconds, start with a small image to benchmark it)
-  nnInter.generateMap();
+  //uncertaintyValues.push(-1, -1, -1, -1); // Negative uncertainty for corners
 
-  // generate the output image witha  nice interpolation
-  return nnInter.generateImage();
+  // Create a Delaunay triangulation from the points
+  const triangulation = delaunay(seeds);
+
+  // Iterate through pixels and assign uncertainty values based on barycentric coordinates
+  const pixelValues = new Float32Array(width * height);
+
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      // Find the triangle that contains the pixel
+      const facet = visibilityWalk([x, y], triangulation, seeds);
+      if (facet == null) {
+        // If no triangle is found, skip this pixel
+        pixelValues[y * width + x] = 0; // or some default value
+        continue;
+      }
+      // Get the triangle index from the facet
+      const bary = barycentricCoords([x, y], facet, seeds);
+
+      let weightedUncertainty = 0;
+
+      let n = 0;
+      for (let i = 0; i < bary.length; ++i) {
+        // get the index of the point
+        let index = facet.verts[i];
+
+        // get the color at that index
+        let c = uncertaintyValues[index];
+        if (c == -1) {
+          continue;
+        }
+        weightedUncertainty += bary[i] * c;
+        n += 1;
+      }
+      // Rescale if we had edge points
+      if (n < 3) {
+        weightedUncertainty *= 3 / n;
+      }
+      pixelValues[y * width + x] = weightedUncertainty * 255; // Scale to 0-255 range
+    }
+  }
+
+  return {
+    _data: pixelValues,
+    _metadata: {
+      width: width,
+      height: height,
+    },
+  };
 }
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -120,11 +172,15 @@ export default {
 export const Default = {
   args: {
     points: [
-      { x: 0, y: 0, uncertainty: 1 },
+      { x: 0, y: 0, uncertainty: 0 },
       //{ x: 499, y: 0, uncertainty: 0 },
-      { x: 125, y: 125, uncertainty: 0 },
+      { x: 0, y: 500, uncertainty: 0.2 },
+      { x: 250, y: 250, uncertainty: 1 },
+      { x: 500, y: 500, uncertainty: 1 },
+      { x: 500, y: 0, uncertainty: 0.5 },
       //{ x: 0, y: 499, uncertainty: 1 },
-      { x: 249, y: 249, uncertainty: 1 },
+      // { x: 249, y: 0, uncertainty: 1 },
+      // { x: 249, y: 249, uncertainty: 1 },
     ] as UncertaintyVertex[],
   },
 };
