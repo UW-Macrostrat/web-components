@@ -18,7 +18,7 @@ interface UncertaintyVertex {
 
 function UncertaintyGradientExample(props) {
   // Overlay to show a a gradient between points of variable uncertainty
-  const { points } = props;
+  const { points, ...rest } = props;
   const ref = useRef();
   const { width, height } = useElementSize(ref) ?? {};
 
@@ -32,18 +32,28 @@ function UncertaintyGradientExample(props) {
       },
       ref,
     },
-    h(UncertaintyOverlay, { points, width: 500, height: 500 })
+    h(UncertaintyOverlay, { points, width: 500, height: 500, ...rest })
   );
 }
 
-function UncertaintyOverlay({ points, width, height }) {
+function UncertaintyOverlay({
+  points,
+  width,
+  height,
+  interpolator = createUncertaintyGradientVoronoi,
+  quantizeSteps = null,
+  alphaGradient = false, // If true, use a gradient for the alpha channel
+}) {
   // creating a canvas
   const canvasRef = useRef();
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (canvas == null || width == null || height == null) return;
-    const imageData = createUncertaintyGradient(points, { width, height });
+    const imageData = interpolator(points, {
+      width,
+      height,
+    });
 
     const ctx = canvas.getContext("2d");
     canvas.width = imageData._metadata.width;
@@ -56,17 +66,26 @@ function UncertaintyOverlay({ points, width, height }) {
     const canvasImageDataArray = canvasImageData.data;
 
     for (var i = 0; i < imageData._data.length; i++) {
-      var index1D = i * 4;
-      var val = Math.floor(imageData._data[i]);
+      const index1D = i * 4;
+      let val = imageData._data[i];
+      if (quantizeSteps != null) {
+        val = Math.floor(val / quantizeSteps) * quantizeSteps;
+      }
       //var val = Math.floor(imageData._data[i] / 10) * 10;
-      canvasImageDataArray[index1D] = 255;
-      canvasImageDataArray[index1D + 1] = 255;
-      canvasImageDataArray[index1D + 2] = 255;
-      canvasImageDataArray[index1D + 3] = val;
+      let alphaVal = 255;
+      if (alphaGradient) {
+        alphaVal = val;
+        val = 255; // Set color to white
+      }
+
+      canvasImageDataArray[index1D] = val;
+      canvasImageDataArray[index1D + 1] = val;
+      canvasImageDataArray[index1D + 2] = val;
+      canvasImageDataArray[index1D + 3] = alphaVal;
     }
 
     ctx.putImageData(canvasImageData, 0, 0);
-  }, [points, width, height]);
+  }, [points, width, height, interpolator]);
 
   return h("canvas", {
     style: { imageRendering: "pixelated", width, height },
@@ -87,13 +106,13 @@ interface UncertaityGradientOptions {
   height: number;
 }
 
-function createUncertaintyGradient(
+function createUncertaintyGradientVoronoi(
   points: UncertaintyVertex[],
   options: UncertaityGradientOptions | null
 ): GradientOutput {
   const { width, height } = options ?? {};
   const seeds = points.map(({ x, y, uncertainty }) => {
-    return [y, x];
+    return [x, y];
     //return Float32Array.from([x, y]);
   });
 
@@ -162,6 +181,36 @@ function createUncertaintyGradient(
   };
 }
 
+function createUncertaintyGradientNatural(
+  points: UncertaintyVertex[],
+  options: UncertaityGradientOptions | null
+): GradientOutput {
+  const { width, height } = options ?? {};
+  const seeds = points.map(({ x, y, uncertainty }) => {
+    return {
+      x,
+      y,
+      value: uncertainty * 255,
+    };
+  });
+
+  // Creating the nni interpolator instance
+  const nnInter = new natninter.Interpolator();
+
+  // setting the output size
+  nnInter.setOutputSize(width, height);
+
+  // add a list of seeds
+  nnInter.addSeeds(seeds);
+
+  // Create the interpolation map
+  // (this may take some seconds, start with a small image to benchmark it)
+  nnInter.generateMap();
+
+  // generate the output image witha  nice interpolation
+  return nnInter.generateImage();
+}
+
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Cross sections/Uncertainty gradient",
@@ -169,18 +218,28 @@ export default {
   description: "Example of an uncertainty gradient",
 } as Meta<typeof UncertaintyGradientExample>;
 
+const basicPoints: UncertaintyVertex[] = [
+  { x: 0, y: 0, uncertainty: 0 },
+  { x: 499, y: 0, uncertainty: 0.2 },
+  { x: 0, y: 499, uncertainty: 1 },
+  { x: 249, y: 249, uncertainty: 1 },
+  { x: 499, y: 499, uncertainty: 1 },
+  { x: 499, y: 0, uncertainty: 0.5 },
+];
+
 export const Default = {
   args: {
-    points: [
-      { x: 0, y: 0, uncertainty: 0 },
-      //{ x: 499, y: 0, uncertainty: 0 },
-      { x: 0, y: 500, uncertainty: 0.2 },
-      { x: 250, y: 250, uncertainty: 1 },
-      { x: 500, y: 500, uncertainty: 1 },
-      { x: 500, y: 0, uncertainty: 0.5 },
-      //{ x: 0, y: 499, uncertainty: 1 },
-      // { x: 249, y: 0, uncertainty: 1 },
-      // { x: 249, y: 249, uncertainty: 1 },
-    ] as UncertaintyVertex[],
+    points: basicPoints,
+    quantizeSteps: 20,
+    alphaGradient: true,
+  },
+};
+
+export const NaturalInterpolation = {
+  args: {
+    points: basicPoints,
+    interpolator: createUncertaintyGradientNatural,
+    quantizeSteps: 20,
+    alphaGradient: true,
   },
 };
