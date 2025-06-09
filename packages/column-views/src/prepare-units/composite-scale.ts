@@ -3,7 +3,6 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleLinear, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
-import { CompositeColumnScale } from "@macrostrat/column-views";
 
 export interface ColumnHeightScaleOptions {
   /** A fixed pixel scale to use for the section (pixels per Myr) */
@@ -269,7 +268,7 @@ function findAverageUnitHeight(
   return unitHeights.reduce((a, b) => a + b, 0) / unitHeights.length;
 }
 
-interface CompositeColumnScale {
+export interface CompositeColumnScale {
   (age: number): number | null;
   copy(): CompositeColumnScale;
   domain(): [number, number];

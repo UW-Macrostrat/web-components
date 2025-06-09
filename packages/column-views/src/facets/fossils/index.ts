@@ -1,15 +1,12 @@
-import {
-  getUnitHeightRange,
-  IUnit,
-  useMacrostratColumnData,
-} from "@macrostrat/column-views";
+import { getUnitHeightRange } from "../../prepare-units";
+import { useMacrostratColumnData } from "../../data-provider";
 import hyper from "@macrostrat/hyper";
 import { PBDBCollection, useFossilData } from "./provider";
 import { useMacrostratUnits } from "../../data-provider";
 import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
+import type { IUnit } from "../../units";
 import styles from "./index.module.sass";
-import { useColumn } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
 
@@ -79,7 +76,7 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
     unitRefData.sort((a, b) => {
       const v1 = units.indexOf(a.unit);
       const v2 = units.indexOf(b.unit);
-      return v1 > v2;
+      return v1 - v2;
     });
 
     return unitRefData.map((d) => {
