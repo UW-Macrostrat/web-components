@@ -245,25 +245,25 @@ function ManagedSelectionTree(props) {
     height,
     width,
     matchComponent,
-    ...rest
   } = props;
 
   const ref = useRef<TreeApi<TreeData>>();
+  // Use a ref to track clicks (won't cause rerender)
+  const clickedRef = useRef(false);
 
   const _Node = useCallback(
     (props) => h(Node, { ...props, matchComponent }),
     [matchComponent]
   );
 
+  // Update Tree selection when selectedNodes change
   useEffect(() => {
     if (ref.current == null) return;
-    // Check if selection matches current
+
     const selection = new Set(selectedNodes.map((d) => d.toString()));
     const currentSelection = ref.current.selectedIds;
     if (setsAreTheSame(selection, currentSelection)) return;
-    // If the selection is the same, do nothing
 
-    // Set selection
     ref.current.setSelection({
       ids: selectedNodes.map((d) => d.toString()),
       anchor: null,
@@ -271,41 +271,59 @@ function ManagedSelectionTree(props) {
     });
   }, [selectedNodes]);
 
-  return h(Tree, {
-    className: "selection-tree",
-    height,
-    width,
-    ref,
-    data: tree,
-    onMove({ dragIds, parentId, index }) {
-      dispatch({
-        type: "move-node",
-        payload: {
-          dragIds: dragIds.map((d) => parseInt(d)),
-          parentId: parentId ? parseInt(parentId) : null,
-          index,
-        },
-      });
-    },
-    onDelete({ ids }) {
-      dispatch({
-        type: "delete-node",
-        payload: { ids: ids.map((d) => parseInt(d)) },
-      });
-    },
-    onSelect(nodes) {
+  // Mark clicked when user clicks inside the tree container
+  function handleClick() {
+    clickedRef.current = true;
+  }
+
+  const handleSelect = useCallback(
+    (nodes) => {
+      if (!clickedRef.current) return;
+      clickedRef.current = false; // reset
+
       let ids = nodes.map((d) => parseInt(d.id));
-      if (ids.length == 1 && ids[0] == selectedNodes[0]) {
-        // Deselect
+      if (ids.length === 1 && ids[0] === selectedNodes[0]) {
+        // Deselect if same node clicked twice
         ids = [];
       }
+
       dispatch({ type: "select-node", payload: { ids } });
     },
-    children: _Node,
-    idAccessor(d: TreeData) {
-      return d.id.toString();
-    },
-  });
+    [selectedNodes, dispatch]
+  );
+
+  return h(
+    "div.selection-tree-wrapper",
+    { onPointerDown: handleClick },
+    h(Tree, {
+      className: "selection-tree",
+      height,
+      width,
+      ref,
+      data: tree,
+      onMove({ dragIds, parentId, index }) {
+        dispatch({
+          type: "move-node",
+          payload: {
+            dragIds: dragIds.map((d) => parseInt(d)),
+            parentId: parentId ? parseInt(parentId) : null,
+            index,
+          },
+        });
+      },
+      onDelete({ ids }) {
+        dispatch({
+          type: "delete-node",
+          payload: { ids: ids.map((d) => parseInt(d)) },
+        });
+      },
+      onSelect: handleSelect,
+      children: _Node,
+      idAccessor(d) {
+        return d.id.toString();
+      },
+    })
+  );
 }
 
 function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
