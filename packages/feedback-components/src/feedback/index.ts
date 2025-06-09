@@ -279,11 +279,10 @@ function ManagedSelectionTree(props) {
   const handleSelect = useCallback(
     (nodes) => {
       if (!clickedRef.current) return;
-      clickedRef.current = false; // reset
+      clickedRef.current = false;
 
       let ids = nodes.map((d) => parseInt(d.id));
       if (ids.length === 1 && ids[0] === selectedNodes[0]) {
-        // Deselect if same node clicked twice
         ids = [];
       }
 
