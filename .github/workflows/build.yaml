@@ -30,7 +30,14 @@ jobs:
 
       - name: Upload to S3
         run: |
-         ~/storybook/scripts/publish-s3.sh
+          export $(grep -v '^#' .env | xargs) \
+          echo "Uploading to S3 bucket: $S3_BUCKET" \
+          rclone sync ./storybook-static \
+            :s3:"$S3_BUCKET/$S3_PATH" \
+            --s3-provider=Ceph \
+            --s3-endpoint="$S3_ENDPOINT" \
+            --s3-access-key-id="$S3_ACCESS_KEY" \
+            --s3-secret-access-key="$S3_SECRET_KEY"
 
       - name: Build the static website
         run: |
