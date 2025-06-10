@@ -14,7 +14,7 @@ import {
   ViewMode,
 } from "./edit-state";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ButtonGroup, Card, SegmentedControl, Tag } from "@blueprintjs/core";
+import { ButtonGroup, Card, SegmentedControl, Tag, Popover } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
@@ -203,7 +203,7 @@ function EntityTypeSelector({
     ),
     */
     h('p', "Change Selected Nodes to:"),
-    h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree, selectedNodes }),
+    h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree }),
     h(OmniboxSelector, {
       isOpen,
       items,
@@ -328,7 +328,7 @@ function ManagedSelectionTree(props) {
   );
 }
 
-function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
+function TypeList({ types, selected, dispatch, tree }) {
   return h(
     "div.type-list",
     Array.from(types.values()).map((type) => {
@@ -346,19 +346,26 @@ function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
       };
 
       return h(
-        Tag, 
+        Popover, 
         { 
-          className: "type-tag",
+          autoFocus: false,
+          content: h(
+            'div.description', 
+            description || "No description available"
+          ),
+          interactionKind: "hover"
+
+        }, 
+        h('div.type-tag', {
+          onClick: () => {
+            dispatch({ type: "select-entity-type", payload }); 
+          },
           style: {
             color: chromaColor?.luminance(luminance).hex(),
             backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
             border: id === selected?.id ? `1px solid white` : `1px solid black`,
-          },
-          onClick: () => {
-            dispatch({ type: "select-entity-type", payload }); 
-          } 
-        }, 
-        name
+          }
+        }, name)
       );
     })
   );
