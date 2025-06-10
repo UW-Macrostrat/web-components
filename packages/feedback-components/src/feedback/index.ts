@@ -13,8 +13,8 @@ import {
   useUpdatableTree,
   ViewMode,
 } from "./edit-state";
-import { useCallback, useEffect, useRef } from "react";
-import { ButtonGroup, Card, SegmentedControl } from "@blueprintjs/core";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { ButtonGroup, Card, SegmentedControl, Tag } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
@@ -25,6 +25,8 @@ import {
 } from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
 import { GraphView } from "./graph";
+import { useInDarkMode } from "@macrostrat/ui-components";
+import { asChromaColor } from "@macrostrat/color-utils";
 
 export type { GraphData } from "./edit-state";
 export { treeToGraph } from "./edit-state";
@@ -49,7 +51,6 @@ export function FeedbackComponent({
   onSave,
 }) {
   // Get the input arguments
-
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity) as any,
     entityTypes
@@ -128,6 +129,9 @@ export function FeedbackComponent({
             onChange(payload) {
               dispatch({ type: "select-entity-type", payload });
             },
+            dispatch,
+            tree,
+            selectedNodes,
             isOpen: isSelectingEntityType,
             setOpen: (isOpen: boolean) =>
               dispatch({
@@ -171,10 +175,21 @@ function EntityTypeSelector({
   isOpen,
   setOpen,
   onChange,
+  tree,
+  dispatch,
+  selectedNodes = [],
 }) {
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;
-  return h(DataField, { label: "Entity type", inline: true }, [
+  const [inputValue, setInputValue] = useState("");
+  const types = Array.from(entityTypes.values());
+
+  const items = inputValue !== "" ? types.filter((d) =>
+    d.name.toLowerCase().includes(inputValue.toLowerCase())
+  ) : types;
+
+  return h('div.entity-type-selector', [
+    /*
     h(
       "code.bp5-code",
       {
@@ -182,21 +197,44 @@ function EntityTypeSelector({
           setOpen((d) => !d);
         },
       },
-      selected.name
+      selected?.name ?? "None"
     ),
+    */
+    h('p', "Entity Type:"),
+    h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree, selectedNodes }),
     h(OmniboxSelector, {
       isOpen,
-      items: Array.from(entityTypes.values()),
+      items,
       selectedItem: _selected,
       onSelectItem(item) {
         setOpen(false);
         onChange(item);
+      },
+      onQueryChange(query) {
+        setInputValue(query);
       },
       onClose() {
         setOpen(false);
       },
     }),
   ]);
+}
+
+function countNodes(tree) {
+  if (!tree) return 0;
+  let count = 0;
+
+  function recurse(nodes) {
+    for (const node of nodes) {
+      count++;
+      if (node.children && Array.isArray(node.children)) {
+        recurse(node.children);
+      }
+    }
+  }
+
+  recurse(tree);
+  return count;
 }
 
 function ManagedSelectionTree(props) {
@@ -207,25 +245,25 @@ function ManagedSelectionTree(props) {
     height,
     width,
     matchComponent,
-    ...rest
   } = props;
 
   const ref = useRef<TreeApi<TreeData>>();
+  // Use a ref to track clicks (won't cause rerender)
+  const clickedRef = useRef(false);
 
   const _Node = useCallback(
     (props) => h(Node, { ...props, matchComponent }),
     [matchComponent]
   );
 
+  // Update Tree selection when selectedNodes change
   useEffect(() => {
     if (ref.current == null) return;
-    // Check if selection matches current
+
     const selection = new Set(selectedNodes.map((d) => d.toString()));
     const currentSelection = ref.current.selectedIds;
     if (setsAreTheSame(selection, currentSelection)) return;
-    // If the selection is the same, do nothing
 
-    // Set selection
     ref.current.setSelection({
       ids: selectedNodes.map((d) => d.toString()),
       anchor: null,
@@ -233,39 +271,102 @@ function ManagedSelectionTree(props) {
     });
   }, [selectedNodes]);
 
-  return h(Tree, {
-    className: "selection-tree",
-    height,
-    width,
-    ref,
-    data: tree,
-    onMove({ dragIds, parentId, index }) {
-      dispatch({
-        type: "move-node",
-        payload: {
-          dragIds: dragIds.map((d) => parseInt(d)),
-          parentId: parentId ? parseInt(parentId) : null,
-          index,
-        },
-      });
-    },
-    onDelete({ ids }) {
-      dispatch({
-        type: "delete-node",
-        payload: { ids: ids.map((d) => parseInt(d)) },
-      });
-    },
-    onSelect(nodes) {
+  // Mark clicked when user clicks inside the tree container
+  function handleClick() {
+    clickedRef.current = true;
+  }
+
+  const handleSelect = useCallback(
+    (nodes) => {
+      if (!clickedRef.current) return;
+      clickedRef.current = false;
+
       let ids = nodes.map((d) => parseInt(d.id));
-      if (ids.length == 1 && ids[0] == selectedNodes[0]) {
-        // Deselect
+      if (ids.length === 1 && ids[0] === selectedNodes[0]) {
         ids = [];
       }
+
       dispatch({ type: "select-node", payload: { ids } });
     },
-    children: _Node,
-    idAccessor(d: TreeData) {
-      return d.id.toString();
-    },
-  });
+    [selectedNodes, dispatch]
+  );
+
+  return h(
+    "div.selection-tree-wrapper",
+    { onPointerDown: handleClick },
+    h(Tree, {
+      className: "selection-tree",
+      height,
+      width,
+      ref,
+      data: tree,
+      onMove({ dragIds, parentId, index }) {
+        dispatch({
+          type: "move-node",
+          payload: {
+            dragIds: dragIds.map((d) => parseInt(d)),
+            parentId: parentId ? parseInt(parentId) : null,
+            index,
+          },
+        });
+      },
+      onDelete({ ids }) {
+        dispatch({
+          type: "delete-node",
+          payload: { ids: ids.map((d) => parseInt(d)) },
+        });
+      },
+      onSelect: handleSelect,
+      children: _Node,
+      idAccessor(d) {
+        return d.id.toString();
+      },
+    })
+  );
+}
+
+function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
+  return h(
+    "div.type-list",
+    Array.from(types.values()).map((type) => {
+      const { color, name, id } = type;
+      const darkMode = useInDarkMode();
+      const luminance = darkMode ? 0.9 : 0.4;
+      const chromaColor = asChromaColor(color ?? "#000000")
+      const ids = collectMatchingIds(tree, name);
+      const alreadySelected = ids.length === selectedNodes.length && ids.every((v, i) => v === selectedNodes[i])
+
+      return h(
+        Tag, 
+        { 
+          className: "type-tag",
+          style: {
+            color: chromaColor?.luminance(luminance).hex(),
+            backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
+            border: id === selected?.id ? `1px solid white` : `1px solid black`,
+          },
+          onClick: () => {
+            dispatch({ type: "select-node", payload: { ids: alreadySelected ? [] : ids } });  
+          } 
+        }, 
+        name
+      );
+    })
+  );
+}
+
+function collectMatchingIds(tree, name) {
+  const ids = [];
+
+  function traverse(node) {
+    if (node.term_type === name) {
+      ids.push(node.id);
+    }
+    if (Array.isArray(node.children)) {
+      node.children.forEach(traverse);
+    }
+  }
+
+  tree.forEach(traverse);
+  return ids;
 }

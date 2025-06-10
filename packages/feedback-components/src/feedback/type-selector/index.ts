@@ -49,16 +49,18 @@ interface OmniboxProps<T> extends BoxLifecycleProps<T> {
   items: T[];
   selectedItem: T;
   onSelectItem: (t: T) => void;
+  onQueryChange: (query: string) => void;
   listItemComponent?: React.ComponentType<TagItemProps<T>>;
 }
 
 export function OmniboxSelector<T>(props: OmniboxProps<T>) {
   /** A general omnibox for annotation types */
-  const { onSelectItem, items, isOpen, onClose } = props;
+  const { onSelectItem, items, isOpen, onClose, onQueryChange } = props;
 
   return h(Omnibar, {
     onItemSelect: onSelectItem,
     items,
+    onQueryChange,
     resetOnSelect: false,
     isOpen,
     onClose,
