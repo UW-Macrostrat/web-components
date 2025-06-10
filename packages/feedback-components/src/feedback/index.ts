@@ -191,19 +191,8 @@ function EntityTypeSelector({
   ) : types;
 
   return h('div.entity-type-selector', [
-    /*
-    h(
-      "code.bp5-code",
-      {
-        onClick() {
-          setOpen((d) => !d);
-        },
-      },
-      selected?.name ?? "None"
-    ),
-    */
     h('p', "Change Selected Nodes to:"),
-    h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree }),
+    h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree, selectedNodes }),
     h(OmniboxSelector, {
       isOpen,
       items,
@@ -328,7 +317,7 @@ function ManagedSelectionTree(props) {
   );
 }
 
-function TypeList({ types, selected, dispatch, tree }) {
+function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
   return h(
     "div.type-list",
     Array.from(types.values()).map((type) => {
@@ -336,7 +325,6 @@ function TypeList({ types, selected, dispatch, tree }) {
       const darkMode = useInDarkMode();
       const luminance = darkMode ? 0.9 : 0.4;
       const chromaColor = asChromaColor(color ?? "#000000")
-      const ids = collectMatchingIds(tree, name);
 
       const payload = {
         id,
@@ -361,9 +349,10 @@ function TypeList({ types, selected, dispatch, tree }) {
             dispatch({ type: "select-entity-type", payload }); 
           },
           style: {
+            cursor: selectedNodes.length ? "pointer" : "",
             color: chromaColor?.luminance(luminance).hex(),
             backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
-            border: id === selected?.id ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
+            border: id === selected?.id && selectedNodes.length ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
           }
         }, name)
       );
