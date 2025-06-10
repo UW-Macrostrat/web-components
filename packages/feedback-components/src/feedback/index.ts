@@ -363,7 +363,7 @@ function TypeList({ types, selected, dispatch, tree }) {
           style: {
             color: chromaColor?.luminance(luminance).hex(),
             backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
-            border: id === selected?.id ? `1px solid white` : `1px solid black`,
+            border: id === selected?.id ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
           }
         }, name)
       );
