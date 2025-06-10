@@ -32,7 +32,7 @@ export const TestData1: StoryObj<{}> = {
     data,
     types: entityTypes,
     lineHeight: 2,
-    allowOverlap: false,
+    allowOverlap: true,
   },
 };
 

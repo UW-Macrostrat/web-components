@@ -6,6 +6,7 @@ import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useCallback } from "react";
+import { Tag } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
@@ -109,8 +110,6 @@ export function FeedbackText(props: FeedbackTextProps) {
           payload.end -= 1;
         }
 
-        
-
         const overlap = tags.some(
             (tag) =>
               tag.start <= payload.start ||
@@ -144,8 +143,19 @@ export function FeedbackText(props: FeedbackTextProps) {
     [allTags, text]
   );
 
-  const value = allTags.map(({ text, backgroundColor, ...rest }) => { return { ...rest, color: backgroundColor }; });
+  const value = allTags.map(({ backgroundColor, text, ...rest }) => { 
+    const tag = { backgroundColor, text, ...rest }
 
+    const newColor = getTagStyle(backgroundColor, { 
+      highlighted: isHighlighted(tag, selectedNodes), 
+      active: isActive(tag, selectedNodes) }
+    ).color;
+
+    if(text.includes("muddy")) {
+      console.log(rgba2hex(newColor));
+    }
+    return { ...rest, text, color: newColor }; 
+  });
 
   return h('div.feedback-text-wrapper', { 
     tabIndex: 0,
@@ -169,4 +179,25 @@ export function FeedbackText(props: FeedbackTextProps) {
       value,
     })
   );
+}
+
+function rgba2hex(orig) {
+  var a, isPercent,
+    rgb = orig.replace(/\s/g, '').match(/^rgba?\((\d+),(\d+),(\d+),?([^,\s)]+)?/i),
+    alpha = (rgb && rgb[4] || "").trim(),
+    hex = rgb ?
+    (rgb[1] | 1 << 8).toString(16).slice(1) +
+    (rgb[2] | 1 << 8).toString(16).slice(1) +
+    (rgb[3] | 1 << 8).toString(16).slice(1) : orig;
+
+  if (alpha !== "") {
+    a = alpha;
+  } else {
+    a = 1;
+  }
+  // multiply before convert to HEX
+  a = ((a * 255) | 1 << 8).toString(16).slice(1)
+  hex = hex + a;
+
+  return hex;
 }
