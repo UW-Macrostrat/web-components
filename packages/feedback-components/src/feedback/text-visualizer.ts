@@ -81,15 +81,11 @@ export function FeedbackText(props: FeedbackTextProps) {
 
   const onChange = useCallback(
     (tags, e) => {
-      console.log("allowOverlap", allowOverlap);
       // New tags
       const newTags = tags.filter((d) => !("id" in d));
       if (newTags.length > 0) {
         const { start, end } = newTags[0];
         let payload = { start, end, text: text.slice(start, end) };
-
-        console.log("Creating new tag", payload);
-        console.log("All tags", allTags);
 
         // check if blank
         if (payload.text === " ") {
@@ -113,21 +109,19 @@ export function FeedbackText(props: FeedbackTextProps) {
           payload.end -= 1;
         }
 
-        // check if inside
-        if (
-          tags.some(
+        
+
+        const overlap = tags.some(
             (tag) =>
-              tag.start <= payload.start &&
-              tag.end >= payload.end &&
-              tag.id !== undefined
-            && !allowOverlap
-          )
-        ) {
+              tag.start <= payload.start ||
+              tag.end >= payload.end ||
+              tag.id !== undefined);
+
+        // check if inside
+        if (overlap && !allowOverlap) {
           console.log("Tag is inside another tag, ignoring");
           return;
         }
-
-        console.log("Creating new node with payload", payload);
 
         dispatch({ type: "create-node", payload });
         return;
