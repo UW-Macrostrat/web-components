@@ -31,8 +31,12 @@ jobs:
       - name: Build the static website
         run: |
           yarn install
-          yarn run build
-          
+          yarn run build:storybook
+
+      - name: Upload to S3
+        run: |
+          ~/scripts/publish-s3.sh
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
