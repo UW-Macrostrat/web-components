@@ -64,7 +64,7 @@ export function getTagStyle(
 
   const color = _baseColor.mix(mixTarget, mixAmount).css();
   const borderColor = highlighted
-    ? _baseColor.mix(mixTarget, mixAmount / 2).css()
+    ? _baseColor.mix(mixTarget, mixAmount / 1.1).css()
     : "transparent";
 
   return {
@@ -73,8 +73,9 @@ export function getTagStyle(
     boxSizing: "border-box",
     borderStyle: "solid",
     borderColor,
-    borderWidth: "1px",
+    borderWidth: "2px",
     fontWeight: active ? "bold" : "normal",
+    fontSize: active ? "1.1em" : "0.9em",
   };
 }
 

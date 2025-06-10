@@ -42,7 +42,7 @@ function buildTags(
         }),
         borderRadius: "0.2em",
         padding: "0.1em",
-        borderWidth: "1.5px",
+        borderWidth: "2px",
         cursor: "pointer",
       },
       tagStyle: {
@@ -145,11 +145,12 @@ export function FeedbackText(props: FeedbackTextProps) {
     [allTags, text]
   );
 
+  console.log(allTags)
+
   return h('div.feedback-text-wrapper', { 
     tabIndex: 0,
     onKeyDown: (e) => {
       if( e.key === "Backspace") {
-        console.log("Backspace pressed, deleting selected nodes");
         dispatch({
           type: "delete-node",
           payload: { ids: selectedNodes },
