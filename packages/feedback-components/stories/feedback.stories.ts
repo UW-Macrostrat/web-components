@@ -4,7 +4,7 @@ import { FeedbackComponent } from "../src";
 import { data, entityTypes, data2, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
-function FeedbackInterface({ data, types, lineHeight }) {
+function FeedbackInterface({ data, types, lineHeight, allowOverlap }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
   return h(FeedbackComponent, {
@@ -15,6 +15,7 @@ function FeedbackInterface({ data, types, lineHeight }) {
     sourceTextID: source_text,
     runID: model_run,
     lineHeight: `${lineHeight}em`,
+    allowOverlap,
   });
 }
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -31,6 +32,7 @@ export const TestData1: StoryObj<{}> = {
     data,
     types: entityTypes,
     lineHeight: 2,
+    allowOverlap: false,
   },
 };
 
@@ -39,6 +41,7 @@ export const TestData2: StoryObj<{}> = {
     data: data2,
     types: entityTypes2,
     lineHeight: 2,
+    allowOverlap: false,
   },
 };
 

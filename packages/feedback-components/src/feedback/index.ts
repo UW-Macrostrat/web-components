@@ -49,7 +49,8 @@ export function FeedbackComponent({
   entityTypes,
   matchComponent,
   onSave,
-  lineHeight
+  lineHeight, 
+  allowOverlap,
 }) {
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
@@ -70,6 +71,7 @@ export function FeedbackComponent({
       nodes: tree,
       selectedNodes,
       lineHeight,
+      allowOverlap,
     }),
     h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
       h(ModelInfo, { data: model }),

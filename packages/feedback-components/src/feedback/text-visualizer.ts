@@ -16,6 +16,7 @@ export interface FeedbackTextProps {
   updateNodes: (nodes: string[]) => void;
   dispatch: TreeDispatch;
   lineHeight: string;
+  allowOverlap?: boolean;
 }
 
 function buildTags(
@@ -42,7 +43,7 @@ function buildTags(
         }),
         borderRadius: "0.2em",
         padding: "0.1em",
-        borderWidth: "2px",
+        borderWidth: "1.5px",
         cursor: "pointer",
       },
       tagStyle: {
@@ -72,7 +73,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, lineHeight } = props;
+  const { text, selectedNodes, nodes, dispatch, lineHeight, allowOverlap } = props;
   let allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes
@@ -80,6 +81,7 @@ export function FeedbackText(props: FeedbackTextProps) {
 
   const onChange = useCallback(
     (tags, e) => {
+      console.log("allowOverlap", allowOverlap);
       // New tags
       const newTags = tags.filter((d) => !("id" in d));
       if (newTags.length > 0) {
@@ -118,11 +120,14 @@ export function FeedbackText(props: FeedbackTextProps) {
               tag.start <= payload.start &&
               tag.end >= payload.end &&
               tag.id !== undefined
+            && !allowOverlap
           )
         ) {
           console.log("Tag is inside another tag, ignoring");
           return;
         }
+
+        console.log("Creating new node with payload", payload);
 
         dispatch({ type: "create-node", payload });
         return;
@@ -145,7 +150,8 @@ export function FeedbackText(props: FeedbackTextProps) {
     [allTags, text]
   );
 
-  console.log(allTags)
+  const value = allTags.map(({ text, backgroundColor, ...rest }) => { return { ...rest, color: backgroundColor }; });
+
 
   return h('div.feedback-text-wrapper', { 
     tabIndex: 0,
@@ -166,7 +172,7 @@ export function FeedbackText(props: FeedbackTextProps) {
       className: "feedback-text",
       content: text,
       onChange,
-      value: allTags,
+      value,
     })
   );
 }

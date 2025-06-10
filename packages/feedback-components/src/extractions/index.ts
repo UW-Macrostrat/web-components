@@ -73,9 +73,9 @@ export function getTagStyle(
     boxSizing: "border-box",
     borderStyle: "solid",
     borderColor,
-    borderWidth: "2px",
+    borderWidth: "1.5px",
     fontWeight: active ? "bold" : "normal",
-    fontSize: active ? "1.1em" : "0.9em",
+    fontSize: "0.9em",
   };
 }
 
