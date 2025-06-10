@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { FeedbackComponent } from "../src";
-import { data, entityTypes } from "./test-data";
+import { data, entityTypes, data2, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
 function FeedbackInterface({ data, types, lineHeight }) {
@@ -26,10 +26,18 @@ const meta: Meta<any> = {
 export default meta;
 
 // add more stories here
-export const Primary: StoryObj<{}> = {
+export const TestData1: StoryObj<{}> = {
   args: {
     data,
     types: entityTypes,
+    lineHeight: 2,
+  },
+};
+
+export const TestData2: StoryObj<{}> = {
+  args: {
+    data: data2,
+    types: entityTypes2,
     lineHeight: 2,
   },
 };

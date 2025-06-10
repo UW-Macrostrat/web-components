@@ -16,7 +16,6 @@
   max-height: 600px
 
 .control-panel
-  max-width: 15em
   position: absolute
   top: 1em
   right: 1em
@@ -37,9 +36,10 @@
   width: 80% !important
 
 .type-list
-  display: flex
-  flex-direction: column
-  gap: .2em
+  display: grid
+  grid-auto-flow: column
+  grid-template-rows: repeat(10, auto)
+  gap: 0.2em
 
   .type-tag
     padding: .2em .5em

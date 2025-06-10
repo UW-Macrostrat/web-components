@@ -316,3 +316,166 @@ export const entityTypes = [
     color: null,
   },
 ];
+
+export const data2 = {
+  paragraph_text:
+    "The Sandstone Member of the Apple Formation includes quartz mineral deposits found in the basin near a fault in a tectonic setting during the Cambrian epoch. The ridge-like geomorphic feature shows interbedded volcanic units and fossils. A citation notes this area near Location X as described by Smith et al. (2023).",
+   entities: [
+    { id: 1, name: "Sandstone", indices: [4, 13], type: { id: 2, name: "lith", color: "rgb(33,208,35)" } },
+    { id: 2, name: "Member", indices: [14, 20], type: { id: 44, name: "strat_proper_noun", color: null } },
+    { id: 3, name: "Apple Formation", indices: [28, 44], type: { id: 1, name: "strat_name", color: "rgb(13,0,255)" } },
+    { id: 4, name: "quartz", indices: [53, 59], type: { id: 12, name: "mineral", color: "rgb(255,140,0)" } },
+    { id: 5, name: "mineral", indices: [60, 67], type: { id: 13, name: "rock_type", color: "rgb(128,0,128)" } },
+    { id: 6, name: "deposits", indices: [68, 76], type: { id: 21, name: "deposit", color: "rgb(240,128,128)" } },
+    { id: 7, name: "basin", indices: [90, 95], type: { id: 20, name: "basin", color: "rgb(60,179,113)" } },
+    { id: 8, name: "fault", indices: [103, 108], type: { id: 19, name: "fault", color: "rgb(165,42,42)" } },
+    { id: 9, name: "tectonic setting", indices: [114, 130], type: { id: 18, name: "tectonic_setting", color: "rgb(255,215,0)" } },
+    { id: 10, name: "Cambrian epoch", indices: [142, 156], type: { id: 17, name: "epoch", color: "rgb(255,99,71)" } },
+    { id: 11, name: "ridge-like", indices: [162, 172], type: { id: 22, name: "geomorphic_feature", color: "rgb(72,209,204)" } },
+    { id: 12, name: "geomorphic feature", indices: [173, 191], type: { id: 22, name: "geomorphic_feature", color: "rgb(72,209,204)" } },
+    { id: 13, name: "interbedded", indices: [198, 209], type: { id: 3, name: "lith_att", color: "rgb(164,38,180)" } },
+    { id: 14, name: "volcanic units", indices: [210, 224], type: { id: 23, name: "volcanic_unit", color: "rgb(255,69,0)" } },
+    { id: 15, name: "fossils", indices: [229, 236], type: { id: 14, name: "fossil", color: "rgb(205,133,63)" } },
+    { id: 16, name: "citation", indices: [240, 248], type: { id: 11, name: "citation", color: "rgb(190,156,156)" } },
+    { id: 17, name: "Location X", indices: [270, 280], type: { id: 10, name: "location", color: null } },
+    { id: 18, name: "Smith et al. (2023)", indices: [297, 316], type: { id: 11, name: "citation", color: "rgb(190,156,156)" } },
+  ],
+  model_id: 5321,
+  version_id: 20504,
+  model: {
+    id: 5321,
+    name: "tree_based_span_bert",
+    description: null,
+    url: null,
+    first_run: "2024-10-14T14:39:49.425489",
+    last_run: "2024-11-18T18:33:45.320584",
+    n_runs: 7510,
+    n_entities: 96301,
+    n_matches: 16918,
+    n_strat_names: 4181,
+  },
+};
+
+export const entityTypes2 = [
+  {
+    id: 2,
+    name: "lith",
+    description: "Test",
+    color: "rgb(33,208,35)",
+  },
+  {
+    id: 3,
+    name: "lith_att",
+    description: "Test",
+    color: "rgb(164,38,180)",
+  },
+  {
+    id: 1,
+    name: "strat_name",
+    description: "Test 2",
+    color: "rgb(13,0,255)",
+  },
+  {
+    id: 10,
+    name: "location",
+    description: "A geographical location or area",
+    color: null,
+  },
+  {
+    id: 4,
+    name: "noun",
+    description: "A general noun of unknown type",
+    color: "rgb(113,112,217)",
+  },
+  {
+    id: 8,
+    name: "form",
+    description:
+      "The form in which a lithology/rock body is expressed (e.g., boulders, lenses, interbedded packages, etc.)",
+    color: "rgb(173,225,0)",
+  },
+  {
+    id: 11,
+    name: "citation",
+    description: "Paper citation",
+    color: "rgb(190,156,156)",
+  },
+  {
+    id: 44,
+    name: "strat_proper_noun",
+    description: null,
+    color: null,
+  },
+  {
+    "id": 12,
+    "name": "mineral",
+    "description": "A naturally occurring inorganic substance with a specific chemical composition and structure",
+    "color": "rgb(255,140,0)"
+  },
+  {
+    "id": 13,
+    "name": "rock_type",
+    "description": "The classification of rock based on origin, such as igneous, sedimentary, or metamorphic",
+    "color": "rgb(128,0,128)"
+  },
+  {
+    "id": 14,
+    "name": "fossil",
+    "description": "The preserved remains or traces of organisms from the remote past",
+    "color": "rgb(205,133,63)"
+  },
+  {
+    "id": 15,
+    "name": "formation",
+    "description": "A formally named body of rock with consistent characteristics that distinguish it from adjacent units",
+    "color": "rgb(0,128,128)"
+  },
+  {
+    "id": 16,
+    "name": "member",
+    "description": "A subdivision of a formation, with recognizable and consistent lithologic properties",
+    "color": "rgb(100,149,237)"
+  },
+  {
+    "id": 17,
+    "name": "epoch",
+    "description": "A division of geologic time smaller than a period and longer than an age",
+    "color": "rgb(255,99,71)"
+  },
+  {
+    "id": 18,
+    "name": "tectonic_setting",
+    "description": "The structural environment in which rock units are formed, such as continental rift or subduction zone",
+    "color": "rgb(255,215,0)"
+  },
+  {
+    "id": 19,
+    "name": "fault",
+    "description": "A fracture in the Earth's crust along which movement has occurred",
+    "color": "rgb(165,42,42)"
+  },
+  {
+    "id": 20,
+    "name": "basin",
+    "description": "A low area on Earth's surface in which sediments accumulate",
+    "color": "rgb(60,179,113)"
+  },
+  {
+    "id": 21,
+    "name": "deposit",
+    "description": "A natural accumulation of minerals or sediments",
+    "color": "rgb(240,128,128)"
+  },
+  {
+    "id": 22,
+    "name": "geomorphic_feature",
+    "description": "A landform or surface feature resulting from geological processes (e.g., ridge, valley, dune)",
+    "color": "rgb(72,209,204)"
+  },
+  {
+    "id": 23,
+    "name": "volcanic_unit",
+    "description": "A body of volcanic rock, such as a lava flow, ash layer, or tuff deposit",
+    "color": "rgb(255,69,0)"
+  }
+];
