@@ -28,14 +28,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
 
+      - name: Upload to S3
+        run: |
+         ./storybook/scripts/publish-s3.sh
+
       - name: Build the static website
         run: |
           yarn install
           yarn run build
-
-      - name: Upload to S3
-        run: |
-          ~/scripts/publish-s3.sh
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
