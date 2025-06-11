@@ -112,8 +112,8 @@ export function FeedbackText(props: FeedbackTextProps) {
 
         const overlap = tags.some(
             (tag) =>
-              tag.start <= payload.start ||
-              tag.end >= payload.end ||
+              tag.start <= payload.start &&
+              tag.end >= payload.end &&
               tag.id !== undefined);
 
         // check if inside
