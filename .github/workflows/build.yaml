@@ -31,9 +31,10 @@ jobs:
       - name: Debug S3 values
         run: |
           echo "S3_BUCKET=${S3_BUCKET:-[EMPTY]}"
+          echo "TEST=${TEST:-[EMPTY]}"
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
-
+          TEST: Test
 
       - name: Upload to S3
         env:
