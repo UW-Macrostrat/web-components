@@ -20,7 +20,6 @@ jobs:
   test:
     name: Static Website Build
     runs-on: ubuntu-latest
-    secrets: inherit
     steps:
 
       - name: Check out repository
