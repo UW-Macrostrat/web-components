@@ -26,7 +26,7 @@ export function buildHighlights(
       start: entity.indices[0],
       end: entity.indices[1],
       text: entity.name,
-      backgroundColor: entity.type?.color ?? "rgb(107, 255, 91)",
+      backgroundColor: entity.type?.color,
       tag: entity.type?.name ?? "lith",
       id: entity.id,
       parents,
@@ -73,6 +73,9 @@ export function getTagStyle(
     normalizeColor(_baseColor.alpha(backgroundAlpha).hex()) 
 
   console.log("Background color:", backgroundColor)
+  if(backgroundColor.includes("56cc49")) {
+    console.warn("base color", baseColor, "normalized to", backgroundColor);
+  }
 
   return {
     color,
@@ -98,7 +101,7 @@ function enhanceEntity(
 }
 
 function addColor(entityType: EntityType, match = false) {
-  const color = asChromaColor(entityType.color ?? "#ddd").brighten(
+  const color = asChromaColor(entityType.color ?? "#fff").brighten(
     match ? 1 : 2
   );
 
