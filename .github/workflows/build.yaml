@@ -18,9 +18,9 @@ on:
 
 jobs:
   test:
-    secrets: inherit
     name: Static Website Build
     runs-on: ubuntu-latest
+    secrets: inherit
     steps:
 
       - name: Check out repository
