@@ -80,6 +80,8 @@ export function FeedbackText(props: FeedbackTextProps) {
     selectedNodes
   );
 
+  let lastCallTime = null;
+
   const onChange = useCallback(
     (tags, e) => {
       // New tags
@@ -126,23 +128,27 @@ export function FeedbackText(props: FeedbackTextProps) {
         return;
       }
 
-      const tagIDs = new Set(tags.map((d) => d.id));
-      const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
+      const now = Date.now();
 
-      console.log("Removed IDs", removedIds);
+      // allow nested tags to be clicked
+      if (lastCallTime === null) {
+        lastCallTime = now;
 
-      /* Find the id that was removed: that is the one that will be selected
-       (we are hijacking the 'click to delete' functionality to select instead) */
-      if (removedIds.length > 0) {
-        dispatch({
-          type: "toggle-node-selected",
-          payload: { ids: removedIds },
-        });
+        const tagIDs = new Set(tags.map((d) => d.id));
+        const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
+
+        if (removedIds.length > 0) {
+          dispatch({
+            type: "toggle-node-selected",
+            payload: { ids: removedIds },
+          });
+        }
       }
     },
     [allTags, text]
   );
 
+  /*
   const value = allTags.map(({ backgroundColor, text, ...rest }) => { 
     const tag = { backgroundColor, text, ...rest }
 
@@ -156,6 +162,14 @@ export function FeedbackText(props: FeedbackTextProps) {
     }
     return { ...rest, text, color: newColor }; 
   });
+  */
+
+  const value = allTags.map((tag) => {
+    const { markStyle, backgroundColor, text, ...rest } = tag;
+    return { ...rest, color: markStyle.color};
+  });
+
+  console.log("Value", value);
 
   return h('div.feedback-text-wrapper', { 
     tabIndex: 0,
