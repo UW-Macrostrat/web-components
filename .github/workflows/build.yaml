@@ -38,8 +38,8 @@ jobs:
           TEST: Test
         run: |
           echo "Uploading to S3 bucket: $env:S3_BUCKET" \
-          echo "$TEST"
-          echo "$env:TEST"
+          echo "$TEST" \
+          echo "$env:TEST" \
           rclone sync ./storybook-static \
             :s3:"$env:S3_BUCKET/$env:S3_PATH" \
             --s3-provider=Ceph \
