@@ -28,6 +28,11 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
 
+      - name: Build the static website
+        run: |
+          yarn install
+          yarn run build
+
       - name: Upload to S3
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
@@ -43,11 +48,6 @@ jobs:
             --s3-endpoint="$S3_ENDPOINT" \
             --s3-access-key-id="$S3_ACCESS_KEY" \
             --s3-secret-access-key="$S3_SECRET_KEY"
-
-      - name: Build the static website
-        run: |
-          yarn install
-          yarn run build
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
