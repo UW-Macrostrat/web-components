@@ -32,6 +32,7 @@ jobs:
         run: |
           echo "S3_BUCKET=${S3_BUCKET:-[EMPTY]}"
           echo "TEST=${TEST:-[EMPTY]}"
+          echo "ANOTHER ${{ secrets.S3_BUCKET }}"
           echo "$GITHUB_ENV"
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
