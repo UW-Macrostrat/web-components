@@ -80,7 +80,7 @@ export function FeedbackText(props: FeedbackTextProps) {
     selectedNodes
   );
 
-  let lastCallTime = null;
+  let clicked = false;
 
   const onChange = useCallback(
     (tags, e) => {
@@ -131,8 +131,8 @@ export function FeedbackText(props: FeedbackTextProps) {
       const now = Date.now();
 
       // allow nested tags to be clicked
-      if (lastCallTime === null) {
-        lastCallTime = now;
+      if (!clicked) {
+        clicked = true;
 
         const tagIDs = new Set(tags.map((d) => d.id));
         const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
