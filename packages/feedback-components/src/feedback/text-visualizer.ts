@@ -35,15 +35,19 @@ function buildTags(
 
     const highlighted = isHighlighted(highlight, selectedNodes);
     const active = isActive(highlight, selectedNodes);
-
-    tags.push({
-      color: getTagStyle(highlight.backgroundColor, {
+    const tagStyle = getTagStyle(highlight.backgroundColor, {
           highlighted,
           active,
-        }).backgroundColor,
+        });
+
+    tags.push({
+      color: tagStyle.backgroundColor,
       tagStyle: {
         display: "none",
       },
+      markStyle: {
+          fontWeight: active ? "bold" : "normal",
+        },
       ...highlight,
     });
 
@@ -139,22 +143,6 @@ export function FeedbackText(props: FeedbackTextProps) {
     },
     [allTags, text]
   );
-
-  /*
-  const value = allTags.map(({ backgroundColor, text, ...rest }) => { 
-    const tag = { backgroundColor, text, ...rest }
-
-    const newColor = getTagStyle(backgroundColor, { 
-      highlighted: isHighlighted(tag, selectedNodes), 
-      active: isActive(tag, selectedNodes) }
-    ).color;
-
-    if(text.includes("muddy")) {
-      console.log(rgba2hex(newColor));
-    }
-    return { ...rest, text, color: newColor }; 
-  });
-  */
 
   const value = allTags
   console.log("Value", value);
