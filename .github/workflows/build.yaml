@@ -32,7 +32,7 @@ jobs:
       - name: Build the static website
         run: |
           yarn install
-          yarn run build
+          yarn run build:storybook
 
       - name: Install rclone
         run: |
