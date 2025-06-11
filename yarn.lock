@@ -2644,6 +2644,7 @@ __metadata:
     parcel: "npm:^2.14.4"
     prettier: "npm:^2.7.1"
     react: "npm:^18"
+    react-docgen: "npm:7.0.0"
     react-dom: "npm:^18"
     sass-embedded: "npm:^1.83.0"
     storybook: "npm:^8.6.8"
@@ -5308,6 +5309,13 @@ __metadata:
     "@types/d3-interpolate": "npm:*"
     "@types/d3-selection": "npm:*"
   checksum: 10c0/1dbdbcafddcae12efb5beb6948546963f29599e18bc7f2a91fb69cc617c2299a65354f2d47e282dfb86fec0968406cd4fb7f76ba2d2fb67baa8e8d146eb4a547
+  languageName: node
+  linkType: hard
+
+"@types/doctrine@npm:^0.0.8":
+  version: 0.0.8
+  resolution: "@types/doctrine@npm:0.0.8"
+  checksum: 10c0/ca4cab4a94526ec3579c3f10a027298028d34b4c092e4b6791afb37a5f6899208ee1e91bc9542541f31d6d3ba3d1a70408deaa1f105c22c86d23e3a87c59a43c
   languageName: node
   linkType: hard
 
@@ -10780,6 +10788,24 @@ __metadata:
   peerDependencies:
     typescript: ">= 4.3.x"
   checksum: 10c0/d31a061a21b5d4b67d4af7bc742541fd9e16254bd32861cd29c52565bc2175f40421a3550d52b6a6b0d0478e7cc408558eb0060a0bdd2957b02cfceeb0ee1e88
+  languageName: node
+  linkType: hard
+
+"react-docgen@npm:7.0.0":
+  version: 7.0.0
+  resolution: "react-docgen@npm:7.0.0"
+  dependencies:
+    "@babel/core": "npm:^7.18.9"
+    "@babel/traverse": "npm:^7.18.9"
+    "@babel/types": "npm:^7.18.9"
+    "@types/babel__core": "npm:^7.18.0"
+    "@types/babel__traverse": "npm:^7.18.0"
+    "@types/doctrine": "npm:^0.0.8"
+    "@types/resolve": "npm:^1.20.2"
+    doctrine: "npm:^3.0.0"
+    resolve: "npm:^1.22.1"
+    strip-indent: "npm:^4.0.0"
+  checksum: 10c0/79678d01644e6519450f847c77fa554a7a80ae3a5ff81b1482d1458caa064cf3be88597051375ba7a90921980feb8586378e1560146d64c41d0e569465315575
   languageName: node
   linkType: hard
 
