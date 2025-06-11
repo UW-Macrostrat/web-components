@@ -335,8 +335,6 @@ function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
         description,
       };
 
-      console.log("selectedNodes", selectedNodes.length > 0);
-
       return h(
         Popover, 
         { 

@@ -357,6 +357,45 @@ export const data2 = {
   },
 };
 
+export const data3 = {
+  paragraph_text:
+    "The Shale Formation overlies the Red Sandstone Unit and contains abundant pyrite mineralization along a thrust fault in the Appalachian Basin. The region preserves trace fossils and thinly layered volcanic ash beds. See Johnson and Clark (2022) for further details near Site A.",
+  entities: [
+    { id: 1, name: "Shale", indices: [4, 9], type: { id: 2, name: "lith", color: "rgb(33,208,35)" } },
+    { id: 2, name: "Shale Formation", indices: [4, 20], type: { id: 1, name: "strat_name", color: "rgb(13,0,255)" } },
+
+    { id: 3, name: "Red Sandstone", indices: [33, 46], type: { id: 2, name: "lith", color: "rgb(33,208,35)" } },
+    { id: 4, name: "Red Sandstone Unit", indices: [33, 51], type: { id: 1, name: "strat_name", color: "rgb(13,0,255)" } },
+
+    { id: 5, name: "pyrite", indices: [74, 80], type: { id: 12, name: "mineral", color: "rgb(255,140,0)" } },
+    { id: 6, name: "pyrite mineralization", indices: [74, 95], type: { id: 21, name: "deposit", color: "rgb(240,128,128)" } },
+
+    { id: 7, name: "thrust fault", indices: [104, 116], type: { id: 19, name: "fault", color: "rgb(165,42,42)" } },
+    { id: 8, name: "Appalachian Basin", indices: [124, 141], type: { id: 20, name: "basin", color: "rgb(60,179,113)" } },
+
+    { id: 9, name: "trace fossils", indices: [163, 177], type: { id: 14, name: "fossil", color: "rgb(205,133,63)" } },
+    { id: 10, name: "thinly layered", indices: [182, 196], type: { id: 3, name: "lith_att", color: "rgb(164,38,180)" } },
+    { id: 11, name: "volcanic ash beds", indices: [197, 214], type: { id: 23, name: "volcanic_unit", color: "rgb(255,69,0)" } },
+
+    { id: 12, name: "Johnson and Clark (2022)", indices: [220, 244], type: { id: 11, name: "citation", color: "rgb(190,156,156)" } },
+    { id: 13, name: "Site A", indices: [270, 276], type: { id: 10, name: "location", color: null } }
+  ],
+  model_id: 5321,
+  version_id: 20504,
+  model: {
+    id: 5321,
+    name: "tree_based_span_bert",
+    description: null,
+    url: null,
+    first_run: "2024-10-14T14:39:49.425489",
+    last_run: "2024-11-18T18:33:45.320584",
+    n_runs: 7510,
+    n_entities: 96301,
+    n_matches: 16918,
+    n_strat_names: 4181,
+  },
+};
+
 export const entityTypes2 = [
   {
     id: 2,
