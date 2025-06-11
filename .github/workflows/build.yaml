@@ -28,6 +28,10 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
 
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+
       - name: Upload to S3
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
