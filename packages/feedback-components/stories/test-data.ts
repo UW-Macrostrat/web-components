@@ -168,7 +168,7 @@ export const data = {
                 id: 3,
                 name: "lith_att",
                 description: "Test",
-                color: "rgb(255, 144, 255)",
+                color: "rgb(216, 93, 231)",
               },
               indices: [644, 655],
             },

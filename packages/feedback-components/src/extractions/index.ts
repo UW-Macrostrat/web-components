@@ -50,7 +50,7 @@ export function getTagStyle(
   baseColor: string,
   options: { highlighted?: boolean; inDarkMode?: boolean; active?: boolean }
 ): CSSProperties {
-  const _baseColor = asChromaColor(baseColor ?? "#ddd");
+  const _baseColor = asChromaColor(baseColor ?? "#fff");
   const { highlighted = true, inDarkMode = false, active = false } = options;
 
   let mixAmount = highlighted ? 0.8 : 0.5;
@@ -71,7 +71,9 @@ export function getTagStyle(
   const backgroundColor = active ? 
     _baseColor.alpha(backgroundAlpha).hex() :
     normalizeColor(_baseColor.alpha(backgroundAlpha).hex()) 
-  
+
+  console.log("Background color:", backgroundColor)
+
   return {
     color,
     backgroundColor,

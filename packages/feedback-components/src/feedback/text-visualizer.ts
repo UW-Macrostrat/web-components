@@ -40,6 +40,8 @@ function buildTags(
           active,
         });
 
+    console.log("Tag style", tagStyle.backgroundColor);
+
     tags.push({
       color: tagStyle.backgroundColor,
       tagStyle: {
@@ -145,6 +147,7 @@ export function FeedbackText(props: FeedbackTextProps) {
   );
 
   const value = allTags
+  console.log("FeedbackText value", value);
 
   return h('div.feedback-text-wrapper', { 
     tabIndex: 0,
