@@ -28,14 +28,6 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
 
-      - name: Debug S3 values
-        run: |
-          echo "S3_BUCKET=${S3_BUCKET:-[EMPTY]}"
-          echo "TEST=${TEST:-[EMPTY]}"
-        env:
-          S3_BUCKET: ${{ secrets.S3_BUCKET }}
-          TEST: Test
-
       - name: Upload to S3
         env:
           S3_BUCKET: ${{ secrets.S3_BUCKET }}
@@ -45,12 +37,12 @@ jobs:
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
         run: |
           echo "Uploading to S3 bucket: $S3_BUCKET" 
-#          rclone sync ./storybook-static \
-#            :s3:"$S3_BUCKET/$S3_PATH" \
-#            --s3-provider=Ceph \
-#            --s3-endpoint="$S3_ENDPOINT" \
-#            --s3-access-key-id="$S3_ACCESS_KEY" \
-#            --s3-secret-access-key="$S3_SECRET_KEY"
+          rclone sync ./storybook-static \
+            :s3:"$S3_BUCKET/$S3_PATH" \
+            --s3-provider=Ceph \
+            --s3-endpoint="$S3_ENDPOINT" \
+            --s3-access-key-id="$S3_ACCESS_KEY" \
+            --s3-secret-access-key="$S3_SECRET_KEY"
 
 #      - name: Build the static website
 #        run: |
