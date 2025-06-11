@@ -145,7 +145,6 @@ export function FeedbackText(props: FeedbackTextProps) {
   );
 
   const value = allTags
-  console.log("Value", value);
 
   return h('div.feedback-text-wrapper', { 
     tabIndex: 0,
