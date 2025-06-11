@@ -37,7 +37,9 @@ jobs:
           S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
           TEST: Test
         run: |
-          echo "Uploading to S3 bucket: $env:TEST $TEST" \
+          echo "Uploading to S3 bucket: $env:S3_BUCKET" \
+          echo "$TEST"
+          echo "$env:TEST"
           rclone sync ./storybook-static \
             :s3:"$env:S3_BUCKET/$env:S3_PATH" \
             --s3-provider=Ceph \
@@ -49,7 +51,6 @@ jobs:
 #        run: |
 #          yarn install
 #          yarn run build
-      
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
