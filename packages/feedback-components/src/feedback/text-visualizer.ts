@@ -37,16 +37,10 @@ function buildTags(
     const active = isActive(highlight, selectedNodes);
 
     tags.push({
-      markStyle: {
-        ...getTagStyle(highlight.backgroundColor, {
+      color: getTagStyle(highlight.backgroundColor, {
           highlighted,
           active,
-        }),
-        borderRadius: "0.2em",
-        padding: "0.1em",
-        borderWidth: "1.5px",
-        cursor: "pointer",
-      },
+        }).backgroundColor,
       tagStyle: {
         display: "none",
       },
@@ -128,8 +122,6 @@ export function FeedbackText(props: FeedbackTextProps) {
         return;
       }
 
-      const now = Date.now();
-
       // allow nested tags to be clicked
       if (!clicked) {
         clicked = true;
@@ -164,10 +156,7 @@ export function FeedbackText(props: FeedbackTextProps) {
   });
   */
 
-  const value = allTags.map((tag) => {
-    const { markStyle, backgroundColor, text, ...rest } = tag;
-    return { ...rest, color: markStyle.color};
-  });
+  const value = allTags
 
   console.log("Value", value);
 
