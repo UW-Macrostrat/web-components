@@ -5,6 +5,7 @@ import type { Entity, EntityExt, Highlight, EntityType } from "./types";
 import { CSSProperties } from "react";
 import { asChromaColor } from "@macrostrat/color-utils";
 import hyper from "@macrostrat/hyper";
+import { useDarkMode } from "@macrostrat/ui-components";
 
 export type { Entity, EntityExt };
 
@@ -62,14 +63,14 @@ export function getTagStyle(
 
   const mixTarget = inDarkMode ? "white" : "black";
 
-  const color = _baseColor.mix(mixTarget, mixAmount).css();
+  const color = _baseColor.mix(mixTarget, mixAmount).hex();
   const borderColor = highlighted
-    ? _baseColor.mix(mixTarget, mixAmount / 1.1).css()
+    ? _baseColor.mix(mixTarget, mixAmount / 1.1).hex()
     : "transparent";
 
   return {
     color,
-    backgroundColor: _baseColor.alpha(backgroundAlpha).css(),
+    backgroundColor: normalizeColor(_baseColor.alpha(backgroundAlpha).hex()),
     boxSizing: "border-box",
     borderStyle: "solid",
     borderColor,
@@ -218,4 +219,30 @@ function HighlightedText(props: { text: string; highlights: Highlight[] }) {
   }
   parts.push(text.slice(start));
   return h("span", parts);
+}
+
+function normalizeColor(hex8) {
+  const background = useDarkMode().isEnabled ? "#000000" : "#ffffff";
+
+  const r = parseInt(hex8.slice(1, 3), 16);
+  const g = parseInt(hex8.slice(3, 5), 16);
+  const b = parseInt(hex8.slice(5, 7), 16);
+  const a = parseInt(hex8.slice(7, 9), 16) / 255;
+
+  const bgR = parseInt(background.slice(1, 3), 16);
+  const bgG = parseInt(background.slice(3, 5), 16);
+  const bgB = parseInt(background.slice(5, 7), 16);
+
+  const blend = (fg, bg) => Math.round((1 - a) * bg + a * fg);
+
+  const blendedR = blend(r, bgR);
+  const blendedG = blend(g, bgG);
+  const blendedB = blend(b, bgB);
+
+  return (
+    "#" +
+    blendedR.toString(16).padStart(2, "0") +
+    blendedG.toString(16).padStart(2, "0") +
+    blendedB.toString(16).padStart(2, "0")
+  );
 }
