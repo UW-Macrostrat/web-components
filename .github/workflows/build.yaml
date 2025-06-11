@@ -27,11 +27,18 @@ jobs:
 
       - name: Setup Node
         uses: actions/setup-node@v4
+        with:
+          node-version: 18
 
-        
-      - name: Build the static website
+      - name: Pin react-docgen version
+        run: yarn add -D react-docgen@7.0.0
+
+      - name: Install dependencies
         run: |
           yarn install
+          
+      - name: Build Storybook
+        run: |
           yarn run build:storybook
 
       - name: Install rclone
