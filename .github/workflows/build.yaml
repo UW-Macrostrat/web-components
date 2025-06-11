@@ -31,16 +31,10 @@ jobs:
         with:
           node-version: 18
 
-      - name: Debug env vars
-        env:
-          AWS_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_KEY }}
-          S3_BUCKET: ${{ vars.S3_BUCKET }}
-          S3_PATH: ${{ vars.S3_PATH }}
-          S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+      - name: Debug vars
         run: |
-          echo "S3_BUCKET is $S3_BUCKET"
-          echo "S3_BUCKET is '${{ env.S3_BUCKET }}'"
-          echo "S3_BUCKET is '${{ secrets.S3_BUCKET }}'"
-          echo "S3_BUCKET is '${{ vars.S3_BUCKET }}'"
-
+          echo "S3_BUCKET: ${{ vars.S3_BUCKET }}"
+          echo "S3_PATH: ${{ vars.S3_PATH }}"
+          echo "S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}"
+          echo "S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}"
+          echo "S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}"
