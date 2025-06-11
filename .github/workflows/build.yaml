@@ -32,8 +32,8 @@ jobs:
 
       - name: Debug env vars
         run: |
-          echo "S3_BUCKET is '${{ secrets.S3_BUCKET }}'"
-          echo "S3_ENDPOINT is '${{ secrets.S3_ENDPOINT }}'"
+          echo "S3_BUCKET is '${{ env.S3_BUCKET }}'"
+          echo "S3_ENDPOINT is '${{ env.S3_ENDPOINT }}'"
 
 
       - name: Pin react-docgen version
