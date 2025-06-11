@@ -68,9 +68,13 @@ export function getTagStyle(
     ? _baseColor.mix(mixTarget, mixAmount / 1.1).hex()
     : "transparent";
 
+  const backgroundColor = active ? 
+    _baseColor.alpha(backgroundAlpha).hex() :
+    normalizeColor(_baseColor.alpha(backgroundAlpha).hex()) 
+  
   return {
     color,
-    backgroundColor: normalizeColor(_baseColor.alpha(backgroundAlpha).hex()),
+    backgroundColor,
     boxSizing: "border-box",
     borderStyle: "solid",
     borderColor,
