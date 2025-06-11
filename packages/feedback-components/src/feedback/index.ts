@@ -335,6 +335,8 @@ function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
         description,
       };
 
+      console.log("selectedNodes", selectedNodes.length > 0);
+
       return h(
         Popover, 
         { 
@@ -351,7 +353,7 @@ function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
             dispatch({ type: "select-entity-type", payload }); 
           },
           style: {
-            cursor: selectedNodes.length ? "pointer" : "",
+            cursor: selectedNodes.length > 0 ? "pointer" : "",
             color: chromaColor?.luminance(luminance).hex(),
             backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
             border: id === selected?.id && selectedNodes.length ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
