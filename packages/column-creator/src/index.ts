@@ -41,7 +41,7 @@ export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
               ".",
             ]),
             h("p", [
-              "Splitting column datasets into two elements allows more complex columns (e.g., from stratigraphic charts) to be captured faithfully.",
+              "Splitting column datasets into two elements allows columns depicting complex lateral relationships (e.g., from stratigraphic charts) to be captured faithfully.",
             ]),
             h("h3", "How to use"),
             h("ol", [
