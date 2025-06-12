@@ -14,6 +14,7 @@ import {
 import { useEffect, useState } from "react";
 import { Spinner, Popover } from "@blueprintjs/core";
 import { ErrorBoundary } from "@macrostrat/ui-components";
+import { getTagStyle } from "../extractions";
 
 export function GraphView(props: {
   tree: TreeData[];
@@ -92,14 +93,16 @@ export function GraphView(props: {
       h(
         "g.nodes",
         nodes.map((d) => {
-          const isSelected = selectedNodes.includes(d.id);
-          const stroke = isSelected ? "white" : "black";
+          const active = selectedNodes.includes(d.id);
+          const stroke = active ? "white" : "black";
+          const highlighted = isHighlighted(d.id, selectedNodes, nodes);
+          const style = getTagStyle(d.color, { highlighted, active });
 
           return h("circle", {
             cx: d.x,
             cy: d.y,
             r: 5,
-            fill: d.color || "blue",
+            fill: style.backgroundColor || "blue",
             onClick: (e) => {
               e.stopPropagation();
               dispatch({
@@ -107,7 +110,7 @@ export function GraphView(props: {
                 payload: { ids: [d.id] },
               });
             },
-            className: isSelected ? "selected" : "",
+            className: active ? "selected" : "",
             stroke,
             strokeWidth: 2,
           },
@@ -120,5 +123,13 @@ export function GraphView(props: {
       ),
     ])
   ])
+  );
+}
+
+function isHighlighted(id: number, selectedNodes: number[], nodes: TreeData[]) {
+  if (selectedNodes.length === 0) return true;
+  return (
+    selectedNodes.includes(id) ||
+    nodes.some((node) => selectedNodes.includes(node.id) && node.children.some((child) => child.id === id))
   );
 }

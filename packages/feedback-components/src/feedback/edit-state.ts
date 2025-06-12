@@ -265,6 +265,7 @@ export interface EntityOutput {
   match: any | null;
   reasoning: string | null;
   color: string | null;
+  children: any[] | null;
 }
 
 export interface GraphData {
@@ -285,7 +286,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
       continue;
     }
 
-    const { indices, id, name, type } = node;
+    const { indices, id, name, type, children } = node;
 
     const nodeData: EntityOutput = {
       id,
@@ -295,6 +296,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
       txt_range: [indices],
       reasoning: null,
       match: node.match,
+      children
     };
 
     nodeMap.set(node.id, node);
