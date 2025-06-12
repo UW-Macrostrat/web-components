@@ -61,13 +61,16 @@ export function UnitComponent({ division, nColumns = 2, ...rest }) {
   const width = rest.width ?? useColumnLayout()?.width;
 
   const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
-  const columnIx = (division.column ?? 0) % nColumns;
+  const _nColumns = nOverlappingUnits == 0 ? 1 : nColumns;
+  const columnIx = (division.column ?? 0) % _nColumns;
+  const reducedWidth = width / _nColumns;
+  const x = (columnIx * width) / _nColumns;
 
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
-    width: nOverlappingUnits > 0 ? width / nColumns : width,
-    x: (columnIx * width) / nColumns,
+    width: reducedWidth,
+    x,
   });
 }
 

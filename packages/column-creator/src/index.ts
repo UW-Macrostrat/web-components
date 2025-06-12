@@ -30,6 +30,48 @@ export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
       ColumnCreatorProvider,
       { initialData: data },
       h("div.column-creator-test", [
+        h(FlexRow, { gap: "2em", alignItems: "baseline" }, [
+          h(Box, { flex: 2 }, [
+            h("h2", "Column creator"),
+            h("p", [
+              "This simple column creator shows the minimal data structure needed to graphically define a Macrostrat-like geologic column using ",
+              h("em", "surfaces"),
+              " and ",
+              h("em", "units"),
+              ".",
+            ]),
+            h("p", [
+              "Splitting column datasets into two elements allows more complex columns (e.g., from stratigraphic charts) to be captured faithfully.",
+            ]),
+            h("h3", "How to use"),
+            h("ol", [
+              h("li", "Start by adding surfaces at a range of heights."),
+              h("li", [
+                "Then, link units to surfaces to define elements. You can add patterns using ",
+                h(
+                  "a",
+                  { href: "https://davenquinn.com/projects/geologic-patterns" },
+                  "FGDC geologic patterns"
+                ),
+                ".",
+              ]),
+            ]),
+          ]),
+          h(Box, { flex: 1 }, [
+            h("h3", "Todo"),
+            h("ul", [
+              h("li", "Unit selection and highlighting"),
+              h("li", "Data saving and loading (file and Macrostrat API)"),
+              h("li", "Chronostratigraphy"),
+              h(
+                "li",
+                "Auto-generation of units from surfaces for simple columns"
+              ),
+              h("li", "Additional unit metadata (e.g., lithology, etc.)"),
+              h("li", "Unit nesting/hierarchy"),
+            ]),
+          ]),
+        ]),
         h(FlexRow, { gap: "2em" }, [
           h(ColumnCreatorColumn),
           h(ColumnCreatorDataEditor),

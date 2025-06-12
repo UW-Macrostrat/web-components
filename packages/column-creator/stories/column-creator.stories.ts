@@ -151,7 +151,15 @@ export const ColumnCreatorOverlappingUnits = {
           },
           {
             id: "D",
-            height: 400,
+            height: 420,
+          },
+          {
+            id: "E",
+            height: 480,
+          },
+          {
+            id: "F",
+            height: 550,
           },
         ],
         units: [
@@ -173,11 +181,27 @@ export const ColumnCreatorOverlappingUnits = {
           },
           {
             id: 3,
-            name: "Unit C",
+            name: "Dolostone",
             b_surface: "B",
             t_surface: "D",
-            color: "#ff6347", // Tomato color
-            pattern: "624",
+            color: "#47fff9",
+            pattern: "641",
+          },
+          {
+            id: 4,
+            name: "Cenozoic",
+            b_surface: "D",
+            t_surface: "E",
+            color: "#cdb203",
+            pattern: "608",
+          },
+          {
+            id: 5,
+            name: "Glacial drift",
+            b_surface: "E",
+            t_surface: "F",
+            color: "#edf1a7",
+            pattern: "684",
           },
         ],
       },
