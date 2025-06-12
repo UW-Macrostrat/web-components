@@ -19,6 +19,7 @@ import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
   DataField,
+  ErrorBoundary,
   FlexBox,
   FlexRow,
   SaveButton,
@@ -64,15 +65,20 @@ export function FeedbackComponent({
   const [{ width, height }, ref] = useElementDimensions();
 
   return h(TreeDispatchContext.Provider, { value: dispatch }, [
-    h(FeedbackText, {
-      text,
-      dispatch,
-      // @ts-ignore
-      nodes: tree,
-      selectedNodes,
-      lineHeight,
-      allowOverlap,
-    }),
+    h(ErrorBoundary, 
+      {
+        description: "An error occurred while rendering the feedback text component.",
+      },
+      h(FeedbackText, {
+        text,
+        dispatch,
+        // @ts-ignore
+        nodes: tree,
+        selectedNodes,
+        lineHeight,
+        allowOverlap,
+      })
+    ),
     h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
       h(ModelInfo, { data: model }),
       h(SegmentedControl, {
