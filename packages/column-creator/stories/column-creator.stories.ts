@@ -89,9 +89,44 @@ export function BasicColumn() {
   ]);
 }
 
+const demoColumnCreatorData = {
+  surfaces: [
+    {
+      id: "A",
+      height: 0,
+    },
+    {
+      id: "B",
+      height: 100,
+    },
+    {
+      id: "C",
+      height: 200,
+    },
+  ],
+  units: [
+    {
+      id: 1,
+      name: "Unit A",
+      b_surface: "A",
+      t_surface: "B",
+      color: "#f0e68c",
+      pattern: "720",
+    },
+    {
+      id: 2,
+      name: "Unit B",
+      b_surface: "B",
+      t_surface: "C",
+      color: "#708090",
+      pattern: "620",
+    },
+  ],
+};
+
 export const ColumnCreatorStory = {
   name: "Column Creator",
   render() {
-    return h(ColumnCreator, { initialUnits: demoUnits });
+    return h(ColumnCreator, { data: demoColumnCreatorData });
   },
 };

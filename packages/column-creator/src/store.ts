@@ -11,10 +11,12 @@ interface ColumnBasicInfo {
   axisType?: ColumnAxisType; // Optional, replace 'string' with a more specific type if available
 }
 
-enum EditingContentType {
-  UNITS = "units",
-  SURFACES = "surfaces",
-  INFO = "info",
+interface ColumnUnit {
+  b_surface: string;
+  t_surface: string;
+  name: string;
+  color: string;
+  pattern: string;
 }
 
 interface ColumnSurface {
@@ -29,18 +31,21 @@ interface ColumnSurface {
   // ageIsAbsolute: boolean;
 }
 
-interface ColumnCreatorState {
-  units: any[]; // Replace 'any' with a more specific type if available
+export interface ColumnCreatorData {
+  units: ColumnUnit[]; // Replace 'any' with a more specific type if available
+  surfaces: ColumnSurface[]; // A surface in time or height
+}
+
+interface ColumnCreatorState extends ColumnCreatorData {
   updatedUnits?: any[]; // Optional, replace 'any' with a more specific type if available
+  updatedSurfaces?: ColumnSurface[];
   extUnits?: any[]; // Optional, replace 'any' with a more specific type if available
-  sections: any[]; // Replace 'any' with a more specific type if available
   info: ColumnBasicInfo; // Basic information about the column
-  editingContentType?: EditingContentType;
-  surfaces: ColumnSurface;
 }
 
 interface ColumnCreatorActions {
   setUnits: (units: any[]) => void; // Replace 'any' with a more specific type if available
+  setSurfaces: (surfaces: ColumnSurface[]) => void;
   updateState(spec: Spec<ColumnCreatorState>): void;
   updateInfo(spec: Spec<ColumnBasicInfo>): void;
 }
@@ -52,6 +57,7 @@ function createColumnStore(initialState: ColumnCreatorState) {
     return {
       ...initialState,
       updatedUnits: initialState.units,
+      updatedSurfaces: initialState.surfaces,
       extUnits: extendUnits(sortUnits(initialState.units)),
       setUnits: (units) => {
         // Sort units by their bottom position
@@ -71,6 +77,11 @@ function createColumnStore(initialState: ColumnCreatorState) {
       updateInfo: (spec) => {
         set((state) => {
           return { ...state, info: update(state.info, spec) };
+        });
+      },
+      setSurfaces: (surfaces) => {
+        set((state) => {
+          return { ...state, updatedSurfaces: surfaces };
         });
       },
     };
@@ -128,6 +139,7 @@ const ColumnCreatorStoreContext =
 
 const defaultState: ColumnCreatorState = {
   units: [],
+  surfaces: [],
   sections: [],
   info: {
     name: "New Column",

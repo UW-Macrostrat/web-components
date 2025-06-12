@@ -1,4 +1,5 @@
 import {
+  ColumnCreatorData,
   ColumnCreatorProvider,
   useColumnCreatorStore,
   useSelector,
@@ -8,18 +9,24 @@ import { ColorCell, ColorPicker, DataSheet } from "@macrostrat/data-sheet";
 export * from "./store";
 import { FlexRow, ToasterContext, useToaster } from "@macrostrat/ui-components";
 import { BasicUnitComponent, Column } from "@macrostrat/column-views";
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import { asChromaColor } from "@macrostrat/color-utils";
-import { Radio, RadioGroup } from "@blueprintjs/core";
+import { Radio, RadioGroup, SegmentedControl } from "@blueprintjs/core";
+import { useState } from "react";
 
-export function ColumnCreator({ initialUnits }) {
+import styles from "./index.module.sass";
+import Box from "ui-box";
+
+const h = hyper.styled(styles);
+
+export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
   return h(
     ToasterContext,
     h(
       ColumnCreatorProvider,
-      { initialState: { units: initialUnits } },
+      { initialState: data },
       h("div.column-creator-test", [
-        h(FlexRow, { gap: "1em" }, [
+        h(FlexRow, { gap: "2em" }, [
           h(ColumnCreatorColumn),
           h(ColumnCreatorDataEditor),
         ]),
@@ -36,15 +43,45 @@ function ColumnCreatorColumn() {
     units,
     axisType,
     pixelScale: 0.8,
-    allowUnitSelection: true,
+    allowUnitSelection: false,
     unitComponent: BasicUnitComponent,
   });
 }
 
+enum EditingType {
+  SURFACES = "surfaces",
+  UNITS = "units",
+}
+
+function EditingTypeSelector({ value, onChange }) {
+  return h(SegmentedControl, {
+    fill: false,
+    options: [
+      { label: "Surfaces", value: EditingType.SURFACES },
+      { label: "Units", value: EditingType.UNITS },
+    ],
+    onValueChange: (value) => onChange(value),
+    value: value,
+    className: "editing-type-selector",
+  });
+}
+
 function ColumnCreatorDataEditor() {
-  return h("div.column-creator-data-editor", [
-    h(ColumnBasicElementsEditor),
-    h(ColumnCreatorUnitsEditor),
+  const [editingType, setEditingType] = useState(EditingType.SURFACES);
+
+  return h(Box, { display: "flex", flexDirection: "column", gap: "1em" }, [
+    h(FlexRow, { alignItems: "baseline", gap: "2em" }, [
+      h("h3", "Column editor"),
+      h(EditingTypeSelector, {
+        value: editingType,
+        onChange: (value) => setEditingType(value),
+      }),
+      h("div.spacer", { flex: 1 }),
+    ]),
+    h("div.data-editor-content", [
+      h.if(editingType == "surfaces")(ColumnCreatorSurfacesEditor),
+      h.if(editingType == "units")(ColumnCreatorUnitsEditor),
+    ]),
   ]);
 }
 
@@ -56,22 +93,14 @@ function ColumnCreatorSurfacesEditor() {
     data: surfaces,
     columnSpec: [
       {
-        name: "Surface Name",
-        key: "name",
+        name: "ID",
+        key: "id",
         required: true,
       },
       {
-        name: "Color",
-        key: "color",
-        required: false,
-        isValid: (d) => asChromaColor(d) != null,
-        transform: (d) => d,
-        dataEditor: ColorPicker,
-        valueRenderer: (d) => {
-          const color = asChromaColor(d);
-          return color?.name() ?? "";
-        },
-        cellComponent: ColorCell,
+        name: "Height",
+        key: "height",
+        required: true,
       },
     ],
     onUpdateData: (updatedData, data) => {
@@ -92,9 +121,7 @@ function ColumnCreatorSurfacesEditor() {
 
 function ColumnCreatorUnitsEditor() {
   const units = useSelector((state) => state.units);
-  const store = useColumnCreatorStore();
   const setUnits = useSelector((state) => state.setUnits);
-  const toaster = useToaster();
 
   // Sort units by their bottom position
 
@@ -103,14 +130,13 @@ function ColumnCreatorUnitsEditor() {
     columnSpec: [
       {
         name: "Bottom",
-        key: "b_pos",
-        required: true,
+        key: "b_surface",
       },
       {
         name: "Top",
-        key: "t_pos",
+        key: "t_surface",
       },
-      { name: "Unit Name", key: "unit_name" },
+      { name: "Name", key: "name" },
 
       {
         name: "Color",
@@ -127,25 +153,30 @@ function ColumnCreatorUnitsEditor() {
       },
       {
         name: "Pattern",
-        key: "patternID",
+        key: "pattern",
       },
     ],
     onUpdateData: (updatedData, data) => {
       // Update the units in the store
-
-      let newData = Array(Math.max(updatedData.length, data.length));
-
-      for (let i = 0; i < newData.length; i++) {
-        const d = updatedData[i];
-        let newRow: object = (data[i] as object) ?? {};
-        if (d != null) {
-          newRow = { ...newRow, ...d };
-        }
-        newData[i] = newRow;
-      }
+      const newData = reconstructData(data, updatedData);
       setUnits(newData);
     },
   });
+}
+
+function reconstructData<T>(data: T[], updates: Partial<T>[]): T[] {
+  /** Reconstructs the data array by merging updates into the existing data. */
+  const newData = Array(Math.max(data.length, updates.length));
+
+  for (let i = 0; i < newData.length; i++) {
+    const d = updates[i];
+    let newRow: object = (data[i] as object) ?? {};
+    if (d != null) {
+      newRow = { ...newRow, ...d };
+    }
+    newData[i] = newRow;
+  }
+  return newData;
 }
 
 function ColumnBasicElementsEditor() {
