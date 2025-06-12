@@ -20,10 +20,11 @@ export function GraphView(props: {
   width: number;
   height: number;
   dispatch: (action: any) => void;
+  selectedNodes: number[];
 }) {
   // A graph view with react-flow
   // Get positions of nodes using force simulation
-  const { tree, width, height, dispatch } = props;
+  const { tree, width, height, dispatch, selectedNodes } = props;
 
   const [nodes, setNodes] = useState<SimulationNodeDatum[]>(null);
   const [links, setLinks] = useState<SimulationLinkDatum[]>(null);
@@ -68,7 +69,7 @@ export function GraphView(props: {
     return h(Spinner);
   }
 
-  console.log("Graph", nodes, links);
+  console.log("Graph", nodes, links, selectedNodes);
 
   return h(ErrorBoundary, 
     {
@@ -91,25 +92,30 @@ export function GraphView(props: {
       h(
         "g.nodes",
         nodes.map((d) => {
+          const isSelected = selectedNodes.includes(d.id);
+          const stroke = isSelected ? "white" : "black";
+
           return h("circle", {
-              cx: d.x,
-              cy: d.y,
-              r: 5,
-              fill: d.color || "blue",
-              onClick: (e) => {
-                e.stopPropagation();
-                console.log("Node clicked:", d);
-                dispatch({
-                  type: "select-node",
-                  payload: { ids: [d.id] },
-                });
-              }
+            cx: d.x,
+            cy: d.y,
+            r: 5,
+            fill: d.color || "blue",
+            onClick: (e) => {
+              e.stopPropagation();
+              dispatch({
+                type: "toggle-node-selected",
+                payload: { ids: [d.id] },
+              });
             },
-            h(
-              "title",
-              d.name || `Node ${d.id}`
-            ) 
-          );
+            className: isSelected ? "selected" : "",
+            stroke,
+            strokeWidth: 2,
+          },
+          h(
+            "title",
+            d.name || `Node ${d.id}`
+          ) 
+        );
         })
       ),
     ])

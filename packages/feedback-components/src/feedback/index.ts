@@ -163,6 +163,7 @@ export function FeedbackComponent({
           width,
           height,
           dispatch,
+          selectedNodes,
         }),
       ]
     ),
