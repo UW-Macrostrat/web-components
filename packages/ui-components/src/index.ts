@@ -21,5 +21,6 @@ export * from "./modal-panel";
 export * from "./page-layouts";
 export * from "./dev-panel";
 export * from "./data";
+export * from "./image"
 
 import "./module.d.ts";
