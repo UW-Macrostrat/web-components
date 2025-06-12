@@ -12,16 +12,20 @@ import {
   forceCollide,
 } from "d3-force";
 import { useEffect, useState } from "react";
-import { Spinner } from "@blueprintjs/core";
+import { Spinner, Popover } from "@blueprintjs/core";
+import { ErrorBoundary } from "@macrostrat/ui-components";
+import { getTagStyle } from "../extractions";
 
 export function GraphView(props: {
   tree: TreeData[];
   width: number;
   height: number;
+  dispatch: (action: any) => void;
+  selectedNodes: number[];
 }) {
   // A graph view with react-flow
   // Get positions of nodes using force simulation
-  const { tree, width, height } = props;
+  const { tree, width, height, dispatch, selectedNodes } = props;
 
   const [nodes, setNodes] = useState<SimulationNodeDatum[]>(null);
   const [links, setLinks] = useState<SimulationLinkDatum[]>(null);
@@ -66,33 +70,66 @@ export function GraphView(props: {
     return h(Spinner);
   }
 
-  console.log("Graph", nodes, links);
+  console.log("Graph", nodes, links, selectedNodes);
 
-  return h("div.graph-view", { style: { width, height } }, [
-    h("svg", { width, height }, [
-      h(
-        "g.nodes",
-        nodes.map((d) => {
-          return h("circle", {
-            cx: d.x,
-            cy: d.y,
-            r: 5,
-            fill: "blue",
-          });
-        })
-      ),
-      h(
-        "g.links",
-        links.map((d) => {
-          return h("line", {
-            x1: d.source.x,
-            y1: d.source.y,
-            x2: d.target.x,
+  return h(ErrorBoundary, 
+    {
+      description: "An error occurred while rendering the graph view."
+    },
+    h("div.graph-view", { style: { width, height } }, [
+      h("svg", { width, height }, [
+        h(
+          "g.links",
+          links.map((d) => {
+            return h("line", {
+              x1: d.source.x,
+              y1: d.source.y,
+              x2: d.target.x,
             y2: d.target.y,
             stroke: "black",
           });
         })
       ),
-    ]),
-  ]);
+      h(
+        "g.nodes",
+        nodes.map((d) => {
+          const active = selectedNodes.includes(d.id);
+          const stroke = active ? "white" : "black";
+          const highlighted = isHighlighted(d.id, selectedNodes, nodes);
+          const style = getTagStyle(d.color, { highlighted, active });
+
+          return h("circle", {
+            cx: d.x,
+            cy: d.y,
+            r: 5,
+            fill: style.backgroundColor || "blue",
+            onClick: (e) => {
+              e.stopPropagation();
+              dispatch({
+                type: "toggle-node-selected",
+                payload: { ids: [d.id] },
+              });
+            },
+            className: active ? "selected" : "",
+            stroke,
+            strokeWidth: 2,
+          },
+          h(
+            "title",
+            d.name || `Node ${d.id}`
+          ) 
+        );
+        })
+      ),
+    ])
+  ])
+  );
+}
+
+function isHighlighted(id: number, selectedNodes: number[], nodes: TreeData[]) {
+  if (selectedNodes.length === 0) return true;
+  return (
+    selectedNodes.includes(id) ||
+    nodes.some((node) => selectedNodes.includes(node.id) && node.children.some((child) => child.id === id))
+  );
 }

@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from "@storybook/react";
 
 import { FeedbackComponent } from "../src";
-import { data, entityTypes } from "./test-data";
+import { data, entityTypes, data2, data3, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
-function FeedbackInterface({ data, types }) {
+function FeedbackInterface({ data, types, lineHeight, allowOverlap }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
   return h(FeedbackComponent, {
@@ -14,6 +14,8 @@ function FeedbackInterface({ data, types }) {
     entityTypes: createMap(types),
     sourceTextID: source_text,
     runID: model_run,
+    lineHeight: `${lineHeight}em`,
+    allowOverlap,
   });
 }
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -24,10 +26,31 @@ const meta: Meta<any> = {
 
 export default meta;
 
-export const Primary: StoryObj<{}> = {
+// add more stories here
+export const TestData1: StoryObj<{}> = {
   args: {
     data,
     types: entityTypes,
+    lineHeight: 2,
+    allowOverlap: true,
+  },
+};
+
+export const TestData2: StoryObj<{}> = {
+  args: {
+    data: data2,
+    types: entityTypes2,
+    lineHeight: 2,
+    allowOverlap: false,
+  },
+};
+
+export const TestData3: StoryObj<{}> = {
+  args: {
+    data: data3,
+    types: entityTypes2,
+    lineHeight: 2,
+    allowOverlap: true,
   },
 };
 

@@ -14,11 +14,12 @@ import {
   ViewMode,
 } from "./edit-state";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ButtonGroup, Card, SegmentedControl, Tag } from "@blueprintjs/core";
+import { ButtonGroup, Card, SegmentedControl, Tag, Popover } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
   DataField,
+  ErrorBoundary,
   FlexBox,
   FlexRow,
   SaveButton,
@@ -49,6 +50,8 @@ export function FeedbackComponent({
   entityTypes,
   matchComponent,
   onSave,
+  lineHeight, 
+  allowOverlap,
 }) {
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
@@ -62,13 +65,20 @@ export function FeedbackComponent({
   const [{ width, height }, ref] = useElementDimensions();
 
   return h(TreeDispatchContext.Provider, { value: dispatch }, [
-    h(FeedbackText, {
-      text,
-      dispatch,
-      // @ts-ignore
-      nodes: tree,
-      selectedNodes,
-    }),
+    h(ErrorBoundary, 
+      {
+        description: "An error occurred while rendering the feedback text component.",
+      },
+      h(FeedbackText, {
+        text,
+        dispatch,
+        // @ts-ignore
+        nodes: tree,
+        selectedNodes,
+        lineHeight,
+        allowOverlap,
+      })
+    ),
     h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
       h(ModelInfo, { data: model }),
       h(SegmentedControl, {
@@ -152,6 +162,8 @@ export function FeedbackComponent({
           tree,
           width,
           height,
+          dispatch,
+          selectedNodes,
         }),
       ]
     ),
@@ -189,18 +201,7 @@ function EntityTypeSelector({
   ) : types;
 
   return h('div.entity-type-selector', [
-    /*
-    h(
-      "code.bp5-code",
-      {
-        onClick() {
-          setOpen((d) => !d);
-        },
-      },
-      selected?.name ?? "None"
-    ),
-    */
-    h('p', "Entity Type:"),
+    h('p', "Change Selected Nodes to:"),
     h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree, selectedNodes }),
     h(OmniboxSelector, {
       isOpen,
@@ -280,6 +281,7 @@ function ManagedSelectionTree(props) {
     (nodes) => {
       if (!clickedRef.current) return;
       clickedRef.current = false;
+      console.log("Clicked nodes:", nodes);
 
       let ids = nodes.map((d) => parseInt(d.id));
       if (ids.length === 1 && ids[0] === selectedNodes[0]) {
@@ -329,27 +331,39 @@ function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
   return h(
     "div.type-list",
     Array.from(types.values()).map((type) => {
-      const { color, name, id } = type;
+      const { color, name, id, description } = type;
       const darkMode = useInDarkMode();
       const luminance = darkMode ? 0.9 : 0.4;
       const chromaColor = asChromaColor(color ?? "#000000")
-      const ids = collectMatchingIds(tree, name);
-      const alreadySelected = ids.length === selectedNodes.length && ids.every((v, i) => v === selectedNodes[i])
+
+      const payload = {
+        id,
+        name,
+        color,
+        description,
+      };
 
       return h(
-        Tag, 
+        Popover, 
         { 
-          className: "type-tag",
+          autoFocus: false,
+          content: h(
+            'div.description', 
+            description || "No description available"
+          ),
+          interactionKind: "hover"
+        }, 
+        h('div.type-tag', {
+          onClick: () => {
+            dispatch({ type: "select-entity-type", payload }); 
+          },
           style: {
+            cursor: selectedNodes.length > 0 ? "pointer" : "",
             color: chromaColor?.luminance(luminance).hex(),
             backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
-            border: id === selected?.id ? `1px solid white` : `1px solid black`,
-          },
-          onClick: () => {
-            dispatch({ type: "select-node", payload: { ids: alreadySelected ? [] : ids } });  
-          } 
-        }, 
-        name
+            border: id === selected?.id && selectedNodes.length ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
+          }
+        }, name)
       );
     })
   );
