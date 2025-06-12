@@ -24,7 +24,7 @@ export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
     ToasterContext,
     h(
       ColumnCreatorProvider,
-      { initialState: data },
+      { initialData: data },
       h("div.column-creator-test", [
         h(FlexRow, { gap: "2em" }, [
           h(ColumnCreatorColumn),
@@ -36,11 +36,11 @@ export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
 }
 
 function ColumnCreatorColumn() {
-  const units = useSelector((state) => state.extUnits);
+  const units = useSelector((state) => state.realizedUnits);
   const axisType = useSelector((state) => state.info.axisType);
 
   return h(Column, {
-    units,
+    units: units.filter((u) => u.errors.length == 0),
     axisType,
     pixelScale: 0.8,
     allowUnitSelection: false,
@@ -86,7 +86,7 @@ function ColumnCreatorDataEditor() {
 }
 
 function ColumnCreatorSurfacesEditor() {
-  const surfaces = useSelector((state) => state.surfaces);
+  const surfaces = useSelector((state) => state.initialData.surfaces);
   const setSurfaces = useSelector((state) => state.setSurfaces);
 
   return h(DataSheet, {
@@ -104,23 +104,13 @@ function ColumnCreatorSurfacesEditor() {
       },
     ],
     onUpdateData: (updatedData, data) => {
-      let newData = new Array(updatedData.length);
-
-      for (let i = 0; i < updatedData.length; i++) {
-        const d = updatedData[i];
-        let newRow: object = (data[i] as object) ?? {};
-        if (d != null) {
-          newRow = { ...newRow, ...d };
-        }
-        newData[i] = newRow;
-      }
-      setSurfaces(newData);
+      setSurfaces(reconstructData(data, updatedData));
     },
   });
 }
 
 function ColumnCreatorUnitsEditor() {
-  const units = useSelector((state) => state.units);
+  const units = useSelector((state) => state.initialData.units);
   const setUnits = useSelector((state) => state.setUnits);
 
   // Sort units by their bottom position
