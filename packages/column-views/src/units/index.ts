@@ -48,6 +48,7 @@ export function SimpleUnitsColumn(props: ICompositeUnitProps) {
 
 export function BasicUnitComponent({ division, ...rest }) {
   /** A unit that allows directly setting colors and patterns. */
+
   return h(UnitComponent, {
     division,
     ...rest,

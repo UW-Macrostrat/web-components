@@ -130,3 +130,57 @@ export const ColumnCreatorStory = {
     return h(ColumnCreator, { data: demoColumnCreatorData });
   },
 };
+
+export const ColumnCreatorOverlappingUnits = {
+  name: "Column Creator (overlapping units)",
+  render() {
+    return h(ColumnCreator, {
+      data: {
+        surfaces: [
+          {
+            id: "A",
+            height: 0,
+          },
+          {
+            id: "B",
+            height: 100,
+          },
+          {
+            id: "C",
+            height: 200,
+          },
+          {
+            id: "D",
+            height: 400,
+          },
+        ],
+        units: [
+          {
+            id: 1,
+            name: "Basement",
+            b_surface: "A",
+            t_surface: "B",
+            color: "#be8ad1",
+            pattern: "720",
+          },
+          {
+            id: 2,
+            name: "Unit B",
+            b_surface: "B",
+            t_surface: "C",
+            color: "#708090",
+            pattern: "620",
+          },
+          {
+            id: 3,
+            name: "Unit C",
+            b_surface: "B",
+            t_surface: "D",
+            color: "#ff6347", // Tomato color
+            pattern: "624",
+          },
+        ],
+      },
+    });
+  },
+};

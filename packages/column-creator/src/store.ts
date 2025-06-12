@@ -52,7 +52,9 @@ interface ColumnCreatorActions {
 
 type ColumnCreatorStore = ColumnCreatorState & ColumnCreatorActions;
 
-type ComputedStore = {};
+type ComputedStore = {
+  realizedUnits: RealizedUnit[];
+};
 
 const computed = createComputed((store: ColumnCreatorStore): ComputedStore => {
   return {
@@ -248,9 +250,9 @@ export function useColumnCreatorStore(): StoreApi<ColumnCreatorStore> {
 
 export type ColumnCreatorExtStore = ColumnCreatorStore & ComputedStore;
 
-export function useSelector<T extends keyof ColumnCreatorExtStore>(
-  selector: (state: ColumnCreatorExtStore) => ColumnCreatorExtStore[T]
-): ColumnCreatorExtStore[T] {
+export function useSelector<T>(
+  selector: (state: ColumnCreatorExtStore) => T
+): T {
   const store = useColumnCreatorStore();
   return useStore(store, selector);
 }

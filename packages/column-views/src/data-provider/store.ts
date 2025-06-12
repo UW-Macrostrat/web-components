@@ -63,12 +63,7 @@ export function useMacrostratUnits() {
 }
 
 export function useCompositeScale(): CompositeColumnScale {
-  const ctx = useContext(MacrostratColumnDataContext);
-  if (!ctx) {
-    throw new Error(
-      "useCompositeScale must be used within a MacrostratUnitsProvider"
-    );
-  }
+  const ctx = useMacrostratColumnData();
   return useMemo(
     () => createCompositeScale(ctx.sections, true),
     [ctx.sections]

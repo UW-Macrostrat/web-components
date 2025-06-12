@@ -8,7 +8,11 @@ import { ColorCell, ColorPicker, DataSheet } from "@macrostrat/data-sheet";
 
 export * from "./store";
 import { FlexRow, ToasterContext, useToaster } from "@macrostrat/ui-components";
-import { BasicUnitComponent, Column } from "@macrostrat/column-views";
+import {
+  BasicUnitComponent,
+  Column,
+  ColumnNotes,
+} from "@macrostrat/column-views";
 import hyper from "@macrostrat/hyper";
 import { asChromaColor } from "@macrostrat/color-utils";
 import { Radio, RadioGroup, SegmentedControl } from "@blueprintjs/core";
@@ -38,14 +42,40 @@ export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
 function ColumnCreatorColumn() {
   const units = useSelector((state) => state.realizedUnits);
   const axisType = useSelector((state) => state.info.axisType);
+  const surfaces = useSelector((state) => state.data.surfaces);
 
-  return h(Column, {
-    units: units.filter((u) => u.errors.length == 0),
-    axisType,
-    pixelScale: 0.8,
-    allowUnitSelection: false,
-    unitComponent: BasicUnitComponent,
-  });
+  return h(
+    Column,
+    {
+      units: units.filter((u) => u.errors.length == 0),
+      axisType,
+      pixelScale: 0.8,
+      allowUnitSelection: false,
+      unitComponent: BasicUnitComponent,
+      showLabelColumn: false,
+    },
+    h(ColumnSurfacesLayer, { surfaces })
+  );
+}
+
+function ColumnSurfacesLayer({ surfaces }) {
+  const notes = surfaces
+    .filter((d) => d.height != null)
+    .map((s) => {
+      return {
+        id: s.id,
+        note: s.id,
+        height: s.height,
+      };
+    });
+
+  return h(
+    "div.column-surfaces-layer",
+    h(ColumnNotes, {
+      notes,
+      paddingLeft: 30,
+    })
+  );
 }
 
 enum EditingType {
@@ -79,10 +109,35 @@ function ColumnCreatorDataEditor() {
       h("div.spacer", { flex: 1 }),
     ]),
     h("div.data-editor-content", [
-      h.if(editingType == "surfaces")(ColumnCreatorSurfacesEditor),
-      h.if(editingType == "units")(ColumnCreatorUnitsEditor),
+      h(
+        VisibilityToggle,
+        {
+          show: editingType === EditingType.UNITS,
+        },
+        h(ColumnCreatorUnitsEditor)
+      ),
+      h(
+        VisibilityToggle,
+        {
+          show: editingType === EditingType.SURFACES,
+        },
+        h(ColumnCreatorSurfacesEditor)
+      ),
     ]),
   ]);
+}
+
+function VisibilityToggle({ children, show }) {
+  // Toggle visibility of children based on the show prop
+  return h(
+    "div.visibility-toggle",
+    {
+      style: {
+        display: show ? "block" : "none",
+      },
+    },
+    children
+  );
 }
 
 function ColumnCreatorSurfacesEditor() {

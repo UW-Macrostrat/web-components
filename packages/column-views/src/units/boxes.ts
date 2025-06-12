@@ -49,6 +49,7 @@ export interface LabeledUnitProps
     Clickable,
     Partial<RectBounds> {
   division: IUnit;
+  patternID?: string | number;
   label: string;
   onLabelUpdated?(label: string, shown: boolean);
   halfWidth?: boolean;
@@ -306,6 +307,7 @@ function LabeledUnit(props: LabeledUnitProps) {
     widthFraction,
     showLabel = true,
     backgroundColor,
+    patternID,
     axisType: _, // not sure why this is brought in...
     ...baseBounds
   } = props;
@@ -318,7 +320,13 @@ function LabeledUnit(props: LabeledUnitProps) {
   const { width, height } = bounds;
   return h(
     Unit,
-    { className: "labeled-unit", division, backgroundColor, ...bounds },
+    {
+      className: "labeled-unit",
+      division,
+      backgroundColor,
+      patternID,
+      ...bounds,
+    },
     [
       h.if(showLabel)(
         ForeignObject,
