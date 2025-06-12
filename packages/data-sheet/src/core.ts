@@ -48,6 +48,7 @@ interface DataSheetInternalProps<T> {
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
+  enableFocusedCell?: boolean;
   dataSheetActions?: ReactNode | null;
   editable?: boolean;
 }
@@ -61,6 +62,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     columnSpecOptions,
     editable = true,
     enableColumnReordering = false,
+    enableFocusedCell = false,
     ...rest
   } = props;
 
@@ -76,7 +78,12 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
         editable,
         ...rest,
       },
-      h(_DataSheet, { ...rest, editable, enableColumnReordering })
+      h(_DataSheet, {
+        ...rest,
+        editable,
+        enableColumnReordering,
+        enableFocusedCell,
+      })
     )
   );
 }
@@ -89,6 +96,7 @@ function _DataSheet<T>({
   onDeleteRows,
   verbose = true,
   dataSheetActions = null,
+  enableFocusedCell,
 }: DataSheetInternalProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -114,13 +122,9 @@ function _DataSheet<T>({
   const updatedData = useSelector((state) => state.updatedData);
   const setUpdatedData = useSelector((state) => state.setUpdatedData);
 
-  const hasUpdates = updatedData.length > 0;
-
   const onSelection = useSelector((state) => state.onSelection);
 
   const storeAPI = useStoreAPI<T>();
-
-  //const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
   const _onSaveData = useMemo(() => {
     if (onSaveData == null) return null;
@@ -177,41 +181,63 @@ function _DataSheet<T>({
 
   return h("div.data-sheet-container", [
     h.if(editable)(DataSheetEditToolbar, {
-      hasUpdates,
-      setUpdatedData,
       onSaveData: _onSaveData,
       onAddRow,
       onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
     }),
     dataSheetActions,
-    h("div.data-sheet-holder", [
-      h(
-        Table2,
-        {
-          ref,
-          numRows,
-          className: "data-sheet",
-          enableFocusedCell: true,
-          enableColumnReordering,
-          //onColumnsReordered,
-          focusedCell,
-          selectedRegions: selection,
-          onSelection,
-          // The cell renderer is memoized internally based on these data dependencies
-          cellRendererDependencies: [selection, updatedData, focusedCell, data],
-          onVisibleCellsChange: _onVisibleCellsChange,
+    h(
+      "div.data-sheet-holder",
+      {
+        onKeyDown(e) {
+          // General key event
+          if (e.key === "Escape") {
+            // Clear selection on Escape
+            storeAPI.getState().setSelection([]);
+            e.preventDefault();
+          }
+          // Clear selection on Backspace or Delete
+          if (e.key === "Backspace" || e.key === "Delete") {
+            // Clear selection on Backspace or Delete
+            storeAPI.getState().clearSelection();
+            e.preventDefault();
+          }
         },
-        columnSpec.map((col, colIndex) => {
-          return h(Column, {
-            name: col.name,
-            cellRenderer: (rowIndex) => {
-              const state = storeAPI.getState();
-              return basicCellRenderer<T>(rowIndex, colIndex, col, state);
-            },
-          });
-        })
-      ),
-    ]),
+      },
+      [
+        h(
+          Table2,
+          {
+            ref,
+            numRows,
+            className: "data-sheet",
+            enableFocusedCell,
+            enableColumnReordering,
+            //onColumnsReordered,
+            focusedCell,
+            selectedRegions: selection,
+            onSelection,
+            // The cell renderer is memoized internally based on these data dependencies
+            cellRendererDependencies: [
+              selection,
+              updatedData,
+              focusedCell,
+              data,
+            ],
+            onVisibleCellsChange: _onVisibleCellsChange,
+          },
+          columnSpec.map((col, colIndex) => {
+            return h(Column, {
+              name: col.name,
+              cellRenderer: (rowIndex) => {
+                const state = storeAPI.getState();
+                return basicCellRenderer<T>(rowIndex, colIndex, col, state);
+              },
+            });
+          })
+        ),
+      ]
+    ),
   ]);
 }
 
@@ -309,7 +335,7 @@ function basicCellRenderer<T>(
     ) {
       _value = _renderedValue;
     }
-    inlineEditor = h("input", {
+    inlineEditor = h("input.main-editor", {
       value: _value ?? "",
       autoFocus: autoFocusEditor,
       onChange,
@@ -385,16 +411,13 @@ function DragHandle({ focusedCell }) {
   });
 }
 
-function DataSheetEditToolbar({
-  hasUpdates,
-  setUpdatedData,
-  onSaveData,
-  onAddRow,
-  onDeleteRows,
-}) {
+function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
+  const resetChanges = useSelector((state) => state.resetChanges);
+  const hasUpdates = useSelector((state) => state.hasUpdates);
+
   return h("div.data-sheet-toolbar", [
     h(ButtonGroup, { minimal: true }, [
-      h.if(onAddRow != null)(AddRowButton, { onAddRow }),
+      h(AddRowButton),
       h(
         Button,
         {
@@ -414,9 +437,7 @@ function DataSheetEditToolbar({
         {
           intent: Intent.WARNING,
           disabled: !hasUpdates,
-          onClick() {
-            setUpdatedData([]);
-          },
+          onClick: resetChanges,
         },
         "Reset"
       ),
@@ -461,12 +482,13 @@ export function ScrollToRowControl() {
   ]);
 }
 
-function AddRowButton({ onAddRow }) {
+function AddRowButton() {
+  const addRow = useSelector((state) => state.addRow);
   return h(
     Button,
     {
       icon: "plus",
-      onClick: onAddRow,
+      onClick: addRow,
     },
     "Add row"
   );
