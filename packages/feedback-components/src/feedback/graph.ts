@@ -13,6 +13,7 @@ import {
 } from "d3-force";
 import { useEffect, useState } from "react";
 import { Spinner, Popover } from "@blueprintjs/core";
+import { ErrorBoundary } from "@macrostrat/ui-components";
 
 export function GraphView(props: {
   tree: TreeData[];
@@ -69,8 +70,24 @@ export function GraphView(props: {
 
   console.log("Graph", nodes, links);
 
-  return h("div.graph-view", { style: { width, height } }, [
-    h("svg", { width, height }, [
+  return h(ErrorBoundary, 
+    {
+      description: "An error occurred while rendering the graph view."
+    },
+    h("div.graph-view", { style: { width, height } }, [
+      h("svg", { width, height }, [
+        h(
+          "g.links",
+          links.map((d) => {
+            return h("line", {
+              x1: d.source.x,
+              y1: d.source.y,
+              x2: d.target.x,
+            y2: d.target.y,
+            stroke: "black",
+          });
+        })
+      ),
       h(
         "g.nodes",
         nodes.map((d) => {
@@ -95,18 +112,7 @@ export function GraphView(props: {
           );
         })
       ),
-      h(
-        "g.links",
-        links.map((d) => {
-          return h("line", {
-            x1: d.source.x,
-            y1: d.source.y,
-            x2: d.target.x,
-            y2: d.target.y,
-            stroke: "black",
-          });
-        })
-      ),
-    ]),
-  ]);
+    ])
+  ])
+  );
 }
