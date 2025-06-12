@@ -11,6 +11,7 @@ import { generateColumnSpec } from "./utils";
 import update, { Spec } from "immutability-helper";
 import { range } from "./utils";
 import React from "react";
+import { ensureElement } from "@blueprintjs/core/lib/esnext/common/utils";
 
 export interface ColumnSpec {
   name: string;
@@ -140,10 +141,9 @@ export function DataSheetProvider<T>({
               const lastRowIndex =
                 getLastRowIndex(selection) ??
                 Math.max(data.length, updatedData.length) - 1;
-              const newRow = row; // Create an empty row if null
               // If there is a selection, insert the new row after the last selected row
               const spec: Spec<any> = {
-                $splice: [[lastRowIndex + 1, 0, newRow]],
+                $splice: [[lastRowIndex + 1, 0, row]],
               };
               console.log(spec);
 
@@ -254,6 +254,20 @@ export function DataSheetProvider<T>({
           },
           onSelection(selection: Region[]) {
             set((state) => {
+              if (
+                selectionEquals(selection, state.selection) &&
+                singleFocusedCell(selection) == null // Only if we're in a multi-cell selection mode
+              ) {
+                // If the selection is the same as the current selection, remove the selection.
+                // In practice this only happens for whole-row and whole-column selections
+                return {
+                  selection: [],
+                  focusedCell: null,
+                  topLeftCell: null,
+                  fillValueBaseCell: null,
+                };
+              }
+
               let spec = updateSelection(selection);
               if (state.fillValueBaseCell != null) {
                 spec.updatedData = fillValues(state, selection);
@@ -371,6 +385,33 @@ export function topLeftCell(
   if (requireSolitaryCell && (cols[0] !== cols[1] || rows[0] !== rows[1]))
     return null;
   return { col: cols[0], row: rows[0], focusSelectionIndex: 0 };
+}
+
+function selectionEquals(a: Region[], b: Region[]): boolean {
+  /** Check if two selections are equal */
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const regionA = a[i];
+    const regionB = b[i];
+
+    const colsA = regionA.cols ?? [];
+    const colsB = regionB.cols ?? [];
+
+    const rowsA = regionA.rows ?? [];
+    const rowsB = regionB.rows ?? [];
+
+    if (
+      colsA.length !== colsB.length ||
+      rowsA.length !== rowsB.length ||
+      colsA[0] !== colsB[0] ||
+      colsA[1] !== colsB[1] ||
+      rowsA[0] !== rowsB[0] ||
+      rowsA[1] !== rowsB[1]
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function singleFocusedCell(sel: Region[]): FocusedCellCoordinates | null {
