@@ -17,6 +17,18 @@ enum EditingContentType {
   INFO = "info",
 }
 
+interface ColumnSurface {
+  id: string;
+  height: number;
+  age: number;
+  interval: string;
+  proportion: number;
+  // macrostratInterval: string;
+  // hasAge: boolean;
+  // hasHeight: boolean;
+  // ageIsAbsolute: boolean;
+}
+
 interface ColumnCreatorState {
   units: any[]; // Replace 'any' with a more specific type if available
   updatedUnits?: any[]; // Optional, replace 'any' with a more specific type if available
@@ -24,6 +36,7 @@ interface ColumnCreatorState {
   sections: any[]; // Replace 'any' with a more specific type if available
   info: ColumnBasicInfo; // Basic information about the column
   editingContentType?: EditingContentType;
+  surfaces: ColumnSurface;
 }
 
 interface ColumnCreatorActions {

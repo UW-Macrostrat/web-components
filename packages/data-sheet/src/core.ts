@@ -9,7 +9,14 @@ import { Cell, Column, Region, Table2 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
-import { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
 import {
@@ -36,7 +43,7 @@ const h = hyper.styled(styles);
 
 interface DataSheetInternalProps<T> {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
-  onSaveData: (updatedData: any[], data: T[]) => void;
+  onSaveData?: (updatedData: any[], data: T[]) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
@@ -115,9 +122,12 @@ function _DataSheet<T>({
 
   //const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
-  const _onSaveData = useCallback(() => {
-    onSaveData(updatedData, data);
-    setUpdatedData([]);
+  const _onSaveData = useMemo(() => {
+    if (onSaveData == null) return null;
+    return () => {
+      onSaveData(updatedData, data);
+      setUpdatedData([]);
+    };
   }, [updatedData, data, onSaveData]);
 
   const setVisibleCells = useSelector((state) => state.setVisibleCells);
@@ -149,7 +159,6 @@ function _DataSheet<T>({
   }, [updatedData]);
 
   useEffect(() => {
-    if (updatedData.length == 0) return;
     onUpdateData?.(updatedData, data);
   }, [onUpdateData, data, updatedData]);
 
@@ -409,7 +418,7 @@ function DataSheetEditToolbar({
         },
         "Reset"
       ),
-      h(
+      h.if(onSaveData != null)(
         Button,
         {
           intent: Intent.SUCCESS,

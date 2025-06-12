@@ -10,7 +10,6 @@ import { FlexRow, ToasterContext, useToaster } from "@macrostrat/ui-components";
 import { BasicUnitComponent, Column } from "@macrostrat/column-views";
 import h from "@macrostrat/hyper";
 import { asChromaColor } from "@macrostrat/color-utils";
-import update from "immutability-helper";
 import { Radio, RadioGroup } from "@blueprintjs/core";
 
 export function ColumnCreator({ initialUnits }) {
@@ -49,6 +48,48 @@ function ColumnCreatorDataEditor() {
   ]);
 }
 
+function ColumnCreatorSurfacesEditor() {
+  const surfaces = useSelector((state) => state.surfaces);
+  const setSurfaces = useSelector((state) => state.setSurfaces);
+
+  return h(DataSheet, {
+    data: surfaces,
+    columnSpec: [
+      {
+        name: "Surface Name",
+        key: "name",
+        required: true,
+      },
+      {
+        name: "Color",
+        key: "color",
+        required: false,
+        isValid: (d) => asChromaColor(d) != null,
+        transform: (d) => d,
+        dataEditor: ColorPicker,
+        valueRenderer: (d) => {
+          const color = asChromaColor(d);
+          return color?.name() ?? "";
+        },
+        cellComponent: ColorCell,
+      },
+    ],
+    onUpdateData: (updatedData, data) => {
+      let newData = new Array(updatedData.length);
+
+      for (let i = 0; i < updatedData.length; i++) {
+        const d = updatedData[i];
+        let newRow: object = (data[i] as object) ?? {};
+        if (d != null) {
+          newRow = { ...newRow, ...d };
+        }
+        newData[i] = newRow;
+      }
+      setSurfaces(newData);
+    },
+  });
+}
+
 function ColumnCreatorUnitsEditor() {
   const units = useSelector((state) => state.units);
   const store = useColumnCreatorStore();
@@ -59,11 +100,6 @@ function ColumnCreatorUnitsEditor() {
 
   return h(DataSheet, {
     data: units,
-    onSaveData: (d) => {
-      toaster.show({
-        message: "Saving data is disabled.",
-      });
-    },
     columnSpec: [
       {
         name: "Bottom",
@@ -97,9 +133,9 @@ function ColumnCreatorUnitsEditor() {
     onUpdateData: (updatedData, data) => {
       // Update the units in the store
 
-      let newData = Array(updatedData.length);
+      let newData = Array(Math.max(updatedData.length, data.length));
 
-      for (let i = 0; i < updatedData.length; i++) {
+      for (let i = 0; i < newData.length; i++) {
         const d = updatedData[i];
         let newRow: object = (data[i] as object) ?? {};
         if (d != null) {
