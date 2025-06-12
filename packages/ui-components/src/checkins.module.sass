@@ -1,0 +1,131 @@
+.checkin
+  background-color: var(--panel-background-color)
+  color: black
+  text-align: left
+  border: solid var(--card-shadow-color) 1px
+  padding: 6px 15px
+  padding-top: 2px
+  font-size: 14px
+  color: var(--text-emphasized-color)
+  margin-top: 10px
+  cursor: pointer
+
+  &:hover 
+    border: solid var(--text-emphasized-color) 1px
+
+  .description
+    padding: 0
+
+  h3
+    color: var(--text-emphasized-color)
+
+  a
+    color: black
+    text-decoration: none
+
+    &:hover
+      color: black
+
+  .star
+    height: 15px
+
+  .checkin-header
+    display: flex
+
+  .checkin-name
+    font-size: 20px
+    font-weight: 500
+    color: #333
+    margin-bottom: 0
+
+  .profile-pic
+    height: 80px
+    width: 80px
+    border-radius: 50%
+    display: inline-block
+    margin-right: 10px
+
+  .box-header
+    display: flex
+
+  .checkin-info
+    display: grid
+    margin: auto
+    margin-left: 0
+    margin-right: 0
+    p
+      padding: 0
+
+  h3, h4, p
+    margin: 0
+
+  .checkin-link
+    position: relative
+
+    .image-details
+      position: absolute
+      top: -150px
+      left: 0
+      right: 0
+      bottom: 0
+      display: flex
+      justify-content: center
+      align-items: center
+      display: none
+      color: white
+
+    .observation-img
+      margin-top: 10px
+      width: 100%
+      height: 150px
+      object-fit: cover
+      border-radius: 2%
+
+    &:hover
+      .observation-img
+        -webkit-filter: brightness(70%)
+      .image-details
+        display: flex
+
+  .description
+    margin-top: 10px
+
+  .no-image
+    color: var(--panel-text)
+    display: flex
+    justify-content: center
+    align-items: center
+    gap: 10px
+    marigin: 0
+
+    .details-image
+      filter: var(--anti-img-color)
+
+.checkin-footer
+  display: flex
+  justify-content: center
+
+  svg
+    filter: var(--anti-img-color)
+
+  .likes-container
+    display: grid
+    grid-template-columns: 50% 50%
+    width: 25%
+    justify-content: end
+    place-items: center
+
+  .comments-container
+    display: grid
+    grid-template-columns: 50% 50%
+    width: 25%
+    place-items: center
+
+  .observations-container
+    display: grid
+    grid-template-columns: 50% 50%
+    width: 25%
+    place-items: center
+
+.details
+  color: var(--text-emphasized-color)
