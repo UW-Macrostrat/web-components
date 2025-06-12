@@ -39,7 +39,9 @@ function FossilInfo(props: FossilItemProps) {
 
   return h("ul.fossil-collections", [
     d1.map((d) => {
-      return h("li.collection", [h(PBDBCollectionLink, { collection: d })]);
+      return h("li.collection", { key: d.cltn_id }, [
+        h(PBDBCollectionLink, { collection: d }),
+      ]);
     }),
     tooMany,
   ]);
@@ -59,8 +61,7 @@ const matchingUnit = (dz) => (d) => d.unit_id == dz.unit_id;
 
 export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
   const data = useFossilData({ col_id: columnID });
-  const units = useMacrostratUnits();
-  const { axisType } = useMacrostratColumnData();
+  const { axisType, units } = useMacrostratColumnData();
 
   const notes: any[] = useMemo(() => {
     if (data == null || units == null) return [];

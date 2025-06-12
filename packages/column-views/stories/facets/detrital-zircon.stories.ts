@@ -13,7 +13,7 @@ import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
 import { useMemo } from "react";
 import { FeatureCollection } from "geojson";
 
-function DetritalZirconColumn(props) {
+function ColumnWithDetritalZirconFacet(props) {
   const { id, children, spectraColor, ...rest } = props;
 
   return h(
@@ -35,7 +35,7 @@ function DetritalZirconColumn(props) {
 export default {
   tags: ["!autodocs"],
   title: "Column views/Facets/Detrital zircons",
-  component: DetritalZirconColumn,
+  component: ColumnWithDetritalZirconFacet,
 };
 
 export const PlateauProvince = {
@@ -101,7 +101,7 @@ export function DetritalZirconCompilation(defaultArgs) {
             style: { fill: "purple" },
           })
         ),
-        h(DetritalZirconColumn, {
+        h(ColumnWithDetritalZirconFacet, {
           id: columnArgs.col_id,
           showLabelColumn: false,
         }),

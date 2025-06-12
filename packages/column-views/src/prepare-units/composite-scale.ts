@@ -297,7 +297,12 @@ export function createCompositeScale(
     let lastAge = null;
     for (const [age1, height] of scaleBreaks) {
       if (age <= age1) {
-        let pixelScale = (height - lastHeight) / (age1 - lastAge);
+        let deltaAge = age1 - lastAge;
+        if (deltaAge === 0) {
+          // If the age is exactly at a scale break, return the height at that break
+          return height;
+        }
+        let pixelScale = (height - lastHeight) / deltaAge;
         return lastHeight + (age - lastAge) * pixelScale;
       }
       lastAge = age1;
