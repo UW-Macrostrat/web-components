@@ -65,6 +65,7 @@ const demoUnits = [
     t_pos: 100,
     b_pos: 0,
     color: "#f0e68c",
+    patternID: "720",
   },
   {
     unit_id: 2,
@@ -72,6 +73,7 @@ const demoUnits = [
     t_pos: 200,
     b_pos: 100,
     color: "#708090",
+    patternID: "620",
   },
 ];
 

@@ -6,23 +6,32 @@ import {
 import { ColorCell, ColorPicker, DataSheet } from "@macrostrat/data-sheet";
 
 export * from "./store";
-import { FlexRow } from "@macrostrat/ui-components";
+import { FlexRow, ToasterContext, useToaster } from "@macrostrat/ui-components";
 import { BasicUnitComponent, Column } from "@macrostrat/column-views";
 import h from "@macrostrat/hyper";
 import { asChromaColor } from "@macrostrat/color-utils";
 import update from "immutability-helper";
+import { Radio, RadioGroup } from "@blueprintjs/core";
 
 export function ColumnCreator({ initialUnits }) {
   return h(
-    ColumnCreatorProvider,
-    { initialState: { units: initialUnits } },
-    h(FlexRow, { gap: "1em" }, [h(ColumnCreatorColumn), h(ColumnCreatorData)])
+    ToasterContext,
+    h(
+      ColumnCreatorProvider,
+      { initialState: { units: initialUnits } },
+      h("div.column-creator-test", [
+        h(FlexRow, { gap: "1em" }, [
+          h(ColumnCreatorColumn),
+          h(ColumnCreatorDataEditor),
+        ]),
+      ])
+    )
   );
 }
 
 function ColumnCreatorColumn() {
   const units = useSelector((state) => state.extUnits);
-  const axisType = useSelector((state) => state.axisType);
+  const axisType = useSelector((state) => state.info.axisType);
 
   return h(Column, {
     units,
@@ -33,17 +42,29 @@ function ColumnCreatorColumn() {
   });
 }
 
-function ColumnCreatorData() {
+function ColumnCreatorDataEditor() {
+  return h("div.column-creator-data-editor", [
+    h(ColumnBasicElementsEditor),
+    h(ColumnCreatorUnitsEditor),
+  ]);
+}
+
+function ColumnCreatorUnitsEditor() {
   const units = useSelector((state) => state.units);
   const store = useColumnCreatorStore();
   const setUnits = useSelector((state) => state.setUnits);
+  const toaster = useToaster();
 
   // Sort units by their bottom position
 
   return h(DataSheet, {
     data: units,
+    onSaveData: (d) => {
+      toaster.show({
+        message: "Saving data is disabled.",
+      });
+    },
     columnSpec: [
-      { name: "Unit Name", key: "unit_name" },
       {
         name: "Bottom",
         key: "b_pos",
@@ -53,6 +74,8 @@ function ColumnCreatorData() {
         name: "Top",
         key: "t_pos",
       },
+      { name: "Unit Name", key: "unit_name" },
+
       {
         name: "Color",
         key: "color",
@@ -65,6 +88,10 @@ function ColumnCreatorData() {
           return color?.name() ?? "";
         },
         cellComponent: ColorCell,
+      },
+      {
+        name: "Pattern",
+        key: "patternID",
       },
     ],
     onUpdateData: (updatedData, data) => {
@@ -83,4 +110,33 @@ function ColumnCreatorData() {
       setUnits(newData);
     },
   });
+}
+
+function ColumnBasicElementsEditor() {
+  const info = useSelector((state) => state.info);
+  const updateInfo = useSelector((state) => state.updateInfo);
+
+  return h("div.column-basic-elements-editor", [
+    h(
+      RadioGroup,
+      {
+        label: "Axis type",
+        inline: true,
+        selectedValue: info.axisType,
+        onChange(evt) {
+          updateInfo({ axisType: { $set: evt.target.value } });
+        },
+      },
+      [
+        h(Radio, {
+          label: "Height",
+          value: "height",
+        }),
+        h(Radio, {
+          label: "Age",
+          value: "age",
+        }),
+      ]
+    ),
+  ]);
 }

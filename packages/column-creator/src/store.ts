@@ -1,25 +1,41 @@
 import { useContext, createContext, useState } from "react";
 import { create, StoreApi, useStore } from "zustand";
 import h from "@macrostrat/hyper";
-import { sort } from "d3-array";
+import { ColumnAxisType } from "@macrostrat/column-components";
+import { Spec } from "immutability-helper";
+import update from "immutability-helper";
+
+interface ColumnBasicInfo {
+  name: string;
+  range: [number, number];
+  axisType?: ColumnAxisType; // Optional, replace 'string' with a more specific type if available
+}
+
+enum EditingContentType {
+  UNITS = "units",
+  SURFACES = "surfaces",
+  INFO = "info",
+}
 
 interface ColumnCreatorState {
   units: any[]; // Replace 'any' with a more specific type if available
   updatedUnits?: any[]; // Optional, replace 'any' with a more specific type if available
   extUnits?: any[]; // Optional, replace 'any' with a more specific type if available
   sections: any[]; // Replace 'any' with a more specific type if available
-  range: [number, number];
-  axisType?: string; // Replace 'string' with a more specific type if available
+  info: ColumnBasicInfo; // Basic information about the column
+  editingContentType?: EditingContentType;
 }
 
 interface ColumnCreatorActions {
   setUnits: (units: any[]) => void; // Replace 'any' with a more specific type if available
+  updateState(spec: Spec<ColumnCreatorState>): void;
+  updateInfo(spec: Spec<ColumnBasicInfo>): void;
 }
 
 type ColumnCreatorStore = ColumnCreatorState & ColumnCreatorActions;
 
 function createColumnStore(initialState: ColumnCreatorState) {
-  return create<ColumnCreatorStore>()((set) => {
+  return create<ColumnCreatorStore>()((set): ColumnCreatorStore => {
     return {
       ...initialState,
       updatedUnits: initialState.units,
@@ -28,12 +44,21 @@ function createColumnStore(initialState: ColumnCreatorState) {
         // Sort units by their bottom position
         const sortedUnits = sortUnits(units);
         const extUnits = extendUnits(sortedUnits);
-        console.log("Extended units:", extUnits);
         set((state) => ({
           ...state,
           updatedUnits: sortedUnits,
           extUnits,
         }));
+      },
+      updateState: (spec) => {
+        set((state) => {
+          return update(state, spec);
+        });
+      },
+      updateInfo: (spec) => {
+        set((state) => {
+          return { ...state, info: update(state.info, spec) };
+        });
       },
     };
   });
@@ -61,7 +86,6 @@ function sortUnits(units: any[]): any[] {
 
   u1.sort((a, b) => a.b_pos - b.b_pos);
 
-  console.log("Sorted units:", u1);
   return u1;
 }
 
@@ -92,8 +116,11 @@ const ColumnCreatorStoreContext =
 const defaultState: ColumnCreatorState = {
   units: [],
   sections: [],
-  range: [0, 100],
-  axisType: "height", // Default value, can be changed
+  info: {
+    name: "New Column",
+    range: [0, 100],
+    axisType: ColumnAxisType.HEIGHT, // Default value
+  },
 };
 
 export function ColumnCreatorProvider({
