@@ -12,16 +12,17 @@ import {
   forceCollide,
 } from "d3-force";
 import { useEffect, useState } from "react";
-import { Spinner } from "@blueprintjs/core";
+import { Spinner, Popover } from "@blueprintjs/core";
 
 export function GraphView(props: {
   tree: TreeData[];
   width: number;
   height: number;
+  dispatch: (action: any) => void;
 }) {
   // A graph view with react-flow
   // Get positions of nodes using force simulation
-  const { tree, width, height } = props;
+  const { tree, width, height, dispatch } = props;
 
   const [nodes, setNodes] = useState<SimulationNodeDatum[]>(null);
   const [links, setLinks] = useState<SimulationLinkDatum[]>(null);
@@ -74,11 +75,24 @@ export function GraphView(props: {
         "g.nodes",
         nodes.map((d) => {
           return h("circle", {
-            cx: d.x,
-            cy: d.y,
-            r: 5,
-            fill: "blue",
-          });
+              cx: d.x,
+              cy: d.y,
+              r: 5,
+              fill: d.color || "blue",
+              onClick: (e) => {
+                e.stopPropagation();
+                console.log("Node clicked:", d);
+                dispatch({
+                  type: "select-node",
+                  payload: { ids: [d.id] },
+                });
+              }
+            },
+            h(
+              "title",
+              d.name || `Node ${d.id}`
+            ) 
+          );
         })
       ),
       h(

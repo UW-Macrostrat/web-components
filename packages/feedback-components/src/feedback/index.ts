@@ -162,6 +162,7 @@ export function FeedbackComponent({
           tree,
           width,
           height,
+          dispatch,
         }),
       ]
     ),
@@ -350,7 +351,6 @@ function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
             description || "No description available"
           ),
           interactionKind: "hover"
-
         }, 
         h('div.type-tag', {
           onClick: () => {

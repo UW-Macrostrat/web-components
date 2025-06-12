@@ -40,8 +40,6 @@ function buildTags(
           active,
         });
 
-    console.log("Tag style", tagStyle.backgroundColor);
-
     tags.push({
       color: tagStyle.backgroundColor,
       tagStyle: {

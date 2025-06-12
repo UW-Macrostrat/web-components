@@ -72,7 +72,6 @@ export function getTagStyle(
     _baseColor.alpha(backgroundAlpha).hex() :
     normalizeColor(_baseColor.alpha(backgroundAlpha).hex()) 
 
-  console.log("Background color:", backgroundColor)
   if(backgroundColor.includes("56cc49")) {
     console.warn("base color", baseColor, "normalized to", backgroundColor);
   }
