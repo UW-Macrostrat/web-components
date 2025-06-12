@@ -1,4 +1,10 @@
-import { createContext, useContext, ReactNode, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useMemo,
+  useEffect,
+} from "react";
 import h from "@macrostrat/hyper";
 import {
   createCompositeScale,
