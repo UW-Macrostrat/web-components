@@ -8,7 +8,13 @@
 .node
   cursor: pointer
 
+circle
+  cursor: pointer
+  border: 1px solid black
 
+.selected
+  border: 1px solid white
+  
 .feedback-text
   margin-bottom: 2em
 
@@ -17,7 +23,6 @@
   max-height: 600px
 
 .control-panel
-  max-width: 15em
   position: absolute
   top: 1em
   right: 1em
@@ -35,9 +40,27 @@
 .selection-tree
   margin: -1em 0
   padding: 1em 0
-  width: 80% !important
-
+  width: 70% !important
+  
 .type-list
-  display: flex
-  flex-direction: column
-  gap: .2em
+  display: grid
+  grid-auto-flow: column
+  grid-template-rows: repeat(10, auto)
+  gap: 0.2em
+  margin-bottom: .5em
+
+  .type-tag
+    padding: .2em .5em
+    border-radius: .2em
+
+.description
+  max-width: 300px
+  padding: .5em
+
+mark
+  border-radius: .2em
+  cursor: pointer
+  color: black !important
+
+[role="treeitem"]
+  width: auto !important

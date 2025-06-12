@@ -6,6 +6,7 @@ import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useCallback } from "react";
+import { Tag } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
@@ -15,6 +16,8 @@ export interface FeedbackTextProps {
   nodes: InternalEntity[];
   updateNodes: (nodes: string[]) => void;
   dispatch: TreeDispatch;
+  lineHeight: string;
+  allowOverlap?: boolean;
 }
 
 function buildTags(
@@ -32,21 +35,19 @@ function buildTags(
 
     const highlighted = isHighlighted(highlight, selectedNodes);
     const active = isActive(highlight, selectedNodes);
-
-    tags.push({
-      markStyle: {
-        ...getTagStyle(highlight.backgroundColor, {
+    const tagStyle = getTagStyle(highlight.backgroundColor, {
           highlighted,
           active,
-        }),
-        borderRadius: "0.2em",
-        padding: "0.1em",
-        borderWidth: "1.5px",
-        cursor: "pointer",
-      },
+        });
+
+    tags.push({
+      color: tagStyle.backgroundColor,
       tagStyle: {
         display: "none",
       },
+      markStyle: {
+          fontWeight: active ? "bold" : "normal",
+        },
       ...highlight,
     });
 
@@ -71,22 +72,21 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch } = props;
+  const { text, selectedNodes, nodes, dispatch, lineHeight, allowOverlap } = props;
   let allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes
   );
 
+  let clicked = false;
+
   const onChange = useCallback(
-    (tags) => {
+    (tags, e) => {
       // New tags
       const newTags = tags.filter((d) => !("id" in d));
       if (newTags.length > 0) {
         const { start, end } = newTags[0];
         let payload = { start, end, text: text.slice(start, end) };
-
-        console.log("Creating new tag", payload);
-        console.log("All tags", allTags);
 
         // check if blank
         if (payload.text === " ") {
@@ -110,15 +110,14 @@ export function FeedbackText(props: FeedbackTextProps) {
           payload.end -= 1;
         }
 
-        // check if inside
-        if (
-          tags.some(
+        const overlap = tags.some(
             (tag) =>
               tag.start <= payload.start &&
               tag.end >= payload.end &&
-              tag.id !== undefined
-          )
-        ) {
+              tag.id !== undefined);
+
+        // check if inside
+        if (overlap && !allowOverlap) {
           console.log("Tag is inside another tag, ignoring");
           return;
         }
@@ -127,28 +126,47 @@ export function FeedbackText(props: FeedbackTextProps) {
         return;
       }
 
-      const tagIDs = new Set(tags.map((d) => d.id));
-      const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
+      // allow nested tags to be clicked
+      if (!clicked) {
+        clicked = true;
 
-      /* Find the id that was removed: that is the one that will be selected
-       (we are hijacking the 'click to delete' functionality to select instead) */
-      if (removedIds.length > 0) {
-        dispatch({
-          type: "toggle-node-selected",
-          payload: { ids: removedIds },
-        });
+        const tagIDs = new Set(tags.map((d) => d.id));
+        const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
+
+        if (removedIds.length > 0) {
+          dispatch({
+            type: "toggle-node-selected",
+            payload: { ids: removedIds },
+          });
+        }
       }
     },
     [allTags, text]
   );
 
-  return h(TextAnnotateBlend, {
-    style: {
-      fontSize: "1.2em",
-    },
-    className: "feedback-text",
-    content: text,
-    onChange,
-    value: allTags,
-  });
+  const value = allTags
+  console.log("FeedbackText value", value);
+
+  return h('div.feedback-text-wrapper', { 
+    tabIndex: 0,
+    onKeyDown: (e) => {
+      if( e.key === "Backspace") {
+        dispatch({
+          type: "delete-node",
+          payload: { ids: selectedNodes },
+        });
+      }
+    }
+  },
+    h(TextAnnotateBlend, {
+      style: {
+        fontSize: "1.2em",
+        lineHeight,
+      },
+      className: "feedback-text",
+      content: text,
+      onChange,
+      value,
+    })
+  );
 }

@@ -5,6 +5,7 @@ import type { Entity, EntityExt, Highlight, EntityType } from "./types";
 import { CSSProperties } from "react";
 import { asChromaColor } from "@macrostrat/color-utils";
 import hyper from "@macrostrat/hyper";
+import { useDarkMode } from "@macrostrat/ui-components";
 
 export type { Entity, EntityExt };
 
@@ -25,7 +26,7 @@ export function buildHighlights(
       start: entity.indices[0],
       end: entity.indices[1],
       text: entity.name,
-      backgroundColor: entity.type?.color ?? "rgb(107, 255, 91)",
+      backgroundColor: entity.type?.color,
       tag: entity.type?.name ?? "lith",
       id: entity.id,
       parents,
@@ -49,7 +50,7 @@ export function getTagStyle(
   baseColor: string,
   options: { highlighted?: boolean; inDarkMode?: boolean; active?: boolean }
 ): CSSProperties {
-  const _baseColor = asChromaColor(baseColor ?? "#ddd");
+  const _baseColor = asChromaColor(baseColor ?? "#fff");
   const { highlighted = true, inDarkMode = false, active = false } = options;
 
   let mixAmount = highlighted ? 0.8 : 0.5;
@@ -62,19 +63,28 @@ export function getTagStyle(
 
   const mixTarget = inDarkMode ? "white" : "black";
 
-  const color = _baseColor.mix(mixTarget, mixAmount).css();
+  const color = _baseColor.mix(mixTarget, mixAmount).hex();
   const borderColor = highlighted
-    ? _baseColor.mix(mixTarget, mixAmount / 2).css()
+    ? _baseColor.mix(mixTarget, mixAmount / 1.1).hex()
     : "transparent";
+
+  const backgroundColor = active ? 
+    _baseColor.alpha(backgroundAlpha).hex() :
+    normalizeColor(_baseColor.alpha(backgroundAlpha).hex()) 
+
+  if(backgroundColor.includes("56cc49")) {
+    console.warn("base color", baseColor, "normalized to", backgroundColor);
+  }
 
   return {
     color,
-    backgroundColor: _baseColor.alpha(backgroundAlpha).css(),
+    backgroundColor,
     boxSizing: "border-box",
     borderStyle: "solid",
     borderColor,
-    borderWidth: "1px",
+    borderWidth: "1.5px",
     fontWeight: active ? "bold" : "normal",
+    fontSize: "0.9em",
   };
 }
 
@@ -90,7 +100,7 @@ function enhanceEntity(
 }
 
 function addColor(entityType: EntityType, match = false) {
-  const color = asChromaColor(entityType.color ?? "#ddd").brighten(
+  const color = asChromaColor(entityType.color ?? "#fff").brighten(
     match ? 1 : 2
   );
 
@@ -149,7 +159,7 @@ export function EntityTag({
     "entity"
   );
 
-  const style = getTagStyle(type?.color ?? "#aaaaaa", { highlighted, active });
+  const style = getTagStyle(type?.color, { highlighted, active });
 
   let _matchLink = null;
   if (match != null && matchComponent != null) {
@@ -217,4 +227,30 @@ function HighlightedText(props: { text: string; highlights: Highlight[] }) {
   }
   parts.push(text.slice(start));
   return h("span", parts);
+}
+
+function normalizeColor(hex8) {
+  const background = useDarkMode().isEnabled ? "#000000" : "#ffffff";
+
+  const r = parseInt(hex8.slice(1, 3), 16);
+  const g = parseInt(hex8.slice(3, 5), 16);
+  const b = parseInt(hex8.slice(5, 7), 16);
+  const a = parseInt(hex8.slice(7, 9), 16) / 255;
+
+  const bgR = parseInt(background.slice(1, 3), 16);
+  const bgG = parseInt(background.slice(3, 5), 16);
+  const bgB = parseInt(background.slice(5, 7), 16);
+
+  const blend = (fg, bg) => Math.round((1 - a) * bg + a * fg);
+
+  const blendedR = blend(r, bgR);
+  const blendedG = blend(g, bgG);
+  const blendedB = blend(b, bgB);
+
+  return (
+    "#" +
+    blendedR.toString(16).padStart(2, "0") +
+    blendedG.toString(16).padStart(2, "0") +
+    blendedB.toString(16).padStart(2, "0")
+  );
 }
