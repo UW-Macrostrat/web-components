@@ -1,10 +1,10 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import h from "@macrostrat/hyper";
-import { createCheckins } from "../src";
+import { CreateCheckins } from "../src";
 
 export default {
   title: "UI components/Create Checkins",
-  component: createCheckins,
+  component: CreateCheckins,
   argTypes: {
     result: {
       control: { type: "array" },
@@ -19,10 +19,10 @@ export default {
       description: "Function to set the position for inspection",
     },
   },
-} as ComponentMeta<typeof createCheckins>;
+} as ComponentMeta<typeof CreateCheckins>;
 
-const Template: ComponentStory<typeof createCheckins> = (args) =>
-  h(createCheckins, args);
+const Template: ComponentStory<typeof CreateCheckins> = (args) =>
+  h(CreateCheckins, args);
 
 const checkinWithImage = {
   "checkin_id": 3570,

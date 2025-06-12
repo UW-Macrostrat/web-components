@@ -64,7 +64,7 @@ interface CheckinProps {
     setInspectPosition?: (position: { lat: number; lng: number }) => void;
 }
 
-export function createCheckins(props: CheckinProps) {
+export function CreateCheckins(props: CheckinProps) {
     const { result, mapRef, setInspectPosition } = props;
     const isDarkMode = useDarkMode().isEnabled;
     let checkins = [];
