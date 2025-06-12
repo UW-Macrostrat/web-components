@@ -2353,6 +2353,7 @@ __metadata:
     react-colorful: "npm:^5.6.1"
     underscore: "npm:^1.13.7"
     zustand: "npm:^5.0.2"
+    zustand-computed: "npm:^2.1.0"
   languageName: unknown
   linkType: soft
 
@@ -13396,6 +13397,16 @@ __metadata:
     react: ^18.2.0
     zustand: ^5.0.0
   checksum: 10c0/bab018fc63507e5dabfe989a0172e232b23546e0114ae98ee7654c7228ff33269849576a875814b85263e709e7ec06189f1b920fa1d1448f5cd867bde9e92d48
+  languageName: node
+  linkType: hard
+
+"zustand-computed@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "zustand-computed@npm:2.1.0"
+  peerDependencies:
+    react: ">=18.2.0 <20.0.0"
+    zustand: ">=5.0.0 <6.0.0"
+  checksum: 10c0/1fdebac9160ab574167e20307154c13d4fa237bec8a1b48c6d777d5cf8740922249e09d502cd4ae8e9227d5bf7171bb8575da5aa7b3a7d315e11e47377139b02
   languageName: node
   linkType: hard
 

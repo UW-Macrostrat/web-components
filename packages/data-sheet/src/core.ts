@@ -149,9 +149,11 @@ function _DataSheet<T>({
     });
   }, [setUpdatedData]);
 
+  const deleteSelectedRows = useSelector((state) => state.deleteSelectedRows);
   const _onDeleteRows = useCallback(() => {
-    onDeleteRows(selection);
-  }, [onDeleteRows, selection]);
+    deleteSelectedRows();
+    onDeleteRows?.(selection);
+  }, [onDeleteRows, selection, deleteSelectedRows]);
 
   useEffect(() => {
     if (!verbose) return;

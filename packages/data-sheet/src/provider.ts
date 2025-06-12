@@ -10,6 +10,7 @@ import { generateColumnSpec } from "./utils";
 import update, { Spec } from "immutability-helper";
 import { range } from "./utils";
 import React from "react";
+import { createComputed } from "zustand-computed";
 
 export interface ColumnSpec {
   name: string;
@@ -47,6 +48,9 @@ export interface DataSheetState<T> {
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
   topLeftCell: FocusedCellCoordinates | null;
+  // Data before deletions and reordering
+  initialData: T[];
+  // Sparse data structure for updated data
   updatedData: T[];
   initialized: boolean;
 }
@@ -58,7 +62,9 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: T[]): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
+  deleteSelectedRows(): void;
   clearSelection(): void;
+  resetChanges(): void;
   initialize(props: DataSheetCoreProps<T>): void;
   onSelection(selection: Region[]): void;
   // Internal method used for infinite scrolling
@@ -98,6 +104,7 @@ export function DataSheetProvider<T>({
     return createStore<DataSheetStore<T>>((set) => {
       return {
         data,
+        initialData: data,
         columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
         editable,
         selection: [],
@@ -120,6 +127,30 @@ export function DataSheetProvider<T>({
               return { updatedData: data(state.updatedData) };
             });
           }
+        },
+        deleteSelectedRows() {
+          // Remove selected rows from the data and updatedData arrays
+          set((state) => {
+            const { selection, updatedData, initialData } = state;
+            const rowIndices = getRowIndices(selection);
+
+            // Delete rows from both updatedData and data
+            const newUpdatedData = updatedData.filter(
+              (_, index) => !rowIndices.includes(index)
+            );
+            const newData = initialData.filter(
+              (_, index) => !rowIndices.includes(index)
+            );
+            // Remove selected rows and reset selection
+            return {
+              updatedData: newUpdatedData,
+              data: newData,
+              selection: [],
+              focusedCell: null,
+              topLeftCell: null,
+              fillValueBaseCell: null,
+            };
+          });
         },
         setVisibleCells(visibleCells: VisibleCells) {
           // Visible cells are used for infinite scrolling
@@ -239,6 +270,20 @@ function updateSelection<T>(selection: Region[]) {
     spec.fillValueBaseCell = null;
   }
   return spec;
+}
+
+function getRowIndices(regions: Region[]): number[] {
+  /** Get the row indices from a selection of regions */
+  if (regions == null || regions.length === 0) return [];
+  const rowIndices = new Set<number>();
+  for (const region of regions) {
+    const { rows } = region;
+    if (rows == null || rows.length !== 2) continue;
+    for (let i = rows[0]; i <= rows[1]; i++) {
+      rowIndices.add(i);
+    }
+  }
+  return Array.from(rowIndices).sort((a, b) => a - b);
 }
 
 export function topLeftCell(
