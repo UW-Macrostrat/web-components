@@ -14,7 +14,7 @@ concurrency:
 
 on:
   push:
-    branches: [main, build-website-workflow]
+    branches: [main]
 
 jobs:
   test:
@@ -61,12 +61,6 @@ jobs:
             --s3-endpoint="$S3_ENDPOINT" \
             --s3-access-key-id="$S3_ACCESS_KEY" \
             --s3-secret-access-key="$S3_SECRET_KEY"
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: './storybook/storybook-static'
 
       - name: Deploy to GitHub Pages
         id: deployment
