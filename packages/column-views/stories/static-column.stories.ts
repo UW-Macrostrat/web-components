@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 
 import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { Column, preprocessUnits } from "../src";
+import { Column } from "../src";
 import res from "./data/black-mesa-basin-490.json";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -15,7 +15,8 @@ export default {
 const Template: ComponentStory<typeof Column> = (args) =>
   h(Column, { ...args });
 
-export function BlackMesaBasin(props: PubFinderI) {
-  const units = preprocessUnits(res.success.data);
-  return h("div", [h("h2", "Black Mesa Basin"), h(Column, { data: units })]);
+export function BlackMesaBasin() {
+  const units = res.success.data;
+  console.log("Units:", units);
+  return h("div", [h("h2", "Black Mesa Basin"), h(Column, { units })]);
 }

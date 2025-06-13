@@ -1,4 +1,10 @@
-import { createContext, useContext, ReactNode, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useMemo,
+  useEffect,
+} from "react";
 import h from "@macrostrat/hyper";
 import {
   createCompositeScale,
@@ -63,12 +69,7 @@ export function useMacrostratUnits() {
 }
 
 export function useCompositeScale(): CompositeColumnScale {
-  const ctx = useContext(MacrostratColumnDataContext);
-  if (!ctx) {
-    throw new Error(
-      "useCompositeScale must be used within a MacrostratUnitsProvider"
-    );
-  }
+  const ctx = useMacrostratColumnData();
   return useMemo(
     () => createCompositeScale(ctx.sections, true),
     [ctx.sections]

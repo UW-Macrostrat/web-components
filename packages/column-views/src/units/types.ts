@@ -5,6 +5,8 @@ export interface IUnit {
   t_age: number;
   b_age: number;
   [x: string]: any;
+  patternID?: string | number;
+  color?: string;
 }
 
 export interface RectBounds {
