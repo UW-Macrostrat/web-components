@@ -63,3 +63,15 @@ class ConfinedImage extends Component<ConfinedImageProps, ConfinedImageState> {
 }
 
 export { ConfinedImage };
+
+export function MacrostratImage({ src, className, width, height }) {
+  const srcWithAddedPrefix =
+    "https://storage.macrostrat.org/assets/web/" + src;
+  return h("img", { src: srcWithAddedPrefix, className, width, height });
+}
+
+export function RockdImage({ src, className, width, height }) {
+  const srcWithAddedPrefix =
+    "https://storage.macrostrat.org/assets/rockd/" + src;
+  return h("img", { src: srcWithAddedPrefix, className, width, height });
+}

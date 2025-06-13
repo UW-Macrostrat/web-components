@@ -21,8 +21,9 @@ function IntervalBox(props: {
   interval: Interval;
   showLabel?: boolean;
   intervalStyle: IntervalStyleBuilder;
+  onClick: (e: Event, interval: Interval) => void;
 }) {
-  const { interval, showLabel = true, intervalStyle } = props;
+  const { interval, showLabel = true, intervalStyle, onClick } = props;
 
   const [labelText, setLabelText] = useState<string>(interval.nam);
 
@@ -52,15 +53,16 @@ function IntervalBox(props: {
         setLabelText(labelText[0]);
       }
     },
+    onClick: (e) => onClick(e, interval),
   });
 }
 
-function IntervalChildren({ children, intervalStyle }) {
+function IntervalChildren({ children, intervalStyle, onClick }) {
   if (children == null || children.length == 0) return null;
   return h(
     "div.children",
     children.map((d) => {
-      return h(TimescaleBoxes, { interval: d, intervalStyle });
+      return h(TimescaleBoxes, { interval: d, intervalStyle, onClick });
     })
   );
 }
@@ -72,8 +74,9 @@ function ensureIncreasingAgeRange(ageRange) {
 function TimescaleBoxes(props: {
   interval: NestedInterval;
   intervalStyle: IntervalStyleBuilder;
+  onClick: (e: Event, interval: Interval) => void;
 }) {
-  const { interval, intervalStyle } = props;
+  const { interval, intervalStyle, onClick } = props;
   const { scale, orientation, levels, ageRange } = useTimescale();
   const { eag, lag, lvl } = interval;
 
@@ -108,8 +111,8 @@ function TimescaleBoxes(props: {
   const className = slugify(name);
 
   return h("div.interval", { className, style }, [
-    h.if(lvl >= minLevel)(IntervalBox, { interval, intervalStyle }),
-    h.if(lvl < maxLevel)(IntervalChildren, { children, intervalStyle }),
+    h.if(lvl >= minLevel)(IntervalBox, { interval, intervalStyle, onClick }),
+    h.if(lvl < maxLevel)(IntervalChildren, { children, intervalStyle, onClick }),
   ]);
 }
 

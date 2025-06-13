@@ -8,7 +8,7 @@ import classNames from "classnames";
 import { useMemo } from "react";
 import h from "./hyper";
 
-type ClickHandler = (event: Event, age: number) => void;
+type ClickHandler = (event: Event, interval: any) => void;
 
 export enum IncreaseDirection {
   UP_RIGHT = "up-right",
@@ -75,7 +75,7 @@ function Timescale(props: TimescaleProps) {
     axisProps = {},
     cursorPosition,
     cursorComponent = Cursor,
-    onClick = () => {},
+    onClick = null,
     intervalStyle,
     increaseDirection = IncreaseDirection.DOWN_LEFT,
   } = props;
@@ -85,7 +85,7 @@ function Timescale(props: TimescaleProps) {
     [rootInterval, intervals]
   );
 
-  const className = classNames(orientation, "increase-" + increaseDirection);
+  const className = classNames(orientation, "increase-" + increaseDirection, onClick ? "clickable" : null);
   const length = absoluteAgeScale ? l ?? 6000 : null;
 
   let ageRange2 = null;
@@ -114,8 +114,8 @@ function Timescale(props: TimescaleProps) {
       orientation,
       levels,
     },
-    h(TimescaleContainer, { className, onClick }, [
-      h(TimescaleBoxes, { interval: timescale, intervalStyle }),
+    h(TimescaleContainer, { className }, [
+      h(TimescaleBoxes, { interval: timescale, intervalStyle, onClick }),
       h.if(showAgeAxis)(AgeAxis, axisProps),
       h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
     ])

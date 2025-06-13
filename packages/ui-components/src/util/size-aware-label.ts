@@ -20,6 +20,7 @@ export type SizeAwareLabelProps = React.HTMLProps<"div"> &
     label: React.ReactNode;
     labelClassName: string;
     isShown?: boolean;
+    onClick?: (evt: MouseEvent) => void;
     onVisibilityChanged?(
       fits: boolean,
       containerSize: ElementSize,
@@ -43,6 +44,7 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
     onVisibilityChanged,
     className,
     labelClassName,
+    onClick,
     ...rest
   } = props;
   const containerRef = useRef<HTMLElement>();
@@ -67,7 +69,7 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
 
   return h(
     "div.label-container",
-    { ...rest, className, ref: containerRef },
+    { ...rest, className, ref: containerRef, onClick },
     h(
       "span.label",
       {
