@@ -91,6 +91,7 @@ export function InfiniteScroll(props) {
   const { ref, inView } = useInView({
     rootMargin: `0px 0px ${offset}px 0px`,
     trackVisibility: true,
+    delay: 100,
   });
 
   const shouldLoadMore = hasMore && inView;

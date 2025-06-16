@@ -1,0 +1,35 @@
+import { ComponentStory, ComponentMeta } from "@storybook/react";
+import h from "@macrostrat/hyper";
+import { InfiniteScrollView } from "../src/infinite-scroll";
+
+// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
+export default {
+  title: "UI components/Infinite scroll",
+  component: InfiniteScrollView,
+  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
+  argTypes: {},
+} as ComponentMeta<typeof InfiniteScrollView>;
+
+// More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
+const Template: ComponentStory<typeof InfiniteScrollView> = (args) =>
+  h(InfiniteScrollView, args);
+
+export const Primary = Template.bind({});
+// More on args: https://storybook.js.org/docs/react/writing-stories/args
+Primary.args = {
+  params: {
+    combined_id: "gt.0",
+    limit: 10,
+    order: "combined_id.asc",
+  },
+  route: "https://dev.macrostrat.org/api/pg/strat_combined",
+  getNextParams
+};
+
+function getNextParams(response, params) {
+  console.log("getNextParams", response, params);
+  return {
+    ...params,
+    combined_id: "gt." + response[response.length - 1].combined_id,
+  };
+}
