@@ -29,9 +29,7 @@ export function LoadMoreTrigger(props: LoadMoreTriggerProps) {
     const observer = new IntersectionObserver(([entry]) => {
       if (entry.isIntersecting) {
         if (data.length > 0) {
-            console.log("Loading more data...");
             const id = data[data.length - 1]?.[idKey];
-
             setLastID(id);
         }
       }
