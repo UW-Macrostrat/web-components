@@ -46,7 +46,6 @@ function buildTags(
         display: "none",
       },
       markStyle: {
-          fontWeight: active ? "bold" : "normal",
           backgroundColor: tagStyle.backgroundColor,
         },
       ...highlight,
@@ -205,37 +204,13 @@ export function HighlightedText(props: {
   const selectedTag = allTags.find(tag => selectedNodes?.includes(tag.id));
   const claimedRanges: Array<[number, number]> = [];
 
-  function subtractOverlaps(start: number, end: number): Array<[number, number]> {
-  let ranges: Array<[number, number]> = [[start, end]];
-
-  for (const [cStart, cEnd] of claimedRanges) {
-    // Fully nested tag is allowed (e.g. [cStart=0, cEnd=10] and [start=2, end=5])
-    if (start >= cStart && end <= cEnd) {
-      return [[start, end]];
-    }
-
-    const newRanges: typeof ranges = [];
-
-    for (const [rStart, rEnd] of ranges) {
-      // Disjoint – keep as is
-      if (cEnd <= rStart || cStart >= rEnd) {
-        newRanges.push([rStart, rEnd]);
-      } else {
-        // Partially overlapping – subtract
-        if (rStart < cStart) newRanges.push([rStart, cStart]);
-        if (rEnd > cEnd) newRanges.push([cEnd, rEnd]);
-      }
-    }
-
-    ranges = newRanges;
-    if (ranges.length === 0) break;
-  }
-
-  return ranges;
-}
-
-
   for (const tag of sortedTags) {
+    const found = tag.text === "Gowganda Formation"
+
+    if (found) {
+      console.log("Found tag:", tag);
+    }
+
     // Skip inner tags if bigger tag is selected — keep as is
     if (
       selectedTag &&
@@ -278,13 +253,20 @@ export function HighlightedText(props: {
       rangesToRender = [[tagStart, tagEnd]];
     }
 
+    if(found) {
+      console.log("Ranges to render for tag:", tag, rangesToRender);
+    }
+
     for (const [s, e] of rangesToRender) {
       if (start < s) {
         parts.push(text.slice(start, s));
       }
+      
+      
+      const index = parts.indexOf(tag.text);
 
-      parts.push(
-        h(
+      if(index !== -1) {
+          parts[index] = h(
           "span.highlight",
           {
             style: {
@@ -301,7 +283,28 @@ export function HighlightedText(props: {
           },
           text.slice(s, e)
         )
-      );
+      } else {
+        // If the tag is not found in parts, create a new highlight span
+        parts.push(
+          h(
+            "span.highlight",
+            {
+              style: {
+                ...rest,
+                position: "relative",
+                zIndex: 10,
+              },
+              onClick: () => {
+                dispatch({
+                  type: "toggle-node-selected",
+                  payload: { ids: [tag.id] },
+                });
+              },
+            },
+            text.slice(s, e)
+          )
+        );
+      }
 
       claimedRanges.push([s, e]);
       start = e;
