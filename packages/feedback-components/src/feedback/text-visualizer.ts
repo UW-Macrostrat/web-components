@@ -158,7 +158,8 @@ export function FeedbackText(props: FeedbackTextProps) {
       }
     }
   },
-    h(TextAnnotateBlend, {
+  /*
+  h(TextAnnotateBlend, {
       style: {
         fontSize: "1.2em",
         lineHeight,
@@ -168,5 +169,58 @@ export function FeedbackText(props: FeedbackTextProps) {
       onChange,
       value,
     })
+  */
+  h(HighlightedText, {
+      text,
+      allTags,
+      lineHeight,
+      dispatch,
+    }), 
+  );
+}
+
+function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lineHeight?: string, dispatch: any }) {
+  const { text, allTags = [], lineHeight, dispatch } = props;
+  const parts = [];
+  let start = 0;
+
+  const sortedHighlights = allTags.sort((a, b) => a.start - b.start);
+  const deconflictedHighlights = sortedHighlights.map((highlight, i) => {
+    if (i === 0) return highlight;
+    const prev = sortedHighlights[i - 1];
+    if (highlight.start < prev.end) {
+      highlight.start = prev.end;
+    }
+    return highlight;
+  });
+
+  for (const highlight of deconflictedHighlights) {
+    const { start: s, end, ...rest } = highlight;
+    parts.push(text.slice(start, s));
+    parts.push(
+      h(
+        "span.highlight", 
+        { 
+          style: rest,
+          onClick: () => {
+            dispatch({
+              type: "toggle-node-selected",
+              payload: { ids: [highlight.id] },
+            });
+          }
+        }, 
+        text.slice(s, end))
+    );
+    start = end;
+  }
+  parts.push(text.slice(start));
+  return h(
+    "span",
+    {
+      style: {
+        lineHeight, // Adjust as needed
+      }
+    },
+    parts
   );
 }
