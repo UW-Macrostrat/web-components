@@ -18,6 +18,10 @@ export default {
       control: { type: "function" },
       description: "Function to set the position for inspection",
     },
+    rockdAPIUrl: {
+      control: { type: "text" },
+      description: "Base URL for the Rockd API",
+    },
   },
 } as ComponentMeta<typeof CreateCheckins>;
 
@@ -301,6 +305,7 @@ WithImage.args = {
   ],
   mapRef: null,
   setInspectPosition: () => {},
+  rockdAPIUrl: "https://dev.rockd.org/api/v2",
 };
 
 export const WithoutImage = Template.bind({});
@@ -310,6 +315,7 @@ WithoutImage.args = {
   ],
   mapRef: null,
   setInspectPosition: () => {},
+  rockdAPIUrl: "https://dev.rockd.org/api/v2",
 };
 
 export const Multiple = Template.bind({});
@@ -320,4 +326,5 @@ Multiple.args = {
   ],
   mapRef: null,
   setInspectPosition: () => {},
+  rockdAPIUrl: "https://dev.rockd.org/api/v2",
 };

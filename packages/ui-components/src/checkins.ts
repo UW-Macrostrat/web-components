@@ -7,19 +7,16 @@ import mapboxgl from "mapbox-gl";
 
 const h = hyper.styled(styles);
 
-const rockdApiURL = "https://dev.rockd.org/api/v2";
-
 function BlankImage({ src, className, width, height, onClick, onError, alt }) {
-    console.log(src)
     return h("img", {src: src, className, width, height, onClick, onError, alt})
 }
 
-function getImageUrl(person_id, photo_id) {
-    return rockdApiURL + "/protected/image/" + person_id + "/thumb_large/" + photo_id;
+function getImageUrl(person_id, photo_id, rockdAPIUrl) {
+    return rockdAPIUrl + "/protected/image/" + person_id + "/thumb_large/" + photo_id;
 }
 
-function getProfilePicUrl(person_id) {
-    return rockdApiURL + "/protected/gravatar/" + person_id;
+function getProfilePicUrl(person_id, rockdAPIUrl) {
+    return rockdAPIUrl + "/protected/gravatar/" + person_id;
 }
 
 interface CheckinProps {
@@ -62,10 +59,11 @@ interface CheckinProps {
     }>,
     mapRef?: React.RefObject<mapboxgl.Map>;
     setInspectPosition?: (position: { lat: number; lng: number }) => void;
+    rockdAPIUrl: string;
 }
 
 export function CreateCheckins(props: CheckinProps) {
-    const { result, mapRef, setInspectPosition } = props;
+    const { result, mapRef, setInspectPosition, rockdAPIUrl } = props;
     const isDarkMode = useDarkMode().isEnabled;
     let checkins = [];
     const map = mapRef?.current;
@@ -84,7 +82,7 @@ export function CreateCheckins(props: CheckinProps) {
         }
         
         let image;
-        const imgSrc = getImageUrl(checkin.person_id, checkin.photo);
+        const imgSrc = getImageUrl(checkin.person_id, checkin.photo, rockdAPIUrl);
         const showImage = checkin.photo
 
         if (showImage) {
@@ -134,7 +132,7 @@ export function CreateCheckins(props: CheckinProps) {
             }, [
             h('h1', {className: 'stop-name'}, stop_name),
             h('div', {className: 'checkin-header'}, [
-                !stop_name ? h('h3', {className: 'profile-pic'}, h(BlankImage, {src: getProfilePicUrl(checkin.person_id), className: "profile-pic"})) : null,
+                !stop_name ? h('h3', {className: 'profile-pic'}, h(BlankImage, {src: getProfilePicUrl(checkin.person_id, rockdAPIUrl), className: "profile-pic"})) : null,
                 h('div', {className: 'checkin-info'}, [
                     !stop_name ? h('h3', {className: 'name'}, checkin.first_name + " " + checkin.last_name) : null,
                     h('h4', {className: 'edited'}, checkin.created),
