@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
+import { createComputed } from "zustand-computed";
 import type {
   FocusedCellCoordinates,
   Region,
@@ -10,6 +11,7 @@ import { generateColumnSpec } from "./utils";
 import update, { Spec } from "immutability-helper";
 import { range } from "./utils";
 import React from "react";
+import { ensureElement } from "@blueprintjs/core/lib/esnext/common/utils";
 
 export interface ColumnSpec {
   name: string;
@@ -26,9 +28,9 @@ export interface ColumnSpec {
   style?: React.CSSProperties;
 }
 
-export interface ColumnSpecOptions {
+export interface ColumnSpecOptions<T> {
   overrides: Record<string, Partial<ColumnSpec> | string>;
-  data?: any[]; // Data to use for type inference
+  data?: T[]; // Data to use for type inference
   nRows?: number; // Number of rows to use for type inference
   omitColumns?: string[]; // Columns to omit. Takes precedence over includeColumns.
   includeColumns?: string[]; // Columns to include.
@@ -47,8 +49,15 @@ export interface DataSheetState<T> {
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
   topLeftCell: FocusedCellCoordinates | null;
+  // Data before deletions and reordering
+  initialData: T[];
+  // Sparse data structure for updated data
   updatedData: T[];
   initialized: boolean;
+}
+
+export interface DataSheetComputedStore {
+  hasUpdates: boolean;
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
@@ -58,7 +67,10 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: T[]): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
+  deleteSelectedRows(): void;
   clearSelection(): void;
+  resetChanges(): void;
+  addRow(): void;
   initialize(props: DataSheetCoreProps<T>): void;
   onSelection(selection: Region[]): void;
   // Internal method used for infinite scrolling
@@ -69,7 +81,7 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
 
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
   children: React.ReactNode;
-  columnSpecOptions?: ColumnSpecOptions;
+  columnSpecOptions?: ColumnSpecOptions<T>;
 };
 
 const DataSheetContext = createContext<StoreApi<DataSheetStore<any>>>(null);
@@ -78,6 +90,13 @@ export interface VisibleCells {
   rowIndexStart: number;
   rowIndexEnd: number;
 }
+
+const computed = createComputed(
+  (state: DataSheetStore<any>): DataSheetComputedStore => ({
+    hasUpdates:
+      state.updatedData.length > 0 || state.initialData !== state.data,
+  })
+) as any;
 
 export function DataSheetProvider<T>({
   children,
@@ -95,108 +114,190 @@ export function DataSheetProvider<T>({
   const tableRef = useRef<Table2>(null);
 
   const [store] = useState(() => {
-    return createStore<DataSheetStore<T>>((set) => {
-      return {
-        data,
-        columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
-        editable,
-        selection: [],
-        fillValueBaseCell: null,
-        updatedData: [],
-        focusedCell: null,
-        topLeftCell: null,
-        initialized: false,
-        tableRef,
-        // This is a placeholder
-        enableColumnReordering: false,
-        setSelection(selection: Region[]) {
-          set(updateSelection(selection));
-        },
-        setUpdatedData(data: T[] | ((state: T[]) => T[])) {
-          if (Array.isArray(data)) {
-            set({ updatedData: data });
-          } else {
+    return createStore<DataSheetStore<T>>(
+      computed((set): DataSheetStore<T> => {
+        return {
+          data,
+          initialData: data,
+          columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
+          editable,
+          selection: [],
+          fillValueBaseCell: null,
+          updatedData: [],
+          focusedCell: null,
+          topLeftCell: null,
+          initialized: false,
+          tableRef,
+          // This is a placeholder
+          enableColumnReordering: false,
+          setSelection(selection: Region[]) {
+            set(updateSelection(selection));
+          },
+          addRow(row: Partial<T> = {} as T) {
+            /** Add a new row. If there is a selection, use the last row index to determine
+             * where to insert the new row. Otherwise, append to the end of the data. */
             set((state) => {
-              return { updatedData: data(state.updatedData) };
+              const { updatedData, data, selection } = state;
+              const lastRowIndex =
+                getLastRowIndex(selection) ??
+                Math.max(data.length, updatedData.length) - 1;
+              // If there is a selection, insert the new row after the last selected row
+              const spec: Spec<any> = {
+                $splice: [[lastRowIndex + 1, 0, row]],
+              };
+              console.log(spec);
+
+              return {
+                updatedData: update(updatedData, spec),
+                data: update(data, spec),
+              };
             });
-          }
-        },
-        setVisibleCells(visibleCells: VisibleCells) {
-          // Visible cells are used for infinite scrolling
-          // Right now we don't store this in the state
-          visibleCellsRef.current = visibleCells;
-        },
-        onDragValue(cell: FocusedCellCoordinates | null) {
-          set({ fillValueBaseCell: cell });
-        },
-        onCellEdited(rowIndex: number, columnName: string, value: any) {
-          set((state) => {
-            const { editable, updatedData, data } = state;
-            if (!editable) return {};
-            let rowSpec: any;
-            // Check to see if the new value is the same as the old one
-            if (value !== data[rowIndex]?.[columnName]) {
-              const rowOp = updatedData[rowIndex] != null ? "$merge" : "$set";
-              rowSpec = { [rowOp]: { [columnName]: value } };
+          },
+          setUpdatedData(data: T[] | ((state: T[]) => T[])) {
+            if (Array.isArray(data)) {
+              set({ updatedData: data });
             } else {
-              rowSpec = { $unset: [columnName] };
+              set((state) => {
+                return { updatedData: data(state.updatedData) };
+              });
             }
-            const spec: Spec<T[]> = { [rowIndex]: rowSpec };
-            return { updatedData: update(updatedData, spec) };
-          });
-        },
-        initialize(props: DataSheetCoreProps<T>) {
-          set({ ...props, initialized: true });
-        },
-        clearSelection() {
-          set((state) => {
-            // Delete all selected cells
-            const { selection, updatedData, columnSpec } = state;
-            let spec = {};
-            for (const region of selection) {
-              const { cols, rows } = region;
-              for (const row of range(rows)) {
-                let vals = {};
-                for (const col of range(cols)) {
-                  const key = columnSpec[col].key;
-                  vals[key] = "";
-                }
-                let op = updatedData[row] == null ? "$set" : "$merge";
-                spec[row] = { [op]: vals };
+          },
+          deleteSelectedRows() {
+            // Remove selected rows from the data and updatedData arrays
+            set((state) => {
+              const { selection, updatedData, initialData } = state;
+              const rowIndices = getRowIndices(selection);
+
+              // Delete rows from both updatedData and data
+              const newUpdatedData = updatedData.filter(
+                (_, index) => !rowIndices.includes(index)
+              );
+              const newData = initialData.filter(
+                (_, index) => !rowIndices.includes(index)
+              );
+              // Remove selected rows and reset selection
+              return {
+                updatedData: newUpdatedData,
+                data: newData,
+                selection: [],
+                focusedCell: null,
+                topLeftCell: null,
+                fillValueBaseCell: null,
+              };
+            });
+          },
+          resetChanges() {
+            // Reset the updated data to the initial data
+            set((state) => ({
+              updatedData: [],
+              data: state.initialData,
+              selection: [],
+              focusedCell: null,
+              topLeftCell: null,
+              fillValueBaseCell: null,
+            }));
+          },
+          setVisibleCells(visibleCells: VisibleCells) {
+            // Visible cells are used for infinite scrolling
+            // Right now we don't store this in the state
+            visibleCellsRef.current = visibleCells;
+          },
+          onDragValue(cell: FocusedCellCoordinates | null) {
+            set({ fillValueBaseCell: cell });
+          },
+          onCellEdited(rowIndex: number, columnName: string, value: any) {
+            set((state) => {
+              const { editable, updatedData, data } = state;
+              if (!editable) return {};
+              let rowSpec: any;
+              // Check to see if the new value is the same as the old one
+              if (value !== data[rowIndex]?.[columnName]) {
+                const rowOp = updatedData[rowIndex] != null ? "$merge" : "$set";
+                rowSpec = { [rowOp]: { [columnName]: value } };
+              } else {
+                rowSpec = { $unset: [columnName] };
               }
-            }
-            return {
-              updatedData: update(updatedData, spec),
-            };
-          });
-        },
-        onSelection(selection: Region[]) {
-          set((state) => {
-            let spec = updateSelection(selection);
-            if (state.fillValueBaseCell != null) {
-              spec.updatedData = fillValues(state, selection);
-            }
-            return spec;
-          });
-        },
-        onColumnsReordered(oldIndex: number, newIndex: number, length: number) {
-          set((state) => {
-            if (!state.enableColumnReordering) return {};
-            const { columnSpec } = state;
-            const newSpec = [...columnSpec];
-            const removed = newSpec.splice(oldIndex, length);
-            newSpec.splice(newIndex, 0, ...removed);
-            return { columnSpec: newSpec };
-          });
-        },
-        scrollToRow(rowIndex: number, columnIndex: number) {
-          if (tableRef.current == null) return;
-          tableRef.current.scrollToRegion({
-            rows: [rowIndex, rowIndex],
-          });
-        },
-      };
-    });
+              const spec: Spec<T[]> = { [rowIndex]: rowSpec };
+              return { updatedData: update(updatedData, spec) };
+            });
+          },
+          initialize(props: DataSheetCoreProps<T>) {
+            set({ ...props, initialData: props.data, initialized: true });
+          },
+          clearSelection() {
+            set((state) => {
+              // Delete all selected cells
+              const { selection, updatedData, columnSpec, data } = state;
+              let spec = {};
+              for (const region of selection) {
+                const { cols, rows } = region;
+                const rowRange = range(rows ?? [0, updatedData.length - 1]);
+                const colRange = range(cols ?? [0, columnSpec.length - 1]);
+                for (const row of rowRange) {
+                  let vals = {};
+                  for (const col of colRange) {
+                    const key = columnSpec[col].key;
+                    const currentValue =
+                      updatedData[row]?.[key] ?? data[row]?.[key];
+                    if (currentValue != null && currentValue !== "") {
+                      vals[key] = "";
+                    }
+                  }
+                  let op = updatedData[row] == null ? "$set" : "$merge";
+                  spec[row] = { [op]: vals };
+                }
+              }
+              return {
+                updatedData: update(updatedData, spec),
+              };
+            });
+          },
+          onSelection(selection: Region[]) {
+            set((state) => {
+              if (
+                selectionEquals(selection, state.selection) &&
+                singleFocusedCell(selection) == null // Only if we're in a multi-cell selection mode
+              ) {
+                // If the selection is the same as the current selection, remove the selection.
+                // In practice this only happens for whole-row and whole-column selections
+                return {
+                  selection: [],
+                  focusedCell: null,
+                  topLeftCell: null,
+                  fillValueBaseCell: null,
+                };
+              }
+
+              let spec = updateSelection(selection);
+              if (state.fillValueBaseCell != null) {
+                spec.updatedData = fillValues(state, selection);
+              }
+              return spec;
+            });
+          },
+          onColumnsReordered(
+            oldIndex: number,
+            newIndex: number,
+            length: number
+          ) {
+            set((state) => {
+              if (!state.enableColumnReordering) return {};
+              const { columnSpec } = state;
+              const newSpec = [...columnSpec];
+              const removed = newSpec.splice(oldIndex, length);
+              newSpec.splice(newIndex, 0, ...removed);
+              return { columnSpec: newSpec };
+            });
+          },
+          scrollToRow(rowIndex: number, columnIndex: number) {
+            if (tableRef.current == null) return;
+            tableRef.current.scrollToRegion({
+              rows: [rowIndex, rowIndex],
+            });
+          },
+        };
+      })
+    );
   });
 
   // Not sure how required this initialization is
@@ -222,7 +323,7 @@ export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
 }
 
 export function useSelector<T = any, A = any>(
-  selector: (state: DataSheetStore<T>) => A
+  selector: (state: DataSheetStore<T> & DataSheetComputedStore) => A
 ): A {
   const store = useStoreAPI<T>();
   return useStore(store, selector);
@@ -241,6 +342,36 @@ function updateSelection<T>(selection: Region[]) {
   return spec;
 }
 
+function getLastRowIndex(regions: Region[]): number | null {
+  /** Get the last row index from a selection of regions */
+  if (regions == null || regions.length === 0) return null;
+  let lastRow = -1;
+  for (const region of regions) {
+    const { rows } = region;
+    if (rows == null || rows.length !== 2) continue;
+    lastRow = Math.max(lastRow, rows[1]);
+  }
+  if (lastRow < 0) {
+    /** If no valid rows are found, return null */
+    return null;
+  }
+  return lastRow;
+}
+
+function getRowIndices(regions: Region[]): number[] {
+  /** Get the row indices from a selection of regions */
+  if (regions == null || regions.length === 0) return [];
+  const rowIndices = new Set<number>();
+  for (const region of regions) {
+    const { rows } = region;
+    if (rows == null || rows.length !== 2) continue;
+    for (let i = rows[0]; i <= rows[1]; i++) {
+      rowIndices.add(i);
+    }
+  }
+  return Array.from(rowIndices).sort((a, b) => a - b);
+}
+
 export function topLeftCell(
   regions: Region[],
   requireSolitaryCell: boolean = false
@@ -254,6 +385,33 @@ export function topLeftCell(
   if (requireSolitaryCell && (cols[0] !== cols[1] || rows[0] !== rows[1]))
     return null;
   return { col: cols[0], row: rows[0], focusSelectionIndex: 0 };
+}
+
+function selectionEquals(a: Region[], b: Region[]): boolean {
+  /** Check if two selections are equal */
+  if (a.length !== b.length) return false;
+  for (let i = 0; i < a.length; i++) {
+    const regionA = a[i];
+    const regionB = b[i];
+
+    const colsA = regionA.cols ?? [];
+    const colsB = regionB.cols ?? [];
+
+    const rowsA = regionA.rows ?? [];
+    const rowsB = regionB.rows ?? [];
+
+    if (
+      colsA.length !== colsB.length ||
+      rowsA.length !== rowsB.length ||
+      colsA[0] !== colsB[0] ||
+      colsA[1] !== colsB[1] ||
+      rowsA[0] !== rowsB[0] ||
+      rowsA[1] !== rowsB[1]
+    ) {
+      return false;
+    }
+  }
+  return true;
 }
 
 function singleFocusedCell(sel: Region[]): FocusedCellCoordinates | null {

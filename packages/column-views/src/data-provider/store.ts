@@ -1,8 +1,15 @@
-import { createContext, useContext, ReactNode, useMemo } from "react";
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useMemo,
+  useEffect,
+} from "react";
 import h from "@macrostrat/hyper";
 import {
   createCompositeScale,
   PackageLayoutData,
+  CompositeColumnScale,
 } from "../prepare-units/composite-scale";
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -61,13 +68,8 @@ export function useMacrostratUnits() {
   return useMacrostratColumnData().units;
 }
 
-export function useCompositeScale() {
-  const ctx = useContext(MacrostratColumnDataContext);
-  if (!ctx) {
-    throw new Error(
-      "useCompositeScale must be used within a MacrostratUnitsProvider"
-    );
-  }
+export function useCompositeScale(): CompositeColumnScale {
+  const ctx = useMacrostratColumnData();
   return useMemo(
     () => createCompositeScale(ctx.sections, true),
     [ctx.sections]

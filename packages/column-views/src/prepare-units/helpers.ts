@@ -74,10 +74,12 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
     }
   }
 
-  if (axisType != ColumnAxisType.AGE) {
-    return preprocessSectionUnits(divisions, axisType);
-  }
-
+  // TODO: we may want to re-enable this simpler processing for sections,
+  // but we want it to be less universally applied.
+  // if (axisType != ColumnAxisType.AGE) {
+  //   return preprocessSectionUnits(divisions, axisType);
+  // }
+  //
   return divisions;
 }
 

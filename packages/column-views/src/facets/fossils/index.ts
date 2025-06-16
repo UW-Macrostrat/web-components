@@ -1,15 +1,12 @@
-import {
-  getUnitHeightRange,
-  IUnit,
-  useMacrostratColumnData,
-} from "@macrostrat/column-views";
+import { getUnitHeightRange } from "../../prepare-units";
+import { useMacrostratColumnData } from "../../data-provider";
 import hyper from "@macrostrat/hyper";
 import { PBDBCollection, useFossilData } from "./provider";
 import { useMacrostratUnits } from "../../data-provider";
 import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
+import type { IUnit } from "../../units";
 import styles from "./index.module.sass";
-import { useColumn } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
 
@@ -42,7 +39,9 @@ function FossilInfo(props: FossilItemProps) {
 
   return h("ul.fossil-collections", [
     d1.map((d) => {
-      return h("li.collection", [h(PBDBCollectionLink, { collection: d })]);
+      return h("li.collection", { key: d.cltn_id }, [
+        h(PBDBCollectionLink, { collection: d }),
+      ]);
     }),
     tooMany,
   ]);
@@ -62,8 +61,7 @@ const matchingUnit = (dz) => (d) => d.unit_id == dz.unit_id;
 
 export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
   const data = useFossilData({ col_id: columnID });
-  const units = useMacrostratUnits();
-  const { axisType } = useMacrostratColumnData();
+  const { axisType, units } = useMacrostratColumnData();
 
   const notes: any[] = useMemo(() => {
     if (data == null || units == null) return [];
@@ -79,7 +77,7 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
     unitRefData.sort((a, b) => {
       const v1 = units.indexOf(a.unit);
       const v2 = units.indexOf(b.unit);
-      return v1 > v2;
+      return v1 - v2;
     });
 
     return unitRefData.map((d) => {

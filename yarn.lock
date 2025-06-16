@@ -1418,6 +1418,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@derschmale/array-utils@npm:^1.0.6":
+  version: 1.2.0
+  resolution: "@derschmale/array-utils@npm:1.2.0"
+  checksum: 10c0/762eba17c4bcecc35d8bd2ac38ce15f5044592ab073d9c7521cc13d02bf0a745cd115c5676b74afb76074120663d3eb4bc96b67db2f561c0968f9686e1d9c5cc
+  languageName: node
+  linkType: hard
+
+"@derschmale/tympanum@npm:^1.3.6":
+  version: 1.3.6
+  resolution: "@derschmale/tympanum@npm:1.3.6"
+  dependencies:
+    "@derschmale/array-utils": "npm:^1.0.6"
+  checksum: 10c0/448aab82818ed01b03c0938489231fa2bab6ffebad4276bb9d08ecb20680f894368e895a7125cb95c66b57fb2a40fbb8d58e243d37934e050a31ceb1f336dbb7
+  languageName: node
+  linkType: hard
+
 "@emotion/cache@npm:11.7.1":
   version: 11.7.1
   resolution: "@emotion/cache@npm:11.7.1"
@@ -2184,6 +2200,7 @@ __metadata:
   dependencies:
     "@blueprintjs/core": "npm:^5.0.0"
     "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/timescale": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     chroma-js: "npm:^2.1.0"
@@ -2214,7 +2231,22 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/column-views@workspace:packages/column-views":
+"@macrostrat/column-creator@workspace:packages/column-creator":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/column-creator@workspace:packages/column-creator"
+  dependencies:
+    "@macrostrat/column-components": "workspace:^"
+    "@macrostrat/column-views": "workspace:^"
+    "@macrostrat/hyper": "npm:^3.0.6"
+    parcel: "npm:^2.14.4"
+    zustand: "npm:^5.0.3"
+    zustand-computed: "npm:^2.0.2"
+  peerDependencies:
+    react: ^16.8.6||^17.0.0||^18.0.0
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/column-views@workspace:^, @macrostrat/column-views@workspace:packages/column-views":
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-views@workspace:packages/column-views"
   dependencies:
@@ -2255,6 +2287,7 @@ __metadata:
     d3-scale: "npm:^4.0.2"
     d3-shape: "npm:^3.2.0"
     mapbox-gl: "npm:^2.15.0"
+    parcel: "npm:^2.14.4"
     postcss: "npm:^8.0.0"
     postcss-modules: "npm:^6.0.0"
     react-spring: "npm:^9.7.5"
@@ -2264,6 +2297,15 @@ __metadata:
   peerDependencies:
     "@blueprintjs/core": ^5.0.0
     react: ^16.8.6||^17.0.0||^18.0.0
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/cross-section-utils@workspace:packages/cross-section-utils":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/cross-section-utils@workspace:packages/cross-section-utils"
+  dependencies:
+    "@derschmale/tympanum": "npm:^1.3.6"
+    "@macrostrat/hyper": "npm:^3.0.6"
   languageName: unknown
   linkType: soft
 
@@ -2311,6 +2353,7 @@ __metadata:
     react-colorful: "npm:^5.6.1"
     underscore: "npm:^1.13.7"
     zustand: "npm:^5.0.2"
+    zustand-computed: "npm:^2.1.0"
   languageName: unknown
   linkType: soft
 
@@ -2617,6 +2660,7 @@ __metadata:
     parcel: "npm:^2.14.4"
     prettier: "npm:^2.7.1"
     react: "npm:^18"
+    react-docgen: "npm:7.0.0"
     react-dom: "npm:^18"
     sass-embedded: "npm:^1.83.0"
     storybook: "npm:^8.6.8"
@@ -5281,6 +5325,13 @@ __metadata:
     "@types/d3-interpolate": "npm:*"
     "@types/d3-selection": "npm:*"
   checksum: 10c0/1dbdbcafddcae12efb5beb6948546963f29599e18bc7f2a91fb69cc617c2299a65354f2d47e282dfb86fec0968406cd4fb7f76ba2d2fb67baa8e8d146eb4a547
+  languageName: node
+  linkType: hard
+
+"@types/doctrine@npm:^0.0.8":
+  version: 0.0.8
+  resolution: "@types/doctrine@npm:0.0.8"
+  checksum: 10c0/ca4cab4a94526ec3579c3f10a027298028d34b4c092e4b6791afb37a5f6899208ee1e91bc9542541f31d6d3ba3d1a70408deaa1f105c22c86d23e3a87c59a43c
   languageName: node
   linkType: hard
 
@@ -10756,6 +10807,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-docgen@npm:7.0.0":
+  version: 7.0.0
+  resolution: "react-docgen@npm:7.0.0"
+  dependencies:
+    "@babel/core": "npm:^7.18.9"
+    "@babel/traverse": "npm:^7.18.9"
+    "@babel/types": "npm:^7.18.9"
+    "@types/babel__core": "npm:^7.18.0"
+    "@types/babel__traverse": "npm:^7.18.0"
+    "@types/doctrine": "npm:^0.0.8"
+    "@types/resolve": "npm:^1.20.2"
+    doctrine: "npm:^3.0.0"
+    resolve: "npm:^1.22.1"
+    strip-indent: "npm:^4.0.0"
+  checksum: 10c0/79678d01644e6519450f847c77fa554a7a80ae3a5ff81b1482d1458caa064cf3be88597051375ba7a90921980feb8586378e1560146d64c41d0e569465315575
+  languageName: node
+  linkType: hard
+
 "react-docgen@npm:^7.0.0":
   version: 7.1.1
   resolution: "react-docgen@npm:7.1.1"
@@ -10774,18 +10843,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-dom@npm:^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0":
-  version: 19.1.0
-  resolution: "react-dom@npm:19.1.0"
-  dependencies:
-    scheduler: "npm:^0.26.0"
-  peerDependencies:
-    react: ^19.1.0
-  checksum: 10c0/3e26e89bb6c67c9a6aa86cb888c7a7f8258f2e347a6d2a15299c17eb16e04c19194e3452bc3255bd34000a61e45e2cb51e46292392340432f133e5a5d2dfb5fc
-  languageName: node
-  linkType: hard
-
-"react-dom@npm:^18, react-dom@npm:^18.0.0":
+"react-dom@npm:^18.3.1":
   version: 18.3.1
   resolution: "react-dom@npm:18.3.1"
   dependencies:
@@ -11260,14 +11318,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react@npm:^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0":
-  version: 19.1.0
-  resolution: "react@npm:19.1.0"
-  checksum: 10c0/530fb9a62237d54137a13d2cfb67a7db6a2156faed43eecc423f4713d9b20c6f2728b026b45e28fcd72e8eadb9e9ed4b089e99f5e295d2f0ad3134251bdd3698
-  languageName: node
-  linkType: hard
-
-"react@npm:^17.0.2||^18, react@npm:^18, react@npm:^18.0.0":
+"react@npm:^18.3.1":
   version: 18.3.1
   resolution: "react@npm:18.3.1"
   dependencies:
@@ -11930,13 +11981,6 @@ __metadata:
   dependencies:
     loose-envify: "npm:^1.1.0"
   checksum: 10c0/26383305e249651d4c58e6705d5f8425f153211aef95f15161c151f7b8de885f24751b377e4a0b3dd42cce09aad3f87a61dab7636859c0d89b7daf1a1e2a5c78
-  languageName: node
-  linkType: hard
-
-"scheduler@npm:^0.26.0":
-  version: 0.26.0
-  resolution: "scheduler@npm:0.26.0"
-  checksum: 10c0/5b8d5bfddaae3513410eda54f2268e98a376a429931921a81b5c3a2873aab7ca4d775a8caac5498f8cbc7d0daeab947cf923dbd8e215d61671f9f4e392d34356
   languageName: node
   linkType: hard
 
@@ -13347,13 +13391,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand-computed@npm:^2.0.2":
-  version: 2.0.2
-  resolution: "zustand-computed@npm:2.0.2"
+"zustand-computed@npm:^2.0.2, zustand-computed@npm:^2.1.0":
+  version: 2.1.0
+  resolution: "zustand-computed@npm:2.1.0"
   peerDependencies:
-    react: ^18.2.0
-    zustand: ^5.0.0
-  checksum: 10c0/bab018fc63507e5dabfe989a0172e232b23546e0114ae98ee7654c7228ff33269849576a875814b85263e709e7ec06189f1b920fa1d1448f5cd867bde9e92d48
+    react: ">=18.2.0 <20.0.0"
+    zustand: ">=5.0.0 <6.0.0"
+  checksum: 10c0/1fdebac9160ab574167e20307154c13d4fa237bec8a1b48c6d777d5cf8740922249e09d502cd4ae8e9227d5bf7171bb8575da5aa7b3a7d315e11e47377139b02
   languageName: node
   linkType: hard
 

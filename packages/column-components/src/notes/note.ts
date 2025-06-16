@@ -8,12 +8,13 @@ import {
   NoteConnector,
   NodeConnectorOptions,
 } from "./connector";
-import { useColumn } from "@macrostrat/column-components";
+import { useColumn } from "../context";
 
 type NoteListProps = NodeConnectorOptions & {
   inEditMode?: boolean;
   editable?: boolean;
   onClickNote?: (note: NoteData) => void;
+  editHandler?: Function;
 };
 
 export function NotesList(props: NoteListProps) {
@@ -67,6 +68,12 @@ export function NotesList(props: NoteListProps) {
   return h(
     "g",
     notesInfo.map(({ note, pixelOffset, pixelHeight, spacing }) => {
+      // If the note has a bad pixelOffset, skip it
+
+      if (pixelOffset == null || pixelHeight == null) {
+        return null;
+      }
+
       return h(Note, {
         key: note.id,
         note,

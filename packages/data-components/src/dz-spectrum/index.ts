@@ -1,6 +1,6 @@
 import { createContext, useContext, ReactNode } from "react";
 import hyper from "@macrostrat/hyper";
-import { scaleLinear, AnyD3Scale } from "@visx/scale";
+import { scaleLinear } from "@visx/scale";
 import { AreaClosed } from "@visx/shape";
 import { AxisBottom } from "@visx/axis";
 import { max } from "d3-array";
@@ -11,7 +11,6 @@ import {
   kernelGaussian,
 } from "./kernel-density";
 import {
-  ScaleOrdinal,
   ScaleLinear,
   ScaleLogarithmic,
   ScalePower,
@@ -20,7 +19,7 @@ import {
   ScaleQuantize,
 } from "@visx/vendor/d3-scale";
 import styles from "./index.module.sass";
-import { expandInnerSize } from "@macrostrat/ui-components";
+import { expandInnerSize, InnerSizeProps } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
 
@@ -109,11 +108,10 @@ function DetritalSeries(props: DetritalSeriesProps) {
   });
 }
 
-type DetritalSpectrumProps = {
+interface DetritalSpectrumProps extends InnerSizeProps {
   children: ReactNode;
-  innerWidth: number;
   showAxisLabels?: boolean;
-};
+}
 
 function DetritalSpectrumPlot(props: DetritalSpectrumProps) {
   const { children, showAxisLabels = true, ...sizeProps } = props;

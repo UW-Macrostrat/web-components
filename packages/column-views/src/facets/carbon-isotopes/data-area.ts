@@ -2,7 +2,7 @@ import { line } from "d3-shape";
 import { createContext, useContext } from "react";
 import h from "@macrostrat/hyper";
 import { ColumnLayoutContext } from "@macrostrat/column-components";
-import { useCompositeScale } from "@macrostrat/column-views";
+import { useCompositeScale } from "../../data-provider";
 
 const inDomain = (scale, num) => {
   const domain = scale.domain();

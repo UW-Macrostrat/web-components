@@ -1,7 +1,6 @@
 import h from "@macrostrat/hyper";
-import { useContext, useCallback, useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import {
-  ColumnContext,
   ColumnAxisType,
   NotesColumn,
   NotesColumnProps,
@@ -11,10 +10,7 @@ import { IUnit } from "./types";
 import React from "react";
 import { getUnitHeightRange } from "../prepare-units/utils";
 import { CompositeColumnScale } from "./composite";
-import {
-  useCompositeScale,
-  useMacrostratColumnData,
-} from "@macrostrat/column-views";
+import { useCompositeScale, useMacrostratColumnData } from "../data-provider";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;

@@ -1,9 +1,9 @@
 import h from "@macrostrat/hyper";
 import { FlexRow, Spacer, useAPIResult } from "@macrostrat/ui-components";
-import { Column } from "@macrostrat/column-views";
+import { Column } from "../../src";
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
-import { ColumnProps } from "@macrostrat/column-views";
+import { ColumnProps } from "../../src";
 
 function useColumnUnits(col_id, inProcess) {
   const status_code = inProcess ? "in process" : undefined;

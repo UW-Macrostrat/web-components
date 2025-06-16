@@ -39,14 +39,14 @@ async function initializeMap(
 async function editModeMap(
   map: mapboxgl.Map,
   point: Point,
-  changePoint: (e: FeaturesI) => void,
+  changePoint: (e: FeaturesI) => void
 ) {
   const Draw = new MapboxDraw({
     controls: { point: true, trash: true },
     displayControlsDefault: false,
   });
   map.addControl(Draw, "top-left");
-  
+
   Draw.add(point);
 
   map.on("draw.create", changePoint);
@@ -65,7 +65,7 @@ interface LngLatMapI {
   setPoint: (p: Point) => void;
   width?: string;
   height?: string;
-  disabled?:boolean;
+  disabled?: boolean;
 }
 
 interface ViewPointI {
@@ -98,7 +98,7 @@ function LngLatMap(props: LngLatMapI) {
   const drawRef = useRef();
 
   const changePoint = (e: FeaturesI) => {
-    if(disabled)return;
+    if (disabled) return;
     console.log("Change Point Triggered!");
     setPoint(e.features[0]);
   };
@@ -141,7 +141,11 @@ function LngLatMap(props: LngLatMapI) {
   return h("div", [
     h("div.map-container", {
       ref: mapContainerRef,
-      style: { width: props.width ?? "100%", height: props.height ?? "300px",pointerEvents: disabled? "none": "all" },
+      style: {
+        width: props.width ?? "100%",
+        height: props.height ?? "300px",
+        pointerEvents: disabled ? "none" : "all",
+      },
     }),
   ]);
 }

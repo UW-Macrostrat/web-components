@@ -3,10 +3,13 @@ import {
   DetritalSeries,
   usePlotArea,
 } from "@macrostrat/data-components";
-import { IUnit } from "@macrostrat/column-views";
+import { IUnit } from "../../units/types";
 import hyper from "@macrostrat/hyper";
 import { useDetritalMeasurements, MeasurementInfo } from "./provider";
-import { useMacrostratUnits } from "../../data-provider";
+import {
+  MacrostratColumnContextReporter,
+  useMacrostratUnits,
+} from "../../data-provider";
 import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
 import styles from "./index.module.sass";
@@ -82,7 +85,7 @@ function DetritalColumn({ columnID, color = "magenta" }) {
     dzUnitData.sort((a, b) => {
       const v1 = units.findIndex(matchingUnit(a));
       const v2 = units.findIndex(matchingUnit(b));
-      return v1 > v2;
+      return v1 - v2;
     });
 
     const data1 = dzUnitData.map((d) => {

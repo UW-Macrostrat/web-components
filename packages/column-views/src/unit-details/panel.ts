@@ -55,7 +55,12 @@ export function UnitDetailsPanel({
   if (showJSON) {
     content = h(JSONView, { data: unit, showRoot: false });
   } else {
-    content = h(UnitDetailsContent, { unit, features, lithologyFeatures, onClickItem });
+    content = h(UnitDetailsContent, {
+      unit,
+      features,
+      lithologyFeatures,
+      onClickItem,
+    });
   }
 
   let title = defaultNameFunction(unit);
@@ -224,15 +229,15 @@ function UnitDetailsContent({
     }),
     h(AgeField, { unit }, [
       h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),
-      h(IntervalProportions, { 
+      h(IntervalProportions, {
         unit,
         onClickItem,
-       }),
+      }),
     ]),
-    h(EnvironmentsList, { 
+    h(EnvironmentsList, {
       environments,
       onClickItem,
-     }),
+    }),
     h.if(unit.strat_name_id != null)(
       DataField,
       {

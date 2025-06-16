@@ -1,6 +1,7 @@
 import { getCSSVariable } from "@macrostrat/color-utils";
+import type { AnyLayer } from "mapbox-gl";
 
-export function buildCrossSectionLayers(): mapboxgl.Layer[] {
+export function buildCrossSectionLayers(): AnyLayer[] {
   /** Build standardized layers for cross-sections */
   const ruleColor = getCSSVariable(
     "--panel-background-color",
