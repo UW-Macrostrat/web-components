@@ -1,0 +1,53 @@
+{
+  "name": "@macrostrat/column-creator",
+  "version": "0.0.1",
+  "description": "Interface for defining stratigraphic columns in a standardized format",
+  "type": "module",
+  "source": "src/index.ts",
+  "main": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "node": "dist/node/index.js",
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/esm/index.js",
+      "types": "./dist/esm/index.d.ts",
+      "node": "./dist/node/index.js"
+    }
+  },
+  "targets": {
+    "node": {
+      "engines": {
+        "node": ">=14"
+      }
+    }
+  },
+  "scripts": {
+    "build": "rm -rf dist && parcel build"
+  },
+  "dependencies": {
+    "@macrostrat/column-components": "workspace:^",
+    "@macrostrat/column-views": "workspace:^",
+    "@macrostrat/hyper": "^3.0.6",
+    "zustand": "^5.0.3",
+    "zustand-computed": "^2.0.2"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6||^17.0.0||^18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/column-creator"
+  },
+  "devDependencies": {
+    "parcel": "^2.14.4"
+  },
+  "files": [
+    "dist",
+    "src"
+  ]
+}

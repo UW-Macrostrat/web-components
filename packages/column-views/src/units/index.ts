@@ -5,7 +5,7 @@ import {
 } from "@macrostrat/column-components";
 import { UnitNamesColumn } from "./names";
 import { ICompositeUnitProps } from "./composite";
-import { UnitBoxes } from "./boxes";
+import { UnitBoxes, UnitProps } from "./boxes";
 import { useColumnLayout } from "@macrostrat/column-components";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { getMixedUnitColor } from "./colors";
@@ -14,7 +14,6 @@ import { useEnvironments, useLithologies } from "../data-provider";
 import { useMemo } from "react";
 import { resolveID } from "./resolvers";
 import { Lithology } from "@macrostrat/api-types";
-import { asChromaColor } from "@macrostrat/color-utils";
 
 export * from "./composite";
 export * from "./types";
@@ -47,17 +46,31 @@ export function SimpleUnitsColumn(props: ICompositeUnitProps) {
   ]);
 }
 
+export function BasicUnitComponent({ division, ...rest }) {
+  /** A unit that allows directly setting colors and patterns. */
+
+  return h(UnitComponent, {
+    division,
+    ...rest,
+    backgroundColor: division.color,
+    patternID: division.patternID,
+  });
+}
+
 export function UnitComponent({ division, nColumns = 2, ...rest }) {
   const width = rest.width ?? useColumnLayout()?.width;
 
   const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
-  const columnIx = (division.column ?? 0) % nColumns;
+  const _nColumns = nOverlappingUnits == 0 ? 1 : nColumns;
+  const columnIx = (division.column ?? 0) % _nColumns;
+  const reducedWidth = width / _nColumns;
+  const x = (columnIx * width) / _nColumns;
 
   return h(TrackedLabeledUnit, {
     division,
     ...rest,
-    width: nOverlappingUnits > 0 ? width / nColumns : width,
-    x: (columnIx * width) / nColumns,
+    width: reducedWidth,
+    x,
   });
 }
 

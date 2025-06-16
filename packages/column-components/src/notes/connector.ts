@@ -31,6 +31,7 @@ const NotePositioner = forwardRef(function (
       x: paddingLeft - outerPad,
       y,
       height: noteHeight + 2 * outerPad,
+      overflow: "visible",
       style: { overflowY: "visible" },
     },
     [
