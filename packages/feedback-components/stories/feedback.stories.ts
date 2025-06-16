@@ -27,12 +27,21 @@ const meta: Meta<any> = {
 export default meta;
 
 // add more stories here
-export const TestData1: StoryObj<{}> = {
+export const AllowOverlap: StoryObj<{}> = {
   args: {
     data,
     types: entityTypes,
     lineHeight: 2,
     allowOverlap: true,
+  },
+};
+
+export const NoAllowOverlap: StoryObj<{}> = {
+  args: {
+    data,
+    types: entityTypes,
+    lineHeight: 2,
+    allowOverlap: false,
   },
 };
 

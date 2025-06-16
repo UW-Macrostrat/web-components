@@ -99,6 +99,7 @@ export function FeedbackText(props: FeedbackTextProps) {
       lineHeight,
       dispatch,
       selectedNodes,
+      allowOverlap
     }), 
   );
 }
@@ -150,14 +151,17 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
     payload.end -= 1;
   }
 
-  const overlap = allTags.some(
+  const inside = allTags.some(
     (t) =>
       t.start <= payload.start &&
-      t.end >= payload.end &&
-      t.id !== undefined
+      t.end >= payload.end
   );
 
-  if (overlap && !allowOverlap) {
+  const overlap = allTags.some(
+    (t) => (t.start < payload.end && t.end > payload.start)
+  );
+
+  if ((inside || overlap) && !allowOverlap) {
     console.log("Tag is inside another tag, ignoring");
     return;
   }
