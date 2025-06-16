@@ -180,11 +180,12 @@ export function FeedbackText(props: FeedbackTextProps) {
   );
 }
 
-function createTag({selectedText, text, style}) {
+function createTag({selectedText, text}) {
   const result = [];
   const wordLower = selectedText.toLowerCase();
   const textLower = text.toLowerCase();
 
+  // fix this, gets first instance of word
   let index = 0;
 
   while ((index = textLower.indexOf(wordLower, index)) !== -1) {
@@ -197,22 +198,15 @@ function createTag({selectedText, text, style}) {
     id: ids++,
     start: result.length > 0 ? result[0][0] : 0,
     end: result.length > 0 ? result[0][1] : 0,
-    color: "transparent",
-    tagStyle: { display: "none" },
-    markStyle: { 
-      ...style,
-    },
   };
 }
 
 let ids = 0;
 
 function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lineHeight?: string, dispatch: any, onChange, allowOverlap }) {
-  const { text, allTags = [], lineHeight, dispatch, onChange } = props;
+  const { text, allTags = [], lineHeight, dispatch, allowOverlap } = props;
   const parts = [];
   let start = 0;
-
-  const style = getTagStyle(null, { highlighted: false, active: false });
 
   useEffect(() => {
     const handleMouseUp = () => {
@@ -221,13 +215,13 @@ function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lin
       if (!selectedText || selection.isCollapsed) return;
 
       if (selectedText.length > 0) {
-        const tag = createTag({ selectedText, text, style });
+        const tag = createTag({ selectedText, text });
         addTag({
           tag,
           dispatch,
           text,
           allTags,
-          allowOverlap: props.allowOverlap ?? false,
+          allowOverlap,
         });
       }
     };
