@@ -205,11 +205,6 @@ export function HighlightedText(props: {
   const claimedRanges: Array<[number, number]> = [];
 
   for (const tag of sortedTags) {
-    const found = tag.text === "Gowganda Formation"
-
-    if (found) {
-      console.log("Found tag:", tag);
-    }
 
     // Skip inner tags if bigger tag is selected — keep as is
     if (
@@ -253,15 +248,10 @@ export function HighlightedText(props: {
       rangesToRender = [[tagStart, tagEnd]];
     }
 
-    if(found) {
-      console.log("Ranges to render for tag:", tag, rangesToRender);
-    }
-
     for (const [s, e] of rangesToRender) {
       if (start < s) {
         parts.push(text.slice(start, s));
       }
-      
       
       const index = parts.indexOf(tag.text);
 
