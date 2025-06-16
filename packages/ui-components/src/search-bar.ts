@@ -1,16 +1,20 @@
 import styles from "./search-bar.module.sass";
-import { Card, Icon } from "@blueprintjs/core";
+import { Card, InputGroup  } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 
 const h = hyper.styled(styles);
 
 export function SearchBar({ onChange, placeholder = "Search..." }) {
-  return h(Card, { className: "search-bar" }, [
-    h(Icon, { icon: "search" }),
-    h("input", {
-      type: "text",
-      placeholder,
-      onChange: (e) => onChange(e.target.value),
-    }),
-  ]);
+  return h(InputGroup, {
+    className: "search-bar",
+    size: "large",
+    fill: true,
+    round: false,
+    placeholder,
+    onChange: (e) => {
+      const value = e.target.value;
+      onChange(value);
+    },
+    leftIcon: "search"
+  });
 }
