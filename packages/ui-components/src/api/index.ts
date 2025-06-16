@@ -4,3 +4,4 @@ export * from "./frontend";
 export * from "./paged";
 export * from "./types";
 export * from "./indexing";
+export * from "./infinite-scroll";
