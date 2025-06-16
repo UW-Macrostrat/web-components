@@ -122,6 +122,8 @@ function treeReducer(state: TreeState, action: TreeAction) {
         ? findNodeById(state.tree, ids[0])?.type
         : null;
       
+      console.log("Selecting nodes:", ids, "Type:", type);
+
       return { ...state, selectedNodes: ids, selectedEntityType: type };
     // otherwise fall through to toggle-node-selected for a single ID
     case "toggle-node-selected":
@@ -131,7 +133,13 @@ function treeReducer(state: TreeState, action: TreeAction) {
       const nodesToKeep = state.selectedNodes.filter(
         (id) => !action.payload.ids.includes(id)
       );
-      return { ...state, selectedNodes: [...nodesToKeep, ...nodesToAdd] };
+
+      const newType = action.payload.ids.length > 0
+        ? findNodeById(state.tree, action.payload.ids[0])?.type
+        : null;
+
+
+      return { ...state, selectedNodes: [...nodesToKeep, ...nodesToAdd], selectedEntityType: newType };
 
     case "create-node":
       const newId = state.lastInternalId - 1;
