@@ -157,7 +157,6 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
     return;
   }
 
-  // Trim trailing space if needed
   if (payload.text.endsWith(" ")) {
     payload.text = payload.text.slice(0, -1);
     payload.end -= 1;
@@ -186,7 +185,7 @@ export function HighlightedText(props: {
   allowOverlap: boolean;
   selectedNodes: any[];
 }) {
-  const { text, allTags = [], lineHeight, dispatch, allowOverlap } = props;
+  const { text, allTags = [], lineHeight, dispatch, allowOverlap, selectedNodes } = props;
   const parts = [];
   let start = 0;
   const spanRef = useRef<HTMLSpanElement>(null);
@@ -204,7 +203,6 @@ export function HighlightedText(props: {
     };
   }, [text, allTags, dispatch, allowOverlap]);
 
-  // Sort tags: earlier first, then shorter
   const sortedTags = [...allTags].sort((a, b) => {
     if (a.start === b.start) {
       return (a.end - a.start) - (b.end - b.start);
@@ -212,6 +210,7 @@ export function HighlightedText(props: {
     return a.start - b.start;
   });
 
+  const selectedTag = allTags.find(tag => selectedNodes?.includes(tag.id));
   const claimedRanges: Array<[number, number]> = [];
 
   function subtractOverlaps(start: number, end: number): Array<[number, number]> {
@@ -235,6 +234,16 @@ export function HighlightedText(props: {
   }
 
   for (const tag of sortedTags) {
+    // Skip inner tags when a larger tag is selected
+    if (
+      selectedTag &&
+      selectedTag.id !== tag.id &&
+      tag.start >= selectedTag.start &&
+      tag.end <= selectedTag.end
+    ) {
+      continue;
+    }
+
     const { start: tagStart, end: tagEnd, ...rest } = tag;
     const availableRanges = subtractOverlaps(tagStart, tagEnd);
 
