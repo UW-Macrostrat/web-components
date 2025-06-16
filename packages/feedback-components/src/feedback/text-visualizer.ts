@@ -7,6 +7,7 @@ import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useCallback, useEffect, useRef } from "react";
 import { Tag } from "@macrostrat/data-components";
+import { columnGeoJSONRecordToColumnIdentifier } from "packages/column-views/src/correlation-chart/prepare-data";
 
 const h = hyper.styled(styles);
 
@@ -41,7 +42,6 @@ function buildTags(
 
     const tag = {
       color: tagStyle.color,
-      fontWeight: tagStyle.fontWeight,
       tagStyle: {
         display: "none",
       },
@@ -206,27 +206,37 @@ export function HighlightedText(props: {
   const claimedRanges: Array<[number, number]> = [];
 
   function subtractOverlaps(start: number, end: number): Array<[number, number]> {
-    let ranges: Array<[number, number]> = [[start, end]];
+  let ranges: Array<[number, number]> = [[start, end]];
 
-    for (const [cStart, cEnd] of claimedRanges) {
-      const newRanges: typeof ranges = [];
-      for (const [rStart, rEnd] of ranges) {
-        if (cEnd <= rStart || cStart >= rEnd) {
-          newRanges.push([rStart, rEnd]);
-        } else {
-          if (rStart < cStart) newRanges.push([rStart, cStart]);
-          if (rEnd > cEnd) newRanges.push([cEnd, rEnd]);
-        }
-      }
-      ranges = newRanges;
-      if (ranges.length === 0) break;
+  for (const [cStart, cEnd] of claimedRanges) {
+    // Fully nested tag is allowed (e.g. [cStart=0, cEnd=10] and [start=2, end=5])
+    if (start >= cStart && end <= cEnd) {
+      return [[start, end]];
     }
 
-    return ranges;
+    const newRanges: typeof ranges = [];
+
+    for (const [rStart, rEnd] of ranges) {
+      // Disjoint – keep as is
+      if (cEnd <= rStart || cStart >= rEnd) {
+        newRanges.push([rStart, rEnd]);
+      } else {
+        // Partially overlapping – subtract
+        if (rStart < cStart) newRanges.push([rStart, cStart]);
+        if (rEnd > cEnd) newRanges.push([cEnd, rEnd]);
+      }
+    }
+
+    ranges = newRanges;
+    if (ranges.length === 0) break;
   }
 
+  return ranges;
+}
+
+
   for (const tag of sortedTags) {
-    // Skip inner tags when a larger tag is selected
+    // Skip inner tags if bigger tag is selected — keep as is
     if (
       selectedTag &&
       selectedTag.id !== tag.id &&
@@ -237,9 +247,38 @@ export function HighlightedText(props: {
     }
 
     const { start: tagStart, end: tagEnd, ...rest } = tag;
-    const availableRanges = subtractOverlaps(tagStart, tagEnd);
 
-    for (const [s, e] of availableRanges) {
+    // Find nested tags fully inside this tag (excluding itself)
+    const nestedTags = sortedTags.filter(
+      (t) => t.id !== tag.id && t.start >= tagStart && t.end <= tagEnd
+    );
+
+    // Start with full range of this tag
+    let rangesToRender: Array<[number, number]> = [[tagStart, tagEnd]];
+
+    // Subtract nested tag ranges from bigger tag ranges
+    if (!selectedNodes.includes(tag.id)) {
+      for (const nested of nestedTags) {
+        const newRanges: typeof rangesToRender = [];
+        for (const [rStart, rEnd] of rangesToRender) {
+          if (nested.end <= rStart || nested.start >= rEnd) {
+            // No overlap, keep as is
+            newRanges.push([rStart, rEnd]);
+          } else {
+            // Overlap — cut out nested tag range
+            if (rStart < nested.start) newRanges.push([rStart, nested.start]);
+            if (rEnd > nested.end) newRanges.push([nested.end, rEnd]);
+          }
+        }
+        rangesToRender = newRanges;
+        if (rangesToRender.length === 0) break; // fully carved out
+      }
+    } else {
+      // If selected, don't cut nested tags — render full range
+      rangesToRender = [[tagStart, tagEnd]];
+    }
+
+    for (const [s, e] of rangesToRender) {
       if (start < s) {
         parts.push(text.slice(start, s));
       }
@@ -251,7 +290,7 @@ export function HighlightedText(props: {
             style: {
               ...rest,
               position: "relative",
-              zIndex: 1,
+              zIndex: 10,
             },
             onClick: () => {
               dispatch({
@@ -268,6 +307,7 @@ export function HighlightedText(props: {
       start = e;
     }
   }
+
 
   if (start < text.length) {
     parts.push(text.slice(start));
