@@ -22,6 +22,7 @@ export function buildHighlights(
   }
 
   for (const entity of entities) {
+    console.log("Building highlight for entity", entity);
     highlights.push({
       start: entity.indices[0],
       end: entity.indices[1],
@@ -63,18 +64,20 @@ export function getTagStyle(
 
   const mixTarget = inDarkMode ? "white" : "black";
 
-  const color = _baseColor.mix(mixTarget, mixAmount).hex();
+  const color = active ? "#000" : _baseColor.mix(mixTarget, mixAmount).hex();
   const borderColor = highlighted
     ? _baseColor.mix(mixTarget, mixAmount / 1.1).hex()
     : "transparent";
 
   const backgroundColor = active ? 
     _baseColor.alpha(backgroundAlpha).hex() :
-    normalizeColor(_baseColor.alpha(backgroundAlpha).hex()) 
+    normalizeColor(_baseColor.alpha(backgroundAlpha).hex());
 
-  if(backgroundColor.includes("56cc49")) {
-    console.warn("base color", baseColor, "normalized to", backgroundColor);
+
+  if(!active) {
+    console.log("Inactive tag detected", backgroundColor);
   }
+
 
   return {
     color,

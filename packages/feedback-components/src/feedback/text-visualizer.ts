@@ -25,7 +25,6 @@ function buildTags(
   selectedNodes: number[]
 ): AnnotateBlendTag[] {
   let tags: AnnotateBlendTag[] = [];
-
   // If entity ID has already been seen, don't add it again
   const entities = new Set<number>();
 
@@ -40,16 +39,21 @@ function buildTags(
           active,
         });
 
-    tags.push({
-      color: tagStyle.backgroundColor,
+    const tag = {
+      color: tagStyle.color,
+      fontWeight: tagStyle.fontWeight,
       tagStyle: {
         display: "none",
       },
       markStyle: {
           fontWeight: active ? "bold" : "normal",
+          backgroundColor: tagStyle.backgroundColor,
         },
       ...highlight,
-    });
+      backgroundColor: tagStyle.backgroundColor,
+    };
+
+    tags.push(tag);
 
     entities.add(highlight.id);
   }
@@ -78,74 +82,7 @@ export function FeedbackText(props: FeedbackTextProps) {
     selectedNodes
   );
 
-  let clicked = false;
-
-  const onChange = useCallback(
-    (tags, e) => {
-      // New tags
-      const newTags = tags.filter((d) => !("id" in d));
-      if (newTags.length > 0) {
-        const { start, end } = newTags[0];
-        let payload = { start, end, text: text.slice(start, end) };
-
-        // check if blank
-        if (payload.text === " ") {
-          console.log("Blank tag found, ignoring");
-          return;
-        }
-
-        // check if duplicate
-        const duplicate = tags.find(
-          (tag) => tag.start === payload.start && tag.end === payload.end - 1
-        );
-
-        if (duplicate) {
-          console.log("Duplicate tag found, ignoring");
-          return;
-        }
-
-        // remove ending whitespace if needed
-        if( payload.text.endsWith(" ")) {
-          payload.text = payload.text.slice(0, -1);
-          payload.end -= 1;
-        }
-
-        const overlap = tags.some(
-            (tag) =>
-              tag.start <= payload.start &&
-              tag.end >= payload.end &&
-              tag.id !== undefined);
-
-        // check if inside
-        if (overlap && !allowOverlap) {
-          console.log("Tag is inside another tag, ignoring");
-          return;
-        }
-
-        dispatch({ type: "create-node", payload });
-        return;
-      }
-
-      // allow nested tags to be clicked
-      if (!clicked) {
-        clicked = true;
-
-        const tagIDs = new Set(tags.map((d) => d.id));
-        const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
-
-        if (removedIds.length > 0) {
-          dispatch({
-            type: "toggle-node-selected",
-            payload: { ids: removedIds },
-          });
-        }
-      }
-    },
-    [allTags, text]
-  );
-
-  const value = allTags
-  console.log("FeedbackText value", value);
+  console.log("All tags", allTags);
 
   return h('div.feedback-text-wrapper', { 
     tabIndex: 0,
@@ -175,7 +112,7 @@ export function FeedbackText(props: FeedbackTextProps) {
       allTags,
       lineHeight,
       dispatch,
-      onChange
+      selectedNodes,
     }), 
   );
 }
@@ -195,7 +132,6 @@ function createTag({selectedText, text}) {
 
 
   return {
-    id: ids++,
     start: result.length > 0 ? result[0][0] : 0,
     end: result.length > 0 ? result[0][1] : 0,
   };
@@ -203,10 +139,11 @@ function createTag({selectedText, text}) {
 
 let ids = 0;
 
-function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lineHeight?: string, dispatch: any, onChange, allowOverlap }) {
-  const { text, allTags = [], lineHeight, dispatch, allowOverlap } = props;
+function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lineHeight?: string, dispatch: any, allowOverlap, selectedNodes }) {
+  const { text, allTags = [], lineHeight, dispatch, allowOverlap, selectedNodes } = props;
   const parts = [];
   let start = 0;
+  console.log("Rendering highlights", allTags);
 
   useEffect(() => {
     const handleMouseUp = () => {
@@ -243,7 +180,10 @@ function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lin
   });
 
   for (const highlight of deconflictedHighlights) {
-    const { start: s, end, ...rest } = highlight;
+    let { start: s, end, ...rest } = highlight;
+
+    console.log("Rendering highlight", rest);
+
     parts.push(text.slice(start, s));
     parts.push(
       h(
