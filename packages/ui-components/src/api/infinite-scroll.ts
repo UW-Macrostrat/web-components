@@ -10,7 +10,7 @@ interface LoadMoreTriggerProps {
   idKey: string;
 }
 
-interface ScrollableContainerProps {
+interface InfiniteScrollContainerProps {
   startData: any[];
   useData: (lastID: number, input: string, pageSize: number) => any[];
   List: React.ComponentType<{ data: any[] }>;
@@ -43,7 +43,7 @@ export function LoadMoreTrigger(props: LoadMoreTriggerProps) {
   return h.if(loadMore)("div.load-more", { ref }, h(Spinner));
 }
 
-export function ScrollableContainer(props: ScrollableContainerProps) {
+export function InfiniteScrollContainer(props: InfiniteScrollContainerProps) {
   const { startData, useData, List, idKey, SearchBar } = props;
   const startingID = startData[startData.length - 1]?.[idKey] || startData.length; // Use the first item's id or default to 0
   const [lastID, setLastID] = useState(startingID);

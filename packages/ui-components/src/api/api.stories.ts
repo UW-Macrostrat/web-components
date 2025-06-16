@@ -1,17 +1,17 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react";
 import h from "@macrostrat/hyper";
-import { ScrollableContainer } from "./infinite-scroll";
+import { InfiniteScrollContainer } from "./infinite-scroll";
 import { Card } from "@blueprintjs/core";
 import { useAPIResult } from "./provider";
 
 export default {
   title: "UI components/API/Scrollable Container",
-  component: ScrollableContainer,
+  component: InfiniteScrollContainer,
   argTypes: {},
-} as ComponentMeta<typeof ScrollableContainer>;
+} as ComponentMeta<typeof InfiniteScrollContainer>;
 
-const Template: ComponentStory<typeof ScrollableContainer> = (args) =>
-  h(ScrollableContainer, args);
+const Template: ComponentStory<typeof InfiniteScrollContainer> = (args) =>
+  h(InfiniteScrollContainer, args);
 
 export const Primary = Template.bind({});
 Primary.args = {
