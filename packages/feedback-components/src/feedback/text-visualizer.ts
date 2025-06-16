@@ -82,8 +82,6 @@ export function FeedbackText(props: FeedbackTextProps) {
     selectedNodes
   );
 
-  console.log("All tags", allTags);
-
   return h('div.feedback-text-wrapper', { 
     tabIndex: 0,
     onKeyDown: (e) => {
@@ -117,157 +115,169 @@ export function FeedbackText(props: FeedbackTextProps) {
   );
 }
 
-function createTag({selectedText, text}) {
-  const result = [];
-  const wordLower = selectedText.toLowerCase();
-  const textLower = text.toLowerCase();
+function createTagFromSelection({ text, container }: { text: string; container: HTMLElement | null }) {
+  const selection = window.getSelection();
+  if (!selection || selection.isCollapsed || selection.rangeCount === 0 || !container) return null;
 
-  // fix this, gets first instance of word
-  let index = 0;
+  const range = selection.getRangeAt(0);
 
-  while ((index = textLower.indexOf(wordLower, index)) !== -1) {
-    result.push([index, index + selectedText.length]);
-    index += selectedText.length; 
+  if (!container.contains(range.startContainer) || !container.contains(range.endContainer)) {
+    return null;
   }
 
+  const preRange = document.createRange();
+  preRange.setStart(container, 0);
+  preRange.setEnd(range.startContainer, range.startOffset);
+  const start = preRange.toString().length;
+
+  const selectedText = range.toString();
+  const end = start + selectedText.length;
 
   return {
-    start: result.length > 0 ? result[0][0] : 0,
-    end: result.length > 0 ? result[0][1] : 0,
+    start,
+    end,
+    text: selectedText
   };
 }
 
-let ids = 0;
-
-function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lineHeight?: string, dispatch: any, allowOverlap, selectedNodes }) {
-  const { text, allTags = [], lineHeight, dispatch, allowOverlap, selectedNodes } = props;
-  const parts = [];
-  let start = 0;
-  console.log("Rendering highlights", allTags);
-
-  useEffect(() => {
-    const handleMouseUp = () => {
-      const selection = window.getSelection();
-      const selectedText = selection.toString().trim();
-      if (!selectedText || selection.isCollapsed) return;
-
-      if (selectedText.length > 0) {
-        const tag = createTag({ selectedText, text });
-        addTag({
-          tag,
-          dispatch,
-          text,
-          allTags,
-          allowOverlap,
-        });
-      }
-    };
-
-    document.addEventListener("mouseup", handleMouseUp);
-    return () => {
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, []);
-
-  const sortedHighlights = allTags.sort((a, b) => a.start - b.start);
-  const deconflictedHighlights = sortedHighlights.map((highlight, i) => {
-    if (i === 0) return highlight;
-    const prev = sortedHighlights[i - 1];
-    if (highlight.start < prev.end) {
-      highlight.start = prev.end;
-    }
-    return highlight;
-  });
-
-  for (const highlight of deconflictedHighlights) {
-    let { start: s, end, ...rest } = highlight;
-
-    console.log("Rendering highlight", rest);
-
-    parts.push(text.slice(start, s));
-    parts.push(
-      h(
-        "span.highlight", 
-        { 
-          style: rest,
-          onClick: () => {
-            dispatch({
-              type: "toggle-node-selected",
-              payload: { ids: [highlight.id] },
-            });
-          }
-        }, 
-        text.slice(s, end))
-    );
-    start = end;
-  }
-  parts.push(text.slice(start));
-  return h(
-    "span",
-    {
-      style: {
-        lineHeight,
-      },
-    },
-    parts
-  );
-}
-
-function addTag({tag, dispatch, text, allTags, allowOverlap}) {
+function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   const { start, end } = tag;
   let payload = { start, end, text: text.slice(start, end) };
 
-  // check if blank
-  if (payload.text === " ") {
+  if (payload.text.trim() === "") {
     console.log("Blank tag found, ignoring");
     return;
   }
 
-  // check if duplicate
   const duplicate = allTags.find(
-    (tag) => tag.start === payload.start && tag.end === payload.end - 1
+    (t) => t.start === payload.start && t.end === payload.end
   );
-
   if (duplicate) {
     console.log("Duplicate tag found, ignoring");
     return;
   }
 
-  // remove ending whitespace if needed
-  if( payload.text.endsWith(" ")) {
+  // Trim trailing space if needed
+  if (payload.text.endsWith(" ")) {
     payload.text = payload.text.slice(0, -1);
     payload.end -= 1;
   }
 
   const overlap = allTags.some(
-      (tag) =>
-        tag.start <= payload.start &&
-        tag.end >= payload.end &&
-        tag.id !== undefined);
+    (t) =>
+      t.start <= payload.start &&
+      t.end >= payload.end &&
+      t.id !== undefined
+  );
 
-  // check if inside
   if (overlap && !allowOverlap) {
     console.log("Tag is inside another tag, ignoring");
     return;
   }
 
   dispatch({ type: "create-node", payload });
-  return;
+}
 
-  /*
-  // allow nested tags to be clicked
-  if (!clicked) {
-    clicked = true;
+export function HighlightedText(props: {
+  text: string;
+  allTags: AnnotateBlendTag[];
+  lineHeight?: string;
+  dispatch: any;
+  allowOverlap: boolean;
+  selectedNodes: any[];
+}) {
+  const { text, allTags = [], lineHeight, dispatch, allowOverlap } = props;
+  const parts = [];
+  let start = 0;
+  const spanRef = useRef<HTMLSpanElement>(null);
 
-    const tagIDs = new Set(allTags.map((d) => d.id));
-    const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
+  useEffect(() => {
+    const handleMouseUp = () => {
+      const tag = createTagFromSelection({ text, container: spanRef.current });
+      if (!tag) return;
+      addTag({ tag, dispatch, text, allTags, allowOverlap });
+    };
 
-    if (removedIds.length > 0) {
-      dispatch({
-        type: "toggle-node-selected",
-        payload: { ids: removedIds },
-      });
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [text, allTags, dispatch, allowOverlap]);
+
+  // Sort tags: earlier first, then shorter
+  const sortedTags = [...allTags].sort((a, b) => {
+    if (a.start === b.start) {
+      return (a.end - a.start) - (b.end - b.start);
+    }
+    return a.start - b.start;
+  });
+
+  const claimedRanges: Array<[number, number]> = [];
+
+  function subtractOverlaps(start: number, end: number): Array<[number, number]> {
+    let ranges: Array<[number, number]> = [[start, end]];
+
+    for (const [cStart, cEnd] of claimedRanges) {
+      const newRanges: typeof ranges = [];
+      for (const [rStart, rEnd] of ranges) {
+        if (cEnd <= rStart || cStart >= rEnd) {
+          newRanges.push([rStart, rEnd]);
+        } else {
+          if (rStart < cStart) newRanges.push([rStart, cStart]);
+          if (rEnd > cEnd) newRanges.push([cEnd, rEnd]);
+        }
+      }
+      ranges = newRanges;
+      if (ranges.length === 0) break;
+    }
+
+    return ranges;
+  }
+
+  for (const tag of sortedTags) {
+    const { start: tagStart, end: tagEnd, ...rest } = tag;
+    const availableRanges = subtractOverlaps(tagStart, tagEnd);
+
+    for (const [s, e] of availableRanges) {
+      if (start < s) {
+        parts.push(text.slice(start, s));
+      }
+
+      parts.push(
+        h(
+          "span.highlight",
+          {
+            style: {
+              ...rest,
+              position: "relative",
+              zIndex: 1,
+            },
+            onClick: () => {
+              dispatch({
+                type: "toggle-node-selected",
+                payload: { ids: [tag.id] },
+              });
+            },
+          },
+          text.slice(s, e)
+        )
+      );
+
+      claimedRanges.push([s, e]);
+      start = e;
     }
   }
-    */
+
+  if (start < text.length) {
+    parts.push(text.slice(start));
+  }
+
+  return h(
+    "span",
+    {
+      ref: spanRef,
+      style: { lineHeight },
+    },
+    parts
+  );
 }

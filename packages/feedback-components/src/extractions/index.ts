@@ -22,7 +22,6 @@ export function buildHighlights(
   }
 
   for (const entity of entities) {
-    console.log("Building highlight for entity", entity);
     highlights.push({
       start: entity.indices[0],
       end: entity.indices[1],
@@ -72,12 +71,6 @@ export function getTagStyle(
   const backgroundColor = active ? 
     _baseColor.alpha(backgroundAlpha).hex() :
     normalizeColor(_baseColor.alpha(backgroundAlpha).hex());
-
-
-  if(!active) {
-    console.log("Inactive tag detected", backgroundColor);
-  }
-
 
   return {
     color,
