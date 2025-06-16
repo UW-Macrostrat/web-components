@@ -103,7 +103,7 @@ export function InfiniteScroll(props) {
   return h("div.infinite-scroll-container", { className }, [
     children,
     //h.if(state.isLoadingPage != null)(placeholder),
-    h("div.bottom-marker", { ref }),
+    h("div.bottom-marker", { ref, style: { padding: "1px"} }),
   ]);
 }
 
@@ -246,6 +246,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   );
 
   const loadMore = useCallback(() => {
+    console.log("Loading more items", state.hasMore);
     dispatch({
       type: "load-page",
       params: state.scrollParams,

@@ -23,7 +23,7 @@ Primary.args = {
     order: "combined_id.asc",
   },
   route: "https://dev.macrostrat.org/api/pg/strat_combined",
-  getNextParams
+  getNextParams,
 };
 
 function getNextParams(response, params) {
