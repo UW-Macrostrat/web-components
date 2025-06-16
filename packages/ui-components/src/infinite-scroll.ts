@@ -41,6 +41,7 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   resultsComponent?: React.ComponentType<{ data: T[] }>;
   perPage?: number;
   startPage?: number;
+  initialData?: T[];
 }
 
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
@@ -187,12 +188,13 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     resultsComponent = "div.results",
     perPage = 10,
     startPage = 0,
+    initialItems = [],
   } = props;
   const { get } = useAPIActions();
   const { getCount, getNextParams, getItems, hasMore } = props;
 
   const initialState: ScrollState<T> = {
-    items: [],
+    items: initialItems,
     scrollParams: params,
     count: null,
     error: null,
@@ -200,6 +202,8 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     isLoadingPage: null,
     pageIndex: startPage,
   };
+
+  console.log("Initial state", initialState);
 
   const pageOffset = 0;
 
@@ -290,6 +294,8 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   const isEmpty = data.length == 0 && !isLoading;
   const isFinished = !state.hasMore && !isLoading;
   const totalCount = props.totalCount ?? state.count;
+
+  console.log("data", data);
 
   return h(
     InfiniteScroll,
