@@ -93,18 +93,6 @@ export function FeedbackText(props: FeedbackTextProps) {
       }
     }
   },
-  /*
-  h(TextAnnotateBlend, {
-      style: {
-        fontSize: "1.2em",
-        lineHeight,
-      },
-      className: "feedback-text",
-      content: text,
-      onChange,
-      value,
-    })
-  */
   h(HighlightedText, {
       text,
       allTags,
@@ -115,7 +103,7 @@ export function FeedbackText(props: FeedbackTextProps) {
   );
 }
 
-function createTagFromSelection({ text, container }: { text: string; container: HTMLElement | null }) {
+function createTagFromSelection({ container }: { container: HTMLElement | null }) {
   const selection = window.getSelection();
   if (!selection || selection.isCollapsed || selection.rangeCount === 0 || !container) return null;
 
@@ -192,7 +180,7 @@ export function HighlightedText(props: {
 
   useEffect(() => {
     const handleMouseUp = () => {
-      const tag = createTagFromSelection({ text, container: spanRef.current });
+      const tag = createTagFromSelection({ container: spanRef.current });
       if (!tag) return;
       addTag({ tag, dispatch, text, allTags, allowOverlap });
     };
