@@ -1,5 +1,9 @@
 # Changelog
 
+## [unreleased]
+- LoadMoreTrigger that changes startingID, allowing for keyset pagination on next page
+- Added InfiniteScrollContainer that allows for an infinite scrolling list using the LoadMoreTrigger, can be filterable
+
 ## [4.2.0] - 2025-04-09
 
 - Updated `zustand` dependency
