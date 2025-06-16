@@ -1,8 +1,5 @@
-import styles from "./search-bar.module.sass";
-import { Card, InputGroup  } from "@blueprintjs/core";
-import hyper from "@macrostrat/hyper";
-
-const h = hyper.styled(styles);
+import { InputGroup  } from "@blueprintjs/core";
+import h from "@macrostrat/hyper";
 
 export function SearchBar({ onChange, placeholder = "Search..." }) {
   return h(InputGroup, {
