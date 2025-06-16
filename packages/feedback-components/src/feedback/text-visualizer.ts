@@ -5,7 +5,7 @@ import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Tag } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
@@ -175,14 +175,68 @@ export function FeedbackText(props: FeedbackTextProps) {
       allTags,
       lineHeight,
       dispatch,
+      onChange
     }), 
   );
 }
 
-function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lineHeight?: string, dispatch: any }) {
-  const { text, allTags = [], lineHeight, dispatch } = props;
+function createTag({selectedText, text, style}) {
+  const result = [];
+  const wordLower = selectedText.toLowerCase();
+  const textLower = text.toLowerCase();
+
+  let index = 0;
+
+  while ((index = textLower.indexOf(wordLower, index)) !== -1) {
+    result.push([index, index + selectedText.length]);
+    index += selectedText.length; 
+  }
+
+
+  return {
+    id: ids++,
+    start: result.length > 0 ? result[0][0] : 0,
+    end: result.length > 0 ? result[0][1] : 0,
+    color: "transparent",
+    tagStyle: { display: "none" },
+    markStyle: { 
+      ...style,
+    },
+  };
+}
+
+let ids = 0;
+
+function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lineHeight?: string, dispatch: any, onChange, allowOverlap }) {
+  const { text, allTags = [], lineHeight, dispatch, onChange } = props;
   const parts = [];
   let start = 0;
+
+  const style = getTagStyle(null, { highlighted: false, active: false });
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      const selection = window.getSelection();
+      const selectedText = selection.toString().trim();
+      if (!selectedText || selection.isCollapsed) return;
+
+      if (selectedText.length > 0) {
+        const tag = createTag({ selectedText, text, style });
+        addTag({
+          tag,
+          dispatch,
+          text,
+          allTags,
+          allowOverlap: props.allowOverlap ?? false,
+        });
+      }
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, []);
 
   const sortedHighlights = allTags.sort((a, b) => a.start - b.start);
   const deconflictedHighlights = sortedHighlights.map((highlight, i) => {
@@ -218,9 +272,68 @@ function HighlightedText(props: { text: string; allTags: AnnotateBlendTag[], lin
     "span",
     {
       style: {
-        lineHeight, // Adjust as needed
-      }
+        lineHeight,
+      },
     },
     parts
   );
+}
+
+function addTag({tag, dispatch, text, allTags, allowOverlap}) {
+  const { start, end } = tag;
+  let payload = { start, end, text: text.slice(start, end) };
+
+  // check if blank
+  if (payload.text === " ") {
+    console.log("Blank tag found, ignoring");
+    return;
+  }
+
+  // check if duplicate
+  const duplicate = allTags.find(
+    (tag) => tag.start === payload.start && tag.end === payload.end - 1
+  );
+
+  if (duplicate) {
+    console.log("Duplicate tag found, ignoring");
+    return;
+  }
+
+  // remove ending whitespace if needed
+  if( payload.text.endsWith(" ")) {
+    payload.text = payload.text.slice(0, -1);
+    payload.end -= 1;
+  }
+
+  const overlap = allTags.some(
+      (tag) =>
+        tag.start <= payload.start &&
+        tag.end >= payload.end &&
+        tag.id !== undefined);
+
+  // check if inside
+  if (overlap && !allowOverlap) {
+    console.log("Tag is inside another tag, ignoring");
+    return;
+  }
+
+  dispatch({ type: "create-node", payload });
+  return;
+
+  /*
+  // allow nested tags to be clicked
+  if (!clicked) {
+    clicked = true;
+
+    const tagIDs = new Set(allTags.map((d) => d.id));
+    const removedIds = allTags.map((d) => d.id).filter((d) => !tagIDs.has(d));
+
+    if (removedIds.length > 0) {
+      dispatch({
+        type: "toggle-node-selected",
+        payload: { ids: removedIds },
+      });
+    }
+  }
+    */
 }
