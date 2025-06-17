@@ -21,9 +21,6 @@ export function buildHighlights(
     parents = [parent.id, ...(parent.parents ?? [])];
   }
 
-  console.log("Building highlights for entities", entities);
-
-
   for (const entity of entities) {
     highlights.push({
       start: entity.indices[0],

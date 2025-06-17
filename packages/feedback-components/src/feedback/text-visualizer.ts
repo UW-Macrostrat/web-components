@@ -6,7 +6,7 @@ import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useCallback, useEffect, useRef } from "react";
-import { Tag } from "@macrostrat/data-components";
+import { Tag, TagField } from "@macrostrat/data-components";
 import { columnGeoJSONRecordToColumnIdentifier } from "packages/column-views/src/correlation-chart/prepare-data";
 
 const h = hyper.styled(styles);
@@ -98,6 +98,7 @@ export function FeedbackText(props: FeedbackTextProps) {
       lineHeight,
       allowOverlap, 
       dispatch,
+      selectedNodes
     }), 
   );
 }
@@ -167,40 +168,98 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   dispatch({ type: "create-node", payload });
 }
 
-export function HighlightedText(props: {
-  text: string,
-  allTags: AnnotateBlendTag[],
-  lineHeight: string,
-  allowOverlap?: boolean,
-  dispatch: TreeDispatch,
-}) {
-  const { text, allTags = [], lineHeight, allowOverlap, dispatch } = props;
-  const parts = [];
-  let start = 0;
+function nestHighlights(text: string, tags: AnnotateBlendTag[]) {
+  const events: Array<{ pos: number; type: 'start' | 'end'; tag: AnnotateBlendTag }> = [];
 
-  console.log("Rendering highlighted text with allTags:", allTags);
+  for (const tag of tags) {
+    events.push({ pos: tag.start, type: 'start', tag });
+    events.push({ pos: tag.end, type: 'end', tag });
+  }
 
-  const sortedHighlights = allTags.sort((a, b) => a.start - b.start);
-  const deconflictedHighlights = sortedHighlights.map((highlight, i) => {
-    if (i === 0) return highlight;
-    const prev = sortedHighlights[i - 1];
-    if (highlight.start < prev.end) {
-      highlight.start = prev.end;
-    }
-    return highlight;
+  events.sort((a, b) => {
+    if (a.pos !== b.pos) return a.pos - b.pos;
+    if (a.type === 'end' && b.type === 'start') return -1;
+    if (a.type === 'start' && b.type === 'end') return 1;
+    return 0;
   });
 
-  for (const highlight of deconflictedHighlights) {
-    const { start: s, end, ...rest } = highlight;
-    parts.push(text.slice(start, s));
-    parts.push(
-      h("span.highlight", 
-        { 
-          style: rest, 
-          onClick: () => dispatch({ type: "toggle-node-selected", payload: { ids: [highlight.id] } })
-        }, text.slice(s, end)));
-    start = end;
+  const root = { children: [], textStart: 0 };
+  const stack = [root];
+  let lastPos = 0;
+
+  for (const { pos, type, tag } of events) {
+    const parent = stack[stack.length - 1];
+
+    if (pos > lastPos) {
+      const slice = text.slice(lastPos, pos);
+      parent.children.push(slice);
+    }
+
+    if (type === 'start') {
+      const newNode = { tag, children: [], textStart: pos };
+      parent.children.push(newNode);
+      stack.push(newNode);
+    } else {
+      stack.pop();
+    }
+
+    lastPos = pos;
   }
-  parts.push(text.slice(start));
-  return h("span", { style: { lineHeight } }, parts);
+
+  if (lastPos < text.length) {
+    stack[stack.length - 1].children.push(text.slice(lastPos));
+  }
+
+  return root;
 }
+
+function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[]): any {
+  if (typeof node === 'string') return node;
+
+  const { tag, children } = node;
+  const isSelected = selectedNodes?.includes(tag.id);
+
+  const style = {
+    ...tag,
+    position: 'relative',
+    zIndex: isSelected ? 100 : 1, // Boost selected highlight
+  };
+
+  return h(
+    'span',
+    {
+      className: 'highlight',
+      style,
+      onClick: (e: MouseEvent) => {
+        e.stopPropagation(); // Prevent bubbling to outer nodes
+        dispatch({
+          type: 'toggle-node-selected',
+          payload: { ids: [tag.id] },
+        });
+      },
+    },
+    children.map((child: any, i: number) =>
+      renderNode(child, dispatch, selectedNodes)
+    )
+  );
+}
+
+export function HighlightedText(props: {
+  text: string;
+  allTags: AnnotateBlendTag[];
+  lineHeight: string;
+  allowOverlap?: boolean;
+  dispatch: TreeDispatch;
+  selectedNodes: number[]
+}) {
+  const { text, allTags = [], lineHeight, dispatch, selectedNodes } = props;
+
+  const tree = nestHighlights(text, allTags);
+
+  return h(
+    'span',
+    { style: { lineHeight } },
+    tree.children.map((child: any, i: number) => renderNode(child, dispatch))
+  );
+}
+
