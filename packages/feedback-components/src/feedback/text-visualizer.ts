@@ -214,7 +214,7 @@ function nestHighlights(text: string, tags: AnnotateBlendTag[]) {
   return root;
 }
 
-function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], parentColor: string): any {
+function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], parentSelected: boolean): any {
   if (typeof node === 'string') return node;
 
   const { tag, children } = node;
@@ -223,8 +223,7 @@ function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], 
   const style = {
     ...tag,
     position: 'relative',
-    backgroundColor: parentColor ?? tag.backgroundColor, 
-    color: parentColor ? 'black' : tag.color
+    zIndex: parentSelected ? -1 : 1
   };
 
   let moveText = []
@@ -233,7 +232,9 @@ function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], 
       if (Object.prototype.hasOwnProperty.call(children, key)) {
         const child = children[key];
         if(child?.tag) {
-          moveText.push(child.tag.text)
+          moveText.push(child.children[0])
+        } else {
+          moveText.push(child)
         }
       }
     }
@@ -252,8 +253,8 @@ function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], 
         });
       },
     }, 
-    children.map((child: any, i: number) =>
-      renderNode(child, dispatch, selectedNodes, isSelected ? tag.backgroundColor : null)
+    isSelected ? moveText.flat() : children.map((child: any, i: number) =>
+      renderNode(child, dispatch, selectedNodes, isSelected)
     )
   );
 }
@@ -288,7 +289,7 @@ export function HighlightedText(props: {
   return h(
     'span',
     { style: { lineHeight }, ref: spanRef },
-    tree.children.map((child: any, i: number) => renderNode(child, dispatch, selectedNodes, null))
+    tree.children.map((child: any, i: number) => renderNode(child, dispatch, selectedNodes, false))
   );
 }
 
