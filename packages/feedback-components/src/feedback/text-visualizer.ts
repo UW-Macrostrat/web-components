@@ -213,7 +213,7 @@ function nestHighlights(text: string, tags: AnnotateBlendTag[]) {
   return root;
 }
 
-function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[]): any {
+function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], parentColor: string): any {
   if (typeof node === 'string') return node;
 
   const { tag, children } = node;
@@ -222,8 +222,22 @@ function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[]):
   const style = {
     ...tag,
     position: 'relative',
-    zIndex: isSelected ? 100 : 1, // Boost selected highlight
+    backgroundColor: parentColor ?? tag.backgroundColor, 
+    color: parentColor ? 'black' : tag.color
   };
+
+  let moveText = []
+  if(isSelected) {
+    for (const key in children) {
+      if (Object.prototype.hasOwnProperty.call(children, key)) {
+        const child = children[key];
+        if(child?.tag) {
+          moveText.push(child.tag.text)
+        }
+      }
+    }
+    console.log(moveText)
+  }
 
   return h(
     'span',
@@ -231,15 +245,15 @@ function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[]):
       className: 'highlight',
       style,
       onClick: (e: MouseEvent) => {
-        e.stopPropagation(); // Prevent bubbling to outer nodes
+        e.stopPropagation();
         dispatch({
           type: 'toggle-node-selected',
           payload: { ids: [tag.id] },
         });
       },
-    },
+    }, 
     children.map((child: any, i: number) =>
-      renderNode(child, dispatch, selectedNodes)
+      renderNode(child, dispatch, selectedNodes, isSelected ? tag.backgroundColor : null)
     )
   );
 }
@@ -259,7 +273,7 @@ export function HighlightedText(props: {
   return h(
     'span',
     { style: { lineHeight } },
-    tree.children.map((child: any, i: number) => renderNode(child, dispatch))
+    tree.children.map((child: any, i: number) => renderNode(child, dispatch, selectedNodes, null))
   );
 }
 
