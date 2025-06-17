@@ -138,8 +138,9 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   }
 
   const duplicate = allTags.find(
-    (t) => t.start === payload.start && t.end === payload.end
+    (t) => t.start === payload.start && (t.end === payload.end || t.end === payload.end - 1)
   );
+
   if (duplicate) {
     console.log("Duplicate tag found, ignoring");
     return;
@@ -236,7 +237,6 @@ function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], 
         }
       }
     }
-    console.log(moveText)
   }
 
   return h(
@@ -266,13 +266,28 @@ export function HighlightedText(props: {
   dispatch: TreeDispatch;
   selectedNodes: number[]
 }) {
-  const { text, allTags = [], lineHeight, dispatch, selectedNodes } = props;
+  const { text, allTags = [], lineHeight, dispatch, selectedNodes, allowOverlap } = props;
 
   const tree = nestHighlights(text, allTags);
 
+  const spanRef = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    const handleMouseUp = () => {
+      const tag = createTagFromSelection({ container: spanRef.current });
+      if (!tag) return;
+      addTag({ tag, dispatch, text, allTags, allowOverlap });
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [text, allTags, dispatch, allowOverlap]);
+
   return h(
     'span',
-    { style: { lineHeight } },
+    { style: { lineHeight }, ref: spanRef },
     tree.children.map((child: any, i: number) => renderNode(child, dispatch, selectedNodes, null))
   );
 }
