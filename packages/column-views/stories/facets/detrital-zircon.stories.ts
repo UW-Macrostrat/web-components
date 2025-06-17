@@ -87,12 +87,6 @@ export function DetritalZirconCompilation(defaultArgs) {
             selectedColumn: columnArgs?.col_id,
             accessToken: import.meta.env.VITE_MAPBOX_API_TOKEN,
           },
-          h(MeasurementsLayer, {
-            id: "measurements",
-            measure_phase: "zircon",
-            measurement: "207Pb-206Pb",
-            style: { fill: "purple" },
-          }),
         ),
         h(ColumnWithDetritalZirconFacet, {
           id: columnArgs.col_id,
