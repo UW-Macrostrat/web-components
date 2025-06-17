@@ -222,7 +222,6 @@ function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], 
 
   const style = {
     ...tag,
-    border: "1px solid " + tag.color,
     zIndex: parentSelected ? -1 : 1
   };
 
