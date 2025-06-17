@@ -76,7 +76,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
   const { text, selectedNodes, nodes, dispatch, lineHeight, allowOverlap } = props;
-  let allTags: AnnotateBlendTag[] = buildTags(
+  const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes
   );
@@ -96,9 +96,8 @@ export function FeedbackText(props: FeedbackTextProps) {
       text,
       allTags,
       lineHeight,
+      allowOverlap, 
       dispatch,
-      selectedNodes,
-      allowOverlap
     }), 
   );
 }
@@ -169,149 +168,39 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
 }
 
 export function HighlightedText(props: {
-  text: string;
-  allTags: AnnotateBlendTag[];
-  lineHeight?: string;
-  dispatch: any;
-  allowOverlap: boolean;
-  selectedNodes: any[];
+  text: string,
+  allTags: AnnotateBlendTag[],
+  lineHeight: string,
+  allowOverlap?: boolean,
+  dispatch: TreeDispatch,
 }) {
-  const { text, allTags = [], lineHeight, dispatch, allowOverlap, selectedNodes } = props;
+  const { text, allTags = [], lineHeight, allowOverlap, dispatch } = props;
   const parts = [];
   let start = 0;
-  const spanRef = useRef<HTMLSpanElement>(null);
 
-  useEffect(() => {
-    const handleMouseUp = () => {
-      const tag = createTagFromSelection({ container: spanRef.current });
-      if (!tag) return;
-      addTag({ tag, dispatch, text, allTags, allowOverlap });
-    };
+  console.log("Rendering highlighted text with allTags:", allTags);
 
-    document.addEventListener("mouseup", handleMouseUp);
-    return () => {
-      document.removeEventListener("mouseup", handleMouseUp);
-    };
-  }, [text, allTags, dispatch, allowOverlap]);
-
-  const sortedTags = [...allTags].sort((a, b) => {
-    if (a.start === b.start) {
-      return (a.end - a.start) - (b.end - b.start);
+  const sortedHighlights = allTags.sort((a, b) => a.start - b.start);
+  const deconflictedHighlights = sortedHighlights.map((highlight, i) => {
+    if (i === 0) return highlight;
+    const prev = sortedHighlights[i - 1];
+    if (highlight.start < prev.end) {
+      highlight.start = prev.end;
     }
-    return a.start - b.start;
+    return highlight;
   });
 
-  const selectedTag = allTags.find(tag => selectedNodes?.includes(tag.id));
-  const claimedRanges: Array<[number, number]> = [];
-
-  for (const tag of sortedTags) {
-
-    // Skip inner tags if bigger tag is selected — keep as is
-    if (
-      selectedTag &&
-      selectedTag.id !== tag.id &&
-      tag.start >= selectedTag.start &&
-      tag.end <= selectedTag.end
-    ) {
-      continue;
-    }
-
-    const { start: tagStart, end: tagEnd, ...rest } = tag;
-
-    // Find nested tags fully inside this tag (excluding itself)
-    const nestedTags = sortedTags.filter(
-      (t) => t.id !== tag.id && t.start >= tagStart && t.end <= tagEnd
-    );
-
-    // Start with full range of this tag
-    let rangesToRender: Array<[number, number]> = [[tagStart, tagEnd]];
-
-    // Subtract nested tag ranges from bigger tag ranges
-    if (!selectedNodes.includes(tag.id)) {
-      for (const nested of nestedTags) {
-        const newRanges: typeof rangesToRender = [];
-        for (const [rStart, rEnd] of rangesToRender) {
-          if (nested.end <= rStart || nested.start >= rEnd) {
-            // No overlap, keep as is
-            newRanges.push([rStart, rEnd]);
-          } else {
-            // Overlap — cut out nested tag range
-            if (rStart < nested.start) newRanges.push([rStart, nested.start]);
-            if (rEnd > nested.end) newRanges.push([nested.end, rEnd]);
-          }
-        }
-        rangesToRender = newRanges;
-        if (rangesToRender.length === 0) break; // fully carved out
-      }
-    } else {
-      // If selected, don't cut nested tags — render full range
-      rangesToRender = [[tagStart, tagEnd]];
-    }
-
-    for (const [s, e] of rangesToRender) {
-      if (start < s) {
-        parts.push(text.slice(start, s));
-      }
-      
-      const index = parts.indexOf(tag.text);
-
-      if(index !== -1) {
-          parts[index] = h(
-          "span.highlight",
-          {
-            style: {
-              ...rest,
-              position: "relative",
-              zIndex: 10,
-            },
-            onClick: () => {
-              dispatch({
-                type: "toggle-node-selected",
-                payload: { ids: [tag.id] },
-              });
-            },
-          },
-          text.slice(s, e)
-        )
-      } else {
-        // If the tag is not found in parts, create a new highlight span
-        parts.push(
-          h(
-            "span.highlight",
-            {
-              style: {
-                ...rest,
-                position: "relative",
-                zIndex: 10,
-              },
-              onClick: () => {
-                dispatch({
-                  type: "toggle-node-selected",
-                  payload: { ids: [tag.id] },
-                });
-              },
-            },
-            text.slice(s, e)
-          )
-        );
-      }
-
-      claimedRanges.push([s, e]);
-      start = e;
-    }
+  for (const highlight of deconflictedHighlights) {
+    const { start: s, end, ...rest } = highlight;
+    parts.push(text.slice(start, s));
+    parts.push(
+      h("span.highlight", 
+        { 
+          style: rest, 
+          onClick: () => dispatch({ type: "toggle-node-selected", payload: { ids: [highlight.id] } })
+        }, text.slice(s, end)));
+    start = end;
   }
-
-
-  if (start < text.length) {
-    parts.push(text.slice(start));
-  }
-
-  return h(
-    "span",
-    {
-      ref: spanRef,
-      style: { lineHeight },
-    },
-    parts
-  );
+  parts.push(text.slice(start));
+  return h("span", { style: { lineHeight } }, parts);
 }

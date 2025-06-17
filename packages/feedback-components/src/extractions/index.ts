@@ -13,13 +13,16 @@ const h = hyper.styled(styles);
 
 export function buildHighlights(
   entities: EntityExt[],
-  parent: EntityExt | null
+  parent: EntityExt | null,
 ): Highlight[] {
   let highlights = [];
   let parents = [];
   if (parent != null) {
     parents = [parent.id, ...(parent.parents ?? [])];
   }
+
+  console.log("Building highlights for entities", entities);
+
 
   for (const entity of entities) {
     highlights.push({
@@ -248,5 +251,13 @@ function normalizeColor(hex8) {
     blendedR.toString(16).padStart(2, "0") +
     blendedG.toString(16).padStart(2, "0") +
     blendedB.toString(16).padStart(2, "0")
+  );
+}
+
+function isHighlighted(id: number, selectedNodes: number[], nodes: any[]) {
+  if (selectedNodes?.length === 0) return true;
+  return (
+    selectedNodes?.includes(id) ||
+    nodes?.some((node) => selectedNodes?.includes(node.id) && node.children.some((child) => child.id === id))
   );
 }
