@@ -41,7 +41,7 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   resultsComponent?: React.ComponentType<{ data: T[] }>;
   perPage?: number;
   startPage?: number;
-  initialData?: T[];
+  initialData?: T[]; // to allow for server-side rendering for initial state
 }
 
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
