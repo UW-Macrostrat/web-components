@@ -17,6 +17,9 @@ export const Horizontal = {
     orientation: TimescaleOrientation.HORIZONTAL,
     levels: [0, 5],
     absoluteAgeScale: false,
+    onClick: (e, interval) => {
+      console.log("Clicked interval:", interval);
+    }
   },
 };
 
