@@ -1,4 +1,4 @@
-name: Static Website Build
+name: CI Build
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
