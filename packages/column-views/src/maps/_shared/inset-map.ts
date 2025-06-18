@@ -36,6 +36,7 @@ export function InsetMap({
   showRoads = false,
   ...rest
 }: InsetMapProps) {
+  console.log(children)
   const inDarkMode = useInDarkMode();
   const _style = useMemo((): mapboxgl.Style | string => {
     return mapStyle ?? getBasicMapStyle({ inDarkMode });

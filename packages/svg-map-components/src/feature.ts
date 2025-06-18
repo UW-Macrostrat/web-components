@@ -85,6 +85,8 @@ const FeatureLayer = (props: IFeatureLayerProps) => {
     newChildren = h(Feature, { feature: { id: 0, geometry } });
   }
 
+  console.log(newChildren)
+
   const el = useCanvas ? CanvasLayer : "g";
 
   return h(el, rest, [children, newChildren]);
