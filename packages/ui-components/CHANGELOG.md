@@ -2,8 +2,6 @@
 
 ## [unreleased]
 Added the following components:
-- MacrostratImage - Access images in macrostrat S3 bucket
-- RockdImage - Access images in rockd S3 bucket
 - SearchBar - general input field search bar
 - CreateCheckins - takes checkin data as input and creates checkins
 
