@@ -41,6 +41,7 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   resultsComponent?: React.ComponentType<{ data: T[] }>;
   perPage?: number;
   startPage?: number;
+  initialData?: T[]; // to allow for server-side rendering for initial state
 }
 
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
@@ -91,6 +92,7 @@ export function InfiniteScroll(props) {
   const { ref, inView } = useInView({
     rootMargin: `0px 0px ${offset}px 0px`,
     trackVisibility: true,
+    delay: 100,
   });
 
   const shouldLoadMore = hasMore && inView;
@@ -102,7 +104,7 @@ export function InfiniteScroll(props) {
   return h("div.infinite-scroll-container", { className }, [
     children,
     //h.if(state.isLoadingPage != null)(placeholder),
-    h("div.bottom-marker", { ref }),
+    h("div.bottom-marker", { ref, style: { padding: "1px"} }),
   ]);
 }
 
@@ -186,12 +188,13 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     resultsComponent = "div.results",
     perPage = 10,
     startPage = 0,
+    initialItems = [],
   } = props;
   const { get } = useAPIActions();
   const { getCount, getNextParams, getItems, hasMore } = props;
 
   const initialState: ScrollState<T> = {
-    items: [],
+    items: initialItems,
     scrollParams: params,
     count: null,
     error: null,
@@ -210,12 +213,10 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   const loadPage = useCallback(
     async (action: LoadPage<T>) => {
       const res = await get(route, action.params, opts);
-      console.log("Loaded page with params", action.params);
       const itemVals = getItems(res);
       const ival = { $push: itemVals };
       const nextLength = state.items.length + itemVals.length;
       const count = getCount(res);
-      console.log(state.items);
       // if (state.isLoadingPage == null) {
       //   // We have externally cancelled this request (by e.g. moving to a new results set)
       //   console.log("Loading cancelled")
@@ -224,7 +225,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
 
       let p1: QueryParams = getNextParams(res, params);
       let hasNextParams = p1 != null;
-      console.log("Next page parameters", p1);
 
       action.dispatch({
         type: "update-state",
@@ -262,7 +262,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
         isInitialRender.current = false;
         return;
       }
-      console.log("Resetting to initial data");
       /*
     Get the initial dataset
     */
