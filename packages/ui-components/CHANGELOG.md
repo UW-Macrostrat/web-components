@@ -1,5 +1,10 @@
 # Changelog
 
+## [unreleased]
+Added the following components:
+- SearchBar - general input field search bar
+- CreateCheckins - takes checkin data as input and creates checkins
+
 ## [4.2.0] - 2025-04-09
 
 - Updated `zustand` dependency
