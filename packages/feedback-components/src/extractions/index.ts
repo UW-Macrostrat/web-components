@@ -13,7 +13,7 @@ const h = hyper.styled(styles);
 
 export function buildHighlights(
   entities: EntityExt[],
-  parent: EntityExt | null
+  parent: EntityExt | null,
 ): Highlight[] {
   let highlights = [];
   let parents = [];
@@ -63,18 +63,14 @@ export function getTagStyle(
 
   const mixTarget = inDarkMode ? "white" : "black";
 
-  const color = _baseColor.mix(mixTarget, mixAmount).hex();
+  const color = active ? "#000" : _baseColor.mix(mixTarget, mixAmount).hex();
   const borderColor = highlighted
     ? _baseColor.mix(mixTarget, mixAmount / 1.1).hex()
     : "transparent";
 
   const backgroundColor = active ? 
     _baseColor.alpha(backgroundAlpha).hex() :
-    normalizeColor(_baseColor.alpha(backgroundAlpha).hex()) 
-
-  if(backgroundColor.includes("56cc49")) {
-    console.warn("base color", baseColor, "normalized to", backgroundColor);
-  }
+    normalizeColor(_baseColor.alpha(backgroundAlpha).hex());
 
   return {
     color,
@@ -252,5 +248,13 @@ function normalizeColor(hex8) {
     blendedR.toString(16).padStart(2, "0") +
     blendedG.toString(16).padStart(2, "0") +
     blendedB.toString(16).padStart(2, "0")
+  );
+}
+
+function isHighlighted(id: number, selectedNodes: number[], nodes: any[]) {
+  if (selectedNodes?.length === 0) return true;
+  return (
+    selectedNodes?.includes(id) ||
+    nodes?.some((node) => selectedNodes?.includes(node.id) && node.children.some((child) => child.id === id))
   );
 }

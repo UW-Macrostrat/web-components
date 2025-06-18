@@ -1,6 +1,10 @@
 # Changelog
 
 ## [unreleased]
+Added the following components:
+- SearchBar - general input field search bar
+- CreateCheckins - takes checkin data as input and creates checkins
+Updated infinite scrolling
 - LoadMoreTrigger that changes startingID, allowing for keyset pagination on next page
 - Added InfiniteScrollContainer that allows for an infinite scrolling list using the LoadMoreTrigger, can be filterable
 
