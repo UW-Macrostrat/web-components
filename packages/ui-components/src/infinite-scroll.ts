@@ -203,8 +203,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     pageIndex: startPage,
   };
 
-  console.log("Initial state", initialState);
-
   const pageOffset = 0;
 
   const [state, dispatch] = useReducer<Reducer<T>>(
@@ -215,12 +213,10 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   const loadPage = useCallback(
     async (action: LoadPage<T>) => {
       const res = await get(route, action.params, opts);
-      console.log("Loaded page with params", action.params);
       const itemVals = getItems(res);
       const ival = { $push: itemVals };
       const nextLength = state.items.length + itemVals.length;
       const count = getCount(res);
-      console.log(state.items);
       // if (state.isLoadingPage == null) {
       //   // We have externally cancelled this request (by e.g. moving to a new results set)
       //   console.log("Loading cancelled")
@@ -229,7 +225,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
 
       let p1: QueryParams = getNextParams(res, params);
       let hasNextParams = p1 != null;
-      console.log("Next page parameters", p1);
 
       action.dispatch({
         type: "update-state",
@@ -250,7 +245,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   );
 
   const loadMore = useCallback(() => {
-    console.log("Loading more items", state.hasMore);
     dispatch({
       type: "load-page",
       params: state.scrollParams,
@@ -268,7 +262,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
         isInitialRender.current = false;
         return;
       }
-      console.log("Resetting to initial data");
       /*
     Get the initial dataset
     */
@@ -294,8 +287,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
   const isEmpty = data.length == 0 && !isLoading;
   const isFinished = !state.hasMore && !isLoading;
   const totalCount = props.totalCount ?? state.count;
-
-  console.log("data", data);
 
   return h(
     InfiniteScroll,
