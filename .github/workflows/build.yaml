@@ -25,7 +25,7 @@ jobs:
   test:
     name: Static website build
     runs-on: ubuntu-latest
-    environment: production
+    environment: development
     steps:
 
       - name: Check out repository
