@@ -366,44 +366,63 @@ function collectMatchingIds(tree, name) {
 function AddType({dispatch}) {
   const [overlayOpen, setOverlayOpen] = useState(false);
 
+  const saveHandler = (payload) => {
+    console.log("Adding new type:", payload);
+    dispatch({
+      type: "add-entity-type",
+      payload,
+    });
+    setOverlayOpen(false);
+  }
+
   return h('div.add-type-container', [
     h('div.add-type', { onClick: () => setOverlayOpen(true) }, [
         h('p.add-type-text', "Add new type"),
         h(Icon, { icon: "plus" }),
       ]),
       h(TypeOverlay, {
-        dispatch,
         setOverlayOpen,
         overlayOpen,
         title: "Add New Type",
+        saveHandler
       }),
   ])
 }
 
-function EditType({dispatch, editorOpen, setEditorOpen, type}) {
+function EditType({dispatch, type}) {
+  const [editorOpen, setEditorOpen] = useState(false);
+
+  console.log("Editor open:", editorOpen);
+
+  const saveHandler = (payload) => {
+    dispatch({
+      type: "update-entity-type",
+      payload,
+    });
+    setEditorOpen(false);
+  }
+
   return h('div.edit-type', 
-    { 
-      onClick: (e) => {
-        e.stopPropagation();
-        setEditorOpen(!editorOpen);
-      }
-    }, 
     [
       h(Icon, { 
         icon: "edit", 
         className: "edit-icon",
+        onClick: (e) => {
+          e.stopPropagation();
+          setEditorOpen(true);
+        }
       }),
       h(TypeOverlay, {
-        dispatch,
         setOverlayOpen: setEditorOpen,
         overlayOpen: editorOpen,
         originalType: type,
         title: "Edit Type",
+        saveHandler
       }),
     ])
 }
 
-function TypeOverlay({dispatch, setOverlayOpen, overlayOpen, originalType, title}) {
+function TypeOverlay({setOverlayOpen, overlayOpen, originalType, title, saveHandler}) {
   const { name, description, color, id } = originalType || {};
 
   const [nameInput, setNameInput] = useState(name || "");
@@ -413,7 +432,7 @@ function TypeOverlay({dispatch, setOverlayOpen, overlayOpen, originalType, title
   return  h(Overlay2,
     { 
       isOpen: overlayOpen,
-    }, 
+     }, 
     h('div.overlay-container',
       h('div.add-type-overlay', [
         h('h2.title', [
@@ -421,7 +440,9 @@ function TypeOverlay({dispatch, setOverlayOpen, overlayOpen, originalType, title
           h(Icon, {
             icon: "cross",
             className: "close-icon",
-            onClick: () => setOverlayOpen(false),
+            onClick: () => {
+              setOverlayOpen(false)
+            },
             style: { cursor: "pointer", color: "red" },
           }),
         ]),
@@ -462,23 +483,7 @@ function TypeOverlay({dispatch, setOverlayOpen, overlayOpen, originalType, title
           {
             className: "save-btn",
             small: true,
-            onClick: () => {
-              const name = nameInput.trim();
-              const description = descriptionInput.trim();
-              const color = colorInput.trim();
-
-              if (name === "") {
-                alert("Type name cannot be empty.");
-                return;
-              }
-
-              dispatch({
-                type: "add-entity-type",
-                payload: { name, description, color },
-              });
-
-              setOverlayOpen(false);
-            }
+            onClick: () => saveHandler({ name: nameInput, description: descriptionInput, color: colorInput, id }),
           },
           "Save changes"
         ),
@@ -490,7 +495,6 @@ function TypeOverlay({dispatch, setOverlayOpen, overlayOpen, originalType, title
 function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree, selectedNodes, selected, isSelectedNodes}) {
   const { color, name, id, description } = type;
   const chromaColor = asChromaColor(color ?? "#000000")
-  const [editorOpen, setEditorOpen] = useState(false);
 
   const payload = {
     id,
@@ -551,8 +555,6 @@ function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree
       h('div.icons', [
         h(EditType, {
           dispatch,
-          editorOpen,
-          setEditorOpen,
           type
         }),
         h(Icon, { 

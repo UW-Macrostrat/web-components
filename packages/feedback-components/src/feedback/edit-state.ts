@@ -40,7 +40,8 @@ type TreeAction =
   | { type: "deselect" }
   | { type: "reset" }
   | { type: "delete-entity-type"; payload: { id: number } }
-  | { type: "add-entity-type"; payload: { name: string, description: string, color: string } };
+  | { type: "add-entity-type"; payload: { name: string, description: string, color: string } }
+  | { type: "update-entity-type"; payload: { id: number, name: string, description: string, color: string } };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -95,6 +96,38 @@ function treeReducer(state: TreeState, action: TreeAction) {
         entityTypesMap: newEntityTypesMap,
         selectedEntityType: newType,
         lastInternalId: newId,
+      };
+    }
+    case "update-entity-type": {
+      // Update an existing entity type in the map
+      const { id, name, description, color } = action.payload;
+      const newEntityTypesMap = new Map(state.entityTypesMap);
+      const oldType = newEntityTypesMap.get(id);
+
+      if (!oldType) {
+        console.warn(`Entity type with id ${id} not found`);
+        return state;
+      }
+
+      const updatedType: EntityType = {
+        ...oldType,
+        name,
+        description: description === "" ? null : description,
+        color,
+      };
+
+      newEntityTypesMap.set(id, updatedType);
+
+      console.log(newEntityTypesMap)
+
+      // Update the tree to reflect the new type
+      const newTree = updateTreeTypes(state.tree, oldType, updatedType);
+
+      return {
+        ...state,
+        tree: newTree,
+        entityTypesMap: newEntityTypesMap,
+        selectedEntityType: updatedType,
       };
     }
     case "move-node":
