@@ -201,8 +201,7 @@ function EntityTypeSelector({
   ) : types;
 
   return h('div.entity-type-selector', [
-    h('p', "Change Selected Nodes to:"),
-    h(TypeList, { types: entityTypes, selected: _selected, dispatch, tree, selectedNodes }),
+    h(TypeList, { types: entityTypes, selected: _selected, dispatch, selectedNodes, tree }),
     h(OmniboxSelector, {
       isOpen,
       items,
@@ -327,45 +326,83 @@ function ManagedSelectionTree(props) {
   );
 }
 
-function TypeList({ types, selected, dispatch, tree, selectedNodes }) {
+function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
+  const [selectedType, setSelectedType] = useState(null);
+  const isSelectedNodes = selectedNodes.length > 0;
+  console.log("selectednodes", selectedNodes);
+  const darkMode = useInDarkMode();
+  const luminance = darkMode ? 0.9 : 0.4;
+
   return h(
     "div.type-list",
-    Array.from(types.values()).map((type) => {
-      const { color, name, id, description } = type;
-      const darkMode = useInDarkMode();
-      const luminance = darkMode ? 0.9 : 0.4;
-      const chromaColor = asChromaColor(color ?? "#000000")
+    [ 
+      h("div.type-list-header", isSelectedNodes && !selectedType ? "Change selected nodes to:" : "Entity Types"),
+      Array.from(types.values()).map((type) => {
+        const { color, name, id, description } = type;
+        const chromaColor = asChromaColor(color ?? "#000000")
 
-      const payload = {
-        id,
-        name,
-        color,
-        description,
-      };
+        const payload = {
+          id,
+          name,
+          color,
+          description,
+        };
 
-      return h(
-        Popover, 
-        { 
-          autoFocus: false,
-          content: h(
-            'div.description', 
-            description || "No description available"
-          ),
-          interactionKind: "hover"
-        }, 
-        h('div.type-tag', {
-          onClick: () => {
-            dispatch({ type: "select-entity-type", payload }); 
-          },
-          style: {
-            cursor: selectedNodes.length > 0 ? "pointer" : "",
-            color: chromaColor?.luminance(luminance).hex(),
-            backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
-            border: id === selected?.id && selectedNodes.length ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
-          }
-        }, name)
-      );
-    })
+        const ids = collectMatchingIds(tree, name);
+
+        return h(
+          Popover, 
+          { 
+            autoFocus: false,
+            content: h(
+              'div.description', 
+              description || "No description available"
+            ),
+            interactionKind: "hover"
+          }, 
+          h('div.type-tag', {
+            onClick: () => {
+              if(!isSelectedNodes && selectedType === null) {
+                if(ids.length >= 0) {
+                  setSelectedType(type);
+                  dispatch({ type: "toggle-node-selected", payload: {ids} });
+
+                  //console.log("Selecting all nodes of type:", id);
+                } else {
+                  //console.warn("No nodes found with type:", name);
+                }
+              } else if (isSelectedNodes && selectedType === null) {
+                dispatch({ type: "select-entity-type", payload });
+
+                //console.log("Changing selected nodes to type:", id);
+              } else  if (isSelectedNodes && selectedType.id === id) {
+                setSelectedType(null);
+                dispatch({ type: "toggle-node-selected", payload: {ids} });
+                //console.log("Deselecting nodes to type:", id);
+              } else if (isSelectedNodes && selectedType.id !== id) {
+                if (ids.length > 0) {
+                  setSelectedType(type);
+                  const oldIds = collectMatchingIds(tree, selectedType.name);
+
+                  dispatch({ type: "toggle-node-selected", payload: {ids: oldIds} }); // select these
+                  dispatch({ type: "toggle-node-selected", payload: {ids} }); // select these
+
+                  //console.log("Selecting all nodes of type:", id, " and deselecting previous type:", selectedType.id);
+                } else {
+                  //console.warn("No nodes found with type:", name);
+                }
+              }
+            },
+            style: {
+              cursor: (ids.length > 0) || (isSelectedNodes && !selectedType) ? "pointer" : "",
+              color: chromaColor?.luminance(luminance).hex(),
+              backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
+              border: id === selected?.id && selectedNodes.length ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
+            }
+          }, name)
+        );
+      })
+    ],
   );
 }
 
@@ -373,6 +410,7 @@ function collectMatchingIds(tree, name) {
   const ids = [];
 
   function traverse(node) {
+    console.log("Traversing node:", node.name, "with type:", node.term_type);
     if (node.term_type === name) {
       ids.push(node.id);
     }
