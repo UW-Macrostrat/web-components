@@ -334,91 +334,18 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
   const isSelectedNodes = selectedNodes.length > 0;
   const darkMode = useInDarkMode();
   const luminance = darkMode ? 0.9 : 0.4;
-  const [overlayOpen, setOverlayOpen] = useState(false);
 
-  return h(
-    "div.type-list",
-    [ 
-      h("div.type-list-header", isSelectedNodes && !selectedType ? "Change selected nodes to:" : "Entity Types"),
-      Array.from(types.values()).map((type) => {
-        const { color, name, id, description } = type;
-        const chromaColor = asChromaColor(color ?? "#000000")
-
-        const payload = {
-          id,
-          name,
-          color,
-          description,
-        };
-
-        const ids = collectMatchingIds(tree, name);
-
-        const handleTagClick = () => {
-          if(!isSelectedNodes && selectedType === null) {
-            if(ids.length > 0) {
-              setSelectedType(type);
-              dispatch({ type: "toggle-node-selected", payload: {ids} });
-            }
-          } else if (isSelectedNodes && selectedType === null) {
-            if(id === selected?.id && selectedNodes.length > 0) {
-              dispatch({ type: "toggle-node-selected", payload: {ids: selectedNodes} });
-            } else {
-              dispatch({ type: "select-entity-type", payload });
-            }
-          } else  if (isSelectedNodes && selectedType.id === id) {
-            setSelectedType(null);
-            dispatch({ type: "toggle-node-selected", payload: {ids} });
-          } else if (isSelectedNodes && selectedType.id !== id) {
-            if (ids.length > 0) {
-              setSelectedType(type);
-              const oldIds = collectMatchingIds(tree, selectedType.name);
-
-              dispatch({ type: "toggle-node-selected", payload: {ids: oldIds} }); 
-              dispatch({ type: "toggle-node-selected", payload: {ids} }); 
-            }
-          }
-        }
-
-        return h(
-          Popover, 
-          { 
-            autoFocus: false,
-            content: h(
-              'div.description', 
-              description || "No description available"
-            ),
-            interactionKind: "hover"
-          }, 
-          h('div.type-tag', {
-            onClick: handleTagClick,
-            style: {
-              cursor: (ids.length > 0) || (isSelectedNodes && !selectedType) ? "pointer" : "",
-              color: chromaColor?.luminance(luminance).hex(),
-              backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
-              border: id === selected?.id && selectedNodes.length > 0 ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
-            }
-          }, 
-          h('div.type-container', [
-            h('div.type-name', name),
-            h(Icon, { 
-              icon: "cross", 
-              className: "delete-type-icon",
-              style: { color: "red", cursor: "pointer" },
-              onClick: (e) => {
-                e.stopPropagation();
-                dispatch({
-                  type: "delete-entity-type",
-                  payload: { id },
-                });
-              },
-            })
-          ]),
-          )
-        )
-      }),
-      h(AddType, { dispatch })
-    ])
-  }
+  return h("div.type-list-container", [
+    h("div.type-list-header", isSelectedNodes && !selectedType ? "Change selected nodes to:" : "Entity Types"),
+    h(
+      "div.type-list",
+      Array.from(types.values()).map((type) => h(
+        TypeTag, { type, luminance, selectedType, setSelectedType, dispatch, tree, selectedNodes, selected, isSelectedNodes }) 
+      ),
+    ),
+    h(AddType, { dispatch }),
+  ]) 
+}
 
 function collectMatchingIds(tree, name) {
   const ids = [];
@@ -438,93 +365,210 @@ function collectMatchingIds(tree, name) {
 
 function AddType({dispatch}) {
   const [overlayOpen, setOverlayOpen] = useState(false);
-  const [nameInput, setNameInput] = useState("");
-  const [descriptionInput, setDescriptionInput] = useState("");
-  const [colorInput, setColorInput] = useState("#000000");
 
   return h('div.add-type-container', [
     h('div.add-type', { onClick: () => setOverlayOpen(true) }, [
         h('p.add-type-text', "Add new type"),
         h(Icon, { icon: "plus" }),
       ]),
-      h(Overlay2,
-        { 
-          isOpen: overlayOpen,
-          canEscapeKeyClose: true,
-          canOutsideClickClose: true,
-        }, 
-        h('div.overlay-container',
-          h('div.add-type-overlay', [
-            h('h2.title', [
-              "Add New Entity Type",
-              h(Icon, {
-                icon: "cross",
-                className: "close-icon",
-                onClick: () => setOverlayOpen(false),
-                style: { cursor: "pointer", color: "red" },
-              }),
-            ]),
-            h("div.form-group", [
-              h('div.text-inputs', [
-                h('div.form-field.name', [
-                  h('p.label', "Name"),
-                  h('input', {
-                      type: "text",
-                      placeholder: "Enter type name",
-                      onChange: (e) => setNameInput(e.target.value),
-                      value: nameInput,
-                    }
-                  ),
-                ]),
-                h('div.form-field.form-description', [
-                  h('p.label', "Description"),
-                  h('input', {
-                      type: "text",
-                      placeholder: "Enter type description",
-                      onChange: (e) => setDescriptionInput(e.target.value),
-                      value: descriptionInput,
-                    }
-                  ),
-                ]),
-              ]),
-              h('div.form-field.color', [
-                h('p.label', "Color"),
-                h(ColorPicker, {
-                  value: colorInput,
-                  onChange: (color) => setColorInput(color),
-                  style: { width: "100%" },
-                })
-              ]),
-            ]),
-            h(
-              SaveButton,
-              {
-                className: "save-btn",
-                small: true,
-                onClick: () => {
-                  const name = nameInput.trim();
-                  const description = descriptionInput.trim();
-                  const color = colorInput.trim();
-
-                  if (name === "") {
-                    alert("Type name cannot be empty.");
-                    return;
-                  }
-
-                  console.log("Adding new type:", { name, description, color });
-
-                  dispatch({
-                    type: "add-entity-type",
-                    payload: { name, description, color },
-                  });
-
-                  setOverlayOpen(false);
-                }
-              },
-              "Save changes"
-            ),
-          ])
-        ),
-      )
+      h(TypeOverlay, {
+        dispatch,
+        setOverlayOpen,
+        overlayOpen,
+        title: "Add New Type",
+      }),
   ])
+}
+
+function EditType({dispatch, editorOpen, setEditorOpen, type}) {
+  return h('div.edit-type', 
+    { 
+      onClick: (e) => {
+        e.stopPropagation();
+        setEditorOpen(!editorOpen);
+      }
+    }, 
+    [
+      h(Icon, { 
+        icon: "edit", 
+        className: "edit-icon",
+      }),
+      h(TypeOverlay, {
+        dispatch,
+        setOverlayOpen: setEditorOpen,
+        overlayOpen: editorOpen,
+        originalType: type,
+        title: "Edit Type",
+      }),
+    ])
+}
+
+function TypeOverlay({dispatch, setOverlayOpen, overlayOpen, originalType, title}) {
+  const { name, description, color, id } = originalType || {};
+
+  const [nameInput, setNameInput] = useState(name || "");
+  const [descriptionInput, setDescriptionInput] = useState(description || "");
+  const [colorInput, setColorInput] = useState(color || "#000000");
+
+  return  h(Overlay2,
+    { 
+      isOpen: overlayOpen,
+    }, 
+    h('div.overlay-container',
+      h('div.add-type-overlay', [
+        h('h2.title', [
+          title,
+          h(Icon, {
+            icon: "cross",
+            className: "close-icon",
+            onClick: () => setOverlayOpen(false),
+            style: { cursor: "pointer", color: "red" },
+          }),
+        ]),
+        h("div.form-group", [
+          h('div.text-inputs', [
+            h('div.form-field.name', [
+              h('p.label', "Name"),
+              h('input', {
+                  type: "text",
+                  placeholder: "Enter type name",
+                  onChange: (e) => setNameInput(e.target.value),
+                  value: nameInput,
+                }
+              ),
+            ]),
+            h('div.form-field.form-description', [
+              h('p.label', "Description"),
+              h('input', {
+                  type: "text",
+                  placeholder: "Enter type description",
+                  onChange: (e) => setDescriptionInput(e.target.value),
+                  value: descriptionInput,
+                }
+              ),
+            ]),
+          ]),
+          h('div.form-field.color', [
+            h('p.label', "Color"),
+            h(ColorPicker, {
+              value: colorInput,
+              onChange: (color) => setColorInput(color),
+              style: { width: "100%" },
+            })
+          ]),
+        ]),
+        h(
+          SaveButton,
+          {
+            className: "save-btn",
+            small: true,
+            onClick: () => {
+              const name = nameInput.trim();
+              const description = descriptionInput.trim();
+              const color = colorInput.trim();
+
+              if (name === "") {
+                alert("Type name cannot be empty.");
+                return;
+              }
+
+              dispatch({
+                type: "add-entity-type",
+                payload: { name, description, color },
+              });
+
+              setOverlayOpen(false);
+            }
+          },
+          "Save changes"
+        ),
+      ])
+    ),
+  )
+}
+
+function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree, selectedNodes, selected, isSelectedNodes}) {
+  const { color, name, id, description } = type;
+  const chromaColor = asChromaColor(color ?? "#000000")
+  const [editorOpen, setEditorOpen] = useState(false);
+
+  const payload = {
+    id,
+    name,
+    color,
+    description,
+  };
+
+  const ids = collectMatchingIds(tree, name);
+
+  const handleTagClick = () => {
+    if(!isSelectedNodes && selectedType === null) {
+      if(ids.length > 0) {
+        setSelectedType(type);
+        dispatch({ type: "toggle-node-selected", payload: {ids} });
+      }
+    } else if (isSelectedNodes && selectedType === null) {
+      if(id === selected?.id && selectedNodes.length > 0) {
+        dispatch({ type: "toggle-node-selected", payload: {ids: selectedNodes} });
+      } else {
+        dispatch({ type: "select-entity-type", payload });
+      }
+    } else  if (isSelectedNodes && selectedType.id === id) {
+      setSelectedType(null);
+      dispatch({ type: "toggle-node-selected", payload: {ids} });
+    } else if (isSelectedNodes && selectedType.id !== id) {
+      if (ids.length > 0) {
+        setSelectedType(type);
+        const oldIds = collectMatchingIds(tree, selectedType.name);
+
+        dispatch({ type: "toggle-node-selected", payload: {ids: oldIds} }); 
+        dispatch({ type: "toggle-node-selected", payload: {ids} }); 
+      }
+    }
+  }
+
+  return h(
+    Popover, 
+    { 
+      autoFocus: false,
+      content: h(
+        'div.description', 
+        description || "No description available"
+      ),
+      interactionKind: "hover"
+    }, 
+    h('div.type-tag', {
+      onClick: handleTagClick,
+      style: {
+        cursor: (ids.length > 0) || (isSelectedNodes && !selectedType) ? "pointer" : "",
+        color: chromaColor?.luminance(luminance).hex(),
+        backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
+        border: id === selected?.id && selectedNodes.length > 0 ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
+      }
+    }, 
+    h('div.type-container', [
+      h('div.type-name', name),
+      h('div.icons', [
+        h(EditType, {
+          dispatch,
+          editorOpen,
+          setEditorOpen,
+          type
+        }),
+        h(Icon, { 
+          icon: "cross", 
+          className: "delete-type-icon",
+          style: { color: "red", cursor: "pointer" },
+          onClick: (e) => {
+            e.stopPropagation();
+            dispatch({
+              type: "delete-entity-type",
+              payload: { id },
+            });
+          },
+        })
+      ])
+    ]),
+    )
+  )
 }
