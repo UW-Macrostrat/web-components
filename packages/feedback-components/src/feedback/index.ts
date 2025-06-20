@@ -347,11 +347,11 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
   ]) 
 }
 
-function collectMatchingIds(tree, name) {
+function collectMatchingIds(tree, id) {
   const ids = [];
 
   function traverse(node) {
-    if (node.term_type === name) {
+    if (node.type.id === id) {
       ids.push(node.id);
     }
     if (Array.isArray(node.children)) {
@@ -503,9 +503,10 @@ function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree
     description,
   };
 
-  const ids = collectMatchingIds(tree, name);
+  const ids = collectMatchingIds(tree, id);
 
   const handleTagClick = () => {
+    console.log("TypeTag ids:", ids, name, tree);
     if(!isSelectedNodes && selectedType === null) {
       if(ids.length > 0) {
         setSelectedType(type);
@@ -523,11 +524,20 @@ function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree
     } else if (isSelectedNodes && selectedType.id !== id) {
       if (ids.length > 0) {
         setSelectedType(type);
-        const oldIds = collectMatchingIds(tree, selectedType.name);
+        const oldIds = collectMatchingIds(tree, selectedType.id);
 
         dispatch({ type: "toggle-node-selected", payload: {ids: oldIds} }); 
         dispatch({ type: "toggle-node-selected", payload: {ids} }); 
       }
+    } else {
+      console.warn("Unexpected state in TypeTag click handler", {
+        isSelectedNodes,
+        selectedType,
+        selectedNodes,
+        ids,
+        id,
+        selected,
+      });
     }
   }
 
