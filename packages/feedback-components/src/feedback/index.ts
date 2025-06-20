@@ -367,7 +367,6 @@ function AddType({dispatch}) {
   const [overlayOpen, setOverlayOpen] = useState(false);
 
   const saveHandler = (payload) => {
-    console.log("Adding new type:", payload);
     dispatch({
       type: "add-entity-type",
       payload,
@@ -391,8 +390,6 @@ function AddType({dispatch}) {
 
 function EditType({dispatch, type}) {
   const [editorOpen, setEditorOpen] = useState(false);
-
-  console.log("Editor open:", editorOpen);
 
   const saveHandler = (payload) => {
     dispatch({
@@ -427,7 +424,7 @@ function TypeOverlay({setOverlayOpen, overlayOpen, originalType, title, saveHand
 
   const [nameInput, setNameInput] = useState(name || "");
   const [descriptionInput, setDescriptionInput] = useState(description || "");
-  const [colorInput, setColorInput] = useState(color || "#000000");
+  const [colorInput, setColorInput] = useState(color || "#fff");
 
   return  h(Overlay2,
     { 
@@ -506,7 +503,6 @@ function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree
   const ids = collectMatchingIds(tree, id);
 
   const handleTagClick = () => {
-    console.log("TypeTag ids:", ids, name, tree);
     if(!isSelectedNodes && selectedType === null) {
       if(ids.length > 0) {
         setSelectedType(type);
