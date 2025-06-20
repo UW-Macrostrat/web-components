@@ -38,7 +38,8 @@ type TreeAction =
   | { type: "select-entity-type"; payload: EntityType }
   | { type: "toggle-entity-type-selector"; payload?: boolean | null }
   | { type: "deselect" }
-  | { type: "reset" };
+  | { type: "reset" }
+  | { type: "delete-entity-type"; payload: { id: number } };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -158,6 +159,25 @@ function treeReducer(state: TreeState, action: TreeAction) {
         selectedNodes: [newId],
         lastInternalId: newId,
       };
+    
+    case "delete-entity-type": {
+      // Remove the entity type from the map
+      console.log("Deleting entity type:", action.payload.id);
+      const { id } = action.payload;
+      const newEntityTypesMap = new Map(state.entityTypesMap);
+      const oldType = newEntityTypesMap.get(id);
+      newEntityTypesMap.delete(id);
+
+      const defaultType = newEntityTypesMap.values().next().value;
+      const newTree = updateTreeTypes(state.tree, oldType, defaultType);
+
+      return {
+        ...state,
+        tree: newTree,
+        entityTypesMap: newEntityTypesMap,
+        selectedNodes: [],
+      };
+    }
 
     /** Entity type selection */
     case "toggle-entity-type-selector":
@@ -338,4 +358,20 @@ function findNodeById(tree, id) {
     }
   }
   return null;
+}
+
+function updateTreeTypes(tree, oldType, defaultType) {
+  return tree.map(node => updateNodeType(node, oldType, defaultType));
+}
+
+function updateNodeType(node, oldType, defaultType) {
+  const type = node.type.id === oldType.id ? defaultType : node.type
+
+  return {
+    ...node,
+    type,
+    children: node.children
+      ? updateTreeTypes(node.children, oldType, defaultType)
+      : []
+  };
 }

@@ -14,7 +14,7 @@ import {
   ViewMode,
 } from "./edit-state";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ButtonGroup, Card, SegmentedControl, Tag, Popover } from "@blueprintjs/core";
+import { ButtonGroup, Card, SegmentedControl, Icon, Popover } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
@@ -28,6 +28,7 @@ import useElementDimensions from "use-element-dimensions";
 import { GraphView } from "./graph";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { asChromaColor } from "@macrostrat/color-utils";
+import { getIconImage } from "@macrostrat/map-styles";
 
 export type { GraphData } from "./edit-state";
 export { treeToGraph } from "./edit-state";
@@ -59,7 +60,7 @@ export function FeedbackComponent({
     entityTypes
   );
 
-  const { selectedNodes, tree, selectedEntityType, isSelectingEntityType } =
+  const { selectedNodes, tree, selectedEntityType, isSelectingEntityType, entityTypesMap } =
     state;
 
   const [{ width, height }, ref] = useElementDimensions();
@@ -134,7 +135,7 @@ export function FeedbackComponent({
             ]
           ),
           h(EntityTypeSelector, {
-            entityTypes,
+            entityTypes: entityTypesMap,
             selected: selectedEntityType,
             onChange(payload) {
               dispatch({ type: "select-entity-type", payload });
@@ -329,7 +330,6 @@ function ManagedSelectionTree(props) {
 function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
   const [selectedType, setSelectedType] = useState(null);
   const isSelectedNodes = selectedNodes.length > 0;
-  console.log("selectednodes", selectedNodes);
   const darkMode = useInDarkMode();
   const luminance = darkMode ? 0.9 : 0.4;
 
@@ -372,7 +372,11 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
                   //console.warn("No nodes found with type:", name);
                 }
               } else if (isSelectedNodes && selectedType === null) {
-                dispatch({ type: "select-entity-type", payload });
+                if(id === selected?.id && selectedNodes.length > 0) {
+                  dispatch({ type: "toggle-node-selected", payload: {ids: selectedNodes} });
+                } else {
+                  dispatch({ type: "select-entity-type", payload });
+                }
 
                 //console.log("Changing selected nodes to type:", id);
               } else  if (isSelectedNodes && selectedType.id === id) {
@@ -397,20 +401,34 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
               cursor: (ids.length > 0) || (isSelectedNodes && !selectedType) ? "pointer" : "",
               color: chromaColor?.luminance(luminance).hex(),
               backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
-              border: id === selected?.id && selectedNodes.length ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
+              border: id === selected?.id && selectedNodes.length > 0 ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
             }
-          }, name)
-        );
+          }, 
+          h('div.type-container', [
+            h('div.type-name', name),
+            h(Icon, { 
+              icon: "cross", 
+              className: "delete-type-icon",
+              style: { color: "red", cursor: "pointer" },
+              onClick: (e) => {
+                e.stopPropagation();
+                dispatch({
+                  type: "delete-entity-type",
+                  payload: { id },
+                });
+              },
+            })
+          ]),
+          )
+        )
       })
-    ],
-  );
-}
+    ])
+  }
 
 function collectMatchingIds(tree, name) {
   const ids = [];
 
   function traverse(node) {
-    console.log("Traversing node:", node.name, "with type:", node.term_type);
     if (node.term_type === name) {
       ids.push(node.id);
     }
