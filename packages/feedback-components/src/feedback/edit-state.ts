@@ -39,7 +39,8 @@ type TreeAction =
   | { type: "toggle-entity-type-selector"; payload?: boolean | null }
   | { type: "deselect" }
   | { type: "reset" }
-  | { type: "delete-entity-type"; payload: { id: number } };
+  | { type: "delete-entity-type"; payload: { id: number } }
+  | { type: "add-entity-type"; payload: { name: string, description: string, color: string } };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -75,6 +76,27 @@ export function useTreeDispatch() {
 
 function treeReducer(state: TreeState, action: TreeAction) {
   switch (action.type) {
+    case "add-entity-type": {
+      // Add a new entity type to the map
+      const { name, description, color } = action.payload;
+      const newId = state.lastInternalId - 1;
+      const newType: EntityType = {
+        id: newId,
+        name,
+        description: description === "" ? null : description,
+        color,
+      };
+
+      const newEntityTypesMap = new Map(state.entityTypesMap);
+      newEntityTypesMap.set(newId, newType);
+
+      return {
+        ...state,
+        entityTypesMap: newEntityTypesMap,
+        selectedEntityType: newType,
+        lastInternalId: newId,
+      };
+    }
     case "move-node":
       // For each node in the tree, if the node is in the dragIds, remove it from the tree and collect it
       const [newTree, removedNodes] = removeNodes(

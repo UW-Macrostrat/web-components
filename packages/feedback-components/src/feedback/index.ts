@@ -14,7 +14,7 @@ import {
   ViewMode,
 } from "./edit-state";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ButtonGroup, Card, SegmentedControl, Icon, Popover } from "@blueprintjs/core";
+import { ButtonGroup, Card, SegmentedControl, Icon, Popover, Divider, Overlay2 } from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
@@ -29,6 +29,7 @@ import { GraphView } from "./graph";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { asChromaColor } from "@macrostrat/color-utils";
 import { getIconImage } from "@macrostrat/map-styles";
+import { ColorPicker } from "@macrostrat/data-sheet";
 
 export type { GraphData } from "./edit-state";
 export { treeToGraph } from "./edit-state";
@@ -134,6 +135,7 @@ export function FeedbackComponent({
               ),
             ]
           ),
+          h(Divider),
           h(EntityTypeSelector, {
             entityTypes: entityTypesMap,
             selected: selectedEntityType,
@@ -332,6 +334,7 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
   const isSelectedNodes = selectedNodes.length > 0;
   const darkMode = useInDarkMode();
   const luminance = darkMode ? 0.9 : 0.4;
+  const [overlayOpen, setOverlayOpen] = useState(false);
 
   return h(
     "div.type-list",
@@ -412,7 +415,8 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
           ]),
           )
         )
-      })
+      }),
+      h(AddType, { dispatch })
     ])
   }
 
@@ -430,4 +434,97 @@ function collectMatchingIds(tree, name) {
 
   tree.forEach(traverse);
   return ids;
+}
+
+function AddType({dispatch}) {
+  const [overlayOpen, setOverlayOpen] = useState(false);
+  const [nameInput, setNameInput] = useState("");
+  const [descriptionInput, setDescriptionInput] = useState("");
+  const [colorInput, setColorInput] = useState("#000000");
+
+  return h('div.add-type-container', [
+    h('div.add-type', { onClick: () => setOverlayOpen(true) }, [
+        h('p.add-type-text', "Add new type"),
+        h(Icon, { icon: "plus" }),
+      ]),
+      h(Overlay2,
+        { 
+          isOpen: overlayOpen,
+          canEscapeKeyClose: true,
+          canOutsideClickClose: true,
+        }, 
+        h('div.overlay-container',
+          h('div.add-type-overlay', [
+            h('h2.title', [
+              "Add New Entity Type",
+              h(Icon, {
+                icon: "cross",
+                className: "close-icon",
+                onClick: () => setOverlayOpen(false),
+                style: { cursor: "pointer", color: "red" },
+              }),
+            ]),
+            h("div.form-group", [
+              h('div.text-inputs', [
+                h('div.form-field.name', [
+                  h('p.label', "Name"),
+                  h('input', {
+                      type: "text",
+                      placeholder: "Enter type name",
+                      onChange: (e) => setNameInput(e.target.value),
+                      value: nameInput,
+                    }
+                  ),
+                ]),
+                h('div.form-field.form-description', [
+                  h('p.label', "Description"),
+                  h('input', {
+                      type: "text",
+                      placeholder: "Enter type description",
+                      onChange: (e) => setDescriptionInput(e.target.value),
+                      value: descriptionInput,
+                    }
+                  ),
+                ]),
+              ]),
+              h('div.form-field.color', [
+                h('p.label', "Color"),
+                h(ColorPicker, {
+                  value: colorInput,
+                  onChange: (color) => setColorInput(color),
+                  style: { width: "100%" },
+                })
+              ]),
+            ]),
+            h(
+              SaveButton,
+              {
+                className: "save-btn",
+                small: true,
+                onClick: () => {
+                  const name = nameInput.trim();
+                  const description = descriptionInput.trim();
+                  const color = colorInput.trim();
+
+                  if (name === "") {
+                    alert("Type name cannot be empty.");
+                    return;
+                  }
+
+                  console.log("Adding new type:", { name, description, color });
+
+                  dispatch({
+                    type: "add-entity-type",
+                    payload: { name, description, color },
+                  });
+
+                  setOverlayOpen(false);
+                }
+              },
+              "Save changes"
+            ),
+          ])
+        ),
+      )
+  ])
 }
