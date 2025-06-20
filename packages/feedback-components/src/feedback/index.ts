@@ -350,6 +350,32 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
 
         const ids = collectMatchingIds(tree, name);
 
+        const handleTagClick = () => {
+          if(!isSelectedNodes && selectedType === null) {
+            if(ids.length > 0) {
+              setSelectedType(type);
+              dispatch({ type: "toggle-node-selected", payload: {ids} });
+            }
+          } else if (isSelectedNodes && selectedType === null) {
+            if(id === selected?.id && selectedNodes.length > 0) {
+              dispatch({ type: "toggle-node-selected", payload: {ids: selectedNodes} });
+            } else {
+              dispatch({ type: "select-entity-type", payload });
+            }
+          } else  if (isSelectedNodes && selectedType.id === id) {
+            setSelectedType(null);
+            dispatch({ type: "toggle-node-selected", payload: {ids} });
+          } else if (isSelectedNodes && selectedType.id !== id) {
+            if (ids.length > 0) {
+              setSelectedType(type);
+              const oldIds = collectMatchingIds(tree, selectedType.name);
+
+              dispatch({ type: "toggle-node-selected", payload: {ids: oldIds} }); 
+              dispatch({ type: "toggle-node-selected", payload: {ids} }); 
+            }
+          }
+        }
+
         return h(
           Popover, 
           { 
@@ -361,42 +387,7 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
             interactionKind: "hover"
           }, 
           h('div.type-tag', {
-            onClick: () => {
-              if(!isSelectedNodes && selectedType === null) {
-                if(ids.length >= 0) {
-                  setSelectedType(type);
-                  dispatch({ type: "toggle-node-selected", payload: {ids} });
-
-                  //console.log("Selecting all nodes of type:", id);
-                } else {
-                  //console.warn("No nodes found with type:", name);
-                }
-              } else if (isSelectedNodes && selectedType === null) {
-                if(id === selected?.id && selectedNodes.length > 0) {
-                  dispatch({ type: "toggle-node-selected", payload: {ids: selectedNodes} });
-                } else {
-                  dispatch({ type: "select-entity-type", payload });
-                }
-
-                //console.log("Changing selected nodes to type:", id);
-              } else  if (isSelectedNodes && selectedType.id === id) {
-                setSelectedType(null);
-                dispatch({ type: "toggle-node-selected", payload: {ids} });
-                //console.log("Deselecting nodes to type:", id);
-              } else if (isSelectedNodes && selectedType.id !== id) {
-                if (ids.length > 0) {
-                  setSelectedType(type);
-                  const oldIds = collectMatchingIds(tree, selectedType.name);
-
-                  dispatch({ type: "toggle-node-selected", payload: {ids: oldIds} }); // select these
-                  dispatch({ type: "toggle-node-selected", payload: {ids} }); // select these
-
-                  //console.log("Selecting all nodes of type:", id, " and deselecting previous type:", selectedType.id);
-                } else {
-                  //console.warn("No nodes found with type:", name);
-                }
-              }
-            },
+            onClick: handleTagClick,
             style: {
               cursor: (ids.length > 0) || (isSelectedNodes && !selectedType) ? "pointer" : "",
               color: chromaColor?.luminance(luminance).hex(),
