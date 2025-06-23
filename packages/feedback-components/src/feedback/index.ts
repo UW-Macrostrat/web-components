@@ -492,6 +492,7 @@ function TypeOverlay({setOverlayOpen, overlayOpen, originalType, title, saveHand
 function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree, selectedNodes, selected, isSelectedNodes}) {
   const { color, name, id, description } = type;
   const chromaColor = asChromaColor(color ?? "#000000")
+  const darkMode = useInDarkMode();
 
   const payload = {
     id,
@@ -551,7 +552,7 @@ function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree
       onClick: handleTagClick,
       style: {
         cursor: (ids.length > 0) || (isSelectedNodes && !selectedType) ? "pointer" : "",
-        color: chromaColor?.luminance(luminance).hex(),
+        color: darkMode ? 'white' : 'black',
         backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
         border: id === selected?.id && selectedNodes.length > 0 ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
       }
