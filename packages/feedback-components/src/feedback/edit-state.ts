@@ -118,8 +118,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
 
       newEntityTypesMap.set(id, updatedType);
 
-      console.log(newEntityTypesMap)
-
       // Update the tree to reflect the new type
       const newTree = updateTreeTypes(state.tree, oldType, updatedType);
 
