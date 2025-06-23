@@ -1,7 +1,7 @@
 import { OverlayToaster, Tag, Toaster } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { DataSheet, ColorCell } from "../core"; //getRowsToDelete
+import { DataSheet, ColorCell, getRowsToDelete } from "../core"; //getRowsToDelete
 import { LithologyTag } from "./cell-renderers";
 import { usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner } from "@blueprintjs/core";
@@ -15,16 +15,25 @@ import {
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { DataSheetProviderProps } from "../provider";
+import {
+  PostgrestFilterBuilder,
+  PostgrestQueryBuilder,
+} from "@supabase/postgrest-js";
+import { GenericSchema } from "@supabase/postgrest-js/dist/cjs/types";
 
 const h = hyper.styled(styles);
 
-interface PostgRESTTableViewProps<T> extends DataSheetProviderProps<T> {
+interface PostgRESTTableViewProps<T extends GenericSchema>
+  extends DataSheetProviderProps<T> {
   endpoint: string;
   table: string;
   columnOptions?: any;
   order?: any;
   columns?: string;
   editable?: boolean;
+  filter(
+    query: PostgrestFilterBuilder<T, any, any>
+  ): PostgrestFilterBuilder<T, any, any>;
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
@@ -40,6 +49,8 @@ function _PostgRESTTableView<T>({
   order,
   columns,
   editable = false,
+  filter,
+  identityKey = "id",
   ...rest
 }: PostgRESTTableViewProps<T>) {
   const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
@@ -48,6 +59,7 @@ function _PostgRESTTableView<T>({
     {
       order,
       columns,
+      filter,
     }
   );
 
@@ -57,13 +69,15 @@ function _PostgRESTTableView<T>({
     (promisedResult, changes) => {
       wrapWithErrorHandling(toaster, promisedResult).then((res) => {
         if (res == null) {
-          return;
+          throw new Error("Could not complete action");
+        } else {
+          // Merge new data with old data
+          console.log("Updating data", changes);
+          dispatch({ type: "update-data", changes });
         }
-        // Merge new data with old data
-        dispatch({ type: "update-data", changes });
       });
     },
-    [dispatch]
+    [dispatch, toaster]
   );
 
   if (data == null) {
@@ -80,13 +94,15 @@ function _PostgRESTTableView<T>({
       onDeleteRows(selection) {
         if (!editable) return;
 
-        const rowIndices = console.log(rowIndices); //getRowsToDelete(selection);
+        const rowIndices = getRowsToDelete(selection);
 
-        const ids = rowIndices.map((i) => data[i].id);
+        const ids = rowIndices.map((i) => data[i][identityKey]);
 
         dispatch({ type: "start-loading" });
 
-        const query = client.delete().in("id", ids);
+        let query = client.delete().in(identityKey, ids);
+
+        query = filter?.(query) ?? query;
 
         finishResponse(query, { $delete: Array.from(rowIndices.keys()) });
       },
@@ -106,7 +122,9 @@ function _PostgRESTTableView<T>({
         dispatch({ type: "start-loading" });
 
         // Save data
-        const query = client.upsert(updateRows, { defaultToNull: false });
+        let query = client.upsert(updateRows, { defaultToNull: false });
+
+        query = filter?.(query) ?? query;
 
         finishResponse(query, changes);
       },
@@ -116,12 +134,27 @@ function _PostgRESTTableView<T>({
 
 export function notifyOnError(toaster: Toaster, error: any) {
   console.error(error);
-  const { message, status, code } = error;
+  const { message, status, code, details } = error;
+
+  let errorDetails = null;
+
+  if (details != null) {
+    if (typeof details === "string") {
+      errorDetails = h("p.error-details", details);
+    } else {
+      errorDetails = h("div.error-details", [
+        h("h4", "Error details"),
+        h("pre", JSON.stringify(details, null, 2)),
+      ]);
+    }
+  }
+
   toaster.show({
     message: h([
       h.if(status != null)([h("code.bp5-code", status), " "]),
       h.if(code != null)([h("code.bp5-code", code), " "]),
-      message,
+      message ?? "An error occurred",
+      errorDetails,
     ]),
     intent: "danger",
   });

@@ -109,6 +109,28 @@ export const ScrollToRow = {
   },
 };
 
+export const MapboardPostgrestView = {
+  args: {
+    endpoint: "https://mapboard.local/pg-api",
+    table: "polygon_type",
+    editable: true,
+    order: { key: "id", ascending: true },
+    filter(query) {
+      return query
+        .eq("data_schema", "map_digitizer")
+        .eq("project_slug", "naukluft");
+    },
+    columns: ["id", "name", "symbol", "color", "symbol_color"],
+    columnOptions: {
+      overrides: {
+        id: {
+          editable: false,
+        },
+      },
+    },
+  },
+};
+
 function SelectLegendIDControl() {
   const [value, setValue] = useState("");
   const scrollToRow = useSelector((state) => state.scrollToRow);
