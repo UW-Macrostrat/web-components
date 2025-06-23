@@ -1,4 +1,4 @@
-import { OverlayToaster, Tag } from "@blueprintjs/core";
+import { OverlayToaster, Tag, Toaster } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { DataSheet, ColorCell } from "../core"; //getRowsToDelete
@@ -8,7 +8,11 @@ import { Spinner } from "@blueprintjs/core";
 
 export * from "./data-loaders";
 import { useCallback, useRef } from "react";
-import { ErrorBoundary } from "@macrostrat/ui-components";
+import {
+  ErrorBoundary,
+  ToasterContext,
+  useToaster,
+} from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { DataSheetProviderProps } from "../provider";
 
@@ -24,7 +28,7 @@ interface PostgRESTTableViewProps<T> extends DataSheetProviderProps<T> {
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
-  return h(ErrorBoundary, h(_PostgRESTTableView, props));
+  return h(ErrorBoundary, h(ToasterContext, h(_PostgRESTTableView, props)));
 }
 
 const successResponses = [200, 201];
@@ -47,32 +51,17 @@ function _PostgRESTTableView<T>({
     }
   );
 
-  const toasterRef = useRef(null);
+  const toaster = useToaster();
 
   const finishResponse = useCallback(
     (promisedResult, changes) => {
-      promisedResult
-        .then((res) => {
-          if (!successResponses.includes(res.status)) {
-            // Throw an error with the status code
-            let err = new Error(res.error.message);
-            err["status"] = res.status;
-            throw err;
-          }
-
-          // Merge new data with old data
-          dispatch({ type: "update-data", changes });
-        })
-        .catch((err: Error) => {
-          const status = err["status"];
-          toasterRef.current?.show({
-            message: h([
-              h.if(status != null)([h("code", status), " "]),
-              err.message,
-            ]),
-            intent: "danger",
-          });
-        });
+      wrapWithErrorHandling(toaster, promisedResult).then((res) => {
+        if (res == null) {
+          return;
+        }
+        // Merge new data with old data
+        dispatch({ type: "update-data", changes });
+      });
     },
     [dispatch]
   );
@@ -82,7 +71,6 @@ function _PostgRESTTableView<T>({
   }
 
   return h("div.data-sheet-outer", [
-    h(OverlayToaster, { usePortal: false, ref: toasterRef }),
     h(DataSheet, {
       ...rest,
       data,
@@ -124,6 +112,37 @@ function _PostgRESTTableView<T>({
       },
     }),
   ]);
+}
+
+export function notifyOnError(toaster: Toaster, error: any) {
+  console.error(error);
+  const { message, status, code } = error;
+  toaster.show({
+    message: h([
+      h.if(status != null)([h("code.bp5-code", status), " "]),
+      h.if(code != null)([h("code.bp5-code", code), " "]),
+      message,
+    ]),
+    intent: "danger",
+  });
+}
+
+export function wrapWithErrorHandling<T = any>(
+  toaster: Toaster,
+  fnPromise: Promise<T>
+): Promise<T | null> {
+  return fnPromise
+    .then((p) => {
+      if (p.error != null) {
+        // Rethrow error
+        throw p.error;
+      }
+      return p;
+    })
+    .catch((err) => {
+      notifyOnError(toaster, err);
+      return null;
+    });
 }
 
 export function LongTextViewer({ value, onChange }) {
