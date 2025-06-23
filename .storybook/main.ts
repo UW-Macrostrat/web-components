@@ -3,9 +3,10 @@ import type { StorybookConfig } from "@storybook/react-vite";
 export default {
   // vite
   stories: [
-    "../stories/**/*.@(mdx|js|jsx|ts|tsx)",
+    "../stories/**/*.mdx",
+    "../stories/**/*.stories.@(mdx|js|jsx|ts|tsx)",
     "../packages/*/src/**/*.mdx",
-    "../packages/*/stories/*.mdx",
+    "../packages/*/stories/**/*.mdx",
     "../packages/**/*.stories.@(mdx|js|jsx|ts|tsx)",
   ],
   addons: [

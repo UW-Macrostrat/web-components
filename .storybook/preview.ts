@@ -39,6 +39,7 @@ export const parameters = {
       storySort: {
         order: [
           "Web components",
+          "Example story",
           "Map interface",
           "Column views",
           "Timescale",
@@ -68,7 +69,7 @@ export const tags = ["autodocs"];
 function PatternProvider({ children }) {
   return h(GeologicPatternProvider, {
     resolvePattern(id: string) {
-      return `https://dev2.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
+      return `https://dev.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
     },
     children,
   });
