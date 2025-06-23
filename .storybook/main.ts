@@ -13,6 +13,7 @@ export default {
     "@storybook/addon-essentials",
     "@storybook/addon-viewport",
     "storybook-dark-mode",
+    "@kemuridama/storybook-addon-github",
   ],
   framework: "@storybook/react-vite",
   docs: {},

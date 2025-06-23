@@ -47,6 +47,10 @@ export const parameters = {
       },
     },
   },
+  github: {
+    repository: "UW-Macrostrat/web-components",
+    branch: "main",
+  },
 };
 
 export const decorators = [
