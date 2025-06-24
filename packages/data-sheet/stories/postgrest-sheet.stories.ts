@@ -4,6 +4,8 @@ import styles from "./postgrest-sheet.stories.module.sass";
 import {
   ColorCell,
   ColorPicker,
+  ColorSwatchCell,
+  colorSwatchRenderer,
   notifyOnError,
   ScrollToRowControl,
   TrueColorCell,
@@ -131,12 +133,12 @@ export const MapboardPostgrestView = {
         },
         color: {
           name: "Color",
-          cellComponent: TrueColorCell,
+          valueRenderer: colorSwatchRenderer,
           dataEditor: ColorPicker,
         },
         symbol_color: {
           name: "Symbol color",
-          cellComponent: TrueColorCell,
+          valueRenderer: colorSwatchRenderer,
           dataEditor: ColorPicker,
         },
       },

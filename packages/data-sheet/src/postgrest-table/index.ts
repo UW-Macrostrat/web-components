@@ -7,7 +7,7 @@ import { usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner } from "@blueprintjs/core";
 
 export * from "./data-loaders";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
@@ -95,7 +95,6 @@ function _PostgRESTTableView<T>({
         if (!editable) return;
 
         const rowIndices = getRowsToDelete(selection);
-
         const ids = rowIndices.map((i) => data[i][identityKey]);
 
         dispatch({ type: "start-loading" });

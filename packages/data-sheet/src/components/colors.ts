@@ -46,6 +46,15 @@ export function ColorCell({
   );
 }
 
+export function colorSwatchRenderer(value) {
+  return h("span.color-swatch-container", [
+    h("span.color-swatch", {
+      style: { backgroundColor: value },
+    }),
+    h("span.color-name", value),
+  ]);
+}
+
 export const TrueColorCell = (props) =>
   h(ColorCell, { adjustLuminance: false, ...props });
 

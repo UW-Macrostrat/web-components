@@ -303,7 +303,7 @@ function basicCellRenderer<T>(
   if (!editable && state.editable) {
     // If the cell is not editable but the sheet is editable, we want to differentiate
     // between editable and non-editable cells.
-    style.color = "var(--text-subtle-color)";
+    style.color = "var(--secondary-color)";
   }
 
   const edited = updatedData[rowIndex]?.[col.key] != null;
