@@ -13,12 +13,33 @@ export function EditorPopup(props) {
     targetClassName,
     autoFocus,
     valueViewer,
-    inlineEditor,
+    //inlineEditor,
   } = props;
 
   const [isOpen, setIsOpen] = useState(autoFocus);
 
   const ref = useRef(null);
+
+  const inlineEditor = h([
+    h("span.editor-value.bp5-table-cell", valueViewer),
+    h("input.hidden-editor", {
+      value: "",
+      autoFocus: true,
+      onKeyDown(e) {
+        if (e.key == "Enter") {
+          setIsOpen(true);
+          e.preventDefault();
+          e.stopPropagation();
+        }
+
+        if (e.key == "Escape") {
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+      },
+    }),
+  ]);
 
   return h(
     Popover,
@@ -33,9 +54,10 @@ export function EditorPopup(props) {
             if (evt.key === "Escape") {
               setIsOpen(false);
               evt.preventDefault();
+              evt.stopPropagation();
             }
             // Climb over the interaction barrier to propagate the key event to the table
-            ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));
+            //ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));
           },
         },
         h(ErrorBoundary, null, content)
@@ -56,7 +78,7 @@ export function EditorPopup(props) {
       usePortal: true,
     },
     h(
-      "span.editor-popup-target",
+      "span.editor-popup-target.bp5-table-cell",
       {
         className: targetClassName,
         onClick: () => setIsOpen(!isOpen),

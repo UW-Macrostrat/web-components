@@ -64,20 +64,23 @@ interface ColorScheme {
 
 export function getLuminanceAdjustedColorScheme(
   color: chroma.ChromaInput,
-  darkMode: boolean = false
+  darkMode: boolean = false,
+  delta: number = 0.1
 ): ColorScheme | null {
   /** Luminance-adjusted color scheme for tags, etc. with dark mode support */
   if (!color) {
     return null;
   }
   const _color = asChromaColor(color);
-  const luminance = darkMode ? 0.9 : 0.2;
-  const backgroundLuminance = darkMode ? 0.1 : 0.8;
+  const luminance = darkMode ? 1 - delta : 2 * delta;
+  const backgroundLuminance = darkMode ? delta : 1 - 2 * delta;
   const mainColor = _color?.luminance(luminance).css();
-  const backgroundColor = _color?.luminance(backgroundLuminance).css();
+  let bkg = _color?.luminance(backgroundLuminance);
+
+  const backgroundColor = bkg.css();
 
   const secondaryBackgroundColor = _color
-    ?.luminance(darkMode ? 0.04 : 0.9)
+    ?.luminance(darkMode ? delta / 2 : 1 - delta)
     .css();
 
   const secondaryColor = _color?.luminance(0.5).css();

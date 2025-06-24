@@ -2,47 +2,63 @@ import { Cell } from "@blueprintjs/table";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { asChromaColor } from "@macrostrat/color-utils";
+import {
+  asChromaColor,
+  getLuminanceAdjustedColorScheme,
+} from "@macrostrat/color-utils";
 import { HexColorPicker } from "react-colorful";
 import { useEffect, useRef } from "react";
 import { memoize } from "underscore";
+import main from "../../../../.storybook/main";
 
 const h = hyper.styled(styles);
 
-export function ColorCell({ value, children, style, intent, ...rest }) {
+export function ColorCell({
+  value,
+  children,
+  style,
+  intent,
+  adjustLuminance = true,
+  ...rest
+}) {
   const darkMode = useInDarkMode();
+
+  let mainColor = "var(--text-color)";
+  let backgroundColor = value;
+
+  if (adjustLuminance) {
+    // If adjustLuminance is true, get the color scheme based on the value
+    let colors = colorCombo(value, darkMode, 0.05);
+    if (colors != null) {
+      mainColor = colors.mainColor;
+      backgroundColor = colors.backgroundColor;
+    }
+  }
 
   return h(
     Cell,
     {
       ...rest,
       style: {
+        color: mainColor,
+        backgroundColor,
         ...style,
-        ...colorCombo(value, darkMode),
       },
     },
     children
   );
 }
 
-const colorCombo = memoize((color, darkMode) =>
-  pleasantCombination(color, { darkMode })
-);
-
-export function pleasantCombination(
-  color,
-  { luminance = null, backgroundAlpha = 0.2, darkMode = false } = {}
-) {
-  const brighten = luminance ?? darkMode ? 0.5 : 0.1;
-
-  // Check if is a chroma color
-  color = asChromaColor(color);
-  if (color == null) return {};
-  return {
-    color: color?.luminance?.(brighten).css(),
-    backgroundColor: color?.alpha?.(backgroundAlpha).css(),
-  };
+export function colorSwatchRenderer(value) {
+  return h("span.color-swatch-container", [
+    h("span.color-swatch", {
+      style: { backgroundColor: value },
+    }),
+    h("span.color-name", value),
+  ]);
 }
+
+const colorCombo = memoize(getLuminanceAdjustedColorScheme);
 
 enum ColorConversionType {
   HEX = "hex",

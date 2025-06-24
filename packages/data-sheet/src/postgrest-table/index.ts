@@ -1,13 +1,13 @@
-import { OverlayToaster, Tag, Toaster } from "@blueprintjs/core";
+import { Toaster, HotkeysProvider } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { DataSheet, ColorCell, getRowsToDelete } from "../core"; //getRowsToDelete
-import { LithologyTag } from "./cell-renderers";
+import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import { usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner } from "@blueprintjs/core";
 
 export * from "./data-loaders";
-import { useCallback, useRef } from "react";
+import { useCallback } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
@@ -37,7 +37,10 @@ interface PostgRESTTableViewProps<T extends GenericSchema>
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
-  return h(ErrorBoundary, h(ToasterContext, h(_PostgRESTTableView, props)));
+  return h(
+    ErrorBoundary,
+    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props)))
+  );
 }
 
 const successResponses = [200, 201];
@@ -187,9 +190,10 @@ export function IntervalCell({ value, children, ...rest }) {
 }
 
 export function lithologyRenderer(value) {
-  return h("span.liths", [
-    addJoiner(value?.map((d) => h(LithologyTag, { data: d }))),
-  ]);
+  return h(
+    "span.tag-cell-content.liths",
+    value?.map((d) => h(LithologyTag, { data: d, key: d.id }))
+  );
 }
 
 export function ExpandedLithologies({ value, onChange }) {
@@ -205,7 +209,7 @@ export function ExpandedLithologies({ value, onChange }) {
             h(
               "td.basis-col",
               d.basis_col?.map((d) => {
-                return h(Tag, { minimal: true, key: d }, [
+                return h(Tag, { size: TagSize.Small, key: d }, [
                   h("span.tag-header", "Column"),
                   " ",
                   h("code", d),
@@ -217,8 +221,4 @@ export function ExpandedLithologies({ value, onChange }) {
       ),
     ]),
   ]);
-}
-
-function addJoiner(arr) {
-  return arr?.reduce((acc, curr) => [acc, " ", curr]);
 }

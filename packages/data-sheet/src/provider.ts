@@ -11,7 +11,6 @@ import { generateColumnSpec } from "./utils";
 import update, { Spec } from "immutability-helper";
 import { range } from "./utils";
 import React from "react";
-import { ensureElement } from "@blueprintjs/core/lib/esnext/common/utils";
 
 export interface ColumnSpec {
   name: string;
@@ -26,6 +25,7 @@ export interface ColumnSpec {
   editable?: boolean;
   inlineEditor?: boolean | React.ComponentType<any> | string | null;
   style?: React.CSSProperties;
+  width?: number;
 }
 
 export interface ColumnSpecOptions<T> {
@@ -66,6 +66,8 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: T[]): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
+  onColumnsReordered(oldIndex: number, newIndex: number, length: number): void;
+  moveFocusedCell(direction: "up" | "down" | "left" | "right"): void;
   deleteSelectedRows(): void;
   clearSelection(): void;
   resetChanges(): void;
@@ -130,6 +132,32 @@ export function DataSheetProvider<T>({
           enableColumnReordering: false,
           setSelection(selection: Region[]) {
             set(updateSelection(selection));
+          },
+          moveFocusedCell(direction: "up" | "down" | "left" | "right") {
+            set((state) => {
+              const { topLeftCell } = state;
+              if (topLeftCell == null) return {};
+              let { col, row } = topLeftCell;
+              switch (direction) {
+                case "up":
+                  row = Math.max(0, row - 1);
+                  break;
+                case "down":
+                  row = Math.min(
+                    row + 1,
+                    Math.max(state.data.length, state.updatedData.length) - 1
+                  );
+                  break;
+                case "left":
+                  col = Math.max(0, col - 1);
+                  break;
+                case "right":
+                  col = Math.min(col + 1, state.columnSpec.length - 1);
+                  break;
+              }
+              const region: Region = { cols: [col, col], rows: [row, row] };
+              return updateSelection([region]);
+            });
           },
           addRow(row: Partial<T> = {} as T) {
             /** Add a new row. If there is a selection, use the last row index to determine
@@ -284,7 +312,7 @@ export function DataSheetProvider<T>({
               return { columnSpec: newSpec };
             });
           },
-          scrollToRow(rowIndex: number, columnIndex: number) {
+          scrollToRow(rowIndex: number) {
             if (tableRef.current == null) return;
             tableRef.current.scrollToRegion({
               rows: [rowIndex, rowIndex],

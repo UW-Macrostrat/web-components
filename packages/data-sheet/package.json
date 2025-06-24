@@ -31,6 +31,7 @@
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/table": "^5.1.4",
     "@macrostrat/color-utils": "workspace:^",
+    "@macrostrat/data-components": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
     "@supabase/postgrest-js": "^1.17.7",

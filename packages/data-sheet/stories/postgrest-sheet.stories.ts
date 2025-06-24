@@ -3,7 +3,8 @@ import hyper from "@macrostrat/hyper";
 import styles from "./postgrest-sheet.stories.module.sass";
 import {
   ColorCell,
-  notifyOnError,
+  ColorPicker,
+  colorSwatchRenderer,
   ScrollToRowControl,
   wrapWithErrorHandling,
 } from "../src";
@@ -23,6 +24,7 @@ import {
 } from "../src/components/actions";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { useToaster } from "@macrostrat/ui-components";
+import { ColorEditor } from "../src/__archive";
 
 const h = hyper.styled(styles);
 
@@ -49,6 +51,9 @@ const defaultColumnOptions = {
       dataEditor: ExpandedLithologies,
     },
     name: "Unit name",
+    lith: {
+      dataEditor: LongTextViewer,
+    },
     comments: "Comments",
     legend_id: "Legend ID",
     strat_name: "Stratigraphic names",
@@ -125,6 +130,16 @@ export const MapboardPostgrestView = {
       overrides: {
         id: {
           editable: false,
+        },
+        color: {
+          name: "Color",
+          valueRenderer: colorSwatchRenderer,
+          dataEditor: ColorPicker,
+        },
+        symbol_color: {
+          name: "Symbol color",
+          valueRenderer: colorSwatchRenderer,
+          dataEditor: ColorPicker,
         },
       },
     },
