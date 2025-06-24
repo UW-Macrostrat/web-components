@@ -2,6 +2,24 @@
   flex: 1
   min-height: 0
 
+  font-size: var(--data-sheet-font-size, 12px)
+  line-height: var(--data-sheet-row-height, 20px)
+
+  :global
+    .bp5-table-cell
+      &:not([class*="bp5-intent-"]):not(.bp5-loading)
+        color: var(--text-color)
+
+    .bp5-table-cell, .bp5-table-row-name
+      font-size: var(--data-sheet-font-size)
+      line-height: var(--data-sheet-row-height)
+
+    .bp5-table-row-name
+      color: var(--secondary-color)
+
+    .bp5-table-column-name
+      font-size: 1.2em
+
 .data-sheet-container
   display: flex
   position: relative
@@ -75,3 +93,4 @@
   display: flex
   flex-direction: row
   margin-bottom: 0.25em
+

@@ -1,7 +1,7 @@
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { themes } from "@storybook/theming";
 
-import { FocusStyleManager } from "@blueprintjs/core";
+import { FocusStyleManager, HotkeysProvider } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import "@macrostrat/style-system/src/main.sass";
 import { DarkModeProvider } from "@macrostrat/ui-components";
@@ -39,6 +39,7 @@ export const parameters = {
       storySort: {
         order: [
           "Web components",
+          "Example story",
           "Map interface",
           "Column views",
           "Timescale",
@@ -46,6 +47,10 @@ export const parameters = {
         ],
       },
     },
+  },
+  github: {
+    repository: "UW-Macrostrat/web-components",
+    branch: "main",
   },
 };
 
@@ -64,7 +69,7 @@ export const tags = ["autodocs"];
 function PatternProvider({ children }) {
   return h(GeologicPatternProvider, {
     resolvePattern(id: string) {
-      return `https://dev2.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
+      return `https://dev.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
     },
     children,
   });

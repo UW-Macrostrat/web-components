@@ -2117,6 +2117,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@kemuridama/storybook-addon-github@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "@kemuridama/storybook-addon-github@npm:1.4.0"
+  peerDependencies:
+    "@storybook/components": ^7 || ^8
+    "@storybook/icons": ^1
+    "@storybook/manager-api": ^7 || ^8
+    react: ^17 || ^18 || ^19
+  checksum: 10c0/ab27a3c7ba8edc7baadf7ecab2ab1f54d47d66f02941b55eb5a52dca514f844369b5ee296874e73b8bb369c4e134d52571d83ab40a2ad0e358c1d7878d4df087
+  languageName: node
+  linkType: hard
+
 "@lezer/common@npm:^1.0.0":
   version: 1.2.3
   resolution: "@lezer/common@npm:1.2.3"
@@ -2340,6 +2352,7 @@ __metadata:
     "@blueprintjs/core": "npm:^5.10.2"
     "@blueprintjs/table": "npm:^5.1.4"
     "@macrostrat/color-utils": "workspace:^"
+    "@macrostrat/data-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/ui-components": "workspace:^"
     "@supabase/postgrest-js": "npm:^1.17.7"
@@ -2626,6 +2639,7 @@ __metadata:
     "@babel/preset-env": "npm:^7.21.4"
     "@babel/preset-typescript": "npm:^7.21.4"
     "@blueprintjs/core": "npm:^5.10.2"
+    "@kemuridama/storybook-addon-github": "npm:^1.4.0"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@parcel/bundler-library": "npm:^2.14.4"
     "@parcel/config-default": "npm:^2.14.4"
