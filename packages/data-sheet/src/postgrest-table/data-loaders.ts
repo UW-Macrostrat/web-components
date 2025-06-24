@@ -2,7 +2,7 @@
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { debounce } from "underscore";
-import { useCallback, useMemo, useReducer } from "react";
+import { useCallback, useMemo, useReducer, useRef } from "react";
 import update, { Spec } from "immutability-helper";
 
 interface ChunkIndex {
@@ -11,7 +11,11 @@ interface ChunkIndex {
   lastValue: any;
 }
 
-import { PostgrestClient, PostgrestQueryBuilder } from "@supabase/postgrest-js";
+import {
+  PostgrestClient,
+  PostgrestQueryBuilder,
+  PostgrestFilterBuilder,
+} from "@supabase/postgrest-js";
 
 interface LazyLoaderState<T> {
   data: (T | null)[];
@@ -122,12 +126,15 @@ function distanceToNextNonEmptyRow(
 }
 
 interface QueryConfig {
-  columns?: string;
+  columns?: string | string[];
   count?: "exact" | "estimated";
   limit?: number;
   offset?: number;
   order?: { key: string; ascending: boolean };
   after?: any;
+  filter?: (
+    query: PostgrestFilterBuilder<any, any, any>
+  ) => PostgrestFilterBuilder<any, any, any>;
 }
 
 function buildQuery<T>(
@@ -137,7 +144,18 @@ function buildQuery<T>(
   const { columns = "*", count } = config;
   const opts = { count };
 
-  let query = client.select(columns, opts);
+  let cols: string;
+  if (Array.isArray(columns)) {
+    cols = columns.join(", ");
+  } else {
+    cols = columns ?? "*";
+  }
+
+  let query = client.select(cols, opts);
+
+  if (config.filter) {
+    query = config.filter(query);
+  }
 
   if (config.order != null) {
     query = query.order(config.order.key, {
@@ -217,6 +235,9 @@ const loadMoreData = debounce(_loadMoreData, 100);
 type LazyLoaderOptions = Omit<QueryConfig, "count" | "offset" | "limit"> & {
   chunkSize?: number;
   sortKey?: string;
+  filter?: (
+    query: PostgrestFilterBuilder<any, any, any>
+  ) => PostgrestFilterBuilder<any, any, any>;
 };
 
 export function usePostgRESTLazyLoader(
@@ -247,12 +268,23 @@ export function usePostgRESTLazyLoader(
     state.visibleRegion.rowIndexEnd,
   ]);
 
+  // Reference to hold onto the scroll position
+  const ref = useRef(null);
+
   const onScroll = useCallback(
     debounce((visibleCells: RowRegion) => {
+      if (
+        visibleCells.rowIndexEnd == ref.current?.rowIndexEnd &&
+        visibleCells.rowIndexStart == ref.current?.rowIndexStart
+      ) {
+        return;
+      }
+      console.log("Visible cells changed", visibleCells);
       dispatch({
         type: "set-visible",
         region: visibleCells,
       });
+      ref.current = visibleCells;
     }, 500),
     [dispatch]
   );

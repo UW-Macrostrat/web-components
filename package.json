@@ -75,6 +75,7 @@
   ],
   "packageManager": "yarn@4.8.1",
   "devDependencies": {
+    "@kemuridama/storybook-addon-github": "^1.4.0",
     "@parcel/packager-ts": "^2.14.4",
     "@types/d3-array": "^3.2.1",
     "@types/underscore": "^1.13.0",

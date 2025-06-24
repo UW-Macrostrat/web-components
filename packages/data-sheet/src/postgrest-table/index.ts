@@ -1,30 +1,46 @@
-import { OverlayToaster, Tag } from "@blueprintjs/core";
+import { Toaster, HotkeysProvider } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { DataSheet, ColorCell } from "../core"; //getRowsToDelete
-import { LithologyTag } from "./cell-renderers";
+import { DataSheet, ColorCell, getRowsToDelete } from "../core"; //getRowsToDelete
+import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import { usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner } from "@blueprintjs/core";
 
 export * from "./data-loaders";
-import { useCallback, useRef } from "react";
-import { ErrorBoundary } from "@macrostrat/ui-components";
+import { useCallback } from "react";
+import {
+  ErrorBoundary,
+  ToasterContext,
+  useToaster,
+} from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { DataSheetProviderProps } from "../provider";
+import {
+  PostgrestFilterBuilder,
+  PostgrestQueryBuilder,
+} from "@supabase/postgrest-js";
+import { GenericSchema } from "@supabase/postgrest-js/dist/cjs/types";
 
 const h = hyper.styled(styles);
 
-interface PostgRESTTableViewProps<T> extends DataSheetProviderProps<T> {
+interface PostgRESTTableViewProps<T extends GenericSchema>
+  extends DataSheetProviderProps<T> {
   endpoint: string;
   table: string;
   columnOptions?: any;
   order?: any;
   columns?: string;
   editable?: boolean;
+  filter(
+    query: PostgrestFilterBuilder<T, any, any>
+  ): PostgrestFilterBuilder<T, any, any>;
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
-  return h(ErrorBoundary, h(_PostgRESTTableView, props));
+  return h(
+    ErrorBoundary,
+    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props)))
+  );
 }
 
 const successResponses = [200, 201];
@@ -36,6 +52,8 @@ function _PostgRESTTableView<T>({
   order,
   columns,
   editable = false,
+  filter,
+  identityKey = "id",
   ...rest
 }: PostgRESTTableViewProps<T>) {
   const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
@@ -44,37 +62,25 @@ function _PostgRESTTableView<T>({
     {
       order,
       columns,
+      filter,
     }
   );
 
-  const toasterRef = useRef(null);
+  const toaster = useToaster();
 
   const finishResponse = useCallback(
     (promisedResult, changes) => {
-      promisedResult
-        .then((res) => {
-          if (!successResponses.includes(res.status)) {
-            // Throw an error with the status code
-            let err = new Error(res.error.message);
-            err["status"] = res.status;
-            throw err;
-          }
-
+      wrapWithErrorHandling(toaster, promisedResult).then((res) => {
+        if (res == null) {
+          throw new Error("Could not complete action");
+        } else {
           // Merge new data with old data
+          console.log("Updating data", changes);
           dispatch({ type: "update-data", changes });
-        })
-        .catch((err: Error) => {
-          const status = err["status"];
-          toasterRef.current?.show({
-            message: h([
-              h.if(status != null)([h("code", status), " "]),
-              err.message,
-            ]),
-            intent: "danger",
-          });
-        });
+        }
+      });
     },
-    [dispatch]
+    [dispatch, toaster]
   );
 
   if (data == null) {
@@ -82,7 +88,6 @@ function _PostgRESTTableView<T>({
   }
 
   return h("div.data-sheet-outer", [
-    h(OverlayToaster, { usePortal: false, ref: toasterRef }),
     h(DataSheet, {
       ...rest,
       data,
@@ -92,13 +97,15 @@ function _PostgRESTTableView<T>({
       onDeleteRows(selection) {
         if (!editable) return;
 
-        const rowIndices = console.log(rowIndices); //getRowsToDelete(selection);
+        const rowIndices = getRowsToDelete(selection);
 
-        const ids = rowIndices.map((i) => data[i].id);
+        const ids = rowIndices.map((i) => data[i][identityKey]);
 
         dispatch({ type: "start-loading" });
 
-        const query = client.delete().in("id", ids);
+        let query = client.delete().in(identityKey, ids);
+
+        query = filter?.(query) ?? query;
 
         finishResponse(query, { $delete: Array.from(rowIndices.keys()) });
       },
@@ -118,12 +125,60 @@ function _PostgRESTTableView<T>({
         dispatch({ type: "start-loading" });
 
         // Save data
-        const query = client.upsert(updateRows, { defaultToNull: false });
+        let query = client.upsert(updateRows, { defaultToNull: false });
+
+        query = filter?.(query) ?? query;
 
         finishResponse(query, changes);
       },
     }),
   ]);
+}
+
+export function notifyOnError(toaster: Toaster, error: any) {
+  console.error(error);
+  const { message, status, code, details } = error;
+
+  let errorDetails = null;
+
+  if (details != null) {
+    if (typeof details === "string") {
+      errorDetails = h("p.error-details", details);
+    } else {
+      errorDetails = h("div.error-details", [
+        h("h4", "Error details"),
+        h("pre", JSON.stringify(details, null, 2)),
+      ]);
+    }
+  }
+
+  toaster.show({
+    message: h([
+      h.if(status != null)([h("code.bp5-code", status), " "]),
+      h.if(code != null)([h("code.bp5-code", code), " "]),
+      message ?? "An error occurred",
+      errorDetails,
+    ]),
+    intent: "danger",
+  });
+}
+
+export function wrapWithErrorHandling<T = any>(
+  toaster: Toaster,
+  fnPromise: Promise<T>
+): Promise<T | null> {
+  return fnPromise
+    .then((p) => {
+      if (p.error != null) {
+        // Rethrow error
+        throw p.error;
+      }
+      return p;
+    })
+    .catch((err) => {
+      notifyOnError(toaster, err);
+      return null;
+    });
 }
 
 export function LongTextViewer({ value, onChange }) {
@@ -135,9 +190,10 @@ export function IntervalCell({ value, children, ...rest }) {
 }
 
 export function lithologyRenderer(value) {
-  return h("span.liths", [
-    addJoiner(value?.map((d) => h(LithologyTag, { data: d }))),
-  ]);
+  return h(
+    "span.tag-cell-content.liths",
+    value?.map((d) => h(LithologyTag, { data: d, key: d.id }))
+  );
 }
 
 export function ExpandedLithologies({ value, onChange }) {
@@ -153,7 +209,7 @@ export function ExpandedLithologies({ value, onChange }) {
             h(
               "td.basis-col",
               d.basis_col?.map((d) => {
-                return h(Tag, { minimal: true, key: d }, [
+                return h(Tag, { size: TagSize.Small, key: d }, [
                   h("span.tag-header", "Column"),
                   " ",
                   h("code", d),
@@ -165,8 +221,4 @@ export function ExpandedLithologies({ value, onChange }) {
       ),
     ]),
   ]);
-}
-
-function addJoiner(arr) {
-  return arr?.reduce((acc, curr) => [acc, " ", curr]);
 }

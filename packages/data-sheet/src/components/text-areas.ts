@@ -24,7 +24,8 @@ export function EditableTextArea({ value, onChange }) {
       onChange: (evt) => onChange(evt.target.value),
       onKeyDown: (evt) => {
         if (evt.key === "Enter") {
-          evt.preventDefault();
+          //evt.preventDefault();
+          evt.stopPropagation();
           return;
         }
 

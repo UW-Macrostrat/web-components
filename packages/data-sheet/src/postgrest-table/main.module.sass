@@ -5,7 +5,7 @@
   border-radius: 0.5em
 
 .inline-lithology .lithology
-  line-height: 1.2em
+  line-height: 1em
 
 .basis-panel
   :global(.bp5-tag)
@@ -41,12 +41,14 @@
 .basis-col
   max-width: 15em
 
-.liths :global(.bp5-tag)
-  padding: 0px 4px
-  min-height: 16px
+.liths>*
+  margin-right: 0.5em
 
 .data-sheet-outer
   position: relative
   flex: 1
   display: flex
   min-height: 0
+
+.tag-cell-content
+  line-height: 1

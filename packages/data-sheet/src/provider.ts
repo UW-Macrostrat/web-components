@@ -11,7 +11,6 @@ import { generateColumnSpec } from "./utils";
 import update, { Spec } from "immutability-helper";
 import { range } from "./utils";
 import React from "react";
-import { ensureElement } from "@blueprintjs/core/lib/esnext/common/utils";
 
 export interface ColumnSpec {
   name: string;
@@ -26,6 +25,7 @@ export interface ColumnSpec {
   editable?: boolean;
   inlineEditor?: boolean | React.ComponentType<any> | string | null;
   style?: React.CSSProperties;
+  width?: number;
 }
 
 export interface ColumnSpecOptions<T> {
@@ -49,8 +49,7 @@ export interface DataSheetState<T> {
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
   topLeftCell: FocusedCellCoordinates | null;
-  // Data before deletions and reordering
-  initialData: T[];
+  deletedRows: Set<number>;
   // Sparse data structure for updated data
   updatedData: T[];
   initialized: boolean;
@@ -67,6 +66,8 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: T[]): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
+  onColumnsReordered(oldIndex: number, newIndex: number, length: number): void;
+  moveFocusedCell(direction: "up" | "down" | "left" | "right"): void;
   deleteSelectedRows(): void;
   clearSelection(): void;
   resetChanges(): void;
@@ -93,8 +94,7 @@ export interface VisibleCells {
 
 const computed = createComputed(
   (state: DataSheetStore<any>): DataSheetComputedStore => ({
-    hasUpdates:
-      state.updatedData.length > 0 || state.initialData !== state.data,
+    hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
   })
 ) as any;
 
@@ -118,9 +118,9 @@ export function DataSheetProvider<T>({
       computed((set): DataSheetStore<T> => {
         return {
           data,
-          initialData: data,
           columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
           editable,
+          deletedRows: new Set<number>(),
           selection: [],
           fillValueBaseCell: null,
           updatedData: [],
@@ -132,6 +132,32 @@ export function DataSheetProvider<T>({
           enableColumnReordering: false,
           setSelection(selection: Region[]) {
             set(updateSelection(selection));
+          },
+          moveFocusedCell(direction: "up" | "down" | "left" | "right") {
+            set((state) => {
+              const { topLeftCell } = state;
+              if (topLeftCell == null) return {};
+              let { col, row } = topLeftCell;
+              switch (direction) {
+                case "up":
+                  row = Math.max(0, row - 1);
+                  break;
+                case "down":
+                  row = Math.min(
+                    row + 1,
+                    Math.max(state.data.length, state.updatedData.length) - 1
+                  );
+                  break;
+                case "left":
+                  col = Math.max(0, col - 1);
+                  break;
+                case "right":
+                  col = Math.min(col + 1, state.columnSpec.length - 1);
+                  break;
+              }
+              const region: Region = { cols: [col, col], rows: [row, row] };
+              return updateSelection([region]);
+            });
           },
           addRow(row: Partial<T> = {} as T) {
             /** Add a new row. If there is a selection, use the last row index to determine
@@ -149,7 +175,6 @@ export function DataSheetProvider<T>({
 
               return {
                 updatedData: update(updatedData, spec),
-                data: update(data, spec),
               };
             });
           },
@@ -165,20 +190,18 @@ export function DataSheetProvider<T>({
           deleteSelectedRows() {
             // Remove selected rows from the data and updatedData arrays
             set((state) => {
-              const { selection, updatedData, initialData } = state;
+              const { selection, deletedRows } = state;
               const rowIndices = getRowIndices(selection);
 
               // Delete rows from both updatedData and data
-              const newUpdatedData = updatedData.filter(
-                (_, index) => !rowIndices.includes(index)
-              );
-              const newData = initialData.filter(
-                (_, index) => !rowIndices.includes(index)
-              );
+              const newDeletedRows = new Set(deletedRows);
+              for (const rowIndex of rowIndices) {
+                newDeletedRows.add(rowIndex);
+              }
+
               // Remove selected rows and reset selection
               return {
-                updatedData: newUpdatedData,
-                data: newData,
+                deletedRows: newDeletedRows,
                 selection: [],
                 focusedCell: null,
                 topLeftCell: null,
@@ -190,7 +213,7 @@ export function DataSheetProvider<T>({
             // Reset the updated data to the initial data
             set((state) => ({
               updatedData: [],
-              data: state.initialData,
+              deletedRows: new Set<number>(),
               selection: [],
               focusedCell: null,
               topLeftCell: null,
@@ -222,7 +245,7 @@ export function DataSheetProvider<T>({
             });
           },
           initialize(props: DataSheetCoreProps<T>) {
-            set({ ...props, initialData: props.data, initialized: true });
+            set({ ...props, initialized: true });
           },
           clearSelection() {
             set((state) => {
@@ -289,7 +312,7 @@ export function DataSheetProvider<T>({
               return { columnSpec: newSpec };
             });
           },
-          scrollToRow(rowIndex: number, columnIndex: number) {
+          scrollToRow(rowIndex: number) {
             if (tableRef.current == null) return;
             tableRef.current.scrollToRegion({
               rows: [rowIndex, rowIndex],
@@ -414,7 +437,9 @@ function selectionEquals(a: Region[], b: Region[]): boolean {
   return true;
 }
 
-function singleFocusedCell(sel: Region[]): FocusedCellCoordinates | null {
+export function singleFocusedCell(
+  sel: Region[]
+): FocusedCellCoordinates | null {
   /** Derive a single focused cell from a selected region, if possible */
   if (sel?.length !== 1) return null;
   return topLeftCell(sel, true);
