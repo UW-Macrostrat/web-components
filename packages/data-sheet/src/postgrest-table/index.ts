@@ -95,6 +95,7 @@ function _PostgRESTTableView<T>({
         if (!editable) return;
 
         const rowIndices = getRowsToDelete(selection);
+
         const ids = rowIndices.map((i) => data[i][identityKey]);
 
         dispatch({ type: "start-loading" });
@@ -186,9 +187,10 @@ export function IntervalCell({ value, children, ...rest }) {
 }
 
 export function lithologyRenderer(value) {
-  return h("span.tag-cell-content.liths", [
-    addJoiner(value?.map((d) => h(LithologyTag, { data: d }))),
-  ]);
+  return h(
+    "span.tag-cell-content.liths",
+    value?.map((d) => h(LithologyTag, { data: d, key: d.id }))
+  );
 }
 
 export function ExpandedLithologies({ value, onChange }) {

@@ -395,25 +395,26 @@ function basicCellRenderer<T>(
       autoFocus: autoFocusEditor,
       onChange,
       onKeyDown(e) {
-        if (e.key == "Enter") {
-          e.target.blur();
-        }
-
-        if (e.key == "Escape") {
-          e.target.blur();
-          e.preventDefault();
-          return;
-        }
-
-        const shouldPropagate = handleSpecialKeys(e, e.target);
-        if (!shouldPropagate) {
-          e.stopPropagation();
-        } else {
-          e.target.blur();
-          if (e.key !== "Escape") {
-            e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
-          }
-        }
+        console.log("Key down in inline editor", e.key);
+        // if (e.key == "Enter") {
+        //   e.target.blur();
+        // }
+        //
+        // if (e.key == "Escape") {
+        //   e.target.blur();
+        //   e.preventDefault();
+        //   return;
+        // }
+        //
+        // const shouldPropagate = handleSpecialKeys(e, e.target);
+        // if (!shouldPropagate) {
+        //   e.stopPropagation();
+        // } else {
+        //   e.target.blur();
+        //   if (e.key !== "Escape") {
+        //     e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
+        //   }
+        // }
       },
     });
   } else {

@@ -37,7 +37,9 @@ export function LithologyTag({
   if (showAttributes && data.atts != null && data.atts.length > 0) {
     atts = h(List, {
       className: "lithology-attributes",
-      items: data.atts.map((att) => h("span.lithology-attribute", att)),
+      items: data.atts.map((att) =>
+        h("span.lithology-attribute", { key: att }, att)
+      ),
       commaSeparated: true,
     });
   }
@@ -60,7 +62,6 @@ export function LithologyTag({
     onClick: clickable ? handleClick : undefined,
   });
 }
-
 
 function List({ items, commaSeparated = false, lastSep = null, className }) {
   let items1 = items;
@@ -138,13 +139,11 @@ function lithologyComparison(a, b) {
 }
 
 export function EnvironmentsList({ environments, onClickItem }) {
-
-
   return h(
     TagField,
-    { label: "Environments", className: "environments-list"},
+    { label: "Environments", className: "environments-list" },
     environments.map((lith: any) => {
-      return h(LithologyTag, { data: lith, onClick: onClickItem});
+      return h(LithologyTag, { data: lith, onClick: onClickItem });
     })
   );
 }

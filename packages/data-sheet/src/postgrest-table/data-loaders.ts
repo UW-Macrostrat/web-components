@@ -2,7 +2,7 @@
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { debounce } from "underscore";
-import { useCallback, useMemo, useReducer } from "react";
+import { useCallback, useMemo, useReducer, useRef } from "react";
 import update, { Spec } from "immutability-helper";
 
 interface ChunkIndex {
@@ -268,12 +268,23 @@ export function usePostgRESTLazyLoader(
     state.visibleRegion.rowIndexEnd,
   ]);
 
+  // Reference to hold onto the scroll position
+  const ref = useRef(null);
+
   const onScroll = useCallback(
     debounce((visibleCells: RowRegion) => {
+      if (
+        visibleCells.rowIndexEnd == ref.current?.rowIndexEnd &&
+        visibleCells.rowIndexStart == ref.current?.rowIndexStart
+      ) {
+        return;
+      }
+      console.log("Visible cells changed", visibleCells);
       dispatch({
         type: "set-visible",
         region: visibleCells,
       });
+      ref.current = visibleCells;
     }, 500),
     [dispatch]
   );
