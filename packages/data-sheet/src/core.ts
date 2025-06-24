@@ -5,18 +5,17 @@ import {
   InputGroup,
   Intent,
 } from "@blueprintjs/core";
-import { Cell, Column, Region, Table2 } from "@blueprintjs/table";
+import {
+  Cell,
+  Column,
+  Region,
+  RowHeaderCell,
+  Table2,
+} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { EditorPopup, handleSpecialKeys } from "./components";
 import styles from "./main.module.sass";
 import {
@@ -25,6 +24,7 @@ import {
   DataSheetProvider,
   DataSheetProviderProps,
   DataSheetStore,
+  singleFocusedCell,
   useSelector,
   useStoreAPI,
   VisibleCells,
@@ -94,7 +94,7 @@ function _DataSheet<T>({
   onSaveData,
   onUpdateData,
   onDeleteRows,
-  verbose = true,
+  verbose = false,
   dataSheetActions = null,
   enableFocusedCell,
 }: DataSheetInternalProps<T>) {
@@ -110,6 +110,8 @@ function _DataSheet<T>({
 
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
+
+  const deletedRows = useSelector((state) => state.deletedRows);
 
   const focusedCell = useSelector((state) => state.focusedCell);
 
@@ -222,9 +224,24 @@ function _DataSheet<T>({
               selection,
               updatedData,
               focusedCell,
-              data,
+              deletedRows,
             ],
             onVisibleCellsChange: _onVisibleCellsChange,
+            rowHeaderCellRenderer: (rowIndex) => {
+              let style = null;
+              let intent = undefined;
+              if (deletedRows.has(rowIndex)) {
+                style = {
+                  opacity: 0.5,
+                  textDecoration: "line-through",
+                };
+              }
+              return h(RowHeaderCell, {
+                index: rowIndex,
+                name: `${rowIndex + 1}`,
+                style,
+              });
+            },
           },
           columnSpec.map((col, colIndex) => {
             return h(Column, {
@@ -250,6 +267,8 @@ function basicCellRenderer<T>(
   const data = state.data;
   const updatedData = state.updatedData;
 
+  const isDeleted = state.deletedRows.has(rowIndex);
+
   const row = data[rowIndex] ?? updatedData[rowIndex];
   const loading = row == null;
   const col = columnSpec;
@@ -265,7 +284,14 @@ function basicCellRenderer<T>(
 
   const autoFocusEditor = true;
 
-  const { style } = col;
+  let style = col.style;
+  if (isDeleted) {
+    style = {
+      ...(style ?? {}),
+      opacity: 0.5,
+      textDecoration: "line-through",
+    };
+  }
 
   const focused =
     focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
@@ -273,10 +299,15 @@ function basicCellRenderer<T>(
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
-  const editable = col.editable ?? state.editable;
+  const editable = (col.editable ?? state.editable) && !isDeleted && topLeft;
 
   const edited = updatedData[rowIndex]?.[col.key] != null;
-  const intent = edited ? "success" : undefined;
+  let intent = edited ? "success" : undefined;
+  if (isDeleted) {
+    intent = "danger";
+  } else if (loading) {
+    intent = "primary";
+  }
 
   const _Cell = col.cellComponent ?? BaseCell;
 
@@ -292,6 +323,7 @@ function basicCellRenderer<T>(
         loading,
         value,
         style,
+        isDeleted,
       },
       _renderedValue
     );
@@ -300,7 +332,7 @@ function basicCellRenderer<T>(
   if (!editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
-    return h(_Cell, { intent, value }, [
+    return h(_Cell, { intent, value, style }, [
       h.if(!focused)("input.hidden-input", {
         autoFocus: true,
         onKeyDown(e) {
@@ -394,7 +426,12 @@ function basicCellRenderer<T>(
       style,
       //truncated: false,
     },
-    [cellContents, h.if(editable)(DragHandle, { focusedCell })]
+    [
+      cellContents,
+      h.if(editable && singleFocusedCell(state.selection))(DragHandle, {
+        focusedCell,
+      }),
+    ]
   );
 }
 
@@ -412,6 +449,7 @@ function DragHandle({ focusedCell }) {
 }
 
 function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
+  const selection = useSelector((state) => state.selection);
   const resetChanges = useSelector((state) => state.resetChanges);
   const hasUpdates = useSelector((state) => state.hasUpdates);
 

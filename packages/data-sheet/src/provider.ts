@@ -49,8 +49,7 @@ export interface DataSheetState<T> {
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
   topLeftCell: FocusedCellCoordinates | null;
-  // Data before deletions and reordering
-  initialData: T[];
+  deletedRows: Set<number>;
   // Sparse data structure for updated data
   updatedData: T[];
   initialized: boolean;
@@ -93,8 +92,7 @@ export interface VisibleCells {
 
 const computed = createComputed(
   (state: DataSheetStore<any>): DataSheetComputedStore => ({
-    hasUpdates:
-      state.updatedData.length > 0 || state.initialData !== state.data,
+    hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
   })
 ) as any;
 
@@ -118,9 +116,9 @@ export function DataSheetProvider<T>({
       computed((set): DataSheetStore<T> => {
         return {
           data,
-          initialData: data,
           columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
           editable,
+          deletedRows: new Set<number>(),
           selection: [],
           fillValueBaseCell: null,
           updatedData: [],
@@ -149,7 +147,6 @@ export function DataSheetProvider<T>({
 
               return {
                 updatedData: update(updatedData, spec),
-                data: update(data, spec),
               };
             });
           },
@@ -165,20 +162,18 @@ export function DataSheetProvider<T>({
           deleteSelectedRows() {
             // Remove selected rows from the data and updatedData arrays
             set((state) => {
-              const { selection, updatedData, initialData } = state;
+              const { selection, deletedRows } = state;
               const rowIndices = getRowIndices(selection);
 
               // Delete rows from both updatedData and data
-              const newUpdatedData = updatedData.filter(
-                (_, index) => !rowIndices.includes(index)
-              );
-              const newData = initialData.filter(
-                (_, index) => !rowIndices.includes(index)
-              );
+              const newDeletedRows = new Set(deletedRows);
+              for (const rowIndex of rowIndices) {
+                newDeletedRows.add(rowIndex);
+              }
+
               // Remove selected rows and reset selection
               return {
-                updatedData: newUpdatedData,
-                data: newData,
+                deletedRows: newDeletedRows,
                 selection: [],
                 focusedCell: null,
                 topLeftCell: null,
@@ -190,7 +185,7 @@ export function DataSheetProvider<T>({
             // Reset the updated data to the initial data
             set((state) => ({
               updatedData: [],
-              data: state.initialData,
+              deletedRows: new Set<number>(),
               selection: [],
               focusedCell: null,
               topLeftCell: null,
@@ -222,7 +217,7 @@ export function DataSheetProvider<T>({
             });
           },
           initialize(props: DataSheetCoreProps<T>) {
-            set({ ...props, initialData: props.data, initialized: true });
+            set({ ...props, initialized: true });
           },
           clearSelection() {
             set((state) => {
@@ -414,7 +409,9 @@ function selectionEquals(a: Region[], b: Region[]): boolean {
   return true;
 }
 
-function singleFocusedCell(sel: Region[]): FocusedCellCoordinates | null {
+export function singleFocusedCell(
+  sel: Region[]
+): FocusedCellCoordinates | null {
   /** Derive a single focused cell from a selected region, if possible */
   if (sel?.length !== 1) return null;
   return topLeftCell(sel, true);

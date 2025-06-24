@@ -1,7 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import hyper from "@macrostrat/hyper";
 import styles from "./postgrest-sheet.stories.module.sass";
-import { ColorCell, ScrollToRowControl } from "../src";
+import {
+  ColorCell,
+  notifyOnError,
+  ScrollToRowControl,
+  wrapWithErrorHandling,
+} from "../src";
 import {
   LongTextViewer,
   IntervalCell,
@@ -17,10 +22,11 @@ import {
   DataSheetActionsRow,
 } from "../src/components/actions";
 import { PostgrestClient } from "@supabase/postgrest-js";
+import { useToaster } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
 
-const endpoint = "https://macrostrat.local/api/pg";
+const endpoint = "https://dev.macrostrat.org/api/pg";
 
 function TestPostgRESTView(props) {
   return h(
@@ -103,10 +109,33 @@ export const ScrollToRow = {
   },
 };
 
-export function SelectLegendIDControl() {
+export const MapboardPostgrestView = {
+  args: {
+    endpoint: "https://mapboard.local/pg-api",
+    table: "polygon_type",
+    editable: true,
+    order: { key: "id", ascending: true },
+    filter(query) {
+      return query
+        .eq("data_schema", "map_digitizer")
+        .eq("project_slug", "naukluft");
+    },
+    columns: ["id", "name", "symbol", "color", "symbol_color"],
+    columnOptions: {
+      overrides: {
+        id: {
+          editable: false,
+        },
+      },
+    },
+  },
+};
+
+function SelectLegendIDControl() {
   const [value, setValue] = useState("");
   const scrollToRow = useSelector((state) => state.scrollToRow);
 
+  const toaster = useToaster();
   // This should be provided by the table context
   const queryBuilder = useRef(new PostgrestClient(endpoint));
 
@@ -122,14 +151,16 @@ export function SelectLegendIDControl() {
         icon: "arrow-right",
         onClick() {
           // Get offset
-          queryBuilder.current
+          const query = queryBuilder.current
             .from("legend")
             .select("count()")
-            .lte("legend_id", value)
-            .then((res) => {
-              const rowCount = res.data[0].count;
-              scrollToRow(rowCount - 1);
-            });
+            .lte("legend_id", value);
+
+          wrapWithErrorHandling(toaster, query).then((res) => {
+            if (!res?.data) return null;
+            const rowCount = res.data[0].count;
+            scrollToRow(rowCount - 1);
+          });
         },
       }),
     }),
