@@ -1,8 +1,8 @@
-import { Tag, Toaster } from "@blueprintjs/core";
+import { Toaster } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { DataSheet, ColorCell, getRowsToDelete } from "../core"; //getRowsToDelete
-import { LithologyTag } from "@macrostrat/data-components";
+import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import { usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner } from "@blueprintjs/core";
 
@@ -206,7 +206,7 @@ export function ExpandedLithologies({ value, onChange }) {
             h(
               "td.basis-col",
               d.basis_col?.map((d) => {
-                return h(Tag, { minimal: true, key: d }, [
+                return h(Tag, { size: TagSize.Small, key: d }, [
                   h("span.tag-header", "Column"),
                   " ",
                   h("code", d),
