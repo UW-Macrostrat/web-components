@@ -2352,6 +2352,7 @@ __metadata:
     "@blueprintjs/core": "npm:^5.10.2"
     "@blueprintjs/table": "npm:^5.1.4"
     "@macrostrat/color-utils": "workspace:^"
+    "@macrostrat/data-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/ui-components": "workspace:^"
     "@supabase/postgrest-js": "npm:^1.17.7"

@@ -1,8 +1,8 @@
-import { OverlayToaster, Tag, Toaster } from "@blueprintjs/core";
+import { Tag, Toaster } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { DataSheet, ColorCell, getRowsToDelete } from "../core"; //getRowsToDelete
-import { LithologyTag } from "./cell-renderers";
+import { LithologyTag } from "@macrostrat/data-components";
 import { usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner } from "@blueprintjs/core";
 
@@ -187,7 +187,7 @@ export function IntervalCell({ value, children, ...rest }) {
 }
 
 export function lithologyRenderer(value) {
-  return h("span.liths", [
+  return h("span.tag-cell-content.liths", [
     addJoiner(value?.map((d) => h(LithologyTag, { data: d }))),
   ]);
 }
