@@ -55,9 +55,6 @@ export function colorSwatchRenderer(value) {
   ]);
 }
 
-export const TrueColorCell = (props) =>
-  h(ColorCell, { adjustLuminance: false, ...props });
-
 const colorCombo = memoize(getLuminanceAdjustedColorScheme);
 
 enum ColorConversionType {

@@ -151,7 +151,6 @@ export function DataSheetProvider<T>({
                   col = col + 1;
                   break;
               }
-              console.log(`Moving focused cell to ${col}, ${row}`);
               const region: Region = { cols: [col, col], rows: [row, row] };
               return updateSelection([region]);
             });

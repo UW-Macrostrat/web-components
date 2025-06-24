@@ -51,6 +51,7 @@ interface DataSheetInternalProps<T> {
   enableFocusedCell?: boolean;
   dataSheetActions?: ReactNode | null;
   editable?: boolean;
+  autoFocusEditor?: boolean;
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
@@ -97,6 +98,7 @@ function _DataSheet<T>({
   verbose = false,
   dataSheetActions = null,
   enableFocusedCell,
+  autoFocusEditor = true,
 }: DataSheetInternalProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -192,7 +194,6 @@ function _DataSheet<T>({
       "div.data-sheet-holder",
       {
         onKeyDown(e) {
-          console.log("Key down in data sheet", e.key);
           // General key event
           if (e.key === "Escape") {
             // Clear selection on Escape
@@ -258,7 +259,13 @@ function _DataSheet<T>({
               name: col.name,
               cellRenderer: (rowIndex) => {
                 const state = storeAPI.getState();
-                return basicCellRenderer<T>(rowIndex, colIndex, col, state);
+                return basicCellRenderer<T>(
+                  rowIndex,
+                  colIndex,
+                  col,
+                  state,
+                  autoFocusEditor
+                );
               },
             });
           })
@@ -272,7 +279,8 @@ function basicCellRenderer<T>(
   rowIndex: number,
   colIndex: number,
   columnSpec: ColumnSpec,
-  state: DataSheetStore<T>
+  state: DataSheetStore<T>,
+  autoFocusEditor = true
 ): any {
   const data = state.data;
   const updatedData = state.updatedData;
@@ -292,8 +300,6 @@ function basicCellRenderer<T>(
   const _renderedValue = col.valueRenderer?.(value) ?? value;
   let cellContents: ReactNode = _renderedValue;
   const editable = (col.editable ?? state.editable) && !isDeleted;
-
-  const autoFocusEditor = true;
 
   let style = col.style ?? {};
   if (isDeleted) {
@@ -370,7 +376,6 @@ function basicCellRenderer<T>(
         h.if(!focused)("input.hidden-input", {
           autoFocus: true,
           onKeyDown(e) {
-            console.log("Key down in hidden input", e.key);
             if (e.key == "Backspace" || e.key == "Delete") {
               clearSelection();
             }
@@ -445,7 +450,7 @@ function basicCellRenderer<T>(
             onCellEdited(rowIndex, col.key, value);
           },
         }),
-        inlineEditor: _inlineEditor,
+        //inlineEditor: _inlineEditor,
         valueViewer: _renderedValue,
       }),
     ]);

@@ -36,7 +36,7 @@ export function EditorPopup(props) {
               evt.stopPropagation();
             }
             // Climb over the interaction barrier to propagate the key event to the table
-            ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));
+            //ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));
           },
         },
         h(ErrorBoundary, null, content)

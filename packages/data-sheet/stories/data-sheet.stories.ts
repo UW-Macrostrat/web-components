@@ -1,8 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import hyper from "@macrostrat/hyper";
-import { ColorPicker } from "../../data-sheet";
-import { DataSheet, ColorCell } from "../src";
-import { useMemo } from "react";
+import { DataSheet, ColorCell, ColorPicker, EditableTextArea } from "../src";
 import chroma from "chroma-js";
 import styles from "./data-sheet.stories.module.sass";
 import "@blueprintjs/table/lib/css/table.css";
@@ -10,17 +8,19 @@ import { asChromaColor } from "@macrostrat/color-utils";
 
 const h = hyper.styled(styles);
 
-function DataSheetTest(rest) {
-  const [data, columnSpec] = useTestData();
-  return h(TestDataSheet, { data, columnSpec, ...rest });
-}
+const defaultTestData = buildTestData();
+const defaultColumnSpec = buildColumnSpec();
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<any> = {
   title: "Data sheet/Data sheet",
-  component: DataSheetTest,
+  component: TestDataSheet,
   parameters: {
     layout: "fullscreen",
+  },
+  args: {
+    data: defaultTestData,
+    columnSpec: defaultColumnSpec,
   },
 };
 
@@ -47,12 +47,34 @@ export const ReorderableColumns: StoryObj<{}> = {
   },
 };
 
-export function useTestData() {
-  const columnSpec = useMemo(buildColumnSpec, []);
-  const data = useMemo(buildTestData, []);
+export const WithLongEditableText = {
+  args: {
+    columnSpec: [
+      ...defaultColumnSpec,
+      {
+        name: "Description",
+        key: "description",
+        required: false,
+        dataEditor: EditableTextArea,
+      },
+    ],
+  },
+};
 
-  return [data, columnSpec];
-}
+export const WithoutAutoFocus = {
+  args: {
+    autoFocus: false,
+    columnSpec: [
+      ...defaultColumnSpec,
+      {
+        name: "Description",
+        key: "description",
+        required: false,
+        dataEditor: EditableTextArea,
+      },
+    ],
+  },
+};
 
 function valueRenderer(d) {
   try {
@@ -110,6 +132,7 @@ function buildTestData() {
       rake: 20 + Math.random() * 10,
       maxError: Math.max(...errors),
       minError: Math.min(...errors),
+      description: `This is a description for item ${i}. It has some random text to fill the space and make it look like a real field book entry. The number is ${i}.`,
     });
   }
   return repeatedData;
