@@ -314,6 +314,8 @@ function basicCellRenderer<T>(
   const _renderedValue = valueRenderer(value);
   let inlineEditor = editable ? col.inlineEditor ?? true : false;
 
+  let cellContents: React.ReactNode = _renderedValue;
+
   if (!topLeft) {
     // This should be the case for every cell except the focused one
     return h(
@@ -325,13 +327,27 @@ function basicCellRenderer<T>(
         style,
         isDeleted,
       },
-      _renderedValue
+      cellContents
     );
   }
 
   if (!editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
+
+    if (col.dataEditor != null) {
+      // Could do a better job rendering this value...
+      cellContents = h([
+        h(EditorPopup, {
+          autoFocus: autoFocusEditor,
+          content: h(col.dataEditor, {
+            value,
+          }),
+          valueViewer: _renderedValue,
+        }),
+      ]);
+    }
+
     return h(_Cell, { intent, value, style }, [
       h.if(!focused)("input.hidden-input", {
         autoFocus: true,
@@ -342,7 +358,7 @@ function basicCellRenderer<T>(
           e.preventDefault();
         },
       }),
-      _renderedValue,
+      cellContents,
     ]);
     // Could probably put the hidden input elsewhere,
   }
@@ -355,7 +371,6 @@ function basicCellRenderer<T>(
     onCellEdited(rowIndex, col.key, e.target.value);
   };
 
-  let cellContents = _renderedValue;
   let cellClass = null;
 
   if (typeof inlineEditor == "boolean") {
