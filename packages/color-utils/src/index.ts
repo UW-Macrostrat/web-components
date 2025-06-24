@@ -75,7 +75,9 @@ export function getLuminanceAdjustedColorScheme(
   const luminance = darkMode ? 1 - delta : 2 * delta;
   const backgroundLuminance = darkMode ? delta : 1 - 2 * delta;
   const mainColor = _color?.luminance(luminance).css();
-  const backgroundColor = _color?.luminance(backgroundLuminance).css();
+  let bkg = _color?.luminance(backgroundLuminance);
+
+  const backgroundColor = bkg.css();
 
   const secondaryBackgroundColor = _color
     ?.luminance(darkMode ? delta / 2 : 1 - delta)

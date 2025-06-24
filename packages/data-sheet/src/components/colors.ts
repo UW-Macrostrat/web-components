@@ -9,6 +9,7 @@ import {
 import { HexColorPicker } from "react-colorful";
 import { useEffect, useRef } from "react";
 import { memoize } from "underscore";
+import main from "../../../../.storybook/main";
 
 const h = hyper.styled(styles);
 
@@ -27,9 +28,11 @@ export function ColorCell({
 
   if (adjustLuminance) {
     // If adjustLuminance is true, get the color scheme based on the value
-    let colors = colorCombo(value, darkMode);
-    mainColor ??= colors?.mainColor;
-    backgroundColor ??= colors?.backgroundColor;
+    let colors = colorCombo(value, darkMode, 0.05);
+    if (colors != null) {
+      mainColor = colors.mainColor;
+      backgroundColor = colors.backgroundColor;
+    }
   }
 
   return h(

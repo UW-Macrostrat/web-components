@@ -47,32 +47,40 @@ export const ReorderableColumns: StoryObj<{}> = {
   },
 };
 
+const extColumnSpec = [
+  ...defaultColumnSpec,
+  {
+    name: "Description",
+    key: "description",
+    required: false,
+    dataEditor: EditableTextArea,
+    width: 250,
+  },
+];
+
 export const WithLongEditableText = {
   args: {
-    columnSpec: [
-      ...defaultColumnSpec,
-      {
-        name: "Description",
-        key: "description",
-        required: false,
-        dataEditor: EditableTextArea,
-      },
-    ],
+    columnSpec: extColumnSpec,
   },
 };
 
 export const WithoutAutoFocus = {
   args: {
     autoFocus: false,
-    columnSpec: [
-      ...defaultColumnSpec,
-      {
-        name: "Description",
-        key: "description",
-        required: false,
-        dataEditor: EditableTextArea,
-      },
-    ],
+    columnSpec: extColumnSpec,
+  },
+};
+
+export const MediumDensity = {
+  args: {
+    density: "medium",
+  },
+};
+
+export const LowDensity = {
+  args: {
+    density: "low",
+    columnSpec: extColumnSpec,
   },
 };
 
@@ -93,11 +101,23 @@ function TestDataSheet(props) {
 
 function buildColumnSpec() {
   return [
-    { name: "Strike", key: "strike", valueRenderer },
-    { name: "Dip", key: "dip", valueRenderer },
-    { name: "Rake", key: "rake", valueRenderer },
-    { name: "Max.", key: "maxError", category: "Errors", valueRenderer },
-    { name: "Min.", key: "minError", category: "Errors", valueRenderer },
+    { name: "Strike", key: "strike", valueRenderer, width: 75 },
+    { name: "Dip", key: "dip", valueRenderer, width: 75 },
+    { name: "Rake", key: "rake", valueRenderer, width: 75 },
+    {
+      name: "Max.",
+      key: "maxError",
+      category: "Errors",
+      valueRenderer,
+      width: 75,
+    },
+    {
+      name: "Min.",
+      key: "minError",
+      category: "Errors",
+      valueRenderer,
+      width: 75,
+    },
     {
       name: "Color",
       key: "color",

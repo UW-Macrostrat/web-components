@@ -41,6 +41,12 @@ const h = hyper.styled(styles);
 // TODO: add a "copy to selection" tool (the little square in the bottom right corner of a cell)
 // This should copy the value of a cell (or a set of cells in the same row) downwards.
 
+export enum DataSheetDensity {
+  HIGH = "high",
+  MEDIUM = "medium",
+  LOW = "low",
+}
+
 interface DataSheetInternalProps<T> {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onSaveData?: (updatedData: any[], data: T[]) => void;
@@ -52,6 +58,7 @@ interface DataSheetInternalProps<T> {
   dataSheetActions?: ReactNode | null;
   editable?: boolean;
   autoFocusEditor?: boolean;
+  density?: DataSheetDensity;
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
@@ -99,6 +106,7 @@ function _DataSheet<T>({
   dataSheetActions = null,
   enableFocusedCell,
   autoFocusEditor = true,
+  density = DataSheetDensity.HIGH,
 }: DataSheetInternalProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -183,7 +191,29 @@ function _DataSheet<T>({
 
   const numRows = Math.max(updatedData.length, data.length);
 
-  return h("div.data-sheet-container", [
+  let className = `${density}-density`;
+
+  let rowHeight = 20;
+  let defaultColumnWidth = 150;
+  let style = {
+    "--data-sheet-row-height": "20px",
+    "--data-sheet-font-size": "12px",
+  };
+  if (density === DataSheetDensity.MEDIUM) {
+    rowHeight = 24;
+    style = {
+      "--data-sheet-row-height": "24px",
+      "--data-sheet-font-size": "14px",
+    };
+  } else if (density === DataSheetDensity.LOW) {
+    rowHeight = 30;
+    style = {
+      "--data-sheet-row-height": "30px",
+      "--data-sheet-font-size": "18px",
+    };
+  }
+
+  return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
       onSaveData: _onSaveData,
       onAddRow,
@@ -229,9 +259,15 @@ function _DataSheet<T>({
             //onColumnsReordered,
             focusedCell,
             selectedRegions: selection,
+            defaultRowHeight: rowHeight,
+            minRowHeight: rowHeight,
+            columnWidths: columnSpec.map(
+              (col) => col.width ?? defaultColumnWidth
+            ),
             onSelection,
             // The cell renderer is memoized internally based on these data dependencies
             cellRendererDependencies: [
+              data,
               selection,
               updatedData,
               focusedCell,
@@ -326,8 +362,6 @@ function basicCellRenderer<T>(
   let intent = edited ? "success" : undefined;
   if (isDeleted) {
     intent = "danger";
-  } else if (loading) {
-    intent = "primary";
   }
 
   const _Cell = col.cellComponent ?? BaseCell;

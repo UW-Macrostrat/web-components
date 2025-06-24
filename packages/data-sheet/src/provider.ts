@@ -25,6 +25,7 @@ export interface ColumnSpec {
   editable?: boolean;
   inlineEditor?: boolean | React.ComponentType<any> | string | null;
   style?: React.CSSProperties;
+  width?: number;
 }
 
 export interface ColumnSpecOptions<T> {
@@ -151,7 +152,7 @@ export function DataSheetProvider<T>({
                   col = Math.max(0, col - 1);
                   break;
                 case "right":
-                  col = Math.min(col + 1, columnSpec.length - 1);
+                  col = Math.min(col + 1, state.columnSpec.length - 1);
                   break;
               }
               const region: Region = { cols: [col, col], rows: [row, row] };
