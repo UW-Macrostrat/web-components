@@ -2,7 +2,10 @@ import { Cell } from "@blueprintjs/table";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { asChromaColor } from "@macrostrat/color-utils";
+import {
+  asChromaColor,
+  getLuminanceAdjustedColorScheme,
+} from "@macrostrat/color-utils";
 import { HexColorPicker } from "react-colorful";
 import { useEffect, useRef } from "react";
 import { memoize } from "underscore";
@@ -12,37 +15,23 @@ const h = hyper.styled(styles);
 export function ColorCell({ value, children, style, intent, ...rest }) {
   const darkMode = useInDarkMode();
 
+  const { mainColor, backgroundColor } = colorCombo(value, darkMode) ?? {};
+
   return h(
     Cell,
     {
       ...rest,
       style: {
+        color: mainColor,
+        backgroundColor,
         ...style,
-        ...colorCombo(value, darkMode),
       },
     },
     children
   );
 }
 
-const colorCombo = memoize((color, darkMode) =>
-  pleasantCombination(color, { darkMode })
-);
-
-export function pleasantCombination(
-  color,
-  { luminance = null, backgroundAlpha = 0.2, darkMode = false } = {}
-) {
-  const brighten = luminance ?? darkMode ? 0.5 : 0.1;
-
-  // Check if is a chroma color
-  color = asChromaColor(color);
-  if (color == null) return {};
-  return {
-    color: color?.luminance?.(brighten).css(),
-    backgroundColor: color?.alpha?.(backgroundAlpha).css(),
-  };
-}
+const colorCombo = memoize(getLuminanceAdjustedColorScheme);
 
 enum ColorConversionType {
   HEX = "hex",
