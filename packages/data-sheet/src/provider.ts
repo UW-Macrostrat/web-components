@@ -185,6 +185,7 @@ export function DataSheetProvider<T>({
             // Reset the updated data to the initial data
             set((state) => ({
               updatedData: [],
+              deletedRows: new Set<number>(),
               selection: [],
               focusedCell: null,
               topLeftCell: null,

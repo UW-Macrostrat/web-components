@@ -5,7 +5,13 @@ import {
   InputGroup,
   Intent,
 } from "@blueprintjs/core";
-import { Cell, Column, Region, Table2 } from "@blueprintjs/table";
+import {
+  Cell,
+  Column,
+  Region,
+  RowHeaderCell,
+  Table2,
+} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
@@ -221,6 +227,21 @@ function _DataSheet<T>({
               deletedRows,
             ],
             onVisibleCellsChange: _onVisibleCellsChange,
+            rowHeaderCellRenderer: (rowIndex) => {
+              let style = null;
+              let intent = undefined;
+              if (deletedRows.has(rowIndex)) {
+                style = {
+                  opacity: 0.5,
+                  textDecoration: "line-through",
+                };
+              }
+              return h(RowHeaderCell, {
+                index: rowIndex,
+                name: `${rowIndex + 1}`,
+                style,
+              });
+            },
           },
           columnSpec.map((col, colIndex) => {
             return h(Column, {
