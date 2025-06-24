@@ -281,13 +281,14 @@ function basicCellRenderer<T>(
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
   const _renderedValue = col.valueRenderer?.(value) ?? value;
   let cellContents: ReactNode = _renderedValue;
+  const editable = (col.editable ?? state.editable) && !isDeleted;
 
   const autoFocusEditor = true;
 
-  let style = col.style;
+  let style = col.style ?? {};
   if (isDeleted) {
     style = {
-      ...(style ?? {}),
+      ...style,
       opacity: 0.5,
       textDecoration: "line-through",
     };
@@ -299,7 +300,11 @@ function basicCellRenderer<T>(
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
-  const editable = (col.editable ?? state.editable) && !isDeleted && topLeft;
+  if (!editable && state.editable) {
+    // If the cell is not editable but the sheet is editable, we want to differentiate
+    // between editable and non-editable cells.
+    style.color = "var(--text-subtle-color)";
+  }
 
   const edited = updatedData[rowIndex]?.[col.key] != null;
   let intent = edited ? "success" : undefined;
@@ -328,6 +333,8 @@ function basicCellRenderer<T>(
     );
   }
 
+  // The rest is for the top-left cell of a selection or the focused cell
+
   if (!editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
@@ -342,18 +349,26 @@ function basicCellRenderer<T>(
       });
     }
 
-    return h(_Cell, { intent, value, style }, [
-      h.if(!focused)("input.hidden-input", {
-        autoFocus: true,
-        onKeyDown(e) {
-          if (e.key == "Backspace" || e.key == "Delete") {
-            clearSelection();
-          }
-          e.preventDefault();
-        },
-      }),
-      cellContents,
-    ]);
+    return h(
+      _Cell,
+      {
+        intent,
+        value,
+        style,
+      },
+      [
+        h.if(!focused)("input.hidden-input", {
+          autoFocus: true,
+          onKeyDown(e) {
+            if (e.key == "Backspace" || e.key == "Delete") {
+              clearSelection();
+            }
+            e.preventDefault();
+          },
+        }),
+        cellContents,
+      ]
+    );
     // Could probably put the hidden input elsewhere,
   }
 
