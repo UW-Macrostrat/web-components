@@ -51,7 +51,7 @@ export function getTagStyle(
   options: { highlighted?: boolean; inDarkMode?: boolean; active?: boolean }
 ): CSSProperties {
   const _baseColor = asChromaColor(baseColor ?? "#fff");
-  const { highlighted = true, inDarkMode = false, active = false } = options;
+  const { highlighted = true, inDarkMode = useDarkMode().isEnabled, active = false } = options;
 
   let mixAmount = highlighted ? 0.8 : 0.5;
   let backgroundAlpha = highlighted ? 0.8 : 0.2;
@@ -61,16 +61,22 @@ export function getTagStyle(
     backgroundAlpha = 1;
   }
 
-  const mixTarget = inDarkMode ? "white" : "black";
+  const mixTarget = "black";
 
   const color = active ? "#000" : _baseColor.mix(mixTarget, mixAmount).hex();
   const borderColor = highlighted
     ? _baseColor.mix(mixTarget, mixAmount / 1.1).hex()
     : "transparent";
 
-  const backgroundColor = active ? 
+  let backgroundColor = active ? 
     _baseColor.alpha(backgroundAlpha).hex() :
     normalizeColor(_baseColor.alpha(backgroundAlpha).hex());
+
+  // handle white backgrounds in light mode
+  if (!inDarkMode && backgroundColor === "#ffffff") {
+    console.log("Adjusting background color for light mode:", backgroundColor);
+    backgroundColor = "#f0f0f0";
+  }
 
   return {
     color,

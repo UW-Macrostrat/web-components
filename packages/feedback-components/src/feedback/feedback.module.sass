@@ -47,7 +47,6 @@ circle
   grid-auto-flow: column
   grid-template-rows: repeat(10, auto)
   gap: 0.2em
-  margin-bottom: .5em
 
   .type-tag
     padding: .2em .5em
@@ -76,3 +75,55 @@ mark
   position: relative
   z-index: 0
   overflow: visible
+
+.type-container
+  display: flex
+  justify-content: space-between
+  align-items: center
+  column-gap: 1em
+
+.add-type
+  cursor: pointer
+  display: flex
+  justify-content: space-between
+  padding: 0 .5em
+  align-items: center
+
+  p
+    margin: 0
+
+.overlay-container
+  height: 80vh
+  width: 100vw
+  display: flex
+  justify-content: center
+  align-items: center
+
+  .add-type-overlay
+    background-color: var(--secondary-color)
+    padding: .5em 1em
+    display: flex
+    flex-direction: column
+    gap: 1em
+    border-radius: .2em
+
+    .title
+      display: flex
+      justify-content: space-between
+      align-items: center
+
+    h2
+      margin: 0
+
+    .form-group
+      display: flex
+      gap: 3em
+
+      .text-inputs
+        display: flex
+        flex-direction: column
+        gap: 1em
+
+.icons
+  display: flex
+  gap: .25em
