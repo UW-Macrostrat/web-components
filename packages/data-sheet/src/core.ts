@@ -450,7 +450,6 @@ function basicCellRenderer<T>(
             onCellEdited(rowIndex, col.key, value);
           },
         }),
-        //inlineEditor: _inlineEditor,
         valueViewer: _renderedValue,
       }),
     ]);

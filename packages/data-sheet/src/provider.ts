@@ -134,21 +134,24 @@ export function DataSheetProvider<T>({
           },
           moveFocusedCell(direction: "up" | "down" | "left" | "right") {
             set((state) => {
-              const { focusedCell } = state;
-              if (focusedCell == null) return {};
-              let { col, row } = focusedCell;
+              const { topLeftCell } = state;
+              if (topLeftCell == null) return {};
+              let { col, row } = topLeftCell;
               switch (direction) {
                 case "up":
                   row = Math.max(0, row - 1);
                   break;
                 case "down":
-                  row = row + 1;
+                  row = Math.min(
+                    row + 1,
+                    Math.max(state.data.length, state.updatedData.length) - 1
+                  );
                   break;
                 case "left":
                   col = Math.max(0, col - 1);
                   break;
                 case "right":
-                  col = col + 1;
+                  col = Math.min(col + 1, columnSpec.length - 1);
                   break;
               }
               const region: Region = { cols: [col, col], rows: [row, row] };
