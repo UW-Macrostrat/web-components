@@ -4,11 +4,8 @@ import styles from "./postgrest-sheet.stories.module.sass";
 import {
   ColorCell,
   ColorPicker,
-  ColorSwatchCell,
   colorSwatchRenderer,
-  notifyOnError,
   ScrollToRowControl,
-  TrueColorCell,
   wrapWithErrorHandling,
 } from "../src";
 import {
@@ -54,6 +51,9 @@ const defaultColumnOptions = {
       dataEditor: ExpandedLithologies,
     },
     name: "Unit name",
+    lith: {
+      dataEditor: LongTextViewer,
+    },
     comments: "Comments",
     legend_id: "Legend ID",
     strat_name: "Stratigraphic names",

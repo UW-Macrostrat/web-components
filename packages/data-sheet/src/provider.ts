@@ -11,7 +11,6 @@ import { generateColumnSpec } from "./utils";
 import update, { Spec } from "immutability-helper";
 import { range } from "./utils";
 import React from "react";
-import { ensureElement } from "@blueprintjs/core/lib/esnext/common/utils";
 
 export interface ColumnSpec {
   name: string;
@@ -66,6 +65,8 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: T[]): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
+  onColumnsReordered(oldIndex: number, newIndex: number, length: number): void;
+  moveFocusedCell(direction: "up" | "down" | "left" | "right"): void;
   deleteSelectedRows(): void;
   clearSelection(): void;
   resetChanges(): void;
@@ -130,6 +131,30 @@ export function DataSheetProvider<T>({
           enableColumnReordering: false,
           setSelection(selection: Region[]) {
             set(updateSelection(selection));
+          },
+          moveFocusedCell(direction: "up" | "down" | "left" | "right") {
+            set((state) => {
+              const { focusedCell } = state;
+              if (focusedCell == null) return {};
+              let { col, row } = focusedCell;
+              switch (direction) {
+                case "up":
+                  row = Math.max(0, row - 1);
+                  break;
+                case "down":
+                  row = row + 1;
+                  break;
+                case "left":
+                  col = Math.max(0, col - 1);
+                  break;
+                case "right":
+                  col = col + 1;
+                  break;
+              }
+              console.log(`Moving focused cell to ${col}, ${row}`);
+              const region: Region = { cols: [col, col], rows: [row, row] };
+              return updateSelection([region]);
+            });
           },
           addRow(row: Partial<T> = {} as T) {
             /** Add a new row. If there is a selection, use the last row index to determine
@@ -284,7 +309,7 @@ export function DataSheetProvider<T>({
               return { columnSpec: newSpec };
             });
           },
-          scrollToRow(rowIndex: number, columnIndex: number) {
+          scrollToRow(rowIndex: number) {
             if (tableRef.current == null) return;
             tableRef.current.scrollToRegion({
               rows: [rowIndex, rowIndex],

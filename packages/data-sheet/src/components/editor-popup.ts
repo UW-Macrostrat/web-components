@@ -33,6 +33,7 @@ export function EditorPopup(props) {
             if (evt.key === "Escape") {
               setIsOpen(false);
               evt.preventDefault();
+              evt.stopPropagation();
             }
             // Climb over the interaction barrier to propagate the key event to the table
             ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));

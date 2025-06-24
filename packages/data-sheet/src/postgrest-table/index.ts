@@ -1,4 +1,4 @@
-import { Toaster } from "@blueprintjs/core";
+import { Toaster, HotkeysProvider } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { DataSheet, ColorCell, getRowsToDelete } from "../core"; //getRowsToDelete
@@ -37,7 +37,10 @@ interface PostgRESTTableViewProps<T extends GenericSchema>
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
-  return h(ErrorBoundary, h(ToasterContext, h(_PostgRESTTableView, props)));
+  return h(
+    ErrorBoundary,
+    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props)))
+  );
 }
 
 const successResponses = [200, 201];
@@ -218,8 +221,4 @@ export function ExpandedLithologies({ value, onChange }) {
       ),
     ]),
   ]);
-}
-
-function addJoiner(arr) {
-  return arr?.reduce((acc, curr) => [acc, " ", curr]);
 }

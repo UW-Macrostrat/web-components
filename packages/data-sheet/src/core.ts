@@ -192,6 +192,7 @@ function _DataSheet<T>({
       "div.data-sheet-holder",
       {
         onKeyDown(e) {
+          console.log("Key down in data sheet", e.key);
           // General key event
           if (e.key === "Escape") {
             // Clear selection on Escape
@@ -202,6 +203,15 @@ function _DataSheet<T>({
           if (e.key === "Backspace" || e.key === "Delete") {
             // Clear selection on Backspace or Delete
             storeAPI.getState().clearSelection();
+            e.preventDefault();
+          }
+          // Handle arrow keys for navigation
+          if (e.key.startsWith("Arrow")) {
+            // Handle arrow key navigation
+            const direction = e.key.replace("Arrow", "").toLowerCase();
+            const state = storeAPI.getState();
+            state.moveFocusedCell(direction);
+            // Prevent default scrolling behavior
             e.preventDefault();
           }
         },
@@ -360,6 +370,7 @@ function basicCellRenderer<T>(
         h.if(!focused)("input.hidden-input", {
           autoFocus: true,
           onKeyDown(e) {
+            console.log("Key down in hidden input", e.key);
             if (e.key == "Backspace" || e.key == "Delete") {
               clearSelection();
             }
@@ -395,6 +406,7 @@ function basicCellRenderer<T>(
       autoFocus: autoFocusEditor,
       onChange,
       onKeyDown(e) {
+        console.log("Key down in inline editor", e.key);
         if (e.key == "Enter") {
           e.target.blur();
         }
@@ -410,9 +422,7 @@ function basicCellRenderer<T>(
           e.stopPropagation();
         } else {
           e.target.blur();
-          if (e.key !== "Escape") {
-            e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
-          }
+          //e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
         }
       },
     });
