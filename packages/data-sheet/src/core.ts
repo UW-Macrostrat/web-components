@@ -279,8 +279,8 @@ function basicCellRenderer<T>(
   const clearSelection = state.clearSelection;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
-
-  const valueRenderer = col.valueRenderer ?? ((d) => d);
+  const _renderedValue = col.valueRenderer?.(value) ?? value;
+  let cellContents: ReactNode = _renderedValue;
 
   const autoFocusEditor = true;
 
@@ -311,10 +311,7 @@ function basicCellRenderer<T>(
 
   const _Cell = col.cellComponent ?? BaseCell;
 
-  const _renderedValue = valueRenderer(value);
   let inlineEditor = editable ? col.inlineEditor ?? true : false;
-
-  let cellContents: React.ReactNode = _renderedValue;
 
   if (!topLeft) {
     // This should be the case for every cell except the focused one
@@ -336,16 +333,13 @@ function basicCellRenderer<T>(
     // This will be the rendering logic for almost all cells
 
     if (col.dataEditor != null) {
-      // Could do a better job rendering this value...
-      cellContents = h([
-        h(EditorPopup, {
-          autoFocus: autoFocusEditor,
-          content: h(col.dataEditor, {
-            value,
-          }),
-          valueViewer: _renderedValue,
+      cellContents = h(EditorPopup, {
+        autoFocus: autoFocusEditor,
+        content: h(col.dataEditor, {
+          value,
         }),
-      ]);
+        valueViewer: _renderedValue,
+      });
     }
 
     return h(_Cell, { intent, value, style }, [
@@ -371,8 +365,7 @@ function basicCellRenderer<T>(
     onCellEdited(rowIndex, col.key, e.target.value);
   };
 
-  let cellClass = null;
-
+  let _inlineEditor: ReactNode = null;
   if (typeof inlineEditor == "boolean") {
     let _value = value;
     if (
@@ -382,7 +375,7 @@ function basicCellRenderer<T>(
     ) {
       _value = _renderedValue;
     }
-    inlineEditor = h("input.main-editor", {
+    _inlineEditor = h("input.main-editor", {
       value: _value ?? "",
       autoFocus: autoFocusEditor,
       onChange,
@@ -408,10 +401,15 @@ function basicCellRenderer<T>(
         }
       },
     });
+  } else {
+    // If inlineEditor is a ReactNode, we use it directly
+    _inlineEditor = inlineEditor as ReactNode;
   }
 
+  let className = null;
+
   if (col.dataEditor != null) {
-    cellClass = "editor-cell";
+    className = "editor-cell";
     cellContents = h([
       h(EditorPopup, {
         autoFocus: autoFocusEditor,
@@ -422,14 +420,16 @@ function basicCellRenderer<T>(
             onCellEdited(rowIndex, col.key, value);
           },
         }),
-        inlineEditor,
+        inlineEditor: _inlineEditor,
         valueViewer: _renderedValue,
       }),
     ]);
-  } else if (inlineEditor != null) {
-    cellContents = inlineEditor;
-    cellClass = "input-cell";
+  } else if (_inlineEditor != null) {
+    cellContents = _inlineEditor;
+    className = "input-cell";
   }
+
+  const isSingleCellSelection = singleFocusedCell(state.selection) != null;
 
   // Hidden html input
   return h(
@@ -437,13 +437,13 @@ function basicCellRenderer<T>(
     {
       intent,
       value,
-      className: cellClass,
+      className,
       style,
       //truncated: false,
     },
     [
       cellContents,
-      h.if(editable && singleFocusedCell(state.selection))(DragHandle, {
+      h.if(editable && isSingleCellSelection)(DragHandle, {
         focusedCell,
       }),
     ]
