@@ -3,8 +3,10 @@ import hyper from "@macrostrat/hyper";
 import styles from "./postgrest-sheet.stories.module.sass";
 import {
   ColorCell,
+  ColorPicker,
   notifyOnError,
   ScrollToRowControl,
+  TrueColorCell,
   wrapWithErrorHandling,
 } from "../src";
 import {
@@ -23,6 +25,7 @@ import {
 } from "../src/components/actions";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { useToaster } from "@macrostrat/ui-components";
+import { ColorEditor } from "../src/__archive";
 
 const h = hyper.styled(styles);
 
@@ -125,6 +128,16 @@ export const MapboardPostgrestView = {
       overrides: {
         id: {
           editable: false,
+        },
+        color: {
+          name: "Color",
+          cellComponent: TrueColorCell,
+          dataEditor: ColorPicker,
+        },
+        symbol_color: {
+          name: "Symbol color",
+          cellComponent: TrueColorCell,
+          dataEditor: ColorPicker,
         },
       },
     },

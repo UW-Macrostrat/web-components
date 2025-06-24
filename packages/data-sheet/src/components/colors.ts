@@ -12,10 +12,25 @@ import { memoize } from "underscore";
 
 const h = hyper.styled(styles);
 
-export function ColorCell({ value, children, style, intent, ...rest }) {
+export function ColorCell({
+  value,
+  children,
+  style,
+  intent,
+  adjustLuminance = true,
+  ...rest
+}) {
   const darkMode = useInDarkMode();
 
-  const { mainColor, backgroundColor } = colorCombo(value, darkMode) ?? {};
+  let mainColor = "var(--text-color)";
+  let backgroundColor = value;
+
+  if (adjustLuminance) {
+    // If adjustLuminance is true, get the color scheme based on the value
+    let colors = colorCombo(value, darkMode);
+    mainColor ??= colors?.mainColor;
+    backgroundColor ??= colors?.backgroundColor;
+  }
 
   return h(
     Cell,
@@ -30,6 +45,9 @@ export function ColorCell({ value, children, style, intent, ...rest }) {
     children
   );
 }
+
+export const TrueColorCell = (props) =>
+  h(ColorCell, { adjustLuminance: false, ...props });
 
 const colorCombo = memoize(getLuminanceAdjustedColorScheme);
 
