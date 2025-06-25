@@ -5,7 +5,7 @@ import { FocusStyleManager, HotkeysProvider } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import "@macrostrat/style-system/src/main.sass";
 import { DarkModeProvider } from "@macrostrat/ui-components";
-import { useDarkMode } from "storybook-dark-mode";
+import { useDarkMode } from "@vueless/storybook-dark-mode";
 import { DocsContainer } from "./docs-container";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
 
@@ -59,7 +59,7 @@ export const decorators = [
     const isEnabled = useDarkMode();
     return h(
       PatternProvider,
-      h(DarkModeProvider, { isEnabled }, renderStory())
+      h(DarkModeProvider, { isEnabled }, renderStory()),
     );
   },
 ];

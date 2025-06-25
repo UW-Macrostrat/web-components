@@ -15,8 +15,8 @@ export default {
   ],
   addons: [
     getAbsolutePath("@storybook/addon-links"),
-    getAbsolutePath("storybook-dark-mode"),
-    getAbsolutePath("@kemuridama/storybook-addon-github")
+    getAbsolutePath("@vueless/storybook-dark-mode"),
+    //getAbsolutePath("@kemuridama/storybook-addon-github"),
   ],
   framework: getAbsolutePath("@storybook/react-vite"),
   docs: {},
