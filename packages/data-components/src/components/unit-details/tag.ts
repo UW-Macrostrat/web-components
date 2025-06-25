@@ -82,6 +82,7 @@ export function Tag(props: BaseTagProps) {
       className: classNames(className, "tag"),
       style: buildTagStyle({ color, size, inDarkMode }),
       onClick,
+      href,
     },
     [_prefix, mainTag]
   );
