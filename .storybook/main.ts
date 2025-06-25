@@ -14,11 +14,12 @@ export default {
     "../packages/**/*.stories.@(mdx|js|jsx|ts|tsx)",
   ],
   addons: [
-    getAbsolutePath("@storybook/addon-links"),
-    getAbsolutePath("@vueless/storybook-dark-mode"),
+    "@storybook/addon-docs",
+    "@storybook/addon-links",
+    "@vueless/storybook-dark-mode",
     //getAbsolutePath("@kemuridama/storybook-addon-github"),
   ],
-  framework: getAbsolutePath("@storybook/react-vite"),
+  framework: "@storybook/react-vite",
   docs: {},
 } as StorybookConfig;
 
