@@ -29,8 +29,10 @@
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
     "@macrostrat/column-views": "workspace:^",
+    "@macrostrat/data-sheet": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "zustand": "^5.0.3",
     "zustand-computed": "^2.0.2"
@@ -44,7 +46,7 @@
     "directory": "packages/column-creator"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   },
   "files": [
     "dist",

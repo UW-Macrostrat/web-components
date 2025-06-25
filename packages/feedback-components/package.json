@@ -56,6 +56,6 @@
     "directory": "packages/feedback-components"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

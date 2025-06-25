@@ -43,7 +43,7 @@
   "author": "Daven Quinn <dev@davenquinn.com>",
   "license": "MIT",
   "devDependencies": {
-    "parcel": "^2.14.4",
+    "parcel": "^2.15.4",
     "stylus": "^0.59.0"
   },
   "dependencies": {

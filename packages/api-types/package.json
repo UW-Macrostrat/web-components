@@ -19,7 +19,7 @@
     "directory": "packages/api-types"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16"

@@ -32,6 +32,6 @@
     "directory": "packages/color-utils"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

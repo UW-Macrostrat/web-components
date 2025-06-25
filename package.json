@@ -44,7 +44,7 @@
     "marked": "^11.0",
     "marked-terminal": "^7.1.0",
     "node-fetch": "^3.2.9",
-    "parcel": "^2.14.4",
+    "parcel": "^2.15.4",
     "prettier": "^3.6.1",
     "react": "^19",
     "react-dom": "^19",

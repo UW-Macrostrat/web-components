@@ -40,7 +40,7 @@
   "devDependencies": {
     "@types/mapbox-gl": "^2.7.5||^3.4.1",
     "@types/react": "^18.3.12",
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   },
   "peerDependencies": {
     "react": "^16.13.1||^17||^18||^19",

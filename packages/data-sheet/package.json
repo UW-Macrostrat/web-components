@@ -56,6 +56,6 @@
   },
   "devDependencies": {
     "@types/underscore": "^1.13.0",
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

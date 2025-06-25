@@ -1,13 +1,8 @@
-import {
-  ColumnCreatorData,
-  ColumnCreatorProvider,
-  useColumnCreatorStore,
-  useSelector,
-} from "./store";
+import { ColumnCreatorData, ColumnCreatorProvider, useSelector } from "./store";
 import { ColorCell, ColorPicker, DataSheet } from "@macrostrat/data-sheet";
 
 export * from "./store";
-import { FlexRow, ToasterContext, useToaster } from "@macrostrat/ui-components";
+import { FlexRow, ToasterContext } from "@macrostrat/ui-components";
 import {
   BasicUnitComponent,
   Column,
@@ -51,7 +46,7 @@ export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
                 h(
                   "a",
                   { href: "https://davenquinn.com/projects/geologic-patterns" },
-                  "FGDC geologic patterns"
+                  "FGDC geologic patterns",
                 ),
                 ".",
               ]),
@@ -65,7 +60,7 @@ export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
               h("li", "Chronostratigraphy"),
               h(
                 "li",
-                "Auto-generation of units from surfaces for simple columns"
+                "Auto-generation of units from surfaces for simple columns",
               ),
               h("li", "Additional unit metadata (e.g., lithology, etc.)"),
               h("li", "Unit nesting/hierarchy"),
@@ -76,8 +71,8 @@ export function ColumnCreator({ data }: { data: ColumnCreatorData }) {
           h(ColumnCreatorColumn),
           h(ColumnCreatorDataEditor),
         ]),
-      ])
-    )
+      ]),
+    ),
   );
 }
 
@@ -89,14 +84,14 @@ function ColumnCreatorColumn() {
   return h(
     Column,
     {
-      units: units.filter((u) => u.errors.length == 0),
+      units: units.filter((u) => u.errors.length == 0) as any,
       axisType,
       pixelScale: 0.8,
       allowUnitSelection: false,
       unitComponent: BasicUnitComponent,
       showLabelColumn: false,
     },
-    h(ColumnSurfacesLayer, { surfaces })
+    h(ColumnSurfacesLayer, { surfaces }),
   );
 }
 
@@ -116,7 +111,7 @@ function ColumnSurfacesLayer({ surfaces }) {
     h(ColumnNotes, {
       notes,
       paddingLeft: 30,
-    })
+    }),
   );
 }
 
@@ -156,14 +151,14 @@ function ColumnCreatorDataEditor() {
         {
           show: editingType === EditingType.UNITS,
         },
-        h(ColumnCreatorUnitsEditor)
+        h(ColumnCreatorUnitsEditor),
       ),
       h(
         VisibilityToggle,
         {
           show: editingType === EditingType.SURFACES,
         },
-        h(ColumnCreatorSurfacesEditor)
+        h(ColumnCreatorSurfacesEditor),
       ),
     ]),
   ]);
@@ -178,7 +173,7 @@ function VisibilityToggle({ children, show }) {
         display: show ? "block" : "none",
       },
     },
-    children
+    children,
   );
 }
 
@@ -201,7 +196,7 @@ function ColumnCreatorSurfacesEditor() {
       },
     ],
     onUpdateData: (updatedData, data) => {
-      setSurfaces(reconstructData(data, updatedData));
+      setSurfaces(reconstructData(data, updatedData) as any[]);
     },
   });
 }
@@ -230,7 +225,6 @@ function ColumnCreatorUnitsEditor() {
         key: "color",
         required: false,
         isValid: (d) => asChromaColor(d) != null,
-        transform: (d) => d,
         dataEditor: ColorPicker,
         valueRenderer: (d) => {
           const color = asChromaColor(d);
@@ -278,7 +272,7 @@ function ColumnBasicElementsEditor() {
         inline: true,
         selectedValue: info.axisType,
         onChange(evt) {
-          updateInfo({ axisType: { $set: evt.target.value } });
+          updateInfo({ axisType: { $set: (evt as any).target.value } });
         },
       },
       [
@@ -290,7 +284,7 @@ function ColumnBasicElementsEditor() {
           label: "Age",
           value: "age",
         }),
-      ]
+      ],
     ),
   ]);
 }
