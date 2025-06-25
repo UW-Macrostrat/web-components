@@ -1,0 +1,31 @@
+name: Prepare releases
+
+on:
+  pull_request:
+    branches: [main]
+
+  # When pushing, we also want to deploy packages to NPM
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Build storybook - test
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      - name: Prepare releases
+        run: |
+          yarn run prepare 
