@@ -2,6 +2,7 @@
   "name": "@macrostrat/web-components",
   "description": "Web components for stratigraphy and geologic mapping managed by Macrostrat",
   "private": true,
+  "type": "module",
   "repository": "https://github.com/UW-Macrostrat/web-components.git",
   "version": "3.0.0",
   "scripts": {
@@ -15,7 +16,6 @@
     "check-types": "tsc --noEmit",
     "check-circular": "madge --circular --extensions ts,tsx ."
   },
-  "type": "module",
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
@@ -24,25 +24,19 @@
     "@babel/preset-typescript": "^7.21.4",
     "@blueprintjs/core": "^5.10.2",
     "@macrostrat/hyper": "^3.0.6",
+    "@mdx-js/rollup": "^3.1.0",
     "@parcel/bundler-library": "^2.14.4",
     "@parcel/config-default": "^2.14.4",
     "@parcel/transformer-sass": "^2.14.4",
     "@parcel/transformer-typescript-types": "^2.14.4",
-    "@storybook/addon-actions": "^8.6.8",
-    "@storybook/addon-docs": "^8.6.8",
-    "@storybook/addon-essentials": "^8.6.8",
-    "@storybook/addon-links": "^8.6.8",
-    "@storybook/addon-viewport": "^8.6.8",
-    "@storybook/builder-vite": "^8.6.8",
-    "@storybook/components": "^8.6.8",
-    "@storybook/manager-api": "^8.6.8",
-    "@storybook/preview-api": "^8.6.8",
-    "@storybook/react": "^8.6.8",
-    "@storybook/react-vite": "^8.6.8",
-    "@storybook/theming": "^8.6.8",
+    "@storybook/addon-docs": "9.0.12",
+    "@storybook/addon-links": "9.0.12",
+    "@storybook/builder-vite": "9.0.12",
+    "@storybook/react-vite": "9.0.12",
     "@types/d3-geo": "^3.1.0",
     "@types/geojson": "^7946.0.16",
     "@types/react": "^18.3.12",
+    "@vueless/storybook-dark-mode": "^9.0.5",
     "chalk": "^5.0.1",
     "date-fns": "^4.1.0",
     "glob": "^11.0.1",
@@ -51,22 +45,21 @@
     "marked-terminal": "^7.1.0",
     "node-fetch": "^3.2.9",
     "parcel": "^2.14.4",
-    "prettier": "^2.7.1",
-    "react": "^18",
-    "react-dom": "^18",
+    "prettier": "^3.6.1",
+    "react": "^19",
+    "react-dom": "^19",
     "sass-embedded": "^1.83.0",
-    "storybook": "^8.6.8",
-    "storybook-dark-mode": "^4.0.2",
+    "storybook": "9.0.12",
     "tsx": "^4.19.1",
-    "typescript": "^5.6.2",
+    "typescript": "^5.8.3",
     "underscore": "^1.12.0",
     "use-async-effect": "^2.2.1",
-    "vite": "^5.4.11"
+    "vite": "^6.1.6"
   },
   "resolutions": {
     "@types/react": "18.3.12",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react": "^19",
+    "react-dom": "^19"
   },
   "workspaces": [
     "packages/*",
@@ -75,11 +68,11 @@
   ],
   "packageManager": "yarn@4.8.1",
   "devDependencies": {
-    "@kemuridama/storybook-addon-github": "^1.4.0",
     "@parcel/packager-ts": "^2.14.4",
     "@types/d3-array": "^3.2.1",
     "@types/underscore": "^1.13.0",
     "madge": "^8.0.0",
+    "prettier": "^3.6.1",
     "react-docgen": "7.0.0"
   }
 }

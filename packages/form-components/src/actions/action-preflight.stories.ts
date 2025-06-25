@@ -1,4 +1,4 @@
-import type { Meta, StoryFn, StoryObj } from "@storybook/react";
+import type { Meta, StoryFn, StoryObj } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { ActionDef, ActionsPreflightPanel } from ".";
 import Box from "ui-box";

@@ -2,7 +2,7 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   resolve: {
-    conditions: ["source", "typescript"],
+    conditions: ["source"],
     dedupe: [
       "react",
       "react-dom",
@@ -10,7 +10,7 @@ export default defineConfig({
       "@macrostrat/column-components",
       "@macrostrat/mapbox-react",
       "@macrostrat/map-interface",
-      "@macrostrat/column-views"
+      "@macrostrat/column-views",
     ],
   },
   optimizeDeps: {

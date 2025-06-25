@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 
 import { FocusStyleManager } from "@blueprintjs/core";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
 import { ThreeColumnLayout } from ".";
 
 FocusStyleManager.onlyShowFocusOnTabs();

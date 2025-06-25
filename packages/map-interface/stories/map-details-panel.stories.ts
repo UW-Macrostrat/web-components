@@ -1,5 +1,5 @@
-import type { Meta } from "@storybook/react";
-import type { StoryObj } from "@storybook/react";
+import type { Meta } from "@storybook/react-vite";
+import type { StoryObj } from "@storybook/react-vite";
 import { ExpansionPanel, LocationPanel } from "../src";
 import h from "@macrostrat/hyper";
 import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";

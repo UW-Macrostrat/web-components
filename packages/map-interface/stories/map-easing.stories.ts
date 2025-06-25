@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
-import type { Meta } from "@storybook/react";
-import type { StoryObj } from "@storybook/react";
+import type { Meta } from "@storybook/react-vite";
+import type { StoryObj } from "@storybook/react-vite";
 import { Card } from "@blueprintjs/core";
 import {
   FloatingNavbar,

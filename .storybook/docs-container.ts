@@ -1,12 +1,12 @@
-import { DocsContainer as BaseContainer } from "@storybook/addon-docs";
-import { themes } from "@storybook/theming";
+import { DocsContainer as BaseContainer } from "@storybook/addon-docs/blocks";
+import { themes } from "storybook/theming";
 import h from "@macrostrat/hyper";
 import { useEffect, useState } from "react";
 
 export const DocsContainer = ({ children, context }) => {
   // Check for body class changes
   const [dark, setDark] = useState(
-    document.body.classList.contains("bp5-dark")
+    document.body.classList.contains("bp5-dark"),
   );
 
   useEffect(() => {
@@ -45,6 +45,6 @@ export const DocsContainer = ({ children, context }) => {
       theme,
       context: ctx1,
     },
-    children
+    children,
   );
 };

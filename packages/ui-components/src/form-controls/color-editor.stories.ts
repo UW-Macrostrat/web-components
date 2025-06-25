@@ -1,5 +1,5 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react";
-import { useArgs } from "@storybook/preview-api";
+import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
+import { useArgs } from "storybook/preview-api";
 import h from "@macrostrat/hyper";
 
 import { ColorEditor } from "./color-editor";

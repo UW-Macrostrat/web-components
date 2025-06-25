@@ -13,17 +13,17 @@
     "@macrostrat/ui-components": "workspace:^",
     "@turf/bbox": "^7.1.0",
     "@turf/centroid": "^7.1.0",
-    "@types/mapbox-gl": "^2.7.5",
+    "@types/mapbox-gl": "^2.7.5||^3.4.1",
     "classnames": "^2.3.1",
     "immutability-helper": "^3.1.1",
-    "mapbox-gl": "^2.15.0",
+    "mapbox-gl": "^2.15.0||^3.0.0",
     "mapbox-gl-controls": "^2.3.5",
     "zustand": "^5.0.1"
   },
   "peerDependencies": {
     "@blueprintjs/core": "^3||^4||^5.10.2",
-    "react": "^16||^17||^18",
-    "react-dom": "^16||^17||^18"
+    "react": "^16.8.6||^17.0.0||^18.0.0||^19.0.0",
+    "react-dom": "^16.8.6||^17.0.0||^18.0.0||^19.0.0"
   },
   "scripts": {
     "dev": "parcel watch",

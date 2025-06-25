@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { CheckinListingProps, CheckinListing } from "./checkins";
 
 const checkinExamples = {

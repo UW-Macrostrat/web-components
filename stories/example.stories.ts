@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { Meta } from "@storybook/react";
+import { Meta } from "@storybook/react-vite";
 
 function HelloWorld(props) {
   let rest = null;

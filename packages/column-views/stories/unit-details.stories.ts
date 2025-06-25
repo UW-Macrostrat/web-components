@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react-vite";
 import { useAPIResult } from "@macrostrat/ui-components";
 
 import { Spinner } from "@blueprintjs/core";

@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { buildMacrostratStyle } from "@macrostrat/map-styles";
 // Import other components
 import { Spinner, Switch } from "@blueprintjs/core";

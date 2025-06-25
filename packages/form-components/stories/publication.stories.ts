@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 
 import { Publication } from "../src";
 import "./global.scss";
-import { StoryFn, Meta } from "@storybook/react";
+import { StoryFn, Meta } from "@storybook/react-vite";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {

@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useRef } from "react";
 
 import {

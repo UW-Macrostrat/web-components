@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { Hierarchy, IHierarchy } from ".";
 import { fetchStratNames } from "./fetch";

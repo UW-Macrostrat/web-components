@@ -38,12 +38,13 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/mapbox-gl": "^2.7.0",
+    "@types/mapbox-gl": "^2.7.5||^3.4.1",
     "@types/react": "^18.3.12",
     "parcel": "^2.14.4"
   },
   "peerDependencies": {
-    "react": "^17.0.2||^18"
+    "react": "^16.13.1||^17||^18||^19",
+    "react-dom": "^16.13.1||^17||^18||^19"
   },
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
@@ -55,12 +56,12 @@
     "@macrostrat/ui-components": "workspace:^",
     "@mantine/core": "^4.2.1",
     "@mantine/hooks": "^4.2.1",
-    "@mapbox/mapbox-gl-draw": "^1.3.0",
+    "@mapbox/mapbox-gl-draw": "^1.5.0",
     "@types/mapbox__mapbox-gl-draw": "^1.4.8",
     "@types/react-dom": "^18",
     "axios": "^1.7.9",
     "classnames": "^2.5.1",
-    "mapbox-gl": "^2.15.0"
+    "mapbox-gl": "^2.15.0||^3.0.0"
   },
   "repository": {
     "type": "git",
