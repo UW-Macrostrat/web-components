@@ -3,6 +3,7 @@ import h from "@macrostrat/hyper";
 import {
   LithologyTag as _LithologyTag,
   LithologyList as _LithologyList,
+  LithologyTagFeature,
 } from "./lithology-tag";
 import { TagSize } from "./tag";
 import {
@@ -59,7 +60,7 @@ LithologyTag.args = {
   size: "normal",
   onClick: (e) => {
     console.log("Clicked lith id:", e.lith_id);
-  }
+  },
 };
 
 export { LithologyTag };
@@ -72,7 +73,7 @@ export const LithologyTagWithProportion = {
       lith_id: 2,
       prop: 0.5,
     },
-    showProportion: true,
+    features: new Set([LithologyTagFeature.Proportion]),
     size: "normal",
   },
 };
@@ -86,8 +87,10 @@ export const LithologyTagWithAtts = {
       prop: 0.125,
       atts: ["red", "purple"],
     },
-    showProportion: true,
-    showAttributes: true,
+    features: new Set([
+      LithologyTagFeature.Attributes,
+      LithologyTagFeature.Proportion,
+    ]),
     size: TagSize.Normal,
   },
 };
@@ -108,6 +111,6 @@ export function LithologyList() {
     ],
     onClickItem: (e) => {
       console.log("Clicked lith id:", e.lithId);
-    }
+    },
   });
 }
