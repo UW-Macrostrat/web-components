@@ -1,0 +1,59 @@
+name: Continuous integration
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-storybook:
+    name: Build storybook
+    runs-on: ubuntu-latest
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      - name: Build storybook
+        run: |
+          yarn run build:storybook
+
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+
+  build-packages:
+    name: Prepare releases
+    runs-on: ubuntu-latest
+    env:
+      # Ensure that Chalk uses colors in the output
+      FORCE_COLOR: 2
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      - name: Build all packages
+        run: |
+          yarn run build
+
+      - name: Get release status
+        run: |
+          yarn run status 

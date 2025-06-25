@@ -1,16 +1,13 @@
-name: Prepare releases
+name: Deploy package releases
 
 on:
-  pull_request:
-    branches: [main]
-
   # When pushing, we also want to deploy packages to NPM
   push:
     branches: [main]
 
 jobs:
   test:
-    name: Prepare releases
+    name: Prepare and publish releases
     runs-on: ubuntu-latest
     env:
       # Ensure that Chalk uses colors in the output
@@ -29,6 +26,10 @@ jobs:
         run: |
           yarn install
 
-      - name: Prepare releases
+      - name: Build all packages
+        run: |    
+          yarn run build
+
+      - name: Publish releases
         run: |
-          yarn run prepare 
+          yarn run publish 
