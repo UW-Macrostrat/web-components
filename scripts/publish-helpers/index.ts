@@ -1,6 +1,7 @@
 /* script to check versions on ui-packages and publish those that aren't on npm */
 import { runScript } from "./run-script";
 import { setupTerminal } from "./status";
+import chalk from "chalk";
 
 async function main() {
   setupTerminal();
@@ -25,6 +26,12 @@ async function main() {
   }
 }
 
-main().then(() => {
-  console.log("Done");
-});
+main()
+  .then(() => {
+    console.log("Done");
+  })
+  .catch((error) => {
+    console.log();
+    console.error(chalk.bold.red(error));
+    process.exit(1);
+  });

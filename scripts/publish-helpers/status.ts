@@ -84,47 +84,65 @@ function getPackageInfo(pkg) {
   }
 }
 
+export interface PackageStatus {
+  currentVersionExistsInRegistry: boolean;
+  currentVersionChangelogEntry: string | null;
+  lastVersion: string | null;
+  canPublish: boolean;
+  incomplete: boolean; // whether the package is incomplete (no changelog entry)
+}
+
 /* makes query to npm to see if package with version exists */
-async function packageVersionExistsInRegistry(
-  pkg,
-): Promise<[boolean, string | null]> {
+async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
   const info = getPackageInfo(pkg);
 
+  let currentVersionExistsInRegistry: boolean = false;
   if (info == null) {
     console.log(
       chalk.red("No published version found for " + chalk.bold(pkg.name)),
     );
-    return [false, null];
   }
 
-  const currentVersionExists: boolean = info.versions.includes(pkg.version);
+  currentVersionExistsInRegistry =
+    info?.versions.includes(pkg.version) ?? false;
+
+  let currentVersionChangelogEntry: string | null = null;
+  if (!currentVersionExistsInRegistry) {
+    currentVersionChangelogEntry = getChangelogEntry(pkg);
+  }
+
+  const canPublish =
+    !currentVersionExistsInRegistry && currentVersionChangelogEntry != null;
+
+  const incomplete = !currentVersionExistsInRegistry && !canPublish;
 
   let msg = chalk.bold(moduleString(pkg));
   // Show last version
   const lastVersion: string | null =
     info.versions[info.versions.length - 1] ?? null;
-  if (!currentVersionExists) {
+  if (canPublish) {
     msg += " will be published";
     console.log(chalk.greenBright(msg));
   }
 
-  if (currentVersionExists) {
+  if (currentVersionExistsInRegistry) {
     // Print the publication date for the version
     const time = getNiceTimeSincePublished(info, pkg.version);
     msg += ` was published ${time}`;
     console.log(chalk.blueBright(msg));
     console.log();
-  } else {
-    if (lastVersion != null) {
-      const time = getNiceTimeSincePublished(info, lastVersion);
-      console.log(chalk.dim(`  v${lastVersion} was published ${time}`));
-    }
-
-    // Print the changelog entry if it exists
-    checkForChangelogEntry(pkg);
+  } else if (lastVersion != null) {
+    const time = getNiceTimeSincePublished(info, lastVersion);
+    console.log(chalk.dim(`  v${lastVersion} was published ${time}`));
   }
 
-  return [currentVersionExists, lastVersion];
+  return {
+    currentVersionExistsInRegistry,
+    currentVersionChangelogEntry,
+    lastVersion,
+    canPublish,
+    incomplete,
+  };
 }
 
 function getNiceTimeSincePublished(info, version): string {
@@ -208,6 +226,7 @@ function printChangeInfoForPublishedPackage(pkg, showChanges = false) {
   const headCommit = execSync("git rev-parse HEAD").toString().trim();
   const url = `${repoUrl}/compare/${tag}...${headCommit}`;
   console.log(chalk.dim(url));
+  console.log("");
 }
 
 /* checks for unstaged changes */
@@ -234,33 +253,53 @@ function moduleString(pkg, separator = "@") {
   return pkg["name"] + separator + pkg["version"];
 }
 
-export async function checkIfPackageCanBePublished(
+export async function getPackagePublicationStatus(
   data: PackageData,
-): Promise<boolean> {
-  const [isAvailable, lastVersionAvailable] =
-    await packageVersionExistsInRegistry(data);
-  let canPublish = !isAvailable;
+): Promise<PackageStatus> {
+  const info = await packageVersionExistsInRegistry(data);
 
-  if (lastVersionAvailable == null) {
+  printChangelogStatus(data, info);
+
+  if (info.lastVersion == null) {
     // no published versions
-    return canPublish;
+    return info;
   }
 
   const lastVersionInfo = {
     name: data.name,
-    version: lastVersionAvailable,
+    version: info.lastVersion,
   };
   const hasChanges = moduleHasChangesSinceTag(lastVersionInfo);
 
-  if (hasChanges != null && hasChanges && !canPublish) {
+  if (hasChanges != null && hasChanges) {
     // the module code has changed since the current published version
+    // We need to print this version.
     printChangeInfoForPublishedPackage(lastVersionInfo, true);
   }
 
-  return canPublish;
+  return info;
 }
 
-function checkForChangelogEntry(pkg: PackageData) {
+function printChangelogStatus(pkg: PackageData, info: PackageStatus): void {
+  /** Print the status of the changelog for a package */
+  const dir = getPackageDirectory(pkg.name);
+  const CHANGELOG = chalk.bold("CHANGELOG");
+
+  if (info.currentVersionExistsInRegistry) {
+    // No need to print changelog if the current version exists in the registry
+    return;
+  }
+
+  const changelog = info.currentVersionChangelogEntry;
+  if (changelog != null) {
+    console.log(chalk.green(`${CHANGELOG} entry for v${pkg.version}:`));
+    console.log(changelog + "\n");
+  } else {
+    console.log(chalk.red(`No ${CHANGELOG} entry for v${pkg.version}`));
+  }
+}
+
+function getChangelogEntry(pkg: PackageData): string | null {
   /** Check whether the package has a changelog entry for the current version
    */
 
@@ -268,36 +307,25 @@ function checkForChangelogEntry(pkg: PackageData) {
   const changelogPath = path.join(dir, "CHANGELOG.md");
   const CHANGELOG = chalk.bold("CHANGELOG");
 
-  if (!fs.existsSync(changelogPath)) {
-    console.log(chalk.red(`No ${CHANGELOG} found for ${pkg.name}.`));
-    return false;
-  }
-
   const changelog = fs.readFileSync(changelogPath, "utf-8");
   const changelogHeader = `## [${pkg.version}]`;
   const hasChangelogEntry = changelog.includes(changelogHeader);
   if (!hasChangelogEntry) {
-    console.log(chalk.red(`No ${CHANGELOG} entry for v${pkg.version}`));
-  } else {
-    // Snip the changelog entry
-    let entry = changelog.split(changelogHeader)[1];
-    // Get rid of the rest of the header line
-    const entryStart = entry.indexOf("\n") + 1;
-    entry = entry.slice(entryStart);
-
-    const nextHeaderIndex = entry.indexOf("\n## [") ?? entry.length;
-    entry = entry.slice(0, nextHeaderIndex);
-    console.log(chalk.green(`${CHANGELOG} entry for v${pkg.version}:`));
-    console.log();
-    let formattedEntry = marked(entry);
-    // Reduce whitespace in front of lists
-    formattedEntry = formattedEntry.replace(/^\s{4}/gm, "");
-    // Replace list characters with bullets
-    formattedEntry = formattedEntry.replace(/^(\s?)\* /gm, "$1• ");
-    formattedEntry = formattedEntry.trim();
-
-    console.log(formattedEntry);
+    return null;
   }
+  // Snip the changelog entry
+  let entry = changelog.split(changelogHeader)[1];
+  // Get rid of the rest of the header line
+  const entryStart = entry.indexOf("\n") + 1;
+  entry = entry.slice(entryStart);
 
-  return hasChangelogEntry;
+  const nextHeaderIndex = entry.indexOf("\n## [") ?? entry.length;
+  entry = entry.slice(0, nextHeaderIndex);
+  let formattedEntry = marked(entry) as string;
+  // Reduce whitespace in front of lists
+  formattedEntry = formattedEntry.replace(/^\s{4}/gm, "");
+  // Replace list characters with bullets
+  formattedEntry = formattedEntry.replace(/^(\s?)\* /gm, "$1• ");
+  formattedEntry = formattedEntry.trim();
+  return formattedEntry;
 }
