@@ -3,17 +3,28 @@ import h from "@macrostrat/hyper";
 import {
   LithologyTag as _LithologyTag,
   LithologyList as _LithologyList,
+  LithologyTagFeature,
 } from "./lithology-tag";
 import { TagSize } from "./tag";
 import {
   DataField as _DataField,
   IntervalField as _IntervalField,
 } from "./base";
+import {
+  useAPIResult,
+  useToaster,
+  ToasterContext,
+} from "@macrostrat/ui-components";
 
 export default {
   title: "Data components/Unit details",
   component: _LithologyTag,
-  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
+  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes,
+  decorators: [
+    (Story) => {
+      return h(ToasterContext, {}, h(Story));
+    },
+  ],
 } as Meta<any>;
 
 export function DataField() {
@@ -59,7 +70,7 @@ LithologyTag.args = {
   size: "normal",
   onClick: (e) => {
     console.log("Clicked lith id:", e.lith_id);
-  }
+  },
 };
 
 export { LithologyTag };
@@ -72,7 +83,7 @@ export const LithologyTagWithProportion = {
       lith_id: 2,
       prop: 0.5,
     },
-    showProportion: true,
+    features: new Set([LithologyTagFeature.Proportion]),
     size: "normal",
   },
 };
@@ -86,8 +97,10 @@ export const LithologyTagWithAtts = {
       prop: 0.125,
       atts: ["red", "purple"],
     },
-    showProportion: true,
-    showAttributes: true,
+    features: new Set([
+      LithologyTagFeature.Attributes,
+      LithologyTagFeature.Proportion,
+    ]),
     size: TagSize.Normal,
   },
 };
@@ -108,6 +121,52 @@ export function LithologyList() {
     ],
     onClickItem: (e) => {
       console.log("Clicked lith id:", e.lithId);
-    }
+    },
+  });
+}
+
+export function LithologyListClickable() {
+  const toaster = useToaster();
+  const liths = useAPIResult(
+    "https://dev.macrostrat.org/api/v2/defs/lithologies",
+    {
+      lith_class: "sedimentary",
+    },
+    (res) => res.success.data
+  );
+
+  if (liths == null) {
+    return h("div", "Loading lithologies...");
+  }
+
+  return h(_LithologyList, {
+    lithologies: liths,
+    onClickItem: (e, data) => {
+      toaster.show({
+        message: `Clicked lith ID: ${data.lith_id}`,
+        intent: "success",
+      });
+    },
+  });
+}
+
+export function LithologyListWithLinks() {
+  const liths = useAPIResult(
+    "https://dev.macrostrat.org/api/v2/defs/lithologies",
+    {
+      lith_class: "sedimentary",
+    },
+    (res) => res.success.data
+  );
+
+  if (liths == null) {
+    return h("div", "Loading lithologies...");
+  }
+
+  return h(_LithologyList, {
+    lithologies: liths,
+    getItemHref(data) {
+      return `https://dev.macrostrat.org/lex/lithology/${data.lith_id}`;
+    },
   });
 }
