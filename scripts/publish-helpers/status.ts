@@ -106,7 +106,6 @@ async function packageVersionExistsInRegistry(
   if (!currentVersionExists) {
     msg += " will be published";
     console.log(chalk.greenBright(msg));
-    checkForChangelogEntry(pkg);
   }
 
   if (currentVersionExists) {
@@ -117,10 +116,12 @@ async function packageVersionExistsInRegistry(
     console.log();
   } else {
     if (lastVersion != null) {
-      console.log();
       const time = getNiceTimeSincePublished(info, lastVersion);
-      console.log(chalk.dim(`Version ${lastVersion} was published ${time}`));
+      console.log(chalk.dim(`  v${lastVersion} was published ${time}`));
     }
+
+    // Print the changelog entry if it exists
+    checkForChangelogEntry(pkg);
   }
 
   return [currentVersionExists, lastVersion];
@@ -218,7 +219,7 @@ export async function checkIfPackageCanBePublished(
   };
   const hasChanges = moduleHasChangesSinceTag(lastVersionInfo);
 
-  if (hasChanges != null && hasChanges) {
+  if (hasChanges != null && hasChanges && !canPublish) {
     // the module code has changed since the current published version
     printChangeInfoForPublishedPackage(lastVersionInfo, true);
   }

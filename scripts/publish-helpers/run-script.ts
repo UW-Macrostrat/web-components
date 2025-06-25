@@ -30,13 +30,12 @@ export async function runScript(
     }
     console.log("\n");
 
-    console.log(chalk.bold.underline(pkg.name), "\n");
+    console.log(chalk.bold.underline(pkg.name));
     const canPublish = await checkIfPackageCanBePublished(pkg);
     if (canPublish) {
       packagesToPublish.push(pkg);
     }
   }
-  console.log();
 
   if (packagesToPublish.length === 0) {
     console.log(chalk.magentaBright("All packages published"));
