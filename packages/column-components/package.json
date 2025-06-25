@@ -44,8 +44,7 @@
   "license": "MIT",
   "devDependencies": {
     "parcel": "^2.14.4",
-    "stylus": "^0.59.0",
-    "typescript": "^5.7.3"
+    "stylus": "^0.59.0"
   },
   "dependencies": {
     "@blueprintjs/core": "^5.0.0",
