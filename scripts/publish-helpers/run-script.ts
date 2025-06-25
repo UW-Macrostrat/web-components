@@ -16,15 +16,12 @@ export async function runScript(
   let packagesToPublish: any[] = [];
 
   const candidatePackages = getPackages("packages/*", "toolchain/*");
+  const privatePackagesSkipped = [];
 
   for (const packageDir of candidatePackages) {
     const pkg = getPackageDataFromDirectory(packageDir);
     if (pkg.private === true) {
-      console.log(
-        chalk.yellow(
-          `Skipping private package: ${pkg.name} (${pkg.directory})`,
-        ),
-      );
+      privatePackagesSkipped.push(pkg);
       continue;
     }
 
@@ -90,5 +87,13 @@ export async function runScript(
   // Publish the packages
   for (const pkg of packagesToPush) {
     publishModule(pkg);
+  }
+
+  if (privatePackagesSkipped.length > 0 && modules.length == 0) {
+    console.log();
+    console.log(chalk.yellow.bold("Skipped private packages:"));
+    for (const pkg of privatePackagesSkipped) {
+      console.log(chalk.yellow("- " + chalk.bold(pkg.name)));
+    }
   }
 }
