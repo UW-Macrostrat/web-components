@@ -17,7 +17,6 @@ export default {
     "@storybook/addon-docs",
     "@storybook/addon-links",
     "@vueless/storybook-dark-mode",
-    //getAbsolutePath("@kemuridama/storybook-addon-github"),
   ],
   framework: "@storybook/react-vite",
   docs: {},

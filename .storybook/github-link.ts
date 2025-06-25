@@ -2,49 +2,38 @@
  * Similar to @kemuridama/storybook-addon-github but compatible with Storybook 9
  */
 
-import { memo, useCallback, useEffect } from "react";
-
-import { useGlobals, useStorybookApi } from "storybook/manager-api";
+import { useStorybookApi } from "storybook/manager-api";
 import { IconButton } from "storybook/internal/components";
-import { LightningIcon } from "@storybook/icons";
+import { GithubIcon } from "@storybook/icons";
 import h from "@macrostrat/hyper";
 
 export const ADDON_ID = "@macrostrat/storybook-addon-github" as const;
 export const TOOL_ID = `${ADDON_ID}/tool` as const;
 export const PARAM_KEY = "githubLink" as const;
 
-function GithubLinkButtonAddon() {
-  const [globals, updateGlobals] = useGlobals();
+export function GithubLink({ active }: { active?: boolean }) {
   const api = useStorybookApi();
+  const currentStoryData = api.getCurrentStoryData();
 
-  const isActive = [true, "true"].includes(globals[PARAM_KEY]);
+  if (!currentStoryData) {
+    return null;
+  }
 
-  const toggleMyTool = useCallback(() => {
-    updateGlobals({
-      [PARAM_KEY]: !isActive,
-    });
-  }, [isActive]);
-
-  useEffect(() => {
-    api.setAddonShortcut(ADDON_ID, {
-      label: "Toggle Addon [8]",
-      defaultShortcut: ["8"],
-      actionName: "myaddon",
-      showInMenu: false,
-      action: toggleMyTool,
-    });
-  }, [toggleMyTool, api]);
+  const url = [
+    "https://github.com",
+    "UW-Macrostrat/web-components",
+    "blob",
+    "main",
+    currentStoryData.importPath.replace(/\.\//, ""),
+  ].join("/");
 
   return h(
     IconButton,
-    {
-      key: TOOL_ID,
-      active: isActive,
-      title: "Enable my addon",
-      onClick: toggleMyTool,
-    },
-    h(LightningIcon),
+    { active },
+    h(
+      "a",
+      { href: url, title: "GitHub", target: "_blank", rel: "noreferrer" },
+      [h(GithubIcon), " View on GitHub"],
+    ),
   );
 }
-
-export const GithubLink = memo(GithubLinkButtonAddon);
