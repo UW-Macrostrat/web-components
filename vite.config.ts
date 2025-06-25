@@ -1,8 +1,9 @@
 import { defineConfig } from "vite";
+import mdx from "@mdx-js/rollup";
 
 export default defineConfig({
   resolve: {
-    conditions: ["source", "typescript"],
+    conditions: ["source"],
     dedupe: [
       "react",
       "react-dom",
@@ -10,12 +11,13 @@ export default defineConfig({
       "@macrostrat/column-components",
       "@macrostrat/mapbox-react",
       "@macrostrat/map-interface",
-      "@macrostrat/column-views"
+      "@macrostrat/column-views",
     ],
   },
   optimizeDeps: {
     exclude: ["node_modules/.cache/storybook"],
   },
+  plugins: [mdx()],
   css: {
     preprocessorOptions: {
       // https://vite.dev/config/shared-options.html#css-preprocessoroptions
