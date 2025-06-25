@@ -2,8 +2,9 @@ import { useInDarkMode } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { getLuminanceAdjustedColorScheme } from "@macrostrat/color-utils";
 import styles from "./tag.module.sass";
-import { ReactNode } from "react";
+import { ComponentType, ReactNode, JSX } from "react";
 import chroma from "chroma-js";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -26,8 +27,14 @@ export interface BaseTagProps {
   children?: ReactNode;
   size?: TagSize;
   color?: chroma.ChromaInput;
-  onClick?: (data: any) => void;
+  onClick?: (event: MouseEvent) => void;
+  href?: string;
+  component?: ComponentOrHTMLTagElement<any>;
 }
+
+export type ComponentOrHTMLTagElement<T> =
+  | ComponentType<T>
+  | keyof JSX.IntrinsicElements;
 
 export function Tag(props: BaseTagProps) {
   const inDarkMode = useInDarkMode();
@@ -35,20 +42,30 @@ export function Tag(props: BaseTagProps) {
     prefix,
     name,
     details,
-    classNames = {},
     className,
     children,
     size,
     color,
     onClick,
+    href,
+    component,
   } = props;
 
-  let _details = null;
-  if (details != null) {
-    _details = h("span.details", { className: classNames.details }, details);
+  let classes = props.classNames ?? {};
+
+  let _component: ComponentOrHTMLTagElement<any> = component ?? "span";
+  if (href != null && component == null) {
+    // If a href is provided, use an anchor tag by default
+    _component = "a";
   }
 
-  const mainTag = h("span.main", { className: classNames.main }, [
+  // TODO: details and prefix might be better moved outside of the component...
+  let _details = null;
+  if (details != null) {
+    _details = h("span.details", { className: classes.details }, details);
+  }
+
+  const mainTag = h("span.main", { className: classes.main }, [
     h("span.name", name),
     children,
     _details,
@@ -56,15 +73,16 @@ export function Tag(props: BaseTagProps) {
 
   let _prefix = null;
   if (prefix != null) {
-    _prefix = h("span.prefix", { className: classNames.prefix }, prefix);
+    _prefix = h("span.prefix", { className: classes.prefix }, prefix);
   }
 
   return h(
-    "span.tag",
+    _component,
     {
-      className,
+      className: classNames(className, "tag"),
       style: buildTagStyle({ color, size, inDarkMode }),
       onClick,
+      href,
     },
     [_prefix, mainTag]
   );
