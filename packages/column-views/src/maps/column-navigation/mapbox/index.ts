@@ -36,11 +36,13 @@ export function ColumnNavigationMap(
 ) {
   const {
     columns,
+    columnIDs,
     onSelectColumn,
     onHoverColumn,
     selectedColumn,
     hoveredColumn,
     projectID,
+    children,
     inProcess,
     ...rest
   } = props;
@@ -49,6 +51,7 @@ export function ColumnNavigationMap(
     ColumnNavigationProvider,
     {
       columns,
+      columnIDs,
       onSelectColumn,
       onHoverColumn,
       selectedColumn,
@@ -56,7 +59,7 @@ export function ColumnNavigationMap(
       projectID,
       inProcess,
     },
-    h(_ColumnNavigationMap, rest)
+    h(_ColumnNavigationMap, props)
   );
 }
 
@@ -89,8 +92,8 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
     },
     [
       h(ColumnsLayer),
-      h.if(keyboardNavigation)(ColumnKeyboardNavigation, { showTriangulation }),
       children,
+      h.if(keyboardNavigation)(ColumnKeyboardNavigation, { showTriangulation }),
     ]
   );
 }

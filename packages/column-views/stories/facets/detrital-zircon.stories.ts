@@ -2,16 +2,15 @@ import {
   ColoredUnitComponent,
   MacrostratDataProvider,
   MeasurementDataProvider,
-  ColumnNavigationSVGMap,
-  MeasurementsLayer,
+  ColumnNavigationMap,
   useColumnNav,
   DetritalColumn,
 } from "../../src";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
-import { useMemo } from "react";
-import { FeatureCollection } from "geojson";
+import { useMapStyleOperator } from "@macrostrat/mapbox-react";
+import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
 function ColumnWithDetritalZirconFacet(props) {
   const { id, children, spectraColor, ...rest } = props;
@@ -72,30 +71,24 @@ export function DetritalZirconCompilation(defaultArgs) {
     col_id: 495,
   });
 
-  const colParams = useMemo(
-    () => ({ ...columnArgs, format: "geojson" }),
-    [columnArgs]
-  );
-  const res: FeatureCollection = useAPIResult(
-    "https://macrostrat.org/api/v2/columns",
-    colParams,
-    (res) => res?.success?.data
-  );
-  const columnFeature = res?.features[0];
-
   return h(
     MacrostratDataProvider,
     h(MeasurementDataProvider, columnArgs, [
       h(FlexRow, { className: "column-ui", margin: "2em", gap: "1em" }, [
         h(
-          ColumnNavigationSVGMap,
+          ColumnNavigationMap,
           {
-            currentColumn: columnFeature,
-            setCurrentColumn,
-            margin: 0,
             style: { width: 400, height: 500 },
+            onSelectColumn: (e) =>
+              setCurrentColumn({
+                ...(defaultArgs ?? {}),
+                col_id: e,
+              }),
+            selectedColumn: columnArgs?.col_id,
+            accessToken: import.meta.env.VITE_MAPBOX_API_TOKEN,
           },
-          h(MeasurementsLayer, {
+          h(PointsLayer, {
+            id: "measurements",
             measure_phase: "zircon",
             measurement: "207Pb-206Pb",
             style: { fill: "purple" },
@@ -108,4 +101,35 @@ export function DetritalZirconCompilation(defaultArgs) {
       ]),
     ])
   );
+}
+
+function PointsLayer(props) {
+  const { style, ...rest } = props;
+  const res = useAPIResult("/" + props.id, {
+    ...rest,
+    format: "geojson",
+    response: "light",
+  });
+
+  useMapStyleOperator(
+    (map) => {
+      if (res == null) return;
+      setGeoJSON(map, "points", res);
+      if (map.getLayer("point-layer") == null) {
+        map.addLayer({
+          id: "point-layer",
+          type: "circle",
+          source: "points",
+          paint: {
+            "circle-radius": 4,
+            "circle-color": style?.fill ?? "green",
+            "circle-opacity": 0.8,
+          },
+        });
+      }
+    },
+    [res, style]
+  );
+
+  return null;
 }

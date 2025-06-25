@@ -6,6 +6,7 @@ import {
   useContext,
   ReactNode,
   useEffect,
+  useMemo,
 } from "react";
 import h from "@macrostrat/hyper";
 import {
@@ -27,6 +28,7 @@ export interface NavigationProviderProps {
   selectedColumn?: number | null;
   hoveredColumn?: number | null;
   columns?: ColumnGeoJSONRecordWithID[] | null;
+  columnIDs?: number[] | null;
   children: ReactNode;
   onSelectColumn?: (col_id: number | null, column: any) => void;
   onHoverColumn?: (col_id: number | null, column: any) => void;
@@ -39,6 +41,7 @@ const NavigationStoreContext = createContext<StoreApi<NavigationStore> | null>(
 export function ColumnNavigationProvider({
   children,
   columns,
+  columnIDs,
   selectedColumn,
   projectID,
   inProcess,
@@ -76,17 +79,24 @@ export function ColumnNavigationProvider({
   //   store.setState({ columns: _columns, selectedColumn });
   // }, [projectID, inProcess, columns, getColumns]);
 
-  const _columns = columns ?? useMacrostratColumns(projectID, inProcess);
+  let _columns = columns ?? useMacrostratColumns(projectID, inProcess);
+
+  // filter columns if specified
+  if (columnIDs?.length > 0) {
+    _columns = useMemo(() => {
+      return _columns?.filter((d) => columnIDs.includes(d.properties.col_id));
+    }, [columnIDs, _columns]);
+  }
+
   useEffect(() => {
-    if (_columns != null) {
+    if (_columns?.length > 0) {
       store.setState({ columns: _columns, selectedColumn });
     }
   }, [_columns]);
-  // Update selected colun if it is changed externally
+  // Update selected column if it is changed externally
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   useEffect(() => {
-    console.log("Selecting column", selectedColumn);
     const { selectColumn, selectedColumn: _internalSelectedColumn } =
       store.getState();
     if (selectedColumn == _internalSelectedColumn) {
