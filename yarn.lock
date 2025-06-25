@@ -2729,7 +2729,7 @@ __metadata:
     parcel: "npm:^2.15.4"
     prettier: "npm:^3.6.1"
     react: "npm:^19"
-    react-docgen: "npm:7.0.0"
+    react-docgen: "npm:^7.0.0"
     react-dom: "npm:^19"
     sass-embedded: "npm:^1.83.0"
     storybook: "npm:9.0.12"
@@ -6287,13 +6287,6 @@ __metadata:
   dependencies:
     "@types/ms": "npm:*"
   checksum: 10c0/5dcd465edbb5a7f226e9a5efd1f399c6172407ef5840686b73e3608ce135eeca54ae8037dcd9f16bdb2768ac74925b820a8b9ecc588a58ca09eca6acabe33e2f
-  languageName: node
-  linkType: hard
-
-"@types/doctrine@npm:^0.0.8":
-  version: 0.0.8
-  resolution: "@types/doctrine@npm:0.0.8"
-  checksum: 10c0/ca4cab4a94526ec3579c3f10a027298028d34b4c092e4b6791afb37a5f6899208ee1e91bc9542541f31d6d3ba3d1a70408deaa1f105c22c86d23e3a87c59a43c
   languageName: node
   linkType: hard
 
@@ -12798,21 +12791,21 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-docgen@npm:7.0.0":
-  version: 7.0.0
-  resolution: "react-docgen@npm:7.0.0"
+"react-docgen@npm:^7.0.0":
+  version: 7.1.1
+  resolution: "react-docgen@npm:7.1.1"
   dependencies:
     "@babel/core": "npm:^7.18.9"
     "@babel/traverse": "npm:^7.18.9"
     "@babel/types": "npm:^7.18.9"
     "@types/babel__core": "npm:^7.18.0"
     "@types/babel__traverse": "npm:^7.18.0"
-    "@types/doctrine": "npm:^0.0.8"
+    "@types/doctrine": "npm:^0.0.9"
     "@types/resolve": "npm:^1.20.2"
     doctrine: "npm:^3.0.0"
     resolve: "npm:^1.22.1"
     strip-indent: "npm:^4.0.0"
-  checksum: 10c0/79678d01644e6519450f847c77fa554a7a80ae3a5ff81b1482d1458caa064cf3be88597051375ba7a90921980feb8586378e1560146d64c41d0e569465315575
+  checksum: 10c0/961e69487f6acbd9110afbda31f5a0c7fa7ab8b1ebe09fc0138c17efd297fa0b69518df873e937cac108732cd8125433bf939115d23ff99c1c171844140705a7
   languageName: node
   linkType: hard
 

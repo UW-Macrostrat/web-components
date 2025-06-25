@@ -16,7 +16,7 @@ on:
 
 jobs:
   test:
-    name: CI build - test
+    name: Build storybook - test
     runs-on: ubuntu-latest
     steps:
 

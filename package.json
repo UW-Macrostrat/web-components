@@ -73,6 +73,6 @@
     "@types/underscore": "^1.13.0",
     "madge": "^8.0.0",
     "prettier": "^3.6.1",
-    "react-docgen": "7.0.0"
+    "react-docgen": "^7.0.0"
   }
 }
