@@ -12,8 +12,6 @@ import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
 import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
-
-
 function ColumnWithDetritalZirconFacet(props) {
   const { id, children, spectraColor, ...rest } = props;
 
@@ -77,17 +75,19 @@ export function DetritalZirconCompilation(defaultArgs) {
     MacrostratDataProvider,
     h(MeasurementDataProvider, columnArgs, [
       h(FlexRow, { className: "column-ui", margin: "2em", gap: "1em" }, [
-        h(ColumnNavigationMap, 
+        h(
+          ColumnNavigationMap,
           {
             style: { width: 400, height: 500 },
-            onSelectColumn: (e) => setCurrentColumn({
-              ...(defaultArgs ?? {}),
-              col_id: e
-            }),
+            onSelectColumn: (e) =>
+              setCurrentColumn({
+                ...(defaultArgs ?? {}),
+                col_id: e,
+              }),
             selectedColumn: columnArgs?.col_id,
             accessToken: import.meta.env.VITE_MAPBOX_API_TOKEN,
           },
-          h(PointLayer, {
+          h(PointsLayer, {
             id: "measurements",
             measure_phase: "zircon",
             measurement: "207Pb-206Pb",
@@ -103,7 +103,7 @@ export function DetritalZirconCompilation(defaultArgs) {
   );
 }
 
-function PointLayer(props) {
+function PointsLayer(props) {
   const { style, ...rest } = props;
   const res = useAPIResult("/" + props.id, {
     ...rest,
@@ -111,19 +111,25 @@ function PointLayer(props) {
     response: "light",
   });
 
-  useMapStyleOperator((map) => {
-    if (res != null) {
+  useMapStyleOperator(
+    (map) => {
+      if (res == null) return;
       setGeoJSON(map, "points", res);
-      map.addLayer({
-        id: "point-layer",
-        type: "circle",
-        source: "points",
-        paint: {
-          "circle-radius": 4,
-          "circle-color": style?.fill ?? "green",
-          "circle-opacity": 0.8,  
-        }
-      });
-    }
-  }, [res, style]);
+      if (map.getLayer("point-layer") == null) {
+        map.addLayer({
+          id: "point-layer",
+          type: "circle",
+          source: "points",
+          paint: {
+            "circle-radius": 4,
+            "circle-color": style?.fill ?? "green",
+            "circle-opacity": 0.8,
+          },
+        });
+      }
+    },
+    [res, style]
+  );
+
+  return null;
 }
