@@ -6,7 +6,7 @@ import {
 } from "../../src";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
-import { Meta } from "@storybook/react";
+import { Meta } from "@storybook/react-vite";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
 function PBDBFossilsDemoColumn(props) {

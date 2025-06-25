@@ -1,6 +1,6 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./pattern-loading.stories.module.sass";
-import { Meta } from "@storybook/react";
+import { Meta } from "@storybook/react-vite";
 
 const h = hyper.styled(styles);
 

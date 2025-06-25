@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
-import { Meta } from "@storybook/react";
+import { Meta } from "@storybook/react-vite";
 import { InsetMap } from ".";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

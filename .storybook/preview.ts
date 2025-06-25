@@ -1,5 +1,5 @@
 import "@blueprintjs/core/lib/css/blueprint.css";
-import { themes } from "@storybook/theming";
+import { themes } from "storybook/theming";
 
 import { FocusStyleManager, HotkeysProvider } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";

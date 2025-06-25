@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { Meta } from "@storybook/react";
+import { Meta } from "@storybook/react-vite";
 import { useEffect, useRef } from "react";
 import { useElementSize } from "@macrostrat/ui-components";
 import {

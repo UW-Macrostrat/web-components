@@ -1,6 +1,6 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./column.stories.module.sass";
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from "@storybook/react-vite";
 import { FlexRow, JSONView } from "@macrostrat/ui-components";
 
 import { ColoredUnitComponent } from "@macrostrat/column-views";

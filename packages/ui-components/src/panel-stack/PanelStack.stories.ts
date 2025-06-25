@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import { Button } from "@blueprintjs/core";
 //import "./panel.scss";
 
-import { Meta } from "@storybook/react";
+import { Meta } from "@storybook/react-vite";
 import { PanelStack } from ".";
 
 function First(props) {

@@ -1,8 +1,8 @@
 import h from "@macrostrat/hyper";
-import { Meta } from "@storybook/react";
+import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
 import { ColumnStoryUI } from "./column-ui";
-import { useArgs } from "@storybook/preview-api";
+import { useArgs } from "storybook/preview-api";
 import { MinimalUnit } from "../src/units/boxes";
 import {
   BoundaryAgeModelOverlay,

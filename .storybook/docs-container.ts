@@ -1,5 +1,5 @@
 import { DocsContainer as BaseContainer } from "@storybook/addon-docs";
-import { themes } from "@storybook/theming";
+import { themes } from "storybook/theming";
 import h from "@macrostrat/hyper";
 import { useEffect, useState } from "react";
 

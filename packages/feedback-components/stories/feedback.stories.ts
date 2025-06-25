@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { FeedbackComponent } from "../src";
 import { data, entityTypes, data2, data3, entityTypes2 } from "./test-data";

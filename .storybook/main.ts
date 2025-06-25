@@ -1,4 +1,8 @@
+import { createRequire } from "node:module";
+import { dirname, join } from "node:path";
 import type { StorybookConfig } from "@storybook/react-vite";
+
+const require = createRequire(import.meta.url);
 
 export default {
   // vite
@@ -10,12 +14,14 @@ export default {
     "../packages/**/*.stories.@(mdx|js|jsx|ts|tsx)",
   ],
   addons: [
-    "@storybook/addon-links",
-    "@storybook/addon-essentials",
-    "@storybook/addon-viewport",
-    "storybook-dark-mode",
-    "@kemuridama/storybook-addon-github",
+    getAbsolutePath("@storybook/addon-links"),
+    getAbsolutePath("storybook-dark-mode"),
+    getAbsolutePath("@kemuridama/storybook-addon-github")
   ],
-  framework: "@storybook/react-vite",
+  framework: getAbsolutePath("@storybook/react-vite"),
   docs: {},
 } as StorybookConfig;
+
+function getAbsolutePath(value: string): any {
+  return dirname(require.resolve(join(value, "package.json")));
+}

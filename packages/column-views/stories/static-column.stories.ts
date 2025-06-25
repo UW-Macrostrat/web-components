@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 
-import { ComponentStory, ComponentMeta } from "@storybook/react";
+import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
 import { Column } from "../src";
 import res from "./data/black-mesa-basin-490.json";
 

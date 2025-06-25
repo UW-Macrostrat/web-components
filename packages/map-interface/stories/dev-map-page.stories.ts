@@ -1,5 +1,5 @@
-import type { Meta } from "@storybook/react";
-import type { StoryObj } from "@storybook/react";
+import type { Meta } from "@storybook/react-vite";
+import type { StoryObj } from "@storybook/react-vite";
 import { buildMacrostratStyle } from "@macrostrat/map-styles";
 import { DevMapPage as _DevMapPage } from "../src";
 

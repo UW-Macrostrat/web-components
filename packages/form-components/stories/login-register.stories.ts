@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Modal, Anchor } from "@mantine/core";
 import { LoginForm, Register } from "../src";
-import { Meta } from "@storybook/react";
+import { Meta } from "@storybook/react-vite";
 import { hyperStyled } from "@macrostrat/hyper";
 import styles from "../src/components/login-register/forms.module.scss";
 import { Button } from "@blueprintjs/core";

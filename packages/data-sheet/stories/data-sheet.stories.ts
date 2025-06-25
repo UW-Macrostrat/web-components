@@ -1,4 +1,4 @@
-import type { Meta, StoryObj } from "@storybook/react";
+import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
 import { DataSheet, ColorCell, ColorPicker, EditableTextArea } from "../src";
 import chroma from "chroma-js";
