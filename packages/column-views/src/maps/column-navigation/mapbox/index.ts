@@ -74,9 +74,6 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
     ...rest
   } = props;
 
-  console.log("children", children);
-  console.log("rest", h(ColumnsLayer));
-
   const overlayStyles = useMemo(() => {
     let styles: any[] = [buildColumnsStyle(columnColor)];
     if (showTriangulation) {
@@ -84,7 +81,6 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
     }
     return styles;
   }, [columnColor, showTriangulation, triangulationColor]);
-
 
   return h(
     InsetMap,

@@ -81,8 +81,6 @@ export function ColumnNavigationProvider({
 
   let _columns = columns ?? useMacrostratColumns(projectID, inProcess);
 
-  console.log("Columns in navigation store", _columns);
-
   // filter columns if specified
   if (columnIDs?.length > 0) {
     _columns = useMemo(() => {
@@ -99,7 +97,6 @@ export function ColumnNavigationProvider({
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   useEffect(() => {
-    console.log("Selecting column", selectedColumn);
     const { selectColumn, selectedColumn: _internalSelectedColumn } =
       store.getState();
     if (selectedColumn == _internalSelectedColumn) {
