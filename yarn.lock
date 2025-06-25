@@ -2248,8 +2248,8 @@ __metadata:
     ui-box: "npm:^5.4.1"
     uuid: "npm:^7.0.3"
   peerDependencies:
-    react: ^16.12.0||^17.0.0||^18
-    react-dom: ^16.12.0||^17.0.0||^18
+    react: ^16.13.1||^17||^18||^19
+    react-dom: ^16.13.1||^17||^18||^19
   languageName: unknown
   linkType: soft
 
@@ -2264,7 +2264,7 @@ __metadata:
     zustand: "npm:^5.0.3"
     zustand-computed: "npm:^2.0.2"
   peerDependencies:
-    react: ^16.8.6||^17.0.0||^18.0.0
+    react: ^16.13.1||^17||^18||^19
   languageName: unknown
   linkType: soft
 
@@ -2318,7 +2318,7 @@ __metadata:
     zustand-computed: "npm:^2.0.2"
   peerDependencies:
     "@blueprintjs/core": ^5.0.0
-    react: ^16.8.6||^17.0.0||^18.0.0
+    react: ^16.13.1||^17||^18||^19
   languageName: unknown
   linkType: soft
 
@@ -2351,7 +2351,7 @@ __metadata:
     parcel: "npm:^2.14.4"
   peerDependencies:
     "@blueprintjs/core": ^5.10.2
-    react: ^16.8.6||^17.0.2||^18
+    react: ^16.13.1||^17||^18||^19
   languageName: unknown
   linkType: soft
 
@@ -2399,8 +2399,8 @@ __metadata:
     react-text-annotate-blend: "npm:^1.2.0"
     use-element-dimensions: "npm:^2.1.3"
   peerDependencies:
-    react: ^17.0.2||^18
-    react-dom: ^17.0.2||^18
+    react: ^17||^18||^19
+    react-dom: ^17||^18||^19
   languageName: unknown
   linkType: soft
 
@@ -2477,8 +2477,8 @@ __metadata:
     underscore: "npm:^1.13.6"
     use-resize-observer: "npm:^9.1.0"
   peerDependencies:
-    react: ^16.8.6||^17.0.0||^18.0.0
-    react-dom: ^16.8.6||^17.0.0||^18.0.0
+    react: ^16.8.6||^17.0.0||^18.0.0||^19.0.0
+    react-dom: ^16.8.6||^17.0.0||^18.0.0||^19.0.0
   languageName: unknown
   linkType: soft
 
@@ -2504,7 +2504,7 @@ __metadata:
     "@macrostrat/ui-components": "workspace:^"
     "@turf/bbox": "npm:^7.1.0"
     "@turf/centroid": "npm:^7.1.0"
-    "@types/mapbox-gl": "npm:^2.7.5"
+    "@types/mapbox-gl": "npm:^2.7.5||^3.4.1"
     classnames: "npm:^2.3.1"
     immutability-helper: "npm:^3.1.1"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
@@ -2513,8 +2513,8 @@ __metadata:
     zustand: "npm:^5.0.1"
   peerDependencies:
     "@blueprintjs/core": ^3||^4||^5.10.2
-    react: ^16||^17||^18
-    react-dom: ^16||^17||^18
+    react: ^16.8.6||^17.0.0||^18.0.0||^19.0.0
+    react-dom: ^16.8.6||^17.0.0||^18.0.0||^19.0.0
   languageName: unknown
   linkType: soft
 
@@ -2545,8 +2545,8 @@ __metadata:
     "@blueprintjs/core": "npm:^5.10.2"
     vite: "npm:^6.1.6"
   peerDependencies:
-    react: ^16.13.1||^17||^18
-    react-dom: ^16.13.1||^17||^18
+    react: ^16.8.6||^17.0.0||^18.0.0||^19.0.0
+    react-dom: ^16.8.6||^17.0.0||^18.0.0||^19.0.0
   languageName: unknown
   linkType: soft
 
@@ -2574,8 +2574,8 @@ __metadata:
     parcel: "npm:^2.14.4"
     topojson-client: "npm:^3.1.0"
   peerDependencies:
-    react: ^16.11.0||^17.0.0||^18.0.0
-    react-dom: ^16.11.0||^17.0.0||^18.0.0
+    react: ^16.13.1||^17||^18||^19
+    react-dom: ^16.13.1||^17||^18||^19
   languageName: unknown
   linkType: soft
 
@@ -2594,8 +2594,8 @@ __metadata:
     d3-format: "npm:^3.1.0"
     parcel: "npm:^2.14.4"
   peerDependencies:
-    react: ^16.13.1||^17||^18
-    react-dom: ^16.13.1||^17||^18
+    react: ^16.13.1||^17||^18||^19
+    react-dom: ^16.13.1||^17||^18||^19
   languageName: unknown
   linkType: soft
 
@@ -2625,8 +2625,8 @@ __metadata:
     use-element-dimensions: "npm:^2.1.3"
     zustand: "npm:^5.0.3"
   peerDependencies:
-    react: ^16.8.6 || ^17 || ^18
-    react-dom: ^16.8.6 || ^17 || ^18
+    react: ^16.8.6 || ^17 || ^18 || ^19
+    react-dom: ^16.8.6 || ^17 || ^18 || ^19
   languageName: unknown
   linkType: soft
 
@@ -2677,9 +2677,9 @@ __metadata:
     node-fetch: "npm:^3.2.9"
     parcel: "npm:^2.14.4"
     prettier: "npm:^3.6.1"
-    react: "npm:^18"
+    react: "npm:^18.3"
     react-docgen: "npm:7.0.0"
-    react-dom: "npm:^18"
+    react-dom: "npm:^18.3"
     sass-embedded: "npm:^1.83.0"
     storybook: "npm:9.0.12"
     tsx: "npm:^4.19.1"
@@ -5417,15 +5417,6 @@ __metadata:
   version: 4.17.16
   resolution: "@types/lodash@npm:4.17.16"
   checksum: 10c0/cf017901b8ab1d7aabc86d5189d9288f4f99f19a75caf020c0e2c77b8d4cead4db0d0b842d009b029339f92399f49f34377dd7c2721053388f251778b4c23534
-  languageName: node
-  linkType: hard
-
-"@types/mapbox-gl@npm:^2.7.5":
-  version: 2.7.21
-  resolution: "@types/mapbox-gl@npm:2.7.21"
-  dependencies:
-    "@types/geojson": "npm:*"
-  checksum: 10c0/51bcf2a0481a53a8f8148af9b7f0f9e4d1be2ebdd9390194e4e4a0f8c8375446004c8624e67b4a255384cf0a0ae0c5b9eb99fa865acadca0ac0b0f5853f3f957
   languageName: node
   linkType: hard
 

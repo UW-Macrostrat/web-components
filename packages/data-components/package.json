@@ -38,7 +38,7 @@
   },
   "peerDependencies": {
     "@blueprintjs/core": "^5.10.2",
-    "react": "^16.8.6||^17.0.2||^18"
+    "react": "^16.13.1||^17||^18||^19"
   },
   "dependencies": {
     "@macrostrat/color-utils": "workspace:^",
