@@ -149,6 +149,8 @@ function buildModuleDiffCommand(pkg, flags = "", tag = null) {
 function moduleHasChangesSinceTag(pkg): boolean | null {
   /** Check if a module has changes since the tag matching the current release */
   try {
+    fetchTagIfNotExistsLocally(pkg);
+
     execSync(buildModuleDiffCommand(pkg, "--exit-code"), { stdio: "ignore" });
     // if the command exits with 0, there are no changes
     return false;
@@ -160,6 +162,27 @@ function moduleHasChangesSinceTag(pkg): boolean | null {
     }
 
     return res.status != 0;
+  }
+}
+
+function fetchTagIfNotExistsLocally(pkg) {
+  /** Fetch the tag from the remote if it doesn't exist locally */
+  const tag = moduleString(pkg, "-v");
+
+  // Check if the tag exists locally
+  const localTag = execSync(`git tag --list ${tag}`).toString().trim();
+  if (localTag !== "") {
+    return;
+  }
+
+  const cmd = `git fetch origin tag ${tag} --no-tags`;
+  try {
+    execSync(cmd, { stdio: "ignore" });
+  } catch (error) {
+    // If the tag doesn't exist, this will throw an error
+    if (error.status === 128) {
+      console.log(chalk.red(`Tag ${tag} does not exist on remote.`));
+    }
   }
 }
 
@@ -175,6 +198,16 @@ function printChangeInfoForPublishedPackage(pkg, showChanges = false) {
 
   console.log("Run the following command to see detailed changes:");
   console.log(chalk.dim(">"), chalk.dim(cmd));
+
+  // Check if is synced with the remote
+  // TODO: this only works if the current branch is pushed to the remote
+  console.log("or view the changes in GitHub:");
+  const repoUrl = "https://github.com/UW-Macrostrat/web-components";
+  const tag = moduleString(pkg, "-v");
+  // Get head commit hash
+  const headCommit = execSync("git rev-parse HEAD").toString().trim();
+  const url = `${repoUrl}/compare/${tag}...${headCommit}`;
+  console.log(chalk.dim(url));
 }
 
 /* checks for unstaged changes */
@@ -228,6 +261,9 @@ export async function checkIfPackageCanBePublished(
 }
 
 function checkForChangelogEntry(pkg: PackageData) {
+  /** Check whether the package has a changelog entry for the current version
+   */
+
   const dir = getPackageDirectory(pkg.name);
   const changelogPath = path.join(dir, "CHANGELOG.md");
   const CHANGELOG = chalk.bold("CHANGELOG");

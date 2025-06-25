@@ -10,8 +10,11 @@ on:
 
 jobs:
   test:
-    name: Build storybook - test
+    name: Prepare releases
     runs-on: ubuntu-latest
+    env:
+      # Ensure that Chalk uses colors in the output
+      FORCE_COLOR: 2
     steps:
 
       - name: Check out repository
