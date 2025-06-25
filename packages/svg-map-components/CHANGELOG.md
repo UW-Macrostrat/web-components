@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.5] - 2025-06-25
+
+Update types and dependencies
+
 ## [1.0.4] - 2025-04-09
 
 Added a `pointRadius` prop to `Feature`s to allow points to be shown

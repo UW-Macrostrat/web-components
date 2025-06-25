@@ -42,6 +42,7 @@ export async function runScript(
     return;
   }
 
+  console.log();
   // Make sure we don't publish if we have uncommitted changes
   // Stop here if we aren't building or publishing
   if (!build && !publish) {
