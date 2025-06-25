@@ -45,11 +45,17 @@ export type PackageData = {
   name: string;
   version: string;
   directory: string;
+  private?: boolean;
 };
 
 export function getPackageDataFromDirectory(pkgDir: string): PackageData {
-  const { name, version } = readPackageJSON(pkgDir);
-  return { name, version, directory: pkgDir };
+  const pkg = readPackageJSON(pkgDir);
+  return {
+    name: pkg.name,
+    version: pkg.version,
+    directory: pkgDir,
+    private: pkg.private,
+  };
 }
 
 function getPackageDirectory(pkgName) {
@@ -80,13 +86,13 @@ function getPackageInfo(pkg) {
 
 /* makes query to npm to see if package with version exists */
 async function packageVersionExistsInRegistry(
-  pkg
+  pkg,
 ): Promise<[boolean, string | null]> {
   const info = getPackageInfo(pkg);
 
   if (info == null) {
     console.log(
-      chalk.red("No published version found for " + chalk.bold(pkg.name))
+      chalk.red("No published version found for " + chalk.bold(pkg.name)),
     );
     return [false, null];
   }
@@ -181,10 +187,10 @@ export function notifyUserOfUncommittedChanges(raiseError: boolean = true) {
   if (!gitHasChanges()) return;
   console.log(
     chalk.bgRed.bold("Error:"),
-    chalk.red.bold("You have uncommitted changes in your git repository.")
+    chalk.red.bold("You have uncommitted changes in your git repository."),
   );
   console.log(
-    chalk.red("       You must commit or stash them before publishing.")
+    chalk.red("       You must commit or stash them before publishing."),
   );
 
   if (raiseError) throw new Error("Uncommitted changes in git repository");
@@ -195,7 +201,7 @@ function moduleString(pkg, separator = "@") {
 }
 
 export async function checkIfPackageCanBePublished(
-  data: PackageData
+  data: PackageData,
 ): Promise<boolean> {
   const [isAvailable, lastVersionAvailable] =
     await packageVersionExistsInRegistry(data);

@@ -23,7 +23,7 @@
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
-    "@types/mapbox-gl": "^2.7.5||^3.4.1",
+    "@types/mapbox-gl": "^3.4.1",
     "axios": "^1.7.9",
     "mapbox-gl": "^2.15.0||^3.0.0"
   },

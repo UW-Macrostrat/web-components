@@ -6,13 +6,13 @@ import { useState, useRef, useEffect } from "react";
 import bbox from "@turf/bbox";
 import styles from "./main.module.scss";
 import hyper from "@macrostrat/hyper";
+
 import mapboxgl, {
-  FlyToOptions,
   LngLatBoundsLike,
   LngLatLike,
   PaddingOptions,
+  FlyToOptions,
 } from "mapbox-gl";
-import type { GeoJSON } from "geojson";
 
 const h = hyper.styled(styles);
 
@@ -65,7 +65,7 @@ export function useMapEaseToCenter(position, padding) {
   // Handle map position easing (for both map padding and markers)
   useEffect(() => {
     console.warn(
-      "Using deprecated function useMapEaseToCenter, consider using useMapEaseTo instead"
+      "Using deprecated function useMapEaseToCenter, consider using useMapEaseTo instead",
     );
     const map = mapRef.current;
     if (map == null) return;
@@ -101,7 +101,7 @@ export function useMapEaseToCenter(position, padding) {
  */
 export function useMapEaseToBounds(
   bounds: LngLatBoundsLike,
-  padding: PaddingOptions | number = 0
+  padding: PaddingOptions | number = 0,
 ) {
   const mapRef = useMapRef();
 
@@ -110,7 +110,7 @@ export function useMapEaseToBounds(
   // Handle map position easing (for both map padding and markers)
   useEffect(() => {
     console.warn(
-      "Using deprecated function useMapEaseToBounds, consider using useMapEaseTo instead"
+      "Using deprecated function useMapEaseToBounds, consider using useMapEaseTo instead",
     );
     const map = mapRef.current;
     if (map == null) return;
@@ -210,7 +210,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
 
 function filterChanges(
   a: MapEaseToState,
-  b: MapEaseToState | null
+  b: MapEaseToState | null,
 ): Partial<MapEaseToState> {
   if (b == null) return stripNullKeys(a);
   return getChangedKeys(a, b);
@@ -241,7 +241,7 @@ function stripNullKeys(obj: object) {
 function moveMap(
   map: mapboxgl.Map,
   state: MapEaseToState,
-  opts: mapboxgl.FlyToOptions
+  opts: mapboxgl.FlyToOptions,
 ) {
   const { bounds, center, zoom, padding } = state;
   if (bounds != null) {
@@ -264,7 +264,7 @@ function moveMap(
 
 function greatCircleDistance(
   l1: mapboxgl.LngLatLike,
-  l2: mapboxgl.LngLatLike
+  l2: mapboxgl.LngLatLike,
 ): number {
   // get distance in radians between l1 and l2
   const dLon = ((l2[0] - l1[0]) * Math.PI) / 180;
@@ -274,13 +274,13 @@ function greatCircleDistance(
   const lat2 = (l2[1] * Math.PI) / 180;
   return Math.acos(
     Math.sin(lat1) * Math.sin(lat2) +
-      Math.cos(lat1) * Math.cos(lat2) * Math.cos(dLon)
+      Math.cos(lat1) * Math.cos(lat2) * Math.cos(dLon),
   );
 }
 
 export function getFocusState(
   map: mapboxgl.Map,
-  location: mapboxgl.LngLatLike | GeoJSON.Geometry | null
+  location: mapboxgl.LngLatLike | GeoJSON.Geometry | null,
 ): PositionFocusState | null {
   /** Determine whether the infomarker is positioned in the viewport */
   if (location == null) return null;
@@ -343,7 +343,7 @@ export function getFocusState(
 }
 
 export function useFocusState(
-  position: mapboxgl.LngLatLike | GeoJSON.Geometry
+  position: mapboxgl.LngLatLike | GeoJSON.Geometry,
 ) {
   const map = useMapRef();
   const [focusState, setFocusState] = useState<PositionFocusState | null>(null);
@@ -377,7 +377,7 @@ function getCenterAndBestZoom(
     | [number, number]
     | GeoJSON.Geometry
     | GeoJSON.BBox
-    | mapboxgl.LngLatLike
+    | mapboxgl.LngLatLike,
 ) {
   let box: GeoJSON.BBox;
   let center: [number, number] | null = null;
@@ -467,11 +467,11 @@ export function LocationFocusButton({
         "recenter-button",
         className,
         classNameForFocusState(focusState),
-        bounds == null ? "position" : "bounds"
+        bounds == null ? "position" : "bounds",
       ),
       intent: intentForFocusState(focusState),
       ...rest,
     },
-    [_isCentered ? null : h("span.recenter-label", "Recenter")]
+    [_isCentered ? null : h("span.recenter-label", "Recenter")],
   );
 }

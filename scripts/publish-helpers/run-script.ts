@@ -11,7 +11,7 @@ import { publishModule } from "./publish";
 
 export async function runScript(
   { build = true, publish = true },
-  modules: string[]
+  modules: string[],
 ) {
   let packagesToPublish: any[] = [];
 
@@ -19,6 +19,14 @@ export async function runScript(
 
   for (const packageDir of candidatePackages) {
     const pkg = getPackageDataFromDirectory(packageDir);
+    if (pkg.private === true) {
+      console.log(
+        chalk.yellow(
+          `Skipping private package: ${pkg.name} (${pkg.directory})`,
+        ),
+      );
+      continue;
+    }
 
     if (modules.length > 0 && !modules.includes(pkg.name)) {
       continue;
