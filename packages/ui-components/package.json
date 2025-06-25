@@ -64,8 +64,8 @@
     "zustand": "^5.0.3"
   },
   "peerDependencies": {
-    "react": "^16.8.6 || ^17 || ^18",
-    "react-dom": "^16.8.6 || ^17 || ^18"
+    "react": "^16.8.6 || ^17 || ^18 || ^19",
+    "react-dom": "^16.8.6 || ^17 || ^18 || ^19"
   },
   "repository": {
     "type": "git",

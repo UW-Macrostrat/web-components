@@ -71,7 +71,7 @@
   },
   "peerDependencies": {
     "@blueprintjs/core": "^5.0.0",
-    "react": "^16.8.6||^17.0.0||^18.0.0"
+    "react": "^16.13.1||^17||^18||^19"
   },
   "repository": {
     "type": "git",
