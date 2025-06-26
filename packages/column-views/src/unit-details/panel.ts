@@ -255,12 +255,14 @@ function UnitDetailsContent({
       {
         label: "Stratigraphic name",
       },
-      h("span", 
-        { 
+      h(
+        "span",
+        {
           className: "strat-name-id" + (onClickItem ? " clickable" : ""),
-          onClick: (e) => onClickItem(e, {strat_name_id: unit.strat_name_id}) 
-        },  
-      unit.strat_name_id),
+          onClick: (e) => onClickItem(e, { strat_name_id: unit.strat_name_id }),
+        },
+        unit.strat_name_id,
+      ),
     ),
     outcropField,
     h.if(features.has(UnitDetailsFeature.AdjacentUnits))([
