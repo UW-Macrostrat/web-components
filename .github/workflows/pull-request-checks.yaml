@@ -10,8 +10,8 @@ on:
     branches: [main]
 
 jobs:
-  prepare-and-publish-packages:
-    name: Prepare and publish packages
+  prepare-and-build-packages:
+    name: Prepare and build packages
     runs-on: ubuntu-latest
     env:
       # Ensure that Chalk uses colors in the output
