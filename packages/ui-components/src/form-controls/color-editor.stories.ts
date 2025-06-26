@@ -28,7 +28,7 @@ const Template: ComponentStory<typeof ColorEditor> = (args) => {
       onChange(c) {
         updateArgs({ ...rest, color: c });
       },
-    })
+    }),
   );
 };
 

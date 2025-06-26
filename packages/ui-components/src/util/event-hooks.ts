@@ -5,7 +5,7 @@ export function useKeyHandler(
   options:
     | { event?: string; keys?: string[]; target?: HTMLElement }
     | any[] = undefined,
-  deps: any[] | undefined = undefined
+  deps: any[] | undefined = undefined,
 ) {
   if (Array.isArray(options)) {
     deps = options;
@@ -18,7 +18,7 @@ export function useKeyHandler(
         handler(event);
       }
     },
-    [handler, keys]
+    [handler, keys],
   );
 
   return useEventHandler(target, event, _callback, deps);
@@ -28,7 +28,7 @@ export function useEventHandler(
   target: HTMLElement | Document,
   event: string,
   handler: (event: Event) => void,
-  deps: any[] | undefined = undefined
+  deps: any[] | undefined = undefined,
 ) {
   const _callback = deps ? useCallback(handler, deps) : handler;
 

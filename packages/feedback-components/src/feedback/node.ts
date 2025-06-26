@@ -49,7 +49,7 @@ function Node({ node, style, dragHandle, tree, matchComponent }: any) {
 
   // console.log("Node render", node.data, highlighted, active);
 
-  if(!node.data?.type) {
+  if (!node.data?.type) {
     node.data.type = { name: "lith", color: "rgb(107, 255, 91)" };
   }
 
@@ -64,7 +64,7 @@ function Node({ node, style, dragHandle, tree, matchComponent }: any) {
       onClickType() {
         dispatch({ type: "toggle-entity-type-selector" });
       },
-    })
+    }),
   );
 }
 

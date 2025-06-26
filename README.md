@@ -91,17 +91,28 @@ The `package.json` `resolutions` entries created by this linking process should
 be removed before publishing the application, as they will prevent the
 application from being compiled correctly in CI or a new environment.
 
-### Other useful commands
-
-- Check types: `yarn run check`
-- Build all packages locally: `yarn run build`
-- Check how a package is consumed: `yarn why <package-name>`
-- General information about packages and dependencies:
-  `yarn info -A -R <package-name>`
-
 ### Publishing packages
 
-This monorepo has a custom script that helps with publishing packages.
+This monorepo has a continuous integration pipeline that helps with publishing
+packages. You'll need to create a Pull Request to `main` with your changes run
+the following steps:
+
+1. Ensure that all modules build correctly.
+2. **Update package versions**: Update the `package.json` files in each package
+   that you want to publish.
+3. **Update changelogs**: Update the `CHANGELOG.md` files in each package to
+   reflect the changes made since the last release.
+
+The PR checks will not pass until all these steps are completed for each package
+with an updated version. Once all checks pass, the PR can be merged into `main`.
+The CI pipeline will then automatically publish the updated packages to NPM,
+using the versions specified in the `package.json` files. Releases will be
+tagged.
+
+It is possible to merge PRs that do not publish to NPM, by simply not updating
+the package version.
+
+#### Local helpers for publishing
 
 - Run `yarn run status` to view a change list for each potential package to be
   published. This will allow you to update `package.json` versions and changelog
@@ -114,6 +125,14 @@ This monorepo has a custom script that helps with publishing packages.
 
 You will need the NPM organizational credentials (to the `@macrostrat`
 organization) to publish packages.
+
+#### Other useful commands
+
+- Check types: `yarn run check`
+- Build all packages locally: `yarn run build`
+- Check how a package is consumed: `yarn why <package-name>`
+- General information about packages and dependencies:
+  `yarn info -A -R <package-name>`
 
 ### Maintenance
 

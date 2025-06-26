@@ -36,7 +36,7 @@ export function PackageInfo() {
               href: `https://github.com/UW-Macrostrat/web-components/blob/main/packages/${pkg}`,
               target: "_blank",
             },
-            "Github"
+            "Github",
           ),
           ", ",
           h(
@@ -45,10 +45,10 @@ export function PackageInfo() {
               href: `https://npmjs.org/package/@macrostrat/${pkg}`,
               target: "_blank",
             },
-            "NPM"
+            "NPM",
           ),
         ]),
       ]);
-    })
+    }),
   );
 }

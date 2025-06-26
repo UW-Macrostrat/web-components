@@ -134,7 +134,7 @@ class NoteLayoutProvider extends StatefulComponent<
     return h(
       NoteLayoutContext.Provider,
       { value: this.state },
-      h(ColumnLayoutProvider, { width }, children)
+      h(ColumnLayoutProvider, { width }, children),
     );
   }
 

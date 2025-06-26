@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/timescale",
-  "version": "2.1.1",
+  "version": "2.2.0",
   "description": "A configurable geologic timescale written with React and Typescript",
   "type": "module",
   "source": "src/index.ts",
@@ -52,6 +52,6 @@
     "directory": "packages/timescale"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

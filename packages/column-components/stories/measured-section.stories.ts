@@ -61,7 +61,7 @@ const patternIndex = {
 };
 
 function applyPatterns<T extends ColumnSurface>(
-  surfaces: T[]
+  surfaces: T[],
 ): (BaseUnit & UnitDivision & T)[] {
   return surfaces.map((surface, i) => {
     const { pattern, ...rest } = surface;
@@ -76,7 +76,7 @@ function applyPatterns<T extends ColumnSurface>(
 type HasUnitID = { unit_id: number };
 function mergeUnitData<A extends HasUnitID, B extends HasUnitID>(
   sourceUnits: A[],
-  result: B[]
+  result: B[],
 ): (A & B)[] {
   return result.map((d) => {
     const foundMatch = sourceUnits.find((u) => u.unit_id === d.unit_id);

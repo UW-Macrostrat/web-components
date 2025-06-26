@@ -94,8 +94,8 @@ export function WithExternalUnitViewer() {
       },
       h.if(unit != null)(
         "div.unit-viewer",
-        h(JSONView, { data: unit, showRoot: false })
-      )
+        h(JSONView, { data: unit, showRoot: false }),
+      ),
     ),
   ]);
 }
@@ -254,7 +254,7 @@ export function ColumnClickHandler() {
       },
       h(AgeCursor, {
         age: hoveredHeight,
-      })
+      }),
     ),
     h("div.column-height-info", [
       h("h3", "Column height info"),
@@ -263,7 +263,7 @@ export function ColumnClickHandler() {
         "p",
         hoveredHeight
           ? h(AgeLabel, { age: hoveredHeight })
-          : "No height selected"
+          : "No height selected",
       ),
     ]),
   ]);

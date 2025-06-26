@@ -63,7 +63,7 @@ function IntervalChildren({ children, intervalStyle, onClick }) {
     "div.children",
     children.map((d) => {
       return h(TimescaleBoxes, { interval: d, intervalStyle, onClick });
-    })
+    }),
   );
 }
 
@@ -112,7 +112,11 @@ function TimescaleBoxes(props: {
 
   return h("div.interval", { className, style }, [
     h.if(lvl >= minLevel)(IntervalBox, { interval, intervalStyle, onClick }),
-    h.if(lvl < maxLevel)(IntervalChildren, { children, intervalStyle, onClick }),
+    h.if(lvl < maxLevel)(IntervalChildren, {
+      children,
+      intervalStyle,
+      onClick,
+    }),
   ]);
 }
 

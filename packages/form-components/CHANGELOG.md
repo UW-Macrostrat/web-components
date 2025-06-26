@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.2] - 2025-06-25
+
+Improve styles and types
+
 ## [0.2.1] - 2025-02-22
 
 - `ItemSelect` component: add option to not fill width, and add active highlight

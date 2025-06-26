@@ -22,7 +22,7 @@ export function BasePopup(props) {
             console.log(evt);
           },
         },
-        h(ErrorBoundary, null, content)
+        h(ErrorBoundary, null, content),
       ),
       enforceFocus: false,
       autoFocus: false,
@@ -35,7 +35,7 @@ export function BasePopup(props) {
       usePortal: false,
       ...rest,
     },
-    children
+    children,
   );
 }
 
@@ -73,6 +73,6 @@ export function ColorEditor(props) {
           setOpen(!isOpen);
         },
       }),
-    ]
+    ],
   );
 }

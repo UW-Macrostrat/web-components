@@ -41,17 +41,21 @@ export function enhanceData(extractionData, models, entityTypes) {
     ...extractionData,
     model: models.get(extractionData.model_id),
     entities: extractionData.entities?.map((d) =>
-      enhanceEntity(d, entityTypes)
+      enhanceEntity(d, entityTypes),
     ),
   };
 }
 
 export function getTagStyle(
   baseColor: string,
-  options: { highlighted?: boolean; inDarkMode?: boolean; active?: boolean }
+  options: { highlighted?: boolean; inDarkMode?: boolean; active?: boolean },
 ): CSSProperties {
   const _baseColor = asChromaColor(baseColor ?? "#fff");
-  const { highlighted = true, inDarkMode = useDarkMode().isEnabled, active = false } = options;
+  const {
+    highlighted = true,
+    inDarkMode = useDarkMode().isEnabled,
+    active = false,
+  } = options;
 
   let mixAmount = highlighted ? 0.8 : 0.5;
   let backgroundAlpha = highlighted ? 0.8 : 0.2;
@@ -68,9 +72,9 @@ export function getTagStyle(
     ? _baseColor.mix(mixTarget, mixAmount / 1.1).hex()
     : "transparent";
 
-  let backgroundColor = active ? 
-    _baseColor.alpha(backgroundAlpha).hex() :
-    normalizeColor(_baseColor.alpha(backgroundAlpha).hex());
+  let backgroundColor = active
+    ? _baseColor.alpha(backgroundAlpha).hex()
+    : normalizeColor(_baseColor.alpha(backgroundAlpha).hex());
 
   // handle white backgrounds in light mode
   if (!inDarkMode && backgroundColor === "#ffffff") {
@@ -92,7 +96,7 @@ export function getTagStyle(
 
 function enhanceEntity(
   entity: Entity,
-  entityTypes: Map<number, EntityType>
+  entityTypes: Map<number, EntityType>,
 ): EntityExt {
   return {
     ...entity,
@@ -103,7 +107,7 @@ function enhanceEntity(
 
 function addColor(entityType: EntityType, match = false) {
   const color = asChromaColor(entityType.color ?? "#fff").brighten(
-    match ? 1 : 2
+    match ? 1 : 2,
   );
 
   return { ...entityType, color: color.css() };
@@ -125,7 +129,7 @@ export function ExtractionContext({
     h(ModelInfo, { data: data.model }),
     h(
       "ul.entities",
-      data.entities.map((d) => h(ExtractionInfo, { data: d, matchComponent }))
+      data.entities.map((d) => h(ExtractionInfo, { data: d, matchComponent })),
     ),
   ]);
 }
@@ -158,7 +162,7 @@ export function EntityTag({
       matched: match != null,
       type: data.type?.name ?? "lith",
     },
-    "entity"
+    "entity",
   );
 
   const style = getTagStyle(type?.color, { highlighted, active });
@@ -181,7 +185,7 @@ export function EntityTag({
           }
         },
       },
-      [type?.name, _matchLink]
+      [type?.name, _matchLink],
     ),
   ]);
 }
@@ -200,7 +204,7 @@ function ExtractionInfo({
     h.if(children.length > 0)([
       h(
         "ul.children",
-        children.map((d) => h(ExtractionInfo, { data: d, matchComponent }))
+        children.map((d) => h(ExtractionInfo, { data: d, matchComponent })),
       ),
     ]),
   ]);
@@ -261,6 +265,10 @@ function isHighlighted(id: number, selectedNodes: number[], nodes: any[]) {
   if (selectedNodes?.length === 0) return true;
   return (
     selectedNodes?.includes(id) ||
-    nodes?.some((node) => selectedNodes?.includes(node.id) && node.children.some((child) => child.id === id))
+    nodes?.some(
+      (node) =>
+        selectedNodes?.includes(node.id) &&
+        node.children.some((child) => child.id === id),
+    )
   );
 }

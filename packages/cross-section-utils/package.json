@@ -1,6 +1,7 @@
 {
   "name": "@macrostrat/cross-section-utils",
   "version": "2.0.2",
+  "private": true,
   "description": "Cross-section visualization",
   "dependencies": {
     "@derschmale/tympanum": "^1.3.6",

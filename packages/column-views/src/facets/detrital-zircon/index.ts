@@ -6,10 +6,7 @@ import {
 import { IUnit } from "../../units/types";
 import hyper from "@macrostrat/hyper";
 import { useDetritalMeasurements, MeasurementInfo } from "./provider";
-import {
-  MacrostratColumnContextReporter,
-  useMacrostratUnits,
-} from "../../data-provider";
+import { useMacrostratUnits } from "../../data-provider";
 import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
 import styles from "./index.module.sass";
@@ -67,9 +64,9 @@ function DetritalGroup(props: DetritalItemProps) {
               color: _color,
             });
           }),
-        ]
+        ],
       ),
-    ]
+    ],
   );
 }
 
@@ -128,7 +125,7 @@ function DetritalColumn({ columnID, color = "magenta" }) {
       notes,
       noteComponent,
       deltaConnectorAttachment: 20,
-    })
+    }),
   );
 }
 

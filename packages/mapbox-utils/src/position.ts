@@ -1,5 +1,6 @@
 /** Utilities for dealing with map coordinates. */
-import { FreeCameraOptions, Map, MercatorCoordinate } from "mapbox-gl";
+// @ts-expect-error
+import { Map, MercatorCoordinate, FreeCameraOptions } from "mapbox-gl";
 
 export type LatLng = {
   lng: number;
@@ -51,7 +52,7 @@ function _setMapPosition(map: Map, pos: MapPosition) {
     const { altitude, lng, lat } = pos.camera;
     const cameraOptions = new FreeCameraOptions(
       MercatorCoordinate.fromLngLat({ lng, lat }, altitude),
-      [0, 0, 0, 1]
+      [0, 0, 0, 1],
     );
     cameraOptions.setPitchBearing(pitch, bearing);
     map.setFreeCameraOptions(cameraOptions);

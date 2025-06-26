@@ -15,7 +15,7 @@ export enum FossilDataType {
 
 export function usePBDBFossilData(
   type: FossilDataType,
-  { col_id }
+  { col_id },
 ): any[] | null {
   const params = {
     ms_column: col_id,

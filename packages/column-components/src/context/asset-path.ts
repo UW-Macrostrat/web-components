@@ -28,7 +28,7 @@ function AssetPathProvider(props: AssetPathProviderProps) {
     {
       value: { resolveSymbol },
     },
-    children
+    children,
   );
 }
 

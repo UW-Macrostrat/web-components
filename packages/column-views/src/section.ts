@@ -120,9 +120,9 @@ function SectionUnitsColumn(props: SectionSharedProps) {
             width: innerWidth,
             clipUnits,
             maxInternalColumns,
-          } // This unconformity is with the section _above_
+          }, // This unconformity is with the section _above_
         );
-      })
+      }),
     ),
     h.if(unconformityLabels)(UnconformityLabels, {
       width,
@@ -157,7 +157,7 @@ function SectionUnits(props: SectionProps) {
       nColumns: Math.min(
         maxInternalColumns ?? Math.floor(width / 10),
         unitComponentProps?.nColumns ?? Infinity,
-        Math.max(...units.map((d) => d.column)) + 1
+        Math.max(...units.map((d) => d.column)) + 1,
       ),
       //axisType,
     };
@@ -184,8 +184,8 @@ function SectionUnits(props: SectionProps) {
         unitComponent,
         unitComponentProps: _unitComponentProps,
         clipToFrame: clipUnits,
-      })
-    )
+      }),
+    ),
   );
 }
 
@@ -240,9 +240,9 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
               showAgeAxis: false,
               ageRange: domain as [number, number],
             }),
-          ]
+          ],
         );
-      })
+      }),
     ),
     h.if(unconformityLabels)(UnconformityLabels, {
       width: "100%",
@@ -281,7 +281,7 @@ export function UnconformityLabels(props: {
           top,
         },
       });
-    })
+    }),
   );
 }
 

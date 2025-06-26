@@ -15,7 +15,7 @@ import { geoArea } from "d3-geo";
 
 function defaultFetch(
   url: string,
-  options: RequestInit | undefined = undefined
+  options: RequestInit | undefined = undefined,
 ) {
   const baseURL = "https://macrostrat.org/api/v2";
   return crossFetch(baseURL + url, options);
@@ -30,7 +30,7 @@ export interface ColumnFetchOptions {
 }
 
 export async function fetchAllColumns(
-  options: ColumnFetchOptions = {}
+  options: ColumnFetchOptions = {},
 ): Promise<ColumnGeoJSONRecord[]> {
   const {
     apiBaseURL,
@@ -92,7 +92,7 @@ export function useColumnFeatures({
   return useAPIResult(
     apiRoute,
     { format, all, status_code, project_id },
-    processor
+    processor,
   );
 }
 
@@ -117,12 +117,12 @@ function processTopoJSON(res) {
 
 function postProcessColumns(columns) {
   return promoteColumnIDs(
-    convertSmallAreasToPoints(removeFeaturesWithoutGeometry(columns))
+    convertSmallAreasToPoints(removeFeaturesWithoutGeometry(columns)),
   );
 }
 
 function promoteColumnIDs(
-  features: ColumnGeoJSONRecord[]
+  features: ColumnGeoJSONRecord[],
 ): ColumnGeoJSONRecordWithID[] {
   return features.map((f, i) => {
     return {
@@ -171,7 +171,7 @@ export async function fetchLithologies(fetch = defaultFetch) {
 
 export async function fetchIntervals(
   timescaleID: number | null,
-  fetch = defaultFetch
+  fetch = defaultFetch,
 ) {
   let url = `/defs/intervals`;
   if (timescaleID != null) {
@@ -190,7 +190,7 @@ export async function fetchEnvironments(fetch = defaultFetch) {
 
 export async function fetchRefs(
   refs: number[],
-  fetch = defaultFetch
+  fetch = defaultFetch,
 ): Promise<MacrostratRef[]> {
   let url = `/defs/refs`;
   if (refs.length == 0) {
@@ -208,7 +208,7 @@ export type ColumnData = {
 
 export async function fetchUnits(
   columns: number[],
-  fetch = defaultFetch
+  fetch = defaultFetch,
 ): Promise<ColumnData[]> {
   const promises = columns.map((col_id) => fetchColumnUnits(col_id, fetch));
   return await Promise.all(promises);
@@ -216,7 +216,7 @@ export async function fetchUnits(
 
 export async function fetchColumnUnits(
   col_id: number,
-  fetch = defaultFetch
+  fetch = defaultFetch,
 ): Promise<ColumnData> {
   const params = new URLSearchParams();
   params.append("response", "long");

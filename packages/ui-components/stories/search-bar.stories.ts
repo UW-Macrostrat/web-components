@@ -1,6 +1,22 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
+
+import { InputGroup } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import { SearchBar } from "../src";
+
+export function SearchBar({ onChange, placeholder = "Search..." }) {
+  return h(InputGroup, {
+    className: "search-bar",
+    size: "large",
+    fill: true,
+    round: false,
+    placeholder,
+    onChange: (e) => {
+      const value = e.target.value;
+      onChange(value);
+    },
+    leftIcon: "search",
+  });
+}
 
 export default {
   title: "UI components/Search Bar",
@@ -17,8 +33,7 @@ export default {
   },
 } as ComponentMeta<typeof SearchBar>;
 
-const Template: ComponentStory<typeof SearchBar> = (args) =>
-  h(SearchBar, args);
+const Template: ComponentStory<typeof SearchBar> = (args) => h(SearchBar, args);
 
 export const Primary = Template.bind({});
 Primary.args = {

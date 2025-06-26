@@ -44,7 +44,7 @@ function adjustArraySize<T>(arr: T[], newSize: number) {
 
 function lazyLoadingReducer<T>(
   state: LazyLoaderState<T>,
-  action: LazyLoaderAction<T>
+  action: LazyLoaderAction<T>,
 ): LazyLoaderState<T> {
   console.log(action);
   switch (action.type) {
@@ -112,7 +112,7 @@ function distanceToNextNonEmptyRow(
   data: any[],
   start: number,
   direction: LoadDirection,
-  limit: number
+  limit: number,
 ): number {
   let i = start;
   while (i < data.length && i > 0 && limit > 0) {
@@ -133,13 +133,13 @@ interface QueryConfig {
   order?: { key: string; ascending: boolean };
   after?: any;
   filter?: (
-    query: PostgrestFilterBuilder<any, any, any>
+    query: PostgrestFilterBuilder<any, any, any>,
   ) => PostgrestFilterBuilder<any, any, any>;
 }
 
 function buildQuery<T>(
   client: PostgrestQueryBuilder<T, any>,
-  config: QueryConfig
+  config: QueryConfig,
 ) {
   const { columns = "*", count } = config;
   const opts = { count };
@@ -181,7 +181,7 @@ function _loadMoreData<T>(
   client: PostgrestQueryBuilder<T, any>,
   config: QueryConfig & { chunkSize: number },
   state: LazyLoaderState<T>,
-  dispatch: any
+  dispatch: any,
 ) {
   const rowIndex = indexOfFirstNullInRegion(state.data, state.visibleRegion);
   if (state.loading || rowIndex == null) {
@@ -236,14 +236,14 @@ type LazyLoaderOptions = Omit<QueryConfig, "count" | "offset" | "limit"> & {
   chunkSize?: number;
   sortKey?: string;
   filter?: (
-    query: PostgrestFilterBuilder<any, any, any>
+    query: PostgrestFilterBuilder<any, any, any>,
   ) => PostgrestFilterBuilder<any, any, any>;
 };
 
 export function usePostgRESTLazyLoader(
   endpoint: string,
   table: string,
-  config: LazyLoaderOptions = {}
+  config: LazyLoaderOptions = {},
 ) {
   const initialState: LazyLoaderState<any> = {
     data: [],
@@ -286,7 +286,7 @@ export function usePostgRESTLazyLoader(
       });
       ref.current = visibleCells;
     }, 500),
-    [dispatch]
+    [dispatch],
   );
 
   return {
@@ -301,14 +301,14 @@ export function usePostgRESTLazyLoader(
 function getRowIndexToLoadFrom<T>(
   data: (T | null)[],
   visibleRegion: RowRegion,
-  chunkSize: number
+  chunkSize: number,
 ) {
   return indexOfFirstNullInRegion(data, visibleRegion);
 }
 
 function indexOfFirstNullInRegion(
   data: any[],
-  region: RowRegion
+  region: RowRegion,
 ): number | null {
   for (let i = region.rowIndexStart; i < region.rowIndexEnd; i++) {
     if (data[i] == null) {

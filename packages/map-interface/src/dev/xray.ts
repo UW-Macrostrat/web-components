@@ -11,7 +11,7 @@ interface XRayOptions {
 
 export async function buildXRayStyle(
   baseStyle: string | object,
-  params: XRayOptions = null
+  params: XRayOptions = null,
 ) {
   const {
     inDarkMode = false,
@@ -94,7 +94,7 @@ type InspectorStyleOptions = XRayOptions & {
 export async function buildInspectorStyle(
   baseStyle: mapboxgl.Style | string,
   overlayStyle: mapboxgl.Style | string | null = null,
-  params: InspectorStyleOptions = {}
+  params: InspectorStyleOptions = {},
 ) {
   const {
     mapboxToken,

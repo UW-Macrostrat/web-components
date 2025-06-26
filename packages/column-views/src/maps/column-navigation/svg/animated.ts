@@ -48,7 +48,7 @@ const MapViewFrame = (props) => {
               setExpanded(true);
             },
           },
-          [h(LandLayer), children]
+          [h(LandLayer), children],
         ),
         h.if(expanded)(Button, {
           className: "close-button",
@@ -60,7 +60,7 @@ const MapViewFrame = (props) => {
           intent: "danger",
         }),
       ]),
-    ]
+    ],
   );
 };
 

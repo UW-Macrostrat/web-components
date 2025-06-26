@@ -8,8 +8,6 @@ const lineSymbols = [
   "thrust-fault",
 ];
 
-
-
 // Bad sources
 // id: 225
 
@@ -18,7 +16,7 @@ function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
     color = "#000000",
     reverse = false,
     rotate,
-    sizeExpression: sz = s => s
+    sizeExpression: sz = (s) => s,
   } = opts;
   let offset: any = [0, 0];
   if (lyr == "thrust-fault") {
@@ -29,7 +27,7 @@ function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
       0,
       ["literal", [0, 0]],
       24,
-      ["literal", [0, 0]]
+      ["literal", [0, 0]],
     ];
   }
 
@@ -45,8 +43,8 @@ function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
       15,
       150,
       24,
-      300
-    ]
+      300,
+    ],
   };
 
   return {
@@ -73,12 +71,12 @@ function symbolLayerPaintProperties(lyr: string, opts: any = {}) {
         18,
         sz(4),
         24,
-        sz(30)
-      ]
+        sz(30),
+      ],
     },
     paint: {
-      "icon-color": color
-    }
+      "icon-color": color,
+    },
   };
 }
 
@@ -95,7 +93,7 @@ function createLineSymbolLayers() {
       source: "geology",
       "source-layer": "contact",
       filter: ["==", ["get", "type"], lyr],
-      ...symbolLayerPaintProperties(lyr, color)
+      ...symbolLayerPaintProperties(lyr, color),
     };
 
     symbolLayers.push(val);

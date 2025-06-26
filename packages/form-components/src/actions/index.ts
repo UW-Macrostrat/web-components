@@ -99,7 +99,7 @@ function ActionsList({
           onSelectAction(item.id == selectedAction?.id ? null : item);
         },
       });
-    })
+    }),
   );
 }
 
@@ -148,7 +148,7 @@ function ActionDetailsContent({
           onRunAction(action, state);
         },
       },
-      compact ? "Run" : action.name
+      compact ? "Run" : action.name,
     ),
     h("div.action-details", [
       h.if(description != null)("p.description", description),

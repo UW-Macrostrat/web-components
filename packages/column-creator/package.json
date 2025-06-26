@@ -7,6 +7,7 @@
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "node": "dist/node/index.js",
+  "private": true,
   "sideEffects": [
     "**/*.css"
   ],
@@ -29,9 +30,15 @@
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
+    "@blueprintjs/core": "^5.19.1",
+    "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
     "@macrostrat/column-views": "workspace:^",
+    "@macrostrat/data-sheet": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/ui-components": "workspace:^",
+    "immutability-helper": "^3.1.1",
+    "ui-box": "^5.4.1",
     "zustand": "^5.0.3",
     "zustand-computed": "^2.0.2"
   },
@@ -44,7 +51,7 @@
     "directory": "packages/column-creator"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   },
   "files": [
     "dist",

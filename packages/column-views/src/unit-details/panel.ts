@@ -5,18 +5,23 @@ import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ReactNode, useMemo, useState } from "react";
 import {
   DataField,
-  // EnvironmentsList,
+  EnvironmentsList,
   IntervalShort,
   IntervalTag,
   ItemList,
-  // LithologyList,
+  LithologyList,
   LithologyTagFeature,
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
-import { LithologyList, EnvironmentsList } from "../../../data-components/src";
 import { useMacrostratData, useMacrostratDefs } from "../data-provider";
-import { Environment, UnitLong, UnitLongFull } from "@macrostrat/api-types";
+import {
+  Environment,
+  UnitLong,
+  UnitLongFull,
+  Lithology,
+  Interval,
+} from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
 
@@ -145,13 +150,18 @@ function UnitDetailsContent({
     UnitDetailsFeature.OutcropType,
   ]),
   onClickItem,
+  getItemHref,
 }: {
   unit: UnitLong;
   selectUnit?: (unitID: number) => void;
   columnUnits?: UnitLong[];
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
-  onClickItem?: (event: any) => void;
+  onClickItem?: (
+    event: MouseEvent,
+    item: Lithology | Environment | UnitLong | Interval,
+  ) => void;
+  getItemHref?: (item: Lithology | Environment | UnitLong) => string | null;
 }) {
   const lithMap = useMacrostratDefs("lithologies");
   const envMap = useMacrostratDefs("environments");
@@ -200,7 +210,7 @@ function UnitDetailsContent({
       value: formatRange(unit.b_pos, unit.t_pos),
       children: h(
         Parenthetical,
-        h(Value, { value: thickness, unit: thicknessUnit })
+        h(Value, { value: thickness, unit: thicknessUnit }),
       ),
     });
   }
@@ -225,6 +235,7 @@ function UnitDetailsContent({
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
+      getItemHref,
       onClickItem,
     }),
     h(AgeField, { unit }, [
@@ -237,32 +248,33 @@ function UnitDetailsContent({
     h(EnvironmentsList, {
       environments,
       onClickItem,
+      getItemHref,
     }),
     h.if(unit.strat_name_id != null)(
       DataField,
       {
         label: "Stratigraphic name",
       },
-      h("span.strat-name-id", unit.strat_name_id)
+      h("span.strat-name-id", unit.strat_name_id),
     ),
     outcropField,
     h.if(features.has(UnitDetailsFeature.AdjacentUnits))([
       h(
         DataField,
         { label: "Above" },
-        h(UnitIDList, { units: unit.units_above, selectUnit })
+        h(UnitIDList, { units: unit.units_above, selectUnit }),
       ),
       h(
         DataField,
         { label: "Below" },
-        h(UnitIDList, { units: unit.units_below, selectUnit })
+        h(UnitIDList, { units: unit.units_below, selectUnit }),
       ),
     ]),
     colorSwatch,
     h(
       DataField,
       { label: "Source", inline: true },
-      h(BibInfo, { refs: unit.refs })
+      h(BibInfo, { refs: unit.refs }),
     ),
   ]);
 }
@@ -317,7 +329,7 @@ function BibInfo({ refs }) {
 
   return h(
     "ul.refs",
-    refData.map((data, i) => h(Citation, { data, tag: "li", key: i }))
+    refData.map((data, i) => h(Citation, { data, tag: "li", key: i })),
   );
 }
 
@@ -341,7 +353,7 @@ function AgeField({ unit, children }) {
       value: formatRange(b_age, t_age),
       unit: _unit,
     },
-    children
+    children,
   );
 }
 
@@ -433,7 +445,7 @@ export function Duration({
 
 function enhanceEnvironments(
   environments: Partial<Environment>[],
-  envMap: Map<number, Environment>
+  envMap: Map<number, Environment>,
 ) {
   return environments.map((env) => {
     return {
@@ -445,7 +457,7 @@ function enhanceEnvironments(
 
 function enhanceLithologies(
   lithologies: Partial<UnitLong["lith"]>,
-  lithMap: Map<number, any>
+  lithMap: Map<number, any>,
 ) {
   return lithologies.map((lith) => {
     return {
@@ -481,9 +493,9 @@ function UnitIDList({ units, selectUnit }) {
           },
           key: unit.id,
         },
-        unit
+        unit,
       );
-    })
+    }),
   );
 }
 
@@ -572,7 +584,7 @@ function formatRange(min, max, precision = null) {
 
   return `${formatSignificance(min, precision)}–${formatSignificance(
     max,
-    precision
+    precision,
   )}`;
 }
 

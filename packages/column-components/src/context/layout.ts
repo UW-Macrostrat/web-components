@@ -64,7 +64,7 @@ function ColumnLayoutProvider<T extends ColumnDivision>({
         widthForDivision: (d) => width,
       },
     },
-    children
+    children,
   );
 }
 
@@ -119,7 +119,7 @@ function GrainsizeLayoutProvider({
 
   if (grainsizeScaleRange == null) {
     console.warn(
-      "GrainsizeLayoutProvider: grainsizeScaleStart and width are deprecated in favor of grainsizeScaleRange"
+      "GrainsizeLayoutProvider: grainsizeScaleStart and width are deprecated in favor of grainsizeScaleRange",
     );
   }
 
@@ -149,7 +149,7 @@ function GrainsizeLayoutProvider({
         ix -= 1;
       }
     },
-    [divisions]
+    [divisions],
   );
 
   const widthForDivision = useCallback(
@@ -159,7 +159,7 @@ function GrainsizeLayoutProvider({
       }
       return grainsizeScale(grainsizeForDivision(division));
     },
-    [grainsizeForDivision, grainsizeScale, width]
+    [grainsizeForDivision, grainsizeScale, width],
   );
 
   // This is slow to run each iteration
@@ -174,7 +174,7 @@ function GrainsizeLayoutProvider({
       grainsizeForDivision,
       widthForDivision,
     } as any,
-    children
+    children,
   );
 }
 
@@ -182,7 +182,7 @@ export function useColumnLayout() {
   const ctx = useContext(ColumnLayoutContext);
   if (ctx == null) {
     throw new Error(
-      "useColumnLayout must be used within a ColumnLayoutProvider"
+      "useColumnLayout must be used within a ColumnLayoutProvider",
     );
   }
   return ctx;

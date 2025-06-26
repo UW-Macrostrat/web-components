@@ -259,7 +259,7 @@ export class DivisionEditOverlay extends Component<
             color: "black",
           },
         },
-        [fmt2(height)]
+        [fmt2(height)],
       ),
     ]);
   }
@@ -313,14 +313,14 @@ export class DivisionEditOverlay extends Component<
                       intent: Intent.WARNING,
                       onClick: this.closePopover.bind(this),
                     }),
-                  ]
+                  ],
                 ),
                 this.props.renderEditorPopup(division),
-              ]
+              ],
             ),
-          ]
+          ],
         ),
-      ]
+      ],
     );
   }
 
@@ -370,7 +370,7 @@ export class DivisionEditOverlay extends Component<
           color,
         }),
         this.renderCursorLine(),
-      ]
+      ],
     );
   }
 }

@@ -19,7 +19,7 @@ function SubmitDialog({
         ...rest,
         onClick: () => setOpen(true),
       },
-      "Save Changes"
+      "Save Changes",
     ),
     h(Dialog, { isOpen: open }, [
       h("div", { className: Classes.DIALOG_HEADER }, h("h3", null, "WARNING")),
@@ -35,7 +35,7 @@ function SubmitDialog({
               setOpen(false);
             },
           },
-          "Save changes"
+          "Save changes",
         ),
         h(
           CancelButton,
@@ -43,7 +43,7 @@ function SubmitDialog({
             small: true,
             onClick: () => setOpen(false),
           },
-          "Cancel"
+          "Cancel",
         ),
       ]),
     ]),
@@ -70,7 +70,7 @@ export function SheetToolbar(props) {
           onClick: onUndo,
           ...buttonProps,
         },
-        "Reset changes"
+        "Reset changes",
       ),
     ]),
     h("div.spacer"),

@@ -8,7 +8,7 @@ function ageSorter(a: Interval, b: Interval): number {
 
 function __nestMap(
   rootItem: Interval,
-  intervalMap: IntervalMap
+  intervalMap: IntervalMap,
 ): NestedInterval {
   let items = intervalMap.get(rootItem.oid);
   if (items == null) items = [];
@@ -28,7 +28,7 @@ function __nestMap(
 
 function nestTimescale(
   rootID: number,
-  intervals: Interval[]
+  intervals: Interval[],
 ): [IntervalMap, NestedInterval] {
   // Find the root interval by its id
   const rootItem = intervals.find((d) => d.oid == rootID);

@@ -14,7 +14,7 @@ const servePatterns = serveStatic([
 ]);
 
 const geologicPatterns = dirname(
-  import.meta.resolve("geologic-patterns").replace("file://", "")
+  import.meta.resolve("geologic-patterns").replace("file://", ""),
 );
 
 const patternBaseURL = geologicPatterns;

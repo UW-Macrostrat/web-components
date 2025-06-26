@@ -31,7 +31,7 @@ type UnitNote = {
 
 function noteForDivision(
   div: IUnit,
-  opts: { axisType: ColumnAxisType }
+  opts: { axisType: ColumnAxisType },
 ): UnitNote {
   const { axisType } = opts;
 
@@ -70,7 +70,7 @@ function UnitDataColumn_(props: UnitDataProps) {
       const dy = Math.abs(scale(d.top_height) - scale(d.height));
       return dy > minimumHeight;
     },
-    [scale, minimumHeight]
+    [scale, minimumHeight],
   );
 
   if (divisions == null) return null;
@@ -112,7 +112,7 @@ export function UnitNamesColumn(props: UnitNamesProps) {
       const { note } = props;
       return h("p.col-note-label", nameForDivision(note.data));
     },
-    [nameForDivision]
+    [nameForDivision],
   );
 
   return h(UnitDataColumn, {

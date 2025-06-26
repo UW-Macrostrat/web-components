@@ -72,7 +72,7 @@ export class CollapsePanel extends Component<
 
   componentDidUpdate(
     prevProps: CollapsePanelProps,
-    prevState: CollapsePanelState
+    prevState: CollapsePanelState,
   ) {
     // Refresh object in local storage
     const { storageID } = this.props;

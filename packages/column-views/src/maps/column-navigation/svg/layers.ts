@@ -66,7 +66,7 @@ function ColumnFeatures(props) {
         onClick,
         feature: f,
       });
-    })
+    }),
   );
 }
 
@@ -98,7 +98,7 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   const { projection } = useContext(MapContext);
   const { centroids, tri } = useMemo(
     () => buildTriangulation(features),
-    [features]
+    [features],
   );
 
   const currentIndex = useMemo(() => {
@@ -118,7 +118,7 @@ function ColumnKeyboardNavigation(props: KeyboardNavProps) {
       // @ts-ignore
       onChange(features[nextColumnIx]);
     },
-    [keyMapping]
+    [keyMapping],
   );
 
   if (neighbors == null) return null;

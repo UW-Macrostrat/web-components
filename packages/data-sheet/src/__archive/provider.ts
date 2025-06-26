@@ -164,7 +164,7 @@ DataSheetProviderBase.defaultProps = defaultContext;
 
 const DataSheetProvider = compose(
   C(DndProvider, { backend: HTML5Backend }),
-  DataSheetProviderBase
+  DataSheetProviderBase,
 );
 
 const useDataSheet = () => useContext(DataSheetContext);

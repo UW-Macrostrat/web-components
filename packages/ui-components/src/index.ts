@@ -22,7 +22,5 @@ export * from "./page-layouts";
 export * from "./dev-panel";
 export * from "./data";
 export * from "./image";
-export * from "./search-bar";
-export * from "./checkins";
 
 import "./module.d.ts";

@@ -41,7 +41,7 @@ export function ResizableMapFrame(props) {
         ...rest,
         scale,
       },
-      [h(LandLayer), children]
+      [h(LandLayer), children],
     ),
   ]);
 }
@@ -89,7 +89,7 @@ export function ColumnNavigationSVGMap(props) {
         ...rest,
       }),
       h.if(currentColumn != null)(CurrentColumn, { feature: currentColumn }),
-    ]
+    ],
   );
 }
 

@@ -16,8 +16,8 @@ function ErrorCallout(props) {
     h(
       "p",
       null,
-      props.description ?? error?.toString() ?? "No description available"
-    )
+      props.description ?? error?.toString() ?? "No description available",
+    ),
   );
 }
 

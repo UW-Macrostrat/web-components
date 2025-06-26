@@ -95,7 +95,7 @@ function useColumnSelection() {
     (selectedUnit) => {
       updateArgs({ selectedUnit });
     },
-    [updateArgs]
+    [updateArgs],
   );
 
   return {

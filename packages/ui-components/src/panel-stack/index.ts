@@ -9,11 +9,11 @@ function PanelStack(props) {
 
   const addToPanelStack = React.useCallback(
     (newPanel) => setCurrentStack((stack) => [...stack, newPanel]),
-    []
+    [],
   );
   const removeFromPanelStack = React.useCallback(
     () => setCurrentStack((stack) => stack.slice(0, -1)),
-    []
+    [],
   );
 
   return h(
@@ -31,7 +31,7 @@ function PanelStack(props) {
         showPanelHeader: true,
         stack: currentStack,
       }),
-    ]
+    ],
   );
 }
 

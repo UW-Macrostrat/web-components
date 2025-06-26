@@ -14,7 +14,7 @@ export class FlexibleNode {
   constructor(
     allowedRange: [number, number],
     width: number,
-    data: any | null = null
+    data: any | null = null,
   ) {
     this.allowedRange = allowedRange;
     this.centerPos = (this.allowedRange[0] + this.allowedRange[1]) / 2;

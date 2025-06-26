@@ -59,7 +59,7 @@ function IntervalOption({
         roleStructure: "listoption",
         ...restProps,
       },
-      []
+      [],
     );
   }
 
@@ -78,7 +78,7 @@ function IntervalOption({
       roleStructure: "listoption",
       ...restProps,
     },
-    []
+    [],
   );
 }
 
@@ -86,7 +86,7 @@ const IntervalOptionMemo = memo(IntervalOption);
 
 const intervalOptionRenderer: ItemRenderer<Interval> = (
   interval: Interval,
-  props: any
+  props: any,
 ) => {
   return h(IntervalOptionMemo, {
     key: interval.int_id,
@@ -128,7 +128,7 @@ export const IntervalSelection = ({
     let interval = null;
     if (intervals.length != 0) {
       interval = intervals.filter(
-        (interval) => interval.int_id == parseInt(value)
+        (interval) => interval.int_id == parseInt(value),
       )[0];
     }
 
@@ -170,9 +170,9 @@ export const IntervalSelection = ({
             roleStructure: "listoption",
           }),
         },
-        h(IntervalButton, { interval, intent, setActive })
+        h(IntervalButton, { interval, intent, setActive }),
       ),
-    ]
+    ],
   );
 };
 
@@ -195,13 +195,13 @@ function IntervalButton({ interval, intent, setActive }) {
       text: h(
         "span",
         { style: { overflow: "hidden", textOverflow: "ellipses" } },
-        interval?.name ?? "Select an interval"
+        interval?.name ?? "Select an interval",
       ),
       rightIcon: "double-caret-vertical",
       className: "update-input-group",
       onClick: () => setActive(true),
     },
-    []
+    [],
   );
 }
 
@@ -216,6 +216,6 @@ function useIntervals(timescaleID: number | null = null): Interval[] {
   return useAPIResult(
     "https://macrostrat.org/api/v2/defs/intervals",
     params,
-    (res) => res.success.data
+    (res) => res.success.data,
   );
 }

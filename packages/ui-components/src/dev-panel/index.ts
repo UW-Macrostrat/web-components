@@ -96,7 +96,7 @@ function Accordion({ tools }: { tools: DevTool[] }) {
         },
         component: tool,
       });
-    })
+    }),
   );
 }
 
@@ -108,12 +108,12 @@ function CollapseArea({ title, isExpanded, setExpanded, component }) {
       [
         h("h3.collapse-title", title),
         h(Icon, { icon: isExpanded ? "chevron-up" : "chevron-down" }),
-      ]
+      ],
     ),
     h(
       Collapse,
       { isOpen: isExpanded },
-      h("div.collapse-content", h(ErrorBoundary, h(component)))
+      h("div.collapse-content", h(ErrorBoundary, h(component))),
     ),
   ]);
 }
@@ -142,7 +142,7 @@ export function DevToolsButtonSlot({
       ref,
       minimal: true,
       icon: "code",
-    })
+    }),
   );
 }
 

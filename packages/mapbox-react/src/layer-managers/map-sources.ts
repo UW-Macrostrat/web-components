@@ -75,7 +75,7 @@ export function MapSourcesLayer({
   const map = useMapElement();
   const featureData: any = useAPIResult(
     macrostratAPIDomain + "/api/v2/defs/sources",
-    { all: true, format: "geojson_bare" }
+    { all: true, format: "geojson_bare" },
   );
   useEffect(() => {
     if (!map || !featureData) return;
@@ -84,7 +84,7 @@ export function MapSourcesLayer({
     featureData.features.forEach((f) => {
       const lvl = Math.max(
         ["small", "medium", "large"].indexOf(f.properties.scale),
-        0
+        0,
       );
 
       f.properties.opacity = (lvl + 0.5) / 4;

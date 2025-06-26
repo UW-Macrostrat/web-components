@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "4.2.0",
+  "version": "4.3.0",
   "description": "UI components for React and Blueprint.js",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -73,6 +73,6 @@
     "directory": "packages/ui-components"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

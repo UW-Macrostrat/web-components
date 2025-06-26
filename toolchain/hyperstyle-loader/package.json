@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/hyperstyle-loader",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.js",
   "scripts": {
     "build": "echo 'Nothing to be done!'"
@@ -10,6 +10,6 @@
     "webpack": "^5.0.0"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

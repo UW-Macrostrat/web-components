@@ -95,9 +95,9 @@ export function ItemSelect<T extends Nameable>({
             },
             disabled: selectedItem == null,
           }),
-        ]
-      )
-    )
+        ],
+      ),
+    ),
   );
 }
 

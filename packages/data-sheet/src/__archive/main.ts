@@ -90,7 +90,7 @@ export function DataSheet(props) {
     value: any,
     row: number,
     key: string,
-    col: number
+    col: number,
   ) => {
     /** Need to turn off submit on click away event for cell */
 
@@ -103,7 +103,7 @@ export function DataSheet(props) {
       { edited: isChanged, "read-only": readOnly },
       "cell",
       "nowrap",
-      "clip"
+      "clip",
     );
     return {
       value,
@@ -126,7 +126,7 @@ export function DataSheet(props) {
       onSubmit,
       onCancel,
       hasChanges: baseData != data,
-    }
+    },
     //h("div.right-actions", null, h(SettingsPopup))
   );
 
@@ -154,7 +154,7 @@ function DataSheetUI({
   if (finalizeCellProps != null) {
     newData = newData.map((obj, row) => {
       return columns.map(({ key }, col) =>
-        finalizeCellProps(obj[col].value, row, key, col)
+        finalizeCellProps(obj[col].value, row, key, col),
       );
     });
   }
@@ -167,8 +167,8 @@ function DataSheetUI({
       h("div.data-sheet", [
         sheetHeader,
         h(component, { ...rest, data: newData }),
-      ])
-    )
+      ]),
+    ),
   );
 }
 

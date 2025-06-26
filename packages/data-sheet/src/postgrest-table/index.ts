@@ -15,15 +15,22 @@ import {
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { DataSheetProviderProps } from "../provider";
-import {
-  PostgrestFilterBuilder,
-  PostgrestQueryBuilder,
-} from "@supabase/postgrest-js";
-import { GenericSchema } from "@supabase/postgrest-js/dist/cjs/types";
+import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
+import type {
+  GenericFunction,
+  GenericTable,
+  GenericView,
+} from "@supabase/postgrest-js/dist/cjs/types";
 
 const h = hyper.styled(styles);
 
-interface PostgRESTTableViewProps<T extends GenericSchema>
+export type GenericSchema = {
+  Tables: Record<string, GenericTable>;
+  Views: Record<string, GenericView>;
+  Functions: Record<string, GenericFunction>;
+};
+
+interface PostgRESTTableViewProps<T extends object>
   extends DataSheetProviderProps<T> {
   endpoint: string;
   table: string;
@@ -32,14 +39,14 @@ interface PostgRESTTableViewProps<T extends GenericSchema>
   columns?: string;
   editable?: boolean;
   filter(
-    query: PostgrestFilterBuilder<T, any, any>
+    query: PostgrestFilterBuilder<T, any, any>,
   ): PostgrestFilterBuilder<T, any, any>;
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
   return h(
     ErrorBoundary,
-    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props)))
+    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props))),
   );
 }
 
@@ -63,7 +70,7 @@ function _PostgRESTTableView<T>({
       order,
       columns,
       filter,
-    }
+    },
   );
 
   const toaster = useToaster();
@@ -80,7 +87,7 @@ function _PostgRESTTableView<T>({
         }
       });
     },
-    [dispatch, toaster]
+    [dispatch, toaster],
   );
 
   if (data == null) {
@@ -165,7 +172,7 @@ export function notifyOnError(toaster: Toaster, error: any) {
 
 export function wrapWithErrorHandling<T = any>(
   toaster: Toaster,
-  fnPromise: Promise<T>
+  fnPromise: Promise<T>,
 ): Promise<T | null> {
   return fnPromise
     .then((p) => {
@@ -192,7 +199,7 @@ export function IntervalCell({ value, children, ...rest }) {
 export function lithologyRenderer(value) {
   return h(
     "span.tag-cell-content.liths",
-    value?.map((d) => h(LithologyTag, { data: d, key: d.id }))
+    value?.map((d) => h(LithologyTag, { data: d, key: d.id })),
   );
 }
 
@@ -214,10 +221,10 @@ export function ExpandedLithologies({ value, onChange }) {
                   " ",
                   h("code", d),
                 ]);
-              })
+              }),
             ),
           ]);
-        })
+        }),
       ),
     ]),
   ]);

@@ -1,19 +1,13 @@
-import { MapViewProps } from "@macrostrat/map-interface";
 import {
   useMapClickHandler,
   useMapEaseTo,
   useMapStyleOperator,
 } from "@macrostrat/mapbox-react";
-import {
-  GeoJSONSource,
-  GeoJSONSourceRaw,
-  LngLatBounds,
-  Style,
-} from "mapbox-gl";
+import { LngLatBounds, Style } from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import { Feature, FeatureCollection } from "geojson";
 import { ReactNode, useMemo } from "react";
-import { setGeoJSON } from "@macrostrat/mapbox-utils";
+import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 
 import { useCorrelationMapStore } from "./state";
 import { buildColumnsStyle, InsetMap, InsetMapProps } from "../_shared";
@@ -51,7 +45,7 @@ export function ColumnCorrelationMap(props: CorrelationMapProps) {
       h(MapClickHandler),
       h(SectionLine, { padding }),
       children,
-    ]
+    ],
   );
 }
 
@@ -62,7 +56,7 @@ function MapClickHandler() {
     (e) => {
       onClickMap(e, { type: "Point", coordinates: e.lngLat.toArray() });
     },
-    [onClickMap]
+    [onClickMap],
   );
 
   return null;
@@ -70,7 +64,7 @@ function MapClickHandler() {
 
 function SelectedColumnsLayer() {
   const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns
+    (state) => state.focusedColumns,
   );
 
   useMapStyleOperator(
@@ -87,7 +81,7 @@ function SelectedColumnsLayer() {
         geometry: {
           type: "LineString",
           coordinates: features.map(
-            (col) => col.properties.centroid.geometry.coordinates
+            (col) => col.properties.centroid.geometry.coordinates,
           ),
         },
         properties: {},
@@ -99,7 +93,7 @@ function SelectedColumnsLayer() {
         features: [columnCentroidLine],
       });
     },
-    [focusedColumns]
+    [focusedColumns],
   );
   return null;
 }
@@ -120,7 +114,7 @@ function ColumnsLayer({ enabled = true }) {
       console.log(" columns", data);
       setGeoJSON(map, "columns", data);
     },
-    [columns, enabled]
+    [columns, enabled],
   );
   return null;
 }
@@ -172,18 +166,6 @@ const lineOfSectionStyle: Style = {
   layers: buildCrossSectionLayers(),
 };
 
-function buildGeoJSONSource(
-  data: FeatureCollection | null = null
-): GeoJSONSourceRaw {
-  return {
-    type: "geojson",
-    data: data ?? {
-      type: "FeatureCollection",
-      features: [],
-    },
-  };
-}
-
 function SectionLine({ padding }: { padding: number }) {
   const focusedLine = useCorrelationMapStore((state) => state.focusedLine);
 
@@ -214,7 +196,7 @@ function SectionLine({ padding }: { padding: number }) {
         })),
       });
     },
-    [focusedLine]
+    [focusedLine],
   );
 
   const bounds = useMemo(() => {

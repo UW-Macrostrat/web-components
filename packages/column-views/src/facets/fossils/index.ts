@@ -53,7 +53,7 @@ function PBDBCollectionLink({ collection }: { collection: PBDBCollection }) {
     {
       href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${collection.cltn_id}`,
     },
-    collection.cltn_name
+    collection.cltn_name,
   );
 }
 
@@ -115,6 +115,6 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
       paddingLeft,
       notes,
       noteComponent,
-    })
+    }),
   );
 }

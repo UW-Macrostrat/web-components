@@ -6,4 +6,5 @@ of visualizations.
 
 ## Prior art
 
-- John Czaplewski's [initial implementation](http://bl.ocks.org/jczaplew/7546689) using D3.js
+- John Czaplewski's
+  [initial implementation](http://bl.ocks.org/jczaplew/7546689) using D3.js

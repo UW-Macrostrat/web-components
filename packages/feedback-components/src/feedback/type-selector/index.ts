@@ -39,7 +39,7 @@ const TagListItem: React.ComponentType<TagItemProps<T>> = (props) => {
     [
       h("div.swatch", { style: { backgroundColor: item.color } }),
       h("div.item", {}, item.name),
-    ]
+    ],
   );
 };
 

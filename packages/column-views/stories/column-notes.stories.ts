@@ -35,7 +35,7 @@ export function ColumnWithNotes() {
         nColumns: 5,
       },
     },
-    h(Notes, { width: 300 })
+    h(Notes, { width: 300 }),
   );
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-react",
-  "version": "2.6.0",
+  "version": "2.6.1",
   "description": "Components to support using Mapbox maps in React",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -13,7 +13,7 @@
     "@macrostrat/ui-components": "workspace:^",
     "@turf/bbox": "^7.1.0",
     "@turf/centroid": "^7.1.0",
-    "@types/mapbox-gl": "^2.7.5||^3.4.1",
+    "@types/mapbox-gl": "^3.4.1",
     "classnames": "^2.3.1",
     "immutability-helper": "^3.1.1",
     "mapbox-gl": "^2.15.0||^3.0.0",
@@ -51,6 +51,6 @@
     "directory": "packages/mapbox-react"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

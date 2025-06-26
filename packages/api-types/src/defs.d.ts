@@ -22,3 +22,13 @@ export interface MacrostratRef {
   url: string | null;
   t_units: number;
 }
+
+export type Interval = {
+  int_id: number;
+  name: string;
+  abbrev?: string;
+  t_age?: number;
+  b_age?: number;
+  timescales?: string[];
+  color: string;
+};

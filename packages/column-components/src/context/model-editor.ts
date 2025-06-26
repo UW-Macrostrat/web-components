@@ -59,7 +59,7 @@ function ModelEditorProvider(props: ModelEditorProviderProps) {
       }
       return setState(v);
     },
-    [logUpdates, editedModel]
+    [logUpdates, editedModel],
   );
 
   const deleteModel = function () {

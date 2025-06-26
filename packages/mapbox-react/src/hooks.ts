@@ -7,7 +7,7 @@ import { useCallback } from "react";
 /** A newer and more flexible version of useMapConditionalStyle */
 export function useMapStyleOperator(
   operator: (map: mapboxgl.Map) => void,
-  dependencies: any[] = []
+  dependencies: any[] = [],
 ) {
   const mapRef = useMapRef();
   const isStyleLoaded = useMapStatus((s) => s.isStyleLoaded);
@@ -36,7 +36,7 @@ export function useMapStyleOperator(
 export function useMapConditionalStyle<T = any>(
   mapRef: RefObject<mapboxgl.Map>,
   state: T,
-  operator: (map: mapboxgl.Map, a: T) => void
+  operator: (map: mapboxgl.Map, a: T) => void,
 ) {
   useEffect(() => {
     const map = mapRef.current;
@@ -58,18 +58,18 @@ const _toggleMapLabels = (map, state) =>
 export function useMapLabelVisibility(
   mapRef: RefObject<mapboxgl.Map>,
   mapShowLabels: boolean,
-  omitLayers: string[] = []
+  omitLayers: string[] = [],
 ) {
   useMapConditionalStyle(
     mapRef,
     { mapShowLabels, omitLayers },
-    _toggleMapLabels
+    _toggleMapLabels,
   );
 }
 
 export function useMapClickHandler(
   fn: (e: mapboxgl.MapMouseEvent) => void,
-  deps: any[]
+  deps: any[],
 ) {
   const clickFn = useCallback(fn, deps);
   useMapStyleOperator(
@@ -79,6 +79,6 @@ export function useMapClickHandler(
         map.off("click", clickFn);
       };
     },
-    [clickFn]
+    [clickFn],
   );
 }

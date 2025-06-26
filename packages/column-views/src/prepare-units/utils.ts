@@ -13,13 +13,13 @@ interface UnitsOverlap {
     a: StratigraphicPackage,
     b: StratigraphicPackage,
     axisType?: ColumnAxisType.AGE,
-    tolerance?: number
+    tolerance?: number,
   ): boolean;
   (
     a: BaseUnit,
     b: BaseUnit,
     axisType: ColumnAxisType,
-    tolerance?: number
+    tolerance?: number,
   ): boolean;
 }
 
@@ -27,12 +27,12 @@ export const unitsOverlap: UnitsOverlap = function (
   a,
   b,
   axisType: ColumnAxisType = ColumnAxisType.AGE,
-  tolerance: number = 0.001
+  tolerance: number = 0.001,
 ): boolean {
   const rel = compareAgeRanges(
     getUnitHeightRange(a, axisType),
     getUnitHeightRange(b, axisType),
-    tolerance
+    tolerance,
   );
   return rel != AgeRangeRelationship.Disjoint;
 };
@@ -41,7 +41,7 @@ export const unitsOverlap: UnitsOverlap = function (
 export function agesOverlap(
   a: StratigraphicPackage,
   b: StratigraphicPackage,
-  tolerance: number = dt
+  tolerance: number = dt,
 ): boolean {
   return unitsOverlap(a, b, ColumnAxisType.AGE, tolerance);
 }
@@ -54,7 +54,7 @@ export interface PossiblyClippedUnit extends BaseUnit {
 
 export function getUnitHeightRange(
   unit: PossiblyClippedUnit,
-  axisType: ColumnAxisType
+  axisType: ColumnAxisType,
 ): [number, number] {
   switch (axisType) {
     case ColumnAxisType.AGE:

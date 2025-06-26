@@ -54,9 +54,9 @@ export class PickerControl extends Component<PickerControlProps> {
               className,
               onClick: this.onUpdate(d.value),
             },
-            d.label
+            d.label,
           );
-        })
+        }),
       ),
     ]);
   }

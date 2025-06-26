@@ -14,13 +14,13 @@ type ColumnManagerData = [ColumnArgs, (c: ColumnArgs) => void];
 const ColumnNavCtx = createContext<ColumnManagerData | null>(null);
 
 export function useColumnNav(
-  defaultArgs: ColumnArgs = { col_id: 495, unit_id: null }
+  defaultArgs: ColumnArgs = { col_id: 495, unit_id: null },
 ): ColumnManagerData {
   const ctx = useContext(ColumnNavCtx);
   if (ctx != null) return ctx;
 
   const [columnArgs, setColumnArgs] = useState<ColumnArgs>(
-    extractColumnArgs(getQueryString(window.location.search)) ?? defaultArgs
+    extractColumnArgs(getQueryString(window.location.search)) ?? defaultArgs,
   );
 
   useEffect(() => setQueryString(columnArgs), [columnArgs]);

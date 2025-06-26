@@ -91,9 +91,9 @@ function MapEaseWrapper({
           mapboxToken,
           ...mapPosition,
         },
-        children
+        children,
       ),
-    ]
+    ],
   );
 }
 
@@ -128,7 +128,7 @@ export function UseMapEaseTo() {
         " hook",
       ]),
     },
-    h(UseMapEaseToInner, { position })
+    h(UseMapEaseToInner, { position }),
   );
 }
 
@@ -142,7 +142,7 @@ export function BasicMapEaseTo() {
       nextLocation,
       description: "This story demonstrates basic map easing",
     },
-    h(BasicMapEaseToInner, { position })
+    h(BasicMapEaseToInner, { position }),
   );
 }
 

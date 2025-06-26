@@ -11,7 +11,7 @@ export function PanelSubhead(props) {
       {
         className: "title",
       },
-      title
+      title,
     ),
     children,
   ]);

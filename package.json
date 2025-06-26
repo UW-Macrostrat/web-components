@@ -7,12 +7,14 @@
   "version": "3.0.0",
   "scripts": {
     "dev": "storybook dev -p 6006 --no-open",
-    "build": "yarn workspaces foreach -A -p run build",
     "build:storybook": "storybook build --debug",
+    "build": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers build",
     "status": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers status",
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
     "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish",
+    "tag-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers tag-versions",
     "publish:storybook": "./scripts/publish-storybook.sh",
+    "format": "prettier --write .",
     "check-types": "tsc --noEmit",
     "check-circular": "madge --circular --extensions ts,tsx ."
   },
@@ -44,7 +46,7 @@
     "marked": "^11.0",
     "marked-terminal": "^7.1.0",
     "node-fetch": "^3.2.9",
-    "parcel": "^2.14.4",
+    "parcel": "^2.15.4",
     "prettier": "^3.6.1",
     "react": "^19",
     "react-dom": "^19",
@@ -73,6 +75,6 @@
     "@types/underscore": "^1.13.0",
     "madge": "^8.0.0",
     "prettier": "^3.6.1",
-    "react-docgen": "7.0.0"
+    "react-docgen": "^7.0.0"
   }
 }

@@ -27,7 +27,7 @@ async function setupLineSymbols(map) {
       if (map.hasImage(symbol)) return;
       const image = await loadImage(map, lineSymbolsURL + `/${symbol}.png`);
       map.addImage(symbol, image, { sdf: true, pixelRatio: 3 });
-    })
+    }),
   );
 }
 
@@ -52,7 +52,7 @@ async function setupStyleImages(map, polygonTypes) {
       });
 
       map.addImage(uid, img, { sdf: false, pixelRatio: 12 });
-    })
+    }),
   );
 }
 
@@ -84,11 +84,11 @@ class GeologyStyler {
 
   async createStyle(map: mapboxgl.Map, baseStyleURL: string) {
     const { data: polygonTypes } = await axios.get(
-      this.sourceURL + "/feature-server/polygon/types"
+      this.sourceURL + "/feature-server/polygon/types",
     );
     const baseURL = baseStyleURL.replace(
       "mapbox://styles",
-      "https://api.mapbox.com/styles/v1"
+      "https://api.mapbox.com/styles/v1",
     );
     let baseStyle = await getMapboxStyle(baseURL, {
       access_token: mapboxgl.accessToken,
@@ -104,7 +104,7 @@ class GeologyStyler {
     let geologyStyle = createGeologyStyle(
       baseStyle,
       polygonTypes,
-      this.sourceURL
+      this.sourceURL,
     );
 
     geologyStyle.sources = {

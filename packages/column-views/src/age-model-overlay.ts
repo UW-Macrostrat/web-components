@@ -52,7 +52,7 @@ export function BoundaryAgeModelOverlay() {
   const ageModel = useAPIResult(
     "https://macrostrat.org/api/v2/age_model",
     { col_id },
-    (res) => res.success.data
+    (res) => res.success.data,
   );
 
   if (ageModel == null) {
@@ -68,6 +68,6 @@ export function BoundaryAgeModelOverlay() {
         key: surface.boundary_id,
         style: { top: `${height}px` },
       });
-    })
+    }),
   );
 }

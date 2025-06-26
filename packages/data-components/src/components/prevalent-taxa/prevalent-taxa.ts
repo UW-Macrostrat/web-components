@@ -17,7 +17,7 @@ async function fetchPrevalentTaxa(strat_name_id: number | string) {
   });
 
   const collections = res.data.success.data.map(
-    (c: { cltn_id: number }) => c.cltn_id
+    (c: { cltn_id: number }) => c.cltn_id,
   );
   if (collections.length > 0) {
     const paleoRes = await axios.get(paleoUrl, {
@@ -66,7 +66,7 @@ function PrevalentTaxa({ strat_name_id }: { strat_name_id: number | string }) {
             h(
               "a.normalize-link",
               { href: "https://paleobiodb.org", target: "_blank" },
-              ["PaleoBioDB"]
+              ["PaleoBioDB"],
             ),
           ]),
         ]),
@@ -90,7 +90,7 @@ function PrevalentTaxa({ strat_name_id }: { strat_name_id: number | string }) {
                   d.oid,
                 target: "_blank",
               },
-              [d.nam]
+              [d.nam],
             ),
           ]),
         ]),

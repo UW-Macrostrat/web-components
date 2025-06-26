@@ -17,7 +17,7 @@ const defaultWidthForValue = (val) => String(val).length * 8;
 
 export function generateDefaultColumnSpec<T>(
   data: Array<T>,
-  options: ColumnSpecGenerateOptions = {}
+  options: ColumnSpecGenerateOptions = {},
 ): ColumnSpec[] {
   /** Build a default column spec from a dataset based on the first n rows */
   if (data == null) return [];
@@ -88,7 +88,7 @@ export function generateDefaultColumnSpec<T>(
       // If we are calculating widths, use the value lengths
       width = Math.min(
         Math.max(defaultWidth / 2, columnWidths.get(key) ?? defaultWidth),
-        defaultWidth * 1.5
+        defaultWidth * 1.5,
       );
     }
 
@@ -104,7 +104,7 @@ export function generateDefaultColumnSpec<T>(
 
 export function generateColumnSpec<T>(
   data: T[],
-  options: ColumnSpecOptions
+  options: ColumnSpecOptions,
 ): ColumnSpec[] {
   /** Generate a column spec from a dataset */
   const { overrides = {}, nRows = 10, omitColumns, includeColumns } = options;

@@ -90,7 +90,7 @@ function NoteEditorProvider(props: NoteEditorProviderProps) {
         logUpdates: true,
         alwaysConfirm: true,
       },
-      children
+      children,
     ),
   ]);
 }
@@ -134,7 +134,7 @@ const EditableNoteConnector = function (props) {
         height: 1,
         style: { overflowY: "visible" },
       },
-      h(PositionEditorInner, { note })
+      h(PositionEditorInner, { note }),
     ),
   ]);
 };
@@ -161,7 +161,7 @@ const PointHandle = function (props) {
         position: "absolute",
       },
       className,
-    })
+    }),
   );
 };
 
@@ -237,7 +237,7 @@ function PositionEditorInner(props) {
               position: "absolute",
             },
           }),
-        ])
+        ]),
       ),
       h(PointHandle, {
         height: noteHasSpan ? topHeight : topHeight - 15,
@@ -253,7 +253,7 @@ function PositionEditorInner(props) {
         className: "bottom-handle",
         bounds: noteHasSpan ? { top: topHeight } : null,
       }),
-    ])
+    ]),
   );
 }
 

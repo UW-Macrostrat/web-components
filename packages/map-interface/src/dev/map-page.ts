@@ -115,7 +115,7 @@ export function MapInspectorV2({
           },
         }),
         h(FeaturePanel, { features: data, focusedSource, focusedSourceTitle }),
-      ]
+      ],
     );
   }
 
@@ -175,8 +175,8 @@ export function MapInspectorV2({
         }),
         h(TileExtentLayer, { tile, color: isEnabled ? "white" : "black" }),
         children,
-      ]
-    )
+      ],
+    ),
   );
 }
 

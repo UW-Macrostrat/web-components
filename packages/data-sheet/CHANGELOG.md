@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-06-25
+
+- Add filtering to PostgREST table
+- Allow `density` to be set to `"low", "medium", or "high"` to control the size
+  of cells and content
+- Fixes to mouse interaction, selection, and keyboard navigation
+- Rely on `@macrostrat/color-utils` for color management
+- Add handling of row deletion
+- Add `onUpdateData` and `onSaveData` handlers for better controlled usage
+
 ## [2.0.2] - 2025-04-09
 
 Fix some errors with typings

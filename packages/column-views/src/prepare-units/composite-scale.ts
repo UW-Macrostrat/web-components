@@ -77,7 +77,7 @@ export interface CompositeColumnData<T extends UnitLong = ExtUnit>
 
 export function buildCompositeScaleInfo(
   inputScales: LinearScaleDef[],
-  unconformityHeight: number
+  unconformityHeight: number,
 ): CompositeScaleData {
   /** Finalize the heights of sections, including the heights of unconformities
    * between them.
@@ -112,7 +112,7 @@ export function buildCompositeScaleInfo(
 
 export function finalizeSectionHeights<T extends UnitLong>(
   sections: SectionInfoWithScale<T>[],
-  unconformityHeight: number
+  unconformityHeight: number,
 ): CompositeColumnData<T> {
   /** Finalize the heights of sections, including the heights of unconformities
    * between them.
@@ -121,7 +121,7 @@ export function finalizeSectionHeights<T extends UnitLong>(
   const sectionScales = sections.map((d) => d.scaleInfo);
   const { totalHeight, sections: packages } = buildCompositeScaleInfo(
     sectionScales,
-    unconformityHeight
+    unconformityHeight,
   );
 
   // This could perhaps be simplified.
@@ -148,7 +148,7 @@ interface SectionInfoWithScale<T extends UnitLong = ExtUnit>
 
 export function computeSectionHeights<T extends UnitLong>(
   sections: SectionInfo<T>[],
-  opts: ColumnScaleOptions
+  opts: ColumnScaleOptions,
 ): SectionInfoWithScale<T>[] {
   return sections.map((group) => {
     return addScaleToSection<T>(group, opts);
@@ -157,7 +157,7 @@ export function computeSectionHeights<T extends UnitLong>(
 
 function addScaleToSection<T extends UnitLong = ExtUnit>(
   group: SectionInfo<T>,
-  opts: ColumnScaleOptions
+  opts: ColumnScaleOptions,
 ): SectionInfoWithScale<T> {
   const { t_age, b_age, units } = group;
   let _range = null;
@@ -179,7 +179,7 @@ function addScaleToSection<T extends UnitLong = ExtUnit>(
 
 function buildSectionScale<T extends UnitLong>(
   data: T[],
-  opts: SectionScaleOptions
+  opts: SectionScaleOptions,
 ): PackageScaleInfo {
   const {
     targetUnitHeight = 20,
@@ -216,7 +216,7 @@ function buildSectionScale<T extends UnitLong>(
 
 export function createPackageScale(
   def: LinearScaleDef,
-  offset: number = 0
+  offset: number = 0,
 ): PackageScaleInfo {
   /** Build a section scale */
   // Domain should be oriented from bottom to top, but scale is oriented from top to bottom
@@ -234,7 +234,7 @@ export function createPackageScale(
 
 function findSectionHeightRange(
   data: UnitLong[],
-  axisType: ColumnAxisType
+  axisType: ColumnAxisType,
 ): [number, number] {
   if (axisType == null) {
     throw new Error("Axis type is not set");
@@ -259,7 +259,7 @@ function findSectionHeightRange(
 
 function findAverageUnitHeight(
   data: UnitLong[],
-  axisType: ColumnAxisType
+  axisType: ColumnAxisType,
 ): number {
   const unitHeights = data.map((d) => {
     const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
@@ -277,7 +277,7 @@ export interface CompositeColumnScale {
 
 export function createCompositeScale(
   sections: PackageLayoutData[],
-  interpolateUnconformities: boolean = false
+  interpolateUnconformities: boolean = false,
 ): CompositeColumnScale {
   /** Create a scale that works across multiple packages */
   // Get surfaces at which scale breaks
@@ -357,7 +357,7 @@ export function createCompositeScale(
 export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
   sections: SectionInfoWithScale<T>[],
   threshold: number,
-  opts: ColumnScaleOptions
+  opts: ColumnScaleOptions,
 ): SectionInfoWithScale<T>[] {
   const newSections = [];
   let currentSection: SectionInfoWithScale<T> | null = null;
@@ -371,7 +371,7 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
       dAge *
       Math.max(
         currentSection.scaleInfo.pixelScale,
-        nextSection.scaleInfo.pixelScale
+        nextSection.scaleInfo.pixelScale,
       );
     if (pxHeight < threshold) {
       // We need to merge the sections

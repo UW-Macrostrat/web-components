@@ -19,6 +19,6 @@ export function SimpleToggle(props: SimpleToggleProps) {
       },
       ...rest,
     },
-    [isOn ? "Hide" : "Show", " ", name]
+    [isOn ? "Hide" : "Show", " ", name],
   );
 }

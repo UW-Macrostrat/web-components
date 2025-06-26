@@ -89,7 +89,7 @@ class CanvasLayer extends Component<any, any> {
           ref: this.canvas,
         }),
         children,
-      ])
+      ]),
     );
   }
 

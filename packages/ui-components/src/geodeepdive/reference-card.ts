@@ -52,7 +52,7 @@ export function xDDReferenceInformation(props: { [k: string]: any }) {
       h(
         "a.doi",
         { href: `https://doi.org/${doi}`, target: "_blank" },
-        h("code", doi)
+        h("code", doi),
       ),
     ]),
   ]);
@@ -96,7 +96,7 @@ function GeoDeepDiveRelatedTerms(props: { data: any[] }) {
     h("h1", "Related Terms"),
     h(
       "ul#related_terms",
-      data.map((item) => h("li", item[0]))
+      data.map((item) => h("li", item[0])),
     ),
   ]);
 }
@@ -123,7 +123,7 @@ const GDDReferenceCard = (props: { docid: string }) => {
       } catch (error) {
         return null;
       }
-    }
+    },
   );
 };
 

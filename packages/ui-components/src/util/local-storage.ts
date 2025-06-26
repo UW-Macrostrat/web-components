@@ -35,7 +35,7 @@ class LocalStorage<T> {
 function useStoredState<S>(
   key: string | null,
   initialState: S | (() => S),
-  isValid: (S) => boolean = null
+  isValid: (S) => boolean = null,
 ): [S, Dispatch<SetStateAction<S>>, VoidFunction] {
   /** React hook for setting and getting values on local storage */
   const storage: LocalStorage<S> | null = useMemo(() => {
@@ -60,7 +60,7 @@ function useStoredState<S>(
       }
       return true;
     },
-    [initialState, isValid]
+    [initialState, isValid],
   );
 
   if (!validator(initialValue)) initialValue = null;
@@ -73,7 +73,7 @@ function useStoredState<S>(
       _setState(nextState);
       storage?.set(nextState);
     },
-    [validator]
+    [validator],
   );
 
   const resetState = useCallback(() => {
