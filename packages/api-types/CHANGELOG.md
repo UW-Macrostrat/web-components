@@ -8,7 +8,8 @@ and this project adheres to
 
 ## [1.1.1] - 2025-06-25
 
-Add type for `Interval`
+- Add type for `Interval`
+- Add optional `prop` field to `Lithology` type
 
 ## [1.1.0] - 2025-04-09
 
