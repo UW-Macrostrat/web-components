@@ -531,7 +531,7 @@ function IntervalProportions({ unit, onClickItem }) {
 
   const handleClick = (event: MouseEvent) => {
     if (onClickItem) {
-      onClickItem({ event, data: interval0 });
+      onClickItem(event, interval0);
     }
   };
 
