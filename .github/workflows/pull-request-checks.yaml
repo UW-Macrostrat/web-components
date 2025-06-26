@@ -1,4 +1,4 @@
-name: Pull request build and pre-deployment checks
+name: Continuous integration
 
 # Group requests for the same pull request to avoid multiple builds
 concurrency:
@@ -34,12 +34,25 @@ jobs:
       # without installing all dependencies,
       # allowing this to be set up as another job.
       - name: Get release status
+        id: status
         run: |
           yarn run status
+        if: always()
 
       - name: Build all packages
+        id: build
         run: |
           yarn run build
+        if: always()
+
+      - name: Final check
+        if: always()
+        run: |
+          echo "Checking the outcome of build steps..."
+          if [ "${{ steps.status.outcome }}" != "success" ] || [ "${{ steps.build.outcome }}" != "success" ]; then
+            echo "One or more checks failed."
+            exit 1
+          fi
 
   build-storybook:
     name: Build storybook
