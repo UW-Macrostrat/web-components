@@ -10,9 +10,12 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Pull request build and pre-deployment checks
+  pull-request-checks:
+    name: Build and pre-deployment checks
     runs-on: ubuntu-latest
+    env:
+      # Ensure that Chalk uses colors in the output
+      FORCE_COLOR: 2
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
@@ -25,26 +28,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install
-
-      # Prettify code and commit if changes
-      - name: Format code
-        run: |
-          yarn run format
-          git config --global user.name "GitHub Action"
-          if ! git diff --quiet; then
-            git add .
-            git commit -m "chore: format code"
-            git push
-          fi
-
-      - name: Build storybook
-        run: |
-          yarn run build:storybook
-
-      - name: Build all packages
-        run: |
-          yarn run build
+          yarn install --frozen-lockfile
 
       # Get release status, this helps to determine if we are ready to publish
       # in cases when we are updating package versions.
@@ -53,3 +37,11 @@ jobs:
       - name: Get release status
         run: |
           yarn run status
+
+      - name: Build storybook
+        run: |
+          yarn run build:storybook
+
+      - name: Build all packages
+        run: |
+          yarn run build

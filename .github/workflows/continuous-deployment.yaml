@@ -33,18 +33,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install
-
-      # Prettify code and commit if changes
-      - name: Format code
-        run: |
-          yarn run format
-          git config --global user.name "GitHub Action"
-          if ! git diff --quiet; then
-            git add .
-            git commit -m "chore: format code"
-            git push
-          fi
+          yarn install --frozen-lockfile
 
       - name: Build all packages
         run: |

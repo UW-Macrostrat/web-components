@@ -1,0 +1,41 @@
+name: Format code
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  format-code:
+    name: Format code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "yarn"
+
+      - name: Install Prettier
+        # Use global install to ensure Prettier is available
+        # and that we don't modify the package.json
+        run: |
+          yarn install --global prettier
+
+      # Prettify code and commit if changes
+      - name: Format code
+        run: |
+          yarn run format
+
+      - name : Commit if changes
+        run: |
+          git config --global user.name "GitHub Action"
+          if ! git diff --quiet; then
+            git add .
+            git commit -m "chore: format code"
+            git push
+          fi
