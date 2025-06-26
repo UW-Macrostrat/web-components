@@ -12,6 +12,7 @@
     "status": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers status",
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
     "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish",
+    "tag-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers tag-versions",
     "publish:storybook": "./scripts/publish-storybook.sh",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",

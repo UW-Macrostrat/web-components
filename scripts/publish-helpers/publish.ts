@@ -11,12 +11,20 @@ export function publishModule(pkg: PackageData) {
       cwd: pkg.directory,
       stdio: "inherit",
     });
-    console.log(chalk.blueBright.bold("Tagging version"));
-    const tag = moduleString(pkg, "-v");
-    const msg = moduleString(pkg, " version ");
-    execSync(`git tag -a ${tag} -m '${msg}'`, { cwd: pkg.directory });
+    tagVersion(pkg);
   } catch (error) {
     console.error(`Failed to publish ${moduleString(pkg)}, ${error}`);
+  }
+}
+
+export function tagVersion(pkg: PackageData) {
+  logAction(pkg, "Tagging", chalk.blue);
+  const tag = moduleString(pkg, "-v");
+  const msg = moduleString(pkg, " version ");
+  try {
+    execSync(`git tag -a ${tag} -m '${msg}'`, { cwd: pkg.directory });
+  } catch (error) {
+    console.error(`Failed to tag ${moduleString(pkg)}, ${error}`);
   }
 }
 

@@ -7,7 +7,7 @@ import {
   getPackagePublicationStatus,
 } from "./status";
 import { prepareModule, ensureEntryFilesExist } from "./prepare";
-import { publishModule } from "./publish";
+import { publishModule, tagVersion } from "./publish";
 
 export async function runScript(
   { prepare = true, build = true, publish = true },
@@ -183,5 +183,16 @@ export async function runScript(
   // Publish the packages
   for (const pkg of packagesToPush) {
     publishModule(pkg);
+  }
+}
+
+export function tagVersions(modules: string[]) {
+  const packages = getPackages("packages/*", "toolchain/*");
+  for (const packageDir of packages) {
+    const pkg = getPackageDataFromDirectory(packageDir);
+    if (modules.length > 0 && !modules.includes(pkg.name)) {
+      continue;
+    }
+    tagVersion(pkg);
   }
 }

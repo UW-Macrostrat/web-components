@@ -1,5 +1,5 @@
 /* script to check versions on ui-packages and publish those that aren't on npm */
-import { runScript } from "./run-script";
+import { runScript, tagVersions } from "./run-script";
 import { setupTerminal } from "./status";
 import chalk from "chalk";
 
@@ -23,6 +23,8 @@ async function main() {
     await runScript({ build: true, publish: true }, modules);
   } else if (op === "build") {
     await runScript({ prepare: false, build: true, publish: false }, modules);
+  } else if (op === "tag-versions") {
+    tagVersions(modules);
   } else {
     console.log("Invalid operation. Use 'status', 'prepare', or 'publish'");
   }
