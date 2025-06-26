@@ -1,20 +1,7 @@
 {
+  "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "baseUrl": ".",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "allowSyntheticDefaultImports": true,
-    "experimentalDecorators": true,
-    "esModuleInterop": true,
-    "downlevelIteration": true,
-    "skipLibCheck": true,
-    "lib": ["esnext", "es2017", "dom"],
-    "target": "ES2017", // "ES3" (default), "ES5", "ES6"/"ES2015", "ES2016", "ES2017" or "ESNext".
-    "paths": {
-      "@macrostrat/*": ["./packages/*/src"]
-    },
-    "types": ["vite/client", "./global.d.ts"],
-    "typeRoots": ["node_modules/@types"]
+    "types": ["vite/client", "./global.d.ts"]
   },
   "include": ["./packages/**/src/*.ts"]
 }

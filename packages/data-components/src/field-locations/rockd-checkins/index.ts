@@ -8,7 +8,7 @@ import styles from "./index.module.sass";
 import { LngLatCoords } from "@macrostrat/map-interface";
 import { useDarkMode } from "@macrostrat/ui-components";
 import { Icon } from "@blueprintjs/core";
-import type mapboxgl from "mapbox-gl";
+import mapboxgl from "mapbox-gl";
 
 const h = hyper.styled(styles);
 

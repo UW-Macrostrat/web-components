@@ -7,16 +7,12 @@ const meta: Meta<typeof RockdWebsiteCheckinList> = {
   component: RockdWebsiteCheckinList,
   argTypes: {
     result: {
-      control: { type: "array" },
+      control: { type: "object" },
       description: "Array of checkin objects to display",
     },
     mapRef: {
       control: { type: "object" },
       description: "Reference to the map instance",
-    },
-    setInspectPosition: {
-      control: { type: "function" },
-      description: "Function to set the position for inspection",
     },
     rockdAPIUrl: {
       control: { type: "text" },
