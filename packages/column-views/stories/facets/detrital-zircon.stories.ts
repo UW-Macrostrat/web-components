@@ -26,8 +26,8 @@ function ColumnWithDetritalZirconFacet(props) {
         allowUnitSelection: false,
         ...rest,
       },
-      h(DetritalColumn, { columnID: id, color: spectraColor })
-    )
+      h(DetritalColumn, { columnID: id, color: spectraColor }),
+    ),
   );
 }
 
@@ -92,14 +92,14 @@ export function DetritalZirconCompilation(defaultArgs) {
             measure_phase: "zircon",
             measurement: "207Pb-206Pb",
             style: { fill: "purple" },
-          })
+          }),
         ),
         h(ColumnWithDetritalZirconFacet, {
           id: columnArgs.col_id,
           showLabelColumn: false,
         }),
       ]),
-    ])
+    ]),
   );
 }
 
@@ -128,7 +128,7 @@ function PointsLayer(props) {
         });
       }
     },
-    [res, style]
+    [res, style],
   );
 
   return null;

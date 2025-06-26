@@ -161,7 +161,7 @@ function geologyLayerIDs() {
 const createGeologyStyle = function (
   baseStyle: any,
   polygonTypes: any[],
-  hostName = "http://localhost:3006"
+  hostName = "http://localhost:3006",
 ) {
   const colors = {};
   const patterns = {};

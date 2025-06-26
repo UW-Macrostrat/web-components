@@ -37,10 +37,14 @@ $dark-colors: (
   text-subtle-color: $gray3,
   panel-background-color: $dark-background,
   background-color: $dark-background,
-  panel-secondary-background-color:
-    color.scale($dark-background, $lightness: 5%),
-  translucent-panel-background-color:
-    color.change($dark-background, $alpha: 0.6),
+  panel-secondary-background-color: color.scale(
+      $dark-background,
+      $lightness: 5%
+    ),
+  translucent-panel-background-color: color.change(
+      $dark-background,
+      $alpha: 0.6
+    ),
   accent-color: $accent,
   // light gray 3,
   accent-secondary-color: $accent,

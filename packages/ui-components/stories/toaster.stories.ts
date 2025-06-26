@@ -32,7 +32,7 @@ function GetToastButton() {
         counter.current += 1;
       },
     },
-    ["Show toast"]
+    ["Show toast"],
   );
 }
 
@@ -47,7 +47,7 @@ export const Primary: Story = {
           h(
             Box,
             { is: "p", textAlign: "center" },
-            "Toasts will be overlaid over this container"
+            "Toasts will be overlaid over this container",
           ),
         ]),
       ]),

@@ -51,7 +51,7 @@ export class FaciesDescriptionSmall extends Component<FaciesDescriptionSmallProp
         style,
         className,
       },
-      h(FaciesCard, { facies: d })
+      h(FaciesCard, { facies: d }),
     );
   }
 

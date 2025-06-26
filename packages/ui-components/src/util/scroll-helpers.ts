@@ -8,7 +8,7 @@ interface ScrollMarker {
 
 function useScrollMarkers(
   markers: ScrollMarker[],
-  callback?: (marker: ScrollMarker | null) => void
+  callback?: (marker: ScrollMarker | null) => void,
 ): ScrollMarker | null {
   /** Hook that notifies when we pass a scroll marker */
   const [lastMarker, setLastMarker] = useState<ScrollMarker | null>(null);

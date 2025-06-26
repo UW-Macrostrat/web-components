@@ -51,7 +51,7 @@ export function LoginRegisterModal() {
           color: "gray",
           size: "sm",
         },
-        [anchorText]
+        [anchorText],
       ),
     ]),
   ]);

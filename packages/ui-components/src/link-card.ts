@@ -15,7 +15,7 @@ function LinkCard(props) {
     "link-card",
     "bp5-card",
     `bp5-elevation-${elevation}`,
-    className
+    className,
   );
 
   if (linkComponent == "a" && href == null) href = to;

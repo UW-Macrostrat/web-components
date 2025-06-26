@@ -20,7 +20,7 @@ function ExpansionPanelSummary(props) {
       title,
       component: titleComponent,
     },
-    [children, h(Icon, { icon, className: "expansion-panel-icon" })]
+    [children, h(Icon, { icon, className: "expansion-panel-icon" })],
   );
 }
 
@@ -63,10 +63,10 @@ function ExpansionPanelBase(props) {
           h("span.expansion-panel-subtext", helpText),
           " ",
           sideComponent,
-        ])
+        ]),
       ),
       h(Collapse, { isOpen }, h("div.expansion-children", null, children)),
-    ]
+    ],
   );
 }
 
@@ -113,7 +113,7 @@ function ExpandableDetailsPanel(props) {
     h(
       Collapse,
       { isOpen },
-      h("div.expandable-details-children", null, children)
+      h("div.expandable-details-children", null, children),
     ),
   ]);
 }

@@ -6,7 +6,7 @@ import { TimescaleCTX } from "./types";
 const TimescaleContext = createContext<TimescaleCTX | null>(null);
 
 function TimescaleProvider(
-  props: React.PropsWithChildren<Omit<TimescaleCTX, "scale">>
+  props: React.PropsWithChildren<Omit<TimescaleCTX, "scale">>,
 ) {
   const { children, timescale, ageRange, length, ...rest } = props;
 

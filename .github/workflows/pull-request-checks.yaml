@@ -5,7 +5,6 @@ concurrency:
   group: ${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
-
 on:
   pull_request:
     branches: [main]
@@ -15,7 +14,6 @@ jobs:
     name: Pull request build and pre-deployment checks
     runs-on: ubuntu-latest
     steps:
-
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -23,7 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Install dependencies
         run: |
@@ -54,4 +52,4 @@ jobs:
       # We expect this to fail if a release will be incorrect on merging the PR.
       - name: Get release status
         run: |
-          yarn run status 
+          yarn run status

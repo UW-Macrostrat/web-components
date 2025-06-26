@@ -1,4 +1,4 @@
-import { InputGroup  } from "@blueprintjs/core";
+import { InputGroup } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 
 export function SearchBar({ onChange, placeholder = "Search..." }) {
@@ -12,6 +12,6 @@ export function SearchBar({ onChange, placeholder = "Search..." }) {
       const value = e.target.value;
       onChange(value);
     },
-    leftIcon: "search"
+    leftIcon: "search",
   });
 }

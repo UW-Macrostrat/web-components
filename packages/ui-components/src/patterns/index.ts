@@ -11,7 +11,7 @@ const lineSymbolsURL = vizBaseURL + "/geologic-line-symbols/png";
 
 function _geologyPatternBaseURL(
   symbol: string | null,
-  baseURL = patternBaseURL
+  baseURL = patternBaseURL,
 ) {
   if (symbol == null) return null;
   return baseURL + `/${symbol}.png`;
@@ -20,7 +20,7 @@ function _geologyPatternBaseURL(
 async function _geologyPatternURL(
   patternID: string | null,
   color = null,
-  patternColor = null
+  patternColor = null,
 ): Promise<string> {
   const url = _geologyPatternBaseURL(patternID);
   if (color == null && patternColor == null) {
@@ -33,7 +33,7 @@ async function _geologyPatternURL(
       color,
       patternColor,
     },
-    ImageDataFormat.Base64
+    ImageDataFormat.Base64,
   )) as string;
   return img;
 }

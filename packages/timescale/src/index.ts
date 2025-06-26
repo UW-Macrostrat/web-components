@@ -82,11 +82,15 @@ function Timescale(props: TimescaleProps) {
 
   const [parentMap, timescale] = useMemo(
     () => nestTimescale(rootInterval, intervals),
-    [rootInterval, intervals]
+    [rootInterval, intervals],
   );
 
-  const className = classNames(orientation, "increase-" + increaseDirection, onClick ? "clickable" : null);
-  const length = absoluteAgeScale ? l ?? 6000 : null;
+  const className = classNames(
+    orientation,
+    "increase-" + increaseDirection,
+    onClick ? "clickable" : null,
+  );
+  const length = absoluteAgeScale ? (l ?? 6000) : null;
 
   let ageRange2 = null;
   if (ageRange != null) {
@@ -118,7 +122,7 @@ function Timescale(props: TimescaleProps) {
       h(TimescaleBoxes, { interval: timescale, intervalStyle, onClick }),
       h.if(showAgeAxis)(AgeAxis, axisProps),
       h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
-    ])
+    ]),
   );
 }
 

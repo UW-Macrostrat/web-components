@@ -7,7 +7,7 @@ export function canonicalizeMapboxURL(url: string) {
 
 export async function getMapboxStyle(
   style: string | object,
-  params: { access_token: string; [k: string]: any }
+  params: { access_token: string; [k: string]: any },
 ): Promise<Style> {
   if (typeof style !== "string") {
     return style as Style;
@@ -16,7 +16,7 @@ export async function getMapboxStyle(
   // We fetch styles if they aren't avaialable locally
   let { data, status, statusText } = await axios.get(
     canonicalizeMapboxURL(style),
-    { params }
+    { params },
   );
   if (status !== 200) {
     throw new Error(`Returned ${status}: ${statusText}`);

@@ -90,7 +90,7 @@ const SymbolPickerInner = function (props) {
         minimal: true,
         onClick: onClose,
       },
-      "Clear override"
+      "Clear override",
     ),
   ]);
 };
@@ -113,7 +113,7 @@ const LithologySymbolPicker = function (props) {
         small: true,
         intent: Intent.WARNING,
       },
-      "Override lithology pattern"
+      "Override lithology pattern",
     ),
     h(SymbolPickerInner, {
       interval,

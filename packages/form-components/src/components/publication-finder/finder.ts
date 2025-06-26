@@ -96,7 +96,7 @@ const unwrapPubData = (data: any) => {
 async function onSearch(
   query: string,
   setSearching: (e: boolean) => void,
-  callback: (res: Pub[]) => void
+  callback: (res: Pub[]) => void,
 ) {
   setSearching(true);
 
@@ -150,7 +150,7 @@ function PublicationFinder(props: PubFinderI) {
       position: "top",
       modifiers: props.tooltipModifiers,
     },
-    [h(Button, { intent }, [totalNumber])]
+    [h(Button, { intent }, [totalNumber])],
   );
 
   const rightElement = h(Button, {

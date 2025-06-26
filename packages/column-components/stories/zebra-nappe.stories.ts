@@ -22,7 +22,7 @@ interface ColumnSurface {
 
 function applyPatterns<T extends ColumnSurface>(
   surfaces: T[],
-  intervals: any[] = []
+  intervals: any[] = [],
 ): (BaseUnit & UnitDivision & T)[] {
   return surfaces.map((surface, i) => {
     let matchingIntervals = intervals.filter((d) => d.bottom == surface.height);
@@ -56,7 +56,7 @@ export function ZebraRiverGroup() {
       fillForInterval(param, interval) {
         return param;
       },
-    })
+    }),
   );
 }
 
@@ -105,7 +105,7 @@ export function NamaGroup() {
       fillForInterval(param, interval) {
         return param;
       },
-    })
+    }),
   );
 }
 

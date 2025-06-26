@@ -24,7 +24,7 @@ export type SizeAwareLabelProps = React.HTMLProps<"div"> &
     onVisibilityChanged?(
       fits: boolean,
       containerSize: ElementSize,
-      labelSize: ElementSize
+      labelSize: ElementSize,
     ): void;
   };
 
@@ -77,8 +77,8 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
         ref: labelRef,
         style: { visibility: shouldShow ? "visible" : "hidden" },
       },
-      h("span.label-text", null, label)
-    )
+      h("span.label-text", null, label),
+    ),
   );
 }
 

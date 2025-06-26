@@ -45,7 +45,7 @@ export function ColorCell({
         ...style,
       },
     },
-    children
+    children,
   );
 }
 
@@ -101,6 +101,6 @@ export function ColorPicker({
       onChange(color) {
         onChange(asChromaColor(color)[type]());
       },
-    })
+    }),
   );
 }

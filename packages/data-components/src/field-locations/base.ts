@@ -72,7 +72,7 @@ export function LocationLink({
       className: "location-link",
       target: "_blank",
     },
-    [h(Icon, { icon: "link", size: 14 }), children]
+    [h(Icon, { icon: "link", size: 14 }), children],
   );
 }
 

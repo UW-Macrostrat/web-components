@@ -60,7 +60,7 @@ export function EditorPopup(props) {
             //ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));
           },
         },
-        h(ErrorBoundary, null, content)
+        h(ErrorBoundary, null, content),
       ),
       enforceFocus: false,
       autoFocus: false,
@@ -85,7 +85,7 @@ export function EditorPopup(props) {
         ref,
       },
       // If the editor is open, show the inline editor, otherwise show the value viewer
-      isOpen ? valueViewer : inlineEditor ?? valueViewer
-    )
+      isOpen ? valueViewer : (inlineEditor ?? valueViewer),
+    ),
   );
 }

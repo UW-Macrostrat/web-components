@@ -4,7 +4,7 @@ import h from "@macrostrat/hyper";
 
 const images = import.meta.glob(
   "./sunrift-gorge-photos/sunrift-gorge-v1-*.jpg",
-  { eager: true }
+  { eager: true },
 );
 
 function ImageBackdrop({ images, width, inset }) {
@@ -33,9 +33,9 @@ function ImageBackdrop({ images, width, inset }) {
               marginBottom: -inset,
             },
           }),
-        ]
+        ],
       );
-    })
+    }),
   );
 }
 

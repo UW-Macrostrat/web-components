@@ -16,7 +16,7 @@ type SourceConfig = Partial<RasterDemSource>;
 export function use3DTerrain(
   shouldEnable: boolean = true,
   sourceName: string = "terrain",
-  sourceCfg: SourceConfig = {}
+  sourceCfg: SourceConfig = {},
 ) {
   const mapRef = useMapRef();
   return useMapStyleOperator(
@@ -24,7 +24,7 @@ export function use3DTerrain(
       const map = mapRef.current;
       setup3DTerrain(map, shouldEnable, sourceName, sourceCfg);
     },
-    [sourceName, shouldEnable, sourceCfg]
+    [sourceName, shouldEnable, sourceCfg],
   );
 }
 
@@ -32,7 +32,7 @@ export function setup3DTerrain(
   map: mapboxgl.Map,
   shouldEnable: boolean = true,
   sourceID: string = null,
-  sourceCfg: SourceConfig = {}
+  sourceCfg: SourceConfig = {},
 ) {
   const style = map.getStyle();
   const currentTerrainSource = getTerrainSourceID(style);
@@ -53,7 +53,7 @@ export function setup3DTerrain(
 
 export function getTerrainLayerForStyle(
   style: Style,
-  sourceName: string = null
+  sourceName: string = null,
 ): Partial<Style> {
   /** Add required elements for terrain directly to a style object */
 
@@ -83,7 +83,7 @@ export function getTerrainLayerForStyle(
 
 export function addTerrainToStyle(
   style: Style,
-  sourceName: string = null
+  sourceName: string = null,
 ): Style {
   const newStyle = getTerrainLayerForStyle(style, sourceName);
   return mergeStyles(style, newStyle);
@@ -105,17 +105,17 @@ function getTerrainSourceID(style: Style): string | null {
 function addDefault3DStyles(
   map: mapboxgl.Map,
   sourceName = "terrain",
-  sourceCfg: Partial<RasterDemSource> = {}
+  sourceCfg: Partial<RasterDemSource> = {},
 ) {
   const style = map.getStyle();
 
   const hasTerrain = Object.entries(style.sources).some(
     ([key, source]: [string, AnySourceData]) =>
-      source.type === "raster-dem" && key === sourceName
+      source.type === "raster-dem" && key === sourceName,
   );
 
   const hasSky = Object.values(style.layers).some(
-    (lyr: AnyLayer) => lyr.type == "sky"
+    (lyr: AnyLayer) => lyr.type == "sky",
   );
 
   if (!hasTerrain) {

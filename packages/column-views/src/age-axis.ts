@@ -99,7 +99,7 @@ export function CompositeAgeAxisCore(props: CompositeStratigraphicScaleInfo) {
           scale,
           tickSizeOuter: 3,
         });
-      })
+      }),
     ),
   ]);
 }
@@ -122,6 +122,6 @@ export function AgeCursor({ age }) {
         top: heightPx,
       },
     },
-    [h("div.line"), h(AgeLabel, { age, className: "label" })]
+    [h("div.line"), h(AgeLabel, { age, className: "label" })],
   );
 }

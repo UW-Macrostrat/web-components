@@ -43,7 +43,7 @@ const removePadding = keyRemover("padding");
 
 function extractMargin<T extends object>(
   obj: T & Margin,
-  remove = false
+  remove = false,
 ): StrictMargin {
   /*
   I'm really annoyed I can't find a third-party implementation
@@ -161,7 +161,7 @@ export type InnerSizeProps = Padding & {
 
 function expandInnerSize<T>(
   obj: T & InnerSizeProps,
-  stripExtraKeys: boolean = true
+  stripExtraKeys: boolean = true,
 ): T & {
   height?: number;
   width?: number;

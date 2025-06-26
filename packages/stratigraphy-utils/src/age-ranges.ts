@@ -7,7 +7,7 @@ enum MergeMode {
 
 export function mergeAgeRanges(
   ranges: AgeRange[],
-  mergeMode: MergeMode = MergeMode.Outer
+  mergeMode: MergeMode = MergeMode.Outer,
 ): AgeRange {
   /** Merge a set of age ranges to get the inner or outer bounds */
   let min = Infinity;
@@ -54,7 +54,7 @@ function convertToForwardOrdinal(a: AgeRange): AgeRange {
 export function compareAgeRanges(
   a: AgeRange,
   b: AgeRange,
-  dt: number = 0
+  dt: number = 0,
 ): AgeRangeRelationship {
   let a1 = convertToForwardOrdinal(a);
   let b1 = convertToForwardOrdinal(b);

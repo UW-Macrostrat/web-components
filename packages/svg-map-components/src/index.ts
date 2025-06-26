@@ -155,7 +155,7 @@ export function Globe(_props: GlobeProps) {
       }
       dispatch(action);
     },
-    [dispatch, onRotate]
+    [dispatch, onRotate],
   );
 
   const { projection } = mapState;
@@ -188,7 +188,7 @@ export function Globe(_props: GlobeProps) {
 
   const renderPath = useMemo(
     () => geoPath(mapState.projection),
-    [mapState.projection]
+    [mapState.projection],
   ); //, [mapState.projection]);
   const value = { projection, renderPath, width, height, margin, mapRef: ref };
 
@@ -225,7 +225,7 @@ export function Globe(_props: GlobeProps) {
               h(graticule, { stepSize: graticuleSpacing }),
               children,
               h(Sphere),
-            ]
+            ],
           ),
           h.if(allowDrag)(DraggableOverlay, {
             keepNorthUp,
@@ -234,9 +234,9 @@ export function Globe(_props: GlobeProps) {
             allowZoom,
             scaleExtent: zoomScaleExtent,
           }),
-        ]
-      )
-    )
+        ],
+      ),
+    ),
   );
 }
 

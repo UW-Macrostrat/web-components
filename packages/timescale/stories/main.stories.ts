@@ -19,7 +19,7 @@ export const Horizontal = {
     absoluteAgeScale: false,
     onClick: (e, interval) => {
       console.log("Clicked interval:", interval);
-    }
+    },
   },
 };
 

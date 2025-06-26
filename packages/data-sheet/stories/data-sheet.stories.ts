@@ -145,7 +145,7 @@ function buildTestData() {
         "red",
         "blue",
         (Math.random() + Math.abs((i % 20) - 10)) / 10,
-        "rgb"
+        "rgb",
       ),
       strike: 10 + Math.random() * 10,
       dip: 5 + Math.random() * 10,

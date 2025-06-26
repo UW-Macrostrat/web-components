@@ -10,7 +10,7 @@ function useColumnUnits(col_id) {
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
     { col_id, response: "long" },
-    (res) => res.success.data
+    (res) => res.success.data,
   );
 }
 
@@ -20,7 +20,7 @@ function useColumnBasicInfo(col_id) {
     { col_id },
     (res) => {
       return res.success.data[0];
-    }
+    },
   );
 }
 

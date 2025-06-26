@@ -9,7 +9,7 @@ import {
 This produces data that can be plotted on column-based axes. */
 export function referenceMeasuresToColumn(
   units: BaseUnit[],
-  measures: MeasurementLong[]
+  measures: MeasurementLong[],
 ): MeasurementLong[] {
   /** Add a `measure_age` parameter containing absolute ages derived from units. */
   const ids = units.map((d) => d.unit_id);
@@ -33,7 +33,7 @@ export function referenceMeasuresToColumn(
 export function alignMeasurementsToTargetColumn<T extends StratUnit>(
   measurementData: MeasurementLong[],
   targetColumnUnits?: T[],
-  targetColumnParams?: ColumnSpec
+  targetColumnParams?: ColumnSpec,
 ): MeasurementLong[] {
   let data = [];
   if (targetColumnUnits == null) return measurementData;
@@ -75,7 +75,7 @@ const keys = [
 
 function buildDataPoint(
   meas: MeasurementLong,
-  index: number
+  index: number,
 ): MeasureDataPoint {
   let data = {} as MeasureDataPoint;
   for (const key of keys) {
@@ -87,12 +87,12 @@ function buildDataPoint(
 export type FilterFunc = (
   dataPoint: MeasureDataPoint,
   index: number,
-  measurement: MeasurementLong
+  measurement: MeasurementLong,
 ) => boolean;
 
 export function filterMeasurement(
   meas: MeasurementLong,
-  filterFunc: FilterFunc
+  filterFunc: FilterFunc,
 ): MeasurementLong | null {
   let data = {} as MeasurementLong;
   for (const key of keys) {
@@ -113,7 +113,7 @@ export function filterMeasurement(
 
 export function filterMeasurements(
   measureData: MeasurementLong[],
-  filterFunc: FilterFunc
+  filterFunc: FilterFunc,
 ): MeasurementLong[] {
   const data = [] as MeasurementLong[];
   for (const meas of measureData) {

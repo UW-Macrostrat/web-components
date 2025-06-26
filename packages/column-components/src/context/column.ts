@@ -58,7 +58,7 @@ export interface ColumnProviderProps<T extends ColumnDivision> {
 }
 
 function ColumnProvider<T extends ColumnDivision>(
-  props: ColumnProviderProps<T>
+  props: ColumnProviderProps<T>,
 ) {
   /**
     Lays out a column on its Y (height) axis.
@@ -88,7 +88,7 @@ function ColumnProvider<T extends ColumnDivision>(
     if (Object.keys(rest).length > 0) {
       console.warn(
         "Passing extra properties to ColumnProvider is deprecated:",
-        rest
+        rest,
       );
     }
   }

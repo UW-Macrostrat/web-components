@@ -22,7 +22,7 @@ import {
 type UnitSelectDispatch = (
   unit: BaseUnit | null,
   target: HTMLElement | null,
-  event: Event | null
+  event: Event | null,
 ) => void;
 
 const UnitSelectionContext = createContext<StoreApi<UnitSelectionStore>>(null);
@@ -36,7 +36,7 @@ export function useUnitSelectionDispatch(): UnitSelectDispatch {
 }
 
 export function useUnitSelectionStore<T>(
-  selector: (state: UnitSelectionStore) => T
+  selector: (state: UnitSelectionStore) => T,
 ): T {
   const store = useContext(UnitSelectionContext);
   if (store == null) {
@@ -135,7 +135,7 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
           overlayPosition,
         });
       },
-    }))
+    })),
   );
 
   const { units, selectedUnit } = props;
@@ -154,7 +154,7 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
 }
 
 export function useUnitSelectionTarget(
-  unit: IUnit
+  unit: IUnit,
 ): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void] {
   const ref = useRef<HTMLElement>();
   const selectedUnit = useSelectedUnit();
@@ -167,7 +167,7 @@ export function useUnitSelectionTarget(
       onSelectUnit(unit, ref.current, evt);
       evt.stopPropagation();
     },
-    [unit, onSelectUnit]
+    [unit, onSelectUnit],
   );
 
   useEffect(() => {
@@ -208,7 +208,7 @@ export function UnitKeyboardNavigation<T extends BaseUnit>({
       selectUnit(units[nextIx], null, null);
       event.stopPropagation();
     },
-    [units, ix]
+    [units, ix],
   );
   return null;
 }

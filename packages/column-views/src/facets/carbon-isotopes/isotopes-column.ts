@@ -39,7 +39,7 @@ function IsotopeText({ datum, text, ...rest }: IsotopesTextProps) {
       y,
       ...rest,
     },
-    text
+    text,
   );
 }
 
@@ -73,7 +73,7 @@ function ScaleLine(props: ScaleLineProps) {
           strokeDasharray: props.strokeDasharray,
           strokeWidth: 1,
         });
-      })
+      }),
     ),
   ]);
 }
@@ -137,13 +137,13 @@ function IsotopesDataset(props) {
           datum: d,
           fill: color,
         });
-      })
-    )
+      }),
+    ),
   );
 }
 
 function IsotopesColumn(
-  props: IsotopeColumnProps & { children?: React.ReactNode }
+  props: IsotopeColumnProps & { children?: React.ReactNode },
 ) {
   const {
     width = 120,
@@ -169,7 +169,7 @@ function IsotopesColumn(
 
   const xScale = useMemo(
     () => scaleLinear().domain(domain).range([0, width]),
-    [domain, width]
+    [domain, width],
   );
 
   const tickValues = _tickVals ?? xScale.ticks(nTicks);
@@ -193,8 +193,8 @@ function IsotopesColumn(
             ...rest,
           }),
           _children,
-        ])
-      )
+        ]),
+      ),
     ),
     h.if(showAxis)(ColumnScaleAxis, {
       width,
@@ -227,7 +227,7 @@ function ColumnScaleAxis(props) {
           ...rest,
           label,
         }),
-      ]
+      ],
     ),
   ]);
 }
@@ -239,7 +239,7 @@ function ColumnScaleLines(props) {
     "g.scale-lines",
     tickValues.map((value) => {
       return h(ScaleLine, { value });
-    })
+    }),
   );
 }
 

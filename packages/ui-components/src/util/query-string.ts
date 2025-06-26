@@ -17,7 +17,7 @@ export type QueryParams =
 
 function buildQueryString(
   params: QueryParams,
-  opts: StringifyOptions = {}
+  opts: StringifyOptions = {},
 ): string {
   let p: string;
   if (typeof params === "string") {
@@ -31,7 +31,7 @@ function buildQueryString(
 function buildQueryURL(
   route: string,
   params: QueryParams = {},
-  opts?: StringifyOptions
+  opts?: StringifyOptions,
 ): string {
   const queryStr = buildQueryString(params, opts);
   if (queryStr == "") {

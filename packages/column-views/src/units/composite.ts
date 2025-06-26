@@ -49,11 +49,11 @@ export function LabelTrackerProvider(props) {
           units.filter((d) => {
             const id = findUnitID(d);
             return labelTrackerRef.current[id] == false;
-          })
+          }),
         );
       }
     },
-    [labelTrackerRef, units, findUnitID]
+    [labelTrackerRef, units, findUnitID],
   );
 
   const value = trackLabelVisibility;
@@ -63,8 +63,8 @@ export function LabelTrackerProvider(props) {
     h(
       UnlabeledDivisionsContext.Provider,
       { value: unlabeledDivisions },
-      children
-    )
+      children,
+    ),
   );
 }
 
@@ -141,7 +141,7 @@ export function CompositeUnitsColumn(props: CompositeUnitProps) {
 export function AnnotatedUnitsColumn(props: ICompositeUnitProps) {
   useEffect(() => {
     console.warn(
-      "AnnotatedUnitsColumn is deprecated and currently renders a no-op for transition purposes"
+      "AnnotatedUnitsColumn is deprecated and currently renders a no-op for transition purposes",
     );
   }, []);
   return null;
@@ -193,8 +193,8 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
           onClickNote(note) {
             selectUnit(note.data, null, null);
           },
-        })
-      )
+        }),
+      ),
     ),
   ]);
 }
@@ -211,7 +211,7 @@ export interface CompositeColumnScale {
 
 export function compositeScale(
   sections,
-  opts: CompositeScaleOpts = {}
+  opts: CompositeScaleOpts = {},
 ): CompositeColumnScale {
   /** A basic composite scale that works across all sections. This isn't a fully featured,
    * contiuous D3 scale, but it shares enough attributes to be useful for
@@ -269,7 +269,7 @@ export function ColumnNotesProvider(props) {
         zoom: 1,
       },
     },
-    children
+    children,
   );
 }
 

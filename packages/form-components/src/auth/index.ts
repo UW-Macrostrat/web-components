@@ -27,7 +27,7 @@ function AuthStatus(props) {
         icon,
         onClick: action,
       },
-      showText ? text : null
+      showText ? text : null,
     ),
   ]);
 }

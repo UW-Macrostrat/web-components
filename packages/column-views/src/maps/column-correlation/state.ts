@@ -34,7 +34,7 @@ export interface CorrelationProviderProps extends CorrelationMapInput {
   children: ReactNode;
   onSelectColumns?: (
     columns: FocusedColumnGeoJSONRecord[],
-    line: LineString | null
+    line: LineString | null,
   ) => void;
 }
 
@@ -85,7 +85,7 @@ export function ColumnCorrelationProvider({
             });
           },
         };
-      })
+      }),
     );
   });
 
@@ -110,7 +110,7 @@ export function ColumnCorrelationProvider({
 }
 
 export function useCorrelationMapStore(
-  selector: (state: CorrelationMapStore & ComputedStore) => any
+  selector: (state: CorrelationMapStore & ComputedStore) => any,
 ) {
   const storeApi = useContext(CorrelationStoreContext);
   if (storeApi == null) {
@@ -121,20 +121,20 @@ export function useCorrelationMapStore(
 
 function buildCorrelationColumns(
   columns: ColumnGeoJSONRecord[],
-  line: LineString
+  line: LineString,
 ): FocusedColumnGeoJSONRecord[] {
   if (columns == null || line == null || line.coordinates.length < 2) {
     return [];
   }
   return orderColumnsByDistance(
     computeIntersectingColumns(columns, line),
-    line
+    line,
   );
 }
 
 function computeIntersectingColumns(
   columns: ColumnGeoJSONRecord[],
-  line: LineString
+  line: LineString,
 ): ColumnGeoJSONRecord[] {
   if (columns == null || line == null) {
     return [];
@@ -162,14 +162,14 @@ interface FocusedColumnGeoJSONRecord extends ColumnGeoJSONRecord {
 
 function orderColumnsByDistance(
   columns: ColumnGeoJSONRecord[],
-  line: LineString
+  line: LineString,
 ): FocusedColumnGeoJSONRecord[] {
   const centroids = columns.map((col) => centroid(col.geometry));
   const projectedPoints = centroids.map((point) =>
-    nearestPointOnLine(line, point)
+    nearestPointOnLine(line, point),
   );
   const distances = projectedPoints.map((point) =>
-    distance(point.geometry.coordinates, line.coordinates[0])
+    distance(point.geometry.coordinates, line.coordinates[0]),
   );
 
   let newColumns = columns.map((col, i) => {

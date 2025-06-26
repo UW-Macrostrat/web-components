@@ -56,7 +56,7 @@ export function InsetMap({
       }
       return newStyle;
     },
-    [mapStyle, showLabels, showRoads, showAdmin]
+    [mapStyle, showLabels, showRoads, showAdmin],
   );
 
   return h("div.inset-map", { className, style }, [
@@ -80,7 +80,7 @@ export function InsetMap({
           transformStyle,
           ...rest,
         },
-        children
+        children,
       ),
     ]),
   ]);

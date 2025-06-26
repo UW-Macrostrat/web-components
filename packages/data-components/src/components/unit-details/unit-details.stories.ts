@@ -132,7 +132,7 @@ export function LithologyListClickable() {
     {
       lith_class: "sedimentary",
     },
-    (res) => res.success.data
+    (res) => res.success.data,
   );
 
   if (liths == null) {
@@ -156,7 +156,7 @@ export function LithologyListWithLinks() {
     {
       lith_class: "sedimentary",
     },
-    (res) => res.success.data
+    (res) => res.success.data,
   );
 
   if (liths == null) {

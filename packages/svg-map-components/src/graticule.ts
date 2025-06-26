@@ -9,7 +9,9 @@ type GraticuleProps =
   | Omit<React.ComponentProps<typeof GeoPath>, "geometry">;
 
 function useGraticule(stepSize: GraticuleStepSize = 10): MultiLineString {
-  const steps: [number, number] = Array.isArray(stepSize) ? stepSize : [stepSize, stepSize];
+  const steps: [number, number] = Array.isArray(stepSize)
+    ? stepSize
+    : [stepSize, stepSize];
   return geoGraticule()
     .step(steps)
     .extent([

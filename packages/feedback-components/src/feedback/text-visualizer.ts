@@ -23,7 +23,7 @@ export interface FeedbackTextProps {
 
 function buildTags(
   highlights: Highlight[],
-  selectedNodes: number[]
+  selectedNodes: number[],
 ): AnnotateBlendTag[] {
   let tags: AnnotateBlendTag[] = [];
   // If entity ID has already been seen, don't add it again
@@ -36,9 +36,9 @@ function buildTags(
     const highlighted = isHighlighted(highlight, selectedNodes);
     const active = isActive(highlight, selectedNodes);
     const tagStyle = getTagStyle(highlight.backgroundColor, {
-          highlighted,
-          active,
-        });
+      highlighted,
+      active,
+    });
 
     const tag = {
       color: tagStyle.color,
@@ -46,8 +46,8 @@ function buildTags(
         display: "none",
       },
       markStyle: {
-          backgroundColor: tagStyle.backgroundColor,
-        },
+        backgroundColor: tagStyle.backgroundColor,
+      },
       ...highlight,
       backgroundColor: tagStyle.backgroundColor,
     };
@@ -75,41 +75,57 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, lineHeight, allowOverlap } = props;
+  const { text, selectedNodes, nodes, dispatch, lineHeight, allowOverlap } =
+    props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
-    selectedNodes
+    selectedNodes,
   );
 
-  return h('div.feedback-text-wrapper', { 
-    tabIndex: 0,
-    onKeyDown: (e) => {
-      if( e.key === "Backspace") {
-        dispatch({
-          type: "delete-node",
-          payload: { ids: selectedNodes },
-        });
-      }
-    }
-  },
-  h(HighlightedText, {
+  return h(
+    "div.feedback-text-wrapper",
+    {
+      tabIndex: 0,
+      onKeyDown: (e) => {
+        if (e.key === "Backspace") {
+          dispatch({
+            type: "delete-node",
+            payload: { ids: selectedNodes },
+          });
+        }
+      },
+    },
+    h(HighlightedText, {
       text,
       allTags,
       lineHeight,
-      allowOverlap, 
+      allowOverlap,
       dispatch,
-      selectedNodes
-    }), 
+      selectedNodes,
+    }),
   );
 }
 
-function createTagFromSelection({ container }: { container: HTMLElement | null }) {
+function createTagFromSelection({
+  container,
+}: {
+  container: HTMLElement | null;
+}) {
   const selection = window.getSelection();
-  if (!selection || selection.isCollapsed || selection.rangeCount === 0 || !container) return null;
+  if (
+    !selection ||
+    selection.isCollapsed ||
+    selection.rangeCount === 0 ||
+    !container
+  )
+    return null;
 
   const range = selection.getRangeAt(0);
 
-  if (!container.contains(range.startContainer) || !container.contains(range.endContainer)) {
+  if (
+    !container.contains(range.startContainer) ||
+    !container.contains(range.endContainer)
+  ) {
     return null;
   }
 
@@ -124,7 +140,7 @@ function createTagFromSelection({ container }: { container: HTMLElement | null }
   return {
     start,
     end,
-    text: selectedText
+    text: selectedText,
   };
 }
 
@@ -138,7 +154,9 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   }
 
   const duplicate = allTags.find(
-    (t) => t.start === payload.start && (t.end === payload.end || t.end === payload.end - 1)
+    (t) =>
+      t.start === payload.start &&
+      (t.end === payload.end || t.end === payload.end - 1),
   );
 
   if (duplicate) {
@@ -152,13 +170,11 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   }
 
   const inside = allTags.some(
-    (t) =>
-      t.start <= payload.start &&
-      t.end >= payload.end
+    (t) => t.start <= payload.start && t.end >= payload.end,
   );
 
   const overlap = allTags.some(
-    (t) => (t.start < payload.end && t.end > payload.start)
+    (t) => t.start < payload.end && t.end > payload.start,
   );
 
   if ((inside || overlap) && !allowOverlap) {
@@ -170,17 +186,21 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
 }
 
 function nestHighlights(text: string, tags: AnnotateBlendTag[]) {
-  const events: Array<{ pos: number; type: 'start' | 'end'; tag: AnnotateBlendTag }> = [];
+  const events: Array<{
+    pos: number;
+    type: "start" | "end";
+    tag: AnnotateBlendTag;
+  }> = [];
 
   for (const tag of tags) {
-    events.push({ pos: tag.start, type: 'start', tag });
-    events.push({ pos: tag.end, type: 'end', tag });
+    events.push({ pos: tag.start, type: "start", tag });
+    events.push({ pos: tag.end, type: "end", tag });
   }
 
   events.sort((a, b) => {
     if (a.pos !== b.pos) return a.pos - b.pos;
-    if (a.type === 'end' && b.type === 'start') return -1;
-    if (a.type === 'start' && b.type === 'end') return 1;
+    if (a.type === "end" && b.type === "start") return -1;
+    if (a.type === "start" && b.type === "end") return 1;
     return 0;
   });
 
@@ -196,7 +216,7 @@ function nestHighlights(text: string, tags: AnnotateBlendTag[]) {
       parent.children.push(slice);
     }
 
-    if (type === 'start') {
+    if (type === "start") {
       const newNode = { tag, children: [], textStart: pos };
       parent.children.push(newNode);
       stack.push(newNode);
@@ -214,47 +234,54 @@ function nestHighlights(text: string, tags: AnnotateBlendTag[]) {
   return root;
 }
 
-function renderNode(node: any, dispatch: TreeDispatch, selectedNodes: number[], parentSelected: boolean): any {
-  if (typeof node === 'string') return node;
+function renderNode(
+  node: any,
+  dispatch: TreeDispatch,
+  selectedNodes: number[],
+  parentSelected: boolean,
+): any {
+  if (typeof node === "string") return node;
 
   const { tag, children } = node;
   const isSelected = selectedNodes?.includes(tag.id);
 
   const style = {
     ...tag,
-    zIndex: parentSelected ? -1 : 1
+    zIndex: parentSelected ? -1 : 1,
   };
 
-  let moveText = []
-  if(isSelected) {
+  let moveText = [];
+  if (isSelected) {
     for (const key in children) {
       if (Object.prototype.hasOwnProperty.call(children, key)) {
         const child = children[key];
-        if(child?.tag) {
-          moveText.push(child.children[0])
+        if (child?.tag) {
+          moveText.push(child.children[0]);
         } else {
-          moveText.push(child)
+          moveText.push(child);
         }
       }
     }
   }
 
   return h(
-    'span',
+    "span",
     {
-      className: 'highlight',
+      className: "highlight",
       style,
       onClick: (e: MouseEvent) => {
         e.stopPropagation();
         dispatch({
-          type: 'toggle-node-selected',
+          type: "toggle-node-selected",
           payload: { ids: [tag.id] },
         });
       },
-    }, 
-    isSelected ? moveText.flat() : children.map((child: any, i: number) =>
-      renderNode(child, dispatch, selectedNodes, isSelected)
-    )
+    },
+    isSelected
+      ? moveText.flat()
+      : children.map((child: any, i: number) =>
+          renderNode(child, dispatch, selectedNodes, isSelected),
+        ),
   );
 }
 
@@ -264,9 +291,16 @@ export function HighlightedText(props: {
   lineHeight: string;
   allowOverlap?: boolean;
   dispatch: TreeDispatch;
-  selectedNodes: number[]
+  selectedNodes: number[];
 }) {
-  const { text, allTags = [], lineHeight, dispatch, selectedNodes, allowOverlap } = props;
+  const {
+    text,
+    allTags = [],
+    lineHeight,
+    dispatch,
+    selectedNodes,
+    allowOverlap,
+  } = props;
 
   const tree = nestHighlights(text, allTags);
 
@@ -286,9 +320,10 @@ export function HighlightedText(props: {
   }, [text, allTags, dispatch, allowOverlap]);
 
   return h(
-    'span',
+    "span",
     { style: { lineHeight }, ref: spanRef },
-    tree.children.map((child: any, i: number) => renderNode(child, dispatch, selectedNodes, false))
+    tree.children.map((child: any, i: number) =>
+      renderNode(child, dispatch, selectedNodes, false),
+    ),
   );
 }
-

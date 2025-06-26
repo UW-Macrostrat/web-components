@@ -17,7 +17,7 @@ type ElementSizeOpts = {
 
 function useElementSize(
   ref: RefObject<HTMLElement>,
-  opts: ElementSizeOpts = {}
+  opts: ElementSizeOpts = {},
 ): ElementSize | null {
   /** Also see https://github.com/Swizec/useDimensions */
   const { trackWindowResize = true } = opts;

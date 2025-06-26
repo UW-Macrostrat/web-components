@@ -79,7 +79,7 @@ class FaciesSwatch extends Component<FaciesSwatchProps> {
         //   constraints: [{ attachment: "together", to: "scrollParent" }],
         // },
       },
-      [basic, h(FaciesColorPicker, { facies })]
+      [basic, h(FaciesColorPicker, { facies })],
     );
   }
 }

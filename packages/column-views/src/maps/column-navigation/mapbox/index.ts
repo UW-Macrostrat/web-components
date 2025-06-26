@@ -32,7 +32,7 @@ export interface ColumnNavigationMapProps extends InsetMapProps {
 }
 
 export function ColumnNavigationMap(
-  props: ColumnNavigationMapProps & NavigationProviderProps
+  props: ColumnNavigationMapProps & NavigationProviderProps,
 ) {
   const {
     columns,
@@ -59,7 +59,7 @@ export function ColumnNavigationMap(
       projectID,
       inProcess,
     },
-    h(_ColumnNavigationMap, props)
+    h(_ColumnNavigationMap, props),
   );
 }
 
@@ -94,21 +94,21 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
       h(ColumnsLayer),
       children,
       h.if(keyboardNavigation)(ColumnKeyboardNavigation, { showTriangulation }),
-    ]
+    ],
   );
 }
 
 function ColumnsLayer({ enabled = true }) {
   const columns = useColumnNavigationStore((state) => state.columns);
   const selectedColumn = useColumnNavigationStore(
-    (state) => state.selectedColumn
+    (state) => state.selectedColumn,
   );
   const hoveredColumn = useColumnNavigationStore(
-    (state) => state.hoveredColumn
+    (state) => state.hoveredColumn,
   );
   const selectColumn = useColumnNavigationStore((state) => state.selectColumn);
   const setHoveredColumn = useColumnNavigationStore(
-    (state) => state.setHoveredColumn
+    (state) => state.setHoveredColumn,
   );
 
   useMapStyleOperator(
@@ -153,7 +153,7 @@ function ColumnsLayer({ enabled = true }) {
         map.off("click", layers, clickHandler);
       };
     },
-    [columns, enabled]
+    [columns, enabled],
   );
 
   const hoveredColumnRef = useRef(null);
@@ -165,17 +165,17 @@ function ColumnsLayer({ enabled = true }) {
         // Deselect previous column
         map.setFeatureState(
           { source: "columns", id: prevHoveredColumn },
-          { hover: false }
+          { hover: false },
         );
       }
       hoveredColumnRef.current = hoveredColumn;
       // Select the current column
       map.setFeatureState(
         { source: "columns", id: hoveredColumn },
-        { hover: true }
+        { hover: true },
       );
     },
-    [hoveredColumn, columns]
+    [hoveredColumn, columns],
   );
 
   /** Set feature state for selected columns */
@@ -190,7 +190,7 @@ function ColumnsLayer({ enabled = true }) {
         // Deselect previous column
         map.setFeatureState(
           { source: "columns", id: prevSelectedColumn },
-          { selected: false }
+          { selected: false },
         );
       }
 
@@ -199,12 +199,12 @@ function ColumnsLayer({ enabled = true }) {
       // Select the current column
       map.setFeatureState(
         { source: "columns", id: selectedColumn },
-        { selected: true }
+        { selected: true },
       );
 
       // Center the selected column
       const columnGeometry = columns.find(
-        (d) => d.id == selectedColumn
+        (d) => d.id == selectedColumn,
       )?.geometry;
       if (columnGeometry == null) return;
       const center = geoCentroid(columnGeometry);
@@ -215,7 +215,7 @@ function ColumnsLayer({ enabled = true }) {
         initialRenderRef.current = false;
       }
     },
-    [selectedColumn, columns]
+    [selectedColumn, columns],
   );
 
   return null;

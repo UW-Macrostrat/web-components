@@ -77,20 +77,14 @@
         "t_int_name": "Holocene",
         "t_int_age": 0,
         "t_prop": 1,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.92858,
-        "units_below": [
-          13100
-        ],
+        "units_below": [13100],
         "strat_name_long": "Lake Michigan Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.24,
@@ -119,10 +113,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "fine",
-              "medium"
-            ],
+            "atts": ["fine", "medium"],
             "name": "sand",
             "prop": 0.1667,
             "lith_id": 3,
@@ -130,9 +121,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "well sorted"
-            ],
+            "atts": ["well sorted"],
             "name": "silt",
             "prop": 0.8333,
             "lith_id": 4,
@@ -157,20 +146,14 @@
         "t_int_name": "Holocene",
         "t_int_age": 0,
         "t_prop": 0.96581,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.88887,
-        "units_below": [
-          11616
-        ],
+        "units_below": [11616],
         "strat_name_long": "Peoria Loess",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.24,
@@ -224,20 +207,14 @@
         "t_int_name": "Holocene",
         "t_int_age": 0,
         "t_prop": 0.96581,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.88887,
-        "units_below": [
-          11615
-        ],
+        "units_below": [11615],
         "strat_name_long": "Richland Loess",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.24,
@@ -307,20 +284,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.95998,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.55556,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Equality Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.37,
@@ -395,20 +366,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.95998,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.55556,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Henry Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.412,
@@ -470,20 +435,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.94446,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.92,
-        "units_below": [
-          11614
-        ],
+        "units_below": [11614],
         "strat_name_long": "Trafalgar Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.271,
@@ -520,9 +479,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "silty"
-            ],
+            "atts": ["silty"],
             "name": "sand",
             "prop": 0.0833,
             "lith_id": 3,
@@ -563,20 +520,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.92858,
-        "units_above": [
-          13099
-        ],
+        "units_above": [13099],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.85712,
-        "units_below": [
-          13101
-        ],
+        "units_below": [13101],
         "strat_name_long": "Cahokia Alluvium",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.279,
@@ -660,20 +611,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.92,
-        "units_above": [
-          11613
-        ],
+        "units_above": [11613],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.90001,
-        "units_below": [
-          11615
-        ],
+        "units_below": [11615],
         "strat_name_long": "Wedron Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.355,
@@ -702,9 +647,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "calcareous"
-            ],
+            "atts": ["calcareous"],
             "name": "silt",
             "prop": 1,
             "lith_id": 4,
@@ -729,21 +672,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.90001,
-        "units_above": [
-          11612,
-          11614
-        ],
+        "units_above": [11612, 11614],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.88887,
-        "units_below": [
-          11616
-        ],
+        "units_below": [11616],
         "strat_name_long": "Morton Loess",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.37,
@@ -809,22 +745,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.88887,
-        "units_above": [
-          11611,
-          11615
-        ],
+        "units_above": [11611, 11615],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.74999,
-        "units_below": [
-          11617,
-          11620
-        ],
+        "units_below": [11617, 11620],
         "strat_name_long": "Robein Silt",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.299,
@@ -878,20 +806,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.85712,
-        "units_above": [
-          13100
-        ],
+        "units_above": [13100],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.7857,
-        "units_below": [
-          13102
-        ],
+        "units_below": [13102],
         "strat_name_long": "Parkland Sand",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.315,
@@ -928,10 +850,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "sandy",
-              "silty"
-            ],
+            "atts": ["sandy", "silty"],
             "name": "peat",
             "prop": 0.4545,
             "lith_id": 39,
@@ -970,20 +889,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.7857,
-        "units_above": [
-          13101
-        ],
+        "units_above": [13101],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.71428,
-        "units_below": [
-          13103
-        ],
+        "units_below": [13103],
         "strat_name_long": "Grayslake Peat",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.351,
@@ -1057,20 +970,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.74999,
-        "units_above": [
-          11616
-        ],
+        "units_above": [11616],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.55556,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Roxana Silt",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.384,
@@ -1148,20 +1055,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.74999,
-        "units_above": [
-          11616
-        ],
+        "units_above": [11616],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.61111,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Winnebago Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.37,
@@ -1229,20 +1130,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.71428,
-        "units_above": [
-          13102
-        ],
+        "units_above": [13102],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.64286,
-        "units_below": [
-          13104
-        ],
+        "units_below": [13104],
         "strat_name_long": "Lacon Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.388,
@@ -1304,20 +1199,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.64286,
-        "units_above": [
-          13103
-        ],
+        "units_above": [13103],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.57144,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Peyton Colluvium",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.424,
@@ -1395,20 +1284,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.39999,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.25001,
-        "units_below": [
-          11625
-        ],
+        "units_below": [11625],
         "strat_name_long": "Glasford Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.579,
@@ -1508,20 +1391,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.39999,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.3,
-        "units_below": [
-          11627
-        ],
+        "units_below": [11627],
         "strat_name_long": "Wolf Creek Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.546,
@@ -1550,9 +1427,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "fine"
-            ],
+            "atts": ["fine"],
             "name": "sand",
             "prop": 0.1667,
             "lith_id": 3,
@@ -1560,9 +1435,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "silt",
             "prop": 0.8333,
             "lith_id": 4,
@@ -1593,20 +1466,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.33335,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.08334,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Loveland Silt",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.537,
@@ -1651,10 +1518,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "coarse",
-              "fine"
-            ],
+            "atts": ["coarse", "fine"],
             "name": "silt",
             "prop": 0.7143,
             "lith_id": 4,
@@ -1685,20 +1549,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.33335,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.16667,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Teneriffe Silt",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.621,
@@ -1735,9 +1593,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "medium"
-            ],
+            "atts": ["medium"],
             "name": "sand",
             "prop": 0.5,
             "lith_id": 3,
@@ -1762,20 +1618,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.33335,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.08334,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Pearl Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.621,
@@ -1867,20 +1717,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.3,
-        "units_above": [
-          11626
-        ],
+        "units_above": [11626],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.25001,
-        "units_below": [
-          11629
-        ],
+        "units_below": [11629],
         "strat_name_long": "Alburnett Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.596,
@@ -1909,9 +1753,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "fine"
-            ],
+            "atts": ["fine"],
             "name": "sand",
             "prop": 0.1667,
             "lith_id": 3,
@@ -1919,9 +1761,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "calcareous"
-            ],
+            "atts": ["calcareous"],
             "name": "silt",
             "prop": 0.8333,
             "lith_id": 4,
@@ -1952,20 +1792,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.25001,
-        "units_above": [
-          11622
-        ],
+        "units_above": [11622],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.08334,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Petersburg Silt",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.621,
@@ -2049,21 +1883,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.25001,
-        "units_above": [
-          11627,
-          11628
-        ],
+        "units_above": [11627, 11628],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.09999,
-        "units_below": [
-          11630
-        ],
+        "units_below": [11630],
         "strat_name_long": "Enion Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.621,
@@ -2149,20 +1976,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.25001,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 4,
         "b_int_name": "Pleistocene",
         "b_int_age": 2.58,
         "b_prop": 0.20002,
-        "units_below": [
-          11629
-        ],
+        "units_below": [11629],
         "strat_name_long": "Banner Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.621,
@@ -2199,9 +2020,7 @@
             "class": "metamorphic"
           },
           {
-            "atts": [
-              "quartz"
-            ],
+            "atts": ["quartz"],
             "name": "sand",
             "prop": 0.0833,
             "lith_id": 3,
@@ -2248,20 +2067,14 @@
         "t_int_name": "Pleistocene",
         "t_int_age": 0.0117,
         "t_prop": 0.09999,
-        "units_above": [
-          11629
-        ],
+        "units_above": [11629],
         "b_int_id": 11,
         "b_int_name": "Piacenzian",
         "b_int_age": 3.6,
         "b_prop": 0,
-        "units_below": [
-          11631
-        ],
+        "units_below": [11631],
         "strat_name_long": "Grover Gravel",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.695,
@@ -2321,20 +2134,14 @@
         "t_int_name": "Zanclean",
         "t_int_age": 3.6,
         "t_prop": 1,
-        "units_above": [
-          11630
-        ],
+        "units_above": [11630],
         "b_int_id": 12,
         "b_int_name": "Zanclean",
         "b_int_age": 5.333,
         "b_prop": 0,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Grover Gravel",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 41.937,
@@ -2363,9 +2170,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "sand",
             "prop": 0.5,
             "lith_id": 3,
@@ -2404,20 +2209,14 @@
         "t_int_name": "Santonian",
         "t_int_age": 83.6,
         "t_prop": 1,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 39,
         "b_int_name": "Turonian",
         "b_int_age": 93.9,
         "b_prop": 0,
-        "units_below": [
-          11610
-        ],
+        "units_below": [11610],
         "strat_name_long": "Kiser Creek Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 45.214,
@@ -2446,9 +2245,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "pebbly"
-            ],
+            "atts": ["pebbly"],
             "name": "chert",
             "prop": 0.4545,
             "lith_id": 45,
@@ -2464,9 +2261,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "pebbly"
-            ],
+            "atts": ["pebbly"],
             "name": "quartzite",
             "prop": 0.0909,
             "lith_id": 85,
@@ -2503,20 +2298,14 @@
         "t_int_name": "Cenomanian",
         "t_int_age": 93.9,
         "t_prop": 1,
-        "units_above": [
-          11609
-        ],
+        "units_above": [11609],
         "b_int_id": 40,
         "b_int_name": "Cenomanian",
         "b_int_age": 100.5,
         "b_prop": 0,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Hadley Gravel Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 45.356,
@@ -2569,9 +2358,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "black"
-            ],
+            "atts": ["black"],
             "name": "shale",
             "prop": 0.0769,
             "lith_id": 8,
@@ -2604,20 +2391,14 @@
         "t_int_name": "Missourian",
         "t_int_age": 303.7,
         "t_prop": 0.875,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 138,
         "b_int_name": "Missourian",
         "b_int_age": 306,
         "b_prop": 0.75,
-        "units_below": [
-          13108
-        ],
+        "units_below": [13108],
         "strat_name_long": "Mattoon Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -2.124,
@@ -2646,9 +2427,7 @@
         "pbdb_occurrences": 39,
         "lith": [
           {
-            "atts": [
-              "calcareous"
-            ],
+            "atts": ["calcareous"],
             "name": "shale",
             "prop": 0.1667,
             "lith_id": 8,
@@ -2656,9 +2435,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "limestone",
             "prop": 0.8333,
             "lith_id": 30,
@@ -2683,20 +2460,14 @@
         "t_int_name": "Missourian",
         "t_int_age": 303.7,
         "t_prop": 0.75,
-        "units_above": [
-          13106
-        ],
+        "units_above": [13106],
         "b_int_id": 138,
         "b_int_name": "Missourian",
         "b_int_age": 306,
         "b_prop": 0.625,
-        "units_below": [
-          13107
-        ],
+        "units_below": [13107],
         "strat_name_long": "La Salle Limestone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -2.263,
@@ -2758,20 +2529,14 @@
         "t_int_name": "Missourian",
         "t_int_age": 303.7,
         "t_prop": 0.625,
-        "units_above": [
-          13108
-        ],
+        "units_above": [13108],
         "b_int_id": 138,
         "b_int_name": "Missourian",
         "b_int_age": 306,
         "b_prop": 0.375,
-        "units_below": [
-          13109
-        ],
+        "units_below": [13109],
         "strat_name_long": "Bond Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -2.402,
@@ -2825,20 +2590,14 @@
         "t_int_name": "Missourian",
         "t_int_age": 303.7,
         "t_prop": 0.375,
-        "units_above": [
-          13107
-        ],
+        "units_above": [13107],
         "b_int_id": 138,
         "b_int_name": "Missourian",
         "b_int_age": 306,
         "b_prop": 0.29,
-        "units_below": [
-          13110
-        ],
+        "units_below": [13110],
         "strat_name_long": "Shoal Creek Limestone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -2.643,
@@ -2900,24 +2659,14 @@
         "t_int_name": "Missourian",
         "t_int_age": 303.7,
         "t_prop": 0.29,
-        "units_above": [
-          13109,
-          13111,
-          13112
-        ],
+        "units_above": [13109, 13111, 13112],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.9,
-        "units_below": [
-          13111,
-          13112,
-          13113
-        ],
+        "units_below": [13111, 13112, 13113],
         "strat_name_long": "Modesto Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -2.745,
@@ -2971,20 +2720,14 @@
         "t_int_name": "Missourian",
         "t_int_age": 303.7,
         "t_prop": 0.25,
-        "units_above": [
-          13110
-        ],
+        "units_above": [13110],
         "b_int_id": 138,
         "b_int_name": "Missourian",
         "b_int_age": 306,
         "b_prop": 0.125,
-        "units_below": [
-          13110
-        ],
+        "units_below": [13110],
         "strat_name_long": "Chapel Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -2.745,
@@ -3038,20 +2781,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 1,
-        "units_above": [
-          13110
-        ],
+        "units_above": [13110],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.95,
-        "units_below": [
-          13110
-        ],
+        "units_below": [13110],
         "strat_name_long": "Lonsdale Limestone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.036,
@@ -3088,10 +2825,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "silty",
-              "sandy"
-            ],
+            "atts": ["silty", "sandy"],
             "name": "shale",
             "prop": 0.5,
             "lith_id": 8,
@@ -3116,20 +2850,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.9,
-        "units_above": [
-          13110
-        ],
+        "units_above": [13110],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.88,
-        "units_below": [
-          13116
-        ],
+        "units_below": [13116],
         "strat_name_long": "Farmington Shale Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.168,
@@ -3183,20 +2911,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.88,
-        "units_above": [
-          13113
-        ],
+        "units_above": [13113],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.78,
-        "units_below": [
-          13115
-        ],
+        "units_below": [13115],
         "strat_name_long": "Danville Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.168,
@@ -3233,9 +2955,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "sandstone",
             "prop": 0.1667,
             "lith_id": 10,
@@ -3269,28 +2989,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.78,
-        "units_above": [
-          13116,
-          13117,
-          13118,
-          13119,
-          13120
-        ],
+        "units_above": [13116, 13117, 13118, 13119, 13120],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.425,
-        "units_below": [
-          13117,
-          13118,
-          13119,
-          13120,
-          13121
-        ],
+        "units_below": [13117, 13118, 13119, 13120, 13121],
         "strat_name_long": "Carbondale Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.168,
@@ -3319,9 +3025,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "limestone",
             "prop": 1,
             "lith_id": 30,
@@ -3346,20 +3050,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.73,
-        "units_above": [
-          13115
-        ],
+        "units_above": [13115],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.7,
-        "units_below": [
-          13115
-        ],
+        "units_below": [13115],
         "strat_name_long": "Brereton Limestone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.168,
@@ -3413,20 +3111,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.68,
-        "units_above": [
-          13115
-        ],
+        "units_above": [13115],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.65,
-        "units_below": [
-          13115
-        ],
+        "units_below": [13115],
         "strat_name_long": "Herrin Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.211,
@@ -3480,20 +3172,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.5875,
-        "units_above": [
-          13115
-        ],
+        "units_above": [13115],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.535,
-        "units_below": [
-          13115
-        ],
+        "units_below": [13115],
         "strat_name_long": "Springfield Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -6.243,
@@ -3547,20 +3233,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.5125,
-        "units_above": [
-          13115
-        ],
+        "units_above": [13115],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.48,
-        "units_below": [
-          13115
-        ],
+        "units_below": [13115],
         "strat_name_long": "Lowell Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.553,
@@ -3614,21 +3294,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.425,
-        "units_above": [
-          13115
-        ],
+        "units_above": [13115],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.4,
-        "units_below": [
-          13123,
-          13124
-        ],
+        "units_below": [13123, 13124],
         "strat_name_long": "Colchester Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.606,
@@ -3682,20 +3355,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.4,
-        "units_above": [
-          13121
-        ],
+        "units_above": [13121],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.1,
-        "units_below": [
-          13122
-        ],
+        "units_below": [13122],
         "strat_name_long": "Cheltenham Clay Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -6.648,
@@ -3724,9 +3391,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "silty"
-            ],
+            "atts": ["silty"],
             "name": "shale",
             "prop": 0.1429,
             "lith_id": 8,
@@ -3767,20 +3432,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.4,
-        "units_above": [
-          13121
-        ],
+        "units_above": [13121],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.36,
-        "units_below": [
-          13125
-        ],
+        "units_below": [13125],
         "strat_name_long": "Browning Sandstone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.606,
@@ -3834,20 +3493,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.36,
-        "units_above": [
-          13124
-        ],
+        "units_above": [13124],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.25,
-        "units_below": [
-          13122
-        ],
+        "units_below": [13122],
         "strat_name_long": "Isabel Sandstone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.606,
@@ -3909,29 +3562,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.25,
-        "units_above": [
-          13123,
-          13125,
-          13126,
-          13127,
-          13128,
-          13129
-        ],
+        "units_above": [13123, 13125, 13126, 13127, 13128, 13129],
         "b_int_id": 140,
         "b_int_name": "Atokan",
         "b_int_age": 319,
         "b_prop": 0.86667,
-        "units_below": [
-          13126,
-          13127,
-          13128,
-          13129,
-          13132
-        ],
+        "units_below": [13126, 13127, 13128, 13129, 13132],
         "strat_name_long": "Spoon Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.606,
@@ -3985,20 +3623,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.1875,
-        "units_above": [
-          13122
-        ],
+        "units_above": [13122],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.1675,
-        "units_below": [
-          13122
-        ],
+        "units_below": [13122],
         "strat_name_long": "Greenbush Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.658,
@@ -4052,20 +3684,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.15,
-        "units_above": [
-          13122
-        ],
+        "units_above": [13122],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.125,
-        "units_below": [
-          13122
-        ],
+        "units_below": [13122],
         "strat_name_long": "Wiley Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.715,
@@ -4119,20 +3745,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.0625,
-        "units_above": [
-          13122
-        ],
+        "units_above": [13122],
         "b_int_id": 139,
         "b_int_name": "Desmoinesian",
         "b_int_age": 312,
         "b_prop": 0.03,
-        "units_below": [
-          13122
-        ],
+        "units_below": [13122],
         "strat_name_long": "Seville Limestone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -3.772,
@@ -4186,20 +3806,14 @@
         "t_int_name": "Desmoinesian",
         "t_int_age": 306,
         "t_prop": 0.01,
-        "units_above": [
-          13122
-        ],
+        "units_above": [13122],
         "b_int_id": 140,
         "b_int_name": "Atokan",
         "b_int_age": 319,
         "b_prop": 0.988,
-        "units_below": [
-          13122
-        ],
+        "units_below": [13122],
         "strat_name_long": "Rock Island Coal Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -4.453,
@@ -4258,20 +3872,14 @@
         "t_int_name": "Atokan",
         "t_int_age": 312,
         "t_prop": 0.86667,
-        "units_above": [
-          13122
-        ],
+        "units_above": [13122],
         "b_int_id": 140,
         "b_int_name": "Atokan",
         "b_int_age": 319,
         "b_prop": 0.73124,
-        "units_below": [
-          13131
-        ],
+        "units_below": [13131],
         "strat_name_long": "Bernadotte Sandstone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -5.913,
@@ -4300,9 +3908,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "sandy"
-            ],
+            "atts": ["sandy"],
             "name": "shale",
             "prop": 0.1429,
             "lith_id": 8,
@@ -4343,21 +3949,14 @@
         "t_int_name": "Atokan",
         "t_int_age": 312,
         "t_prop": 0.73124,
-        "units_above": [
-          13132
-        ],
+        "units_above": [13132],
         "b_int_id": 141,
         "b_int_name": "Morrowan",
         "b_int_age": 323.2,
         "b_prop": 0.25,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Caseyville Formation",
-        "refs": [
-          1,
-          1
-        ],
+        "refs": [1, 1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -5.675,
@@ -4410,9 +4009,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "micaceous"
-            ],
+            "atts": ["micaceous"],
             "name": "dolomite",
             "prop": 0.0625,
             "lith_id": 31,
@@ -4437,20 +4034,14 @@
         "t_int_name": "Meramecian",
         "t_int_age": 335,
         "t_prop": 0.375,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 143,
         "b_int_name": "Meramecian",
         "b_int_age": 343.5,
         "b_prop": 0.3,
-        "units_below": [
-          11600
-        ],
+        "units_below": [11600],
         "strat_name_long": "St Louis Limestone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -25.442,
@@ -4528,21 +4119,14 @@
         "t_int_name": "Meramecian",
         "t_int_age": 335,
         "t_prop": 0.3,
-        "units_above": [
-          11607
-        ],
+        "units_above": [11607],
         "b_int_id": 143,
         "b_int_name": "Meramecian",
         "b_int_age": 343.5,
         "b_prop": 0.25,
-        "units_below": [
-          11601,
-          11602
-        ],
+        "units_below": [11601, 11602],
         "strat_name_long": "Salem Limestone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -25.859,
@@ -4571,9 +4155,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "sandy"
-            ],
+            "atts": ["sandy"],
             "name": "shale",
             "prop": 0.0909,
             "lith_id": 8,
@@ -4614,20 +4196,14 @@
         "t_int_name": "Meramecian",
         "t_int_age": 335,
         "t_prop": 0.26,
-        "units_above": [
-          11600
-        ],
+        "units_above": [11600],
         "b_int_id": 143,
         "b_int_name": "Meramecian",
         "b_int_age": 343.5,
         "b_prop": 0.22,
-        "units_below": [
-          11602
-        ],
+        "units_below": [11602],
         "strat_name_long": "Sonora Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -25.859,
@@ -4656,9 +4232,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "gray"
-            ],
+            "atts": ["gray"],
             "name": "shale",
             "prop": 0.1429,
             "lith_id": 8,
@@ -4674,9 +4248,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "limestone",
             "prop": 0.1429,
             "lith_id": 30,
@@ -4701,21 +4273,14 @@
         "t_int_name": "Meramecian",
         "t_int_age": 335,
         "t_prop": 0.25,
-        "units_above": [
-          11600,
-          11601
-        ],
+        "units_above": [11600, 11601],
         "b_int_id": 143,
         "b_int_name": "Meramecian",
         "b_int_age": 343.5,
         "b_prop": 0,
-        "units_below": [
-          11603
-        ],
+        "units_below": [11603],
         "strat_name_long": "Warsaw Shale",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -25.859,
@@ -4760,9 +4325,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "dolomite",
             "prop": 0.1429,
             "lith_id": 31,
@@ -4787,20 +4350,14 @@
         "t_int_name": "Osagean",
         "t_int_age": 343.5,
         "t_prop": 1,
-        "units_above": [
-          11602
-        ],
+        "units_above": [11602],
         "b_int_id": 144,
         "b_int_name": "Osagean",
         "b_int_age": 351.5,
         "b_prop": 0.83333,
-        "units_below": [
-          11604
-        ],
+        "units_below": [11604],
         "strat_name_long": "Keokuk Limestone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -26.674,
@@ -4870,20 +4427,14 @@
         "t_int_name": "Osagean",
         "t_int_age": 343.5,
         "t_prop": 0.83333,
-        "units_above": [
-          11603
-        ],
+        "units_above": [11603],
         "b_int_id": 144,
         "b_int_name": "Osagean",
         "b_int_age": 351.5,
         "b_prop": 0.66668,
-        "units_below": [
-          11605
-        ],
+        "units_below": [11605],
         "strat_name_long": "Montrose Chert Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -27.179,
@@ -4945,20 +4496,14 @@
         "t_int_name": "Osagean",
         "t_int_age": 343.5,
         "t_prop": 0.66668,
-        "units_above": [
-          11604
-        ],
+        "units_above": [11604],
         "b_int_id": 144,
         "b_int_name": "Osagean",
         "b_int_age": 351.5,
         "b_prop": 0.25,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Burlington Limestone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -27.454,
@@ -5012,20 +4557,14 @@
         "t_int_name": "Kinderhookian",
         "t_int_age": 351.5,
         "t_prop": 1,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 145,
         "b_int_name": "Kinderhookian",
         "b_int_age": 358.9,
         "b_prop": 0.875,
-        "units_below": [
-          11592
-        ],
+        "units_below": [11592],
         "strat_name_long": "Starrs Cave Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -28.79,
@@ -5079,20 +4618,14 @@
         "t_int_name": "Kinderhookian",
         "t_int_age": 351.5,
         "t_prop": 0.875,
-        "units_above": [
-          11591
-        ],
+        "units_above": [11591],
         "b_int_id": 145,
         "b_int_name": "Kinderhookian",
         "b_int_age": 358.9,
         "b_prop": 0.75,
-        "units_below": [
-          11593
-        ],
+        "units_below": [11593],
         "strat_name_long": "Prospect Hill Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -29.134,
@@ -5154,20 +4687,14 @@
         "t_int_name": "Kinderhookian",
         "t_int_age": 351.5,
         "t_prop": 0.75,
-        "units_above": [
-          11592
-        ],
+        "units_above": [11592],
         "b_int_id": 145,
         "b_int_name": "Kinderhookian",
         "b_int_age": 358.9,
         "b_prop": 0.625,
-        "units_below": [
-          11595
-        ],
+        "units_below": [11595],
         "strat_name_long": "McCraney Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -29.483,
@@ -5196,9 +4723,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "siltstone",
             "prop": 1,
             "lith_id": 9,
@@ -5223,20 +4748,14 @@
         "t_int_name": "Kinderhookian",
         "t_int_age": 351.5,
         "t_prop": 0.625,
-        "units_above": [
-          11593
-        ],
+        "units_above": [11593],
         "b_int_id": 145,
         "b_int_name": "Kinderhookian",
         "b_int_age": 358.9,
         "b_prop": 0,
-        "units_below": [
-          11596
-        ],
+        "units_below": [11596],
         "strat_name_long": "Hannibal Shale",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -29.83,
@@ -5265,10 +4784,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "sandy",
-              "silty"
-            ],
+            "atts": ["sandy", "silty"],
             "name": "shale",
             "prop": 0.8333,
             "lith_id": 8,
@@ -5276,9 +4792,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "calcareous"
-            ],
+            "atts": ["calcareous"],
             "name": "siltstone",
             "prop": 0.1667,
             "lith_id": 9,
@@ -5303,20 +4817,14 @@
         "t_int_name": "Famennian",
         "t_int_age": 358.9,
         "t_prop": 1,
-        "units_above": [
-          11595
-        ],
+        "units_above": [11595],
         "b_int_id": 146,
         "b_int_name": "Conewangan",
         "b_int_age": 365,
         "b_prop": 0.75,
-        "units_below": [
-          11597
-        ],
+        "units_below": [11597],
         "strat_name_long": "Saverton Shale",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -30.487,
@@ -5370,20 +4878,14 @@
         "t_int_name": "Conewangan",
         "t_int_age": 358.9,
         "t_prop": 0.75,
-        "units_above": [
-          11596
-        ],
+        "units_above": [11596],
         "b_int_id": 147,
         "b_int_name": "Cassadagan",
         "b_int_age": 372.2,
         "b_prop": 0,
-        "units_below": [
-          11598
-        ],
+        "units_below": [11598],
         "strat_name_long": "Grassy Creek Shale",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -30.597,
@@ -5412,10 +4914,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "green",
-              "gray"
-            ],
+            "atts": ["green", "gray"],
             "name": "shale",
             "prop": 1,
             "lith_id": 8,
@@ -5440,20 +4939,14 @@
         "t_int_name": "Chemungian",
         "t_int_age": 372.2,
         "t_prop": 1,
-        "units_above": [
-          11597
-        ],
+        "units_above": [11597],
         "b_int_id": 151,
         "b_int_name": "Fingerlakesian",
         "b_int_age": 382.7,
         "b_prop": 0.83332,
-        "units_below": [
-          11599
-        ],
+        "units_below": [11599],
         "strat_name_long": "Sweetland Creek Shale",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -29.888,
@@ -5482,11 +4975,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "fine",
-              "medium",
-              "quartz"
-            ],
+            "atts": ["fine", "medium", "quartz"],
             "name": "sandstone",
             "prop": 1,
             "lith_id": 10,
@@ -5511,20 +5000,14 @@
         "t_int_name": "Fingerlakesian",
         "t_int_age": 379,
         "t_prop": 0.83332,
-        "units_above": [
-          11598
-        ],
+        "units_above": [11598],
         "b_int_id": 151,
         "b_int_name": "Fingerlakesian",
         "b_int_age": 382.7,
         "b_prop": 0.66668,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Sylamore Sandstone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -29.061,
@@ -5577,9 +5060,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "silty"
-            ],
+            "atts": ["silty"],
             "name": "shale",
             "prop": 0.125,
             "lith_id": 8,
@@ -5611,21 +5092,14 @@
         "t_int_name": "Fingerlakesian",
         "t_int_age": 379,
         "t_prop": 0.25,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 99,
         "b_int_name": "Givetian",
         "b_int_age": 387.7,
         "b_prop": 0.75,
-        "units_below": [
-          11586,
-          11588
-        ],
+        "units_below": [11586, 11588],
         "strat_name_long": "Cedar Valley Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -29.319,
@@ -5687,21 +5161,14 @@
         "t_int_name": "Givetian",
         "t_int_age": 382.7,
         "t_prop": 0.75,
-        "units_above": [
-          11587,
-          11588
-        ],
+        "units_above": [11587, 11588],
         "b_int_id": 100,
         "b_int_name": "Eifelian",
         "b_int_age": 393.3,
         "b_prop": 0.25,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Wapsipinicon Limestone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -29.712,
@@ -5738,9 +5205,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "quartz"
-            ],
+            "atts": ["quartz"],
             "name": "sandstone",
             "prop": 0.625,
             "lith_id": 10,
@@ -5788,20 +5253,14 @@
         "t_int_name": "Givetian",
         "t_int_age": 382.7,
         "t_prop": 0.75,
-        "units_above": [
-          11587
-        ],
+        "units_above": [11587],
         "b_int_id": 99,
         "b_int_name": "Givetian",
         "b_int_age": 387.7,
         "b_prop": 0.375,
-        "units_below": [
-          11586
-        ],
+        "units_below": [11586],
         "strat_name_long": "Hoing Sandstone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -29.712,
@@ -5878,22 +5337,14 @@
         "t_int_name": "Pridoli",
         "t_int_age": 419.2,
         "t_prop": 0.25,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 109,
         "b_int_name": "Wenlock",
         "b_int_age": 433.4,
         "b_prop": 0.75,
-        "units_below": [
-          11583,
-          11584,
-          11585
-        ],
+        "units_below": [11583, 11584, 11585],
         "strat_name_long": "Racine Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -27.216,
@@ -5947,20 +5398,14 @@
         "t_int_name": "Wenlock",
         "t_int_age": 427.4,
         "t_prop": 0.75,
-        "units_above": [
-          11582
-        ],
+        "units_above": [11582],
         "b_int_id": 109,
         "b_int_name": "Wenlock",
         "b_int_age": 433.4,
         "b_prop": 0.375,
-        "units_below": [
-          11585
-        ],
+        "units_below": [11585],
         "strat_name_long": "Sugar Run Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -28.159,
@@ -6014,20 +5459,14 @@
         "t_int_name": "Wenlock",
         "t_int_age": 427.4,
         "t_prop": 0.75,
-        "units_above": [
-          11582
-        ],
+        "units_above": [11582],
         "b_int_id": 234,
         "b_int_name": "Telychian",
         "b_int_age": 438.5,
         "b_prop": 0.25,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Marcus Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -28.159,
@@ -6081,21 +5520,14 @@
         "t_int_name": "Wenlock",
         "t_int_age": 427.4,
         "t_prop": 0.75,
-        "units_above": [
-          11582,
-          11583
-        ],
+        "units_above": [11582, 11583],
         "b_int_id": 234,
         "b_int_name": "Telychian",
         "b_int_age": 438.5,
         "b_prop": 0,
-        "units_below": [
-          11579
-        ],
+        "units_below": [11579],
         "strat_name_long": "Joliet Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -28.159,
@@ -6157,20 +5589,14 @@
         "t_int_name": "Aeronian",
         "t_int_age": 438.5,
         "t_prop": 1,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 235,
         "b_int_name": "Aeronian",
         "b_int_age": 440.8,
         "b_prop": 0.83335,
-        "units_below": [
-          11576
-        ],
+        "units_below": [11576],
         "strat_name_long": "Sweeny Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -27.794,
@@ -6223,10 +5649,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "silty",
-              "argillaceous"
-            ],
+            "atts": ["silty", "argillaceous"],
             "name": "dolomite",
             "prop": 0.0833,
             "lith_id": 31,
@@ -6251,20 +5674,14 @@
         "t_int_name": "Aeronian",
         "t_int_age": 438.5,
         "t_prop": 1,
-        "units_above": [
-          11585
-        ],
+        "units_above": [11585],
         "b_int_id": 235,
         "b_int_name": "Aeronian",
         "b_int_age": 440.8,
         "b_prop": 0.66665,
-        "units_below": [
-          11580
-        ],
+        "units_below": [11580],
         "strat_name_long": "Kankakee Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -27.794,
@@ -6326,20 +5743,14 @@
         "t_int_name": "Aeronian",
         "t_int_age": 438.5,
         "t_prop": 0.83335,
-        "units_above": [
-          11575
-        ],
+        "units_above": [11575],
         "b_int_id": 235,
         "b_int_name": "Aeronian",
         "b_int_age": 440.8,
         "b_prop": 0,
-        "units_below": [
-          11577
-        ],
+        "units_below": [11577],
         "strat_name_long": "Blanding Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -27.671,
@@ -6401,20 +5812,14 @@
         "t_int_name": "Aeronian",
         "t_int_age": 438.5,
         "t_prop": 0.66665,
-        "units_above": [
-          11579
-        ],
+        "units_above": [11579],
         "b_int_id": 235,
         "b_int_name": "Aeronian",
         "b_int_age": 440.8,
         "b_prop": 0,
-        "units_below": [
-          11581
-        ],
+        "units_below": [11581],
         "strat_name_long": "Elwood Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -27.438,
@@ -6476,20 +5881,14 @@
         "t_int_name": "Rhuddanian",
         "t_int_age": 440.8,
         "t_prop": 1,
-        "units_above": [
-          11576
-        ],
+        "units_above": [11576],
         "b_int_id": 236,
         "b_int_name": "Rhuddanian",
         "b_int_age": 443.8,
         "b_prop": 0.33333,
-        "units_below": [
-          11578
-        ],
+        "units_below": [11578],
         "strat_name_long": "Tete Des Morts Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -26.31,
@@ -6551,20 +5950,14 @@
         "t_int_name": "Rhuddanian",
         "t_int_age": 440.8,
         "t_prop": 1,
-        "units_above": [
-          11580
-        ],
+        "units_above": [11580],
         "b_int_id": 160,
         "b_int_name": "Richmondian",
         "b_int_age": 449,
         "b_prop": 0.83334,
-        "units_below": [
-          11574
-        ],
+        "units_below": [11574],
         "strat_name_long": "Wilhelmi Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -26.31,
@@ -6618,20 +6011,14 @@
         "t_int_name": "Rhuddanian",
         "t_int_age": 440.8,
         "t_prop": 0.33333,
-        "units_above": [
-          11577
-        ],
+        "units_above": [11577],
         "b_int_id": 236,
         "b_int_name": "Rhuddanian",
         "b_int_age": 443.8,
         "b_prop": 0.16667,
-        "units_below": [
-          11574
-        ],
+        "units_below": [11574],
         "strat_name_long": "Mosalem Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -24.965,
@@ -6685,21 +6072,14 @@
         "t_int_name": "Rhuddanian",
         "t_int_age": 440.8,
         "t_prop": 0.16667,
-        "units_above": [
-          11578,
-          11581
-        ],
+        "units_above": [11578, 11581],
         "b_int_id": 160,
         "b_int_name": "Richmondian",
         "b_int_age": 449,
         "b_prop": 0.66666,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Neda Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -24.611,
@@ -6753,20 +6133,14 @@
         "t_int_name": "Richmondian",
         "t_int_age": 445.2,
         "t_prop": 0.75,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 160,
         "b_int_name": "Richmondian",
         "b_int_age": 449,
         "b_prop": 0.33334,
-        "units_below": [
-          11572
-        ],
+        "units_below": [11572],
         "strat_name_long": "Brainard Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -22.039,
@@ -6820,20 +6194,14 @@
         "t_int_name": "Richmondian",
         "t_int_age": 445.2,
         "t_prop": 0.33334,
-        "units_above": [
-          11571
-        ],
+        "units_above": [11571],
         "b_int_id": 160,
         "b_int_name": "Richmondian",
         "b_int_age": 449,
         "b_prop": 0.16666,
-        "units_below": [
-          11573
-        ],
+        "units_below": [11573],
         "strat_name_long": "Fort Atkinson Limestone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -20.387,
@@ -6887,20 +6255,14 @@
         "t_int_name": "Richmondian",
         "t_int_age": 445.2,
         "t_prop": 0.16666,
-        "units_above": [
-          11572
-        ],
+        "units_above": [11572],
         "b_int_id": 161,
         "b_int_name": "Maysvillian",
         "b_int_age": 450,
         "b_prop": 0.75,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Scales Shale",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -19.697,
@@ -6962,20 +6324,14 @@
         "t_int_name": "Maysvillian",
         "t_int_age": 449,
         "t_prop": 0.25,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 162,
         "b_int_name": "Edenian",
         "b_int_age": 451,
         "b_prop": 0.75,
-        "units_below": [
-          11565
-        ],
+        "units_below": [11565],
         "strat_name_long": "Dubuque Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -17.159,
@@ -7029,20 +6385,14 @@
         "t_int_name": "Edenian",
         "t_int_age": 450,
         "t_prop": 0.75,
-        "units_above": [
-          11564
-        ],
+        "units_above": [11564],
         "b_int_id": 162,
         "b_int_name": "Edenian",
         "b_int_age": 451,
         "b_prop": 0.3,
-        "units_below": [
-          11566
-        ],
+        "units_below": [11566],
         "strat_name_long": "Wise Lake Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -16.081,
@@ -7112,20 +6462,14 @@
         "t_int_name": "Edenian",
         "t_int_age": 450,
         "t_prop": 0.3,
-        "units_above": [
-          11565
-        ],
+        "units_above": [11565],
         "b_int_id": 162,
         "b_int_name": "Edenian",
         "b_int_age": 451,
         "b_prop": 0,
-        "units_below": [
-          11567
-        ],
+        "units_below": [11567],
         "strat_name_long": "Dunleith Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -15.172,
@@ -7195,20 +6539,14 @@
         "t_int_name": "Shermanian",
         "t_int_age": 451,
         "t_prop": 1,
-        "units_above": [
-          11566
-        ],
+        "units_above": [11566],
         "b_int_id": 165,
         "b_int_name": "Rocklandian",
         "b_int_age": 456.5,
         "b_prop": 0.6,
-        "units_below": [
-          11568
-        ],
+        "units_below": [11568],
         "strat_name_long": "Guttenberg Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -13.476,
@@ -7270,20 +6608,14 @@
         "t_int_name": "Rocklandian",
         "t_int_age": 455.5,
         "t_prop": 0.6,
-        "units_above": [
-          11567
-        ],
+        "units_above": [11567],
         "b_int_id": 165,
         "b_int_name": "Rocklandian",
         "b_int_age": 456.5,
         "b_prop": 0.4,
-        "units_below": [
-          11559
-        ],
+        "units_below": [11559],
         "strat_name_long": "Spechts Ferry Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -11.012,
@@ -7312,9 +6644,7 @@
         "pbdb_occurrences": 14,
         "lith": [
           {
-            "atts": [
-              "brown"
-            ],
+            "atts": ["brown"],
             "name": "shale",
             "prop": 0.1667,
             "lith_id": 8,
@@ -7322,9 +6652,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "brown"
-            ],
+            "atts": ["brown"],
             "name": "limestone",
             "prop": 0.8333,
             "lith_id": 30,
@@ -7349,20 +6677,14 @@
         "t_int_name": "Rocklandian",
         "t_int_age": 455.5,
         "t_prop": 0.4,
-        "units_above": [
-          11568
-        ],
+        "units_above": [11568],
         "b_int_id": 165,
         "b_int_name": "Rocklandian",
         "b_int_age": 456.5,
         "b_prop": 0,
-        "units_below": [
-          11560
-        ],
+        "units_below": [11560],
         "strat_name_long": "Quimbys Mill Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -11.012,
@@ -7424,20 +6746,14 @@
         "t_int_name": "Blackriverian",
         "t_int_age": 456.5,
         "t_prop": 1,
-        "units_above": [
-          11559
-        ],
+        "units_above": [11559],
         "b_int_id": 166,
         "b_int_name": "Blackriverian",
         "b_int_age": 458.4,
         "b_prop": 0.91247,
-        "units_below": [
-          11561
-        ],
+        "units_below": [11561],
         "strat_name_long": "Nachusa Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -11.012,
@@ -7507,20 +6823,14 @@
         "t_int_name": "Blackriverian",
         "t_int_age": 456.5,
         "t_prop": 0.91247,
-        "units_above": [
-          11560
-        ],
+        "units_above": [11560],
         "b_int_id": 166,
         "b_int_name": "Blackriverian",
         "b_int_age": 458.4,
         "b_prop": 0.83,
-        "units_below": [
-          11562
-        ],
+        "units_below": [11562],
         "strat_name_long": "Grand Detour Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -10.802,
@@ -7549,9 +6859,7 @@
         "pbdb_occurrences": 188,
         "lith": [
           {
-            "atts": [
-              "sandy"
-            ],
+            "atts": ["sandy"],
             "name": "shale",
             "prop": 0.1429,
             "lith_id": 8,
@@ -7559,9 +6867,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "limestone",
             "prop": 0.7143,
             "lith_id": 30,
@@ -7594,20 +6900,14 @@
         "t_int_name": "Blackriverian",
         "t_int_age": 456.5,
         "t_prop": 0.83,
-        "units_above": [
-          11561
-        ],
+        "units_above": [11561],
         "b_int_id": 166,
         "b_int_name": "Blackriverian",
         "b_int_age": 458.4,
         "b_prop": 0.74747,
-        "units_below": [
-          11563
-        ],
+        "units_below": [11563],
         "strat_name_long": "Mifflin Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -10.617,
@@ -7677,20 +6977,14 @@
         "t_int_name": "Blackriverian",
         "t_int_age": 456.5,
         "t_prop": 0.74747,
-        "units_above": [
-          11562
-        ],
+        "units_above": [11562],
         "b_int_id": 166,
         "b_int_name": "Blackriverian",
         "b_int_age": 458.4,
         "b_prop": 0.495,
-        "units_below": [
-          11556
-        ],
+        "units_below": [11556],
         "strat_name_long": "Pecatonica Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -10.42,
@@ -7719,9 +7013,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "green"
-            ],
+            "atts": ["green"],
             "name": "shale",
             "prop": 0.1429,
             "lith_id": 8,
@@ -7729,10 +7021,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "poorly sorted",
-              "dolomitic"
-            ],
+            "atts": ["poorly sorted", "dolomitic"],
             "name": "sandstone",
             "prop": 0.7143,
             "lith_id": 10,
@@ -7770,20 +7059,14 @@
         "t_int_name": "Blackriverian",
         "t_int_age": 456.5,
         "t_prop": 0.495,
-        "units_above": [
-          11563
-        ],
+        "units_above": [11563],
         "b_int_id": 166,
         "b_int_name": "Blackriverian",
         "b_int_age": 458.4,
         "b_prop": 0.165,
-        "units_below": [
-          11557
-        ],
+        "units_below": [11557],
         "strat_name_long": "Glenwood Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -9.828,
@@ -7837,20 +7120,14 @@
         "t_int_name": "Blackriverian",
         "t_int_age": 456.5,
         "t_prop": 0.165,
-        "units_above": [
-          11556
-        ],
+        "units_above": [11556],
         "b_int_id": 167,
         "b_int_name": "Chazyan",
         "b_int_age": 464,
         "b_prop": 0.75,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "St Peter Sandstone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": -9.051,
@@ -7903,9 +7180,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "argillaceous"
-            ],
+            "atts": ["argillaceous"],
             "name": "dolomite",
             "prop": 0.3846,
             "lith_id": 31,
@@ -7913,9 +7188,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "stromatolitic"
-            ],
+            "atts": ["stromatolitic"],
             "name": "dolomite",
             "prop": 0.3846,
             "lith_id": 31,
@@ -7940,20 +7213,14 @@
         "t_int_name": "Arenigian",
         "t_int_age": 465.5,
         "t_prop": 0.63115,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 121,
         "b_int_name": "Tremadocian",
         "b_int_age": 485.4,
         "b_prop": 0.83332,
-        "units_below": [
-          11552
-        ],
+        "units_below": [11552],
         "strat_name_long": "Shakopee Dolomite",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 4.083,
@@ -7990,9 +7257,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "sandy"
-            ],
+            "atts": ["sandy"],
             "name": "dolomite",
             "prop": 0.1667,
             "lith_id": 31,
@@ -8017,20 +7282,14 @@
         "t_int_name": "Tremadocian",
         "t_int_age": 477.7,
         "t_prop": 0.83332,
-        "units_above": [
-          11551
-        ],
+        "units_above": [11551],
         "b_int_id": 121,
         "b_int_name": "Tremadocian",
         "b_int_age": 485.4,
         "b_prop": 0.66668,
-        "units_below": [
-          11553
-        ],
+        "units_below": [11553],
         "strat_name_long": "New Richmond Sandstone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 10.907,
@@ -8067,9 +7326,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "cherty"
-            ],
+            "atts": ["cherty"],
             "name": "dolomite",
             "prop": 0.7143,
             "lith_id": 31,
@@ -8102,20 +7359,14 @@
         "t_int_name": "Tremadocian",
         "t_int_age": 477.7,
         "t_prop": 0.66668,
-        "units_above": [
-          11552
-        ],
+        "units_above": [11552],
         "b_int_id": 121,
         "b_int_name": "Tremadocian",
         "b_int_age": 485.4,
         "b_prop": 0.33332,
-        "units_below": [
-          11554
-        ],
+        "units_below": [11554],
         "strat_name_long": "Oneota Dolomite",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 11.896,
@@ -8152,9 +7403,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "quartz"
-            ],
+            "atts": ["quartz"],
             "name": "sandstone",
             "prop": 0.7143,
             "lith_id": 10,
@@ -8187,20 +7436,14 @@
         "t_int_name": "Tremadocian",
         "t_int_age": 477.7,
         "t_prop": 0.33332,
-        "units_above": [
-          11553
-        ],
+        "units_above": [11553],
         "b_int_id": 121,
         "b_int_name": "Tremadocian",
         "b_int_age": 485.4,
         "b_prop": 0.16668,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Gunter Sandstone Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 13.247,
@@ -8237,9 +7480,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "sandy"
-            ],
+            "atts": ["sandy"],
             "name": "dolomite",
             "prop": 0.7143,
             "lith_id": 31,
@@ -8247,9 +7488,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "oolitic"
-            ],
+            "atts": ["oolitic"],
             "name": "chert",
             "prop": 0.1429,
             "lith_id": 45,
@@ -8274,20 +7513,14 @@
         "t_int_name": "Trempealeauan",
         "t_int_age": 485.4,
         "t_prop": 0.83332,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 124,
         "b_int_name": "Trempealeauan",
         "b_int_age": 492.5,
         "b_prop": 0.66668,
-        "units_below": [
-          11544
-        ],
+        "units_below": [11544],
         "strat_name_long": "Eminence Dolomite",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 14.854,
@@ -8341,20 +7574,14 @@
         "t_int_name": "Trempealeauan",
         "t_int_age": 485.4,
         "t_prop": 0.66668,
-        "units_above": [
-          11543
-        ],
+        "units_above": [11543],
         "b_int_id": 124,
         "b_int_name": "Trempealeauan",
         "b_int_age": 492.5,
         "b_prop": 0,
-        "units_below": [
-          11545
-        ],
+        "units_below": [11545],
         "strat_name_long": "Potosi Dolomite",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 15.359,
@@ -8391,10 +7618,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "dolomitic",
-              "glauconitic"
-            ],
+            "atts": ["dolomitic", "glauconitic"],
             "name": "sandstone",
             "prop": 0.8333,
             "lith_id": 10,
@@ -8419,21 +7643,14 @@
         "t_int_name": "Franconian",
         "t_int_age": 492.5,
         "t_prop": 1,
-        "units_above": [
-          11544
-        ],
+        "units_above": [11544],
         "b_int_id": 127,
         "b_int_name": "Dresbachian",
         "b_int_age": 501,
         "b_prop": 0.75,
-        "units_below": [
-          11547,
-          11548
-        ],
+        "units_below": [11547, 11548],
         "strat_name_long": "Franconia Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 16.387,
@@ -8462,9 +7679,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "sandy"
-            ],
+            "atts": ["sandy"],
             "name": "dolomite",
             "prop": 0.1667,
             "lith_id": 31,
@@ -8472,11 +7687,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "coarse",
-              "medium",
-              "trough cross beds"
-            ],
+            "atts": ["coarse", "medium", "trough cross beds"],
             "name": "quartz arenite",
             "prop": 0.8333,
             "lith_id": 169,
@@ -8501,20 +7712,14 @@
         "t_int_name": "Franconian",
         "t_int_age": 492.5,
         "t_prop": 0.25,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 125,
         "b_int_name": "Franconian",
         "b_int_age": 496.8,
         "b_prop": 0,
-        "units_below": [
-          11547
-        ],
+        "units_below": [11547],
         "strat_name_long": "Ironton Sandstone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 16.813,
@@ -8543,9 +7748,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "silty"
-            ],
+            "atts": ["silty"],
             "name": "dolomite",
             "prop": 0.1,
             "lith_id": 31,
@@ -8553,9 +7756,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "silty"
-            ],
+            "atts": ["silty"],
             "name": "shale",
             "prop": 0.1,
             "lith_id": 8,
@@ -8563,9 +7764,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "dolomitic"
-            ],
+            "atts": ["dolomitic"],
             "name": "siltstone",
             "prop": 0.1,
             "lith_id": 9,
@@ -8573,9 +7772,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "glauconitic"
-            ],
+            "atts": ["glauconitic"],
             "name": "sandstone",
             "prop": 0.1,
             "lith_id": 10,
@@ -8583,9 +7780,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "glauconitic"
-            ],
+            "atts": ["glauconitic"],
             "name": "siltstone",
             "prop": 0.1,
             "lith_id": 9,
@@ -8618,21 +7813,14 @@
         "t_int_name": "Dresbachian",
         "t_int_age": 496.8,
         "t_prop": 1,
-        "units_above": [
-          11545,
-          11546
-        ],
+        "units_above": [11545, 11546],
         "b_int_id": 127,
         "b_int_name": "Dresbachian",
         "b_int_age": 501,
         "b_prop": 0.66667,
-        "units_below": [
-          11548
-        ],
+        "units_below": [11548],
         "strat_name_long": "Galesville Member",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 16.945,
@@ -8669,9 +7857,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "dolomitic"
-            ],
+            "atts": ["dolomitic"],
             "name": "siltstone",
             "prop": 0.3846,
             "lith_id": 9,
@@ -8720,21 +7906,14 @@
         "t_int_name": "Dresbachian",
         "t_int_age": 496.8,
         "t_prop": 0.75,
-        "units_above": [
-          11545,
-          11547
-        ],
+        "units_above": [11545, 11547],
         "b_int_id": 127,
         "b_int_name": "Dresbachian",
         "b_int_age": 501,
         "b_prop": 0.33333,
-        "units_below": [
-          11549
-        ],
+        "units_below": [11549],
         "strat_name_long": "Eau Claire Formation",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 17.07,
@@ -8763,9 +7942,7 @@
         "pbdb_occurrences": 0,
         "lith": [
           {
-            "atts": [
-              "micaceous"
-            ],
+            "atts": ["micaceous"],
             "name": "shale",
             "prop": 0.1667,
             "lith_id": 8,
@@ -8773,10 +7950,7 @@
             "class": "sedimentary"
           },
           {
-            "atts": [
-              "coarse",
-              "fine"
-            ],
+            "atts": ["coarse", "fine"],
             "name": "sandstone",
             "prop": 0.8333,
             "lith_id": 10,
@@ -8814,20 +7988,14 @@
         "t_int_name": "Dresbachian",
         "t_int_age": 496.8,
         "t_prop": 0.33333,
-        "units_above": [
-          11548
-        ],
+        "units_above": [11548],
         "b_int_id": 127,
         "b_int_name": "Dresbachian",
         "b_int_age": 501,
         "b_prop": 0.16667,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": "Mount Simon Sandstone",
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 17.27,
@@ -8898,20 +8066,14 @@
         "t_int_name": "Calymmian",
         "t_int_age": 1400,
         "t_prop": 0.85,
-        "units_above": [
-          0
-        ],
+        "units_above": [0],
         "b_int_id": 268,
         "b_int_name": "Calymmian",
         "b_int_age": 1600,
         "b_prop": 0.5,
-        "units_below": [
-          0
-        ],
+        "units_below": [0],
         "strat_name_long": null,
-        "refs": [
-          1
-        ],
+        "refs": [1],
         "clat": 41.24,
         "clng": -89.333,
         "t_plat": 0,

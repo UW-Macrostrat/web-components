@@ -64,9 +64,9 @@ export function GlobeControl({ className }) {
             setIsGlobe(nextProj == "globe");
           },
         },
-        h(Icon, { icon })
+        h(Icon, { icon }),
       ),
-    ]
+    ],
   );
 }
 

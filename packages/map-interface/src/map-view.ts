@@ -45,7 +45,7 @@ export interface MapViewProps extends MapboxCoreOptions {
   mapPosition?: MapPosition;
   initializeMap?: (
     container: HTMLElement,
-    args: MapboxOptionsExt
+    args: MapboxOptionsExt,
   ) => mapboxgl.Map;
   onMapLoaded?: (map: mapboxgl.Map) => void;
   onStyleLoaded?: (map: mapboxgl.Map) => void;
@@ -234,7 +234,7 @@ export function MapView(props: MapViewProps) {
       "is-rotated": mapIsRotated ?? false,
       "is-3d-available": mapUse3D ?? false,
     },
-    `${_projection}-projection`
+    `${_projection}-projection`,
   );
 
   const parentClassName = classNames({
@@ -258,7 +258,7 @@ export function MapView(props: MapViewProps) {
       }),
       h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
       children,
-    ]
+    ],
   );
 }
 

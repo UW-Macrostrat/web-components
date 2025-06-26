@@ -1,7 +1,7 @@
 import chroma, { Color } from "chroma-js";
 
 export function asChromaColor(
-  color: chroma.ChromaInput | Color | null
+  color: chroma.ChromaInput | Color | null,
 ): Color | null {
   // Check if is a chroma color already
   // @ts-ignore
@@ -22,7 +22,7 @@ interface ColorPair {
 
 export function getColorPair(
   color: chroma.ChromaInput,
-  inDarkMode: boolean = false
+  inDarkMode: boolean = false,
 ): ColorPair {
   const chromaColor = asChromaColor(color);
   if (!chromaColor) {
@@ -65,7 +65,7 @@ interface ColorScheme {
 export function getLuminanceAdjustedColorScheme(
   color: chroma.ChromaInput,
   darkMode: boolean = false,
-  delta: number = 0.1
+  delta: number = 0.1,
 ): ColorScheme | null {
   /** Luminance-adjusted color scheme for tags, etc. with dark mode support */
   if (!color) {
@@ -95,7 +95,7 @@ export function getLuminanceAdjustedColorScheme(
 
 export function asCSSVariables(
   anyScheme: Record<string, string>,
-  prefix: string = ""
+  prefix: string = "",
 ): { [key: string]: string } {
   if (!anyScheme) {
     return {};
@@ -115,7 +115,7 @@ export function asCSSVariables(
 const convertToKebabCase = (str) =>
   str.replace(
     /[A-Z]+(?![a-z])|[A-Z]/g,
-    ($, ofs) => (ofs ? "-" : "") + $.toLowerCase()
+    ($, ofs) => (ofs ? "-" : "") + $.toLowerCase(),
   );
 
 export function getCSSVariable(variableName: string, fallbackValue: string) {

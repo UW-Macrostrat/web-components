@@ -13,6 +13,7 @@
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
     "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish",
     "publish:storybook": "./scripts/publish-storybook.sh",
+    "format": "prettier --write .",
     "check-types": "tsc --noEmit",
     "check-circular": "madge --circular --extensions ts,tsx ."
   },

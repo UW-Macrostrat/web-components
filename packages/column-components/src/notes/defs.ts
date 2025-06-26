@@ -24,7 +24,7 @@ const ArrowMarker = function ({ id, orient, size: sz, fill }) {
         d: `M 0,0 m -${sz},-${sz} L ${sz},0 L -${sz},${sz} Z`,
         fill,
       }),
-    ]
+    ],
   );
 };
 
@@ -52,7 +52,7 @@ const EndpointTick = function ({ id, fill, size: sz }) {
         fill: "transparent",
         stroke: fill,
       }),
-    ]
+    ],
   );
 };
 

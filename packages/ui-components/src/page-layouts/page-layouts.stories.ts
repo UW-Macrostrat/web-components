@@ -12,7 +12,7 @@ function ColoredPanel({ color, children, width = "100%" }) {
     {
       style: { backgroundColor: color, width, height: "100%" },
     },
-    children
+    children,
   );
 }
 

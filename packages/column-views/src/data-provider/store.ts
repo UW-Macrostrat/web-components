@@ -58,7 +58,7 @@ export function useMacrostratColumnData() {
   const ctx = useContext(MacrostratColumnDataContext);
   if (!ctx) {
     throw new Error(
-      "useMacrostratColumnData must be used within a MacrostratColumnDataProvider"
+      "useMacrostratColumnData must be used within a MacrostratColumnDataProvider",
     );
   }
   return ctx;
@@ -72,6 +72,6 @@ export function useCompositeScale(): CompositeColumnScale {
   const ctx = useMacrostratColumnData();
   return useMemo(
     () => createCompositeScale(ctx.sections, true),
-    [ctx.sections]
+    [ctx.sections],
   );
 }

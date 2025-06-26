@@ -18,7 +18,7 @@ const PanelHeader = function (props: PanelHeaderProps) {
     h.if(title != null)(
       "h1.title",
       { className: allowTitleWrap ? null : "overflow-hidden" },
-      title
+      title,
     ),
     h.if(children != null)([h("div.expander"), children, h("div.extra-space")]),
     h(Button, { minimal: true, icon: "cross", onClick: onClose }),

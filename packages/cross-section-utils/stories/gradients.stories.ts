@@ -31,7 +31,7 @@ function UncertaintyGradientExample(props) {
       },
       ref,
     },
-    h(UncertaintyOverlay, { points, width, height, ...rest })
+    h(UncertaintyOverlay, { points, width, height, ...rest }),
   );
 }
 
@@ -106,7 +106,7 @@ interface UncertaityGradientOptions {
 
 function createUncertaintyGradient(
   points: UncertaintyVertex[],
-  options: UncertaityGradientOptions | null
+  options: UncertaityGradientOptions | null,
 ): GradientOutput {
   const { width, height } = options ?? {};
   const seeds = points.map(({ x, y, uncertainty }) => {
@@ -147,7 +147,7 @@ function createUncertaintyGradient(
   // Weed out corners that are already seeds
   const cornerSet = new Set(seeds.map((s) => s.join(",")));
   const filteredCorners = corners.filter(
-    (corner) => !cornerSet.has(corner.join(","))
+    (corner) => !cornerSet.has(corner.join(",")),
   );
 
   const facets = filteredCorners.map((corner) => {

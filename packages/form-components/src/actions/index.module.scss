@@ -55,10 +55,10 @@
   &:global(.bp5-non-ideal-state) {
     grid-row: span 2;
   }
-  &>:first-child {
+  & > :first-child {
     margin-top: 0;
   }
-  &>:last-child {
+  & > :last-child {
     margin-bottom: 0;
   }
 }

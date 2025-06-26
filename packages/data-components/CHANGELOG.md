@@ -2,7 +2,8 @@
 
 ## [unreleased]
 
-- onClick capability added to LithologyTag, IntervalTag, and EnvironmentList, returning event and associated data
+- onClick capability added to LithologyTag, IntervalTag, and EnvironmentList,
+  returning event and associated data
 
 ## [0.1.0] - 2025-04-09
 

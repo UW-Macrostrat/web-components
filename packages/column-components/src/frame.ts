@@ -161,7 +161,7 @@ const UseFrame = function (props) {
 
 const prefixID = function (
   uuid: string,
-  prefixes: string[]
+  prefixes: string[],
 ): Record<string, string> {
   const res = {};
   for (let prefix of Array.from(prefixes)) {

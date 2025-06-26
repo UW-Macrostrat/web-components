@@ -39,7 +39,7 @@ export function LithologyTag({
     atts = h(List, {
       className: "lithology-attributes",
       items: data.atts.map((att) =>
-        h("span.lithology-attribute", { key: att }, att)
+        h("span.lithology-attribute", { key: att }, att),
       ),
       commaSeparated: true,
     });
@@ -128,7 +128,7 @@ export function LithologyList({
         onClick: onClickItem,
         href: getItemHref?.(lith),
       });
-    })
+    }),
   );
 }
 
@@ -158,6 +158,6 @@ export function EnvironmentsList({
         onClick: onClickItem,
         href: getItemHref?.(env),
       });
-    })
+    }),
   );
 }

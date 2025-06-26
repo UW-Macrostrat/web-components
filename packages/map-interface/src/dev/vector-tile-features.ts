@@ -203,7 +203,7 @@ export function FeaturePanel({
           features,
           sourceID: focusedSource,
         }),
-      ]
+      ],
     );
     filteredFeatures = features.filter((d) => d.source != focusedSource);
   }
@@ -217,7 +217,7 @@ export function FeaturePanel({
         h(FeatureGroups, {
           features: filteredFeatures,
         }),
-      ]
+      ],
     ),
   ]);
 }
@@ -235,13 +235,13 @@ function FeatureGroups({ features }) {
         h(FeatureHeader, { feature: features[0] }),
         h(Features, { features }),
       ]);
-    })
+    }),
   );
 }
 
 export function Features({ features }) {
   return h(
     "div.features",
-    features.map((feature, i) => h(FeatureRecord, { key: i, feature }))
+    features.map((feature, i) => h(FeatureRecord, { key: i, feature })),
   );
 }

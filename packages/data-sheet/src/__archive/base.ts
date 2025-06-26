@@ -48,7 +48,7 @@ export const BaseSheet = forwardRef((props: SheetContainerProps, ref) => {
         }),
       ]),
       children,
-    ]
+    ],
   );
 });
 

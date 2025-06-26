@@ -11,7 +11,7 @@ const h = hyperStyled(styles);
 async function initializeMap(
   mapContainerRef: React.Ref<HTMLElement | string>,
   viewport: ViewPointI,
-  setViewport: (v: ViewPointI) => void
+  setViewport: (v: ViewPointI) => void,
 ) {
   var map = new mapboxgl.Map({
     container: mapContainerRef,
@@ -39,7 +39,7 @@ async function initializeMap(
 async function editModeMap(
   map: mapboxgl.Map,
   point: Point,
-  changePoint: (e: FeaturesI) => void
+  changePoint: (e: FeaturesI) => void,
 ) {
   const Draw = new MapboxDraw({
     controls: { point: true, trash: true },
@@ -109,7 +109,7 @@ function LngLatMap(props: LngLatMapI) {
     initializeMap(mapContainerRef.current, viewport, setViewport).then(
       (mapObj) => {
         setMap(mapObj);
-      }
+      },
     );
     return () => {
       if (typeof map !== "undefined") {

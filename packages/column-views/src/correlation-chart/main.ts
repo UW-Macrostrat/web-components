@@ -128,14 +128,14 @@ export function CorrelationChart({
                 pixelScale,
                 unitComponent,
               });
-            })
+            }),
           ),
           h.if(showUnitPopover)(UnitSelectionPopover),
           // Navigation only works within a column for now...
           h(UnitKeyboardNavigation, { units }),
         ]),
-      ])
-    )
+      ]),
+    ),
   );
 }
 
@@ -218,8 +218,8 @@ function Column(props: ColumnProps) {
           width: columnWidth,
           showLabel: false,
         },
-      })
-    )
+      }),
+    ),
   );
 }
 
@@ -245,7 +245,7 @@ function PackageSVGOverlay({ data, columnWidth = 100, columnSpacing = 0 }) {
         pixelScale: bestPixelScale,
         columnSpacing,
       });
-    })
+    }),
   );
 }
 
@@ -264,7 +264,7 @@ function LaterallyExtensiveUnit({ data, scale, pixelScale, columnSpacing }) {
         key: i,
         columnSpacing,
       });
-    })
+    }),
   );
 }
 
@@ -283,13 +283,13 @@ function StratColSpan({
   return h(
     "div.strat-col-span",
     { style: { top, height, width, left } },
-    strat_name_long
+    strat_name_long,
   );
 }
 
 function ChartArea({ children }) {
   const setSelectedUnit = useUnitSelectionStore(
-    (state) => state.setSelectedUnit
+    (state) => state.setSelectedUnit,
   );
 
   return h(
@@ -299,7 +299,7 @@ function ChartArea({ children }) {
         setSelectedUnit(null);
       },
     },
-    children
+    children,
   );
 }
 

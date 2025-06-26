@@ -5,7 +5,7 @@ export function buildKeyMapping(
   neighbors,
   centroids,
   currentIndex,
-  projection
+  projection,
 ) {
   if (neighbors == null) return;
 

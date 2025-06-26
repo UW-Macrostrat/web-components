@@ -56,7 +56,7 @@ function openPanels(panelState: PanelState): Set<SidePanel> {
 }
 
 const LayoutDispatchContext = createContext<React.Dispatch<LayoutAction>>(
-  (a) => a
+  (a) => a,
 );
 
 function useLayoutDispatch() {
@@ -96,7 +96,7 @@ function buttonProps(
   panel: SidePanel,
   desiredState: PanelState,
   actualState: PanelState,
-  dispatch: React.Dispatch<LayoutAction>
+  dispatch: React.Dispatch<LayoutAction>,
 ) {
   const active = desiredState[panel];
   const isActuallyShown = active && active == actualState[panel];
@@ -140,7 +140,7 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
       keyPanel,
       isReduced: false,
     },
-    undefined
+    undefined,
   );
 
   const [size, ref] = useElementDimensions();
@@ -183,7 +183,7 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
       SidePanel.Context,
       panelDesiredState,
       panelActualState,
-      dispatch
+      dispatch,
     ),
   });
 
@@ -216,7 +216,7 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
                   SidePanel.Detail,
                   panelDesiredState,
                   panelActualState,
-                  dispatch
+                  dispatch,
                 ),
               }),
             ]),
@@ -226,22 +226,22 @@ function ThreeColumnLayout(props: ThreeColumnLayoutProps) {
           h.if(contextPanel != null && panelActualState.context)(
             "div.column.context-column",
             { className: classNames({ expanded: expandedContext ?? false }) },
-            contextPanel
+            contextPanel,
           ),
           h.if(children != null)(
             "div.column.main-column",
             { ref: mainRef },
-            children
+            children,
           ),
           h.if(detailPanel != null && panelActualState.detail)(
             "div.column.detail-column",
             null,
-            detailPanel
+            detailPanel,
           ),
         ]),
         h.if(footer != null)("footer", null, footer),
-      ]
-    )
+      ],
+    ),
   );
 }
 

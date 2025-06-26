@@ -119,7 +119,7 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
       });
     } else {
       throw new Error(
-        "The APIResultView component must have a single child element or a function"
+        "The APIResultView component must have a single child element or a function",
       );
     }
   }
@@ -138,7 +138,7 @@ class APIResultView<T> extends Component<APIResultProps<T>, APIResultState<T>> {
           totalCount: data.length,
           indexOffset: 0,
         },
-        this.renderInner()
+        this.renderInner(),
       );
     }
     return this.renderInner();

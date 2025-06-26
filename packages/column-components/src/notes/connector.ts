@@ -13,7 +13,7 @@ interface NotePositionerProps {
 
 const NotePositioner = forwardRef(function (
   props: NotePositionerProps,
-  ref: any
+  ref: any,
 ) {
   let { offsetY, noteHeight, onClick, children } = props;
   const { width, paddingLeft } = useContext(NoteLayoutContext);
@@ -42,9 +42,9 @@ const NotePositioner = forwardRef(function (
           onClick,
           style: { margin: outerPad },
         },
-        children
+        children,
       ),
-    ]
+    ],
   );
 });
 

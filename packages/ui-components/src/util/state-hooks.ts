@@ -25,7 +25,7 @@ export function useImmutableState<S>(v: S): [S, (spec: Spec<S>) => void] {
 
 export function useMemoizedValue(
   obj: any,
-  equalityFunction: (a: any, b: any) => boolean = isEqual
+  equalityFunction: (a: any, b: any) => boolean = isEqual,
 ) {
   /** Hook to keep a dependency up to date using a deep equals approach */
   const ref = useRef(obj);
@@ -40,7 +40,7 @@ export function useMemoizedValue(
 export class StatefulComponent<Props, State> extends Component<Props, State> {
   constructor(props: Props) {
     console.warn(
-      "StatefulComponent is deprecated. Use useImmutableState instead."
+      "StatefulComponent is deprecated. Use useImmutableState instead.",
     );
     super(props);
     this.updateState.bind(this);

@@ -21,7 +21,7 @@ const FileList = function (props) {
   }
   return h(
     "div.files",
-    files.map((file) => h(FileListItem, { file }))
+    files.map((file) => h(FileListItem, { file })),
   );
 };
 
@@ -73,7 +73,7 @@ class FileUploadComponent extends Component<FileUploadProps> {
         onDrop: this.props.onAddFile,
         onFileDialogCancel: this.props.onCancel,
       },
-      this.renderDropzone
+      this.renderDropzone,
     );
   }
 }

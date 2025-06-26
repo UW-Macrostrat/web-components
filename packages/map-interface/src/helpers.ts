@@ -21,7 +21,7 @@ export function MapResizeManager({ containerRef }) {
   const debouncedResize = useRef(
     debounce(() => {
       mapRef.current?.resize();
-    }, 100)
+    }, 100),
   );
 
   useResizeObserver({
@@ -48,7 +48,7 @@ export function MapPaddingManager({
   const mapRef = useMapRef();
 
   const [padding, setPadding] = useState(
-    getMapPadding(containerRef, parentRef)
+    getMapPadding(containerRef, parentRef),
   );
 
   const _updateMapPadding = useCallback(() => {
@@ -58,7 +58,7 @@ export function MapPaddingManager({
 
   const updateMapPadding = useMemo(
     () => debounce(_updateMapPadding, debounceTime),
-    [_updateMapPadding, debounceTime]
+    [_updateMapPadding, debounceTime],
   );
 
   useEffect(() => {
@@ -194,7 +194,7 @@ export function MapMarker({ position, setPosition, centerMarker = true }) {
 export function useBasicMapStyle(
   opts: {
     styleType?: "macrostrat" | "standard";
-  } = {}
+  } = {},
 ) {
   const { styleType } = opts;
   const inDarkMode = useInDarkMode();

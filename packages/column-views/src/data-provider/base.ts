@@ -53,12 +53,12 @@ interface MacrostratStore extends RefsSlice {
   columnFootprints: Map<number, ColumnFootprintsStorage>;
   getColumns(
     projectID: number | null,
-    inProcess: boolean
+    inProcess: boolean,
   ): Promise<ColumnGeoJSONRecord[]>;
 }
 
 function createMacrostratStore(
-  baseURL: string = "https://macrostrat.org/api/v2"
+  baseURL: string = "https://macrostrat.org/api/v2",
 ) {
   return create<MacrostratStore>((set, get): MacrostratStore => {
     return {
@@ -221,7 +221,7 @@ function createIntervalsSlice(set, get) {
         return Array.from(_intervals.values());
       if (timescaleID != null) {
         return Array.from(_intervals.values() as any[]).filter(
-          (d) => d.timescale_id == timescaleID
+          (d) => d.timescale_id == timescaleID,
         );
       }
       return ids.map((id) => intervals.get(id));
@@ -233,7 +233,7 @@ function includesTimescale(intervals: Map<number, any>, timescaleID: number) {
   if (intervals == null) return false;
   if (timescaleID == null) return true;
   return Array.from(intervals.values()).some(
-    (d) => d.timescale_id == timescaleID
+    (d) => d.timescale_id == timescaleID,
   );
 }
 
@@ -272,7 +272,7 @@ export function useMacrostratDefs(dataType: string): Map<number, any> | null {
 
 export function useMacrostratColumns(
   projectID: number | null,
-  inProcess: boolean
+  inProcess: boolean,
 ) {
   const getColumns = useMacrostratStore((s) => s.getColumns);
   const columnsMap = useMacrostratStore((s) => s.columnFootprints);
@@ -292,7 +292,7 @@ export function useMacrostratColumns(
     if (!inProcess && colData.inProcess) {
       // Our available set of columns includes 'in process' columns, but we don't want them
       columns.features = columns.features?.filter(
-        (d) => d.properties.status != "in process"
+        (d) => d.properties.status != "in process",
       );
     }
     return columns;
@@ -323,7 +323,7 @@ export function MacrostratDataProvider(props: MacrostratDataProviderProps) {
   return h(
     MacrostratAPIProvider,
     { baseURL },
-    h(MacrostratDataProviderContext.Provider, { value: store }, children)
+    h(MacrostratDataProviderContext.Provider, { value: store }, children),
   );
 }
 
@@ -350,7 +350,7 @@ export function MacrostratAPIProvider({
       baseURL,
       unwrapResponse: (res) => res.success.data,
     },
-    children
+    children,
   );
 }
 
@@ -364,7 +364,7 @@ export function MacrostratColumnProvider(props) {
   return h(
     ColumnProvider,
     { axisType, divisions: units, range: domain, pixelsPerMeter: pixelScale },
-    children
+    children,
   );
 }
 
@@ -372,7 +372,7 @@ export function MacrostratColumnProvider(props) {
 export function LithologiesProvider({ children }) {
   useEffect(() => {
     console.warn(
-      "LithologiesProvider is deprecated. Replace with MacrostratDataProvider"
+      "LithologiesProvider is deprecated. Replace with MacrostratDataProvider",
     );
   }, []);
   return children;

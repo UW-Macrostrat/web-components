@@ -99,7 +99,7 @@ function _MapAreaContainer({
       "map-context-open": contextPanelOpen,
       "show-panel-outlines": showPanelOutlines,
       "fit-viewport": fitViewport,
-    }
+    },
   );
 
   const mapControlsExt = h([
@@ -114,7 +114,7 @@ function _MapAreaContainer({
     [
       h("div.detail-panel-holder", null, detailPanel),
       h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([mapControlsExt]),
-    ]
+    ],
   );
 
   let contextStack = null;
@@ -133,7 +133,7 @@ function _MapAreaContainer({
         h.if(detailPanelStyle == DetailPanelStyle.FLOATING)([detailStackExt]),
         h.if(detailPanelStyle == DetailPanelStyle.FIXED)(
           "div.map-control-stack",
-          mapControlsExt
+          mapControlsExt,
         ),
       ]),
       h.if(detailPanelStyle == DetailPanelStyle.FIXED)([detailStackExt]),

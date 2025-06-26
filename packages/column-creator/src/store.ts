@@ -63,7 +63,7 @@ const computed = createComputed((store: ColumnCreatorStore): ComputedStore => {
 }) as any;
 
 type SetFn = (
-  fn: (state: ColumnCreatorStore) => Partial<ColumnCreatorStore>
+  fn: (state: ColumnCreatorStore) => Partial<ColumnCreatorStore>,
 ) => void;
 
 function createColumnStore(initialState: Partial<ColumnCreatorState>) {
@@ -103,7 +103,7 @@ function createColumnStore(initialState: Partial<ColumnCreatorState>) {
           });
         },
       };
-    })
+    }),
   );
 }
 
@@ -142,7 +142,7 @@ function computeRealizedUnits(data: ColumnCreatorData): RealizedUnit[] {
     }
     if (b_pos != null && t_pos != null && b_pos >= t_pos) {
       errors.push(
-        `Bottom position (${b_pos}) must be less than top position (${t_pos}).`
+        `Bottom position (${b_pos}) must be less than top position (${t_pos}).`,
       );
     }
 
@@ -232,7 +232,7 @@ export function ColumnCreatorProvider({
     createColumnStore({
       ...defaultState,
       initialData: { ...defaultState.initialData, ...initialData },
-    })
+    }),
   );
 
   return h(ColumnCreatorStoreContext.Provider, { value: store }, children);
@@ -242,7 +242,7 @@ export function useColumnCreatorStore(): StoreApi<ColumnCreatorStore> {
   const store = useContext(ColumnCreatorStoreContext);
   if (!store) {
     throw new Error(
-      "useColumnCreatorStore must be used within a ColumnCreatorProvider"
+      "useColumnCreatorStore must be used within a ColumnCreatorProvider",
     );
   }
   return store;
@@ -251,7 +251,7 @@ export function useColumnCreatorStore(): StoreApi<ColumnCreatorStore> {
 export type ColumnCreatorExtStore = ColumnCreatorStore & ComputedStore;
 
 export function useSelector<T>(
-  selector: (state: ColumnCreatorExtStore) => T
+  selector: (state: ColumnCreatorExtStore) => T,
 ): T {
   const store = useColumnCreatorStore();
   return useStore(store, selector);

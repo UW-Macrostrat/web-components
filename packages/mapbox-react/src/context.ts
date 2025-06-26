@@ -81,7 +81,7 @@ export function useMapRef() {
 }
 
 export function useMapStatus(
-  selector: (state: MapStatus) => any | null = null
+  selector: (state: MapStatus) => any | null = null,
 ) {
   return internal_useMapSelector(useSubSelector("status", selector));
 }
@@ -92,7 +92,7 @@ export function useMapInitialized() {
 
 function useSubSelector(
   key: string,
-  selector: (state: any) => any | null
+  selector: (state: any) => any | null,
 ): (state: MapState) => any {
   return useMemo(() => {
     if (selector == null) {

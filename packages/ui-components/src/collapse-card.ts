@@ -24,7 +24,7 @@ export function CollapseCard(props: CollapseCardProps) {
           className: classNames(className, "mui-collapse-card"),
           ...rest,
         },
-        h("div.inner", null, children)
+        h("div.inner", null, children),
       ),
     ]),
   ]);

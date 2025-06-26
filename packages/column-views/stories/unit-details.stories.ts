@@ -16,7 +16,7 @@ function useUnitData(unit_id, inProcess = false) {
       show_position: true,
       status_code: inProcess ? "in process" : undefined,
     },
-    (res) => res.success.data[0]
+    (res) => res.success.data[0],
   );
 }
 
@@ -31,7 +31,10 @@ function UnitDetailsExt({
     return h(Spinner);
   }
 
-  return h(LithologiesProvider, h(UnitDetailsPanel, { onClickItem: (e) => console.log(e), unit, ...rest }));
+  return h(
+    LithologiesProvider,
+    h(UnitDetailsPanel, { onClickItem: (e) => console.log(e), unit, ...rest }),
+  );
 }
 
 type Story = StoryObj<typeof UnitDetailsExt>;

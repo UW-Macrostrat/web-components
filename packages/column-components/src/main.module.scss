@@ -78,11 +78,13 @@ g.height-range line {
   }
 }
 
-
 :global {
   g.note,
   g.note-editor {
-    --note-color: var(--column-note-color, var(--column-stroke-color, var(--text-color, #000)));
+    --note-color: var(
+      --column-note-color,
+      var(--column-stroke-color, var(--text-color, #000))
+    );
   }
   g.note circle,
   g.note-editor circle {
@@ -107,7 +109,6 @@ g.height-range line {
   #new_arrow_end {
     fill: #1e90ff;
   }
-
 
   g.lithology-column use.frame {
     stroke: #000;
@@ -157,7 +158,7 @@ g.height-range line {
   }
 
   .grainsize.axis text {
-    font-family: 'Helvetica Neue';
+    font-family: "Helvetica Neue";
     text-anchor: middle;
     font-size: 10;
     font-style: italic;

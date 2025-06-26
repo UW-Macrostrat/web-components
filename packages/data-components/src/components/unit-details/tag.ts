@@ -84,7 +84,7 @@ export function Tag(props: BaseTagProps) {
       onClick,
       href,
     },
-    [_prefix, mainTag]
+    [_prefix, mainTag],
   );
 }
 

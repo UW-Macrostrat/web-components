@@ -106,7 +106,7 @@ function ColumnRect(props: ColumnRectProps) {
 
 const expandDivisionsByKey = function (
   divisions: ColumnDivision[],
-  key: any
+  key: any,
 ): ColumnDivision[] | null {
   const __ = [{ ...divisions[0] }];
   for (let d of Array.from(divisions)) {
@@ -147,8 +147,8 @@ function ParameterIntervals(props: ParameterIntervalsProps) {
         padWidth,
         fill: fillForInterval(div[key], div),
         width,
-      })
-    )
+      }),
+    ),
   );
 }
 
@@ -187,7 +187,7 @@ class CoveredOverlay extends UUIDComponent<{}> {
         "g.main",
         coveredDivs.map((d) => {
           return h(ColumnRect, { division: d, width, fill });
-        })
+        }),
       ),
     ]);
   }
@@ -224,7 +224,7 @@ const LithologySymbolDefs = function (props) {
         width: sz,
         height: sz,
       });
-    })
+    }),
   );
 };
 
@@ -291,7 +291,7 @@ class LithologyBoxes extends UUIDComponent<any> {
         definite: d.definite_boundary,
         covered: d.covered,
       },
-      "lithology"
+      "lithology",
     );
     let fill = `url(#${this.UUID}-${d.patternID})`;
     if (d.patternID === -1) {
@@ -339,8 +339,8 @@ export function LithologyColumn(props: LithologyColumnProps) {
         frame: SimpleFrame,
         clip: clipToFrame,
       },
-      children
-    )
+      children,
+    ),
   );
 }
 
@@ -376,7 +376,7 @@ const GeneralizedSectionColumn = function (props) {
       frame,
       ...rest,
     },
-    children
+    children,
   );
 };
 

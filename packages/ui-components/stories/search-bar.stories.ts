@@ -17,8 +17,7 @@ export default {
   },
 } as ComponentMeta<typeof SearchBar>;
 
-const Template: ComponentStory<typeof SearchBar> = (args) =>
-  h(SearchBar, args);
+const Template: ComponentStory<typeof SearchBar> = (args) => h(SearchBar, args);
 
 export const Primary = Template.bind({});
 Primary.args = {

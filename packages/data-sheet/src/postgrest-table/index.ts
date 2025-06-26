@@ -32,14 +32,14 @@ interface PostgRESTTableViewProps<T extends GenericSchema>
   columns?: string;
   editable?: boolean;
   filter(
-    query: PostgrestFilterBuilder<T, any, any>
+    query: PostgrestFilterBuilder<T, any, any>,
   ): PostgrestFilterBuilder<T, any, any>;
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
   return h(
     ErrorBoundary,
-    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props)))
+    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props))),
   );
 }
 
@@ -63,7 +63,7 @@ function _PostgRESTTableView<T>({
       order,
       columns,
       filter,
-    }
+    },
   );
 
   const toaster = useToaster();
@@ -80,7 +80,7 @@ function _PostgRESTTableView<T>({
         }
       });
     },
-    [dispatch, toaster]
+    [dispatch, toaster],
   );
 
   if (data == null) {
@@ -165,7 +165,7 @@ export function notifyOnError(toaster: Toaster, error: any) {
 
 export function wrapWithErrorHandling<T = any>(
   toaster: Toaster,
-  fnPromise: Promise<T>
+  fnPromise: Promise<T>,
 ): Promise<T | null> {
   return fnPromise
     .then((p) => {
@@ -192,7 +192,7 @@ export function IntervalCell({ value, children, ...rest }) {
 export function lithologyRenderer(value) {
   return h(
     "span.tag-cell-content.liths",
-    value?.map((d) => h(LithologyTag, { data: d, key: d.id }))
+    value?.map((d) => h(LithologyTag, { data: d, key: d.id })),
   );
 }
 
@@ -214,10 +214,10 @@ export function ExpandedLithologies({ value, onChange }) {
                   " ",
                   h("code", d),
                 ]);
-              })
+              }),
             ),
           ]);
-        })
+        }),
       ),
     ]),
   ]);

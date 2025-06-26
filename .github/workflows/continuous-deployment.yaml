@@ -22,7 +22,6 @@ jobs:
       # Ensure that Chalk uses colors in the output
       FORCE_COLOR: 2
     steps:
-
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -30,7 +29,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Install dependencies
         run: |
@@ -48,7 +47,7 @@ jobs:
           fi
 
       - name: Build all packages
-        run: |    
+        run: |
           yarn run build
 
       - name: Publish and tag releases
@@ -62,7 +61,6 @@ jobs:
     runs-on: ubuntu-latest
     environment: development
     steps:
-
       - name: Check out repository
         uses: actions/checkout@v4
 
@@ -70,7 +68,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'yarn'
+          cache: "yarn"
 
       - name: Install dependencies
         run: |

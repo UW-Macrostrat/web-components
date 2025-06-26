@@ -56,7 +56,7 @@ export const WithStatusBar: Story = {
         backgroundColor: "rgba(255 200 200)",
         color: "red",
       },
-      "Bad stuff is afoot"
+      "Bad stuff is afoot",
     ),
   },
 };
@@ -69,7 +69,7 @@ export const WithExpandedNavigation: Story = {
       [
         h(Breadcrumbs, { items: [{ icon: "home" }, { text: "Map" }] }),
         h(Text, { tagName: "h3", style: { margin: 0 } }, "Map inspector"),
-      ]
+      ],
     ),
     width: 250,
     height: "fit-content",
@@ -95,7 +95,7 @@ export const LongTitleWrapped: Story = {
         tagName: "h2",
         style: { margin: 0 },
       },
-      "This is a long title that should wrap"
+      "This is a long title that should wrap",
     ),
     width: 250,
     height: "fit-content",

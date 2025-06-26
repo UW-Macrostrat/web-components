@@ -21,7 +21,7 @@ export function BasePopupEditor(props) {
             console.log(evt);
           },
         },
-        h(ErrorBoundary, null, children)
+        h(ErrorBoundary, null, children),
       ),
       enforceFocus: false,
       autoFocus: false,
@@ -36,7 +36,7 @@ export function BasePopupEditor(props) {
       },
       usePortal: false,
     },
-    children
+    children,
   );
 }
 

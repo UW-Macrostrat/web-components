@@ -14,7 +14,15 @@ import {
   ViewMode,
 } from "./edit-state";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { ButtonGroup, Card, SegmentedControl, Icon, Popover, Divider, Overlay2 } from "@blueprintjs/core";
+import {
+  ButtonGroup,
+  Card,
+  SegmentedControl,
+  Icon,
+  Popover,
+  Divider,
+  Overlay2,
+} from "@blueprintjs/core";
 import { OmniboxSelector } from "./type-selector";
 import {
   CancelButton,
@@ -52,24 +60,31 @@ export function FeedbackComponent({
   entityTypes,
   matchComponent,
   onSave,
-  lineHeight, 
+  lineHeight,
   allowOverlap,
 }) {
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity) as any,
-    entityTypes
+    entityTypes,
   );
 
-  const { selectedNodes, tree, selectedEntityType, isSelectingEntityType, entityTypesMap } =
-    state;
+  const {
+    selectedNodes,
+    tree,
+    selectedEntityType,
+    isSelectingEntityType,
+    entityTypesMap,
+  } = state;
 
   const [{ width, height }, ref] = useElementDimensions();
 
   return h(TreeDispatchContext.Provider, { value: dispatch }, [
-    h(ErrorBoundary, 
+    h(
+      ErrorBoundary,
       {
-        description: "An error occurred while rendering the feedback text component.",
+        description:
+          "An error occurred while rendering the feedback text component.",
       },
       h(FeedbackText, {
         text,
@@ -79,7 +94,7 @@ export function FeedbackComponent({
         selectedNodes,
         lineHeight,
         allowOverlap,
-      })
+      }),
     ),
     h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
       h(ModelInfo, { data: model }),
@@ -121,7 +136,7 @@ export function FeedbackComponent({
                     dispatch({ type: "reset" });
                   },
                 },
-                "Reset"
+                "Reset",
               ),
               h(
                 SaveButton,
@@ -131,9 +146,9 @@ export function FeedbackComponent({
                   },
                   disabled: state.initialTree == state.tree,
                 },
-                "Save"
+                "Save",
               ),
-            ]
+            ],
           ),
           h(Divider),
           h(EntityTypeSelector, {
@@ -168,7 +183,7 @@ export function FeedbackComponent({
           dispatch,
           selectedNodes,
         }),
-      ]
+      ],
     ),
   ]);
 }
@@ -199,12 +214,21 @@ function EntityTypeSelector({
   const [inputValue, setInputValue] = useState("");
   const types = Array.from(entityTypes.values());
 
-  const items = inputValue !== "" ? types.filter((d) =>
-    d.name.toLowerCase().includes(inputValue.toLowerCase())
-  ) : types;
+  const items =
+    inputValue !== ""
+      ? types.filter((d) =>
+          d.name.toLowerCase().includes(inputValue.toLowerCase()),
+        )
+      : types;
 
-  return h('div.entity-type-selector', [
-    h(TypeList, { types: entityTypes, selected: _selected, dispatch, selectedNodes, tree }),
+  return h("div.entity-type-selector", [
+    h(TypeList, {
+      types: entityTypes,
+      selected: _selected,
+      dispatch,
+      selectedNodes,
+      tree,
+    }),
     h(OmniboxSelector, {
       isOpen,
       items,
@@ -241,14 +265,8 @@ function countNodes(tree) {
 }
 
 function ManagedSelectionTree(props) {
-  const {
-    selectedNodes,
-    dispatch,
-    tree,
-    height,
-    width,
-    matchComponent,
-  } = props;
+  const { selectedNodes, dispatch, tree, height, width, matchComponent } =
+    props;
 
   const ref = useRef<TreeApi<TreeData>>();
   // Use a ref to track clicks (won't cause rerender)
@@ -256,7 +274,7 @@ function ManagedSelectionTree(props) {
 
   const _Node = useCallback(
     (props) => h(Node, { ...props, matchComponent }),
-    [matchComponent]
+    [matchComponent],
   );
 
   // Update Tree selection when selectedNodes change
@@ -292,7 +310,7 @@ function ManagedSelectionTree(props) {
 
       dispatch({ type: "select-node", payload: { ids } });
     },
-    [selectedNodes, dispatch]
+    [selectedNodes, dispatch],
   );
 
   return h(
@@ -325,7 +343,7 @@ function ManagedSelectionTree(props) {
       idAccessor(d) {
         return d.id.toString();
       },
-    })
+    }),
   );
 }
 
@@ -336,15 +354,30 @@ function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
   const luminance = darkMode ? 0.9 : 0.4;
 
   return h("div.type-list-container", [
-    h("div.type-list-header", isSelectedNodes && !selectedType ? "Change selected nodes to:" : "Entity Types"),
+    h(
+      "div.type-list-header",
+      isSelectedNodes && !selectedType
+        ? "Change selected nodes to:"
+        : "Entity Types",
+    ),
     h(
       "div.type-list",
-      Array.from(types.values()).map((type) => h(
-        TypeTag, { type, luminance, selectedType, setSelectedType, dispatch, tree, selectedNodes, selected, isSelectedNodes }) 
+      Array.from(types.values()).map((type) =>
+        h(TypeTag, {
+          type,
+          luminance,
+          selectedType,
+          setSelectedType,
+          dispatch,
+          tree,
+          selectedNodes,
+          selected,
+          isSelectedNodes,
+        }),
       ),
     ),
     h(AddType, { dispatch }),
-  ]) 
+  ]);
 }
 
 function collectMatchingIds(tree, id) {
@@ -363,7 +396,7 @@ function collectMatchingIds(tree, id) {
   return ids;
 }
 
-function AddType({dispatch}) {
+function AddType({ dispatch }) {
   const [overlayOpen, setOverlayOpen] = useState(false);
 
   const saveHandler = (payload) => {
@@ -372,23 +405,23 @@ function AddType({dispatch}) {
       payload,
     });
     setOverlayOpen(false);
-  }
+  };
 
-  return h('div.add-type-container', [
-    h('div.add-type', { onClick: () => setOverlayOpen(true) }, [
-        h('p.add-type-text', "Add new type"),
-        h(Icon, { icon: "plus" }),
-      ]),
-      h(TypeOverlay, {
-        setOverlayOpen,
-        overlayOpen,
-        title: "Add New Type",
-        saveHandler
-      }),
-  ])
+  return h("div.add-type-container", [
+    h("div.add-type", { onClick: () => setOverlayOpen(true) }, [
+      h("p.add-type-text", "Add new type"),
+      h(Icon, { icon: "plus" }),
+    ]),
+    h(TypeOverlay, {
+      setOverlayOpen,
+      overlayOpen,
+      title: "Add New Type",
+      saveHandler,
+    }),
+  ]);
 }
 
-function EditType({dispatch, type}) {
+function EditType({ dispatch, type }) {
   const [editorOpen, setEditorOpen] = useState(false);
 
   const saveHandler = (payload) => {
@@ -397,82 +430,87 @@ function EditType({dispatch, type}) {
       payload,
     });
     setEditorOpen(false);
-  }
+  };
 
-  return h('div.edit-type', 
-    [
-      h(Icon, { 
-        icon: "edit", 
-        className: "edit-icon",
-        onClick: (e) => {
-          e.stopPropagation();
-          setEditorOpen(true);
-        }
-      }),
-      h(TypeOverlay, {
-        setOverlayOpen: setEditorOpen,
-        overlayOpen: editorOpen,
-        originalType: type,
-        title: "Edit Type",
-        saveHandler
-      }),
-    ])
+  return h("div.edit-type", [
+    h(Icon, {
+      icon: "edit",
+      className: "edit-icon",
+      onClick: (e) => {
+        e.stopPropagation();
+        setEditorOpen(true);
+      },
+    }),
+    h(TypeOverlay, {
+      setOverlayOpen: setEditorOpen,
+      overlayOpen: editorOpen,
+      originalType: type,
+      title: "Edit Type",
+      saveHandler,
+    }),
+  ]);
 }
 
-function TypeOverlay({setOverlayOpen, overlayOpen, originalType, title, saveHandler}) {
+function TypeOverlay({
+  setOverlayOpen,
+  overlayOpen,
+  originalType,
+  title,
+  saveHandler,
+}) {
   const { name, description, color, id } = originalType || {};
 
   const [nameInput, setNameInput] = useState(name || "");
   const [descriptionInput, setDescriptionInput] = useState(description || "");
   const [colorInput, setColorInput] = useState(color || "#fff");
 
-  return  h(Overlay2,
-    { 
+  return h(
+    Overlay2,
+    {
       isOpen: overlayOpen,
-     }, 
-    h('div.overlay-container',
-      h('div.add-type-overlay', [
-        h('h2.title', [
+    },
+    h(
+      "div.overlay-container",
+      h("div.add-type-overlay", [
+        h("h2.title", [
           title,
           h(Icon, {
             icon: "cross",
             className: "close-icon",
             onClick: () => {
-              setOverlayOpen(false)
+              setOverlayOpen(false);
             },
             style: { cursor: "pointer", color: "red" },
           }),
         ]),
         h("div.form-group", [
-          h('div.text-inputs', [
-            h('div.form-field.name', [
-              h('p.label', "Name"),
-              h('input', {
-                  type: "text",
-                  placeholder: "Enter type name",
-                  onChange: (e) => setNameInput(e.target.value),
-                  value: nameInput,
-                }
-              ),
+          h("div.text-inputs", [
+            h("div.form-field.name", [
+              h("p.label", "Name"),
+              h("input", {
+                type: "text",
+                placeholder: "Enter type name",
+                onChange: (e) => setNameInput(e.target.value),
+                value: nameInput,
+              }),
             ]),
-            h('div.form-field.form-description', [
-              h('p.label', "Description"),
-              h('input', {
-                  type: "text",
-                  placeholder: "Enter type description",
-                  onChange: (e) => setDescriptionInput(e.target.value),
-                  value: descriptionInput,
-                }
-              ),
+            h("div.form-field.form-description", [
+              h("p.label", "Description"),
+              h("input", {
+                type: "text",
+                placeholder: "Enter type description",
+                onChange: (e) => setDescriptionInput(e.target.value),
+                value: descriptionInput,
+              }),
             ]),
           ]),
-          h('div.form-field.color', [
-            h('p.label', "Color"),
+          h("div.form-field.color", [
+            h("p.label", "Color"),
             h(ColorPicker, {
               value: colorInput,
               onChange: (color) => setColorInput(color),
               style: { width: "100%" },
-            })
+            }),
           ]),
         ]),
         h(
@@ -480,18 +518,34 @@ function TypeOverlay({setOverlayOpen, overlayOpen, originalType, title, saveHand
           {
             className: "save-btn",
             small: true,
-            onClick: () => saveHandler({ name: nameInput, description: descriptionInput, color: colorInput, id }),
+            onClick: () =>
+              saveHandler({
+                name: nameInput,
+                description: descriptionInput,
+                color: colorInput,
+                id,
+              }),
           },
-          "Save changes"
+          "Save changes",
         ),
-      ])
+      ]),
     ),
-  )
+  );
 }
 
-function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree, selectedNodes, selected, isSelectedNodes}) {
+function TypeTag({
+  type,
+  luminance,
+  selectedType,
+  setSelectedType,
+  dispatch,
+  tree,
+  selectedNodes,
+  selected,
+  isSelectedNodes,
+}) {
   const { color, name, id, description } = type;
-  const chromaColor = asChromaColor(color ?? "#000000")
+  const chromaColor = asChromaColor(color ?? "#000000");
   const darkMode = useInDarkMode();
 
   const payload = {
@@ -504,27 +558,30 @@ function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree
   const ids = collectMatchingIds(tree, id);
 
   const handleTagClick = () => {
-    if(!isSelectedNodes && selectedType === null) {
-      if(ids.length > 0) {
+    if (!isSelectedNodes && selectedType === null) {
+      if (ids.length > 0) {
         setSelectedType(type);
-        dispatch({ type: "toggle-node-selected", payload: {ids} });
+        dispatch({ type: "toggle-node-selected", payload: { ids } });
       }
     } else if (isSelectedNodes && selectedType === null) {
-      if(id === selected?.id && selectedNodes.length > 0) {
-        dispatch({ type: "toggle-node-selected", payload: {ids: selectedNodes} });
+      if (id === selected?.id && selectedNodes.length > 0) {
+        dispatch({
+          type: "toggle-node-selected",
+          payload: { ids: selectedNodes },
+        });
       } else {
         dispatch({ type: "select-entity-type", payload });
       }
-    } else  if (isSelectedNodes && selectedType.id === id) {
+    } else if (isSelectedNodes && selectedType.id === id) {
       setSelectedType(null);
-      dispatch({ type: "toggle-node-selected", payload: {ids} });
+      dispatch({ type: "toggle-node-selected", payload: { ids } });
     } else if (isSelectedNodes && selectedType.id !== id) {
       if (ids.length > 0) {
         setSelectedType(type);
         const oldIds = collectMatchingIds(tree, selectedType.id);
 
-        dispatch({ type: "toggle-node-selected", payload: {ids: oldIds} }); 
-        dispatch({ type: "toggle-node-selected", payload: {ids} }); 
+        dispatch({ type: "toggle-node-selected", payload: { ids: oldIds } });
+        dispatch({ type: "toggle-node-selected", payload: { ids } });
       }
     } else {
       console.warn("Unexpected state in TypeTag click handler", {
@@ -536,48 +593,53 @@ function TypeTag({type, luminance, selectedType, setSelectedType, dispatch, tree
         selected,
       });
     }
-  }
+  };
 
   return h(
-    Popover, 
-    { 
+    Popover,
+    {
       autoFocus: false,
-      content: h(
-        'div.description', 
-        description || "No description available"
-      ),
-      interactionKind: "hover"
-    }, 
-    h('div.type-tag', {
-      onClick: handleTagClick,
-      style: {
-        cursor: (ids.length > 0) || (isSelectedNodes && !selectedType) ? "pointer" : "",
-        color: darkMode ? 'white' : 'black',
-        backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
-        border: id === selected?.id && selectedNodes.length > 0 ? `1px solid var(--text-emphasized-color)` : `1px solid var(--background-color)`,
-      }
-    }, 
-    h('div.type-container', [
-      h('div.type-name', name),
-      h('div.icons', [
-        h(EditType, {
-          dispatch,
-          type
-        }),
-        h(Icon, { 
-          icon: "cross", 
-          className: "delete-type-icon",
-          style: { color: "red", cursor: "pointer" },
-          onClick: (e) => {
-            e.stopPropagation();
-            dispatch({
-              type: "delete-entity-type",
-              payload: { id },
-            });
-          },
-        })
-      ])
-    ]),
-    )
-  )
+      content: h("div.description", description || "No description available"),
+      interactionKind: "hover",
+    },
+    h(
+      "div.type-tag",
+      {
+        onClick: handleTagClick,
+        style: {
+          cursor:
+            ids.length > 0 || (isSelectedNodes && !selectedType)
+              ? "pointer"
+              : "",
+          color: darkMode ? "white" : "black",
+          backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
+          border:
+            id === selected?.id && selectedNodes.length > 0
+              ? `1px solid var(--text-emphasized-color)`
+              : `1px solid var(--background-color)`,
+        },
+      },
+      h("div.type-container", [
+        h("div.type-name", name),
+        h("div.icons", [
+          h(EditType, {
+            dispatch,
+            type,
+          }),
+          h(Icon, {
+            icon: "cross",
+            className: "delete-type-icon",
+            style: { color: "red", cursor: "pointer" },
+            onClick: (e) => {
+              e.stopPropagation();
+              dispatch({
+                type: "delete-entity-type",
+                payload: { id },
+              });
+            },
+          }),
+        ]),
+      ]),
+    ),
+  );
 }

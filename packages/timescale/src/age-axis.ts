@@ -59,7 +59,7 @@ function AgeAxis(props: AgeAxisProps) {
       },
       ...axProps,
       ...props,
-    })
+    }),
   );
 }
 
