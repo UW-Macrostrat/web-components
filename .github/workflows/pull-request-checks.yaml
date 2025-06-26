@@ -10,8 +10,8 @@ on:
     branches: [main]
 
 jobs:
-  pull-request-checks:
-    name: Build and pre-deployment checks
+  prepare-and-publish-packages:
+    name: Prepare and publish packages
     runs-on: ubuntu-latest
     env:
       # Ensure that Chalk uses colors in the output
@@ -30,18 +30,34 @@ jobs:
         run: |
           yarn install --frozen-lockfile
 
-      # Get release status, this helps to determine if we are ready to publish
-      # in cases when we are updating package versions.
-
-      # We expect this to fail if a release will be incorrect on merging the PR.
+      # We could probably get the release status
+      # without installing all dependencies,
+      # allowing this to be set up as another job.
       - name: Get release status
         run: |
           yarn run status
 
-      - name: Build storybook
-        run: |
-          yarn run build:storybook
-
       - name: Build all packages
         run: |
           yarn run build
+
+  build-storybook:
+    name: Build storybook
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "yarn"
+
+      - name: Install dependencies
+        run: |
+          yarn install --frozen-lockfile
+
+      - name: Build storybook
+        run: |
+          yarn run build:storybook
