@@ -15,11 +15,8 @@ import {
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { DataSheetProviderProps } from "../provider";
-import {
-  PostgrestFilterBuilder,
-  PostgrestQueryBuilder,
-} from "@supabase/postgrest-js";
-import { GenericSchema } from "@supabase/postgrest-js/dist/cjs/types";
+import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
+import { GenericSchema } from "@supabase/postgrest-js";
 
 const h = hyper.styled(styles);
 

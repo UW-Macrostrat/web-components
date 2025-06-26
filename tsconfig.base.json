@@ -12,7 +12,6 @@
     "target": "ES2017", // "ES3" (default), "ES5", "ES6"/"ES2015", "ES2016", "ES2017" or "ESNext".
     "paths": {
       "@macrostrat/*": ["./packages/*/src"]
-    },
-    "typeRoots": ["node_modules/@types"]
+    }
   }
 }

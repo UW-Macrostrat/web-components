@@ -33,9 +33,9 @@ interface TimescaleProps {
 }
 
 function TimescaleContainer(props: {
-  onClick: ClickHandler;
+  onClick?: ClickHandler;
   className: string;
-  children?: React.ReactChildren;
+  children?: React.ReactNode;
 }) {
   const { onClick: clickHandler, ...rest } = props;
   const { scale, orientation } = useTimescale();
