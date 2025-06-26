@@ -1,7 +1,7 @@
 import { getCSSVariable } from "@macrostrat/color-utils";
-import type { AnyLayer } from "mapbox-gl";
+import type { LayerSpecification, CircleLayerSpecification } from "mapbox-gl";
 
-export function buildCrossSectionLayers(): AnyLayer[] {
+export function buildCrossSectionLayers(): LayerSpecification[] {
   /** Build standardized layers for cross-sections */
   const ruleColor = getCSSVariable(
     "--panel-background-color",
@@ -50,7 +50,9 @@ export function buildCrossSectionLayers(): AnyLayer[] {
       id: "crossSectionEndpoint",
       type: "circle",
       source: "crossSectionEndpoints",
-      paint: crossSectionPointPaint,
+      paint: crossSectionPointPaint as Partial<
+        CircleLayerSpecification["paint"]
+      >,
     },
     {
       id: "elevationMarker",
@@ -59,7 +61,7 @@ export function buildCrossSectionLayers(): AnyLayer[] {
       paint: {
         ...crossSectionPointPaint,
         "circle-color": "#4bc0c0",
-      },
+      } as Partial<CircleLayerSpecification["paint"]>,
     },
   ];
 }

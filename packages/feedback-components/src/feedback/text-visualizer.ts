@@ -1,13 +1,11 @@
-import { AnnotateBlendTag, TextAnnotateBlend } from "react-text-annotate-blend";
+import { AnnotateBlendTag } from "react-text-annotate-blend";
 import { InternalEntity } from "./types";
 import { TreeDispatch } from "./edit-state";
 import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
-import { useCallback, useEffect, useRef } from "react";
-import { Tag, TagField } from "@macrostrat/data-components";
-import { columnGeoJSONRecordToColumnIdentifier } from "packages/column-views/src/correlation-chart/prepare-data";
+import { useEffect, useRef } from "react";
 
 const h = hyper.styled(styles);
 

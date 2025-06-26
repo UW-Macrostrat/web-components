@@ -16,11 +16,21 @@ import {
 import { Spec } from "immutability-helper";
 import { DataSheetProviderProps } from "../provider";
 import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
-import { GenericSchema } from "@supabase/postgrest-js";
+import type {
+  GenericFunction,
+  GenericTable,
+  GenericView,
+} from "@supabase/postgrest-js/dist/cjs/types";
 
 const h = hyper.styled(styles);
 
-interface PostgRESTTableViewProps<T extends GenericSchema>
+export type GenericSchema = {
+  Tables: Record<string, GenericTable>;
+  Views: Record<string, GenericView>;
+  Functions: Record<string, GenericFunction>;
+};
+
+interface PostgRESTTableViewProps<T extends object>
   extends DataSheetProviderProps<T> {
   endpoint: string;
   table: string;

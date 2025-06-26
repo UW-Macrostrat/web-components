@@ -1,15 +1,12 @@
 import h from "@macrostrat/hyper";
 import Base from "mapbox-gl-controls/lib/Base/Base";
 import Button from "mapbox-gl-controls/lib/Button/Button";
-import {
-  CompassControl as _CompassControl,
-  ZoomControl as _ZoomControl,
-} from "mapbox-gl-controls";
+import { ZoomControl as _ZoomControl } from "mapbox-gl-controls";
 import { Icon } from "@blueprintjs/core";
 import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
 import { useMapElement, useMapRef } from "./context";
-import { NavigationControl, Control } from "mapbox-gl";
+import { NavigationControl } from "mapbox-gl";
 
 export function MapControlWrapper({ className, control, options = {} }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */

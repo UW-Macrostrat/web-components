@@ -24,8 +24,8 @@ export async function getMapboxStyle(
   return data;
 }
 
-export function mergeStyles(...styles) {
-  let merged = {
+export function mergeStyles(...styles: Partial<Style>[]): Style {
+  let merged: Style = {
     version: 8,
     sprite: "mapbox://sprites/mapbox/bright-v9",
     glyphs: "mapbox://fonts/mapbox/{fontstack}/{range}.pbf",

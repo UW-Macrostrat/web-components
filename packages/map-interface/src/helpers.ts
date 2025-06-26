@@ -115,8 +115,8 @@ export function MapMovedReporter({ onMapMoved = null }) {
 
 interface MapLoadingReporterProps {
   ignoredSources?: string[];
-  onMapLoading?: (evt: mapboxgl.EventData) => void;
-  onMapIdle?: (evt: mapboxgl.EventData) => void;
+  onMapLoading?: (evt: mapboxgl.MapEvent) => void;
+  onMapIdle?: (evt: mapboxgl.MapEvent) => void;
   mapIsLoading?: boolean;
 }
 

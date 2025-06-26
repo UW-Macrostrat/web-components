@@ -1,13 +1,13 @@
 import { useMapRef } from "./context";
 import { useEffect } from "react";
-import {
+import type {
   AnyLayer,
   RasterDemSource,
   Style,
   AnySourceData,
   SkyLayer,
+  Expression,
 } from "mapbox-gl";
-import type mapboxgl from "mapbox-gl";
 import { mergeStyles } from "@macrostrat/mapbox-utils";
 import { useMapStyleOperator } from "./hooks";
 
@@ -151,7 +151,17 @@ const defaultSkyLayer: SkyLayer = {
   },
 };
 
-const defaultFogLight: mapboxgl.Fog = {
+/** For some reason, Mapbox GL does not export the Fog interface */
+export interface Fog {
+  color?: string | Expression | undefined;
+  "horizon-blend"?: number | Expression | undefined;
+  range?: number[] | Expression | undefined;
+  "high-color"?: string | Expression | undefined;
+  "space-color"?: string | Expression | undefined;
+  "star-intensity"?: number | Expression | undefined;
+}
+
+const defaultFogLight: Fog = {
   color: "#ffffff",
   // @ts-ignore
   "space-color": [
@@ -167,7 +177,7 @@ const defaultFogLight: mapboxgl.Fog = {
   range: [5, 15],
 };
 
-const defaultFogDark: mapboxgl.Fog = {
+const defaultFogDark: Fog = {
   range: [10, 20],
   color: "hsla(0, 0%, 0%, 0.43)",
   "high-color": "hsl(207, 23%, 5%)",

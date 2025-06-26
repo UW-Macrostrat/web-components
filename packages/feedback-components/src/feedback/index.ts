@@ -36,7 +36,6 @@ import useElementDimensions from "use-element-dimensions";
 import { GraphView } from "./graph";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { asChromaColor } from "@macrostrat/color-utils";
-import { getIconImage } from "@macrostrat/map-styles";
 import { ColorPicker } from "@macrostrat/data-sheet";
 
 export type { GraphData } from "./edit-state";

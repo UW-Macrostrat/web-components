@@ -73,6 +73,8 @@ function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
     logoPosition: "bottom-left",
     trackResize: true,
     antialias: true,
+    // This is a legacy option for Mapbox GL v2
+    // @ts-ignore
     optimizeForTerrain: true,
     ...rest,
   });

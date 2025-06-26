@@ -1,18 +1,33 @@
 /* Reporters and buttons for evaluating a feature's focus on the map. */
 import { Intent, Button } from "@blueprintjs/core";
-import { useMapInitialized, useMapRef, useMapStatus } from "./context";
+import { useMapInitialized, useMapRef } from "./context";
 import classNames from "classnames";
 import { useState, useRef, useEffect } from "react";
 import bbox from "@turf/bbox";
 import styles from "./main.module.scss";
 import hyper from "@macrostrat/hyper";
 
-import mapboxgl, {
+import type GeoJSON from "geojson";
+import type {
   LngLatBoundsLike,
   LngLatLike,
   PaddingOptions,
-  FlyToOptions,
+  AnimationOptions,
+  CameraOptions,
+  Map,
 } from "mapbox-gl";
+
+/**
+ * FlyToOptions
+ * For some reason, we have to shadow the mapboxgl.FlyToOptions type
+ * */
+export interface FlyToOptions extends AnimationOptions, CameraOptions {
+  curve?: number | undefined;
+  minZoom?: number | undefined;
+  speed?: number | undefined;
+  screenSpeed?: number | undefined;
+  maxDuration?: number | undefined;
+}
 
 const h = hyper.styled(styles);
 
@@ -69,7 +84,7 @@ export function useMapEaseToCenter(position, padding) {
     );
     const map = mapRef.current;
     if (map == null) return;
-    let opts: mapboxgl.FlyToOptions = null;
+    let opts: FlyToOptions = null;
     if (position != prevPosition.current) {
       opts ??= {};
       opts.center = position;
@@ -117,7 +132,7 @@ export function useMapEaseToBounds(
     if (bounds == prevPosition.current || padding == prevPadding.current) {
       return;
     }
-    let opts: mapboxgl.FlyToOptions = {
+    let opts: FlyToOptions = {
       padding,
       duration: prevPadding.current == null ? 0 : 800,
     };
@@ -182,7 +197,7 @@ export function useMapEaseTo(props: MapEaseToProps) {
 
     const positionChanges = filterChanges(state, prevState.current);
 
-    let opts: mapboxgl.FlyToOptions = {
+    let opts: FlyToOptions = {
       padding,
       duration: initialized ? duration : 0,
     };
@@ -238,11 +253,7 @@ function stripNullKeys(obj: object) {
   return newObj;
 }
 
-function moveMap(
-  map: mapboxgl.Map,
-  state: MapEaseToState,
-  opts: mapboxgl.FlyToOptions,
-) {
+function moveMap(map: mapboxgl.Map, state: MapEaseToState, opts: FlyToOptions) {
   const { bounds, center, zoom, padding } = state;
   if (bounds != null) {
     map.fitBounds(bounds, opts);
@@ -279,8 +290,8 @@ function greatCircleDistance(
 }
 
 export function getFocusState(
-  map: mapboxgl.Map,
-  location: mapboxgl.LngLatLike | GeoJSON.Geometry | null,
+  map: Map,
+  location: LngLatLike | GeoJSON.Geometry | null,
 ): PositionFocusState | null {
   /** Determine whether the infomarker is positioned in the viewport */
   if (location == null) return null;
@@ -342,9 +353,7 @@ export function getFocusState(
   return PositionFocusState.OUT_OF_VIEW;
 }
 
-export function useFocusState(
-  position: mapboxgl.LngLatLike | GeoJSON.Geometry,
-) {
+export function useFocusState(position: LngLatLike | GeoJSON.Geometry) {
   const map = useMapRef();
   const [focusState, setFocusState] = useState<PositionFocusState | null>(null);
   const isInitialized = useMapInitialized();
@@ -373,11 +382,7 @@ export function isCentered(focusState: PositionFocusState) {
 }
 
 function getCenterAndBestZoom(
-  input:
-    | [number, number]
-    | GeoJSON.Geometry
-    | GeoJSON.BBox
-    | mapboxgl.LngLatLike,
+  input: [number, number] | GeoJSON.Geometry | GeoJSON.BBox | LngLatLike,
 ) {
   let box: GeoJSON.BBox;
   let center: [number, number] | null = null;
