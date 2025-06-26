@@ -1,9 +1,14 @@
+/** Checkin list component
+ *
+ * TODO: Integrate or deduplicate with CheckinListing component
+ * */
+
 import hyper from "@macrostrat/hyper";
-import styles from "./checkins.module.sass";
+import styles from "./index.module.sass";
 import { LngLatCoords } from "@macrostrat/map-interface";
 import { useDarkMode } from "@macrostrat/ui-components";
 import { Icon } from "@blueprintjs/core";
-import mapboxgl from "mapbox-gl";
+import type mapboxgl from "mapbox-gl";
 
 const h = hyper.styled(styles);
 
@@ -29,7 +34,7 @@ function getProfilePicUrl(person_id, rockdAPIUrl) {
   return rockdAPIUrl + "/protected/gravatar/" + person_id;
 }
 
-interface CheckinProps {
+export interface CheckinProps {
   result: Array<{
     checkin_id: number;
     person_id: number;
@@ -72,7 +77,8 @@ interface CheckinProps {
   rockdAPIUrl: string;
 }
 
-export function CreateCheckins(props: CheckinProps) {
+export function RockdWebsiteCheckinList(props: CheckinProps) {
+  /** Checkin list component used in the Rockd website */
   const { result, mapRef, setInspectPosition, rockdAPIUrl } = props;
   const isDarkMode = useDarkMode().isEnabled;
   let checkins = [];
@@ -174,7 +180,7 @@ export function CreateCheckins(props: CheckinProps) {
               : null,
             h("h4", { className: "edited" }, checkin.created),
             h("p", "Near " + checkin.near),
-            LngLatCoords(LngLatProps),
+            h(LngLatCoords, LngLatProps),
             h("h3", { className: "rating" }, ratingArr),
           ]),
         ]),

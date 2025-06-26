@@ -2390,6 +2390,7 @@ __metadata:
     "@blueprintjs/core": "npm:^5.10.2"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/map-interface": "workspace:^"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@types/d3-array": "npm:^3.2.1"
@@ -2400,6 +2401,7 @@ __metadata:
     axios: "npm:^1.7.9"
     classnames: "npm:^2.5.1"
     d3-array: "npm:^3.2.4"
+    mapbox-gl: "npm:^2.7.0||^3.13.0"
     parcel: "npm:^2.15.4"
   peerDependencies:
     "@blueprintjs/core": ^5.10.2
@@ -10933,7 +10935,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mapbox-gl@npm:^2.15.0||^3.0.0":
+"mapbox-gl@npm:^2.15.0||^3.0.0, mapbox-gl@npm:^2.7.0||^3.13.0":
   version: 3.13.0
   resolution: "mapbox-gl@npm:3.13.0"
   dependencies:

@@ -1,10 +1,10 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
+import { StoryFn, Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { CreateCheckins } from "../src";
+import { RockdWebsiteCheckinList } from "./index";
 
-export default {
-  title: "UI components/Create Checkins",
-  component: CreateCheckins,
+const meta: Meta<typeof RockdWebsiteCheckinList> = {
+  title: "Data components/Rockd website checkins list",
+  component: RockdWebsiteCheckinList,
   argTypes: {
     result: {
       control: { type: "array" },
@@ -23,10 +23,12 @@ export default {
       description: "Base URL for the Rockd API",
     },
   },
-} as ComponentMeta<typeof CreateCheckins>;
+};
 
-const Template: ComponentStory<typeof CreateCheckins> = (args) =>
-  h(CreateCheckins, args);
+export default meta;
+
+const Template: StoryFn<typeof RockdWebsiteCheckinList> = (args) =>
+  h(RockdWebsiteCheckinList, args);
 
 const checkinWithImage = {
   checkin_id: 3570,
