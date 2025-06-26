@@ -1,8 +1,6 @@
 # Changelog
 
-## [unreleased]
-
-Added the following components:
+## [4.3.0] - 2025-06-25
 
 Updated infinite scrolling
 
@@ -10,6 +8,8 @@ Updated infinite scrolling
   next page
 - Added InfiniteScrollContainer that allows for an infinite scrolling list using
   the LoadMoreTrigger, can be filterable
+
+Fixed a bug in UI box model calculations
 
 ## [4.2.0] - 2025-04-09
 

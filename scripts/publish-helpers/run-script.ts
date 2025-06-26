@@ -17,6 +17,8 @@ export async function runScript(
   let packagesToBuild: any[] = [];
   let packagesToPublish: any[] = [];
   let packagesInProgress: any[] = [];
+  let dirtyPackages = [];
+  let packagesToIgnore: any[] = [];
 
   const candidatePackages = getPackages("packages/*", "toolchain/*");
   const privatePackagesSkipped = [];
@@ -49,35 +51,80 @@ export async function runScript(
       } else if (status.incomplete) {
         packagesInProgress.push(pkg);
       }
+
+      if (status.hasChangesSinceLastVersion ?? true) {
+        dirtyPackages.push(pkg);
+      }
+
+      if (!status.canPublish && !status.incomplete) {
+        // If the package is not ready to publish, we still want to prepare it
+        // but we won't include it in the list of packages to publish
+        packagesToIgnore.push(pkg);
+      }
     }
 
-    if (privatePackagesSkipped.length > 0 && modules.length == 0) {
-      console.log();
-      console.log(chalk.yellow.bold("Skipped private packages:"));
-      for (const pkg of privatePackagesSkipped) {
-        console.log(chalk.yellow("- " + chalk.bold(pkg.name)));
-      }
+    let msg = `There are ${packagesToPrepare.length} total packages`;
+
+    if (dirtyPackages.length > 0) {
+      msg += ` and ${dirtyPackages.length} packages with unreleased changes.`;
+    }
+
+    if (packagesInProgress.length > 0) {
+      console.log(
+        `- ${packagesInProgress.length} packages that are not ready to publish.`,
+      );
+    }
+
+    if (packagesToPublish.length === 0) {
+      console.log(chalk.green("- No packages to publish."));
+      return;
+    } else {
+      console.log(
+        chalk.green(`Will publish ${packagesToPublish.length} packages:`),
+      );
+    }
+
+    for (const pkg of packagesToPublish) {
+      console.log(chalk.green("- " + chalk.bold(pkg.name)));
     }
 
     if (packagesInProgress.length > 0) {
       console.log();
       console.log(
         chalk.yellow.bold(
-          "Some packages require changelog entries before publishing:",
+          `${packagesInProgress.length} packages require changelog entries before publishing:`,
         ),
       );
       for (const pkg of packagesInProgress) {
         console.log(chalk.yellow("- " + chalk.bold(pkg.name)));
       }
+    }
+
+    if (packagesToIgnore.length > 0) {
+      console.log();
+      console.log(
+        chalk.bold(
+          `${packagesToIgnore.length} packages are not ready to publish:`,
+        ),
+      );
+      for (const pkg of packagesToIgnore) {
+        console.log("- " + chalk.bold(pkg.name));
+      }
+    }
+
+    if (privatePackagesSkipped.length > 0 && modules.length == 0) {
+      console.log();
+      console.log(chalk.dim.bold("Skipped private packages:"));
+      for (const pkg of privatePackagesSkipped) {
+        console.log("- " + chalk.dim.bold(pkg.name));
+      }
+    }
+
+    if (packagesInProgress.length > 0 && publish) {
       // Exit with non-zero code to indicate incomplete packages
       throw new Error(
         "Incompletely specified packages found. Please add CHANGELOG entries before publishing.",
       );
-    }
-
-    if (packagesToPublish.length === 0) {
-      console.log(chalk.magentaBright("All packages published"));
-      return;
     }
 
     console.log();

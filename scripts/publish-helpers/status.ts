@@ -90,6 +90,28 @@ export interface PackageStatus {
   lastVersion: string | null;
   canPublish: boolean;
   incomplete: boolean; // whether the package is incomplete (no changelog entry)
+  hasChangesSinceLastVersion?: boolean | null; // whether the package has changes since the last version
+}
+
+export async function getPackagePublicationStatus(
+  data: PackageData,
+): Promise<PackageStatus> {
+  const info = await packageVersionExistsInRegistry(data);
+
+  printChangelogStatus(data, info);
+
+  const hasChanges = info.hasChangesSinceLastVersion;
+
+  if (hasChanges != null && hasChanges) {
+    // the module code has changed since the current published version
+    // We need to print this version.
+    printChangeInfoForPublishedPackage(
+      { name: data.name, version: info.lastVersion },
+      true,
+    );
+  }
+
+  return info;
 }
 
 /* makes query to npm to see if package with version exists */
@@ -136,12 +158,21 @@ async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
     console.log(chalk.dim(`  v${lastVersion} was published ${time}`));
   }
 
+  let hasChanges: boolean | null = null;
+  if (lastVersion != null) {
+    hasChanges = moduleHasChangesSinceTag({
+      name: pkg.name,
+      version: lastVersion,
+    });
+  }
+
   return {
     currentVersionExistsInRegistry,
     currentVersionChangelogEntry,
     lastVersion,
     canPublish,
     incomplete,
+    hasChangesSinceLastVersion: hasChanges,
   };
 }
 
@@ -251,33 +282,6 @@ export function notifyUserOfUncommittedChanges(raiseError: boolean = true) {
 
 function moduleString(pkg, separator = "@") {
   return pkg["name"] + separator + pkg["version"];
-}
-
-export async function getPackagePublicationStatus(
-  data: PackageData,
-): Promise<PackageStatus> {
-  const info = await packageVersionExistsInRegistry(data);
-
-  printChangelogStatus(data, info);
-
-  if (info.lastVersion == null) {
-    // no published versions
-    return info;
-  }
-
-  const lastVersionInfo = {
-    name: data.name,
-    version: info.lastVersion,
-  };
-  const hasChanges = moduleHasChangesSinceTag(lastVersionInfo);
-
-  if (hasChanges != null && hasChanges) {
-    // the module code has changed since the current published version
-    // We need to print this version.
-    printChangeInfoForPublishedPackage(lastVersionInfo, true);
-  }
-
-  return info;
 }
 
 function printChangelogStatus(pkg: PackageData, info: PackageStatus): void {

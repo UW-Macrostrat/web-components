@@ -1,8 +1,7 @@
 import { useMapRef } from "./context";
-import { useEffect } from "react";
 import type {
   AnyLayer,
-  RasterDemSource,
+  Source,
   Style,
   AnySourceData,
   SkyLayer,
@@ -10,6 +9,21 @@ import type {
 } from "mapbox-gl";
 import { mergeStyles } from "@macrostrat/mapbox-utils";
 import { useMapStyleOperator } from "./hooks";
+
+interface RasterDemSource {
+  name?: string;
+  type: "raster-dem";
+  id?: string;
+
+  url?: string | undefined;
+  tiles?: string[] | undefined;
+  bounds?: number[] | undefined;
+  minzoom?: number | undefined;
+  maxzoom?: number | undefined;
+  tileSize?: number | undefined;
+  attribution?: string | undefined;
+  encoding?: "terrarium" | "mapbox" | undefined;
+}
 
 type SourceConfig = Partial<RasterDemSource>;
 
