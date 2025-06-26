@@ -1,4 +1,13 @@
-name: Deploy package releases
+name: Continuous integration and deployment
+
+# On the main branch, successful commits will trigger a deployment to NPM
+# and building the storybook.
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "deployment"
+  cancel-in-progress: false
 
 on:
   # When pushing, we also want to deploy packages to NPM
@@ -6,8 +15,8 @@ on:
     branches: [main]
 
 jobs:
-  test:
-    name: Prepare and publish releases
+  prepare-and-publish-packages:
+    name: Prepare and publish packages
     runs-on: ubuntu-latest
     env:
       # Ensure that Chalk uses colors in the output
@@ -21,15 +30,75 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: 'yarn'
 
       - name: Install dependencies
         run: |
           yarn install
 
+      # Prettify code and commit if changes
+      - name: Format code
+        run: |
+          yarn run format
+          git config --global user.name "GitHub Action"
+          if ! git diff --quiet; then
+            git add .
+            git commit -m "chore: format code"
+            git push
+          fi
+
       - name: Build all packages
         run: |    
           yarn run build
 
-      - name: Publish releases
+      - name: Publish and tag releases
         run: |
-          yarn run publish 
+          yarn run publish
+        env:
+          YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
+
+  build-storybook:
+    name: Build and deploy storybook
+    runs-on: ubuntu-latest
+    environment: development
+    steps:
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: |
+          yarn install
+
+      - name: Build storybook
+        run: |
+          yarn run build:storybook
+        env:
+          VITE_MAPBOX_API_TOKEN: ${{ secrets.VITE_MAPBOX_API_TOKEN }}
+
+      - name: Install rclone
+        run: |
+          curl https://rclone.org/install.sh | sudo bash
+
+      - name: Upload storybook to S3
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_PATH: ${{ vars.S3_PATH }}
+          S3_ENDPOINT: ${{ vars.S3_ENDPOINT }}
+          S3_ACCESS_KEY: ${{ secrets.S3_ACCESS_KEY }}
+          S3_SECRET_KEY: ${{ secrets.S3_SECRET_KEY }}
+          VITE_MAPBOX_API_TOKEN: ${{ secrets.VITE_MAPBOX_API_TOKEN }}
+        run: |
+          echo "Uploading to S3 bucket: $S3_BUCKET" 
+          rclone sync ./storybook-static \
+            :s3:"$S3_BUCKET/$S3_PATH" \
+            --s3-provider=Ceph \
+            --s3-endpoint="$S3_ENDPOINT" \
+            --s3-access-key-id="$S3_ACCESS_KEY" \
+            --s3-secret-access-key="$S3_SECRET_KEY"
