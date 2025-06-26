@@ -23,8 +23,8 @@ function PBDBFossilsDemoColumn(props) {
         allowUnitSelection: false,
         ...rest,
       },
-      h(PBDBFossilsColumn, { columnID: id, color: spectraColor })
-    )
+      h(PBDBFossilsColumn, { columnID: id, color: spectraColor }),
+    ),
   );
 }
 

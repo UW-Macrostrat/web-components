@@ -36,7 +36,7 @@ export function DataField({
       h("div.label", label),
       h.if(value != null)("div.value-container", h(Value, { value, unit })),
       children,
-    ]
+    ],
   );
 }
 
@@ -70,7 +70,7 @@ export function IntervalField({ intervals }: { intervals: IntervalShort[] }) {
           });
         }),
         h(Value, { unit: "Ma", value: `${ageRange[0]} - ${ageRange[1]}` }),
-      ]
+      ],
     ),
   ]);
 }
@@ -138,7 +138,7 @@ export function TagField({
   return h(
     DataField,
     { className: classNames("tag-field", className), label },
-    children
+    children,
   );
 }
 

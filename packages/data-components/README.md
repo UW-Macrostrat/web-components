@@ -1,10 +1,13 @@
 # Data-Components
 
-A set of frontend React components custom tailored to Macrostrat data and API endpoints.
+A set of frontend React components custom tailored to Macrostrat data and API
+endpoints.
 
 Style configuration is currently for SASS, `.scss` but could easily be changed.
 
-Rollup compiles js and types to esm and cjs by default. ESM output is in the `dist/esm/index.js` while the CJS output is in the `dist/cjs/index.js`. Types are located at `dist/index.d.ts`.
+Rollup compiles js and types to esm and cjs by default. ESM output is in the
+`dist/esm/index.js` while the CJS output is in the `dist/cjs/index.js`. Types
+are located at `dist/index.d.ts`.
 
 ```
 npm install

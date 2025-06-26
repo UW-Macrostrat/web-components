@@ -4,13 +4,16 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.1.0] - 2025-06-25
 
-- `UnitDetailsContent` automatically handles clicks on Lithologies, Intervals, and Environment tags and routes to their specific individual lexicon page.
+- `UnitDetailsContent` allows setting item click or href for Environments,
+  Lithologies, and Intervals.
 - Add mouseover handlers to allow age cursor to be reported
 - Add an `AgeCursor` component
-- Reactivate carbon isotopes column rendering
+- Reactivate carbon isotopes, detrital zircon, and PBDB integrations
 - Make unit selection entirely optional
+- Improve styling across the board
+- Fix rendering bugs for sections with overlapping units
 
 ## [2.0.1] - 2025-05-08
 

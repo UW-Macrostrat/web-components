@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/api-types",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Type definitions for Macrostrat's API",
   "main": "./src/index.d.ts",
   "types": "./src/index.d.ts",
@@ -19,7 +19,7 @@
     "directory": "packages/api-types"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16"

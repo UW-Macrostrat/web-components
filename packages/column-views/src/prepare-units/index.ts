@@ -42,7 +42,7 @@ export interface PreparedColumnData extends CompositeColumnData {
 
 export function usePreparedColumnUnits(
   data: UnitLong[],
-  options: PrepareColumnOptions
+  options: PrepareColumnOptions,
 ): PreparedColumnData {
   /** This function wraps and memoizes all preparation steps for converting
    * an array of units from the /units route to a form ready for usage.
@@ -54,7 +54,7 @@ export function usePreparedColumnUnits(
 
 export function prepareColumnUnits(
   units: UnitLong[],
-  options: PrepareColumnOptions
+  options: PrepareColumnOptions,
 ): PreparedColumnData {
   /** Prepare units for rendering into Macrostrat columns */
 
@@ -136,14 +136,14 @@ export function prepareColumnUnits(
     sectionsWithScales = collapseUnconformitiesByPixelHeight(
       sectionsWithScales,
       threshold,
-      options
+      options,
     );
   }
 
   /** Prepare section scale information using groups */
   const { totalHeight, sections: sections2 } = finalizeSectionHeights(
     sectionsWithScales,
-    unconformityHeight
+    unconformityHeight,
   );
 
   /** For each section, find units that are overlapping.

@@ -40,7 +40,7 @@ function CarbonIsotopesColumn(props) {
       id,
       ...rest,
       children: [h(StableIsotopesOverlay, { columnID: id }), children],
-    })
+    }),
   );
 }
 
@@ -72,12 +72,12 @@ export function EdiacaranCompilation(defaultArgs) {
 
   const colParams = useMemo(
     () => ({ ...columnArgs, format: "geojson" }),
-    [columnArgs]
+    [columnArgs],
   );
   const res: FeatureCollection = useAPIResult(
     "https://macrostrat.org/api/v2/columns",
     colParams,
-    (res) => res?.success?.data
+    (res) => res?.success?.data,
   );
   console.log(res);
   const columnFeature = res?.features[0];
@@ -101,7 +101,7 @@ export function EdiacaranCompilation(defaultArgs) {
               fill: "dodgerblue",
               stroke: "blue",
             },
-          })
+          }),
         ),
         h("div.column-view", [
           h(CarbonIsotopesColumn, {
@@ -111,6 +111,6 @@ export function EdiacaranCompilation(defaultArgs) {
           }),
         ]),
       ]),
-    ])
+    ]),
   );
 }

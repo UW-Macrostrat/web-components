@@ -12,7 +12,7 @@ interface ColumnIndexMapProps extends ColumnNavigationSVGMapProps {
 function BasicColumnNavigationSVGMap(props: ColumnIndexMapProps) {
   return h(
     MacrostratDataProvider,
-    h(ColumnNavigationSVGMap, { style: { width: 500, height: 500 }, ...props })
+    h(ColumnNavigationSVGMap, { style: { width: 500, height: 500 }, ...props }),
   );
 }
 

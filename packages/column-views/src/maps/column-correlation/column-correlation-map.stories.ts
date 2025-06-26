@@ -11,7 +11,7 @@ import {
 } from ".";
 
 function ColumnCorrelationMapExt(
-  props: CorrelationMapProps & CorrelationProviderProps
+  props: CorrelationMapProps & CorrelationProviderProps,
 ) {
   const {
     focusedLine,
@@ -31,7 +31,7 @@ function ColumnCorrelationMapExt(
       projectID,
       inProcess,
     },
-    h(ColumnCorrelationMap, { accessToken: mapboxToken, ...rest })
+    h(ColumnCorrelationMap, { accessToken: mapboxToken, ...rest }),
   );
 }
 

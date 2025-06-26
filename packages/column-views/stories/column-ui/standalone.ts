@@ -11,7 +11,7 @@ function useColumnUnits(col_id, inProcess) {
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
     { col_id, response: "long", status_code, show_position: true },
-    (res) => res.success.data
+    (res) => res.success.data,
   );
 }
 
@@ -22,7 +22,7 @@ function useColumnBasicInfo(col_id, inProcess = false) {
     { col_id, status_code },
     (res) => {
       return res.success.data[0];
-    }
+    },
   );
 }
 

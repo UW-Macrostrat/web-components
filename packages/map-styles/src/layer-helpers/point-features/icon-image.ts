@@ -97,7 +97,7 @@ export function getOrientationSymbolName(o: OrientationData): PointSymbolName {
 }
 
 export function preprocessMeasurement(
-  measurement: MeasurementData
+  measurement: MeasurementData,
 ): MeasurementData {
   /**
    * Prepare a measurement for use on the map, by programmatically setting the
@@ -106,7 +106,7 @@ export function preprocessMeasurement(
 
   measurement.properties.symbology ??= {};
   measurement.properties.symbol_name = getOrientationSymbolName(
-    measurement.properties.orientation
+    measurement.properties.orientation,
   );
 
   return measurement;

@@ -12,7 +12,7 @@ interface SettingsProviderProps {
 // Could rework this to use `zustand` or similar
 
 function createSettingsContext<T extends object>(
-  defaultValue: T
+  defaultValue: T,
 ): [any, any, any] {
   /** Function that creates a context with an updateable settings object
    */
@@ -57,7 +57,7 @@ function createSettingsContext<T extends object>(
   const useValue = () => useContext(Context);
 
   const useUpdater: (key?: string) => Updater = (
-    key: string | undefined = null
+    key: string | undefined = null,
   ) => {
     const updater = useContext(UpdateContext);
     if (key == null) return updater;

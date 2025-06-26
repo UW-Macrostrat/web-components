@@ -49,7 +49,7 @@ export default {
           display: "flex",
           flexDirection: "column",
         },
-        h(Story)
+        h(Story),
       );
     },
   ],
@@ -122,7 +122,7 @@ export const AccordionFilledPanel: Story = {
           console.log("Close");
         },
       },
-      h("h1", "Where it all happens")
+      h("h1", "Where it all happens"),
     ),
     contentContainer: ExpansionPanelContainer,
     children: [
@@ -130,7 +130,7 @@ export const AccordionFilledPanel: Story = {
         return h(
           ExpansionPanel,
           { title: `Section ${i + 1}`, expanded: i == 2 },
-          [h("p", t)]
+          [h("p", t)],
         );
       }),
     ],

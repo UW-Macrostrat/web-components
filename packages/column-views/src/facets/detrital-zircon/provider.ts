@@ -44,7 +44,7 @@ export function useDetritalMeasurements(columnArgs) {
   const res: MeasurementInfo[] = useAPIResult(
     "/measurements",
     params,
-    columnArgs
+    columnArgs,
   );
   if (res == null) return null;
   return group(res, (d) => d.unit_id);

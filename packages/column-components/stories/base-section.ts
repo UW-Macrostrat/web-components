@@ -50,7 +50,7 @@ interface ColumnSurface {
 
 function buildDivisions<T extends ColumnSurface>(
   surfaces: T[],
-  range: [number, number]
+  range: [number, number],
 ): (UnitDivision & T)[] {
   const units = surfaces.filter((d) => d.unit_id != null);
   return surfaces.map((surface, i) => {
@@ -76,7 +76,7 @@ function _MeasuredSectionContainer(
     timescaleIntervals: Interval[] | null;
     timescaleLevels: number[];
     className?: string;
-  }
+  },
 ) {
   // Section with "squishy" time scale
   const {
@@ -111,7 +111,7 @@ function _MeasuredSectionContainer(
             paddingBottom: 30,
             paddingRight: 1,
           },
-          h(ColumnAxis)
+          h(ColumnAxis),
         ),
         h.if(showTimescale)(Timescale, {
           orientation: TimescaleOrientation.VERTICAL,
@@ -123,7 +123,7 @@ function _MeasuredSectionContainer(
           ...timescaleProps,
         }),
         children,
-      ]
+      ],
     ),
   ]);
 }
@@ -134,7 +134,7 @@ export function MeasuredSection(
     timescaleIntervals: Interval[] | null;
     timescaleLevels: number[];
     className?: string;
-  }
+  },
 ) {
   // Section with "squishy" time scale
   const { children, className, width = 250, ...rest } = props;
@@ -165,14 +165,14 @@ export function MeasuredSection(
               children,
               h(LithologyBoxes, { resolveID: (d) => d.pattern }),
             ]),
-          ]
+          ],
         ),
-      ]
+      ],
     ),
   ]);
 }
 
 export const MeasuredSectionContainer = compose(
   PatternProvider,
-  _MeasuredSectionContainer
+  _MeasuredSectionContainer,
 );

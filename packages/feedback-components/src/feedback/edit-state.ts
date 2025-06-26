@@ -40,14 +40,20 @@ type TreeAction =
   | { type: "deselect" }
   | { type: "reset" }
   | { type: "delete-entity-type"; payload: { id: number } }
-  | { type: "add-entity-type"; payload: { name: string, description: string, color: string } }
-  | { type: "update-entity-type"; payload: { id: number, name: string, description: string, color: string } };
+  | {
+      type: "add-entity-type";
+      payload: { name: string; description: string; color: string };
+    }
+  | {
+      type: "update-entity-type";
+      payload: { id: number; name: string; description: string; color: string };
+    };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
 export function useUpdatableTree(
   initialTree: TreeData[],
-  entityTypes: Map<number, EntityType>
+  entityTypes: Map<number, EntityType>,
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
   // issue: grabs second entity instead of selected one
@@ -132,7 +138,7 @@ function treeReducer(state: TreeState, action: TreeAction) {
       // For each node in the tree, if the node is in the dragIds, remove it from the tree and collect it
       const [newTree, removedNodes] = removeNodes(
         state.tree,
-        action.payload.dragIds
+        action.payload.dragIds,
       );
 
       let keyPath: (number | "children")[] = [];
@@ -151,7 +157,7 @@ function treeReducer(state: TreeState, action: TreeAction) {
       // For each node in the tree, if the node is in the ids, remove it from the tree
       const [newTree2, _removedNodes] = removeNodes(
         state.tree,
-        action.payload.ids
+        action.payload.ids,
       );
       // Get children of the removed nodes
       // If children are not present elsewhere in the tree, insert them
@@ -166,34 +172,39 @@ function treeReducer(state: TreeState, action: TreeAction) {
         ...state,
         tree: [...newTree2, ...children],
         selectedNodes: state.selectedNodes.filter(
-          (id) => !action.payload.ids.includes(id)
+          (id) => !action.payload.ids.includes(id),
         ),
       };
     case "select-node":
       const { ids } = action.payload;
 
-      const type = action.payload.ids.length > 0
-        ? findNodeById(state.tree, ids[0])?.type
-        : null;
-      
+      const type =
+        action.payload.ids.length > 0
+          ? findNodeById(state.tree, ids[0])?.type
+          : null;
+
       console.log("Selecting nodes:", ids, "Type:", type);
 
       return { ...state, selectedNodes: ids, selectedEntityType: type };
     // otherwise fall through to toggle-node-selected for a single ID
     case "toggle-node-selected":
       const nodesToAdd = action.payload.ids.filter(
-        (id) => !state.selectedNodes.includes(id)
+        (id) => !state.selectedNodes.includes(id),
       );
       const nodesToKeep = state.selectedNodes.filter(
-        (id) => !action.payload.ids.includes(id)
+        (id) => !action.payload.ids.includes(id),
       );
 
-      const newType = action.payload.ids.length > 0
-        ? findNodeById(state.tree, action.payload.ids[0])?.type
-        : null;
+      const newType =
+        action.payload.ids.length > 0
+          ? findNodeById(state.tree, action.payload.ids[0])?.type
+          : null;
 
-
-      return { ...state, selectedNodes: [...nodesToKeep, ...nodesToAdd], selectedEntityType: newType };
+      return {
+        ...state,
+        selectedNodes: [...nodesToKeep, ...nodesToAdd],
+        selectedEntityType: newType,
+      };
 
     case "create-node":
       const newId = state.lastInternalId - 1;
@@ -212,7 +223,7 @@ function treeReducer(state: TreeState, action: TreeAction) {
         selectedNodes: [newId],
         lastInternalId: newId,
       };
-    
+
     case "delete-entity-type": {
       // Remove the entity type from the map
       console.log("Deleting entity type:", action.payload.id);
@@ -283,7 +294,7 @@ function nodeIsInTree(tree: TreeData[], id: number): boolean {
 
 function buildNestedSpec(
   keyPath: (number | "children")[],
-  innerSpec: Spec<any>
+  innerSpec: Spec<any>,
 ): Spec<TreeData[]> {
   // Build a nested object from a key path
 
@@ -297,7 +308,7 @@ function buildNestedSpec(
 
 function findNode(
   tree: TreeData[],
-  id: number
+  id: number,
 ): (number | "children")[] | null {
   // Find the index of the node with the given id in the tree, returning the key path
   for (let i = 0; i < tree.length; i++) {
@@ -315,7 +326,7 @@ function findNode(
 
 function removeNodes(
   tree: TreeData[],
-  ids: number[]
+  ids: number[],
 ): [TreeData[], TreeData[]] {
   /** Remove nodes with the given ids from the tree and return the new tree and the removed nodes */
   let newTree: TreeData[] = [];
@@ -377,7 +388,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
       txt_range: [indices],
       reasoning: null,
       match: node.match,
-      children
+      children,
     };
 
     nodeMap.set(node.id, node);
@@ -390,7 +401,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
 
       // Now process the children
       const { nodes: childNodes, edges: childEdges } = treeToGraph(
-        node.children
+        node.children,
       );
       nodes.push(...childNodes);
       edges.push(...childEdges);
@@ -414,17 +425,17 @@ function findNodeById(tree, id) {
 }
 
 function updateTreeTypes(tree, oldType, defaultType) {
-  return tree.map(node => updateNodeType(node, oldType, defaultType));
+  return tree.map((node) => updateNodeType(node, oldType, defaultType));
 }
 
 function updateNodeType(node, oldType, defaultType) {
-  const type = node.type.id === oldType.id ? defaultType : node.type
+  const type = node.type.id === oldType.id ? defaultType : node.type;
 
   return {
     ...node,
     type,
     children: node.children
       ? updateTreeTypes(node.children, oldType, defaultType)
-      : []
+      : [],
   };
 }

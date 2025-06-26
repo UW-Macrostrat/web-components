@@ -44,7 +44,7 @@ const GeologicPatternDefs = function (props: GeologicPatternProps) {
         width: sz,
         height: sz,
       });
-    })
+    }),
   );
 };
 
@@ -66,7 +66,7 @@ function PatternDefsProvider(props: LithProviderProps) {
       newSet.add(p);
       setPatternIDs(newSet);
     },
-    [patternIDs]
+    [patternIDs],
   );
 
   const value = useMemo(() => {
@@ -81,8 +81,8 @@ function PatternDefsProvider(props: LithProviderProps) {
       h("g.patterns", [
         h(GeologicPatternDefs, { scalePattern, patternIDs }),
         children,
-      ])
-    )
+      ]),
+    ),
   );
 }
 

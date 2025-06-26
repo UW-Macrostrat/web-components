@@ -9,7 +9,7 @@ export function FloodingSurface(props: any) {
   const { scale, divisions } = useContext(ColumnContext);
   const { offsetLeft = -90, lineWidth = 50, onClick } = props;
   const floodingSurfaces = divisions.filter(
-    (d) => d.flooding_surface_order != null
+    (d) => d.flooding_surface_order != null,
   );
   if (!floodingSurfaces.length) {
     return null;
@@ -30,7 +30,7 @@ export function FloodingSurface(props: any) {
         x1: 0,
         x2: lineWidth,
       });
-    })
+    }),
   );
 }
 
@@ -195,7 +195,7 @@ export class TriangleBars extends UUIDComponent<TriangleBarsProps> {
         transform: `translate(${-lineWidth * (2 + index) + ol})`,
         key: this.UUID + "-" + order,
       },
-      [h("path", { d: _.toString(), key: this.UUID + "-" + order })]
+      [h("path", { d: _.toString(), key: this.UUID + "-" + order })],
     );
   }
 }

@@ -34,8 +34,8 @@ export function UnitDetailsPopover({
           preventOverflow: { options: { padding: viewportPadding } },
         },
       },
-      h("span.popover-target")
-    )
+      h("span.popover-target"),
+    ),
   );
 }
 
@@ -48,7 +48,7 @@ function InteractionBarrier({ children }) {
         e.stopPropagation();
       },
     },
-    children
+    children,
   );
 }
 
@@ -76,7 +76,7 @@ export function UnitSelectionPopover() {
         unit,
         showLithologyProportions: true,
         className: "legend-panel",
-      })
-    )
+      }),
+    ),
   );
 }

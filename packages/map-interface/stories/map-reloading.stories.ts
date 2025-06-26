@@ -146,7 +146,7 @@ function MapInspector({
           h("div.controls", [
             h(
               "p",
-              "When styles are updated, 3D terrain should remain enabled."
+              "When styles are updated, 3D terrain should remain enabled.",
             ),
             h(Switch, {
               checked: macrostrat,
@@ -163,7 +163,7 @@ function MapInspector({
               },
             }),
           ]),
-        ])
+        ]),
       ),
       fitViewport: true,
     },
@@ -172,7 +172,7 @@ function MapInspector({
       mapPosition,
       projection: { name: "globe" },
       bounds,
-    })
+    }),
   );
 }
 

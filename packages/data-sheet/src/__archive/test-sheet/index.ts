@@ -51,7 +51,7 @@ export const orientationFields: Field<OrientationKey>[] = [
 export function addEmptyRows(
   data: SheetContent,
   modulus: number = 10,
-  targetN = 0
+  targetN = 0,
 ): SheetContent {
   const nToAdd =
     Math.ceil((data.length + targetN) / modulus) * modulus - data.length;
@@ -89,7 +89,7 @@ function Header() {
             key: col.key,
             index,
           },
-          col.name
+          col.name,
         );
       }),
     ]),
@@ -124,14 +124,14 @@ function Controls({ data, updateData, resetData }) {
             updateData(addEmptyRows(data, 10, 10));
           },
         },
-        "Add more rows"
+        "Add more rows",
       ),
       h(
         Button,
         {
           onClick: resetData,
         },
-        "Reset data"
+        "Reset data",
       ),
     ]),
   ]);
@@ -203,7 +203,7 @@ export function DataArea({ data, updateData, resetData }) {
     h(
       ErrorBoundary,
       null,
-      h(DataSheet, { data, updateData, style: { width: 800 } })
+      h(DataSheet, { data, updateData, style: { width: 800 } }),
     ),
     h(Controls, { data, updateData, resetData }),
   ]);

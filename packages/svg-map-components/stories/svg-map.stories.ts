@@ -39,7 +39,7 @@ export function BasicMap(props) {
         keepNorthUp: true,
         scale,
       },
-      children
+      children,
     ),
   ]);
 }
@@ -83,6 +83,6 @@ function GlobeInner({
       scale,
       ...rest,
     },
-    [h(LandLayer), children]
+    [h(LandLayer), children],
   );
 }

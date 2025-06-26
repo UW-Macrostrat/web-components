@@ -86,7 +86,7 @@ export function NotesList(props: NoteListProps) {
         spacing,
         ...rest,
       });
-    })
+    }),
   );
 }
 
@@ -155,7 +155,7 @@ function Note(props: NoteProps) {
         ref,
         onClick: _onClickHandler,
       },
-      h(noteBodyComponent, { note, spacing })
+      h(noteBodyComponent, { note, spacing }),
     ),
   ]);
 }

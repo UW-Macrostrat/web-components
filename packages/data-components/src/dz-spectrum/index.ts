@@ -127,7 +127,7 @@ function DetritalSpectrumPlot(props: DetritalSpectrumProps) {
       width: 300,
       ...sizeProps,
     },
-    false
+    false,
   );
 
   const { width, height, paddingLeft, paddingTop, innerWidth, innerHeight } =
@@ -183,9 +183,9 @@ function DetritalSpectrumPlot(props: DetritalSpectrumProps) {
             labelProps,
           }),
           children,
-        ]
+        ],
       ),
-    ])
+    ]),
   );
 }
 

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "2.0.2",
+  "version": "2.1.0",
   "description": "Scalable data sheet with optional editing capabilities",
   "type": "module",
   "source": "src/index.ts",
@@ -56,6 +56,6 @@
   },
   "devDependencies": {
     "@types/underscore": "^1.13.0",
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

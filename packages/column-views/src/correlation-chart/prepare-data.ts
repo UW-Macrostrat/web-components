@@ -40,7 +40,7 @@ export interface ColumnIdentifier {
 
 export function buildCorrelationChartData(
   columns: ColumnData[],
-  settings: CorrelationChartSettings
+  settings: CorrelationChartSettings,
 ): CorrelationChartData {
   console.log(settings);
   const {
@@ -108,7 +108,7 @@ interface MultiColumnPackageData {
 }
 
 export function findLaterallyExtensiveUnits(
-  pkg: MultiColumnPackageData
+  pkg: MultiColumnPackageData,
 ): UnitGroup[] {
   const { columnData, b_age, t_age } = pkg;
   // Group units by strat_name_id
@@ -130,7 +130,7 @@ export function findLaterallyExtensiveUnits(
     const units = columnData.map((d) => unitIndex0.get(d.columnID) ?? null);
     const filteredUnits = units.filter((d) => d != null);
     const [t_age, b_age] = mergeAgeRanges(
-      filteredUnits.map((d) => [d.t_age, d.b_age])
+      filteredUnits.map((d) => [d.t_age, d.b_age]),
     );
     if (filteredUnits.length <= 1) continue;
 
@@ -179,7 +179,7 @@ export function splitStratIntoBoxes(pkg: UnitGroup): UnitGroupBox[] {
 
 function separateColumns(
   pkg: PackageLayoutData,
-  columnIDs: number[]
+  columnIDs: number[],
 ): MultiColumnPackageData {
   /** Separate columns by col_id */
   const { units, t_age, b_age } = pkg;
@@ -196,7 +196,7 @@ function separateColumns(
             ...pkg,
             units: u1,
           },
-          ColumnAxisType.AGE
+          ColumnAxisType.AGE,
         ),
       };
     }),
@@ -207,7 +207,7 @@ function separateColumns(
 }
 
 export function columnGeoJSONRecordToColumnIdentifier(
-  col: ColumnGeoJSONRecord
+  col: ColumnGeoJSONRecord,
 ): ColumnIdentifier {
   return {
     col_id: col.properties.col_id,

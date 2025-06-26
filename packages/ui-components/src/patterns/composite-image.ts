@@ -20,7 +20,7 @@ function recolorPatternImage(
   backgroundColor: string,
   color: string,
   backgroundAlpha = 1,
-  alpha = 1
+  alpha = 1,
 ) {
   // create hidden canvas
   ctx.drawImage(img, 0, 0, img.width, img.height);
@@ -64,7 +64,7 @@ enum ImageDataFormat {
 
 async function createPatternImage(
   spec: PatternFillSpec,
-  outputFormat = ImageDataFormat.HTMLImageData
+  outputFormat = ImageDataFormat.HTMLImageData,
 ): Promise<ImageData | string> {
   let ctx;
   var canvas = document.createElement("canvas");
@@ -73,7 +73,7 @@ async function createPatternImage(
     canvas.height = 40;
     ctx = createSolidColorImage(
       canvas.getContext("2d"),
-      spec.color ?? spec.patternColor
+      spec.color ?? spec.patternColor,
     );
   } else {
     const img = await loadImage(spec.patternURL);
@@ -84,7 +84,7 @@ async function createPatternImage(
       ctx,
       img,
       spec.color,
-      spec.patternColor ?? "#000000"
+      spec.patternColor ?? "#000000",
     );
   }
   switch (outputFormat) {

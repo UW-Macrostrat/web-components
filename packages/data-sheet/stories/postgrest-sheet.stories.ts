@@ -38,7 +38,7 @@ function TestPostgRESTView(props) {
       table: "legend",
       order: { key: "legend_id", ascending: true },
       ...(props ?? {}),
-    })
+    }),
   );
 }
 

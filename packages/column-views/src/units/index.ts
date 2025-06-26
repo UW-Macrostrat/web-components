@@ -110,7 +110,7 @@ export function ColoredUnitComponent(props) {
 
 export function useUnitColorByEnvironment(
   unit,
-  opts: UnitColorOptions = {}
+  opts: UnitColorOptions = {},
 ): string | null {
   /** Get the color for a unit based on its lithology */
   const environmentMap = useEnvironments();
@@ -152,7 +152,7 @@ export function EnvironmentColoredUnitComponent(props) {
 
 function getPatternID(
   liths: Array<Lithology>,
-  lithMap: Map<number, Lithology>
+  lithMap: Map<number, Lithology>,
 ): string | null {
   if (lithMap == null || liths == null || liths.length == 0) {
     return null;

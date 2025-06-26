@@ -11,7 +11,7 @@ export function getMixedUnitColor(
   lithMap,
   inDarkMode = false,
   asBackground = true,
-  keyOpts: KeyOptions = null
+  keyOpts: KeyOptions = null,
 ): string | null {
   const { key = "lith", id_key = "lith_id" } = keyOpts ?? {};
   const liths = unit[key];
@@ -56,7 +56,7 @@ export function getMixedUnitColor(
   const baseColor = chroma.average(
     lithsWithProp.map((d) => d.color),
     "lrgb",
-    lithsWithProp.map((d) => d.prop)
+    lithsWithProp.map((d) => d.prop),
   );
 
   if (!asBackground) {

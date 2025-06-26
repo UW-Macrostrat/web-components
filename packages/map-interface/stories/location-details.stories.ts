@@ -27,7 +27,7 @@ function DetailPanelMap(props) {
       contextPanel: null,
       ...rest,
     },
-    h(MapView, { style, mapPosition, mapboxToken, bounds }, children)
+    h(MapView, { style, mapPosition, mapboxToken, bounds }, children),
   );
 }
 
@@ -45,7 +45,7 @@ export function PositionInformation(props) {
         title,
         onClose,
       },
-      [h("h1", "New York City"), h("p", "New York is a pretty cool place")]
+      [h("h1", "New York City"), h("p", "New York is a pretty cool place")],
     );
 
   return h(
@@ -61,7 +61,7 @@ export function PositionInformation(props) {
         setPosition: null,
       }),
       children,
-    ]
+    ],
   );
 }
 
@@ -173,15 +173,15 @@ export const ShouldRecenter: Story = {
               console.log("Close");
             },
           },
-          h("h1", "New York City")
+          h("h1", "New York City"),
         ),
       },
       [
         h(
           "p",
-          "New York is home of the United Nations and other important institutions"
+          "New York is home of the United Nations and other important institutions",
         ),
-      ]
+      ],
     ),
   },
 };

@@ -10,7 +10,7 @@ const h = hyperStyled(styles);
 const ControlledSlider = (props: SliderProps) => {
   const [value, setValue] = useState<number>(props.value);
   const onChange = (v) => {
-    setValue(v), props.onChange?.(v);
+    (setValue(v), props.onChange?.(v));
   };
   useEffect(() => setValue(props.value), [props.value]);
 

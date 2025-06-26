@@ -57,10 +57,10 @@ const SVG = forwardRef(
         {
           transform: `translate(${paddingLeft},${paddingTop})`,
         },
-        children
-      )
+        children,
+      ),
     );
-  }
+  },
 );
 
 const ForeignObject = (props) => createElement("foreignObject", props);
@@ -94,8 +94,8 @@ const ColumnSVG = function (props: SVGPropsWithNumericSize) {
       {
         transform: `translate(${paddingLeft},${paddingTop})`,
       },
-      children
-    )
+      children,
+    ),
   );
 };
 

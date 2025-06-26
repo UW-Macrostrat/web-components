@@ -46,6 +46,6 @@ export function JSONView(props) {
       invertTheme: false,
       hideRoot: _hideRoot,
       ...rest,
-    })
+    }),
   );
 }

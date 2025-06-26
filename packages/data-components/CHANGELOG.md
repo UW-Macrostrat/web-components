@@ -1,8 +1,11 @@
 # Changelog
 
-## [unreleased]
+## [0.2.0] - 2025-06-25
 
-- onClick capability added to LithologyTag, IntervalTag, and EnvironmentList, returning event and associated data
+- onClick capability added to LithologyTag, IntervalTag, and EnvironmentList,
+  returning event and associated data
+- Added Rockd checkin listing components
+- Improved Detrital Zircon spectra components
 
 ## [0.1.0] - 2025-04-09
 

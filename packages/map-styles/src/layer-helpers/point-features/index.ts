@@ -85,7 +85,7 @@ async function setupPointSymbols(map) {
       if (map.hasImage(symbol)) return;
       console.log("Adding image", symbol, image);
       map.addImage(symbol, image, { sdf: false, pixelRatio: 3 });
-    })
+    }),
   );
 }
 

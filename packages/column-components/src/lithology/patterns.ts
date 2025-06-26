@@ -64,7 +64,7 @@ const RasterGeologicPattern = (props: IGeologicPatternBase) => {
       ...patternSize,
       ...rest,
     },
-    h("image", { ref, ...patternSize })
+    h("image", { ref, ...patternSize }),
   );
 };
 
@@ -132,7 +132,7 @@ const VectorGeologicPattern = (props: IGeologicPatternBase) => {
           ...patternBounds,
         }),
       ]),
-    ]
+    ],
   );
 };
 

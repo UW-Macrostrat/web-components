@@ -50,7 +50,7 @@ function CorrelationStoryUI({
           //showLogo: false,
         }),
       ]),
-    ])
+    ]),
   );
 }
 
@@ -59,7 +59,7 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
 
   // Sync focused columns with map
   const focusedColumns = useCorrelationMapStore(
-    (state) => state.focusedColumns
+    (state) => state.focusedColumns,
   );
 
   const columnUnits = useAsyncMemo(async () => {
@@ -72,7 +72,7 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
       ErrorBoundary,
       h(OverlaysProvider, [
         h(CorrelationChart, { data: columnUnits, ...props }),
-      ])
+      ]),
     ),
   ]);
 }
@@ -172,7 +172,7 @@ function useCorrelationLine() {
     (selectedUnit) => {
       updateArgs({ selectedUnit });
     },
-    [updateArgs]
+    [updateArgs],
   );
 
   return {

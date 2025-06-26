@@ -91,8 +91,8 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
         editable,
         enableColumnReordering,
         enableFocusedCell,
-      })
-    )
+      }),
+    ),
   );
 }
 
@@ -153,7 +153,7 @@ function _DataSheet<T>({
       setVisibleCells(visibleCells);
       onVisibleCellsChange?.(visibleCells);
     },
-    [onVisibleCellsChange, setVisibleCells]
+    [onVisibleCellsChange, setVisibleCells],
   );
 
   const onAddRow = useCallback(() => {
@@ -262,7 +262,7 @@ function _DataSheet<T>({
             defaultRowHeight: rowHeight,
             minRowHeight: rowHeight,
             columnWidths: columnSpec.map(
-              (col) => col.width ?? defaultColumnWidth
+              (col) => col.width ?? defaultColumnWidth,
             ),
             onSelection,
             // The cell renderer is memoized internally based on these data dependencies
@@ -300,13 +300,13 @@ function _DataSheet<T>({
                   colIndex,
                   col,
                   state,
-                  autoFocusEditor
+                  autoFocusEditor,
                 );
               },
             });
-          })
+          }),
         ),
-      ]
+      ],
     ),
   ]);
 }
@@ -316,7 +316,7 @@ function basicCellRenderer<T>(
   colIndex: number,
   columnSpec: ColumnSpec,
   state: DataSheetStore<T>,
-  autoFocusEditor = true
+  autoFocusEditor = true,
 ): any {
   const data = state.data;
   const updatedData = state.updatedData;
@@ -366,7 +366,7 @@ function basicCellRenderer<T>(
 
   const _Cell = col.cellComponent ?? BaseCell;
 
-  let inlineEditor = editable ? col.inlineEditor ?? true : false;
+  let inlineEditor = editable ? (col.inlineEditor ?? true) : false;
 
   if (!topLeft) {
     // This should be the case for every cell except the focused one
@@ -379,7 +379,7 @@ function basicCellRenderer<T>(
         style,
         isDeleted,
       },
-      cellContents
+      cellContents,
     );
   }
 
@@ -417,7 +417,7 @@ function basicCellRenderer<T>(
           },
         }),
         cellContents,
-      ]
+      ],
     );
     // Could probably put the hidden input elsewhere,
   }
@@ -509,7 +509,7 @@ function basicCellRenderer<T>(
       h.if(editable && isSingleCellSelection)(DragHandle, {
         focusedCell,
       }),
-    ]
+    ],
   );
 }
 
@@ -543,7 +543,7 @@ function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
             onDeleteRows?.();
           },
         },
-        "Delete"
+        "Delete",
       ),
     ]),
     h("div.spacer"),
@@ -555,7 +555,7 @@ function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
           disabled: !hasUpdates,
           onClick: resetChanges,
         },
-        "Reset"
+        "Reset",
       ),
       h.if(onSaveData != null)(
         Button,
@@ -565,7 +565,7 @@ function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
           disabled: !hasUpdates,
           onClick: onSaveData,
         },
-        "Save"
+        "Save",
       ),
     ]),
   ]);
@@ -593,7 +593,7 @@ export function ScrollToRowControl() {
           scrollToRow(row - 1);
         },
       },
-      "Scroll to row"
+      "Scroll to row",
     ),
   ]);
 }
@@ -606,7 +606,7 @@ function AddRowButton() {
       icon: "plus",
       onClick: addRow,
     },
-    "Add row"
+    "Add row",
   );
 }
 
@@ -617,7 +617,7 @@ export function BaseCell({ children, value, ...rest }) {
       interactive: true,
       ...rest,
     },
-    children
+    children,
   );
 }
 

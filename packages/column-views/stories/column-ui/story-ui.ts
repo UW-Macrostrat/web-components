@@ -31,7 +31,7 @@ export function ColumnStoryUI({
         setSelectedUnit,
         inProcess,
         ...rest,
-      })
+      }),
     ),
     h("div.right-column", [
       h(ColumnNavigationMap, {

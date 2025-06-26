@@ -64,7 +64,7 @@ type DarkModeProps = {
 function applySystemDarkMode(
   initialValue: DarkModeState,
   forceFollowSystem: boolean,
-  systemPreferred: boolean | null
+  systemPreferred: boolean | null,
 ): DarkModeState {
   const _systemPreferred = systemPreferred ?? systemPreferredDarkMode();
   if (initialValue.isAutoset || forceFollowSystem) {
@@ -92,7 +92,7 @@ function _DarkModeProvider(props: DarkModeProps) {
   } = props;
   const [storedValue, updateValue, resetState] = useStoredState(
     "ui-dark-mode",
-    systemDarkMode()
+    systemDarkMode(),
   );
   // Guards so that we don't error on an invalid stored value
   const value = {
@@ -105,7 +105,7 @@ function _DarkModeProvider(props: DarkModeProps) {
     // Update value if isEnabled is provided
     if (isEnabled && followSystem) {
       console.warn(
-        "DarkModeProvider: followSystem and isEnabled are mutually exclusive. Ignoring followSystem"
+        "DarkModeProvider: followSystem and isEnabled are mutually exclusive. Ignoring followSystem",
       );
     }
     if (isEnabled == null) {
@@ -143,12 +143,12 @@ function _DarkModeProvider(props: DarkModeProps) {
         isSystemPreferred: value.isSystemPreferred,
       });
     },
-    [isEnabled]
+    [isEnabled],
   );
 
   const onSystemChange = useCallback(
     (e) => updateValue(applySystemDarkMode(value, followSystem, e.matches)),
-    [value, followSystem]
+    [value, followSystem],
   );
 
   useEffect(() => {
@@ -164,7 +164,7 @@ function _DarkModeProvider(props: DarkModeProps) {
   return h(
     ValueContext.Provider,
     { value },
-    h(UpdaterContext.Provider, { value: update }, children)
+    h(UpdaterContext.Provider, { value: update }, children),
   );
 }
 
@@ -184,7 +184,7 @@ const inDarkMode = () => {
 const darkModeUpdater = () => useContext(UpdaterContext);
 
 const DarkModeButton = (
-  props: ButtonProps & { allowReset: boolean; showText: boolean }
+  props: ButtonProps & { allowReset: boolean; showText: boolean },
 ) => {
   const { allowReset = true, showText = false, children, ...rest } = props;
   const { isEnabled, isAutoset } = useDarkMode();

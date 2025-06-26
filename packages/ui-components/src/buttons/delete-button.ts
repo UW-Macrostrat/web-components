@@ -50,7 +50,7 @@ function DeleteButton(props: P) {
           onCancel(e);
         },
       },
-      alertContent
+      alertContent,
     ),
   ]);
 }

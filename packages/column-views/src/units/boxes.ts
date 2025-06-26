@@ -59,7 +59,7 @@ export interface LabeledUnitProps
 
 function useUnitRect(
   division: IUnit,
-  options: UnitRectOptions = {}
+  options: UnitRectOptions = {},
 ): RectBounds {
   const {
     widthFraction = 1,
@@ -123,7 +123,7 @@ export function MinimalUnit(props) {
         onClick,
       }),
       h.if(selected)("rect.selection-overlay", bounds),
-    ]
+    ],
   );
 }
 
@@ -190,7 +190,7 @@ function Unit(props: UnitProps) {
       h.if(selected)(UnitRect, { ...bounds, className: "selection-overlay" }),
       //defs,
       children,
-    ]
+    ],
   );
 }
 
@@ -339,9 +339,9 @@ function LabeledUnit(props: LabeledUnitProps) {
           onVisibilityChanged(viz) {
             onLabelUpdated(label, viz);
           },
-        })
+        }),
       ),
-    ]
+    ],
   );
 }
 
@@ -352,7 +352,7 @@ function UnitBoxes<T>(props: {
   transformDivision?: (
     division: any,
     index: number,
-    divisions: any[]
+    divisions: any[],
   ) => T | null;
 }) {
   const { unitComponent = Unit, unitComponentProps = {} } = props;
@@ -377,7 +377,7 @@ function UnitBoxes<T>(props: {
   return h(
     PatternDefsProvider,
     { resolveID, scalePattern },
-    h("g.divisions", children)
+    h("g.divisions", children),
   );
 }
 

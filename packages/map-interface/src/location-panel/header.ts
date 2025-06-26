@@ -61,12 +61,12 @@ function CopyLinkButton({ itemName, children, onClick, ...rest }) {
               icon: "error",
               timeout: 1000,
             });
-          }
+          },
         );
       },
       ...rest,
     },
-    children ?? "Copy link"
+    children ?? "Copy link",
   );
 }
 
@@ -127,6 +127,6 @@ export function InfoDrawerHeader(props: InfoDrawerHeaderProps) {
         icon: "cross",
         onClick: onClose,
       }),
-    ]
+    ],
   );
 }

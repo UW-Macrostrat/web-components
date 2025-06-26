@@ -46,7 +46,7 @@ const MapContext = createContext<GlobeCtx>({
 });
 
 const MapDispatchContext = createContext<(action: GlobeActions) => void>(
-  () => {}
+  () => {},
 );
 
 function useMapDispatch() {

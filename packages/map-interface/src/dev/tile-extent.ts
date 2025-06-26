@@ -38,7 +38,7 @@ export function TileExtentLayer({
       style.layers.push(layer);
       map.setStyle(style);
     },
-    [color]
+    [color],
   );
   const map = useMapRef();
   useMapConditionalStyle(map, tile, styleCallback);

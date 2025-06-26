@@ -50,12 +50,12 @@ export type AsyncAuthAction = GetStatus | Login | Logout;
 
 type AuthDispatch<T> = Dispatch<AuthAction<T>>;
 type AuthTransformer<T> = (
-  action: AuthAction<T> | AsyncAuthAction
+  action: AuthAction<T> | AsyncAuthAction,
 ) => Promise<AuthAction<T> | null>;
 
 function useAuthActions<T>(
   dispatch: AuthDispatch<T>,
-  transformer: AuthTransformer<T>
+  transformer: AuthTransformer<T>,
 ) {
   return useCallback(
     async (action: AuthAction<T> | AsyncAuthAction) => {
@@ -63,13 +63,13 @@ function useAuthActions<T>(
       if (newAction == null) return;
       dispatch(newAction);
     },
-    [dispatch, transformer]
+    [dispatch, transformer],
   );
 }
 
 function useDefaultTransformer<T>(
   dispatch: AuthDispatch<T>,
-  apiContext: APIContext
+  apiContext: APIContext,
 ): AuthTransformer<T> {
   const apiActions = useAPIActions(apiContext);
   return async (action: AuthAction | AsyncAuthAction) => {
@@ -79,7 +79,7 @@ function useDefaultTransformer<T>(
 
 async function defaultTransformer(
   action: AuthAction | AsyncAuthAction,
-  apiActions: APIActions
+  apiActions: APIActions,
 ) {
   /** This transformer is taken directly from Sparrow */
   const { get, post } = apiActions;
@@ -174,7 +174,7 @@ function authReducer(state = authDefaultState, action: AuthAction) {
     case "update-status": {
       return {
         ...state,
-        ...action.payload
+        ...action.payload,
       };
     }
     case "auth-form-success": {
@@ -221,7 +221,7 @@ function AuthProvider<T extends AnyUser>(props: AuthProviderProps<T>) {
       transformer,
       userIdentity: defaultUserIdentity,
     },
-    children
+    children,
   );
 }
 
@@ -252,7 +252,7 @@ function BaseAuthProvider<T extends AnyUser>(props: BaseAuthProviderProps<T>) {
   return h(
     AuthContext.Provider,
     { value: { user, runAction, userIdentity, ...state } },
-    children
+    children,
   );
 }
 

@@ -16,7 +16,7 @@ interface LocationHashParams {
 
 export function applyMapPositionToHash(
   args: LocationHashParams,
-  mapPosition: MapPosition | null
+  mapPosition: MapPosition | null,
 ) {
   const pos = mapPosition?.camera;
   if (pos == null) return;
@@ -53,7 +53,7 @@ function _fmt(x: string | number | string[]) {
 
 export function getMapPositionForHash(
   hashData: ParsedQuery<string>,
-  centerPosition: LatLng | null
+  centerPosition: LatLng | null,
 ): MapPosition {
   const {
     x = centerPosition?.lng ?? 0,

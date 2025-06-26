@@ -84,13 +84,13 @@ export function FloatingNavbar({
           className: "searchbar navbar panel",
           style: { height, ...style },
         },
-        [_headerElement, children, _rightElement]
+        [_headerElement, children, _rightElement],
       ),
     ]),
     h.if(statusElement != null)(
       Card,
       { className: "status-tongue" },
-      statusElement
+      statusElement,
     ),
   ]);
 }

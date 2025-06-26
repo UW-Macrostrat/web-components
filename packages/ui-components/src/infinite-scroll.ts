@@ -60,13 +60,13 @@ type ScrollAction<T> = UpdateState<T> | LoadNextPage | LoadPage<T>;
 
 type Reducer<T> = (
   state: ScrollState<T>,
-  action: ScrollAction<T>
+  action: ScrollAction<T>,
 ) => ScrollState<T>;
 type Dispatch<T> = (action: ScrollAction<T>) => void;
 
 function infiniteScrollReducer<T>(
   state: ScrollState<T>,
-  action: ScrollAction<T>
+  action: ScrollAction<T>,
 ) {
   switch (action.type) {
     case "update-state":
@@ -104,7 +104,7 @@ export function InfiniteScroll(props) {
   return h("div.infinite-scroll-container", { className }, [
     children,
     //h.if(state.isLoadingPage != null)(placeholder),
-    h("div.bottom-marker", { ref, style: { padding: "1px"} }),
+    h("div.bottom-marker", { ref, style: { padding: "1px" } }),
   ]);
 }
 
@@ -207,7 +207,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
 
   const [state, dispatch] = useReducer<Reducer<T>>(
     infiniteScrollReducer,
-    initialState
+    initialState,
   );
 
   const loadPage = useCallback(
@@ -241,7 +241,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
         },
       });
     },
-    [state.items, route, params, opts]
+    [state.items, route, params, opts],
   );
 
   const loadMore = useCallback(() => {
@@ -271,7 +271,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       dispatch({ type: "update-state", spec: { $set: initialState } });
       //await loadNext(0)
     },
-    [isInitialRender, route, params, opts]
+    [isInitialRender, route, params, opts],
   );
 
   useEffect(loadInitialData, [props.route, props.params]);
@@ -306,7 +306,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
           { data },
           data.map((d, i) => {
             return h(itemComponent, { key: i, data: d, index: i });
-          })
+          }),
         ),
         // @ts-ignore
         h.if(isLoading)(loadingPlaceholder, {
@@ -319,7 +319,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
         // @ts-ignore
         h.if(isFinished)(finishedPlaceholder, { totalCount }),
       ]),
-    ]
+    ],
   );
 }
 

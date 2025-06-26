@@ -38,7 +38,7 @@ export function Nullable() {
   return h(BaseDataTypeSelect, {
     state,
     setState(dt) {
-      console.log(dt), setState(dt);
+      (console.log(dt), setState(dt));
     },
     nullable: true,
   });
@@ -49,7 +49,7 @@ export function NotFillArea() {
   return h(BaseDataTypeSelect, {
     state,
     setState(dt) {
-      console.log(dt), setState(dt);
+      (console.log(dt), setState(dt));
     },
     nullable: true,
     fill: false,

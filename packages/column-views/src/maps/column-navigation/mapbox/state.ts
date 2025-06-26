@@ -35,7 +35,7 @@ export interface NavigationProviderProps {
 }
 
 const NavigationStoreContext = createContext<StoreApi<NavigationStore> | null>(
-  null
+  null,
 );
 
 export function ColumnNavigationProvider({
@@ -109,7 +109,7 @@ export function ColumnNavigationProvider({
 }
 
 export function useColumnNavigationStore(
-  selector: (state: NavigationStore) => any
+  selector: (state: NavigationStore) => any,
 ) {
   const storeApi = useContext(NavigationStoreContext);
   if (storeApi == null) {

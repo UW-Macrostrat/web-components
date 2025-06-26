@@ -186,7 +186,7 @@ function AdjustWidthForm({ state, setState }) {
       onValueChange(value) {
         setState(Math.max(Math.min(value, 10), 0));
       },
-    })
+    }),
   );
 }
 
@@ -201,6 +201,6 @@ function AdjustCertaintyForm({ state, setState }) {
       onChange(value) {
         setState(value);
       },
-    })
+    }),
   );
 }

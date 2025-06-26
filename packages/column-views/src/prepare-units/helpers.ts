@@ -40,14 +40,14 @@ export interface ExtUnit extends UnitLong {
 
 export function preprocessUnits<T extends UnitLong = UnitLong>(
   section: SectionInfo<T>,
-  axisType: ColumnAxisType = ColumnAxisType.AGE
+  axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): ExtUnit[] {
   /** Preprocess units to add overlapping units and columns. */
   const units = section.units;
   let divisions = units.map((...args) => extendDivision(...args, axisType));
   for (let d of divisions) {
     const overlappingUnits = divisions.filter((u) =>
-      d.overlappingUnits.includes(u.unit_id)
+      d.overlappingUnits.includes(u.unit_id),
     );
 
     // Overlapping columns
@@ -87,10 +87,10 @@ function extendDivision(
   unit: UnitLong,
   i: number,
   divisions: UnitLong[],
-  axisType: ColumnAxisType = ColumnAxisType.AGE
+  axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): ExtUnit {
   const overlappingUnits = divisions.filter(
-    (d) => d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType)
+    (d) => d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType),
   );
   const u_pos = getUnitHeightRange(unit, axisType);
   const bottomOverlap = overlappingUnits.some((d) => {
@@ -113,7 +113,7 @@ function extendDivision(
 
 export function groupUnitsIntoSections<T extends UnitLong>(
   units: T[],
-  axisType: ColumnAxisType = ColumnAxisType.AGE
+  axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): SectionInfo<T>[] {
   if (axisType != ColumnAxisType.AGE) {
     return groupUnitsIntoSectionByOverlap(units, axisType);
@@ -135,7 +135,7 @@ export function groupUnitsIntoSections<T extends UnitLong>(
   // Sections have no relative ordinal position other than age...
   const compareSections = createUnitSorter(ColumnAxisType.AGE) as (
     a: StratigraphicPackage,
-    b: StratigraphicPackage
+    b: StratigraphicPackage,
   ) => number;
   groups1.sort(compareSections);
   return groups1;
@@ -149,7 +149,7 @@ interface WorkingSection {
 
 function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
   units: T[],
-  axisType: ColumnAxisType = ColumnAxisType.AGE
+  axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): SectionInfo<T>[] {
   /** Group units into sections by overlap.
    * This creates "synthetic" sections that correspond to packages bound by scale gaps.
@@ -162,7 +162,7 @@ function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
     // Check if the unit overlaps with any existing section
     const heightRange = getUnitHeightRange(unit, axisType);
     let section: WorkingSection | undefined = sectionList.find((s) =>
-      compareAgeRanges(heightRange, s.heightRange)
+      compareAgeRanges(heightRange, s.heightRange),
     );
     if (section == null) {
       // No overlap, create a new section
@@ -205,7 +205,7 @@ export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
 }
 
 export function mergeOverlappingSections<T extends UnitLong>(
-  sections: SectionInfo<T>[]
+  sections: SectionInfo<T>[],
 ): SectionInfo<T>[] {
   /** Columns can have sections that overlap in time. Here, we merge overlapping
    * sections into a single section to correctly render gap-bound packages.
@@ -237,7 +237,7 @@ export function mergeOverlappingSections<T extends UnitLong>(
 
 function preprocessSectionUnits(
   units: UnitLong[],
-  axisType: ColumnAxisType = ColumnAxisType.DEPTH
+  axisType: ColumnAxisType = ColumnAxisType.DEPTH,
 ): ExtUnit[] {
   /** Preprocess units for a "section" column type, which is guaranteed to be simpler. */
   // We have to assume the units are ordered...
@@ -254,7 +254,7 @@ function preprocessSectionUnit(
   i: number,
   units: UnitLong[],
   accumulatedThickness: number = 0,
-  axisType: ColumnAxisType = ColumnAxisType.DEPTH
+  axisType: ColumnAxisType = ColumnAxisType.DEPTH,
 ): ExtUnit {
   /** Preprocess a single unit for a "section" column type.
    * No provision for overlapping units.

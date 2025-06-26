@@ -39,6 +39,6 @@ export function ModelEditorExample(props) {
         h(EditableDateField, { field: "embargoDate" }),
         h(ModelEditButton),
       ]),
-    ]
+    ],
   );
 }

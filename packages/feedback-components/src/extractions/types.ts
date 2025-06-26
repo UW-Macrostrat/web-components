@@ -1,4 +1,9 @@
-type EntityType = { name: string; color: string; id: number, description?: string };
+type EntityType = {
+  name: string;
+  color: string;
+  id: number;
+  description?: string;
+};
 type Match = any;
 
 export interface Entity {

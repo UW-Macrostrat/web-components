@@ -4,7 +4,7 @@ import h from "@macrostrat/hyper";
 import { Button, ButtonGroup, NonIdealState } from "@blueprintjs/core";
 import { APIResultView } from "./frontend";
 
-const Pagination = props => {
+const Pagination = (props) => {
   const { currentPage, nextDisabled, setPage } = props;
   return h(ButtonGroup, [
     h(
@@ -12,19 +12,19 @@ const Pagination = props => {
       {
         onClick: setPage(currentPage - 1),
         icon: "arrow-left",
-        disabled: currentPage <= 0
+        disabled: currentPage <= 0,
       },
-      "Previous"
+      "Previous",
     ),
     h(
       Button,
       {
         onClick: setPage(currentPage + 1),
         rightIcon: "arrow-right",
-        disabled: nextDisabled
+        disabled: nextDisabled,
       },
-      "Next"
-    )
+      "Next",
+    ),
   ]);
 };
 
@@ -40,7 +40,7 @@ class PagedAPIView extends Component<any, any> {
     getTotalCount(response) {
       const { headers } = response;
       return parseInt(headers["x-total-count"]);
-    }
+    },
   };
   constructor(props) {
     super(props);
@@ -69,14 +69,14 @@ class PagedAPIView extends Component<any, any> {
         nextDisabled = true;
       }
       paginationInfo = h("div", { disabled: true }, [
-        `${currentPage + 1} of ${lastPage + 1} (${count} records)`
+        `${currentPage + 1} of ${lastPage + 1} (${count} records)`,
       ]);
     }
 
     return h("div.pagination-controls", [
       h(Pagination, { currentPage, nextDisabled, setPage: this.setPage }),
       this.props.extraPagination,
-      paginationInfo
+      paginationInfo,
     ]);
   }
 
@@ -146,7 +146,7 @@ class PagedAPIView extends Component<any, any> {
 
     // Create new onResponse function
     const { onResponse: __onResponse } = opts;
-    const onResponse = response => {
+    const onResponse = (response) => {
       count = getTotalCount(response);
       this.setState({ count });
       // Run inherited onResponse if it exists
@@ -158,7 +158,7 @@ class PagedAPIView extends Component<any, any> {
     // Options for get
     opts = { ...opts, onResponse };
 
-    const _children = data => {
+    const _children = (data) => {
       if (this.state.count === 0) {
         return h(NonIdealState, { icon: "search", title: "No results" });
       }
@@ -169,7 +169,7 @@ class PagedAPIView extends Component<any, any> {
     return h("div.pagination-container", rest, [
       topPagination ? this.renderPagination() : undefined,
       h(APIResultView, { route, params, opts, primaryKey }, _children),
-      bottomPagination ? this.renderPagination() : undefined
+      bottomPagination ? this.renderPagination() : undefined,
     ]);
   }
 }

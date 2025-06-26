@@ -110,9 +110,16 @@ function quat2euler(t) {
   if (!t) return;
 
   return [
-    Math.atan2(2 * (t[0] * t[1] + t[2] * t[3]), 1 - 2 * (t[1] * t[1] + t[2] * t[2])) * to_degrees,
-    Math.asin(Math.max(-1, Math.min(1, 2 * (t[0] * t[2] - t[3] * t[1])))) * to_degrees,
-    Math.atan2(2 * (t[0] * t[3] + t[1] * t[2]), 1 - 2 * (t[2] * t[2] + t[3] * t[3])) * to_degrees,
+    Math.atan2(
+      2 * (t[0] * t[1] + t[2] * t[3]),
+      1 - 2 * (t[1] * t[1] + t[2] * t[2]),
+    ) * to_degrees,
+    Math.asin(Math.max(-1, Math.min(1, 2 * (t[0] * t[2] - t[3] * t[1])))) *
+      to_degrees,
+    Math.atan2(
+      2 * (t[0] * t[3] + t[1] * t[2]),
+      1 - 2 * (t[2] * t[2] + t[3] * t[3]),
+    ) * to_degrees,
   ];
 }
 

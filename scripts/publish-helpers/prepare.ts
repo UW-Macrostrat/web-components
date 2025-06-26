@@ -50,7 +50,7 @@ function checkExists(
   pkg: any,
   key: string,
   required: boolean,
-  allowNested = false
+  allowNested = false,
 ) {
   let entry = pkg[key];
   if (entry == null && required) {

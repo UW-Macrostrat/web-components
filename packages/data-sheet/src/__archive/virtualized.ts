@@ -20,7 +20,7 @@ type OptionalSelection = ReactDataSheet.Selection | null;
 
 function offsetSelection(
   sel: OptionalSelection,
-  offset: number
+  offset: number,
 ): OptionalSelection {
   if (sel == null) return null;
   const { start, end } = sel;
@@ -75,7 +75,7 @@ function VirtualizedSheet(props) {
     },
     h("div.scroll-panel", {
       style: { height: scrollerHeight },
-    })
+    }),
   );
 }
 

@@ -40,7 +40,7 @@ export interface DataSheetCoreProps<T> {
   data: T[];
   columnSpec?: ColumnSpec[];
   editable?: boolean;
-  enableColumnReordering: boolean;
+  enableColumnReordering?: boolean;
 }
 
 export interface DataSheetState<T> {
@@ -95,7 +95,7 @@ export interface VisibleCells {
 const computed = createComputed(
   (state: DataSheetStore<any>): DataSheetComputedStore => ({
     hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
-  })
+  }),
 ) as any;
 
 export function DataSheetProvider<T>({
@@ -145,7 +145,7 @@ export function DataSheetProvider<T>({
                 case "down":
                   row = Math.min(
                     row + 1,
-                    Math.max(state.data.length, state.updatedData.length) - 1
+                    Math.max(state.data.length, state.updatedData.length) - 1,
                   );
                   break;
                 case "left":
@@ -301,7 +301,7 @@ export function DataSheetProvider<T>({
           onColumnsReordered(
             oldIndex: number,
             newIndex: number,
-            length: number
+            length: number,
           ) {
             set((state) => {
               if (!state.enableColumnReordering) return {};
@@ -319,7 +319,7 @@ export function DataSheetProvider<T>({
             });
           },
         };
-      })
+      }),
     );
   });
 
@@ -346,7 +346,7 @@ export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
 }
 
 export function useSelector<T = any, A = any>(
-  selector: (state: DataSheetStore<T> & DataSheetComputedStore) => A
+  selector: (state: DataSheetStore<T> & DataSheetComputedStore) => A,
 ): A {
   const store = useStoreAPI<T>();
   return useStore(store, selector);
@@ -397,7 +397,7 @@ function getRowIndices(regions: Region[]): number[] {
 
 export function topLeftCell(
   regions: Region[],
-  requireSolitaryCell: boolean = false
+  requireSolitaryCell: boolean = false,
 ): FocusedCellCoordinates | null {
   /** Top left cell of a ranged selection  */
   if (regions == null) return null;
@@ -438,7 +438,7 @@ function selectionEquals(a: Region[], b: Region[]): boolean {
 }
 
 export function singleFocusedCell(
-  sel: Region[]
+  sel: Region[],
 ): FocusedCellCoordinates | null {
   /** Derive a single focused cell from a selected region, if possible */
   if (sel?.length !== 1) return null;

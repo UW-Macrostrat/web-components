@@ -35,7 +35,7 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
     };
 
     const currentIndex = columns.findIndex(
-      (d) => d.properties.col_id == col_id
+      (d) => d.properties.col_id == col_id,
     );
 
     const neighbors = voronoi.tri.delaunay.neighbors[currentIndex];
@@ -43,7 +43,7 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
       neighbors,
       voronoi.centroids,
       currentIndex,
-      projection
+      projection,
     );
   }, [col_id, columns, voronoi, map]);
 
@@ -58,7 +58,7 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
       selectColumn(columns[nextColumnIx].id);
       return false;
     },
-    [keyMapping, selectColumn]
+    [keyMapping, selectColumn],
   );
 
   useEffect(() => {
@@ -80,7 +80,7 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
         features,
       });
     },
-    [voronoi, showTriangulation]
+    [voronoi, showTriangulation],
   );
 
   //if (neighbors == null) return null;

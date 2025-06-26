@@ -31,7 +31,7 @@ function NoteComponent(props: NoteComponentProps) {
       style: { visibility },
       onClick,
     },
-    text
+    text,
   );
 }
 
@@ -112,9 +112,9 @@ function EditableNotesColumn(props: EditableNotesColumnProps) {
             h(NewNotePositioner),
             h(NoteEditor, { allowPositionEditing }),
           ]),
-        ]
+        ],
       ),
-    ]
+    ],
   );
 }
 
@@ -161,7 +161,7 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
         }),
         children,
       ]),
-    ]
+    ],
   );
 }
 

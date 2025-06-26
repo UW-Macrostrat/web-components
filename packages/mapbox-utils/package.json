@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-utils",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "Utilities for working with Mapbox maps",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -23,7 +23,7 @@
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
-    "@types/mapbox-gl": "^2.7.5||^3.4.1",
+    "@types/mapbox-gl": "^3.4.1",
     "axios": "^1.7.9",
     "mapbox-gl": "^2.15.0||^3.0.0"
   },
@@ -33,6 +33,6 @@
     "directory": "packages/mapbox-utils"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

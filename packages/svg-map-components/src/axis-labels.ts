@@ -162,7 +162,7 @@ class _GraticuleLabels {
       .text(this.format)
       .attr(
         "transform",
-        `translate(${this._offs[0]},${this._offs[1]}) rotate(${this._rot})`
+        `translate(${this._offs[0]},${this._offs[1]}) rotate(${this._rot})`,
       );
 
     if (this.showCircles) {
@@ -261,7 +261,7 @@ export function GraticuleLabels({
     h.if(axisLabel != null)(
       "text.axis-label",
       { transform: "translate(0, -10)" },
-      axisLabel
+      axisLabel,
     ),
     children,
   ]);

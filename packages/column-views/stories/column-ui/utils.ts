@@ -10,7 +10,7 @@ export function useColumnUnits(col_id, inProcess = false): BaseUnit[] | null {
   return useAPIResult(
     "https://macrostrat.org/api/v2/units",
     params,
-    (res) => res.success.data
+    (res) => res.success.data,
   );
 }
 
@@ -24,6 +24,6 @@ export function useColumnBasicInfo(col_id, inProcess = false) {
     params,
     (res) => {
       return res.success.data[0];
-    }
+    },
   );
 }

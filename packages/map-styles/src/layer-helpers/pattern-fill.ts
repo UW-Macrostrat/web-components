@@ -17,7 +17,7 @@ function loadImage(url): Promise<HTMLImageElement> {
 function recolorPatternImage(
   img: HTMLImageElement,
   backgroundColor: string,
-  color: string
+  color: string,
 ) {
   // create hidden canvas
   var canvas = document.createElement("canvas");

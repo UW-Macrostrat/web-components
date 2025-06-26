@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "../../",
+    "include": ["./src"],
+    "types": ["mapbox-gl"],
+    "typeRoots": ["./node_modules/@types"]
+  }
+}

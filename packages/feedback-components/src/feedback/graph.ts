@@ -34,7 +34,7 @@ export function GraphView(props: {
     const { nodes, edges } = treeToGraph(tree);
 
     const nodesMap = new Map<number, SimulationNodeDatum>(
-      nodes.map((d) => [d.id, d])
+      nodes.map((d) => [d.id, d]),
     );
 
     const links = edges.map((d) => {
@@ -72,9 +72,10 @@ export function GraphView(props: {
 
   console.log("Graph", nodes, links, selectedNodes);
 
-  return h(ErrorBoundary, 
+  return h(
+    ErrorBoundary,
     {
-      description: "An error occurred while rendering the graph view."
+      description: "An error occurred while rendering the graph view.",
     },
     h("div.graph-view", { style: { width, height } }, [
       h("svg", { width, height }, [
@@ -85,44 +86,43 @@ export function GraphView(props: {
               x1: d.source.x,
               y1: d.source.y,
               x2: d.target.x,
-            y2: d.target.y,
-            stroke: "black",
-          });
-        })
-      ),
-      h(
-        "g.nodes",
-        nodes.map((d) => {
-          const active = selectedNodes.includes(d.id);
-          const stroke = active ? "white" : "black";
-          const highlighted = isHighlighted(d.id, selectedNodes, nodes);
-          const style = getTagStyle(d.color, { highlighted, active });
+              y2: d.target.y,
+              stroke: "black",
+            });
+          }),
+        ),
+        h(
+          "g.nodes",
+          nodes.map((d) => {
+            const active = selectedNodes.includes(d.id);
+            const stroke = active ? "white" : "black";
+            const highlighted = isHighlighted(d.id, selectedNodes, nodes);
+            const style = getTagStyle(d.color, { highlighted, active });
 
-          return h("circle", {
-            cx: d.x,
-            cy: d.y,
-            r: 5,
-            fill: style.backgroundColor || "blue",
-            onClick: (e) => {
-              e.stopPropagation();
-              dispatch({
-                type: "toggle-node-selected",
-                payload: { ids: [d.id] },
-              });
-            },
-            className: active ? "selected" : "",
-            stroke,
-            strokeWidth: 2,
-          },
-          h(
-            "title",
-            d.name || `Node ${d.id}`
-          ) 
-        );
-        })
-      ),
-    ])
-  ])
+            return h(
+              "circle",
+              {
+                cx: d.x,
+                cy: d.y,
+                r: 5,
+                fill: style.backgroundColor || "blue",
+                onClick: (e) => {
+                  e.stopPropagation();
+                  dispatch({
+                    type: "toggle-node-selected",
+                    payload: { ids: [d.id] },
+                  });
+                },
+                className: active ? "selected" : "",
+                stroke,
+                strokeWidth: 2,
+              },
+              h("title", d.name || `Node ${d.id}`),
+            );
+          }),
+        ),
+      ]),
+    ]),
   );
 }
 
@@ -130,6 +130,10 @@ function isHighlighted(id: number, selectedNodes: number[], nodes: TreeData[]) {
   if (selectedNodes.length === 0) return true;
   return (
     selectedNodes.includes(id) ||
-    nodes.some((node) => selectedNodes.includes(node.id) && node.children.some((child) => child.id === id))
+    nodes.some(
+      (node) =>
+        selectedNodes.includes(node.id) &&
+        node.children.some((child) => child.id === id),
+    )
   );
 }

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/color-utils",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Color utility functions",
   "type": "module",
   "main": "dist/index.js",
@@ -32,6 +32,6 @@
     "directory": "packages/color-utils"
   },
   "devDependencies": {
-    "parcel": "^2.14.4"
+    "parcel": "^2.15.4"
   }
 }

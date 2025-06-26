@@ -60,7 +60,7 @@ function removeUndefined(o1: object) {
 }
 
 function splitConfig(
-  props: APIProviderCoreProps
+  props: APIProviderCoreProps,
 ): [AxiosRequestConfig, APIConfig] {
   const {
     config = {},
@@ -90,7 +90,7 @@ function splitConfig(
 const defaultAxios = axios.create();
 
 function createAPIContext(
-  defaultProps: APIProviderCoreProps = {}
+  defaultProps: APIProviderCoreProps = {},
 ): APIContextType {
   const [axiosConfig, config] = splitConfig(defaultProps);
 
@@ -122,7 +122,7 @@ interface APIRequestInfo {
 async function handleResult(
   ctx: APIContextValue,
   request: AxiosPromise,
-  info: APIRequestInfo
+  info: APIRequestInfo,
 ) {
   const { processOptions, buildURL } = APIHelpers(ctx);
   const { opts, method, params, route } = info;
@@ -175,17 +175,17 @@ interface APIActions {
     route: string,
     params: QueryParams,
     payload: any,
-    opts: APIConfigOptions
+    opts: APIConfigOptions,
   ): Promise<any | null>;
   post(
     route: string,
     payload: any,
-    opts?: APIConfigOptions
+    opts?: APIConfigOptions,
   ): Promise<any | null>;
   get(
     route: string,
     params: QueryParams,
-    opts: APIConfigOptions
+    opts: APIConfigOptions,
   ): Promise<any | null>;
   get(route: string, opts?: APIConfigOptions): Promise<any | null>;
 }
@@ -276,7 +276,7 @@ function useAxiosInstance(context: APIContextType = APIContext) {
 function useAPIResult<T>(
   route: string | null,
   params: QueryParams = null,
-  opts: APIHookOpts | ResponseUnwrapper<any, T> = {}
+  opts: APIHookOpts | ResponseUnwrapper<any, T> = {},
 ): T {
   /* React hook for API results */
 

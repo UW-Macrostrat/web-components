@@ -40,7 +40,7 @@ const Symbol = function (props) {
         y: 0,
         ...symbolSize,
       }),
-    ]
+    ],
   );
 };
 
@@ -56,7 +56,7 @@ const SymbolDefs = function (props) {
       }
       ids.push(symbol);
       return h(Symbol, { symbol, ...rest });
-    })
+    }),
   );
 };
 

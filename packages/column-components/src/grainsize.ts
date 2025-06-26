@@ -36,11 +36,11 @@ function GrainsizeAxis({ height = 20 }) {
         h(
           "text.bottom",
           { y: pixelHeight, style: { transformOrigin: `0 ${pixelHeight}px` } },
-          d
+          d,
         ),
         h("line", { y1: 0, x1: 0, x2: 0, y2: pixelHeight }),
       ]);
-    })
+    }),
   );
 }
 

@@ -42,7 +42,7 @@ interface BaseColumnProps extends SectionSharedProps {
   onMouseOver?: (
     unit: UnitLong | null,
     height: number | null,
-    evt: MouseEvent
+    evt: MouseEvent,
   ) => void;
 }
 
@@ -104,7 +104,7 @@ export function Column(props: ColumnProps) {
         title: "Empty column",
         description: "No sections found in this column.",
         icon: "warning-sign",
-      })
+      }),
     );
   }
 
@@ -131,14 +131,14 @@ export function Column(props: ColumnProps) {
         selectedUnit,
         units,
       },
-      main
+      main,
     );
   }
 
   return h(
     MacrostratColumnDataProvider,
     { units, sections, totalHeight, axisType },
-    main
+    main,
   );
 }
 
@@ -202,18 +202,18 @@ function ColumnInner(props: ColumnInnerProps) {
         maxInternalColumns,
       }),
       children,
-    ])
+    ]),
   );
 }
 
 type ColumnMouseOverHandler = (
   unit: UnitLong | null,
   height: number | null,
-  evt: MouseEvent
+  evt: MouseEvent,
 ) => void;
 
 function useMouseEventHandlers(
-  _onMouseOver: ColumnMouseOverHandler | null = null
+  _onMouseOver: ColumnMouseOverHandler | null = null,
 ) {
   /** Click event handler */
 
@@ -223,7 +223,7 @@ function useMouseEventHandlers(
     (evt) => {
       dispatch?.(null, null, evt as any);
     },
-    [dispatch]
+    [dispatch],
   );
 
   /** Hover event handlers */
@@ -232,11 +232,11 @@ function useMouseEventHandlers(
   const onMouseOver = useCallback(
     (evt) => {
       const height = scale.invert(
-        evt.clientY - evt.currentTarget.getBoundingClientRect().top
+        evt.clientY - evt.currentTarget.getBoundingClientRect().top,
       );
       _onMouseOver?.(null, height, evt);
     },
-    [scale, _onMouseOver]
+    [scale, _onMouseOver],
   );
 
   const onMouseOut = useCallback(() => {
