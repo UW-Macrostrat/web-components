@@ -5,16 +5,15 @@ import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ReactNode, useMemo, useState } from "react";
 import {
   DataField,
-  // EnvironmentsList,
+  EnvironmentsList,
   IntervalShort,
   IntervalTag,
   ItemList,
-  // LithologyList,
+  LithologyList,
   LithologyTagFeature,
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
-import { LithologyList, EnvironmentsList } from "../../../data-components/src";
 import { useMacrostratData, useMacrostratDefs } from "../data-provider";
 import {
   Environment,
