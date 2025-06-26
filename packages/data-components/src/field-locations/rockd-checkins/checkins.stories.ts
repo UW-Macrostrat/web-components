@@ -23,6 +23,12 @@ const meta: Meta<typeof RockdWebsiteCheckinList> = {
       description: "Base URL for the Rockd API",
     },
   },
+  parameters: {
+    docs: {
+      description:
+        "This component displays a list of Rockd checkins in the format expected by the website",
+    },
+  },
 };
 
 export default meta;

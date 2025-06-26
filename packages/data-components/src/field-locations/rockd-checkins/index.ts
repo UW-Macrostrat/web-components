@@ -12,28 +12,6 @@ import type mapboxgl from "mapbox-gl";
 
 const h = hyper.styled(styles);
 
-function BlankImage({ src, className, width, height, onClick, onError, alt }) {
-  return h("img", {
-    src: src,
-    className,
-    width,
-    height,
-    onClick,
-    onError,
-    alt,
-  });
-}
-
-function getImageUrl(person_id, photo_id, rockdAPIUrl) {
-  return (
-    rockdAPIUrl + "/protected/image/" + person_id + "/thumb_large/" + photo_id
-  );
-}
-
-function getProfilePicUrl(person_id, rockdAPIUrl) {
-  return rockdAPIUrl + "/protected/gravatar/" + person_id;
-}
-
 export interface CheckinProps {
   result: Array<{
     checkin_id: number;
@@ -86,159 +64,169 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
   const len = result.length;
   const color = isDarkMode ? "white" : "black";
 
-  result.forEach((checkin) => {
-    // format rating
-    let ratingArr = [];
-    for (var i = 0; i < checkin.rating; i++) {
-      ratingArr.push(
-        h(Icon, { className: "star", icon: "star", style: { color } }),
-      );
-    }
+  return h(
+    result.map((checkin) => {
+      // format rating
+      let ratingArr = [];
+      for (var i = 0; i < checkin.rating; i++) {
+        ratingArr.push(
+          h(Icon, { className: "star", icon: "star", style: { color } }),
+        );
+      }
 
-    for (var i = 0; i < 5 - checkin.rating; i++) {
-      ratingArr.push(
-        h(Icon, { className: "star", icon: "star-empty", style: { color } }),
-      );
-    }
+      for (var i = 0; i < 5 - checkin.rating; i++) {
+        ratingArr.push(
+          h(Icon, { className: "star", icon: "star-empty", style: { color } }),
+        );
+      }
 
-    let image;
-    const imgSrc = getImageUrl(checkin.person_id, checkin.photo, rockdAPIUrl);
-    const showImage = checkin.photo;
+      let imageView = null;
 
-    if (showImage) {
-      image = h(BlankImage, { className: "observation-img", src: imgSrc });
-    } else {
-      image = h("div", { className: "no-image" }, [
-        h("h1.details", "Details"),
-        h(Icon, {
-          className: "details-image",
-          icon: "arrow-right",
-          style: { color },
-        }),
-      ]);
-    }
+      if (checkin.photo != null) {
+        const imgSrc = getImageUrl(
+          checkin.person_id,
+          checkin.photo,
+          rockdAPIUrl,
+        );
+        imageView = h([
+          h("img.observation-img", {
+            className: "observation-img",
+            src: imgSrc,
+          }),
+          h("div.image-details", [
+            h("h1.details", "Details"),
+            h(Icon, {
+              className: "details-image",
+              icon: "arrow-right",
+              style: { color },
+            }),
+          ]),
+        ]);
+      } else {
+        imageView = h("div.no-image", [
+          h("h1.details", "Details"),
+          h(Icon, {
+            className: "details-image",
+            icon: "arrow-right",
+            style: { color },
+          }),
+        ]);
+      }
 
-    // for trips
-    const stop_name = checkin?.name ?? null;
-    const LngLatProps = {
-      position: {
-        lat: checkin.lat,
-        lng: checkin.lng,
-      },
-      precision: 3,
-      zoom: 10,
-    };
-
-    let temp = h(
-      "div",
-      {
-        className: "checkin",
-        onClick: () => {
-          map.flyTo({ center: [checkin.lng, checkin.lat], zoom: 12 });
-          if (setInspectPosition)
-            setInspectPosition({ lat: checkin.lat, lng: checkin.lng });
+      // for trips
+      const stop_name = checkin?.name ?? null;
+      const LngLatProps = {
+        position: {
+          lat: checkin.lat,
+          lng: checkin.lng,
         },
-        onMouseEnter: () => {
-          if (len > 1) {
-            // marker
-            const el = document.createElement("div");
-            el.className = "marker_pin";
+        precision: 3,
+        zoom: 10,
+      };
 
-            // Create marker
-            new mapboxgl.Marker(el)
-              .setLngLat([checkin.lng, checkin.lat])
-              .addTo(map);
-          }
+      return h(
+        "div.checkin",
+        {
+          onClick: () => {
+            map.flyTo({ center: [checkin.lng, checkin.lat], zoom: 12 });
+            if (setInspectPosition)
+              setInspectPosition({ lat: checkin.lat, lng: checkin.lng });
+          },
+          onMouseEnter: () => {
+            if (len > 1) {
+              // marker
+              const el = document.createElement("div");
+              el.className = "marker_pin";
+
+              // Create marker
+              new mapboxgl.Marker(el)
+                .setLngLat([checkin.lng, checkin.lat])
+                .addTo(map);
+            }
+          },
+          onMouseLeave: () => {
+            let previous = document.querySelectorAll(".marker_pin");
+            previous.forEach((marker) => {
+              marker.remove();
+            });
+          },
         },
-        onMouseLeave: () => {
-          let previous = document.querySelectorAll(".marker_pin");
-          previous.forEach((marker) => {
-            marker.remove();
-          });
-        },
-      },
-      [
-        h("h1", { className: "stop-name" }, stop_name),
-        h("div", { className: "checkin-header" }, [
-          !stop_name
-            ? h(
-                "h3",
-                { className: "profile-pic" },
-                h(BlankImage, {
-                  src: getProfilePicUrl(checkin.person_id, rockdAPIUrl),
-                  className: "profile-pic",
-                }),
-              )
-            : null,
-          h("div", { className: "checkin-info" }, [
+        [
+          h("h1.stop-name", stop_name),
+          h("div.checkin-header", [
             !stop_name
               ? h(
-                  "h3",
-                  { className: "name" },
-                  checkin.first_name + " " + checkin.last_name,
+                  "h3.profile-pic",
+
+                  h("img.profile-pic", {
+                    src: getProfilePicUrl(checkin.person_id, rockdAPIUrl),
+                  }),
                 )
               : null,
-            h("h4", { className: "edited" }, checkin.created),
-            h("p", "Near " + checkin.near),
-            h(LngLatCoords, LngLatProps),
-            h("h3", { className: "rating" }, ratingArr),
+            h("div.checkin-info", [
+              !stop_name
+                ? h(
+                    "h3",
+                    { className: "name" },
+                    checkin.first_name + " " + checkin.last_name,
+                  )
+                : null,
+              h("h4", { className: "edited" }, checkin.created),
+              h("p", "Near " + checkin.near),
+              h(LngLatCoords, LngLatProps),
+              h("h3", { className: "rating" }, ratingArr),
+            ]),
           ]),
-        ]),
-        h("p", { className: "description" }, checkin.notes),
-        h(
-          "a",
-          {
-            className: "checkin-link",
-            href: "/checkin/" + checkin.checkin_id,
-            target: "_blank",
-          },
-          [
-            image,
-            showImage
-              ? h("div", { className: "image-details" }, [
-                  h("h1.details", "Details"),
-                  h(Icon, {
-                    className: "details-image",
-                    icon: "arrow-right",
-                    style: { color },
-                  }),
-                ])
-              : null,
-          ],
-        ),
-        h("div", { className: "checkin-footer" }, [
-          h("div", { className: "likes-container" }, [
-            h(Icon, {
-              className: "likes-icon " + (isDarkMode ? "icon-dark-mode" : ""),
-              icon: "thumbs-up",
-              style: { color },
-            }),
-            h("h3", { className: "likes" }, checkin.likes),
+          h("p", { className: "description" }, checkin.notes),
+          h(
+            "a",
+            {
+              className: "checkin-link",
+              href: "/checkin/" + checkin.checkin_id,
+              target: "_blank",
+            },
+            imageView,
+          ),
+          h("div", { className: "checkin-footer" }, [
+            h("div", { className: "likes-container" }, [
+              h(Icon, {
+                className: "likes-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                icon: "thumbs-up",
+                style: { color },
+              }),
+              h("h3", { className: "likes" }, checkin.likes),
+            ]),
+            h("div", { className: "observations-container" }, [
+              h(Icon, {
+                className:
+                  "observations-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                icon: "camera",
+                style: { color },
+              }),
+              h("h3", { className: "likes" }, checkin.observations.length),
+            ]),
+            h("div", { className: "comments-container" }, [
+              h(Icon, {
+                className:
+                  "comments-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                icon: "comment",
+                style: { color },
+              }),
+              h("h3", { className: "comments" }, checkin.comments),
+            ]),
           ]),
-          h("div", { className: "observations-container" }, [
-            h(Icon, {
-              className:
-                "observations-icon " + (isDarkMode ? "icon-dark-mode" : ""),
-              icon: "camera",
-              style: { color },
-            }),
-            h("h3", { className: "likes" }, checkin.observations.length),
-          ]),
-          h("div", { className: "comments-container" }, [
-            h(Icon, {
-              className:
-                "comments-icon " + (isDarkMode ? "icon-dark-mode" : ""),
-              icon: "comment",
-              style: { color },
-            }),
-            h("h3", { className: "comments" }, checkin.comments),
-          ]),
-        ]),
-      ],
-    );
+        ],
+      );
+    }),
+  );
+}
 
-    checkins.push(temp);
-  });
+function getImageUrl(person_id, photo_id, rockdAPIUrl) {
+  return (
+    rockdAPIUrl + "/protected/image/" + person_id + "/thumb_large/" + photo_id
+  );
+}
 
-  return checkins;
+function getProfilePicUrl(person_id, rockdAPIUrl) {
+  return rockdAPIUrl + "/protected/gravatar/" + person_id;
 }
