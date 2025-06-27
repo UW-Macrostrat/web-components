@@ -240,6 +240,8 @@ function renderNode(
 ): any {
   if (typeof node === "string") return node;
 
+  console.log("Rendering node", node);
+
   const { tag, children } = node;
   const isSelected = selectedNodes?.includes(tag.id);
 
@@ -254,7 +256,6 @@ function renderNode(
       if (Object.prototype.hasOwnProperty.call(children, key)) {
         const child = children[key];
         if(child?.tag) {
-          console.log("Child tag found", child.tag, tag);
           moveText.push(child.children[0])
         } else {
           moveText.push(child);
@@ -317,8 +318,6 @@ export function HighlightedText(props: {
       document.removeEventListener("mouseup", handleMouseUp);
     };
   }, [text, allTags, dispatch, allowOverlap]);
-
-  console.log("Rendering highlighted text with tree", tree);
 
   return h(
     "span",
