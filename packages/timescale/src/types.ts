@@ -11,6 +11,7 @@ export interface Interval {
   typ?: string;
   rid?: number[];
   abr?: string;
+  int_id?: number; 
 }
 
 interface NestedInterval extends Interval {
