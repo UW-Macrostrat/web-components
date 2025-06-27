@@ -1,9 +1,9 @@
 import { Toaster, HotkeysProvider } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { DataSheet, ColorCell, getRowsToDelete } from "../core"; //getRowsToDelete
+import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
-import { usePostgRESTLazyLoader } from "./data-loaders";
+import { PostgrestOrder, usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner } from "@blueprintjs/core";
 
 export * from "./data-loaders";
@@ -21,6 +21,7 @@ import type {
   GenericTable,
   GenericView,
 } from "@supabase/postgrest-js/dist/cjs/types";
+import { ColorCell } from "../components";
 
 const h = hyper.styled(styles);
 
@@ -35,9 +36,10 @@ interface PostgRESTTableViewProps<T extends object>
   endpoint: string;
   table: string;
   columnOptions?: any;
-  order?: any;
+  order?: PostgrestOrder<T>;
   columns?: string;
   editable?: boolean;
+  identityKey?: string;
   filter(
     query: PostgrestFilterBuilder<T, any, any>,
   ): PostgrestFilterBuilder<T, any, any>;
@@ -67,7 +69,7 @@ function _PostgRESTTableView<T>({
     endpoint,
     table,
     {
-      order,
+      order: order ?? { key: identityKey, ascending: true },
       columns,
       filter,
     },
@@ -216,11 +218,11 @@ export function ExpandedLithologies({ value, onChange }) {
             h(
               "td.basis-col",
               d.basis_col?.map((d) => {
-                return h(Tag, { size: TagSize.Small, key: d }, [
-                  h("span.tag-header", "Column"),
-                  " ",
-                  h("code", d),
-                ]);
+                return h(Tag, {
+                  size: TagSize.Small,
+                  key: d,
+                  name: h([h("span.tag-header", "Column"), " ", h("code", d)]),
+                });
               }),
             ),
           ]);
