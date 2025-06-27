@@ -88,7 +88,6 @@ function Timescale(props: TimescaleProps) {
   const className = classNames(
     orientation,
     "increase-" + increaseDirection,
-    onClick ? "clickable" : null,
   );
   const length = absoluteAgeScale ? (l ?? 6000) : null;
 
