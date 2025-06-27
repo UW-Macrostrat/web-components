@@ -45,7 +45,8 @@ function IntervalBox(props: {
   return h(SizeAwareLabel, {
     key: interval.oid,
     style,
-    className: "interval-box " + (onClick && interval.int_id != null ? "clickable" : ""),
+    className:
+      "interval-box " + (onClick && interval.int_id != null ? "clickable" : ""),
     labelClassName: "interval-label",
     label: labelText,
     onVisibilityChanged(viz) {

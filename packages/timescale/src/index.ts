@@ -85,10 +85,7 @@ function Timescale(props: TimescaleProps) {
     [rootInterval, intervals],
   );
 
-  const className = classNames(
-    orientation,
-    "increase-" + increaseDirection,
-  );
+  const className = classNames(orientation, "increase-" + increaseDirection);
   const length = absoluteAgeScale ? (l ?? 6000) : null;
 
   let ageRange2 = null;
