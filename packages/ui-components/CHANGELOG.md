@@ -2,7 +2,7 @@
 
 ## [unreleased] - 2025-06-30
 
-Updated infinite scorlling to take `delay` as input param
+Updated infinite scorlling to take `delay` as input param (default 100ms)
 
 ## [4.3.0] - 2025-06-25
 
