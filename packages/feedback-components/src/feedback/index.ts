@@ -6,7 +6,7 @@ import Node from "./node";
 import { FeedbackText } from "./text-visualizer";
 import type { InternalEntity, TreeData } from "./types";
 import type { Entity } from "../extractions";
-import { ModelInfo } from "../extractions";
+import { getTagStyle, ModelInfo } from "../extractions";
 import {
   TreeDispatchContext,
   treeToGraph,
@@ -538,8 +538,10 @@ function TypeTag({
   isSelectedNodes,
 }) {
   const { color, name, id, description } = type;
-  const chromaColor = asChromaColor(color ?? "#000000");
   const darkMode = useInDarkMode();
+  const isSelected = id === selected?.id && selectedNodes.length > 0;
+
+  const style = getTagStyle(color, {active: isSelected, highlighted: selectedNodes.length === 0});
 
   const payload = {
     id,
@@ -604,10 +606,10 @@ function TypeTag({
             ids.length > 0 || (isSelectedNodes && !selectedType)
               ? "pointer"
               : "",
-          color: darkMode ? "white" : "black",
-          backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
+          color: "black",
+          backgroundColor: style.backgroundColor,
           border:
-            id === selected?.id && selectedNodes.length > 0
+            isSelected
               ? `1px solid var(--text-emphasized-color)`
               : `1px solid var(--background-color)`,
         },
