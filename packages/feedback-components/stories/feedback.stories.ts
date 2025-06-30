@@ -14,7 +14,7 @@ function FeedbackInterface({ data, types, lineHeight, allowOverlap }) {
     entityTypes: createMap(types),
     sourceTextID: source_text,
     runID: model_run,
-    lineHeight: `${lineHeight}em`,
+    lineHeight,
     allowOverlap,
   });
 }
@@ -31,7 +31,6 @@ export const AllowOverlap: StoryObj<{}> = {
   args: {
     data,
     types: entityTypes,
-    lineHeight: 2,
     allowOverlap: true,
   },
 };

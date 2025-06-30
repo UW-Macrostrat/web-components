@@ -59,7 +59,7 @@ export function FeedbackComponent({
   entityTypes,
   matchComponent,
   onSave,
-  lineHeight,
+  lineHeight = 3,
   allowOverlap,
 }) {
   // Get the input arguments
@@ -91,7 +91,7 @@ export function FeedbackComponent({
         // @ts-ignore
         nodes: tree,
         selectedNodes,
-        lineHeight,
+        lineHeight: `${lineHeight}em`,
         allowOverlap,
       }),
     ),
