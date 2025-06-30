@@ -77,44 +77,8 @@ export function FeedbackComponent({
 
   const [{ width, height }, ref] = useElementDimensions();
 
-  return h(TreeDispatchContext.Provider, { value: dispatch }, [
-    h(
-      ErrorBoundary,
-      {
-        description:
-          "An error occurred while rendering the feedback text component.",
-      },
-      h(FeedbackText, {
-        text,
-        dispatch,
-        // @ts-ignore
-        nodes: tree,
-        selectedNodes,
-        allowOverlap,
-      }),
-    ),
-    h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
-      h(ModelInfo, { data: model }),
-      h(SegmentedControl, {
-        options: [
-          { label: "Tree", value: "tree" },
-          { label: "Graph", value: "graph" },
-        ],
-        value: state.viewMode,
-        small: true,
-        onValueChange(value: ViewMode) {
-          console.log("Setting view mode", value);
-          dispatch({ type: "set-view-mode", payload: value });
-        },
-      }),
-    ]),
-    h(
-      "div.entity-panel",
-      {
-        ref,
-      },
-      [
-        h(Card, { className: "control-panel" }, [
+  return     h('div.page-wrapper', [
+    h(Card, { className: "control-panel" }, [
           h(
             ButtonGroup,
             {
@@ -165,6 +129,45 @@ export function FeedbackComponent({
               }),
           }),
         ]),
+    h('div.feedback-container', 
+    h(TreeDispatchContext.Provider, { value: dispatch }, [
+    h(
+      ErrorBoundary,
+      {
+        description:
+          "An error occurred while rendering the feedback text component.",
+      },
+      h(FeedbackText, {
+        text,
+        dispatch,
+        // @ts-ignore
+        nodes: tree,
+        selectedNodes,
+        allowOverlap,
+      }),
+    ),
+    h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
+      h(ModelInfo, { data: model }),
+      h(SegmentedControl, {
+        options: [
+          { label: "Tree", value: "tree" },
+          { label: "Graph", value: "graph" },
+        ],
+        value: state.viewMode,
+        small: true,
+        onValueChange(value: ViewMode) {
+          console.log("Setting view mode", value);
+          dispatch({ type: "set-view-mode", payload: value });
+        },
+      }),
+    ]),
+    h(
+      "div.entity-panel",
+      {
+        ref,
+      },
+      [
+        
         h.if(state.viewMode == "tree")(ManagedSelectionTree, {
           selectedNodes,
           dispatch,
@@ -182,6 +185,7 @@ export function FeedbackComponent({
         }),
       ],
     ),
+  ]))
   ]);
 }
 

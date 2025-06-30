@@ -21,15 +21,16 @@ circle
 .feedback-text
   margin-bottom: 2em
 
+.control-panel
+  padding: 0.2em 0.5em
+  margin-left: 2em
+  float: right
+  width: 200px
+
 .entity-panel
   position: relative
   max-height: 600px
-
-.control-panel
-  position: absolute
-  top: 1em
-  right: 1em
-  padding: 0.2em 0.5em
+  width: calc(100% - 200px - 2em)
 
 .entity-panel
   flex: 1
@@ -43,7 +44,7 @@ circle
 .selection-tree
   margin: -1em 0
   padding: 1em 0
-  width: 70% !important
+  width: 95% !important
   
 .type-list
   display: grid
