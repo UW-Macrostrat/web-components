@@ -73,8 +73,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap } =
-    props;
+  const { text, selectedNodes, nodes, dispatch, allowOverlap } = props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes,
@@ -252,8 +251,8 @@ function renderNode(
     for (const key in children) {
       if (Object.prototype.hasOwnProperty.call(children, key)) {
         const child = children[key];
-        if(child?.tag) {
-          moveText.push(child.children[0])
+        if (child?.tag) {
+          moveText.push(child.children[0]);
         } else {
           moveText.push(child);
         }
@@ -290,13 +289,7 @@ export function HighlightedText(props: {
   dispatch: TreeDispatch;
   selectedNodes: number[];
 }) {
-  const {
-    text,
-    allTags = [],
-    dispatch,
-    selectedNodes,
-    allowOverlap,
-  } = props;
+  const { text, allTags = [], dispatch, selectedNodes, allowOverlap } = props;
 
   const tree = nestHighlights(text, allTags);
 

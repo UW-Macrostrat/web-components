@@ -18,7 +18,6 @@ import { getTagStyle } from "../extractions";
 
 const h = hyper.styled(styles);
 
-
 export function GraphView(props: {
   tree: TreeData[];
   width: number;
@@ -109,7 +108,7 @@ export function GraphView(props: {
             const highlighted = isHighlighted(d.id, selectedNodes, nodes);
             const style = getTagStyle(d.color, { highlighted, active });
 
-            return  h("g", [
+            return h("g", [
               h("circle", {
                 cx: d.x,
                 cy: d.y,
@@ -126,13 +125,17 @@ export function GraphView(props: {
                 stroke,
                 strokeWidth: 2,
               }),
-              h.if(showLabels)("text", {
-                x: d.x + 10,
-                y: d.y + 4,
-                className: "node-label",
-              }, d.name || `Node ${d.id}`),
-              h.if(!showLabels)('title', d.name || `Node ${d.id}`),
-            ])
+              h.if(showLabels)(
+                "text",
+                {
+                  x: d.x + 10,
+                  y: d.y + 4,
+                  className: "node-label",
+                },
+                d.name || `Node ${d.id}`,
+              ),
+              h.if(!showLabels)("title", d.name || `Node ${d.id}`),
+            ]);
           }),
         ),
       ]),
