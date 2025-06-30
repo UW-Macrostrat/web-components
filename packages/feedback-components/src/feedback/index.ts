@@ -77,115 +77,116 @@ export function FeedbackComponent({
 
   const [{ width, height }, ref] = useElementDimensions();
 
-  return     h('div.page-wrapper', [
+  return h('div.page-wrapper', [
     h(Card, { className: "control-panel" }, [
-          h(
-            ButtonGroup,
-            {
-              vertical: true,
-              fill: true,
-              minimal: true,
-              alignText: "left",
-            },
-            [
-              h(
-                CancelButton,
-                {
-                  icon: "trash",
-                  disabled: state.initialTree == state.tree,
-                  onClick() {
-                    dispatch({ type: "reset" });
-                  },
-                },
-                "Reset",
-              ),
-              h(
-                SaveButton,
-                {
-                  onClick() {
-                    onSave(state.tree);
-                  },
-                  disabled: state.initialTree == state.tree,
-                },
-                "Save",
-              ),
-            ],
-          ),
-          h(Divider),
-          h(EntityTypeSelector, {
-            entityTypes: entityTypesMap,
-            selected: selectedEntityType,
-            onChange(payload) {
-              dispatch({ type: "select-entity-type", payload });
-            },
-            dispatch,
-            tree,
-            selectedNodes,
-            isOpen: isSelectingEntityType,
-            setOpen: (isOpen: boolean) =>
-              dispatch({
-                type: "toggle-entity-type-selector",
-                payload: isOpen,
-              }),
-          }),
-        ]),
-    h('div.feedback-container', 
-    h(TreeDispatchContext.Provider, { value: dispatch }, [
-    h(
-      ErrorBoundary,
-      {
-        description:
-          "An error occurred while rendering the feedback text component.",
-      },
-      h(FeedbackText, {
-        text,
-        dispatch,
-        // @ts-ignore
-        nodes: tree,
-        selectedNodes,
-        allowOverlap,
-      }),
-    ),
-    h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
-      h(ModelInfo, { data: model }),
-      h(SegmentedControl, {
-        options: [
-          { label: "Tree", value: "tree" },
-          { label: "Graph", value: "graph" },
-        ],
-        value: state.viewMode,
-        small: true,
-        onValueChange(value: ViewMode) {
-          console.log("Setting view mode", value);
-          dispatch({ type: "set-view-mode", payload: value });
+      h(
+        ButtonGroup,
+        {
+          vertical: true,
+          fill: true,
+          minimal: true,
+          alignText: "left",
         },
+        [
+          h(
+            CancelButton,
+            {
+              icon: "trash",
+              disabled: state.initialTree == state.tree,
+              onClick() {
+                dispatch({ type: "reset" });
+              },
+            },
+            "Reset",
+          ),
+          h(
+            SaveButton,
+            {
+              onClick() {
+                onSave(state.tree);
+              },
+              disabled: state.initialTree == state.tree,
+            },
+            "Save",
+          ),
+        ],
+      ),
+      h(Divider),
+      h(EntityTypeSelector, {
+        entityTypes: entityTypesMap,
+        selected: selectedEntityType,
+        onChange(payload) {
+          dispatch({ type: "select-entity-type", payload });
+        },
+        dispatch,
+        tree,
+        selectedNodes,
+        isOpen: isSelectingEntityType,
+        setOpen: (isOpen: boolean) =>
+          dispatch({
+            type: "toggle-entity-type-selector",
+            payload: isOpen,
+          }),
       }),
     ]),
-    h(
-      "div.entity-panel",
-      {
-        ref,
-      },
-      [
-        
-        h.if(state.viewMode == "tree")(ManagedSelectionTree, {
-          selectedNodes,
-          dispatch,
-          tree,
-          width,
-          height,
-          matchComponent,
-        }),
-        h.if(state.viewMode == "graph")(GraphView, {
-          tree,
-          width,
-          height,
-          dispatch,
-          selectedNodes,
-        }),
-      ],
-    ),
-  ]))
+    h('div.feedback-container', 
+      h(TreeDispatchContext.Provider, { value: dispatch }, [
+        h(
+          ErrorBoundary,
+          {
+            description:
+              "An error occurred while rendering the feedback text component.",
+          },
+          h(FeedbackText, {
+            text,
+            dispatch,
+            // @ts-ignore
+            nodes: tree,
+            selectedNodes,
+            allowOverlap,
+          }),
+        ),
+        h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
+          h(ModelInfo, { data: model }),
+          h(SegmentedControl, {
+            options: [
+              { label: "Tree", value: "tree" },
+              { label: "Graph", value: "graph" },
+            ],
+            value: state.viewMode,
+            small: true,
+            onValueChange(value: ViewMode) {
+              console.log("Setting view mode", value);
+              dispatch({ type: "set-view-mode", payload: value });
+            },
+          }),
+        ]),
+        h(
+          "div.entity-panel",
+          {
+            ref,
+          },
+          [
+            
+            h.if(state.viewMode == "tree")(ManagedSelectionTree, {
+              selectedNodes,
+              dispatch,
+              tree,
+              width,
+              height,
+              matchComponent,
+            }),
+            h.if(state.viewMode == "graph")(GraphView, {
+              tree,
+              width,
+              height,
+              dispatch,
+              selectedNodes,
+            }),
+          ],
+        ),
+      ])
+    )
   ]);
 }
 
