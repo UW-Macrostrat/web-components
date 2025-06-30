@@ -94,7 +94,7 @@ export function InfiniteScroll(props) {
   const { ref, inView } = useInView({
     rootMargin: `0px 0px ${offset}px 0px`,
     trackVisibility: true,
-    delay: delay >= 100 ? delay : 100, 
+    delay: delay >= 100 ? delay : 100,
   });
 
   const shouldLoadMore = hasMore && inView;
@@ -300,7 +300,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       loader: placeholder,
       useWindow: true,
       className,
-      delay
+      delay,
     },
     [
       h.if(isEmpty)(emptyPlaceholder),
