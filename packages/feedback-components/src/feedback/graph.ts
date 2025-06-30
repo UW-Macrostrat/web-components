@@ -104,7 +104,7 @@ export function GraphView(props: {
               {
                 cx: d.x,
                 cy: d.y,
-                r: 5,
+                r: 8,
                 fill: style.backgroundColor || "blue",
                 onClick: (e) => {
                   e.stopPropagation();
