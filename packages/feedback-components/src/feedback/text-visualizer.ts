@@ -146,22 +146,21 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   // Expand start backwards to the previous word boundary
   while (start > 0 && /\w/.test(text[start - 1])) {
     start--;
-    console.log("decrease start")
+    console.log("decrease start");
   }
 
   // Expand end forward to the next word boundary
   while (end < text.length && /\w/.test(text[end])) {
     end++;
-    console.log("increase end")
+    console.log("increase end");
   }
-
 
   let payload = { start, end, text: text.slice(start, end) };
 
   if (payload.text.trim() === "") {
     console.log("Blank tag found, ignoring");
     return;
-  }  
+  }
 
   const duplicate = allTags.find(
     (t) =>
@@ -260,7 +259,7 @@ function renderNode(
     ...tag,
     zIndex: parentSelected ? -1 : 1,
     border: "1px solid " + (showBorder ? tag.color : "transparent"),
-    margin: "-1px"
+    margin: "-1px",
   };
 
   let moveText = [];
