@@ -129,7 +129,8 @@ export function FeedbackComponent({
           }),
       }),
     ]),
-    h('div.feedback-container', 
+    h(
+      "div.feedback-container",
       h(TreeDispatchContext.Provider, { value: dispatch }, [
         h(
           ErrorBoundary,
@@ -146,28 +147,31 @@ export function FeedbackComponent({
             allowOverlap,
           }),
         ),
-        h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
-          h(ModelInfo, { data: model }),
-          h(SegmentedControl, {
-            options: [
-              { label: "Tree", value: "tree" },
-              { label: "Graph", value: "graph" },
-            ],
-            value: state.viewMode,
-            small: true,
-            onValueChange(value: ViewMode) {
-              console.log("Setting view mode", value);
-              dispatch({ type: "set-view-mode", payload: value });
-            },
-          }),
-        ]),
+        h(
+          FlexRow,
+          { alignItems: "baseline", justifyContent: "space-between" },
+          [
+            h(ModelInfo, { data: model }),
+            h(SegmentedControl, {
+              options: [
+                { label: "Tree", value: "tree" },
+                { label: "Graph", value: "graph" },
+              ],
+              value: state.viewMode,
+              small: true,
+              onValueChange(value: ViewMode) {
+                console.log("Setting view mode", value);
+                dispatch({ type: "set-view-mode", payload: value });
+              },
+            }),
+          ],
+        ),
         h(
           "div.entity-panel",
           {
             ref,
           },
           [
-            
             h.if(state.viewMode == "tree")(ManagedSelectionTree, {
               selectedNodes,
               dispatch,
@@ -185,8 +189,8 @@ export function FeedbackComponent({
             }),
           ],
         ),
-      ])
-    )
+      ]),
+    ),
   ]);
 }
 
@@ -546,7 +550,10 @@ function TypeTag({
   const darkMode = useInDarkMode();
   const isSelected = id === selected?.id && selectedNodes.length > 0;
 
-  const style = getTagStyle(color, {active: isSelected, highlighted: selectedNodes.length === 0});
+  const style = getTagStyle(color, {
+    active: isSelected,
+    highlighted: selectedNodes.length === 0,
+  });
 
   const payload = {
     id,
@@ -613,10 +620,9 @@ function TypeTag({
               : "",
           color: "black",
           backgroundColor: style.backgroundColor,
-          border:
-            isSelected
-              ? `1px solid var(--text-emphasized-color)`
-              : `1px solid var(--background-color)`,
+          border: isSelected
+            ? `1px solid var(--text-emphasized-color)`
+            : `1px solid var(--background-color)`,
         },
       },
       h("div.type-container", [
