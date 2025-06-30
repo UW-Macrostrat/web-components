@@ -73,7 +73,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, lineHeight, allowOverlap } =
+  const { text, selectedNodes, nodes, dispatch, allowOverlap } =
     props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
@@ -96,7 +96,6 @@ export function FeedbackText(props: FeedbackTextProps) {
     h(HighlightedText, {
       text,
       allTags,
-      lineHeight,
       allowOverlap,
       dispatch,
       selectedNodes,
@@ -294,7 +293,6 @@ export function HighlightedText(props: {
   const {
     text,
     allTags = [],
-    lineHeight,
     dispatch,
     selectedNodes,
     allowOverlap,
@@ -319,7 +317,7 @@ export function HighlightedText(props: {
 
   return h(
     "span",
-    { style: { lineHeight }, ref: spanRef },
+    { ref: spanRef },
     tree.children.map((child: any, i: number) =>
       renderNode(child, dispatch, selectedNodes, false),
     ),
