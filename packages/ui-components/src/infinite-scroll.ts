@@ -41,7 +41,8 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   resultsComponent?: React.ComponentType<{ data: T[] }>;
   perPage?: number;
   startPage?: number;
-  initialData?: T[]; // to allow for server-side rendering for initial state
+  initialData?: T[];
+  delay?: number;
 }
 
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
@@ -88,11 +89,12 @@ export function InfiniteScroll(props) {
     loadMore,
     offset = 0,
     isLoading,
+    delay = 100,
   } = props;
   const { ref, inView } = useInView({
     rootMargin: `0px 0px ${offset}px 0px`,
     trackVisibility: true,
-    delay: 100,
+    delay: delay >= 100 ? delay : 100, 
   });
 
   const shouldLoadMore = hasMore && inView;
@@ -189,6 +191,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     perPage = 10,
     startPage = 0,
     initialItems = [],
+    delay,
   } = props;
   const { get } = useAPIActions();
   const { getCount, getNextParams, getItems, hasMore } = props;
@@ -297,6 +300,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       loader: placeholder,
       useWindow: true,
       className,
+      delay
     },
     [
       h.if(isEmpty)(emptyPlaceholder),

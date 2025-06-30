@@ -1,5 +1,9 @@
 # Changelog
 
+## [unreleased] - 2025-06-30
+
+Updated infinite scorlling to take `delay` as input param
+
 ## [4.3.0] - 2025-06-25
 
 Updated infinite scrolling
