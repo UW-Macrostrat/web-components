@@ -141,13 +141,27 @@ function createTagFromSelection({
 }
 
 function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
-  const { start, end } = tag;
+  let { start, end } = tag;
+  // snap to text
+  // Expand start backwards to the previous word boundary
+  while (start > 0 && /\w/.test(text[start - 1])) {
+    start--;
+    console.log("decrease start")
+  }
+
+  // Expand end forward to the next word boundary
+  while (end < text.length && /\w/.test(text[end])) {
+    end++;
+    console.log("increase end")
+  }
+
+
   let payload = { start, end, text: text.slice(start, end) };
 
   if (payload.text.trim() === "") {
     console.log("Blank tag found, ignoring");
     return;
-  }
+  }  
 
   const duplicate = allTags.find(
     (t) =>
