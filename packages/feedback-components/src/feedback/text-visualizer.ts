@@ -244,6 +244,8 @@ function renderNode(
   const style = {
     ...tag,
     zIndex: parentSelected ? -1 : 1,
+    border: "1px solid " + (isSelected ? tag.color : "transparent"),
+    margin: "-1px"
   };
 
   let moveText = [];
