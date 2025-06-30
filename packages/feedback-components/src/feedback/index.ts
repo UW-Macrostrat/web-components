@@ -300,14 +300,10 @@ function ManagedSelectionTree(props) {
     (nodes) => {
       if (!clickedRef.current) return;
       clickedRef.current = false;
-      console.log("Clicked nodes:", nodes);
 
       let ids = nodes.map((d) => parseInt(d.id));
-      if (ids.length === 1 && ids[0] === selectedNodes[0]) {
-        ids = [];
-      }
 
-      dispatch({ type: "select-node", payload: { ids } });
+      dispatch({ type: "toggle-node-selected", payload: { ids } });
     },
     [selectedNodes, dispatch],
   );

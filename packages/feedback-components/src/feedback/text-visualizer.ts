@@ -240,8 +240,6 @@ function renderNode(
 ): any {
   if (typeof node === "string") return node;
 
-  console.log("Rendering node", node);
-
   const { tag, children } = node;
   const isSelected = selectedNodes?.includes(tag.id);
 
