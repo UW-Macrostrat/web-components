@@ -77,7 +77,7 @@ export function FeedbackComponent({
 
   const [{ width, height }, ref] = useElementDimensions();
 
-  return h('div.page-wrapper', [
+  return h("div.page-wrapper", [
     h(Card, { className: "control-panel" }, [
       h(
         ButtonGroup,
