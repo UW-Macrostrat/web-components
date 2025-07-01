@@ -61,10 +61,12 @@ export interface DataSheetComputedStore {
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
 
+type StateUpdater<T> = T[] | ((state: T[]) => T[]);
+
 export interface DataSheetStore<T> extends DataSheetVals<T> {
   setSelection(selection: Region[]): void;
   onDragValue(cell: FocusedCellCoordinates | null): void;
-  setUpdatedData(data: T[]): void;
+  setUpdatedData(data: StateUpdater<T>): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
   onColumnsReordered(oldIndex: number, newIndex: number, length: number): void;
   moveFocusedCell(direction: "up" | "down" | "left" | "right"): void;
@@ -178,7 +180,7 @@ export function DataSheetProvider<T>({
               };
             });
           },
-          setUpdatedData(data: T[] | ((state: T[]) => T[])) {
+          setUpdatedData(data: StateUpdater<T>) {
             if (Array.isArray(data)) {
               set({ updatedData: data });
             } else {

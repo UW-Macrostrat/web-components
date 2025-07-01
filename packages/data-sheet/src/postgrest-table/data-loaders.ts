@@ -25,6 +25,12 @@ interface LazyLoaderState<T> {
   initialized: boolean;
 }
 
+export interface PostgrestOrder<T> {
+  key: string;
+  ascending?: boolean;
+  nullsFirst?: boolean;
+}
+
 type LazyLoaderAction<T> =
   | { type: "start-loading" }
   | { type: "loaded"; data: T[]; offset: number; totalSize: number }
@@ -130,7 +136,7 @@ interface QueryConfig {
   count?: "exact" | "estimated";
   limit?: number;
   offset?: number;
-  order?: { key: string; ascending: boolean };
+  order?: PostgrestOrder<any>;
   after?: any;
   filter?: (
     query: PostgrestFilterBuilder<any, any, any>,
@@ -158,12 +164,11 @@ function buildQuery<T>(
   }
 
   if (config.order != null) {
-    query = query.order(config.order.key, {
-      ascending: config.order.ascending,
-    });
+    const { key: orderKey, ...rest } = config.order;
+    query = query.order(orderKey, rest);
     if (config.after != null) {
-      const op = config.order.ascending ? "gt" : "lt";
-      query = query[op](config.order.key, config.after);
+      const op = (rest.ascending ?? true) ? "gt" : "lt";
+      query = query[op](orderKey, config.after);
     }
   }
   if (config.limit != null) {

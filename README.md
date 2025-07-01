@@ -7,6 +7,9 @@ built upon other UI-Libraries, heavily upon
 meant to be easily implemented with much of the business logic encapsulated
 within the library itself.
 
+You can view the latest version of each component in the
+[storybook](https://dev.macrostrat.org/docs/web-components/?path=/docs/text-extractions-text-extraction--docs)
+
 ## Architecture
 
 #### Libraries
@@ -17,12 +20,25 @@ components. It is structured as a monorepo, with several modules (in the
 referencing in Macrostrat's user-facing applications. Open-source contributions
 and third-party usage are welcome!
 
-Several of the most important modules are:
+Following is a list of all published modules
 
-- [`@macrostrat/ui-components`](https://www.npmjs.com/package/@macrostrat/ui-components)
-- [`@macrostrat/form-components`](https://www.npmjs.com/package/@macrostrat/form-components)
-- [`@macrostrat/data-components`](https://www.npmjs.com/package/@macrostrat/data-components)
-- [`@macrostrat/column-components`](https://www.npmjs.com/package/@macrostrat/column-components)
+[![@macrostrat/api-types](https://img.shields.io/npm/v/@macrostrat/api-types?label=%40macrostrat%2Fapi-types)](https://www.npmjs.com/package/@macrostrat/api-types)
+[![@macrostrat/color-utils](https://img.shields.io/npm/v/@macrostrat/color-utils?label=%40macrostrat%2Fcolor-utils)](https://www.npmjs.com/package/@macrostrat/color-utils)
+[![@macrostrat/column-components](https://img.shields.io/npm/v/@macrostrat/column-components?label=%40macrostrat%2Fcolumn-components)](https://www.npmjs.com/package/@macrostrat/column-components)
+[![@macrostrat/column-views](https://img.shields.io/npm/v/@macrostrat/column-views?label=%40macrostrat%2Fcolumn-views)](https://www.npmjs.com/package/@macrostrat/column-views)
+[![@macrostrat/data-components](https://img.shields.io/npm/v/@macrostrat/data-components?label=%40macrostrat%2Fdata-components)](https://www.npmjs.com/package/@macrostrat/data-components)
+[![@macrostrat/data-sheet](https://img.shields.io/npm/v/@macrostrat/data-sheet?label=%40macrostrat%2Fdata-sheet)](https://www.npmjs.com/package/@macrostrat/data-sheet)
+[![@macrostrat/feedback-components](https://img.shields.io/npm/v/@macrostrat/feedback-components?label=%40macrostrat%2Ffeedback-components)](https://www.npmjs.com/package/@macrostrat/feedback-components)
+[![@macrostrat/form-components](https://img.shields.io/npm/v/@macrostrat/form-components?label=%40macrostrat%2Fform-components)](https://www.npmjs.com/package/@macrostrat/form-components)
+[![@macrostrat/map-interface](https://img.shields.io/npm/v/@macrostrat/map-interface?label=%40macrostrat%2Fmap-interface)](https://www.npmjs.com/package/@macrostrat/map-interface)
+[![@macrostrat/map-styles](https://img.shields.io/npm/v/@macrostrat/map-styles?label=%40macrostrat%2Fmap-styles)](https://www.npmjs.com/package/@macrostrat/map-styles)
+[![@macrostrat/mapbox-react](https://img.shields.io/npm/v/@macrostrat/mapbox-react?label=%40macrostrat%2Fmapbox-react)](https://www.npmjs.com/package/@macrostrat/mapbox-react)
+[![@macrostrat/mapbox-utils](https://img.shields.io/npm/v/@macrostrat/mapbox-utils?label=%40macrostrat%2Fmapbox-utils)](https://www.npmjs.com/package/@macrostrat/mapbox-utils)
+[![@macrostrat/stratigraphy-utils](https://img.shields.io/npm/v/@macrostrat/stratigraphy-utils?label=%40macrostrat%2Fstratigraphy-utils)](https://www.npmjs.com/package/@macrostrat/stratigraphy-utils)
+[![@macrostrat/style-system](https://img.shields.io/npm/v/@macrostrat/style-system?label=%40macrostrat%2Fstyle-system)](https://www.npmjs.com/package/@macrostrat/style-system)
+[![@macrostrat/svg-map-components](https://img.shields.io/npm/v/@macrostrat/svg-map-components?label=%40macrostrat%2Fsvg-map-components)](https://www.npmjs.com/package/@macrostrat/svg-map-components)
+[![@macrostrat/timescale](https://img.shields.io/npm/v/@macrostrat/timescale?label=%40macrostrat%2Ftimescale)](https://www.npmjs.com/package/@macrostrat/timescale)
+[![@macrostrat/ui-components](https://img.shields.io/npm/v/@macrostrat/ui-components?label=%40macrostrat%2Fui-components)](https://www.npmjs.com/package/@macrostrat/ui-components)
 
 ## Contributing to web components
 
