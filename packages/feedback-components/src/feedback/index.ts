@@ -78,57 +78,6 @@ export function FeedbackComponent({
   const [{ width, height }, ref] = useElementDimensions();
 
   return h("div.page-wrapper", [
-    h(Card, { className: "control-panel" }, [
-      h(
-        ButtonGroup,
-        {
-          vertical: true,
-          fill: true,
-          minimal: true,
-          alignText: "left",
-        },
-        [
-          h(
-            CancelButton,
-            {
-              icon: "trash",
-              disabled: state.initialTree == state.tree,
-              onClick() {
-                dispatch({ type: "reset" });
-              },
-            },
-            "Reset",
-          ),
-          h(
-            SaveButton,
-            {
-              onClick() {
-                onSave(state.tree);
-              },
-              disabled: state.initialTree == state.tree,
-            },
-            "Save",
-          ),
-        ],
-      ),
-      h(Divider),
-      h(EntityTypeSelector, {
-        entityTypes: entityTypesMap,
-        selected: selectedEntityType,
-        onChange(payload) {
-          dispatch({ type: "select-entity-type", payload });
-        },
-        dispatch,
-        tree,
-        selectedNodes,
-        isOpen: isSelectingEntityType,
-        setOpen: (isOpen: boolean) =>
-          dispatch({
-            type: "toggle-entity-type-selector",
-            payload: isOpen,
-          }),
-      }),
-    ]),
     h(
       "div.feedback-container",
       h(TreeDispatchContext.Provider, { value: dispatch }, [
@@ -191,6 +140,59 @@ export function FeedbackComponent({
         ),
       ]),
     ),
+    h(Card, { className: "control-panel" }, [
+      h('div.control-content', [
+        h(
+          ButtonGroup,
+          {
+            vertical: true,
+            fill: true,
+            minimal: true,
+            alignText: "left",
+          },
+          [
+            h(
+              CancelButton,
+              {
+                icon: "trash",
+                disabled: state.initialTree == state.tree,
+                onClick() {
+                  dispatch({ type: "reset" });
+                },
+              },
+              "Reset",
+            ),
+            h(
+              SaveButton,
+              {
+                onClick() {
+                  onSave(state.tree);
+                },
+                disabled: state.initialTree == state.tree,
+              },
+              "Save",
+            ),
+          ],
+        ),
+        h(Divider),
+        h(EntityTypeSelector, {
+          entityTypes: entityTypesMap,
+          selected: selectedEntityType,
+          onChange(payload) {
+            dispatch({ type: "select-entity-type", payload });
+          },
+          dispatch,
+          tree,
+          selectedNodes,
+          isOpen: isSelectingEntityType,
+          setOpen: (isOpen: boolean) =>
+            dispatch({
+              type: "toggle-entity-type-selector",
+              payload: isOpen,
+            }),
+        }),
+      ])
+    ]),
   ]);
 }
 

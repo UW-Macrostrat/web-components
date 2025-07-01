@@ -1,5 +1,24 @@
 :root
   --text-line-height: 3em
+  --main-extra-width: 200px
+
+.page-wrapper
+  display: flex
+  flex-direction: row
+  position: relative
+  gap: 2em
+  align-items: flex-start // makes control-content lose stick
+
+.feedback-container
+  flex: 4
+
+.control-panel
+  flex: 1
+  height: auto
+
+.control-content
+  position: sticky
+  top: 0
 
 .feedback-component
   position: relative
@@ -21,20 +40,10 @@ circle
 .feedback-text
   margin-bottom: 2em
 
-.control-panel
-  padding: 0.2em 0.5em
-  margin-left: 2em
-  float: right
-  width: 200px
-  position: sticky
-  z-index: 1000
-
 .entity-panel
   position: relative
   max-height: 600px
-  width: calc(100% - 200px - 2em)
-
-.entity-panel
+  width: calc(100% - 2em)
   flex: 1
   min-height: 100px
   padding: 1em
@@ -46,7 +55,6 @@ circle
 .selection-tree
   margin: -1em 0
   padding: 1em 0
-  width: 95% !important
   
 .type-list
   display: grid
