@@ -38,7 +38,7 @@ Primary.args = {
   },
   route: "https://dev.macrostrat.org/api/pg/strat_combined",
   getNextParams,
-  delay: 200,
+  delay: 100,
   initialItems
 };
 
