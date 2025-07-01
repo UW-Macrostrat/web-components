@@ -41,7 +41,7 @@ interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   resultsComponent?: React.ComponentType<{ data: T[] }>;
   perPage?: number;
   startPage?: number;
-  initialData?: T[];
+  initialItems?: T[];
   delay?: number;
 }
 
