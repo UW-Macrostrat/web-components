@@ -157,7 +157,7 @@ function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   if (payload.text.trim() === "") {
     console.log("Blank tag found, ignoring");
     return;
-  }  
+  }
 
   const duplicate = allTags.find(
     (t) =>
@@ -256,7 +256,7 @@ function renderNode(
     ...tag,
     zIndex: parentSelected ? -1 : 1,
     border: "1px solid " + (showBorder ? tag.color : "transparent"),
-    margin: "-1px"
+    margin: "-1px",
   };
 
   let moveText = [];
