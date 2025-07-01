@@ -67,7 +67,8 @@ export function MapInspectorV2({
     mapboxgl.accessToken = mapboxToken;
   }
 
-  style ??= useBasicMapStyle({ styleType });
+  const basicStyle = useBasicMapStyle({ styleType });
+  style ??= basicStyle;
 
   const [isOpen, setOpen] = useState(false);
 
