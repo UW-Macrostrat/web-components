@@ -280,10 +280,19 @@ function renderNode(
       style,
       onClick: (e: MouseEvent) => {
         e.stopPropagation();
-        dispatch({
-          type: "toggle-node-selected",
-          payload: { ids: [tag.id] },
-        });
+        if (e.ctrlKey || e.metaKey || (selectedNodes[0] === tag.id && selectedNodes.length === 1)) {
+          // Toggle selection on ctrl/cmd click
+          e.stopPropagation();
+          dispatch({
+            type: "toggle-node-selected",
+            payload: { ids: [tag.id] },
+          });
+        } else {
+          dispatch({
+            type: "select-node",
+            payload: { ids: [tag.id] },
+          });
+        }
       },
     },
     isSelected
