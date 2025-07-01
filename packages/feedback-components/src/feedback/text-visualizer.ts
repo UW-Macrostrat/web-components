@@ -280,13 +280,22 @@ function renderNode(
       style,
       onClick: (e: MouseEvent) => {
         e.stopPropagation();
-        if (e.ctrlKey || e.metaKey || (selectedNodes[0] === tag.id && selectedNodes.length === 1)) {
-          // Toggle selection on ctrl/cmd click
+        if ((e.ctrlKey || e.metaKey) || (selectedNodes[0] === tag.id && selectedNodes.length === 1)) {
+          // Toggle selection on ctrl/cmd click or when node is only selected node
           e.stopPropagation();
           dispatch({
             type: "toggle-node-selected",
             payload: { ids: [tag.id] },
           });
+        } else if(e.shiftKey && selectedNodes.length > 0) {
+          // Select range from last selected node to this one
+          const lastSelected = selectedNodes[selectedNodes.length - 1];
+
+          dispatch({
+            type: "select-range",
+            payload: { ids: [lastSelected, tag.id] },
+          });
+
         } else {
           dispatch({
             type: "select-node",
