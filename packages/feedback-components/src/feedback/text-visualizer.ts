@@ -143,18 +143,14 @@ function createTagFromSelection({
 function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   let { start, end } = tag;
   // snap to text
-  // Expand start backwards to the previous word boundary
-  while (start > 0 && /\w/.test(text[start - 1])) {
-    start--;
-    console.log("decrease start")
+  if(text[end - 1] != " ") { // double clicking word overselects by one, shouldn't increase to next word
+    while (start > 0 && /\w/.test(text[start - 1])) {
+      start--;
+    }
+    while (end < text.length && /\w/.test(text[end])) {
+      end++;
+    }
   }
-
-  // Expand end forward to the next word boundary
-  while (end < text.length && /\w/.test(text[end])) {
-    end++;
-    console.log("increase end")
-  }
-
 
   let payload = { start, end, text: text.slice(start, end) };
 
