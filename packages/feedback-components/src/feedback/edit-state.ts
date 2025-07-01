@@ -147,7 +147,7 @@ function treeReducer(state: TreeState, action: TreeAction) {
       // select all nodes between node1 and node2
       const startIndex = allNodes.findIndex((node) => node.id === node1);
       const endIndex = allNodes.findIndex((node) => node.id === node2);
-      
+
       const selectedNodes = allNodes.slice(startIndex, endIndex + 1);
 
       console.log("Selecting range:", selectedNodes);

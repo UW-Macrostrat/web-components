@@ -141,7 +141,7 @@ export function FeedbackComponent({
       ]),
     ),
     h(Card, { className: "control-panel" }, [
-      h('div.control-content', [
+      h("div.control-content", [
         h(
           ButtonGroup,
           {
@@ -191,7 +191,7 @@ export function FeedbackComponent({
               payload: isOpen,
             }),
         }),
-      ])
+      ]),
     ]),
   ]);
 }

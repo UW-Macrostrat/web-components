@@ -143,7 +143,8 @@ function createTagFromSelection({
 function addTag({ tag, dispatch, text, allTags, allowOverlap }) {
   let { start, end } = tag;
   // snap to text
-  if(text[end - 1] != " ") { // double clicking word overselects by one, shouldn't increase to next word
+  if (text[end - 1] != " ") {
+    // double clicking word overselects by one, shouldn't increase to next word
     while (start > 0 && /\w/.test(text[start - 1])) {
       start--;
     }
@@ -280,14 +281,18 @@ function renderNode(
       style,
       onClick: (e: MouseEvent) => {
         e.stopPropagation();
-        if ((e.ctrlKey || e.metaKey) || (selectedNodes[0] === tag.id && selectedNodes.length === 1)) {
+        if (
+          e.ctrlKey ||
+          e.metaKey ||
+          (selectedNodes[0] === tag.id && selectedNodes.length === 1)
+        ) {
           // Toggle selection on ctrl/cmd click or when node is only selected node
           e.stopPropagation();
           dispatch({
             type: "toggle-node-selected",
             payload: { ids: [tag.id] },
           });
-        } else if(e.shiftKey && selectedNodes.length > 0) {
+        } else if (e.shiftKey && selectedNodes.length > 0) {
           // Select range from last selected node to this one
           const lastSelected = selectedNodes[selectedNodes.length - 1];
 
@@ -295,7 +300,6 @@ function renderNode(
             type: "select-range",
             payload: { ids: [lastSelected, tag.id] },
           });
-
         } else {
           dispatch({
             type: "select-node",
