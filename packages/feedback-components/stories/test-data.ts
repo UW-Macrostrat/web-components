@@ -2,7 +2,7 @@ export const data = {
   entities: [
     {
       id: 433864,
-      name: "Serpent",
+      name: "Serpnt",
       type: {
         id: 1,
         name: "strat_name",
@@ -248,7 +248,7 @@ export const data = {
     },
   ],
   paragraph_text:
-    "Fig.4. X ray radiograph of a specimen of massive Gowganda conglomeratic muddy sandstone. A sandstone interbed reveals ripple cross laminations.\n14 S. M. CASSHYAP in the Cobalt area THOMSON, 1957. Most evidence suggests that in the EspanolaWillisville area, as in the Quirke Elliot Lake area RoscoE, 1957, no erosional break occurred after deposition of the underlying Serpent Formation CAssHYAP, 1966b.\nThe Gowganda Formation in this area lies conformably abovethe Serpent Sandstone which in turn lies gradationally above the Espanola Formation Fig.2.\nConglomeratic muddy deposit of the Bruce Formation is essentially massive and does not show sedimentary structure of any kind. However, a variety of sedimentary structures occur in the various units of the Gowganda Formation.",
+    "Fig.4. X ray radiograph of a specimen of massive Gowganda conglomeratic muddy sandstone. A sandstone interbed reveals ripple cross laminations.\n14 S. M. CASSHYAP in the Cobalt area THOMSON, 1957. Most evidence suggests that in the EspanolaWillisville area, as in the Quirke Elliot Lake area RoscoE, 1957, no erosional break occurred after deposition of the underlying Serpent Formation CAssHYAP, 1966b.\nThe Gowganda Formation in this area lies conformably above the Serpent Sandstone which in turn lies gradationally abovethe Espanola Formation Fig.2.\nConglomeratic muddy deposit of the Bruce Formation is essentially massive and does not show sedimentary structure of any kind. However, a variety of sedimentary structures occur in the various units of the Gowganda Formation.",
   model_id: 5321,
   version_id: 20504,
   model: {
