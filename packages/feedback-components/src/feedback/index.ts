@@ -305,14 +305,39 @@ function ManagedSelectionTree(props) {
     clickedRef.current = true;
   }
 
+  const ctrlPressedRef = useRef(false);
+
+  useEffect(() => {
+    const down = (e) => {
+      if (e.ctrlKey || e.metaKey) ctrlPressedRef.current = true;
+    };
+    const up = () => (ctrlPressedRef.current = false);
+
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
+  }, []);
+
   const handleSelect = useCallback(
     (nodes) => {
       if (!clickedRef.current) return;
       clickedRef.current = false;
+      const isMultiSelect = ctrlPressedRef.current;
 
       let ids = nodes.map((d) => parseInt(d.id));
 
-      dispatch({ type: "toggle-node-selected", payload: { ids } });
+      if (isMultiSelect) {
+        dispatch({ type: "toggle-node-selected", payload: { ids } });
+      } else {
+        if (ids.length === 1 && ids[0] === selectedNodes[0]) {
+          ids = [];
+        }
+
+        dispatch({ type: "select-node", payload: { ids } });
+      }
     },
     [selectedNodes, dispatch],
   );
