@@ -33,7 +33,11 @@ function UnitDetailsExt({
 
   return h(
     LithologiesProvider,
-    h(UnitDetailsPanel, { onClickItem: (e) => console.log(e), unit, ...rest }),
+    h(UnitDetailsPanel, {
+      onClickItem: (e, data) => console.log(data),
+      unit,
+      ...rest,
+    }),
   );
 }
 

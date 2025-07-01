@@ -1,3 +1,5 @@
+import type { ColumnSpec, ColumnSpecOptions } from "../provider";
+
 const defaultRenderers = {
   string: (d) => d,
   number: (d) => d?.toFixed(2),
@@ -104,7 +106,7 @@ export function generateDefaultColumnSpec<T>(
 
 export function generateColumnSpec<T>(
   data: T[],
-  options: ColumnSpecOptions,
+  options: ColumnSpecOptions<T>,
 ): ColumnSpec[] {
   /** Generate a column spec from a dataset */
   const { overrides = {}, nRows = 10, omitColumns, includeColumns } = options;

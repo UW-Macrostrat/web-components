@@ -16,11 +16,10 @@ import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { EditorPopup, handleSpecialKeys } from "./components";
+import { EditorPopup, handleSpecialKeys, DataSheetAction } from "./components";
 import styles from "./main.module.sass";
 import {
   ColumnSpec,
-  ColumnSpecOptions,
   DataSheetProvider,
   DataSheetProviderProps,
   DataSheetStore,
@@ -29,10 +28,6 @@ import {
   useStoreAPI,
   VisibleCells,
 } from "./provider";
-import { DataSheetAction } from "./components/actions";
-
-export type { ColumnSpec, ColumnSpecOptions };
-export * from "./components";
 
 const h = hyper.styled(styles);
 
@@ -157,7 +152,7 @@ function _DataSheet<T>({
   );
 
   const onAddRow = useCallback(() => {
-    setUpdatedData((updatedData) => {
+    setUpdatedData((updatedData: any[]): any[] => {
       const ix = Math.max(updatedData.length, data.length);
       const addRowSpec = { [ix]: { $set: {} } };
       const newUpdatedData = update(updatedData, addRowSpec);

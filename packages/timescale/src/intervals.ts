@@ -9,6 +9,7 @@ const defaultIntervals: Interval[] = [
     lag: 0,
     col: "#000000",
     nam: "Geologic Time",
+    int_id: null,
   },
   {
     oid: 753,
@@ -20,6 +21,7 @@ const defaultIntervals: Interval[] = [
     lag: 2500,
     eag: 4000,
     rid: [15443],
+    int_id: 132,
   },
   {
     oid: 752,
@@ -31,6 +33,7 @@ const defaultIntervals: Interval[] = [
     lag: 541,
     eag: 2500,
     rid: [47900],
+    int_id: 131,
   },
   {
     oid: 751,
@@ -42,6 +45,7 @@ const defaultIntervals: Interval[] = [
     lag: 0,
     eag: 541,
     rid: [47900],
+    int_id: 275,
   },
   {
     oid: 760,
@@ -53,6 +57,7 @@ const defaultIntervals: Interval[] = [
     lag: 3600,
     eag: 4000,
     rid: [15443],
+    int_id: 274,
   },
   {
     oid: 759,
@@ -64,6 +69,7 @@ const defaultIntervals: Interval[] = [
     lag: 3200,
     eag: 3600,
     rid: [15443],
+    int_id: 262,
   },
   {
     oid: 758,
@@ -75,6 +81,7 @@ const defaultIntervals: Interval[] = [
     lag: 2800,
     eag: 3200,
     rid: [15443],
+    int_id: 261,
   },
   {
     oid: 757,
@@ -86,6 +93,7 @@ const defaultIntervals: Interval[] = [
     lag: 2500,
     eag: 2800,
     rid: [15443],
+    int_id: 260,
   },
   {
     oid: 756,
@@ -97,6 +105,7 @@ const defaultIntervals: Interval[] = [
     lag: 1600,
     eag: 2500,
     rid: [47900],
+    int_id: 259,
   },
   {
     oid: 755,
@@ -108,6 +117,7 @@ const defaultIntervals: Interval[] = [
     lag: 1000,
     eag: 1600,
     rid: [47900],
+    int_id: 258,
   },
   {
     oid: 754,
@@ -119,6 +129,7 @@ const defaultIntervals: Interval[] = [
     lag: 541,
     eag: 1000,
     rid: [47900],
+    int_id: 257,
   },
   {
     oid: 3,
@@ -131,6 +142,7 @@ const defaultIntervals: Interval[] = [
     lag: 252.2,
     eag: 541,
     rid: [47900],
+    int_id: 74,
   },
   {
     oid: 2,
@@ -143,6 +155,7 @@ const defaultIntervals: Interval[] = [
     lag: 66,
     eag: 252.2,
     rid: [47900],
+    int_id: 32,
   },
   {
     oid: 1,
@@ -155,6 +168,7 @@ const defaultIntervals: Interval[] = [
     lag: 0,
     eag: 66,
     rid: [47900],
+    int_id: 1,
   },
   {
     oid: 770,
@@ -166,6 +180,7 @@ const defaultIntervals: Interval[] = [
     lag: 2300,
     eag: 2500,
     rid: [47900],
+    int_id: 272,
   },
   {
     oid: 769,
@@ -177,6 +192,7 @@ const defaultIntervals: Interval[] = [
     lag: 2050,
     eag: 2300,
     rid: [47900],
+    int_id: 271,
   },
   {
     oid: 768,
@@ -188,6 +204,7 @@ const defaultIntervals: Interval[] = [
     lag: 1800,
     eag: 2050,
     rid: [47900],
+    int_id: 270,
   },
   {
     oid: 767,
@@ -199,6 +216,7 @@ const defaultIntervals: Interval[] = [
     lag: 1600,
     eag: 1800,
     rid: [47900],
+    int_id: 269,
   },
   {
     oid: 766,
@@ -210,6 +228,7 @@ const defaultIntervals: Interval[] = [
     lag: 1400,
     eag: 1600,
     rid: [47900],
+    int_id: 268,
   },
   {
     oid: 765,
@@ -221,6 +240,7 @@ const defaultIntervals: Interval[] = [
     lag: 1200,
     eag: 1400,
     rid: [47900],
+    int_id: 267,
   },
   {
     oid: 764,
@@ -232,6 +252,7 @@ const defaultIntervals: Interval[] = [
     lag: 1000,
     eag: 1200,
     rid: [47900],
+    int_id: 266,
   },
   {
     oid: 763,
@@ -243,6 +264,7 @@ const defaultIntervals: Interval[] = [
     lag: 850,
     eag: 1000,
     rid: [47900],
+    int_id: 265,
   },
   {
     oid: 762,
@@ -254,6 +276,7 @@ const defaultIntervals: Interval[] = [
     lag: 635,
     eag: 850,
     rid: [47900],
+    int_id: 264,
   },
   {
     oid: 761,
@@ -265,6 +288,7 @@ const defaultIntervals: Interval[] = [
     lag: 541,
     eag: 635,
     rid: [47900],
+    int_id: 263,
   },
   {
     oid: 22,
@@ -277,6 +301,7 @@ const defaultIntervals: Interval[] = [
     lag: 485.4,
     eag: 541,
     rid: [47900],
+    int_id: 122,
   },
   {
     oid: 21,
@@ -289,6 +314,7 @@ const defaultIntervals: Interval[] = [
     lag: 443.4,
     eag: 485.4,
     rid: [47900],
+    int_id: 112,
   },
   {
     oid: 20,
@@ -301,6 +327,7 @@ const defaultIntervals: Interval[] = [
     lag: 419.2,
     eag: 443.4,
     rid: [47900],
+    int_id: 105,
   },
   {
     oid: 19,
@@ -313,6 +340,7 @@ const defaultIntervals: Interval[] = [
     lag: 358.9,
     eag: 419.2,
     rid: [47900],
+    int_id: 94,
   },
   {
     oid: 18,
@@ -325,6 +353,7 @@ const defaultIntervals: Interval[] = [
     lag: 298.9,
     eag: 358.9,
     rid: [47900],
+    int_id: 84,
   },
   {
     oid: 17,
@@ -337,6 +366,7 @@ const defaultIntervals: Interval[] = [
     lag: 252.2,
     eag: 298.9,
     rid: [47900],
+    int_id: 75,
   },
   {
     oid: 16,
@@ -349,6 +379,7 @@ const defaultIntervals: Interval[] = [
     lag: 201.3,
     eag: 252.2,
     rid: [47900],
+    int_id: 63,
   },
   {
     oid: 15,
@@ -361,6 +392,7 @@ const defaultIntervals: Interval[] = [
     lag: 145,
     eag: 201.3,
     rid: [47900],
+    int_id: 48,
   },
   {
     oid: 14,
@@ -373,6 +405,7 @@ const defaultIntervals: Interval[] = [
     lag: 66,
     eag: 145,
     rid: [47900],
+    int_id: 33,
   },
   {
     oid: 26,
@@ -385,6 +418,7 @@ const defaultIntervals: Interval[] = [
     lag: 23.03,
     eag: 66,
     rid: [47900],
+    int_id: 20,
   },
   {
     oid: 25,
@@ -397,6 +431,7 @@ const defaultIntervals: Interval[] = [
     lag: 2.588,
     eag: 23.03,
     rid: [47900],
+    int_id: 2,
   },
   {
     oid: 12,
@@ -408,6 +443,7 @@ const defaultIntervals: Interval[] = [
     lag: 0,
     eag: 2.588,
     rid: [47900],
+    int_id: 421,
   },
   {
     oid: 1111,
@@ -419,6 +455,7 @@ const defaultIntervals: Interval[] = [
     lag: 521,
     eag: 541,
     rid: [47900],
+    int_id: 246,
   },
   {
     oid: 1110,
@@ -430,6 +467,7 @@ const defaultIntervals: Interval[] = [
     lag: 509,
     eag: 521,
     rid: [47900],
+    int_id: 501,
   },
   {
     oid: 1109,
@@ -441,6 +479,7 @@ const defaultIntervals: Interval[] = [
     lag: 497,
     eag: 509,
     rid: [47900],
+    int_id: null,
   },
   {
     oid: 780,
@@ -452,6 +491,7 @@ const defaultIntervals: Interval[] = [
     lag: 485.4,
     eag: 497,
     rid: [47900],
+    int_id: 243,
   },
   {
     oid: 31,
@@ -463,6 +503,7 @@ const defaultIntervals: Interval[] = [
     lag: 470,
     eag: 485.4,
     rid: [47900],
+    int_id: 119,
   },
   {
     oid: 30,
@@ -474,6 +515,7 @@ const defaultIntervals: Interval[] = [
     lag: 458.4,
     eag: 470,
     rid: [47900],
+    int_id: 116,
   },
   {
     oid: 29,
@@ -485,6 +527,7 @@ const defaultIntervals: Interval[] = [
     lag: 443.4,
     eag: 458.4,
     rid: [47900],
+    int_id: 113,
   },
   {
     oid: 62,
@@ -496,6 +539,7 @@ const defaultIntervals: Interval[] = [
     lag: 433.4,
     eag: 443.4,
     rid: [47900],
+    int_id: 111,
   },
   {
     oid: 61,
@@ -507,6 +551,7 @@ const defaultIntervals: Interval[] = [
     lag: 427.4,
     eag: 433.4,
     rid: [47900],
+    int_id: 109,
   },
   {
     oid: 60,
@@ -518,6 +563,7 @@ const defaultIntervals: Interval[] = [
     lag: 423,
     eag: 427.4,
     rid: [47900],
+    int_id: 108,
   },
   {
     oid: 59,
@@ -529,6 +575,7 @@ const defaultIntervals: Interval[] = [
     lag: 419.2,
     eag: 423,
     rid: [47900],
+    int_id: 107,
   },
   {
     oid: 58,
@@ -540,6 +587,7 @@ const defaultIntervals: Interval[] = [
     lag: 393.3,
     eag: 419.2,
     rid: [47900],
+    int_id: 101,
   },
   {
     oid: 57,
@@ -551,6 +599,7 @@ const defaultIntervals: Interval[] = [
     lag: 382.7,
     eag: 393.3,
     rid: [47900],
+    int_id: 98,
   },
   {
     oid: 56,
@@ -562,6 +611,7 @@ const defaultIntervals: Interval[] = [
     lag: 358.9,
     eag: 382.7,
     rid: [47900],
+    int_id: 95,
   },
   {
     oid: 28,
@@ -573,6 +623,7 @@ const defaultIntervals: Interval[] = [
     lag: 323.2,
     eag: 358.9,
     rid: [47900],
+    int_id: 90,
   },
   {
     oid: 27,
@@ -584,6 +635,7 @@ const defaultIntervals: Interval[] = [
     lag: 298.9,
     eag: 323.2,
     rid: [47900],
+    int_id: 85,
   },
   {
     oid: 773,
@@ -595,6 +647,7 @@ const defaultIntervals: Interval[] = [
     lag: 272.3,
     eag: 298.9,
     rid: [47900],
+    int_id: 227,
   },
   {
     oid: 772,
@@ -606,6 +659,7 @@ const defaultIntervals: Interval[] = [
     lag: 259.9,
     eag: 272.3,
     rid: [47900],
+    int_id: 134,
   },
   {
     oid: 771,
@@ -617,6 +671,7 @@ const defaultIntervals: Interval[] = [
     lag: 252.2,
     eag: 259.9,
     rid: [47900],
+    int_id: 223,
   },
   {
     oid: 46,
@@ -628,6 +683,7 @@ const defaultIntervals: Interval[] = [
     lag: 247.2,
     eag: 252.2,
     rid: [47900],
+    int_id: 213,
   },
   {
     oid: 45,
@@ -639,6 +695,7 @@ const defaultIntervals: Interval[] = [
     lag: 237,
     eag: 247.2,
     rid: [47900],
+    int_id: 68,
   },
   {
     oid: 44,
@@ -650,6 +707,7 @@ const defaultIntervals: Interval[] = [
     lag: 201.3,
     eag: 237,
     rid: [47900],
+    int_id: 64,
   },
   {
     oid: 43,
@@ -661,6 +719,7 @@ const defaultIntervals: Interval[] = [
     lag: 174.1,
     eag: 201.3,
     rid: [47900],
+    int_id: 58,
   },
   {
     oid: 42,
@@ -672,6 +731,7 @@ const defaultIntervals: Interval[] = [
     lag: 163.5,
     eag: 174.1,
     rid: [47900],
+    int_id: 53,
   },
   {
     oid: 41,
@@ -683,6 +743,7 @@ const defaultIntervals: Interval[] = [
     lag: 145,
     eag: 163.5,
     rid: [47900],
+    int_id: 49,
   },
   {
     oid: 40,
@@ -694,6 +755,7 @@ const defaultIntervals: Interval[] = [
     lag: 100.5,
     eag: 145,
     rid: [47900],
+    int_id: 41,
   },
   {
     oid: 39,
@@ -705,6 +767,7 @@ const defaultIntervals: Interval[] = [
     lag: 66,
     eag: 100.5,
     rid: [47900],
+    int_id: 34,
   },
   {
     oid: 38,
@@ -716,6 +779,7 @@ const defaultIntervals: Interval[] = [
     lag: 56,
     eag: 66,
     rid: [47900],
+    int_id: 29,
   },
   {
     oid: 37,
@@ -727,6 +791,7 @@ const defaultIntervals: Interval[] = [
     lag: 33.9,
     eag: 56,
     rid: [47900],
+    int_id: 24,
   },
   {
     oid: 36,
@@ -738,6 +803,7 @@ const defaultIntervals: Interval[] = [
     lag: 23.03,
     eag: 33.9,
     rid: [47900],
+    int_id: 21,
   },
   {
     oid: 35,
@@ -749,6 +815,7 @@ const defaultIntervals: Interval[] = [
     lag: 5.333,
     eag: 23.03,
     rid: [47900],
+    int_id: 13,
   },
   {
     oid: 34,
@@ -760,6 +827,7 @@ const defaultIntervals: Interval[] = [
     lag: 2.588,
     eag: 5.333,
     rid: [47900],
+    int_id: 10,
   },
   {
     oid: 33,
@@ -771,6 +839,7 @@ const defaultIntervals: Interval[] = [
     lag: 0.0117,
     eag: 2.588,
     rid: [47900],
+    int_id: 4,
   },
   {
     oid: 32,
@@ -782,6 +851,7 @@ const defaultIntervals: Interval[] = [
     lag: 0,
     eag: 0.0117,
     rid: [47900],
+    int_id: 3,
   },
   {
     oid: 1121,
@@ -793,6 +863,7 @@ const defaultIntervals: Interval[] = [
     lag: 529,
     eag: 541,
     rid: [47900],
+    int_id: 256,
   },
   {
     oid: 1120,
@@ -804,6 +875,7 @@ const defaultIntervals: Interval[] = [
     lag: 521,
     eag: 529,
     rid: [47900],
+    int_id: 255,
   },
   {
     oid: 1119,
@@ -815,6 +887,7 @@ const defaultIntervals: Interval[] = [
     lag: 514,
     eag: 521,
     rid: [47900],
+    int_id: 254,
   },
   {
     oid: 1118,
@@ -826,6 +899,7 @@ const defaultIntervals: Interval[] = [
     lag: 509,
     eag: 514,
     rid: [47900],
+    int_id: 253,
   },
   {
     oid: 1117,
@@ -837,6 +911,7 @@ const defaultIntervals: Interval[] = [
     lag: 504.5,
     eag: 509,
     rid: [47900],
+    int_id: null,
   },
   {
     oid: 1116,
@@ -848,6 +923,7 @@ const defaultIntervals: Interval[] = [
     lag: 500.5,
     eag: 504.5,
     rid: [47900],
+    int_id: 251,
   },
   {
     oid: 1087,
@@ -859,6 +935,7 @@ const defaultIntervals: Interval[] = [
     lag: 497,
     eag: 500.5,
     rid: [47900],
+    int_id: 250,
   },
   {
     oid: 1114,
@@ -870,6 +947,7 @@ const defaultIntervals: Interval[] = [
     lag: 494,
     eag: 497,
     rid: [47900],
+    int_id: 249,
   },
   {
     oid: 1113,
@@ -881,6 +959,7 @@ const defaultIntervals: Interval[] = [
     lag: 489.5,
     eag: 494,
     rid: [47900],
+    int_id: 248,
   },
   {
     oid: 1112,
@@ -892,6 +971,7 @@ const defaultIntervals: Interval[] = [
     lag: 485.4,
     eag: 489.5,
     rid: [47900],
+    int_id: 247,
   },
   {
     oid: 559,
@@ -903,6 +983,7 @@ const defaultIntervals: Interval[] = [
     lag: 477.7,
     eag: 485.4,
     rid: [47900],
+    int_id: 121,
   },
   {
     oid: 1010,
@@ -914,6 +995,7 @@ const defaultIntervals: Interval[] = [
     lag: 470,
     eag: 477.7,
     rid: [47900],
+    int_id: 242,
   },
   {
     oid: 1079,
@@ -925,6 +1007,7 @@ const defaultIntervals: Interval[] = [
     lag: 467.3,
     eag: 470,
     rid: [47900],
+    int_id: 241,
   },
   {
     oid: 556,
@@ -936,6 +1019,7 @@ const defaultIntervals: Interval[] = [
     lag: 458.4,
     eag: 467.3,
     rid: [47900],
+    int_id: 240,
   },
   {
     oid: 1009,
@@ -947,6 +1031,7 @@ const defaultIntervals: Interval[] = [
     lag: 453,
     eag: 458.4,
     rid: [47900],
+    int_id: 239,
   },
   {
     oid: 1008,
@@ -958,6 +1043,7 @@ const defaultIntervals: Interval[] = [
     lag: 445.2,
     eag: 453,
     rid: [47900],
+    int_id: 238,
   },
   {
     oid: 192,
@@ -969,6 +1055,7 @@ const defaultIntervals: Interval[] = [
     lag: 443.4,
     eag: 445.2,
     rid: [47900],
+    int_id: 237,
   },
   {
     oid: 191,
@@ -980,6 +1067,7 @@ const defaultIntervals: Interval[] = [
     lag: 440.8,
     eag: 443.4,
     rid: [47900],
+    int_id: 236,
   },
   {
     oid: 190,
@@ -991,6 +1079,7 @@ const defaultIntervals: Interval[] = [
     lag: 438.5,
     eag: 440.8,
     rid: [47900],
+    int_id: 235,
   },
   {
     oid: 189,
@@ -1002,6 +1091,7 @@ const defaultIntervals: Interval[] = [
     lag: 433.4,
     eag: 438.5,
     rid: [47900],
+    int_id: 234,
   },
   {
     oid: 188,
@@ -1013,6 +1103,7 @@ const defaultIntervals: Interval[] = [
     lag: 430.5,
     eag: 433.4,
     rid: [47900],
+    int_id: 233,
   },
   {
     oid: 785,
@@ -1024,6 +1115,7 @@ const defaultIntervals: Interval[] = [
     lag: 427.4,
     eag: 430.5,
     rid: [47900],
+    int_id: 232,
   },
   {
     oid: 185,
@@ -1035,6 +1127,7 @@ const defaultIntervals: Interval[] = [
     lag: 425.6,
     eag: 427.4,
     rid: [47900],
+    int_id: 231,
   },
   {
     oid: 184,
@@ -1046,6 +1139,7 @@ const defaultIntervals: Interval[] = [
     lag: 423,
     eag: 425.6,
     rid: [47900],
+    int_id: 230,
   },
   {
     oid: 3001,
@@ -1057,6 +1151,7 @@ const defaultIntervals: Interval[] = [
     lag: 419.2,
     eag: 423,
     rid: [47900],
+    int_id: 107,
   },
   {
     oid: 183,
@@ -1068,6 +1163,7 @@ const defaultIntervals: Interval[] = [
     lag: 410.8,
     eag: 419.2,
     rid: [47900],
+    int_id: 229,
   },
   {
     oid: 182,
@@ -1079,6 +1175,7 @@ const defaultIntervals: Interval[] = [
     lag: 407.6,
     eag: 410.8,
     rid: [47900],
+    int_id: 228,
   },
   {
     oid: 181,
@@ -1090,6 +1187,7 @@ const defaultIntervals: Interval[] = [
     lag: 393.3,
     eag: 407.6,
     rid: [47900],
+    int_id: 102,
   },
   {
     oid: 180,
@@ -1101,6 +1199,7 @@ const defaultIntervals: Interval[] = [
     lag: 387.7,
     eag: 393.3,
     rid: [47900],
+    int_id: 100,
   },
   {
     oid: 179,
@@ -1112,6 +1211,7 @@ const defaultIntervals: Interval[] = [
     lag: 382.7,
     eag: 387.7,
     rid: [47900],
+    int_id: 99,
   },
   {
     oid: 178,
@@ -1123,6 +1223,7 @@ const defaultIntervals: Interval[] = [
     lag: 372.2,
     eag: 382.7,
     rid: [47900],
+    int_id: 97,
   },
   {
     oid: 177,
@@ -1134,6 +1235,7 @@ const defaultIntervals: Interval[] = [
     lag: 358.9,
     eag: 372.2,
     rid: [47900],
+    int_id: 96,
   },
   {
     oid: 55,
@@ -1145,6 +1247,7 @@ const defaultIntervals: Interval[] = [
     lag: 346.7,
     eag: 358.9,
     rid: [5954],
+    int_id: 93,
   },
   {
     oid: 54,
@@ -1156,6 +1259,7 @@ const defaultIntervals: Interval[] = [
     lag: 330.9,
     eag: 346.7,
     rid: [5954],
+    int_id: 92,
   },
   {
     oid: 53,
@@ -1167,6 +1271,7 @@ const defaultIntervals: Interval[] = [
     lag: 323.2,
     eag: 330.9,
     rid: [5954],
+    int_id: 91,
   },
   {
     oid: 52,
@@ -1178,6 +1283,7 @@ const defaultIntervals: Interval[] = [
     lag: 315.2,
     eag: 323.2,
     rid: [5954],
+    int_id: 89,
   },
   {
     oid: 51,
@@ -1189,6 +1295,7 @@ const defaultIntervals: Interval[] = [
     lag: 307,
     eag: 315.2,
     rid: [5954],
+    int_id: 88,
   },
   {
     oid: 50,
@@ -1200,6 +1307,7 @@ const defaultIntervals: Interval[] = [
     lag: 303.7,
     eag: 307,
     rid: [5954],
+    int_id: 87,
   },
   {
     oid: 49,
@@ -1211,6 +1319,7 @@ const defaultIntervals: Interval[] = [
     lag: 298.9,
     eag: 303.7,
     rid: [5954],
+    int_id: 86,
   },
   {
     oid: 151,
@@ -1222,6 +1331,7 @@ const defaultIntervals: Interval[] = [
     lag: 295.5,
     eag: 298.9,
     rid: [5954],
+    int_id: 83,
   },
   {
     oid: 150,
@@ -1233,6 +1343,7 @@ const defaultIntervals: Interval[] = [
     lag: 290.1,
     eag: 295.5,
     rid: [5954],
+    int_id: 82,
   },
   {
     oid: 149,
@@ -1244,6 +1355,7 @@ const defaultIntervals: Interval[] = [
     lag: 279.3,
     eag: 290.1,
     rid: [5954],
+    int_id: 81,
   },
   {
     oid: 148,
@@ -1255,6 +1367,7 @@ const defaultIntervals: Interval[] = [
     lag: 272.3,
     eag: 279.3,
     rid: [5954],
+    int_id: 79,
   },
   {
     oid: 717,
@@ -1266,6 +1379,7 @@ const defaultIntervals: Interval[] = [
     lag: 268.8,
     eag: 272.3,
     rid: [9184],
+    int_id: 226,
   },
   {
     oid: 146,
@@ -1277,6 +1391,7 @@ const defaultIntervals: Interval[] = [
     lag: 265.1,
     eag: 268.8,
     rid: [5954],
+    int_id: 225,
   },
   {
     oid: 145,
@@ -1288,6 +1403,7 @@ const defaultIntervals: Interval[] = [
     lag: 259.9,
     eag: 265.1,
     rid: [5954],
+    int_id: 224,
   },
   {
     oid: 716,
@@ -1299,6 +1415,7 @@ const defaultIntervals: Interval[] = [
     lag: 254.2,
     eag: 259.9,
     rid: [9184],
+    int_id: 222,
   },
   {
     oid: 715,
@@ -1310,6 +1427,7 @@ const defaultIntervals: Interval[] = [
     lag: 252.2,
     eag: 254.2,
     rid: [9184],
+    int_id: 221,
   },
   {
     oid: 653,
@@ -1321,6 +1439,7 @@ const defaultIntervals: Interval[] = [
     lag: 251.2,
     eag: 252.2,
     rid: [47900],
+    int_id: 73,
   },
   {
     oid: 652,
@@ -1332,6 +1451,7 @@ const defaultIntervals: Interval[] = [
     lag: 247.2,
     eag: 251.2,
     rid: [47900],
+    int_id: 72,
   },
   {
     oid: 139,
@@ -1343,6 +1463,7 @@ const defaultIntervals: Interval[] = [
     lag: 242,
     eag: 247.2,
     rid: [47900],
+    int_id: 70,
   },
   {
     oid: 138,
@@ -1354,6 +1475,7 @@ const defaultIntervals: Interval[] = [
     lag: 237,
     eag: 242,
     rid: [47900],
+    int_id: 69,
   },
   {
     oid: 137,
@@ -1365,6 +1487,7 @@ const defaultIntervals: Interval[] = [
     lag: 228,
     eag: 237,
     rid: [47900],
+    int_id: 67,
   },
   {
     oid: 136,
@@ -1376,6 +1499,7 @@ const defaultIntervals: Interval[] = [
     lag: 208.5,
     eag: 228,
     rid: [47900],
+    int_id: 66,
   },
   {
     oid: 135,
@@ -1387,6 +1511,7 @@ const defaultIntervals: Interval[] = [
     lag: 201.3,
     eag: 208.5,
     rid: [47900],
+    int_id: 65,
   },
   {
     oid: 134,
@@ -1398,6 +1523,7 @@ const defaultIntervals: Interval[] = [
     lag: 199.3,
     eag: 201.3,
     rid: [47900],
+    int_id: 62,
   },
   {
     oid: 133,
@@ -1409,6 +1535,7 @@ const defaultIntervals: Interval[] = [
     lag: 190.8,
     eag: 199.3,
     rid: [47900],
+    int_id: 61,
   },
   {
     oid: 132,
@@ -1420,6 +1547,7 @@ const defaultIntervals: Interval[] = [
     lag: 182.7,
     eag: 190.8,
     rid: [47900],
+    int_id: 60,
   },
   {
     oid: 131,
@@ -1431,6 +1559,7 @@ const defaultIntervals: Interval[] = [
     lag: 174.1,
     eag: 182.7,
     rid: [47900],
+    int_id: 59,
   },
   {
     oid: 130,
@@ -1442,6 +1571,7 @@ const defaultIntervals: Interval[] = [
     lag: 170.3,
     eag: 174.1,
     rid: [47900],
+    int_id: 57,
   },
   {
     oid: 129,
@@ -1453,6 +1583,7 @@ const defaultIntervals: Interval[] = [
     lag: 168.3,
     eag: 170.3,
     rid: [47900],
+    int_id: 56,
   },
   {
     oid: 128,
@@ -1464,6 +1595,7 @@ const defaultIntervals: Interval[] = [
     lag: 166.1,
     eag: 168.3,
     rid: [47900],
+    int_id: 55,
   },
   {
     oid: 127,
@@ -1475,6 +1607,7 @@ const defaultIntervals: Interval[] = [
     lag: 163.5,
     eag: 166.1,
     rid: [47900],
+    int_id: 54,
   },
   {
     oid: 126,
@@ -1486,6 +1619,7 @@ const defaultIntervals: Interval[] = [
     lag: 157.3,
     eag: 163.5,
     rid: [47900],
+    int_id: 52,
   },
   {
     oid: 125,
@@ -1497,6 +1631,7 @@ const defaultIntervals: Interval[] = [
     lag: 152.1,
     eag: 157.3,
     rid: [47900],
+    int_id: 51,
   },
   {
     oid: 124,
@@ -1508,6 +1643,7 @@ const defaultIntervals: Interval[] = [
     lag: 145,
     eag: 152.1,
     rid: [47900],
+    int_id: 50,
   },
   {
     oid: 123,
@@ -1519,6 +1655,7 @@ const defaultIntervals: Interval[] = [
     lag: 139.8,
     eag: 145,
     rid: [47900],
+    int_id: 47,
   },
   {
     oid: 122,
@@ -1530,6 +1667,7 @@ const defaultIntervals: Interval[] = [
     lag: 132.9,
     eag: 139.8,
     rid: [47900],
+    int_id: 46,
   },
   {
     oid: 121,
@@ -1541,6 +1679,7 @@ const defaultIntervals: Interval[] = [
     lag: 129.4,
     eag: 132.9,
     rid: [47900],
+    int_id: 45,
   },
   {
     oid: 120,
@@ -1552,6 +1691,7 @@ const defaultIntervals: Interval[] = [
     lag: 125,
     eag: 129.4,
     rid: [47900],
+    int_id: 44,
   },
   {
     oid: 119,
@@ -1563,6 +1703,7 @@ const defaultIntervals: Interval[] = [
     lag: 113,
     eag: 125,
     rid: [47900],
+    int_id: 43,
   },
   {
     oid: 118,
@@ -1574,6 +1715,7 @@ const defaultIntervals: Interval[] = [
     lag: 100.5,
     eag: 113,
     rid: [47900],
+    int_id: 42,
   },
   {
     oid: 117,
@@ -1585,6 +1727,7 @@ const defaultIntervals: Interval[] = [
     lag: 93.9,
     eag: 100.5,
     rid: [47900],
+    int_id: 40,
   },
   {
     oid: 116,
@@ -1596,6 +1739,7 @@ const defaultIntervals: Interval[] = [
     lag: 89.8,
     eag: 93.9,
     rid: [47900],
+    int_id: 39,
   },
   {
     oid: 115,
@@ -1607,6 +1751,7 @@ const defaultIntervals: Interval[] = [
     lag: 86.3,
     eag: 89.8,
     rid: [47900],
+    int_id: 38,
   },
   {
     oid: 114,
@@ -1618,6 +1763,7 @@ const defaultIntervals: Interval[] = [
     lag: 83.6,
     eag: 86.3,
     rid: [47900],
+    int_id: 37,
   },
   {
     oid: 113,
@@ -1629,6 +1775,7 @@ const defaultIntervals: Interval[] = [
     lag: 72.1,
     eag: 83.6,
     rid: [47900],
+    int_id: 36,
   },
   {
     oid: 112,
@@ -1640,6 +1787,7 @@ const defaultIntervals: Interval[] = [
     lag: 66,
     eag: 72.1,
     rid: [47900],
+    int_id: 35,
   },
   {
     oid: 111,
@@ -1651,6 +1799,7 @@ const defaultIntervals: Interval[] = [
     lag: 61.6,
     eag: 66,
     rid: [47900],
+    int_id: 31,
   },
   {
     oid: 743,
@@ -1662,6 +1811,7 @@ const defaultIntervals: Interval[] = [
     lag: 59.2,
     eag: 61.6,
     rid: [47900],
+    int_id: 273,
   },
   {
     oid: 110,
@@ -1673,6 +1823,7 @@ const defaultIntervals: Interval[] = [
     lag: 56,
     eag: 59.2,
     rid: [47900],
+    int_id: 30,
   },
   {
     oid: 109,
@@ -1684,6 +1835,7 @@ const defaultIntervals: Interval[] = [
     lag: 47.8,
     eag: 56,
     rid: [47900],
+    int_id: 28,
   },
   {
     oid: 108,
@@ -1695,6 +1847,7 @@ const defaultIntervals: Interval[] = [
     lag: 41.3,
     eag: 47.8,
     rid: [47900],
+    int_id: 27,
   },
   {
     oid: 107,
@@ -1706,6 +1859,7 @@ const defaultIntervals: Interval[] = [
     lag: 38,
     eag: 41.3,
     rid: [47900],
+    int_id: 26,
   },
   {
     oid: 106,
@@ -1717,6 +1871,7 @@ const defaultIntervals: Interval[] = [
     lag: 33.9,
     eag: 38,
     rid: [47900],
+    int_id: 25,
   },
   {
     oid: 105,
@@ -1728,6 +1883,7 @@ const defaultIntervals: Interval[] = [
     lag: 28.1,
     eag: 33.9,
     rid: [47900],
+    int_id: 23,
   },
   {
     oid: 104,
@@ -1739,6 +1895,7 @@ const defaultIntervals: Interval[] = [
     lag: 23.03,
     eag: 28.1,
     rid: [47900],
+    int_id: 22,
   },
   {
     oid: 103,
@@ -1750,6 +1907,7 @@ const defaultIntervals: Interval[] = [
     lag: 20.44,
     eag: 23.03,
     rid: [47900],
+    int_id: 19,
   },
   {
     oid: 102,
@@ -1761,6 +1919,7 @@ const defaultIntervals: Interval[] = [
     lag: 15.97,
     eag: 20.44,
     rid: [47900],
+    int_id: 18,
   },
   {
     oid: 101,
@@ -1772,6 +1931,7 @@ const defaultIntervals: Interval[] = [
     lag: 13.82,
     eag: 15.97,
     rid: [47900],
+    int_id: 17,
   },
   {
     oid: 100,
@@ -1783,6 +1943,7 @@ const defaultIntervals: Interval[] = [
     lag: 11.62,
     eag: 13.82,
     rid: [47900],
+    int_id: 16,
   },
   {
     oid: 99,
@@ -1794,6 +1955,7 @@ const defaultIntervals: Interval[] = [
     lag: 7.246,
     eag: 11.62,
     rid: [47900],
+    int_id: 15,
   },
   {
     oid: 98,
@@ -1805,6 +1967,7 @@ const defaultIntervals: Interval[] = [
     lag: 5.333,
     eag: 7.246,
     rid: [47900],
+    int_id: 14,
   },
   {
     oid: 97,
@@ -1816,6 +1979,7 @@ const defaultIntervals: Interval[] = [
     lag: 3.6,
     eag: 5.333,
     rid: [47900],
+    int_id: 12,
   },
   {
     oid: 96,
@@ -1827,6 +1991,7 @@ const defaultIntervals: Interval[] = [
     lag: 2.588,
     eag: 3.6,
     rid: [47900],
+    int_id: 11,
   },
   {
     oid: 741,
@@ -1838,6 +2003,7 @@ const defaultIntervals: Interval[] = [
     lag: 1.806,
     eag: 2.588,
     rid: [47900],
+    int_id: 219,
   },
   {
     oid: 740,
@@ -1849,6 +2015,7 @@ const defaultIntervals: Interval[] = [
     lag: 0.781,
     eag: 1.806,
     rid: [47900],
+    int_id: 276,
   },
   {
     oid: 923,
@@ -1860,6 +2027,7 @@ const defaultIntervals: Interval[] = [
     lag: 0.126,
     eag: 0.781,
     rid: [15443],
+    int_id: 502,
   },
   {
     oid: 922,
@@ -1871,6 +2039,7 @@ const defaultIntervals: Interval[] = [
     lag: 0.0117,
     eag: 0.126,
     rid: [15443],
+    int_id: 492,
   },
   {
     oid: 3002,
@@ -1882,6 +2051,7 @@ const defaultIntervals: Interval[] = [
     lag: 0,
     eag: 0.0117,
     rid: [47900],
+    int_id: 3,
   },
 ];
 
