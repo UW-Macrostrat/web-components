@@ -43,7 +43,6 @@ Primary.args = {
 };
 
 function getNextParams(response, params) {
-  console.log("getNextParams", response, params);
   return {
     ...params,
     combined_id: "gt." + response[response.length - 1].combined_id,

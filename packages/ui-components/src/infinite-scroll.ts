@@ -263,6 +263,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       // Don't run on initial render
       if (isInitialRender.current) {
         isInitialRender.current = false;
+        dispatch({ type: "update-state", spec: { $set: initialState } });
         return;
       }
       /*
@@ -271,7 +272,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       // const success = await get(route, params, opts);
       // parseResponse(success, true)
       //if (state.items.length == 0 && state.isLoadingPage == null) return
-      dispatch({ type: "update-state", spec: { $set: initialState } });
       //await loadNext(0)
     },
     [isInitialRender, route, params, opts],
