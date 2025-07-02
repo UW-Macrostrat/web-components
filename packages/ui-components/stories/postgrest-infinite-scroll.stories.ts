@@ -25,7 +25,7 @@ const initialItems = [
     strat_names: "Aaron",
     strat_ids: "60001",
     all_names: "Aaron,Aaron",
-    combined_id: 100,
+    combined_id: 1,
     strat_ranks: "Fm",
   },
 ];
@@ -33,7 +33,9 @@ const initialItems = [
 Primary.args = {
   limit: 1,
   id_key: "combined_id",
-  ascending: false,
+  filter_key: "name",
+  filter_value: "Aaron",
+  ascending: true,
   route: "https://dev.macrostrat.org/api/pg/strat_combined",
   delay: 200,
   initialItems,
