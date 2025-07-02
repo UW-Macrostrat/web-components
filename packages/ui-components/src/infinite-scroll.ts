@@ -25,7 +25,8 @@ type ScrollResponseItems<T> = Pick<
   "count" | "hasMore" | "items"
 >;
 
-export interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
+export interface InfiniteScrollProps<T>
+  extends Omit<APIResultProps<T>, "params"> {
   getCount(r: T): number;
   getNextParams(r: T, params: QueryParams): QueryParams;
   getItems(r: T): any;
