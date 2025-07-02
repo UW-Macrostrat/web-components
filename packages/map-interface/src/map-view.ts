@@ -144,7 +144,6 @@ export function MapView(props: MapViewProps) {
   const parentRef = useRef<HTMLDivElement>();
 
   const [baseStyle, setBaseStyle] = useState<mapboxgl.Style>(null);
-  const isStyleLoaded = useMapStatus((state) => state.isStyleLoaded);
 
   const estMapPosition: MapPosition | null =
     mapRef.current == null ? mapPosition : getMapPosition(mapRef.current);
@@ -198,23 +197,6 @@ export function MapView(props: MapViewProps) {
     }
   }, [baseStyle, overlayStyles, transformStyle]);
 
-  /** Check back every 0.1 seconds to see if the map has loaded.
-   * We do it this way because mapboxgl loading events are unreliable */
-  useEffect(() => {
-    if (isStyleLoaded) return;
-    const interval = setInterval(() => {
-      const map = mapRef.current;
-      if (map == null) return;
-      if (map.isStyleLoaded()) {
-        // Wait a tick before setting the style loaded state
-        dispatch({ type: "set-style-loaded", payload: true });
-        onStyleLoaded?.(map);
-        clearInterval(interval);
-      }
-    }, 50);
-    return () => clearInterval(interval);
-  }, [isStyleLoaded]);
-
   useAsyncEffect(async () => {
     /** Manager to update map style */
     let newStyle: mapboxgl.StyleSpecification;
@@ -251,8 +233,10 @@ export function MapView(props: MapViewProps) {
       h(MapLoadingReporter, {
         ignoredSources: loadingIgnoredSources,
       }),
+      h(StyleLoadedReporter, { onStyleLoaded }),
       h(MapMovedReporter, { onMapMoved }),
-      // Subsitute for trackResize: true
+      // Subsitute for trackResize: true that allows map resizing to
+      // be tied to a specific ref component
       h.if(trackResize)(MapResizeManager, { containerRef: ref }),
       h(MapPaddingManager, {
         containerRef: ref,
@@ -265,6 +249,31 @@ export function MapView(props: MapViewProps) {
   );
 }
 
+function StyleLoadedReporter({ onStyleLoaded = null }) {
+  /** Check back every 0.1 seconds to see if the map has loaded.
+   * We do it this way because mapboxgl loading events are unreliable */
+  const isStyleLoaded = useMapStatus((state) => state.isStyleLoaded);
+  const mapRef = useMapRef();
+  const dispatch = useMapDispatch();
+
+  useEffect(() => {
+    if (isStyleLoaded) return;
+    const interval = setInterval(() => {
+      const map = mapRef.current;
+      if (map == null) return;
+      if (map.isStyleLoaded()) {
+        // Wait a tick before setting the style loaded state
+        dispatch({ type: "set-style-loaded", payload: true });
+        onStyleLoaded?.(map);
+        clearInterval(interval);
+      }
+    }, 50);
+    return () => clearInterval(interval);
+  }, [isStyleLoaded]);
+
+  return null;
+}
+
 export function MapTerrainManager({
   mapUse3D,
   terrainSourceID,
@@ -272,7 +281,7 @@ export function MapTerrainManager({
 }: {
   mapUse3D?: boolean;
   terrainSourceID?: string;
-  style?: mapboxgl.Style | string;
+  style?: mapboxgl.StyleSpecification | string;
 }) {
   use3DTerrain(mapUse3D, terrainSourceID);
 

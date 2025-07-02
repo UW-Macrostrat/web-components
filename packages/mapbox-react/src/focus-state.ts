@@ -268,7 +268,6 @@ function moveMap(map: mapboxgl.Map, state: MapEaseToState, opts: FlyToOptions) {
     if (zoom != null) {
       props.zoom = zoom;
     }
-    console.log("Flying to props", props);
     map.flyTo(stripNullKeys(props));
   }
 }
