@@ -2,11 +2,11 @@ import hyper from "@macrostrat/hyper";
 import {
   useMapRef,
   useMapDispatch,
-  useMapPosition,
   use3DTerrain,
   getTerrainLayerForStyle,
   useMapStatus,
 } from "@macrostrat/mapbox-react";
+import React from "react";
 import {
   mapViewInfo,
   MapPosition,
@@ -55,9 +55,12 @@ export interface MapViewProps extends MapboxCoreOptions {
   standalone?: boolean;
   /** Overlay styles to apply to the map: a list of mapbox style objects or fragments to
    * overlay on top of the main map style at runtime */
-  overlayStyles?: Partial<mapboxgl.Style>[];
+  overlayStyles?: Partial<mapboxgl.StyleSpecification>[];
   /** A function to transform the map style before it is loaded */
-  transformStyle?: (style: mapboxgl.Style) => mapboxgl.Style;
+  transformStyle?: (
+    style: mapboxgl.StyleSpecification,
+  ) => mapboxgl.StyleSpecification;
+  loadingIgnoredSources?: string[];
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {
@@ -71,7 +74,7 @@ function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
     container,
     maxZoom: 18,
     logoPosition: "bottom-left",
-    trackResize: true,
+    trackResize: false,
     antialias: true,
     // This is a legacy option for Mapbox GL v2
     // @ts-ignore
@@ -121,6 +124,8 @@ export function MapView(props: MapViewProps) {
     standalone = false,
     overlayStyles,
     transformStyle,
+    trackResize = true,
+    loadingIgnoredSources = ["elevationMarker", "crossSectionEndpoints"],
     ...rest
   } = props;
   if (enableTerrain) {
@@ -244,10 +249,11 @@ export function MapView(props: MapViewProps) {
     [
       h("div.mapbox-map#map", { ref, className }),
       h(MapLoadingReporter, {
-        ignoredSources: ["elevationMarker", "crossSectionEndpoints"],
+        ignoredSources: loadingIgnoredSources,
       }),
       h(MapMovedReporter, { onMapMoved }),
-      h(MapResizeManager, { containerRef: ref }),
+      // Subsitute for trackResize: true
+      h.if(trackResize)(MapResizeManager, { containerRef: ref }),
       h(MapPaddingManager, {
         containerRef: ref,
         parentRef,
