@@ -1,7 +1,6 @@
 import h from "@macrostrat/hyper";
 import { InfiniteScrollProps, InfiniteScrollView } from "./infinite-scroll";
 import { SearchBar } from "../stories/search-bar.stories";
-import { TagInput, Spinner } from "@blueprintjs/core";
 import { useAPIResult } from "../dist/esm";
 import { useMemo, useState } from "react";
 import {
@@ -11,7 +10,7 @@ import {
 } from "@blueprintjs/select";
 import {
   MenuItem,
-  Tag,
+  Spinner
 } from "@blueprintjs/core";
 
 interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
@@ -54,7 +53,7 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
                 selectedItems.map(key => [key, `ilike.*${filterValue}*`])
             ),
         };
-    },[id_key, initialItems, ascending, limit, selectedItems, filterValue]);
+    },[selectedItems, filterValue]);
 
     if(!res) {
         return h(Spinner)
@@ -131,7 +130,8 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
             getNextParams: getNextParams ?? defaultGetNextParams, 
             params: params ?? defaultParams, 
             initialItems, 
-            hasMore: hasMore ?? defaultHasMore 
+            hasMore: hasMore ?? defaultHasMore ,
+            key: filterValue + selectedItems.join(",")
         })
     ])
 }
