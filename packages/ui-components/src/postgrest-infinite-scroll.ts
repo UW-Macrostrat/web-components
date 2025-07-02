@@ -12,6 +12,9 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
 export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps) {
     let { id_key, ascending = true, limit, filter_key, filter_value, initialItems, ...rest } = props;
 
+    const operator1 = ascending ? `asc` : `desc`;
+    const operator2 = ascending ? `gt` : `lt`;
+
     if (!id_key) {
         throw new Error("PostgRESTInfiniteScrollView requires an id_key prop");
     }
@@ -21,8 +24,8 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
     }
 
     let params = {
-        [id_key]: (ascending ? `gt` : `lt`) + `.${props.initialItems?.[0]?.[id_key] ?? ""}`,
-        order: ascending ? `${id_key}.asc` : `${id_key}.desc`,
+        [id_key]: operator2 + `.${initialItems?.[0]?.[id_key] ?? (ascending ? 0 : Number.MAX_SAFE_INTEGER)}`,
+        order: `${id_key}.${operator1}`,
         limit,
     }
 
@@ -35,10 +38,16 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
 
         return {
             ...params,
-            [id_key]: (ascending ? `gt` : `lt`) + `.${lastItem[id_key]}`,
+            [id_key]: operator2 + `.${lastItem[id_key]}`,
         };
     };
 
+    const hasMore = (response) => {
+        console.log("Checking if more items are available", response);
 
-    return h(InfiniteScrollView, { ...rest, getNextParams, params, initialItems });
+        return response.length === limit;
+    }
+
+
+    return h(InfiniteScrollView, { ...rest, getNextParams, params, initialItems, hasMore });
 }

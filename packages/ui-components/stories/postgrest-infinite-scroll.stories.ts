@@ -16,27 +16,13 @@ const Template: ComponentStory<typeof PostgRESTInfiniteScrollView> = (args) =>
 
 export const Primary = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
-const initialItems = [
-  {
-    concept_id: 1,
-    id: null,
-    name: "Aaron",
-    rank: null,
-    strat_names: "Aaron",
-    strat_ids: "60001",
-    all_names: "Aaron,Aaron",
-    combined_id: 1,
-    strat_ranks: "Fm",
-  },
-];
 
 Primary.args = {
-  limit: 1,
+  limit: 10,
   id_key: "combined_id",
   filter_key: "name",
   filter_value: "Aaron",
   ascending: true,
   route: "https://dev.macrostrat.org/api/pg/strat_combined",
   delay: 200,
-  initialItems,
 };
