@@ -14,6 +14,8 @@ import type {
   Map,
 } from "mapbox-gl";
 
+import type { TargetPosition } from "./position";
+
 /**
  * FlyToOptions
  * For some reason, we have to shadow the mapboxgl.FlyToOptions type
@@ -182,9 +184,9 @@ export function isCentered(focusState: PositionFocusState) {
   );
 }
 
-export function getCenterAndBestZoom(
+export function getBestTargetPosition(
   input: [number, number] | GeoJSON.Geometry | GeoJSON.BBox | LngLatLike,
-) {
+): TargetPosition {
   let box: GeoJSON.BBox;
   let center: [number, number] | null = null;
   let zoom: number | null = null;
@@ -217,5 +219,5 @@ export function getCenterAndBestZoom(
     const dist = greatCircleDistance(center, [box[0], box[1]]);
     zoom = Math.log2((Math.PI * 2) / dist) - 1;
   }
-  return { center, zoom };
+  return { lng: center[0], lat: center[1], zoom };
 }

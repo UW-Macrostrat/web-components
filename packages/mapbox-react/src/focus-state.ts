@@ -9,18 +9,14 @@ import {
   moveMap,
   getFocusState,
   isCentered,
-  getCenterAndBestZoom,
   filterChanges,
-} from "@macrostrat/mapbox-utils";
-import type {
+  getBestTargetPosition,
   PositionFocusState,
-  MapEaseToState,
 } from "@macrostrat/mapbox-utils";
+import type { MapEaseToState } from "@macrostrat/mapbox-utils";
 
-export type {
-  MapEaseToState,
-  PositionFocusState,
-} from "@macrostrat/mapbox-utils";
+export { PositionFocusState };
+export type { MapEaseToState } from "@macrostrat/mapbox-utils";
 
 export { isCentered };
 
@@ -280,7 +276,7 @@ export function LocationFocusButton({
         } else if (bounds != null) {
           map.current?.fitBounds(bounds, opts);
         } else if (location != null) {
-          const { center, zoom } = getCenterAndBestZoom(location);
+          const { zoom, ...center } = getBestTargetPosition(location);
           if (center == null) {
             return;
           } else {
