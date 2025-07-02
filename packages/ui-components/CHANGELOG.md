@@ -1,8 +1,9 @@
 # Changelog
 
-## [unreleased] - 2025-06-30
+## [4.3.1] - 2025-07-02
 
-Updated infinite scorlling to take `delay` as input param (default 100ms)
+- Updated infinite scorlling to take `delay` as input param (default 100ms)
+- Fixed duplicate data issue in Strict Mode
 
 ## [4.3.0] - 2025-06-25
 
