@@ -5,7 +5,7 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
     id_key: string;
     limit: number;
     ascending?: boolean;
-    filter_key?: string;
+    filter_keys?: string[];
     filter_value?: string;
     order_key?: string;
 }
@@ -15,7 +15,7 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
         id_key, 
         ascending = true, 
         limit, 
-        filter_key, 
+        filter_keys, 
         filter_value, 
         initialItems, 
         order_key, 
@@ -32,8 +32,8 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
         throw new Error("PostgRESTInfiniteScrollView requires an id_key prop");
     }
 
-    if (filter_key && filter_value?.length > 0 ) {
-        initialItems = initialItems?.filter(item => item[filter_key]?.includes(filter_value));
+    if (filter_keys && filter_value?.length > 0 ) {
+        initialItems = initialItems?.filter(item => filter_keys.some(key => item[key]?.includes(filter_value)));
     }
 
     let defaultParams = {
@@ -42,8 +42,10 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
         limit,
     }
 
-    if (filter_key) {
-        defaultParams[filter_key] = `ilike.*${filter_value}*`;
+    if (filter_keys) {
+        filter_keys.forEach(key => {
+            defaultParams[key] = `ilike.*${filter_value}*`;
+        });
     }
 
     const defaultGetNextParams = (response, params) => {
