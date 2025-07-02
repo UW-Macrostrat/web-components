@@ -25,7 +25,7 @@ type ScrollResponseItems<T> = Pick<
   "count" | "hasMore" | "items"
 >;
 
-interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
+export interface InfiniteScrollProps<T> extends Omit<APIResultProps<T>, "params"> {
   getCount(r: T): number;
   getNextParams(r: T, params: QueryParams): QueryParams;
   getItems(r: T): any;
@@ -76,7 +76,7 @@ function infiniteScrollReducer<T>(
       action.callback(action);
       return update(state, {
         // @ts-ignore
-        isLoadingPage: { $set: action.params.page ?? 0 },
+        isLoadingPage: { $set: action.params?.page ?? 0 },
       });
   }
 }
