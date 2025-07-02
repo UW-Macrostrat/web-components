@@ -27,7 +27,7 @@ const initialItems = [
     all_names: "Aaron,Aaron",
     combined_id: 1,
     strat_ranks: "Fm",
-  }
+  },
 ];
 
 Primary.args = {
@@ -38,8 +38,8 @@ Primary.args = {
   },
   route: "https://dev.macrostrat.org/api/pg/strat_combined",
   getNextParams,
-  delay: 100,
-  initialItems
+  delay: 200,
+  initialItems,
 };
 
 function getNextParams(response, params) {
