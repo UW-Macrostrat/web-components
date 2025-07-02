@@ -29,10 +29,16 @@ type LoadPage<T> = {
 };
 
 type ScrollAction<T> = UpdateState<T> | LoadPage<T>;
-type Reducer<T> = (state: ScrollState<T>, action: ScrollAction<T>) => ScrollState<T>;
+type Reducer<T> = (
+  state: ScrollState<T>,
+  action: ScrollAction<T>,
+) => ScrollState<T>;
 type Dispatch<T> = (action: ScrollAction<T>) => void;
 
-function infiniteScrollReducer<T>(state: ScrollState<T>, action: ScrollAction<T>) {
+function infiniteScrollReducer<T>(
+  state: ScrollState<T>,
+  action: ScrollAction<T>,
+) {
   switch (action.type) {
     case "update-state":
       return update(state, action.spec);
@@ -45,7 +51,15 @@ function infiniteScrollReducer<T>(state: ScrollState<T>, action: ScrollAction<T>
 }
 
 export function InfiniteScroll(props) {
-  const { hasMore, children, className, loadMore, offset = 0, isLoading, delay = 100 } = props;
+  const {
+    hasMore,
+    children,
+    className,
+    loadMore,
+    offset = 0,
+    isLoading,
+    delay = 100,
+  } = props;
   const { ref, inView } = useInView({
     rootMargin: `0px 0px ${offset}px 0px`,
     trackVisibility: true,
@@ -68,7 +82,12 @@ export function InfiniteScroll(props) {
 }
 
 const Placeholder = (props) => {
-  const { loading, title = "No results yet", description = null, ...rest } = props;
+  const {
+    loading,
+    title = "No results yet",
+    description = null,
+    ...rest
+  } = props;
 
   return h("div.placeholder", [
     h(NonIdealState, {
@@ -153,7 +172,10 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     pageIndex: startPage,
   };
 
-  const [state, dispatch] = useReducer<Reducer<T>>(infiniteScrollReducer, initialState);
+  const [state, dispatch] = useReducer<Reducer<T>>(
+    infiniteScrollReducer,
+    initialState,
+  );
 
   const loadingRef = useRef(false);
 
@@ -169,11 +191,11 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
       if (loadingRef.current) return; // Prevent concurrent loads
       loadingRef.current = true;
 
-      dispatch(action); 
+      dispatch(action);
 
       try {
         const res = await get(route, action.params, opts);
-        if (!mountedRef.current) return; 
+        if (!mountedRef.current) return;
 
         const itemVals = getItems(res);
         const nextParams = getNextParams(res, action.params);
@@ -202,7 +224,16 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
         loadingRef.current = false;
       }
     },
-    [get, route, opts, getItems, getNextParams, getCount, hasMore, state.pageIndex],
+    [
+      get,
+      route,
+      opts,
+      getItems,
+      getNextParams,
+      getCount,
+      hasMore,
+      state.pageIndex,
+    ],
   );
 
   const loadMore = useCallback(() => {
@@ -221,7 +252,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     if (isInitialRender.current) {
       isInitialRender.current = false;
       if (state.items.length === 0) {
-        loadMore(); 
+        loadMore();
       }
     }
   }, [loadMore, state.items.length]);
