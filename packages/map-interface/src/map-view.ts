@@ -141,10 +141,23 @@ export function MapView(props: MapViewProps) {
   const [baseStyle, setBaseStyle] = useState<mapboxgl.Style>(null);
   const isStyleLoaded = useMapStatus((state) => state.isStyleLoaded);
 
+  const estMapPosition: MapPosition | null =
+    mapRef.current == null ? mapPosition : getMapPosition(mapRef.current);
+  const { mapUse3D, mapIsRotated } = mapViewInfo(estMapPosition);
+  const is3DAvailable = (mapUse3D ?? false) && enableTerrain;
+
   useEffect(() => {
     /** Manager to update map style */
     if (baseStyle == null) return;
     let map = mapRef.current;
+
+    let newStyle: mapboxgl.StyleSpecification = baseStyle;
+
+    const overlayStyles = props.overlayStyles ?? [];
+
+    if (overlayStyles.length > 0) {
+      newStyle = mergeStyles(newStyle, ...overlayStyles);
+    }
 
     /** If we can, we try to update the map style with terrain information
      * immediately, before the style is loaded. This allows us to avoid a
@@ -153,20 +166,7 @@ export function MapView(props: MapViewProps) {
      * To do this, we need to estimate the map position before load, which
      * doesn't always work.
      */
-    // We either get the map position directly from the map or from props
-    const estMapPosition: MapPosition | null =
-      map == null ? mapPosition : getMapPosition(map);
-    const { mapUse3D } = mapViewInfo(estMapPosition);
-
-    let newStyle: mapboxgl.Style = baseStyle;
-
-    const overlayStyles = props.overlayStyles ?? [];
-
-    if (overlayStyles.length > 0) {
-      newStyle = mergeStyles(newStyle, ...overlayStyles);
-    }
-
-    if (mapUse3D) {
+    if (is3DAvailable) {
       // We can update the style with terrain layers immediately
       const terrainStyle = getTerrainLayerForStyle(newStyle, terrainSourceID);
       newStyle = mergeStyles(newStyle, terrainStyle);
@@ -177,11 +177,9 @@ export function MapView(props: MapViewProps) {
     }
 
     if (map != null) {
-      console.log("Setting style", newStyle);
       dispatch({ type: "set-style-loaded", payload: false });
       map.setStyle(newStyle);
     } else {
-      console.log("Initializing map", newStyle);
       const map = initializeMap(ref.current, {
         style: newStyle,
         projection,
@@ -214,7 +212,7 @@ export function MapView(props: MapViewProps) {
 
   useAsyncEffect(async () => {
     /** Manager to update map style */
-    let newStyle: mapboxgl.Style;
+    let newStyle: mapboxgl.StyleSpecification;
     if (typeof style === "string") {
       newStyle = await getMapboxStyle(style, {
         access_token: mapboxgl.accessToken,
@@ -225,16 +223,13 @@ export function MapView(props: MapViewProps) {
     setBaseStyle(newStyle);
   }, [style]);
 
-  const _computedMapPosition = useMapPosition();
-  const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
-
   // Get map projection
   const _projection = mapRef.current?.getProjection()?.name ?? "mercator";
 
   const className = classNames(
     {
       "is-rotated": mapIsRotated ?? false,
-      "is-3d-available": mapUse3D ?? false,
+      "is-3d-available": is3DAvailable,
     },
     `${_projection}-projection`,
   );
@@ -258,7 +253,7 @@ export function MapView(props: MapViewProps) {
         parentRef,
         infoMarkerPosition,
       }),
-      h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
+      h(MapTerrainManager, { mapUse3D: is3DAvailable, terrainSourceID, style }),
       children,
     ],
   );

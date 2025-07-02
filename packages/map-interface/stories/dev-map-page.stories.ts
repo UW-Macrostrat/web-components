@@ -82,3 +82,34 @@ export const WithBounds: Story = {
     bounds: [-114.052885, 36.997966, -109.04106, 42.001567],
   },
 };
+
+export const LowAltitudeOblique: Story = {
+  args: {
+    title: "Low altitude oblique view",
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -77.006,
+        altitude: 4000,
+        pitch: 45,
+      },
+    },
+    overlayStyle: buildMacrostratStyle({}),
+  },
+};
+
+export const TerrainDisabled: Story = {
+  args: {
+    title: "Terrain disabled",
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -77.006,
+        altitude: 4000,
+        pitch: 45,
+      },
+    },
+    enableTerrain: false,
+    overlayStyle: buildMacrostratStyle({}),
+  },
+};
