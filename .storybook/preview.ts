@@ -8,6 +8,7 @@ import { DarkModeProvider } from "@macrostrat/ui-components";
 import { useDarkMode } from "@vueless/storybook-dark-mode";
 import { DocsContainer } from "./docs-container";
 import { GeologicPatternProvider } from "@macrostrat/column-components";
+import { StrictMode } from "react";
 
 FocusStyleManager.onlyShowFocusOnTabs();
 
@@ -53,9 +54,10 @@ export const parameters = {
 export const decorators = [
   (renderStory) => {
     const isEnabled = useDarkMode();
-    return h(
-      PatternProvider,
-      h(DarkModeProvider, { isEnabled }, renderStory()),
+    return h(StrictMode,
+      h(PatternProvider,
+        h(DarkModeProvider, { isEnabled }, renderStory()),
+      )
     );
   },
 ];
