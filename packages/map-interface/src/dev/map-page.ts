@@ -1,15 +1,16 @@
 // Import other components
 import { Switch } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
-import { Spacer, useDarkMode, useStoredState } from "@macrostrat/ui-components";
+import { useDarkMode, useStoredState } from "@macrostrat/ui-components";
 import mapboxgl from "mapbox-gl";
+import React from "react";
 import { useCallback, useState, useEffect } from "react";
 import { buildInspectorStyle } from "./xray";
 import { MapAreaContainer, PanelCard } from "../container";
 import { FloatingNavbar, MapLoadingButton } from "../context-panel";
 import { MapMarker, useBasicMapStyle } from "../helpers";
 import { LocationPanel } from "../location-panel";
-import { MapView } from "../map-view";
+import { MapView, MapViewProps } from "../map-view";
 import styles from "./main.module.sass";
 import { TileExtentLayer } from "./tile-extent";
 import {
@@ -20,6 +21,25 @@ import {
 import { MapPosition } from "@macrostrat/mapbox-utils";
 
 export const h = hyper.styled(styles);
+
+interface MapInspectorProps extends MapViewProps {
+  headerElement?: React.ReactNode;
+  transformRequest?: mapboxgl.RequestTransformFunction;
+  title?: string;
+  style?: mapboxgl.StyleSpecification | string;
+  controls?: React.ReactNode;
+  children?: React.ReactNode;
+  mapboxToken?: string;
+  overlayStyle?: mapboxgl.StyleSpecification | string;
+  focusedSource?: string;
+  focusedSourceTitle?: string;
+  projection?: string;
+  mapPosition?: MapPosition;
+  bounds?: [number, number, number, number];
+  fitViewport?: boolean;
+  styleType?: "standard" | "macrostrat";
+  enableTerrain?: boolean;
+}
 
 export function MapInspectorV2({
   title = "Map inspector",
@@ -36,23 +56,8 @@ export function MapInspectorV2({
   focusedSourceTitle = null,
   fitViewport = true,
   styleType = "macrostrat",
-}: {
-  headerElement?: React.ReactNode;
-  transformRequest?: mapboxgl.TransformRequestFunction;
-  title?: string;
-  style?: mapboxgl.Style | string;
-  controls?: React.ReactNode;
-  children?: React.ReactNode;
-  mapboxToken?: string;
-  overlayStyle?: mapboxgl.Style | string;
-  focusedSource?: string;
-  focusedSourceTitle?: string;
-  projection?: string;
-  mapPosition?: MapPosition;
-  bounds?: [number, number, number, number];
-  fitViewport?: boolean;
-  styleType?: "standard" | "macrostrat";
-}) {
+  ...rest
+}: MapInspectorProps) {
   /* We apply a custom style to the panel container when we are interacting
     with the search bar, so that we can block map interactions until search
     bar focus is lost.
@@ -164,6 +169,7 @@ export function MapInspectorV2({
         projection: { name: "globe" },
         mapboxToken,
         bounds,
+        ...rest,
       },
       [
         h(FeatureSelectionHandler, {

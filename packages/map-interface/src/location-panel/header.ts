@@ -3,14 +3,11 @@ import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { useToaster } from "@macrostrat/ui-components";
 import { LngLatCoords, Elevation } from "../location-info";
-import {
-  LocationFocusButton,
-  useFocusState,
-  isCentered,
-} from "@macrostrat/mapbox-react";
+import { LocationFocusButton, useFocusState } from "@macrostrat/mapbox-react";
 import classNames from "classnames";
 import type { ReactNode } from "react";
 import type { LngLatBounds, LngLatLike } from "mapbox-gl";
+import { isCentered } from "@macrostrat/mapbox-utils";
 
 const h = hyper.styled(styles);
 

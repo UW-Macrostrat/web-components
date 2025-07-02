@@ -7,7 +7,7 @@ export type LatLng = {
   lat: number;
 };
 
-type TargetPosition = LatLng & {
+export type TargetPosition = LatLng & {
   zoom: number;
 };
 
