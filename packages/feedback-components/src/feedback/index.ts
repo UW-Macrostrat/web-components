@@ -6,7 +6,7 @@ import Node from "./node";
 import { FeedbackText } from "./text-visualizer";
 import type { InternalEntity, TreeData } from "./types";
 import type { Entity } from "../extractions";
-import { ModelInfo } from "../extractions";
+import { getTagStyle, ModelInfo } from "../extractions";
 import {
   TreeDispatchContext,
   treeToGraph,
@@ -59,7 +59,6 @@ export function FeedbackComponent({
   entityTypes,
   matchComponent,
   onSave,
-  lineHeight,
   allowOverlap,
 }) {
   // Get the input arguments
@@ -78,112 +77,122 @@ export function FeedbackComponent({
 
   const [{ width, height }, ref] = useElementDimensions();
 
-  return h(TreeDispatchContext.Provider, { value: dispatch }, [
+  return h("div.page-wrapper", [
     h(
-      ErrorBoundary,
-      {
-        description:
-          "An error occurred while rendering the feedback text component.",
-      },
-      h(FeedbackText, {
-        text,
-        dispatch,
-        // @ts-ignore
-        nodes: tree,
-        selectedNodes,
-        lineHeight,
-        allowOverlap,
-      }),
-    ),
-    h(FlexRow, { alignItems: "baseline", justifyContent: "space-between" }, [
-      h(ModelInfo, { data: model }),
-      h(SegmentedControl, {
-        options: [
-          { label: "Tree", value: "tree" },
-          { label: "Graph", value: "graph" },
-        ],
-        value: state.viewMode,
-        small: true,
-        onValueChange(value: ViewMode) {
-          console.log("Setting view mode", value);
-          dispatch({ type: "set-view-mode", payload: value });
-        },
-      }),
-    ]),
-    h(
-      "div.entity-panel",
-      {
-        ref,
-      },
-      [
-        h(Card, { className: "control-panel" }, [
-          h(
-            ButtonGroup,
-            {
-              vertical: true,
-              fill: true,
-              minimal: true,
-              alignText: "left",
-            },
-            [
-              h(
-                CancelButton,
-                {
-                  icon: "trash",
-                  disabled: state.initialTree == state.tree,
-                  onClick() {
-                    dispatch({ type: "reset" });
-                  },
-                },
-                "Reset",
-              ),
-              h(
-                SaveButton,
-                {
-                  onClick() {
-                    onSave(state.tree);
-                  },
-                  disabled: state.initialTree == state.tree,
-                },
-                "Save",
-              ),
-            ],
-          ),
-          h(Divider),
-          h(EntityTypeSelector, {
-            entityTypes: entityTypesMap,
-            selected: selectedEntityType,
-            onChange(payload) {
-              dispatch({ type: "select-entity-type", payload });
-            },
+      "div.feedback-container",
+      h(TreeDispatchContext.Provider, { value: dispatch }, [
+        h(
+          ErrorBoundary,
+          {
+            description:
+              "An error occurred while rendering the feedback text component.",
+          },
+          h(FeedbackText, {
+            text,
             dispatch,
-            tree,
+            // @ts-ignore
+            nodes: tree,
             selectedNodes,
-            isOpen: isSelectingEntityType,
-            setOpen: (isOpen: boolean) =>
-              dispatch({
-                type: "toggle-entity-type-selector",
-                payload: isOpen,
-              }),
+            allowOverlap,
           }),
-        ]),
-        h.if(state.viewMode == "tree")(ManagedSelectionTree, {
-          selectedNodes,
-          dispatch,
-          tree,
-          width,
-          height,
-          matchComponent,
-        }),
-        h.if(state.viewMode == "graph")(GraphView, {
-          tree,
-          width,
-          height,
-          dispatch,
-          selectedNodes,
-        }),
-      ],
+        ),
+        h(
+          FlexRow,
+          { alignItems: "baseline", justifyContent: "space-between" },
+          [
+            h(ModelInfo, { data: model }),
+            h(SegmentedControl, {
+              options: [
+                { label: "Tree", value: "tree" },
+                { label: "Graph", value: "graph" },
+              ],
+              value: state.viewMode,
+              small: true,
+              onValueChange(value: ViewMode) {
+                console.log("Setting view mode", value);
+                dispatch({ type: "set-view-mode", payload: value });
+              },
+            }),
+          ],
+        ),
+        h(
+          "div.entity-panel",
+          {
+            ref,
+          },
+          [
+            h.if(state.viewMode == "tree")(ManagedSelectionTree, {
+              selectedNodes,
+              dispatch,
+              tree,
+              width,
+              height,
+              matchComponent,
+            }),
+            h.if(state.viewMode == "graph")(GraphView, {
+              tree,
+              width,
+              height,
+              dispatch,
+              selectedNodes,
+            }),
+          ],
+        ),
+      ]),
     ),
+    h(Card, { className: "control-panel" }, [
+      h("div.control-content", [
+        h(
+          ButtonGroup,
+          {
+            vertical: true,
+            fill: true,
+            minimal: true,
+            alignText: "left",
+          },
+          [
+            h(
+              CancelButton,
+              {
+                icon: "trash",
+                disabled: state.initialTree == state.tree,
+                onClick() {
+                  dispatch({ type: "reset" });
+                },
+              },
+              "Reset",
+            ),
+            h(
+              SaveButton,
+              {
+                onClick() {
+                  onSave(state.tree);
+                },
+                disabled: state.initialTree == state.tree,
+              },
+              "Save",
+            ),
+          ],
+        ),
+        h(Divider),
+        h(EntityTypeSelector, {
+          entityTypes: entityTypesMap,
+          selected: selectedEntityType,
+          onChange(payload) {
+            dispatch({ type: "select-entity-type", payload });
+          },
+          dispatch,
+          tree,
+          selectedNodes,
+          isOpen: isSelectingEntityType,
+          setOpen: (isOpen: boolean) =>
+            dispatch({
+              type: "toggle-entity-type-selector",
+              payload: isOpen,
+            }),
+        }),
+      ]),
+    ]),
   ]);
 }
 
@@ -296,18 +305,39 @@ function ManagedSelectionTree(props) {
     clickedRef.current = true;
   }
 
+  const ctrlPressedRef = useRef(false);
+
+  useEffect(() => {
+    const down = (e) => {
+      if (e.ctrlKey || e.metaKey) ctrlPressedRef.current = true;
+    };
+    const up = () => (ctrlPressedRef.current = false);
+
+    window.addEventListener("keydown", down);
+    window.addEventListener("keyup", up);
+    return () => {
+      window.removeEventListener("keydown", down);
+      window.removeEventListener("keyup", up);
+    };
+  }, []);
+
   const handleSelect = useCallback(
     (nodes) => {
       if (!clickedRef.current) return;
       clickedRef.current = false;
-      console.log("Clicked nodes:", nodes);
+      const isMultiSelect = ctrlPressedRef.current;
 
       let ids = nodes.map((d) => parseInt(d.id));
-      if (ids.length === 1 && ids[0] === selectedNodes[0]) {
-        ids = [];
-      }
 
-      dispatch({ type: "select-node", payload: { ids } });
+      if (isMultiSelect) {
+        dispatch({ type: "toggle-node-selected", payload: { ids } });
+      } else {
+        if (ids.length === 1 && ids[0] === selectedNodes[0]) {
+          ids = [];
+        }
+
+        dispatch({ type: "select-node", payload: { ids } });
+      }
     },
     [selectedNodes, dispatch],
   );
@@ -544,8 +574,13 @@ function TypeTag({
   isSelectedNodes,
 }) {
   const { color, name, id, description } = type;
-  const chromaColor = asChromaColor(color ?? "#000000");
   const darkMode = useInDarkMode();
+  const isSelected = id === selected?.id && selectedNodes.length > 0;
+
+  const style = getTagStyle(color, {
+    active: isSelected,
+    highlighted: selectedNodes.length === 0,
+  });
 
   const payload = {
     id,
@@ -610,12 +645,11 @@ function TypeTag({
             ids.length > 0 || (isSelectedNodes && !selectedType)
               ? "pointer"
               : "",
-          color: darkMode ? "white" : "black",
-          backgroundColor: chromaColor?.luminance(1 - luminance).hex(),
-          border:
-            id === selected?.id && selectedNodes.length > 0
-              ? `1px solid var(--text-emphasized-color)`
-              : `1px solid var(--background-color)`,
+          color: "black",
+          backgroundColor: style.backgroundColor,
+          border: isSelected
+            ? `1px solid var(--text-emphasized-color)`
+            : `1px solid var(--background-color)`,
         },
       },
       h("div.type-container", [

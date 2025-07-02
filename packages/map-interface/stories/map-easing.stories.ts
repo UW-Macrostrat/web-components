@@ -13,10 +13,10 @@ import {
 import { useEffect, useState } from "react";
 import {
   useMapRef,
-  MapEaseToState,
   useMapEaseTo,
   useMapStatus,
 } from "@macrostrat/mapbox-react";
+import type { MapEaseToState } from "@macrostrat/mapbox-utils";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 

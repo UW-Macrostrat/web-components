@@ -4,7 +4,7 @@ import { FeedbackComponent } from "../src";
 import { data, entityTypes, data2, data3, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
-function FeedbackInterface({ data, types, lineHeight, allowOverlap }) {
+function FeedbackInterface({ data, types, allowOverlap }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
   return h(FeedbackComponent, {
@@ -14,7 +14,6 @@ function FeedbackInterface({ data, types, lineHeight, allowOverlap }) {
     entityTypes: createMap(types),
     sourceTextID: source_text,
     runID: model_run,
-    lineHeight: `${lineHeight}em`,
     allowOverlap,
   });
 }
@@ -31,7 +30,6 @@ export const AllowOverlap: StoryObj<{}> = {
   args: {
     data,
     types: entityTypes,
-    lineHeight: 2,
     allowOverlap: true,
   },
 };
@@ -40,7 +38,6 @@ export const NoAllowOverlap: StoryObj<{}> = {
   args: {
     data,
     types: entityTypes,
-    lineHeight: 2,
     allowOverlap: false,
   },
 };
@@ -49,7 +46,6 @@ export const TestData2: StoryObj<{}> = {
   args: {
     data: data2,
     types: entityTypes2,
-    lineHeight: 2,
     allowOverlap: false,
   },
 };
@@ -58,7 +54,6 @@ export const TestData3: StoryObj<{}> = {
   args: {
     data: data3,
     types: entityTypes2,
-    lineHeight: 2,
     allowOverlap: true,
   },
 };

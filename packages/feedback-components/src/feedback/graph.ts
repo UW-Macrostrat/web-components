@@ -1,7 +1,7 @@
 import { TreeData } from "./types";
 import { treeToGraph } from "./edit-state";
-import h from "@macrostrat/hyper";
-
+import styles from "./feedback.module.sass";
+import hyper from "@macrostrat/hyper";
 import {
   forceSimulation,
   SimulationNodeDatum,
@@ -12,9 +12,11 @@ import {
   forceCollide,
 } from "d3-force";
 import { useEffect, useState } from "react";
-import { Spinner, Popover } from "@blueprintjs/core";
+import { Spinner, Switch } from "@blueprintjs/core";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { getTagStyle } from "../extractions";
+
+const h = hyper.styled(styles);
 
 export function GraphView(props: {
   tree: TreeData[];
@@ -29,6 +31,7 @@ export function GraphView(props: {
 
   const [nodes, setNodes] = useState<SimulationNodeDatum[]>(null);
   const [links, setLinks] = useState<SimulationLinkDatum[]>(null);
+  const [showLabels, setShowLabels] = useState(false);
 
   useEffect(() => {
     const { nodes, edges } = treeToGraph(tree);
@@ -78,6 +81,12 @@ export function GraphView(props: {
       description: "An error occurred while rendering the graph view.",
     },
     h("div.graph-view", { style: { width, height } }, [
+      h(Switch, {
+        className: "show-labels-switch",
+        label: "Show Labels",
+        checked: showLabels,
+        onChange: (e) => setShowLabels(e.target.checked),
+      }),
       h("svg", { width, height }, [
         h(
           "g.links",
@@ -99,12 +108,11 @@ export function GraphView(props: {
             const highlighted = isHighlighted(d.id, selectedNodes, nodes);
             const style = getTagStyle(d.color, { highlighted, active });
 
-            return h(
-              "circle",
-              {
+            return h("g", [
+              h("circle", {
                 cx: d.x,
                 cy: d.y,
-                r: 5,
+                r: 8,
                 fill: style.backgroundColor || "blue",
                 onClick: (e) => {
                   e.stopPropagation();
@@ -116,9 +124,18 @@ export function GraphView(props: {
                 className: active ? "selected" : "",
                 stroke,
                 strokeWidth: 2,
-              },
-              h("title", d.name || `Node ${d.id}`),
-            );
+              }),
+              h.if(showLabels)(
+                "text",
+                {
+                  x: d.x + 10,
+                  y: d.y + 4,
+                  className: "node-label",
+                },
+                d.name || `Node ${d.id}`,
+              ),
+              h.if(!showLabels)("title", d.name || `Node ${d.id}`),
+            ]);
           }),
         ),
       ]),

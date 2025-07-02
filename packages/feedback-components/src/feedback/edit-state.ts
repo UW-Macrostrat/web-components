@@ -47,7 +47,8 @@ type TreeAction =
   | {
       type: "update-entity-type";
       payload: { id: number; name: string; description: string; color: string };
-    };
+    }
+  | { type: "select-range"; payload: { ids: number[] } };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -134,6 +135,27 @@ function treeReducer(state: TreeState, action: TreeAction) {
         selectedEntityType: updatedType,
       };
     }
+    case "select-range":
+      // Select a range of nodes by their IDs
+      const payloadIds = action.payload.ids;
+      const node1 = payloadIds[0];
+      const node2 = payloadIds[1];
+
+      // make list of nodes in order
+      const allNodes = flattenAndSort(state.tree);
+
+      // select all nodes between node1 and node2
+      const startIndex = allNodes.findIndex((node) => node.id === node1);
+      const endIndex = allNodes.findIndex((node) => node.id === node2);
+
+      const selectedNodes = allNodes.slice(startIndex, endIndex + 1);
+
+      console.log("Selecting range:", selectedNodes);
+      return {
+        ...state,
+        selectedNodes: selectedNodes.map((node) => node.id),
+      };
+
     case "move-node":
       // For each node in the tree, if the node is in the dragIds, remove it from the tree and collect it
       const [newTree, removedNodes] = removeNodes(
@@ -182,8 +204,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
         action.payload.ids.length > 0
           ? findNodeById(state.tree, ids[0])?.type
           : null;
-
-      console.log("Selecting nodes:", ids, "Type:", type);
 
       return { ...state, selectedNodes: ids, selectedEntityType: type };
     // otherwise fall through to toggle-node-selected for a single ID
@@ -438,4 +458,22 @@ function updateNodeType(node, oldType, defaultType) {
       ? updateTreeTypes(node.children, oldType, defaultType)
       : [],
   };
+}
+
+function flattenAndSort(nodes) {
+  const result = [];
+
+  function traverse(nodeList) {
+    for (const node of nodeList) {
+      result.push(node);
+      if (Array.isArray(node.children) && node.children.length > 0) {
+        traverse(node.children);
+      }
+    }
+  }
+
+  traverse(nodes);
+
+  // sort by start
+  return result.sort((a, b) => a.indices[0] - b.indices[0]);
 }

@@ -255,7 +255,14 @@ function UnitDetailsContent({
       {
         label: "Stratigraphic name",
       },
-      h("span.strat-name-id", unit.strat_name_id),
+      h(
+        "span",
+        {
+          className: "strat-name-id" + (onClickItem ? " clickable" : ""),
+          onClick: (e) => onClickItem(e, { strat_name_id: unit.strat_name_id }),
+        },
+        unit.strat_name_id,
+      ),
     ),
     outcropField,
     h.if(features.has(UnitDetailsFeature.AdjacentUnits))([
@@ -531,7 +538,7 @@ function IntervalProportions({ unit, onClickItem }) {
 
   const handleClick = (event: MouseEvent) => {
     if (onClickItem) {
-      onClickItem({ event, data: interval0 });
+      onClickItem(event, interval0);
     }
   };
 

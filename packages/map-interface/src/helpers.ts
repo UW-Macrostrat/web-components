@@ -136,18 +136,18 @@ export function MapLoadingReporter({
     const mapIsLoading = loadingRef.current;
     if (map == null) return;
 
-    let didSendLoading = false;
+    //let didSendLoading = false;
 
     const loadingCallback = (evt) => {
       if (ignoredSources.includes(evt.sourceId) || mapIsLoading) return;
-      if (didSendLoading) return;
+      //if (didSendLoading) return;
       onMapLoading?.(evt);
       dispatch({ type: "set-loading", payload: true });
       loadingRef.current = true;
-      didSendLoading = true;
+      //didSendLoading = true;
     };
     const idleCallback = (evt) => {
-      if (!mapIsLoading) return;
+      if (!map.loaded()) return;
       dispatch({ type: "set-loading", payload: false });
       loadingRef.current = false;
       onMapIdle?.(evt);

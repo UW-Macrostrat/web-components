@@ -2,11 +2,11 @@ import hyper from "@macrostrat/hyper";
 import {
   useMapRef,
   useMapDispatch,
-  useMapPosition,
   use3DTerrain,
   getTerrainLayerForStyle,
   useMapStatus,
 } from "@macrostrat/mapbox-react";
+import React from "react";
 import {
   mapViewInfo,
   MapPosition,
@@ -55,9 +55,14 @@ export interface MapViewProps extends MapboxCoreOptions {
   standalone?: boolean;
   /** Overlay styles to apply to the map: a list of mapbox style objects or fragments to
    * overlay on top of the main map style at runtime */
-  overlayStyles?: Partial<mapboxgl.Style>[];
+  overlayStyles?: Partial<mapboxgl.StyleSpecification>[];
   /** A function to transform the map style before it is loaded */
-  transformStyle?: (style: mapboxgl.Style) => mapboxgl.Style;
+  transformStyle?: (
+    style: mapboxgl.StyleSpecification,
+  ) => mapboxgl.StyleSpecification;
+  loadingIgnoredSources?: string[];
+  id?: string;
+  className?: string;
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {
@@ -71,7 +76,7 @@ function defaultInitializeMap(container, args: MapboxOptionsExt = {}) {
     container,
     maxZoom: 18,
     logoPosition: "bottom-left",
-    trackResize: true,
+    trackResize: false,
     antialias: true,
     // This is a legacy option for Mapbox GL v2
     // @ts-ignore
@@ -121,11 +126,23 @@ export function MapView(props: MapViewProps) {
     standalone = false,
     overlayStyles,
     transformStyle,
+    trackResize = true,
+    loadingIgnoredSources = ["elevationMarker", "crossSectionEndpoints"],
+    id = "map",
+    className,
     ...rest
   } = props;
   if (enableTerrain) {
     terrainSourceID ??= "mapbox-3d-dem";
   }
+
+  useEffect(() => {
+    if (id != null) {
+      console.warn(
+        "Setting a specific element ID for the map is deprecated. Please use className instead.",
+      );
+    }
+  }, [id]);
 
   const _mapboxToken = mapboxToken ?? accessToken;
 
@@ -139,12 +156,24 @@ export function MapView(props: MapViewProps) {
   const parentRef = useRef<HTMLDivElement>();
 
   const [baseStyle, setBaseStyle] = useState<mapboxgl.Style>(null);
-  const isStyleLoaded = useMapStatus((state) => state.isStyleLoaded);
+
+  const estMapPosition: MapPosition | null =
+    mapRef.current == null ? mapPosition : getMapPosition(mapRef.current);
+  const { mapUse3D, mapIsRotated } = mapViewInfo(estMapPosition);
+  const is3DAvailable = (mapUse3D ?? false) && enableTerrain;
 
   useEffect(() => {
     /** Manager to update map style */
     if (baseStyle == null) return;
     let map = mapRef.current;
+
+    let newStyle: mapboxgl.StyleSpecification = baseStyle;
+
+    const overlayStyles = props.overlayStyles ?? [];
+
+    if (overlayStyles.length > 0) {
+      newStyle = mergeStyles(newStyle, ...overlayStyles);
+    }
 
     /** If we can, we try to update the map style with terrain information
      * immediately, before the style is loaded. This allows us to avoid a
@@ -153,20 +182,7 @@ export function MapView(props: MapViewProps) {
      * To do this, we need to estimate the map position before load, which
      * doesn't always work.
      */
-    // We either get the map position directly from the map or from props
-    const estMapPosition: MapPosition | null =
-      map == null ? mapPosition : getMapPosition(map);
-    const { mapUse3D } = mapViewInfo(estMapPosition);
-
-    let newStyle: mapboxgl.Style = baseStyle;
-
-    const overlayStyles = props.overlayStyles ?? [];
-
-    if (overlayStyles.length > 0) {
-      newStyle = mergeStyles(newStyle, ...overlayStyles);
-    }
-
-    if (mapUse3D) {
+    if (is3DAvailable) {
       // We can update the style with terrain layers immediately
       const terrainStyle = getTerrainLayerForStyle(newStyle, terrainSourceID);
       newStyle = mergeStyles(newStyle, terrainStyle);
@@ -177,11 +193,9 @@ export function MapView(props: MapViewProps) {
     }
 
     if (map != null) {
-      console.log("Setting style", newStyle);
       dispatch({ type: "set-style-loaded", payload: false });
       map.setStyle(newStyle);
     } else {
-      console.log("Initializing map", newStyle);
       const map = initializeMap(ref.current, {
         style: newStyle,
         projection,
@@ -195,8 +209,68 @@ export function MapView(props: MapViewProps) {
     }
   }, [baseStyle, overlayStyles, transformStyle]);
 
+  useAsyncEffect(async () => {
+    /** Manager to update map style */
+    let newStyle: mapboxgl.StyleSpecification;
+    if (typeof style === "string") {
+      newStyle = await getMapboxStyle(style, {
+        access_token: mapboxgl.accessToken,
+      });
+    } else {
+      newStyle = style;
+    }
+    setBaseStyle(newStyle);
+  }, [style]);
+
+  // Get map projection
+  const _projection = mapRef.current?.getProjection()?.name ?? "mercator";
+
+  const mapClassName = classNames(
+    {
+      "is-rotated": mapIsRotated ?? false,
+      "is-3d-available": is3DAvailable,
+    },
+    `${_projection}-projection`,
+  );
+
+  const parentClassName = classNames(
+    {
+      standalone,
+    },
+    className,
+  );
+
+  return h(
+    "div.map-view-container.main-view",
+    { ref: parentRef, className: parentClassName },
+    [
+      h("div.mapbox-map.map-view", { ref, className: mapClassName, id }),
+      h(MapLoadingReporter, {
+        ignoredSources: loadingIgnoredSources,
+      }),
+      h(StyleLoadedReporter, { onStyleLoaded }),
+      h(MapMovedReporter, { onMapMoved }),
+      // Subsitute for trackResize: true that allows map resizing to
+      // be tied to a specific ref component
+      h.if(trackResize)(MapResizeManager, { containerRef: ref }),
+      h(MapPaddingManager, {
+        containerRef: ref,
+        parentRef,
+        infoMarkerPosition,
+      }),
+      h(MapTerrainManager, { mapUse3D: is3DAvailable, terrainSourceID, style }),
+      children,
+    ],
+  );
+}
+
+function StyleLoadedReporter({ onStyleLoaded = null }) {
   /** Check back every 0.1 seconds to see if the map has loaded.
    * We do it this way because mapboxgl loading events are unreliable */
+  const isStyleLoaded = useMapStatus((state) => state.isStyleLoaded);
+  const mapRef = useMapRef();
+  const dispatch = useMapDispatch();
+
   useEffect(() => {
     if (isStyleLoaded) return;
     const interval = setInterval(() => {
@@ -212,56 +286,7 @@ export function MapView(props: MapViewProps) {
     return () => clearInterval(interval);
   }, [isStyleLoaded]);
 
-  useAsyncEffect(async () => {
-    /** Manager to update map style */
-    let newStyle: mapboxgl.Style;
-    if (typeof style === "string") {
-      newStyle = await getMapboxStyle(style, {
-        access_token: mapboxgl.accessToken,
-      });
-    } else {
-      newStyle = style;
-    }
-    setBaseStyle(newStyle);
-  }, [style]);
-
-  const _computedMapPosition = useMapPosition();
-  const { mapUse3D, mapIsRotated } = mapViewInfo(_computedMapPosition);
-
-  // Get map projection
-  const _projection = mapRef.current?.getProjection()?.name ?? "mercator";
-
-  const className = classNames(
-    {
-      "is-rotated": mapIsRotated ?? false,
-      "is-3d-available": mapUse3D ?? false,
-    },
-    `${_projection}-projection`,
-  );
-
-  const parentClassName = classNames({
-    standalone,
-  });
-
-  return h(
-    "div.map-view-container.main-view",
-    { ref: parentRef, className: parentClassName },
-    [
-      h("div.mapbox-map#map", { ref, className }),
-      h(MapLoadingReporter, {
-        ignoredSources: ["elevationMarker", "crossSectionEndpoints"],
-      }),
-      h(MapMovedReporter, { onMapMoved }),
-      h(MapResizeManager, { containerRef: ref }),
-      h(MapPaddingManager, {
-        containerRef: ref,
-        parentRef,
-        infoMarkerPosition,
-      }),
-      h(MapTerrainManager, { mapUse3D, terrainSourceID, style }),
-      children,
-    ],
-  );
+  return null;
 }
 
 export function MapTerrainManager({
@@ -271,7 +296,7 @@ export function MapTerrainManager({
 }: {
   mapUse3D?: boolean;
   terrainSourceID?: string;
-  style?: mapboxgl.Style | string;
+  style?: mapboxgl.StyleSpecification | string;
 }) {
   use3DTerrain(mapUse3D, terrainSourceID);
 
