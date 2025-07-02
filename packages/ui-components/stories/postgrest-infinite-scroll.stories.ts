@@ -18,7 +18,7 @@ export const Primary = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
 Primary.args = {
-  limit: 10,
+  limit: 1,
   id_key: "combined_id",
   filter_key: "name",
   filter_value: "Aaron",

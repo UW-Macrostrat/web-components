@@ -36,6 +36,10 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
     const getNextParams = (response, params) => {
         const lastItem = response[response.length - 1];
 
+        if (!lastItem || !lastItem[id_key]) {
+            return params;
+        }
+
         return {
             ...params,
             [id_key]: operator2 + `.${lastItem[id_key]}`,
@@ -43,8 +47,6 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
     };
 
     const hasMore = (response) => {
-        console.log("Checking if more items are available", response);
-
         return response.length === limit;
     }
 
