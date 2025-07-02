@@ -20,7 +20,7 @@ export const Primary = Template.bind({});
 Primary.args = {
   limit: 1,
   id_key: "combined_id",
-  filter_key: "name",
+  filter_key: "all_names",
   filter_value: "Aaron",
   ascending: true,
   route: "https://dev.macrostrat.org/api/pg/strat_combined",

@@ -7,10 +7,23 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
     ascending?: boolean;
     filter_key?: string;
     filter_value?: string;
+    order_key?: string;
 }
 
 export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps) {
-    let { id_key, ascending = true, limit, filter_key, filter_value, initialItems, ...rest } = props;
+    let { 
+        id_key, 
+        ascending = true, 
+        limit, 
+        filter_key, 
+        filter_value, 
+        initialItems, 
+        order_key, 
+        getNextParams,
+        hasMore,
+        params,
+        ...rest 
+    } = props;
 
     const operator1 = ascending ? `asc` : `desc`;
     const operator2 = ascending ? `gt` : `lt`;
@@ -23,17 +36,17 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
         initialItems = initialItems?.filter(item => item[filter_key]?.includes(filter_value));
     }
 
-    let params = {
+    let defaultParams = {
         [id_key]: operator2 + `.${initialItems?.[0]?.[id_key] ?? (ascending ? 0 : Number.MAX_SAFE_INTEGER)}`,
         order: `${id_key}.${operator1}`,
         limit,
     }
 
     if (filter_key) {
-        params[filter_key] = `ilike.*${filter_value}*`;
+        defaultParams[filter_key] = `ilike.*${filter_value}*`;
     }
 
-    const getNextParams = (response, params) => {
+    const defaultGetNextParams = (response, params) => {
         const lastItem = response[response.length - 1];
 
         if (!lastItem || !lastItem[id_key]) {
@@ -46,10 +59,16 @@ export function PostgRESTInfiniteScrollView(props: PostgRESTInfiniteScrollProps)
         };
     };
 
-    const hasMore = (response) => {
+    const defaultHasMore = (response) => {
         return response.length === limit;
     }
 
 
-    return h(InfiniteScrollView, { ...rest, getNextParams, params, initialItems, hasMore });
+    return h(InfiniteScrollView, { 
+        ...rest, 
+        getNextParams: getNextParams ?? defaultGetNextParams, 
+        params: params ?? defaultParams, 
+        initialItems, 
+        hasMore: hasMore ?? defaultHasMore 
+    });
 }
