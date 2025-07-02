@@ -23,6 +23,7 @@
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
+    "@turf/bbox": "^7.1.0",
     "@types/mapbox-gl": "^3.4.1",
     "axios": "^1.7.9",
     "mapbox-gl": "^2.15.0||^3.0.0"
