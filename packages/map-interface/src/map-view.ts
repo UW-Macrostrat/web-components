@@ -61,6 +61,8 @@ export interface MapViewProps extends MapboxCoreOptions {
     style: mapboxgl.StyleSpecification,
   ) => mapboxgl.StyleSpecification;
   loadingIgnoredSources?: string[];
+  id?: string;
+  className?: string;
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {
@@ -126,11 +128,21 @@ export function MapView(props: MapViewProps) {
     transformStyle,
     trackResize = true,
     loadingIgnoredSources = ["elevationMarker", "crossSectionEndpoints"],
+    id = "map",
+    className,
     ...rest
   } = props;
   if (enableTerrain) {
     terrainSourceID ??= "mapbox-3d-dem";
   }
+
+  useEffect(() => {
+    if (id != null) {
+      console.warn(
+        "Setting a specific element ID for the map is deprecated. Please use className instead.",
+      );
+    }
+  }, [id]);
 
   const _mapboxToken = mapboxToken ?? accessToken;
 
@@ -213,7 +225,7 @@ export function MapView(props: MapViewProps) {
   // Get map projection
   const _projection = mapRef.current?.getProjection()?.name ?? "mercator";
 
-  const className = classNames(
+  const mapClassName = classNames(
     {
       "is-rotated": mapIsRotated ?? false,
       "is-3d-available": is3DAvailable,
@@ -221,15 +233,18 @@ export function MapView(props: MapViewProps) {
     `${_projection}-projection`,
   );
 
-  const parentClassName = classNames({
-    standalone,
-  });
+  const parentClassName = classNames(
+    {
+      standalone,
+    },
+    className,
+  );
 
   return h(
     "div.map-view-container.main-view",
     { ref: parentRef, className: parentClassName },
     [
-      h("div.mapbox-map#map", { ref, className }),
+      h("div.mapbox-map.map-view", { ref, className: mapClassName, id }),
       h(MapLoadingReporter, {
         ignoredSources: loadingIgnoredSources,
       }),
