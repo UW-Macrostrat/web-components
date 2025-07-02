@@ -54,9 +54,10 @@ export const parameters = {
 export const decorators = [
   (renderStory) => {
     const isEnabled = useDarkMode();
-    return h(PatternProvider,
+    return h(
+      PatternProvider,
       h(DarkModeProvider, { isEnabled }, renderStory()),
-    )
+    );
   },
 ];
 
