@@ -89,7 +89,7 @@ export function PostgRESTInfiniteScrollView(
     return h(Spinner);
   }
 
-  const keys = Object.keys(res[0] || {}).filter((key) => key !== id_key);
+  const keys = Object.keys(res[0] || {}).filter((key) => typeof res[0][key] === "string");
 
   // Filtering function
   const filterItem: ItemPredicate<string> = (query, item) =>
