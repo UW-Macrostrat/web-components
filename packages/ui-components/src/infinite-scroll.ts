@@ -160,8 +160,8 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     delay,
   } = props;
   const { get } = useAPIActions();
-  const { 
-    getCount = () => null, 
+  const {
+    getCount = () => null,
     getNextParams = (response, params) => {
       const lastPage = params.page ?? 0;
       return { ...params, page: lastPage + 1 };
