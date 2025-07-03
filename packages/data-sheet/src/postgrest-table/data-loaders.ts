@@ -175,7 +175,7 @@ function buildQuery<T>(
   if (config.filter) {
     query = config.filter(query);
   }
-  console.log("query", query)
+  console.log("query", query.url.search)
 
   if (config.order != null) {
     const { key: orderKey, ...rest } = config.order;

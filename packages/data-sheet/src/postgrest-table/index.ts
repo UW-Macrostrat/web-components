@@ -11,6 +11,7 @@ import { useCallback, useState, useRef } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
+  useAPIResult,
   useToaster,
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
@@ -71,18 +72,25 @@ function _PostgRESTTableView<T>({
 }: PostgRESTTableViewProps<T>) {
   const [input, setInput] = useState("");
 
-  filter = (query) => {
-    const urlParams = new URLSearchParams(query.url.search);
-    urlParams.delete("name");
-    query.url.search = urlParams.toString() ? `?${urlParams.toString()}` : "";
+  if(enableFullTableSearch) {
+    const columnList = columns ?? getColumnList(endpoint, table)
 
-    if (input.length > 2 && enableFullTableSearch) {
-      return query.ilike("name", `*${input}*`);
-    }
+    filter = (query) => {
+      const urlParams = new URLSearchParams(query.url.search);
+      columnList?.forEach((col) => urlParams.delete(col));
+      query.url.search = urlParams.toString() ? `?${urlParams.toString()}` : "";
 
-    return query;
-  };
+      if (input.length > 2 && enableFullTableSearch) {
+        const conditions = columnList?.map(
+          (col) => `${col}.ilike.*${input}*`
+        );
 
+        return query.or(conditions.join(","));
+      }
+
+      return query;
+      };
+  }
 
   const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
     endpoint,
@@ -265,4 +273,21 @@ export function SearchAction({ input, setInput, dispatch }) {
       setInput(search.toLowerCase());
     },
   });
+}
+
+function getColumnList(endpoint: string, table: string) {
+  const url = `${endpoint}/${table}?select=*&limit=1`;
+  const res = useAPIResult(url);
+
+  if (!res || !Array.isArray(res) || res.length === 0) return [];
+
+  const sampleRow = res[0];
+
+  return Object.entries(sampleRow)
+    .filter(([_, value]) => {
+      return (
+        typeof value === "string"
+      );
+    })
+    .map(([key]) => key);
 }
