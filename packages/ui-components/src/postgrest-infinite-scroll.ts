@@ -88,18 +88,33 @@ export function PostgRESTInfiniteScrollView(
 
   const defaultGetNextParams = (response, params) => {
     const lastItem = response[response.length - 1];
-
     if (!lastItem || !lastItem[id_key]) {
       return params;
     }
 
-    return {
-      ...params,
-      [id_key]: operator2 + `.${lastItem[id_key]}`,
-    };
+    if (!order_key) {
+      // simple cursor on id_key only
+      return {
+        ...params,
+        [id_key]: operator2 + `.${lastItem[id_key]}`,
+      };
+    } else {
+      // compound cursor with order_key and id_key for pagination
+      const lastOrderValue = lastItem[order_key];
+      const lastIdValue = lastItem[id_key];
+
+      const newOr = `(${order_key}.${operator2}.${lastOrderValue},and(${order_key}.eq.${lastOrderValue},${id_key}.${notOperator2}.${lastIdValue}))`;
+
+      return {
+        ...params,
+        or: newOr,
+      };
+    }
   };
 
+
   const defaultHasMore = (response) => {
+    console.log("defaultHasMore", response);
     return response.length === limit;
   };
 
