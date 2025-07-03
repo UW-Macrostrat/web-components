@@ -134,7 +134,11 @@ export function PostgRESTInfiniteScrollView(
 
   const defaultGetNextParams = (response, params) => {
     const lastItem = response?.[response.length - 1];
-    if (!lastItem || lastItem[id_key] === undefined || lastItem[id_key] === null) {
+    if (
+      !lastItem ||
+      lastItem[id_key] === undefined ||
+      lastItem[id_key] === null
+    ) {
       return params;
     }
 
