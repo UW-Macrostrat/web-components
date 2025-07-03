@@ -19,9 +19,9 @@ export const Primary = Template.bind({});
 
 Primary.args = {
   limit: 1,
-  id_key: "combined_id",
+  id_key: "source_id",
   filterable: true,
-  ascending: true,
-  route: "https://dev.macrostrat.org/api/pg/strat_combined",
-  delay: 200,
+  ascending: false,
+  route: "https://dev.macrostrat.org/api/pg/sources_metadata",
+  delay: 100,
 };

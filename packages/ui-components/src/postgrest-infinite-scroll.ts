@@ -33,6 +33,8 @@ export function PostgRESTInfiniteScrollView(
     throw new Error("PostgRESTInfiniteScrollView requires an id_key prop");
   }
 
+  const maxId = 2 ** 30; // max allowed with postgREST
+
   const res = useAPIResult(route, { limit: 1 });
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [filterValue, setFilterValue] = useState<string>("");
@@ -43,7 +45,7 @@ export function PostgRESTInfiniteScrollView(
     return {
       [id_key]:
         operator2 +
-        `.${initialItems?.[0]?.[id_key] ?? (ascending ? 0 : Number.MAX_SAFE_INTEGER)}`,
+        `.${initialItems?.[0]?.[id_key] ?? (ascending ? 0 : maxId)}`,
       order: `${id_key}.${operator1}`,
       limit,
       ...Object.fromEntries(
@@ -51,6 +53,8 @@ export function PostgRESTInfiniteScrollView(
       ),
     };
   }, [selectedItems, filterValue]);
+
+  console.log(defaultParams)
 
   if (!res) {
     return h(Spinner);
