@@ -25,5 +25,4 @@ Primary.args = {
   order_key: "ref_year",
   route: "https://dev.macrostrat.org/api/pg/sources_metadata",
   delay: 100,
-  itemComponent: ({ data }) => h('p', data.source_id +  " - " +data.ref_year),
 };
