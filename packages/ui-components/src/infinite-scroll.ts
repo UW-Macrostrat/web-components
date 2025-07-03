@@ -147,7 +147,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     route,
     params,
     opts,
-    placeholder,
+    placeholder = (p: APIPlaceholderProps) => h(Spinner),
     className,
     itemComponent = JSONView,
     loadingPlaceholder = LoadingPlaceholder,
@@ -160,7 +160,15 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     delay,
   } = props;
   const { get } = useAPIActions();
-  const { getCount, getNextParams, getItems, hasMore } = props;
+  const {
+    getCount = () => null,
+    getNextParams = (response, params) => {
+      const lastPage = params.page ?? 0;
+      return { ...params, page: lastPage + 1 };
+    },
+    getItems = (d) => d,
+    hasMore = (d) => true,
+  } = props;
 
   const initialState: ScrollState<T> = {
     items: initialItems,
@@ -179,13 +187,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
 
   const loadingRef = useRef(false);
 
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
-
   const loadPage = useCallback(
     async (action: LoadPage<T>) => {
       if (loadingRef.current) return; // Prevent concurrent loads
@@ -195,7 +196,6 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
 
       try {
         const res = await get(route, action.params, opts);
-        if (!mountedRef.current) return;
 
         const itemVals = getItems(res);
         const nextParams = getNextParams(res, action.params);
@@ -215,7 +215,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
           },
         });
       } catch (error) {
-        if (!mountedRef.current) return;
+        console.error("Error loading page:", error);
         action.dispatch({
           type: "update-state",
           spec: { error: { $set: error }, isLoadingPage: { $set: null } },
@@ -297,22 +297,5 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     ],
   );
 }
-
-InfiniteScrollView.defaultProps = {
-  hasMore() {
-    return true;
-  },
-  getItems(d) {
-    return d;
-  },
-  getCount() {
-    return null;
-  },
-  getNextParams(response, params) {
-    const lastPage = params.page ?? 0;
-    return { ...params, page: lastPage + 1 };
-  },
-  placeholder: (p: APIPlaceholderProps) => h(Spinner),
-};
 
 export { InfiniteScrollView };
