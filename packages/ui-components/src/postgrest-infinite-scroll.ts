@@ -74,8 +74,6 @@ export function PostgRESTInfiniteScrollView(
     selectedItems.map((key) => `${key}.ilike.*${filterValue}*`).join(',')
   + ")" : undefined;
 
-  console.log(selectedItems.length)
-
   const defaultParams = useMemo(() => {
     return {
       [id_key]: !order_key
