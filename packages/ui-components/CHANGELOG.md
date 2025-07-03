@@ -1,4 +1,7 @@
 # Changelog
+## [4.3.2] - 2025-07-03
+
+- Fixed infinite loading issue on mount
 
 ## [4.3.1] - 2025-07-02
 
