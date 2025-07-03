@@ -147,7 +147,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     route,
     params,
     opts,
-    placeholder,
+    placeholder = (p: APIPlaceholderProps) => h(Spinner),
     className,
     itemComponent = JSONView,
     loadingPlaceholder = LoadingPlaceholder,
@@ -160,7 +160,15 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     delay,
   } = props;
   const { get } = useAPIActions();
-  const { getCount, getNextParams, getItems, hasMore } = props;
+  const { 
+    getCount = () => null, 
+    getNextParams = (response, params) => {
+      const lastPage = params.page ?? 0;
+      return { ...params, page: lastPage + 1 };
+    },
+    getItems = (d) => d,
+    hasMore = (d) => true,
+  } = props;
 
   const initialState: ScrollState<T> = {
     items: initialItems,
@@ -297,22 +305,5 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     ],
   );
 }
-
-InfiniteScrollView.defaultProps = {
-  hasMore() {
-    return true;
-  },
-  getItems(d) {
-    return d;
-  },
-  getCount() {
-    return null;
-  },
-  getNextParams(response, params) {
-    const lastPage = params.page ?? 0;
-    return { ...params, page: lastPage + 1 };
-  },
-  placeholder: (p: APIPlaceholderProps) => h(Spinner),
-};
 
 export { InfiniteScrollView };
