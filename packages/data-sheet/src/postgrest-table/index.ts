@@ -42,7 +42,7 @@ interface PostgRESTTableViewProps<T extends object>
   editable?: boolean;
   identityKey?: string;
   enableFullTableSearch?: boolean;
-  dataSheetActions?: any; 
+  dataSheetActions?: any;
   filter(
     query: PostgrestFilterBuilder<T, any, any>,
   ): PostgrestFilterBuilder<T, any, any>;
@@ -72,8 +72,8 @@ function _PostgRESTTableView<T>({
 }: PostgRESTTableViewProps<T>) {
   const [input, setInput] = useState("");
 
-  if(enableFullTableSearch) {
-    const columnList = columns ?? getColumnList(endpoint, table)
+  if (enableFullTableSearch) {
+    const columnList = columns ?? getColumnList(endpoint, table);
 
     filter = (query) => {
       const urlParams = new URLSearchParams(query.url.search);
@@ -81,15 +81,13 @@ function _PostgRESTTableView<T>({
       query.url.search = urlParams.toString() ? `?${urlParams.toString()}` : "";
 
       if (input.length > 2 && enableFullTableSearch) {
-        const conditions = columnList?.map(
-          (col) => `${col}.ilike.*${input}*`
-        );
+        const conditions = columnList?.map((col) => `${col}.ilike.*${input}*`);
 
         return query.or(conditions.join(","));
       }
 
       return query;
-      };
+    };
   }
 
   const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
@@ -98,7 +96,7 @@ function _PostgRESTTableView<T>({
     {
       order: order ?? { key: identityKey, ascending: true },
       columns,
-      filter,   
+      filter,
     },
   );
 
@@ -126,7 +124,9 @@ function _PostgRESTTableView<T>({
   return h("div.data-sheet-outer", [
     h(DataSheet, {
       ...rest,
-      dataSheetActions: enableFullTableSearch ? h(SearchAction, { input, setInput, dispatch }) : dataSheetActions,
+      dataSheetActions: enableFullTableSearch
+        ? h(SearchAction, { input, setInput, dispatch })
+        : dataSheetActions,
       data,
       columnSpecOptions: columnOptions ?? {},
       editable,
@@ -267,8 +267,8 @@ export function SearchAction({ input, setInput, dispatch }) {
     value: input,
     onChange(event) {
       const search = event.target.value;
-      if(search.length > 2 || (input.length === 3 && search.length < 3)) {
-        dispatch({ type: 'reset' })
+      if (search.length > 2 || (input.length === 3 && search.length < 3)) {
+        dispatch({ type: "reset" });
       }
       setInput(search.toLowerCase());
     },
@@ -285,9 +285,7 @@ function getColumnList(endpoint: string, table: string) {
 
   return Object.entries(sampleRow)
     .filter(([_, value]) => {
-      return (
-        typeof value === "string"
-      );
+      return typeof value === "string";
     })
     .map(([key]) => key);
 }

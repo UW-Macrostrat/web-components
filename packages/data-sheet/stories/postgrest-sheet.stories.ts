@@ -101,7 +101,7 @@ export const FullTableSearch = {
   args: {
     enableFullTableSearch: true,
   },
-}
+};
 
 export const ReorderableColumns = {
   args: {
