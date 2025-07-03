@@ -11,6 +11,7 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   limit: number;
   ascending?: boolean;
   filterable?: boolean;
+  order_key?: string;
 }
 
 export function PostgRESTInfiniteScrollView(
@@ -26,6 +27,7 @@ export function PostgRESTInfiniteScrollView(
     hasMore,
     params,
     route,
+    order_key,
     ...rest
   } = props;
 
@@ -33,28 +35,36 @@ export function PostgRESTInfiniteScrollView(
     throw new Error("PostgRESTInfiniteScrollView requires an id_key prop");
   }
 
-  const maxId = 2 ** 30; // max allowed with postgREST
+  const maxId = 2 ** 28; // max allowed with postgREST
 
   const res = useAPIResult(route, { limit: 1 });
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [filterValue, setFilterValue] = useState<string>("");
   const operator1 = ascending ? `asc` : `desc`;
+  const notOperator1 = ascending ? `desc` : `asc`;
   const operator2 = ascending ? `gt` : `lt`;
+  const notOperator2 = ascending ? `lt` : `gt`;
+  const id = ascending ? 0 : maxId;
+  const notId = ascending ? maxId : 0;
+
+  const or = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
 
   const defaultParams = useMemo(() => {
     return {
-      [id_key]:
-        operator2 +
-        `.${initialItems?.[0]?.[id_key] ?? (ascending ? 0 : maxId)}`,
-      order: `${id_key}.${operator1}`,
+      [id_key]: !order_key ?
+        operator2 + `.${initialItems?.[0]?.[id_key] ?? id}` : undefined,
+      order: order_key ? 
+        `${order_key}.${operator1},${id_key}.${notOperator1}` : `${id_key}.${operator1}`,
       limit,
       ...Object.fromEntries(
         selectedItems.map((key) => [key, `ilike.*${filterValue}*`]),
       ),
+      or: order_key ? 
+        or : undefined,
     };
   }, [selectedItems, filterValue]);
 
-  console.log(defaultParams)
+  console.log("defaultParams", defaultParams);
 
   if (!res) {
     return h(Spinner);
