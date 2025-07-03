@@ -65,7 +65,13 @@ export function PostgRESTInfiniteScrollView(
   const id = ascending ? 0 : maxId;
   const notId = ascending ? maxId : 0;
 
-  const or = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
+  const orParam = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
+
+  console.log('selectedItems', selectedItems);
+
+  const searchItemsParam = "(" + 
+    selectedItems.map((key) => `${key}.ilike.*${filterValue}*`).join(',')
+  + ")";
 
   const defaultParams = useMemo(() => {
     return {
@@ -76,14 +82,17 @@ export function PostgRESTInfiniteScrollView(
         ? `${order_key}.${operator1},${id_key}.${notOperator1}`
         : `${id_key}.${operator1}`,
       limit,
-      ...Object.fromEntries(
-        selectedItems.map((key) => [key, `ilike.*${filterValue}*`]),
-      ),
-      or: order_key ? or : undefined,
+      or: order_key
+        ? selectedItems?.length > 0
+          ? orParam + "&or=" + searchItemsParam
+          : orParam
+        : selectedItems?.length > 0
+          ? searchItemsParam
+          : undefined,
     };
-  }, [selectedItems, filterValue]);
+  }, [selectedItems, filterValue, orParam, searchItemsParam, initialItems, id_key, order_key, limit, operator1, notOperator1, operator2, notOperator2]);
 
-  console.log("defaultParams", defaultParams);
+  console.log("defaultParams", defaultParams.or);
 
   if (!res) {
     return h(Spinner);

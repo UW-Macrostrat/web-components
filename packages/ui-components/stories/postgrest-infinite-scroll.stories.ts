@@ -18,11 +18,10 @@ export const Primary = Template.bind({});
 // More on args: https://storybook.js.org/docs/react/writing-stories/args
 
 Primary.args = {
-  limit: 20,
+  limit: 5,
   id_key: "source_id",
   filterable: true,
   ascending: false,
-  order_key: "ref_year",
   route: "https://dev.macrostrat.org/api/pg/sources_metadata",
   delay: 100,
 };
