@@ -12,6 +12,18 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   ascending?: boolean;
   filterable?: boolean;
   order_key?: string;
+  SearchBarComponent?: React.ComponentType<{ onChange: (value: string) => void }>;
+  MultiSelectComponent?: React.ComponentType<{
+    items: string[];
+    itemRenderer: ItemRenderer<string>;
+    itemPredicate: ItemPredicate<string>;
+    selectedItems: string[];
+    onItemSelect: (item: string) => void;
+    tagRenderer: (item: string) => React.ReactNode;
+    onRemove: (tag: React.ReactNode, index: number) => void;
+    tagInputProps: any;
+    popoverProps: any;
+  }>;
 }
 
 export function PostgRESTInfiniteScrollView(
@@ -28,6 +40,8 @@ export function PostgRESTInfiniteScrollView(
     params,
     route,
     order_key,
+    SearchBarComponent,
+    MultiSelectComponent,
     ...rest
   } = props;
 
@@ -36,6 +50,8 @@ export function PostgRESTInfiniteScrollView(
   }
 
   const maxId = 2 ** 28; // max allowed with postgREST
+  const SearchBarToUse = SearchBarComponent ?? SearchBar;
+  const MultiSelectToUse = MultiSelectComponent ?? MultiSelect;
 
   const res = useAPIResult(route, { limit: 1 });
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -135,10 +151,10 @@ export function PostgRESTInfiniteScrollView(
 
   return h("div.postgrest-infinite-scroll", [
     h.if(filterable)("div.search-bar", [
-      h(SearchBar, {
+      h(SearchBarToUse, {
         onChange: (value) => setFilterValue(value || ""),
       }),
-      h(MultiSelect, {
+      h(MultiSelectToUse, {
         items: keys.filter((item) => !selectedItems.includes(item)),
         itemRenderer,
         itemPredicate: filterItem,
