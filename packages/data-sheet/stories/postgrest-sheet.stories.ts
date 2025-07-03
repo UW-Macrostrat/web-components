@@ -97,6 +97,12 @@ export const Simple = {
   args: {},
 };
 
+export const FullTableSearch = {
+  args: {
+    enableFullTableSearch: true,
+  },
+}
+
 export const ReorderableColumns = {
   args: {
     columnOptions: defaultColumnOptions,

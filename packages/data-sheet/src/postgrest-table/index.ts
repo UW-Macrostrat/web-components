@@ -4,10 +4,10 @@ import styles from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import { PostgrestOrder, usePostgRESTLazyLoader } from "./data-loaders";
-import { Spinner } from "@blueprintjs/core";
+import { Spinner, InputGroup } from "@blueprintjs/core";
 
 export * from "./data-loaders";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
@@ -40,6 +40,8 @@ interface PostgRESTTableViewProps<T extends object>
   columns?: string;
   editable?: boolean;
   identityKey?: string;
+  enableFullTableSearch?: boolean;
+  dataSheetActions?: any; 
   filter(
     query: PostgrestFilterBuilder<T, any, any>,
   ): PostgrestFilterBuilder<T, any, any>;
@@ -62,16 +64,27 @@ function _PostgRESTTableView<T>({
   columns,
   editable = false,
   filter,
+  enableFullTableSearch = false,
+  dataSheetActions,
   identityKey = "id",
   ...rest
 }: PostgRESTTableViewProps<T>) {
+  const [input, setInput] = useState("");
+
+  if(input != "" && enableFullTableSearch) {
+    filter = (query) => {
+      return query
+        .ilike("name", `*${input}*`)
+    }
+  }
+
   const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
     endpoint,
     table,
     {
       order: order ?? { key: identityKey, ascending: true },
       columns,
-      filter,
+      filter,   
     },
   );
 
@@ -99,6 +112,7 @@ function _PostgRESTTableView<T>({
   return h("div.data-sheet-outer", [
     h(DataSheet, {
       ...rest,
+      dataSheetActions: enableFullTableSearch ? h(SearchAction, { setInput }) : dataSheetActions,
       data,
       columnSpecOptions: columnOptions ?? {},
       editable,
@@ -230,4 +244,14 @@ export function ExpandedLithologies({ value, onChange }) {
       ),
     ]),
   ]);
+}
+
+export function SearchAction({ setInput }) {
+  return h(InputGroup, {
+    type: "search",
+    placeholder: "Search table...",
+    onChange(event) {
+      setInput(event.target.value.toLowerCase());
+    },
+  });
 }

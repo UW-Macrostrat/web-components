@@ -138,6 +138,7 @@ interface QueryConfig {
   offset?: number;
   order?: PostgrestOrder<any>;
   after?: any;
+  fullTextSearch?: string;
   filter?: (
     query: PostgrestFilterBuilder<any, any, any>,
   ) => PostgrestFilterBuilder<any, any, any>;
@@ -149,6 +150,8 @@ function buildQuery<T>(
 ) {
   const { columns = "*", count } = config;
   const opts = { count };
+
+  console.log("config", config);
 
   let cols: string;
   if (Array.isArray(columns)) {
