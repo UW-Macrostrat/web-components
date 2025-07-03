@@ -2,7 +2,7 @@
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { debounce } from "underscore";
-import { useCallback, useMemo, useReducer, useRef } from "react";
+import { useCallback, useMemo, useReducer, useRef, useEffect } from "react";
 import update, { Spec } from "immutability-helper";
 
 interface ChunkIndex {
@@ -36,7 +36,8 @@ type LazyLoaderAction<T> =
   | { type: "loaded"; data: T[]; offset: number; totalSize: number }
   | { type: "error"; error: Error }
   | { type: "set-visible"; region: RowRegion }
-  | { type: "update-data"; changes: Spec<T[]> };
+  | { type: "update-data"; changes: Spec<T[]> }
+  | { type: "reset" };
 
 function adjustArraySize<T>(arr: T[], newSize: number) {
   if (newSize == null || arr.length === newSize) {
@@ -83,6 +84,15 @@ function lazyLoadingReducer<T>(
         ...state,
         data,
         loading: false,
+      };
+
+    case "reset":
+      return {
+        data: [],
+        loading: false,
+        error: null,
+        visibleRegion: { rowIndexStart: 0, rowIndexEnd: 0 },
+        initialized: false,
       };
     case "error":
       return {
@@ -165,6 +175,7 @@ function buildQuery<T>(
   if (config.filter) {
     query = config.filter(query);
   }
+  console.log("query", query)
 
   if (config.order != null) {
     const { key: orderKey, ...rest } = config.order;

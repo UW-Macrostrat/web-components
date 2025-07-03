@@ -7,7 +7,7 @@ import { PostgrestOrder, usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner, InputGroup } from "@blueprintjs/core";
 
 export * from "./data-loaders";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
@@ -63,7 +63,7 @@ function _PostgRESTTableView<T>({
   order,
   columns,
   editable = false,
-  filter,
+  filter = undefined,
   enableFullTableSearch = false,
   dataSheetActions,
   identityKey = "id",
@@ -71,12 +71,18 @@ function _PostgRESTTableView<T>({
 }: PostgRESTTableViewProps<T>) {
   const [input, setInput] = useState("");
 
-  if(input != "" && enableFullTableSearch) {
-    filter = (query) => {
-      return query
-        .ilike("name", `*${input}*`)
+  filter = (query) => {
+    const urlParams = new URLSearchParams(query.url.search);
+    urlParams.delete("name");
+    query.url.search = urlParams.toString() ? `?${urlParams.toString()}` : "";
+
+    if (input.length > 2 && enableFullTableSearch) {
+      return query.ilike("name", `*${input}*`);
     }
-  }
+
+    return query;
+  };
+
 
   const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
     endpoint,
@@ -112,7 +118,7 @@ function _PostgRESTTableView<T>({
   return h("div.data-sheet-outer", [
     h(DataSheet, {
       ...rest,
-      dataSheetActions: enableFullTableSearch ? h(SearchAction, { setInput }) : dataSheetActions,
+      dataSheetActions: enableFullTableSearch ? h(SearchAction, { input, setInput, dispatch }) : dataSheetActions,
       data,
       columnSpecOptions: columnOptions ?? {},
       editable,
@@ -246,12 +252,17 @@ export function ExpandedLithologies({ value, onChange }) {
   ]);
 }
 
-export function SearchAction({ setInput }) {
+export function SearchAction({ input, setInput, dispatch }) {
   return h(InputGroup, {
     type: "search",
     placeholder: "Search table...",
+    value: input,
     onChange(event) {
-      setInput(event.target.value.toLowerCase());
+      const search = event.target.value;
+      if(search.length > 2 || (input.length === 3 && search.length < 3)) {
+        dispatch({ type: 'reset' })
+      }
+      setInput(search.toLowerCase());
     },
   });
 }
