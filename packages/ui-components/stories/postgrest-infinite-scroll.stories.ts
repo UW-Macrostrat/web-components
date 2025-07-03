@@ -22,6 +22,7 @@ Primary.args = {
   id_key: "source_id",
   filterable: true,
   ascending: false,
+  order_key: "ref_year",
   route: "https://dev.macrostrat.org/api/pg/sources_metadata",
   delay: 100,
 };

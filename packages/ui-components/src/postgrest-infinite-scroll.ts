@@ -68,10 +68,13 @@ export function PostgRESTInfiniteScrollView(
   const orParam = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
 
   console.log('selectedItems', selectedItems);
+  const specialCase = order_key && selectedItems?.length > 0;
 
-  const searchItemsParam = "(" + 
+  const searchItemsParam = order_key && selectedItems?.length > 0 ? "(" +
     selectedItems.map((key) => `${key}.ilike.*${filterValue}*`).join(',')
-  + ")";
+  + ")" : undefined;
+
+  console.log(selectedItems.length)
 
   const defaultParams = useMemo(() => {
     return {
@@ -82,17 +85,18 @@ export function PostgRESTInfiniteScrollView(
         ? `${order_key}.${operator1},${id_key}.${notOperator1}`
         : `${id_key}.${operator1}`,
       limit,
-      or: order_key
-        ? selectedItems?.length > 0
-          ? orParam + "&or=" + searchItemsParam
-          : orParam
-        : selectedItems?.length > 0
-          ? searchItemsParam
+      or: order_key ? 
+        selectedItems.length == 0 ? 
+          orParam
+          : undefined
+        : selectedItems.length > 0 ?
+          searchItemsParam 
           : undefined,
+      and: specialCase ?  
+        `(or${orParam},or${searchItemsParam})`
+        : undefined
     };
   }, [selectedItems, filterValue, orParam, searchItemsParam, initialItems, id_key, order_key, limit, operator1, notOperator1, operator2, notOperator2]);
-
-  console.log("defaultParams", defaultParams.or);
 
   if (!res) {
     return h(Spinner);
