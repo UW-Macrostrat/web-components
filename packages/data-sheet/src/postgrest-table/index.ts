@@ -77,7 +77,7 @@ function _PostgRESTTableView<T>({
 
     filter = (query) => {
       const urlParams = new URLSearchParams(query.url.search);
-      columnList?.forEach((col) => urlParams.delete(col));
+      urlParams.delete("or");
       query.url.search = urlParams.toString() ? `?${urlParams.toString()}` : "";
 
       if (input.length > 2 && enableFullTableSearch) {
