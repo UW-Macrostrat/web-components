@@ -12,7 +12,9 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   ascending?: boolean;
   filterable?: boolean;
   order_key?: string;
-  SearchBarComponent?: React.ComponentType<{ onChange: (value: string) => void }>;
+  SearchBarComponent?: React.ComponentType<{
+    onChange: (value: string) => void;
+  }>;
   MultiSelectComponent?: React.ComponentType<{
     items: string[];
     itemRenderer: ItemRenderer<string>;
@@ -67,16 +69,17 @@ export function PostgRESTInfiniteScrollView(
 
   const defaultParams = useMemo(() => {
     return {
-      [id_key]: !order_key ?
-        operator2 + `.${initialItems?.[0]?.[id_key] ?? id}` : undefined,
-      order: order_key ? 
-        `${order_key}.${operator1},${id_key}.${notOperator1}` : `${id_key}.${operator1}`,
+      [id_key]: !order_key
+        ? operator2 + `.${initialItems?.[0]?.[id_key] ?? id}`
+        : undefined,
+      order: order_key
+        ? `${order_key}.${operator1},${id_key}.${notOperator1}`
+        : `${id_key}.${operator1}`,
       limit,
       ...Object.fromEntries(
         selectedItems.map((key) => [key, `ilike.*${filterValue}*`]),
       ),
-      or: order_key ? 
-        or : undefined,
+      or: order_key ? or : undefined,
     };
   }, [selectedItems, filterValue]);
 
@@ -127,7 +130,6 @@ export function PostgRESTInfiniteScrollView(
       };
     }
   };
-
 
   const defaultHasMore = (response) => {
     console.log("defaultHasMore", response);
