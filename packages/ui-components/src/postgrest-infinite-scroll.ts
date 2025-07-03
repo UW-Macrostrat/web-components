@@ -41,7 +41,7 @@ export function PostgRESTInfiniteScrollView(
     hasMore,
     params,
     route,
-    order_key,
+    order_key = undefined,
     SearchBarComponent,
     MultiSelectComponent,
     ...rest
@@ -67,15 +67,12 @@ export function PostgRESTInfiniteScrollView(
 
   const orParam = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
 
-  console.log("selectedItems", selectedItems);
+
   const specialCase = order_key && selectedItems?.length > 0;
 
-  const searchItemsParam =
-    order_key && selectedItems?.length > 0
-      ? "(" +
+  const searchItemsParam = "(" +
         selectedItems.map((key) => `${key}.ilike.*${filterValue}*`).join(",") +
         ")"
-      : undefined;
 
   const defaultParams = useMemo(() => {
     return {
@@ -92,7 +89,7 @@ export function PostgRESTInfiniteScrollView(
           : undefined
         : selectedItems.length > 0
           ? searchItemsParam
-          : undefined,
+          : null,
       and: specialCase ? `(or${orParam},or${searchItemsParam})` : undefined,
     };
   }, [
@@ -168,7 +165,6 @@ export function PostgRESTInfiniteScrollView(
   };
 
   const defaultHasMore = (response) => {
-    console.log("defaultHasMore", response);
     return response.length === limit;
   };
 
