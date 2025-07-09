@@ -1,6 +1,6 @@
 # Changelog
 
-## [4.3.5] - 2025-07-10
+## [4.3.6] - 2025-07-10
 
 - Handle extra params and intitial items
 - Better state management

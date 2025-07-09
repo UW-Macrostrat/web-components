@@ -70,8 +70,6 @@ export function PostgRESTInfiniteScrollView(
   const notId = ascending ? maxId : 0;
   const newInitialItems = selectedItems.length === 0 && filterValue === "" ? initialItems : undefined;
 
-  console.log('initialItems', initialItems);
-
   const orParam = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
 
   const specialCase = order_key && selectedItems?.length > 0;
