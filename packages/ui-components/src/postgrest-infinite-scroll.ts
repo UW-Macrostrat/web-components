@@ -1,9 +1,12 @@
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import { InfiniteScrollProps, InfiniteScrollView } from "./infinite-scroll";
 import { useAPIResult } from "./api";
 import { useMemo, useState } from "react";
 import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Spinner, InputGroup } from "@blueprintjs/core";
+import styles from "./postgrest.module.sass";
+
+const h = hyper.styled(styles)
 
 interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   id_key: string;
@@ -13,7 +16,7 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   filterable?: boolean;
   order_key?: string;
   key?: string;
-  toggles: any;
+  toggles?: any;
   SearchBarComponent?: React.ComponentType<{
     onChange: (value: string) => void;
   }>;
@@ -48,6 +51,7 @@ export function PostgRESTInfiniteScrollView(
     MultiSelectComponent,
     extraParams = {},
     key,
+    toggles = null,
     ...rest
   } = props;
 
@@ -198,24 +202,27 @@ export function PostgRESTInfiniteScrollView(
     key || `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(props)}`;
 
   return h("div.postgrest-infinite-scroll", [
-    h.if(filterable)("div.search-bar", [
-      h(SearchBarToUse, {
-        onChange: (value) => setFilterValue(value || ""),
-      }),
-      h(MultiSelectToUse, {
-        items: keys.filter((item) => !selectedItems.includes(item)),
-        itemRenderer,
-        itemPredicate: filterItem,
-        selectedItems,
-        onItemSelect: handleSelect,
-        tagRenderer: (item) => item,
-        onRemove: handleRemove,
-        tagInputProps: {
+    h('div.header', [
+      h.if(filterable)("div.search-bar", [
+        h(SearchBarToUse, {
+          onChange: (value) => setFilterValue(value || ""),
+        }),
+        h(MultiSelectToUse, {
+          items: keys.filter((item) => !selectedItems.includes(item)),
+          itemRenderer,
+          itemPredicate: filterItem,
+          selectedItems,
+          onItemSelect: handleSelect,
+          tagRenderer: (item) => item,
           onRemove: handleRemove,
-          placeholder: "Select a column(s) to filter by...",
-        },
-        popoverProps: { minimal: true },
-      }),
+          tagInputProps: {
+            onRemove: handleRemove,
+            placeholder: "Select a column(s) to filter by...",
+          },
+          popoverProps: { minimal: true },
+        }),
+      ]),
+      h.if(toggles)("div.toggles", toggles)
     ]),
     h(InfiniteScrollView, {
       ...rest,
