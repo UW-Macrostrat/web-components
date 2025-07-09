@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 import { InfiniteScrollProps, InfiniteScrollView } from "./infinite-scroll";
 import { SearchBar } from "../stories/search-bar.stories";
-import { useAPIResult } from "@macrostrat/ui-components";
+import { useAPIResult } from "./api";
 import { useMemo, useState } from "react";
 import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Spinner } from "@blueprintjs/core";

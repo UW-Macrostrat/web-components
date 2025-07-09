@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.3.4] - 2025-07-09
+
+- Fix export issue
+
 ## [4.3.3] - 2025-07-03
 
 - PostgRESTInfiniteScrollView created handling filters and order
