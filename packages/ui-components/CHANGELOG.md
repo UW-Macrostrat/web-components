@@ -1,15 +1,28 @@
 # Changelog
 
-## [4.3.6] - 2025-07-10
+## [4.3.7] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
+
+- Even better state management
+- Handle adding toggles to header
+
+## [4.3.6] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
 
 - Handle extra params and intitial items
 - Better state management
 
 ## [4.3.5] - 2025-07-09
 
+For PostgRESTInfiniteScrollView
+
 - Fix import issue
 
 ## [4.3.4] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
 
 - Fix export issue
 
