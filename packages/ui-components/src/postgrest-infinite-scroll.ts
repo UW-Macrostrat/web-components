@@ -67,12 +67,12 @@ export function PostgRESTInfiniteScrollView(
 
   const orParam = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
 
-
   const specialCase = order_key && selectedItems?.length > 0;
 
-  const searchItemsParam = "(" +
-        selectedItems.map((key) => `${key}.ilike.*${filterValue}*`).join(",") +
-        ")"
+  const searchItemsParam =
+    "(" +
+    selectedItems.map((key) => `${key}.ilike.*${filterValue}*`).join(",") +
+    ")";
 
   const defaultParams = useMemo(() => {
     return {
