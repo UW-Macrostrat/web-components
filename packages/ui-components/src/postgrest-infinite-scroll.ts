@@ -68,9 +68,10 @@ export function PostgRESTInfiniteScrollView(
   const notOperator2 = ascending ? `lt` : `gt`;
   const id = ascending ? 0 : maxId;
   const notId = ascending ? maxId : 0;
-  const newInitialItems = selectedItems.length === 0 && filterValue === "" ? initialItems : undefined;
+  const newInitialItems =
+    selectedItems.length === 0 && filterValue === "" ? initialItems : undefined;
 
-  console.log('initialItems', initialItems);
+  console.log("initialItems", initialItems);
 
   const orParam = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
 
@@ -195,7 +196,8 @@ export function PostgRESTInfiniteScrollView(
     });
   };
 
-  const newKey = key || `${filterValue}-${selectedItems.join(",")}-${props.toString()}`;
+  const newKey =
+    key || `${filterValue}-${selectedItems.join(",")}-${props.toString()}`;
 
   return h("div.postgrest-infinite-scroll", [
     h.if(filterable)("div.search-bar", [
