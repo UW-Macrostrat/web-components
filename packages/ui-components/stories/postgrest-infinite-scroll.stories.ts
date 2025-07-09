@@ -24,4 +24,5 @@ Primary.args = {
   ascending: true,
   route: "https://dev.macrostrat.org/api/pg/sources_metadata",
   delay: 100,
+  toggles: h("h1", "Toggles here"),
 };
