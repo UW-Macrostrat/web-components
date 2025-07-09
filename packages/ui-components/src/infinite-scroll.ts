@@ -20,6 +20,32 @@ interface ScrollState<T = object> {
   pageIndex: number;
 }
 
+type ScrollResponseItems<T> = Pick<
+  ScrollState<T>,
+  "count" | "hasMore" | "items"
+>;
+
+export interface InfiniteScrollProps<T>
+  extends Omit<APIResultProps<T>, "params"> {
+  getCount(r: T): number;
+  getNextParams(r: T, params: QueryParams): QueryParams;
+  getItems(r: T): any;
+  hasMore(res: T): boolean;
+  totalCount?: number;
+  // Only allow more restrictive parameter types
+  params: APIParams;
+  className?: string;
+  itemComponent?: React.ComponentType<{ data: T; index: number }>;
+  loadingPlaceholder?: React.ComponentType;
+  emptyPlaceholder?: React.ComponentType;
+  finishedPlaceholder?: React.ComponentType;
+  resultsComponent?: React.ComponentType<{ data: T[] }>;
+  perPage?: number;
+  startPage?: number;
+  initialItems?: T[];
+  delay?: number;
+}
+
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
 type LoadPage<T> = {
   type: "load-page";
@@ -45,7 +71,8 @@ function infiniteScrollReducer<T>(
     case "load-page":
       action.callback(action);
       return update(state, {
-        isLoadingPage: { $set: action.params.page ?? 0 },
+        // @ts-ignore
+        isLoadingPage: { $set: action.params?.page ?? 0 },
       });
   }
 }

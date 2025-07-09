@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.3.3] - 2025-07-03
+
+- PostgRESTInfiniteScrollView created handling filters and order
+
 ## [4.3.2] - 2025-07-03
 
 - Fixed infinite loading issue on mount
