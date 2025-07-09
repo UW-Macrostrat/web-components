@@ -14,6 +14,7 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   extraParams?: Record<string, any>;
   ascending?: boolean;
   filterable?: boolean;
+  searchColumns?: string[];
   order_key?: string;
   key?: string;
   toggles?: any;
@@ -52,6 +53,7 @@ export function PostgRESTInfiniteScrollView(
     extraParams = {},
     key,
     toggles = null,
+    searchColumns = undefined,
     ...rest
   } = props;
 
@@ -64,7 +66,7 @@ export function PostgRESTInfiniteScrollView(
   const MultiSelectToUse = MultiSelectComponent ?? MultiSelect;
 
   const res = useAPIResult(route, { limit: 1 });
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [selectedItems, setSelectedItems] = useState<string[]>(searchColumns || []);
   const [filterValue, setFilterValue] = useState<string>("");
   const operator1 = ascending ? `asc` : `desc`;
   const notOperator1 = ascending ? `desc` : `asc`;
@@ -122,7 +124,7 @@ export function PostgRESTInfiniteScrollView(
     return h(Spinner);
   }
 
-  const keys = Object.keys(res[0] || {}).filter(
+  const keys = searchColumns || Object.keys(res[0] || {}).filter(
     (key) => typeof res[0][key] === "string",
   );
 

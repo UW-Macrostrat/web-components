@@ -25,4 +25,5 @@ Primary.args = {
   route: "https://dev.macrostrat.org/api/pg/sources_metadata",
   delay: 100,
   toggles: h("h1", "Toggles here"),
+  searchColumns: ["name"],
 };
