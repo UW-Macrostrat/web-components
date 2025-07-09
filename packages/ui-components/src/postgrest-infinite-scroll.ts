@@ -6,7 +6,7 @@ import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Spinner, InputGroup } from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
 
-const h = hyper.styled(styles)
+const h = hyper.styled(styles);
 
 interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   id_key: string;
@@ -202,7 +202,7 @@ export function PostgRESTInfiniteScrollView(
     key || `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(props)}`;
 
   return h("div.postgrest-infinite-scroll", [
-    h('div.header', [
+    h("div.header", [
       h.if(filterable)("div.search-bar", [
         h(SearchBarToUse, {
           onChange: (value) => setFilterValue(value || ""),
@@ -222,7 +222,7 @@ export function PostgRESTInfiniteScrollView(
           popoverProps: { minimal: true },
         }),
       ]),
-      h.if(toggles)("div.toggles", toggles)
+      h.if(toggles)("div.toggles", toggles),
     ]),
     h(InfiniteScrollView, {
       ...rest,
