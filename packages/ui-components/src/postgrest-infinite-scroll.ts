@@ -13,6 +13,7 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   filterable?: boolean;
   order_key?: string;
   key?: string;
+  toggles: any;
   SearchBarComponent?: React.ComponentType<{
     onChange: (value: string) => void;
   }>;
@@ -67,6 +68,9 @@ export function PostgRESTInfiniteScrollView(
   const notOperator2 = ascending ? `lt` : `gt`;
   const id = ascending ? 0 : maxId;
   const notId = ascending ? maxId : 0;
+  const newInitialItems = selectedItems.length === 0 && filterValue === "" ? initialItems : undefined;
+
+  console.log('initialItems', initialItems);
 
   const orParam = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
 
@@ -81,7 +85,7 @@ export function PostgRESTInfiniteScrollView(
     return {
       ...extraParams,
       [id_key]: !order_key
-        ? operator2 + `.${initialItems?.[0]?.[id_key] ?? id}`
+        ? operator2 + `.${newInitialItems?.[0]?.[id_key] ?? id}`
         : undefined,
       order: order_key
         ? `${order_key}.${operator1},${id_key}.${notOperator1}`
@@ -101,7 +105,7 @@ export function PostgRESTInfiniteScrollView(
     filterValue,
     orParam,
     searchItemsParam,
-    initialItems,
+    newInitialItems,
     id_key,
     order_key,
     limit,
@@ -218,7 +222,7 @@ export function PostgRESTInfiniteScrollView(
       route,
       getNextParams: getNextParams ?? defaultGetNextParams,
       params: params ?? defaultParams,
-      initialItems,
+      initialItems: newInitialItems,
       hasMore: hasMore ?? defaultHasMore,
       key: newKey,
     }),
