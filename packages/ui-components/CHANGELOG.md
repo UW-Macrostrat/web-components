@@ -1,5 +1,11 @@
 # Changelog
 
+## [4.3.8] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
+
+- Error handling for newKey
+
 ## [4.3.7] - 2025-07-09
 
 For PostgRESTInfiniteScrollView

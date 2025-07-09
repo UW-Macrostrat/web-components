@@ -198,8 +198,16 @@ export function PostgRESTInfiniteScrollView(
     });
   };
 
+   const {
+    toggles: _omitToggles,
+    SearchBarComponent: _omitSearchBar,
+    MultiSelectComponent: _omitMultiSelect,
+    ...cleaned
+  } = props;
+
+
   const newKey =
-    key || `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(props)}`;
+    key || `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(cleaned)}`;
 
   return h("div.postgrest-infinite-scroll", [
     h('div.header', [
