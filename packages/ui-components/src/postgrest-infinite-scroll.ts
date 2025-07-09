@@ -195,7 +195,9 @@ export function PostgRESTInfiniteScrollView(
   };
 
   const newKey =
-    key || `${filterValue}-${selectedItems.join(",")}-${props.toString()}`;
+    key || `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(props)}`;
+
+  console.log(newKey)
 
   return h("div.postgrest-infinite-scroll", [
     h.if(filterable)("div.search-bar", [
