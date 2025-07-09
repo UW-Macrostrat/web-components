@@ -2,7 +2,8 @@
 
 ## [4.3.5] - 2025-07-10
 
-- Handle extra params and newKey
+- Handle extra params and intitial items
+- Better state management
 
 ## [4.3.5] - 2025-07-09
 
