@@ -8,9 +8,11 @@ import { MenuItem, Spinner, InputGroup } from "@blueprintjs/core";
 interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   id_key: string;
   limit: number;
+  extraParams?: Record<string, any>;
   ascending?: boolean;
   filterable?: boolean;
   order_key?: string;
+  key?: string;
   SearchBarComponent?: React.ComponentType<{
     onChange: (value: string) => void;
   }>;
@@ -43,6 +45,8 @@ export function PostgRESTInfiniteScrollView(
     order_key = undefined,
     SearchBarComponent,
     MultiSelectComponent,
+    extraParams = {},
+    key,
     ...rest
   } = props;
 
@@ -75,6 +79,7 @@ export function PostgRESTInfiniteScrollView(
 
   const defaultParams = useMemo(() => {
     return {
+      ...extraParams,
       [id_key]: !order_key
         ? operator2 + `.${initialItems?.[0]?.[id_key] ?? id}`
         : undefined,
@@ -186,6 +191,8 @@ export function PostgRESTInfiniteScrollView(
     });
   };
 
+  const newKey = key || `${filterValue}-${selectedItems.join(",")}-${props.toString()}`;
+
   return h("div.postgrest-infinite-scroll", [
     h.if(filterable)("div.search-bar", [
       h(SearchBarToUse, {
@@ -213,7 +220,7 @@ export function PostgRESTInfiniteScrollView(
       params: params ?? defaultParams,
       initialItems,
       hasMore: hasMore ?? defaultHasMore,
-      key: filterValue + selectedItems.join(","),
+      key: newKey,
     }),
   ]);
 }
