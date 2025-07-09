@@ -5,6 +5,7 @@
 For PostgRESTInfiniteScrollView
 
 - Error handling for newKey
+- Allow inputted searchColumns
 
 ## [4.3.7] - 2025-07-09
 
