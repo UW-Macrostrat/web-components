@@ -61,23 +61,34 @@ export function PostgRESTInfiniteScrollView(
     throw new Error("PostgRESTInfiniteScrollView requires an id_key prop");
   }
 
-  const maxId = 2 ** 28; // max allowed with postgREST
+  const [selectedItems, setSelectedItems] = useState<string[]>(searchColumns || []);
+  const [filterValue, setFilterValue] = useState<string>("");
+
   const SearchBarToUse = SearchBarComponent ?? SearchBar;
   const MultiSelectToUse = MultiSelectComponent ?? MultiSelect;
 
-  const res = useAPIResult(route, { limit: 1 });
-  const [selectedItems, setSelectedItems] = useState<string[]>(searchColumns || []);
-  const [filterValue, setFilterValue] = useState<string>("");
-  const operator1 = ascending ? `asc` : `desc`;
-  const notOperator1 = ascending ? `desc` : `asc`;
-  const operator2 = ascending ? `gt` : `lt`;
-  const notOperator2 = ascending ? `lt` : `gt`;
+  const orderOperator = ascending ? `asc` : `desc`;
+  const notOrderOperator1 = ascending ? `desc` : `asc`;
+  const compOperator = ascending ? `gt` : `lt`;
+  const notCompOperator2 = ascending ? `lt` : `gt`;
+
+  const res = useAPIResult(route, { 
+    limit: 1,
+    order: [id_key] + '.desc'
+  });
+
+  const maxId = res?.[0][id_key]
+    ? res[0][id_key]
+    : ascending
+      ? 0
+      : 2 ** 28;
+
   const id = ascending ? 0 : maxId;
   const notId = ascending ? maxId : 0;
   const newInitialItems =
     selectedItems.length === 0 && filterValue === "" ? initialItems : undefined;
 
-  const orParam = `(${order_key}.${operator2}.${id},and(${order_key}.eq.${id},${id_key}.${notOperator2}.${notId}))`;
+  const orParam = `(${order_key}.${compOperator}.${id},and(${order_key}.eq.${id},${id_key}.${notCompOperator2}.${notId}))`;
 
   const specialCase = order_key && selectedItems?.length > 0;
 
@@ -90,11 +101,11 @@ export function PostgRESTInfiniteScrollView(
     return {
       ...extraParams,
       [id_key]: !order_key
-        ? operator2 + `.${newInitialItems?.[0]?.[id_key] ?? id}`
+        ? compOperator + `.${newInitialItems?.[0]?.[id_key] ?? id}`
         : undefined,
       order: order_key
-        ? `${order_key}.${operator1},${id_key}.${notOperator1}`
-        : `${id_key}.${operator1}`,
+        ? `${order_key}.${orderOperator},${id_key}.${notOrderOperator1}`
+        : `${id_key}.${orderOperator}`,
       limit,
       or: order_key
         ? selectedItems.length == 0
@@ -114,10 +125,10 @@ export function PostgRESTInfiniteScrollView(
     id_key,
     order_key,
     limit,
-    operator1,
-    notOperator1,
-    operator2,
-    notOperator2,
+    orderOperator,
+    notOrderOperator1,
+    compOperator,
+    notCompOperator2,
   ]);
 
   if (!res) {
@@ -156,7 +167,7 @@ export function PostgRESTInfiniteScrollView(
       // Simple cursor on id_key only
       return {
         ...params,
-        [id_key]: `${operator2}.${lastItem[id_key]}`,
+        [id_key]: `${compOperator}.${lastItem[id_key]}`,
       };
     } else {
       const lastOrderValue = lastItem[order_key];
@@ -172,7 +183,7 @@ export function PostgRESTInfiniteScrollView(
       }
 
       // Compound cursor with order_key and id_key
-      const newOr = `(${order_key}.${operator2}.${lastOrderValue},and(${order_key}.eq.${lastOrderValue},${id_key}.${notOperator2}.${lastIdValue}))`;
+      const newOr = `(${order_key}.${compOperator}.${lastOrderValue},and(${order_key}.eq.${lastOrderValue},${id_key}.${notCompOperator2}.${lastIdValue}))`;
 
       return {
         ...params,
