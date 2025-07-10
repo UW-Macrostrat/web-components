@@ -8,7 +8,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - PostgREST sheet has full table search ability
 
-
 ## [2.1.1] - 2025-06-25
 
 - Fix issue with exports and Parcel
