@@ -6,12 +6,16 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.1.2] - 2025-07-10
 
-- Increased the default line spacing in the paragraph text (made it configurable via a CSS variable)
-- Added a toggle in the graph view to show labels for all nodes, and made nodes slightly bigger
+- Increased the default line spacing in the paragraph text (made it configurable
+  via a CSS variable)
+- Added a toggle in the graph view to show labels for all nodes, and made nodes
+  slightly bigger
 - Unified selection interactions
-- Updated tags in the "select list" on the right to have styling for selected/unselected states consistent with the rest of the interface
+- Updated tags in the "select list" on the right to have styling for
+  selected/unselected states consistent with the rest of the interface
 - Added "assistant panel" style entity types selector
-- Added a border to selected tags in the paragraph area, similar to the list view 
+- Added a border to selected tags in the paragraph area, similar to the list
+  view
 - Snapped tag selections to word boundaries
 
 ## [1.1.1] - 2025-07-01
