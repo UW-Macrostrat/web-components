@@ -64,7 +64,9 @@ export function PostgRESTInfiniteScrollView(
     throw new Error("PostgRESTInfiniteScrollView requires an id_key prop");
   }
 
-  const [selectedItems, setSelectedItems] = useState<string[]>(searchColumns || []);
+  const [selectedItems, setSelectedItems] = useState<string[]>(
+    searchColumns || [],
+  );
   const [filterValue, setFilterValue] = useState<string>("");
 
   const SearchBarToUse = SearchBarComponent ?? SearchBar;
@@ -75,16 +77,12 @@ export function PostgRESTInfiniteScrollView(
   const compOperator = ascending ? `gt` : `lt`;
   const notCompOperator2 = ascending ? `lt` : `gt`;
 
-  const res = useAPIResult(route, { 
+  const res = useAPIResult(route, {
     limit: 1,
-    order: [id_key] + '.desc'
+    order: [id_key] + ".desc",
   });
 
-  const maxId = res?.[0][id_key]
-    ? res[0][id_key]
-    : ascending
-      ? 0
-      : 2 ** 28;
+  const maxId = res?.[0][id_key] ? res[0][id_key] : ascending ? 0 : 2 ** 28;
 
   const id = ascending ? 0 : maxId;
   const notId = ascending ? maxId : 0;
