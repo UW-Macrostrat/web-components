@@ -5,8 +5,11 @@ import { useMemo, useState } from "react";
 import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Spinner, InputGroup } from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
+import "@blueprintjs/core/lib/css/blueprint.css";
+import "@blueprintjs/select/lib/css/blueprint-select.css";
 
 const h = hyper.styled(styles);
+const b = hyper
 
 interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   id_key: string;
@@ -225,10 +228,10 @@ export function PostgRESTInfiniteScrollView(
   return h("div.postgrest-infinite-scroll", [
     h("div.header", [
       h.if(filterable)("div.search-bar", [
-        h(SearchBarToUse, {
+        b(SearchBarToUse, {
           onChange: (value) => setFilterValue(value || ""),
         }),
-        h(MultiSelectToUse, {
+        b(MultiSelectToUse, {
           items: keys.filter((item) => !selectedItems.includes(item)),
           itemRenderer,
           itemPredicate: filterItem,
