@@ -4,13 +4,14 @@ import styles from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import { PostgrestOrder, usePostgRESTLazyLoader } from "./data-loaders";
-import { Spinner } from "@blueprintjs/core";
+import { Spinner, InputGroup } from "@blueprintjs/core";
 
 export * from "./data-loaders";
-import { useCallback } from "react";
+import { useCallback, useState, useRef } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
+  useAPIResult,
   useToaster,
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
@@ -40,6 +41,8 @@ interface PostgRESTTableViewProps<T extends object>
   columns?: string;
   editable?: boolean;
   identityKey?: string;
+  enableFullTableSearch?: boolean;
+  dataSheetActions?: any;
   filter(
     query: PostgrestFilterBuilder<T, any, any>,
   ): PostgrestFilterBuilder<T, any, any>;
@@ -61,10 +64,32 @@ function _PostgRESTTableView<T>({
   order,
   columns,
   editable = false,
-  filter,
+  filter = undefined,
+  enableFullTableSearch = false,
+  dataSheetActions,
   identityKey = "id",
   ...rest
 }: PostgRESTTableViewProps<T>) {
+  const [input, setInput] = useState("");
+
+  if (enableFullTableSearch) {
+    const columnList = columns ?? getColumnList(endpoint, table);
+
+    filter = (query) => {
+      const urlParams = new URLSearchParams(query.url.search);
+      urlParams.delete("or");
+      query.url.search = urlParams.toString() ? `?${urlParams.toString()}` : "";
+
+      if (input.length > 2 && enableFullTableSearch) {
+        const conditions = columnList?.map((col) => `${col}.ilike.*${input}*`);
+
+        return query.or(conditions.join(","));
+      }
+
+      return query;
+    };
+  }
+
   const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
     endpoint,
     table,
@@ -99,6 +124,9 @@ function _PostgRESTTableView<T>({
   return h("div.data-sheet-outer", [
     h(DataSheet, {
       ...rest,
+      dataSheetActions: enableFullTableSearch
+        ? h(SearchAction, { input, setInput, dispatch })
+        : dataSheetActions,
       data,
       columnSpecOptions: columnOptions ?? {},
       editable,
@@ -230,4 +258,34 @@ export function ExpandedLithologies({ value, onChange }) {
       ),
     ]),
   ]);
+}
+
+export function SearchAction({ input, setInput, dispatch }) {
+  return h(InputGroup, {
+    type: "search",
+    placeholder: "Search table...",
+    value: input,
+    onChange(event) {
+      const search = event.target.value;
+      if (search.length > 2 || (input.length === 3 && search.length < 3)) {
+        dispatch({ type: "reset" });
+      }
+      setInput(search.toLowerCase());
+    },
+  });
+}
+
+function getColumnList(endpoint: string, table: string) {
+  const url = `${endpoint}/${table}?select=*&limit=1`;
+  const res = useAPIResult(url);
+
+  if (!res || !Array.isArray(res) || res.length === 0) return [];
+
+  const sampleRow = res[0];
+
+  return Object.entries(sampleRow)
+    .filter(([_, value]) => {
+      return typeof value === "string";
+    })
+    .map(([key]) => key);
 }
