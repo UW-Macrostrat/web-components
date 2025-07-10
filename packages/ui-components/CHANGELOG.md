@@ -1,5 +1,46 @@
 # Changelog
 
+## [unreleased] -
+
+For PostgRESTInfiniteScrollView
+
+## [4.3.8] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
+
+- Error handling for newKey
+- Allow inputted searchColumns
+
+## [4.3.7] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
+
+- Even better state management
+- Handle adding toggles to header
+
+## [4.3.6] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
+
+- Handle extra params and intitial items
+- Better state management
+
+## [4.3.5] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
+
+- Fix import issue
+
+## [4.3.4] - 2025-07-09
+
+For PostgRESTInfiniteScrollView
+
+- Fix export issue
+
+## [4.3.3] - 2025-07-03
+
+- PostgRESTInfiniteScrollView created handling filters and order
+
 ## [4.3.2] - 2025-07-03
 
 - Fixed infinite loading issue on mount

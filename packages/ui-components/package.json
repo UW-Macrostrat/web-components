@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "4.3.2",
+  "version": "4.3.8",
   "description": "UI components for React and Blueprint.js",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -44,6 +44,7 @@
   "dependencies": {
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/datetime2": "^2.3.11",
+    "@blueprintjs/select": "^5.3.10",
     "@macrostrat/hyper": "^3.0.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18",
