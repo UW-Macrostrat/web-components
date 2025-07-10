@@ -67,6 +67,7 @@ export function PostgRESTInfiniteScrollView(
   const SearchBarToUse = SearchBarComponent ?? SearchBar;
   const MultiSelectToUse = MultiSelectComponent ?? MultiSelect;
 
+<<<<<<< HEAD
   const orderOperator = ascending ? `asc` : `desc`;
   const notOrderOperator1 = ascending ? `desc` : `asc`;
   const compOperator = ascending ? `gt` : `lt`;
@@ -83,6 +84,17 @@ export function PostgRESTInfiniteScrollView(
       ? 0
       : 2 ** 28;
 
+=======
+  const res = useAPIResult(route, { limit: 1 });
+  const [selectedItems, setSelectedItems] = useState<string[]>(
+    searchColumns || [],
+  );
+  const [filterValue, setFilterValue] = useState<string>("");
+  const operator1 = ascending ? `asc` : `desc`;
+  const notOperator1 = ascending ? `desc` : `asc`;
+  const operator2 = ascending ? `gt` : `lt`;
+  const notOperator2 = ascending ? `lt` : `gt`;
+>>>>>>> cbeb803c45afa609f8dcaa75bbdde83b2d0694f3
   const id = ascending ? 0 : maxId;
   const notId = ascending ? maxId : 0;
   const newInitialItems =
@@ -135,9 +147,9 @@ export function PostgRESTInfiniteScrollView(
     return h(Spinner);
   }
 
-  const keys = searchColumns || Object.keys(res[0] || {}).filter(
-    (key) => typeof res[0][key] === "string",
-  );
+  const keys =
+    searchColumns ||
+    Object.keys(res[0] || {}).filter((key) => typeof res[0][key] === "string");
 
   // Filtering function
   const filterItem: ItemPredicate<string> = (query, item) =>
@@ -211,16 +223,16 @@ export function PostgRESTInfiniteScrollView(
     });
   };
 
-   const {
+  const {
     toggles: _omitToggles,
     SearchBarComponent: _omitSearchBar,
     MultiSelectComponent: _omitMultiSelect,
     ...cleaned
   } = props;
 
-
   const newKey =
-    key || `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(cleaned)}`;
+    key ||
+    `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(cleaned)}`;
 
   return h("div.postgrest-infinite-scroll", [
     h("div.header", [
