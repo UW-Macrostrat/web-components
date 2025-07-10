@@ -5,11 +5,8 @@ import { useMemo, useState } from "react";
 import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Spinner, InputGroup } from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
-import "@blueprintjs/core/lib/css/blueprint.css";
-import "@blueprintjs/select/lib/css/blueprint-select.css";
 
 const h = hyper.styled(styles);
-const b = hyper;
 
 interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   id_key: string;
@@ -17,7 +14,7 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   extraParams?: Record<string, any>;
   ascending?: boolean;
   filterable?: boolean;
-  searchColumns?: string[];
+  searchColumns?: Array<{ value: string; label: string }>;
   order_key?: string;
   key?: string;
   toggles?: any;
@@ -65,8 +62,9 @@ export function PostgRESTInfiniteScrollView(
   }
 
   const [selectedItems, setSelectedItems] = useState<string[]>(
-    searchColumns || [],
+    (searchColumns ?? []).map((col) => col.value),
   );
+
   const [filterValue, setFilterValue] = useState<string>("");
 
   const SearchBarToUse = SearchBarComponent ?? SearchBar;
@@ -137,16 +135,25 @@ export function PostgRESTInfiniteScrollView(
   }
 
   const keys =
-    searchColumns ||
-    Object.keys(res[0] || {}).filter((key) => typeof res[0][key] === "string");
+    searchColumns ??
+    (res?.[0]
+      ? Object.keys(res[0])
+          .filter((key) => typeof res[0][key] === "string")
+          .map((key) => ({
+            label: key.replace(/_/g, " "),
+            value: key,
+          }))
+      : []);
 
   // Filtering function
-  const filterItem: ItemPredicate<string> = (query, item) =>
-    item.toLowerCase().includes(query.toLowerCase());
+  const filterItem: ItemPredicate<{ label: string; value: string }> = (
+    query,
+    item,
+  ) => item.label.toLowerCase().includes(query.toLowerCase());
 
-  const handleSelect = (item: string) => {
-    if (!selectedItems.includes(item)) {
-      setSelectedItems([...selectedItems, item]);
+  const handleSelect = (item: { label: string; value: string }) => {
+    if (!selectedItems.includes(item.value)) {
+      setSelectedItems([...selectedItems, item.value]);
     }
   };
 
@@ -198,14 +205,14 @@ export function PostgRESTInfiniteScrollView(
   };
 
   // Function to render each item in dropdown
-  const itemRenderer: ItemRenderer<string> = (
+  const itemRenderer: ItemRenderer<{ label: string; value: string }> = (
     item,
     { handleClick, modifiers },
   ) => {
     if (!modifiers.matchesPredicate) return null;
     return h(MenuItem, {
-      key: item,
-      text: item,
+      key: item.value,
+      text: item.label,
       active: modifiers.active,
       onClick: handleClick,
       shouldDismissPopover: false,
@@ -226,16 +233,19 @@ export function PostgRESTInfiniteScrollView(
   return h("div.postgrest-infinite-scroll", [
     h("div.header", [
       h.if(filterable)("div.search-bar", [
-        b(SearchBarToUse, {
+        h(SearchBarToUse, {
           onChange: (value) => setFilterValue(value || ""),
         }),
-        b(MultiSelectToUse, {
-          items: keys.filter((item) => !selectedItems.includes(item)),
+        h(MultiSelectToUse, {
+          items: keys.filter((item) => !selectedItems.includes(item.value)),
           itemRenderer,
           itemPredicate: filterItem,
           selectedItems,
           onItemSelect: handleSelect,
-          tagRenderer: (item) => item,
+          tagRenderer: (value) => {
+            const found = keys.find((k) => k.value === value);
+            return found ? found.label : value;
+          },
           onRemove: handleRemove,
           tagInputProps: {
             onRemove: handleRemove,

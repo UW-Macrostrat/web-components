@@ -1,8 +1,10 @@
 # Changelog
 
-## [unreleased] -
+## [4.4.0] -
 
 For PostgRESTInfiniteScrollView
+
+- Custom multiselect labels
 
 ## [4.3.8] - 2025-07-09
 
