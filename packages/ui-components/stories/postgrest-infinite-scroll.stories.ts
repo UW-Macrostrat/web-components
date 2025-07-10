@@ -28,9 +28,9 @@ Primary.args = {
   searchColumns: [{ value: "name", label: "Name" }],
 };
 
-export const CustomMultiselect = Template.bind({});
+export const Multiselect = Template.bind({});
 
-CustomMultiselect.args = {
+Multiselect.args = {
   limit: 5,
   id_key: "source_id",
   filterable: true,
@@ -38,5 +38,5 @@ CustomMultiselect.args = {
   route: "https://dev.macrostrat.org/api/pg/sources_metadata",
   delay: 100,
   toggles: h("h1", "Toggles here"),
-  searchColumns: [{ value: "name", label: "Name" }],
+  searchColumns: [{ value: "name", label: "Name" }, { value: "authors", label: "Author" }],
 };

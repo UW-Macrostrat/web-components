@@ -233,7 +233,7 @@ export function PostgRESTInfiniteScrollView(
         h(SearchBarToUse, {
           onChange: (value) => setFilterValue(value || ""),
         }),
-        h(MultiSelectToUse, {
+        h.if(searchColumns == null || searchColumns.length > 1)(MultiSelectToUse, {
           items: keys.filter(item => !selectedItems.includes(item.value)),
           itemRenderer,
           itemPredicate: filterItem,
