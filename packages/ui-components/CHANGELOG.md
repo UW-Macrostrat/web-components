@@ -1,8 +1,8 @@
 # Changelog
 
-## [unreleased] - 
-For PostgRESTInfiniteScrollView
+## [unreleased] -
 
+For PostgRESTInfiniteScrollView
 
 ## [4.3.8] - 2025-07-09
 
