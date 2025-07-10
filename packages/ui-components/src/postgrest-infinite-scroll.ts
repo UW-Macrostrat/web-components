@@ -9,7 +9,7 @@ import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 
 const h = hyper.styled(styles);
-const b = hyper
+const b = hyper;
 
 interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   id_key: string;
