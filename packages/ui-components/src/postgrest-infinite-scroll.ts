@@ -62,7 +62,7 @@ export function PostgRESTInfiniteScrollView(
   }
 
   const [selectedItems, setSelectedItems] = useState<string[]>(
-    (searchColumns ?? []).map(col => col.value)
+    (searchColumns ?? []).map((col) => col.value),
   );
 
   const [filterValue, setFilterValue] = useState<string>("");
@@ -134,18 +134,22 @@ export function PostgRESTInfiniteScrollView(
     return h(Spinner);
   }
 
-  const keys = searchColumns ?? (res?.[0]
-    ? Object.keys(res[0])
-        .filter(key => typeof res[0][key] === "string")
-        .map(key => ({
-          label: key.replace(/_/g, " "),
-          value: key,
-        }))
-    : []);
+  const keys =
+    searchColumns ??
+    (res?.[0]
+      ? Object.keys(res[0])
+          .filter((key) => typeof res[0][key] === "string")
+          .map((key) => ({
+            label: key.replace(/_/g, " "),
+            value: key,
+          }))
+      : []);
 
   // Filtering function
-  const filterItem: ItemPredicate<{ label: string; value: string }> = (query, item) =>
-  item.label.toLowerCase().includes(query.toLowerCase());
+  const filterItem: ItemPredicate<{ label: string; value: string }> = (
+    query,
+    item,
+  ) => item.label.toLowerCase().includes(query.toLowerCase());
 
   const handleSelect = (item: { label: string; value: string }) => {
     if (!selectedItems.includes(item.value)) {
@@ -156,7 +160,6 @@ export function PostgRESTInfiniteScrollView(
   const handleRemove = (_: React.ReactNode, index: number) => {
     setSelectedItems(selectedItems.filter((_, i) => i !== index));
   };
-
 
   const defaultGetNextParams = (response, params) => {
     const lastItem = response?.[response.length - 1];
@@ -204,7 +207,7 @@ export function PostgRESTInfiniteScrollView(
   // Function to render each item in dropdown
   const itemRenderer: ItemRenderer<{ label: string; value: string }> = (
     item,
-    { handleClick, modifiers }
+    { handleClick, modifiers },
   ) => {
     if (!modifiers.matchesPredicate) return null;
     return h(MenuItem, {
@@ -234,13 +237,13 @@ export function PostgRESTInfiniteScrollView(
           onChange: (value) => setFilterValue(value || ""),
         }),
         h(MultiSelectToUse, {
-          items: keys.filter(item => !selectedItems.includes(item.value)),
+          items: keys.filter((item) => !selectedItems.includes(item.value)),
           itemRenderer,
           itemPredicate: filterItem,
           selectedItems,
           onItemSelect: handleSelect,
           tagRenderer: (value) => {
-            const found = keys.find(k => k.value === value);
+            const found = keys.find((k) => k.value === value);
             return found ? found.label : value;
           },
           onRemove: handleRemove,
@@ -249,7 +252,7 @@ export function PostgRESTInfiniteScrollView(
             placeholder: "Select a column(s) to filter by...",
           },
           popoverProps: { minimal: true },
-        })
+        }),
       ]),
       h.if(toggles)("div.toggles", toggles),
     ]),
