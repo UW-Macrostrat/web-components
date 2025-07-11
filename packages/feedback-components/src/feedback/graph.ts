@@ -116,10 +116,23 @@ export function GraphView(props: {
                 fill: style.backgroundColor || "blue",
                 onClick: (e) => {
                   e.stopPropagation();
-                  dispatch({
-                    type: "toggle-node-selected",
-                    payload: { ids: [d.id] },
-                  });
+                  if (
+                    e.ctrlKey ||
+                    e.metaKey ||
+                    (selectedNodes[0] === d.id && selectedNodes.length === 1)
+                  ) {
+                    // Toggle selection on ctrl/cmd click or when node is only selected node
+                    e.stopPropagation();
+                    dispatch({
+                      type: "toggle-node-selected",
+                      payload: { ids: [d.id] },
+                    });
+                  } else {
+                    dispatch({
+                      type: "select-node",
+                      payload: { ids: [d.id] },
+                    });
+                  }
                 },
                 className: active ? "selected" : "",
                 stroke,
