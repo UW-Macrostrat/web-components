@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "Map interface for Macrostrat",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
