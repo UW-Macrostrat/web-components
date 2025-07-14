@@ -68,7 +68,7 @@ export function InternalLink({ to, children }) {
     {
       href: joinURL(routerBasename, to),
     },
-    children
+    children,
   );
 }
 
@@ -79,7 +79,7 @@ export function NewSwatch({ children, version = 0 }) {
       to: routerBasename + `changelog#version-${version}`,
       className: "new-swatch",
     },
-    children
+    children,
   );
 }
 

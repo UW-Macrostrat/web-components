@@ -17,7 +17,7 @@ function LoadingArea(props) {
     [
       h.if(invTrans.shouldMount)("div.spinner", null, h(Spinner)),
       h.if(trans.shouldMount)("div.data", null, children),
-    ]
+    ],
   );
 }
 

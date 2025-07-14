@@ -16,8 +16,7 @@ export interface XDDSnippet {
   highlight: string[];
 }
 
-
-export function XddExpansion({xddInfo}) {
+export function XddExpansion({ xddInfo }) {
   return h(xDDPanelCore, {
     className: "regional-panel",
     data: xddInfo,
@@ -48,12 +47,12 @@ export function xDDPanelCore({ isFetching, data: xddInfo, ...rest }) {
           });
         }),
       ]),
-    ]
+    ],
   );
 }
 
 function groupSnippetsByJournal(
-  snippets: XDDSnippet[]
+  snippets: XDDSnippet[],
 ): Map<string, XDDSnippet[]> {
   const journals = new Map<string, XDDSnippet[]>();
   if (!snippets || snippets.length === 0) {

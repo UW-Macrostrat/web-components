@@ -37,7 +37,7 @@ function MacrostratLinkedData(props) {
         h(Environments, { source }),
         h(Economy, { source }),
       ]),
-    ]
+    ],
   );
 }
 
@@ -64,7 +64,7 @@ function MapAgeRenderer(props) {
         t_int: mapInfo.mapData[0].t_int,
       }),
     },
-    "Based on geologic map description."
+    "Based on geologic map description.",
   );
 }
 
@@ -126,8 +126,8 @@ function AgeRefinementBar({ scale, data, color, label = null }) {
           textAlign,
         },
       },
-      label
-    )
+      label,
+    ),
   );
 }
 
@@ -185,7 +185,7 @@ function MacrostratAgeInfoCore({ macrostrat }) {
         t_int: { ...b_int, int_name: age, b_age, t_age },
       }),
     },
-    "Refined using the Macrostrat age model."
+    "Refined using the Macrostrat age model.",
   );
 }
 
@@ -193,7 +193,7 @@ function MacrostratAgeInfo(props) {
   return h(
     ExpandableDetailsPanel,
     { headerElement: h(MacrostratAgeInfoCore, props) },
-    h(ExpansionBody, { title: "Age refinement" }, h(AgeRefinementPlot, props))
+    h(ExpansionBody, { title: "Age refinement" }, h(AgeRefinementPlot, props)),
   );
 }
 
@@ -221,12 +221,12 @@ function MatchBasis(props) {
               href: "/lex/strat-names/" + name.strat_name_id,
               key: i,
             },
-            [name.rank_name]
+            [name.rank_name],
           ),
           h.if(!lastElement)([", "]),
         ]);
       }),
-    ])
+    ]),
   );
 }
 
@@ -244,7 +244,7 @@ function Thickness(props) {
         source.macrostrat.max_thick,
         "m",
       ]),
-    ]
+    ],
   );
 }
 
@@ -258,7 +258,7 @@ function MinorFossilCollections(props) {
     [
       h("div.expansion-summary-title", "Fossil collections"),
       h("div", [macrostrat.pbdb_collections]),
-    ]
+    ],
   );
 }
 
@@ -283,7 +283,7 @@ function LithTypes(props) {
       h(LithologyList, {
         lithologies: lith_types,
       }),
-    ]
+    ],
   );
 }
 
@@ -293,7 +293,7 @@ function LithsAndClasses(props) {
   const { liths = null, lith_types = null } = macrostrat;
 
   if (!liths || liths.length == 0) return null;
-  
+
   const lithologies = liths.map((lith) => {
     return {
       ...lith,
@@ -312,16 +312,18 @@ function LithsAndClasses(props) {
       h(LithologyList, {
         lithologies,
         onClickItem: (e, lith) => {
-          window.open('/lex/lithology/' + lith.lith_id, '_self');
+          window.open("/lex/lithology/" + lith.lith_id, "_self");
         },
       }),
-    ])
+    ]),
   );
 }
 
 function EnvironTypes(props) {
   const { environ_types } = props;
-  return h.if(environ_types && environ_types.length > 0)(LithologyList, { lithologies: environ_types?.filter((e) => e.name != '') });
+  return h.if(environ_types && environ_types.length > 0)(LithologyList, {
+    lithologies: environ_types?.filter((e) => e.name != ""),
+  });
 }
 
 function Environments(props) {
@@ -346,13 +348,13 @@ function Environments(props) {
       value: h(EnvironTypes, { environ_types }),
     },
     h(ExpansionBody, { title: "Matched environments" }, [
-       h(LithologyList, {
+      h(LithologyList, {
         lithologies,
         onClickItem: (e, environ) => {
-          window.open('/lex/environments/' + environ.environ_id, '_self');
+          window.open("/lex/environments/" + environ.environ_id, "_self");
         },
       }),
-    ])
+    ]),
   );
 }
 
@@ -390,7 +392,7 @@ function Economy(props) {
           color: econ.color,
         });
       }),
-    ])
+    ]),
   );
 }
 

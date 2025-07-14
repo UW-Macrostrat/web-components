@@ -41,7 +41,7 @@ function Journal_(props: JournalProps) {
       articles.map((article, i) => {
         return h(Article, { key: i, data: article });
       }),
-    ]
+    ],
   );
 }
 

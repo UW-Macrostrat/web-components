@@ -16,6 +16,6 @@ export function FossilCollections(props) {
       helpText: "via PBDB",
       expanded,
     },
-    [h(PBDBCollections, { data })]
+    [h(PBDBCollections, { data })],
   );
 }

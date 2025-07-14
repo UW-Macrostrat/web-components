@@ -45,10 +45,10 @@ export function makeOccurrenceTree(data) {
       d.rank === "species"
         ? d.idg + " " + d.ids
         : d.tid
-        ? d.tid.split(":")[1] > 0
-          ? d.idg
-          : ""
-        : "";
+          ? d.tid.split(":")[1] > 0
+            ? d.idg
+            : ""
+          : "";
 
     // If it has a genus name...
     if (d.idg) {
@@ -88,7 +88,7 @@ export function makeOccurrenceTree(data) {
         phyla_classes.push(
           occurrenceTree.phyla[i].phylum +
             "-" +
-            occurrenceTree.phyla[i].classes[j].nameClass
+            occurrenceTree.phyla[i].classes[j].nameClass,
         );
       }
     }
@@ -113,7 +113,7 @@ export function makeOccurrenceTree(data) {
               "-" +
               occurrenceTree.phyla[i].classes[j].nameClass +
               "-" +
-              occurrenceTree.phyla[i].classes[j].families[k].family
+              occurrenceTree.phyla[i].classes[j].families[k].family,
           );
         }
       }
@@ -125,10 +125,10 @@ export function makeOccurrenceTree(data) {
       let classIndex = getIndex(
         occurrenceTree.phyla[phylumIndex].classes,
         d.cll,
-        "nameClass"
+        "nameClass",
       );
       occurrenceTree.phyla[phylumIndex].classes[classIndex]["families"].push(
-        newFamily
+        newFamily,
       );
     }
 
@@ -137,12 +137,12 @@ export function makeOccurrenceTree(data) {
     let classIndex = getIndex(
       occurrenceTree.phyla[phylumIndex].classes,
       d.cll,
-      "nameClass"
+      "nameClass",
     );
     let familyIndex = getIndex(
       occurrenceTree.phyla[phylumIndex].classes[classIndex].families,
       d.fml,
-      "family"
+      "family",
     );
     occurrenceTree.phyla[phylumIndex].classes[classIndex].families[
       familyIndex
@@ -177,8 +177,8 @@ export function makeOccurrenceTree(data) {
         occurrenceTree.phyla[i].classes[j].families.push(
           occurrenceTree.phyla[i].classes[j].families.splice(
             undefinedFamilyIndex,
-            1
-          )[0]
+            1,
+          )[0],
         );
       }
 
@@ -195,7 +195,7 @@ export function makeOccurrenceTree(data) {
 
     if (typeof undefinedClassIndex != "undefined") {
       occurrenceTree.phyla[i].classes.push(
-        occurrenceTree.phyla[i].classes.splice(undefinedClassIndex, 1)[0]
+        occurrenceTree.phyla[i].classes.splice(undefinedClassIndex, 1)[0],
       );
     }
 
