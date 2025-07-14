@@ -4,14 +4,12 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [unreleased]
+## [1.4.1] - 2025-07-14
 
 Added map-panel component
 
 Need to
-- add position to top of lcoation panel
 - integrate fossils
-- fix missing lithology and environ types
 
 ## [1.4.0] - 2025-07-02
 
