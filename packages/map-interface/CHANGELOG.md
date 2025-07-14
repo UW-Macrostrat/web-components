@@ -6,6 +6,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [1.4.2] - 2025-07-14
 
+Export correctly
+
+## [1.4.1] - 2025-07-14
+
 Added map-panel component
 
 Need to

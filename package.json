@@ -71,6 +71,7 @@
   "packageManager": "yarn@4.8.1",
   "devDependencies": {
     "@parcel/packager-ts": "^2.14.4",
+    "@parcel/transformer-stylus": "2.14.4",
     "@types/d3-array": "^3.2.1",
     "@types/underscore": "^1.13.0",
     "madge": "^8.0.0",
