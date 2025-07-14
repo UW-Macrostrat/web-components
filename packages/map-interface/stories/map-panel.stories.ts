@@ -1,9 +1,8 @@
-import type { Meta, StoryObj } from "@storybook/react-vite";
+import type { Meta } from "@storybook/react-vite";
 
 import InfoDrawer from "../src/map-panel/components/info-drawer";
 import h from "@macrostrat/hyper";
 import {
-  LocationPanel,
   MapAreaContainer,
   MapMarker,
   MapView,
