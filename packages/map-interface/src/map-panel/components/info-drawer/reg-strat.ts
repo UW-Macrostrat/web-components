@@ -13,15 +13,13 @@ export function RegionalStratigraphy(props) {
       title: "Regional stratigraphy",
       expanded: true,
     },
-    [
-      h.if(columnInfo != null)(ColumnData, { columnInfo }),
-    ]
+    [h.if(columnInfo != null)(ColumnData, { columnInfo })],
   );
 }
 
 function ColumnData({ columnInfo }) {
   return h("div.column-data", [
-    h('a', { href: '/columns/' + columnInfo.col_id }, "View column page"),
+    h("a", { href: "/columns/" + columnInfo.col_id }, "View column page"),
     h(MapAttribute, {
       label: "Name: ",
       content: [columnInfo.col_name],

@@ -11,7 +11,7 @@ import {
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
-const position = { lat: 44.60085563149249, lng: -96.16783150353609 }
+const position = { lat: 44.60085563149249, lng: -96.16783150353609 };
 const zoom = 3.9392171056922325;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -39,14 +39,13 @@ function DetailPanelMap(props) {
 }
 
 export function Primary(props) {
-  const { bounds, onClose, title, children, detailPanel, ...rest } =
-    props;
+  const { bounds, onClose, title, children, detailPanel, ...rest } = props;
 
   const _detailPanel =
     detailPanel ??
     h(InfoDrawer, {
       position,
-      zoom
+      zoom,
     });
 
   return h(
@@ -60,7 +59,7 @@ export function Primary(props) {
           ...position,
           altitude: 300000,
         },
-      }
+      },
     },
     [
       h.if(position != null)(MapMarker, {

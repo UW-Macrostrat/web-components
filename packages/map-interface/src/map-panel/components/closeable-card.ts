@@ -54,7 +54,7 @@ const CloseableCard = (props) => {
     h(
       "div.card-content",
       { className: classNames({ inset: insetContent }) },
-      children
+      children,
     ),
   ]);
 };

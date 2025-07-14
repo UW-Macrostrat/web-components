@@ -22,7 +22,7 @@ function Physiography(props) {
           h("p.region-description", [region.descrip]),
         ]);
       }),
-    ]
+    ],
   );
 }
 

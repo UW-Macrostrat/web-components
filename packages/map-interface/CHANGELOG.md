@@ -9,6 +9,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Added map-panel component
 
 Need to
+
 - add position to top of lcoation panel
 - integrate fossils
 - fix missing lithology and environ types

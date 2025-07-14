@@ -14,12 +14,12 @@ const gddDomain = `https://xdd.wisc.edu`;
 const h = hyper.styled(styles);
 
 function InfoDrawer(props) {
-  const { 
-    className, 
-    position, 
-    zoom, 
+  const {
+    className,
+    position,
+    zoom,
     setSelectedLocation,
-    children = null
+    children = null,
   } = props;
 
   const { lat, lng } = position;
@@ -46,14 +46,18 @@ function InfoDrawer(props) {
       h(
         LoadingArea,
         { loaded: !fetchingMapInfo, className: "infodrawer-content" },
-        h.if(!fetchingMapInfo)(InfoDrawerMainPanel, {mapInfo, columnInfo, xddInfo})
+        h.if(!fetchingMapInfo)(InfoDrawerMainPanel, {
+          mapInfo,
+          columnInfo,
+          xddInfo,
+        }),
       ),
-      children
-    ]
+      children,
+    ],
   );
 }
 
-function InfoDrawerMainPanel({mapInfo, columnInfo, xddInfo}) {
+function InfoDrawerMainPanel({ mapInfo, columnInfo, xddInfo }) {
   if (!mapInfo || !mapInfo.mapData) {
     return null;
   }
@@ -71,7 +75,6 @@ function InfoDrawerMainPanel({mapInfo, columnInfo, xddInfo}) {
           ref: {},
         };
 
-
   return h([
     h(RegionalStratigraphy, {
       mapInfo,
@@ -83,7 +86,7 @@ function InfoDrawerMainPanel({mapInfo, columnInfo, xddInfo}) {
       bedrockMatchExpanded: true,
       source,
     }),
-    h.if(xddInfo)(XddExpansion, {xddInfo}),
+    h.if(xddInfo)(XddExpansion, { xddInfo }),
     h(Physiography, { mapInfo }),
   ]);
 }
@@ -91,35 +94,24 @@ function InfoDrawerMainPanel({mapInfo, columnInfo, xddInfo}) {
 export default InfoDrawer;
 
 function fetchMapInfo(lng, lat, z) {
-  return useAPIResult(
-    `${apiV2Prefix}/mobile/map_query_v2`,
-    {
-      lng,
-      lat,
-      z,
-    }
-  )?.success?.data
+  return useAPIResult(`${apiV2Prefix}/mobile/map_query_v2`, {
+    lng,
+    lat,
+    z,
+  })?.success?.data;
 }
 
 function fetchColumnInfo(lng, lat) {
-  return useAPIResult(
-    `${apiV2Prefix}/columns`,
-    {
-      lat,
-      lng,
-      response: 'long'
-    }
-  )?.success?.data?.[0];
+  return useAPIResult(`${apiV2Prefix}/columns`, {
+    lat,
+    lng,
+    response: "long",
+  })?.success?.data?.[0];
 }
 
 function fetchXddInfo(stratNames) {
-  return useAPIResult(
-    `${gddDomain}/api/v1/snippets`,
-    {
-      article_limit: 20,
-      term: stratNames
-        ?.map((d) => d.rank_name)
-        .join(","),
-    }
-  )?.success?.data;
+  return useAPIResult(`${gddDomain}/api/v1/snippets`, {
+    article_limit: 20,
+    term: stratNames?.map((d) => d.rank_name).join(","),
+  })?.success?.data;
 }

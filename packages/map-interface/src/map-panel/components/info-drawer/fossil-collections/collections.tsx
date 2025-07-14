@@ -9,7 +9,7 @@ export default function PBDBCollections({ data }) {
   if (data == null) return null;
   return h(
     "div.collections",
-    data.map((col, ix) => h(FossilCollection, { key: ix, col }))
+    data.map((col, ix) => h(FossilCollection, { key: ix, col })),
   );
 }
 
@@ -28,7 +28,7 @@ function FossilCollection({ col }) {
           panel={<OccurencesPanel occurrenceTree={occurrenceTree} />}
         />
       </Tabs>
-    </>
+    </>,
   );
 }
 
@@ -42,7 +42,7 @@ function CollectionNumber({ col }) {
         href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${num}`,
         target: "_blank",
       },
-      num
+      num,
     ),
   ]);
 }
