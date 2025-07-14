@@ -1,1 +1,1 @@
-export * from "./components/info-drawer"
+export * from "./components/info-drawer";
