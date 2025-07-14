@@ -9,6 +9,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Added map-panel component
 
 Need to
+
 - integrate fossils
 
 ## [1.4.0] - 2025-07-02
