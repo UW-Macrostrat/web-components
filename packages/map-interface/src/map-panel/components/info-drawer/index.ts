@@ -18,7 +18,8 @@ function InfoDrawer(props) {
     className, 
     position, 
     zoom, 
-    setSelectedLocation 
+    setSelectedLocation,
+    children = null
   } = props;
 
   const { lat, lng } = position;
@@ -33,7 +34,7 @@ function InfoDrawer(props) {
     LocationPanel,
     {
       className,
-      // position,
+      position,
       elevation: mapInfo?.elevation,
       zoom,
       onClose: () => setSelectedLocation(null),
@@ -47,6 +48,7 @@ function InfoDrawer(props) {
         { loaded: !fetchingMapInfo, className: "infodrawer-content" },
         h.if(!fetchingMapInfo)(InfoDrawerMainPanel, {mapInfo, columnInfo, xddInfo})
       ),
+      children
     ]
   );
 }
