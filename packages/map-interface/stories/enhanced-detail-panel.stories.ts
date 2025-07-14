@@ -16,7 +16,7 @@ const zoom = 3.9392171056922325;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<InfoDrawer> = {
-  title: "Map interface/Map Panel",
+  title: "Map interface/Enhanced detail panel",
   component: InfoDrawer,
 };
 
