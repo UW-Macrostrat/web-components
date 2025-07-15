@@ -8,6 +8,7 @@ import { Highlight } from "../extractions/types";
 import { useEffect, useRef } from "react";
 import { Popover } from "@blueprintjs/core";
 import { JSONView } from "@macrostrat/ui-components";
+import { LithologyList, LithologyTag } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
@@ -282,12 +283,15 @@ function renderNode(
     Popover,
     {
       autoFocus: false,
-      content: h("div.description", match ? h(JSONView, { data: match }) : "No match found"),
+      content: h("div.description", match ? h(Match, { data: match }) : "No match found"),
       interactionKind: "hover",
     },
     h(
       "span",
       {
+        onMouseEnter: (e: MouseEvent) => {
+          e.stopPropagation();
+        },
         className: "highlight",
         style,
         onClick: (e: MouseEvent) => {
@@ -362,4 +366,28 @@ export function HighlightedText(props: {
       renderNode(child, dispatch, selectedNodes, false),
     ),
   );
+}
+
+function Match({data}) {
+  if (data.lith_id) {
+    return h(LithologyTag, { data: { name: data.name, id: data.lith_id, color: data.color } });
+  }
+
+  if (data.strat_name_id) {
+    let lithologies = [
+      { name: data.name + " " + data.rank, id: data.strat_name_id },
+    ];
+
+    if (data.concept_id) {
+      lithologies.push({ name: data.name, id: data.concept_id });
+    }
+
+    return h(LithologyList, { lithologies});
+  }
+
+  if (data.lith_att_id) {
+    return h(LithologyTag, { data: { name: data.name, id: data.lith_att_id } });
+  }
+  
+  return h(JSONView, { data });
 }
