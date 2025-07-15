@@ -11,6 +11,7 @@
     "@blueprintjs/core": "^5.0.0",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/map-interface": "workspace:*",
     "@macrostrat/mapbox-react": "workspace:^",
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
