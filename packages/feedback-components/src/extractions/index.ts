@@ -49,7 +49,12 @@ export function enhanceData(extractionData, models, entityTypes) {
 
 export function getTagStyle(
   baseColor: string,
-  options: { highlighted?: boolean; inDarkMode?: boolean; active?: boolean, showMatches?: boolean } = {},
+  options: {
+    highlighted?: boolean;
+    inDarkMode?: boolean;
+    active?: boolean;
+    showMatches?: boolean;
+  } = {},
 ): CSSProperties {
   const _baseColor = asChromaColor(baseColor ?? "#fff");
   const {
