@@ -6,6 +6,8 @@ import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useEffect, useRef } from "react";
+import { Popover } from "@blueprintjs/core";
+import { JSONView } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
 
@@ -17,7 +19,6 @@ export interface FeedbackTextProps {
   dispatch: TreeDispatch;
   lineHeight: string;
   allowOverlap?: boolean;
-  showMatches?: boolean;
 }
 
 function buildTags(
@@ -74,7 +75,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap, showMatches } = props;
+  const { text, selectedNodes, nodes, dispatch, allowOverlap } = props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes,
@@ -275,45 +276,55 @@ function renderNode(
     }
   }
 
-  return h(
-    "span",
-    {
-      className: "highlight",
-      style,
-      onClick: (e: MouseEvent) => {
-        e.stopPropagation();
-        if (
-          e.ctrlKey ||
-          e.metaKey ||
-          (selectedNodes[0] === tag.id && selectedNodes.length === 1)
-        ) {
-          // Toggle selection on ctrl/cmd click or when node is only selected node
-          e.stopPropagation();
-          dispatch({
-            type: "toggle-node-selected",
-            payload: { ids: [tag.id] },
-          });
-        } else if (e.shiftKey && selectedNodes.length > 0) {
-          // Select range from last selected node to this one
-          const lastSelected = selectedNodes[selectedNodes.length - 1];
+  const match = tag.match
 
-          dispatch({
-            type: "select-range",
-            payload: { ids: [lastSelected, tag.id] },
-          });
-        } else {
-          dispatch({
-            type: "select-node",
-            payload: { ids: [tag.id] },
-          });
-        }
-      },
+  return h(
+    Popover,
+    {
+      autoFocus: false,
+      content: h("div.description", match ? h(JSONView, { data: match }) : "No match found"),
+      interactionKind: "hover",
     },
-    isSelected
-      ? moveText.flat()
-      : children.map((child: any, i: number) =>
-          renderNode(child, dispatch, selectedNodes, isSelected),
-        ),
+    h(
+      "span",
+      {
+        className: "highlight",
+        style,
+        onClick: (e: MouseEvent) => {
+          e.stopPropagation();
+          if (
+            e.ctrlKey ||
+            e.metaKey ||
+            (selectedNodes[0] === tag.id && selectedNodes.length === 1)
+          ) {
+            // Toggle selection on ctrl/cmd click or when node is only selected node
+            e.stopPropagation();
+            dispatch({
+              type: "toggle-node-selected",
+              payload: { ids: [tag.id] },
+            });
+          } else if (e.shiftKey && selectedNodes.length > 0) {
+            // Select range from last selected node to this one
+            const lastSelected = selectedNodes[selectedNodes.length - 1];
+
+            dispatch({
+              type: "select-range",
+              payload: { ids: [lastSelected, tag.id] },
+            });
+          } else {
+            dispatch({
+              type: "select-node",
+              payload: { ids: [tag.id] },
+            });
+          }
+        },
+      },
+      isSelected
+        ? moveText.flat()
+        : children.map((child: any, i: number) =>
+            renderNode(child, dispatch, selectedNodes, isSelected),
+          ),
+    )
   );
 }
 

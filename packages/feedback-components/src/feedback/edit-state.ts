@@ -17,7 +17,6 @@ interface TreeState {
   lastInternalId: number;
   isSelectingEntityType: boolean;
   viewMode: ViewMode;
-  showMatches: boolean;
 }
 
 type TextRange = {
@@ -49,8 +48,7 @@ type TreeAction =
       type: "update-entity-type";
       payload: { id: number; name: string; description: string; color: string };
     }
-  | { type: "select-range"; payload: { ids: number[] } }
-  | { type: "toggle-show-matches"; payload: boolean };
+  | { type: "select-range"; payload: { ids: number[] } };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -71,7 +69,6 @@ export function useUpdatableTree(
     lastInternalId: 0,
     isSelectingEntityType: false,
     viewMode: ViewMode.Tree,
-    showMatches: false,
   });
 }
 
@@ -106,15 +103,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
         entityTypesMap: newEntityTypesMap,
         selectedEntityType: newType,
         lastInternalId: newId,
-      };
-    }
-    case "toggle-show-matches": {
-      // Toggle the show matches state
-      const showMatches = action.payload;
-      console.log("Toggling show matches:", showMatches);
-      return {
-        ...state,
-        showMatches: showMatches ?? !state.showMatches,
       };
     }
     case "update-entity-type": {

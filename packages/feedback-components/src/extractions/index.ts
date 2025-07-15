@@ -30,6 +30,7 @@ export function buildHighlights(
       tag: entity.type?.name ?? "lith",
       id: entity.id,
       parents,
+      match: entity.match,
     });
     highlights.push(...buildHighlights(entity.children ?? [], entity));
   }
