@@ -32,6 +32,7 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
+    "@macrostrat/data-components": "workspace:^",
     "@babel/preset-react": "^7.18.6",
     "@blueprintjs/core": "^5.10.2",
     "@blueprintjs/select": "^5.3.10",
