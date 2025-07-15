@@ -37,6 +37,7 @@ import { GraphView } from "./graph";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { asChromaColor } from "@macrostrat/color-utils";
 import { ColorPicker } from "@macrostrat/data-sheet";
+import { Switch } from "@blueprintjs/core";
 
 export type { GraphData } from "./edit-state";
 export { treeToGraph } from "./edit-state";
@@ -94,6 +95,7 @@ export function FeedbackComponent({
             nodes: tree,
             selectedNodes,
             allowOverlap,
+            showMatches: state.showMatches,
           }),
         ),
         h(
@@ -151,6 +153,16 @@ export function FeedbackComponent({
             alignText: "left",
           },
           [
+            h(
+              Switch,
+              {
+                label: "Show matches",
+                checked: state.showMatches,
+                onChange(event) {
+                  dispatch({ type: "toggle-show-matches", payload: event.target.checked });
+                },
+              },
+            ),
             h(
               CancelButton,
               {

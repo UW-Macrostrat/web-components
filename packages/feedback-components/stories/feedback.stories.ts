@@ -42,6 +42,14 @@ export const NoAllowOverlap: StoryObj<{}> = {
   },
 };
 
+export const ShowMatches: StoryObj<{}> = {
+  args: {
+    data,
+    types: entityTypes,
+    allowOverlap: false,
+  },
+};
+
 export const TestData2: StoryObj<{}> = {
   args: {
     data: data2,

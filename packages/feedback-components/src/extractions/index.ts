@@ -48,7 +48,7 @@ export function enhanceData(extractionData, models, entityTypes) {
 
 export function getTagStyle(
   baseColor: string,
-  options: { highlighted?: boolean; inDarkMode?: boolean; active?: boolean },
+  options: { highlighted?: boolean; inDarkMode?: boolean; active?: boolean, showMatches?: boolean } = {},
 ): CSSProperties {
   const _baseColor = asChromaColor(baseColor ?? "#fff");
   const {
@@ -78,7 +78,6 @@ export function getTagStyle(
 
   // handle white backgrounds in light mode
   if (!inDarkMode && backgroundColor === "#ffffff") {
-    console.log("Adjusting background color for light mode:", backgroundColor);
     backgroundColor = "#f0f0f0";
   }
 

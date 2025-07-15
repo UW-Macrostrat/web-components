@@ -17,6 +17,7 @@ export interface FeedbackTextProps {
   dispatch: TreeDispatch;
   lineHeight: string;
   allowOverlap?: boolean;
+  showMatches?: boolean;
 }
 
 function buildTags(
@@ -73,7 +74,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap } = props;
+  const { text, selectedNodes, nodes, dispatch, allowOverlap, showMatches } = props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes,
