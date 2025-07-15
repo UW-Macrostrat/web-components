@@ -277,13 +277,16 @@ function renderNode(
     }
   }
 
-  const match = tag.match
+  const match = tag.match;
 
   return h(
     Popover,
     {
       autoFocus: false,
-      content: h("div.description", match ? h(Match, { data: match }) : "No match found"),
+      content: h(
+        "div.description",
+        match ? h(Match, { data: match }) : "No match found",
+      ),
       interactionKind: "hover",
     },
     h(
@@ -328,7 +331,7 @@ function renderNode(
         : children.map((child: any, i: number) =>
             renderNode(child, dispatch, selectedNodes, isSelected),
           ),
-    )
+    ),
   );
 }
 
@@ -368,9 +371,11 @@ export function HighlightedText(props: {
   );
 }
 
-function Match({data}) {
+function Match({ data }) {
   if (data.lith_id) {
-    return h(LithologyTag, { data: { name: data.name, id: data.lith_id, color: data.color } });
+    return h(LithologyTag, {
+      data: { name: data.name, id: data.lith_id, color: data.color },
+    });
   }
 
   if (data.strat_name_id) {
@@ -382,12 +387,12 @@ function Match({data}) {
       lithologies.push({ name: data.name, id: data.concept_id });
     }
 
-    return h(LithologyList, { lithologies});
+    return h(LithologyList, { lithologies });
   }
 
   if (data.lith_att_id) {
     return h(LithologyTag, { data: { name: data.name, id: data.lith_att_id } });
   }
-  
+
   return h(JSONView, { data });
 }
