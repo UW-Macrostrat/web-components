@@ -26,6 +26,7 @@ export type Highlight = {
   borderColor?: string;
   id: number;
   parents?: number[];
+  match?: Match;
 };
 
 export interface EntityExt extends Omit<Entity, "type" | "children"> {
