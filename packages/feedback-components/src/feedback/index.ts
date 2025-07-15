@@ -153,16 +153,16 @@ export function FeedbackComponent({
             alignText: "left",
           },
           [
-            h(
-              Switch,
-              {
-                label: "Show matches",
-                checked: state.showMatches,
-                onChange(event) {
-                  dispatch({ type: "toggle-show-matches", payload: event.target.checked });
-                },
+            h(Switch, {
+              label: "Show matches",
+              checked: state.showMatches,
+              onChange(event) {
+                dispatch({
+                  type: "toggle-show-matches",
+                  payload: event.target.checked,
+                });
               },
-            ),
+            }),
             h(
               CancelButton,
               {

@@ -74,7 +74,8 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap, showMatches } = props;
+  const { text, selectedNodes, nodes, dispatch, allowOverlap, showMatches } =
+    props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes,
