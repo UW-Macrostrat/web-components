@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react-vite";
 
-import { InfoDrawer }  from "../src/map-panel/components/info-drawer";
+import { InfoDrawer } from "../src/map-panel/components/info-drawer";
 import h from "@macrostrat/hyper";
 import {
   MapAreaContainer,
