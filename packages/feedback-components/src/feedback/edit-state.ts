@@ -48,7 +48,9 @@ type TreeAction =
       type: "update-entity-type";
       payload: { id: number; name: string; description: string; color: string };
     }
-  | { type: "select-range"; payload: { ids: number[] } };
+  | { type: "select-range"; payload: { ids: number[] } }
+  | { type: "add-match"; payload: { id: number; payload: any } }
+  | { type: "remove-match"; payload: { id: number } };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -246,7 +248,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
 
     case "delete-entity-type": {
       // Remove the entity type from the map
-      console.log("Deleting entity type:", action.payload.id);
       const { id } = action.payload;
       const newEntityTypesMap = new Map(state.entityTypesMap);
       const oldType = newEntityTypesMap.get(id);
@@ -260,6 +261,54 @@ function treeReducer(state: TreeState, action: TreeAction) {
         tree: newTree,
         entityTypesMap: newEntityTypesMap,
         selectedNodes: [],
+      };
+    }
+
+    case "add-match": {
+      const { id } = action.payload;
+
+      // Find the node path
+      const keyPath = findNode(state.tree, id);
+      if (!keyPath) {
+        console.warn(`Node with id ${id} not found`);
+        return state;
+      }
+
+      // Build update spec to set the `match` property
+      const matchUpdateSpec = buildNestedSpec(keyPath, {
+        match: { $set: action.payload.payload },
+      });
+
+      const updatedTree = update(state.tree, matchUpdateSpec);
+
+      return {
+        ...state,
+        tree: updatedTree,
+      };
+    }
+
+    case "remove-match": {
+      const { id } = action.payload;
+
+      console.log("Removing match for node with id:", id);
+
+      // Find the node path
+      const keyPath = findNode(state.tree, id);
+      if (!keyPath) {
+        console.warn(`Node with id ${id} not found`);
+        return state;
+      }
+
+      // Build update spec to unset the `match` property
+      const matchUpdateSpec = buildNestedSpec(keyPath, {
+        match: { $set: null },
+      });
+
+      const updatedTree = update(state.tree, matchUpdateSpec);
+
+      return {
+        ...state,
+        tree: updatedTree,
       };
     }
 
@@ -431,7 +480,7 @@ export function treeToGraph(tree: TreeData[]): GraphData {
   return { nodes, edges };
 }
 
-function findNodeById(tree, id) {
+export function findNodeById(tree, id) {
   for (const node of tree) {
     if (node.id === id) {
       return node;
