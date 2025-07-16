@@ -3,11 +3,7 @@ import hyper from "@macrostrat/hyper";
 
 import { getTagStyle } from "../extractions";
 import { useState } from "react";
-import {
-  Icon,
-  Popover,
-  Overlay2,
-} from "@blueprintjs/core";
+import { Icon, Popover, Overlay2 } from "@blueprintjs/core";
 import { SaveButton } from "@macrostrat/ui-components";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { ColorPicker } from "@macrostrat/data-sheet";

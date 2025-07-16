@@ -35,30 +35,32 @@ export function Matches({
         setMatchLinks(match === null ? matchLinks || {} : null);
       },
     }),
-    h.if(nodeMatch && match)(
-      Match,
-      {
-        data: nodeMatch?.match,
-        matchLinks: matchLinks,
-        dispatch,
-        nodeId: nodeMatch?.id,
-      }
+    h.if(nodeMatch && match)(Match, {
+      data: nodeMatch?.match,
+      matchLinks: matchLinks,
+      dispatch,
+      nodeId: nodeMatch?.id,
+    }),
+    h.if(selectedNodes.length == 1 && !nodeMatch?.match && match)(
+      "div.add-match-container",
+      [
+        h(
+          "div.add-type",
+          {
+            onClick: () => {
+              setOverlayOpen(true);
+            },
+          },
+          [h("p.add-match-text", "Add match"), h(Icon, { icon: "plus" })],
+        ),
+        h(MatchOverlay, {
+          isOpen: overlayOpen,
+          setOverlayOpen,
+          nodeMatch,
+          dispatch,
+        }),
+      ],
     ),
-    h.if(selectedNodes.length == 1 && !nodeMatch?.match && match)('div.add-match-container', [
-      h(
-        "div.add-type", 
-        {
-          onClick: () => { 
-            setOverlayOpen(true);
-          }
-        },
-        [
-          h("p.add-match-text", "Add match"),
-          h(Icon, { icon: "plus" }),
-        ]
-      ),
-      h(MatchOverlay, { isOpen: overlayOpen, setOverlayOpen, nodeMatch, dispatch }),
-    ])
   ]);
 }
 
@@ -88,9 +90,13 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
   const [disabled, setDisabled] = useState(true);
   const [payload, setPayload] = useState({});
 
-    const data = useAPIResult('https://dev.macrostrat.org/api/pg/type_lookup?name=ilike.*' + inputValue + '*')
-    const items = data?.map(data => {
-        const type = data.type || "";
+  const data = useAPIResult(
+    "https://dev.macrostrat.org/api/pg/type_lookup?name=ilike.*" +
+      inputValue +
+      "*",
+  );
+  const items = data?.map((data) => {
+    const type = data.type || "";
 
     if (type === "lith") {
       return h(

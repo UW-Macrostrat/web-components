@@ -383,9 +383,9 @@ export function HighlightedText(props: {
 }
 
 export function Match({ data, matchLinks, dispatch, nodeId }) {
-  if( !data || Object.keys(data).length === 0 ) return
+  if (!data || Object.keys(data).length === 0) return;
 
-  let tag =  h(JSONView, { data });
+  let tag = h(JSONView, { data });
 
   if (data.lith_id) {
     tag = h(DataField, {
@@ -449,12 +449,15 @@ export function Match({ data, matchLinks, dispatch, nodeId }) {
     });
   }
 
-  return h('div.match-container', 
-    [
-      tag,
-      h(Icon, { icon: "cross", color: 'red', className: "close-btn", onClick: () => {
-        dispatch({ type: "remove-match", payload: { id: nodeId} });
-      } }),
-    ]
-  );
+  return h("div.match-container", [
+    tag,
+    h(Icon, {
+      icon: "cross",
+      color: "red",
+      className: "close-btn",
+      onClick: () => {
+        dispatch({ type: "remove-match", payload: { id: nodeId } });
+      },
+    }),
+  ]);
 }
