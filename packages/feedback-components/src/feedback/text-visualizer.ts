@@ -397,7 +397,7 @@ export function HighlightedText(props: {
 }
 
 export function Match({ data, matchLinks }) {
-  if( !data || Object.keys(data).length === 0 ) return
+  if (!data || Object.keys(data).length === 0) return;
 
   if (data.lith_id) {
     return h(DataField, {

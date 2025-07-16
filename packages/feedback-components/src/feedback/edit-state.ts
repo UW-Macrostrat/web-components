@@ -49,7 +49,7 @@ type TreeAction =
       payload: { id: number; name: string; description: string; color: string };
     }
   | { type: "select-range"; payload: { ids: number[] } }
-  | { type: "add-match"; payload: { id: number; payload: any } }
+  | { type: "add-match"; payload: { id: number; payload: any } };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -285,7 +285,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
         tree: updatedTree,
       };
     }
-
 
     /** Entity type selection */
     case "toggle-entity-type-selector":
