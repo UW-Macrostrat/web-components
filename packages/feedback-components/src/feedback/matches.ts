@@ -86,8 +86,6 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
     const [disabled, setDisabled] = useState(true);
     const [payload, setPayload] = useState({});
 
-    console.log("MatchOverlay", payload);
-
     const data = useAPIResult('https://dev.macrostrat.org/api/pg/type_lookup?name=ilike.*' + inputValue + '*')
     const items = data?.map(data => {
         const type = data.type || "";
