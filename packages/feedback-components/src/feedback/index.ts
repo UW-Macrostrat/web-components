@@ -34,10 +34,11 @@ import {
 } from "@macrostrat/ui-components";
 import useElementDimensions from "use-element-dimensions";
 import { GraphView } from "./graph";
-import { useInDarkMode } from "@macrostrat/ui-components";
+import { useInDarkMode, useAPIResult } from "@macrostrat/ui-components";
 import { asChromaColor } from "@macrostrat/color-utils";
 import { ColorPicker } from "@macrostrat/data-sheet";
-import { Switch } from "@blueprintjs/core";
+
+import { Matches } from "./matches";
 
 export type { GraphData } from "./edit-state";
 export { treeToGraph } from "./edit-state";
@@ -155,13 +156,6 @@ export function FeedbackComponent({
             alignText: "left",
           },
           [
-            h.if(matchLinks)(Switch, {
-              label: "Show matches",
-              checked: match !== null,
-              onChange: (e) => {
-                setMatchLinks(match === null ? matchLinks || {} : null);
-              },
-            }),
             h(
               CancelButton,
               {
@@ -185,6 +179,7 @@ export function FeedbackComponent({
             ),
           ],
         ),
+        h(Matches, { match, setMatchLinks, matchLinks, selectedNodes, tree, dispatch }),
         h(Divider),
         h(EntityTypeSelector, {
           entityTypes: entityTypesMap,
