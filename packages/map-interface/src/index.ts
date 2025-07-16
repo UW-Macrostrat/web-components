@@ -8,4 +8,4 @@ export * from "./helpers";
 export * from "./utils";
 export * from "./location-info";
 export * from "./expansion-panel";
-// export * from "./map-panel";
+export * from "./map-panel";
