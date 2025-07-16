@@ -7,7 +7,7 @@ import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useEffect, useRef } from "react";
 import { Popover } from "@blueprintjs/core";
-import { JSONView } from "@macrostrat/ui-components";
+import { DataField, JSONView } from "@macrostrat/ui-components";
 import { LithologyList, LithologyTag } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
@@ -391,51 +391,64 @@ export function HighlightedText(props: {
 
 function Match({ data, matchLinks }) {
   if (data.lith_id) {
-    return h(LithologyTag, {
-      data: { name: data.name, id: data.lith_id, color: data.color },
-      onClick: (e, lith) => {
-        e.stopPropagation();
-        if (matchLinks.lithology) {
-          window.open(matchLinks.lithology + "/" + data.lith_id, "_blank");
+    return h(DataField, {
+      label: "Lithology",
+      value: h(LithologyTag, {
+        data: { name: data.name, id: data.lith_id, color: data.color },
+        onClick: (e) => {
+          e.stopPropagation();
+          if (matchLinks.lithology) {
+            window.open(matchLinks.lithology + "/" + data.lith_id, "_blank");
+          }
         }
-      }
+      })
     });
   }
 
   if (data.strat_name_id) {
-    let lithologies = [
-      { name: data.name + " " + data.rank, strat_id: data.strat_name_id },
-    ];
 
-    if (data.concept_id) {
-      lithologies.push({ name: data.name, concept_id: data.concept_id });
-    }
-
-    return h(LithologyList, { 
-      lithologies,
-      onClickItem: (e, strat) => {
-        e.stopPropagation();
-        if (matchLinks.strat_name && strat.strat_id) {
-          window.open(matchLinks.strat_name + "/" + strat.strat_id, "_blank");
+    return h('div', [
+      h(DataField, {
+        label: "Stratigraphic name",
+        value: h(LithologyTag, {
+          data: { name: data.name, id: data.strat_name_id, color: data.color },
+          onClick: (e) => {
+            e.stopPropagation();
+            if (matchLinks.strat_name) {
+              window.open(matchLinks.strat_name + "/" + data.strat_name_id, "_blank");
+            }
+          }
+        })
+      }), 
+      h.if(data.concept_id)(DataField, {
+          label: "Stratigraphic concept",
+          value: h(LithologyTag, {
+            data: { name: data.name, id: data.concept_id, color: data.color },
+            onClick: (e) => {
+              e.stopPropagation();
+              if (matchLinks.concept) {
+                window.open(matchLinks.concept + "/" + data.concept_id, "_blank");
+              }
+            }
+          })
         }
-
-        if (matchLinks.concept && strat.concept_id) {
-          window.open(matchLinks.concept + "/" + strat.concept_id, "_blank");
-        }
-      }
-    });
+      )
+    ])
   }
 
   if (data.lith_att_id) {
-    return h(LithologyTag, {
-      data: { name: data.name, id: data.lith_att_id },
-      onClick: (e) => {
-        e.stopPropagation();
-        if (matchLinks.lith_att) {
-          window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank");
+    return h(DataField, {
+      label: "Lithology attribute",
+      value: h(LithologyTag, {
+        data: { name: data.name, id: data.lith_att_id },
+        onClick: (e) => {
+          e.stopPropagation();
+          if (matchLinks.lith_att) {
+            window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank");
+          }
         }
-      }
-    });
+      })
+    })
   }
 
   return h(JSONView, { data });
