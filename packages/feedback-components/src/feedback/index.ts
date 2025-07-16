@@ -155,20 +155,13 @@ export function FeedbackComponent({
             alignText: "left",
           },
           [
-            h.if(matchLinks)(
-              Switch,
-              {
-                label: "Show matches",
-                checked: match !== null,
-                onChange: (e) => {
-                  setMatchLinks(
-                    match === null ? 
-                      matchLinks || {} :
-                      null,
-                  )
-                },
+            h.if(matchLinks)(Switch, {
+              label: "Show matches",
+              checked: match !== null,
+              onChange: (e) => {
+                setMatchLinks(match === null ? matchLinks || {} : null);
               },
-            ),
+            }),
             h(
               CancelButton,
               {
