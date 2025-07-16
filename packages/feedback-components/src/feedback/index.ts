@@ -61,6 +61,7 @@ export function FeedbackComponent({
   matchComponent,
   onSave,
   allowOverlap,
+  matchLinks,
 }) {
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
@@ -95,6 +96,7 @@ export function FeedbackComponent({
             nodes: tree,
             selectedNodes,
             allowOverlap,
+            matchLinks,
           }),
         ),
         h(

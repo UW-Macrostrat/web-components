@@ -20,6 +20,11 @@ export interface FeedbackTextProps {
   dispatch: TreeDispatch;
   lineHeight: string;
   allowOverlap?: boolean;
+  matchLinks?: {
+    lithology: string;
+    strat_name: string;
+    lith_att: string;
+  };
 }
 
 function buildTags(
@@ -76,7 +81,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap } = props;
+  const { text, selectedNodes, nodes, dispatch, allowOverlap, matchLinks } = props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes,
@@ -101,6 +106,7 @@ export function FeedbackText(props: FeedbackTextProps) {
       allowOverlap,
       dispatch,
       selectedNodes,
+      matchLinks
     }),
   );
 }
@@ -249,6 +255,11 @@ function renderNode(
   dispatch: TreeDispatch,
   selectedNodes: number[],
   parentSelected: boolean,
+  matchLinks?: {
+    lithology: string;
+    strat_name: string;
+    lith_att: string;
+  },
 ): any {
   if (typeof node === "string") return node;
 
@@ -279,60 +290,62 @@ function renderNode(
 
   const match = tag.match;
 
-  return h(
+  const TagComponent = h(
+    "span",
+    {
+      onMouseEnter: (e: MouseEvent) => {
+        e.stopPropagation();
+      },
+      className: "highlight",
+      style,
+      onClick: (e: MouseEvent) => {
+        e.stopPropagation();
+        if (
+          e.ctrlKey ||
+          e.metaKey ||
+          (selectedNodes[0] === tag.id && selectedNodes.length === 1)
+        ) {
+          // Toggle selection on ctrl/cmd click or when node is only selected node
+          e.stopPropagation();
+          dispatch({
+            type: "toggle-node-selected",
+            payload: { ids: [tag.id] },
+          });
+        } else if (e.shiftKey && selectedNodes.length > 0) {
+          // Select range from last selected node to this one
+          const lastSelected = selectedNodes[selectedNodes.length - 1];
+
+          dispatch({
+            type: "select-range",
+            payload: { ids: [lastSelected, tag.id] },
+          });
+        } else {
+          dispatch({
+            type: "select-node",
+            payload: { ids: [tag.id] },
+          });
+        }
+      },
+    },
+    isSelected
+      ? moveText.flat()
+      : children.map((child: any, i: number) =>
+          renderNode(child, dispatch, selectedNodes, isSelected, matchLinks),
+        ),
+  );
+
+  return matchLinks && match ? h(
     Popover,
     {
       autoFocus: false,
       content: h(
         "div.description",
-        match ? h(Match, { data: match }) : "No match found",
+        h(Match, { data: match, matchLinks }),
       ),
       interactionKind: "hover",
     },
-    h(
-      "span",
-      {
-        onMouseEnter: (e: MouseEvent) => {
-          e.stopPropagation();
-        },
-        className: "highlight",
-        style,
-        onClick: (e: MouseEvent) => {
-          e.stopPropagation();
-          if (
-            e.ctrlKey ||
-            e.metaKey ||
-            (selectedNodes[0] === tag.id && selectedNodes.length === 1)
-          ) {
-            // Toggle selection on ctrl/cmd click or when node is only selected node
-            e.stopPropagation();
-            dispatch({
-              type: "toggle-node-selected",
-              payload: { ids: [tag.id] },
-            });
-          } else if (e.shiftKey && selectedNodes.length > 0) {
-            // Select range from last selected node to this one
-            const lastSelected = selectedNodes[selectedNodes.length - 1];
-
-            dispatch({
-              type: "select-range",
-              payload: { ids: [lastSelected, tag.id] },
-            });
-          } else {
-            dispatch({
-              type: "select-node",
-              payload: { ids: [tag.id] },
-            });
-          }
-        },
-      },
-      isSelected
-        ? moveText.flat()
-        : children.map((child: any, i: number) =>
-            renderNode(child, dispatch, selectedNodes, isSelected),
-          ),
-    ),
-  );
+    TagComponent
+  ) : TagComponent;
 }
 
 export function HighlightedText(props: {
@@ -342,8 +355,13 @@ export function HighlightedText(props: {
   allowOverlap?: boolean;
   dispatch: TreeDispatch;
   selectedNodes: number[];
+  matchLinks?: {
+    lithology: string;
+    strat_name: string;
+    lith_att: string;
+  };
 }) {
-  const { text, allTags = [], dispatch, selectedNodes, allowOverlap } = props;
+  const { text, allTags = [], dispatch, selectedNodes, allowOverlap, matchLinks } = props;
 
   const tree = nestHighlights(text, allTags);
 
@@ -366,32 +384,58 @@ export function HighlightedText(props: {
     "span",
     { ref: spanRef },
     tree.children.map((child: any, i: number) =>
-      renderNode(child, dispatch, selectedNodes, false),
+      renderNode(child, dispatch, selectedNodes, false, matchLinks),
     ),
   );
 }
 
-function Match({ data }) {
+function Match({ data, matchLinks }) {
   if (data.lith_id) {
     return h(LithologyTag, {
       data: { name: data.name, id: data.lith_id, color: data.color },
+      onClick: (e, lith) => {
+        e.stopPropagation();
+        if (matchLinks.lithology) {
+          window.open(matchLinks.lithology + "/" + data.lith_id, "_blank");
+        }
+      }
     });
   }
 
   if (data.strat_name_id) {
     let lithologies = [
-      { name: data.name + " " + data.rank, id: data.strat_name_id },
+      { name: data.name + " " + data.rank, strat_id: data.strat_name_id },
     ];
 
     if (data.concept_id) {
-      lithologies.push({ name: data.name, id: data.concept_id });
+      lithologies.push({ name: data.name, concept_id: data.concept_id });
     }
 
-    return h(LithologyList, { lithologies });
+    return h(LithologyList, { 
+      lithologies,
+      onClickItem: (e, strat) => {
+        e.stopPropagation();
+        if (matchLinks.strat_name && strat.strat_id) {
+          window.open(matchLinks.strat_name + "/" + strat.strat_id, "_blank");
+        }
+
+        if (matchLinks.concept && strat.concept_id) {
+          window.open(matchLinks.concept + "/" + strat.concept_id, "_blank");
+        }
+      }
+    });
   }
 
   if (data.lith_att_id) {
-    return h(LithologyTag, { data: { name: data.name, id: data.lith_att_id } });
+    return h(LithologyTag, {
+      data: { name: data.name, id: data.lith_att_id },
+      onClick: (e) => {
+        e.stopPropagation();
+        if (matchLinks.lith_att) {
+          window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank");
+        }
+      }
+    });
   }
 
   return h(JSONView, { data });
