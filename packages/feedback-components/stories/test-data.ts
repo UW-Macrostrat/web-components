@@ -2,7 +2,7 @@ export const data = {
   entities: [
     {
       id: 433864,
-      name: "Serpnt",
+      name: "Serpent",
       type: {
         id: 1,
         name: "strat_name",

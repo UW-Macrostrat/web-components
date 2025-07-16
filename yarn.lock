@@ -2415,6 +2415,7 @@ __metadata:
     "@blueprintjs/core": "npm:^5.10.2"
     "@blueprintjs/select": "npm:^5.3.10"
     "@macrostrat/color-utils": "workspace:^"
+    "@macrostrat/data-components": "workspace:^"
     "@macrostrat/data-sheet": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/ui-components": "workspace:^"

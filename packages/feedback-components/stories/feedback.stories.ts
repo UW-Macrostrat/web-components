@@ -4,7 +4,7 @@ import { FeedbackComponent } from "../src";
 import { data, entityTypes, data2, data3, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
-function FeedbackInterface({ data, types, allowOverlap }) {
+function FeedbackInterface({ data, types, allowOverlap, matchLinks }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
   return h(FeedbackComponent, {
@@ -15,6 +15,7 @@ function FeedbackInterface({ data, types, allowOverlap }) {
     sourceTextID: source_text,
     runID: model_run,
     allowOverlap,
+    matchLinks,
   });
 }
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -31,6 +32,22 @@ export const AllowOverlap: StoryObj<{}> = {
     data,
     types: entityTypes,
     allowOverlap: true,
+  },
+};
+
+const lexURL = "https://dev.macrostrat.org/lex";
+
+export const MatchLinks: StoryObj<{}> = {
+  args: {
+    data,
+    types: entityTypes,
+    allowOverlap: true,
+    matchLinks: {
+      lithology: `${lexURL}/lithology`,
+      strat_name: `${lexURL}/strat-names`,
+      lith_att: `${lexURL}/lith-atts`,
+      concept: `${lexURL}/strat-name-concepts`,
+    },
   },
 };
 

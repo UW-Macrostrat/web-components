@@ -37,6 +37,7 @@ import { GraphView } from "./graph";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { asChromaColor } from "@macrostrat/color-utils";
 import { ColorPicker } from "@macrostrat/data-sheet";
+import { Switch } from "@blueprintjs/core";
 
 export type { GraphData } from "./edit-state";
 export { treeToGraph } from "./edit-state";
@@ -60,12 +61,14 @@ export function FeedbackComponent({
   matchComponent,
   onSave,
   allowOverlap,
+  matchLinks,
 }) {
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity) as any,
     entityTypes,
   );
+  const [match, setMatchLinks] = useState(matchLinks || {});
 
   const {
     selectedNodes,
@@ -94,6 +97,7 @@ export function FeedbackComponent({
             nodes: tree,
             selectedNodes,
             allowOverlap,
+            matchLinks: match,
           }),
         ),
         h(
@@ -151,6 +155,13 @@ export function FeedbackComponent({
             alignText: "left",
           },
           [
+            h.if(matchLinks)(Switch, {
+              label: "Show matches",
+              checked: match !== null,
+              onChange: (e) => {
+                setMatchLinks(match === null ? matchLinks || {} : null);
+              },
+            }),
             h(
               CancelButton,
               {

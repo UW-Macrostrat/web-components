@@ -6,6 +6,9 @@ import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useEffect, useRef } from "react";
+import { Popover } from "@blueprintjs/core";
+import { DataField, JSONView } from "@macrostrat/ui-components";
+import { LithologyList, LithologyTag } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
@@ -17,6 +20,11 @@ export interface FeedbackTextProps {
   dispatch: TreeDispatch;
   lineHeight: string;
   allowOverlap?: boolean;
+  matchLinks?: {
+    lithology: string;
+    strat_name: string;
+    lith_att: string;
+  };
 }
 
 function buildTags(
@@ -73,7 +81,8 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap } = props;
+  const { text, selectedNodes, nodes, dispatch, allowOverlap, matchLinks } =
+    props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes,
@@ -98,6 +107,7 @@ export function FeedbackText(props: FeedbackTextProps) {
       allowOverlap,
       dispatch,
       selectedNodes,
+      matchLinks,
     }),
   );
 }
@@ -246,6 +256,11 @@ function renderNode(
   dispatch: TreeDispatch,
   selectedNodes: number[],
   parentSelected: boolean,
+  matchLinks?: {
+    lithology: string;
+    strat_name: string;
+    lith_att: string;
+  },
 ): any {
   if (typeof node === "string") return node;
 
@@ -274,9 +289,14 @@ function renderNode(
     }
   }
 
-  return h(
+  const match = tag.match;
+
+  const TagComponent = h(
     "span",
     {
+      onMouseEnter: (e: MouseEvent) => {
+        e.stopPropagation();
+      },
       className: "highlight",
       style,
       onClick: (e: MouseEvent) => {
@@ -311,9 +331,21 @@ function renderNode(
     isSelected
       ? moveText.flat()
       : children.map((child: any, i: number) =>
-          renderNode(child, dispatch, selectedNodes, isSelected),
+          renderNode(child, dispatch, selectedNodes, isSelected, matchLinks),
         ),
   );
+
+  return matchLinks && match
+    ? h(
+        Popover,
+        {
+          autoFocus: false,
+          content: h("div.description", h(Match, { data: match, matchLinks })),
+          interactionKind: "hover",
+        },
+        TagComponent,
+      )
+    : TagComponent;
 }
 
 export function HighlightedText(props: {
@@ -323,8 +355,20 @@ export function HighlightedText(props: {
   allowOverlap?: boolean;
   dispatch: TreeDispatch;
   selectedNodes: number[];
+  matchLinks?: {
+    lithology: string;
+    strat_name: string;
+    lith_att: string;
+  };
 }) {
-  const { text, allTags = [], dispatch, selectedNodes, allowOverlap } = props;
+  const {
+    text,
+    allTags = [],
+    dispatch,
+    selectedNodes,
+    allowOverlap,
+    matchLinks,
+  } = props;
 
   const tree = nestHighlights(text, allTags);
 
@@ -347,7 +391,73 @@ export function HighlightedText(props: {
     "span",
     { ref: spanRef },
     tree.children.map((child: any, i: number) =>
-      renderNode(child, dispatch, selectedNodes, false),
+      renderNode(child, dispatch, selectedNodes, false, matchLinks),
     ),
   );
+}
+
+function Match({ data, matchLinks }) {
+  if (data.lith_id) {
+    return h(DataField, {
+      label: "Lithology",
+      value: h(LithologyTag, {
+        data: { name: data.name, id: data.lith_id, color: data.color },
+        onClick: (e) => {
+          e.stopPropagation();
+          if (matchLinks.lithology) {
+            window.open(matchLinks.lithology + "/" + data.lith_id, "_blank");
+          }
+        },
+      }),
+    });
+  }
+
+  if (data.strat_name_id) {
+    return h("div", [
+      h(DataField, {
+        label: "Stratigraphic name",
+        value: h(LithologyTag, {
+          data: { name: data.name, id: data.strat_name_id, color: data.color },
+          onClick: (e) => {
+            e.stopPropagation();
+            if (matchLinks.strat_name) {
+              window.open(
+                matchLinks.strat_name + "/" + data.strat_name_id,
+                "_blank",
+              );
+            }
+          },
+        }),
+      }),
+      h.if(data.concept_id)(DataField, {
+        label: "Stratigraphic concept",
+        value: h(LithologyTag, {
+          data: { name: data.name, id: data.concept_id, color: data.color },
+          onClick: (e) => {
+            e.stopPropagation();
+            if (matchLinks.concept) {
+              window.open(matchLinks.concept + "/" + data.concept_id, "_blank");
+            }
+          },
+        }),
+      }),
+    ]);
+  }
+
+  if (data.lith_att_id) {
+    return h(DataField, {
+      label: "Lithology attribute",
+      value: h(LithologyTag, {
+        data: { name: data.name, id: data.lith_att_id },
+        onClick: (e) => {
+          e.stopPropagation();
+          if (matchLinks.lith_att) {
+            window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank");
+          }
+        },
+      }),
+    });
+  }
+
+  return h(JSONView, { data });
 }
