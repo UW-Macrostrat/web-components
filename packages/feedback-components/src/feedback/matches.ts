@@ -3,7 +3,7 @@ import { Match } from "./text-visualizer";
 import { Select } from "@blueprintjs/select";
 import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import {
   Icon,
   Divider,
@@ -11,7 +11,7 @@ import {
 } from "@blueprintjs/core";
 import { JSONView, SaveButton } from "@macrostrat/ui-components";
 import { useAPIResult, DataField } from "@macrostrat/ui-components";
-import { LithologyList, LithologyTag } from "@macrostrat/data-components";
+import { LithologyTag } from "@macrostrat/data-components";
 
 
 const h = hyper.styled(styles)
@@ -42,7 +42,7 @@ export function Matches({ match, setMatchLinks, matchLinks, selectedNodes, tree,
     ),
     h.if(selectedNodes.length == 1 && !nodeMatch?.match)('div.add-match-container', [
       h(
-        "div.add-match", 
+        "div.add-type", 
         {
           onClick: () => { 
             setOverlayOpen(true);
