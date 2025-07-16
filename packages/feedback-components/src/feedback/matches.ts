@@ -38,9 +38,11 @@ export function Matches({ match, setMatchLinks, matchLinks, selectedNodes, tree,
       {
         data: nodeMatch?.match,
         matchLinks: matchLinks,
+        dispatch,
+        nodeId: nodeMatch?.id,
       }
     ),
-    h.if(selectedNodes.length == 1 && !nodeMatch?.match)('div.add-match-container', [
+    h.if(selectedNodes.length == 1 && !nodeMatch?.match && match)('div.add-match-container', [
       h(
         "div.add-type", 
         {

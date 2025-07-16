@@ -50,6 +50,7 @@ type TreeAction =
     }
   | { type: "select-range"; payload: { ids: number[] } }
   | { type: "add-match"; payload: { id: number; payload: any } }
+  | { type: "remove-match"; payload: { id: number } };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -286,6 +287,30 @@ function treeReducer(state: TreeState, action: TreeAction) {
       };
     }
 
+    case "remove-match": {
+      const { id } = action.payload;
+
+      console.log("Removing match for node with id:", id);
+
+      // Find the node path
+      const keyPath = findNode(state.tree, id);
+      if (!keyPath) {
+        console.warn(`Node with id ${id} not found`);
+        return state;
+      }
+
+      // Build update spec to unset the `match` property
+      const matchUpdateSpec = buildNestedSpec(keyPath, {
+        match: { $set: null },
+      });
+
+      const updatedTree = update(state.tree, matchUpdateSpec);
+
+      return {
+        ...state,
+        tree: updatedTree,
+      };
+    }
 
     /** Entity type selection */
     case "toggle-entity-type-selector":

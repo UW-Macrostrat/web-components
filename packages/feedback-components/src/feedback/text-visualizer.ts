@@ -6,7 +6,7 @@ import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useEffect, useRef } from "react";
-import { Popover } from "@blueprintjs/core";
+import { Icon } from "@blueprintjs/core";
 import { DataField, JSONView } from "@macrostrat/ui-components";
 import { LithologyList, LithologyTag } from "@macrostrat/data-components";
 
@@ -289,9 +289,7 @@ function renderNode(
     }
   }
 
-  const match = tag.match;
-
-  const TagComponent = h(
+  return h(
     "span",
     {
       onMouseEnter: (e: MouseEvent) => {
@@ -334,18 +332,6 @@ function renderNode(
           renderNode(child, dispatch, selectedNodes, isSelected, matchLinks),
         ),
   );
-
-  return matchLinks && match
-    ? h(
-        Popover,
-        {
-          autoFocus: false,
-          content: h("div.description", h(Match, { data: match, matchLinks })),
-          interactionKind: "hover",
-        },
-        TagComponent,
-      )
-    : TagComponent;
 }
 
 export function HighlightedText(props: {
@@ -396,11 +382,13 @@ export function HighlightedText(props: {
   );
 }
 
-export function Match({ data, matchLinks }) {
+export function Match({ data, matchLinks, dispatch, nodeId }) {
   if( !data || Object.keys(data).length === 0 ) return
 
+  let tag =  h(JSONView, { data });
+
   if (data.lith_id) {
-    return h(DataField, {
+    tag = h(DataField, {
       label: "Lithology",
       value: h(LithologyTag, {
         data: { name: data.name, id: data.lith_id, color: data.color },
@@ -415,7 +403,7 @@ export function Match({ data, matchLinks }) {
   }
 
   if (data.strat_name_id) {
-    return h("div", [
+    tag = h("div", [
       h(DataField, {
         label: "Stratigraphic name",
         value: h(LithologyTag, {
@@ -447,7 +435,7 @@ export function Match({ data, matchLinks }) {
   }
 
   if (data.lith_att_id) {
-    return h(DataField, {
+    tag = h(DataField, {
       label: "Lithology attribute",
       value: h(LithologyTag, {
         data: { name: data.name, id: data.lith_att_id },
@@ -461,5 +449,12 @@ export function Match({ data, matchLinks }) {
     });
   }
 
-  return h(JSONView, { data });
+  return h('div.match-container', 
+    [
+      tag,
+      h(Icon, { icon: "cross", color: 'red', className: "close-btn", onClick: () => {
+        dispatch({ type: "remove-match", payload: { id: nodeId} });
+      } }),
+    ]
+  );
 }
