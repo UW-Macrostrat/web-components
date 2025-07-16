@@ -172,7 +172,14 @@ export function FeedbackComponent({
             ),
           ],
         ),
-        h(Matches, { match, setMatchLinks, matchLinks, selectedNodes, tree, dispatch }),
+        h(Matches, {
+          match,
+          setMatchLinks,
+          matchLinks,
+          selectedNodes,
+          tree,
+          dispatch,
+        }),
         h(Divider),
         h(EntityTypeSelector, {
           entityTypes: entityTypesMap,
