@@ -68,6 +68,7 @@ export function FeedbackComponent({
     entities.map(processEntity) as any,
     entityTypes,
   );
+  const [match, setMatchLinks] = useState(matchLinks || {});
 
   const {
     selectedNodes,
@@ -96,7 +97,7 @@ export function FeedbackComponent({
             nodes: tree,
             selectedNodes,
             allowOverlap,
-            matchLinks,
+            matchLinks: match,
           }),
         ),
         h(
@@ -154,6 +155,20 @@ export function FeedbackComponent({
             alignText: "left",
           },
           [
+            h.if(matchLinks)(
+              Switch,
+              {
+                label: "Show matches",
+                checked: match !== null,
+                onChange: (e) => {
+                  setMatchLinks(
+                    match === null ? 
+                      matchLinks || {} :
+                      null,
+                  )
+                },
+              },
+            ),
             h(
               CancelButton,
               {
