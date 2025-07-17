@@ -13,7 +13,7 @@ const gddDomain = `https://xdd.wisc.edu`;
 
 const h = hyper.styled(styles);
 
-function InfoDrawer(props) {
+export function InfoDrawer(props) {
   const {
     className,
     position,
@@ -90,8 +90,6 @@ function InfoDrawerMainPanel({ mapInfo, columnInfo, xddInfo }) {
     h(Physiography, { mapInfo }),
   ]);
 }
-
-export default InfoDrawer;
 
 function fetchMapInfo(lng, lat, z) {
   return useAPIResult(`${apiV2Prefix}/mobile/map_query_v2`, {
