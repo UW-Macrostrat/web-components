@@ -192,7 +192,7 @@ export function FeedbackComponent({
             ),
           ],
         ),
-        h(Matches, {
+        h.if(!viewOnly)(Matches, {
           match,
           setMatchLinks,
           matchLinks,
