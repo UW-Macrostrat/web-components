@@ -192,7 +192,7 @@ function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         },
         h(DataField, {
           className: "match-item",
-          label: "Lithology",
+          label: h("p.match-label", "Lithology"),
           value: h(LithologyTag, {
             data: { name: data.name, id: data.lith_id, color: data.color },
             onClick: () => window.open(matchLinks.lithology + "/" + data.lith_id, "_blank")
