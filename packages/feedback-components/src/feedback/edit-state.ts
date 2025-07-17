@@ -92,12 +92,11 @@ export function useTreeDispatch() {
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
-  if(action.type === "toggle-match-mode") {
+  if (action.type === "toggle-match-mode") {
     return { ...state, matchMode: !state.matchMode };
   }
 
-
-  if(state.viewOnly) return viewMode(state, action);
+  if (state.viewOnly) return viewMode(state, action);
 
   if (state.matchMode) return matchMode(state, action);
 
@@ -499,10 +498,10 @@ function matchMode(state, action) {
   if (action.type === "select-node" || action.type === "toggle-node-selected") {
     const { ids } = action.payload;
 
-    if(ids.length != 1) return state;
+    if (ids.length != 1) return state;
 
-    if(state.selectedNodes.length === 1) {
-      if(ids[0] === state.selectedNodes[0]) {
+    if (state.selectedNodes.length === 1) {
+      if (ids[0] === state.selectedNodes[0]) {
         // If the selected node is the same as the current selection, deselect it
         return { ...state, selectedNodes: [] };
       }
@@ -515,8 +514,8 @@ function matchMode(state, action) {
 
     return { ...state, selectedNodes: ids, selectedEntityType: type };
   }
-  
-  if(action.type === "add-match") {
+
+  if (action.type === "add-match") {
     const { id } = action.payload;
 
     // Find the node path
@@ -539,7 +538,7 @@ function matchMode(state, action) {
     };
   }
 
-  if(action.type === "remove-match") {
+  if (action.type === "remove-match") {
     const { id } = action.payload;
 
     console.log("Removing match for node with id:", id);
@@ -564,11 +563,11 @@ function matchMode(state, action) {
     };
   }
 
-  return state
+  return state;
 }
 
 function viewMode(state, action) {
-  if(action.type === "set-view-mode") {
+  if (action.type === "set-view-mode") {
     return { ...state, viewMode: action.payload };
   }
 

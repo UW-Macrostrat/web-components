@@ -282,7 +282,13 @@ function renderNode(
   const style = {
     ...tag,
     zIndex: parentSelected ? -1 : 1,
-    border: "1px solid " + (match != undefined && matchLinks ? "orange" : (showBorder ? tag.color : "transparent")),
+    border:
+      "1px solid " +
+      (match != undefined && matchLinks
+        ? "orange"
+        : showBorder
+          ? tag.color
+          : "transparent"),
     margin: "-1px",
   };
 

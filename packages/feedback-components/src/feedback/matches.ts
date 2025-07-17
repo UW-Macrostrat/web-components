@@ -189,7 +189,7 @@ function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
           data.type === "lith"
             ? setPayload({ lith_id: data.id, name: data.name })
             : null;
-        } 
+        },
       },
       h(DataField, {
         className: "match-item",
