@@ -499,6 +499,15 @@ function matchMode(state, action) {
   if (action.type === "select-node" || action.type === "toggle-node-selected") {
     const { ids } = action.payload;
 
+    if(ids.length != 1) return state;
+
+    if(state.selectedNodes.length === 1) {
+      if(ids[0] === state.selectedNodes[0]) {
+        // If the selected node is the same as the current selection, deselect it
+        return { ...state, selectedNodes: [] };
+      }
+    }
+
     const type =
       action.payload.ids.length > 0
         ? findNodeById(state.tree, ids[0])?.type

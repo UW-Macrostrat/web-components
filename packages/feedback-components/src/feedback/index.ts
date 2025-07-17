@@ -219,6 +219,7 @@ export function FeedbackComponent({
               payload: isOpen,
             }),
           viewOnly,
+          matchMode,
         }),
       ]),
     ]),
@@ -245,7 +246,8 @@ function EntityTypeSelector({
   tree,
   dispatch,
   selectedNodes = [],
-  viewOnly
+  viewOnly,
+  matchMode,
 }) {
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;
@@ -266,7 +268,7 @@ function EntityTypeSelector({
       dispatch,
       selectedNodes,
       tree,
-      viewOnly,
+      viewOnly: viewOnly || matchMode,
     }),
     h(OmniboxSelector, {
       isOpen,
