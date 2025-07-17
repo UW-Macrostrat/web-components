@@ -97,28 +97,9 @@ function treeReducer(state: TreeState, action: TreeAction) {
   }
 
 
-  if(state.viewOnly) { 
-    if(action.type === "set-view-mode") {
-      return { ...state, viewMode: action.payload };
-    }
+  if(state.viewOnly) return viewMode(state, action);
 
-    return state;
-  }
-
-  if (state.matchMode) {
-    if (action.type === "select-node" || action.type === "toggle-node-selected") {
-      const { ids } = action.payload;
-
-      const type =
-        action.payload.ids.length > 0
-          ? findNodeById(state.tree, ids[0])?.type
-          : null;
-
-      return { ...state, selectedNodes: ids, selectedEntityType: type };
-    }
-
-    return state
-  }
+  if (state.matchMode) return matchMode(state, action);
 
   switch (action.type) {
     case "add-entity-type": {
@@ -296,54 +277,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
         tree: newTree,
         entityTypesMap: newEntityTypesMap,
         selectedNodes: [],
-      };
-    }
-
-    case "add-match": {
-      const { id } = action.payload;
-
-      // Find the node path
-      const keyPath = findNode(state.tree, id);
-      if (!keyPath) {
-        console.warn(`Node with id ${id} not found`);
-        return state;
-      }
-
-      // Build update spec to set the `match` property
-      const matchUpdateSpec = buildNestedSpec(keyPath, {
-        match: { $set: action.payload.payload },
-      });
-
-      const updatedTree = update(state.tree, matchUpdateSpec);
-
-      return {
-        ...state,
-        tree: updatedTree,
-      };
-    }
-
-    case "remove-match": {
-      const { id } = action.payload;
-
-      console.log("Removing match for node with id:", id);
-
-      // Find the node path
-      const keyPath = findNode(state.tree, id);
-      if (!keyPath) {
-        console.warn(`Node with id ${id} not found`);
-        return state;
-      }
-
-      // Build update spec to unset the `match` property
-      const matchUpdateSpec = buildNestedSpec(keyPath, {
-        match: { $set: null },
-      });
-
-      const updatedTree = update(state.tree, matchUpdateSpec);
-
-      return {
-        ...state,
-        tree: updatedTree,
       };
     }
 
@@ -560,4 +493,75 @@ function flattenAndSort(nodes) {
 
   // sort by start
   return result.sort((a, b) => a.indices[0] - b.indices[0]);
+}
+
+function matchMode(state, action) {
+  if (action.type === "select-node" || action.type === "toggle-node-selected") {
+    const { ids } = action.payload;
+
+    const type =
+      action.payload.ids.length > 0
+        ? findNodeById(state.tree, ids[0])?.type
+        : null;
+
+    return { ...state, selectedNodes: ids, selectedEntityType: type };
+  }
+  
+  if(action.type === "add-match") {
+    const { id } = action.payload;
+
+    // Find the node path
+    const keyPath = findNode(state.tree, id);
+    if (!keyPath) {
+      console.warn(`Node with id ${id} not found`);
+      return state;
+    }
+
+    // Build update spec to set the `match` property
+    const matchUpdateSpec = buildNestedSpec(keyPath, {
+      match: { $set: action.payload.payload },
+    });
+
+    const updatedTree = update(state.tree, matchUpdateSpec);
+
+    return {
+      ...state,
+      tree: updatedTree,
+    };
+  }
+
+  if(action.type === "remove-match") {
+    const { id } = action.payload;
+
+    console.log("Removing match for node with id:", id);
+
+    // Find the node path
+    const keyPath = findNode(state.tree, id);
+    if (!keyPath) {
+      console.warn(`Node with id ${id} not found`);
+      return state;
+    }
+
+    // Build update spec to unset the `match` property
+    const matchUpdateSpec = buildNestedSpec(keyPath, {
+      match: { $set: null },
+    });
+
+    const updatedTree = update(state.tree, matchUpdateSpec);
+
+    return {
+      ...state,
+      tree: updatedTree,
+    };
+  }
+
+  return state
+}
+
+function viewMode(state, action) {
+  if(action.type === "set-view-mode") {
+    return { ...state, viewMode: action.payload };
+  }
+
+  return state;
 }
