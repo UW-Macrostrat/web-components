@@ -78,7 +78,6 @@ export function FeedbackComponent({
   } = state;
 
   const [{ width, height }, ref] = useElementDimensions();
-  
 
   return h("div.page-wrapper", [
     h(
@@ -94,7 +93,7 @@ export function FeedbackComponent({
           onValueChange() {
             setViewOnly(!viewOnly);
           },
-          role: 'toolbar',
+          role: "toolbar",
         }),
         h(
           ErrorBoundary,
@@ -243,7 +242,7 @@ function EntityTypeSelector({
   tree,
   dispatch,
   selectedNodes = [],
-  viewOnly
+  viewOnly,
 }) {
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;

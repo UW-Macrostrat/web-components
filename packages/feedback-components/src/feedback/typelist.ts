@@ -10,7 +10,14 @@ import { ColorPicker } from "@macrostrat/data-sheet";
 
 const h = hyper.styled(styles);
 
-export function TypeList({ types, selected, dispatch, selectedNodes, tree, viewOnly }) {
+export function TypeList({
+  types,
+  selected,
+  dispatch,
+  selectedNodes,
+  tree,
+  viewOnly,
+}) {
   const [selectedType, setSelectedType] = useState(null);
   const isSelectedNodes = selectedNodes.length > 0;
   const darkMode = useInDarkMode();
@@ -207,7 +214,7 @@ function TypeTag({
   selectedNodes,
   selected,
   isSelectedNodes,
-  viewOnly
+  viewOnly,
 }) {
   const { color, name, id, description } = type;
   const darkMode = useInDarkMode();

@@ -135,7 +135,9 @@ export function GraphView(props: {
                     });
                   }
                 },
-                className: active ? "selected" : "" + (viewOnly ? "" : " clickable"),
+                className: active
+                  ? "selected"
+                  : "" + (viewOnly ? "" : " clickable"),
                 stroke,
                 strokeWidth: 2,
               }),

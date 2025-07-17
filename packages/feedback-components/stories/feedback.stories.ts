@@ -66,7 +66,7 @@ export const ViewOnly: StoryObj<{}> = {
     data,
     types: entityTypes,
     allowOverlap: false,
-    view: true, 
+    view: true,
   },
 };
 

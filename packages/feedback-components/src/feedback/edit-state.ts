@@ -17,7 +17,7 @@ interface TreeState {
   lastInternalId: number;
   isSelectingEntityType: boolean;
   viewMode: ViewMode;
-  viewOnly: boolean;  
+  viewOnly: boolean;
 }
 
 type TextRange = {
@@ -88,8 +88,8 @@ export function useTreeDispatch() {
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
-  if(state.viewOnly) { 
-    if(action.type === "set-view-mode") {
+  if (state.viewOnly) {
+    if (action.type === "set-view-mode") {
       return { ...state, viewMode: action.payload };
     }
 
