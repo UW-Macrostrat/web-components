@@ -82,8 +82,15 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap, matchLinks, viewOnly } =
-    props;
+  const {
+    text,
+    selectedNodes,
+    nodes,
+    dispatch,
+    allowOverlap,
+    matchLinks,
+    viewOnly,
+  } = props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes,
@@ -263,7 +270,7 @@ function renderNode(
     strat_name: string;
     lith_att: string;
   },
-  viewOnly?: boolean
+  viewOnly?: boolean,
 ): any {
   if (typeof node === "string") return node;
 
@@ -333,7 +340,14 @@ function renderNode(
     isSelected
       ? moveText.flat()
       : children.map((child: any, i: number) =>
-          renderNode(child, dispatch, selectedNodes, isSelected, matchLinks, viewOnly),
+          renderNode(
+            child,
+            dispatch,
+            selectedNodes,
+            isSelected,
+            matchLinks,
+            viewOnly,
+          ),
         ),
   );
 }
