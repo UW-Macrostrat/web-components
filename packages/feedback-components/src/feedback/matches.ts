@@ -28,10 +28,11 @@ export function Matches({
   return h.if(matchLinks)("div", [
     h(Divider),
     h(Switch, {
-      label: "Show matches",
+      label: "Match mode",
       checked: match !== null,
       onChange: (e) => {
         setMatchLinks(match === null ? matchLinks || {} : null);
+        dispatch({ type: "toggle-match-mode" });
       },
     }),
     h.if(nodeMatch && match)(Match, {

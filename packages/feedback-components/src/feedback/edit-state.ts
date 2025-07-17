@@ -17,7 +17,8 @@ interface TreeState {
   lastInternalId: number;
   isSelectingEntityType: boolean;
   viewMode: ViewMode;
-  viewOnly: boolean;  
+  viewOnly: boolean;
+  matchMode: boolean;
 }
 
 type TextRange = {
@@ -51,7 +52,8 @@ type TreeAction =
     }
   | { type: "select-range"; payload: { ids: number[] } }
   | { type: "add-match"; payload: { id: number; payload: any } }
-  | { type: "remove-match"; payload: { id: number } };
+  | { type: "remove-match"; payload: { id: number } }
+  | { type: "toggle-match-mode" };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -59,6 +61,7 @@ export function useUpdatableTree(
   initialTree: TreeData[],
   entityTypes: Map<number, EntityType>,
   viewOnly: boolean,
+  matchMode: boolean,
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
   // issue: grabs second entity instead of selected one
@@ -74,6 +77,7 @@ export function useUpdatableTree(
     isSelectingEntityType: false,
     viewMode: ViewMode.Tree,
     viewOnly,
+    matchMode,
   });
 }
 
@@ -88,12 +92,32 @@ export function useTreeDispatch() {
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
+  if(action.type === "toggle-match-mode") {
+    return { ...state, matchMode: !state.matchMode };
+  }
+
+
   if(state.viewOnly) { 
     if(action.type === "set-view-mode") {
       return { ...state, viewMode: action.payload };
     }
 
     return state;
+  }
+
+  if (state.matchMode) {
+    if (action.type === "select-node" || action.type === "toggle-node-selected") {
+      const { ids } = action.payload;
+
+      const type =
+        action.payload.ids.length > 0
+          ? findNodeById(state.tree, ids[0])?.type
+          : null;
+
+      return { ...state, selectedNodes: ids, selectedEntityType: type };
+    }
+
+    return state
   }
 
   switch (action.type) {

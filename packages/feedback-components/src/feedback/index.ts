@@ -60,14 +60,16 @@ export function FeedbackComponent({
 }) {
   console.log("View mode:", view);
   const [viewOnly, setViewOnly] = useState(view);
+  const [match, setMatchLinks] = useState(matchLinks);
+  const matchMode = match !== null;
 
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity) as any,
     entityTypes,
     viewOnly,
+    matchMode,
   );
-  const [match, setMatchLinks] = useState(matchLinks || {});
 
   const {
     selectedNodes,

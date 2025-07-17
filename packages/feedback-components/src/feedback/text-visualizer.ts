@@ -270,11 +270,12 @@ function renderNode(
   const { tag, children } = node;
   const isSelected = selectedNodes?.includes(tag.id);
   const showBorder = selectedNodes.length === 0 || isSelected;
+  const match = tag.match;
 
   const style = {
     ...tag,
     zIndex: parentSelected ? -1 : 1,
-    border: "1px solid " + (showBorder ? tag.color : "transparent"),
+    border: "1px solid " + (match != undefined && matchLinks ? "orange" : (showBorder ? tag.color : "transparent")),
     margin: "-1px",
   };
 
