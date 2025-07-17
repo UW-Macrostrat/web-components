@@ -47,6 +47,7 @@ export const MatchLinks: StoryObj<{}> = {
       strat_name: `${lexURL}/strat-names`,
       lith_att: `${lexURL}/lith-atts`,
       concept: `${lexURL}/strat-name-concepts`,
+      interval: `${lexURL}/intervals`,
     },
   },
 };
