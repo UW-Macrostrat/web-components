@@ -4,7 +4,7 @@ import { FeedbackComponent } from "../src";
 import { data, entityTypes, data2, data3, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
-function FeedbackInterface({ data, types, allowOverlap, matchLinks }) {
+function FeedbackInterface({ data, types, allowOverlap, matchLinks, view }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
   return h(FeedbackComponent, {
@@ -15,6 +15,7 @@ function FeedbackInterface({ data, types, allowOverlap, matchLinks }) {
     sourceTextID: source_text,
     runID: model_run,
     allowOverlap,
+    view,
     matchLinks,
   });
 }
@@ -57,6 +58,15 @@ export const NoAllowOverlap: StoryObj<{}> = {
     data,
     types: entityTypes,
     allowOverlap: false,
+  },
+};
+
+export const ViewOnly: StoryObj<{}> = {
+  args: {
+    data,
+    types: entityTypes,
+    allowOverlap: false,
+    view: true, 
   },
 };
 

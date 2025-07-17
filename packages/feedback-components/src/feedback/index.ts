@@ -56,11 +56,16 @@ export function FeedbackComponent({
   onSave,
   allowOverlap,
   matchLinks,
+  view = false,
 }) {
+  console.log("View mode:", view);
+  const [viewOnly, setViewOnly] = useState(view);
+
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity) as any,
     entityTypes,
+    viewOnly,
   );
   const [match, setMatchLinks] = useState(matchLinks || {});
 
@@ -73,11 +78,24 @@ export function FeedbackComponent({
   } = state;
 
   const [{ width, height }, ref] = useElementDimensions();
+  
 
   return h("div.page-wrapper", [
     h(
       "div.feedback-container",
       h(TreeDispatchContext.Provider, { value: dispatch }, [
+        h.if(!view)(SegmentedControl, {
+          options: [
+            { label: "View", value: "view" },
+            { label: "Edit", value: "edit" },
+          ],
+          value: viewOnly ? "view" : "edit",
+          small: true,
+          onValueChange() {
+            setViewOnly(!viewOnly);
+          },
+          role: 'toolbar',
+        }),
         h(
           ErrorBoundary,
           {
@@ -92,6 +110,7 @@ export function FeedbackComponent({
             selectedNodes,
             allowOverlap,
             matchLinks: match,
+            viewOnly,
           }),
         ),
         h(
@@ -133,6 +152,7 @@ export function FeedbackComponent({
               height,
               dispatch,
               selectedNodes,
+              viewOnly,
             }),
           ],
         ),
@@ -140,7 +160,7 @@ export function FeedbackComponent({
     ),
     h(Card, { className: "control-panel" }, [
       h("div.control-content", [
-        h(
+        h.if(!viewOnly)(
           ButtonGroup,
           {
             vertical: true,
@@ -180,7 +200,7 @@ export function FeedbackComponent({
           tree,
           dispatch,
         }),
-        h(Divider),
+        h.if(!viewOnly)(Divider),
         h(EntityTypeSelector, {
           entityTypes: entityTypesMap,
           selected: selectedEntityType,
@@ -196,6 +216,7 @@ export function FeedbackComponent({
               type: "toggle-entity-type-selector",
               payload: isOpen,
             }),
+          viewOnly,
         }),
       ]),
     ]),
@@ -222,6 +243,7 @@ function EntityTypeSelector({
   tree,
   dispatch,
   selectedNodes = [],
+  viewOnly
 }) {
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;
@@ -242,6 +264,7 @@ function EntityTypeSelector({
       dispatch,
       selectedNodes,
       tree,
+      viewOnly,
     }),
     h(OmniboxSelector, {
       isOpen,

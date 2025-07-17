@@ -25,6 +25,7 @@ export interface FeedbackTextProps {
     strat_name: string;
     lith_att: string;
   };
+  viewOnly?: boolean;
 }
 
 function buildTags(
@@ -81,7 +82,7 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap, matchLinks } =
+  const { text, selectedNodes, nodes, dispatch, allowOverlap, matchLinks, viewOnly } =
     props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
@@ -107,6 +108,7 @@ export function FeedbackText(props: FeedbackTextProps) {
       allowOverlap,
       dispatch,
       selectedNodes,
+      viewOnly,
       matchLinks,
     }),
   );
@@ -261,6 +263,7 @@ function renderNode(
     strat_name: string;
     lith_att: string;
   },
+  viewOnly?: boolean
 ): any {
   if (typeof node === "string") return node;
 
@@ -295,7 +298,7 @@ function renderNode(
       onMouseEnter: (e: MouseEvent) => {
         e.stopPropagation();
       },
-      className: "highlight",
+      className: "highlight" + (!viewOnly ? " clickable" : ""),
       style,
       onClick: (e: MouseEvent) => {
         e.stopPropagation();
@@ -329,7 +332,7 @@ function renderNode(
     isSelected
       ? moveText.flat()
       : children.map((child: any, i: number) =>
-          renderNode(child, dispatch, selectedNodes, isSelected, matchLinks),
+          renderNode(child, dispatch, selectedNodes, isSelected, matchLinks, viewOnly),
         ),
   );
 }
@@ -346,6 +349,7 @@ export function HighlightedText(props: {
     strat_name: string;
     lith_att: string;
   };
+  viewOnly?: boolean;
 }) {
   const {
     text,
@@ -354,6 +358,7 @@ export function HighlightedText(props: {
     selectedNodes,
     allowOverlap,
     matchLinks,
+    viewOnly,
   } = props;
 
   const tree = nestHighlights(text, allTags);
@@ -377,7 +382,7 @@ export function HighlightedText(props: {
     "span",
     { ref: spanRef },
     tree.children.map((child: any, i: number) =>
-      renderNode(child, dispatch, selectedNodes, false, matchLinks),
+      renderNode(child, dispatch, selectedNodes, false, matchLinks, viewOnly),
     ),
   );
 }

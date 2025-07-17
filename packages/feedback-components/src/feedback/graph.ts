@@ -24,10 +24,11 @@ export function GraphView(props: {
   height: number;
   dispatch: (action: any) => void;
   selectedNodes: number[];
+  viewOnly?: boolean;
 }) {
   // A graph view with react-flow
   // Get positions of nodes using force simulation
-  const { tree, width, height, dispatch, selectedNodes } = props;
+  const { tree, width, height, dispatch, selectedNodes, viewOnly } = props;
 
   const [nodes, setNodes] = useState<SimulationNodeDatum[]>(null);
   const [links, setLinks] = useState<SimulationLinkDatum[]>(null);
@@ -134,7 +135,7 @@ export function GraphView(props: {
                     });
                   }
                 },
-                className: active ? "selected" : "",
+                className: active ? "selected" : "" + (viewOnly ? "" : " clickable"),
                 stroke,
                 strokeWidth: 2,
               }),

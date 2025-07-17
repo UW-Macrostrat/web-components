@@ -17,6 +17,7 @@ interface TreeState {
   lastInternalId: number;
   isSelectingEntityType: boolean;
   viewMode: ViewMode;
+  viewOnly: boolean;  
 }
 
 type TextRange = {
@@ -57,6 +58,7 @@ export type TreeDispatch = Dispatch<TreeAction>;
 export function useUpdatableTree(
   initialTree: TreeData[],
   entityTypes: Map<number, EntityType>,
+  viewOnly: boolean,
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
   // issue: grabs second entity instead of selected one
@@ -71,6 +73,7 @@ export function useUpdatableTree(
     lastInternalId: 0,
     isSelectingEntityType: false,
     viewMode: ViewMode.Tree,
+    viewOnly,
   });
 }
 
@@ -85,6 +88,14 @@ export function useTreeDispatch() {
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
+  if(state.viewOnly) { 
+    if(action.type === "set-view-mode") {
+      return { ...state, viewMode: action.payload };
+    }
+
+    return state;
+  }
+
   switch (action.type) {
     case "add-entity-type": {
       // Add a new entity type to the map
