@@ -189,14 +189,18 @@ function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
           data.type === "lith"
             ? setPayload({ lith_id: data.id, name: data.name })
             : null;
-        },
-        h(DataField, {
-          className: "match-item",
-          label: h("p.match-label", "Lithology"),
-          value: h(LithologyTag, {
-            data: { name: data.name, id: data.lith_id, color: data.color },
-            onClick: () => window.open(matchLinks.lithology + "/" + data.lith_id, "_blank")
-          }),
+        } 
+      },
+      h(DataField, {
+        className: "match-item",
+        label: "Stratigraphic name",
+        value: h(LithologyTag, {
+          data: { name: data.name, id: data.id, color: data.color },
+          onClick: () =>
+            window.open(
+              matchLinks.strat_name + "/" + data.strat_name_id,
+              "_blank",
+            ),
         }),
       }),
     );

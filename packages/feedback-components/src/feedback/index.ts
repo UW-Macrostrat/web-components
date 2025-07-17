@@ -58,7 +58,6 @@ export function FeedbackComponent({
   matchLinks,
   view = false,
 }) {
-  console.log("View mode:", view);
   const [viewOnly, setViewOnly] = useState(view);
   const [match, setMatchLinks] = useState(matchLinks);
   const matchMode = match !== null;
