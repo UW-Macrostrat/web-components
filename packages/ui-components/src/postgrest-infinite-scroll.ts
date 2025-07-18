@@ -271,6 +271,7 @@ export function PostgRESTInfiniteScrollView(
         getNextParams: getNextParams ?? defaultGetNextParams,
         hasMore: hasMore ?? defaultHasMore,
         key: newKey,
+        ...rest,
       }) : 
       h(InfiniteScrollView, {
         ...rest,
@@ -308,14 +309,14 @@ interface GroupingProps {
   getNextParams?: (response: any[], params: Record<string, any>) => Record<string, any>;
   hasMore?: (response: any[]) => boolean;
   key?: string;
+  rest?: any;
 }
 
 function Grouping(props: GroupingProps) {
-  const { group_key, groups, route, id_key, params, getNextParams, hasMore, filterValue } = props;
+  const { group_key, groups, route, id_key, params, getNextParams, hasMore, rest } = props;
 
   return h('div.group-page', [
-    h("h1", "Grouped Items"),
-    ...groups.map((group) => {
+    groups.map((group) => {
       if (!group.value || !group.label) {
         throw new Error("Each group must have a value and label");
       }
@@ -324,13 +325,13 @@ function Grouping(props: GroupingProps) {
         group,
         route,
         id_key,
-        group_key,
         params: {
           ...params,
           [group_key]: "eq." + group.value,
         },
         getNextParams,
         hasMore,
+        ...rest
       })
     })
   ]);
@@ -343,11 +344,11 @@ function GroupPanel(
     params?: Record<string, any>;
     getNextParams?: (response: any[], params: Record<string, any>) => Record<string, any>;
     key?: string;
-    group_key?: string; 
     hasMore?: (response: any[]) => boolean;
+    rest?: any;
   }
 ) {
-  const { group, route, group_key, params, getNextParams, hasMore, key } = props;
+  const { group, route, params, getNextParams, hasMore, key, rest } = props;
 
   const data = useAPIResult(route, {
     ...params,
@@ -363,8 +364,9 @@ function GroupPanel(
       key: key || group.value,
       route,
       params,
-      getNextParams, 
-      hasMore
+      getNextParams,
+      hasMore,
+      ...rest
     })
   ]);
 }

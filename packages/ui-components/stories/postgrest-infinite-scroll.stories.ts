@@ -59,4 +59,11 @@ Grouping.args = {
     { value: "group", label: "Column groups" },
     { value: "econ", label: "Economics" },
   ],
+  itemComponent: (item) => {
+    console.log("Rendering item:", item);
+    return h("div.item", { key: item.id }, [
+      h("div.name", item.name),
+      h("div.type", item.type),
+    ]);
+  }
 };
