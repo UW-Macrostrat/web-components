@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Spinner, InputGroup } from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
+import { ExpansionPanel } from "@macrostrat/map-interface";
 
 const h = hyper.styled(styles);
 
@@ -32,6 +33,8 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
     tagInputProps: any;
     popoverProps: any;
   }>;
+  group_key?: string;
+  groups?: Array<{ value: string; label: string }>;
 }
 
 export function PostgRESTInfiniteScrollView(
@@ -54,6 +57,7 @@ export function PostgRESTInfiniteScrollView(
     key,
     toggles = null,
     searchColumns = undefined,
+    group_key = undefined,
     ...rest
   } = props;
 
@@ -236,35 +240,50 @@ export function PostgRESTInfiniteScrollView(
         h(SearchBarToUse, {
           onChange: (value) => setFilterValue(value || ""),
         }),
-        h(MultiSelectToUse, {
-          items: keys.filter((item) => !selectedItems.includes(item.value)),
-          itemRenderer,
-          itemPredicate: filterItem,
-          selectedItems,
-          onItemSelect: handleSelect,
-          tagRenderer: (value) => {
-            const found = keys.find((k) => k.value === value);
-            return found ? found.label : value;
-          },
-          onRemove: handleRemove,
-          tagInputProps: {
+        h.if(searchColumns == null || searchColumns.length > 1)(
+          MultiSelectToUse,
+          {
+            items: keys.filter((item) => !selectedItems.includes(item.value)),
+            itemRenderer,
+            itemPredicate: filterItem,
+            selectedItems,
+            onItemSelect: handleSelect,
+            tagRenderer: (value) => {
+              const found = keys.find((k) => k.value === value);
+              return found ? found.label : value;
+            },
             onRemove: handleRemove,
-            placeholder: "Select a column(s) to filter by...",
+            tagInputProps: {
+              onRemove: handleRemove,
+              placeholder: "Select a column(s) to filter by...",
+            },
+            popoverProps: { minimal: true },
           },
-          popoverProps: { minimal: true },
-        }),
+        ),
       ]),
       h.if(toggles)("div.toggles", toggles),
     ]),
-    h(InfiniteScrollView, {
-      ...rest,
-      route,
-      getNextParams: getNextParams ?? defaultGetNextParams,
-      params: params ?? defaultParams,
-      initialItems: newInitialItems,
-      hasMore: hasMore ?? defaultHasMore,
-      key: newKey,
-    }),
+    group_key
+      ? Grouping({
+          group_key,
+          groups: props.groups ?? [],
+          route,
+          id_key,
+          params: defaultParams,
+          getNextParams: getNextParams ?? defaultGetNextParams,
+          hasMore: hasMore ?? defaultHasMore,
+          key: newKey,
+          rest,
+        })
+      : h(InfiniteScrollView, {
+          ...rest,
+          route,
+          getNextParams: getNextParams ?? defaultGetNextParams,
+          params: params ?? defaultParams,
+          initialItems: newInitialItems,
+          hasMore: hasMore ?? defaultHasMore,
+          key: newKey,
+        }),
   ]);
 }
 
@@ -281,4 +300,81 @@ function SearchBar({ onChange, placeholder = "Search..." }) {
     },
     leftIcon: "search",
   });
+}
+
+interface GroupingProps {
+  group_key: string;
+  groups: Array<{ value: string; label: string }>;
+  route: string;
+  id_key: string;
+  params?: Record<string, any>;
+  getNextParams?: (
+    response: any[],
+    params: Record<string, any>,
+  ) => Record<string, any>;
+  hasMore?: (response: any[]) => boolean;
+  key?: string;
+  rest?: any;
+}
+
+function Grouping(props: GroupingProps) {
+  const {
+    group_key,
+    groups,
+    route,
+    id_key,
+    params,
+    getNextParams,
+    hasMore,
+    rest,
+  } = props;
+
+  return h("div.group-page", [
+    groups.map((group) => {
+      if (!group.value || !group.label) {
+        throw new Error("Each group must have a value and label");
+      }
+
+      return h(GroupPanel, {
+        group,
+        route,
+        id_key,
+        params: {
+          ...params,
+          [group_key]: "eq." + group.value,
+        },
+        getNextParams,
+        hasMore,
+        ...rest,
+      });
+    }),
+  ]);
+}
+
+function GroupPanel(props) {
+  const { group, route, params, getNextParams, hasMore, key, ...rest } = props;
+
+  const data = useAPIResult(route, {
+    ...params,
+    limit: 1,
+  });
+
+  if (!data || data?.length === 0) return null;
+
+  return h(
+    ExpansionPanel,
+    {
+      title: group.label,
+    },
+    [
+      h(InfiniteScrollView, {
+        key: key || group.value,
+        route,
+        params,
+        getNextParams,
+        hasMore,
+        ...rest,
+      }),
+    ],
+  );
 }

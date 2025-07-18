@@ -1,6 +1,13 @@
 # Changelog
 
-## [4.4.0] -
+## [4.4.1] - 2025-07-18
+
+For PostgRESTInfiniteScrollView
+
+- Multiselect disapears if only one searchColumn is inputted
+- Handles grouping
+
+## [4.4.0] - 2025-07-10
 
 For PostgRESTInfiniteScrollView
 
