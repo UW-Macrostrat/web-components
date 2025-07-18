@@ -3,7 +3,13 @@ import { InfiniteScrollProps, InfiniteScrollView } from "./infinite-scroll";
 import { useAPIResult } from "./api";
 import { useMemo, useState } from "react";
 import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
-import { MenuItem, Spinner, InputGroup, Collapse, Icon } from "@blueprintjs/core";
+import {
+  MenuItem,
+  Spinner,
+  InputGroup,
+  Collapse,
+  Icon,
+} from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
 
 const h = hyper.styled(styles);
@@ -407,10 +413,13 @@ function ExpansionPanel(props) {
     { className: `expansion-panel ${className || ""}` },
     [
       h("div.panel-header", { onClick: () => setOpen(!isOpen) }, [
-          h('h2.title', title),
-          h(Icon, { icon: isOpen ? "chevron-up" : "chevron-down", className: "expansion-panel-icon"})
+        h("h2.title", title),
+        h(Icon, {
+          icon: isOpen ? "chevron-up" : "chevron-down",
+          className: "expansion-panel-icon",
+        }),
       ]),
-      h(Collapse, { isOpen }, h('div.child-container', children)),
-    ]
+      h(Collapse, { isOpen }, h("div.child-container", children)),
+    ],
   );
 }
