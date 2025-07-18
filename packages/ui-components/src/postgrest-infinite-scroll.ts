@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import { MenuItem, Spinner, InputGroup } from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
+import { ExpansionPanel } from "@macrostrat/map-interface";
 
 const h = hyper.styled(styles);
 
@@ -32,6 +33,8 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
     tagInputProps: any;
     popoverProps: any;
   }>;
+  group_key?: string;
+  groups?: Array<{ value: string; label: string }>;
 }
 
 export function PostgRESTInfiniteScrollView(
@@ -54,6 +57,7 @@ export function PostgRESTInfiniteScrollView(
     key,
     toggles = null,
     searchColumns = undefined,
+    group_key = undefined,
     ...rest
   } = props;
 
@@ -230,6 +234,7 @@ export function PostgRESTInfiniteScrollView(
     key ||
     `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(cleaned)}`;
 
+
   return h("div.postgrest-infinite-scroll", [
     h("div.header", [
       h.if(filterable)("div.search-bar", [
@@ -256,15 +261,26 @@ export function PostgRESTInfiniteScrollView(
       ]),
       h.if(toggles)("div.toggles", toggles),
     ]),
-    h(InfiniteScrollView, {
-      ...rest,
-      route,
-      getNextParams: getNextParams ?? defaultGetNextParams,
-      params: params ?? defaultParams,
-      initialItems: newInitialItems,
-      hasMore: hasMore ?? defaultHasMore,
-      key: newKey,
-    }),
+    group_key ? 
+      Grouping({
+        group_key,
+        groups: props.groups ?? [],
+        route,
+        id_key,
+        params: defaultParams,
+        getNextParams: getNextParams ?? defaultGetNextParams,
+        hasMore: hasMore ?? defaultHasMore,
+        key: newKey,
+      }) : 
+      h(InfiniteScrollView, {
+        ...rest,
+        route,
+        getNextParams: getNextParams ?? defaultGetNextParams,
+        params: params ?? defaultParams,
+        initialItems: newInitialItems,
+        hasMore: hasMore ?? defaultHasMore,
+        key: newKey,
+      }),
   ]);
 }
 
@@ -281,4 +297,67 @@ function SearchBar({ onChange, placeholder = "Search..." }) {
     },
     leftIcon: "search",
   });
+}
+
+interface GroupingProps {
+  group_key: string;
+  groups: Array<{ value: string; label: string }>;
+  route: string;
+  id_key: string;
+  params?: Record<string, any>;
+  getNextParams?: (response: any[], params: Record<string, any>) => Record<string, any>;
+  hasMore?: (response: any[]) => boolean;
+  key?: string;
+}
+
+function Grouping(props: GroupingProps) {
+  const { group_key, groups, route, id_key, params, getNextParams, hasMore, filterValue } = props;
+
+  return h('div.group-page', [
+    h("h1", "Grouped Items"),
+    ...groups.map((group) => {
+      if (!group.value || !group.label) {
+        throw new Error("Each group must have a value and label");
+      }
+
+      return h(GroupPanel, { 
+        group,
+        route,
+        id_key,
+        group_key,
+        params: {
+          ...params,
+          [group_key]: "eq." + group.value,
+        },
+        getNextParams,
+        hasMore,
+      })
+    })
+  ]);
+}
+
+function GroupPanel(
+  props: {
+    group: { value: string; label: string };
+    route: string;
+    params?: Record<string, any>;
+    getNextParams?: (response: any[], params: Record<string, any>) => Record<string, any>;
+    key?: string;
+    group_key?: string; 
+    hasMore?: (response: any[]) => boolean;
+  }
+) {
+  const { group, route, group_key, params, getNextParams, hasMore, key } = props;
+
+  return h(ExpansionPanel, {
+    title: group.label
+  }, [
+    h(InfiniteScrollView, {
+      key: key || group.value,
+      route,
+      params,
+      getNextParams, 
+      hasMore
+    })
+  ]);
 }

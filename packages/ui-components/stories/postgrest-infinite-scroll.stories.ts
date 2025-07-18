@@ -40,3 +40,23 @@ CustomMultiselect.args = {
   toggles: h("h1", "Toggles here"),
   searchColumns: [{ value: "name", label: "Name" }],
 };
+
+
+export const Grouping = Template.bind({});
+
+Grouping.args = {
+  limit: 20,
+  id_key: "id",
+  filterable: true,
+  ascending: true,
+  route: "https://dev2.macrostrat.org/api/pg/autocomplete",
+  delay: 100,
+  toggles: h("h1", "Toggles here"),
+  searchColumns: [{ value: "name", label: "Name" }],
+  group_key: "type",
+  groups: [
+    { value: "minerals", label: "Minerals" },
+    { value: "group", label: "Column groups" },
+    { value: "econ", label: "Economics" },
+  ],
+};
