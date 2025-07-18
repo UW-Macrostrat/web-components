@@ -38,9 +38,11 @@ Multiselect.args = {
   route: "https://dev.macrostrat.org/api/pg/sources_metadata",
   delay: 100,
   toggles: h("h1", "Toggles here"),
-  searchColumns: [{ value: "name", label: "Name" }, { value: "authors", label: "Author" }],
+  searchColumns: [
+    { value: "name", label: "Name" },
+    { value: "authors", label: "Author" },
+  ],
 };
-
 
 export const Grouping = Template.bind({});
 
@@ -64,5 +66,5 @@ Grouping.args = {
       h("div.name", item.data.name),
       h("div.type", item.data.type),
     ]);
-  }
+  },
 };

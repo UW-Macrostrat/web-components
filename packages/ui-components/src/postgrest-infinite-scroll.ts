@@ -234,54 +234,56 @@ export function PostgRESTInfiniteScrollView(
     key ||
     `${filterValue}-${selectedItems.join(",")}-${JSON.stringify(cleaned)}`;
 
-
   return h("div.postgrest-infinite-scroll", [
     h("div.header", [
       h.if(filterable)("div.search-bar", [
         h(SearchBarToUse, {
           onChange: (value) => setFilterValue(value || ""),
         }),
-        h.if(searchColumns == null || searchColumns.length > 1)(MultiSelectToUse, {
-          items: keys.filter(item => !selectedItems.includes(item.value)),
-          itemRenderer,
-          itemPredicate: filterItem,
-          selectedItems,
-          onItemSelect: handleSelect,
-          tagRenderer: (value) => {
-            const found = keys.find((k) => k.value === value);
-            return found ? found.label : value;
-          },
-          onRemove: handleRemove,
-          tagInputProps: {
+        h.if(searchColumns == null || searchColumns.length > 1)(
+          MultiSelectToUse,
+          {
+            items: keys.filter((item) => !selectedItems.includes(item.value)),
+            itemRenderer,
+            itemPredicate: filterItem,
+            selectedItems,
+            onItemSelect: handleSelect,
+            tagRenderer: (value) => {
+              const found = keys.find((k) => k.value === value);
+              return found ? found.label : value;
+            },
             onRemove: handleRemove,
-            placeholder: "Select a column(s) to filter by...",
+            tagInputProps: {
+              onRemove: handleRemove,
+              placeholder: "Select a column(s) to filter by...",
+            },
+            popoverProps: { minimal: true },
           },
-          popoverProps: { minimal: true },
-        }),
+        ),
       ]),
       h.if(toggles)("div.toggles", toggles),
     ]),
-    group_key ? 
-      Grouping({
-        group_key,
-        groups: props.groups ?? [],
-        route,
-        id_key,
-        params: defaultParams,
-        getNextParams: getNextParams ?? defaultGetNextParams,
-        hasMore: hasMore ?? defaultHasMore,
-        key: newKey,
-        rest,
-      }) : 
-      h(InfiniteScrollView, {
-        ...rest,
-        route,
-        getNextParams: getNextParams ?? defaultGetNextParams,
-        params: params ?? defaultParams,
-        initialItems: newInitialItems,
-        hasMore: hasMore ?? defaultHasMore,
-        key: newKey,
-      }),
+    group_key
+      ? Grouping({
+          group_key,
+          groups: props.groups ?? [],
+          route,
+          id_key,
+          params: defaultParams,
+          getNextParams: getNextParams ?? defaultGetNextParams,
+          hasMore: hasMore ?? defaultHasMore,
+          key: newKey,
+          rest,
+        })
+      : h(InfiniteScrollView, {
+          ...rest,
+          route,
+          getNextParams: getNextParams ?? defaultGetNextParams,
+          params: params ?? defaultParams,
+          initialItems: newInitialItems,
+          hasMore: hasMore ?? defaultHasMore,
+          key: newKey,
+        }),
   ]);
 }
 
@@ -306,22 +308,34 @@ interface GroupingProps {
   route: string;
   id_key: string;
   params?: Record<string, any>;
-  getNextParams?: (response: any[], params: Record<string, any>) => Record<string, any>;
+  getNextParams?: (
+    response: any[],
+    params: Record<string, any>,
+  ) => Record<string, any>;
   hasMore?: (response: any[]) => boolean;
   key?: string;
   rest?: any;
 }
 
 function Grouping(props: GroupingProps) {
-  const { group_key, groups, route, id_key, params, getNextParams, hasMore, rest } = props;
+  const {
+    group_key,
+    groups,
+    route,
+    id_key,
+    params,
+    getNextParams,
+    hasMore,
+    rest,
+  } = props;
 
-  return h('div.group-page', [
+  return h("div.group-page", [
     groups.map((group) => {
       if (!group.value || !group.label) {
         throw new Error("Each group must have a value and label");
       }
 
-      return h(GroupPanel, { 
+      return h(GroupPanel, {
         group,
         route,
         id_key,
@@ -331,9 +345,9 @@ function Grouping(props: GroupingProps) {
         },
         getNextParams,
         hasMore,
-        ...rest
-      })
-    })
+        ...rest,
+      });
+    }),
   ]);
 }
 
@@ -342,21 +356,25 @@ function GroupPanel(props) {
 
   const data = useAPIResult(route, {
     ...params,
-    limit: 1, 
+    limit: 1,
   });
 
-  if (!data || data?.length === 0)  return null;
+  if (!data || data?.length === 0) return null;
 
-  return h(ExpansionPanel, {
-    title: group.label
-  }, [
-    h(InfiniteScrollView, {
-      key: key || group.value,
-      route,
-      params,
-      getNextParams,
-      hasMore,
-      ...rest,
-    })
-  ]);
+  return h(
+    ExpansionPanel,
+    {
+      title: group.label,
+    },
+    [
+      h(InfiniteScrollView, {
+        key: key || group.value,
+        route,
+        params,
+        getNextParams,
+        hasMore,
+        ...rest,
+      }),
+    ],
+  );
 }
