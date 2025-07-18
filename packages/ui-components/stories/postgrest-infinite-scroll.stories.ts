@@ -75,4 +75,10 @@ Grouping.args = {
     ]);
   },
   filter_threshold: 2, // Minimum characters to trigger filtering
+  NonIdealStateParams: {
+    title: "No data to display",
+    description: "Type at least 2 characters to filter results",
+    icon: "search",
+    className: "no-results",
+  },
 };

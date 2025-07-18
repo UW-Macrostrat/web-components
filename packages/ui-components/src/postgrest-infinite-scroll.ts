@@ -46,6 +46,12 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
     title: string;
     children: React.ReactNode;
   }>;
+  NonIdealStateParams?: {
+    title?: string;
+    description?: string;
+    icon?: string;
+    className?: string;
+  };
 }
 
 export function PostgRESTInfiniteScrollView(
@@ -71,6 +77,12 @@ export function PostgRESTInfiniteScrollView(
     searchColumns = undefined,
     group_key = undefined,
     filter_threshold = 0,
+    NonIdealStateParams = {
+      title: "No Results",
+      description: "No results found",
+      icon: "search",
+      className: "no-results",
+    },
     ...rest
   } = props;
 
@@ -290,7 +302,7 @@ export function PostgRESTInfiniteScrollView(
           rest,
           hideData,
           GroupingComponent,
-          filter_threshold,
+          NonIdealStateParams,
         })
       : h(InfiniteScrollView, {
           ...rest,
@@ -335,7 +347,12 @@ interface GroupingProps {
   rest?: any;
   hideData?: boolean;
   GroupingComponent?: React.ComponentType<GroupingProps>;
-  filter_threshold?: number;
+  NonIdealStateParams?: {
+    title?: string;
+    description?: string;
+    icon?: string;
+    className?: string;
+  };
 }
 
 function Grouping(props: GroupingProps) {
@@ -350,16 +367,11 @@ function Grouping(props: GroupingProps) {
     rest,
     hideData,
     GroupingComponent,
-    filter_threshold
+    NonIdealStateParams,
   } = props;
 
   if (hideData) {
-    return h(NonIdealState, {
-      title: "No data to display",
-      description: `Please enter at least ${filter_threshold} characters in the search bar to filter results`,
-      icon: "search",
-      className: "no-data-state",
-    })
+    return h(NonIdealState, NonIdealStateParams)
   }
 
   return h("div.group-page", [
