@@ -9,7 +9,7 @@ import {
   InputGroup,
   Collapse,
   Icon,
-  NonIdealState
+  NonIdealState,
 } from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
 
@@ -371,7 +371,7 @@ function Grouping(props: GroupingProps) {
   } = props;
 
   if (hideData) {
-    return h(NonIdealState, NonIdealStateParams)
+    return h(NonIdealState, NonIdealStateParams);
   }
 
   return h("div.group-page", [
