@@ -290,7 +290,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
 
   const data = state.items;
   const isLoading = state.isLoadingPage != null;
-  const isEmpty = data.length === 0 && !isLoading || hideData;
+  const isEmpty = (data.length === 0 && !isLoading) || hideData;
   const isFinished = !state.hasMore && !isLoading;
   const totalCount = props.totalCount ?? state.count;
 

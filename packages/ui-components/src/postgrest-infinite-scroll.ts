@@ -298,7 +298,7 @@ export function PostgRESTInfiniteScrollView(
           initialItems: newInitialItems,
           hasMore: hasMore ?? defaultHasMore,
           key: newKey,
-          hideData
+          hideData,
         }),
   ]);
 }
@@ -346,7 +346,7 @@ function Grouping(props: GroupingProps) {
     hasMore,
     rest,
     hideData,
-    GroupingComponent
+    GroupingComponent,
   } = props;
 
   return h("div.group-page", [
@@ -367,14 +367,24 @@ function Grouping(props: GroupingProps) {
         getNextParams,
         hasMore,
         ...rest,
-        GroupingComponent
+        GroupingComponent,
       });
     }),
   ]);
 }
 
 function GroupPanel(props) {
-  const { group, route, params, getNextParams, hasMore, key, hideData, GroupingComponent, ...rest } = props;
+  const {
+    group,
+    route,
+    params,
+    getNextParams,
+    hasMore,
+    key,
+    hideData,
+    GroupingComponent,
+    ...rest
+  } = props;
 
   const data = useAPIResult(route, {
     ...params,

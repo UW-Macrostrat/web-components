@@ -1,6 +1,7 @@
 # Changelog
 
 ## [4.4.4] - 2025-07-18
+
 For PostgRESTInfiniteScrollView
 
 - Custom group panel component
