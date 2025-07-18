@@ -10,7 +10,14 @@ import { ColorPicker } from "@macrostrat/data-sheet";
 
 const h = hyper.styled(styles);
 
-export function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
+export function TypeList({
+  types,
+  selected,
+  dispatch,
+  selectedNodes,
+  tree,
+  viewOnly,
+}) {
   const [selectedType, setSelectedType] = useState(null);
   const isSelectedNodes = selectedNodes.length > 0;
   const darkMode = useInDarkMode();
@@ -32,6 +39,7 @@ export function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
           selectedType,
           setSelectedType,
           dispatch,
+          viewOnly,
           tree,
           selectedNodes,
           selected,
@@ -39,7 +47,7 @@ export function TypeList({ types, selected, dispatch, selectedNodes, tree }) {
         }),
       ),
     ),
-    h(AddType, { dispatch }),
+    h.if(!viewOnly)(AddType, { dispatch }),
   ]);
 }
 
@@ -206,6 +214,7 @@ function TypeTag({
   selectedNodes,
   selected,
   isSelectedNodes,
+  viewOnly,
 }) {
   const { color, name, id, description } = type;
   const darkMode = useInDarkMode();
@@ -276,7 +285,7 @@ function TypeTag({
         onClick: handleTagClick,
         style: {
           cursor:
-            ids.length > 0 || (isSelectedNodes && !selectedType)
+            (ids.length > 0 || (isSelectedNodes && !selectedType)) && !viewOnly
               ? "pointer"
               : "",
           color: "black",
@@ -288,7 +297,7 @@ function TypeTag({
       },
       h("div.type-container", [
         h("div.type-name", name),
-        h("div.icons", [
+        h.if(!viewOnly)("div.icons", [
           h(EditType, {
             dispatch,
             type,

@@ -1,5 +1,4 @@
 import { Switch } from "@blueprintjs/core";
-import { Match } from "./text-visualizer";
 import { Select } from "@blueprintjs/select";
 import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
@@ -29,10 +28,11 @@ export function Matches({
   return h.if(matchLinks)("div", [
     h(Divider),
     h(Switch, {
-      label: "Show matches",
+      label: "Match mode",
       checked: match !== null,
       onChange: (e) => {
         setMatchLinks(match === null ? matchLinks || {} : null);
+        dispatch({ type: "toggle-match-mode" });
       },
     }),
     h.if(nodeMatch && match)(Match, {
@@ -95,89 +95,7 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
       inputValue +
       "*",
   );
-  const items = data?.map((data) => {
-    const type = data.type || "";
-
-    if (type === "lith") {
-      return h(
-        "div",
-        {
-          onClick: () => {
-            setPayload({ lith_id: data.id, name: data.name });
-          },
-        },
-        h(DataField, {
-          className: "match-item",
-          label: "Lithology",
-          value: h(LithologyTag, {
-            data: { name: data.name, id: data.lith_id, color: data.color },
-          }),
-        }),
-      );
-    }
-
-    if (type === "strat_name") {
-      return h(
-        "div",
-        {
-          onClick: () => {
-            setPayload({ strat_name_id: data.id, name: data.name });
-          },
-        },
-        h(DataField, {
-          className: "match-item",
-          label: "Stratigraphic name",
-          value: h(LithologyTag, {
-            data: { name: data.name, id: data.id, color: data.color },
-          }),
-        }),
-      );
-    }
-
-    if (type === "lith_att") {
-      return h(
-        "div",
-        {
-          onClick: () => {
-            setPayload({ lith_att_id: data.lith_att_id, name: data.name });
-          },
-        },
-        h(DataField, {
-          className: "match-item",
-          label: "Lithology attribute",
-          value: h(LithologyTag, {
-            data: { name: data.name, id: data.lith_att_id },
-          }),
-          onClick: () => {
-            setPayload({ lith_att_id: data.lith_att_id, name: data.name });
-          },
-        }),
-      );
-    }
-
-    if (type === "interval") {
-      h(
-        "div",
-        {
-          onClick: () => {
-            setPayload({ int_id: data.id, name: data.name });
-          },
-        },
-        h(DataField, {
-          label: "Interval",
-          className: "match-item",
-          value: h(LithologyTag, {
-            data: { name: data.name, id: data.id },
-          }),
-          onClick: () => {
-            setPayload({ int_id: data.id, name: data.name });
-          },
-        }),
-      );
-    }
-
-    return h(JSONView, { data });
-  });
+  const items = data?.map((data) => h(MatchTag, { data, setPayload }));
 
   return h(
     Overlay2,
@@ -238,4 +156,124 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
       ]),
     ),
   );
+}
+
+function Match({ data, matchLinks, dispatch, nodeId }) {
+  return h.if(data)("div.match-container", [
+    MatchTag({ data, matchLinks }),
+    h(Icon, {
+      icon: "cross",
+      color: "red",
+      className: "close-btn",
+      onClick: () => {
+        dispatch({ type: "remove-match", payload: { id: nodeId } });
+      },
+    }),
+  ]);
+}
+
+interface MatchTagProps {
+  data: any;
+  matchLinks?: Record<string, string>;
+  setPayload?: (payload: Record<string, any>) => void;
+}
+
+function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
+  if (!data || Object.keys(data).length === 0) return;
+
+  if (data.lith_id || data?.type === "lith") {
+    return h(
+      "div",
+      {
+        onClick: () => {
+          data.type === "lith"
+            ? setPayload({ lith_id: data.id, name: data.name })
+            : null;
+        },
+      },
+      h(DataField, {
+        className: "match-item",
+        label: "Stratigraphic name",
+        value: h(LithologyTag, {
+          data: { name: data.name, id: data.id, color: data.color },
+          onClick: () =>
+            window.open(
+              matchLinks.strat_name + "/" + data.strat_name_id,
+              "_blank",
+            ),
+        }),
+      }),
+    );
+  }
+
+  if (data.strat_name_id || data?.type === "strat_name") {
+    return h(
+      "div",
+      {
+        onClick: () => {
+          data.type === "strat_name"
+            ? setPayload({ strat_name_id: data.id, name: data.name })
+            : null;
+        },
+      },
+      h(DataField, {
+        className: "match-item",
+        label: "Stratigraphic name",
+        value: h(LithologyTag, {
+          data: { name: data.name, id: data.id, color: data.color },
+          onClick: () =>
+            window.open(
+              matchLinks.strat_name + "/" + data.strat_name_id,
+              "_blank",
+            ),
+        }),
+      }),
+    );
+  }
+
+  if (data.lith_att_id || data?.type === "lith_att") {
+    return h(
+      "div",
+      {
+        onClick: () => {
+          data.type === "lith_att"
+            ? setPayload({ lith_att_id: data.id, name: data.name })
+            : null;
+        },
+      },
+      h(DataField, {
+        className: "match-item",
+        label: "Lithology attribute",
+        value: h(LithologyTag, {
+          data: { name: data.name, id: data.lith_att_id },
+          onClick: () =>
+            window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank"),
+        }),
+      }),
+    );
+  }
+
+  if (data.int_id || data?.type === "interval") {
+    return h(
+      "div",
+      {
+        onClick: () => {
+          data.type === "interval"
+            ? setPayload({ int_id: data.id, name: data.name })
+            : null;
+        },
+      },
+      h(DataField, {
+        label: "Interval",
+        className: "match-item",
+        value: h(LithologyTag, {
+          data: { name: data.name, id: data.id },
+          onClick: () =>
+            window.open(matchLinks.interval + "/" + data.int_id, "_blank"),
+        }),
+      }),
+    );
+  }
+
+  return h(JSONView, { data });
 }
