@@ -1,5 +1,12 @@
 # Changelog
 
+## [4.4.4] - 2025-07-18
+
+For PostgRESTInfiniteScrollView
+
+- Custom group panel component
+- Filter threshold to hide data
+
 ## [4.4.3] - 2025-07-18
 
 For PostgRESTInfiniteScrollView

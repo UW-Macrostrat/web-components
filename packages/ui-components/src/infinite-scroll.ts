@@ -44,6 +44,7 @@ export interface InfiniteScrollProps<T>
   startPage?: number;
   initialItems?: T[];
   delay?: number;
+  hideData?: boolean;
 }
 
 type UpdateState<T> = { type: "update-state"; spec: Spec<ScrollState<T>> };
@@ -185,6 +186,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
     startPage = 0,
     initialItems = [],
     delay,
+    hideData = false,
   } = props;
   const { get } = useAPIActions();
   const {
@@ -288,7 +290,7 @@ function InfiniteScrollView<T>(props: InfiniteScrollProps<T>) {
 
   const data = state.items;
   const isLoading = state.isLoadingPage != null;
-  const isEmpty = data.length === 0 && !isLoading;
+  const isEmpty = (data.length === 0 && !isLoading) || hideData;
   const isFinished = !state.hasMore && !isLoading;
   const totalCount = props.totalCount ?? state.count;
 
