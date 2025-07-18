@@ -1,6 +1,6 @@
 # Changelog
 
-## [4.4.2] - 2025-07-18
+## [4.4.3] - 2025-07-18
 
 For PostgRESTInfiniteScrollView
 

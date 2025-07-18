@@ -53,18 +53,16 @@ Grouping.args = {
   ascending: true,
   route: "https://dev2.macrostrat.org/api/pg/autocomplete",
   delay: 100,
-  toggles: h("h1", "Toggles here"),
   searchColumns: [{ value: "name", label: "Name" }],
   group_key: "type",
   groups: [
     { value: "minerals", label: "Minerals" },
-    { value: "group", label: "Column groups" },
-    { value: "econ", label: "Economics" },
+    { value: "groups", label: "Column groups" },
+    { value: "econs", label: "Economics" },
   ],
   itemComponent: (item) => {
     return h("div.item", { key: item.data.id }, [
       h("div.name", item.data.name),
-      h("div.type", item.data.type),
     ]);
   },
 };
