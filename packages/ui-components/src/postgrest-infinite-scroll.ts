@@ -349,6 +349,13 @@ function GroupPanel(
 ) {
   const { group, route, group_key, params, getNextParams, hasMore, key } = props;
 
+  const data = useAPIResult(route, {
+    ...params,
+    limit: 1, 
+  });
+
+  if (!data || data?.length === 0)  return null;
+
   return h(ExpansionPanel, {
     title: group.label
   }, [
