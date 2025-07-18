@@ -35,6 +35,10 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   }>;
   group_key?: string;
   groups?: Array<{ value: string; label: string }>;
+  GroupingComponent?: React.ComponentType<{
+    title: string;
+    children: React.ReactNode;
+  }>;
 }
 
 export function PostgRESTInfiniteScrollView(
@@ -55,6 +59,7 @@ export function PostgRESTInfiniteScrollView(
     MultiSelectComponent,
     extraParams = {},
     key,
+    GroupingComponent,
     toggles = null,
     searchColumns = undefined,
     group_key = undefined,
@@ -277,6 +282,7 @@ export function PostgRESTInfiniteScrollView(
           key: newKey,
           rest,
           hideData,
+          GroupingComponent,
         })
       : h(InfiniteScrollView, {
           ...rest,
@@ -320,6 +326,7 @@ interface GroupingProps {
   key?: string;
   rest?: any;
   hideData?: boolean;
+  GroupingComponent?: React.ComponentType<GroupingProps>;
 }
 
 function Grouping(props: GroupingProps) {
@@ -332,7 +339,8 @@ function Grouping(props: GroupingProps) {
     getNextParams,
     hasMore,
     rest,
-    hideData
+    hideData,
+    GroupingComponent
   } = props;
 
   return h("div.group-page", [
@@ -353,13 +361,14 @@ function Grouping(props: GroupingProps) {
         getNextParams,
         hasMore,
         ...rest,
+        GroupingComponent
       });
     }),
   ]);
 }
 
 function GroupPanel(props) {
-  const { group, route, params, getNextParams, hasMore, key, hideData, ...rest } = props;
+  const { group, route, params, getNextParams, hasMore, key, hideData, GroupingComponent, ...rest } = props;
 
   const data = useAPIResult(route, {
     ...params,
@@ -368,8 +377,10 @@ function GroupPanel(props) {
 
   if (!data || data?.length === 0 || hideData) return null;
 
+  const Panel = GroupingComponent || ExpansionPanel;
+
   return h(
-    ExpansionPanel,
+    Panel,
     {
       title: group.label,
     },
