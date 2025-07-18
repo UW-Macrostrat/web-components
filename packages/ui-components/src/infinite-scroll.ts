@@ -117,6 +117,8 @@ const Placeholder = (props) => {
     ...rest
   } = props;
 
+  console.log("Placeholder props:", props);
+
   return h("div.placeholder", [
     h(NonIdealState, {
       icon: "search-template",
