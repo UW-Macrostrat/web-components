@@ -11,6 +11,7 @@ const h = hyper.styled(styles);
 interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
   id_key: string;
   limit: number;
+  filter_threshold?: number;
   extraParams?: Record<string, any>;
   ascending?: boolean;
   filterable?: boolean;
@@ -57,6 +58,7 @@ export function PostgRESTInfiniteScrollView(
     toggles = null,
     searchColumns = undefined,
     group_key = undefined,
+    filter_threshold = 0,
     ...rest
   } = props;
 
@@ -69,6 +71,7 @@ export function PostgRESTInfiniteScrollView(
   );
 
   const [filterValue, setFilterValue] = useState<string>("");
+  const hideData = filterValue.length < filter_threshold;
 
   const SearchBarToUse = SearchBarComponent ?? SearchBar;
   const MultiSelectToUse = MultiSelectComponent ?? MultiSelect;
@@ -273,6 +276,7 @@ export function PostgRESTInfiniteScrollView(
           hasMore: hasMore ?? defaultHasMore,
           key: newKey,
           rest,
+          hideData,
         })
       : h(InfiniteScrollView, {
           ...rest,
@@ -282,6 +286,7 @@ export function PostgRESTInfiniteScrollView(
           initialItems: newInitialItems,
           hasMore: hasMore ?? defaultHasMore,
           key: newKey,
+          hideData
         }),
   ]);
 }
@@ -314,6 +319,7 @@ interface GroupingProps {
   hasMore?: (response: any[]) => boolean;
   key?: string;
   rest?: any;
+  hideData?: boolean;
 }
 
 function Grouping(props: GroupingProps) {
@@ -326,6 +332,7 @@ function Grouping(props: GroupingProps) {
     getNextParams,
     hasMore,
     rest,
+    hideData
   } = props;
 
   return h("div.group-page", [
@@ -338,6 +345,7 @@ function Grouping(props: GroupingProps) {
         group,
         route,
         id_key,
+        hideData,
         params: {
           ...params,
           [group_key]: "eq." + group.value,
@@ -351,14 +359,14 @@ function Grouping(props: GroupingProps) {
 }
 
 function GroupPanel(props) {
-  const { group, route, params, getNextParams, hasMore, key, ...rest } = props;
+  const { group, route, params, getNextParams, hasMore, key, hideData, ...rest } = props;
 
   const data = useAPIResult(route, {
     ...params,
     limit: 1,
   });
 
-  if (!data || data?.length === 0) return null;
+  if (!data || data?.length === 0 || hideData) return null;
 
   return h(
     ExpansionPanel,
@@ -372,6 +380,7 @@ function GroupPanel(props) {
         params,
         getNextParams,
         hasMore,
+        hideData,
         ...rest,
       }),
     ],

@@ -56,13 +56,23 @@ Grouping.args = {
   searchColumns: [{ value: "name", label: "Name" }],
   group_key: "type",
   groups: [
-    { value: "minerals", label: "Minerals" },
-    { value: "groups", label: "Column groups" },
     { value: "econs", label: "Economics" },
+    { value: "maps", label: "Maps" },
+    { value: "environments", label: "Environments" },
+    { value: "groups", label: "Column groups" },
+    { value: "columns", label: "Columns" },
+    { value: "intervals", label: "Intervals" },
+    { value: "lithologies", label: "Lithologies" },
+    { value: "lithology_attributes", label: "Lithology attributes" },
+    { value: "projects", label: "Projects" },
+    { value: "strat_name_concepts", label: "Strat name concepts" },
+    { value: "structures", label: "Structures" },
+    { value: "minerals", label: "Minerals" },
   ],
   itemComponent: (item) => {
     return h("div.item", { key: item.data.id }, [
       h("div.name", item.data.name),
     ]);
   },
+  filter_threshold: 2, // Minimum characters to trigger filtering
 };
