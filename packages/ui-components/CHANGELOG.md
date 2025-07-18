@@ -1,6 +1,7 @@
 # Changelog
 
 ## [4.4.1] - 2025-07-18
+
 For PostgRESTInfiniteScrollView
 
 - Multiselect disapears if only one searchColumn is inputted
