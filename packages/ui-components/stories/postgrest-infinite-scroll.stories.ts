@@ -60,10 +60,9 @@ Grouping.args = {
     { value: "econ", label: "Economics" },
   ],
   itemComponent: (item) => {
-    console.log("Rendering item:", item);
-    return h("div.item", { key: item.id }, [
-      h("div.name", item.name),
-      h("div.type", item.type),
+    return h("div.item", { key: item.data.id }, [
+      h("div.name", item.data.name),
+      h("div.type", item.data.type),
     ]);
   }
 };

@@ -271,7 +271,7 @@ export function PostgRESTInfiniteScrollView(
         getNextParams: getNextParams ?? defaultGetNextParams,
         hasMore: hasMore ?? defaultHasMore,
         key: newKey,
-        ...rest,
+        rest,
       }) : 
       h(InfiniteScrollView, {
         ...rest,
@@ -337,18 +337,8 @@ function Grouping(props: GroupingProps) {
   ]);
 }
 
-function GroupPanel(
-  props: {
-    group: { value: string; label: string };
-    route: string;
-    params?: Record<string, any>;
-    getNextParams?: (response: any[], params: Record<string, any>) => Record<string, any>;
-    key?: string;
-    hasMore?: (response: any[]) => boolean;
-    rest?: any;
-  }
-) {
-  const { group, route, params, getNextParams, hasMore, key, rest } = props;
+function GroupPanel(props) {
+  const { group, route, params, getNextParams, hasMore, key, ...rest } = props;
 
   const data = useAPIResult(route, {
     ...params,
@@ -366,7 +356,7 @@ function GroupPanel(
       params,
       getNextParams,
       hasMore,
-      ...rest
+      ...rest,
     })
   ]);
 }
