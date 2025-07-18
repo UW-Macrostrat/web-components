@@ -9,6 +9,7 @@ import {
   InputGroup,
   Collapse,
   Icon,
+  NonIdealState
 } from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
 
@@ -289,6 +290,7 @@ export function PostgRESTInfiniteScrollView(
           rest,
           hideData,
           GroupingComponent,
+          filter_threshold,
         })
       : h(InfiniteScrollView, {
           ...rest,
@@ -333,6 +335,7 @@ interface GroupingProps {
   rest?: any;
   hideData?: boolean;
   GroupingComponent?: React.ComponentType<GroupingProps>;
+  filter_threshold?: number;
 }
 
 function Grouping(props: GroupingProps) {
@@ -346,8 +349,18 @@ function Grouping(props: GroupingProps) {
     hasMore,
     rest,
     hideData,
-    GroupingComponent
+    GroupingComponent,
+    filter_threshold
   } = props;
+
+  if (hideData) {
+    return h(NonIdealState, {
+      title: "No data to display",
+      description: `Please enter at least ${filter_threshold} characters in the search bar to filter results`,
+      icon: "search",
+      className: "no-data-state",
+    })
+  }
 
   return h("div.group-page", [
     groups.map((group) => {
