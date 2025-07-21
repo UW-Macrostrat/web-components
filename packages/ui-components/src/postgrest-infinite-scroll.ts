@@ -371,7 +371,7 @@ function Grouping(props: GroupingProps) {
   } = props;
 
   if (hideData) {
-    return h(NonIdealState, NonIdealStateParams);
+    return h('div.non-ideal-container', h(NonIdealState, NonIdealStateParams));
   }
 
   return h("div.group-page", [
