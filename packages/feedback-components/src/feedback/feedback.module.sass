@@ -31,7 +31,6 @@
   cursor: pointer
 
 circle
-  cursor: pointer
   border: 1px solid black
 
 .selected
@@ -79,11 +78,13 @@ mark
   width: auto !important
 
 .highlight
-  cursor: pointer
   padding: .2em 0
   border-radius: .2em
   position: relative
   zIndex: 10
+
+.clickable
+  cursor: pointer
 
 .feedback-text-wrapper 
   position: relative
@@ -115,7 +116,7 @@ mark
   align-items: center
 
   .add-type-overlay
-    background-color: var(--secondary-color)
+    background-color: var(--tertiary-background)
     padding: .5em 1em
     display: flex
     flex-direction: column
@@ -149,12 +150,15 @@ mark
   pointerEvents: none
 
 .match-item
-  background-color: var(--background-color)
   color: var(--text-emphasized-color)
   padding: .1em .2em
   border-radius: .2em
   margin-bottom: 4px
   cursor: pointer
+  
+  .match-label
+    margin: 0
+    color: var(--text-color)
 
 .match-container
   display: flex
