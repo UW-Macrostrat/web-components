@@ -25,6 +25,7 @@ export interface FeedbackTextProps {
     strat_name: string;
     lith_att: string;
   };
+  viewOnly?: boolean;
 }
 
 function buildTags(
@@ -81,8 +82,15 @@ function isHighlighted(tag: Highlight, selectedNodes: number[]) {
 
 export function FeedbackText(props: FeedbackTextProps) {
   // Convert input to tags
-  const { text, selectedNodes, nodes, dispatch, allowOverlap, matchLinks } =
-    props;
+  const {
+    text,
+    selectedNodes,
+    nodes,
+    dispatch,
+    allowOverlap,
+    matchLinks,
+    viewOnly,
+  } = props;
   const allTags: AnnotateBlendTag[] = buildTags(
     buildHighlights(nodes, null),
     selectedNodes,
@@ -107,6 +115,7 @@ export function FeedbackText(props: FeedbackTextProps) {
       allowOverlap,
       dispatch,
       selectedNodes,
+      viewOnly,
       matchLinks,
     }),
   );
@@ -261,17 +270,25 @@ function renderNode(
     strat_name: string;
     lith_att: string;
   },
+  viewOnly?: boolean,
 ): any {
   if (typeof node === "string") return node;
 
   const { tag, children } = node;
   const isSelected = selectedNodes?.includes(tag.id);
   const showBorder = selectedNodes.length === 0 || isSelected;
+  const match = tag.match;
 
   const style = {
     ...tag,
     zIndex: parentSelected ? -1 : 1,
-    border: "1px solid " + (showBorder ? tag.color : "transparent"),
+    border:
+      "1px solid " +
+      (match != undefined && matchLinks
+        ? "orange"
+        : showBorder
+          ? tag.color
+          : "transparent"),
     margin: "-1px",
   };
 
@@ -295,7 +312,7 @@ function renderNode(
       onMouseEnter: (e: MouseEvent) => {
         e.stopPropagation();
       },
-      className: "highlight",
+      className: "highlight" + (!viewOnly ? " clickable" : ""),
       style,
       onClick: (e: MouseEvent) => {
         e.stopPropagation();
@@ -329,7 +346,14 @@ function renderNode(
     isSelected
       ? moveText.flat()
       : children.map((child: any, i: number) =>
-          renderNode(child, dispatch, selectedNodes, isSelected, matchLinks),
+          renderNode(
+            child,
+            dispatch,
+            selectedNodes,
+            isSelected,
+            matchLinks,
+            viewOnly,
+          ),
         ),
   );
 }
@@ -346,6 +370,7 @@ export function HighlightedText(props: {
     strat_name: string;
     lith_att: string;
   };
+  viewOnly?: boolean;
 }) {
   const {
     text,
@@ -354,6 +379,7 @@ export function HighlightedText(props: {
     selectedNodes,
     allowOverlap,
     matchLinks,
+    viewOnly,
   } = props;
 
   const tree = nestHighlights(text, allTags);
@@ -377,87 +403,7 @@ export function HighlightedText(props: {
     "span",
     { ref: spanRef },
     tree.children.map((child: any, i: number) =>
-      renderNode(child, dispatch, selectedNodes, false, matchLinks),
+      renderNode(child, dispatch, selectedNodes, false, matchLinks, viewOnly),
     ),
   );
-}
-
-export function Match({ data, matchLinks, dispatch, nodeId }) {
-  if (!data || Object.keys(data).length === 0) return;
-
-  let tag = h(JSONView, { data });
-
-  if (data.lith_id) {
-    tag = h(DataField, {
-      label: "Lithology",
-      value: h(LithologyTag, {
-        data: { name: data.name, id: data.lith_id, color: data.color },
-        onClick: (e) => {
-          e.stopPropagation();
-          if (matchLinks.lithology) {
-            window.open(matchLinks.lithology + "/" + data.lith_id, "_blank");
-          }
-        },
-      }),
-    });
-  }
-
-  if (data.strat_name_id) {
-    tag = h("div", [
-      h(DataField, {
-        label: "Stratigraphic name",
-        value: h(LithologyTag, {
-          data: { name: data.name, id: data.strat_name_id, color: data.color },
-          onClick: (e) => {
-            e.stopPropagation();
-            if (matchLinks.strat_name) {
-              window.open(
-                matchLinks.strat_name + "/" + data.strat_name_id,
-                "_blank",
-              );
-            }
-          },
-        }),
-      }),
-      h.if(data.concept_id)(DataField, {
-        label: "Stratigraphic concept",
-        value: h(LithologyTag, {
-          data: { name: data.name, id: data.concept_id, color: data.color },
-          onClick: (e) => {
-            e.stopPropagation();
-            if (matchLinks.concept) {
-              window.open(matchLinks.concept + "/" + data.concept_id, "_blank");
-            }
-          },
-        }),
-      }),
-    ]);
-  }
-
-  if (data.lith_att_id) {
-    tag = h(DataField, {
-      label: "Lithology attribute",
-      value: h(LithologyTag, {
-        data: { name: data.name, id: data.lith_att_id },
-        onClick: (e) => {
-          e.stopPropagation();
-          if (matchLinks.lith_att) {
-            window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank");
-          }
-        },
-      }),
-    });
-  }
-
-  return h("div.match-container", [
-    tag,
-    h(Icon, {
-      icon: "cross",
-      color: "red",
-      className: "close-btn",
-      onClick: () => {
-        dispatch({ type: "remove-match", payload: { id: nodeId } });
-      },
-    }),
-  ]);
 }
