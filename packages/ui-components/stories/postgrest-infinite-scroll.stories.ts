@@ -28,9 +28,9 @@ Primary.args = {
   searchColumns: [{ value: "name", label: "Name" }],
 };
 
-export const CustomMultiselect = Template.bind({});
+export const Multiselect = Template.bind({});
 
-CustomMultiselect.args = {
+Multiselect.args = {
   limit: 5,
   id_key: "source_id",
   filterable: true,
@@ -38,5 +38,41 @@ CustomMultiselect.args = {
   route: "https://dev.macrostrat.org/api/pg/sources_metadata",
   delay: 100,
   toggles: h("h1", "Toggles here"),
+  searchColumns: [
+    { value: "name", label: "Name" },
+    { value: "authors", label: "Author" },
+  ],
+};
+
+export const Grouping = Template.bind({});
+
+Grouping.args = {
+  limit: 20,
+  id_key: "id",
+  filterable: true,
+  ascending: true,
+  route: "https://dev2.macrostrat.org/api/pg/autocomplete",
+  delay: 100,
   searchColumns: [{ value: "name", label: "Name" }],
+  group_key: "type",
+  groups: [
+    { value: "econs", label: "Economics" },
+    { value: "maps", label: "Maps" },
+    { value: "environments", label: "Environments" },
+    { value: "groups", label: "Column groups" },
+    { value: "columns", label: "Columns" },
+    { value: "intervals", label: "Intervals" },
+    { value: "lithologies", label: "Lithologies" },
+    { value: "lithology_attributes", label: "Lithology attributes" },
+    { value: "projects", label: "Projects" },
+    { value: "strat_name_concepts", label: "Strat name concepts" },
+    { value: "structures", label: "Structures" },
+    { value: "minerals", label: "Minerals" },
+  ],
+  itemComponent: (item) => {
+    return h("div.item", { key: item.data.id }, [
+      h("div.name", item.data.name),
+    ]);
+  },
+  filter_threshold: 2, // Minimum characters to trigger filtering
 };

@@ -1,6 +1,20 @@
 # Changelog
 
-## [4.4.0] -
+## [4.4.4] - 2025-07-18
+
+For PostgRESTInfiniteScrollView
+
+- Custom group panel component
+- Filter threshold to hide data
+
+## [4.4.3] - 2025-07-18
+
+For PostgRESTInfiniteScrollView
+
+- Multiselect disapears if only one searchColumn is inputted
+- Handles grouping
+
+## [4.4.0] - 2025-07-10
 
 For PostgRESTInfiniteScrollView
 
