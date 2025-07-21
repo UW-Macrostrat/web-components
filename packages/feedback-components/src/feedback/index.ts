@@ -56,13 +56,19 @@ export function FeedbackComponent({
   onSave,
   allowOverlap,
   matchLinks,
+  view = false,
 }) {
+  const [viewOnly, setViewOnly] = useState(view);
+  const [match, setMatchLinks] = useState(matchLinks);
+  const matchMode = match !== null;
+
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity) as any,
     entityTypes,
+    viewOnly,
+    matchMode,
   );
-  const [match, setMatchLinks] = useState(matchLinks || {});
 
   const {
     selectedNodes,
@@ -78,6 +84,18 @@ export function FeedbackComponent({
     h(
       "div.feedback-container",
       h(TreeDispatchContext.Provider, { value: dispatch }, [
+        h.if(!view)(SegmentedControl, {
+          options: [
+            { label: "View", value: "view" },
+            { label: "Edit", value: "edit" },
+          ],
+          value: viewOnly ? "view" : "edit",
+          small: true,
+          onValueChange() {
+            setViewOnly(!viewOnly);
+          },
+          role: "toolbar",
+        }),
         h(
           ErrorBoundary,
           {
@@ -92,6 +110,7 @@ export function FeedbackComponent({
             selectedNodes,
             allowOverlap,
             matchLinks: match,
+            viewOnly,
           }),
         ),
         h(
@@ -133,6 +152,7 @@ export function FeedbackComponent({
               height,
               dispatch,
               selectedNodes,
+              viewOnly,
             }),
           ],
         ),
@@ -140,7 +160,7 @@ export function FeedbackComponent({
     ),
     h(Card, { className: "control-panel" }, [
       h("div.control-content", [
-        h(
+        h.if(!viewOnly)(
           ButtonGroup,
           {
             vertical: true,
@@ -172,7 +192,7 @@ export function FeedbackComponent({
             ),
           ],
         ),
-        h(Matches, {
+        h.if(!viewOnly)(Matches, {
           match,
           setMatchLinks,
           matchLinks,
@@ -180,7 +200,7 @@ export function FeedbackComponent({
           tree,
           dispatch,
         }),
-        h(Divider),
+        h.if(!viewOnly)(Divider),
         h(EntityTypeSelector, {
           entityTypes: entityTypesMap,
           selected: selectedEntityType,
@@ -196,6 +216,8 @@ export function FeedbackComponent({
               type: "toggle-entity-type-selector",
               payload: isOpen,
             }),
+          viewOnly,
+          matchMode,
         }),
       ]),
     ]),
@@ -222,6 +244,8 @@ function EntityTypeSelector({
   tree,
   dispatch,
   selectedNodes = [],
+  viewOnly,
+  matchMode,
 }) {
   // Show all entity types when selected is null
   const _selected = selected != null ? selected : undefined;
@@ -242,6 +266,7 @@ function EntityTypeSelector({
       dispatch,
       selectedNodes,
       tree,
+      viewOnly: viewOnly || matchMode,
     }),
     h(OmniboxSelector, {
       isOpen,
