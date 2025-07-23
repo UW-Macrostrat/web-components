@@ -7,9 +7,11 @@ import { LoadingArea } from "../transitions";
 import { RegionalStratigraphy } from "./reg-strat";
 import { XddExpansion } from "./xdd-panel";
 import { useAPIResult } from "@macrostrat/ui-components";
-// import { apiV2Prefix, gddDomain } from "@macrostrat-web/settings";
+import { FossilCollections } from "./fossil-collections";
+
 const apiV2Prefix = `https://dev.macrostrat.org/api/v2`;
 const gddDomain = `https://xdd.wisc.edu`;
+const paleobioDomain = `https://paleobiodb.org`;
 
 const h = hyper.styled(styles);
 
@@ -26,7 +28,10 @@ export function InfoDrawer(props) {
 
   const mapInfo = fetchMapInfo(lng, lat, zoom);
   const columnInfo = fetchColumnInfo(lng, lat);
+  const fossilInfo = fetchFossilInfo(lng, lat);
   const xddInfo = fetchXddInfo(mapInfo?.mapData?.[0]?.macrostrat?.strat_names);
+
+  console.log("fossilInfo", fossilInfo);
 
   const fetchingMapInfo = mapInfo == null;
 
@@ -50,6 +55,7 @@ export function InfoDrawer(props) {
           mapInfo,
           columnInfo,
           xddInfo,
+          fossilInfo,
         }),
       ),
       children,
@@ -57,10 +63,12 @@ export function InfoDrawer(props) {
   );
 }
 
-function InfoDrawerMainPanel({ mapInfo, columnInfo, xddInfo }) {
+function InfoDrawerMainPanel({ mapInfo, columnInfo, xddInfo, fossilInfo }) {
   if (!mapInfo || !mapInfo.mapData) {
     return null;
   }
+
+  console.log("InfoDrawerMainPanel", fossilInfo);
 
   let source =
     mapInfo && mapInfo.mapData && mapInfo.mapData.length
@@ -80,7 +88,7 @@ function InfoDrawerMainPanel({ mapInfo, columnInfo, xddInfo }) {
       mapInfo,
       columnInfo,
     }),
-    // h(FossilCollections, { data: pbdbData, expanded: true }),
+    h(FossilCollections, { data: fossilInfo, expanded: true }),
     h(MacrostratLinkedData, {
       mapInfo,
       bedrockMatchExpanded: true,
@@ -112,4 +120,33 @@ function fetchXddInfo(stratNames) {
     article_limit: 20,
     term: stratNames?.map((d) => d.rank_name).join(","),
   })?.success?.data;
+}
+
+function fetchFossilInfo(lng, lat) {
+  const collectionResponse = useAPIResult(
+    `${paleobioDomain}/data1.2/colls/list.json?lngmin=${lng - 0.1}&lngmax=${lng + 0.1}&latmin=${lat - 0.1}&latmax=${lat + 0.1}`,
+  )?.records;
+
+  const occurrences = useAPIResult(
+    `${paleobioDomain}/data1.2/occs/list.json?lngmin=${lng - 0.1}&lngmax=${lng + 0.1}&latmin=${lat - 0.1}&latmax=${lat + 0.1}`,
+  )?.records;
+
+  if (!collectionResponse || !occurrences) {
+    return null;
+  }
+
+  try {
+    return collectionResponse.map((col) => {
+      col.occurrences = [];
+      occurrences.forEach((occ) => {
+        if (occ.cid === col.oid) {
+          col.occurrences.push(occ);
+        }
+      });
+      return col;
+    });
+  } catch (error) {
+    console.log(error);
+    return [];
+  }
 }

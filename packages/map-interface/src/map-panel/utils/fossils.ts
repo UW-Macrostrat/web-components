@@ -33,6 +33,8 @@ export function makeOccurrenceTree(data) {
     return -1;
   }
 
+  console.log("Processing fossil data...", data);
+
   data.forEach((d) => {
     // Some preprocessing
     d.rank = d.rnk ? rankMap[d.rnk] : d.idr ? rankMap[d.idr] : "Unknown";
