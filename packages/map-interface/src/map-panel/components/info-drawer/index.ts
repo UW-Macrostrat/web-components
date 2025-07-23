@@ -26,7 +26,7 @@ export function InfoDrawer(props) {
 
   const mapInfo = fetchMapInfo(lng, lat, zoom);
   const columnInfo = fetchColumnInfo(lng, lat);
-  const fossilInfo = fetchFossilInfo(lng, lat); 
+  const fossilInfo = fetchFossilInfo(lng, lat);
   const xddInfo = fetchXddInfo(mapInfo?.mapData?.[0]?.macrostrat?.strat_names);
 
   const fetchingMapInfo = mapInfo == null;
@@ -116,7 +116,8 @@ function fetchXddInfo(stratNames) {
 }
 
 function fetchFossilInfo(lng, lat) {
-  return useAPIResult(`http://localhost:5000/fossils`, { // fix when api changes
+  return useAPIResult(`http://localhost:5000/fossils`, {
+    // fix when api changes
     lat,
     lng,
   })?.success?.data;
