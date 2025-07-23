@@ -28,7 +28,7 @@ export function InfoDrawer(props) {
 
   const mapInfo = fetchMapInfo(lng, lat, zoom);
   const columnInfo = fetchColumnInfo(lng, lat);
-  const fossilInfo = fetchFossilInfo(lng, lat); 
+  const fossilInfo = fetchFossilInfo(lng, lat);
   const xddInfo = fetchXddInfo(mapInfo?.mapData?.[0]?.macrostrat?.strat_names);
 
   console.log('fossilInfo', fossilInfo);
