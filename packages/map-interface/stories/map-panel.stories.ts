@@ -16,7 +16,7 @@ const zoom = 3.9392171056922325;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<InfoDrawer> = {
-  title: "Map interface/Enhanced detail panel",
+  title: "Map interface/InfoDrawer",
   component: InfoDrawer,
 };
 
@@ -64,6 +64,41 @@ export function Primary(props) {
     [
       h.if(position != null)(MapMarker, {
         position,
+        setPosition: null,
+      }),
+      children,
+    ],
+  );
+}
+
+const position2 = { lat: 43.0735407, lng: -89.3938453 };
+
+export function Fossils(props) {
+  const { bounds, onClose, title, children, detailPanel, ...rest } = props;
+
+  const _detailPanel =
+    detailPanel ??
+    h(InfoDrawer, {
+      position: position2,
+      zoom,
+    });
+
+  return h(
+    DetailPanelMap,
+    {
+      ...rest,
+      detailPanel: _detailPanel,
+      bounds,
+      mapPosition: {
+        camera: {
+          ...position2,
+          altitude: 300000,
+        },
+      },
+    },
+    [
+      h.if(position2 != null)(MapMarker, {
+        position: position2,
         setPosition: null,
       }),
       children,
