@@ -31,7 +31,7 @@ export function InfoDrawer(props) {
   const fossilInfo = fetchFossilInfo(lng, lat);
   const xddInfo = fetchXddInfo(mapInfo?.mapData?.[0]?.macrostrat?.strat_names);
 
-  console.log('fossilInfo', fossilInfo);
+  console.log("fossilInfo", fossilInfo);
 
   const fetchingMapInfo = mapInfo == null;
 
@@ -124,14 +124,14 @@ function fetchXddInfo(stratNames) {
 
 function fetchFossilInfo(lng, lat) {
   const collectionResponse = useAPIResult(
-    `${paleobioDomain}/data1.2/colls/list.json?lngmin=${lng - 0.1}&lngmax=${lng + 0.1}&latmin=${lat - 0.1}&latmax=${lat + 0.1}`
-  )?.records
+    `${paleobioDomain}/data1.2/colls/list.json?lngmin=${lng - 0.1}&lngmax=${lng + 0.1}&latmin=${lat - 0.1}&latmax=${lat + 0.1}`,
+  )?.records;
 
   const occurrences = useAPIResult(
-    `${paleobioDomain}/data1.2/occs/list.json?lngmin=${lng - 0.1}&lngmax=${lng + 0.1}&latmin=${lat - 0.1}&latmax=${lat + 0.1}`
-  )?.records
+    `${paleobioDomain}/data1.2/occs/list.json?lngmin=${lng - 0.1}&lngmax=${lng + 0.1}&latmin=${lat - 0.1}&latmax=${lat + 0.1}`,
+  )?.records;
 
-  if( !collectionResponse || !occurrences) {
+  if (!collectionResponse || !occurrences) {
     return null;
   }
 
