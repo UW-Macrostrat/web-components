@@ -102,9 +102,6 @@ function treeReducer(state: TreeState, action: TreeAction) {
     return { ...state, viewOnly: !state.viewOnly };
   }
 
-  console.log("View only", state.viewOnly);
-  console.log("Match mode", state.matchMode);
-
   if (state.viewOnly) return viewMode(state, action);
 
   if (state.matchMode) return matchMode(state, action);
