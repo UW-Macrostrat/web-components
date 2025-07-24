@@ -93,7 +93,6 @@ export function useTreeDispatch() {
 }
 
 function treeReducer(state: TreeState, action: TreeAction) {
-  console.log("action", action);
   if (action.type === "toggle-match-mode") {
     return { ...state, matchMode: !state.matchMode };
   }

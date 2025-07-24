@@ -62,8 +62,6 @@ export function FeedbackComponent({
   const [match, setMatchLinks] = useState(matchLinks);
   const matchMode = match !== undefined;
 
-  console.log(match)
-
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
     entities.map(processEntity) as any,
