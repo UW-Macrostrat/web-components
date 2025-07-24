@@ -60,7 +60,9 @@ export function FeedbackComponent({
 }) {
   const [viewOnly, setViewOnly] = useState(view);
   const [match, setMatchLinks] = useState(matchLinks);
-  const matchMode = match !== null;
+  const matchMode = match !== undefined;
+
+  console.log(match)
 
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
@@ -93,6 +95,7 @@ export function FeedbackComponent({
           small: true,
           onValueChange() {
             setViewOnly(!viewOnly);
+            dispatch({ type: "toggle-view-only" });
           },
           role: "toolbar",
         }),
