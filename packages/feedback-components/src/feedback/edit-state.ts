@@ -54,7 +54,7 @@ type TreeAction =
   | { type: "add-match"; payload: { id: number; payload: any } }
   | { type: "remove-match"; payload: { id: number } }
   | { type: "toggle-match-mode" }
-  | { type: "toggle-view-only" }
+  | { type: "toggle-view-only" };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
