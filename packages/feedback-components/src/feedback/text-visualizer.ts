@@ -284,7 +284,7 @@ function renderNode(
     zIndex: parentSelected ? -1 : 1,
     border:
       "1px solid " +
-      (match != undefined && matchLinks
+      (match != undefined && matchLinks && !viewOnly
         ? "orange"
         : showBorder
           ? tag.color

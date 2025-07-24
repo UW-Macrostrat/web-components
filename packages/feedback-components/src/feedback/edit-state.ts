@@ -53,7 +53,8 @@ type TreeAction =
   | { type: "select-range"; payload: { ids: number[] } }
   | { type: "add-match"; payload: { id: number; payload: any } }
   | { type: "remove-match"; payload: { id: number } }
-  | { type: "toggle-match-mode" };
+  | { type: "toggle-match-mode" }
+  | { type: "toggle-view-only" };
 
 export type TreeDispatch = Dispatch<TreeAction>;
 
@@ -94,6 +95,10 @@ export function useTreeDispatch() {
 function treeReducer(state: TreeState, action: TreeAction) {
   if (action.type === "toggle-match-mode") {
     return { ...state, matchMode: !state.matchMode };
+  }
+
+  if (action.type === "toggle-view-only") {
+    return { ...state, viewOnly: !state.viewOnly };
   }
 
   if (state.viewOnly) return viewMode(state, action);

@@ -29,9 +29,9 @@ export function Matches({
     h(Divider),
     h(Switch, {
       label: "Match mode",
-      checked: match !== null,
+      checked: match !== undefined,
       onChange: (e) => {
-        setMatchLinks(match === null ? matchLinks || {} : null);
+        setMatchLinks(match === undefined ? matchLinks || {} : undefined);
         dispatch({ type: "toggle-match-mode" });
       },
     }),
