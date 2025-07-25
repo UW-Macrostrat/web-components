@@ -6,9 +6,9 @@ import hyper from "@macrostrat/hyper";
 import { buildHighlights, getTagStyle } from "../extractions";
 import { Highlight } from "../extractions/types";
 import { useEffect, useRef } from "react";
-import { Icon } from "@blueprintjs/core";
-import { DataField, JSONView } from "@macrostrat/ui-components";
-import { LithologyList, LithologyTag } from "@macrostrat/data-components";
+import { Popover } from "@blueprintjs/core";
+import { MatchTag } from "./matches";
+import { data } from "packages/feedback-components/stories/test-data";
 
 const h = hyper.styled(styles);
 
@@ -284,7 +284,7 @@ function renderNode(
     zIndex: parentSelected ? -1 : 1,
     border:
       "1px solid " +
-      (match != undefined && matchLinks && !viewOnly
+      (match != undefined && matchLinks
         ? "orange"
         : showBorder
           ? tag.color
@@ -306,13 +306,13 @@ function renderNode(
     }
   }
 
-  return h(
+  const tagComponent = h(
     "span",
     {
       onMouseEnter: (e: MouseEvent) => {
         e.stopPropagation();
       },
-      className: "highlight" + (!viewOnly ? " clickable" : ""),
+      className: "highlight" + (!viewOnly || match ? " clickable" : ""),
       style,
       onClick: (e: MouseEvent) => {
         e.stopPropagation();
@@ -356,6 +356,19 @@ function renderNode(
           ),
         ),
   );
+
+  if (viewOnly && match) {
+    return h(
+      Popover,
+      {
+        content: h("div.match-link", h(MatchTag, { data: match, matchLinks })),
+        interactionKind: "hover",
+      },
+      tagComponent,
+    );
+  }
+
+  return tagComponent;
 }
 
 export function HighlightedText(props: {

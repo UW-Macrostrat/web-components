@@ -146,6 +146,7 @@ export function FeedbackComponent({
               width,
               height,
               matchComponent,
+              viewOnly,
             }),
             h.if(state.viewMode == "graph")(GraphView, {
               tree,
@@ -305,8 +306,15 @@ function countNodes(tree) {
 }
 
 function ManagedSelectionTree(props) {
-  const { selectedNodes, dispatch, tree, height, width, matchComponent } =
-    props;
+  const {
+    selectedNodes,
+    dispatch,
+    tree,
+    height,
+    width,
+    matchComponent,
+    viewOnly,
+  } = props;
 
   const ref = useRef<TreeApi<TreeData>>();
   // Use a ref to track clicks (won't cause rerender)
@@ -402,6 +410,7 @@ function ManagedSelectionTree(props) {
       onSelect: handleSelect,
       children: _Node,
       idAccessor(d) {
+        if (viewOnly) return -1;
         return d.id.toString();
       },
     }),

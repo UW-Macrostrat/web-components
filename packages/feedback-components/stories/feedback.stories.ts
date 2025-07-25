@@ -67,6 +67,13 @@ export const ViewOnly: StoryObj<{}> = {
     types: entityTypes,
     allowOverlap: false,
     view: true,
+    matchLinks: {
+      lithology: `${lexURL}/lithology`,
+      strat_name: `${lexURL}/strat-names`,
+      lith_att: `${lexURL}/lith-atts`,
+      concept: `${lexURL}/strat-name-concepts`,
+      interval: `${lexURL}/intervals`,
+    },
   },
 };
 

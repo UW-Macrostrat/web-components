@@ -178,7 +178,7 @@ interface MatchTagProps {
   setPayload?: (payload: Record<string, any>) => void;
 }
 
-function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
+export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
   if (!data || Object.keys(data).length === 0) return;
 
   if (data.lith_id || data?.type === "lith") {
