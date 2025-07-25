@@ -306,7 +306,7 @@ function renderNode(
     }
   }
 
-  const tagComponent =  h(
+  const tagComponent = h(
     "span",
     {
       onMouseEnter: (e: MouseEvent) => {
@@ -358,17 +358,17 @@ function renderNode(
   );
 
   if (viewOnly && match) {
-    return h(Popover, {
-        content: h('div.match-link',
-          h(MatchTag, { data: match, matchLinks })
-        ),
-        interactionKind: "hover"
+    return h(
+      Popover,
+      {
+        content: h("div.match-link", h(MatchTag, { data: match, matchLinks })),
+        interactionKind: "hover",
       },
-      tagComponent
+      tagComponent,
     );
   }
 
-  return tagComponent
+  return tagComponent;
 }
 
 export function HighlightedText(props: {
