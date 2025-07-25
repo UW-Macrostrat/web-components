@@ -50,7 +50,7 @@
     "@visx/gradient": "^3.12.0",
     "@visx/scale": "^3.12.0",
     "@visx/shape": "^3.12.0",
-    "axios": "^1.7.9",
+    "axios": "^1.11.0",
     "classnames": "^2.5.1",
     "d3-array": "^3.2.4",
     "mapbox-gl": "^2.7.0||^3.13.0"
