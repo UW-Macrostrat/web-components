@@ -316,7 +316,7 @@ export function useMacrostratData(dataType: string, ...args: any[]) {
 const MacrostratDataProviderContext = createContext(createMacrostratStore());
 
 export function MacrostratDataProvider(props: MacrostratDataProviderProps) {
-  const { baseURL = "https://macrostrat.org/api/v2", children } = props;
+  const { baseURL = "https://dev.macrostrat.org/api/v2", children } = props;
 
   const [store] = useState(() => createMacrostratStore(baseURL));
 

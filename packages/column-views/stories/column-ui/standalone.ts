@@ -9,7 +9,7 @@ function useColumnUnits(col_id, inProcess) {
   const status_code = inProcess ? "in process" : undefined;
   // show_position is needed to properly deal with `section` column types.
   return useAPIResult(
-    "https://macrostrat.org/api/v2/units",
+    "https://dev.macrostrat.org/api/v2/units",
     { col_id, response: "long", status_code, show_position: true },
     (res) => res.success.data,
   );
@@ -18,7 +18,7 @@ function useColumnUnits(col_id, inProcess) {
 function useColumnBasicInfo(col_id, inProcess = false) {
   const status_code = inProcess ? "in process" : undefined;
   return useAPIResult(
-    "https://macrostrat.org/api/v2/columns",
+    "https://dev.macrostrat.org/api/v2/columns",
     { col_id, status_code },
     (res) => {
       return res.success.data[0];

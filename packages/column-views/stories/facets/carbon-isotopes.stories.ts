@@ -75,11 +75,10 @@ export function EdiacaranCompilation(defaultArgs) {
     [columnArgs],
   );
   const res: FeatureCollection = useAPIResult(
-    "https://macrostrat.org/api/v2/columns",
+    "https://dev.macrostrat.org/api/v2/columns",
     colParams,
     (res) => res?.success?.data,
   );
-  console.log(res);
   const columnFeature = res?.features[0];
 
   return h(
