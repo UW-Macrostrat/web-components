@@ -9,6 +9,7 @@ import {
   InputGroup,
   Collapse,
   Icon,
+  NonIdealState,
 } from "@blueprintjs/core";
 import styles from "./postgrest.module.sass";
 
@@ -45,6 +46,12 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
     title: string;
     children: React.ReactNode;
   }>;
+  NonIdealStateParams?: {
+    title?: string;
+    description?: string;
+    icon?: string;
+    className?: string;
+  };
 }
 
 export function PostgRESTInfiniteScrollView(
@@ -70,6 +77,12 @@ export function PostgRESTInfiniteScrollView(
     searchColumns = undefined,
     group_key = undefined,
     filter_threshold = 0,
+    NonIdealStateParams = {
+      title: "No Results",
+      description: "No results found",
+      icon: "search",
+      className: "no-results",
+    },
     ...rest
   } = props;
 
@@ -289,6 +302,7 @@ export function PostgRESTInfiniteScrollView(
           rest,
           hideData,
           GroupingComponent,
+          NonIdealStateParams,
         })
       : h(InfiniteScrollView, {
           ...rest,
@@ -333,6 +347,12 @@ interface GroupingProps {
   rest?: any;
   hideData?: boolean;
   GroupingComponent?: React.ComponentType<GroupingProps>;
+  NonIdealStateParams?: {
+    title?: string;
+    description?: string;
+    icon?: string;
+    className?: string;
+  };
 }
 
 function Grouping(props: GroupingProps) {
@@ -347,7 +367,12 @@ function Grouping(props: GroupingProps) {
     rest,
     hideData,
     GroupingComponent,
+    NonIdealStateParams,
   } = props;
+
+  if (hideData) {
+    return h("div.non-ideal-container", h(NonIdealState, NonIdealStateParams));
+  }
 
   return h("div.group-page", [
     groups.map((group) => {
