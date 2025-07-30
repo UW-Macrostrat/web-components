@@ -60,11 +60,8 @@ export interface CheckinProps {
 export function RockdWebsiteCheckinList(props: CheckinProps) {
   /** Checkin list component used in the Rockd website */
   const { result, mapRef, setInspectPosition, rockdCheckinURL, rockdImageURL, rockdProfilePicURL } = props;
-  const isDarkMode = useDarkMode().isEnabled;
-  let checkins = [];
   const map = mapRef?.current;
   const len = result.length;
-  const color = isDarkMode ? "white" : "black";
 
   return h(
     result.map((checkin) => {
@@ -72,13 +69,13 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
       let ratingArr = [];
       for (var i = 0; i < checkin.rating; i++) {
         ratingArr.push(
-          h(Icon, { className: "star", icon: "star", style: { color } }),
+          h(Icon, { className: "star", icon: "star" }),
         );
       }
 
       for (var i = 0; i < 5 - checkin.rating; i++) {
         ratingArr.push(
-          h(Icon, { className: "star", icon: "star-empty", style: { color } }),
+          h(Icon, { className: "star", icon: "star-empty" }),
         );
       }
 
@@ -100,7 +97,6 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
             h(Icon, {
               className: "details-image",
               icon: "arrow-right",
-              style: { color },
             }),
           ]),
         ]);
@@ -110,7 +106,6 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
           h(Icon, {
             className: "details-image",
             icon: "arrow-right",
-            style: { color },
           }),
         ]);
       }
@@ -192,27 +187,22 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
           h("div", { className: "checkin-footer" }, [
             h("div", { className: "likes-container" }, [
               h(Icon, {
-                className: "likes-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                className: "likes-icon",
                 icon: "thumbs-up",
-                style: { color },
               }),
               h("h3", { className: "likes" }, checkin.likes),
             ]),
             h("div", { className: "observations-container" }, [
               h(Icon, {
-                className:
-                  "observations-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                className: "observations-icon",
                 icon: "camera",
-                style: { color },
               }),
               h("h3", { className: "likes" }, checkin.observations.length),
             ]),
             h("div", { className: "comments-container" }, [
               h(Icon, {
-                className:
-                  "comments-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                className: "comments-icon",
                 icon: "comment",
-                style: { color },
               }),
               h("h3", { className: "comments" }, checkin.comments),
             ]),
