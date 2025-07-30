@@ -1,15 +1,5 @@
 # Changelog
 
-## [unreleased]
-
-Broke apart info panel into 5 components
-
-- Regional Stratigraphy
-- Physiography
-- Macrostrat Linked Data
-- xDD Info
-- Fossils
-
 ## [0.2.0] - 2025-06-25
 
 - onClick capability added to LithologyTag, IntervalTag, and EnvironmentList,

@@ -13,7 +13,7 @@ import {
 import { FossilCollections } from "./fossil-collections";
 
 export default {
-  title: "Data components/Location details",
+  title: "Map interface/Location panel details",
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   args: {},
 } as ComponentMeta<any>;
