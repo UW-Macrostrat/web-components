@@ -52,12 +52,14 @@ export interface CheckinProps {
   }>;
   mapRef?: React.RefObject<mapboxgl.Map>;
   setInspectPosition?: (position: { lat: number; lng: number }) => void;
-  rockdAPIUrl: string;
+  rockdCheckinURL: string;
+  rockdImageURL: string;
+  rockdProfilePicURL: string;
 }
 
 export function RockdWebsiteCheckinList(props: CheckinProps) {
   /** Checkin list component used in the Rockd website */
-  const { result, mapRef, setInspectPosition, rockdAPIUrl } = props;
+  const { result, mapRef, setInspectPosition, rockdCheckinURL, rockdImageURL, rockdProfilePicURL } = props;
   const isDarkMode = useDarkMode().isEnabled;
   let checkins = [];
   const map = mapRef?.current;
@@ -86,7 +88,7 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
         const imgSrc = getImageUrl(
           checkin.person_id,
           checkin.photo,
-          rockdAPIUrl,
+          rockdImageURL,
         );
         imageView = h([
           h("img.observation-img", {
@@ -159,7 +161,7 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
                   "h3.profile-pic",
 
                   h("img.profile-pic", {
-                    src: getProfilePicUrl(checkin.person_id, rockdAPIUrl),
+                    src: getProfilePicUrl(checkin.person_id, rockdProfilePicURL),
                   }),
                 )
               : null,
@@ -182,7 +184,7 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
             "a",
             {
               className: "checkin-link",
-              href: "/checkin/" + checkin.checkin_id,
+              href: rockdCheckinURL + "/" + checkin.checkin_id,
               target: "_blank",
             },
             imageView,
@@ -221,12 +223,10 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
   );
 }
 
-function getImageUrl(person_id, photo_id, rockdAPIUrl) {
-  return (
-    rockdAPIUrl + "/protected/image/" + person_id + "/thumb_large/" + photo_id
-  );
+function getImageUrl(person_id, photo_id, rockdImageURL) {
+  return rockdImageURL + "/" + person_id + "/thumb_large/" + photo_id;
 }
 
-function getProfilePicUrl(person_id, rockdAPIUrl) {
-  return rockdAPIUrl + "/protected/gravatar/" + person_id;
+function getProfilePicUrl(person_id, rockdProfilePicURL) {
+  return rockdProfilePicURL + "/" + person_id;
 }

@@ -306,7 +306,9 @@ WithImage.args = {
   result: [checkinWithImage],
   mapRef: null,
   setInspectPosition: () => {},
-  rockdAPIUrl: "https://dev.rockd.org/api/v2",
+  rockdCheckinURL: "https://dev.rockd.org/checkin",
+  rockdImageURL: "https://dev.rockd.org/api/v2/protected/image",
+  rockdProfilePicURL: "https://dev.rockd.org/api/v2/protected/gravatar",
 };
 
 export const WithoutImage = Template.bind({});
@@ -314,7 +316,9 @@ WithoutImage.args = {
   result: [checkinWithoutImage],
   mapRef: null,
   setInspectPosition: () => {},
-  rockdAPIUrl: "https://dev.rockd.org/api/v2",
+  rockdCheckinURL: "https://dev.rockd.org",
+  rockdImageURL: "https://dev.rockd.org/api/v2/protected/image",
+  rockdProfilePicURL: "https://dev.rockd.org/api/v2/protected/gravatar",
 };
 
 export const Multiple = Template.bind({});
@@ -322,5 +326,7 @@ Multiple.args = {
   result: [checkinWithImage, checkinWithoutImage],
   mapRef: null,
   setInspectPosition: () => {},
-  rockdAPIUrl: "https://dev.rockd.org/api/v2",
+  rockdCheckinURL: "https://dev.rockd.org",
+  rockdImageURL: "https://dev.rockd.org/api/v2/protected/image",
+  rockdProfilePicURL: "https://dev.rockd.org/api/v2/protected/gravatar",
 };
