@@ -1,7 +1,7 @@
 import hyper from "@macrostrat/hyper";
 import { LocationPanel } from "@macrostrat/map-interface";
 import { MacrostratLinkedData } from "./macrostrat-linked";
-import { Physiography } from "./physiography";
+import { Physiography } from "../../physiography";
 import styles from "./main.module.styl";
 import { LoadingArea } from "../transitions";
 import { RegionalStratigraphyInner } from "../../reg-strat";

@@ -1,6 +1,7 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { RegionalStratigraphy } from "./reg-strat";
+import { Physiography } from "./physiography";
 import { fetchMapInfo, fetchColumnInfo } from "./fetch";
 
 export default {
@@ -24,5 +25,13 @@ export function RegionalStratigraphyExample() {
     mapInfo,
     columnInfo,
     columnURL: "https://dev.macrostrat.org/columns/",
+  });
+}
+
+export function PhysiographyExample() {
+  const mapInfo = fetchMapInfo(lng, lat, zoom);
+
+  return h(Physiography, {
+    mapInfo,
   });
 }

@@ -1,11 +1,14 @@
 import h from "@macrostrat/hyper";
 import { ExpansionPanel } from "@macrostrat/map-interface";
 
-function Physiography(props) {
+export function Physiography(props) {
   const { mapInfo } = props;
-  const { regions } = mapInfo;
 
-  if (!mapInfo || !regions) return h("div");
+  if (!mapInfo || !mapInfo.regions) {
+    return null;
+  }
+
+  const { regions } = mapInfo;
 
   return h.if(regions.length > 0)(
     ExpansionPanel,
@@ -25,5 +28,3 @@ function Physiography(props) {
     ],
   );
 }
-
-export { Physiography };
