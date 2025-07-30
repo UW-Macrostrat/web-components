@@ -51,8 +51,6 @@ function Age({ age }) {
 function AgeChip(props) {
   const { t_int, b_int, intervalURL } = props;
 
-  console.log(intervalURL);
-
   return h("div.age-chip-container", [
     h(IntervalChip, { interval: b_int, intervalURL }),
     h.if(b_int.int_id != props.t_int.int_id)(IntervalChip, {

@@ -14,7 +14,6 @@ export default function PBDBCollections({ data }) {
 }
 
 function FossilCollection({ col }) {
-  console.log("FossilCollection", col);
   let occurrenceTree = makeOccurrenceTree(col.occurrences);
   return h(
     "div.fossil-collection",
