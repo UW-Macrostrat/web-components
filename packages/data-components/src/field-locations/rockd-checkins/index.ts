@@ -156,7 +156,10 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
                   "h3.profile-pic",
 
                   h("img.profile-pic", {
-                    src: getProfilePicUrl(checkin.person_id, rockdProfilePicURL),
+                    src: getProfilePicUrl(
+                      checkin.person_id,
+                      rockdProfilePicURL,
+                    ),
                   }),
                 )
               : null,
