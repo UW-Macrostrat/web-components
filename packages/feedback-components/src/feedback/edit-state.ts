@@ -69,7 +69,7 @@ export function useUpdatableTree(
   // issue: grabs second entity instead of selected one
   const type = entityTypes.values().next().value;
 
-  let selectedNodes = []
+  let selectedNodes = [];
   autoSelect = autoSelect.map((name) => name.toLowerCase());
 
   if (autoSelect.length > 0) {
