@@ -41,11 +41,18 @@ function isNodeActive(node: NodeApi<TreeData>, tree: TreeApi<TreeData>) {
   return false;
 }
 
-function Node({ node, style, dragHandle, tree, matchComponent, viewOnly }: any) {
+function Node({
+  node,
+  style,
+  dragHandle,
+  tree,
+  matchComponent,
+  viewOnly,
+}: any) {
   let highlighted: boolean = isNodeHighlighted(node, tree);
   let active: boolean = isNodeActive(node, tree);
 
-  console.log('viewOnly', viewOnly);
+  console.log("viewOnly", viewOnly);
 
   const dispatch = useTreeDispatch();
 
