@@ -4,7 +4,14 @@ import { FeedbackComponent } from "../src";
 import { data, entityTypes, data2, data3, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
-function FeedbackInterface({ data, types, allowOverlap, matchLinks, view }) {
+function FeedbackInterface({
+  data,
+  types,
+  allowOverlap,
+  matchLinks,
+  view,
+  autoSelect,
+}) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
   return h(FeedbackComponent, {
@@ -17,6 +24,7 @@ function FeedbackInterface({ data, types, allowOverlap, matchLinks, view }) {
     allowOverlap,
     view,
     matchLinks,
+    autoSelect,
   });
 }
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -74,6 +82,21 @@ export const ViewOnly: StoryObj<{}> = {
       concept: `${lexURL}/strat-name-concepts`,
       interval: `${lexURL}/intervals`,
     },
+  },
+};
+
+export const AutoSelect: StoryObj<{}> = {
+  args: {
+    data,
+    types: entityTypes,
+    matchLinks: {
+      lithology: `${lexURL}/lithology`,
+      strat_name: `${lexURL}/strat-names`,
+      lith_att: `${lexURL}/lith-atts`,
+      concept: `${lexURL}/strat-name-concepts`,
+      interval: `${lexURL}/intervals`,
+    },
+    autoSelect: ["sandstone", "structure"],
   },
 };
 

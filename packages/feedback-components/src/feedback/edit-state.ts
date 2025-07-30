@@ -63,15 +63,27 @@ export function useUpdatableTree(
   entityTypes: Map<number, EntityType>,
   viewOnly: boolean,
   matchMode: boolean,
+  autoSelect: string[] = [],
 ): [TreeState, TreeDispatch] {
   // Get the first entity type
   // issue: grabs second entity instead of selected one
   const type = entityTypes.values().next().value;
 
+  let selectedNodes = [];
+  autoSelect = autoSelect.map((name) => name.toLowerCase());
+
+  if (autoSelect.length > 0) {
+    // If autoSelect is provided, find the nodes with the matching names
+    selectedNodes = initialTree
+      .flatMap((node) => node.children ?? [])
+      .filter((node) => autoSelect.includes(node.name.toLowerCase()))
+      .map((node) => node.id);
+  }
+
   return useReducer(treeReducer, {
     initialTree,
     tree: initialTree,
-    selectedNodes: [],
+    selectedNodes,
     entityTypesMap: entityTypes,
     selectedEntityType: type,
     lastInternalId: 0,
@@ -98,7 +110,7 @@ function treeReducer(state: TreeState, action: TreeAction) {
   }
 
   if (action.type === "toggle-view-only") {
-    return { ...state, viewOnly: !state.viewOnly };
+    return { ...state, viewOnly: !state.viewOnly, selectedNodes: [] };
   }
 
   if (state.viewOnly) return viewMode(state, action);

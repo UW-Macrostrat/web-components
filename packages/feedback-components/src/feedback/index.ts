@@ -57,6 +57,7 @@ export function FeedbackComponent({
   allowOverlap,
   matchLinks,
   view = false,
+  autoSelect = [],
 }) {
   const [viewOnly, setViewOnly] = useState(view);
   const [match, setMatchLinks] = useState(matchLinks);
@@ -68,6 +69,7 @@ export function FeedbackComponent({
     entityTypes,
     viewOnly,
     matchMode,
+    autoSelect,
   );
 
   const {
@@ -321,8 +323,8 @@ function ManagedSelectionTree(props) {
   const clickedRef = useRef(false);
 
   const _Node = useCallback(
-    (props) => h(Node, { ...props, matchComponent }),
-    [matchComponent],
+    (props) => h(Node, { ...props, matchComponent, viewOnly }),
+    [matchComponent, viewOnly],
   );
 
   // Update Tree selection when selectedNodes change
@@ -410,7 +412,6 @@ function ManagedSelectionTree(props) {
       onSelect: handleSelect,
       children: _Node,
       idAccessor(d) {
-        if (viewOnly) return -1;
         return d.id.toString();
       },
     }),
