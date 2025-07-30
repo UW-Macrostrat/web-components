@@ -2,6 +2,7 @@ import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { RegionalStratigraphy } from "./reg-strat";
 import { Physiography } from "./physiography";
+import { MacrostratLinkedData } from "./macrostrat-linked";
 import { fetchMapInfo, fetchColumnInfo } from "./fetch";
 
 export default {
@@ -21,6 +22,10 @@ export function RegionalStratigraphyExample() {
   const mapInfo = fetchMapInfo(lng, lat, zoom);
   const columnInfo = fetchColumnInfo(lng, lat);
 
+  if (!mapInfo || !mapInfo.mapData) {
+    return null;
+  }
+
   return h(RegionalStratigraphy, {
     mapInfo,
     columnInfo,
@@ -31,7 +36,42 @@ export function RegionalStratigraphyExample() {
 export function PhysiographyExample() {
   const mapInfo = fetchMapInfo(lng, lat, zoom);
 
+  if (!mapInfo) {
+    return null;
+  }
+
   return h(Physiography, {
     mapInfo,
+  });
+}
+
+export function MacrostratLinkedDataExample() {
+  const mapInfo = fetchMapInfo(lng, lat, zoom);
+
+  if (!mapInfo) {
+    return null;
+  }
+
+  const source =
+    mapInfo && mapInfo?.mapData && mapInfo?.mapData.length
+      ? mapInfo?.mapData[0]
+      : {
+          name: null,
+          descrip: null,
+          comments: null,
+          liths: [],
+          b_int: {},
+          t_int: {},
+          ref: {},
+        };
+        
+  return h(MacrostratLinkedData, {
+    mapInfo,
+    bedrockMatchExpanded: true,
+    source,
+    stratNameURL: "https://dev.macrostrat.org/lex/strat-names",
+    environmentURL: "https://dev.macrostrat.org/lex/environments",
+    intervalURL: "https://dev.macrostrat.org/lex/intervals",
+    lithologyURL: "https://dev.macrostrat.org/lex/lithologies",
   });
 }

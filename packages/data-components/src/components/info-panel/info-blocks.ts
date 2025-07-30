@@ -1,5 +1,5 @@
 import hyper from "@macrostrat/hyper";
-import { hexToRgb } from "../utils";
+import { hexToRgb } from "./utils";
 import styles from "./info-blocks.module.styl";
 import { useDarkMode } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
@@ -15,14 +15,14 @@ function getColor(color, darkenAmount) {
 }
 
 function IntervalChip(props) {
-  const { interval, className } = props;
+  const { interval, className, intervalURL } = props;
   const darkMode = useDarkMode();
   const darkenAmount = darkMode.isEnabled ? 2 : 0;
 
   return h(
     "a.chip-link",
     {
-      href: `/lex/intervals/${interval.int_id}`,
+      href: `${intervalURL}/${interval.int_id}`,
     },
     h(
       "div.chip.age-chip",
@@ -49,12 +49,16 @@ function Age({ age }) {
 }
 
 function AgeChip(props) {
-  const { t_int, b_int } = props;
+  const { t_int, b_int, intervalURL } = props;
+
+  console.log(intervalURL);
+
   return h("div.age-chip-container", [
-    h(IntervalChip, { interval: b_int }),
+    h(IntervalChip, { interval: b_int, intervalURL }),
     h.if(b_int.int_id != props.t_int.int_id)(IntervalChip, {
       interval: t_int,
       className: "age-chip-t-int",
+      intervalURL,
     }),
   ]);
 }
