@@ -59,7 +59,14 @@ export interface CheckinProps {
 
 export function RockdWebsiteCheckinList(props: CheckinProps) {
   /** Checkin list component used in the Rockd website */
-  const { result, mapRef, setInspectPosition, rockdCheckinURL, rockdImageURL, rockdProfilePicURL } = props;
+  const {
+    result,
+    mapRef,
+    setInspectPosition,
+    rockdCheckinURL,
+    rockdImageURL,
+    rockdProfilePicURL,
+  } = props;
   const map = mapRef?.current;
   const len = result.length;
 
@@ -68,15 +75,11 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
       // format rating
       let ratingArr = [];
       for (var i = 0; i < checkin.rating; i++) {
-        ratingArr.push(
-          h(Icon, { className: "star", icon: "star" }),
-        );
+        ratingArr.push(h(Icon, { className: "star", icon: "star" }));
       }
 
       for (var i = 0; i < 5 - checkin.rating; i++) {
-        ratingArr.push(
-          h(Icon, { className: "star", icon: "star-empty" }),
-        );
+        ratingArr.push(h(Icon, { className: "star", icon: "star-empty" }));
       }
 
       let imageView = null;
