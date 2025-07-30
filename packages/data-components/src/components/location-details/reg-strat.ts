@@ -2,15 +2,15 @@ import h from "@macrostrat/hyper";
 import { ExpansionPanel } from "@macrostrat/map-interface";
 import { addCommas } from "./utils";
 
-export function RegionalStratigraphy({mapInfo, columnInfo, columnURL}) {
-  if(!mapInfo || !mapInfo.mapData) {
+export function RegionalStratigraphy({ mapInfo, columnInfo, columnURL }) {
+  if (!mapInfo || !mapInfo.mapData) {
     return null;
   }
 
   return RegionalStratigraphyInner({
     mapInfo,
     columnInfo,
-    columnURL
+    columnURL,
   });
 }
 

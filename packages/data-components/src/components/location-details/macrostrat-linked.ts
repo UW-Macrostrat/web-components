@@ -14,7 +14,15 @@ import { AttrChip, AgeChip } from "./info-blocks";
 const h = hyper.styled(styles);
 
 export function MacrostratLinkedData(props) {
-  const { mapInfo, bedrockMatchExpanded, source, stratNameURL, environmentURL, intervalURL, lithologyURL } = props;
+  const {
+    mapInfo,
+    bedrockMatchExpanded,
+    source,
+    stratNameURL,
+    environmentURL,
+    intervalURL,
+    lithologyURL,
+  } = props;
 
   if (!mapInfo.mapData[0]) return h("div");
 

@@ -3,6 +3,7 @@
 ## [unreleased]
 
 Broke apart info panel into 5 components
+
 - Regional Stratigraphy
 - Physiography
 - Macrostrat Linked Data

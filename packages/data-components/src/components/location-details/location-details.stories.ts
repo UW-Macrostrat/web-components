@@ -4,7 +4,12 @@ import { RegionalStratigraphy } from "./reg-strat";
 import { Physiography } from "./physiography";
 import { MacrostratLinkedData } from "./macrostrat-linked";
 import { XddExpansion } from "./xdd-panel";
-import { fetchMapInfo, fetchColumnInfo, fetchXddInfo, fetchFossilInfo } from "./fetch";
+import {
+  fetchMapInfo,
+  fetchColumnInfo,
+  fetchXddInfo,
+  fetchFossilInfo,
+} from "./fetch";
 import { FossilCollections } from "./fossil-collections";
 
 export default {
@@ -66,7 +71,7 @@ export function MacrostratLinkedDataExample() {
           t_int: {},
           ref: {},
         };
-        
+
   return h(MacrostratLinkedData, {
     mapInfo,
     bedrockMatchExpanded: true,
