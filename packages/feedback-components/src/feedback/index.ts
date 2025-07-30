@@ -57,6 +57,7 @@ export function FeedbackComponent({
   allowOverlap,
   matchLinks,
   view = false,
+  autoSelect = [],
 }) {
   const [viewOnly, setViewOnly] = useState(view);
   const [match, setMatchLinks] = useState(matchLinks);
@@ -68,6 +69,7 @@ export function FeedbackComponent({
     entityTypes,
     viewOnly,
     matchMode,
+    autoSelect,
   );
 
   const {
