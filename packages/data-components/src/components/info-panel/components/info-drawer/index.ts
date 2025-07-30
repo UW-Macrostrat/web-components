@@ -4,7 +4,7 @@ import { MacrostratLinkedData } from "./macrostrat-linked";
 import { Physiography } from "./physiography";
 import styles from "./main.module.styl";
 import { LoadingArea } from "../transitions";
-import { RegionalStratigraphy } from "./reg-strat";
+import { RegionalStratigraphyInner } from "../../reg-strat";
 import { XddExpansion } from "./xdd-panel";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { FossilCollections } from "./fossil-collections";
@@ -14,6 +14,21 @@ const gddDomain = `https://xdd.wisc.edu`;
 const paleobioDomain = `https://paleobiodb.org`;
 
 const h = hyper.styled(styles);
+
+export function RegionalStratigraphy({lat, lng, zoom, columnURL}) {
+  const mapInfo = fetchMapInfo(lng, lat, zoom);
+  const columnInfo = fetchColumnInfo(lng, lat);
+
+  if(!mapInfo || !mapInfo.mapData) {
+    return null;
+  }
+
+  return RegionalStratigraphyInner({
+    mapInfo,
+    columnInfo,
+    columnURL
+  });
+}
 
 export function InfoDrawer(props) {
   const {
