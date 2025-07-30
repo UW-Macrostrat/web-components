@@ -3,7 +3,9 @@ import h from "@macrostrat/hyper";
 import { RegionalStratigraphy } from "./reg-strat";
 import { Physiography } from "./physiography";
 import { MacrostratLinkedData } from "./macrostrat-linked";
-import { fetchMapInfo, fetchColumnInfo } from "./fetch";
+import { XddExpansion } from "./xdd-panel";
+import { fetchMapInfo, fetchColumnInfo, fetchXddInfo, fetchFossilInfo } from "./fetch";
+import { FossilCollections } from "./fossil-collections";
 
 export default {
   title: "Data components/Location details",
@@ -74,4 +76,25 @@ export function MacrostratLinkedDataExample() {
     intervalURL: "https://dev.macrostrat.org/lex/intervals",
     lithologyURL: "https://dev.macrostrat.org/lex/lithologies",
   });
+}
+
+export function xddInfoExample() {
+  const mapInfo = fetchMapInfo(lng, lat, zoom);
+  const xddInfo = fetchXddInfo(mapInfo?.mapData?.[0]?.macrostrat?.strat_names);
+
+  if (!xddInfo) {
+    return null;
+  }
+
+  return h(XddExpansion, { xddInfo });
+}
+
+export function FossilsExample() {
+  const fossilInfo = fetchFossilInfo(-89.3938453, 43.0735407);
+
+  if (!fossilInfo) {
+    return null;
+  }
+
+  return h(FossilCollections, { data: fossilInfo, expanded: true });
 }

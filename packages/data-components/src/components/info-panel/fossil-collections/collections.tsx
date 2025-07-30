@@ -1,6 +1,6 @@
 import React from "react";
 import { Tabs, Tab } from "@blueprintjs/core";
-import { makeOccurrenceTree } from "../../../utils";
+import { makeOccurrenceTree } from "../utils";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 const h = hyper.styled(styles);

@@ -5,9 +5,9 @@ import { Physiography } from "../../physiography";
 import styles from "./main.module.styl";
 import { LoadingArea } from "../transitions";
 import { RegionalStratigraphyInner } from "../../reg-strat";
-import { XddExpansion } from "./xdd-panel";
+import { XddExpansion } from "../../xdd-panel";
 import { useAPIResult } from "@macrostrat/ui-components";
-import { FossilCollections } from "./fossil-collections";
+import { FossilCollections } from "../../fossil-collections";
 
 const apiV2Prefix = `https://dev.macrostrat.org/api/v2`;
 const gddDomain = `https://xdd.wisc.edu`;
