@@ -45,6 +45,8 @@ function Node({ node, style, dragHandle, tree, matchComponent, viewOnly }: any) 
   let highlighted: boolean = isNodeHighlighted(node, tree);
   let active: boolean = isNodeActive(node, tree);
 
+  console.log('viewOnly', viewOnly);
+
   const dispatch = useTreeDispatch();
 
   if (!node.data?.type) {

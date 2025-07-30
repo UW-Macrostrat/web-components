@@ -324,7 +324,7 @@ function ManagedSelectionTree(props) {
 
   const _Node = useCallback(
     (props) => h(Node, { ...props, matchComponent, viewOnly }),
-    [matchComponent],
+    [matchComponent, viewOnly],
   );
 
   // Update Tree selection when selectedNodes change

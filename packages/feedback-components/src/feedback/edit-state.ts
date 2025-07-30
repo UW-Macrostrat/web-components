@@ -110,7 +110,7 @@ function treeReducer(state: TreeState, action: TreeAction) {
   }
 
   if (action.type === "toggle-view-only") {
-    return { ...state, viewOnly: !state.viewOnly };
+    return { ...state, viewOnly: !state.viewOnly, selectedNodes: [] };
   }
 
   if (state.viewOnly) return viewMode(state, action);
