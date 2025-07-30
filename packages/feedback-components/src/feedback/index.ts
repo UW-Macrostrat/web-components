@@ -323,7 +323,7 @@ function ManagedSelectionTree(props) {
   const clickedRef = useRef(false);
 
   const _Node = useCallback(
-    (props) => h(Node, { ...props, matchComponent }),
+    (props) => h(Node, { ...props, matchComponent, viewOnly }),
     [matchComponent],
   );
 
@@ -412,7 +412,6 @@ function ManagedSelectionTree(props) {
       onSelect: handleSelect,
       children: _Node,
       idAccessor(d) {
-        if (viewOnly) return -1;
         return d.id.toString();
       },
     }),
