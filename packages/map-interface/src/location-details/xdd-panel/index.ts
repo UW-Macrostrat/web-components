@@ -16,16 +16,17 @@ export interface XDDSnippet {
   highlight: string[];
 }
 
-export function XddExpansion({ xddInfo, expanded = false }) {
+export function XddExpansion({ xddInfo, expanded = false, nestedExpanded = true }) {
   return h(xDDPanelCore, {
     className: "regional-panel",
     data: xddInfo,
     isFetching: xddInfo == undefined || xddInfo.length === 0,
     expanded,
+    nestedExpanded,
   });
 }
 
-export function xDDPanelCore({ isFetching, data: xddInfo, expanded, ...rest }) {
+export function xDDPanelCore({ isFetching, data: xddInfo, expanded, nestedExpanded, ...rest }) {
   const groupedData = groupSnippetsByJournal(xddInfo);
 
   console.log("expanded", expanded);
@@ -44,6 +45,7 @@ export function xDDPanelCore({ isFetching, data: xddInfo, expanded, ...rest }) {
       h.if(!isFetching && xddInfo.length > 0)([
         Array.from(groupedData.entries())?.map(([journal, snippets]) => {
           return h(Journal, {
+            nestedExpanded,
             name: journal,
             articles: snippets,
             publisher: snippets[0].publisher,

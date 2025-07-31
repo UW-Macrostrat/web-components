@@ -90,7 +90,7 @@ export function xddInfoExample() {
     return null;
   }
 
-  return h(XddExpansion, { xddInfo, expanded: true });
+  return h(XddExpansion, { xddInfo, expanded: true, nestedExpanded: true });
 }
 
 export function FossilsExample() {
