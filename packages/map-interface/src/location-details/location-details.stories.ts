@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
+import { ComponentMeta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { RegionalStratigraphy } from "./reg-strat";
 import { Physiography } from "./physiography";
@@ -52,7 +52,8 @@ export function PhysiographyExample() {
 }
 
 export function MacrostratLinkedDataExample() {
-  const mapInfo = fetchMapInfo(lng, lat, zoom);
+  const mapInfo = fetchMapInfo(15.743942373517427, 24.411256533434297, 3.802195467549342
+);
 
   if (!mapInfo) {
     return null;

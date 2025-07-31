@@ -57,19 +57,20 @@ function AgeInformation(props) {
   const { source, mapInfo, intervalURL } = props;
   const { macrostrat } = source;
 
-  if (!macrostrat?.b_age) return h(MapAgeRenderer, { mapInfo });
+  if (!macrostrat?.b_age) return h(MapAgeRenderer, { mapInfo, intervalURL });
 
   return h(MacrostratAgeInfo, { macrostrat, mapInfo, intervalURL });
 }
 
 function MapAgeRenderer(props) {
-  const { mapInfo, ...rest } = props;
+  const { mapInfo, intervalURL, ...rest } = props;
   return h(
     DescribedAgeInfo,
     {
       ageElement: h(AgeChip, {
         b_int: mapInfo.mapData[0].b_int,
         t_int: mapInfo.mapData[0].t_int,
+        intervalURL
       }),
     },
     "Based on geologic map description.",
