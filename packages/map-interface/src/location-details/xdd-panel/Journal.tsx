@@ -37,7 +37,7 @@ function Journal_(props: JournalProps) {
     {
       title: name,
       helpText: publisher,
-      expanded: nestedExpanded
+      expanded: nestedExpanded,
     },
     [
       articles.map((article, i) => {
