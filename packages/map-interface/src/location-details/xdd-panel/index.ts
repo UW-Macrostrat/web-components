@@ -21,7 +21,7 @@ export function XddExpansion({ xddInfo, expanded = false }) {
     className: "regional-panel",
     data: xddInfo,
     isFetching: xddInfo == undefined || xddInfo.length === 0,
-    expanded
+    expanded,
   });
 }
 
@@ -37,7 +37,7 @@ export function xDDPanelCore({ isFetching, data: xddInfo, expanded, ...rest }) {
       title: "Primary literature",
       helpText: "via xDD",
       ...rest,
-      expanded
+      expanded,
     },
     [
       h.if(isFetching)(Spinner),

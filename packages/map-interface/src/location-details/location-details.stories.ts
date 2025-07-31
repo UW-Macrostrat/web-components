@@ -34,7 +34,7 @@ export function RegionalStratigraphyExample() {
     mapInfo,
     columnInfo,
     columnURL: "https://dev.macrostrat.org/columns/",
-    expanded: true
+    expanded: true,
   });
 }
 
@@ -47,7 +47,7 @@ export function PhysiographyExample() {
 
   return h(Physiography, {
     mapInfo,
-    expanded: true
+    expanded: true,
   });
 }
 
@@ -78,7 +78,7 @@ export function MacrostratLinkedDataExample() {
     environmentURL: "https://dev.macrostrat.org/lex/environments",
     intervalURL: "https://dev.macrostrat.org/lex/intervals",
     lithologyURL: "https://dev.macrostrat.org/lex/lithologies",
-    expanded: true
+    expanded: true,
   });
 }
 
