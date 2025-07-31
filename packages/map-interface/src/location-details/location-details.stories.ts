@@ -1,4 +1,4 @@
-import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
+import { ComponentMeta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { RegionalStratigraphy } from "./reg-strat";
 import { Physiography } from "./physiography";
@@ -90,7 +90,7 @@ export function xddInfoExample() {
     return null;
   }
 
-  return h(XddExpansion, { xddInfo, expanded: true });
+  return h(XddExpansion, { xddInfo, expanded: true, nestedExpanded: true });
 }
 
 export function FossilsExample() {

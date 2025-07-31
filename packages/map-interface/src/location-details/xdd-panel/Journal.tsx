@@ -23,11 +23,12 @@ type JournalProps = {
   articles: XDDSnippet[];
   name: string;
   publisher: string;
+  nestedExpanded?: boolean;
 };
 
 // Still up for review
 function Journal_(props: JournalProps) {
-  const { articles, name, publisher } = props;
+  const { articles, name, publisher, nestedExpanded } = props;
 
   const helpText = articles[0].pubname;
 
@@ -36,6 +37,7 @@ function Journal_(props: JournalProps) {
     {
       title: name,
       helpText: publisher,
+      expanded: nestedExpanded,
     },
     [
       articles.map((article, i) => {
