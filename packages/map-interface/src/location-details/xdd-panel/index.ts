@@ -16,16 +16,19 @@ export interface XDDSnippet {
   highlight: string[];
 }
 
-export function XddExpansion({ xddInfo }) {
+export function XddExpansion({ xddInfo, expanded = false }) {
   return h(xDDPanelCore, {
     className: "regional-panel",
     data: xddInfo,
     isFetching: xddInfo == undefined || xddInfo.length === 0,
+    expanded,
   });
 }
 
-export function xDDPanelCore({ isFetching, data: xddInfo, ...rest }) {
+export function xDDPanelCore({ isFetching, data: xddInfo, expanded, ...rest }) {
   const groupedData = groupSnippetsByJournal(xddInfo);
+
+  console.log("expanded", expanded);
 
   return h(
     ExpansionPanel,
@@ -34,6 +37,7 @@ export function xDDPanelCore({ isFetching, data: xddInfo, ...rest }) {
       title: "Primary literature",
       helpText: "via xDD",
       ...rest,
+      expanded,
     },
     [
       h.if(isFetching)(Spinner),

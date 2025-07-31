@@ -1,9 +1,28 @@
 import h from "@macrostrat/hyper";
 import { ExpansionPanel } from "@macrostrat/map-interface";
-import { addCommas } from "../../utils";
+import { addCommas } from "./utils";
 
-export function RegionalStratigraphy(props) {
-  const { mapInfo, columnInfo } = props;
+export function RegionalStratigraphy({
+  mapInfo,
+  columnInfo,
+  columnURL,
+  expanded = true,
+}) {
+  if (!mapInfo || !mapInfo.mapData) {
+    return null;
+  }
+
+  return RegionalStratigraphyInner({
+    mapInfo,
+    columnInfo,
+    columnURL,
+    expanded,
+  });
+}
+
+function RegionalStratigraphyInner(props) {
+  const { mapInfo, columnInfo, columnURL, expanded } = props;
+
   if (mapInfo?.mapData == null || !columnInfo) return null;
 
   return h(
@@ -11,15 +30,15 @@ export function RegionalStratigraphy(props) {
     {
       classes: { root: "regional-panel" },
       title: "Regional stratigraphy",
-      expanded: true,
+      expanded,
     },
-    [h.if(columnInfo != null)(ColumnData, { columnInfo })],
+    [h.if(columnInfo != null)(ColumnData, { columnInfo, columnURL })],
   );
 }
 
-function ColumnData({ columnInfo }) {
+function ColumnData({ columnInfo, columnURL }) {
   return h("div.column-data", [
-    h("a", { href: "/columns/" + columnInfo.col_id }, "View column page"),
+    h("a", { href: columnURL + "/" + columnInfo.col_id }, "View column page"),
     h(MapAttribute, {
       label: "Name: ",
       content: [columnInfo.col_name],

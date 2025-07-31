@@ -52,32 +52,34 @@ export interface CheckinProps {
   }>;
   mapRef?: React.RefObject<mapboxgl.Map>;
   setInspectPosition?: (position: { lat: number; lng: number }) => void;
-  rockdAPIUrl: string;
+  rockdCheckinURL: string;
+  rockdImageURL: string;
+  rockdProfilePicURL: string;
 }
 
 export function RockdWebsiteCheckinList(props: CheckinProps) {
   /** Checkin list component used in the Rockd website */
-  const { result, mapRef, setInspectPosition, rockdAPIUrl } = props;
-  const isDarkMode = useDarkMode().isEnabled;
-  let checkins = [];
+  const {
+    result,
+    mapRef,
+    setInspectPosition,
+    rockdCheckinURL,
+    rockdImageURL,
+    rockdProfilePicURL,
+  } = props;
   const map = mapRef?.current;
   const len = result.length;
-  const color = isDarkMode ? "white" : "black";
 
   return h(
     result.map((checkin) => {
       // format rating
       let ratingArr = [];
       for (var i = 0; i < checkin.rating; i++) {
-        ratingArr.push(
-          h(Icon, { className: "star", icon: "star", style: { color } }),
-        );
+        ratingArr.push(h(Icon, { className: "star", icon: "star" }));
       }
 
       for (var i = 0; i < 5 - checkin.rating; i++) {
-        ratingArr.push(
-          h(Icon, { className: "star", icon: "star-empty", style: { color } }),
-        );
+        ratingArr.push(h(Icon, { className: "star", icon: "star-empty" }));
       }
 
       let imageView = null;
@@ -86,7 +88,7 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
         const imgSrc = getImageUrl(
           checkin.person_id,
           checkin.photo,
-          rockdAPIUrl,
+          rockdImageURL,
         );
         imageView = h([
           h("img.observation-img", {
@@ -98,7 +100,6 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
             h(Icon, {
               className: "details-image",
               icon: "arrow-right",
-              style: { color },
             }),
           ]),
         ]);
@@ -108,7 +109,6 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
           h(Icon, {
             className: "details-image",
             icon: "arrow-right",
-            style: { color },
           }),
         ]);
       }
@@ -159,7 +159,10 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
                   "h3.profile-pic",
 
                   h("img.profile-pic", {
-                    src: getProfilePicUrl(checkin.person_id, rockdAPIUrl),
+                    src: getProfilePicUrl(
+                      checkin.person_id,
+                      rockdProfilePicURL,
+                    ),
                   }),
                 )
               : null,
@@ -182,7 +185,7 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
             "a",
             {
               className: "checkin-link",
-              href: "/checkin/" + checkin.checkin_id,
+              href: rockdCheckinURL + "/" + checkin.checkin_id,
               target: "_blank",
             },
             imageView,
@@ -190,27 +193,22 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
           h("div", { className: "checkin-footer" }, [
             h("div", { className: "likes-container" }, [
               h(Icon, {
-                className: "likes-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                className: "likes-icon",
                 icon: "thumbs-up",
-                style: { color },
               }),
               h("h3", { className: "likes" }, checkin.likes),
             ]),
             h("div", { className: "observations-container" }, [
               h(Icon, {
-                className:
-                  "observations-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                className: "observations-icon",
                 icon: "camera",
-                style: { color },
               }),
               h("h3", { className: "likes" }, checkin.observations.length),
             ]),
             h("div", { className: "comments-container" }, [
               h(Icon, {
-                className:
-                  "comments-icon " + (isDarkMode ? "icon-dark-mode" : ""),
+                className: "comments-icon",
                 icon: "comment",
-                style: { color },
               }),
               h("h3", { className: "comments" }, checkin.comments),
             ]),
@@ -221,12 +219,10 @@ export function RockdWebsiteCheckinList(props: CheckinProps) {
   );
 }
 
-function getImageUrl(person_id, photo_id, rockdAPIUrl) {
-  return (
-    rockdAPIUrl + "/protected/image/" + person_id + "/thumb_large/" + photo_id
-  );
+function getImageUrl(person_id, photo_id, rockdImageURL) {
+  return rockdImageURL + "/" + person_id + "/thumb_large/" + photo_id;
 }
 
-function getProfilePicUrl(person_id, rockdAPIUrl) {
-  return rockdAPIUrl + "/protected/gravatar/" + person_id;
+function getProfilePicUrl(person_id, rockdProfilePicURL) {
+  return rockdProfilePicURL + "/" + person_id;
 }
