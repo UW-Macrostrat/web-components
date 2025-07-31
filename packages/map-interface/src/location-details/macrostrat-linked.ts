@@ -16,12 +16,12 @@ const h = hyper.styled(styles);
 export function MacrostratLinkedData(props) {
   const {
     mapInfo,
-    bedrockMatchExpanded,
     source,
     stratNameURL,
     environmentURL,
     intervalURL,
     lithologyURL,
+    expanded = true,
   } = props;
 
   if (!mapInfo.mapData[0]) return h("div");
@@ -32,7 +32,7 @@ export function MacrostratLinkedData(props) {
       className: "regional-panel",
       title: "Macrostrat-linked data",
       helpText: "via Macrostrat",
-      expanded: bedrockMatchExpanded,
+      expanded,
     },
     [
       h("div", { classes: expansionPanelDetailClasses }, [

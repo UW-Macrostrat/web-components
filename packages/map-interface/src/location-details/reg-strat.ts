@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import { ExpansionPanel } from "@macrostrat/map-interface";
 import { addCommas } from "./utils";
 
-export function RegionalStratigraphy({ mapInfo, columnInfo, columnURL }) {
+export function RegionalStratigraphy({ mapInfo, columnInfo, columnURL, expanded = true }) {
   if (!mapInfo || !mapInfo.mapData) {
     return null;
   }
@@ -11,11 +11,12 @@ export function RegionalStratigraphy({ mapInfo, columnInfo, columnURL }) {
     mapInfo,
     columnInfo,
     columnURL,
+    expanded
   });
 }
 
 function RegionalStratigraphyInner(props) {
-  const { mapInfo, columnInfo, columnURL } = props;
+  const { mapInfo, columnInfo, columnURL, expanded } = props;
 
   if (mapInfo?.mapData == null || !columnInfo) return null;
 
@@ -24,7 +25,7 @@ function RegionalStratigraphyInner(props) {
     {
       classes: { root: "regional-panel" },
       title: "Regional stratigraphy",
-      expanded: true,
+      expanded,
     },
     [h.if(columnInfo != null)(ColumnData, { columnInfo, columnURL })],
   );

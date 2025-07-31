@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import { ExpansionPanel } from "@macrostrat/map-interface";
 
 export function Physiography(props) {
-  const { mapInfo } = props;
+  const { mapInfo, expanded = true } = props;
 
   if (!mapInfo || !mapInfo.regions) {
     return null;
@@ -15,7 +15,7 @@ export function Physiography(props) {
     {
       classes: { root: "regional-panel" },
       title: "Physiography",
-      expanded: true,
+      expanded,
     },
     [
       regions.map((region, i) => {

@@ -18,9 +18,6 @@ export default {
   args: {},
 } as ComponentMeta<any>;
 
-const Template: ComponentStory<typeof RegionalStratigraphy> = (args) =>
-  h(RegionalStratigraphy, { ...args });
-
 const lat = 44.60085563149249;
 const lng = -96.16783150353609;
 const zoom = 3.9392171056922325;
@@ -37,6 +34,7 @@ export function RegionalStratigraphyExample() {
     mapInfo,
     columnInfo,
     columnURL: "https://dev.macrostrat.org/columns/",
+    expanded: true
   });
 }
 
@@ -49,6 +47,7 @@ export function PhysiographyExample() {
 
   return h(Physiography, {
     mapInfo,
+    expanded: true
   });
 }
 
@@ -74,12 +73,12 @@ export function MacrostratLinkedDataExample() {
 
   return h(MacrostratLinkedData, {
     mapInfo,
-    bedrockMatchExpanded: true,
     source,
     stratNameURL: "https://dev.macrostrat.org/lex/strat-names",
     environmentURL: "https://dev.macrostrat.org/lex/environments",
     intervalURL: "https://dev.macrostrat.org/lex/intervals",
     lithologyURL: "https://dev.macrostrat.org/lex/lithologies",
+    expanded: true
   });
 }
 
@@ -91,7 +90,7 @@ export function xddInfoExample() {
     return null;
   }
 
-  return h(XddExpansion, { xddInfo });
+  return h(XddExpansion, { xddInfo, expanded: true });
 }
 
 export function FossilsExample() {
