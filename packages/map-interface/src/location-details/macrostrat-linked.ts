@@ -70,7 +70,7 @@ function MapAgeRenderer(props) {
       ageElement: h(AgeChip, {
         b_int: mapInfo.mapData[0].b_int,
         t_int: mapInfo.mapData[0].t_int,
-        intervalURL
+        intervalURL,
       }),
     },
     "Based on geologic map description.",

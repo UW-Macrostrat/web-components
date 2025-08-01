@@ -16,7 +16,11 @@ export interface XDDSnippet {
   highlight: string[];
 }
 
-export function XddExpansion({ xddInfo, expanded = false, nestedExpanded = true }) {
+export function XddExpansion({
+  xddInfo,
+  expanded = false,
+  nestedExpanded = true,
+}) {
   return h(xDDPanelCore, {
     className: "regional-panel",
     data: xddInfo,
@@ -26,7 +30,13 @@ export function XddExpansion({ xddInfo, expanded = false, nestedExpanded = true 
   });
 }
 
-export function xDDPanelCore({ isFetching, data: xddInfo, expanded, nestedExpanded, ...rest }) {
+export function xDDPanelCore({
+  isFetching,
+  data: xddInfo,
+  expanded,
+  nestedExpanded,
+  ...rest
+}) {
   const groupedData = groupSnippetsByJournal(xddInfo);
 
   console.log("expanded", expanded);
