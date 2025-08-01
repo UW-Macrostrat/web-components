@@ -221,7 +221,7 @@ function MatchBasis(props) {
       ]),
     },
     h(ExpansionBody, { title: "All matched names" }, [
-      source.macrostrat.strat_names.map((name, i) => {
+      source.macrostrat.strat_names?.map((name, i) => {
         let lastElement: boolean =
           i == source.macrostrat.strat_names.length - 1;
         return h("span", { key: i }, [
@@ -304,7 +304,7 @@ function LithsAndClasses(props) {
 
   if (!liths || liths.length == 0) return null;
 
-  const lithologies = liths.map((lith) => {
+  const lithologies = liths?.map((lith) => {
     return {
       ...lith,
       name: lith.lith,
@@ -343,7 +343,7 @@ function Environments(props) {
 
   if (!environs || environs.length == 0) return null;
 
-  const lithologies = environs.map((environ) => {
+  const lithologies = environs?.map((environ) => {
     return {
       ...environ,
       name: environ.environ,
@@ -373,7 +373,7 @@ function EconType(props) {
   const { econ_types } = props;
 
   return h.if(econ_types && econ_types.length > 0)("div", [
-    econ_types.map((econClass, i) => {
+    econ_types?.map((econClass, i) => {
       return h(AttrChip, {
         key: i,
         name: econClass.name,
@@ -396,7 +396,7 @@ function Economy(props) {
       value: h(EconType, { econ_types }),
     },
     h(ExpansionBody, { title: "Matched economic attributes" }, [
-      econs.map((econ, i) => {
+      econs?.map((econ, i) => {
         return h(AttrChip, {
           key: i,
           name: econ.econ,
