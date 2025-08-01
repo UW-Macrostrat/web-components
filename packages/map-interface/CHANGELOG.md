@@ -8,7 +8,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - MAcrostrat linked data error handling
 
-
 ## [1.5.4] - 2025-07-31
 
 - Nested xdd panel expansion option
