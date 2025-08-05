@@ -8,14 +8,5 @@ export function FossilCollections(props) {
   if (!data || data.length <= 0) {
     return null;
   }
-  return h(
-    ExpansionPanel,
-    {
-      className: "regional-panel",
-      title: "Fossil collections",
-      helpText: "via PBDB",
-      expanded,
-    },
-    [h(PBDBCollections, { data })],
-  );
+  return h(PBDBCollections, { data });
 }
