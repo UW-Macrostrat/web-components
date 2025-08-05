@@ -51,7 +51,7 @@ Grouping.args = {
   id_key: "id",
   filterable: true,
   ascending: true,
-  route: "https://dev2.macrostrat.org/api/pg/autocomplete",
+  route: "https://dev.macrostrat.org/api/pg/autocomplete",
   delay: 100,
   searchColumns: [{ value: "name", label: "Name" }],
   group_key: "type",
@@ -75,4 +75,10 @@ Grouping.args = {
     ]);
   },
   filter_threshold: 2, // Minimum characters to trigger filtering
+  NonIdealStateParams: {
+    title: "No data to display",
+    description: "Type at least 2 characters to filter results",
+    icon: "search",
+    className: "no-results",
+  },
 };
