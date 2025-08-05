@@ -41,25 +41,32 @@ function isNodeActive(node: NodeApi<TreeData>, tree: TreeApi<TreeData>) {
   return false;
 }
 
-function Node({ node, style, dragHandle, tree, matchComponent }: any) {
+function Node({
+  node,
+  style,
+  dragHandle,
+  tree,
+  matchComponent,
+  viewOnly,
+}: any) {
   let highlighted: boolean = isNodeHighlighted(node, tree);
   let active: boolean = isNodeActive(node, tree);
 
-  const dispatch = useTreeDispatch();
+  console.log("viewOnly", viewOnly);
 
-  // console.log("Node render", node.data, highlighted, active);
+  const dispatch = useTreeDispatch();
 
   if (!node.data?.type) {
     node.data.type = { name: "lith", color: "rgb(107, 255, 91)" };
   }
 
   return h(
-    "div.node",
+    "div.node" + (!viewOnly ? ".clickable" : ""),
     { style, ref: dragHandle },
     h(EntityTag, {
       data: node.data,
-      active,
-      highlighted,
+      active: viewOnly ? false : active,
+      highlighted: viewOnly ? true : highlighted,
       matchComponent,
       onClickType() {
         dispatch({ type: "toggle-entity-type-selector" });

@@ -57,10 +57,11 @@ export function FeedbackComponent({
   allowOverlap,
   matchLinks,
   view = false,
+  autoSelect = [],
 }) {
   const [viewOnly, setViewOnly] = useState(view);
   const [match, setMatchLinks] = useState(matchLinks);
-  const matchMode = match !== null;
+  const matchMode = match !== undefined;
 
   // Get the input arguments
   const [state, dispatch] = useUpdatableTree(
@@ -68,6 +69,7 @@ export function FeedbackComponent({
     entityTypes,
     viewOnly,
     matchMode,
+    autoSelect,
   );
 
   const {
@@ -93,6 +95,7 @@ export function FeedbackComponent({
           small: true,
           onValueChange() {
             setViewOnly(!viewOnly);
+            dispatch({ type: "toggle-view-only" });
           },
           role: "toolbar",
         }),
@@ -145,6 +148,7 @@ export function FeedbackComponent({
               width,
               height,
               matchComponent,
+              viewOnly,
             }),
             h.if(state.viewMode == "graph")(GraphView, {
               tree,
@@ -304,16 +308,23 @@ function countNodes(tree) {
 }
 
 function ManagedSelectionTree(props) {
-  const { selectedNodes, dispatch, tree, height, width, matchComponent } =
-    props;
+  const {
+    selectedNodes,
+    dispatch,
+    tree,
+    height,
+    width,
+    matchComponent,
+    viewOnly,
+  } = props;
 
   const ref = useRef<TreeApi<TreeData>>();
   // Use a ref to track clicks (won't cause rerender)
   const clickedRef = useRef(false);
 
   const _Node = useCallback(
-    (props) => h(Node, { ...props, matchComponent }),
-    [matchComponent],
+    (props) => h(Node, { ...props, matchComponent, viewOnly }),
+    [matchComponent, viewOnly],
   );
 
   // Update Tree selection when selectedNodes change

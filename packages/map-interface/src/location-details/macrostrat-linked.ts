@@ -1,5 +1,4 @@
 import hyper from "@macrostrat/hyper";
-import { AgeChip, AttrChip } from "../info-blocks";
 import {
   ExpansionPanel,
   ExpandableDetailsPanel,
@@ -10,11 +9,20 @@ import { scaleLinear } from "@visx/scale";
 import { AxisBottom } from "@visx/axis";
 import chroma from "chroma-js";
 import { LithologyList } from "@macrostrat/data-components";
+import { AttrChip, AgeChip } from "./info-blocks";
 
 const h = hyper.styled(styles);
 
-function MacrostratLinkedData(props) {
-  const { mapInfo, bedrockMatchExpanded, source } = props;
+export function MacrostratLinkedData(props) {
+  const {
+    mapInfo,
+    source,
+    stratNameURL,
+    environmentURL,
+    intervalURL,
+    lithologyURL,
+    expanded = true,
+  } = props;
 
   if (!mapInfo.mapData[0]) return h("div");
 
@@ -24,17 +32,17 @@ function MacrostratLinkedData(props) {
       className: "regional-panel",
       title: "Macrostrat-linked data",
       helpText: "via Macrostrat",
-      expanded: bedrockMatchExpanded,
+      expanded,
     },
     [
       h("div", { classes: expansionPanelDetailClasses }, [
-        h(MatchBasis, { source }),
-        h(AgeInformation, { mapInfo, source }),
+        h(MatchBasis, { source, stratNameURL }),
+        h(AgeInformation, { mapInfo, source, intervalURL }),
         h(Thickness, { source }),
         h(MinorFossilCollections, { source }),
         h(FossilOccs, { source }),
-        h(LithsAndClasses, { source }),
-        h(Environments, { source }),
+        h(LithsAndClasses, { source, lithologyURL }),
+        h(Environments, { source, environmentURL }),
         h(Economy, { source }),
       ]),
     ],
@@ -46,22 +54,23 @@ const expansionPanelDetailClasses = {
 };
 
 function AgeInformation(props) {
-  const { source, mapInfo } = props;
+  const { source, mapInfo, intervalURL } = props;
   const { macrostrat } = source;
 
-  if (!macrostrat?.b_age) return h(MapAgeRenderer, { mapInfo });
+  if (!macrostrat?.b_age) return h(MapAgeRenderer, { mapInfo, intervalURL });
 
-  return h(MacrostratAgeInfo, { macrostrat, mapInfo });
+  return h(MacrostratAgeInfo, { macrostrat, mapInfo, intervalURL });
 }
 
 function MapAgeRenderer(props) {
-  const { mapInfo, ...rest } = props;
+  const { mapInfo, intervalURL, ...rest } = props;
   return h(
     DescribedAgeInfo,
     {
       ageElement: h(AgeChip, {
         b_int: mapInfo.mapData[0].b_int,
         t_int: mapInfo.mapData[0].t_int,
+        intervalURL,
       }),
     },
     "Based on geologic map description.",
@@ -131,7 +140,7 @@ function AgeRefinementBar({ scale, data, color, label = null }) {
   );
 }
 
-function AgeRefinementPlot({ macrostrat, mapInfo }) {
+function AgeRefinementPlot({ macrostrat, mapInfo, intervalURL }) {
   // Plot the amount by which the age was refined
 
   const mapData = mapInfo.mapData[0];
@@ -168,7 +177,7 @@ function AgeRefinementPlot({ macrostrat, mapInfo }) {
   ]);
 }
 
-function MacrostratAgeInfoCore({ macrostrat }) {
+function MacrostratAgeInfoCore({ macrostrat, intervalURL }) {
   const { b_age, t_age, b_int, t_int } = macrostrat;
 
   if (!b_age) return null;
@@ -183,6 +192,7 @@ function MacrostratAgeInfoCore({ macrostrat }) {
       ageElement: h(AgeChip, {
         b_int: { ...b_int, int_name: age, b_age, t_age },
         t_int: { ...b_int, int_name: age, b_age, t_age },
+        intervalURL,
       }),
     },
     "Refined using the Macrostrat age model.",
@@ -198,7 +208,7 @@ function MacrostratAgeInfo(props) {
 }
 
 function MatchBasis(props) {
-  const { source } = props;
+  const { source, stratNameURL } = props;
   if (!source.macrostrat?.strat_names) return null;
 
   return h(
@@ -211,14 +221,14 @@ function MatchBasis(props) {
       ]),
     },
     h(ExpansionBody, { title: "All matched names" }, [
-      source.macrostrat.strat_names.map((name, i) => {
+      source.macrostrat.strat_names?.map((name, i) => {
         let lastElement: boolean =
           i == source.macrostrat.strat_names.length - 1;
         return h("span", { key: i }, [
           h(
             "a.externalLink",
             {
-              href: "/lex/strat-names/" + name.strat_name_id,
+              href: stratNameURL + "/" + name.strat_name_id,
               key: i,
             },
             [name.rank_name],
@@ -288,13 +298,13 @@ function LithTypes(props) {
 }
 
 function LithsAndClasses(props) {
-  const { source } = props;
+  const { source, lithologyURL } = props;
   const { macrostrat } = source;
   const { liths = null, lith_types = null } = macrostrat;
 
   if (!liths || liths.length == 0) return null;
 
-  const lithologies = liths.map((lith) => {
+  const lithologies = liths?.map((lith) => {
     return {
       ...lith,
       name: lith.lith,
@@ -312,7 +322,7 @@ function LithsAndClasses(props) {
       h(LithologyList, {
         lithologies,
         onClickItem: (e, lith) => {
-          window.open("/lex/lithology/" + lith.lith_id, "_self");
+          window.open(lithologyURL + "/" + lith.lith_id, "_self");
         },
       }),
     ]),
@@ -327,13 +337,13 @@ function EnvironTypes(props) {
 }
 
 function Environments(props) {
-  const { source } = props;
+  const { source, environmentURL } = props;
   const { macrostrat } = source;
   const { environs = null, environ_types = null } = macrostrat;
 
   if (!environs || environs.length == 0) return null;
 
-  const lithologies = environs.map((environ) => {
+  const lithologies = environs?.map((environ) => {
     return {
       ...environ,
       name: environ.environ,
@@ -351,7 +361,8 @@ function Environments(props) {
       h(LithologyList, {
         lithologies,
         onClickItem: (e, environ) => {
-          window.open("/lex/environments/" + environ.environ_id, "_self");
+          console.log("environ", environmentURL);
+          window.open(environmentURL + "/" + environ.environ_id, "_self");
         },
       }),
     ]),
@@ -362,7 +373,7 @@ function EconType(props) {
   const { econ_types } = props;
 
   return h.if(econ_types && econ_types.length > 0)("div", [
-    econ_types.map((econClass, i) => {
+    econ_types?.map((econClass, i) => {
       return h(AttrChip, {
         key: i,
         name: econClass.name,
@@ -385,7 +396,7 @@ function Economy(props) {
       value: h(EconType, { econ_types }),
     },
     h(ExpansionBody, { title: "Matched economic attributes" }, [
-      econs.map((econ, i) => {
+      econs?.map((econ, i) => {
         return h(AttrChip, {
           key: i,
           name: econ.econ,
@@ -395,5 +406,3 @@ function Economy(props) {
     ]),
   );
 }
-
-export { MacrostratLinkedData };

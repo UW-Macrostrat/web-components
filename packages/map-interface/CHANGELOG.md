@@ -4,6 +4,29 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.5.5] - 2025-08-01
+
+- MAcrostrat linked data error handling
+
+## [1.5.4] - 2025-07-31
+
+- Nested xdd panel expansion option
+- Macrostrat interval links work
+
+## [1.5.3] - 2025-07-31
+
+Broke apart info panel into 5 components
+
+- Regional Stratigraphy
+- Physiography
+- Macrostrat Linked Data
+- xDD Info
+- Fossils
+
+## [1.5.2] - 2025-07-23
+
+Map panel supports fossils clicks now
+
 ## [1.5.1] - 2025-07-16
 
 InfoDrawer exported correctly

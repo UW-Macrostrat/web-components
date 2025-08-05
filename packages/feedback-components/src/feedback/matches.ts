@@ -29,9 +29,9 @@ export function Matches({
     h(Divider),
     h(Switch, {
       label: "Match mode",
-      checked: match !== null,
+      checked: match !== undefined,
       onChange: (e) => {
-        setMatchLinks(match === null ? matchLinks || {} : null);
+        setMatchLinks(match === undefined ? matchLinks || {} : undefined);
         dispatch({ type: "toggle-match-mode" });
       },
     }),
@@ -178,7 +178,7 @@ interface MatchTagProps {
   setPayload?: (payload: Record<string, any>) => void;
 }
 
-function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
+export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
   if (!data || Object.keys(data).length === 0) return;
 
   if (data.lith_id || data?.type === "lith") {
