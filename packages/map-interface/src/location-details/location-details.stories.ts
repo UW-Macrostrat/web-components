@@ -26,10 +26,6 @@ export function RegionalStratigraphyExample() {
   const mapInfo = fetchMapInfo(lng, lat, zoom);
   const columnInfo = fetchColumnInfo(lng, lat);
 
-  if (!mapInfo || !mapInfo.mapData) {
-    return null;
-  }
-
   return h(RegionalStratigraphy, {
     mapInfo,
     columnInfo,
@@ -41,10 +37,6 @@ export function RegionalStratigraphyExample() {
 export function PhysiographyExample() {
   const mapInfo = fetchMapInfo(lng, lat, zoom);
 
-  if (!mapInfo) {
-    return null;
-  }
-
   return h(Physiography, {
     mapInfo,
     expanded: true,
@@ -53,11 +45,7 @@ export function PhysiographyExample() {
 
 export function MacrostratLinkedDataExample() {
   const mapInfo = fetchMapInfo(lng, lat, zoom);
-
-  if (!mapInfo) {
-    return null;
-  }
-
+  
   const source =
     mapInfo && mapInfo?.mapData && mapInfo?.mapData.length
       ? mapInfo?.mapData[0]
@@ -95,10 +83,6 @@ export function xddInfoExample() {
 
 export function FossilsExample() {
   const fossilInfo = fetchFossilInfo(-89.3938453, 43.0735407);
-
-  if (!fossilInfo) {
-    return null;
-  }
 
   return h(FossilCollections, { data: fossilInfo, expanded: true });
 }

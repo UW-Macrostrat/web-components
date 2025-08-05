@@ -24,7 +24,7 @@ export function MacrostratLinkedData(props) {
     expanded = true,
   } = props;
 
-  if (!mapInfo.mapData[0]) return h("div");
+  if (!mapInfo.mapData[0]) return null;
 
   return h(
     ExpansionPanel,
