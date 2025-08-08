@@ -29,7 +29,6 @@ export function Intervals() {
   });
 }
 
-
 function useIntervals() {
   return useAPIResult(
     "https://dev.macrostrat.org/api/pg/intervals?select=id,color:interval_color,name:interval_name",
@@ -51,7 +50,6 @@ export function StratNames() {
     placeholder: "Select a strat name",
   });
 }
-
 
 function useStratNames() {
   return useAPIResult(

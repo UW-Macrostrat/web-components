@@ -108,9 +108,7 @@ export const LexSelection = ({
     }
     let item = null;
     if (items.length != 0) {
-      item = items.filter(
-        (item) => item.id == parseInt(value),
-      )[0];
+      item = items.filter((item) => item.id == parseInt(value))[0];
     }
 
     return item;
