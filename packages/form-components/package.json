@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/form-components",
-  "version": "0.2.3",
+  "version": "0.2.4",
   "description": "Form components for user input into Macrostrat apps",
   "type": "module",
   "source": "src/index.ts",
