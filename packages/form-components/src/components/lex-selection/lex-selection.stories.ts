@@ -1,0 +1,58 @@
+import type { Meta, StoryObj } from "@storybook/react-vite";
+import h from "@macrostrat/hyper";
+
+import { LexSelection, LexSelectionProps } from ".";
+import { useState } from "react";
+import { useAPIResult } from "@macrostrat/ui-components";
+
+// More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
+export default {
+  title: "Form components/Lex selection",
+  component: LexSelection,
+} as Meta<LexSelectionProps>;
+
+type Story = StoryObj<LexSelectionProps>;
+
+export function Intervals() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const intervals = useIntervals();
+
+  if (intervals == null) {
+    return h("div", {}, "Loading intervals...");
+  }
+
+  return h(LexSelection, {
+    value: selected,
+    onConfirm: (value) => setSelected(value),
+    items: intervals,
+    placeholder: "Select an interval",
+  });
+}
+
+function useIntervals() {
+  return useAPIResult(
+    "https://dev.macrostrat.org/api/pg/intervals?select=id,color:interval_color,name:interval_name",
+  );
+}
+
+export function StratNames() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const StratNames = useStratNames();
+
+  if (StratNames == null) {
+    return h("div", "Loading intervals...");
+  }
+
+  return h(LexSelection, {
+    value: selected,
+    onConfirm: (value) => setSelected(value),
+    items: StratNames,
+    placeholder: "Select a strat name",
+  });
+}
+
+function useStratNames() {
+  return useAPIResult(
+    "https://dev.macrostrat.org/api/pg/strat_names?select=id,name:strat_name",
+  );
+}

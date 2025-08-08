@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.3] - 2025-08-08
+
+Add LexSelection component
+
 ## [0.2.2] - 2025-06-25
 
 Improve styles and types
