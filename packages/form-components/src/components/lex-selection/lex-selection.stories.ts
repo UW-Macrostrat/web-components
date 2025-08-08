@@ -35,3 +35,26 @@ function useIntervals() {
     "https://dev.macrostrat.org/api/pg/intervals?select=id,color:interval_color,name:interval_name",
   );
 }
+
+export function StratNames() {
+  const [selected, setSelected] = useState<string | null>(null);
+  const StratNames = useStratNames();
+
+  if (StratNames == null) {
+    return h("div", "Loading intervals...");
+  }
+
+  return h(LexSelection, {
+    value: selected,
+    onConfirm: (value) => setSelected(value),
+    items: StratNames,
+    placeholder: "Select a strat name",
+  });
+}
+
+
+function useStratNames() {
+  return useAPIResult(
+    "https://dev.macrostrat.org/api/pg/strat_names?select=id,name:strat_name",
+  );
+}
