@@ -25,7 +25,7 @@ export function Intervals() {
     value: selected,
     onConfirm: (value) => setSelected(value),
     items: intervals,
-    type: "interval",
+    placeholder: "Select an interval",
   });
 }
 

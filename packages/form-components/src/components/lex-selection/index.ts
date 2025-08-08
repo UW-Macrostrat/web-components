@@ -24,7 +24,7 @@ interface LexSelectionProps extends MenuItemProps {
   };
 }
 
-function IntervalOption({
+function LexOption({
   item,
   handleClick,
   handleFocus,
@@ -72,13 +72,13 @@ function IntervalOption({
   );
 }
 
-const IntervalOptionMemo = memo(IntervalOption);
+const LexOptionMemo = memo(LexOption);
 
-const intervalOptionRenderer: ItemRenderer<LexItem> = (
+const lexOptionRenderer: ItemRenderer<LexItem> = (
   item: LexItem,
   props: any,
 ) => {
-  return h(IntervalOptionMemo, {
+  return h(LexOptionMemo, {
     key: item.id,
     item,
     ...props,
@@ -92,41 +92,31 @@ const filterInterval: ItemPredicate<LexItem> = (query, item) => {
   return item.name.toLowerCase().indexOf(query.toLowerCase()) >= 0;
 };
 
-export interface IntervalSelectionProps extends EditableCell2Props {
-  intervals: Interval[];
-  onPaste: (e) => Promise<boolean>;
-  onCopy: (e) => Promise<boolean>;
-}
-
 export const LexSelection = ({
   value,
   onConfirm,
   intent,
-  intervals: providedIntervals,
-  onPaste,
-  onCopy,
-  items,
+  items = [],
+  placeholder = "Select an item",
   ...props
 }) => {
   const [active, setActive] = React.useState(false);
 
-  const intervals = items ?? useIntervals();
-
-  const interval = useMemo(() => {
-    if (intervals == null) {
+  const item = useMemo(() => {
+    if (items == null) {
       return null;
     }
-    let interval = null;
-    if (intervals.length != 0) {
-      interval = intervals.filter(
-        (interval) => interval.id == parseInt(value),
+    let item = null;
+    if (items.length != 0) {
+      item = items.filter(
+        (item) => item.id == parseInt(value),
       )[0];
     }
 
-    return interval;
-  }, [value, intervals, intent]);
+    return item;
+  }, [value, items, intent]);
 
-  if (intervals == null) {
+  if (items == null) {
     return null;
   }
 
@@ -138,10 +128,10 @@ export const LexSelection = ({
     },
     [
       h(
-        Select2<Interval>,
+        Select2<LexItem>,
         {
           fill: true,
-          items: active ? intervals : [],
+          items: active ? items : [],
           className: "update-input-group",
           popoverProps: {
             position: "bottom",
@@ -151,9 +141,9 @@ export const LexSelection = ({
             onWheelCapture: (event) => event.stopPropagation(),
           },
           itemPredicate: filterInterval,
-          itemRenderer: intervalOptionRenderer,
-          onItemSelect: (interval: Interval, e) => {
-            onConfirm(interval.id.toString());
+          itemRenderer: lexOptionRenderer,
+          onItemSelect: (item: LexItem, e) => {
+            onConfirm(item.id.toString());
           },
           noResults: h(MenuItem, {
             disabled: true,
@@ -161,15 +151,15 @@ export const LexSelection = ({
             roleStructure: "listoption",
           }),
         },
-        h(IntervalButton, { interval, intent, setActive }),
+        h(LexButton, { item, intent, setActive, placeholder }),
       ),
     ],
   );
 };
 
-function IntervalButton({ interval, intent, setActive }) {
+function LexButton({ item, intent, setActive, placeholder }) {
   const inDarkMode = useInDarkMode();
-  const colors = getColorPair(interval?.color, inDarkMode);
+  const colors = getColorPair(item?.color, inDarkMode);
   return h(
     Button,
     {
@@ -186,27 +176,12 @@ function IntervalButton({ interval, intent, setActive }) {
       text: h(
         "span",
         { style: { overflow: "hidden", textOverflow: "ellipses" } },
-        interval?.name ?? "Select an interval",
+        item?.name ?? placeholder,
       ),
       rightIcon: "double-caret-vertical",
       className: "update-input-group",
       onClick: () => setActive(true),
     },
     [],
-  );
-}
-
-function useIntervals(timescaleID: number | null = null): Interval[] {
-  const params = useMemo(() => {
-    if (timescaleID == null) {
-      return { all: true };
-    }
-    return { timescale_id: timescaleID };
-  }, [timescaleID]);
-
-  return useAPIResult(
-    "https://macrostrat.org/api/v2/defs/intervals",
-    params,
-    (res) => res.success.data,
   );
 }
