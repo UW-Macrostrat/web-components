@@ -1,6 +1,6 @@
 # Changelog
 
-## [0.2.3] - 2025-08-08
+## [0.2.4] - 2025-08-08
 
 Add LexSelection component
 
