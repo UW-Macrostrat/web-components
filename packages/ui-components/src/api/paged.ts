@@ -6,11 +6,12 @@ import { APIResultView } from "./frontend";
 
 const Pagination = (props) => {
   const { currentPage, nextDisabled, setPage } = props;
+
   return h(ButtonGroup, [
     h(
       Button,
       {
-        onClick: setPage(currentPage - 1),
+        onClick: () => setPage(currentPage - 1),
         icon: "arrow-left",
         disabled: currentPage <= 0,
       },
@@ -19,7 +20,7 @@ const Pagination = (props) => {
     h(
       Button,
       {
-        onClick: setPage(currentPage + 1),
+        onClick: () => setPage(currentPage + 1),
         rightIcon: "arrow-right",
         disabled: nextDisabled,
       },
