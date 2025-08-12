@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.4.5] - 2025-08-12
+
+Fix broken Pagination component
+
 ## [4.4.4] - 2025-07-18
 
 For PostgRESTInfiniteScrollView
