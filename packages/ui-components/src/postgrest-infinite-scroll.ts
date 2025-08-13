@@ -1,7 +1,7 @@
 import hyper from "@macrostrat/hyper";
 import { InfiniteScrollProps, InfiniteScrollView } from "./infinite-scroll";
 import { useAPIResult } from "./api";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { MultiSelect, ItemRenderer, ItemPredicate } from "@blueprintjs/select";
 import {
   MenuItem,
@@ -45,6 +45,7 @@ interface PostgRESTInfiniteScrollProps extends InfiniteScrollProps<any> {
     title: string;
     children: React.ReactNode;
   }>;
+  onSearchChange: (value: string) => void;
 }
 
 export function PostgRESTInfiniteScrollView(
@@ -70,6 +71,7 @@ export function PostgRESTInfiniteScrollView(
     searchColumns = undefined,
     group_key = undefined,
     filter_threshold = 0,
+    onSearchChange = () => {},
     ...rest
   } = props;
 
@@ -82,6 +84,11 @@ export function PostgRESTInfiniteScrollView(
   );
 
   const [filterValue, setFilterValue] = useState<string>("");
+
+  useEffect(() => {
+    onSearchChange(filterValue);
+  }, [filterValue]);
+
   const hideData = filterValue.length < filter_threshold;
 
   const SearchBarToUse = SearchBarComponent ?? SearchBar;
