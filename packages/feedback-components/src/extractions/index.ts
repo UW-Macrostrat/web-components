@@ -140,6 +140,7 @@ export function ExtractionContext({
 }
 
 export function ModelInfo({ data }) {
+  if (!data) return null;
   return h("p.model-name", ["Model: ", h("code.bp5-code", data.name)]);
 }
 
