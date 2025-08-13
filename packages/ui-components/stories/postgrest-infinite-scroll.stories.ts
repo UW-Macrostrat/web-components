@@ -26,6 +26,7 @@ Primary.args = {
   delay: 100,
   toggles: h("h1", "Toggles here"),
   searchColumns: [{ value: "name", label: "Name" }],
+  onSearchChange: (e) => console.log("Search changed:", e),
 };
 
 export const Multiselect = Template.bind({});
