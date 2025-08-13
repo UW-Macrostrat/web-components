@@ -8,7 +8,6 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Allow no model (user feedback)
 
-
 ## [1.1.8] - 2025-07-30
 
 - On load, have any nodes matching autoselect input automically selected
