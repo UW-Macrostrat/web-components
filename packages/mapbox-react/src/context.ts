@@ -1,15 +1,9 @@
-import {
-  createContext,
-  useContext,
-  RefObject,
-  useRef,
-  useState,
-  useMemo,
-} from "react";
+import type { RefObject } from "react";
+import { createContext, useContext, useMemo, useRef, useState } from "react";
 import update from "immutability-helper";
-import { Map } from "mapbox-gl";
+import type { Map } from "mapbox-gl";
 import h from "@macrostrat/hyper";
-import { MapPosition } from "@macrostrat/mapbox-utils";
+import type { MapPosition } from "@macrostrat/mapbox-utils";
 import { createStore, useStore } from "zustand";
 
 const MapStoreContext = createContext(null);
