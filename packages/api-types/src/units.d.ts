@@ -80,3 +80,45 @@ export interface UnitLongFull extends UnitLong {
   b_pos?: number | string;
   t_pos?: number | string;
 }
+
+export interface StratName {
+  strat_name: string;
+  strat_name_long: string;
+  rank: string;
+  strat_name_id: number;
+  concept_id: number;
+  bed: string;
+  bed_id: number;
+  mbr: string;
+  mbr_id: number;
+  fm: string;
+  fm_id: number;
+  subgp: string;
+  subgp_id: number;
+  gp: string;
+  gp_id: number;
+  sgp: string;
+  sgp_id: number;
+  b_age: string;
+  t_age: string;
+  b_period: string;
+  t_period: string;
+  c_interval: string;
+  t_units: number;
+  ref_id: number;
+}
+
+export interface StratNameConcept {
+  concept_id: number;
+  name: string;
+  geologic_age: string;
+  int_id: string;
+  b_int_id: string;
+  t_int_id: string;
+  usage_notes: string;
+  other: string;
+  province: string;
+  refs: string;
+  url: string;
+  author: string;
+}

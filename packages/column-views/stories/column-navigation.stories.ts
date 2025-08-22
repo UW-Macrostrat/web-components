@@ -2,13 +2,12 @@ import h from "@macrostrat/hyper";
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
 import { ColumnStoryUI } from "./column-ui";
-import { useArgs } from "storybook/preview-api";
 import { MinimalUnit } from "../src/units/boxes";
 import {
   BoundaryAgeModelOverlay,
   EnvironmentColoredUnitComponent,
 } from "../src";
-import { useCallback } from "react";
+import { useColumnSelection } from "./column-ui/utils";
 
 const baseArgTypes = {
   columnID: {
@@ -84,27 +83,6 @@ export default {
     },
   },
 } as Meta<typeof ColumnStoryUI>;
-
-function useColumnSelection() {
-  const [{ columnID, selectedUnit }, updateArgs] = useArgs();
-  const setColumn = (columnID) => {
-    updateArgs({ columnID });
-  };
-
-  const setSelectedUnit = useCallback(
-    (selectedUnit) => {
-      updateArgs({ selectedUnit });
-    },
-    [updateArgs],
-  );
-
-  return {
-    columnID,
-    selectedUnit,
-    setColumn,
-    setSelectedUnit,
-  };
-}
 
 function Template(args) {
   return h(ColumnStoryUI, {

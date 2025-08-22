@@ -1,39 +1,43 @@
 .legend-panel-header
   display: flex
   justify-content: space-between
-  align-items: baseline
-  gap: 1em
+  align-items: center
+  gap: 0.5em
   border-bottom: 1px solid var(--panel-rule-color)
   position: sticky
   top: 0
   background-color: var(--panel-secondary-background-color)
   padding: 0.5em 1em
   z-index: 50
+  min-height: 45px
+  overflow: hidden
   .title-container
-    display: flex
-    flex-direction: row
     gap: 0.5em
     align-items: center
-    margin: -0.5em 0
+    margin: 0
+    flex-grow: 1
+    z-index: 5
     &:hover
-      .hidden-actions
-        display: flex
-        opacity: 0.5
+      .hidden-actions-container
+        visibility: visible
     h1, h2, h3
-      margin: 0.5em 0
-    .hidden-actions
-      display: none
+      display: inline
+      margin: 0
+    .hidden-actions-container
+      visibility: hidden
     button
       transform: translateY(0px)
 
   code
     font-size: 0.9em
     color: var(--secondary-color)
+  .unit-id:before
+    content: '#'
+    // Tertiary color is too light...
+    color: var(--secondary-color)
+
   .spacer
     flex: 1
-  button
-    line-height: 1.5
-    transform: translateY(2px)
 
 .unit-details-panel
   display: flex
@@ -46,11 +50,11 @@
   position: relative
   margin: 1em
 
-.proportion, .sep, .no-units
+.proportion, .sep, .no-units, .strat-name-text
   color: var(--secondary-color)
   font-style: italic
 
-.strat-name-id, .unit-id
+.strat-name-id, .identifier
   font-family: var(--monospace-font)
   color: var(--secondary-color)
 
@@ -82,3 +86,23 @@
 
 .clickable
   cursor: pointer
+
+.hidden-actions-container
+  min-width: 0
+  display: inline-block
+  //margin-right: -5em
+  width: 0
+  position: relative
+
+.hidden-actions
+  padding-left: 1em
+  width: fit-content
+  display: flex
+  align-items: center
+  gap: 0.25em
+  background-color: var(--panel-secondary-background-color)
+  z-index: 50
+  position: relative
+  bottom: 0
+  button
+    color: var(--secondary-color) !important

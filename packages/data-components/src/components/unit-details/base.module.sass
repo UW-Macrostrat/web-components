@@ -6,6 +6,12 @@
     align-items: baseline
     justify-content: end
     gap: 0.5em
+  &.row
+    flex-flow: row nowrap
+    justify-content: space-between
+    .label
+      flex-grow: unset
+
     .data-container
       text-align: right
   &.inline
@@ -20,6 +26,8 @@
     display: block
     color: var(--secondary-color)
     text-align: left
+    width: var(--data-field-label-width)
+    min-width: var(--data-field-label-min-width)
   .value-container
     text-align: right
     //font-size: 0.9em

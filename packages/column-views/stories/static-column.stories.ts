@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 
-import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
+import { StoryFn, Meta } from "@storybook/react-vite";
 import { Column } from "../src";
 import res from "./data/black-mesa-basin-490.json";
 
@@ -9,11 +9,10 @@ export default {
   title: "Column views/Static column",
   component: Column,
   description: "A column rendered using static units",
-} as ComponentMeta<typeof Column>;
+} as Meta<typeof Column>;
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
-const Template: ComponentStory<typeof Column> = (args) =>
-  h(Column, { ...args });
+const Template: StoryFn<typeof Column> = (args) => h(Column, { ...args });
 
 export function BlackMesaBasin() {
   const units = res.success.data;

@@ -29,12 +29,16 @@ const AgeAxisCore = ({ ticks, tickSpacing = 40, showDomain = false }) => {
 };
 
 export function VerticalAxisLabel(props) {
-  const { label = "Age", unit = "Ma", className } = props;
-  return h("div.column-axis-label.age-axis-label", { className }, [
-    label,
-    " ",
-    h.if(unit)(Parenthetical, { className: "age-axis-unit" }, unit),
-  ]);
+  const { label = "Age", unit = "Ma", className, height } = props;
+  return h(
+    "div.column-axis-label.age-axis-label",
+    { className, style: { height } },
+    [
+      label,
+      " ",
+      h.if(unit)(Parenthetical, { className: "age-axis-unit" }, unit),
+    ],
+  );
 }
 
 export function CompositeAgeAxis() {
@@ -81,6 +85,7 @@ export function CompositeAgeAxisCore(props: CompositeStratigraphicScaleInfo) {
     h(VerticalAxisLabel, {
       label: axisLabel,
       unit: axisUnit,
+      height: totalHeight,
     }),
     h(
       SVG,

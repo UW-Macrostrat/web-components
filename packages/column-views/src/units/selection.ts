@@ -93,7 +93,6 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
         }
       },
       onUnitSelected: (unit: T, target: HTMLElement, event: PointerEvent) => {
-        console.log("onUnitSelected", unit, target, event);
         const el = props.columnRef?.current;
         let overlayPosition = null;
 

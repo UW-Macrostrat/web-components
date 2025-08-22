@@ -8,6 +8,7 @@ import {
   ColumnGeoJSONRecordWithID,
   Environment,
   MacrostratRef,
+  StratName,
 } from "@macrostrat/api-types";
 import {
   fetchAllColumns,
@@ -15,6 +16,7 @@ import {
   fetchIntervals,
   fetchLithologies,
   fetchRefs,
+  fetchStratNames,
 } from "./fetch";
 import { APIProvider } from "@macrostrat/ui-components";
 import { ColumnProvider } from "@macrostrat/column-components";
@@ -55,6 +57,9 @@ interface MacrostratStore extends RefsSlice {
     projectID: number | null,
     inProcess: boolean,
   ): Promise<ColumnGeoJSONRecord[]>;
+  // Strat names unify both "strat names" and "concepts"
+  stratNames: Map<number, StratName> | null;
+  getStratNames(ids: number[] | null): Promise<StratName[]>;
 }
 
 function createMacrostratStore(
@@ -83,6 +88,7 @@ function createMacrostratStore(
       ...createEnvironmentsSlice(set, get),
       ...createColumnsSlice(set, get),
       ...createRefsSlice(set, get),
+      ...createStratNamesSlice(set, get),
     };
   });
 }
@@ -229,6 +235,34 @@ function createIntervalsSlice(set, get) {
   };
 }
 
+function createStratNamesSlice(set, get) {
+  return {
+    stratNames: null,
+    async getStratNames(ids: number[] | null): Promise<StratName[]> {
+      const { stratNames, fetch } = get();
+      let nameMap = stratNames ?? new Map();
+      let stratNamesAlreadyLoaded = [];
+      let stratNamesToLoad = [];
+      for (const id of ids) {
+        if (nameMap.has(id)) {
+          stratNamesAlreadyLoaded.push(nameMap.get(id));
+        } else {
+          stratNamesToLoad.push(id);
+        }
+      }
+      if (stratNamesToLoad.length > 0) {
+        const data = await fetchStratNames(stratNamesToLoad, fetch);
+        if (data == null) return stratNamesAlreadyLoaded;
+        for (const d of data) {
+          nameMap.set(d.strat_name_id, d);
+        }
+        set({ stratNames: nameMap });
+      }
+      return ids.map((id) => nameMap.get(id));
+    },
+  };
+}
+
 function includesTimescale(intervals: Map<number, any>, timescaleID: number) {
   if (intervals == null) return false;
   if (timescaleID == null) return true;
@@ -251,12 +285,21 @@ export function useMacrostratStore(selector: MacrostratSelector | "api") {
   return useStore(ctx, selector);
 }
 
+type DataTypeKey =
+  | "lithologies"
+  | "intervals"
+  | "columns"
+  | "environments"
+  | "refs"
+  | "strat_names";
+
 const dataTypeMapping = {
   lithologies: (store) => store.getLithologies,
   intervals: (store) => store.getIntervals,
   columns: (store) => store.getColumns,
   environments: (store) => store.getEnvironments,
   refs: (store) => store.getRefs,
+  strat_names: (store) => store.getStratNames,
 };
 
 export function useMacrostratDefs(dataType: string): Map<number, any> | null {
@@ -299,14 +342,18 @@ export function useMacrostratColumns(
   }, [colData, inProcess]);
 }
 
-export function useMacrostratData(dataType: string, ...args: any[]) {
+export function useMacrostratData(dataType: DataTypeKey, ...args: any[]) {
   const selector = dataTypeMapping[dataType];
   const operator = useMacrostratStore(selector);
 
   const [value, setValue] = useState(null);
 
   useEffect(() => {
-    operator(...args).then(setValue);
+    try {
+      operator(...args).then(setValue);
+    } catch (e) {
+      console.error(e);
+    }
   }, [operator, ...args]);
 
   return value;

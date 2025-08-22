@@ -21,6 +21,7 @@ import {
   UnitLongFull,
   Lithology,
   Interval,
+  StratUnit,
 } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
@@ -113,10 +114,15 @@ export function LegendPanelHeader({
   return h("header.legend-panel-header", [
     h("div.title-container", [
       h.if(title != null)("h3", title),
-      h.if(hiddenActions != null)("div.hidden-actions", hiddenActions),
+      h.if(hiddenActions != null || id != null)(
+        "span.hidden-actions-container",
+        h("div.hidden-actions", [
+          h.if(id != null)("code.unit-id", id),
+          h.if(hiddenActions != null)([hiddenActions]),
+        ]),
+      ),
     ]),
     h("div.spacer"),
-    h.if(id != null)("code", id),
     h.if(actions != null)(ButtonGroup, { minimal: true }, actions),
     h.if(onClose != null)(Button, {
       icon: "cross",
@@ -159,7 +165,12 @@ function UnitDetailsContent({
   features?: Set<UnitDetailsFeature>;
   onClickItem?: (
     event: MouseEvent,
-    item: Lithology | Environment | UnitLong | Interval,
+    item:
+      | Lithology
+      | Environment
+      | UnitLong
+      | Interval
+      | { strat_name_id: number },
   ) => void;
   getItemHref?: (item: Lithology | Environment | UnitLong) => string | null;
 }) {
@@ -222,7 +233,7 @@ function UnitDetailsContent({
 
   /** We are trying to move away from passing the "color" parameter in the API */
   let colorSwatch: ReactNode = null;
-  if ("color" in unit) {
+  if ("color" in unit && features.has(UnitDetailsFeature.Color)) {
     const unit1 = unit as UnitLongFull;
     colorSwatch = h("div.color-swatch", {
       style: { backgroundColor: unit1.color },
@@ -250,20 +261,9 @@ function UnitDetailsContent({
       onClickItem,
       getItemHref,
     }),
-    h.if(unit.strat_name_id != null)(
-      DataField,
-      {
-        label: "Stratigraphic name",
-      },
-      h(
-        "span",
-        {
-          className: "strat-name-id" + (onClickItem ? " clickable" : ""),
-          onClick: (e) => onClickItem(e, { strat_name_id: unit.strat_name_id }),
-        },
-        unit.strat_name_id,
-      ),
-    ),
+    h.if(unit.strat_name_id != null)(StratNameField, {
+      strat_name_id: unit.strat_name_id,
+    }),
     outcropField,
     h.if(features.has(UnitDetailsFeature.AdjacentUnits))([
       h(
@@ -278,12 +278,61 @@ function UnitDetailsContent({
       ),
     ]),
     colorSwatch,
-    h(
-      DataField,
-      { label: "Source", inline: true },
-      h(BibInfo, { refs: unit.refs }),
-    ),
+    h(ReferencesField, { refs: unit.refs, inline: true }),
   ]);
+}
+
+export function ReferencesField({ refs, className = null, ...rest }) {
+  if (refs == null || refs.length === 0) {
+    return null;
+  }
+  return h(
+    DataField,
+    {
+      label: "Source",
+      className: classNames("refs-field", className),
+      ...rest,
+    },
+    h(BibInfo, { refs }),
+  );
+}
+
+function StratNameField({
+  strat_name_id,
+  onClickItem,
+}: {
+  strat_name_id: number;
+  onClickItem?: (event: MouseEvent, item: { strat_name_id: number }) => void;
+}) {
+  const stratNames = useMemo(() => [strat_name_id], [strat_name_id]);
+  const data = useMacrostratData("strat_names", stratNames);
+  const stratNameData = data?.[0];
+  let inner: any = h(Identifier, { id: strat_name_id });
+  const name = stratNameData?.strat_name_long;
+  if (name != null) {
+    inner = h("span.strat-name", name);
+  }
+
+  const clickable = onClickItem != null;
+
+  const className = classNames({
+    clickable,
+  });
+
+  return h(
+    DataField,
+    {
+      label: "Stratigraphic name",
+    },
+    h(
+      clickable ? "a" : "span",
+      {
+        className,
+        onClick: (e) => onClickItem(e, { strat_name_id }),
+      },
+      inner,
+    ),
+  );
 }
 
 function getThickness(unit): [string, string] {
@@ -331,12 +380,18 @@ function BibInfo({ refs }) {
   }
 
   if (refData.length == 1) {
-    return h(Citation, { data: refData[0], tag: "span" });
+    return h(Citation, {
+      data: refData[0],
+      tag: "span",
+      key: refData[0].ref_id,
+    });
   }
 
   return h(
     "ul.refs",
-    refData.map((data, i) => h(Citation, { data, tag: "li", key: i })),
+    refData.map((data, i) =>
+      h(Citation, { data, tag: "li", key: data.ref_id }),
+    ),
   );
 }
 
@@ -474,6 +529,33 @@ function enhanceLithologies(
   });
 }
 
+export function Identifier({
+  id,
+  onClick,
+  className,
+}: {
+  id: number | string;
+  onClick?: (id: number | string) => void;
+  className?: string;
+}) {
+  /** An item that displays a numeric identifier, optionally clickable */
+  const tag = onClick != null ? "a" : "span";
+  return h(
+    tag,
+    {
+      onClick() {
+        onClick?.(id);
+      },
+      className: classNames(
+        "identifier",
+        { clickable: onClick != null },
+        className,
+      ),
+    },
+    id,
+  );
+}
+
 function UnitIDList({ units, selectUnit }) {
   const u1 = units.filter((d) => d != 0);
 
@@ -489,19 +571,15 @@ function UnitIDList({ units, selectUnit }) {
   return h(
     ItemList,
     { className: "unit-id-list" },
-    u1.map((unit) => {
-      return h(
-        tag,
-
-        {
-          className: "unit-id",
-          onClick() {
-            selectUnit?.(unit.id);
-          },
-          key: unit.id,
+    u1.map((unitID) => {
+      return h(Identifier, {
+        className: "unit-id",
+        onClick() {
+          selectUnit?.(unitID);
         },
-        unit,
-      );
+        key: unitID,
+        id: unitID,
+      });
     }),
   );
 }
