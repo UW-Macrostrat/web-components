@@ -8,6 +8,7 @@ import styles from "./story-ui.module.sass";
 
 import { Spinner } from "@blueprintjs/core";
 import { useColumnBasicInfo, useColumnUnits } from "./utils";
+import { UnitLong } from "@macrostrat/api-types";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -53,7 +54,7 @@ function ColumnCore({
   setSelectedUnit,
   ...rest
 }) {
-  const units = useColumnUnits(col_id, inProcess);
+  const units = useColumnUnits(col_id, inProcess) as any as UnitLong[];
   const info = useColumnBasicInfo(col_id, inProcess);
 
   if (units == null || info == null) {

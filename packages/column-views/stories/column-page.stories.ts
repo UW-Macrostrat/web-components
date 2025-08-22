@@ -5,7 +5,8 @@ import {
   ColoredUnitComponent,
   Column,
   ColumnNavigationMap,
-  ModalUnitPanel,
+  UnitDetailsPanelWithNavigation,
+  RefsField,
   UnitDetailsFeature,
 } from "../src";
 import { useColumnBasicInfo, useColumnUnits } from "./column-ui/utils";
@@ -53,6 +54,12 @@ function ColumnStoryUI({
   return h("div.column-ui", [
     h("div.column-container", [
       h("h2", info?.col_name),
+      h(RefsField, {
+        refs: info?.refs,
+        inline: false,
+        row: true,
+        className: "column-refs",
+      }),
       h(Column, {
         key: columnID,
         units,
@@ -78,7 +85,7 @@ function ColumnStoryUI({
         onSelectColumn: setColumnID,
         className: "column-selector-map",
       }),
-      h.if(selectedUnit != null)(ModalUnitPanel, {
+      h.if(selectedUnit != null)(UnitDetailsPanelWithNavigation, {
         unitData: units,
         className: "unit-details-panel",
         selectedUnit,

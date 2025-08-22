@@ -3,7 +3,7 @@ import { UnitDetailsPanel } from "./panel";
 import { useKeyHandler } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 
-export function ModalUnitPanel(props) {
+export function UnitDetailsPanelWithNavigation(props) {
   const { unitData, className, selectedUnit, onSelectUnit, features, ...rest } =
     props;
 
@@ -48,14 +48,14 @@ export function ModalUnitPanel(props) {
   return h(UnitDetailsPanel, {
     unit: selectedUnit,
     onClose(event) {
-      console.log("close");
       onSelectUnit(null);
     },
     className,
     actions,
     showLithologyProportions: true,
-    onSelectUnit,
+    selectUnit: onSelectUnit,
     columnUnits: unitData,
     features,
+    ...rest,
   });
 }

@@ -278,12 +278,23 @@ function UnitDetailsContent({
       ),
     ]),
     colorSwatch,
-    h(
-      DataField,
-      { label: "Source", inline: true },
-      h(BibInfo, { refs: unit.refs }),
-    ),
+    h(RefsField, { refs: unit.refs, inline: true }),
   ]);
+}
+
+export function RefsField({ refs, className = null, ...rest }) {
+  if (refs == null || refs.length === 0) {
+    return null;
+  }
+  return h(
+    DataField,
+    {
+      label: "Source",
+      className: classNames("refs-field", className),
+      ...rest,
+    },
+    h(BibInfo, { refs }),
+  );
 }
 
 function StratNameField({
@@ -293,18 +304,19 @@ function StratNameField({
   strat_name_id: number;
   onClickItem?: (event: MouseEvent, item: { strat_name_id: number }) => void;
 }) {
-  console.log(strat_name_id);
   const stratNames = useMemo(() => [strat_name_id], [strat_name_id]);
   const data = useMacrostratData("strat_names", stratNames);
   const stratNameData = data?.[0];
-  const name = stratNameData?.strat_name_long ?? strat_name_id;
+  let inner = h(Identifier, { id: strat_name_id });
+  const name = stratNameData?.strat_name_long;
+  if (name != null) {
+    inner = h("span.strat-name", name);
+  }
 
   const clickable = onClickItem != null;
 
   const className = classNames({
     clickable,
-    "strat-name-id": name == strat_name_id,
-    "strat-name-text": name != strat_name_id,
   });
 
   return h(
@@ -318,7 +330,7 @@ function StratNameField({
         className,
         onClick: (e) => onClickItem(e, { strat_name_id }),
       },
-      name,
+      inner,
     ),
   );
 }
@@ -368,12 +380,18 @@ function BibInfo({ refs }) {
   }
 
   if (refData.length == 1) {
-    return h(Citation, { data: refData[0], tag: "span" });
+    return h(Citation, {
+      data: refData[0],
+      tag: "span",
+      key: refData[0].ref_id,
+    });
   }
 
   return h(
     "ul.refs",
-    refData.map((data, i) => h(Citation, { data, tag: "li", key: i })),
+    refData.map((data, i) =>
+      h(Citation, { data, tag: "li", key: data.ref_id }),
+    ),
   );
 }
 
@@ -511,6 +529,33 @@ function enhanceLithologies(
   });
 }
 
+export function Identifier({
+  id,
+  onClick,
+  className,
+}: {
+  id: number | string;
+  onClick?: (id: number | string) => void;
+  className?: string;
+}) {
+  /** An item that displays a numeric identifier, optionally clickable */
+  const tag = onClick != null ? "a" : "span";
+  return h(
+    tag,
+    {
+      onClick() {
+        onClick?.(id);
+      },
+      className: classNames(
+        "identifier",
+        { clickable: onClick != null },
+        className,
+      ),
+    },
+    id,
+  );
+}
+
 function UnitIDList({ units, selectUnit }) {
   const u1 = units.filter((d) => d != 0);
 
@@ -526,19 +571,15 @@ function UnitIDList({ units, selectUnit }) {
   return h(
     ItemList,
     { className: "unit-id-list" },
-    u1.map((unit) => {
-      return h(
-        tag,
-
-        {
-          className: "unit-id",
-          onClick() {
-            selectUnit?.(unit.id);
-          },
-          key: unit.id,
+    u1.map((unitID) => {
+      return h(Identifier, {
+        className: "unit-id",
+        onClick() {
+          selectUnit?.(unitID);
         },
-        unit,
-      );
+        key: unitID,
+        id: unitID,
+      });
     }),
   );
 }

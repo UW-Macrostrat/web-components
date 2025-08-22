@@ -13,6 +13,7 @@ export function DataField({
   value,
   inline = false,
   showIfEmpty = false,
+  row = false,
   className,
   children,
   unit,
@@ -24,6 +25,7 @@ export function DataField({
   className?: string;
   children?: any;
   unit?: string;
+  row?: boolean;
 }) {
   if (!showIfEmpty && (value == null || value === "") && children == null) {
     return null;
@@ -31,7 +33,7 @@ export function DataField({
 
   return h(
     "div.data-field",
-    { className: classNames(className, { inline, flex: !inline }) },
+    { className: classNames(className, { inline, flex: !inline, row }) },
     [
       h("div.label", label),
       h.if(value != null)("div.value-container", h(Value, { value, unit })),
