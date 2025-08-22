@@ -12,7 +12,11 @@ import {
 } from "./units";
 
 import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
-import { UnitSelectionPopover } from "./unit-details";
+import {
+  Identifier,
+  ReferencesField,
+  UnitSelectionPopover,
+} from "./unit-details";
 import {
   MacrostratColumnDataProvider,
   useCompositeScale,
@@ -27,6 +31,7 @@ import { CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
 import { NonIdealState } from "@blueprintjs/core";
+import { DataField } from "@macrostrat/data-components";
 
 const h = hyperStyled(styles);
 
@@ -269,4 +274,21 @@ export function ColumnContainer(props: ColumnContainerProps) {
     }),
     ...rest,
   });
+}
+
+export function ColumnBasicInfo({ data, showColumnID = true }) {
+  if (data == null) return null;
+  return h("div.column-info", [
+    h("div.column-title-row", [
+      h("h2", data.col_name),
+      h.if(showColumnID)("h4", h(Identifier, { id: data.col_id })),
+    ]),
+    h(DataField, { row: true, label: "Group", value: data.col_group }),
+    h(ReferencesField, {
+      refs: data.refs,
+      inline: false,
+      row: true,
+      className: "column-refs",
+    }),
+  ]);
 }

@@ -278,11 +278,11 @@ function UnitDetailsContent({
       ),
     ]),
     colorSwatch,
-    h(RefsField, { refs: unit.refs, inline: true }),
+    h(ReferencesField, { refs: unit.refs, inline: true }),
   ]);
 }
 
-export function RefsField({ refs, className = null, ...rest }) {
+export function ReferencesField({ refs, className = null, ...rest }) {
   if (refs == null || refs.length === 0) {
     return null;
   }
@@ -307,7 +307,7 @@ function StratNameField({
   const stratNames = useMemo(() => [strat_name_id], [strat_name_id]);
   const data = useMacrostratData("strat_names", stratNames);
   const stratNameData = data?.[0];
-  let inner = h(Identifier, { id: strat_name_id });
+  let inner: any = h(Identifier, { id: strat_name_id });
   const name = stratNameData?.strat_name_long;
   if (name != null) {
     inner = h("span.strat-name", name);

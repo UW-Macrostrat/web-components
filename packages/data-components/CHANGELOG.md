@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.1] - 2025-08-22
+
+- Improvements to Rockd checkin component
+- Added `row` style option to `DataField`
+
 ## [0.2.0] - 2025-06-25
 
 - onClick capability added to LithologyTag, IntervalTag, and EnvironmentList,
