@@ -1,0 +1,25 @@
+.column-ui
+  display: flex
+  flex-direction: row
+  justify-content: center
+
+.column-container, .column-view
+  width: 600px
+
+.right-column
+  width: 400px
+  max-height: 100vh
+  position: sticky
+  top: 0
+  padding: 2em 0
+  gap: 1em
+  display: flex
+  flex-direction: column
+  &>*
+    border-radius: 6px
+    overflow: hidden
+    box-shadow: 0 3px 2px var(--card-shadow-color)
+
+.column-selector-map
+  height: 350px
+  border-radius: 1em
