@@ -92,7 +92,7 @@ function ColumnStoryUI({
   ]);
 }
 
-export function useColumnSelection() {
+function useColumnSelection() {
   const [{ columnID, selectedUnitID }, updateArgs] = useArgs();
   const setColumnID = (columnID) => {
     updateArgs({ columnID });

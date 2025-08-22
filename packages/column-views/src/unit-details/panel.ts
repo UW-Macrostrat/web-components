@@ -114,10 +114,15 @@ export function LegendPanelHeader({
   return h("header.legend-panel-header", [
     h("div.title-container", [
       h.if(title != null)("h3", title),
-      h.if(hiddenActions != null)("div.hidden-actions", hiddenActions),
+      h.if(hiddenActions != null || id != null)(
+        "span.hidden-actions-container",
+        h("div.hidden-actions", [
+          h.if(id != null)("code.unit-id", id),
+          h.if(hiddenActions != null)([hiddenActions]),
+        ]),
+      ),
     ]),
     h("div.spacer"),
-    h.if(id != null)("code", id),
     h.if(actions != null)(ButtonGroup, { minimal: true }, actions),
     h.if(onClose != null)(Button, {
       icon: "cross",
