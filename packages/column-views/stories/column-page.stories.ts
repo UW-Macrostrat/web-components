@@ -64,7 +64,6 @@ function ColumnStoryUI({
         showUnitPopover: false,
         width: 450,
         unitComponent: ColoredUnitComponent,
-        axisType: "age",
         collapseSmallUnconformities: false,
         targetUnitHeight: 20,
         ...rest,
@@ -84,7 +83,10 @@ function ColumnStoryUI({
         className: "unit-details-panel",
         selectedUnit,
         onSelectUnit: setSelectedUnitID,
-        features: new Set([UnitDetailsFeature.DepthRange]),
+        features: new Set([
+          UnitDetailsFeature.DepthRange,
+          UnitDetailsFeature.JSONToggle,
+        ]),
       }),
     ]),
   ]);

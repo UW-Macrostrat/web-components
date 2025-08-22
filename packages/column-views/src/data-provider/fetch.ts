@@ -2,6 +2,8 @@ import {
   ColumnGeoJSONRecord,
   ColumnGeoJSONRecordWithID,
   MacrostratRef,
+  StratName,
+  StratUnit,
   UnitLong,
 } from "@macrostrat/api-types";
 import {
@@ -197,6 +199,19 @@ export async function fetchRefs(
     return [];
   }
   url += "?ref_id=" + refs.join(",");
+  const res = await fetch(url);
+  return await unwrapResponse(res);
+}
+
+export async function fetchStratNames(
+  names: number[],
+  fetch = defaultFetch,
+): Promise<StratName[]> {
+  let url = `/defs/strat_names`;
+  if (names.length == 0) {
+    return [];
+  }
+  url += "?strat_name_id=" + names.join(",");
   const res = await fetch(url);
   return await unwrapResponse(res);
 }

@@ -21,6 +21,7 @@ import {
   UnitLongFull,
   Lithology,
   Interval,
+  StratUnit,
 } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
@@ -159,7 +160,12 @@ function UnitDetailsContent({
   features?: Set<UnitDetailsFeature>;
   onClickItem?: (
     event: MouseEvent,
-    item: Lithology | Environment | UnitLong | Interval,
+    item:
+      | Lithology
+      | Environment
+      | UnitLong
+      | Interval
+      | { strat_name_id: number },
   ) => void;
   getItemHref?: (item: Lithology | Environment | UnitLong) => string | null;
 }) {
@@ -222,7 +228,7 @@ function UnitDetailsContent({
 
   /** We are trying to move away from passing the "color" parameter in the API */
   let colorSwatch: ReactNode = null;
-  if ("color" in unit) {
+  if ("color" in unit && features.has(UnitDetailsFeature.Color)) {
     const unit1 = unit as UnitLongFull;
     colorSwatch = h("div.color-swatch", {
       style: { backgroundColor: unit1.color },
@@ -250,20 +256,9 @@ function UnitDetailsContent({
       onClickItem,
       getItemHref,
     }),
-    h.if(unit.strat_name_id != null)(
-      DataField,
-      {
-        label: "Stratigraphic name",
-      },
-      h(
-        "span",
-        {
-          className: "strat-name-id" + (onClickItem ? " clickable" : ""),
-          onClick: (e) => onClickItem(e, { strat_name_id: unit.strat_name_id }),
-        },
-        unit.strat_name_id,
-      ),
-    ),
+    h.if(unit.strat_name_id != null)(StratNameField, {
+      strat_name_id: unit.strat_name_id,
+    }),
     outcropField,
     h.if(features.has(UnitDetailsFeature.AdjacentUnits))([
       h(
@@ -284,6 +279,43 @@ function UnitDetailsContent({
       h(BibInfo, { refs: unit.refs }),
     ),
   ]);
+}
+
+function StratNameField({
+  strat_name_id,
+  onClickItem,
+}: {
+  strat_name_id: number;
+  onClickItem?: (event: MouseEvent, item: { strat_name_id: number }) => void;
+}) {
+  console.log(strat_name_id);
+  const stratNames = useMemo(() => [strat_name_id], [strat_name_id]);
+  const data = useMacrostratData("strat_names", stratNames);
+  const stratNameData = data?.[0];
+  const name = stratNameData?.strat_name_long ?? strat_name_id;
+
+  const clickable = onClickItem != null;
+
+  const className = classNames({
+    clickable,
+    "strat-name-id": name == strat_name_id,
+    "strat-name-text": name != strat_name_id,
+  });
+
+  return h(
+    DataField,
+    {
+      label: "Stratigraphic name",
+    },
+    h(
+      clickable ? "a" : "span",
+      {
+        className,
+        onClick: (e) => onClickItem(e, { strat_name_id }),
+      },
+      name,
+    ),
+  );
 }
 
 function getThickness(unit): [string, string] {

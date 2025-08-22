@@ -63,7 +63,7 @@ $dark-colors: (
   // light gray 1,
   accent-border-color: #5f6b7c,
   // gray5,
-  card-shadow-color: rgba(255, 255, 255, 0.05),
+  card-shadow-color: rgba(255, 255, 255, 0.1),
   ui-color-accent-text: rgb(252, 217, 250),
   ui-color-accent: color.adjust(rgb(143, 39, 138), $lightness: -50%),
 );
