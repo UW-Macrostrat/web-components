@@ -1,5 +1,4 @@
-import { Component } from "react";
-import { findDOMNode } from "react-dom";
+import { Component, createRef } from "react";
 import h from "./hyper";
 import { GlobeCtx, MapContext, useMapDispatch } from "./context";
 import { drag, DragBehavior } from "d3-drag";
@@ -45,9 +44,11 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
   qa: number[];
   q0: number[];
   zoom: number;
+  elementRef: React.RefObject<SVGElement>;
 
   constructor(props) {
     super(props);
+    this.elementRef = createRef();
     this.dragStarted = this.dragStarted.bind(this);
     this.dragged = this.dragged.bind(this);
     this.dragEnded = this.dragEnded.bind(this);
@@ -63,7 +64,7 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
     const { width, height, renderPath } = this.context;
     const { showMousePosition } = this.props;
     const { mousePosition } = this.state;
-    return h("g.drag-overlay", [
+    return h("g.drag-overlay", { ref: this.elementRef }, [
       h("rect.drag-mouse-target", { width, height }),
       h.if(mousePosition != null && showMousePosition)("path.mouse-position", {
         d: renderPath(mousePosition),
@@ -115,7 +116,10 @@ class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
 
   element() {
     // This is a hack but it seems to work!
-    return select(findDOMNode(this).parentElement);
+    if (this.elementRef.current == null) {
+      return null;
+    }
+    return select(this.elementRef.current.parentElement);
   }
 
   componentDidMount() {
