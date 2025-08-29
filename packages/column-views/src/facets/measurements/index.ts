@@ -4,7 +4,7 @@ import { BaseMeasurementsColumn, TruncatedList } from "../fossils";
 
 function useSGPData({ col_id }) {
   const res = useAPIResult(
-    "https://macrostrat.local/api/pg/sgp_unit_matches",
+    "https://dev.macrostrat.org/api/pg/sgp_unit_matches",
     {
       col_id: `eq.${col_id}`,
     },
