@@ -1,7 +1,7 @@
 import data from "./gbdb-section-4.json";
 
 import h from "@macrostrat/hyper";
-import { FlexRow, Spacer, useAPIResult } from "@macrostrat/ui-components";
+import { Box, FlexRow, Spacer, useAPIResult } from "@macrostrat/ui-components";
 import { ColoredUnitComponent, Column, MergeSectionsMode } from "../src";
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
@@ -38,10 +38,6 @@ function convert(unit: any): UnitLong {
     min_ma,
   } = unit;
 
-  if (lithology1 == "covered") {
-    return null;
-  }
-
   let atts = undefined;
   if (lithology2 != null && lithology2 !== "") {
     atts = [lithology2];
@@ -59,6 +55,7 @@ function convert(unit: any): UnitLong {
     b_age: max_ma,
     t_age: min_ma,
     environ: [],
+    covered: lithology1 == "covered",
   };
 }
 
@@ -109,20 +106,38 @@ export function GBDBColumn({ axisType = ColumnAxisType.HEIGHT }) {
   const units = useMemo(() => {
     console.log("Column data", data);
 
-    const units: UnitLong[] = stackUnitsByAge(
-      data.map(convert).filter((d) => d != null),
+    const units: UnitLong[] = stackUnitsByAge(data.map(convert)).filter(
+      (d) => d.covered == false,
     );
 
     console.log("Converted units", units);
     return units;
   }, []);
 
-  return h(Column, {
-    units,
-    axisType,
-    showUnitPopover: true,
-    targetUnitHeight: 50,
-    unitComponent: ColoredUnitComponent,
-    mergeSections: MergeSectionsMode.ALL,
-  });
+  return h("div", [
+    h(
+      Box,
+      {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+      },
+      [
+        h("h1", data[0].section_name),
+        h("p.credit", [
+          "Geobiodiversity Database: section ",
+          h("code", `${data[0].section_id}`),
+        ]),
+      ],
+    ),
+    h(Column, {
+      units,
+      axisType,
+      showUnitPopover: true,
+      targetUnitHeight: 50,
+      unitComponent: ColoredUnitComponent,
+      mergeSections: MergeSectionsMode.ALL,
+    }),
+  ]);
 }
