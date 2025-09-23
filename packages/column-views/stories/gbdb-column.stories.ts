@@ -17,6 +17,7 @@ export default {
   description: "A column rendered using static units",
   args: {
     axisType: ColumnAxisType.HEIGHT,
+    showFormations: true,
   },
   argTypes: {
     axisType: {
@@ -26,6 +27,60 @@ export default {
   },
 };
 
+export function GBDBColumn({
+  axisType = ColumnAxisType.HEIGHT,
+  showFormations = true,
+}) {
+  const units = useMemo(() => {
+    console.log("Column data", data);
+
+    let units = stackUnitsByAge(data.map(convert));
+
+    if (showFormations) {
+      units = units.map((u) => {
+        return { ...u, column: 1 };
+      });
+
+      units.push(...createFormationUnits(units));
+    }
+
+    units = units.filter((d) => d.covered == false);
+
+    console.log("Converted units", units);
+    return units;
+  }, [showFormations]);
+
+  return h("div", [
+    h(
+      Box,
+      {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "baseline",
+      },
+      [
+        h("h1", data[0].section_name),
+        h("p.credit", [
+          "Geobiodiversity Database: section ",
+          h("code", `${data[0].section_id}`),
+        ]),
+      ],
+    ),
+    h(Column, {
+      units,
+      axisType,
+      showUnitPopover: true,
+      targetUnitHeight: 50,
+      unitComponent: ColoredUnitComponent,
+      mergeSections: MergeSectionsMode.ALL,
+      unitComponentProps: {
+        nColumns: showFormations ? 2 : 1,
+      },
+    }),
+  ]);
+}
+
 function convert(unit: any): UnitLong {
   const {
     unit_id,
@@ -34,13 +89,24 @@ function convert(unit: any): UnitLong {
     unit_sum,
     lithology1,
     lithology2,
+    paleoenvironment,
     max_ma,
     min_ma,
   } = unit;
 
+  let { formation, member, group } = unit;
+  if (formation == null || formation === "") formation = undefined;
+  if (member == null || member === "") member = undefined;
+  if (group == null || group === "") group = undefined;
+
   let atts = undefined;
   if (lithology2 != null && lithology2 !== "") {
     atts = [lithology2];
+  }
+
+  let environ = [];
+  if (paleoenvironment != null && paleoenvironment !== "") {
+    environ = [{ name: paleoenvironment }];
   }
 
   return {
@@ -54,7 +120,10 @@ function convert(unit: any): UnitLong {
     max_thick: unit_thickness,
     b_age: max_ma,
     t_age: min_ma,
-    environ: [],
+    Fm: formation,
+    Mbr: member,
+    Gp: group,
+    environ,
     covered: lithology1 == "covered",
   };
 }
@@ -102,42 +171,35 @@ function stackUnitsByAge(units: UnitLong[]): UnitLong[] {
   return newUnits;
 }
 
-export function GBDBColumn({ axisType = ColumnAxisType.HEIGHT }) {
-  const units = useMemo(() => {
-    console.log("Column data", data);
+function createFormationUnits(units: UnitLong[]): UnitLong[] {
+  // Create a new array of units condensed on formation names
+  const formationMap = new Map<string, UnitLong>();
+  const unitsWithFormation = units.filter((u) => u.Fm != null);
 
-    const units: UnitLong[] = stackUnitsByAge(data.map(convert)).filter(
-      (d) => d.covered == false,
-    );
+  let uid = -1;
+  for (const u of unitsWithFormation) {
+    const formationName = u.Fm;
+    if (!formationMap.has(formationName)) {
+      formationMap.set(formationName, {
+        ...u,
+        lith: [],
+        environ: [],
+        unit_id: uid, // Indicate it's a formation unit
+        unit_name: formationName + " Formation",
+        column: 0,
+      });
+      uid -= 1;
+    } else {
+      const existing = formationMap.get(formationName)!;
+      // Update the existing formation unit to extend its age range
+      existing.t_age = Math.min(existing.t_age, u.t_age);
+      existing.b_age = Math.max(existing.b_age, u.b_age);
+      existing.min_thick += u.min_thick;
+      existing.max_thick += u.max_thick;
+      existing.t_pos = Math.max(existing.t_pos, u.t_pos);
+      existing.b_pos = Math.min(existing.b_pos, u.b_pos);
+    }
+  }
 
-    console.log("Converted units", units);
-    return units;
-  }, []);
-
-  return h("div", [
-    h(
-      Box,
-      {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "space-between",
-        alignItems: "baseline",
-      },
-      [
-        h("h1", data[0].section_name),
-        h("p.credit", [
-          "Geobiodiversity Database: section ",
-          h("code", `${data[0].section_id}`),
-        ]),
-      ],
-    ),
-    h(Column, {
-      units,
-      axisType,
-      showUnitPopover: true,
-      targetUnitHeight: 50,
-      unitComponent: ColoredUnitComponent,
-      mergeSections: MergeSectionsMode.ALL,
-    }),
-  ]);
+  return Array.from(formationMap.values()).sort((a, b) => b.b_age - a.b_age);
 }
