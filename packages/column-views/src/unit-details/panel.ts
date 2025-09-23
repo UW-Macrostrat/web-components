@@ -266,12 +266,12 @@ function UnitDetailsContent({
     }),
     outcropField,
     h.if(features.has(UnitDetailsFeature.AdjacentUnits))([
-      h(
+      h.if(unit.units_above != null)(
         DataField,
         { label: "Above" },
         h(UnitIDList, { units: unit.units_above, selectUnit }),
       ),
-      h(
+      h.if(unit.units_below != null)(
         DataField,
         { label: "Below" },
         h(UnitIDList, { units: unit.units_below, selectUnit }),

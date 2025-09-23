@@ -2,7 +2,7 @@ import data from "./gbdb-section-4.json";
 
 import h from "@macrostrat/hyper";
 import { FlexRow, Spacer, useAPIResult } from "@macrostrat/ui-components";
-import { Column } from "../src";
+import { ColoredUnitComponent, Column, MergeSectionsMode } from "../src";
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { ColumnProps } from "../src";
@@ -15,6 +15,15 @@ export default {
   title: "Column views/GBDB columns",
   component: GBDBColumn,
   description: "A column rendered using static units",
+  args: {
+    axisType: ColumnAxisType.HEIGHT,
+  },
+  argTypes: {
+    axisType: {
+      options: ["age", "height", "depth"],
+      control: { type: "radio" },
+    },
+  },
 };
 
 function convert(unit: any): UnitLong {
@@ -25,6 +34,8 @@ function convert(unit: any): UnitLong {
     unit_sum,
     lithology1,
     lithology2,
+    max_ma,
+    min_ma,
   } = unit;
 
   if (lithology1 == "covered") {
@@ -43,11 +54,15 @@ function convert(unit: any): UnitLong {
     lith: [{ name: lithology1, atts }],
     b_pos: unit_sum - unit_thickness,
     t_pos: unit_sum,
+    min_thick: unit_thickness,
+    max_thick: unit_thickness,
+    b_age: max_ma,
+    t_age: min_ma,
     environ: [],
   };
 }
 
-export function GBDBColumn() {
+export function GBDBColumn({ axisType = ColumnAxisType.HEIGHT }) {
   const units = useMemo(() => {
     console.log("Column data", data);
 
@@ -57,5 +72,12 @@ export function GBDBColumn() {
     return units;
   }, []);
 
-  return h(Column, { units, axisType: ColumnAxisType.HEIGHT });
+  return h(Column, {
+    units,
+    axisType,
+    showUnitPopover: true,
+    targetUnitHeight: 50,
+    unitComponent: ColoredUnitComponent,
+    mergeSections: MergeSectionsMode.ALL,
+  });
 }
