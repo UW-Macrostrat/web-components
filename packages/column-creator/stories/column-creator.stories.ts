@@ -2,7 +2,6 @@ import h from "@macrostrat/hyper";
 
 import { BasicUnitComponent, Column } from "@macrostrat/column-views";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { FlexRow } from "@macrostrat/ui-components";
 import { ColumnCreator } from "../src";
 
 export default {
