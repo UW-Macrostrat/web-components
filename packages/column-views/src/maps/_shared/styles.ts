@@ -4,6 +4,7 @@ import type { Style } from "mapbox-gl";
 
 export function buildColumnsStyle(color: string): Style {
   const columnColor = color ?? getCSSVariable("--text-subtle-color", "black");
+  const columnSelectedColor = getCSSVariable("--selection-color", "purple");
   return {
     sources: {
       columns: buildGeoJSONSource(),
@@ -42,7 +43,12 @@ export function buildColumnsStyle(color: string): Style {
         source: "columns",
         paint: {
           "circle-radius": 4,
-          "circle-color": columnColor,
+          "circle-color": [
+            "case",
+            ["boolean", ["feature-state", "selected"], false],
+            columnSelectedColor,
+            columnColor,
+          ],
           "circle-opacity": [
             "case",
             ["boolean", ["feature-state", "selected"], false],
