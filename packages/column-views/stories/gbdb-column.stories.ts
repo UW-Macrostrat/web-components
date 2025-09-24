@@ -8,14 +8,12 @@ import {
   Column,
   ColumnNavigationMap,
   MergeSectionsMode,
+  useLithologies,
 } from "../src";
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
-import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
-import { ColumnProps } from "../src";
-import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 import { UnitLong } from "@macrostrat/api-types";
 import { useMemo } from "react";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -76,13 +74,24 @@ export function GBDBColumn({
 
   const { columnID = 4, setColumn } = useColumnSelection();
 
+  const lithMap = useLithologies();
+
   const sectionData = useMemo(() => {
     return data.filter((d) => d.section_id === columnID);
   }, [columnID]);
   const units = useMemo(() => {
     console.log("Column data", sectionData);
 
-    let units = stackUnitsByAge(sectionData.map(convert));
+    const lithNamesMap = new Map<string, number>();
+    lithMap?.forEach((lith) => {
+      lithNamesMap.set(lith.name.toLowerCase(), lith);
+    });
+
+    let units = stackUnitsByAge(
+      sectionData.map((d) => {
+        return convert(d, lithNamesMap);
+      }),
+    );
 
     if (showFormations) {
       units = units.map((u) => {
@@ -96,7 +105,7 @@ export function GBDBColumn({
 
     console.log("Converted units", units);
     return units;
-  }, [showFormations, sectionData]);
+  }, [showFormations, sectionData, lithMap]);
 
   return h("div", [
     h(
@@ -153,7 +162,7 @@ export function GBDBColumn({
   ]);
 }
 
-function convert(unit: any): UnitLong {
+function convert(unit: any, lithNamesMap: Map<string, any>): UnitLong {
   const {
     unit_id,
     section_id,
@@ -176,6 +185,13 @@ function convert(unit: any): UnitLong {
     atts = [lithology2];
   }
 
+  const lithName = lithology1.toLowerCase();
+
+  let lith = lithNamesMap.get(lithName) ?? {
+    name: lithName,
+  };
+  lith = { ...lith, atts };
+
   let environ = [];
   if (paleoenvironment != null && paleoenvironment !== "") {
     environ = [{ name: paleoenvironment }];
@@ -185,7 +201,7 @@ function convert(unit: any): UnitLong {
     unit_id,
     col_id: section_id,
     unit_name: `Unit ${unit_id}`,
-    lith: [{ name: lithology1, atts }],
+    lith: [lith],
     b_pos: unit_sum - unit_thickness,
     t_pos: unit_sum,
     min_thick: unit_thickness,
