@@ -3,8 +3,12 @@ import { buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 import type { Style } from "mapbox-gl";
 
 export function buildColumnsStyle(color: string): Style {
-  const columnColor = color ?? getCSSVariable("--text-subtle-color", "black");
+  let columnColor = color ?? getCSSVariable("--text-subtle-color", "black");
   const columnSelectedColor = getCSSVariable("--selection-color", "purple");
+
+  // If color is in the geojson properties, use that
+  columnColor = ["coalesce", ["get", "color"], columnColor];
+
   return {
     sources: {
       columns: buildGeoJSONSource(),

@@ -1,7 +1,7 @@
 import data from "./gbdb-all.json";
 
 import h from "@macrostrat/hyper";
-import { Box, FlexRow, Spacer, useAPIResult } from "@macrostrat/ui-components";
+import { Box, useAPIResult } from "@macrostrat/ui-components";
 
 import {
   ColoredUnitComponent,
@@ -18,6 +18,8 @@ import { UnitLong } from "@macrostrat/api-types";
 import { useMemo } from "react";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useColumnSelection } from "./column-ui/utils";
+import { Spinner } from "@blueprintjs/core";
+import { ColumnStoryUI } from "./column-ui";
 
 export default {
   title: "Column views/GBDB columns",
@@ -26,7 +28,7 @@ export default {
   args: {
     axisType: ColumnAxisType.HEIGHT,
     showFormations: true,
-    sectionID: 4,
+    columnID: 4,
   },
   argTypes: {
     axisType: {
@@ -66,21 +68,43 @@ function buildColumnGeoJSON() {
   };
 }
 
-export function GBDBColumn({
+function useColumnGeoJSON() {
+  const res = useAPIResult(
+    "https://macrostrat.local/api/pg/gbdb_section_geojson",
+  );
+
+  return res?.[0]?.geojson;
+}
+
+function useColumnUnits(sectionID: number) {
+  return useAPIResult("https://macrostrat.local/api/pg/gbdb_strata", {
+    section_id: `eq.${sectionID}`,
+  });
+}
+
+function Template(args) {
+  return h(GBDBColumn, {
+    ...args,
+    ...useColumnSelection(),
+  });
+}
+
+export const Primary = Template.bind({});
+
+function GBDBColumn({
   axisType = ColumnAxisType.HEIGHT,
   showFormations = true,
+  columnID,
+  setColumn,
 }) {
-  const columnGeoJSON = useMemo(() => buildColumnGeoJSON(), []);
+  const columnGeoJSON = useColumnGeoJSON();
 
-  const { columnID = 4, setColumn } = useColumnSelection();
+  const sectionData = useColumnUnits(columnID);
 
   const lithMap = useLithologies();
 
-  const sectionData = useMemo(() => {
-    return data.filter((d) => d.section_id === columnID);
-  }, [columnID]);
   const units = useMemo(() => {
-    console.log("Column data", sectionData);
+    if (sectionData == null) return null;
 
     const lithNamesMap = new Map<string, number>();
     lithMap?.forEach((lith) => {
@@ -103,7 +127,6 @@ export function GBDBColumn({
 
     units = units.filter((d) => d.covered == false);
 
-    console.log("Converted units", units);
     return units;
   }, [showFormations, sectionData, lithMap]);
 
@@ -117,10 +140,10 @@ export function GBDBColumn({
         alignItems: "baseline",
       },
       [
-        h("h1", sectionData[0].section_name),
+        h("h1", sectionData?.[0]?.section_name),
         h("p.credit", [
           "Geobiodiversity Database: section ",
-          h("code", `${sectionData[0].section_id}`),
+          h("code", `${sectionData?.[0].section_id}`),
         ]),
       ],
     ),
@@ -133,7 +156,7 @@ export function GBDBColumn({
         alignItems: "start",
       },
       [
-        h(Column, {
+        h(ColumnInner, {
           units,
           axisType,
           showUnitPopover: true,
@@ -145,13 +168,16 @@ export function GBDBColumn({
           },
         }),
         h(ColumnNavigationMap, {
-          columns: columnGeoJSON.features,
-          style: { height: 400, width: 400 },
+          columns: columnGeoJSON?.features ?? [],
+          style: { height: 500, width: 500 },
           mapPosition: undefined,
           center: [80, 36],
           zoom: 2.7,
           accessToken,
           selectedColumn: columnID,
+          showLabels: true,
+          showAdmin: true,
+          showRoads: true,
           onSelectColumn(id) {
             console.log(id);
             setColumn(id);
@@ -160,6 +186,12 @@ export function GBDBColumn({
       ],
     ),
   ]);
+}
+
+function ColumnInner(props) {
+  if (props.units == null) return h(Spinner);
+
+  return h(Column, props);
 }
 
 function convert(unit: any, lithNamesMap: Map<string, any>): UnitLong {
