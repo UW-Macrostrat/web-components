@@ -10,16 +10,14 @@ import {
   MergeSectionsMode,
   useLithologies,
 } from "../src";
-
-const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
-
 import "@macrostrat/style-system";
 import { UnitLong } from "@macrostrat/api-types";
 import { useMemo } from "react";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useColumnSelection } from "./column-ui/utils";
 import { Spinner } from "@blueprintjs/core";
-import { ColumnStoryUI } from "./column-ui";
+
+const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 export default {
   title: "Column views/GBDB columns",
@@ -37,36 +35,6 @@ export default {
     },
   },
 };
-
-function buildColumnGeoJSON() {
-  const colMap = new Map<number, any>();
-  for (const d of data) {
-    const { section_id, section_name, lng, lat } = d;
-    if (!colMap.has(section_id)) {
-      colMap.set(section_id, {
-        type: "Feature",
-        geometry: {
-          type: "Point",
-          coordinates: [lng, lat],
-        },
-        properties: {
-          id: section_id,
-          col_id: section_id,
-          col_name: section_name,
-          n_units: 0,
-        },
-        id: section_id,
-      });
-    }
-    const col = colMap.get(section_id);
-    col.properties.n_units += 1;
-  }
-
-  return {
-    type: "FeatureCollection",
-    features: Array.from(colMap.values()),
-  };
-}
 
 function useColumnGeoJSON() {
   const res = useAPIResult(
@@ -138,8 +106,6 @@ function GBDBColumn({
     return [units, removedUnits];
   }, [showFormations, sectionData, lithMap, axisType]);
 
-  console.log(units, omittedUnitsCount);
-
   return h("div", [
     h(
       Box,
@@ -176,7 +142,10 @@ function GBDBColumn({
           showUnitPopover: true,
           targetUnitHeight: 50,
           unitComponent: ColoredUnitComponent,
-          mergeSections: MergeSectionsMode.ALL,
+          mergeSections:
+            axisType == ColumnAxisType.HEIGHT
+              ? MergeSectionsMode.ALL
+              : MergeSectionsMode.OVERLAPPING,
           unitComponentProps: {
             nColumns: showFormations ? 2 : 1,
           },
