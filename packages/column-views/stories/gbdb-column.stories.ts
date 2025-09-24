@@ -103,8 +103,8 @@ function GBDBColumn({
 
   const lithMap = useLithologies();
 
-  const units = useMemo(() => {
-    if (sectionData == null) return null;
+  const [units, omittedUnitsCount] = useMemo(() => {
+    if (sectionData == null) return [null, 0];
 
     const lithNamesMap = new Map<string, number>();
     lithMap?.forEach((lith) => {
@@ -127,8 +127,18 @@ function GBDBColumn({
 
     units = units.filter((d) => d.covered == false);
 
-    return units;
-  }, [showFormations, sectionData, lithMap]);
+    const unitsCount = units.length;
+    let removedUnits = 0;
+    if (axisType == ColumnAxisType.AGE) {
+      // Remove data without age constraints
+      units = units.filter((d) => d.t_age != null && d.b_age != null);
+      units = units.filter((d) => d.t_age != 0 && d.b_age != 0);
+      removedUnits = units.length - unitsCount;
+    }
+    return [units, removedUnits];
+  }, [showFormations, sectionData, lithMap, axisType]);
+
+  console.log(units, omittedUnitsCount);
 
   return h("div", [
     h(
@@ -145,6 +155,10 @@ function GBDBColumn({
           "Geobiodiversity Database: section ",
           h("code", `${sectionData?.[0].section_id}`),
         ]),
+        h.if(omittedUnitsCount > 0)(
+          "p.omitted-notice",
+          `${omittedUnitsCount} units omitted due to lack of age constraint`,
+        ),
       ],
     ),
     h(
