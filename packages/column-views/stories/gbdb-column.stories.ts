@@ -1,8 +1,17 @@
-import data from "./gbdb-section-4.json";
+import data from "./gbdb-all.json";
 
 import h from "@macrostrat/hyper";
 import { Box, FlexRow, Spacer, useAPIResult } from "@macrostrat/ui-components";
-import { ColoredUnitComponent, Column, MergeSectionsMode } from "../src";
+
+import {
+  ColoredUnitComponent,
+  Column,
+  ColumnNavigationMap,
+  MergeSectionsMode,
+} from "../src";
+
+const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
+
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { ColumnProps } from "../src";
@@ -10,6 +19,7 @@ import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 import { UnitLong } from "@macrostrat/api-types";
 import { useMemo } from "react";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import { useColumnSelection } from "./column-ui/utils";
 
 export default {
   title: "Column views/GBDB columns",
@@ -18,6 +28,7 @@ export default {
   args: {
     axisType: ColumnAxisType.HEIGHT,
     showFormations: true,
+    sectionID: 4,
   },
   argTypes: {
     axisType: {
@@ -27,14 +38,51 @@ export default {
   },
 };
 
+function buildColumnGeoJSON() {
+  const colMap = new Map<number, any>();
+  for (const d of data) {
+    const { section_id, section_name, lng, lat } = d;
+    if (!colMap.has(section_id)) {
+      colMap.set(section_id, {
+        type: "Feature",
+        geometry: {
+          type: "Point",
+          coordinates: [lng, lat],
+        },
+        properties: {
+          id: section_id,
+          col_id: section_id,
+          col_name: section_name,
+          n_units: 0,
+        },
+        id: section_id,
+      });
+    }
+    const col = colMap.get(section_id);
+    col.properties.n_units += 1;
+  }
+
+  return {
+    type: "FeatureCollection",
+    features: Array.from(colMap.values()),
+  };
+}
+
 export function GBDBColumn({
   axisType = ColumnAxisType.HEIGHT,
   showFormations = true,
 }) {
-  const units = useMemo(() => {
-    console.log("Column data", data);
+  const columnGeoJSON = useMemo(() => buildColumnGeoJSON(), []);
 
-    let units = stackUnitsByAge(data.map(convert));
+  const { columnID = 4, setColumn } = useColumnSelection();
+
+  const sectionData = useMemo(() => {
+    return data.filter((d) => d.section_id === columnID);
+  }, [columnID]);
+  const units = useMemo(() => {
+    console.log("Column data", sectionData);
+
+    let units = stackUnitsByAge(sectionData.map(convert));
 
     if (showFormations) {
       units = units.map((u) => {
@@ -48,7 +96,7 @@ export function GBDBColumn({
 
     console.log("Converted units", units);
     return units;
-  }, [showFormations]);
+  }, [showFormations, sectionData]);
 
   return h("div", [
     h(
@@ -60,24 +108,48 @@ export function GBDBColumn({
         alignItems: "baseline",
       },
       [
-        h("h1", data[0].section_name),
+        h("h1", sectionData[0].section_name),
         h("p.credit", [
           "Geobiodiversity Database: section ",
-          h("code", `${data[0].section_id}`),
+          h("code", `${sectionData[0].section_id}`),
         ]),
       ],
     ),
-    h(Column, {
-      units,
-      axisType,
-      showUnitPopover: true,
-      targetUnitHeight: 50,
-      unitComponent: ColoredUnitComponent,
-      mergeSections: MergeSectionsMode.ALL,
-      unitComponentProps: {
-        nColumns: showFormations ? 2 : 1,
+    h(
+      Box,
+      {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "start",
       },
-    }),
+      [
+        h(Column, {
+          units,
+          axisType,
+          showUnitPopover: true,
+          targetUnitHeight: 50,
+          unitComponent: ColoredUnitComponent,
+          mergeSections: MergeSectionsMode.ALL,
+          unitComponentProps: {
+            nColumns: showFormations ? 2 : 1,
+          },
+        }),
+        h(ColumnNavigationMap, {
+          columns: columnGeoJSON.features,
+          style: { height: 400, width: 400 },
+          mapPosition: undefined,
+          center: [80, 36],
+          zoom: 2.7,
+          accessToken,
+          selectedColumn: columnID,
+          onSelectColumn(id) {
+            console.log(id);
+            setColumn(id);
+          },
+        }),
+      ],
+    ),
   ]);
 }
 
