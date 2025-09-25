@@ -46,6 +46,7 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   showUnitPopover?: boolean;
   unitComponent?: any;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
+  nInternalColumns?: number;
 }
 
 export function CorrelationChart({
@@ -57,6 +58,7 @@ export function CorrelationChart({
   selectedUnit,
   onUnitSelected,
   unitComponent,
+  nInternalColumns = 2,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -127,6 +129,7 @@ export function CorrelationChart({
                 domain,
                 pixelScale,
                 unitComponent,
+                nInternalColumns,
               });
             }),
           ),
@@ -147,6 +150,7 @@ function Package({
   offset,
   domain,
   pixelScale,
+  nInternalColumns,
 }) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
@@ -161,6 +165,7 @@ function Package({
           domain,
           pixelScale,
           offsetLeft: i * (columnWidth + columnSpacing),
+          nInternalColumns,
         });
       }),
     ]),
@@ -179,6 +184,7 @@ interface ColumnProps {
   offsetLeft?: number;
   domain: [number, number];
   pixelScale: number;
+  nInternalColumns?: number;
 }
 
 function Column(props: ColumnProps) {
@@ -189,6 +195,7 @@ function Column(props: ColumnProps) {
     domain,
     pixelScale,
     unitComponent = ColoredUnitComponent,
+    nInternalColumns = 2,
   } = props;
 
   const columnWidth = width;
@@ -214,7 +221,7 @@ function Column(props: ColumnProps) {
       h(UnitBoxes, {
         unitComponent,
         unitComponentProps: {
-          nColumns: 2,
+          nColumns: nInternalColumns,
           width: columnWidth,
           showLabel: false,
         },

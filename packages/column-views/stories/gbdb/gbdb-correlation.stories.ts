@@ -4,6 +4,7 @@ import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   ColumnCorrelationProviderBase,
+  ColumnData,
   fetchUnits,
   useCorrelationMapStore,
 } from "@macrostrat/column-views";
@@ -18,6 +19,7 @@ import {
 } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { useCorrelationLine } from "../../src/correlation-chart/stories/utils";
+import { UnitLong } from "@macrostrat/api-types";
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -65,6 +67,34 @@ function useColumnGeoJSON(view: string = "gbdb_summary_columns") {
   return res?.[0]?.geojson?.features;
 }
 
+async function fetchGBDBUnits(columns: number[]): Promise<ColumnData[]> {
+  console.log(columns);
+  const _columns = Array.from(new Set(columns));
+  if (_columns.length == 0) {
+    return [];
+  }
+  const col_ids = _columns.join(",");
+
+  const unitData = await fetch(
+    `https://macrostrat.local/api/pg/gbdb_summary_units?col_id=in.(${col_ids})`,
+  ).then((res) => res.json());
+
+  // Group by column ID
+  const colMap: { [key: number]: UnitLong[] } = {};
+  for (const unit of unitData) {
+    const col_id = unit.col_id;
+    if (!(col_id in colMap)) {
+      colMap[col_id] = [];
+    }
+    colMap[col_id].push(unit);
+  }
+
+  return Object.entries(colMap).map(([colID, units]) => ({
+    columnID: parseInt(colID),
+    units,
+  }));
+}
+
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
 
@@ -75,14 +105,18 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
 
   const columnUnits = useAsyncMemo(async () => {
     const col_ids = focusedColumns.map((col) => col.properties.col_id);
-    return await fetchUnits(col_ids);
+    return await fetchGBDBUnits(col_ids);
   }, [focusedColumns]);
 
   return h("div.correlation-diagram", [
     h(
       ErrorBoundary,
       h(OverlaysProvider, [
-        h(CorrelationChart, { data: columnUnits, ...props }),
+        h(CorrelationChart, {
+          data: columnUnits,
+          nInternalColumns: 1,
+          ...props,
+        }),
       ]),
     ),
   ]);
