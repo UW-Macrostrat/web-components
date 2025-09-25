@@ -53,7 +53,11 @@ const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
   };
 }) as any;
 
-export function ColumnCorrelationProvider({
+export function ColumnCorrelationProvider(props) {
+  return h(ColumnCorrelationProviderBase, props);
+}
+
+export function ColumnCorrelationProviderBase({
   children,
   columns,
   projectID,

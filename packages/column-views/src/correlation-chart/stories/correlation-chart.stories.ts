@@ -1,7 +1,6 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
-import { useArgs } from "storybook/preview-api";
-import { useCallback } from "react";
+import { useCorrelationLine } from "./utils";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
@@ -14,7 +13,6 @@ import styles from "./stories.module.sass";
 import { CorrelationChart, CorrelationChartProps } from "../main";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
-import { parseLineFromString, stringifyLine } from "../hash-string";
 import { EnvironmentColoredUnitComponent } from "../../units";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
@@ -161,27 +159,6 @@ export default {
     },
   },
 } as Meta<typeof CorrelationStoryUI>;
-
-function useCorrelationLine() {
-  const [{ focusedLine, selectedUnit }, updateArgs] = useArgs();
-  const setFocusedLine = (line) => {
-    updateArgs({ focusedLine: stringifyLine(line) });
-  };
-
-  const setSelectedUnit = useCallback(
-    (selectedUnit) => {
-      updateArgs({ selectedUnit });
-    },
-    [updateArgs],
-  );
-
-  return {
-    focusedLine: parseLineFromString(focusedLine),
-    setFocusedLine,
-    selectedUnit,
-    setSelectedUnit,
-  };
-}
 
 function Template(args) {
   return h(CorrelationStoryUI, {

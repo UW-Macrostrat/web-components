@@ -1,10 +1,9 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
-import { useArgs } from "storybook/preview-api";
-import { useCallback } from "react";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
+  ColumnCorrelationProviderBase,
   fetchUnits,
   useCorrelationMapStore,
 } from "@macrostrat/column-views";
@@ -12,9 +11,13 @@ import { hyperStyled } from "@macrostrat/hyper";
 
 import styles from "./gbdb.module.sass";
 import { CorrelationChart, CorrelationChartProps } from "../../src";
-import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
+import {
+  ErrorBoundary,
+  useAPIResult,
+  useAsyncMemo,
+} from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
-import { parseLineFromString, stringifyLine } from "../../src";
+import { useCorrelationLine } from "../../src/correlation-chart/stories/utils";
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -31,11 +34,15 @@ function CorrelationStoryUI({
   projectID,
   ...rest
 }: any) {
+  const columns = useColumnGeoJSON();
+
+  console.log("Columns", columns);
+
   return h(
-    ColumnCorrelationProvider,
+    ColumnCorrelationProviderBase,
     {
       focusedLine,
-      columns: null,
+      columns,
       onSelectColumns(cols, line) {
         setFocusedLine(line);
       },
@@ -51,6 +58,11 @@ function CorrelationStoryUI({
       ]),
     ]),
   );
+}
+
+function useColumnGeoJSON(view: string = "gbdb_summary_columns") {
+  const res = useAPIResult("https://macrostrat.local/api/pg/" + view);
+  return res?.[0]?.geojson?.features;
 }
 
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
@@ -160,27 +172,6 @@ export default {
     },
   },
 } as Meta<typeof CorrelationStoryUI>;
-
-function useCorrelationLine() {
-  const [{ focusedLine, selectedUnit }, updateArgs] = useArgs();
-  const setFocusedLine = (line) => {
-    updateArgs({ focusedLine: stringifyLine(line) });
-  };
-
-  const setSelectedUnit = useCallback(
-    (selectedUnit) => {
-      updateArgs({ selectedUnit });
-    },
-    [updateArgs],
-  );
-
-  return {
-    focusedLine: parseLineFromString(focusedLine),
-    setFocusedLine,
-    selectedUnit,
-    setSelectedUnit,
-  };
-}
 
 function Template(args) {
   return h(CorrelationStoryUI, {
