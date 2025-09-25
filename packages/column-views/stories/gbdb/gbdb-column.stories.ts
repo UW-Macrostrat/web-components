@@ -1,5 +1,3 @@
-import data from "./gbdb-all.json";
-
 import h from "@macrostrat/hyper";
 import { Box, useAPIResult } from "@macrostrat/ui-components";
 
@@ -9,18 +7,18 @@ import {
   ColumnNavigationMap,
   MergeSectionsMode,
   useLithologies,
-} from "../src";
+} from "../../src";
 import "@macrostrat/style-system";
 import { UnitLong } from "@macrostrat/api-types";
 import { useMemo } from "react";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { useColumnSelection } from "./column-ui/utils";
+import { useColumnSelection } from "../column-ui/utils";
 import { Spinner } from "@blueprintjs/core";
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 export default {
-  title: "Column views/GBDB columns",
+  title: "Column views/GBDB/Columns",
   component: GBDBColumn,
   description: "A column rendered using static units",
   args: {
@@ -36,18 +34,18 @@ export default {
   },
 };
 
-function useColumnGeoJSON() {
-  const res = useAPIResult(
-    "https://macrostrat.local/api/pg/gbdb_section_geojson",
-  );
-
+function useColumnGeoJSON(view: string = "gbdb_section_geojson") {
+  const res = useAPIResult("https://macrostrat.local/api/pg/" + view);
   return res?.[0]?.geojson;
 }
 
 function useColumnUnits(sectionID: number) {
-  return useAPIResult("https://macrostrat.local/api/pg/gbdb_strata", {
-    section_id: `eq.${sectionID}`,
-  });
+  return useAPIResult(
+    "https://macrostrat.local/api/pg/gbdb_strata_with_age_model",
+    {
+      section_id: `eq.${sectionID}`,
+    },
+  );
 }
 
 function Template(args) {
@@ -79,11 +77,9 @@ function GBDBColumn({
       lithNamesMap.set(lith.name.toLowerCase(), lith);
     });
 
-    let units = stackUnitsByAge(
-      sectionData.map((d) => {
-        return convert(d, lithNamesMap);
-      }),
-    );
+    let units = sectionData.map((d) => {
+      return convert(d, lithNamesMap);
+    });
 
     if (showFormations) {
       units = units.map((u) => {
@@ -188,6 +184,8 @@ function convert(unit: any, lithNamesMap: Map<string, any>): UnitLong {
     paleoenvironment,
     max_ma,
     min_ma,
+    model_min_ma,
+    model_max_ma,
   } = unit;
 
   let { formation, member, group } = unit;
@@ -221,57 +219,14 @@ function convert(unit: any, lithNamesMap: Map<string, any>): UnitLong {
     t_pos: unit_sum,
     min_thick: unit_thickness,
     max_thick: unit_thickness,
-    b_age: max_ma,
-    t_age: min_ma,
+    b_age: model_max_ma,
+    t_age: model_min_ma,
     Fm: formation,
     Mbr: member,
     Gp: group,
     environ,
     covered: lithology1 == "covered",
   };
-}
-
-function stackUnitsByAge(units: UnitLong[]): UnitLong[] {
-  /** Find groups of units with same top and bottom age, and stack them */
-  const used = new Set<number>();
-  const newUnits: UnitLong[] = [];
-  for (let i = 0; i < units.length; i++) {
-    if (used.has(i)) continue;
-    const u1 = units[i];
-    const group = [u1];
-    used.add(i);
-    for (let j = i + 1; j < units.length; j++) {
-      if (used.has(j)) continue;
-      const u2 = units[j];
-      if (u1.t_age === u2.t_age && u1.b_age === u2.b_age) {
-        group.push(u2);
-        used.add(j);
-      }
-    }
-    if (group.length === 1) {
-      newUnits.push(u1);
-    } else {
-      // Stack the units in the group
-      let u0 = group[0];
-      const totalThickness = u0.b_age - u0.t_age;
-      const fracThickness = totalThickness / group.length;
-      let cumulativeThickness = 0;
-      // Sort group by height
-      group.sort((a, b) => (b.t_pos ?? 0) - (a.t_pos ?? 0));
-
-      for (const u of group) {
-        const newTAge = u.t_age + cumulativeThickness;
-        const newBAge = newTAge + fracThickness;
-        cumulativeThickness += fracThickness;
-        newUnits.push({
-          ...u,
-          t_age: newTAge,
-          b_age: newBAge,
-        });
-      }
-    }
-  }
-  return newUnits;
 }
 
 function createFormationUnits(units: UnitLong[]): UnitLong[] {
@@ -305,4 +260,61 @@ function createFormationUnits(units: UnitLong[]): UnitLong[] {
   }
 
   return Array.from(formationMap.values()).sort((a, b) => b.b_age - a.b_age);
+}
+
+function SummaryTemplate(args) {
+  return h(GBDBSummaryColumn, {
+    ...args,
+    ...useColumnSelection(),
+  });
+}
+
+export const Summary = SummaryTemplate.bind({});
+
+function GBDBSummaryColumn({ showFormations = true, columnID, setColumn }) {
+  const columnGeoJSON = useColumnGeoJSON("gbdb_summary_columns");
+
+  const sectionData = useAPIResult(
+    "https://macrostrat.local/api/pg/gbdb_summary_units",
+    {
+      col_id: `eq.${columnID}`,
+    },
+  );
+
+  const units = sectionData;
+
+  return h("div", [
+    h(
+      Box,
+      {
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "start",
+      },
+      [
+        h(ColumnInner, {
+          units,
+          axisType: ColumnAxisType.AGE,
+          showUnitPopover: true,
+          targetUnitHeight: 50,
+        }),
+        h(ColumnNavigationMap, {
+          columns: columnGeoJSON?.features ?? [],
+          style: { height: 500, width: 500 },
+          mapPosition: undefined,
+          center: [80, 36],
+          zoom: 2.7,
+          accessToken,
+          selectedColumn: columnID,
+          showLabels: true,
+          showAdmin: true,
+          showRoads: true,
+          onSelectColumn(id) {
+            setColumn(id);
+          },
+        }),
+      ],
+    ),
+  ]);
 }

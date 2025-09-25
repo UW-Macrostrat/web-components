@@ -210,6 +210,7 @@ function ColumnsLayer({ enabled = true }) {
       const center = geoCentroid(columnGeometry);
 
       const isInitialRender = initialRenderRef.current;
+
       map.easeTo({ center }, { duration: isInitialRender ? 0 : 500 });
       if (isInitialRender) {
         initialRenderRef.current = false;
