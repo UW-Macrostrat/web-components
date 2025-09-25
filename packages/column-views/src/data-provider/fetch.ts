@@ -225,22 +225,49 @@ export async function fetchUnits(
   columns: number[],
   fetch = defaultFetch,
 ): Promise<ColumnData[]> {
-  const promises = columns.map((col_id) => fetchColumnUnits(col_id, fetch));
-  return await Promise.all(promises);
+  const _columns = Array.from(new Set(columns));
+  if (_columns.length == 0) {
+    return [];
+  }
+  const col_ids = _columns.join(",");
+
+  const unitData = await _fetchColumnUnits(col_ids);
+
+  // Group by column ID
+  const colMap: { [key: number]: UnitLong[] } = {};
+  for (const unit of unitData) {
+    const col_id = unit.col_id;
+    if (!(col_id in colMap)) {
+      colMap[col_id] = [];
+    }
+    colMap[col_id].push(unit);
+  }
+
+  return Object.entries(colMap).map(([colID, units]) => ({
+    columnID: parseInt(colID),
+    units,
+  }));
 }
 
 export async function fetchColumnUnits(
   col_id: number,
   fetch = defaultFetch,
 ): Promise<ColumnData> {
+  const units = await _fetchColumnUnits(col_id.toString(), fetch);
+  return { columnID: col_id, units };
+}
+
+async function _fetchColumnUnits(
+  col_ids: string,
+  fetch = defaultFetch,
+): Promise<UnitLong[]> {
   const params = new URLSearchParams();
   params.append("response", "long");
-  params.append("col_id", col_id.toString());
+  params.append("col_id", col_ids);
   const res = await fetch("/units" + "?" + params.toString());
   const data = await res.json();
   if (!data.success) {
     throw new Error("Failed to fetch column units");
   }
-  const units = data.success.data;
-  return { columnID: col_id, units };
+  return data.success.data;
 }

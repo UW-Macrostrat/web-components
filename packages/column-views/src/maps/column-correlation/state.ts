@@ -13,6 +13,7 @@ import {
   useContext,
   ReactNode,
   useEffect,
+  useMemo,
 } from "react";
 import h from "@macrostrat/hyper";
 import { createComputed } from "zustand-computed";
@@ -53,15 +54,27 @@ const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
   };
 }) as any;
 
-export function ColumnCorrelationProvider(props) {
-  return h(ColumnCorrelationProviderBase, props);
+export function ColumnCorrelationProvider({
+  projectID,
+  inProcess,
+  children,
+  columns,
+  ...rest
+}) {
+  const _columns = useMacrostratColumns(projectID, inProcess);
+
+  return h(ColumnCorrelationProviderBase, {
+    projectID,
+    inProcess,
+    columns: _columns,
+    children,
+    ...rest,
+  });
 }
 
 export function ColumnCorrelationProviderBase({
   children,
   columns,
-  projectID,
-  inProcess,
   focusedLine,
   onSelectColumns,
 }: CorrelationProviderProps) {
@@ -70,7 +83,7 @@ export function ColumnCorrelationProviderBase({
       computed((set, get): CorrelationMapStore => {
         return {
           focusedLine,
-          columns: null,
+          columns,
           onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
             const state = get();
             // Check if shift key is pressed
@@ -95,12 +108,11 @@ export function ColumnCorrelationProviderBase({
 
   // Set up the store
   /** TODO: move the fetching of all columns to within the map */
-  const _columns = useMacrostratColumns(projectID, inProcess);
   useEffect(() => {
-    if (_columns != null) {
-      store.setState({ columns: _columns });
+    if (columns != null) {
+      store.setState({ columns });
     }
-  }, [_columns]);
+  }, [columns]);
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   const focusedColumns = useStore(store, (state) => state.focusedColumns);
