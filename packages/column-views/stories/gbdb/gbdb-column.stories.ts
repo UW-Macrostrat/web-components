@@ -298,6 +298,9 @@ function GBDBSummaryColumn({ showFormations = true, columnID, setColumn }) {
           axisType: ColumnAxisType.AGE,
           showUnitPopover: true,
           targetUnitHeight: 50,
+          unitComponentProps: {
+            nColumns: 1,
+          },
         }),
         h(ColumnNavigationMap, {
           columns: columnGeoJSON?.features ?? [],
