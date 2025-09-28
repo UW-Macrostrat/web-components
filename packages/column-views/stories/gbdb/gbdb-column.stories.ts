@@ -182,10 +182,9 @@ function convert(unit: any, lithNamesMap: Map<string, any>): UnitLong {
     lithology1,
     lithology2,
     paleoenvironment,
-    max_ma,
-    min_ma,
     model_min_ma,
     model_max_ma,
+    age_source,
   } = unit;
 
   let { formation, member, group } = unit;
@@ -226,6 +225,7 @@ function convert(unit: any, lithNamesMap: Map<string, any>): UnitLong {
     Gp: group,
     environ,
     covered: lithology1 == "covered",
+    age_source,
   };
 }
 
