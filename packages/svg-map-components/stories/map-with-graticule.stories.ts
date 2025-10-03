@@ -100,6 +100,7 @@ function GlobeInner({
           ...sharedLabelProps,
           transform: `rotate(-90) translate(0 -4)`,
         },
+        labelSpacing: 40,
       }),
       h(GraticuleLabels, {
         start: { x: 0, y: height - 2 * margin },
@@ -110,6 +111,7 @@ function GlobeInner({
           ...sharedLabelProps,
           transform: `translate(0 14)`,
         },
+        labelSpacing: 40,
       }),
       children,
     ],

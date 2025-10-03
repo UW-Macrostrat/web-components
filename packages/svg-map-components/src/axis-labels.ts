@@ -42,7 +42,7 @@ type IntersectionOptions = {
   spacing: number;
 } & ShapeData;
 
-type IntersectionResult = PixelCoord & { value: number };
+type IntersectionResult = PixelCoord & { value: number; labelSpacing?: number };
 
 function useIntersections({
   axis,
@@ -50,6 +50,7 @@ function useIntersections({
   start,
   end,
   spacing = 10,
+  labelSpacing = 20,
 }: IntersectionOptions): IntersectionResult[] {
   if (start != null && end != null) {
     shape ??= Shapes.line(start.x, start.y, end.x, end.y);
@@ -80,7 +81,30 @@ function useIntersections({
       intersections.push(point);
     }
   }
-  return intersections;
+  return cullIntersectionsBasedOnPixelSpacing(intersections, labelSpacing);
+}
+
+function cullIntersectionsBasedOnPixelSpacing(
+  intersections: Intersection[],
+  minDistance: number = 20,
+) {
+  if (intersections.length === 0) {
+    return [];
+  }
+
+  let result = [intersections[0]];
+  let last = intersections[0];
+  for (let i = 1; i < intersections.length; i++) {
+    const curr = intersections[i];
+    const dx = curr.x - last.x;
+    const dy = curr.y - last.y;
+    const dist = Math.sqrt(dx * dx + dy * dy);
+    if (dist >= minDistance) {
+      result.push(curr);
+      last = curr;
+    }
+  }
+  return result;
 }
 
 class _GraticuleLabels {
@@ -248,6 +272,7 @@ export function GraticuleLabels({
   end,
   axis,
   spacing,
+  labelSpacing,
   rotate = 0,
   ...rest
 }: GraticuleLabelProps) {
@@ -255,7 +280,14 @@ export function GraticuleLabels({
     () => formatValue ?? axisFormatter(axis),
     [formatValue, axis],
   );
-  const intersections = useIntersections({ shape, start, end, axis, spacing });
+  const intersections = useIntersections({
+    shape,
+    start,
+    end,
+    axis,
+    spacing,
+    labelSpacing,
+  });
   return h("g.labels", { ...rest }, [
     intersections.map((d) => {
       const { x, y, value } = d;
