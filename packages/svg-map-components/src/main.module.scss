@@ -8,9 +8,7 @@ path.mouse-position {
   stroke: #e60000;
   fill: var(--map-selected-color, #f00);
 }
-g.map {
-  all: inherit;
-}
+
 .graticule {
   fill: none;
   stroke: #aaa;

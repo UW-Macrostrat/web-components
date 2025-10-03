@@ -6,7 +6,7 @@ import PathHandler from "kld-intersections/lib/PathHandler";
 import { useMap } from "./context";
 import { useGraticule } from "./graticule";
 import h from "./hyper";
-import React from "react";
+import React, { useMemo } from "react";
 
 const index = { lon: 0, lat: 1 };
 
@@ -51,7 +51,13 @@ function useIntersections({
   end,
   spacing = 10,
 }: IntersectionOptions): IntersectionResult[] {
-  shape ??= Shapes.line(start.x, start.y, end.x, end.y);
+  if (start != null && end != null) {
+    shape ??= Shapes.line(start.x, start.y, end.x, end.y);
+  }
+  if (axis == null || shape == null) {
+    throw new Error("Axis and shape must be provided");
+  }
+
   let graticuleSpacing: [number, number] = [spacing, spacing];
   if (axis == CoordinateAxis.Longitude) {
     graticuleSpacing[1] = 0.5;
@@ -224,6 +230,7 @@ type GraticuleLabelProps = {
   padding?: number;
   showPoints?: boolean;
   children?: React.ReactNode;
+  axis: CoordinateAxis;
 } & IntersectionOptions &
   React.SVGProps<SVGGElement>;
 
@@ -244,7 +251,10 @@ export function GraticuleLabels({
   rotate = 0,
   ...rest
 }: GraticuleLabelProps) {
-  formatValue ??= (d) => `${d.value}°`;
+  const _formatValue = useMemo(
+    () => formatValue ?? axisFormatter(axis),
+    [formatValue, axis],
+  );
   const intersections = useIntersections({ shape, start, end, axis, spacing });
   return h("g.labels", { ...rest }, [
     intersections.map((d) => {
@@ -254,15 +264,30 @@ export function GraticuleLabels({
         transform += ` rotate(${rotate})`;
       }
       return h("g.label", { transform }, [
-        h("text", labelProps, formatValue(d)),
+        h("text", labelProps, _formatValue(d)),
         h.if(showPoints)("circle", { r: 2 }),
       ]);
     }),
     h.if(axisLabel != null)(
       "text.axis-label",
-      { transform: "translate(0, -10)" },
+      { transform: "translate(0 -10)" },
       axisLabel,
     ),
     children,
   ]);
+}
+
+function axisFormatter(axis: CoordinateAxis) {
+  const suffix = axis === CoordinateAxis.Latitude ? "°N" : "°E";
+  const negSuffix = axis === CoordinateAxis.Latitude ? "°S" : "°W";
+  return (d) => {
+    const v = d.value;
+    if (v === 0) {
+      return `0${suffix}`;
+    } else if (v > 0) {
+      return `${v}${suffix}`;
+    } else {
+      return `${-v}${negSuffix}`;
+    }
+  };
 }
