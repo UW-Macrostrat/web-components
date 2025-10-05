@@ -30,7 +30,7 @@
     "use-resize-observer": "^9.1.0"
   },
   "devDependencies": {
-    "parcel": "^2.15.4",
+    "parcel": "^2.16.0",
     "ui-box": "^5.4.1"
   },
   "peerDependencies": {
