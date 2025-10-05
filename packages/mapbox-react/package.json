@@ -50,6 +50,6 @@
     "directory": "packages/mapbox-react"
   },
   "devDependencies": {
-    "parcel": "^2.15.4"
+    "parcel": "^2.16.0"
   }
 }
