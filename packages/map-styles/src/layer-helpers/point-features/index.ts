@@ -77,6 +77,8 @@ class MeasurementStyler {
   }
 }
 
+const pointSymbolIndex = pointSymbols;
+
 async function setupPointSymbols(map) {
   /** Load and prepare all symbols for measurements */
   return Promise.all(
@@ -89,6 +91,7 @@ async function setupPointSymbols(map) {
   );
 }
 
+export { pointSymbolIndex };
 export * from "./icon-image";
 export * from "./symbol-layer";
 export { MeasurementStyler, setupPointSymbols };

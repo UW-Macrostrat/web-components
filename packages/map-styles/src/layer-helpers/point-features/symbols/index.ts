@@ -14,6 +14,8 @@ import point from "./point.png";
 import shearZoneInclined from "./shear_zone_inclined.png";
 import shearZoneVertical from "./shear_zone_vertical.png";
 import vein from "./vein.png";
+import foldAxis from "./fold_axis.png";
+import sampleLocality from "./sample_locality.png";
 
 export {
   beddingHorizontal,
@@ -32,6 +34,8 @@ export {
   shearZoneInclined,
   shearZoneVertical,
   vein,
+  foldAxis,
+  sampleLocality,
 };
 
 export default {
@@ -50,6 +54,8 @@ export default {
   shearZoneInclined,
   shearZoneVertical,
   vein,
+  foldAxis,
+  sampleLocality,
 };
 
 export type PointSymbolName =
@@ -67,5 +73,7 @@ export type PointSymbolName =
   | "lineationGeneral"
   | "point"
   | "vein"
+  | "foldAxis"
+  | "sampleLocality"
   | "shearZoneInclined"
   | "shearZoneVertical";
