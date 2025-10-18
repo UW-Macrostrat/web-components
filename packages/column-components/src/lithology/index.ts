@@ -6,6 +6,7 @@ import {
   GrainsizeFrame,
   ClippingFrame,
   UUIDComponent,
+  useUUID,
 } from "../frame";
 import {
   FaciesContext,
@@ -14,6 +15,8 @@ import {
   ColumnLayoutProvider,
   ColumnDivision,
   ColumnLayoutCtx,
+  useColumn,
+  useColumnLayout,
 } from "../context";
 import { GeologicPattern, PatternType } from "./patterns";
 import tex from "react-svg-textures";
@@ -166,31 +169,32 @@ const FaciesIntervals = function (props) {
 
 const FaciesColumnInner = FaciesIntervals;
 
-class CoveredOverlay extends UUIDComponent<{}> {
-  static contextType = ColumnLayoutContext;
-  context: ColumnLayoutCtx<ColumnDivision>;
-  render() {
-    const { divisions, width } = this.context;
-    const fill = `url(#${this.UUID}-covered)`;
-    const coveredDivs = divisions.filter((d) => d.covered);
+function CoveredOverlay({
+  color = "rgba(0,0,0,0.5)",
+  patternSize = 9,
+  strokeWidth = 3,
+}) {
+  const UUID = useUUID();
+  const { divisions, width } = useColumnLayout();
+  const fill = `url(#${UUID}-covered)`;
+  const coveredDivs = divisions.filter((d) => d.covered);
 
-    return h("g.covered-overlay", {}, [
-      h("defs", [
-        h(Lines, {
-          id: `${this.UUID}-covered`,
-          size: 9,
-          strokeWidth: 3,
-          stroke: "rgba(0,0,0,0.5)",
-        }),
-      ]),
-      h(
-        "g.main",
-        coveredDivs.map((d) => {
-          return h(ColumnRect, { division: d, width, fill });
-        }),
-      ),
-    ]);
-  }
+  return h("g.covered-overlay", {}, [
+    h("defs", [
+      h(Lines, {
+        id: `${UUID}-covered`,
+        size: patternSize,
+        strokeWidth,
+        stroke: color,
+      }),
+    ]),
+    h(
+      "g.main",
+      coveredDivs.map((d) => {
+        return h(ColumnRect, { division: d, width, fill });
+      }),
+    ),
+  ]);
 }
 
 const LithologySymbolDefs = function (props) {

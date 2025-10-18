@@ -1,5 +1,6 @@
 import h from "@macrostrat/hyper";
 import { useRef, useEffect, useState } from "react";
+import classNames from "classnames";
 
 export interface Clickable {
   onClick?: (evt: MouseEvent) => void;
@@ -21,6 +22,8 @@ export type SizeAwareLabelProps = React.HTMLProps<"div"> &
     labelClassName: string;
     isShown?: boolean;
     onClick?: (evt: MouseEvent) => void;
+    tolerance?: number;
+    allowRotation?: boolean;
     onVisibilityChanged?(
       fits: boolean,
       containerSize: ElementSize,
@@ -45,19 +48,40 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
     className,
     labelClassName,
     onClick,
+    tolerance = 0,
+    allowRotation = false,
     ...rest
   } = props;
   const containerRef = useRef<HTMLElement>();
   const labelRef = useRef<HTMLElement>();
   const [fits, setFits] = useState<boolean | null>(null);
+  const [rotated, setRotated] = useState(false);
   useEffect(() => {
     const containerSz = refSize(containerRef);
     const labelSz = refSize(labelRef);
-    const doesFit =
-      labelSz.width <= containerSz.width &&
-      labelSz.height <= containerSz.height;
+    let doesFit =
+      labelSz.width <= containerSz.width + 2 * tolerance &&
+      labelSz.height <= containerSz.height + 2 * tolerance;
+    if (allowRotation) {
+      if (!doesFit) {
+        // Try rotating the label
+        const rotatedLabelSz = {
+          width: labelSz.height,
+          height: labelSz.width,
+        };
+        const rotatedFits =
+          rotatedLabelSz.width <= containerSz.width + 2 * tolerance &&
+          rotatedLabelSz.height <= containerSz.height + 2 * tolerance;
+        if (rotatedFits) {
+          doesFit = true;
+          setRotated(true);
+        } else {
+          setRotated(false);
+        }
+      }
+    }
     setFits(doesFit);
-  }, [containerRef, labelRef, label]);
+  }, [containerRef, labelRef, label, tolerance, allowRotation]);
 
   // Report whether label fits upwards, if needed
   useEffect(() => {
@@ -73,11 +97,21 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
     h(
       "span.label",
       {
-        className: labelClassName,
+        className: classNames(labelClassName, { rotated }),
         ref: labelRef,
-        style: { visibility: shouldShow ? "visible" : "hidden" },
+        style: {
+          visibility: shouldShow ? "visible" : "hidden",
+        },
       },
-      h("span.label-text", null, label),
+      h(
+        "span.label-text",
+        {
+          style: {
+            transform: rotated ? "rotate(-90deg)" : undefined,
+          },
+        },
+        label,
+      ),
     ),
   );
 }
