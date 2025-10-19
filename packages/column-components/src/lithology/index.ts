@@ -100,6 +100,7 @@ function ColumnRect(props: ColumnRectProps) {
     x -= 5;
     width += 10;
   }
+
   const height = scale(bottom) - y;
   if (key == null) {
     key = d.id;
@@ -136,6 +137,7 @@ interface ParameterIntervalsProps {
 function ParameterIntervals(props: ParameterIntervalsProps) {
   const { divisions, width } = useContext(ColumnLayoutContext);
   const { padWidth, parameter: key, fillForInterval } = props;
+
   const newDivisions = expandDivisionsByKey(divisions, key);
   if (newDivisions.length === 1) {
     return null;
@@ -261,7 +263,8 @@ class LithologyBoxes extends UUIDComponent<any> {
       const sameAsLast = patternID === resolveID(__[ix]);
       const shouldSkip = patternID == null || sameAsLast;
       if (shouldSkip) {
-        __[ix].top = d.top;
+        // Set the top of this division
+        __[ix].top = Math.max(__[ix].top, d.top);
       } else {
         __.push({ ...d, patternID });
       }

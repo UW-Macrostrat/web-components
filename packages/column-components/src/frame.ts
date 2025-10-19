@@ -8,7 +8,12 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import { path } from "d3-path";
-import { ColumnLayoutContext, ColumnLayoutCtx } from "./context";
+import {
+  ColumnLayoutContext,
+  ColumnLayoutCtx,
+  useColumnLayout,
+} from "./context";
+import { drawZigZagAtConstantHeight } from "./util";
 
 let sequence = 0; // Initialize a sequence counter
 function getUniqueIdentifier() {
@@ -70,16 +75,14 @@ function SimpleFrame(props: FrameProps) {
 
 interface GrainsizeFrameProps {
   id: string;
+  zigZagBottom?: boolean;
+  zigZagTop?: boolean;
 }
 
 function GrainsizeFrame(props: GrainsizeFrameProps) {
-  let { id: frameID } = props;
+  let { id: frameID, zigZagBottom = false, zigZagTop = false } = props;
 
-  const {
-    scale,
-    divisions,
-    grainsizeScale: gs,
-  } = useContext(ColumnLayoutContext);
+  const { scale, divisions, grainsizeScale: gs } = useColumnLayout();
   if (frameID.startsWith("#")) {
     frameID = frameID.slice(1);
   }
@@ -104,7 +107,7 @@ function GrainsizeFrame(props: GrainsizeFrameProps) {
     return scale(bottom);
   };
 
-  const filteredDivisions = divisions.filter(function (d) {
+  const filteredDivisions = Array.from(divisions).filter(function (d) {
     if (d.top <= bottomOfSection) {
       return false;
     }
@@ -114,28 +117,50 @@ function GrainsizeFrame(props: GrainsizeFrameProps) {
     return true;
   });
 
-  let _ = null;
+  let d = path();
   let currentGrainsize = "m";
-  let div: any = null;
-  for (div of Array.from(filteredDivisions)) {
-    if (_ == null) {
-      _ = path();
-      _.moveTo(0, bottomOf(div));
+  let i = 0;
+  for (const div of filteredDivisions) {
+    if (i === 0) {
+      // First division
+      // start the path at the bottom
+      const y = bottomOf(div);
+      d.moveTo(0, y);
     }
     if (div.grainsize != null) {
       currentGrainsize = div.grainsize;
     }
-    const x = gs(currentGrainsize);
-    _.lineTo(x, bottomOf(div));
-    _.lineTo(x, topOf(div));
+    const x1 = gs(currentGrainsize);
+    if (i === 0 && zigZagBottom) {
+      // Draw zig-zag at bottom
+      drawZigZagAtConstantHeight(d, 0, x1, bottomOf(div));
+    } else {
+      // Draw a normal line
+      d.lineTo(x1, bottomOf(div));
+    }
+
+    d.lineTo(x1, bottomOf(div));
+    d.lineTo(x1, topOf(div));
+
+    if (i === filteredDivisions.length - 1) {
+      // Last division
+      // Draw top
+      if (zigZagTop) {
+        drawZigZagAtConstantHeight(d, x1, 0, topOf(div));
+      } else {
+        d.lineTo(0, topOf(div));
+      }
+    }
+
+    i++;
   }
-  _.lineTo(0, topOf(div));
-  _.closePath();
+
+  d.closePath();
 
   return h("path", {
     id: frameID,
     key: frameID,
-    d: _.toString(),
+    d: d.toString(),
   });
 }
 
