@@ -74,7 +74,7 @@ g.height-range line {
 
   text {
     font-size: var(--column-axis-font-size, 12px);
-    font-weight: bold;
+    font-weight: var(--column-font-weight, bold);
   }
 }
 
