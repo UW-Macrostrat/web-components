@@ -43,9 +43,10 @@ interface MacrostratBaseUnit {
 
 type UnitDivision = MacrostratBaseUnit;
 
-interface ColumnSurface {
+export interface ColumnSurface {
   unit_id: number;
   height: number;
+  top_height?: number;
 }
 
 function buildDivisions<T extends ColumnSurface>(
@@ -54,11 +55,13 @@ function buildDivisions<T extends ColumnSurface>(
 ): (UnitDivision & T)[] {
   const units = surfaces.filter((d) => d.unit_id != null);
   return surfaces.map((surface, i) => {
-    const { height, ...rest } = surface;
+    const { height, top_height, ...rest } = surface;
     const bottom = height;
     const nextSurface = surfaces[i + 1];
     let nextHeight: number;
-    if (nextSurface != null) {
+    if (top_height != null) {
+      nextHeight = top_height;
+    } else if (nextSurface != null) {
       nextHeight = nextSurface.height;
     } else {
       nextHeight = Math.max(range[1], height);
