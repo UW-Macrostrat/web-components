@@ -6,11 +6,9 @@ import {
   useRef,
   ReactNode,
 } from "react";
-import hyper from "@macrostrat/hyper";
+import h from "@macrostrat/hyper";
 import { path } from "d3-path";
 import { ColumnLayoutContext, ColumnLayoutCtx } from "./context";
-import styles from "./frame.module.sass";
-const h = hyper.styled(styles);
 
 let sequence = 0; // Initialize a sequence counter
 function getUniqueIdentifier() {
@@ -201,7 +199,7 @@ export function ClippingFrame(props: ClipToFrameProps) {
     transform = `translate(${left} ${shiftY})`;
   }
 
-  const frameClassName = "frame";
+  const frameClassName = "clip-frame column-clip-frame";
 
   let _frame: ReactNode = h(frame, { id: frameID, className: frameClassName });
   let defs = null;
@@ -217,8 +215,9 @@ export function ClippingFrame(props: ClipToFrameProps) {
 
   return h("g", { className, transform, onClick }, [
     defs,
-    _frame,
     h("g.inner", { clipPath }, children),
+    // Frame must go last
+    _frame,
   ]);
 }
 

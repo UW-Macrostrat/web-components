@@ -110,9 +110,10 @@ g.height-range line {
     fill: #1e90ff;
   }
 
-  g.lithology-column use.frame {
-    stroke: #000;
-    stroke-width: 1px;
+  g.lithology-column .column-clip-frame {
+    stroke: var(--column-stroke-color, var(--text-color, #000));
+    stroke-width: var(--column-stroke-width, 1px);
+    fill: none;
   }
 
   g.lithology-column rect.lithology {
