@@ -41,7 +41,7 @@ export function useInsetMapStyle(mapboxToken) {
 
     // Modernize the terrain source
     const style = prepareStyleForMaplibre(
-      optimizeTerrain(baseStyle, "mapbox://mapbox.terrain-rgb", [
+      optimizeTerrain(baseStyle, "mapbox://mapbox.mapbox-terrain-dem-v1", [
         "#ffffff",
         "#aaaaaa",
       ]),
