@@ -36,8 +36,8 @@
     "directory": "packages/static-map-utils"
   },
   "devDependencies": {
-    "mapbox-gl": "^2.15.0||^3.0.0",
     "@types/underscore": "^1.13.0",
+    "mapbox-gl": "^2.15.0||^3.0.0",
     "parcel": "^2.16.0"
   }
 }

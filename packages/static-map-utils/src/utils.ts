@@ -105,17 +105,3 @@ export function setMapPosition(map: maplibre.Map, pos: MapPosition) {
     });
   }
 }
-export function prepareStyleForMaplibre(
-  style: mapboxgl.StyleSpecification | string,
-  accessToken: string,
-): maplibre.StyleSpecification {
-  // Convert any Mapbox-specific properties to Maplibre-compatible ones
-  let newStyle = {
-    ...style,
-    layers: style.layers.filter((d) => d.type !== "sky"),
-  };
-
-  delete newStyle.projection;
-
-  return newStyle;
-}

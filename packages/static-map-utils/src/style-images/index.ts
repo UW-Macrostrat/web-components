@@ -46,7 +46,8 @@ async function loadStyleImage(
       SymbolImageFormat.PNG,
       pixelRatio,
     );
-  } else if (prefix == "cross-section") {
+    // }
+    //else if (prefix == "cross-section") {
     // TODO: better resolver for symbols
     // Load cross-section specific symbols
     // if (name in crossSectionSymbols) {
@@ -56,7 +57,7 @@ async function loadStyleImage(
     //     return;
     //   }
     //   await addImageURLToMap(map, id, imgURL, { sdf: false, pixelRatio });
-    }
+    // }
   } else {
     // Load pattern image
     await loadPatternImage(map, id, pixelRatio);

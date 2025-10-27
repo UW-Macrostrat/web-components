@@ -2572,7 +2572,6 @@ __metadata:
     "@turf/distance": "npm:^7.2.0"
     "@types/mapbox-gl": "npm:^3.4.1"
     "@types/underscore": "npm:^1.13.0"
-    axios: "npm:^1.7.9"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
     maplibre-gl: "npm:^5.10.0"
     parcel: "npm:^2.16.0"
@@ -2725,6 +2724,7 @@ __metadata:
     glob: "npm:^11.0.1"
     lorem-ipsum: "npm:^2.0.8"
     madge: "npm:^8.0.0"
+    maplibregl-mapbox-request-transformer: "npm:^0.0.3"
     marked: "npm:^11.0"
     marked-terminal: "npm:^7.1.0"
     node-fetch: "npm:^3.2.9"
@@ -9790,6 +9790,13 @@ __metadata:
     supercluster: "npm:^8.0.1"
     tinyqueue: "npm:^3.0.0"
   checksum: 10c0/3dc973b1cc474f7e9f111e81193dc15b6dc362a01575f9fd8a0ffa99c36c0fa4701a8aaffab936647b9a5eacf455554d76f9e421b59e53e7539570733518ba01
+  languageName: node
+  linkType: hard
+
+"maplibregl-mapbox-request-transformer@npm:^0.0.3":
+  version: 0.0.3
+  resolution: "maplibregl-mapbox-request-transformer@npm:0.0.3"
+  checksum: 10c0/111eddeab9ab1f9a2a0b87689e6627b5c3e674b49a3a5aacef2655ae3a3c1b593e3877edb7f51c8291cac1f183ba67afea3224a74a62474f1c34572e713c2014
   languageName: node
   linkType: hard
 
