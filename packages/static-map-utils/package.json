@@ -1,0 +1,43 @@
+{
+  "name": "@macrostrat/static-map-utils",
+  "version": "0.1.0",
+  "description": "Utilities for working with Mapbox maps",
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/esm/index.d.ts",
+  "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "types": "./dist/esm/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "dev": "parcel watch",
+    "build": "rm -rf dist && parcel build"
+  },
+  "dependencies": {
+    "@mapbox/sphericalmercator": "^2.0.2",
+    "@turf/bbox": "^7.2.0",
+    "@turf/distance": "^7.2.0",
+    "@types/mapbox-gl": "^3.4.1",
+    "maplibre-gl": "^5.10.0",
+    "underscore": "^1.13.7"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/static-map-utils"
+  },
+  "devDependencies": {
+    "mapbox-gl": "^2.15.0||^3.0.0",
+    "@types/underscore": "^1.13.0",
+    "parcel": "^2.16.0"
+  }
+}
