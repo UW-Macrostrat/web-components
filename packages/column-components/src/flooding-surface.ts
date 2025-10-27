@@ -109,7 +109,7 @@ export class TriangleBars extends UUIDComponent<TriangleBarsProps> {
     zigZagLine(lineWidth, -lineWidth, 0, 16, 3);
     _.closePath();
 
-    return h("g.triangle-bars", {}, [
+    return h("g.triangle-bars", [
       h("defs", [
         createElement("clipPath", { id: this.UUID }, [
           h("path", { d: _.toString(), key: this.UUID + "-path" }),
@@ -128,7 +128,7 @@ export class TriangleBars extends UUIDComponent<TriangleBarsProps> {
     }
     const w = lineWidth / 2;
     const ol = offsetLeft + lineWidth * 2 + 5;
-    const __ = [];
+    const surfaces: SequenceStratSurface[] = [];
 
     for (i = 0; i < divisions.length; i++) {
       d = divisions[i];
@@ -141,31 +141,31 @@ export class TriangleBars extends UUIDComponent<TriangleBarsProps> {
       }
       const height = scale(d.bottom);
       if (surface_type === "mfs") {
-        __.push(["mfs", height]);
+        surfaces.push(["mfs", height]);
       }
       if (surface_type === "sb") {
-        if (__.length === 0) {
-          __.push(["sb", height]);
+        if (surfaces.length === 0) {
+          surfaces.push(["sb", height]);
           continue;
         }
-        const sz = __.length - 1;
-        if (__[sz][0] === "sb") {
-          __[sz][1] = height;
+        const sz = surfaces.length - 1;
+        if (surfaces[sz][0] === "sb") {
+          surfaces[sz][1] = height;
         } else {
-          __.push(["sb", height]);
+          surfaces.push(["sb", height]);
         }
       }
     }
 
-    if (!__.length) {
+    if (!surfaces.length) {
       return null;
     }
 
     const _ = path();
     let basalMFS = null;
     let sequenceBoundary = null;
-    for (i = 0; i < __.length; i++) {
-      const top = __[i];
+    for (i = 0; i < surfaces.length; i++) {
+      const top = surfaces[i];
       if (top[0] === "mfs" && basalMFS != null) {
         _.moveTo(0, basalMFS[1]);
         if (sequenceBoundary != null) {
@@ -199,3 +199,5 @@ export class TriangleBars extends UUIDComponent<TriangleBarsProps> {
     );
   }
 }
+
+type SequenceStratSurface = ["mfs" | "sb", number];

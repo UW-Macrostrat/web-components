@@ -219,9 +219,9 @@ g.height-range line {
   }
 
   g.triangle-bars path {
-    fill: #aaa;
-    stroke: #888;
-    stroke-width: 1.5px;
+    fill: var(--triangle-bars-fill-color, #ccc);
+    stroke: var(--triangle-bars-stroke-color, #aaa);
+    stroke-width: var(--column-stroke-width, 1px);
   }
 
   div.Select-menu-outer {
