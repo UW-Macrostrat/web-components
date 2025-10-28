@@ -2567,14 +2567,21 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/static-map-utils@workspace:packages/static-map-utils"
   dependencies:
+    "@macrostrat/mapbox-react": "workspace:^"
+    "@macrostrat/mapbox-utils": "workspace:^"
+    "@macrostrat/ui-components": "workspace:^"
     "@mapbox/sphericalmercator": "npm:^2.0.2"
     "@turf/bbox": "npm:^7.2.0"
     "@turf/distance": "npm:^7.2.0"
     "@types/mapbox-gl": "npm:^3.4.1"
     "@types/underscore": "npm:^1.13.0"
+    "@visx/scale": "npm:^3.12.0"
+    classnames: "npm:^2.5.1"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
     maplibre-gl: "npm:^5.10.0"
+    maplibregl-mapbox-request-transformer: "npm:^0.0.3"
     parcel: "npm:^2.16.0"
+    react: "npm:^18.0.0"
     underscore: "npm:^1.13.7"
   languageName: unknown
   linkType: soft

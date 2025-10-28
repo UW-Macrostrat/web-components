@@ -71,6 +71,7 @@ function Timescale(props: TimescaleProps) {
     absoluteAgeScale = false,
     showAgeAxis = true,
     levels,
+    scale,
     rootInterval = 0,
     axisProps = {},
     cursorPosition,
@@ -103,6 +104,25 @@ function Timescale(props: TimescaleProps) {
     ageRange2.reverse();
   }
 
+  let length2 = l;
+
+  if (scale != null) {
+    if (length != null) {
+      console.warn(
+        "Both scale and length provided to Timescale component. The provided scale will be used.",
+      );
+    }
+    if (ageRange2 != null) {
+      console.warn(
+        "Both scale and ageRange provided to Timescale component. The provided scale will be used.",
+      );
+    }
+
+    ageRange2 = scale.domain() as [number, number];
+    const rng = scale.range();
+    length2 = Math.abs(rng[1] - rng[0]);
+  }
+
   return h(
     TimescaleProvider,
     {
@@ -110,9 +130,10 @@ function Timescale(props: TimescaleProps) {
       selectedInterval: null,
       parentMap,
       ageRange: ageRange2,
-      length,
+      length: length2,
       orientation,
       levels,
+      scale,
     },
     h(TimescaleContainer, { className }, [
       h(TimescaleBoxes, { interval: timescale, intervalStyle, onClick }),
