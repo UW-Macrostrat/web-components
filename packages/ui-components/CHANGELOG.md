@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.5.0] - 2025-10-29
+
+Allow `SizeAwareLabel` to be rotated
+
 ## [4.4.6] - 2025-08-13
 
 onSearchChange for PostgRESTInfiniteScrollView
