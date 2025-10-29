@@ -2,7 +2,9 @@ import hyper from "@macrostrat/hyper";
 import {
   ColumnDivision,
   ColumnSurface,
+  GrainsizeFrame,
   ParameterIntervals,
+  SimpleFrame,
 } from "@macrostrat/column-components";
 import { BaseUnit } from "@macrostrat/api-types";
 import zebraNappeIntervals from "./naukluft-intervals.json";
@@ -81,7 +83,15 @@ const columnDataNama: ColumnSurface[] = [
     pattern: "shale",
     grainsize: "ms",
   },
+  { height: 500, pattern: "shale", grainsize: "ms" },
 ];
+
+function GrainsizeFrameWithZigZagTop(props) {
+  return h(GrainsizeFrame, {
+    ...props,
+    zigZagTop: true,
+  });
+}
 
 export function NamaGroup() {
   const intervals = composeIntervals(namaIntervals, 400);
@@ -91,6 +101,7 @@ export function NamaGroup() {
     {
       data: surfaces,
       className: "zebra-nappe-section",
+      frame: GrainsizeFrameWithZigZagTop,
       timescaleProps: {
         intervals,
         levels: [0, 2],

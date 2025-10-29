@@ -62,11 +62,13 @@ export const decorators = [
 
 export const tags = ["autodocs"];
 
+export function resolvePattern(id: string) {
+  return `https://dev.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
+}
+
 function PatternProvider({ children }) {
   return h(GeologicPatternProvider, {
-    resolvePattern(id: string) {
-      return `https://dev.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
-    },
+    resolvePattern,
     children,
   });
 }
