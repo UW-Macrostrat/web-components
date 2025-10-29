@@ -2567,6 +2567,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/static-map-utils@workspace:packages/static-map-utils"
   dependencies:
+    "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/mapbox-react": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"

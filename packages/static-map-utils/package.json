@@ -23,6 +23,7 @@
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
+    "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/mapbox-react": "workspace:^",
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
