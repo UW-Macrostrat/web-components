@@ -58,6 +58,6 @@
     "geology"
   ],
   "devDependencies": {
-    "vite": "^6.1.6"
+    "vite": "^5.4.21"
   }
 }
