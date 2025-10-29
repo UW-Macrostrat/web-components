@@ -1,0 +1,66 @@
+.scalebar-container
+  --scalebar-color-INT: var(--scalebar-color, #888)
+  --scalebar-background-INT: var(--scalebar-background, #fff)
+  --scalebar-height-INT: var(--scalebar-height, 10px)
+  position: absolute
+  background-color: var(--scalebar-background-INT)
+  padding: 0.2em 0.2em 0 0.5em
+  display: grid
+  gap: 0.2em
+  bottom: 0
+  left: 0
+  font-size: var(--scalebar-font-size, 12px)
+
+  .label, .unit-label
+    font-family: var(--scalebar-font-family, sans-serif)
+    color: var(--scalebar-color-INT)
+    font-weight: var(--scalebar-font-weight, 400)
+
+  &.scalebar-labels-top
+    padding: 0 0.2em 0.2em 0.5em
+    .scale-bar
+      grid-row: 2 / 2
+    .unit-label
+      grid-row: 1 / 1
+    .tick-labels
+      grid-row: 1 / 1
+
+.scale-bar
+  background-color: var(--scalebar-interior-color, var(--scalebar-background-INT))
+  border: 2px solid var(--scalebar-color-INT)
+  overflow: hidden
+  height: var(--scalebar-height-INT)
+  position: relative
+  grid: 1 / 1
+  border-radius: var(--scalebar-border-radius, 0px)
+
+.scale-box
+  position: absolute
+  height: var(--scalebar-height-INT)
+  background-color: var(--scalebar-background-INT)
+  &.even
+    background-color: var(--scalebar-color-INT)
+
+.tick-labels
+  position: relative
+  grid-row: 2 / 2
+  width: var(--scalebar-width)
+  .label
+    top: 0
+    text-align: center
+    width: 50px
+    margin-left: -25px
+    position: absolute
+    &:first-child
+      margin-left: 0
+      text-align: left
+    &:last-child
+      margin-left: -50px
+      text-align: right
+  .tick-hidden
+    visibility: hidden
+
+.unit-label
+  grid-row: 2 / 2
+  grid-column: 2 / 2
+

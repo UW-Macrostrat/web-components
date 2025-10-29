@@ -6,6 +6,7 @@ import {
   PatternDefsProvider,
   useColumn,
   useGeologicPattern,
+  zigZagBoxPath,
 } from "@macrostrat/column-components";
 import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
@@ -18,7 +19,6 @@ import classNames from "classnames";
 import { getUnitHeightRange } from "../prepare-units/utils";
 import { useLithologies } from "../data-provider";
 import { getMixedUnitColor } from "./colors";
-import { path } from "d3-path";
 import type { RectBounds } from "./types";
 
 const h = hyper.styled(styles);
@@ -235,69 +235,6 @@ const UnitRect = forwardRef((props: UnitRectProps, ref) => {
     });
   }
 });
-
-function zigZagBoxPath(x, y, width, height, top: boolean, bottom: boolean) {
-  const zigZagWidth = 10;
-  const zigZagHeight = 4;
-
-  const d = path();
-
-  const nZigZags = Math.floor(width / zigZagWidth - 0.5);
-  const _zigZagWidth = width / (nZigZags + 0.5);
-
-  d.moveTo(x, y);
-  let dy = zigZagHeight / 2;
-  // Each zig-zag consists of a short outward motion
-  let dx = _zigZagWidth / 4;
-
-  let cx = x;
-  let cy = y;
-
-  const doZigZag = (last = false) => {
-    cx += dx;
-    cy -= dy;
-    d.lineTo(cx, cy);
-    let scalar = last ? 1 : 2;
-    cx += dx * scalar;
-    cy += dy * scalar;
-    d.lineTo(cx, cy);
-    cx += dx;
-    cy -= dy;
-  };
-
-  if (top) {
-    // Move to the offset
-    //d.lineTo(cx, y);
-    // Draw the zig-zags
-    for (let i = 0; i < nZigZags; i++) {
-      doZigZag();
-    }
-    // Draw the last half zig-zag
-    doZigZag(true);
-  }
-  // Draw the right edge
-  d.lineTo(x + width, y);
-  d.lineTo(x + width, y + height);
-
-  if (bottom) {
-    dx = -dx;
-    dy = -dy;
-    cx = x + width;
-    cy = y + height;
-
-    for (let i = 0; i < nZigZags; i++) {
-      doZigZag();
-    }
-    doZigZag(true);
-  }
-  // Draw the last line to the left edge
-  d.lineTo(x, y + height);
-  // Draw the left edge
-  d.closePath();
-
-  // Now render the path;
-  return d.toString();
-}
 
 function LabeledUnit(props: LabeledUnitProps) {
   const {

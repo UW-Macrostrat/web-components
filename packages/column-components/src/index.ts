@@ -9,7 +9,6 @@ export * from "./photos";
 export * from "./axis";
 export * from "./lithology";
 export * from "./flooding-surface";
-export * from "./symbol-column";
 export * from "./edit-overlay";
 export * from "./editor";
 export * from "./grainsize";

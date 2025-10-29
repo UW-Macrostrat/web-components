@@ -43,9 +43,10 @@ interface MacrostratBaseUnit {
 
 type UnitDivision = MacrostratBaseUnit;
 
-interface ColumnSurface {
+export interface ColumnSurface {
   unit_id: number;
   height: number;
+  top_height?: number;
 }
 
 function buildDivisions<T extends ColumnSurface>(
@@ -54,15 +55,23 @@ function buildDivisions<T extends ColumnSurface>(
 ): (UnitDivision & T)[] {
   const units = surfaces.filter((d) => d.unit_id != null);
   return surfaces.map((surface, i) => {
-    const { height, ...rest } = surface;
+    const { height, top_height, ...rest } = surface;
     const bottom = height;
     const nextSurface = surfaces[i + 1];
-    const nextHeight = nextSurface != null ? nextSurface.height : range[1];
+    let nextHeight: number;
+    if (top_height != null) {
+      nextHeight = top_height;
+    } else if (nextSurface != null) {
+      nextHeight = nextSurface.height;
+    } else {
+      nextHeight = Math.max(range[1], height);
+    }
     const nextUnit = units[i + 1];
-    const nextUnitHeight = nextUnit != null ? nextUnit.height : range[1];
+    const nextUnitHeight = nextUnit != null ? nextUnit.height : range[1]; // this is wrong
     return {
       top: nextHeight,
       bottom,
+      // For Macrostrat integration
       t_age: bottom,
       b_age: bottom + nextUnitHeight, // this is wrong,
       ...rest,
@@ -134,10 +143,11 @@ export function MeasuredSection(
     timescaleIntervals: Interval[] | null;
     timescaleLevels: number[];
     className?: string;
+    frame?: any;
   },
 ) {
   // Section with "squishy" time scale
-  const { children, className, width = 250, ...rest } = props;
+  const { children, className, width = 250, frame, ...rest } = props;
 
   const grainsizeScaleStart = props.grainsizeScaleStart ?? 0.5 * width;
   // const unitData: UnitLong[] = useAPIResult("/units", params);
@@ -161,7 +171,7 @@ export function MeasuredSection(
             grainsizeScaleStart: 40,
           },
           [
-            h(GeneralizedSectionColumn, [
+            h(GeneralizedSectionColumn, { frame }, [
               children,
               h(LithologyBoxes, { resolveID: (d) => d.pattern }),
             ]),

@@ -74,7 +74,7 @@ g.height-range line {
 
   text {
     font-size: var(--column-axis-font-size, 12px);
-    font-weight: bold;
+    font-weight: var(--column-font-weight, bold);
   }
 }
 
@@ -110,9 +110,10 @@ g.height-range line {
     fill: #1e90ff;
   }
 
-  g.lithology-column use.frame {
-    stroke: #000;
-    stroke-width: 1px;
+  g.lithology-column .column-clip-frame {
+    stroke: var(--column-stroke-color, var(--text-color, #000));
+    stroke-width: var(--column-stroke-width, 1px);
+    fill: none;
   }
 
   g.lithology-column rect.lithology {
@@ -218,9 +219,9 @@ g.height-range line {
   }
 
   g.triangle-bars path {
-    fill: #aaa;
-    stroke: #888;
-    stroke-width: 1.5px;
+    fill: var(--triangle-bars-fill-color, #ccc);
+    stroke: var(--triangle-bars-stroke-color, #aaa);
+    stroke-width: var(--column-stroke-width, 1px);
   }
 
   div.Select-menu-outer {
