@@ -23,7 +23,7 @@ export const parameters = {
     container: DocsContainer,
   },
   backgrounds: {
-    disable: true,
+    disabled: true,
   },
   darkMode: {
     // Override the default light theme
