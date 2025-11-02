@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.5.1] - 2025-11-02
+
+Export `PatternFillSpec` type
+
 ## [4.5.0] - 2025-10-29
 
 Allow `SizeAwareLabel` to be rotated

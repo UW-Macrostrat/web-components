@@ -1,10 +1,10 @@
-interface PatternFillSpec {
+export interface PatternFillSpec {
   color: string;
   patternURL?: string;
   patternColor?: string;
 }
 
-function loadImage(url): Promise<HTMLImageElement> {
+export function loadImage(url): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
     img.crossOrigin = "anonymous";
@@ -14,7 +14,7 @@ function loadImage(url): Promise<HTMLImageElement> {
   });
 }
 
-function recolorPatternImage(
+export function recolorPatternImage(
   img: HTMLImageElement,
   backgroundColor: string,
   color: string,
@@ -51,7 +51,7 @@ function recolorPatternImage(
   return ctx.getImageData(0, 0, img.width, img.height);
 }
 
-function createSolidColorImage(imgColor) {
+export function createSolidColorImage(imgColor) {
   var canvas = document.createElement("canvas");
   var ctx = canvas.getContext("2d");
   canvas.width = 40;
@@ -62,7 +62,7 @@ function createSolidColorImage(imgColor) {
   return ctx.getImageData(0, 0, 40, 40);
 }
 
-async function createUnitFill(spec: PatternFillSpec): Promise<ImageData> {
+export async function createUnitFill(spec: PatternFillSpec): Promise<ImageData> {
   /** Create a fill image for a map unit. */
   if (spec.patternURL != null) {
     const img = await loadImage(spec.patternURL);
@@ -72,4 +72,3 @@ async function createUnitFill(spec: PatternFillSpec): Promise<ImageData> {
   }
 }
 
-export { recolorPatternImage, createUnitFill };

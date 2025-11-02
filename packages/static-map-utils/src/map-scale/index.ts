@@ -1,10 +1,8 @@
 import hyper from "@macrostrat/hyper";
 import { scaleLinear } from "@visx/scale";
 import styles from "./index.module.sass";
-import { createElement, useCallback, useMemo, useRef, useState } from "react";
+import {  useCallback, useState } from "react";
 import classNames from "classnames";
-
-console.log(styles);
 
 const h = hyper.styled(styles);
 

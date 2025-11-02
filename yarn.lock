@@ -2534,6 +2534,7 @@ __metadata:
     axios: "npm:^1.7.9"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
     parcel: "npm:^2.16.0"
+    textures: "npm:^1.2.3"
     ts-node: "npm:^10.7.0"
   languageName: unknown
   linkType: soft
@@ -13307,7 +13308,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"textures@npm:^1.2.0":
+"textures@npm:^1.2.0, textures@npm:^1.2.3":
   version: 1.2.3
   resolution: "textures@npm:1.2.3"
   checksum: 10c0/a2088599e6b95ed42fb96b3a38e5a2b67f2e3da0d4a8ba661bb9549e4ea249f97cb315c9ab2b2e0a3005db4f35702eeda57c3f06b3cb0d46639031c44b449f86
