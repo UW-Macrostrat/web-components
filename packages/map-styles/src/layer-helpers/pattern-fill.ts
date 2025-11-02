@@ -62,7 +62,9 @@ export function createSolidColorImage(imgColor) {
   return ctx.getImageData(0, 0, 40, 40);
 }
 
-export async function createUnitFill(spec: PatternFillSpec): Promise<ImageData> {
+export async function createUnitFill(
+  spec: PatternFillSpec,
+): Promise<ImageData> {
   /** Create a fill image for a map unit. */
   if (spec.patternURL != null) {
     const img = await loadImage(spec.patternURL);
@@ -71,4 +73,3 @@ export async function createUnitFill(spec: PatternFillSpec): Promise<ImageData> 
     return createSolidColorImage(spec.color);
   }
 }
-

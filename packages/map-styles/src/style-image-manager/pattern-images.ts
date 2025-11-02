@@ -2,7 +2,7 @@
 
 export async function mapLoadImage(map, url: string) {
   return new Promise((resolve, reject) => {
-    map.loadImage(url, function(err, image) {
+    map.loadImage(url, function (err, image) {
       // Throw an error if something went wrong
       if (err) {
         console.error(`Could not load image ${url}`);
@@ -24,4 +24,3 @@ export function createTransparentImage() {
   ctx.fillRect(0, 0, 40, 40);
   return ctx.getImageData(0, 0, 40, 40);
 }
-
