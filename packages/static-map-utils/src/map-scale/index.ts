@@ -1,7 +1,7 @@
 import hyper from "@macrostrat/hyper";
 import { scaleLinear } from "@visx/scale";
 import styles from "./index.module.sass";
-import {  useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import classNames from "classnames";
 
 const h = hyper.styled(styles);

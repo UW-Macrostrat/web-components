@@ -2531,7 +2531,10 @@ __metadata:
   resolution: "@macrostrat/map-styles@workspace:packages/map-styles"
   dependencies:
     "@macrostrat/color-utils": "workspace:*"
+    "@macrostrat/ui-components": "workspace:*"
+    "@types/d3-selection": "npm:^3.0.11"
     axios: "npm:^1.7.9"
+    d3-selection: "npm:^3.0.0"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
     parcel: "npm:^2.16.0"
     textures: "npm:^1.2.3"
@@ -2668,7 +2671,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/ui-components@workspace:^, @macrostrat/ui-components@workspace:packages/ui-components":
+"@macrostrat/ui-components@workspace:*, @macrostrat/ui-components@workspace:^, @macrostrat/ui-components@workspace:packages/ui-components":
   version: 0.0.0-use.local
   resolution: "@macrostrat/ui-components@workspace:packages/ui-components"
   dependencies:
