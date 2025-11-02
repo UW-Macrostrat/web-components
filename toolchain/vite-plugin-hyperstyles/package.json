@@ -7,7 +7,7 @@
   "type": "module",
   "dependencies": {
     "@macrostrat/hyper": "^3.0.6",
-    "vite": "^5||^6.1.6||^7"
+    "vite": "^5"
   },
   "devDependencies": {
     "@types/node": "^22.14.1",
