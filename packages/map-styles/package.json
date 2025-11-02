@@ -27,7 +27,10 @@
   },
   "dependencies": {
     "@macrostrat/color-utils": "workspace:*",
+    "@macrostrat/ui-components": "workspace:*",
+    "@types/d3-selection": "^3.0.11",
     "axios": "^1.7.9",
+    "d3-selection": "^3.0.0",
     "mapbox-gl": "^2.15.0||^3.0.0",
     "textures": "^1.2.3"
   }
