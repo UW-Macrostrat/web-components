@@ -1,4 +1,4 @@
-import { createSolidColorImage, loadImage } from "./pattern-images";
+import { createSolidColorImage, loadImage } from "../layer-helpers/pattern-fill";
 import { createPatternImage } from "@macrostrat/ui-components";
 
 interface StyleImageManagerOptions {
@@ -98,7 +98,7 @@ async function loadPatternImage(
 ) {
   const { pixelRatio = 3 } = options;
   if (map.hasImage(patternSpec)) return;
-  const image = await buildPatternImage(patternSpec);
+  const image = await buildPatternImage(patternSpec, options);
   if (map.hasImage(patternSpec) || image == null) return;
 
   map.addImage(patternSpec, image, {
