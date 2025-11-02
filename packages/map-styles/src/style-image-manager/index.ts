@@ -1,7 +1,7 @@
 import { createSolidColorImage, loadImage } from "../layer-helpers/pattern-fill";
 import { createPatternImage } from "@macrostrat/ui-components";
 
-interface StyleImageManagerOptions {
+export interface StyleImageManagerOptions {
   baseURL?: string;
   pixelRatio?: number;
   resolvers?: Record<string, PatternResolverFunction>;

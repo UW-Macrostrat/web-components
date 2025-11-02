@@ -6,12 +6,17 @@ import {
   TiledMapArea,
   computeTiledBoundsForMap,
   useInsetMapStyle,
-  Scalebar
+  Scalebar,
 } from "../src";
 import { Map } from "maplibre-gl";
 import maplibre from "maplibre-gl";
-import { setupStyleImageManager } from "@macrostrat/map-styles";
+import {
+  setupStyleImageManager,
+  StyleImageManagerOptions,
+} from "@macrostrat/map-styles";
 import { mergeStyles } from "@macrostrat/mapbox-utils";
+import textures from "textures";
+import { selection, select } from "d3-selection";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -23,12 +28,17 @@ interface InsetMapOptions {
   metersPerPixel?: number;
 }
 
-
-function BaseInsetMap({ bounds, className, onInitializeMap, metersPerPixel = 200, style }: InsetMapOptions) {
+function BaseInsetMap({
+  bounds,
+  className,
+  onInitializeMap,
+  metersPerPixel = 200,
+  style,
+}: InsetMapOptions) {
   const tileBounds = computeTiledBoundsForMap(bounds, {
     metersPerPixel,
     tileSize: 512,
-    padding: 20
+    padding: 20,
   });
 
   const transformRequest = useMapboxRequestTransformer(mapboxToken);
@@ -47,32 +57,42 @@ function BaseInsetMap({ bounds, className, onInitializeMap, metersPerPixel = 200
           const map = new Map({
             ...opts,
             transformRequest,
-            pixelRatio: 2
+            pixelRatio: 2,
           });
           onInitializeMap?.(map);
           return map;
-        }
+        },
       },
       h(Scalebar, {
         className: "map-scalebar",
         scale: tileBounds.realMetersPerPixel,
-        width: 250
-      })
-    )
+        width: 250,
+      }),
+    ),
   );
 }
 
-function InsetMap({ bounds, className, onInitializeMap, metersPerPixel }: Omit<InsetMapOptions, "style">) {
+function InsetMap({
+  bounds,
+  className,
+  onInitializeMap,
+  metersPerPixel,
+}: Omit<InsetMapOptions, "style">) {
   const style = useInsetMapStyle(mapboxToken);
   if (style == null) return null;
-  return h(BaseInsetMap, { style, bounds, className, onInitializeMap, metersPerPixel });
+  return h(BaseInsetMap, {
+    style,
+    bounds,
+    className,
+    onInitializeMap,
+    metersPerPixel,
+  });
 }
-
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<typeof InsetMap> = {
   title: "Static map utils/Inset map",
-  component: InsetMap
+  component: InsetMap,
 };
 
 export default meta;
@@ -80,10 +100,9 @@ export default meta;
 export const Default: StoryObj<typeof InsetMap> = {
   args: {
     // Los angeles
-    bounds: [-118.67, 33.7, -117.5, 34.34]
-  }
+    bounds: [-118.67, 33.7, -117.5, 34.34],
+  },
 };
-
 
 export function WithOverlay() {
   const baseStyle = useInsetMapStyle(mapboxToken);
@@ -102,12 +121,12 @@ export function WithOverlay() {
                 type: "LineString",
                 coordinates: [
                   [-122.85, 38.1],
-                  [-122.35, 37.5]
-                ]
+                  [-122.35, 37.5],
+                ],
               },
               properties: {
-                name: "San Andreas Fault"
-              }
+                name: "San Andreas Fault",
+              },
             },
             {
               type: "Feature",
@@ -115,59 +134,44 @@ export function WithOverlay() {
                 type: "LineString",
                 coordinates: [
                   [-122.48, 38.1],
-                  [-121.9, 37.5]
-                ]
+                  [-121.9, 37.5],
+                ],
               },
               properties: {
-                name: "Hayward Fault"
-              }
-            }
-          ]
-        }
+                name: "Hayward Fault",
+              },
+            },
+          ],
+        },
       },
       // Pull-apart basin geometry
       // Trapezoidal area between the two faults
       basin: {
         type: "geojson",
         data: {
-          "type": "FeatureCollection",
-          "features": [
+          type: "FeatureCollection",
+          features: [
             {
-              "type": "Feature",
-              "properties": {
-                "name": "Pull-apart basin"
+              type: "Feature",
+              properties: {
+                name: "Pull-apart basin",
               },
-              "geometry": {
-                "coordinates": [
+              geometry: {
+                coordinates: [
                   [
-                    [
-                      -122.25822428421804,
-                      37.54229311032287
-                    ],
-                    [
-                      -122.00528127518058,
-                      37.56808407036215
-                    ],
-                    [
-                      -122.25821273730716,
-                      37.82895125974261
-                    ],
-                    [
-                      -122.53,
-                      37.8
-                    ],
-                    [
-                      -122.25822428421804,
-                      37.54229311032287
-                    ]
-                  ]
+                    [-122.25822428421804, 37.54229311032287],
+                    [-122.00528127518058, 37.56808407036215],
+                    [-122.25821273730716, 37.82895125974261],
+                    [-122.53, 37.8],
+                    [-122.25822428421804, 37.54229311032287],
+                  ],
                 ],
-                "type": "Polygon"
-              }
-            }
-          ]
-        }
-      }
+                type: "Polygon",
+              },
+            },
+          ],
+        },
+      },
     },
     layers: [
       {
@@ -178,8 +182,8 @@ export function WithOverlay() {
         paint: {
           "fill-color": "#888888",
           "fill-opacity": 0.5,
-          "fill-pattern": "fgdc:406:#ff0000:transparent"
-        }
+          "fill-pattern": "fgdc:406:#ff0000:transparent",
+        },
       },
       {
         id: "fault-lines",
@@ -188,8 +192,8 @@ export function WithOverlay() {
         layout: {},
         paint: {
           "line-color": "black",
-          "line-width": 4
-        }
+          "line-width": 4,
+        },
       },
       {
         id: "fault-line-symbols",
@@ -200,8 +204,8 @@ export function WithOverlay() {
           "icon-image": "line-symbol:right-lateral-fault",
           "icon-size": 2,
           "symbol-spacing": 200,
-          "icon-allow-overlap": true
-        }
+          "icon-allow-overlap": true,
+        },
       },
       {
         id: "basin-labels",
@@ -212,13 +216,13 @@ export function WithOverlay() {
           "text-font": ["PT Sans Bold"],
           "text-size": 16,
           "text-letter-spacing": 0.1,
-          "text-allow-overlap": true
+          "text-allow-overlap": true,
         },
         paint: {
           "text-color": "red",
           "text-halo-color": "white",
-          "text-halo-width": 2
-        }
+          "text-halo-width": 2,
+        },
       },
       {
         id: "fault-labels",
@@ -232,19 +236,18 @@ export function WithOverlay() {
           "text-rotation-alignment": "map",
           "text-letter-spacing": 0.1,
           "text-allow-overlap": true,
-          "text-offset": [0, 1]
+          "text-offset": [0, 1],
         },
         paint: {
           "text-color": "black",
           "text-halo-color": "white",
-          "text-halo-width": 2
-        }
-      }
-    ]
+          "text-halo-width": 2,
+        },
+      },
+    ],
   };
 
   const style = baseStyle == null ? null : mergeStyles(baseStyle, overlayStyle);
-
 
   return h(BaseInsetMap, {
     // San Francisco
@@ -252,60 +255,59 @@ export function WithOverlay() {
     onInitializeMap(map) {
       setupStyleImageManager(map);
     },
-    style
+    style,
   });
 }
-
 
 export function WithTexturesResolver() {
   const baseStyle = useInsetMapStyle(mapboxToken);
 
   const textureStyle = {
-    "sources": {
-      "squares": {
-        "type": "geojson",
-        "data": {
-          "type": "FeatureCollection",
-          "features": [
+    sources: {
+      squares: {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
             {
-              "type": "Feature",
-              "properties": {
-                "name": "t0"
+              type: "Feature",
+              properties: {
+                name: "t0",
               },
-              "geometry": {
-                "type": "Polygon",
-                "coordinates": [
+              geometry: {
+                type: "Polygon",
+                coordinates: [
                   [
                     [-122.5, 37.7],
                     [-122.3, 37.7],
                     [-122.3, 37.9],
                     [-122.5, 37.9],
-                    [-122.5, 37.7]
-                  ]
-                ]
-              }
+                    [-122.5, 37.7],
+                  ],
+                ],
+              },
             },
             {
-              "type": "Feature",
-              "properties": {
-                "name": "t1"
+              type: "Feature",
+              properties: {
+                name: "t1",
               },
-              "geometry": {
-                "type": "Polygon",
-                "coordinates": [
+              geometry: {
+                type: "Polygon",
+                coordinates: [
                   [
                     [-122.7, 37.7],
                     [-122.5, 37.7],
                     [-122.5, 37.9],
                     [-122.7, 37.9],
-                    [-122.7, 37.7]
-                  ]
-                ]
-              }
-            }
-          ]
-        }
-      }
+                    [-122.7, 37.7],
+                  ],
+                ],
+              },
+            },
+          ],
+        },
+      },
     },
     layers: [
       {
@@ -315,13 +317,12 @@ export function WithTexturesResolver() {
         layout: {},
         paint: {
           "fill-color": "#ffffffaa",
-          "fill-pattern": "fgdc:406:#0000ff:transparent",
-          "fill-outline-color": "#0000ff"
-        }
-      }
-
-    ]
-  }
+          "fill-pattern": ["concat", "textures:", ["get", "name"]],
+          "fill-outline-color": "#0000ff",
+        },
+      },
+    ],
+  };
 
   const style = baseStyle == null ? null : mergeStyles(baseStyle, textureStyle);
 
@@ -330,9 +331,127 @@ export function WithTexturesResolver() {
     bounds: [-123.0, 37.6, -122.2, 38.0],
     onInitializeMap(map) {
       setupStyleImageManager(map, {
-        pixelRatio: 8
-      })
+        pixelRatio: 8,
+        resolvers: {
+          textures: texturesResolver,
+        },
+      });
     },
-    style
-  })
+    style,
+  });
+}
+
+async function texturesResolver(
+  id: string,
+  args: string[],
+  options: StyleImageManagerOptions,
+) {
+  const name = args[0];
+  // Construct a texture pattern image
+
+  console.log(`Resolving texture pattern for ${name}`);
+
+  let spec = null;
+  if (name === "t0") {
+    spec = textures
+      .circles()
+      .size(8)
+      .radius(2)
+      .fill("red")
+      .background("#ffffff88");
+  } else if (name === "t1") {
+    spec = textures
+      .lines()
+      .orientation("6/8")
+      .size(8)
+      .strokeWidth(1)
+      .stroke("green");
+  }
+
+  if (spec == null) {
+    throw new Error(`Unknown texture pattern name: ${name}`);
+  }
+
+  return await renderTexturePattern(spec);
+}
+
+async function renderTexturePattern(spec: any, scale) {
+  // Create SVG and render pattern
+  const sel = select(document.body);
+
+  const svg = sel.append("svg");
+
+  svg.call(spec);
+
+  const pattern = svg.select("pattern");
+  const width = pattern.attr("width");
+  const height = pattern.attr("height");
+
+  svg.attr("width", width);
+  svg.attr("height", height);
+
+  // Apply the pattern to a rectangle
+  svg
+    .append("rect")
+    .attr("width", width)
+    .attr("height", height)
+    .attr("fill", spec.url());
+
+  const el = svg.node();
+
+  const data = await rasterize(el, scale);
+
+  svg.remove();
+
+  return data;
+}
+
+// From https://observablehq.com/@mbostock/saving-svg
+const xmlns = "http://www.w3.org/2000/xmlns/";
+const xlinkns = "http://www.w3.org/1999/xlink";
+const svgns = "http://www.w3.org/2000/svg";
+
+function serialize(svg: SVGElement) {
+  svg = svg.cloneNode(true);
+  const fragment = window.location.href + "#";
+  const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT);
+  while (walker.nextNode()) {
+    for (const attr of walker.currentNode.attributes) {
+      if (attr.value.includes(fragment)) {
+        attr.value = attr.value.replace(fragment, "#");
+      }
+    }
+  }
+  svg.setAttributeNS(xmlns, "xmlns", svgns);
+  svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
+  const serializer = new window.XMLSerializer();
+  const string = serializer.serializeToString(svg);
+  return new Blob([string], { type: "image/svg+xml" });
+}
+
+async function rasterize(svg: SVGElement, pixelScale = 10): Promise<ImageData> {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement("canvas");
+    const image = new Image();
+    image.onerror = reject;
+    image.onload = () => {
+      const rect = svg.getBoundingClientRect();
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(
+        image,
+        0,
+        0,
+        rect.width * pixelScale,
+        rect.height * pixelScale,
+      );
+      const data = ctx.getImageData(
+        0,
+        0,
+        rect.width * pixelScale,
+        rect.height * pixelScale,
+      );
+      resolve(data);
+    };
+    image.src = URL.createObjectURL(serialize(svg));
+  });
 }
