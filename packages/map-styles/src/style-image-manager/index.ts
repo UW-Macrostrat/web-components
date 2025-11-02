@@ -14,7 +14,7 @@ type PatternResolverFunction = (
   options: StyleImageManagerOptions
 ) => Promise<PatternResult | ImageResult>;
 
-type ImageResult = HTMLImageElement | ImageData | { url: string } | null
+type ImageResult = HTMLImageElement | ImageData | { url: string, options?: AddImageOptions } | null
 
 interface PatternResult {
   image: ImageResult;
@@ -70,6 +70,9 @@ async function loadStyleImage(
     let addOptions: AddImageOptions = { pixelRatio };
 
     if (result != null) {
+      if ('options' in result) {
+        addOptions = { ...addOptions, ...(result.options ?? {}) };
+      }
       if ('image' in result) {
         image = result.image;
         addOptions = { ...addOptions, ...(result.options ?? {}) };
@@ -87,37 +90,6 @@ async function loadStyleImage(
     }
     return;
   }
-
-  if (prefix == "point") {
-    await loadSymbolImage(
-      map,
-      "geologic-symbols/points/strabospot",
-      id,
-      SymbolImageFormat.PNG,
-      options
-    );
-  } else if (prefix == "line-symbol") {
-    // Load line symbol image
-    await loadSymbolImage(
-      map,
-      "geologic-symbols/lines/dev",
-      id,
-      SymbolImageFormat.PNG,
-      options
-    );
-    // }
-    //else if (prefix == "cross-section") {
-    // TODO: better resolver for symbols
-    // Load cross-section specific symbols
-    // if (name in crossSectionSymbols) {
-    //   const imgURL = crossSectionSymbols[name];
-    //   if (imgURL == null) {
-    //     console.warn(`No image data found for cross-section symbol: ${name}`);
-    //     return;
-    //   }
-    //   await addImageURLToMap(map, id, imgURL, { sdf: false, pixelRatio });
-    // }
-  }
 }
 
 enum SymbolImageFormat {
@@ -125,20 +97,42 @@ enum SymbolImageFormat {
   SVG = "svg",
 }
 
-async function loadSymbolImage(
-  map: mapboxgl.Map,
-  set: string,
+function resolveLineSymbolImage(
   id: string,
+  args: string[],
+  options: StyleImageManagerOptions = {}
+) {
+  return resolveSymbolImage(
+    "geologic-symbols/lines/dev",
+    args,
+    SymbolImageFormat.PNG,
+    options
+  );
+}
+
+function resolvePointSymbolImage(
+  id: string,
+  args: string[],
+  options: StyleImageManagerOptions = {}
+) {
+  return resolveSymbolImage(
+    "geologic-symbols/points/strabospot",
+    args,
+    SymbolImageFormat.PNG,
+    options
+  );
+}
+
+function resolveSymbolImage(
+  set: string,
+  args: string[],
   format: SymbolImageFormat = SymbolImageFormat.PNG,
   options: StyleImageManagerOptions = {}
 ) {
-  const { pixelRatio = 3, baseURL = "https://dev.macrostrat.org/assets/web" } = options;
-  const [prefix, name, ...rest] = id.split(":");
+  const { baseURL = "https://dev.macrostrat.org/assets/web" } = options;
+  const [name, ...rest] = args;
   const lineSymbolsURL = `${baseURL}/${set}/${format}`;
-  await addImageURLToMap(map, id, lineSymbolsURL + `/${name}.${format}`, {
-    sdf: true,
-    pixelRatio
-  });
+  return { url: lineSymbolsURL + `/${name}.${format}`, options: { sdf: true } };
 }
 
 export function addImageToMap(
@@ -201,5 +195,7 @@ async function resolveSolidColorImage(
 
 export const defaultResolvers: Record<string, PatternResolverFunction> = {
   fgdc: resolveFGDCImage,
-  color: resolveSolidColorImage
+  color: resolveSolidColorImage,
+  "line-symbol": resolveLineSymbolImage,
+  point: resolvePointSymbolImage,
 };
