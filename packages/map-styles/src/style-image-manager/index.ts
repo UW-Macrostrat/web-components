@@ -1,4 +1,7 @@
-import { createSolidColorImage, loadImage } from "../layer-helpers/pattern-fill";
+import {
+  createSolidColorImage,
+  loadImage,
+} from "../layer-helpers/pattern-fill";
 import { createPatternImage } from "@macrostrat/ui-components";
 
 export interface StyleImageManagerOptions {
@@ -11,10 +14,14 @@ export interface StyleImageManagerOptions {
 type PatternResolverFunction = (
   key: string,
   args: string[],
-  options: StyleImageManagerOptions
+  options: StyleImageManagerOptions,
 ) => Promise<PatternResult | ImageResult>;
 
-type ImageResult = HTMLImageElement | ImageData | { url: string, options?: AddImageOptions } | null
+type ImageResult =
+  | HTMLImageElement
+  | ImageData
+  | { url: string; options?: AddImageOptions }
+  | null;
 
 interface PatternResult {
   image: ImageResult;
@@ -28,7 +35,7 @@ interface AddImageOptions {
 
 export function setupStyleImageManager(
   map: any,
-  options: StyleImageManagerOptions = {}
+  options: StyleImageManagerOptions = {},
 ): () => void {
   const { throwOnMissing = false } = options;
   const styleImageMissing = (e) => {
@@ -39,8 +46,7 @@ export function setupStyleImageManager(
         }
         console.error(`Failed to load pattern image for ${e.id}:`, err);
       })
-      .then(() => {
-      });
+      .then(() => {});
   };
 
   // Register the event listener for missing images
@@ -54,7 +60,7 @@ export function setupStyleImageManager(
 async function loadStyleImage(
   map: mapboxgl.Map,
   id: string,
-  options: StyleImageManagerOptions = {}
+  options: StyleImageManagerOptions = {},
 ) {
   const { pixelRatio = 3 } = options;
   const [prefix, name, ...rest] = id.split(":");
@@ -70,10 +76,10 @@ async function loadStyleImage(
     let addOptions: AddImageOptions = { pixelRatio };
 
     if (result != null) {
-      if ('options' in result) {
+      if ("options" in result) {
         addOptions = { ...addOptions, ...(result.options ?? {}) };
       }
-      if ('image' in result) {
+      if ("image" in result) {
         image = result.image;
         addOptions = { ...addOptions, ...(result.options ?? {}) };
       } else {
@@ -100,26 +106,26 @@ enum SymbolImageFormat {
 function resolveLineSymbolImage(
   id: string,
   args: string[],
-  options: StyleImageManagerOptions = {}
+  options: StyleImageManagerOptions = {},
 ) {
   return resolveSymbolImage(
     "geologic-symbols/lines/dev",
     args,
     SymbolImageFormat.PNG,
-    options
+    options,
   );
 }
 
 function resolvePointSymbolImage(
   id: string,
   args: string[],
-  options: StyleImageManagerOptions = {}
+  options: StyleImageManagerOptions = {},
 ) {
   return resolveSymbolImage(
     "geologic-symbols/points/strabospot",
     args,
     SymbolImageFormat.PNG,
-    options
+    options,
   );
 }
 
@@ -127,7 +133,7 @@ function resolveSymbolImage(
   set: string,
   args: string[],
   format: SymbolImageFormat = SymbolImageFormat.PNG,
-  options: StyleImageManagerOptions = {}
+  options: StyleImageManagerOptions = {},
 ) {
   const { baseURL = "https://dev.macrostrat.org/assets/web" } = options;
   const [name, ...rest] = args;
@@ -139,7 +145,7 @@ export function addImageToMap(
   map: mapboxgl.Map,
   id: string,
   image: HTMLImageElement | ImageData | null,
-  options: AddImageOptions
+  options: AddImageOptions,
 ) {
   if (map.hasImage(id) || image == null) return;
   map.addImage(id, image, options);
@@ -149,18 +155,17 @@ export async function addImageURLToMap(
   map: mapboxgl.Map,
   id: string,
   url: string,
-  options: AddImageOptions
+  options: AddImageOptions,
 ) {
   if (map.hasImage(id)) return;
   const image = await loadImage(url);
   addImageToMap(map, id, image, options);
 }
 
-
 async function resolveFGDCImage(
   key: string,
   args: string[],
-  options: StyleImageManagerOptions
+  options: StyleImageManagerOptions,
 ): Promise<PatternResult | null> {
   const { baseURL = "https://dev.macrostrat.org/assets/web" } = options;
   const [name, color, backgroundColor = "transparent"] = args;
@@ -176,11 +181,11 @@ async function resolveFGDCImage(
     patternName = `${num}-K`;
   }
 
-  const image = await createPatternImage({
+  const image = (await createPatternImage({
     patternURL: `${baseURL}/geologic-patterns/png/${patternName}.png`,
     color: backgroundColor,
-    patternColor: color
-  }) as ImageData;
+    patternColor: color,
+  })) as ImageData;
 
   return image;
 }
@@ -188,7 +193,7 @@ async function resolveFGDCImage(
 async function resolveSolidColorImage(
   key: string,
   args: string[],
-  options: StyleImageManagerOptions
+  options: StyleImageManagerOptions,
 ): Promise<ImageData> {
   return createSolidColorImage(args[0]);
 }
