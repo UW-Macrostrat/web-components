@@ -47,7 +47,7 @@ function BaseInsetMap({ bounds, className, onInitializeMap, metersPerPixel = 200
           const map = new Map({
             ...opts,
             transformRequest,
-            pixelRatio: 8
+            pixelRatio: 2
           });
           onInitializeMap?.(map);
           return map;
@@ -254,4 +254,85 @@ export function WithOverlay() {
     },
     style
   });
+}
+
+
+export function WithTexturesResolver() {
+  const baseStyle = useInsetMapStyle(mapboxToken);
+
+  const textureStyle = {
+    "sources": {
+      "squares": {
+        "type": "geojson",
+        "data": {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "properties": {
+                "name": "t0"
+              },
+              "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [
+                    [-122.5, 37.7],
+                    [-122.3, 37.7],
+                    [-122.3, 37.9],
+                    [-122.5, 37.9],
+                    [-122.5, 37.7]
+                  ]
+                ]
+              }
+            },
+            {
+              "type": "Feature",
+              "properties": {
+                "name": "t1"
+              },
+              "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                  [
+                    [-122.7, 37.7],
+                    [-122.5, 37.7],
+                    [-122.5, 37.9],
+                    [-122.7, 37.9],
+                    [-122.7, 37.7]
+                  ]
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    layers: [
+      {
+        id: "square-textures",
+        type: "fill",
+        source: "squares",
+        layout: {},
+        paint: {
+          "fill-color": "#ffffffaa",
+          "fill-pattern": "fgdc:406:#0000ff:transparent",
+          "fill-outline-color": "#0000ff"
+        }
+      }
+
+    ]
+  }
+
+  const style = baseStyle == null ? null : mergeStyles(baseStyle, textureStyle);
+
+  return h(BaseInsetMap, {
+    // San Francisco
+    bounds: [-123.0, 37.6, -122.2, 38.0],
+    onInitializeMap(map) {
+      setupStyleImageManager(map, {
+        pixelRatio: 8
+      })
+    },
+    style
+  })
 }

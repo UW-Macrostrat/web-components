@@ -4,6 +4,18 @@ import { createPatternImage } from "@macrostrat/ui-components";
 interface StyleImageManagerOptions {
   baseURL?: string;
   pixelRatio?: number;
+  resolvers?: Record<string, PatternResolverFunction>;
+}
+
+type PatternResolverFunction = (
+  key: string,
+  args: string[],
+  options: StyleImageManagerOptions,
+) => Promise<PatternResult | null>;
+
+interface PatternResult {
+  image: HTMLImageElement | ImageData | {url: string} | null;
+  options?: mapboxgl.AddImageOptions;
 }
 
 export function setupStyleImageManager(
@@ -99,11 +111,7 @@ async function loadPatternImage(
   const { pixelRatio = 3 } = options;
   if (map.hasImage(patternSpec)) return;
   const image = await buildPatternImage(patternSpec, options);
-  if (map.hasImage(patternSpec) || image == null) return;
-
-  map.addImage(patternSpec, image, {
-    pixelRatio, // Use a higher pixel ratio for better quality
-  });
+  addImageToMap(map, patternSpec, image, { pixelRatio });
 }
 
 export function addImageToMap(
@@ -124,8 +132,7 @@ export async function addImageURLToMap(
 ) {
   if (map.hasImage(id)) return;
   const image = await loadImage(url);
-  if (map.hasImage(id) || image == null) return;
-  map.addImage(id, image, options);
+  addImageToMap(map, id, image, options);
 }
 
 async function buildPatternImage(

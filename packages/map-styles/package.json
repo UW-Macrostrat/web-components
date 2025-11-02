@@ -28,6 +28,7 @@
   "dependencies": {
     "@macrostrat/color-utils": "workspace:*",
     "axios": "^1.7.9",
-    "mapbox-gl": "^2.15.0||^3.0.0"
+    "mapbox-gl": "^2.15.0||^3.0.0",
+    "textures": "^1.2.3"
   }
 }
