@@ -1,11 +1,17 @@
 import { createSolidColorImage, loadImage } from "./pattern-images";
+import { createPatternImage } from "@macrostrat/ui-components";
+
+interface StyleImageManagerOptions {
+  baseURL?: string;
+  pixelRatio?: number;
+}
 
 export function setupStyleImageManager(
   map: any,
-  pixelRatio: number,
+  options: StyleImageManagerOptions = {},
 ): () => void {
   const styleImageMissing = (e) => {
-    loadStyleImage(map, e.id, pixelRatio)
+    loadStyleImage(map, e.id, options)
       .catch((err) => {
         console.error(`Failed to load pattern image for ${e.id}:`, err);
       })
@@ -23,7 +29,7 @@ export function setupStyleImageManager(
 async function loadStyleImage(
   map: mapboxgl.Map,
   id: string,
-  pixelRatio: number = 3,
+  options: StyleImageManagerOptions = {},
 ) {
   const [prefix, name, ...rest] = id.split(":");
 
@@ -35,7 +41,7 @@ async function loadStyleImage(
       "geologic-symbols/points/strabospot",
       id,
       SymbolImageFormat.PNG,
-      pixelRatio,
+      options
     );
   } else if (prefix == "line-symbol") {
     // Load line symbol image
@@ -44,7 +50,7 @@ async function loadStyleImage(
       "geologic-symbols/lines/dev",
       id,
       SymbolImageFormat.PNG,
-      pixelRatio,
+      options
     );
     // }
     //else if (prefix == "cross-section") {
@@ -60,7 +66,7 @@ async function loadStyleImage(
     // }
   } else {
     // Load pattern image
-    await loadPatternImage(map, id, pixelRatio);
+    await loadPatternImage(map, id, options);
   }
 }
 
@@ -74,10 +80,11 @@ async function loadSymbolImage(
   set: string,
   id: string,
   format: SymbolImageFormat = SymbolImageFormat.PNG,
-  pixelRatio: number = 3,
+  options: StyleImageManagerOptions = {},
 ) {
+  const { pixelRatio = 3, baseURL = "https://dev.macrostrat.org/assets/web" } = options;
   const [prefix, name, ...rest] = id.split(":");
-  const lineSymbolsURL = `https://dev.macrostrat.org/assets/web/${set}/${format}`;
+  const lineSymbolsURL = `${baseURL}/${set}/${format}`;
   await addImageURLToMap(map, id, lineSymbolsURL + `/${name}.${format}`, {
     sdf: true,
     pixelRatio,
@@ -87,8 +94,9 @@ async function loadSymbolImage(
 async function loadPatternImage(
   map: mapboxgl.Map,
   patternSpec: string,
-  pixelRatio: number = 3,
+  options: StyleImageManagerOptions = {},
 ) {
+  const { pixelRatio = 3 } = options;
   if (map.hasImage(patternSpec)) return;
   const image = await buildPatternImage(patternSpec);
   if (map.hasImage(patternSpec) || image == null) return;
@@ -122,23 +130,31 @@ export async function addImageURLToMap(
 
 async function buildPatternImage(
   patternSpec: string,
-  scale: number = 4,
+  options: StyleImageManagerOptions = {},
+
 ): Promise<HTMLImageElement | ImageData | null> {
+  const { baseURL = "https://dev.macrostrat.org/assets/web" } = options;
   const [prefix, ...rest] = patternSpec.split(":");
   if (prefix == "fgdc") {
-    const [name, color, backgroundColor] = rest;
+    const [name, color, backgroundColor = "transparent"] = rest;
 
-    const urlParams = new URLSearchParams();
-    urlParams.set("scale", scale.toString());
-    if (backgroundColor) {
-      urlParams.set("background-color", backgroundColor);
+    const num = parseInt(name);
+    let patternName = name;
+    if (num == NaN) {
+      throw new Error(`Invalid FGDC pattern name: ${name}`);
     }
-    if (color) {
-      urlParams.set("color", color);
+    if (num <= 599) {
+      // FGDC 1-599 are fill patterns
+      // Check if pattern ID has a suffix, or if not add one
+      patternName = `${num}-K`
+
     }
 
-    const url = `/styles/pattern/${name}.png?${urlParams.toString()}`;
-    return await loadImage(url);
+    return await createPatternImage({
+      patternURL: `${baseURL}/geologic-patterns/png/${patternName}.png`,
+      color: backgroundColor,
+      patternColor: color,
+    }) as ImageData
   } else if (prefix == "color") {
     // Create a solid color image
     const color = rest[0];

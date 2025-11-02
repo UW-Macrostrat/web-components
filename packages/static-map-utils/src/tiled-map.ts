@@ -1,6 +1,5 @@
 import maplibre, { PaddingOptions } from "maplibre-gl";
 import { SphericalMercator } from "@mapbox/sphericalmercator";
-import { setupStyleImageManager } from "./style-images";
 import { StrictPadding } from "@macrostrat/ui-components";
 import { ReactNode, useEffect, useRef } from "react";
 import hyper from "@macrostrat/hyper";
@@ -138,9 +137,7 @@ export function TiledMapArea({
 type MapInitFunction = (mapOptions: maplibre.MapOptions) => maplibre.Map;
 
 function defaultInitializeMap(mapOptions: maplibre.MapOptions): maplibre.Map {
-  const map = new maplibre.Map(mapOptions);
-  setupStyleImageManager(map);
-  return map;
+  return new maplibre.Map(mapOptions);
 }
 
 export async function renderTiledMap(

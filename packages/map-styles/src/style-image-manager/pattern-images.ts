@@ -30,7 +30,7 @@ export async function mapLoadImage(map, url: string) {
   });
 }
 
-function recolorPatternImage(
+export function recolorPatternImage(
   img: HTMLImageElement,
   backgroundColor: string,
   color: string,
@@ -93,7 +93,7 @@ export function createSolidColorImage(imgColor) {
   return ctx.getImageData(0, 0, 40, 40);
 }
 
-async function createUnitFill(
+export async function createUnitFill(
   spec: PatternFillSpec,
   createSolidColorImages: boolean = false,
 ): Promise<ImageData> {
@@ -105,5 +105,3 @@ async function createUnitFill(
   }
   return null;
 }
-
-export { recolorPatternImage, createUnitFill };
