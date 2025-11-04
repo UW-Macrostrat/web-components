@@ -1,4 +1,4 @@
-interface PatternFillSpec {
+export interface PatternFillSpec {
   color: string;
   patternURL?: string;
   patternColor?: string;

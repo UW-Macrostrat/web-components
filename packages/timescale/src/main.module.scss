@@ -9,9 +9,9 @@
   position: relative;
   box-sizing: border-box;
   --timescale-cursor-color: #000;
-  --timescale-level-size: 2em;
-  --timescale-level-width: var(--timescale-level-size);
-  --timescale-level-height: var(--timescale-level-size);
+  --timescale-level-size-INT: var(--timescale-level-size, 2em);
+  --timescale-level-width: var(--timescale-level-size-INT);
+  --timescale-level-height: var(--timescale-level-size-INT);
 }
 .timescale-container .interval-box {
   margin: 0.5px;

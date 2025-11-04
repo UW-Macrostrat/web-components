@@ -138,7 +138,7 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
   );
 }
 
-interface BaseMeasurementsColumnProps<T> {
+export interface BaseMeasurementsColumnProps<T> {
   data: T[];
   noteComponent?: any;
   width?: number;

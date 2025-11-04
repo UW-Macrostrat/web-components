@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/svg-map-components",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "React components for vector maps",
   "keywords": [
     "gis",
@@ -66,6 +66,6 @@
     "react-dom": "^16.13.1||^17||^18||^19"
   },
   "devDependencies": {
-    "parcel": "^2.15.4"
+    "parcel": "^2.16.0"
   }
 }

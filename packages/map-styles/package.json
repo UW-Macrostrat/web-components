@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-styles",
-  "version": "1.2.1",
+  "version": "1.2.3",
   "description": "Utilities for working with Mapbox map styles",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -18,7 +18,7 @@
     "src"
   ],
   "devDependencies": {
-    "parcel": "^2.15.4",
+    "parcel": "^2.16.0",
     "ts-node": "^10.7.0"
   },
   "scripts": {
@@ -27,7 +27,11 @@
   },
   "dependencies": {
     "@macrostrat/color-utils": "workspace:*",
+    "@macrostrat/ui-components": "workspace:*",
+    "@types/d3-selection": "^3.0.11",
     "axios": "^1.7.9",
-    "mapbox-gl": "^2.15.0||^3.0.0"
+    "d3-selection": "^3.0.0",
+    "mapbox-gl": "^2.15.0||^3.0.0",
+    "textures": "^1.2.3"
   }
 }

@@ -6,6 +6,7 @@ import {
   GrainsizeFrame,
   ClippingFrame,
   UUIDComponent,
+  useUUID,
 } from "../frame";
 import {
   FaciesContext,
@@ -14,6 +15,8 @@ import {
   ColumnLayoutProvider,
   ColumnDivision,
   ColumnLayoutCtx,
+  useColumn,
+  useColumnLayout,
 } from "../context";
 import { GeologicPattern, PatternType } from "./patterns";
 import tex from "react-svg-textures";
@@ -97,6 +100,7 @@ function ColumnRect(props: ColumnRectProps) {
     x -= 5;
     width += 10;
   }
+
   const height = scale(bottom) - y;
   if (key == null) {
     key = d.id;
@@ -133,6 +137,7 @@ interface ParameterIntervalsProps {
 function ParameterIntervals(props: ParameterIntervalsProps) {
   const { divisions, width } = useContext(ColumnLayoutContext);
   const { padWidth, parameter: key, fillForInterval } = props;
+
   const newDivisions = expandDivisionsByKey(divisions, key);
   if (newDivisions.length === 1) {
     return null;
@@ -166,31 +171,32 @@ const FaciesIntervals = function (props) {
 
 const FaciesColumnInner = FaciesIntervals;
 
-class CoveredOverlay extends UUIDComponent<{}> {
-  static contextType = ColumnLayoutContext;
-  context: ColumnLayoutCtx<ColumnDivision>;
-  render() {
-    const { divisions, width } = this.context;
-    const fill = `url(#${this.UUID}-covered)`;
-    const coveredDivs = divisions.filter((d) => d.covered);
+function CoveredOverlay({
+  color = "rgba(0,0,0,0.5)",
+  patternSize = 9,
+  strokeWidth = 3,
+}) {
+  const UUID = useUUID();
+  const { divisions, width } = useColumnLayout();
+  const fill = `url(#${UUID}-covered)`;
+  const coveredDivs = divisions.filter((d) => d.covered);
 
-    return h("g.covered-overlay", {}, [
-      h("defs", [
-        h(Lines, {
-          id: `${this.UUID}-covered`,
-          size: 9,
-          strokeWidth: 3,
-          stroke: "rgba(0,0,0,0.5)",
-        }),
-      ]),
-      h(
-        "g.main",
-        coveredDivs.map((d) => {
-          return h(ColumnRect, { division: d, width, fill });
-        }),
-      ),
-    ]);
-  }
+  return h("g.covered-overlay", {}, [
+    h("defs", [
+      h(Lines, {
+        id: `${UUID}-covered`,
+        size: patternSize,
+        strokeWidth,
+        stroke: color,
+      }),
+    ]),
+    h(
+      "g.main",
+      coveredDivs.map((d) => {
+        return h(ColumnRect, { division: d, width, fill });
+      }),
+    ),
+  ]);
 }
 
 const LithologySymbolDefs = function (props) {
@@ -257,7 +263,8 @@ class LithologyBoxes extends UUIDComponent<any> {
       const sameAsLast = patternID === resolveID(__[ix]);
       const shouldSkip = patternID == null || sameAsLast;
       if (shouldSkip) {
-        __[ix].top = d.top;
+        // Set the top of this division
+        __[ix].top = Math.max(__[ix].top, d.top);
       } else {
         __.push({ ...d, patternID });
       }

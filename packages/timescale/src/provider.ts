@@ -5,20 +5,18 @@ import { TimescaleCTX } from "./types";
 
 const TimescaleContext = createContext<TimescaleCTX | null>(null);
 
-function TimescaleProvider(
-  props: React.PropsWithChildren<Omit<TimescaleCTX, "scale">>,
-) {
-  const { children, timescale, ageRange, length, ...rest } = props;
+function TimescaleProvider(props: React.PropsWithChildren<TimescaleCTX>) {
+  const { children, timescale, ageRange, length, scale, ...rest } = props;
 
-  let scale = null;
-  if (length && ageRange) {
-    scale = scaleLinear({
+  let scale2 = scale;
+  if (length && ageRange && scale2 == null) {
+    scale2 = scaleLinear({
       range: [0, length],
       domain: ageRange,
     });
   }
 
-  const value = { ...rest, scale, timescale, ageRange, length };
+  const value = { ...rest, scale: scale2, timescale, ageRange, length };
   return h(TimescaleContext.Provider, { value }, children);
 }
 

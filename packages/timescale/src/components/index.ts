@@ -3,7 +3,6 @@ import { useRef, useEffect, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 import { SizeAwareLabel } from "@macrostrat/ui-components";
-import chroma from "chroma-js";
 
 type SizeState = {
   label: number;
@@ -49,6 +48,8 @@ function IntervalBox(props: {
       "interval-box " + (onClick && interval.int_id != null ? "clickable" : ""),
     labelClassName: "interval-label",
     label: labelText,
+    tolerance: 5,
+    allowRotation: true,
     onVisibilityChanged(viz) {
       if (!viz && labelText.length > 1) {
         setLabelText(labelText[0]);

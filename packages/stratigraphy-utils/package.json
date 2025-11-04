@@ -28,6 +28,6 @@
     "directory": "packages/stratigraphy-utils"
   },
   "devDependencies": {
-    "parcel": "^2.15.4"
+    "parcel": "^2.16.0"
   }
 }

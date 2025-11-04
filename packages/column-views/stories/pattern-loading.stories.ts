@@ -4,8 +4,8 @@ import { Meta } from "@storybook/react-vite";
 
 const h = hyper.styled(styles);
 
-import { resolvePattern } from "../../column-components/stories/base-section";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
+import { GeologicPatternContext } from "@macrostrat/column-components";
 
 const meta: Meta<any> = {
   title: "Column views/Patterns",
@@ -14,7 +14,8 @@ const meta: Meta<any> = {
 export default meta;
 
 function GeologyPattern({ pattern_id }) {
-  const url = resolvePattern(pattern_id);
+  const { resolvePattern } = useContext(GeologicPatternContext) ?? {};
+  const url = resolvePattern?.(pattern_id);
 
   return h("img.pattern-container.basic-pattern-image", { src: url });
 }
@@ -26,13 +27,16 @@ GeologyPattern.args = {
 export { GeologyPattern };
 
 export function SVGDirectLoadPattern({ pattern_id }) {
-  const url = resolvePattern(pattern_id);
+  const { resolvePattern } = useContext(GeologicPatternContext) ?? {};
+
+  const url = resolvePattern?.(pattern_id);
 
   // Fetch the SVG directly
   const ref = useRef();
   const [svgContent, setSVGContent] = useState(null);
 
   useEffect(() => {
+    if (url == null) return null;
     fetch(url)
       .then((response) => response.text())
       .then((text) => {

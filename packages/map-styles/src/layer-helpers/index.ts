@@ -10,6 +10,7 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { lineSymbols } from "./symbol-layers";
 import { loadImage } from "./utils";
+export * from "./svg-patterns";
 
 export interface LayerDescription {
   id: string;

@@ -51,7 +51,7 @@
     "directory": "packages/column-creator"
   },
   "devDependencies": {
-    "parcel": "^2.15.4"
+    "parcel": "^2.16.0"
   },
   "files": [
     "dist",

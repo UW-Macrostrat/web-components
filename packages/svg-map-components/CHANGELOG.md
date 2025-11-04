@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.6] - 2025-10-29
+
+Remove use of `findDOMNode`
+
 ## [1.0.5] - 2025-06-25
 
 Update types and dependencies

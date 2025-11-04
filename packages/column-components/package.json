@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -43,7 +43,7 @@
   "author": "Daven Quinn <dev@davenquinn.com>",
   "license": "MIT",
   "devDependencies": {
-    "parcel": "^2.15.4",
+    "parcel": "^2.16.0",
     "stylus": "^0.59.0"
   },
   "dependencies": {
