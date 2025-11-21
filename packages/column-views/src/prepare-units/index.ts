@@ -26,6 +26,8 @@ export interface PrepareColumnOptions extends ColumnScaleOptions {
   axisType: ColumnAxisType;
   t_age?: number;
   b_age?: number;
+  t_pos?: number;
+  b_pos?: number;
   mergeSections?: MergeSectionsMode;
   collapseSmallUnconformities?: boolean | number;
 }
@@ -61,6 +63,8 @@ export function prepareColumnUnits(
   const {
     t_age,
     b_age,
+    t_pos,
+    b_pos,
     mergeSections = MergeSectionsMode.OVERLAPPING,
     axisType,
     unconformityHeight,
@@ -70,7 +74,11 @@ export function prepareColumnUnits(
   /** Prototype filtering to age range */
   let units1 = units.filter((d) => {
     // Filter units by t_age and b_age, inclusive
-    return agesOverlap(d, { t_age, b_age });
+    if (axisType == ColumnAxisType.AGE) {
+      return agesOverlap(d, { t_age, b_age });
+    } else {
+      return unitsOverlap(d, { t_pos, b_pos } as any, axisType);
+    }
   });
 
   let sections0: SectionInfo<UnitLong>[];

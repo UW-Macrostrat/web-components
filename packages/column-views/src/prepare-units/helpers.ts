@@ -43,7 +43,10 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
   axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): ExtUnit[] {
   /** Preprocess units to add overlapping units and columns. */
-  const units = section.units;
+  let units = section.units;
+
+  units = units.map(preprocessSectionUnit);
+
   let divisions = units.map((...args) => extendDivision(...args, axisType));
   for (let d of divisions) {
     const overlappingUnits = divisions.filter((u) =>
@@ -74,12 +77,6 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
     }
   }
 
-  // TODO: we may want to re-enable this simpler processing for sections,
-  // but we want it to be less universally applied.
-  // if (axisType != ColumnAxisType.AGE) {
-  //   return preprocessSectionUnits(divisions, axisType);
-  // }
-  //
   return divisions;
 }
 
@@ -89,8 +86,15 @@ function extendDivision(
   divisions: UnitLong[],
   axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): ExtUnit {
+  // TODO: make this configurable
+  let tolerance = 0.001; // 1 kyr tolerance for age columns
+  if (axisType != ColumnAxisType.AGE) {
+    tolerance = 0.01; // 1cm tolerance for height/depth columns
+  }
+
   const overlappingUnits = divisions.filter(
-    (d) => d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType),
+    (d) =>
+      d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType, tolerance),
   );
   const u_pos = getUnitHeightRange(unit, axisType);
   const bottomOverlap = overlappingUnits.some((d) => {
@@ -235,37 +239,13 @@ export function mergeOverlappingSections<T extends UnitLong>(
   return newSections;
 }
 
-function preprocessSectionUnits(
-  units: UnitLong[],
-  axisType: ColumnAxisType = ColumnAxisType.DEPTH,
-): ExtUnit[] {
-  /** Preprocess units for a "section" column type, which is guaranteed to be simpler. */
-  // We have to assume the units are ordered...
-  let thickness = 0;
-  return units.map((unit, i) => {
-    let u1 = preprocessSectionUnit(unit, i, units, thickness, axisType);
-    thickness += Math.abs(u1.t_pos - u1.b_pos);
-    return u1;
-  });
-}
-
-function preprocessSectionUnit(
-  unit: UnitLong,
-  i: number,
-  units: UnitLong[],
-  accumulatedThickness: number = 0,
-  axisType: ColumnAxisType = ColumnAxisType.DEPTH,
-): ExtUnit {
+function preprocessSectionUnit(unit: UnitLong): UnitLong {
   /** Preprocess a single unit for a "section" column type.
-   * No provision for overlapping units.
+   * This mostly handles vagaries of eODP-style columns.
    * */
 
   let b_pos = unit.b_pos;
   let t_pos = unit.t_pos;
-
-  if (b_pos == t_pos && axisType == ColumnAxisType.ORDINAL) {
-    t_pos = t_pos - 1;
-  }
 
   let unit_name = unit.unit_name;
 
@@ -285,7 +265,5 @@ function preprocessSectionUnit(
     b_pos: ensureRealFloat(b_pos),
     t_pos: ensureRealFloat(t_pos),
     unit_name,
-    bottomOverlap: false,
-    overlappingUnits: [],
   };
 }

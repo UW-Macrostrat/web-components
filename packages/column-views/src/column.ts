@@ -56,6 +56,8 @@ export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
   units: UnitLong[];
   t_age?: number;
   b_age?: number;
+  t_pos?: number;
+  b_pos?: number;
   mergeSections?: MergeSectionsMode;
   showUnitPopover?: boolean;
   allowUnitSelection?: boolean;
@@ -77,6 +79,8 @@ export function Column(props: ColumnProps) {
     axisType = ColumnAxisType.AGE,
     t_age,
     b_age,
+    t_pos,
+    b_pos,
     unconformityHeight = 30,
     targetUnitHeight = 20,
     pixelScale,
@@ -93,6 +97,8 @@ export function Column(props: ColumnProps) {
     axisType,
     t_age,
     b_age,
+    t_pos,
+    b_pos,
     mergeSections,
     targetUnitHeight,
     unconformityHeight,
