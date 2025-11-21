@@ -121,35 +121,22 @@ function createColumnsSlice(set, get) {
       const { columnFootprints, baseURL, fetch } = get();
       const key = projectID ?? -1;
       let _inProcess = inProcess;
-      if (projectID == null) {
-        // If no project is specified, in process columns cannot be included
-        _inProcess = false;
-      }
+
       let footprints = columnFootprints.get(key);
       if (footprints == null || footprints.inProcess != _inProcess) {
         // Fetch the columns
-        const statusCode = inProcess ? "in process" : null;
-        let columns = await fetchAllColumns({
+        const statusCode = ["active"];
+        if (_inProcess) {
+          statusCode.push("in process");
+        }
+        const columns = await fetchAllColumns({
           projectID,
-          statusCode: null,
+          statusCode: statusCode.join(","),
           fetch,
         });
         if (columns == null) {
           return;
         }
-        if (_inProcess) {
-          const inProcessColumns = await fetchAllColumns({
-            projectID,
-            statusCode: "in process",
-            fetch,
-          });
-          if (inProcessColumns == null) {
-            return;
-          }
-          // Combine active and in-process columns
-          columns = columns.concat(inProcessColumns);
-        }
-
         footprints = {
           project_id: projectID,
           inProcess,
