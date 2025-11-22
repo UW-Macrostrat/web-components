@@ -162,8 +162,6 @@ function Unit(props: UnitProps) {
 
   const [ref, selected, onClick] = useUnitSelectionTarget(d);
 
-  //const key = `unit-${d.unit_id}`;
-
   return h(
     "g.unit",
     {

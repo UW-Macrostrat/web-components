@@ -25,6 +25,8 @@ export interface SectionInfo<T extends UnitLong = ExtUnit>
   /** A time-bounded part of a single stratigraphic column. */
   section_id: number | number[];
   units: T[];
+  b_pos?: number;
+  t_pos?: number;
 }
 
 export interface ExtUnit extends UnitLong {
@@ -45,8 +47,6 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
   /** Preprocess units to add overlapping units and columns. */
   let units = section.units;
 
-  units = units.map(preprocessSectionUnit);
-
   let divisions = units.map((...args) => extendDivision(...args, axisType));
   for (let d of divisions) {
     const overlappingUnits = divisions.filter((u) =>
@@ -66,8 +66,8 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
     }
 
     // If unit overlaps the edges of a section, set the clip positions
+    const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
     if (axisType == ColumnAxisType.AGE) {
-      const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
       if (b_pos > section.b_age) {
         d.b_clip_pos = section.b_age;
       }
@@ -75,6 +75,22 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
         d.t_clip_pos = section.t_age;
       }
     }
+    if (axisType == ColumnAxisType.DEPTH) {
+      if (b_pos > section.b_pos) {
+        d.b_clip_pos = section.b_pos;
+      }
+      if (t_pos < section.t_pos) {
+        d.t_clip_pos = section.t_pos;
+      }
+    }
+    // if (axisType == ColumnAxisType.HEIGHT) {
+    //   if (b_pos < section.b_pos) {
+    //     d.b_clip_pos = section.b_pos;
+    //   }
+    //   if (t_pos > section.t_pos) {
+    //     d.t_clip_pos = section.t_pos;
+    //   }
+    // }
   }
 
   return divisions;
@@ -131,13 +147,15 @@ export function groupUnitsIntoSections<T extends UnitLong>(
 
   const groups1 = groups.map(([section_id, sectionUnits]) => {
     const [b_age, t_age] = getSectionAgeRange(sectionUnits);
+    const [b_pos, t_pos] = getSectionPosRange(sectionUnits, axisType);
+
     // sort units by position
     sectionUnits.sort(unitComparator);
-    return { section_id, t_age, b_age, units: sectionUnits };
+    return { section_id, t_age, b_age, b_pos, t_pos, units: sectionUnits };
   });
   // Sort sections by increasing top age, then increasing bottom age.
   // Sections have no relative ordinal position other than age...
-  const compareSections = createUnitSorter(ColumnAxisType.AGE) as (
+  const compareSections = createUnitSorter(axisType) as (
     a: StratigraphicPackage,
     b: StratigraphicPackage,
   ) => number;
@@ -189,23 +207,58 @@ function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
 
   return sectionList.map((section, i) => {
     const [b_age, t_age] = getSectionAgeRange(section.units);
+    const [b_pos, t_pos] = getSectionPosRange(section.units, axisType);
     return {
       // Negative section IDs are used to indicate that these are synthetic sections
       section_id: -i,
-      t_age: t_age,
-      b_age: b_age,
+      t_age,
+      b_age,
+      t_pos,
+      b_pos,
       units: section.units as T[],
     };
   });
 }
 
+export function getSectionPosRange(
+  units: BaseUnit[],
+  axisType: ColumnAxisType,
+): [number, number] {
+  /** Get the overall position range of a set of units. */
+  const t_positions = units.map((d) => {
+    switch (axisType) {
+      case ColumnAxisType.AGE:
+        return d.t_age;
+      case ColumnAxisType.DEPTH:
+      case ColumnAxisType.HEIGHT:
+      case ColumnAxisType.ORDINAL:
+        return d.t_pos;
+      default:
+        throw new Error(`Unknown axis type: ${axisType}`);
+    }
+  });
+  const b_positions = units.map((d) => {
+    switch (axisType) {
+      case ColumnAxisType.AGE:
+        return d.b_age;
+      case ColumnAxisType.DEPTH:
+      case ColumnAxisType.HEIGHT:
+      case ColumnAxisType.ORDINAL:
+        return d.b_pos;
+      default:
+        throw new Error(`Unknown axis type: ${axisType}`);
+    }
+  });
+  if (axisType == ColumnAxisType.AGE || axisType == ColumnAxisType.DEPTH) {
+    return [Math.max(...b_positions), Math.min(...t_positions)];
+  } else {
+    return [Math.min(...b_positions), Math.max(...t_positions)];
+  }
+}
+
 export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
   /** Get the overall age range of a set of units. */
-  const t_ages = units.map((d) => d.t_age);
-  const b_ages = units.map((d) => d.b_age);
-  const t_age = Math.min(...t_ages);
-  const b_age = Math.max(...b_ages);
-  return [b_age, t_age];
+  return getSectionPosRange(units, ColumnAxisType.AGE);
 }
 
 export function mergeOverlappingSections<T extends UnitLong>(
@@ -239,7 +292,7 @@ export function mergeOverlappingSections<T extends UnitLong>(
   return newSections;
 }
 
-function preprocessSectionUnit(unit: UnitLong): UnitLong {
+export function preprocessSectionUnit(unit: UnitLong): UnitLong {
   /** Preprocess a single unit for a "section" column type.
    * This mostly handles vagaries of eODP-style columns.
    * */

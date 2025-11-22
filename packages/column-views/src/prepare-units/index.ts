@@ -1,7 +1,9 @@
 import {
   getSectionAgeRange,
+  getSectionPosRange,
   groupUnitsIntoSections,
   mergeOverlappingSections,
+  preprocessSectionUnit,
   preprocessUnits,
 } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -71,8 +73,12 @@ export function prepareColumnUnits(
     collapseSmallUnconformities = false,
   } = options;
 
+  // Start by ensuring that ages and positions are numbers
+  // also set up some values for eODP-style columns
+  let units1 = units.map(preprocessSectionUnit);
+
   /** Prototype filtering to age range */
-  let units1 = units.filter((d) => {
+  units1 = units1.filter((d) => {
     // Filter units by t_age and b_age, inclusive
     if (axisType == ColumnAxisType.AGE) {
       return agesOverlap(d, { t_age, b_age });
@@ -82,25 +88,40 @@ export function prepareColumnUnits(
   });
 
   let sections0: SectionInfo<UnitLong>[];
-  if (
-    mergeSections == MergeSectionsMode.ALL &&
-    axisType != ColumnAxisType.ORDINAL
-  ) {
-    // For the "merge sections" mode, we need to create a single section
-    const [b_unit_age, t_unit_age] = getSectionAgeRange(units1);
+  if (axisType == ColumnAxisType.AGE) {
+    if (
+      mergeSections == MergeSectionsMode.ALL &&
+      axisType == ColumnAxisType.AGE
+    ) {
+      // For the "merge sections" mode, we need to create a single section
+      const [b_unit_age, t_unit_age] = getSectionAgeRange(units1);
+      sections0 = [
+        {
+          section_id: 0,
+          /**
+           * If ages limits are directly specified, use them to define the section bounds.
+           * */
+          t_age: t_age ?? t_unit_age,
+          b_age: b_age ?? b_unit_age,
+          units: units1,
+        },
+      ];
+    } else {
+      sections0 = groupUnitsIntoSections(units1, axisType);
+    }
+  } else {
+    const [b_unit_pos, t_unit_pos] = getSectionPosRange(units1, axisType);
+    const [t_age, b_age] = getSectionAgeRange(units1);
     sections0 = [
       {
         section_id: 0,
-        /**
-         * If ages limits are directly specified, use them to define the section bounds.
-         * */
-        t_age: t_age ?? t_unit_age,
-        b_age: b_age ?? b_unit_age,
+        t_pos: t_pos ?? t_unit_pos,
+        b_pos: b_pos ?? b_unit_pos,
+        t_age,
+        b_age,
         units: units1,
       },
     ];
-  } else {
-    sections0 = groupUnitsIntoSections(units1, axisType);
   }
 
   /** Merging overlapping sections really only makes sense for age/height/depth
@@ -110,7 +131,7 @@ export function prepareColumnUnits(
   let sections = sections0;
   if (
     mergeSections == MergeSectionsMode.OVERLAPPING &&
-    axisType != ColumnAxisType.ORDINAL
+    axisType == ColumnAxisType.AGE
   ) {
     sections = mergeOverlappingSections(sections);
   }
@@ -121,11 +142,21 @@ export function prepareColumnUnits(
    * are correctly limited to the t_age and b_age applied to the overall column.
    */
   sections = sections.map((section) => {
-    const { t_age, b_age } = section;
+    let { t_pos, b_pos } = section;
+    if (axisType == ColumnAxisType.DEPTH) {
+      t_pos = Math.max(section.t_pos, options.t_pos ?? -Infinity);
+      b_pos = Math.min(section.b_pos, options.b_pos ?? Infinity);
+    } else if (axisType == ColumnAxisType.HEIGHT) {
+      t_pos = Math.max(section.t_pos, options.t_pos ?? -Infinity);
+      b_pos = Math.min(section.b_pos, options.b_pos ?? Infinity);
+    }
+
     return {
       ...section,
-      t_age: Math.max(t_age, options.t_age ?? -Infinity),
-      b_age: Math.min(b_age, options.b_age ?? Infinity),
+      t_age: Math.max(section.t_age, options.t_age ?? -Infinity),
+      b_age: Math.min(section.b_age, options.b_age ?? Infinity),
+      t_pos,
+      b_pos,
     };
   });
 

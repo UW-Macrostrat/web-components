@@ -66,7 +66,7 @@ export const eODPColumnFilteredToHeightRange: Story = {
     maxInternalColumns: 1,
     pixelScale: 10,
     t_pos: 15,
-    b_pos: 22,
+    b_pos: 25,
   },
 };
 
