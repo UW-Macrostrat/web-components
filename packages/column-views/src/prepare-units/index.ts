@@ -106,15 +106,29 @@ export function prepareColumnUnits(
         /**
          * If ages limits are directly specified, use them to define the section bounds.
          * */
-        t_pos: t_pos ?? t_unit_pos,
-        b_pos: b_pos ?? b_unit_pos,
-        t_age: t_age ?? t_unit_age,
-        b_age: b_age ?? b_unit_age,
+        t_pos: t_unit_pos,
+        b_pos: b_unit_pos,
+        t_age: t_unit_age,
+        b_age: b_unit_age,
         units: units1,
       },
     ];
   } else {
     sections0 = groupUnitsIntoSections(units1, axisType);
+  }
+
+  // Limit sections to the range specified by t_age/b_age or t_pos/b_pos global options
+  for (let section of sections0) {
+    if (axisType == ColumnAxisType.AGE) {
+      section.t_age = Math.max(section.t_age, t_age ?? -Infinity);
+      section.b_age = Math.min(section.b_age, b_age ?? Infinity);
+    } else if (axisType == ColumnAxisType.DEPTH) {
+      section.t_pos = Math.max(section.t_pos, t_pos ?? -Infinity);
+      section.b_pos = Math.min(section.b_pos, b_pos ?? Infinity);
+    } else if (axisType == ColumnAxisType.HEIGHT) {
+      section.t_pos = Math.max(section.t_pos, t_pos ?? -Infinity);
+      section.b_pos = Math.min(section.b_pos, b_pos ?? Infinity);
+    }
   }
 
   /** Merging overlapping sections really only makes sense for age/height/depth
