@@ -87,41 +87,34 @@ export function prepareColumnUnits(
     }
   });
 
+  let mergeMode = mergeSections;
+  if (axisType != ColumnAxisType.AGE) {
+    // For non-age columns, we always merge sections.
+    // This is because the "groupUnitsIntoSections" function is not well-defined
+    // for non-age columns.
+    mergeMode = MergeSectionsMode.ALL;
+  }
+
   let sections0: SectionInfo<UnitLong>[];
-  if (axisType == ColumnAxisType.AGE) {
-    if (
-      mergeSections == MergeSectionsMode.ALL &&
-      axisType == ColumnAxisType.AGE
-    ) {
-      // For the "merge sections" mode, we need to create a single section
-      const [b_unit_age, t_unit_age] = getSectionAgeRange(units1);
-      sections0 = [
-        {
-          section_id: 0,
-          /**
-           * If ages limits are directly specified, use them to define the section bounds.
-           * */
-          t_age: t_age ?? t_unit_age,
-          b_age: b_age ?? b_unit_age,
-          units: units1,
-        },
-      ];
-    } else {
-      sections0 = groupUnitsIntoSections(units1, axisType);
-    }
-  } else {
+  if (mergeMode == MergeSectionsMode.ALL) {
+    // For the "merge sections" mode, we need to create a single section
     const [b_unit_pos, t_unit_pos] = getSectionPosRange(units1, axisType);
-    const [t_age, b_age] = getSectionAgeRange(units1);
+    const [b_unit_age, t_unit_age] = getSectionAgeRange(units1);
     sections0 = [
       {
         section_id: 0,
+        /**
+         * If ages limits are directly specified, use them to define the section bounds.
+         * */
         t_pos: t_pos ?? t_unit_pos,
         b_pos: b_pos ?? b_unit_pos,
-        t_age,
-        b_age,
+        t_age: t_age ?? t_unit_age,
+        b_age: b_age ?? b_unit_age,
         units: units1,
       },
     ];
+  } else {
+    sections0 = groupUnitsIntoSections(units1, axisType);
   }
 
   /** Merging overlapping sections really only makes sense for age/height/depth
@@ -180,9 +173,10 @@ export function prepareColumnUnits(
   }
 
   /** Prepare section scale information using groups */
-  const { totalHeight, sections: sections2 } = finalizeSectionHeights(
+  let { totalHeight, sections: sections2 } = finalizeSectionHeights(
     sectionsWithScales,
     unconformityHeight,
+    axisType,
   );
 
   /** For each section, find units that are overlapping.

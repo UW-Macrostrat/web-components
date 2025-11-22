@@ -113,6 +113,7 @@ export function buildCompositeScaleInfo(
 export function finalizeSectionHeights<T extends UnitLong>(
   sections: SectionInfoWithScale<T>[],
   unconformityHeight: number,
+  axisType: ColumnAxisType,
 ): CompositeColumnData<T> {
   /** Finalize the heights of sections, including the heights of unconformities
    * between them.
@@ -159,11 +160,13 @@ function addScaleToSection<T extends UnitLong = ExtUnit>(
   group: SectionInfo<T>,
   opts: ColumnScaleOptions,
 ): SectionInfoWithScale<T> {
-  const { t_age, b_age, units } = group;
+  const { t_age, b_age, t_pos, b_pos, units } = group;
   let _range = null;
   // if t_age and b_age are set for a group, use them to define the range...
-  if (t_age != null && b_age != null && opts.axisType == ColumnAxisType.AGE) {
+  if (opts.axisType == ColumnAxisType.AGE) {
     _range = [b_age, t_age];
+  } else {
+    _range = [b_pos, t_pos];
   }
 
   const scaleInfo = buildSectionScale<T>(units, {
