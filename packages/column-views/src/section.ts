@@ -16,6 +16,7 @@ import {
   MacrostratColumnProvider,
 } from "./data-provider";
 import { Duration } from "./unit-details";
+import { Value } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
@@ -84,6 +85,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     unitComponentProps,
     clipUnits,
     maxInternalColumns,
+    axisType,
     unconformityLabels = true,
   } = props;
 
@@ -127,6 +129,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     h.if(unconformityLabels)(UnconformityLabels, {
       width,
       sections: scaleData,
+      axisType,
     }),
   ]);
 }
@@ -257,6 +260,7 @@ export function UnconformityLabels(props: {
   sections: PackageScaleLayoutData[];
   className?: string;
 }) {
+  const { axisType } = useMacrostratColumnData();
   const { width, sections, className } = props;
 
   return h(
@@ -273,6 +277,7 @@ export function UnconformityLabels(props: {
       const upperAge = lastGroup?.domain[0];
       const lowerAge = scaleInfo.domain[1];
       return h(Unconformity, {
+        axisType,
         upperAge,
         lowerAge,
         style: {
@@ -285,7 +290,7 @@ export function UnconformityLabels(props: {
   );
 }
 
-function Unconformity({ upperAge, lowerAge, style }) {
+function Unconformity({ upperAge, lowerAge, style, axisType }) {
   if (upperAge == null || lowerAge == null) {
     return null;
   }
@@ -303,7 +308,15 @@ function Unconformity({ upperAge, lowerAge, style }) {
     className = "small";
   }
 
+  let val: ReactNode;
+  if (axisType === ColumnAxisType.DEPTH || axisType === ColumnAxisType.HEIGHT) {
+    const _txt = ageGap.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    val = h(Value, { value: _txt, unit: "m" });
+  } else {
+    val = h(Duration, { value: ageGap });
+  }
+
   return h("div.unconformity", { style, className }, [
-    h("div.unconformity-text", h(Duration, { value: ageGap })),
+    h("div.unconformity-text", val),
   ]);
 }
