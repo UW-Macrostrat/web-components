@@ -1,19 +1,12 @@
-import { getUnitHeightRange } from "../../prepare-units";
-import { useMacrostratColumnData } from "../../data-provider";
-import hyper from "@macrostrat/hyper";
+import h from "@macrostrat/hyper";
 import {
   FossilDataType,
   PBDBCollection,
   PBDBOccurrence,
   useFossilData,
 } from "./provider";
-import { ColumnNotes } from "../../notes";
-import { useCallback, useMemo } from "react";
 import type { IUnit } from "../../units";
-import styles from "./index.module.sass";
-import { BaseMeasurementsColumn } from "@macrostrat/column-views";
-
-const h = hyper.styled(styles);
+import { BaseMeasurementsColumn, TruncatedList } from "../base-sample-column";
 
 export { FossilDataType };
 
@@ -40,35 +33,6 @@ function FossilInfo(props: FossilItemProps) {
     className: "fossil-collections",
     itemRenderer: PBDBCollectionLink,
   });
-}
-
-interface TruncatedListProps {
-  data: any[];
-  className?: string;
-  maxItems?: number;
-  itemRenderer?: (props: { data: any }) => any;
-}
-
-export function TruncatedList({
-  data,
-  className,
-  maxItems = 5,
-  itemRenderer = (p) => h("span", p.data),
-}: TruncatedListProps) {
-  let tooMany = null;
-  let d1 = data;
-  if (data.length > maxItems) {
-    const n = data.length - maxItems;
-    d1 = data.slice(0, maxItems);
-    tooMany = h("li.too-many", `and ${n} more`);
-  }
-
-  return h("ul.truncated-list", { className }, [
-    d1.map((d, i) => {
-      return h("li.element", { key: i }, h(itemRenderer, { data: d }));
-    }),
-    tooMany,
-  ]);
 }
 
 function PBDBCollectionLink({
