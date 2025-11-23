@@ -1,7 +1,8 @@
 import {
   getSectionAgeRange,
   getSectionPosRange,
-  groupUnitsIntoSections,
+  groupUnitsIntoSectionsByOverlap,
+  groupUnitsIntoSectionsBySectionID,
   mergeOverlappingSections,
   preprocessSectionUnit,
   preprocessUnits,
@@ -22,7 +23,7 @@ import type { SectionInfo } from "./helpers";
 import { agesOverlap, getUnitHeightRange, unitsOverlap } from "./utils";
 
 export * from "./utils";
-export { preprocessUnits, groupUnitsIntoSections };
+export { preprocessUnits };
 
 export interface PrepareColumnOptions extends ColumnScaleOptions {
   axisType: ColumnAxisType;
@@ -88,12 +89,12 @@ export function prepareColumnUnits(
   });
 
   let mergeMode = mergeSections;
-  if (axisType != ColumnAxisType.AGE) {
-    // For non-age columns, we always merge sections.
-    // This is because the "groupUnitsIntoSections" function is not well-defined
-    // for non-age columns.
-    mergeMode = MergeSectionsMode.ALL;
-  }
+  // if (axisType != ColumnAxisType.AGE) {
+  //   // For non-age columns, we always merge sections.
+  //   // This is because the "groupUnitsIntoSections" function is not well-defined
+  //   // for non-age columns.
+  //   mergeMode = MergeSectionsMode.ALL;
+  // }
 
   let sections0: SectionInfo<UnitLong>[];
   if (mergeMode == MergeSectionsMode.ALL) {
@@ -113,8 +114,10 @@ export function prepareColumnUnits(
         units: units1,
       },
     ];
+  } else if (axisType == ColumnAxisType.AGE) {
+    sections0 = groupUnitsIntoSectionsBySectionID(units1, axisType);
   } else {
-    sections0 = groupUnitsIntoSections(units1, axisType);
+    sections0 = groupUnitsIntoSectionsByOverlap(units1, axisType);
   }
 
   // Limit sections to the range specified by t_age/b_age or t_pos/b_pos global options
@@ -145,34 +148,14 @@ export function prepareColumnUnits(
   // Filter out undefined sections just in case
   sections = sections.filter((d) => d != null);
 
-  /* Now that we are done merging sections, we can ensure that our sections
-   * are correctly limited to the t_age and b_age applied to the overall column.
-   */
-  sections = sections.map((section) => {
-    let { t_pos, b_pos } = section;
-    if (axisType == ColumnAxisType.DEPTH) {
-      t_pos = Math.max(section.t_pos, options.t_pos ?? -Infinity);
-      b_pos = Math.min(section.b_pos, options.b_pos ?? Infinity);
-    } else if (axisType == ColumnAxisType.HEIGHT) {
-      t_pos = Math.max(section.t_pos, options.t_pos ?? -Infinity);
-      b_pos = Math.min(section.b_pos, options.b_pos ?? Infinity);
-    }
-
-    return {
-      ...section,
-      t_age: Math.max(section.t_age, options.t_age ?? -Infinity),
-      b_age: Math.min(section.b_age, options.b_age ?? Infinity),
-      t_pos,
-      b_pos,
-    };
-  });
-
   /* Compute pixel scales etc. for sections
    * We need to do this now to determine which unconformities
    * are small enough to collapse.
    */
   let sectionsWithScales = computeSectionHeights(sections, options);
 
+  // Collapse small unconformities in pixel height space
+  // TODO: this doesn't seem to work properly for non-age columns?
   if (collapseSmallUnconformities ?? false) {
     let threshold = unconformityHeight ?? 30;
     if (typeof collapseSmallUnconformities == "number") {

@@ -369,14 +369,34 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
       currentSection = nextSection;
       continue;
     }
-    const dAge = Math.abs(nextSection.t_age - currentSection.b_age);
+    let dAge: number;
+    if (opts.axisType !== ColumnAxisType.AGE) {
+      dAge = Math.abs(nextSection.t_pos - currentSection.b_pos);
+    } else {
+      dAge = Math.abs(nextSection.t_age - currentSection.b_age);
+    }
+
     const pxHeight =
       dAge *
       Math.max(
         currentSection.scaleInfo.pixelScale,
         nextSection.scaleInfo.pixelScale,
       );
+
     if (pxHeight < threshold) {
+      let t_pos: number;
+      let b_pos: number;
+      if (
+        opts.axisType == ColumnAxisType.AGE ||
+        opts.axisType == ColumnAxisType.DEPTH
+      ) {
+        t_pos = Math.min(currentSection.t_pos, nextSection.t_pos);
+        b_pos = Math.max(currentSection.b_pos, nextSection.b_pos);
+      } else {
+        t_pos = Math.max(currentSection.t_pos, nextSection.t_pos);
+        b_pos = Math.min(currentSection.b_pos, nextSection.b_pos);
+      }
+
       // We need to merge the sections
       const compositeSection0: SectionInfo<T> = {
         units: [...currentSection.units, ...nextSection.units],
@@ -386,6 +406,8 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
         ],
         t_age: Math.min(currentSection.t_age, nextSection.t_age),
         b_age: Math.max(currentSection.b_age, nextSection.b_age),
+        t_pos,
+        b_pos,
       };
 
       const compositeSection = addScaleToSection(compositeSection0, opts);

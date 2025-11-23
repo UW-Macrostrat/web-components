@@ -2,14 +2,16 @@ import type { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { group } from "d3-array";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import {
-  unitsOverlap,
-  getUnitHeightRange,
   createUnitSorter,
   ensureArray,
   ensureRealFloat,
-  PossiblyClippedUnit,
+  getUnitHeightRange,
+  unitsOverlap,
 } from "./utils";
-import { compareAgeRanges } from "@macrostrat/stratigraphy-utils";
+import {
+  AgeRangeRelationship,
+  compareAgeRanges,
+} from "@macrostrat/stratigraphy-utils";
 
 const dt = 0.001;
 
@@ -131,14 +133,10 @@ function extendDivision(
   };
 }
 
-export function groupUnitsIntoSections<T extends UnitLong>(
+export function groupUnitsIntoSectionsBySectionID<T extends UnitLong>(
   units: T[],
   axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): SectionInfo<T>[] {
-  if (axisType != ColumnAxisType.AGE) {
-    return groupUnitsIntoSectionByOverlap(units, axisType);
-  }
-
   /** Group units into sections by section_id.
    * This works for large-scale Macrostrat columns, where units are grouped by section_id.
    * */
@@ -169,7 +167,7 @@ interface WorkingSection {
   heightRange?: [number, number];
 }
 
-function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
+export function groupUnitsIntoSectionsByOverlap<T extends UnitLong>(
   units: T[],
   axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): SectionInfo<T>[] {
@@ -183,8 +181,10 @@ function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
   for (const unit of units) {
     // Check if the unit overlaps with any existing section
     const heightRange = getUnitHeightRange(unit, axisType);
-    let section: WorkingSection | undefined = sectionList.find((s) =>
-      compareAgeRanges(heightRange, s.heightRange),
+    let section: WorkingSection | undefined = sectionList.find(
+      (s) =>
+        compareAgeRanges(heightRange, s.heightRange) !==
+        AgeRangeRelationship.Disjoint,
     );
     if (section == null) {
       // No overlap, create a new section
@@ -196,10 +196,17 @@ function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
       // Overlap, merge the unit into the section
       section.units.push(unit);
       // Update the height range
-      section.heightRange = [
-        Math.max(section.heightRange[0], heightRange[0]),
-        Math.min(section.heightRange[1], heightRange[1]),
-      ];
+      if (axisType == ColumnAxisType.DEPTH || axisType == ColumnAxisType.AGE) {
+        section.heightRange = [
+          Math.max(section.heightRange[0], heightRange[0]),
+          Math.min(section.heightRange[1], heightRange[1]),
+        ];
+      } else {
+        section.heightRange = [
+          Math.min(section.heightRange[0], heightRange[0]),
+          Math.max(section.heightRange[1], heightRange[1]),
+        ];
+      }
     }
   }
   // We should have a section for each unit, now we can convert to SectionInfo
