@@ -1,6 +1,7 @@
 import h from "@macrostrat/hyper";
 import { useAPIResult } from "@macrostrat/ui-components";
-import { BaseMeasurementsColumn, TruncatedList } from "../fossils";
+import { TruncatedList } from "../fossils";
+import { BaseMeasurementsColumn } from "@macrostrat/column-views";
 
 function useSGPData({ col_id }) {
   const res = useAPIResult(

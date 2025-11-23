@@ -92,6 +92,7 @@ export const eODPColumnAgeFramework: Story = {
     inProcess: true,
     collapseSmallUnconformities: false,
     mergeSections: MergeSectionsMode.OVERLAPPING,
+    axisType: "age",
   },
   title: "eODP Column (with age model applied)",
 };

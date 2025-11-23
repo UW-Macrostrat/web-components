@@ -1,17 +1,11 @@
 import { getUnitHeightRange } from "../../prepare-units";
 import { useMacrostratColumnData } from "../../data-provider";
 import hyper from "@macrostrat/hyper";
-import {
-  FossilDataType,
-  PBDBCollection,
-  PBDBOccurrence,
-  useFossilData,
-} from "./provider";
+import { FossilDataType, PBDBCollection, PBDBOccurrence, useFossilData } from "./provider";
 import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
 import type { IUnit } from "../../units";
 import styles from "./index.module.sass";
-import { useCallback } from "react";
 
 const h = hyper.styled(styles);
 
@@ -154,75 +148,3 @@ export function PBDBFossilsColumn({
   );
 }
 
-export interface BaseMeasurementsColumnProps<T> {
-  data: T[];
-  noteComponent?: any;
-  width?: number;
-  paddingLeft?: number;
-  className?: string;
-  getUnitID?: (d: T) => number | string;
-}
-
-export function BaseMeasurementsColumn({
-  data,
-  noteComponent,
-  width = 500,
-  paddingLeft = 40,
-  className,
-  getUnitID = (d) => d.unit_id,
-}: BaseMeasurementsColumnProps<any>) {
-  const { axisType, units } = useMacrostratColumnData();
-
-  const matchingUnit = useCallback(
-    (dz) => {
-      return (d) => {
-        return getUnitID(d) === dz.unit_id;
-      };
-    },
-    [getUnitID],
-  );
-
-  const notes: any[] = useMemo(() => {
-    if (data == null || units == null) return [];
-    let unitRefData = Array.from(data.values())
-      .map((d) => {
-        return {
-          data: d,
-          unit: units.find(matchingUnit(d)),
-        };
-      })
-      .filter((d) => d.unit != null);
-
-    unitRefData.sort((a, b) => {
-      const v1 = units.indexOf(a.unit);
-      const v2 = units.indexOf(b.unit);
-      return v1 - v2;
-    });
-
-    return unitRefData.map((d) => {
-      const { unit, data } = d;
-      const heightRange = getUnitHeightRange(unit, axisType);
-
-      return {
-        top_height: heightRange[1],
-        height: heightRange[0],
-        data,
-        unit,
-        id: unit.unit_id,
-      };
-    });
-  }, [data, units, matchingUnit]);
-
-  if (data == null || units == null) return null;
-
-  return h(
-    "div",
-    { className },
-    h(ColumnNotes, {
-      width,
-      paddingLeft,
-      notes,
-      noteComponent,
-    }),
-  );
-}
