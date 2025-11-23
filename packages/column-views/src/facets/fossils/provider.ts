@@ -46,6 +46,7 @@ export interface PBDBCollection extends PBDBIdentifier {
 
 export interface PBDBOccurrence extends PBDBIdentifier {
   occ_id: number;
+  cltn_id: number;
   taxon_name: string;
   best_name: string;
   [key: string]: any; // Allow for additional properties
@@ -93,7 +94,10 @@ async function fetchPDBDFossilData(
   );
 }
 
-async function fetchFossilData(colID: number, type: FossilDataType) {
+async function fetchFossilData(
+  colID: number,
+  type: FossilDataType,
+): Promise<any> {
   const [macrostratData, pbdbData] = await Promise.all([
     fetchMacrostratFossilData(colID, type),
     fetchPDBDFossilData(colID, type),

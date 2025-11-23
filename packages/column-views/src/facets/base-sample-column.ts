@@ -13,6 +13,7 @@ export interface BaseMeasurementsColumnProps<T> {
   paddingLeft?: number;
   className?: string;
   getUnitID?: (d: T) => number | string;
+  matchingUnit?: (dz: T) => (d: any) => boolean;
 }
 
 export function BaseMeasurementsColumn({
@@ -22,17 +23,20 @@ export function BaseMeasurementsColumn({
   paddingLeft = 40,
   className,
   getUnitID = (d) => d.unit_id,
+  matchingUnit,
 }: BaseMeasurementsColumnProps<any>) {
   const { axisType, units } = useMacrostratColumnData();
 
-  const matchingUnit = useCallback(
-    (dz) => {
-      return (d) => {
-        return getUnitID(d) === dz.unit_id;
-      };
-    },
-    [getUnitID],
-  );
+  const _matchingUnit =
+    matchingUnit ??
+    useCallback(
+      (dz) => {
+        return (d) => {
+          return getUnitID(d) === dz.unit_id;
+        };
+      },
+      [getUnitID],
+    );
 
   const notes: any[] = useMemo(() => {
     if (data == null || units == null) return [];
@@ -40,7 +44,7 @@ export function BaseMeasurementsColumn({
       .map((d) => {
         return {
           data: d,
-          unit: units.find(matchingUnit(d)),
+          unit: units.find(_matchingUnit(d)),
         };
       })
       .filter((d) => d.unit != null);
