@@ -70,6 +70,16 @@ export const eODPColumnFilteredToHeightRange: Story = {
   },
 };
 
+export const eODPColumnFixedPixelScale: Story = {
+  args: {
+    id: 5248,
+    inProcess: true,
+    maxInternalColumns: 1,
+    pixelScale: 20,
+    targetUnitHeight: null,
+  },
+};
+
 export const OrdinalPosition: Story = {
   args: {
     id: 432,

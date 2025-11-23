@@ -1,8 +1,12 @@
 import { getUnitHeightRange } from "../../prepare-units";
 import { useMacrostratColumnData } from "../../data-provider";
 import hyper from "@macrostrat/hyper";
-import { PBDBCollection, useFossilData } from "./provider";
-import { useMacrostratUnits } from "../../data-provider";
+import {
+  FossilDataType,
+  PBDBCollection,
+  PBDBOccurrence,
+  useFossilData,
+} from "./provider";
 import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
 import type { IUnit } from "../../units";
@@ -10,6 +14,8 @@ import styles from "./index.module.sass";
 import { useCallback } from "react";
 
 const h = hyper.styled(styles);
+
+export { FossilDataType };
 
 interface FossilItemProps {
   note: {
@@ -65,20 +71,31 @@ export function TruncatedList({
   ]);
 }
 
-function PBDBCollectionLink({ data }: { data: PBDBCollection }) {
+function PBDBCollectionLink({
+  data,
+}: {
+  data: PBDBCollection | PBDBOccurrence;
+}) {
+  /** A link to a PBDB collection that handles either an occurrence or collection object */
   return h(
     "a.link-id",
     {
       href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${data.cltn_id}`,
     },
-    data.cltn_name,
+    data.best_name ?? data.cltn_name,
   );
 }
 
 const matchingUnit = (dz) => (d) => d.unit_id == dz.unit_id;
 
-export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
-  const data = useFossilData({ col_id: columnID });
+export function PBDBFossilsColumn({
+  columnID,
+  type = FossilDataType.Collections,
+}: {
+  columnID: number;
+  type: FossilDataType;
+}) {
+  const data = useFossilData({ col_id: columnID, type });
 
   const { axisType, units } = useMacrostratColumnData();
 
@@ -119,11 +136,10 @@ export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
   const noteComponent = useMemo(() => {
     return (props) => {
       return h(FossilInfo, {
-        color,
         ...props,
       });
     };
-  }, [width, color]);
+  }, [width]);
 
   if (data == null || units == null) return null;
 

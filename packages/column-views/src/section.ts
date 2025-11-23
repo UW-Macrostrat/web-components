@@ -129,7 +129,6 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     h.if(unconformityLabels)(UnconformityLabels, {
       width,
       sections: scaleData,
-      axisType,
     }),
   ]);
 }

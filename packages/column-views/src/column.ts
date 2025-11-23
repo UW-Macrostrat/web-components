@@ -93,6 +93,13 @@ export function Column(props: ColumnProps) {
   const ref = useRef<HTMLElement>();
   // Selected item position
 
+  /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
+   * standardization of scales in all sections */
+  let _targetUnitHeight = targetUnitHeight;
+  if (pixelScale != null) {
+    _targetUnitHeight = null;
+  }
+
   const { sections, units, totalHeight } = usePreparedColumnUnits(rawUnits, {
     axisType,
     t_age,
@@ -100,7 +107,7 @@ export function Column(props: ColumnProps) {
     t_pos,
     b_pos,
     mergeSections,
-    targetUnitHeight,
+    targetUnitHeight: _targetUnitHeight,
     unconformityHeight,
     pixelScale,
     minPixelScale,
