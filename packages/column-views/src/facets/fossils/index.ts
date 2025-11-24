@@ -7,7 +7,7 @@ import {
 } from "./provider";
 import type { IUnit } from "../../units";
 import { BaseMeasurementsColumn, TruncatedList } from "../base-sample-column";
-import { FlexRow, JSONView } from "@macrostrat/ui-components";
+import { Box, useElementSize } from "@macrostrat/ui-components";
 import { InternMap } from "d3-array";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
 import {
@@ -16,6 +16,7 @@ import {
 } from "@macrostrat/column-views";
 import { UnitLong } from "@macrostrat/api-types";
 import styles from "./index.module.sass";
+import { useRef } from "react";
 
 const h = hyper.styled(styles);
 
@@ -105,7 +106,9 @@ export function PBDBOccurrencesMatrix({ columnID }) {
   const taxonEntries = Array.from(taxonRanges.entries());
   //const taxon = taxonEntries.slice(0, 50); // limit to top 50 taxa
 
-  return h("div.taxon-ranges", [
+  const width = padding * 2 + spacing * taxonEntries.length;
+
+  return h(Box, { className: "taxon-ranges", width, height: col.totalHeight }, [
     h(TaxonOccurrenceLabels, {
       taxonEntries,
       padding,
@@ -142,18 +145,30 @@ function TaxonOccurrenceLabels({ taxonEntries, padding, spacing, scale }) {
       let topPx = scale(top) - 20;
       if (topPx < 200) topPx = 0;
 
-      return h(
-        "div.taxon-label",
-        {
-          style: {
-            top: `${topPx}px`,
-            left: `${padding + rowIndex * spacing}px`,
-          },
-        },
+      return h(TaxonLabel, {
+        top: topPx,
+        left: padding + rowIndex * spacing,
         taxonName,
-      );
+      });
     }),
   ]);
+}
+
+function TaxonLabel({ top, left, taxonName }) {
+  const ref = useRef();
+  const textSize = useElementSize(ref);
+  const labelWidth = textSize?.height ?? 200;
+  return h(
+    "div.taxon-label",
+    {
+      style: {
+        top: `${top}px`,
+        marginLeft: `${left}px`,
+        "--label-width": `${labelWidth}px`,
+      },
+    },
+    h("div.taxon-label-inner", h("div.taxon-label-text", { ref }, taxonName)),
+  );
 }
 
 type TaxonUnitMap = Map<string, Set<number>>;
