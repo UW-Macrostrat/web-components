@@ -1,4 +1,4 @@
-import h from "@macrostrat/hyper";
+import hyper from "@macrostrat/hyper";
 import {
   FossilDataType,
   PBDBCollection,
@@ -12,6 +12,9 @@ import { InternMap } from "d3-array";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
 import { useMacrostratColumnData } from "@macrostrat/column-views";
 import { UnitLong } from "@macrostrat/api-types";
+import styles from "./index.module.sass";
+
+const h = hyper.styled(styles);
 
 export { FossilDataType };
 
@@ -91,27 +94,31 @@ export function PBDBOccurrencesMatrix({ columnID }) {
 
   const { taxonUnitMap } = matrix;
 
-  const padding = 5;
-  const spacing = 8;
+  const padding = 16;
+  const spacing = 16;
 
   const taxonEntries = Array.from(taxonUnitMap.entries());
-  const taxon = taxonEntries.slice(0, 50); // limit to top 50 taxa
+  //const taxon = taxonEntries.slice(0, 50); // limit to top 50 taxa
 
   return h(FlexRow, [
     h(
       ColumnSVG,
-      { width: padding * 2 + spacing * taxon.length },
+      {
+        width: padding * 2 + spacing * taxonEntries.length,
+        paddingTop: 200,
+        marginTop: -200,
+      },
       h(
-        "g",
+        "g.taxa-occurrences-matrix",
         taxonEntries.map(([taxonName, unitSet], rowIndex) => {
           return h(TaxonOccurrenceEntry, {
             xPosition: padding + rowIndex * spacing,
             units: unitSet,
+            name: taxonName,
           });
         }),
       ),
     ),
-    h(JSONView, { data: { matrix, column: col } }),
   ]);
 }
 
@@ -126,15 +133,15 @@ interface OccurrenceMatrixData {
 function TaxonOccurrenceEntry({
   xPosition,
   units,
+  name,
 }: {
   xPosition: number;
   units: Set<number>;
 }) {
   const col = useMacrostratColumnData();
   const height = col.totalHeight;
-  return h(
-    "g",
-    { transform: `translate(${xPosition})` },
+  return h("g", { transform: `translate(${xPosition})` }, [
+    h("g.occurrence-title", [h("text.taxon-name", name)]),
     col.sections.map((section) => {
       const { units: sectionUnits, scaleInfo } = section;
 
@@ -152,12 +159,10 @@ function TaxonOccurrenceEntry({
         return h("line", {
           y1: scale(top),
           y2: scale(bottom),
-          stroke: "black",
-          strokeWidth: 2,
         });
       });
     }),
-  );
+  ]);
 }
 
 function accumulatePresenceDomains(
@@ -224,7 +229,8 @@ function createOccurrenceMatrix(
 
   // sort the taxon occurrence map by number of occurrences
   const sortedTaxa = Array.from(taxonUnitMap.entries()).sort((a, b) => {
-    return b[1].size - a[1].size;
+    // Sort alphabetically by taxon name
+    return b[0].localeCompare(a[0]);
   });
 
   return {

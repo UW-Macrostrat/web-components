@@ -86,6 +86,7 @@ export function eODPColumnWithOccurrenceMatrix() {
         id,
         axisType: ColumnAxisType.DEPTH,
         pixelScale: 20,
+        paddingTop: 200,
         allowUnitSelection: true,
         showUnitPopover: true,
         collapseSmallUnconformities: true,

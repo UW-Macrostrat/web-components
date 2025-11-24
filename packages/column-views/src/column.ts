@@ -1,8 +1,14 @@
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useDarkMode } from "@macrostrat/ui-components";
+import { Box, extractPadding, useDarkMode } from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { RefObject, useRef, HTMLAttributes, useCallback } from "react";
+import {
+  RefObject,
+  useRef,
+  HTMLAttributes,
+  useCallback,
+  CSSProperties,
+} from "react";
 import styles from "./column.module.sass";
 import {
   UnitSelectionProvider,
@@ -169,6 +175,16 @@ interface ColumnInnerProps extends BaseColumnProps {
 }
 
 function ColumnInner(props: ColumnInnerProps) {
+  const padding = extractPadding(props);
+
+  // TODO: integrate padding vars more closely with the rest of the spacing (right now padding is a bit ad-hoc)
+  const paddingVars = {
+    "--column-padding-top": `${padding.paddingTop}px`,
+    "--column-padding-bottom": `${padding.paddingBottom}px`,
+    "--column-padding-left": `${padding.paddingLeft}px`,
+    "--column-padding-right": `${padding.paddingRight}px`,
+  };
+
   const {
     unitComponent = UnitComponent,
     unconformityLabels = true,
@@ -208,6 +224,7 @@ function ColumnInner(props: ColumnInnerProps) {
     ColumnContainer,
     {
       ...useMouseEventHandlers(onMouseOver),
+      style: paddingVars,
       className,
     },
     h("div.column", { ref: columnRef }, [
@@ -279,16 +296,21 @@ function useMouseEventHandlers(
 
 export interface ColumnContainerProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
+  style?: CSSProperties;
 }
 
 export function ColumnContainer(props: ColumnContainerProps) {
   const { className, ...rest } = props;
   const darkMode = useDarkMode();
 
-  return h("div.column-container", {
-    className: classNames(className, {
-      "dark-mode": darkMode?.isEnabled ?? false,
-    }),
+  return h(Box, {
+    className: classNames(
+      className,
+      {
+        "dark-mode": darkMode?.isEnabled ?? false,
+      },
+      "column-container",
+    ),
     ...rest,
   });
 }
