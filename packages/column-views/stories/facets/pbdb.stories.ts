@@ -73,7 +73,7 @@ export const eODPColumnOccurrences: Story = {
   },
 };
 
-export function eODPColumnWithOccurrenceMatrix() {
+export function eODPColumnWithTaxonRanges() {
   const id = 5576;
   return h(
     MacrostratDataProvider,

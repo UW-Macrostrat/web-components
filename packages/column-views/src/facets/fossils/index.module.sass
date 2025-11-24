@@ -7,3 +7,25 @@
     fill: var(--column-text-color)
     transform: rotate(90deg) translate(0, 4px)
     text-anchor: end
+    position: sticky
+    top: 0
+
+.taxon-ranges
+  position: relative
+  &>svg
+    position: absolute
+    height: 100%
+
+.taxon-labels
+  position: absolute
+  top: 0
+  left: 0
+  pointer-events: none
+
+  .taxon-label
+    position: absolute
+    width: 200px
+    transform: rotate(-90deg) translate(10px, 8px)
+    transform-origin: bottom left
+
+

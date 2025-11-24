@@ -1,6 +1,11 @@
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
-import { Box, extractPadding, useDarkMode } from "@macrostrat/ui-components";
+import {
+  Box,
+  extractPadding,
+  Padding,
+  useDarkMode,
+} from "@macrostrat/ui-components";
 import classNames from "classnames";
 import {
   RefObject,
@@ -57,7 +62,10 @@ interface BaseColumnProps extends SectionSharedProps {
   ) => void;
 }
 
-export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
+export interface ColumnProps
+  extends Padding,
+    BaseColumnProps,
+    ColumnHeightScaleOptions {
   // Macrostrat units
   units: UnitLong[];
   t_age?: number;

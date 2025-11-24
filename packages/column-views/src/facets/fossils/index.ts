@@ -10,7 +10,10 @@ import { BaseMeasurementsColumn, TruncatedList } from "../base-sample-column";
 import { FlexRow, JSONView } from "@macrostrat/ui-components";
 import { InternMap } from "d3-array";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
-import { useMacrostratColumnData } from "@macrostrat/column-views";
+import {
+  useCompositeScale,
+  useMacrostratColumnData,
+} from "@macrostrat/column-views";
 import { UnitLong } from "@macrostrat/api-types";
 import styles from "./index.module.sass";
 
@@ -89,36 +92,67 @@ export function PBDBOccurrencesMatrix({ columnID }) {
   // convert the data to a map
   const occurrenceMap = new Map(data);
 
-  const matrix = createOccurrenceMatrix(occurrenceMap);
   const col = useMacrostratColumnData();
+  const matrix = createOccurrenceMatrix(col.units, occurrenceMap, col.axisType);
 
-  const { taxonUnitMap } = matrix;
+  const scale = useCompositeScale();
+
+  const { taxonRanges } = matrix;
 
   const padding = 16;
   const spacing = 16;
 
-  const taxonEntries = Array.from(taxonUnitMap.entries());
+  const taxonEntries = Array.from(taxonRanges.entries());
   //const taxon = taxonEntries.slice(0, 50); // limit to top 50 taxa
 
-  return h(FlexRow, [
+  return h("div.taxon-ranges", [
+    h(TaxonOccurrenceLabels, {
+      taxonEntries,
+      padding,
+      spacing,
+      scale,
+    }),
     h(
       ColumnSVG,
       {
         width: padding * 2 + spacing * taxonEntries.length,
-        paddingTop: 200,
-        marginTop: -200,
       },
       h(
         "g.taxa-occurrences-matrix",
-        taxonEntries.map(([taxonName, unitSet], rowIndex) => {
-          return h(TaxonOccurrenceEntry, {
-            xPosition: padding + rowIndex * spacing,
-            units: unitSet,
-            name: taxonName,
-          });
+        taxonEntries.map(([taxonName, ranges], rowIndex) => {
+          const xPosition = padding + rowIndex * spacing;
+          return h("g", { transform: `translate(${xPosition})` }, [
+            ranges.map(([top, bottom]) => {
+              return h("line", {
+                y1: scale(top),
+                y2: scale(bottom),
+              });
+            }),
+          ]);
         }),
       ),
     ),
+  ]);
+}
+
+function TaxonOccurrenceLabels({ taxonEntries, padding, spacing, scale }) {
+  return h("div.taxon-labels", [
+    taxonEntries.map(([taxonName, ranges], rowIndex) => {
+      const top = ranges[0]?.[0] ?? 0;
+      let topPx = scale(top) - 20;
+      if (topPx < 200) topPx = 0;
+
+      return h(
+        "div.taxon-label",
+        {
+          style: {
+            top: `${topPx}px`,
+            left: `${padding + rowIndex * spacing}px`,
+          },
+        },
+        taxonName,
+      );
+    }),
   ]);
 }
 
@@ -128,41 +162,68 @@ interface OccurrenceMatrixData {
   occurrenceMap: Map<number, PBDBOccurrence[]>; // Map of unit IDs to occurrences (original data)
   taxonUnitMap: TaxonUnitMap; // Map of taxon names to sets of unit IDs
   taxonOccurrenceMap: Map<string, PBDBOccurrence[]>; // Map of taxon names to occurrences
+  taxonRanges: Map<string, [number, number][]>; // Map of taxon names to [top, bottom] pixel ranges
 }
 
 function TaxonOccurrenceEntry({
   xPosition,
-  units,
+  ranges,
+  scale,
   name,
 }: {
   xPosition: number;
   units: Set<number>;
 }) {
-  const col = useMacrostratColumnData();
-  const height = col.totalHeight;
   return h("g", { transform: `translate(${xPosition})` }, [
-    h("g.occurrence-title", [h("text.taxon-name", name)]),
-    col.sections.map((section) => {
-      const { units: sectionUnits, scaleInfo } = section;
-
-      const presenceUnits = accumulatePresenceDomains(
-        sectionUnits,
-        units,
-        col.axisType,
-      );
-
-      console.log(presenceUnits);
-
-      const { scale } = scaleInfo;
-
-      return presenceUnits.map(([top, bottom]) => {
-        return h("line", {
-          y1: scale(top),
-          y2: scale(bottom),
-        });
+    ranges.map(([top, bottom]) => {
+      return h("line", {
+        y1: scale(top),
+        y2: scale(bottom),
       });
     }),
   ]);
+}
+
+function createOccurrenceMatrix(
+  units: UnitLong[],
+  data: Map<number, PBDBOccurrence[]>,
+  axisType: ColumnAxisType = ColumnAxisType.AGE,
+): OccurrenceMatrixData {
+  const taxonUnitMap = new Map<string, Set<number>>();
+  const taxonOccurrenceMap = new Map<string, PBDBOccurrence[]>();
+
+  for (const [unit_id, occurrences] of data.entries()) {
+    for (const occ of occurrences) {
+      const taxonName = occ.best_name ?? occ.taxon_name;
+      if (!taxonUnitMap.has(taxonName)) {
+        taxonUnitMap.set(taxonName, new Set());
+        taxonOccurrenceMap.set(taxonName, []);
+      }
+      taxonUnitMap.get(taxonName).add(unit_id);
+      taxonOccurrenceMap.get(taxonName).push(occ);
+    }
+  }
+
+  // sort the taxon occurrence map by number of occurrences
+  const sortedTaxa = Array.from(taxonUnitMap.entries()).sort((a, b) => {
+    // Sort alphabetically by taxon name
+    return b[0].localeCompare(a[0]);
+  });
+
+  const taxonRanges = new Map<string, [number, number][]>();
+  for (const [taxonName, unitSet] of taxonUnitMap.entries()) {
+    taxonRanges.set(
+      taxonName,
+      accumulatePresenceDomains(units, unitSet, axisType),
+    );
+  }
+
+  return {
+    occurrenceMap: data,
+    taxonUnitMap: new Map(sortedTaxa),
+    taxonOccurrenceMap: taxonOccurrenceMap,
+    taxonRanges,
+  };
 }
 
 function accumulatePresenceDomains(
@@ -207,35 +268,4 @@ function accumulatePresenceDomains(
   }
 
   return domains;
-}
-
-function createOccurrenceMatrix(
-  data: Map<number, PBDBOccurrence[]>,
-): OccurrenceMatrixData {
-  const taxonUnitMap = new Map<string, Set<number>>();
-  const taxonOccurrenceMap = new Map<string, PBDBOccurrence[]>();
-
-  for (const [unit_id, occurrences] of data.entries()) {
-    for (const occ of occurrences) {
-      const taxonName = occ.best_name ?? occ.taxon_name;
-      if (!taxonUnitMap.has(taxonName)) {
-        taxonUnitMap.set(taxonName, new Set());
-        taxonOccurrenceMap.set(taxonName, []);
-      }
-      taxonUnitMap.get(taxonName).add(unit_id);
-      taxonOccurrenceMap.get(taxonName).push(occ);
-    }
-  }
-
-  // sort the taxon occurrence map by number of occurrences
-  const sortedTaxa = Array.from(taxonUnitMap.entries()).sort((a, b) => {
-    // Sort alphabetically by taxon name
-    return b[0].localeCompare(a[0]);
-  });
-
-  return {
-    occurrenceMap: data,
-    taxonUnitMap: new Map(sortedTaxa),
-    taxonOccurrenceMap: taxonOccurrenceMap,
-  };
 }
