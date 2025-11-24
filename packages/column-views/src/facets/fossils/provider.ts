@@ -1,4 +1,4 @@
-import { group } from "d3-array";
+import { group, InternMap } from "d3-array";
 import {
   createAPIContext,
   useAPIResult,
@@ -52,7 +52,10 @@ export interface PBDBOccurrence extends PBDBIdentifier {
   [key: string]: any; // Allow for additional properties
 }
 
-export function useFossilData({ col_id, type = FossilDataType.Collections }) {
+export function useFossilData(
+  col_id: number,
+  type = FossilDataType.Collections,
+) {
   // Fossil links are stored in both Macrostrat and PBDB, depending on how the link was assembled. Here
   // we create a unified view of data over both sources.
   return useAsyncMemo(async () => {
@@ -97,7 +100,7 @@ async function fetchPDBDFossilData(
 async function fetchFossilData(
   colID: number,
   type: FossilDataType,
-): Promise<any> {
+): Promise<InternMap<number, PBDBOccurrence[] | PBDBCollection[]>> {
   const [macrostratData, pbdbData] = await Promise.all([
     fetchMacrostratFossilData(colID, type),
     fetchPDBDFossilData(colID, type),

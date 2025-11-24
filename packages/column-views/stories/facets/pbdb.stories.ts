@@ -3,6 +3,7 @@ import {
   MacrostratDataProvider,
   MergeSectionsMode,
   PBDBFossilsColumn,
+  PBDBOccurrencesMatrix,
   FossilDataType,
 } from "../../src";
 import h from "@macrostrat/hyper";
@@ -71,6 +72,29 @@ export const eODPColumnOccurrences: Story = {
     type: FossilDataType.Occurrences,
   },
 };
+
+export function eODPColumnWithOccurrenceMatrix() {
+  const id = 5576;
+  return h(
+    MacrostratDataProvider,
+    h(
+      StandaloneColumn,
+      {
+        showTimescale: false,
+        showLabelColumn: false,
+        allowUnitSelection: false,
+        id,
+        axisType: ColumnAxisType.DEPTH,
+        pixelScale: 20,
+        allowUnitSelection: true,
+        showUnitPopover: true,
+        collapseSmallUnconformities: true,
+        keyboardNavigation: true,
+      },
+      h(PBDBOccurrencesMatrix, { columnID: id }),
+    ),
+  );
+}
 
 export const eODPColumnMoreComplete: Story = {
   args: {

@@ -96,8 +96,12 @@ export function Column(props: ColumnProps) {
   /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
    * standardization of scales in all sections */
   let _targetUnitHeight = targetUnitHeight;
+  let _minSectionHeight = minSectionHeight;
+  let _minPixelScale = minPixelScale;
   if (pixelScale != null) {
     _targetUnitHeight = null;
+    _minSectionHeight = 0;
+    _minPixelScale = pixelScale;
   }
 
   const { sections, units, totalHeight } = usePreparedColumnUnits(rawUnits, {
@@ -110,8 +114,8 @@ export function Column(props: ColumnProps) {
     targetUnitHeight: _targetUnitHeight,
     unconformityHeight,
     pixelScale,
-    minPixelScale,
-    minSectionHeight,
+    minPixelScale: _minPixelScale,
+    minSectionHeight: _minSectionHeight,
     collapseSmallUnconformities,
   });
 
