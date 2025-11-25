@@ -65,17 +65,27 @@ export function prepareColumnUnits(
 ): PreparedColumnData {
   /** Prepare units for rendering into Macrostrat columns */
 
+  let { t_age, b_age, t_pos, b_pos } = options;
+
   const {
-    t_age,
-    b_age,
-    t_pos,
-    b_pos,
     mergeSections = MergeSectionsMode.OVERLAPPING,
     axisType,
     unconformityHeight,
     collapseSmallUnconformities = false,
     scale,
   } = options;
+
+  if (scale != null) {
+    // Set t_age and b_age based on scale domain if not already set
+    const domain = scale.domain();
+    if (axisType == ColumnAxisType.AGE) {
+      if (t_age == null) t_age = Math.min(...domain);
+      if (b_age == null) b_age = Math.max(...domain);
+    } else {
+      if (t_pos == null) t_pos = Math.min(...domain);
+      if (b_pos == null) b_pos = Math.max(...domain);
+    }
+  }
 
   // Start by ensuring that ages and positions are numbers
   // also set up some values for eODP-style columns

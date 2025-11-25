@@ -394,10 +394,16 @@ export function MacrostratColumnProvider(props) {
    */
 
   const { axisType } = useMacrostratColumnData();
-  const { units, domain, pixelScale, children } = props;
+  const { units, domain, pixelScale, scale, children } = props;
   return h(
     ColumnProvider,
-    { axisType, divisions: units, range: domain, pixelsPerMeter: pixelScale },
+    {
+      axisType,
+      divisions: units,
+      range: domain,
+      pixelsPerMeter: pixelScale,
+      scale,
+    },
     children,
   );
 }

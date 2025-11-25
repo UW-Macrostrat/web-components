@@ -147,7 +147,7 @@ function SectionUnits(props: SectionProps) {
     maxInternalColumns,
   } = props;
 
-  const { domain, pixelScale, pixelHeight } = scaleInfo;
+  const { domain, pixelScale, pixelHeight, scale } = scaleInfo;
 
   /** Ensure that we can arrange units into the maximum number
    * of columns defined by unitComponentProps, but that we don't
@@ -179,6 +179,7 @@ function SectionUnits(props: SectionProps) {
         units,
         domain,
         pixelScale, // Actually pixels per myr,
+        scale,
       },
       h(CompositeUnitsColumn, {
         width,

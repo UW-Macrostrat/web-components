@@ -7,7 +7,7 @@ import "@macrostrat/style-system";
 
 import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 import { MinimalUnit } from "../src/units/boxes";
-import { scaleLog, scalePow } from "d3-scale";
+import { scaleLinear, scaleLog, scalePow } from "d3-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
@@ -34,13 +34,40 @@ const meta: Meta<StandaloneColumnProps> = {
 
 export default meta;
 
+export const LinearScale: Story = {
+  args: {
+    id: 432,
+    mergeSections: MergeSectionsMode.ALL,
+    axisType: ColumnAxisType.AGE,
+    showLabels: false,
+    unitComponent: MinimalUnit,
+    showTimescale: true,
+    timescaleLevels: [1, 2],
+    scale: scaleLinear().domain([0, 4500]).range([0, 1500]),
+  },
+};
+
 // Logarithmic age scale
 
 const logScale = scaleLog().base(10).domain([0.001, 4500]).range([0, 1000]);
 
-const powScale = scalePow().exponent(0.5).domain([0, 4500]).range([0, 1500]);
+export const LogScale: Story = {
+  args: {
+    id: 432,
+    mergeSections: MergeSectionsMode.ALL,
+    axisType: ColumnAxisType.AGE,
+    showLabels: false,
+    unitComponent: MinimalUnit,
+    showTimescale: true,
+    timescaleLevels: [1, 2],
+    scale: logScale,
+    t_age: 0.01,
+  },
+};
 
-export const Primary: Story = {
+const powScale = scalePow().exponent(0.5).domain([0, 500]).range([0, 1000]);
+
+export const PowerScale: Story = {
   args: {
     id: 432,
     mergeSections: MergeSectionsMode.ALL,
