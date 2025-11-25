@@ -52,6 +52,7 @@ export function buildCorrelationChartData(
   const opts: PrepareColumnOptions = {
     axisType: ColumnAxisType.AGE,
     targetUnitHeight,
+    mergeSections,
     ...rest,
   };
 
@@ -102,7 +103,7 @@ interface ColumnExt {
 
 interface MultiColumnPackageData {
   columnData: ColumnExt[];
-  bestPixelScale: number;
+  bestPixelScale?: number;
   b_age: number;
   t_age: number;
 }

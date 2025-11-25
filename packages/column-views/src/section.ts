@@ -252,6 +252,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
       width: "100%",
       sections: packages,
       className: "unconformity-labels",
+      axisType: ColumnAxisType.AGE,
     }),
   ]);
 }
@@ -259,10 +260,10 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
 export function UnconformityLabels(props: {
   width: string | number;
   sections: PackageScaleLayoutData[];
+  axisType?: ColumnAxisType;
   className?: string;
 }) {
-  const { axisType } = useMacrostratColumnData();
-  const { width, sections, className } = props;
+  const { width, sections, className, axisType } = props;
 
   return h(
     "div.unconformity-labels",

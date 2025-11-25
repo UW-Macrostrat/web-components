@@ -43,6 +43,7 @@ export const LinearScale: Story = {
     unitComponent: MinimalUnit,
     showTimescale: true,
     timescaleLevels: [1, 2],
+    // NOTE: scale domains are clipped to the age range of the column
     scale: scaleLinear().domain([0, 4500]).range([0, 1500]),
   },
 };
@@ -65,7 +66,7 @@ export const LogScale: Story = {
   },
 };
 
-const powScale = scalePow().exponent(0.5).domain([0, 500]).range([0, 1000]);
+const powScale = scalePow().exponent(0.5).domain([0, 4500]).range([0, 1000]);
 
 export const PowerScale: Story = {
   args: {

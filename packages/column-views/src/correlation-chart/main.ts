@@ -33,6 +33,7 @@ import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnContainer } from "../column";
 import { ColumnData } from "../data-provider";
 import { BaseUnit } from "@macrostrat/api-types";
+import { ScaleContinuousNumeric } from "d3-scale";
 
 const h = hyper.styled(styles);
 
@@ -117,7 +118,8 @@ export function CorrelationChart({
               paddingH: 4,
             },
             packages.map((pkg, i) => {
-              const { offset, domain, scale, key } = scaleInfo.packages[i];
+              const { offset, domain, pixelScale, scale, key } =
+                scaleInfo.packages[i];
               return h(Package, {
                 columnData: pkg.columnData,
                 key,
@@ -126,6 +128,7 @@ export function CorrelationChart({
                 offset,
                 domain,
                 pixelScale,
+                scale,
                 unitComponent,
               });
             }),
@@ -147,6 +150,7 @@ function Package({
   offset,
   domain,
   pixelScale,
+  scale,
 }) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
@@ -160,6 +164,7 @@ function Package({
           key: i,
           domain,
           pixelScale,
+          scale,
           offsetLeft: i * (columnWidth + columnSpacing),
         });
       }),
@@ -179,6 +184,7 @@ interface ColumnProps {
   offsetLeft?: number;
   domain: [number, number];
   pixelScale: number;
+  scale?: ScaleContinuousNumeric<number, number>;
 }
 
 function Column(props: ColumnProps) {
@@ -188,6 +194,7 @@ function Column(props: ColumnProps) {
     offsetLeft,
     domain,
     pixelScale,
+    scale,
     unitComponent = ColoredUnitComponent,
   } = props;
 
@@ -208,6 +215,7 @@ function Column(props: ColumnProps) {
         // Need to tighten up types here...
         divisions: units as any[],
         range: domain,
+        scale,
         pixelsPerMeter: pixelScale, // Actually pixels per myr
         axisType: ColumnAxisType.AGE,
       },

@@ -69,7 +69,7 @@ function ColumnStoryUI({
         showUnitPopover: false,
         width: 450,
         unitComponent: ColoredUnitComponent,
-        collapseSmallUnconformities: false,
+        collapseSmallUnconformities: true,
         targetUnitHeight: 20,
         ...rest,
       }),
