@@ -18,11 +18,10 @@ import {
   computeSectionHeights,
   finalizeSectionHeights,
   PackageLayoutData,
-  SectionInfoWithScale,
 } from "./composite-scale";
 import type { SectionInfo } from "./helpers";
-import { agesOverlap, getUnitHeightRange, unitsOverlap } from "./utils";
-import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
+import { agesOverlap, unitsOverlap } from "./utils";
+import { ScaleContinuousNumeric } from "d3-scale";
 
 export * from "./utils";
 export { preprocessUnits };
@@ -158,35 +157,7 @@ export function prepareColumnUnits(
    * We need to do this now to determine which unconformities
    * are small enough to collapse.
    */
-  let sectionsWithScales: SectionInfoWithScale<UnitLong>[];
-
-  if (scale == null) {
-    sectionsWithScales = computeSectionHeights(sections, options);
-  } else {
-    sectionsWithScales = sections.map((section) => {
-      const { t_age, b_age, t_pos, b_pos, units } = section;
-      let _range = null;
-      // if t_age and b_age are set for a group, use them to define the range...
-      if (options.axisType == ColumnAxisType.AGE) {
-        _range = [b_age, t_age];
-      } else {
-        _range = [b_pos, t_pos];
-      }
-
-      const pixelHeight = Math.abs(scale(_range[1]) - scale(_range[0]));
-
-      const scaleInfo = {
-        domain: _range,
-        pixelHeight,
-        scale,
-      };
-
-      return {
-        ...section,
-        scaleInfo,
-      };
-    });
-  }
+  let sectionsWithScales = computeSectionHeights(sections, options);
 
   if (collapseSmallUnconformities ?? false) {
     // Collapse small unconformities in pixel height space

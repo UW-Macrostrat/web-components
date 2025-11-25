@@ -1,7 +1,7 @@
 import type { ExtUnit, SectionInfo } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
-import { ScaleContinuousNumeric, ScaleLinear, scaleLinear } from "d3-scale";
+import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
 
 export interface ColumnHeightScaleOptions {
@@ -22,6 +22,8 @@ export interface ColumnHeightScaleOptions {
   unconformityHeight?: number;
   // Whether to collapse unconformities that are less than a height threshold
   collapseSmallUnconformities?: boolean | number;
+  // A continuous scale to use instead of generating one
+  scale?: ScaleContinuousNumeric<number, number>;
 }
 
 export interface SectionScaleOptions extends ColumnHeightScaleOptions {
@@ -38,7 +40,7 @@ export interface PackageScaleInfo {
   pixelHeight: number;
   // TODO: add a function
   scale: ScaleContinuousNumeric<number, number>;
-  pixelScale?: number;
+  pixelScale?: number; // if it's a linear scale, this could be defined
 }
 
 export type PackageScaleLayoutData = PackageScaleInfo & {
@@ -188,6 +190,7 @@ function buildSectionScale<T extends UnitLong>(
     minPixelScale = 0.2,
     axisType,
     minSectionHeight,
+    scale,
   } = opts;
   const domain = opts.domain ?? findSectionHeightRange(data, axisType);
 
@@ -213,7 +216,7 @@ function buildSectionScale<T extends UnitLong>(
   height = Math.max(height, _minSectionHeight);
   _pixelScale = height / dAge;
 
-  return createPackageScale({ domain, pixelScale: _pixelScale }, 0);
+  return createPackageScale({ scale, domain, pixelScale: _pixelScale }, 0);
 }
 
 export function createPackageScale(
@@ -222,15 +225,28 @@ export function createPackageScale(
 ): PackageScaleInfo {
   /** Build a section scale */
   // Domain should be oriented from bottom to top, but scale is oriented from top to bottom
-  const { domain, pixelScale } = def;
-  const pixelHeight = pixelScale * Math.abs(domain[0] - domain[1]);
+  const { domain, pixelScale, scale } = def;
+
+  let _scale = scale;
+  let pixelHeight: number;
+  if (_scale == null) {
+    pixelHeight = pixelScale * Math.abs(domain[0] - domain[1]);
+    _scale = scaleLinear()
+      .domain([domain[1], domain[0]])
+      .range([offset, pixelHeight + offset]);
+  } else {
+    pixelHeight = Math.abs(_scale(domain[0]) - _scale(domain[1]));
+    _scale = _scale
+      .copy()
+      .domain([domain[1], domain[0]])
+      .range([offset, pixelHeight + offset]);
+  }
+
   return {
     domain,
     pixelScale,
     pixelHeight,
-    scale: scaleLinear()
-      .domain([domain[1], domain[0]])
-      .range([offset, pixelHeight + offset]),
+    scale: _scale,
   };
 }
 
