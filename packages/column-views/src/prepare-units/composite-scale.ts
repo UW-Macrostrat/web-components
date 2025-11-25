@@ -23,6 +23,7 @@ export interface ColumnHeightScaleOptions {
   // Whether to collapse unconformities that are less than a height threshold
   collapseSmallUnconformities?: boolean | number;
   // A continuous scale to use instead of generating one
+  // TODO: discontinuous scales are not yet supported
   scale?: ScaleContinuousNumeric<number, number>;
 }
 
@@ -197,26 +198,34 @@ function buildSectionScale<T extends UnitLong>(
   const dAge = Math.abs(domain[0] - domain[1]);
 
   let _pixelScale = opts.pixelScale;
-  if (_pixelScale == null) {
-    const avgAgeRange = findAverageUnitHeight(data, axisType);
-    // Get pixel height necessary to render average unit at target height
-    _pixelScale = Math.max(targetUnitHeight / avgAgeRange, minPixelScale);
+  let pixelHeight: number;
+  if (scale == null) {
+    if (_pixelScale == null) {
+      const avgAgeRange = findAverageUnitHeight(data, axisType);
+      // Get pixel height necessary to render average unit at target height
+      _pixelScale = Math.max(targetUnitHeight / avgAgeRange, minPixelScale);
 
-    // OLD METHOD that cares about overall section height vs. individual unit height
-    // 0.2 pixel per myr is the floor scale
-    //const targetHeight = targetUnitHeight * data.length;
-    // 1 pixel per myr is the floor scale
-    //_pixelScale = Math.max(targetHeight / dAge, minPixelScale);
+      // OLD METHOD that cares about overall section height vs. individual unit height
+      // 0.2 pixel per myr is the floor scale
+      //const targetHeight = targetUnitHeight * data.length;
+      // 1 pixel per myr is the floor scale
+      //_pixelScale = Math.max(targetHeight / dAge, minPixelScale);
+    }
+
+    let height = dAge * _pixelScale;
+    // If height is less than minSectionHeight, set it to minSectionHeight
+    const _minSectionHeight = minSectionHeight ?? targetUnitHeight ?? 0;
+    pixelHeight = Math.max(height, _minSectionHeight);
+    _pixelScale = pixelHeight / dAge;
+  } else {
+    // If a scale is provided, use it to compute pixel height
+    pixelHeight = Math.abs(scale(domain[0]) - scale(domain[1]));
   }
 
-  let height = dAge * _pixelScale;
-
-  // If height is less than minSectionHeight, set it to minSectionHeight
-  const _minSectionHeight = minSectionHeight ?? targetUnitHeight ?? 0;
-  height = Math.max(height, _minSectionHeight);
-  _pixelScale = height / dAge;
-
-  return createPackageScale({ scale, domain, pixelScale: _pixelScale }, 0);
+  return createPackageScale(
+    { scale, domain, pixelHeight, pixelScale: _pixelScale },
+    0,
+  );
 }
 
 export function createPackageScale(
@@ -225,17 +234,18 @@ export function createPackageScale(
 ): PackageScaleInfo {
   /** Build a section scale */
   // Domain should be oriented from bottom to top, but scale is oriented from top to bottom
-  const { domain, pixelScale, scale } = def;
+  const { domain, pixelScale, pixelHeight, scale } = def;
+
+  if (scale == null && pixelScale == null) {
+    throw new Error("Either scale or pixelScale must be provided");
+  }
 
   let _scale = scale;
-  let pixelHeight: number;
   if (_scale == null) {
-    pixelHeight = pixelScale * Math.abs(domain[0] - domain[1]);
     _scale = scaleLinear()
       .domain([domain[1], domain[0]])
       .range([offset, pixelHeight + offset]);
   } else {
-    pixelHeight = Math.abs(_scale(domain[0]) - _scale(domain[1]));
     _scale = _scale
       .copy()
       .domain([domain[1], domain[0]])
