@@ -117,30 +117,44 @@ body:global(.dark-mode) .column-container
 
 
 .unconformity
-  text-align: center
   position: absolute
+  font-family: var(--label-font-family, sans-serif)
   top: 0px
-  display: flex
-  justify-content: center
-  align-items: center
+  //font-size: 12px
+  font-weight: 400
+
   font-size: 0.8em
   &.giga
     font-weight: 800
-    font-size: 1em
+    //font-size: 1em
   &.mega
-    font-weight: 600
     font-weight: 700
-    font-size: 0.9em
+    //font-size: 0.9em
   &.large
-    font-weight:  600
+    font-weight:  500
   &.small
     font-weight: 300
+  --unit-font-weight: 400
 
+.unconformity-inner
+  //border-left: 1.5px dotted var(--secondary-color)
+  position: absolute
+  top: 5px
+  bottom: 5px
+  left: -3px
+  right: -2px
+  display: flex
+  justify-content: center
+  align-items: center
+  text-align: center
 
 .unconformity-text
   width: var(--column-width)
-  color: var(--column-stroke-color)
   --unit-font-style: normal
+  .prefix
+    font-weight: 400
+    color: var(--secondary-color)
+
 
 
 .column-title-row

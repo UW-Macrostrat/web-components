@@ -411,7 +411,7 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
       _diff(heights.map(currentSection.scaleInfo.scale)),
     ];
 
-    const pxHeight = Math.max(...pxHeights);
+    const pxHeight = Math.min(...pxHeights);
 
     if (pxHeight < threshold) {
       let t_pos: number;

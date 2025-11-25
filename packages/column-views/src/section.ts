@@ -129,6 +129,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     h.if(unconformityLabels)(UnconformityLabels, {
       width,
       sections: scaleData,
+      verbose: false,
     }),
   ]);
 }
@@ -262,8 +263,9 @@ export function UnconformityLabels(props: {
   sections: PackageScaleLayoutData[];
   axisType?: ColumnAxisType;
   className?: string;
+  verbose?: boolean;
 }) {
-  const { width, sections, className, axisType } = props;
+  const { width, sections, className, axisType, verbose } = props;
 
   return h(
     "div.unconformity-labels",
@@ -287,12 +289,19 @@ export function UnconformityLabels(props: {
           height: scaleInfo.paddingTop,
           top,
         },
+        verbose,
       });
     }),
   );
 }
 
-function Unconformity({ upperAge, lowerAge, style, axisType }) {
+function Unconformity({
+  upperAge,
+  lowerAge,
+  style,
+  axisType,
+  verbose = false,
+}) {
   if (upperAge == null || lowerAge == null) {
     return null;
   }
@@ -318,7 +327,12 @@ function Unconformity({ upperAge, lowerAge, style, axisType }) {
     val = h(Duration, { value: ageGap });
   }
 
+  let prefix: ReactNode = null;
+  if (verbose) {
+    prefix = h([" ", h("span.prefix", " gap")]);
+  }
+
   return h("div.unconformity", { style, className }, [
-    h("div.unconformity-text", val),
+    h("div.unconformity-inner", h("div.unconformity-text", [val, prefix])),
   ]);
 }
