@@ -22,7 +22,7 @@ export type SizeAwareLabelProps = React.HTMLProps<"div"> &
     labelClassName: string;
     isShown?: boolean;
     onClick?: (evt: MouseEvent) => void;
-    tolerance?: number;
+    positionTolerance?: number;
     allowRotation?: boolean;
     onVisibilityChanged?(
       fits: boolean,
@@ -48,7 +48,7 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
     className,
     labelClassName,
     onClick,
-    tolerance = 0,
+    positionTolerance = 0,
     allowRotation = false,
     ...rest
   } = props;
@@ -60,8 +60,8 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
     const containerSz = refSize(containerRef);
     const labelSz = refSize(labelRef);
     let doesFit =
-      labelSz.width <= containerSz.width + 2 * tolerance &&
-      labelSz.height <= containerSz.height + 2 * tolerance;
+      labelSz.width <= containerSz.width + 2 * positionTolerance &&
+      labelSz.height <= containerSz.height + 2 * positionTolerance;
     if (allowRotation) {
       if (!doesFit) {
         // Try rotating the label
@@ -70,8 +70,8 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
           height: labelSz.width,
         };
         const rotatedFits =
-          rotatedLabelSz.width <= containerSz.width + 2 * tolerance &&
-          rotatedLabelSz.height <= containerSz.height + 2 * tolerance;
+          rotatedLabelSz.width <= containerSz.width + 2 * positionTolerance &&
+          rotatedLabelSz.height <= containerSz.height + 2 * positionTolerance;
         if (rotatedFits) {
           doesFit = true;
           setRotated(true);
@@ -81,7 +81,7 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
       }
     }
     setFits(doesFit);
-  }, [containerRef, labelRef, label, tolerance, allowRotation]);
+  }, [containerRef, labelRef, label, positionTolerance, allowRotation]);
 
   // Report whether label fits upwards, if needed
   useEffect(() => {

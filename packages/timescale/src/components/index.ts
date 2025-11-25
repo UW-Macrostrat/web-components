@@ -4,11 +4,6 @@ import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 import { SizeAwareLabel } from "@macrostrat/ui-components";
 
-type SizeState = {
-  label: number;
-  container: number;
-};
-
 import { CSSProperties } from "react";
 
 export type IntervalStyleBuilder =
@@ -16,13 +11,20 @@ export type IntervalStyleBuilder =
   | ((interval: Interval) => CSSProperties)
   | null;
 
+export type LabelProps = {
+  shouldShow?: boolean;
+  allowRotation?: boolean;
+  positionTolerance?: number;
+};
+
 function IntervalBox(props: {
   interval: Interval;
-  showLabel?: boolean;
+  labelProps?: LabelProps;
   intervalStyle: IntervalStyleBuilder;
+  allowLabelRotation?: boolean;
   onClick: (e: Event, interval: Interval) => void;
 }) {
-  const { interval, showLabel = true, intervalStyle, onClick } = props;
+  const { interval, intervalStyle, onClick, labelProps } = props;
 
   const [labelText, setLabelText] = useState<string>(interval.nam);
 
@@ -48,8 +50,7 @@ function IntervalBox(props: {
       "interval-box " + (onClick && interval.int_id != null ? "clickable" : ""),
     labelClassName: "interval-label",
     label: labelText,
-    tolerance: 5,
-    allowRotation: true,
+    ...(labelProps ?? {}),
     onVisibilityChanged(viz) {
       if (!viz && labelText.length > 1) {
         setLabelText(labelText[0]);
@@ -59,12 +60,17 @@ function IntervalBox(props: {
   });
 }
 
-function IntervalChildren({ children, intervalStyle, onClick }) {
+function IntervalChildren({ children, intervalStyle, labelProps, onClick }) {
   if (children == null || children.length == 0) return null;
   return h(
     "div.children",
     children.map((d) => {
-      return h(TimescaleBoxes, { interval: d, intervalStyle, onClick });
+      return h(TimescaleBoxes, {
+        interval: d,
+        intervalStyle,
+        labelProps,
+        onClick,
+      });
     }),
   );
 }
@@ -76,9 +82,10 @@ function ensureIncreasingAgeRange(ageRange) {
 function TimescaleBoxes(props: {
   interval: NestedInterval;
   intervalStyle: IntervalStyleBuilder;
+  labelProps?: LabelProps;
   onClick: (e: Event, interval: Interval) => void;
 }) {
-  const { interval, intervalStyle, onClick } = props;
+  const { interval, intervalStyle, onClick, labelProps } = props;
   const { scale, orientation, levels, ageRange } = useTimescale();
   const { eag, lag, lvl } = interval;
 
@@ -113,10 +120,16 @@ function TimescaleBoxes(props: {
   const className = slugify(name);
 
   return h("div.interval", { className, style }, [
-    h.if(lvl >= minLevel)(IntervalBox, { interval, intervalStyle, onClick }),
+    h.if(lvl >= minLevel)(IntervalBox, {
+      interval,
+      intervalStyle,
+      onClick,
+      labelProps,
+    }),
     h.if(lvl < maxLevel)(IntervalChildren, {
       children,
       intervalStyle,
+      labelProps,
       onClick,
     }),
   ]);

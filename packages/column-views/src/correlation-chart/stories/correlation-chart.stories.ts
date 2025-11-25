@@ -199,6 +199,13 @@ ColoredByEnvironment.args = {
   unitComponent: EnvironmentColoredUnitComponent,
 };
 
+export const RestrictedAgeRange = Template.bind({});
+RestrictedAgeRange.args = {
+  t_age: 100,
+  b_age: 300,
+  focusedLine: "-114.29,42.74 -104.59,39.21",
+};
+
 export const WithFixedScale = Template.bind({});
 WithFixedScale.args = {
   scale: scaleLinear().domain([0, 2500]).range([0, 1000]),

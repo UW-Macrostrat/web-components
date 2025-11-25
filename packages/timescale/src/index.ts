@@ -1,12 +1,17 @@
 import { defaultIntervals } from "./intervals";
 import { TimescaleProvider, useTimescale } from "./provider";
 import { Interval, TimescaleOrientation } from "./types";
-import { TimescaleBoxes, Cursor, IntervalStyleBuilder } from "./components";
+import {
+  TimescaleBoxes,
+  Cursor,
+  IntervalStyleBuilder,
+  LabelProps,
+} from "./components";
 import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
 import { ScaleContinuousNumeric } from "d3-scale";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import h from "./hyper";
 
 type ClickHandler = (event: Event, interval: any) => void;
@@ -27,6 +32,7 @@ interface TimescaleProps {
   rootInterval?: number;
   /** Configuration for the axis */
   axisProps?: Partial<AgeAxisProps>;
+  labelProps?: LabelProps;
   onClick?: ClickHandler;
   cursorPosition?: number | null;
   cursorComponent?: any;
@@ -81,6 +87,7 @@ function Timescale(props: TimescaleProps) {
     onClick = null,
     intervalStyle,
     increaseDirection = IncreaseDirection.DOWN_LEFT,
+    labelProps,
   } = props;
 
   const [parentMap, timescale] = useMemo(
@@ -108,7 +115,9 @@ function Timescale(props: TimescaleProps) {
 
   let length2 = l;
 
-  if (scale != null) {
+  // Warn about ambiguous usage
+  useEffect(() => {
+    if (scale == null) return;
     if (length != null) {
       console.warn(
         "Both scale and length provided to Timescale component. The provided scale will be used.",
@@ -119,7 +128,9 @@ function Timescale(props: TimescaleProps) {
         "Both scale and ageRange provided to Timescale component. The provided scale will be used.",
       );
     }
+  }, [scale, length, ageRange2]);
 
+  if (scale != null) {
     ageRange2 = scale.domain() as [number, number];
     const rng = scale.range();
     length2 = Math.abs(rng[1] - rng[0]);
@@ -138,7 +149,12 @@ function Timescale(props: TimescaleProps) {
       scale,
     },
     h(TimescaleContainer, { className }, [
-      h(TimescaleBoxes, { interval: timescale, intervalStyle, onClick }),
+      h(TimescaleBoxes, {
+        interval: timescale,
+        intervalStyle,
+        onClick,
+        labelProps,
+      }),
       h.if(showAgeAxis)(AgeAxis, axisProps),
       h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
     ]),

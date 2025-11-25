@@ -1,4 +1,4 @@
-import { ScaleLinear } from "d3-scale";
+import { ScaleContinuousNumeric, ScaleLinear } from "d3-scale";
 
 export interface Interval {
   pid: number | null;
@@ -36,7 +36,7 @@ interface TimescaleProviderProps {
 }
 
 interface TimescaleCTX extends TimescaleProviderProps {
-  scale: ScaleLinear<number, number> | null;
+  scale: ScaleContinuousNumeric<number, number>;
 }
 
 export { TimescaleCTX, NestedInterval, IntervalMap, TimescaleOrientation };
