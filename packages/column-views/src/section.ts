@@ -229,7 +229,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
     h(
       "div.timescales",
       packages.map((group) => {
-        const { domain, pixelHeight, paddingTop, key } = group;
+        const { pixelHeight, paddingTop, key, scale } = group;
         return h(
           "div.timescale-container",
           { style: { paddingTop, "--timescale-level-count": nCols }, key },
@@ -240,7 +240,8 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
               levels: _levels,
               absoluteAgeScale: true,
               showAgeAxis: false,
-              ageRange: domain as [number, number],
+              scale,
+              //ageRange: domain as [number, number],
             }),
           ],
         );

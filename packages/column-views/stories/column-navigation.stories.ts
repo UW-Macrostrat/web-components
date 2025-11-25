@@ -5,6 +5,7 @@ import { ColumnStoryUI } from "./column-ui";
 import { MinimalUnit } from "../src/units/boxes";
 import {
   BoundaryAgeModelOverlay,
+  ComputedSurfacesOverlay,
   EnvironmentColoredUnitComponent,
 } from "../src";
 import { useColumnSelection } from "./column-ui/utils";
@@ -126,4 +127,11 @@ withBoundaryAgeModel.args = {
   columnID: 432,
   axisType: "age",
   children: h(BoundaryAgeModelOverlay),
+};
+
+export const withComputedSurfaces = Template.bind({});
+withComputedSurfaces.args = {
+  columnID: 432,
+  axisType: "age",
+  children: h(ComputedSurfacesOverlay),
 };

@@ -5,6 +5,7 @@ import { TimescaleBoxes, Cursor, IntervalStyleBuilder } from "./components";
 import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
+import { ScaleContinuousNumeric } from "d3-scale";
 import { useMemo } from "react";
 import h from "./hyper";
 
@@ -30,6 +31,7 @@ interface TimescaleProps {
   cursorPosition?: number | null;
   cursorComponent?: any;
   intervalStyle?: IntervalStyleBuilder;
+  scale?: ScaleContinuousNumeric<number, number>;
 }
 
 function TimescaleContainer(props: {

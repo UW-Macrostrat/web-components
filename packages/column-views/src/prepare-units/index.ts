@@ -18,9 +18,11 @@ import {
   computeSectionHeights,
   finalizeSectionHeights,
   PackageLayoutData,
+  SectionInfoWithScale,
 } from "./composite-scale";
 import type { SectionInfo } from "./helpers";
 import { agesOverlap, getUnitHeightRange, unitsOverlap } from "./utils";
+import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 
 export * from "./utils";
 export { preprocessUnits };
@@ -33,6 +35,7 @@ export interface PrepareColumnOptions extends ColumnScaleOptions {
   b_pos?: number;
   mergeSections?: MergeSectionsMode;
   collapseSmallUnconformities?: boolean | number;
+  scale?: ScaleContinuousNumeric<any, any>;
 }
 
 export enum MergeSectionsMode {
@@ -72,6 +75,7 @@ export function prepareColumnUnits(
     axisType,
     unconformityHeight,
     collapseSmallUnconformities = false,
+    scale,
   } = options;
 
   // Start by ensuring that ages and positions are numbers
@@ -148,15 +152,45 @@ export function prepareColumnUnits(
   // Filter out undefined sections just in case
   sections = sections.filter((d) => d != null);
 
+  // SCALES
+
   /* Compute pixel scales etc. for sections
    * We need to do this now to determine which unconformities
    * are small enough to collapse.
    */
-  let sectionsWithScales = computeSectionHeights(sections, options);
+  let sectionsWithScales: SectionInfoWithScale<UnitLong>[];
 
-  // Collapse small unconformities in pixel height space
-  // TODO: this doesn't seem to work properly for non-age columns?
+  if (scale == null) {
+    sectionsWithScales = computeSectionHeights(sections, options);
+  } else {
+    sectionsWithScales = sections.map((section) => {
+      const { t_age, b_age, t_pos, b_pos, units } = section;
+      let _range = null;
+      // if t_age and b_age are set for a group, use them to define the range...
+      if (options.axisType == ColumnAxisType.AGE) {
+        _range = [b_age, t_age];
+      } else {
+        _range = [b_pos, t_pos];
+      }
+
+      const pixelHeight = Math.abs(scale(_range[1]) - scale(_range[0]));
+
+      const scaleInfo = {
+        domain: _range,
+        pixelHeight,
+        scale,
+      };
+
+      return {
+        ...section,
+        scaleInfo,
+      };
+    });
+  }
+
   if (collapseSmallUnconformities ?? false) {
+    // Collapse small unconformities in pixel height space
+    // TODO: this doesn't seem to work properly for non-age columns?
     let threshold = unconformityHeight ?? 30;
     if (typeof collapseSmallUnconformities == "number") {
       threshold = collapseSmallUnconformities;

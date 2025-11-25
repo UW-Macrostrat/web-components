@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef } from "react";
 import h from "./hyper";
 import { select } from "d3-selection";
 import { axisLeft } from "d3-axis";
-import { scaleLinear, ScaleLinear } from "d3-scale";
+import { ScaleContinuousNumeric, scaleLinear, ScaleLinear } from "d3-scale";
 import { useColumn } from "./context";
 
 interface ColumnAxisProps {
@@ -21,7 +21,7 @@ interface ColumnAxisProps {
 }
 
 interface AgeAxisProps extends ColumnAxisProps {
-  scale?: ScaleLinear<number, number>;
+  scale?: ScaleContinuousNumeric<number, number>;
 }
 
 const __d3axisKeys = [

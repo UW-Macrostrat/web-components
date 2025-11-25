@@ -1,7 +1,7 @@
 import type { ExtUnit, SectionInfo } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
-import { ScaleLinear, scaleLinear } from "d3-scale";
+import { ScaleContinuousNumeric, ScaleLinear, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
 
 export interface ColumnHeightScaleOptions {
@@ -29,19 +29,16 @@ export interface SectionScaleOptions extends ColumnHeightScaleOptions {
   domain: [number, number];
 }
 
-export interface LinearScaleDef {
-  domain: [number, number];
-  pixelScale: number;
-}
-
 /** Output of a section scale. For now, this assumes that the
  * mapping is linear, but it could be extended to support arbitrary
  * scale functions.
  */
-export interface PackageScaleInfo extends LinearScaleDef {
+export interface PackageScaleInfo {
+  domain: [number, number];
   pixelHeight: number;
   // TODO: add a function
-  scale: ScaleLinear<number, number>;
+  scale: ScaleContinuousNumeric<number, number>;
+  pixelScale?: number;
 }
 
 export type PackageScaleLayoutData = PackageScaleInfo & {
@@ -76,7 +73,7 @@ export interface CompositeColumnData<T extends UnitLong = ExtUnit>
 }
 
 export function buildCompositeScaleInfo(
-  inputScales: LinearScaleDef[],
+  inputScales: PackageScaleInfo[],
   unconformityHeight: number,
 ): CompositeScaleData {
   /** Finalize the heights of sections, including the heights of unconformities
@@ -88,7 +85,7 @@ export function buildCompositeScaleInfo(
 
   const packages2: PackageScaleLayoutData[] = [];
   for (const group of inputScales) {
-    const { domain, pixelScale } = group;
+    const { domain, scale } = group;
     const [b_age, t_age] = domain;
     const key = `package-${b_age}-${t_age}`;
 
@@ -99,7 +96,8 @@ export function buildCompositeScaleInfo(
       // Unconformity height above this particular section
       paddingTop: totalHeight - lastSectionTopHeight,
     });
-    const pixelHeight = pixelScale * Math.abs(b_age - t_age);
+
+    const pixelHeight = Math.abs(scale(b_age) - scale(t_age));
     lastSectionTopHeight = totalHeight + pixelHeight;
     totalHeight = lastSectionTopHeight + unconformityHeight;
   }
@@ -120,6 +118,7 @@ export function finalizeSectionHeights<T extends UnitLong>(
    */
 
   const sectionScales = sections.map((d) => d.scaleInfo);
+
   const { totalHeight, sections: packages } = buildCompositeScaleInfo(
     sectionScales,
     unconformityHeight,
@@ -142,7 +141,7 @@ export function finalizeSectionHeights<T extends UnitLong>(
   };
 }
 
-interface SectionInfoWithScale<T extends UnitLong = ExtUnit>
+export interface SectionInfoWithScale<T extends UnitLong = ExtUnit>
   extends SectionInfo<T> {
   scaleInfo: PackageScaleInfo;
 }
@@ -218,7 +217,7 @@ function buildSectionScale<T extends UnitLong>(
 }
 
 export function createPackageScale(
-  def: LinearScaleDef,
+  def: PackageScaleInfo,
   offset: number = 0,
 ): PackageScaleInfo {
   /** Build a section scale */
@@ -369,19 +368,24 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
       currentSection = nextSection;
       continue;
     }
-    let dAge: number;
+    let heights: [number, number];
+    let pxHeights: [number, number];
     if (opts.axisType !== ColumnAxisType.AGE) {
-      dAge = Math.abs(nextSection.t_pos - currentSection.b_pos);
+      heights = [nextSection.t_pos, currentSection.b_pos];
     } else {
-      dAge = Math.abs(nextSection.t_age - currentSection.b_age);
+      heights = [nextSection.t_age, currentSection.b_age];
     }
 
-    const pxHeight =
-      dAge *
-      Math.max(
-        currentSection.scaleInfo.pixelScale,
-        nextSection.scaleInfo.pixelScale,
-      );
+    const _diff = (vals: number[]) => {
+      return Math.abs(vals[0] - vals[1]);
+    };
+
+    pxHeights = [
+      _diff(heights.map(nextSection.scaleInfo.scale)),
+      _diff(heights.map(currentSection.scaleInfo.scale)),
+    ];
+
+    const pxHeight = Math.max(...pxHeights);
 
     if (pxHeight < threshold) {
       let t_pos: number;

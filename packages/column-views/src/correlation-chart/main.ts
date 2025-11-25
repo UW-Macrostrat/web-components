@@ -117,7 +117,7 @@ export function CorrelationChart({
               paddingH: 4,
             },
             packages.map((pkg, i) => {
-              const { offset, domain, pixelScale, key } = scaleInfo.packages[i];
+              const { offset, domain, scale, key } = scaleInfo.packages[i];
               return h(Package, {
                 columnData: pkg.columnData,
                 key,

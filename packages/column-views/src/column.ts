@@ -43,6 +43,7 @@ import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
+import { ScaleContinuousNumeric } from "d3-scale";
 
 const h = hyperStyled(styles);
 
@@ -79,6 +80,7 @@ export interface ColumnProps
   onUnitSelected?: (unitID: number | null, unit: any) => void;
   // Unconformity height in pixels
   unconformityHeight?: number;
+  scale?: ScaleContinuousNumeric<number, number>;
 }
 
 export function Column(props: ColumnProps) {
@@ -102,6 +104,7 @@ export function Column(props: ColumnProps) {
     minSectionHeight = 50,
     collapseSmallUnconformities = true,
     allowUnitSelection,
+    scale,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
@@ -131,6 +134,7 @@ export function Column(props: ColumnProps) {
     minPixelScale: _minPixelScale,
     minSectionHeight: _minSectionHeight,
     collapseSmallUnconformities,
+    scale,
   });
 
   if (sections.length === 0) {
@@ -186,7 +190,7 @@ function ColumnInner(props: ColumnInnerProps) {
   const padding = extractPadding(props);
 
   // TODO: integrate padding vars more closely with the rest of the spacing (right now padding is a bit ad-hoc)
-  const paddingVars = {
+  const paddingVars: any = {
     "--column-padding-top": `${padding.paddingTop}px`,
     "--column-padding-bottom": `${padding.paddingBottom}px`,
     "--column-padding-left": `${padding.paddingLeft}px`,
