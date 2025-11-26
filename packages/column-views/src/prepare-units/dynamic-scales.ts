@@ -2,6 +2,9 @@ import { ExtUnit } from "./helpers";
 import { UnitLong } from "@macrostrat/api-types";
 import { PackageScaleInfo } from "./composite-scale";
 import { scaleLinear } from "d3-scale";
+import { getUnitHeightRange } from "@macrostrat/column-views";
+import { ColumnAxisType } from "@macrostrat/column-components";
+import { mergeAgeRanges, MergeMode } from "@macrostrat/stratigraphy-utils";
 
 export enum HybridScaleType {
   // An age-domain scale that puts equal vertical space between surfaces
@@ -94,17 +97,17 @@ function proportionOfUnitInDomain(
   b_age: number,
 ): number {
   // Compute the proportion of a unit's height that lies within the given age domain
-  const unitHeight = unit.t_age - unit.b_age;
-  if (unitHeight <= 0) return 0;
-  const overlapTop = Math.min(unit.t_age, t_age);
-  const overlapBottom = Math.max(unit.b_age, b_age);
-  const overlapHeight = Math.max(0, overlapTop - overlapBottom);
-  return overlapHeight / unitHeight;
-}
 
-interface VariableAgeScaleOptions {
-  tolerance: number;
-  domainHeight: number;
+  const rng = getUnitHeightRange(unit, ColumnAxisType.AGE);
+  const rng1: [number, number] = [b_age, t_age];
+  // Compute overlap
+
+  const mergedRange = mergeAgeRanges([rng, rng1], MergeMode.Inner);
+
+  const unitHeight = Math.abs(rng[1] - rng[0]);
+  const mergedHeight = Math.abs(mergedRange[1] - mergedRange[0]);
+
+  return mergedHeight / unitHeight;
 }
 
 interface HybridScaleOptions {
@@ -126,6 +129,37 @@ export function buildHybridScale<T extends UnitLong>(
   return buildApproximateHeightScale(surfaces, units, options);
 }
 
+enum HeightMethod {
+  Minimum = "minimum",
+  Average = "average",
+  Maximum = "maximum",
+}
+
+function getApproximateHeight(
+  unit: ExtUnit,
+  method: HeightMethod = HeightMethod.Maximum,
+): number | null {
+  // Get approximate height of a unit based on specified method
+  const heights = [];
+  let minHeight = unit.min_thick;
+  if (method === HeightMethod.Minimum || method === HeightMethod.Average) {
+    const h = unit.min_thick;
+    if (h != null && !isNaN(h) && h > 0) heights.push(h);
+  }
+  if (method === HeightMethod.Average || method === HeightMethod.Maximum) {
+    const h = unit.max_thick;
+    if (h != null && !isNaN(h) && h > 0) heights.push(h);
+  }
+
+  if (heights.length === 0) return null;
+
+  if (method === HeightMethod.Average) {
+    return heights.reduce((sum, h) => sum + h, 0) / heights.length;
+  } else {
+    return heights[0];
+  }
+}
+
 export function buildApproximateHeightScale(
   surfaces: BaseSurface[],
   units: UnitLong[],
@@ -135,7 +169,14 @@ export function buildApproximateHeightScale(
    * It is presumed that gaps are already removed from the unit set provided.
    * */
 
-  const { pixelScale = 30, pixelOffset = 0 } = options;
+  const {
+    pixelScale = 30,
+    pixelOffset = 0,
+    minHeight = 5,
+    heightMethod = HeightMethod.Maximum,
+    // Default height for when height is unknown
+    defaultHeight = 100,
+  } = options;
 
   // Get units associated with each surface
   // Note: we could hoist this if it proved useful for other scale types
@@ -153,7 +194,40 @@ export function buildApproximateHeightScale(
       ageDomain.push(domain.t_age);
     }
 
-    const thisHeight = pixelScale;
+    // Approximate height based on units in this domain
+    const units = domain.units;
+    let unitHeightInfo: { unit: ExtUnit; height: number }[] = [];
+
+    for (const unit of units) {
+      const proportion = proportionOfUnitInDomain(
+        unit,
+        domain.t_age,
+        domain.b_age,
+      );
+      const height = getApproximateHeight(unit, heightMethod);
+      if (height != null) {
+        unitHeightInfo.push({ unit, height: height * proportion });
+      }
+    }
+
+    let thisHeight = 0;
+    if (unitHeightInfo.length === 0) {
+      thisHeight = pixelScale; // Default height if no units with height info
+    } else {
+      // Normalize weights (take the mean)
+
+      const meanHeight =
+        unitHeightInfo.reduce((sum, d) => sum + d.height, 0) /
+        unitHeightInfo.length;
+
+      if (meanHeight == 0) {
+        thisHeight = defaultHeight; // Arbitrary height for zero-height intervals
+      } else if (meanHeight < minHeight) {
+        thisHeight = minHeight; // Minimum height
+      } else {
+        thisHeight = meanHeight;
+      }
+    }
 
     lastHeight += thisHeight;
     surfaceHeights.push(lastHeight);

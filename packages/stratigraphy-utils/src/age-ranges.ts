@@ -1,6 +1,6 @@
 export type AgeRange = [number, number];
 
-enum MergeMode {
+export enum MergeMode {
   Inner,
   Outer,
 }
