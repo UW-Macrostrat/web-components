@@ -48,10 +48,13 @@ const buildColumnIndex = function () {
 
 function withinDomain(scale) {
   const scaleDomain = scale.domain();
+  const d1: [number, number] = [
+    Math.min(...scaleDomain),
+    Math.max(...scaleDomain),
+  ];
   return (d) => {
     const noteRange: [number, number] = [d.height, d.top_height ?? d.height];
-
-    const rel = compareAgeRanges(scaleDomain, noteRange);
+    const rel = compareAgeRanges(d1, noteRange);
 
     return rel !== AgeRangeRelationship.Disjoint;
   };

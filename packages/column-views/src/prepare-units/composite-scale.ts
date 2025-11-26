@@ -366,7 +366,6 @@ export function createCompositeScale(
     for (const s of scales) {
       const domain = s.domain();
       if (age >= domain[0] && age <= domain[domain.length - 1]) {
-        console.log(s(age));
         return s(age);
       }
     }
@@ -397,10 +396,19 @@ export function createCompositeScale(
         pixelHeight > Math.min(...range) &&
         pixelHeight <= Math.max(...range)
       ) {
+        console.log("Inverting scale at pixel height", pixelHeight);
         return scale.invert(pixelHeight);
       }
     }
     return null;
+  };
+
+  scale.clamp = (clamp: boolean) => {
+    /** Clamp all constituent scales */
+    for (const s of scales) {
+      s.clamp(clamp);
+    }
+    return scale;
   };
 
   return scale as CompositeColumnScale;

@@ -113,7 +113,8 @@ function ColumnProvider<T extends ColumnDivision>(
     } else {
       pixelHeight = Math.abs(scale.range()[1] - scale.range()[0]);
       // Remove any offset that might exist from paddings, scale breaks, etc.
-      scale = _scale.copy().range([0, pixelHeight]);
+      const r1 = scale.range().map((d) => d - scale.range()[0]);
+      scale = _scale.copy().range(r1);
     }
     const scaleClamped = scale.copy().clamp(true);
 

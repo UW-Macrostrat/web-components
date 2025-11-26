@@ -38,15 +38,11 @@ export function MacrostratColumnDataProvider({
 
   const value = useMemo(() => {
     // For now, change ordinal axis types to age axis types
-    let _axisType = axisType;
-    if (axisType == ColumnAxisType.ORDINAL) {
-      _axisType = ColumnAxisType.AGE;
-    }
     return {
       units,
       sections,
       totalHeight,
-      axisType: _axisType,
+      axisType,
     };
   }, [units, sections, totalHeight, axisType]);
 

@@ -97,6 +97,7 @@ export const EquidistantSurfaces: Story = {
     unitComponent: ColoredUnitComponent,
     showTimescale: true,
     timescaleLevels: [1, 3],
-    children: h(ComputedSurfacesOverlay),
+    showUnitPopover: true,
+    pixelScale: 30,
   },
 };
