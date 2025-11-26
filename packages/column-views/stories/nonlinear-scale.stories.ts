@@ -101,3 +101,18 @@ export const EquidistantSurfaces: Story = {
     pixelScale: 30,
   },
 };
+
+export const HeightScale: Story = {
+  args: {
+    id: 448,
+    // Ordered time bins
+    axisType: ColumnAxisType.AGE,
+    hybridScaleType: HybridScaleType.ApproximateHeight,
+    showLabels: false,
+    unitComponent: ColoredUnitComponent,
+    showTimescale: true,
+    timescaleLevels: [1, 3],
+    showUnitPopover: true,
+    children: h(ComputedSurfacesOverlay),
+  },
+};

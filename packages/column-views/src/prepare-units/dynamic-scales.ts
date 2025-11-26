@@ -107,14 +107,95 @@ interface VariableAgeScaleOptions {
   domainHeight: number;
 }
 
-export function buildScaleFromSurfaces(
+interface HybridScaleOptions {
+  pixelOffset?: number;
+  pixelScale?: number;
+  hybridScaleType?: HybridScaleType;
+}
+
+export function buildHybridScale<T extends UnitLong>(
+  units: T[],
+  options: HybridScaleOptions = {},
+): PackageScaleInfo {
+  const surfaces = buildColumnSurfaces(units);
+
+  if (options.hybridScaleType === HybridScaleType.EquidistantSurfaces) {
+    return buildScaleFromSurfacesSimple(surfaces, options);
+  }
+
+  return buildApproximateHeightScale(surfaces, units, options);
+}
+
+export function buildApproximateHeightScale(
   surfaces: BaseSurface[],
-  pixelOffset: number = 0, // height in pixels at which to start the scale
-  pixelScale: number = 10, // pixels per unit
+  units: UnitLong[],
+  options: HybridScaleOptions = {},
 ): PackageScaleInfo {
   /** Build a variable age scale that places age surfaces equally far apart in height space.
    * It is presumed that gaps are already removed from the unit set provided.
    * */
+
+  const { pixelScale = 30, pixelOffset = 0 } = options;
+
+  //return buildScaleFromSurfacesSimple(surfaces, options);
+
+  // Get units associated with each surface
+  // Note: we could hoist this if it proved useful for other scale types
+  const domainInfo = getUnitsInAgeDomains(surfaces, units as ExtUnit[]);
+
+  // Compute the height in pixels for each surface
+
+  const surfaceHeights = [];
+  const ageDomain = [];
+  let lastHeight = pixelOffset;
+
+  for (const surface of surfaces) {
+    surfaceHeights.push(lastHeight);
+    ageDomain.push(surface.age);
+    lastHeight += pixelScale;
+  }
+
+  // for (const [i, domain] of domainInfo.entries()) {
+  //   if (i === 0) {
+  //     surfaceHeights.push(lastHeight);
+  //     ageDomain.push(domain.t_age);
+  //     continue;
+  //   }
+  //
+  //   const thisHeight = pixelScale;
+  //
+  //   lastHeight += thisHeight;
+  //   surfaceHeights.push(lastHeight);
+  //   ageDomain.push(domain.b_age);
+  // }
+
+  // Build a piecewise linear scale mapping age to pixel height
+  const pixelRange = surfaceHeights;
+
+  const scale = scaleLinear().domain(ageDomain).range(pixelRange);
+
+  const domain = [ageDomain[ageDomain.length - 1], ageDomain[0]];
+
+  return {
+    scale,
+    pixelScale: null, // pixels per unit
+    domain,
+    pixelHeight: Math.abs(pixelRange[pixelRange.length - 1] - pixelRange[0]),
+  };
+}
+
+export function buildScaleFromSurfacesSimple(
+  surfaces: BaseSurface[],
+  options: HybridScaleOptions = {},
+): PackageScaleInfo {
+  /** Build a variable age scale that places age surfaces equally far apart in height space.
+   * It is presumed that gaps are already removed from the unit set provided.
+   * */
+
+  const {
+    hybridScaleType = HybridScaleType.EquidistantSurfaces,
+    pixelScale = 30,
+  } = options;
 
   const domain: [number, number] = [
     surfaces[surfaces.length - 1].age,

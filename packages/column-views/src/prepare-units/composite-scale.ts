@@ -5,6 +5,7 @@ import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
 import {
   buildColumnSurfaces,
+  buildHybridScale,
   buildScaleFromSurfaces,
   HybridScaleType,
 } from "./dynamic-scales";
@@ -207,13 +208,20 @@ function buildSectionScale<T extends UnitLong>(
   let _pixelScale = opts.pixelScale;
   let pixelHeight: number;
 
-  if (hybridScaleType === HybridScaleType.EquidistantSurfaces) {
+  if (hybridScaleType != null) {
     /** In an equidistant surfaces scale, we want to determine the heights of surfaces
      * and then distribute units evenly between them.
+     * This is somewhat like an ordinal scale
      */
-    const surfaces = buildColumnSurfaces(data);
+    if (hybridScaleType == HybridScaleType.EquidistantSurfaces) {
+      _pixelScale ??= targetUnitHeight;
+    }
 
-    return buildScaleFromSurfaces(surfaces, 0, _pixelScale ?? 20);
+    return buildHybridScale(data, {
+      pixelOffset: 0,
+      pixelScale: _pixelScale,
+      hybridScaleType,
+    });
   }
 
   if (scale == null) {
