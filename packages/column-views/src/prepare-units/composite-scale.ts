@@ -3,6 +3,11 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
+import {
+  buildColumnSurfaces,
+  buildScaleFromSurfaces,
+  HybridScaleType,
+} from "./dynamic-scales";
 
 export interface ColumnHeightScaleOptions {
   /** A fixed pixel scale to use for the section (pixels per Myr) */
@@ -25,6 +30,7 @@ export interface ColumnHeightScaleOptions {
   // A continuous scale to use instead of generating one
   // TODO: discontinuous scales are not yet supported
   scale?: ScaleContinuousNumeric<number, number>;
+  hybridScaleType?: HybridScaleType;
 }
 
 export interface SectionScaleOptions extends ColumnHeightScaleOptions {
@@ -192,6 +198,7 @@ function buildSectionScale<T extends UnitLong>(
     axisType,
     minSectionHeight,
     scale,
+    hybridScaleType,
   } = opts;
   const domain = opts.domain ?? findSectionHeightRange(data, axisType);
 
@@ -199,6 +206,16 @@ function buildSectionScale<T extends UnitLong>(
 
   let _pixelScale = opts.pixelScale;
   let pixelHeight: number;
+
+  if (hybridScaleType === HybridScaleType.EquidistantSurfaces) {
+    /** In an equidistant surfaces scale, we want to determine the heights of surfaces
+     * and then distribute units evenly between them.
+     */
+    const surfaces = buildColumnSurfaces(data);
+
+    return buildScaleFromSurfaces(surfaces, 0, _pixelScale ?? 20);
+  }
+
   if (scale == null) {
     if (_pixelScale == null) {
       const avgAgeRange = findAverageUnitHeight(data, axisType);
@@ -240,16 +257,18 @@ export function createPackageScale(
     throw new Error("Either scale or pixelScale must be provided");
   }
 
-  let _scale = scale;
-  if (_scale == null) {
+  let _scale: ScaleContinuousNumeric<number, number>;
+  if (scale == null) {
     _scale = scaleLinear()
       .domain([domain[1], domain[0]])
       .range([offset, pixelHeight + offset]);
   } else {
-    _scale = _scale
+    const domain0 = scale.domain();
+    const range0 = scale.range();
+    _scale = scale
       .copy()
-      .domain([domain[1], domain[0]])
-      .range([offset, pixelHeight + offset]);
+      .domain(domain0)
+      .range(range0.map((d) => d + offset));
   }
 
   return {
@@ -309,33 +328,49 @@ export function createCompositeScale(
 ): CompositeColumnScale {
   /** Create a scale that works across multiple packages */
   // Get surfaces at which scale breaks
-  let scaleBreaks: [number, number][] = [];
+  let scaleBreaks: [number, number, any][] = [];
   for (const section of sections) {
-    const { pixelHeight, offset, domain } = section.scaleInfo;
+    const { pixelHeight, offset, domain, scale } = section.scaleInfo;
 
-    scaleBreaks.push([domain[1], offset]);
-    scaleBreaks.push([domain[0], offset + pixelHeight]);
+    console.log("Section", domain, offset);
+
+    scaleBreaks.push([domain[1], offset, scale]);
+    scaleBreaks.push([domain[0], offset + pixelHeight, scale]);
   }
   // Sort the scale breaks by age
   scaleBreaks.sort((a, b) => a[0] - b[0]);
 
-  const scale = (age) => {
-    // Accumulate scale breaks and pixel height
-    let lastHeight = 0;
-    let lastAge = null;
-    for (const [age1, height] of scaleBreaks) {
-      if (age <= age1) {
-        let deltaAge = age1 - lastAge;
-        if (deltaAge === 0) {
-          // If the age is exactly at a scale break, return the height at that break
-          return height;
-        }
-        let pixelScale = (height - lastHeight) / deltaAge;
-        return lastHeight + (age - lastAge) * pixelScale;
-      }
-      lastAge = age1;
-      lastHeight = height;
+  const scales: ScaleContinuousNumeric<number, number>[] = [];
+
+  let lastScale: ScaleContinuousNumeric<number, number> | null = null;
+  for (const section of sections) {
+    const _scale = section.scaleInfo.scale.copy().clamp(true);
+    scales.push(_scale);
+    if (lastScale != null && interpolateUnconformities) {
+      // Add a new scale that interpolates between lastScale and _scale
+      const lastDomain = lastScale.domain();
+      const lastRange = lastScale.range();
+      const currentDomain = _scale.domain();
+      const currentRange = _scale.range();
+
+      const interpScale = scaleLinear()
+        .domain([lastDomain[lastDomain.length - 1], currentDomain[0]])
+        .range([lastRange[lastRange.length - 1], currentRange[0]])
+        .clamp(true);
+      scales.push(interpScale);
     }
+    lastScale = _scale;
+  }
+
+  const scale = (age) => {
+    for (const s of scales) {
+      const domain = s.domain();
+      if (age >= domain[0] && age <= domain[domain.length - 1]) {
+        console.log(s(age));
+        return s(age);
+      }
+    }
+    return null;
   };
 
   scale.copy = () => {
@@ -344,36 +379,26 @@ export function createCompositeScale(
 
   scale.domain = () => {
     /** Return the domain of the scale */
-    const firstSection = sections[0].scaleInfo.domain;
-    const lastSection = sections[sections.length - 1].scaleInfo.domain;
-    if (firstSection[0] < lastSection[0]) {
-      return [Math.min(...firstSection), Math.max(...lastSection)];
-    } else {
-      // Catches "normal" axes like height
-      return [Math.max(...firstSection), Math.min(...lastSection)];
+    const vals = sections.flatMap((d) => d.scaleInfo.domain);
+    if (vals[0] < vals[vals.length - 1]) {
+      // age axes
+      return [Math.min(...vals), Math.max(...vals)];
     }
+    // Normal axes like height
+    return [Math.max(...vals), Math.min(...vals)];
   };
 
   scale.invert = (pixelHeight) => {
     /** Invert the scale to get the age at a given pixel height */
     // Iterate through the sections to find the correct one
-    let lastAge = null;
-    for (const section of sections) {
-      const {
-        pixelHeight: sectionHeight,
-        pixelScale,
-        offset,
-        domain,
-      } = section.scaleInfo;
+    for (const scale of scales) {
+      const range = scale.range();
       if (
-        pixelHeight >= offset &&
-        pixelHeight <= offset + sectionHeight &&
-        pixelScale > 0
+        pixelHeight > Math.min(...range) &&
+        pixelHeight <= Math.max(...range)
       ) {
-        const age = domain[1] + (pixelHeight - offset) / pixelScale;
-        return age;
+        return scale.invert(pixelHeight);
       }
-      lastAge = domain[1];
     }
     return null;
   };

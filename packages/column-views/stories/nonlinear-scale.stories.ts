@@ -2,13 +2,18 @@ import hyper from "@macrostrat/hyper";
 import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react-vite";
 
-import { MergeSectionsMode } from "@macrostrat/column-views";
+import {
+  ColoredUnitComponent,
+  ComputedSurfacesOverlay,
+  MergeSectionsMode,
+} from "@macrostrat/column-views";
 import "@macrostrat/style-system";
 
 import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 import { MinimalUnit } from "../src/units/boxes";
 import { scaleLinear, scaleLog, scalePow } from "d3-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import { HybridScaleType } from "../src/prepare-units/dynamic-scales";
 
 const h = hyper.styled(styles);
 
@@ -66,7 +71,7 @@ export const LogScale: Story = {
   },
 };
 
-const powScale = scalePow().exponent(0.5).domain([0, 4500]).range([0, 1000]);
+const powScale = scalePow().exponent(0.5).domain([0, 4500]).range([0, 600]);
 
 export const PowerScale: Story = {
   args: {
@@ -79,5 +84,19 @@ export const PowerScale: Story = {
     timescaleLevels: [1, 2],
     scale: powScale,
     t_age: 0,
+  },
+};
+
+export const EquidistantSurfaces: Story = {
+  args: {
+    id: 432,
+    // Ordered time bins
+    axisType: ColumnAxisType.AGE,
+    hybridScaleType: HybridScaleType.EquidistantSurfaces,
+    showLabels: false,
+    unitComponent: ColoredUnitComponent,
+    showTimescale: true,
+    timescaleLevels: [1, 3],
+    children: h(ComputedSurfacesOverlay),
   },
 };

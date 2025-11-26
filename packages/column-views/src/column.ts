@@ -104,6 +104,7 @@ export function Column(props: ColumnProps) {
     minSectionHeight = 50,
     collapseSmallUnconformities = true,
     allowUnitSelection,
+    hybridScaleType,
     scale,
     ...rest
   } = props;
@@ -134,6 +135,7 @@ export function Column(props: ColumnProps) {
     minPixelScale: _minPixelScale,
     minSectionHeight: _minSectionHeight,
     collapseSmallUnconformities,
+    hybridScaleType,
     scale,
   });
 

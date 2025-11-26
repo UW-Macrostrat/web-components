@@ -1,15 +1,9 @@
-import {
-  createContext,
-  useContext,
-  ReactNode,
-  useMemo,
-  useEffect,
-} from "react";
+import { createContext, ReactNode, useContext, useMemo } from "react";
 import h from "@macrostrat/hyper";
 import {
+  CompositeColumnScale,
   createCompositeScale,
   PackageLayoutData,
-  CompositeColumnScale,
 } from "../prepare-units/composite-scale";
 import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -43,11 +37,16 @@ export function MacrostratColumnDataProvider({
    * */
 
   const value = useMemo(() => {
+    // For now, change ordinal axis types to age axis types
+    let _axisType = axisType;
+    if (axisType == ColumnAxisType.ORDINAL) {
+      _axisType = ColumnAxisType.AGE;
+    }
     return {
       units,
       sections,
       totalHeight,
-      axisType,
+      axisType: _axisType,
     };
   }, [units, sections, totalHeight, axisType]);
 

@@ -4,9 +4,37 @@ import {
   compareAgeRanges,
 } from "@macrostrat/stratigraphy-utils";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { StratigraphicPackage } from "./helpers";
+import { type ExtUnit, StratigraphicPackage } from "./helpers";
+import {
+  ColumnScaleOptions,
+  CompositeColumnData,
+  PackageLayoutData,
+} from "./composite-scale";
+import { ScaleContinuousNumeric } from "d3-scale";
+import { HybridScaleType } from "./dynamic-scales";
 
 const dt = 0.001;
+
+export interface PrepareColumnOptions extends ColumnScaleOptions {
+  axisType: ColumnAxisType;
+  t_age?: number;
+  b_age?: number;
+  t_pos?: number;
+  b_pos?: number;
+  mergeSections?: MergeSectionsMode;
+  collapseSmallUnconformities?: boolean | number;
+  scale?: ScaleContinuousNumeric<any, any>;
+}
+
+export enum MergeSectionsMode {
+  ALL = "all",
+  OVERLAPPING = "overlapping",
+}
+
+export interface PreparedColumnData extends CompositeColumnData {
+  sections: PackageLayoutData[];
+  units: ExtUnit[];
+}
 
 interface UnitsOverlap {
   (

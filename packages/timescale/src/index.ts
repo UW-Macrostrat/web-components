@@ -115,21 +115,6 @@ function Timescale(props: TimescaleProps) {
 
   let length2 = l;
 
-  // Warn about ambiguous usage
-  useEffect(() => {
-    if (scale == null) return;
-    if (length != null) {
-      console.warn(
-        "Both scale and length provided to Timescale component. The provided scale will be used.",
-      );
-    }
-    if (ageRange2 != null) {
-      console.warn(
-        "Both scale and ageRange provided to Timescale component. The provided scale will be used.",
-      );
-    }
-  }, [scale, length, ageRange2]);
-
   if (scale != null) {
     ageRange2 = scale.domain() as [number, number];
     const rng = scale.range();
