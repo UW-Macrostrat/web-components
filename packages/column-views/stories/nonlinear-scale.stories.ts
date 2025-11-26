@@ -116,3 +116,20 @@ export const HeightScale: Story = {
     children: h(ComputedSurfacesOverlay),
   },
 };
+
+export const KentuckyOrdovician: Story = {
+  args: {
+    id: 448,
+    // Ordered time bins
+    axisType: ColumnAxisType.AGE,
+    hybridScaleType: HybridScaleType.ApproximateHeight,
+    showLabels: false,
+    unitComponent: ColoredUnitComponent,
+    showTimescale: true,
+    t_age: 430,
+    b_age: 490,
+    timescaleLevels: [1, 3],
+    showUnitPopover: true,
+    children: h(ComputedSurfacesOverlay),
+  },
+};

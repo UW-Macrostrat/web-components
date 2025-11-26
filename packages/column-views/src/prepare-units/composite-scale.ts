@@ -217,7 +217,9 @@ function buildSectionScale<T extends UnitLong>(
       _pixelScale ??= targetUnitHeight;
     }
 
-    return buildHybridScale(data, {
+    console.log("Section scale", domain, scale?.domain());
+
+    return buildHybridScale(data, domain, {
       pixelOffset: 0,
       pixelScale: _pixelScale,
       hybridScaleType,
@@ -278,6 +280,10 @@ export function createPackageScale(
       .domain(domain0)
       .range(range0.map((d) => d + offset));
   }
+
+  _scale.clamp();
+
+  console.log("Created package scale", domain, pixelHeight, _scale.domain());
 
   return {
     domain,

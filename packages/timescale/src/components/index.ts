@@ -95,11 +95,22 @@ function TimescaleBoxes(props: {
   // This age range extends further than any realistic constraints
   const expandedAgeRange = ensureIncreasingAgeRange(ageRange) ?? [-50, 5000];
 
+  console.log(scale.domain(), ageRange);
+
   // If we have a scale, give us the boundaries clipped to the age range if appropriate
+
+  // Don't render if we are fully outside the age range of interest
+  if (eag < expandedAgeRange[0]) return null;
+  if (lag > expandedAgeRange[expandedAgeRange.length - 1]) return null;
+
   if (scale != null) {
-    const startAge = Math.min(expandedAgeRange[1], eag);
+    const startAge = Math.min(
+      expandedAgeRange[expandedAgeRange.length - 1],
+      eag,
+    );
     const endAge = Math.max(expandedAgeRange[0], lag);
     length = Math.abs(scale(startAge) - scale(endAge));
+    console.log(interval.nam, startAge, endAge, length);
   }
 
   let style = {};
@@ -112,10 +123,6 @@ function TimescaleBoxes(props: {
   const [minLevel, maxLevel] = levels ?? [0, 5];
 
   const { children, nam: name } = interval;
-
-  // Don't render if we are fully outside the age range of interest
-  if (eag < expandedAgeRange[0]) return null;
-  if (lag > expandedAgeRange[1]) return null;
 
   const className = slugify(name);
 

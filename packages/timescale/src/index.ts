@@ -76,7 +76,6 @@ function Timescale(props: TimescaleProps) {
     orientation = TimescaleOrientation.HORIZONTAL,
     ageRange,
     length: l,
-    absoluteAgeScale = false,
     showAgeAxis = true,
     levels,
     scale,
@@ -96,30 +95,6 @@ function Timescale(props: TimescaleProps) {
   );
 
   const className = classNames(orientation, "increase-" + increaseDirection);
-  const length = absoluteAgeScale ? (l ?? 6000) : null;
-
-  let ageRange2 = null;
-  if (ageRange != null) {
-    ageRange2 = [...ageRange];
-  }
-  if (ageRange2 == null) {
-    ageRange2 = [timescale.eag, timescale.lag];
-  }
-  if (
-    orientation == TimescaleOrientation.VERTICAL &&
-    increaseDirection == IncreaseDirection.DOWN_LEFT &&
-    ageRange2[0] < ageRange2[1]
-  ) {
-    ageRange2.reverse();
-  }
-
-  let length2 = l;
-
-  if (scale != null) {
-    ageRange2 = scale.domain() as [number, number];
-    const rng = scale.range();
-    length2 = Math.abs(rng[1] - rng[0]);
-  }
 
   return h(
     TimescaleProvider,
@@ -127,11 +102,12 @@ function Timescale(props: TimescaleProps) {
       timescale,
       selectedInterval: null,
       parentMap,
-      ageRange: ageRange2,
-      length: length2,
+      ageRange: ageRange,
+      length: l,
       orientation,
       levels,
       scale,
+      increaseDirection,
     },
     h(TimescaleContainer, { className }, [
       h(TimescaleBoxes, {

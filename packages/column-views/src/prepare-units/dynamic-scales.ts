@@ -118,15 +118,33 @@ interface HybridScaleOptions {
 
 export function buildHybridScale<T extends UnitLong>(
   units: T[],
+  domain: [number, number],
   options: HybridScaleOptions = {},
 ): PackageScaleInfo {
   const surfaces = buildColumnSurfaces(units);
 
+  console.log("Surfaces:", surfaces, domain);
+
+  const filteredSurfaces = surfaces.filter(
+    (s) => s.age < Math.max(...domain) && s.age > Math.min(...domain),
+  );
+
+  const s1 = [
+    { index: -1, age: Math.min(...domain), units_above: [], units_below: [] },
+    ...filteredSurfaces,
+    {
+      index: -1,
+      age: Math.max(...domain),
+      units_above: [],
+      units_below: [],
+    },
+  ];
+
   if (options.hybridScaleType === HybridScaleType.EquidistantSurfaces) {
-    return buildScaleFromSurfacesSimple(surfaces, options);
+    return buildScaleFromSurfacesSimple(s1, options);
   }
 
-  return buildApproximateHeightScale(surfaces, units, options);
+  return buildApproximateHeightScale(s1, units, options);
 }
 
 enum HeightMethod {

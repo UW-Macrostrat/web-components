@@ -50,7 +50,8 @@ export function AgeAxis(props: AgeAxisProps) {
   } = props;
 
   const range = scale.range();
-  const pixelHeight = Math.abs(range[0] - range[1]);
+
+  const pixelHeight = Math.abs(range[0] - range[range.length - 1]);
 
   let tickValues: number[] = undefined;
 
