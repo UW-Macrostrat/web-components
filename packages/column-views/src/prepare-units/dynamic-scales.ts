@@ -137,8 +137,6 @@ export function buildApproximateHeightScale(
 
   const { pixelScale = 30, pixelOffset = 0 } = options;
 
-  //return buildScaleFromSurfacesSimple(surfaces, options);
-
   // Get units associated with each surface
   // Note: we could hoist this if it proved useful for other scale types
   const domainInfo = getUnitsInAgeDomains(surfaces, units as ExtUnit[]);
@@ -149,25 +147,18 @@ export function buildApproximateHeightScale(
   const ageDomain = [];
   let lastHeight = pixelOffset;
 
-  for (const surface of surfaces) {
-    surfaceHeights.push(lastHeight);
-    ageDomain.push(surface.age);
-    lastHeight += pixelScale;
-  }
+  for (const domain of domainInfo) {
+    if (lastHeight == pixelOffset) {
+      surfaceHeights.push(lastHeight);
+      ageDomain.push(domain.t_age);
+    }
 
-  // for (const [i, domain] of domainInfo.entries()) {
-  //   if (i === 0) {
-  //     surfaceHeights.push(lastHeight);
-  //     ageDomain.push(domain.t_age);
-  //     continue;
-  //   }
-  //
-  //   const thisHeight = pixelScale;
-  //
-  //   lastHeight += thisHeight;
-  //   surfaceHeights.push(lastHeight);
-  //   ageDomain.push(domain.b_age);
-  // }
+    const thisHeight = pixelScale;
+
+    lastHeight += thisHeight;
+    surfaceHeights.push(lastHeight);
+    ageDomain.push(domain.b_age);
+  }
 
   // Build a piecewise linear scale mapping age to pixel height
   const pixelRange = surfaceHeights;
