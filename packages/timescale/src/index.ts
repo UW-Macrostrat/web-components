@@ -11,7 +11,7 @@ import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
 import { ScaleContinuousNumeric } from "d3-scale";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import h from "./hyper";
 
 type ClickHandler = (event: Event, interval: any) => void;
@@ -89,12 +89,18 @@ function Timescale(props: TimescaleProps) {
     labelProps,
   } = props;
 
-  const [parentMap, timescale] = useMemo(
-    () => nestTimescale(rootInterval, intervals),
-    [rootInterval, intervals],
-  );
+  const [parentMap, timescale] = useMemo(() => {
+    if (intervals.length == 0) {
+      return [null, null];
+    }
+    return nestTimescale(rootInterval, intervals);
+  }, [rootInterval, intervals]);
 
   const className = classNames(orientation, "increase-" + increaseDirection);
+
+  if (parentMap == null || timescale == null) {
+    return null;
+  }
 
   return h(
     TimescaleProvider,
@@ -122,6 +128,7 @@ function Timescale(props: TimescaleProps) {
   );
 }
 
+export * from "./intervals-api";
 export {
   Timescale,
   TimescaleOrientation,

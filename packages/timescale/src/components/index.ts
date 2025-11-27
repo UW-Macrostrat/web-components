@@ -95,7 +95,7 @@ function TimescaleBoxes(props: {
   // This age range extends further than any realistic constraints
   const expandedAgeRange = ensureIncreasingAgeRange(ageRange) ?? [-50, 5000];
 
-  console.log(scale.domain(), ageRange);
+  console.log(scale.domain(), scale.range(), ageRange);
 
   // If we have a scale, give us the boundaries clipped to the age range if appropriate
 
@@ -111,6 +111,7 @@ function TimescaleBoxes(props: {
     const endAge = Math.max(expandedAgeRange[0], lag);
     length = Math.abs(scale(startAge) - scale(endAge));
     console.log(interval.nam, startAge, endAge, length);
+    console.log(scale(startAge), scale(endAge));
   }
 
   let style = {};

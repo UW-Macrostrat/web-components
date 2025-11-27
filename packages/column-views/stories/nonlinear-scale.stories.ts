@@ -126,10 +126,10 @@ export const KentuckyOrdovician: Story = {
     showLabels: false,
     unitComponent: ColoredUnitComponent,
     showTimescale: true,
-    t_age: 430,
+    t_age: 455,
     b_age: 490,
     timescaleLevels: [1, 3],
     showUnitPopover: true,
-    children: h(ComputedSurfacesOverlay),
+    //children: h(ComputedSurfacesOverlay),
   },
 };

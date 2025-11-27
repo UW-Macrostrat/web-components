@@ -123,8 +123,6 @@ export function buildHybridScale<T extends UnitLong>(
 ): PackageScaleInfo {
   const surfaces = buildColumnSurfaces(units);
 
-  console.log("Surfaces:", surfaces, domain);
-
   const filteredSurfaces = surfaces.filter(
     (s) => s.age < Math.max(...domain) && s.age > Math.min(...domain),
   );

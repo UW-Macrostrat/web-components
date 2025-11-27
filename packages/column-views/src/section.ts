@@ -4,7 +4,11 @@ import {
   SectionLabelsColumn,
 } from "./units";
 import { ReactNode, FunctionComponent, useMemo } from "react";
-import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
+import {
+  Timescale,
+  TimescaleOrientation,
+  useMacrostratIntervals,
+} from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
@@ -14,6 +18,7 @@ import {
   useMacrostratColumnData,
   useMacrostratUnits,
   MacrostratColumnProvider,
+  useMacrostratBaseURL,
 } from "./data-provider";
 import { Duration } from "./unit-details";
 import { Value } from "@macrostrat/data-components";
@@ -217,6 +222,10 @@ type CompositeTimescaleCoreProps = CompositeTimescaleProps & {
 export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
   const { levels = 3, packages, unconformityLabels = false } = props;
 
+  // Use intervals from Macrostrat API
+  const baseURL = useMacrostratBaseURL();
+  const intervals = useMacrostratIntervals(baseURL);
+
   let _levels: [number, number];
   if (typeof levels === "number") {
     // If levels is a number, use the most common starting level
@@ -243,7 +252,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
               absoluteAgeScale: true,
               showAgeAxis: false,
               scale,
-              //ageRange: domain as [number, number],
+              intervals,
             }),
           ],
         );

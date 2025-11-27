@@ -268,8 +268,19 @@ export function useMacrostratStore(selector: MacrostratSelector | "api") {
   if (selector === "api") {
     return ctx;
   }
-
   return useStore(ctx, selector);
+}
+
+export function useMacrostratBaseURL(
+  defaultURL = "https://macrostrat.org/api/v2",
+): string {
+  /** Get the Macrostrat base URL from the store if set, otherwise return a default value */
+  const ctx = useContext(MacrostratDataProviderContext);
+  if (ctx == null) {
+    // Return default URL if no provider is present
+    return defaultURL;
+  }
+  return ctx.getState().baseURL;
 }
 
 type DataTypeKey =
