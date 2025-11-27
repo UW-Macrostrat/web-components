@@ -49,6 +49,8 @@ export interface PackageScaleInfo {
   // TODO: add a function
   scale: ScaleContinuousNumeric<number, number>;
   pixelScale?: number; // if it's a linear scale, this could be defined
+  // Subsidiary scale for height mapping (for hybrid scales)
+  heightScale?: ScaleContinuousNumeric<number, number>;
 }
 
 export type PackageScaleLayoutData = PackageScaleInfo & {
@@ -261,7 +263,7 @@ export function createPackageScale(
 ): PackageScaleInfo {
   /** Build a section scale */
   // Domain should be oriented from bottom to top, but scale is oriented from top to bottom
-  const { domain, pixelScale, pixelHeight, scale } = def;
+  const { domain, pixelScale, pixelHeight, scale, heightScale } = def;
 
   if (scale == null && pixelScale == null) {
     throw new Error("Either scale or pixelScale must be provided");
@@ -283,13 +285,21 @@ export function createPackageScale(
 
   _scale.clamp();
 
-  console.log("Created package scale", domain, pixelHeight, _scale.domain());
+  let _heightScale = null;
+  if (heightScale != null) {
+    // Adjust height scale as well
+    const range0 = scale.range();
+    _heightScale = heightScale.copy().range(range0.map((d) => d + offset));
+    _heightScale.clamp();
+  }
 
   return {
     domain,
     pixelScale,
     pixelHeight,
     scale: _scale,
+    // Internal details for hybrid scales. TODO: improve this
+    heightScale: _heightScale,
   };
 }
 

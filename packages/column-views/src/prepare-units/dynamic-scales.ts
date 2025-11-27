@@ -186,7 +186,7 @@ export function buildApproximateHeightScale(
    * */
 
   const {
-    pixelScale = 30,
+    pixelScale = 1, // pixels per meter
     pixelOffset = 0,
     minHeight = 5,
     heightMethod = HeightMethod.Maximum,
@@ -228,7 +228,7 @@ export function buildApproximateHeightScale(
 
     let thisHeight = 0;
     if (unitHeightInfo.length === 0) {
-      thisHeight = pixelScale; // Default height if no units with height info
+      thisHeight = defaultHeight; // Default height if no units with height info
     } else {
       // Normalize weights (take the mean)
 
@@ -251,17 +251,25 @@ export function buildApproximateHeightScale(
   }
 
   // Build a piecewise linear scale mapping age to pixel height
-  const pixelRange = surfaceHeights;
+  const pixelRange = surfaceHeights.map((h) => h * pixelScale);
 
   const scale = scaleLinear().domain(ageDomain).range(pixelRange);
 
-  const domain = [ageDomain[ageDomain.length - 1], ageDomain[0]];
+  const heightDomain = surfaceHeights.map((h) => lastHeight - h);
+
+  const heightScale = scaleLinear().domain(heightDomain).range(pixelRange);
+
+  const domain: [number, number] = [
+    ageDomain[ageDomain.length - 1],
+    ageDomain[0],
+  ];
 
   return {
     scale,
     pixelScale: null, // pixels per unit
     domain,
     pixelHeight: Math.abs(pixelRange[pixelRange.length - 1] - pixelRange[0]),
+    heightScale,
   };
 }
 

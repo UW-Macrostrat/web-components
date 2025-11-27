@@ -3,7 +3,9 @@ import styles from "./column.stories.module.sass";
 import { Meta, StoryObj } from "@storybook/react-vite";
 
 import {
+  ApproximateHeightAxis,
   ColoredUnitComponent,
+  CompositeAgeAxis,
   ComputedSurfacesOverlay,
   MergeSectionsMode,
 } from "@macrostrat/column-views";
@@ -130,6 +132,45 @@ export const KentuckyOrdovician: Story = {
     b_age: 490,
     timescaleLevels: [1, 3],
     showUnitPopover: true,
-    //children: h(ComputedSurfacesOverlay),
+  },
+};
+
+export const WithApproximateHeightScale: Story = {
+  args: {
+    id: 448,
+    // Ordered time bins
+    axisType: ColumnAxisType.AGE,
+    hybridScaleType: HybridScaleType.ApproximateHeight,
+    showLabels: false,
+    unitComponent: ColoredUnitComponent,
+    showTimescale: true,
+    t_age: 455,
+    b_age: 490,
+    timescaleLevels: [1, 3],
+    showUnitPopover: true,
+    children: h(ApproximateHeightAxis, {
+      // Move to the left side
+      style: { order: -1, marginRight: "8px" },
+    }),
+  },
+};
+
+export const WithApproximateHeightScaleOnly: Story = {
+  args: {
+    id: 448,
+    // Ordered time bins
+    pixelScale: 0.5,
+    axisType: ColumnAxisType.AGE,
+    hybridScaleType: HybridScaleType.ApproximateHeight,
+    showLabels: false,
+    unitComponent: ColoredUnitComponent,
+    showUnitPopover: true,
+    showTimescale: false,
+    unconformityHeight: 20,
+    unconformityLabels: false,
+    children: h(ApproximateHeightAxis, {
+      // Move to the left side
+      style: { order: -1, marginRight: "8px" },
+    }),
   },
 };

@@ -1,8 +1,9 @@
 import h from "../hyper";
-import { useRef, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 import { SizeAwareLabel } from "@macrostrat/ui-components";
+import classNames from "classnames";
 
 import { CSSProperties } from "react";
 
@@ -24,9 +25,14 @@ function IntervalBox(props: {
   allowLabelRotation?: boolean;
   onClick: (e: Event, interval: Interval) => void;
 }) {
-  const { interval, intervalStyle, onClick, labelProps } = props;
+  const { interval, intervalStyle, onClick, labelProps = {} } = props;
 
   const [labelText, setLabelText] = useState<string>(interval.nam);
+
+  const _onClick = useMemo(() => {
+    if (onClick == null) return null;
+    return (e) => onClick(e, interval);
+  }, [onClick, interval]);
 
   let style: CSSProperties = {};
   if (typeof intervalStyle === "function") {
@@ -34,29 +40,25 @@ function IntervalBox(props: {
   } else if (intervalStyle != null) {
     style = intervalStyle;
   }
+  style.backgroundColor = interval.col;
 
-  style = { backgroundColor: interval.col, ...style };
-
-  // if (backgroundColor != null && (color == null || borderColor == null)) {
-  //   const base = chroma(backgroundColor);
-  //   color ??= base.darken(0.3);
-  //   borderColor ??= base.darken(-0.1);
-  // }
+  const className = classNames("interval-box", {
+    clickable: onClick != null,
+  });
 
   return h(SizeAwareLabel, {
     key: interval.oid,
     style,
-    className:
-      "interval-box " + (onClick && interval.int_id != null ? "clickable" : ""),
+    className,
     labelClassName: "interval-label",
     label: labelText,
-    ...(labelProps ?? {}),
+    ...labelProps,
     onVisibilityChanged(viz) {
       if (!viz && labelText.length > 1) {
         setLabelText(labelText[0]);
       }
     },
-    onClick: (e) => onClick(e, interval),
+    onClick: _onClick,
   });
 }
 
@@ -95,8 +97,6 @@ function TimescaleBoxes(props: {
   // This age range extends further than any realistic constraints
   const expandedAgeRange = ensureIncreasingAgeRange(ageRange) ?? [-50, 5000];
 
-  console.log(scale.domain(), scale.range(), ageRange);
-
   // If we have a scale, give us the boundaries clipped to the age range if appropriate
 
   // Don't render if we are fully outside the age range of interest
@@ -110,8 +110,6 @@ function TimescaleBoxes(props: {
     );
     const endAge = Math.max(expandedAgeRange[0], lag);
     length = Math.abs(scale(startAge) - scale(endAge));
-    console.log(interval.nam, startAge, endAge, length);
-    console.log(scale(startAge), scale(endAge));
   }
 
   let style = {};
