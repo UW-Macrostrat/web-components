@@ -4,9 +4,8 @@ import { ensureArray, getUnitHeightRange } from "./utils";
 import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
 import {
-  buildColumnSurfaces,
   buildHybridScale,
-  buildScaleFromSurfaces,
+  HybridScaleDefinition,
   HybridScaleType,
 } from "./dynamic-scales";
 
@@ -31,7 +30,9 @@ export interface ColumnHeightScaleOptions {
   // A continuous scale to use instead of generating one
   // TODO: discontinuous scales are not yet supported
   scale?: ScaleContinuousNumeric<number, number>;
-  hybridScaleType?: HybridScaleType;
+  // Hybrid scale type.
+  // This overrides parameters such as the axis type
+  hybridScale?: HybridScaleDefinition;
 }
 
 export interface SectionScaleOptions extends ColumnHeightScaleOptions {
@@ -201,7 +202,7 @@ function buildSectionScale<T extends UnitLong>(
     axisType,
     minSectionHeight,
     scale,
-    hybridScaleType,
+    hybridScale,
   } = opts;
   const domain = opts.domain ?? findSectionHeightRange(data, axisType);
 
@@ -210,21 +211,18 @@ function buildSectionScale<T extends UnitLong>(
   let _pixelScale = opts.pixelScale;
   let pixelHeight: number;
 
-  if (hybridScaleType != null) {
+  if (hybridScale != null) {
     /** In an equidistant surfaces scale, we want to determine the heights of surfaces
      * and then distribute units evenly between them.
      * This is somewhat like an ordinal scale
      */
-    if (hybridScaleType == HybridScaleType.EquidistantSurfaces) {
+    if (hybridScale.type === HybridScaleType.EquidistantSurfaces) {
       _pixelScale ??= targetUnitHeight;
     }
 
-    console.log("Section scale", domain, scale?.domain());
-
-    return buildHybridScale(data, domain, {
+    return buildHybridScale(hybridScale, data, domain, {
       pixelOffset: 0,
       pixelScale: _pixelScale,
-      hybridScaleType,
     });
   }
 

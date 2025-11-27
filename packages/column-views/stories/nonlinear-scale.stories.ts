@@ -109,7 +109,9 @@ export const HeightScale: Story = {
     id: 448,
     // Ordered time bins
     axisType: ColumnAxisType.AGE,
-    hybridScaleType: HybridScaleType.ApproximateHeight,
+    hybridScale: {
+      type: HybridScaleType.ApproximateHeight,
+    },
     showLabels: false,
     unitComponent: ColoredUnitComponent,
     showTimescale: true,
@@ -124,7 +126,9 @@ export const KentuckyOrdovician: Story = {
     id: 448,
     // Ordered time bins
     axisType: ColumnAxisType.AGE,
-    hybridScaleType: HybridScaleType.ApproximateHeight,
+    hybridScale: {
+      type: HybridScaleType.ApproximateHeight,
+    },
     showLabels: false,
     unitComponent: ColoredUnitComponent,
     showTimescale: true,
@@ -140,7 +144,9 @@ export const WithApproximateHeightScale: Story = {
     id: 448,
     // Ordered time bins
     axisType: ColumnAxisType.AGE,
-    hybridScaleType: HybridScaleType.ApproximateHeight,
+    hybridScale: {
+      type: HybridScaleType.ApproximateHeight,
+    },
     showLabels: false,
     unitComponent: ColoredUnitComponent,
     showTimescale: true,
@@ -161,7 +167,9 @@ export const WithApproximateHeightScaleOnly: Story = {
     // Ordered time bins
     pixelScale: 0.5,
     axisType: ColumnAxisType.AGE,
-    hybridScaleType: HybridScaleType.ApproximateHeight,
+    hybridScale: {
+      type: HybridScaleType.ApproximateHeight,
+    },
     showLabels: false,
     unitComponent: ColoredUnitComponent,
     showUnitPopover: true,

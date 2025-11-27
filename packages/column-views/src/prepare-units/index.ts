@@ -52,7 +52,7 @@ export function prepareColumnUnits(
     axisType,
     unconformityHeight,
     collapseSmallUnconformities = false,
-    hybridScaleType,
+    hybridScale,
     scale,
   } = options;
 
@@ -159,7 +159,7 @@ export function prepareColumnUnits(
    */
   let sectionsWithScales = computeSectionHeights(sections, options);
 
-  if (collapseSmallUnconformities && hybridScaleType == null) {
+  if (collapseSmallUnconformities && hybridScale == null) {
     // Collapse small unconformities in pixel height space
     // TODO: this doesn't seem to work properly for non-age columns?
     let threshold = unconformityHeight ?? 30;

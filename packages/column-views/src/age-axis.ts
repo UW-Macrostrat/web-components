@@ -70,6 +70,7 @@ export function ApproximateHeightAxis(rest: CompositeAgeAxisProps) {
 
   const packages = sections.map((section) => {
     const { scaleInfo } = section;
+    console.log(scaleInfo);
     if (scaleInfo.heightScale == null) {
       throw new Error("No height scale available for section");
     }
@@ -149,8 +150,6 @@ export function AgeCursor({ age }) {
   /** A cursor that shows the age at a specific point on the age axis. */
   const scale = useCompositeScale();
   const heightPx = scale(age);
-
-  console.log(age, heightPx);
 
   if (age == null || heightPx == null) {
     return null;

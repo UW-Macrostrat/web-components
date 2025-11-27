@@ -13,6 +13,25 @@ export enum HybridScaleType {
   ApproximateHeight = "approximate-height",
 }
 
+interface HybridScaleOptions {
+  pixelOffset?: number;
+  pixelScale?: number;
+}
+
+type ApproxHeightScaleOptions = {
+  minHeight?: number;
+  defaultHeight?: number;
+  heightMethod?: HeightMethod;
+};
+
+export type HybridScaleDefinition =
+  | ({
+      type: HybridScaleType.ApproximateHeight;
+    } & ApproxHeightScaleOptions)
+  | {
+      type: HybridScaleType.EquidistantSurfaces;
+    };
+
 interface BaseSurface {
   index: number;
   age: number;
@@ -110,13 +129,8 @@ function proportionOfUnitInDomain(
   return mergedHeight / unitHeight;
 }
 
-interface HybridScaleOptions {
-  pixelOffset?: number;
-  pixelScale?: number;
-  hybridScaleType?: HybridScaleType;
-}
-
 export function buildHybridScale<T extends UnitLong>(
+  def: HybridScaleDefinition,
   units: T[],
   domain: [number, number],
   options: HybridScaleOptions = {},
@@ -138,14 +152,16 @@ export function buildHybridScale<T extends UnitLong>(
     },
   ];
 
-  if (options.hybridScaleType === HybridScaleType.EquidistantSurfaces) {
+  const { type, ...rest } = def;
+
+  if (type === HybridScaleType.EquidistantSurfaces) {
     return buildScaleFromSurfacesSimple(s1, options);
   }
 
-  return buildApproximateHeightScale(s1, units, options);
+  return buildApproximateHeightScale(s1, units, { ...options, ...rest });
 }
 
-enum HeightMethod {
+export enum HeightMethod {
   Minimum = "minimum",
   Average = "average",
   Maximum = "maximum",
@@ -179,7 +195,7 @@ function getApproximateHeight(
 export function buildApproximateHeightScale(
   surfaces: BaseSurface[],
   units: UnitLong[],
-  options: HybridScaleOptions = {},
+  options: HybridScaleOptions & ApproxHeightScaleOptions = {},
 ): PackageScaleInfo {
   /** Build a variable age scale that places age surfaces equally far apart in height space.
    * It is presumed that gaps are already removed from the unit set provided.
@@ -281,10 +297,7 @@ export function buildScaleFromSurfacesSimple(
    * It is presumed that gaps are already removed from the unit set provided.
    * */
 
-  const {
-    hybridScaleType = HybridScaleType.EquidistantSurfaces,
-    pixelScale = 30,
-  } = options;
+  const { pixelScale = 30 } = options;
 
   const domain: [number, number] = [
     surfaces[surfaces.length - 1].age,
