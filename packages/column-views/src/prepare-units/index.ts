@@ -56,15 +56,6 @@ export function prepareColumnUnits(
     scale,
   } = options;
 
-  /* Ordinal positioning does not really make sense for columns with overlapping
-  units, and there is little value to using API-provided ordinal positions anyway,
-  as they tend to be arbitrary. Therefore, we ignore t_pos and b_pos values for these
-  columns and compute an ordinal positioning of _surfaces_ within sections instead.
-   */
-  // if (hybridScaleType == HybridScaleType.EquidistantSurfaces) {
-  //   return prepareColumnUnitsEquidistant(units, options);
-  // }
-
   if (scale != null) {
     // Set t_age and b_age based on scale domain if not already set
     const domain = scale.domain();
@@ -178,7 +169,6 @@ export function prepareColumnUnits(
   let { totalHeight, sections: sections2 } = finalizeSectionHeights(
     sectionsWithScales,
     unconformityHeight,
-    axisType,
   );
 
   /** For each section, find units that are overlapping.

@@ -70,7 +70,6 @@ export function ApproximateHeightAxis(rest: CompositeAgeAxisProps) {
 
   const packages = sections.map((section) => {
     const { scaleInfo } = section;
-    console.log(scaleInfo);
     if (scaleInfo.heightScale == null) {
       throw new Error("No height scale available for section");
     }

@@ -13,6 +13,7 @@ import {
   HTMLAttributes,
   useCallback,
   CSSProperties,
+  ComponentType,
 } from "react";
 import styles from "./column.module.sass";
 import {
@@ -38,12 +39,13 @@ import {
   CompositeTimescale,
   SectionsColumn,
 } from "./section";
-import { CompositeAgeAxis } from "./age-axis";
+import { ApproximateHeightAxis, CompositeAgeAxis } from "./age-axis";
 import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
 import { ScaleContinuousNumeric } from "d3-scale";
+import { HybridScaleType } from "./prepare-units/dynamic-scales";
 
 const h = hyperStyled(styles);
 
@@ -151,11 +153,24 @@ export function Column(props: ColumnProps) {
     );
   }
 
-  let main: any = h(ColumnInner, { columnRef: ref, ...rest }, [
-    children,
-    h.if(showUnitPopover)(UnitSelectionPopover),
-    h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
-  ]);
+  let ageAxisComponent = CompositeAgeAxis;
+  if (
+    hybridScale?.type === HybridScaleType.ApproximateHeight &&
+    axisType != ColumnAxisType.AGE
+  ) {
+    // Use approximate height axis for non-age columns if a non-age axis type is requested
+    ageAxisComponent = ApproximateHeightAxis;
+  }
+
+  let main: any = h(
+    ColumnInner,
+    { columnRef: ref, ageAxisComponent, ...rest },
+    [
+      children,
+      h.if(showUnitPopover)(UnitSelectionPopover),
+      h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
+    ],
+  );
 
   /* By default, unit selection is disabled. However, if any related props are passed,
    we enable it.
@@ -187,6 +202,7 @@ export function Column(props: ColumnProps) {
 
 interface ColumnInnerProps extends BaseColumnProps {
   columnRef: RefObject<HTMLElement>;
+  ageAxisComponent?: ComponentType;
 }
 
 function ColumnInner(props: ColumnInnerProps) {
@@ -215,6 +231,7 @@ function ColumnInner(props: ColumnInnerProps) {
     timescaleLevels,
     maxInternalColumns,
     onMouseOver,
+    ageAxisComponent = CompositeAgeAxis,
   } = props;
 
   const { axisType } = useMacrostratColumnData();
@@ -243,7 +260,7 @@ function ColumnInner(props: ColumnInnerProps) {
       className,
     },
     h("div.column", { ref: columnRef }, [
-      h(CompositeAgeAxis),
+      h(ageAxisComponent),
       h.if(_showTimescale)(CompositeTimescale, { levels: timescaleLevels }),
       h(SectionsColumn, {
         unitComponent,

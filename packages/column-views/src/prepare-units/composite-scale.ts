@@ -124,7 +124,6 @@ export function buildCompositeScaleInfo(
 export function finalizeSectionHeights<T extends UnitLong>(
   sections: SectionInfoWithScale<T>[],
   unconformityHeight: number,
-  axisType: ColumnAxisType,
 ): CompositeColumnData<T> {
   /** Finalize the heights of sections, including the heights of unconformities
    * between them.
@@ -342,6 +341,7 @@ export interface CompositeColumnScale {
   copy(): CompositeColumnScale;
   domain(): [number, number];
   invert(pixelHeight: number): number | null;
+  clamp(clamp: boolean): void;
 }
 
 export function createCompositeScale(
@@ -349,18 +349,6 @@ export function createCompositeScale(
   interpolateUnconformities: boolean = false,
 ): CompositeColumnScale {
   /** Create a scale that works across multiple packages */
-  // Get surfaces at which scale breaks
-  let scaleBreaks: [number, number, any][] = [];
-  for (const section of sections) {
-    const { pixelHeight, offset, domain, scale } = section.scaleInfo;
-
-    console.log("Section", domain, offset);
-
-    scaleBreaks.push([domain[1], offset, scale]);
-    scaleBreaks.push([domain[0], offset + pixelHeight, scale]);
-  }
-  // Sort the scale breaks by age
-  scaleBreaks.sort((a, b) => a[0] - b[0]);
 
   const scales: ScaleContinuousNumeric<number, number>[] = [];
 
@@ -384,7 +372,7 @@ export function createCompositeScale(
     lastScale = _scale;
   }
 
-  const scale = (age) => {
+  const scale: CompositeColumnScale = (age) => {
     for (const s of scales) {
       const domain = s.domain();
       if (age >= domain[0] && age <= domain[domain.length - 1]) {
@@ -430,10 +418,9 @@ export function createCompositeScale(
     for (const s of scales) {
       s.clamp(clamp);
     }
-    return scale;
   };
 
-  return scale as CompositeColumnScale;
+  return scale;
 }
 
 /** Collapse sections separated by unconformities that are smaller than a given pixel height. */
@@ -495,8 +482,7 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
         b_pos,
       };
 
-      const compositeSection = addScaleToSection(compositeSection0, opts);
-      currentSection = compositeSection;
+      currentSection = addScaleToSection(compositeSection0, opts);
     } else {
       // We need to keep the section
       newSections.push(currentSection);

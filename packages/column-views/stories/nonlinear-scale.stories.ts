@@ -5,7 +5,6 @@ import { Meta, StoryObj } from "@storybook/react-vite";
 import {
   ApproximateHeightAxis,
   ColoredUnitComponent,
-  CompositeAgeAxis,
   ComputedSurfacesOverlay,
   MergeSectionsMode,
 } from "@macrostrat/column-views";
@@ -94,7 +93,9 @@ export const EquidistantSurfaces: Story = {
     id: 432,
     // Ordered time bins
     axisType: ColumnAxisType.AGE,
-    hybridScaleType: HybridScaleType.EquidistantSurfaces,
+    hybridScale: {
+      type: HybridScaleType.EquidistantSurfaces,
+    },
     showLabels: false,
     unitComponent: ColoredUnitComponent,
     showTimescale: true,
