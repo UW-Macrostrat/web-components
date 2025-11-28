@@ -15,7 +15,6 @@ import {
   computeSectionHeights,
   finalizeSectionHeights,
 } from "./composite-scale";
-import type { SectionInfo } from "./helpers";
 import {
   agesOverlap,
   MergeSectionsMode,
@@ -23,6 +22,7 @@ import {
   PreparedColumnData,
   unitsOverlap,
 } from "./utils";
+import { SectionInfo } from "@macrostrat/column-views";
 
 export * from "./utils";
 export * from "./types";

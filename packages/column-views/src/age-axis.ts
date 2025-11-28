@@ -10,8 +10,8 @@ import { useContext } from "react";
 import styles from "./age-axis.module.sass";
 import { useCompositeScale, useMacrostratColumnData } from "./data-provider";
 import { Parenthetical } from "@macrostrat/data-components";
-import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
 import { AgeLabel } from "./unit-details";
+import { PackageScaleLayoutData } from "./prepare-units/types";
 
 const h = hyper.styled(styles);
 

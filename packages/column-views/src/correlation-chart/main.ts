@@ -29,11 +29,11 @@ import {
 } from "@macrostrat/column-components";
 import { ColoredUnitComponent } from "../units";
 import { UnitBoxes } from "../units/boxes";
-import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnContainer } from "../column";
 import { ColumnData } from "../data-provider";
 import { BaseUnit } from "@macrostrat/api-types";
 import { ScaleContinuousNumeric } from "d3-scale";
+import { ExtUnit } from "@macrostrat/column-views";
 
 const h = hyper.styled(styles);
 
