@@ -2373,7 +2373,7 @@ __metadata:
     "@blueprintjs/core": "npm:^5.10.2"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
-    "@macrostrat/map-interface": "workspace:^"
+    "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@types/d3-array": "npm:^3.2.1"

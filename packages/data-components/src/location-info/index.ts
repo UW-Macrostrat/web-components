@@ -5,6 +5,7 @@ import {
   normalizeLng,
 } from "@macrostrat/mapbox-utils";
 import { formatValue } from "./utils";
+import type { LngLatLike } from "mapbox-gl";
 
 export function ValueWithUnit(props) {
   const { value, unit } = props;
@@ -27,7 +28,7 @@ export function DegreeCoord(props) {
 
 export interface LngLatProps {
   /** Map position */
-  position: mapboxgl.LngLatLike | null;
+  position: LngLatLike | null;
   className?: string;
   /** Zoom level (used to infer coordinate rounding if provided) */
   zoom?: number;

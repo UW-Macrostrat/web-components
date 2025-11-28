@@ -43,7 +43,7 @@
   "dependencies": {
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
-    "@macrostrat/map-interface": "workspace:^",
+    "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
     "@visx/axis": "^3.12.0",
