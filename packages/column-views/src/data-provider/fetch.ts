@@ -14,6 +14,7 @@ import {
 import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
 import { geoArea } from "d3-geo";
+import _ from "underscore";
 
 function defaultFetch(
   url: string,
@@ -23,10 +24,12 @@ function defaultFetch(
   return crossFetch(baseURL + url, options);
 }
 
+export type ColumnStatusCode = "in process" | "active" | "obsolete";
+
 export interface ColumnFetchOptions {
   apiBaseURL?: string;
   projectID?: number;
-  statusCode?: "in process";
+  statusCode?: ColumnStatusCode | ColumnStatusCode[];
   format?: "geojson" | "topojson" | "geojson_bare";
   fetch?: any;
 }
@@ -46,9 +49,13 @@ export async function fetchAllColumns(
   if (projectID != null) {
     args = { ...args, project_id: projectID };
   }
-  if (statusCode != null) {
-    args = { ...args, status_code: statusCode };
+  let _statusCode: string | undefined = undefined;
+  if (Array.isArray(statusCode)) {
+    _statusCode = statusCode.join(",");
+  } else if (statusCode != null) {
+    _statusCode = statusCode;
   }
+  args.statusCode = _statusCode;
 
   if (projectID == null) {
     args = { ...args, all: true };

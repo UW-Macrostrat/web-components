@@ -1,36 +1,16 @@
-import { ExtUnit } from "./helpers";
-import { UnitLong } from "@macrostrat/api-types";
-import { PackageScaleInfo } from "./composite-scale";
+import type { UnitLong } from "@macrostrat/api-types";
 import { scaleLinear } from "d3-scale";
-import { getUnitHeightRange } from "@macrostrat/column-views";
+import { getUnitHeightRange } from "./utils";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { mergeAgeRanges, MergeMode } from "@macrostrat/stratigraphy-utils";
-
-export enum HybridScaleType {
-  // An age-domain scale that puts equal vertical space between surfaces
-  EquidistantSurfaces = "equidistant-surfaces",
-  // A height-domain scale that is based on the average height of units between surfaces
-  ApproximateHeight = "approximate-height",
-}
-
-interface HybridScaleOptions {
-  pixelOffset?: number;
-  pixelScale?: number;
-}
-
-type ApproxHeightScaleOptions = {
-  minHeight?: number;
-  defaultHeight?: number;
-  heightMethod?: HeightMethod;
-};
-
-export type HybridScaleDefinition =
-  | ({
-      type: HybridScaleType.ApproximateHeight;
-    } & ApproxHeightScaleOptions)
-  | {
-      type: HybridScaleType.EquidistantSurfaces;
-    };
+import type {
+  ApproxHeightScaleOptions,
+  ExtUnit,
+  HybridScaleDefinition,
+  HybridScaleOptions,
+  PackageScaleInfo,
+} from "./types";
+import { HybridScaleType, HeightMethod } from "./types";
 
 interface BaseSurface {
   index: number;
@@ -159,12 +139,6 @@ export function buildHybridScale<T extends UnitLong>(
   }
 
   return buildApproximateHeightScale(s1, units, { ...options, ...rest });
-}
-
-export enum HeightMethod {
-  Minimum = "minimum",
-  Average = "average",
-  Maximum = "maximum",
 }
 
 function getApproximateHeight(

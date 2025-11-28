@@ -1,6 +1,6 @@
 import { defaultIntervals } from "./intervals";
 import { TimescaleProvider, useTimescale } from "./provider";
-import { Interval, TimescaleOrientation } from "./types";
+import { Interval, TimescaleOrientation, IncreaseDirection } from "./types";
 import {
   TimescaleBoxes,
   Cursor,
@@ -11,16 +11,20 @@ import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
 import { ScaleContinuousNumeric } from "d3-scale";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import h from "./hyper";
+
+export * from "./intervals-api";
+export type { Interval } from "./types";
+export {
+  IncreaseDirection,
+  TimescaleOrientation,
+  defaultIntervals as intervals,
+};
 
 type ClickHandler = (event: Event, interval: any) => void;
 
-export enum IncreaseDirection {
-  UP_RIGHT = "up-right",
-  DOWN_LEFT = "down-left",
-}
-interface TimescaleProps {
+export interface TimescaleProps {
   intervals?: Interval[];
   orientation?: TimescaleOrientation;
   increaseDirection?: IncreaseDirection;
@@ -43,12 +47,12 @@ interface TimescaleProps {
 function TimescaleContainer(props: {
   onClick?: ClickHandler;
   className: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   const { onClick: clickHandler, ...rest } = props;
   const { scale, orientation } = useTimescale();
 
-  function onClick(evt) {
+  function onClick(evt: any) {
     const bbox = evt.currentTarget.getBoundingClientRect();
     const pos =
       orientation == TimescaleOrientation.HORIZONTAL
@@ -60,7 +64,7 @@ function TimescaleContainer(props: {
   return h("div.timescale.timescale-container", { onClick, ...rest });
 }
 
-function Timescale(props: TimescaleProps) {
+export function Timescale(props: TimescaleProps) {
   /**
    * A geologic timescale component for react.
    *
@@ -127,11 +131,3 @@ function Timescale(props: TimescaleProps) {
     ]),
   );
 }
-
-export * from "./intervals-api";
-export {
-  Timescale,
-  TimescaleOrientation,
-  TimescaleProps,
-  defaultIntervals as intervals,
-};

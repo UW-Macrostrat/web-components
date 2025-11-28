@@ -39,4 +39,6 @@ export type MacrostratInterval = {
   color: string;
 };
 
-export type Interval = MacrostratInterval;
+type Interval = MacrostratInterval;
+
+export type { Interval };

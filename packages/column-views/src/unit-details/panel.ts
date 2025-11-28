@@ -15,13 +15,11 @@ import {
   Value,
 } from "@macrostrat/data-components";
 import {
-  useColumnUnitsIfAvailable,
   useColumnUnitsMap,
-  useMacrostratColumnData,
   useMacrostratData,
   useMacrostratDefs,
 } from "../data-provider";
-import {
+import type {
   Environment,
   UnitLong,
   UnitLongFull,

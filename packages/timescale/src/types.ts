@@ -1,4 +1,4 @@
-import { ScaleContinuousNumeric, ScaleLinear } from "d3-scale";
+import type { ScaleContinuousNumeric } from "d3-scale";
 
 export interface Interval {
   pid: number | null;
@@ -20,9 +20,14 @@ interface NestedInterval extends Interval {
 
 type IntervalMap = Map<number, Interval[]>;
 
-enum TimescaleOrientation {
+export enum TimescaleOrientation {
   VERTICAL = "vertical",
   HORIZONTAL = "horizontal",
+}
+
+export enum IncreaseDirection {
+  UP_RIGHT = "up-right",
+  DOWN_LEFT = "down-left",
 }
 
 interface TimescaleProviderProps {
@@ -39,4 +44,4 @@ interface TimescaleCTX extends TimescaleProviderProps {
   scale: ScaleContinuousNumeric<number, number>;
 }
 
-export { TimescaleCTX, NestedInterval, IntervalMap, TimescaleOrientation };
+export { TimescaleCTX, NestedInterval, IntervalMap };

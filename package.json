@@ -16,7 +16,7 @@
     "publish:storybook": "./scripts/publish-storybook.sh",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",
-    "check-circular": "madge --circular --extensions ts,tsx ."
+    "check-circular": "madge --exclude __archive --circular --extensions ts,tsx ."
   },
   "author": "Daven Quinn",
   "license": "ISC",

@@ -4,14 +4,14 @@ import {
   compareAgeRanges,
 } from "@macrostrat/stratigraphy-utils";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { type ExtUnit, StratigraphicPackage } from "./helpers";
-import {
+import { ScaleContinuousNumeric } from "d3-scale";
+import type {
   ColumnScaleOptions,
   CompositeColumnData,
+  ExtUnit,
   PackageLayoutData,
-} from "./composite-scale";
-import { ScaleContinuousNumeric } from "d3-scale";
-import { HybridScaleType } from "./dynamic-scales";
+  StratigraphicPackage,
+} from "./types";
 
 const dt = 0.001;
 

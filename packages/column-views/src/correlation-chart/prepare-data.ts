@@ -1,5 +1,4 @@
 import { CompositeStratigraphicScaleInfo } from "../age-axis";
-import { PackageLayoutData } from "../prepare-units/composite-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { type ColumnGeoJSONRecord, UnitLong } from "@macrostrat/api-types";
 import {
@@ -9,6 +8,7 @@ import {
   preprocessUnits,
 } from "../prepare-units";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
+import { PackageLayoutData } from "../prepare-units/types";
 
 export interface ColumnIdentifier {
   col_id: number;

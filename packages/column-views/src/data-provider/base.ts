@@ -9,6 +9,7 @@ import {
   Environment,
   MacrostratRef,
   StratName,
+  Interval,
 } from "@macrostrat/api-types";
 import {
   fetchAllColumns,
@@ -49,7 +50,10 @@ interface MacrostratStore extends RefsSlice {
   lithologies: Map<number, any> | null;
   getLithologies(ids: number[] | null): Promise<any>;
   intervals: Map<number, any> | null;
-  getIntervals(ids: number[] | null, timescaleID: number | null): Promise<any>;
+  getIntervals(
+    ids: number[] | null,
+    timescaleID: number | null,
+  ): Promise<Interval[]>;
   environments: Map<number, Environment> | null;
   getEnvironments(ids: number[] | null): Promise<Environment[]>;
   columnFootprints: Map<number, ColumnFootprintsStorage>;
@@ -125,13 +129,13 @@ function createColumnsSlice(set, get) {
       let footprints = columnFootprints.get(key);
       if (footprints == null || footprints.inProcess != _inProcess) {
         // Fetch the columns
-        const statusCode = ["active"];
+        const statusCode: ColumnStatusCode[] = ["active"];
         if (_inProcess) {
           statusCode.push("in process");
         }
         const columns = await fetchAllColumns({
           projectID,
-          statusCode: statusCode.join(","),
+          statusCode,
           fetch,
         });
         if (columns == null) {

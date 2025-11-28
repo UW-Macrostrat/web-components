@@ -12,8 +12,6 @@ import {
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
-import type { ExtUnit } from "./prepare-units/helpers";
-import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
 import {
   useMacrostratColumnData,
   useMacrostratUnits,
@@ -22,6 +20,7 @@ import {
 } from "./data-provider";
 import { Duration } from "./unit-details";
 import { Value } from "@macrostrat/data-components";
+import type { ExtUnit, PackageScaleLayoutData } from "./prepare-units/types";
 
 const h = hyper.styled(styles);
 

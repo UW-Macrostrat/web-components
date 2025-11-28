@@ -25,6 +25,7 @@ import {
 } from "./utils";
 
 export * from "./utils";
+export * from "./types";
 export { preprocessUnits };
 
 export function usePreparedColumnUnits(

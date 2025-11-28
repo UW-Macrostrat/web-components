@@ -12,35 +12,9 @@ import {
   AgeRangeRelationship,
   compareAgeRanges,
 } from "@macrostrat/stratigraphy-utils";
+import type { ExtUnit, SectionInfo, StratigraphicPackage } from "./types";
 
 const dt = 0.001;
-
-export interface StratigraphicPackage {
-  /** A collection of stratigraphic information organized in time, corresponding
-   * to single or multiple columns. */
-  t_age: number;
-  b_age: number;
-}
-
-export interface SectionInfo<T extends UnitLong = ExtUnit>
-  extends StratigraphicPackage {
-  /** A time-bounded part of a single stratigraphic column. */
-  section_id: number | number[];
-  units: T[];
-  b_pos?: number;
-  t_pos?: number;
-}
-
-export interface ExtUnit extends UnitLong {
-  bottomOverlap: boolean;
-  overlappingUnits: number[];
-  column?: number;
-  /* Positions (ages or heights) where the unit is clipped to its containing section.
-   * This is relevant if we are filtering by age/height/depth range.
-   */
-  t_clip_pos?: number;
-  b_clip_pos?: number;
-}
 
 export function preprocessUnits<T extends UnitLong = UnitLong>(
   section: SectionInfo<T>,

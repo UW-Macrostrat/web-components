@@ -23,7 +23,6 @@ import {
   useUnitSelectionDispatch,
 } from "./units";
 
-import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
 import {
   Identifier,
   ReferencesField,
@@ -40,12 +39,16 @@ import {
   SectionsColumn,
 } from "./section";
 import { ApproximateHeightAxis, CompositeAgeAxis } from "./age-axis";
-import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
+import {
+  MergeSectionsMode,
+  usePreparedColumnUnits,
+  HybridScaleType,
+  ColumnHeightScaleOptions,
+} from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
 import { ScaleContinuousNumeric } from "d3-scale";
-import { HybridScaleType } from "./prepare-units/dynamic-scales";
 
 const h = hyperStyled(styles);
 
