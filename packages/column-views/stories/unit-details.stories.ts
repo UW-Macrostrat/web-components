@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import { Meta, StoryObj } from "@storybook/react-vite";
 import { useAPIResult } from "@macrostrat/ui-components";
 
-import { Spinner } from "@blueprintjs/core";
+import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { UnitDetailsPanel } from "../src/unit-details";
 import { LithologiesProvider } from "../src";
@@ -106,5 +106,20 @@ export const eODPMudstone: Story = {
   args: {
     unit_id: 62623,
     inProcess: true,
+  },
+};
+
+export const WithActions: Story = {
+  args: {
+    unit_id: 62623,
+    onClose() {
+      console.log("Close");
+    },
+    actions: h([
+      h(Button, { text: "Action 1", onClick: () => alert("Action 1") }),
+    ]),
+    hiddenActions: h([
+      h(Button, { icon: "add-column-left", onClick: () => alert("Hidden") }),
+    ]),
   },
 };
