@@ -1,13 +1,13 @@
 import h from "@macrostrat/hyper";
 import { scaleLinear } from "@visx/scale";
-import { createContext, useContext } from "react";
-import { TimescaleCTX, TimescaleOrientation } from "./types";
-import { IncreaseDirection } from "./index";
+import { createContext, useContext, type ReactNode } from "react";
+import type { TimescaleCTX } from "./types";
+import { TimescaleOrientation, IncreaseDirection } from "./types";
 
 const TimescaleContext = createContext<TimescaleCTX | null>(null);
 
 interface TimescaleProviderProps extends TimescaleCTX {
-  children: React.ReactNode;
+  children: ReactNode;
   increaseDirection?: IncreaseDirection;
 }
 

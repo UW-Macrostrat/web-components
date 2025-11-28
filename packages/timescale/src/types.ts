@@ -30,7 +30,7 @@ export enum IncreaseDirection {
   DOWN_LEFT = "down-left",
 }
 
-interface TimescaleProviderProps {
+interface TimescaleCTX {
   timescale: NestedInterval;
   selectedInterval: Interval | null;
   parentMap: IntervalMap;
@@ -38,9 +38,6 @@ interface TimescaleProviderProps {
   length: number;
   orientation: TimescaleOrientation;
   levels: [number, number] | null;
-}
-
-interface TimescaleCTX extends TimescaleProviderProps {
   scale: ScaleContinuousNumeric<number, number>;
 }
 
