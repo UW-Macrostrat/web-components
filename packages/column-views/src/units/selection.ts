@@ -20,7 +20,7 @@ import {
 } from "@macrostrat/column-views";
 
 type UnitSelectDispatch = (
-  unit: BaseUnit | null,
+  unit: number | BaseUnit | null,
   target: HTMLElement | null,
   event: Event | null,
 ) => void;
@@ -92,7 +92,26 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
           });
         }
       },
-      onUnitSelected: (unit: T, target: HTMLElement, event: PointerEvent) => {
+      onUnitSelected: (
+        input: number | T | null,
+        target: HTMLElement = null,
+        event: PointerEvent = null,
+      ) => {
+        if (input == null) {
+          return set({
+            selectedUnit: null,
+            selectedUnitData: null,
+            overlayPosition: null,
+          });
+        }
+
+        let unit: T | null = null;
+        if (typeof input === "number") {
+          unit = props.units.find((u) => u.unit_id === input) || null;
+        } else {
+          unit = input;
+        }
+
         const el = props.columnRef?.current;
         let overlayPosition = null;
 

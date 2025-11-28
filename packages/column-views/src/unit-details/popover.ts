@@ -54,6 +54,7 @@ function InteractionBarrier({ children }) {
 
 export function UnitSelectionPopover() {
   const unit = useSelectedUnit();
+  const selectUnit = useUnitSelectionStore((state) => state.onUnitSelected);
   const position = useUnitSelectionStore((state) => state.overlayPosition);
   if (unit == null) {
     return null;
@@ -76,6 +77,10 @@ export function UnitSelectionPopover() {
         unit,
         showLithologyProportions: true,
         className: "legend-panel",
+        onSelectUnit: (id: number) => {
+          console.log("Selected unit in popover:", id);
+          selectUnit(id, null, null);
+        },
       }),
     ),
   );
