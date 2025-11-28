@@ -5,7 +5,6 @@ import {
   normalizeLng,
 } from "@macrostrat/mapbox-utils";
 import { formatValue } from "./utils";
-import { LngLat } from "mapbox-gl";
 
 export * from "./hash-string";
 
@@ -50,9 +49,10 @@ export function LngLatCoords(props: LngLatProps) {
 
   let lat: number;
   let lng: number;
-  if (Array.isArray(position)) {
+  if (Array.isArray(position) && position.length === 2) {
     [lng, lat] = position;
-  } else if (position instanceof LngLat) {
+  } else if ("toArray" in position && typeof position.toArray === "function") {
+    // Check for LngLat object without access to mapbox-gl
     [lng, lat] = position.toArray();
   } else if ("lng" in position) {
     lat = position.lat;
