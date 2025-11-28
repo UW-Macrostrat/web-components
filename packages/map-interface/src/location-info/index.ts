@@ -6,8 +6,6 @@ import {
 } from "@macrostrat/mapbox-utils";
 import { formatValue } from "./utils";
 
-export * from "./hash-string";
-
 export function ValueWithUnit(props) {
   const { value, unit } = props;
   return h("span.value-with-unit", [
