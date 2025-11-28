@@ -63,6 +63,18 @@ export function useMacrostratUnits() {
   return useMacrostratColumnData().units;
 }
 
+export function useColumnUnitsMap(): Map<number, ExtUnit> | null {
+  const ctx = useContext(MacrostratColumnDataContext);
+  return useMemo(() => {
+    if (ctx == null) return null;
+    const unitMap = new Map<number, ExtUnit>();
+    ctx.units.forEach((unit) => {
+      unitMap.set(unit.unit_id, unit);
+    });
+    return unitMap;
+  }, [ctx?.units]);
+}
+
 export function useCompositeScale(): CompositeColumnScale {
   const ctx = useMacrostratColumnData();
   return useMemo(

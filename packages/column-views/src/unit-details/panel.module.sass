@@ -50,6 +50,13 @@
   position: relative
   margin: 1em
 
+.units-list
+  .item
+    &:after
+      content: ', '
+    &:last-child:after
+      content: ''
+
 .proportion, .sep, .no-units, .strat-name-text
   color: var(--secondary-color)
   font-style: italic

@@ -14,7 +14,13 @@ import {
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
-import { useMacrostratData, useMacrostratDefs } from "../data-provider";
+import {
+  useColumnUnitsIfAvailable,
+  useColumnUnitsMap,
+  useMacrostratColumnData,
+  useMacrostratData,
+  useMacrostratDefs,
+} from "../data-provider";
 import {
   Environment,
   UnitLong,
@@ -272,12 +278,20 @@ function UnitDetailsContent({
       h(
         DataField,
         { label: "Above" },
-        h(UnitIDList, { units: unit.units_above, onSelectUnit }),
+        h(UnitIDList, {
+          units: unit.units_above,
+          onSelectUnit,
+          showNames: true,
+        }),
       ),
       h(
         DataField,
         { label: "Below" },
-        h(UnitIDList, { units: unit.units_below, onSelectUnit }),
+        h(UnitIDList, {
+          units: unit.units_below,
+          onSelectUnit,
+          showNames: true,
+        }),
       ),
     ]),
     colorSwatch,
@@ -532,6 +546,20 @@ function enhanceLithologies(
   });
 }
 
+export function ClickableText({
+  onClick,
+  className,
+  children,
+}: {
+  onClick: () => void;
+  className?: string;
+  children: ReactNode;
+}) {
+  /** An optionally clickable text element */
+  const tag = onClick != null ? "a" : "span";
+  return h(tag, { onClick, className }, children);
+}
+
 export function Identifier({
   id,
   onClick,
@@ -542,49 +570,90 @@ export function Identifier({
   className?: string;
 }) {
   /** An item that displays a numeric identifier, optionally clickable */
-  const tag = onClick != null ? "a" : "span";
+  const _onClick = onClick != null ? () => onClick(id) : null;
+
   return h(
-    tag,
+    ClickableText,
     {
-      onClick() {
-        onClick?.(id);
-      },
-      className: classNames(
-        "identifier",
-        { clickable: onClick != null },
-        className,
-      ),
+      onClick: _onClick,
+      className: classNames("identifier", className),
     },
     id,
   );
 }
 
-function UnitIDList({ units, onSelectUnit }) {
-  const u1 = units.filter((d) => d != 0);
+type UnitInfo = {
+  unitID: number;
+  colID?: number;
+  name?: string;
+};
 
-  if (u1.length === 0) {
+function UnitIDList({ units, onSelectUnit, showNames = false }) {
+  const unitsMap = useColumnUnitsMap();
+
+  const extUnits: UnitInfo[] = useMemo(() => {
+    const u1 = units.filter((d) => d != 0);
+    if (showNames) {
+      return u1.map((unitID) => {
+        const unitData = unitsMap.get(unitID);
+        let name: string = undefined;
+        if (unitData != null) {
+          name = defaultNameFunction(unitData);
+        }
+        return {
+          unitID,
+          colID: unitData?.col_id,
+          name,
+        };
+      });
+    } else {
+      return u1.map((unitID) => ({ unitID }));
+    }
+  }, [units, unitsMap]);
+
+  if (extUnits.length === 0) {
     return h("span.no-units", "None");
-  }
-
-  let tag = "span";
-  if (onSelectUnit != null) {
-    tag = "a";
   }
 
   return h(
     ItemList,
-    { className: "unit-id-list" },
-    u1.map((unitID) => {
-      return h(Identifier, {
-        className: "unit-id",
-        onClick() {
-          onSelectUnit?.(unitID);
-        },
-        key: unitID,
-        id: unitID,
-      });
-    }),
+    { className: "units-list" },
+    extUnits.map((info) =>
+      h("span.item", h(UnitIdentifier, { ...info, onSelectUnit })),
+    ),
   );
+}
+
+function UnitIdentifier({
+  unitID,
+  colID,
+  name,
+  onSelectUnit,
+}: UnitInfo & { onSelectUnit?: (unitID: number) => void }) {
+  const onClick = useMemo(() => {
+    if (onSelectUnit == null) return null;
+    return () => {
+      onSelectUnit(unitID);
+    };
+  }, [onSelectUnit]);
+
+  if (name != null) {
+    return h(
+      ClickableText,
+      {
+        className: "unit-name",
+        onClick,
+      },
+      name,
+    );
+  }
+
+  return h(Identifier, {
+    className: "unit-id",
+    onClick,
+    key: unitID,
+    id: unitID,
+  });
 }
 
 function IntervalProportions({ unit, onClickItem }) {
