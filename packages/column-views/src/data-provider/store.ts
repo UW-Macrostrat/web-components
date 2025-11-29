@@ -6,6 +6,24 @@ import {
 } from "../prepare-units/composite-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import type { ExtUnit, PackageLayoutData } from "../prepare-units";
+// An isolated jotai store for Macrostrat column usage
+import { createIsolation } from "jotai-scope";
+import { atom } from "jotai";
+
+const { Provider, useAtom, useStore } = createIsolation();
+
+function MacrostratColumnProvider({ children }: { children: ReactNode }) {
+  // Always use the same store instance in this tree
+  let val = null;
+  try {
+    val = useStore();
+  } catch {
+    // No store found, create a new one
+    val = null;
+  }
+
+  return h(Provider, { store: val }, children);
+}
 
 export interface MacrostratColumnDataContext {
   units: ExtUnit[];
@@ -24,7 +42,7 @@ export function MacrostratColumnDataProvider({
   totalHeight,
   axisType,
 }: MacrostratColumnDataContext & { children: ReactNode }) {
-  /** Provider for Macrostrat column data.
+  /** Internal provider for Macrostrat column data.
    * As a general rule, we want to provide data and column-axis
    * height calculations through the context, since these need to
    * be accessed by any component that lays out information on the

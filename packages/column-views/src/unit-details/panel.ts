@@ -593,7 +593,7 @@ function UnitIDList({ units, onSelectUnit, showNames = false }) {
     const u1 = units.filter((d) => d != 0);
     if (showNames) {
       return u1.map((unitID) => {
-        const unitData = unitsMap.get(unitID);
+        const unitData = unitsMap?.get(unitID);
         let name: string = undefined;
         if (unitData != null) {
           name = defaultNameFunction(unitData);
