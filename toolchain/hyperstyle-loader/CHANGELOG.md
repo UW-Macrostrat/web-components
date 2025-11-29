@@ -1,8 +1,12 @@
 # Changelog
 
+## [1.0.2] - 2025-11-28
+
+Update Parcel bundler
+
 ## [1.0.1] - 2025-06-25
 
-Update Parcel bundling
+Update Parcel bundler
 
 ## [1.0.0] - 2025-02-14
 

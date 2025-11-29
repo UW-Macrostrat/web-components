@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "A library of React components tailored for Macrostrat data and endpoints",
   "type": "module",
   "source": "src/index.ts",
