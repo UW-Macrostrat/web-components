@@ -9,16 +9,18 @@ const { Provider, useAtom, useStore } = createIsolation();
 const countAtom = atom(0);
 
 export default {
-  title: "Column views/State Isolation",
+  title: "Column views/State isolation",
+  description:
+    "Example of isolating state between different Jotai provider instances.",
 };
 
 export function StateIsolationExample() {
   return h("div", [
     h(InheritProvider, { initialValues: [[countAtom, 5]] }, [
       h(Counter, { key: "counter-1" }),
-      h(InheritProvider, [
+      h(InheritProvider, { initialValues: [[countAtom, 8]] }, [
         h("p", [
-          "This should inherit the initial value of the outer provider, if available. ",
+          "This should inherit from the outer provider, if available. The initial value is ignored",
           h(Counter, { key: "counter-2" }),
         ]),
       ]),

@@ -7,12 +7,30 @@ import {
 import { ColumnAxisType } from "@macrostrat/column-components";
 import type { ExtUnit, PackageLayoutData } from "../prepare-units";
 // An isolated jotai store for Macrostrat column usage
+// TODO: there might be a better way to do this using the MacrostratDataProvider or similar
 import { createIsolation } from "jotai-scope";
-import { atom } from "jotai";
+import { atom, type WritableAtom } from "jotai";
 
-const { Provider, useAtom, useStore } = createIsolation();
+const { Provider, useAtom, useAtomValue, useStore } = createIsolation();
 
-function MacrostratColumnProvider({ children }: { children: ReactNode }) {
+type ProviderProps = {
+  children: ReactNode;
+  initialValues?: Iterable<[WritableAtom<any, any, any>, any]>;
+};
+
+const columnUnitsAtom = atom<ExtUnit[]>();
+
+const columnUnitsMapAtom = atom<Map<number, ExtUnit> | null>((get) => {
+  const units = get(columnUnitsAtom);
+  if (!units) return null;
+  const unitMap = new Map<number, ExtUnit>();
+  units.forEach((unit) => {
+    unitMap.set(unit.unit_id, unit);
+  });
+  return unitMap;
+});
+
+function ScopedProvider({ children, ...rest }: ProviderProps) {
   // Always use the same store instance in this tree
   let val = null;
   try {
@@ -21,8 +39,27 @@ function MacrostratColumnProvider({ children }: { children: ReactNode }) {
     // No store found, create a new one
     val = null;
   }
+  return h(Provider, { store: val, ...rest }, children);
+}
 
-  return h(Provider, { store: val }, children);
+export function MacrostratColumnStateProvider({
+  children,
+  units,
+}: {
+  children: ReactNode;
+  units: ExtUnit[];
+}) {
+  /** Top-level provider for Macrostrat column data.
+   * It is either provided by the Column component itself, or
+   * can be hoisted higher in the tree to provide a common data context
+   */
+  return h(
+    ScopedProvider,
+    {
+      initialValues: [[columnUnitsAtom, units]],
+    },
+    children,
+  );
 }
 
 export interface MacrostratColumnDataContext {
@@ -63,7 +100,11 @@ export function MacrostratColumnDataProvider({
     };
   }, [units, sections, totalHeight, axisType]);
 
-  return h(MacrostratColumnDataContext.Provider, { value }, children);
+  return h(
+    MacrostratColumnStateProvider,
+    { units },
+    h(MacrostratColumnDataContext.Provider, { value }, children),
+  );
 }
 
 export function useMacrostratColumnData() {
@@ -77,19 +118,11 @@ export function useMacrostratColumnData() {
 }
 
 export function useMacrostratUnits() {
-  return useMacrostratColumnData().units;
+  return useAtomValue(columnUnitsAtom);
 }
 
 export function useColumnUnitsMap(): Map<number, ExtUnit> | null {
-  const ctx = useContext(MacrostratColumnDataContext);
-  return useMemo(() => {
-    if (ctx == null) return null;
-    const unitMap = new Map<number, ExtUnit>();
-    ctx.units.forEach((unit) => {
-      unitMap.set(unit.unit_id, unit);
-    });
-    return unitMap;
-  }, [ctx?.units]);
+  return useAtomValue(columnUnitsMapAtom);
 }
 
 export function useCompositeScale(): CompositeColumnScale {
