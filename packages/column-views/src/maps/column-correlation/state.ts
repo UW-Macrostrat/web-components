@@ -6,7 +6,6 @@ import { lineIntersect } from "@turf/line-intersect";
 import distance from "@turf/distance";
 import { nearestPointOnLine } from "@turf/nearest-point-on-line";
 import { centroid } from "@turf/centroid";
-import mapboxgl from "mapbox-gl";
 import {
   createContext,
   useState,

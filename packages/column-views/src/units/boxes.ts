@@ -12,12 +12,11 @@ import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { forwardRef, ReactNode, useContext, useMemo } from "react";
 import { resolveID, scalePattern } from "./resolvers";
-import { useUnitSelectionTarget } from "./selection";
+import { useUnitSelectionTarget, useLithologies } from "../data-provider";
 import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
 import { getUnitHeightRange } from "../prepare-units/utils";
-import { useLithologies } from "../data-provider";
 import { getMixedUnitColor } from "./colors";
 import type { RectBounds } from "./types";
 

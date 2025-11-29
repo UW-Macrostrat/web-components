@@ -2343,6 +2343,8 @@ __metadata:
     d3-path: "npm:^3.1.0"
     d3-scale: "npm:^4.0.2"
     d3-shape: "npm:^3.2.0"
+    jotai: "npm:^2.15.1"
+    jotai-scope: "npm:^0.9.7"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
     parcel: "npm:^2.16.0"
     postcss: "npm:^8.0.0"
@@ -9263,6 +9265,37 @@ __metadata:
   dependencies:
     "@isaacs/cliui": "npm:^8.0.2"
   checksum: 10c0/84ec4f8e21d6514db24737d9caf65361511f75e5e424980eebca4199f400874f45e562ac20fa8aeb1dd20ca2f3f81f0788b6e9c3e64d216a5794fd6f30e0e042
+  languageName: node
+  linkType: hard
+
+"jotai-scope@npm:^0.9.7":
+  version: 0.9.7
+  resolution: "jotai-scope@npm:0.9.7"
+  peerDependencies:
+    jotai: ">=2.15.0"
+    react: ">=16.0.0"
+  checksum: 10c0/7ecaa7ce55ae51e6253450956eb2764148393883b16d7c254b9fea13931d38dc3875d2be8082271cba350d7f7915f08fa57e9164d9b4f3e076a581a201009137
+  languageName: node
+  linkType: hard
+
+"jotai@npm:^2.15.1":
+  version: 2.15.1
+  resolution: "jotai@npm:2.15.1"
+  peerDependencies:
+    "@babel/core": ">=7.0.0"
+    "@babel/template": ">=7.0.0"
+    "@types/react": ">=17.0.0"
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    "@babel/template":
+      optional: true
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+  checksum: 10c0/8260ac9f36e14d2cedbc79f63bc1bcd82902d68a1ab1f3dfce6ffabccbedfd5fa54fffe93e53a09253d6b29a9c05fbc455108a280efc8d349fd5bfb965f7869b
   languageName: node
   linkType: hard
 

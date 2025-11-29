@@ -3,7 +3,7 @@ import {
   UnitSelectionProvider,
   UnitKeyboardNavigation,
   useUnitSelectionStore,
-} from "../units";
+} from "../data-provider";
 import { UnitSelectionPopover } from "../unit-details";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
