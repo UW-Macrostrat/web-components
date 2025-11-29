@@ -32,8 +32,9 @@ export type GenericSchema = {
   Functions: Record<string, GenericFunction>;
 };
 
-interface PostgRESTTableViewProps<T extends object>
-  extends DataSheetProviderProps<T> {
+interface PostgRESTTableViewProps<
+  T extends object,
+> extends DataSheetProviderProps<T> {
   endpoint: string;
   table: string;
   columnOptions?: any;

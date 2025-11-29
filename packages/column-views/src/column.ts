@@ -69,9 +69,7 @@ interface BaseColumnProps extends SectionSharedProps {
 }
 
 export interface ColumnProps
-  extends Padding,
-    BaseColumnProps,
-    ColumnHeightScaleOptions {
+  extends Padding, BaseColumnProps, ColumnHeightScaleOptions {
   // Macrostrat units
   units: UnitLong[];
   t_age?: number;

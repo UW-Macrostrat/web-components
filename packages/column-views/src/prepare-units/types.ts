@@ -93,8 +93,9 @@ export interface StratigraphicPackage {
   b_age: number;
 }
 
-export interface SectionInfo<T extends UnitLong = ExtUnit>
-  extends StratigraphicPackage {
+export interface SectionInfo<
+  T extends UnitLong = ExtUnit,
+> extends StratigraphicPackage {
   /** A time-bounded part of a single stratigraphic column. */
   section_id: number | number[];
   units: T[];
@@ -129,7 +130,9 @@ export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
   unconformityHeight: number;
 }
 
-export interface CompositeColumnData<T extends UnitLong = ExtUnit>
-  extends Omit<CompositeScaleData, "sections"> {
+export interface CompositeColumnData<T extends UnitLong = ExtUnit> extends Omit<
+  CompositeScaleData,
+  "sections"
+> {
   sections: PackageLayoutData<T>[];
 }
