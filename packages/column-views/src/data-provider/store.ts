@@ -122,7 +122,11 @@ export function useMacrostratUnits() {
 }
 
 export function useColumnUnitsMap(): Map<number, ExtUnit> | null {
-  return useAtomValue(columnUnitsMapAtom);
+  try {
+    return useAtomValue(columnUnitsMapAtom);
+  } catch {
+    return null;
+  }
 }
 
 export function useCompositeScale(): CompositeColumnScale {

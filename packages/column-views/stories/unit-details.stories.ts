@@ -5,7 +5,14 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { UnitDetailsPanel } from "../src/unit-details";
-import { LithologiesProvider } from "../src";
+import {
+  LithologiesProvider,
+  MacrostratColumnStateProvider,
+  UnitSelectionProvider,
+  useSelectedUnit,
+  useUnitSelectionStore,
+} from "../src";
+import { useColumnUnits } from "./column-ui/utils";
 
 function useUnitData(unit_id, inProcess = false) {
   return useAPIResult(
@@ -123,3 +130,31 @@ export const WithActions: Story = {
     ]),
   },
 };
+
+export function WithDataProvider(args: UnitDetailsProps) {
+  const units = useColumnUnits(432);
+
+  if (units == null) return h(Spinner);
+
+  return h(
+    MacrostratColumnStateProvider,
+    { units },
+    h(
+      UnitSelectionProvider,
+      { units, selectedUnit: units?.[0]?.unit_id },
+      h(UnitDetailsWithSelection),
+    ),
+  );
+}
+
+function UnitDetailsWithSelection(args: UnitDetailsProps) {
+  const unit = useSelectedUnit();
+  const setSelectedUnit = useUnitSelectionStore((s) => s.onUnitSelected);
+  if (unit == null) return h("div", "No unit selected");
+  return h(UnitDetailsPanel, {
+    unit,
+    onSelectUnit(unit) {
+      setSelectedUnit(unit, null, null);
+    },
+  });
+}
