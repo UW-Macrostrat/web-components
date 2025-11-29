@@ -167,7 +167,7 @@ export const WithApproximateHeightScaleOnly: Story = {
     id: 448,
     // Ordered time bins
     pixelScale: 0.5,
-    axisType: ColumnAxisType.AGE,
+    axisType: ColumnAxisType.HEIGHT,
     hybridScale: {
       type: HybridScaleType.ApproximateHeight,
     },
@@ -177,9 +177,5 @@ export const WithApproximateHeightScaleOnly: Story = {
     showTimescale: false,
     unconformityHeight: 20,
     unconformityLabels: false,
-    children: h(ApproximateHeightAxis, {
-      // Move to the left side
-      style: { order: -1, marginRight: "8px" },
-    }),
   },
 };

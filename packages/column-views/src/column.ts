@@ -69,7 +69,9 @@ interface BaseColumnProps extends SectionSharedProps {
 }
 
 export interface ColumnProps
-  extends Padding, BaseColumnProps, ColumnHeightScaleOptions {
+  extends Padding,
+    BaseColumnProps,
+    ColumnHeightScaleOptions {
   // Macrostrat units
   units: UnitLong[];
   t_age?: number;
@@ -95,7 +97,6 @@ export function Column(props: ColumnProps) {
     selectedUnit,
     children,
     units: rawUnits,
-    axisType = ColumnAxisType.AGE,
     t_age,
     b_age,
     t_pos,
@@ -109,6 +110,7 @@ export function Column(props: ColumnProps) {
     allowUnitSelection,
     hybridScale,
     scale,
+    axisType,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
@@ -125,8 +127,20 @@ export function Column(props: ColumnProps) {
     _minPixelScale = pixelScale;
   }
 
+  // Handle special cases for hybrid scales (WIP, we need to regularize this)
+  let _axisType = axisType ?? ColumnAxisType.AGE;
+  let ageAxisComponent = CompositeAgeAxis;
+  if (
+    hybridScale?.type === HybridScaleType.ApproximateHeight &&
+    _axisType != ColumnAxisType.AGE
+  ) {
+    // Use approximate height axis for non-age columns if a non-age axis type is requested
+    ageAxisComponent = ApproximateHeightAxis;
+    _axisType = ColumnAxisType.AGE;
+  }
+
   const { sections, units, totalHeight } = usePreparedColumnUnits(rawUnits, {
-    axisType,
+    axisType: _axisType,
     t_age,
     b_age,
     t_pos,
@@ -152,15 +166,6 @@ export function Column(props: ColumnProps) {
         icon: "warning-sign",
       }),
     );
-  }
-
-  let ageAxisComponent = CompositeAgeAxis;
-  if (
-    hybridScale?.type === HybridScaleType.ApproximateHeight &&
-    axisType != ColumnAxisType.AGE
-  ) {
-    // Use approximate height axis for non-age columns if a non-age axis type is requested
-    ageAxisComponent = ApproximateHeightAxis;
   }
 
   let main: any = h(
@@ -196,7 +201,7 @@ export function Column(props: ColumnProps) {
 
   return h(
     MacrostratColumnDataProvider,
-    { units, sections, totalHeight, axisType },
+    { units, sections, totalHeight, axisType: _axisType },
     main,
   );
 }
