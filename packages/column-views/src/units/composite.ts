@@ -16,8 +16,11 @@ import {
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
 import styles from "./composite.module.sass";
-import { useCompositeScale, useMacrostratColumnData } from "../data-provider";
-import { useUnitSelectionDispatch } from "../units";
+import {
+  useCompositeScale,
+  useMacrostratColumnData,
+  useUnitSelectionDispatch,
+} from "../data-provider";
 
 const h = hyperStyled(styles);
 

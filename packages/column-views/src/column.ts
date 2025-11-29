@@ -16,12 +16,12 @@ import {
   ComponentType,
 } from "react";
 import styles from "./column.module.sass";
+import { UnitComponent } from "./units";
 import {
   UnitSelectionProvider,
-  UnitComponent,
   UnitKeyboardNavigation,
   useUnitSelectionDispatch,
-} from "./units";
+} from "./data-provider";
 
 import {
   Identifier,

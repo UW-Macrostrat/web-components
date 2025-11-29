@@ -17,7 +17,6 @@ import { Lithology } from "@macrostrat/api-types";
 
 export * from "./composite";
 export * from "./types";
-export * from "./selection";
 export * from "./colors";
 
 export function UnitsColumn({ width = 100 }) {

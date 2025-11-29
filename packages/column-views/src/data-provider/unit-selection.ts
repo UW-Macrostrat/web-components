@@ -12,7 +12,7 @@ import {
   useCallback,
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
-import type { RectBounds, IUnit } from "./types";
+import type { RectBounds, IUnit } from "../units/types";
 
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,

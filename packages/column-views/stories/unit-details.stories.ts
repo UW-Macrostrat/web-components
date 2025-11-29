@@ -112,7 +112,6 @@ export const MoenkopiFormation: Story = {
 export const eODPMudstone: Story = {
   args: {
     unit_id: 62623,
-    inProcess: true,
   },
 };
 
