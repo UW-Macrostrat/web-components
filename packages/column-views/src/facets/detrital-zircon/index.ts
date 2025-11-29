@@ -3,13 +3,13 @@ import {
   DetritalSeries,
   usePlotArea,
 } from "@macrostrat/data-components";
-import { IUnit } from "../../units/types";
+import type { IUnit } from "../../units/types";
 import hyper from "@macrostrat/hyper";
 import { useDetritalMeasurements, MeasurementInfo } from "./provider";
 import { useMemo } from "react";
 import styles from "./index.module.sass";
 import classNames from "classnames";
-import { BaseMeasurementsColumn } from "@macrostrat/column-views";
+import { BaseMeasurementsColumn } from "../base-sample-column";
 
 const h = hyper.styled(styles);
 

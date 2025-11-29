@@ -33,7 +33,7 @@ import { ColumnContainer } from "../column";
 import { ColumnData } from "../data-provider";
 import { BaseUnit } from "@macrostrat/api-types";
 import { ScaleContinuousNumeric } from "d3-scale";
-import { ExtUnit } from "@macrostrat/column-views";
+import { ExtUnit } from "../prepare-units/types";
 
 const h = hyper.styled(styles);
 

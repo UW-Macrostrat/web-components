@@ -77,7 +77,7 @@ export interface CrossAxisLayoutProviderProps {
 
 class CrossAxisLayoutProvider extends Component<CrossAxisLayoutProviderProps> {
   static contextType = ColumnContext;
-  context: ColumnCtx<ColumnDivision>;
+  declare context: ColumnCtx<ColumnDivision>;
   render() {
     let { domain, range, width, children } = this.props;
     if (range == null) {

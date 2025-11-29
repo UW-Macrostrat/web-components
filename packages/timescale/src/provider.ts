@@ -6,7 +6,7 @@ import { TimescaleOrientation, IncreaseDirection } from "./types";
 
 const TimescaleContext = createContext<TimescaleCTX | null>(null);
 
-interface TimescaleProviderProps extends TimescaleCTX {
+export interface TimescaleProviderProps extends TimescaleCTX {
   children: ReactNode;
   increaseDirection?: IncreaseDirection;
 }

@@ -52,7 +52,7 @@ export class ColumnScroller extends Component<ColumnScrollerProps> {
 
   static contextType: Context<ColumnCtx<ColumnDivision>> = ColumnContext;
 
-  context: ColumnCtx<ColumnDivision>;
+  declare context: ColumnCtx<ColumnDivision>;
 
   render() {
     const keys = [

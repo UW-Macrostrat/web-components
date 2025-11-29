@@ -20,7 +20,7 @@ const MapCanvasContext = createContext({
 
 class CanvasLayer extends Component<any, any> {
   static contextType = MapContext;
-  context: GlobeCtx;
+  declare context: GlobeCtx;
   canvas: RefObject<HTMLCanvasElement>;
   constructor(props, ctx) {
     super(props, ctx);

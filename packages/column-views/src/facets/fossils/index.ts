@@ -11,9 +11,9 @@ import { Box, useElementSize } from "@macrostrat/ui-components";
 import { InternMap } from "d3-array";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
 import {
-  useCompositeScale,
   useMacrostratColumnData,
-} from "@macrostrat/column-views";
+  useCompositeScale,
+} from "../../data-provider";
 import { UnitLong } from "@macrostrat/api-types";
 import styles from "./index.module.sass";
 import { useRef } from "react";

@@ -104,7 +104,7 @@ class NoteLayoutProvider extends StatefulComponent<
       return 12;
     },
   };
-  context: ColumnCtx<ColumnDivision>;
+  declare context: ColumnCtx<ColumnDivision>;
   _previousContext: ColumnCtx<ColumnDivision>;
   _rendererIndex: object;
 

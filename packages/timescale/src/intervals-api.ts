@@ -12,7 +12,7 @@ import { Interval } from "./types";
 export async function fetchMacrostratIntervals(
   baseUrl: string,
   // Default to ICS timescale
-  timescaleID?: number = 11,
+  timescaleID: number = 11,
 ): Promise<MacrostratInterval[]> {
   const url = new URL(`${baseUrl}/defs/intervals`);
   url.searchParams.set("timescale_id", timescaleID.toString());

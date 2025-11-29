@@ -10,14 +10,9 @@ import {
   RefObject,
   useRef,
   useCallback,
-  MouseEvent,
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { RectBounds, IUnit } from "./types";
-import {
-  getUnitHeightRange,
-  useMacrostratColumnData,
-} from "@macrostrat/column-views";
 
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,

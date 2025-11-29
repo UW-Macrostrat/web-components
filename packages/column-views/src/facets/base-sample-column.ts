@@ -1,11 +1,9 @@
-import {
-  ColumnNotes,
-  getUnitHeightRange,
-  useMacrostratColumnData,
-} from "@macrostrat/column-views";
+import { useMacrostratColumnData } from "../data-provider";
 import { useCallback, useMemo } from "react";
 import hyper from "@macrostrat/hyper";
 import styles from "./base-sample-column.module.sass";
+import { getUnitHeightRange } from "../prepare-units";
+import { ColumnNotes } from "../notes";
 const h = hyper.styled(styles);
 
 export interface BaseMeasurementsColumnProps<T> {

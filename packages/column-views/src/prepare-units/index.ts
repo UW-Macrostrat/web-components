@@ -22,7 +22,7 @@ import {
   PreparedColumnData,
   unitsOverlap,
 } from "./utils";
-import { SectionInfo } from "@macrostrat/column-views";
+import { SectionInfo } from "./types";
 
 export * from "./utils";
 export * from "./types";
