@@ -4,7 +4,6 @@ import {
   metersToFeet,
   normalizeLng,
 } from "@macrostrat/mapbox-utils";
-import { formatValue } from "./utils";
 import type { LngLatLike } from "mapbox-gl";
 
 export function ValueWithUnit(props) {
@@ -14,6 +13,10 @@ export function ValueWithUnit(props) {
     h("span.spacer", [" "]),
     h("span.unit", [unit]),
   ]);
+}
+
+function formatValue(val: number, precision: number = 0): string {
+  return Number(val).toFixed(precision);
 }
 
 export function DegreeCoord(props) {
