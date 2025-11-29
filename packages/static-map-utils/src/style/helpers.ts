@@ -1,5 +1,4 @@
 import type { StyleSpecification } from "maplibre-gl";
-import type mapboxgl from "mapbox-gl";
 
 export function optimizeTerrain(
   style: StyleSpecification | null,

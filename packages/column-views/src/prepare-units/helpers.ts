@@ -2,48 +2,27 @@ import type { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { group } from "d3-array";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import {
-  unitsOverlap,
-  getUnitHeightRange,
   createUnitSorter,
   ensureArray,
   ensureRealFloat,
-  PossiblyClippedUnit,
+  getUnitHeightRange,
+  unitsOverlap,
 } from "./utils";
-import { compareAgeRanges } from "@macrostrat/stratigraphy-utils";
+import {
+  AgeRangeRelationship,
+  compareAgeRanges,
+} from "@macrostrat/stratigraphy-utils";
+import type { ExtUnit, SectionInfo, StratigraphicPackage } from "./types";
 
 const dt = 0.001;
-
-export interface StratigraphicPackage {
-  /** A collection of stratigraphic information organized in time, corresponding
-   * to single or multiple columns. */
-  t_age: number;
-  b_age: number;
-}
-
-export interface SectionInfo<T extends UnitLong = ExtUnit>
-  extends StratigraphicPackage {
-  /** A time-bounded part of a single stratigraphic column. */
-  section_id: number | number[];
-  units: T[];
-}
-
-export interface ExtUnit extends UnitLong {
-  bottomOverlap: boolean;
-  overlappingUnits: number[];
-  column?: number;
-  /* Positions (ages or heights) where the unit is clipped to its containing section.
-   * This is relevant if we are filtering by age/height/depth range.
-   */
-  t_clip_pos?: number;
-  b_clip_pos?: number;
-}
 
 export function preprocessUnits<T extends UnitLong = UnitLong>(
   section: SectionInfo<T>,
   axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): ExtUnit[] {
   /** Preprocess units to add overlapping units and columns. */
-  const units = section.units;
+  let units = section.units;
+
   let divisions = units.map((...args) => extendDivision(...args, axisType));
   for (let d of divisions) {
     const overlappingUnits = divisions.filter((u) =>
@@ -63,8 +42,8 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
     }
 
     // If unit overlaps the edges of a section, set the clip positions
+    const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
     if (axisType == ColumnAxisType.AGE) {
-      const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
       if (b_pos > section.b_age) {
         d.b_clip_pos = section.b_age;
       }
@@ -72,14 +51,24 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
         d.t_clip_pos = section.t_age;
       }
     }
+    if (axisType == ColumnAxisType.DEPTH) {
+      if (b_pos > section.b_pos) {
+        d.b_clip_pos = section.b_pos;
+      }
+      if (t_pos < section.t_pos) {
+        d.t_clip_pos = section.t_pos;
+      }
+    }
+    // if (axisType == ColumnAxisType.HEIGHT) {
+    //   if (b_pos < section.b_pos) {
+    //     d.b_clip_pos = section.b_pos;
+    //   }
+    //   if (t_pos > section.t_pos) {
+    //     d.t_clip_pos = section.t_pos;
+    //   }
+    // }
   }
 
-  // TODO: we may want to re-enable this simpler processing for sections,
-  // but we want it to be less universally applied.
-  // if (axisType != ColumnAxisType.AGE) {
-  //   return preprocessSectionUnits(divisions, axisType);
-  // }
-  //
   return divisions;
 }
 
@@ -89,8 +78,15 @@ function extendDivision(
   divisions: UnitLong[],
   axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): ExtUnit {
+  // TODO: make this configurable
+  let tolerance = 0.001; // 1 kyr tolerance for age columns
+  if (axisType != ColumnAxisType.AGE) {
+    tolerance = 0.01; // 1cm tolerance for height/depth columns
+  }
+
   const overlappingUnits = divisions.filter(
-    (d) => d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType),
+    (d) =>
+      d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType, tolerance),
   );
   const u_pos = getUnitHeightRange(unit, axisType);
   const bottomOverlap = overlappingUnits.some((d) => {
@@ -111,14 +107,10 @@ function extendDivision(
   };
 }
 
-export function groupUnitsIntoSections<T extends UnitLong>(
+export function groupUnitsIntoSectionsBySectionID<T extends UnitLong>(
   units: T[],
   axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): SectionInfo<T>[] {
-  if (axisType != ColumnAxisType.AGE) {
-    return groupUnitsIntoSectionByOverlap(units, axisType);
-  }
-
   /** Group units into sections by section_id.
    * This works for large-scale Macrostrat columns, where units are grouped by section_id.
    * */
@@ -127,13 +119,15 @@ export function groupUnitsIntoSections<T extends UnitLong>(
 
   const groups1 = groups.map(([section_id, sectionUnits]) => {
     const [b_age, t_age] = getSectionAgeRange(sectionUnits);
+    const [b_pos, t_pos] = getSectionPosRange(sectionUnits, axisType);
+
     // sort units by position
     sectionUnits.sort(unitComparator);
-    return { section_id, t_age, b_age, units: sectionUnits };
+    return { section_id, t_age, b_age, b_pos, t_pos, units: sectionUnits };
   });
   // Sort sections by increasing top age, then increasing bottom age.
   // Sections have no relative ordinal position other than age...
-  const compareSections = createUnitSorter(ColumnAxisType.AGE) as (
+  const compareSections = createUnitSorter(axisType) as (
     a: StratigraphicPackage,
     b: StratigraphicPackage,
   ) => number;
@@ -147,7 +141,7 @@ interface WorkingSection {
   heightRange?: [number, number];
 }
 
-function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
+export function groupUnitsIntoSectionsByOverlap<T extends UnitLong>(
   units: T[],
   axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): SectionInfo<T>[] {
@@ -161,8 +155,10 @@ function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
   for (const unit of units) {
     // Check if the unit overlaps with any existing section
     const heightRange = getUnitHeightRange(unit, axisType);
-    let section: WorkingSection | undefined = sectionList.find((s) =>
-      compareAgeRanges(heightRange, s.heightRange),
+    let section: WorkingSection | undefined = sectionList.find(
+      (s) =>
+        compareAgeRanges(heightRange, s.heightRange) !==
+        AgeRangeRelationship.Disjoint,
     );
     if (section == null) {
       // No overlap, create a new section
@@ -174,10 +170,17 @@ function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
       // Overlap, merge the unit into the section
       section.units.push(unit);
       // Update the height range
-      section.heightRange = [
-        Math.max(section.heightRange[0], heightRange[0]),
-        Math.min(section.heightRange[1], heightRange[1]),
-      ];
+      if (axisType == ColumnAxisType.DEPTH || axisType == ColumnAxisType.AGE) {
+        section.heightRange = [
+          Math.max(section.heightRange[0], heightRange[0]),
+          Math.min(section.heightRange[1], heightRange[1]),
+        ];
+      } else {
+        section.heightRange = [
+          Math.min(section.heightRange[0], heightRange[0]),
+          Math.max(section.heightRange[1], heightRange[1]),
+        ];
+      }
     }
   }
   // We should have a section for each unit, now we can convert to SectionInfo
@@ -185,23 +188,58 @@ function groupUnitsIntoSectionByOverlap<T extends UnitLong>(
 
   return sectionList.map((section, i) => {
     const [b_age, t_age] = getSectionAgeRange(section.units);
+    const [b_pos, t_pos] = getSectionPosRange(section.units, axisType);
     return {
       // Negative section IDs are used to indicate that these are synthetic sections
       section_id: -i,
-      t_age: t_age,
-      b_age: b_age,
+      t_age,
+      b_age,
+      t_pos,
+      b_pos,
       units: section.units as T[],
     };
   });
 }
 
+export function getSectionPosRange(
+  units: BaseUnit[],
+  axisType: ColumnAxisType,
+): [number, number] {
+  /** Get the overall position range of a set of units. */
+  const t_positions = units.map((d) => {
+    switch (axisType) {
+      case ColumnAxisType.AGE:
+        return d.t_age;
+      case ColumnAxisType.DEPTH:
+      case ColumnAxisType.HEIGHT:
+      case ColumnAxisType.ORDINAL:
+        return d.t_pos;
+      default:
+        throw new Error(`Unknown axis type: ${axisType}`);
+    }
+  });
+  const b_positions = units.map((d) => {
+    switch (axisType) {
+      case ColumnAxisType.AGE:
+        return d.b_age;
+      case ColumnAxisType.DEPTH:
+      case ColumnAxisType.HEIGHT:
+      case ColumnAxisType.ORDINAL:
+        return d.b_pos;
+      default:
+        throw new Error(`Unknown axis type: ${axisType}`);
+    }
+  });
+  if (axisType == ColumnAxisType.AGE || axisType == ColumnAxisType.DEPTH) {
+    return [Math.max(...b_positions), Math.min(...t_positions)];
+  } else {
+    return [Math.min(...b_positions), Math.max(...t_positions)];
+  }
+}
+
 export function getSectionAgeRange(units: BaseUnit[]): [number, number] {
   /** Get the overall age range of a set of units. */
-  const t_ages = units.map((d) => d.t_age);
-  const b_ages = units.map((d) => d.b_age);
-  const t_age = Math.min(...t_ages);
-  const b_age = Math.max(...b_ages);
-  return [b_age, t_age];
+  return getSectionPosRange(units, ColumnAxisType.AGE);
 }
 
 export function mergeOverlappingSections<T extends UnitLong>(
@@ -235,37 +273,13 @@ export function mergeOverlappingSections<T extends UnitLong>(
   return newSections;
 }
 
-function preprocessSectionUnits(
-  units: UnitLong[],
-  axisType: ColumnAxisType = ColumnAxisType.DEPTH,
-): ExtUnit[] {
-  /** Preprocess units for a "section" column type, which is guaranteed to be simpler. */
-  // We have to assume the units are ordered...
-  let thickness = 0;
-  return units.map((unit, i) => {
-    let u1 = preprocessSectionUnit(unit, i, units, thickness, axisType);
-    thickness += Math.abs(u1.t_pos - u1.b_pos);
-    return u1;
-  });
-}
-
-function preprocessSectionUnit(
-  unit: UnitLong,
-  i: number,
-  units: UnitLong[],
-  accumulatedThickness: number = 0,
-  axisType: ColumnAxisType = ColumnAxisType.DEPTH,
-): ExtUnit {
+export function preprocessSectionUnit(unit: UnitLong): UnitLong {
   /** Preprocess a single unit for a "section" column type.
-   * No provision for overlapping units.
+   * This mostly handles vagaries of eODP-style columns.
    * */
 
   let b_pos = unit.b_pos;
   let t_pos = unit.t_pos;
-
-  if (b_pos == t_pos && axisType == ColumnAxisType.ORDINAL) {
-    t_pos = t_pos - 1;
-  }
 
   let unit_name = unit.unit_name;
 
@@ -285,7 +299,5 @@ function preprocessSectionUnit(
     b_pos: ensureRealFloat(b_pos),
     t_pos: ensureRealFloat(t_pos),
     unit_name,
-    bottomOverlap: false,
-    overlappingUnits: [],
   };
 }

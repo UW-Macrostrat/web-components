@@ -29,7 +29,7 @@ interface DraggableOverlayInternalProps extends DraggableOverlayProps {
 
 class _DraggableOverlay extends Component<DraggableOverlayInternalProps, any> {
   static contextType = MapContext;
-  context: GlobeCtx;
+  declare context: GlobeCtx;
 
   static defaultProps = {
     showMousePosition: false,

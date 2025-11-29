@@ -20,7 +20,8 @@ interface FaciesPickerProps {
 
 export class FaciesPicker extends Component<FaciesPickerProps> {
   static contextType = FaciesContext;
-  context: any;
+  declare context: any;
+
   render() {
     const { facies } = this.context;
     const { interval, onChange } = this.props;

@@ -1,11 +1,10 @@
-import h from "@macrostrat/hyper";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
-import { LngLatCoords, LngLatProps } from "../src/location-info";
+import { LngLatCoords, LngLatProps } from ".";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 const meta: Meta<LngLatProps> = {
-  title: "Map interface/Utilities/LngLatCoords",
+  title: "Data components/Location info",
   component: LngLatCoords,
 };
 

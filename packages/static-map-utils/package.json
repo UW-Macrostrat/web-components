@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/static-map-utils",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Utilities for working with Mapbox maps",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",

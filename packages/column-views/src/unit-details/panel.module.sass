@@ -13,7 +13,7 @@
   overflow: hidden
   .title-container
     gap: 0.5em
-    align-items: center
+    align-items: baseline
     margin: 0
     flex-grow: 1
     z-index: 5
@@ -49,6 +49,13 @@
 .unit-details-content
   position: relative
   margin: 1em
+
+.units-list
+  .item
+    &:after
+      content: ', '
+    &:last-child:after
+      content: ''
 
 .proportion, .sep, .no-units, .strat-name-text
   color: var(--secondary-color)

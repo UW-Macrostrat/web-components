@@ -1,6 +1,6 @@
 export type AgeRange = [number, number];
 
-enum MergeMode {
+export enum MergeMode {
   Inner,
   Outer,
 }
@@ -43,6 +43,8 @@ function convertToForwardOrdinal(a: AgeRange): AgeRange {
    * expressed as negative numbers. This assists with intuitive ordering
    * in certain cases.
    */
+  a = [Number(a[0]), Number(a[1])];
+
   if (a[0] < a[1]) {
     // Already in forward ordinal form
     return a;

@@ -4,18 +4,23 @@ import {
   SectionLabelsColumn,
 } from "./units";
 import { ReactNode, FunctionComponent, useMemo } from "react";
-import { Timescale, TimescaleOrientation } from "@macrostrat/timescale";
+import {
+  Timescale,
+  TimescaleOrientation,
+  useMacrostratIntervals,
+} from "@macrostrat/timescale";
 import { ColumnAxisType, SVG } from "@macrostrat/column-components";
 import hyper from "@macrostrat/hyper";
 import styles from "./column.module.sass";
-import type { ExtUnit } from "./prepare-units/helpers";
-import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
 import {
   useMacrostratColumnData,
   useMacrostratUnits,
   MacrostratColumnProvider,
+  useMacrostratBaseURL,
 } from "./data-provider";
 import { Duration } from "./unit-details";
+import { Value } from "@macrostrat/data-components";
+import type { ExtUnit, PackageScaleLayoutData } from "./prepare-units/types";
 
 const h = hyper.styled(styles);
 
@@ -84,6 +89,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     unitComponentProps,
     clipUnits,
     maxInternalColumns,
+    axisType,
     unconformityLabels = true,
   } = props;
 
@@ -127,6 +133,7 @@ function SectionUnitsColumn(props: SectionSharedProps) {
     h.if(unconformityLabels)(UnconformityLabels, {
       width,
       sections: scaleData,
+      verbose: false,
     }),
   ]);
 }
@@ -145,7 +152,7 @@ function SectionUnits(props: SectionProps) {
     maxInternalColumns,
   } = props;
 
-  const { domain, pixelScale, pixelHeight } = scaleInfo;
+  const { domain, pixelScale, pixelHeight, scale } = scaleInfo;
 
   /** Ensure that we can arrange units into the maximum number
    * of columns defined by unitComponentProps, but that we don't
@@ -177,6 +184,7 @@ function SectionUnits(props: SectionProps) {
         units,
         domain,
         pixelScale, // Actually pixels per myr,
+        scale,
       },
       h(CompositeUnitsColumn, {
         width,
@@ -213,6 +221,10 @@ type CompositeTimescaleCoreProps = CompositeTimescaleProps & {
 export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
   const { levels = 3, packages, unconformityLabels = false } = props;
 
+  // Use intervals from Macrostrat API
+  const baseURL = useMacrostratBaseURL();
+  const intervals = useMacrostratIntervals(baseURL);
+
   let _levels: [number, number];
   if (typeof levels === "number") {
     // If levels is a number, use the most common starting level
@@ -227,7 +239,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
     h(
       "div.timescales",
       packages.map((group) => {
-        const { domain, pixelHeight, paddingTop, key } = group;
+        const { pixelHeight, paddingTop, key, scale } = group;
         return h(
           "div.timescale-container",
           { style: { paddingTop, "--timescale-level-count": nCols }, key },
@@ -238,7 +250,8 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
               levels: _levels,
               absoluteAgeScale: true,
               showAgeAxis: false,
-              ageRange: domain as [number, number],
+              scale,
+              intervals,
             }),
           ],
         );
@@ -248,6 +261,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
       width: "100%",
       sections: packages,
       className: "unconformity-labels",
+      axisType: ColumnAxisType.AGE,
     }),
   ]);
 }
@@ -255,9 +269,11 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
 export function UnconformityLabels(props: {
   width: string | number;
   sections: PackageScaleLayoutData[];
+  axisType?: ColumnAxisType;
   className?: string;
+  verbose?: boolean;
 }) {
-  const { width, sections, className } = props;
+  const { width, sections, className, axisType, verbose } = props;
 
   return h(
     "div.unconformity-labels",
@@ -273,6 +289,7 @@ export function UnconformityLabels(props: {
       const upperAge = lastGroup?.domain[0];
       const lowerAge = scaleInfo.domain[1];
       return h(Unconformity, {
+        axisType,
         upperAge,
         lowerAge,
         style: {
@@ -280,12 +297,19 @@ export function UnconformityLabels(props: {
           height: scaleInfo.paddingTop,
           top,
         },
+        verbose,
       });
     }),
   );
 }
 
-function Unconformity({ upperAge, lowerAge, style }) {
+function Unconformity({
+  upperAge,
+  lowerAge,
+  style,
+  axisType,
+  verbose = false,
+}) {
   if (upperAge == null || lowerAge == null) {
     return null;
   }
@@ -303,7 +327,20 @@ function Unconformity({ upperAge, lowerAge, style }) {
     className = "small";
   }
 
+  let val: ReactNode;
+  if (axisType === ColumnAxisType.DEPTH || axisType === ColumnAxisType.HEIGHT) {
+    const _txt = ageGap.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    val = h(Value, { value: _txt, unit: "m" });
+  } else {
+    val = h(Duration, { value: ageGap });
+  }
+
+  let prefix: ReactNode = null;
+  if (verbose) {
+    prefix = h([" ", h("span.prefix", " gap")]);
+  }
+
   return h("div.unconformity", { style, className }, [
-    h("div.unconformity-text", h(Duration, { value: ageGap })),
+    h("div.unconformity-inner", h("div.unconformity-text", [val, prefix])),
   ]);
 }

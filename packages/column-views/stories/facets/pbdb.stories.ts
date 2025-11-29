@@ -3,6 +3,8 @@ import {
   MacrostratDataProvider,
   MergeSectionsMode,
   PBDBFossilsColumn,
+  PBDBOccurrencesMatrix,
+  FossilDataType,
 } from "../../src";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
@@ -10,7 +12,7 @@ import { Meta } from "@storybook/react-vite";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
 function PBDBFossilsDemoColumn(props) {
-  const { id, children, spectraColor, ...rest } = props;
+  const { id, children, type = FossilDataType.Collections, ...rest } = props;
 
   return h(
     MacrostratDataProvider,
@@ -23,7 +25,7 @@ function PBDBFossilsDemoColumn(props) {
         allowUnitSelection: false,
         ...rest,
       },
-      h(PBDBFossilsColumn, { columnID: id, color: spectraColor }),
+      h(PBDBFossilsColumn, { columnID: id, type }),
     ),
   );
 }
@@ -36,6 +38,10 @@ export default {
     axisType: {
       options: ["age", "depth"],
       control: { type: "radio" },
+    },
+    type: {
+      options: Object.values(FossilDataType),
+      control: { type: "select" },
     },
   },
 } as Meta;
@@ -50,8 +56,46 @@ export const eODPColumn: Story = {
     showUnitPopover: true,
     collapseSmallUnconformities: true,
     keyboardNavigation: true,
+    type: FossilDataType.Collections,
   },
 };
+
+export const eODPColumnOccurrences: Story = {
+  args: {
+    id: 5576,
+    axisType: ColumnAxisType.DEPTH,
+    pixelScale: 20,
+    allowUnitSelection: true,
+    showUnitPopover: true,
+    collapseSmallUnconformities: true,
+    keyboardNavigation: true,
+    type: FossilDataType.Occurrences,
+  },
+};
+
+export function eODPColumnWithTaxonRanges() {
+  const id = 5576;
+  return h(
+    MacrostratDataProvider,
+    h(
+      StandaloneColumn,
+      {
+        showTimescale: false,
+        showLabelColumn: false,
+        allowUnitSelection: false,
+        id,
+        axisType: ColumnAxisType.DEPTH,
+        pixelScale: 20,
+        paddingTop: 200,
+        allowUnitSelection: true,
+        showUnitPopover: true,
+        collapseSmallUnconformities: true,
+        keyboardNavigation: true,
+      },
+      h(PBDBOccurrencesMatrix, { columnID: id }),
+    ),
+  );
+}
 
 export const eODPColumnMoreComplete: Story = {
   args: {
@@ -73,6 +117,7 @@ export const eODPColumnAgeFramework: Story = {
     inProcess: true,
     collapseSmallUnconformities: false,
     mergeSections: MergeSectionsMode.OVERLAPPING,
+    axisType: "age",
   },
   title: "eODP Column (with age model applied)",
 };
@@ -80,6 +125,7 @@ export const eODPColumnAgeFramework: Story = {
 export const ParadoxBasin = {
   args: {
     id: 495,
+    type: "colls",
   },
 };
 

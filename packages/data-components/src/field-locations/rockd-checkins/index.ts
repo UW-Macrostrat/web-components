@@ -5,8 +5,7 @@
 
 import hyper from "@macrostrat/hyper";
 import styles from "./index.module.sass";
-import { LngLatCoords } from "@macrostrat/map-interface";
-import { useDarkMode } from "@macrostrat/ui-components";
+import { LngLatCoords } from "../../location-info";
 import { Icon } from "@blueprintjs/core";
 import mapboxgl from "mapbox-gl";
 

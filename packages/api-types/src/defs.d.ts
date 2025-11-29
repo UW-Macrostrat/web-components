@@ -23,12 +23,22 @@ export interface MacrostratRef {
   t_units: number;
 }
 
-export type Interval = {
+export type TimescaleRef = {
+  timescale_id: number;
+  name: string;
+};
+
+export type MacrostratInterval = {
   int_id: number;
   name: string;
   abbrev?: string;
   t_age?: number;
   b_age?: number;
-  timescales?: string[];
+  int_type?: string;
+  timescales?: TimescaleRef[];
   color: string;
 };
+
+type Interval = MacrostratInterval;
+
+export type { Interval };

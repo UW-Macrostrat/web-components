@@ -1,0 +1,14 @@
+.truncated-list
+  padding-left: 0.2em
+  font-size: 0.9em
+  list-style: none
+  border-left: 1px solid var(--column-stroke-color)
+  margin: 1px 0
+  li
+    display: inline
+    &:not(:last-child):after
+      content: ", "
+      color: var(--secondary-color)
+  li.too-many
+    color: var(--secondary-color)
+    font-style: italic

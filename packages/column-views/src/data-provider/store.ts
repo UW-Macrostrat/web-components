@@ -1,18 +1,11 @@
-import {
-  createContext,
-  useContext,
-  ReactNode,
-  useMemo,
-  useEffect,
-} from "react";
+import { createContext, ReactNode, useContext, useMemo } from "react";
 import h from "@macrostrat/hyper";
 import {
-  createCompositeScale,
-  PackageLayoutData,
   CompositeColumnScale,
+  createCompositeScale,
 } from "../prepare-units/composite-scale";
-import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import type { ExtUnit, PackageLayoutData } from "../prepare-units";
 
 export interface MacrostratColumnDataContext {
   units: ExtUnit[];
@@ -43,6 +36,7 @@ export function MacrostratColumnDataProvider({
    * */
 
   const value = useMemo(() => {
+    // For now, change ordinal axis types to age axis types
     return {
       units,
       sections,
@@ -66,6 +60,18 @@ export function useMacrostratColumnData() {
 
 export function useMacrostratUnits() {
   return useMacrostratColumnData().units;
+}
+
+export function useColumnUnitsMap(): Map<number, ExtUnit> | null {
+  const ctx = useContext(MacrostratColumnDataContext);
+  return useMemo(() => {
+    if (ctx == null) return null;
+    const unitMap = new Map<number, ExtUnit>();
+    ctx.units.forEach((unit) => {
+      unitMap.set(unit.unit_id, unit);
+    });
+    return unitMap;
+  }, [ctx?.units]);
 }
 
 export function useCompositeScale(): CompositeColumnScale {

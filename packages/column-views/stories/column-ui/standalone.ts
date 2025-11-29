@@ -6,7 +6,10 @@ import "@macrostrat/style-system";
 import { ColumnProps } from "../../src";
 
 function useColumnUnits(col_id, inProcess) {
-  const status_code = inProcess ? "in process" : undefined;
+  const status_codes = ["active"];
+  if (inProcess) status_codes.push("in process");
+  const status_code = status_codes.join(",");
+
   // show_position is needed to properly deal with `section` column types.
   return useAPIResult(
     "https://dev.macrostrat.org/api/v2/units",
@@ -16,7 +19,10 @@ function useColumnUnits(col_id, inProcess) {
 }
 
 function useColumnBasicInfo(col_id, inProcess = false) {
-  const status_code = inProcess ? "in process" : undefined;
+  const status_codes = ["active"];
+  if (inProcess) status_codes.push("in process");
+  const status_code = status_codes.join(",");
+
   return useAPIResult(
     "https://dev.macrostrat.org/api/v2/columns",
     { col_id, status_code },

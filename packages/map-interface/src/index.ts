@@ -6,6 +6,6 @@ export * from "./map-view";
 export * from "./controls";
 export * from "./helpers";
 export * from "./utils";
-export * from "./location-info";
 export * from "./expansion-panel";
 export * from "./location-details";
+export * from "./hash-string";

@@ -16,7 +16,7 @@ import {
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
 import styles from "./composite.module.sass";
-import { useMacrostratColumnData } from "../data-provider";
+import { useCompositeScale, useMacrostratColumnData } from "../data-provider";
 import { useUnitSelectionDispatch } from "../units";
 
 const h = hyperStyled(styles);
@@ -157,12 +157,11 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
     shouldRenderNote,
   } = props;
 
-  const { sections, totalHeight, axisType } = useMacrostratColumnData();
+  const { totalHeight, axisType } = useMacrostratColumnData();
+  const _compositeScale = useCompositeScale();
 
   const unlabeledUnits = useContext(UnlabeledDivisionsContext);
   const unitsToLabel = noteMode == "unlabeled" ? unlabeledUnits : undefined;
-
-  const _compositeScale = compositeScale(sections);
 
   const selectUnit = useUnitSelectionDispatch();
 
@@ -199,55 +198,10 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
   ]);
 }
 
-type CompositeScaleOpts = {
-  clamped?: boolean;
-};
-
 export interface CompositeColumnScale {
   (val: number): number;
   copy(): CompositeColumnScale;
   domain(): number[];
-}
-
-export function compositeScale(
-  sections,
-  opts: CompositeScaleOpts = {},
-): CompositeColumnScale {
-  /** A basic composite scale that works across all sections. This isn't a fully featured,
-   * contiuous D3 scale, but it shares enough attributes to be useful for
-   * laying out notes.
-   */
-  const { clamped = true } = opts;
-
-  const scales = sections.map((group) => {
-    const { scaleInfo } = group;
-    return scaleInfo.scale.copy().clamp(clamped);
-  });
-
-  let baseScale: any = (val) => {
-    // Find the scale for the section that contains the value
-    const scale = scales.find((scale) => {
-      return scale.domain()[0] <= val && val <= scale.domain()[1];
-    });
-
-    if (scale) {
-      return scale(val);
-    } else {
-      // return nan
-      return NaN;
-    }
-  };
-
-  baseScale.copy = () => {
-    return baseScale;
-  };
-
-  baseScale.domain = () => {
-    // Return a domain that covers all sections
-    return [scales[0].domain()[0], scales[scales.length - 1].domain()[1]];
-  };
-
-  return baseScale as CompositeColumnScale;
 }
 
 export function ColumnNotesProvider(props) {

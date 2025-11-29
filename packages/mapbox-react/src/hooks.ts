@@ -1,5 +1,4 @@
 import { RefObject, useEffect } from "react";
-import mapboxgl from "mapbox-gl";
 import { toggleMapLabelVisibility } from "@macrostrat/mapbox-utils";
 import { useMapRef, useMapStatus } from "./context";
 import { useCallback } from "react";

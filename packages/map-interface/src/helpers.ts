@@ -2,7 +2,6 @@ import {
   useMapRef,
   useMapEaseTo,
   useMapDispatch,
-  useMapStatus,
   useMapInitialized,
 } from "@macrostrat/mapbox-react";
 import { useMemo, useRef } from "react";
@@ -10,7 +9,6 @@ import { debounce } from "underscore";
 import useResizeObserver from "use-resize-observer";
 
 import { getMapPosition } from "@macrostrat/mapbox-utils";
-import mapboxgl from "mapbox-gl";
 import { useCallback, useEffect, useState } from "react";
 import { getMapPadding, useMapMarker } from "./utils";
 import { useInDarkMode } from "@macrostrat/ui-components";

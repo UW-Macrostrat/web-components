@@ -1,15 +1,26 @@
-import { getUnitHeightRange } from "../../prepare-units";
-import { useMacrostratColumnData } from "../../data-provider";
 import hyper from "@macrostrat/hyper";
-import { PBDBCollection, useFossilData } from "./provider";
-import { useMacrostratUnits } from "../../data-provider";
-import { ColumnNotes } from "../../notes";
-import { useMemo } from "react";
+import {
+  FossilDataType,
+  PBDBCollection,
+  PBDBOccurrence,
+  useFossilData,
+} from "./provider";
 import type { IUnit } from "../../units";
+import { BaseMeasurementsColumn, TruncatedList } from "../base-sample-column";
+import { Box, useElementSize } from "@macrostrat/ui-components";
+import { InternMap } from "d3-array";
+import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
+import {
+  useMacrostratColumnData,
+  useCompositeScale,
+} from "../../data-provider";
+import { UnitLong } from "@macrostrat/api-types";
 import styles from "./index.module.sass";
-import { useCallback } from "react";
+import { useRef } from "react";
 
 const h = hyper.styled(styles);
+
+export { FossilDataType };
 
 interface FossilItemProps {
   note: {
@@ -36,177 +47,240 @@ function FossilInfo(props: FossilItemProps) {
   });
 }
 
-interface TruncatedListProps {
-  data: any[];
-  className?: string;
-  maxItems?: number;
-  itemRenderer?: (props: { data: any }) => any;
-}
-
-export function TruncatedList({
+function PBDBCollectionLink({
   data,
-  className,
-  maxItems = 5,
-  itemRenderer = (p) => h("span", p.data),
-}: TruncatedListProps) {
-  let tooMany = null;
-  let d1 = data;
-  if (data.length > maxItems) {
-    const n = data.length - maxItems;
-    d1 = data.slice(0, maxItems);
-    tooMany = h("li.too-many", `and ${n} more`);
-  }
-
-  return h("ul.truncated-list", { className }, [
-    d1.map((d, i) => {
-      return h("li.element", { key: i }, h(itemRenderer, { data: d }));
-    }),
-    tooMany,
-  ]);
-}
-
-function PBDBCollectionLink({ data }: { data: PBDBCollection }) {
+}: {
+  data: PBDBCollection | PBDBOccurrence;
+}) {
+  /** A link to a PBDB collection that handles either an occurrence or collection object */
   return h(
     "a.link-id",
     {
       href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${data.cltn_id}`,
     },
-    data.cltn_name,
+    data.best_name ?? data.cltn_name,
   );
 }
 
-const matchingUnit = (dz) => (d) => d.unit_id == dz.unit_id;
+const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
 
-export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
-  const data = useFossilData({ col_id: columnID });
+export function PBDBFossilsColumn({
+  columnID,
+  type = FossilDataType.Collections,
+}: {
+  columnID: number;
+  type: FossilDataType;
+}) {
+  const data = useFossilData(columnID, type);
 
-  const { axisType, units } = useMacrostratColumnData();
+  return h(BaseMeasurementsColumn, {
+    data,
+    noteComponent: FossilInfo,
+    className: "fossil-collections",
+    matchingUnit,
+  });
+}
 
-  const notes: any[] = useMemo(() => {
-    if (data == null || units == null) return [];
-    let unitRefData = Array.from(data.values())
-      .map((d) => {
-        return {
-          data: d,
-          unit: units.find(matchingUnit(d[0])),
-        };
-      })
-      .filter((d) => d.unit != null);
+export function PBDBOccurrencesMatrix({ columnID }) {
+  /* A column for a matrix of taxon occurrences displayed as a table beside the main column. This will
+  eventually be extended with first/last occurrence markers and range bars.
+   */
+  const data = useFossilData(columnID, FossilDataType.Occurrences) as InternMap<
+    number,
+    PBDBOccurrence[]
+  >;
 
-    unitRefData.sort((a, b) => {
-      const v1 = units.indexOf(a.unit);
-      const v2 = units.indexOf(b.unit);
-      return v1 - v2;
-    });
+  // convert the data to a map
+  const occurrenceMap = new Map(data);
 
-    return unitRefData.map((d) => {
-      const { unit, data } = d;
-      const heightRange = getUnitHeightRange(unit, axisType);
+  const col = useMacrostratColumnData();
+  const matrix = createOccurrenceMatrix(col.units, occurrenceMap, col.axisType);
 
-      return {
-        top_height: heightRange[1],
-        height: heightRange[0],
-        data,
-        unit,
-        id: unit.unit_id,
-      };
-    });
-  }, [data, units]);
+  const scale = useCompositeScale();
 
-  const width = 500;
-  const paddingLeft = 40;
+  const { taxonRanges } = matrix;
 
-  const noteComponent = useMemo(() => {
-    return (props) => {
-      return h(FossilInfo, {
-        color,
-        ...props,
+  const padding = 16;
+  const spacing = 16;
+
+  const taxonEntries = Array.from(taxonRanges.entries());
+  //const taxon = taxonEntries.slice(0, 50); // limit to top 50 taxa
+
+  const width = padding * 2 + spacing * taxonEntries.length;
+
+  return h(Box, { className: "taxon-ranges", width, height: col.totalHeight }, [
+    h(TaxonOccurrenceLabels, {
+      taxonEntries,
+      padding,
+      spacing,
+      scale,
+    }),
+    h(
+      ColumnSVG,
+      {
+        width: padding * 2 + spacing * taxonEntries.length,
+      },
+      h(
+        "g.taxa-occurrences-matrix",
+        taxonEntries.map(([taxonName, ranges], rowIndex) => {
+          const xPosition = padding + rowIndex * spacing;
+          return h("g", { transform: `translate(${xPosition})` }, [
+            ranges.map(([top, bottom]) => {
+              return h("line", {
+                y1: scale(top),
+                y2: scale(bottom),
+              });
+            }),
+          ]);
+        }),
+      ),
+    ),
+  ]);
+}
+
+function TaxonOccurrenceLabels({ taxonEntries, padding, spacing, scale }) {
+  return h("div.taxon-labels", [
+    taxonEntries.map(([taxonName, ranges], rowIndex) => {
+      const top = ranges[0]?.[0] ?? 0;
+      let topPx = scale(top) - 20;
+      if (topPx < 200) topPx = 0;
+
+      return h(TaxonLabel, {
+        top: topPx,
+        left: padding + rowIndex * spacing,
+        taxonName,
       });
-    };
-  }, [width, color]);
-
-  if (data == null || units == null) return null;
-
-  return h(
-    "div.dz-spectra",
-    h(ColumnNotes, {
-      width,
-      paddingLeft,
-      notes,
-      noteComponent,
     }),
-  );
+  ]);
 }
 
-export interface BaseMeasurementsColumnProps<T> {
-  data: T[];
-  noteComponent?: any;
-  width?: number;
-  paddingLeft?: number;
-  className?: string;
-  getUnitID?: (d: T) => number | string;
-}
-
-export function BaseMeasurementsColumn({
-  data,
-  noteComponent,
-  width = 500,
-  paddingLeft = 40,
-  className,
-  getUnitID = (d) => d.unit_id,
-}: BaseMeasurementsColumnProps<any>) {
-  const { axisType, units } = useMacrostratColumnData();
-
-  const matchingUnit = useCallback(
-    (dz) => {
-      return (d) => {
-        return getUnitID(d) === dz.unit_id;
-      };
+function TaxonLabel({ top, left, taxonName }) {
+  const ref = useRef();
+  const textSize = useElementSize(ref);
+  const labelWidth = textSize?.height ?? 200;
+  return h(
+    "div.taxon-label",
+    {
+      style: {
+        top: `${top}px`,
+        marginLeft: `${left}px`,
+        "--label-width": `${labelWidth}px`,
+      },
     },
-    [getUnitID],
+    h("div.taxon-label-inner", h("div.taxon-label-text", { ref }, taxonName)),
   );
+}
 
-  const notes: any[] = useMemo(() => {
-    if (data == null || units == null) return [];
-    let unitRefData = Array.from(data.values())
-      .map((d) => {
-        return {
-          data: d,
-          unit: units.find(matchingUnit(d)),
-        };
-      })
-      .filter((d) => d.unit != null);
+type TaxonUnitMap = Map<string, Set<number>>;
 
-    unitRefData.sort((a, b) => {
-      const v1 = units.indexOf(a.unit);
-      const v2 = units.indexOf(b.unit);
-      return v1 - v2;
-    });
+interface OccurrenceMatrixData {
+  occurrenceMap: Map<number, PBDBOccurrence[]>; // Map of unit IDs to occurrences (original data)
+  taxonUnitMap: TaxonUnitMap; // Map of taxon names to sets of unit IDs
+  taxonOccurrenceMap: Map<string, PBDBOccurrence[]>; // Map of taxon names to occurrences
+  taxonRanges: Map<string, [number, number][]>; // Map of taxon names to [top, bottom] pixel ranges
+}
 
-    return unitRefData.map((d) => {
-      const { unit, data } = d;
-      const heightRange = getUnitHeightRange(unit, axisType);
-
-      return {
-        top_height: heightRange[1],
-        height: heightRange[0],
-        data,
-        unit,
-        id: unit.unit_id,
-      };
-    });
-  }, [data, units, matchingUnit]);
-
-  if (data == null || units == null) return null;
-
-  return h(
-    "div",
-    { className },
-    h(ColumnNotes, {
-      width,
-      paddingLeft,
-      notes,
-      noteComponent,
+function TaxonOccurrenceEntry({
+  xPosition,
+  ranges,
+  scale,
+  name,
+}: {
+  xPosition: number;
+  units: Set<number>;
+}) {
+  return h("g", { transform: `translate(${xPosition})` }, [
+    ranges.map(([top, bottom]) => {
+      return h("line", {
+        y1: scale(top),
+        y2: scale(bottom),
+      });
     }),
-  );
+  ]);
+}
+
+function createOccurrenceMatrix(
+  units: UnitLong[],
+  data: Map<number, PBDBOccurrence[]>,
+  axisType: ColumnAxisType = ColumnAxisType.AGE,
+): OccurrenceMatrixData {
+  const taxonUnitMap = new Map<string, Set<number>>();
+  const taxonOccurrenceMap = new Map<string, PBDBOccurrence[]>();
+
+  for (const [unit_id, occurrences] of data.entries()) {
+    for (const occ of occurrences) {
+      const taxonName = occ.best_name ?? occ.taxon_name;
+      if (!taxonUnitMap.has(taxonName)) {
+        taxonUnitMap.set(taxonName, new Set());
+        taxonOccurrenceMap.set(taxonName, []);
+      }
+      taxonUnitMap.get(taxonName).add(unit_id);
+      taxonOccurrenceMap.get(taxonName).push(occ);
+    }
+  }
+
+  // sort the taxon occurrence map by number of occurrences
+  const sortedTaxa = Array.from(taxonUnitMap.entries()).sort((a, b) => {
+    // Sort alphabetically by taxon name
+    return b[0].localeCompare(a[0]);
+  });
+
+  const taxonRanges = new Map<string, [number, number][]>();
+  for (const [taxonName, unitSet] of taxonUnitMap.entries()) {
+    taxonRanges.set(
+      taxonName,
+      accumulatePresenceDomains(units, unitSet, axisType),
+    );
+  }
+
+  return {
+    occurrenceMap: data,
+    taxonUnitMap: new Map(sortedTaxa),
+    taxonOccurrenceMap: taxonOccurrenceMap,
+    taxonRanges,
+  };
+}
+
+function accumulatePresenceDomains(
+  unit: UnitLong[],
+  presenceUnits: Set<number>,
+  axisType: ColumnAxisType,
+): Array<[number, number]> {
+  const domains: Array<[number, number]> = [];
+  let currentDomain: [number, number] | null = null;
+
+  for (const u of unit) {
+    if (presenceUnits.has(u.unit_id)) {
+      if (currentDomain == null) {
+        if (
+          axisType == ColumnAxisType.DEPTH ||
+          axisType == ColumnAxisType.HEIGHT
+        ) {
+          currentDomain = [u.t_pos, u.b_pos];
+        } else {
+          currentDomain = [u.t_age, u.b_age];
+        }
+      } else {
+        if (
+          axisType == ColumnAxisType.DEPTH ||
+          axisType == ColumnAxisType.HEIGHT
+        ) {
+          currentDomain[1] = u.b_pos;
+        } else {
+          currentDomain[1] = u.b_age;
+        }
+      }
+    } else {
+      if (currentDomain != null) {
+        domains.push(currentDomain);
+        currentDomain = null;
+      }
+    }
+  }
+
+  if (currentDomain != null) {
+    domains.push(currentDomain);
+  }
+
+  return domains;
 }

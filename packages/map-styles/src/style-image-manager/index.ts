@@ -172,7 +172,7 @@ async function resolveFGDCImage(
 
   const num = parseInt(name);
   let patternName = name;
-  if (num == NaN) {
+  if (Number.isNaN(num)) {
     throw new Error(`Invalid FGDC pattern name: ${name}`);
   }
   if (num <= 599) {

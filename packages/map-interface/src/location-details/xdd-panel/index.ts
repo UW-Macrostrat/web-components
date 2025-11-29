@@ -1,20 +1,7 @@
 import { Spinner } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import Journal from "./Journal";
+import { XDDSnippet, JournalLegacy } from "./journal";
 import { ExpansionPanel } from "@macrostrat/map-interface";
-
-export interface XDDSnippet {
-  pubname: string;
-  publisher: string;
-  _gddid: string;
-  title: string;
-  doi: string;
-  coverDate: string;
-  URL: string;
-  authors: string;
-  hits: number;
-  highlight: string[];
-}
 
 export function XddExpansion({
   xddInfo,
@@ -39,8 +26,6 @@ export function xDDPanelCore({
 }) {
   const groupedData = groupSnippetsByJournal(xddInfo);
 
-  console.log("expanded", expanded);
-
   return h(
     ExpansionPanel,
     {
@@ -54,7 +39,7 @@ export function xDDPanelCore({
       h.if(isFetching)(Spinner),
       h.if(!isFetching && xddInfo.length > 0)([
         Array.from(groupedData.entries())?.map(([journal, snippets]) => {
-          return h(Journal, {
+          return h(JournalLegacy, {
             nestedExpanded,
             name: journal,
             articles: snippets,

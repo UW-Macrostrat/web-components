@@ -240,7 +240,7 @@ class LithologyBoxes extends UUIDComponent<any> {
     resolveID: defaultResolveID,
     minimumHeight: 0,
   };
-  context: ColumnLayoutCtx<ColumnDivision>;
+  declare context: ColumnLayoutCtx<ColumnDivision>;
   constructor(props) {
     super(props);
     this.constructLithologyDivisions =

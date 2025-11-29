@@ -1,8 +1,20 @@
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { hyperStyled } from "@macrostrat/hyper";
-import { useDarkMode } from "@macrostrat/ui-components";
+import {
+  Box,
+  extractPadding,
+  Padding,
+  useDarkMode,
+} from "@macrostrat/ui-components";
 import classNames from "classnames";
-import { RefObject, useRef, HTMLAttributes, useCallback } from "react";
+import {
+  RefObject,
+  useRef,
+  HTMLAttributes,
+  useCallback,
+  CSSProperties,
+  ComponentType,
+} from "react";
 import styles from "./column.module.sass";
 import {
   UnitSelectionProvider,
@@ -11,7 +23,6 @@ import {
   useUnitSelectionDispatch,
 } from "./units";
 
-import { ColumnHeightScaleOptions } from "./prepare-units/composite-scale";
 import {
   Identifier,
   ReferencesField,
@@ -27,11 +38,17 @@ import {
   CompositeTimescale,
   SectionsColumn,
 } from "./section";
-import { CompositeAgeAxis } from "./age-axis";
-import { MergeSectionsMode, usePreparedColumnUnits } from "./prepare-units";
+import { ApproximateHeightAxis, CompositeAgeAxis } from "./age-axis";
+import {
+  MergeSectionsMode,
+  usePreparedColumnUnits,
+  HybridScaleType,
+  ColumnHeightScaleOptions,
+} from "./prepare-units";
 import { UnitLong } from "@macrostrat/api-types";
 import { NonIdealState } from "@blueprintjs/core";
 import { DataField } from "@macrostrat/data-components";
+import { ScaleContinuousNumeric } from "d3-scale";
 
 const h = hyperStyled(styles);
 
@@ -51,11 +68,14 @@ interface BaseColumnProps extends SectionSharedProps {
   ) => void;
 }
 
-export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
+export interface ColumnProps
+  extends Padding, BaseColumnProps, ColumnHeightScaleOptions {
   // Macrostrat units
   units: UnitLong[];
   t_age?: number;
   b_age?: number;
+  t_pos?: number;
+  b_pos?: number;
   mergeSections?: MergeSectionsMode;
   showUnitPopover?: boolean;
   allowUnitSelection?: boolean;
@@ -63,6 +83,7 @@ export interface ColumnProps extends BaseColumnProps, ColumnHeightScaleOptions {
   onUnitSelected?: (unitID: number | null, unit: any) => void;
   // Unconformity height in pixels
   unconformityHeight?: number;
+  scale?: ScaleContinuousNumeric<number, number>;
 }
 
 export function Column(props: ColumnProps) {
@@ -77,6 +98,8 @@ export function Column(props: ColumnProps) {
     axisType = ColumnAxisType.AGE,
     t_age,
     b_age,
+    t_pos,
+    b_pos,
     unconformityHeight = 30,
     targetUnitHeight = 20,
     pixelScale,
@@ -84,22 +107,40 @@ export function Column(props: ColumnProps) {
     minSectionHeight = 50,
     collapseSmallUnconformities = true,
     allowUnitSelection,
+    hybridScale,
+    scale,
     ...rest
   } = props;
   const ref = useRef<HTMLElement>();
   // Selected item position
 
+  /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
+   * standardization of scales in all sections */
+  let _targetUnitHeight = targetUnitHeight;
+  let _minSectionHeight = minSectionHeight;
+  let _minPixelScale = minPixelScale;
+  if (pixelScale != null) {
+    _targetUnitHeight = null;
+    _minSectionHeight = 0;
+    _minPixelScale = pixelScale;
+  }
+
   const { sections, units, totalHeight } = usePreparedColumnUnits(rawUnits, {
     axisType,
     t_age,
     b_age,
+    t_pos,
+    b_pos,
     mergeSections,
-    targetUnitHeight,
+    targetUnitHeight: _targetUnitHeight,
     unconformityHeight,
     pixelScale,
-    minPixelScale,
-    minSectionHeight,
+    minPixelScale: _minPixelScale,
+    minSectionHeight: _minSectionHeight,
     collapseSmallUnconformities,
+    // TODO: consider unifying scale and hybridScale options
+    scale,
+    hybridScale,
   });
 
   if (sections.length === 0) {
@@ -113,11 +154,24 @@ export function Column(props: ColumnProps) {
     );
   }
 
-  let main: any = h(ColumnInner, { columnRef: ref, ...rest }, [
-    children,
-    h.if(showUnitPopover)(UnitSelectionPopover),
-    h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
-  ]);
+  let ageAxisComponent = CompositeAgeAxis;
+  if (
+    hybridScale?.type === HybridScaleType.ApproximateHeight &&
+    axisType != ColumnAxisType.AGE
+  ) {
+    // Use approximate height axis for non-age columns if a non-age axis type is requested
+    ageAxisComponent = ApproximateHeightAxis;
+  }
+
+  let main: any = h(
+    ColumnInner,
+    { columnRef: ref, ageAxisComponent, ...rest },
+    [
+      children,
+      h.if(showUnitPopover)(UnitSelectionPopover),
+      h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
+    ],
+  );
 
   /* By default, unit selection is disabled. However, if any related props are passed,
    we enable it.
@@ -149,9 +203,20 @@ export function Column(props: ColumnProps) {
 
 interface ColumnInnerProps extends BaseColumnProps {
   columnRef: RefObject<HTMLElement>;
+  ageAxisComponent?: ComponentType;
 }
 
 function ColumnInner(props: ColumnInnerProps) {
+  const padding = extractPadding(props);
+
+  // TODO: integrate padding vars more closely with the rest of the spacing (right now padding is a bit ad-hoc)
+  const paddingVars: any = {
+    "--column-padding-top": `${padding.paddingTop}px`,
+    "--column-padding-bottom": `${padding.paddingBottom}px`,
+    "--column-padding-left": `${padding.paddingLeft}px`,
+    "--column-padding-right": `${padding.paddingRight}px`,
+  };
+
   const {
     unitComponent = UnitComponent,
     unconformityLabels = true,
@@ -167,6 +232,7 @@ function ColumnInner(props: ColumnInnerProps) {
     timescaleLevels,
     maxInternalColumns,
     onMouseOver,
+    ageAxisComponent = CompositeAgeAxis,
   } = props;
 
   const { axisType } = useMacrostratColumnData();
@@ -191,10 +257,11 @@ function ColumnInner(props: ColumnInnerProps) {
     ColumnContainer,
     {
       ...useMouseEventHandlers(onMouseOver),
+      style: paddingVars,
       className,
     },
     h("div.column", { ref: columnRef }, [
-      h(CompositeAgeAxis),
+      h(ageAxisComponent),
       h.if(_showTimescale)(CompositeTimescale, { levels: timescaleLevels }),
       h(SectionsColumn, {
         unitComponent,
@@ -262,16 +329,21 @@ function useMouseEventHandlers(
 
 export interface ColumnContainerProps extends HTMLAttributes<HTMLDivElement> {
   className?: string;
+  style?: CSSProperties;
 }
 
 export function ColumnContainer(props: ColumnContainerProps) {
   const { className, ...rest } = props;
   const darkMode = useDarkMode();
 
-  return h("div.column-container", {
-    className: classNames(className, {
-      "dark-mode": darkMode?.isEnabled ?? false,
-    }),
+  return h(Box, {
+    className: classNames(
+      className,
+      {
+        "dark-mode": darkMode?.isEnabled ?? false,
+      },
+      "column-container",
+    ),
     ...rest,
   });
 }

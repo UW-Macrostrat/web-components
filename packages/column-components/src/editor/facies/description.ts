@@ -27,7 +27,7 @@ export class FaciesDescriptionSmall extends Component<FaciesDescriptionSmallProp
   static contextType = FaciesContext;
   static defaultProps = { selected: null, isEditable: false };
 
-  context: any;
+  declare context: any;
 
   renderEach(d: FaciesData) {
     let onClick = null;

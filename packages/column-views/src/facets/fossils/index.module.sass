@@ -1,14 +1,44 @@
-.truncated-list
-  padding-left: 0.2em
-  font-size: 0.9em
-  list-style: none
-  border-left: 1px solid var(--column-stroke-color)
-  margin: 1px 0
-  li
-    display: inline
-    &:not(:last-child):after
-      content: ", "
-      color: var(--secondary-color)
-  li.too-many
-    color: var(--secondary-color)
+.taxa-occurrences-matrix
+  color: var(--column-text-color)
+  line
+    stroke: var(--column-stroke-color)
+    stroke-width: 2px
+  text.taxon-name
+    fill: var(--column-text-color)
+    transform: rotate(90deg) translate(0, 4px)
+    text-anchor: end
+    position: sticky
+    top: 0
+
+.taxon-ranges
+  position: relative
+  &>svg
+    position: absolute
+    height: 100%
+
+.taxon-labels
+  z-index: 10
+  position: absolute
+  width: 100%
+  height: 100%
+  pointer-events: none
+
+  .taxon-label
+    position: absolute
+    height: 100%
+
+  .taxon-label-inner
+    position: sticky
+    top: calc(var(--label-width, 200px) - 10px)
+    transform: rotate(-90deg) translate(10px, 8px)
+    transform-origin: bottom left
+    background-color: var(--column-background-color)
+
+  .taxon-label-text
+
     font-style: italic
+    text-align: left
+    padding: 0 8px
+    max-width: 300px
+    //position: sticky
+    //top: 200px

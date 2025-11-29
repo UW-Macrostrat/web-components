@@ -1,20 +1,30 @@
 import { defaultIntervals } from "./intervals";
 import { TimescaleProvider, useTimescale } from "./provider";
-import { Interval, TimescaleOrientation } from "./types";
-import { TimescaleBoxes, Cursor, IntervalStyleBuilder } from "./components";
+import { Interval, TimescaleOrientation, IncreaseDirection } from "./types";
+import {
+  TimescaleBoxes,
+  Cursor,
+  IntervalStyleBuilder,
+  LabelProps,
+} from "./components";
 import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
-import { useMemo } from "react";
+import { ScaleContinuousNumeric } from "d3-scale";
+import { ReactNode, useMemo } from "react";
 import h from "./hyper";
+
+export * from "./intervals-api";
+export type { Interval } from "./types";
+export {
+  IncreaseDirection,
+  TimescaleOrientation,
+  defaultIntervals as intervals,
+};
 
 type ClickHandler = (event: Event, interval: any) => void;
 
-export enum IncreaseDirection {
-  UP_RIGHT = "up-right",
-  DOWN_LEFT = "down-left",
-}
-interface TimescaleProps {
+export interface TimescaleProps {
   intervals?: Interval[];
   orientation?: TimescaleOrientation;
   increaseDirection?: IncreaseDirection;
@@ -26,21 +36,23 @@ interface TimescaleProps {
   rootInterval?: number;
   /** Configuration for the axis */
   axisProps?: Partial<AgeAxisProps>;
+  labelProps?: LabelProps;
   onClick?: ClickHandler;
   cursorPosition?: number | null;
   cursorComponent?: any;
   intervalStyle?: IntervalStyleBuilder;
+  scale?: ScaleContinuousNumeric<number, number>;
 }
 
 function TimescaleContainer(props: {
   onClick?: ClickHandler;
   className: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   const { onClick: clickHandler, ...rest } = props;
   const { scale, orientation } = useTimescale();
 
-  function onClick(evt) {
+  function onClick(evt: any) {
     const bbox = evt.currentTarget.getBoundingClientRect();
     const pos =
       orientation == TimescaleOrientation.HORIZONTAL
@@ -52,7 +64,7 @@ function TimescaleContainer(props: {
   return h("div.timescale.timescale-container", { onClick, ...rest });
 }
 
-function Timescale(props: TimescaleProps) {
+export function Timescale(props: TimescaleProps) {
   /**
    * A geologic timescale component for react.
    *
@@ -68,7 +80,6 @@ function Timescale(props: TimescaleProps) {
     orientation = TimescaleOrientation.HORIZONTAL,
     ageRange,
     length: l,
-    absoluteAgeScale = false,
     showAgeAxis = true,
     levels,
     scale,
@@ -79,48 +90,20 @@ function Timescale(props: TimescaleProps) {
     onClick = null,
     intervalStyle,
     increaseDirection = IncreaseDirection.DOWN_LEFT,
+    labelProps,
   } = props;
 
-  const [parentMap, timescale] = useMemo(
-    () => nestTimescale(rootInterval, intervals),
-    [rootInterval, intervals],
-  );
+  const [parentMap, timescale] = useMemo(() => {
+    if (intervals.length == 0) {
+      return [null, null];
+    }
+    return nestTimescale(rootInterval, intervals);
+  }, [rootInterval, intervals]);
 
   const className = classNames(orientation, "increase-" + increaseDirection);
-  const length = absoluteAgeScale ? (l ?? 6000) : null;
 
-  let ageRange2 = null;
-  if (ageRange != null) {
-    ageRange2 = [...ageRange];
-  }
-  if (ageRange2 == null) {
-    ageRange2 = [timescale.eag, timescale.lag];
-  }
-  if (
-    orientation == TimescaleOrientation.VERTICAL &&
-    increaseDirection == IncreaseDirection.DOWN_LEFT &&
-    ageRange2[0] < ageRange2[1]
-  ) {
-    ageRange2.reverse();
-  }
-
-  let length2 = l;
-
-  if (scale != null) {
-    if (length != null) {
-      console.warn(
-        "Both scale and length provided to Timescale component. The provided scale will be used.",
-      );
-    }
-    if (ageRange2 != null) {
-      console.warn(
-        "Both scale and ageRange provided to Timescale component. The provided scale will be used.",
-      );
-    }
-
-    ageRange2 = scale.domain() as [number, number];
-    const rng = scale.range();
-    length2 = Math.abs(rng[1] - rng[0]);
+  if (parentMap == null || timescale == null) {
+    return null;
   }
 
   return h(
@@ -129,23 +112,22 @@ function Timescale(props: TimescaleProps) {
       timescale,
       selectedInterval: null,
       parentMap,
-      ageRange: ageRange2,
-      length: length2,
+      ageRange: ageRange,
+      length: l,
       orientation,
       levels,
       scale,
+      increaseDirection,
     },
     h(TimescaleContainer, { className }, [
-      h(TimescaleBoxes, { interval: timescale, intervalStyle, onClick }),
+      h(TimescaleBoxes, {
+        interval: timescale,
+        intervalStyle,
+        onClick,
+        labelProps,
+      }),
       h.if(showAgeAxis)(AgeAxis, axisProps),
       h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
     ]),
   );
 }
-
-export {
-  Timescale,
-  TimescaleOrientation,
-  TimescaleProps,
-  defaultIntervals as intervals,
-};

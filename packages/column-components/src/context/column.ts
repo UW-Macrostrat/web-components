@@ -2,10 +2,10 @@ import { scaleLinear, ScaleContinuousNumeric, ScaleLinear } from "d3-scale";
 import React, { createContext, useContext, useMemo } from "react";
 import h from "@macrostrat/hyper";
 
-type HeightRange = [number, number];
+type HeightRange = number;
 type ColumnScale = ScaleContinuousNumeric<HeightRange, number> | any;
 
-type ColumnScaleClamped = ScaleLinear<number, number>;
+type ColumnScaleClamped = ScaleContinuousNumeric<number, number>;
 
 export declare interface ColumnDivision {
   section_id: string;
@@ -55,6 +55,7 @@ export interface ColumnProviderProps<T extends ColumnDivision> {
   width?: number;
   axisType?: ColumnAxisType;
   children?: any;
+  scale?: ColumnScale;
 }
 
 function ColumnProvider<T extends ColumnDivision>(
@@ -75,6 +76,7 @@ function ColumnProvider<T extends ColumnDivision>(
     divisions = [],
     width = 150,
     axisType = ColumnAxisType.HEIGHT,
+    scale: _scale,
     ...rest
   } = props;
 
@@ -103,9 +105,17 @@ function ColumnProvider<T extends ColumnDivision>(
     }
 
     // same as the old `innerHeight`
-    const pixelHeight = height * pixelsPerMeter * zoom;
-
-    const scale = scaleLinear().domain(range).range([pixelHeight, 0]);
+    let scale = _scale;
+    let pixelHeight: number;
+    if (scale == null) {
+      pixelHeight = height * pixelsPerMeter * zoom;
+      scale = scaleLinear().domain(range).range([pixelHeight, 0]);
+    } else {
+      pixelHeight = Math.abs(scale.range()[1] - scale.range()[0]);
+      // Remove any offset that might exist from paddings, scale breaks, etc.
+      const r1 = scale.range().map((d) => d - scale.range()[0]);
+      scale = _scale.copy().range(r1);
+    }
     const scaleClamped = scale.copy().clamp(true);
 
     return {

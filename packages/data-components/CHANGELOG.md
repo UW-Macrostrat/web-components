@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.2] - 2025-11-28
+
+- Move location information (e.g., `LngLatCoords`, `Elevation`) React components
+  into this module
+- Add a `--unit-color` CSS variable
+
 ## [0.2.1] - 2025-08-22
 
 - Improvements to Rockd checkin component

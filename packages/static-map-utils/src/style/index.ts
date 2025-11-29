@@ -44,7 +44,7 @@ export function useInsetMapStyle(mapboxToken) {
       optimizeTerrain(baseStyle, "mapbox://mapbox.mapbox-terrain-dem-v1", [
         "#ffffff",
         "#aaaaaa",
-      ]),
+      ]) as StyleSpecification,
     );
     return style;
   }, [baseStyle]);

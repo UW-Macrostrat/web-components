@@ -1,82 +1,23 @@
-import type { ExtUnit, SectionInfo } from "./helpers";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { ensureArray, getUnitHeightRange } from "./utils";
-import { ScaleLinear, scaleLinear } from "d3-scale";
+import { ScaleContinuousNumeric, scaleLinear } from "d3-scale";
 import { UnitLong } from "@macrostrat/api-types";
-
-export interface ColumnHeightScaleOptions {
-  /** A fixed pixel scale to use for the section (pixels per Myr) */
-  pixelScale?: number;
-  /** The target height of a constituent unit in pixels, for dynamic
-   * scale generation */
-  targetUnitHeight?: number;
-  /** Min height of a section in pixels. Will override minPixelScale in some cases. */
-  minSectionHeight?: number;
-  /** The minimum pixel scale to use for the section (pixels per Myr). This is mostly
-   * needed because small sections (<1-2 units) don't necessarily have space to comfortably
-   * render two axis labels */
-  minPixelScale?: number;
-  // Axis scale type
-  axisType?: ColumnAxisType;
-  // Unconformity height in pixels
-  unconformityHeight?: number;
-  // Whether to collapse unconformities that are less than a height threshold
-  collapseSmallUnconformities?: boolean | number;
-}
-
-export interface SectionScaleOptions extends ColumnHeightScaleOptions {
-  axisType: ColumnAxisType;
-  domain: [number, number];
-}
-
-export interface LinearScaleDef {
-  domain: [number, number];
-  pixelScale: number;
-}
-
-/** Output of a section scale. For now, this assumes that the
- * mapping is linear, but it could be extended to support arbitrary
- * scale functions.
- */
-export interface PackageScaleInfo extends LinearScaleDef {
-  pixelHeight: number;
-  // TODO: add a function
-  scale: ScaleLinear<number, number>;
-}
-
-export type PackageScaleLayoutData = PackageScaleInfo & {
-  // A unique key for the section to use in React
-  key: string;
-  offset: number;
-  // How much to
-  paddingTop: number;
-};
-
-export type PackageLayoutData<T extends UnitLong = ExtUnit> = SectionInfo<T> & {
-  scaleInfo: PackageScaleLayoutData;
-  // A unique key for the section to use in React
-  key: string;
-};
-
-export interface CompositeScaleData {
-  totalHeight: number;
-  sections: PackageScaleLayoutData[];
-}
-
-export interface ColumnScaleOptions extends ColumnHeightScaleOptions {
-  axisType: ColumnAxisType;
-  unconformityHeight: number;
-}
+import { buildHybridScale } from "./dynamic-scales";
+import { ExtUnit, HybridScaleType, SectionInfo } from "./types";
+import type {
+  ColumnScaleOptions,
+  CompositeColumnData,
+  CompositeScaleData,
+  PackageLayoutData,
+  PackageScaleInfo,
+  PackageScaleLayoutData,
+  SectionScaleOptions,
+} from "./types";
 
 // Composite scale information augmented with units in each package
 
-export interface CompositeColumnData<T extends UnitLong = ExtUnit>
-  extends Omit<CompositeScaleData, "sections"> {
-  sections: PackageLayoutData<T>[];
-}
-
 export function buildCompositeScaleInfo(
-  inputScales: LinearScaleDef[],
+  inputScales: PackageScaleInfo[],
   unconformityHeight: number,
 ): CompositeScaleData {
   /** Finalize the heights of sections, including the heights of unconformities
@@ -88,7 +29,7 @@ export function buildCompositeScaleInfo(
 
   const packages2: PackageScaleLayoutData[] = [];
   for (const group of inputScales) {
-    const { domain, pixelScale } = group;
+    const { domain, scale } = group;
     const [b_age, t_age] = domain;
     const key = `package-${b_age}-${t_age}`;
 
@@ -99,7 +40,8 @@ export function buildCompositeScaleInfo(
       // Unconformity height above this particular section
       paddingTop: totalHeight - lastSectionTopHeight,
     });
-    const pixelHeight = pixelScale * Math.abs(b_age - t_age);
+
+    const pixelHeight = Math.abs(scale(b_age) - scale(t_age));
     lastSectionTopHeight = totalHeight + pixelHeight;
     totalHeight = lastSectionTopHeight + unconformityHeight;
   }
@@ -119,6 +61,7 @@ export function finalizeSectionHeights<T extends UnitLong>(
    */
 
   const sectionScales = sections.map((d) => d.scaleInfo);
+
   const { totalHeight, sections: packages } = buildCompositeScaleInfo(
     sectionScales,
     unconformityHeight,
@@ -141,8 +84,9 @@ export function finalizeSectionHeights<T extends UnitLong>(
   };
 }
 
-interface SectionInfoWithScale<T extends UnitLong = ExtUnit>
-  extends SectionInfo<T> {
+export interface SectionInfoWithScale<
+  T extends UnitLong = ExtUnit,
+> extends SectionInfo<T> {
   scaleInfo: PackageScaleInfo;
 }
 
@@ -159,11 +103,13 @@ function addScaleToSection<T extends UnitLong = ExtUnit>(
   group: SectionInfo<T>,
   opts: ColumnScaleOptions,
 ): SectionInfoWithScale<T> {
-  const { t_age, b_age, units } = group;
+  const { t_age, b_age, t_pos, b_pos, units } = group;
   let _range = null;
   // if t_age and b_age are set for a group, use them to define the range...
-  if (t_age != null && b_age != null && opts.axisType == ColumnAxisType.AGE) {
+  if (opts.axisType == ColumnAxisType.AGE) {
     _range = [b_age, t_age];
+  } else {
+    _range = [b_pos, t_pos];
   }
 
   const scaleInfo = buildSectionScale<T>(units, {
@@ -186,49 +132,103 @@ function buildSectionScale<T extends UnitLong>(
     minPixelScale = 0.2,
     axisType,
     minSectionHeight,
+    scale,
+    hybridScale,
   } = opts;
   const domain = opts.domain ?? findSectionHeightRange(data, axisType);
 
   const dAge = Math.abs(domain[0] - domain[1]);
 
   let _pixelScale = opts.pixelScale;
-  if (_pixelScale == null) {
-    const avgAgeRange = findAverageUnitHeight(data, axisType);
-    // Get pixel height necessary to render average unit at target height
-    _pixelScale = Math.max(targetUnitHeight / avgAgeRange, minPixelScale);
+  let pixelHeight: number;
 
-    // OLD METHOD that cares about overall section height vs. individual unit height
-    // 0.2 pixel per myr is the floor scale
-    //const targetHeight = targetUnitHeight * data.length;
-    // 1 pixel per myr is the floor scale
-    //_pixelScale = Math.max(targetHeight / dAge, minPixelScale);
+  if (hybridScale != null) {
+    /** In an equidistant surfaces scale, we want to determine the heights of surfaces
+     * and then distribute units evenly between them.
+     * This is somewhat like an ordinal scale
+     */
+    if (hybridScale.type === HybridScaleType.EquidistantSurfaces) {
+      _pixelScale ??= targetUnitHeight;
+    }
+
+    return buildHybridScale(hybridScale, data, domain, {
+      pixelOffset: 0,
+      pixelScale: _pixelScale,
+    });
   }
 
-  let height = dAge * _pixelScale;
+  if (scale == null) {
+    if (_pixelScale == null) {
+      const avgAgeRange = findAverageUnitHeight(data, axisType);
+      // Get pixel height necessary to render average unit at target height
+      _pixelScale = Math.max(targetUnitHeight / avgAgeRange, minPixelScale);
 
-  // If height is less than minSectionHeight, set it to minSectionHeight
-  const _minSectionHeight = minSectionHeight ?? targetUnitHeight ?? 0;
-  height = Math.max(height, _minSectionHeight);
-  _pixelScale = height / dAge;
+      // OLD METHOD that cares about overall section height vs. individual unit height
+      // 0.2 pixel per myr is the floor scale
+      //const targetHeight = targetUnitHeight * data.length;
+      // 1 pixel per myr is the floor scale
+      //_pixelScale = Math.max(targetHeight / dAge, minPixelScale);
+    }
 
-  return createPackageScale({ domain, pixelScale: _pixelScale }, 0);
+    let height = dAge * _pixelScale;
+    // If height is less than minSectionHeight, set it to minSectionHeight
+    const _minSectionHeight = minSectionHeight ?? targetUnitHeight ?? 0;
+    pixelHeight = Math.max(height, _minSectionHeight);
+    _pixelScale = pixelHeight / dAge;
+  } else {
+    // If a scale is provided, use it to compute pixel height
+    pixelHeight = Math.abs(scale(domain[0]) - scale(domain[1]));
+  }
+
+  return createPackageScale(
+    { scale, domain, pixelHeight, pixelScale: _pixelScale },
+    0,
+  );
 }
 
 export function createPackageScale(
-  def: LinearScaleDef,
+  def: PackageScaleInfo,
   offset: number = 0,
 ): PackageScaleInfo {
   /** Build a section scale */
   // Domain should be oriented from bottom to top, but scale is oriented from top to bottom
-  const { domain, pixelScale } = def;
-  const pixelHeight = pixelScale * Math.abs(domain[0] - domain[1]);
+  const { domain, pixelScale, pixelHeight, scale, heightScale } = def;
+
+  if (scale == null && pixelScale == null) {
+    throw new Error("Either scale or pixelScale must be provided");
+  }
+
+  let _scale: ScaleContinuousNumeric<number, number>;
+  if (scale == null) {
+    _scale = scaleLinear()
+      .domain([domain[1], domain[0]])
+      .range([offset, pixelHeight + offset]);
+  } else {
+    const domain0 = scale.domain();
+    const range0 = scale.range();
+    _scale = scale
+      .copy()
+      .domain(domain0)
+      .range(range0.map((d) => d + offset));
+  }
+
+  _scale.clamp();
+
+  let _heightScale = null;
+  if (heightScale != null) {
+    // Adjust height scale as well
+    const range0 = scale.range();
+    _heightScale = heightScale.copy().range(range0.map((d) => d + offset));
+    _heightScale.clamp();
+  }
+
   return {
     domain,
     pixelScale,
     pixelHeight,
-    scale: scaleLinear()
-      .domain([domain[1], domain[0]])
-      .range([offset, pixelHeight + offset]),
+    scale: _scale,
+    // Internal details for hybrid scales. TODO: improve this
+    heightScale: _heightScale,
   };
 }
 
@@ -273,6 +273,7 @@ export interface CompositeColumnScale {
   copy(): CompositeColumnScale;
   domain(): [number, number];
   invert(pixelHeight: number): number | null;
+  clamp(clamp: boolean): void;
 }
 
 export function createCompositeScale(
@@ -280,34 +281,37 @@ export function createCompositeScale(
   interpolateUnconformities: boolean = false,
 ): CompositeColumnScale {
   /** Create a scale that works across multiple packages */
-  // Get surfaces at which scale breaks
-  let scaleBreaks: [number, number][] = [];
+
+  const scales: ScaleContinuousNumeric<number, number>[] = [];
+
+  let lastScale: ScaleContinuousNumeric<number, number> | null = null;
   for (const section of sections) {
-    const { pixelHeight, offset, domain } = section.scaleInfo;
+    const _scale = section.scaleInfo.scale.copy().clamp(true);
+    scales.push(_scale);
+    if (lastScale != null && interpolateUnconformities) {
+      // Add a new scale that interpolates between lastScale and _scale
+      const lastDomain = lastScale.domain();
+      const lastRange = lastScale.range();
+      const currentDomain = _scale.domain();
+      const currentRange = _scale.range();
 
-    scaleBreaks.push([domain[1], offset]);
-    scaleBreaks.push([domain[0], offset + pixelHeight]);
-  }
-  // Sort the scale breaks by age
-  scaleBreaks.sort((a, b) => a[0] - b[0]);
-
-  const scale = (age) => {
-    // Accumulate scale breaks and pixel height
-    let lastHeight = 0;
-    let lastAge = null;
-    for (const [age1, height] of scaleBreaks) {
-      if (age <= age1) {
-        let deltaAge = age1 - lastAge;
-        if (deltaAge === 0) {
-          // If the age is exactly at a scale break, return the height at that break
-          return height;
-        }
-        let pixelScale = (height - lastHeight) / deltaAge;
-        return lastHeight + (age - lastAge) * pixelScale;
-      }
-      lastAge = age1;
-      lastHeight = height;
+      const interpScale = scaleLinear()
+        .domain([lastDomain[lastDomain.length - 1], currentDomain[0]])
+        .range([lastRange[lastRange.length - 1], currentRange[0]])
+        .clamp(true);
+      scales.push(interpScale);
     }
+    lastScale = _scale;
+  }
+
+  const scale: CompositeColumnScale = (age) => {
+    for (const s of scales) {
+      const domain = s.domain();
+      if (age >= domain[0] && age <= domain[domain.length - 1]) {
+        return s(age);
+      }
+    }
+    return null;
   };
 
   scale.copy = () => {
@@ -316,41 +320,39 @@ export function createCompositeScale(
 
   scale.domain = () => {
     /** Return the domain of the scale */
-    const firstSection = sections[0].scaleInfo.domain;
-    const lastSection = sections[sections.length - 1].scaleInfo.domain;
-    if (firstSection[0] < lastSection[0]) {
-      return [Math.min(...firstSection), Math.max(...lastSection)];
-    } else {
-      // Catches "normal" axes like height
-      return [Math.max(...firstSection), Math.min(...lastSection)];
+    const vals = sections.flatMap((d) => d.scaleInfo.domain);
+    if (vals[0] < vals[vals.length - 1]) {
+      // age axes
+      return [Math.min(...vals), Math.max(...vals)];
     }
+    // Normal axes like height
+    return [Math.max(...vals), Math.min(...vals)];
   };
 
   scale.invert = (pixelHeight) => {
     /** Invert the scale to get the age at a given pixel height */
     // Iterate through the sections to find the correct one
-    let lastAge = null;
-    for (const section of sections) {
-      const {
-        pixelHeight: sectionHeight,
-        pixelScale,
-        offset,
-        domain,
-      } = section.scaleInfo;
+    for (const scale of scales) {
+      const range = scale.range();
       if (
-        pixelHeight >= offset &&
-        pixelHeight <= offset + sectionHeight &&
-        pixelScale > 0
+        pixelHeight > Math.min(...range) &&
+        pixelHeight <= Math.max(...range)
       ) {
-        const age = domain[1] + (pixelHeight - offset) / pixelScale;
-        return age;
+        console.log("Inverting scale at pixel height", pixelHeight);
+        return scale.invert(pixelHeight);
       }
-      lastAge = domain[1];
     }
     return null;
   };
 
-  return scale as CompositeColumnScale;
+  scale.clamp = (clamp: boolean) => {
+    /** Clamp all constituent scales */
+    for (const s of scales) {
+      s.clamp(clamp);
+    }
+  };
+
+  return scale;
 }
 
 /** Collapse sections separated by unconformities that are smaller than a given pixel height. */
@@ -366,14 +368,39 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
       currentSection = nextSection;
       continue;
     }
-    const dAge = Math.abs(nextSection.t_age - currentSection.b_age);
-    const pxHeight =
-      dAge *
-      Math.max(
-        currentSection.scaleInfo.pixelScale,
-        nextSection.scaleInfo.pixelScale,
-      );
+    let heights: [number, number];
+    let pxHeights: [number, number];
+    if (opts.axisType !== ColumnAxisType.AGE) {
+      heights = [nextSection.t_pos, currentSection.b_pos];
+    } else {
+      heights = [nextSection.t_age, currentSection.b_age];
+    }
+
+    const _diff = (vals: number[]) => {
+      return Math.abs(vals[0] - vals[1]);
+    };
+
+    pxHeights = [
+      _diff(heights.map(nextSection.scaleInfo.scale)),
+      _diff(heights.map(currentSection.scaleInfo.scale)),
+    ];
+
+    const pxHeight = Math.min(...pxHeights);
+
     if (pxHeight < threshold) {
+      let t_pos: number;
+      let b_pos: number;
+      if (
+        opts.axisType == ColumnAxisType.AGE ||
+        opts.axisType == ColumnAxisType.DEPTH
+      ) {
+        t_pos = Math.min(currentSection.t_pos, nextSection.t_pos);
+        b_pos = Math.max(currentSection.b_pos, nextSection.b_pos);
+      } else {
+        t_pos = Math.max(currentSection.t_pos, nextSection.t_pos);
+        b_pos = Math.min(currentSection.b_pos, nextSection.b_pos);
+      }
+
       // We need to merge the sections
       const compositeSection0: SectionInfo<T> = {
         units: [...currentSection.units, ...nextSection.units],
@@ -383,10 +410,11 @@ export function collapseUnconformitiesByPixelHeight<T extends UnitLong>(
         ],
         t_age: Math.min(currentSection.t_age, nextSection.t_age),
         b_age: Math.max(currentSection.b_age, nextSection.b_age),
+        t_pos,
+        b_pos,
       };
 
-      const compositeSection = addScaleToSection(compositeSection0, opts);
-      currentSection = compositeSection;
+      currentSection = addScaleToSection(compositeSection0, opts);
     } else {
       // We need to keep the section
       newSections.push(currentSection);

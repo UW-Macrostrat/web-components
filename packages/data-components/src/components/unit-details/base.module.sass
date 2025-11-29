@@ -40,8 +40,9 @@
       display: block
 
 .unit
-  color: var(--text-subtle-color)
+  color: var(--unit-color, var(--text-subtle-color))
   font-style: var(--text-font-style)
+  font-weight: var(--unit-font-weight, inherit)
 
 .parenthetical
   .content

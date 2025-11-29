@@ -19,7 +19,7 @@ interface FaciesColorPickerProps {
 
 class FaciesColorPicker extends Component<FaciesColorPickerProps> {
   static contextType = FaciesContext;
-  context: any;
+  declare context: any;
 
   render() {
     const { setFaciesColor } = this.context;

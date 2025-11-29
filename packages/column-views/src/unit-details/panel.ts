@@ -14,8 +14,12 @@ import {
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
-import { useMacrostratData, useMacrostratDefs } from "../data-provider";
 import {
+  useColumnUnitsMap,
+  useMacrostratData,
+  useMacrostratDefs,
+} from "../data-provider";
+import type {
   Environment,
   UnitLong,
   UnitLongFull,
@@ -40,7 +44,8 @@ export function UnitDetailsPanel({
   ]),
   lithologyFeatures,
   actions,
-  selectUnit,
+  hiddenActions = null,
+  onSelectUnit,
   columnUnits,
   onClickItem,
 }: {
@@ -49,10 +54,11 @@ export function UnitDetailsPanel({
   showLithologyProportions?: boolean;
   className?: string;
   actions?: ReactNode;
+  hiddenActions?: ReactNode;
   features?: Set<UnitDetailsFeature>;
   lithologyFeatures?: Set<LithologyTagFeature>;
   columnUnits?: UnitLong[];
-  selectUnit?: (unitID: number) => void;
+  onSelectUnit?: (unitID: number) => void;
   onClickItem?: (item: any) => void;
 }) {
   const [showJSON, setShowJSON] = useState(false);
@@ -66,24 +72,27 @@ export function UnitDetailsPanel({
       features,
       lithologyFeatures,
       onClickItem,
+      onSelectUnit,
     });
   }
 
   let title = defaultNameFunction(unit);
 
-  let hiddenActions = null;
   if (features.has(UnitDetailsFeature.JSONToggle)) {
-    hiddenActions = h(Button, {
-      icon: "code",
-      small: true,
-      minimal: true,
-      key: "json-view-toggle",
-      className: classNames("json-view-toggle", { enabled: setShowJSON }),
-      onClick(evt) {
-        setShowJSON(!showJSON);
-        evt.stopPropagation();
-      },
-    });
+    hiddenActions = h([
+      h(Button, {
+        icon: "code",
+        small: true,
+        minimal: true,
+        key: "json-view-toggle",
+        className: classNames("json-view-toggle", { enabled: setShowJSON }),
+        onClick(evt) {
+          setShowJSON(!showJSON);
+          evt.stopPropagation();
+        },
+      }),
+      hiddenActions,
+    ]);
   }
 
   return h("div.unit-details-panel", { className }, [
@@ -114,15 +123,13 @@ export function LegendPanelHeader({
   return h("header.legend-panel-header", [
     h("div.title-container", [
       h.if(title != null)("h3", title),
-      h.if(hiddenActions != null || id != null)(
+      h.if(hiddenActions != null)(
         "span.hidden-actions-container",
-        h("div.hidden-actions", [
-          h.if(id != null)("code.unit-id", id),
-          h.if(hiddenActions != null)([hiddenActions]),
-        ]),
+        h("div.hidden-actions", hiddenActions),
       ),
     ]),
     h("div.spacer"),
+    h.if(id != null)("code.unit-id", id),
     h.if(actions != null)(ButtonGroup, { minimal: true }, actions),
     h.if(onClose != null)(Button, {
       icon: "cross",
@@ -145,7 +152,7 @@ export enum UnitDetailsFeature {
 
 function UnitDetailsContent({
   unit,
-  selectUnit,
+  onSelectUnit,
   columnUnits,
   lithologyFeatures = new Set([
     LithologyTagFeature.Proportion,
@@ -159,7 +166,7 @@ function UnitDetailsContent({
   getItemHref,
 }: {
   unit: UnitLong;
-  selectUnit?: (unitID: number) => void;
+  onSelectUnit?: (unitID: number) => void;
   columnUnits?: UnitLong[];
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
@@ -269,12 +276,20 @@ function UnitDetailsContent({
       h(
         DataField,
         { label: "Above" },
-        h(UnitIDList, { units: unit.units_above, selectUnit }),
+        h(UnitIDList, {
+          units: unit.units_above,
+          onSelectUnit,
+          showNames: true,
+        }),
       ),
       h(
         DataField,
         { label: "Below" },
-        h(UnitIDList, { units: unit.units_below, selectUnit }),
+        h(UnitIDList, {
+          units: unit.units_below,
+          onSelectUnit,
+          showNames: true,
+        }),
       ),
     ]),
     colorSwatch,
@@ -529,6 +544,20 @@ function enhanceLithologies(
   });
 }
 
+export function ClickableText({
+  onClick,
+  className,
+  children,
+}: {
+  onClick: () => void;
+  className?: string;
+  children: ReactNode;
+}) {
+  /** An optionally clickable text element */
+  const tag = onClick != null ? "a" : "span";
+  return h(tag, { onClick, className }, children);
+}
+
 export function Identifier({
   id,
   onClick,
@@ -539,49 +568,90 @@ export function Identifier({
   className?: string;
 }) {
   /** An item that displays a numeric identifier, optionally clickable */
-  const tag = onClick != null ? "a" : "span";
+  const _onClick = onClick != null ? () => onClick(id) : null;
+
   return h(
-    tag,
+    ClickableText,
     {
-      onClick() {
-        onClick?.(id);
-      },
-      className: classNames(
-        "identifier",
-        { clickable: onClick != null },
-        className,
-      ),
+      onClick: _onClick,
+      className: classNames("identifier", className),
     },
     id,
   );
 }
 
-function UnitIDList({ units, selectUnit }) {
-  const u1 = units.filter((d) => d != 0);
+type UnitInfo = {
+  unitID: number;
+  colID?: number;
+  name?: string;
+};
 
-  if (u1.length === 0) {
+function UnitIDList({ units, onSelectUnit, showNames = false }) {
+  const unitsMap = useColumnUnitsMap();
+
+  const extUnits: UnitInfo[] = useMemo(() => {
+    const u1 = units.filter((d) => d != 0);
+    if (showNames) {
+      return u1.map((unitID) => {
+        const unitData = unitsMap.get(unitID);
+        let name: string = undefined;
+        if (unitData != null) {
+          name = defaultNameFunction(unitData);
+        }
+        return {
+          unitID,
+          colID: unitData?.col_id,
+          name,
+        };
+      });
+    } else {
+      return u1.map((unitID) => ({ unitID }));
+    }
+  }, [units, unitsMap]);
+
+  if (extUnits.length === 0) {
     return h("span.no-units", "None");
-  }
-
-  let tag = "span";
-  if (selectUnit != null) {
-    tag = "a";
   }
 
   return h(
     ItemList,
-    { className: "unit-id-list" },
-    u1.map((unitID) => {
-      return h(Identifier, {
-        className: "unit-id",
-        onClick() {
-          selectUnit?.(unitID);
-        },
-        key: unitID,
-        id: unitID,
-      });
-    }),
+    { className: "units-list" },
+    extUnits.map((info) =>
+      h("span.item", h(UnitIdentifier, { ...info, onSelectUnit })),
+    ),
   );
+}
+
+function UnitIdentifier({
+  unitID,
+  colID,
+  name,
+  onSelectUnit,
+}: UnitInfo & { onSelectUnit?: (unitID: number) => void }) {
+  const onClick = useMemo(() => {
+    if (onSelectUnit == null) return null;
+    return () => {
+      onSelectUnit(unitID);
+    };
+  }, [onSelectUnit]);
+
+  if (name != null) {
+    return h(
+      ClickableText,
+      {
+        className: "unit-name",
+        onClick,
+      },
+      name,
+    );
+  }
+
+  return h(Identifier, {
+    className: "unit-id",
+    onClick,
+    key: unitID,
+    id: unitID,
+  });
 }
 
 function IntervalProportions({ unit, onClickItem }) {

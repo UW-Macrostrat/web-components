@@ -8,10 +8,8 @@ import {
 import h from "@macrostrat/hyper";
 import "./stories.sass";
 
-import { LngLatCoords, LngLatProps } from "packages/map-interface/src";
-
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
-const meta: Meta<LngLatProps> = {
+const meta: Meta<any> = {
   title: "UI components/Model Editor",
   component: ModelEditorExample,
 };

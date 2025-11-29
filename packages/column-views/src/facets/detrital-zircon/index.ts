@@ -3,14 +3,13 @@ import {
   DetritalSeries,
   usePlotArea,
 } from "@macrostrat/data-components";
-import { IUnit } from "../../units/types";
+import type { IUnit } from "../../units/types";
 import hyper from "@macrostrat/hyper";
 import { useDetritalMeasurements, MeasurementInfo } from "./provider";
-import { useMacrostratUnits } from "../../data-provider";
-import { ColumnNotes } from "../../notes";
 import { useMemo } from "react";
 import styles from "./index.module.sass";
 import classNames from "classnames";
+import { BaseMeasurementsColumn } from "../base-sample-column";
 
 const h = hyper.styled(styles);
 
@@ -28,6 +27,35 @@ interface DetritalItemProps {
   color?: string;
 }
 
+const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
+
+function DetritalColumn({ columnID, color = "magenta" }) {
+  const data = useDetritalMeasurements({ col_id: columnID });
+
+  const width = 400;
+  const paddingLeft = 40;
+
+  const spectrumWidth = width - paddingLeft;
+
+  const noteComponent = useMemo(() => {
+    return (props) => {
+      return h(DetritalGroup, {
+        width: spectrumWidth,
+        height: 40,
+        color,
+        ...props,
+      });
+    };
+  }, [width, color]);
+
+  return h(BaseMeasurementsColumn, {
+    data,
+    noteComponent,
+    getUnitID: (d) => d[0].unit_id,
+    matchingUnit,
+  });
+}
+
 function DepositionalAge({ unit }) {
   const { xScale, height } = usePlotArea();
 
@@ -41,7 +69,6 @@ function DepositionalAge({ unit }) {
 function DetritalGroup(props: DetritalItemProps) {
   const { note, width, height, color, spacing } = props;
   const { data, unit } = note;
-  const { geo_unit } = data[0];
 
   const _color = color;
 
@@ -67,65 +94,6 @@ function DetritalGroup(props: DetritalItemProps) {
         ],
       ),
     ],
-  );
-}
-
-const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
-
-function DetritalColumn({ columnID, color = "magenta" }) {
-  const data = useDetritalMeasurements({ col_id: columnID });
-  const units = useMacrostratUnits();
-
-  const notes: any[] = useMemo(() => {
-    if (data == null || units == null) return [];
-    let dzUnitData = Array.from(data.values());
-    dzUnitData.sort((a, b) => {
-      const v1 = units.findIndex(matchingUnit(a));
-      const v2 = units.findIndex(matchingUnit(b));
-      return v1 - v2;
-    });
-
-    const data1 = dzUnitData.map((d) => {
-      const unit = units.find(matchingUnit(d));
-      return {
-        top_height: unit?.t_age,
-        height: unit?.b_age,
-        data: d,
-        unit,
-        id: unit?.unit_id,
-      };
-    });
-
-    return data1.filter((d) => d.unit != null);
-  }, [data, units]);
-
-  const width = 400;
-  const paddingLeft = 40;
-
-  const spectrumWidth = width - paddingLeft;
-
-  const noteComponent = useMemo(() => {
-    return (props) => {
-      return h(DetritalGroup, {
-        width: spectrumWidth,
-        height: 40,
-        color,
-        ...props,
-      });
-    };
-  }, [width, color]);
-
-  if (data == null || units == null) return null;
-
-  return h(
-    "div.dz-spectra",
-    h(ColumnNotes, {
-      width,
-      paddingLeft,
-      notes,
-      noteComponent,
-      deltaConnectorAttachment: 20,
-    }),
   );
 }
 

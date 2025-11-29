@@ -10,8 +10,8 @@ import { useContext } from "react";
 import styles from "./age-axis.module.sass";
 import { useCompositeScale, useMacrostratColumnData } from "./data-provider";
 import { Parenthetical } from "@macrostrat/data-components";
-import { PackageScaleLayoutData } from "./prepare-units/composite-scale";
 import { AgeLabel } from "./unit-details";
+import { PackageScaleLayoutData } from "./prepare-units/types";
 
 const h = hyper.styled(styles);
 
@@ -41,7 +41,12 @@ export function VerticalAxisLabel(props) {
   );
 }
 
-export function CompositeAgeAxis() {
+interface CompositeAgeAxisProps {
+  className?: string;
+  style?: React.CSSProperties;
+}
+
+export function CompositeAgeAxis(rest: CompositeAgeAxisProps) {
   const { axisType, sections, totalHeight } = useMacrostratColumnData();
 
   const packages = sections.map((section) => {
@@ -55,36 +60,67 @@ export function CompositeAgeAxis() {
     axisType,
     packages,
     totalHeight,
+    ...rest,
   });
 }
 
-export interface CompositeStratigraphicScaleInfo {
+export function ApproximateHeightAxis(rest: CompositeAgeAxisProps) {
+  /** Axis to show approximate height based on dynamic column scales */
+  const { axisType, sections, totalHeight } = useMacrostratColumnData();
+
+  const packages = sections.map((section) => {
+    const { scaleInfo } = section;
+    if (scaleInfo.heightScale == null) {
+      throw new Error("No height scale available for section");
+    }
+    return {
+      key: `section-${section.section_id}`,
+      ...scaleInfo,
+      scale: scaleInfo.heightScale, // Use height scale instead of age scale
+      // This only works with dynamic columns
+    };
+  });
+
+  return h(CompositeAgeAxisCore, {
+    axisType,
+    axisLabel: "Approx. height",
+    axisUnit: "m",
+    packages,
+    totalHeight,
+    ...rest,
+  });
+}
+
+export interface CompositeStratigraphicScaleInfo extends CompositeAgeAxisProps {
   axisType: ColumnAxisType;
+  axisLabel?: string;
+  axisUnit?: string;
   totalHeight: number;
   packages: PackageScaleLayoutData[];
 }
 
 export function CompositeAgeAxisCore(props: CompositeStratigraphicScaleInfo) {
-  const { axisType, totalHeight, packages } = props;
+  const { axisType, axisLabel, axisUnit, totalHeight, packages, ...rest } =
+    props;
 
   if (axisType == ColumnAxisType.ORDINAL) {
     return null;
   }
 
-  let axisLabel: string = "Age";
-  let axisUnit = "Ma";
+  let _axisLabel: string = axisLabel ?? "Age";
+  let _axisUnit = axisUnit ?? "Ma";
   if (axisType == ColumnAxisType.DEPTH) {
-    axisLabel = "Depth";
-    axisUnit = "m";
+    _axisLabel = "Depth";
+    _axisUnit = "m";
   } else if (axisType == ColumnAxisType.HEIGHT) {
-    axisLabel = "Height";
-    axisUnit = "m";
+    _axisLabel = "Height";
+    _axisUnit = "m";
   }
 
-  return h([
+  return h("div.composite-age-axis", rest, [
     h(VerticalAxisLabel, {
-      label: axisLabel,
-      unit: axisUnit,
+      label: _axisLabel,
+      unit: _axisUnit,
       height: totalHeight,
     }),
     h(
@@ -113,8 +149,6 @@ export function AgeCursor({ age }) {
   /** A cursor that shows the age at a specific point on the age axis. */
   const scale = useCompositeScale();
   const heightPx = scale(age);
-
-  console.log(age, heightPx);
 
   if (age == null || heightPx == null) {
     return null;

@@ -45,9 +45,7 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
 }
 
 export interface LabeledUnitProps
-  extends UnitRectOptions,
-    Clickable,
-    Partial<RectBounds> {
+  extends UnitRectOptions, Clickable, Partial<RectBounds> {
   division: IUnit;
   patternID?: string | number;
   label: string;
@@ -161,8 +159,6 @@ function Unit(props: UnitProps) {
   const _className = classNames(className, { colored: hasBackgroundColor });
 
   const [ref, selected, onClick] = useUnitSelectionTarget(d);
-
-  //const key = `unit-${d.unit_id}`;
 
   return h(
     "g.unit",
