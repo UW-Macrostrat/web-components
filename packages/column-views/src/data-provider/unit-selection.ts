@@ -93,6 +93,7 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
         event: PointerEvent = null,
       ) => {
         if (input == null) {
+          props.onUnitSelected?.(null, null);
           return set({
             selectedUnit: null,
             selectedUnitData: null,
