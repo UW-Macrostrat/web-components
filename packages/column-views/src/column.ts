@@ -69,7 +69,9 @@ interface BaseColumnProps extends SectionSharedProps {
 }
 
 export interface ColumnProps
-  extends Padding, BaseColumnProps, ColumnHeightScaleOptions {
+  extends Padding,
+    BaseColumnProps,
+    ColumnHeightScaleOptions {
   // Macrostrat units
   units: UnitLong[];
   t_age?: number;
@@ -351,7 +353,11 @@ export function ColumnContainer(props: ColumnContainerProps) {
   });
 }
 
-export function ColumnBasicInfo({ data, showColumnID = true }) {
+export function ColumnBasicInfo({
+  data,
+  showColumnID = true,
+  showReferences = true,
+}) {
   if (data == null) return null;
   return h("div.column-info", [
     h("div.column-title-row", [
@@ -359,10 +365,10 @@ export function ColumnBasicInfo({ data, showColumnID = true }) {
       h.if(showColumnID)("h4", h(Identifier, { id: data.col_id })),
     ]),
     h(DataField, { row: true, label: "Group", value: data.col_group }),
-    h(ReferencesField, {
+    h.if(showReferences)(ReferencesField, {
       refs: data.refs,
       inline: false,
-      row: true,
+      row: false,
       className: "column-refs",
     }),
   ]);

@@ -57,7 +57,7 @@ function ColumnStoryUI({
 
   return h("div.column-ui", [
     h("div.column-container", [
-      h(ColumnBasicInfo, { data: info }),
+      h(ColumnBasicInfo, { data: info, showReferences: false }),
       h(Column, {
         key: columnID,
         units,
@@ -72,6 +72,12 @@ function ColumnStoryUI({
         collapseSmallUnconformities: true,
         targetUnitHeight: 20,
         ...rest,
+      }),
+      h(ReferencesField, {
+        refs: info?.refs,
+        inline: false,
+        row: false,
+        className: "column-refs",
       }),
     ]),
     h("div.right-column", [
