@@ -70,7 +70,7 @@ export function MacrostratColumnStateProvider({
     {
       initialValues: atomMap,
     },
-    [h(JotaiAtomUpdater, { atoms: atomMap }), children],
+    [h(AtomUpdater, { atoms: atomMap }), children],
   );
 }
 
@@ -149,7 +149,7 @@ export function useCompositeScale(): CompositeColumnScale {
   );
 }
 
-export function JotaiAtomUpdater({
+function AtomUpdater({
   atoms,
 }: {
   atoms: [WritableAtom<any, any, any>, any][];
@@ -160,27 +160,22 @@ export function JotaiAtomUpdater({
    * of the current context.
    */
   /** TODO: this is an awkward way to keep atoms updated */
-
-  const setters = atoms.map(([atom]) => useSetAtom(atom));
-  const values = atoms.map(([, value]) => value);
+  // The scoped store
+  const store = useStore();
 
   // Warn on atoms changing length
   const prevLengthRef = useRef(atoms.length);
   useEffect(() => {
     if (prevLengthRef.current !== atoms.length) {
-      console.warn(
-        "Warning: number of atoms in ScopedAtomUpdater has changed.",
-      );
+      console.error("Error: number of atoms in ScopedAtomUpdater has changed.");
       prevLengthRef.current = atoms.length;
     }
   }, [atoms.length]);
 
-  for (let i = 0; i < atoms.length; i++) {
-    const set = setters[i];
-    const value = values[i];
+  for (const [atom, value] of atoms) {
     useEffect(() => {
-      set(value);
-    }, [value]);
+      store.set(atom, value);
+    }, [store, value]);
   }
   return null;
 }
