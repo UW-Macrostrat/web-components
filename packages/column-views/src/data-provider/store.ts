@@ -1,4 +1,11 @@
-import { createContext, ReactNode, useContext, useMemo } from "react";
+import {
+  createContext,
+  ReactNode,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import h from "@macrostrat/hyper";
 import {
   CompositeColumnScale,
@@ -9,9 +16,9 @@ import type { ExtUnit, PackageLayoutData } from "../prepare-units";
 // An isolated jotai store for Macrostrat column usage
 // TODO: there might be a better way to do this using the MacrostratDataProvider or similar
 import { createIsolation } from "jotai-scope";
-import { atom, type WritableAtom } from "jotai";
+import { atom, PrimitiveAtom, type WritableAtom } from "jotai";
 
-const { Provider, useAtom, useAtomValue, useStore } = createIsolation();
+const { Provider, useSetAtom, useAtomValue, useStore } = createIsolation();
 
 type ProviderProps = {
   children: ReactNode;
@@ -53,12 +60,17 @@ export function MacrostratColumnStateProvider({
    * It is either provided by the Column component itself, or
    * can be hoisted higher in the tree to provide a common data context
    */
+
+  const atomMap: [[PrimitiveAtom<ExtUnit[]>, ExtUnit[]]] = [
+    [columnUnitsAtom, units],
+  ];
+
   return h(
     ScopedProvider,
     {
-      initialValues: [[columnUnitsAtom, units]],
+      initialValues: atomMap,
     },
-    children,
+    [h(AtomUpdater, { atoms: atomMap }), children],
   );
 }
 
@@ -135,4 +147,35 @@ export function useCompositeScale(): CompositeColumnScale {
     () => createCompositeScale(ctx.sections, true),
     [ctx.sections],
   );
+}
+
+function AtomUpdater({
+  atoms,
+}: {
+  atoms: [WritableAtom<any, any, any>, any][];
+}) {
+  /**
+   * A generic updater to sync Jotai atoms with state passed as props.
+   * Useful for scoped providers where state needs to be synced outside
+   * of the current context.
+   */
+  /** TODO: this is an awkward way to keep atoms updated */
+  // The scoped store
+  const store = useStore();
+
+  // Warn on atoms changing length
+  const prevLengthRef = useRef(atoms.length);
+  useEffect(() => {
+    if (prevLengthRef.current !== atoms.length) {
+      console.error("Error: number of atoms in ScopedAtomUpdater has changed.");
+      prevLengthRef.current = atoms.length;
+    }
+  }, [atoms.length]);
+
+  for (const [atom, value] of atoms) {
+    useEffect(() => {
+      store.set(atom, value);
+    }, [store, value]);
+  }
+  return null;
 }

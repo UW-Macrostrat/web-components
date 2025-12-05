@@ -61,12 +61,15 @@ interface BaseColumnProps extends SectionSharedProps {
   // Timescale properties
   showTimescale?: boolean;
   timescaleLevels?: number | [number, number];
+  unconformityLabels?: boolean | UnconformityLabelPlacement;
   onMouseOver?: (
     unit: UnitLong | null,
     height: number | null,
     evt: MouseEvent,
   ) => void;
 }
+
+export type UnconformityLabelPlacement = "minimal" | "prominent" | "none";
 
 export interface ColumnProps
   extends Padding, BaseColumnProps, ColumnHeightScaleOptions {
@@ -222,7 +225,7 @@ function ColumnInner(props: ColumnInnerProps) {
 
   const {
     unitComponent = UnitComponent,
-    unconformityLabels = true,
+    unconformityLabels = "minimal",
     showLabels = true,
     width: _width = 300,
     columnWidth: _columnWidth = 150,
@@ -239,6 +242,15 @@ function ColumnInner(props: ColumnInnerProps) {
   } = props;
 
   const { axisType } = useMacrostratColumnData();
+
+  // Coalesce unconformity label setting to a boolean
+  let _timescaleUnconformityLabels = false;
+  let _sectionUnconformityLabels = false;
+  if (unconformityLabels === true || unconformityLabels === "prominent") {
+    _sectionUnconformityLabels = true;
+  } else if (unconformityLabels === "minimal") {
+    _timescaleUnconformityLabels = true;
+  }
 
   let width = _width;
   let columnWidth = _columnWidth;
@@ -265,7 +277,10 @@ function ColumnInner(props: ColumnInnerProps) {
     },
     h("div.column", { ref: columnRef }, [
       h(ageAxisComponent),
-      h.if(_showTimescale)(CompositeTimescale, { levels: timescaleLevels }),
+      h.if(_showTimescale)(CompositeTimescale, {
+        levels: timescaleLevels,
+        unconformityLabels: _timescaleUnconformityLabels,
+      }),
       h(SectionsColumn, {
         unitComponent,
         showLabels,
@@ -273,7 +288,7 @@ function ColumnInner(props: ColumnInnerProps) {
         columnWidth,
         showLabelColumn,
         clipUnits,
-        unconformityLabels,
+        unconformityLabels: _sectionUnconformityLabels,
         maxInternalColumns,
       }),
       children,
@@ -351,7 +366,11 @@ export function ColumnContainer(props: ColumnContainerProps) {
   });
 }
 
-export function ColumnBasicInfo({ data, showColumnID = true }) {
+export function ColumnBasicInfo({
+  data,
+  showColumnID = true,
+  showReferences = true,
+}) {
   if (data == null) return null;
   return h("div.column-info", [
     h("div.column-title-row", [
@@ -359,10 +378,10 @@ export function ColumnBasicInfo({ data, showColumnID = true }) {
       h.if(showColumnID)("h4", h(Identifier, { id: data.col_id })),
     ]),
     h(DataField, { row: true, label: "Group", value: data.col_group }),
-    h(ReferencesField, {
+    h.if(showReferences)(ReferencesField, {
       refs: data.refs,
       inline: false,
-      row: true,
+      row: false,
       className: "column-refs",
     }),
   ]);

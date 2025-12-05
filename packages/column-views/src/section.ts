@@ -63,7 +63,7 @@ export function SectionsColumn(props: SectionSharedProps) {
   const units = useMacrostratUnits();
 
   // Get a unique key for the column
-  const key = units[0]?.unit_id;
+  const key = units[0]?.col_id;
 
   return h(LabelTrackerProvider, { units, key }, [
     h(SectionUnitsColumn, {
@@ -199,6 +199,7 @@ function SectionUnits(props: SectionProps) {
 
 interface CompositeTimescaleProps {
   levels?: [number, number] | number;
+  unconformityLabels?: boolean;
 }
 
 export function CompositeTimescale(props: CompositeTimescaleProps) {
@@ -215,7 +216,6 @@ export function CompositeTimescale(props: CompositeTimescaleProps) {
 
 type CompositeTimescaleCoreProps = CompositeTimescaleProps & {
   packages: PackageScaleLayoutData[];
-  unconformityLabels?: boolean;
 };
 
 export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
@@ -316,6 +316,8 @@ function Unconformity({
 
   const ageGap = Math.abs(upperAge - lowerAge);
 
+  let maximumFractionDigits = 0;
+
   let className: string = null;
   if (ageGap > 1000) {
     className = "giga";
@@ -325,14 +327,17 @@ function Unconformity({
     className = "large";
   } else if (ageGap < 1) {
     className = "small";
+    maximumFractionDigits = 2;
+  } else {
+    maximumFractionDigits = 1;
   }
 
   let val: ReactNode;
   if (axisType === ColumnAxisType.DEPTH || axisType === ColumnAxisType.HEIGHT) {
-    const _txt = ageGap.toLocaleString("en-US", { maximumFractionDigits: 2 });
+    const _txt = ageGap.toLocaleString("en-US", { maximumFractionDigits });
     val = h(Value, { value: _txt, unit: "m" });
   } else {
-    val = h(Duration, { value: ageGap });
+    val = h(Duration, { value: ageGap, maximumFractionDigits });
   }
 
   let prefix: ReactNode = null;

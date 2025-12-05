@@ -301,10 +301,11 @@ export function ReferencesField({ refs, className = null, ...rest }) {
   if (refs == null || refs.length === 0) {
     return null;
   }
+
   return h(
     DataField,
     {
-      label: "Source",
+      label: "References",
       className: classNames("refs-field", className),
       ...rest,
     },

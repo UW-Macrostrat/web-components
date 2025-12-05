@@ -8,15 +8,13 @@ import {
   UnitDetailsPanelWithNavigation,
   ReferencesField,
   UnitDetailsFeature,
-  Identifier,
   ColumnBasicInfo,
 } from "../src";
 import { useColumnBasicInfo, useColumnUnits } from "./column-ui/utils";
 import styles from "./column-page.stories.module.sass";
 import { UnitLong } from "@macrostrat/api-types";
 import { useArgs } from "storybook/preview-api";
-import { DataField } from "@macrostrat/data-components";
-import { FlexRow } from "@macrostrat/ui-components";
+import { sharedColumnArgTypes } from "./arg-types";
 
 export default {
   title: "Column views/Column page",
@@ -24,6 +22,10 @@ export default {
   args: {
     columnID: 494,
     selectedUnitID: 15160,
+    unconformityLabels: "minimal",
+  },
+  argTypes: {
+    ...sharedColumnArgTypes,
   },
 } as Meta<typeof ColumnStoryUI>;
 
@@ -57,13 +59,11 @@ function ColumnStoryUI({
 
   return h("div.column-ui", [
     h("div.column-container", [
-      h(ColumnBasicInfo, { data: info }),
+      h(ColumnBasicInfo, { data: info, showReferences: false }),
       h(Column, {
-        key: columnID,
         units,
         selectedUnit: selectedUnitID,
         onUnitSelected: setSelectedUnitID,
-        unconformityLabels: true,
         keyboardNavigation: true,
         columnWidth: 300,
         showUnitPopover: false,
@@ -72,6 +72,12 @@ function ColumnStoryUI({
         collapseSmallUnconformities: true,
         targetUnitHeight: 20,
         ...rest,
+      }),
+      h(ReferencesField, {
+        refs: info?.refs,
+        inline: false,
+        row: false,
+        className: "column-refs",
       }),
     ]),
     h("div.right-column", [
