@@ -7,7 +7,10 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 ## [2.2.2] - 2025-12-04
 
 - Fix a bug with unit deselection
-- Fix a lack of updates in state management code
+- Fix missed updates in state management code
+- Add a 'minimal' option to `unconformityLabels`
+- Reduce precision of gap age labels
+- Improvements to stories
 
 ## [2.2.1] - 2025-11-29
 
