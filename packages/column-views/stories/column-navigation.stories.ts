@@ -9,29 +9,7 @@ import {
   EnvironmentColoredUnitComponent,
 } from "../src";
 import { useColumnSelection } from "./column-ui/utils";
-
-const baseArgTypes = {
-  columnID: {
-    control: {
-      type: "number",
-    },
-  },
-  selectedUnit: {
-    control: {
-      type: "number",
-    },
-  },
-  t_age: {
-    control: {
-      type: "number",
-    },
-  },
-  b_age: {
-    control: {
-      type: "number",
-    },
-  },
-};
+import { sharedColumnArgTypes } from "./arg-types";
 
 export default {
   title: "Column views/Column navigation",
@@ -43,45 +21,7 @@ export default {
     targetUnitHeight: 20,
   },
   argTypes: {
-    ...baseArgTypes,
-    axisType: {
-      options: ["age", "ordinal", "depth"],
-      control: { type: "radio" },
-    },
-    mergeSections: {
-      options: ["all", "overlapping", null],
-      control: { type: "radio" },
-    },
-    pixelScale: {
-      control: {
-        type: "number",
-      },
-    },
-    collapseSmallUnconformities: {
-      control: {
-        type: "boolean",
-      },
-    },
-    minSectionHeight: {
-      control: {
-        type: "number",
-      },
-    },
-    targetUnitHeight: {
-      control: {
-        type: "number",
-      },
-    },
-    showLabelColumn: {
-      control: {
-        type: "boolean",
-      },
-    },
-    maxInternalColumns: {
-      control: {
-        type: "number",
-      },
-    },
+    ...sharedColumnArgTypes,
   },
 } as Meta<typeof ColumnStoryUI>;
 
@@ -115,7 +55,6 @@ Minimal.args = {
 export const eODP = Template.bind({});
 eODP.args = {
   columnID: 5576,
-  inProcess: true,
   axisType: "depth",
   projectID: 3,
   pixelScale: undefined,

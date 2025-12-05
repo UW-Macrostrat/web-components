@@ -2,6 +2,7 @@ import {
   ColoredUnitComponent,
   Column,
   ColumnNavigationMap,
+  MacrostratDataProvider,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
 import styles from "./story-ui.module.sass";
@@ -23,28 +24,31 @@ export function ColumnStoryUI({
   projectID,
   ...rest
 }) {
-  return h("div.column-ui", [
-    h(
-      "div.column-container",
-      h(ColumnCore, {
-        col_id: columnID,
-        selectedUnit,
-        setSelectedUnit,
-        inProcess,
-        ...rest,
-      }),
-    ),
-    h("div.right-column", [
-      h(ColumnNavigationMap, {
-        inProcess,
-        projectID,
-        accessToken: mapboxToken,
-        selectedColumn: columnID,
-        onSelectColumn: setColumn,
-        className: "column-selector-map",
-      }),
+  return h(
+    MacrostratDataProvider,
+    h("div.column-ui", [
+      h(
+        "div.column-container",
+        h(ColumnCore, {
+          col_id: columnID,
+          selectedUnit,
+          setSelectedUnit,
+          inProcess,
+          ...rest,
+        }),
+      ),
+      h("div.right-column", [
+        h(ColumnNavigationMap, {
+          inProcess,
+          projectID,
+          accessToken: mapboxToken,
+          selectedColumn: columnID,
+          onSelectColumn: setColumn,
+          className: "column-selector-map",
+        }),
+      ]),
     ]),
-  ]);
+  );
 }
 
 function ColumnCore({
@@ -64,7 +68,6 @@ function ColumnCore({
   return h("div.column-container", [
     h("h2", info.col_name),
     h(Column, {
-      key: col_id,
       units,
       selectedUnit,
       onUnitSelected: (unit_id) => {
