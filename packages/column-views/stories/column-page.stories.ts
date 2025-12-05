@@ -59,7 +59,6 @@ function ColumnStoryUI({
     h("div.column-container", [
       h(ColumnBasicInfo, { data: info, showReferences: false }),
       h(Column, {
-        key: columnID,
         units,
         selectedUnit: selectedUnitID,
         onUnitSelected: setSelectedUnitID,

@@ -63,7 +63,7 @@ export function SectionsColumn(props: SectionSharedProps) {
   const units = useMacrostratUnits();
 
   // Get a unique key for the column
-  const key = units[0]?.unit_id;
+  const key = units[0]?.col_id;
 
   return h(LabelTrackerProvider, { units, key }, [
     h(SectionUnitsColumn, {
