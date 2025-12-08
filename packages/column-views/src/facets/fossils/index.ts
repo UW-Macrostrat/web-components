@@ -62,7 +62,7 @@ function PBDBCollectionLink({
   );
 }
 
-const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
+const isMatchingUnit = (meas, unit) => unit.unit_id == meas[0].unit_id;
 
 export function PBDBFossilsColumn({
   columnID,
@@ -77,7 +77,7 @@ export function PBDBFossilsColumn({
     data,
     noteComponent: FossilInfo,
     className: "fossil-collections",
-    matchingUnit,
+    isMatchingUnit,
   });
 }
 

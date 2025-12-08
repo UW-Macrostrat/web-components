@@ -8,6 +8,12 @@ import { UnitLong } from "@macrostrat/api-types";
 import { ColumnAxisType } from "@macrostrat/column-components";
 const h = hyper.styled(styles);
 
+type GetHeightRangeFn<T> = (
+  data: T,
+  unit: UnitLong | null,
+  axisType: ColumnAxisType,
+) => MeasurementHeightData;
+
 export interface BaseMeasurementsColumnProps<T> {
   data: T[];
   noteComponent?: any;
@@ -16,7 +22,9 @@ export interface BaseMeasurementsColumnProps<T> {
   className?: string;
   // TODO: these props are confusing
   getUnitID?: (d: T) => number | string;
-  matchingUnit?: (dz: T) => (d: any) => boolean;
+  isMatchingUnit?: (d: T, unit: UnitLong) => boolean;
+  getHeightRange?: GetHeightRangeFn<T>;
+  deltaConnectorAttachment?: number;
 }
 
 type MeasurementHeightData = {
@@ -42,29 +50,28 @@ export function BaseMeasurementsColumn({
   className,
   getUnitID = (d) => d.unit_id,
   getHeightRange = defaultGetHeightRange,
-  matchingUnit,
+  isMatchingUnit,
   deltaConnectorAttachment,
 }: BaseMeasurementsColumnProps<any>) {
   const { axisType, units } = useMacrostratColumnData();
 
-  const _matchingUnit =
-    matchingUnit ??
+  const _isMatchingUnit =
+    isMatchingUnit ??
     useCallback(
-      (dz) => {
-        return (d) => {
-          return getUnitID(d) === dz.unit_id;
-        };
+      (meas, unit) => {
+        return getUnitID(meas) === unit.unit_id;
       },
       [getUnitID],
     );
 
   const notes: any[] = useMemo(() => {
     if (data == null || units == null) return [];
+
     let unitRefData = Array.from(data.values())
       .map((d) => {
         return {
           data: d,
-          unit: units.find(_matchingUnit(d)),
+          unit: units.find((unit) => _isMatchingUnit(d, unit)),
         };
       })
       .filter((d) => d.unit != null);
@@ -77,17 +84,16 @@ export function BaseMeasurementsColumn({
 
     return unitRefData.map((d) => {
       const { unit, data } = d;
-      const heightRange = getUnitHeightRange(unit, axisType);
+      const heightRange = getHeightRange(data, unit, axisType);
 
       return {
-        top_height: heightRange[1],
-        height: heightRange[0],
+        ...heightRange,
         data,
         unit,
         id: unit.unit_id,
       };
     });
-  }, [data, units, matchingUnit]);
+  }, [data, units, _isMatchingUnit]);
 
   if (data == null || units == null) return null;
 

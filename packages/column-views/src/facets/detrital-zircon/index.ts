@@ -27,7 +27,9 @@ interface DetritalItemProps {
   color?: string;
 }
 
-const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
+const isMatchingUnit = (meas, unit) => {
+  return unit.unit_id == meas[0].unit_id;
+};
 
 function DetritalColumn({ columnID, color = "magenta" }) {
   const data = useDetritalMeasurements({ col_id: columnID });
@@ -51,8 +53,7 @@ function DetritalColumn({ columnID, color = "magenta" }) {
   return h(BaseMeasurementsColumn, {
     data,
     noteComponent,
-    getUnitID: (d) => d[0].unit_id,
-    matchingUnit,
+    isMatchingUnit,
     deltaConnectorAttachment: 20,
   });
 }
