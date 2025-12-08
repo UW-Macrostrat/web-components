@@ -63,7 +63,8 @@
   "resolutions": {
     "@types/react": "18.3.12",
     "react": "^19",
-    "react-dom": "^19"
+    "react-dom": "^19",
+    "rollup": "4.44.2"
   },
   "workspaces": [
     "packages/*",
