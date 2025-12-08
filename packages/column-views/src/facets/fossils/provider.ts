@@ -108,7 +108,9 @@ async function fetchFossilData(
 
   const data = [...macrostratData, ...pbdbData];
 
-  return group(data, (d) => d.unit_id);
+  return data;
+
+  //return group(data, (d) => d.unit_id);
 }
 
 function preprocessOccurrence(d): PBDBOccurrence {

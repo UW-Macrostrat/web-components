@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import styles from "./index.module.sass";
 import classNames from "classnames";
 import { BaseMeasurementsColumn } from "../base-sample-column";
+import { group } from "d3-array";
 
 const h = hyper.styled(styles);
 
@@ -50,8 +51,14 @@ function DetritalColumn({ columnID, color = "magenta" }) {
     };
   }, [width, color]);
 
+  const data1 = useMemo(() => {
+    // Group data by unit ID
+    if (data == null) return null;
+    return group(data, (d) => d.unit_id);
+  }, [data]);
+
   return h(BaseMeasurementsColumn, {
-    data,
+    data: data1,
     noteComponent,
     isMatchingUnit,
     deltaConnectorAttachment: 20,

@@ -8,7 +8,7 @@ import {
 import type { IUnit } from "../../units";
 import { BaseMeasurementsColumn, TruncatedList } from "../base-sample-column";
 import { Box, useElementSize } from "@macrostrat/ui-components";
-import { InternMap } from "d3-array";
+import { group, InternMap } from "d3-array";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
 import {
   useMacrostratColumnData,
@@ -16,7 +16,7 @@ import {
 } from "../../data-provider";
 import { UnitLong } from "@macrostrat/api-types";
 import styles from "./index.module.sass";
-import { useRef } from "react";
+import { useMemo, useRef } from "react";
 
 const h = hyper.styled(styles);
 
@@ -73,8 +73,13 @@ export function PBDBFossilsColumn({
 }) {
   const data = useFossilData(columnID, type);
 
+  const data1 = useMemo(() => {
+    if (data == null) return null;
+    return group(data, (d) => d.unit_id);
+  }, [data]);
+
   return h(BaseMeasurementsColumn, {
-    data,
+    data: data1,
     noteComponent: FossilInfo,
     className: "fossil-collections",
     isMatchingUnit,
