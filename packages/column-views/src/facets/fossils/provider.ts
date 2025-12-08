@@ -87,7 +87,7 @@ async function fetchPDBDFossilData(
   type: FossilDataType,
 ): Promise<PBDBCollection[]> {
   const resp = await fetch(
-    `https://paleobiodb.org/data1.2/${type}/list.json?ms_column=${col_id}&show=mslink,full`,
+    `https://paleobiodb.org/data1.2/${type}/list.json?ms_column=${col_id}&show=mslink,stratext,rank`,
   );
   const res = await resp.json();
   return res.records.map(

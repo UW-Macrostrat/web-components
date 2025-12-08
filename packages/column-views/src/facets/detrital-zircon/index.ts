@@ -53,6 +53,7 @@ function DetritalColumn({ columnID, color = "magenta" }) {
     noteComponent,
     getUnitID: (d) => d[0].unit_id,
     matchingUnit,
+    deltaConnectorAttachment: 20,
   });
 }
 

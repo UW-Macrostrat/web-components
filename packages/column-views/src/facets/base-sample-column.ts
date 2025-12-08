@@ -4,6 +4,8 @@ import hyper from "@macrostrat/hyper";
 import styles from "./base-sample-column.module.sass";
 import { getUnitHeightRange } from "../prepare-units";
 import { ColumnNotes } from "../notes";
+import { UnitLong } from "@macrostrat/api-types";
+import { ColumnAxisType } from "@macrostrat/column-components";
 const h = hyper.styled(styles);
 
 export interface BaseMeasurementsColumnProps<T> {
@@ -17,6 +19,21 @@ export interface BaseMeasurementsColumnProps<T> {
   matchingUnit?: (dz: T) => (d: any) => boolean;
 }
 
+type MeasurementHeightData = {
+  height: number;
+  top_height: number | null;
+};
+
+function defaultGetHeightRange<T>(
+  data: T,
+  unit: UnitLong | null,
+  axisType: ColumnAxisType,
+): MeasurementHeightData | null {
+  if (unit == null) return null;
+  const [height, top_height] = getUnitHeightRange(unit, axisType);
+  return { height, top_height };
+}
+
 export function BaseMeasurementsColumn({
   data,
   noteComponent,
@@ -24,7 +41,9 @@ export function BaseMeasurementsColumn({
   paddingLeft = 40,
   className,
   getUnitID = (d) => d.unit_id,
+  getHeightRange = defaultGetHeightRange,
   matchingUnit,
+  deltaConnectorAttachment,
 }: BaseMeasurementsColumnProps<any>) {
   const { axisType, units } = useMacrostratColumnData();
 
@@ -80,6 +99,7 @@ export function BaseMeasurementsColumn({
       paddingLeft,
       notes,
       noteComponent,
+      deltaConnectorAttachment,
     }),
   );
 }
