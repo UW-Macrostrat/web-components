@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 import { useAPIResult } from "@macrostrat/ui-components";
 import {
-  BaseMeasurementsColumnSimple,
+  BaseMeasurementsColumn,
   standardizeMeasurementHeight,
   TruncatedList,
 } from "./base";
@@ -34,7 +34,7 @@ export function SGPMeasurementsColumn({ columnID, color = "magenta" }) {
 
   const data1 = prepareSGPData(data, units, axisType);
 
-  return h(BaseMeasurementsColumnSimple, {
+  return h(BaseMeasurementsColumn, {
     data: data1,
     noteComponent: SGPSamplesNote,
   });

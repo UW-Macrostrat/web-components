@@ -11,6 +11,11 @@ import styles from "./index.module.sass";
 import classNames from "classnames";
 import { BaseMeasurementsColumn } from "../measurements";
 import { group } from "d3-array";
+import { ColumnAxisType } from "@macrostrat/column-components";
+import {
+  getUnitHeightRange,
+  useMacrostratColumnData,
+} from "@macrostrat/column-views";
 
 const h = hyper.styled(styles);
 
@@ -32,6 +37,29 @@ const isMatchingUnit = (meas, unit) => {
   return unit.unit_id == meas[0].unit_id;
 };
 
+function prepareDetritalData(
+  data: MeasurementInfo[],
+  units: IUnit[],
+  axisType: ColumnAxisType,
+) {
+  // Group data by unit ID
+  const data1 = group(data, (d) => d.unit_id);
+
+  return Array.from(data1.entries())
+    .map(([unit_id, data]) => {
+      const unit = units.find((u) => u.unit_id === unit_id);
+      if (unit == null) return null;
+      const [height, top_height] = getUnitHeightRange(unit, axisType);
+      return {
+        height,
+        top_height,
+        data,
+        id: unit_id,
+      };
+    })
+    .filter(Boolean);
+}
+
 function DetritalColumn({ columnID, color = "magenta" }) {
   const data = useDetritalMeasurements({ col_id: columnID });
 
@@ -51,11 +79,10 @@ function DetritalColumn({ columnID, color = "magenta" }) {
     };
   }, [width, color]);
 
-  const data1 = useMemo(() => {
-    // Group data by unit ID
-    if (data == null) return null;
-    return group(data, (d) => d.unit_id);
-  }, [data]);
+  const { axisType, units } = useMacrostratColumnData();
+  if (data == null || units == null) return null;
+
+  const data1 = prepareDetritalData(data, units, axisType);
 
   return h(BaseMeasurementsColumn, {
     data: data1,

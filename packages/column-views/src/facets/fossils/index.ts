@@ -8,7 +8,7 @@ import {
 } from "./provider";
 import type { IUnit } from "../../units";
 import {
-  BaseMeasurementsColumnSimple,
+  BaseMeasurementsColumn,
   standardizeMeasurementHeight,
   TruncatedList,
 } from "../measurements";
@@ -105,7 +105,7 @@ export function PBDBFossilsColumn({
 
   const data1 = preparePBDBData(data, units, axisType);
 
-  return h(BaseMeasurementsColumnSimple, {
+  return h(BaseMeasurementsColumn, {
     data: data1,
     noteComponent: FossilInfo,
     className: "fossil-collections",

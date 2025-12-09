@@ -1,5 +1,3 @@
-import { useMacrostratColumnData } from "../../data-provider";
-import { useCallback, useMemo } from "react";
 import hyper from "@macrostrat/hyper";
 import styles from "./base.module.sass";
 import { getPositionWithinUnit, getUnitHeightRange } from "../../prepare-units";
@@ -33,7 +31,7 @@ interface BaseMeasurementData<T = any> {
   id: string | number;
 }
 
-interface ColumnMeasurementData<T = any> extends MeasurementHeightData {
+export interface ColumnMeasurementData<T = any> extends MeasurementHeightData {
   data: T;
   id: string | number;
 }
@@ -75,84 +73,7 @@ type MeasurementHeightData = {
   top_height?: number | null;
 };
 
-function defaultGetHeightRange<T>(
-  data: T,
-  unit: UnitLong | null,
-  axisType: ColumnAxisType,
-): MeasurementHeightData | null {
-  if (unit == null) return null;
-  const [height, top_height] = getUnitHeightRange(unit, axisType);
-  return { height, top_height };
-}
-
 export function BaseMeasurementsColumn({
-  data,
-  noteComponent,
-  width = 500,
-  paddingLeft = 40,
-  className,
-  getUnitID = (d) => d.unit_id,
-  getHeightRange = defaultGetHeightRange,
-  isMatchingUnit,
-  deltaConnectorAttachment,
-}: BaseMeasurementsColumnProps<any>) {
-  const { axisType, units } = useMacrostratColumnData();
-
-  const _isMatchingUnit =
-    isMatchingUnit ??
-    useCallback(
-      (meas, unit) => {
-        return getUnitID(meas) === unit.unit_id;
-      },
-      [getUnitID],
-    );
-
-  const notes: any[] = useMemo(() => {
-    if (data == null || units == null) return [];
-
-    let unitRefData = Array.from(data.values())
-      .map((d) => {
-        return {
-          data: d,
-          unit: units.find((unit) => _isMatchingUnit(d, unit)),
-        };
-      })
-      .filter((d) => d.unit != null);
-
-    unitRefData.sort((a, b) => {
-      const v1 = units.indexOf(a.unit);
-      const v2 = units.indexOf(b.unit);
-      return v1 - v2;
-    });
-
-    return unitRefData.map((d) => {
-      const { unit, data } = d;
-      const heightRange = getHeightRange(data, unit, axisType);
-
-      return {
-        ...heightRange,
-        data,
-        id: unit.unit_id,
-      };
-    });
-  }, [data, units, _isMatchingUnit]);
-
-  if (data == null || units == null) return null;
-
-  return h(
-    "div",
-    { className },
-    h(ColumnNotes, {
-      width,
-      paddingLeft,
-      notes,
-      noteComponent,
-      deltaConnectorAttachment,
-    }),
-  );
-}
-
-export function BaseMeasurementsColumnSimple({
   data,
   noteComponent,
   width = 500,
