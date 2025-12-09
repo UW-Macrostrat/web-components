@@ -6,7 +6,7 @@ import {
   PBDBOccurrence,
   useFossilData,
 } from "./provider";
-import type { IUnit } from "../../units";
+import type { CompositeColumnScale, IUnit } from "../../units";
 import {
   BaseMeasurementsColumn,
   ColumnMeasurementData,
@@ -16,7 +16,10 @@ import {
 } from "../measurements";
 import { group } from "d3-array";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { useMacrostratColumnData } from "../../data-provider";
+import {
+  useCompositeScale,
+  useMacrostratColumnData,
+} from "../../data-provider";
 import { UnitLong } from "@macrostrat/api-types";
 import styles from "./taxon-ranges.module.sass";
 import {
@@ -72,18 +75,25 @@ function PBDBCollectionLink({
   );
 }
 
-const isMatchingUnit = (meas, unit) => unit.unit_id == meas[0].unit_id;
+interface PreparePBDBDataOptions {
+  /** If set, group close notes within this distance (in pixels in display space)
+   * into a single note. If a number is provided, that number is used as the distance,
+   * otherwise a default of 5 pixels is used.
+   */
+  groupCloseNotes?: boolean | number;
+}
 
 function preparePBDBData<T extends PBDBEntity>(
   data: T[],
   units: UnitLong[],
+  scale: CompositeColumnScale,
   axisType: ColumnAxisType,
-  grouped: boolean = true,
+  options?: { groupCloseNotes?: boolean | number },
 ) {
   /** Prepare PBDB fossil data for display in a measurements column */
-  if (grouped) {
-    return preparePBDBDataGrouped(data, units, axisType);
-  }
+  const { groupCloseNotes = true } = options ?? {};
+  const groupDistance =
+    typeof groupCloseNotes === "number" ? groupCloseNotes : 5;
 
   // Map of data to its defined height ranges
   const dataMap = new Map<string, ColumnMeasurementData<T>>();
@@ -113,7 +123,103 @@ function preparePBDBData<T extends PBDBEntity>(
     dataMap.get(key)!.data.push(d);
   }
 
-  return Array.from(dataMap.values());
+  return groupNotesByPixelDistance(
+    Array.from(dataMap.values()),
+    scale,
+    axisType,
+    groupDistance,
+  );
+}
+
+function groupNotesByPixelDistance<T extends PBDBEntity>(
+  data: ColumnMeasurementData<T[]>[],
+  scale: CompositeColumnScale,
+  axisType: ColumnAxisType,
+  groupDistance: number,
+) {
+  /** Group notes that are within a certain pixel distance of each other
+   * in display space
+   */
+  if (data.length === 0) return data;
+
+  let sign = 1;
+  if (axisType === ColumnAxisType.AGE || axisType === ColumnAxisType.DEPTH) {
+    sign = -1;
+  }
+
+  // Sort data by height (ascending up the column)
+  if (axisType === ColumnAxisType.AGE || axisType === ColumnAxisType.DEPTH) {
+    data.sort((a, b) => b.height - a.height);
+  } else {
+    data.sort((a, b) => a.height - b.height);
+  }
+
+  const groupedData: ColumnMeasurementData<T[]>[] = [];
+  let currentGroup: ColumnMeasurementData<T[]> | null = null;
+
+  for (const d of data) {
+    const bPos = scale(d.height);
+
+    let currentGroupTopPosition: number = null;
+    if (currentGroup == null) {
+      currentGroup = {
+        ...d,
+        data: [...d.data],
+        height: d.height,
+        top_height: d.top_height ?? d.height,
+      };
+      currentGroupTopPosition = scale(
+        currentGroup.top_height ?? currentGroup.height,
+      );
+      groupedData.push(currentGroup);
+    } else {
+      // Check distance from current max position
+      const currentTPos = scale(currentGroup.top_height);
+
+      // Pixels go up as we go down in the section
+      const distance = currentTPos - bPos;
+      if (distance <= groupDistance) {
+        // Merge into current group
+        currentGroup.data.push(...d.data);
+        // Update height range
+        const height = d.height;
+        const top_height = d.top_height ?? d.height;
+        if (
+          axisType === ColumnAxisType.AGE ||
+          axisType === ColumnAxisType.DEPTH
+        ) {
+          // Inverted axis
+          currentGroup.height = Math.max(currentGroup.height, height);
+          currentGroup.top_height = Math.min(
+            currentGroup.top_height,
+            top_height,
+          );
+        } else {
+          currentGroup.height = Math.min(currentGroup.height, height);
+          currentGroup.top_height = Math.max(
+            currentGroup.top_height,
+            top_height,
+          );
+        }
+        currentGroup.key = `${currentGroup.height}-${currentGroup.top_height}`;
+
+        // Update current group top position
+        currentGroupTopPosition = scale(
+          currentGroup.top_height ?? currentGroup.height,
+        );
+      } else {
+        // Start a new group
+        currentGroup = { ...d, data: [...d.data] };
+        currentGroupTopPosition = scale(
+          currentGroup.top_height ?? currentGroup.height,
+        );
+        // Update
+        groupedData.push(currentGroup);
+      }
+    }
+  }
+
+  return groupedData;
 }
 
 function getHeightRangeForPBDBEntity<T extends PBDBEntity>(
@@ -166,33 +272,6 @@ function getRelativePositionInUnit<T extends PBDBEntity>(
   return relPos;
 }
 
-function preparePBDBDataGrouped<T extends PBDBEntity>(
-  data: T[],
-  units: UnitLong[],
-  axisType: ColumnAxisType,
-) {
-  /** Prepare PBDB fossil data for display in a measurements column */
-  // First, group data by unit ID
-
-  const data1 = group(data, (d) => d.unit_id);
-
-  return Array.from(data1.entries())
-    .map(([unit_id, data]) => {
-      const heightRange = standardizeMeasurementHeight(
-        { unit_id },
-        units,
-        axisType,
-      );
-      if (heightRange == null) return null;
-      return {
-        ...heightRange,
-        data,
-        id: Number(unit_id),
-      };
-    })
-    .filter((d) => d != null);
-}
-
 export function PBDBFossilsColumn({
   columnID,
   type = FossilDataType.Collections,
@@ -202,15 +281,15 @@ export function PBDBFossilsColumn({
 }) {
   const data = useFossilData(columnID, type);
   const { axisType, units } = useMacrostratColumnData();
+  const scale = useCompositeScale();
 
-  if (data == null || units == null) return null;
+  if (data == null || units == null || scale == null) return null;
 
-  const data1 = preparePBDBData(data, units, axisType, false);
+  const data1 = preparePBDBData(data, units, scale, axisType);
 
   return h(BaseMeasurementsColumn, {
     data: data1,
     noteComponent: FossilInfo,
     className: "fossil-collections",
-    isMatchingUnit,
   });
 }
