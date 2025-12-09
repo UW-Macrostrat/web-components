@@ -128,8 +128,15 @@ export function getPositionWithinUnit(
 
   // If clipped, check if abs_pos is within the clipped range
   const [clip_bottom, clip_top] = getUnitHeightRange(unit, axisType, true);
-  if (abs_pos < clip_bottom || abs_pos > clip_top) {
-    return null;
+  if (axisType === ColumnAxisType.AGE || axisType === ColumnAxisType.DEPTH) {
+    // Invert for age/depth axes
+    if (abs_pos > clip_bottom || abs_pos < clip_top) {
+      return null;
+    }
+  } else {
+    if (abs_pos < clip_bottom || abs_pos > clip_top) {
+      return null;
+    }
   }
 
   return abs_pos;

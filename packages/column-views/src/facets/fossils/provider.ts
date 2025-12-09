@@ -20,6 +20,10 @@ export interface PBDBEntity {
   unit_id: number;
   col_id: number;
   cltn_id: number;
+  // For eODP, slb/slu are used to store the heights of fossil locations found in measured sections.
+  // They may have a more general set of uses as well but these are not currently explored.
+  slb?: string; // The local bed in which the fossil was found
+  slu?: string; // The unit of measurement used to designate the local bed
 }
 
 export interface PBDBCollection extends PBDBEntity {

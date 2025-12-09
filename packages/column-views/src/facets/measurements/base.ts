@@ -92,7 +92,7 @@ export function mergeHeightRanges(
   return { height, top_height };
 }
 
-type MeasurementHeightData = {
+export type MeasurementHeightData = {
   height: number;
   top_height?: number | null;
 };
