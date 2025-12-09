@@ -1,0 +1,79 @@
+import h from "@macrostrat/hyper";
+import { useAPIResult } from "@macrostrat/ui-components";
+import {
+  BaseMeasurementsColumnSimple,
+  standardizeMeasurementHeight,
+  TruncatedList,
+} from "./base";
+import { UnitLong } from "@macrostrat/api-types";
+import { ColumnAxisType } from "@macrostrat/column-components";
+import { useMacrostratColumnData } from "@macrostrat/column-views";
+
+function useSGPData({ col_id }) {
+  const res = useAPIResult(
+    "https://dev.macrostrat.org/api/pg/sgp_unit_matches",
+    {
+      col_id: `eq.${col_id}`,
+    },
+    (d) => d,
+  );
+  return res;
+}
+
+interface SGPSampleData {
+  col_id: number;
+  unit_id: number;
+  sgp_samples: { name: string; id: number }[];
+}
+
+export function SGPMeasurementsColumn({ columnID, color = "magenta" }) {
+  const data: SGPSampleData[] | null = useSGPData({ col_id: columnID });
+  const { axisType, units } = useMacrostratColumnData();
+
+  if (data == null || units == null) return null;
+
+  const data1 = prepareSGPData(data, units, axisType);
+
+  return h(BaseMeasurementsColumnSimple, {
+    data: data1,
+    noteComponent: SGPSamplesNote,
+  });
+}
+
+function SGPSamplesNote(props) {
+  const { note } = props;
+  const sgp_samples = note?.data;
+
+  if (sgp_samples == null || sgp_samples.length === 0) return null;
+
+  return h(TruncatedList, {
+    className: "sgp-samples",
+    data: sgp_samples,
+    itemRenderer: (p) => h("span", p.data.name),
+  });
+}
+
+function prepareSGPData(
+  data: SGPSampleData[],
+  units: UnitLong[],
+  axisType: ColumnAxisType,
+) {
+  // Find matching units for samples
+  return data
+    .map((sample) => {
+      const data = sample.sgp_samples;
+      if (data == null || data.length === 0) return null;
+      const heightData = standardizeMeasurementHeight(
+        { unit_id: sample.unit_id },
+        units,
+        axisType,
+      );
+      if (heightData == null) return null;
+      return {
+        ...heightData,
+        data,
+        id: sample.unit_id,
+      };
+    })
+    .filter(Boolean);
+}

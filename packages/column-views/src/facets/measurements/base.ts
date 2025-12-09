@@ -152,6 +152,29 @@ export function BaseMeasurementsColumn({
   );
 }
 
+export function BaseMeasurementsColumnSimple({
+  data,
+  noteComponent,
+  width = 500,
+  paddingLeft = 40,
+  className,
+  deltaConnectorAttachment,
+}: BaseMeasurementsColumnProps<any>) {
+  if (data == null) return null;
+
+  return h(
+    "div.measurements-column",
+    { className },
+    h(ColumnNotes, {
+      width,
+      paddingLeft,
+      notes: data,
+      noteComponent,
+      deltaConnectorAttachment,
+    }),
+  );
+}
+
 interface TruncatedListProps {
   data: any[];
   className?: string;
