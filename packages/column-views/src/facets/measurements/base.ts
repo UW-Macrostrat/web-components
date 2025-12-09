@@ -25,12 +25,6 @@ export interface BaseMeasurementsColumnProps<T> {
   deltaConnectorAttachment?: number;
 }
 
-interface BaseMeasurementData<T = any> {
-  position: MeasurementPositionInformation;
-  data: T;
-  id: string | number;
-}
-
 export interface ColumnMeasurementData<T = any> extends MeasurementHeightData {
   data: T;
   id: string | number;
@@ -66,6 +60,36 @@ export function standardizeMeasurementHeight(
     const [height, top_height] = getUnitHeightRange(unit, axisType);
     return { height, top_height };
   }
+}
+
+export function mergeHeightRanges(
+  data: MeasurementHeightData[],
+  axisType: ColumnAxisType,
+): MeasurementHeightData {
+  /** Merge multiple height ranges into a single range */
+  const heights = [];
+
+  for (const d of data) {
+    heights.push(d.height);
+    if (d.top_height != null) {
+      heights.push(d.top_height);
+    }
+  }
+
+  let height: number;
+  let top_height: number;
+  if (axisType === ColumnAxisType.AGE || axisType === ColumnAxisType.DEPTH) {
+    height = Math.max(...heights);
+    top_height = Math.min(...heights);
+  } else {
+    height = Math.min(...heights);
+    top_height = Math.max(...heights);
+  }
+
+  if (top_height === height) {
+    return { height };
+  }
+  return { height, top_height };
 }
 
 type MeasurementHeightData = {
