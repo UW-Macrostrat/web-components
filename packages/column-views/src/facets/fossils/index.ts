@@ -9,6 +9,7 @@ import {
 import type { IUnit } from "../../units";
 import {
   BaseMeasurementsColumn,
+  ColumnMeasurementData,
   standardizeMeasurementHeight,
   TruncatedList,
 } from "../measurements";
@@ -69,9 +70,41 @@ function preparePBDBData<T extends PBDBEntity>(
   data: T[],
   units: UnitLong[],
   axisType: ColumnAxisType,
+  grouped: boolean = true,
+) {
+  /** Prepare PBDB fossil data for display in a measurements column */
+  if (grouped) {
+    return preparePBDBDataGrouped(data, units, axisType);
+  }
+
+  const dataMap = new Map<string, ColumnMeasurementData<T>>();
+
+  console.log("Preparing PBDB data", data);
+
+  for (const d of data) {
+    const key = d.slb;
+    const height = Number(d.slb);
+    if (!dataMap.has(key)) {
+      dataMap.set(key, {
+        height,
+        data: [],
+        id: key,
+      });
+    }
+    dataMap.get(key)!.data.push(d);
+  }
+
+  return Array.from(dataMap.values());
+}
+
+function preparePBDBDataGrouped<T extends PBDBEntity>(
+  data: T[],
+  units: UnitLong[],
+  axisType: ColumnAxisType,
 ) {
   /** Prepare PBDB fossil data for display in a measurements column */
   // First, group data by unit ID
+
   const data1 = group(data, (d) => d.unit_id);
 
   return Array.from(data1.entries())
@@ -103,7 +136,7 @@ export function PBDBFossilsColumn({
 
   if (data == null || units == null) return null;
 
-  const data1 = preparePBDBData(data, units, axisType);
+  const data1 = preparePBDBData(data, units, axisType, false);
 
   return h(BaseMeasurementsColumn, {
     data: data1,

@@ -16,19 +16,6 @@ export enum FossilDataType {
   Collections = "colls",
 }
 
-export function usePBDBFossilData(
-  type: FossilDataType,
-  { col_id },
-): any[] | null {
-  const params = {
-    ms_column: col_id,
-    show: "full,mslink",
-  };
-  return useAPIResult(`/${type}/list.json`, params, {
-    context: pbdbAPIContext,
-  });
-}
-
 export interface PBDBEntity {
   unit_id: number;
   col_id: number;
