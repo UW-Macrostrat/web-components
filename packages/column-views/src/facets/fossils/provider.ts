@@ -1,4 +1,3 @@
-import { group, InternMap } from "d3-array";
 import {
   createAPIContext,
   useAPIResult,
@@ -30,13 +29,13 @@ export function usePBDBFossilData(
   });
 }
 
-export interface PBDBIdentifier {
+export interface PBDBEntity {
   unit_id: number;
   col_id: number;
   cltn_id: number;
 }
 
-export interface PBDBCollection extends PBDBIdentifier {
+export interface PBDBCollection extends PBDBEntity {
   cltn_name: string;
   pbdb_occs: number;
   t_age: number;
@@ -44,7 +43,7 @@ export interface PBDBCollection extends PBDBIdentifier {
   [key: string]: any; // Allow for additional properties
 }
 
-export interface PBDBOccurrence extends PBDBIdentifier {
+export interface PBDBOccurrence extends PBDBEntity {
   occ_id: number;
   cltn_id: number;
   taxon_name: string;
@@ -97,20 +96,15 @@ async function fetchPDBDFossilData(
   );
 }
 
-async function fetchFossilData(
+async function fetchFossilData<T extends PBDBEntity>(
   colID: number,
   type: FossilDataType,
-): Promise<InternMap<number, PBDBOccurrence[] | PBDBCollection[]>> {
+): Promise<T[]> {
   const [macrostratData, pbdbData] = await Promise.all([
     fetchMacrostratFossilData(colID, type),
     fetchPDBDFossilData(colID, type),
   ]);
-
-  const data = [...macrostratData, ...pbdbData];
-
-  return data;
-
-  //return group(data, (d) => d.unit_id);
+  return [...macrostratData, ...pbdbData];
 }
 
 function preprocessOccurrence(d): PBDBOccurrence {
