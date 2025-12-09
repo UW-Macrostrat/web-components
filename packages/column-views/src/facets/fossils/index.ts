@@ -6,7 +6,7 @@ import {
   useFossilData,
 } from "./provider";
 import type { IUnit } from "../../units";
-import { BaseMeasurementsColumn, TruncatedList } from "../base-sample-column";
+import { BaseMeasurementsColumn, TruncatedList } from "../measurements";
 import { Box, useElementSize } from "@macrostrat/ui-components";
 import { group, InternMap } from "d3-array";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";

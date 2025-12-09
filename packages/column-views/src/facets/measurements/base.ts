@@ -1,9 +1,9 @@
-import { useMacrostratColumnData } from "../data-provider";
+import { useMacrostratColumnData } from "../../data-provider";
 import { useCallback, useMemo } from "react";
 import hyper from "@macrostrat/hyper";
-import styles from "./base-sample-column.module.sass";
-import { getPositionWithinUnit, getUnitHeightRange } from "../prepare-units";
-import { ColumnNotes } from "../notes";
+import styles from "./base.module.sass";
+import { getPositionWithinUnit, getUnitHeightRange } from "../../prepare-units";
+import { ColumnNotes } from "../../notes";
 import { UnitLong } from "@macrostrat/api-types";
 import { ColumnAxisType } from "@macrostrat/column-components";
 const h = hyper.styled(styles);
@@ -27,6 +27,17 @@ export interface BaseMeasurementsColumnProps<T> {
   deltaConnectorAttachment?: number;
 }
 
+interface BaseMeasurementData<T = any> {
+  position: MeasurementPositionInformation;
+  data: T;
+  id: string | number;
+}
+
+interface ColumnMeasurementData<T = any> extends MeasurementHeightData {
+  data: T;
+  id: string | number;
+}
+
 type MeasurementPositionInformation =
   | MeasurementHeightData
   | {
@@ -34,7 +45,7 @@ type MeasurementPositionInformation =
       unit_rel_pos?: number;
     };
 
-function getMeasurementHeight(
+export function standardizeMeasurementHeight(
   pos: MeasurementPositionInformation,
   units: UnitLong[],
   axisType: ColumnAxisType,
@@ -51,6 +62,7 @@ function getMeasurementHeight(
   }
   if (pos.unit_rel_pos != null) {
     const res = getPositionWithinUnit(pos.unit_rel_pos, unit, axisType);
+    if (res == null) return null;
     return { height: res };
   } else {
     const [height, top_height] = getUnitHeightRange(unit, axisType);
@@ -120,7 +132,6 @@ export function BaseMeasurementsColumn({
       return {
         ...heightRange,
         data,
-        unit,
         id: unit.unit_id,
       };
     });

@@ -9,7 +9,7 @@ import { useDetritalMeasurements, MeasurementInfo } from "./provider";
 import { useMemo } from "react";
 import styles from "./index.module.sass";
 import classNames from "classnames";
-import { BaseMeasurementsColumn } from "../base-sample-column";
+import { BaseMeasurementsColumn } from "../measurements";
 import { group } from "d3-array";
 
 const h = hyper.styled(styles);
