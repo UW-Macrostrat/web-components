@@ -65,7 +65,8 @@ function PBDBCollectionLink({
   return h(
     "a.link-id",
     {
-      href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${data.cltn_id}`,
+      href: `https://paleobiodb.org/app/collections#display=col:${data.cltn_id}`,
+      target: "_blank",
     },
     data.best_name ?? data.cltn_name,
   );
