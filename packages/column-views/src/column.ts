@@ -52,8 +52,10 @@ import { ScaleContinuousNumeric } from "d3-scale";
 
 const h = hyperStyled(styles);
 
-interface BaseColumnProps
-  extends Omit<SectionSharedProps, "unconformityLabels"> {
+interface BaseColumnProps extends Omit<
+  SectionSharedProps,
+  "unconformityLabels"
+> {
   className?: string;
   showLabelColumn?: boolean;
   keyboardNavigation?: boolean;
@@ -73,9 +75,7 @@ interface BaseColumnProps
 export type UnconformityLabelPlacement = "minimal" | "prominent" | "none";
 
 export interface ColumnProps
-  extends Padding,
-    BaseColumnProps,
-    ColumnHeightScaleOptions {
+  extends Padding, BaseColumnProps, ColumnHeightScaleOptions {
   // Macrostrat units
   units: UnitLong[];
   t_age?: number;
