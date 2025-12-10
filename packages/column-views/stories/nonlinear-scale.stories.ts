@@ -50,13 +50,13 @@ export const LinearScale: Story = {
     showTimescale: true,
     timescaleLevels: [1, 2],
     // NOTE: scale domains are clipped to the age range of the column
-    scale: scaleLinear().domain([0, 4500]).range([0, 1500]),
+    scale: scaleLinear().domain([0, 4000]).range([0, 1500]),
   },
 };
 
 // Logarithmic age scale
 
-const logScale = scaleLog().base(10).domain([0.001, 4500]).range([0, 1000]);
+const logScale = scaleLog().base(10).domain([0.001, 4000]).range([0, 1000]);
 
 export const LogScale: Story = {
   args: {
@@ -81,11 +81,11 @@ export const PowerScale: Story = {
     axisType: ColumnAxisType.AGE,
     showLabels: false,
     unitComponent: MinimalUnit,
+    showUnitPopover: true,
     showTimescale: true,
     timescaleLevels: [1, 2],
     scale: powScale,
     t_age: 0,
-    b_age: 4500,
   },
 };
 
