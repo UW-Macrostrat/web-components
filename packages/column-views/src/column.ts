@@ -52,7 +52,10 @@ import { ScaleContinuousNumeric } from "d3-scale";
 
 const h = hyperStyled(styles);
 
-interface BaseColumnProps extends SectionSharedProps {
+interface BaseColumnProps extends Omit<
+  SectionSharedProps,
+  "unconformityLabels"
+> {
   className?: string;
   showLabelColumn?: boolean;
   keyboardNavigation?: boolean;

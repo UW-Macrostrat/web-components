@@ -40,7 +40,6 @@ const NotePositioner = forwardRef(function (
         {
           ref,
           onClick,
-          style: { margin: outerPad },
         },
         children,
       ),

@@ -8,7 +8,7 @@ import {
   fetchUnits,
   MergeSectionsMode,
   useCorrelationMapStore,
-} from "@macrostrat/column-views";
+} from "../..";
 import { hyperStyled } from "@macrostrat/hyper";
 
 import styles from "./stories.module.sass";

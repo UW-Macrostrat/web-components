@@ -11,17 +11,12 @@ import {
 import { useColumn } from "../context";
 
 type NoteListProps = NodeConnectorOptions & {
-  inEditMode?: boolean;
-  editable?: boolean;
   onClickNote?: (note: NoteData) => void;
-  editHandler?: Function;
 };
 
 export function NotesList(props: NoteListProps) {
-  let { inEditMode: editable, onClickNote, ...rest } = props;
-  if (editable == null) {
-    editable = false;
-  }
+  let { onClickNote, ...rest } = props;
+
   const {
     notes,
     nodes: nodeIndex,
@@ -66,7 +61,7 @@ export function NotesList(props: NoteListProps) {
   }, [notes, nodeIndex, scale]);
 
   return h(
-    "g",
+    "g.notes-list",
     notesInfo.map(({ note, pixelOffset, pixelHeight, spacing }) => {
       // If the note has a bad pixelOffset, skip it
 
@@ -79,7 +74,6 @@ export function NotesList(props: NoteListProps) {
         note,
         pixelOffset,
         pixelHeight,
-        editable,
         updateHeight,
         onClick: onClickNote,
         noteBodyComponent: noteComponent,
@@ -95,12 +89,8 @@ type NodeSpacing = {
   below: number;
 };
 
-type NodeInfo = any;
-
 interface NoteProps {
-  editable: boolean;
   note: NoteData;
-  editHandler?: Function;
   style?: object;
   deltaConnectorAttachment?: number;
   pixelOffset?: number;
@@ -138,9 +128,12 @@ function Note(props: NoteProps) {
 
   const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
   const onClick_ = onClick ?? setEditingNote;
-  const _onClickHandler = (evt) => {
-    onClick_(note);
-  };
+  const _onClickHandler = useMemo(() => {
+    if (!onClick_) return undefined;
+    return (evt) => {
+      onClick_(note);
+    };
+  }, [onClick_]);
 
   if (editingNote === note) {
     return null;

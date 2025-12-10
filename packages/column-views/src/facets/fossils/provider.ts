@@ -1,4 +1,3 @@
-import { group, InternMap } from "d3-array";
 import {
   createAPIContext,
   useAPIResult,
@@ -7,8 +6,10 @@ import {
 
 const responseUnwrapper = (d) => d.records;
 
+const pbdbAPIBase = "https://paleobiodb.org/data1.2";
+
 const pbdbAPIContext = createAPIContext({
-  baseURL: "https://paleobiodb.org/data1.2",
+  baseURL: pbdbAPIBase,
   unwrapResponse: responseUnwrapper,
 });
 
@@ -17,26 +18,17 @@ export enum FossilDataType {
   Collections = "colls",
 }
 
-export function usePBDBFossilData(
-  type: FossilDataType,
-  { col_id },
-): any[] | null {
-  const params = {
-    ms_column: col_id,
-    show: "full,mslink",
-  };
-  return useAPIResult(`/${type}/list.json`, params, {
-    context: pbdbAPIContext,
-  });
-}
-
-export interface PBDBIdentifier {
+export interface PBDBEntity {
   unit_id: number;
   col_id: number;
   cltn_id: number;
+  // For eODP, slb/slu are used to store the heights of fossil locations found in measured sections.
+  // They may have a more general set of uses as well but these are not currently explored.
+  slb?: string; // The local bed in which the fossil was found
+  slu?: string; // The unit of measurement used to designate the local bed
 }
 
-export interface PBDBCollection extends PBDBIdentifier {
+export interface PBDBCollection extends PBDBEntity {
   cltn_name: string;
   pbdb_occs: number;
   t_age: number;
@@ -44,7 +36,7 @@ export interface PBDBCollection extends PBDBIdentifier {
   [key: string]: any; // Allow for additional properties
 }
 
-export interface PBDBOccurrence extends PBDBIdentifier {
+export interface PBDBOccurrence extends PBDBEntity {
   occ_id: number;
   cltn_id: number;
   taxon_name: string;
@@ -86,8 +78,9 @@ async function fetchPDBDFossilData(
   col_id: number,
   type: FossilDataType,
 ): Promise<PBDBCollection[]> {
+  // Note: show=rank does not work on training PBDB server
   const resp = await fetch(
-    `https://paleobiodb.org/data1.2/${type}/list.json?ms_column=${col_id}&show=mslink,full`,
+    pbdbAPIBase + `/${type}/list.json?ms_column=${col_id}&show=mslink,stratext`,
   );
   const res = await resp.json();
   return res.records.map(
@@ -97,21 +90,21 @@ async function fetchPDBDFossilData(
   );
 }
 
-async function fetchFossilData(
+async function fetchFossilData<T extends PBDBEntity>(
   colID: number,
   type: FossilDataType,
-): Promise<InternMap<number, PBDBOccurrence[] | PBDBCollection[]>> {
+): Promise<T[]> {
   const [macrostratData, pbdbData] = await Promise.all([
     fetchMacrostratFossilData(colID, type),
     fetchPDBDFossilData(colID, type),
   ]);
-
-  const data = [...macrostratData, ...pbdbData];
-
-  return group(data, (d) => d.unit_id);
+  return [...macrostratData, ...pbdbData];
 }
 
 function preprocessOccurrence(d): PBDBOccurrence {
+  if (d.msu == null || d.msc == null) {
+    return d;
+  }
   /* Preprocess data for an occurrence into a Macrostrat-like format */
   // Standardize names of Macrostrat units and columns
   const unit_id = parseInt(d.msu.replace(/^\w+:/, ""));

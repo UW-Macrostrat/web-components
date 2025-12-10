@@ -1,44 +1,3 @@
-.column-notes .col-note-label {
-  cursor: pointer;
-}
-.column-notes .note-editor.bp5-editable-text {
-  user-select: none;
-}
-.column-notes .note-editor.bp5-editable-text:before {
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-}
-.position-editor .handle {
-  background-color: #d2e9ff;
-  border: 1px solid #1e90ff;
-}
-.position-editor .add-span-handle {
-  background-color: #e9f4ff;
-  border: 1px dotted #1e90ff;
-}
-.position-editor .top-handle,
-.position-editor .bottom-handle,
-.position-editor .add-span-handle {
-  border-radius: 3px;
-}
-.note-editor .note-connector {
-  stroke: #1e90ff;
-  stroke-width: 3;
-}
-.col-note-label {
-  padding-left: 0.3em;
-  border-left: 1px solid var(--note-color);
-  margin: 1px 0;
-  font-style: italic;
-  z-index: 15;
-}
-g.height-range line {
-  stroke: var(--note-color);
-  stroke-width: 1.2px;
-}
-
 .column-image {
   position: absolute;
   top: 0;
@@ -79,32 +38,6 @@ g.height-range line {
 }
 
 :global {
-  g.note,
-  g.note-editor {
-    --note-color: var(
-      --column-note-color,
-      var(--column-stroke-color, var(--text-color, #000))
-    );
-  }
-  g.note circle,
-  g.note-editor circle {
-    fill: var(--note-color);
-  }
-  g.note .link,
-  g.note-editor .link {
-    stroke: var(--note-color);
-    stroke-width: 1;
-    fill: none;
-  }
-  .new-note circle {
-    fill: #1e90ff;
-  }
-  .new-note line {
-    stroke: #1e90ff;
-    stroke-width: 3;
-    marker-start: url("#new_arrow_start");
-    marker-end: url("#new_arrow_end");
-  }
   #new_arrow_start,
   #new_arrow_end {
     fill: #1e90ff;

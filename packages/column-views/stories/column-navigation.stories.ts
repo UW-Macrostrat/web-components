@@ -16,6 +16,7 @@ export default {
   component: ColumnStoryUI,
   args: {
     columnID: 432,
+    projectID: 1,
     axisType: "age",
     collapseSmallUnconformities: false,
     targetUnitHeight: 20,

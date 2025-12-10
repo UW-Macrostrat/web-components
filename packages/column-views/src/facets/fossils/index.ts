@@ -2,25 +2,57 @@ import hyper from "@macrostrat/hyper";
 import {
   FossilDataType,
   PBDBCollection,
+  PBDBEntity,
   PBDBOccurrence,
   useFossilData,
 } from "./provider";
-import type { IUnit } from "../../units";
-import { BaseMeasurementsColumn, TruncatedList } from "../base-sample-column";
-import { Box, useElementSize } from "@macrostrat/ui-components";
-import { InternMap } from "d3-array";
-import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
+import type { CompositeColumnScale, IUnit } from "../../units";
 import {
-  useMacrostratColumnData,
+  BaseMeasurementsColumn,
+  ColumnMeasurementData,
+  MeasurementHeightData,
+  standardizeMeasurementHeight,
+  groupNotesByPixelDistance,
+  TruncatedList,
+} from "../measurements";
+import { ColumnAxisType } from "@macrostrat/column-components";
+import {
   useCompositeScale,
+  useMacrostratColumnData,
 } from "../../data-provider";
 import { UnitLong } from "@macrostrat/api-types";
-import styles from "./index.module.sass";
-import { useRef } from "react";
+import styles from "./taxon-ranges.module.sass";
+import { getPositionWithinUnit, getUnitHeightRange } from "../../prepare-units";
+import { scaleLinear } from "d3-scale";
+
+export * from "./taxon-ranges";
 
 const h = hyper.styled(styles);
 
 export { FossilDataType };
+
+export function PBDBFossilsColumn({
+  columnID,
+  type = FossilDataType.Collections,
+}: {
+  columnID: number;
+  type: FossilDataType;
+}) {
+  const data = useFossilData(columnID, type);
+  const { axisType, units } = useMacrostratColumnData();
+  const scale = useCompositeScale();
+
+  if (data == null || units == null || scale == null) return null;
+
+  const data1 = preparePBDBData(data, units, scale, axisType);
+
+  return h(BaseMeasurementsColumn, {
+    data: data1,
+    noteComponent: FossilInfo,
+    focusedNoteComponent: FossilInfo,
+    className: "fossil-collections",
+  });
+}
 
 interface FossilItemProps {
   note: {
@@ -34,18 +66,29 @@ interface FossilItemProps {
   width?: number;
   height?: number;
   color?: string;
+  focused?: boolean;
 }
 
 function FossilInfo(props: FossilItemProps) {
-  const { note, spacing } = props;
-  const { data, unit } = note;
+  const { note, maxItems, focused = false } = props;
+  const { data } = note;
+  // Sort collections by name
+  data.sort((a, b) => {
+    const nameA = a.best_name ?? a.cltn_name ?? "";
+    const nameB = b.best_name ?? b.cltn_name ?? "";
+    return nameA.localeCompare(nameB);
+  });
 
   return h(TruncatedList, {
     data,
     className: "fossil-collections",
     itemRenderer: PBDBCollectionLink,
+    maxItems: focused ? Infinity : (maxItems ?? 5),
   });
 }
+
+const FocusedFossilInfo = (props: FossilItemProps) =>
+  h(FossilInfo, { ...props, maxItems: Infinity });
 
 function PBDBCollectionLink({
   data,
@@ -56,231 +99,118 @@ function PBDBCollectionLink({
   return h(
     "a.link-id",
     {
-      href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${data.cltn_id}`,
+      href: `https://paleobiodb.org/app/collections#display=col:${data.cltn_id}`,
+      target: "_blank",
+      onClick(e) {
+        e.stopPropagation();
+      },
     },
     data.best_name ?? data.cltn_name,
   );
 }
 
-const matchingUnit = (dz) => (d) => d.unit_id == dz[0].unit_id;
-
-export function PBDBFossilsColumn({
-  columnID,
-  type = FossilDataType.Collections,
-}: {
-  columnID: number;
-  type: FossilDataType;
-}) {
-  const data = useFossilData(columnID, type);
-
-  return h(BaseMeasurementsColumn, {
-    data,
-    noteComponent: FossilInfo,
-    className: "fossil-collections",
-    matchingUnit,
-  });
-}
-
-export function PBDBOccurrencesMatrix({ columnID }) {
-  /* A column for a matrix of taxon occurrences displayed as a table beside the main column. This will
-  eventually be extended with first/last occurrence markers and range bars.
+interface PreparePBDBDataOptions {
+  /** If set, group close notes within this distance (in pixels in display space)
+   * into a single note. If a number is provided, that number is used as the distance,
+   * otherwise a default of 5 pixels is used.
    */
-  const data = useFossilData(columnID, FossilDataType.Occurrences) as InternMap<
-    number,
-    PBDBOccurrence[]
-  >;
-
-  // convert the data to a map
-  const occurrenceMap = new Map(data);
-
-  const col = useMacrostratColumnData();
-  const matrix = createOccurrenceMatrix(col.units, occurrenceMap, col.axisType);
-
-  const scale = useCompositeScale();
-
-  const { taxonRanges } = matrix;
-
-  const padding = 16;
-  const spacing = 16;
-
-  const taxonEntries = Array.from(taxonRanges.entries());
-  //const taxon = taxonEntries.slice(0, 50); // limit to top 50 taxa
-
-  const width = padding * 2 + spacing * taxonEntries.length;
-
-  return h(Box, { className: "taxon-ranges", width, height: col.totalHeight }, [
-    h(TaxonOccurrenceLabels, {
-      taxonEntries,
-      padding,
-      spacing,
-      scale,
-    }),
-    h(
-      ColumnSVG,
-      {
-        width: padding * 2 + spacing * taxonEntries.length,
-      },
-      h(
-        "g.taxa-occurrences-matrix",
-        taxonEntries.map(([taxonName, ranges], rowIndex) => {
-          const xPosition = padding + rowIndex * spacing;
-          return h("g", { transform: `translate(${xPosition})` }, [
-            ranges.map(([top, bottom]) => {
-              return h("line", {
-                y1: scale(top),
-                y2: scale(bottom),
-              });
-            }),
-          ]);
-        }),
-      ),
-    ),
-  ]);
+  groupCloseNotes?: boolean | number;
 }
 
-function TaxonOccurrenceLabels({ taxonEntries, padding, spacing, scale }) {
-  return h("div.taxon-labels", [
-    taxonEntries.map(([taxonName, ranges], rowIndex) => {
-      const top = ranges[0]?.[0] ?? 0;
-      let topPx = scale(top) - 20;
-      if (topPx < 200) topPx = 0;
+function preparePBDBData<T extends PBDBEntity>(
+  data: T[],
+  units: UnitLong[],
+  scale: CompositeColumnScale,
+  axisType: ColumnAxisType,
+  options?: { groupCloseNotes?: boolean | number },
+) {
+  /** Prepare PBDB fossil data for display in a measurements column */
+  const { groupCloseNotes = true } = options ?? {};
+  const groupDistance =
+    typeof groupCloseNotes === "number" ? groupCloseNotes : 10;
 
-      return h(TaxonLabel, {
-        top: topPx,
-        left: padding + rowIndex * spacing,
-        taxonName,
+  // Map of data to its defined height ranges
+  const dataMap = new Map<string, ColumnMeasurementData<T[]>>();
+
+  // Todo: if we wanted, we could add a step where we group notes that are too close together here...
+
+  for (const d of data) {
+    const range = getHeightRangeForPBDBEntity(d, units, axisType);
+
+    if (range == null) continue;
+    const { height, top_height } = range;
+    // compose the key based on height info
+    let key = `${height}`;
+    if (top_height != null) {
+      key += `-${top_height}`;
+    }
+
+    // Group by height key
+    if (!dataMap.has(key)) {
+      dataMap.set(key, {
+        height,
+        top_height: top_height ?? height,
+        data: [],
+        id: key,
       });
-    }),
-  ]);
-}
+    }
+    dataMap.get(key)!.data.push(d);
+  }
 
-function TaxonLabel({ top, left, taxonName }) {
-  const ref = useRef();
-  const textSize = useElementSize(ref);
-  const labelWidth = textSize?.height ?? 200;
-  return h(
-    "div.taxon-label",
-    {
-      style: {
-        top: `${top}px`,
-        marginLeft: `${left}px`,
-        "--label-width": `${labelWidth}px`,
-      },
-    },
-    h("div.taxon-label-inner", h("div.taxon-label-text", { ref }, taxonName)),
+  return groupNotesByPixelDistance(
+    Array.from(dataMap.values()),
+    scale,
+    axisType,
+    groupDistance,
   );
 }
 
-type TaxonUnitMap = Map<string, Set<number>>;
-
-interface OccurrenceMatrixData {
-  occurrenceMap: Map<number, PBDBOccurrence[]>; // Map of unit IDs to occurrences (original data)
-  taxonUnitMap: TaxonUnitMap; // Map of taxon names to sets of unit IDs
-  taxonOccurrenceMap: Map<string, PBDBOccurrence[]>; // Map of taxon names to occurrences
-  taxonRanges: Map<string, [number, number][]>; // Map of taxon names to [top, bottom] pixel ranges
-}
-
-function TaxonOccurrenceEntry({
-  xPosition,
-  ranges,
-  scale,
-  name,
-}: {
-  xPosition: number;
-  units: Set<number>;
-}) {
-  return h("g", { transform: `translate(${xPosition})` }, [
-    ranges.map(([top, bottom]) => {
-      return h("line", {
-        y1: scale(top),
-        y2: scale(bottom),
-      });
-    }),
-  ]);
-}
-
-function createOccurrenceMatrix(
+function getHeightRangeForPBDBEntity<T extends PBDBEntity>(
+  d: T,
   units: UnitLong[],
-  data: Map<number, PBDBOccurrence[]>,
-  axisType: ColumnAxisType = ColumnAxisType.AGE,
-): OccurrenceMatrixData {
-  const taxonUnitMap = new Map<string, Set<number>>();
-  const taxonOccurrenceMap = new Map<string, PBDBOccurrence[]>();
-
-  for (const [unit_id, occurrences] of data.entries()) {
-    for (const occ of occurrences) {
-      const taxonName = occ.best_name ?? occ.taxon_name;
-      if (!taxonUnitMap.has(taxonName)) {
-        taxonUnitMap.set(taxonName, new Set());
-        taxonOccurrenceMap.set(taxonName, []);
-      }
-      taxonUnitMap.get(taxonName).add(unit_id);
-      taxonOccurrenceMap.get(taxonName).push(occ);
+  axisType: ColumnAxisType,
+): MeasurementHeightData | null {
+  let height: number | null = null;
+  if (d.slb != null && d.slu == "mbsf") {
+    // Meters below sea floor - special case for eODP where we have
+    // specific depth data referenced
+    height = Number(d.slb);
+    if (axisType === ColumnAxisType.DEPTH) {
+      // Data is already in depth units
+      return { height };
     }
   }
-
-  // sort the taxon occurrence map by number of occurrences
-  const sortedTaxa = Array.from(taxonUnitMap.entries()).sort((a, b) => {
-    // Sort alphabetically by taxon name
-    return b[0].localeCompare(a[0]);
-  });
-
-  const taxonRanges = new Map<string, [number, number][]>();
-  for (const [taxonName, unitSet] of taxonUnitMap.entries()) {
-    taxonRanges.set(
-      taxonName,
-      accumulatePresenceDomains(units, unitSet, axisType),
+  if (d.unit_id == null) return null;
+  if (height != null) {
+    // If we have both height and unit info, we need to adjust the height
+    // to fit whatever scale type we're using.
+    // TODO: we could improve how this works by having concurrent age and
+    // height scales, which would allow us to do this without having to
+    // reference to a specific unit.
+    const unit = units.find((u) => u.unit_id === d.unit_id);
+    if (unit == null) return null;
+    const relHeight = getRelativePositionInUnit(
+      height,
+      unit,
+      ColumnAxisType.DEPTH,
     );
+    if (relHeight == null) return null;
+    height = getPositionWithinUnit(relHeight, unit, axisType);
+    return { height };
   }
-
-  return {
-    occurrenceMap: data,
-    taxonUnitMap: new Map(sortedTaxa),
-    taxonOccurrenceMap: taxonOccurrenceMap,
-    taxonRanges,
-  };
+  // We can just get the height within the unit, clipped to the unit boundaries
+  return standardizeMeasurementHeight({ unit_id: d.unit_id }, units, axisType);
 }
 
-function accumulatePresenceDomains(
-  unit: UnitLong[],
-  presenceUnits: Set<number>,
+function getRelativePositionInUnit<T extends PBDBEntity>(
+  pos: number,
+  unit: UnitLong,
   axisType: ColumnAxisType,
-): Array<[number, number]> {
-  const domains: Array<[number, number]> = [];
-  let currentDomain: [number, number] | null = null;
-
-  for (const u of unit) {
-    if (presenceUnits.has(u.unit_id)) {
-      if (currentDomain == null) {
-        if (
-          axisType == ColumnAxisType.DEPTH ||
-          axisType == ColumnAxisType.HEIGHT
-        ) {
-          currentDomain = [u.t_pos, u.b_pos];
-        } else {
-          currentDomain = [u.t_age, u.b_age];
-        }
-      } else {
-        if (
-          axisType == ColumnAxisType.DEPTH ||
-          axisType == ColumnAxisType.HEIGHT
-        ) {
-          currentDomain[1] = u.b_pos;
-        } else {
-          currentDomain[1] = u.b_age;
-        }
-      }
-    } else {
-      if (currentDomain != null) {
-        domains.push(currentDomain);
-        currentDomain = null;
-      }
-    }
-  }
-
-  if (currentDomain != null) {
-    domains.push(currentDomain);
-  }
-
-  return domains;
+): number | null {
+  // This is the inverse of getPositionWithinUnit
+  const heights = getUnitHeightRange(unit, axisType, false);
+  const scale = scaleLinear(heights).domain([0, 1]);
+  const relPos = scale.invert(pos);
+  if (relPos < 0 || relPos > 1) return null;
+  return relPos;
 }

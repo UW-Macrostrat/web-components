@@ -57,12 +57,21 @@ export function AgeAxis(props: AgeAxisProps) {
 
   let tickValues: number[] = undefined;
 
-  let ticks = Math.max(Math.round(pixelHeight / tickSpacing), 2);
-  if (pixelHeight < 3 * tickSpacing || scale.ticks(2).length < 2) {
-    // Push ticks towards extrema
-    const t0 = scale.ticks(4);
+  let ticks = Math.round(pixelHeight / tickSpacing);
+  if (pixelHeight < 3 * tickSpacing) {
+    // Push ticks towards extrema (we need more than 2 to be resolved)
 
-    tickValues = [t0[0], t0[t0.length - 1]];
+    let t0: number[] = [];
+    while (t0.length <= 2) {
+      ticks += 1;
+      t0 = scale.ticks(ticks);
+    }
+
+    tickValues = t0;
+    if (pixelHeight < 2 * tickSpacing) {
+      // Only show first and last ticks
+      tickValues = [t0[0], t0[t0.length - 1]];
+    }
   }
 
   if (pixelHeight < minTickSpacing) {

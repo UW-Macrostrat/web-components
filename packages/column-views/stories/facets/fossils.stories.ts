@@ -8,7 +8,7 @@ import {
 } from "../../src";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
-import { Meta } from "@storybook/react-vite";
+import { Meta, StoryObj } from "@storybook/react-vite";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
 function PBDBFossilsDemoColumn(props) {
@@ -30,8 +30,8 @@ function PBDBFossilsDemoColumn(props) {
   );
 }
 
-export default {
-  title: "Column views/Facets/Fossil occurrences",
+const meta = {
+  title: "Column views/Facets/Fossils (via PBDB)",
   component: PBDBFossilsDemoColumn,
   tags: ["!autodocs"],
   argTypes: {
@@ -44,9 +44,13 @@ export default {
       control: { type: "select" },
     },
   },
-} as Meta;
+} satisfies Meta<typeof PBDBFossilsDemoColumn>;
 
-export const eODPColumn: Story = {
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const eODPColumnCollections = {
   args: {
     id: 5576,
     inProcess: true,
@@ -60,7 +64,7 @@ export const eODPColumn: Story = {
   },
 };
 
-export const eODPColumnOccurrences: Story = {
+export const eODPColumnTaxa = {
   args: {
     id: 5576,
     axisType: ColumnAxisType.DEPTH,
@@ -82,7 +86,6 @@ export function eODPColumnWithTaxonRanges() {
       {
         showTimescale: false,
         showLabelColumn: false,
-        allowUnitSelection: false,
         id,
         axisType: ColumnAxisType.DEPTH,
         pixelScale: 20,

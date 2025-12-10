@@ -57,15 +57,19 @@ export function prepareColumnUnits(
     scale,
   } = options;
 
+  let _totalHeight = null;
+
   if (scale != null) {
     // Set t_age and b_age based on scale domain if not already set
     const domain = scale.domain();
     if (axisType == ColumnAxisType.AGE) {
       if (t_age == null) t_age = Math.min(...domain);
       if (b_age == null) b_age = Math.max(...domain);
+      _totalHeight = Math.abs(scale(b_age) - scale(t_age));
     } else {
       if (t_pos == null) t_pos = Math.min(...domain);
       if (b_pos == null) b_pos = Math.max(...domain);
+      _totalHeight = Math.abs(scale(b_pos) - scale(t_pos));
     }
   }
 
@@ -166,7 +170,9 @@ export function prepareColumnUnits(
     );
   }
 
-  /** Prepare section scale information using groups */
+  /** Prepare section scale information using groups.
+   * Total height is computed from section scales.
+   * */
   let { totalHeight, sections: sections2 } = finalizeSectionHeights(
     sectionsWithScales,
     unconformityHeight,
@@ -197,7 +203,7 @@ export function prepareColumnUnits(
 
   return {
     units: units2,
-    totalHeight,
+    totalHeight: _totalHeight ?? totalHeight,
     sections: sectionsOut,
   };
 }

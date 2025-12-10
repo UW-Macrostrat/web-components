@@ -35,9 +35,9 @@ const NoteTextEditor = function (props: NoteEditorProps) {
 interface NoteEditorProviderProps {
   inEditMode: boolean;
   noteEditor: ComponentType<NoteEditorProps>;
-  onUpdateNote: (n: NoteData) => void;
-  onDeleteNote: (n: NoteData) => void;
-  onCreateNote: Function;
+  onUpdateNote?: (n: NoteData) => void;
+  onDeleteNote?: (n: NoteData) => void;
+  onCreateNote?: Function;
   children?: React.ReactNode;
 }
 
@@ -50,7 +50,7 @@ function NoteEditorProvider(props: NoteEditorProviderProps) {
   const deleteNote = function () {
     const val = editingNote;
     setEditingNote(null);
-    return props.onDeleteNote(val);
+    return props.onDeleteNote?.(val);
   };
 
   const onCreateNote = function (pos) {
@@ -76,7 +76,7 @@ function NoteEditorProvider(props: NoteEditorProviderProps) {
     if (notes.includes(n)) {
       return;
     }
-    return props.onUpdateNote(n);
+    return props.onUpdateNote?.(n);
   };
 
   //# Model editor provider gives us a nice store
@@ -257,22 +257,19 @@ function PositionEditorInner(props) {
   );
 }
 
-const NoteEditorUnderlay = function ({ padding }) {
-  const { width } = useContext(NoteLayoutContext);
-  const { setEditingNote } = useContext(NoteEditorContext) as any;
+function NoteEditorUnderlay() {
   return h(NoteRect, {
-    fill: "rgba(255,255,255,0.8)",
     style: { pointerEvents: "none" },
     className: "underlay",
   });
-};
+}
 
-const NoteEditor = function (props) {
+function NoteEditor(props) {
   const { allowPositionEditing } = props;
-  const { noteEditor } = useContext(NoteEditorContext) as any;
+  const { noteEditor, setEditingNote } = useContext(NoteEditorContext) as any;
   const { notes, nodes, elementHeights, createNodeForNote } =
     useContext(NoteLayoutContext);
-  const { editedModel } = useModelEditor();
+  const { editedModel, model } = useModelEditor();
   if (editedModel == null) {
     return null;
   }
@@ -297,6 +294,8 @@ const NoteEditor = function (props) {
     node = newNode;
   }
 
+  const edited = editedModel === model;
+
   return h(ErrorBoundary, [
     h("g.note-editor.note", [
       h(NoteEditorUnderlay),
@@ -305,15 +304,30 @@ const NoteEditor = function (props) {
         note: editedModel,
         node,
       }),
-      h(NotePositioner, { offsetY: node.currentPos, noteHeight }, [
-        h(noteEditor, {
-          note: editedModel,
-          key: index,
-        }),
-      ]),
+      h(
+        NotePositioner,
+        {
+          offsetY: node.currentPos,
+          noteHeight,
+          onClick(evt) {
+            if (edited) {
+              setEditingNote(null);
+              evt.stopPropagation();
+            }
+          },
+        },
+        [
+          h(noteEditor, {
+            note: editedModel,
+            key: index,
+            focused: true,
+            edited,
+          }),
+        ],
+      ),
     ]),
   ]);
-};
+}
 
 export type { NoteData };
 export { NoteEditorProvider, NoteEditorContext, NoteTextEditor, NoteEditor };
