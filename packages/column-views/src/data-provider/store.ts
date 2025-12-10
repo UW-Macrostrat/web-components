@@ -16,9 +16,10 @@ import type { ExtUnit, PackageLayoutData } from "../prepare-units";
 // An isolated jotai store for Macrostrat column usage
 // TODO: there might be a better way to do this using the MacrostratDataProvider or similar
 import { createIsolation } from "jotai-scope";
-import { atom, PrimitiveAtom, type WritableAtom } from "jotai";
+import { PrimitiveAtom, type WritableAtom } from "jotai";
 import { UnitSelectionActions, UnitSelectionProvider } from "./unit-selection";
 import { BaseUnit } from "@macrostrat/api-types";
+import { columnUnitsAtom, columnUnitsMapAtom } from "./core";
 
 const { Provider, useSetAtom, useAtomValue, useStore } = createIsolation();
 
@@ -26,18 +27,6 @@ type ProviderProps = {
   children: ReactNode;
   initialValues?: Iterable<[WritableAtom<any, any, any>, any]>;
 };
-
-const columnUnitsAtom = atom<ExtUnit[]>();
-
-const columnUnitsMapAtom = atom<Map<number, ExtUnit> | null>((get) => {
-  const units = get(columnUnitsAtom);
-  if (!units) return null;
-  const unitMap = new Map<number, ExtUnit>();
-  units.forEach((unit) => {
-    unitMap.set(unit.unit_id, unit);
-  });
-  return unitMap;
-});
 
 function ScopedProvider({ children, ...rest }: ProviderProps) {
   // Always use the same store instance in this tree
@@ -58,22 +47,20 @@ interface ColumnStateProviderProps<T extends BaseUnit>
   allowUnitSelection?: boolean;
 }
 
-export function MacrostratColumnStateProvider({
+export function MacrostratColumnStateProvider<T extends BaseUnit>({
   children,
   units,
   allowUnitSelection = false,
   onUnitSelected,
   selectedUnit,
   columnRef,
-}: ColumnStateProviderProps) {
+}: ColumnStateProviderProps<T>) {
   /** Top-level provider for Macrostrat column data.
    * It is either provided by the Column component itself, or
    * can be hoisted higher in the tree to provide a common data context
    */
 
-  const atomMap: [[PrimitiveAtom<ExtUnit[]>, ExtUnit[]]] = [
-    [columnUnitsAtom, units],
-  ];
+  const atomMap: [[PrimitiveAtom<T[]>, T[]]] = [[columnUnitsAtom, units]];
 
   let main: ReactNode = h(
     ScopedProvider,
@@ -116,16 +103,16 @@ export interface MacrostratColumnDataContext {
   allowUnitSelection?: boolean;
 }
 
-interface ColumnDataProviderProps
+interface ColumnDataProviderProps<T extends BaseUnit>
   extends MacrostratColumnDataContext,
-    ColumnStateProviderProps {
+    ColumnStateProviderProps<T> {
   children: ReactNode;
 }
 
 const MacrostratColumnDataContext =
   createContext<MacrostratColumnDataContext>(null);
 
-export function MacrostratColumnDataProvider({
+export function MacrostratColumnDataProvider<T extends BaseUnit>({
   children,
   units,
   sections,
@@ -135,7 +122,7 @@ export function MacrostratColumnDataProvider({
   onUnitSelected,
   selectedUnit,
   columnRef,
-}: ColumnDataProviderProps) {
+}: ColumnDataProviderProps<T>) {
   /** Internal provider for Macrostrat column data.
    * As a general rule, we want to provide data and column-axis
    * height calculations through the context, since these need to
@@ -225,6 +212,7 @@ function AtomUpdater({
 
   for (const [atom, value] of atoms) {
     useEffect(() => {
+      console.log("");
       store.set(atom, value);
     }, [store, value]);
   }

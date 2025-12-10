@@ -13,6 +13,8 @@ import {
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { RectBounds, IUnit } from "../units/types";
+import { atom } from "jotai";
+import { columnUnitsMapAtom } from "./core";
 
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,
@@ -71,6 +73,35 @@ export interface UnitSelectionActions {
   ) => void;
 }
 
+const selectedUnitIDAtom = atom<number | null>();
+
+const selectedUnitAtom = atom(
+  (get) => {
+    const unitID = get(selectedUnitIDAtom);
+    if (unitID == null) return null;
+    const unitsMap = get(columnUnitsMapAtom);
+    return unitsMap?.get(unitID) || null;
+  },
+  (get, set, selectedUnit: number | BaseUnit | null) => {
+    let unitID: number | null = null;
+    if (typeof selectedUnit === "number") {
+      unitID = selectedUnit;
+    } else if ("unit_id" in selectedUnit) {
+      unitID = selectedUnit.unit_id;
+    }
+    if (unitID != null) {
+      // Verify that the unit exists in the current colum, else throw
+      const unitsMap = get(columnUnitsMapAtom);
+      if (!unitsMap?.has(unitID)) {
+        throw new Error(
+          `Unit with ID ${unitID} not found in current column units.`,
+        );
+      }
+    }
+    set(selectedUnitIDAtom, unitID);
+  },
+);
+
 export function UnitSelectionProvider<T extends BaseUnit>(
   props: {
     children: ReactNode;
@@ -119,8 +150,6 @@ export function UnitSelectionProvider<T extends BaseUnit>(
 
         // Get the current column element....
         const el = props.columnRef?.current;
-
-        console.log(el, target);
 
         let overlayPosition = null;
 
