@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2025-12-10
+
+- Streamline column facet components
+- Create a mode for facets that allows focusing a single column-associated
+  measurement
+- Improve scale calculations in some edge cases
+- Condense notes that are close together
+- Add explicitly defined height where available from PBDB (eODP columns, mostly)
+- Fixed axis label spacing
+- Small bug fixes for unit selection
+
 ## [2.2.2] - 2025-12-04
 
 - Fix a bug with unit deselection
