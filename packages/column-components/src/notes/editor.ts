@@ -35,9 +35,9 @@ const NoteTextEditor = function (props: NoteEditorProps) {
 interface NoteEditorProviderProps {
   inEditMode: boolean;
   noteEditor: ComponentType<NoteEditorProps>;
-  onUpdateNote: (n: NoteData) => void;
-  onDeleteNote: (n: NoteData) => void;
-  onCreateNote: Function;
+  onUpdateNote?: (n: NoteData) => void;
+  onDeleteNote?: (n: NoteData) => void;
+  onCreateNote?: Function;
   children?: React.ReactNode;
 }
 
@@ -50,7 +50,7 @@ function NoteEditorProvider(props: NoteEditorProviderProps) {
   const deleteNote = function () {
     const val = editingNote;
     setEditingNote(null);
-    return props.onDeleteNote(val);
+    return props.onDeleteNote?.(val);
   };
 
   const onCreateNote = function (pos) {

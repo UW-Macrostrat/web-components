@@ -1,4 +1,4 @@
-import { ComponentType, useContext } from "react";
+import { ComponentType, useCallback, useContext, useState } from "react";
 import h from "../hyper";
 import { NotesList } from "./note";
 import NoteDefs from "./defs";
@@ -46,20 +46,30 @@ const CancelEditUnderlay = function () {
   });
 };
 
-interface EditableNotesColumnProps {
+interface NotesColumnBaseProps extends NodeConnectorOptions {
   width?: number;
   paddingLeft?: number;
   transform?: string;
   notes?: NoteData[];
+  noteComponent?: ComponentType<any>;
+  onClickNote?: (note: NoteData) => void;
+  children?: ReactNode;
+  forceOptions?: object;
+}
+
+interface EditableNotesColumnProps extends NotesColumnBaseProps {
   inEditMode?: boolean;
   onUpdateNote?: (n: NoteData) => void;
   onDeleteNote?: (n: NoteData) => void;
   onCreateNote?: Function;
-  noteComponent?: ComponentType<any>;
   noteEditor?: ComponentType<any>;
   allowPositionEditing?: boolean;
-  forceOptions?: object;
-  onClickNote?: (note: NoteData) => void;
+}
+
+interface FocusedNotesColumnProps extends NotesColumnBaseProps {
+  focusedNote?: NoteData | null;
+  onFocusNote?: (note: NoteData | null) => void;
+  focusedNoteComponent?: ComponentType<any>;
 }
 
 function EditableNotesColumn(props: EditableNotesColumnProps) {
@@ -118,14 +128,64 @@ function EditableNotesColumn(props: EditableNotesColumnProps) {
   );
 }
 
-interface NotesColumnBaseProps extends NodeConnectorOptions {
-  width?: number;
-  paddingLeft?: number;
-  transform?: string;
-  notes?: NoteData[];
-  noteComponent?: ComponentType<any>;
-  onClickNote?: (note: NoteData) => void;
-  children?: ReactNode;
+function FocusableNoteColumn(props: FocusedNotesColumnProps) {
+  /** A notes column with selection capabilities. */
+  const {
+    width,
+    paddingLeft = 60,
+    transform,
+    notes,
+    onFocusNote,
+    forceOptions,
+    noteComponent = NoteComponent,
+    focusedNoteComponent = NoteComponent,
+    onClickNote,
+  } = props;
+
+  const [focusedNote, setFocusedNote] = useState<NoteData | null>(null);
+
+  const onClickNoteInternal = useCallback(
+    (note: NoteData) => {
+      setFocusedNote(note);
+      onFocusNote?.(note);
+      onClickNote?.(note);
+    },
+    [onClickNote, onFocusNote],
+  );
+
+  const innerWidth = width - paddingLeft;
+
+  return h(
+    NoteLayoutProvider,
+    {
+      notes,
+      width: innerWidth,
+      paddingLeft,
+      noteComponent,
+      forceOptions,
+    },
+    [
+      h(
+        NoteEditorProvider,
+        {
+          inEditMode: true,
+          noteEditor: focusedNoteComponent,
+        },
+        [
+          h("g.section-log", { transform }, [
+            h(NoteDefs),
+            h(CancelEditUnderlay),
+            h(NotesList, {
+              inEditMode: false,
+              onClickNote,
+            }),
+            h(NewNotePositioner),
+            h(NoteEditor, { allowPositionEditing: false }),
+          ]),
+        ],
+      ),
+    ],
+  );
 }
 
 function StaticNotesColumn(props: NotesColumnBaseProps) {
@@ -138,6 +198,7 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
     noteComponent = NoteComponent,
     deltaConnectorAttachment,
     onClickNote,
+    forceOptions,
     children,
   } = props;
 
@@ -150,6 +211,7 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
       width: innerWidth,
       paddingLeft,
       noteComponent,
+      forceOptions,
     },
     [
       h("g.section-log", { transform }, [
@@ -165,17 +227,24 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
   );
 }
 
-function NotesColumn(props) {
-  const { editable = true, ...rest } = props;
+function NotesColumn(props: NotesColumnProps) {
+  const { editable = false, ...rest } = props;
   const ctx = useContext(ColumnContext);
   // not sure why we have this here.
   if (ctx?.scaleClamped == null) return null;
 
-  const c: ComponentType = editable ? EditableNotesColumn : StaticNotesColumn;
+  let c: ComponentType = StaticNotesColumn;
+  if (editable) {
+    c = EditableNotesColumn;
+  } else if (rest.focusedNoteComponent != null) {
+    c = FocusableNoteColumn;
+  }
   return h(c, rest);
 }
 
-interface NotesColumnProps {
+interface NotesColumnProps
+  extends FocusedNotesColumnProps,
+    EditableNotesColumnProps {
   editable?: boolean;
 }
 

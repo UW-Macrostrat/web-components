@@ -117,6 +117,7 @@ export function BaseMeasurementsColumn({
       notes: data,
       noteComponent,
       deltaConnectorAttachment,
+      focusedNoteComponent: noteComponent,
     }),
   );
 }
