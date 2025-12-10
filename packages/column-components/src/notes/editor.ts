@@ -76,7 +76,7 @@ function NoteEditorProvider(props: NoteEditorProviderProps) {
     if (notes.includes(n)) {
       return;
     }
-    return props.onUpdateNote(n);
+    return props.onUpdateNote?.(n);
   };
 
   //# Model editor provider gives us a nice store
@@ -257,15 +257,12 @@ function PositionEditorInner(props) {
   );
 }
 
-const NoteEditorUnderlay = function ({ padding }) {
-  const { width } = useContext(NoteLayoutContext);
-  const { setEditingNote } = useContext(NoteEditorContext) as any;
+function NoteEditorUnderlay() {
   return h(NoteRect, {
-    fill: "rgba(255,255,255,0.8)",
     style: { pointerEvents: "none" },
     className: "underlay",
   });
-};
+}
 
 const NoteEditor = function (props) {
   const { allowPositionEditing } = props;

@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext } from "react";
 import { StatefulComponent } from "@macrostrat/ui-components";
-import h from "@macrostrat/hyper";
+import h from "../hyper";
 
 import { hasSpan } from "./utils";
 import { FlexibleNode, Force, Node, Renderer } from "./label-primitives";
@@ -306,7 +306,7 @@ class NoteLayoutProvider extends StatefulComponent<
   }
 }
 
-const NoteRect = function (props) {
+function NoteRect(props) {
   let { padding, width, ...rest } = props;
   if (padding == null) {
     padding = 5;
@@ -325,7 +325,7 @@ const NoteRect = function (props) {
     transform: `translate(${-padding},${-padding})`,
     ...rest,
   });
-};
+}
 
 const NoteUnderlay = function ({ fill, ...rest }) {
   if (fill == null) {
