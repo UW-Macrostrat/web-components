@@ -65,7 +65,10 @@ export interface UnitSelectionActions {
   columnRef?: RefObject<HTMLElement>;
   selectedUnit: number | null;
   onClickedColumn?: (columnClickData: ColumnClickData, event: Event) => void;
-  onUnitSelected?: (unitID: number | null, unit: T | null) => void;
+  onUnitSelected?: <T extends BaseUnit>(
+    unitID: number | null,
+    unit: T | null,
+  ) => void;
 }
 
 export function UnitSelectionProvider<T extends BaseUnit>(
@@ -114,7 +117,11 @@ export function UnitSelectionProvider<T extends BaseUnit>(
           unit = input;
         }
 
+        // Get the current column element....
         const el = props.columnRef?.current;
+
+        console.log(el, target);
+
         let overlayPosition = null;
 
         /** This is not the natural place to get positions within the column,

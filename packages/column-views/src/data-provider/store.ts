@@ -18,6 +18,7 @@ import type { ExtUnit, PackageLayoutData } from "../prepare-units";
 import { createIsolation } from "jotai-scope";
 import { atom, PrimitiveAtom, type WritableAtom } from "jotai";
 import { UnitSelectionActions, UnitSelectionProvider } from "./unit-selection";
+import { BaseUnit } from "@macrostrat/api-types";
 
 const { Provider, useSetAtom, useAtomValue, useStore } = createIsolation();
 
@@ -50,9 +51,10 @@ function ScopedProvider({ children, ...rest }: ProviderProps) {
   return h(Provider, { store: val, ...rest }, children);
 }
 
-interface ColumnStateProviderProps extends UnitSelectionActions {
+interface ColumnStateProviderProps<T extends BaseUnit>
+  extends Partial<UnitSelectionActions> {
   children: ReactNode;
-  units: ExtUnit[];
+  units: T[];
   allowUnitSelection?: boolean;
 }
 

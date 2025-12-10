@@ -140,12 +140,8 @@ export function WithDataProvider(args: UnitDetailsProps) {
 
   return h(
     MacrostratColumnStateProvider,
-    { units },
-    h(
-      UnitSelectionProvider,
-      { units, selectedUnit: units?.[0]?.unit_id },
-      h(UnitDetailsWithSelection),
-    ),
+    { units, selectedUnit: units?.[0]?.unit_id },
+    h(UnitDetailsWithSelection),
   );
 }
 
