@@ -12,6 +12,7 @@ import {
   ColumnMeasurementData,
   MeasurementHeightData,
   standardizeMeasurementHeight,
+  groupNotesByPixelDistance,
   TruncatedList,
 } from "../measurements";
 import { ColumnAxisType } from "@macrostrat/column-components";
@@ -57,8 +58,6 @@ function FossilInfo(props: FossilItemProps) {
     return nameA.localeCompare(nameB);
   });
 
-  console.log(data);
-
   return h(TruncatedList, {
     data,
     className: "fossil-collections",
@@ -103,7 +102,7 @@ function preparePBDBData<T extends PBDBEntity>(
     typeof groupCloseNotes === "number" ? groupCloseNotes : 10;
 
   // Map of data to its defined height ranges
-  const dataMap = new Map<string, ColumnMeasurementData<T>>();
+  const dataMap = new Map<string, ColumnMeasurementData<T[]>>();
 
   // Todo: if we wanted, we could add a step where we group notes that are too close together here...
 
@@ -136,68 +135,6 @@ function preparePBDBData<T extends PBDBEntity>(
     axisType,
     groupDistance,
   );
-}
-
-function groupNotesByPixelDistance<T extends PBDBEntity>(
-  data: ColumnMeasurementData<T[]>[],
-  scale: CompositeColumnScale,
-  axisType: ColumnAxisType,
-  groupDistance: number,
-) {
-  /** Group notes that are within a certain pixel distance of each other
-   * in display space
-   */
-  if (data.length === 0 || groupDistance <= 0) return data;
-  if (axisType === ColumnAxisType.AGE || axisType === ColumnAxisType.DEPTH) {
-    data.sort((a, b) => b.height - a.height);
-  } else {
-    // Sort data by height (ascending up the column)
-    data.sort((a, b) => a.height - b.height);
-  }
-
-  const groupedData: ColumnMeasurementData<T[]>[] = [];
-  let currentGroup: ColumnMeasurementData<T[]> | null = null;
-  let currentGroupPosition: number = Infinity;
-
-  for (const d of data) {
-    // Check distance from current max position
-    // Pixels go up as we go down in the section
-
-    // The _top_ of the next group must be within groupDistance of the
-    // _bottom_ of the current group. This makes sure that we don't collapse
-    // groups that are separated by a large distance
-    const distance = currentGroupPosition - scale(d.top_height ?? d.height);
-
-    if (distance <= groupDistance) {
-      if (currentGroup == null) {
-        throw new Error("Current group is null when it shouldn't be");
-      }
-      // Merge into current group
-      currentGroup.data.push(...d.data);
-      // Update height range
-      const top_height = d.top_height ?? d.height;
-      if (
-        axisType === ColumnAxisType.AGE ||
-        axisType === ColumnAxisType.DEPTH
-      ) {
-        // Inverted axis
-        currentGroup.top_height = Math.min(currentGroup.top_height, top_height);
-      } else {
-        currentGroup.top_height = Math.max(currentGroup.top_height, top_height);
-      }
-      currentGroup.key = `${currentGroup.height}-${currentGroup.top_height}`;
-    } else {
-      // Start a new group
-      currentGroup = { ...d, data: [...d.data] };
-      currentGroupPosition =
-        scale(currentGroup.height) ??
-        scale(currentGroup.top_height) ??
-        Infinity;
-      groupedData.push(currentGroup);
-    }
-  }
-
-  return groupedData;
 }
 
 function getHeightRangeForPBDBEntity<T extends PBDBEntity>(

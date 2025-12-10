@@ -2,12 +2,17 @@ import h from "@macrostrat/hyper";
 import { useAPIResult } from "@macrostrat/ui-components";
 import {
   BaseMeasurementsColumn,
+  groupNotesByPixelDistance,
   standardizeMeasurementHeight,
   TruncatedList,
 } from "./base";
 import { UnitLong } from "@macrostrat/api-types";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import { useMacrostratColumnData } from "@macrostrat/column-views";
+import {
+  useCompositeScale,
+  useMacrostratColumnData,
+} from "@macrostrat/column-views";
+import { CompositeColumnScale } from "../../prepare-units/composite-scale";
 
 function useSGPData({ col_id }) {
   const res = useAPIResult(
@@ -29,10 +34,11 @@ interface SGPSampleData {
 export function SGPMeasurementsColumn({ columnID, color = "magenta" }) {
   const data: SGPSampleData[] | null = useSGPData({ col_id: columnID });
   const { axisType, units } = useMacrostratColumnData();
+  const scale = useCompositeScale();
 
-  if (data == null || units == null) return null;
+  if (data == null || units == null || scale == null) return null;
 
-  const data1 = prepareSGPData(data, units, axisType);
+  const data1 = prepareSGPData(data, scale, units, axisType);
 
   return h(BaseMeasurementsColumn, {
     data: data1,
@@ -55,11 +61,12 @@ function SGPSamplesNote(props) {
 
 function prepareSGPData(
   data: SGPSampleData[],
+  scale: CompositeColumnScale,
   units: UnitLong[],
   axisType: ColumnAxisType,
 ) {
   // Find matching units for samples
-  return data
+  const d1 = data
     .map((sample) => {
       const data = sample.sgp_samples;
       if (data == null || data.length === 0) return null;
@@ -76,4 +83,6 @@ function prepareSGPData(
       };
     })
     .filter(Boolean);
+
+  return groupNotesByPixelDistance(d1, scale, axisType, 5);
 }

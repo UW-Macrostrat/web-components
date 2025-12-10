@@ -85,6 +85,7 @@ export const PowerScale: Story = {
     timescaleLevels: [1, 2],
     scale: powScale,
     t_age: 0,
+    b_age: 4500,
   },
 };
 
