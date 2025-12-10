@@ -68,7 +68,7 @@ export function AgeAxis(props: AgeAxisProps) {
     }
 
     tickValues = t0;
-    if (pixelHeight < 1.5 * tickSpacing) {
+    if (pixelHeight < 2 * tickSpacing) {
       // Only show first and last ticks
       tickValues = [t0[0], t0[t0.length - 1]];
     }

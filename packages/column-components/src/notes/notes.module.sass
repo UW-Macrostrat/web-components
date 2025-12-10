@@ -43,3 +43,48 @@ g.height-range line
 .underlay
   fill: var(--column-background-color)
   fill-opacity: 0.8
+  pointer-events: all
+
+.notes-list:has(+ .note-editor)
+  // Target the note list that is undergoing editing
+  cursor: pointer
+  .note
+    pointer-events: none
+  .note-inner
+    cursor: pointer
+    pointer-events: all
+    &>*
+      pointer-events: none
+
+.focusable
+  .note-inner
+    cursor: pointer
+
+.note-editor .note-inner
+  overflow-y: scroll
+  max-height: var(--not-editor-max-height, 500px)
+
+g.note, g.note-editor
+  --note-color: var(--column-note-color, var(--column-stroke-color, var(--text-color, #000)))
+
+  circle
+    fill: var(--note-color)
+
+  .link
+    stroke: var(--note-color)
+    stroke-width: 1
+    fill: none
+
+.note-editor .underlay
+  cursor: pointer
+
+.new-note
+  circle
+    fill: #1e90ff
+
+  line
+    stroke: #1e90ff
+    stroke-width: 3
+    marker-start: url("#new_arrow_start")
+    marker-end: url("#new_arrow_end")
+

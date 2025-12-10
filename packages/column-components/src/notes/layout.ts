@@ -327,13 +327,9 @@ function NoteRect(props) {
   });
 }
 
-const NoteUnderlay = function ({ fill, ...rest }) {
-  if (fill == null) {
-    fill = "transparent";
-  }
+const NoteUnderlay = function ({ ...rest }) {
   return h(NoteRect, {
     className: "underlay",
-    fill,
     ...rest,
   });
 };

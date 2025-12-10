@@ -38,32 +38,6 @@
 }
 
 :global {
-  g.note,
-  g.note-editor {
-    --note-color: var(
-      --column-note-color,
-      var(--column-stroke-color, var(--text-color, #000))
-    );
-  }
-  g.note circle,
-  g.note-editor circle {
-    fill: var(--note-color);
-  }
-  g.note .link,
-  g.note-editor .link {
-    stroke: var(--note-color);
-    stroke-width: 1;
-    fill: none;
-  }
-  .new-note circle {
-    fill: #1e90ff;
-  }
-  .new-note line {
-    stroke: #1e90ff;
-    stroke-width: 3;
-    marker-start: url("#new_arrow_start");
-    marker-end: url("#new_arrow_end");
-  }
   #new_arrow_start,
   #new_arrow_end {
     fill: #1e90ff;

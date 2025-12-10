@@ -43,11 +43,12 @@ export function SGPMeasurementsColumn({ columnID, color = "magenta" }) {
   return h(BaseMeasurementsColumn, {
     data: data1,
     noteComponent: SGPSamplesNote,
+    focusedNoteComponent: SGPSamplesNote,
   });
 }
 
 function SGPSamplesNote(props) {
-  const { note } = props;
+  const { note, focused } = props;
   const sgp_samples = note?.data;
 
   if (sgp_samples == null || sgp_samples.length === 0) return null;
@@ -56,6 +57,7 @@ function SGPSamplesNote(props) {
     className: "sgp-samples",
     data: sgp_samples,
     itemRenderer: (p) => h("span", p.data.name),
+    maxItems: focused ? Infinity : 5,
   });
 }
 
@@ -76,6 +78,7 @@ function prepareSGPData(
         axisType,
       );
       if (heightData == null) return null;
+      data.sort((a, b) => a.id - b.id);
       return {
         ...heightData,
         data,
