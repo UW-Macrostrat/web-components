@@ -49,7 +49,15 @@ interface FossilItemProps {
 
 function FossilInfo(props: FossilItemProps) {
   const { note } = props;
-  const { data, unit } = note;
+  const { data } = note;
+  // Sort collections by name
+  data.sort((a, b) => {
+    const nameA = a.best_name ?? a.cltn_name ?? "";
+    const nameB = b.best_name ?? b.cltn_name ?? "";
+    return nameA.localeCompare(nameB);
+  });
+
+  console.log(data);
 
   return h(TruncatedList, {
     data,
