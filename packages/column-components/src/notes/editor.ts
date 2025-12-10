@@ -264,12 +264,12 @@ function NoteEditorUnderlay() {
   });
 }
 
-const NoteEditor = function (props) {
+function NoteEditor(props) {
   const { allowPositionEditing } = props;
-  const { noteEditor } = useContext(NoteEditorContext) as any;
+  const { noteEditor, setEditingNote } = useContext(NoteEditorContext) as any;
   const { notes, nodes, elementHeights, createNodeForNote } =
     useContext(NoteLayoutContext);
-  const { editedModel } = useModelEditor();
+  const { editedModel, model } = useModelEditor();
   if (editedModel == null) {
     return null;
   }
@@ -294,6 +294,8 @@ const NoteEditor = function (props) {
     node = newNode;
   }
 
+  const edited = editedModel === model;
+
   return h(ErrorBoundary, [
     h("g.note-editor.note", [
       h(NoteEditorUnderlay),
@@ -302,15 +304,30 @@ const NoteEditor = function (props) {
         note: editedModel,
         node,
       }),
-      h(NotePositioner, { offsetY: node.currentPos, noteHeight }, [
-        h(noteEditor, {
-          note: editedModel,
-          key: index,
-        }),
-      ]),
+      h(
+        NotePositioner,
+        {
+          offsetY: node.currentPos,
+          noteHeight,
+          onClick(evt) {
+            if (edited) {
+              setEditingNote(null);
+              evt.stopPropagation();
+            }
+          },
+        },
+        [
+          h(noteEditor, {
+            note: editedModel,
+            key: index,
+            focused: true,
+            edited,
+          }),
+        ],
+      ),
     ]),
   ]);
-};
+}
 
 export type { NoteData };
 export { NoteEditorProvider, NoteEditorContext, NoteTextEditor, NoteEditor };

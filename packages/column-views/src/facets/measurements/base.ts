@@ -105,6 +105,7 @@ export function BaseMeasurementsColumn({
   paddingLeft = 40,
   className,
   deltaConnectorAttachment,
+  focusedNoteComponent,
 }: BaseMeasurementsColumnProps<any>) {
   if (data == null) return null;
 
@@ -117,7 +118,7 @@ export function BaseMeasurementsColumn({
       notes: data,
       noteComponent,
       deltaConnectorAttachment,
-      focusedNoteComponent: noteComponent,
+      focusedNoteComponent,
     }),
   );
 }

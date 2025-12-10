@@ -110,7 +110,7 @@ function EditableNotesColumn(props: EditableNotesColumnProps) {
           onDeleteNote,
         },
         [
-          h("g.section-log", { transform }, [
+          h("g.section-log", { transform, className: "focusable editable" }, [
             h(NoteDefs),
             h(CancelEditUnderlay),
             h(NotesList, {
@@ -158,14 +158,13 @@ function FocusableNoteColumn(props: FocusedNotesColumnProps) {
           noteEditor: focusedNoteComponent,
         },
         [
-          h("g.section-log", { transform }, [
+          h("g.section-log", { transform, className: "focusable" }, [
             h(NoteDefs),
             h(CancelEditUnderlay),
             h(NotesList, {
               onClickNote,
               deltaConnectorAttachment,
             }),
-            h(NewNotePositioner),
             h(NoteEditor, { allowPositionEditing: false }),
           ]),
         ],

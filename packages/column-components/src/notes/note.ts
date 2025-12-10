@@ -128,9 +128,12 @@ function Note(props: NoteProps) {
 
   const { setEditingNote, editingNote } = useContext(NoteEditorContext) as any;
   const onClick_ = onClick ?? setEditingNote;
-  const _onClickHandler = (evt) => {
-    onClick_(note);
-  };
+  const _onClickHandler = useMemo(() => {
+    if (!onClick_) return undefined;
+    return (evt) => {
+      onClick_(note);
+    };
+  }, [onClick_]);
 
   if (editingNote === note) {
     return null;

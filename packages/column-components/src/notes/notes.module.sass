@@ -51,3 +51,11 @@ g.height-range line
     cursor: pointer
     &>*
       pointer-events: none
+
+.focusable
+  .note-inner
+    cursor: pointer
+
+.note-editor .note-inner
+  overflow-y: scroll
+  max-height: var(--not-editor-max-height, 500px)

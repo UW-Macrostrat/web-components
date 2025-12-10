@@ -34,6 +34,29 @@ const h = hyper.styled(styles);
 
 export { FossilDataType };
 
+export function PBDBFossilsColumn({
+  columnID,
+  type = FossilDataType.Collections,
+}: {
+  columnID: number;
+  type: FossilDataType;
+}) {
+  const data = useFossilData(columnID, type);
+  const { axisType, units } = useMacrostratColumnData();
+  const scale = useCompositeScale();
+
+  if (data == null || units == null || scale == null) return null;
+
+  const data1 = preparePBDBData(data, units, scale, axisType);
+
+  return h(BaseMeasurementsColumn, {
+    data: data1,
+    noteComponent: FossilInfo,
+    focusedNoteComponent: FossilInfo,
+    className: "fossil-collections",
+  });
+}
+
 interface FossilItemProps {
   note: {
     data: PBDBCollection[];
@@ -46,10 +69,11 @@ interface FossilItemProps {
   width?: number;
   height?: number;
   color?: string;
+  focused?: boolean;
 }
 
 function FossilInfo(props: FossilItemProps) {
-  const { note } = props;
+  const { note, maxItems, focused = false } = props;
   const { data } = note;
   // Sort collections by name
   data.sort((a, b) => {
@@ -62,8 +86,12 @@ function FossilInfo(props: FossilItemProps) {
     data,
     className: "fossil-collections",
     itemRenderer: PBDBCollectionLink,
+    maxItems: focused ? Infinity : (maxItems ?? 5),
   });
 }
+
+const FocusedFossilInfo = (props: FossilItemProps) =>
+  h(FossilInfo, { ...props, maxItems: Infinity });
 
 function PBDBCollectionLink({
   data,
@@ -76,6 +104,9 @@ function PBDBCollectionLink({
     {
       href: `https://paleobiodb.org/app/collections#display=col:${data.cltn_id}`,
       target: "_blank",
+      onClick(e) {
+        e.stopPropagation();
+      },
     },
     data.best_name ?? data.cltn_name,
   );
@@ -185,26 +216,4 @@ function getRelativePositionInUnit<T extends PBDBEntity>(
   const relPos = scale.invert(pos);
   if (relPos < 0 || relPos > 1) return null;
   return relPos;
-}
-
-export function PBDBFossilsColumn({
-  columnID,
-  type = FossilDataType.Collections,
-}: {
-  columnID: number;
-  type: FossilDataType;
-}) {
-  const data = useFossilData(columnID, type);
-  const { axisType, units } = useMacrostratColumnData();
-  const scale = useCompositeScale();
-
-  if (data == null || units == null || scale == null) return null;
-
-  const data1 = preparePBDBData(data, units, scale, axisType);
-
-  return h(BaseMeasurementsColumn, {
-    data: data1,
-    noteComponent: FossilInfo,
-    className: "fossil-collections",
-  });
 }
