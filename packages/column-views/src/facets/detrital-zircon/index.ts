@@ -18,6 +18,7 @@ import { group } from "d3-array";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useMacrostratColumnData } from "../../data-provider";
 import { getUnitHeightRange } from "../../prepare-units";
+import { NonIdealState, Spinner } from "@blueprintjs/core";
 
 const h = hyper.styled(styles);
 
@@ -113,6 +114,8 @@ function DetritalColumn({ columnID, color = "magenta" }) {
     if (data == null || units == null) return null;
     return prepareDetritalData(data, units, axisType);
   }, [data, units, axisType]);
+
+  if (data1 == null) return h(NonIdealState, h(Spinner));
 
   return h(BaseMeasurementsColumn, {
     data: data1,
