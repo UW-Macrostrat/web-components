@@ -60,14 +60,20 @@ export interface ColumnClickData {
   // Room for boundary IDs eventually
 }
 
-export function UnitSelectionProvider<T extends BaseUnit>(props: {
-  children: ReactNode;
+export interface UnitSelectionActions {
+  // It's sort of unfortunate that we need to pass in the column ref here
   columnRef?: RefObject<HTMLElement>;
-  units: T[];
   selectedUnit: number | null;
   onClickedColumn?: (columnClickData: ColumnClickData, event: Event) => void;
   onUnitSelected?: (unitID: number | null, unit: T | null) => void;
-}) {
+}
+
+export function UnitSelectionProvider<T extends BaseUnit>(
+  props: {
+    children: ReactNode;
+    units: T[];
+  } & UnitSelectionActions,
+) {
   const [store] = useState(() =>
     createStore<UnitSelectionStore>((set) => ({
       selectedUnit: null,
@@ -153,7 +159,6 @@ export function UnitSelectionProvider<T extends BaseUnit>(props: {
   );
 
   const { units, selectedUnit } = props;
-
   useEffect(() => {
     // Synchronize store with provided props
     if (selectedUnit != null) {

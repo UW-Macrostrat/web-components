@@ -18,7 +18,6 @@ import {
 import styles from "./column.module.sass";
 import { UnitComponent } from "./units";
 import {
-  UnitSelectionProvider,
   UnitKeyboardNavigation,
   useUnitSelectionDispatch,
 } from "./data-provider";
@@ -111,7 +110,7 @@ export function Column(props: ColumnProps) {
     minPixelScale = 0.2,
     minSectionHeight = 50,
     collapseSmallUnconformities = true,
-    allowUnitSelection,
+    allowUnitSelection = false,
     hybridScale,
     scale,
     axisType,
@@ -172,41 +171,23 @@ export function Column(props: ColumnProps) {
     );
   }
 
-  let main: any = h(
-    ColumnInner,
-    { columnRef: ref, ageAxisComponent, ...rest },
-    [
+  return h(
+    MacrostratColumnDataProvider,
+    {
+      units,
+      sections,
+      totalHeight,
+      axisType: _axisType,
+      allowUnitSelection: showUnitPopover || allowUnitSelection,
+      columnRef: ref,
+      onUnitSelected,
+      selectedUnit,
+    },
+    h(ColumnInner, { columnRef: ref, ageAxisComponent, ...rest }, [
       children,
       h.if(showUnitPopover)(UnitSelectionPopover),
       h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
-    ],
-  );
-
-  /* By default, unit selection is disabled. However, if any related props are passed,
-   we enable it.
-   */
-  let _allowUnitSelection = allowUnitSelection ?? false;
-  if (showUnitPopover || selectedUnit != null || onUnitSelected != null) {
-    _allowUnitSelection = true;
-  }
-
-  if (_allowUnitSelection) {
-    main = h(
-      UnitSelectionProvider,
-      {
-        columnRef: ref,
-        onUnitSelected,
-        selectedUnit,
-        units,
-      },
-      main,
-    );
-  }
-
-  return h(
-    MacrostratColumnDataProvider,
-    { units, sections, totalHeight, axisType: _axisType },
-    main,
+    ]),
   );
 }
 
