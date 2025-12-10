@@ -4,7 +4,7 @@ import { getPositionWithinUnit, getUnitHeightRange } from "../../prepare-units";
 import { ColumnNotes } from "../../notes";
 import { UnitLong } from "@macrostrat/api-types";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import type { CompositeColumnScale } from "@macrostrat/column-views";
+import type { CompositeColumnScale } from "../../units";
 const h = hyper.styled(styles);
 
 type GetHeightRangeFn<T> = (

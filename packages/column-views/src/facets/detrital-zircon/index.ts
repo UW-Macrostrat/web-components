@@ -16,10 +16,8 @@ import {
 } from "../measurements";
 import { group } from "d3-array";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import {
-  getUnitHeightRange,
-  useMacrostratColumnData,
-} from "@macrostrat/column-views";
+import { useMacrostratColumnData } from "../../data-provider";
+import { getUnitHeightRange } from "../../prepare-units";
 
 const h = hyper.styled(styles);
 

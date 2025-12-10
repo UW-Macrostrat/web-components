@@ -11,7 +11,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import {
   useCompositeScale,
   useMacrostratColumnData,
-} from "@macrostrat/column-views";
+} from "../../data-provider";
 import { CompositeColumnScale } from "../../prepare-units/composite-scale";
 
 function useSGPData({ col_id }) {

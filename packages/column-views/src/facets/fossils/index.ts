@@ -22,10 +22,7 @@ import {
 } from "../../data-provider";
 import { UnitLong } from "@macrostrat/api-types";
 import styles from "./taxon-ranges.module.sass";
-import {
-  getPositionWithinUnit,
-  getUnitHeightRange,
-} from "@macrostrat/column-views";
+import { getPositionWithinUnit, getUnitHeightRange } from "../../prepare-units";
 import { scaleLinear } from "d3-scale";
 
 export * from "./taxon-ranges";
