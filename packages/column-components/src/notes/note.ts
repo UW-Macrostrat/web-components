@@ -11,17 +11,12 @@ import {
 import { useColumn } from "../context";
 
 type NoteListProps = NodeConnectorOptions & {
-  inEditMode?: boolean;
-  editable?: boolean;
   onClickNote?: (note: NoteData) => void;
-  editHandler?: Function;
 };
 
 export function NotesList(props: NoteListProps) {
-  let { inEditMode: editable, onClickNote, ...rest } = props;
-  if (editable == null) {
-    editable = false;
-  }
+  let { onClickNote, ...rest } = props;
+
   const {
     notes,
     nodes: nodeIndex,
@@ -79,7 +74,6 @@ export function NotesList(props: NoteListProps) {
         note,
         pixelOffset,
         pixelHeight,
-        editable,
         updateHeight,
         onClick: onClickNote,
         noteBodyComponent: noteComponent,
@@ -95,12 +89,8 @@ type NodeSpacing = {
   below: number;
 };
 
-type NodeInfo = any;
-
 interface NoteProps {
-  editable: boolean;
   note: NoteData;
-  editHandler?: Function;
   style?: object;
   deltaConnectorAttachment?: number;
   pixelOffset?: number;

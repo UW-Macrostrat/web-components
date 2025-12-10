@@ -37,11 +37,10 @@ function NoteComponent(props: NoteComponentProps) {
 
 const CancelEditUnderlay = function () {
   const { setEditingNote } = useContext(NoteEditorContext) as any;
-  const { confirmChanges } = useModelEditor();
   return h(NoteUnderlay, {
-    onClick() {
-      console.log("Clicked to cancel note editing");
-      return setEditingNote(null);
+    onClick(evt) {
+      setEditingNote(null);
+      evt.stopPropagation();
     },
   });
 };
@@ -115,8 +114,6 @@ function EditableNotesColumn(props: EditableNotesColumnProps) {
             h(NoteDefs),
             h(CancelEditUnderlay),
             h(NotesList, {
-              editHandler: inEditMode ? onUpdateNote : null,
-              inEditMode,
               onClickNote,
             }),
             h(NewNotePositioner),
@@ -135,23 +132,11 @@ function FocusableNoteColumn(props: FocusedNotesColumnProps) {
     paddingLeft = 60,
     transform,
     notes,
-    onFocusNote,
     forceOptions,
     noteComponent = NoteComponent,
     focusedNoteComponent = NoteComponent,
     onClickNote,
   } = props;
-
-  const [focusedNote, setFocusedNote] = useState<NoteData | null>(null);
-
-  const onClickNoteInternal = useCallback(
-    (note: NoteData) => {
-      setFocusedNote(note);
-      onFocusNote?.(note);
-      onClickNote?.(note);
-    },
-    [onClickNote, onFocusNote],
-  );
 
   const innerWidth = width - paddingLeft;
 
@@ -176,7 +161,6 @@ function FocusableNoteColumn(props: FocusedNotesColumnProps) {
             h(NoteDefs),
             h(CancelEditUnderlay),
             h(NotesList, {
-              inEditMode: false,
               onClickNote,
             }),
             h(NewNotePositioner),
@@ -217,7 +201,6 @@ function StaticNotesColumn(props: NotesColumnBaseProps) {
       h("g.section-log", { transform }, [
         h(NoteDefs),
         h(NotesList, {
-          inEditMode: false,
           deltaConnectorAttachment,
           onClickNote,
         }),
