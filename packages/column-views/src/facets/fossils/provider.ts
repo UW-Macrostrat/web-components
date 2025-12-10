@@ -6,7 +6,7 @@ import {
 
 const responseUnwrapper = (d) => d.records;
 
-const pbdbAPIBase = "https://training.paleobiodb.org/data1.2";
+const pbdbAPIBase = "https://paleobiodb.org/data1.2";
 
 const pbdbAPIContext = createAPIContext({
   baseURL: pbdbAPIBase,
