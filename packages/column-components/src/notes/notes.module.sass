@@ -44,3 +44,10 @@ g.height-range line
   fill: var(--column-background-color)
   fill-opacity: 0.8
   pointer-events: all
+
+.notes-list:has(+ .note-editor)
+  // Target the note list that is undergoing editing
+  .note-inner
+    cursor: pointer
+    &>*
+      pointer-events: none

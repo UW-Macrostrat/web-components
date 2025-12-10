@@ -61,7 +61,7 @@ export function NotesList(props: NoteListProps) {
   }, [notes, nodeIndex, scale]);
 
   return h(
-    "g",
+    "g.notes-list",
     notesInfo.map(({ note, pixelOffset, pixelHeight, spacing }) => {
       // If the note has a bad pixelOffset, skip it
 

@@ -135,6 +135,7 @@ function FocusableNoteColumn(props: FocusedNotesColumnProps) {
     forceOptions,
     noteComponent = NoteComponent,
     focusedNoteComponent = NoteComponent,
+    deltaConnectorAttachment,
     onClickNote,
   } = props;
 
@@ -162,6 +163,7 @@ function FocusableNoteColumn(props: FocusedNotesColumnProps) {
             h(CancelEditUnderlay),
             h(NotesList, {
               onClickNote,
+              deltaConnectorAttachment,
             }),
             h(NewNotePositioner),
             h(NoteEditor, { allowPositionEditing: false }),
