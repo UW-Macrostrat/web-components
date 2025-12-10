@@ -8,6 +8,7 @@ interface HeightRangeAnnotationProps {
   offsetX?: number;
   color?: string;
   lineInset?: number;
+  circleRadius?: number;
 }
 
 function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
@@ -18,6 +19,7 @@ function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
     offsetX = 0,
     color,
     lineInset = 1,
+    circleRadius = 2,
     ...rest
   } = props;
 
@@ -28,7 +30,11 @@ function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
   }
   const topHeight = bottomHeight - pxHeight;
 
-  const isLine = pxHeight > 2 * lineInset;
+  /* Use a value slightly greater than the circle diameter as the cutoff
+    to switch between line and circle, to account for a circle's greater
+    visual weight than the equivalent line height
+   */
+  const isLine = pxHeight > 3 * Math.max(lineInset, circleRadius);
 
   const transform = `translate(${offsetX},${topHeight})`;
 
@@ -40,7 +46,7 @@ function HeightRangeAnnotation(props: HeightRangeAnnotationProps) {
       y2: pxHeight - lineInset,
     }),
     h.if(!isLine)("circle", {
-      r: 2,
+      r: circleRadius,
       transform: `translate(0,${pxHeight / 2})`,
     }),
   ]);

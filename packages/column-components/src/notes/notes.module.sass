@@ -56,13 +56,21 @@ g.height-range line
     &>*
       pointer-events: none
 
+.note-inner
+  margin: 5px
+
 .focusable
   .note-inner
     cursor: pointer
 
-.note-editor .note-inner
-  overflow-y: scroll
-  max-height: var(--not-editor-max-height, 500px)
+.note-editor
+  // This seems to be needed due to the overflow-y: scroll on .note-inner
+  &>foreignObject
+    transform: translate(0, -1px)
+  .note-inner
+    overflow-y: scroll
+    max-height: var(--not-editor-max-height, 500px)
+
 
 g.note, g.note-editor
   --note-color: var(--column-note-color, var(--column-stroke-color, var(--text-color, #000)))

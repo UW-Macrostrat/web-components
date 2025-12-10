@@ -6,8 +6,10 @@ import {
 
 const responseUnwrapper = (d) => d.records;
 
+const pbdbAPIBase = "https://training.paleobiodb.org/data1.2";
+
 const pbdbAPIContext = createAPIContext({
-  baseURL: "https://paleobiodb.org/data1.2",
+  baseURL: pbdbAPIBase,
   unwrapResponse: responseUnwrapper,
 });
 
@@ -76,8 +78,9 @@ async function fetchPDBDFossilData(
   col_id: number,
   type: FossilDataType,
 ): Promise<PBDBCollection[]> {
+  // Note: show=rank does not work on training PBDB server
   const resp = await fetch(
-    `https://paleobiodb.org/data1.2/${type}/list.json?ms_column=${col_id}&show=mslink,stratext,rank`,
+    pbdbAPIBase + `/${type}/list.json?ms_column=${col_id}&show=mslink,stratext`,
   );
   const res = await resp.json();
   return res.records.map(
@@ -99,6 +102,9 @@ async function fetchFossilData<T extends PBDBEntity>(
 }
 
 function preprocessOccurrence(d): PBDBOccurrence {
+  if (d.msu == null || d.msc == null) {
+    return d;
+  }
   /* Preprocess data for an occurrence into a Macrostrat-like format */
   // Standardize names of Macrostrat units and columns
   const unit_id = parseInt(d.msu.replace(/^\w+:/, ""));
