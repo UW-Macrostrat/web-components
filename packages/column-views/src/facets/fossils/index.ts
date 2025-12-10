@@ -93,7 +93,7 @@ function preparePBDBData<T extends PBDBEntity>(
   /** Prepare PBDB fossil data for display in a measurements column */
   const { groupCloseNotes = true } = options ?? {};
   const groupDistance =
-    typeof groupCloseNotes === "number" ? groupCloseNotes : 5;
+    typeof groupCloseNotes === "number" ? groupCloseNotes : 10;
 
   // Map of data to its defined height ranges
   const dataMap = new Map<string, ColumnMeasurementData<T>>();
@@ -148,19 +148,15 @@ function groupNotesByPixelDistance<T extends PBDBEntity>(
   }
 
   // Sort data by height (ascending up the column)
-  if (axisType === ColumnAxisType.AGE || axisType === ColumnAxisType.DEPTH) {
-    data.sort((a, b) => b.height - a.height);
-  } else {
-    data.sort((a, b) => a.height - b.height);
-  }
+  data.sort((a, b) => (a.height - b.height) * sign);
 
   const groupedData: ColumnMeasurementData<T[]>[] = [];
   let currentGroup: ColumnMeasurementData<T[]> | null = null;
+  let currentGroupPosition: number = null;
 
   for (const d of data) {
     const bPos = scale(d.height);
 
-    let currentGroupTopPosition: number = null;
     if (currentGroup == null) {
       currentGroup = {
         ...d,
@@ -168,34 +164,31 @@ function groupNotesByPixelDistance<T extends PBDBEntity>(
         height: d.height,
         top_height: d.top_height ?? d.height,
       };
-      currentGroupTopPosition = scale(
-        currentGroup.top_height ?? currentGroup.height,
-      );
+      currentGroupPosition = scale(currentGroup.height);
       groupedData.push(currentGroup);
     } else {
       // Check distance from current max position
-      const currentTPos = scale(currentGroup.top_height);
-
       // Pixels go up as we go down in the section
-      const distance = currentTPos - bPos;
+
+      // The _top_ of the next group must be within groupDistance of the
+      // _bottom_ of the current group. This makes sure that we don't collapse
+      // groups that are separated by a large distance
+      const distance = currentGroupPosition - scale(d.top_height ?? d.height);
       if (distance <= groupDistance) {
         // Merge into current group
         currentGroup.data.push(...d.data);
         // Update height range
-        const height = d.height;
         const top_height = d.top_height ?? d.height;
         if (
           axisType === ColumnAxisType.AGE ||
           axisType === ColumnAxisType.DEPTH
         ) {
           // Inverted axis
-          currentGroup.height = Math.max(currentGroup.height, height);
           currentGroup.top_height = Math.min(
             currentGroup.top_height,
             top_height,
           );
         } else {
-          currentGroup.height = Math.min(currentGroup.height, height);
           currentGroup.top_height = Math.max(
             currentGroup.top_height,
             top_height,
@@ -204,15 +197,11 @@ function groupNotesByPixelDistance<T extends PBDBEntity>(
         currentGroup.key = `${currentGroup.height}-${currentGroup.top_height}`;
 
         // Update current group top position
-        currentGroupTopPosition = scale(
-          currentGroup.top_height ?? currentGroup.height,
-        );
+        currentGroupPosition = scale(currentGroup.height);
       } else {
         // Start a new group
         currentGroup = { ...d, data: [...d.data] };
-        currentGroupTopPosition = scale(
-          currentGroup.top_height ?? currentGroup.height,
-        );
+        currentGroupPosition = scale(currentGroup.height);
         // Update
         groupedData.push(currentGroup);
       }
