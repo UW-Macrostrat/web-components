@@ -40,7 +40,8 @@ function IntervalBox(props: {
   } else if (intervalStyle != null) {
     style = intervalStyle;
   }
-  style.backgroundColor = interval.col;
+  // Set interval color if not already set by the logic above
+  style.backgroundColor ??= interval.col;
 
   const className = classNames("interval-box", {
     clickable: onClick != null,

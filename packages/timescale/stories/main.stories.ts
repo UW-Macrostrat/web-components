@@ -1,4 +1,5 @@
 import { Timescale, TimescaleProps, TimescaleOrientation } from "../src";
+import chroma from "chroma-js";
 
 export default {
   title: "Timescale/Timescale",
@@ -39,5 +40,21 @@ export const Condensed = {
     absoluteAgeScale: true,
     length: 800,
     ageRange: [1000, 0],
+  },
+};
+
+export const WithRecoloredIntervals = {
+  args: {
+    orientation: TimescaleOrientation.VERTICAL,
+    levels: [1, 3],
+    intervalStyle(interval) {
+      return {
+        backgroundColor: chroma(interval.col)
+          .set("hsl.l", 0.9)
+          .set("hsl.s", 0.3)
+          .hex(),
+        color: chroma(interval.col).set("hsl.l", 0.1).css(),
+      };
+    },
   },
 };
