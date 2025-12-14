@@ -27,7 +27,7 @@ import {
   useStoreAPI,
   VisibleCells,
 } from "./provider";
-import { ColumnSpec } from "./utils";
+import type { ColumnSpec } from "./utils";
 
 const h = hyper.styled(styles);
 
@@ -49,7 +49,7 @@ interface DataSheetInternalProps<T> {
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
-  enableFocusedCell?: boolean | null;
+  enableFocusedCell?: boolean;
   dataSheetActions?: ReactNode | null;
   editable?: boolean;
   autoFocusEditor?: boolean;
