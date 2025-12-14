@@ -19,7 +19,6 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { EditorPopup, handleSpecialKeys, DataSheetAction } from "./components";
 import styles from "./main.module.sass";
 import {
-  ColumnSpec,
   DataSheetProvider,
   DataSheetProviderProps,
   DataSheetStore,
@@ -28,6 +27,7 @@ import {
   useStoreAPI,
   VisibleCells,
 } from "./provider";
+import { ColumnSpec } from "./utils";
 
 const h = hyper.styled(styles);
 
@@ -49,7 +49,7 @@ interface DataSheetInternalProps<T> {
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
-  enableFocusedCell?: boolean;
+  enableFocusedCell?: boolean | null;
   dataSheetActions?: ReactNode | null;
   editable?: boolean;
   autoFocusEditor?: boolean;
@@ -211,7 +211,6 @@ function _DataSheet<T>({
   return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
       onSaveData: _onSaveData,
-      onAddRow,
       onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
     }),
     dataSheetActions,
