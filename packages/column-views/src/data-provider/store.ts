@@ -53,7 +53,7 @@ export function MacrostratColumnStateProvider({
   children,
   units,
 }: {
-  children: ReactNode;
+  children?: ReactNode;
   units: ExtUnit[];
 }) {
   /** Top-level provider for Macrostrat column data.

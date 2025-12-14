@@ -59,7 +59,7 @@ export function UnitDetailsPanel({
   lithologyFeatures?: Set<LithologyTagFeature>;
   columnUnits?: UnitLong[];
   onSelectUnit?: (unitID: number) => void;
-  onClickItem?: (item: any) => void;
+  onClickItem?: MacrostratItemClickHandler;
 }) {
   const [showJSON, setShowJSON] = useState(false);
 
@@ -150,6 +150,16 @@ export enum UnitDetailsFeature {
   DepthRange = "depth-range",
 }
 
+export type MacrostratItemClickHandler = (
+  event: MouseEvent,
+  item:
+    | Lithology
+    | Environment
+    | UnitLong
+    | Interval
+    | { strat_name_id: number },
+) => void;
+
 function UnitDetailsContent({
   unit,
   onSelectUnit,
@@ -170,15 +180,7 @@ function UnitDetailsContent({
   columnUnits?: UnitLong[];
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
-  onClickItem?: (
-    event: MouseEvent,
-    item:
-      | Lithology
-      | Environment
-      | UnitLong
-      | Interval
-      | { strat_name_id: number },
-  ) => void;
+  onClickItem?: MacrostratItemClickHandler;
   getItemHref?: (item: Lithology | Environment | UnitLong) => string | null;
 }) {
   const lithMap = useMacrostratDefs("lithologies");

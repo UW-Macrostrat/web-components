@@ -14,7 +14,7 @@ import { FlexRow } from "@macrostrat/ui-components";
 import { useColumnSelection } from "../column-ui/utils";
 
 function SGPMeasurementsDemoColumn(props) {
-  const { id, children, spectraColor, ...rest } = props;
+  const { id, children, ...rest } = props;
 
   return h(
     MacrostratDataProvider,
@@ -27,7 +27,7 @@ function SGPMeasurementsDemoColumn(props) {
         allowUnitSelection: false,
         ...rest,
       },
-      h(SGPMeasurementsColumn, { columnID: id, color: spectraColor }),
+      h(SGPMeasurementsColumn, { columnID: id }),
     ),
   );
 }

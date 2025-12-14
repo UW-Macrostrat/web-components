@@ -1,9 +1,9 @@
 import hyper from "@macrostrat/hyper";
 import {
   FossilDataType,
-  PBDBCollection,
-  PBDBEntity,
-  PBDBOccurrence,
+  type PBDBCollection,
+  type PBDBEntity,
+  type PBDBOccurrence,
   useFossilData,
 } from "./provider";
 import type { IUnit } from "../../units";
@@ -29,6 +29,13 @@ import {
 } from "../../prepare-units";
 import { scaleLinear } from "d3-scale";
 
+export {
+  FossilDataType,
+  type PBDBCollection,
+  type PBDBEntity,
+  type PBDBOccurrence,
+  useFossilData,
+};
 export * from "./taxon-ranges";
 
 const h = hyper.styled(styles);
@@ -69,6 +76,7 @@ interface FossilItemProps {
   height?: number;
   color?: string;
   focused?: boolean;
+  maxItems?: number;
 }
 
 function FossilInfo(props: FossilItemProps) {
@@ -88,9 +96,6 @@ function FossilInfo(props: FossilItemProps) {
     maxItems: focused ? Infinity : (maxItems ?? 5),
   });
 }
-
-const FocusedFossilInfo = (props: FossilItemProps) =>
-  h(FossilInfo, { ...props, maxItems: Infinity });
 
 function PBDBCollectionLink({
   data,
@@ -124,7 +129,7 @@ function preparePBDBData<T extends PBDBEntity>(
   units: UnitLong[],
   scale: CompositeColumnScale,
   axisType: ColumnAxisType,
-  options?: { groupCloseNotes?: boolean | number },
+  options?: PreparePBDBDataOptions,
 ) {
   /** Prepare PBDB fossil data for display in a measurements column */
   const { groupCloseNotes = true } = options ?? {};
@@ -204,7 +209,7 @@ function getHeightRangeForPBDBEntity<T extends PBDBEntity>(
   return standardizeMeasurementHeight({ unit_id: d.unit_id }, units, axisType);
 }
 
-function getRelativePositionInUnit<T extends PBDBEntity>(
+function getRelativePositionInUnit(
   pos: number,
   unit: UnitLong,
   axisType: ColumnAxisType,

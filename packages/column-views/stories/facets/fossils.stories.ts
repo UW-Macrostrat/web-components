@@ -111,7 +111,7 @@ export const eODPColumnMoreComplete: Story = {
     collapseSmallUnconformities: true,
     keyboardNavigation: true,
   },
-  title: "eODP Column (more complete)",
+  name: "eODP Column (more complete)",
 };
 
 export const eODPColumnAgeFramework: Story = {
@@ -122,7 +122,7 @@ export const eODPColumnAgeFramework: Story = {
     mergeSections: MergeSectionsMode.OVERLAPPING,
     axisType: "age",
   },
-  title: "eODP Column (with age model applied)",
+  name: "eODP Column (with age model applied)",
 };
 
 export const ParadoxBasin = {

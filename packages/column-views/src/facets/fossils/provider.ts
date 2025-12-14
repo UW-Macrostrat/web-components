@@ -1,17 +1,6 @@
-import {
-  createAPIContext,
-  useAPIResult,
-  useAsyncMemo,
-} from "@macrostrat/ui-components";
-
-const responseUnwrapper = (d) => d.records;
+import { useAsyncMemo } from "@macrostrat/ui-components";
 
 const pbdbAPIBase = "https://paleobiodb.org/data1.2";
-
-const pbdbAPIContext = createAPIContext({
-  baseURL: pbdbAPIBase,
-  unwrapResponse: responseUnwrapper,
-});
 
 export enum FossilDataType {
   Occurrences = "occs",
@@ -44,10 +33,10 @@ export interface PBDBOccurrence extends PBDBEntity {
   [key: string]: any; // Allow for additional properties
 }
 
-export function useFossilData(
+export function useFossilData<T extends PBDBEntity>(
   col_id: number,
   type = FossilDataType.Collections,
-) {
+): T[] {
   // Fossil links are stored in both Macrostrat and PBDB, depending on how the link was assembled. Here
   // we create a unified view of data over both sources.
   return useAsyncMemo(async () => {
@@ -76,8 +65,20 @@ async function fetchMacrostratFossilData(
 
 async function fetchPDBDFossilData(
   col_id: number,
+  type: FossilDataType.Collections,
+): Promise<PBDBCollection[]>;
+async function fetchPDBDFossilData(
+  col_id: number,
+  type: FossilDataType.Occurrences,
+): Promise<PBDBOccurrence[]>;
+async function fetchPDBDFossilData<T extends PBDBEntity>(
+  col_id: number,
   type: FossilDataType,
-): Promise<PBDBCollection[]> {
+): Promise<T[]>;
+async function fetchPDBDFossilData(
+  col_id: number,
+  type: FossilDataType,
+): Promise<PBDBEntity[]> {
   // Note: show=rank does not work on training PBDB server
   const resp = await fetch(
     pbdbAPIBase + `/${type}/list.json?ms_column=${col_id}&show=mslink,stratext`,
@@ -90,10 +91,22 @@ async function fetchPDBDFossilData(
   );
 }
 
-async function fetchFossilData<T extends PBDBEntity>(
+export async function fetchFossilData(
+  colID: number,
+  type: FossilDataType.Collections,
+): Promise<PBDBCollection[]>;
+export async function fetchFossilData(
+  colID: number,
+  type: FossilDataType.Occurrences,
+): Promise<PBDBOccurrence[]>;
+export async function fetchFossilData<T extends PBDBEntity>(
   colID: number,
   type: FossilDataType,
-): Promise<T[]> {
+): Promise<T[]>;
+export async function fetchFossilData(
+  colID: number,
+  type: FossilDataType,
+): Promise<PBDBEntity[]> {
   const [macrostratData, pbdbData] = await Promise.all([
     fetchMacrostratFossilData(colID, type),
     fetchPDBDFossilData(colID, type),

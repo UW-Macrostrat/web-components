@@ -1,5 +1,10 @@
 import hyper from "@macrostrat/hyper";
-import { FossilDataType, PBDBOccurrence, useFossilData } from "./provider";
+import {
+  FossilDataType,
+  PBDBEntity,
+  PBDBOccurrence,
+  useFossilData,
+} from "./provider";
 import { Box, useElementSize } from "@macrostrat/ui-components";
 import { group } from "d3-array";
 import { ColumnAxisType, ColumnSVG } from "@macrostrat/column-components";
@@ -23,10 +28,11 @@ export function PBDBOccurrencesMatrix({ columnID }) {
 
   if (data == null) return null;
 
-  const data1 = group(data, (d) => d.unit_id);
-
   // convert the data to a map
-  const occurrenceMap = new Map(data1);
+  const occurrenceMap = new Map(group(data, (d) => d.unit_id)) as Map<
+    number,
+    PBDBOccurrence[]
+  >;
 
   const matrix = createOccurrenceMatrix(col.units, occurrenceMap, col.axisType);
 
@@ -106,7 +112,7 @@ function TaxonLabel({ top, left, taxonName }) {
 type TaxonUnitMap = Map<string, Set<number>>;
 
 interface OccurrenceMatrixData {
-  occurrenceMap: Map<number, PBDBOccurrence[]>; // Map of unit IDs to occurrences (original data)
+  occurrenceMap: Map<number, PBDBEntity[]>; // Map of unit IDs to occurrences (original data)
   taxonUnitMap: TaxonUnitMap; // Map of taxon names to sets of unit IDs
   taxonOccurrenceMap: Map<string, PBDBOccurrence[]>; // Map of taxon names to occurrences
   taxonRanges: Map<string, [number, number][]>; // Map of taxon names to [top, bottom] pixel ranges
@@ -120,6 +126,9 @@ function TaxonOccurrenceEntry({
 }: {
   xPosition: number;
   units: Set<number>;
+  ranges: any;
+  scale: any;
+  name: string;
 }) {
   return h("g", { transform: `translate(${xPosition})` }, [
     ranges.map(([top, bottom]) => {

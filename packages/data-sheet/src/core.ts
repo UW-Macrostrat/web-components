@@ -243,6 +243,7 @@ function _DataSheet<T>({
       },
       [
         h(
+          // @ts-expect-error
           Table2,
           {
             ref,

@@ -15,14 +15,13 @@ import {
 import type { CompositeColumnScale } from "../../prepare-units";
 
 function useSGPData({ col_id }) {
-  const res = useAPIResult(
+  return useAPIResult(
     "https://dev.macrostrat.org/api/pg/sgp_unit_matches",
     {
       col_id: `eq.${col_id}`,
     },
     (d) => d,
   );
-  return res;
 }
 
 interface SGPSampleData {
@@ -31,7 +30,7 @@ interface SGPSampleData {
   sgp_samples: { name: string; id: number }[];
 }
 
-export function SGPMeasurementsColumn({ columnID, color = "magenta" }) {
+export function SGPMeasurementsColumn({ columnID }) {
   const data: SGPSampleData[] | null = useSGPData({ col_id: columnID });
   const { axisType, units } = useMacrostratColumnData();
   const scale = useCompositeScale();
@@ -47,7 +46,7 @@ export function SGPMeasurementsColumn({ columnID, color = "magenta" }) {
   });
 }
 
-function SGPSamplesNote(props) {
+function SGPSamplesNote(props: { note: any; focused: boolean }) {
   const { note, focused } = props;
   const sgp_samples = note?.data;
 
