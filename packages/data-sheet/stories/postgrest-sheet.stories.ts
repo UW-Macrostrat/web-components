@@ -5,26 +5,21 @@ import {
   ColorCell,
   ColorPicker,
   colorSwatchRenderer,
-  ScrollToRowControl,
-  wrapWithErrorHandling,
-} from "../src";
-import {
-  LongTextViewer,
+  DataSheetAction,
+  DataSheetActionsRow,
+  ExpandedLithologies,
   IntervalCell,
   lithologyRenderer,
-  ExpandedLithologies,
+  LongTextViewer,
   PostgRESTTableView,
+  ScrollToRowControl,
+  wrapWithErrorHandling,
 } from "../src";
 import { useSelector } from "../src/provider";
 import { useRef, useState } from "react";
 import { Button, InputGroup } from "@blueprintjs/core";
-import {
-  DataSheetAction,
-  DataSheetActionsRow,
-} from "../src/components/actions";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { useToaster } from "@macrostrat/ui-components";
-import { ColorEditor } from "../src/__archive";
 
 const h = hyper.styled(styles);
 

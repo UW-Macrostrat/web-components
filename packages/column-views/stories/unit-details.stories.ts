@@ -6,6 +6,7 @@ import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { UnitDetailsPanel } from "../src/unit-details";
 import {
+  ExtUnit,
   LithologiesProvider,
   MacrostratColumnStateProvider,
   UnitSelectionProvider,
@@ -54,6 +55,8 @@ interface UnitDetailsProps {
   unit_id: number;
   onClose?: () => void;
   showLithologyProportions?: boolean;
+  actions: any;
+  hiddenActions: any;
 }
 
 const meta: Meta<UnitDetailsProps> = {
@@ -131,7 +134,7 @@ export const WithActions: Story = {
 };
 
 export function WithDataProvider(args: UnitDetailsProps) {
-  const units = useColumnUnits(432);
+  const units = useColumnUnits(432) as ExtUnit[] | null;
 
   if (units == null) return h(Spinner);
 

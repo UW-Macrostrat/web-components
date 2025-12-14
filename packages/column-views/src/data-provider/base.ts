@@ -18,6 +18,7 @@ import {
   fetchLithologies,
   fetchRefs,
   fetchStratNames,
+  type ColumnStatusCode,
 } from "./fetch";
 import { APIProvider } from "@macrostrat/ui-components";
 import { ColumnProvider } from "@macrostrat/column-components";

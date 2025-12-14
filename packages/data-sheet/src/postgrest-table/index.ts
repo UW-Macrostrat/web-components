@@ -201,22 +201,25 @@ export function notifyOnError(toaster: Toaster, error: any) {
   });
 }
 
-export function wrapWithErrorHandling<T = any>(
+interface PromiseResult {
+  error?: Error;
+}
+
+export async function wrapWithErrorHandling<T extends PromiseResult>(
   toaster: Toaster,
   fnPromise: Promise<T>,
 ): Promise<T | null> {
-  return fnPromise
-    .then((p) => {
-      if (p.error != null) {
-        // Rethrow error
-        throw p.error;
-      }
-      return p;
-    })
-    .catch((err) => {
-      notifyOnError(toaster, err);
-      return null;
-    });
+  try {
+    const p = await fnPromise;
+    if (p.error != null) {
+      // Rethrow error
+      throw p.error;
+    }
+    return p;
+  } catch (err) {
+    notifyOnError(toaster, err);
+    return null;
+  }
 }
 
 export function LongTextViewer({ value, onChange }) {

@@ -1,10 +1,13 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./base.module.sass";
-import { getPositionWithinUnit, getUnitHeightRange } from "../../prepare-units";
+import {
+  type CompositeColumnScale,
+  getPositionWithinUnit,
+  getUnitHeightRange,
+} from "../../prepare-units";
 import { ColumnNotes } from "../../notes";
 import { UnitLong } from "@macrostrat/api-types";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import type { CompositeColumnScale } from "../../units";
 const h = hyper.styled(styles);
 
 type GetHeightRangeFn<T> = (
@@ -24,6 +27,7 @@ export interface BaseMeasurementsColumnProps<T> {
   isMatchingUnit?: (d: T, unit: UnitLong) => boolean;
   getHeightRange?: GetHeightRangeFn<T>;
   deltaConnectorAttachment?: number;
+  focusedNoteComponent?: any;
 }
 
 export interface ColumnMeasurementData<T = any> extends MeasurementHeightData {
@@ -199,7 +203,7 @@ export function groupNotesByPixelDistance<T = any>(
       } else {
         currentGroup.top_height = Math.max(currentGroup.top_height, top_height);
       }
-      currentGroup.key = `${currentGroup.height}-${currentGroup.top_height}`;
+      currentGroup.id = `${currentGroup.height}-${currentGroup.top_height}`;
     } else {
       // Start a new group
       currentGroup = { ...d, data: [...d.data] };

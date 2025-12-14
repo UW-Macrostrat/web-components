@@ -14,6 +14,7 @@ import {
   collapseUnconformitiesByPixelHeight,
   computeSectionHeights,
   finalizeSectionHeights,
+  type CompositeColumnScale,
 } from "./composite-scale";
 import {
   agesOverlap,
@@ -27,6 +28,7 @@ import { SectionInfo } from "./types";
 export * from "./utils";
 export * from "./types";
 export { preprocessUnits };
+export type { CompositeColumnScale };
 
 export function usePreparedColumnUnits(
   data: UnitLong[],

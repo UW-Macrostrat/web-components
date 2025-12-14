@@ -1,20 +1,24 @@
 import h from "@macrostrat/hyper";
-import { useCallback, useMemo } from "react";
+import { useCallback } from "react";
 import {
   ColumnAxisType,
   NotesColumn,
-  NotesColumnProps,
+  type ColumnDivision,
+  type NoteData,
+  type NotesColumnProps,
 } from "@macrostrat/column-components";
-import type { ColumnDivision } from "@macrostrat/column-components";
-import { IUnit } from "./types";
+import type { IUnit } from "./types";
 import React from "react";
-import { getUnitHeightRange } from "../prepare-units/utils";
-import { CompositeColumnScale } from "./composite";
 import { useCompositeScale, useMacrostratColumnData } from "../data-provider";
+import {
+  type CompositeColumnScale,
+  getUnitHeightRange,
+} from "../prepare-units";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
   transform?: string;
+  nameForDivision?(obj: IUnit): string;
   noteComponent?: React.ComponentType<any>;
   shouldRenderNote?(div: ColumnDivision | IUnit, index: number): boolean;
   divisions?: IUnit[];
@@ -22,26 +26,29 @@ interface UnitDataProps extends NotesColumnProps {
   scale?: CompositeColumnScale;
 }
 
-type UnitNote = {
+interface UnitNote extends NoteData {
   height: number;
   top_height: number;
   data: IUnit;
   id: number;
-};
+}
 
 function noteForDivision(
   div: IUnit,
-  opts: { axisType: ColumnAxisType },
+  opts: { axisType: ColumnAxisType; nameForDivision?: (obj: IUnit) => string },
 ): UnitNote {
   const { axisType } = opts;
 
   const [height, top_height] = getUnitHeightRange(div, axisType);
+
+  const nameForDivision = opts.nameForDivision ?? defaultNameFunction;
 
   return {
     height,
     top_height,
     data: div,
     id: div.unit_id,
+    note: nameForDivision(div),
   };
 }
 
@@ -59,6 +66,7 @@ function UnitDataColumn_(props: UnitDataProps) {
     left = 0,
     noteComponent,
     shouldRenderNote = (note: ColumnDivision | IUnit, i: number) => true,
+    nameForDivision,
     minimumHeight = 0,
     divisions = units,
     ...rest
@@ -76,7 +84,7 @@ function UnitDataColumn_(props: UnitDataProps) {
   if (divisions == null) return null;
   const notes: UnitNote[] = divisions
     .filter(shouldRenderNote)
-    .map((d: IUnit) => noteForDivision(d, { axisType }))
+    .map((d: IUnit) => noteForDivision(d, { axisType, nameForDivision }))
     .filter(minimumHeightFilter);
 
   return h(NotesColumn, {
@@ -93,33 +101,23 @@ function UnitDataColumn_(props: UnitDataProps) {
 
 const UnitDataColumn = React.memo(UnitDataColumn_);
 
-interface UnitNamesProps extends UnitDataProps {
-  nameForDivision?(obj: IUnit): string;
+export interface UnitNamesProps extends UnitDataProps {
   paddingLeft?: number;
   width: number;
   onClickNote?: (note: any) => void;
 }
 
+function UnitNameNote(props: { note: UnitNote }) {
+  const { note } = props;
+  return h("p.col-note-label", note.note);
+}
+
 export function UnitNamesColumn(props: UnitNamesProps) {
-  const {
-    nameForDivision = defaultNameFunction,
-    noteComponent,
-    ...rest
-  } = props;
-
-  const defaultNoteComponent = useMemo(
-    () => (props) => {
-      const { note } = props;
-      return h("p.col-note-label", nameForDivision(note.data));
-    },
-    [nameForDivision],
-  );
-
+  const { noteComponent = UnitNameNote, ...rest } = props;
   return h(UnitDataColumn, {
-    noteComponent: noteComponent ?? defaultNoteComponent,
+    noteComponent,
     ...rest,
   });
 }
 
-export type { UnitNamesProps };
 export { defaultNameFunction, noteForDivision, UnitDataColumn };
