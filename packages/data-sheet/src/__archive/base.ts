@@ -10,8 +10,9 @@ interface GridElement extends ReactDataSheet.Cell<GridElement, number> {
   value: number | null;
 }
 
-interface SheetContainerProps<T = any>
-  extends ReactDataSheet.DataSheetProps<T> {
+interface SheetContainerProps<
+  T = any,
+> extends ReactDataSheet.DataSheetProps<T> {
   height?: number;
   width?: number;
   children?: React.ReactNode;

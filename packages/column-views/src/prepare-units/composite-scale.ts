@@ -84,8 +84,9 @@ export function finalizeSectionHeights<T extends UnitLong>(
   };
 }
 
-export interface SectionInfoWithScale<T extends UnitLong = ExtUnit>
-  extends SectionInfo<T> {
+export interface SectionInfoWithScale<
+  T extends UnitLong = ExtUnit,
+> extends SectionInfo<T> {
   scaleInfo: PackageScaleInfo;
 }
 
