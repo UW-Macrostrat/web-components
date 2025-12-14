@@ -28,7 +28,7 @@ jobs:
       # Prettify code and commit if changes
       - name: Format code
         run: |
-          prettier --write .
+          yarn run format
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v4
