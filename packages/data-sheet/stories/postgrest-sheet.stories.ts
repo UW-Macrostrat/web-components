@@ -24,7 +24,6 @@ import {
 } from "../src/components/actions";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { useToaster } from "@macrostrat/ui-components";
-import { ColorEditor } from "../src/__archive";
 
 const h = hyper.styled(styles);
 
