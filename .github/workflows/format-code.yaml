@@ -23,7 +23,7 @@ jobs:
         # Use global install to ensure Prettier is available
         # and that we don't modify the package.json
         run: |
-          npm install -g prettier
+          yarn add "prettier@$(cat ./package.json | jq -r '.devDependencies["prettier"]')"
 
       # Prettify code and commit if changes
       - name: Format code
