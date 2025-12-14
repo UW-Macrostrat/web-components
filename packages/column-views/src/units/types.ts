@@ -15,9 +15,3 @@ export interface RectBounds {
   width: number;
   height: number;
 }
-
-export interface CompositeColumnScale {
-  (val: number): number;
-  copy(): CompositeColumnScale;
-  domain(): number[];
-}
