@@ -6,7 +6,7 @@ import {
   PBDBOccurrence,
   useFossilData,
 } from "./provider";
-import type { CompositeColumnScale, IUnit } from "../../units";
+import type { IUnit } from "../../units";
 import {
   BaseMeasurementsColumn,
   ColumnMeasurementData,
@@ -32,8 +32,6 @@ import { scaleLinear } from "d3-scale";
 export * from "./taxon-ranges";
 
 const h = hyper.styled(styles);
-
-export { FossilDataType };
 
 export function PBDBFossilsColumn({
   columnID,

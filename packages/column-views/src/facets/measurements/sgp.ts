@@ -12,7 +12,7 @@ import {
   useCompositeScale,
   useMacrostratColumnData,
 } from "../../data-provider";
-import { CompositeColumnScale } from "../../prepare-units/composite-scale";
+import type { CompositeColumnScale } from "../../prepare-units";
 
 function useSGPData({ col_id }) {
   const res = useAPIResult(

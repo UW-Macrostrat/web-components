@@ -2759,7 +2759,6 @@ __metadata:
     glob: "npm:^11.1.0"
     lorem-ipsum: "npm:^2.0.8"
     madge: "npm:^8.0.0"
-    maplibregl-mapbox-request-transformer: "npm:^0.0.3"
     marked: "npm:^11.0"
     marked-terminal: "npm:^7.1.0"
     node-fetch: "npm:^3.2.9"

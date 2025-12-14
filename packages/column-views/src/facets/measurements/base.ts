@@ -1,14 +1,13 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./base.module.sass";
 import {
-  CompositeColumnScale,
+  type CompositeColumnScale,
   getPositionWithinUnit,
   getUnitHeightRange,
 } from "../../prepare-units";
 import { ColumnNotes } from "../../notes";
 import { UnitLong } from "@macrostrat/api-types";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import type { CompositeColumnScale } from "../../units";
 const h = hyper.styled(styles);
 
 type GetHeightRangeFn<T> = (

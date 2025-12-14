@@ -13,8 +13,6 @@ import { useRef } from "react";
 
 const h = hyper.styled(styles);
 
-export { FossilDataType };
-
 export function PBDBOccurrencesMatrix({ columnID }) {
   /* A column for a matrix of taxon occurrences displayed as a table beside the main column. This will
   eventually be extended with first/last occurrence markers and range bars.
