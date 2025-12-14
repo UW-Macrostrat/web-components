@@ -12,9 +12,8 @@ import { ReactNode } from "react";
 
 //# This isn't really used yet...
 
-export interface ColumnLayoutCtx<
-  T extends ColumnDivision,
-> extends ColumnCtx<T> {
+export interface ColumnLayoutCtx<T extends ColumnDivision>
+  extends ColumnCtx<T> {
   width: number;
   grainSizes?: string[];
   grainsizeScale?: (d: string) => number;
@@ -35,9 +34,8 @@ const ColumnLayoutContext = createContext<ColumnLayoutCtx<ColumnDivision>>({
   zoom: 1,
 });
 
-export interface ColumnLayoutProviderProps<
-  T extends ColumnDivision,
-> extends Partial<ColumnCtx<T>> {
+export interface ColumnLayoutProviderProps<T extends ColumnDivision>
+  extends Partial<ColumnCtx<T>> {
   grainSizes?: string[];
   grainsizeScale?: (d: string) => number;
   width: number;

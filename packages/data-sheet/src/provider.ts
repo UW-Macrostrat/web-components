@@ -7,7 +7,12 @@ import type {
   Region,
   Table2,
 } from "@blueprintjs/table";
-import { generateColumnSpec, range } from "./utils";
+import {
+  ColumnSpec,
+  ColumnSpecOptions,
+  generateColumnSpec,
+  range,
+} from "./utils";
 import update, { Spec } from "immutability-helper";
 import React from "react";
 

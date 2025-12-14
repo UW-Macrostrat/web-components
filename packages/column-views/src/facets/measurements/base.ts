@@ -1,6 +1,10 @@
 import hyper from "@macrostrat/hyper";
 import styles from "./base.module.sass";
-import { getPositionWithinUnit, getUnitHeightRange } from "../../prepare-units";
+import {
+  CompositeColumnScale,
+  getPositionWithinUnit,
+  getUnitHeightRange,
+} from "../../prepare-units";
 import { ColumnNotes } from "../../notes";
 import { UnitLong } from "@macrostrat/api-types";
 import { ColumnAxisType } from "@macrostrat/column-components";

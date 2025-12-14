@@ -1,17 +1,17 @@
 import { hyperStyled } from "@macrostrat/hyper";
 import {
+  ColumnContext,
   LithologyColumn,
   SVG,
-  ColumnContext,
 } from "@macrostrat/column-components";
 import { defaultNameFunction, UnitNamesColumn } from "./names";
 import {
   createContext,
-  useContext,
-  useState,
-  useRef,
   useCallback,
+  useContext,
   useEffect,
+  useRef,
+  useState,
 } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
 import { LabeledUnit, UnitBoxes } from "./boxes";
@@ -199,12 +199,6 @@ export function SectionLabelsColumn(props: ICompositeUnitProps) {
       ),
     ),
   ]);
-}
-
-export interface CompositeColumnScale {
-  (val: number): number;
-  copy(): CompositeColumnScale;
-  domain(): number[];
 }
 
 export function ColumnNotesProvider(props) {

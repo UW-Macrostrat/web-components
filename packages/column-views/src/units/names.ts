@@ -8,9 +8,11 @@ import {
 import type { ColumnDivision } from "@macrostrat/column-components";
 import { IUnit } from "./types";
 import React from "react";
-import { getUnitHeightRange } from "../prepare-units/utils";
-import { CompositeColumnScale } from "./composite";
 import { useCompositeScale, useMacrostratColumnData } from "../data-provider";
+import {
+  type CompositeColumnScale,
+  getUnitHeightRange,
+} from "../prepare-units";
 
 interface UnitDataProps extends NotesColumnProps {
   left?: number;
@@ -93,7 +95,7 @@ function UnitDataColumn_(props: UnitDataProps) {
 
 const UnitDataColumn = React.memo(UnitDataColumn_);
 
-interface UnitNamesProps extends UnitDataProps {
+export interface UnitNamesProps extends UnitDataProps {
   nameForDivision?(obj: IUnit): string;
   paddingLeft?: number;
   width: number;
@@ -121,5 +123,4 @@ export function UnitNamesColumn(props: UnitNamesProps) {
   });
 }
 
-export type { UnitNamesProps };
 export { defaultNameFunction, noteForDivision, UnitDataColumn };

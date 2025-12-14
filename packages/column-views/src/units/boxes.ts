@@ -44,7 +44,9 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
 }
 
 export interface LabeledUnitProps
-  extends UnitRectOptions, Clickable, Partial<RectBounds> {
+  extends UnitRectOptions,
+    Clickable,
+    Partial<RectBounds> {
   division: IUnit;
   patternID?: string | number;
   label: string;

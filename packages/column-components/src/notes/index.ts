@@ -227,7 +227,8 @@ function NotesColumn(props: NotesColumnProps) {
 }
 
 interface NotesColumnProps
-  extends FocusedNotesColumnProps, EditableNotesColumnProps {
+  extends FocusedNotesColumnProps,
+    EditableNotesColumnProps {
   editable?: boolean;
 }
 

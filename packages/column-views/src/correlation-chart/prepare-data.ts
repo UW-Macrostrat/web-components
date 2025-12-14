@@ -21,10 +21,8 @@ interface ColumnData {
   units: UnitLong[];
 }
 
-export interface CorrelationChartSettings extends Omit<
-  PrepareColumnOptions,
-  "axisType"
-> {
+export interface CorrelationChartSettings
+  extends Omit<PrepareColumnOptions, "axisType"> {
   targetUnitHeight?: number;
 }
 
