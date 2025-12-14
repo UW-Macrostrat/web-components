@@ -1,5 +1,9 @@
 # Changelog
 
+## [4.5.3] - 2025-12-13
+
+Small update to formatting
+
 ## [4.5.2] - 2025-11-28
 
 Make `SizeAwareLabel` a little more configurable
