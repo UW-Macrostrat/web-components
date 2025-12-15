@@ -113,7 +113,7 @@ export function useAtomOverlayPosition() {
   return scope.useAtomValue(overlayPositionAtom);
 }
 
-export function UnitSelectionHandlers({
+export function UnitSelectionCallbackManager({
   onUnitSelected,
 }: UnitSelectionCallbacks) {
   const selectedUnit = scope.useAtomValue(selectedUnitAtom);

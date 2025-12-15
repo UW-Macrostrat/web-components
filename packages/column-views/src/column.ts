@@ -8,8 +8,6 @@ import {
 } from "@macrostrat/ui-components";
 import classNames from "classnames";
 import {
-  RefObject,
-  useRef,
   HTMLAttributes,
   useCallback,
   CSSProperties,

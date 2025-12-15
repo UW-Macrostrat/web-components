@@ -1,11 +1,4 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { createContext, ReactNode, useContext, useMemo } from "react";
 import h from "@macrostrat/hyper";
 import {
   CompositeColumnScale,
@@ -13,14 +6,11 @@ import {
 } from "../prepare-units/composite-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import type { ExtUnit, PackageLayoutData } from "../prepare-units";
-// An isolated jotai store for Macrostrat column usage
-// TODO: there might be a better way to do this using the MacrostratDataProvider or similar
-import { type WritableAtom } from "jotai";
 import {
   allowUnitSelectionAtom,
   selectedUnitIDAtom,
   UnitSelectionCallbacks,
-  UnitSelectionHandlers,
+  UnitSelectionCallbackManager,
 } from "./unit-selection";
 import { BaseUnit } from "@macrostrat/api-types";
 import {
@@ -70,7 +60,7 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
 
   let selectionHandlers: ReactNode = null;
   if (_allowSelection) {
-    selectionHandlers = h(UnitSelectionHandlers, { onUnitSelected });
+    selectionHandlers = h(UnitSelectionCallbackManager, { onUnitSelected });
   }
 
   return h(

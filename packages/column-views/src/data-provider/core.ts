@@ -24,15 +24,13 @@ export function ScopedProvider({
   try {
     val = scope.useStore();
     // This store has already been provided
+    return children;
   } catch {
-    // No store found, create a new one
-    val = null;
+    return h(scope.Provider, { store: null, initialValues: atoms }, [
+      h.if(shouldUpdateAtoms)(AtomUpdater, { atoms }),
+      children,
+    ]);
   }
-
-  return h(scope.Provider, { store: val, initialValues: atoms }, [
-    h.if(shouldUpdateAtoms && val == null)(AtomUpdater, { atoms }),
-    children,
-  ]);
 }
 
 function AtomUpdater({
