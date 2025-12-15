@@ -2,7 +2,7 @@
 import {
   UnitSelectionProvider,
   UnitKeyboardNavigation,
-  useUnitSelectionStore,
+  useUnitSelectionDispatch,
 } from "../data-provider";
 import { UnitSelectionPopover } from "../unit-details";
 import hyper from "@macrostrat/hyper";
@@ -296,9 +296,7 @@ function StratColSpan({
 }
 
 function ChartArea({ children }) {
-  const setSelectedUnit = useUnitSelectionStore(
-    (state) => state.setSelectedUnit,
-  );
+  const setSelectedUnit = useUnitSelectionDispatch();
 
   return h(
     "div.correlation-chart-inner",

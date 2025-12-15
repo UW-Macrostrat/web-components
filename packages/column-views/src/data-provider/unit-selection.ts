@@ -1,13 +1,6 @@
 import { BaseUnit } from "@macrostrat/api-types";
 import { useKeyHandler } from "@macrostrat/ui-components";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useCallback,
-} from "react";
-import { createStore, StoreApi, useStore } from "zustand";
+import { useEffect, useRef, useCallback } from "react";
 import type { RectBounds, IUnit } from "../units/types";
 import { atom, Getter, Setter } from "jotai";
 import { columnUnitsMapAtom } from "./core";
@@ -17,27 +10,10 @@ import { scope } from "./core";
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,
   target: HTMLElement | null,
-  event: Event | null,
 ) => void;
 
-const UnitSelectionContext = createContext<StoreApi<UnitSelectionStore>>(null);
-
 export function useUnitSelectionDispatch(): UnitSelectDispatch {
-  const store = useContext(UnitSelectionContext);
-  if (store == null) {
-    return () => {};
-  }
-  return useStore(store, (state) => state.onUnitSelected);
-}
-
-export function useUnitSelectionStore<T>(
-  selector: (state: UnitSelectionStore) => T,
-): T {
-  const store = useContext(UnitSelectionContext);
-  if (store == null) {
-    return null;
-  }
-  return useStore(store, selector);
+  return scope.useSetAtom(selectedUnitAtom);
 }
 
 export function useSelectedUnit() {
@@ -140,6 +116,10 @@ const selectedUnitAtom = atom(
   },
 );
 
+export function useAtomOverlayPosition() {
+  return scope.useAtomValue(overlayPositionAtom);
+}
+
 export function UnitSelectionHandlers({
   onUnitSelected,
 }: UnitSelectionCallbacks) {
@@ -173,22 +153,21 @@ export function useUnitSelectionTarget(
 ): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void] {
   const ref = useRef<HTMLElement>();
   const selectedUnit = useSelectedUnit();
-  const onSelectUnit = useUnitSelectionStore((state) => state.onUnitSelected);
+  const selectUnit = useUnitSelectionDispatch();
   const selected = selectedUnit?.unit_id == unit.unit_id;
 
   const onClick = useCallback(
     (evt: Event) => {
-      if (onSelectUnit == null) return;
-      onSelectUnit(unit, ref.current, evt);
+      selectUnit?.(unit, ref.current);
       evt.stopPropagation();
     },
-    [unit, onSelectUnit],
+    [unit, selectUnit],
   );
 
   useEffect(() => {
-    if (!selected || onSelectUnit == null) return;
+    if (!selected || selectUnit == null) return;
     // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
-    onSelectUnit(unit, ref.current, null);
+    selectUnit(unit, ref.current);
 
     // Scroll the unit into view
     ref.current?.scrollIntoView({
@@ -196,7 +175,7 @@ export function useUnitSelectionTarget(
       block: "center",
       inline: "nearest",
     });
-  }, [selected, onSelectUnit]);
+  }, [selected, selectUnit]);
 
   return [ref, selected, onClick];
 }
@@ -220,7 +199,7 @@ export function UnitKeyboardNavigation<T extends BaseUnit>({
     (event) => {
       const nextIx = keyMap[event.keyCode];
       if (nextIx == null || nextIx < 0 || nextIx >= units.length) return;
-      selectUnit(units[nextIx], null, null);
+      selectUnit(units[nextIx], null);
       event.stopPropagation();
     },
     [units, ix],

@@ -1,7 +1,11 @@
 import hyper from "@macrostrat/hyper";
 import { Popover } from "@blueprintjs/core";
 import styles from "./popover.module.sass";
-import { useSelectedUnit, useUnitSelectionStore } from "../data-provider";
+import {
+  useAtomOverlayPosition,
+  useSelectedUnit,
+  useUnitSelectionDispatch,
+} from "../data-provider";
 import { UnitDetailsPanel } from "./panel";
 
 const h = hyper.styled(styles);
@@ -54,8 +58,8 @@ function InteractionBarrier({ children }) {
 
 export function UnitSelectionPopover() {
   const unit = useSelectedUnit();
-  const selectUnit = useUnitSelectionStore((state) => state.onUnitSelected);
-  const position = useUnitSelectionStore((state) => state.overlayPosition);
+  const selectUnit = useUnitSelectionDispatch();
+  const position = useAtomOverlayPosition();
   if (unit == null) {
     return null;
   }
@@ -79,7 +83,7 @@ export function UnitSelectionPopover() {
         className: "legend-panel",
         onSelectUnit: (id: number) => {
           console.log("Selected unit in popover:", id);
-          selectUnit(id, null, null);
+          selectUnit(id, null);
         },
       }),
     ),

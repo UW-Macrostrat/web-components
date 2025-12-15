@@ -9,9 +9,8 @@ import {
   ExtUnit,
   LithologiesProvider,
   MacrostratColumnStateProvider,
-  UnitSelectionProvider,
   useSelectedUnit,
-  useUnitSelectionStore,
+  useUnitSelectionDispatch,
 } from "../src";
 import { useColumnUnits } from "./column-ui/utils";
 
@@ -147,7 +146,7 @@ export function WithDataProvider(args: UnitDetailsProps) {
 
 function UnitDetailsWithSelection(args: UnitDetailsProps) {
   const unit = useSelectedUnit();
-  const setSelectedUnit = useUnitSelectionStore((s) => s.onUnitSelected);
+  const setSelectedUnit = useUnitSelectionDispatch();
   if (unit == null) return h("div", "No unit selected");
   return h(UnitDetailsPanel, {
     unit,
