@@ -217,7 +217,6 @@ function AtomUpdater({
 
   for (const [atom, value] of atoms) {
     useEffect(() => {
-      console.log("");
       store.set(atom, value);
     }, [store, value]);
   }

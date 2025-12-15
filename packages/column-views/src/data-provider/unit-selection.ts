@@ -2,7 +2,7 @@ import { BaseUnit } from "@macrostrat/api-types";
 import { useKeyHandler } from "@macrostrat/ui-components";
 import { useEffect, useRef, useCallback } from "react";
 import type { RectBounds, IUnit } from "../units/types";
-import { atom, Getter, Setter } from "jotai";
+import { atom } from "jotai";
 import { columnUnitsMapAtom } from "./core";
 import styles from "../column.module.sass";
 import { scope } from "./core";
@@ -18,14 +18,6 @@ export function useUnitSelectionDispatch(): UnitSelectDispatch {
 
 export function useSelectedUnit() {
   return scope.useAtomValue(selectedUnitAtom);
-}
-
-interface UnitSelectionStore {
-  selectedUnit: number | null;
-  selectedUnitData: BaseUnit | null;
-  overlayPosition: RectBounds | null;
-  onUnitSelected: UnitSelectDispatch;
-  setSelectedUnit: (unit: number | null) => void;
 }
 
 export interface ColumnClickData {
@@ -70,13 +62,16 @@ const selectedUnitAtom = atom(
       throw new Error("Unit selection is disabled.");
     }
 
-    let unitID: number | null = null;
-    if (typeof selectedUnit === "number") {
+    let unitID: number | null;
+    let unit: BaseUnit | null = null;
+    if (selectedUnit == null) {
+      unitID = null;
+    } else if (typeof selectedUnit === "number") {
       unitID = selectedUnit;
     } else if ("unit_id" in selectedUnit) {
       unitID = selectedUnit.unit_id;
     }
-    let unit: BaseUnit | null = null;
+
     if (unitID != null) {
       // Verify that the unit exists in the current colum, else throw
       const unitsMap = get(columnUnitsMapAtom);
@@ -85,18 +80,12 @@ const selectedUnitAtom = atom(
           `Unit with ID ${unitID} not found in current column units.`,
         );
       }
-      unit = unitsMap.get(unitID) || null;
-    } else {
-      // clear target position as well
-      set(overlayPositionAtom, null);
+      unit = unitsMap.get(unitID) ?? null;
     }
-
-    set(selectedUnitIDAtom, unitID);
 
     let overlayPosition: RectBounds | null = null;
 
-    // Calculate overlay position if we've selected a new unit
-    const className = styles["column"];
+    const className = styles["column-container"];
     const columnEl = target?.closest(`.${className}`) as HTMLElement;
 
     if (unit != null && columnEl != null && target != null) {
@@ -110,6 +99,7 @@ const selectedUnitAtom = atom(
       };
     }
 
+    set(selectedUnitIDAtom, unitID);
     set(overlayPositionAtom, overlayPosition);
 
     return unit;
