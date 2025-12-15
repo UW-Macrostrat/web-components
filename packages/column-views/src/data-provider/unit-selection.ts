@@ -3,9 +3,7 @@ import { useKeyHandler } from "@macrostrat/ui-components";
 import { useEffect, useRef, useCallback } from "react";
 import type { RectBounds, IUnit } from "../units/types";
 import { atom } from "jotai";
-import { columnUnitsMapAtom } from "./core";
-import styles from "../column.module.sass";
-import { scope } from "./core";
+import { columnUnitsMapAtom, scope } from "./core";
 
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,
@@ -42,6 +40,12 @@ export const allowUnitSelectionAtom = atom<boolean>(true);
 export const selectedUnitIDAtom = atom<number | null>();
 
 const overlayPositionAtom = atom<RectBounds | null>();
+
+const columnRefAtom = atom<{ current: HTMLElement | null }>({ current: null });
+
+export function useColumnRef() {
+  return scope.useAtomValue(columnRefAtom);
+}
 
 const selectedUnitAtom = atom(
   (get) => {
@@ -85,8 +89,7 @@ const selectedUnitAtom = atom(
 
     let overlayPosition: RectBounds | null = null;
 
-    const className = styles["column-container"];
-    const columnEl = target?.closest(`.${className}`) as HTMLElement;
+    const columnEl = get(columnRefAtom)?.current;
 
     if (unit != null && columnEl != null && target != null) {
       const rect = columnEl.getBoundingClientRect();

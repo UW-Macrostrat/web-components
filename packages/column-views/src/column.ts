@@ -18,7 +18,7 @@ import {
 import styles from "./column.module.sass";
 import { UnitComponent } from "./units";
 import {
-  UnitKeyboardNavigation,
+  UnitKeyboardNavigation, useColumnRef,
   useUnitSelectionDispatch,
 } from "./data-provider";
 
@@ -179,11 +179,10 @@ export function Column(props: ColumnProps) {
       totalHeight,
       axisType: _axisType,
       allowUnitSelection: showUnitPopover || allowUnitSelection,
-      columnRef: ref,
       onUnitSelected,
       selectedUnit,
     },
-    h(ColumnInner, { columnRef: ref, ageAxisComponent, ...rest }, [
+    h(ColumnInner, { ageAxisComponent, ...rest }, [
       children,
       h.if(showUnitPopover)(UnitSelectionPopover),
       h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
@@ -215,7 +214,6 @@ function ColumnInner(props: ColumnInnerProps) {
     columnWidth: _columnWidth = 150,
     showLabelColumn: _showLabelColumn = true,
     className,
-    columnRef,
     clipUnits = false,
     children,
     showTimescale,
@@ -226,6 +224,8 @@ function ColumnInner(props: ColumnInnerProps) {
   } = props;
 
   const { axisType } = useMacrostratColumnData();
+
+  const columnRef = useColumnRef();
 
   // Coalesce unconformity label setting to a boolean
   let _timescaleUnconformityLabels = false;

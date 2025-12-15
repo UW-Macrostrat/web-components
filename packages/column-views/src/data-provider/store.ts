@@ -159,7 +159,10 @@ export function UnitSelectionProvider(props: ColumnStateProviderProps<any>) {
   /* A basic unit selection provider without column data context.
   Mostly for use with the CorrelationChart component.
    */
-  return h(MacrostratColumnStateProvider, props);
+  return h(MacrostratColumnStateProvider, {
+    ...props,
+    allowUnitSelection: true,
+  });
 }
 
 export function useMacrostratColumnData() {
