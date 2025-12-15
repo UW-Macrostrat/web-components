@@ -16,6 +16,7 @@ import styles from "./column-page.stories.module.sass";
 import { UnitLong } from "@macrostrat/api-types";
 import { useArgs } from "storybook/preview-api";
 import { sharedColumnArgTypes } from "./arg-types";
+import { useCallback } from "react";
 
 export default {
   title: "Column views/Column page",
@@ -115,13 +116,13 @@ function ColumnStoryUI({
 
 function useColumnSelection() {
   const [{ columnID, selectedUnitID }, updateArgs] = useArgs();
-  const setColumnID = (columnID) => {
+  const setColumnID = useCallback((columnID) => {
     updateArgs({ columnID });
-  };
+  }, []);
 
-  const setSelectedUnitID = (selectedUnitID) => {
+  const setSelectedUnitID = useCallback((selectedUnitID) => {
     updateArgs({ selectedUnitID });
-  };
+  }, []);
 
   return {
     columnID,

@@ -119,7 +119,7 @@ export function UnitSelectionHandlers({
   const selectedUnit = scope.useAtomValue(selectedUnitAtom);
   useEffect(() => {
     onUnitSelected?.(selectedUnit?.unit_id ?? null, selectedUnit ?? null);
-  }, [selectedUnit, onUnitSelected]);
+  }, [selectedUnit?.unit_id]);
   return null;
 }
 

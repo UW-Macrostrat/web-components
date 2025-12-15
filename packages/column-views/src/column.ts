@@ -18,7 +18,8 @@ import {
 import styles from "./column.module.sass";
 import { UnitComponent } from "./units";
 import {
-  UnitKeyboardNavigation, useColumnRef,
+  UnitKeyboardNavigation,
+  useColumnRef,
   useUnitSelectionDispatch,
 } from "./data-provider";
 
@@ -116,8 +117,6 @@ export function Column(props: ColumnProps) {
     axisType,
     ...rest
   } = props;
-  const ref = useRef<HTMLElement>();
-  // Selected item position
 
   /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
    * standardization of scales in all sections */
@@ -191,7 +190,6 @@ export function Column(props: ColumnProps) {
 }
 
 interface ColumnInnerProps extends BaseColumnProps {
-  columnRef: RefObject<HTMLElement>;
   ageAxisComponent?: ComponentType;
 }
 
@@ -295,7 +293,7 @@ function useMouseEventHandlers(
   const dispatch = useUnitSelectionDispatch();
   const onClick = useCallback(
     (evt) => {
-      dispatch?.(null, null, evt as any);
+      dispatch?.(null, null);
     },
     [dispatch],
   );
