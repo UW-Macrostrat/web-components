@@ -23,9 +23,11 @@ import { columnUnitsAtom, columnUnitsMapAtom } from "./core";
 
 const { Provider, useSetAtom, useAtomValue, useStore } = createIsolation();
 
+type AtomMap = [WritableAtom<any, any, any>, any][];
+
 type ProviderProps = {
   children: ReactNode;
-  initialValues?: Iterable<[WritableAtom<any, any, any>, any]>;
+  initialValues?: AtomMap;
 };
 
 function ScopedProvider({ children, ...rest }: ProviderProps) {
@@ -40,8 +42,9 @@ function ScopedProvider({ children, ...rest }: ProviderProps) {
   return h(Provider, { store: val, ...rest }, children);
 }
 
-interface ColumnStateProviderProps<T extends BaseUnit>
-  extends Partial<UnitSelectionActions> {
+interface ColumnStateProviderProps<
+  T extends BaseUnit,
+> extends Partial<UnitSelectionActions> {
   children: ReactNode;
   units: T[];
   allowUnitSelection?: boolean;
@@ -60,7 +63,7 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
    * can be hoisted higher in the tree to provide a common data context
    */
 
-  const atomMap: [[PrimitiveAtom<T[]>, T[]]] = [[columnUnitsAtom, units]];
+  const atomMap: AtomMap = [[columnUnitsAtom, units]];
 
   let main: ReactNode = h(
     ScopedProvider,
@@ -95,8 +98,8 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
   return main;
 }
 
-export interface MacrostratColumnDataContext {
-  units: ExtUnit[];
+export interface MacrostratColumnDataContext<T extends BaseUnit> {
+  units: T[];
   sections: PackageLayoutData[];
   totalHeight?: number;
   axisType?: ColumnAxisType;
@@ -104,13 +107,12 @@ export interface MacrostratColumnDataContext {
 }
 
 interface ColumnDataProviderProps<T extends BaseUnit>
-  extends MacrostratColumnDataContext,
-    ColumnStateProviderProps<T> {
+  extends MacrostratColumnDataContext<T>, ColumnStateProviderProps<T> {
   children: ReactNode;
 }
 
 const MacrostratColumnDataContext =
-  createContext<MacrostratColumnDataContext>(null);
+  createContext<MacrostratColumnDataContext<any>>(null);
 
 export function MacrostratColumnDataProvider<T extends BaseUnit>({
   children,
@@ -173,7 +175,7 @@ export function useMacrostratUnits() {
 
 export function useColumnUnitsMap(): Map<number, ExtUnit> | null {
   try {
-    return useAtomValue(columnUnitsMapAtom);
+    return useAtomValue(columnUnitsMapAtom) as Map<number, ExtUnit>;
   } catch {
     return null;
   }
@@ -195,7 +197,7 @@ function AtomUpdater({
   /**
    * A generic updater to sync Jotai atoms with state passed as props.
    * Useful for scoped providers where state needs to be synced outside
-   * of the current context.
+   * the current context.
    */
   /** TODO: this is an awkward way to keep atoms updated */
   // The scoped store
