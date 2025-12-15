@@ -13,8 +13,9 @@ import {
 } from "react";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { RectBounds, IUnit } from "../units/types";
-import { atom } from "jotai";
+import { atom, Getter, Setter } from "jotai";
 import { columnUnitsMapAtom } from "./core";
+import styles from "../column.module.sass";
 
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,
@@ -75,6 +76,8 @@ export interface UnitSelectionActions {
 
 const selectedUnitIDAtom = atom<number | null>();
 
+const overlayPositionAtom = atom<RectBounds | null>();
+
 const selectedUnitAtom = atom(
   (get) => {
     const unitID = get(selectedUnitIDAtom);
@@ -82,13 +85,14 @@ const selectedUnitAtom = atom(
     const unitsMap = get(columnUnitsMapAtom);
     return unitsMap?.get(unitID) || null;
   },
-  (get, set, selectedUnit: number | BaseUnit | null) => {
+  (get, set, selectedUnit: number | BaseUnit | null): BaseUnit | null => {
     let unitID: number | null = null;
     if (typeof selectedUnit === "number") {
       unitID = selectedUnit;
     } else if ("unit_id" in selectedUnit) {
       unitID = selectedUnit.unit_id;
     }
+    let unit: BaseUnit | null = null;
     if (unitID != null) {
       // Verify that the unit exists in the current colum, else throw
       const unitsMap = get(columnUnitsMapAtom);
@@ -97,8 +101,48 @@ const selectedUnitAtom = atom(
           `Unit with ID ${unitID} not found in current column units.`,
         );
       }
+      unit = unitsMap.get(unitID) || null;
+    } else {
+      // clear target position as well
+      set(overlayPositionAtom, null);
     }
     set(selectedUnitIDAtom, unitID);
+    return unit;
+  },
+);
+
+const onUnitSelectedAtom = atom(
+  null,
+  (
+    get: Getter,
+    set: Setter,
+    input: number | BaseUnit | null,
+    target: HTMLElement | null = null,
+    event: PointerEvent | null = null,
+  ) => {
+    const unit = set(selectedUnitAtom, input);
+    if (unit == null) {
+      return;
+    }
+
+    // Calculate overlay position if we've selected a new unit
+    const className = styles["column"];
+    const columnEl = target?.closest(`.${className}`) as HTMLElement;
+
+    if (columnEl == null && target == null) {
+      return;
+    }
+    const rect = columnEl.getBoundingClientRect();
+    const targetRect = target.getBoundingClientRect();
+
+    const overlayPosition: RectBounds = {
+      x: targetRect.left - rect.left,
+      y: targetRect.top - rect.top,
+      width: targetRect.width,
+      height: targetRect.height,
+    };
+
+    set(overlayPositionAtom, overlayPosition);
   },
 );
 
