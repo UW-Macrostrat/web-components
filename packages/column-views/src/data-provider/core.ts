@@ -1,5 +1,8 @@
 import { atom } from "jotai";
+import { createIsolation } from "jotai-scope";
 import { BaseUnit } from "@macrostrat/api-types";
+
+export const scope = createIsolation();
 
 export const columnUnitsAtom = atom<BaseUnit[]>();
 
