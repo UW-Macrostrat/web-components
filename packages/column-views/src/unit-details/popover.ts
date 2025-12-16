@@ -6,7 +6,14 @@ import {
   useSelectedUnit,
   useUnitSelectionDispatch,
 } from "../data-provider";
-import { UnitDetailsPanel } from "./panel";
+import {
+  UnitDetailsFeature,
+  UnitDetailsPanel,
+  UnitDetailsPanelProps,
+} from "./panel";
+import { Lithology } from "@macrostrat/api-types";
+import { LithologyTagFeature } from "@macrostrat/data-components";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -56,7 +63,9 @@ function InteractionBarrier({ children }) {
   );
 }
 
-export function UnitSelectionPopover() {
+export function UnitSelectionPopover(
+  props: Omit<UnitDetailsPanelProps, "onSelectUnit" | "unit">,
+) {
   const unit = useSelectedUnit();
   const selectUnit = useUnitSelectionDispatch();
   const position = useAtomOverlayPosition();
@@ -78,11 +87,10 @@ export function UnitSelectionPopover() {
         },
       },
       h(UnitDetailsPanel, {
+        ...props,
         unit,
-        showLithologyProportions: true,
-        className: "legend-panel",
+        className: classNames("legend-panel", props.className),
         onSelectUnit: (id: number) => {
-          console.log("Selected unit in popover:", id);
           selectUnit(id, null);
         },
       }),

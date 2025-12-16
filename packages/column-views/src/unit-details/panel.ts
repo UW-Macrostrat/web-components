@@ -26,12 +26,23 @@ import type {
   UnitLongFull,
   Lithology,
   Interval,
-  StratUnit,
 } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
 
 const h = hyper.styled(styles);
+
+export interface UnitDetailsPanelProps {
+  unit: any;
+  onClose?: any;
+  className?: string;
+  actions?: ReactNode;
+  hiddenActions?: ReactNode;
+  features?: Set<UnitDetailsFeature>;
+  lithologyFeatures?: Set<LithologyTagFeature>;
+  onSelectUnit?: (unitID: number) => void;
+  onClickItem?: MacrostratItemClickHandler;
+}
 
 export function UnitDetailsPanel({
   unit,
@@ -47,21 +58,8 @@ export function UnitDetailsPanel({
   actions,
   hiddenActions = null,
   onSelectUnit,
-  columnUnits,
   onClickItem,
-}: {
-  unit: any;
-  onClose?: any;
-  showLithologyProportions?: boolean;
-  className?: string;
-  actions?: ReactNode;
-  hiddenActions?: ReactNode;
-  features?: Set<UnitDetailsFeature>;
-  lithologyFeatures?: Set<LithologyTagFeature>;
-  columnUnits?: UnitLong[];
-  onSelectUnit?: (unitID: number) => void;
-  onClickItem?: MacrostratItemClickHandler;
-}) {
+}: UnitDetailsPanelProps) {
   const [showJSON, setShowJSON] = useState(false);
 
   let content = null;
@@ -165,7 +163,6 @@ export type MacrostratItemClickHandler = (
 function UnitDetailsContent({
   unit,
   onSelectUnit,
-  columnUnits,
   lithologyFeatures = new Set([
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
@@ -179,7 +176,6 @@ function UnitDetailsContent({
 }: {
   unit: UnitLong;
   onSelectUnit?: (unitID: number) => void;
-  columnUnits?: UnitLong[];
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
   onClickItem?: MacrostratItemClickHandler;
@@ -190,15 +186,6 @@ function UnitDetailsContent({
 
   const environments = enhanceEnvironments(unit.environ, envMap);
   const lithologies = enhanceLithologies(unit.lith ?? [], lithMap);
-
-  // Create a lookup table of units if provided
-  const columnUnitsMap = useMemo(() => {
-    const map = new Map<number, UnitLong>();
-    for (const colUnit of columnUnits ?? []) {
-      map.set(colUnit.unit_id, colUnit);
-    }
-    return map;
-  }, [columnUnits]);
 
   let outcropField = null;
   if (features.has(UnitDetailsFeature.OutcropType)) {

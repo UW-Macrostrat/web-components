@@ -5,7 +5,7 @@ import {
   useUnitSelectionDispatch,
   useColumnRef,
 } from "../data-provider";
-import { UnitSelectionPopover } from "../unit-details";
+import { UnitDetailsFeature, UnitSelectionPopover } from "../unit-details";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { useMemo } from "react";
@@ -54,6 +54,13 @@ function MainChartArea({ children }) {
   const columnRef = useColumnRef();
   return h("div.main-chart", { ref: columnRef }, children);
 }
+
+const unitPopoverFeatures = new Set([
+  UnitDetailsFeature.AdjacentUnits,
+  UnitDetailsFeature.OutcropType,
+  UnitDetailsFeature.DepthRange,
+  UnitDetailsFeature.ColumnName,
+]);
 
 export function CorrelationChart({
   data,
@@ -137,7 +144,9 @@ export function CorrelationChart({
               });
             }),
           ),
-          h.if(showUnitPopover)(UnitSelectionPopover),
+          h.if(showUnitPopover)(UnitSelectionPopover, {
+            features: unitPopoverFeatures,
+          }),
           // Navigation only works within a column for now...
           h(UnitKeyboardNavigation, { units }),
         ]),
