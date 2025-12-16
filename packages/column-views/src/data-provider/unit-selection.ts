@@ -1,9 +1,14 @@
-import { BaseUnit } from "@macrostrat/api-types";
+import { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { useKeyHandler } from "@macrostrat/ui-components";
 import { useEffect, useRef, useCallback } from "react";
 import type { RectBounds, IUnit } from "../units/types";
 import { atom } from "jotai";
 import { columnUnitsMapAtom, scope } from "./core";
+import { ColumnData } from "@macrostrat/column-views";
+import {
+  ageRangeQuantifiedDifference,
+  AgeRangeRelationship,
+} from "@macrostrat/stratigraphy-utils";
 
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,
@@ -198,4 +203,100 @@ export function UnitKeyboardNavigation<T extends BaseUnit>({
     [units, ix],
   );
   return null;
+}
+
+export function CorrelationChartKeyboardNavigation({
+  columnData,
+}: {
+  columnData: ColumnData[];
+}) {
+  const selectedUnit = useSelectedUnit() as UnitLong | null;
+  const selectUnit = useUnitSelectionDispatch();
+
+  let colIndex: number | null = null;
+  let units: UnitLong[] = [];
+
+  let bestNextUnit: UnitLong | null = null;
+  let bestPrevUnit: UnitLong | null = null;
+  if (selectedUnit) {
+    colIndex = columnData.findIndex((col) => {
+      return col.columnID === selectedUnit.col_id;
+    });
+    units = columnData[colIndex].units;
+
+    const nextColIndex =
+      colIndex != null ? (colIndex + 1) % columnData.length : null;
+    const prevColIndex =
+      colIndex != null
+        ? (colIndex - 1 + columnData.length) % columnData.length
+        : null;
+
+    // Find best overlapping unit in next column, if existing
+    if (columnData[nextColIndex] != null) {
+      const nextColUnits = columnData[nextColIndex].units;
+      bestNextUnit = getMostOverlappingUnit(selectedUnit, nextColUnits);
+    }
+    // Find best overlapping unit in previous column, if existing
+    if (columnData[prevColIndex] != null) {
+      const prevColUnits = columnData[prevColIndex].units;
+      bestPrevUnit = getMostOverlappingUnit(selectedUnit, prevColUnits);
+    }
+  }
+
+  const ix = units.findIndex((unit) => unit.unit_id === selectedUnit?.unit_id);
+
+  let bestUpUnit: UnitLong | null = null;
+  let bestDownUnit: UnitLong | null = null;
+
+  bestUpUnit = units[ix - 1] || null;
+  bestDownUnit = units[ix + 1] || null;
+
+  const unitsMap = {
+    37: bestPrevUnit?.unit_id, // Left arrow
+    39: bestNextUnit?.unit_id, // Right arrow
+    38: bestUpUnit?.unit_id, // Up arrow
+    40: bestDownUnit?.unit_id, // Down arrow
+  };
+
+  useKeyHandler(
+    (event) => {
+      const nextUnitID = unitsMap[event.keyCode];
+      if (nextUnitID == null) return;
+      selectUnit(nextUnitID, null);
+      event.stopPropagation();
+    },
+    [units, ix],
+  );
+  return null;
+}
+
+type UnitAgeRangeRelationship = AgeRangeRelationship & {
+  unit: UnitLong;
+  score: number;
+};
+
+function getMostOverlappingUnit(
+  targetUnit: UnitLong,
+  candidateUnits: UnitLong[],
+): UnitLong | null {
+  const targetAgeRange = [targetUnit.t_age, targetUnit.b_age];
+
+  const overlaps: UnitAgeRangeRelationship[] = [];
+  for (const candidate of candidateUnits) {
+    const candidateAgeRange = [candidate.t_age, candidate.b_age];
+
+    const rel = ageRangeQuantifiedDifference(targetAgeRange, candidateAgeRange);
+    let score = 0;
+    if (rel.type === AgeRangeRelationship.Identical) {
+      score = -Infinity;
+    } else if (rel.type === AgeRangeRelationship.Disjoint) {
+      score = rel.distance;
+    } else {
+      score = -rel.overlap;
+    }
+    overlaps.push({ unit: candidate, score, type: rel.type });
+  }
+  overlaps.sort((a, b) => a.score - b.score);
+  if (overlaps.length === 0) return null;
+  return overlaps[0].unit;
 }

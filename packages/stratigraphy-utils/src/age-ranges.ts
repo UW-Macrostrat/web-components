@@ -81,3 +81,55 @@ export function compareAgeRanges(
     return AgeRangeRelationship.Contained;
   }
 }
+
+type AgeRangeQuantifiedDifference =
+  | {
+      type: AgeRangeRelationship.Disjoint;
+      distance: number;
+    }
+  | {
+      type: AgeRangeRelationship.Contains | AgeRangeRelationship.Contained;
+      overlap: number;
+    }
+  | {
+      type: AgeRangeRelationship.Identical;
+    };
+
+export function ageRangeQuantifiedDifference(
+  a: AgeRange,
+  b: AgeRange,
+): AgeRangeQuantifiedDifference {
+  /** Calculate the distance between two disjoint age ranges */
+  let a1 = convertToForwardOrdinal(a);
+  let b1 = convertToForwardOrdinal(b);
+
+  const relationship = compareAgeRanges(a1, b1);
+
+  if (relationship === AgeRangeRelationship.Disjoint) {
+    // Calculate distance between ranges
+    let distance = 0;
+    if (a1[1] < b1[0]) {
+      distance = b1[0] - a1[1];
+    } else {
+      distance = a1[0] - b1[1];
+    }
+    return {
+      type: AgeRangeRelationship.Disjoint,
+      distance,
+    };
+  } else if (
+    relationship === AgeRangeRelationship.Contains ||
+    relationship === AgeRangeRelationship.Contained
+  ) {
+    // Calculate overlap between ranges
+    const overlap = Math.min(a1[1], b1[1]) - Math.max(a1[0], b1[0]);
+    return {
+      type: relationship,
+      overlap,
+    };
+  } else {
+    return {
+      type: AgeRangeRelationship.Identical,
+    };
+  }
+}
