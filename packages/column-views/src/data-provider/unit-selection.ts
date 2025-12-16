@@ -214,61 +214,62 @@ export function CorrelationChartKeyboardNavigation({
   const selectedUnit = useSelectedUnit() as UnitLong | null;
   const selectUnit = useUnitSelectionDispatch();
 
-  let colIndex: number | null = null;
-  let units: UnitLong[] = [];
-
-  let bestNextUnit: UnitLong | null = null;
-  let bestPrevUnit: UnitLong | null = null;
-  if (selectedUnit) {
-    colIndex = columnData.findIndex((col) => {
-      return col.columnID === selectedUnit.col_id;
-    });
-    units = columnData[colIndex].units;
-
-    const nextColIndex =
-      colIndex != null ? (colIndex + 1) % columnData.length : null;
-    const prevColIndex =
-      colIndex != null
-        ? (colIndex - 1 + columnData.length) % columnData.length
-        : null;
-
-    // Find best overlapping unit in next column, if existing
-    if (columnData[nextColIndex] != null) {
-      const nextColUnits = columnData[nextColIndex].units;
-      bestNextUnit = getMostOverlappingUnit(selectedUnit, nextColUnits);
-    }
-    // Find best overlapping unit in previous column, if existing
-    if (columnData[prevColIndex] != null) {
-      const prevColUnits = columnData[prevColIndex].units;
-      bestPrevUnit = getMostOverlappingUnit(selectedUnit, prevColUnits);
-    }
-  }
-
-  const ix = units.findIndex((unit) => unit.unit_id === selectedUnit?.unit_id);
-
-  let bestUpUnit: UnitLong | null = null;
-  let bestDownUnit: UnitLong | null = null;
-
-  bestUpUnit = units[ix - 1] || null;
-  bestDownUnit = units[ix + 1] || null;
-
-  const unitsMap = {
-    37: bestPrevUnit?.unit_id, // Left arrow
-    39: bestNextUnit?.unit_id, // Right arrow
-    38: bestUpUnit?.unit_id, // Up arrow
-    40: bestDownUnit?.unit_id, // Down arrow
+  const keyMap: Record<number, Direction> = {
+    37: "left",
+    38: "up",
+    39: "right",
+    40: "down",
   };
 
   useKeyHandler(
     (event) => {
-      const nextUnitID = unitsMap[event.keyCode];
-      if (nextUnitID == null) return;
-      selectUnit(nextUnitID, null);
+      const direction = keyMap[event.keyCode];
+      if (direction == null) return;
+      const nextUnit = getBestUnit(columnData, selectedUnit, direction);
+      if (nextUnit == null) return;
+      selectUnit(nextUnit, null);
       event.stopPropagation();
     },
-    [units, ix],
+    [selectedUnit],
   );
   return null;
+}
+
+type Direction = "up" | "down" | "left" | "right";
+
+function getBestUnit(
+  columnData: ColumnData[],
+  targetUnit: UnitLong,
+  direction: Direction,
+): UnitLong | null {
+  const thisColIndex = columnData.findIndex(
+    (col) => col.columnID === targetUnit.col_id,
+  );
+  if (thisColIndex === -1) return null;
+
+  // If up or down, stay in the same column
+  if (direction === "up" || direction === "down") {
+    const units = columnData[thisColIndex].units;
+    const ix = units.findIndex((unit) => unit.unit_id === targetUnit.unit_id);
+    if (ix === -1) return null;
+    if (direction === "up") {
+      return units[ix - 1] || null;
+    } else {
+      return units[ix + 1] || null;
+    }
+  }
+
+  // If left or right, move to adjacent column
+  let adjacentColIndex: number;
+  if (direction === "left") {
+    adjacentColIndex =
+      (thisColIndex - 1 + columnData.length) % columnData.length;
+  } else {
+    adjacentColIndex = (thisColIndex + 1) % columnData.length;
+  }
+
+  const adjacentColUnits = columnData[adjacentColIndex].units;
+  return getMostOverlappingUnit(targetUnit, adjacentColUnits);
 }
 
 type UnitAgeRangeRelationship = AgeRangeQuantifiedDifference & {
