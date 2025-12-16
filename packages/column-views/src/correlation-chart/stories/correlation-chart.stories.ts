@@ -9,6 +9,8 @@ import {
   MacrostratDataProvider,
   MergeSectionsMode,
   useCorrelationMapStore,
+  useMacrostratBaseURL,
+  useMacrostratFetch,
 } from "../..";
 import { hyperStyled } from "@macrostrat/hyper";
 
@@ -65,6 +67,8 @@ function CorrelationStoryUI({
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
 
+  const fetch = useMacrostratFetch();
+
   // Sync focused columns with map
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
@@ -72,7 +76,7 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
 
   const columnUnits = useAsyncMemo(async () => {
     const col_ids = focusedColumns.map((col) => col.properties.col_id);
-    return await fetchUnits(col_ids);
+    return await fetchUnits(col_ids, fetch);
   }, [focusedColumns]);
 
   return h("div.correlation-diagram", [

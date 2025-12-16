@@ -16,6 +16,8 @@ import {
 import h from "@macrostrat/hyper";
 import { createComputed } from "zustand-computed";
 import { useMacrostratColumns } from "../../data-provider/base";
+import { buffer } from "@turf/buffer";
+import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
@@ -140,7 +142,17 @@ function computeIntersectingColumns(
     return [];
   }
 
-  return columns.filter((col) => {
+  /** eODP-focused process. Find buffers around line and then find columns intersecting that buffer */
+  const bufferedLine = buffer(line, 1, { units: "degrees" });
+
+  const nearbyPoints = columns.filter((col) => {
+    if (col.geometry?.type != "Point") {
+      return false;
+    }
+    return booleanPointInPolygon(col.geometry, bufferedLine);
+  });
+
+  const intersectingPolygons = columns.filter((col) => {
     const poly = col.geometry;
 
     // Some in-process datasets seem to have null geometries
@@ -150,6 +162,8 @@ function computeIntersectingColumns(
     const intersection = lineIntersect(line, poly);
     return intersection.features.length > 0;
   });
+
+  return [...intersectingPolygons, ...nearbyPoints];
 }
 
 interface FocusedColumnGeoJSONRecord extends ColumnGeoJSONRecord {

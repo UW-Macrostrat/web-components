@@ -8,7 +8,7 @@ import {
 import { UnitSelectionPopover } from "../unit-details";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { CompositeTimescaleCore } from "../section";
 import classNames from "classnames";

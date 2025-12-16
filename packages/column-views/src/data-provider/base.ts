@@ -288,6 +288,14 @@ export function useMacrostratBaseURL(
   return ctx.getState().baseURL;
 }
 
+export function useMacrostratFetch() {
+  const ctx = useContext(MacrostratDataProviderContext);
+  if (ctx == null) {
+    throw new Error("Missing MacrostratDataProvider");
+  }
+  return ctx.getState().fetch;
+}
+
 type DataTypeKey =
   | "lithologies"
   | "intervals"
