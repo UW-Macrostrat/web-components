@@ -1,6 +1,6 @@
 import { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { useKeyHandler } from "@macrostrat/ui-components";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
 import type { RectBounds, IUnit } from "../units/types";
 import { atom } from "jotai";
 import { columnUnitsMapAtom, scope } from "./core";
@@ -179,58 +179,64 @@ export function useUnitSelectionTarget(
   return [ref, selected, onClick];
 }
 
-export function UnitKeyboardNavigation<T extends BaseUnit>({
-  units,
-}: {
-  units: T[];
-}) {
-  const selectedUnit = useSelectedUnit();
-  const selectUnit = useUnitSelectionDispatch();
-
-  const ix = units.findIndex((unit) => unit.unit_id === selectedUnit?.unit_id);
-
-  const keyMap = {
-    38: ix - 1,
-    40: ix + 1,
-  };
-
-  useKeyHandler(
-    (event) => {
-      const nextIx = keyMap[event.keyCode];
-      if (nextIx == null || nextIx < 0 || nextIx >= units.length) return;
-      selectUnit(units[nextIx], null);
-      event.stopPropagation();
-    },
-    [units, ix],
-  );
-  return null;
-}
-
-export function CorrelationChartKeyboardNavigation({
+export function UnitKeyboardNavigation({
   columnData,
+  units,
+  allowHorizontalNavigation,
 }: {
-  columnData: ColumnData[];
+  columnData?: ColumnData[];
+  units?: UnitLong[];
+  allowHorizontalNavigation?: boolean;
 }) {
+  if (units == null && columnData == null) {
+    throw new Error("Either units or columnData must be provided.");
+  }
+
+  let _columnData: ColumnData[] = useMemo(() => {
+    if (columnData != null) return columnData;
+    // Build column data from units
+    const colMap = new Map<number, UnitLong[]>();
+    for (const unit of units!) {
+      if (!colMap.has(unit.col_id)) {
+        colMap.set(unit.col_id, []);
+      }
+      colMap.get(unit.col_id)!.push(unit);
+    }
+    const cols: ColumnData[] = [];
+    for (const [colID, units] of colMap) {
+      cols.push({ columnID: colID, units });
+    }
+    // Sort columns by columnID
+    cols.sort((a, b) => a.columnID - b.columnID);
+    return cols;
+  }, [columnData, units]);
+
+  // Default to allowing horizontal navigation only if columnData is provided
+  const _allowHorizontalNavigation =
+    allowHorizontalNavigation ?? columnData != null;
+
   const selectedUnit = useSelectedUnit() as UnitLong | null;
   const selectUnit = useUnitSelectionDispatch();
 
   const keyMap: Record<number, Direction> = {
-    37: "left",
     38: "up",
-    39: "right",
     40: "down",
   };
+  if (_allowHorizontalNavigation) {
+    keyMap[37] = "left";
+    keyMap[39] = "right";
+  }
 
   useKeyHandler(
     (event) => {
       const direction = keyMap[event.keyCode];
       if (direction == null) return;
-      const nextUnit = getBestUnit(columnData, selectedUnit, direction);
+      const nextUnit = getBestUnit(_columnData, selectedUnit, direction);
       if (nextUnit == null) return;
       selectUnit(nextUnit, null);
       event.stopPropagation();
     },
-    [selectedUnit],
+    [_columnData, selectedUnit],
   );
   return null;
 }

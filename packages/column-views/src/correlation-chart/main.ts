@@ -4,7 +4,6 @@ import {
   UnitKeyboardNavigation,
   useUnitSelectionDispatch,
   useColumnRef,
-  CorrelationChartKeyboardNavigation,
 } from "../data-provider";
 import { UnitDetailsFeature, UnitSelectionPopover } from "../unit-details";
 import hyper from "@macrostrat/hyper";
@@ -149,7 +148,7 @@ export function CorrelationChart({
             features: unitPopoverFeatures,
           }),
           // Navigation only works within a column for now...
-          h(CorrelationChartKeyboardNavigation, { columnData: data }),
+          h(UnitKeyboardNavigation, { columnData: data }),
         ]),
       ]),
     ),
