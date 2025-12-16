@@ -353,6 +353,20 @@ export function useMacrostratColumns(
   }, [colData, inProcess]);
 }
 
+export function useMacrostratColumnInfo(
+  columnID: number,
+): ColumnGeoJSONRecord["properties"] | null {
+  /** Get basic info for a column, without automatically fetching it (assumes the overall set of relevant columns has already been fetched) */
+  const columnsMap = useMacrostratStore((s) => s.columnFootprints);
+  return useMemo(() => {
+    for (const colData of columnsMap.values()) {
+      const col = colData.columns.find((d) => d.properties.col_id === columnID);
+      if (col != null) return col.properties;
+    }
+    return null;
+  }, [columnsMap, columnID]);
+}
+
 export function useMacrostratData(dataType: DataTypeKey, ...args: any[]) {
   const selector = dataTypeMapping[dataType];
   const operator = useMacrostratStore(selector);

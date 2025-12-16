@@ -16,6 +16,7 @@ import {
 } from "@macrostrat/data-components";
 import {
   useColumnUnitsMap,
+  useMacrostratColumnInfo,
   useMacrostratData,
   useMacrostratDefs,
 } from "../data-provider";
@@ -148,6 +149,7 @@ export enum UnitDetailsFeature {
   OutcropType = "outcrop-type",
   JSONToggle = "json-toggle",
   DepthRange = "depth-range",
+  ColumnName = "column-name",
 }
 
 export type MacrostratItemClickHandler = (
@@ -250,6 +252,9 @@ function UnitDetailsContent({
   }
 
   return h("div.unit-details-content", [
+    h.if(features.has(UnitDetailsFeature.ColumnName))(ColumnNameField, {
+      col_id: unit.col_id,
+    }),
     thicknessOrHeightRange,
     h(LithologyList, {
       label: "Lithology",
@@ -297,6 +302,32 @@ function UnitDetailsContent({
     colorSwatch,
     h(ReferencesField, { refs: unit.refs, inline: true }),
   ]);
+}
+
+function ColumnNameField({
+  col_id,
+  showIdentifier = false,
+}: {
+  col_id: number;
+  showIdentifier?: boolean;
+}) {
+  const colData = useMacrostratColumnInfo(col_id);
+  let inner: any = h(Identifier, { id: col_id });
+  const name = colData?.col_name;
+  if (name != null) {
+    inner = h("span.value", [
+      h("span.col-name", name),
+      h.if(showIdentifier)([" ", h(Parenthetical, inner)]),
+    ]);
+  }
+
+  return h(
+    DataField,
+    {
+      label: "Column",
+    },
+    inner,
+  );
 }
 
 export function ReferencesField({ refs, className = null, ...rest }) {
