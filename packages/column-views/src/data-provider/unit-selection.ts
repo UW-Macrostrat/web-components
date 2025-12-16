@@ -6,6 +6,7 @@ import { atom } from "jotai";
 import { columnUnitsMapAtom, scope } from "./core";
 import { ColumnData } from "@macrostrat/column-views";
 import {
+  AgeRangeQuantifiedDifference,
   ageRangeQuantifiedDifference,
   AgeRangeRelationship,
 } from "@macrostrat/stratigraphy-utils";
@@ -270,33 +271,57 @@ export function CorrelationChartKeyboardNavigation({
   return null;
 }
 
-type UnitAgeRangeRelationship = AgeRangeRelationship & {
+type UnitAgeRangeRelationship = AgeRangeQuantifiedDifference & {
   unit: UnitLong;
-  score: number;
 };
 
 function getMostOverlappingUnit(
   targetUnit: UnitLong,
   candidateUnits: UnitLong[],
 ): UnitLong | null {
-  const targetAgeRange = [targetUnit.t_age, targetUnit.b_age];
+  const targetAgeRange = [targetUnit.b_age, targetUnit.t_age];
 
   const overlaps: UnitAgeRangeRelationship[] = [];
   for (const candidate of candidateUnits) {
-    const candidateAgeRange = [candidate.t_age, candidate.b_age];
+    const candidateAgeRange = [candidate.b_age, candidate.t_age];
 
     const rel = ageRangeQuantifiedDifference(targetAgeRange, candidateAgeRange);
-    let score = 0;
     if (rel.type === AgeRangeRelationship.Identical) {
-      score = -Infinity;
-    } else if (rel.type === AgeRangeRelationship.Disjoint) {
-      score = rel.distance;
-    } else {
-      score = -rel.overlap;
+      return candidate;
     }
-    overlaps.push({ unit: candidate, score, type: rel.type });
+    overlaps.push({ ...rel, unit: candidate });
   }
-  overlaps.sort((a, b) => a.score - b.score);
-  if (overlaps.length === 0) return null;
-  return overlaps[0].unit;
+
+  let bestOverlaps = overlaps.filter(
+    (d) => d.type === AgeRangeRelationship.Containing,
+  );
+  bestOverlaps.sort((a, b) => b.overlap - a.overlap);
+  if (bestOverlaps.length > 0) {
+    return bestOverlaps[0].unit;
+  }
+
+  bestOverlaps = overlaps.filter(
+    (d) => d.type === AgeRangeRelationship.Contained,
+  );
+  bestOverlaps.sort((a, b) => b.overlap - a.overlap);
+  if (bestOverlaps.length > 0) {
+    return bestOverlaps[0].unit;
+  }
+
+  bestOverlaps = overlaps.filter(
+    (d) => d.type === AgeRangeRelationship.PartialOverlap,
+  );
+  bestOverlaps.sort((a, b) => b.overlap - a.overlap);
+  if (bestOverlaps.length > 0) {
+    return bestOverlaps[0].unit;
+  }
+
+  bestOverlaps = overlaps.filter(
+    (d) => d.type === AgeRangeRelationship.Disjoint,
+  );
+  bestOverlaps.sort((a, b) => a.distance - b.distance);
+  if (bestOverlaps.length > 0) {
+    return bestOverlaps[0].unit;
+  }
+  return null;
 }
