@@ -21,7 +21,7 @@ export interface CorrelationMapProps extends InsetMapProps {
 }
 
 export function ColumnCorrelationMap(props: CorrelationMapProps) {
-  const { padding = 50, children, columnColor, ...rest } = props;
+  const { padding = 50, children, columnColor, projectID, ...rest } = props;
 
   const overlayStyles: Partial<Style>[] = useMemo(() => {
     return [

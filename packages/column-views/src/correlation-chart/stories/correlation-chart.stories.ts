@@ -6,6 +6,7 @@ import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   fetchUnits,
+  MacrostratDataProvider,
   MergeSectionsMode,
   useCorrelationMapStore,
 } from "../..";
@@ -35,24 +36,29 @@ function CorrelationStoryUI({
   ...rest
 }: any) {
   return h(
-    ColumnCorrelationProvider,
-    {
-      focusedLine,
-      columns: null,
-      onSelectColumns(cols, line) {
-        setFocusedLine(line);
+    MacrostratDataProvider,
+    { baseURL: "https://dev.macrostrat.org/api/v2" },
+    h(
+      ColumnCorrelationProvider,
+      {
+        focusedLine,
+        columns: null,
+        projectID,
+        onSelectColumns(cols, line) {
+          setFocusedLine(line);
+        },
       },
-    },
-    h("div.correlation-ui", [
-      h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
-      h("div.right-column", [
-        h(ColumnCorrelationMap, {
-          accessToken: mapboxToken,
-          className: "correlation-map",
-          //showLogo: false,
-        }),
+      h("div.correlation-ui", [
+        h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
+        h("div.right-column", [
+          h(ColumnCorrelationMap, {
+            accessToken: mapboxToken,
+            className: "correlation-map",
+            //showLogo: false,
+          }),
+        ]),
       ]),
-    ]),
+    ),
   );
 }
 
@@ -161,6 +167,11 @@ export default {
         type: "number",
       },
     },
+    projectID: {
+      control: {
+        type: "number",
+      },
+    },
   },
 } as Meta<typeof CorrelationStoryUI>;
 
@@ -220,4 +231,10 @@ export const WithPowerScaleMerged = Template.bind({});
 WithPowerScaleMerged.args = {
   scale: scalePow().exponent(0.3).domain([0, 2500]).range([0, 1000]),
   mergeSections: MergeSectionsMode.ALL,
+};
+
+export const eODPCorrelationChart = Template.bind({});
+eODPCorrelationChart.args = {
+  focusedLine: "-125,38 -120,32",
+  projectID: 3,
 };

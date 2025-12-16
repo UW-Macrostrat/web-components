@@ -65,6 +65,7 @@ export function ColumnCorrelationProvider({
       computed((set, get): CorrelationMapStore => {
         return {
           focusedLine,
+          projectID,
           columns: null,
           onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
             const state = get();
