@@ -61,6 +61,7 @@ export class TriangleBars extends UUIDComponent<TriangleBarsProps> {
     order: 2,
   };
 
+  // @ts-ignore
   context: ColumnCtx<ColumnDivision>;
 
   render() {

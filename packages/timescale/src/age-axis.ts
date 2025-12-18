@@ -39,7 +39,7 @@ function AgeAxis(props: AgeAxisProps) {
     "svg.timescale-axis",
     { ...size, style },
     h(Axis, {
-      scale,
+      scale: scale as any,
       numTicks: Math.floor(length / 50),
       tickLabelProps(tickValue, index) {
         const vertProps = isHorizontal
