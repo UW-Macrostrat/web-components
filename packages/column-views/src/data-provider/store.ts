@@ -21,7 +21,7 @@ import {
   ScopedProvider,
 } from "./core";
 
-interface ColumnStateProviderProps<
+export interface ColumnStateProviderProps<
   T extends BaseUnit,
 > extends Partial<UnitSelectionCallbacks> {
   children: ReactNode;
@@ -80,7 +80,7 @@ export interface MacrostratColumnDataContext<T extends BaseUnit> {
   allowUnitSelection?: boolean;
 }
 
-interface ColumnDataProviderProps<T extends BaseUnit>
+export interface ColumnDataProviderProps<T extends BaseUnit>
   extends MacrostratColumnDataContext<T>, ColumnStateProviderProps<T> {
   children: ReactNode;
 }

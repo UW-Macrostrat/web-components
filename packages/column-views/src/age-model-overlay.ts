@@ -26,6 +26,8 @@ import styles from "./age-model-overlay.module.sass";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { useCompositeScale, useMacrostratUnits } from "./data-provider";
 import { buildColumnSurfaces } from "./prepare-units/dynamic-scales";
+import { ExtUnit } from "./prepare-units";
+import { UnitLong } from "@macrostrat/api-types";
 const h = hyper.styled(styles);
 
 interface AgeModelSurface {
@@ -47,7 +49,7 @@ interface AgeModelSurface {
 }
 
 export function BoundaryAgeModelOverlay() {
-  const col_id = useMacrostratUnits()?.[0]?.col_id;
+  const col_id = (useMacrostratUnits() as ExtUnit[])?.[0]?.col_id;
   const scale = useCompositeScale();
 
   const ageModel = useAPIResult(
@@ -77,7 +79,7 @@ export function ComputedSurfacesOverlay() {
   /** Overlay showing age surfaces. This is like the boundary age model overlay but
    * it is computed on the fly from unit tops and bottoms.
    */
-  const units = useMacrostratUnits();
+  const units = useMacrostratUnits() as UnitLong[];
   const surfaces = buildColumnSurfaces(units);
   const scale = useCompositeScale();
 

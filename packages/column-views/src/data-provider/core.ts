@@ -4,7 +4,19 @@ import { BaseUnit } from "@macrostrat/api-types";
 import { ReactNode, useEffect, useRef } from "react";
 import h from "@macrostrat/hyper";
 
-export const scope = createIsolation();
+interface StateIsolation {
+  Provider: (props: {
+    store?: any;
+    initialValues?: AtomMap;
+    children: ReactNode;
+  }) => ReactNode;
+  useStore: () => any;
+  useAtom: any;
+  useAtomValue: any;
+  useSetAtom: any;
+}
+
+export const scope: StateIsolation = createIsolation();
 
 export type AtomMap = [WritableAtom<any, any, any>, any][];
 
