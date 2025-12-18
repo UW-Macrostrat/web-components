@@ -1,11 +1,4 @@
-import {
-  createContext,
-  ReactNode,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-} from "react";
+import { createContext, ReactNode, useContext, useMemo } from "react";
 import h from "@macrostrat/hyper";
 import {
   CompositeColumnScale,
@@ -13,84 +6,98 @@ import {
 } from "../prepare-units/composite-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import type { ExtUnit, PackageLayoutData } from "../prepare-units";
-// An isolated jotai store for Macrostrat column usage
-// TODO: there might be a better way to do this using the MacrostratDataProvider or similar
-import { createIsolation } from "jotai-scope";
-import { atom, PrimitiveAtom, type WritableAtom } from "jotai";
+import {
+  allowUnitSelectionAtom,
+  selectedUnitIDAtom,
+  UnitSelectionCallbacks,
+  UnitSelectionCallbackManager,
+} from "./unit-selection";
+import { BaseUnit } from "@macrostrat/api-types";
+import {
+  AtomMap,
+  columnUnitsAtom,
+  columnUnitsMapAtom,
+  scope,
+  ScopedProvider,
+} from "./core";
 
-const { Provider, useSetAtom, useAtomValue, useStore } = createIsolation();
-
-type ProviderProps = {
+export interface ColumnStateProviderProps<
+  T extends BaseUnit,
+> extends Partial<UnitSelectionCallbacks> {
   children: ReactNode;
-  initialValues?: Iterable<[WritableAtom<any, any, any>, any]>;
-};
-
-const columnUnitsAtom = atom<ExtUnit[]>();
-
-const columnUnitsMapAtom = atom<Map<number, ExtUnit> | null>((get) => {
-  const units = get(columnUnitsAtom);
-  if (!units) return null;
-  const unitMap = new Map<number, ExtUnit>();
-  units.forEach((unit) => {
-    unitMap.set(unit.unit_id, unit);
-  });
-  return unitMap;
-});
-
-function ScopedProvider({ children, ...rest }: ProviderProps) {
-  // Always use the same store instance in this tree
-  let val = null;
-  try {
-    val = useStore();
-  } catch {
-    // No store found, create a new one
-    val = null;
-  }
-  return h(Provider, { store: val, ...rest }, children);
+  units: T[];
+  selectedUnit: number | null;
+  allowUnitSelection?: boolean;
 }
 
-export function MacrostratColumnStateProvider({
+export function MacrostratColumnStateProvider<T extends BaseUnit>({
   children,
   units,
-}: {
-  children?: ReactNode;
-  units: ExtUnit[];
-}) {
+  allowUnitSelection = false,
+  onUnitSelected,
+  selectedUnit,
+}: ColumnStateProviderProps<T>) {
   /** Top-level provider for Macrostrat column data.
    * It is either provided by the Column component itself, or
    * can be hoisted higher in the tree to provide a common data context
    */
 
-  const atomMap: [[PrimitiveAtom<ExtUnit[]>, ExtUnit[]]] = [
+  /* By default, unit selection is disabled. However, if any related props are passed,
+  we enable it.
+  */
+  const _allowSelection = useMemo(() => {
+    if (allowUnitSelection) {
+      return true;
+    }
+    return selectedUnit != null || onUnitSelected != null;
+  }, []);
+
+  const atomMap: AtomMap = [
     [columnUnitsAtom, units],
+    [allowUnitSelectionAtom, _allowSelection],
+    [selectedUnitIDAtom, selectedUnit],
   ];
+
+  let selectionHandlers: ReactNode = null;
+  if (_allowSelection) {
+    selectionHandlers = h(UnitSelectionCallbackManager, { onUnitSelected });
+  }
 
   return h(
     ScopedProvider,
     {
-      initialValues: atomMap,
+      atoms: atomMap,
     },
-    [h(AtomUpdater, { atoms: atomMap }), children],
+    [selectionHandlers, children],
   );
 }
 
-export interface MacrostratColumnDataContext {
-  units: ExtUnit[];
+export interface MacrostratColumnDataContext<T extends BaseUnit> {
+  units: T[];
   sections: PackageLayoutData[];
   totalHeight?: number;
   axisType?: ColumnAxisType;
+  allowUnitSelection?: boolean;
+}
+
+export interface ColumnDataProviderProps<T extends BaseUnit>
+  extends MacrostratColumnDataContext<T>, ColumnStateProviderProps<T> {
+  children: ReactNode;
 }
 
 const MacrostratColumnDataContext =
-  createContext<MacrostratColumnDataContext>(null);
+  createContext<MacrostratColumnDataContext<any>>(null);
 
-export function MacrostratColumnDataProvider({
+export function MacrostratColumnDataProvider<T extends BaseUnit>({
   children,
   units,
   sections,
   totalHeight,
   axisType,
-}: MacrostratColumnDataContext & { children: ReactNode }) {
+  allowUnitSelection,
+  onUnitSelected,
+  selectedUnit,
+}: ColumnDataProviderProps<T>) {
   /** Internal provider for Macrostrat column data.
    * As a general rule, we want to provide data and column-axis
    * height calculations through the context, since these need to
@@ -114,9 +121,24 @@ export function MacrostratColumnDataProvider({
 
   return h(
     MacrostratColumnStateProvider,
-    { units },
+    {
+      units,
+      allowUnitSelection,
+      onUnitSelected,
+      selectedUnit,
+    },
     h(MacrostratColumnDataContext.Provider, { value }, children),
   );
+}
+
+export function UnitSelectionProvider(props: ColumnStateProviderProps<any>) {
+  /* A basic unit selection provider without column data context.
+  Mostly for use with the CorrelationChart component.
+   */
+  return h(MacrostratColumnStateProvider, {
+    ...props,
+    allowUnitSelection: true,
+  });
 }
 
 export function useMacrostratColumnData() {
@@ -130,12 +152,12 @@ export function useMacrostratColumnData() {
 }
 
 export function useMacrostratUnits() {
-  return useAtomValue(columnUnitsAtom);
+  return scope.useAtomValue(columnUnitsAtom);
 }
 
 export function useColumnUnitsMap(): Map<number, ExtUnit> | null {
   try {
-    return useAtomValue(columnUnitsMapAtom);
+    return scope.useAtomValue(columnUnitsMapAtom) as Map<number, ExtUnit>;
   } catch {
     return null;
   }
@@ -147,35 +169,4 @@ export function useCompositeScale(): CompositeColumnScale {
     () => createCompositeScale(ctx.sections, true),
     [ctx.sections],
   );
-}
-
-function AtomUpdater({
-  atoms,
-}: {
-  atoms: [WritableAtom<any, any, any>, any][];
-}) {
-  /**
-   * A generic updater to sync Jotai atoms with state passed as props.
-   * Useful for scoped providers where state needs to be synced outside
-   * of the current context.
-   */
-  /** TODO: this is an awkward way to keep atoms updated */
-  // The scoped store
-  const store = useStore();
-
-  // Warn on atoms changing length
-  const prevLengthRef = useRef(atoms.length);
-  useEffect(() => {
-    if (prevLengthRef.current !== atoms.length) {
-      console.error("Error: number of atoms in ScopedAtomUpdater has changed.");
-      prevLengthRef.current = atoms.length;
-    }
-  }, [atoms.length]);
-
-  for (const [atom, value] of atoms) {
-    useEffect(() => {
-      store.set(atom, value);
-    }, [store, value]);
-  }
-  return null;
 }

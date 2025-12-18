@@ -2,7 +2,8 @@
 import {
   UnitSelectionProvider,
   UnitKeyboardNavigation,
-  useUnitSelectionStore,
+  useUnitSelectionDispatch,
+  useColumnRef,
 } from "../data-provider";
 import { UnitSelectionPopover } from "../unit-details";
 import hyper from "@macrostrat/hyper";
@@ -49,6 +50,11 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
 }
 
+function MainChartArea({ children }) {
+  const columnRef = useColumnRef();
+  return h("div.main-chart", { ref: columnRef }, children);
+}
+
 export function CorrelationChart({
   data,
   columnSpacing = 0,
@@ -75,8 +81,6 @@ export function CorrelationChart({
     });
   }, [data, ...Object.values(scaleProps)]);
 
-  const columnRef = useRef(null);
-
   // A flattened units array is used to support keyboard navigation
   const units = useMemo(() => {
     return data?.map((d0) => d0.units).flat() ?? [];
@@ -101,14 +105,14 @@ export function CorrelationChart({
     { className: "correlation-diagram" },
     h(
       UnitSelectionProvider,
-      { columnRef, selectedUnit, onUnitSelected, units },
+      { selectedUnit, onUnitSelected, units },
       h(ChartArea, [
         h(TimescaleColumn, {
           key: "timescale",
           scaleInfo,
           unconformityLabels,
         }),
-        h("div.main-chart", { ref: columnRef }, [
+        h(MainChartArea, [
           h(
             SVG,
             {
@@ -296,15 +300,13 @@ function StratColSpan({
 }
 
 function ChartArea({ children }) {
-  const setSelectedUnit = useUnitSelectionStore(
-    (state) => state.setSelectedUnit,
-  );
+  const setSelectedUnit = useUnitSelectionDispatch();
 
   return h(
     "div.correlation-chart-inner",
     {
       onClick() {
-        setSelectedUnit(null);
+        setSelectedUnit(null, null);
       },
     },
     children,

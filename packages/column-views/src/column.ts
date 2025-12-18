@@ -8,8 +8,6 @@ import {
 } from "@macrostrat/ui-components";
 import classNames from "classnames";
 import {
-  RefObject,
-  useRef,
   HTMLAttributes,
   useCallback,
   CSSProperties,
@@ -18,8 +16,8 @@ import {
 import styles from "./column.module.sass";
 import { UnitComponent } from "./units";
 import {
-  UnitSelectionProvider,
   UnitKeyboardNavigation,
+  useColumnRef,
   useUnitSelectionDispatch,
 } from "./data-provider";
 
@@ -111,14 +109,12 @@ export function Column(props: ColumnProps) {
     minPixelScale = 0.2,
     minSectionHeight = 50,
     collapseSmallUnconformities = true,
-    allowUnitSelection,
+    allowUnitSelection = false,
     hybridScale,
     scale,
     axisType,
     ...rest
   } = props;
-  const ref = useRef<HTMLElement>();
-  // Selected item position
 
   /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
    * standardization of scales in all sections */
@@ -172,46 +168,26 @@ export function Column(props: ColumnProps) {
     );
   }
 
-  let main: any = h(
-    ColumnInner,
-    { columnRef: ref, ageAxisComponent, ...rest },
-    [
+  return h(
+    MacrostratColumnDataProvider,
+    {
+      units,
+      sections,
+      totalHeight,
+      axisType: _axisType,
+      allowUnitSelection: showUnitPopover || allowUnitSelection,
+      onUnitSelected,
+      selectedUnit,
+    },
+    h(ColumnInner, { ageAxisComponent, ...rest }, [
       children,
       h.if(showUnitPopover)(UnitSelectionPopover),
       h.if(keyboardNavigation)(UnitKeyboardNavigation, { units }),
-    ],
-  );
-
-  /* By default, unit selection is disabled. However, if any related props are passed,
-   we enable it.
-   */
-  let _allowUnitSelection = allowUnitSelection ?? false;
-  if (showUnitPopover || selectedUnit != null || onUnitSelected != null) {
-    _allowUnitSelection = true;
-  }
-
-  if (_allowUnitSelection) {
-    main = h(
-      UnitSelectionProvider,
-      {
-        columnRef: ref,
-        onUnitSelected,
-        selectedUnit,
-        units,
-      },
-      main,
-    );
-  }
-
-  return h(
-    MacrostratColumnDataProvider,
-    { units, sections, totalHeight, axisType: _axisType },
-    main,
+    ]),
   );
 }
 
 interface ColumnInnerProps extends BaseColumnProps {
-  columnRef: RefObject<HTMLElement>;
   ageAxisComponent?: ComponentType;
 }
 
@@ -234,7 +210,6 @@ function ColumnInner(props: ColumnInnerProps) {
     columnWidth: _columnWidth = 150,
     showLabelColumn: _showLabelColumn = true,
     className,
-    columnRef,
     clipUnits = false,
     children,
     showTimescale,
@@ -245,6 +220,8 @@ function ColumnInner(props: ColumnInnerProps) {
   } = props;
 
   const { axisType } = useMacrostratColumnData();
+
+  const columnRef = useColumnRef();
 
   // Coalesce unconformity label setting to a boolean
   let _timescaleUnconformityLabels = false;
@@ -314,7 +291,7 @@ function useMouseEventHandlers(
   const dispatch = useUnitSelectionDispatch();
   const onClick = useCallback(
     (evt) => {
-      dispatch?.(null, null, evt as any);
+      dispatch?.(null, null);
     },
     [dispatch],
   );
