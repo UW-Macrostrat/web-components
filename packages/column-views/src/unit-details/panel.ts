@@ -16,6 +16,7 @@ import {
 } from "@macrostrat/data-components";
 import {
   useColumnUnitsMap,
+  useMacrostratColumnInfo,
   useMacrostratData,
   useMacrostratDefs,
 } from "../data-provider";
@@ -25,12 +26,23 @@ import type {
   UnitLongFull,
   Lithology,
   Interval,
-  StratUnit,
 } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
 
 const h = hyper.styled(styles);
+
+export interface UnitDetailsPanelProps {
+  unit: any;
+  onClose?: any;
+  className?: string;
+  actions?: ReactNode;
+  hiddenActions?: ReactNode;
+  features?: Set<UnitDetailsFeature>;
+  lithologyFeatures?: Set<LithologyTagFeature>;
+  onSelectUnit?: (unitID: number) => void;
+  onClickItem?: MacrostratItemClickHandler;
+}
 
 export function UnitDetailsPanel({
   unit,
@@ -46,21 +58,8 @@ export function UnitDetailsPanel({
   actions,
   hiddenActions = null,
   onSelectUnit,
-  columnUnits,
   onClickItem,
-}: {
-  unit: any;
-  onClose?: any;
-  showLithologyProportions?: boolean;
-  className?: string;
-  actions?: ReactNode;
-  hiddenActions?: ReactNode;
-  features?: Set<UnitDetailsFeature>;
-  lithologyFeatures?: Set<LithologyTagFeature>;
-  columnUnits?: UnitLong[];
-  onSelectUnit?: (unitID: number) => void;
-  onClickItem?: MacrostratItemClickHandler;
-}) {
+}: UnitDetailsPanelProps) {
   const [showJSON, setShowJSON] = useState(false);
 
   let content = null;
@@ -148,6 +147,7 @@ export enum UnitDetailsFeature {
   OutcropType = "outcrop-type",
   JSONToggle = "json-toggle",
   DepthRange = "depth-range",
+  ColumnName = "column-name",
 }
 
 export type MacrostratItemClickHandler = (
@@ -163,7 +163,6 @@ export type MacrostratItemClickHandler = (
 function UnitDetailsContent({
   unit,
   onSelectUnit,
-  columnUnits,
   lithologyFeatures = new Set([
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
@@ -177,7 +176,6 @@ function UnitDetailsContent({
 }: {
   unit: UnitLong;
   onSelectUnit?: (unitID: number) => void;
-  columnUnits?: UnitLong[];
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
   onClickItem?: MacrostratItemClickHandler;
@@ -188,15 +186,6 @@ function UnitDetailsContent({
 
   const environments = enhanceEnvironments(unit.environ, envMap);
   const lithologies = enhanceLithologies(unit.lith ?? [], lithMap);
-
-  // Create a lookup table of units if provided
-  const columnUnitsMap = useMemo(() => {
-    const map = new Map<number, UnitLong>();
-    for (const colUnit of columnUnits ?? []) {
-      map.set(colUnit.unit_id, colUnit);
-    }
-    return map;
-  }, [columnUnits]);
 
   let outcropField = null;
   if (features.has(UnitDetailsFeature.OutcropType)) {
@@ -250,6 +239,9 @@ function UnitDetailsContent({
   }
 
   return h("div.unit-details-content", [
+    h.if(features.has(UnitDetailsFeature.ColumnName))(ColumnNameField, {
+      col_id: unit.col_id,
+    }),
     thicknessOrHeightRange,
     h(LithologyList, {
       label: "Lithology",
@@ -297,6 +289,32 @@ function UnitDetailsContent({
     colorSwatch,
     h(ReferencesField, { refs: unit.refs, inline: true }),
   ]);
+}
+
+function ColumnNameField({
+  col_id,
+  showIdentifier = false,
+}: {
+  col_id: number;
+  showIdentifier?: boolean;
+}) {
+  const colData = useMacrostratColumnInfo(col_id);
+  let inner: any = h(Identifier, { id: col_id });
+  const name = colData?.col_name;
+  if (name != null) {
+    inner = h("span.value", [
+      h("span.col-name", name),
+      h.if(showIdentifier)([" ", h(Parenthetical, inner)]),
+    ]);
+  }
+
+  return h(
+    DataField,
+    {
+      label: "Column",
+    },
+    inner,
+  );
 }
 
 export function ReferencesField({ refs, className = null, ...rest }) {

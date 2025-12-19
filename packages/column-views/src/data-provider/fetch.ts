@@ -3,7 +3,6 @@ import {
   ColumnGeoJSONRecordWithID,
   MacrostratRef,
   StratName,
-  StratUnit,
   UnitLong,
 } from "@macrostrat/api-types";
 import {
@@ -14,15 +13,14 @@ import {
 import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
 import { geoArea } from "d3-geo";
-import _ from "underscore";
 
-function defaultFetch(
-  url: string,
-  options: RequestInit | undefined = undefined,
-) {
-  const baseURL = "https://macrostrat.org/api/v2";
-  return crossFetch(baseURL + url, options);
+function createScopedFetch(baseURL: string) {
+  return function (url: string, options: RequestInit | undefined = undefined) {
+    return crossFetch(baseURL + url, options);
+  };
 }
+
+const defaultFetch = createScopedFetch("https://macrostrat.org/api/v2");
 
 export type ColumnStatusCode = "in process" | "active" | "obsolete";
 
@@ -232,8 +230,35 @@ export async function fetchUnits(
   columns: number[],
   fetch = defaultFetch,
 ): Promise<ColumnData[]> {
-  const promises = columns.map((col_id) => fetchColumnUnits(col_id, fetch));
-  return await Promise.all(promises);
+  const params = new URLSearchParams();
+  params.append("response", "long");
+
+  if (columns.length == 0) {
+    return [];
+  }
+
+  const col_string = columns.map((column) => column.toString()).join(",");
+  params.append("col_id", col_string);
+
+  const res = await fetch("/units" + "?" + params.toString());
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error("Failed to fetch column units");
+  }
+  const units = data.success.data;
+  const unitsMap = new Map<number, UnitLong[]>();
+  for (const unit of units) {
+    const colID = unit.col_id;
+    if (!unitsMap.has(colID)) {
+      unitsMap.set(colID, []);
+    }
+    unitsMap.get(colID).push(unit);
+  }
+  const result: ColumnData[] = [];
+  for (const colID of columns) {
+    result.push({ columnID: colID, units: unitsMap.get(colID) || [] });
+  }
+  return result;
 }
 
 export async function fetchColumnUnits(

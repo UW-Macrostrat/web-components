@@ -2330,6 +2330,7 @@ __metadata:
     "@macrostrat/svg-map-components": "workspace:^"
     "@macrostrat/timescale": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
+    "@turf/boolean-point-in-polygon": "npm:^7.3.1"
     "@turf/buffer": "npm:^7.2.0"
     "@turf/centroid": "npm:^7.2.0"
     "@turf/distance": "npm:^7.2.0"
@@ -5018,6 +5019,19 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/boolean-point-in-polygon@npm:^7.3.1":
+  version: 7.3.1
+  resolution: "@turf/boolean-point-in-polygon@npm:7.3.1"
+  dependencies:
+    "@turf/helpers": "npm:7.3.1"
+    "@turf/invariant": "npm:7.3.1"
+    "@types/geojson": "npm:^7946.0.10"
+    point-in-polygon-hao: "npm:^1.1.0"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/9bede3e8439dad43dde1f4819a96cad6532493bfc4297d145fc9577a2405ea464e4350726a41d8714f0410a58f4ef96f7506b507e804dfc1658a1b1a7fa892eb
+  languageName: node
+  linkType: hard
+
 "@turf/buffer@npm:^7.2.0":
   version: 7.2.0
   resolution: "@turf/buffer@npm:7.2.0"
@@ -5091,6 +5105,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@turf/helpers@npm:7.3.1":
+  version: 7.3.1
+  resolution: "@turf/helpers@npm:7.3.1"
+  dependencies:
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/95344c07413f249291f98d15a2141242ba87e984fb03b833a2a55c3e0106374102e1dd0ba6cbf7b3c8d7ee9f5f575cce2c3146cc8984117285907212b644b124
+  languageName: node
+  linkType: hard
+
 "@turf/helpers@npm:^6.3.0, @turf/helpers@npm:^6.5.0":
   version: 6.5.0
   resolution: "@turf/helpers@npm:6.5.0"
@@ -5105,6 +5129,17 @@ __metadata:
     "@types/geojson": "npm:^7946.0.10"
     tslib: "npm:^2.8.1"
   checksum: 10c0/4d6f57164cca00ec7a18e2d3c0200d0274e4ab2b6b3201c6a867b867d899f3f618a82ae242617d467efb04f32740cec150ae06a0e07ee39318397ebc34914687
+  languageName: node
+  linkType: hard
+
+"@turf/invariant@npm:7.3.1":
+  version: 7.3.1
+  resolution: "@turf/invariant@npm:7.3.1"
+  dependencies:
+    "@turf/helpers": "npm:7.3.1"
+    "@types/geojson": "npm:^7946.0.10"
+    tslib: "npm:^2.8.1"
+  checksum: 10c0/48f0b0865ba35ee753d3e9c97a5f40a5c04337bb3285366e24e162e4e5143e74e36949b9c9bc063287e8628f421d47ada06f27a91dbb93e1d2e59b990cd4e19e
   languageName: node
   linkType: hard
 
@@ -11235,6 +11270,15 @@ __metadata:
   version: 8.0.0
   resolution: "pluralize@npm:8.0.0"
   checksum: 10c0/2044cfc34b2e8c88b73379ea4a36fc577db04f651c2909041b054c981cd863dd5373ebd030123ab058d194ae615d3a97cfdac653991e499d10caf592e8b3dc33
+  languageName: node
+  linkType: hard
+
+"point-in-polygon-hao@npm:^1.1.0":
+  version: 1.2.4
+  resolution: "point-in-polygon-hao@npm:1.2.4"
+  dependencies:
+    robust-predicates: "npm:^3.0.2"
+  checksum: 10c0/12badef8b15216acdae7d609a8aca1b916d6a9cac2f53ace2928e3b521bee57224489ea8fba41d001c0c05c50e64152c175e3d6583d8cad6fe7af929f082b49a
   languageName: node
   linkType: hard
 

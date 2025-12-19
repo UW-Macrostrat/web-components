@@ -1,9 +1,15 @@
-import { BaseUnit } from "@macrostrat/api-types";
+import { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { useKeyHandler } from "@macrostrat/ui-components";
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useMemo } from "react";
 import type { RectBounds, IUnit } from "../units/types";
 import { atom } from "jotai";
 import { columnUnitsMapAtom, scope } from "./core";
+import { ColumnData } from "@macrostrat/column-views";
+import {
+  AgeRangeQuantifiedDifference,
+  ageRangeQuantifiedDifference,
+  AgeRangeRelationship,
+} from "@macrostrat/stratigraphy-utils";
 
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,
@@ -173,29 +179,156 @@ export function useUnitSelectionTarget(
   return [ref, selected, onClick];
 }
 
-export function UnitKeyboardNavigation<T extends BaseUnit>({
+export function UnitKeyboardNavigation({
+  columnData,
   units,
+  allowHorizontalNavigation,
 }: {
-  units: T[];
+  columnData?: ColumnData[];
+  units?: UnitLong[];
+  allowHorizontalNavigation?: boolean;
 }) {
-  const selectedUnit = useSelectedUnit();
+  if (units == null && columnData == null) {
+    throw new Error("Either units or columnData must be provided.");
+  }
+
+  let _columnData: ColumnData[] = useMemo(() => {
+    if (columnData != null) return columnData;
+    // Build column data from units
+    const colMap = new Map<number, UnitLong[]>();
+    for (const unit of units!) {
+      if (!colMap.has(unit.col_id)) {
+        colMap.set(unit.col_id, []);
+      }
+      colMap.get(unit.col_id)!.push(unit);
+    }
+    const cols: ColumnData[] = [];
+    for (const [colID, units] of colMap) {
+      cols.push({ columnID: colID, units });
+    }
+    // Sort columns by columnID
+    cols.sort((a, b) => a.columnID - b.columnID);
+    return cols;
+  }, [columnData, units]);
+
+  // Default to allowing horizontal navigation only if columnData is provided
+  const _allowHorizontalNavigation =
+    allowHorizontalNavigation ?? columnData != null;
+
+  const selectedUnit = useSelectedUnit() as UnitLong | null;
   const selectUnit = useUnitSelectionDispatch();
 
-  const ix = units.findIndex((unit) => unit.unit_id === selectedUnit?.unit_id);
-
-  const keyMap = {
-    38: ix - 1,
-    40: ix + 1,
+  const keyMap: Record<number, Direction> = {
+    38: "up",
+    40: "down",
   };
+  if (_allowHorizontalNavigation) {
+    keyMap[37] = "left";
+    keyMap[39] = "right";
+  }
 
   useKeyHandler(
     (event) => {
-      const nextIx = keyMap[event.keyCode];
-      if (nextIx == null || nextIx < 0 || nextIx >= units.length) return;
-      selectUnit(units[nextIx], null);
+      const direction = keyMap[event.keyCode];
+      if (direction == null) return;
+      const nextUnit = getBestUnit(_columnData, selectedUnit, direction);
+      if (nextUnit == null) return;
+      selectUnit(nextUnit, null);
       event.stopPropagation();
     },
-    [units, ix],
+    [_columnData, selectedUnit],
   );
+  return null;
+}
+
+type Direction = "up" | "down" | "left" | "right";
+
+function getBestUnit(
+  columnData: ColumnData[],
+  targetUnit: UnitLong,
+  direction: Direction,
+): UnitLong | null {
+  const thisColIndex = columnData.findIndex(
+    (col) => col.columnID === targetUnit.col_id,
+  );
+  if (thisColIndex === -1) return null;
+
+  // If up or down, stay in the same column
+  if (direction === "up" || direction === "down") {
+    const units = columnData[thisColIndex].units;
+    const ix = units.findIndex((unit) => unit.unit_id === targetUnit.unit_id);
+    if (ix === -1) return null;
+    if (direction === "up") {
+      return units[ix - 1] || null;
+    } else {
+      return units[ix + 1] || null;
+    }
+  }
+
+  // If left or right, move to adjacent column
+  let adjacentColIndex: number;
+  if (direction === "left") {
+    adjacentColIndex =
+      (thisColIndex - 1 + columnData.length) % columnData.length;
+  } else {
+    adjacentColIndex = (thisColIndex + 1) % columnData.length;
+  }
+
+  const adjacentColUnits = columnData[adjacentColIndex].units;
+  return getMostOverlappingUnit(targetUnit, adjacentColUnits);
+}
+
+type UnitAgeRangeRelationship = AgeRangeQuantifiedDifference & {
+  unit: UnitLong;
+};
+
+function getMostOverlappingUnit(
+  targetUnit: UnitLong,
+  candidateUnits: UnitLong[],
+): UnitLong | null {
+  const targetAgeRange = [targetUnit.b_age, targetUnit.t_age];
+
+  const overlaps: UnitAgeRangeRelationship[] = [];
+  for (const candidate of candidateUnits) {
+    const candidateAgeRange = [candidate.b_age, candidate.t_age];
+
+    const rel = ageRangeQuantifiedDifference(targetAgeRange, candidateAgeRange);
+    if (rel.type === AgeRangeRelationship.Identical) {
+      return candidate;
+    }
+    overlaps.push({ ...rel, unit: candidate });
+  }
+
+  let bestOverlaps = overlaps.filter(
+    (d) => d.type === AgeRangeRelationship.Containing,
+  );
+  bestOverlaps.sort((a, b) => b.overlap - a.overlap);
+  if (bestOverlaps.length > 0) {
+    return bestOverlaps[0].unit;
+  }
+
+  bestOverlaps = overlaps.filter(
+    (d) => d.type === AgeRangeRelationship.Contained,
+  );
+  bestOverlaps.sort((a, b) => b.overlap - a.overlap);
+  if (bestOverlaps.length > 0) {
+    return bestOverlaps[0].unit;
+  }
+
+  bestOverlaps = overlaps.filter(
+    (d) => d.type === AgeRangeRelationship.PartialOverlap,
+  );
+  bestOverlaps.sort((a, b) => b.overlap - a.overlap);
+  if (bestOverlaps.length > 0) {
+    return bestOverlaps[0].unit;
+  }
+
+  bestOverlaps = overlaps.filter(
+    (d) => d.type === AgeRangeRelationship.Disjoint,
+  );
+  bestOverlaps.sort((a, b) => a.distance - b.distance);
+  if (bestOverlaps.length > 0) {
+    return bestOverlaps[0].unit;
+  }
   return null;
 }

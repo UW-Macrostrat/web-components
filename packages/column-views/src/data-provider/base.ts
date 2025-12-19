@@ -288,6 +288,14 @@ export function useMacrostratBaseURL(
   return ctx.getState().baseURL;
 }
 
+export function useMacrostratFetch() {
+  const ctx = useContext(MacrostratDataProviderContext);
+  if (ctx == null) {
+    throw new Error("Missing MacrostratDataProvider");
+  }
+  return ctx.getState().fetch;
+}
+
 type DataTypeKey =
   | "lithologies"
   | "intervals"
@@ -343,6 +351,20 @@ export function useMacrostratColumns(
     }
     return columns;
   }, [colData, inProcess]);
+}
+
+export function useMacrostratColumnInfo(
+  columnID: number,
+): ColumnGeoJSONRecord["properties"] | null {
+  /** Get basic info for a column, without automatically fetching it (assumes the overall set of relevant columns has already been fetched) */
+  const columnsMap = useMacrostratStore((s) => s.columnFootprints);
+  return useMemo(() => {
+    for (const colData of columnsMap.values()) {
+      const col = colData.columns.find((d) => d.properties.col_id === columnID);
+      if (col != null) return col.properties;
+    }
+    return null;
+  }, [columnsMap, columnID]);
 }
 
 export function useMacrostratData(dataType: DataTypeKey, ...args: any[]) {
