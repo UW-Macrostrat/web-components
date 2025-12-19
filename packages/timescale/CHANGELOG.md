@@ -8,7 +8,7 @@ and this project adheres to
 
 ## [2.3.2] - 2025-12-19
 
-Fix typescript error
+Fix typescript errors
 
 ## [2.3.1] - 2025-12-11
 
