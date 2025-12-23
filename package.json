@@ -51,7 +51,7 @@
     "react": "^19",
     "react-dom": "^19",
     "sass-embedded": "^1.83.0",
-    "storybook": "10.1.8",
+    "storybook": "10.1.10",
     "tsx": "^4.19.1",
     "typescript": "^5.8.3",
     "underscore": "^1.12.0",
