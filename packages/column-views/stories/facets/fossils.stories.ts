@@ -3,14 +3,16 @@ import {
   MacrostratDataProvider,
   MergeSectionsMode,
   PBDBFossilsColumn,
+  PBDBOccurrencesMatrix,
+  FossilDataType,
 } from "../../src";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
-import { Meta } from "@storybook/react-vite";
+import { Meta, StoryObj } from "@storybook/react-vite";
 import { ColumnAxisType } from "@macrostrat/column-components";
 
 function PBDBFossilsDemoColumn(props) {
-  const { id, children, spectraColor, ...rest } = props;
+  const { id, children, type = FossilDataType.Collections, ...rest } = props;
 
   return h(
     MacrostratDataProvider,
@@ -23,13 +25,13 @@ function PBDBFossilsDemoColumn(props) {
         allowUnitSelection: false,
         ...rest,
       },
-      h(PBDBFossilsColumn, { columnID: id, color: spectraColor }),
+      h(PBDBFossilsColumn, { columnID: id, type }),
     ),
   );
 }
 
-export default {
-  title: "Column views/Facets/Fossil occurrences",
+const meta = {
+  title: "Column views/Facets/Fossils (via PBDB)",
   component: PBDBFossilsDemoColumn,
   tags: ["!autodocs"],
   argTypes: {
@@ -37,10 +39,18 @@ export default {
       options: ["age", "depth"],
       control: { type: "radio" },
     },
+    type: {
+      options: Object.values(FossilDataType),
+      control: { type: "select" },
+    },
   },
-} as Meta;
+} satisfies Meta<typeof PBDBFossilsDemoColumn>;
 
-export const eODPColumn: Story = {
+export default meta;
+
+type Story = StoryObj<typeof meta>;
+
+export const eODPColumnCollections = {
   args: {
     id: 5576,
     inProcess: true,
@@ -50,8 +60,45 @@ export const eODPColumn: Story = {
     showUnitPopover: true,
     collapseSmallUnconformities: true,
     keyboardNavigation: true,
+    type: FossilDataType.Collections,
   },
 };
+
+export const eODPColumnTaxa = {
+  args: {
+    id: 5576,
+    axisType: ColumnAxisType.DEPTH,
+    pixelScale: 20,
+    allowUnitSelection: true,
+    showUnitPopover: true,
+    collapseSmallUnconformities: true,
+    keyboardNavigation: true,
+    type: FossilDataType.Occurrences,
+  },
+};
+
+export function eODPColumnWithTaxonRanges() {
+  const id = 5576;
+  return h(
+    MacrostratDataProvider,
+    h(
+      StandaloneColumn,
+      {
+        showTimescale: false,
+        showLabelColumn: false,
+        id,
+        axisType: ColumnAxisType.DEPTH,
+        pixelScale: 20,
+        paddingTop: 200,
+        allowUnitSelection: true,
+        showUnitPopover: true,
+        collapseSmallUnconformities: true,
+        keyboardNavigation: true,
+      },
+      h(PBDBOccurrencesMatrix, { columnID: id }),
+    ),
+  );
+}
 
 export const eODPColumnMoreComplete: Story = {
   args: {
@@ -64,7 +111,7 @@ export const eODPColumnMoreComplete: Story = {
     collapseSmallUnconformities: true,
     keyboardNavigation: true,
   },
-  title: "eODP Column (more complete)",
+  name: "eODP Column (more complete)",
 };
 
 export const eODPColumnAgeFramework: Story = {
@@ -73,13 +120,15 @@ export const eODPColumnAgeFramework: Story = {
     inProcess: true,
     collapseSmallUnconformities: false,
     mergeSections: MergeSectionsMode.OVERLAPPING,
+    axisType: "age",
   },
-  title: "eODP Column (with age model applied)",
+  name: "eODP Column (with age model applied)",
 };
 
 export const ParadoxBasin = {
   args: {
     id: 495,
+    type: "colls",
   },
 };
 

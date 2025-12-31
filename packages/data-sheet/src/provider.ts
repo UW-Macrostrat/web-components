@@ -7,34 +7,13 @@ import type {
   Region,
   Table2,
 } from "@blueprintjs/table";
-import { generateColumnSpec } from "./utils";
+import {
+  ColumnSpec,
+  ColumnSpecOptions,
+  generateColumnSpec,
+  range,
+} from "./utils";
 import update, { Spec } from "immutability-helper";
-import { range } from "./utils";
-import React from "react";
-
-export interface ColumnSpec {
-  name: string;
-  key: string;
-  required?: boolean;
-  isValid?: (d: any) => boolean;
-  transformValue?: (d: any) => any;
-  valueRenderer?: (d: any) => string | React.ReactNode;
-  dataEditor?: any;
-  cellComponent?: any;
-  category?: string;
-  editable?: boolean;
-  inlineEditor?: boolean | React.ComponentType<any> | string | null;
-  style?: React.CSSProperties;
-  width?: number;
-}
-
-export interface ColumnSpecOptions<T> {
-  overrides: Record<string, Partial<ColumnSpec> | string>;
-  data?: T[]; // Data to use for type inference
-  nRows?: number; // Number of rows to use for type inference
-  omitColumns?: string[]; // Columns to omit. Takes precedence over includeColumns.
-  includeColumns?: string[]; // Columns to include.
-}
 
 export interface DataSheetCoreProps<T> {
   data: T[];

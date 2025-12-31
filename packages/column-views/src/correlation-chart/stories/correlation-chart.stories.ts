@@ -5,8 +5,12 @@ import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   fetchUnits,
+  MacrostratDataProvider,
+  MergeSectionsMode,
   useCorrelationMapStore,
-} from "@macrostrat/column-views";
+  useMacrostratBaseURL,
+  useMacrostratFetch,
+} from "../..";
 import { hyperStyled } from "@macrostrat/hyper";
 
 import styles from "./stories.module.sass";
@@ -14,6 +18,7 @@ import { CorrelationChart, CorrelationChartProps } from "../main";
 import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { EnvironmentColoredUnitComponent } from "../../units";
+import { scaleLinear, scalePow } from "d3-scale";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -31,29 +36,36 @@ function CorrelationStoryUI({
   ...rest
 }: any) {
   return h(
-    ColumnCorrelationProvider,
-    {
-      focusedLine,
-      columns: null,
-      onSelectColumns(cols, line) {
-        setFocusedLine(line);
+    MacrostratDataProvider,
+    { baseURL: "https://dev.macrostrat.org/api/v2" },
+    h(
+      ColumnCorrelationProvider,
+      {
+        focusedLine,
+        columns: null,
+        projectID,
+        onSelectColumns(cols, line) {
+          setFocusedLine(line);
+        },
       },
-    },
-    h("div.correlation-ui", [
-      h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
-      h("div.right-column", [
-        h(ColumnCorrelationMap, {
-          accessToken: mapboxToken,
-          className: "correlation-map",
-          //showLogo: false,
-        }),
+      h("div.correlation-ui", [
+        h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
+        h("div.right-column", [
+          h(ColumnCorrelationMap, {
+            accessToken: mapboxToken,
+            className: "correlation-map",
+            //showLogo: false,
+          }),
+        ]),
       ]),
-    ]),
+    ),
   );
 }
 
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
+
+  const fetch = useMacrostratFetch();
 
   // Sync focused columns with map
   const focusedColumns = useCorrelationMapStore(
@@ -62,7 +74,7 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
 
   const columnUnits = useAsyncMemo(async () => {
     const col_ids = focusedColumns.map((col) => col.properties.col_id);
-    return await fetchUnits(col_ids);
+    return await fetchUnits(col_ids, fetch);
   }, [focusedColumns]);
 
   return h("div.correlation-diagram", [
@@ -94,7 +106,7 @@ export default {
     focusedLine: "-100,45 -90,50",
     columnSpacing: 0,
     columnWidth: 100,
-    collapseSmallUnconformities: false,
+    collapseSmallUnconformities: true,
     targetUnitHeight: 20,
   },
   argTypes: {
@@ -157,6 +169,11 @@ export default {
         type: "number",
       },
     },
+    projectID: {
+      control: {
+        type: "number",
+      },
+    },
   },
 } as Meta<typeof CorrelationStoryUI>;
 
@@ -172,4 +189,33 @@ export const Primary = Template.bind({});
 export const ColoredByEnvironment = Template.bind({});
 ColoredByEnvironment.args = {
   unitComponent: EnvironmentColoredUnitComponent,
+};
+
+export const RestrictedAgeRange = Template.bind({});
+RestrictedAgeRange.args = {
+  t_age: 100,
+  b_age: 300,
+  focusedLine: "-114.29,42.74 -104.59,39.21",
+};
+
+export const WithFixedScale = Template.bind({});
+WithFixedScale.args = {
+  scale: scaleLinear().domain([0, 2500]).range([0, 1000]),
+};
+
+export const WithPowerScale = Template.bind({});
+WithPowerScale.args = {
+  scale: scalePow().exponent(0.3).domain([0, 2500]).range([0, 1000]),
+};
+
+export const WithPowerScaleMerged = Template.bind({});
+WithPowerScaleMerged.args = {
+  scale: scalePow().exponent(0.3).domain([0, 2500]).range([0, 1000]),
+  mergeSections: MergeSectionsMode.ALL,
+};
+
+export const eODPCorrelationChart = Template.bind({});
+eODPCorrelationChart.args = {
+  focusedLine: "-125,38 -120,32",
+  projectID: 3,
 };

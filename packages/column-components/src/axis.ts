@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef } from "react";
 import h from "./hyper";
 import { select } from "d3-selection";
 import { axisLeft } from "d3-axis";
-import { scaleLinear, ScaleLinear } from "d3-scale";
+import { ScaleContinuousNumeric, scaleLinear, ScaleLinear } from "d3-scale";
 import { useColumn } from "./context";
 
 interface ColumnAxisProps {
@@ -21,7 +21,8 @@ interface ColumnAxisProps {
 }
 
 interface AgeAxisProps extends ColumnAxisProps {
-  scale?: ScaleLinear<number, number>;
+  scale?: ScaleContinuousNumeric<number, number>;
+  minTickSpacing?: number;
 }
 
 const __d3axisKeys = [
@@ -46,23 +47,42 @@ export function AgeAxis(props: AgeAxisProps) {
     className,
     showDomain = true,
     tickSpacing = 60,
+    minTickSpacing = 20,
     scale,
   } = props;
 
   const range = scale.range();
-  const pixelHeight = Math.abs(range[0] - range[1]);
+
+  const pixelHeight = Math.abs(range[0] - range[range.length - 1]);
 
   let tickValues: number[] = undefined;
 
-  if (pixelHeight < 3 * tickSpacing || scale.ticks(2).length < 2) {
-    // Push ticks towards extrema
-    const t0 = scale.ticks(4);
+  let ticks = Math.round(pixelHeight / tickSpacing);
+  if (pixelHeight < 3 * tickSpacing) {
+    // Push ticks towards extrema (we need more than 2 to be resolved)
 
-    tickValues = [t0[0], t0[t0.length - 1]];
+    let t0: number[] = [];
+    while (t0.length <= 2) {
+      ticks += 1;
+      t0 = scale.ticks(ticks);
+    }
+
+    tickValues = t0;
+    if (pixelHeight < 2 * tickSpacing) {
+      // Only show first and last ticks
+      tickValues = [t0[0], t0[t0.length - 1]];
+    }
+  }
+
+  if (pixelHeight < minTickSpacing) {
+    ticks = 1;
+    tickValues = scale.ticks(1);
+    // Get the last tick value only
+    tickValues = [tickValues[0]];
   }
 
   const defaultProps = {
-    ticks: Math.max(Math.round(pixelHeight / tickSpacing), 2),
+    ticks,
     // Suppress domain endpoints
     tickSizeOuter: 0,
     tickValues,

@@ -246,7 +246,7 @@ function printChangeInfoForPublishedPackage(pkg, showChanges = false) {
   }
 
   console.log("Run the following command to see detailed changes:");
-  console.log(chalk.dim(">"), chalk.dim(cmd));
+  console.log(chalk.dim(cmd));
 
   // Check if is synced with the remote
   // TODO: this only works if the current branch is pushed to the remote

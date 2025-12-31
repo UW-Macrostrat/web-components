@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "2.1.4",
+  "version": "2.4.2",
   "description": "Data views for Macrostrat stratigraphic columns",
   "type": "module",
   "source": "src/index.ts",
@@ -42,6 +42,7 @@
     "@macrostrat/svg-map-components": "workspace:^",
     "@macrostrat/timescale": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
+    "@turf/boolean-point-in-polygon": "^7.3.1",
     "@turf/buffer": "^7.2.0",
     "@turf/centroid": "^7.2.0",
     "@turf/distance": "^7.2.0",
@@ -63,6 +64,8 @@
     "d3-path": "^3.1.0",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
+    "jotai": "^2.16.0",
+    "jotai-scope": "^0.10.0",
     "mapbox-gl": "^2.15.0||^3.0.0",
     "react-spring": "^9.7.5",
     "topojson-client": "^3.1.0",
@@ -83,7 +86,8 @@
     "@types/d3-scale": "^4.0.9",
     "parcel": "^2.16.0",
     "postcss": "^8.0.0",
-    "postcss-modules": "^6.0.0"
+    "postcss-modules": "^6.0.0",
+    "vite": "^7.3.0"
   },
   "files": [
     "dist",

@@ -1,35 +1,23 @@
-import { group } from "d3-array";
-import { createAPIContext, useAPIResult } from "@macrostrat/ui-components";
+import { useAsyncMemo } from "@macrostrat/ui-components";
 
-const responseUnwrapper = (d) => d.records;
-
-const pbdbAPIContext = createAPIContext({
-  baseURL: "https://training.paleobiodb.org/data1.2",
-  unwrapResponse: responseUnwrapper,
-});
+const pbdbAPIBase = "https://paleobiodb.org/data1.2";
 
 export enum FossilDataType {
   Occurrences = "occs",
   Collections = "colls",
 }
 
-export function usePBDBFossilData(
-  type: FossilDataType,
-  { col_id },
-): any[] | null {
-  const params = {
-    ms_column: col_id,
-    show: "full,mslink",
-  };
-  return useAPIResult(`/${type}/list.json`, params, {
-    context: pbdbAPIContext,
-  });
-}
-
-export interface PBDBCollection {
+export interface PBDBEntity {
   unit_id: number;
   col_id: number;
   cltn_id: number;
+  // For eODP, slb/slu are used to store the heights of fossil locations found in measured sections.
+  // They may have a more general set of uses as well but these are not currently explored.
+  slb?: string; // The local bed in which the fossil was found
+  slu?: string; // The unit of measurement used to designate the local bed
+}
+
+export interface PBDBCollection extends PBDBEntity {
   cltn_name: string;
   pbdb_occs: number;
   t_age: number;
@@ -37,44 +25,158 @@ export interface PBDBCollection {
   [key: string]: any; // Allow for additional properties
 }
 
-function useMacrostratFossilData({ col_id }): PBDBCollection[] | null {
-  return useAPIResult("/fossils", { col_id });
+export interface PBDBOccurrence extends PBDBEntity {
+  occ_id: number;
+  cltn_id: number;
+  taxon_name: string;
+  best_name: string;
+  [key: string]: any; // Allow for additional properties
+}
+
+export function useFossilData<T extends PBDBEntity>(
+  col_id: number,
+  type = FossilDataType.Collections,
+): T[] {
+  // Fossil links are stored in both Macrostrat and PBDB, depending on how the link was assembled. Here
+  // we create a unified view of data over both sources.
+  return useAsyncMemo(async () => {
+    if (col_id == null) return null;
+    return await fetchFossilData(col_id, type);
+  }, [col_id, type]);
+}
+
+async function fetchMacrostratFossilData(
+  col_id: number,
+  type: FossilDataType,
+): Promise<PBDBCollection[]> {
+  if (type !== FossilDataType.Collections) {
+    // Macrostrat API only supports collections
+    return [];
+  }
+
+  // Fetch fossil collections linked to columns from the Macrostrat API
+  const resp = await fetch(
+    `https://macrostrat.org/api/fossils?col_id=${col_id}`,
+  );
+  const res = await resp.json();
+  // Create collections from Macrostrat data
+  return res.success.data;
+}
+
+async function fetchPDBDFossilData(
+  col_id: number,
+  type: FossilDataType.Collections,
+): Promise<PBDBCollection[]>;
+async function fetchPDBDFossilData(
+  col_id: number,
+  type: FossilDataType.Occurrences,
+): Promise<PBDBOccurrence[]>;
+async function fetchPDBDFossilData<T extends PBDBEntity>(
+  col_id: number,
+  type: FossilDataType,
+): Promise<T[]>;
+async function fetchPDBDFossilData(
+  col_id: number,
+  type: FossilDataType,
+): Promise<PBDBEntity[]> {
+  // Note: show=rank does not work on training PBDB server
+  const resp = await fetch(
+    pbdbAPIBase + `/${type}/list.json?ms_column=${col_id}&show=mslink,stratext`,
+  );
+  const res = await resp.json();
+  return res.records.map(
+    type == FossilDataType.Collections
+      ? createMacrostratCollection
+      : preprocessOccurrence,
+  );
+}
+
+export async function fetchFossilData(
+  colID: number,
+  type: FossilDataType.Collections,
+): Promise<PBDBCollection[]>;
+export async function fetchFossilData(
+  colID: number,
+  type: FossilDataType.Occurrences,
+): Promise<PBDBOccurrence[]>;
+export async function fetchFossilData<T extends PBDBEntity>(
+  colID: number,
+  type: FossilDataType,
+): Promise<T[]>;
+export async function fetchFossilData(
+  colID: number,
+  type: FossilDataType,
+): Promise<PBDBEntity[]> {
+  const [macrostratData, pbdbData] = await Promise.all([
+    fetchMacrostratFossilData(colID, type),
+    fetchPDBDFossilData(colID, type),
+  ]);
+  return [...macrostratData, ...pbdbData];
+}
+
+function preprocessOccurrence(d): PBDBOccurrence {
+  if (d.msu == null || d.msc == null) {
+    return d;
+  }
+  /* Preprocess data for an occurrence into a Macrostrat-like format */
+  // Standardize names of Macrostrat units and columns
+  const unit_id = parseInt(d.msu.replace(/^\w+:/, ""));
+  const col_id = parseInt(d.msc.replace(/^\w+:/, ""));
+
+  // taxon names may be stored in different fields
+  const occ_id = parseInt(d.oid.replace(/^occ:/, ""));
+  const cltn_id = parseInt(d.cid.replace(/^col:/, ""));
+
+  return {
+    ...d,
+    unit_id,
+    col_id,
+    taxon_name: d.tna,
+    best_name: d.idn ?? d.tna,
+    occ_id,
+    cltn_id,
+    cltn_name: d.nam,
+  };
 }
 
 function createMacrostratCollection(d): PBDBCollection {
+  /* Preprocess data for a collection into a Macrostrat-like format */
   let unit_id = null;
   let col_id = null;
   // Standardize names of Macrostrat units and columns
-  if (d.msu !== null) {
+  if (d.msu != null) {
     unit_id = parseInt(d.msu.replace(/^\w+:/, ""));
   }
-  if (d.msc !== null) {
+  if (d.msc != null) {
     col_id = parseInt(d.msc.replace(/^\w+:/, ""));
+  }
+
+  // taxon names may be stored in different fields
+  let taxon_name = d.tna;
+  let occ_id = null;
+  if (d.oid != null && d.oid.startsWith("occ:")) {
+    occ_id = parseInt(d.oid.replace(/^occ:/, ""));
+  }
+  if (d.idn != null) {
+    taxon_name = d.idn;
+  }
+
+  let cltn_id = d.cltn_id;
+  if (d.oid != null && d.oid.startsWith("col:")) {
+    cltn_id = parseInt(d.oid.replace(/^col:/, ""));
+  } else if (d.cid != null && d.cid.startsWith("col:")) {
+    cltn_id = parseInt(d.cid.replace(/^col:/, ""));
   }
 
   return {
     ...d,
     unit_id,
     col_id,
-    cltn_id: parseInt(d.oid.replace(/^col:/, "")),
+    taxon_name,
+    occ_id,
+    cltn_id,
     cltn_name: d.nam,
     t_age: d.t_age,
     b_age: d.b_age,
   };
-}
-
-export function useFossilData({ col_id }) {
-  // Fossil links are stored in both Macrostrat and PBDB, depending on how the link was assembled. Here
-  // we create a unified view of data over both sources.
-
-  const r1 = usePBDBFossilData(FossilDataType.Collections, { col_id });
-
-  const r2 = useMacrostratFossilData({ col_id });
-
-  if (r1 == null || r2 == null) return null;
-  const r1a = r1.map(createMacrostratCollection);
-
-  const data = [...r1a, ...r2];
-
-  return group(data, (d) => d.unit_id);
 }

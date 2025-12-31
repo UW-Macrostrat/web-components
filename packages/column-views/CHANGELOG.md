@@ -4,6 +4,68 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.4.2] - 2025-12-19
+
+Update minimum versions of dependencies
+
+## [2.4.1] - 2025-12-18
+
+- Improve unit selection
+- Improve unit popover
+- Better unit navigation for correlation diagram
+- Show column name in unit popover
+
+## [2.4.0] - 2025-12-15
+
+- Remove `UnitSelectionProvider` in favor of `jotai` state management
+- Refactor selected unit state management to use `jotai` atoms
+- Improve performance of unit selection and rendering
+- Update dependencies
+
+## [2.3.3] - 2025-12-14
+
+Upgraded `jotai` and `jotai-scope` dependencies
+
+## [2.3.2] - 2025-12-13
+
+Remove duplicate exports; fix typings
+
+## [2.3.1] - 2025-12-10
+
+Fix detrital zircon facet rendering bug
+
+## [2.3.0] - 2025-12-10
+
+- Streamline column facet components
+- Create a mode for facets that allows focusing a single column-associated
+  measurement
+- Improve scale calculations in some edge cases
+- Condense notes that are close together
+- Add explicitly defined height where available from PBDB (eODP columns, mostly)
+- Fixed axis label spacing
+- Small bug fixes for unit selection
+
+## [2.2.2] - 2025-12-04
+
+- Fix a bug with unit deselection
+- Fix missed updates in state management code
+- Add a 'minimal' option to `unconformityLabels`
+- Reduce precision of gap age labels
+- Improvements to stories
+
+## [2.2.1] - 2025-11-29
+
+- Start unifying state management components
+- Create a hoistable store for column state
+- Begin using `jotai` for some aspects of state management
+
+## [2.2.0] - 2025-11-28
+
+- Update SGP and PBDB facets
+- Improve `UnitDetailsPanel` styling and information content
+- Improve use of discontinous scales
+- Create `hybridScale` options block to allow more dynamic scale generation
+
 ## [2.1.4] - 2025-10-29
 
 - Improve stories
@@ -48,8 +110,7 @@ Major update for columns and correlation diagrams:
 - Add `ColoredUnitComponent` based on mixing unit colors by lithology
 - Fully integrated management of composite column scales, allowing for much more
   flexible column creation
-- Added the ability to have zig-zag cutoffs when units overflow the time bounds
-  of the column
+- Added zigzag cutoffs when units overflow the time bounds of the column
 - Added a unified `MacrostratDataProvider` that allows frontend caching of data
   dictionaries in the UI
 - Major improvements to columns and styling

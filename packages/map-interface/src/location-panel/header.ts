@@ -2,7 +2,7 @@ import { Icon, Button } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { useToaster } from "@macrostrat/ui-components";
-import { LngLatCoords, Elevation } from "../location-info";
+import { LngLatCoords, Elevation } from "@macrostrat/data-components";
 import { LocationFocusButton, useFocusState } from "@macrostrat/mapbox-react";
 import classNames from "classnames";
 import type { ReactNode } from "react";

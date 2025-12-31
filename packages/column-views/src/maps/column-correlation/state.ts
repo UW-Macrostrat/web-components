@@ -6,18 +6,18 @@ import { lineIntersect } from "@turf/line-intersect";
 import distance from "@turf/distance";
 import { nearestPointOnLine } from "@turf/nearest-point-on-line";
 import { centroid } from "@turf/centroid";
-import mapboxgl from "mapbox-gl";
 import {
   createContext,
   useState,
   useContext,
   ReactNode,
   useEffect,
-  useMemo,
 } from "react";
 import h from "@macrostrat/hyper";
 import { createComputed } from "zustand-computed";
 import { useMacrostratColumns } from "../../data-provider/base";
+import { buffer } from "@turf/buffer";
+import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 
 export interface CorrelationMapInput {
   columns: ColumnGeoJSONRecord[];
@@ -55,26 +55,10 @@ const computed = createComputed((state: CorrelationMapStore): ComputedStore => {
 }) as any;
 
 export function ColumnCorrelationProvider({
+  children,
+  columns,
   projectID,
   inProcess,
-  children,
-  columns,
-  ...rest
-}) {
-  const _columns = useMacrostratColumns(projectID, inProcess);
-
-  return h(ColumnCorrelationProviderBase, {
-    projectID,
-    inProcess,
-    columns: _columns,
-    children,
-    ...rest,
-  });
-}
-
-export function ColumnCorrelationProviderBase({
-  children,
-  columns,
   focusedLine,
   onSelectColumns,
 }: CorrelationProviderProps) {
@@ -83,7 +67,8 @@ export function ColumnCorrelationProviderBase({
       computed((set, get): CorrelationMapStore => {
         return {
           focusedLine,
-          columns,
+          projectID,
+          columns: null,
           onClickMap(event: mapboxgl.MapMouseEvent, point: Point) {
             const state = get();
             // Check if shift key is pressed
@@ -108,11 +93,12 @@ export function ColumnCorrelationProviderBase({
 
   // Set up the store
   /** TODO: move the fetching of all columns to within the map */
+  const _columns = useMacrostratColumns(projectID, inProcess);
   useEffect(() => {
-    if (columns != null) {
-      store.setState({ columns });
+    if (_columns != null) {
+      store.setState({ columns: _columns });
     }
-  }, [columns]);
+  }, [_columns]);
 
   // Kind of an awkward way to do this but we need to allow the selector to run
   const focusedColumns = useStore(store, (state) => state.focusedColumns);
@@ -156,7 +142,17 @@ function computeIntersectingColumns(
     return [];
   }
 
-  return columns.filter((col) => {
+  /** eODP-focused process. Find buffers around line and then find columns intersecting that buffer */
+  const bufferedLine = buffer(line, 1, { units: "degrees" });
+
+  const nearbyPoints = columns.filter((col) => {
+    if (col.geometry?.type != "Point") {
+      return false;
+    }
+    return booleanPointInPolygon(col.geometry, bufferedLine);
+  });
+
+  const intersectingPolygons = columns.filter((col) => {
     const poly = col.geometry;
 
     // Some in-process datasets seem to have null geometries
@@ -166,6 +162,8 @@ function computeIntersectingColumns(
     const intersection = lineIntersect(line, poly);
     return intersection.features.length > 0;
   });
+
+  return [...intersectingPolygons, ...nearbyPoints];
 }
 
 interface FocusedColumnGeoJSONRecord extends ColumnGeoJSONRecord {

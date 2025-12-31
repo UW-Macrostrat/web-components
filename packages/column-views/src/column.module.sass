@@ -33,6 +33,12 @@ body:global(.dark-mode) .column-container
     svg pattern image
       filter: invert(100%)
 
+.column-container
+  padding-top: var(--column-padding-top)
+  padding-bottom: var(--column-padding-bottom)
+  padding-left: var(--column-padding-left)
+  padding-right: var(--column-padding-right)
+
 .column-container :global
   .column
     display: flex
@@ -111,30 +117,46 @@ body:global(.dark-mode) .column-container
 
 
 .unconformity
-  text-align: center
   position: absolute
+  font-family: var(--label-font-family, sans-serif)
   top: 0px
-  display: flex
-  justify-content: center
-  align-items: center
+  //font-size: 12px
+  font-weight: 400
+
   font-size: 0.8em
   &.giga
     font-weight: 800
-    font-size: 1em
+    //font-size: 1em
   &.mega
-    font-weight: 600
     font-weight: 700
-    font-size: 0.9em
+    //font-size: 0.9em
   &.large
-    font-weight:  600
+    font-weight:  500
   &.small
     font-weight: 300
+  --unit-font-weight: 400
 
+.unconformity-inner
+  position: absolute
+  top: 3px
+  bottom: 3px
+  left: 0
+  right: 0
+  display: flex
+  justify-content: center
+  align-items: center
+  text-align: center
 
 .unconformity-text
   width: var(--column-width)
-  color: var(--column-stroke-color)
   --unit-font-style: normal
+  .prefix
+    font-weight: 400
+    color: var(--secondary-color)
+
+.timescale-column .unconformity-inner
+  border-left: 1.5px dotted var(--secondary-color)
+  left: -3px // align with age axis
 
 
 .column-title-row

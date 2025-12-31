@@ -6,6 +6,11 @@ import {
 
 const SKU_ID = "01";
 
+interface SkuTokenObject {
+  token: string;
+  tokenExpiresAt: number;
+}
+
 function createSkuToken(): SkuTokenObject {
   // SKU_ID and TOKEN_VERSION are specified by an internal schema and should not change
   const TOKEN_VERSION = "1";

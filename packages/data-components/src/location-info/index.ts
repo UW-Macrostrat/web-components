@@ -4,10 +4,7 @@ import {
   metersToFeet,
   normalizeLng,
 } from "@macrostrat/mapbox-utils";
-import { formatValue } from "./utils";
-import { LngLat } from "mapbox-gl";
-
-export * from "./hash-string";
+import type { LngLatLike } from "mapbox-gl";
 
 export function ValueWithUnit(props) {
   const { value, unit } = props;
@@ -16,6 +13,10 @@ export function ValueWithUnit(props) {
     h("span.spacer", [" "]),
     h("span.unit", [unit]),
   ]);
+}
+
+function formatValue(val: number, precision: number = 0): string {
+  return Number(val).toFixed(precision);
 }
 
 export function DegreeCoord(props) {
@@ -30,7 +31,7 @@ export function DegreeCoord(props) {
 
 export interface LngLatProps {
   /** Map position */
-  position: mapboxgl.LngLatLike | null;
+  position: LngLatLike | null;
   className?: string;
   /** Zoom level (used to infer coordinate rounding if provided) */
   zoom?: number;
@@ -50,9 +51,10 @@ export function LngLatCoords(props: LngLatProps) {
 
   let lat: number;
   let lng: number;
-  if (Array.isArray(position)) {
+  if (Array.isArray(position) && position.length === 2) {
     [lng, lat] = position;
-  } else if (position instanceof LngLat) {
+  } else if ("toArray" in position && typeof position.toArray === "function") {
+    // Check for LngLat object without access to mapbox-gl
     [lng, lat] = position.toArray();
   } else if ("lng" in position) {
     lat = position.lat;

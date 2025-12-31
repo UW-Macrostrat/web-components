@@ -2,9 +2,9 @@ import h from "@macrostrat/hyper";
 
 import { ColumnNotesProvider } from "./units";
 
-import { StaticNotesColumn, SVG } from "@macrostrat/column-components";
+import { NotesColumn, SVG } from "@macrostrat/column-components";
 import { useCompositeScale, useMacrostratColumnData } from "./data-provider";
-import type { ReactNode } from "react";
+import type { ComponentType, ReactNode } from "react";
 
 interface ColumnNotesProps {
   notes: any[];
@@ -13,6 +13,7 @@ interface ColumnNotesProps {
   paddingLeft?: number;
   deltaConnectorAttachment?: number;
   children?: ReactNode;
+  focusedNoteComponent?: ComponentType<any> | null;
 }
 
 export function ColumnNotes({
@@ -21,6 +22,7 @@ export function ColumnNotes({
   noteComponent,
   paddingLeft = 60,
   deltaConnectorAttachment,
+  focusedNoteComponent,
   children,
 }: ColumnNotesProps) {
   const { totalHeight } = useMacrostratColumnData();
@@ -35,12 +37,13 @@ export function ColumnNotes({
     },
     [
       h(SVG, { width, height: totalHeight, paddingH: 4 }, [
-        h(StaticNotesColumn, {
+        h(NotesColumn, {
           width,
           notes,
           noteComponent,
           paddingLeft,
           deltaConnectorAttachment,
+          focusedNoteComponent,
         }),
       ]),
       children,

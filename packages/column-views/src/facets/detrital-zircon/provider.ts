@@ -47,5 +47,5 @@ export function useDetritalMeasurements(columnArgs) {
     columnArgs,
   );
   if (res == null) return null;
-  return group(res, (d) => d.unit_id);
+  return res;
 }

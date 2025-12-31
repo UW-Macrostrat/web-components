@@ -2,12 +2,13 @@
 import {
   UnitSelectionProvider,
   UnitKeyboardNavigation,
-  useUnitSelectionStore,
-} from "../units";
-import { UnitSelectionPopover } from "../unit-details";
+  useUnitSelectionDispatch,
+  useColumnRef,
+} from "../data-provider";
+import { UnitDetailsFeature, UnitSelectionPopover } from "../unit-details";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { CompositeTimescaleCore } from "../section";
 import classNames from "classnames";
@@ -29,10 +30,11 @@ import {
 } from "@macrostrat/column-components";
 import { ColoredUnitComponent } from "../units";
 import { UnitBoxes } from "../units/boxes";
-import { ExtUnit } from "../prepare-units/helpers";
 import { ColumnContainer } from "../column";
 import { ColumnData } from "../data-provider";
 import { BaseUnit } from "@macrostrat/api-types";
+import { ScaleContinuousNumeric } from "d3-scale";
+import { ExtUnit } from "../prepare-units/types";
 
 const h = hyper.styled(styles);
 
@@ -46,8 +48,19 @@ export interface CorrelationChartProps extends CorrelationChartSettings {
   showUnitPopover?: boolean;
   unitComponent?: any;
   onUnitSelected?: (unitID: number | null, unit: BaseUnit | null) => void;
-  nInternalColumns?: number;
 }
+
+function MainChartArea({ children }) {
+  const columnRef = useColumnRef();
+  return h("div.main-chart", { ref: columnRef }, children);
+}
+
+const unitPopoverFeatures = new Set([
+  UnitDetailsFeature.AdjacentUnits,
+  UnitDetailsFeature.OutcropType,
+  UnitDetailsFeature.DepthRange,
+  UnitDetailsFeature.ColumnName,
+]);
 
 export function CorrelationChart({
   data,
@@ -58,7 +71,6 @@ export function CorrelationChart({
   selectedUnit,
   onUnitSelected,
   unitComponent,
-  nInternalColumns = 2,
   ...scaleProps
 }: CorrelationChartProps) {
   const defaultScaleProps = {
@@ -75,8 +87,6 @@ export function CorrelationChart({
       ...scaleProps,
     });
   }, [data, ...Object.values(scaleProps)]);
-
-  const columnRef = useRef(null);
 
   // A flattened units array is used to support keyboard navigation
   const units = useMemo(() => {
@@ -102,14 +112,14 @@ export function CorrelationChart({
     { className: "correlation-diagram" },
     h(
       UnitSelectionProvider,
-      { columnRef, selectedUnit, onUnitSelected, units },
+      { selectedUnit, onUnitSelected, units },
       h(ChartArea, [
         h(TimescaleColumn, {
           key: "timescale",
           scaleInfo,
           unconformityLabels,
         }),
-        h("div.main-chart", { ref: columnRef }, [
+        h(MainChartArea, [
           h(
             SVG,
             {
@@ -119,7 +129,8 @@ export function CorrelationChart({
               paddingH: 4,
             },
             packages.map((pkg, i) => {
-              const { offset, domain, pixelScale, key } = scaleInfo.packages[i];
+              const { offset, domain, pixelScale, scale, key } =
+                scaleInfo.packages[i];
               return h(Package, {
                 columnData: pkg.columnData,
                 key,
@@ -128,14 +139,16 @@ export function CorrelationChart({
                 offset,
                 domain,
                 pixelScale,
+                scale,
                 unitComponent,
-                nInternalColumns,
               });
             }),
           ),
-          h.if(showUnitPopover)(UnitSelectionPopover),
+          h.if(showUnitPopover)(UnitSelectionPopover, {
+            features: unitPopoverFeatures,
+          }),
           // Navigation only works within a column for now...
-          h(UnitKeyboardNavigation, { units }),
+          h(UnitKeyboardNavigation, { columnData: data }),
         ]),
       ]),
     ),
@@ -150,7 +163,7 @@ function Package({
   offset,
   domain,
   pixelScale,
-  nInternalColumns,
+  scale,
 }) {
   return h("g.package", { transform: `translate(0 ${offset})` }, [
     // Disable the SVG overlay for now
@@ -164,8 +177,8 @@ function Package({
           key: i,
           domain,
           pixelScale,
+          scale,
           offsetLeft: i * (columnWidth + columnSpacing),
-          nInternalColumns,
         });
       }),
     ]),
@@ -184,7 +197,7 @@ interface ColumnProps {
   offsetLeft?: number;
   domain: [number, number];
   pixelScale: number;
-  nInternalColumns?: number;
+  scale?: ScaleContinuousNumeric<number, number>;
 }
 
 function Column(props: ColumnProps) {
@@ -194,8 +207,8 @@ function Column(props: ColumnProps) {
     offsetLeft,
     domain,
     pixelScale,
+    scale,
     unitComponent = ColoredUnitComponent,
-    nInternalColumns = 2,
   } = props;
 
   const columnWidth = width;
@@ -215,13 +228,14 @@ function Column(props: ColumnProps) {
         // Need to tighten up types here...
         divisions: units as any[],
         range: domain,
+        scale,
         pixelsPerMeter: pixelScale, // Actually pixels per myr
         axisType: ColumnAxisType.AGE,
       },
       h(UnitBoxes, {
         unitComponent,
         unitComponentProps: {
-          nColumns: nInternalColumns,
+          nColumns: 2,
           width: columnWidth,
           showLabel: false,
         },
@@ -295,15 +309,13 @@ function StratColSpan({
 }
 
 function ChartArea({ children }) {
-  const setSelectedUnit = useUnitSelectionStore(
-    (state) => state.setSelectedUnit,
-  );
+  const setSelectedUnit = useUnitSelectionDispatch();
 
   return h(
     "div.correlation-chart-inner",
     {
       onClick() {
-        setSelectedUnit(null);
+        setSelectedUnit(null, null);
       },
     },
     children,

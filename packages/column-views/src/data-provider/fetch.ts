@@ -3,7 +3,6 @@ import {
   ColumnGeoJSONRecordWithID,
   MacrostratRef,
   StratName,
-  StratUnit,
   UnitLong,
 } from "@macrostrat/api-types";
 import {
@@ -15,18 +14,20 @@ import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
 import { geoArea } from "d3-geo";
 
-function defaultFetch(
-  url: string,
-  options: RequestInit | undefined = undefined,
-) {
-  const baseURL = "https://macrostrat.org/api/v2";
-  return crossFetch(baseURL + url, options);
+function createScopedFetch(baseURL: string) {
+  return function (url: string, options: RequestInit | undefined = undefined) {
+    return crossFetch(baseURL + url, options);
+  };
 }
+
+const defaultFetch = createScopedFetch("https://macrostrat.org/api/v2");
+
+export type ColumnStatusCode = "in process" | "active" | "obsolete";
 
 export interface ColumnFetchOptions {
   apiBaseURL?: string;
   projectID?: number;
-  statusCode?: "in process";
+  statusCode?: ColumnStatusCode | ColumnStatusCode[];
   format?: "geojson" | "topojson" | "geojson_bare";
   fetch?: any;
 }
@@ -46,9 +47,13 @@ export async function fetchAllColumns(
   if (projectID != null) {
     args = { ...args, project_id: projectID };
   }
-  if (statusCode != null) {
-    args = { ...args, status_code: statusCode };
+  let _statusCode: string | undefined = undefined;
+  if (Array.isArray(statusCode)) {
+    _statusCode = statusCode.join(",");
+  } else if (statusCode != null) {
+    _statusCode = statusCode;
   }
+  args.statusCode = _statusCode;
 
   if (projectID == null) {
     args = { ...args, all: true };
@@ -225,49 +230,49 @@ export async function fetchUnits(
   columns: number[],
   fetch = defaultFetch,
 ): Promise<ColumnData[]> {
-  const _columns = Array.from(new Set(columns));
-  if (_columns.length == 0) {
+  const params = new URLSearchParams();
+  params.append("response", "long");
+
+  if (columns.length == 0) {
     return [];
   }
-  const col_ids = _columns.join(",");
 
-  const unitData = await _fetchColumnUnits(col_ids);
+  const col_string = columns.map((column) => column.toString()).join(",");
+  params.append("col_id", col_string);
 
-  // Group by column ID
-  const colMap: { [key: number]: UnitLong[] } = {};
-  for (const unit of unitData) {
-    const col_id = unit.col_id;
-    if (!(col_id in colMap)) {
-      colMap[col_id] = [];
-    }
-    colMap[col_id].push(unit);
+  const res = await fetch("/units" + "?" + params.toString());
+  const data = await res.json();
+  if (!data.success) {
+    throw new Error("Failed to fetch column units");
   }
-
-  return Object.entries(colMap).map(([colID, units]) => ({
-    columnID: parseInt(colID),
-    units,
-  }));
+  const units = data.success.data;
+  const unitsMap = new Map<number, UnitLong[]>();
+  for (const unit of units) {
+    const colID = unit.col_id;
+    if (!unitsMap.has(colID)) {
+      unitsMap.set(colID, []);
+    }
+    unitsMap.get(colID).push(unit);
+  }
+  const result: ColumnData[] = [];
+  for (const colID of columns) {
+    result.push({ columnID: colID, units: unitsMap.get(colID) || [] });
+  }
+  return result;
 }
 
 export async function fetchColumnUnits(
   col_id: number,
   fetch = defaultFetch,
 ): Promise<ColumnData> {
-  const units = await _fetchColumnUnits(col_id.toString(), fetch);
-  return { columnID: col_id, units };
-}
-
-async function _fetchColumnUnits(
-  col_ids: string,
-  fetch = defaultFetch,
-): Promise<UnitLong[]> {
   const params = new URLSearchParams();
   params.append("response", "long");
-  params.append("col_id", col_ids);
+  params.append("col_id", col_id.toString());
   const res = await fetch("/units" + "?" + params.toString());
   const data = await res.json();
   if (!data.success) {
     throw new Error("Failed to fetch column units");
   }
-  return data.success.data;
+  const units = data.success.data;
+  return { columnID: col_id, units };
 }

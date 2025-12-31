@@ -97,7 +97,7 @@ function unnestPoints(measures) {
 }
 
 interface IsotopesDatasetProps {
-  color: string;
+  color?: string;
   parameter: string;
 }
 
@@ -105,7 +105,7 @@ interface IsotopeColumnProps extends IsotopesDatasetProps {
   width: number;
   tickValues?: number[];
   label: string;
-  domain: [number, number];
+  domain?: [number, number];
   transform?: string;
   getHeight?: Function;
   nTicks?: number;

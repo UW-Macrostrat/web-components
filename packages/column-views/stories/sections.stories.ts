@@ -50,6 +50,36 @@ export const eODPColumnV2: Story = {
   },
 };
 
+export const eODPColumnNoOverlappingUnits: Story = {
+  args: {
+    id: 5248,
+    inProcess: true,
+    maxInternalColumns: 1,
+    pixelScale: 10,
+  },
+};
+
+export const eODPColumnFilteredToHeightRange: Story = {
+  args: {
+    id: 5248,
+    inProcess: true,
+    maxInternalColumns: 1,
+    pixelScale: 10,
+    t_pos: 15,
+    b_pos: 25,
+  },
+};
+
+export const eODPColumnFixedPixelScale: Story = {
+  args: {
+    id: 5248,
+    inProcess: true,
+    maxInternalColumns: 1,
+    pixelScale: 20,
+    targetUnitHeight: null,
+  },
+};
+
 export const OrdinalPosition: Story = {
   args: {
     id: 432,

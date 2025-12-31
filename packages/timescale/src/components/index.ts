@@ -1,13 +1,9 @@
 import h from "../hyper";
-import { useRef, useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";
 import { SizeAwareLabel } from "@macrostrat/ui-components";
-
-type SizeState = {
-  label: number;
-  container: number;
-};
+import classNames from "classnames";
 
 import { CSSProperties } from "react";
 
@@ -16,15 +12,27 @@ export type IntervalStyleBuilder =
   | ((interval: Interval) => CSSProperties)
   | null;
 
+export type LabelProps = {
+  shouldShow?: boolean;
+  allowRotation?: boolean;
+  positionTolerance?: number;
+};
+
 function IntervalBox(props: {
   interval: Interval;
-  showLabel?: boolean;
+  labelProps?: LabelProps;
   intervalStyle: IntervalStyleBuilder;
+  allowLabelRotation?: boolean;
   onClick: (e: Event, interval: Interval) => void;
 }) {
-  const { interval, showLabel = true, intervalStyle, onClick } = props;
+  const { interval, intervalStyle, onClick, labelProps = {} } = props;
 
   const [labelText, setLabelText] = useState<string>(interval.nam);
+
+  const _onClick = useMemo(() => {
+    if (onClick == null) return null;
+    return (e) => onClick(e, interval);
+  }, [onClick, interval]);
 
   let style: CSSProperties = {};
   if (typeof intervalStyle === "function") {
@@ -32,39 +40,40 @@ function IntervalBox(props: {
   } else if (intervalStyle != null) {
     style = intervalStyle;
   }
+  // Set interval color if not already set by the logic above
+  style.backgroundColor ??= interval.col;
 
-  style = { backgroundColor: interval.col, ...style };
-
-  // if (backgroundColor != null && (color == null || borderColor == null)) {
-  //   const base = chroma(backgroundColor);
-  //   color ??= base.darken(0.3);
-  //   borderColor ??= base.darken(-0.1);
-  // }
+  const className = classNames("interval-box", {
+    clickable: onClick != null,
+  });
 
   return h(SizeAwareLabel, {
     key: interval.oid,
     style,
-    className:
-      "interval-box " + (onClick && interval.int_id != null ? "clickable" : ""),
+    className,
     labelClassName: "interval-label",
     label: labelText,
-    tolerance: 5,
-    allowRotation: true,
+    ...labelProps,
     onVisibilityChanged(viz) {
       if (!viz && labelText.length > 1) {
         setLabelText(labelText[0]);
       }
     },
-    onClick: (e) => onClick(e, interval),
+    onClick: _onClick,
   });
 }
 
-function IntervalChildren({ children, intervalStyle, onClick }) {
+function IntervalChildren({ children, intervalStyle, labelProps, onClick }) {
   if (children == null || children.length == 0) return null;
   return h(
     "div.children",
     children.map((d) => {
-      return h(TimescaleBoxes, { interval: d, intervalStyle, onClick });
+      return h(TimescaleBoxes, {
+        interval: d,
+        intervalStyle,
+        labelProps,
+        onClick,
+      });
     }),
   );
 }
@@ -76,9 +85,10 @@ function ensureIncreasingAgeRange(ageRange) {
 function TimescaleBoxes(props: {
   interval: NestedInterval;
   intervalStyle: IntervalStyleBuilder;
+  labelProps?: LabelProps;
   onClick: (e: Event, interval: Interval) => void;
 }) {
-  const { interval, intervalStyle, onClick } = props;
+  const { interval, intervalStyle, onClick, labelProps } = props;
   const { scale, orientation, levels, ageRange } = useTimescale();
   const { eag, lag, lvl } = interval;
 
@@ -89,8 +99,16 @@ function TimescaleBoxes(props: {
   const expandedAgeRange = ensureIncreasingAgeRange(ageRange) ?? [-50, 5000];
 
   // If we have a scale, give us the boundaries clipped to the age range if appropriate
+
+  // Don't render if we are fully outside the age range of interest
+  if (eag < expandedAgeRange[0]) return null;
+  if (lag > expandedAgeRange[expandedAgeRange.length - 1]) return null;
+
   if (scale != null) {
-    const startAge = Math.min(expandedAgeRange[1], eag);
+    const startAge = Math.min(
+      expandedAgeRange[expandedAgeRange.length - 1],
+      eag,
+    );
     const endAge = Math.max(expandedAgeRange[0], lag);
     length = Math.abs(scale(startAge) - scale(endAge));
   }
@@ -106,17 +124,19 @@ function TimescaleBoxes(props: {
 
   const { children, nam: name } = interval;
 
-  // Don't render if we are fully outside the age range of interest
-  if (eag < expandedAgeRange[0]) return null;
-  if (lag > expandedAgeRange[1]) return null;
-
   const className = slugify(name);
 
   return h("div.interval", { className, style }, [
-    h.if(lvl >= minLevel)(IntervalBox, { interval, intervalStyle, onClick }),
+    h.if(lvl >= minLevel)(IntervalBox, {
+      interval,
+      intervalStyle,
+      onClick,
+      labelProps,
+    }),
     h.if(lvl < maxLevel)(IntervalChildren, {
       children,
       intervalStyle,
+      labelProps,
       onClick,
     }),
   ]);

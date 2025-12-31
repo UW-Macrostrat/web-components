@@ -9,6 +9,7 @@ import {
   Environment,
   MacrostratRef,
   StratName,
+  Interval,
 } from "@macrostrat/api-types";
 import {
   fetchAllColumns,
@@ -17,6 +18,7 @@ import {
   fetchLithologies,
   fetchRefs,
   fetchStratNames,
+  type ColumnStatusCode,
 } from "./fetch";
 import { APIProvider } from "@macrostrat/ui-components";
 import { ColumnProvider } from "@macrostrat/column-components";
@@ -49,7 +51,10 @@ interface MacrostratStore extends RefsSlice {
   lithologies: Map<number, any> | null;
   getLithologies(ids: number[] | null): Promise<any>;
   intervals: Map<number, any> | null;
-  getIntervals(ids: number[] | null, timescaleID: number | null): Promise<any>;
+  getIntervals(
+    ids: number[] | null,
+    timescaleID: number | null,
+  ): Promise<Interval[]>;
   environments: Map<number, Environment> | null;
   getEnvironments(ids: number[] | null): Promise<Environment[]>;
   columnFootprints: Map<number, ColumnFootprintsStorage>;
@@ -121,35 +126,22 @@ function createColumnsSlice(set, get) {
       const { columnFootprints, baseURL, fetch } = get();
       const key = projectID ?? -1;
       let _inProcess = inProcess;
-      if (projectID == null) {
-        // If no project is specified, in process columns cannot be included
-        _inProcess = false;
-      }
+
       let footprints = columnFootprints.get(key);
       if (footprints == null || footprints.inProcess != _inProcess) {
         // Fetch the columns
-        const statusCode = inProcess ? "in process" : null;
-        let columns = await fetchAllColumns({
+        const statusCode: ColumnStatusCode[] = ["active"];
+        if (_inProcess) {
+          statusCode.push("in process");
+        }
+        const columns = await fetchAllColumns({
           projectID,
-          statusCode: null,
+          statusCode,
           fetch,
         });
         if (columns == null) {
           return;
         }
-        if (_inProcess) {
-          const inProcessColumns = await fetchAllColumns({
-            projectID,
-            statusCode: "in process",
-            fetch,
-          });
-          if (inProcessColumns == null) {
-            return;
-          }
-          // Combine active and in-process columns
-          columns = columns.concat(inProcessColumns);
-        }
-
         footprints = {
           project_id: projectID,
           inProcess,
@@ -281,8 +273,27 @@ export function useMacrostratStore(selector: MacrostratSelector | "api") {
   if (selector === "api") {
     return ctx;
   }
-
   return useStore(ctx, selector);
+}
+
+export function useMacrostratBaseURL(
+  defaultURL = "https://macrostrat.org/api/v2",
+): string {
+  /** Get the Macrostrat base URL from the store if set, otherwise return a default value */
+  const ctx = useContext(MacrostratDataProviderContext);
+  if (ctx == null) {
+    // Return default URL if no provider is present
+    return defaultURL;
+  }
+  return ctx.getState().baseURL;
+}
+
+export function useMacrostratFetch() {
+  const ctx = useContext(MacrostratDataProviderContext);
+  if (ctx == null) {
+    throw new Error("Missing MacrostratDataProvider");
+  }
+  return ctx.getState().fetch;
 }
 
 type DataTypeKey =
@@ -340,6 +351,20 @@ export function useMacrostratColumns(
     }
     return columns;
   }, [colData, inProcess]);
+}
+
+export function useMacrostratColumnInfo(
+  columnID: number,
+): ColumnGeoJSONRecord["properties"] | null {
+  /** Get basic info for a column, without automatically fetching it (assumes the overall set of relevant columns has already been fetched) */
+  const columnsMap = useMacrostratStore((s) => s.columnFootprints);
+  return useMemo(() => {
+    for (const colData of columnsMap.values()) {
+      const col = colData.columns.find((d) => d.properties.col_id === columnID);
+      if (col != null) return col.properties;
+    }
+    return null;
+  }, [columnsMap, columnID]);
 }
 
 export function useMacrostratData(dataType: DataTypeKey, ...args: any[]) {
@@ -407,10 +432,16 @@ export function MacrostratColumnProvider(props) {
    */
 
   const { axisType } = useMacrostratColumnData();
-  const { units, domain, pixelScale, children } = props;
+  const { units, domain, pixelScale, scale, children } = props;
   return h(
     ColumnProvider,
-    { axisType, divisions: units, range: domain, pixelsPerMeter: pixelScale },
+    {
+      axisType,
+      divisions: units,
+      range: domain,
+      pixelsPerMeter: pixelScale,
+      scale,
+    },
     children,
   );
 }

@@ -1,6 +1,6 @@
 export type AgeRange = [number, number];
 
-enum MergeMode {
+export enum MergeMode {
   Inner,
   Outer,
 }
@@ -30,10 +30,11 @@ export function mergeAgeRanges(
 }
 
 export enum AgeRangeRelationship {
-  Disjoint,
-  Contains,
-  Contained,
-  Identical,
+  Disjoint = "disjoint",
+  Contains = "contains",
+  Contained = "contained",
+  Identical = "identical",
+  PartialOverlap = "partial-overlap",
 }
 
 function convertToForwardOrdinal(a: AgeRange): AgeRange {
@@ -43,6 +44,8 @@ function convertToForwardOrdinal(a: AgeRange): AgeRange {
    * expressed as negative numbers. This assists with intuitive ordering
    * in certain cases.
    */
+  a = [Number(a[0]), Number(a[1])];
+
   if (a[0] < a[1]) {
     // Already in forward ordinal form
     return a;
@@ -77,5 +80,69 @@ export function compareAgeRanges(
   }
   if (a1[0] >= b1[0] && a1[1] <= b1[1]) {
     return AgeRangeRelationship.Contained;
+  }
+  return AgeRangeRelationship.PartialOverlap;
+}
+
+export type AgeRangeQuantifiedDifference =
+  | {
+      type: AgeRangeRelationship.Disjoint;
+      distance: number;
+    }
+  | {
+      type: AgeRangeRelationship.Contains | AgeRangeRelationship.Contained;
+      overlap: number;
+    }
+  | {
+      type: AgeRangeRelationship.Identical;
+    }
+  | {
+      type: AgeRangeRelationship.PartialOverlap;
+      overlap: number;
+      direction: "above" | "below";
+    };
+
+export function ageRangeQuantifiedDifference(
+  a: AgeRange,
+  b: AgeRange,
+): AgeRangeQuantifiedDifference {
+  /** Calculate the distance between two disjoint age ranges */
+  let a1 = convertToForwardOrdinal(a);
+  let b1 = convertToForwardOrdinal(b);
+
+  const relationship = compareAgeRanges(a1, b1);
+
+  if (relationship == AgeRangeRelationship.Identical) {
+    return {
+      type: AgeRangeRelationship.Identical,
+    };
+  } else if (relationship === AgeRangeRelationship.Disjoint) {
+    // Calculate distance between ranges
+    let distance = 0;
+    if (a1[1] < b1[0]) {
+      distance = b1[0] - a1[1];
+    } else {
+      distance = a1[0] - b1[1];
+    }
+    return {
+      type: AgeRangeRelationship.Disjoint,
+      distance,
+    };
+  } else if (
+    relationship === AgeRangeRelationship.Contains ||
+    relationship === AgeRangeRelationship.Contained
+  ) {
+    // Calculate overlap between ranges
+    const overlap = Math.min(a1[1], b1[1]) - Math.max(a1[0], b1[0]);
+    return {
+      type: relationship,
+      overlap,
+    };
+  } else {
+    return {
+      type: AgeRangeRelationship.PartialOverlap,
+      overlap: Math.min(a1[1], b1[1]) - Math.max(a1[0], b1[0]),
+      direction: a1[0] < b1[0] ? "above" : "below",
+    };
   }
 }

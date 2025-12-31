@@ -139,7 +139,7 @@ export class DivisionEditOverlay extends Component<
   };
 
   timeout: any;
-  context: ColumnLayoutCtx<ColumnDivision>;
+  declare context: ColumnLayoutCtx<ColumnDivision>;
   constructor(props: DivisionEditOverlayProps) {
     super(props);
     this.onHoverInterval = this.onHoverInterval.bind(this);

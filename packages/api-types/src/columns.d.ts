@@ -1,4 +1,4 @@
-import { Polygon, MultiPolygon } from "geojson";
+import { Polygon, MultiPolygon, Point } from "geojson";
 
 export type ColumnSpec = {
   col_id: number | string;
@@ -18,7 +18,7 @@ export type ColumnProperties = {
 
 export interface ColumnGeoJSONRecord {
   type: "Feature";
-  geometry: Polygon | MultiPolygon;
+  geometry: Polygon | MultiPolygon | Point;
   properties: ColumnProperties;
 }
 

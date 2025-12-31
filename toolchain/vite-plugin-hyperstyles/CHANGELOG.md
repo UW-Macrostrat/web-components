@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.3] - 2025-11-28
+
+Update Parcel bundler.
+
 ## [1.0.2] - 2025-06-25
 
 Update required Vite version.

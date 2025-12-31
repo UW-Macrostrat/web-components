@@ -1,15 +1,67 @@
-import { getUnitHeightRange } from "../../prepare-units";
-import { useMacrostratColumnData } from "../../data-provider";
 import hyper from "@macrostrat/hyper";
-import { PBDBCollection, useFossilData } from "./provider";
-import { useMacrostratUnits } from "../../data-provider";
-import { ColumnNotes } from "../../notes";
-import { useMemo } from "react";
+import {
+  FossilDataType,
+  type PBDBCollection,
+  type PBDBEntity,
+  type PBDBOccurrence,
+  useFossilData,
+} from "./provider";
 import type { IUnit } from "../../units";
-import styles from "./index.module.sass";
-import { useCallback } from "react";
+import {
+  BaseMeasurementsColumn,
+  ColumnMeasurementData,
+  MeasurementHeightData,
+  standardizeMeasurementHeight,
+  groupNotesByPixelDistance,
+  TruncatedList,
+} from "../measurements";
+import { ColumnAxisType } from "@macrostrat/column-components";
+import {
+  useCompositeScale,
+  useMacrostratColumnData,
+} from "../../data-provider";
+import { UnitLong } from "@macrostrat/api-types";
+import styles from "./taxon-ranges.module.sass";
+import {
+  CompositeColumnScale,
+  getPositionWithinUnit,
+  getUnitHeightRange,
+} from "../../prepare-units";
+import { scaleLinear } from "d3-scale";
+
+export {
+  FossilDataType,
+  type PBDBCollection,
+  type PBDBEntity,
+  type PBDBOccurrence,
+  useFossilData,
+};
+export * from "./taxon-ranges";
 
 const h = hyper.styled(styles);
+
+export function PBDBFossilsColumn({
+  columnID,
+  type = FossilDataType.Collections,
+}: {
+  columnID: number;
+  type: FossilDataType;
+}) {
+  const data = useFossilData(columnID, type);
+  const { axisType, units } = useMacrostratColumnData();
+  const scale = useCompositeScale();
+
+  if (data == null || units == null || scale == null) return null;
+
+  const data1 = preparePBDBData(data, units, scale, axisType);
+
+  return h(BaseMeasurementsColumn, {
+    data: data1,
+    noteComponent: FossilInfo,
+    focusedNoteComponent: FossilInfo,
+    className: "fossil-collections",
+  });
+}
 
 interface FossilItemProps {
   note: {
@@ -23,190 +75,149 @@ interface FossilItemProps {
   width?: number;
   height?: number;
   color?: string;
+  focused?: boolean;
+  maxItems?: number;
 }
 
 function FossilInfo(props: FossilItemProps) {
-  const { note, spacing } = props;
-  const { data, unit } = note;
+  const { note, maxItems, focused = false } = props;
+  const { data } = note;
+  // Sort collections by name
+  data.sort((a, b) => {
+    const nameA = a.best_name ?? a.cltn_name ?? "";
+    const nameB = b.best_name ?? b.cltn_name ?? "";
+    return nameA.localeCompare(nameB);
+  });
 
   return h(TruncatedList, {
     data,
     className: "fossil-collections",
     itemRenderer: PBDBCollectionLink,
+    maxItems: focused ? Infinity : (maxItems ?? 5),
   });
 }
 
-interface TruncatedListProps {
-  data: any[];
-  className?: string;
-  maxItems?: number;
-  itemRenderer?: (props: { data: any }) => any;
-}
-
-export function TruncatedList({
+function PBDBCollectionLink({
   data,
-  className,
-  maxItems = 5,
-  itemRenderer = (p) => h("span", p.data),
-}: TruncatedListProps) {
-  let tooMany = null;
-  let d1 = data;
-  if (data.length > maxItems) {
-    const n = data.length - maxItems;
-    d1 = data.slice(0, maxItems);
-    tooMany = h("li.too-many", `and ${n} more`);
-  }
-
-  return h("ul.truncated-list", { className }, [
-    d1.map((d, i) => {
-      return h("li.element", { key: i }, h(itemRenderer, { data: d }));
-    }),
-    tooMany,
-  ]);
-}
-
-function PBDBCollectionLink({ data }: { data: PBDBCollection }) {
+}: {
+  data: PBDBCollection | PBDBOccurrence;
+}) {
+  /** A link to a PBDB collection that handles either an occurrence or collection object */
   return h(
     "a.link-id",
     {
-      href: `https://paleobiodb.org/classic/basicCollectionSearch?collection_no=${data.cltn_id}`,
+      href: `https://paleobiodb.org/app/collections#display=col:${data.cltn_id}`,
+      target: "_blank",
+      onClick(e) {
+        e.stopPropagation();
+      },
     },
-    data.cltn_name,
+    data.best_name ?? data.cltn_name,
   );
 }
 
-const matchingUnit = (dz) => (d) => d.unit_id == dz.unit_id;
+interface PreparePBDBDataOptions {
+  /** If set, group close notes within this distance (in pixels in display space)
+   * into a single note. If a number is provided, that number is used as the distance,
+   * otherwise a default of 5 pixels is used.
+   */
+  groupCloseNotes?: boolean | number;
+}
 
-export function PBDBFossilsColumn({ columnID, color = "magenta" }) {
-  const data = useFossilData({ col_id: columnID });
+function preparePBDBData<T extends PBDBEntity>(
+  data: T[],
+  units: UnitLong[],
+  scale: CompositeColumnScale,
+  axisType: ColumnAxisType,
+  options?: PreparePBDBDataOptions,
+) {
+  /** Prepare PBDB fossil data for display in a measurements column */
+  const { groupCloseNotes = true } = options ?? {};
+  const groupDistance =
+    typeof groupCloseNotes === "number" ? groupCloseNotes : 10;
 
-  const { axisType, units } = useMacrostratColumnData();
+  // Map of data to its defined height ranges
+  const dataMap = new Map<string, ColumnMeasurementData<T[]>>();
 
-  const notes: any[] = useMemo(() => {
-    if (data == null || units == null) return [];
-    let unitRefData = Array.from(data.values())
-      .map((d) => {
-        return {
-          data: d,
-          unit: units.find(matchingUnit(d[0])),
-        };
-      })
-      .filter((d) => d.unit != null);
+  // Todo: if we wanted, we could add a step where we group notes that are too close together here...
 
-    unitRefData.sort((a, b) => {
-      const v1 = units.indexOf(a.unit);
-      const v2 = units.indexOf(b.unit);
-      return v1 - v2;
-    });
+  for (const d of data) {
+    const range = getHeightRangeForPBDBEntity(d, units, axisType);
 
-    return unitRefData.map((d) => {
-      const { unit, data } = d;
-      const heightRange = getUnitHeightRange(unit, axisType);
+    if (range == null) continue;
+    const { height, top_height } = range;
+    // compose the key based on height info
+    let key = `${height}`;
+    if (top_height != null) {
+      key += `-${top_height}`;
+    }
 
-      return {
-        top_height: heightRange[1],
-        height: heightRange[0],
-        data,
-        unit,
-        id: unit.unit_id,
-      };
-    });
-  }, [data, units]);
-
-  const width = 500;
-  const paddingLeft = 40;
-
-  const noteComponent = useMemo(() => {
-    return (props) => {
-      return h(FossilInfo, {
-        color,
-        ...props,
+    // Group by height key
+    if (!dataMap.has(key)) {
+      dataMap.set(key, {
+        height,
+        top_height: top_height ?? height,
+        data: [],
+        id: key,
       });
-    };
-  }, [width, color]);
+    }
+    dataMap.get(key)!.data.push(d);
+  }
 
-  if (data == null || units == null) return null;
-
-  return h(
-    "div.dz-spectra",
-    h(ColumnNotes, {
-      width,
-      paddingLeft,
-      notes,
-      noteComponent,
-    }),
+  return groupNotesByPixelDistance(
+    Array.from(dataMap.values()),
+    scale,
+    axisType,
+    groupDistance,
   );
 }
 
-export interface BaseMeasurementsColumnProps<T> {
-  data: T[];
-  noteComponent?: any;
-  width?: number;
-  paddingLeft?: number;
-  className?: string;
-  getUnitID?: (d: T) => number | string;
+function getHeightRangeForPBDBEntity<T extends PBDBEntity>(
+  d: T,
+  units: UnitLong[],
+  axisType: ColumnAxisType,
+): MeasurementHeightData | null {
+  let height: number | null = null;
+  if (d.slb != null && d.slu == "mbsf") {
+    // Meters below sea floor - special case for eODP where we have
+    // specific depth data referenced
+    height = Number(d.slb);
+    if (axisType === ColumnAxisType.DEPTH) {
+      // Data is already in depth units
+      return { height };
+    }
+  }
+  if (d.unit_id == null) return null;
+  if (height != null) {
+    // If we have both height and unit info, we need to adjust the height
+    // to fit whatever scale type we're using.
+    // TODO: we could improve how this works by having concurrent age and
+    // height scales, which would allow us to do this without having to
+    // reference to a specific unit.
+    const unit = units.find((u) => u.unit_id === d.unit_id);
+    if (unit == null) return null;
+    const relHeight = getRelativePositionInUnit(
+      height,
+      unit,
+      ColumnAxisType.DEPTH,
+    );
+    if (relHeight == null) return null;
+    height = getPositionWithinUnit(relHeight, unit, axisType);
+    return { height };
+  }
+  // We can just get the height within the unit, clipped to the unit boundaries
+  return standardizeMeasurementHeight({ unit_id: d.unit_id }, units, axisType);
 }
 
-export function BaseMeasurementsColumn({
-  data,
-  noteComponent,
-  width = 500,
-  paddingLeft = 40,
-  className,
-  getUnitID = (d) => d.unit_id,
-}: BaseMeasurementsColumnProps<any>) {
-  const { axisType, units } = useMacrostratColumnData();
-
-  const matchingUnit = useCallback(
-    (dz) => {
-      return (d) => {
-        return getUnitID(d) === dz.unit_id;
-      };
-    },
-    [getUnitID],
-  );
-
-  const notes: any[] = useMemo(() => {
-    if (data == null || units == null) return [];
-    let unitRefData = Array.from(data.values())
-      .map((d) => {
-        return {
-          data: d,
-          unit: units.find(matchingUnit(d)),
-        };
-      })
-      .filter((d) => d.unit != null);
-
-    unitRefData.sort((a, b) => {
-      const v1 = units.indexOf(a.unit);
-      const v2 = units.indexOf(b.unit);
-      return v1 - v2;
-    });
-
-    return unitRefData.map((d) => {
-      const { unit, data } = d;
-      const heightRange = getUnitHeightRange(unit, axisType);
-
-      return {
-        top_height: heightRange[1],
-        height: heightRange[0],
-        data,
-        unit,
-        id: unit.unit_id,
-      };
-    });
-  }, [data, units, matchingUnit]);
-
-  if (data == null || units == null) return null;
-
-  return h(
-    "div",
-    { className },
-    h(ColumnNotes, {
-      width,
-      paddingLeft,
-      notes,
-      noteComponent,
-    }),
-  );
+function getRelativePositionInUnit(
+  pos: number,
+  unit: UnitLong,
+  axisType: ColumnAxisType,
+): number | null {
+  // This is the inverse of getPositionWithinUnit
+  const heights = getUnitHeightRange(unit, axisType, false);
+  const scale = scaleLinear(heights).domain([0, 1]);
+  const relPos = scale.invert(pos);
+  if (relPos < 0 || relPos > 1) return null;
+  return relPos;
 }

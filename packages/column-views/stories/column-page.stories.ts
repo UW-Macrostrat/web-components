@@ -8,15 +8,15 @@ import {
   UnitDetailsPanelWithNavigation,
   ReferencesField,
   UnitDetailsFeature,
-  Identifier,
   ColumnBasicInfo,
+  MacrostratColumnStateProvider,
 } from "../src";
 import { useColumnBasicInfo, useColumnUnits } from "./column-ui/utils";
 import styles from "./column-page.stories.module.sass";
 import { UnitLong } from "@macrostrat/api-types";
 import { useArgs } from "storybook/preview-api";
-import { DataField } from "@macrostrat/data-components";
-import { FlexRow } from "@macrostrat/ui-components";
+import { sharedColumnArgTypes } from "./arg-types";
+import { useCallback } from "react";
 
 export default {
   title: "Column views/Column page",
@@ -24,6 +24,10 @@ export default {
   args: {
     columnID: 494,
     selectedUnitID: 15160,
+    unconformityLabels: "minimal",
+  },
+  argTypes: {
+    ...sharedColumnArgTypes,
   },
 } as Meta<typeof ColumnStoryUI>;
 
@@ -55,57 +59,70 @@ function ColumnStoryUI({
   // Sync props with internal state
   const selectedUnit = units?.find((d) => d.unit_id === selectedUnitID) ?? null;
 
-  return h("div.column-ui", [
-    h("div.column-container", [
-      h(ColumnBasicInfo, { data: info }),
-      h(Column, {
-        key: columnID,
-        units,
-        selectedUnit: selectedUnitID,
-        onUnitSelected: setSelectedUnitID,
-        unconformityLabels: true,
-        keyboardNavigation: true,
-        columnWidth: 300,
-        showUnitPopover: false,
-        width: 450,
-        unitComponent: ColoredUnitComponent,
-        collapseSmallUnconformities: false,
-        targetUnitHeight: 20,
-        ...rest,
-      }),
+  return h(
+    MacrostratColumnStateProvider,
+    {
+      units,
+      selectedUnit: selectedUnitID,
+      onUnitSelected(unitID) {
+        setSelectedUnitID(unitID);
+      },
+    },
+    h("div.column-ui", [
+      h("div.column-container", [
+        h(ColumnBasicInfo, { data: info, showReferences: false }),
+        h(Column, {
+          units,
+          keyboardNavigation: true,
+          columnWidth: 300,
+          showUnitPopover: false,
+          width: 450,
+          unitComponent: ColoredUnitComponent,
+          collapseSmallUnconformities: true,
+          targetUnitHeight: 20,
+          ...rest,
+        }),
+        h(ReferencesField, {
+          refs: info?.refs,
+          inline: false,
+          row: false,
+          className: "column-refs",
+        }),
+      ]),
+      h("div.right-column", [
+        h(ColumnNavigationMap, {
+          inProcess,
+          projectID,
+          accessToken: mapboxToken,
+          selectedColumn: columnID,
+          onSelectColumn: setColumnID,
+          className: "column-selector-map",
+        }),
+        h.if(selectedUnit != null)(UnitDetailsPanelWithNavigation, {
+          unitData: units,
+          className: "unit-details-panel",
+          selectedUnit,
+          onSelectUnit: setSelectedUnitID,
+          features: new Set([
+            UnitDetailsFeature.DepthRange,
+            UnitDetailsFeature.JSONToggle,
+            UnitDetailsFeature.AdjacentUnits,
+          ]),
+        }),
+      ]),
     ]),
-    h("div.right-column", [
-      h(ColumnNavigationMap, {
-        inProcess,
-        projectID,
-        accessToken: mapboxToken,
-        selectedColumn: columnID,
-        onSelectColumn: setColumnID,
-        className: "column-selector-map",
-      }),
-      h.if(selectedUnit != null)(UnitDetailsPanelWithNavigation, {
-        unitData: units,
-        className: "unit-details-panel",
-        selectedUnit,
-        onSelectUnit: setSelectedUnitID,
-        features: new Set([
-          UnitDetailsFeature.DepthRange,
-          UnitDetailsFeature.JSONToggle,
-        ]),
-      }),
-    ]),
-  ]);
+  );
 }
 
 function useColumnSelection() {
   const [{ columnID, selectedUnitID }, updateArgs] = useArgs();
-  const setColumnID = (columnID) => {
+  const setColumnID = useCallback((columnID) => {
     updateArgs({ columnID });
-  };
+  }, []);
 
-  const setSelectedUnitID = (selectedUnitID) => {
+  const setSelectedUnitID = useCallback((selectedUnitID) => {
     updateArgs({ selectedUnitID });
-  };
+  }, []);
 
   return {
     columnID,

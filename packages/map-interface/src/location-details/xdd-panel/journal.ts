@@ -1,8 +1,20 @@
-import Article from "./Article";
+import { Article } from "./article";
 import { Divider } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import { SubExpansionPanel } from "@macrostrat/map-interface";
-import { XDDSnippet } from "./index";
+
+export interface XDDSnippet {
+  pubname: string;
+  publisher: string;
+  _gddid: string;
+  title: string;
+  doi: string;
+  coverDate: string;
+  URL: string;
+  authors: string;
+  hits: number;
+  highlight: string[];
+}
 
 function Journal(props) {
   return h("div.journal", [
@@ -27,7 +39,7 @@ type JournalProps = {
 };
 
 // Still up for review
-function Journal_(props: JournalProps) {
+export function JournalLegacy(props: JournalProps) {
   const { articles, name, publisher, nestedExpanded } = props;
 
   const helpText = articles[0].pubname;
@@ -46,5 +58,3 @@ function Journal_(props: JournalProps) {
     ],
   );
 }
-
-export default Journal_;

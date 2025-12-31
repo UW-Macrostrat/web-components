@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.2.5] - 2025-11-28
+
+- Upgrade `parcel` bundler
+
 ## [0.2.4] - 2025-08-08
 
 Add LexSelection component

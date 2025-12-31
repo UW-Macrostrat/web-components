@@ -1,8 +1,19 @@
 import hyper from "@macrostrat/hyper";
 import { Popover } from "@blueprintjs/core";
 import styles from "./popover.module.sass";
-import { useSelectedUnit, useUnitSelectionStore } from "../units";
-import { UnitDetailsPanel } from "./panel";
+import {
+  useAtomOverlayPosition,
+  useSelectedUnit,
+  useUnitSelectionDispatch,
+} from "../data-provider";
+import {
+  UnitDetailsFeature,
+  UnitDetailsPanel,
+  UnitDetailsPanelProps,
+} from "./panel";
+import { Lithology } from "@macrostrat/api-types";
+import { LithologyTagFeature } from "@macrostrat/data-components";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -52,9 +63,12 @@ function InteractionBarrier({ children }) {
   );
 }
 
-export function UnitSelectionPopover() {
+export function UnitSelectionPopover(
+  props: Omit<UnitDetailsPanelProps, "onSelectUnit" | "unit">,
+) {
   const unit = useSelectedUnit();
-  const position = useUnitSelectionStore((state) => state.overlayPosition);
+  const selectUnit = useUnitSelectionDispatch();
+  const position = useAtomOverlayPosition();
   if (unit == null) {
     return null;
   }
@@ -73,9 +87,12 @@ export function UnitSelectionPopover() {
         },
       },
       h(UnitDetailsPanel, {
+        ...props,
         unit,
-        showLithologyProportions: true,
-        className: "legend-panel",
+        className: classNames("legend-panel", props.className),
+        onSelectUnit: (id: number) => {
+          selectUnit(id, null);
+        },
       }),
     ),
   );

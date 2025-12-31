@@ -4,7 +4,6 @@ import {
   formatCoordForZoomLevel,
 } from "@macrostrat/mapbox-utils";
 import { ParsedQuery } from "query-string";
-import { fmt1, fmt2, fmtInt } from "./utils";
 
 interface LocationHashParams {
   x?: string;
@@ -13,6 +12,10 @@ interface LocationHashParams {
   a?: string;
   e?: string;
 }
+
+const fmt1 = (x: number) => x.toFixed(1);
+const fmt2 = (x: number) => x.toFixed(2);
+const fmtInt = (x: number) => Math.round(x).toString();
 
 export function applyMapPositionToHash(
   args: LocationHashParams,

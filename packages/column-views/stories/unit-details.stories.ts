@@ -2,10 +2,17 @@ import h from "@macrostrat/hyper";
 import { Meta, StoryObj } from "@storybook/react-vite";
 import { useAPIResult } from "@macrostrat/ui-components";
 
-import { Spinner } from "@blueprintjs/core";
+import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { UnitDetailsPanel } from "../src/unit-details";
-import { LithologiesProvider } from "../src";
+import {
+  ExtUnit,
+  LithologiesProvider,
+  MacrostratColumnStateProvider,
+  useSelectedUnit,
+  useUnitSelectionDispatch,
+} from "../src";
+import { useColumnUnits } from "./column-ui/utils";
 
 function useUnitData(unit_id, inProcess = false) {
   return useAPIResult(
@@ -47,6 +54,8 @@ interface UnitDetailsProps {
   unit_id: number;
   onClose?: () => void;
   showLithologyProportions?: boolean;
+  actions: any;
+  hiddenActions: any;
 }
 
 const meta: Meta<UnitDetailsProps> = {
@@ -105,6 +114,44 @@ export const MoenkopiFormation: Story = {
 export const eODPMudstone: Story = {
   args: {
     unit_id: 62623,
-    inProcess: true,
   },
 };
+
+export const WithActions: Story = {
+  args: {
+    unit_id: 62623,
+    onClose() {
+      console.log("Close");
+    },
+    actions: h([
+      h(Button, { text: "Action 1", onClick: () => alert("Action 1") }),
+    ]),
+    hiddenActions: h([
+      h(Button, { icon: "add-column-left", onClick: () => alert("Hidden") }),
+    ]),
+  },
+};
+
+export function WithDataProvider(args: UnitDetailsProps) {
+  const units = useColumnUnits(432) as ExtUnit[] | null;
+
+  if (units == null) return h(Spinner);
+
+  return h(
+    MacrostratColumnStateProvider,
+    { units, selectedUnit: units?.[0]?.unit_id },
+    h(UnitDetailsWithSelection),
+  );
+}
+
+function UnitDetailsWithSelection(args: UnitDetailsProps) {
+  const unit = useSelectedUnit();
+  const setSelectedUnit = useUnitSelectionDispatch();
+  if (unit == null) return h("div", "No unit selected");
+  return h(UnitDetailsPanel, {
+    unit,
+    onSelectUnit(unit) {
+      setSelectedUnit(unit, null, null);
+    },
+  });
+}

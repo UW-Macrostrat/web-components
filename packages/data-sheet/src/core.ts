@@ -19,7 +19,6 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { EditorPopup, handleSpecialKeys, DataSheetAction } from "./components";
 import styles from "./main.module.sass";
 import {
-  ColumnSpec,
   DataSheetProvider,
   DataSheetProviderProps,
   DataSheetStore,
@@ -28,6 +27,7 @@ import {
   useStoreAPI,
   VisibleCells,
 } from "./provider";
+import type { ColumnSpec } from "./utils";
 
 const h = hyper.styled(styles);
 
@@ -211,7 +211,6 @@ function _DataSheet<T>({
   return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
       onSaveData: _onSaveData,
-      onAddRow,
       onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
     }),
     dataSheetActions,
@@ -244,6 +243,7 @@ function _DataSheet<T>({
       },
       [
         h(
+          // @ts-expect-error
           Table2,
           {
             ref,

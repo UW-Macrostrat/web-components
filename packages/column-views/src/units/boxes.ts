@@ -12,12 +12,11 @@ import { SizeAwareLabel, Clickable } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { forwardRef, ReactNode, useContext, useMemo } from "react";
 import { resolveID, scalePattern } from "./resolvers";
-import { useUnitSelectionTarget } from "./selection";
+import { useUnitSelectionTarget, useLithologies } from "../data-provider";
 import { IUnit } from "./types";
 import styles from "./boxes.module.sass";
 import classNames from "classnames";
 import { getUnitHeightRange } from "../prepare-units/utils";
-import { useLithologies } from "../data-provider";
 import { getMixedUnitColor } from "./colors";
 import type { RectBounds } from "./types";
 
@@ -45,9 +44,7 @@ interface UnitProps extends Clickable, Partial<RectBounds>, UnitRectOptions {
 }
 
 export interface LabeledUnitProps
-  extends UnitRectOptions,
-    Clickable,
-    Partial<RectBounds> {
+  extends UnitRectOptions, Clickable, Partial<RectBounds> {
   division: IUnit;
   patternID?: string | number;
   label: string;
@@ -161,8 +158,6 @@ function Unit(props: UnitProps) {
   const _className = classNames(className, { colored: hasBackgroundColor });
 
   const [ref, selected, onClick] = useUnitSelectionTarget(d);
-
-  //const key = `unit-${d.unit_id}`;
 
   return h(
     "g.unit",

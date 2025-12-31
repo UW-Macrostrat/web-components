@@ -1,6 +1,6 @@
 import { createContext, ReactNode, useContext } from "react";
 import { StatefulComponent } from "@macrostrat/ui-components";
-import h from "@macrostrat/hyper";
+import h from "../hyper";
 
 import { hasSpan } from "./utils";
 import { FlexibleNode, Force, Node, Renderer } from "./label-primitives";
@@ -48,10 +48,13 @@ const buildColumnIndex = function () {
 
 function withinDomain(scale) {
   const scaleDomain = scale.domain();
+  const d1: [number, number] = [
+    Math.min(...scaleDomain),
+    Math.max(...scaleDomain),
+  ];
   return (d) => {
     const noteRange: [number, number] = [d.height, d.top_height ?? d.height];
-
-    const rel = compareAgeRanges(scaleDomain, noteRange);
+    const rel = compareAgeRanges(d1, noteRange);
 
     return rel !== AgeRangeRelationship.Disjoint;
   };
@@ -101,7 +104,7 @@ class NoteLayoutProvider extends StatefulComponent<
       return 12;
     },
   };
-  context: ColumnCtx<ColumnDivision>;
+  declare context: ColumnCtx<ColumnDivision>;
   _previousContext: ColumnCtx<ColumnDivision>;
   _rendererIndex: object;
 
@@ -303,7 +306,7 @@ class NoteLayoutProvider extends StatefulComponent<
   }
 }
 
-const NoteRect = function (props) {
+function NoteRect(props) {
   let { padding, width, ...rest } = props;
   if (padding == null) {
     padding = 5;
@@ -322,15 +325,11 @@ const NoteRect = function (props) {
     transform: `translate(${-padding},${-padding})`,
     ...rest,
   });
-};
+}
 
-const NoteUnderlay = function ({ fill, ...rest }) {
-  if (fill == null) {
-    fill = "transparent";
-  }
+const NoteUnderlay = function ({ ...rest }) {
   return h(NoteRect, {
     className: "underlay",
-    fill,
     ...rest,
   });
 };

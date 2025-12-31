@@ -14,19 +14,35 @@ import {
   Parenthetical,
   Value,
 } from "@macrostrat/data-components";
-import { useMacrostratData, useMacrostratDefs } from "../data-provider";
 import {
+  useColumnUnitsMap,
+  useMacrostratColumnInfo,
+  useMacrostratData,
+  useMacrostratDefs,
+} from "../data-provider";
+import type {
   Environment,
   UnitLong,
   UnitLongFull,
   Lithology,
   Interval,
-  StratUnit,
 } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
 
 const h = hyper.styled(styles);
+
+export interface UnitDetailsPanelProps {
+  unit: any;
+  onClose?: any;
+  className?: string;
+  actions?: ReactNode;
+  hiddenActions?: ReactNode;
+  features?: Set<UnitDetailsFeature>;
+  lithologyFeatures?: Set<LithologyTagFeature>;
+  onSelectUnit?: (unitID: number) => void;
+  onClickItem?: MacrostratItemClickHandler;
+}
 
 export function UnitDetailsPanel({
   unit,
@@ -40,21 +56,10 @@ export function UnitDetailsPanel({
   ]),
   lithologyFeatures,
   actions,
-  selectUnit,
-  columnUnits,
+  hiddenActions = null,
+  onSelectUnit,
   onClickItem,
-}: {
-  unit: any;
-  onClose?: any;
-  showLithologyProportions?: boolean;
-  className?: string;
-  actions?: ReactNode;
-  features?: Set<UnitDetailsFeature>;
-  lithologyFeatures?: Set<LithologyTagFeature>;
-  columnUnits?: UnitLong[];
-  selectUnit?: (unitID: number) => void;
-  onClickItem?: (item: any) => void;
-}) {
+}: UnitDetailsPanelProps) {
   const [showJSON, setShowJSON] = useState(false);
 
   let content = null;
@@ -66,24 +71,27 @@ export function UnitDetailsPanel({
       features,
       lithologyFeatures,
       onClickItem,
+      onSelectUnit,
     });
   }
 
   let title = defaultNameFunction(unit);
 
-  let hiddenActions = null;
   if (features.has(UnitDetailsFeature.JSONToggle)) {
-    hiddenActions = h(Button, {
-      icon: "code",
-      small: true,
-      minimal: true,
-      key: "json-view-toggle",
-      className: classNames("json-view-toggle", { enabled: setShowJSON }),
-      onClick(evt) {
-        setShowJSON(!showJSON);
-        evt.stopPropagation();
-      },
-    });
+    hiddenActions = h([
+      h(Button, {
+        icon: "code",
+        small: true,
+        minimal: true,
+        key: "json-view-toggle",
+        className: classNames("json-view-toggle", { enabled: setShowJSON }),
+        onClick(evt) {
+          setShowJSON(!showJSON);
+          evt.stopPropagation();
+        },
+      }),
+      hiddenActions,
+    ]);
   }
 
   return h("div.unit-details-panel", { className }, [
@@ -114,15 +122,13 @@ export function LegendPanelHeader({
   return h("header.legend-panel-header", [
     h("div.title-container", [
       h.if(title != null)("h3", title),
-      h.if(hiddenActions != null || id != null)(
+      h.if(hiddenActions != null)(
         "span.hidden-actions-container",
-        h("div.hidden-actions", [
-          h.if(id != null)("code.unit-id", id),
-          h.if(hiddenActions != null)([hiddenActions]),
-        ]),
+        h("div.hidden-actions", hiddenActions),
       ),
     ]),
     h("div.spacer"),
+    h.if(id != null)("code.unit-id", id),
     h.if(actions != null)(ButtonGroup, { minimal: true }, actions),
     h.if(onClose != null)(Button, {
       icon: "cross",
@@ -141,12 +147,22 @@ export enum UnitDetailsFeature {
   OutcropType = "outcrop-type",
   JSONToggle = "json-toggle",
   DepthRange = "depth-range",
+  ColumnName = "column-name",
 }
+
+export type MacrostratItemClickHandler = (
+  event: MouseEvent,
+  item:
+    | Lithology
+    | Environment
+    | UnitLong
+    | Interval
+    | { strat_name_id: number },
+) => void;
 
 function UnitDetailsContent({
   unit,
-  selectUnit,
-  columnUnits,
+  onSelectUnit,
   lithologyFeatures = new Set([
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
@@ -159,19 +175,10 @@ function UnitDetailsContent({
   getItemHref,
 }: {
   unit: UnitLong;
-  selectUnit?: (unitID: number) => void;
-  columnUnits?: UnitLong[];
+  onSelectUnit?: (unitID: number) => void;
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
-  onClickItem?: (
-    event: MouseEvent,
-    item:
-      | Lithology
-      | Environment
-      | UnitLong
-      | Interval
-      | { strat_name_id: number },
-  ) => void;
+  onClickItem?: MacrostratItemClickHandler;
   getItemHref?: (item: Lithology | Environment | UnitLong) => string | null;
 }) {
   const lithMap = useMacrostratDefs("lithologies");
@@ -179,15 +186,6 @@ function UnitDetailsContent({
 
   const environments = enhanceEnvironments(unit.environ, envMap);
   const lithologies = enhanceLithologies(unit.lith ?? [], lithMap);
-
-  // Create a lookup table of units if provided
-  const columnUnitsMap = useMemo(() => {
-    const map = new Map<number, UnitLong>();
-    for (const colUnit of columnUnits ?? []) {
-      map.set(colUnit.unit_id, colUnit);
-    }
-    return map;
-  }, [columnUnits]);
 
   let outcropField = null;
   if (features.has(UnitDetailsFeature.OutcropType)) {
@@ -241,6 +239,9 @@ function UnitDetailsContent({
   }
 
   return h("div.unit-details-content", [
+    h.if(features.has(UnitDetailsFeature.ColumnName))(ColumnNameField, {
+      col_id: unit.col_id,
+    }),
     thicknessOrHeightRange,
     h.if(lithologies)(LithologyList, {
       label: "Lithology",
@@ -269,12 +270,20 @@ function UnitDetailsContent({
       h.if(unit.units_above != null)(
         DataField,
         { label: "Above" },
-        h(UnitIDList, { units: unit.units_above, selectUnit }),
+        h(UnitIDList, {
+          units: unit.units_above,
+          onSelectUnit,
+          showNames: true,
+        }),
       ),
       h.if(unit.units_below != null)(
         DataField,
         { label: "Below" },
-        h(UnitIDList, { units: unit.units_below, selectUnit }),
+        h(UnitIDList, {
+          units: unit.units_below,
+          onSelectUnit,
+          showNames: true,
+        }),
       ),
     ]),
     colorSwatch,
@@ -282,14 +291,41 @@ function UnitDetailsContent({
   ]);
 }
 
+function ColumnNameField({
+  col_id,
+  showIdentifier = false,
+}: {
+  col_id: number;
+  showIdentifier?: boolean;
+}) {
+  const colData = useMacrostratColumnInfo(col_id);
+  let inner: any = h(Identifier, { id: col_id });
+  const name = colData?.col_name;
+  if (name != null) {
+    inner = h("span.value", [
+      h("span.col-name", name),
+      h.if(showIdentifier)([" ", h(Parenthetical, inner)]),
+    ]);
+  }
+
+  return h(
+    DataField,
+    {
+      label: "Column",
+    },
+    inner,
+  );
+}
+
 export function ReferencesField({ refs, className = null, ...rest }) {
   if (refs == null || refs.length === 0) {
     return null;
   }
+
   return h(
     DataField,
     {
-      label: "Source",
+      label: "References",
       className: classNames("refs-field", className),
       ...rest,
     },
@@ -529,6 +565,20 @@ function enhanceLithologies(
   });
 }
 
+export function ClickableText({
+  onClick,
+  className,
+  children,
+}: {
+  onClick: () => void;
+  className?: string;
+  children: ReactNode;
+}) {
+  /** An optionally clickable text element */
+  const tag = onClick != null ? "a" : "span";
+  return h(tag, { onClick, className }, children);
+}
+
 export function Identifier({
   id,
   onClick,
@@ -539,49 +589,90 @@ export function Identifier({
   className?: string;
 }) {
   /** An item that displays a numeric identifier, optionally clickable */
-  const tag = onClick != null ? "a" : "span";
+  const _onClick = onClick != null ? () => onClick(id) : null;
+
   return h(
-    tag,
+    ClickableText,
     {
-      onClick() {
-        onClick?.(id);
-      },
-      className: classNames(
-        "identifier",
-        { clickable: onClick != null },
-        className,
-      ),
+      onClick: _onClick,
+      className: classNames("identifier", className),
     },
     id,
   );
 }
 
-function UnitIDList({ units, selectUnit }) {
-  const u1 = units.filter((d) => d != 0);
+type UnitInfo = {
+  unitID: number;
+  colID?: number;
+  name?: string;
+};
 
-  if (u1.length === 0) {
+function UnitIDList({ units, onSelectUnit, showNames = false }) {
+  const unitsMap = useColumnUnitsMap();
+
+  const extUnits: UnitInfo[] = useMemo(() => {
+    const u1 = units.filter((d) => d != 0);
+    if (showNames) {
+      return u1.map((unitID) => {
+        const unitData = unitsMap?.get(unitID);
+        let name: string = undefined;
+        if (unitData != null) {
+          name = defaultNameFunction(unitData);
+        }
+        return {
+          unitID,
+          colID: unitData?.col_id,
+          name,
+        };
+      });
+    } else {
+      return u1.map((unitID) => ({ unitID }));
+    }
+  }, [units, unitsMap]);
+
+  if (extUnits.length === 0) {
     return h("span.no-units", "None");
-  }
-
-  let tag = "span";
-  if (selectUnit != null) {
-    tag = "a";
   }
 
   return h(
     ItemList,
-    { className: "unit-id-list" },
-    u1.map((unitID) => {
-      return h(Identifier, {
-        className: "unit-id",
-        onClick() {
-          selectUnit?.(unitID);
-        },
-        key: unitID,
-        id: unitID,
-      });
-    }),
+    { className: "units-list" },
+    extUnits.map((info) =>
+      h("span.item", h(UnitIdentifier, { ...info, onSelectUnit })),
+    ),
   );
+}
+
+function UnitIdentifier({
+  unitID,
+  colID,
+  name,
+  onSelectUnit,
+}: UnitInfo & { onSelectUnit?: (unitID: number) => void }) {
+  const onClick = useMemo(() => {
+    if (onSelectUnit == null) return null;
+    return () => {
+      onSelectUnit(unitID);
+    };
+  }, [onSelectUnit]);
+
+  if (name != null) {
+    return h(
+      ClickableText,
+      {
+        className: "unit-name",
+        onClick,
+      },
+      name,
+    );
+  }
+
+  return h(Identifier, {
+    className: "unit-id",
+    onClick,
+    key: unitID,
+    id: unitID,
+  });
 }
 
 function IntervalProportions({ unit, onClickItem }) {
