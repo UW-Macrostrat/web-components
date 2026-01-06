@@ -18,9 +18,9 @@ import { Spinner } from "@blueprintjs/core";
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 export default {
-  title: "Column views/GBDB/Columns",
+  title: "Column views/GBDB/Columns from Macrostrat API",
   component: GBDBColumn,
-  description: "A column rendered using static units",
+  description: "GBDB columns from Macrostrat API",
   args: {
     axisType: ColumnAxisType.HEIGHT,
     showFormations: true,
@@ -134,6 +134,7 @@ function GBDBColumn({
       [
         h(ColumnInner, {
           units,
+          key: columnID,
           axisType,
           showUnitPopover: true,
           targetUnitHeight: 50,
