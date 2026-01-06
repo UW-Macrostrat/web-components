@@ -9,11 +9,11 @@ import {
   useLithologies,
 } from "../../src";
 import "@macrostrat/style-system";
-import { UnitLong } from "@macrostrat/api-types";
 import { useMemo } from "react";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useColumnSelection } from "../column-ui/utils";
 import { Spinner } from "@blueprintjs/core";
+import { convertGBDBUnitToMacrostrat, createFormationUnits } from "./utils";
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -112,7 +112,7 @@ function GBDBColumn({
     });
 
     let units = sectionData.map((d) => {
-      return convert(d, lithNamesMap);
+      return convertGBDBUnitToMacrostrat(d, lithNamesMap);
     });
 
     // Sort units by increasing height
@@ -217,93 +217,4 @@ function ColumnInner(props) {
   const b_pos = Math.min(...units.map((u) => u.b_pos));
 
   return h(Column, { ...rest, units, t_pos, b_pos, key: columnID });
-}
-
-function convert(unit: any, lithNamesMap: Map<string, any>): UnitLong {
-  const {
-    unit_id,
-    section_id,
-    unit_thickness,
-    unit_sum,
-    lithology1,
-    lithology2,
-    paleoenvironment,
-    model_min_ma,
-    model_max_ma,
-    age_source,
-  } = unit;
-
-  let { formation, member, group } = unit;
-  if (formation == null || formation === "") formation = undefined;
-  if (member == null || member === "") member = undefined;
-  if (group == null || group === "") group = undefined;
-
-  let atts = undefined;
-  if (lithology2 != null && lithology2 !== "") {
-    atts = [lithology2];
-  }
-
-  const lithName = lithology1.toLowerCase();
-
-  let lith = lithNamesMap.get(lithName) ?? {
-    name: lithName,
-  };
-  lith = { ...lith, atts };
-
-  let environ = [];
-  if (paleoenvironment != null && paleoenvironment !== "") {
-    environ = [{ name: paleoenvironment }];
-  }
-
-  return {
-    unit_id,
-    col_id: section_id,
-    unit_name: `Unit ${unit_id}`,
-    lith: [lith],
-    b_pos: unit_sum - unit_thickness,
-    t_pos: unit_sum,
-    min_thick: unit_thickness,
-    max_thick: unit_thickness,
-    b_age: model_max_ma,
-    t_age: model_min_ma,
-    Fm: formation,
-    Mbr: member,
-    Gp: group,
-    environ,
-    covered: lithology1 == "covered",
-    age_source,
-  };
-}
-
-function createFormationUnits(units: UnitLong[]): UnitLong[] {
-  // Create a new array of units condensed on formation names
-  const formationMap = new Map<string, UnitLong>();
-  const unitsWithFormation = units.filter((u) => u.Fm != null);
-
-  let uid = -1;
-  for (const u of unitsWithFormation) {
-    const formationName = u.Fm;
-    if (!formationMap.has(formationName)) {
-      formationMap.set(formationName, {
-        ...u,
-        lith: [],
-        environ: [],
-        unit_id: uid, // Indicate it's a formation unit
-        unit_name: formationName + " Formation",
-        column: 0,
-      });
-      uid -= 1;
-    } else {
-      const existing = formationMap.get(formationName)!;
-      // Update the existing formation unit to extend its age range
-      existing.t_age = Math.min(existing.t_age, u.t_age);
-      existing.b_age = Math.max(existing.b_age, u.b_age);
-      existing.min_thick += u.min_thick;
-      existing.max_thick += u.max_thick;
-      existing.t_pos = Math.max(existing.t_pos, u.t_pos);
-      existing.b_pos = Math.min(existing.b_pos, u.b_pos);
-    }
-  }
-
-  return Array.from(formationMap.values()).sort((a, b) => b.b_age - a.b_age);
 }

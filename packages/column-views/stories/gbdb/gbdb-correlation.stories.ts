@@ -3,7 +3,6 @@ import "@macrostrat/style-system";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  ColumnCorrelationProviderBase,
   ColumnData,
   fetchUnits,
   useCorrelationMapStore,
@@ -41,7 +40,7 @@ function CorrelationStoryUI({
   console.log("Columns", columns);
 
   return h(
-    ColumnCorrelationProviderBase,
+    ColumnCorrelationProvider,
     {
       focusedLine,
       columns,
