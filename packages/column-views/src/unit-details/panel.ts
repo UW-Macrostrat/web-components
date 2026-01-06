@@ -243,7 +243,7 @@ function UnitDetailsContent({
       col_id: unit.col_id,
     }),
     thicknessOrHeightRange,
-    h(LithologyList, {
+    h.if(lithologies)(LithologyList, {
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
@@ -257,7 +257,7 @@ function UnitDetailsContent({
         onClickItem,
       }),
     ]),
-    h(EnvironmentsList, {
+    h.if(environments)(EnvironmentsList, {
       environments,
       onClickItem,
       getItemHref,
@@ -267,7 +267,7 @@ function UnitDetailsContent({
     }),
     outcropField,
     h.if(features.has(UnitDetailsFeature.AdjacentUnits))([
-      h(
+      h.if(unit.units_above != null)(
         DataField,
         { label: "Above" },
         h(UnitIDList, {
@@ -276,7 +276,7 @@ function UnitDetailsContent({
           showNames: true,
         }),
       ),
-      h(
+      h.if(unit.units_below != null)(
         DataField,
         { label: "Below" },
         h(UnitIDList, {
@@ -542,10 +542,10 @@ export function Duration({
 }
 
 function enhanceEnvironments(
-  environments: Partial<Environment>[],
+  environments: Partial<Environment>[] | null,
   envMap: Map<number, Environment>,
 ) {
-  return environments.map((env) => {
+  return environments?.map((env) => {
     return {
       ...(envMap?.get(env.environ_id) ?? {}),
       ...env,
@@ -557,7 +557,7 @@ function enhanceLithologies(
   lithologies: Partial<UnitLong["lith"]>,
   lithMap: Map<number, any>,
 ) {
-  return lithologies.map((lith) => {
+  return lithologies?.map((lith) => {
     return {
       ...(lithMap?.get(lith.lith_id) ?? {}), // get lithology details
       ...lith, // override with the unit's specific lithology data
@@ -676,6 +676,14 @@ function UnitIdentifier({
 }
 
 function IntervalProportions({ unit, onClickItem }) {
+  if (
+    unit.b_int_id == null &&
+    unit.t_int_id == null &&
+    unit.b_prop == null &&
+    unit.t_prop == null
+  )
+    return null;
+
   const i0 = unit.b_int_id;
   const i1 = unit.t_int_id;
   let b_prop = unit.b_prop ?? 0;

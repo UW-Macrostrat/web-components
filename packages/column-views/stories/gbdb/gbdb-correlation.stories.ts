@@ -1,26 +1,25 @@
 import { Meta } from "@storybook/react-vite";
 import "@macrostrat/style-system";
-import { useCorrelationLine } from "./utils";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  fetchUnits,
-  MacrostratDataProvider,
-  MergeSectionsMode,
+  ColumnData,
   useCorrelationMapStore,
-  useMacrostratBaseURL,
-  useMacrostratFetch,
-} from "../..";
+} from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
 
-import styles from "./stories.module.sass";
-import { CorrelationChart, CorrelationChartProps } from "../main";
-import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
+import styles from "./gbdb.module.sass";
+import { CorrelationChart, CorrelationChartProps } from "../../src";
+import {
+  ErrorBoundary,
+  useAPIResult,
+  useAsyncMemo,
+} from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
-import { EnvironmentColoredUnitComponent } from "../../units";
-import { scaleLinear, scalePow } from "d3-scale";
+import { useCorrelationLine } from "../../src/correlation-chart/stories/utils";
+import { UnitLong } from "@macrostrat/api-types";
 
-const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
+const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 const h = hyperStyled(styles);
 
@@ -35,37 +34,67 @@ function CorrelationStoryUI({
   projectID,
   ...rest
 }: any) {
+  const columns = useColumnGeoJSON();
+
+  console.log("Columns", columns);
+
   return h(
-    MacrostratDataProvider,
-    { baseURL: "https://dev.macrostrat.org/api/v2" },
-    h(
-      ColumnCorrelationProvider,
-      {
-        focusedLine,
-        columns: null,
-        projectID,
-        onSelectColumns(cols, line) {
-          setFocusedLine(line);
-        },
+    ColumnCorrelationProvider,
+    {
+      focusedLine,
+      columns,
+      onSelectColumns(cols, line) {
+        setFocusedLine(line);
       },
-      h("div.correlation-ui", [
-        h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
-        h("div.right-column", [
-          h(ColumnCorrelationMap, {
-            accessToken: mapboxToken,
-            className: "correlation-map",
-            //showLogo: false,
-          }),
-        ]),
+    },
+    h("div.correlation-ui", [
+      h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
+      h("div.right-column", [
+        h(ColumnCorrelationMap, {
+          accessToken,
+          className: "correlation-map",
+          //showLogo: false,
+        }),
       ]),
-    ),
+    ]),
   );
+}
+
+function useColumnGeoJSON(view: string = "gbdb_summary_columns") {
+  const res = useAPIResult("https://macrostrat.local/api/pg/" + view);
+  return res?.[0]?.geojson?.features;
+}
+
+async function fetchGBDBUnits(columns: number[]): Promise<ColumnData[]> {
+  console.log(columns);
+  const _columns = Array.from(new Set(columns));
+  if (_columns.length == 0) {
+    return [];
+  }
+  const col_ids = _columns.join(",");
+
+  const unitData = await fetch(
+    `https://dev.macrostrat.org/api/pg/gbdb_summary_units?col_id=in.(${col_ids})`,
+  ).then((res) => res.json());
+
+  // Group by column ID
+  const colMap: { [key: number]: UnitLong[] } = {};
+  for (const unit of unitData) {
+    const col_id = unit.col_id;
+    if (!(col_id in colMap)) {
+      colMap[col_id] = [];
+    }
+    colMap[col_id].push(unit);
+  }
+
+  return Object.entries(colMap).map(([colID, units]) => ({
+    columnID: parseInt(colID),
+    units,
+  }));
 }
 
 function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
   /** This state management is a bit too complicated, but it does kinda sorta work */
-
-  const fetch = useMacrostratFetch();
 
   // Sync focused columns with map
   const focusedColumns = useCorrelationMapStore(
@@ -74,21 +103,25 @@ function CorrelationDiagramWrapper(props: Omit<CorrelationChartProps, "data">) {
 
   const columnUnits = useAsyncMemo(async () => {
     const col_ids = focusedColumns.map((col) => col.properties.col_id);
-    return await fetchUnits(col_ids, fetch);
+    return await fetchGBDBUnits(col_ids);
   }, [focusedColumns]);
 
   return h("div.correlation-diagram", [
     h(
       ErrorBoundary,
       h(OverlaysProvider, [
-        h(CorrelationChart, { data: columnUnits, ...props }),
+        h(CorrelationChart, {
+          data: columnUnits,
+          nInternalColumns: 1,
+          ...props,
+        }),
       ]),
     ),
   ]);
 }
 
 export default {
-  title: "Column views/Correlation chart",
+  title: "Column views/GBDB/Correlation chart",
   component: CorrelationStoryUI,
   parameters: {
     layout: "fullscreen",
@@ -106,7 +139,7 @@ export default {
     focusedLine: "-100,45 -90,50",
     columnSpacing: 0,
     columnWidth: 100,
-    collapseSmallUnconformities: true,
+    collapseSmallUnconformities: false,
     targetUnitHeight: 20,
   },
   argTypes: {
@@ -169,11 +202,6 @@ export default {
         type: "number",
       },
     },
-    projectID: {
-      control: {
-        type: "number",
-      },
-    },
   },
 } as Meta<typeof CorrelationStoryUI>;
 
@@ -185,37 +213,3 @@ function Template(args) {
 }
 
 export const Primary = Template.bind({});
-
-export const ColoredByEnvironment = Template.bind({});
-ColoredByEnvironment.args = {
-  unitComponent: EnvironmentColoredUnitComponent,
-};
-
-export const RestrictedAgeRange = Template.bind({});
-RestrictedAgeRange.args = {
-  t_age: 100,
-  b_age: 300,
-  focusedLine: "-114.29,42.74 -104.59,39.21",
-};
-
-export const WithFixedScale = Template.bind({});
-WithFixedScale.args = {
-  scale: scaleLinear().domain([0, 2500]).range([0, 1000]),
-};
-
-export const WithPowerScale = Template.bind({});
-WithPowerScale.args = {
-  scale: scalePow().exponent(0.3).domain([0, 2500]).range([0, 1000]),
-};
-
-export const WithPowerScaleMerged = Template.bind({});
-WithPowerScaleMerged.args = {
-  scale: scalePow().exponent(0.3).domain([0, 2500]).range([0, 1000]),
-  mergeSections: MergeSectionsMode.ALL,
-};
-
-export const eODPCorrelationChart = Template.bind({});
-eODPCorrelationChart.args = {
-  focusedLine: "-125,38 -120,32",
-  projectID: 3,
-};

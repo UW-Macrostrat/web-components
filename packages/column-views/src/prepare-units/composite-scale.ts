@@ -307,7 +307,15 @@ export function createCompositeScale(
   const scale: CompositeColumnScale = (age) => {
     for (const s of scales) {
       const domain = s.domain();
-      if (age >= domain[0] && age <= domain[domain.length - 1]) {
+      if (
+        domain[0] < domain[domain.length - 1] &&
+        age >= domain[0] &&
+        age <= domain[domain.length - 1]
+      ) {
+        // Age axes
+        return s(age);
+      } else if (age <= domain[0] && age >= domain[domain.length - 1]) {
+        // Normal axes like height
         return s(age);
       }
     }

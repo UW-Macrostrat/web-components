@@ -38,7 +38,7 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
       while (columns.includes(col)) {
         col++;
       }
-      d.column = col;
+      d.column ??= col;
     }
 
     // If unit overlaps the edges of a section, set the clip positions
@@ -102,7 +102,7 @@ function extendDivision(
   return {
     ...unit,
     bottomOverlap,
-    column,
+    column: unit.column ?? column,
     overlappingUnits: overlappingUnits.map((d) => d.unit_id),
   };
 }
