@@ -4,7 +4,6 @@ import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
   ColumnData,
-  fetchUnits,
   useCorrelationMapStore,
 } from "@macrostrat/column-views";
 import { hyperStyled } from "@macrostrat/hyper";
@@ -75,7 +74,7 @@ async function fetchGBDBUnits(columns: number[]): Promise<ColumnData[]> {
   const col_ids = _columns.join(",");
 
   const unitData = await fetch(
-    `https://macrostrat.local/api/pg/gbdb_summary_units?col_id=in.(${col_ids})`,
+    `https://dev.macrostrat.org/api/pg/gbdb_summary_units?col_id=in.(${col_ids})`,
   ).then((res) => res.json());
 
   // Group by column ID

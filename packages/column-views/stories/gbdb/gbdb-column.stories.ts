@@ -36,13 +36,13 @@ export default {
 };
 
 function useColumnGeoJSON(view: string = "gbdb_section_geojson") {
-  const res = useAPIResult("https://macrostrat.local/api/pg/" + view);
+  const res = useAPIResult("https://dev.macrostrat.org/api/pg/" + view);
   return res?.[0]?.geojson;
 }
 
 function useColumnUnits(sectionID: number) {
   return useAPIResult(
-    "https://macrostrat.local/api/pg/gbdb_strata_with_age_model",
+    "https://dev.macrostrat.org/api/pg/gbdb_strata_with_age_model",
     {
       section_id: `eq.${sectionID}`,
     },
