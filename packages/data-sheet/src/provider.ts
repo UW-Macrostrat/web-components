@@ -10,8 +10,10 @@ import type {
 import {
   ColumnSpec,
   ColumnSpecOptions,
+  editorKeyHandler,
   generateColumnSpec,
   range,
+  tableKeyHandler,
 } from "./utils";
 import update, { Spec } from "immutability-helper";
 
@@ -36,19 +38,11 @@ export interface DataSheetState<T> {
   columnWidthsIndex: Map<string, number>;
 }
 
-export interface DataSheetComputedStore {
-  hasUpdates: boolean;
-  /** State for column widths (if resized).
-   * This will reset if the columnSpec prop changes
-   */
-  columnWidths: number[];
-}
-
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
 
 type StateUpdater<T> = T[] | ((state: T[]) => T[]);
 
-export interface DataSheetStore<T> extends DataSheetVals<T> {
+export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   setSelection(selection: Region[]): void;
   onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: StateUpdater<T>): void;
@@ -82,16 +76,38 @@ export interface VisibleCells {
   rowIndexEnd: number;
 }
 
+interface DataSheetComputedVals {
+  hasUpdates: boolean;
+  /** State for column widths (if resized).
+   * This will reset if the columnSpec prop changes
+   */
+  columnWidths: number[];
+  tableKeyHandler: (evt: React.KeyboardEvent) => void;
+  editorKeyHandler: (evt: React.KeyboardEvent) => void;
+  isSingleCellSelection?: boolean;
+}
+
+export type DataSheetStore<T> = DataSheetComputedVals & DataSheetStoreMain<T>;
+
 const computed = createComputed(
-  (state: DataSheetStore<any>): DataSheetComputedStore => ({
-    hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
-    columnWidths: state.columnSpec.map(
-      (col) =>
-        state.columnWidthsIndex.get(col.key) ??
-        col.width ??
-        state.defaultColumnWidth,
-    ),
-  }),
+  (state: DataSheetStoreMain<any>): DataSheetComputedVals => {
+    const isSingleCellSelection = singleFocusedCell(state.selection) != null;
+    return {
+      hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
+      columnWidths: state.columnSpec.map(
+        (col) =>
+          state.columnWidthsIndex.get(col.key) ??
+          col.width ??
+          state.defaultColumnWidth,
+      ),
+      editorKeyHandler: (e: React.KeyboardEvent) =>
+        editorKeyHandler(e, isSingleCellSelection),
+      isSingleCellSelection,
+      tableKeyHandler: (e: React.KeyboardEvent) => {
+        tableKeyHandler(e, state);
+      },
+    };
+  },
 ) as any;
 
 export function DataSheetProvider<T>({
@@ -263,6 +279,7 @@ export function DataSheetProvider<T>({
               const { selection, updatedData, columnSpec, data } = state;
               let spec = {};
               for (const region of selection) {
+                console.log("Clearing region", region);
                 const { cols, rows } = region;
                 const rowRange = range(rows ?? [0, updatedData.length - 1]);
                 const colRange = range(cols ?? [0, columnSpec.length - 1]);

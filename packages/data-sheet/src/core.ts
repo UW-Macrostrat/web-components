@@ -27,7 +27,7 @@ import {
   useStoreAPI,
   VisibleCells,
 } from "./provider";
-import type { ColumnSpec } from "./utils";
+import { ColumnSpec, inlineEditorKeyHandler } from "./utils";
 
 const h = hyper.styled(styles);
 
@@ -255,6 +255,8 @@ function _DataSheet<T>({
     [deletedRows],
   );
 
+  const onKeyDown = useSelector((state) => state.tableKeyHandler);
+
   if (data == null) return null;
 
   return h("div.data-sheet-container", { className, style }, [
@@ -265,31 +267,7 @@ function _DataSheet<T>({
     dataSheetActions,
     h(
       "div.data-sheet-holder",
-      {
-        onKeyDown(e) {
-          // General key event
-          if (e.key === "Escape") {
-            // Clear selection on Escape
-            storeAPI.getState().setSelection([]);
-            e.preventDefault();
-          }
-          // Clear selection on Backspace or Delete
-          if (e.key === "Backspace" || e.key === "Delete") {
-            // Clear selection on Backspace or Delete
-            storeAPI.getState().clearSelection();
-            e.preventDefault();
-          }
-          // Handle arrow keys for navigation
-          if (e.key.startsWith("Arrow")) {
-            // Handle arrow key navigation
-            const direction = e.key.replace("Arrow", "").toLowerCase();
-            const state = storeAPI.getState();
-            state.moveFocusedCell(direction);
-            // Prevent default scrolling behavior
-            e.preventDefault();
-          }
-        },
-      },
+      { onKeyDown },
       h(
         // @ts-expect-error
         Table2,
@@ -443,6 +421,8 @@ function basicCellRenderer<T>(
     onCellEdited(rowIndex, col.key, e.target.value);
   };
 
+  const isSingleCellSelection = singleFocusedCell(state.selection) != null;
+
   let _inlineEditor: ReactNode = null;
   if (typeof inlineEditor == "boolean") {
     let _value = value;
@@ -457,26 +437,7 @@ function basicCellRenderer<T>(
       value: _value ?? "",
       autoFocus: autoFocusEditor,
       onChange,
-      onKeyDown(e) {
-        console.log("Key down in inline editor", e.key);
-        if (e.key == "Enter") {
-          e.target.blur();
-        }
-
-        if (e.key == "Escape") {
-          e.target.blur();
-          e.preventDefault();
-          return;
-        }
-
-        const shouldPropagate = handleSpecialKeys(e, e.target);
-        if (!shouldPropagate) {
-          e.stopPropagation();
-        } else {
-          e.target.blur();
-          //e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
-        }
-      },
+      onKeyDown: state.editorKeyHandler,
     });
   } else {
     // If inlineEditor is a ReactNode, we use it directly
@@ -504,8 +465,6 @@ function basicCellRenderer<T>(
     cellContents = _inlineEditor;
     className = "input-cell";
   }
-
-  const isSingleCellSelection = singleFocusedCell(state.selection) != null;
 
   // Hidden html input
   return h(

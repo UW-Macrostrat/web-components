@@ -2,6 +2,7 @@ import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { Button } from "@blueprintjs/core";
 import { useEffect, useRef } from "react";
+import { handleSpecialKeys, multiLineTextKeyHandler } from "../utils";
 
 const h = hyper.styled(styles);
 
@@ -22,23 +23,7 @@ export function EditableTextArea({ value, onChange }) {
       ref,
       value: value ?? "",
       onChange: (evt) => onChange(evt.target.value),
-      onKeyDown: (evt) => {
-        if (evt.key === "Enter") {
-          //evt.preventDefault();
-          evt.stopPropagation();
-          return;
-        }
-
-        if (evt.key === "Escape") {
-          evt.preventDefault();
-          return;
-        }
-
-        const shouldPropagate = handleSpecialKeys(evt, evt.target);
-        if (!shouldPropagate) {
-          evt.stopPropagation();
-        }
-      },
+      onKeyDown: multiLineTextKeyHandler,
     }),
     h("div.tools", [
       h(Button, {
@@ -60,30 +45,4 @@ export function EditableTextArea({ value, onChange }) {
       }),
     ]),
   ]);
-}
-
-export function handleSpecialKeys(evt, target): boolean {
-  if (
-    (evt.key === "ArrowLeft" ||
-      evt.key === "ArrowUp" ||
-      evt.key === "ArrowDown") &&
-    target.selectionStart === 0
-  ) {
-    target.blur();
-    return true;
-  }
-
-  if (
-    (evt.key === "ArrowRight" ||
-      evt.key === "ArrowUp" ||
-      evt.key === "Tab" ||
-      evt.key === "Enter" ||
-      evt.key === "ArrowDown") &&
-    target.selectionStart === evt.target.value.length
-  ) {
-    target.blur();
-    return true;
-  }
-
-  return false;
 }
