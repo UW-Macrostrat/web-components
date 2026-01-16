@@ -66,6 +66,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     editable = true,
     enableColumnReordering = false,
     enableFocusedCell = false,
+    defaultColumnWidth = 150,
     ...rest
   } = props;
 
@@ -78,6 +79,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
         columnSpec,
         columnSpecOptions: columnSpecOptions,
         enableColumnReordering,
+        defaultColumnWidth,
         editable,
         ...rest,
       },
@@ -111,7 +113,7 @@ function _DataSheet<T>({
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
-  const selection = useSelector<T>((state) => state.selection);
+  const selectedRegions = useSelector<T>((state) => state.selection);
 
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
@@ -163,8 +165,8 @@ function _DataSheet<T>({
   const deleteSelectedRows = useSelector((state) => state.deleteSelectedRows);
   const _onDeleteRows = useCallback(() => {
     deleteSelectedRows();
-    onDeleteRows?.(selection);
-  }, [onDeleteRows, selection, deleteSelectedRows]);
+    onDeleteRows?.(selectedRegions);
+  }, [onDeleteRows, selectedRegions, deleteSelectedRows]);
 
   useEffect(() => {
     if (!verbose) return;
@@ -177,12 +179,15 @@ function _DataSheet<T>({
 
   useEffect(() => {
     if (!verbose) return;
-    console.log("Selection", selection);
-  }, [selection]);
+    console.log("Selected regions", selectedRegions);
+  }, [selectedRegions]);
 
-  if (data == null) return null;
+  const nDeletionCandidates = useMemo(
+    () => getRowsToDelete(selectedRegions).length,
+    [selectedRegions],
+  );
 
-  const nDeletionCandidates = getRowsToDelete(selection).length;
+  const columnWidths = useSelector((state) => state.columnWidths);
 
   const numRows = Math.max(updatedData.length, data.length);
 
@@ -207,6 +212,50 @@ function _DataSheet<T>({
       "--data-sheet-font-size": "18px",
     };
   }
+
+  const children = useMemo(
+    () =>
+      columnSpec.map((col, colIndex) => {
+        return h(Column, {
+          name: col.name,
+          cellRenderer: (rowIndex) => {
+            const state = storeAPI.getState();
+            return basicCellRenderer<T>(
+              rowIndex,
+              colIndex,
+              col,
+              state,
+              autoFocusEditor,
+            );
+          },
+        });
+      }),
+    [columnSpec, storeAPI, autoFocusEditor],
+  );
+
+  const onColumnWidthChanged = useSelector(
+    (state) => state.onColumnWidthChanged,
+  );
+
+  const rowHeaderCellRenderer = useCallback(
+    (rowIndex: number) => {
+      let style = null;
+      if (deletedRows.has(rowIndex)) {
+        style = {
+          opacity: 0.5,
+          textDecoration: "line-through",
+        };
+      }
+      return h(RowHeaderCell, {
+        index: rowIndex,
+        name: `${rowIndex + 1}`,
+        style,
+      });
+    },
+    [deletedRows],
+  );
+
+  if (data == null) return null;
 
   return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
@@ -241,67 +290,36 @@ function _DataSheet<T>({
           }
         },
       },
-      [
-        h(
-          // @ts-expect-error
-          Table2,
-          {
-            ref,
-            numRows,
-            className: "data-sheet",
-            enableFocusedCell,
-            enableColumnReordering,
-            //onColumnsReordered,
+      h(
+        // @ts-expect-error
+        Table2,
+        {
+          ref,
+          numRows,
+          className: "data-sheet",
+          enableFocusedCell,
+          enableColumnReordering,
+          //onColumnsReordered,
+          focusedCell,
+          selectedRegions,
+          defaultRowHeight: rowHeight,
+          minRowHeight: rowHeight,
+          columnWidths,
+          onColumnWidthChanged,
+          onSelection,
+          // The cell renderer is memoized internally based on these data dependencies
+          cellRendererDependencies: [
+            data,
+            //selection,
+            updatedData,
             focusedCell,
-            selectedRegions: selection,
-            defaultRowHeight: rowHeight,
-            minRowHeight: rowHeight,
-            columnWidths: columnSpec.map(
-              (col) => col.width ?? defaultColumnWidth,
-            ),
-            onSelection,
-            // The cell renderer is memoized internally based on these data dependencies
-            cellRendererDependencies: [
-              data,
-              selection,
-              updatedData,
-              focusedCell,
-              deletedRows,
-            ],
-            onVisibleCellsChange: _onVisibleCellsChange,
-            rowHeaderCellRenderer: (rowIndex) => {
-              let style = null;
-              let intent = undefined;
-              if (deletedRows.has(rowIndex)) {
-                style = {
-                  opacity: 0.5,
-                  textDecoration: "line-through",
-                };
-              }
-              return h(RowHeaderCell, {
-                index: rowIndex,
-                name: `${rowIndex + 1}`,
-                style,
-              });
-            },
-          },
-          columnSpec.map((col, colIndex) => {
-            return h(Column, {
-              name: col.name,
-              cellRenderer: (rowIndex) => {
-                const state = storeAPI.getState();
-                return basicCellRenderer<T>(
-                  rowIndex,
-                  colIndex,
-                  col,
-                  state,
-                  autoFocusEditor,
-                );
-              },
-            });
-          }),
-        ),
-      ],
+            deletedRows,
+          ],
+          onVisibleCellsChange: _onVisibleCellsChange,
+          rowHeaderCellRenderer,
+        },
+        children,
+      ),
     ),
   ]);
 }

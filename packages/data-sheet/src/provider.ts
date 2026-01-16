@@ -20,6 +20,7 @@ export interface DataSheetCoreProps<T> {
   columnSpec?: ColumnSpec[];
   editable?: boolean;
   enableColumnReordering?: boolean;
+  defaultColumnWidth?: number;
 }
 
 export interface DataSheetState<T> {
@@ -32,10 +33,15 @@ export interface DataSheetState<T> {
   // Sparse data structure for updated data
   updatedData: T[];
   initialized: boolean;
+  columnWidthsIndex: Map<string, number>;
 }
 
 export interface DataSheetComputedStore {
   hasUpdates: boolean;
+  /** State for column widths (if resized).
+   * This will reset if the columnSpec prop changes
+   */
+  columnWidths: number[];
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
@@ -48,6 +54,7 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   setUpdatedData(data: StateUpdater<T>): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
   onColumnsReordered(oldIndex: number, newIndex: number, length: number): void;
+  onColumnWidthChanged(columnIndex: number, newWidth: number): void;
   moveFocusedCell(direction: "up" | "down" | "left" | "right"): void;
   deleteSelectedRows(): void;
   clearSelection(): void;
@@ -59,6 +66,8 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   setVisibleCells(visibleCells: VisibleCells): void;
   scrollToRow(rowIndex: number): void;
   tableRef: React.MutableRefObject<Table2>;
+  columnWidthsIndex: Map<string, number>;
+  defaultColumnWidth: number;
 }
 
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
@@ -76,6 +85,12 @@ export interface VisibleCells {
 const computed = createComputed(
   (state: DataSheetStore<any>): DataSheetComputedStore => ({
     hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
+    columnWidths: state.columnSpec.map(
+      (col) =>
+        state.columnWidthsIndex.get(col.key) ??
+        col.width ??
+        state.defaultColumnWidth,
+    ),
   }),
 ) as any;
 
@@ -86,6 +101,7 @@ export function DataSheetProvider<T>({
   columnSpecOptions,
   editable,
   enableColumnReordering,
+  defaultColumnWidth = 150,
 }: DataSheetProviderProps<T>) {
   const visibleCellsRef = useRef<VisibleCells>({
     rowIndexStart: 0,
@@ -95,11 +111,13 @@ export function DataSheetProvider<T>({
   const tableRef = useRef<Table2>(null);
 
   const [store] = useState(() => {
+    const spec = columnSpec || generateColumnSpec(data, columnSpecOptions);
     return createStore<DataSheetStore<T>>(
       computed((set): DataSheetStore<T> => {
         return {
           data,
-          columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
+          columnSpec: spec,
+          defaultColumnWidth,
           editable,
           deletedRows: new Set<number>(),
           selection: [],
@@ -114,6 +132,7 @@ export function DataSheetProvider<T>({
           setSelection(selection: Region[]) {
             set(updateSelection(selection));
           },
+          columnWidthsIndex: new Map<string, number>(),
           moveFocusedCell(direction: "up" | "down" | "left" | "right") {
             set((state) => {
               const { topLeftCell } = state;
@@ -195,11 +214,21 @@ export function DataSheetProvider<T>({
             set((state) => ({
               updatedData: [],
               deletedRows: new Set<number>(),
+              columnWidths: new Map<string, number>(),
               selection: [],
               focusedCell: null,
               topLeftCell: null,
               fillValueBaseCell: null,
             }));
+          },
+          onColumnWidthChanged(columnIx: number, newWidth: number) {
+            set((state) => {
+              const { columnSpec, columnWidthsIndex } = state;
+              const colKey = columnSpec[columnIx].key;
+              const newColumnWidths = new Map(columnWidthsIndex);
+              newColumnWidths.set(colKey, newWidth);
+              return { columnWidthsIndex: newColumnWidths };
+            });
           },
           setVisibleCells(visibleCells: VisibleCells) {
             // Visible cells are used for infinite scrolling

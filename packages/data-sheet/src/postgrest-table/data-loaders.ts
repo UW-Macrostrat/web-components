@@ -238,6 +238,7 @@ function _loadMoreData<T>(
   const query = buildQuery(client, cfg);
 
   query.then((res) => {
+    console.log(res);
     const { data, count } = res;
     dispatch({
       type: "loaded",
