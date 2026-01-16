@@ -2,7 +2,7 @@ import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { Button } from "@blueprintjs/core";
 import { useEffect, useRef } from "react";
-import { handleSpecialKeys, multiLineTextKeyHandler } from "../utils";
+import { multiLineTextKeyHandler } from "../utils";
 
 const h = hyper.styled(styles);
 

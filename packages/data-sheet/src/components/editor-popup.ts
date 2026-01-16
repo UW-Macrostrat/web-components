@@ -3,20 +3,21 @@ import { ErrorBoundary } from "@macrostrat/ui-components";
 import { Popover } from "@blueprintjs/core";
 import styles from "./main.module.sass";
 import { useRef, useState } from "react";
+import { useSelector } from "../provider";
 
 const h = hyper.styled(styles);
 
 export function EditorPopup(props) {
   const {
     children,
-    content,
     targetClassName,
     autoFocus,
     valueViewer,
-    //inlineEditor,
+    minimal = true,
   } = props;
 
   const [isOpen, setIsOpen] = useState(autoFocus);
+  const keyHandler = useSelector((state) => state.keyHandler);
 
   const ref = useRef(null);
 
@@ -25,19 +26,7 @@ export function EditorPopup(props) {
     h("input.hidden-editor", {
       value: "",
       autoFocus: true,
-      onKeyDown(e) {
-        if (e.key == "Enter") {
-          setIsOpen(true);
-          e.preventDefault();
-          e.stopPropagation();
-        }
-
-        if (e.key == "Escape") {
-          e.preventDefault();
-          e.stopPropagation();
-          return;
-        }
-      },
+      onKeyDown: keyHandler,
     }),
   ]);
 
@@ -52,28 +41,26 @@ export function EditorPopup(props) {
           },
           onKeyDown(evt) {
             if (evt.key === "Escape") {
-              setIsOpen(false);
-              evt.preventDefault();
+              if (isOpen) {
+                setIsOpen(false);
+              }
               evt.stopPropagation();
+              evt.preventDefault();
+              return;
             }
             // Climb over the interaction barrier to propagate the key event to the table
-            //ref.current.dispatchEvent(new KeyboardEvent("keydown", evt));
           },
         },
-        h(ErrorBoundary, null, content),
+        h(ErrorBoundary, null, children),
       ),
       enforceFocus: false,
       autoFocus: false,
-      minimal: true,
+      minimal,
       modifiers: {
         offset: { enabled: true, options: { offset: [0, 8] } },
       },
       interactionKind: "hover-target",
       isOpen,
-      onClose(evt) {
-        //props.onKeyDown?.(evt);
-        //setIsOpen(false);
-      },
       // Portal must be used to avoid issues with the editor being clipped to the bounds of the cell
       usePortal: true,
     },

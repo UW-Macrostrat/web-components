@@ -16,7 +16,7 @@ import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { EditorPopup, handleSpecialKeys, DataSheetAction } from "./components";
+import { EditorPopup, DataSheetAction } from "./components";
 import styles from "./main.module.sass";
 import {
   DataSheetProvider,
@@ -27,7 +27,7 @@ import {
   useStoreAPI,
   VisibleCells,
 } from "./provider";
-import { ColumnSpec, inlineEditorKeyHandler } from "./utils";
+import { ColumnSpec } from "./utils";
 
 const h = hyper.styled(styles);
 
@@ -325,8 +325,6 @@ function basicCellRenderer<T>(
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
   const _renderedValue = col.valueRenderer?.(value) ?? value;
-  let cellContents: ReactNode = _renderedValue;
-  const editable = (col.editable ?? state.editable) && !isDeleted;
 
   let style = col.style ?? {};
   if (isDeleted) {
@@ -339,6 +337,9 @@ function basicCellRenderer<T>(
 
   const focused =
     focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
+
+  const editable = (col.editable ?? state.editable) && !isDeleted;
+
   // Top left cell of a ranged selection
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
@@ -370,24 +371,43 @@ function basicCellRenderer<T>(
         style,
         isDeleted,
       },
-      cellContents,
+      _renderedValue,
     );
   }
 
   // The rest is for the top-left cell of a selection or the focused cell
+
+  let hiddenInput = null;
+  if (!focused) {
+    // Hidden input to capture key events
+    hiddenInput = h("input.hidden-input", {
+      autoFocus: true,
+      onKeyDown(e) {
+        if (e.key == "Backspace" || e.key == "Delete") {
+          clearSelection();
+        }
+        e.preventDefault();
+      },
+    });
+  }
+
+  let cellContents: ReactNode = _renderedValue;
 
   if (!editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
 
     if (col.dataEditor != null) {
-      cellContents = h(EditorPopup, {
-        autoFocus: autoFocusEditor,
-        content: h(col.dataEditor, {
+      cellContents = h(
+        EditorPopup,
+        {
+          autoFocus: autoFocusEditor,
+          valueViewer: _renderedValue,
+        },
+        h(col.dataEditor, {
           value,
         }),
-        valueViewer: _renderedValue,
-      });
+      );
     }
 
     return h(
@@ -397,18 +417,7 @@ function basicCellRenderer<T>(
         value,
         style,
       },
-      [
-        h.if(!focused)("input.hidden-input", {
-          autoFocus: true,
-          onKeyDown(e) {
-            if (e.key == "Backspace" || e.key == "Delete") {
-              clearSelection();
-            }
-            e.preventDefault();
-          },
-        }),
-        cellContents,
-      ],
+      cellContents,
     );
     // Could probably put the hidden input elsewhere,
   }
@@ -448,22 +457,25 @@ function basicCellRenderer<T>(
 
   if (col.dataEditor != null) {
     className = "editor-cell";
-    cellContents = h([
-      h(EditorPopup, {
+    cellContents = h(
+      EditorPopup,
+      {
         autoFocus: autoFocusEditor,
-        content: h(col.dataEditor, {
-          value,
-          onChange(value) {
-            if (!editable) return;
-            onCellEdited(rowIndex, col.key, value);
-          },
-        }),
         valueViewer: _renderedValue,
+      },
+      h(col.dataEditor, {
+        value,
+        onChange(value) {
+          if (!editable) return;
+          state.onSelectionEdited(value);
+        },
       }),
-    ]);
+    );
+    hiddenInput = null;
   } else if (_inlineEditor != null) {
     cellContents = _inlineEditor;
     className = "input-cell";
+    hiddenInput = null;
   }
 
   // Hidden html input
@@ -481,6 +493,7 @@ function basicCellRenderer<T>(
       h.if(editable && isSingleCellSelection)(DragHandle, {
         focusedCell,
       }),
+      hiddenInput,
     ],
   );
 }

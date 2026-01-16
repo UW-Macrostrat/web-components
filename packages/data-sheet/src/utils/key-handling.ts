@@ -104,7 +104,7 @@ export function multiLineTextKeyHandler(evt: InputEvent) {
   }
 }
 
-function handleSpecialKeys(evt: InputEvent): boolean {
+function handleSpecialKeys(evt: KeyboardEvent): boolean {
   const target = evt.target;
   if (
     (evt.key === "ArrowLeft" ||

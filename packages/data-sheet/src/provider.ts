@@ -47,6 +47,7 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: StateUpdater<T>): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
+  onSelectionEdited(value: any): void;
   onColumnsReordered(oldIndex: number, newIndex: number, length: number): void;
   onColumnWidthChanged(columnIndex: number, newWidth: number): void;
   moveFocusedCell(direction: "up" | "down" | "left" | "right"): void;
@@ -323,6 +324,31 @@ export function DataSheetProvider<T>({
                 spec.updatedData = fillValues(state, selection);
               }
               return spec;
+            });
+          },
+          onSelectionEdited(value: any) {
+            // Apply the same value to all selected cells
+            set((state) => {
+              const { selection, updatedData, columnSpec, editable } = state;
+              if (!editable) return {};
+              let spec = {};
+              for (const region of selection) {
+                const { cols, rows } = region;
+                const rowRange = range(rows ?? [0, updatedData.length - 1]);
+                const colRange = range(cols ?? [0, columnSpec.length - 1]);
+                for (const row of rowRange) {
+                  let vals = {};
+                  for (const col of colRange) {
+                    const key = columnSpec[col].key;
+                    vals[key] = value;
+                  }
+                  let op = updatedData[row] == null ? "$set" : "$merge";
+                  spec[row] = { [op]: vals };
+                }
+              }
+              return {
+                updatedData: update(updatedData, spec),
+              };
             });
           },
           onColumnsReordered(
