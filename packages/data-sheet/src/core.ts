@@ -385,23 +385,35 @@ function basicCellRenderer<T>(
 
   let cellContents: ReactNode = _renderedValue;
 
+  let _dataEditor = null;
+  let className = null;
+
+  if (col.dataEditor != null) {
+    _dataEditor = h(
+      EditorPopup,
+      {
+        autoFocus: autoFocusEditor,
+        valueViewer: _renderedValue,
+      },
+      [
+        h(col.dataEditor, {
+          value,
+          editable,
+          onChange(value) {
+            if (!editable) return;
+            state.onSelectionEdited(value);
+          },
+        }),
+      ],
+    );
+  }
+
   if (!editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
 
-    if (col.dataEditor != null) {
-      cellContents = h(
-        EditorPopup,
-        {
-          autoFocus: autoFocusEditor,
-          valueViewer: _renderedValue,
-        },
-        [
-          h(col.dataEditor, {
-            value,
-          }),
-        ],
-      );
+    if (_dataEditor != null) {
+      cellContents = _dataEditor;
     }
 
     return h(
@@ -447,24 +459,9 @@ function basicCellRenderer<T>(
     _inlineEditor = inlineEditor as ReactNode;
   }
 
-  let className = null;
-
-  if (col.dataEditor != null) {
+  if (_dataEditor != null) {
     className = "editor-cell";
-    cellContents = h(
-      EditorPopup,
-      {
-        autoFocus: autoFocusEditor,
-        valueViewer: _renderedValue,
-      },
-      h(col.dataEditor, {
-        value,
-        onChange(value) {
-          if (!editable) return;
-          state.onSelectionEdited(value);
-        },
-      }),
-    );
+    cellContents = _dataEditor;
     hiddenInput = null;
   } else if (_inlineEditor != null) {
     cellContents = _inlineEditor;
