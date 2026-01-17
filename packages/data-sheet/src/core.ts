@@ -377,19 +377,11 @@ function basicCellRenderer<T>(
 
   // The rest is for the top-left cell of a selection or the focused cell
 
-  let hiddenInput = null;
-  if (!focused) {
-    // Hidden input to capture key events
-    hiddenInput = h("input.hidden-input", {
-      autoFocus: true,
-      onKeyDown(e) {
-        if (e.key == "Backspace" || e.key == "Delete") {
-          clearSelection();
-        }
-        e.preventDefault();
-      },
-    });
-  }
+  // Hidden input to capture key events
+  let hiddenInput = h("input.hidden-input", {
+    autoFocus: true,
+    onKeyDown: state.editorKeyHandler,
+  });
 
   let cellContents: ReactNode = _renderedValue;
 
@@ -404,9 +396,11 @@ function basicCellRenderer<T>(
           autoFocus: autoFocusEditor,
           valueViewer: _renderedValue,
         },
-        h(col.dataEditor, {
-          value,
-        }),
+        [
+          h(col.dataEditor, {
+            value,
+          }),
+        ],
       );
     }
 
