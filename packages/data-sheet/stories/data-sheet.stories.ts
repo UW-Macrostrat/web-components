@@ -84,6 +84,12 @@ export const LowDensity = {
   },
 };
 
+export const WithColumnReordering = {
+  args: {
+    enableColumnReordering: true,
+  },
+};
+
 function valueRenderer(d) {
   try {
     return d.toFixed(2);

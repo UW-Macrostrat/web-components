@@ -16,7 +16,7 @@ import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { EditorPopup, handleSpecialKeys, DataSheetAction } from "./components";
+import { EditorPopup, DataSheetAction } from "./components";
 import styles from "./main.module.sass";
 import {
   DataSheetProvider,
@@ -27,7 +27,7 @@ import {
   useStoreAPI,
   VisibleCells,
 } from "./provider";
-import type { ColumnSpec } from "./utils";
+import { ColumnSpec } from "./utils";
 
 const h = hyper.styled(styles);
 
@@ -66,6 +66,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     editable = true,
     enableColumnReordering = false,
     enableFocusedCell = false,
+    defaultColumnWidth = 150,
     ...rest
   } = props;
 
@@ -78,6 +79,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
         columnSpec,
         columnSpecOptions: columnSpecOptions,
         enableColumnReordering,
+        defaultColumnWidth,
         editable,
         ...rest,
       },
@@ -111,7 +113,7 @@ function _DataSheet<T>({
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
-  const selection = useSelector<T>((state) => state.selection);
+  const selectedRegions = useSelector<T>((state) => state.selection);
 
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
@@ -163,8 +165,8 @@ function _DataSheet<T>({
   const deleteSelectedRows = useSelector((state) => state.deleteSelectedRows);
   const _onDeleteRows = useCallback(() => {
     deleteSelectedRows();
-    onDeleteRows?.(selection);
-  }, [onDeleteRows, selection, deleteSelectedRows]);
+    onDeleteRows?.(selectedRegions);
+  }, [onDeleteRows, selectedRegions, deleteSelectedRows]);
 
   useEffect(() => {
     if (!verbose) return;
@@ -177,12 +179,15 @@ function _DataSheet<T>({
 
   useEffect(() => {
     if (!verbose) return;
-    console.log("Selection", selection);
-  }, [selection]);
+    console.log("Selected regions", selectedRegions);
+  }, [selectedRegions]);
 
-  if (data == null) return null;
+  const nDeletionCandidates = useMemo(
+    () => getRowsToDelete(selectedRegions).length,
+    [selectedRegions],
+  );
 
-  const nDeletionCandidates = getRowsToDelete(selection).length;
+  const columnWidths = useSelector((state) => state.columnWidths);
 
   const numRows = Math.max(updatedData.length, data.length);
 
@@ -208,6 +213,52 @@ function _DataSheet<T>({
     };
   }
 
+  const children = useMemo(
+    () =>
+      columnSpec.map((col, colIndex) => {
+        return h(Column, {
+          name: col.name,
+          cellRenderer: (rowIndex) => {
+            const state = storeAPI.getState();
+            return basicCellRenderer<T>(
+              rowIndex,
+              colIndex,
+              col,
+              state,
+              autoFocusEditor,
+            );
+          },
+        });
+      }),
+    [columnSpec, storeAPI, autoFocusEditor],
+  );
+
+  const onColumnWidthChanged = useSelector(
+    (state) => state.onColumnWidthChanged,
+  );
+
+  const rowHeaderCellRenderer = useCallback(
+    (rowIndex: number) => {
+      let style = null;
+      if (deletedRows.has(rowIndex)) {
+        style = {
+          opacity: 0.5,
+          textDecoration: "line-through",
+        };
+      }
+      return h(RowHeaderCell, {
+        index: rowIndex,
+        name: `${rowIndex + 1}`,
+        style,
+      });
+    },
+    [deletedRows],
+  );
+
+  const onKeyDown = useSelector((state) => state.tableKeyHandler);
+
+  if (data == null) return null;
+
   return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
       onSaveData: _onSaveData,
@@ -216,92 +267,37 @@ function _DataSheet<T>({
     dataSheetActions,
     h(
       "div.data-sheet-holder",
-      {
-        onKeyDown(e) {
-          // General key event
-          if (e.key === "Escape") {
-            // Clear selection on Escape
-            storeAPI.getState().setSelection([]);
-            e.preventDefault();
-          }
-          // Clear selection on Backspace or Delete
-          if (e.key === "Backspace" || e.key === "Delete") {
-            // Clear selection on Backspace or Delete
-            storeAPI.getState().clearSelection();
-            e.preventDefault();
-          }
-          // Handle arrow keys for navigation
-          if (e.key.startsWith("Arrow")) {
-            // Handle arrow key navigation
-            const direction = e.key.replace("Arrow", "").toLowerCase();
-            const state = storeAPI.getState();
-            state.moveFocusedCell(direction);
-            // Prevent default scrolling behavior
-            e.preventDefault();
-          }
-        },
-      },
-      [
-        h(
-          // @ts-expect-error
-          Table2,
-          {
-            ref,
-            numRows,
-            className: "data-sheet",
-            enableFocusedCell,
-            enableColumnReordering,
-            //onColumnsReordered,
+      { onKeyDown },
+      h(
+        // @ts-expect-error
+        Table2,
+        {
+          ref,
+          numRows,
+          className: "data-sheet",
+          enableFocusedCell,
+          enableColumnReordering,
+          //onColumnsReordered,
+          focusedCell,
+          selectedRegions,
+          defaultRowHeight: rowHeight,
+          minRowHeight: rowHeight,
+          columnWidths,
+          onColumnWidthChanged,
+          onSelection,
+          // The cell renderer is memoized internally based on these data dependencies
+          cellRendererDependencies: [
+            data,
+            //selection,
+            updatedData,
             focusedCell,
-            selectedRegions: selection,
-            defaultRowHeight: rowHeight,
-            minRowHeight: rowHeight,
-            columnWidths: columnSpec.map(
-              (col) => col.width ?? defaultColumnWidth,
-            ),
-            onSelection,
-            // The cell renderer is memoized internally based on these data dependencies
-            cellRendererDependencies: [
-              data,
-              selection,
-              updatedData,
-              focusedCell,
-              deletedRows,
-            ],
-            onVisibleCellsChange: _onVisibleCellsChange,
-            rowHeaderCellRenderer: (rowIndex) => {
-              let style = null;
-              let intent = undefined;
-              if (deletedRows.has(rowIndex)) {
-                style = {
-                  opacity: 0.5,
-                  textDecoration: "line-through",
-                };
-              }
-              return h(RowHeaderCell, {
-                index: rowIndex,
-                name: `${rowIndex + 1}`,
-                style,
-              });
-            },
-          },
-          columnSpec.map((col, colIndex) => {
-            return h(Column, {
-              name: col.name,
-              cellRenderer: (rowIndex) => {
-                const state = storeAPI.getState();
-                return basicCellRenderer<T>(
-                  rowIndex,
-                  colIndex,
-                  col,
-                  state,
-                  autoFocusEditor,
-                );
-              },
-            });
-          }),
-        ),
-      ],
+            deletedRows,
+          ],
+          onVisibleCellsChange: _onVisibleCellsChange,
+          rowHeaderCellRenderer,
+        },
+        children,
+      ),
     ),
   ]);
 }
@@ -329,8 +325,6 @@ function basicCellRenderer<T>(
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
   const _renderedValue = col.valueRenderer?.(value) ?? value;
-  let cellContents: ReactNode = _renderedValue;
-  const editable = (col.editable ?? state.editable) && !isDeleted;
 
   let style = col.style ?? {};
   if (isDeleted) {
@@ -343,6 +337,9 @@ function basicCellRenderer<T>(
 
   const focused =
     focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
+
+  const editable = (col.editable ?? state.editable) && !isDeleted;
+
   // Top left cell of a ranged selection
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
@@ -374,24 +371,37 @@ function basicCellRenderer<T>(
         style,
         isDeleted,
       },
-      cellContents,
+      _renderedValue,
     );
   }
 
   // The rest is for the top-left cell of a selection or the focused cell
+
+  // Hidden input to capture key events
+  let hiddenInput = h("input.hidden-input", {
+    autoFocus: true,
+    onKeyDown: state.editorKeyHandler,
+  });
+
+  let cellContents: ReactNode = _renderedValue;
 
   if (!editable) {
     // Most cells are not focused and don't need to be editable.
     // This will be the rendering logic for almost all cells
 
     if (col.dataEditor != null) {
-      cellContents = h(EditorPopup, {
-        autoFocus: autoFocusEditor,
-        content: h(col.dataEditor, {
-          value,
-        }),
-        valueViewer: _renderedValue,
-      });
+      cellContents = h(
+        EditorPopup,
+        {
+          autoFocus: autoFocusEditor,
+          valueViewer: _renderedValue,
+        },
+        [
+          h(col.dataEditor, {
+            value,
+          }),
+        ],
+      );
     }
 
     return h(
@@ -401,18 +411,7 @@ function basicCellRenderer<T>(
         value,
         style,
       },
-      [
-        h.if(!focused)("input.hidden-input", {
-          autoFocus: true,
-          onKeyDown(e) {
-            if (e.key == "Backspace" || e.key == "Delete") {
-              clearSelection();
-            }
-            e.preventDefault();
-          },
-        }),
-        cellContents,
-      ],
+      cellContents,
     );
     // Could probably put the hidden input elsewhere,
   }
@@ -424,6 +423,8 @@ function basicCellRenderer<T>(
     if (value === e.target.value) return;
     onCellEdited(rowIndex, col.key, e.target.value);
   };
+
+  const isSingleCellSelection = singleFocusedCell(state.selection) != null;
 
   let _inlineEditor: ReactNode = null;
   if (typeof inlineEditor == "boolean") {
@@ -439,26 +440,7 @@ function basicCellRenderer<T>(
       value: _value ?? "",
       autoFocus: autoFocusEditor,
       onChange,
-      onKeyDown(e) {
-        console.log("Key down in inline editor", e.key);
-        if (e.key == "Enter") {
-          e.target.blur();
-        }
-
-        if (e.key == "Escape") {
-          e.target.blur();
-          e.preventDefault();
-          return;
-        }
-
-        const shouldPropagate = handleSpecialKeys(e, e.target);
-        if (!shouldPropagate) {
-          e.stopPropagation();
-        } else {
-          e.target.blur();
-          //e.target.parentNode.dispatchEvent(new KeyboardEvent("keydown", e));
-        }
-      },
+      onKeyDown: state.editorKeyHandler,
     });
   } else {
     // If inlineEditor is a ReactNode, we use it directly
@@ -469,25 +451,26 @@ function basicCellRenderer<T>(
 
   if (col.dataEditor != null) {
     className = "editor-cell";
-    cellContents = h([
-      h(EditorPopup, {
+    cellContents = h(
+      EditorPopup,
+      {
         autoFocus: autoFocusEditor,
-        content: h(col.dataEditor, {
-          value,
-          onChange(value) {
-            if (!editable) return;
-            onCellEdited(rowIndex, col.key, value);
-          },
-        }),
         valueViewer: _renderedValue,
+      },
+      h(col.dataEditor, {
+        value,
+        onChange(value) {
+          if (!editable) return;
+          state.onSelectionEdited(value);
+        },
       }),
-    ]);
+    );
+    hiddenInput = null;
   } else if (_inlineEditor != null) {
     cellContents = _inlineEditor;
     className = "input-cell";
+    hiddenInput = null;
   }
-
-  const isSingleCellSelection = singleFocusedCell(state.selection) != null;
 
   // Hidden html input
   return h(
@@ -504,6 +487,7 @@ function basicCellRenderer<T>(
       h.if(editable && isSingleCellSelection)(DragHandle, {
         focusedCell,
       }),
+      hiddenInput,
     ],
   );
 }

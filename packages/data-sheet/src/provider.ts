@@ -10,8 +10,10 @@ import type {
 import {
   ColumnSpec,
   ColumnSpecOptions,
+  editorKeyHandler,
   generateColumnSpec,
   range,
+  tableKeyHandler,
 } from "./utils";
 import update, { Spec } from "immutability-helper";
 
@@ -20,6 +22,7 @@ export interface DataSheetCoreProps<T> {
   columnSpec?: ColumnSpec[];
   editable?: boolean;
   enableColumnReordering?: boolean;
+  defaultColumnWidth?: number;
 }
 
 export interface DataSheetState<T> {
@@ -32,22 +35,21 @@ export interface DataSheetState<T> {
   // Sparse data structure for updated data
   updatedData: T[];
   initialized: boolean;
-}
-
-export interface DataSheetComputedStore {
-  hasUpdates: boolean;
+  columnWidthsIndex: Map<string, number>;
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
 
 type StateUpdater<T> = T[] | ((state: T[]) => T[]);
 
-export interface DataSheetStore<T> extends DataSheetVals<T> {
+export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   setSelection(selection: Region[]): void;
   onDragValue(cell: FocusedCellCoordinates | null): void;
   setUpdatedData(data: StateUpdater<T>): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
+  onSelectionEdited(value: any): void;
   onColumnsReordered(oldIndex: number, newIndex: number, length: number): void;
+  onColumnWidthChanged(columnIndex: number, newWidth: number): void;
   moveFocusedCell(direction: "up" | "down" | "left" | "right"): void;
   deleteSelectedRows(): void;
   clearSelection(): void;
@@ -59,6 +61,8 @@ export interface DataSheetStore<T> extends DataSheetVals<T> {
   setVisibleCells(visibleCells: VisibleCells): void;
   scrollToRow(rowIndex: number): void;
   tableRef: React.MutableRefObject<Table2>;
+  columnWidthsIndex: Map<string, number>;
+  defaultColumnWidth: number;
 }
 
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
@@ -73,10 +77,38 @@ export interface VisibleCells {
   rowIndexEnd: number;
 }
 
+interface DataSheetComputedVals {
+  hasUpdates: boolean;
+  /** State for column widths (if resized).
+   * This will reset if the columnSpec prop changes
+   */
+  columnWidths: number[];
+  tableKeyHandler: (evt: React.KeyboardEvent) => void;
+  editorKeyHandler: (evt: React.KeyboardEvent) => void;
+  isSingleCellSelection?: boolean;
+}
+
+export type DataSheetStore<T> = DataSheetComputedVals & DataSheetStoreMain<T>;
+
 const computed = createComputed(
-  (state: DataSheetStore<any>): DataSheetComputedStore => ({
-    hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
-  }),
+  (state: DataSheetStoreMain<any>): DataSheetComputedVals => {
+    const isSingleCellSelection = singleFocusedCell(state.selection) != null;
+    return {
+      hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
+      columnWidths: state.columnSpec.map(
+        (col) =>
+          state.columnWidthsIndex.get(col.key) ??
+          col.width ??
+          state.defaultColumnWidth,
+      ),
+      editorKeyHandler: (e: React.KeyboardEvent) =>
+        editorKeyHandler(e, isSingleCellSelection),
+      isSingleCellSelection,
+      tableKeyHandler: (e: React.KeyboardEvent) => {
+        tableKeyHandler(e, state);
+      },
+    };
+  },
 ) as any;
 
 export function DataSheetProvider<T>({
@@ -86,6 +118,7 @@ export function DataSheetProvider<T>({
   columnSpecOptions,
   editable,
   enableColumnReordering,
+  defaultColumnWidth = 150,
 }: DataSheetProviderProps<T>) {
   const visibleCellsRef = useRef<VisibleCells>({
     rowIndexStart: 0,
@@ -95,11 +128,13 @@ export function DataSheetProvider<T>({
   const tableRef = useRef<Table2>(null);
 
   const [store] = useState(() => {
+    const spec = columnSpec || generateColumnSpec(data, columnSpecOptions);
     return createStore<DataSheetStore<T>>(
       computed((set): DataSheetStore<T> => {
         return {
           data,
-          columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
+          columnSpec: spec,
+          defaultColumnWidth,
           editable,
           deletedRows: new Set<number>(),
           selection: [],
@@ -114,6 +149,7 @@ export function DataSheetProvider<T>({
           setSelection(selection: Region[]) {
             set(updateSelection(selection));
           },
+          columnWidthsIndex: new Map<string, number>(),
           moveFocusedCell(direction: "up" | "down" | "left" | "right") {
             set((state) => {
               const { topLeftCell } = state;
@@ -195,11 +231,21 @@ export function DataSheetProvider<T>({
             set((state) => ({
               updatedData: [],
               deletedRows: new Set<number>(),
+              columnWidths: new Map<string, number>(),
               selection: [],
               focusedCell: null,
               topLeftCell: null,
               fillValueBaseCell: null,
             }));
+          },
+          onColumnWidthChanged(columnIx: number, newWidth: number) {
+            set((state) => {
+              const { columnSpec, columnWidthsIndex } = state;
+              const colKey = columnSpec[columnIx].key;
+              const newColumnWidths = new Map(columnWidthsIndex);
+              newColumnWidths.set(colKey, newWidth);
+              return { columnWidthsIndex: newColumnWidths };
+            });
           },
           setVisibleCells(visibleCells: VisibleCells) {
             // Visible cells are used for infinite scrolling
@@ -234,6 +280,7 @@ export function DataSheetProvider<T>({
               const { selection, updatedData, columnSpec, data } = state;
               let spec = {};
               for (const region of selection) {
+                console.log("Clearing region", region);
                 const { cols, rows } = region;
                 const rowRange = range(rows ?? [0, updatedData.length - 1]);
                 const colRange = range(cols ?? [0, columnSpec.length - 1]);
@@ -277,6 +324,31 @@ export function DataSheetProvider<T>({
                 spec.updatedData = fillValues(state, selection);
               }
               return spec;
+            });
+          },
+          onSelectionEdited(value: any) {
+            // Apply the same value to all selected cells
+            set((state) => {
+              const { selection, updatedData, columnSpec, editable } = state;
+              if (!editable) return {};
+              let spec = {};
+              for (const region of selection) {
+                const { cols, rows } = region;
+                const rowRange = range(rows ?? [0, updatedData.length - 1]);
+                const colRange = range(cols ?? [0, columnSpec.length - 1]);
+                for (const row of rowRange) {
+                  let vals = {};
+                  for (const col of colRange) {
+                    const key = columnSpec[col].key;
+                    vals[key] = value;
+                  }
+                  let op = updatedData[row] == null ? "$set" : "$merge";
+                  spec[row] = { [op]: vals };
+                }
+              }
+              return {
+                updatedData: update(updatedData, spec),
+              };
             });
           },
           onColumnsReordered(
