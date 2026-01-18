@@ -111,7 +111,6 @@ export function ColorPicker({
     h(Sketch, {
       color,
       disableAlpha: true,
-      editableDisable: !editable,
       onChange(color) {
         onChange(asChromaColor(color.hexa)[type]());
       },

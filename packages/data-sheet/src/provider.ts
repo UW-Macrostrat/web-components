@@ -260,6 +260,7 @@ export function DataSheetProvider<T>({
               const { editable, updatedData, data } = state;
               if (!editable) return {};
               let rowSpec: any;
+
               // Check to see if the new value is the same as the old one
               if (value !== data[rowIndex]?.[columnName]) {
                 const rowOp = updatedData[rowIndex] != null ? "$merge" : "$set";
