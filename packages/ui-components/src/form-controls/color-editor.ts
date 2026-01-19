@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 import { ErrorBoundary } from "../error-boundary";
-import { SketchPicker } from "react-color";
+import Sketch from "@uiw/react-color-sketch";
 import { Button, Popover } from "@blueprintjs/core";
 import { useState } from "react";
 import chroma from "chroma-js";
@@ -48,17 +48,11 @@ export function ColorEditor(props) {
     {
       ...rest,
       isOpen,
-      content: h(SketchPicker, {
+      content: h(Sketch, {
         disableAlpha: true,
         color,
-        onChange(color, evt) {
-          let c = "";
-          try {
-            c = chroma(color.hex).name();
-          } finally {
-            onChange(c);
-            evt.stopPropagation();
-          }
+        onChange(color) {
+          onChange(chroma(color.hex).name());
         },
       }),
     },

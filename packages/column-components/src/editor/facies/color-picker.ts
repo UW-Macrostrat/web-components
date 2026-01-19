@@ -1,12 +1,6 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * DS206: Consider reworking classes to avoid initClass
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
 import { Component } from "react";
 import h from "@macrostrat/hyper";
-import { SwatchesPicker } from "react-color";
+import Swatch from "@uiw/react-color-swatch";
 import { Popover } from "@blueprintjs/core";
 import { FaciesContext } from "../../context";
 
@@ -25,14 +19,10 @@ class FaciesColorPicker extends Component<FaciesColorPickerProps> {
     const { setFaciesColor } = this.context;
     const { facies: d } = this.props;
     return h("div", [
-      h(SwatchesPicker, {
+      h(Swatch, {
         color: d.color || "black",
-        onChangeComplete(color) {
+        onChange(color) {
           return setFaciesColor(d.id, color.hex);
-        },
-        styles: {
-          width: 500,
-          height: 570,
         },
       }),
     ]);
