@@ -1,6 +1,12 @@
-import { findDOMNode } from "react-dom";
 import { format } from "d3-format";
-import { Component, useContext, MouseEvent, ReactNode } from "react";
+import {
+  Component,
+  useContext,
+  MouseEvent,
+  ReactNode,
+  createRef,
+  RefObject,
+} from "react";
 import h from "./hyper";
 import { Popover, Position, Button, Intent } from "@blueprintjs/core";
 import {
@@ -138,6 +144,8 @@ export class DivisionEditOverlay extends Component<
     popoverWidth: 340,
   };
 
+  elementRef: RefObject<HTMLDivElement>;
+
   timeout: any;
   declare context: ColumnLayoutCtx<ColumnDivision>;
   constructor(props: DivisionEditOverlayProps) {
@@ -156,12 +164,14 @@ export class DivisionEditOverlay extends Component<
       popoverIsOpen: false,
     };
     this.timeout = null;
+
+    this.elementRef = createRef();
   }
 
   onHoverInterval(event) {
     event.stopPropagation();
     // findDOMNode might be slow but I'm not sure
-    if (findDOMNode(this) !== event.target) {
+    if (this.elementRef.current !== event.target) {
       return;
     }
     const height = this.heightForEvent(event);
@@ -344,6 +354,7 @@ export class DivisionEditOverlay extends Component<
         className: "edit-overlay",
         width,
         height: pixelHeight,
+        ref: this.elementRef,
         style: {
           left,
           top,
