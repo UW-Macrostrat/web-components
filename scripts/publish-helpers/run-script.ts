@@ -105,7 +105,7 @@ export async function runScript(
         ),
       );
       for (const pkg of dirtyPackages) {
-        console.log(chalk.yellow.dim("- " + chalk.bold(pkg.name)));
+        console.log(chalk.yellow("- " + chalk.bold(pkg.name)));
       }
     }
 
@@ -115,7 +115,7 @@ export async function runScript(
         chalk.bold(`Skipping ${packagesToIgnore.length} unchanged packages:`),
       );
       for (const pkg of packagesToIgnore) {
-        console.log("- " + chalk.bold(pkg.name));
+        console.log("- " + chalk.dim(pkg.name));
       }
     }
 
@@ -123,7 +123,7 @@ export async function runScript(
       console.log();
       console.log(chalk.dim.bold("Skipped private packages:"));
       for (const pkg of privatePackagesSkipped) {
-        console.log("- " + chalk.dim.bold(pkg.name));
+        console.log("- " + chalk.dim(pkg.name));
       }
     }
 
