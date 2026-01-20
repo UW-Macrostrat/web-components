@@ -2,7 +2,7 @@
 
 ## [0.3.0] - 2026-01-20
 
-- Replace `node-fetch` with `cross-fetch`
+- Replace `node-fetch` with `cross-fetch` in `PrevalentTaxa` component
 
 ## [0.2.2] - 2025-11-28
 
