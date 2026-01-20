@@ -25,7 +25,7 @@ export type PackageJSONData = any;
 
 export function readPackageJSON(dirname): PackageJSONData {
   const pkgPath = path.join(dirname, "package.json");
-  return JSON.parse(fs.readFileSync(pkgPath), { encoding: "utf-8" });
+  return JSON.parse(fs.readFileSync(pkgPath, { encoding: "utf-8" }));
 }
 
 export function getPackages(...globPatterns: string[]): string[] {
@@ -75,10 +75,43 @@ export function logAction(pkg, action, color = chalk.blue) {
   console.log(color.bold(action) + color(`: ` + moduleString(pkg)));
 }
 
-function getPackageInfo(pkg) {
-  const cmd = `npm info --json ${pkg.name} 2> /dev/null`;
+const registryIndex = new Map();
+
+function getAllPackagesInfoFromRegistry() {
+  /** Get info for all packages in the registry and cache it */
+  if (registryIndex.size > 0) {
+    return registryIndex;
+  }
+
+  const cmd = `npm info --json --workspaces . 2> /dev/null`;
+  let resJSON = {};
   try {
-    return JSON.parse(execSync(cmd).toString());
+    const res = execSync(cmd, { encoding: "utf-8", cwd: projectDir });
+    console.log(res);
+    resJSON = JSON.parse(res);
+  } catch (error) {
+    // Sometimes it errors because we are not logged in to get info on private packages
+    // If there is salvageable JSON, use it
+    resJSON = JSON.parse(error.stdout);
+  }
+
+  for (const [pkgName, pkgInfo] of Object.entries<any>(resJSON)) {
+    if (pkgName == "error") continue;
+    registryIndex.set(pkgName, pkgInfo);
+  }
+
+  return registryIndex;
+}
+
+interface PackageInfo {
+  versions: string[];
+  lastVersion: string;
+}
+
+function getPackageInfo(pkg): PackageInfo | null {
+  const packageIndex = getAllPackagesInfoFromRegistry();
+  try {
+    return packageIndex.get(pkg.name) ?? null;
   } catch (error) {
     return null;
   }

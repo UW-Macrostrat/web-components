@@ -2385,6 +2385,7 @@ __metadata:
     "@visx/shape": "npm:^3.12.0"
     axios: "npm:^1.7.9"
     classnames: "npm:^2.5.1"
+    cross-fetch: "npm:^4.1.0"
     d3-array: "npm:^3.2.4"
     mapbox-gl: "npm:^2.7.0||^3.13.0"
     parcel: "npm:^2.16.0"
