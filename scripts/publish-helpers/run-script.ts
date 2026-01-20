@@ -50,13 +50,9 @@ export async function runScript(
         packagesToPublish.push(pkg);
       } else if (status.incomplete) {
         packagesInProgress.push(pkg);
-      }
-
-      if (status.hasChangesSinceLastVersion ?? true) {
+      } else if (status.hasChangesSinceLastVersion ?? true) {
         dirtyPackages.push(pkg);
-      }
-
-      if (!status.canPublish && !status.incomplete) {
+      } else {
         // If the package is not ready to publish, we still want to prepare it
         // but we won't include it in the list of packages to publish
         packagesToIgnore.push(pkg);
@@ -100,11 +96,23 @@ export async function runScript(
       }
     }
 
+    if (dirtyPackages.length > 0) {
+      console.log();
+      console.log(
+        chalk.blue.bold(
+          `${dirtyPackages.length} packages have unreleased changes, but are not slated for publication:`,
+        ),
+      );
+      for (const pkg of dirtyPackages) {
+        console.log(chalk.yellow("- " + chalk.bold(pkg.name)));
+      }
+    }
+
     if (packagesToIgnore.length > 0) {
       console.log();
       console.log(
         chalk.bold(
-          `${packagesToIgnore.length} packages are not ready to publish:`,
+          `${packagesToIgnore.length} packages are unchanged since publication:`,
         ),
       );
       for (const pkg of packagesToIgnore) {
