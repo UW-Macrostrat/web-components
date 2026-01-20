@@ -108,7 +108,7 @@ interface PackageInfo {
   lastVersion: string;
 }
 
-function getPackageInfo(pkg): PackageInfo | null {
+export function getPackageInfo(pkg): PackageInfo | null {
   const packageIndex = getAllPackagesInfoFromRegistry();
   try {
     return packageIndex.get(pkg.name) ?? null;
@@ -138,6 +138,7 @@ export async function getPackagePublicationStatus(
   if (hasChanges != null && hasChanges) {
     // the module code has changed since the current published version
     // We need to print this version.
+    console.log(chalk.bold.underline(data.name));
     printChangeInfoForPublishedPackage(
       { name: data.name, version: info.lastVersion },
       true,
@@ -150,6 +151,8 @@ export async function getPackagePublicationStatus(
 /* makes query to npm to see if package with version exists */
 async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
   const info = getPackageInfo(pkg);
+
+  const printCurrentVersions = false;
 
   let currentVersionExistsInRegistry: boolean = false;
   if (info == null) {
@@ -178,17 +181,22 @@ async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
   if (canPublish) {
     msg += " will be published";
     console.log(chalk.greenBright(msg));
+  } else if (incomplete) {
+    msg += " has changes";
+    console.log(chalk.yellowBright(msg));
   }
 
-  if (currentVersionExistsInRegistry) {
-    // Print the publication date for the version
-    const time = getNiceTimeSincePublished(info, pkg.version);
-    msg += ` was published ${time}`;
-    console.log(chalk.blueBright(msg));
-    console.log();
-  } else if (lastVersion != null) {
-    const time = getNiceTimeSincePublished(info, lastVersion);
-    console.log(chalk.dim(`  v${lastVersion} was published ${time}`));
+  if (printCurrentVersions) {
+    if (currentVersionExistsInRegistry) {
+      // Print the publication date for the version
+      const time = getNiceTimeSincePublished(info, pkg.version);
+      msg += ` was published ${time}`;
+      console.log(chalk.blueBright(msg));
+      console.log();
+    } else if (lastVersion != null) {
+      const time = getNiceTimeSincePublished(info, lastVersion);
+      console.log(chalk.dim(`  v${lastVersion} was published ${time}`));
+    }
   }
 
   let hasChanges: boolean | null = null;
@@ -209,7 +217,7 @@ async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
   };
 }
 
-function getNiceTimeSincePublished(info, version): string {
+export function getNiceTimeSincePublished(info, version): string {
   const time = info.time[version];
 
   const now = new Date();
@@ -270,7 +278,7 @@ function fetchTagIfNotExistsLocally(pkg) {
 
 function printChangeInfoForPublishedPackage(pkg, showChanges = false) {
   const cmd = buildModuleDiffCommand(pkg);
-  console.log(chalk.bold(pkg.name), `has changes since v${pkg.version}.`);
+  console.log(`Changes since v${pkg.version}`);
 
   if (showChanges) {
     const cmd = buildModuleDiffCommand(pkg, "--stat --color");

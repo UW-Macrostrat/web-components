@@ -5,6 +5,8 @@ import {
   getPackages,
   getPackageDataFromDirectory,
   getPackagePublicationStatus,
+  PackageStatus,
+  getPackageInfo,
 } from "./status";
 import { prepareModule, ensureEntryFilesExist } from "./prepare";
 import { publishModule, tagVersion } from "./publish";
@@ -44,7 +46,6 @@ export async function runScript(
   // STATUS
   if (prepare) {
     for (const pkg of packagesToPrepare) {
-      console.log(chalk.bold.underline(pkg.name));
       const status = await getPackagePublicationStatus(pkg);
       if (status.canPublish) {
         packagesToPublish.push(pkg);
@@ -87,8 +88,8 @@ export async function runScript(
     if (packagesInProgress.length > 0) {
       console.log();
       console.log(
-        chalk.yellow.bold(
-          `${packagesInProgress.length} packages require changelog entries before publishing:`,
+        chalk.yellow(
+          `${packagesInProgress.length} packages require CHANGELOG entries:`,
         ),
       );
       for (const pkg of packagesInProgress) {
@@ -99,21 +100,19 @@ export async function runScript(
     if (dirtyPackages.length > 0) {
       console.log();
       console.log(
-        chalk.blue.bold(
-          `${dirtyPackages.length} packages have unreleased changes, but are not slated for publication:`,
+        chalk.yellow.dim(
+          `Not publishing ${dirtyPackages.length} packages with changes:`,
         ),
       );
       for (const pkg of dirtyPackages) {
-        console.log(chalk.yellow("- " + chalk.bold(pkg.name)));
+        console.log(chalk.yellow.dim("- " + chalk.bold(pkg.name)));
       }
     }
 
     if (packagesToIgnore.length > 0) {
       console.log();
       console.log(
-        chalk.bold(
-          `${packagesToIgnore.length} packages are unchanged since publication:`,
-        ),
+        chalk.bold(`Skipping ${packagesToIgnore.length} unchanged packages:`),
       );
       for (const pkg of packagesToIgnore) {
         console.log("- " + chalk.bold(pkg.name));
