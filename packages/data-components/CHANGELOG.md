@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.0] - 2026-01-20
+
+- Replace `node-fetch` with `cross-fetch` in `PrevalentTaxa` component
+
 ## [0.2.2] - 2025-11-28
 
 - Move location information (e.g., `LngLatCoords`, `Elevation`) React components

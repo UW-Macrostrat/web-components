@@ -37,13 +37,8 @@
 
 // Color picker
 .color-picker-container
-  :global
-    .react-colorful__saturation
-      border-radius: 0
-
-    .react-colorful__hue
-      border-radius: 0
-
+  :global .w-color-sketch
+    --sketch-background: var(--secondary-background) !important
 
 .color-swatch
   width: 18px
@@ -66,3 +61,4 @@
   position: relative
   flex-grow: 1
   display: block
+

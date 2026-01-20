@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.6.0] - 2026-01-20
+
+- Modernized color picker component
+- Remove last `findDOMNode` usage in `ConfinedImage` for React 19 compatibility
+
 ## [4.5.3] - 2025-12-13
 
 Small update to formatting

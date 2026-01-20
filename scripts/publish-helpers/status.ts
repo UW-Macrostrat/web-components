@@ -25,7 +25,7 @@ export type PackageJSONData = any;
 
 export function readPackageJSON(dirname): PackageJSONData {
   const pkgPath = path.join(dirname, "package.json");
-  return JSON.parse(fs.readFileSync(pkgPath), { encoding: "utf-8" });
+  return JSON.parse(fs.readFileSync(pkgPath, { encoding: "utf-8" }));
 }
 
 export function getPackages(...globPatterns: string[]): string[] {
@@ -75,10 +75,43 @@ export function logAction(pkg, action, color = chalk.blue) {
   console.log(color.bold(action) + color(`: ` + moduleString(pkg)));
 }
 
-function getPackageInfo(pkg) {
-  const cmd = `npm info --json ${pkg.name} 2> /dev/null`;
+const registryIndex = new Map();
+
+function getAllPackagesInfoFromRegistry() {
+  /** Get info for all packages in the registry and cache it */
+  if (registryIndex.size > 0) {
+    return registryIndex;
+  }
+
+  const cmd = `npm info --json --workspaces . 2> /dev/null`;
+  let resJSON = {};
   try {
-    return JSON.parse(execSync(cmd).toString());
+    const res = execSync(cmd, { encoding: "utf-8", cwd: projectDir });
+    console.log(res);
+    resJSON = JSON.parse(res);
+  } catch (error) {
+    // Sometimes it errors because we are not logged in to get info on private packages
+    // If there is salvageable JSON, use it
+    resJSON = JSON.parse(error.stdout);
+  }
+
+  for (const [pkgName, pkgInfo] of Object.entries<any>(resJSON)) {
+    if (pkgName == "error") continue;
+    registryIndex.set(pkgName, pkgInfo);
+  }
+
+  return registryIndex;
+}
+
+interface PackageInfo {
+  versions: string[];
+  lastVersion: string;
+}
+
+export function getPackageInfo(pkg): PackageInfo | null {
+  const packageIndex = getAllPackagesInfoFromRegistry();
+  try {
+    return packageIndex.get(pkg.name) ?? null;
   } catch (error) {
     return null;
   }
@@ -98,13 +131,22 @@ export async function getPackagePublicationStatus(
 ): Promise<PackageStatus> {
   const info = await packageVersionExistsInRegistry(data);
 
-  printChangelogStatus(data, info);
-
   const hasChanges = info.hasChangesSinceLastVersion;
 
   if (hasChanges != null && hasChanges) {
     // the module code has changed since the current published version
     // We need to print this version.
+    const name = chalk.bold.underline(data.name);
+    const version = chalk.bold("v" + data.version);
+
+    if (info.canPublish) {
+      console.log(chalk.greenBright(`${name} ${version} will be published`));
+    } else {
+      console.log(chalk.yellowBright(`${name} has changes since ${version}`));
+    }
+
+    printChangelogStatus(data, info);
+
     printChangeInfoForPublishedPackage(
       { name: data.name, version: info.lastVersion },
       true,
@@ -117,6 +159,8 @@ export async function getPackagePublicationStatus(
 /* makes query to npm to see if package with version exists */
 async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
   const info = getPackageInfo(pkg);
+
+  const printCurrentVersions = false;
 
   let currentVersionExistsInRegistry: boolean = false;
   if (info == null) {
@@ -142,21 +186,6 @@ async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
   // Show last version
   const lastVersion: string | null =
     info.versions[info.versions.length - 1] ?? null;
-  if (canPublish) {
-    msg += " will be published";
-    console.log(chalk.greenBright(msg));
-  }
-
-  if (currentVersionExistsInRegistry) {
-    // Print the publication date for the version
-    const time = getNiceTimeSincePublished(info, pkg.version);
-    msg += ` was published ${time}`;
-    console.log(chalk.blueBright(msg));
-    console.log();
-  } else if (lastVersion != null) {
-    const time = getNiceTimeSincePublished(info, lastVersion);
-    console.log(chalk.dim(`  v${lastVersion} was published ${time}`));
-  }
 
   let hasChanges: boolean | null = null;
   if (lastVersion != null) {
@@ -176,7 +205,7 @@ async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
   };
 }
 
-function getNiceTimeSincePublished(info, version): string {
+export function getNiceTimeSincePublished(info, version): string {
   const time = info.time[version];
 
   const now = new Date();
@@ -237,27 +266,25 @@ function fetchTagIfNotExistsLocally(pkg) {
 
 function printChangeInfoForPublishedPackage(pkg, showChanges = false) {
   const cmd = buildModuleDiffCommand(pkg);
-  console.log(chalk.bold(pkg.name), `has changes since v${pkg.version}.`);
 
   if (showChanges) {
+    console.log(chalk.italic("Summary:"));
     const cmd = buildModuleDiffCommand(pkg, "--stat --color");
     const res = execSync(cmd).toString();
     console.log(chalk.dim(res));
   }
 
-  console.log("Run the following command to see detailed changes:");
-  console.log(chalk.dim(cmd));
+  console.log(chalk.italic("Detailed changes:\n") + chalk.dim(cmd));
 
   // Check if is synced with the remote
   // TODO: this only works if the current branch is pushed to the remote
-  console.log("or view the changes in GitHub:");
   const repoUrl = "https://github.com/UW-Macrostrat/web-components";
   const tag = moduleString(pkg, "-v");
   // Get head commit hash
   const headCommit = execSync("git rev-parse HEAD").toString().trim();
   const url = `${repoUrl}/compare/${tag}...${headCommit}`;
-  console.log(chalk.dim(url));
-  console.log("");
+  console.log(chalk.italic("GitHub link:\n") + chalk.dim(url));
+  console.log("\n");
 }
 
 /* checks for unstaged changes */
@@ -296,10 +323,10 @@ function printChangelogStatus(pkg: PackageData, info: PackageStatus): void {
 
   const changelog = info.currentVersionChangelogEntry;
   if (changelog != null) {
-    console.log(chalk.green(`${CHANGELOG} entry for v${pkg.version}:`));
+    console.log(chalk.green(`${CHANGELOG} entry:`));
     console.log(changelog + "\n");
   } else {
-    console.log(chalk.red(`No ${CHANGELOG} entry for v${pkg.version}`));
+    console.log(chalk.red(`No ${CHANGELOG} entry`));
   }
 }
 

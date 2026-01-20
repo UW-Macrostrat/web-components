@@ -1,9 +1,7 @@
-import { Component, Context } from "react";
-import { findDOMNode } from "react-dom";
+import { useCallback, useEffect, useRef } from "react";
 import Box from "ui-box";
 import h from "@macrostrat/hyper";
-
-import { ColumnContext, ColumnCtx, ColumnDivision } from "../context";
+import { useColumn } from "../context";
 
 interface ColumnScrollerProps {
   scrollToHeight: number;
@@ -19,101 +17,74 @@ interface ScrollToOpts {
   alignment?: "center" | "top" | "bottom";
 }
 
-const splitProps = function (keys, props) {
-  const obj = {};
-  const rest = {};
-  for (let k in props) {
-    const v = props[k];
-    if (keys.includes(k)) {
-      obj[k] = v;
-    } else {
-      rest[k] = v;
-    }
-  }
-  return [obj, rest];
-};
+export function ColumnScroller(props: ColumnScrollerProps) {
+  const {
+    onScrolled = defaultOnScrolled,
+    scrollContainer = defaultGetScrollContainer,
+    scrollToHeight,
+    paddingTop,
+    animated,
+    alignment,
+    ...rest
+  } = props;
 
-export class ColumnScroller extends Component<ColumnScrollerProps> {
-  constructor(props) {
-    super(props);
-    this.scrollTo = this.scrollTo.bind(this);
-  }
+  const ref = useRef(null);
+  const ctx = useColumn();
+  const columnScale = ctx?.scale;
 
-  private static defaultProps: Partial<ColumnScrollerProps> = {
-    animated: true,
-    alignment: "center",
-    onScrolled(height) {
-      return console.log(`Scrolled to ${height} m`);
+  const scrollTo = useCallback(
+    (height: number, opts: ScrollToOpts) => {
+      let node = ref.current;
+      if (node == null || columnScale == null) return;
+      let { animated, alignment } = opts;
+      if (animated == null) {
+        animated = false;
+      }
+      const pixelOffset = columnScale(height);
+      const { top } = node.getBoundingClientRect();
+
+      node = scrollContainer();
+      let pos = pixelOffset + top + paddingTop;
+      const screenHeight = window.innerHeight;
+
+      if (alignment === "center") {
+        pos -= screenHeight / 2;
+      } else if (alignment === "bottom") {
+        pos -= screenHeight;
+      }
+      if (animated && "scrollBehavior" in document.documentElement.style) {
+        node.scrollTo({ top: pos, behavior: "smooth" });
+      } else {
+        node.scrollTop = pos;
+      }
     },
-    scrollContainer() {
-      return document.querySelector(".panel-container");
-    },
-  };
+    [onScrolled, scrollContainer, ref.current, columnScale, paddingTop],
+  );
 
-  static contextType: Context<ColumnCtx<ColumnDivision>> = ColumnContext;
-
-  declare context: ColumnCtx<ColumnDivision>;
-
-  render() {
-    const keys = [
-      "scrollToHeight",
-      "alignment",
-      "animated",
-      "onScrolled",
-      "paddingTop",
-      "scrollContainer",
-    ];
-    const [props, rest] = splitProps(keys, this.props);
-    const { pixelHeight } = this.context;
-    return h(Box, {
-      height: pixelHeight,
-      position: "absolute",
-      ...rest,
-    });
-  }
-
-  scrollTo(height, opts: ScrollToOpts = {}) {
-    let node = findDOMNode(this) as HTMLElement;
-    let { animated, alignment, ...rest } = opts;
-    if (animated == null) {
-      animated = false;
-    }
-    const { paddingTop } = this.props;
-    const { scale } = this.context;
-    const pixelOffset = scale(height);
-    const { top } = node.getBoundingClientRect();
-
-    node = this.props.scrollContainer();
-    let pos = pixelOffset + top + paddingTop;
-    const screenHeight = window.innerHeight;
-
-    if (this.props.alignment === "center") {
-      pos -= screenHeight / 2;
-    } else if (this.props.alignment === "bottom") {
-      pos -= screenHeight;
-    }
-
-    return (node.scrollTop = pos);
-  }
-
-  componentDidMount() {
-    const { scrollToHeight, alignment } = this.props;
+  useEffect(() => {
+    const { scrollToHeight, alignment } = props;
     if (scrollToHeight == null) {
       return;
     }
-    this.scrollTo(scrollToHeight, { alignment, animated: false });
-    return this.props.onScrolled(scrollToHeight);
-  }
+    // Actually perform the scroll
+    scrollTo(scrollToHeight, { alignment, animated });
+    return onScrolled(scrollToHeight);
+  }, [scrollTo, scrollToHeight]);
 
-  componentDidUpdate(prevProps) {
-    const { scrollToHeight, animated, alignment } = this.props;
-    if (scrollToHeight == null) {
-      return;
-    }
-    if (prevProps.scrollToHeight === scrollToHeight) {
-      return;
-    }
-    this.scrollTo(scrollToHeight, { alignment, animated });
-    return this.props.onScrolled(scrollToHeight);
-  }
+  const { pixelHeight } = this.context;
+  return h(Box, {
+    height: pixelHeight,
+    position: "absolute",
+    ref,
+    ...rest,
+  });
+}
+
+function defaultOnScrolled(height: number) {
+  console.log(`Scrolled to ${height} m`);
+}
+
+function defaultGetScrollContainer() {
+  // Todo: generalize this
+  return document.querySelector(".panel-container");
 }

@@ -6,10 +6,10 @@ import {
   asChromaColor,
   getLuminanceAdjustedColorScheme,
 } from "@macrostrat/color-utils";
-import { HexColorPicker } from "react-colorful";
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { memoize } from "underscore";
-import main from "../../../../.storybook/main";
+import Sketch from "@uiw/react-color-sketch";
+import classNames from "classnames";
 
 const h = hyper.styled(styles);
 
@@ -19,9 +19,12 @@ export function ColorCell({
   style,
   intent,
   adjustLuminance = true,
+  className,
   ...rest
 }) {
   const darkMode = useInDarkMode();
+
+  const _className = classNames(className, "color-cell");
 
   let mainColor = "var(--text-color)";
   let backgroundColor = value;
@@ -35,9 +38,16 @@ export function ColorCell({
     }
   }
 
+  if (intent != null) {
+    // If an intent is specified, override the main color
+    mainColor = undefined;
+  }
+
   return h(
     Cell,
     {
+      intent,
+      className: _className,
       ...rest,
       style: {
         color: mainColor,
@@ -70,6 +80,7 @@ enum ColorConversionType {
 export function ColorPicker({
   value,
   onChange,
+  editable = true,
   type = ColorConversionType.CSS,
 }) {
   const ref = useRef(null);
@@ -78,17 +89,18 @@ export function ColorPicker({
     ref.current.focus();
   }, []);
 
-  let color: any;
-  try {
-    color = asChromaColor(value).hex();
-  } catch {
-    color = "#aaaaaa";
-  }
+  const color = useMemo(() => {
+    try {
+      return asChromaColor(value).hex();
+    } catch {
+      return "#aaaaaa";
+    }
+  }, [value]);
+
   return h(
     "div.color-picker-container",
     {
       onKeyDown(evt) {
-        console.log(evt);
         if (evt.key === "Escape") {
           evt.preventDefault();
         }
@@ -96,10 +108,11 @@ export function ColorPicker({
       ref,
       tabIndex: 0,
     },
-    h(HexColorPicker, {
+    h(Sketch, {
       color,
+      disableAlpha: true,
       onChange(color) {
-        onChange(asChromaColor(color)[type]());
+        onChange(asChromaColor(color.hexa)[type]());
       },
     }),
   );

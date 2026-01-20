@@ -5,6 +5,8 @@ import {
   getPackages,
   getPackageDataFromDirectory,
   getPackagePublicationStatus,
+  PackageStatus,
+  getPackageInfo,
 } from "./status";
 import { prepareModule, ensureEntryFilesExist } from "./prepare";
 import { publishModule, tagVersion } from "./publish";
@@ -44,19 +46,14 @@ export async function runScript(
   // STATUS
   if (prepare) {
     for (const pkg of packagesToPrepare) {
-      console.log(chalk.bold.underline(pkg.name));
       const status = await getPackagePublicationStatus(pkg);
       if (status.canPublish) {
         packagesToPublish.push(pkg);
       } else if (status.incomplete) {
         packagesInProgress.push(pkg);
-      }
-
-      if (status.hasChangesSinceLastVersion ?? true) {
+      } else if (status.hasChangesSinceLastVersion ?? true) {
         dirtyPackages.push(pkg);
-      }
-
-      if (!status.canPublish && !status.incomplete) {
+      } else {
         // If the package is not ready to publish, we still want to prepare it
         // but we won't include it in the list of packages to publish
         packagesToIgnore.push(pkg);
@@ -91,8 +88,8 @@ export async function runScript(
     if (packagesInProgress.length > 0) {
       console.log();
       console.log(
-        chalk.yellow.bold(
-          `${packagesInProgress.length} packages require changelog entries before publishing:`,
+        chalk.yellow(
+          `${packagesInProgress.length} packages require CHANGELOG entries:`,
         ),
       );
       for (const pkg of packagesInProgress) {
@@ -100,15 +97,25 @@ export async function runScript(
       }
     }
 
+    if (dirtyPackages.length > 0) {
+      console.log();
+      console.log(
+        chalk.yellow.dim(
+          `Not publishing ${dirtyPackages.length} packages with changes:`,
+        ),
+      );
+      for (const pkg of dirtyPackages) {
+        console.log(chalk.yellow("- " + chalk.bold(pkg.name)));
+      }
+    }
+
     if (packagesToIgnore.length > 0) {
       console.log();
       console.log(
-        chalk.bold(
-          `${packagesToIgnore.length} packages are not ready to publish:`,
-        ),
+        chalk.bold(`Skipping ${packagesToIgnore.length} unchanged packages:`),
       );
       for (const pkg of packagesToIgnore) {
-        console.log("- " + chalk.bold(pkg.name));
+        console.log("- " + chalk.dim(pkg.name));
       }
     }
 
@@ -116,7 +123,7 @@ export async function runScript(
       console.log();
       console.log(chalk.dim.bold("Skipped private packages:"));
       for (const pkg of privatePackagesSkipped) {
-        console.log("- " + chalk.dim.bold(pkg.name));
+        console.log("- " + chalk.dim(pkg.name));
       }
     }
 

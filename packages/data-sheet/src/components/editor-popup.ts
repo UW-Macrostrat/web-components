@@ -13,6 +13,7 @@ export function EditorPopup(props) {
     targetClassName,
     autoFocus,
     valueViewer,
+    placement = "right-start",
     minimal = true,
   } = props;
 
@@ -59,6 +60,7 @@ export function EditorPopup(props) {
       modifiers: {
         offset: { enabled: true, options: { offset: [0, 8] } },
       },
+      placement,
       interactionKind: "hover-target",
       isOpen,
       // Portal must be used to avoid issues with the editor being clipped to the bounds of the cell
