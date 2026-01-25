@@ -46,8 +46,12 @@ export function SGPMeasurementsColumn({ columnID }) {
   });
 }
 
-function SGPSamplesNote(props: { note: any; focused: boolean }) {
-  const { note, focused } = props;
+function SGPSamplesNote(props: {
+  note: any;
+  focused: boolean;
+  sgpBaseURL?: string;
+}) {
+  const { note, focused, sgpBaseURL = "https://sgp-search.io" } = props;
   const sgp_samples = note?.data;
 
   if (sgp_samples == null || sgp_samples.length === 0) return null;
@@ -55,7 +59,10 @@ function SGPSamplesNote(props: { note: any; focused: boolean }) {
   return h(TruncatedList, {
     className: "sgp-samples",
     data: sgp_samples,
-    itemRenderer: (p) => h("span", p.data.name),
+    itemRenderer: (p) => {
+      const sgpLink = sgpBaseURL + `/samples/${p.data.id}`;
+      return h("a", { href: sgpLink, target: "_blank" }, p.data.name);
+    },
     maxItems: focused ? Infinity : 5,
   });
 }
