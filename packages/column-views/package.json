@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "2.4.4",
+  "version": "3.0.0-dev1",
   "description": "Data views for Macrostrat stratigraphic columns",
   "type": "module",
   "source": "src/index.ts",
@@ -18,17 +18,11 @@
       "node": "./dist/node/index.js"
     }
   },
-  "targets": {
-    "node": {
-      "engines": {
-        "node": ">=14"
-      }
-    }
-  },
   "scripts": {
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
+    "@blueprintjs/core": "^6.0.0",
     "@macrostrat/api-types": "workspace:^",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
@@ -54,7 +48,7 @@
     "@types/d3-shape": "^3.1.7",
     "@types/topojson-client": "^3.1.5",
     "@visx/axis": "^3.12.0",
-    "chroma-js": "^3.1.2",
+    "chroma-js": "^3.2.0",
     "classnames": "^2.5.1",
     "cross-fetch": "^4.1.0",
     "d3-array": "^3.2.4",
@@ -73,8 +67,7 @@
     "zustand-computed": "^2.0.2"
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^5.0.0",
-    "react": "^16.13.1||^17||^18||^19"
+    "react": "^18||^19"
   },
   "repository": {
     "type": "git",

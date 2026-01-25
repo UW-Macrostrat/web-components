@@ -28,21 +28,23 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
-    "@blueprintjs/core": "^5.10.2",
-    "@blueprintjs/table": "^5.1.4",
+    "@blueprintjs/core": "^6.6.1",
+    "@blueprintjs/table": "^6.0.13",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
     "@supabase/postgrest-js": "^1.17.7",
     "@uiw/react-color-sketch": "^2.9.2",
-    "chroma-js": "^2.4.2",
+    "chroma-js": "^3.2.0",
     "classnames": "^2.3.1",
     "immutability-helper": "^3.1.1",
-    "react": "^17.0.2||^18 ||^19",
     "underscore": "^1.13.7",
     "zustand": "^5.0.2",
     "zustand-computed": "^2.1.0"
+  },
+  "peerDependencies": {
+    "react": "^18 ||^19"
   },
   "files": [
     "src",

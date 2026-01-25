@@ -43,14 +43,14 @@
     "parcel": "^2.16.0"
   },
   "peerDependencies": {
-    "react": "^16.13.1||^17||^18||^19",
-    "react-dom": "^16.13.1||^17||^18||^19"
+    "react": "^18||^19",
+    "react-dom": "^18||^19"
   },
   "dependencies": {
-    "@blueprintjs/core": "^5.10.2",
-    "@blueprintjs/icons": "^5.9.0",
-    "@blueprintjs/select": "^5.3.10",
-    "@blueprintjs/table": "^5.3.4",
+    "@blueprintjs/core": "^6.6.1",
+    "@blueprintjs/icons": "^6.5.0",
+    "@blueprintjs/select": "^6.0.13",
+    "@blueprintjs/table": "^6.0.13",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
@@ -59,7 +59,7 @@
     "@mapbox/mapbox-gl-draw": "^1.5.0",
     "@types/mapbox__mapbox-gl-draw": "^1.4.8",
     "@types/react-dom": "^18",
-    "axios": "^1.7.9",
+    "axios": "^1.13.2",
     "classnames": "^2.5.1",
     "mapbox-gl": "^2.15.0||^3.0.0"
   },

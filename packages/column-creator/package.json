@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-creator",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "description": "Interface for defining stratigraphic columns in a standardized format",
   "type": "module",
   "source": "src/index.ts",
@@ -30,7 +30,7 @@
     "build": "rm -rf dist && parcel build"
   },
   "dependencies": {
-    "@blueprintjs/core": "^5.19.1",
+    "@blueprintjs/core": "^6.6.1",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
     "@macrostrat/column-views": "workspace:^",

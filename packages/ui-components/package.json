@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "4.6.0",
+  "version": "5.0.0-dev1",
   "description": "UI components for React and Blueprint.js",
   "main": "dist/cjs/index.js",
   "module": "dist/esm/index.js",
@@ -42,15 +42,15 @@
     "access": "public"
   },
   "dependencies": {
-    "@blueprintjs/core": "^5.10.2",
-    "@blueprintjs/datetime2": "^2.3.11",
-    "@blueprintjs/select": "^5.3.10",
+    "@blueprintjs/core": "^6.6.1",
+    "@blueprintjs/datetime2": "^3.0.13",
+    "@blueprintjs/select": "^6.0.13",
     "@macrostrat/hyper": "^3.0.6",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18",
     "@uiw/react-color-sketch": "^2.9.2",
-    "axios": "^1.7.9",
-    "chroma-js": "^2.4.2||^3.0.0",
+    "axios": "^1.13.2",
+    "chroma-js": "^3.2.0",
     "classnames": "^2.3.0",
     "d3-array": "^3.2.4",
     "immutability-helper": "^3.1.1",
@@ -65,8 +65,8 @@
     "zustand": "^5.0.3"
   },
   "peerDependencies": {
-    "react": "^16.8.6 || ^17 || ^18 || ^19",
-    "react-dom": "^16.8.6 || ^17 || ^18 || ^19"
+    "react": "^18 || ^19",
+    "react-dom": "^18 || ^19"
   },
   "repository": {
     "type": "git",

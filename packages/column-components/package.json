@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "1.5.1",
+  "version": "2.0.0-dev1",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -47,13 +47,13 @@
     "stylus": "^0.59.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^5.0.0",
+    "@blueprintjs/core": "^6.6.1",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/timescale": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
     "@uiw/react-color-swatch": "^2.9.2",
-    "chroma-js": "^2.1.0",
+    "chroma-js": "^3.2.0",
     "classnames": "^2.2.6",
     "d3-axis": "^3.0.0",
     "d3-format": "^3.1.0",
@@ -70,8 +70,8 @@
     "uuid": "^7.0.3"
   },
   "peerDependencies": {
-    "react": "^16.13.1||^17||^18||^19",
-    "react-dom": "^16.13.1||^17||^18||^19"
+    "react": "^18||^19",
+    "react-dom": "^18||^19"
   },
   "repository": {
     "type": "git",
