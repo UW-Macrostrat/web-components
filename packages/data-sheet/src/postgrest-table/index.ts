@@ -1,4 +1,4 @@
-import { Toaster, HotkeysProvider } from "@blueprintjs/core";
+import { HotkeysProvider, OverlayToaster } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
@@ -173,7 +173,7 @@ function _PostgRESTTableView<T>({
   ]);
 }
 
-export function notifyOnError(toaster: Toaster, error: any) {
+export function notifyOnError(toaster: OverlayToaster, error: any) {
   console.error(error);
   const { message, status, code, details } = error;
 
