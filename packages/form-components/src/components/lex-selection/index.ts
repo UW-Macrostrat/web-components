@@ -1,10 +1,9 @@
 import { Button, MenuItem, MenuItemProps } from "@blueprintjs/core";
-import { ItemPredicate, ItemRenderer, Select2 } from "@blueprintjs/select";
-import { Cell, EditableCell2Props } from "@blueprintjs/table";
+import { ItemPredicate, ItemRenderer, Select } from "@blueprintjs/select";
+import { Cell } from "@blueprintjs/table";
 import React, { useMemo, memo } from "react";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { getColorPair } from "@macrostrat/color-utils";
-import { useAPIResult } from "@macrostrat/ui-components";
 import "@blueprintjs/select/lib/css/blueprint-select.css";
 import h from "@macrostrat/hyper";
 
@@ -126,7 +125,7 @@ export const LexSelection = ({
     },
     [
       h(
-        Select2<LexItem>,
+        Select<LexItem>,
         {
           fill: true,
           items: active ? items : [],
