@@ -16,7 +16,7 @@
   font-family: monospace;
   font-weight: 600;
 }
-.interval-editor-title :global .bp5-button {
+.interval-editor-title :global .bp6-button {
   transform: translate(0, -5px);
 }
 
@@ -165,7 +165,7 @@
     position: absolute;
   }
 
-  div.edit-overlay div.cursor-container .bp5-popover-wrapper {
+  div.edit-overlay div.cursor-container .bp6-popover-wrapper {
     display: block;
     width: 80px;
   }

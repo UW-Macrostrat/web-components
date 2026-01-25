@@ -113,11 +113,11 @@
     top: 0
 
 
-.context-panel-holder > :global(.bp5-card)
+.context-panel-holder > :global(.bp6-card)
   padding: 10px
   background-color: var(--panel-background-color)
 
-.panel-card, .panel-card:global(.bp5-card)
+.panel-card, .panel-card:global(.bp6-card)
   padding: var(--panel-padding, 10px)
   background-color: var(--panel-background-color)
   overflow: hidden
@@ -126,7 +126,7 @@
   & > :last-child
     margin-bottom: 0
 
-:global(.bp5-dark) .panel-card
+:global(.bp6-dark) .panel-card
   background-color: var(--panel-background-color)
 
 .context-stack
@@ -178,29 +178,29 @@
   overflow: hidden
   text-align: right
 
-  & :global(.bp5-button-text)
+  & :global(.bp6-button-text)
     transition: all 0.2s
     transition-delay: 0.1s
 
-  .menu-card.narrow-card .panel-header:not(.minimal) &:global(.bp5-active) ~ & :global(.bp5-button-text)
+  .menu-card.narrow-card .panel-header:not(.minimal) &:global(.bp6-active) ~ & :global(.bp6-button-text)
     width: 0
     opacity: 0
     margin-left: -7px
 
-  .context-panel-leave .menu-card .panel-header & :global(.bp5-button-text)
+  .context-panel-leave .menu-card .panel-header & :global(.bp6-button-text)
     opacity: 0
     width: 0
 
 .narrow-card.narrow-enter .panel-header .buttons
   margin-right: -500px
 
-.panel-header.minimal .tab-button:not(:hover):not(:global(.bp5-active))
+.panel-header.minimal .tab-button:not(:hover):not(:global(.bp6-active))
   padding-left: 0
   padding-right: 0
   min-width: 30px
   width: 30px
 
-.panel-header.minimal .tab-button:not(:hover) :global(.bp5-button-text)
+.panel-header.minimal .tab-button:not(:hover) :global(.bp6-button-text)
   width: 0
   opacity: 0
   margin-left: -7px
@@ -209,7 +209,7 @@
   margin-bottom: 0.5em
   margin-top: 0.2em
 
-.menu-card :global .bp5-text ul,
+.menu-card :global .bp6-text ul,
 .menu-card :global .text-panel ul
   padding-left: 1em
 
@@ -218,7 +218,7 @@
   flex-direction: column
   margin-bottom: -8px
 
-  & .bp5-button-group
+  & .bp6-button-group
     margin-bottom: 4px
 
   & hr
@@ -261,7 +261,7 @@
   .mapboxgl-ctrl-logo
     transform: scale(0.9) translate(-8px, 2px)
 
-  .bp5-dark
+  .bp6-dark
     .mapboxgl-ctrl-group
       background-color: var(--panel-background-color)
 
@@ -271,10 +271,10 @@
   .mapboxgl-ctrl-group button + button
     border-top: 1px solid var(--panel-rule-color) !important
 
-  .bp5-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon
+  .bp6-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon
     filter: invert(40%)
 
-  .bp5-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon:hover
+  .bp6-dark .mapboxgl-ctrl-group .mapboxgl-ctrl-icon:hover
     filter: invert(50%)
 
   .mapboxgl-ctrl-geolocate .mapboxgl-ctrl-icon
@@ -305,7 +305,7 @@
   gap: 0.5em
 
   :global(.map-control)
-    & > :global(.bp5-button)
+    & > :global(.bp6-button)
       padding: 0
       transform: translate(-3.5px, -3.5px)
       width: 22px !important
@@ -414,7 +414,7 @@
       max-width: var(--map-context-stack-max-width, none)
       transition: width 300ms ease
 
-    :global(.bp5-navbar)
+    :global(.bp6-navbar)
       //height: unset
       //padding: 5px
       h1, h2, h3

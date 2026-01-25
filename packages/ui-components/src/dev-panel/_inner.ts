@@ -14,7 +14,7 @@ export function PageAdminInner({ isOpen, setIsOpen, children }) {
         title: "Developer tools",
         className: "page-admin",
       },
-      h("div.dialog-content.bp5-dialog-content", children),
+      h("div.dialog-content.bp6-dialog-content", children),
     ),
     h("span.__render_alarm__"),
   ]);

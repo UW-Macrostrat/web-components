@@ -192,8 +192,8 @@ export function notifyOnError(toaster: Toaster, error: any) {
 
   toaster.show({
     message: h([
-      h.if(status != null)([h("code.bp5-code", status), " "]),
-      h.if(code != null)([h("code.bp5-code", code), " "]),
+      h.if(status != null)([h("code.bp6-code", status), " "]),
+      h.if(code != null)([h("code.bp6-code", code), " "]),
       message ?? "An error occurred",
       errorDetails,
     ]),

@@ -34,9 +34,9 @@ export class PickerControl extends Component<PickerControlProps> {
 
   render() {
     const { states, activeState, vertical } = this.props;
-    let className = classNames("bp5-button-group", "bp5-fill", {
-      "bp5-vertical": vertical,
-      "bp5-align-left": vertical,
+    let className = classNames("bp6-button-group", "bp6-fill", {
+      "bp6-vertical": vertical,
+      "bp6-align-left": vertical,
     });
 
     return h("div.picker-control", [
@@ -44,8 +44,8 @@ export class PickerControl extends Component<PickerControlProps> {
         "div",
         { className },
         states.map((d) => {
-          className = classNames("bp5-button", {
-            "bp5-active": this.props.activeState === d.value,
+          className = classNames("bp6-button", {
+            "bp6-active": this.props.activeState === d.value,
           });
           return h(
             "button",

@@ -23,7 +23,7 @@ export function EditorPopup(props) {
   const ref = useRef(null);
 
   const inlineEditor = h([
-    h("span.editor-value.bp5-table-cell", valueViewer),
+    h("span.editor-value.bp6-table-cell", valueViewer),
     h("input.hidden-editor", {
       value: "",
       autoFocus: true,
@@ -67,7 +67,7 @@ export function EditorPopup(props) {
       usePortal: true,
     },
     h(
-      "span.editor-popup-target.bp5-table-cell",
+      "span.editor-popup-target.bp6-table-cell",
       {
         className: targetClassName,
         onClick: () => setIsOpen(!isOpen),

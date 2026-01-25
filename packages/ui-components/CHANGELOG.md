@@ -122,7 +122,7 @@ Fixed a bug in UI box model calculations
 
 ## [4.1.2] - 2025-02-16
 
-Add body classes `light-mode` and `bp5-light` to `DarkModeProvider` when it is
+Add body classes `light-mode` and `bp6-light` to `DarkModeProvider` when it is
 explicitly disabled.
 
 ## [4.1.1] - 2025-02-15
