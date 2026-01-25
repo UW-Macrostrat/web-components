@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/style-system",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "description": "Style system for Macrostrat",
   "main": "dist/style-system.css",
   "source": "src/index.ts",
@@ -9,12 +9,7 @@
     "build": "rm -rf dist && vite build"
   },
   "dependencies": {
-    "@blueprintjs/colors": "^5.1.12",
     "@blueprintjs/core": "^6.6.1"
-  },
-  "peerDependencies": {
-    "react": "^18.0.0||^19.0.0",
-    "react-dom": "^18.0.0||^19.0.0"
   },
   "files": [
     "dist",

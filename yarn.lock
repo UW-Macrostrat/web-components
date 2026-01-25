@@ -2298,7 +2298,7 @@ __metadata:
     zustand: "npm:^5.0.3"
     zustand-computed: "npm:^2.0.2"
   peerDependencies:
-    react: ^16.13.1||^17||^18||^19
+    react: ^18||^19
   languageName: unknown
   linkType: soft
 
@@ -2617,12 +2617,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/style-system@workspace:packages/style-system"
   dependencies:
-    "@blueprintjs/colors": "npm:^5.1.12"
     "@blueprintjs/core": "npm:^6.6.1"
     vite: "npm:^7.2.7"
-  peerDependencies:
-    react: ^18.0.0||^19.0.0
-    react-dom: ^18.0.0||^19.0.0
   languageName: unknown
   linkType: soft
 
