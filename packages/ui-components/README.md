@@ -27,16 +27,15 @@ to the developer) or included in Javascript for further processing by a bundler:
 ```js
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+// For date time picker
+import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 import "@macrostrat/ui-components/lib/esm/index.css";
 ```
-
-We also provide [`init.js`](init.js), a small helper that imports these styles
-and sets up common Babel and BlueprintJS configuration.
 
 ## Extensions
 
 Some extensions require additional libraries that may or may not be installed.
-For instance, buttons in `@macrostrat/ui-components/lib/esm/
+For instance, buttons in `@macrostrat/ui-comonents/lib/esm/
 
 ## Todo
 
