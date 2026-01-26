@@ -2,47 +2,43 @@
   "name": "@macrostrat/form-components",
   "version": "1.0.0",
   "description": "Form components for user input into Macrostrat apps",
-  "type": "module",
-  "source": "src/index.ts",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "node": "dist/index.cjs",
-  "style": "dist/form-components.css",
-  "sideEffects": [
-    "**/*.css"
-  ],
-  "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs"
-    },
-    "./style.css": "./dist/form-components.css",
-    "./dist/form-components.css": "./dist/form-components.css",
-    "./package.json": "./package.json"
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/form-components"
   },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
+  "node": "dist/index.cjs",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
   "files": [
     "src",
     "dist"
   ],
-  "scripts": {
-    "build": "bundle-library ."
-  },
-  "authors": [
-    "Casey Idzikowski",
-    "Daven Quinn"
+  "sideEffects": [
+    "**/*.css"
   ],
-  "license": "MIT",
-  "publishConfig": {
-    "access": "public"
+  "style": "dist/form-components.css",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts",
+      "style": "./dist/form-components.css"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/form-components.css",
+    "./dist/form-components.css": "./dist/form-components.css"
   },
-  "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:^"
+  "scripts": {
+    "build": "build-library"
   },
   "peerDependencies": {
-    "react": "^18||^19",
-    "react-dom": "^18||^19"
+    "react": "^18.0.0||^19.0.0",
+    "react-dom": "^18.0.0||^19.0.0"
   },
   "dependencies": {
     "@blueprintjs/core": "^6.6.1",
@@ -63,9 +59,14 @@
     "classnames": "^2.5.1",
     "mapbox-gl": "^2.15.0||^3.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/UW-Macrostrat/web-components.git",
-    "directory": "packages/form-components"
+  "devDependencies": {
+    "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "authors": [
+    "Casey Idzikowski",
+    "Daven Quinn"
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

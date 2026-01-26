@@ -38,8 +38,7 @@
     "react-dom": "^18.0.0||^19.0.0"
   },
   "scripts": {
-    "dev": "parcel watch",
-    "build": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
   },
   "exports": {
     ".": {

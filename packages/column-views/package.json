@@ -2,28 +2,41 @@
   "name": "@macrostrat/column-views",
   "version": "3.0.0",
   "description": "Data views for Macrostrat stratigraphic columns",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/column-views"
+  },
   "type": "module",
-  "source": "src/index.ts",
   "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "node": "dist/index.cjs",
-  "style": "dist/column-views.css",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
   "sideEffects": [
     "**/*.css"
   ],
+  "style": "dist/column-views.css",
   "exports": {
     ".": {
-      "source": "./src/index.ts",
       "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts",
-      "require": "./dist/index.cjs"
+      "source": "./src/index.ts",
+      "style": "./dist/column-views.css"
     },
+    "./package.json": "./package.json",
     "./style.css": "./dist/column-views.css",
-    "./dist/column-views.css": "./dist/column-views.css",
-    "./package.json": "./package.json"
+    "./dist/column-views.css": "./dist/column-views.css"
   },
   "scripts": {
-    "build": "bundle-library ."
+    "build": "build-library"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0||^19.0.0"
   },
   "dependencies": {
     "@blueprintjs/core": "^6.0.0",
@@ -70,19 +83,7 @@
     "zustand": "^5.0.3",
     "zustand-computed": "^2.0.2"
   },
-  "peerDependencies": {
-    "react": "^18||^19"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/UW-Macrostrat/web-components.git",
-    "directory": "packages/column-views"
-  },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:^"
-  },
-  "files": [
-    "dist",
-    "src"
-  ]
+    "@macrostrat/web-components-bundler": "workspace:*"
+  }
 }
