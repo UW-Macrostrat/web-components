@@ -8,43 +8,37 @@
     "vector-graphics",
     "data-visualization"
   ],
-  "main": "./dist/esm/index.js",
+  "main": "./dist/index.js",
   "type": "module",
   "source": "./src/index.ts",
-  "types": "./dist/esm/index.d.ts",
-  "node": "./dist/node/index.js",
+  "types": "./dist/index.d.ts",
+  "node": "./dist/node/index.cjs",
+  "style": "./dist/column-components.css",
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs"
     },
     "./stories/base-section": {
       "source": "./stories/base-section.ts"
-    }
-  },
-  "targets": {
-    "node": {
-      "engines": {
-        "node": ">=14"
-      }
-    }
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/column-components.css",
+    "./dist/column-components.css": "./dist/column-components.css"
   },
   "files": [
     "src",
     "dist"
   ],
   "scripts": {
-    "dev": "parcel watch",
-    "build": "rm -rf dist && parcel build",
-    "check": "tsc --noEmit"
+    "build": "bundle-library ."
   },
   "author": "Daven Quinn <dev@davenquinn.com>",
   "license": "MIT",
   "devDependencies": {
-    "parcel": "^2.16.0",
-    "stylus": "^0.59.0"
+    "@macrostrat/web-components-bundler": "workspace:^"
   },
   "dependencies": {
     "@blueprintjs/core": "^6.6.1",

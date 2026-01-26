@@ -32,6 +32,7 @@
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
     "@supabase/postgrest-js": "^1.17.7",
+    "@types/underscore": "^1.13.0",
     "@uiw/react-color-sketch": "^2.9.2",
     "chroma-js": "^3.2.0",
     "classnames": "^2.3.1",
@@ -53,9 +54,6 @@
     "directory": "packages/data-sheet"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:^",
-    "@types/underscore": "^1.13.0",
-    "parcel": "^2.16.0",
-    "vite": "^7.3.1"
+    "@macrostrat/web-components-bundler": "workspace:^"
   }
 }

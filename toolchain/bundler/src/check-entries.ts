@@ -22,7 +22,7 @@ export function ensureEntryFilesExist(pkg: PackageData) {
     checkExists(pkg.directory, pkgJSON, "module", false);
   }
 
-  for (const entry in ["source", "types", "style", "typings"]) {
+  for (const entry in ["source", "types", "style", "typings", "node"]) {
     checkExists(pkg.directory, pkgJSON, entry, false);
   }
 
