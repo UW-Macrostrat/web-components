@@ -7,6 +7,7 @@
     "experimentalDecorators": true,
     "esModuleInterop": true,
     "downlevelIteration": true,
+    "allowImportingTsExtensions": true,
     "skipLibCheck": true,
     "noEmitOnError": false,
     "lib": ["esnext", "es2017", "dom"],

@@ -1,0 +1,26 @@
+{
+  "name": "@macrostrat/web-components-bundler",
+  "version": "1.0.0",
+  "description": "Packaging module for web components",
+  "private": true,
+  "type": "module",
+  "main": "dist/index.js",
+  "source": "src/index.ts",
+  "scripts": {
+    "build": "tsc",
+    "postinstall": "yarn run build"
+  },
+  "bin": {
+    "bundle-library": "./dist/bin.js"
+  },
+  "author": "Daven Quinn",
+  "license": "ISC",
+  "dependencies": {
+    "typescript": "^5.9.3",
+    "vite": "^7.3.1"
+  },
+  "files": [
+    "src",
+    "dist"
+  ]
+}

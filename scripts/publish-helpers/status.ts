@@ -9,6 +9,7 @@ import { marked } from "marked";
 import { markedTerminal } from "marked-terminal";
 import process from "process";
 import { globSync } from "glob";
+import { readPackageJSON } from "../../toolchain/bundler/src/check-entries";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -20,13 +21,7 @@ const projectDir = path.resolve(path.join(__dirname, "..", ".."));
 export function setupTerminal() {
   marked.use(markedTerminal());
 }
-
 export type PackageJSONData = any;
-
-export function readPackageJSON(dirname): PackageJSONData {
-  const pkgPath = path.join(dirname, "package.json");
-  return JSON.parse(fs.readFileSync(pkgPath, { encoding: "utf-8" }));
-}
 
 export function getPackages(...globPatterns: string[]): string[] {
   const packages = [];

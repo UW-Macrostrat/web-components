@@ -20,8 +20,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "vite build",
-    "build:old": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
   },
   "author": "Daven Quinn",
   "license": "ISC",
@@ -54,6 +53,7 @@
     "directory": "packages/data-sheet"
   },
   "devDependencies": {
+    "@macrostrat/web-components-bundler": "workspace:^",
     "@types/underscore": "^1.13.0",
     "parcel": "^2.16.0",
     "vite": "^7.3.1"

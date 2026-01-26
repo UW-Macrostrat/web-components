@@ -26,6 +26,7 @@
     "@babel/preset-typescript": "^7.21.4",
     "@blueprintjs/core": "^6.6.1",
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/web-components-bundler": "workspace:^",
     "@mdx-js/rollup": "^3.1.0",
     "@parcel/bundler-default": "^2.16.0",
     "@parcel/bundler-library": "^2.16.0",
