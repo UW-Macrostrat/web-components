@@ -1,30 +1,25 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "0.4.0",
+  "version": "1.0.0",
   "description": "A library of React components tailored for Macrostrat data and endpoints",
   "type": "module",
   "source": "src/index.ts",
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "node": "dist/node/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "node": "dist/index.cjs",
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
-    }
-  },
-  "targets": {
-    "node": {
-      "engines": {
-        "node": ">=14"
-      }
-    }
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/data-components.css",
+    "./dist/data-components.css": "./dist/data-components.css"
   },
   "scripts": {
-    "dev": "parcel watch",
-    "build": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
   },
   "authors": [
     "Casey Idzikowski",
@@ -32,8 +27,7 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "@types/d3-array": "^3.2.1",
-    "parcel": "^2.16.0"
+    "@macrostrat/web-components-bundler": "workspace:^"
   },
   "peerDependencies": {
     "react": "^18||^19"
@@ -45,6 +39,7 @@
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
+    "@types/d3-array": "^3.2.1",
     "@visx/axis": "^3.12.0",
     "@visx/gradient": "^3.12.0",
     "@visx/scale": "^3.12.0",

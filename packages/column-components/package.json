@@ -67,6 +67,9 @@
     "react": "^18||^19",
     "react-dom": "^18||^19"
   },
+  "sideEffects": {
+    "**/*.css": true
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",

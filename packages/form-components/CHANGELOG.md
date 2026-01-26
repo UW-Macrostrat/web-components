@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.0] - 2026-01-26
+
+- Update peer dependencies to React 18
+- Update bundling process to `@macrostrat/web-components-bundler`
+
 ## [0.2.5] - 2025-11-28
 
 - Upgrade `parcel` bundler

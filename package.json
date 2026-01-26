@@ -79,7 +79,6 @@
     "madge": "^8.0.0",
     "prettier": "^3.7.4",
     "react-docgen": "^7.0.0",
-    "rollup-plugin-dts": "^6.3.0",
-    "vite-plugin-dts": "^4.5.4"
+    "rollup-plugin-dts": "^6.3.0"
   }
 }

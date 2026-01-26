@@ -1,19 +1,19 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "2.3.0",
+  "version": "3.0.0",
   "description": "Scalable data sheet with optional editing capabilities",
   "type": "module",
   "source": "src/index.ts",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "node": "dist/cjs/index.cjs",
+  "node": "dist/index.cjs",
   "style": "dist/data-sheet.css",
   "exports": {
     ".": {
       "source": "./src/index.ts",
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts",
-      "require": "./dist/cjs/index.cjs"
+      "require": "./dist/index.cjs"
     },
     "./dist/data-sheet.css": "./dist/data-sheet.css",
     "./style.css": "./dist/data-sheet.css",

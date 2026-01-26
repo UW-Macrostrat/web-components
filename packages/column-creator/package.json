@@ -1,12 +1,13 @@
 {
   "name": "@macrostrat/column-creator",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Interface for defining stratigraphic columns in a standardized format",
   "type": "module",
   "source": "src/index.ts",
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "node": "dist/node/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "node": "dist/node/index.cjs",
+  "style": "dist/column-creator.css",
   "private": true,
   "sideEffects": [
     "**/*.css"
@@ -14,20 +15,16 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
-    }
-  },
-  "targets": {
-    "node": {
-      "engines": {
-        "node": ">=14"
-      }
-    }
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs"
+    },
+    "./style.css": "./dist/column-creator.css",
+    "./dist/column-creator.css": "./dist/column-creator.css",
+    "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
   },
   "dependencies": {
     "@blueprintjs/core": "^6.6.1",
@@ -51,7 +48,7 @@
     "directory": "packages/column-creator"
   },
   "devDependencies": {
-    "parcel": "^2.16.0"
+    "@macrostrat/web-components-bundler": "workspace:^"
   },
   "files": [
     "dist",

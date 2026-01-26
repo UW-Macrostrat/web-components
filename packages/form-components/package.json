@@ -1,33 +1,33 @@
 {
   "name": "@macrostrat/form-components",
-  "version": "0.2.5",
+  "version": "1.0.0",
   "description": "Form components for user input into Macrostrat apps",
   "type": "module",
   "source": "src/index.ts",
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "node": "dist/node/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "node": "dist/index.cjs",
+  "style": "dist/form-components.css",
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
-    }
-  },
-  "targets": {
-    "node": {
-      "engines": {
-        "node": ">=14"
-      }
-    }
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs"
+    },
+    "./style.css": "./dist/form-components.css",
+    "./dist/form-components.css": "./dist/form-components.css",
+    "./package.json": "./package.json"
   },
   "files": [
     "src",
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
   },
   "authors": [
     "Casey Idzikowski",
@@ -38,9 +38,7 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/mapbox-gl": "^2.7.21",
-    "@types/react": "^18.3.12",
-    "parcel": "^2.16.0"
+    "@macrostrat/web-components-bundler": "workspace:^"
   },
   "peerDependencies": {
     "react": "^18||^19",
@@ -57,7 +55,9 @@
     "@mantine/core": "^4.2.1",
     "@mantine/hooks": "^4.2.1",
     "@mapbox/mapbox-gl-draw": "^1.5.0",
+    "@types/mapbox-gl": "^2.7.21",
     "@types/mapbox__mapbox-gl-draw": "^1.4.8",
+    "@types/react": "^18.3.12",
     "@types/react-dom": "^18",
     "axios": "^1.13.2",
     "classnames": "^2.5.1",

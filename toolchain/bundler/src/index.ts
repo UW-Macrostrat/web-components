@@ -66,9 +66,12 @@ export async function bundleLibrary(root) {
         fileName: (format, entryName) => {
           // Place ES modules at root and CJS in /cjs subdirectory
           entryName = entryName.replace(prefix, format);
-          if (format === "es") {
-            entryName = entryName.replace("es/", "");
+
+          const prefixToRemove = format + "/";
+          if (entryName.startsWith(prefixToRemove)) {
+            entryName = entryName.slice(prefixToRemove.length);
           }
+
           return `${entryName}.${format === "es" ? "js" : "cjs"}`;
         },
       },

@@ -1,25 +1,29 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "3.0.0-dev1",
+  "version": "3.0.0",
   "description": "Data views for Macrostrat stratigraphic columns",
   "type": "module",
   "source": "src/index.ts",
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "node": "dist/node/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "node": "dist/index.cjs",
+  "style": "dist/column-views.css",
   "sideEffects": [
     "**/*.css"
   ],
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
-    }
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.cjs"
+    },
+    "./style.css": "./dist/column-views.css",
+    "./dist/column-views.css": "./dist/column-views.css",
+    "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
   },
   "dependencies": {
     "@blueprintjs/core": "^6.0.0",
@@ -75,12 +79,7 @@
     "directory": "packages/column-views"
   },
   "devDependencies": {
-    "@types/d3-path": "^3.1.1",
-    "@types/d3-scale": "^4.0.9",
-    "parcel": "^2.16.0",
-    "postcss": "^8.0.0",
-    "postcss-modules": "^6.0.0",
-    "vite": "^7.3.0"
+    "@macrostrat/web-components-bundler": "workspace:^"
   },
   "files": [
     "dist",
