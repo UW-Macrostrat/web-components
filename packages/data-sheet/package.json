@@ -4,16 +4,20 @@
   "description": "Scalable data sheet with optional editing capabilities",
   "type": "module",
   "source": "src/index.ts",
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "node": "dist/node/index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "node": "dist/cjs/index.cjs",
+  "style": "dist/data-sheet.css",
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
-    }
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts",
+      "require": "./dist/cjs/index.cjs"
+    },
+    "./dist/data-sheet.css": "./dist/data-sheet.css",
+    "./style.css": "./dist/data-sheet.css",
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "vite build",
@@ -53,6 +57,7 @@
     "@types/underscore": "^1.13.0",
     "parcel": "^2.16.0",
     "rollup-plugin-typescript2": "^0.36.0",
+    "validate-package-exports": "^0.15.0",
     "vite": "^7.3.1"
   }
 }

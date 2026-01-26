@@ -1,5 +1,8 @@
 import { defineConfig } from "vite";
 import { resolve, relative } from "node:path";
+import dts from "vite-plugin-dts";
+import { ensureEntryFilesExist } from "../../scripts/publish-helpers/prepare";
+import { getPackageDataFromDirectory } from "../../scripts/publish-helpers/status";
 
 import pkg from "./package.json";
 
@@ -7,12 +10,26 @@ const workspaceRoot = resolve(__dirname, "../../");
 
 const prefix = resolve(__dirname).replace(workspaceRoot, "").slice(1) + "/src";
 
-import ts2 from "rollup-plugin-typescript2";
+const checkExportsPlugin = {
+  name: "check-exports",
+  async closeBundle() {
+    ensureEntryFilesExist(getPackageDataFromDirectory(__dirname));
+  },
+};
 
 export default defineConfig({
   root: __dirname,
-  plugins: [ts2()],
+  plugins: [
+    dts({
+      rollupTypes: false,
+      tsconfigPath: resolve(__dirname, "tsconfig.json"),
+      include: ["src"],
+      outDir: resolve(__dirname, "dist"),
+    }) as any,
+    checkExportsPlugin,
+  ],
   build: {
+    outDir: resolve(__dirname, "dist"),
     emptyOutDir: true,
     sourcemap: true,
     lib: {
@@ -21,9 +38,12 @@ export default defineConfig({
       formats: ["es", "cjs"],
       cssFileName: "data-sheet",
       fileName: (format, entryName) => {
-        console.log(entryName, prefix);
-        // e1
+        // Place ES modules at root and CJS in /cjs subdirectory
         entryName = entryName.replace(prefix, format);
+        if (format === "es") {
+          entryName = entryName.replace("es/", "");
+        }
+        console.log("Building format:", format, "->", entryName);
         return `${entryName}.${format === "es" ? "js" : "cjs"}`;
       },
     },

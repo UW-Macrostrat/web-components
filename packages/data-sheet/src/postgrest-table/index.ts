@@ -21,7 +21,7 @@ import type {
   GenericFunction,
   GenericTable,
   GenericView,
-} from "@supabase/postgrest-js/dist/cjs/types";
+} from "@supabase/postgrest-js/dist/cjs/index";
 import { ColorCell } from "../components";
 
 const h = hyper.styled(styles);
@@ -206,7 +206,7 @@ interface PromiseResult {
 }
 
 export async function wrapWithErrorHandling<T extends PromiseResult>(
-  toaster: Toaster,
+  toaster: OverlayToaster,
   fnPromise: Promise<T>,
 ): Promise<T | null> {
   try {

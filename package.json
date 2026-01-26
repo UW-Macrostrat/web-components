@@ -77,6 +77,9 @@
     "@types/underscore": "^1.13.0",
     "madge": "^8.0.0",
     "prettier": "^3.7.4",
-    "react-docgen": "^7.0.0"
+    "react-docgen": "^7.0.0",
+    "rollup-plugin-dts": "^6.3.0",
+    "validate-package-exports": "^0.15.0",
+    "vite-plugin-dts": "^4.5.4"
   }
 }
