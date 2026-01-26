@@ -12,9 +12,7 @@
   "author": "Daven Quinn",
   "type": "module",
   "main": "dist/index.js",
-  "node": "dist/index.cjs",
   "source": "src/index.ts",
-  "types": "dist/index.d.ts",
   "files": [
     "src",
     "dist"
@@ -22,14 +20,12 @@
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
       "source": "./src/index.ts"
     },
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "build-library",
+    "build": "tsc",
     "postinstall": "yarn run build"
   },
   "dependencies": {
@@ -37,8 +33,5 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vite-plugin-dts": "^4.5.4"
-  },
-  "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*"
   }
 }

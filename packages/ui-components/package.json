@@ -2,44 +2,46 @@
   "name": "@macrostrat/ui-components",
   "version": "5.0.0-dev1",
   "description": "UI components for React and Blueprint.js",
-  "main": "dist/cjs/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/ui-components"
+  },
+  "license": "MIT",
+  "author": "Daven Quinn",
+  "type": "module",
+  "main": "dist/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "node": "dist/node/index.js",
+  "node": "dist/index.cjs",
   "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "style": "dist/ui-components.css",
   "exports": {
     ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts",
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
-    }
-  },
-  "targets": {
-    "node": {
-      "engines": {
-        "node": ">=14"
-      }
-    }
+      "style": "./dist/ui-components.css"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/ui-components.css",
+    "./dist/ui-components.css": "./dist/ui-components.css"
   },
   "scripts": {
     "dev": "parcel watch",
-    "build": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
   },
-  "files": [
-    "dist",
-    "src"
-  ],
-  "author": "Daven Quinn",
-  "contributors": [
-    {
-      "name": "Casey Idzikowski"
-    }
-  ],
-  "license": "ISC",
-  "publishConfig": {
-    "access": "public"
+  "peerDependencies": {
+    "react": "^18.0.0||^19.0.0",
+    "react-dom": "^18.0.0||^19.0.0"
   },
   "dependencies": {
     "@blueprintjs/core": "^6.6.1",
@@ -64,16 +66,15 @@
     "use-element-dimensions": "^2.1.3",
     "zustand": "^5.0.3"
   },
-  "peerDependencies": {
-    "react": "^18 || ^19",
-    "react-dom": "^18 || ^19"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/UW-Macrostrat/web-components.git",
-    "directory": "packages/ui-components"
-  },
   "devDependencies": {
-    "parcel": "^2.16.0"
+    "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "contributors": [
+    {
+      "name": "Casey Idzikowski"
+    }
+  ],
+  "publishConfig": {
+    "access": "public"
   }
 }

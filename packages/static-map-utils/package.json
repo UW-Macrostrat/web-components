@@ -2,25 +2,44 @@
   "name": "@macrostrat/static-map-utils",
   "version": "1.0.2",
   "description": "Utilities for working with Mapbox maps",
-  "main": "dist/cjs/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/static-map-utils"
+  },
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.js",
   "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "node": "dist/index.cjs",
   "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "style": "dist/static-map-utils.css",
   "exports": {
     ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts",
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
-    }
+      "style": "./dist/static-map-utils.css"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/static-map-utils.css",
+    "./dist/static-map-utils.css": "./dist/static-map-utils.css"
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
     "dev": "parcel watch",
-    "build": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
+  },
+  "peerDependencies": {
+    "react": "^18.0.0||^19.0.0"
   },
   "dependencies": {
     "@macrostrat/hyper": "^3.0.6",
@@ -37,17 +56,12 @@
     "maplibregl-mapbox-request-transformer": "^0.0.3",
     "underscore": "^1.13.7"
   },
-  "peerDependencies": {
-    "react": "^18.0.0||^19.0.0"
-  },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/UW-Macrostrat/web-components.git",
-    "directory": "packages/static-map-utils"
-  },
   "devDependencies": {
     "@types/underscore": "^1.13.0",
     "mapbox-gl": "^2.15.0||^3.0.0",
-    "parcel": "^2.16.0"
+    "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

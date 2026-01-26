@@ -10,6 +10,8 @@ import chalk from "chalk";
 const manualPackagesToFix = [
   "@macrostrat/api-types",
   "@macrostrat/style-system",
+  "@macrostrat/web-components-bundler",
+  "@macrostrat/hyperstyle-loader",
 ];
 
 const packageJSONKeyOrder = [
@@ -154,7 +156,7 @@ export function updatePackageJsonFiles() {
 
     // Ensure we're using the proper build script
     newPackageData.scripts ??= {};
-    newPackageData.scripts.build = "build-library";
+    newPackageData.scripts.build = "bundle-library .";
 
     // Sort the package JSON keys alphabetically
     const sortedPackageData: any = {};

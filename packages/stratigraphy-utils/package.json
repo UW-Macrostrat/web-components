@@ -28,7 +28,7 @@
     "./package.json": "./package.json"
   },
   "scripts": {
-    "build": "build-library"
+    "build": "bundle-library ."
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"

@@ -35,7 +35,7 @@
     "./dist/data-sheet.css": "./dist/data-sheet.css"
   },
   "scripts": {
-    "build": "build-library"
+    "build": "bundle-library ."
   },
   "peerDependencies": {
     "react": "^18.0.0||^19.0.0"
