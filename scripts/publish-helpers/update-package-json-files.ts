@@ -2,9 +2,10 @@
 
 // Uses the 'style' field from the package.json to infer whether there is an associated CSS stylesheet
 
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve, dirname } from "node:path";
+import { readFileSync, writeFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { getPackageDataFromDirectory, getPackages } from "./status";
+import chalk from "chalk";
 
 const manualPackagesToFix = [
   "@macrostrat/api-types",
@@ -14,6 +15,7 @@ const manualPackagesToFix = [
 const packageJSONKeyOrder = [
   "name",
   "version",
+  "private",
   "description",
   "keywords",
   "homepage",
@@ -42,14 +44,23 @@ export function updatePackageJsonFiles() {
   // Get the root package JSON
   const candidatePackages = getPackages("packages/*", "toolchain/*");
 
-  console.log(candidatePackages);
+  const packagesWithCSSSideEffects = [];
 
   for (const packageDir of candidatePackages) {
     const pkg = getPackageDataFromDirectory(packageDir);
-    if (pkg.private === true) {
-      continue;
+
+    const firstColumnLength = 40;
+    let prefix = chalk.cyan.bold(pkg.name) + ": ";
+    if (pkg.name.length < firstColumnLength) {
+      prefix = prefix + " ".repeat(firstColumnLength - pkg.name.length);
     }
+
+    const logSkip = (reason: string) => {
+      console.log(chalk.dim(prefix + `Skipping (${reason})`));
+    };
+
     if (manualPackagesToFix.includes(pkg.name)) {
+      logSkip("automatic management disabled");
       continue;
     }
 
@@ -59,7 +70,7 @@ export function updatePackageJsonFiles() {
     const packageData = JSON.parse(packageDataText);
 
     if (packageData.type !== "module") {
-      console.log("Skipping non-module package:", pkg.name);
+      logSkip(chalk.red("not an ESM module"));
       continue;
     }
 
@@ -94,6 +105,7 @@ export function updatePackageJsonFiles() {
         url: "https://github.com/UW-Macrostrat/web-components.git",
         directory: pkg.directory,
       },
+      license: "MIT",
     };
 
     if ("style" in packageData) {
@@ -103,6 +115,7 @@ export function updatePackageJsonFiles() {
       exports["./style.css"] = relStyleSheetName;
       exports[relStyleSheetName] = relStyleSheetName;
       newPackageData["sideEffects"] = ["**/*.css"];
+      packagesWithCSSSideEffects.push({ ...pkg, styleSheetName });
     }
     // Merge with existing package data
     newPackageData = { ...packageData, ...newPackageData };
@@ -110,6 +123,15 @@ export function updatePackageJsonFiles() {
     newPackageData.devDependencies ??= {};
     newPackageData.devDependencies["@macrostrat/web-components-bundler"] =
       "workspace:*";
+
+    if (pkg.private === true) {
+      newPackageData.private = true;
+      delete newPackageData["publishConfig"];
+    } else {
+      newPackageData.publishConfig = {
+        access: "public",
+      };
+    }
 
     // Adjust React peer dependencies to accepted verisons
     if ("peerDependencies" in newPackageData) {
@@ -153,12 +175,20 @@ export function updatePackageJsonFiles() {
     const newPackageJSONText =
       JSON.stringify(sortedPackageData, null, 2) + "\n";
     if (newPackageJSONText === packageDataText) {
-      console.log(`No changes for package.json of ${pkg.name}`);
+      logSkip("no changes");
       continue;
     }
 
     writeFileSync(packageJSONPath, newPackageJSONText, "utf-8");
-    console.log(`Updated package.json for ${pkg.name}`);
+    console.log(prefix + `Updated package.json`);
+  }
+
+  console.log("Packages with CSS side effects:");
+  for (const pkg of packagesWithCSSSideEffects) {
+    console.log(`
+\\\\ ${pkg.name}, required from v${pkg.version}
+@import("${pkg.name}/${pkg.styleSheetName}");
+\\\\    or ${pkg.name}/style.css`);
   }
 }
 

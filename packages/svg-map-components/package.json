@@ -13,6 +13,7 @@
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/svg-map-components"
   },
+  "license": "MIT",
   "author": "Daven Quinn <dev@davenquinn.com>",
   "type": "module",
   "main": "dist/index.js",
@@ -61,5 +62,8 @@
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -7,6 +7,7 @@
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/column-views"
   },
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "node": "dist/index.cjs",
@@ -85,5 +86,8 @@
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

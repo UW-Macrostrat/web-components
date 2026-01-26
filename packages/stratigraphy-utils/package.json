@@ -7,7 +7,7 @@
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/stratigraphy-utils"
   },
-  "license": "ISC",
+  "license": "MIT",
   "author": "Daven Quinn",
   "type": "module",
   "main": "dist/index.js",
@@ -32,5 +32,8 @@
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

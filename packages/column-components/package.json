@@ -72,5 +72,8 @@
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

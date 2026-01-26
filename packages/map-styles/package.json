@@ -7,6 +7,7 @@
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/map-styles"
   },
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "node": "dist/index.cjs",
@@ -41,5 +42,8 @@
   "devDependencies": {
     "ts-node": "^10.7.0",
     "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

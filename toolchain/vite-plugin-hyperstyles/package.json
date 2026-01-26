@@ -6,6 +6,7 @@
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "toolchain/vite-plugin-hyperstyles"
   },
+  "license": "MIT",
   "type": "module",
   "main": "dist/index.js",
   "node": "dist/index.cjs",
@@ -34,5 +35,8 @@
   "devDependencies": {
     "@types/node": "^22.14.1",
     "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

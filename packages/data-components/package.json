@@ -56,5 +56,8 @@
   "authors": [
     "Casey Idzikowski",
     "Daven Quinn"
-  ]
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }
