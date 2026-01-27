@@ -163,6 +163,9 @@ export function updatePackageJsonFiles() {
     newPackageData.scripts ??= {};
     newPackageData.scripts.build = "bundle-library .";
 
+    // Remove dev scripts that are not needed
+    delete newPackageData.scripts.dev;
+
     // Sort the package JSON keys alphabetically
     const sortedPackageData: any = {};
     const keys = Object.keys(newPackageData).toSorted((a, b) => {

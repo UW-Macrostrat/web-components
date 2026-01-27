@@ -35,7 +35,6 @@
     "./dist/ui-components.css": "./dist/ui-components.css"
   },
   "scripts": {
-    "dev": "parcel watch",
     "build": "bundle-library ."
   },
   "peerDependencies": {

@@ -1,5 +1,12 @@
 # Changelog
 
+# `[4.0.0]` - 2026-01-26
+
+- Major update to bundling strategy using the
+  [`@macrostrat/web-components-bundler`](./toolchain/bundler) package.
+- Add a `update-metadata` script to handle changes to package JSON files across
+  the monorepo.
+
 # `[3.0.0]` - 2024-02-04
 
 This release includes major changes in support of bundling all dependencies for

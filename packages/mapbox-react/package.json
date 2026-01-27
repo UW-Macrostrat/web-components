@@ -34,7 +34,6 @@
     "./dist/mapbox-react.css": "./dist/mapbox-react.css"
   },
   "scripts": {
-    "dev": "parcel watch",
     "build": "bundle-library ."
   },
   "peerDependencies": {

@@ -34,7 +34,6 @@
     "./dist/static-map-utils.css": "./dist/static-map-utils.css"
   },
   "scripts": {
-    "dev": "parcel watch",
     "build": "bundle-library ."
   },
   "peerDependencies": {
