@@ -1,6 +1,6 @@
 /* script to check versions on ui-packages and publish those that aren't on npm */
 import chalk from "chalk";
-import {  PackageData } from "./status.js";
+import { PackageData } from "./status.js";
 import { readPackageJSON } from "../../toolchain/bundler/src/check-entries";
 import { exec } from "child_process";
 import { bundleLibrary } from "../../toolchain/bundler/src/index.ts";
