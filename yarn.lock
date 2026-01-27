@@ -1482,7 +1482,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/style-system@workspace:packages/style-system":
+"@macrostrat/style-system@workspace:^, @macrostrat/style-system@workspace:packages/style-system":
   version: 0.0.0-use.local
   resolution: "@macrostrat/style-system@workspace:packages/style-system"
   dependencies:
@@ -1602,7 +1602,10 @@ __metadata:
   resolution: "@macrostrat/web-components@workspace:."
   dependencies:
     "@blueprintjs/core": "npm:^6.6.1"
+    "@macrostrat/column-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/style-system": "workspace:^"
+    "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:^"
     "@mdx-js/rollup": "npm:^3.1.0"
     "@storybook/addon-docs": "npm:10.2.0"

@@ -25,6 +25,9 @@
   "dependencies": {
     "@blueprintjs/core": "^6.6.1",
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/style-system": "workspace:^",
+    "@macrostrat/ui-components": "workspace:^",
+    "@macrostrat/column-components": "workspace:^",
     "@macrostrat/web-components-bundler": "workspace:^",
     "@mdx-js/rollup": "^3.1.0",
     "@storybook/addon-docs": "10.2.0",
@@ -44,14 +47,16 @@
     "marked": "^11.0",
     "marked-terminal": "^7.1.0",
     "node-fetch": "^3.2.9",
-    "prettier": "^3.7.4",
     "react": "^18||^19",
     "react-dom": "^18||^19",
     "storybook": "10.2.0",
     "tsx": "^4.19.1",
     "typescript": "^5.8.3",
     "underscore": "^1.12.0",
-    "use-async-effect": "^2.2.1",
+    "use-async-effect": "^2.2.1"
+  },
+  "devDependencies": {
+    "prettier": "^3.7.4",
     "vite": "^7.3.1"
   },
   "resolutions": {

@@ -2,6 +2,7 @@
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import type { StorybookConfig } from "@storybook/react-vite";
+import { mergeConfig } from "vite";
 
 const require = createRequire(import.meta.url);
 
@@ -20,6 +21,25 @@ export default {
     getAbsolutePath("@vueless/storybook-dark-mode"),
   ],
   framework: "@storybook/react-vite",
+  async viteFinal(config) {
+    // Prioritize source files for bundling if available
+    return mergeConfig(config, {
+      resolve: {
+        conditions: ["source",],
+      },
+      optimizeDeps: {
+        exclude: ["node_modules/.cache/storybook"],
+      },
+      css: {
+        preprocessorOptions: {
+          // https://vite.dev/config/shared-options.html#css-preprocessoroptions
+          sass: {
+            api: "modern-compiler", // or "modern", "legacy"
+          },
+        },
+      }
+    })
+  },
   docs: {},
 } as StorybookConfig;
 

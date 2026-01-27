@@ -23,10 +23,10 @@
   "style": "dist/mapbox-react.css",
   "exports": {
     ".": {
+      "source": "./src/index.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts",
-      "source": "./src/index.ts",
       "style": "./dist/mapbox-react.css"
     },
     "./package.json": "./package.json",

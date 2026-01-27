@@ -86,10 +86,15 @@ export function updatePackageJsonFiles() {
 
     const exports = {
       ".": {
+        /* NOTE: the "source" field is non-standard, but we use it to get Vite to
+         * load Typescript source files directly when resolve.conditions includes "source".
+         * Unfortunately, we have to put this first, as Vite seems to
+         * prefer the "import" field over it otherwise.
+         */
+        source: `./${sourceFileName}`,
         import: `./${esmFileName}`,
         require: `./${cjsFileName}`,
         types: `./${typesFileName}`,
-        source: `./${sourceFileName}`,
       },
       "./package.json": "./package.json",
     };
