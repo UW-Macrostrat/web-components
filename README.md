@@ -79,7 +79,6 @@ along with the version since which the style import has been necessary.
 | `@macrostrat/static-map-utils`     | `.../dist/static-map-utils.css`    | `2.0.0` |
 | `@macrostrat/timescale`            | `.../dist/timescale.css`           | `3.0.0` |
 | `@macrostrat/ui-components`        | `.../dist/ui-components.css`       | `5.0.0` |
-| ---------------------------------- | ---------------------------------- | ------- |
 
 ## Contributing
 
