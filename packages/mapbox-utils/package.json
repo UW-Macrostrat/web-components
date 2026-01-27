@@ -30,7 +30,7 @@
     "build": "bundle-library ."
   },
   "dependencies": {
-    "@turf/bbox": "^7.1.0",
+    "@turf/bbox": "^7.3.2",
     "@types/mapbox-gl": "^3.4.1",
     "axios": "^1.13.2",
     "mapbox-gl": "^2.15.0||^3.0.0"
