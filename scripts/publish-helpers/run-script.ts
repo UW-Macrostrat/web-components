@@ -5,11 +5,11 @@ import {
   getPackages,
   getPackageDataFromDirectory,
   getPackagePublicationStatus,
-  PackageStatus,
-  getPackageInfo,
+  logAction,
 } from "./status";
-import { prepareModule, ensureEntryFilesExist } from "./prepare";
+import { prepareModule } from "./prepare";
 import { publishModule, tagVersion } from "./publish";
+export { ensureEntryFilesExist } from "../../toolchain/bundler/src/check-entries";
 
 export async function runScript(
   { prepare = true, build = true, publish = true },
@@ -157,8 +157,9 @@ export async function runScript(
   if (build) {
     for (const pkg of packagesToBuild) {
       try {
-        prepareModule(pkg);
-        ensureEntryFilesExist(pkg);
+        logAction(pkg, "\nBuilding");
+
+        await prepareModule(pkg);
         packagesToPush.push(pkg);
       } catch (error) {
         console.log(error);

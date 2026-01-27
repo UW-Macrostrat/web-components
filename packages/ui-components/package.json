@@ -11,7 +11,6 @@
   "author": "Daven Quinn",
   "type": "module",
   "main": "dist/index.js",
-  "module": "dist/esm/index.js",
   "node": "dist/index.cjs",
   "source": "src/index.ts",
   "types": "dist/index.d.ts",

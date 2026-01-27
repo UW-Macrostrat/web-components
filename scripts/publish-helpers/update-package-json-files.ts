@@ -126,6 +126,11 @@ export function updatePackageJsonFiles() {
     newPackageData.devDependencies["@macrostrat/web-components-bundler"] =
       "workspace:*";
 
+    // Delete the "module" field if it exists
+    if ("module" in newPackageData) {
+      delete newPackageData["module"];
+    }
+
     if (pkg.private === true) {
       newPackageData.private = true;
       delete newPackageData["publishConfig"];

@@ -4,7 +4,11 @@ import { build, defineConfig } from "vite";
 import { resolve, dirname } from "node:path";
 import dts from "vite-plugin-dts";
 import { fileURLToPath } from "node:url";
-import { ensureEntryFilesExist, readPackageJSON } from "./check-entries.js";
+import {
+  ensureEntryFilesExist,
+  PackageData,
+  readPackageJSON,
+} from "./check-entries.js";
 import chalk from "chalk";
 
 const module = import.meta.url;
@@ -21,6 +25,35 @@ export async function bundleLibrary(root) {
 
   console.log(`\nBundling library ${chalk.bold.cyan(pkg.name)}`);
 
+  // if we have a custom vite config, use that instead
+  let viteConfig = null;
+  try {
+    viteConfig = (await import(resolve(root, "vite.config.ts"))).default;
+    console.log(
+      chalk.dim(
+        `Using custom vite config for package ${pkg.name} from ${resolve(
+          root,
+          "vite.config.ts",
+        )}`,
+      ),
+    );
+  } catch (e) {
+    // No custom config, use standard
+    viteConfig = buildStandardViteConfig(pkg, root);
+  }
+
+  await build(viteConfig);
+}
+
+interface PackageJSONData extends Omit<PackageData, "directory"> {
+  dependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+}
+
+function buildStandardViteConfig(pkg: PackageJSONData, root: string) {
+  const packageNameWithoutScope = pkg.name.replace(/^@[^/]+\//, "");
+
   const pkgData = { ...pkg, directory: root };
 
   const checkExportsPlugin = {
@@ -34,9 +67,7 @@ export async function bundleLibrary(root) {
   // Prefix for output files
   const prefix = resolve(root).replace(workspaceRoot, "").slice(1) + "/src";
 
-  const packageNameWithoutScope = pkg.name.replace(/^@[^/]+\//, "");
-
-  const viteConfig = defineConfig({
+  return defineConfig({
     root,
     plugins: [
       dts({
@@ -92,6 +123,4 @@ export async function bundleLibrary(root) {
       },
     },
   });
-
-  await build(viteConfig);
 }
