@@ -56,9 +56,9 @@
     "underscore": "^1.13.7"
   },
   "devDependencies": {
+    "@macrostrat/web-components-bundler": "workspace:*",
     "@types/underscore": "^1.13.0",
-    "mapbox-gl": "^2.15.0||^3.0.0",
-    "@macrostrat/web-components-bundler": "workspace:*"
+    "mapbox-gl": "^2.15.0||^3.0.0"
   },
   "publishConfig": {
     "access": "public"

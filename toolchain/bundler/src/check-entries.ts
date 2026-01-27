@@ -51,7 +51,6 @@ function checkExists(
   }
 
   let entryFile = `${baseDir}/${entry}`;
-  entryFile = entryFile.replace(/^\.?\//, "");
 
   if (!existsSync(entryFile)) {
     throw new Error(`Entry file ${entryFile} does not exist`);

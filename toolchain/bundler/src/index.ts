@@ -51,7 +51,18 @@ interface PackageJSONData extends Omit<PackageData, "directory"> {
   devDependencies?: Record<string, string>;
 }
 
-function buildStandardViteConfig(pkg: PackageJSONData, root: string) {
+interface ViteConfigOpts {
+  verbose?: boolean;
+}
+
+function buildStandardViteConfig(
+  pkg: PackageJSONData,
+  root: string,
+  opts: ViteConfigOpts = {},
+) {
+  /** Build a standardized vite configuration for packages */
+
+  const verbose = opts.verbose ?? false;
   const packageNameWithoutScope = pkg.name.replace(/^@[^/]+\//, "");
 
   const pkgData = { ...pkg, directory: root };
@@ -78,10 +89,11 @@ function buildStandardViteConfig(pkg: PackageJSONData, root: string) {
         exclude: [
           resolve(root, "src", "**/*.stories.ts"),
           resolve(root, "src", "**/*.stories.tsx"),
+          resolve(root, "stories"),
         ],
         outDir: resolve(root, "dist"),
         // We don't care too much about Typescript types. We could change this.
-        logLevel: "silent",
+        logLevel: verbose ? "info" : "silent",
       }) as any,
       checkExportsPlugin,
     ],

@@ -2487,6 +2487,7 @@ __metadata:
     "@macrostrat/mapbox-react": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
+    "@macrostrat/web-components-bundler": "workspace:*"
     "@mapbox/tilebelt": "npm:^2.0.0"
     "@visx/axis": "npm:^3.12.0"
     "@visx/scale": "npm:^3.12.0"
@@ -2495,7 +2496,6 @@ __metadata:
     d3-array: "npm:^3.2.4"
     d3-format: "npm:^3.1.0"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
-    parcel: "npm:^2.16.0"
     query-string: "npm:^9.0.0"
     transition-hook: "npm:^1.5.2"
     ui-box: "npm:^5.4.1"
@@ -2527,20 +2527,20 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:
+    "@blueprintjs/core": "npm:^6.6.1"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/map-styles": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
+    "@macrostrat/web-components-bundler": "workspace:*"
     "@turf/centroid": "npm:^7.1.0"
     "@types/mapbox-gl": "npm:^3.4.1"
     classnames: "npm:^2.3.1"
     immutability-helper: "npm:^3.1.1"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
     mapbox-gl-controls: "npm:^2.3.5"
-    parcel: "npm:^2.16.0"
     zustand: "npm:^5.0.1"
   peerDependencies:
-    "@blueprintjs/core": ^6.6.1
     react: ^18.0.0||^19.0.0
     react-dom: ^18.0.0||^19.0.0
   languageName: unknown
@@ -2550,11 +2550,11 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-utils@workspace:packages/mapbox-utils"
   dependencies:
+    "@macrostrat/web-components-bundler": "workspace:*"
     "@turf/bbox": "npm:^7.1.0"
     "@types/mapbox-gl": "npm:^3.4.1"
     axios: "npm:^1.13.2"
     mapbox-gl: "npm:^2.15.0||^3.0.0"
-    parcel: "npm:^2.16.0"
   languageName: unknown
   linkType: soft
 
@@ -2566,6 +2566,7 @@ __metadata:
     "@macrostrat/mapbox-react": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
+    "@macrostrat/web-components-bundler": "workspace:*"
     "@mapbox/sphericalmercator": "npm:^2.0.2"
     "@turf/bbox": "npm:^7.2.0"
     "@turf/distance": "npm:^7.2.0"
@@ -2576,7 +2577,6 @@ __metadata:
     mapbox-gl: "npm:^2.15.0||^3.0.0"
     maplibre-gl: "npm:^5.10.0"
     maplibregl-mapbox-request-transformer: "npm:^0.0.3"
-    parcel: "npm:^2.16.0"
     underscore: "npm:^1.13.7"
   peerDependencies:
     react: ^18.0.0||^19.0.0
@@ -2657,6 +2657,7 @@ __metadata:
     "@blueprintjs/datetime": "npm:^6.0.13"
     "@blueprintjs/select": "npm:^6.0.13"
     "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/web-components-bundler": "workspace:*"
     "@types/react": "npm:^18.3.12"
     "@types/react-dom": "npm:^18"
     "@uiw/react-color-sketch": "npm:^2.9.2"
@@ -2665,7 +2666,6 @@ __metadata:
     classnames: "npm:^2.3.0"
     d3-array: "npm:^3.2.4"
     immutability-helper: "npm:^3.1.1"
-    parcel: "npm:^2.16.0"
     query-string: "npm:^9.0.0"
     react-dropzone: "npm:^11.4.2"
     react-intersection-observer: "npm:^8.32.1"
@@ -2676,8 +2676,8 @@ __metadata:
     use-element-dimensions: "npm:^2.1.3"
     zustand: "npm:^5.0.3"
   peerDependencies:
-    react: ^18 || ^19
-    react-dom: ^18 || ^19
+    react: ^18.0.0||^19.0.0
+    react-dom: ^18.0.0||^19.0.0
   languageName: unknown
   linkType: soft
 
@@ -2700,6 +2700,8 @@ __metadata:
     typescript: "npm:^5.9.3"
     vite: "npm:^7.3.1"
     vite-plugin-dts: "npm:^4.5.4"
+  bin:
+    bundle-library: ./dist/bin.js
   languageName: unknown
   linkType: soft
 
