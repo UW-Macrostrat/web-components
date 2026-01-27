@@ -9,6 +9,7 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Standardize bundling
 - Require separate import of `@macrostrat/column-components/style.css` or
   ` @macrostrat/column-components/dist/column-components.css` for styles
+- Update peer dependencies to React 19
 
 ## [1.5.1] - 2026-01-17
 

@@ -10,10 +10,11 @@
   },
   "license": "MIT",
   "type": "module",
+  "source": "src/index.ts",
   "main": "dist/index.js",
   "node": "dist/index.cjs",
-  "source": "src/index.ts",
   "types": "dist/index.d.ts",
+  "style": "dist/column-creator.css",
   "files": [
     "src",
     "dist"
@@ -21,7 +22,6 @@
   "sideEffects": [
     "**/*.css"
   ],
-  "style": "dist/column-creator.css",
   "exports": {
     ".": {
       "source": "./src/index.ts",

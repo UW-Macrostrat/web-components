@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "2.0.0-dev1",
+  "version": "2.0.0",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -16,10 +16,11 @@
   "license": "MIT",
   "author": "Daven Quinn <dev@davenquinn.com>",
   "type": "module",
+  "source": "src/index.ts",
   "main": "dist/index.js",
   "node": "dist/index.cjs",
-  "source": "src/index.ts",
   "types": "dist/index.d.ts",
+  "style": "dist/column-components.css",
   "files": [
     "src",
     "dist"
@@ -27,7 +28,6 @@
   "sideEffects": [
     "**/*.css"
   ],
-  "style": "dist/column-components.css",
   "exports": {
     ".": {
       "source": "./src/index.ts",

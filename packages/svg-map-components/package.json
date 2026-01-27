@@ -16,9 +16,9 @@
   "license": "MIT",
   "author": "Daven Quinn <dev@davenquinn.com>",
   "type": "module",
+  "source": "src/index.ts",
   "main": "dist/index.js",
   "node": "dist/index.cjs",
-  "source": "src/index.ts",
   "types": "dist/index.d.ts",
   "files": [
     "src",
