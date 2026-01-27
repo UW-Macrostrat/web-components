@@ -42,29 +42,32 @@ and third-party usage are welcome!
 ### Style imports
 
 Many packages in this monorepo have styles that need to be imported separately
-into consuming applications.
-These styles can be imported into HTML
+into consuming applications. These styles can be imported into HTML
+
 ```html
-<link rel="stylesheet" href="@macrostrat/column-components/dist/column-components.css">
+<link
+  rel="stylesheet"
+  href="@macrostrat/column-components/dist/column-components.css"
+/>
 ```
+
 or into JavaScript/TypeScript files:
-```ts
-import '@macrostrat/column-components/dist/column-components.css';
-```
-
-For each package, styles can also be imported using a synthetic
-default import:
 
 ```ts
-import '@macrostrat/column-components/style.css';
+import "@macrostrat/column-components/dist/column-components.css";
 ```
 
-The following table lists the packages that require separate style imports, along with the version
-since which the style import has been necessary.
+For each package, styles can also be imported using a synthetic default import:
 
+```ts
+import "@macrostrat/column-components/style.css";
+```
+
+The following table lists the packages that require separate style imports,
+along with the version since which the style import has been necessary.
 
 | Module                             | Stylesheet                         | Since   |
-|------------------------------------|------------------------------------|---------|
+| ---------------------------------- | ---------------------------------- | ------- |
 | `@macrostrat/column-components`    | `.../dist/column-components.css`   | `2.0.0` |
 | `@macrostrat/column-creator`       | `.../dist/column-creator.css`      | `0.2.0` |
 | `@macrostrat/column-views`         | `.../dist/column-views.css`        | `3.0.0` |

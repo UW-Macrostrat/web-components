@@ -6,7 +6,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [2.0.0] - 2026-01-26
 
-- Removed import of `mapbox-gl/dist/mapbox-gl.css`, no styles bundled with library.
+- Removed import of `mapbox-gl/dist/mapbox-gl.css`, no styles bundled with
+  library.
 - Changed bundling of library to use `@macrostrat/web-components-bundler`.
 - Updated peer dependencies to React 18.
 

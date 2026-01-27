@@ -169,7 +169,7 @@ export function Globe(_props: GlobeProps) {
   const _center = useMemoizedValue(center);
 
   // Apply global styles
-  useGlobalStyles()
+  useGlobalStyles();
 
   useEffect(() => {
     const rotation: [number, number] = [-_center[0], -_center[1]];
@@ -236,7 +236,7 @@ export function Globe(_props: GlobeProps) {
             allowZoom,
             scaleExtent: zoomScaleExtent,
           }),
-        ] as any[]
+        ] as any[],
       ),
     ),
   );

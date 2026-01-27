@@ -10,8 +10,8 @@ and this project adheres to
 
 - Change bundling process to use `@macrostrat/web-components-bundler`
 - Update peer dependencies to React 18
-- Require styles to be imported separately as
-  `@macrostrat/timescale/styles.css` or `@macrostrat/timescale/dist/tiless
+- Require styles to be imported separately as `@macrostrat/timescale/styles.css`
+  or `@macrostrat/timescale/dist/tiless
 
 ## [2.3.2] - 2025-12-19
 

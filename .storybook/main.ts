@@ -25,7 +25,7 @@ export default {
     // Prioritize source files for bundling if available
     return mergeConfig(config, {
       resolve: {
-        conditions: ["source",],
+        conditions: ["source"],
       },
       optimizeDeps: {
         exclude: ["node_modules/.cache/storybook"],
@@ -37,8 +37,8 @@ export default {
             api: "modern-compiler", // or "modern", "legacy"
           },
         },
-      }
-    })
+      },
+    });
   },
   docs: {},
 } as StorybookConfig;
