@@ -3,9 +3,10 @@
   "version": "0.3.0",
   "description": "Style system for Macrostrat",
   "main": "dist/style-system.css",
+  "type": "module",
   "source": "src/index.ts",
   "scripts": {
-    "build": " vite build"
+    "build": "vite build"
   },
   "dependencies": {
     "@blueprintjs/core": "^6.6.1"

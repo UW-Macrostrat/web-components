@@ -63,6 +63,7 @@ function buildStandardViteConfig(
   /** Build a standardized vite configuration for packages */
 
   const verbose = opts.verbose ?? false;
+
   const packageNameWithoutScope = pkg.name.replace(/^@[^/]+\//, "");
 
   const pkgData = { ...pkg, directory: root };
@@ -108,11 +109,14 @@ function buildStandardViteConfig(
         cssFileName: packageNameWithoutScope,
         fileName: (format, entryName) => {
           // Place ES modules at root and CJS in /cjs subdirectory
-          entryName = entryName.replace(prefix, format);
 
-          const prefixToRemove = format + "/";
-          if (entryName.startsWith(prefixToRemove)) {
-            entryName = entryName.slice(prefixToRemove.length);
+          // Remove prefixes
+          for (const splitPart of ["node_modules", prefix]) {
+            const partWithSlashes = splitPart + "/";
+            if (entryName.includes(partWithSlashes)) {
+              const parts = entryName.split(partWithSlashes);
+              entryName = parts[parts.length - 1];
+            }
           }
 
           return `${entryName}.${format === "es" ? "js" : "cjs"}`;
