@@ -1,60 +1,66 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "2.2.4",
+  "version": "3.0.0",
   "description": "Scalable data sheet with optional editing capabilities",
-  "type": "module",
-  "source": "src/index.ts",
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "node": "dist/node/index.js",
-  "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
-    }
-  },
-  "targets": {
-    "node": {
-      "engines": {
-        "node": ">=14"
-      }
-    }
-  },
-  "scripts": {
-    "build": "rm -rf dist && parcel build"
-  },
-  "author": "Daven Quinn",
-  "license": "ISC",
-  "dependencies": {
-    "@blueprintjs/core": "^5.10.2",
-    "@blueprintjs/table": "^5.1.4",
-    "@macrostrat/color-utils": "workspace:^",
-    "@macrostrat/data-components": "workspace:^",
-    "@macrostrat/hyper": "^3.0.6",
-    "@macrostrat/ui-components": "workspace:^",
-    "@supabase/postgrest-js": "^1.17.7",
-    "@uiw/react-color-sketch": "^2.9.2",
-    "chroma-js": "^2.4.2",
-    "classnames": "^2.3.1",
-    "immutability-helper": "^3.1.1",
-    "react": "^17.0.2||^18 ||^19",
-    "underscore": "^1.13.7",
-    "zustand": "^5.0.2",
-    "zustand-computed": "^2.1.0"
-  },
-  "files": [
-    "src",
-    "dist"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/data-sheet"
   },
-  "devDependencies": {
+  "license": "MIT",
+  "author": "Daven Quinn",
+  "type": "module",
+  "source": "src/index.ts",
+  "main": "dist/index.js",
+  "node": "dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "style": "dist/data-sheet.css",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    ".": {
+      "source": "./src/index.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts",
+      "style": "./dist/data-sheet.css"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/data-sheet.css",
+    "./dist/data-sheet.css": "./dist/data-sheet.css"
+  },
+  "scripts": {
+    "build": "bundle-library ."
+  },
+  "peerDependencies": {
+    "react": "^18.0.0||^19.0.0"
+  },
+  "dependencies": {
+    "@blueprintjs/core": "^6.6.1",
+    "@blueprintjs/table": "^6.0.13",
+    "@macrostrat/color-utils": "workspace:^",
+    "@macrostrat/data-components": "workspace:^",
+    "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/ui-components": "workspace:^",
+    "@supabase/postgrest-js": "^1.17.7",
     "@types/underscore": "^1.13.0",
-    "parcel": "^2.16.0"
+    "@uiw/react-color-sketch": "^2.9.2",
+    "chroma-js": "^3.2.0",
+    "classnames": "^2.5.1",
+    "immutability-helper": "^3.1.1",
+    "underscore": "^1.13.7",
+    "zustand": "^5.0.2",
+    "zustand-computed": "^2.1.0"
+  },
+  "devDependencies": {
+    "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

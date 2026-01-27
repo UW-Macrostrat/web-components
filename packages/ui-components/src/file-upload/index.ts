@@ -50,16 +50,16 @@ class FileUploadComponent extends Component<FileUploadProps> {
     });
     const inputProps = getInputProps();
     inputProps.style = {};
-    inputProps.className = "bp5-large";
+    inputProps.className = "bp6-large";
     let msg = "Drop files here";
     if (!isDragActive) {
       msg += ", or click to upload";
     }
 
     return h("div", { className, ...rootProps }, [
-      h("label.bp5-file-input.bp5-large", [
+      h("label.bp6-file-input.bp6-large", [
         h("input", inputProps),
-        h("div.bp5-file-upload-input", [
+        h("div.bp6-file-upload-input", [
           h(FileList, { files, placeholder: msg }),
         ]),
       ]),

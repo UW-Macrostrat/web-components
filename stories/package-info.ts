@@ -27,7 +27,7 @@ export function PackageInfo() {
     "ul.package-info",
     packages.map((pkg) => {
       return h("li.package-info-item", [
-        h("code.bp5-code.package-name", "@macrostrat/" + pkg),
+        h("code.bp6-code.package-name", "@macrostrat/" + pkg),
         " ",
         h("span.links", [
           h(

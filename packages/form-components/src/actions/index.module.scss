@@ -13,7 +13,7 @@
       grid-column: 1/2;
       grid-row: span 1;
       width: 100%;
-      :global(.bp5-menu) {
+      :global(.bp6-menu) {
         width: 100%;
       }
     }
@@ -34,7 +34,7 @@
   grid-column: 1/2;
   grid-row: span 2;
 
-  :global(.bp5-menu) {
+  :global(.bp6-menu) {
     border-radius: 6px;
     width: 12em;
   }
@@ -52,7 +52,7 @@
   border-radius: 6px;
   position: relative;
   background-color: var(--panel-secondary-background-color);
-  &:global(.bp5-non-ideal-state) {
+  &:global(.bp6-non-ideal-state) {
     grid-row: span 2;
   }
   & > :first-child {
@@ -67,9 +67,9 @@
   flex-grow: 1;
 }
 
-.action-button:global(.bp5-button) {
+.action-button:global(.bp6-button) {
   border-radius: 6px;
-  :global(.bp5-button-text) {
+  :global(.bp6-button-text) {
     flex: 1 1 auto;
     font-weight: 600;
   }

@@ -1,4 +1,4 @@
-import { Toaster, HotkeysProvider } from "@blueprintjs/core";
+import { HotkeysProvider, OverlayToaster } from "@blueprintjs/core";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
@@ -21,7 +21,7 @@ import type {
   GenericFunction,
   GenericTable,
   GenericView,
-} from "@supabase/postgrest-js/dist/cjs/types";
+} from "@supabase/postgrest-js/dist/cjs/index";
 import { ColorCell } from "../components";
 
 const h = hyper.styled(styles);
@@ -173,7 +173,7 @@ function _PostgRESTTableView<T>({
   ]);
 }
 
-export function notifyOnError(toaster: Toaster, error: any) {
+export function notifyOnError(toaster: OverlayToaster, error: any) {
   console.error(error);
   const { message, status, code, details } = error;
 
@@ -192,8 +192,8 @@ export function notifyOnError(toaster: Toaster, error: any) {
 
   toaster.show({
     message: h([
-      h.if(status != null)([h("code.bp5-code", status), " "]),
-      h.if(code != null)([h("code.bp5-code", code), " "]),
+      h.if(status != null)([h("code.bp6-code", status), " "]),
+      h.if(code != null)([h("code.bp6-code", code), " "]),
       message ?? "An error occurred",
       errorDetails,
     ]),
@@ -206,7 +206,7 @@ interface PromiseResult {
 }
 
 export async function wrapWithErrorHandling<T extends PromiseResult>(
-  toaster: Toaster,
+  toaster: OverlayToaster,
   fnPromise: Promise<T>,
 ): Promise<T | null> {
   try {

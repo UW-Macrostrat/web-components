@@ -4,7 +4,7 @@ import {
   ExpandableDetailsPanel,
   ExpansionBody,
 } from "@macrostrat/map-interface";
-import styles from "./main.module.styl";
+import styles from "./main.module.sass";
 import { scaleLinear } from "@visx/scale";
 import { AxisBottom } from "@visx/axis";
 import chroma from "chroma-js";

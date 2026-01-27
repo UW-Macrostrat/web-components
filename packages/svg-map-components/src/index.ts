@@ -5,10 +5,9 @@ import React, {
   useReducer,
   useEffect,
   useMemo,
-  useState,
 } from "react";
 import { addClassNames } from "@macrostrat/hyper";
-import h from "./hyper";
+import h, { useGlobalStyles } from "./hyper";
 import {
   useMap,
   MapContext,
@@ -169,6 +168,9 @@ export function Globe(_props: GlobeProps) {
 
   const _center = useMemoizedValue(center);
 
+  // Apply global styles
+  useGlobalStyles();
+
   useEffect(() => {
     const rotation: [number, number] = [-_center[0], -_center[1]];
     dispatch({ type: "rotate", rotation });
@@ -234,7 +236,7 @@ export function Globe(_props: GlobeProps) {
             allowZoom,
             scaleExtent: zoomScaleExtent,
           }),
-        ],
+        ] as any[],
       ),
     ),
   );

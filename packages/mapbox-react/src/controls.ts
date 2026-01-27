@@ -50,20 +50,18 @@ export function GlobeControl({ className }) {
   return h(
     "div.map-control.globe-control.mapboxgl-ctrl-group.mapboxgl-ctrl.mapbox-control",
     { className },
-    [
-      h(
-        "button.globe-control-button",
-        {
-          onClick() {
-            if (map == null) return;
-            // @ts-ignore
-            map.setProjection(nextProj);
-            setIsGlobe(nextProj == "globe");
-          },
+    h(
+      "button.globe-control-button",
+      {
+        onClick() {
+          if (map == null) return;
+          // @ts-ignore
+          map.setProjection(nextProj);
+          setIsGlobe(nextProj == "globe");
         },
-        h(Icon, { icon }),
-      ),
-    ],
+      } as any,
+      h(Icon, { icon }),
+    ),
   );
 }
 

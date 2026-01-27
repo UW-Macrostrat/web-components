@@ -19,7 +19,7 @@ export function EditableTextArea({ value, onChange }) {
   }, []);
 
   return h("div.editable-text-area", [
-    h("textarea.bp5-input", {
+    h("textarea.bp6-input", {
       ref,
       value: value ?? "",
       onChange: (evt) => onChange(evt.target.value),

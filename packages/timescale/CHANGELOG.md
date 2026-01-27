@@ -6,6 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to
 [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.0.0] - 2026-01-26
+
+- Change bundling process to use `@macrostrat/web-components-bundler`
+- Update peer dependencies to React 18
+- Require styles to be imported separately as `@macrostrat/timescale/styles.css`
+  or `@macrostrat/timescale/dist/tiless
+
 ## [2.3.2] - 2025-12-19
 
 Fix typescript errors

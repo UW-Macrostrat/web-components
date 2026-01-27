@@ -5,13 +5,7 @@ import {
   InputGroup,
   Intent,
 } from "@blueprintjs/core";
-import {
-  Cell,
-  Column,
-  Region,
-  RowHeaderCell,
-  Table2,
-} from "@blueprintjs/table";
+import { Cell, Column, Region, RowHeaderCell, Table } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
@@ -270,7 +264,7 @@ function _DataSheet<T>({
       { onKeyDown },
       h(
         // @ts-expect-error
-        Table2,
+        Table,
         {
           ref,
           numRows,

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/api-types",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "Type definitions for Macrostrat's API",
   "main": "./src/index.d.ts",
   "types": "./src/index.d.ts",
@@ -17,9 +17,6 @@
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/api-types"
-  },
-  "devDependencies": {
-    "parcel": "^2.16.0"
   },
   "dependencies": {
     "@types/geojson": "^7946.0.16"

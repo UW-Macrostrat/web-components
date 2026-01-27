@@ -1,26 +1,43 @@
 {
   "name": "@macrostrat/static-map-utils",
-  "version": "1.0.2",
+  "version": "2.0.0",
   "description": "Utilities for working with Mapbox maps",
-  "main": "dist/cjs/index.js",
-  "module": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/static-map-utils"
+  },
+  "license": "MIT",
+  "type": "module",
   "source": "src/index.ts",
+  "main": "dist/index.js",
+  "node": "dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "style": "dist/static-map-utils.css",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "require": "./dist/cjs/index.js",
-      "types": "./dist/esm/index.d.ts"
-    }
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts",
+      "style": "./dist/static-map-utils.css"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/static-map-utils.css",
+    "./dist/static-map-utils.css": "./dist/static-map-utils.css"
   },
-  "files": [
-    "dist",
-    "src"
-  ],
   "scripts": {
-    "dev": "parcel watch",
-    "build": "rm -rf dist && parcel build"
+    "build": "bundle-library ."
+  },
+  "peerDependencies": {
+    "react": "^18.0.0||^19.0.0"
   },
   "dependencies": {
     "@macrostrat/hyper": "^3.0.6",
@@ -28,24 +45,21 @@
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
     "@mapbox/sphericalmercator": "^2.0.2",
-    "@turf/bbox": "^7.2.0",
-    "@turf/distance": "^7.2.0",
+    "@turf/bbox": "^7.3.2",
+    "@turf/distance": "^7.3.2",
     "@types/mapbox-gl": "^3.4.1",
     "@visx/scale": "^3.12.0",
     "classnames": "^2.5.1",
     "maplibre-gl": "^5.10.0",
     "maplibregl-mapbox-request-transformer": "^0.0.3",
-    "react": "^18.0.0",
     "underscore": "^1.13.7"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/UW-Macrostrat/web-components.git",
-    "directory": "packages/static-map-utils"
-  },
   "devDependencies": {
+    "@macrostrat/web-components-bundler": "workspace:*",
     "@types/underscore": "^1.13.0",
-    "mapbox-gl": "^2.15.0||^3.0.0",
-    "parcel": "^2.16.0"
+    "mapbox-gl": "^2.15.0||^3.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

@@ -1,6 +1,6 @@
 import { Button, MenuItem, MenuItemProps } from "@blueprintjs/core";
-import { ItemPredicate, ItemRenderer, Select2 } from "@blueprintjs/select";
-import { Cell, EditableCell2Props } from "@blueprintjs/table";
+import { ItemPredicate, ItemRenderer, Select } from "@blueprintjs/select";
+import { Cell, EditableCellProps } from "@blueprintjs/table";
 import React, { useMemo, memo } from "react";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { getColorPair } from "@macrostrat/color-utils";
@@ -102,7 +102,7 @@ const filterInterval: ItemPredicate<Interval> = (query, interval) => {
   return interval.name.toLowerCase().indexOf(query.toLowerCase()) >= 0;
 };
 
-export interface IntervalSelectionProps extends EditableCell2Props {
+export interface IntervalSelectionProps extends EditableCellProps {
   intervals: Interval[];
   onPaste: (e) => Promise<boolean>;
   onCopy: (e) => Promise<boolean>;
@@ -147,7 +147,7 @@ export const IntervalSelection = ({
     },
     [
       h(
-        Select2<Interval>,
+        Select<Interval>,
         {
           fill: true,
           items: active ? intervals : [],

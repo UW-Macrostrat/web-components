@@ -1,63 +1,70 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "0.3.0",
+  "version": "1.0.0",
   "description": "A library of React components tailored for Macrostrat data and endpoints",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/UW-Macrostrat/web-components.git",
+    "directory": "packages/data-components"
+  },
+  "license": "MIT",
   "type": "module",
   "source": "src/index.ts",
-  "main": "dist/esm/index.js",
-  "types": "dist/esm/index.d.ts",
-  "node": "dist/node/index.js",
+  "main": "dist/index.js",
+  "node": "dist/index.cjs",
+  "types": "dist/index.d.ts",
+  "style": "dist/data-components.css",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/esm/index.js",
-      "types": "./dist/esm/index.d.ts",
-      "node": "./dist/node/index.js"
-    }
-  },
-  "targets": {
-    "node": {
-      "engines": {
-        "node": ">=14"
-      }
-    }
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts",
+      "style": "./dist/data-components.css"
+    },
+    "./package.json": "./package.json",
+    "./style.css": "./dist/data-components.css",
+    "./dist/data-components.css": "./dist/data-components.css"
   },
   "scripts": {
-    "dev": "parcel watch",
-    "build": "rm -rf dist && parcel build"
-  },
-  "authors": [
-    "Casey Idzikowski",
-    "Daven Quinn"
-  ],
-  "license": "MIT",
-  "devDependencies": {
-    "@blueprintjs/core": "^5.10.2",
-    "@types/d3-array": "^3.2.1",
-    "parcel": "^2.16.0"
+    "build": "bundle-library ."
   },
   "peerDependencies": {
-    "@blueprintjs/core": "^5.10.2",
-    "react": "^16.13.1||^17||^18||^19"
+    "react": "^18.0.0||^19.0.0"
   },
   "dependencies": {
+    "@blueprintjs/core": "^6.6.1",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
+    "@types/d3-array": "^3.2.1",
     "@visx/axis": "^3.12.0",
     "@visx/gradient": "^3.12.0",
     "@visx/scale": "^3.12.0",
     "@visx/shape": "^3.12.0",
-    "axios": "^1.7.9",
+    "axios": "^1.13.2",
     "classnames": "^2.5.1",
     "cross-fetch": "^4.1.0",
     "d3-array": "^3.2.4",
     "mapbox-gl": "^2.7.0||^3.13.0"
   },
-  "files": [
-    "src",
-    "dist"
-  ]
+  "devDependencies": {
+    "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "authors": [
+    "Casey Idzikowski",
+    "Daven Quinn"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
 }

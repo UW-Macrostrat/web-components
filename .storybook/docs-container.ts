@@ -6,14 +6,14 @@ import { useEffect, useState } from "react";
 export const DocsContainer = ({ children, context }) => {
   // Check for body class changes
   const [dark, setDark] = useState(
-    document.body.classList.contains("bp5-dark"),
+    document.body.classList.contains("bp6-dark"),
   );
 
   useEffect(() => {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (mutation.attributeName === "class") {
-          const dark = document.body.classList.contains("bp5-dark");
+          const dark = document.body.classList.contains("bp6-dark");
           setDark(dark);
         }
       });

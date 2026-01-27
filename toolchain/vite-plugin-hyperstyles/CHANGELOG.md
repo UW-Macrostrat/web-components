@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.0] - 2026-01-26
+
+Remove parcel bundler and change to use `@macrostrat/web-components-bundler`.
+
 ## [1.0.3] - 2025-11-28
 
 Update Parcel bundler.

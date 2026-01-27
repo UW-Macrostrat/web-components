@@ -1,19 +1,12 @@
-import { OverlayToaster, Toaster } from "@blueprintjs/core";
+import { OverlayToaster } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import {
-  createContext,
-  useRef,
-  useState,
-  useContext,
-  RefObject,
-  useEffect,
-} from "react";
+import { createContext, useState, useContext, RefObject } from "react";
 import { createPortal } from "react-dom";
-import type { OverlayToasterProps, ToasterInstance } from "@blueprintjs/core";
+import type { OverlayToasterProps } from "@blueprintjs/core";
 
 // We might want to refactor this
 function createAppToaster() {
-  return Toaster.create();
+  return OverlayToaster.create();
 }
 
 type ContextualToasterProps = Omit<
@@ -27,7 +20,7 @@ export type ToasterContextProps = ContextualToasterProps & {
   containerRef?: RefObject<HTMLElement>;
 };
 
-const ToasterCtx = createContext<ToasterInstance>(null);
+const ToasterCtx = createContext<any>(null);
 
 function ContextualToaster({ containerRef, setToaster, ...rest }) {
   const toaster = h(OverlayToaster, {
@@ -43,7 +36,7 @@ function ContextualToaster({ containerRef, setToaster, ...rest }) {
 
 function ToasterContext(props: ToasterContextProps) {
   const { children, toasts, containerRef, ...rest } = props;
-  const [toaster, setToaster] = useState<ToasterInstance>(null);
+  const [toaster, setToaster] = useState<any>(null);
 
   return h(ToasterCtx.Provider, { value: toaster }, [
     h(ContextualToaster, { containerRef, setToaster, ...rest }, toasts),
@@ -51,7 +44,7 @@ function ToasterContext(props: ToasterContextProps) {
   ]);
 }
 
-function useToaster(): ToasterInstance | null {
+function useToaster(): any | null {
   return useContext(ToasterCtx);
 }
 

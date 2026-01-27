@@ -1,14 +1,14 @@
 // @ts-nocheck
 import { Component, createContext, ReactElement, useContext } from "react";
 import h from "@macrostrat/hyper";
-import { DateInput3 } from "@blueprintjs/datetime2";
+import { DateInput } from "@blueprintjs/datetime";
 import { EditableText } from "@blueprintjs/core";
 import { EditButton, DeleteButton } from "./buttons";
 import { StatefulComponent } from "./util";
 import classNames from "classnames";
 import update, { Spec } from "immutability-helper";
 
-import "@blueprintjs/datetime2/lib/css/blueprint-datetime2.css";
+import "@blueprintjs/datetime/lib/css/blueprint-datetime.css";
 
 const ModelEditorContext = createContext<any>({});
 
@@ -223,7 +223,7 @@ class EditableDateField extends Component<any, any> {
     if (!isEditing) {
       return h("div", { className }, valueText);
     }
-    return h(DateInput3, {
+    return h(DateInput, {
       className,
       value: new Date(value),
       formatDate: (date) => date.toLocaleDateString(),

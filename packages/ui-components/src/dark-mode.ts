@@ -86,8 +86,8 @@ function _DarkModeProvider(props: DarkModeProps) {
     addBodyClasses = true,
     isEnabled,
     followSystem = false,
-    bodyClasses = ["dark-mode", "bp5-dark"],
-    disabledBodyClasses = ["bp5-light", "light-mode"],
+    bodyClasses = ["dark-mode", "bp6-dark"],
+    disabledBodyClasses = ["bp6-light", "light-mode"],
     children,
   } = props;
   const [storedValue, updateValue, resetState] = useStoredState(

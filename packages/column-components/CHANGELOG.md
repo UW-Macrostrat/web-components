@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - Unreleased
+
+- Standardize bundling
+- Require separate import of `@macrostrat/column-components/style.css` or
+  ` @macrostrat/column-components/dist/column-components.css` for styles
+- Update peer dependencies to React 19
+
 ## [1.5.1] - 2026-01-17
 
 - Modernized color picker component

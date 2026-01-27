@@ -30,7 +30,7 @@ export const parameters = {
     //current: "light",
     dark: { ...themes.dark },
     light: { ...themes.light },
-    darkClass: ["bp5-dark"],
+    darkClass: ["bp6-dark"],
     lightClass: [],
     stylePreview: true,
   },

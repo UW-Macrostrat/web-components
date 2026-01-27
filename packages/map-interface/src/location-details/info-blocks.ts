@@ -1,6 +1,6 @@
 import hyper from "@macrostrat/hyper";
 import { hexToRgb } from "./utils";
-import styles from "./info-blocks.module.styl";
+import styles from "./info-blocks.module.sass";
 import { useDarkMode } from "@macrostrat/ui-components";
 import chroma from "chroma-js";
 

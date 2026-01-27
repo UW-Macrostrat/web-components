@@ -141,7 +141,7 @@ export function ExtractionContext({
 
 export function ModelInfo({ data }) {
   if (!data) return null;
-  return h("p.model-name", ["Model: ", h("code.bp5-code", data.name)]);
+  return h("p.model-name", ["Model: ", h("code.bp6-code", data.name)]);
 }
 
 export type MatchComponent = (props: { data: any }) => any;
@@ -182,7 +182,7 @@ export function EntityTag({
     h("span.entity-name", name),
     " ",
     h(
-      "code.entity-type.bp5-code",
+      "code.entity-type.bp6-code",
       {
         onClick(evt) {
           if (active && onClickType != null) {

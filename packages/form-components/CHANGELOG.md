@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.0] - 2026-01-26
+
+- Update peer dependencies to React 18
+- Update bundling process to `@macrostrat/web-components-bundler`
+- Make CSS imports optional; users must now import
+  `@macrostrat/form-components/style.css` or
+  `@macrostrat/form-components/dist/form-components.css` for styles
+
 ## [0.2.5] - 2025-11-28
 
 - Upgrade `parcel` bundler

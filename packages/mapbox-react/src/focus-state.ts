@@ -4,6 +4,7 @@ import { useMapInitialized, useMapRef } from "./context";
 import classNames from "classnames";
 import { useState, useRef, useEffect } from "react";
 import styles from "./main.module.scss";
+import styleRules from "./main.module.scss?inline";
 import hyper from "@macrostrat/hyper";
 import {
   moveMap,
@@ -241,6 +242,18 @@ export function useFocusState(position: LngLatLike | GeoJSON.Geometry) {
   return focusState;
 }
 
+function useGlobalCSSStyles(id: string, css: string) {
+  // Load CSS styles into head
+  useEffect(() => {
+    if (document == null) return;
+    if (document.getElementById(id)) return;
+    const style: HTMLStyleElement = document.createElement("style");
+    style.id = id;
+    style.innerHTML = styleRules;
+    document.head.appendChild(style);
+  }, [id, css]);
+}
+
 export function LocationFocusButton({
   location,
   bounds,
@@ -251,6 +264,9 @@ export function LocationFocusButton({
   ...rest
 }) {
   const map = useMapRef();
+
+  // Load CSS styles into head
+  useGlobalCSSStyles("mapbox-react-focus-button-styles", styleRules);
 
   const _icon = icon ?? (bounds == null ? "map-marker" : "detection");
   if (location == null && bounds != null) {
