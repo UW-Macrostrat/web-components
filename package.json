@@ -6,7 +6,7 @@
   "repository": "https://github.com/UW-Macrostrat/web-components.git",
   "version": "4.0.0",
   "scripts": {
-    "dev": "storybook dev -p 6006 --no-open",
+    "dev": "NODE_NO_WARNINGS=1 storybook dev -p 6006 --no-open",
     "build:storybook": "storybook build --debug",
     "build": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers build",
     "status": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers status",
@@ -29,11 +29,12 @@
     "@storybook/addon-docs": "10.2.0",
     "@storybook/addon-links": "10.2.0",
     "@storybook/builder-vite": "10.2.0",
+    "@storybook/icons": "^2.0.1",
     "@storybook/react-vite": "10.2.0",
     "@types/d3-geo": "^3.1.0",
     "@types/geojson": "^7946.0.16",
     "@types/react": "^18.3.12",
-    "@vueless/storybook-dark-mode": "^10.0.4",
+    "@vueless/storybook-dark-mode": "^10.0.6",
     "chalk": "^5.6.2",
     "date-fns": "^4.1.0",
     "glob": "^11.1.0",
@@ -49,7 +50,8 @@
     "tsx": "^4.19.1",
     "typescript": "^5.8.3",
     "underscore": "^1.12.0",
-    "use-async-effect": "^2.2.1"
+    "use-async-effect": "^2.2.1",
+    "vite": "^7.3.1"
   },
   "resolutions": {
     "react": "^19",

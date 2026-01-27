@@ -19,10 +19,10 @@ export default {
     getAbsolutePath("@storybook/addon-links"),
     getAbsolutePath("@vueless/storybook-dark-mode"),
   ],
-  framework: getAbsolutePath("@storybook/react-vite"),
+  framework: "@storybook/react-vite",
   docs: {},
 } as StorybookConfig;
 
 function getAbsolutePath(value: string): any {
-  return dirname(require.resolve(join(value, "package.json")));
+  return dirname(require.resolve(value));
 }
