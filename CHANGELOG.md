@@ -3,9 +3,14 @@
 # `[4.0.0]` - 2026-01-26
 
 - Major update to bundling strategy using the
-  [`@macrostrat/web-components-bundler`](./toolchain/bundler) package.
+  [`@macrostrat/web-components-bundler`](./toolchain/bundler) package, removing
+  the `parcel` dependency.
 - Add a `update-metadata` script to handle changes to package JSON files across
   the monorepo.
+- Update peer dependencies to React 18.
+- Require styles to be imported separately for many packages.
+- Update to Yarn PnP
+- Update Storybook to version `10.2.0`
 
 # `[3.0.0]` - 2024-02-04
 

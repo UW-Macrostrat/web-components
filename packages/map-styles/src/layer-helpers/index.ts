@@ -7,7 +7,6 @@ import {
 import { createUnitFill } from "./pattern-fill";
 import axios from "axios";
 import mapboxgl from "mapbox-gl";
-import "mapbox-gl/dist/mapbox-gl.css";
 import { lineSymbols } from "./symbol-layers";
 import { loadImage } from "./utils";
 export * from "./svg-patterns";

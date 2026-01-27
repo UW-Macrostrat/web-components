@@ -4,6 +4,9 @@
 
 - Update peer dependencies to React 18
 - Update bundling process to `@macrostrat/web-components-bundler`
+- Make CSS imports optional; users must now import
+  `@macrostrat/data-components/style.css` or
+  `@macrostrat/data-components/dist/data-components.css` for styles
 
 ## [0.3.0] - 2026-01-20
 

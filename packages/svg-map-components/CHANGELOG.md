@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.0] - 2026-01-26
+
+- Change bundling process to use `@macrostrat/web-components-bundler`
+- Update peer dependencies to React 18
+- Globally apply styles instead of importing separately
+
 ## [1.0.7] - 2025-11-29
 
 Small update to types.

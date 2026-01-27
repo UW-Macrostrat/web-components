@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-react",
-  "version": "2.6.4",
+  "version": "3.0.0",
   "description": "Components to support using Mapbox maps in React",
   "repository": {
     "type": "git",
@@ -13,7 +13,6 @@
   "main": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
-  "style": "dist/mapbox-react.css",
   "files": [
     "src",
     "dist"
@@ -26,12 +25,9 @@
       "source": "./src/index.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
-      "style": "./dist/mapbox-react.css"
+      "types": "./dist/index.d.ts"
     },
-    "./package.json": "./package.json",
-    "./style.css": "./dist/mapbox-react.css",
-    "./dist/mapbox-react.css": "./dist/mapbox-react.css"
+    "./package.json": "./package.json"
   },
   "scripts": {
     "build": "bundle-library ."

@@ -8,6 +8,9 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 - Update bundling process to `@macrostrat/web-components-bundler`
 - Drop support for React 16 and 17 (require React 18+)
+- Make CSS imports optional; users must now import
+  `@macrostrat/data-sheet/style.css` or
+  `@macrostrat/data-sheet/dist/data-sheet.css` for styles
 
 ## [2.2.4] - 2026-01-20
 

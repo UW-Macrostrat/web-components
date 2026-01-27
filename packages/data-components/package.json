@@ -13,18 +13,25 @@
   "main": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
+  "style": "dist/data-components.css",
   "files": [
     "src",
     "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
   ],
   "exports": {
     ".": {
       "source": "./src/index.ts",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "types": "./dist/index.d.ts",
+      "style": "./dist/data-components.css"
     },
-    "./package.json": "./package.json"
+    "./package.json": "./package.json",
+    "./style.css": "./dist/data-components.css",
+    "./dist/data-components.css": "./dist/data-components.css"
   },
   "scripts": {
     "build": "bundle-library ."

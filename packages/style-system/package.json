@@ -5,6 +5,7 @@
   "main": "dist/style-system.css",
   "type": "module",
   "source": "src/index.ts",
+  "style": "dist/style-system.css",
   "scripts": {
     "build": "vite build"
   },
@@ -22,7 +23,8 @@
     ".": {
       "source": "./src/index.ts",
       "import": "./dist/style-system.css",
-      "require": "./dist/style-system.css"
+      "require": "./dist/style-system.css",
+      "style": "./dist/style-system.css"
     },
     "./dist/style-system.css": {
       "source": "./src/index.ts",

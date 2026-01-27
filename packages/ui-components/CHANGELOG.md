@@ -1,5 +1,14 @@
 # Changelog
 
+## [5.0.0] - 2026-01-26
+
+- Change bundling process to use `@macrostrat/web-components-bundler`
+- Update peer dependencies to React 18
+- Require styles to be imported separately as
+    `@macrostrat/ui-components/styles.css` or
+    `@macrostrat/ui-components/dist/ui-components.css`
+- 
+
 ## [4.6.0] - 2026-01-20
 
 - Modernized color picker component

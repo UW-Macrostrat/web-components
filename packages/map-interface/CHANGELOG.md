@@ -9,7 +9,8 @@ project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Update peer dependencies to React 18
 - Convert last remaining Stylus to Sass
 - Update bundling process to `@macrostrat/web-components-bundler`
-- Import of `@macrostrat/map-interface/styles.css` is now required.
+- Make styles optional: import of `@macrostrat/map-interface/styles.css` or 
+  `@macrostrat/map-interface/dist/map-interface.css` is now required for styles
 
 ## [1.6.0] - 2025-11-28
 

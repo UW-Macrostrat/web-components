@@ -196,14 +196,6 @@ export function updatePackageJsonFiles() {
     writeFileSync(packageJSONPath, newPackageJSONText, "utf-8");
     console.log(prefix + `Updated package.json`);
   }
-
-  console.log("Packages with CSS side effects:");
-  for (const pkg of packagesWithCSSSideEffects) {
-    console.log(`
-\\\\ ${pkg.name}, required from v${pkg.version}
-@import("${pkg.name}/${pkg.styleSheetName}");
-\\\\    or ${pkg.name}/style.css`);
-  }
 }
 
 // Run the function

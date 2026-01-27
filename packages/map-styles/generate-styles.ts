@@ -1,4 +1,4 @@
-const { createLineSymbolLayers } = require("./src/layer-helpers/symbol-layers");
+import  { createLineSymbolLayers } from "./src" ;
 
 let output = createLineSymbolLayers();
 console.log(output);
