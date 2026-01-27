@@ -1,11 +1,11 @@
-import { EntityExt } from "../extractions/types";
+import type { EntityExt } from "../extractions";
 
 export interface InternalEntity extends EntityExt {
   term_type: string;
   txt_range: number[][];
   children: InternalEntity[];
   orig_id: number;
-  id: string;
+  id: number;
 }
 
 export interface TextData {

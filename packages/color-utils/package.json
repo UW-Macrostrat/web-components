@@ -1,37 +1,43 @@
 {
   "name": "@macrostrat/color-utils",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "Color utility functions",
-  "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
-  "source": "src/index.ts",
-  "scripts": {
-    "build": "rm -rf dist && parcel build"
-  },
-  "author": "Daven Quinn",
-  "license": "ISC",
-  "dependencies": {
-    "@types/chroma-js": "^3.1.1",
-    "chroma-js": "^3.2.0"
-  },
-  "exports": {
-    ".": {
-      "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "types:": "./dist/index.d.ts"
-    }
-  },
-  "files": [
-    "dist",
-    "src"
-  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
     "directory": "packages/color-utils"
   },
+  "license": "MIT",
+  "author": "Daven Quinn",
+  "type": "module",
+  "main": "dist/index.js",
+  "node": "dist/index.cjs",
+  "source": "src/index.ts",
+  "types": "dist/index.d.ts",
+  "files": [
+    "src",
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs",
+      "types": "./dist/index.d.ts",
+      "source": "./src/index.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "build": "bundle-library ."
+  },
+  "dependencies": {
+    "@types/chroma-js": "^3.1.1",
+    "chroma-js": "^3.2.0"
+  },
   "devDependencies": {
-    "parcel": "^2.16.0"
+    "@macrostrat/web-components-bundler": "workspace:*"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }

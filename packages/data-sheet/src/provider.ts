@@ -400,7 +400,7 @@ export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
 }
 
 export function useSelector<T = any, A = any>(
-  selector: (state: DataSheetStore<T> & DataSheetComputedStore) => A,
+  selector: (state: DataSheetStore<T> & DataSheetComputedVals) => A,
 ): A {
   const store = useStoreAPI<T>();
   return useStore(store, selector);

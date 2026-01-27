@@ -8,7 +8,6 @@ import { Highlight } from "../extractions/types";
 import { useEffect, useRef } from "react";
 import { Popover } from "@blueprintjs/core";
 import { MatchTag } from "./matches";
-import { data } from "packages/feedback-components/stories/test-data";
 
 const h = hyper.styled(styles);
 

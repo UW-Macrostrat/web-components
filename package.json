@@ -8,11 +8,12 @@
   "scripts": {
     "dev": "storybook dev -p 6006 --no-open",
     "build:storybook": "storybook build --debug",
-    "build": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers build",
+    "build": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/build-all.ts",
     "status": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers status",
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
     "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish",
     "tag-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers tag-versions",
+    "update-metadata": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-package-json-files.ts",
     "publish:storybook": "./scripts/publish-storybook.sh",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",
@@ -26,6 +27,7 @@
     "@babel/preset-typescript": "^7.21.4",
     "@blueprintjs/core": "^6.6.1",
     "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/web-components-bundler": "workspace:^",
     "@mdx-js/rollup": "^3.1.0",
     "@parcel/bundler-default": "^2.16.0",
     "@parcel/bundler-library": "^2.16.0",
@@ -77,6 +79,7 @@
     "@types/underscore": "^1.13.0",
     "madge": "^8.0.0",
     "prettier": "^3.7.4",
-    "react-docgen": "^7.0.0"
+    "react-docgen": "^7.0.0",
+    "rollup-plugin-dts": "^6.3.0"
   }
 }
