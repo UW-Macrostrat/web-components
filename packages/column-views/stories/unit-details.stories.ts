@@ -1,7 +1,6 @@
 import h from "@macrostrat/hyper";
 import { Meta, StoryObj } from "@storybook/react-vite";
 import { useAPIResult } from "@macrostrat/ui-components";
-
 import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
 import { UnitDetailsPanel } from "../src";

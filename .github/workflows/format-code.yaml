@@ -3,8 +3,12 @@ name: Format code
 on:
   pull_request:
     branches: [main]
-  push:
-    branches: [main]
+
+# Right now we only want to run this on PRs to main.
+# The branch protection rules that we have in place prevent
+# it from running on direct pushes.
+#  push:
+#    branches: [main]
 
 jobs:
   format-code:
@@ -12,10 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
 
@@ -31,7 +35,7 @@ jobs:
           yarn run format
 
       - name: Commit changes
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: stefanzweifel/git-auto-commit-action@v7
         with:
           commit_message: Apply formatting changes
           branch: ${{ github.head_ref }}
