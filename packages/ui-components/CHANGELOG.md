@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.0.1] - 2026-01-28
+
+Fix CommonJS dependency linking issues (centered around `ui-box` dependency)
+
 ## [5.0.0] - 2026-01-26
 
 - Change bundling process to use `@macrostrat/web-components-bundler`
