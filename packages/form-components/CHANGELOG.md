@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.0.1] - 2026-01-28
+
+- Fix CommonJS dependency linking issues
+- Add `ui-box` dependency
+
 ## [1.0.0] - 2026-01-26
 
 - Update peer dependencies to React 18
