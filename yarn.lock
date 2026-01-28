@@ -232,7 +232,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/core@npm:^6.0.0, @blueprintjs/core@npm:^6.6.1":
+"@blueprintjs/core@npm:^6.6.1":
   version: 6.6.1
   resolution: "@blueprintjs/core@npm:6.6.1"
   dependencies:
@@ -1219,7 +1219,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-views@workspace:packages/column-views"
   dependencies:
-    "@blueprintjs/core": "npm:^6.0.0"
+    "@blueprintjs/core": "npm:^6.6.1"
     "@macrostrat/api-types": "workspace:^"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/column-components": "workspace:^"
