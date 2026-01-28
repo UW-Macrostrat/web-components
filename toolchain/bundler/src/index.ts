@@ -10,6 +10,7 @@ import {
   readPackageJSON,
 } from "./check-entries.js";
 import chalk from "chalk";
+import { cjsInterop } from "vite-plugin-cjs-interop";
 
 const module = import.meta.url;
 const __file = fileURLToPath(module);
@@ -97,6 +98,12 @@ function buildStandardViteConfig(
         logLevel: verbose ? "info" : "silent",
       }) as any,
       checkExportsPlugin,
+      cjsInterop({
+        dependencies: [
+          "labella",
+          "ui-box",
+        ],
+      }),
     ],
     build: {
       outDir: resolve(root, "dist"),
