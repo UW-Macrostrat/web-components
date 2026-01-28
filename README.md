@@ -66,19 +66,19 @@ import "@macrostrat/column-components/style.css";
 The following table lists the packages that require separate style imports,
 along with the version since which the style import has been necessary.
 
-| Module                             | Stylesheet                         | Since   |
-| ---------------------------------- | ---------------------------------- | ------- |
-| `@macrostrat/column-components`    | `.../dist/column-components.css`   | `2.0.0` |
-| `@macrostrat/column-creator`       | `.../dist/column-creator.css`      | `0.2.0` |
-| `@macrostrat/column-views`         | `.../dist/column-views.css`        | `3.0.0` |
-| `@macrostrat/data-components`      | `.../dist/data-components.css`     | `1.0.0` |
-| `@macrostrat/data-sheet`           | `.../dist/data-sheet.css`          | `3.0.0` |
-| `@macrostrat/feedback-components`  | `.../dist/feedback-components.css` | `2.0.0` |
-| `@macrostrat/form-components`      | `.../dist/form-components.css`     | `1.0.0` |
-| `@macrostrat/map-interface`        | `.../dist/map-interface.css`       | `2.0.0` |
-| `@macrostrat/static-map-utils`     | `.../dist/static-map-utils.css`    | `2.0.0` |
-| `@macrostrat/timescale`            | `.../dist/timescale.css`           | `3.0.0` |
-| `@macrostrat/ui-components`        | `.../dist/ui-components.css`       | `5.0.0` |
+| Module                            | Stylesheet                         | Since   |
+| --------------------------------- | ---------------------------------- | ------- |
+| `@macrostrat/column-components`   | `.../dist/column-components.css`   | `2.0.0` |
+| `@macrostrat/column-creator`      | `.../dist/column-creator.css`      | `0.2.0` |
+| `@macrostrat/column-views`        | `.../dist/column-views.css`        | `3.0.0` |
+| `@macrostrat/data-components`     | `.../dist/data-components.css`     | `1.0.0` |
+| `@macrostrat/data-sheet`          | `.../dist/data-sheet.css`          | `3.0.0` |
+| `@macrostrat/feedback-components` | `.../dist/feedback-components.css` | `2.0.0` |
+| `@macrostrat/form-components`     | `.../dist/form-components.css`     | `1.0.0` |
+| `@macrostrat/map-interface`       | `.../dist/map-interface.css`       | `2.0.0` |
+| `@macrostrat/static-map-utils`    | `.../dist/static-map-utils.css`    | `2.0.0` |
+| `@macrostrat/timescale`           | `.../dist/timescale.css`           | `3.0.0` |
+| `@macrostrat/ui-components`       | `.../dist/ui-components.css`       | `5.0.0` |
 
 ## Contributing
 
