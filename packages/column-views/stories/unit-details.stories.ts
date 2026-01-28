@@ -4,7 +4,7 @@ import { useAPIResult } from "@macrostrat/ui-components";
 
 import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
-import { UnitDetailsPanel } from "../src/unit-details";
+import { UnitDetailsPanel } from "../src";
 import {
   ExtUnit,
   LithologiesProvider,

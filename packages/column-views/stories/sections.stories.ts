@@ -1,10 +1,8 @@
 import { Meta, StoryObj } from "@storybook/react-vite";
-
-import { ColoredUnitComponent } from "@macrostrat/column-views";
 import "@macrostrat/style-system";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
-import { MergeSectionsMode } from "../src";
+import { MergeSectionsMode, ColoredUnitComponent } from "../src";
 
 type Story = StoryObj<typeof StandaloneColumn>;
 

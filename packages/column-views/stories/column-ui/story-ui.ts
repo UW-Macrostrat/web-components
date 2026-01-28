@@ -3,7 +3,7 @@ import {
   Column,
   ColumnNavigationMap,
   MacrostratDataProvider,
-} from "@macrostrat/column-views";
+} from "../../src";
 import { hyperStyled } from "@macrostrat/hyper";
 import styles from "./story-ui.module.sass";
 

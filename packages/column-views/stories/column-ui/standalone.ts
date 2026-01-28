@@ -1,5 +1,5 @@
 import h from "@macrostrat/hyper";
-import { FlexRow, Spacer, useAPIResult } from "@macrostrat/ui-components";
+import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
 import { Column } from "../../src";
 import { Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";

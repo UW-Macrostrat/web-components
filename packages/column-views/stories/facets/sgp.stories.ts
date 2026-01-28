@@ -4,12 +4,10 @@ import {
   MacrostratDataProvider,
   MeasurementDataProvider,
   SGPMeasurementsColumn,
-  useColumnNav,
 } from "../../src";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
 import { Meta } from "@storybook/react-vite";
-import { ColumnAxisType } from "@macrostrat/column-components";
 import { FlexRow } from "@macrostrat/ui-components";
 import { useColumnSelection } from "../column-ui/utils";
 
