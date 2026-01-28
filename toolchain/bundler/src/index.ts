@@ -99,10 +99,7 @@ function buildStandardViteConfig(
       }) as any,
       checkExportsPlugin,
       cjsInterop({
-        dependencies: [
-          "labella",
-          "ui-box",
-        ],
+        dependencies: ["labella", "ui-box"],
       }),
     ],
     build: {
