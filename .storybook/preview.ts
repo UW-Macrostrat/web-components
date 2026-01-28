@@ -63,6 +63,7 @@ export const decorators = [
 export const tags = ["autodocs"];
 
 export function resolvePattern(id: string) {
+  console.log("Resolving pattern for id:", id);
   return `https://dev.macrostrat.org/assets/geologic-patterns/svg/${id}.svg`;
 }
 

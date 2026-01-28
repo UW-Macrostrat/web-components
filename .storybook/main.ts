@@ -26,6 +26,15 @@ export default {
     return mergeConfig(config, {
       resolve: {
         conditions: ["source"],
+        dedupe: [
+          "react",
+          "react-dom",
+          "@macrostrat/ui-components",
+          "@macrostrat/column-components",
+          "@macrostrat/mapbox-react",
+          "@macrostrat/map-interface",
+          "@macrostrat/column-views",
+        ],
       },
       optimizeDeps: {
         exclude: ["node_modules/.cache/storybook"],
