@@ -7,7 +7,7 @@ import styles from "./main.module.sass";
 
 const h = hyperStyled(styles);
 
-const ControlledSlider = (props: SliderProps) => {
+export const ControlledSlider = (props: SliderProps) => {
   const [value, setValue] = useState<number>(props.value);
   const onChange = (v) => {
     (setValue(v), props.onChange?.(v));
@@ -17,7 +17,7 @@ const ControlledSlider = (props: SliderProps) => {
   return h(Slider, { ...props, onChange, value });
 };
 
-const NullableSlider = (props: SliderProps) => {
+export const NullableSlider = (props: SliderProps) => {
   let { value, showTrackFill, className, ...rest } = props;
   if (value == null) {
     value = rest.min ?? 0;
@@ -42,5 +42,3 @@ const NullableSlider = (props: SliderProps) => {
     ]),
   ]);
 };
-
-export { ControlledSlider, NullableSlider };

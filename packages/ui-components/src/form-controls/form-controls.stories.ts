@@ -1,8 +1,29 @@
 import { ComponentStory, ComponentMeta } from "@storybook/react-vite";
 import { useArgs } from "storybook/preview-api";
 import h from "@macrostrat/hyper";
+import React, { ComponentType } from "react";
 
-import { SimpleToggle } from "./toggle";
+export interface SimpleToggleProps extends React.ComponentProps<"a"> {
+  isOn: boolean;
+  toggle: (a: boolean) => void;
+  component?: ComponentType<{ onClick: () => void }> | string;
+  name?: string;
+}
+
+export function SimpleToggle(props: SimpleToggleProps) {
+  const { component = "a", isOn, toggle, name, ...rest } = props;
+  return h(
+    component,
+    {
+      //@ts-ignore
+      onClick: () => {
+        toggle(!isOn);
+      },
+      ...rest,
+    },
+    [isOn ? "Hide" : "Show", " ", name],
+  );
+}
 
 export default {
   title: "UI Components/Controls/SimpleToggle",

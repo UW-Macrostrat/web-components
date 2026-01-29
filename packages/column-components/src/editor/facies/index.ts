@@ -1,3 +1,2 @@
-export * from "./color-picker";
-export * from "./picker";
+export * from "./swatch";
 export * from "./description";

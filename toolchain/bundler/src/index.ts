@@ -57,10 +57,9 @@ interface ViteConfigOpts {
 }
 
 const troublesomeDependenciesToInternalize = [
-  // "labella",
-  // "ui-box",
-  // "@uiw/react-color",
-  // "use-async-effect",
+  "@uiw/react-color",
+  "use-async-effect",
+  "react-json-tree",
 ];
 
 function buildStandardViteConfig(
