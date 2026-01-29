@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.3] - 2026-01-29
+
+- Change layout of `package.json`
+
 ## [1.0.2] - 2026-01-28
 
 Add rollup interop to fix CommonJS dependency linking issues

@@ -50,6 +50,7 @@ interface PackageJSONData extends Omit<PackageData, "directory"> {
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  rollupInternal?: string[];
 }
 
 interface ViteConfigOpts {
@@ -77,8 +78,19 @@ function buildStandardViteConfig(
     },
   };
 
+  const rollupInternal = pkg.rollupInternal ?? [];
+
+  if (rollupInternal.length > 0) {
+    console.log("Internalizing dependencies: ", rollupInternal.join(", "));
+  }
+
   // Prefix for output files
   const prefix = resolve(root).replace(workspaceRoot, "").slice(1) + "/src";
+
+  const externalDeps = [
+    ...Object.keys(pkg.dependencies || {}),
+    ...Object.keys(pkg.peerDependencies || {}),
+  ].filter((dep) => !rollupInternal.includes(dep));
 
   return defineConfig({
     root,
@@ -98,9 +110,9 @@ function buildStandardViteConfig(
         logLevel: verbose ? "info" : "silent",
       }) as any,
       checkExportsPlugin,
-      cjsInterop({
-        dependencies: ["labella", "ui-box"],
-      }),
+      // cjsInterop({
+      //   dependencies: ["labella", "ui-box"],
+      // }),
     ],
     build: {
       outDir: resolve(root, "dist"),
@@ -132,10 +144,7 @@ function buildStandardViteConfig(
       // Rollup options
       rollupOptions: {
         // External dependencies that should not be bundled
-        external: [
-          ...Object.keys(pkg.dependencies || {}),
-          ...Object.keys(pkg.peerDependencies || {}),
-        ],
+        external: externalDeps,
         output: {
           preserveModules: true,
           interop: "auto",

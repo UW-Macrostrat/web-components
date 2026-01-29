@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/color-utils",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Color utility functions",
   "repository": {
     "type": "git",
@@ -18,12 +18,18 @@
     "src",
     "dist"
   ],
+  "sideEffects": false,
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts"
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      }
     },
     "./package.json": "./package.json"
   },

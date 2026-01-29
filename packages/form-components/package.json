@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/form-components",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Form components for user input into Macrostrat apps",
   "repository": {
     "type": "git",
@@ -8,9 +8,9 @@
     "directory": "packages/form-components"
   },
   "license": "MIT",
-  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "style": "dist/form-components.css",
@@ -24,9 +24,14 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
       "style": "./dist/form-components.css"
     },
     "./package.json": "./package.json",
@@ -57,8 +62,7 @@
     "@types/react-dom": "^18",
     "axios": "^1.13.2",
     "classnames": "^2.5.1",
-    "mapbox-gl": "^2.15.0||^3.0.0",
-    "ui-box": "^5.4.1"
+    "mapbox-gl": "^2.15.0||^3.0.0"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"

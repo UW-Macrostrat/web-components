@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "Data views for Macrostrat stratigraphic columns",
   "repository": {
     "type": "git",
@@ -8,9 +8,9 @@
     "directory": "packages/column-views"
   },
   "license": "MIT",
-  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "style": "dist/column-views.css",
@@ -24,9 +24,14 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
       "style": "./dist/column-views.css"
     },
     "./package.json": "./package.json",

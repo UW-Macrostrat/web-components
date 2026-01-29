@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-creator",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "private": true,
   "description": "Interface for defining stratigraphic columns in a standardized format",
   "repository": {
@@ -9,9 +9,9 @@
     "directory": "packages/column-creator"
   },
   "license": "MIT",
-  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "style": "dist/column-creator.css",
@@ -25,9 +25,14 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
       "style": "./dist/column-creator.css"
     },
     "./package.json": "./package.json",
@@ -49,7 +54,6 @@
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
     "immutability-helper": "^3.1.1",
-    "ui-box": "^5.4.1",
     "zustand": "^5.0.3",
     "zustand-computed": "^2.0.2"
   },

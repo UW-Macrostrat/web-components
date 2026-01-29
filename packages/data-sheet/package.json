@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "Scalable data sheet with optional editing capabilities",
   "repository": {
     "type": "git",
@@ -9,9 +9,9 @@
   },
   "license": "MIT",
   "author": "Daven Quinn",
-  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "style": "dist/data-sheet.css",
@@ -25,9 +25,14 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
       "style": "./dist/data-sheet.css"
     },
     "./package.json": "./package.json",
@@ -49,8 +54,6 @@
     "@macrostrat/ui-components": "workspace:^",
     "@supabase/postgrest-js": "^1.17.7",
     "@types/underscore": "^1.13.0",
-    "@uiw/react-color": "^2.9.2",
-    "chroma-js": "^3.2.0",
     "classnames": "^2.5.1",
     "immutability-helper": "^3.1.1",
     "underscore": "^1.13.7",

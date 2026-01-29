@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "1.0.0",
+  "version": "1.0.2",
   "description": "A library of React components tailored for Macrostrat data and endpoints",
   "repository": {
     "type": "git",
@@ -8,9 +8,9 @@
     "directory": "packages/data-components"
   },
   "license": "MIT",
-  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "style": "dist/data-components.css",
@@ -24,9 +24,14 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
       "style": "./dist/data-components.css"
     },
     "./package.json": "./package.json",

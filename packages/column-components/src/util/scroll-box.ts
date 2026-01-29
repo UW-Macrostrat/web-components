@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef } from "react";
-import Box from "ui-box";
+import { Box } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 import { useColumn } from "../context";
 

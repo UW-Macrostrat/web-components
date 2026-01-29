@@ -39,6 +39,7 @@ const packageJSONKeyOrder = [
   "peerDependencies",
   "dependencies",
   "devDependencies",
+  "rollupInternal",
 ];
 
 export function updatePackageJsonFiles() {
@@ -70,11 +71,6 @@ export function updatePackageJsonFiles() {
     const packageDataText = readFileSync(packageJSONPath, "utf-8");
     const packageData = JSON.parse(packageDataText);
 
-    if (packageData.type !== "module") {
-      logSkip(chalk.red("not an ESM module"));
-      continue;
-    }
-
     const shortModuleName = pkg.name.replace(/^@[^/]+\//, "");
 
     const styleSheetName = `dist/${shortModuleName}.css`;
@@ -91,19 +87,20 @@ export function updatePackageJsonFiles() {
          * prefer the "import" field over it otherwise.
          */
         source: `./${sourceFileName}`,
-        import: `./${esmFileName}`,
-        require: `./${cjsFileName}`,
-        types: `./${typesFileName}`,
+        import: {
+          types: `./${typesFileName}`,
+          default: `./${esmFileName}`,
+        },
+        require: {
+          types: `./${typesFileName}`,
+          default: `./${cjsFileName}`,
+        },
       },
       "./package.json": "./package.json",
     };
 
-    let newPackageData: any = {
-      type: "module",
+    const basePackageData: any = {
       source: "src/index.ts",
-      main: esmFileName,
-      types: typesFileName,
-      node: cjsFileName,
       exports,
       files: ["src", "dist"],
       repository: {
@@ -112,7 +109,23 @@ export function updatePackageJsonFiles() {
         directory: pkg.directory,
       },
       license: "MIT",
+      types: typesFileName,
     };
+
+    let newPackageData = {
+      ...basePackageData,
+      main: cjsFileName,
+      module: esmFileName,
+    };
+
+    if (packageData.type === "module") {
+      newPackageData = {
+        ...basePackageData,
+        type: "module",
+        main: esmFileName,
+        node: cjsFileName,
+      };
+    }
 
     if ("style" in packageData) {
       newPackageData.style = styleSheetName;
@@ -122,6 +135,8 @@ export function updatePackageJsonFiles() {
       exports[relStyleSheetName] = relStyleSheetName;
       newPackageData["sideEffects"] = ["**/*.css"];
       packagesWithCSSSideEffects.push({ ...pkg, styleSheetName });
+    } else {
+      newPackageData["sideEffects"] = false;
     }
     // Merge with existing package data
     newPackageData = { ...packageData, ...newPackageData };
@@ -129,11 +144,6 @@ export function updatePackageJsonFiles() {
     newPackageData.devDependencies ??= {};
     newPackageData.devDependencies["@macrostrat/web-components-bundler"] =
       "workspace:*";
-
-    // Delete the "module" field if it exists
-    if ("module" in newPackageData) {
-      delete newPackageData["module"];
-    }
 
     if (pkg.private === true) {
       newPackageData.private = true;
@@ -154,6 +164,7 @@ export function updatePackageJsonFiles() {
       }
     }
     delete newPackageData.targets;
+    delete newPackageData.typings;
 
     const outdatedDevDeps = ["vite", "typescript", "parcel"];
 

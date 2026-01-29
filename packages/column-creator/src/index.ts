@@ -2,7 +2,7 @@ import { ColumnCreatorData, ColumnCreatorProvider, useSelector } from "./store";
 import { ColorCell, ColorPicker, DataSheet } from "@macrostrat/data-sheet";
 
 export * from "./store";
-import { FlexRow, ToasterContext } from "@macrostrat/ui-components";
+import { FlexRow, ToasterContext, Box } from "@macrostrat/ui-components";
 import {
   BasicUnitComponent,
   Column,
@@ -14,7 +14,6 @@ import { Radio, RadioGroup, SegmentedControl } from "@blueprintjs/core";
 import { useState } from "react";
 
 import styles from "./index.module.sass";
-import Box from "ui-box";
 
 const h = hyper.styled(styles);
 

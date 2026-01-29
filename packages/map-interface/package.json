@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Map interface for Macrostrat",
   "repository": {
     "type": "git",
@@ -8,9 +8,9 @@
     "directory": "packages/map-interface"
   },
   "license": "MIT",
-  "type": "module",
   "source": "src/index.ts",
-  "main": "dist/index.js",
+  "main": "dist/index.cjs",
+  "module": "dist/index.js",
   "node": "dist/index.cjs",
   "types": "dist/index.d.ts",
   "style": "dist/map-interface.css",
@@ -24,9 +24,14 @@
   "exports": {
     ".": {
       "source": "./src/index.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
-      "types": "./dist/index.d.ts",
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.cjs"
+      },
       "style": "./dist/map-interface.css"
     },
     "./package.json": "./package.json",
@@ -63,8 +68,7 @@
     "use-resize-observer": "^9.1.0"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*",
-    "ui-box": "^5.4.1"
+    "@macrostrat/web-components-bundler": "workspace:*"
   },
   "publishConfig": {
     "access": "public"
