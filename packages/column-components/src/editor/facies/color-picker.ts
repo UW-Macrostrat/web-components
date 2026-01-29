@@ -1,6 +1,6 @@
 import { Component } from "react";
 import h from "@macrostrat/hyper";
-import Swatch from "@uiw/react-color-swatch";
+import { Swatch } from "@uiw/react-color";
 import { Popover } from "@blueprintjs/core";
 import { FaciesContext } from "../../context";
 

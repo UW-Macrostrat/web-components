@@ -8,7 +8,7 @@ import {
 } from "@macrostrat/color-utils";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { memoize } from "underscore";
-import Sketch from "@uiw/react-color-sketch";
+import { Sketch } from "@uiw/react-color";
 import classNames from "classnames";
 
 const h = hyper.styled(styles);

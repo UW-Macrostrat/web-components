@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 import { ErrorBoundary } from "../error-boundary";
-import Sketch from "@uiw/react-color-sketch";
+import { Sketch } from "@uiw/react-color";
 import { Button, Popover } from "@blueprintjs/core";
 import { useState } from "react";
 import chroma from "chroma-js";

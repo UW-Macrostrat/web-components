@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",
@@ -53,7 +53,7 @@
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/timescale": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
-    "@uiw/react-color-swatch": "^2.9.2",
+    "@uiw/react-color": "^2.9.2",
     "chroma-js": "^3.2.0",
     "classnames": "^2.5.1",
     "d3-axis": "^3.0.0",

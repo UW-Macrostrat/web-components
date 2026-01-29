@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.0.3] - 2026-01-28
+
+Update handling of `@uiw/react-color` dependency
+
 ## [5.0.2] - 2026-01-28
 
 More fixes for CommonJS dependency linking
