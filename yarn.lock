@@ -1274,6 +1274,7 @@ __metadata:
   dependencies:
     "@derschmale/tympanum": "npm:^1.3.6"
     "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/web-components-bundler": "workspace:*"
   languageName: unknown
   linkType: soft
 

@@ -56,6 +56,13 @@ interface ViteConfigOpts {
   verbose?: boolean;
 }
 
+const troublesomeDependenciesToInternalize = [
+  // "labella",
+  // "ui-box",
+  // "@uiw/react-color",
+  // "use-async-effect",
+];
+
 function buildStandardViteConfig(
   pkg: PackageJSONData,
   root: string,
@@ -80,6 +87,11 @@ function buildStandardViteConfig(
   // Prefix for output files
   const prefix = resolve(root).replace(workspaceRoot, "").slice(1) + "/src";
 
+  const externalDeps = [
+    ...Object.keys(pkg.dependencies || {}),
+    ...Object.keys(pkg.peerDependencies || {}),
+  ].filter((dep) => !troublesomeDependenciesToInternalize.includes(dep));
+
   return defineConfig({
     root,
     plugins: [
@@ -98,9 +110,9 @@ function buildStandardViteConfig(
         logLevel: verbose ? "info" : "silent",
       }) as any,
       checkExportsPlugin,
-      cjsInterop({
-        dependencies: ["labella", "ui-box"],
-      }),
+      // cjsInterop({
+      //   dependencies: ["labella", "ui-box"],
+      // }),
     ],
     build: {
       outDir: resolve(root, "dist"),
@@ -132,10 +144,7 @@ function buildStandardViteConfig(
       // Rollup options
       rollupOptions: {
         // External dependencies that should not be bundled
-        external: [
-          ...Object.keys(pkg.dependencies || {}),
-          ...Object.keys(pkg.peerDependencies || {}),
-        ],
+        external: externalDeps,
         output: {
           preserveModules: true,
           interop: "auto",
