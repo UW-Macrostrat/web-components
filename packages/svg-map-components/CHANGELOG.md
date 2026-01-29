@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.0.1] - 2026-01-29
+
+- Change layout of `package.json` and explicitly mark no side effects.
+
 ## [2.0.0] - 2026-01-26
 
 - Change bundling process to use `@macrostrat/web-components-bundler`

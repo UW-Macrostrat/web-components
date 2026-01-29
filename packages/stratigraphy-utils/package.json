@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/stratigraphy-utils",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Utility functions for dealing with stratigraphy",
   "repository": {
     "type": "git",

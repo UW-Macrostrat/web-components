@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-styles",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Utilities for working with Mapbox map styles",
   "repository": {
     "type": "git",

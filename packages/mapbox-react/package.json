@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/mapbox-react",
-  "version": "3.0.0",
+  "version": "3.0.1",
   "description": "Components to support using Mapbox maps in React",
   "repository": {
     "type": "git",

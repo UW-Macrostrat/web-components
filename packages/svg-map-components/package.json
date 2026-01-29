@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/svg-map-components",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "React components for vector maps",
   "keywords": [
     "gis",

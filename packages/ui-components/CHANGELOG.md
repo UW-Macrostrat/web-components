@@ -1,5 +1,11 @@
 # Changelog
 
+## [5.0.4] - 2026-01-29
+
+- Change layout of `package.json`
+- Internalize some dependencies in build
+- Create `ColorPicker2` based on component from `@macrostrat/data-sheet`
+
 ## [5.0.3] - 2026-01-28
 
 Update handling of `@uiw/react-color` dependency

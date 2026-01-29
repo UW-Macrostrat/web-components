@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.1] - 2026-01-29
+
+- Change layout of `package.json`
+
 ## [1.1.0] - 2026-01-26
 
 Remove parcel bundler and change to use `@macrostrat/web-components-bundler`.
