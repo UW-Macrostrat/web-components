@@ -72,14 +72,13 @@
     "react-svg-textures": "^1.4.7",
     "uuid": "^7.0.3"
   },
-  "rollupInternal": [
-    "labella"
-  ],
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
   },
+  "rollupInternal": [
+    "labella"
+  ],
   "publishConfig": {
     "access": "public"
-  },
-  "typings": "dist/index.d.ts"
+  }
 }

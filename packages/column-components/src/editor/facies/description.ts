@@ -2,7 +2,7 @@ import { Component } from "react";
 import h from "@macrostrat/hyper";
 import classNames from "classnames";
 import { FaciesContext } from "../../context";
-import { FaciesSwatch } from "./color-picker";
+import { FaciesSwatch } from "./swatch";
 
 type FaciesData = any;
 

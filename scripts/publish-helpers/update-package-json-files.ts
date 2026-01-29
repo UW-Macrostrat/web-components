@@ -39,6 +39,7 @@ const packageJSONKeyOrder = [
   "peerDependencies",
   "dependencies",
   "devDependencies",
+  "rollupInternal",
 ];
 
 export function updatePackageJsonFiles() {
@@ -163,6 +164,7 @@ export function updatePackageJsonFiles() {
       }
     }
     delete newPackageData.targets;
+    delete newPackageData.typings;
 
     const outdatedDevDeps = ["vite", "typescript", "parcel"];
 

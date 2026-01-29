@@ -76,7 +76,6 @@
     "@uiw/react-color",
     "ui-box",
     "use-async-effect",
-    "use-element-dimensions",
     "react-json-tree"
   ],
   "contributors": [
@@ -86,6 +85,5 @@
   ],
   "publishConfig": {
     "access": "public"
-  },
-  "typings": "dist/index.d.ts"
+  }
 }

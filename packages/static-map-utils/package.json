@@ -66,6 +66,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "typings": "dist/index.d.ts"
+  }
 }

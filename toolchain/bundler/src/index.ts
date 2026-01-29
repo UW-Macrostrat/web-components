@@ -50,17 +50,12 @@ interface PackageJSONData extends Omit<PackageData, "directory"> {
   dependencies?: Record<string, string>;
   peerDependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
+  rollupInternal?: string[];
 }
 
 interface ViteConfigOpts {
   verbose?: boolean;
 }
-
-const troublesomeDependenciesToInternalize = [
-  "@uiw/react-color",
-  "use-async-effect",
-  "react-json-tree",
-];
 
 function buildStandardViteConfig(
   pkg: PackageJSONData,
@@ -83,13 +78,19 @@ function buildStandardViteConfig(
     },
   };
 
+  const rollupInternal = pkg.rollupInternal ?? [];
+
+  if (rollupInternal.length > 0) {
+    console.log("Internalizing dependencies: ", rollupInternal.join(", "));
+  }
+
   // Prefix for output files
   const prefix = resolve(root).replace(workspaceRoot, "").slice(1) + "/src";
 
   const externalDeps = [
     ...Object.keys(pkg.dependencies || {}),
     ...Object.keys(pkg.peerDependencies || {}),
-  ].filter((dep) => !troublesomeDependenciesToInternalize.includes(dep));
+  ].filter((dep) => !rollupInternal.includes(dep));
 
   return defineConfig({
     root,

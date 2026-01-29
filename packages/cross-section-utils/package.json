@@ -41,6 +41,5 @@
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
-  },
-  "typings": "dist/index.d.ts"
+  }
 }
