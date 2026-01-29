@@ -1,12 +1,12 @@
 import type { Meta, StoryFn, StoryObj } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import { ActionDef, ActionsPreflightPanel } from ".";
-import Box from "ui-box";
 import { FormGroup, NumericInput, Spinner } from "@blueprintjs/core";
 import {
   NullableSlider,
   ToasterContext,
   useToaster,
+  Box
 } from "@macrostrat/ui-components";
 import {
   BaseDataTypeSelect,

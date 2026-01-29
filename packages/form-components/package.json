@@ -62,8 +62,7 @@
     "@types/react-dom": "^18",
     "axios": "^1.13.2",
     "classnames": "^2.5.1",
-    "mapbox-gl": "^2.15.0||^3.0.0",
-    "ui-box": "^5.4.1"
+    "mapbox-gl": "^2.15.0||^3.0.0"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"

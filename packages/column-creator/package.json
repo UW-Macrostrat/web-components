@@ -54,7 +54,6 @@
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
     "immutability-helper": "^3.1.1",
-    "ui-box": "^5.4.1",
     "zustand": "^5.0.3",
     "zustand-computed": "^2.0.2"
   },

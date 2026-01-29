@@ -2,10 +2,8 @@ import type { Meta } from "@storybook/react-vite";
 import type { StoryObj } from "@storybook/react-vite";
 import { ExpansionPanel, LocationPanel } from "../src";
 import h from "@macrostrat/hyper";
-import { useMapRef, useMapStatus } from "@macrostrat/mapbox-react";
-import { useEffect } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
-import Box from "ui-box";
+import { Box } from "@macrostrat/ui-components";
 import { LoremIpsum } from "lorem-ipsum";
 
 const lorem = new LoremIpsum({

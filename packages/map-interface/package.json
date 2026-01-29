@@ -68,8 +68,7 @@
     "use-resize-observer": "^9.1.0"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*",
-    "ui-box": "^5.4.1"
+    "@macrostrat/web-components-bundler": "workspace:*"
   },
   "publishConfig": {
     "access": "public"

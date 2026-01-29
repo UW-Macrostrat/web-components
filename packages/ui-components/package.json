@@ -72,6 +72,13 @@
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
   },
+  "rollupInternal": [
+    "@uiw/react-color",
+    "ui-box",
+    "use-async-effect",
+    "use-element-dimensions",
+    "react-json-tree"
+  ],
   "contributors": [
     {
       "name": "Casey Idzikowski"

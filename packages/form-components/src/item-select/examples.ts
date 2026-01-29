@@ -2,7 +2,7 @@
  * NOT exported.
  */
 import h from "@macrostrat/hyper";
-import Box from "ui-box";
+import { Box } from "@macrostrat/ui-components";
 import { MenuItem } from "@blueprintjs/core";
 import { ItemSelect } from ".";
 

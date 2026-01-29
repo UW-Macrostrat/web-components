@@ -15,7 +15,7 @@ import {
   ColumnDivision,
 } from "./context";
 import chroma from "chroma-js";
-import Box from "ui-box";
+import { Box }  from "@macrostrat/ui-components";
 
 const fmt = format(".1f");
 const fmt2 = format(".2f");

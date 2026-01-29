@@ -58,7 +58,6 @@
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/timescale": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
-    "chroma-js": "^3.2.0",
     "classnames": "^2.5.1",
     "d3-axis": "^3.0.0",
     "d3-format": "^3.1.2",
@@ -71,9 +70,11 @@
     "react-scroll": "^1.7.16",
     "react-select": "^3.0.8",
     "react-svg-textures": "^1.4.7",
-    "ui-box": "^5.4.1",
     "uuid": "^7.0.3"
   },
+  "rollupInternal": [
+    "labella"
+  ],
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"
   },

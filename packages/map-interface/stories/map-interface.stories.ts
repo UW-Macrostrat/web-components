@@ -1,6 +1,6 @@
 import h from "@macrostrat/hyper";
 import type { Meta } from "@storybook/react-vite";
-import Box from "ui-box";
+import { Box } from "@macrostrat/ui-components";
 
 import { MapAreaContainer } from "../src";
 
