@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.0.2] - 2026-01-28
+
+More fixes for CommonJS dependency linking
+
 ## [5.0.1] - 2026-01-28
 
 Fix CommonJS dependency linking issues (centered around `ui-box` dependency)
@@ -11,7 +15,6 @@ Fix CommonJS dependency linking issues (centered around `ui-box` dependency)
 - Require styles to be imported separately as
   `@macrostrat/ui-components/styles.css` or
   `@macrostrat/ui-components/dist/ui-components.css`
--
 
 ## [4.6.0] - 2026-01-20
 

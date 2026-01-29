@@ -138,7 +138,7 @@ function buildStandardViteConfig(
         ],
         output: {
           preserveModules: true,
-          exports: "named", // Ignore module export warning for sass files.
+          interop: "auto",
         },
       },
     },

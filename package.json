@@ -53,7 +53,6 @@
     "tsx": "^4.19.1",
     "typescript": "^5.8.3",
     "underscore": "^1.13.7",
-    "use-async-effect": "^2.2.1",
     "vite-plugin-cjs-interop": "^2.4.0"
   },
   "devDependencies": {
