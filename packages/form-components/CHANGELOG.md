@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.2] - 2026-01-28
+
+Add rollup interop to fix CommonJS dependency linking issues
+
 ## [1.0.1] - 2026-01-28
 
 - Fix CommonJS dependency linking issues

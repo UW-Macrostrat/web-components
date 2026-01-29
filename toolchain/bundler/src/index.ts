@@ -138,7 +138,7 @@ function buildStandardViteConfig(
         ],
         output: {
           preserveModules: true,
-          exports: "default",
+          interop: "auto",
         },
       },
     },
