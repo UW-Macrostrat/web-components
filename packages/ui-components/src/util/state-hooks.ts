@@ -1,8 +1,4 @@
-import {
-  useState,
-  useRef,
-  useEffect,
-} from "react";
+import { useState, useRef, useEffect } from "react";
 import { isEqual } from "underscore";
 import update, { Spec } from "immutability-helper";
 import { useAsyncEffect } from "use-async-effect";
