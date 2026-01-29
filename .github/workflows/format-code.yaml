@@ -1,13 +1,8 @@
 name: Format code
 
-on:
-  pull_request:
-    branches: [main]
-
-# Right now we only want to run this on PRs to main.
-# The branch protection rules that we have in place prevent
-# it from running on direct pushes.
-#  push:
+# Only run this workflow when manually triggered
+on: workflow_dispatch
+#  pull_request:
 #    branches: [main]
 
 jobs:
