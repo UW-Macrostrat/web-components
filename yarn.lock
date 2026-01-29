@@ -1668,7 +1668,6 @@ __metadata:
     tsx: "npm:^4.19.1"
     typescript: "npm:^5.8.3"
     underscore: "npm:^1.13.7"
-    use-async-effect: "npm:^2.2.1"
     vite: "npm:^7.3.1"
     vite-plugin-cjs-interop: "npm:^2.4.0"
   languageName: unknown

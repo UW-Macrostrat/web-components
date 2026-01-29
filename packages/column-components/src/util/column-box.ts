@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 import { useContext } from "react";
 import { ColumnContext } from "../context";
 import classNames from "classnames";
-import Box from "ui-box";
+import { default as Box } from "ui-box";
 import { path } from "d3-path";
 import type { Path } from "d3-path";
 

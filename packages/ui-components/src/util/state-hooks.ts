@@ -1,15 +1,12 @@
 import {
-  Component,
   useState,
   useRef,
   useEffect,
-  RefObject,
-  MutableRefObject,
 } from "react";
 import { isEqual } from "underscore";
 import update, { Spec } from "immutability-helper";
 import { useAsyncEffect } from "use-async-effect";
-
+import { Component, MutableRefObject } from "react";
 // Re-export useAsyncEffect
 export { useAsyncEffect };
 

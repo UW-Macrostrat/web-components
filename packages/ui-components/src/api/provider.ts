@@ -7,7 +7,7 @@ import axios, {
   AxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-import useAsyncEffect from "use-async-effect";
+import { useAsyncEffect } from "use-async-effect";
 import { debounce } from "underscore";
 import { APIConfig, ResponseUnwrapper, APIConfigOptions } from "./types";
 import { QueryParams } from "../util/query-string";
