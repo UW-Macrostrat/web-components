@@ -20,7 +20,7 @@ import {
   fetchStratNames,
   type ColumnStatusCode,
 } from "./fetch";
-import { APIProvider } from "@macrostrat/ui-components";
+import { APIProvider, useAsyncMemo } from "@macrostrat/ui-components";
 import { ColumnProvider } from "@macrostrat/column-components";
 
 import { ReactNode } from "react";
@@ -253,6 +253,11 @@ function createStratNamesSlice(set, get) {
       return ids.map((id) => nameMap.get(id));
     },
   };
+}
+
+export function useStratNames(ids: number[] | null) {
+  const stratNames = useMemo(() => ids, ids);
+  return useMacrostratData("strat_names", stratNames);
 }
 
 function includesTimescale(intervals: Map<number, any>, timescaleID: number) {

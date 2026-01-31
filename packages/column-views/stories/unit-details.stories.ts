@@ -3,7 +3,7 @@ import { Meta, StoryObj } from "@storybook/react-vite";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { Button, Spinner } from "@blueprintjs/core";
 import "@macrostrat/style-system";
-import { UnitDetailsPanel } from "../src";
+import { UnitDetailsPanel, UnitDetailsPanelProps } from "../src";
 import {
   ExtUnit,
   LithologiesProvider,
@@ -12,6 +12,7 @@ import {
   useUnitSelectionDispatch,
 } from "../src";
 import { useColumnUnits } from "./column-ui/utils";
+import { MacrostratInteractionManager } from "@macrostrat/data-components";
 
 function useUnitData(unit_id, inProcess = false) {
   return useAPIResult(
@@ -30,7 +31,7 @@ function UnitDetailsExt({
   unit_id,
   inProcess,
   ...rest
-}: UnitDetailsProps & { inProcess?: boolean }) {
+}: UnitDetailsPanelProps & { inProcess?: boolean }) {
   const unit = useUnitData(unit_id, inProcess);
 
   if (unit == null) {
@@ -49,15 +50,7 @@ function UnitDetailsExt({
 
 type Story = StoryObj<typeof UnitDetailsExt>;
 
-interface UnitDetailsProps {
-  unit_id: number;
-  onClose?: () => void;
-  showLithologyProportions?: boolean;
-  actions: any;
-  hiddenActions: any;
-}
-
-const meta: Meta<UnitDetailsProps> = {
+const meta: Meta<UnitDetailsPanelProps> = {
   title: "Column views/Unit details",
   component: UnitDetailsExt,
   args: {
@@ -131,7 +124,7 @@ export const WithActions: Story = {
   },
 };
 
-export function WithDataProvider(args: UnitDetailsProps) {
+export function WithDataProvider(args: UnitDetailsPanelProps) {
   const units = useColumnUnits(432) as ExtUnit[] | null;
 
   if (units == null) return h(Spinner);
@@ -143,7 +136,7 @@ export function WithDataProvider(args: UnitDetailsProps) {
   );
 }
 
-function UnitDetailsWithSelection(args: UnitDetailsProps) {
+function UnitDetailsWithSelection(args: Omit<UnitDetailsPanelProps, "unit">) {
   const unit = useSelectedUnit();
   const setSelectedUnit = useUnitSelectionDispatch();
   if (unit == null) return h("div", "No unit selected");
@@ -152,5 +145,23 @@ function UnitDetailsWithSelection(args: UnitDetailsProps) {
     onSelectUnit(unit) {
       setSelectedUnit(unit, null, null);
     },
+    ...args,
   });
+}
+
+const interactionManager = new MacrostratInteractionManager(
+  "https://dev.macrostrat.org",
+);
+
+export function WithExternalLinks(args: UnitDetailsPanelProps) {
+  // Need to get column units first in order to set up navigation
+  const units = useColumnUnits(432) as ExtUnit[] | null;
+
+  if (units == null) return h(Spinner);
+
+  return h(
+    MacrostratColumnStateProvider,
+    { units, selectedUnit: units?.[0]?.unit_id },
+    h(UnitDetailsWithSelection, { interactionManager }),
+  );
 }

@@ -13,12 +13,14 @@ import {
   LithologyTagFeature,
   Parenthetical,
   Value,
+  MacrostratInteractionManager,
 } from "@macrostrat/data-components";
 import {
   useColumnUnitsMap,
   useMacrostratColumnInfo,
   useMacrostratData,
   useMacrostratDefs,
+  useStratNames,
 } from "../data-provider";
 import type {
   Environment,
@@ -42,6 +44,7 @@ export interface UnitDetailsPanelProps {
   lithologyFeatures?: Set<LithologyTagFeature>;
   onSelectUnit?: (unitID: number) => void;
   onClickItem?: MacrostratItemClickHandler;
+  interactionManager?: MacrostratInteractionManager;
 }
 
 export function UnitDetailsPanel({
@@ -59,6 +62,7 @@ export function UnitDetailsPanel({
   hiddenActions = null,
   onSelectUnit,
   onClickItem,
+  interactionManager,
 }: UnitDetailsPanelProps) {
   const [showJSON, setShowJSON] = useState(false);
 
@@ -72,6 +76,7 @@ export function UnitDetailsPanel({
       lithologyFeatures,
       onClickItem,
       onSelectUnit,
+      interactionManager,
     });
   }
 
@@ -173,6 +178,7 @@ function UnitDetailsContent({
   ]),
   onClickItem,
   getItemHref,
+  interactionManager,
 }: {
   unit: UnitLong;
   onSelectUnit?: (unitID: number) => void;
@@ -180,6 +186,7 @@ function UnitDetailsContent({
   features?: Set<UnitDetailsFeature>;
   onClickItem?: MacrostratItemClickHandler;
   getItemHref?: (item: Lithology | Environment | UnitLong) => string | null;
+  interactionManager?: MacrostratInteractionManager;
 }) {
   const lithMap = useMacrostratDefs("lithologies");
   const envMap = useMacrostratDefs("environments");
@@ -264,6 +271,7 @@ function UnitDetailsContent({
     }),
     h.if(unit.strat_name_id != null)(StratNameField, {
       strat_name_id: unit.strat_name_id,
+      interactionManager,
     }),
     outcropField,
     h.if(features.has(UnitDetailsFeature.AdjacentUnits))([
@@ -333,27 +341,45 @@ export function ReferencesField({ refs, className = null, ...rest }) {
   );
 }
 
-function StratNameField({
-  strat_name_id,
-  onClickItem,
-}: {
+function useStratNameData(strat_name_id: number) {
+  const stratNames = useStratNames([strat_name_id]);
+  return stratNames?.[0];
+}
+
+function StratNameField(props: {
   strat_name_id: number;
-  onClickItem?: (event: MouseEvent, item: { strat_name_id: number }) => void;
+  onClick?: (event: MouseEvent) => void;
+  href?: string;
+  target?: string;
+  interactionManager?: MacrostratInteractionManager;
 }) {
-  const stratNames = useMemo(() => [strat_name_id], [strat_name_id]);
-  const data = useMacrostratData("strat_names", stratNames);
-  const stratNameData = data?.[0];
+  /** Handling for stratigraphic name field */
+  const { strat_name_id, onClick, interactionManager, href } = props;
+  const data = useStratNameData(strat_name_id);
+
+  let target = props.target ?? "_blank";
+
   let inner: any = h(Identifier, { id: strat_name_id });
-  const name = stratNameData?.strat_name_long;
+  const name = data?.strat_name_long;
   if (name != null) {
     inner = h("span.strat-name", name);
   }
 
-  const clickable = onClickItem != null;
+  const interactionProps = interactionManager?.linkPropsForItem({
+    strat_name_id,
+  });
+
+  const _onClick = onClick ?? interactionProps?.onClick;
+  const _href = href ?? interactionProps?.href;
+  const _target = target ?? interactionProps?.target;
+
+  const clickable = _onClick != null || _href != null;
 
   const className = classNames({
     clickable,
   });
+
+  console.log("StratNameField", _href, _onClick);
 
   return h(
     DataField,
@@ -364,7 +390,9 @@ function StratNameField({
       clickable ? "a" : "span",
       {
         className,
-        onClick: (e) => onClickItem(e, { strat_name_id }),
+        onClick: _onClick,
+        href: _href,
+        target: _target,
       },
       inner,
     ),
