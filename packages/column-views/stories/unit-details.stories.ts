@@ -12,7 +12,7 @@ import {
   useUnitSelectionDispatch,
 } from "../src";
 import { useColumnUnits } from "./column-ui/utils";
-import { MacrostratInteractionManager } from "@macrostrat/data-components";
+import { MacrostratInteractionProvider } from "@macrostrat/data-components";
 
 function useUnitData(unit_id, inProcess = false) {
   return useAPIResult(
@@ -149,19 +149,17 @@ function UnitDetailsWithSelection(args: Omit<UnitDetailsPanelProps, "unit">) {
   });
 }
 
-const interactionManager = new MacrostratInteractionManager(
-  "https://dev.macrostrat.org",
-);
-
-export function WithExternalLinks(args: UnitDetailsPanelProps) {
+export function WithExternalLinks(args: Omit<UnitDetailsPanelProps, "unit">) {
   // Need to get column units first in order to set up navigation
   const units = useColumnUnits(432) as ExtUnit[] | null;
 
   if (units == null) return h(Spinner);
 
+  const domain = "https://dev.macrostrat.org";
+
   return h(
-    MacrostratColumnStateProvider,
-    { units, selectedUnit: units?.[0]?.unit_id },
-    h(UnitDetailsWithSelection, { interactionManager }),
+    MacrostratInteractionProvider,
+    { domain },
+    h(UnitDetailsPanel, { unit: units[0] }),
   );
 }

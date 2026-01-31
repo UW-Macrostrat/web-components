@@ -9,10 +9,10 @@ import { createIsolation } from "jotai-scope";
 
 export function createScopedStore(): StateIsolation {
   /** A typed wrapper around Jotai-Scope's createIsolation function */
-  return createIsolation();
+  return enhanceJotaiScope(createIsolation());
 }
 
-interface StateIsolation {
+interface JotaiScope {
   Provider: (props: {
     store?: any;
     initialValues?: AtomMap;
@@ -24,36 +24,60 @@ interface StateIsolation {
   useSetAtom: any;
 }
 
+interface StateIsolation extends JotaiScope {
+  Provider: (props: ProviderProps) => ReactNode;
+  useAtomValueIfExists: <T>(atom: WritableAtom<T, any, any>) => T | null;
+}
+
 export type AtomMap = [WritableAtom<any, any, any>, any][];
 
 type ProviderProps = {
-  scope: StateIsolation;
   children: ReactNode;
   atoms?: AtomMap;
-  shouldUpdateAtoms?: boolean;
-  inheritParentStore?: boolean;
+  keepUpdated?: boolean;
+  inherit?: boolean;
 };
 
-export function ScopedProvider({
+function enhanceJotaiScope(scope: JotaiScope): StateIsolation {
+  /** Enhance a Jotai scope with more sophisticated Provider */
+  return {
+    ...scope,
+    Provider: (props: ProviderProps): ReactNode =>
+      h(ScopedProvider, { ...props, scope }) as ReactNode,
+    useAtomValueIfExists: function <T>(
+      atom: WritableAtom<T, any, any>,
+    ): T | null {
+      /** Like useAtomValue, but returns null if no provider is found */
+      try {
+        return scope.useAtomValue(atom);
+      } catch (e) {
+        // No provider found
+        return null;
+      }
+    },
+  };
+}
+
+function ScopedProvider({
   scope,
   children,
   atoms,
-  shouldUpdateAtoms = true,
-  inheritParentStore = true,
-}: ProviderProps) {
+  keepUpdated = false,
+  inherit = false,
+}: ProviderProps & { scope: JotaiScope }) {
   // Always use the same store instance in this tree
-  const store = useStore(scope, inheritParentStore);
+  const store = useStore(scope, inherit);
   if (store != null) {
     // This store has already been provided from a parent
     return children;
   }
   return h(scope.Provider, { store: null, initialValues: atoms }, [
-    h.if(shouldUpdateAtoms)(AtomUpdater, { atoms, scope }),
+    h.if(keepUpdated)(AtomUpdater, { atoms, scope }),
     children,
   ]);
 }
 
-function useStore(scope: StateIsolation, inherit: boolean = true) {
+function useStore(scope: JotaiScope, inherit: boolean = true) {
   /** A scoped provider for a store */
   if (!inherit) {
     return null;
@@ -69,7 +93,7 @@ function AtomUpdater({
   scope,
   atoms,
 }: {
-  scope: StateIsolation;
+  scope: JotaiScope;
   atoms: [WritableAtom<any, any, any>, any][];
 }) {
   /**
@@ -79,7 +103,7 @@ function AtomUpdater({
    */
   /** TODO: this is an awkward way to keep atoms updated */
   // The scoped store
-  const store = useMemo(() => scope.useStore(), [scope]);
+  const store = scope.useStore();
 
   // Warn on atoms changing length
   const prevLengthRef = useRef(atoms.length);

@@ -14,7 +14,7 @@ import {
 } from "./unit-selection";
 import { BaseUnit } from "@macrostrat/api-types";
 import { scope } from "./core";
-import { ScopedProvider, type AtomMap } from "@macrostrat/data-components";
+import type { AtomMap } from "@macrostrat/data-components";
 import { atom } from "jotai";
 
 export const columnUnitsAtom = atom<BaseUnit[]>();
@@ -72,10 +72,11 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
   }
 
   return h(
-    ScopedProvider,
+    scope.Provider,
     {
-      scope,
       atoms: atomMap,
+      keepUpdated: true,
+      inherit: true,
     },
     [selectionHandlers, children],
   );
