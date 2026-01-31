@@ -2,7 +2,7 @@ import hyper from "@macrostrat/hyper";
 import styles from "./panel.module.sass";
 import { JSONView } from "@macrostrat/ui-components";
 import { Button, ButtonGroup } from "@blueprintjs/core";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useCallback, useMemo, useState } from "react";
 import {
   DataField,
   EnvironmentsList,
@@ -16,6 +16,10 @@ import {
   MacrostratInteractionManager,
   useInteractionProps,
   ItemInteractionProps,
+  useInteractionManager,
+  MacrostratItemIdentifier,
+  MacrostratInteractionProvider,
+  isClickable,
 } from "@macrostrat/data-components";
 import {
   useColumnUnitsMap,
@@ -76,7 +80,6 @@ export function UnitDetailsPanel({
       features,
       lithologyFeatures,
       onClickItem,
-      onSelectUnit,
     });
   }
 
@@ -99,7 +102,7 @@ export function UnitDetailsPanel({
     ]);
   }
 
-  return h("div.unit-details-panel", { className }, [
+  const main = h("div.unit-details-panel", { className }, [
     h(LegendPanelHeader, {
       onClose,
       title,
@@ -109,6 +112,34 @@ export function UnitDetailsPanel({
     }),
     h("div.unit-details-content-holder", content),
   ]);
+
+  /** Handle unit selection clicks */
+  const clickHandlerForItem = useMemo(() => {
+    if (onSelectUnit == null && onClickItem == null) return null;
+    return (item: MacrostratItemIdentifier) => {
+      if ("unit_id" in item && !("col_id" in item)) {
+        // We are selecting a unit within the column
+        return (event: MouseEvent) => {
+          onSelectUnit(item.unit_id);
+        };
+      }
+      return undefined;
+    };
+  }, [onSelectUnit, onClickItem]);
+
+  if (clickHandlerForItem != null) {
+    // We wrap this in a MacrostratInteractionManager to handle unit selection
+    return h(
+      MacrostratInteractionProvider,
+      {
+        clickHandlerForItem,
+        inherit: true,
+      },
+      main,
+    );
+  }
+
+  return main;
 }
 
 export function LegendPanelHeader({
@@ -167,7 +198,6 @@ export type MacrostratItemClickHandler = (
 
 function UnitDetailsContent({
   unit,
-  onSelectUnit,
   lithologyFeatures = new Set([
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
@@ -180,7 +210,6 @@ function UnitDetailsContent({
   getItemHref,
 }: {
   unit: UnitLong;
-  onSelectUnit?: (unitID: number) => void;
   lithologyFeatures?: Set<LithologyTagFeature>;
   features?: Set<UnitDetailsFeature>;
   onClickItem?: MacrostratItemClickHandler;
@@ -252,8 +281,6 @@ function UnitDetailsContent({
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
-      getItemHref,
-      onClickItem,
     }),
     h(AgeField, { unit }, [
       h(Parenthetical, h(Duration, { value: unit.b_age - unit.t_age })),
@@ -264,8 +291,6 @@ function UnitDetailsContent({
     ]),
     h.if(environments != null)(EnvironmentsList, {
       environments,
-      onClickItem,
-      getItemHref,
     }),
     h.if(unit.strat_name_id != null)(StratNameField, {
       strat_name_id: unit.strat_name_id,
@@ -277,7 +302,6 @@ function UnitDetailsContent({
         { label: "Above" },
         h(UnitIDList, {
           units: unit.units_above,
-          onSelectUnit,
           showNames: true,
         }),
       ),
@@ -286,7 +310,6 @@ function UnitDetailsContent({
         { label: "Below" },
         h(UnitIDList, {
           units: unit.units_below,
-          onSelectUnit,
           showNames: true,
         }),
       ),
@@ -343,17 +366,14 @@ function useStratNameData(strat_name_id: number) {
   return stratNames?.[0];
 }
 
-function isClickable(props: ItemInteractionProps): boolean {
-  return props.onClick != null || props.href != null;
-}
-
 function StratNameField(
   props: {
     strat_name_id: number;
+    className?: string;
   } & ItemInteractionProps,
 ) {
   /** Handling for stratigraphic name field */
-  const { strat_name_id, ...rest } = props;
+  const { strat_name_id, className, ...rest } = props;
   const data = useStratNameData(strat_name_id);
 
   const baseInteractionProps = useInteractionProps({ strat_name_id });
@@ -370,7 +390,6 @@ function StratNameField(
   }
 
   const clickable = isClickable(coreProps);
-  const className = classNames({ clickable });
 
   return h(
     DataField,
@@ -380,7 +399,7 @@ function StratNameField(
     h(
       clickable ? "a" : "span",
       {
-        className,
+        className: classNames({ clickable }, className),
         ...coreProps,
       },
       inner,
@@ -583,36 +602,32 @@ function enhanceLithologies(
 }
 
 export function ClickableText({
-  onClick,
   className,
-  children,
+  ...rest
 }: {
-  onClick: () => void;
   className?: string;
   children: ReactNode;
-}) {
+} & ItemInteractionProps) {
   /** An optionally clickable text element */
-  const tag = onClick != null ? "a" : "span";
-  return h(tag, { onClick, className }, children);
+  const clickable = isClickable(rest);
+  const tag = clickable ? "a" : "span";
+  return h(tag, { className: classNames(className, { clickable }), ...rest });
 }
 
 export function Identifier({
   id,
-  onClick,
   className,
+  ...rest
 }: {
   id: number | string;
-  onClick?: (id: number | string) => void;
   className?: string;
-}) {
+} & ItemInteractionProps) {
   /** An item that displays a numeric identifier, optionally clickable */
-  const _onClick = onClick != null ? () => onClick(id) : null;
-
   return h(
     ClickableText,
     {
-      onClick: _onClick,
       className: classNames("identifier", className),
+      ...rest,
     },
     id,
   );
@@ -624,8 +639,10 @@ type UnitInfo = {
   name?: string;
 };
 
-function UnitIDList({ units, onSelectUnit, showNames = false }) {
+function UnitIDList({ units, showNames = false }) {
   const unitsMap = useColumnUnitsMap();
+
+  const interactionManager = useInteractionManager();
 
   const extUnits: UnitInfo[] = useMemo(() => {
     const u1 = units.filter((d) => d != 0);
@@ -654,9 +671,17 @@ function UnitIDList({ units, onSelectUnit, showNames = false }) {
   return h(
     ItemList,
     { className: "units-list" },
-    extUnits.map((info) =>
-      h("span.item", h(UnitIdentifier, { ...info, onSelectUnit })),
-    ),
+    extUnits.map((info) => {
+      return h(
+        "span.item",
+        h(UnitIdentifier, {
+          ...info,
+          ...interactionManager?.interactionPropsForItem({
+            unit_id: info.unitID,
+          }),
+        }),
+      );
+    }),
   );
 }
 
@@ -664,21 +689,14 @@ function UnitIdentifier({
   unitID,
   colID,
   name,
-  onSelectUnit,
-}: UnitInfo & { onSelectUnit?: (unitID: number) => void }) {
-  const onClick = useMemo(() => {
-    if (onSelectUnit == null) return null;
-    return () => {
-      onSelectUnit(unitID);
-    };
-  }, [onSelectUnit]);
-
+  ...interactionProps
+}: UnitInfo & ItemInteractionProps) {
   if (name != null) {
     return h(
       ClickableText,
       {
         className: "unit-name",
-        onClick,
+        ...interactionProps,
       },
       name,
     );
@@ -686,9 +704,9 @@ function UnitIdentifier({
 
   return h(Identifier, {
     className: "unit-id",
-    onClick,
     key: unitID,
     id: unitID,
+    ...interactionProps,
   });
 }
 

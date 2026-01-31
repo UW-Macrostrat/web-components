@@ -159,7 +159,7 @@ export function WithExternalLinks(args: Omit<UnitDetailsPanelProps, "unit">) {
 
   return h(
     MacrostratInteractionProvider,
-    { domain },
+    { linkDomain: domain },
     h(UnitDetailsPanel, { unit: units[0] }),
   );
 }

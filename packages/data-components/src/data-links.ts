@@ -24,6 +24,42 @@ export type MacrostratItemIdentifier =
   | { project_id: number }
   | { col_id: number; unit_id?: number; project_id?: number };
 
+export type MacrostratItemType =
+  | "lithology"
+  | "environment"
+  | "unit"
+  | "interval"
+  | "strat_name"
+  | "column"
+  | "project";
+
+function identifierFields(
+  item: MacrostratItemIdentifier,
+): [MacrostratItemType, ...any[]] {
+  /** Return a tuple of the item type and its identifier fields for useMemo dependencies */
+  if ("strat_name_id" in item) {
+    return ["strat_name", item.strat_name_id];
+  } else if ("lith_id" in item) {
+    return ["lithology", item.lith_id];
+  } else if ("environ_id" in item) {
+    return ["environment", item.environ_id];
+  } else if ("col_id" in item) {
+    return [
+      "column",
+      item.col_id,
+      item.project_id ?? null,
+      item.unit_id ?? null,
+    ];
+  } else if ("unit_id" in item) {
+    return ["unit", item.unit_id];
+  } else if ("int_id" in item) {
+    return ["interval", item.int_id];
+  } else if ("project_id" in item) {
+    return ["project", item.project_id];
+  }
+  throw new Error("Invalid MacrostratItemIdentifier");
+}
+
 export interface ItemInteractionProps {
   href?: string | null;
   target?: string;
@@ -66,7 +102,6 @@ export function MacrostratInteractionProvider({
     });
   }, [parent, inherit, opts]);
 
-  console.log(manager);
   return h(
     scope.Provider,
     {
@@ -76,6 +111,11 @@ export function MacrostratInteractionProvider({
     },
     children,
   );
+}
+
+export function useInteractionManager(): MacrostratInteractionManager | null {
+  /** Hook to access the MacrostratInteractionManager from context */
+  return scope.useAtomValueIfExists(interactionManagerAtom);
 }
 
 export function useInteractionProps(
@@ -88,11 +128,11 @@ export function useInteractionProps(
       return {};
     }
     return manager?.interactionPropsForItem(item) ?? {};
-  }, [interactive, manager, ...Object.values(item)]);
+  }, [interactive, manager, ...identifierFields(item)]);
 }
 
 interface InteractionManagerOptions {
-  domain?: string;
+  linkDomain?: string;
   hrefForItem?: (item: MacrostratItemIdentifier) => string | null;
   clickHandlerForItem?: (
     item: MacrostratItemIdentifier,
@@ -106,7 +146,7 @@ interface InteractionManagerOptions {
 
 export class MacrostratInteractionManager implements MacrostratInteractionCtx {
   /** Class to build interaction properties (links, click handlers, etc.) for Macrostrat items */
-  readonly #domain: string;
+  readonly #linkDomain: string;
   readonly #hrefForItem: HrefBuilder | undefined;
   readonly #clickHandlerForItem: ClickHandlerBuilder | undefined;
   readonly #interactionPropsForItem:
@@ -124,14 +164,14 @@ export class MacrostratInteractionManager implements MacrostratInteractionCtx {
     } = {},
   ) {
     const {
-      domain = "/",
+      linkDomain,
       hrefForItem,
       clickHandlerForItem,
       interactionPropsForItem,
       targetForItem,
       parent = null,
     } = options;
-    this.#domain = domain;
+    this.#linkDomain = linkDomain;
     this.#hrefForItem = hrefForItem;
     this.#targetForItem = targetForItem;
     this.#clickHandlerForItem = clickHandlerForItem;
@@ -163,32 +203,29 @@ export class MacrostratInteractionManager implements MacrostratInteractionCtx {
 
     // If there's a custom click handler, use it
     if (this.#clickHandlerForItem != null) {
-      const onClick = this.#clickHandlerForItem(item);
-      if (onClick != null) {
-        res.onClick = onClick;
-      }
+      res.onClick ??= this.#clickHandlerForItem(item);
     }
 
     // If there's a custom href builder, use it
     const href = this.#hrefForItem?.(item) ?? this._defaultHrefForItem(item);
-    console.log("Applying custom href", href);
     if (href != null) {
       res.href = href;
       res.target = this.#targetForItem?.(item, href) ?? defaultLinkTarget(href);
     }
 
-    console.log(res);
-
     return res;
   }
 
   private _defaultHrefForItem(item: MacrostratItemIdentifier): string | null {
+    if (this.#linkDomain == null) {
+      return null;
+    }
     let href = createItemHref(item);
-    if (href != null && this.#domain != "/") {
+    if (href != null && this.#linkDomain != "/") {
       if (!href.startsWith("/")) {
         href = "/" + href;
       }
-      href = this.#domain + href;
+      href = this.#linkDomain + href;
     }
     return href;
   }
@@ -231,4 +268,8 @@ function defaultLinkTarget(href: string | undefined) {
     return "_blank";
   }
   return undefined;
+}
+
+export function isClickable(props: ItemInteractionProps): boolean {
+  return props.onClick != null || props.href != null;
 }
