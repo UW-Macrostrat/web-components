@@ -48,15 +48,18 @@ export function Tag(props: BaseTagProps) {
     color,
     onClick,
     href,
+    target,
     component,
   } = props;
 
   let classes = props.classNames ?? {};
 
   let _component: ComponentOrHTMLTagElement<any> = component ?? "span";
+  let _target = null;
   if (href != null && component == null) {
     // If a href is provided, use an anchor tag by default
     _component = "a";
+    _target = target;
   }
 
   // TODO: details and prefix might be better moved outside of the component...
@@ -83,6 +86,7 @@ export function Tag(props: BaseTagProps) {
       style: buildTagStyle({ color, size, inDarkMode }),
       onClick,
       href,
+      target: _target,
     },
     [_prefix, mainTag],
   );

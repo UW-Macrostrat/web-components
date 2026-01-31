@@ -3,7 +3,8 @@ import { useKeyHandler } from "@macrostrat/ui-components";
 import { useEffect, useRef, useCallback, useMemo } from "react";
 import type { RectBounds, IUnit } from "../units/types";
 import { atom } from "jotai";
-import { columnUnitsMapAtom, scope } from "./core";
+import { scope } from "./core";
+import { columnUnitsMapAtom } from "./store";
 import { ColumnData } from "@macrostrat/column-views";
 import {
   AgeRangeQuantifiedDifference,

@@ -13,13 +13,21 @@ import {
   UnitSelectionCallbackManager,
 } from "./unit-selection";
 import { BaseUnit } from "@macrostrat/api-types";
-import {
-  AtomMap,
-  columnUnitsAtom,
-  columnUnitsMapAtom,
-  scope,
-  ScopedProvider,
-} from "./core";
+import { scope } from "./core";
+import { ScopedProvider, type AtomMap } from "@macrostrat/data-components";
+import { atom } from "jotai";
+
+export const columnUnitsAtom = atom<BaseUnit[]>();
+
+export const columnUnitsMapAtom = atom<Map<number, BaseUnit> | null>((get) => {
+  const units = get(columnUnitsAtom);
+  if (!units) return null;
+  const unitMap = new Map<number, BaseUnit>();
+  units.forEach((unit) => {
+    unitMap.set(unit.unit_id, unit);
+  });
+  return unitMap;
+});
 
 export interface ColumnStateProviderProps<
   T extends BaseUnit,
@@ -66,6 +74,7 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
   return h(
     ScopedProvider,
     {
+      scope,
       atoms: atomMap,
     },
     [selectionHandlers, children],

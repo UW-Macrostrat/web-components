@@ -250,7 +250,7 @@ function UnitDetailsContent({
       col_id: unit.col_id,
     }),
     thicknessOrHeightRange,
-    h.if(lithologies)(LithologyList, {
+    h.if(lithologies != null)(LithologyList, {
       label: "Lithology",
       lithologies,
       features: lithologyFeatures,
@@ -264,7 +264,7 @@ function UnitDetailsContent({
         onClickItem,
       }),
     ]),
-    h.if(environments)(EnvironmentsList, {
+    h.if(environments != null)(EnvironmentsList, {
       environments,
       onClickItem,
       getItemHref,
@@ -365,7 +365,7 @@ function StratNameField(props: {
     inner = h("span.strat-name", name);
   }
 
-  const interactionProps = interactionManager?.linkPropsForItem({
+  const interactionProps = interactionManager?.interactionPropsForItem({
     strat_name_id,
   });
 

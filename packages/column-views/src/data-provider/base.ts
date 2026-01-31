@@ -20,7 +20,7 @@ import {
   fetchStratNames,
   type ColumnStatusCode,
 } from "./fetch";
-import { APIProvider, useAsyncMemo } from "@macrostrat/ui-components";
+import { APIProvider } from "@macrostrat/ui-components";
 import { ColumnProvider } from "@macrostrat/column-components";
 
 import { ReactNode } from "react";

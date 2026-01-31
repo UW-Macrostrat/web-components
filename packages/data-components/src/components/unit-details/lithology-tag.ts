@@ -4,6 +4,7 @@ import { BaseTagProps, Tag, TagSize } from "./tag";
 import { useMemo } from "react";
 import { Lithology } from "@macrostrat/api-types";
 import classNames from "classnames";
+import { MacrostratInteractionManager } from "../../data-links.ts";
 
 interface LithologyTagProps extends Omit<BaseTagProps, "onClick" | "name"> {
   data: Lithology;
@@ -12,6 +13,7 @@ interface LithologyTagProps extends Omit<BaseTagProps, "onClick" | "name"> {
   size?: TagSize;
   features?: Set<LithologyTagFeature>;
   onClick?: (event: any, data: Lithology) => void;
+  interactionManager?: MacrostratInteractionManager;
 }
 
 export enum LithologyTagFeature {
@@ -23,6 +25,7 @@ export function LithologyTag({
   data,
   color,
   features,
+  interactionManager,
   onClick: _onClick,
   ...rest
 }: LithologyTagProps) {
@@ -46,11 +49,14 @@ export function LithologyTag({
   }
 
   const onClick = useMemo(() => {
-    if (_onClick == null) return null;
+    if (_onClick == null) return undefined;
     return (event: MouseEvent) => {
       _onClick(event, data);
     };
   }, [data, _onClick]);
+
+  const interactionProps =
+    interactionManager?.interactionPropsForItem(data) ?? {};
 
   return h(Tag, {
     prefix: atts,
@@ -58,8 +64,9 @@ export function LithologyTag({
     name: data.name,
     className: classNames({ clickable: onClick != null }, "lithology-tag"),
     color: color ?? data.color,
-    onClick,
     ...rest,
+    ...interactionProps,
+    onClick,
   });
 }
 
@@ -97,6 +104,7 @@ export function LithologyList({
   onClickItem,
   getItemHref,
   className,
+  interactionManager,
 }: {
   label?: string;
   lithologies: any[];
@@ -106,6 +114,7 @@ export function LithologyList({
   // Optional function to get a link location for each item
   getItemHref?: (data: Lithology) => string | null | undefined;
   className?: string;
+  interactionManager?: MacrostratInteractionManager;
 }) {
   const sortedLiths = useMemo(() => {
     const l1 = [...lithologies];
@@ -127,6 +136,7 @@ export function LithologyList({
         features,
         onClick: onClickItem,
         href: getItemHref?.(lith),
+        interactionManager,
       });
     }),
   );
@@ -143,12 +153,21 @@ function lithologyComparison(a, b) {
   return dx;
 }
 
+export interface EnvironmentsListProps {
+  environments: any[];
+  onClickItem?: (event: MouseEvent, data: any) => void;
+  getItemHref?: (data: any) => string | null | undefined;
+  interactionManager?: MacrostratInteractionManager;
+  label?: string;
+}
+
 export function EnvironmentsList({
   environments,
   onClickItem,
   getItemHref,
+  interactionManager,
   label = "Environments",
-}) {
+}: EnvironmentsListProps) {
   return h(
     TagField,
     { label, className: "environments-list" },
@@ -157,6 +176,7 @@ export function EnvironmentsList({
         data: env,
         onClick: onClickItem,
         href: getItemHref?.(env),
+        interactionManager,
       });
     }),
   );

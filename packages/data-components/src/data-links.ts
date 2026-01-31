@@ -35,19 +35,21 @@ export class MacrostratInteractionManager {
     this._builder = configureInteractionsForDomain(this.domain);
   }
 
-  linkPropsForItem(item: MacrostratItemIdentifier): ItemInteractionResult {
+  interactionPropsForItem(
+    item: MacrostratItemIdentifier,
+  ): ItemInteractionResult {
     return this._builder(item);
   }
 
   hrefForItem(item: MacrostratItemIdentifier): string | null {
-    const result = this.linkPropsForItem(item);
+    const result = this.interactionPropsForItem(item);
     return result.href || null;
   }
 
   clickHandlerForItem(
     item: MacrostratItemIdentifier,
   ): ((event: MouseEvent) => void) | undefined {
-    const result = this.linkPropsForItem(item);
+    const result = this.interactionPropsForItem(item);
     return result.onClick;
   }
 }
@@ -78,7 +80,8 @@ export function configureInteractionsForDomain(
 }
 
 function createItemHref(item: MacrostratItemIdentifier): string {
-  /** Build a relative link to a Macrostrat item */
+  /** Build a relative link to a Macrostrat item. Designed for the URL
+   * structure of Macrostrat's v2 website */
   if ("strat_name_id" in item) {
     return `/lex/strat-names/${item.strat_name_id}`;
   } else if ("lith_id" in item) {
