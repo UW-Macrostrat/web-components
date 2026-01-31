@@ -105,11 +105,13 @@ export function LithologyList({
     LithologyTagFeature.Attributes,
   ]),
   className,
+  onClickItem,
 }: {
   label?: string;
   lithologies: any[];
   features?: Set<LithologyTagFeature>;
   className?: string;
+  onClickItem?: (lith: Lithology) => void;
 }) {
   const sortedLiths = useMemo(() => {
     const l1 = [...lithologies];
@@ -126,10 +128,16 @@ export function LithologyList({
         l1.prop = null;
       }
 
-      return h(LithologyTag, {
+      let props = {
         data: l1,
         features,
-      });
+      };
+
+      if (onClickItem != null) {
+        props.onClick = () => onClickItem(l1);
+      }
+
+      return h(LithologyTag, props);
     }),
   );
 }
@@ -148,19 +156,25 @@ function lithologyComparison(a, b) {
 export interface EnvironmentsListProps {
   environments: any[];
   label?: string;
+  onClickItem?: (env: any) => void;
 }
 
 export function EnvironmentsList({
   environments,
   label = "Environments",
+  onClickItem,
 }: EnvironmentsListProps) {
   return h(
     TagField,
     { label, className: "environments-list" },
     environments.map((env: any) => {
-      return h(LithologyTag, {
+      let props: LithologyTagProps = {
         data: env,
-      });
+      };
+      if (onClickItem != null) {
+        props.onClick = () => onClickItem(env);
+      }
+      return h(LithologyTag, props);
     }),
   );
 }

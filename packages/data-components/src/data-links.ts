@@ -60,6 +60,17 @@ function identifierFields(
   throw new Error("Invalid MacrostratItemIdentifier");
 }
 
+export function itemTypeHandlers<T = HrefBuilder | ClickHandlerBuilder>(
+  builders: Partial<Record<MacrostratItemType, T>>,
+): T {
+  /** Helper to build either hrefs or click handlers based on item type */
+  return ((item: MacrostratItemIdentifier) => {
+    const [itemType] = identifierFields(item);
+    const builder = builders[itemType] as T | undefined;
+    return builder?.(item);
+  }) as T;
+}
+
 export interface ItemInteractionProps {
   href?: string | null;
   target?: string;

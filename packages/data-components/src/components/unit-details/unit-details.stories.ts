@@ -15,6 +15,10 @@ import {
   useToaster,
   ToasterContext,
 } from "@macrostrat/ui-components";
+import {
+  itemTypeHandlers,
+  MacrostratInteractionProvider,
+} from "../../data-links";
 
 export default {
   title: "Data components/Unit details",
@@ -35,27 +39,47 @@ export function DataField() {
   });
 }
 
+const intervalData = [
+  {
+    id: 1,
+    b_age: 10,
+    t_age: 0,
+    name: "Quaternary",
+    color: "blue",
+    rank: 1,
+  },
+  {
+    id: 2,
+    b_age: 20,
+    t_age: 10,
+    name: "Neogene",
+    color: "green",
+    rank: 2,
+  },
+];
+
 export function IntervalField() {
   return h(_IntervalField, {
-    intervals: [
-      {
-        id: 1,
-        b_age: 10,
-        t_age: 0,
-        name: "Quaternary",
-        color: "blue",
-        rank: 1,
-      },
-      {
-        id: 2,
-        b_age: 20,
-        t_age: 10,
-        name: "Neogene",
-        color: "green",
-        rank: 2,
-      },
-    ],
+    intervals: intervalData,
   });
+}
+
+export function IntervalFieldWithLinks() {
+  const hrefForItem = itemTypeHandlers({
+    interval: (data) => {
+      return `https://dev.macrostrat.org/lex/intervals/${data.int_id}`;
+    },
+  });
+
+  return h(
+    MacrostratInteractionProvider,
+    {
+      hrefForItem,
+    },
+    h(_IntervalField, {
+      intervals: intervalData,
+    }),
+  );
 }
 
 const LithologyTag = _LithologyTag as any;
@@ -119,13 +143,13 @@ export function LithologyList() {
         lith_id: 2,
       },
     ],
-    onClickItem: (e) => {
-      console.log("Clicked lith id:", e.lithId);
+    onClickItem: (data) => {
+      console.log("Clicked lith id:", data.lith_id);
     },
   });
 }
 
-export function LithologyListClickable() {
+export function LithologyListWithInteractionContext() {
   const toaster = useToaster();
   const liths = useAPIResult(
     "https://dev.macrostrat.org/api/v2/defs/lithologies",
@@ -139,15 +163,23 @@ export function LithologyListClickable() {
     return h("div", "Loading lithologies...");
   }
 
-  return h(_LithologyList, {
-    lithologies: liths,
-    onClickItem: (e, data) => {
+  const clickHandlerForItem = itemTypeHandlers({
+    lithology: (data) => (e) => {
+      console.log("Clicked lith id:", data.lith_id);
       toaster.show({
         message: `Clicked lith ID: ${data.lith_id}`,
         intent: "success",
       });
     },
   });
+
+  return h(
+    MacrostratInteractionProvider,
+    { clickHandlerForItem },
+    h(_LithologyList, {
+      lithologies: liths,
+    }),
+  );
 }
 
 export function LithologyListWithLinks() {
@@ -163,10 +195,19 @@ export function LithologyListWithLinks() {
     return h("div", "Loading lithologies...");
   }
 
-  return h(_LithologyList, {
-    lithologies: liths,
-    getItemHref(data) {
-      return `https://dev.macrostrat.org/lex/lithology/${data.lith_id}`;
+  const hrefForItem = itemTypeHandlers({
+    lithology: (data) => {
+      return `https://dev.macrostrat.org/lex/lithologies/${data.lith_id}`;
     },
   });
+
+  return h(
+    MacrostratInteractionProvider,
+    {
+      hrefForItem,
+    },
+    h(_LithologyList, {
+      lithologies: liths,
+    }),
+  );
 }
