@@ -1629,6 +1629,7 @@ __metadata:
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@types/node": "npm:^22.14.1"
+    magic-string: "npm:^0.30.21"
     vite: "npm:^5||^6.1.6||^7"
   languageName: unknown
   linkType: soft

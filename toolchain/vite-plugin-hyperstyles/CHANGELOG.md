@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.0.0] - 2026-02-01
+
+- Add `magic-string` to attempt to create source maps for transformed files.
+- Improve `@macrostrat/vite-plugin-hyperstyles/client` type file to not create
+  typescript errors.
+
 ## [1.1.1] - 2026-01-29
 
 - Change layout of `package.json`

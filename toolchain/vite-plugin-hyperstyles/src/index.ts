@@ -1,6 +1,7 @@
-import { Plugin } from "vite";
+import type { Plugin } from "vite";
+import MagicString from "magic-string";
 
-const cssModuleMatcher = /\.module\.(css|scss|sass|styl)$/;
+const cssModuleMatcher = /\.module\.(css|scss|sass|less|styl|stylus|pcss|sss)$/;
 
 export default function hyperStyles(): Plugin {
   return {
@@ -8,16 +9,29 @@ export default function hyperStyles(): Plugin {
     enforce: "post",
     // Post-process the output to add the hyperStyled import
     transform(code, id) {
-      const code1 = code.replace("export default", "const styles =");
-      if (cssModuleMatcher.test(id)) {
-        //const code2 = code1 + "\nexport default styles\n";
-        return `import hyper from "@macrostrat/hyper";
-        ${code1}
+      if (!cssModuleMatcher.test(id)) {
+        return;
+      }
+
+      const code0 = new MagicString(code);
+      // Just add sourcemaps
+      ///dd https://github.com/Rich-Harris/magic-string/issues/13
+      code0.replace("export default ", "const styles = ");
+      code0.prepend(`import hyper from "@macrostrat/hyper";\n`);
+      code0.append(`
         let h = hyper.styled(styles);
         // Keep backwards compatibility with the existing default style object.
         Object.assign(h, styles);
-        export default h;`;
-      }
+        export default h;`);
+
+      // Generate source map
+      const map = code0.generateMap();
+      const codeString = code0.toString();
+
+      return {
+        code: codeString,
+        map,
+      };
     },
   };
 }

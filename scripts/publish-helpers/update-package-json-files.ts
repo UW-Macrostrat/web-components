@@ -12,6 +12,7 @@ const manualPackagesToFix = [
   "@macrostrat/style-system",
   "@macrostrat/web-components-bundler",
   "@macrostrat/hyperstyle-loader",
+  "@macrostrat/vite-plugin-hyperstyles",
 ];
 
 const packageJSONKeyOrder = [
