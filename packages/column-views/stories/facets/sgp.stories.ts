@@ -1,7 +1,6 @@
 import {
   ColoredUnitComponent,
   ColumnNavigationMap,
-  MacrostratDataProvider,
   MeasurementDataProvider,
   SGPMeasurementsColumn,
 } from "../../src";
@@ -9,6 +8,7 @@ import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
 import { Meta } from "@storybook/react-vite";
 import { FlexRow } from "@macrostrat/ui-components";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import { useColumnSelection } from "../column-ui/utils";
 
 function SGPMeasurementsDemoColumn(props) {

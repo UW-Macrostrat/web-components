@@ -1,6 +1,5 @@
 import {
   IsotopesColumn,
-  MacrostratDataProvider,
   MeasurementDataProvider,
   ColumnNavigationSVGMap,
   MeasurementsLayer,
@@ -11,6 +10,7 @@ import { StandaloneColumn } from "../column-ui";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
 import { useMemo } from "react";
 import { FeatureCollection } from "geojson";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
 
 function StableIsotopesOverlay(props) {
   return h(MeasurementDataProvider, { col_id: props.columnID }, [

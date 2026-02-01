@@ -21,10 +21,8 @@ import {
   type ColumnStatusCode,
 } from "./fetch";
 import { APIProvider } from "@macrostrat/ui-components";
-import { ColumnProvider } from "@macrostrat/column-components";
 
-import { ReactNode } from "react";
-import { useMacrostratColumnData } from "./store";
+import type { ReactNode } from "react";
 
 export interface MacrostratDataProviderProps {
   baseURL: string;
@@ -429,36 +427,6 @@ export function MacrostratAPIProvider({
     },
     children,
   );
-}
-
-export function MacrostratColumnProvider(props) {
-  /** A column provider specialized the Macrostrat API. Maps more
-   * generic concepts to Macrostrat-specific ones.
-   */
-
-  const { axisType } = useMacrostratColumnData();
-  const { units, domain, pixelScale, scale, children } = props;
-  return h(
-    ColumnProvider,
-    {
-      axisType,
-      divisions: units,
-      range: domain,
-      pixelsPerMeter: pixelScale,
-      scale,
-    },
-    children,
-  );
-}
-
-/** This is now a legacy provider */
-export function LithologiesProvider({ children }) {
-  useEffect(() => {
-    console.warn(
-      "LithologiesProvider is deprecated. Replace with MacrostratDataProvider",
-    );
-  }, []);
-  return children;
 }
 
 export function useLithologies() {

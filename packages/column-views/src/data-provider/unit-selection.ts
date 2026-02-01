@@ -1,16 +1,15 @@
-import { BaseUnit, UnitLong } from "@macrostrat/api-types";
+import type { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { useKeyHandler } from "@macrostrat/ui-components";
 import { useEffect, useRef, useCallback, useMemo } from "react";
 import type { RectBounds, IUnit } from "../units/types";
 import { atom } from "jotai";
-import { scope } from "./core";
-import { columnUnitsMapAtom } from "./store";
-import { ColumnData } from "@macrostrat/column-views";
+import { scope, columnUnitsMapAtom } from "./store";
 import {
   AgeRangeQuantifiedDifference,
   ageRangeQuantifiedDifference,
   AgeRangeRelationship,
 } from "@macrostrat/stratigraphy-utils";
+import type { ColumnData } from "@macrostrat/data-provider";
 
 type UnitSelectDispatch = (
   unit: number | BaseUnit | null,

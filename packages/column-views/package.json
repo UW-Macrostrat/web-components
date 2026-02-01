@@ -50,6 +50,7 @@
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
+    "@macrostrat/data-provider": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/map-interface": "workspace:^",
     "@macrostrat/map-styles": "workspace:^",

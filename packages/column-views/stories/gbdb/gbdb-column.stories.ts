@@ -6,7 +6,6 @@ import {
   Column,
   ColumnNavigationMap,
   MergeSectionsMode,
-  useLithologies,
 } from "../../src";
 import "@macrostrat/style-system";
 import { UnitLong } from "@macrostrat/api-types";
@@ -15,6 +14,7 @@ import { ColumnAxisType } from "@macrostrat/column-components";
 import { useColumnSelection } from "../column-ui/utils";
 import { Spinner } from "@blueprintjs/core";
 import { createFormationUnits, convertGBDBUnitToMacrostrat } from "./utils";
+import { useLithologies } from "@macrostrat/data-provider";
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 

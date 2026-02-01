@@ -53,7 +53,9 @@ export async function fetchAllColumns(
   } else if (statusCode != null) {
     _statusCode = statusCode;
   }
-  args.statusCode = _statusCode;
+  if (_statusCode != null) {
+    args.status_code = _statusCode;
+  }
 
   if (projectID == null) {
     args = { ...args, all: true };
@@ -81,26 +83,6 @@ export async function fetchAllColumns(
   // Get JSON
   const data = await res.json();
   return postProcessColumns(columnProcessors[format](data));
-}
-
-export function useColumnFeatures({
-  apiRoute = "/columns",
-  status_code,
-  project_id,
-  format = "geojson",
-}) {
-  let all: boolean = undefined;
-  if (status_code == null && project_id == null) {
-    all = true;
-  }
-
-  const processor = columnProcessors[format];
-
-  return useAPIResult(
-    apiRoute,
-    { format, all, status_code, project_id },
-    processor,
-  );
 }
 
 function processGeoJSON(res) {

@@ -10,7 +10,7 @@ import { useColumnLayout } from "@macrostrat/column-components";
 import { useInDarkMode } from "@macrostrat/ui-components";
 import { getMixedUnitColor } from "./colors";
 import { TrackedLabeledUnit } from "./composite";
-import { useEnvironments, useLithologies } from "../data-provider";
+import { useEnvironments, useLithologies } from "@macrostrat/data-provider";
 import { useMemo } from "react";
 import { resolveID } from "./resolvers";
 import { Lithology } from "@macrostrat/api-types";

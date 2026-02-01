@@ -21,13 +21,13 @@ import {
   MacrostratInteractionProvider,
   isClickable,
 } from "@macrostrat/data-components";
+import { useColumnUnitsMap } from "../data-provider";
 import {
-  useColumnUnitsMap,
   useMacrostratColumnInfo,
   useMacrostratData,
   useMacrostratDefs,
   useStratNames,
-} from "../data-provider";
+} from "@macrostrat/data-provider";
 import type {
   Environment,
   UnitLong,

@@ -1,15 +1,11 @@
-import {
-  ColoredUnitComponent,
-  Column,
-  ColumnNavigationMap,
-  MacrostratDataProvider,
-} from "../../src";
+import { ColoredUnitComponent, Column, ColumnNavigationMap } from "../../src";
 import { hyperStyled } from "@macrostrat/hyper";
 import styles from "./story-ui.module.sass";
 
 import { Spinner } from "@blueprintjs/core";
 import { useColumnBasicInfo, useColumnUnits } from "./utils";
 import { UnitLong } from "@macrostrat/api-types";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 

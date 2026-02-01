@@ -4,14 +4,15 @@ import { useCorrelationLine } from "./utils";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  fetchUnits,
-  MacrostratDataProvider,
   MergeSectionsMode,
   useCorrelationMapStore,
-  useMacrostratBaseURL,
-  useMacrostratFetch,
 } from "../..";
 import { hyperStyled } from "@macrostrat/hyper";
+import {
+  MacrostratDataProvider,
+  fetchUnits,
+  useMacrostratFetch,
+} from "@macrostrat/data-provider";
 
 import styles from "./stories.module.sass";
 import { CorrelationChart, CorrelationChartProps } from "../main";

@@ -1,6 +1,5 @@
 import {
   ColoredUnitComponent,
-  MacrostratDataProvider,
   MergeSectionsMode,
   PBDBFossilsColumn,
   PBDBOccurrencesMatrix,
@@ -10,6 +9,7 @@ import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
 import { Meta, StoryObj } from "@storybook/react-vite";
 import { ColumnAxisType } from "@macrostrat/column-components";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
 
 function PBDBFossilsDemoColumn(props) {
   const { id, children, type = FossilDataType.Collections, ...rest } = props;
