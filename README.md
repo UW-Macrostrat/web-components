@@ -25,6 +25,7 @@ and third-party usage are welcome!
 - [![@macrostrat/column-components](https://img.shields.io/npm/v/@macrostrat/column-components?label=%40macrostrat%2Fcolumn-components)](https://www.npmjs.com/package/@macrostrat/column-components)
 - [![@macrostrat/column-views](https://img.shields.io/npm/v/@macrostrat/column-views?label=%40macrostrat%2Fcolumn-views)](https://www.npmjs.com/package/@macrostrat/column-views)
 - [![@macrostrat/data-components](https://img.shields.io/npm/v/@macrostrat/data-components?label=%40macrostrat%2Fdata-components)](https://www.npmjs.com/package/@macrostrat/data-components)
+- [![@macrostrat/data-provider](https://img.shields.io/npm/v/@macrostrat/data-components?label=%40macrostrat%2Fdata-provider)](https://www.npmjs.com/package/@macrostrat/data-provider)
 - [![@macrostrat/data-sheet](https://img.shields.io/npm/v/@macrostrat/data-sheet?label=%40macrostrat%2Fdata-sheet)](https://www.npmjs.com/package/@macrostrat/data-sheet)
 - [![@macrostrat/feedback-components](https://img.shields.io/npm/v/@macrostrat/feedback-components?label=%40macrostrat%2Ffeedback-components)](https://www.npmjs.com/package/@macrostrat/feedback-components)
 - [![@macrostrat/form-components](https://img.shields.io/npm/v/@macrostrat/form-components?label=%40macrostrat%2Fform-components)](https://www.npmjs.com/package/@macrostrat/form-components)
