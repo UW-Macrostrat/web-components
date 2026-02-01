@@ -5,11 +5,7 @@ import {
   StratName,
   UnitLong,
 } from "@macrostrat/api-types";
-import {
-  addQueryString,
-  joinURL,
-  useAPIResult,
-} from "@macrostrat/ui-components";
+import { addQueryString, joinURL } from "@macrostrat/ui-components";
 import crossFetch from "cross-fetch";
 import { feature } from "topojson-client";
 import { geoArea } from "d3-geo";
@@ -24,12 +20,16 @@ const defaultFetch = createScopedFetch("https://macrostrat.org/api/v2");
 
 export type ColumnStatusCode = "in process" | "active" | "obsolete";
 
-export interface ColumnFetchOptions {
+interface FetchBaseOptions {
+  // The fetch implementation to use
+  fetch?: (url: string, options?: RequestInit) => Promise<Response>;
+}
+
+export interface ColumnFetchOptions extends FetchBaseOptions {
   apiBaseURL?: string;
   projectID?: number;
   statusCode?: ColumnStatusCode | ColumnStatusCode[];
   format?: "geojson" | "topojson" | "geojson_bare";
-  fetch?: any;
 }
 
 export async function fetchAllColumns(
@@ -153,15 +153,17 @@ async function unwrapResponse(res) {
   return resData["success"]["data"];
 }
 
-export async function fetchLithologies(fetch = defaultFetch) {
+export async function fetchLithologies(opts: FetchBaseOptions = {}) {
+  const { fetch = defaultFetch } = opts;
   const res = await fetch("/defs/lithologies?all");
   return await unwrapResponse(res);
 }
 
 export async function fetchIntervals(
   timescaleID: number | null,
-  fetch = defaultFetch,
+  opts: FetchBaseOptions = {},
 ) {
+  const { fetch = defaultFetch } = opts;
   let url = `/defs/intervals`;
   if (timescaleID != null) {
     url += `?timescale_id=${timescaleID}`;
@@ -172,15 +174,17 @@ export async function fetchIntervals(
   return await unwrapResponse(res);
 }
 
-export async function fetchEnvironments(fetch = defaultFetch) {
+export async function fetchEnvironments(opts: FetchBaseOptions = {}) {
+  const { fetch = defaultFetch } = opts;
   const res = await fetch("/defs/environments?all");
   return await unwrapResponse(res);
 }
 
 export async function fetchRefs(
   refs: number[],
-  fetch = defaultFetch,
+  opts: FetchBaseOptions = {},
 ): Promise<MacrostratRef[]> {
+  const { fetch = defaultFetch } = opts;
   let url = `/defs/refs`;
   if (refs.length == 0) {
     return [];
@@ -192,8 +196,9 @@ export async function fetchRefs(
 
 export async function fetchStratNames(
   names: number[],
-  fetch = defaultFetch,
+  opts: FetchBaseOptions = {},
 ): Promise<StratName[]> {
+  const { fetch = defaultFetch } = opts;
   let url = `/defs/strat_names`;
   if (names.length == 0) {
     return [];
@@ -210,8 +215,9 @@ export type ColumnData = {
 
 export async function fetchUnits(
   columns: number[],
-  fetch = defaultFetch,
+  opts: FetchBaseOptions = {},
 ): Promise<ColumnData[]> {
+  const { fetch = defaultFetch } = opts;
   const params = new URLSearchParams();
   params.append("response", "long");
 
@@ -245,8 +251,9 @@ export async function fetchUnits(
 
 export async function fetchColumnUnits(
   col_id: number,
-  fetch = defaultFetch,
+  opts: FetchBaseOptions = {},
 ): Promise<ColumnData> {
+  const { fetch = defaultFetch } = opts;
   const params = new URLSearchParams();
   params.append("response", "long");
   params.append("col_id", col_id.toString());

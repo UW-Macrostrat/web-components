@@ -1313,6 +1313,7 @@ __metadata:
     "@macrostrat/web-components-bundler": "workspace:*"
     "@types/topojson-client": "npm:^3.1.5"
     cross-fetch: "npm:^4.1.0"
+    d3-geo: "npm:^3.1.1"
     topojson-client: "npm:^3.1.0"
     zustand: "npm:^5.0.3"
   peerDependencies:

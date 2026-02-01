@@ -69,7 +69,7 @@ const selectedUnitAtom = atom(
     target: HTMLElement | null = null,
   ): BaseUnit | null => {
     if (!get(allowUnitSelectionAtom)) {
-      throw new Error("Unit selection is disabled.");
+      console.error("Unit selection is disabled.");
     }
 
     let unitID: number | null;

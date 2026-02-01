@@ -105,7 +105,7 @@ function createRefsSlice(set, get) {
       if (missing.length == 0) {
         return ids.map((id) => refs.get(id));
       }
-      const data = await fetchRefs(missing, fetch);
+      const data = await fetchRefs(missing, { fetch });
       if (data == null) return [];
       for (const d of data) {
         refs.set(d.ref_id, d);
@@ -163,7 +163,7 @@ function createLithologiesSlice(set, get) {
       const { lithologies, fetch } = get();
       let lithMap = lithologies;
       if (lithMap == null) {
-        const data = await fetchLithologies(fetch);
+        const data = await fetchLithologies({ fetch });
         if (data == null) return;
         lithMap = new Map(data.map((d) => [d.lith_id, d]));
         set({ lithologies: lithMap });
@@ -182,7 +182,7 @@ function createEnvironmentsSlice(set, get) {
       const { environments, fetch } = get();
       let envMap = environments;
       if (envMap == null) {
-        const data = await fetchEnvironments(fetch);
+        const data = await fetchEnvironments({ fetch });
         if (data == null) return [];
         envMap = new Map(data.map((d) => [d.environ_id, d]));
         set({ environments: envMap });
@@ -202,7 +202,7 @@ function createIntervalsSlice(set, get) {
       let _intervals = intervals;
       if (intervals == null || !includesTimescale(intervals, timescaleID)) {
         // Fetch the intervals
-        const data = await fetchIntervals(timescaleID, fetch);
+        const data = await fetchIntervals(timescaleID, { fetch });
         if (data == null) {
           return [];
         }
@@ -241,7 +241,7 @@ function createStratNamesSlice(set, get) {
         }
       }
       if (stratNamesToLoad.length > 0) {
-        const data = await fetchStratNames(stratNamesToLoad, fetch);
+        const data = await fetchStratNames(stratNamesToLoad, { fetch });
         if (data == null) return stratNamesAlreadyLoaded;
         for (const d of data) {
           nameMap.set(d.strat_name_id, d);

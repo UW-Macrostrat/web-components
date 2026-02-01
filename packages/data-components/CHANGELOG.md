@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0] - 2026-01-31
+
+- Create a `MacrostratInteractionProvider` to standardize handling of navigation
+  for clickable/linkable data items.
+- Moved scoped data store utilities (based on `jotai-scope`) to this library.
+
 ## [1.0.1] - 2026-01-29
 
 - Change layout of `package.json`
