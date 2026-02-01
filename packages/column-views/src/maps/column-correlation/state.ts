@@ -15,7 +15,7 @@ import {
 } from "react";
 import h from "@macrostrat/hyper";
 import { createComputed } from "zustand-computed";
-import { useMacrostratColumns } from "../../data-provider/base";
+import { useMacrostratColumns } from "@macrostrat/data-provider";
 import { buffer } from "@turf/buffer";
 import { booleanPointInPolygon } from "@turf/boolean-point-in-polygon";
 
@@ -26,6 +26,7 @@ export interface CorrelationMapInput {
 
 export interface CorrelationMapStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
+  projectID?: number;
 }
 
 export interface CorrelationProviderProps extends CorrelationMapInput {

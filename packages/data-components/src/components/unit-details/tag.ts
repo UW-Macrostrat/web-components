@@ -5,6 +5,7 @@ import styles from "./tag.module.sass";
 import { ComponentType, ReactNode, JSX } from "react";
 import chroma from "chroma-js";
 import classNames from "classnames";
+import { isClickable, ItemInteractionProps } from "../../data-links";
 
 const h = hyper.styled(styles);
 
@@ -14,7 +15,7 @@ export enum TagSize {
   Large = "large",
 }
 
-export interface BaseTagProps {
+export interface BaseTagProps extends ItemInteractionProps {
   prefix?: ReactNode;
   name: ReactNode;
   details?: ReactNode;
@@ -27,8 +28,6 @@ export interface BaseTagProps {
   children?: ReactNode;
   size?: TagSize;
   color?: chroma.ChromaInput;
-  onClick?: (event: MouseEvent) => void;
-  href?: string;
   component?: ComponentOrHTMLTagElement<any>;
 }
 
@@ -48,16 +47,13 @@ export function Tag(props: BaseTagProps) {
     color,
     onClick,
     href,
-    component,
   } = props;
 
   let classes = props.classNames ?? {};
 
-  let _component: ComponentOrHTMLTagElement<any> = component ?? "span";
-  if (href != null && component == null) {
-    // If a href is provided, use an anchor tag by default
-    _component = "a";
-  }
+  const clickable = isClickable(props);
+  const baseTag = clickable ? "a" : "span";
+  let component: any = props.component ?? baseTag;
 
   // TODO: details and prefix might be better moved outside of the component...
   let _details = null;
@@ -77,12 +73,13 @@ export function Tag(props: BaseTagProps) {
   }
 
   return h(
-    _component,
+    component,
     {
       className: classNames(className, "tag"),
       style: buildTagStyle({ color, size, inDarkMode }),
       onClick,
       href,
+      target: clickable ? props.target : undefined,
     },
     [_prefix, mainTag],
   );

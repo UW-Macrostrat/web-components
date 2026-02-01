@@ -3,9 +3,9 @@ import "@macrostrat/style-system";
 import {
   ColumnCorrelationMap,
   ColumnCorrelationProvider,
-  ColumnData,
   useCorrelationMapStore,
 } from "@macrostrat/column-views";
+import type { ColumnData } from "@macrostrat/data-provider";
 import { hyperStyled } from "@macrostrat/hyper";
 
 import styles from "./gbdb.module.sass";

@@ -1,11 +1,11 @@
 import {
   ColoredUnitComponent,
-  MacrostratDataProvider,
   MeasurementDataProvider,
   ColumnNavigationMap,
   useColumnNav,
   DetritalColumn,
 } from "../../src";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import h from "@macrostrat/hyper";
 import { StandaloneColumn } from "../column-ui";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";

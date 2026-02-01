@@ -4,14 +4,22 @@ import { BaseTagProps, Tag, TagSize } from "./tag";
 import { useMemo } from "react";
 import { Lithology } from "@macrostrat/api-types";
 import classNames from "classnames";
+import {
+  isClickable,
+  ItemInteractionProps,
+  MacrostratInteractionManager,
+  useInteractionManager,
+  useInteractionProps,
+} from "../../data-links.ts";
 
-interface LithologyTagProps extends Omit<BaseTagProps, "onClick" | "name"> {
+interface LithologyTagProps
+  extends Omit<BaseTagProps, "onClick" | "name">, ItemInteractionProps {
   data: Lithology;
   className?: string;
   expandOnHover?: boolean;
   size?: TagSize;
   features?: Set<LithologyTagFeature>;
-  onClick?: (event: any, data: Lithology) => void;
+  interactive?: boolean;
 }
 
 export enum LithologyTagFeature {
@@ -23,7 +31,8 @@ export function LithologyTag({
   data,
   color,
   features,
-  onClick: _onClick,
+  className,
+  interactive = true,
   ...rest
 }: LithologyTagProps) {
   let proportion = null;
@@ -45,21 +54,22 @@ export function LithologyTag({
     });
   }
 
-  const onClick = useMemo(() => {
-    if (_onClick == null) return null;
-    return (event: MouseEvent) => {
-      _onClick(event, data);
-    };
-  }, [data, _onClick]);
+  const interactionProps = useInteractionProps(data, interactive);
 
-  return h(Tag, {
+  const mainProps = {
     prefix: atts,
     details: proportion,
     name: data.name,
-    className: classNames({ clickable: onClick != null }, "lithology-tag"),
     color: color ?? data.color,
-    onClick,
+    ...interactionProps,
     ...rest,
+  };
+
+  const clickable = isClickable(mainProps);
+
+  return h(Tag, {
+    ...mainProps,
+    className: classNames(className, { clickable }, "lithology-tag"),
   });
 }
 
@@ -94,18 +104,14 @@ export function LithologyList({
     LithologyTagFeature.Proportion,
     LithologyTagFeature.Attributes,
   ]),
-  onClickItem,
-  getItemHref,
   className,
+  onClickItem,
 }: {
   label?: string;
   lithologies: any[];
   features?: Set<LithologyTagFeature>;
-  // Optional function to handle click events on each item
-  onClickItem?: (event: MouseEvent, data: Lithology) => void;
-  // Optional function to get a link location for each item
-  getItemHref?: (data: Lithology) => string | null | undefined;
   className?: string;
+  onClickItem?: (lith: Lithology) => void;
 }) {
   const sortedLiths = useMemo(() => {
     const l1 = [...lithologies];
@@ -122,12 +128,16 @@ export function LithologyList({
         l1.prop = null;
       }
 
-      return h(LithologyTag, {
+      let props = {
         data: l1,
         features,
-        onClick: onClickItem,
-        href: getItemHref?.(lith),
-      });
+      };
+
+      if (onClickItem != null) {
+        props.onClick = () => onClickItem(l1);
+      }
+
+      return h(LithologyTag, props);
     }),
   );
 }
@@ -143,21 +153,28 @@ function lithologyComparison(a, b) {
   return dx;
 }
 
+export interface EnvironmentsListProps {
+  environments: any[];
+  label?: string;
+  onClickItem?: (env: any) => void;
+}
+
 export function EnvironmentsList({
   environments,
-  onClickItem,
-  getItemHref,
   label = "Environments",
-}) {
+  onClickItem,
+}: EnvironmentsListProps) {
   return h(
     TagField,
     { label, className: "environments-list" },
     environments.map((env: any) => {
-      return h(LithologyTag, {
+      let props: LithologyTagProps = {
         data: env,
-        onClick: onClickItem,
-        href: getItemHref?.(env),
-      });
+      };
+      if (onClickItem != null) {
+        props.onClick = () => onClickItem(env);
+      }
+      return h(LithologyTag, props);
     }),
   );
 }

@@ -179,8 +179,10 @@ async function packageVersionExistsInRegistry(pkg): Promise<PackageStatus> {
 
   let msg = chalk.bold(moduleString(pkg));
   // Show last version
-  const lastVersion: string | null =
-    info.versions[info.versions.length - 1] ?? null;
+  let lastVersion: string | null = null;
+  if (info != null && info.versions != null && info.versions.length > 0) {
+    lastVersion = info.versions[info.versions.length - 1];
+  }
 
   let hasChanges: boolean | null = null;
   if (lastVersion != null) {

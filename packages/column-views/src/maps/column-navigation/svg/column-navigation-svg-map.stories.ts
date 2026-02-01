@@ -2,7 +2,7 @@ import h from "@macrostrat/hyper";
 
 import { Meta } from "@storybook/react-vite";
 import { ColumnNavigationSVGMap, ColumnNavigationSVGMapProps } from ".";
-import { MacrostratDataProvider } from "../../../data-provider";
+import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import { useState } from "react";
 
 interface ColumnIndexMapProps extends ColumnNavigationSVGMapProps {

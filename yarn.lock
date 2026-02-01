@@ -1220,6 +1220,7 @@ __metadata:
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/column-components": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
+    "@macrostrat/data-provider": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/map-interface": "workspace:^"
     "@macrostrat/map-styles": "workspace:^"
@@ -1294,7 +1295,27 @@ __metadata:
     classnames: "npm:^2.5.1"
     cross-fetch: "npm:^4.1.0"
     d3-array: "npm:^3.2.4"
+    jotai: "npm:^2.17.0"
+    jotai-scope: "npm:^0.10.0"
     mapbox-gl: "npm:^2.7.0||^3.13.0"
+  peerDependencies:
+    react: ^18.0.0||^19.0.0
+  languageName: unknown
+  linkType: soft
+
+"@macrostrat/data-provider@workspace:^, @macrostrat/data-provider@workspace:packages/data-provider":
+  version: 0.0.0-use.local
+  resolution: "@macrostrat/data-provider@workspace:packages/data-provider"
+  dependencies:
+    "@macrostrat/api-types": "workspace:^"
+    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/ui-components": "workspace:^"
+    "@macrostrat/web-components-bundler": "workspace:*"
+    "@types/topojson-client": "npm:^3.1.5"
+    cross-fetch: "npm:^4.1.0"
+    d3-geo: "npm:^3.1.1"
+    topojson-client: "npm:^3.1.0"
+    zustand: "npm:^5.0.3"
   peerDependencies:
     react: ^18.0.0||^19.0.0
   languageName: unknown
@@ -7432,6 +7453,27 @@ __metadata:
     react:
       optional: true
   checksum: 10c0/7bf00184c284904eb7f7c1d56f753f06bb63d0425fd1515b78c7970773f51831647291ea0b7ec891f10796551e6ba79400c01465a5cdbfc76864f0102b52028d
+  languageName: node
+  linkType: hard
+
+"jotai@npm:^2.17.0":
+  version: 2.17.0
+  resolution: "jotai@npm:2.17.0"
+  peerDependencies:
+    "@babel/core": ">=7.0.0"
+    "@babel/template": ">=7.0.0"
+    "@types/react": ">=17.0.0"
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    "@babel/template":
+      optional: true
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+  checksum: 10c0/cc6646c792881fa52cc8bef0b05152110af78a167b7ee10ee1cd2635904ed5175a5d00ba255d9a1abe4954549da48e6e963c95cb6deaa069a706cea8ef141bdb
   languageName: node
   linkType: hard
 

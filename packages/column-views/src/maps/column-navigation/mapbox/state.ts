@@ -12,7 +12,7 @@ import h from "@macrostrat/hyper";
 import {
   useMacrostratColumns,
   useMacrostratStore,
-} from "../../../data-provider";
+} from "@macrostrat/data-provider";
 
 export interface NavigationStore {
   columns: ColumnGeoJSONRecordWithID[];

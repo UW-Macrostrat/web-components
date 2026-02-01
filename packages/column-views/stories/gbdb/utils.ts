@@ -1,4 +1,4 @@
-import { UnitLong } from "@macrostrat/api-types";
+import type { UnitLong } from "@macrostrat/api-types";
 
 interface UnitOutput extends UnitLong {
   covered: boolean;

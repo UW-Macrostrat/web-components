@@ -4,7 +4,7 @@ import {
   CompositeColumnScale,
   createCompositeScale,
 } from "../prepare-units/composite-scale";
-import { ColumnAxisType } from "@macrostrat/column-components";
+import { ColumnAxisType, ColumnProvider } from "@macrostrat/column-components";
 import type { ExtUnit, PackageLayoutData } from "../prepare-units";
 import {
   allowUnitSelectionAtom,
@@ -12,14 +12,23 @@ import {
   UnitSelectionCallbacks,
   UnitSelectionCallbackManager,
 } from "./unit-selection";
-import { BaseUnit } from "@macrostrat/api-types";
-import {
-  AtomMap,
-  columnUnitsAtom,
-  columnUnitsMapAtom,
-  scope,
-  ScopedProvider,
-} from "./core";
+import type { BaseUnit } from "@macrostrat/api-types";
+import { type AtomMap, createScopedStore } from "@macrostrat/data-components";
+import { atom } from "jotai";
+
+export const scope = createScopedStore();
+
+export const columnUnitsAtom = atom<BaseUnit[]>();
+
+export const columnUnitsMapAtom = atom<Map<number, BaseUnit> | null>((get) => {
+  const units = get(columnUnitsAtom);
+  if (!units) return null;
+  const unitMap = new Map<number, BaseUnit>();
+  units.forEach((unit) => {
+    unitMap.set(unit.unit_id, unit);
+  });
+  return unitMap;
+});
 
 export interface ColumnStateProviderProps<
   T extends BaseUnit,
@@ -64,9 +73,11 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
   }
 
   return h(
-    ScopedProvider,
+    scope.Provider,
     {
       atoms: atomMap,
+      keepUpdated: true,
+      inherit: true,
     },
     [selectionHandlers, children],
   );
@@ -169,4 +180,34 @@ export function useCompositeScale(): CompositeColumnScale {
     () => createCompositeScale(ctx.sections, true),
     [ctx.sections],
   );
+}
+
+export function MacrostratColumnProvider(props) {
+  /** A column provider specialized the Macrostrat API. Maps more
+   * generic concepts to Macrostrat-specific ones.
+   */
+
+  const { axisType } = useMacrostratColumnData();
+  const { units, domain, pixelScale, scale, children } = props;
+  return h(
+    ColumnProvider,
+    {
+      axisType,
+      divisions: units,
+      range: domain,
+      pixelsPerMeter: pixelScale,
+      scale,
+    },
+    children,
+  );
+}
+
+/** This is now a legacy provider */
+export function LithologiesProvider({ children }) {
+  useEffect(() => {
+    console.warn(
+      "LithologiesProvider is deprecated. Replace with MacrostratDataProvider",
+    );
+  }, []);
+  return children;
 }

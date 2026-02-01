@@ -21,10 +21,8 @@ import {
   type ColumnStatusCode,
 } from "./fetch";
 import { APIProvider } from "@macrostrat/ui-components";
-import { ColumnProvider } from "@macrostrat/column-components";
 
-import { ReactNode } from "react";
-import { useMacrostratColumnData } from "./store";
+import type { ReactNode } from "react";
 
 export interface MacrostratDataProviderProps {
   baseURL: string;
@@ -107,7 +105,7 @@ function createRefsSlice(set, get) {
       if (missing.length == 0) {
         return ids.map((id) => refs.get(id));
       }
-      const data = await fetchRefs(missing, fetch);
+      const data = await fetchRefs(missing, { fetch });
       if (data == null) return [];
       for (const d of data) {
         refs.set(d.ref_id, d);
@@ -165,7 +163,7 @@ function createLithologiesSlice(set, get) {
       const { lithologies, fetch } = get();
       let lithMap = lithologies;
       if (lithMap == null) {
-        const data = await fetchLithologies(fetch);
+        const data = await fetchLithologies({ fetch });
         if (data == null) return;
         lithMap = new Map(data.map((d) => [d.lith_id, d]));
         set({ lithologies: lithMap });
@@ -184,7 +182,7 @@ function createEnvironmentsSlice(set, get) {
       const { environments, fetch } = get();
       let envMap = environments;
       if (envMap == null) {
-        const data = await fetchEnvironments(fetch);
+        const data = await fetchEnvironments({ fetch });
         if (data == null) return [];
         envMap = new Map(data.map((d) => [d.environ_id, d]));
         set({ environments: envMap });
@@ -204,7 +202,7 @@ function createIntervalsSlice(set, get) {
       let _intervals = intervals;
       if (intervals == null || !includesTimescale(intervals, timescaleID)) {
         // Fetch the intervals
-        const data = await fetchIntervals(timescaleID, fetch);
+        const data = await fetchIntervals(timescaleID, { fetch });
         if (data == null) {
           return [];
         }
@@ -243,7 +241,7 @@ function createStratNamesSlice(set, get) {
         }
       }
       if (stratNamesToLoad.length > 0) {
-        const data = await fetchStratNames(stratNamesToLoad, fetch);
+        const data = await fetchStratNames(stratNamesToLoad, { fetch });
         if (data == null) return stratNamesAlreadyLoaded;
         for (const d of data) {
           nameMap.set(d.strat_name_id, d);
@@ -253,6 +251,11 @@ function createStratNamesSlice(set, get) {
       return ids.map((id) => nameMap.get(id));
     },
   };
+}
+
+export function useStratNames(ids: number[] | null) {
+  const stratNames = useMemo(() => ids, ids);
+  return useMacrostratData("strat_names", stratNames);
 }
 
 function includesTimescale(intervals: Map<number, any>, timescaleID: number) {
@@ -424,36 +427,6 @@ export function MacrostratAPIProvider({
     },
     children,
   );
-}
-
-export function MacrostratColumnProvider(props) {
-  /** A column provider specialized the Macrostrat API. Maps more
-   * generic concepts to Macrostrat-specific ones.
-   */
-
-  const { axisType } = useMacrostratColumnData();
-  const { units, domain, pixelScale, scale, children } = props;
-  return h(
-    ColumnProvider,
-    {
-      axisType,
-      divisions: units,
-      range: domain,
-      pixelsPerMeter: pixelScale,
-      scale,
-    },
-    children,
-  );
-}
-
-/** This is now a legacy provider */
-export function LithologiesProvider({ children }) {
-  useEffect(() => {
-    console.warn(
-      "LithologiesProvider is deprecated. Replace with MacrostratDataProvider",
-    );
-  }, []);
-  return children;
 }
 
 export function useLithologies() {

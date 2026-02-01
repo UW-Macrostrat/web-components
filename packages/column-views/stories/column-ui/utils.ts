@@ -2,7 +2,7 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import { useMemo, useCallback } from "react";
 import { BaseUnit } from "@macrostrat/api-types";
 import { useArgs } from "storybook/preview-api";
-import { useMacrostratBaseURL } from "@macrostrat/column-views";
+import { useMacrostratBaseURL } from "@macrostrat/data-provider";
 
 export function useColumnUnits(col_id, inProcess = false): BaseUnit[] | null {
   const status_code = inProcess ? "in process" : undefined;

@@ -16,8 +16,8 @@ import {
   useMacrostratColumnData,
   useMacrostratUnits,
   MacrostratColumnProvider,
-  useMacrostratBaseURL,
 } from "./data-provider";
+import { useMacrostratBaseURL } from "@macrostrat/data-provider";
 import { Duration } from "./unit-details";
 import { Value } from "@macrostrat/data-components";
 import type { ExtUnit, PackageScaleLayoutData } from "./prepare-units/types";

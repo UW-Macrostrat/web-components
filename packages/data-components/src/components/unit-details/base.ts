@@ -7,6 +7,7 @@ import classNames from "classnames";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
 import { Tag, BaseTagProps } from "./tag";
 import { ReactNode } from "react";
+import { ItemInteractionProps, useInteractionProps } from "../../data-links.ts";
 
 export function DataField({
   label,
@@ -95,7 +96,8 @@ export function Value({
   ]);
 }
 
-interface IntervalTagProps extends Omit<BaseTagProps, "name"> {
+interface IntervalTagProps
+  extends Omit<BaseTagProps, "name">, ItemInteractionProps {
   interval: IntervalShort;
   showAgeRange?: boolean;
 }
@@ -104,13 +106,13 @@ export function IntervalTag({
   interval,
   showAgeRange = false,
   color,
-  onClick,
   ...rest
 }: IntervalTagProps) {
+  const interactionProps = useInteractionProps({ int_id: interval.id });
   return h(Tag, {
-    onClick,
     name: interval.name,
     color: color ?? interval.color,
+    ...interactionProps,
     ...rest,
   });
 }
