@@ -20,6 +20,7 @@ import { ErrorBoundary, useAsyncMemo } from "@macrostrat/ui-components";
 import { OverlaysProvider } from "@blueprintjs/core";
 import { EnvironmentColoredUnitComponent } from "../../units";
 import { scaleLinear, scalePow } from "d3-scale";
+import { MacrostratInteractionProvider } from "@macrostrat/data-components";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -36,29 +37,34 @@ function CorrelationStoryUI({
   projectID,
   ...rest
 }: any) {
+  const domain = "https://dev.macrostrat.org";
   return h(
     MacrostratDataProvider,
-    { baseURL: "https://dev.macrostrat.org/api/v2" },
+    { baseURL: domain + "/api/v2" },
     h(
-      ColumnCorrelationProvider,
-      {
-        focusedLine,
-        columns: null,
-        projectID,
-        onSelectColumns(cols, line) {
-          setFocusedLine(line);
+      MacrostratInteractionProvider,
+      { linkDomain: domain },
+      h(
+        ColumnCorrelationProvider,
+        {
+          focusedLine,
+          columns: null,
+          projectID,
+          onSelectColumns(cols, line) {
+            setFocusedLine(line);
+          },
         },
-      },
-      h("div.correlation-ui", [
-        h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
-        h("div.right-column", [
-          h(ColumnCorrelationMap, {
-            accessToken: mapboxToken,
-            className: "correlation-map",
-            //showLogo: false,
-          }),
+        h("div.correlation-ui", [
+          h("div.correlation-container", h(CorrelationDiagramWrapper, rest)),
+          h("div.right-column", [
+            h(ColumnCorrelationMap, {
+              accessToken: mapboxToken,
+              className: "correlation-map",
+              //showLogo: false,
+            }),
+          ]),
         ]),
-      ]),
+      ),
     ),
   );
 }

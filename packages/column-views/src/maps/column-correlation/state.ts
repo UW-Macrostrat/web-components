@@ -26,6 +26,7 @@ export interface CorrelationMapInput {
 
 export interface CorrelationMapStore extends CorrelationMapInput {
   onClickMap: (event: mapboxgl.MapMouseEvent, point: Point) => void;
+  projectID?: number;
 }
 
 export interface CorrelationProviderProps extends CorrelationMapInput {

@@ -121,6 +121,8 @@ export function UnitDetailsPanel({
         // We are selecting a unit within the column
         return (event: MouseEvent) => {
           onSelectUnit(item.unit_id);
+          // Don't allow event to propagate further (e.g., to open a link)
+          event.preventDefault();
         };
       }
       return undefined;
