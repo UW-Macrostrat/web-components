@@ -46,6 +46,10 @@ export function PhysiographyExample() {
 export function MacrostratLinkedDataExample() {
   const mapInfo = fetchMapInfo(lng, lat, zoom);
 
+  if (mapInfo == null) {
+    return null;
+  }
+
   const source =
     mapInfo && mapInfo?.mapData && mapInfo?.mapData.length
       ? mapInfo?.mapData[0]
