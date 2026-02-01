@@ -32,8 +32,8 @@
       }
     },
     "./package.json": "./package.json",
-    "./client": "./dist/client.d.ts",
-    "./client.d.ts": "./dist/client.d.ts"
+    "./client": "./client.d.ts",
+    "./client.d.ts": "./client.d.ts"
   },
   "scripts": {
     "build": "bundle-library ."
