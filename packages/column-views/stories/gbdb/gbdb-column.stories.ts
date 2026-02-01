@@ -8,7 +8,6 @@ import {
   MergeSectionsMode,
 } from "../../src";
 import "@macrostrat/style-system";
-import { UnitLong } from "@macrostrat/api-types";
 import { useMemo } from "react";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import { useColumnSelection } from "../column-ui/utils";
