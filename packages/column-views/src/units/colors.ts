@@ -13,17 +13,21 @@ interface KeyOptions {
 
 export function getMixedUnitColor(
   unit: UnitLong,
-  lithMap,
+  lithMap: Map<number, { color: string }>,
   inDarkMode = false,
   asBackground = true,
   keyOpts: KeyOptions = null,
 ): string | null {
-  const { key = "lith", id_key: idKey } = keyOpts ?? {};
+  const { key = "lith", id_key = "lith_id" } = keyOpts ?? {};
   const liths = unit[key];
-  return getMixedColorForData(liths, lithMap, {
+  const getColor = (data: UnitLithology): string | null => {
+    return lithMap?.get(data[id_key])?.color ?? null;
+  };
+
+  return getMixedColorForData(liths, getColor, {
     inDarkMode,
     asBackground,
-    key: idKey,
+    key: id_key,
   });
 }
 
@@ -72,12 +76,14 @@ export function flattenLithologies<
   return newLiths;
 }
 
-export function getMixedColorForData(
-  liths: UnitLithology[] | Lithology[] | Environment[] | null,
-  lookupTable: Map<number, { color: string }> | null,
+export function getMixedColorForData<
+  T extends UnitLithology | Lithology | Environment,
+>(
+  liths: T[] | null,
+  getColor: (val: T) => string | null,
   options: ColorBuilderOptions = {},
 ): string | null {
-  const { key = "lith_id", inDarkMode = false, asBackground = true } = options;
+  const { inDarkMode = false, asBackground = true } = options;
   if (liths == null || liths.length === 0) {
     return null;
   }
@@ -88,9 +94,9 @@ export function getMixedColorForData(
         prop = null;
       }
       return {
-        lith_id: d[key],
+        ...d,
         prop,
-        color: lookupTable?.get(d[key])?.color ?? d.color,
+        color: getColor?.(d) ?? d.color,
       };
     })
     .filter((d) => d.color != null);
