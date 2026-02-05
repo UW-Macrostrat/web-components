@@ -83,11 +83,10 @@ interface UnitsOverlayProps {
 function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
   const { time, ageSpan = 0.05 } = props;
   const lithMap = useLithologies();
-  const patternCacheRef = useRef(new Map<number, string>());
 
   useMapStyleOperator(
     (map) => {
-      setupStyleImageManager(map);
+      setupStyleImageManager(map, { verbose: false });
     },
     [lithMap],
   );
@@ -135,7 +134,14 @@ function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
       if (units == null || columns == null || lithMap == null) {
         return;
       }
-      handleUnitsUpdate(map, units, columns, lithMap);
+
+      const getColorForLithology = (data: UnitLithology): string | null => {
+        return lithMap?.get(data.lith_id)?.color ?? null;
+      };
+
+      const unitsMap = postProcessUnits(units, getColorForLithology);
+      handleUnitsLayerUpdate(map, unitsMap, columns);
+      handlePatternOverlayUpdate(map, unitsMap, columns, getColorForLithology);
     },
     [units, lithMap, columns],
   );
@@ -143,81 +149,98 @@ function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
   return null;
 }
 
-async function handleUnitsUpdate(
+function handleUnitsLayerUpdate(
   map,
-  units: UnitLong[],
+  unitsMap: Map<number, UnitsDisplayInfo>,
   columns: any[],
-  lithMap: Map<number, Lithology>,
 ) {
-  const u1 = postProcessUnits(units, lithMap);
-
-  // synthesize patterns not yet in cache
-  const patternSet = new Set<string>(
-    u1
-      .values()
-      .map((d) => d.patternID)
-      .filter((d) => d != null && !map.hasImage(d)),
-  );
-
-  const patterns = patternSet.values();
-
-  const mapper = (patternID) =>
-    loadStyleImage(map, patternID, { pixelRatio: 10 })
-      .then(() => {
-        console.log(`Loaded pattern ${patternID}`);
-      })
-      .catch((err) => {
-        console.error(`Failed to load pattern ${patternID}:`, err);
-      });
-  // Load all pattern images
-  await pMap(patterns, mapper, { concurrency: 5 });
-
-  const colsWithPatterns = [];
   // Update feature states
   for (const column of columns) {
     const col_id = column.properties.col_id;
-    const info = u1.get(Number(col_id));
+    const info = unitsMap.get(Number(col_id));
     const color = info?.color;
     map.setFeatureState(
       { source: "columns", id: col_id },
       {
         color,
         shown: color != null,
-        pattern: info?.patternID ?? "no-op",
       },
     );
-
-    if (info?.patternID != null) {
-      colsWithPatterns.push({
-        type: "Feature",
-        geometry: column.geometry,
-        properties: {
-          col_id,
-          pattern: info.patternID,
-        },
-      });
-    }
-
-    // Set data for pattern layer
-    const patternData: FeatureCollection = {
-      type: "FeatureCollection",
-      features: colsWithPatterns,
-    };
-    setGeoJSON(map, "column-patterns", patternData);
   }
+}
+
+async function handlePatternOverlayUpdate(
+  map,
+  unitsMap: Map<number, UnitsDisplayInfo>,
+  columns: any[],
+  getColor: LithologyColorGetter,
+) {
+  // synthesize patterns not yet in cache
+
+  const colsWithPatterns = [];
+  const patternIDs = new Set<string>();
+  // Update feature states
+  for (const column of columns) {
+    const col_id = column.properties.col_id;
+    const info = unitsMap.get(Number(col_id));
+    if (info == null) continue;
+    const pattern = getPatternSpec(info?.liths, getColor);
+    if (pattern == null) continue;
+
+    colsWithPatterns.push({
+      type: "Feature",
+      geometry: column.geometry,
+      properties: {
+        col_id,
+        pattern,
+      },
+    });
+    patternIDs.add(pattern);
+  }
+
+  const patternsToLoad = patternIDs.values().filter((d) => !map.hasImage(d));
+
+  const mapper = async (patternID) => {
+    try {
+      await loadStyleImage(map, patternID, { pixelRatio: 10 });
+    } catch (e) {}
+  };
+  // Load all pattern images
+  await pMap(patternsToLoad, mapper, { concurrency: 5 });
+
+  // Set data for pattern layer
+  // This is inefficient but the only way to set per-feature patterns in Mapbox
+  const patternData: FeatureCollection = {
+    type: "FeatureCollection",
+    features: colsWithPatterns,
+  };
+  setGeoJSON(map, "column-patterns", patternData);
+}
+
+const cachedColors = new Map<string, string>();
+
+function getDarkenedColor(color: string): string {
+  /** Memoized function to get a darkened version of a color for pattern use */
+  if (cachedColors.has(color)) {
+    return cachedColors.get(color);
+  }
+  const c1 = asChromaColor(color).set("hsl.l", 0.4).set("hsl.s", 0.8).hex();
+  cachedColors.set(color, c1);
+  return c1;
 }
 
 interface UnitsDisplayInfo {
   col_id: number;
   units: UnitLong[];
   color: string;
-  liths?: UnitLithology[];
-  patternID?: string;
+  liths: UnitLithology[];
 }
+
+type LithologyColorGetter = (val: UnitLithology) => string | null;
 
 function postProcessUnits(
   units: UnitLong[],
-  lithMap: Map<number, { color: string }>,
+  getColor: LithologyColorGetter,
 ): Map<number, UnitsDisplayInfo> {
   // Group by col_id
   const unitsByColumn: Map<number, UnitLong[]> = new Map();
@@ -230,39 +253,30 @@ function postProcessUnits(
     }
   }
 
-  const getColor = (data: UnitLithology): string | null => {
-    return lithMap?.get(data.lith_id)?.color ?? null;
-  };
-
   // Summarize units for display
   const res = new Map<number, UnitsDisplayInfo>();
   for (const [col_id, unitList] of unitsByColumn.entries()) {
     const liths = flattenLithologies(unitList.map((u) => u.lith));
-    // Determine color
-    const color = getMixedColorForData(liths, getColor);
-
-    const patternData = getBestFGDCPatternForLithologyList(liths);
-    let patternID = null;
-    if (patternData != null) {
-      let { patternID: fgdcID, lith } = patternData;
-      const color = getColor(lith);
-      const darkenedColor = asChromaColor(color)
-        .set("hsl.l", 0.4)
-        .set("hsl.s", 0.8)
-        .hex();
-      patternID = `fgdc:${fgdcID}:${darkenedColor}:transparent`;
-    }
-
     res.set(col_id, {
       col_id,
       units: unitList,
       liths,
-      color,
-      patternID,
+      color: getMixedColorForData(liths, getColor),
     });
   }
 
   return res;
+}
+
+function getPatternSpec(
+  liths: UnitLithology[],
+  getColor: LithologyColorGetter,
+): string | null {
+  const patternData = getBestFGDCPatternForLithologyList(liths);
+  if (patternData == null) return null;
+  let { patternID, lith } = patternData;
+  const color = getDarkenedColor(getColor(lith));
+  return `fgdc:${patternID}:${color}:transparent`;
 }
 
 function buildUnitsStyle(color: string): Style {

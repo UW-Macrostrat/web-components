@@ -73,6 +73,8 @@ export function flattenLithologies<
   } else if (newLiths[0]?.environ_id != null) {
     newLiths = mergeLikeData(newLiths, "environ_id");
   }
+  // Sort by proportion descending
+  newLiths.sort((a, b) => b.prop - a.prop);
   return newLiths;
 }
 
