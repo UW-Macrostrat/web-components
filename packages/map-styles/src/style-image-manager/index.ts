@@ -57,7 +57,7 @@ export function setupStyleImageManager(
   };
 }
 
-async function loadStyleImage(
+export async function loadStyleImage(
   map: mapboxgl.Map,
   id: string,
   options: StyleImageManagerOptions = {},

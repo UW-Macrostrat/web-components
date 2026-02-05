@@ -34,6 +34,7 @@ export default {
           "@macrostrat/mapbox-react",
           "@macrostrat/map-interface",
           "@macrostrat/column-views",
+          "@macrostrat/map-styles",
         ],
       },
       optimizeDeps: {
