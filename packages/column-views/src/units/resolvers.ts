@@ -1,4 +1,5 @@
-import { Lithology } from "@macrostrat/api-types";
+import { Lithology, UnitLithology } from "@macrostrat/api-types";
+import { LithologyCore } from "@macrostrat/api-types/src/lithologies";
 
 const symbolIndex = {
   "dolomite-limestone": 641,
@@ -56,15 +57,15 @@ const symbolIndex = {
   diamictite: 681,
 };
 
-function getBestFGDCPatternForLithologyList(
-  liths: Lithology[],
-): { lithID: number; patternID: string } | null {
+export function getBestFGDCPatternForLithologyList<
+  T extends UnitLithology | Lithology,
+>(liths: T[]): { lith: T; patternID: string } | null {
   let lithsSorted = [...liths];
   lithsSorted.sort((a, b) => b.prop - a.prop);
   let firstLith = lithsSorted[0];
   let sym = symbolIndex[firstLith.name];
   if (sym != null) {
-    return { lithID: firstLith.lith_id, patternID: `${sym}` };
+    return { lith: firstLith, patternID: `${sym}` };
   }
   return null;
 }

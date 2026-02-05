@@ -18,10 +18,13 @@ import { Lithology, UnitLithology, UnitLong } from "@macrostrat/api-types";
 import { flattenLithologies, getMixedColorForData } from "../units";
 import { setupStyleImageManager, loadStyleImage } from "@macrostrat/map-styles";
 
-import { getCSSVariable } from "@macrostrat/color-utils";
+import { asChromaColor, getCSSVariable } from "@macrostrat/color-utils";
 import { buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 import type { Style } from "mapbox-gl";
-import { resolveID } from "../units/resolvers";
+import {
+  getBestFGDCPatternForLithologyList,
+  resolveID,
+} from "../units/resolvers";
 import pMap from "p-map";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -238,10 +241,16 @@ function postProcessUnits(
     // Determine color
     const color = getMixedColorForData(liths, getColor);
 
+    const patternData = getBestFGDCPatternForLithologyList(liths);
     let patternID = null;
-    let fgdcID = resolveID(unitList[0]);
-    if (fgdcID != null) {
-      patternID = `fgdc:${fgdcID}:#000000:transparent`;
+    if (patternData != null) {
+      let { patternID: fgdcID, lith } = patternData;
+      const color = getColor(lith);
+      const darkenedColor = asChromaColor(color)
+        .set("hsl.l", 0.4)
+        .set("hsl.s", 0.8)
+        .hex();
+      patternID = `fgdc:${fgdcID}:${darkenedColor}:transparent`;
     }
 
     res.set(col_id, {
