@@ -13,7 +13,7 @@ import { useAPIResult } from "@macrostrat/ui-components";
 import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import { FeatureCollection } from "geojson";
 import { useMemo, useRef } from "react";
-import { setGeoJSON } from "@macrostrat/mapbox-utils";
+import { mergeStyles, setGeoJSON } from "@macrostrat/mapbox-utils";
 import { Lithology, UnitLithology, UnitLong } from "@macrostrat/api-types";
 import { flattenLithologies, getMixedColorForData } from "../units";
 import { setupStyleImageManager, loadStyleImage } from "@macrostrat/map-styles";
@@ -30,29 +30,27 @@ import pMap from "p-map";
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
 export default {
   title: "Column views/Maps/Unit map",
-  component: InsetMap,
+  component: UnitMapComponent,
   description: "A map of units through time",
   argTypes: {
     time: { control: "number", defaultValue: 100 },
     ageSpan: { control: "number", defaultValue: 0.05 },
+    patterns: { control: "boolean", defaultValue: false },
   },
 } as Meta<typeof InsetMap>;
 
-export function UnitMap(props) {
+function UnitMapComponent(props) {
   const overlayStyles = useMemo(() => {
-    let styles: any[] = [buildUnitsStyle("#444")];
+    let styles: any[] = [
+      buildUnitsStyle({ color: "#444", patterns: props.patterns }),
+    ];
     return styles;
   }, []);
 
   return h(
     MacrostratDataProvider,
     {
-      args: {
-        time: 108,
-        ageSpan: 5,
-      },
-
-      baseURL: "https://macrostrat.local/api/v2",
+      baseURL: "https://dev.macrostrat.org/api/v2",
     },
     h(
       "div",
@@ -69,26 +67,38 @@ export function UnitMap(props) {
   );
 }
 
-UnitMap.args = {
-  time: 100,
-  ageSpan: 0.05,
+export const UnitMap = {
+  args: {
+    time: 100,
+    ageSpan: 0.05,
+  },
+};
+
+export const WithPatterns = {
+  args: {
+    time: 100,
+    ageSpan: 0.05,
+    patterns: true,
+  },
 };
 
 interface UnitsOverlayProps {
   time: number;
   ageSpan?: number;
   project?: number | number[];
+  patterns?: boolean;
 }
 
 function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
-  const { time, ageSpan = 0.05 } = props;
+  const { time, ageSpan = 0.05, patterns = false } = props;
   const lithMap = useLithologies();
 
   useMapStyleOperator(
     (map) => {
+      if (!patterns) return;
       setupStyleImageManager(map, { verbose: false });
     },
-    [lithMap],
+    [patterns],
   );
 
   const params = useMemo(() => {
@@ -141,9 +151,10 @@ function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
 
       const unitsMap = postProcessUnits(units, getColorForLithology);
       handleUnitsLayerUpdate(map, unitsMap, columns);
+      if (!patterns) return;
       handlePatternOverlayUpdate(map, unitsMap, columns, getColorForLithology);
     },
-    [units, lithMap, columns],
+    [units, lithMap, columns, patterns],
   );
 
   return null;
@@ -279,7 +290,14 @@ function getPatternSpec(
   return `fgdc:${patternID}:${color}:transparent`;
 }
 
-function buildUnitsStyle(color: string): Style {
+type UnitsStyleOptions = {
+  color?: string;
+  patterns?: boolean;
+};
+
+function buildUnitsStyle(opts: UnitsStyleOptions = {}): Style {
+  const { color = null, patterns = false } = opts;
+
   let columnBaseColor: any =
     color ?? getCSSVariable("--text-subtle-color", "black");
   const columnSelectedColor = getCSSVariable("--selection-color", "purple");
@@ -293,10 +311,9 @@ function buildUnitsStyle(color: string): Style {
     columnBaseColor,
   ];
 
-  return {
+  const baseStyle: Style = {
     sources: {
       columns: buildGeoJSONSource(),
-      "column-patterns": buildGeoJSONSource(),
     },
     version: 8,
     layers: [
@@ -314,15 +331,6 @@ function buildUnitsStyle(color: string): Style {
             0.3,
             0.1,
           ],
-        },
-      },
-      {
-        id: "columns-fill-pattern",
-        type: "fill",
-        source: "column-patterns",
-        paint: {
-          "fill-pattern": ["get", "pattern"],
-          "fill-opacity": 1,
         },
       },
       {
@@ -360,4 +368,27 @@ function buildUnitsStyle(color: string): Style {
       },
     ],
   };
+
+  if (!patterns) {
+    return baseStyle;
+  }
+
+  const patternStyle: Style = {
+    sources: {
+      "column-patterns": buildGeoJSONSource(),
+    },
+    layers: [
+      {
+        id: "columns-fill-pattern",
+        type: "fill",
+        source: "column-patterns",
+        paint: {
+          "fill-pattern": ["get", "pattern"],
+          "fill-opacity": 1,
+        },
+      },
+    ],
+  };
+
+  return mergeStyles(baseStyle, patternStyle);
 }
