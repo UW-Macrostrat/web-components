@@ -21,6 +21,8 @@ async function main() {
     await runScript({ build: true, publish: false }, modules);
   } else if (op === "publish") {
     await runScript({ build: true, publish: true }, modules);
+  } else if (op === "publish-only") {
+    await runScript({ prepare: true, build: false, publish: true }, modules);
   } else if (op === "build") {
     await runScript({ prepare: false, build: true, publish: false }, modules);
   } else if (op === "tag-versions") {

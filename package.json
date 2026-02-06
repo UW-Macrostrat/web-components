@@ -13,6 +13,7 @@
     "status": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers status",
     "prepare": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers prepare",
     "publish": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish",
+    "publish-only": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish-only",
     "tag-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers tag-versions",
     "update-metadata": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-package-json-files.ts",
     "publish:storybook": "./scripts/publish-storybook.sh",

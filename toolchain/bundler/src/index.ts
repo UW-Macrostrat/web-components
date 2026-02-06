@@ -74,9 +74,6 @@ function buildStandardViteConfig(
     name: "check-exports",
     async closeBundle() {
       // Perform checks after the bundle is complete, such as ensuring entry files exist
-      // Wait a few ticks to ensure files are written
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
       ensureEntryFilesExist(pkgData);
     },
   };
