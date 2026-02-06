@@ -1,7 +1,14 @@
 import { FeatureCollection } from "geojson";
 // @ts-expect-error
-import type { GeoJSONSource, Style, Map, GeoJSONSourceRaw } from "mapbox-gl";
+import {
+  GeoJSONSource,
+  Style,
+  Map,
+  GeoJSONSourceRaw,
+  StyleSpecification,
+} from "mapbox-gl";
 import type mapboxgl from "mapbox-gl";
+import { mergeStyles } from "./preprocess-styles.ts";
 
 export function setGeoJSON(
   map: Map,
@@ -133,4 +140,35 @@ export function updateStyleLayers(
       }
     }
   }
+}
+
+function addRuntimeStyle(
+  _map: mapboxgl.Map,
+  style: Partial<StyleSpecification>,
+) {
+  /** This doesn't work as expected because layer loaders may be triggered while
+   * the style is being applied, leading to conflicting states.
+   */
+  const newStyleLayerIDs = style.layers?.map((d) => d.id) ?? [];
+  const newStyleSourceIDs = style.sources ? Object.keys(style.sources) : [];
+  const currentStyle = _map.getStyle();
+
+  const newStyle: StyleSpecification = mergeStyles(currentStyle, style);
+
+  _map.setStyle(newStyle);
+
+  // Return a function to remove the added layers and sources
+  return (mapNew: mapboxgl.Map | undefined) => {
+    const map = mapNew ?? _map;
+    for (const layerID of newStyleLayerIDs) {
+      if (map.getLayer(layerID)) {
+        map.removeLayer(layerID);
+      }
+    }
+    for (const sourceID of newStyleSourceIDs) {
+      if (map.getSource(sourceID)) {
+        map.removeSource(sourceID);
+      }
+    }
+  };
 }

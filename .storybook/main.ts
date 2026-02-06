@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import type { StorybookConfig } from "@storybook/react-vite";
 import { mergeConfig } from "vite";
+import hyperStyles from "@macrostrat/vite-plugin-hyperstyles";
 
 const require = createRequire(import.meta.url);
 
@@ -24,6 +25,7 @@ export default {
   async viteFinal(config) {
     // Prioritize source files for bundling if available
     return mergeConfig(config, {
+      plugins: [hyperStyles()],
       resolve: {
         conditions: ["source"],
         dedupe: [

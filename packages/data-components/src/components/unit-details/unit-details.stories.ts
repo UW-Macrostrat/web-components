@@ -1,19 +1,20 @@
 import { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import {
-  LithologyTag as _LithologyTag,
   LithologyList as _LithologyList,
+  LithologyTag as _LithologyTag,
   LithologyTagFeature,
 } from "./lithology-tag";
 import { TagSize } from "./tag";
 import {
   DataField as _DataField,
   IntervalField as _IntervalField,
+  IntervalTag,
 } from "./base";
 import {
+  ToasterContext,
   useAPIResult,
   useToaster,
-  ToasterContext,
 } from "@macrostrat/ui-components";
 import {
   itemTypeHandlers,
@@ -57,6 +58,22 @@ const intervalData = [
     rank: 2,
   },
 ];
+
+export function SingleIntervalTag() {
+  return h(IntervalTag, {
+    interval: intervalData[0],
+    showAgeRange: true,
+  });
+}
+
+export function LargeIntervalTag() {
+  return h(IntervalTag, {
+    interval: intervalData[0],
+    showAgeRange: true,
+    size: TagSize.Large,
+    multiLine: true,
+  });
+}
 
 export function IntervalField() {
   return h(_IntervalField, {

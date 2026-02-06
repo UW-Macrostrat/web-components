@@ -12,19 +12,16 @@ import {
 import { useAPIResult } from "@macrostrat/ui-components";
 import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 import { FeatureCollection } from "geojson";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { mergeStyles, setGeoJSON } from "@macrostrat/mapbox-utils";
-import { Lithology, UnitLithology, UnitLong } from "@macrostrat/api-types";
+import { UnitLithology, UnitLong } from "@macrostrat/api-types";
 import { flattenLithologies, getMixedColorForData } from "../units";
 import { setupStyleImageManager, loadStyleImage } from "@macrostrat/map-styles";
 
 import { asChromaColor, getCSSVariable } from "@macrostrat/color-utils";
 import { buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 import type { Style } from "mapbox-gl";
-import {
-  getBestFGDCPatternForLithologyList,
-  resolveID,
-} from "../units/resolvers";
+import { getBestFGDCPatternForLithologyList } from "../units/resolvers";
 import pMap from "p-map";
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -61,7 +58,7 @@ function UnitMapComponent(props) {
           accessToken: mapboxToken,
           overlayStyles,
         },
-        [h(MacrostratUnitsOverlay, props)],
+        h(MacrostratUnitsOverlay, props),
       ),
     ),
   );
@@ -133,7 +130,6 @@ function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
         type: "FeatureCollection",
         features: columns,
       };
-
       setGeoJSON(map, "columns", data);
     },
     [columns],
@@ -151,8 +147,14 @@ function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
 
       const unitsMap = postProcessUnits(units, getColorForLithology);
       handleUnitsLayerUpdate(map, unitsMap, columns);
-      if (!patterns) return;
-      handlePatternOverlayUpdate(map, unitsMap, columns, getColorForLithology);
+      if (patterns) {
+        handlePatternOverlayUpdate(
+          map,
+          unitsMap,
+          columns,
+          getColorForLithology,
+        ).then(() => {});
+      }
     },
     [units, lithMap, columns, patterns],
   );

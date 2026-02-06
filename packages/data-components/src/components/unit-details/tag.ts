@@ -1,7 +1,7 @@
 import { useInDarkMode } from "@macrostrat/ui-components";
 import hyper from "@macrostrat/hyper";
 import { getLuminanceAdjustedColorScheme } from "@macrostrat/color-utils";
-import styles from "./tag.module.sass";
+import styles from "./main.module.sass";
 import { ComponentType, ReactNode, JSX } from "react";
 import chroma from "chroma-js";
 import classNames from "classnames";
@@ -29,6 +29,7 @@ export interface BaseTagProps extends ItemInteractionProps {
   size?: TagSize;
   color?: chroma.ChromaInput;
   component?: ComponentOrHTMLTagElement<any>;
+  multiLine?: boolean;
 }
 
 export type ComponentOrHTMLTagElement<T> =
@@ -47,6 +48,7 @@ export function Tag(props: BaseTagProps) {
     color,
     onClick,
     href,
+    multiLine = false,
   } = props;
 
   let classes = props.classNames ?? {};
@@ -75,7 +77,10 @@ export function Tag(props: BaseTagProps) {
   return h(
     component,
     {
-      className: classNames(className, "tag"),
+      className: classNames(className, "tag", {
+        "multi-line": multiLine,
+        clickable,
+      }),
       style: buildTagStyle({ color, size, inDarkMode }),
       onClick,
       href,
