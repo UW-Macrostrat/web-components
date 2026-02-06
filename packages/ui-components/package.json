@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/ui-components",
-  "version": "5.0.4",
+  "version": "5.0.5",
   "description": "UI components for React and Blueprint.js",
   "repository": {
     "type": "git",

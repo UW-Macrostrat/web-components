@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.0.4] - 2026-02-06
+
+Upgraded dependencies, especially `mapbox-gl` to v3.
+
 ## [1.0.3] - 2026-01-29
 
 - Change layout of `package.json`
