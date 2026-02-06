@@ -32,7 +32,6 @@
     "bundle-library": "./dist/bin.js"
   },
   "dependencies": {
-    "@macrostrat/vite-plugin-hyperstyles": "workspace:^",
     "chalk": "^5.6.2",
     "sass-embedded": "^1.83.0",
     "typescript": "^5.9.3",
