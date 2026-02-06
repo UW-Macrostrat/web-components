@@ -35,7 +35,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
 
       - name: Build all packages
         run: |
@@ -74,7 +74,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn install --frozen-lockfile
+          yarn install --immutable
 
       - name: Build storybook
         run: |
