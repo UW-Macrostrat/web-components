@@ -5,6 +5,7 @@ import { MacrostratDataProvider } from "@macrostrat/data-provider";
 import { useMemo } from "react";
 import { buildUnitsStyle, MacrostratUnitsOverlay } from "./units-overlay";
 
+// @ts-ignore
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export

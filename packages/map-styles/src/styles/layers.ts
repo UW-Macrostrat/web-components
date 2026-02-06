@@ -1,5 +1,5 @@
 import { toRGBAString, asChromaColor } from "@macrostrat/color-utils";
-import mapboxgl from "mapbox-gl";
+import { StyleSpecification } from "./types.ts";
 
 export function buildBasicStyle({
   color = "rgb(74, 242, 161)",
@@ -7,7 +7,7 @@ export function buildBasicStyle({
   lineSourceLayer = "default",
   polygonSourceLayer = "default",
   tileURL,
-}): mapboxgl.Style {
+}): StyleSpecification {
   const xRayColor = (opacity = 1, darken = 0) => {
     const c = asChromaColor(color);
     if (!inDarkMode) {
@@ -55,7 +55,7 @@ export function buildXRayStyle({
   lineLayer = "lines",
   polygonLayer = "units",
   tileserverDomain = "https://macrostrat.org/tiles",
-}): mapboxgl.Style {
+}): StyleSpecification {
   return buildBasicStyle({
     inDarkMode,
     lineSourceLayer: lineLayer,

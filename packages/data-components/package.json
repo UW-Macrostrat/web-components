@@ -62,7 +62,7 @@
     "d3-array": "^3.2.4",
     "jotai": "^2.17.0",
     "jotai-scope": "^0.10.0",
-    "mapbox-gl": "^2.7.0||^3.13.0"
+    "mapbox-gl": "^3.0.0"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"

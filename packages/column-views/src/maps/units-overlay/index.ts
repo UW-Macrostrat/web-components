@@ -10,11 +10,13 @@ import { mergeStyles, setGeoJSON } from "@macrostrat/mapbox-utils";
 import { UnitLithology, UnitLong } from "@macrostrat/api-types";
 import { flattenLithologies, getMixedColorForData } from "../../units";
 import { getBestFGDCPatternForLithologyList } from "../../units/resolvers";
-import { setupStyleImageManager, loadStyleImage } from "@macrostrat/map-styles";
-
+import {
+  setupStyleImageManager,
+  loadStyleImage,
+  StyleFragment,
+} from "@macrostrat/map-styles";
 import { asChromaColor, getCSSVariable } from "@macrostrat/color-utils";
 import { buildGeoJSONSource } from "@macrostrat/mapbox-utils";
-import type { Style } from "mapbox-gl";
 import pMap from "p-map";
 
 export interface UnitsOverlayProps {
@@ -235,7 +237,7 @@ type UnitsStyleOptions = {
   patterns?: boolean;
 };
 
-export function buildUnitsStyle(opts: UnitsStyleOptions = {}): Style {
+export function buildUnitsStyle(opts: UnitsStyleOptions = {}): StyleFragment {
   const { color = null, patterns = false } = opts;
 
   let columnBaseColor: any =
@@ -244,14 +246,14 @@ export function buildUnitsStyle(opts: UnitsStyleOptions = {}): Style {
 
   // If color is in the feature state or geojson properties, use that as second choice
 
-  let columnColor = [
+  let columnColor: any = [
     "coalesce",
     ["feature-state", "color"],
     ["get", "color"],
     columnBaseColor,
   ];
 
-  const baseStyle: Style = {
+  const baseStyle: StyleFragment = {
     sources: {
       columns: buildGeoJSONSource(),
     },
@@ -313,7 +315,7 @@ export function buildUnitsStyle(opts: UnitsStyleOptions = {}): Style {
     return baseStyle;
   }
 
-  const patternStyle: Style = {
+  const patternStyle: StyleFragment = {
     sources: {
       "column-patterns": buildGeoJSONSource(),
     },
