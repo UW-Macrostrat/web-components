@@ -73,7 +73,10 @@ function buildStandardViteConfig(
   const checkExportsPlugin = {
     name: "check-exports",
     async closeBundle() {
-      // Ensure that entry files exist after the bundle is complete
+      // Perform checks after the bundle is complete, such as ensuring entry files exist
+      // Wait a few ticks to ensure files are written
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
       ensureEntryFilesExist(pkgData);
     },
   };
@@ -109,8 +112,8 @@ function buildStandardViteConfig(
         // We don't care too much about Typescript types. We could change this.
         logLevel: verbose ? "info" : "silent",
       }) as any,
-      checkExportsPlugin,
       hyperStyles(),
+      checkExportsPlugin,
       // cjsInterop({
       //   dependencies: ["labella", "ui-box"],
       // }),
