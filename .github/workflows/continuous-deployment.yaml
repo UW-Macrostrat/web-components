@@ -32,19 +32,18 @@ jobs:
         with:
           node-version: 22
           cache: "yarn"
+      - name: Set up git environment
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Install dependencies
         run: |
           yarn install --immutable
 
-      - name: Build all packages
+      - name: Build packages
         run: |
           yarn run build
-
-      - name: Set up git environment
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Publish and tag releases
         run: |
@@ -53,6 +52,8 @@ jobs:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 
       - name: Push tags to repository
+        # Ensure tags are pushed even if some packages fail to publish
+        if: always()
         run: |
           git push --tags
         env:
