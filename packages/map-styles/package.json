@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-styles",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Utilities for working with Mapbox map styles",
   "repository": {
     "type": "git",
@@ -41,7 +41,8 @@
     "@types/d3-selection": "^3.0.11",
     "axios": "^1.13.2",
     "d3-selection": "^3.0.0",
-    "mapbox-gl": "^2.15.0||^3.0.0",
+    "mapbox-gl": "^3.0.0",
+    "maplibre-gl": "^5.17.0",
     "textures": "^1.2.3"
   },
   "devDependencies": {

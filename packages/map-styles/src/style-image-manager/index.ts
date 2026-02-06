@@ -9,6 +9,7 @@ export interface StyleImageManagerOptions {
   pixelRatio?: number;
   resolvers?: Record<string, PatternResolverFunction>;
   throwOnMissing?: boolean;
+  verbose?: boolean;
 }
 
 type PatternResolverFunction = (
@@ -37,14 +38,16 @@ export function setupStyleImageManager(
   map: any,
   options: StyleImageManagerOptions = {},
 ): () => void {
-  const { throwOnMissing = false } = options;
+  const { throwOnMissing = false, verbose = false } = options;
   const styleImageMissing = (e) => {
     loadStyleImage(map, e.id, options)
       .catch((err) => {
         if (throwOnMissing) {
           throw err;
         }
-        console.error(`Failed to load pattern image for ${e.id}:`, err);
+        if (verbose) {
+          console.error(`Failed to load pattern image for ${e.id}:`, err);
+        }
       })
       .then(() => {});
   };
@@ -57,7 +60,7 @@ export function setupStyleImageManager(
   };
 }
 
-async function loadStyleImage(
+export async function loadStyleImage(
   map: mapboxgl.Map,
   id: string,
   options: StyleImageManagerOptions = {},

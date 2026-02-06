@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/static-map-utils",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Utilities for working with Mapbox maps",
   "repository": {
     "type": "git",
@@ -52,17 +52,16 @@
     "@mapbox/sphericalmercator": "^2.0.2",
     "@turf/bbox": "^7.3.2",
     "@turf/distance": "^7.3.2",
-    "@types/mapbox-gl": "^3.4.1",
     "@visx/scale": "^3.12.0",
     "classnames": "^2.5.1",
-    "maplibre-gl": "^5.10.0",
+    "maplibre-gl": "^5.17.0",
     "maplibregl-mapbox-request-transformer": "^0.0.3",
     "underscore": "^1.13.7"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*",
     "@types/underscore": "^1.13.0",
-    "mapbox-gl": "^2.15.0||^3.0.0"
+    "mapbox-gl": "^3.0.0"
   },
   "publishConfig": {
     "access": "public"

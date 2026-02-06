@@ -1,8 +1,8 @@
 import { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import {
-  LithologyTag as _LithologyTag,
   LithologyList as _LithologyList,
+  LithologyTag as _LithologyTag,
   LithologyTagFeature,
 } from "./lithology-tag";
 import { TagSize } from "./tag";
@@ -11,9 +11,9 @@ import {
   IntervalField as _IntervalField,
 } from "./base";
 import {
+  ToasterContext,
   useAPIResult,
   useToaster,
-  ToasterContext,
 } from "@macrostrat/ui-components";
 import {
   itemTypeHandlers,
@@ -65,6 +65,7 @@ export function IntervalField() {
 }
 
 export function IntervalFieldWithLinks() {
+  /** Use the Macrostrat interaction provider to resolve links to specified types of information */
   const hrefForItem = itemTypeHandlers({
     interval: (data) => {
       return `https://dev.macrostrat.org/lex/intervals/${data.int_id}`;

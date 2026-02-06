@@ -15,6 +15,7 @@ import {
 import type { BaseUnit } from "@macrostrat/api-types";
 import { type AtomMap, createScopedStore } from "@macrostrat/data-components";
 import { atom } from "jotai";
+import { useEffect } from "react";
 
 export const scope = createScopedStore();
 

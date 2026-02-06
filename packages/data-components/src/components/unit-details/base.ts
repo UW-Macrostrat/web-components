@@ -1,7 +1,4 @@
-import styles from "./base.module.sass";
-import hyper from "@macrostrat/hyper";
-
-const h = hyper.styled(styles);
+import h from "./main.module.sass";
 
 import classNames from "classnames";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
@@ -55,26 +52,36 @@ export type IntervalShort = IntervalID & {
   rank: number;
 };
 
+function AgeRange({
+  b_age,
+  t_age,
+  unit = "Ma",
+}: {
+  b_age: number;
+  t_age: number;
+  unit?: string;
+}) {
+  return h(Value, {
+    className: "age-range",
+    value: `${b_age}–${t_age}`,
+    unit,
+  });
+}
+
 export function IntervalField({ intervals }: { intervals: IntervalShort[] }) {
   const unique = uniqueIntervals(...intervals);
   const ageRange = mergeAgeRanges(unique.map((d) => [d.b_age, d.t_age]));
   return h([
-    h(
-      DataField,
-      {
-        label: "Intervals",
-      },
-      [
-        unique.map((interval) => {
-          return h(IntervalTag, {
-            key: interval.id,
-            interval,
-            showAgeRange: true,
-          });
-        }),
-        h(Value, { unit: "Ma", value: `${ageRange[0]} - ${ageRange[1]}` }),
-      ],
-    ),
+    h(DataField, { label: "Intervals" }, [
+      unique.map((interval) => {
+        return h(IntervalTag, {
+          key: interval.id,
+          interval,
+          showAgeRange: false,
+        });
+      }),
+      h(AgeRange, { b_age: ageRange[0], t_age: ageRange[1] }),
+    ]),
   ]);
 }
 
@@ -109,9 +116,16 @@ export function IntervalTag({
   ...rest
 }: IntervalTagProps) {
   const interactionProps = useInteractionProps({ int_id: interval.id });
+
+  let details = null;
+  if (showAgeRange) {
+    details = h(AgeRange, { b_age: interval.b_age, t_age: interval.t_age });
+  }
+
   return h(Tag, {
     name: interval.name,
     color: color ?? interval.color,
+    details,
     ...interactionProps,
     ...rest,
   });

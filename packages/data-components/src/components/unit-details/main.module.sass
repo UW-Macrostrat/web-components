@@ -1,0 +1,110 @@
+.lithology-id
+  &::before
+    content: '#'
+  padding-left: 0.5em
+
+.tight-list
+  padding-left: 1em
+
+.clickable
+  cursor: pointer
+
+.tag
+  font-size: var(--font-size)
+  align-items: center
+  display: inline-flex
+  border-radius: 0.3em
+  flex-direction: row
+  background-color: var(--tag-secondary-background, var(--secondary-background))
+  color: var(--secondary-color)
+
+  .prefix
+    //display: inline-block
+    padding: 0 0.5em
+
+  .main
+    align-items: center
+    display: inline-flex
+    padding: 0.2em 0.5em
+    border-radius: 0.3em
+    gap: 0.5em
+    color: var(--text-color)
+    align-items: baseline
+    background-color: var(--tag-background, var(--tertiary-background))
+
+  // A multi-line tag has the details on a separate line below the main tag content.
+  &.multi-line .main
+    flex-direction: column
+    gap: 0
+
+  .details
+    color: var(--secondary-color)
+    // allows merging thing sto
+    font-style: var(--tag-details-font-style, normal)
+    font-weight: 300
+    font-size: var(--tag-details-font-size)
+
+.tag-list
+  display: inline
+  flex-flow: row wrap
+  align-items: baseline
+  justify-content: end
+  .tag
+    margin-bottom: 0.5em
+    margin-left: 0.5em
+
+
+
+.data-field
+  margin: 0.5em 0 1em
+  &.flex
+    display: flex
+    flex-flow: row wrap
+    align-items: baseline
+    justify-content: end
+    gap: 0.5em
+  &.row
+    flex-flow: row nowrap
+    justify-content: space-between
+    .label
+      flex-grow: unset
+
+    .data-container
+      text-align: right
+  &.inline
+    .label
+      display: inline-block
+
+  .label
+    //font-size: 0.9em
+    padding-right: 1em
+    font-weight: bold
+    flex-grow: 1
+    display: block
+    color: var(--secondary-color)
+    text-align: left
+    width: var(--data-field-label-width)
+    min-width: var(--data-field-label-min-width)
+  .value-container
+    text-align: right
+    //font-size: 0.9em
+    //display: inline-block
+    break-inside: avoid
+
+  &.tag-field
+    &>*
+      margin: 0
+      display: block
+
+.unit
+  color: var(--unit-color, var(--text-subtle-color))
+  font-style: var(--text-font-style)
+  font-weight: var(--unit-font-weight, inherit)
+
+.parenthetical
+  .content
+    color: var(--parenthetical-text-color, var(--text-subtle-color))
+  .sep
+    color: var(--parenthetical-sep-color, var(--secondary-color))
+  .unit
+    color: var(--secondary-color)

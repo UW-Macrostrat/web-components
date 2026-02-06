@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Map interface for Macrostrat",
   "repository": {
     "type": "git",
@@ -61,7 +61,7 @@
     "classnames": "^2.5.1",
     "d3-array": "^3.2.4",
     "d3-format": "^3.1.2",
-    "mapbox-gl": "^2.15.0||^3.0.0",
+    "mapbox-gl": "^3.0.0",
     "query-string": "^9.0.0",
     "transition-hook": "^1.5.2",
     "underscore": "^1.13.7",

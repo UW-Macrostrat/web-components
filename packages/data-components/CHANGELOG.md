@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.1.1] - 2026-02-06
+
+- Remove typings that repeat Vite defaults
+- Improve tag components, specifically `IntervalTag`
+
 ## [1.1.0] - 2026-01-31
 
 - Create a `MacrostratInteractionProvider` to standardize handling of navigation

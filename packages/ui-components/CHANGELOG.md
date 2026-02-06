@@ -1,5 +1,9 @@
 # Changelog
 
+## [5.0.5] - 2026-02-06
+
+Remove types that duplicate those already in `vite/client` package
+
 ## [5.0.4] - 2026-01-29
 
 - Change layout of `package.json`

@@ -1,7 +1,10 @@
-import { FeatureCollection } from "geojson";
-// @ts-expect-error
-import type { GeoJSONSource, Style, Map, GeoJSONSourceRaw } from "mapbox-gl";
-import type mapboxgl from "mapbox-gl";
+import type { FeatureCollection } from "geojson";
+import type {
+  GeoJSONSource,
+  Map,
+  StyleSpecification,
+  GeoJSONSourceSpecification,
+} from "mapbox-gl";
 
 export function setGeoJSON(
   map: Map,
@@ -18,7 +21,7 @@ export function setGeoJSON(
 
 export function buildGeoJSONSource(
   data: FeatureCollection | null = null,
-): GeoJSONSourceRaw {
+): GeoJSONSourceSpecification {
   return {
     type: "geojson",
     data: data ?? {
@@ -29,7 +32,7 @@ export function buildGeoJSONSource(
 }
 
 export function removeSourceFromStyle(
-  style: Style,
+  style: StyleSpecification,
   sourceID: string,
   sourceLayer: string | null = null,
 ) {

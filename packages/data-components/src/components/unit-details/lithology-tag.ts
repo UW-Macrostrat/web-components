@@ -7,8 +7,6 @@ import classNames from "classnames";
 import {
   isClickable,
   ItemInteractionProps,
-  MacrostratInteractionManager,
-  useInteractionManager,
   useInteractionProps,
 } from "../../data-links.ts";
 

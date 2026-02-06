@@ -1,10 +1,12 @@
 {
   "extends": "./tsconfig.base.json",
   "compilerOptions": {
-    "types": ["vite/client", "./global.d.ts"],
     "paths": {
-      "@macrostrat/*": ["./packages/*/src/index.ts"]
+      "@macrostrat/*": [
+        "./packages/*/src/index.ts",
+        "./toolchain/*/src/index.ts"
+      ]
     }
   },
-  "include": ["./packages/**/src/*.ts"]
+  "include": ["./packages/**/src/*.ts", "./toolchain/**/src/*.ts"]
 }

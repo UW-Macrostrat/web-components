@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "3.1.0",
+  "version": "3.2.0",
   "description": "Data views for Macrostrat stratigraphic columns",
   "repository": {
     "type": "git",
@@ -84,7 +84,8 @@
     "d3-shape": "^3.2.0",
     "jotai": "^2.16.0",
     "jotai-scope": "^0.10.0",
-    "mapbox-gl": "^2.15.0||^3.0.0",
+    "mapbox-gl": "^3.0.0",
+    "p-map": "^7.0.4",
     "react-spring": "^9.7.5",
     "topojson-client": "^3.1.0",
     "zustand": "^5.0.3",

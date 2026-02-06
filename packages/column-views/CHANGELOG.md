@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.2.0] - 2026-02-06
+
+- Update Mapbox dependency to v3
+- Add a `MacrostratUnitsOverlay` component for rendering units on
+  Mapbox/Maplibre maps, with optional patterns.
+
 ## [3.1.0] - 2026-01-31
 
 - Moved `MacrostratDataProvider` and data fetchers to
