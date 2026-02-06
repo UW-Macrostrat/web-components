@@ -41,13 +41,9 @@ jobs:
         run: |
           yarn install --immutable
 
-      - name: Build packages
+      - name: Build, publish, and tag releases
         run: |
-          yarn run build
-
-      - name: Publish and tag releases
-        run: |
-          yarn run publish-only
+          yarn run publish
         env:
           YARN_NPM_AUTH_TOKEN: ${{ secrets.NPM_PUBLISH_TOKEN }}
 

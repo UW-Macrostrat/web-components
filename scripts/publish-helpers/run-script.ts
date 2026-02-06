@@ -26,8 +26,8 @@ export async function runScript(
   const privatePackagesSkipped = [];
 
   if (publish && !prepare) {
-    console.warn(
-      "Warning: Publishing without preparing first; packages may not be built properly.",
+    throw new Error(
+      "Cannot publish without preparing and building packages first.",
     );
   }
 
