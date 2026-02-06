@@ -32,22 +32,15 @@
     align-items: baseline
     background-color: var(--tag-background, var(--tertiary-background))
 
+  // A multi-line tag has the details on a separate line below the main tag content.
   &.multi-line .main
     flex-direction: column
     gap: 0
-  // A multi-line tag has the details on a separate line below the main tag content.
-  //.lithology-id
-  //  width: 0
-  //  overflow: hidden
-  //  white-space: nowrap
-  //  transition: width 0.3s
-  //&:hover
-  //  .lithology-id
-  //    width: 100%
 
   .details
     color: var(--secondary-color)
-    //font-style: italic
+    // allows merging thing sto
+    font-style: var(--tag-details-font-style, normal)
     font-weight: 300
     font-size: var(--tag-details-font-size)
 

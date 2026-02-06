@@ -42,18 +42,19 @@ const intervalData = [
   },
 ];
 
-export const Neogene = {
+export const Primary = {
   args: {
     interval: intervalData[1],
-    showAgeRange: true,
     size: TagSize.Small,
+    showAgeRange: true,
   },
 };
 
-export const WithoutAgeRange = {
+export const WithAgeRange = {
   args: {
     interval: intervalData[1],
-    showAgeRange: false,
+    size: TagSize.Normal,
+    showAgeRange: true,
   },
 };
 
