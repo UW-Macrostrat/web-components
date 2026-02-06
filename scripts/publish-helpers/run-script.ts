@@ -9,7 +9,7 @@ import {
 } from "./status";
 import { prepareModule } from "./prepare";
 import { publishModule, tagVersion } from "./publish";
-export { ensureEntryFilesExist } from "../../toolchain/bundler/src/check-entries";
+import { ensureEntryFilesExist } from "../../toolchain/bundler/src/check-entries";
 
 export async function runScript(
   { prepare = true, build = true, publish = true },
@@ -26,8 +26,8 @@ export async function runScript(
   const privatePackagesSkipped = [];
 
   if (publish && !prepare) {
-    throw new Error(
-      "Cannot publish without preparing and building packages first.",
+    console.warn(
+      "Warning: Publishing without preparing first; packages may not be built properly.",
     );
   }
 
@@ -190,6 +190,7 @@ export async function runScript(
 
   // Publish the packages
   for (const pkg of packagesToPush) {
+    ensureEntryFilesExist(pkg);
     publishModule(pkg);
   }
 }

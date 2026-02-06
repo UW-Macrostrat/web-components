@@ -11,10 +11,12 @@ export function publishModule(pkg: PackageData) {
       cwd: pkg.directory,
       stdio: "inherit",
     });
-    tagVersion(pkg);
   } catch (error) {
     console.error(`Failed to publish ${moduleString(pkg)}, ${error}`);
+    // Rethrow the error to fail the process if publish fails
+    throw error;
   }
+  tagVersion(pkg);
 }
 
 export function tagVersion(pkg: PackageData) {
