@@ -9,7 +9,6 @@ import { TagSize } from "./tag";
 import {
   DataField as _DataField,
   IntervalField as _IntervalField,
-  IntervalTag,
 } from "./base";
 import {
   ToasterContext,
@@ -59,22 +58,6 @@ const intervalData = [
   },
 ];
 
-export function SingleIntervalTag() {
-  return h(IntervalTag, {
-    interval: intervalData[0],
-    showAgeRange: true,
-  });
-}
-
-export function LargeIntervalTag() {
-  return h(IntervalTag, {
-    interval: intervalData[0],
-    showAgeRange: true,
-    size: TagSize.Large,
-    multiLine: true,
-  });
-}
-
 export function IntervalField() {
   return h(_IntervalField, {
     intervals: intervalData,
@@ -82,6 +65,7 @@ export function IntervalField() {
 }
 
 export function IntervalFieldWithLinks() {
+  /** Use the Macrostrat interaction provider to resolve links to specified types of information */
   const hrefForItem = itemTypeHandlers({
     interval: (data) => {
       return `https://dev.macrostrat.org/lex/intervals/${data.int_id}`;
