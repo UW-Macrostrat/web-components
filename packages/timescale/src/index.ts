@@ -1,6 +1,11 @@
 import { defaultIntervals } from "./intervals";
 import { TimescaleProvider, useTimescale } from "./provider";
-import { Interval, TimescaleOrientation, IncreaseDirection } from "./types";
+import {
+  Interval,
+  TimescaleOrientation,
+  IncreaseDirection,
+  TimescaleClickHandler,
+} from "./types";
 import {
   TimescaleBoxes,
   Cursor,
@@ -11,7 +16,7 @@ import { nestTimescale } from "./preprocess";
 import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
 import { ScaleContinuousNumeric } from "d3-scale";
-import { ReactNode, useMemo } from "react";
+import { ReactNode, useCallback, useMemo, useRef } from "react";
 import h from "./hyper";
 
 export * from "./intervals-api";
@@ -22,9 +27,13 @@ export {
   defaultIntervals as intervals,
 };
 
-type ClickHandler = (event: Event, interval: any) => void;
+interface TimescaleDisplayProps {
+  intervalStyle?: IntervalStyleBuilder;
+  labelProps?: LabelProps;
+  onClick?: TimescaleClickHandler;
+}
 
-export interface TimescaleProps {
+export interface TimescaleProps extends TimescaleDisplayProps {
   intervals?: Interval[];
   orientation?: TimescaleOrientation;
   increaseDirection?: IncreaseDirection;
@@ -36,32 +45,54 @@ export interface TimescaleProps {
   rootInterval?: number;
   /** Configuration for the axis */
   axisProps?: Partial<AgeAxisProps>;
-  labelProps?: LabelProps;
-  onClick?: ClickHandler;
   cursorPosition?: number | null;
   cursorComponent?: any;
-  intervalStyle?: IntervalStyleBuilder;
   scale?: ScaleContinuousNumeric<number, number>;
 }
 
-function TimescaleContainer(props: {
-  onClick?: ClickHandler;
-  className: string;
-  children?: ReactNode;
-}) {
-  const { onClick: clickHandler, ...rest } = props;
-  const { scale, orientation } = useTimescale();
+function TimescaleContainer(
+  props: TimescaleDisplayProps & {
+    className: string;
+    children?: ReactNode;
+  },
+) {
+  const {
+    onClick: clickHandler,
+    intervalStyle,
+    labelProps,
+    children,
+    ...rest
+  } = props;
+  const { scale, orientation, timescale } = useTimescale();
 
-  function onClick(evt: any) {
-    const bbox = evt.currentTarget.getBoundingClientRect();
-    const pos =
-      orientation == TimescaleOrientation.HORIZONTAL
-        ? evt.clientX - bbox.x
-        : evt.clientY - bbox.y;
-    clickHandler(evt, scale.invert(pos));
-  }
+  const ref = useRef<HTMLDivElement | null>(null);
 
-  return h("div.timescale.timescale-container", { onClick, ...rest });
+  const onClick = useCallback(
+    (evt: any, interval: Interval | undefined) => {
+      // Outer click handler
+      const bbox = ref.current?.getBoundingClientRect();
+      let age: number | undefined = undefined;
+      if (bbox != null && scale != null) {
+        const pos =
+          orientation == TimescaleOrientation.HORIZONTAL
+            ? evt.clientX - bbox.x
+            : evt.clientY - bbox.y;
+        age = scale.invert(pos);
+      }
+      clickHandler(evt, { age, interval });
+    },
+    [clickHandler, scale, orientation],
+  );
+
+  return h("div.timescale.timescale-container", { ref, onClick, ...rest }, [
+    h(TimescaleBoxes, {
+      interval: timescale,
+      intervalStyle,
+      onClick,
+      labelProps,
+    }),
+    children,
+  ]);
 }
 
 export function Timescale(props: TimescaleProps) {
@@ -119,13 +150,7 @@ export function Timescale(props: TimescaleProps) {
       scale,
       increaseDirection,
     },
-    h(TimescaleContainer, { className }, [
-      h(TimescaleBoxes, {
-        interval: timescale,
-        intervalStyle,
-        onClick,
-        labelProps,
-      }),
+    h(TimescaleContainer, { className, intervalStyle, labelProps, onClick }, [
       h.if(showAgeAxis)(AgeAxis, axisProps),
       h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
     ]),
