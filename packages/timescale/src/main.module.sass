@@ -55,7 +55,7 @@
     padding: 5px 2px
     font-size: 12px
     display: block
-    color: var(--timescale-text-color, var(--background-color))
+    color: var(--timescale-text-color, var(--text-color))
 
   &:global(.horizontal)
     flex-direction: column
@@ -79,7 +79,7 @@
 
     :global(.interval-label)
       position: sticky
-      max-width: 100%
+      max-width: 100vw
       display: block
       margin: 0 auto
       text-align: center
@@ -141,3 +141,5 @@
 .clickable
   cursor: pointer
 
+.bp6-dark .timescale-container
+  --timescale-text-color: var(--background-color)
