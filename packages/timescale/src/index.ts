@@ -125,7 +125,7 @@ export function Timescale(props: TimescaleProps) {
   } = props;
 
   const [parentMap, timescale] = useMemo(() => {
-    if (intervals.length == 0) {
+    if (intervals == null || intervals.length == 0) {
       return [null, null];
     }
     return nestTimescale(rootInterval, intervals);

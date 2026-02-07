@@ -1,4 +1,9 @@
-import { Timescale, TimescaleProps, TimescaleOrientation } from "../src";
+import {
+  Timescale,
+  TimescaleProps,
+  TimescaleOrientation,
+  useMacrostratIntervals,
+} from "../src";
 import { useAPIResult } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 
@@ -7,11 +12,9 @@ type MacrostratTimescaleProps = Omit<TimescaleProps, "intervals"> & {
 };
 
 function MacrostratTimescale(props: TimescaleProps) {
-  const { timescaleID, ...rest } = props;
+  const { ...rest } = props;
 
-  const intervals = useAPIResult("/defs/intervals", {
-    timescale_id: timescaleID,
-  });
+  const intervals = useMacrostratIntervals();
 
   return h(Timescale, {
     intervals,
@@ -28,7 +31,6 @@ export const Vertical = {
   args: {
     orientation: TimescaleOrientation.VERTICAL,
     levels: [0, 5],
-    timescaleID: 1,
   },
 };
 
