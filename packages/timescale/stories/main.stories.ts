@@ -53,13 +53,22 @@ export const HorizontalAbsolute = {
   },
 };
 
-export const Condensed = {
+export const HorizontalAbsoluteCondensed = {
   args: {
     orientation: TimescaleOrientation.HORIZONTAL,
     levels: [2, 4],
     absoluteAgeScale: true,
     length: 800,
     ageRange: [1000, 0],
+  },
+};
+
+export const HorizontalAbsoluteSuperCondensed = {
+  args: {
+    orientation: TimescaleOrientation.HORIZONTAL,
+    levels: [0, 5],
+    absoluteAgeScale: true,
+    length: 1000,
   },
 };
 

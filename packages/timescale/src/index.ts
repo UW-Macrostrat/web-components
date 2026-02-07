@@ -31,6 +31,8 @@ interface TimescaleDisplayProps {
   intervalStyle?: IntervalStyleBuilder;
   labelProps?: LabelProps;
   onClick?: TimescaleClickHandler;
+  style?: React.CSSProperties;
+  className: string;
 }
 
 export interface TimescaleProps extends TimescaleDisplayProps {
@@ -53,7 +55,6 @@ export interface TimescaleProps extends TimescaleDisplayProps {
 
 function TimescaleContainer(
   props: TimescaleDisplayProps & {
-    className: string;
     children?: ReactNode;
   },
 ) {
@@ -113,6 +114,7 @@ export function Timescale(props: TimescaleProps) {
     ageRange,
     length: l,
     showAgeAxis = true,
+    absoluteAgeScale,
     levels,
     scale,
     rootInterval = 0,
@@ -124,6 +126,8 @@ export function Timescale(props: TimescaleProps) {
     increaseDirection = IncreaseDirection.DOWN_LEFT,
     rotateLabels = false,
     labelProps,
+    style,
+    className,
   } = props;
 
   const [parentMap, timescale] = useMemo(() => {
@@ -133,9 +137,14 @@ export function Timescale(props: TimescaleProps) {
     return nestTimescale(rootInterval, intervals);
   }, [rootInterval, intervals]);
 
-  const className = classNames(orientation, "increase-" + increaseDirection, {
-    "rotate-labels": rotateLabels,
-  });
+  const _className = classNames(
+    className,
+    orientation,
+    "increase-" + increaseDirection,
+    {
+      "rotate-labels": rotateLabels,
+    },
+  );
 
   if (parentMap == null || timescale == null) {
     return null;
@@ -147,16 +156,21 @@ export function Timescale(props: TimescaleProps) {
       timescale,
       selectedInterval: null,
       parentMap,
-      ageRange: ageRange,
+      absoluteAgeScale,
+      ageRange,
       length: l,
       orientation,
       levels,
       scale,
       increaseDirection,
     },
-    h(TimescaleContainer, { className, intervalStyle, labelProps, onClick }, [
-      h.if(showAgeAxis)(AgeAxis, axisProps),
-      h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
-    ]),
+    h(
+      TimescaleContainer,
+      { style, className: _className, intervalStyle, labelProps, onClick },
+      [
+        h.if(showAgeAxis)(AgeAxis, axisProps),
+        h.if(cursorPosition != null)(cursorComponent, { age: cursorPosition }),
+      ],
+    ),
   );
 }

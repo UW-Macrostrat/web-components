@@ -80,13 +80,6 @@ function SizeAwareLabel(props: SizeAwareLabelProps) {
         }
       }
     }
-    console.log("Label fit check:", {
-      label,
-      containerSz,
-      labelSz,
-      doesFit,
-      rotated,
-    });
     setFits(doesFit);
   }, [containerRef, labelRef, label, positionTolerance, allowRotation]);
 
