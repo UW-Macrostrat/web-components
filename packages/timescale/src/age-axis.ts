@@ -1,4 +1,4 @@
-import h from "./hyper";
+import h from "./main.module.sass";
 import { Axis } from "@visx/axis";
 import { TimescaleOrientation } from "./types";
 import { useTimescale } from "./provider";

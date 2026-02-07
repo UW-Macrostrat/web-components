@@ -1,4 +1,4 @@
-import h from "../hyper";
+import h from "../main.module.sass";
 import { useTimescale } from "../provider";
 import { TimescaleOrientation } from "../types";
 import { format } from "d3-format";

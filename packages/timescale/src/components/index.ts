@@ -1,4 +1,4 @@
-import h from "../hyper";
+import h from "../main.module.sass";
 import { useMemo, useState } from "react";
 import { Interval, NestedInterval, TimescaleOrientation } from "../types";
 import { useTimescale } from "../provider";

@@ -21,6 +21,17 @@ export const VerticalWithRotatedLabels = {
   },
 };
 
+export const VerticalWithRotatedLabelsConstrained = {
+  args: {
+    orientation: TimescaleOrientation.VERTICAL,
+    levels: [1, 5],
+    rotateLabels: true,
+    style: {
+      width: 200,
+    },
+  },
+};
+
 export const Horizontal = {
   args: {
     orientation: TimescaleOrientation.HORIZONTAL,

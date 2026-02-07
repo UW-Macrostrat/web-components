@@ -17,7 +17,7 @@ import { AgeAxis, AgeAxisProps } from "./age-axis";
 import classNames from "classnames";
 import { ScaleContinuousNumeric } from "d3-scale";
 import { ReactNode, useCallback, useMemo, useRef } from "react";
-import h from "./hyper";
+import h from "./main.module.sass";
 
 export * from "./intervals-api";
 export type { Interval } from "./types";
