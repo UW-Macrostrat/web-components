@@ -12,7 +12,7 @@ type MacrostratTimescaleProps = Omit<TimescaleProps, "intervals"> & {
 };
 
 function MacrostratTimescale(props: TimescaleProps) {
-  const { ...rest } = props;
+  const { timescaleID, ...rest } = props;
 
   const intervals = useMacrostratIntervals();
 
@@ -29,6 +29,7 @@ export default {
 
 export const Vertical = {
   args: {
+    timescaleID: 1,
     orientation: TimescaleOrientation.VERTICAL,
     levels: [0, 5],
   },
