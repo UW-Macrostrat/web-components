@@ -24,12 +24,21 @@
     &:last-child
       flex: 1
 
+  :global(.interval-label)
+    padding: 5px 2px
+    font-size: 12px
+    display: block
+    color: var(--timescale-text-color, var(--text-color))
+
   &.rotate-labels .interval-box:last-child
-      justify-content: end
-      :global
-        .interval-label
-          .label-text
-            writing-mode: revert
+    // Make last interval box horizontal
+    justify-content: end
+    text-align: right
+    :global
+      .interval-label
+        padding: 2px 5px
+        .label-text
+          writing-mode: revert
 
   .children
     flex: 1
@@ -50,12 +59,6 @@
       background-color: var(--timescale-cursor-color)
       z-index: 20
       border: 1px solid #fff
-
-  :global(.interval-label)
-    padding: 5px 2px
-    font-size: 12px
-    display: block
-    color: var(--timescale-text-color, var(--text-color))
 
   &:global(.horizontal)
     flex-direction: column
@@ -143,3 +146,4 @@
 
 :global(.bp6-dark) .timescale-container
   --timescale-text-color: var(--background-color)
+
