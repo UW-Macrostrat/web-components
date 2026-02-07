@@ -24,6 +24,13 @@
     &:last-child
       flex: 1
 
+  &.rotate-labels .interval-box:last-child
+      justify-content: end
+      :global
+        .interval-label
+          .label-text
+            writing-mode: revert
+
   .children
     flex: 1
     display: flex
@@ -55,16 +62,24 @@
 
     .interval
       flex-direction: column
+      flex: 1
 
     .interval-box
       min-height: var(--timescale-level-height)
+
+    &.rotate-labels .interval-box:last-child
+      justify-content: end
+      :global
+        .interval-label
+          .label-text
+            writing-mode: vertical-lr
 
     .children
       flex-direction: row-reverse
 
     :global(.interval-label)
       position: sticky
-      max-width: 100vw
+      max-width: 100%
       display: block
       margin: 0 auto
       text-align: center
@@ -104,10 +119,9 @@
 
     :global
       .interval-label
-        width: 0px
         .label-text
           writing-mode: vertical-lr
-          transform: rotate(180deg) translateX(8px)
+          transform: rotate(180deg)
 
     .cursor
       left: 1px

@@ -48,6 +48,7 @@ export interface TimescaleProps extends TimescaleDisplayProps {
   cursorPosition?: number | null;
   cursorComponent?: any;
   scale?: ScaleContinuousNumeric<number, number>;
+  rotateLabels?: boolean;
 }
 
 function TimescaleContainer(
@@ -121,6 +122,7 @@ export function Timescale(props: TimescaleProps) {
     onClick = null,
     intervalStyle,
     increaseDirection = IncreaseDirection.DOWN_LEFT,
+    rotateLabels = false,
     labelProps,
   } = props;
 
@@ -131,7 +133,9 @@ export function Timescale(props: TimescaleProps) {
     return nestTimescale(rootInterval, intervals);
   }, [rootInterval, intervals]);
 
-  const className = classNames(orientation, "increase-" + increaseDirection);
+  const className = classNames(orientation, "increase-" + increaseDirection, {
+    "rotate-labels": rotateLabels,
+  });
 
   if (parentMap == null || timescale == null) {
     return null;
