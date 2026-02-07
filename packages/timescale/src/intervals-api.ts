@@ -9,14 +9,33 @@ import { useState } from "react";
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { Interval } from "./types";
 
+interface FetchIntervalsOptions {
+  baseURL?: string;
+  fetch?: typeof fetch;
+  timescaleID?: number;
+}
+
+interface BuildTreeOptions {
+  rootIntervalName?: string;
+}
+
+interface MacrostratIntervalsOptions
+  extends FetchIntervalsOptions, BuildTreeOptions {
+  buildTree?(
+    intervals: MacrostratInterval[],
+    opts?: BuildTreeOptions,
+  ): Interval[];
+}
+
 export async function fetchMacrostratIntervals(
-  baseUrl: string,
-  // Default to ICS timescale
-  timescaleID: number = 11,
+  opts: FetchIntervalsOptions = {},
 ): Promise<MacrostratInterval[]> {
-  const url = new URL(`${baseUrl}/defs/intervals`);
+  const { baseURL = "https://macrostrat.org/api/v2", timescaleID = 11 } = opts;
+  const _fetch = opts.fetch ?? fetch;
+
+  const url = new URL(`${baseURL}/defs/intervals`);
   url.searchParams.set("timescale_id", timescaleID.toString());
-  const response = await fetch(url.toString());
+  const response = await _fetch(url.toString());
 
   if (!response.ok) {
     throw new Error(`Failed to fetch intervals: ${response.statusText}`);
@@ -33,11 +52,13 @@ export async function fetchMacrostratIntervals(
   return data as MacrostratInterval[];
 }
 
-export function buildIntervalsTree(
+export function buildInternationalIntervalsTree(
   intervals: MacrostratInterval[],
+  opts: BuildTreeOptions = {},
 ): Interval[] {
   // Geologic time
   const rootInterval: Interval = defaultIntervals[0];
+  rootInterval.nam = opts.rootIntervalName ?? rootInterval.nam;
 
   const levels = [1, 2, 3, 4, 5];
   const levelMap = new Map<number, MacrostratInterval[]>();
@@ -105,16 +126,63 @@ function getIntervalLevel(interval: MacrostratInterval): number {
 }
 
 export function useMacrostratIntervals(
-  baseURL = "https://macrostrat.org/api/v2",
+  opts: MacrostratIntervalsOptions = {},
 ): Interval[] {
   /** Get a stratified tree of ICS intervals from the Macrostrat API. */
   const [intervals, setIntervals] = useState<Interval[]>([]);
 
   useAsyncEffect(async () => {
-    const fetchedIntervals = await fetchMacrostratIntervals(baseURL, 11);
-    const intervalTree = buildIntervalsTree(fetchedIntervals);
-    setIntervals(intervalTree);
-  }, [baseURL]);
+    const {
+      buildTree = defaultBuildIntervalsTree,
+      rootIntervalName,
+      timescaleID = 11,
+      ...fetchOpts
+    } = opts;
+    const fetchedIntervals = await fetchMacrostratIntervals({
+      timescaleID,
+      ...fetchOpts,
+    });
+    let treeBuilder = buildTree;
+    if (timescaleID === 11) {
+      treeBuilder = buildInternationalIntervalsTree;
+    }
+    setIntervals(treeBuilder(fetchedIntervals));
+  }, Object.values(opts));
 
   return intervals;
+}
+
+function defaultBuildIntervalsTree(
+  intervals: MacrostratInterval[],
+  opts: BuildTreeOptions = {},
+): Interval[] {
+  // Build a tree of intervals from the API response, starting with a root interval r
+  // For non-ICS timescales, just return a flat list of intervals sorted by t_age descending
+  const i1 = intervals
+    .map((int) => ({
+      oid: int.int_id,
+      typ: "int",
+      lvl: 1,
+      nam: int.name,
+      eag: int.b_age,
+      lag: int.t_age,
+      pid: 0,
+      col: int.color,
+      int_id: int.int_id,
+    }))
+    .sort((a, b) => b.eag - a.eag);
+  // Add a root interval representing the entire timescale
+  return [
+    {
+      oid: 0,
+      typ: "int",
+      lvl: 0,
+      nam: opts.rootIntervalName ?? "Timescale",
+      eag: Math.max(...intervals.map((int) => int.eag)),
+      lag: Math.min(...intervals.map((int) => int.lag)),
+      pid: null,
+      col: "#ffffff",
+    },
+    ...i1,
+  ];
 }

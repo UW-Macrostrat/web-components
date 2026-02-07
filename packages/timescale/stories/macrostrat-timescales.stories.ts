@@ -4,17 +4,17 @@ import {
   TimescaleOrientation,
   useMacrostratIntervals,
 } from "../src";
-import { useAPIResult } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
 
 type MacrostratTimescaleProps = Omit<TimescaleProps, "intervals"> & {
   timescaleID?: number;
+  rootIntervalName?: string;
 };
 
-function MacrostratTimescale(props: TimescaleProps) {
-  const { timescaleID, ...rest } = props;
+function MacrostratTimescale(props: MacrostratTimescaleProps) {
+  const { timescaleID, rootIntervalName, ...rest } = props;
 
-  const intervals = useMacrostratIntervals();
+  const intervals = useMacrostratIntervals({ timescaleID, rootIntervalName });
 
   return h(Timescale, {
     intervals,
@@ -27,9 +27,18 @@ export default {
   component: MacrostratTimescale,
 };
 
-export const Vertical = {
+export const CustomTimescale = {
   args: {
     timescaleID: 1,
+    orientation: TimescaleOrientation.VERTICAL,
+    levels: [0, 5],
+  },
+};
+
+export const MartianEpochs = {
+  args: {
+    rootIntervalName: "Martian epochs",
+    timescaleID: 28,
     orientation: TimescaleOrientation.VERTICAL,
     levels: [0, 5],
   },
