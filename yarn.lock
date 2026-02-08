@@ -1565,6 +1565,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/timescale@workspace:packages/timescale"
   dependencies:
+    "@macrostrat/data-provider": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
