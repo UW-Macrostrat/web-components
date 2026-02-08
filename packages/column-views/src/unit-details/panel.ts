@@ -437,7 +437,7 @@ function getThickness(unit): [string, string] {
   return [formatRange(minThickness, maxThickness), _unit];
 }
 
-function ThicknessField({ unit, label = "Thickness" }) {
+export function ThicknessField({ unit, label = "Thickness" }) {
   const [value, thicknessUnit] = getThickness(unit);
   return h(DataField, {
     label,
