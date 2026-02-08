@@ -14,11 +14,11 @@ export interface Interval {
   int_id?: number;
 }
 
-interface NestedInterval extends Interval {
+export interface NestedInterval extends Interval {
   children: Interval[];
 }
 
-type IntervalMap = Map<number, Interval[]>;
+export type IntervalMap = Map<number, Interval[]>;
 
 export enum TimescaleOrientation {
   VERTICAL = "vertical",
@@ -30,7 +30,7 @@ export enum IncreaseDirection {
   DOWN_LEFT = "down-left",
 }
 
-interface TimescaleCTX {
+export interface TimescaleCTX {
   timescale: NestedInterval;
   selectedInterval: Interval | null;
   parentMap: IntervalMap;
@@ -41,4 +41,12 @@ interface TimescaleCTX {
   scale: ScaleContinuousNumeric<number, number>;
 }
 
-export { TimescaleCTX, NestedInterval, IntervalMap };
+export type TimescaleClickData = {
+  interval?: Interval;
+  age: number;
+};
+
+export type TimescaleClickHandler = (
+  event: Event,
+  data: TimescaleClickData,
+) => void;

@@ -1,4 +1,4 @@
-import h from "./hyper";
+import h from "./main.module.sass";
 import { Axis } from "@visx/axis";
 import { TimescaleOrientation } from "./types";
 import { useTimescale } from "./provider";
@@ -12,7 +12,7 @@ function AgeAxis(props: AgeAxisProps) {
   const ctx = useTimescale();
   const { scale, length, orientation } = ctx;
   if (!scale) return null;
-  const { width, margin } = props;
+  const { width = 25, margin = 20 } = props;
 
   const isHorizontal = orientation == TimescaleOrientation.HORIZONTAL;
 
@@ -54,18 +54,15 @@ function AgeAxis(props: AgeAxisProps) {
           ...vertProps,
           textAnchor: "middle",
           fontSize: 10,
-          fill: "#222",
+          fill: "var(--text-color)",
         };
       },
+      stroke: "var(--text-color)",
+      tickStroke: "var(--text-color)",
       ...axProps,
       ...props,
     }),
   );
 }
-
-AgeAxis.defaultProps = {
-  width: 25,
-  margin: 20,
-};
 
 export { AgeAxis, AgeAxisProps };

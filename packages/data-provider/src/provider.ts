@@ -73,7 +73,10 @@ function createMacrostratStore(
       baseURL,
       inFlightRequests: new Set(),
       async fetch(url: string, options?: RequestInit) {
-        const url1 = baseURL + url;
+        let url1 = url;
+        if (!(url.startsWith("http://") || url.startsWith("https://"))) {
+          url1 = baseURL + url;
+        }
         // Avoid duplicate requests
         const { inFlightRequests } = get();
         if (inFlightRequests.has(url1)) {

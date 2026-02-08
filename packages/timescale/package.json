@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/timescale",
-  "version": "3.0.1",
+  "version": "3.1.0",
   "description": "A configurable geologic timescale written with React and Typescript",
   "repository": {
     "type": "git",
@@ -47,6 +47,7 @@
     "react-dom": "^18.0.0||^19.0.0"
   },
   "dependencies": {
+    "@macrostrat/data-provider": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
     "@types/classnames": "^2.3.4",

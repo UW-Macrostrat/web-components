@@ -8,6 +8,7 @@ const TimescaleContext = createContext<TimescaleCTX | null>(null);
 
 export interface TimescaleProviderProps extends TimescaleCTX {
   children: ReactNode;
+  absoluteAgeScale?: boolean;
   increaseDirection?: IncreaseDirection;
 }
 
@@ -16,6 +17,7 @@ function TimescaleProvider(props: TimescaleProviderProps) {
     children,
     timescale,
     ageRange,
+    absoluteAgeScale,
     length,
     scale,
     increaseDirection,
@@ -30,6 +32,7 @@ function TimescaleProvider(props: TimescaleProviderProps) {
   if (ageRange2 == null) {
     ageRange2 = [timescale.eag, timescale.lag];
   }
+
   if (
     orientation == TimescaleOrientation.VERTICAL &&
     increaseDirection == IncreaseDirection.DOWN_LEFT &&
@@ -48,10 +51,10 @@ function TimescaleProvider(props: TimescaleProviderProps) {
   }
 
   let scale2 = scale;
-  if (length && ageRange && scale2 == null) {
+  if (length && absoluteAgeScale && scale2 == null) {
     scale2 = scaleLinear({
       range: [0, length],
-      domain: ageRange,
+      domain: ageRange2,
     });
   }
 
