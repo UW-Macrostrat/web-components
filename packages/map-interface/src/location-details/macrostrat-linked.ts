@@ -1,17 +1,14 @@
-import hyper from "@macrostrat/hyper";
 import {
   ExpansionPanel,
   ExpandableDetailsPanel,
   ExpansionBody,
 } from "@macrostrat/map-interface";
-import styles from "./main.module.sass";
 import { scaleLinear } from "@visx/scale";
 import { AxisBottom } from "@visx/axis";
 import chroma from "chroma-js";
 import { LithologyList } from "@macrostrat/data-components";
 import { AttrChip, AgeChip } from "./info-blocks";
-
-const h = hyper.styled(styles);
+import h from "./main.module.sass";
 
 export function MacrostratLinkedData(props) {
   const {
@@ -23,6 +20,8 @@ export function MacrostratLinkedData(props) {
     lithologyURL,
     expanded = true,
   } = props;
+
+  console.log("macrostratLinkedData inner", mapInfo, source);
 
   if (!mapInfo.mapData[0]) return null;
 
