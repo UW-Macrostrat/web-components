@@ -32,7 +32,7 @@ interface TimescaleDisplayProps {
   labelProps?: LabelProps;
   onClick?: TimescaleClickHandler;
   style?: React.CSSProperties;
-  className: string;
+  className?: string;
 }
 
 export interface TimescaleProps extends TimescaleDisplayProps {
