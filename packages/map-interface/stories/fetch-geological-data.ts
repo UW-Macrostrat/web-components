@@ -5,7 +5,7 @@ const gddDomain = `https://xdd.wisc.edu`;
 const paleobioDomain = `https://paleobiodb.org`;
 
 export function useMapInfo(lng, lat, z) {
-  return useAPIResult(`${apiV2Prefix}/mobile/map_query_v2`, {
+  return useAPIResult(`/mobile/map_query_v2`, {
     lng,
     lat,
     z,
@@ -13,7 +13,7 @@ export function useMapInfo(lng, lat, z) {
 }
 
 export function useColumnInfo(lng, lat) {
-  return useAPIResult(`${apiV2Prefix}/columns`, {
+  return useAPIResult(`/columns`, {
     lat,
     lng,
     response: "long",

@@ -1,4 +1,4 @@
-import { ComponentMeta } from "@storybook/react-vite";
+import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import {
   RegionalStratigraphy,
@@ -13,13 +13,16 @@ import {
   useXddInfo,
   useFossilInfo,
 } from "./fetch-geological-data";
+import { ExpandableDetailsPanel, ExpansionBody } from "../src";
+import { LithologyList, Tag, TagField } from "@macrostrat/data-components";
+import { Box } from "@macrostrat/ui-components";
 
 export default {
   title: "Map interface/Geological map sidebar",
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   args: {},
   component: MacrostratLinkedDataExample,
-} as ComponentMeta<any>;
+} as Meta<any>;
 
 const lat = 44.60085563149249;
 const lng = -96.16783150353609;
@@ -28,6 +31,67 @@ const zoom = 3.9392171056922325;
 export const Primary = {
   args: {},
 };
+
+export function LithologyPanel() {
+  const mapInfo = useMapInfo(lng, lat, zoom);
+
+  if (mapInfo == null) {
+    return null;
+  }
+
+  const macrostrat = mapInfo?.mapData[0]?.macrostrat;
+
+  if (macrostrat == null) return null;
+
+  const { liths = null, lith_types = null } = macrostrat;
+
+  if (!liths || liths.length == 0) return null;
+
+  const lithologies = liths.map((lith) => {
+    return {
+      ...lith,
+      name: lith.lith,
+      color: lith.color || "#000000",
+    };
+  });
+
+  return h(
+    Box,
+    { width: 420 },
+    h(
+      ExpandableDetailsPanel,
+      {
+        headerElement: h(TypesList, { label: "Lithology", data: lith_types }),
+      },
+      h(
+        ExpansionBody,
+        h(LithologyList, {
+          label: "Matched lithologies",
+          lithologies,
+        }),
+      ),
+    ),
+  );
+}
+
+function TypesList(props) {
+  /** List for higher-level type/class attributes (e.g. environment types, economic types)
+   * that might not have specific IDs
+   */
+  const { data, label } = props;
+
+  if (!data || data.length == 0) return null;
+
+  return h(
+    TagField,
+    { label },
+    data.map((d) => {
+      let name = d.name;
+      if (name == null || name == "") name = "other";
+      return h(Tag, { name, color: d.color ?? "#888" });
+    }),
+  );
+}
 
 export function RegionalStratigraphyExample() {
   const mapInfo = useMapInfo(lng, lat, zoom);
@@ -70,8 +134,6 @@ export function MacrostratLinkedDataExample() {
   }
 
   const source = mapInfo?.mapData[0];
-
-  console.log("macrostratLinkedData:", source);
 
   return h(MacrostratLinkedData, {
     mapInfo,
