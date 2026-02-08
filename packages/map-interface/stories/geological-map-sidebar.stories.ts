@@ -1,21 +1,24 @@
 import { ComponentMeta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { RegionalStratigraphy } from "./reg-strat";
-import { Physiography } from "./physiography";
-import { MacrostratLinkedData } from "./macrostrat-linked";
-import { XddExpansion } from "./xdd-panel";
+import {
+  RegionalStratigraphy,
+  Physiography,
+  MacrostratLinkedData,
+  XddExpansion,
+  FossilCollections,
+} from "../src/location-details";
 import {
   fetchMapInfo,
   fetchColumnInfo,
   fetchXddInfo,
   fetchFossilInfo,
-} from "./fetch";
-import { FossilCollections } from "./fossil-collections";
+} from "./fetch-geological-data";
 
 export default {
-  title: "Map interface/Location panel details",
+  title: "Map interface/Geological map sidebar",
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   args: {},
+  component: RegionalStratigraphy,
 } as ComponentMeta<any>;
 
 const lat = 44.60085563149249;
@@ -25,6 +28,13 @@ const zoom = 3.9392171056922325;
 export function RegionalStratigraphyExample() {
   const mapInfo = fetchMapInfo(lng, lat, zoom);
   const columnInfo = fetchColumnInfo(lng, lat);
+
+  if (mapInfo == null || columnInfo == null) {
+    return null;
+  }
+
+  console.log("mapInfo", mapInfo);
+  console.log("columnInfo", columnInfo);
 
   return h(RegionalStratigraphy, {
     mapInfo,
