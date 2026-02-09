@@ -66,6 +66,7 @@
   &.row
     flex-flow: row nowrap
     justify-content: space-between
+    flex-grow: 1
     .label
       flex-grow: unset
 
@@ -78,7 +79,8 @@
   .label
     //font-size: 0.9em
     padding-right: 1em
-    font-weight: bold
+    font-weight: var(--data-field-label-font-weight, bold)
+    font-style: var(--data-field-label-font-style, normal)
     flex-grow: 1
     display: block
     color: var(--secondary-color)

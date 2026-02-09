@@ -1,0 +1,93 @@
+import type { Meta } from "@storybook/react-vite";
+import h from "@macrostrat/hyper";
+import { ExpandableDetailsPanel, ExpansionBody } from ".";
+import { LithologyList, Tag, TagField } from "../components/unit-details";
+import { Box, useAPIResult } from "@macrostrat/ui-components";
+
+function useMapInfo(lng, lat, z) {
+  return useAPIResult(`/mobile/map_query_v2`, {
+    lng,
+    lat,
+    z,
+  });
+}
+
+export default {
+  title: "Data components/Expansion panel",
+  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
+  args: {},
+  component: ExpansionPanelDemo,
+} as Meta<any>;
+
+const lat = 44.60085563149249;
+const lng = -96.16783150353609;
+const zoom = 3.9392171056922325;
+
+export const Primary = {
+  args: {},
+};
+
+function ExpansionPanelDemo() {
+  const mapInfo = useMapInfo(lng, lat, zoom);
+
+  if (mapInfo == null) {
+    return null;
+  }
+
+  const macrostrat = mapInfo?.mapData[0]?.macrostrat;
+
+  if (macrostrat == null) return null;
+
+  const { liths = null } = macrostrat;
+
+  if (!liths || liths.length == 0) return null;
+
+  const lith_types = liths.map((d) => {
+    return { name: d.lith_type ?? "other", color: "#888" };
+  });
+
+  const lithologies = liths.map((lith) => {
+    return {
+      ...lith,
+      name: lith.lith,
+      color: lith.color || "#000000",
+    };
+  });
+
+  return h(
+    Box,
+    { width: 420 },
+    h(
+      ExpandableDetailsPanel,
+      {
+        headerElement: h(TypesList, {
+          label: "Lithology",
+          data: lith_types,
+          row: true,
+        }),
+      },
+      h(LithologyList, {
+        label: "Matched lithologies",
+        lithologies,
+      }),
+    ),
+  );
+}
+
+function TypesList(props) {
+  /** List for higher-level type/class attributes (e.g. environment types, economic types)
+   * that might not have specific IDs
+   */
+  const { data, ...rest } = props;
+  if (!data || data.length == 0) return null;
+
+  return h(
+    TagField,
+    rest,
+    data.map((d) => {
+      let name = d.name;
+      if (name == null || name == "") name = "other";
+      return h(Tag, { name, color: d.color ?? "#888" });
+    }),
+  );
+}

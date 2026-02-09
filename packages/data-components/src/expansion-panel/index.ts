@@ -1,12 +1,8 @@
 import { useState } from "react";
-import { Collapse, Icon } from "@blueprintjs/core";
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
+import { Collapse, Icon, Button } from "@blueprintjs/core";
+import h from "./main.module.sass";
 import classNames from "classnames";
-import { Button } from "@blueprintjs/core";
 import { PanelSubhead } from "./headers";
-
-const h = hyper.styled(styles);
 
 function ExpansionPanelSummary(props) {
   const { expanded, children, onChange, className, title, titleComponent } =
@@ -94,12 +90,13 @@ function SubExpansionPanel(props) {
 }
 
 function ExpandableDetailsPanel(props) {
-  let { title, children, value, headerElement, className } = props;
+  let { title, children, value, headerElement, className, bodyClassName } =
+    props;
   const [isOpen, setIsOpen] = useState(false);
   headerElement ??= h([h("div.title", title), value]);
   return h("div.expandable-details", { className }, [
     h("div.expandable-details-main", [
-      h("div.expandable-details-header", headerElement),
+      headerElement,
       h("div.expandable-details-toggle", [
         h(Button, {
           small: true,
@@ -111,17 +108,10 @@ function ExpandableDetailsPanel(props) {
       ]),
     ]),
     h(
-      Collapse,
+      Collapse as any,
       { isOpen },
-      h("div.expandable-details-children", null, children),
+      h("div.expansion-body", { className: bodyClassName }, children),
     ),
-  ]);
-}
-
-function ExpansionBody({ title, className, children }) {
-  return h("div.expansion-body", { className }, [
-    h("div.expansion-panel-detail-header", title),
-    h("div.expansion-panel-detail-body", null, children),
   ]);
 }
 
@@ -130,6 +120,5 @@ export {
   ExpansionPanelSummary,
   ExpandableDetailsPanel,
   SubExpansionPanel,
-  ExpansionBody,
   PanelSubhead,
 };

@@ -1,13 +1,12 @@
 import {
   ExpansionPanel,
   ExpandableDetailsPanel,
-  ExpansionBody,
-} from "@macrostrat/map-interface";
+  LithologyList,
+} from "@macrostrat/data-components";
 import { scaleLinear } from "@visx/scale";
 import { AxisBottom } from "@visx/axis";
 import chroma from "chroma-js";
-import { LithologyList } from "@macrostrat/data-components";
-import { AttrChip, AgeChip } from "./info-blocks";
+import { AgeChip } from "./info-blocks";
 import h from "./main.module.sass";
 
 export function MacrostratLinkedData(props) {
@@ -20,8 +19,6 @@ export function MacrostratLinkedData(props) {
     lithologyURL,
     expanded = true,
   } = props;
-
-  console.log("macrostratLinkedData inner", mapInfo, source);
 
   if (!mapInfo.mapData[0]) return null;
 
@@ -42,7 +39,6 @@ export function MacrostratLinkedData(props) {
         h(FossilOccs, { source }),
         h(LithsAndClasses, { source, lithologyURL }),
         h(Environments, { source, environmentURL }),
-        h(Economy, { source }),
       ]),
     ],
   );
@@ -202,7 +198,7 @@ function MacrostratAgeInfo(props) {
   return h(
     ExpandableDetailsPanel,
     { headerElement: h(MacrostratAgeInfoCore, props) },
-    h(ExpansionBody, { title: "Age refinement" }, h(AgeRefinementPlot, props)),
+    h(AgeRefinementPlot, props),
   );
 }
 
@@ -219,23 +215,20 @@ function MatchBasis(props) {
         h("div.description", "Matched stratigraphic unit"),
       ]),
     },
-    h(ExpansionBody, { title: "All matched names" }, [
-      source.macrostrat.strat_names?.map((name, i) => {
-        let lastElement: boolean =
-          i == source.macrostrat.strat_names.length - 1;
-        return h("span", { key: i }, [
-          h(
-            "a.externalLink",
-            {
-              href: stratNameURL + "/" + name.strat_name_id,
-              key: i,
-            },
-            [name.rank_name],
-          ),
-          h.if(!lastElement)([", "]),
-        ]);
-      }),
-    ]),
+    source.macrostrat.strat_names?.map((name, i) => {
+      let lastElement: boolean = i == source.macrostrat.strat_names.length - 1;
+      return h("span", { key: i }, [
+        h(
+          "a.externalLink",
+          {
+            href: stratNameURL + "/" + name.strat_name_id,
+            key: i,
+          },
+          [name.rank_name],
+        ),
+        h.if(!lastElement)([", "]),
+      ]);
+    }),
   );
 }
 
@@ -317,14 +310,13 @@ function LithsAndClasses(props) {
       title: "Lithology",
       value: h(LithTypes, { lith_types }),
     },
-    h(ExpansionBody, { title: "Matched lithologies" }, [
-      h(LithologyList, {
-        lithologies,
-        onClickItem: (e, lith) => {
-          window.open(lithologyURL + "/" + lith.lith_id, "_self");
-        },
-      }),
-    ]),
+    h(LithologyList, {
+      label: "Matched lithologies",
+      lithologies,
+      onClickItem: (e, lith) => {
+        window.open(lithologyURL + "/" + lith.lith_id, "_self");
+      },
+    }),
   );
 }
 
@@ -356,52 +348,9 @@ function Environments(props) {
       title: "Environment",
       value: h(EnvironTypes, { environ_types }),
     },
-    h(ExpansionBody, { title: "Matched environments" }, [
-      h(LithologyList, {
-        lithologies,
-        onClickItem: (e, environ) => {
-          console.log("environ", environmentURL);
-          window.open(environmentURL + "/" + environ.environ_id, "_self");
-        },
-      }),
-    ]),
-  );
-}
-
-function EconType(props) {
-  const { econ_types } = props;
-
-  return h.if(econ_types && econ_types.length > 0)("div", [
-    econ_types?.map((econClass, i) => {
-      return h(AttrChip, {
-        key: i,
-        name: econClass.name,
-        color: econClass.color,
-      });
+    h(LithologyList, {
+      label: "Matched environments",
+      lithologies,
     }),
-  ]);
-}
-
-function Economy(props) {
-  const { source } = props;
-  const { macrostrat } = source;
-  const { econs = null, econ_types = null } = macrostrat;
-  if (!econs) return h("div");
-
-  return h.if(econs && econs.length > 0)(
-    ExpandableDetailsPanel,
-    {
-      title: "Economy ",
-      value: h(EconType, { econ_types }),
-    },
-    h(ExpansionBody, { title: "Matched economic attributes" }, [
-      econs?.map((econ, i) => {
-        return h(AttrChip, {
-          key: i,
-          name: econ.econ,
-          color: econ.color,
-        });
-      }),
-    ]),
   );
 }

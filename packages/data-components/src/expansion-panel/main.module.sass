@@ -39,6 +39,16 @@
   //   .expansion-panel-header
   //     border-bottom-width: 0;
 
+.expansion-panel-detail-header
+  font-size: 90%
+  font-style: italic
+  margin-right: 1em
+  display: inline
+  color: var(--secondary-color)
+  &:after
+    content: ":"
+
+
 .sub-expansion-panel
   margin: -1px calc(var(--panel-padding-h) * -0.5) 0
   overflow: hidden
@@ -103,19 +113,18 @@
   .expansion-panel-detail-sub
     display: block !important
 
+.expandable-details
+  position: relative
+  margin-bottom: 0.5em
+  --expansion-panel-padding-INT: var(--expansion-panel-padding, 0.5em)
+
 // New expandable panel for details
 .expandable-details-main
   display: flex
   flex-direction: row
-  align-items: center
-  justify-content: space-between
-  margin: 3px 0
-
-.expandable-details-header
-  display: inline-flex
-  flex-direction: row
   align-items: baseline
-  flex-grow: 1
+  gap: var(--panel-padding-h, 1rem)
+  justify-content: space-between
 
 .expandable-details-children
   position: relative
@@ -124,34 +133,17 @@
   :global(.bp6-button)
     font-size: 10px
 
-.expandable-details
-  &.macrostrat-unit
-    .title:after
-      content: none
-  .title
-    margin-right: 1em
-    &:after
-      content: ":"
-
 .expansion-body
-  display: inline-block
-  //flex-direction row
-  align-items: baseline
-  background-color: var(--tertiary-background)
-  padding: 2px 6px
-  border-radius: 4px
+  background-color: var(--secondary-background)
+  font-size: var(--expansion-panel-body-font-size, inherit)
+  padding: var(--expansion-panel-padding-INT)
+  border-radius: var(--expansion-panel-border-radius, 0.25em)
   width: 100%
   box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.2)
-  margin-bottom: 6px
+  --data-field-label-font-weight: normal
+  --data-field-label-font-style: italic
+  &>:first-child
+    margin-top: 0
+  &>:last-child
+    margin-bottom: 0
 
-.expansion-panel-detail-header
-  font-size: 90%
-  font-style: italic
-  margin-right: 1em
-  display: inline
-  color: var(--secondary-color)
-  &:after
-    content: ":"
-
-.expansion-panel-detail-body
-  display: inline
