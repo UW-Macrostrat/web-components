@@ -45,15 +45,11 @@
     font-size: var(--tag-details-font-size)
 
 .tag-list
-  display: inline
+  display: inline-flex !important
   flex-flow: row wrap
   align-items: baseline
   justify-content: end
-  .tag
-    margin-bottom: 0.5em
-    margin-left: 0.5em
-
-
+  gap: 0.5em
 
 .data-field
   margin: 0.5em 0 1em
@@ -92,11 +88,6 @@
     //font-size: 0.9em
     //display: inline-block
     break-inside: avoid
-
-  &.tag-field
-    &>*
-      margin: 0
-      display: block
 
 .unit
   color: var(--unit-color, var(--text-subtle-color))

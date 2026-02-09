@@ -2,24 +2,22 @@ import hyper from "@macrostrat/hyper";
 import styles from "./panel.module.sass";
 import { JSONView } from "@macrostrat/ui-components";
 import { Button, ButtonGroup } from "@blueprintjs/core";
-import { ReactNode, useCallback, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import {
   DataField,
   EnvironmentsList,
-  IntervalShort,
-  IntervalTag,
+  isClickable,
+  ItemInteractionProps,
   ItemList,
   LithologyList,
   LithologyTagFeature,
-  Parenthetical,
-  Value,
   MacrostratInteractionManager,
-  useInteractionProps,
-  ItemInteractionProps,
-  useInteractionManager,
-  MacrostratItemIdentifier,
   MacrostratInteractionProvider,
-  isClickable,
+  MacrostratItemIdentifier,
+  Parenthetical,
+  useInteractionManager,
+  useInteractionProps,
+  Value,
 } from "@macrostrat/data-components";
 import { useColumnUnitsMap } from "../data-provider";
 import {
@@ -30,13 +28,15 @@ import {
 } from "@macrostrat/data-provider";
 import type {
   Environment,
+  Interval,
+  Lithology,
   UnitLong,
   UnitLongFull,
-  Lithology,
-  Interval,
 } from "@macrostrat/api-types";
 import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
+import { AgeField, Duration, IntervalProportions } from "./age-range";
+import { formatRange, formatSignificance } from "./utils.ts";
 
 const h = hyper.styled(styles);
 
@@ -479,106 +479,6 @@ function Citation({ data, tag = "p" }) {
   ]);
 }
 
-function AgeField({ unit, children }) {
-  const [b_age, t_age, _unit] = getAgeRange(unit);
-
-  return h(
-    DataField,
-    {
-      label: "Age",
-      value: formatRange(b_age, t_age),
-      unit: _unit,
-    },
-    children,
-  );
-}
-
-function getAgeRange(_unit) {
-  let b_age = _unit.b_age;
-  let t_age = _unit.t_age;
-  let unit = "Ma";
-
-  if (b_age < 0.8 && t_age < 1.2) {
-    b_age *= 1000;
-    t_age *= 1000;
-    unit = "ka";
-  } else if (b_age > 800 && t_age > 1200) {
-    b_age /= 1000;
-    t_age /= 1000;
-    unit = "Ga";
-  }
-
-  return [b_age, t_age, unit];
-}
-
-function getAge(value) {
-  /** Get the age value in Ma, ka, or Ga as appropriate */
-  let unit = "Ma";
-  if (value < 0.8) {
-    unit = "ka";
-    value *= 1000;
-    if (value < 5) {
-      unit = "yr";
-      value *= 1000;
-    }
-  } else if (value > 1000) {
-    unit = "Ga";
-    value /= 1000;
-  }
-
-  return [value, unit];
-}
-
-export function AgeLabel({
-  age,
-  maximumFractionDigits = 2,
-  minimumFractionDigits = 0,
-  className,
-}: {
-  age: number;
-  className?: string;
-  maximumFractionDigits?: number;
-  minimumFractionDigits?: number;
-}) {
-  /** Component to display a single age value with unit conversion from
-   * Ma to ka or Ga as appropriate.
-   */
-  const [value, unit] = getAge(age);
-
-  const _value = value.toLocaleString("en-US", {
-    maximumFractionDigits,
-    minimumFractionDigits,
-  });
-
-  return h(Value, { value: _value, unit, className });
-}
-
-export function Duration({
-  value,
-  maximumFractionDigits = 2,
-  minimumFractionDigits = 0,
-}) {
-  let unit = "Myr";
-  if (value < 0.8) {
-    unit = "kyr";
-    value *= 1000;
-    if (value < 5) {
-      unit = "yr";
-      value *= 1000;
-    }
-  } else if (value > 1000) {
-    unit = "Gyr";
-    value /= 1000;
-  }
-
-  let _value = value.toLocaleString("en-US", {
-    maximumFractionDigits,
-    minimumFractionDigits,
-  });
-
-  return h(Value, { value: _value, unit });
-}
-
 function enhanceEnvironments(
   environments: Partial<Environment>[] | null,
   envMap: Map<number, Environment>,
@@ -710,118 +610,4 @@ function UnitIdentifier({
     id: unitID,
     ...interactionProps,
   });
-}
-
-function IntervalProportions({ unit, onClickItem }) {
-  if (
-    unit.b_int_id == null &&
-    unit.t_int_id == null &&
-    unit.b_prop == null &&
-    unit.t_prop == null
-  )
-    return null;
-
-  const i0 = unit.b_int_id;
-  const i1 = unit.t_int_id;
-  let b_prop = unit.b_prop ?? 0;
-  let t_prop = unit.t_prop ?? 1;
-
-  const intervalMap = useMacrostratDefs("intervals");
-  const int0 = intervalMap?.get(i0) ?? {};
-
-  const interval0: IntervalShort = {
-    ...int0,
-    id: i0,
-    name: unit.b_int_name,
-  };
-
-  let p0: ReactNode = null;
-  const int1 = intervalMap?.get(i1) ?? {};
-  const p1: ReactNode = h(Proportion, { value: t_prop });
-
-  if (i0 !== i1 || b_prop !== 0 || t_prop !== 1) {
-    // We have a single interval with undefined proportions
-    p0 = h(Proportion, { value: b_prop });
-  }
-
-  if (i0 === i1 && (b_prop !== 0 || t_prop !== 1)) {
-    p0 = h("span.joint-proportion", [p0, h("span.sep", "to"), p1]);
-  }
-
-  const clickable = onClickItem != null;
-
-  const handleClick = (event: MouseEvent) => {
-    if (onClickItem) {
-      onClickItem(event, interval0);
-    }
-  };
-
-  return h("div.interval-proportions", [
-    h(IntervalTag, {
-      className: clickable ? "clickable" : "",
-      onClick: clickable ? handleClick : undefined,
-      interval: interval0,
-      prefix: p0,
-    }),
-    h.if(i0 != i1)("span.discourage-break", [
-      h("span.sep", "to"),
-      h(IntervalTag, {
-        className: clickable ? "clickable" : "",
-        onClick: clickable ? handleClick : undefined,
-        interval: {
-          ...int1,
-          id: i1,
-          name: unit.t_int_name,
-        },
-        prefix: p1,
-      }),
-    ]),
-  ]);
-}
-
-const formatProportion = (d) => {
-  if (d == null) return null;
-  return d.toFixed(1);
-};
-
-function Proportion({ value }) {
-  let content = null;
-  if (value == 0) {
-    content = "base";
-  } else if (value == 1) {
-    content = "top";
-  } else {
-    content = formatProportion(value * 100) + "%";
-  }
-
-  return h("span.proportion", content);
-}
-
-function formatRange(min, max, precision = null) {
-  if (min == null || max == null) return null;
-  if (min === max) {
-    return min.toFixed(precision);
-  }
-
-  return `${formatSignificance(min, precision)}–${formatSignificance(
-    max,
-    precision,
-  )}`;
-}
-
-function formatSignificance(value, precision = null) {
-  // Format to preserve a reasonable number of significant figures
-  // this could be done with an easier algorithm, probably:
-
-  if (precision == null) {
-    return value.toLocaleString();
-  }
-  if (precision >= 0) {
-    return value.toFixed(precision);
-  }
-  if (precision < 0) {
-    return (
-      (value / Math.pow(10, -precision)).toFixed(0) + "0".repeat(-precision)
-    );
-  }
 }

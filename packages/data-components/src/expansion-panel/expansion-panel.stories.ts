@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { ExpandableDetailsPanel, ExpansionBody } from ".";
+import { ExpandableDetailsPanel } from ".";
 import { LithologyList, Tag, TagField } from "../components/unit-details";
 import { Box, useAPIResult } from "@macrostrat/ui-components";
 
