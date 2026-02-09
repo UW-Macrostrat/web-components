@@ -58,6 +58,7 @@
 
 .data-field
   margin: 0.5em 0 1em
+  max-width: 100%
   &.flex
     display: flex
     flex-flow: row wrap
@@ -65,11 +66,8 @@
     justify-content: end
     gap: 0.5em
   &.row
-    flex-flow: row nowrap
     justify-content: space-between
     flex-grow: 1
-    .label
-      flex-grow: unset
 
     .data-container
       text-align: right
@@ -97,6 +95,7 @@
 
 .tag-field
   @extend .tag-list
+  width: 100%
 
 
 .unit

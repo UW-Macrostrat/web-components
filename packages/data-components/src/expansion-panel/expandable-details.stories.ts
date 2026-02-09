@@ -1,20 +1,8 @@
 import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { ExpansionPanel } from ".";
+import { ExpandableDetailsPanel } from ".";
 import { LithologyList, Tag, TagField } from "../components/unit-details";
-import { useAPIResult } from "@macrostrat/ui-components";
-import { LoremIpsum } from "lorem-ipsum";
-
-const lorem = new LoremIpsum({
-  sentencesPerParagraph: {
-    max: 8,
-    min: 4,
-  },
-  wordsPerSentence: {
-    max: 16,
-    min: 4,
-  },
-});
+import { Box, useAPIResult } from "@macrostrat/ui-components";
 
 function useMapInfo(lng, lat, z) {
   return useAPIResult(`/mobile/map_query_v2`, {
@@ -25,10 +13,10 @@ function useMapInfo(lng, lat, z) {
 }
 
 export default {
-  title: "Data components/Expansion panel",
+  title: "Data components/Expandable details",
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   args: {},
-  component: ExpansionPanelDemo,
+  component: ExpandableDetailsDemo,
 } as Meta<any>;
 
 const lat = 44.60085563149249;
@@ -39,14 +27,7 @@ export const Primary = {
   args: {},
 };
 
-const loremContent = lorem.generateParagraphs(20).split("\n");
-// Group into arrays of 2 paragraphs each
-const groupedContent = [];
-for (let i = 0; i < loremContent.length; i += 2) {
-  groupedContent.push(loremContent.slice(i, i + 2).map((d) => h("p", d)));
-}
-
-function ExpansionPanelDemo() {
+function ExpandableDetailsDemo() {
   const mapInfo = useMapInfo(lng, lat, zoom);
 
   if (mapInfo == null) {
@@ -54,7 +35,9 @@ function ExpansionPanelDemo() {
   }
 
   const macrostrat = mapInfo?.mapData[0]?.macrostrat;
+
   if (macrostrat == null) return null;
+
   const { liths = null } = macrostrat;
 
   if (!liths || liths.length == 0) return null;
@@ -73,16 +56,23 @@ function ExpansionPanelDemo() {
 
   return h("div", [
     h(
-      ExpansionPanel,
+      ExpandableDetailsPanel,
       {
-        title: "Lithology",
-      },
-      [
-        h(LithologyList, {
-          label: "Matched lithologies",
-          lithologies,
+        headerElement: h(TypesList, {
+          label: "Lithology",
+          data: lith_types,
+          row: true,
         }),
-        h(TypesList, {
+      },
+      h(LithologyList, {
+        label: "Matched lithologies",
+        lithologies,
+      }),
+    ),
+    h(
+      ExpandableDetailsPanel,
+      {
+        headerElement: h(TypesList, {
           label: "Facies",
           data: [
             { name: "marine", color: "#00f" },
@@ -90,17 +80,15 @@ function ExpansionPanelDemo() {
             { name: "other", color: "#888" },
           ],
         }),
-      ],
+      },
+      "Facies are user-provided lists of rock unit information",
     ),
     h(
-      ExpansionPanel,
+      ExpandableDetailsPanel,
       {
-        title: "Environments",
+        headerElement: h("h2", "Environments"),
       },
-      h(
-        "p",
-        "We have some truly exciting news to share about the enivronment for this rock unit.",
-      ),
+      "We have some truly exciting news to share about the enivronment for this rock unit.",
     ),
   ]);
 }
@@ -119,22 +107,6 @@ function TypesList(props) {
       let name = d.name;
       if (name == null || name == "") name = "other";
       return h(Tag, { name, color: d.color ?? "#888" });
-    }),
-  );
-}
-
-export function ExtremelyLongContent() {
-  return h(
-    "div",
-    groupedContent.map((content, i) => {
-      return h(
-        ExpansionPanel,
-        {
-          title: `Panel ${i + 1}`,
-          expanded: i % 3 == 0,
-        },
-        content,
-      );
     }),
   );
 }

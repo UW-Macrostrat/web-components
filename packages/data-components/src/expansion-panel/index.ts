@@ -66,14 +66,6 @@ function ExpansionPanelBase(props) {
   );
 }
 
-export function InfoPanelSection(props) {
-  let { title, children, className, headerElement = null } = props;
-  return h("div.info-panel-section", { className }, [
-    h("div.panel-subhead", null, headerElement ?? h("h3", title)),
-    h("div.panel-content", null, children),
-  ]);
-}
-
 function ExpansionPanel(props) {
   return h(ExpansionPanelBase, {
     ...props,
@@ -109,7 +101,7 @@ function ExpandableDetailsPanel(props) {
     ]),
     h(
       Collapse as any,
-      { isOpen },
+      { isOpen, className: "expandable-details-collapse" },
       h("div.expansion-body", { className: bodyClassName }, children),
     ),
   ]);
