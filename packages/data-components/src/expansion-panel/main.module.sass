@@ -1,6 +1,10 @@
 
+.expansion-panel
+  --panel-padding-h: var(--expansion-panel-padding, 1rem)
+  --panel-padding-v: var(--expansion-panel-padding, 1rem)
+
 .panel-subhead
-  padding: 0 1rem
+  padding: 0 var(--panel-padding-h)
   border: 1px solid var(--panel-rule-color)
   border-bottom: 1px solid var(--panel-rule-color)
   background-color: var(--accent-color)
@@ -30,6 +34,14 @@
 .info-panel-section
   &>.panel-subhead
     margin: -1px calc(var(--panel-padding-h) * -1) 0
+
+.expansion-panel-toggle
+  svg
+    // Adjust placement of toggle within button
+    // Kind of annoying that we have to do this
+    transform: translate(0, -2px)
+  margin-right: -0.5rem
+  margin-left: 0.5rem
 
 .expansion-panel
   padding: 0
@@ -84,34 +96,23 @@
   :global(.bp6-icon)
     transform: translate(0,3px)
 
-.expansion-children
-  padding: 0 1rem
+.expansion-panel-content
+  padding: var(--panel-padding-v) var(--panel-padding-h)
   .expansion-panel
     margin-left: -1rem
     margin-right: -1rem
     &:first-child
       margin-top: 0
   &>:first-child
-    margin-top: 1rem
+    margin-top: 0
   &>:last-child
-    margin-bottom: 1rem
-
-
+    margin-bottom: 0
 
 .expansion-panel-subtext
   font-size: 85%
   font-weight: 400
 
-:global
-  .expansion-panel-root
-    padding-left: 15px !important
-
-  .expansion-panel-detail
-    display: block !important
-    padding: 0 !important
-
-  .expansion-panel-detail-sub
-    display: block !important
+/** Expandable details panel */
 
 .expandable-details
   position: relative

@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Collapse, Icon, Button } from "@blueprintjs/core";
+import { Collapse, Button } from "@blueprintjs/core";
 import h from "./main.module.sass";
 import classNames from "classnames";
-import { PanelSubhead } from "./headers";
 
 function ExpansionPanelSummary(props) {
   const { expanded, children, onChange, className, title, titleComponent } =
@@ -16,8 +15,29 @@ function ExpansionPanelSummary(props) {
       title,
       component: titleComponent,
     },
-    [children, h(Icon, { icon, className: "expansion-panel-icon" })],
+    [
+      children,
+      h(Button, {
+        icon,
+        className: "expansion-panel-toggle",
+        minimal: true,
+      }),
+    ],
   );
+}
+
+export function PanelSubhead(props) {
+  const { title, component = "h3", children, ...rest } = props;
+  return h("div.panel-subhead", rest, [
+    h(
+      component,
+      {
+        className: "title",
+      },
+      title,
+    ),
+    children,
+  ]);
 }
 
 function ExpansionPanelBase(props) {
@@ -61,12 +81,12 @@ function ExpansionPanelBase(props) {
           sideComponent,
         ]),
       ),
-      h(Collapse, { isOpen }, h("div.expansion-children", null, children)),
+      h(Collapse, { isOpen }, h("div.expansion-panel-content", null, children)),
     ],
   );
 }
 
-function ExpansionPanel(props) {
+export function ExpansionPanel(props) {
   return h(ExpansionPanelBase, {
     ...props,
     className: "expansion-panel",
@@ -81,7 +101,7 @@ function SubExpansionPanel(props) {
   });
 }
 
-function ExpandableDetailsPanel(props) {
+export function ExpandableDetailsPanel(props) {
   let { title, children, value, headerElement, className, bodyClassName } =
     props;
   const [isOpen, setIsOpen] = useState(false);
@@ -107,10 +127,4 @@ function ExpandableDetailsPanel(props) {
   ]);
 }
 
-export {
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpandableDetailsPanel,
-  SubExpansionPanel,
-  PanelSubhead,
-};
+export { ExpansionPanelSummary, SubExpansionPanel };
