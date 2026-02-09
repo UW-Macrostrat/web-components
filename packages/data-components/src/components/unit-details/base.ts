@@ -155,7 +155,7 @@ export function TagField({
   return h(
     DataField,
     { className: classNames("tag-field", className), ...rest },
-    h(ItemList, children),
+    children,
   );
 }
 

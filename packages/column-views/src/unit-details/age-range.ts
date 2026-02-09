@@ -2,10 +2,11 @@ import {
   DataField,
   IntervalShort,
   IntervalTag,
+  ItemList,
   Value,
 } from "@macrostrat/data-components";
 import { useMacrostratDefs } from "@macrostrat/data-provider";
-import h from "./panel.module.sass";
+import h from "./age-range.module.sass";
 import { formatProportion, formatRange } from "./utils";
 
 export function AgeField({ unit, children }) {
@@ -117,7 +118,7 @@ export function IntervalProportions({ unit, onClickItem }) {
     }
   };
 
-  return h("div.interval-proportions", [
+  return h(ItemList, { className: "interval-proportions" }, [
     h(IntervalTag, {
       className: clickable ? "clickable" : "",
       onClick: clickable ? handleClick : undefined,
@@ -125,7 +126,7 @@ export function IntervalProportions({ unit, onClickItem }) {
       prefix: p0,
     }),
     h.if(i0 != i1)("span.discourage-break", [
-      h("span.sep", "to"),
+      h("span.sep", " to "),
       h(IntervalTag, {
         className: clickable ? "clickable" : "",
         onClick: clickable ? handleClick : undefined,

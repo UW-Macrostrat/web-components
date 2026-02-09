@@ -11,7 +11,10 @@
 
 .tag
   font-size: var(--font-size)
-  align-items: center
+  align-items: stretch
+  &>*
+    padding: 0.2em 0.5em
+
   display: inline-flex
   border-radius: 0.3em
   flex-direction: row
@@ -20,14 +23,13 @@
 
   .prefix
     //display: inline-block
-    padding: 0 0.5em
+    align-self: baseline
 
   .main
-    align-items: center
     display: inline-flex
-    padding: 0.2em 0.5em
+    flex-flow: row wrap
     border-radius: 0.3em
-    gap: 0.5em
+    gap: 0 0.5em
     color: var(--text-color)
     align-items: baseline
     background-color: var(--tag-background, var(--tertiary-background))
@@ -43,6 +45,8 @@
     font-style: var(--tag-details-font-style, normal)
     font-weight: 300
     font-size: var(--tag-details-font-size)
+    flex-grow: 1
+    text-align: end
 
 .tag-list
   display: inline-flex !important
@@ -88,6 +92,12 @@
     //font-size: 0.9em
     //display: inline-block
     break-inside: avoid
+
+.tag-field
+  @extend .tag-list
+  .label
+    flex-grow: 1
+
 
 .unit
   color: var(--unit-color, var(--text-subtle-color))
