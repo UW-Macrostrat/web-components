@@ -17,7 +17,7 @@
 
   display: inline-flex
   border-radius: 0.3em
-  flex-direction: row
+  flex-flow: row wrap
   background-color: var(--tag-secondary-background, var(--secondary-background))
   color: var(--secondary-color)
 
@@ -28,6 +28,7 @@
   .main
     display: inline-flex
     flex-flow: row wrap
+    flex-grow: 1
     border-radius: 0.3em
     gap: 0 0.5em
     color: var(--text-color)
@@ -82,6 +83,7 @@
     font-weight: var(--data-field-label-font-weight, bold)
     font-style: var(--data-field-label-font-style, normal)
     flex-grow: 1
+    max-width: 100%
     display: block
     color: var(--secondary-color)
     text-align: left
@@ -95,8 +97,6 @@
 
 .tag-field
   @extend .tag-list
-  .label
-    flex-grow: 1
 
 
 .unit

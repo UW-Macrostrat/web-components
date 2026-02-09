@@ -107,7 +107,7 @@ export function IntervalProportions({ unit, onClickItem }) {
   }
 
   if (i0 === i1 && (b_prop !== 0 || t_prop !== 1)) {
-    p0 = h("span.joint-proportion", [p0, h("span.sep", "to"), p1]);
+    p0 = h("span.joint-proportion", [p0, " ", h("span.sep", "to"), " ", p1]);
   }
 
   const clickable = onClickItem != null;
