@@ -1,6 +1,6 @@
 import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
-import { ExpansionPanel } from ".";
+import { ExpansionPanel, SubExpansionPanel } from ".";
 import { LithologyList, Tag, TagField } from "../components/unit-details";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { LoremIpsum } from "lorem-ipsum";
@@ -38,6 +38,13 @@ const zoom = 3.9392171056922325;
 export const Primary = {
   args: {},
 };
+
+function generateLoremContent(nParagraphs = 1) {
+  return lorem
+    .generateParagraphs(nParagraphs)
+    .split("\n")
+    .map((d) => h("p", d));
+}
 
 const loremContent = lorem.generateParagraphs(20).split("\n");
 // Group into arrays of 2 paragraphs each
@@ -126,14 +133,41 @@ function TypesList(props) {
 export function ExtremelyLongContent() {
   return h(
     "div",
-    groupedContent.map((content, i) => {
+    Array.from({ length: 10 }, () => generateLoremContent(2)).map(
+      (content, i) => {
+        return h(
+          ExpansionPanel,
+          {
+            title: `Panel ${i + 1}`,
+            expanded: i % 3 == 0,
+          },
+          content,
+        );
+      },
+    ),
+  );
+}
+
+export function NestedPanels() {
+  return h(
+    "div",
+    Array.from({ length: 10 }, () => null).map((d, i) => {
       return h(
         ExpansionPanel,
         {
           title: `Panel ${i + 1}`,
           expanded: i % 3 == 0,
         },
-        content,
+        Array.from({ length: 5 }).map((d, j) => {
+          return h(
+            SubExpansionPanel,
+            {
+              title: `Panel ${i + 1}.${j + 1}`,
+              expanded: j % 2 == 0,
+            },
+            generateLoremContent(2),
+          );
+        }),
       );
     }),
   );
