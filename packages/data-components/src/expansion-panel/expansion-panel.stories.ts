@@ -4,6 +4,7 @@ import { ExpansionPanel, SubExpansionPanel } from ".";
 import { LithologyList, Tag, TagField } from "../components/unit-details";
 import { useAPIResult } from "@macrostrat/ui-components";
 import { LoremIpsum } from "lorem-ipsum";
+import { Button } from "@blueprintjs/core";
 
 const lorem = new LoremIpsum({
   sentencesPerParagraph: {
@@ -65,10 +66,6 @@ function ExpansionPanelDemo() {
   const { liths = null } = macrostrat;
 
   if (!liths || liths.length == 0) return null;
-
-  const lith_types = liths.map((d) => {
-    return { name: d.lith_type ?? "other", color: "#888" };
-  });
 
   const lithologies = liths.map((lith) => {
     return {
@@ -164,6 +161,43 @@ export function NestedPanels() {
             {
               title: `Panel ${i + 1}.${j + 1}`,
               expanded: j % 2 == 0,
+            },
+            generateLoremContent(2),
+          );
+        }),
+      );
+    }),
+  );
+}
+
+export function WithDetails() {
+  return h(
+    "div",
+    Array.from({ length: 10 }, () => null).map((d, i) => {
+      return h(
+        ExpansionPanel,
+        {
+          title: `Panel ${i + 1}`,
+          expanded: i % 3 == 0,
+        },
+        Array.from({ length: 5 }).map((d, j) => {
+          const helpText = "Some context about this panel";
+          return h(
+            ExpansionPanel,
+            {
+              title: `Panel ${i + 1}.${j + 1}`,
+              expanded: j % 2 == 0,
+              helpText,
+              sideComponent: h(
+                Button,
+                {
+                  icon: "info-sign",
+                  small: true,
+                  minimal: true,
+                  style: { fontSize: 12 },
+                },
+                null,
+              ),
             },
             generateLoremContent(2),
           );

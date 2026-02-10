@@ -21,6 +21,11 @@ export function ExpansionPanel(props) {
     setOpen(!isOpen);
   };
 
+  let _helpText = null;
+  if (helpText) {
+    _helpText = h("div.expansion-panel-subtext", helpText);
+  }
+
   return h(
     "div.expansion-panel",
     {
@@ -31,20 +36,20 @@ export function ExpansionPanel(props) {
     },
     [
       h(
-        ExpansionPanelSummary,
+        ExpansionPanelHeader,
         {
           onChange: onChange_,
           expanded: isOpen,
           title,
           titleComponent,
         },
-        h("div.expansion-summary-title-help", [
-          h("span.expansion-panel-subtext", helpText),
-          " ",
-          sideComponent,
-        ]),
+        [_helpText, sideComponent],
       ),
-      h(Collapse, { isOpen }, h("div.expansion-panel-content", null, children)),
+      h(
+        Collapse as any,
+        { isOpen },
+        h("div.expansion-panel-content", children),
+      ),
     ],
   );
 }
@@ -57,9 +62,15 @@ export function SubExpansionPanel(props) {
   });
 }
 
-export function ExpansionPanelSummary(props) {
-  const { expanded, children, onChange, className, title, titleComponent } =
-    props;
+export function ExpansionPanelHeader(props) {
+  const {
+    expanded,
+    children,
+    onChange,
+    className,
+    title,
+    titleComponent = "h3",
+  } = props;
   const icon = expanded ? "chevron-up" : "chevron-down";
   return h(
     PanelSubhead,
