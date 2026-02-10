@@ -7,6 +7,8 @@
   wrapping.
 - Moved `ExpansionPanel` and `ExpandableDetails` to this component from
   `@macrostrat/map-interface`
+- Update `xDDExpansionPanel` to use `ExpansionPanel` and `ExpandableDetails`
+  components, and improve styling of the expansion panel content.
 
 ## [1.1.1] - 2026-02-06
 
