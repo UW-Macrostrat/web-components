@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Collapse, Button } from "@blueprintjs/core";
 import h from "./main.module.sass";
 import classNames from "classnames";
@@ -97,9 +97,26 @@ export function ExpansionPanelHeader(props) {
 }
 
 export function ExpandableDetailsPanel(props) {
-  let { title, children, value, headerElement, className, bodyClassName } =
-    props;
-  const [isOpen, setIsOpen] = useState(false);
+  let {
+    title,
+    children,
+    value,
+    headerElement,
+    className,
+    bodyClassName,
+    expanded = false,
+    setExpanded,
+  } = props;
+  const [isOpen, _setExpanded] = useState(expanded);
+  const setIsOpen = setExpanded ?? _setExpanded;
+
+  useEffect(() => {
+    /** Sync provided props and state */
+    if (expanded !== undefined) {
+      setIsOpen(expanded);
+    }
+  }, [expanded]);
+
   headerElement ??= h([h("div.title", title), value]);
   return h("div.expandable-details", { className }, [
     h("div.expandable-details-main", [

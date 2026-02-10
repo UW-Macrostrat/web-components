@@ -1,5 +1,4 @@
 import { Article } from "./article";
-import { Divider } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import { ExpansionPanel } from "../expansion-panel";
 
@@ -16,45 +15,29 @@ export interface XDDSnippet {
   highlight: string[];
 }
 
-function Journal(props) {
-  return h("div.journal", [
-    h("div.journal-title", [
-      h("h2.journal-title-text", [
-        props.data.name,
-        h("small.journal-source", [props.data]),
-      ]),
-    ]),
-    h(Divider),
-    props.data.articles.map((article, i) => {
-      return h(Article, { key: i, data: article });
-    }),
-  ]);
-}
-
 type JournalProps = {
   articles: XDDSnippet[];
   name: string;
   publisher: string;
-  nestedExpanded?: boolean;
+  expanded?: boolean;
+  detailsExpanded?: boolean;
 };
 
 // Still up for review
-export function JournalLegacy(props: JournalProps) {
-  const { articles, name, publisher, nestedExpanded } = props;
-
-  const helpText = articles[0].pubname;
+export function Journal(props: JournalProps) {
+  const { articles, name, publisher, expanded, detailsExpanded } = props;
 
   return h(
     ExpansionPanel,
     {
       title: name,
       helpText: publisher,
-      expanded: nestedExpanded,
+      expanded,
       className: "journal",
     },
     [
       articles.map((article, i) => {
-        return h(Article, { key: i, data: article });
+        return h(Article, { key: i, data: article, expanded: detailsExpanded });
       }),
     ],
   );
