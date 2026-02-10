@@ -30,6 +30,7 @@ $colors: (
 $dark-background: #141a1e;
 $accent: color.scale($dark-background, $lightness: 10%);
 $dark-text: $gray4;
+$accentSecondary: color.scale($dark-background, $lightness: 5%);
 
 $dark-colors: (
   text-emphasized-color: #fff,
@@ -46,9 +47,13 @@ $dark-colors: (
       $alpha: 0.6
     ),
   accent-color: $accent,
+  accent-hover-color: color.adjust($accent, $lightness: 4%),
   // light gray 3,
-  accent-secondary-color: $accent,
-  accent-secondary-hover-color: color.adjust($accent, $lightness: 5%),
+  accent-secondary-color: $accentSecondary,
+  accent-secondary-hover-color: color.adjust($accentSecondary, $lightness: 4%),
+
+  //accent-secondary-color: $accent,
+  //accent-secondary-hover-color: color.adjust($accent, $lightness: 5%),
   panel-rule-color: #404854,
   secondary-color: $gray1,
   // gray3,
@@ -59,7 +64,6 @@ $dark-colors: (
   // light gray 4,
   tertiary-border-color: #5f6b7c,
   // gray 5,
-  accent-hover-color: color.adjust($accent, $lightness: 4%),
   // light gray 1,
   accent-border-color: #5f6b7c,
   // gray5,

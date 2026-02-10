@@ -4,13 +4,11 @@ import {
   RegionalStratigraphy,
   Physiography,
   MacrostratLinkedData,
-  XddExpansion,
   FossilCollections,
 } from "../src/location-details";
 import {
   useMapInfo,
   useColumnInfo,
-  useXddInfo,
   useFossilInfo,
 } from "./fetch-geological-data";
 
@@ -37,9 +35,6 @@ export function RegionalStratigraphyExample() {
     return null;
   }
 
-  console.log("Map info:", mapInfo);
-  console.log("Column info:", columnInfo);
-
   return h(RegionalStratigraphy, {
     mapInfo,
     columnInfo,
@@ -63,8 +58,6 @@ export function PhysiographyExample() {
 export function MacrostratLinkedDataExample() {
   const mapInfo = useMapInfo(lng, lat, zoom);
 
-  console.log("MacrostratLinkedData:", mapInfo);
-
   if (mapInfo == null) {
     return null;
   }
@@ -80,16 +73,6 @@ export function MacrostratLinkedDataExample() {
     lithologyURL: "https://dev.macrostrat.org/lex/lithologies",
     expanded: true,
   });
-}
-
-export function xddInfoExample() {
-  const mapInfo = useMapInfo(lng, lat, zoom);
-  const xddInfo = useXddInfo(mapInfo?.mapData?.[0]?.macrostrat?.strat_names);
-  if (xddInfo == null || mapInfo == null) {
-    return null;
-  }
-
-  return h(XddExpansion, { xddInfo, expanded: true, nestedExpanded: true });
 }
 
 export function FossilsExample() {

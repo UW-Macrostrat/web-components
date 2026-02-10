@@ -1,7 +1,7 @@
 import { Article } from "./article";
 import { Divider } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import { SubExpansionPanel } from "@macrostrat/map-interface";
+import { ExpansionPanel } from "../expansion-panel";
 
 export interface XDDSnippet {
   pubname: string;
@@ -45,11 +45,12 @@ export function JournalLegacy(props: JournalProps) {
   const helpText = articles[0].pubname;
 
   return h(
-    SubExpansionPanel,
+    ExpansionPanel,
     {
       title: name,
       helpText: publisher,
       expanded: nestedExpanded,
+      className: "journal",
     },
     [
       articles.map((article, i) => {

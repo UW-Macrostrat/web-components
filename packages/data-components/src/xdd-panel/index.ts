@@ -1,9 +1,9 @@
 import { Spinner } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import { XDDSnippet, JournalLegacy } from "./journal";
-import { ExpansionPanel } from "@macrostrat/map-interface";
+import { ExpansionPanel } from "../expansion-panel";
 
-export function XddExpansion({
+export function xDDExpansion({
   xddInfo,
   expanded = false,
   nestedExpanded = true,
