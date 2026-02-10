@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Collapse, Button } from "@blueprintjs/core";
 import { AuthorList } from "@macrostrat/ui-components";
 import h from "@macrostrat/hyper";
+import { ExpandableDetailsPanel } from "../expansion-panel";
 
 export function Article(props) {
   const [expanded, setExpanded] = useState(false);
