@@ -16,14 +16,9 @@
   top: -1px
   position: sticky
   min-height: var(--panel-header-height, 40px)
-  h1, h2, h3, h4
-    font-family: Montserrat,sans-serif
-    font-weight: 700
-    margin: 0
-  h4
-    font-weight: 600
   .title
     flex-grow: 1
+    margin: 0
 
   .expansion-panel-icon
     margin-right: -0.35em
@@ -51,38 +46,10 @@
   //   .expansion-panel-header
   //     border-bottom-width: 0;
 
-.expansion-panel-detail-header
-  font-size: 90%
-  font-style: italic
-  margin-right: 1em
-  display: inline
-  color: var(--secondary-color)
-  &:after
-    content: ":"
+.expansion-panel-content
+  &>.expansion-panel:first-child
+    margin-top: calc(-1 * var(--panel-padding-v))
 
-
-.sub-expansion-panel
-  margin: -1px calc(var(--panel-padding-h) * -0.5) 0
-  overflow: hidden
-  &:first-child
-    .expansion-panel-header
-      border-top-width: 0
-  .panel-subhead
-    border-top: none
-    border-bottom: none
-
-  .expansion-panel-header
-    background-color: var(--accent-secondary-color)
-    cursor: pointer
-    padding: 0 1rem
-
-    &:hover
-      background-color: var(--accent-secondary-hover-color)
-    h2, h3, h4
-      font-weight: 500
-      border-bottom: 1px solid var(--tertiary-border-color)
-      border-top: 1px solid var(--tertiary-border-color)
-      align-items: center
 
 .expansion-summary-title-help
   margin-left: 5px
@@ -98,11 +65,22 @@
 
 .expansion-panel-content
   padding: var(--panel-padding-v) var(--panel-padding-h)
-  .expansion-panel
-    margin-left: -1rem
-    margin-right: -1rem
+  .expansion-panel-header
+    min-height: calc(var(--panel-header-height, 40px) * 0.8)
+    background-color: var(--accent-secondary-color)
+    h1, h2, h3, h4, h5, h6
+      font-weight: 500
+    // Adjust sticky placement of header to account for parent
+    top: calc(var(--panel-header-height, 40px) - 2px)
+
+  // Nested expansion panels can fit right into a stack
+  &>.expansion-panel
+    margin-left: calc(-1 * var(--panel-padding-h))
+    margin-right: calc(-1 * var(--panel-padding-h))
     &:first-child
-      margin-top: 0
+      margin-top: calc(-1 * var(--panel-padding-v) - 1px)
+    &:last-child
+      margin-bottom: calc(-1 * var(--panel-padding-v) - 1px)
   &>:first-child
     margin-top: 0
   &>:last-child

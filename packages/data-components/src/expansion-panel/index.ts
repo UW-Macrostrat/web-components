@@ -3,7 +3,61 @@ import { Collapse, Button } from "@blueprintjs/core";
 import h from "./main.module.sass";
 import classNames from "classnames";
 
-function ExpansionPanelSummary(props) {
+export function ExpansionPanel(props) {
+  let {
+    title,
+    titleComponent = "h3",
+    children,
+    expanded,
+    helpText,
+    onChange = () => {},
+    sideComponent = null,
+    className,
+  } = props;
+  const [isOpen, setOpen] = useState(expanded || false);
+
+  const onChange_ = () => {
+    onChange();
+    setOpen(!isOpen);
+  };
+
+  return h(
+    "div.expansion-panel",
+    {
+      className: classNames(className, {
+        expanded: isOpen,
+        collapsed: !isOpen,
+      }),
+    },
+    [
+      h(
+        ExpansionPanelSummary,
+        {
+          onChange: onChange_,
+          expanded: isOpen,
+          title,
+          titleComponent,
+        },
+        h("div.expansion-summary-title-help", [
+          h("span.expansion-panel-subtext", helpText),
+          " ",
+          sideComponent,
+        ]),
+      ),
+      h(Collapse, { isOpen }, h("div.expansion-panel-content", null, children)),
+    ],
+  );
+}
+
+export function SubExpansionPanel(props) {
+  return h(ExpansionPanel, {
+    ...props,
+    className: "expansion-panel sub-expansion-panel",
+    titleComponent: "h4",
+  });
+}
+
+export function ExpansionPanelSummary(props) {
   const { expanded, children, onChange, className, title, titleComponent } =
     props;
   const icon = expanded ? "chevron-up" : "chevron-down";
@@ -40,67 +94,6 @@ export function PanelSubhead(props) {
   ]);
 }
 
-function ExpansionPanelBase(props) {
-  let {
-    title,
-    titleComponent = "h3",
-    children,
-    expanded,
-    helpText,
-    onChange = () => {},
-    sideComponent = null,
-    className,
-  } = props;
-  const [isOpen, setOpen] = useState(expanded || false);
-
-  const onChange_ = () => {
-    onChange();
-    setOpen(!isOpen);
-  };
-
-  return h(
-    "div.expansion-panel-base",
-    {
-      className: classNames(className, {
-        expanded: isOpen,
-        collapsed: !isOpen,
-      }),
-    },
-    [
-      h(
-        ExpansionPanelSummary,
-        {
-          onChange: onChange_,
-          expanded: isOpen,
-          title,
-          titleComponent,
-        },
-        h("div.expansion-summary-title-help", [
-          h("span.expansion-panel-subtext", helpText),
-          " ",
-          sideComponent,
-        ]),
-      ),
-      h(Collapse, { isOpen }, h("div.expansion-panel-content", null, children)),
-    ],
-  );
-}
-
-export function ExpansionPanel(props) {
-  return h(ExpansionPanelBase, {
-    ...props,
-    className: "expansion-panel",
-  });
-}
-
-function SubExpansionPanel(props) {
-  return h(ExpansionPanelBase, {
-    ...props,
-    className: "expansion-panel sub-expansion-panel",
-    titleComponent: "h4",
-  });
-}
-
 export function ExpandableDetailsPanel(props) {
   let { title, children, value, headerElement, className, bodyClassName } =
     props;
@@ -126,5 +119,3 @@ export function ExpandableDetailsPanel(props) {
     ),
   ]);
 }
-
-export { ExpansionPanelSummary, SubExpansionPanel };
