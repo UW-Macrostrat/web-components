@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.1.2] - 2026-02-09
+
+- Improvements to `Tag` and `DataField` components, including better styles for
+  lists of tags, and more consistent styling across viewport sizes and row
+  wrapping.
+- Moved `ExpansionPanel` and `ExpandableDetails` to this component from
+  `@macrostrat/map-interface`
+
 ## [1.1.1] - 2026-02-06
 
 - Remove typings that repeat Vite defaults
