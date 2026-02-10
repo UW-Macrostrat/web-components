@@ -71,16 +71,21 @@ export function ExpansionPanelHeader(props) {
     title,
     titleComponent = "h3",
   } = props;
+
+  let titleElement = null;
+  if (title) {
+    titleElement = h(titleComponent, { className: "title" }, title);
+  }
+
   const icon = expanded ? "chevron-up" : "chevron-down";
   return h(
-    PanelSubhead,
+    "div.panel-subhead.expansion-panel-header",
     {
-      className: classNames("expansion-panel-header", className),
+      className,
       onClick: onChange,
-      title,
-      component: titleComponent,
     },
     [
+      titleElement,
       children,
       h(Button, {
         icon,
@@ -89,20 +94,6 @@ export function ExpansionPanelHeader(props) {
       }),
     ],
   );
-}
-
-export function PanelSubhead(props) {
-  const { title, component = "h3", children, ...rest } = props;
-  return h("div.panel-subhead", rest, [
-    h(
-      component,
-      {
-        className: "title",
-      },
-      title,
-    ),
-    children,
-  ]);
 }
 
 export function ExpandableDetailsPanel(props) {

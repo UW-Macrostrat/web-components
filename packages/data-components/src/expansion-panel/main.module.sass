@@ -3,8 +3,14 @@
   --panel-padding-h: var(--expansion-panel-padding, 1rem)
   --panel-padding-v: var(--expansion-panel-padding, 1rem)
   --panel-header-height: var(--expansion-panel-header-height, 40px)
+  padding: 0
+  flex-wrap: wrap
+  margin-top: -1px
 
-.panel-subhead
+.expansion-panel-header
+  cursor: pointer
+  &:hover
+    background-color: var(--accent-hover-color)
   padding: 0 var(--panel-padding-h)
   border: 1px solid var(--panel-rule-color)
   border-bottom: 1px solid var(--panel-rule-color)
@@ -21,26 +27,9 @@
     flex-grow: 1
     margin: 0
 
-.expansion-panel-toggle
-  margin-right: -0.75rem
+  // Pull the expansion/collapse toggle button a bit closer to the edge
+  padding-right: 0.2em
 
-.expansion-panel
-  padding: 0
-  flex-wrap: wrap
-  margin-top: -1px
-  // &.collapsed
-  //   .expansion-panel-header
-  //     border-bottom-width: 0;
-
-.expansion-panel-content
-  &>.expansion-panel:first-child
-    margin-top: calc(-1 * var(--panel-padding-v))
-
-
-.expansion-panel-header
-  cursor: pointer
-  &:hover
-    background-color: var(--accent-hover-color)
 
 .expansion-panel-content
   padding: var(--panel-padding-v) var(--panel-padding-h)
@@ -48,8 +37,10 @@
   --panel-header-height: calc(var(--panel-header-height, 40px) * 0.8)
 
   .expansion-panel-header
+    /* Header for second-level expansion panels is a bit
+       smaller and has a different background color
+       to visually distinguish it from the main header. */
     min-height: 32px //var(--panel-header-height)
-
     background-color: var(--accent-secondary-color)
     h1, h2, h3, h4, h5, h6
       font-weight: 500

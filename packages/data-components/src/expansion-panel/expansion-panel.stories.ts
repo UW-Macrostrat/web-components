@@ -188,13 +188,13 @@ export function WithDetails() {
               title: `Panel ${i + 1}.${j + 1}`,
               expanded: j % 2 == 0,
               helpText,
+              titleElement: "h4",
               sideComponent: h(
                 Button,
                 {
                   icon: "info-sign",
                   small: true,
                   minimal: true,
-                  style: { fontSize: 12 },
                 },
                 null,
               ),
