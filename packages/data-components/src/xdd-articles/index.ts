@@ -1,50 +1,41 @@
 import { Spinner } from "@blueprintjs/core";
-import h from "@macrostrat/hyper";
-import { XDDSnippet, JournalLegacy } from "./journal";
-import { ExpansionPanel } from "@macrostrat/map-interface";
+import h from "./main.module.sass";
+import { XDDSnippet, Journal } from "./journal";
+import { ExpansionPanel } from "../expansion-panel";
+import { useMemo } from "react";
+import classNames from "classnames";
 
-export function XddExpansion({
-  xddInfo,
+export function xDDExpansionPanel({
+  data,
   expanded = false,
+  isFetching = false,
   nestedExpanded = true,
+  detailsExpanded = null,
+  className,
 }) {
-  return h(xDDPanelCore, {
-    className: "regional-panel",
-    data: xddInfo,
-    isFetching: xddInfo == undefined || xddInfo.length === 0,
-    expanded,
-    nestedExpanded,
-  });
-}
+  const groupedData = useMemo(() => groupXDDSnippetsByJournal(data), [data]);
 
-export function xDDPanelCore({
-  isFetching,
-  data: xddInfo,
-  expanded,
-  nestedExpanded,
-  ...rest
-}) {
-  const groupedData = groupSnippetsByJournal(xddInfo);
+  const _shouldRenderSpinner = isFetching && !data;
 
   return h(
     ExpansionPanel,
     {
-      className: "regional-panel",
+      className: classNames("xdd-panel", className),
       title: "Primary literature",
       helpText: "via xDD",
-      ...rest,
       expanded,
     },
     [
-      h.if(isFetching)(Spinner),
-      h.if(!isFetching && xddInfo.length > 0)([
+      h.if(_shouldRenderSpinner)(Spinner),
+      h.if(!_shouldRenderSpinner)([
         Array.from(groupedData.entries())?.map(([journal, snippets]) => {
-          return h(JournalLegacy, {
-            nestedExpanded,
+          return h(Journal, {
+            expanded: nestedExpanded,
             name: journal,
             articles: snippets,
             publisher: snippets[0].publisher,
             key: journal,
+            detailsExpanded,
           });
         }),
       ]),
@@ -52,7 +43,7 @@ export function xDDPanelCore({
   );
 }
 
-function groupSnippetsByJournal(
+export function groupXDDSnippetsByJournal(
   snippets: XDDSnippet[],
 ): Map<string, XDDSnippet[]> {
   const journals = new Map<string, XDDSnippet[]>();

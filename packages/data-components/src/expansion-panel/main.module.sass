@@ -1,0 +1,111 @@
+
+.expansion-panel
+  --panel-padding-h: var(--expansion-panel-padding, 1rem)
+  --panel-padding-v: var(--expansion-panel-padding, 1rem)
+  --panel-header-height: var(--expansion-panel-header-height, 40px)
+  padding: 0
+  flex-wrap: wrap
+  margin-top: -1px
+
+.expansion-panel-header
+  cursor: pointer
+  background-color: var(--accent-color)
+  &:hover
+    background-color: var(--accent-hover-color)
+  padding: 0 var(--panel-padding-h)
+  border: 1px solid var(--panel-rule-color)
+  border-bottom: 1px solid var(--panel-rule-color)
+  display: flex
+  flex-direction: row
+  align-items: center
+  z-index: 1
+  gap: var(--panel-header-gap, 0.5rem)
+  top: -1px
+  position: sticky
+  min-height: var(--panel-header-height)
+  .title
+    flex-grow: 1
+    margin: 0
+
+  // Pull the expansion/collapse toggle button a bit closer to the edge
+  padding-right: 0.2em
+
+
+.expansion-panel-content
+  padding: var(--panel-padding-v) var(--panel-padding-h)
+  --outer-panel-header-height: var(--panel-header-height)
+  --panel-header-height: calc(var(--panel-header-height, 40px) * 0.8)
+
+  .expansion-panel-header
+    /* Header for second-level expansion panels is a bit
+       smaller and has a different background color
+       to visually distinguish it from the main header. */
+    min-height: 32px //var(--panel-header-height)
+    background-color: var(--accent-secondary-color)
+    &:hover
+      background-color: var(--accent-secondary-hover-color)
+    h1, h2, h3, h4, h5, h6
+      font-weight: 500
+    // Adjust sticky placement of header to account for parent
+    top: calc(var(--panel-header-height, 40px) - 2px)
+
+    .expansion-panel-toggle
+      // Make button a bit smaller
+      min-height: 24px
+      min-width: 24px
+      padding: 0 14px
+
+
+  // Nested expansion panels can fit right into a stack
+  &>.expansion-panel
+    margin-left: calc(-1 * var(--panel-padding-h))
+    margin-right: calc(-1 * var(--panel-padding-h))
+    &:first-child
+      margin-top: calc(-1 * var(--panel-padding-v) - 1px)
+    &:last-child
+      margin-bottom: calc(-1 * var(--panel-padding-v) - 1px)
+  &>:first-child
+    margin-top: 0
+  &>:last-child
+    margin-bottom: 0
+
+.expansion-panel-subtext
+  font-size: 0.85em
+  font-weight: 400
+
+/** Expandable details panel */
+
+.expandable-details
+  position: relative
+  --expansion-panel-padding-INT: var(--expansion-panel-padding, 0.5em)
+
+// New expandable panel for details
+.expandable-details-main
+  display: flex
+  flex-direction: row
+  align-items: baseline
+  gap: var(--panel-gap, 0.8em)
+  justify-content: space-between
+
+.expandable-details-collapse
+  position: relative
+  transform: translateY(-0.3em)
+
+.expandable-details-toggle
+  font-size: 1em
+  transform: translateY(-2px)
+
+.expansion-body
+  background-color: var(--secondary-background)
+  font-size: var(--expansion-panel-body-font-size, inherit)
+  padding: var(--expansion-panel-padding-INT)
+  border-radius: var(--expansion-panel-border-radius, 0.25em)
+  width: 100%
+  box-shadow: 0px 1px 2px 1px rgba(0,0,0,0.2)
+  --data-field-label-font-weight: normal
+  --data-field-label-font-style: italic
+  &>:first-child
+    margin-top: 0
+  &>:last-child
+    margin-bottom: 0
+  margin-bottom: 0.5em

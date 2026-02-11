@@ -1,6 +1,7 @@
 import type { Meta } from "@storybook/react-vite";
 import type { StoryObj } from "@storybook/react-vite";
-import { ExpansionPanel, LocationPanel } from "../src";
+import { LocationPanel } from "../src";
+import { ExpansionPanel } from "@macrostrat/data-components";
 import h from "@macrostrat/hyper";
 import { InfoDrawerHeader } from "../src/location-panel/header";
 import { Box } from "@macrostrat/ui-components";

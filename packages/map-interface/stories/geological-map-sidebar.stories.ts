@@ -1,40 +1,39 @@
-import { ComponentMeta } from "@storybook/react-vite";
+import type { Meta } from "@storybook/react-vite";
 import h from "@macrostrat/hyper";
 import {
   RegionalStratigraphy,
   Physiography,
   MacrostratLinkedData,
-  XddExpansion,
   FossilCollections,
 } from "../src/location-details";
 import {
-  fetchMapInfo,
-  fetchColumnInfo,
-  fetchXddInfo,
-  fetchFossilInfo,
+  useMapInfo,
+  useColumnInfo,
+  useFossilInfo,
 } from "./fetch-geological-data";
 
 export default {
   title: "Map interface/Geological map sidebar",
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
   args: {},
-  component: RegionalStratigraphy,
-} as ComponentMeta<any>;
+  component: MacrostratLinkedDataExample,
+} as Meta<any>;
 
 const lat = 44.60085563149249;
 const lng = -96.16783150353609;
 const zoom = 3.9392171056922325;
 
+export const Primary = {
+  args: {},
+};
+
 export function RegionalStratigraphyExample() {
-  const mapInfo = fetchMapInfo(lng, lat, zoom);
-  const columnInfo = fetchColumnInfo(lng, lat);
+  const mapInfo = useMapInfo(lng, lat, zoom);
+  const columnInfo = useColumnInfo(lng, lat);
 
   if (mapInfo == null || columnInfo == null) {
     return null;
   }
-
-  console.log("mapInfo", mapInfo);
-  console.log("columnInfo", columnInfo);
 
   return h(RegionalStratigraphy, {
     mapInfo,
@@ -45,7 +44,10 @@ export function RegionalStratigraphyExample() {
 }
 
 export function PhysiographyExample() {
-  const mapInfo = fetchMapInfo(lng, lat, zoom);
+  const mapInfo = useMapInfo(lng, lat, zoom);
+  if (mapInfo == null) {
+    return null;
+  }
 
   return h(Physiography, {
     mapInfo,
@@ -54,24 +56,13 @@ export function PhysiographyExample() {
 }
 
 export function MacrostratLinkedDataExample() {
-  const mapInfo = fetchMapInfo(lng, lat, zoom);
+  const mapInfo = useMapInfo(lng, lat, zoom);
 
   if (mapInfo == null) {
     return null;
   }
 
-  const source =
-    mapInfo && mapInfo?.mapData && mapInfo?.mapData.length
-      ? mapInfo?.mapData[0]
-      : {
-          name: null,
-          descrip: null,
-          comments: null,
-          liths: [],
-          b_int: {},
-          t_int: {},
-          ref: {},
-        };
+  const source = mapInfo?.mapData[0];
 
   return h(MacrostratLinkedData, {
     mapInfo,
@@ -84,19 +75,8 @@ export function MacrostratLinkedDataExample() {
   });
 }
 
-export function xddInfoExample() {
-  const mapInfo = fetchMapInfo(lng, lat, zoom);
-  const xddInfo = fetchXddInfo(mapInfo?.mapData?.[0]?.macrostrat?.strat_names);
-
-  if (!xddInfo) {
-    return null;
-  }
-
-  return h(XddExpansion, { xddInfo, expanded: true, nestedExpanded: true });
-}
-
 export function FossilsExample() {
-  const fossilInfo = fetchFossilInfo(-89.3938453, 43.0735407);
+  const fossilInfo = useFossilInfo(-89.3938453, 43.0735407);
 
   return h(FossilCollections, { data: fossilInfo, expanded: true });
 }

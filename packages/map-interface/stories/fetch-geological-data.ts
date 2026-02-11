@@ -4,30 +4,30 @@ const apiV2Prefix = `https://dev.macrostrat.org/api/v2`;
 const gddDomain = `https://xdd.wisc.edu`;
 const paleobioDomain = `https://paleobiodb.org`;
 
-export function fetchMapInfo(lng, lat, z) {
-  return useAPIResult(`${apiV2Prefix}/mobile/map_query_v2`, {
+export function useMapInfo(lng, lat, z) {
+  return useAPIResult(`/mobile/map_query_v2`, {
     lng,
     lat,
     z,
-  })?.success?.data;
+  });
 }
 
-export function fetchColumnInfo(lng, lat) {
-  return useAPIResult(`${apiV2Prefix}/columns`, {
+export function useColumnInfo(lng, lat) {
+  return useAPIResult(`/columns`, {
     lat,
     lng,
     response: "long",
-  })?.success?.data?.[0];
+  })?.[0];
 }
 
-export function fetchXddInfo(stratNames) {
+export function useXddInfo(stratNames) {
   return useAPIResult(`${gddDomain}/api/v1/snippets`, {
     article_limit: 20,
     term: stratNames?.map((d) => d.rank_name).join(","),
-  })?.success?.data;
+  });
 }
 
-export function fetchFossilInfo(lng, lat) {
+export function useFossilInfo(lng, lat) {
   const collectionResponse = useAPIResult(
     `${paleobioDomain}/data1.2/colls/list.json?lngmin=${lng - 0.1}&lngmax=${lng + 0.1}&latmin=${lat - 0.1}&latmax=${lat + 0.1}`,
   )?.records;

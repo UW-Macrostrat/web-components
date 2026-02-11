@@ -2,7 +2,7 @@ import h from "./main.module.sass";
 
 import classNames from "classnames";
 import { mergeAgeRanges } from "@macrostrat/stratigraphy-utils";
-import { Tag, BaseTagProps } from "./tag";
+import { Tag, BaseTagProps, BaseTagList, ItemList } from "./tag";
 import { ReactNode } from "react";
 import { ItemInteractionProps, useInteractionProps } from "../../data-links.ts";
 
@@ -143,10 +143,9 @@ function uniqueIntervals(
 }
 
 export function TagField({
-  label,
   className,
   children,
-  onClick,
+  ...rest
 }: {
   label?: string;
   className?: string;
@@ -155,7 +154,7 @@ export function TagField({
 }) {
   return h(
     DataField,
-    { className: classNames("tag-field", className), label },
+    { className: classNames("tag-field", className), ...rest },
     children,
   );
 }
