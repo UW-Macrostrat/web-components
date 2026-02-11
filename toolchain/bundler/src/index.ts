@@ -107,7 +107,7 @@ function buildStandardViteConfig(
         ],
         outDir: resolve(root, "dist"),
         // We don't care too much about Typescript types. We could change this.
-        logLevel: verbose ? "info" : "silent",
+        logLevel: "info",
       }) as any,
       hyperStyles(),
       checkExportsPlugin,

@@ -6,7 +6,7 @@ import styles from "./main.module.sass";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { JSONView } from "@macrostrat/ui-components";
 import { group } from "d3-array";
-import { ExpansionPanel } from "../../../data-components/src/expansion-panel";
+import { ExpansionPanel } from "@macrostrat/data-components";
 
 const h = hyper.styled(styles);
 
