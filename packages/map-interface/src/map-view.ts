@@ -5,7 +5,6 @@ import {
   use3DTerrain,
   getTerrainLayerForStyle,
   useMapStatus,
-  useMapOverlayStyles,
   useMapStyleFragments,
 } from "@macrostrat/mapbox-react";
 import React from "react";
@@ -134,9 +133,6 @@ export function MapView(props: MapViewProps) {
     className,
     ...rest
   } = props;
-  if (enableTerrain) {
-    terrainSourceID ??= "mapbox-3d-dem";
-  }
 
   useEffect(() => {
     if (id != null) {
@@ -300,7 +296,6 @@ function StyleLoadedReporter({ onStyleLoaded = null }) {
 export function MapTerrainManager({
   mapUse3D,
   terrainSourceID,
-  style,
 }: {
   mapUse3D?: boolean;
   terrainSourceID?: string;

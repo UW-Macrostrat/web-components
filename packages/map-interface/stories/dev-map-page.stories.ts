@@ -118,10 +118,8 @@ export const TerrainDisabled: Story = {
 
 function MacrostratMapLayer({ isEnabled }) {
   useOverlayStyle(() => {
-    console.log("Building overlay style, isEnabled =", isEnabled);
     if (!isEnabled) return null;
     const style = buildMacrostratStyle({});
-    console.log("Overlay style:", style);
     return style;
   }, [isEnabled]);
   return null;

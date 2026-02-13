@@ -1,7 +1,7 @@
 import { useMapStyleOperator, useOverlayStyle } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
 import { FeatureCollection } from "geojson";
-import { ReactNode, useMemo, useRef } from "react";
+import { ReactNode, useRef } from "react";
 import { buildColumnsStyle, InsetMapProps } from "../../_shared";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
