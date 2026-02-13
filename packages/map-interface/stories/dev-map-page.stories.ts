@@ -1,7 +1,9 @@
 import type { Meta } from "@storybook/react-vite";
 import type { StoryObj } from "@storybook/react-vite";
 import { buildMacrostratStyle } from "@macrostrat/map-styles";
-import { DevMapPage as _DevMapPage } from "../src";
+import { DevMapPage as _DevMapPage, MapInspectorV2 } from "../src";
+import h from "@macrostrat/hyper";
+import { useOverlayStyle } from "@macrostrat/mapbox-react";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -111,5 +113,37 @@ export const TerrainDisabled: Story = {
     },
     enableTerrain: false,
     overlayStyle: buildMacrostratStyle({}),
+  },
+};
+
+function MacrostratMapLayer({ isEnabled }) {
+  useOverlayStyle(() => {
+    console.log("Building overlay style, isEnabled =", isEnabled);
+    if (!isEnabled) return null;
+    const style = buildMacrostratStyle({});
+    console.log("Overlay style:", style);
+    return style;
+  }, [isEnabled]);
+  return null;
+}
+
+export const WithOverlayLayerAsChild: Story = {
+  args: {
+    title: "Overlay layer as child",
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -77.006,
+        altitude: 4000,
+        pitch: 45,
+      },
+    },
+    overlayEnabled: true,
+  },
+  render(args) {
+    const { overlayEnabled = true, ...rest } = args;
+    return h(MapInspectorV2, { ...rest, mapboxToken }, [
+      h(MacrostratMapLayer, { isEnabled: overlayEnabled }),
+    ]);
   },
 };
