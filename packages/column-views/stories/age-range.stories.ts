@@ -134,20 +134,3 @@ export function WithExternalLinks(args: Omit<UnitDetailsPanelProps, "unit">) {
     h(IntervalProportions, { unit: units[0] }),
   );
 }
-export function WithMapQueryAPI(args: Omit<UnitDetailsPanelProps, "unit">) {
-  // Need to get column units first in order to set up navigation
-  const res = useAPIResult(
-    "/mobile/map_query_v2?lng=-105.2931&lat=40.0872&z=11.2",
-  );
-  const mapData = res?.mapData?.[0]?.macrostrat;
-
-  if (mapData == null) return h(Spinner);
-  console.log(mapData);
-
-  return h(IntervalProportions, {
-    unit: {
-      b_int_id: mapData.b_int.int_id,
-      t_int_id: mapData.t_int.int_id,
-    },
-  });
-}
