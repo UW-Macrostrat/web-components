@@ -1,4 +1,4 @@
-import { useMapStyleOperator } from "@macrostrat/mapbox-react";
+import { useMapStyleOperator, useOverlayStyle } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
 import { FeatureCollection } from "geojson";
 import { ReactNode, useMemo, useRef } from "react";
@@ -16,6 +16,7 @@ import {
   ColumnKeyboardNavigation,
   buildKeyboardNavigationStyle,
 } from "./keyboard-navigation";
+import { StyleSpecification } from "mapbox-gl";
 
 export interface ColumnNavigationMapProps extends InsetMapProps {
   padding?: number;
@@ -74,13 +75,13 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
     ...rest
   } = props;
 
-  const overlayStyles = useMemo(() => {
-    let styles: any[] = [buildColumnsStyle(columnColor)];
-    if (showTriangulation) {
-      styles.push(buildKeyboardNavigationStyle(triangulationColor));
-    }
-    return styles;
-  }, [columnColor, showTriangulation, triangulationColor]);
+  // const overlayStyles = useMemo(() => {
+  //   let styles: any[] = [buildColumnsStyle(columnColor)];
+  //   if (showTriangulation) {
+  //     styles.push(buildKeyboardNavigationStyle(triangulationColor));
+  //   }
+  //   return styles;
+  // }, [columnColor, showTriangulation, triangulationColor]);
 
   return h(
     InsetMap,
@@ -88,14 +89,33 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
       ...rest,
       boxZoom: false,
       dragRotate: false,
-      overlayStyles,
     },
     [
       h(ColumnsLayer),
       children,
+      h(ColumnOverlayStyles, {
+        columnColor,
+        showTriangulation,
+        triangulationColor,
+      }),
       h.if(keyboardNavigation)(ColumnKeyboardNavigation, { showTriangulation }),
     ],
   );
+}
+
+function ColumnOverlayStyles({
+  columnColor,
+  showTriangulation,
+  triangulationColor,
+}) {
+  useOverlayStyle(() => buildColumnsStyle(columnColor), [columnColor]);
+  useOverlayStyle(() => {
+    if (!showTriangulation) return null;
+    return buildKeyboardNavigationStyle(
+      triangulationColor,
+    ) as Partial<StyleSpecification>;
+  }, [triangulationColor, showTriangulation]);
+  return null;
 }
 
 function ColumnsLayer({ enabled = true }) {

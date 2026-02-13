@@ -6,6 +6,7 @@ import {
   buildTriangulation,
   buildKeyMapping,
 } from "../utils/keyboard-navigation";
+import { StyleSpecification } from "mapbox-gl";
 
 interface KeyboardNavProps {
   showTriangulation: boolean;
@@ -115,5 +116,5 @@ export function buildKeyboardNavigationStyle(color: string = "purple") {
         },
       },
     ],
-  };
+  } as Partial<StyleSpecification>;
 }

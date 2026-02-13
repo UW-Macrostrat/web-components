@@ -1,10 +1,23 @@
-import type { RefObject } from "react";
+import { RefObject, useEffect } from "react";
 import { createContext, useContext, useMemo, useRef, useState } from "react";
 import update from "immutability-helper";
-import type { Map } from "mapbox-gl";
+import type {
+  Map,
+  StyleSpecification as MapboxStyleSpecification,
+} from "mapbox-gl";
 import h from "@macrostrat/hyper";
 import type { MapPosition } from "@macrostrat/mapbox-utils";
 import { createStore, useStore } from "zustand";
+
+// This may or may not be defined...
+import type { StyleSpecification as MaplibreStyleSpecification } from "maplibre-gl";
+
+export type StyleSpecification =
+  | MapboxStyleSpecification
+  | MaplibreStyleSpecification;
+export type StyleFragment = Partial<StyleSpecification> & {
+  order?: number;
+};
 
 const MapStoreContext = createContext(null);
 
@@ -15,6 +28,7 @@ export function MapboxMapProvider({ children }) {
       return {
         status: defaultMapStatus,
         position: null,
+        overlayStyles: [],
         // Hold a reference to the map object in state
         ref,
         dispatch: (action: MapAction): void => {
@@ -49,6 +63,7 @@ interface MapState {
   position: MapPosition;
   ref: RefObject<Map | null>;
   dispatch(action: MapAction): void;
+  overlayStyles: StyleFragment[];
 }
 
 interface MapStatus {
@@ -148,4 +163,47 @@ function mapReducer(state: MapState, action: MapAction): MapCtx {
     case "map-moved":
       return { ...state, position: action.payload };
   }
+}
+
+export function useMapStyleFragments() {
+  // Get styles added to the map via the useOverlayStyle hook
+  const styles = internal_useMapSelector((state) => state.overlayStyles);
+  return useMemo(() => sortStyleFragments(...styles), [styles]);
+}
+
+function sortStyleFragments(...fragments: StyleFragment[]): StyleFragment[] {
+  /** Sort style fragments by their "order" property, which determines the order in which they are merged into the map style */
+  return fragments
+    .filter((a) => a != null)
+    .sort((a, b) => {
+      const aOrder = a.order ?? 0;
+      const bOrder = b.order ?? 0;
+      return aOrder - bOrder;
+    });
+}
+
+export function useOverlayStyle(
+  styleBuilder: () => StyleFragment | null,
+  deps: any[] = [],
+) {
+  /** This hook can be used to add runtime layers to the map, even after initialization */
+  const store = useMapStore();
+
+  useEffect(() => {
+    const style = styleBuilder();
+    const spec = {
+      overlayStyles: {
+        $push: [style],
+      },
+    };
+
+    store.setState((state) => update(state, spec));
+    // If unmounted, remove the style from the store
+    return () => {
+      store.setState((state) => ({
+        ...state,
+        overlayStyles: state.overlayStyles.filter((s) => s !== style),
+      }));
+    };
+  }, deps);
 }

@@ -5,6 +5,8 @@ import {
   use3DTerrain,
   getTerrainLayerForStyle,
   useMapStatus,
+  useMapOverlayStyles,
+  useMapStyleFragments,
 } from "@macrostrat/mapbox-react";
 import React from "react";
 import {
@@ -157,6 +159,12 @@ export function MapView(props: MapViewProps) {
 
   const [baseStyle, setBaseStyle] = useState<mapboxgl.Style>(null);
 
+  /** Get overlay styles from map context. These are added after the base style is loaded, and can be used
+   * to add layers to the map at runtime, even after initialization. They are merged with any overlay styles
+   * passed in as props.
+   */
+  const _ctxOverlayStyles = useMapStyleFragments() as any[];
+
   const estMapPosition: MapPosition | null =
     mapRef.current == null ? mapPosition : getMapPosition(mapRef.current);
   const { mapUse3D, mapIsRotated } = mapViewInfo(estMapPosition);
@@ -169,10 +177,10 @@ export function MapView(props: MapViewProps) {
 
     let newStyle: mapboxgl.StyleSpecification = baseStyle;
 
-    const overlayStyles = props.overlayStyles ?? [];
+    const _overlayStyles = overlayStyles ?? [];
 
-    if (overlayStyles.length > 0) {
-      newStyle = mergeStyles(newStyle, ...overlayStyles);
+    if (_overlayStyles.length > 0 || _ctxOverlayStyles.length > 0) {
+      newStyle = mergeStyles(newStyle, ..._overlayStyles, ..._ctxOverlayStyles);
     }
 
     /** If we can, we try to update the map style with terrain information
@@ -207,7 +215,7 @@ export function MapView(props: MapViewProps) {
       map.setPadding(getMapPadding(ref, parentRef), { animate: false });
       onMapLoaded?.(map);
     }
-  }, [baseStyle, overlayStyles, transformStyle]);
+  }, [baseStyle, overlayStyles, _ctxOverlayStyles, transformStyle]);
 
   useAsyncEffect(async () => {
     /** Manager to update map style */
