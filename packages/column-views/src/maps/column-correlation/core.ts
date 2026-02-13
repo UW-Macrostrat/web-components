@@ -2,6 +2,7 @@ import {
   useMapClickHandler,
   useMapEaseTo,
   useMapStyleOperator,
+  useOverlayStyle,
 } from "@macrostrat/mapbox-react";
 import { LngLatBounds, Style } from "mapbox-gl";
 import h from "@macrostrat/hyper";
@@ -23,24 +24,15 @@ export interface CorrelationMapProps extends InsetMapProps {
 export function ColumnCorrelationMap(props: CorrelationMapProps) {
   const { padding = 50, children, columnColor, projectID, ...rest } = props;
 
-  const overlayStyles: Partial<Style>[] = useMemo(() => {
-    return [
-      buildColumnsStyle(columnColor) as Style,
-      selectedColumnsStyle as Style,
-      lineOfSectionStyle as Style,
-    ];
-  }, [columnColor]);
-
   return h(
     InsetMap,
     {
       ...rest,
       boxZoom: false,
       dragRotate: false,
-      overlayStyles,
     },
     [
-      h(ColumnsLayer),
+      h(ColumnsLayer, { color: columnColor }),
       h(SelectedColumnsLayer),
       h(MapClickHandler),
       h(SectionLine, { padding }),
@@ -63,6 +55,8 @@ function MapClickHandler() {
 }
 
 function SelectedColumnsLayer() {
+  useOverlayStyle(() => selectedColumnsStyle, []);
+
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
@@ -98,8 +92,10 @@ function SelectedColumnsLayer() {
   return null;
 }
 
-function ColumnsLayer({ enabled = true }) {
+function ColumnsLayer({ enabled = true, color }) {
   const columns = useCorrelationMapStore((state) => state.columns);
+
+  useOverlayStyle(() => buildColumnsStyle(color), [color]);
 
   useMapStyleOperator(
     (map) => {
@@ -167,6 +163,7 @@ const lineOfSectionStyle: Style = {
 };
 
 function SectionLine({ padding }: { padding: number }) {
+  useOverlayStyle(() => lineOfSectionStyle, []);
   const focusedLine = useCorrelationMapStore((state) => state.focusedLine);
 
   // Setup focused line

@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { buildGeoJSONSource, setGeoJSON } from "@macrostrat/mapbox-utils";
-import { useMapRef, useMapStyleOperator } from "@macrostrat/mapbox-react";
+import {
+  useMapRef,
+  useMapStyleOperator,
+  useOverlayStyle,
+} from "@macrostrat/mapbox-react";
 import { useColumnNavigationStore } from "./state";
 import {
   buildTriangulation,
@@ -10,11 +14,12 @@ import { StyleSpecification } from "mapbox-gl";
 
 interface KeyboardNavProps {
   showTriangulation: boolean;
+  triangulationColor?: string;
 }
 
 export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
   /** Keyboard navigation of columns using a Delaunay triangulation */
-  const { showTriangulation = false } = props;
+  const { showTriangulation = false, triangulationColor } = props;
   const columns = useColumnNavigationStore((state) => state.columns);
   const col_id = useColumnNavigationStore((state) => state.selectedColumn);
   const selectColumn = useColumnNavigationStore((state) => state.selectColumn);
@@ -26,6 +31,14 @@ export function ColumnKeyboardNavigation(props: KeyboardNavProps) {
 
   const mapRef = useMapRef();
   const map = mapRef.current;
+
+  // Set up overlay style for triangulation
+  useOverlayStyle(() => {
+    if (!showTriangulation) return null;
+    return buildKeyboardNavigationStyle(
+      triangulationColor,
+    ) as Partial<StyleSpecification>;
+  }, [triangulationColor, showTriangulation]);
 
   const keyMapping = useMemo(() => {
     if (columns == null || voronoi == null || map == null) return null;

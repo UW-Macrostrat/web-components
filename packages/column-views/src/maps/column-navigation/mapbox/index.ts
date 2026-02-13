@@ -75,14 +75,6 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
     ...rest
   } = props;
 
-  // const overlayStyles = useMemo(() => {
-  //   let styles: any[] = [buildColumnsStyle(columnColor)];
-  //   if (showTriangulation) {
-  //     styles.push(buildKeyboardNavigationStyle(triangulationColor));
-  //   }
-  //   return styles;
-  // }, [columnColor, showTriangulation, triangulationColor]);
-
   return h(
     InsetMap,
     {
@@ -91,34 +83,14 @@ function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
       dragRotate: false,
     },
     [
-      h(ColumnsLayer),
-      children,
-      h(ColumnOverlayStyles, {
-        columnColor,
-        showTriangulation,
-        triangulationColor,
-      }),
+      h(ColumnsLayer, { color: columnColor }),
       h.if(keyboardNavigation)(ColumnKeyboardNavigation, { showTriangulation }),
+      children,
     ],
   );
 }
 
-function ColumnOverlayStyles({
-  columnColor,
-  showTriangulation,
-  triangulationColor,
-}) {
-  useOverlayStyle(() => buildColumnsStyle(columnColor), [columnColor]);
-  useOverlayStyle(() => {
-    if (!showTriangulation) return null;
-    return buildKeyboardNavigationStyle(
-      triangulationColor,
-    ) as Partial<StyleSpecification>;
-  }, [triangulationColor, showTriangulation]);
-  return null;
-}
-
-function ColumnsLayer({ enabled = true }) {
+function ColumnsLayer({ enabled = true, color }) {
   const columns = useColumnNavigationStore((state) => state.columns);
   const selectedColumn = useColumnNavigationStore(
     (state) => state.selectedColumn,
@@ -130,6 +102,9 @@ function ColumnsLayer({ enabled = true }) {
   const setHoveredColumn = useColumnNavigationStore(
     (state) => state.setHoveredColumn,
   );
+
+  /** Add the column overlay style to the map */
+  useOverlayStyle(() => buildColumnsStyle(color), [color]);
 
   useMapStyleOperator(
     (map) => {
