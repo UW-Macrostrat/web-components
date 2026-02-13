@@ -4,6 +4,7 @@ import { buildMacrostratStyle } from "@macrostrat/map-styles";
 import { DevMapPage as _DevMapPage, MapInspectorV2 } from "../src";
 import h from "@macrostrat/hyper";
 import { useOverlayStyle } from "@macrostrat/mapbox-react";
+import { removeMapLabels } from "@macrostrat/mapbox-utils";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -97,6 +98,22 @@ export const LowAltitudeOblique: Story = {
       },
     },
     overlayStyle: buildMacrostratStyle({}),
+  },
+};
+
+export const WithoutLabels: Story = {
+  args: {
+    title: "No labels",
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -77.006,
+        altitude: 4000,
+        pitch: 45,
+      },
+    },
+    overlayStyle: buildMacrostratStyle({}),
+    transformStyle: removeMapLabels,
   },
 };
 
