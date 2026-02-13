@@ -28,12 +28,71 @@ export interface ColumnNavigationMapProps extends InsetMapProps {
   onHoverColumn?: (colID: number | null) => void;
   showTriangulation?: boolean;
   columnColor?: string;
-  triangulationColor?: string;
-  keyboardNavigation?: boolean;
 }
 
 export function ColumnNavigationMap(
   props: ColumnNavigationMapProps & NavigationProviderProps,
+) {
+  const {
+    padding = 50,
+    children,
+    columnColor,
+    showTriangulation,
+    triangulationColor,
+    keyboardNavigation = true,
+    columns,
+    columnIDs,
+    onSelectColumn,
+    onHoverColumn,
+    selectedColumn,
+    hoveredColumn,
+    projectID,
+    inProcess,
+    ...rest
+  } = props;
+
+  return h(
+    InsetMap,
+    {
+      ...rest,
+      boxZoom: false,
+      dragRotate: false,
+    },
+    [
+      h(ColumnsNavigationLayer, {
+        color: columnColor,
+        columns,
+        columnIDs,
+        onSelectColumn,
+        onHoverColumn,
+        selectedColumn,
+        hoveredColumn,
+        projectID,
+        inProcess,
+        keyboardNavigation,
+        showTriangulation,
+        triangulationColor,
+      }),
+      children,
+    ],
+  );
+}
+
+interface ColumnLayerProps {
+  enabled?: boolean;
+  color?: string;
+}
+
+interface ColumnKeyboardNavigationProps {
+  triangulationColor?: string;
+  keyboardNavigation?: boolean;
+  showTriangulation?: boolean;
+}
+
+export function ColumnsNavigationLayer(
+  props: NavigationProviderProps &
+    ColumnLayerProps &
+    ColumnKeyboardNavigationProps,
 ) {
   const {
     columns,
@@ -43,9 +102,12 @@ export function ColumnNavigationMap(
     selectedColumn,
     hoveredColumn,
     projectID,
-    children,
     inProcess,
-    ...rest
+    enabled,
+    color,
+    keyboardNavigation,
+    showTriangulation,
+    triangulationColor,
   } = props;
 
   return h(
@@ -60,37 +122,17 @@ export function ColumnNavigationMap(
       projectID,
       inProcess,
     },
-    h(_ColumnNavigationMap, props),
-  );
-}
-
-function _ColumnNavigationMap(props: ColumnNavigationMapProps) {
-  const {
-    padding = 50,
-    children,
-    columnColor,
-    showTriangulation,
-    triangulationColor,
-    keyboardNavigation = true,
-    ...rest
-  } = props;
-
-  return h(
-    InsetMap,
-    {
-      ...rest,
-      boxZoom: false,
-      dragRotate: false,
-    },
     [
-      h(ColumnsLayer, { color: columnColor }),
-      h.if(keyboardNavigation)(ColumnKeyboardNavigation, { showTriangulation }),
-      children,
+      h(_ColumnsNavigationLayer, { enabled, color }),
+      h.if(keyboardNavigation)(ColumnKeyboardNavigation, {
+        showTriangulation,
+        triangulationColor,
+      }),
     ],
   );
 }
 
-function ColumnsLayer({ enabled = true, color }) {
+function _ColumnsNavigationLayer({ enabled = true, color }) {
   const columns = useColumnNavigationStore((state) => state.columns);
   const selectedColumn = useColumnNavigationStore(
     (state) => state.selectedColumn,

@@ -95,7 +95,10 @@ function SelectedColumnsLayer() {
 function ColumnsLayer({ enabled = true, color }) {
   const columns = useCorrelationMapStore((state) => state.columns);
 
-  useOverlayStyle(() => buildColumnsStyle(color), [color]);
+  useOverlayStyle(
+    () => (enabled ? buildColumnsStyle(color) : null),
+    [enabled, color],
+  );
 
   useMapStyleOperator(
     (map) => {
@@ -107,7 +110,6 @@ function ColumnsLayer({ enabled = true, color }) {
         features: columns,
       };
 
-      console.log(" columns", data);
       setGeoJSON(map, "columns", data);
     },
     [columns, enabled],
