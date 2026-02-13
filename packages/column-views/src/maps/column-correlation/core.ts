@@ -11,7 +11,12 @@ import { ReactNode, useMemo } from "react";
 import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 
 import { useCorrelationMapStore } from "./state";
-import { buildColumnsStyle, InsetMap, InsetMapProps } from "../_shared";
+import {
+  BaseColumnsLayer,
+  buildColumnsStyle,
+  InsetMap,
+  InsetMapProps,
+} from "../_shared";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
 
 export interface CorrelationMapProps extends InsetMapProps {
@@ -94,27 +99,7 @@ function SelectedColumnsLayer() {
 
 function ColumnsLayer({ enabled = true, color }) {
   const columns = useCorrelationMapStore((state) => state.columns);
-
-  useOverlayStyle(
-    () => (enabled ? buildColumnsStyle(color) : null),
-    [enabled, color],
-  );
-
-  useMapStyleOperator(
-    (map) => {
-      if (columns == null) {
-        return;
-      }
-      const data: FeatureCollection = {
-        type: "FeatureCollection",
-        features: columns,
-      };
-
-      setGeoJSON(map, "columns", data);
-    },
-    [columns, enabled],
-  );
-  return null;
+  return h(BaseColumnsLayer, { enabled, color, columns });
 }
 
 const selectedColumnsStyle: Style = {
