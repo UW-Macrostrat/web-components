@@ -11,12 +11,8 @@ import { ReactNode, useMemo } from "react";
 import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 
 import { useCorrelationMapStore } from "./state";
-import {
-  BaseColumnsLayer,
-  buildColumnsStyle,
-  InsetMap,
-  InsetMapProps,
-} from "../_shared";
+import { InsetMap, type InsetMapProps } from "../inset-map";
+import { BaseColumnsLayer } from "../layers";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
 
 export interface CorrelationMapProps extends InsetMapProps {

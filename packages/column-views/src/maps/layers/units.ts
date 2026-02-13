@@ -3,7 +3,7 @@ import {
   useMacrostratColumns,
 } from "@macrostrat/data-provider";
 import { useAPIResult } from "@macrostrat/ui-components";
-import { useMapStyleOperator } from "@macrostrat/mapbox-react";
+import { useMapStyleOperator, useOverlayStyle } from "@macrostrat/mapbox-react";
 import { FeatureCollection } from "geojson";
 import { useMemo } from "react";
 import { mergeStyles, setGeoJSON } from "@macrostrat/mapbox-utils";
@@ -15,9 +15,11 @@ import {
   loadStyleImage,
   StyleFragment,
 } from "@macrostrat/map-styles";
-import { asChromaColor, getCSSVariable } from "@macrostrat/color-utils";
+import { asChromaColor } from "@macrostrat/color-utils";
 import { buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 import pMap from "p-map";
+import { BaseColumnsLayer } from "./columns";
+import h from "@macrostrat/hyper";
 
 export interface UnitsOverlayProps {
   time: number;
@@ -29,6 +31,10 @@ export interface UnitsOverlayProps {
 export function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
   const { time, ageSpan = 0.05, patterns = false } = props;
   const lithMap = useLithologies();
+
+  useOverlayStyle(() => {
+    return buildUnitsStyle({ patterns });
+  }, [patterns]);
 
   useMapStyleOperator(
     (map) => {
@@ -60,21 +66,6 @@ export function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
   const units: UnitLong[] = useAPIResult("/units", params);
   const columns = useMacrostratColumns(params.project, false);
 
-  // Set up basic columns layer
-  useMapStyleOperator(
-    (map) => {
-      if (columns == null) {
-        return;
-      }
-      const data: FeatureCollection = {
-        type: "FeatureCollection",
-        features: columns,
-      };
-      setGeoJSON(map, "columns", data);
-    },
-    [columns],
-  );
-
   useMapStyleOperator(
     (map) => {
       if (units == null || columns == null || lithMap == null) {
@@ -99,7 +90,35 @@ export function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
     [units, lithMap, columns, patterns],
   );
 
-  return null;
+  const isHovered = ["boolean", ["feature-state", "hover"], false];
+  const isSelected = ["boolean", ["feature-state", "selected"], false];
+  const isShown = ["boolean", ["feature-state", "shown"], false];
+
+  const opacity = [
+    "case",
+    ["all", isHovered, isShown],
+    0.9,
+    ["all", isSelected, isShown],
+    0.8,
+    isShown,
+    0.8,
+    isHovered,
+    0.3,
+    isSelected,
+    0.2,
+    0.0,
+  ];
+
+  return h([
+    h(BaseColumnsLayer, {
+      enabled: true,
+      columns,
+      opacity,
+      lineOpacity: 0.2,
+      lineColor: "lightgray",
+      color: "transparent",
+    }),
+  ]);
 }
 
 function handleUnitsLayerUpdate(
@@ -238,77 +257,13 @@ type UnitsStyleOptions = {
 };
 
 export function buildUnitsStyle(opts: UnitsStyleOptions = {}): StyleFragment {
-  const { color = null, patterns = false } = opts;
-
-  let columnBaseColor: any =
-    color ?? getCSSVariable("--text-subtle-color", "black");
-  const columnSelectedColor = getCSSVariable("--selection-color", "purple");
+  const { patterns = false } = opts;
 
   // If color is in the feature state or geojson properties, use that as second choice
 
-  let columnColor: any = [
-    "coalesce",
-    ["feature-state", "color"],
-    ["get", "color"],
-    columnBaseColor,
-  ];
-
   const baseStyle: StyleFragment = {
-    sources: {
-      columns: buildGeoJSONSource(),
-    },
+    sources: {},
     version: 8,
-    layers: [
-      {
-        id: "columns-fill",
-        type: "fill",
-        source: "columns",
-        paint: {
-          "fill-color": columnColor,
-          "fill-opacity": [
-            "case",
-            ["boolean", ["feature-state", "shown"], false],
-            0.8,
-            ["boolean", ["feature-state", "hover"], false],
-            0.3,
-            0.1,
-          ],
-        },
-      },
-      {
-        id: "columns-line",
-        type: "line",
-        source: "columns",
-        paint: {
-          "line-color": columnColor,
-          "line-width": 1,
-          "line-opacity": 0.5,
-        },
-      },
-      {
-        id: "columns-points",
-        type: "circle",
-        source: "columns",
-        paint: {
-          "circle-radius": 4,
-          "circle-color": [
-            "case",
-            ["boolean", ["feature-state", "shown"], false],
-            columnColor,
-            columnBaseColor,
-          ],
-          "circle-opacity": [
-            "case",
-            ["boolean", ["feature-state", "shown"], false],
-            0.8,
-            ["boolean", ["feature-state", "hover"], false],
-            0.3,
-            0.1,
-          ],
-        },
-        filter: ["==", "$type", "Point"],
-      },
-    ],
   };
 
   if (!patterns) {

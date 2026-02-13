@@ -1,9 +1,13 @@
 import h from "@macrostrat/hyper";
 import { Meta } from "@storybook/react-vite";
-import { InsetMap } from "./_shared";
+import { InsetMap } from "./inset-map";
 import { MacrostratDataProvider } from "@macrostrat/data-provider";
-import { useMemo } from "react";
-import { buildUnitsStyle, MacrostratUnitsOverlay } from "./units-overlay";
+import { MacrostratUnitsOverlay } from "./layers/units";
+import {
+  ColumnHoverInteraction,
+  ColumnSelectionManager,
+} from "./column-navigation";
+import { useState } from "react";
 
 // @ts-ignore
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
@@ -21,13 +25,7 @@ export default {
 } as Meta<typeof InsetMap>;
 
 function UnitMapComponent(props) {
-  const overlayStyles = useMemo(() => {
-    let styles: any[] = [
-      buildUnitsStyle({ color: "#444", patterns: props.patterns }),
-    ];
-    return styles;
-  }, []);
-
+  const { children, ...rest } = props;
   return h(
     MacrostratDataProvider,
     {
@@ -40,9 +38,8 @@ function UnitMapComponent(props) {
         {
           style: { width: "800px", height: "600px" },
           accessToken: mapboxToken,
-          overlayStyles,
         },
-        h(MacrostratUnitsOverlay, props),
+        [h(MacrostratUnitsOverlay, rest), children],
       ),
     ),
   );
@@ -60,5 +57,23 @@ export const WithPatterns = {
     time: 100,
     ageSpan: 0.05,
     patterns: true,
+  },
+};
+
+export const WithColumnSelection = {
+  args: {
+    time: 100,
+    ageSpan: 0.05,
+    patterns: false,
+  },
+  render(args) {
+    const [selectedColumn, setSelectedColumn] = useState(null);
+    return h(UnitMapComponent, args, [
+      h(ColumnHoverInteraction),
+      h(ColumnSelectionManager, {
+        selectedColumn,
+        onSelectColumn: setSelectedColumn,
+      }),
+    ]);
   },
 };

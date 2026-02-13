@@ -1,37 +1,24 @@
-import {
-  useMapRef,
-  useMapStyleOperator,
-  useOverlayStyle,
-} from "@macrostrat/mapbox-react";
+import { useMapRef, useMapStyleOperator } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
-import { FeatureCollection } from "geojson";
 import {
   ReactNode,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
+  useState,
 } from "react";
-import {
-  BaseColumnsLayer,
-  buildColumnsStyle,
-  InsetMapProps,
-} from "../../_shared";
-import { setGeoJSON } from "@macrostrat/mapbox-utils";
 
 import {
   ColumnNavigationProvider,
   NavigationProviderProps,
   useColumnNavigationStore,
 } from "./state";
-import { InsetMap } from "../../_shared";
+import { InsetMap, type InsetMapProps } from "../../inset-map";
 import { geoCentroid } from "d3-geo";
-import {
-  ColumnKeyboardNavigation,
-  buildKeyboardNavigationStyle,
-} from "./keyboard-navigation";
-import { StyleSpecification } from "mapbox-gl";
+import { BaseColumnsLayer } from "../../layers";
+import { ColumnKeyboardNavigation } from "./keyboard-navigation";
+import { ColumnIdentifier } from "../../../correlation-chart/prepare-data.ts";
 
 export interface ColumnNavigationMapProps extends InsetMapProps {
   padding?: number;
@@ -127,6 +114,8 @@ export function ColumnsNavigationLayer(
   ]);
 }
 
+const columnLayers = ["columns-points", "columns-fill"];
+
 function _ColumnsNavigationLayer({ enabled = true, color }) {
   const columns = useColumnNavigationStore((state) => state.columns);
   const selectedColumn = useColumnNavigationStore(
@@ -137,30 +126,53 @@ function _ColumnsNavigationLayer({ enabled = true, color }) {
     (state) => state.setHoveredColumn,
   );
 
-  const columnLayers = ["columns-points", "columns-fill"];
-
   const onHover = useCallback(
     (event) => setHoveredColumn(event.features?.[0]?.id),
     [setHoveredColumn],
   );
 
+  return h([
+    h(BaseColumnsLayer, { enabled, color, columns }),
+    h(ColumnSelectionManager, {
+      selectedColumn,
+      onSelectColumn: selectColumn,
+      columns,
+    }),
+    h(ColumnHoverInteraction, { onHover }),
+  ]);
+}
+
+export function ColumnSelectionManager({
+  selectedColumn,
+  onSelectColumn,
+  centerOnSelect = true,
+  columns,
+}) {
   const onClick = useCallback(
     (event) => {
       if (event.features.length == 0) return;
       const selectedColumn = event.features[0];
       const id = selectedColumn.id;
-      selectColumn(id);
+      onSelectColumn(id);
     },
-    [selectColumn],
+    [onSelectColumn],
   );
 
   return h([
-    h(BaseColumnsLayer, { enabled, color, columns }),
-    h(SelectedColumnCenterer, { selectedColumn, columns }),
+    h.if(centerOnSelect && columns != null)(SelectedColumnCenterer, {
+      selectedColumn,
+      columns,
+    }),
     h(SelectedColumnFeatureState, { selectedColumn }),
-    h(ClickInteraction, { onClick, layers: columnLayers }),
-    h(HoverInteraction, { onHover, layers: columnLayers }),
+    h(ClickInteraction, {
+      onClick,
+      layers: columnLayers,
+    }),
   ]);
+}
+
+export function ColumnHoverInteraction({ onHover }) {
+  return h(HoverInteraction, { onHover, layers: columnLayers });
 }
 
 function ClickInteraction({ onClick, layers }) {
@@ -201,12 +213,12 @@ function HoverInteraction({ onHover, layers }) {
     (map) => {
       const mouseMove = (event) => {
         if (event.features.length == 0) return;
-        onHover(event);
+        onHover?.(event);
         updateFeatureState(map, event.features);
         map.getCanvas().style.cursor = "pointer";
       };
       const mouseLeave = (event) => {
-        onHover(event);
+        onHover?.(event);
         updateFeatureState(map, event.features ?? []);
         map.getCanvas().style.cursor = "";
       };
@@ -257,12 +269,19 @@ function SelectedColumnCenterer({
   return null;
 }
 
-function SelectedColumnFeatureState({ selectedColumn }) {
+function SelectedColumnFeatureState({
+  selectedColumn,
+}: {
+  selectedColumn: number | { id: number } | null;
+}) {
   const selectedColumnRef = useRef(null);
+  const selectedColumnID =
+    typeof selectedColumn === "number" ? selectedColumn : selectedColumn?.id;
+
   useMapStyleOperator(
     (map) => {
       const prevSelectedColumn = selectedColumnRef.current;
-      if (selectedColumn == prevSelectedColumn) return;
+      if (selectedColumnID == prevSelectedColumn) return;
       if (prevSelectedColumn != null) {
         // Deselect previous column
         map.setFeatureState(
@@ -271,15 +290,15 @@ function SelectedColumnFeatureState({ selectedColumn }) {
         );
       }
 
-      selectedColumnRef.current = selectedColumn;
+      selectedColumnRef.current = selectedColumnID;
 
       // Select the current column
       map.setFeatureState(
-        { source: "columns", id: selectedColumn },
+        { source: "columns", id: selectedColumnID },
         { selected: true },
       );
     },
-    [selectedColumn],
+    [selectedColumnID],
   );
   return null;
 }
