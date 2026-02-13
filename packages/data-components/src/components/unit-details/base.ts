@@ -103,7 +103,7 @@ export function Value({
   ]);
 }
 
-interface IntervalTagProps
+export interface IntervalTagProps
   extends Omit<BaseTagProps, "name">, ItemInteractionProps {
   interval: IntervalShort;
   showAgeRange?: boolean;
