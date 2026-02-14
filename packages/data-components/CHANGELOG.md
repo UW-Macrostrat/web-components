@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.1.3] - 2026-02-13
+
+Export a type
+
 ## [1.1.2] - 2026-02-09
 
 - Improvements to `Tag` and `DataField` components, including better styles for
