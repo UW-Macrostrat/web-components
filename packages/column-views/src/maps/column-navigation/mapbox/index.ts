@@ -1,13 +1,6 @@
 import { useMapRef, useMapStyleOperator } from "@macrostrat/mapbox-react";
 import h from "@macrostrat/hyper";
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useRef } from "react";
 
 import {
   ColumnNavigationProvider,
@@ -16,9 +9,9 @@ import {
 } from "./state";
 import { InsetMap, type InsetMapProps } from "../../inset-map";
 import { geoCentroid } from "d3-geo";
-import { BaseColumnsLayer } from "../../layers";
+import { BaseColumnsLayer, SelectedColumnOverlay } from "../../layers";
 import { ColumnKeyboardNavigation } from "./keyboard-navigation";
-import { ColumnIdentifier } from "../../../correlation-chart/prepare-data.ts";
+import type { ColumnFeature } from "../../layers";
 
 export interface ColumnNavigationMapProps extends InsetMapProps {
   padding?: number;
@@ -118,7 +111,7 @@ const columnLayers = ["columns-points", "columns-fill"];
 
 function _ColumnsNavigationLayer({ enabled = true, color }) {
   const columns = useColumnNavigationStore((state) => state.columns);
-  const selectedColumn = useColumnNavigationStore(
+  const selectedColumnID = useColumnNavigationStore(
     (state) => state.selectedColumn,
   );
   const selectColumn = useColumnNavigationStore((state) => state.selectColumn);
@@ -131,12 +124,22 @@ function _ColumnsNavigationLayer({ enabled = true, color }) {
     [setHoveredColumn],
   );
 
+  /** Convert features into column IDs to pass to the selection manager */
+  const onSelectColumn = useCallback(
+    (column) => selectColumn(column.id),
+    [selectColumn],
+  );
+
+  const selectedColumnFeature = useMemo(() => {
+    if (columns == null || selectedColumnID == null) return null;
+    return columns.find((d) => d.id == selectedColumnID);
+  }, [selectedColumnID, columns]);
+
   return h([
     h(BaseColumnsLayer, { enabled, color, columns }),
     h(ColumnSelectionManager, {
-      selectedColumn,
-      onSelectColumn: selectColumn,
-      columns,
+      selectedColumn: selectedColumnFeature,
+      onSelectColumn,
     }),
     h(ColumnHoverInteraction, { onHover }),
   ]);
@@ -146,23 +149,25 @@ export function ColumnSelectionManager({
   selectedColumn,
   onSelectColumn,
   centerOnSelect = true,
-  columns,
+}: {
+  selectedColumn: ColumnFeature;
+  onSelectColumn: (column: ColumnFeature) => void;
+  centerOnSelect?: boolean;
 }) {
   const onClick = useCallback(
     (event) => {
       if (event.features.length == 0) return;
       const selectedColumn = event.features[0];
-      const id = selectedColumn.id;
-      onSelectColumn(id);
+      onSelectColumn(selectedColumn);
     },
     [onSelectColumn],
   );
 
   return h([
-    h.if(centerOnSelect && columns != null)(SelectedColumnCenterer, {
+    h.if(centerOnSelect)(SelectedColumnCenterer, {
       selectedColumn,
-      columns,
     }),
+    h(SelectedColumnOverlay, { selectedColumn }),
     h(SelectedColumnFeatureState, { selectedColumn }),
     h(ClickInteraction, {
       onClick,
@@ -238,18 +243,17 @@ function HoverInteraction({ onHover, layers }) {
 }
 
 function SelectedColumnCenterer({
-  columns,
   selectedColumn,
   easeDuration = 500,
+}: {
+  selectedColumn: ColumnFeature;
+  easeDuration?: number;
 }) {
   const columnCenter = useMemo(() => {
-    if (columns == null || selectedColumn == null) return null;
-    const columnGeometry = columns.find(
-      (d) => d.id == selectedColumn,
-    )?.geometry;
+    const columnGeometry = selectedColumn?.geometry;
     if (columnGeometry == null) return null;
     return geoCentroid(columnGeometry);
-  }, [selectedColumn, columns]);
+  }, [selectedColumn]);
 
   const mapRef = useMapRef();
   const map = mapRef.current;
@@ -272,7 +276,7 @@ function SelectedColumnCenterer({
 function SelectedColumnFeatureState({
   selectedColumn,
 }: {
-  selectedColumn: number | { id: number } | null;
+  selectedColumn: number | ColumnFeature | null;
 }) {
   const selectedColumnRef = useRef(null);
   const selectedColumnID =

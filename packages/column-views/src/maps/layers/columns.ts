@@ -1,6 +1,6 @@
 import { useMapStyleOperator, useOverlayStyle } from "@macrostrat/mapbox-react";
 import { setGeoJSON } from "@macrostrat/mapbox-utils";
-import { FeatureCollection } from "geojson";
+import GeoJSON, { FeatureCollection } from "geojson";
 import { GeoJSONFeature } from "mapbox-gl";
 import { getCSSVariable } from "@macrostrat/color-utils";
 import { buildGeoJSONSource } from "@macrostrat/mapbox-utils";
@@ -42,8 +42,15 @@ export function BaseColumnsLayer({
 }
 
 function promoteToFeatureCollection(
-  data: FeatureCollection | GeoJSONFeature[],
-): FeatureCollection {
+  data: FeatureCollection | GeoJSONFeature | GeoJSONFeature[] | null,
+): FeatureCollection | null {
+  if (data == null) return null;
+  if ("type" in data && data.type == "Feature") {
+    return {
+      type: "FeatureCollection",
+      features: [data],
+    };
+  }
   if (
     "type" in data &&
     data.type == "FeatureCollection" &&
@@ -139,6 +146,82 @@ export function buildColumnsStyle(
             lineOpacity,
           ],
         },
+      },
+    ],
+  };
+}
+
+export type ColumnFeature = GeoJSON.Feature & { id: number };
+
+const selectedColumnSourceID = "selectedColumn";
+
+export function SelectedColumnOverlay({
+  selectedColumn,
+  ...styleOpts
+}: { selectedColumn: ColumnFeature | null } & SelectedColumnStyleOpts) {
+  useOverlayStyle(() => buildSelectedColumnStyle(styleOpts), []);
+
+  useMapStyleOperator(
+    (map) => {
+      setGeoJSON(
+        map,
+        selectedColumnSourceID,
+        promoteToFeatureCollection(selectedColumn as GeoJSONFeature | null),
+      );
+    },
+    [selectedColumn],
+  );
+
+  return null;
+}
+
+interface SelectedColumnStyleOpts {
+  color?: string | any[];
+}
+
+function buildSelectedColumnStyle(
+  opts: SelectedColumnStyleOpts = {},
+): StyleFragment {
+  const columnSelectedColor: any =
+    opts.color ?? getCSSVariable("--selection-color", "purple");
+
+  return {
+    sources: {
+      selectedColumn: buildGeoJSONSource(),
+    },
+    version: 8,
+    layers: [
+      {
+        id: "selected-column-highlight",
+        type: "fill",
+        source: selectedColumnSourceID,
+        paint: {
+          "fill-color": columnSelectedColor,
+          "fill-opacity": 0.5,
+        },
+        filter: ["==", "$type", "Polygon"],
+      },
+      {
+        id: "selected-column-edge",
+        type: "line",
+        source: selectedColumnSourceID,
+        paint: {
+          "line-color": columnSelectedColor,
+          "line-width": 2,
+          "line-opacity": 1.0,
+        },
+        filter: ["==", "$type", "Polygon"],
+      },
+      {
+        id: "selected-column-point",
+        type: "circle",
+        source: selectedColumnSourceID,
+        paint: {
+          "circle-radius": 6,
+          "circle-color": columnSelectedColor,
+          "circle-opacity": 1.0,
+        },
+        filter: ["==", "$type", "Point"],
       },
     ],
   };
