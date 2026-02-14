@@ -91,21 +91,16 @@ export function MacrostratUnitsOverlay(props: UnitsOverlayProps) {
   );
 
   const isHovered = ["boolean", ["feature-state", "hover"], false];
-  const isSelected = ["boolean", ["feature-state", "selected"], false];
   const isShown = ["boolean", ["feature-state", "shown"], false];
 
   const opacity = [
     "case",
     ["all", isHovered, isShown],
     0.9,
-    ["all", isSelected, isShown],
-    0.8,
     isShown,
     0.8,
     isHovered,
     0.3,
-    isSelected,
-    0.2,
     0.0,
   ];
 

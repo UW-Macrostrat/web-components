@@ -168,7 +168,6 @@ export function ColumnSelectionManager({
       selectedColumn,
     }),
     h(SelectedColumnOverlay, { selectedColumn }),
-    h(SelectedColumnFeatureState, { selectedColumn }),
     h(ClickInteraction, {
       onClick,
       layers: columnLayers,
@@ -260,8 +259,11 @@ function SelectedColumnCenterer({
   const initialRenderRef = useRef(true);
   // Center the map on the selected column when it changes
   useEffect(() => {
-    if (map == null || columnCenter == null) return;
+    if (map == null) return;
     const isInitialRender = initialRenderRef.current;
+    if (isInitialRender) initialRenderRef.current = false;
+    // If this is the first render of the map, jump to the location. Otherwise, ease to it.
+    if (columnCenter == null) return;
     if (isInitialRender) {
       map.setCenter(columnCenter);
       initialRenderRef.current = false;
@@ -270,39 +272,5 @@ function SelectedColumnCenterer({
     }
   }, [mapRef.current, columnCenter]);
 
-  return null;
-}
-
-function SelectedColumnFeatureState({
-  selectedColumn,
-}: {
-  selectedColumn: number | ColumnFeature | null;
-}) {
-  const selectedColumnRef = useRef(null);
-  const selectedColumnID =
-    typeof selectedColumn === "number" ? selectedColumn : selectedColumn?.id;
-
-  useMapStyleOperator(
-    (map) => {
-      const prevSelectedColumn = selectedColumnRef.current;
-      if (selectedColumnID == prevSelectedColumn) return;
-      if (prevSelectedColumn != null) {
-        // Deselect previous column
-        map.setFeatureState(
-          { source: "columns", id: prevSelectedColumn },
-          { selected: false },
-        );
-      }
-
-      selectedColumnRef.current = selectedColumnID;
-
-      // Select the current column
-      map.setFeatureState(
-        { source: "columns", id: selectedColumnID },
-        { selected: true },
-      );
-    },
-    [selectedColumnID],
-  );
   return null;
 }

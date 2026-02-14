@@ -75,7 +75,6 @@ export function buildColumnsStyle(
     opts.selectedColor ?? getCSSVariable("--selection-color", "purple");
 
   const lineColor = opts.lineColor ?? columnBaseColor;
-  const isSelected = ["boolean", ["feature-state", "selected"], false];
   const isHovered = ["boolean", ["feature-state", "hover"], false];
   // If color is in the feature state or geojson properties, use that as second choice
   if (typeof columnColor === "string") {
@@ -83,18 +82,11 @@ export function buildColumnsStyle(
       "coalesce",
       ["feature-state", "color"],
       ["get", "color"],
-      ["case", isSelected, columnSelectedColor, columnColor],
+      columnColor,
     ];
   }
 
-  const fillOpacity = opts.opacity ?? [
-    "case",
-    isSelected,
-    0.5,
-    isHovered,
-    0.3,
-    0.1,
-  ];
+  const fillOpacity = opts.opacity ?? 0.1;
 
   const lineOpacity = opts.lineOpacity ?? 0.5;
   const lineWidth = opts.lineWidth ?? 2;
@@ -132,19 +124,9 @@ export function buildColumnsStyle(
         type: "line",
         source: "columns",
         paint: {
-          "line-color": [
-            "case",
-            ["any", isSelected, isHovered],
-            columnSelectedColor,
-            lineColor,
-          ],
+          "line-color": ["case", isHovered, columnSelectedColor, lineColor],
           "line-width": lineWidth,
-          "line-opacity": [
-            "case",
-            ["any", isSelected, isHovered],
-            1.0,
-            lineOpacity,
-          ],
+          "line-opacity": ["case", isHovered, 1.0, lineOpacity],
         },
       },
     ],
