@@ -1410,7 +1410,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/map-interface@workspace:*, @macrostrat/map-interface@workspace:^, @macrostrat/map-interface@workspace:packages/map-interface":
+"@macrostrat/map-interface@workspace:^, @macrostrat/map-interface@workspace:packages/map-interface":
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
@@ -1418,7 +1418,6 @@ __metadata:
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.0.6"
-    "@macrostrat/map-interface": "workspace:*"
     "@macrostrat/mapbox-react": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"

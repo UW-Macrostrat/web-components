@@ -1,4 +1,4 @@
 export * from "./column-navigation";
 export * from "./column-correlation";
-export * from "./_shared";
-export * from "./units-overlay";
+export * from "./inset-map";
+export * from "./layers";

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "2.1.0",
+  "version": "2.2.0",
   "description": "Map interface for Macrostrat",
   "repository": {
     "type": "git",
@@ -50,7 +50,6 @@
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
-    "@macrostrat/map-interface": "workspace:*",
     "@macrostrat/mapbox-react": "workspace:^",
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",

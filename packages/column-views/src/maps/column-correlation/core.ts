@@ -2,6 +2,7 @@ import {
   useMapClickHandler,
   useMapEaseTo,
   useMapStyleOperator,
+  useOverlayStyle,
 } from "@macrostrat/mapbox-react";
 import { LngLatBounds, Style } from "mapbox-gl";
 import h from "@macrostrat/hyper";
@@ -10,7 +11,8 @@ import { ReactNode, useMemo } from "react";
 import { setGeoJSON, buildGeoJSONSource } from "@macrostrat/mapbox-utils";
 
 import { useCorrelationMapStore } from "./state";
-import { buildColumnsStyle, InsetMap, InsetMapProps } from "../_shared";
+import { InsetMap, type InsetMapProps } from "../inset-map";
+import { BaseColumnsLayer } from "../layers";
 import { buildCrossSectionLayers } from "@macrostrat/map-styles";
 
 export interface CorrelationMapProps extends InsetMapProps {
@@ -23,24 +25,15 @@ export interface CorrelationMapProps extends InsetMapProps {
 export function ColumnCorrelationMap(props: CorrelationMapProps) {
   const { padding = 50, children, columnColor, projectID, ...rest } = props;
 
-  const overlayStyles: Partial<Style>[] = useMemo(() => {
-    return [
-      buildColumnsStyle(columnColor) as Style,
-      selectedColumnsStyle as Style,
-      lineOfSectionStyle as Style,
-    ];
-  }, [columnColor]);
-
   return h(
     InsetMap,
     {
       ...rest,
       boxZoom: false,
       dragRotate: false,
-      overlayStyles,
     },
     [
-      h(ColumnsLayer),
+      h(ColumnsLayer, { color: columnColor }),
       h(SelectedColumnsLayer),
       h(MapClickHandler),
       h(SectionLine, { padding }),
@@ -63,6 +56,8 @@ function MapClickHandler() {
 }
 
 function SelectedColumnsLayer() {
+  useOverlayStyle(() => selectedColumnsStyle, []);
+
   const focusedColumns = useCorrelationMapStore(
     (state) => state.focusedColumns,
   );
@@ -98,25 +93,9 @@ function SelectedColumnsLayer() {
   return null;
 }
 
-function ColumnsLayer({ enabled = true }) {
+function ColumnsLayer({ enabled = true, color }) {
   const columns = useCorrelationMapStore((state) => state.columns);
-
-  useMapStyleOperator(
-    (map) => {
-      if (columns == null) {
-        return;
-      }
-      const data: FeatureCollection = {
-        type: "FeatureCollection",
-        features: columns,
-      };
-
-      console.log(" columns", data);
-      setGeoJSON(map, "columns", data);
-    },
-    [columns, enabled],
-  );
-  return null;
+  return h(BaseColumnsLayer, { enabled, color, columns });
 }
 
 const selectedColumnsStyle: Style = {
@@ -167,6 +146,7 @@ const lineOfSectionStyle: Style = {
 };
 
 function SectionLine({ padding }: { padding: number }) {
+  useOverlayStyle(() => lineOfSectionStyle, []);
   const focusedLine = useCorrelationMapStore((state) => state.focusedLine);
 
   // Setup focused line

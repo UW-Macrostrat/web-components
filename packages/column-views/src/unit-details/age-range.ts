@@ -2,25 +2,48 @@ import {
   DataField,
   IntervalShort,
   IntervalTag,
+  type IntervalTagProps,
   ItemList,
   Value,
 } from "@macrostrat/data-components";
 import { useMacrostratDefs } from "@macrostrat/data-provider";
 import h from "./age-range.module.sass";
 import { formatProportion, formatRange } from "./utils";
+import classNames from "classnames";
+import { useMemo } from "react";
 
-export function AgeField({ unit, children }) {
-  const [b_age, t_age, _unit] = getAgeRange(unit);
+export function AgeField({ unit, children, ...rest }) {
+  const [_b_age, _t_age, _unit] = getAgeRange(unit);
 
   return h(
     DataField,
     {
       label: "Age",
-      value: formatRange(b_age, t_age),
+      value: formatRange(_b_age, _t_age),
       unit: _unit,
+      ...rest,
     },
     children,
   );
+}
+
+export function AgeRange({
+  data,
+  className,
+}: {
+  data: {
+    t_age: number;
+    b_age: number;
+  };
+  className?: string;
+}) {
+  const [_b_age, _t_age, _unit] = getAgeRange(data);
+
+  return h(Value, {
+    value: formatRange(_b_age, _t_age),
+    unit: _unit,
+    className,
+  });
 }
 
 export function AgeLabel({
@@ -73,72 +96,127 @@ export function Duration({
   return h(Value, { value: _value, unit });
 }
 
-export function IntervalProportions({ unit, onClickItem }) {
+interface UnitIntervalConstraints {
+  b_int_id?: number;
+  t_int_id?: number;
+  b_prop?: number;
+  t_prop?: number;
+  b_int_name?: string;
+  t_int_name?: string;
+  b_age?: number;
+  t_age?: number;
+}
+
+export interface IntervalProportionsProps extends Omit<
+  IntervalTagProps,
+  "interval"
+> {
+  unit: UnitIntervalConstraints;
+  showProportions?: boolean;
+  calculateProportionsFromAges?: boolean;
+}
+
+export function IntervalProportions({
+  unit,
+  className,
+  showProportions,
+  calculateProportionsFromAges = true,
+  ...rest
+}: IntervalProportionsProps) {
   /** Display the proportions of the unit that belong to the base and top intervals, if they are different */
-  if (
-    unit.b_int_id == null &&
-    unit.t_int_id == null &&
-    unit.b_prop == null &&
-    unit.t_prop == null
-  )
-    return null;
+  if (unit.b_int_id == null && unit.t_int_id == null) return null;
+
+  let _showProps = showProportions;
 
   const i0 = unit.b_int_id;
   const i1 = unit.t_int_id;
-  let b_prop = unit.b_prop ?? 0;
-  let t_prop = unit.t_prop ?? 1;
 
+  /** Get interval information */
   const intervalMap = useMacrostratDefs("intervals");
-  const int0 = intervalMap?.get(i0) ?? {};
+  const [int0, int1] = useMemo(() => {
+    const int0 = intervalMap?.get(i0) ?? {};
+    if (i0 === i1) {
+      return [int0, int0];
+    }
+    const int1 = intervalMap?.get(i1) ?? {};
+    return [int0, int1];
+  }, [intervalMap, i0, i1]);
 
   const interval0: IntervalShort = {
-    ...int0,
     id: i0,
     name: unit.b_int_name,
+    ...int0,
   };
+
+  let b_prop = unit.b_prop;
+  let t_prop = unit.t_prop;
+
+  // If we have b_age and t_age, then we can calculate proportions if they are not given
+  if (b_prop == null && unit.b_age != null && calculateProportionsFromAges) {
+    b_prop = getProportion(unit.b_age, int0);
+  }
+  if (t_prop == null && unit.t_age != null && calculateProportionsFromAges) {
+    t_prop = getProportion(unit.t_age, int1);
+  }
+
+  // If there are no proportions given and we are not explicitly directed to show them,
+  // then we set them to hidden.
+  if (b_prop == null && t_prop == null) {
+    _showProps ??= false;
+  }
+
+  /*
+    Set default proportions to 0 and 1 if they are not given,
+    so that we can display "base" and "top" labels
+   */
+  b_prop ??= 0;
+  t_prop ??= 1;
 
   let p0: any = null;
-  const int1 = intervalMap?.get(i1) ?? {};
-  const p1: any = h(Proportion, { value: t_prop });
+  let p1: any = null;
 
-  if (i0 !== i1 || b_prop !== 0 || t_prop !== 1) {
-    // We have a single interval with undefined proportions
-    p0 = h(Proportion, { value: b_prop });
-  }
+  if (_showProps !== false) {
+    p1 = h(Proportion, { value: t_prop });
 
-  if (i0 === i1 && (b_prop !== 0 || t_prop !== 1)) {
-    p0 = h("span.joint-proportion", [p0, " ", h("span.sep", "to"), " ", p1]);
-  }
-
-  const clickable = onClickItem != null;
-
-  const handleClick = (event: MouseEvent) => {
-    if (onClickItem) {
-      onClickItem(event, interval0);
+    if (i0 !== i1 || b_prop !== 0 || t_prop !== 1) {
+      // We have a single interval with undefined proportions
+      p0 = h(Proportion, { value: b_prop });
     }
-  };
 
-  return h(ItemList, { className: "interval-proportions" }, [
-    h(IntervalTag, {
-      className: clickable ? "clickable" : "",
-      onClick: clickable ? handleClick : undefined,
-      interval: interval0,
-      prefix: p0,
-    }),
-    h.if(i0 != i1)("span.discourage-break", [
-      h("span.sep", " to "),
+    if (i0 === i1 && (b_prop !== 0 || t_prop !== 1)) {
+      p0 = h("span.joint-proportion", [p0, " ", h("span.sep", "to"), " ", p1]);
+    }
+  }
+
+  return h(
+    ItemList,
+    { className: classNames("interval-proportions", className) },
+    [
       h(IntervalTag, {
-        className: clickable ? "clickable" : "",
-        onClick: clickable ? handleClick : undefined,
-        interval: {
-          ...int1,
-          id: i1,
-          name: unit.t_int_name,
-        },
-        prefix: p1,
+        interval: interval0,
+        prefix: p0,
+        ...rest,
       }),
-    ]),
-  ]);
+      h.if(i0 != i1)("span.discourage-break", [
+        h("span.sep", " to "),
+        h(IntervalTag, {
+          interval: {
+            id: i1,
+            name: unit.t_int_name,
+            ...int1,
+          },
+          prefix: p1,
+          ...rest,
+        }),
+      ]),
+    ],
+  );
+}
+
+function getProportion(age: number, interval: IntervalShort): number | null {
+  /** Get proportion with the age */
+  console.log(age, interval);
+  return (interval.b_age - age) / (interval.b_age - interval.t_age);
 }
 
 function Proportion({ value }) {

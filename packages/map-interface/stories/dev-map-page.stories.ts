@@ -1,7 +1,10 @@
 import type { Meta } from "@storybook/react-vite";
 import type { StoryObj } from "@storybook/react-vite";
 import { buildMacrostratStyle } from "@macrostrat/map-styles";
-import { DevMapPage as _DevMapPage } from "../src";
+import { DevMapPage as _DevMapPage, MapInspectorV2 } from "../src";
+import h from "@macrostrat/hyper";
+import { useOverlayStyle } from "@macrostrat/mapbox-react";
+import { removeMapLabels } from "@macrostrat/mapbox-utils";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -98,6 +101,22 @@ export const LowAltitudeOblique: Story = {
   },
 };
 
+export const WithoutLabels: Story = {
+  args: {
+    title: "No labels",
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -77.006,
+        altitude: 4000,
+        pitch: 45,
+      },
+    },
+    overlayStyle: buildMacrostratStyle({}),
+    transformStyle: removeMapLabels,
+  },
+};
+
 export const TerrainDisabled: Story = {
   args: {
     title: "Terrain disabled",
@@ -111,5 +130,35 @@ export const TerrainDisabled: Story = {
     },
     enableTerrain: false,
     overlayStyle: buildMacrostratStyle({}),
+  },
+};
+
+function MacrostratMapLayer({ isEnabled }) {
+  useOverlayStyle(() => {
+    if (!isEnabled) return null;
+    const style = buildMacrostratStyle({});
+    return style;
+  }, [isEnabled]);
+  return null;
+}
+
+export const WithOverlayLayerAsChild: Story = {
+  args: {
+    title: "Overlay layer as child",
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -77.006,
+        altitude: 4000,
+        pitch: 45,
+      },
+    },
+    overlayEnabled: true,
+  },
+  render(args) {
+    const { overlayEnabled = true, ...rest } = args;
+    return h(MapInspectorV2, { ...rest, mapboxToken }, [
+      h(MacrostratMapLayer, { isEnabled: overlayEnabled }),
+    ]);
   },
 };

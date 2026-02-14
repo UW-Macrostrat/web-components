@@ -29,7 +29,7 @@ type SourceConfig = Partial<RasterDemSource>;
 
 export function use3DTerrain(
   shouldEnable: boolean = true,
-  sourceName: string = "terrain",
+  sourceName: string | null = null,
   sourceCfg: SourceConfig = {},
 ) {
   const mapRef = useMapRef();
@@ -49,17 +49,16 @@ export function setup3DTerrain(
   sourceCfg: SourceConfig = {},
 ) {
   const style = map.getStyle();
-  const currentTerrainSource = getTerrainSourceID(style);
-  let demSourceID = sourceID ?? currentTerrainSource ?? "mapbox-dem";
+  const currentTerrainSourceID = getTerrainSourceID(style);
+  let demSourceID = sourceID ?? currentTerrainSourceID ?? "mapbox-dem";
 
-  if (shouldEnable) {
-    addDefault3DStyles(map, demSourceID, sourceCfg);
-  }
-
-  // Enable or disable terrain depending on our current desires...
   const currentTerrain = map.getTerrain();
+
+  let nextTerrainSourceID = demSourceID;
+
   if (shouldEnable && currentTerrain == null) {
-    map.setTerrain({ source: demSourceID, exaggeration: 1 });
+    nextTerrainSourceID ??= addDefault3DStyles(map, demSourceID, sourceCfg);
+    map.setTerrain({ source: nextTerrainSourceID, exaggeration: 1 });
   } else if (!shouldEnable && currentTerrain != null) {
     map.setTerrain(null);
   }
@@ -123,14 +122,10 @@ function addDefault3DStyles(
 ) {
   const style = map.getStyle();
 
-  const hasTerrain = Object.entries(style.sources).some(
-    ([key, source]: [string, AnySourceData]) =>
-      source.type === "raster-dem" && key === sourceName,
-  );
+  const currentTerrainSource = getTerrainSourceID(style);
+  const hasTerrain = currentTerrainSource != null;
 
-  const hasSky = Object.values(style.layers).some(
-    (lyr: AnyLayer) => lyr.type == "sky",
-  );
+  let terrainSourceID = currentTerrainSource ?? sourceName;
 
   if (!hasTerrain) {
     map.addSource(sourceName, {
@@ -146,6 +141,7 @@ function addDefault3DStyles(
   // if (map.getFog() == null) {
   //   map.setFog(defaultFog);
   // }
+  return terrainSourceID;
 }
 
 const defaultRasterDEM: RasterDemSource = {
