@@ -50,7 +50,7 @@
     "node-fetch": "^3.2.9",
     "react": "^18||^19",
     "react-dom": "^18||^19",
-    "storybook": "10.2.0",
+    "storybook": "10.2.10",
     "tsx": "^4.19.1",
     "typescript": "^5.8.3",
     "underscore": "^1.13.7",
