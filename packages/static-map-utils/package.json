@@ -56,7 +56,7 @@
     "classnames": "^2.5.1",
     "maplibre-gl": "^5.17.0",
     "maplibregl-mapbox-request-transformer": "^0.0.3",
-    "underscore": "^1.13.7"
+    "underscore": "^1.13.8"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*",
