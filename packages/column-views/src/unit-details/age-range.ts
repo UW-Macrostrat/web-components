@@ -215,7 +215,6 @@ export function IntervalProportions({
 
 function getProportion(age: number, interval: IntervalShort): number | null {
   /** Get proportion with the age */
-  console.log(age, interval);
   return (interval.b_age - age) / (interval.b_age - interval.t_age);
 }
 

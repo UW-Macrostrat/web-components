@@ -187,7 +187,7 @@ function GBDBSummaryColumn({ showFormations = true, columnID, setColumn }) {
   const columnGeoJSON = useColumnGeoJSON("gbdb_summary_columns");
 
   const sectionData = useAPIResult(
-    "https://macrostrat.local/api/pg/gbdb_summary_units",
+    "https://dev.macrostrat.org/api/pg/gbdb_summary_units",
     {
       col_id: `eq.${columnID}`,
     },

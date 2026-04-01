@@ -61,7 +61,11 @@ function CorrelationStoryUI({
 }
 
 function useColumnGeoJSON(view: string = "gbdb_summary_columns") {
-  const res = useAPIResult("https://macrostrat.local/api/pg/" + view);
+  const res = useAPIResult(
+    "https://dev.macrostrat.org/api/pg/" + view,
+    {},
+    (res) => res,
+  );
   return res?.[0]?.geojson?.features;
 }
 
