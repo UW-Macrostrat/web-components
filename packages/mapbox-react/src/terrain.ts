@@ -1,14 +1,17 @@
 import { useMapRef } from "./context";
 import type {
   AnyLayer,
-  Source,
   Style,
   AnySourceData,
   SkyLayer,
   Expression,
 } from "mapbox-gl";
-import { mergeStyles } from "@macrostrat/mapbox-utils";
 import { useMapStyleOperator } from "./hooks";
+import {
+  hasSkyLayer,
+  getTerrainSourceID,
+  mergeStyles,
+} from "@macrostrat/mapbox-utils";
 
 interface RasterDemSource {
   name?: string;
@@ -100,19 +103,6 @@ export function addTerrainToStyle(
 ): Style {
   const newStyle = getTerrainLayerForStyle(style, sourceName);
   return mergeStyles(style, newStyle);
-}
-
-function hasSkyLayer(style: Style): boolean {
-  return Object.values(style.layers).some((lyr: AnyLayer) => lyr.type == "sky");
-}
-
-function getTerrainSourceID(style: Style): string | null {
-  for (const [key, source] of Object.entries(style.sources)) {
-    if (source.type == "raster-dem") {
-      return key;
-    }
-  }
-  return null;
 }
 
 function addDefault3DStyles(

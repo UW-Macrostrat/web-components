@@ -1,3 +1,5 @@
+import type { StyleSpecification, LayerSpecification } from "mapbox-gl";
+
 export function formatCoordForZoomLevel(val: number, zoom: number): string {
   return val.toFixed(trailingDigitsForZoom(zoom));
 }
@@ -21,4 +23,19 @@ export function normalizeLng(lng) {
 
 export function metersToFeet(meters, precision = 0) {
   return (meters * 3.28084).toFixed(precision);
+}
+
+export function hasSkyLayer(style: StyleSpecification): boolean {
+  return Object.values(style.layers).some(
+    (lyr: LayerSpecification) => lyr.type == "sky",
+  );
+}
+
+export function getTerrainSourceID(style: StyleSpecification): string | null {
+  for (const [key, source] of Object.entries(style.sources)) {
+    if (source.type == "raster-dem") {
+      return key;
+    }
+  }
+  return null;
 }
