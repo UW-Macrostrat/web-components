@@ -19,7 +19,7 @@ import {
 import classNames from "classnames";
 import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import {
   MapLoadingReporter,
   MapMovedReporter,
@@ -29,8 +29,6 @@ import {
 import "mapbox-gl/dist/mapbox-gl.css";
 import { getMapPadding } from "./utils";
 import { useAsyncEffect } from "@macrostrat/ui-components";
-
-const h = hyper.styled(styles);
 
 type MapboxCoreOptions = Omit<mapboxgl.MapboxOptions, "container">;
 
@@ -64,6 +62,8 @@ export interface MapViewProps extends MapboxCoreOptions {
   loadingIgnoredSources?: string[];
   id?: string;
   className?: string;
+  height: number;
+  width: number;
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {
@@ -110,8 +110,10 @@ const defaultMapPosition: MapPosition = {
 export function MapView(props: MapViewProps) {
   let { terrainSourceID } = props;
   const {
+    height,
+    width,
     enableTerrain = true,
-    style,
+    style = "mapbox://styles/mapbox/streets-v11",
     mapPosition,
     initializeMap = defaultInitializeMap,
     children,
@@ -129,7 +131,7 @@ export function MapView(props: MapViewProps) {
     transformStyle,
     trackResize = true,
     loadingIgnoredSources = ["elevationMarker", "crossSectionEndpoints"],
-    id = "map",
+    id,
     className,
     ...rest
   } = props;
@@ -244,9 +246,14 @@ export function MapView(props: MapViewProps) {
     className,
   );
 
+  const containerStyle = {
+    height,
+    width,
+  };
+
   return h(
     "div.map-view-container.main-view",
-    { ref: parentRef, className: parentClassName },
+    { ref: parentRef, className: parentClassName, style: containerStyle },
     [
       h("div.mapbox-map.map-view", { ref, className: mapClassName, id }),
       h(MapLoadingReporter, {
