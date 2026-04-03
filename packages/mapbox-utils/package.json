@@ -37,7 +37,7 @@
   },
   "dependencies": {
     "@turf/bbox": "^7.3.2",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "mapbox-gl": "^3.0.0"
   },
   "devDependencies": {

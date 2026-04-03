@@ -54,7 +54,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18",
     "@uiw/react-color": "^2.9.2",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "chroma-js": "^3.2.0",
     "classnames": "^2.5.1",
     "d3-array": "^3.2.4",

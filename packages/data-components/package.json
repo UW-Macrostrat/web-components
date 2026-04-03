@@ -56,7 +56,7 @@
     "@visx/gradient": "^3.12.0",
     "@visx/scale": "^3.12.0",
     "@visx/shape": "^3.12.0",
-    "axios": "^1.13.2",
+    "axios": "^1.13.5",
     "classnames": "^2.5.1",
     "cross-fetch": "^4.1.0",
     "d3-array": "^3.2.4",
