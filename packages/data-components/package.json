@@ -45,7 +45,7 @@
     "react": "^18.0.0||^19.0.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^6.6.1",
+    "@blueprintjs/core": "^6.11.3",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/mapbox-utils": "workspace:^",
