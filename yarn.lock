@@ -1962,6 +1962,7 @@ __metadata:
     "@types/react": "npm:^18.3.12"
     "@vueless/storybook-dark-mode": "npm:^10.0.6"
     chalk: "npm:^5.6.2"
+    changesets-format-with-issue-links: "npm:^0.3.0"
     date-fns: "npm:^4.1.0"
     glob: "npm:^11.1.0"
     lorem-ipsum: "npm:^2.0.8"
@@ -5412,6 +5413,18 @@ __metadata:
   languageName: node
   linkType: hard
 
+"changesets-format-with-issue-links@npm:^0.3.0":
+  version: 0.3.0
+  resolution: "changesets-format-with-issue-links@npm:0.3.0"
+  dependencies:
+    gitlog: "npm:^4.0.4"
+    lodash: "npm:^4.17.21"
+  peerDependencies:
+    "@changesets/cli": ^2.0.0
+  checksum: 10c0/eda06e8e5439efbf4466a2115bcf61ec4347478d3292c7fa8c5f434902048d512a936a76b43ce7ddf26ba0edcd5b07d041e631d066bcb2b4384af4d56f24a195
+  languageName: node
+  linkType: hard
+
 "char-regex@npm:^1.0.2":
   version: 1.0.2
   resolution: "char-regex@npm:1.0.2"
@@ -6144,7 +6157,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"debug@npm:*, debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.1.0, debug@npm:^4.3.1, debug@npm:^4.3.4, debug@npm:^4.4.0":
+"debug@npm:*, debug@npm:4, debug@npm:^4.0.0, debug@npm:^4.1.0, debug@npm:^4.1.1, debug@npm:^4.3.1, debug@npm:^4.3.4, debug@npm:^4.4.0":
   version: 4.4.3
   resolution: "debug@npm:4.4.3"
   dependencies:
@@ -7314,6 +7327,16 @@ __metadata:
   dependencies:
     resolve-pkg-maps: "npm:^1.0.0"
   checksum: 10c0/7f8e3dabc6a49b747920a800fb88e1952fef871cdf51b79e98db48275a5de6cdaf499c55ee67df5fa6fe7ce65f0063e26de0f2e53049b408c585aa74d39ffa21
+  languageName: node
+  linkType: hard
+
+"gitlog@npm:^4.0.4":
+  version: 4.0.8
+  resolution: "gitlog@npm:4.0.8"
+  dependencies:
+    debug: "npm:^4.1.1"
+    tslib: "npm:^2.5.0"
+  checksum: 10c0/70b8e0b2f285a34a224699240809c1a0fe33a6ad805f6d1a64053e37ba14e3e5d01ef2951286b883f9c56920e15972c40a506b305706603fb8d046a8279139c0
   languageName: node
   linkType: hard
 
@@ -11802,7 +11825,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.8.1":
+"tslib@npm:^2.0.1, tslib@npm:^2.0.3, tslib@npm:^2.1.0, tslib@npm:^2.4.0, tslib@npm:^2.5.0, tslib@npm:^2.8.1":
   version: 2.8.1
   resolution: "tslib@npm:2.8.1"
   checksum: 10c0/9c4759110a19c53f992d9aae23aac5ced636e99887b51b9e61def52611732872ff7668757d4e4c61f19691e36f4da981cd9485e869b4a7408d689f6bf1f14e62

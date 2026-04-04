@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/form-components",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Form components for user input into Macrostrat apps",
   "repository": {
     "type": "git",

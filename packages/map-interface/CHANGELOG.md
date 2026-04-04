@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.2.2] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.1...@macrostrat/map-interface-v2.2.2)
+
+### Patch Changes
+
+- Updated [BlueprintJS](https://blueprintjs.com) dependencies to latest `6.x.x`
+  series
+  [fa23ec06](https://github.com/UW-Macrostrat/web-components/commit/fa23ec06a42fefa638f1b95bdb68473f2fc9615b)
+- Updated dependencies
+  [fa23ec06](https://github.com/UW-Macrostrat/web-components/commit/fa23ec06a42fefa638f1b95bdb68473f2fc9615b)
+  - @macrostrat/data-components@1.1.4
+  - @macrostrat/ui-components@5.0.6
+  - @macrostrat/mapbox-react@3.1.2
+
 All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

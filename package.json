@@ -16,6 +16,7 @@
     "publish-only": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish-only",
     "tag-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers tag-versions",
     "update-metadata": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-package-json-files.ts",
+    "update-changelogs": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-changelogs.ts",
     "publish:storybook": "./scripts/publish-storybook.sh",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",
@@ -58,6 +59,7 @@
   },
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
+    "changesets-format-with-issue-links": "^0.3.0",
     "prettier": "^3.7.4",
     "vite": "^7.3.1"
   },
