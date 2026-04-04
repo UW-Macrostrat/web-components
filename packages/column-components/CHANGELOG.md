@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.0.5] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.4...@macrostrat/column-components-v2.0.5)
+
+### Patch Changes
+
+- Updated [BlueprintJS](https://blueprintjs.com) dependencies to latest `6.x.x`
+  series
+  [fa23ec06](https://github.com/UW-Macrostrat/web-components/commit/fa23ec06a42fefa638f1b95bdb68473f2fc9615b)
+- Updated dependencies
+  [fa23ec06](https://github.com/UW-Macrostrat/web-components/commit/fa23ec06a42fefa638f1b95bdb68473f2fc9615b)
+  - @macrostrat/ui-components@5.0.6
+
 All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).

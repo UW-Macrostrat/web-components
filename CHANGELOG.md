@@ -1,5 +1,12 @@
 # Changelog
 
+# `[4.1.0]` - 2026-04-03
+
+- Begin using the [`changesets`](https://github.com/changesets/changesets) CLI
+  to manage package changelogs via the `yarn changeset` and
+  `yarn update-versions` commands.
+- Create script to update changelog entries for new package versions.
+
 # `[4.0.0]` - 2026-01-26
 
 - Major update to bundling strategy using the
@@ -10,6 +17,10 @@
 - Update peer dependencies to React 18.
 - Require styles to be imported separately for many packages.
 - Update to Yarn PnP
+- Convert all styles to Sass
+- Begin using
+  [`@macrostrat/vite-plugin-hyperstyles`](./toolchain/vite-plugin-hyperstyles)
+  to bundle style components.
 - Update Storybook to version `10.2.0`
 
 # `[3.0.0]` - 2024-02-04

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "Data views for Macrostrat stratigraphic columns",
   "repository": {
     "type": "git",
@@ -45,7 +45,7 @@
     "react": "^18.0.0||^19.0.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^6.6.1",
+    "@blueprintjs/core": "^6.11.3",
     "@macrostrat/api-types": "workspace:^",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",

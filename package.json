@@ -16,6 +16,7 @@
     "publish-only": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish-only",
     "tag-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers tag-versions",
     "update-metadata": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-package-json-files.ts",
+    "update-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-versions.ts",
     "publish:storybook": "./scripts/publish-storybook.sh",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",
@@ -24,22 +25,22 @@
   "author": "Daven Quinn",
   "license": "ISC",
   "dependencies": {
-    "@blueprintjs/core": "^6.6.1",
+    "@blueprintjs/core": "^6.11.3",
     "@macrostrat/column-components": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/style-system": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",
     "@macrostrat/web-components-bundler": "workspace:^",
     "@mdx-js/rollup": "^3.1.0",
-    "@storybook/addon-docs": "10.2.0",
-    "@storybook/addon-links": "10.2.0",
-    "@storybook/builder-vite": "10.2.0",
+    "@storybook/addon-docs": "10.3.4",
+    "@storybook/addon-links": "10.3.4",
+    "@storybook/builder-vite": "10.3.4",
     "@storybook/icons": "^2.0.1",
-    "@storybook/react-vite": "10.2.0",
+    "@storybook/react-vite": "10.3.4",
     "@types/d3-geo": "^3.1.0",
     "@types/geojson": "^7946.0.16",
     "@types/react": "^18.3.12",
-    "@vueless/storybook-dark-mode": "^10.0.6",
+    "@vueless/storybook-dark-mode": "^10.0.7",
     "chalk": "^5.6.2",
     "date-fns": "^4.1.0",
     "glob": "^11.1.0",
@@ -50,13 +51,15 @@
     "node-fetch": "^3.2.9",
     "react": "^18||^19",
     "react-dom": "^18||^19",
-    "storybook": "10.2.0",
+    "storybook": "10.3.4",
     "tsx": "^4.19.1",
     "typescript": "^5.8.3",
     "underscore": "^1.13.7",
     "vite-plugin-cjs-interop": "^2.4.0"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.30.0",
+    "changesets-format-with-issue-links": "^0.3.0",
     "prettier": "^3.7.4",
     "vite": "^7.3.1"
   },
@@ -69,5 +72,5 @@
     "toolchain/*",
     "examples/*"
   ],
-  "packageManager": "yarn@4.12.0"
+  "packageManager": "yarn@4.13.0"
 }

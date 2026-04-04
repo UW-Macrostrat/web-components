@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.0.5] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/form-components-v1.0.4...@macrostrat/form-components-v1.0.5)
+
+### Patch Changes
+
+- Updated [BlueprintJS](https://blueprintjs.com) dependencies to latest `6.x.x`
+  series
+  [fa23ec06](https://github.com/UW-Macrostrat/web-components/commit/fa23ec06a42fefa638f1b95bdb68473f2fc9615b)
+- Updated dependencies
+  [fa23ec06](https://github.com/UW-Macrostrat/web-components/commit/fa23ec06a42fefa638f1b95bdb68473f2fc9615b)
+  - @macrostrat/ui-components@5.0.6
+
 ## [1.0.4] - 2026-02-06
 
 Upgraded dependencies, especially `mapbox-gl` to v3.

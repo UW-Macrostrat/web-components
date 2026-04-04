@@ -1,0 +1,2 @@
+# We have to ignore changesets, as lines breaks are important
+*.md

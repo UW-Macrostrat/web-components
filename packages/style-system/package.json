@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/style-system",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Style system for Macrostrat",
   "main": "dist/style-system.css",
   "type": "module",
@@ -10,7 +10,7 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@blueprintjs/core": "^6.6.1"
+    "@blueprintjs/core": "^6.11.3"
   },
   "files": [
     "dist",

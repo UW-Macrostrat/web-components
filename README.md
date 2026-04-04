@@ -118,6 +118,12 @@ reflect the breaking change.
 
 #### Changelog
 
+> [!note] Changesets  
+> We use
+> [Changesets](https://github.com/changesets/changesets/blob/main/docs/intro-to-using-changesets.md)
+> to manage releases and update the corresponding changelog. This is still
+> experimental.
+
 If you make a change to a component, you should update the changelog for the
 containing package (the `CHANGELOG.md` file in the package directory).
 Unreleased changes can be described in an `Unreleased` section at the top of the
@@ -169,7 +175,18 @@ tagged.
 It is possible to merge PRs that do not publish to NPM, by simply not updating
 the package version.
 
-#### Local helpers for publishing
+#### Helpers for publishing
+
+We use the `changesets` CLI to manage versions for the packages in this
+repository.
+
+- Run `yarn run changeset` to create a new changeset, and commit it.
+
+When you are ready to publish, run the following commands:
+
+- Run `yarn run update-versions` to bump the versions of all packages according
+  to the changeset rules, and then add dates, etc. to the changelog. Manually
+  verify the changes and commit them.
 
 - Run `yarn run status` to view a change list for each potential package to be
   published. This will allow you to update `package.json` versions and changelog

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/form-components",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Form components for user input into Macrostrat apps",
   "repository": {
     "type": "git",
@@ -46,10 +46,10 @@
     "react-dom": "^18.0.0||^19.0.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^6.6.1",
-    "@blueprintjs/icons": "^6.5.0",
-    "@blueprintjs/select": "^6.0.13",
-    "@blueprintjs/table": "^6.0.13",
+    "@blueprintjs/core": "^6.11.3",
+    "@blueprintjs/icons": "^6.8.0",
+    "@blueprintjs/select": "^6.1.8",
+    "@blueprintjs/table": "^6.0.23",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",

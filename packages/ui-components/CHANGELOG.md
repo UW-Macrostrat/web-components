@@ -1,5 +1,13 @@
 # Changelog
 
+## [5.0.6] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.5...@macrostrat/ui-components-v5.0.6)
+
+### Patch Changes
+
+- Updated [BlueprintJS](https://blueprintjs.com) dependencies to latest `6.x.x`
+  series
+  [fa23ec06](https://github.com/UW-Macrostrat/web-components/commit/fa23ec06a42fefa638f1b95bdb68473f2fc9615b)
+
 ## [5.0.5] - 2026-02-06
 
 Remove types that duplicate those already in `vite/client` package

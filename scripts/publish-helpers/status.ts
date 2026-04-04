@@ -279,9 +279,14 @@ function printChangeInfoForPublishedPackage(pkg, showChanges = false) {
   const tag = moduleString(pkg, "-v");
   // Get head commit hash
   const headCommit = execSync("git rev-parse HEAD").toString().trim();
-  const url = `${repoUrl}/compare/${tag}...${headCommit}`;
+  const url = buildComparisonURL(tag, headCommit);
   console.log(chalk.italic("GitHub link:\n") + chalk.dim(url));
   console.log("\n");
+}
+
+export function buildComparisonURL(prevRevision, thisRevision) {
+  const repoUrl = "https://github.com/UW-Macrostrat/web-components";
+  return `${repoUrl}/compare/${prevRevision}...${thisRevision}`;
 }
 
 /* checks for unstaged changes */
@@ -327,15 +332,22 @@ function printChangelogStatus(pkg: PackageData, info: PackageStatus): void {
   }
 }
 
+export function readChangelog(pkg: PackageData): string | null {
+  const dir = getPackageDirectory(pkg.name);
+  const changelogPath = path.join(dir, "CHANGELOG.md");
+  // Check if the path exists
+  if (!fs.existsSync(changelogPath)) {
+    return null;
+  }
+
+  return fs.readFileSync(changelogPath, "utf-8");
+}
+
 function getChangelogEntry(pkg: PackageData): string | null {
   /** Check whether the package has a changelog entry for the current version
    */
 
-  const dir = getPackageDirectory(pkg.name);
-  const changelogPath = path.join(dir, "CHANGELOG.md");
-  const CHANGELOG = chalk.bold("CHANGELOG");
-
-  const changelog = fs.readFileSync(changelogPath, "utf-8");
+  const changelog = readChangelog(pkg);
   const changelogHeader = `## [${pkg.version}]`;
   const hasChangelogEntry = changelog.includes(changelogHeader);
   if (!hasChangelogEntry) {
@@ -347,6 +359,8 @@ function getChangelogEntry(pkg: PackageData): string | null {
   const entryStart = entry.indexOf("\n") + 1;
   entry = entry.slice(entryStart);
 
+  // Assume this is a "sealed" changelog header (which surrounds the version number in brackets
+  // and applies the date...
   const nextHeaderIndex = entry.indexOf("\n## [") ?? entry.length;
   entry = entry.slice(0, nextHeaderIndex);
   let formattedEntry = marked(entry) as string;
