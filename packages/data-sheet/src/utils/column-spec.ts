@@ -133,7 +133,12 @@ export function generateColumnSpec<T>(
   options: ColumnSpecOptions<T>,
 ): ColumnSpec[] {
   /** Generate a column spec from a dataset */
-  const { overrides = {}, nRows = 10, omitColumns, includeColumns } = options;
+  const {
+    overrides = {},
+    nRows = 10,
+    omitColumns,
+    includeColumns,
+  } = options ?? {};
 
   if (data == null) return [];
 

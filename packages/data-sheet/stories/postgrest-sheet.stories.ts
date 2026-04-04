@@ -1,6 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
-import hyper from "@macrostrat/hyper";
-import styles from "./postgrest-sheet.stories.module.sass";
+import h from "./postgrest-sheet.stories.module.sass";
 import {
   ColorCell,
   ColorPicker,
@@ -20,8 +19,6 @@ import { useRef, useState } from "react";
 import { Button, InputGroup } from "@blueprintjs/core";
 import { PostgrestClient } from "@supabase/postgrest-js";
 import { useToaster } from "@macrostrat/ui-components";
-
-const h = hyper.styled(styles);
 
 const endpoint = "https://dev.macrostrat.org/api/pg";
 
