@@ -1,6 +1,6 @@
 import hyper from "@macrostrat/hyper";
 import { ErrorBoundary } from "@macrostrat/ui-components";
-import { PopoverNext } from "@blueprintjs/core";
+import { Popover } from "@blueprintjs/core";
 import styles from "./main.module.sass";
 import { useRef, useState } from "react";
 import { useSelector } from "../provider";
@@ -32,7 +32,7 @@ export function EditorPopup(props) {
   ]);
 
   return h(
-    PopoverNext,
+    Popover,
     {
       content: h(
         "div.interaction-barrier",
