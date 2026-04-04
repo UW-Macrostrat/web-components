@@ -118,6 +118,12 @@ reflect the breaking change.
 
 #### Changelog
 
+> [!note] Changesets  
+> We use
+> [Changesets](https://github.com/changesets/changesets/blob/main/docs/intro-to-using-changesets.md)
+> to manage releases and update the corresponding changelog. This is still
+> experimental.
+
 If you make a change to a component, you should update the changelog for the
 containing package (the `CHANGELOG.md` file in the package directory).
 Unreleased changes can be described in an `Unreleased` section at the top of the
