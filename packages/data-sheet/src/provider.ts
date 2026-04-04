@@ -44,7 +44,7 @@ type StateUpdater<T> = T[] | ((state: T[]) => T[]);
 
 export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   setSelection(selection: Region[]): void;
-  onDragValue(cell: FocusedCellCoordinates | null): void;
+  onDragValue(event: MouseEvent): void;
   setUpdatedData(data: StateUpdater<T>): void;
   onCellEdited(rowIndex: number, columnName: string, value: any): void;
   onSelectionEdited(value: any): void;
@@ -252,8 +252,11 @@ export function DataSheetProvider<T>({
             // Right now we don't store this in the state
             visibleCellsRef.current = visibleCells;
           },
-          onDragValue(cell: FocusedCellCoordinates | null) {
-            set({ fillValueBaseCell: cell });
+          onDragValue(event: MouseEvent) {
+            set((state) => {
+              return { fillValueBaseCell: state.focusedCell };
+            });
+            event.preventDefault();
           },
           onCellEdited(rowIndex: number, columnName: string, value: any) {
             set((state) => {

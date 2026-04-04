@@ -84,6 +84,11 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
   );
 }
 
+const deletedRowHeaderStyle = {
+  opacity: 0.5,
+  textDecoration: "line-through",
+};
+
 function _DataSheet<T>({
   onVisibleCellsChange,
   enableColumnReordering,
@@ -206,25 +211,23 @@ function _DataSheet<T>({
 
   const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
-  const children = useMemo(
-    () =>
-      columnSpec.map((col, colIndex) => {
-        return h(Column, {
-          name: col.name,
-          cellRenderer: (rowIndex) => {
-            const state = storeAPI.getState();
-            return basicCellRenderer<T>(
-              rowIndex,
-              colIndex,
-              col,
-              state,
-              autoFocusEditor,
-            );
-          },
-        });
-      }),
-    [columnSpec, storeAPI, autoFocusEditor],
-  );
+  const children = useMemo(() => {
+    return columnSpec.map((col, colIndex) => {
+      return h(Column, {
+        name: col.name,
+        cellRenderer: (rowIndex) => {
+          const state = storeAPI.getState();
+          return basicCellRenderer<T>(
+            rowIndex,
+            colIndex,
+            col,
+            state,
+            autoFocusEditor,
+          );
+        },
+      });
+    });
+  }, [columnSpec, storeAPI, autoFocusEditor]);
 
   const onColumnWidthChanged = useSelector(
     (state) => state.onColumnWidthChanged,
@@ -232,17 +235,13 @@ function _DataSheet<T>({
 
   const rowHeaderCellRenderer = useCallback(
     (rowIndex: number) => {
-      let style = null;
-      if (deletedRows.has(rowIndex)) {
-        style = {
-          opacity: 0.5,
-          textDecoration: "line-through",
-        };
-      }
+      const style = deletedRows.has(rowIndex) ? deletedRowHeaderStyle : null;
+
       return h(RowHeaderCell, {
+        enableRowReordering: false,
         index: rowIndex,
         name: `${rowIndex + 1}`,
-        style,
+        style: null,
       });
     },
     [deletedRows],
@@ -278,6 +277,9 @@ function _DataSheet<T>({
           columnWidths,
           onColumnWidthChanged,
           onSelection,
+          renderMode: "batch",
+          enableRowReordering: false,
+          enableRowResizing: false,
           // The cell renderer is memoized internally based on these data dependencies
           cellRendererDependencies: [
             data,
@@ -311,10 +313,8 @@ function basicCellRenderer<T>(
   const loading = row == null;
   const col = columnSpec;
 
-  const focusedCell = state.focusedCell;
   const _topLeftCell = state.topLeftCell;
   const onCellEdited = state.onCellEdited;
-  const clearSelection = state.clearSelection;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
   const _renderedValue = col.valueRenderer?.(value) ?? value;
@@ -328,8 +328,8 @@ function basicCellRenderer<T>(
     };
   }
 
-  const focused =
-    focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
+  //const focused =
+  //  focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
 
   const editable = (col.editable ?? state.editable) && !isDeleted;
 
@@ -474,25 +474,17 @@ function basicCellRenderer<T>(
     },
     [
       cellContents,
-      h.if(editable && isSingleCellSelection)(DragHandle, {
-        focusedCell,
-      }),
+      h.if(editable && isSingleCellSelection)(DragHandle),
       hiddenInput,
     ],
   );
 }
 
-function DragHandle({ focusedCell }) {
+function DragHandle() {
   // TODO: we might want to drag multiple columns in some cases
   // This should be on the last cell of a selection
-  const onDragValue = useSelector((state) => state.onDragValue);
-
-  return h("div.corner-drag-handle", {
-    onMouseDown(e) {
-      onDragValue(focusedCell);
-      e.preventDefault();
-    },
-  });
+  const onMouseDown = useSelector((state) => state.onDragValue);
+  return h("div.corner-drag-handle", { onMouseDown });
 }
 
 function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
