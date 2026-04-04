@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^6.11.3",
-    "@blueprintjs/select": "^6.0.13",
+    "@blueprintjs/select": "^6.1.8",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
     "@macrostrat/data-sheet": "workspace:^",

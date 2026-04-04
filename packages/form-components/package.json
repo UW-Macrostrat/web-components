@@ -47,9 +47,9 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^6.11.3",
-    "@blueprintjs/icons": "^6.5.0",
-    "@blueprintjs/select": "^6.0.13",
-    "@blueprintjs/table": "^6.0.13",
+    "@blueprintjs/icons": "^6.8.0",
+    "@blueprintjs/select": "^6.1.8",
+    "@blueprintjs/table": "^6.0.23",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/hyper": "^3.0.6",
     "@macrostrat/ui-components": "workspace:^",
