@@ -204,6 +204,8 @@ function _DataSheet<T>({
     };
   }
 
+  const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
+
   const children = useMemo(
     () =>
       columnSpec.map((col, colIndex) => {
@@ -268,7 +270,7 @@ function _DataSheet<T>({
           className: "data-sheet",
           enableFocusedCell,
           enableColumnReordering,
-          //onColumnsReordered,
+          onColumnsReordered,
           focusedCell,
           selectedRegions,
           defaultRowHeight: rowHeight,
