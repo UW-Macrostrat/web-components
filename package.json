@@ -16,7 +16,7 @@
     "publish-only": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish-only",
     "tag-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers tag-versions",
     "update-metadata": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-package-json-files.ts",
-    "update-changelogs": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-changelogs.ts",
+    "update-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-versions.ts",
     "publish:storybook": "./scripts/publish-storybook.sh",
     "format": "prettier --write .",
     "check-types": "tsc --noEmit",

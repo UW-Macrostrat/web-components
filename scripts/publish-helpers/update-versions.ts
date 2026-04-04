@@ -18,7 +18,7 @@ import {
 import chalk from "chalk";
 import { execSync } from "child_process";
 
-export function updateChangelogs() {
+export function updateVersions() {
   // First, run the changesets script to generate changelogs
   execSync("yarn changeset version", {});
 
@@ -109,4 +109,4 @@ export function updateChangelogs() {
 }
 
 // Run the function
-updateChangelogs();
+updateVersions();
