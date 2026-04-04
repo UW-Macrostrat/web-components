@@ -7,11 +7,10 @@ import {
 } from "@blueprintjs/core";
 import { Cell, Column, Region, RowHeaderCell, Table } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
-import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { EditorPopup, DataSheetAction } from "./components";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import {
   DataSheetProvider,
   DataSheetProviderProps,
@@ -22,8 +21,6 @@ import {
   VisibleCells,
 } from "./provider";
 import { ColumnSpec } from "./utils";
-
-const h = hyper.styled(styles);
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
