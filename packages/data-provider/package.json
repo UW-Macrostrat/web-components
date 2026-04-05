@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@macrostrat/api-types": "workspace:^",
-    "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/hyper": "^3.1.0",
     "@macrostrat/ui-components": "workspace:^",
     "@types/topojson-client": "^3.1.5",
     "cross-fetch": "^4.1.0",

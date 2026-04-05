@@ -41,7 +41,7 @@
   },
   "dependencies": {
     "@blueprintjs/core": "^6.11.3",
-    "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/hyper": "^3.1.0",
     "@macrostrat/map-styles": "workspace:^",
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",

@@ -1461,7 +1461,7 @@ __metadata:
   resolution: "@macrostrat/column-components@workspace:packages/column-components"
   dependencies:
     "@blueprintjs/core": "npm:^6.11.3"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/timescale": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
@@ -1494,7 +1494,7 @@ __metadata:
     "@macrostrat/column-components": "workspace:^"
     "@macrostrat/column-views": "workspace:^"
     "@macrostrat/data-sheet": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     immutability-helper: "npm:^3.1.1"
@@ -1515,7 +1515,7 @@ __metadata:
     "@macrostrat/column-components": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/data-provider": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/map-interface": "workspace:^"
     "@macrostrat/map-styles": "workspace:^"
     "@macrostrat/mapbox-react": "workspace:^"
@@ -1565,7 +1565,7 @@ __metadata:
   resolution: "@macrostrat/cross-section-utils@workspace:packages/cross-section-utils"
   dependencies:
     "@derschmale/tympanum": "npm:^1.3.6"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/web-components-bundler": "workspace:*"
   languageName: unknown
   linkType: soft
@@ -1576,7 +1576,7 @@ __metadata:
   dependencies:
     "@blueprintjs/core": "npm:^6.11.3"
     "@macrostrat/color-utils": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
@@ -1603,7 +1603,7 @@ __metadata:
   resolution: "@macrostrat/data-provider@workspace:packages/data-provider"
   dependencies:
     "@macrostrat/api-types": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@types/topojson-client": "npm:^3.1.5"
@@ -1624,7 +1624,7 @@ __metadata:
     "@blueprintjs/table": "npm:^6.0.23"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@supabase/postgrest-js": "npm:^1.17.7"
@@ -1648,7 +1648,7 @@ __metadata:
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/data-sheet": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     classnames: "npm:^2.5.1"
@@ -1672,7 +1672,7 @@ __metadata:
     "@blueprintjs/select": "npm:^6.1.8"
     "@blueprintjs/table": "npm:^6.0.23"
     "@macrostrat/color-utils": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@mantine/core": "npm:^4.2.1"
@@ -1690,15 +1690,15 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@macrostrat/hyper@npm:^3.0.6":
-  version: 3.0.6
-  resolution: "@macrostrat/hyper@npm:3.0.6"
+"@macrostrat/hyper@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "@macrostrat/hyper@npm:3.1.0"
   dependencies:
     "@types/react": "npm:>= 16.0.0 < 20.0.0"
     classnames: "npm:^2.5.1"
   peerDependencies:
     react: ">= 0.12.0 < 20.0.0"
-  checksum: 10c0/8faed4cd532450dce2dc414694d7de4fecda167c561db6cb30ac72db10fe0fad4fd9e653198e6421cd24a52eed33133a00ae1d340ddb3bb8cc62a73fc5eddd2d
+  checksum: 10c0/7260bbcba183390aaccb2e086bdc7a3607ad5559c22c80061df633a083ea7c9270d812726ba6a26fa5d40b0a09e4037a97573d2208b447a4b0e3482ea59be0ed
   languageName: node
   linkType: hard
 
@@ -1718,7 +1718,7 @@ __metadata:
     "@blueprintjs/core": "npm:^6.11.3"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/mapbox-react": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
@@ -1763,7 +1763,7 @@ __metadata:
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:
     "@blueprintjs/core": "npm:^6.11.3"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/map-styles": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
@@ -1795,7 +1795,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/static-map-utils@workspace:packages/static-map-utils"
   dependencies:
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/mapbox-react": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
@@ -1836,7 +1836,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/svg-map-components@workspace:packages/svg-map-components"
   dependencies:
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@types/d3-array": "npm:^3.2.1"
@@ -1866,7 +1866,7 @@ __metadata:
   resolution: "@macrostrat/timescale@workspace:packages/timescale"
   dependencies:
     "@macrostrat/data-provider": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@types/classnames": "npm:^2.3.4"
@@ -1889,7 +1889,7 @@ __metadata:
     "@blueprintjs/core": "npm:^6.11.3"
     "@blueprintjs/datetime": "npm:^6.0.23"
     "@blueprintjs/select": "npm:^6.1.8"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@types/react": "npm:^18.3.12"
     "@types/react-dom": "npm:^18"
@@ -1918,7 +1918,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/vite-plugin-hyperstyles@workspace:toolchain/vite-plugin-hyperstyles"
   dependencies:
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@types/node": "npm:^22.14.1"
     magic-string: "npm:^0.30.21"
@@ -1947,7 +1947,7 @@ __metadata:
     "@blueprintjs/core": "npm:^6.11.3"
     "@changesets/cli": "npm:^2.30.0"
     "@macrostrat/column-components": "workspace:^"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@macrostrat/style-system": "workspace:^"
     "@macrostrat/ui-components": "workspace:^"
     "@macrostrat/web-components-bundler": "workspace:^"
@@ -6936,7 +6936,7 @@ __metadata:
   resolution: "example-strat-column@workspace:examples/strat-column"
   dependencies:
     "@blueprintjs/core": "npm:^6.11.3"
-    "@macrostrat/hyper": "npm:^3.0.6"
+    "@macrostrat/hyper": "npm:^3.1.0"
     "@types/react": "npm:^18.3.12"
     "@types/react-dom": "npm:^18"
     "@vitejs/plugin-react": "npm:^4.3.4"
