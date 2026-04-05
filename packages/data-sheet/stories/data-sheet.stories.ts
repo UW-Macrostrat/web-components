@@ -66,7 +66,7 @@ export const WithLongEditableText = {
 
 export const WithoutAutoFocus = {
   args: {
-    autoFocus: false,
+    autoFocusEditor: false,
     columnSpec: extColumnSpec,
   },
 };

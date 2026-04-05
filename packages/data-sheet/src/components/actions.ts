@@ -1,6 +1,4 @@
-import hyper from "@macrostrat/hyper";
-import style from "./actions.module.sass";
-const h = hyper.styled(style);
+import h from "./actions.module.sass";
 
 export function DataSheetActionsRow(props) {
   return h("div.table-actions", props.children);

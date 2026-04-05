@@ -241,15 +241,13 @@ function _DataSheet<T>({
         enableRowReordering: false,
         index: rowIndex,
         name: `${rowIndex + 1}`,
-        style: null,
+        style,
       });
     },
     [deletedRows],
   );
 
   const onKeyDown = useSelector((state) => state.tableKeyHandler);
-
-  if (data == null) return null;
 
   return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
@@ -261,7 +259,6 @@ function _DataSheet<T>({
       "div.data-sheet-holder",
       { onKeyDown },
       h(
-        // @ts-expect-error
         Table,
         {
           ref,

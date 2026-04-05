@@ -1,11 +1,8 @@
-import hyper from "@macrostrat/hyper";
 import { ErrorBoundary } from "@macrostrat/ui-components";
 import { PopoverNext } from "@blueprintjs/core";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import { useRef, useState } from "react";
 import { useSelector } from "../provider";
-
-const h = hyper.styled(styles);
 
 export function EditorPopup(props) {
   const {
