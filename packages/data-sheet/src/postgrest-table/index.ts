@@ -7,6 +7,7 @@ import { PostgrestOrder, usePostgRESTLazyLoader } from "./data-loaders";
 import { Spinner, InputGroup } from "@blueprintjs/core";
 
 export * from "./data-loaders";
+export * from "./lazy-loader-table";
 import { useCallback, useState, useRef } from "react";
 import {
   ErrorBoundary,

@@ -1,11 +1,8 @@
-import hyper from "@macrostrat/hyper";
 import { ErrorBoundary } from "@macrostrat/ui-components";
-import { Popover } from "@blueprintjs/core";
-import styles from "./main.module.sass";
+import { PopoverNext } from "@blueprintjs/core";
+import h from "./main.module.sass";
 import { useRef, useState } from "react";
 import { useSelector } from "../provider";
-
-const h = hyper.styled(styles);
 
 export function EditorPopup(props) {
   const {
@@ -14,7 +11,6 @@ export function EditorPopup(props) {
     autoFocus,
     valueViewer,
     placement = "right-start",
-    minimal = true,
   } = props;
 
   const [isOpen, setIsOpen] = useState(autoFocus);
@@ -25,14 +21,14 @@ export function EditorPopup(props) {
   const inlineEditor = h([
     h("span.editor-value.bp6-table-cell", valueViewer),
     h("input.hidden-editor", {
-      value: "",
+      defaultValue: "",
       autoFocus: true,
       onKeyDown: keyHandler,
     }),
   ]);
 
   return h(
-    Popover,
+    PopoverNext,
     {
       content: h(
         "div.interaction-barrier",
@@ -56,10 +52,11 @@ export function EditorPopup(props) {
       ),
       enforceFocus: false,
       autoFocus: false,
-      minimal,
-      modifiers: {
-        offset: { enabled: true, options: { offset: [0, 8] } },
-      },
+      animation: "minimal",
+      lazy: true,
+      // modifiers: {
+      //   offset: { enabled: true, options: { offset: [0, 8] } },
+      // },
       placement,
       interactionKind: "hover-target",
       isOpen,

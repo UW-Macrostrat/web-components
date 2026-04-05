@@ -1,5 +1,23 @@
 # Changelog
 
+## [3.3.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.2...@macrostrat/column-views-v3.3.3)
+
+### Patch Changes
+
+- Updated `@macrostrat/hyper` dependency
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+- Updated dependencies
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+  - @macrostrat/svg-map-components@2.0.2
+  - @macrostrat/column-components@2.0.6
+  - @macrostrat/data-components@1.1.5
+  - @macrostrat/data-provider@1.0.2
+  - @macrostrat/map-interface@2.2.3
+  - @macrostrat/ui-components@5.0.7
+  - @macrostrat/mapbox-react@3.1.3
+  - @macrostrat/timescale@3.1.2
+  - @macrostrat/map-styles@2.1.2
+
 ## [3.3.2] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.1...@macrostrat/column-views-v3.3.2)
 
 ### Patch Changes

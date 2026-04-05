@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "2.2.2",
+  "version": "2.2.3",
   "description": "Map interface for Macrostrat",
   "repository": {
     "type": "git",
@@ -49,7 +49,7 @@
     "@blueprintjs/core": "^6.11.3",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/data-components": "workspace:^",
-    "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/hyper": "^3.1.0",
     "@macrostrat/mapbox-react": "workspace:^",
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",

@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/vite-plugin-hyperstyles",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/UW-Macrostrat/web-components.git",
@@ -39,9 +39,9 @@
     "build": "bundle-library ."
   },
   "dependencies": {
-    "@macrostrat/hyper": "^3.0.6",
+    "@macrostrat/hyper": "^3.1.0",
     "magic-string": "^0.30.21",
-    "vite": "^5||^6.1.6||^7"
+    "vite": "^5||^6.1.6||^7||^8"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*",

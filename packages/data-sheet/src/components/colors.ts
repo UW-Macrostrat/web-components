@@ -1,15 +1,12 @@
 import { Cell } from "@blueprintjs/table";
 import { useInDarkMode } from "@macrostrat/ui-components";
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import { getLuminanceAdjustedColorScheme } from "@macrostrat/color-utils";
 import { memoize } from "underscore";
 import classNames from "classnames";
 import { ColorPicker2 } from "@macrostrat/ui-components";
 
 export const ColorPicker = ColorPicker2;
-
-const h = hyper.styled(styles);
 
 export function ColorCell({
   value,

@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.0.1] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/vite-plugin-hyperstyles-v2.0.0...@macrostrat/vite-plugin-hyperstyles-v2.0.1)
+
+### Patch Changes
+
+- Updated `@macrostrat/hyper` dependency
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+
 ## [2.0.0] - 2026-02-01
 
 - Add `magic-string` to attempt to create source maps for transformed files.

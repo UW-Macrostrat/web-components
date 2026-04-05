@@ -7,11 +7,10 @@ import {
 } from "@blueprintjs/core";
 import { Cell, Column, Region, RowHeaderCell, Table } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
-import hyper from "@macrostrat/hyper";
 import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { EditorPopup, DataSheetAction } from "./components";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import {
   DataSheetProvider,
   DataSheetProviderProps,
@@ -22,8 +21,6 @@ import {
   VisibleCells,
 } from "./provider";
 import { ColumnSpec } from "./utils";
-
-const h = hyper.styled(styles);
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -86,6 +83,11 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     ),
   );
 }
+
+const deletedRowHeaderStyle = {
+  opacity: 0.5,
+  textDecoration: "line-through",
+};
 
 function _DataSheet<T>({
   onVisibleCellsChange,
@@ -207,25 +209,25 @@ function _DataSheet<T>({
     };
   }
 
-  const children = useMemo(
-    () =>
-      columnSpec.map((col, colIndex) => {
-        return h(Column, {
-          name: col.name,
-          cellRenderer: (rowIndex) => {
-            const state = storeAPI.getState();
-            return basicCellRenderer<T>(
-              rowIndex,
-              colIndex,
-              col,
-              state,
-              autoFocusEditor,
-            );
-          },
-        });
-      }),
-    [columnSpec, storeAPI, autoFocusEditor],
-  );
+  const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
+
+  const children = useMemo(() => {
+    return columnSpec.map((col, colIndex) => {
+      return h(Column, {
+        name: col.name,
+        cellRenderer: (rowIndex) => {
+          const state = storeAPI.getState();
+          return basicCellRenderer<T>(
+            rowIndex,
+            colIndex,
+            col,
+            state,
+            autoFocusEditor,
+          );
+        },
+      });
+    });
+  }, [columnSpec, storeAPI, autoFocusEditor]);
 
   const onColumnWidthChanged = useSelector(
     (state) => state.onColumnWidthChanged,
@@ -233,14 +235,10 @@ function _DataSheet<T>({
 
   const rowHeaderCellRenderer = useCallback(
     (rowIndex: number) => {
-      let style = null;
-      if (deletedRows.has(rowIndex)) {
-        style = {
-          opacity: 0.5,
-          textDecoration: "line-through",
-        };
-      }
+      const style = deletedRows.has(rowIndex) ? deletedRowHeaderStyle : null;
+
       return h(RowHeaderCell, {
+        enableRowReordering: false,
         index: rowIndex,
         name: `${rowIndex + 1}`,
         style,
@@ -250,8 +248,6 @@ function _DataSheet<T>({
   );
 
   const onKeyDown = useSelector((state) => state.tableKeyHandler);
-
-  if (data == null) return null;
 
   return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
@@ -263,7 +259,6 @@ function _DataSheet<T>({
       "div.data-sheet-holder",
       { onKeyDown },
       h(
-        // @ts-expect-error
         Table,
         {
           ref,
@@ -271,7 +266,7 @@ function _DataSheet<T>({
           className: "data-sheet",
           enableFocusedCell,
           enableColumnReordering,
-          //onColumnsReordered,
+          onColumnsReordered,
           focusedCell,
           selectedRegions,
           defaultRowHeight: rowHeight,
@@ -279,6 +274,9 @@ function _DataSheet<T>({
           columnWidths,
           onColumnWidthChanged,
           onSelection,
+          renderMode: "batch",
+          enableRowReordering: false,
+          enableRowResizing: false,
           // The cell renderer is memoized internally based on these data dependencies
           cellRendererDependencies: [
             data,
@@ -312,10 +310,8 @@ function basicCellRenderer<T>(
   const loading = row == null;
   const col = columnSpec;
 
-  const focusedCell = state.focusedCell;
   const _topLeftCell = state.topLeftCell;
   const onCellEdited = state.onCellEdited;
-  const clearSelection = state.clearSelection;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
   const _renderedValue = col.valueRenderer?.(value) ?? value;
@@ -329,8 +325,8 @@ function basicCellRenderer<T>(
     };
   }
 
-  const focused =
-    focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
+  //const focused =
+  //  focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
 
   const editable = (col.editable ?? state.editable) && !isDeleted;
 
@@ -475,25 +471,17 @@ function basicCellRenderer<T>(
     },
     [
       cellContents,
-      h.if(editable && isSingleCellSelection)(DragHandle, {
-        focusedCell,
-      }),
+      h.if(editable && isSingleCellSelection)(DragHandle),
       hiddenInput,
     ],
   );
 }
 
-function DragHandle({ focusedCell }) {
+function DragHandle() {
   // TODO: we might want to drag multiple columns in some cases
   // This should be on the last cell of a selection
-  const onDragValue = useSelector((state) => state.onDragValue);
-
-  return h("div.corner-drag-handle", {
-    onMouseDown(e) {
-      onDragValue(focusedCell);
-      e.preventDefault();
-    },
-  });
+  const onMouseDown = useSelector((state) => state.onDragValue);
+  return h("div.corner-drag-handle", { onMouseDown });
 }
 
 function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {

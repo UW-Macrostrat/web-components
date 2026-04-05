@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.0.6] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/form-components-v1.0.5...@macrostrat/form-components-v1.0.6)
+
+### Patch Changes
+
+- Updated `@macrostrat/hyper` dependency
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+- Updated dependencies
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+  - @macrostrat/ui-components@5.0.7
+
 ## [1.0.5] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/form-components-v1.0.4...@macrostrat/form-components-v1.0.5)
 
 ### Patch Changes

@@ -1,7 +1,7 @@
 /** Lazy loading of data from a PostgREST endpoint */
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
-import { debounce } from "underscore";
+import { debounce, range } from "underscore";
 import { useCallback, useMemo, useReducer, useRef, useEffect } from "react";
 import update, { Spec } from "immutability-helper";
 
@@ -336,4 +336,154 @@ function indexOfFirstNullInRegion(
     }
   }
   return null;
+}
+
+export function useTestLazyLoader(config: LazyLoaderOptions = {}) {
+  const initialState: LazyLoaderState<any> = {
+    data: [],
+    loading: false,
+    error: null,
+    visibleRegion: { rowIndexStart: 0, rowIndexEnd: 0 },
+    initialized: false,
+  };
+
+  const [state, dispatch] = useReducer(lazyLoadingReducer, initialState);
+  const { data, loading } = state;
+
+  useAsyncEffect(async () => {
+    testDataLoader(config, state, dispatch);
+  }, [
+    data,
+    state.visibleRegion.rowIndexStart,
+    state.visibleRegion.rowIndexEnd,
+  ]);
+
+  // Reference to hold onto the scroll position
+  const ref = useRef(null);
+
+  const onScroll = useCallback(
+    debounce((visibleCells: RowRegion) => {
+      if (
+        visibleCells.rowIndexEnd == ref.current?.rowIndexEnd &&
+        visibleCells.rowIndexStart == ref.current?.rowIndexStart
+      ) {
+        return;
+      }
+      console.log("Visible cells changed", visibleCells);
+      dispatch({
+        type: "set-visible",
+        region: visibleCells,
+      });
+      ref.current = visibleCells;
+    }, 500),
+    [dispatch],
+  );
+
+  return {
+    data,
+    loading,
+    onScroll,
+    dispatch,
+  };
+}
+
+function testDataLoader(
+  config: { chunkSize: number },
+  state: LazyLoaderState<any>,
+  dispatch,
+) {
+  const sortKey = "id";
+  const rowIndex = indexOfFirstNullInRegion(state.data, state.visibleRegion);
+  if (state.loading || rowIndex == null) {
+    if (state.initialized) {
+      return;
+    }
+  }
+
+  const chunkSize = 10;
+
+  let cfg: QueryConfig = {
+    //...rest,
+    limit: chunkSize,
+    offset: null,
+  };
+
+  // Allows random seeking
+  const isInitialQuery = !state.initialized;
+  if (isInitialQuery) {
+    cfg.count = "exact";
+  }
+
+  // This only works for forward queries
+  if (!isInitialQuery) {
+    cfg.after = state.data[rowIndex - 1]?.[sortKey];
+    if (cfg.after == null) {
+      cfg.offset = rowIndex;
+    }
+  }
+
+  dispatch({ type: "start-loading" });
+
+  const query = testQueryFunc(cfg);
+  query.then((res) => {
+    console.log(res);
+    const { data, count } = res;
+    dispatch({
+      type: "loaded",
+      data,
+      offset: rowIndex,
+      totalSize: count,
+    });
+  });
+}
+
+interface QueryParams {
+  count: "exact" | "estimated";
+  limit: number;
+  offset?: number;
+  after?: number;
+}
+
+const testQueryFunc = async (
+  cfg: QueryParams,
+): Promise<{
+  data: any[];
+  count: number | null;
+}> => {
+  console.log(cfg);
+  let offset = null;
+  if (cfg.after) {
+    offset = cfg.after;
+  } else if (cfg.offset) {
+    offset = cfg.offset;
+  }
+
+  let count = cfg.limit;
+  const totalCount = 50000;
+  count = Math.min(count, totalCount - offset);
+
+  // wait for a little bit before returning
+  await sleep(100);
+
+  return {
+    data: buildSyntheticData(offset, count),
+    count: cfg.count != null ? 50000 : undefined,
+  };
+};
+
+async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function buildSyntheticData(offset: number, count: number | null) {
+  console.log(
+    `Getting data at indices between ${offset} and ${offset + count}`,
+  );
+  return range(offset, offset + count).map((i) => {
+    const id = i + 1;
+    return {
+      id,
+      name: `This is some long text content in row ${id}`,
+    };
+  });
 }
