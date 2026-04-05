@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.2.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.2...@macrostrat/map-interface-v2.2.3)
+
+### Patch Changes
+
+- Updated `@macrostrat/hyper` dependency
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+- Updated dependencies
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+  - @macrostrat/data-components@1.1.5
+  - @macrostrat/ui-components@5.0.7
+  - @macrostrat/mapbox-react@3.1.3
+
 ## [2.2.2] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.1...@macrostrat/map-interface-v2.2.2)
 
 ### Patch Changes

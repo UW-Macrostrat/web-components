@@ -1,5 +1,16 @@
 # Changelog
 
+## [3.1.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.1.2...@macrostrat/mapbox-react-v3.1.3)
+
+### Patch Changes
+
+- Updated `@macrostrat/hyper` dependency
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+- Updated dependencies
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+  - @macrostrat/ui-components@5.0.7
+  - @macrostrat/map-styles@2.1.2
+
 ## [3.1.2] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.1.1...@macrostrat/mapbox-react-v3.1.2)
 
 ### Patch Changes

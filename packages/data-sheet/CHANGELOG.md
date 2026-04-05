@@ -1,5 +1,20 @@
 # Changelog
 
+## [3.0.4] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v3.0.3...@macrostrat/data-sheet-v3.0.4)
+
+### Patch Changes
+
+- General performance improvements for rendering and infinite scrolling
+- Use `PopoverNext` instead of popover
+  [4bd24d9f](https://github.com/UW-Macrostrat/web-components/commit/4bd24d9f65dacfdbbede3613921182858ec1e3d1)
+  Re-enable column reordering
+- Updated `@macrostrat/hyper` dependency
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+- Updated dependencies
+  [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
+  - @macrostrat/data-components@1.1.5
+  - @macrostrat/ui-components@5.0.7
+
 ## [3.0.3] - 2026-04-04 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v3.0.2...@macrostrat/data-sheet-v3.0.3)
 
 ### Patch Changes
