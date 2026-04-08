@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { Region, Table } from "@blueprintjs/table";
@@ -8,14 +8,9 @@ import {
   DataSheetComputedVals,
   DataSheetProviderProps,
   DataSheetStore,
-  DataSheetStoreMain,
   VisibleCells,
 } from "./types.ts";
-import {
-  computed,
-  createZustandStore,
-  updateSelection,
-} from "./zustand-store.ts";
+import { computed, createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
 import { atom } from "jotai";
 
@@ -26,7 +21,29 @@ export { useAtom, useAtomValue, useSetAtom };
 
 const storeAPIAtom = atom<StoreApi<DataSheetStore<any>>>();
 
-export function DataSheetProvider<T>({
+const storeWrapperAtom = atom((get) => {
+  return atomWithStore(get(storeAPIAtom));
+});
+
+const initializeStoreAtom = atom(null, (get, set, payload) => {
+  const store = get(get(storeWrapperAtom));
+  store.initialize(payload);
+});
+
+export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
+  const [store] = useState(() => {
+    return createStore<DataSheetStore<T>>(computed(createZustandStore));
+  });
+  return h(
+    scope.Provider,
+    {
+      atoms: [[storeAPIAtom, store]],
+    },
+    h(DataSheetProviderInner, props),
+  );
+}
+
+export function DataSheetProviderInner<T>({
   children,
   data,
   columnSpec,
@@ -42,14 +59,11 @@ export function DataSheetProvider<T>({
 
   const tableRef = useRef<Table>(null);
 
-  const [store] = useState(() => {
-    return createStore<DataSheetStore<T>>(computed(createZustandStore));
-  });
+  const initializeStore = scope.useSetAtom(initializeStoreAtom);
 
   // Not sure how required this initialization is
   useEffect(() => {
-    const { initialize } = store.getState();
-    initialize({
+    initializeStore({
       columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
       editable,
       enableColumnReordering,
@@ -60,13 +74,7 @@ export function DataSheetProvider<T>({
     });
   }, [data, editable, columnSpec, columnSpecOptions, enableColumnReordering]);
 
-  return h(
-    scope.Provider,
-    {
-      atoms: [[storeAPIAtom, store]],
-    },
-    children,
-  );
+  return children;
 }
 
 export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
