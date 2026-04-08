@@ -12,8 +12,6 @@ import { DevToolsButtonSlot } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
 
-export { ScaleControl, GeolocationControl };
-
 export function MapBottomControls({ children }) {
   const { isInitialized } = useMapStatus();
 
