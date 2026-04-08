@@ -5,11 +5,19 @@ import {
   InputGroup,
   Intent,
 } from "@blueprintjs/core";
-import { Cell, Column, Region, RowHeaderCell, Table } from "@blueprintjs/table";
+import {
+  Cell,
+  Column,
+  Region,
+  RegionCardinality,
+  RowHeaderCell,
+  Table,
+  TableProps,
+} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { EditorPopup, DataSheetAction } from "./components";
+import { DataSheetAction, EditorPopup } from "./components";
 import h from "./main.module.sass";
 import {
   DataSheetProvider,
@@ -33,7 +41,7 @@ export enum DataSheetDensity {
   LOW = "low",
 }
 
-interface DataSheetInternalProps<T> {
+interface DataSheetInternalProps<T> extends TableProps {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onSaveData?: (updatedData: any[], data: T[]) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
@@ -91,7 +99,6 @@ const deletedRowHeaderStyle = {
 
 function _DataSheet<T>({
   onVisibleCellsChange,
-  enableColumnReordering,
   onSaveData,
   onUpdateData,
   onDeleteRows,
@@ -100,6 +107,8 @@ function _DataSheet<T>({
   enableFocusedCell,
   autoFocusEditor = true,
   density = DataSheetDensity.HIGH,
+  selectionModes,
+  ...rest
 }: DataSheetInternalProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -249,6 +258,16 @@ function _DataSheet<T>({
 
   const onKeyDown = useSelector((state) => state.tableKeyHandler);
 
+  let _selectionModes = selectionModes;
+  if (
+    editable &&
+    _selectionModes != null &&
+    !_selectionModes.includes(RegionCardinality.CELLS)
+  ) {
+    _selectionModes = [..._selectionModes, RegionCardinality.CELLS];
+    // Ensure selection mode includes "cells"
+  }
+
   return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
       onSaveData: _onSaveData,
@@ -265,7 +284,6 @@ function _DataSheet<T>({
           numRows,
           className: "data-sheet",
           enableFocusedCell,
-          enableColumnReordering,
           onColumnsReordered,
           focusedCell,
           selectedRegions,
@@ -274,7 +292,6 @@ function _DataSheet<T>({
           columnWidths,
           onColumnWidthChanged,
           onSelection,
-          renderMode: "batch",
           enableRowReordering: false,
           enableRowResizing: false,
           // The cell renderer is memoized internally based on these data dependencies
@@ -287,6 +304,8 @@ function _DataSheet<T>({
           ],
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,
+          selectionModes: _selectionModes,
+          ...rest,
         },
         children,
       ),
