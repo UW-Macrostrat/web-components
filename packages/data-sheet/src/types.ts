@@ -63,11 +63,4 @@ export interface VisibleCells {
   rowIndexEnd: number;
 }
 
-export interface DataSheetComputedVals {
-  /** State for column widths (if resized).
-   * This will reset if the columnSpec prop changes
-   */
-  tableKeyHandler: (evt: React.KeyboardEvent) => void;
-}
-
-export type DataSheetStore<T> = DataSheetComputedVals & DataSheetStoreMain<T>;
+export type DataSheetStore<T> = DataSheetStoreMain<T>;

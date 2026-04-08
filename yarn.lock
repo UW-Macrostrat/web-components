@@ -1635,7 +1635,6 @@ __metadata:
     jotai-zustand: "npm:^0.6.0"
     underscore: "npm:^1.13.7"
     zustand: "npm:^5.0.2"
-    zustand-computed: "npm:^2.1.0"
   peerDependencies:
     react: ^18.0.0||^19.0.0
   languageName: unknown
@@ -12856,7 +12855,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand-computed@npm:^2.0.2, zustand-computed@npm:^2.1.0":
+"zustand-computed@npm:^2.0.2":
   version: 2.1.0
   resolution: "zustand-computed@npm:2.1.0"
   peerDependencies:

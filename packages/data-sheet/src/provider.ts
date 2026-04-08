@@ -5,12 +5,11 @@ import type { Region, Table } from "@blueprintjs/table";
 import { generateColumnSpec } from "./utils";
 import { createScopedStore } from "@macrostrat/data-components";
 import {
-  DataSheetComputedVals,
   DataSheetProviderProps,
   DataSheetStore,
   VisibleCells,
 } from "./types.ts";
-import { computed, createZustandStore } from "./zustand-store.ts";
+import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
 import { atom } from "jotai";
 
@@ -18,8 +17,9 @@ import { atom } from "jotai";
 const scope = createScopedStore();
 const { useAtom, useAtomValue, useSetAtom } = scope;
 export { useAtom, useAtomValue, useSetAtom };
+export { atom };
 
-const storeAPIAtom = atom<StoreApi<DataSheetStore<any>>>();
+export const storeAPIAtom = atom<StoreApi<DataSheetStore<any>>>();
 
 const storeWrapperAtom = atom((get) => {
   return atomWithStore(get(storeAPIAtom));
@@ -49,7 +49,7 @@ const initializeStoreAtom = atom(
 
 export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
   const [store] = useState(() => {
-    return createStore<DataSheetStore<T>>(computed(createZustandStore));
+    return createStore<DataSheetStore<T>>(createZustandStore);
   });
   return h(
     scope.Provider,

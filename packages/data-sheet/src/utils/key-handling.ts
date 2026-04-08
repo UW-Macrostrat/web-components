@@ -1,7 +1,20 @@
 import type { KeyboardEvent } from "react";
-import { DataSheetStoreMain, storeAtom } from "@macrostrat/data-sheet";
+import {
+  DataSheetStoreMain,
+  storeAPIAtom,
+  storeAtom,
+} from "@macrostrat/data-sheet";
 import { atom } from "jotai";
 import { singleFocusedCell } from "../zustand-store.ts";
+
+export const tableKeyHandlerAtom = atom((get) => {
+  const store = get(storeAPIAtom);
+  return (e: KeyboardEvent) => {
+    // Kind of a ridiculous hack to get the store from the atom.
+    const state = store.getState();
+    tableKeyHandler(e, state);
+  };
+});
 
 export function tableKeyHandler<T>(
   e: KeyboardEvent,

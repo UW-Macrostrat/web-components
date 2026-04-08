@@ -24,11 +24,12 @@ import {
   useAtomValue,
   useSelector,
   useStoreAPI,
+  atom,
 } from "./provider";
 import { DataSheetProviderProps, VisibleCells } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
-import { atom } from "jotai";
 import { selectAtom } from "jotai/utils";
+import { tableKeyHandlerAtom } from "./utils";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -256,7 +257,7 @@ function _DataSheet<T>({
     [deletedRows],
   );
 
-  const onKeyDown = useSelector((state) => state.tableKeyHandler);
+  const onKeyDown = useAtomValue(tableKeyHandlerAtom);
 
   let _selectionModes = selectionModes;
   if (
@@ -319,15 +320,9 @@ const hasUpdatesAtom = atom((get) => {
   return state.updatedData.length > 0 || state.deletedRows.size > 0;
 });
 
-const columnSpecAtom = selectAtom(storeAtom, (state) => state.columnSpec);
-const columnWidthsIndexAtom = selectAtom(
-  storeAtom,
-  (state) => state.columnWidthsIndex,
-);
-const defaultColumnWidthAtom = selectAtom(
-  storeAtom,
-  (state) => state.defaultColumnWidth,
-);
+const columnSpecAtom = atom((get) => get(storeAtom).columnSpec);
+const columnWidthsIndexAtom = atom((get) => get(storeAtom).columnWidthsIndex);
+const defaultColumnWidthAtom = atom((get) => get(storeAtom).defaultColumnWidth);
 
 const columnWidthsAtom = atom((get) => {
   const ix = get(columnWidthsIndexAtom);

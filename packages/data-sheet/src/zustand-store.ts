@@ -1,5 +1,4 @@
 import {
-  DataSheetComputedVals,
   DataSheetState,
   DataSheetStore,
   DataSheetStoreMain,
@@ -7,19 +6,8 @@ import {
   VisibleCells,
 } from "./types.ts";
 import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
-import { range, tableKeyHandler } from "./utils";
+import { range } from "./utils";
 import update, { Spec } from "immutability-helper";
-import { createComputed } from "zustand-computed";
-
-export const computed = createComputed(
-  (state: DataSheetStoreMain<any>): DataSheetComputedVals => {
-    return {
-      tableKeyHandler: (e: React.KeyboardEvent) => {
-        tableKeyHandler(e, state);
-      },
-    };
-  },
-) as any;
 
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
   return {
