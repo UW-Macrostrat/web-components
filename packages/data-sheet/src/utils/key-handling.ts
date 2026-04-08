@@ -1,5 +1,7 @@
 import type { KeyboardEvent } from "react";
-import { DataSheetStoreMain } from "@macrostrat/data-sheet";
+import { DataSheetStoreMain, storeAtom } from "@macrostrat/data-sheet";
+import { atom } from "jotai";
+import { singleFocusedCell } from "../zustand-store.ts";
 
 export function tableKeyHandler<T>(
   e: KeyboardEvent,
@@ -43,10 +45,24 @@ const directionMap = {
   ArrowRight: "right",
 };
 
-export function editorKeyHandler(
-  e: KeyboardEvent,
-  isSingleCellSelection: boolean,
-) {
+const selectionAtom = atom((get) => {
+  const store = get(storeAtom);
+  return store.selection;
+});
+
+const isSingleCellSelectionAtom = atom((get) => {
+  const selection = get(selectionAtom);
+  return singleFocusedCell(selection) != null;
+});
+
+export const editorKeyHandlerAtom = atom((get) => {
+  return (e: KeyboardEvent) => {
+    const isSingleCellSelection = get(isSingleCellSelectionAtom);
+    editorKeyHandler(e, isSingleCellSelection);
+  };
+});
+
+function editorKeyHandler(e: KeyboardEvent, isSingleCellSelection: boolean) {
   /** Get a key handler for inline cell editing */
 
   // if (e.key == "Enter" || e.key == "Tab") {

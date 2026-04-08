@@ -25,7 +25,8 @@ const storeWrapperAtom = atom((get) => {
   return atomWithStore(get(storeAPIAtom));
 });
 
-const storeAtom = atom(
+/** This is the basis for all other atoms that manipulate the store. */
+export const storeAtom = atom(
   (get) => {
     return get(get(storeWrapperAtom));
   },

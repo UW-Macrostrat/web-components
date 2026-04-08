@@ -7,24 +7,13 @@ import {
   VisibleCells,
 } from "./types.ts";
 import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
-import { editorKeyHandler, range, tableKeyHandler } from "./utils";
+import { range, tableKeyHandler } from "./utils";
 import update, { Spec } from "immutability-helper";
 import { createComputed } from "zustand-computed";
 
 export const computed = createComputed(
   (state: DataSheetStoreMain<any>): DataSheetComputedVals => {
-    const isSingleCellSelection = singleFocusedCell(state.selection) != null;
     return {
-      hasUpdates: state.updatedData.length > 0 || state.deletedRows.size > 0,
-      columnWidths: state.columnSpec.map(
-        (col) =>
-          state.columnWidthsIndex.get(col.key) ??
-          col.width ??
-          state.defaultColumnWidth,
-      ),
-      editorKeyHandler: (e: React.KeyboardEvent) =>
-        editorKeyHandler(e, isSingleCellSelection),
-      isSingleCellSelection,
       tableKeyHandler: (e: React.KeyboardEvent) => {
         tableKeyHandler(e, state);
       },

@@ -18,9 +18,17 @@ import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { DataSheetAction } from "./components";
 import h from "./main.module.sass";
-import { DataSheetProvider, useSelector, useStoreAPI } from "./provider";
+import {
+  DataSheetProvider,
+  storeAtom,
+  useAtomValue,
+  useSelector,
+  useStoreAPI,
+} from "./provider";
 import { DataSheetProviderProps, VisibleCells } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
+import { atom } from "jotai";
+import { selectAtom } from "jotai/utils";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -184,7 +192,7 @@ function _DataSheet<T>({
     [selectedRegions],
   );
 
-  const columnWidths = useSelector((state) => state.columnWidths);
+  const columnWidths = useAtomValue(columnWidthsAtom);
 
   const numRows = Math.max(updatedData.length, data.length);
 
@@ -305,10 +313,34 @@ function _DataSheet<T>({
   ]);
 }
 
+const hasUpdatesAtom = atom((get) => {
+  // Readable atom to indicate whether there are any updates in the updatedData array
+  const state = get(storeAtom);
+  return state.updatedData.length > 0 || state.deletedRows.size > 0;
+});
+
+const columnSpecAtom = selectAtom(storeAtom, (state) => state.columnSpec);
+const columnWidthsIndexAtom = selectAtom(
+  storeAtom,
+  (state) => state.columnWidthsIndex,
+);
+const defaultColumnWidthAtom = selectAtom(
+  storeAtom,
+  (state) => state.defaultColumnWidth,
+);
+
+const columnWidthsAtom = atom((get) => {
+  const ix = get(columnWidthsIndexAtom);
+  return get(columnSpecAtom).map(
+    (col) => ix.get(col.key) ?? col.width ?? get(defaultColumnWidthAtom),
+  );
+});
+
 function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
   const selection = useSelector((state) => state.selection);
   const resetChanges = useSelector((state) => state.resetChanges);
-  const hasUpdates = useSelector((state) => state.hasUpdates);
+
+  const hasUpdates = useAtomValue(hasUpdatesAtom);
 
   return h("div.data-sheet-toolbar", [
     h(ButtonGroup, { minimal: true }, [

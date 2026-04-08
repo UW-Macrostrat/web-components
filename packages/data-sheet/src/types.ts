@@ -64,14 +64,10 @@ export interface VisibleCells {
 }
 
 export interface DataSheetComputedVals {
-  hasUpdates: boolean;
   /** State for column widths (if resized).
    * This will reset if the columnSpec prop changes
    */
-  columnWidths: number[];
   tableKeyHandler: (evt: React.KeyboardEvent) => void;
-  editorKeyHandler: (evt: React.KeyboardEvent) => void;
-  isSingleCellSelection?: boolean;
 }
 
 export type DataSheetStore<T> = DataSheetComputedVals & DataSheetStoreMain<T>;

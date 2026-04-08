@@ -1,11 +1,11 @@
-import { ColumnSpec } from "./utils";
+import { ColumnSpec, editorKeyHandlerAtom } from "./utils";
 import { DataSheetStore } from "./types.ts";
 import h from "./main.module.sass";
 import { ReactNode } from "react";
 import { EditorPopup } from "./components";
 import { singleFocusedCell } from "./zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
-import { useSelector } from "./provider.ts";
+import { useAtomValue, useSelector } from "./provider.ts";
 
 export function basicCellRenderer<T>(
   rowIndex: number,
@@ -81,9 +81,9 @@ export function basicCellRenderer<T>(
   // The rest is for the top-left cell of a selection or the focused cell
 
   // Hidden input to capture key events
-  let hiddenInput = h("input.hidden-input", {
+  let hiddenInput = h(EditorInput, {
+    className: "hidden-input",
     autoFocus: true,
-    onKeyDown: state.editorKeyHandler,
   });
 
   let cellContents: ReactNode = _renderedValue;
@@ -151,11 +151,11 @@ export function basicCellRenderer<T>(
     ) {
       _value = _renderedValue;
     }
-    _inlineEditor = h("input.main-editor", {
+    _inlineEditor = h(EditorInput, {
+      className: "main-editor",
       value: _value ?? "",
       autoFocus: autoFocusEditor,
       onChange,
-      onKeyDown: state.editorKeyHandler,
     });
   } else {
     // If inlineEditor is a ReactNode, we use it directly
@@ -188,6 +188,14 @@ export function basicCellRenderer<T>(
       hiddenInput,
     ],
   );
+}
+
+function EditorInput(props) {
+  const onKeyDown = useAtomValue(editorKeyHandlerAtom);
+  return h("input", {
+    onKeyDown,
+    ...props,
+  });
 }
 
 function DragHandle() {
