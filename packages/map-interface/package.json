@@ -63,7 +63,7 @@
     "mapbox-gl": "^3.0.0",
     "query-string": "^9.0.0",
     "transition-hook": "^1.5.2",
-    "underscore": "^1.13.7",
+    "underscore": "^1.13.8",
     "use-resize-observer": "^9.1.0"
   },
   "devDependencies": {
