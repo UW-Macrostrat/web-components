@@ -1,6 +1,5 @@
 import {
   DataSheetComputedVals,
-  DataSheetCoreProps,
   DataSheetState,
   DataSheetStore,
   DataSheetStoreMain,

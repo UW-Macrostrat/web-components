@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { SetStateAction, useEffect, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
 import type { Region, Table } from "@blueprintjs/table";
@@ -25,10 +25,26 @@ const storeWrapperAtom = atom((get) => {
   return atomWithStore(get(storeAPIAtom));
 });
 
-const initializeStoreAtom = atom(null, (get, set, payload) => {
-  const store = get(get(storeWrapperAtom));
-  store.initialize(payload);
-});
+const storeAtom = atom(
+  (get) => {
+    return get(get(storeWrapperAtom));
+  },
+  (get, set, action: SetStateAction<T>) => {
+    return set(get(storeWrapperAtom), action);
+  },
+);
+
+const initializeStoreAtom = atom(
+  null,
+  (get, set, payload: Partial<DataSheetStore<T>>) => {
+    set(storeAtom, (state) => {
+      return {
+        ...state,
+        ...payload,
+      };
+    });
+  },
+);
 
 export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
   const [store] = useState(() => {
