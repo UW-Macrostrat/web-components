@@ -16,7 +16,6 @@ import {
   useToaster,
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
-import { DataSheetProviderProps } from "../provider";
 import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
 import type {
   GenericFunction,
@@ -24,6 +23,7 @@ import type {
   GenericView,
 } from "@supabase/postgrest-js/dist/cjs/index";
 import { ColorCell } from "../components";
+import { DataSheetProviderProps } from "../types.ts";
 
 const h = hyper.styled(styles);
 

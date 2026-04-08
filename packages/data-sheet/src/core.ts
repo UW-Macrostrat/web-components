@@ -21,14 +21,17 @@ import { DataSheetAction, EditorPopup } from "./components";
 import h from "./main.module.sass";
 import {
   DataSheetProvider,
-  DataSheetProviderProps,
-  DataSheetStore,
-  singleFocusedCell,
   useSelector,
   useStoreAPI,
-  VisibleCells,
+
 } from "./provider";
 import { ColumnSpec } from "./utils";
+import {
+  DataSheetProviderProps,
+  DataSheetStore,
+  VisibleCells,
+} from "./types.ts";
+import { singleFocusedCell } from "./zustand-store.ts";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 

@@ -3,3 +3,4 @@ export * from "./postgrest-table";
 export * from "./components";
 export * from "./provider";
 export * from "./utils";
+export * from "./types";
