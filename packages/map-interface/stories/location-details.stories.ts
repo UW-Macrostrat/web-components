@@ -1,6 +1,7 @@
 import type { Meta } from "@storybook/react-vite";
 import type { StoryObj } from "@storybook/react-vite";
 import {
+  DetailPanelStyle,
   LocationPanel,
   MapAreaContainer,
   MapMarker,
@@ -148,6 +149,17 @@ export const WithBounds: Story = {
       console.log("Close");
     },
     children: [h(MapBoundsLayer, { bounds })],
+  },
+};
+
+export const WithBoundsFixedSidebar: Story = {
+  args: {
+    bounds,
+    position: null,
+    mapPosition: null,
+    detailPanelStyle: DetailPanelStyle.FIXED,
+    title: "New York City",
+    onClose: null,
   },
 };
 
