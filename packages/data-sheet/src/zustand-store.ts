@@ -154,7 +154,9 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     setVisibleCells(visibleCells: VisibleCells) {
       // Visible cells are used for infinite scrolling
       // Right now we don't store this in the state
-      get().visibleCellsRef.current = visibleCells;
+      const ref = get().visibleCellsRef;
+      if (ref == null) return;
+      ref.current = visibleCells;
     },
     onDragValue(event: MouseEvent) {
       set((state) => {
@@ -179,7 +181,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         return { updatedData: update(updatedData, spec) };
       });
     },
-    initialize(props: DataSheetCoreProps<T>) {
+    initialize(props: Partial<DataSheetStoreMain<T>>) {
       set({ ...props, initialized: true });
     },
     clearSelection() {

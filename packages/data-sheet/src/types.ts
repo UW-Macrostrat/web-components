@@ -42,7 +42,7 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   clearSelection(): void;
   resetChanges(): void;
   addRow(): void;
-  initialize(props: DataSheetCoreProps<T>): void;
+  initialize(props: Partial<DataSheetStoreMain<T>>): void;
   onSelection(selection: Region[]): void;
   // Internal method used for infinite scrolling
   setVisibleCells(visibleCells: VisibleCells): void;

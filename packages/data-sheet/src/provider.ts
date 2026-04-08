@@ -16,11 +16,15 @@ import {
   createZustandStore,
   updateSelection,
 } from "./zustand-store.ts";
-
-const DataSheetContext = createContext<StoreApi<DataSheetStore<any>>>(null);
+import { atomWithStore } from "jotai-zustand";
+import { atom } from "jotai";
 
 /** Create a Jotai scoped store */
 const scope = createScopedStore();
+const { useAtom, useAtomValue, useSetAtom } = scope;
+export { useAtom, useAtomValue, useSetAtom };
+
+const storeAPIAtom = atom<StoreApi<DataSheetStore<any>>>();
 
 export function DataSheetProvider<T>({
   children,
@@ -39,44 +43,34 @@ export function DataSheetProvider<T>({
   const tableRef = useRef<Table>(null);
 
   const [store] = useState(() => {
-    const spec = columnSpec || generateColumnSpec(data, columnSpecOptions);
-    return createStore<DataSheetStore<T>>(
-      computed((set, get): DataSheetStoreMain<T> => {
-        const baseStore = createZustandStore<T>(set, get);
-        return {
-          ...baseStore,
-          data,
-          columnSpec: spec,
-          defaultColumnWidth,
-          editable,
-          tableRef,
-          visibleCellsRef,
-          // This is a placeholder
-          enableColumnReordering: false,
-          setSelection(selection: Region[]) {
-            set(updateSelection(selection));
-          },
-        };
-      }),
-    );
+    return createStore<DataSheetStore<T>>(computed(createZustandStore));
   });
 
   // Not sure how required this initialization is
   useEffect(() => {
     const { initialize } = store.getState();
     initialize({
-      data,
       columnSpec: columnSpec ?? generateColumnSpec(data, columnSpecOptions),
       editable,
       enableColumnReordering,
+      data,
+      defaultColumnWidth,
+      tableRef,
+      visibleCellsRef,
     });
   }, [data, editable, columnSpec, columnSpecOptions, enableColumnReordering]);
 
-  return h(DataSheetContext.Provider, { value: store }, children);
+  return h(
+    scope.Provider,
+    {
+      atoms: [[storeAPIAtom, store]],
+    },
+    children,
+  );
 }
 
 export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
-  const store = useContext(DataSheetContext);
+  const store = scope.useAtomValue(storeAPIAtom);
   if (!store) {
     throw new Error("Missing DataSheetProvider");
   }

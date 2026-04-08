@@ -68,7 +68,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
       {
         data,
         columnSpec,
-        columnSpecOptions: columnSpecOptions,
+        columnSpecOptions,
         enableColumnReordering,
         defaultColumnWidth,
         editable,
