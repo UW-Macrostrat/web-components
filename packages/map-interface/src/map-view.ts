@@ -1,4 +1,3 @@
-import hyper from "@macrostrat/hyper";
 import {
   useMapRef,
   useMapDispatch,
@@ -6,13 +5,13 @@ import {
   getTerrainLayerForStyle,
   useMapStatus,
   useMapStyleFragments,
+  useMapPosition,
 } from "@macrostrat/mapbox-react";
 import React from "react";
 import {
   mapViewInfo,
   MapPosition,
   setMapPosition,
-  getMapPosition,
   getMapboxStyle,
   mergeStyles,
 } from "@macrostrat/mapbox-utils";
@@ -163,10 +162,10 @@ export function MapView(props: MapViewProps) {
    */
   const _ctxOverlayStyles = useMapStyleFragments() as any[];
 
-  const estMapPosition: MapPosition | null =
-    mapRef.current == null ? mapPosition : getMapPosition(mapRef.current);
-  const { mapUse3D, mapIsRotated } = mapViewInfo(estMapPosition);
-  const is3DAvailable = (mapUse3D ?? false) && enableTerrain;
+  const resolvedMapPosition = useMapPosition();
+  const estMapPosition: MapPosition | null = resolvedMapPosition ?? mapPosition;
+  const { mapUse3D = false, mapIsRotated } = mapViewInfo(estMapPosition);
+  const is3DAvailable = mapUse3D && enableTerrain;
 
   useEffect(() => {
     /** Manager to update map style */

@@ -13,12 +13,7 @@ import {
   LithologyList,
 } from "@macrostrat/data-components";
 import { JSONView } from "@macrostrat/ui-components";
-import {
-  Button,
-  NonIdealState,
-  Spinner,
-  Tag,
-} from "@blueprintjs/core";
+import { Button, NonIdealState, Spinner, Tag } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import { useMemo, useEffect } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
@@ -323,7 +318,7 @@ function ColorSwatch({ color }: { color: string | null }) {
       backgroundColor: color,
       border: "1px solid rgba(0,0,0,0.2)",
       borderRadius: 2,
-      marginRight: 6,
+      marginRight: 10,
       verticalAlign: "middle",
       flexShrink: 0,
     },
@@ -396,7 +391,6 @@ function LegendEntry({ entry }: { entry: any }) {
         display: "flex",
         alignItems: "center",
         gap: 6,
-        padding: "6px 10px",
         cursor: "pointer",
         borderBottom: "1px solid var(--panel-rule-color, #eee)",
       },
@@ -409,11 +403,7 @@ function LegendEntry({ entry }: { entry: any }) {
         { style: { fontWeight: 500, flex: 1 } },
         map_unit_name ?? "Unknown unit",
       ),
-      h.if(age != null)(
-        Tag,
-        { minimal: true, style: { flexShrink: 0 } },
-        age,
-      ),
+      h.if(age != null)(Tag, { minimal: true, style: { flexShrink: 0 } }, age),
     ],
   );
 }
@@ -453,7 +443,7 @@ function LegendEntryDetails({ entry }: { entry: any }) {
 
   const lithologies = resolvedLithologies ?? fallbackLithologies;
 
-  return h("div", { style: { padding: "8px 10px" } }, [
+  return h("div", [
     h.if(strat_name != null)(DataField, {
       label: "Stratigraphic name",
       value: strat_name,
@@ -465,10 +455,10 @@ function LegendEntryDetails({ entry }: { entry: any }) {
         h(IntervalTag, { key: iv.id, interval: iv, showAgeRange: true }),
       ),
     ),
-    h.if(resolvedIntervals == null && bAge != null && tAge != null)(
-      DataField,
-      { label: "Age range", value: `${bAge} – ${tAge} Ma` },
-    ),
+    h.if(resolvedIntervals == null && bAge != null && tAge != null)(DataField, {
+      label: "Age range",
+      value: `${bAge} – ${tAge} Ma`,
+    }),
     h.if(lith != null && lith !== "")(DataField, {
       label: "Lithology",
       value: lith,
@@ -476,10 +466,6 @@ function LegendEntryDetails({ entry }: { entry: any }) {
     h.if(lithologies != null)(LithologyList, {
       label: "Matched lithologies",
       lithologies: lithologies ?? [],
-    }),
-    h.if(area != null)(DataField, {
-      label: "Area",
-      value: `${Math.round(area)} km²`,
     }),
     h.if(descrip != null)(DataField, {
       label: "Description",
