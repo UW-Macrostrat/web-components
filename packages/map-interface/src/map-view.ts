@@ -62,8 +62,8 @@ export interface MapViewProps extends MapboxCoreOptions {
   loadingIgnoredSources?: string[];
   id?: string;
   className?: string;
-  height: number;
-  width: number;
+  height?: number | string;
+  width?: number | string;
 }
 
 export interface MapboxOptionsExt extends MapboxCoreOptions {

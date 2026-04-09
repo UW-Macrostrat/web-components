@@ -10,33 +10,108 @@ import { buildMacrostratStyle } from "@macrostrat/map-styles";
 import {
   ExpansionPanel,
   DataField,
+  IntervalTag,
   LithologyList,
 } from "@macrostrat/data-components";
-import { useAPIResult } from "@macrostrat/ui-components";
+import { JSONView } from "@macrostrat/ui-components";
 import { Button, ButtonGroup, Spinner, Tag } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
+import { useMapRef } from "@macrostrat/mapbox-react";
+import { atom, useAtomValue, useSetAtom } from "jotai";
+import {
+  MacrostratDataProvider,
+  useMacrostratDefs,
+} from "@macrostrat/data-provider";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 const macrostratOverlay = buildMacrostratStyle({});
 
-// Default bounds for South Dakota area
-const defaultBounds: [number, number, number, number] = [-100, 43, -98, 44];
 const defaultZoom = 8;
 
 const legendAPIBase = "https://dev.macrostrat.org/api/v3/map/carto/legend";
 
-function useLegendData(bounds: [number, number, number, number], zoom: number) {
-  return useAPIResult(
-    legendAPIBase,
-    {
+// --- Jotai atoms for reactive state ---
+
+type Bounds = [number, number, number, number];
+
+/** The current map viewport bounds, updated on map move */
+const mapBoundsAtom = atom<Bounds | null>(null);
+
+/** Legend data fetched from the API */
+const legendDataAtom = atom<any[] | null>(null);
+
+/** Whether a fetch is currently in progress */
+const legendLoadingAtom = atom(false);
+
+/** Hook to fetch legend data reactively when bounds change */
+function useLegendFetcher(zoom: number) {
+  const bounds = useAtomValue(mapBoundsAtom);
+  const setData = useSetAtom(legendDataAtom);
+  const setLoading = useSetAtom(legendLoadingAtom);
+
+  useEffect(() => {
+    if (bounds == null) return;
+    let cancelled = false;
+    setLoading(true);
+
+    const params = new URLSearchParams({
       bounds: bounds.join(","),
-      zoom,
-    },
-    (res) => res,
-  );
+      zoom: String(zoom),
+    });
+
+    fetch(`${legendAPIBase}?${params}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!cancelled) {
+          setData(data);
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error("Failed to fetch legend data:", err);
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [bounds, zoom, setData, setLoading]);
 }
+
+/** Child component that syncs map viewport bounds to the Jotai atom */
+function MapBoundsReporter() {
+  const mapRef = useMapRef();
+  const setBounds = useSetAtom(mapBoundsAtom);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (map == null) return;
+
+    const update = () => {
+      const b = map.getBounds();
+      console.log("Map bounds", b);
+      setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
+    };
+
+    // Set initial bounds once loaded
+    if (map.loaded()) {
+      update();
+    } else {
+      map.once("load", update);
+    }
+
+    map.on("moveend", update);
+    return () => {
+      map.off("moveend", update);
+    };
+  }, [mapRef.current]);
+
+  return null;
+}
+
+// --- View mode ---
 
 enum LegendViewMode {
   PRETTY = "pretty",
@@ -51,25 +126,23 @@ function ViewModeToggle({
   mode: LegendViewMode;
   setMode: (m: LegendViewMode) => void;
 }) {
-  return h(
-    ButtonGroup,
-    { minimal: true, small: true, className: "view-mode-toggle" },
-    [
-      h(Button, {
-        text: "Legend",
-        active: mode === LegendViewMode.PRETTY,
-        onClick: () => setMode(LegendViewMode.PRETTY),
-        icon: "list",
-      }),
-      h(Button, {
-        text: "JSON",
-        active: mode === LegendViewMode.JSON,
-        onClick: () => setMode(LegendViewMode.JSON),
-        icon: "code",
-      }),
-    ],
-  );
+  return h(ButtonGroup, { minimal: true, className: "view-mode-toggle" }, [
+    h(Button, {
+      text: "Legend",
+      active: mode === LegendViewMode.PRETTY,
+      onClick: () => setMode(LegendViewMode.PRETTY),
+      icon: "list",
+    }),
+    h(Button, {
+      text: "JSON",
+      active: mode === LegendViewMode.JSON,
+      onClick: () => setMode(LegendViewMode.JSON),
+      icon: "code",
+    }),
+  ]);
 }
+
+// --- Legend entry rendering ---
 
 /** Color swatch for a legend entry */
 function ColorSwatch({ color }: { color: string | null }) {
@@ -89,10 +162,63 @@ function ColorSwatch({ color }: { color: string | null }) {
   });
 }
 
+/** Resolve interval IDs to IntervalShort objects using the data provider */
+function useResolvedIntervals(
+  bIntervalId: number | null,
+  tIntervalId: number | null,
+) {
+  const intervalMap = useMacrostratDefs("intervals");
+  return useMemo(() => {
+    if (intervalMap == null) return null;
+    const intervals = [];
+    if (bIntervalId != null) {
+      const b = intervalMap.get(bIntervalId);
+      if (b != null)
+        intervals.push({
+          id: b.int_id,
+          name: b.int_name,
+          b_age: b.b_age,
+          t_age: b.t_age,
+          color: b.color,
+          rank: b.rank,
+        });
+    }
+    if (tIntervalId != null && tIntervalId !== bIntervalId) {
+      const t = intervalMap.get(tIntervalId);
+      if (t != null)
+        intervals.push({
+          id: t.int_id,
+          name: t.int_name,
+          b_age: t.b_age,
+          t_age: t.t_age,
+          color: t.color,
+          rank: t.rank,
+        });
+    }
+    return intervals.length > 0 ? intervals : null;
+  }, [intervalMap, bIntervalId, tIntervalId]);
+}
+
+/** Resolve lith_id array to lithology objects using the data provider */
+function useResolvedLithologies(lithIds: number[] | null) {
+  const lithMap = useMacrostratDefs("lithologies");
+  return useMemo(() => {
+    if (lithMap == null || lithIds == null || lithIds.length === 0) return null;
+    const resolved = lithIds
+      .map((id) => lithMap.get(id))
+      .filter((d) => d != null)
+      .map((d) => ({
+        ...d,
+        name: d.lith ?? d.name,
+        color: d.color ?? "#888",
+      }));
+    return resolved.length > 0 ? resolved : null;
+  }, [lithMap, lithIds]);
+}
+
 /** Pretty-rendered single legend entry */
 function LegendEntry({ entry }: { entry: any }) {
   const {
-    legend_id,
     map_unit_name,
     strat_name,
     age,
@@ -102,13 +228,19 @@ function LegendEntry({ entry }: { entry: any }) {
     color,
     b_age: bAge,
     t_age: tAge,
+    b_interval,
+    t_interval,
+    lith_id,
     lith_classes,
     lith_types,
     area,
   } = entry;
 
-  // Build lithology tags for display
-  const lithologies = useMemo(() => {
+  const resolvedIntervals = useResolvedIntervals(b_interval, t_interval);
+  const resolvedLithologies = useResolvedLithologies(lith_id);
+
+  // Fallback lithology types (unresolved) for when lith_id can't be resolved
+  const fallbackLithologies = useMemo(() => {
     if (lith_types == null || lith_types.length === 0) return null;
     return lith_types.map((type: string, i: number) => ({
       name: type,
@@ -116,6 +248,8 @@ function LegendEntry({ entry }: { entry: any }) {
       lith_id: i,
     }));
   }, [lith_types]);
+
+  const lithologies = resolvedLithologies ?? fallbackLithologies;
 
   const headerElement = h(
     "div",
@@ -135,7 +269,7 @@ function LegendEntry({ entry }: { entry: any }) {
       ),
       h.if(age != null)(
         Tag,
-        { minimal: true, small: true, style: { marginLeft: "auto" } },
+        { minimal: true, style: { marginLeft: "auto" } },
         age,
       ),
     ],
@@ -153,16 +287,23 @@ function LegendEntry({ entry }: { entry: any }) {
         label: "Stratigraphic name",
         value: strat_name,
       }),
-      h.if(bAge != null && tAge != null)(DataField, {
-        label: "Age range",
-        value: `${bAge} – ${tAge} Ma`,
-      }),
+      h.if(resolvedIntervals != null)(
+        DataField,
+        { label: "Intervals" },
+        resolvedIntervals?.map((iv) =>
+          h(IntervalTag, { key: iv.id, interval: iv, showAgeRange: true }),
+        ),
+      ),
+      h.if(resolvedIntervals == null && bAge != null && tAge != null)(
+        DataField,
+        { label: "Age range", value: `${bAge} – ${tAge} Ma` },
+      ),
       h.if(lith != null && lith !== "")(DataField, {
         label: "Lithology",
         value: lith,
       }),
       h.if(lithologies != null)(LithologyList, {
-        label: "Lithology types",
+        label: "Matched lithologies",
         lithologies: lithologies ?? [],
       }),
       h.if(lith_classes != null && lith_classes.length > 0)(DataField, {
@@ -199,54 +340,34 @@ function LegendPrettyView({ data }: { data: any[] }) {
   );
 }
 
-/** JSON view of the legend data */
-function LegendJSONView({ data }: { data: any[] }) {
-  return h(
-    "pre",
-    {
-      style: {
-        fontSize: 11,
-        lineHeight: 1.4,
-        margin: 0,
-        padding: "0.5em",
-        overflow: "auto",
-        whiteSpace: "pre-wrap",
-        wordBreak: "break-word",
-      },
-    },
-    JSON.stringify(data, null, 2),
-  );
-}
-
 /** Main legend sidebar panel */
-function LegendPanel({
-  bounds,
-  zoom = defaultZoom,
-  onClose,
-}: {
-  bounds: [number, number, number, number];
-  zoom?: number;
-  onClose?: () => void;
-}) {
+function LegendPanel({ zoom = defaultZoom }: { zoom?: number }) {
   const [viewMode, setViewMode] = useState<LegendViewMode>(
     LegendViewMode.PRETTY,
   );
-  const data = useLegendData(bounds, zoom);
+
+  // Fetch legend data reactively based on current map bounds
+  useLegendFetcher(zoom);
+
+  const data = useAtomValue(legendDataAtom);
+  const loading = useAtomValue(legendLoadingAtom);
 
   const headerElement = h(InfoDrawerHeader, [
     h("h3", `Map Legend`),
     h(ViewModeToggle, { mode: viewMode, setMode: setViewMode }),
   ]);
 
-  const content =
-    data == null
-      ? h("div", { style: { padding: "2em", textAlign: "center" } }, [
-          h(Spinner, { size: 24 }),
-          h("p", "Loading legend…"),
-        ])
-      : viewMode === LegendViewMode.PRETTY
-        ? h(LegendPrettyView, { data })
-        : h(LegendJSONView, { data });
+  let content;
+  if (data == null || loading) {
+    content = h("div", { style: { padding: "2em", textAlign: "center" } }, [
+      h(Spinner, { size: 24 }),
+      h("p", loading ? "Loading legend…" : "Move the map to load legend data"),
+    ]);
+  } else if (viewMode === LegendViewMode.JSON) {
+    content = h(JSONView, { data, showRoot: false });
+  } else {
+    content = h(LegendPrettyView, { data });
+  }
 
   return h(
     LocationPanel,
@@ -258,19 +379,16 @@ function LegendPanel({
   );
 }
 
-/** Story wrapper: map + fixed sidebar */
-function MapWithLegend(props: {
-  bounds: [number, number, number, number];
-  zoom?: number;
-}) {
+/** Story wrapper: map + fixed sidebar with reactive legend */
+function MapWithLegend(props: { bounds: Bounds; zoom?: number }) {
   const { bounds, zoom = defaultZoom } = props;
   const style = useBasicStylePair();
 
-  const detailPanel = h(LegendPanel, {
-    bounds,
-    zoom,
-    onClose: null,
-  });
+  const detailPanel = h(
+    MacrostratDataProvider,
+    { baseURL: "https://dev.macrostrat.org/api/v2" },
+    h(LegendPanel, { zoom }),
+  );
 
   return h(
     MapAreaContainer,
@@ -280,16 +398,21 @@ function MapWithLegend(props: {
       detailPanel,
       detailPanelStyle: DetailPanelStyle.FIXED,
     },
-    h(MapView, {
-      style,
-      mapboxToken,
-      position: null,
-      bounds: [
-        [bounds[0], bounds[1]],
-        [bounds[2], bounds[3]],
-      ],
-      overlayStyles: [macrostratOverlay],
-    }),
+    h(
+      MapView,
+      {
+        style,
+        mapboxToken,
+        bounds: [
+          [bounds[0], bounds[1]],
+          [bounds[2], bounds[3]],
+        ],
+        overlayStyles: [macrostratOverlay],
+        height: "100%",
+        width: "100%",
+      },
+      [h(MapBoundsReporter)],
+    ),
   );
 }
 
