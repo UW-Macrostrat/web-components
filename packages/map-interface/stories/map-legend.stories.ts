@@ -46,13 +46,6 @@ function MapWithLegend(props: { bounds: BoundsArray; zoom?: number }) {
     h(LegendPanel, { zoom }),
   );
 
-  useEffect(() => {
-    setMapPosition({
-      bounds: new LngLatBounds(bounds),
-      zoom: 7, // Todo: estimate based on bounds
-    });
-  }, [bounds]);
-
   return h(
     MapAreaContainer,
     {
@@ -64,10 +57,7 @@ function MapWithLegend(props: { bounds: BoundsArray; zoom?: number }) {
     h(MapView, {
       style,
       mapboxToken,
-      bounds: [
-        [bounds[0], bounds[1]],
-        [bounds[2], bounds[3]],
-      ],
+      bounds,
       enableTerrain: true,
       overlayStyles: [macrostratOverlay],
       onMapMoved(position, map) {
@@ -117,7 +107,19 @@ export const Utah: Story = {
 export const Appalachia: Story = {
   args: {
     bounds: [-82, 36, -79, 38],
-    zoom: 8,
+  },
+};
+
+export const LowAltitudeOblique: Story = {
+  args: {
+    mapPosition: {
+      camera: {
+        lat: 40.7128,
+        lng: -77.006,
+        altitude: 4000,
+        pitch: 45,
+      },
+    },
   },
 };
 
