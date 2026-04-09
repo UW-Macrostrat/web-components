@@ -15,7 +15,7 @@ import {
 import { JSONView } from "@macrostrat/ui-components";
 import { Button, NonIdealState, Spinner, Tag } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import { useMemo, useEffect } from "react";
+import { useMemo, useRef } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
@@ -24,6 +24,7 @@ import {
 } from "@macrostrat/data-provider";
 import { loadable } from "jotai/utils";
 import { LngLatBounds } from "mapbox-gl";
+import { useMapStyleOperator } from "@macrostrat/mapbox-react";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 const macrostratOverlay = buildMacrostratStyle({});
@@ -54,19 +55,22 @@ function MapWithLegend(props: { bounds: BoundsArray; zoom?: number }) {
       detailPanel,
       detailPanelStyle: DetailPanelStyle.FIXED,
     },
-    h(MapView, {
-      style,
-      mapboxToken,
-      bounds,
-      enableTerrain: true,
-      overlayStyles: [macrostratOverlay],
-      onMapMoved(position, map) {
-        setMapPosition({
-          bounds: map.getBounds(),
-          zoom: map.getZoom(),
-        });
-      },
-    }),
+    [
+      h(MapView, {
+        style,
+        mapboxToken,
+        bounds,
+        enableTerrain: true,
+        overlayStyles: [macrostratOverlay],
+        onMapMoved(position, map) {
+          setMapPosition({
+            bounds: map.getBounds(),
+            zoom: map.getZoom(),
+          });
+        },
+      }),
+      h(MapSelectionManager),
+    ],
   );
 }
 
@@ -150,7 +154,7 @@ const legendDataAtom = atom(async (get, { signal }) => {
 
   const params = new URLSearchParams({
     bounds: boundsArray.join(","),
-    zoom: String(Math.round(zoom)),
+    zoom: String(Math.round(zoom + 1)),
   });
 
   const url = legendAPIBase + "?" + params.toString();
@@ -171,7 +175,7 @@ function bestAge(unit): number {
   return (unit.t_age + unit.b_age) / 2;
 }
 
-const legendResultAtom = loadable(legendDataAtom);
+const legendResultAtom = loadable<any>(legendDataAtom);
 
 enum LegendViewMode {
   PRETTY = "pretty",
@@ -180,8 +184,65 @@ enum LegendViewMode {
 
 const viewModeAtom = atom(LegendViewMode.PRETTY);
 
-/** The currently selected legend entry (shown in detail panel) */
-const selectedEntryAtom = atom<any | null>(null);
+const selectedLegendIDsAtom = atom<Set<number> | null>();
+
+const selectedEntryAtom = atom(
+  (get) => {
+    const entries = get(legendResultAtom)?.data ?? [];
+    const selectedIDs = get(selectedLegendIDsAtom);
+    if (entries == null || selectedIDs == null || selectedIDs.size == 0)
+      return null;
+    return entries.find((e) => selectedIDs.has(e.legend_id)) ?? null;
+  },
+  (get, set, value) => {
+    const newVal = value == null ? null : new Set([value.legend_id]);
+    set(selectedLegendIDsAtom, newVal);
+  },
+);
+
+function MapSelectionManager() {
+  const [selectedLegendIDs, setSelectedLegendIDs] = useAtom(
+    selectedLegendIDsAtom,
+  );
+
+  // Map style management
+  useMapStyleOperator(
+    (map) => {
+      // First, remove previous selections
+      if (selectedLegendIDs == null || selectedLegendIDs.size == 0) {
+        map.setPaintProperty("burwell_fill", "fill-opacity", 0.5);
+      } else {
+        map.setPaintProperty("burwell_fill", "fill-opacity", [
+          "case",
+          [
+            "in",
+            ["get", "legend_id"],
+            ["literal", Array.from(selectedLegendIDs)],
+          ],
+          0.5,
+          0.1,
+        ]);
+      }
+    },
+    [selectedLegendIDs],
+  );
+
+  useMapStyleOperator((map) => {
+    map.on("click", "burwell_fill", (e) => {
+      const features = map.queryRenderedFeatures(e.point, {
+        layers: ["burwell_fill"],
+      });
+      console.log(features);
+      if (features.length === 0) return;
+      const feature = features[0];
+      const legendId = feature.properties?.legend_id;
+      if (legendId == null) return;
+      setSelectedLegendIDs(new Set([legendId]));
+    });
+  });
+
+  return null;
+}
 
 /** Main legend sidebar panel */
 function LegendPanel() {
@@ -419,15 +480,12 @@ function LegendEntryDetails({ entry }: { entry: any }) {
     lith,
     descrip,
     comments,
-    color,
     b_age: bAge,
     t_age: tAge,
     b_interval,
     t_interval,
     lith_id,
-    lith_classes,
     lith_types,
-    area,
   } = entry;
 
   const resolvedIntervals = useResolvedIntervals(b_interval, t_interval);

@@ -723,6 +723,10 @@ export function buildMacrostratStyle(
       burwell: {
         type: "vector",
         tiles: [tileURL],
+        promoteId: {
+          units: "legend_id",
+          lines: "line_id",
+        },
       },
     },
     layers: buildMacrostratStyleLayers({
