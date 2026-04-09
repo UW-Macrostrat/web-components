@@ -257,10 +257,6 @@ function LegendEntry({ entry }: { entry: any }) {
         label: "Matched lithologies",
         lithologies: lithologies ?? [],
       }),
-      h.if(lith_classes != null && lith_classes.length > 0)(DataField, {
-        label: "Lithology classes",
-        value: lith_classes?.join(", "),
-      }),
       h.if(area != null)(DataField, {
         label: "Area",
         value: `${Math.round(area)} km²`,
@@ -364,6 +360,7 @@ function MapWithLegend(props: { bounds: BoundsArray; zoom?: number }) {
         [bounds[0], bounds[1]],
         [bounds[2], bounds[3]],
       ],
+      enableTerrain: true,
       overlayStyles: [macrostratOverlay],
       onMapMoved(position, map) {
         console.log(position);
