@@ -14,7 +14,13 @@ import {
   LithologyList,
 } from "@macrostrat/data-components";
 import { JSONView } from "@macrostrat/ui-components";
-import { Button, ButtonGroup, Spinner, Tag } from "@blueprintjs/core";
+import {
+  Button,
+  ButtonGroup,
+  NonIdealState,
+  Spinner,
+  Tag,
+} from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import { useState, useMemo, useEffect } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
@@ -33,15 +39,109 @@ const defaultZoom = 8;
 
 const legendAPIBase = "https://dev.macrostrat.org/api/v3/map/carto/legend";
 
+// Story wrapper
+
+function MapWithLegend(props: { bounds: BoundsArray; zoom?: number }) {
+  const { bounds, zoom = defaultZoom } = props;
+  const style = useBasicStylePair();
+
+  const setMapPosition = useSetAtom(mapPositionAtom);
+
+  const detailPanel = h(
+    MacrostratDataProvider,
+    { baseURL: "https://dev.macrostrat.org/api/v2" },
+    h(LegendPanel, { zoom }),
+  );
+
+  useEffect(() => {
+    setMapPosition({
+      bounds: new LngLatBounds(bounds),
+      zoom: 7, // Todo: estimate based on bounds
+    });
+  }, [bounds]);
+
+  return h(
+    MapAreaContainer,
+    {
+      navbar: null,
+      contextPanel: null,
+      detailPanel,
+      detailPanelStyle: DetailPanelStyle.FIXED,
+    },
+    h(MapView, {
+      style,
+      mapboxToken,
+      bounds: [
+        [bounds[0], bounds[1]],
+        [bounds[2], bounds[3]],
+      ],
+      enableTerrain: true,
+      overlayStyles: [macrostratOverlay],
+      onMapMoved(position, map) {
+        setMapPosition({
+          bounds: map.getBounds(),
+          zoom: map.getZoom(),
+        });
+      },
+    }),
+  );
+}
+
+// --- Storybook meta ---
+
+const meta: Meta<typeof MapWithLegend> = {
+  title: "Map interface/Map legend",
+  component: MapWithLegend,
+  parameters: {
+    layout: "fullscreen",
+    docs: {
+      story: {
+        inline: false,
+        iframeHeight: 600,
+      },
+    },
+  },
+};
+
+export default meta;
+
+type Story = StoryObj<typeof MapWithLegend>;
+
+export const SouthDakota: Story = {
+  args: {
+    bounds: [-100, 43, -98, 44],
+    zoom: 8,
+  },
+};
+
+export const Utah: Story = {
+  args: {
+    bounds: [-112, 38, -110, 40],
+    zoom: 7,
+  },
+};
+
+export const Appalachia: Story = {
+  args: {
+    bounds: [-82, 36, -79, 38],
+    zoom: 8,
+  },
+};
+
 // --- Jotai atoms for reactive state ---
 
+interface MapViewPosition {
+  bounds: LngLatBounds;
+  zoom: number;
+}
+
 /** The current map viewport bounds, updated on map move */
-const mapBoundsAtom = atom<LngLatBounds | null>(null);
+const mapPositionAtom = atom<MapViewPosition | null>(null);
 
 /** Legend data fetched from the API */
 
 const legendDataAtom = atom(async (get, { signal }) => {
-  const bounds = get(mapBoundsAtom);
+  const { bounds, zoom } = get(mapPositionAtom);
   if (bounds == null) return null;
 
   const boundsArray = bounds.toArray().flat() as [
@@ -53,14 +153,28 @@ const legendDataAtom = atom(async (get, { signal }) => {
 
   const params = new URLSearchParams({
     bounds: boundsArray.join(","),
-    zoom: String(7),
+    zoom: String(Math.round(zoom)),
   });
 
   const url = legendAPIBase + "?" + params.toString();
 
   const res = await fetch(url, { signal });
-  return await res.json();
+  const legendEntries = await res.json();
+
+  return sortByAge(legendEntries);
 });
+
+function sortByAge(entries: any[]) {
+  console.log(entries);
+  return entries.toSorted((a, b) => {
+    console.log(bestAge(a), bestAge(b));
+    return bestAge(a) - bestAge(b);
+  });
+}
+
+function bestAge(unit): number {
+  return unit.t_age;
+}
 
 const legendResultAtom = loadable(legendDataAtom);
 
@@ -68,6 +182,45 @@ enum LegendViewMode {
   PRETTY = "pretty",
   JSON = "json",
 }
+
+/** Main legend sidebar panel */
+function LegendPanel() {
+  const [viewMode, setViewMode] = useState<LegendViewMode>(
+    LegendViewMode.PRETTY,
+  );
+
+  const res = useAtomValue(legendResultAtom);
+  const { state, data } = res;
+  const loading = state === "loading";
+
+  const headerElement = h(InfoDrawerHeader, [
+    h("h3", `Map Legend`),
+    h(ViewModeToggle, { mode: viewMode, setMode: setViewMode }),
+  ]);
+
+  let content;
+  if (data == null || loading) {
+    content = h(NonIdealState, {
+      icon: h(Spinner, { size: 24 }),
+      title: "Loading legend data",
+    });
+  } else if (viewMode === LegendViewMode.JSON) {
+    content = h(JSONView, { data, showRoot: false });
+  } else {
+    content = h(LegendEntries, { data });
+  }
+
+  return h(
+    LocationPanel,
+    {
+      headerElement,
+      style: { flexShrink: 1 },
+    },
+    content,
+  );
+}
+
+type BoundsArray = [number, number, number, number];
 
 /** Toggle between JSON and pretty view */
 function ViewModeToggle({
@@ -271,142 +424,13 @@ function LegendEntry({ entry }: { entry: any }) {
 }
 
 /** Pretty view of the full legend */
-function LegendPrettyView({ data }: { data: any[] }) {
+function LegendEntries({ data }: { data: any[] }) {
   if (data.length === 0) {
     return h("p.legend-empty", "No legend entries for this area.");
   }
 
-  // Sort by area descending so the most prominent units appear first
-  const sorted = useMemo(() => {
-    return [...data].sort((a, b) => (b.area ?? 0) - (a.area ?? 0));
-  }, [data]);
-
   return h(
     "div.legend-entries",
-    sorted.map((entry) => h(LegendEntry, { key: entry.legend_id, entry })),
+    data.map((entry) => h(LegendEntry, { key: entry.legend_id, entry })),
   );
 }
-
-/** Main legend sidebar panel */
-function LegendPanel({ zoom = defaultZoom }: { zoom?: number }) {
-  const [viewMode, setViewMode] = useState<LegendViewMode>(
-    LegendViewMode.PRETTY,
-  );
-
-  const res = useAtomValue(legendResultAtom);
-  const { state, data } = res;
-  const loading = res.state === "loading";
-
-  console.log(res);
-
-  const headerElement = h(InfoDrawerHeader, [
-    h("h3", `Map Legend`),
-    h(ViewModeToggle, { mode: viewMode, setMode: setViewMode }),
-  ]);
-
-  let content;
-  if (data == null || loading) {
-    content = h("div", { style: { padding: "2em", textAlign: "center" } }, [
-      h(Spinner, { size: 24 }),
-      h("p", loading ? "Loading legend…" : "Move the map to load legend data"),
-    ]);
-  } else if (viewMode === LegendViewMode.JSON) {
-    content = h(JSONView, { data, showRoot: false });
-  } else {
-    content = h(LegendPrettyView, { data });
-  }
-
-  return h(
-    LocationPanel,
-    {
-      headerElement,
-      style: { flexShrink: 1 },
-    },
-    content,
-  );
-}
-
-type BoundsArray = [number, number, number, number];
-
-/** Story wrapper: map + fixed sidebar with reactive legend */
-function MapWithLegend(props: { bounds: BoundsArray; zoom?: number }) {
-  const { bounds, zoom = defaultZoom } = props;
-  const style = useBasicStylePair();
-
-  const setBounds = useSetAtom(mapBoundsAtom);
-
-  const detailPanel = h(
-    MacrostratDataProvider,
-    { baseURL: "https://dev.macrostrat.org/api/v2" },
-    h(LegendPanel, { zoom }),
-  );
-
-  useEffect(() => {
-    setBounds(new LngLatBounds(bounds));
-  }, [bounds]);
-
-  return h(
-    MapAreaContainer,
-    {
-      navbar: null,
-      contextPanel: null,
-      detailPanel,
-      detailPanelStyle: DetailPanelStyle.FIXED,
-    },
-    h(MapView, {
-      style,
-      mapboxToken,
-      bounds: [
-        [bounds[0], bounds[1]],
-        [bounds[2], bounds[3]],
-      ],
-      enableTerrain: true,
-      overlayStyles: [macrostratOverlay],
-      onMapMoved(position, map) {
-        console.log(position);
-        setBounds(map.getBounds());
-      },
-    }),
-  );
-}
-
-// --- Storybook meta ---
-
-const meta: Meta<typeof MapWithLegend> = {
-  title: "Map interface/Map legend",
-  component: MapWithLegend,
-  parameters: {
-    layout: "fullscreen",
-    docs: {
-      story: {
-        inline: false,
-        iframeHeight: 600,
-      },
-    },
-  },
-};
-
-export default meta;
-
-type Story = StoryObj<typeof MapWithLegend>;
-
-export const SouthDakota: Story = {
-  args: {
-    bounds: [-100, 43, -98, 44],
-    zoom: 8,
-  },
-};
-
-export const Utah: Story = {
-  args: {
-    bounds: [-112, 38, -110, 40],
-    zoom: 7,
-  },
-};
-
-export const Appalachia: Story = {
-  args: {
-    bounds: [-82, 36, -79, 38],
-    zoom: 8,
-  },
-};
