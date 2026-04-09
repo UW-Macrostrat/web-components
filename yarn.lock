@@ -1731,6 +1731,7 @@ __metadata:
     classnames: "npm:^2.5.1"
     d3-array: "npm:^3.2.4"
     d3-format: "npm:^3.1.2"
+    jotai: "npm:^2.19.1"
     mapbox-gl: "npm:^3.0.0"
     query-string: "npm:^9.0.0"
     transition-hook: "npm:^1.5.2"

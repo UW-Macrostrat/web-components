@@ -18,12 +18,13 @@ import { Button, ButtonGroup, Spinner, Tag } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import { useState, useMemo, useEffect } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
-import { useMapRef } from "@macrostrat/mapbox-react";
 import { atom, useAtomValue, useSetAtom } from "jotai";
 import {
   MacrostratDataProvider,
   useMacrostratDefs,
 } from "@macrostrat/data-provider";
+import { loadable } from "jotai/utils";
+import { LngLatBounds } from "mapbox-gl";
 
 const mapboxToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 const macrostratOverlay = buildMacrostratStyle({});
@@ -34,84 +35,34 @@ const legendAPIBase = "https://dev.macrostrat.org/api/v3/map/carto/legend";
 
 // --- Jotai atoms for reactive state ---
 
-type Bounds = [number, number, number, number];
-
 /** The current map viewport bounds, updated on map move */
-const mapBoundsAtom = atom<Bounds | null>(null);
+const mapBoundsAtom = atom<LngLatBounds | null>(null);
 
 /** Legend data fetched from the API */
-const legendDataAtom = atom<any[] | null>(null);
 
-/** Whether a fetch is currently in progress */
-const legendLoadingAtom = atom(false);
+const legendDataAtom = atom(async (get, { signal }) => {
+  const bounds = get(mapBoundsAtom);
+  if (bounds == null) return null;
 
-/** Hook to fetch legend data reactively when bounds change */
-function useLegendFetcher(zoom: number) {
-  const bounds = useAtomValue(mapBoundsAtom);
-  const setData = useSetAtom(legendDataAtom);
-  const setLoading = useSetAtom(legendLoadingAtom);
+  const boundsArray = bounds.toArray().flat() as [
+    number,
+    number,
+    number,
+    number,
+  ];
 
-  useEffect(() => {
-    if (bounds == null) return;
-    let cancelled = false;
-    setLoading(true);
+  const params = new URLSearchParams({
+    bounds: boundsArray.join(","),
+    zoom: String(7),
+  });
 
-    const params = new URLSearchParams({
-      bounds: bounds.join(","),
-      zoom: String(zoom),
-    });
+  const url = legendAPIBase + "?" + params.toString();
 
-    fetch(`${legendAPIBase}?${params}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (!cancelled) {
-          setData(data);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.error("Failed to fetch legend data:", err);
-        if (!cancelled) setLoading(false);
-      });
+  const res = await fetch(url, { signal });
+  return await res.json();
+});
 
-    return () => {
-      cancelled = true;
-    };
-  }, [bounds, zoom, setData, setLoading]);
-}
-
-/** Child component that syncs map viewport bounds to the Jotai atom */
-function MapBoundsReporter() {
-  const mapRef = useMapRef();
-  const setBounds = useSetAtom(mapBoundsAtom);
-
-  useEffect(() => {
-    const map = mapRef.current;
-    if (map == null) return;
-
-    const update = () => {
-      const b = map.getBounds();
-      console.log("Map bounds", b);
-      setBounds([b.getWest(), b.getSouth(), b.getEast(), b.getNorth()]);
-    };
-
-    // Set initial bounds once loaded
-    if (map.loaded()) {
-      update();
-    } else {
-      map.once("load", update);
-    }
-
-    map.on("moveend", update);
-    return () => {
-      map.off("moveend", update);
-    };
-  }, [mapRef.current]);
-
-  return null;
-}
-
-// --- View mode ---
+const legendResultAtom = loadable(legendDataAtom);
 
 enum LegendViewMode {
   PRETTY = "pretty",
@@ -346,11 +297,11 @@ function LegendPanel({ zoom = defaultZoom }: { zoom?: number }) {
     LegendViewMode.PRETTY,
   );
 
-  // Fetch legend data reactively based on current map bounds
-  useLegendFetcher(zoom);
+  const res = useAtomValue(legendResultAtom);
+  const { state, data } = res;
+  const loading = res.state === "loading";
 
-  const data = useAtomValue(legendDataAtom);
-  const loading = useAtomValue(legendLoadingAtom);
+  console.log(res);
 
   const headerElement = h(InfoDrawerHeader, [
     h("h3", `Map Legend`),
@@ -379,16 +330,24 @@ function LegendPanel({ zoom = defaultZoom }: { zoom?: number }) {
   );
 }
 
+type BoundsArray = [number, number, number, number];
+
 /** Story wrapper: map + fixed sidebar with reactive legend */
-function MapWithLegend(props: { bounds: Bounds; zoom?: number }) {
+function MapWithLegend(props: { bounds: BoundsArray; zoom?: number }) {
   const { bounds, zoom = defaultZoom } = props;
   const style = useBasicStylePair();
+
+  const setBounds = useSetAtom(mapBoundsAtom);
 
   const detailPanel = h(
     MacrostratDataProvider,
     { baseURL: "https://dev.macrostrat.org/api/v2" },
     h(LegendPanel, { zoom }),
   );
+
+  useEffect(() => {
+    setBounds(new LngLatBounds(bounds));
+  }, [bounds]);
 
   return h(
     MapAreaContainer,
@@ -398,21 +357,19 @@ function MapWithLegend(props: { bounds: Bounds; zoom?: number }) {
       detailPanel,
       detailPanelStyle: DetailPanelStyle.FIXED,
     },
-    h(
-      MapView,
-      {
-        style,
-        mapboxToken,
-        bounds: [
-          [bounds[0], bounds[1]],
-          [bounds[2], bounds[3]],
-        ],
-        overlayStyles: [macrostratOverlay],
-        height: "100%",
-        width: "100%",
+    h(MapView, {
+      style,
+      mapboxToken,
+      bounds: [
+        [bounds[0], bounds[1]],
+        [bounds[2], bounds[3]],
+      ],
+      overlayStyles: [macrostratOverlay],
+      onMapMoved(position, map) {
+        console.log(position);
+        setBounds(map.getBounds());
       },
-      [h(MapBoundsReporter)],
-    ),
+    }),
   );
 }
 
