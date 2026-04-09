@@ -8,7 +8,6 @@ import {
 } from "../src";
 import { buildMacrostratStyle } from "@macrostrat/map-styles";
 import {
-  ExpansionPanel,
   DataField,
   IntervalTag,
   LithologyList,
@@ -16,13 +15,12 @@ import {
 import { JSONView } from "@macrostrat/ui-components";
 import {
   Button,
-  ButtonGroup,
   NonIdealState,
   Spinner,
   Tag,
 } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import { useState, useMemo, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
@@ -130,6 +128,8 @@ export const Appalachia: Story = {
 
 // --- Jotai atoms for reactive state ---
 
+type BoundsArray = [number, number, number, number];
+
 interface MapViewPosition {
   bounds: LngLatBounds;
   zoom: number;
@@ -176,25 +176,33 @@ function bestAge(unit): number {
 
 const legendResultAtom = loadable(legendDataAtom);
 
-const viewModeAtom = atom(LegendViewMode.PRETTY);
-
 enum LegendViewMode {
   PRETTY = "pretty",
   JSON = "json",
 }
 
+const viewModeAtom = atom(LegendViewMode.PRETTY);
+
+/** The currently selected legend entry (shown in detail panel) */
+const selectedEntryAtom = atom<any | null>(null);
+
 /** Main legend sidebar panel */
 function LegendPanel() {
+  const selectedEntry = useAtomValue(selectedEntryAtom);
+
+  if (selectedEntry != null) {
+    return h(LegendDetailPanel, { entry: selectedEntry });
+  }
+  return h(LegendListPanel);
+}
+
+/** Panel showing the scrollable list of legend entries */
+function LegendListPanel() {
   const res = useAtomValue(legendResultAtom);
   const { state, data } = res;
   const loading = state === "loading";
 
-  const viewMode = useAtomValue(viewModeAtom);
-
-  const headerElement = h(InfoDrawerHeader, [
-    h("h3", `Map Legend`),
-    h(ViewModeToggle),
-  ]);
+  const headerElement = h(InfoDrawerHeader, [h("h3", `Map Legend`)]);
 
   let content;
   if (data == null || loading) {
@@ -202,8 +210,6 @@ function LegendPanel() {
       icon: h(Spinner, { size: 24 }),
       title: "Loading legend data",
     });
-  } else if (viewMode === LegendViewMode.JSON) {
-    content = h(JSONView, { data, showRoot: false });
   } else {
     content = h(LegendEntries, { data });
   }
@@ -218,23 +224,90 @@ function LegendPanel() {
   );
 }
 
-type BoundsArray = [number, number, number, number];
+/** Detail panel for a single selected legend entry */
+function LegendDetailPanel({ entry }: { entry: any }) {
+  const setSelectedEntry = useSetAtom(selectedEntryAtom);
+  const [viewMode, setViewMode] = useAtom(viewModeAtom);
 
-/** Toggle between JSON and pretty view */
-function ViewModeToggle() {
-  const [mode, setMode] = useAtom(viewModeAtom);
-  return h(ButtonGroup, { minimal: true, className: "view-mode-toggle" }, [
-    h(Button, {
-      active: mode === LegendViewMode.PRETTY,
-      onClick: () => setMode(LegendViewMode.PRETTY),
-      icon: "tags",
-    }),
-    h(Button, {
-      active: mode === LegendViewMode.JSON,
-      onClick: () => setMode(LegendViewMode.JSON),
-      icon: "code",
-    }),
-  ]);
+  const headerElement = h(InfoDrawerHeader, {
+    onClose: () => setSelectedEntry(null),
+    children: h(
+      "div",
+      {
+        style: {
+          display: "flex",
+          alignItems: "center",
+          gap: 6,
+          flex: 1,
+          minWidth: 0,
+        },
+      },
+      [
+        h(ColorSwatch, { color: entry.color }),
+        h(
+          "span",
+          {
+            style: {
+              fontWeight: 500,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            },
+          },
+          entry.map_unit_name ?? "Unknown unit",
+        ),
+        h("div.spacer"),
+        h(JSONToggleButton, { viewMode, setViewMode }),
+      ],
+    ),
+  });
+
+  const content =
+    viewMode === LegendViewMode.JSON
+      ? h(JSONView, { data: entry, showRoot: false })
+      : h(LegendEntryDetails, { entry });
+
+  return h(
+    LocationPanel,
+    {
+      headerElement,
+      style: { flexShrink: 1 },
+    },
+    [
+      h(
+        "style",
+        `.location-panel-header:hover .json-toggle-button { opacity: 1 !important; }`,
+      ),
+      content,
+    ],
+  );
+}
+
+/** Subtle JSON toggle button, shown on hover of the header */
+function JSONToggleButton({
+  viewMode,
+  setViewMode,
+}: {
+  viewMode: LegendViewMode;
+  setViewMode: (mode: LegendViewMode) => void;
+}) {
+  const isJSON = viewMode === LegendViewMode.JSON;
+  return h(Button, {
+    icon: "code",
+    minimal: true,
+    small: true,
+    active: isJSON,
+    title: isJSON ? "Show details" : "Show JSON",
+    style: {
+      opacity: isJSON ? 1 : 0,
+      transition: "opacity 0.15s ease",
+    },
+    className: "json-toggle-button",
+    onClick: (e) => {
+      e.stopPropagation();
+      setViewMode(isJSON ? LegendViewMode.PRETTY : LegendViewMode.JSON);
+    },
+  });
 }
 
 // --- Legend entry rendering ---
@@ -311,8 +384,42 @@ function useResolvedLithologies(lithIds: number[] | null) {
   }, [lithMap, lithIds]);
 }
 
-/** Pretty-rendered single legend entry */
+/** Clickable list item for a legend entry */
 function LegendEntry({ entry }: { entry: any }) {
+  const setSelectedEntry = useSetAtom(selectedEntryAtom);
+  const { map_unit_name, color, age } = entry;
+
+  return h(
+    "div",
+    {
+      style: {
+        display: "flex",
+        alignItems: "center",
+        gap: 6,
+        padding: "6px 10px",
+        cursor: "pointer",
+        borderBottom: "1px solid var(--panel-rule-color, #eee)",
+      },
+      onClick: () => setSelectedEntry(entry),
+    },
+    [
+      h(ColorSwatch, { color }),
+      h(
+        "span",
+        { style: { fontWeight: 500, flex: 1 } },
+        map_unit_name ?? "Unknown unit",
+      ),
+      h.if(age != null)(
+        Tag,
+        { minimal: true, style: { flexShrink: 0 } },
+        age,
+      ),
+    ],
+  );
+}
+
+/** Detailed view of a single legend entry (shown in the detail panel) */
+function LegendEntryDetails({ entry }: { entry: any }) {
   const {
     map_unit_name,
     strat_name,
@@ -346,72 +453,40 @@ function LegendEntry({ entry }: { entry: any }) {
 
   const lithologies = resolvedLithologies ?? fallbackLithologies;
 
-  const headerElement = h(
-    "div",
-    {
-      style: {
-        display: "flex",
-        alignItems: "center",
-        gap: 4,
-      },
-    },
-    [
-      h(ColorSwatch, { color }),
-      h(
-        "span",
-        { style: { fontWeight: 500 } },
-        map_unit_name ?? "Unknown unit",
+  return h("div", { style: { padding: "8px 10px" } }, [
+    h.if(strat_name != null)(DataField, {
+      label: "Stratigraphic name",
+      value: strat_name,
+    }),
+    h.if(resolvedIntervals != null)(
+      DataField,
+      { label: "Intervals" },
+      resolvedIntervals?.map((iv) =>
+        h(IntervalTag, { key: iv.id, interval: iv, showAgeRange: true }),
       ),
-      h.if(age != null)(
-        Tag,
-        { minimal: true, style: { marginLeft: "auto" } },
-        age,
-      ),
-    ],
-  );
-
-  return h(
-    ExpansionPanel,
-    {
-      title: null,
-      sideComponent: headerElement,
-      expanded: false,
-    },
-    [
-      h.if(strat_name != null)(DataField, {
-        label: "Stratigraphic name",
-        value: strat_name,
-      }),
-      h.if(resolvedIntervals != null)(
-        DataField,
-        { label: "Intervals" },
-        resolvedIntervals?.map((iv) =>
-          h(IntervalTag, { key: iv.id, interval: iv, showAgeRange: true }),
-        ),
-      ),
-      h.if(resolvedIntervals == null && bAge != null && tAge != null)(
-        DataField,
-        { label: "Age range", value: `${bAge} – ${tAge} Ma` },
-      ),
-      h.if(lith != null && lith !== "")(DataField, {
-        label: "Lithology",
-        value: lith,
-      }),
-      h.if(lithologies != null)(LithologyList, {
-        label: "Matched lithologies",
-        lithologies: lithologies ?? [],
-      }),
-      h.if(area != null)(DataField, {
-        label: "Area",
-        value: `${Math.round(area)} km²`,
-      }),
-      h.if(descrip != null)(DataField, {
-        label: "Description",
-        value: descrip,
-      }),
-      h.if(comments != null)(DataField, { label: "Comments", value: comments }),
-    ],
-  );
+    ),
+    h.if(resolvedIntervals == null && bAge != null && tAge != null)(
+      DataField,
+      { label: "Age range", value: `${bAge} – ${tAge} Ma` },
+    ),
+    h.if(lith != null && lith !== "")(DataField, {
+      label: "Lithology",
+      value: lith,
+    }),
+    h.if(lithologies != null)(LithologyList, {
+      label: "Matched lithologies",
+      lithologies: lithologies ?? [],
+    }),
+    h.if(area != null)(DataField, {
+      label: "Area",
+      value: `${Math.round(area)} km²`,
+    }),
+    h.if(descrip != null)(DataField, {
+      label: "Description",
+      value: descrip,
+    }),
+    h.if(comments != null)(DataField, { label: "Comments", value: comments }),
+  ]);
 }
 
 /** Pretty view of the full legend */
