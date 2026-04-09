@@ -24,7 +24,7 @@ import {
 import h from "@macrostrat/hyper";
 import { useState, useMemo, useEffect } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
-import { atom, useAtomValue, useSetAtom } from "jotai";
+import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
   MacrostratDataProvider,
   useMacrostratDefs,
@@ -165,18 +165,18 @@ const legendDataAtom = atom(async (get, { signal }) => {
 });
 
 function sortByAge(entries: any[]) {
-  console.log(entries);
   return entries.toSorted((a, b) => {
-    console.log(bestAge(a), bestAge(b));
     return bestAge(a) - bestAge(b);
   });
 }
 
 function bestAge(unit): number {
-  return unit.t_age;
+  return (unit.t_age + unit.b_age) / 2;
 }
 
 const legendResultAtom = loadable(legendDataAtom);
+
+const viewModeAtom = atom(LegendViewMode.PRETTY);
 
 enum LegendViewMode {
   PRETTY = "pretty",
@@ -185,17 +185,15 @@ enum LegendViewMode {
 
 /** Main legend sidebar panel */
 function LegendPanel() {
-  const [viewMode, setViewMode] = useState<LegendViewMode>(
-    LegendViewMode.PRETTY,
-  );
-
   const res = useAtomValue(legendResultAtom);
   const { state, data } = res;
   const loading = state === "loading";
 
+  const viewMode = useAtomValue(viewModeAtom);
+
   const headerElement = h(InfoDrawerHeader, [
     h("h3", `Map Legend`),
-    h(ViewModeToggle, { mode: viewMode, setMode: setViewMode }),
+    h(ViewModeToggle),
   ]);
 
   let content;
@@ -223,22 +221,15 @@ function LegendPanel() {
 type BoundsArray = [number, number, number, number];
 
 /** Toggle between JSON and pretty view */
-function ViewModeToggle({
-  mode,
-  setMode,
-}: {
-  mode: LegendViewMode;
-  setMode: (m: LegendViewMode) => void;
-}) {
+function ViewModeToggle() {
+  const [mode, setMode] = useAtom(viewModeAtom);
   return h(ButtonGroup, { minimal: true, className: "view-mode-toggle" }, [
     h(Button, {
-      text: "Legend",
       active: mode === LegendViewMode.PRETTY,
       onClick: () => setMode(LegendViewMode.PRETTY),
-      icon: "list",
+      icon: "tags",
     }),
     h(Button, {
-      text: "JSON",
       active: mode === LegendViewMode.JSON,
       onClick: () => setMode(LegendViewMode.JSON),
       icon: "code",
