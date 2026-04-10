@@ -6,7 +6,11 @@ import { Icon } from "@blueprintjs/core";
 import { useRef, useEffect, useState } from "react";
 import classNames from "classnames";
 import { useMapElement, useMapRef } from "./context";
-import { NavigationControl } from "mapbox-gl";
+import {
+  NavigationControl,
+  ScaleControl as BaseScaleControl,
+  GeolocateControl,
+} from "mapbox-gl";
 
 export function MapControlWrapper({ className, control, options = {} }) {
   /** A wrapper for using Mapbox GL controls with a Mapbox GL map */
@@ -116,3 +120,33 @@ export const ThreeDControl = ({ className = null, options = null }) =>
     control: _ThreeDControl,
     options,
   });
+
+export function ScaleControl({ className = null, ...props }) {
+  const optionsRef = useRef({
+    maxWidth: 200,
+    unit: "metric",
+  });
+  return h(MapControlWrapper, {
+    className: classNames("map-scale-control", className),
+    control: BaseScaleControl,
+    options: optionsRef.current,
+    ...props,
+  });
+}
+
+export function GeolocationControl({ className = null, ...props }) {
+  const optionsRef = useRef({
+    showAccuracyCircle: true,
+    showUserLocation: true,
+    trackUserLocation: true,
+    positionOptions: {
+      enableHighAccuracy: true,
+    },
+  });
+  return h(MapControlWrapper, {
+    className: classNames("map-geolocation-control", className),
+    control: GeolocateControl,
+    options: optionsRef.current,
+    ...props,
+  });
+}

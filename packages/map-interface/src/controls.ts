@@ -1,47 +1,16 @@
-import { useRef } from "react";
-import { GeolocateControl } from "mapbox-gl";
 import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import {
   CompassControl,
   GlobeControl,
   ThreeDControl,
-  MapControlWrapper,
+  ScaleControl,
+  GeolocationControl,
   useMapStatus,
 } from "@macrostrat/mapbox-react";
-import { ScaleControl as BaseScaleControl } from "mapbox-gl";
 import { DevToolsButtonSlot } from "@macrostrat/ui-components";
 
 const h = hyper.styled(styles);
-
-function ScaleControl(props) {
-  const optionsRef = useRef({
-    maxWidth: 200,
-    unit: "metric",
-  });
-  return h(MapControlWrapper, {
-    className: "map-scale-control",
-    control: BaseScaleControl,
-    options: optionsRef.current,
-    ...props,
-  });
-}
-
-function GeolocationControl(props) {
-  const optionsRef = useRef({
-    showAccuracyCircle: true,
-    showUserLocation: true,
-    trackUserLocation: true,
-    positionOptions: {
-      enableHighAccuracy: true,
-    },
-  });
-  return h(MapControlWrapper, {
-    control: GeolocateControl,
-    options: optionsRef.current,
-    ...props,
-  });
-}
 
 export function MapBottomControls({ children }) {
   const { isInitialized } = useMapStatus();
