@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.6] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.5...@macrostrat/data-components-v1.1.6)
+
+### Patch Changes
+
+- Improve layout of `IntervalField` ages
+  [b5119a4b](https://github.com/UW-Macrostrat/web-components/commit/b5119a4b7775286461ae67dff9f04000068810d3)
+
 ## [1.1.5] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.4...@macrostrat/data-components-v1.1.5)
 
 ### Patch Changes

@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-styles-v2.1.2...@macrostrat/map-styles-v2.2.0)
+
+- Added an 'emphasized' option to add grey borders to polygons at high zoom
+  levels
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+- Create a new story to showcase emphasized style
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+
 ## [2.1.2] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-styles-v2.1.1...@macrostrat/map-styles-v2.1.2)
 
 ### Patch Changes

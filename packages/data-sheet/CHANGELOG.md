@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.1.0] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v3.0.4...@macrostrat/data-sheet-v3.1.0)
+
+### Minor Changes
+
+- New state model using Jotai scoped atoms to manage data sheet state
+  [b5119a4b](https://github.com/UW-Macrostrat/web-components/commit/b5119a4b7775286461ae67dff9f04000068810d3)
+  Removed `zustand-computed` dependency Improved lazy-loading examples
+
+### Patch Changes
+
+- Updated dependencies
+  [b5119a4b](https://github.com/UW-Macrostrat/web-components/commit/b5119a4b7775286461ae67dff9f04000068810d3)
+  - @macrostrat/data-components@1.1.6
+
 ## [3.0.4] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v3.0.3...@macrostrat/data-sheet-v3.0.4)
 
 ### Patch Changes

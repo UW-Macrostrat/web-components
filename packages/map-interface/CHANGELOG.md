@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.2.4] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.3...@macrostrat/map-interface-v2.2.4)
+
+### Patch Changes
+
+- Make map interface with fixed sidebar work better
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+  Create new story showcasing Macrostrat's map legend API
+- Add `ScaleControl` and `GeolocationControl` to `@macrostrat/mapbox-react` so
+  they can be used on an "a la carte" basis. `@macrostrat/map-interface` now
+  imports and re-exports these controls from `@macrostrat/mapbox-react`.
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+- Fix bug with map view terrain toggle
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+- Updated dependencies
+  [b5119a4b](https://github.com/UW-Macrostrat/web-components/commit/b5119a4b7775286461ae67dff9f04000068810d3)
+- Updated dependencies
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+  - @macrostrat/data-components@1.1.6
+  - @macrostrat/mapbox-react@3.2.0
+
 ## [2.2.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-interface-v2.2.2...@macrostrat/map-interface-v2.2.3)
 
 ### Patch Changes
