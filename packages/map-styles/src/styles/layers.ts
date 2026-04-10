@@ -68,12 +68,13 @@ export function buildMacrostratStyleLayers({
   fillOpacity = 0.4,
   strokeOpacity = 0.8,
   lineOpacity = 1,
+  emphasized = false,
 }): mapboxgl.AnyLayer[] {
   strokeOpacity = Math.max(Math.min(strokeOpacity, 1), 0);
   fillOpacity = Math.max(Math.min(fillOpacity, 1), 0);
   lineOpacity = Math.max(Math.min(lineOpacity, 1), 0);
 
-  return [
+  const fillLayers = [
     {
       id: "burwell_fill",
       type: "fill",
@@ -93,15 +94,42 @@ export function buildMacrostratStyleLayers({
           0.75,
           fillOpacity,
         ],
-
-        // "fill-opacity": {
-        //   "stops": [
-        //     [0, 0.5],
-        //     [12, 0.3]
-        //   ]
-        // }
       },
     },
+  ];
+
+  if (emphasized) {
+    // Add another layer for fill borders, visible at high zoom levels
+    fillLayers.push({
+      id: "burwell_fill_border",
+      type: "line",
+      source: "burwell",
+      "source-layer": "units",
+      minzoom: 6,
+      maxzoom: 16,
+      paint: {
+        "line-color": "#000000",
+        "line-width": {
+          stops: [
+            [6, 0.5],
+            [8, 0.75],
+            [12, 1],
+            [16, 2],
+          ],
+        },
+        "line-opacity": {
+          stops: [
+            [0, 0.25],
+            [8, 0.4],
+            [16, 0.75],
+          ],
+        },
+      },
+    });
+  }
+
+  return [
+    ...fillLayers,
     {
       id: "burwell_stroke",
       type: "line",
@@ -656,16 +684,18 @@ export function buildMacrostratStyleLayers({
   ];
 }
 
-interface MacrostratStyleOpts {
+export interface MacrostratStyleOpts {
   tileserverDomain?: string;
   fillOpacity?: number;
   strokeOpacity?: number;
   lineOpacity?: number;
   focusedMap?: string;
+  /** Add emphasis to polygon boundaries at high zoom levels */
+  emphasized?: boolean;
 }
 
 export function buildMacrostratStyle(
-  opts?: MacrostratStyleOpts,
+  opts: MacrostratStyleOpts = {},
 ): mapboxgl.Style {
   /** Build a style for Macrostrat's geologic map */
   const {
@@ -674,7 +704,8 @@ export function buildMacrostratStyle(
     strokeOpacity = 0.2,
     lineOpacity = 1,
     focusedMap = null,
-  } = opts ?? {};
+    emphasized = false,
+  } = opts;
   let tileSuffix = "";
   if (tileserverDomain == "https://tiles.macrostrat.org") {
     // The production tileserver uses a different suffix
@@ -692,12 +723,17 @@ export function buildMacrostratStyle(
       burwell: {
         type: "vector",
         tiles: [tileURL],
+        promoteId: {
+          units: "legend_id",
+          lines: "line_id",
+        },
       },
     },
     layers: buildMacrostratStyleLayers({
       fillOpacity,
       strokeOpacity,
       lineOpacity,
+      emphasized,
     }),
   };
 }

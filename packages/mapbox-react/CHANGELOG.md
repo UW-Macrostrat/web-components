@@ -1,5 +1,22 @@
 # Changelog
 
+## [3.2.0] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.1.3...@macrostrat/mapbox-react-v3.2.0)
+
+### Minor Changes
+
+- Add `ScaleControl` and `GeolocationControl` to `@macrostrat/mapbox-react` so
+  they can be used on an "a la carte" basis. `@macrostrat/map-interface` now
+  imports and re-exports these controls from `@macrostrat/mapbox-react`.
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+
+### Patch Changes
+
+- Updated dependencies
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+- Updated dependencies
+  [492f5f2f](https://github.com/UW-Macrostrat/web-components/commit/492f5f2f861d4d64af2b9fc378a4878286e89208)
+  - @macrostrat/map-styles@2.2.0
+
 ## [3.1.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-react-v3.1.2...@macrostrat/mapbox-react-v3.1.3)
 
 ### Patch Changes

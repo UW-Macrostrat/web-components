@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-sheet",
-  "version": "3.0.4",
+  "version": "3.1.0",
   "description": "Scalable data sheet with optional editing capabilities",
   "repository": {
     "type": "git",
@@ -56,9 +56,10 @@
     "@types/underscore": "^1.13.0",
     "classnames": "^2.5.1",
     "immutability-helper": "^3.1.1",
+    "jotai": "^2.19.1",
+    "jotai-zustand": "^0.6.0",
     "underscore": "^1.13.7",
-    "zustand": "^5.0.2",
-    "zustand-computed": "^2.1.0"
+    "zustand": "^5.0.2"
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*"

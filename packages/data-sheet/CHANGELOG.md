@@ -1,5 +1,19 @@
 # Changelog
 
+## [3.1.0] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v3.0.4...@macrostrat/data-sheet-v3.1.0)
+
+### Minor Changes
+
+- New state model using Jotai scoped atoms to manage data sheet state
+  [b5119a4b](https://github.com/UW-Macrostrat/web-components/commit/b5119a4b7775286461ae67dff9f04000068810d3)
+  Removed `zustand-computed` dependency Improved lazy-loading examples
+
+### Patch Changes
+
+- Updated dependencies
+  [b5119a4b](https://github.com/UW-Macrostrat/web-components/commit/b5119a4b7775286461ae67dff9f04000068810d3)
+  - @macrostrat/data-components@1.1.6
+
 ## [3.0.4] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v3.0.3...@macrostrat/data-sheet-v3.0.4)
 
 ### Patch Changes
@@ -7,7 +21,7 @@
 - General performance improvements for rendering and infinite scrolling
 - Use `PopoverNext` instead of popover
   [4bd24d9f](https://github.com/UW-Macrostrat/web-components/commit/4bd24d9f65dacfdbbede3613921182858ec1e3d1)
-  Re-enable column reordering
+- Re-enable column reordering
 - Updated `@macrostrat/hyper` dependency
   [6e9a6654](https://github.com/UW-Macrostrat/web-components/commit/6e9a665456460b31c30316a2a13d41abed94c43a)
 - Updated dependencies

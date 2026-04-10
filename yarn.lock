@@ -1631,9 +1631,10 @@ __metadata:
     "@types/underscore": "npm:^1.13.0"
     classnames: "npm:^2.5.1"
     immutability-helper: "npm:^3.1.1"
+    jotai: "npm:^2.19.1"
+    jotai-zustand: "npm:^0.6.0"
     underscore: "npm:^1.13.7"
     zustand: "npm:^5.0.2"
-    zustand-computed: "npm:^2.1.0"
   peerDependencies:
     react: ^18.0.0||^19.0.0
   languageName: unknown
@@ -1730,6 +1731,7 @@ __metadata:
     classnames: "npm:^2.5.1"
     d3-array: "npm:^3.2.4"
     d3-format: "npm:^3.1.2"
+    jotai: "npm:^2.19.1"
     mapbox-gl: "npm:^3.0.0"
     query-string: "npm:^9.0.0"
     transition-hook: "npm:^1.5.2"
@@ -8091,6 +8093,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"jotai-zustand@npm:^0.6.0":
+  version: 0.6.0
+  resolution: "jotai-zustand@npm:0.6.0"
+  peerDependencies:
+    jotai: ">=2.0.0"
+  checksum: 10c0/807ceced838731803057597834fa8670d30c19a734df43bbb09b6b49d228d3c014785f2556c49e91b355fadcf927005d1866260248e6f5706e2a805d4db1575f
+  languageName: node
+  linkType: hard
+
 "jotai@npm:^2.16.0, jotai@npm:^2.17.0":
   version: 2.17.0
   resolution: "jotai@npm:2.17.0"
@@ -8109,6 +8120,27 @@ __metadata:
     react:
       optional: true
   checksum: 10c0/cc6646c792881fa52cc8bef0b05152110af78a167b7ee10ee1cd2635904ed5175a5d00ba255d9a1abe4954549da48e6e963c95cb6deaa069a706cea8ef141bdb
+  languageName: node
+  linkType: hard
+
+"jotai@npm:^2.19.1":
+  version: 2.19.1
+  resolution: "jotai@npm:2.19.1"
+  peerDependencies:
+    "@babel/core": ">=7.0.0"
+    "@babel/template": ">=7.0.0"
+    "@types/react": ">=17.0.0"
+    react: ">=17.0.0"
+  peerDependenciesMeta:
+    "@babel/core":
+      optional: true
+    "@babel/template":
+      optional: true
+    "@types/react":
+      optional: true
+    react:
+      optional: true
+  checksum: 10c0/82651da60711b2ceb4f50e3869b92fa9e71dab085f11cb0277bcad4c0f6691af5e66a5a1997082e13912a39ab3ad1e83f4b96b59fb0990dd392c8f94deffb9ef
   languageName: node
   linkType: hard
 
@@ -12824,7 +12856,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"zustand-computed@npm:^2.0.2, zustand-computed@npm:^2.1.0":
+"zustand-computed@npm:^2.0.2":
   version: 2.1.0
   resolution: "zustand-computed@npm:2.1.0"
   peerDependencies:

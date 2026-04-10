@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/map-interface",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "Map interface for Macrostrat",
   "repository": {
     "type": "git",
@@ -67,7 +67,8 @@
     "use-resize-observer": "^9.1.0"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*"
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "jotai": "^2.19.1"
   },
   "publishConfig": {
     "access": "public"

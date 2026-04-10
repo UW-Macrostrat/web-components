@@ -68,19 +68,30 @@ function AgeRange({
   });
 }
 
-export function IntervalField({ intervals }: { intervals: IntervalShort[] }) {
+export function IntervalField({
+  intervals,
+  showAgeRange = true,
+}: {
+  intervals: IntervalShort[];
+  showAgeRange?: boolean;
+}) {
   const unique = uniqueIntervals(...intervals);
   const ageRange = mergeAgeRanges(unique.map((d) => [d.b_age, d.t_age]));
+  const showAgeRangeInline = unique.length == 1 && showAgeRange;
   return h([
     h(DataField, { label: "Intervals" }, [
       unique.map((interval) => {
         return h(IntervalTag, {
           key: interval.id,
           interval,
-          showAgeRange: false,
+          showAgeRange: showAgeRangeInline,
+          multiLine: showAgeRangeInline,
         });
       }),
-      h(AgeRange, { b_age: ageRange[0], t_age: ageRange[1] }),
+      h.if(unique.length > 1 && showAgeRange)(AgeRange, {
+        b_age: ageRange[0],
+        t_age: ageRange[1],
+      }),
     ]),
   ]);
 }

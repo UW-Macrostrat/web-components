@@ -5,22 +5,30 @@ import {
   InputGroup,
   Intent,
 } from "@blueprintjs/core";
-import { Cell, Column, Region, RowHeaderCell, Table } from "@blueprintjs/table";
+import {
+  Column,
+  Region,
+  RegionCardinality,
+  RowHeaderCell,
+  Table,
+  TableProps,
+} from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
 import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import { EditorPopup, DataSheetAction } from "./components";
+import { DataSheetAction } from "./components";
 import h from "./main.module.sass";
 import {
   DataSheetProvider,
-  DataSheetProviderProps,
-  DataSheetStore,
-  singleFocusedCell,
+  storeAtom,
+  useAtomValue,
   useSelector,
   useStoreAPI,
-  VisibleCells,
+  atom,
 } from "./provider";
-import { ColumnSpec } from "./utils";
+import { DataSheetProviderProps, VisibleCells } from "./types.ts";
+import { basicCellRenderer } from "./cell-renderer.ts";
+import { tableKeyHandlerAtom } from "./utils";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -33,7 +41,7 @@ export enum DataSheetDensity {
   LOW = "low",
 }
 
-interface DataSheetInternalProps<T> {
+interface DataSheetInternalProps<T> extends TableProps {
   onVisibleCellsChange?: (visibleCells: VisibleCells) => void;
   onSaveData?: (updatedData: any[], data: T[]) => void;
   onUpdateData?: (updatedData: any[], data: T[]) => void;
@@ -68,7 +76,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
       {
         data,
         columnSpec,
-        columnSpecOptions: columnSpecOptions,
+        columnSpecOptions,
         enableColumnReordering,
         defaultColumnWidth,
         editable,
@@ -91,7 +99,6 @@ const deletedRowHeaderStyle = {
 
 function _DataSheet<T>({
   onVisibleCellsChange,
-  enableColumnReordering,
   onSaveData,
   onUpdateData,
   onDeleteRows,
@@ -100,6 +107,8 @@ function _DataSheet<T>({
   enableFocusedCell,
   autoFocusEditor = true,
   density = DataSheetDensity.HIGH,
+  selectionModes,
+  ...rest
 }: DataSheetInternalProps<T>) {
   /**
    * @param data: The data to be displayed in the table
@@ -183,7 +192,7 @@ function _DataSheet<T>({
     [selectedRegions],
   );
 
-  const columnWidths = useSelector((state) => state.columnWidths);
+  const columnWidths = useAtomValue(columnWidthsAtom);
 
   const numRows = Math.max(updatedData.length, data.length);
 
@@ -247,7 +256,17 @@ function _DataSheet<T>({
     [deletedRows],
   );
 
-  const onKeyDown = useSelector((state) => state.tableKeyHandler);
+  const onKeyDown = useAtomValue(tableKeyHandlerAtom);
+
+  let _selectionModes = selectionModes;
+  if (
+    editable &&
+    _selectionModes != null &&
+    !_selectionModes.includes(RegionCardinality.CELLS)
+  ) {
+    _selectionModes = [..._selectionModes, RegionCardinality.CELLS];
+    // Ensure selection mode includes "cells"
+  }
 
   return h("div.data-sheet-container", { className, style }, [
     h.if(editable)(DataSheetEditToolbar, {
@@ -265,7 +284,6 @@ function _DataSheet<T>({
           numRows,
           className: "data-sheet",
           enableFocusedCell,
-          enableColumnReordering,
           onColumnsReordered,
           focusedCell,
           selectedRegions,
@@ -274,7 +292,6 @@ function _DataSheet<T>({
           columnWidths,
           onColumnWidthChanged,
           onSelection,
-          renderMode: "batch",
           enableRowReordering: false,
           enableRowResizing: false,
           // The cell renderer is memoized internally based on these data dependencies
@@ -287,6 +304,8 @@ function _DataSheet<T>({
           ],
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,
+          selectionModes: _selectionModes,
+          ...rest,
         },
         children,
       ),
@@ -294,200 +313,34 @@ function _DataSheet<T>({
   ]);
 }
 
-function basicCellRenderer<T>(
-  rowIndex: number,
-  colIndex: number,
-  columnSpec: ColumnSpec,
-  state: DataSheetStore<T>,
-  autoFocusEditor = true,
-): any {
-  const data = state.data;
-  const updatedData = state.updatedData;
+/** Atoms for efficient sub-selection of state */
 
-  const isDeleted = state.deletedRows.has(rowIndex);
+const deletedRowsAtom = atom((get) => get(storeAtom).deletedRows);
+const updatedDataAtom = atom((get) => get(storeAtom).updatedData);
 
-  const row = data[rowIndex] ?? updatedData[rowIndex];
-  const loading = row == null;
-  const col = columnSpec;
+const hasUpdatesAtom = atom((get) => {
+  // Readable atom to indicate whether there are any updates in the updatedData array
+  const deletedRows = get(deletedRowsAtom);
+  const updatedData = get(updatedDataAtom);
+  return updatedData.length > 0 || deletedRows.size > 0;
+});
 
-  const _topLeftCell = state.topLeftCell;
-  const onCellEdited = state.onCellEdited;
+const columnSpecAtom = atom((get) => get(storeAtom).columnSpec);
+const columnWidthsIndexAtom = atom((get) => get(storeAtom).columnWidthsIndex);
+const defaultColumnWidthAtom = atom((get) => get(storeAtom).defaultColumnWidth);
 
-  const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
-  const _renderedValue = col.valueRenderer?.(value) ?? value;
-
-  let style = col.style ?? {};
-  if (isDeleted) {
-    style = {
-      ...style,
-      opacity: 0.5,
-      textDecoration: "line-through",
-    };
-  }
-
-  //const focused =
-  //  focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
-
-  const editable = (col.editable ?? state.editable) && !isDeleted;
-
-  // Top left cell of a ranged selection
-  const topLeft =
-    _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
-
-  if (!editable && state.editable) {
-    // If the cell is not editable but the sheet is editable, we want to differentiate
-    // between editable and non-editable cells.
-    style.color = "var(--secondary-color)";
-  }
-
-  const edited = updatedData[rowIndex]?.[col.key] != null;
-  let intent = edited ? "success" : undefined;
-  if (isDeleted) {
-    intent = "danger";
-  }
-
-  const _Cell = col.cellComponent ?? BaseCell;
-
-  let inlineEditor = editable ? (col.inlineEditor ?? true) : false;
-
-  if (!topLeft) {
-    // This should be the case for every cell except the focused one
-    return h(
-      _Cell,
-      {
-        intent,
-        loading,
-        value,
-        style,
-        isDeleted,
-      },
-      _renderedValue,
-    );
-  }
-
-  // The rest is for the top-left cell of a selection or the focused cell
-
-  // Hidden input to capture key events
-  let hiddenInput = h("input.hidden-input", {
-    autoFocus: true,
-    onKeyDown: state.editorKeyHandler,
-  });
-
-  let cellContents: ReactNode = _renderedValue;
-
-  let _dataEditor = null;
-  let className = null;
-
-  if (col.dataEditor != null) {
-    _dataEditor = h(
-      EditorPopup,
-      {
-        autoFocus: autoFocusEditor,
-        valueViewer: _renderedValue,
-      },
-      [
-        h(col.dataEditor, {
-          value,
-          editable,
-          onChange(value) {
-            if (!editable) return;
-            state.onSelectionEdited(value);
-          },
-        }),
-      ],
-    );
-  }
-
-  if (!editable) {
-    // Most cells are not focused and don't need to be editable.
-    // This will be the rendering logic for almost all cells
-
-    if (_dataEditor != null) {
-      cellContents = _dataEditor;
-    }
-
-    return h(
-      _Cell,
-      {
-        intent,
-        value,
-        style,
-      },
-      cellContents,
-    );
-    // Could probably put the hidden input elsewhere,
-  }
-
-  /* The remaining logic covers cells that are focused and editable */
-
-  const onChange = (e) => {
-    if (!editable) return;
-    if (value === e.target.value) return;
-    onCellEdited(rowIndex, col.key, e.target.value);
-  };
-
-  const isSingleCellSelection = singleFocusedCell(state.selection) != null;
-
-  let _inlineEditor: ReactNode = null;
-  if (typeof inlineEditor == "boolean") {
-    let _value = value;
-    if (
-      typeof _renderedValue === "string" ||
-      typeof _renderedValue === "number" ||
-      _renderedValue == null
-    ) {
-      _value = _renderedValue;
-    }
-    _inlineEditor = h("input.main-editor", {
-      value: _value ?? "",
-      autoFocus: autoFocusEditor,
-      onChange,
-      onKeyDown: state.editorKeyHandler,
-    });
-  } else {
-    // If inlineEditor is a ReactNode, we use it directly
-    _inlineEditor = inlineEditor as ReactNode;
-  }
-
-  if (_dataEditor != null) {
-    className = "editor-cell";
-    cellContents = _dataEditor;
-    hiddenInput = null;
-  } else if (_inlineEditor != null) {
-    cellContents = _inlineEditor;
-    className = "input-cell";
-    hiddenInput = null;
-  }
-
-  // Hidden html input
-  return h(
-    _Cell,
-    {
-      intent,
-      value,
-      className,
-      style,
-      //truncated: false,
-    },
-    [
-      cellContents,
-      h.if(editable && isSingleCellSelection)(DragHandle),
-      hiddenInput,
-    ],
+const columnWidthsAtom = atom((get) => {
+  const ix = get(columnWidthsIndexAtom);
+  return get(columnSpecAtom).map(
+    (col) => ix.get(col.key) ?? col.width ?? get(defaultColumnWidthAtom),
   );
-}
-
-function DragHandle() {
-  // TODO: we might want to drag multiple columns in some cases
-  // This should be on the last cell of a selection
-  const onMouseDown = useSelector((state) => state.onDragValue);
-  return h("div.corner-drag-handle", { onMouseDown });
-}
+});
 
 function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
   const selection = useSelector((state) => state.selection);
   const resetChanges = useSelector((state) => state.resetChanges);
-  const hasUpdates = useSelector((state) => state.hasUpdates);
+
+  const hasUpdates = useAtomValue(hasUpdatesAtom);
 
   return h("div.data-sheet-toolbar", [
     h(ButtonGroup, { minimal: true }, [
@@ -567,19 +420,6 @@ function AddRowButton() {
     "Add row",
   );
 }
-
-export function BaseCell({ children, value, ...rest }) {
-  return h(
-    Cell,
-    {
-      interactive: true,
-      ...rest,
-    },
-    children,
-  );
-}
-
-export { Cell };
 
 export function getRowsToDelete(selection) {
   let rowIndices: number[] = [];

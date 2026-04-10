@@ -1,5 +1,17 @@
 import type { KeyboardEvent } from "react";
-import { DataSheetStoreMain } from "@macrostrat/data-sheet";
+import { storeAPIAtom, storeAtom } from "../provider";
+import type { DataSheetStoreMain } from "../types";
+import { atom } from "jotai";
+import { singleFocusedCell } from "../zustand-store.ts";
+
+export const tableKeyHandlerAtom = atom((get) => {
+  const store = get(storeAPIAtom);
+  return (e: KeyboardEvent) => {
+    // Kind of a ridiculous hack to get the store from the atom.
+    const state = store.getState();
+    tableKeyHandler(e, state);
+  };
+});
 
 export function tableKeyHandler<T>(
   e: KeyboardEvent,
@@ -43,10 +55,24 @@ const directionMap = {
   ArrowRight: "right",
 };
 
-export function editorKeyHandler(
-  e: KeyboardEvent,
-  isSingleCellSelection: boolean,
-) {
+const selectionAtom = atom((get) => {
+  const store = get(storeAtom);
+  return store.selection;
+});
+
+const isSingleCellSelectionAtom = atom((get) => {
+  const selection = get(selectionAtom);
+  return singleFocusedCell(selection) != null;
+});
+
+export const editorKeyHandlerAtom = atom((get) => {
+  return (e: KeyboardEvent) => {
+    const isSingleCellSelection = get(isSingleCellSelectionAtom);
+    editorKeyHandler(e, isSingleCellSelection);
+  };
+});
+
+function editorKeyHandler(e: KeyboardEvent, isSingleCellSelection: boolean) {
   /** Get a key handler for inline cell editing */
 
   // if (e.key == "Enter" || e.key == "Tab") {
