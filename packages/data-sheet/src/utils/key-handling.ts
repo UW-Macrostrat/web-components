@@ -1,9 +1,6 @@
 import type { KeyboardEvent } from "react";
-import {
-  DataSheetStoreMain,
-  storeAPIAtom,
-  storeAtom,
-} from "@macrostrat/data-sheet";
+import { storeAPIAtom, storeAtom } from "../provider";
+import type { DataSheetStoreMain } from "../types";
 import { atom } from "jotai";
 import { singleFocusedCell } from "../zustand-store.ts";
 
