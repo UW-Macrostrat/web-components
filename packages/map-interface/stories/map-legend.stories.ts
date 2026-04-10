@@ -9,13 +9,13 @@ import {
 import { buildMacrostratStyle } from "@macrostrat/map-styles";
 import {
   DataField,
-  IntervalTag,
+  IntervalField,
   LithologyList,
 } from "@macrostrat/data-components";
 import { JSONView } from "@macrostrat/ui-components";
 import { Button, NonIdealState, Spinner, Tag } from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
-import { useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { InfoDrawerHeader } from "../src/location-panel/header";
 import { atom, useAtom, useAtomValue, useSetAtom } from "jotai";
 import {
@@ -145,6 +145,7 @@ const legendDataAtom = atom(async (get, { signal }) => {
   const { bounds, zoom } = get(mapPositionAtom);
   if (bounds == null) return null;
 
+  console.log("Fetching legend for bounds", bounds.toArray(), "zoom", zoom);
   const boundsArray = bounds.toArray().flat() as [
     number,
     number,
@@ -154,7 +155,7 @@ const legendDataAtom = atom(async (get, { signal }) => {
 
   const params = new URLSearchParams({
     bounds: boundsArray.join(","),
-    zoom: String(Math.round(zoom + 1)),
+    zoom: String(Math.round(zoom + 4)),
   });
 
   const url = legendAPIBase + "?" + params.toString();
@@ -186,19 +187,13 @@ const viewModeAtom = atom(LegendViewMode.PRETTY);
 
 const selectedLegendIDsAtom = atom<Set<number> | null>();
 
-const selectedEntryAtom = atom(
-  (get) => {
-    const entries = get(legendResultAtom)?.data ?? [];
-    const selectedIDs = get(selectedLegendIDsAtom);
-    if (entries == null || selectedIDs == null || selectedIDs.size == 0)
-      return null;
-    return entries.find((e) => selectedIDs.has(e.legend_id)) ?? null;
-  },
-  (get, set, value) => {
-    const newVal = value == null ? null : new Set([value.legend_id]);
-    set(selectedLegendIDsAtom, newVal);
-  },
-);
+const selectedEntryAtom = atom((get) => {
+  const entries = get(legendResultAtom)?.data ?? [];
+  const selectedIDs = get(selectedLegendIDsAtom);
+  if (entries == null || selectedIDs == null || selectedIDs.size == 0)
+    return null;
+  return entries.find((e) => selectedIDs.has(e.legend_id)) ?? null;
+});
 
 function MapSelectionManager() {
   const [selectedLegendIDs, setSelectedLegendIDs] = useAtom(
@@ -219,7 +214,7 @@ function MapSelectionManager() {
             ["get", "legend_id"],
             ["literal", Array.from(selectedLegendIDs)],
           ],
-          0.5,
+          0.8,
           0.1,
         ]);
       }
@@ -232,11 +227,11 @@ function MapSelectionManager() {
       const features = map.queryRenderedFeatures(e.point, {
         layers: ["burwell_fill"],
       });
-      console.log(features);
       if (features.length === 0) return;
       const feature = features[0];
       const legendId = feature.properties?.legend_id;
       if (legendId == null) return;
+      console.log("Setting selected legend ID", legendId);
       setSelectedLegendIDs(new Set([legendId]));
     });
   });
@@ -284,11 +279,11 @@ function LegendListPanel() {
 
 /** Detail panel for a single selected legend entry */
 function LegendDetailPanel({ entry }: { entry: any }) {
-  const setSelectedEntry = useSetAtom(selectedEntryAtom);
+  const setSelectedLegendID = useSetAtom(selectedLegendIDsAtom);
   const [viewMode, setViewMode] = useAtom(viewModeAtom);
 
   const headerElement = h(InfoDrawerHeader, {
-    onClose: () => setSelectedEntry(null),
+    onClose: () => setSelectedLegendID(null),
     children: h(
       "div",
       {
@@ -389,40 +384,15 @@ function ColorSwatch({ color }: { color: string | null }) {
 }
 
 /** Resolve interval IDs to IntervalShort objects using the data provider */
-function useResolvedIntervals(
-  bIntervalId: number | null,
-  tIntervalId: number | null,
-) {
+function useResolvedIntervals(int_ids: number[]) {
   const intervalMap = useMacrostratDefs("intervals");
   return useMemo(() => {
-    if (intervalMap == null) return null;
-    const intervals = [];
-    if (bIntervalId != null) {
-      const b = intervalMap.get(bIntervalId);
-      if (b != null)
-        intervals.push({
-          id: b.int_id,
-          name: b.int_name,
-          b_age: b.b_age,
-          t_age: b.t_age,
-          color: b.color,
-          rank: b.rank,
-        });
-    }
-    if (tIntervalId != null && tIntervalId !== bIntervalId) {
-      const t = intervalMap.get(tIntervalId);
-      if (t != null)
-        intervals.push({
-          id: t.int_id,
-          name: t.int_name,
-          b_age: t.b_age,
-          t_age: t.t_age,
-          color: t.color,
-          rank: t.rank,
-        });
-    }
-    return intervals.length > 0 ? intervals : null;
-  }, [intervalMap, bIntervalId, tIntervalId]);
+    if (intervalMap == null) return [];
+    return int_ids.map((d) => {
+      const int = intervalMap.get(d);
+      return { ...int, id: int.int_id };
+    });
+  }, [intervalMap, int_ids]);
 }
 
 /** Resolve lith_id array to lithology objects using the data provider */
@@ -444,7 +414,7 @@ function useResolvedLithologies(lithIds: number[] | null) {
 
 /** Clickable list item for a legend entry */
 function LegendEntry({ entry }: { entry: any }) {
-  const setSelectedEntry = useSetAtom(selectedEntryAtom);
+  const setSelectedLegendIDs = useSetAtom(selectedLegendIDsAtom);
   const { map_unit_name, color, age } = entry;
 
   return h(
@@ -457,7 +427,7 @@ function LegendEntry({ entry }: { entry: any }) {
         cursor: "pointer",
         borderBottom: "1px solid var(--panel-rule-color, #eee)",
       },
-      onClick: () => setSelectedEntry(entry),
+      onClick: () => setSelectedLegendIDs(new Set([entry.legend_id])),
     },
     [
       h(ColorSwatch, { color }),
@@ -474,21 +444,21 @@ function LegendEntry({ entry }: { entry: any }) {
 /** Detailed view of a single legend entry (shown in the detail panel) */
 function LegendEntryDetails({ entry }: { entry: any }) {
   const {
-    map_unit_name,
     strat_name,
-    age,
     lith,
     descrip,
     comments,
-    b_age: bAge,
-    t_age: tAge,
+    b_age,
+    t_age,
     b_interval,
     t_interval,
     lith_id,
     lith_types,
   } = entry;
 
-  const resolvedIntervals = useResolvedIntervals(b_interval, t_interval);
+  const int_ids = [b_interval, t_interval].filter(Boolean);
+
+  const resolvedIntervals = useResolvedIntervals(int_ids);
   const resolvedLithologies = useResolvedLithologies(lith_id);
 
   // Fallback lithology types (unresolved) for when lith_id can't be resolved
@@ -508,16 +478,13 @@ function LegendEntryDetails({ entry }: { entry: any }) {
       label: "Stratigraphic name",
       value: strat_name,
     }),
-    h.if(resolvedIntervals != null)(
-      DataField,
-      { label: "Intervals" },
-      resolvedIntervals?.map((iv) =>
-        h(IntervalTag, { key: iv.id, interval: iv, showAgeRange: true }),
-      ),
-    ),
-    h.if(resolvedIntervals == null && bAge != null && tAge != null)(DataField, {
+    h.if(resolvedIntervals != null)(IntervalField, {
+      intervals: resolvedIntervals,
+    }),
+    h.if(b_age != null && t_age != null)(DataField, {
       label: "Age range",
-      value: `${bAge} – ${tAge} Ma`,
+      value: `${b_age}–${t_age}`,
+      unit: "Ma",
     }),
     h.if(lith != null && lith !== "")(DataField, {
       label: "Lithology",
