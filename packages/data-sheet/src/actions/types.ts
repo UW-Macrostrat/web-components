@@ -48,7 +48,7 @@ export interface TableActionContext<T = any> {
   deleteSelectedRows(): void;
   addRow(row?: Partial<T>): void;
   setUpdatedData(data: any): void;
-  resetChanges(): void;
+  resetChanges(region?: Region[]): void;
   clearSelection(): void;
   scrollToRow(rowIndex: number): void;
   /** Direct store mutation for cases not covered by the convenience methods

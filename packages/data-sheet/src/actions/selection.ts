@@ -13,8 +13,8 @@ import update from "immutability-helper";
  * Returns "none" when there is no active selection. */
 export function getSelectionCardinality(
   regions: Region[],
-): SelectionCardinality {
-  if (regions == null || regions.length === 0) return "none";
+): RegionCardinality | null {
+  if (regions == null || regions.length === 0) return null;
   const region = regions[0];
   const hasRows = region.rows != null;
   const hasCols = region.cols != null;
@@ -28,7 +28,7 @@ export function getSelectionCardinality(
  * and edit mode. */
 export function getApplicableActions<T>(
   actions: TableAction<T>[],
-  cardinality: SelectionCardinality,
+  cardinality: RegionCardinality,
   editable: boolean,
 ): TableAction<T>[] {
   return actions.filter((action) => {

@@ -8,19 +8,16 @@ import {
   getSelectionCardinality,
 } from "./selection";
 import type { TableAction, TableActionContext } from "./types";
+import { RegionCardinality } from "@blueprintjs/table";
 
 /** Toolbar that renders applicable table actions based on the
  * current selection cardinality and edit mode. */
-export function ActionsToolbar<T>({
-  actions,
-}: {
-  actions: TableAction<T>[];
-}) {
+export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
   const selection = useSelector((state) => state.selection);
   const editable = useSelector((state) => state.editable);
 
   const cardinality = useMemo(
-    () => getSelectionCardinality(selection),
+    () => getSelectionCardinality(selection) ?? RegionCardinality.FULL_TABLE,
     [selection],
   );
 
@@ -149,4 +146,3 @@ function ActionButtonWithForm<T, S>({
     ),
   );
 }
-

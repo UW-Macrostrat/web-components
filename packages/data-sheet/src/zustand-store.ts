@@ -6,9 +6,18 @@ import {
   TableElementStatus,
   VisibleCells,
 } from "./types.ts";
-import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
+import {
+  type FocusedCellCoordinates,
+  type Region,
+  RegionCardinality,
+} from "@blueprintjs/table";
 import { range } from "./utils";
 import update, { Spec } from "immutability-helper";
+import {
+  getSelectedColumnKeys,
+  getSelectedRowIndices,
+  getSelectionCardinality,
+} from "./actions";
 
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
   return {
@@ -61,7 +70,8 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       /** Add a new row. If there is a selection, use the last row index to determine
        * where to insert the new row. Otherwise, append to the end of the data. */
       set((state) => {
-        const { updatedData, data, selection } = state;
+        const { updatedData, data, selection, rowStatus } = state;
+
         const lastRowIndex =
           getLastRowIndex(selection) ??
           Math.max(data.length, updatedData.length) - 1;
@@ -69,13 +79,15 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         // $splice fails when the target index exceeds the array length.
         const newIndex = lastRowIndex + 1;
 
-        return {
+        const res = {
           updatedData: update(updatedData, { $splice: [[newIndex, 0, row]] }),
           data: update(data, { $splice: [[newIndex, 0, row]] }),
-          rowStatus: update(state.rowStatus, {
+          rowStatus: update(rowStatus, {
             $splice: [[newIndex, 0, TableElementStatus.ADDED]],
           }),
         };
+        console.log(res);
+        return res;
       });
     },
     setUpdatedData(data: StateUpdater<T>) {
@@ -141,28 +153,9 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         };
       });
     },
-    resetChanges() {
+    resetChanges(regions?: Region[]) {
       // Reset the updated data to the initial data
-      set((state) => {
-        const { rowStatus, data } = state;
-        const addedRows = new Set<number>();
-        for (let i = 0; i < rowStatus.length; i++) {
-          if (rowStatus[i] === TableElementStatus.ADDED) {
-            addedRows.add(i);
-          }
-        }
-
-        return {
-          columnWidths: new Map<string, number>(),
-          updatedData: [],
-          rowStatus: [],
-          data: data.filter((_, i) => !addedRows.has(i)),
-          selection: [],
-          focusedCell: null,
-          topLeftCell: null,
-          fillValueBaseCell: null,
-        };
-      });
+      set((state) => resetChangesForSelection(state, regions));
     },
     onColumnWidthChanged(columnIx: number, newWidth: number) {
       set((state) => {
@@ -420,4 +413,81 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
     }
   }
   return update(updatedData, spec);
+}
+
+function resetChangesForSelection<T>(
+  state: DataSheetStore<T>,
+  selection: Region[],
+): Partial<DataSheetStore<T>> {
+  const emptySelection = {
+    selection: [],
+    focusedCell: null,
+    topLeftCell: null,
+    fillValueBaseCell: null,
+  };
+
+  const { data } = state;
+  const cardinality =
+    getSelectionCardinality(selection ?? []) ?? RegionCardinality.FULL_TABLE;
+
+  const rowStatus = [...state.rowStatus];
+  const updatedData = [...state.updatedData];
+  const addedRows = new Set<number>();
+
+  // Global reset
+  switch (cardinality) {
+    case RegionCardinality.FULL_TABLE:
+      for (let i = 0; i < rowStatus.length; i++) {
+        if (rowStatus[i] === TableElementStatus.ADDED) {
+          addedRows.add(i);
+        }
+      }
+
+      return {
+        updatedData: [],
+        rowStatus: [],
+        data: data.filter((_, i) => !addedRows.has(i)),
+        ...emptySelection,
+      };
+    case RegionCardinality.FULL_COLUMNS:
+    case RegionCardinality.CELLS:
+      /** Columns or cells. Note, these only work the same because we don't
+       * allow column deletion, only unsetting all values.
+       */
+      const columnKeys = getSelectedColumnKeys(selection, state.columnSpec);
+      const spec: Spec<Record<string, any>[]> = {};
+      const rowIndices =
+        cardinality == RegionCardinality.FULL_COLUMNS
+          ? Array.from({ length: updatedData.length }, (_, i) => i)
+          : getSelectedRowIndices(selection);
+      for (const row of rowIndices) {
+        if (updatedData[row] == null) continue;
+        spec[row] = { $unset: columnKeys };
+      }
+      // TODO: if we allow column addition/deletion, this will require more adjustment
+      return {
+        updatedData: update(updatedData, spec),
+        ...emptySelection,
+      };
+    case RegionCardinality.FULL_ROWS:
+      for (const row of getSelectedRowIndices(selection)) {
+        updatedData[row] = undefined;
+        if (state.rowStatus[row] === TableElementStatus.DELETED) {
+          rowStatus[row] = undefined;
+        } else if (state.rowStatus[row] === TableElementStatus.ADDED) {
+          addedRows.add(row);
+        }
+      }
+
+      const removeCandidateRows = (arr: any[]) => {
+        return arr.filter((d, i) => !addedRows.has(i));
+      };
+
+      return {
+        updatedData: removeCandidateRows(updatedData),
+        data: removeCandidateRows(state.data),
+        rowStatus: removeCandidateRows(rowStatus),
+        ...emptySelection,
+      };
+  }
 }

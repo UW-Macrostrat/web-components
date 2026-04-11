@@ -122,7 +122,7 @@ function _DataSheet<T>({
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
-  const selectedRegions = useSelector<T>((state) => state.selection);
+  const selectedRegions = useSelector<T>((state) => state.selection ?? []);
 
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
