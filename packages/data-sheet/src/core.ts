@@ -29,6 +29,8 @@ import {
 import { DataSheetProviderProps, VisibleCells } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
 import { tableKeyHandlerAtom } from "./utils";
+import { ActionsToolbar } from "./actions";
+import type { TableAction } from "./actions";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -53,6 +55,10 @@ interface DataSheetInternalProps<T> extends TableProps {
   editable?: boolean;
   autoFocusEditor?: boolean;
   density?: DataSheetDensity;
+  /** Configurable table actions shown in a selection-aware toolbar.
+   * When provided, the actions toolbar renders alongside the existing
+   * edit toolbar. Actions are filtered by the current selection cardinality. */
+  actions?: TableAction<T>[];
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
@@ -108,6 +114,7 @@ function _DataSheet<T>({
   autoFocusEditor = true,
   density = DataSheetDensity.HIGH,
   selectionModes,
+  actions,
   ...rest
 }: DataSheetInternalProps<T>) {
   /**
@@ -273,6 +280,7 @@ function _DataSheet<T>({
       onSaveData: _onSaveData,
       onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
     }),
+    h.if(actions != null)(ActionsToolbar, { actions }),
     dataSheetActions,
     h(
       "div.data-sheet-holder",
