@@ -13,6 +13,11 @@ export interface DataSheetCoreProps<T> {
   defaultColumnWidth?: number;
 }
 
+export enum TableElementStatus {
+  DELETED = "deleted",
+  ADDED = "added",
+}
+
 export interface DataSheetState<T> {
   selection: Region[];
   columnSpec: ColumnSpec[];
@@ -26,8 +31,7 @@ export interface DataSheetState<T> {
    * This is used to track which rows should be reverted when
    * a "reset" action is performed.
    */
-  addedRows: Set<number>;
-  deletedRows: Set<number>;
+  rowStatus: TableElementStatus[];
   // Sparse data structure for updated data
   updatedData: T[];
   initialized: boolean;

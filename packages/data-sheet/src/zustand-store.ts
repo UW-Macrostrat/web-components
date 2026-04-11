@@ -3,6 +3,7 @@ import {
   DataSheetStore,
   DataSheetStoreMain,
   StateUpdater,
+  TableElementStatus,
   VisibleCells,
 } from "./types.ts";
 import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
@@ -12,15 +13,13 @@ import update, { Spec } from "immutability-helper";
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
   return {
     data: [],
+    updatedData: [],
+    rowStatus: [],
     columnSpec: [],
     defaultColumnWidth: 150,
     editable: false,
-    // Set of rows that have been added to the data table.
-    addedRows: new Set<number>(),
-    deletedRows: new Set<number>(),
     selection: [],
     fillValueBaseCell: null,
-    updatedData: [],
     focusedCell: null,
     topLeftCell: null,
     initialized: false,
@@ -71,9 +70,11 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         const newIndex = lastRowIndex + 1;
 
         return {
-          updatedData: update(updatedData, { [newIndex]: { $set: row } }),
+          updatedData: update(updatedData, { $splice: [[newIndex, 0, row]] }),
           data: update(data, { $splice: [[newIndex, 0, row]] }),
-          addedRows: new Set(state.addedRows).add(newIndex),
+          rowStatus: update(state.rowStatus, {
+            $splice: [[newIndex, 0, TableElementStatus.ADDED]],
+          }),
         };
       });
     },
@@ -98,19 +99,34 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         const { addedRows } = state;
 
         const rowsNewlyDeleted = new Set(rowIndices);
-        const rowsToRemoveFromDataArrays =
-          rowsNewlyDeleted.intersection(addedRows);
-        const newDeletedRows = state.deletedRows
-          .union(rowsNewlyDeleted)
-          .difference(state.addedRows);
+
+        // We outright remove rows that have not been added to the data array
+        const rowsToRemoveFromDataArrays = new Set(
+          rowIndices.filter(
+            (d) => state.rowStatus[d] == TableElementStatus.ADDED,
+          ),
+        );
+        // ...otherwise we set them to 'deleted'
+        const rowsToMarkAsDeleted = rowsNewlyDeleted.difference(
+          rowsToRemoveFromDataArrays,
+        );
 
         let data = state.data;
         let updatedData = state.updatedData;
+        let rowStatus = state.rowStatus;
+        if (rowsToMarkAsDeleted.size > 0) {
+          let spec: Spec<TableElementStatus[]> = {};
+          for (const ix of rowsToMarkAsDeleted) {
+            spec[ix] = { $set: TableElementStatus.DELETED };
+          }
+          rowStatus = update(rowStatus, spec);
+        }
+
         if (rowsToRemoveFromDataArrays.size > 0) {
-          data = data.filter((_, i) => !rowsToRemoveFromDataArrays.has(i));
-          updatedData = updatedData.filter(
-            (_, i) => !rowsToRemoveFromDataArrays.has(i),
-          );
+          const filterFunc = (_, i) => !rowsToRemoveFromDataArrays.has(i);
+          data = data.filter(filterFunc);
+          updatedData = updatedData.filter(filterFunc);
+          rowStatus = rowStatus.filter(filterFunc);
         }
 
         // Remove selected rows and reset selection
@@ -118,8 +134,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
           selection: [],
           data,
           updatedData,
-          addedRows: state.addedRows.difference(rowsToRemoveFromDataArrays),
-          deletedRows: newDeletedRows,
+          rowStatus,
           focusedCell: null,
           topLeftCell: null,
           fillValueBaseCell: null,
@@ -129,12 +144,18 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     resetChanges() {
       // Reset the updated data to the initial data
       set((state) => {
-        const { addedRows, data } = state;
+        const { rowStatus, data } = state;
+        const addedRows = new Set<number>();
+        for (let i = 0; i < rowStatus.length; i++) {
+          if (rowStatus[i] === TableElementStatus.ADDED) {
+            addedRows.add(i);
+          }
+        }
+
         return {
-          deletedRows: new Set<number>(),
-          addedRows: new Set<number>(),
           columnWidths: new Map<string, number>(),
           updatedData: [],
+          rowStatus: [],
           data: data.filter((_, i) => !addedRows.has(i)),
           selection: [],
           focusedCell: null,

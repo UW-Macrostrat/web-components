@@ -1,7 +1,7 @@
 import { RegionCardinality } from "@blueprintjs/table";
 import type { TableAction, TableActionContext } from "./types";
 import { getSelectedColumnKeys, getSelectedRowIndices } from "./selection";
-import update from "immutability-helper";
+import update, { Spec } from "immutability-helper";
 
 /** Delete all rows in the current selection. */
 export const deleteRowsAction: TableAction = {
@@ -46,7 +46,7 @@ export const resetChangesAction: TableAction = {
   ],
   requiresEditable: true,
   disabled(ctx) {
-    return ctx.updatedData.length === 0 && ctx.deletedRows.size === 0;
+    return ctx.updatedData.length === 0 && ctx.rowStatus.length === 0;
   },
   run(ctx) {
     const { selectionCardinality, selection } = ctx;
@@ -86,16 +86,30 @@ export const resetChangesAction: TableAction = {
     });
 
     // Un-delete affected rows
-    if (
-      selectionCardinality === RegionCardinality.FULL_ROWS &&
-      ctx.deletedRows.size > 0
-    ) {
+    if (selectionCardinality === RegionCardinality.FULL_ROWS) {
       const rowIndices = getSelectedRowIndices(selection);
-      const newDeletedRows = new Set(ctx.deletedRows);
+      // Return
+      const rowStatus = ctx.rowStatus;
+      const rowsToRemove = new Set();
       for (const row of rowIndices) {
-        newDeletedRows.delete(row);
+        if (rowStatus[row] === "deleted") {
+          rowStatus[row] = undefined;
+        }
+        if (rowStatus[row] === "added") {
+          rowsToRemove.add(row);
+        }
       }
-      ctx.setState({ deletedRows: newDeletedRows });
+
+      if (rowsToRemove.size > 0) {
+        const spec: Spec<any[]> = {
+          $splice: Array.from(rowsToRemove).map((row) => [row, 1]),
+        };
+        ctx.setState({
+          rowStatus: update(rowStatus, spec),
+          updatedData: update(ctx.updatedData, spec),
+          data: update(ctx.data, spec),
+        });
+      }
     }
   },
 };
@@ -107,4 +121,3 @@ export const defaultTableActions: TableAction[] = [
   deleteRowsAction,
   resetChangesAction,
 ];
-

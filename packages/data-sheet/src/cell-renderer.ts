@@ -1,5 +1,5 @@
 import { ColumnSpec, editorKeyHandlerAtom } from "./utils";
-import { DataSheetStore } from "./types.ts";
+import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
 import { ReactNode } from "react";
 import { EditorPopup } from "./components";
@@ -17,7 +17,7 @@ export function basicCellRenderer<T>(
   const data = state.data;
   const updatedData = state.updatedData;
 
-  const isDeleted = state.deletedRows.has(rowIndex);
+  const isDeleted = state.rowStatus[rowIndex] === TableElementStatus.DELETED;
 
   const row = data[rowIndex] ?? updatedData[rowIndex];
   const loading = row == null;
@@ -55,7 +55,8 @@ export function basicCellRenderer<T>(
   }
 
   const edited =
-    updatedData[rowIndex]?.[col.key] != null || state.addedRows.has(rowIndex);
+    updatedData[rowIndex]?.[col.key] != null ||
+    state.rowStatus[rowIndex] === TableElementStatus.ADDED;
   let intent = edited ? "success" : undefined;
   if (isDeleted) {
     intent = "danger";

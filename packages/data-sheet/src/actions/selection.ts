@@ -88,8 +88,8 @@ export function buildActionContext<T>(
     selectionCardinality: getSelectionCardinality(state.selection),
     data: state.data,
     updatedData: state.updatedData,
+    rowStatus: state.rowStatus,
     columnSpec: state.columnSpec,
-    deletedRows: state.deletedRows,
     editable: state.editable,
     getSelectedRowIndices: () => getSelectedRowIndices(state.selection),
     getSelectedColumnKeys: () =>
@@ -118,4 +118,3 @@ export function buildActionContext<T>(
     setState,
   };
 }
-

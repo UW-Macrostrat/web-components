@@ -1,8 +1,4 @@
-import {
-  Button,
-  HotkeysProvider,
-  InputGroup,
-} from "@blueprintjs/core";
+import { Button, HotkeysProvider, InputGroup } from "@blueprintjs/core";
 import {
   Column,
   Region,
@@ -16,18 +12,22 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { DataSheetAction } from "./components";
 import h from "./main.module.sass";
 import {
+  atom,
   DataSheetProvider,
   storeAtom,
   useAtomValue,
   useSelector,
   useStoreAPI,
-  atom,
 } from "./provider";
-import { DataSheetProviderProps, VisibleCells } from "./types.ts";
+import {
+  DataSheetProviderProps,
+  TableElementStatus,
+  VisibleCells,
+} from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
 import { tableKeyHandlerAtom } from "./utils";
-import { ActionsToolbar } from "./actions";
 import type { TableAction } from "./actions";
+import { ActionsToolbar } from "./actions";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -127,7 +127,7 @@ function _DataSheet<T>({
   const data = useSelector((state) => state.data);
   const editable = useSelector((state) => state.editable);
 
-  const deletedRows = useSelector((state) => state.deletedRows);
+  const rowStatus = useSelector((state) => state.rowStatus);
 
   const focusedCell = useSelector((state) => state.focusedCell);
 
@@ -219,7 +219,10 @@ function _DataSheet<T>({
 
   const rowHeaderCellRenderer = useCallback(
     (rowIndex: number) => {
-      const style = deletedRows.has(rowIndex) ? deletedRowHeaderStyle : null;
+      const style =
+        rowStatus[rowIndex] == TableElementStatus.DELETED
+          ? deletedRowHeaderStyle
+          : null;
 
       return h(RowHeaderCell, {
         enableRowReordering: false,
@@ -228,7 +231,7 @@ function _DataSheet<T>({
         style,
       });
     },
-    [deletedRows],
+    [rowStatus],
   );
 
   const onKeyDown = useAtomValue(tableKeyHandlerAtom);
@@ -272,7 +275,7 @@ function _DataSheet<T>({
             //selection,
             updatedData,
             focusedCell,
-            deletedRows,
+            rowStatus,
           ],
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,
@@ -297,7 +300,6 @@ const columnWidthsAtom = atom((get) => {
     (col) => ix.get(col.key) ?? col.width ?? get(defaultColumnWidthAtom),
   );
 });
-
 
 export function ScrollToRowControl() {
   const [value, setValue] = useState("");
@@ -325,7 +327,6 @@ export function ScrollToRowControl() {
     ),
   ]);
 }
-
 
 export function getRowsToDelete(selection) {
   let rowIndices: number[] = [];
