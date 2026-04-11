@@ -1,9 +1,7 @@
 import {
   Button,
-  ButtonGroup,
   HotkeysProvider,
   InputGroup,
-  Intent,
 } from "@blueprintjs/core";
 import {
   Column,
@@ -14,7 +12,6 @@ import {
   TableProps,
 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
-import update from "immutability-helper";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { DataSheetAction } from "./components";
 import h from "./main.module.sass";
@@ -141,19 +138,10 @@ function _DataSheet<T>({
   // A sparse array to hold updates
   // TODO: create a "changeset" concept to facilitate undo/redo
   const updatedData = useSelector((state) => state.updatedData);
-  const setUpdatedData = useSelector((state) => state.setUpdatedData);
 
   const onSelection = useSelector((state) => state.onSelection);
 
   const storeAPI = useStoreAPI<T>();
-
-  const _onSaveData = useMemo(() => {
-    if (onSaveData == null) return null;
-    return () => {
-      onSaveData(updatedData, data);
-      setUpdatedData([]);
-    };
-  }, [updatedData, data, onSaveData]);
 
   const setVisibleCells = useSelector((state) => state.setVisibleCells);
 
@@ -164,21 +152,6 @@ function _DataSheet<T>({
     },
     [onVisibleCellsChange, setVisibleCells],
   );
-
-  const onAddRow = useCallback(() => {
-    setUpdatedData((updatedData: any[]): any[] => {
-      const ix = Math.max(updatedData.length, data.length);
-      const addRowSpec = { [ix]: { $set: {} } };
-      const newUpdatedData = update(updatedData, addRowSpec);
-      return newUpdatedData;
-    });
-  }, [setUpdatedData]);
-
-  const deleteSelectedRows = useSelector((state) => state.deleteSelectedRows);
-  const _onDeleteRows = useCallback(() => {
-    deleteSelectedRows();
-    onDeleteRows?.(selectedRegions);
-  }, [onDeleteRows, selectedRegions, deleteSelectedRows]);
 
   useEffect(() => {
     if (!verbose) return;
@@ -193,11 +166,6 @@ function _DataSheet<T>({
     if (!verbose) return;
     console.log("Selected regions", selectedRegions);
   }, [selectedRegions]);
-
-  const nDeletionCandidates = useMemo(
-    () => getRowsToDelete(selectedRegions).length,
-    [selectedRegions],
-  );
 
   const columnWidths = useAtomValue(columnWidthsAtom);
 
@@ -276,10 +244,6 @@ function _DataSheet<T>({
   }
 
   return h("div.data-sheet-container", { className, style }, [
-    h.if(editable)(DataSheetEditToolbar, {
-      onSaveData: _onSaveData,
-      onDeleteRows: nDeletionCandidates > 0 ? _onDeleteRows : null,
-    }),
     h.if(actions != null)(ActionsToolbar, { actions }),
     dataSheetActions,
     h(
@@ -323,16 +287,6 @@ function _DataSheet<T>({
 
 /** Atoms for efficient sub-selection of state */
 
-const deletedRowsAtom = atom((get) => get(storeAtom).deletedRows);
-const updatedDataAtom = atom((get) => get(storeAtom).updatedData);
-
-const hasUpdatesAtom = atom((get) => {
-  // Readable atom to indicate whether there are any updates in the updatedData array
-  const deletedRows = get(deletedRowsAtom);
-  const updatedData = get(updatedDataAtom);
-  return updatedData.length > 0 || deletedRows.size > 0;
-});
-
 const columnSpecAtom = atom((get) => get(storeAtom).columnSpec);
 const columnWidthsIndexAtom = atom((get) => get(storeAtom).columnWidthsIndex);
 const defaultColumnWidthAtom = atom((get) => get(storeAtom).defaultColumnWidth);
@@ -344,51 +298,6 @@ const columnWidthsAtom = atom((get) => {
   );
 });
 
-function DataSheetEditToolbar({ onSaveData, onDeleteRows }) {
-  const selection = useSelector((state) => state.selection);
-  const resetChanges = useSelector((state) => state.resetChanges);
-
-  const hasUpdates = useAtomValue(hasUpdatesAtom);
-
-  return h("div.data-sheet-toolbar", [
-    h(ButtonGroup, { minimal: true }, [
-      h(AddRowButton),
-      h(
-        Button,
-        {
-          intent: Intent.DANGER,
-          disabled: onDeleteRows == null,
-          onClick() {
-            onDeleteRows?.();
-          },
-        },
-        "Delete",
-      ),
-    ]),
-    h("div.spacer"),
-    h(ButtonGroup, [
-      h(
-        Button,
-        {
-          intent: Intent.WARNING,
-          disabled: !hasUpdates,
-          onClick: resetChanges,
-        },
-        "Reset",
-      ),
-      h.if(onSaveData != null)(
-        Button,
-        {
-          intent: Intent.SUCCESS,
-          icon: "floppy-disk",
-          disabled: !hasUpdates,
-          onClick: onSaveData,
-        },
-        "Save",
-      ),
-    ]),
-  ]);
-}
 
 export function ScrollToRowControl() {
   const [value, setValue] = useState("");
@@ -417,17 +326,6 @@ export function ScrollToRowControl() {
   ]);
 }
 
-function AddRowButton() {
-  const addRow = useSelector((state) => state.addRow);
-  return h(
-    Button,
-    {
-      icon: "plus",
-      onClick: addRow,
-    },
-    "Add row",
-  );
-}
 
 export function getRowsToDelete(selection) {
   let rowIndices: number[] = [];

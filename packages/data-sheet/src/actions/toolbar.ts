@@ -7,7 +7,7 @@ import {
   getApplicableActions,
   getSelectionCardinality,
 } from "./selection";
-import type { TableAction } from "./types";
+import type { TableAction, TableActionContext } from "./types";
 
 /** Toolbar that renders applicable table actions based on the
  * current selection cardinality and edit mode. */
@@ -59,7 +59,10 @@ function ActionButton<T>({ action }: { action: TableAction<T> }) {
 
   const runAction = useCallback(
     (configState?: any) => {
-      const ctx = buildActionContext(storeAPI.getState());
+      const ctx = buildActionContext(
+        storeAPI.getState(),
+        storeAPI.setState,
+      ) as TableActionContext<T>;
       action.run(ctx, configState);
     },
     [storeAPI, action],

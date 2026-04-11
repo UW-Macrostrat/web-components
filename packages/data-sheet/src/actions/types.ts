@@ -6,6 +6,13 @@ import type { ColumnSpec } from "../utils";
 /** Selection cardinality including the case of no active selection */
 export type SelectionCardinality = RegionCardinality | "none";
 
+/** A single cell edit, used with `editCells` for batch updates. */
+export interface CellEdit {
+  rowIndex: number;
+  columnKey: string;
+  value: any;
+}
+
 /** Context passed to an action's `run` function, providing both data access
  * and store manipulation methods. Constructed fresh at action-run time
  * to ensure current state. */
@@ -33,12 +40,19 @@ export interface TableActionContext<T = any> {
 
   // Store manipulation methods
   onCellEdited(rowIndex: number, columnKey: string, value: any): void;
+  /** Edit multiple cells in a single batch update. Preferred over calling
+   * `onCellEdited` in a loop, which triggers separate store updates
+   * and may produce inconsistent intermediate states. */
+  editCells(edits: CellEdit[]): void;
   deleteSelectedRows(): void;
   addRow(row?: Partial<T>): void;
   setUpdatedData(data: any): void;
   resetChanges(): void;
   clearSelection(): void;
   scrollToRow(rowIndex: number): void;
+  /** Direct store mutation for cases not covered by the convenience methods
+   * above (e.g., modifying `columnSpec` or `deletedRows`). */
+  setState(partial: Record<string, any>): void;
 }
 
 /** Definition of a table action. Follows the `ActionDef` pattern from

@@ -64,14 +64,11 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         const lastRowIndex =
           getLastRowIndex(selection) ??
           Math.max(data.length, updatedData.length) - 1;
-        // If there is a selection, insert the new row after the last selected row
-        const spec: Spec<any> = {
-          $splice: [[lastRowIndex + 1, 0, row]],
-        };
-        console.log(spec);
-
+        // Use $set at a specific index to correctly extend the sparse array.
+        // $splice fails when the target index exceeds the array length.
+        const newIndex = lastRowIndex + 1;
         return {
-          updatedData: update(updatedData, spec),
+          updatedData: update(updatedData, { [newIndex]: { $set: row } }),
         };
       });
     },

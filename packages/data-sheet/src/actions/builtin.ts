@@ -1,4 +1,7 @@
-import type { TableAction } from "./types";
+import { RegionCardinality } from "@blueprintjs/table";
+import type { TableAction, TableActionContext } from "./types";
+import { getSelectedColumnKeys, getSelectedRowIndices } from "./selection";
+import update from "immutability-helper";
 
 /** Delete all rows in the current selection. */
 export const deleteRowsAction: TableAction = {
@@ -6,7 +9,7 @@ export const deleteRowsAction: TableAction = {
   name: "Delete rows",
   icon: "trash",
   intent: "danger",
-  targets: ["full-rows"],
+  targets: [RegionCardinality.FULL_ROWS],
   requiresEditable: true,
   run(ctx) {
     ctx.deleteSelectedRows();
@@ -18,26 +21,82 @@ export const addRowAction: TableAction = {
   id: "add-row",
   name: "Add row",
   icon: "plus",
-  targets: ["full-rows", "none"],
+  targets: [RegionCardinality.FULL_ROWS, "none"],
   requiresEditable: true,
   run(ctx) {
     ctx.addRow();
   },
 };
 
-/** Reset all pending changes (edits and deletions). */
+/** Reset pending changes, scoped to the current selection.
+ * - Cells / columns: reverts edited values for the selected scope
+ * - Full rows: reverts edits and un-deletes rows
+ * - No selection / full table: resets all changes */
 export const resetChangesAction: TableAction = {
   id: "reset-changes",
   name: "Reset",
   icon: "reset",
   intent: "warning",
-  targets: ["none", "cells", "full-rows", "full-columns", "full-table"],
+  targets: [
+    "none",
+    RegionCardinality.CELLS,
+    RegionCardinality.FULL_ROWS,
+    RegionCardinality.FULL_COLUMNS,
+    RegionCardinality.FULL_TABLE,
+  ],
   requiresEditable: true,
   disabled(ctx) {
     return ctx.updatedData.length === 0 && ctx.deletedRows.size === 0;
   },
   run(ctx) {
-    ctx.resetChanges();
+    const { selectionCardinality, selection } = ctx;
+
+    // Global reset
+    if (
+      selectionCardinality === "none" ||
+      selectionCardinality === RegionCardinality.FULL_TABLE
+    ) {
+      ctx.resetChanges();
+      return;
+    }
+
+    // Scoped reset: revert updatedData for the targeted scope
+    const columnKeys = getSelectedColumnKeys(selection, ctx.columnSpec);
+
+    ctx.setUpdatedData((updatedData: any[]) => {
+      if (selectionCardinality === RegionCardinality.FULL_ROWS) {
+        // Reset entire rows — replace with undefined to clear the overlay
+        const rowSet = new Set(getSelectedRowIndices(selection));
+        return updatedData.map((row, i) => (rowSet.has(i) ? undefined : row));
+      }
+      // CELLS or FULL_COLUMNS — remove specific column keys
+      const rowIndices =
+        selectionCardinality === RegionCardinality.FULL_COLUMNS
+          ? // Column selection: iterate all rows that have edits
+            Array.from({ length: updatedData.length }, (_, i) => i)
+          : getSelectedRowIndices(selection);
+
+      const spec: Record<number, any> = {};
+      for (const row of rowIndices) {
+        if (updatedData[row] == null) continue;
+        spec[row] = { $unset: columnKeys };
+      }
+      if (Object.keys(spec).length === 0) return updatedData;
+      return update(updatedData, spec);
+    });
+
+    // Un-delete affected rows
+    if (
+      selectionCardinality === RegionCardinality.FULL_ROWS &&
+      ctx.deletedRows.size > 0
+    ) {
+      const rowIndices = getSelectedRowIndices(selection);
+      const newDeletedRows = new Set(ctx.deletedRows);
+      for (const row of rowIndices) {
+        newDeletedRows.delete(row);
+      }
+      ctx.setState({ deletedRows: newDeletedRows });
+    }
   },
 };
 

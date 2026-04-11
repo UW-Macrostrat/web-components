@@ -1,11 +1,13 @@
-import type { Region } from "@blueprintjs/table";
+import { type Region, RegionCardinality } from "@blueprintjs/table";
 import type { ColumnSpec } from "../utils";
 import type {
+  CellEdit,
   SelectionCardinality,
   TableAction,
   TableActionContext,
 } from "./types";
 import type { DataSheetStore } from "../types";
+import update from "immutability-helper";
 
 /** Derive the selection cardinality from the current set of selected regions.
  * Returns "none" when there is no active selection. */
@@ -16,10 +18,10 @@ export function getSelectionCardinality(
   const region = regions[0];
   const hasRows = region.rows != null;
   const hasCols = region.cols != null;
-  if (hasRows && hasCols) return "cells";
-  if (hasRows && !hasCols) return "full-rows";
-  if (!hasRows && hasCols) return "full-columns";
-  return "full-table";
+  if (hasRows && hasCols) return RegionCardinality.CELLS;
+  if (hasRows && !hasCols) return RegionCardinality.FULL_ROWS;
+  if (!hasRows && hasCols) return RegionCardinality.FULL_COLUMNS;
+  return RegionCardinality.FULL_TABLE;
 }
 
 /** Filter actions to those applicable for the current selection cardinality
@@ -74,9 +76,12 @@ export function getSelectedColumnKeys(
 
 /** Construct a `TableActionContext` from the current store state.
  * Call this at action-run time (not render time) to ensure
- * the context reflects the latest state. */
+ * the context reflects the latest state.
+ * @param setState - Optional store setState for direct mutation. Omit for
+ *   read-only contexts (e.g., disabled checks). */
 export function buildActionContext<T>(
   state: DataSheetStore<T>,
+  setState: (partial: Record<string, any>) => void = () => {},
 ): TableActionContext<T> {
   return {
     selection: state.selection,
@@ -90,12 +95,27 @@ export function buildActionContext<T>(
     getSelectedColumnKeys: () =>
       getSelectedColumnKeys(state.selection, state.columnSpec),
     onCellEdited: state.onCellEdited,
+    editCells(edits: CellEdit[]) {
+      state.setUpdatedData((updatedData: T[]) => {
+        const spec: Record<number, any> = {};
+        for (const { rowIndex, columnKey, value } of edits) {
+          if (spec[rowIndex] == null) {
+            const op = updatedData[rowIndex] != null ? "$merge" : "$set";
+            spec[rowIndex] = { [op]: {} };
+          }
+          const opKey = Object.keys(spec[rowIndex])[0];
+          spec[rowIndex][opKey][columnKey] = value;
+        }
+        return update(updatedData, spec);
+      });
+    },
     deleteSelectedRows: state.deleteSelectedRows,
     addRow: state.addRow,
     setUpdatedData: state.setUpdatedData,
     resetChanges: state.resetChanges,
     clearSelection: state.clearSelection,
     scrollToRow: state.scrollToRow,
+    setState,
   };
 }
 
