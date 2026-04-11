@@ -79,15 +79,15 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         // $splice fails when the target index exceeds the array length.
         const newIndex = lastRowIndex + 1;
 
-        const res = {
-          updatedData: update(updatedData, { $splice: [[newIndex, 0, row]] }),
-          data: update(data, { $splice: [[newIndex, 0, row]] }),
-          rowStatus: update(rowStatus, {
-            $splice: [[newIndex, 0, TableElementStatus.ADDED]],
-          }),
+        return {
+          updateData: insertItemAtIndex(updatedData, newIndex, row as T),
+          data: insertItemAtIndex(data, newIndex, row as T),
+          rowStatus: insertItemAtIndex(
+            rowStatus,
+            newIndex,
+            TableElementStatus.ADDED,
+          ),
         };
-        console.log(res);
-        return res;
       });
     },
     setUpdatedData(data: StateUpdater<T>) {
@@ -490,4 +490,15 @@ function resetChangesForSelection<T>(
         ...emptySelection,
       };
   }
+}
+
+function insertItemAtIndex<T>(arr: T[], index: number, item: T) {
+  if (arr.length < index) {
+    const newArr = [...arr];
+    newArr.length = index;
+    newArr[index] = item;
+    return newArr;
+  }
+
+  return [...arr.slice(0, index), item, ...arr.slice(index)];
 }
