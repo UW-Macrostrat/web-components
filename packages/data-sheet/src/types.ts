@@ -19,6 +19,14 @@ export interface DataSheetState<T> {
   fillValueBaseCell: FocusedCellCoordinates | null;
   focusedCell: FocusedCellCoordinates | null;
   topLeftCell: FocusedCellCoordinates | null;
+  /**
+   * Set of row indices that have been added to the table,
+   * but not yet committed to the underlying data array.
+   *
+   * This is used to track which rows should be reverted when
+   * a "reset" action is performed.
+   */
+  addedRows: Set<number>;
   deletedRows: Set<number>;
   // Sparse data structure for updated data
   updatedData: T[];

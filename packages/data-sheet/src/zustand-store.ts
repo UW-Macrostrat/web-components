@@ -15,6 +15,8 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     columnSpec: [],
     defaultColumnWidth: 150,
     editable: false,
+    // Set of rows that have been added to the data table.
+    addedRows: new Set<number>(),
     deletedRows: new Set<number>(),
     selection: [],
     fillValueBaseCell: null,
@@ -67,8 +69,11 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         // Use $set at a specific index to correctly extend the sparse array.
         // $splice fails when the target index exceeds the array length.
         const newIndex = lastRowIndex + 1;
+
         return {
           updatedData: update(updatedData, { [newIndex]: { $set: row } }),
+          data: update(data, { $splice: [[newIndex, 0, row]] }),
+          addedRows: new Set(state.addedRows).add(newIndex),
         };
       });
     },
@@ -88,15 +93,33 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         const rowIndices = getRowIndices(selection);
 
         // Delete rows from both updatedData and data
-        const newDeletedRows = new Set(deletedRows);
-        for (const rowIndex of rowIndices) {
-          newDeletedRows.add(rowIndex);
+
+        // If rows are in addedRows, we just delete them outright from the data and updatedData arrays
+        const { addedRows } = state;
+
+        const rowsNewlyDeleted = new Set(rowIndices);
+        const rowsToRemoveFromDataArrays =
+          rowsNewlyDeleted.intersection(addedRows);
+        const newDeletedRows = state.deletedRows
+          .union(rowsNewlyDeleted)
+          .difference(state.addedRows);
+
+        let data = state.data;
+        let updatedData = state.updatedData;
+        if (rowsToRemoveFromDataArrays.size > 0) {
+          data = data.filter((_, i) => !rowsToRemoveFromDataArrays.has(i));
+          updatedData = updatedData.filter(
+            (_, i) => !rowsToRemoveFromDataArrays.has(i),
+          );
         }
 
         // Remove selected rows and reset selection
         return {
-          deletedRows: newDeletedRows,
           selection: [],
+          data,
+          updatedData,
+          addedRows: state.addedRows.difference(rowsToRemoveFromDataArrays),
+          deletedRows: newDeletedRows,
           focusedCell: null,
           topLeftCell: null,
           fillValueBaseCell: null,
@@ -105,15 +128,20 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     },
     resetChanges() {
       // Reset the updated data to the initial data
-      set((state) => ({
-        updatedData: [],
-        deletedRows: new Set<number>(),
-        columnWidths: new Map<string, number>(),
-        selection: [],
-        focusedCell: null,
-        topLeftCell: null,
-        fillValueBaseCell: null,
-      }));
+      set((state) => {
+        const { addedRows, data } = state;
+        return {
+          deletedRows: new Set<number>(),
+          addedRows: new Set<number>(),
+          columnWidths: new Map<string, number>(),
+          updatedData: [],
+          data: data.filter((_, i) => !addedRows.has(i)),
+          selection: [],
+          focusedCell: null,
+          topLeftCell: null,
+          fillValueBaseCell: null,
+        };
+      });
     },
     onColumnWidthChanged(columnIx: number, newWidth: number) {
       set((state) => {

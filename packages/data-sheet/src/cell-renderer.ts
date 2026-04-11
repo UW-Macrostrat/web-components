@@ -27,7 +27,8 @@ export function basicCellRenderer<T>(
   const onCellEdited = state.onCellEdited;
 
   const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
-  const _renderedValue = col.valueRenderer?.(value) ?? value;
+  const _renderedValue =
+    value != null ? (col.valueRenderer?.(value) ?? value) : null;
 
   let style = col.style ?? {};
   if (isDeleted) {
@@ -53,7 +54,8 @@ export function basicCellRenderer<T>(
     style.color = "var(--secondary-color)";
   }
 
-  const edited = updatedData[rowIndex]?.[col.key] != null;
+  const edited =
+    updatedData[rowIndex]?.[col.key] != null || state.addedRows.has(rowIndex);
   let intent = edited ? "success" : undefined;
   if (isDeleted) {
     intent = "danger";
