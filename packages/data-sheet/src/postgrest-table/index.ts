@@ -3,12 +3,19 @@ import hyper from "@macrostrat/hyper";
 import styles from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
-import { PostgrestOrder, usePostgRESTLazyLoader } from "./data-loaders";
+import {
+  ColumnFilterEntry,
+  ColumnSortEntry,
+  PostgRESTFilterOperator,
+  PostgrestOrder,
+  usePostgRESTLazyLoader,
+} from "./data-loaders";
 import { Spinner, InputGroup } from "@blueprintjs/core";
 
 export * from "./data-loaders";
 export * from "./lazy-loader-table";
-import { useCallback, useState, useRef } from "react";
+export * from "./column-header";
+import { useCallback, useMemo, useState, useRef } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
@@ -24,6 +31,11 @@ import type {
 } from "@supabase/postgrest-js/dist/cjs/index";
 import { ColorCell } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
+import {
+  PostgRESTColumnHeaderCell,
+  type ColumnHeaderActions,
+} from "./column-header";
+import type { ColumnSpec } from "../utils/column-spec";
 
 const h = hyper.styled(styles);
 
@@ -74,6 +86,10 @@ function _PostgRESTTableView<T>({
 }: PostgRESTTableViewProps<T>) {
   const [input, setInput] = useState("");
 
+  // Server-side column sort/filter state
+  const [columnSorts, setColumnSorts] = useState<ColumnSortEntry[]>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFilterEntry[]>([]);
+
   if (enableFullTableSearch) {
     const columnList = columns ?? getColumnList(endpoint, table);
 
@@ -99,6 +115,8 @@ function _PostgRESTTableView<T>({
       order: order ?? { key: identityKey, ascending: true },
       columns,
       filter,
+      columnSorts,
+      columnFilters,
     },
   );
 
@@ -119,6 +137,48 @@ function _PostgRESTTableView<T>({
     [dispatch, toaster],
   );
 
+  // Column header actions for sort/filter
+  const columnHeaderActions: ColumnHeaderActions = useMemo(
+    () => ({
+      onSetSort(key: string, ascending: boolean | null) {
+        setColumnSorts((prev) => {
+          const without = prev.filter((s) => s.key !== key);
+          if (ascending == null) return without;
+          return [...without, { key, ascending }];
+        });
+      },
+      onSetFilter(
+        key: string,
+        operator: PostgRESTFilterOperator | null,
+        value: string,
+      ) {
+        setColumnFilters((prev) => {
+          const without = prev.filter((f) => f.key !== key);
+          if (operator == null || value === "") return without;
+          return [...without, { key, operator, value }];
+        });
+      },
+      onClearColumn(key: string) {
+        setColumnSorts((prev) => prev.filter((s) => s.key !== key));
+        setColumnFilters((prev) => prev.filter((f) => f.key !== key));
+      },
+    }),
+    [],
+  );
+
+  // Column header cell renderer using sort/filter state
+  const columnHeaderCellRenderer = useCallback(
+    (col: ColumnSpec, _colIndex: number) => {
+      return PostgRESTColumnHeaderCell({
+        col,
+        columnSorts,
+        columnFilters,
+        actions: columnHeaderActions,
+      });
+    },
+    [columnSorts, columnFilters, columnHeaderActions],
+  );
+
   if (data == null) {
     return h(Spinner);
   }
@@ -133,6 +193,7 @@ function _PostgRESTTableView<T>({
       columnSpecOptions: columnOptions ?? {},
       editable,
       onVisibleCellsChange: onScroll,
+      columnHeaderCellRenderer,
       onDeleteRows(selection) {
         if (!editable) return;
 

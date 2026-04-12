@@ -59,6 +59,10 @@ interface DataSheetInternalProps<T> extends TableProps {
   /** Available column/table filters shown in a filter bar.
    * Filters can also be defined per-column via `ColumnSpec.filters`. */
   filters?: TableFilter<T>[];
+  /** Optional custom column header cell renderer, called for each column.
+   * Receives the ColumnSpec and column index; should return a React element
+   * (typically a Blueprint ColumnHeaderCell). */
+  columnHeaderCellRenderer?: (col: any, colIndex: number) => ReactNode;
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
@@ -116,6 +120,7 @@ function _DataSheet<T>({
   selectionModes,
   actions,
   filters,
+  columnHeaderCellRenderer,
   ...rest
 }: DataSheetInternalProps<T>) {
   /**
@@ -209,6 +214,10 @@ function _DataSheet<T>({
     return columnSpec.map((col, colIndex) => {
       return h(Column, {
         name: col.name,
+        columnHeaderCellRenderer:
+          columnHeaderCellRenderer != null
+            ? () => columnHeaderCellRenderer(col, colIndex)
+            : undefined,
         cellRenderer: (rowIndex) => {
           const state = storeAPI.getState();
           return basicCellRenderer<T>(
@@ -222,7 +231,7 @@ function _DataSheet<T>({
         },
       });
     });
-  }, [columnSpec, storeAPI, autoFocusEditor, filteredRowIndices]);
+  }, [columnSpec, storeAPI, autoFocusEditor, filteredRowIndices, columnHeaderCellRenderer]);
 
   const onColumnWidthChanged = useSelector(
     (state) => state.onColumnWidthChanged,

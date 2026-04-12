@@ -102,6 +102,43 @@ export const ReorderableColumns = {
   },
 };
 
+/** Column-level sort and filter controls backed by PostgREST queries.
+ * Click a column header to open a popover with sort direction toggles
+ * and a filter input.  Active sorts/filters are indicated with icons. */
+export const SortAndFilter = {
+  args: {
+    columnOptions: {
+      overrides: {
+        ...defaultColumnOptions.overrides,
+        legend_id: {
+          name: "Legend ID",
+          sortable: true,
+          filterable: { operators: ["eq", "gt", "lt", "gte", "lte"] },
+        },
+        name: {
+          name: "Unit name",
+          sortable: true,
+          filterable: true,
+        },
+        source_id: {
+          name: "Source",
+          sortable: true,
+          filterable: { operators: ["eq", "neq"] },
+        },
+        strat_name: {
+          name: "Stratigraphic names",
+          sortable: true,
+          filterable: true,
+        },
+        lith: {
+          dataEditor: LongTextViewer,
+          filterable: true,
+        },
+      },
+    },
+  },
+};
+
 export const ScrollToRow = {
   args: {
     columnOptions: defaultColumnOptions,

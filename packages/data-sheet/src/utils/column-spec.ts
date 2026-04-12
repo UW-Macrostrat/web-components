@@ -37,6 +37,12 @@ export interface ColumnSpec {
   /** Column-specific table filters (TableFilter[]). These appear in the
    * filter bar and apply to this column's values. */
   filters?: any[];
+  /** Whether this column supports server-side sorting. */
+  sortable?: boolean;
+  /** Whether this column supports server-side filtering.
+   * Set to `true` for default operators, or provide a config object
+   * with a custom set of operators. */
+  filterable?: boolean | { operators?: string[] };
 }
 
 export interface ColumnSpecOptions<T> {

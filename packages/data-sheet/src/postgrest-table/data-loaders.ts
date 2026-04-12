@@ -31,6 +31,31 @@ export interface PostgrestOrder<T> {
   nullsFirst?: boolean;
 }
 
+/** Operators available for server-side column filtering via PostgREST. */
+export type PostgRESTFilterOperator =
+  | "eq"
+  | "neq"
+  | "like"
+  | "ilike"
+  | "gt"
+  | "lt"
+  | "gte"
+  | "lte"
+  | "is";
+
+/** A single column sort entry. */
+export interface ColumnSortEntry {
+  key: string;
+  ascending: boolean;
+}
+
+/** A single column filter entry. */
+export interface ColumnFilterEntry {
+  key: string;
+  operator: PostgRESTFilterOperator;
+  value: string;
+}
+
 type LazyLoaderAction<T> =
   | { type: "start-loading" }
   | { type: "loaded"; data: T[]; offset: number; totalSize: number }
@@ -149,6 +174,10 @@ interface QueryConfig {
   order?: PostgrestOrder<any>;
   after?: any;
   fullTextSearch?: string;
+  /** Additional column-level sort entries (applied after the primary order). */
+  columnSorts?: ColumnSortEntry[];
+  /** Column-level filter entries applied as PostgREST filter operators. */
+  columnFilters?: ColumnFilterEntry[];
   filter?: (
     query: PostgrestFilterBuilder<any, any, any>,
   ) => PostgrestFilterBuilder<any, any, any>;
@@ -175,9 +204,34 @@ function buildQuery<T>(
   if (config.filter) {
     query = config.filter(query);
   }
+
+  // Apply column-level filters
+  if (config.columnFilters?.length > 0) {
+    for (const cf of config.columnFilters) {
+      if (cf.value === "" || cf.value == null) continue;
+      const val =
+        cf.operator === "like" || cf.operator === "ilike"
+          ? `*${cf.value}*`
+          : cf.value;
+      query = query[cf.operator](cf.key, val);
+    }
+  }
+
   console.log("query", query.url.search);
 
-  if (config.order != null) {
+  // Determine effective ordering: use column sorts if present, otherwise fall
+  // back to the primary order prop.
+  if (config.columnSorts?.length > 0) {
+    for (const sort of config.columnSorts) {
+      query = query.order(sort.key, { ascending: sort.ascending });
+    }
+    // Cursor-based pagination using the first sort key
+    const primarySort = config.columnSorts[0];
+    if (config.after != null) {
+      const op = primarySort.ascending ? "gt" : "lt";
+      query = query[op](primarySort.key, config.after);
+    }
+  } else if (config.order != null) {
     const { key: orderKey, ...rest } = config.order;
     query = query.order(orderKey, rest);
     if (config.after != null) {
@@ -211,7 +265,11 @@ function _loadMoreData<T>(
 
   const { chunkSize = 100, ...rest } = config;
 
-  const sortKey = config.order?.key ?? "id";
+  // Determine the primary sort key from column sorts or the order prop
+  const sortKey =
+    config.columnSorts?.length > 0
+      ? config.columnSorts[0].key
+      : config.order?.key ?? "id";
 
   let cfg: QueryConfig = {
     ...rest,
@@ -255,6 +313,11 @@ const loadMoreData = debounce(_loadMoreData, 100);
 type LazyLoaderOptions = Omit<QueryConfig, "count" | "offset" | "limit"> & {
   chunkSize?: number;
   sortKey?: string;
+  /** Column-level sort state, managed externally. When provided, overrides
+   * the `order` prop for query building. */
+  columnSorts?: ColumnSortEntry[];
+  /** Column-level filter state, managed externally. */
+  columnFilters?: ColumnFilterEntry[];
   filter?: (
     query: PostgrestFilterBuilder<any, any, any>,
   ) => PostgrestFilterBuilder<any, any, any>;
@@ -280,12 +343,27 @@ export function usePostgRESTLazyLoader(
   const [state, dispatch] = useReducer(lazyLoadingReducer, initialState);
   const { data, loading } = state;
 
+  // Reset data whenever sort/filter configuration changes so we re-fetch
+  const sortFilterKey = useMemo(
+    () => JSON.stringify({ s: config.columnSorts, f: config.columnFilters }),
+    [config.columnSorts, config.columnFilters],
+  );
+
+  const prevSortFilterKey = useRef(sortFilterKey);
+  useEffect(() => {
+    if (prevSortFilterKey.current !== sortFilterKey) {
+      prevSortFilterKey.current = sortFilterKey;
+      dispatch({ type: "reset" });
+    }
+  }, [sortFilterKey]);
+
   useAsyncEffect(async () => {
     loadMoreData(client, config, state, dispatch);
   }, [
     data,
     state.visibleRegion.rowIndexStart,
     state.visibleRegion.rowIndexEnd,
+    sortFilterKey,
   ]);
 
   // Reference to hold onto the scroll position

@@ -155,6 +155,12 @@ yarn dlx madge --circular --extensions ts <path>  # Circular deps in path
 - Package builds: Use root `tsconfig.base.json`
 - Global types: `global.d.ts` in root
 
+Please note that we use Typescript types mostly to guide new feature
+development, and to help with internal consistency. We do not enforce strict
+types across the codebase, and type specificity and coverage are not an
+important goal to optimize for. That said, major interfaces and data models
+should be defined completely.
+
 ## Troubleshooting Patterns
 
 **Build fails with module resolution errors**: Check `workspace:^` dependencies,
