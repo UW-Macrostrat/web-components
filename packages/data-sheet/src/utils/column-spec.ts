@@ -17,6 +17,16 @@ interface ColumnSpecGenerateOptions {
 
 const defaultWidthForValue = (val) => String(val).length * 8;
 
+/** Inferred data type of a column, used to select appropriate
+ * sort/filter operators. */
+export type ColumnDataType =
+  | "string"
+  | "number"
+  | "integer"
+  | "boolean"
+  | "object"
+  | "array";
+
 export interface ColumnSpec {
   name: string;
   key: string;
@@ -43,6 +53,9 @@ export interface ColumnSpec {
    * Set to `true` for default operators, or provide a config object
    * with a custom set of operators. */
   filterable?: boolean | { operators?: string[] };
+  /** Inferred data type, used to select context-appropriate filter
+   * operators when `filterable` is `true` without explicit operators. */
+  dataType?: ColumnDataType;
 }
 
 export interface ColumnSpecOptions<T> {
@@ -130,11 +143,25 @@ export function generateDefaultColumnSpec<T>(
       );
     }
 
+    const dataType = (types.get(key) ?? "string") as ColumnDataType;
+
+    // Auto-infer sortable/filterable based on data type.
+    // Scalar types (string, number, integer, boolean) get sort/filter;
+    // complex types (object, array) do not.
+    const isScalar =
+      dataType === "string" ||
+      dataType === "number" ||
+      dataType === "integer" ||
+      dataType === "boolean";
+
     spec.push({
       name: key,
       key,
       valueRenderer: defaultRenderers[types.get(key)],
       width,
+      dataType,
+      sortable: isScalar,
+      filterable: isScalar,
     });
   }
   return spec;

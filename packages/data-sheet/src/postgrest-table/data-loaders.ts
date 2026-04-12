@@ -62,7 +62,8 @@ type LazyLoaderAction<T> =
   | { type: "error"; error: Error }
   | { type: "set-visible"; region: RowRegion }
   | { type: "update-data"; changes: Spec<T[]> }
-  | { type: "reset" };
+  | { type: "reset" }
+  | { type: "start-reload" };
 
 function adjustArraySize<T>(arr: T[], newSize: number) {
   if (newSize == null || arr.length === newSize) {
@@ -111,6 +112,14 @@ function lazyLoadingReducer<T>(
         loading: false,
       };
 
+    case "start-reload":
+      // Preserve the table dimensions but show ghost/skeleton cells
+      return {
+        ...state,
+        data: new Array(state.data.length).fill(null),
+        loading: true,
+        initialized: false,
+      };
     case "reset":
       return {
         data: [],
@@ -256,11 +265,13 @@ function _loadMoreData<T>(
   state: LazyLoaderState<T>,
   dispatch: any,
 ) {
-  const rowIndex = indexOfFirstNullInRegion(state.data, state.visibleRegion);
+  let rowIndex = indexOfFirstNullInRegion(state.data, state.visibleRegion);
   if (state.loading || rowIndex == null) {
     if (state.initialized) {
       return;
     }
+    // For initial/reload queries, default to loading from the start
+    rowIndex = rowIndex ?? 0;
   }
 
   const { chunkSize = 100, ...rest } = config;
@@ -353,7 +364,9 @@ export function usePostgRESTLazyLoader(
   useEffect(() => {
     if (prevSortFilterKey.current !== sortFilterKey) {
       prevSortFilterKey.current = sortFilterKey;
-      dispatch({ type: "reset" });
+      // Use start-reload to preserve table dimensions and show ghost cells
+      // instead of flashing an empty table
+      dispatch({ type: "start-reload" });
     }
   }, [sortFilterKey]);
 

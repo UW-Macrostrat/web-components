@@ -10,7 +10,7 @@ import {
   PostgrestOrder,
   usePostgRESTLazyLoader,
 } from "./data-loaders";
-import { Spinner, InputGroup } from "@blueprintjs/core";
+import { Spinner, InputGroup, Button, ButtonGroup, Tag as BPTag } from "@blueprintjs/core";
 
 export * from "./data-loaders";
 export * from "./lazy-loader-table";
@@ -33,6 +33,7 @@ import { ColorCell } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import {
   PostgRESTColumnHeaderCell,
+  OPERATOR_LABELS,
   type ColumnHeaderActions,
 } from "./column-header";
 import type { ColumnSpec } from "../utils/column-spec";
@@ -141,11 +142,12 @@ function _PostgRESTTableView<T>({
   const columnHeaderActions: ColumnHeaderActions = useMemo(
     () => ({
       onSetSort(key: string, ascending: boolean | null) {
-        setColumnSorts((prev) => {
-          const without = prev.filter((s) => s.key !== key);
-          if (ascending == null) return without;
-          return [...without, { key, ascending }];
-        });
+        // Single-column sort: replace any existing sort
+        if (ascending == null) {
+          setColumnSorts([]);
+        } else {
+          setColumnSorts([{ key, ascending }]);
+        }
       },
       onSetFilter(
         key: string,
@@ -183,7 +185,21 @@ function _PostgRESTTableView<T>({
     return h(Spinner);
   }
 
+  const hasActiveFilters = columnFilters.length > 0;
+  const hasActiveSort = columnSorts.length > 0;
+
   return h("div.data-sheet-outer", [
+    h.if(hasActiveFilters || hasActiveSort)(ServerFilterBar, {
+      columnSorts,
+      columnFilters,
+      onClearFilter(key: string) {
+        columnHeaderActions.onClearColumn(key);
+      },
+      onClearAll() {
+        setColumnSorts([]);
+        setColumnFilters([]);
+      },
+    }),
     h(DataSheet, {
       ...rest,
       dataSheetActions: enableFullTableSearch
@@ -339,6 +355,58 @@ export function SearchAction({ input, setInput, dispatch }) {
       setInput(search.toLowerCase());
     },
   });
+}
+
+/** Bar showing active server-side sort and filter state as removable tags. */
+function ServerFilterBar({
+  columnSorts,
+  columnFilters,
+  onClearFilter,
+  onClearAll,
+}: {
+  columnSorts: ColumnSortEntry[];
+  columnFilters: ColumnFilterEntry[];
+  onClearFilter: (key: string) => void;
+  onClearAll: () => void;
+}) {
+  return h("div.server-filter-bar", [
+    columnSorts.map((s) =>
+      h(
+        BPTag,
+        {
+          key: `sort-${s.key}`,
+          icon: s.ascending ? "sort-asc" : "sort-desc",
+          intent: "primary",
+          onRemove: () => onClearFilter(s.key),
+          minimal: true,
+        },
+        `${s.key}: ${s.ascending ? "A→Z" : "Z→A"}`,
+      ),
+    ),
+    columnFilters.map((f) =>
+      h(
+        BPTag,
+        {
+          key: `filter-${f.key}`,
+          icon: "filter",
+          intent: "warning",
+          onRemove: () => onClearFilter(f.key),
+          minimal: true,
+        },
+        `${f.key} ${OPERATOR_LABELS[f.operator] ?? f.operator} ${f.value}`,
+      ),
+    ),
+    h(
+      Button,
+      {
+        minimal: true,
+        small: true,
+        icon: "cross",
+        onClick: onClearAll,
+      },
+      "Clear all",
+    ),
+  ]);
 }
 
 function getColumnList(endpoint: string, table: string) {

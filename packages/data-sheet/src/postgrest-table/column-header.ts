@@ -16,9 +16,9 @@ import {
   InputGroup,
   Menu,
 } from "@blueprintjs/core";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import styles from "./column-header.module.sass";
-import type { ColumnSpec } from "../utils/column-spec";
+import type { ColumnSpec, ColumnDataType } from "../utils/column-spec";
 import type {
   ColumnSortEntry,
   ColumnFilterEntry,
@@ -27,6 +27,27 @@ import type {
 
 const h = hyper.styled(styles);
 
+/** Operators appropriate for string columns. */
+const STRING_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
+  "eq",
+  "neq",
+  "ilike",
+];
+
+/** Operators appropriate for numeric / integer columns. */
+const NUMERIC_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
+  "eq",
+  "neq",
+  "gt",
+  "lt",
+  "gte",
+  "lte",
+];
+
+/** Operators appropriate for boolean columns. */
+const BOOLEAN_FILTER_OPERATORS: PostgRESTFilterOperator[] = ["eq", "neq"];
+
+/** Fallback operators when no type information is available. */
 const DEFAULT_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
   "eq",
   "neq",
@@ -37,7 +58,15 @@ const DEFAULT_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
   "lte",
 ];
 
-const OPERATOR_LABELS: Record<PostgRESTFilterOperator, string> = {
+/** Map from data type to the appropriate set of filter operators. */
+const OPERATORS_BY_TYPE: Record<string, PostgRESTFilterOperator[]> = {
+  string: STRING_FILTER_OPERATORS,
+  number: NUMERIC_FILTER_OPERATORS,
+  integer: NUMERIC_FILTER_OPERATORS,
+  boolean: BOOLEAN_FILTER_OPERATORS,
+};
+
+export const OPERATOR_LABELS: Record<PostgRESTFilterOperator, string> = {
   eq: "=",
   neq: "≠",
   like: "like",
@@ -124,6 +153,20 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
   ]);
 }
 
+/** Resolve filter operators for a column, considering explicit config,
+ * inferred data type, and fallback defaults. */
+function getOperatorsForColumn(col: ColumnSpec): PostgRESTFilterOperator[] {
+  // Explicit operators in filterable config take priority
+  if (typeof col.filterable === "object" && col.filterable.operators?.length) {
+    return col.filterable.operators as PostgRESTFilterOperator[];
+  }
+  // Otherwise, pick operators based on the inferred data type
+  if (col.dataType != null) {
+    return OPERATORS_BY_TYPE[col.dataType] ?? DEFAULT_FILTER_OPERATORS;
+  }
+  return DEFAULT_FILTER_OPERATORS;
+}
+
 /** Menu content rendered inside ColumnHeaderCell's built-in dropdown. */
 function ColumnActionsMenu({
   col,
@@ -133,23 +176,21 @@ function ColumnActionsMenu({
   activeFilter,
   actions,
 }) {
-  const filterableConfig =
-    typeof col.filterable === "object" ? col.filterable : {};
-  const operators: PostgRESTFilterOperator[] =
-    filterableConfig.operators ?? DEFAULT_FILTER_OPERATORS;
+  const operators = getOperatorsForColumn(col);
 
   const [filterOperator, setFilterOperator] = useState<PostgRESTFilterOperator>(
     activeFilter?.operator ?? operators[0],
   );
-  const [filterValue, setFilterValue] = useState(activeFilter?.value ?? "");
+  const filterInputRef = useRef<HTMLInputElement>(null);
 
   const applyFilter = useCallback(() => {
-    if (filterValue.trim() === "") {
+    const val = filterInputRef.current?.value ?? "";
+    if (val.trim() === "") {
       actions.onSetFilter(col.key, null, "");
     } else {
-      actions.onSetFilter(col.key, filterOperator, filterValue);
+      actions.onSetFilter(col.key, filterOperator, val);
     }
-  }, [col.key, filterOperator, filterValue, actions]);
+  }, [col.key, filterOperator, actions]);
 
   const hasAnyActive =
     activeSort != null ||
@@ -216,10 +257,8 @@ function ColumnActionsMenu({
             className: "filter-value-input",
             small: true,
             placeholder: "Value…",
-            value: filterValue,
-            onValueChange(val) {
-              setFilterValue(val);
-            },
+            defaultValue: activeFilter?.value ?? "",
+            inputRef: filterInputRef,
             onKeyDown(e) {
               if (e.key === "Enter") {
                 applyFilter();
@@ -244,7 +283,9 @@ function ColumnActionsMenu({
             icon: "cross",
             onClick() {
               actions.onClearColumn(col.key);
-              setFilterValue("");
+              if (filterInputRef.current) {
+                filterInputRef.current.value = "";
+              }
             },
           },
           "Clear all",

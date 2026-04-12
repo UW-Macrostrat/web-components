@@ -103,36 +103,19 @@ export const ReorderableColumns = {
 };
 
 /** Column-level sort and filter controls backed by PostgREST queries.
- * Click a column header to open a popover with sort direction toggles
- * and a filter input.  Active sorts/filters are indicated with icons. */
+ * Sorting and filtering are auto-inferred from column data types, with
+ * type-appropriate operators (e.g., numeric columns get >/< but not
+ * "contains"). Click a column header menu icon to configure. Active
+ * sort/filter state is shown in a bar above the table. */
 export const SortAndFilter = {
   args: {
     columnOptions: {
       overrides: {
         ...defaultColumnOptions.overrides,
-        legend_id: {
-          name: "Legend ID",
-          sortable: true,
-          filterable: { operators: ["eq", "gt", "lt", "gte", "lte"] },
-        },
-        name: {
-          name: "Unit name",
-          sortable: true,
-          filterable: true,
-        },
+        // Override to restrict source_id to equality only
         source_id: {
           name: "Source",
-          sortable: true,
           filterable: { operators: ["eq", "neq"] },
-        },
-        strat_name: {
-          name: "Stratigraphic names",
-          sortable: true,
-          filterable: true,
-        },
-        lith: {
-          dataEditor: LongTextViewer,
-          filterable: true,
         },
       },
     },
