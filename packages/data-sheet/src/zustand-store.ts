@@ -18,6 +18,7 @@ import {
   getSelectedRowIndices,
   getSelectionCardinality,
   computeFilteredRowIndices,
+  computeTransformedRowIndices,
 } from "./actions";
 
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
@@ -38,6 +39,7 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     // This is a placeholder
     enableColumnReordering: false,
     activeFilters: new Map<string, { filter: any; state: any }>(),
+    columnSorts: [],
     clipboardProxy: null,
     filteredRowIndices: null,
     setSelection(selection: Region[]) {
@@ -304,10 +306,11 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         newFilters.set(filterId, { filter, state: filterState });
         return {
           activeFilters: newFilters,
-          filteredRowIndices: computeFilteredRowIndices(
+          filteredRowIndices: computeTransformedRowIndices(
             state.data,
             state.updatedData,
             newFilters,
+            state.columnSorts,
           ),
         };
       });
@@ -320,19 +323,56 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         newFilters.delete(filterId);
         return {
           activeFilters: newFilters,
-          filteredRowIndices: computeFilteredRowIndices(
+          filteredRowIndices: computeTransformedRowIndices(
             state.data,
             state.updatedData,
             newFilters,
+            state.columnSorts,
           ),
         };
       });
     },
     clearFilters() {
-      set({
+      set((state) => ({
         activeFilters: new Map<string, { filter: any; state: any }>(),
-        filteredRowIndices: null,
+        filteredRowIndices: computeTransformedRowIndices(
+          state.data,
+          state.updatedData,
+          new Map(),
+          state.columnSorts,
+        ),
+      }));
+    },
+    setColumnSort(key: string, ascending: boolean | null) {
+      set((state) => {
+        let newSorts;
+        if (ascending == null) {
+          newSorts = state.columnSorts.filter((s) => s.key !== key);
+        } else {
+          const without = state.columnSorts.filter((s) => s.key !== key);
+          newSorts = [...without, { key, ascending }];
+        }
+        return {
+          columnSorts: newSorts,
+          filteredRowIndices: computeTransformedRowIndices(
+            state.data,
+            state.updatedData,
+            state.activeFilters,
+            newSorts,
+          ),
+        };
       });
+    },
+    clearColumnSorts() {
+      set((state) => ({
+        columnSorts: [],
+        filteredRowIndices: computeTransformedRowIndices(
+          state.data,
+          state.updatedData,
+          state.activeFilters,
+          [],
+        ),
+      }));
     },
     setClipboardProxy(proxy) {
       set({ clipboardProxy: proxy });

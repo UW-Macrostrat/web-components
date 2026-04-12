@@ -6,6 +6,13 @@ import type {
 } from "@blueprintjs/table";
 import { ColumnSpec, ColumnSpecOptions } from "./utils";
 
+/** A single column sort entry for client-side sorting.
+ * Defined here (rather than in actions/types) to avoid circular imports. */
+export interface ColumnSort {
+  key: string;
+  ascending: boolean;
+}
+
 export interface DataSheetCoreProps<T> {
   data: T[];
   columnSpec?: ColumnSpec[];
@@ -57,6 +64,8 @@ export interface DataSheetState<T> {
   clipboardProxy: ClipboardProxy | null;
   /** Visible row indices when filters are active. `null` means show all rows. */
   filteredRowIndices: number[] | null;
+  /** Active column sort entries for client-side sorting. */
+  columnSorts: ColumnSort[];
 }
 
 type DataSheetVals<T> = DataSheetState<T> & DataSheetCoreProps<T>;
@@ -82,6 +91,10 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   removeFilter(filterId: string): void;
   /** Remove all active filters */
   clearFilters(): void;
+  /** Set or clear a column sort. Pass `null` for ascending to clear. */
+  setColumnSort(key: string, ascending: boolean | null): void;
+  /** Remove all active column sorts */
+  clearColumnSorts(): void;
   /** Store a clipboard proxy for potential backend-mediated paste */
   setClipboardProxy(proxy: ClipboardProxy | null): void;
   initialize(props: Partial<DataSheetStoreMain<T>>): void;

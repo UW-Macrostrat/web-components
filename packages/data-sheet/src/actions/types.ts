@@ -48,6 +48,10 @@ export interface ActiveFilterEntry<T = any> {
   state: any;
 }
 
+// Re-export ColumnSort from the main types module (defined there to
+// avoid a circular import, since actions/types imports from types.ts).
+export type { ColumnSort } from "../types.ts";
+
 /** Context passed to an action's `run` function, providing both data access
  * and store manipulation methods. Constructed fresh at action-run time
  * to ensure current state. */

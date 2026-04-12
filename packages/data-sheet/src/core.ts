@@ -28,6 +28,7 @@ import { basicCellRenderer } from "./cell-renderer.ts";
 import { tableKeyHandlerAtom } from "./utils";
 import type { TableAction, TableFilter } from "./actions";
 import { ActionsToolbar, FilterBar } from "./actions";
+import { ClientColumnHeaderCell, SortFilterBar } from "./column-header";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -179,9 +180,7 @@ function _DataSheet<T>({
   const columnWidths = useAtomValue(columnWidthsAtom);
 
   // When filters are active, only show matching rows
-  const filteredRowIndices = useSelector(
-    (state) => state.filteredRowIndices,
-  );
+  const filteredRowIndices = useSelector((state) => state.filteredRowIndices);
   const totalRows = Math.max(updatedData.length, data.length);
   const numRows =
     filteredRowIndices != null ? filteredRowIndices.length : totalRows;
@@ -210,13 +209,28 @@ function _DataSheet<T>({
 
   const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
+  // Auto-detect if any columns have sortable/filterable set.
+  // If so and no explicit columnHeaderCellRenderer was provided,
+  // use the built-in client-side sort/filter header.
+  const hasSortableOrFilterable = useMemo(
+    () => columnSpec.some((col) => col.sortable || col.filterable),
+    [columnSpec],
+  );
+
+  const _columnHeaderCellRenderer =
+    columnHeaderCellRenderer ??
+    (hasSortableOrFilterable
+      ? (col, colIndex, props) =>
+          h(ClientColumnHeaderCell, { col, colIndex, ...props })
+      : undefined);
+
   const children = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
       return h(Column, {
         name: col.name,
         columnHeaderCellRenderer:
-          columnHeaderCellRenderer != null
-            ? () => columnHeaderCellRenderer(col, colIndex)
+          _columnHeaderCellRenderer != null
+            ? (props) => _columnHeaderCellRenderer(col, colIndex, props)
             : undefined,
         cellRenderer: (rowIndex) => {
           const state = storeAPI.getState();
@@ -231,7 +245,13 @@ function _DataSheet<T>({
         },
       });
     });
-  }, [columnSpec, storeAPI, autoFocusEditor, filteredRowIndices, columnHeaderCellRenderer]);
+  }, [
+    columnSpec,
+    storeAPI,
+    autoFocusEditor,
+    filteredRowIndices,
+    _columnHeaderCellRenderer,
+  ]);
 
   const onColumnWidthChanged = useSelector(
     (state) => state.onColumnWidthChanged,
@@ -241,7 +261,7 @@ function _DataSheet<T>({
     (rowIndex: number) => {
       const dataRowIndex =
         filteredRowIndices != null
-          ? filteredRowIndices[rowIndex] ?? rowIndex
+          ? (filteredRowIndices[rowIndex] ?? rowIndex)
           : rowIndex;
       const style =
         rowStatus[dataRowIndex] == TableElementStatus.DELETED
@@ -273,6 +293,7 @@ function _DataSheet<T>({
   return h("div.data-sheet-container", { className, style }, [
     h.if(actions != null)(ActionsToolbar, { actions }),
     h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
+    h.if(hasSortableOrFilterable)(SortFilterBar),
     dataSheetActions,
     h(
       "div.data-sheet-holder",

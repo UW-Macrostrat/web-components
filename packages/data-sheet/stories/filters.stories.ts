@@ -6,7 +6,7 @@ import {
   copyAction,
   pasteAction,
 } from "../src";
-import type { TableFilter, TableAction } from "../src";
+import type { TableFilter } from "../src";
 import "@blueprintjs/table/lib/css/table.css";
 import {
   FormGroup,
@@ -14,7 +14,6 @@ import {
   NumericInput,
   InputGroup,
 } from "@blueprintjs/core";
-import { RegionCardinality } from "@blueprintjs/table";
 
 const h = hyper;
 
@@ -68,20 +67,24 @@ const nameFilter: TableFilter = {
 };
 
 const columnSpec = [
-  { name: "Name", key: "name", width: 200 },
+  { name: "Name", key: "name", width: 200, sortable: true, filterable: true },
   {
     name: "Value",
     key: "value",
     valueRenderer: (d) => d?.toFixed?.(2) ?? `${d}`,
     width: 100,
+    sortable: true,
+    filterable: true,
     filters: [nameFilter],
   },
-  { name: "Category", key: "category", width: 130 },
+  { name: "Category", key: "category", width: 130, sortable: true, filterable: true },
   {
     name: "Depth (m)",
     key: "depth",
     valueRenderer: (d) => d?.toFixed?.(0) ?? `${d}`,
     width: 100,
+    sortable: true,
+    filterable: true,
   },
 ];
 
@@ -241,3 +244,56 @@ export const FiltersWithClipboard: StoryObj = {
       filters: [categoryFilter, depthFilter],
     }),
 };
+
+// ---- Sorting stories ----
+
+/** Column-level sort controls. Click a column header's menu icon to
+ * sort ascending (A→Z) or descending (Z→A). Active sorts appear as
+ * removable tags above the table. Try sorting by different columns. */
+export const ColumnSort: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec,
+    }),
+};
+
+/** Sorting an editable table. Demonstrates that sort order updates
+ * correctly and edits target the correct underlying row even when
+ * the display order has changed. */
+export const SortableEditable: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec,
+      editable: true,
+      actions: defaultTableActions,
+    }),
+};
+
+/** Column-level sort and filter in the same table. Both are accessible
+ * from each column header's dropdown menu. Active sort and filter state
+ * appear as removable tags above the table. Filter first, then sort the
+ * filtered results. */
+export const SortAndFilter: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec,
+      editable: true,
+      actions: defaultTableActions,
+      filters: [categoryFilter, depthFilter],
+    }),
+};
+
+/** Auto-generated column spec. When no explicit `columnSpec` is provided,
+ * columns are inferred from the data. Scalar columns (string, number,
+ * boolean) automatically get sort and filter controls in their headers. */
+export const AutoColumnSpec: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      editable: false,
+    }),
+};
+
