@@ -200,20 +200,20 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         return { updatedData: update(updatedData, spec) };
       });
     },
-    initialize(props: Partial<DataSheetStoreMain<T>>) {
-      set({ ...props, initialized: true });
-    },
     clearSelection() {
       set((state) => {
         // Delete all selected cells
         const { selection, updatedData, columnSpec, data } = state;
         let spec = {};
         for (const region of selection) {
-          console.log("Clearing region", region);
           const { cols, rows } = region;
           const rowRange = range(rows ?? [0, updatedData.length - 1]);
           const colRange = range(cols ?? [0, columnSpec.length - 1]);
           for (const row of rowRange) {
+            // Don't clear row if it has been deleted
+            const rowIsDeleted =
+              state.rowStatus[row] === TableElementStatus.DELETED;
+            if (rowIsDeleted) continue;
             let vals = {};
             for (const col of colRange) {
               const key = columnSpec[col].key;

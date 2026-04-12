@@ -19,14 +19,13 @@ export function basicCellRenderer<T>(
   // Map it to the actual data index for data access.
   const dataRowIndex =
     filteredRowIndices != null
-      ? filteredRowIndices[rowIndex] ?? rowIndex
+      ? (filteredRowIndices[rowIndex] ?? rowIndex)
       : rowIndex;
 
   const data = state.data;
   const updatedData = state.updatedData;
 
-  const isDeleted =
-    state.rowStatus[dataRowIndex] === TableElementStatus.DELETED;
+  const isDeleted = state.rowStatus[dataRowIndex] == TableElementStatus.DELETED;
 
   const row = data[dataRowIndex] ?? updatedData[dataRowIndex];
   const loading = row == null;

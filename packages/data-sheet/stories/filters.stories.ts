@@ -12,6 +12,7 @@ import {
   FormGroup,
   SegmentedControl,
   NumericInput,
+  InputGroup,
 } from "@blueprintjs/core";
 import { RegionCardinality } from "@blueprintjs/table";
 
@@ -41,6 +42,31 @@ function buildData(n = 100) {
 
 const testData = buildData();
 
+// This is a generic text search filter
+const nameFilter: TableFilter = {
+  id: "name-filter",
+  name: "Name contains",
+  icon: "text-search",
+  columnKey: "name",
+  description: "Show only rows where the name contains a string.",
+  defaultState: { search: "" },
+  filterForm({ state, setState }) {
+    return h(FormGroup, { label: "Name contains" }, [
+      h(InputGroup, {
+        placeholder: "Search by name...",
+        value: state?.search ?? "",
+        onChange(event) {
+          setState({ ...state, search: event.target.value });
+        },
+      }),
+    ]);
+  },
+  predicate(row, state) {
+    if (state?.search == null || state.search === "") return true;
+    return row.name.toLowerCase().includes(state.search.toLowerCase());
+  },
+};
+
 const columnSpec = [
   { name: "Name", key: "name", width: 200 },
   {
@@ -48,6 +74,7 @@ const columnSpec = [
     key: "value",
     valueRenderer: (d) => d?.toFixed?.(2) ?? `${d}`,
     width: 100,
+    filters: [nameFilter],
   },
   { name: "Category", key: "category", width: 130 },
   {
@@ -172,7 +199,7 @@ export const MultipleFilters: StoryObj = {
       columnSpec,
       editable: true,
       actions: defaultTableActions,
-      filters: [categoryFilter, depthFilter],
+      filters: [categoryFilter, depthFilter, nameFilter],
     }),
 };
 
@@ -214,4 +241,3 @@ export const FiltersWithClipboard: StoryObj = {
       filters: [categoryFilter, depthFilter],
     }),
 };
-
