@@ -13,20 +13,30 @@ export function basicCellRenderer<T>(
   columnSpec: ColumnSpec,
   state: DataSheetStore<T>,
   autoFocusEditor = true,
+  filteredRowIndices?: number[] | null,
 ): any {
+  // When filters are active, `rowIndex` is the visible row position.
+  // Map it to the actual data index for data access.
+  const dataRowIndex =
+    filteredRowIndices != null
+      ? filteredRowIndices[rowIndex] ?? rowIndex
+      : rowIndex;
+
   const data = state.data;
   const updatedData = state.updatedData;
 
-  const isDeleted = state.rowStatus[rowIndex] === TableElementStatus.DELETED;
+  const isDeleted =
+    state.rowStatus[dataRowIndex] === TableElementStatus.DELETED;
 
-  const row = data[rowIndex] ?? updatedData[rowIndex];
+  const row = data[dataRowIndex] ?? updatedData[dataRowIndex];
   const loading = row == null;
   const col = columnSpec;
 
   const _topLeftCell = state.topLeftCell;
   const onCellEdited = state.onCellEdited;
 
-  const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
+  const value =
+    updatedData[dataRowIndex]?.[col.key] ?? data[dataRowIndex]?.[col.key];
   const _renderedValue =
     value != null ? (col.valueRenderer?.(value) ?? value) : null;
 
@@ -39,24 +49,19 @@ export function basicCellRenderer<T>(
     };
   }
 
-  //const focused =
-  //  focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
-
   const editable = (col.editable ?? state.editable) && !isDeleted;
 
-  // Top left cell of a ranged selection
+  // topLeftCell stores visible row indices, so compare with the visible rowIndex
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
   if (!editable && state.editable) {
-    // If the cell is not editable but the sheet is editable, we want to differentiate
-    // between editable and non-editable cells.
     style.color = "var(--secondary-color)";
   }
 
   const edited =
-    updatedData[rowIndex]?.[col.key] != null ||
-    state.rowStatus[rowIndex] === TableElementStatus.ADDED;
+    updatedData[dataRowIndex]?.[col.key] != null ||
+    state.rowStatus[dataRowIndex] === TableElementStatus.ADDED;
   let intent = edited ? "success" : undefined;
   if (isDeleted) {
     intent = "danger";
@@ -67,7 +72,6 @@ export function basicCellRenderer<T>(
   let inlineEditor = editable ? (col.inlineEditor ?? true) : false;
 
   if (!topLeft) {
-    // This should be the case for every cell except the focused one
     return h(
       _Cell,
       {
@@ -83,7 +87,6 @@ export function basicCellRenderer<T>(
 
   // The rest is for the top-left cell of a selection or the focused cell
 
-  // Hidden input to capture key events
   let hiddenInput = h(EditorInput, {
     className: "hidden-input",
     autoFocus: true,
@@ -115,9 +118,6 @@ export function basicCellRenderer<T>(
   }
 
   if (!editable) {
-    // Most cells are not focused and don't need to be editable.
-    // This will be the rendering logic for almost all cells
-
     if (_dataEditor != null) {
       cellContents = _dataEditor;
     }
@@ -131,7 +131,6 @@ export function basicCellRenderer<T>(
       },
       cellContents,
     );
-    // Could probably put the hidden input elsewhere,
   }
 
   /* The remaining logic covers cells that are focused and editable */
@@ -139,7 +138,8 @@ export function basicCellRenderer<T>(
   const onChange = (e) => {
     if (!editable) return;
     if (value === e.target.value) return;
-    onCellEdited(rowIndex, col.key, e.target.value);
+    // Use dataRowIndex for the actual data mutation
+    onCellEdited(dataRowIndex, col.key, e.target.value);
   };
 
   const isSingleCellSelection = singleFocusedCell(state.selection) != null;

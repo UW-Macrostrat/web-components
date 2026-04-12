@@ -26,8 +26,8 @@ import {
 } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
 import { tableKeyHandlerAtom } from "./utils";
-import type { TableAction } from "./actions";
-import { ActionsToolbar } from "./actions";
+import type { TableAction, TableFilter } from "./actions";
+import { ActionsToolbar, FilterBar } from "./actions";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -56,6 +56,9 @@ interface DataSheetInternalProps<T> extends TableProps {
    * When provided, the actions toolbar renders alongside the existing
    * edit toolbar. Actions are filtered by the current selection cardinality. */
   actions?: TableAction<T>[];
+  /** Available column/table filters shown in a filter bar.
+   * Filters can also be defined per-column via `ColumnSpec.filters`. */
+  filters?: TableFilter<T>[];
 }
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
@@ -112,6 +115,7 @@ function _DataSheet<T>({
   density = DataSheetDensity.HIGH,
   selectionModes,
   actions,
+  filters,
   ...rest
 }: DataSheetInternalProps<T>) {
   /**
@@ -169,7 +173,13 @@ function _DataSheet<T>({
 
   const columnWidths = useAtomValue(columnWidthsAtom);
 
-  const numRows = Math.max(updatedData.length, data.length);
+  // When filters are active, only show matching rows
+  const filteredRowIndices = useSelector(
+    (state) => state.filteredRowIndices,
+  );
+  const totalRows = Math.max(updatedData.length, data.length);
+  const numRows =
+    filteredRowIndices != null ? filteredRowIndices.length : totalRows;
 
   let className = `${density}-density`;
 
@@ -207,11 +217,12 @@ function _DataSheet<T>({
             col,
             state,
             autoFocusEditor,
+            filteredRowIndices,
           );
         },
       });
     });
-  }, [columnSpec, storeAPI, autoFocusEditor]);
+  }, [columnSpec, storeAPI, autoFocusEditor, filteredRowIndices]);
 
   const onColumnWidthChanged = useSelector(
     (state) => state.onColumnWidthChanged,
@@ -219,19 +230,23 @@ function _DataSheet<T>({
 
   const rowHeaderCellRenderer = useCallback(
     (rowIndex: number) => {
+      const dataRowIndex =
+        filteredRowIndices != null
+          ? filteredRowIndices[rowIndex] ?? rowIndex
+          : rowIndex;
       const style =
-        rowStatus[rowIndex] == TableElementStatus.DELETED
+        rowStatus[dataRowIndex] == TableElementStatus.DELETED
           ? deletedRowHeaderStyle
           : null;
 
       return h(RowHeaderCell, {
         enableRowReordering: false,
         index: rowIndex,
-        name: `${rowIndex + 1}`,
+        name: `${dataRowIndex + 1}`,
         style,
       });
     },
-    [rowStatus],
+    [rowStatus, filteredRowIndices],
   );
 
   const onKeyDown = useAtomValue(tableKeyHandlerAtom);
@@ -248,6 +263,7 @@ function _DataSheet<T>({
 
   return h("div.data-sheet-container", { className, style }, [
     h.if(actions != null)(ActionsToolbar, { actions }),
+    h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
     dataSheetActions,
     h(
       "div.data-sheet-holder",
@@ -272,10 +288,10 @@ function _DataSheet<T>({
           // The cell renderer is memoized internally based on these data dependencies
           cellRendererDependencies: [
             data,
-            //selection,
             updatedData,
             focusedCell,
             rowStatus,
+            filteredRowIndices,
           ],
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,

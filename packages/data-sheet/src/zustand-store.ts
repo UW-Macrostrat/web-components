@@ -17,6 +17,7 @@ import {
   getSelectedColumnKeys,
   getSelectedRowIndices,
   getSelectionCardinality,
+  computeFilteredRowIndices,
 } from "./actions";
 
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
@@ -36,6 +37,9 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     visibleCellsRef: null,
     // This is a placeholder
     enableColumnReordering: false,
+    activeFilters: new Map<string, { filter: any; state: any }>(),
+    clipboardProxy: null,
+    filteredRowIndices: null,
     setSelection(selection: Region[]) {
       set(updateSelection(selection));
     },
@@ -291,6 +295,47 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       tableRef.current.scrollToRegion({
         rows: [rowIndex, rowIndex],
       });
+    },
+    setFilter(filterId: string, filter: any, filterState: any) {
+      set((state) => {
+        const newFilters = new Map<string, { filter: any; state: any }>(
+          state.activeFilters,
+        );
+        newFilters.set(filterId, { filter, state: filterState });
+        return {
+          activeFilters: newFilters,
+          filteredRowIndices: computeFilteredRowIndices(
+            state.data,
+            state.updatedData,
+            newFilters,
+          ),
+        };
+      });
+    },
+    removeFilter(filterId: string) {
+      set((state) => {
+        const newFilters = new Map<string, { filter: any; state: any }>(
+          state.activeFilters,
+        );
+        newFilters.delete(filterId);
+        return {
+          activeFilters: newFilters,
+          filteredRowIndices: computeFilteredRowIndices(
+            state.data,
+            state.updatedData,
+            newFilters,
+          ),
+        };
+      });
+    },
+    clearFilters() {
+      set({
+        activeFilters: new Map<string, { filter: any; state: any }>(),
+        filteredRowIndices: null,
+      });
+    },
+    setClipboardProxy(proxy) {
+      set({ clipboardProxy: proxy });
     },
   };
 }

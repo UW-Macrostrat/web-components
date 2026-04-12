@@ -6,24 +6,34 @@ import {
   buildActionContext,
   getApplicableActions,
   getSelectionCardinality,
+  mergeColumnActions,
 } from "./selection";
 import type { TableAction, TableActionContext } from "./types";
 import { RegionCardinality } from "@blueprintjs/table";
 
 /** Toolbar that renders applicable table actions based on the
- * current selection cardinality and edit mode. */
+ * current selection cardinality and edit mode.
+ * Automatically merges column-specific actions from `ColumnSpec.actions`
+ * when the corresponding columns are in the selection. */
 export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
   const selection = useSelector((state) => state.selection);
   const editable = useSelector((state) => state.editable);
+  const columnSpec = useSelector((state) => state.columnSpec);
 
   const cardinality = useMemo(
     () => getSelectionCardinality(selection) ?? RegionCardinality.FULL_TABLE,
     [selection],
   );
 
+  // Merge global actions with column-specific actions from the selection
+  const allActions = useMemo(
+    () => mergeColumnActions(actions, columnSpec, selection),
+    [actions, columnSpec, selection],
+  );
+
   const applicableActions = useMemo(
-    () => getApplicableActions(actions, cardinality, editable),
-    [actions, cardinality, editable],
+    () => getApplicableActions(allActions, cardinality, editable),
+    [allActions, cardinality, editable],
   );
 
   if (applicableActions.length === 0) return null;

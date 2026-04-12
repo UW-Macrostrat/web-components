@@ -6,6 +6,8 @@ import {
   addRowAction,
   deleteRowsAction,
   resetChangesAction,
+  copyAction,
+  pasteAction,
 } from "../src";
 import type { TableAction } from "../src";
 import "@blueprintjs/table/lib/css/table.css";
@@ -224,3 +226,79 @@ export const ColumnActions: StoryObj = {
       ],
     }),
 };
+
+/** Copy and paste actions. Select cells or rows, copy to clipboard,
+ * then select a target cell and paste. Full-row copies also store a
+ * ClipboardProxy for potential backend-mediated paste operations. */
+export const ClipboardActions: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec,
+      editable: true,
+      actions: [
+        copyAction,
+        pasteAction,
+        addRowAction,
+        deleteRowsAction,
+        resetChangesAction,
+      ],
+    }),
+};
+
+/** An action to uppercase all values in a column, defined directly
+ * on the column spec. It only appears when that column is selected. */
+const uppercaseColumnAction: TableAction = {
+  id: "uppercase-column",
+  name: "Uppercase values",
+  icon: "font",
+  intent: "primary",
+  targets: [RegionCardinality.FULL_COLUMNS],
+  requiresEditable: true,
+  run(ctx) {
+    const keys = ctx.getSelectedColumnKeys();
+    const numRows = Math.max(ctx.data.length, ctx.updatedData.length);
+    const edits = [];
+    for (let i = 0; i < numRows; i++) {
+      for (const key of keys) {
+        const val = ctx.updatedData[i]?.[key] ?? ctx.data[i]?.[key];
+        if (typeof val === "string") {
+          edits.push({ rowIndex: i, columnKey: key, value: val.toUpperCase() });
+        }
+      }
+    }
+    ctx.editCells(edits);
+  },
+};
+
+/** Actions defined on column specs. The "Name" column has an
+ * "Uppercase values" action, and "Category" has a "Fill category" action.
+ * These only appear when their respective columns are selected. */
+export const ColumnSpecActions: StoryObj = {
+  render: () => {
+    const specWithActions = columnSpec.map((col) => {
+      if (col.key === "name") {
+        return { ...col, actions: [uppercaseColumnAction] };
+      }
+      if (col.key === "category") {
+        return { ...col, actions: [fillValueAction] };
+      }
+      return col;
+    });
+
+    return h(Wrapper, {
+      data: testData,
+      columnSpec: specWithActions,
+      editable: true,
+      actions: [
+        addRowAction,
+        deleteRowsAction,
+        renameColumnAction,
+        copyAction,
+        pasteAction,
+        resetChangesAction,
+      ],
+    });
+  },
+};
+

@@ -31,6 +31,12 @@ export interface ColumnSpec {
   inlineEditor?: boolean | React.ComponentType<any> | string | null;
   style?: React.CSSProperties;
   width?: number;
+  /** Column-specific table actions (TableAction[]). These appear in the
+   * actions toolbar when this column is part of the current selection. */
+  actions?: any[];
+  /** Column-specific table filters (TableFilter[]). These appear in the
+   * filter bar and apply to this column's values. */
+  filters?: any[];
 }
 
 export interface ColumnSpecOptions<T> {

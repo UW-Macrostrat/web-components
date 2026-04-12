@@ -2,7 +2,7 @@ import type { IconName, Intent } from "@blueprintjs/core";
 import type { Region, RegionCardinality } from "@blueprintjs/table";
 import type { ComponentType } from "react";
 import type { ColumnSpec } from "../utils";
-import { TableElementStatus } from "../types.ts";
+import { ClipboardProxy, TableElementStatus } from "../types.ts";
 
 /** Selection cardinality including the case of no active selection */
 export type SelectionCardinality = RegionCardinality | "none";
@@ -12,6 +12,40 @@ export interface CellEdit {
   rowIndex: number;
   columnKey: string;
   value: any;
+}
+
+/** A column filter that can be activated to hide non-matching rows.
+ * Parallel to `TableAction` but with persistent state while active.
+ * Follows the same `{ state, setState }` form pattern.
+ *
+ * @typeParam T - Row data type
+ * @typeParam S - Filter configuration state type
+ */
+export interface TableFilter<T = any, S = any> {
+  /** Unique identifier */
+  id: string;
+  /** Display name */
+  name: string;
+  /** Blueprint icon */
+  icon?: IconName;
+  /** Description shown in the filter popover */
+  description?: string;
+  /** Column this filter targets. Automatically set when defined in a ColumnSpec. */
+  columnKey?: string;
+  /** Default filter configuration state */
+  defaultState?: S;
+  /** Component for configuring the filter value.
+   * Same `{ state, setState }` pattern as `TableAction.detailsForm`. */
+  filterForm?: ComponentType<{ state: S; setState(state: S): void }>;
+  /** Row predicate: return `true` if the row should be visible.
+   * Receives the merged row (updatedData overlaid on data). */
+  predicate(row: T, state: S): boolean;
+}
+
+/** An active filter entry stored in the table state. */
+export interface ActiveFilterEntry<T = any> {
+  filter: TableFilter<T>;
+  state: any;
 }
 
 /** Context passed to an action's `run` function, providing both data access
@@ -54,6 +88,17 @@ export interface TableActionContext<T = any> {
   /** Direct store mutation for cases not covered by the convenience methods
    * above (e.g., modifying `columnSpec` or `deletedRows`). */
   setState(partial: Record<string, any>): void;
+
+  // Clipboard proxy support
+  /** Active clipboard proxy from a prior copy, if any */
+  clipboardProxy: ClipboardProxy | null;
+  /** Store a clipboard proxy for potential backend-mediated paste */
+  setClipboardProxy(proxy: ClipboardProxy | null): void;
+
+  // Filter support
+  /** Row index mapping when filters are active. When non-null,
+   * visible row `i` maps to data row `filteredRowIndices[i]`. */
+  filteredRowIndices: number[] | null;
 }
 
 /** Definition of a table action. Follows the `ActionDef` pattern from

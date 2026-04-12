@@ -1,10 +1,12 @@
 import { type Region, RegionCardinality } from "@blueprintjs/table";
 import type { ColumnSpec } from "../utils";
 import type {
+  ActiveFilterEntry,
   CellEdit,
   SelectionCardinality,
   TableAction,
   TableActionContext,
+  TableFilter,
 } from "./types";
 import type { DataSheetStore } from "../types";
 import update from "immutability-helper";
@@ -37,8 +39,13 @@ export function getApplicableActions<T>(
   });
 }
 
-/** Extract concrete row indices from a set of selected regions. */
-export function getSelectedRowIndices(regions: Region[]): number[] {
+/** Extract concrete row indices from a set of selected regions.
+ * When `filteredRowIndices` is provided, visible indices are mapped
+ * to actual data indices. */
+export function getSelectedRowIndices(
+  regions: Region[],
+  filteredRowIndices?: number[] | null,
+): number[] {
   if (regions == null || regions.length === 0) return [];
   const indices = new Set<number>();
   for (const region of regions) {
@@ -48,7 +55,11 @@ export function getSelectedRowIndices(regions: Region[]): number[] {
       indices.add(i);
     }
   }
-  return Array.from(indices).sort((a, b) => a - b);
+  const sorted = Array.from(indices).sort((a, b) => a - b);
+  if (filteredRowIndices == null) return sorted;
+  return sorted
+    .map((i) => filteredRowIndices[i])
+    .filter((i) => i != null);
 }
 
 /** Extract column keys covered by a set of selected regions. */
@@ -83,6 +94,19 @@ export function buildActionContext<T>(
   state: DataSheetStore<T>,
   setState: (partial: Record<string, any>) => void = () => {},
 ): TableActionContext<T> {
+  // Lazy-compute filteredRowIndices to avoid cost during disabled checks
+  let _filteredRowIndices: number[] | null | undefined = undefined;
+  function getFilteredRowIndices(): number[] | null {
+    if (_filteredRowIndices === undefined) {
+      _filteredRowIndices = computeFilteredRowIndices(
+        state.data,
+        state.updatedData,
+        state.activeFilters,
+      );
+    }
+    return _filteredRowIndices;
+  }
+
   return {
     selection: state.selection,
     selectionCardinality: getSelectionCardinality(state.selection),
@@ -91,7 +115,8 @@ export function buildActionContext<T>(
     rowStatus: state.rowStatus,
     columnSpec: state.columnSpec,
     editable: state.editable,
-    getSelectedRowIndices: () => getSelectedRowIndices(state.selection),
+    getSelectedRowIndices: () =>
+      getSelectedRowIndices(state.selection, getFilteredRowIndices()),
     getSelectedColumnKeys: () =>
       getSelectedColumnKeys(state.selection, state.columnSpec),
     onCellEdited: state.onCellEdited,
@@ -116,5 +141,86 @@ export function buildActionContext<T>(
     clearSelection: state.clearSelection,
     scrollToRow: state.scrollToRow,
     setState,
+    clipboardProxy: state.clipboardProxy,
+    setClipboardProxy(proxy) {
+      state.setClipboardProxy(proxy);
+    },
+    get filteredRowIndices() {
+      return getFilteredRowIndices();
+    },
   };
 }
+
+/** Compute which data row indices are visible given the active filters.
+ * Returns `null` when no filters are active (all rows visible). */
+export function computeFilteredRowIndices<T>(
+  data: T[],
+  updatedData: T[],
+  activeFilters: Map<string, { filter: any; state: any }>,
+): number[] | null {
+  if (activeFilters == null || activeFilters.size === 0) return null;
+  const numRows = Math.max(data.length, updatedData.length);
+  const indices: number[] = [];
+  for (let i = 0; i < numRows; i++) {
+    const baseRow = data[i];
+    const overlay = updatedData[i];
+    const row = overlay != null ? { ...baseRow, ...overlay } : baseRow;
+    if (row == null) continue;
+    let passes = true;
+    for (const [, { filter, state }] of activeFilters) {
+      if (!filter.predicate(row, state)) {
+        passes = false;
+        break;
+      }
+    }
+    if (passes) indices.push(i);
+  }
+  return indices;
+}
+
+/** Merge global actions with column-specific actions from the selected columns.
+ * Column-specific actions are extracted from `columnSpec[i].actions` for
+ * each column in the current selection. */
+export function mergeColumnActions<T>(
+  globalActions: TableAction<T>[],
+  columnSpec: ColumnSpec[],
+  selection: Region[],
+): TableAction<T>[] {
+  const columnKeys = getSelectedColumnKeys(selection, columnSpec);
+  if (columnKeys.length === 0) return globalActions;
+  const columnActions: TableAction<T>[] = [];
+  for (const col of columnSpec) {
+    if (columnKeys.includes(col.key) && col.actions != null) {
+      for (const action of col.actions as TableAction<T>[]) {
+        // Avoid duplicates by id
+        if (
+          !globalActions.some((a) => a.id === action.id) &&
+          !columnActions.some((a) => a.id === action.id)
+        ) {
+          columnActions.push(action);
+        }
+      }
+    }
+  }
+  return [...globalActions, ...columnActions];
+}
+
+/** Collect all available filters from global filters and column specs. */
+export function collectAllFilters<T>(
+  globalFilters: TableFilter<T>[],
+  columnSpec: ColumnSpec[],
+): TableFilter<T>[] {
+  const result: TableFilter<T>[] = [...globalFilters];
+  for (const col of columnSpec) {
+    if (col.filters != null) {
+      for (const f of col.filters as TableFilter<T>[]) {
+        const withKey: TableFilter<T> = { ...f, columnKey: f.columnKey ?? col.key };
+        if (!result.some((r) => r.id === withKey.id)) {
+          result.push(withKey);
+        }
+      }
+    }
+  }
+  return result;
+}
+
