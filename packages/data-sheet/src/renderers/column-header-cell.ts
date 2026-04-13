@@ -21,7 +21,6 @@ import { useSelector, useStoreAPI } from "../provider";
 import type { ColumnSpec } from "../utils/column-spec";
 import type { ColumnSort, TableFilter } from "../actions/types";
 import type { ColumnFilterEntry, ColumnSortEntry } from "../postgrest-table";
-import { ColumnHeaderActions } from "../postgrest-table/column-header";
 
 export interface ColumnActionsConfig {
   activeSort?: ColumnSortEntry | null;

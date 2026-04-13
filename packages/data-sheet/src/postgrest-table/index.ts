@@ -37,11 +37,11 @@ import type {
 import { ColorCell } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import {
-  PostgRESTColumnHeaderCell,
   OPERATOR_LABELS,
   type ColumnHeaderActions,
   renderPostgRESTColumnHeaderCell,
-} from "./column-header";
+  ColumnHeaderRendererProps,
+} from "../renderers";
 import type { ColumnSpec } from "../utils/column-spec";
 
 const h = hyper.styled(styles);
@@ -176,11 +176,15 @@ function _PostgRESTTableView<T>({
 
   // Column header cell renderer using sort/filter state
   const columnHeaderCellRenderer = useCallback(
-    (col: ColumnSpec, _colIndex: number) => {
+    (props: ColumnHeaderRendererProps) => {
+      const { col, colIndex } = props;
+      const activeSort = columnSorts.find((s) => s.key === col.key);
+      const activeFilter = columnFilters.find((f) => f.key === col.key);
       return renderPostgRESTColumnHeaderCell({
         col,
-        columnSorts,
-        columnFilters,
+        colIndex,
+        activeSort,
+        activeFilter,
         actions: columnHeaderActions,
       });
     },

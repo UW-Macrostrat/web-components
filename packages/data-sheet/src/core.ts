@@ -227,34 +227,30 @@ function _DataSheet<T>({
 
   const children = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
-      let _columnHeaderCellRenderer =
-        col.headerCellRenderer ?? columnHeaderCellRenderer;
-      if (
-        _columnHeaderCellRenderer == null &&
-        (col.sortable || col.filterable)
-      ) {
-        let activeSort = null;
-        if (col.sortable) {
-          activeSort = columnSorts.find((s) => s.key === col.key);
-        }
-        let activeFilter = null;
-        if (col.filterable) {
-          // The autoFilterID implementation is too complicated
-          activeFilter =
-            activeFilters.get(col.key) ??
-            activeFilters.get(autoFilterId(col.key));
-        }
-
-        _columnHeaderCellRenderer = (colIndex) => {
-          console.log("Column header cell renderer", col, colIndex);
-          return renderColumnHeaderCell({
-            col,
-            colIndex,
-            activeSort,
-            activeFilter,
-          });
-        };
+      let fn =
+        col.headerCellRenderer ??
+        columnHeaderCellRenderer ??
+        renderColumnHeaderCell;
+      let activeSort = null;
+      let activeFilter = null;
+      if (col.sortable) {
+        activeSort = columnSorts?.find((s) => s.key === col.key);
       }
+      if (col.filterable) {
+        // The autoFilterID implementation is too complicated
+        activeFilter =
+          activeFilters?.get(col.key) ??
+          activeFilters?.get(autoFilterId(col.key));
+      }
+
+      const _columnHeaderCellRenderer = (colIndex) => {
+        return fn({
+          col,
+          colIndex,
+          activeSort,
+          activeFilter,
+        });
+      };
 
       return h(Column, {
         name: col.name,

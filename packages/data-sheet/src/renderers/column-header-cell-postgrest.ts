@@ -16,13 +16,14 @@ import {
   Menu,
 } from "@blueprintjs/core";
 import { useCallback, useRef, useState } from "react";
-import h from "./column-header.module.sass";
+import h from "./column-header-cell-postgrest.module.sass";
 import type { ColumnSpec, ColumnDataType } from "../utils/column-spec";
 import type {
   ColumnSortEntry,
   ColumnFilterEntry,
   PostgRESTFilterOperator,
-} from "./data-loaders";
+} from "../postgrest-table/data-loaders";
+import { ColumnHeaderRendererProps } from "./column-header-cell";
 
 /** Operators appropriate for string columns. */
 const STRING_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
@@ -85,18 +86,11 @@ export interface ColumnHeaderActions {
   onClearColumn: (key: string) => void;
 }
 
-interface ColumnHeaderPopoverProps {
-  col: ColumnSpec;
-  columnSorts: ColumnSortEntry[];
-  columnFilters: ColumnFilterEntry[];
-  actions: ColumnHeaderActions;
-}
-
 /** The main column header cell renderer for PostgREST tables. */
 export function renderPostgRESTColumnHeaderCell(
-  props: ColumnHeaderPopoverProps,
+  props: ColumnHeaderRendererProps & { actions: ColumnHeaderActions },
 ): React.ReactElement<ColumnHeaderCellProps> | null {
-  const { col, columnSorts, columnFilters, actions } = props;
+  const { col, activeSort, activeFilter, actions } = props;
 
   const isSortable = col.sortable === true;
   const isFilterable =
@@ -107,19 +101,10 @@ export function renderPostgRESTColumnHeaderCell(
     return h(ColumnHeaderCell, { name: col.name });
   }
 
-  const activeSort = columnSorts.find((s) => s.key === col.key);
-  const activeFilter = columnFilters.find((f) => f.key === col.key);
-
-  const hasSortActive = activeSort != null;
-  const hasFilterActive =
-    activeFilter != null &&
-    activeFilter.value !== "" &&
-    activeFilter.value != null;
-
   return h(ColumnHeaderCell, {
     name: col.name,
-    nameRenderer: () =>
-      h(ColumnHeaderName, { col, hasSortActive, hasFilterActive, activeSort }),
+    //nameRenderer: (): any => col.name,
+    //h(ColumnHeaderName, { col, hasSortActive, hasFilterActive, activeSort }),
     menuRenderer: () =>
       h(ColumnActionsMenu, {
         col,
