@@ -103,8 +103,8 @@ export function renderPostgRESTColumnHeaderCell(
 
   return h(ColumnHeaderCell, {
     name: col.name,
-    //nameRenderer: (): any => col.name,
-    //h(ColumnHeaderName, { col, hasSortActive, hasFilterActive, activeSort }),
+    nameRenderer: (): any =>
+      h(ColumnHeaderName, { col, activeFilter, activeSort }),
     menuRenderer: () =>
       h(ColumnActionsMenu, {
         col,
@@ -118,7 +118,9 @@ export function renderPostgRESTColumnHeaderCell(
 }
 
 /** Column name with active sort/filter indicator icons. */
-function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
+function ColumnHeaderName({ col, activeSort, activeFilter }) {
+  const hasSortActive = activeSort != null;
+  const hasFilterActive = activeFilter != null;
   return h("div.column-header-cell", [
     h("span.column-name", col.name),
     h.if(hasSortActive || hasFilterActive)("span.column-indicators", [
