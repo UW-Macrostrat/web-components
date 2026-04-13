@@ -6,7 +6,7 @@
  * existing `setFilter` / `removeFilter` mechanism with auto-generated
  * predicate filters for simple text search.
  */
-import hyper from "@macrostrat/hyper";
+import h from "@macrostrat/hyper";
 import { ColumnHeaderCell } from "@blueprintjs/table";
 import {
   Button,
@@ -17,18 +17,29 @@ import {
   Tag as BPTag,
 } from "@blueprintjs/core";
 import { useCallback, useRef } from "react";
-import { useSelector, useStoreAPI } from "./provider";
-import type { ColumnSpec } from "./utils/column-spec";
-import type { ColumnSort, TableFilter } from "./actions/types";
+import { useSelector, useStoreAPI } from "../provider";
+import type { ColumnSpec } from "../utils/column-spec";
+import type { ColumnSort, TableFilter } from "../actions/types";
+import type { ColumnFilterEntry, ColumnSortEntry } from "../postgrest-table";
+import { ColumnHeaderActions } from "../postgrest-table/column-header";
 
-const h = hyper;
+export interface ColumnActionsConfig {
+  activeSort?: ColumnSortEntry | null;
+  activeFilter?: ColumnFilterEntry | null;
+}
+
+export interface ColumnHeaderRendererProps extends ColumnActionsConfig {
+  col: ColumnSpec;
+  colIndex: number;
+  //actions: ColumnHeaderActions;
+}
 
 // ---- Auto-generated column filter helpers ----
 
 /** Build a simple text-contains filter for a column. */
 function buildAutoFilter(col: ColumnSpec): TableFilter {
   return {
-    id: `__col_${col.key}`,
+    id: autoFilterId(col.key),
     name: col.name,
     columnKey: col.key,
     icon: "filter",
@@ -42,7 +53,7 @@ function buildAutoFilter(col: ColumnSpec): TableFilter {
 }
 
 /** Stable filter-ID prefix for auto-generated column filters. */
-function autoFilterId(key: string) {
+export function autoFilterId(key: string) {
   return `__col_${key}`;
 }
 
@@ -51,15 +62,13 @@ function autoFilterId(key: string) {
 /** Client-side column header cell with sort/filter controls.
  * Reads sort state from the store and manages column filters via
  * the existing `setFilter`/`removeFilter` store methods. */
-export function ClientColumnHeaderCell({
+export function renderColumnHeaderCell({
   col,
   colIndex,
-}: {
-  col: ColumnSpec;
-  colIndex: number;
-}) {
-  const columnSorts = useSelector((state) => state.columnSorts);
-  const activeFilters = useSelector((state) => state.activeFilters);
+  activeSort,
+  activeFilter,
+}: ColumnHeaderRendererProps) {
+  return h(ColumnHeaderCell, { name: col.name });
 
   const isSortable = col.sortable === true;
   const isFilterable =
@@ -69,13 +78,10 @@ export function ClientColumnHeaderCell({
     return h(ColumnHeaderCell, { name: col.name });
   }
 
-  const activeSort = columnSorts.find((s) => s.key === col.key);
-  const fId = autoFilterId(col.key);
-  const activeFilterEntry = activeFilters.get(fId);
   const hasFilterActive =
-    activeFilterEntry != null &&
-    activeFilterEntry.state?.search !== "" &&
-    activeFilterEntry.state?.search != null;
+    activeFilter != null &&
+    activeFilter.state?.search !== "" &&
+    activeFilter.state?.search != null;
 
   const hasSortActive = activeSort != null;
 
@@ -89,7 +95,7 @@ export function ClientColumnHeaderCell({
         isSortable,
         isFilterable,
         activeSort,
-        activeFilterEntry,
+        activeFilter,
       }),
   });
 }
@@ -140,13 +146,19 @@ function ColumnHeaderName({ col, hasSortActive, hasFilterActive, activeSort }) {
   );
 }
 
+interface ClientColumnActionsMenuProps extends ColumnActionsConfig {
+  col: ColumnSpec;
+  isSortable: boolean;
+  isFilterable: boolean;
+}
+
 /** Menu content rendered inside ColumnHeaderCell's built-in dropdown. */
 function ClientColumnActionsMenu({
   col,
   isSortable,
   isFilterable,
   activeSort,
-  activeFilterEntry,
+  activeFilter,
 }) {
   const storeAPI = useStoreAPI();
   const filterInputRef = useRef<HTMLInputElement>(null);
@@ -164,9 +176,9 @@ function ClientColumnActionsMenu({
 
   const hasAnyActive =
     activeSort != null ||
-    (activeFilterEntry != null &&
-      activeFilterEntry.state?.search !== "" &&
-      activeFilterEntry.state?.search != null);
+    (activeFilter != null &&
+      activeFilter.state?.search !== "" &&
+      activeFilter.state?.search != null);
 
   return h(Menu, { className: "column-actions-menu" }, [
     h("div", { style: { padding: "12px", minWidth: "220px" } }, [

@@ -6,8 +6,7 @@
  * The `nameRenderer` prop shows the column name plus visual indicators
  * for any active sort or filter.
  */
-import hyper from "@macrostrat/hyper";
-import { ColumnHeaderCell } from "@blueprintjs/table";
+import { ColumnHeaderCell, ColumnHeaderCellProps } from "@blueprintjs/table";
 import {
   Button,
   ButtonGroup,
@@ -17,15 +16,13 @@ import {
   Menu,
 } from "@blueprintjs/core";
 import { useCallback, useRef, useState } from "react";
-import styles from "./column-header.module.sass";
+import h from "./column-header.module.sass";
 import type { ColumnSpec, ColumnDataType } from "../utils/column-spec";
 import type {
   ColumnSortEntry,
   ColumnFilterEntry,
   PostgRESTFilterOperator,
 } from "./data-loaders";
-
-const h = hyper.styled(styles);
 
 /** Operators appropriate for string columns. */
 const STRING_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
@@ -96,7 +93,9 @@ interface ColumnHeaderPopoverProps {
 }
 
 /** The main column header cell renderer for PostgREST tables. */
-export function PostgRESTColumnHeaderCell(props: ColumnHeaderPopoverProps) {
+export function renderPostgRESTColumnHeaderCell(
+  props: ColumnHeaderPopoverProps,
+): React.ReactElement<ColumnHeaderCellProps> | null {
   const { col, columnSorts, columnFilters, actions } = props;
 
   const isSortable = col.sortable === true;

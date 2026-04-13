@@ -10,11 +10,16 @@ import {
   PostgrestOrder,
   usePostgRESTLazyLoader,
 } from "./data-loaders";
-import { Spinner, InputGroup, Button, ButtonGroup, Tag as BPTag } from "@blueprintjs/core";
+import {
+  Spinner,
+  InputGroup,
+  Button,
+  ButtonGroup,
+  Tag as BPTag,
+} from "@blueprintjs/core";
 
 export * from "./data-loaders";
 export * from "./lazy-loader-table";
-export * from "./column-header";
 import { useCallback, useMemo, useState, useRef } from "react";
 import {
   ErrorBoundary,
@@ -35,6 +40,7 @@ import {
   PostgRESTColumnHeaderCell,
   OPERATOR_LABELS,
   type ColumnHeaderActions,
+  renderPostgRESTColumnHeaderCell,
 } from "./column-header";
 import type { ColumnSpec } from "../utils/column-spec";
 
@@ -171,7 +177,7 @@ function _PostgRESTTableView<T>({
   // Column header cell renderer using sort/filter state
   const columnHeaderCellRenderer = useCallback(
     (col: ColumnSpec, _colIndex: number) => {
-      return PostgRESTColumnHeaderCell({
+      return renderPostgRESTColumnHeaderCell({
         col,
         columnSorts,
         columnFilters,

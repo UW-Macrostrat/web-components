@@ -1,6 +1,7 @@
 import { Button, HotkeysProvider, InputGroup } from "@blueprintjs/core";
 import {
   Column,
+  ColumnHeaderCell,
   Region,
   RegionCardinality,
   RowHeaderCell,
@@ -10,6 +11,11 @@ import {
 import "@blueprintjs/table/lib/css/table.css";
 import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { DataSheetAction } from "./components";
+import {
+  autoFilterId,
+  renderColumnHeaderCell,
+  SortFilterBar,
+} from "./renderers";
 import h from "./main.module.sass";
 import {
   atom,
@@ -28,7 +34,6 @@ import { basicCellRenderer } from "./cell-renderer.ts";
 import { tableKeyHandlerAtom } from "./utils";
 import type { TableAction, TableFilter } from "./actions";
 import { ActionsToolbar, FilterBar } from "./actions";
-import { ClientColumnHeaderCell, SortFilterBar } from "./column-header";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -217,21 +222,43 @@ function _DataSheet<T>({
     [columnSpec],
   );
 
-  const _columnHeaderCellRenderer =
-    columnHeaderCellRenderer ??
-    (hasSortableOrFilterable
-      ? (col, colIndex, props) =>
-          h(ClientColumnHeaderCell, { col, colIndex, ...props })
-      : undefined);
+  const columnSorts = useSelector((state) => state.columnSorts);
+  const activeFilters = useSelector((state) => state.activeFilters);
 
   const children = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
+      let _columnHeaderCellRenderer =
+        col.headerCellRenderer ?? columnHeaderCellRenderer;
+      if (
+        _columnHeaderCellRenderer == null &&
+        (col.sortable || col.filterable)
+      ) {
+        let activeSort = null;
+        if (col.sortable) {
+          activeSort = columnSorts.find((s) => s.key === col.key);
+        }
+        let activeFilter = null;
+        if (col.filterable) {
+          // The autoFilterID implementation is too complicated
+          activeFilter =
+            activeFilters.get(col.key) ??
+            activeFilters.get(autoFilterId(col.key));
+        }
+
+        _columnHeaderCellRenderer = (colIndex) => {
+          console.log("Column header cell renderer", col, colIndex);
+          return renderColumnHeaderCell({
+            col,
+            colIndex,
+            activeSort,
+            activeFilter,
+          });
+        };
+      }
+
       return h(Column, {
         name: col.name,
-        columnHeaderCellRenderer:
-          _columnHeaderCellRenderer != null
-            ? (props) => _columnHeaderCellRenderer(col, colIndex, props)
-            : undefined,
+        columnHeaderCellRenderer: _columnHeaderCellRenderer,
         cellRenderer: (rowIndex) => {
           const state = storeAPI.getState();
           return basicCellRenderer<T>(
@@ -247,10 +274,12 @@ function _DataSheet<T>({
     });
   }, [
     columnSpec,
+    columnSorts,
+    activeFilters,
     storeAPI,
     autoFocusEditor,
     filteredRowIndices,
-    _columnHeaderCellRenderer,
+    columnHeaderCellRenderer,
   ]);
 
   const onColumnWidthChanged = useSelector(
@@ -386,4 +415,8 @@ export function getRowsToDelete(selection) {
     }
   }
   return rowIndices;
+}
+
+function OurColumnHeaderCell({ col, colIndex, ...rest }) {
+  return h(ColumnHeaderCell, { name: col.name });
 }

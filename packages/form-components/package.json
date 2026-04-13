@@ -57,7 +57,7 @@
     "@mantine/hooks": "^4.2.1",
     "@mapbox/mapbox-gl-draw": "^1.5.1",
     "@types/mapbox__mapbox-gl-draw": "^1.4.8",
-    "@types/react": "^18.3.12",
+    "@types/react": "^19.2.14",
     "@types/react-dom": "^18",
     "axios": "^1.13.2",
     "classnames": "^2.5.1",

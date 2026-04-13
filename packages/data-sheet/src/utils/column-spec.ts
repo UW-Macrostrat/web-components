@@ -34,6 +34,7 @@ export interface ColumnSpec {
   isValid?: (d: any) => boolean;
   transformValue?: (d: any) => any;
   valueRenderer?: (d: any) => string | React.ReactNode;
+  headerRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
   cellComponent?: any;
   category?: string;
