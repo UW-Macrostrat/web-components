@@ -9,7 +9,14 @@ import {
   TableProps,
 } from "@blueprintjs/table";
 import "@blueprintjs/table/lib/css/table.css";
-import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { DataSheetAction } from "./components";
 import {
   autoFilterId,
@@ -315,6 +322,14 @@ function _DataSheet<T>({
     // Ensure selection mode includes "cells"
   }
 
+  const cellRendererDependencies = [
+    data,
+    updatedData,
+    focusedCell,
+    rowStatus,
+    filteredRowIndices,
+  ];
+
   return h("div.data-sheet-container", { className, style }, [
     h.if(actions != null)(ActionsToolbar, { actions }),
     h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
@@ -341,13 +356,7 @@ function _DataSheet<T>({
           enableRowReordering: false,
           enableRowResizing: false,
           // The cell renderer is memoized internally based on these data dependencies
-          cellRendererDependencies: [
-            data,
-            updatedData,
-            focusedCell,
-            rowStatus,
-            filteredRowIndices,
-          ],
+          cellRendererDependencies,
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,
           selectionModes: _selectionModes,
@@ -356,6 +365,16 @@ function _DataSheet<T>({
         children,
       ),
     ),
+    h(CellRendererDebugOverlay, {
+      cellRendererDependencies,
+      names: [
+        "data",
+        "updatedData",
+        "focusedCell",
+        "rowStatus",
+        "filteredRowIndices",
+      ],
+    }),
   ]);
 }
 
@@ -371,6 +390,27 @@ const columnWidthsAtom = atom((get) => {
     (col) => ix.get(col.key) ?? col.width ?? get(defaultColumnWidthAtom),
   );
 });
+
+function CellRendererDebugOverlay({ cellRendererDependencies, names }) {
+  /** Debug overlay for cell renderer dependencies */
+  const lastRenderDependencies = useRef<any[]>(cellRendererDependencies);
+  useEffect(() => {
+    let changeDepNames = [];
+    for (const [i, dep] of cellRendererDependencies.entries()) {
+      if (dep !== lastRenderDependencies.current[i]) {
+        changeDepNames.push(names[i]);
+      }
+    }
+    if (changeDepNames.length > 0) {
+      console.log(
+        "Cell renderer dependencies changed:",
+        changeDepNames.join(", "),
+      );
+    }
+    lastRenderDependencies.current = cellRendererDependencies;
+  }, cellRendererDependencies);
+  return null;
+}
 
 export function ScrollToRowControl() {
   const [value, setValue] = useState("");
