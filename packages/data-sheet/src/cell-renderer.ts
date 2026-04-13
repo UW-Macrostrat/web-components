@@ -120,6 +120,7 @@ export function basicCellRenderer<T>(
     if (_dataEditor != null) {
       cellContents = _dataEditor;
     }
+    const className = "value-viewer-cell";
 
     return h(
       _Cell,
@@ -127,6 +128,7 @@ export function basicCellRenderer<T>(
         intent,
         value,
         style,
+        className,
       },
       cellContents,
     );
