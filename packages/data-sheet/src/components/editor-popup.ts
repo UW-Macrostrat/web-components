@@ -64,7 +64,7 @@ export function EditorPopup(props) {
       usePortal: true,
     },
     h(
-      "span.editor-popup-target.bp6-table-cell",
+      "span.editor-popup-target",
       {
         className: targetClassName,
         onClick: () => setIsOpen(!isOpen),
