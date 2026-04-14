@@ -9,7 +9,6 @@ import {
   ColumnHeaderCell,
   Region,
   RegionCardinality,
-  RenderMode,
   RowHeaderCell,
   Table,
   TableProps,
@@ -208,25 +207,7 @@ function _DataSheet<T>({
 
   let className = `${density}-density`;
 
-  let rowHeight = 20;
-  let defaultColumnWidth = 150;
-  let style = {
-    "--data-sheet-row-height": "20px",
-    "--data-sheet-font-size": "12px",
-  };
-  if (density === DataSheetDensity.MEDIUM) {
-    rowHeight = 24;
-    style = {
-      "--data-sheet-row-height": "24px",
-      "--data-sheet-font-size": "14px",
-    };
-  } else if (density === DataSheetDensity.LOW) {
-    rowHeight = 30;
-    style = {
-      "--data-sheet-row-height": "30px",
-      "--data-sheet-font-size": "18px",
-    };
-  }
+  const { rowHeight, style } = styleParamsForDensity(density);
 
   const onColumnsReordered = useSelector((state) => state.onColumnsReordered);
 
@@ -365,6 +346,7 @@ function _DataSheet<T>({
             columnWidths,
             onColumnWidthChanged,
             onSelection,
+            /** TODO: we could enable this, but we need a use-case first... */
             enableRowReordering: false,
             enableRowResizing: false,
             // The cell renderer is memoized internally based on these data dependencies
@@ -372,7 +354,6 @@ function _DataSheet<T>({
             onVisibleCellsChange: _onVisibleCellsChange,
             rowHeaderCellRenderer,
             selectionModes: _selectionModes,
-            renderMode: RenderMode.BATCH,
             ...rest,
           },
           children,
@@ -453,6 +434,36 @@ export function ScrollToRowControl() {
   ]);
 }
 
+function styleParamsForDensity(density: DataSheetDensity) {
+  switch (density) {
+    case DataSheetDensity.MEDIUM:
+      return {
+        rowHeight: 24,
+        style: {
+          "--data-sheet-row-height": "24px",
+          "--data-sheet-font-size": "14px",
+        },
+      };
+    case DataSheetDensity.LOW:
+      return {
+        rowHeight: 30,
+        style: {
+          "--data-sheet-row-height": "30px",
+          "--data-sheet-font-size": "18px",
+        },
+      };
+    case DataSheetDensity.HIGH:
+    default:
+      return {
+        rowHeight: 20,
+        style: {
+          "--data-sheet-row-height": "20px",
+          "--data-sheet-font-size": "12px",
+        },
+      };
+  }
+}
+
 export function getRowsToDelete(selection) {
   let rowIndices: number[] = [];
   for (const sel of selection) {
@@ -465,8 +476,4 @@ export function getRowsToDelete(selection) {
     }
   }
   return rowIndices;
-}
-
-function OurColumnHeaderCell({ col, colIndex, ...rest }) {
-  return h(ColumnHeaderCell, { name: col.name });
 }
