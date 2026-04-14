@@ -42,7 +42,6 @@ import {
   renderPostgRESTColumnHeaderCell,
   ColumnHeaderRendererProps,
 } from "../renderers";
-import type { ColumnSpec } from "../utils/column-spec";
 
 const h = hyper.styled(styles);
 
@@ -115,7 +114,7 @@ function _PostgRESTTableView<T>({
     };
   }
 
-  const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
+  const { data, onScroll, dispatch, getClient } = usePostgRESTLazyLoader(
     endpoint,
     table,
     {
@@ -229,10 +228,9 @@ function _PostgRESTTableView<T>({
 
         dispatch({ type: "start-loading" });
 
+        const client = getClient();
         let query = client.delete().in(identityKey, ids);
-
         query = filter?.(query) ?? query;
-
         finishResponse(query, { $delete: Array.from(rowIndices.keys()) });
       },
       onSaveData(updates, data) {
@@ -249,12 +247,10 @@ function _PostgRESTTableView<T>({
         }
 
         dispatch({ type: "start-loading" });
-
+        const client = getClient();
         // Save data
         let query = client.upsert(updateRows, { defaultToNull: false });
-
         query = filter?.(query) ?? query;
-
         finishResponse(query, changes);
       },
     }),

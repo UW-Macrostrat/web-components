@@ -105,7 +105,6 @@ function lazyLoadingReducer<T>(
         ...action.data,
         ...data.slice(action.offset + action.data.length),
       ];
-
       return {
         ...state,
         data,
@@ -199,8 +198,6 @@ function buildQuery<T>(
   const { columns = "*", count } = config;
   const opts = { count };
 
-  console.log("config", config);
-
   let cols: string;
   if (Array.isArray(columns)) {
     cols = columns.join(", ");
@@ -234,13 +231,9 @@ function buildQuery<T>(
     for (const sort of config.columnSorts) {
       query = query.order(sort.key, { ascending: sort.ascending });
     }
-    // Cursor-based pagination using the first sort key
-    const primarySort = config.columnSorts[0];
-    if (config.after != null) {
-      const op = primarySort.ascending ? "gt" : "lt";
-      query = query[op](primarySort.key, config.after);
-    }
-  } else if (config.order != null) {
+  }
+
+  if (config.order != null) {
     const { key: orderKey, ...rest } = config.order;
     query = query.order(orderKey, rest);
     if (config.after != null) {
@@ -277,10 +270,7 @@ function _loadMoreData<T>(
   const { chunkSize = 100, ...rest } = config;
 
   // Determine the primary sort key from column sorts or the order prop
-  const sortKey =
-    config.columnSorts?.length > 0
-      ? config.columnSorts[0].key
-      : config.order?.key ?? "id";
+  const sortKey = config.order?.key ?? "id";
 
   let cfg: QueryConfig = {
     ...rest,
@@ -347,7 +337,7 @@ export function usePostgRESTLazyLoader(
     initialized: false,
   };
 
-  const client = useMemo(() => {
+  const getClient = useCallback(() => {
     return new PostgrestClient(endpoint).from(table);
   }, [endpoint, table]);
 
@@ -360,17 +350,12 @@ export function usePostgRESTLazyLoader(
     [config.columnSorts, config.columnFilters],
   );
 
-  const prevSortFilterKey = useRef(sortFilterKey);
   useEffect(() => {
-    if (prevSortFilterKey.current !== sortFilterKey) {
-      prevSortFilterKey.current = sortFilterKey;
-      // Use start-reload to preserve table dimensions and show ghost cells
-      // instead of flashing an empty table
-      dispatch({ type: "start-reload" });
-    }
+    dispatch({ type: "reset" });
   }, [sortFilterKey]);
 
   useAsyncEffect(async () => {
+    const client = getClient();
     loadMoreData(client, config, state, dispatch);
   }, [
     data,
@@ -405,7 +390,7 @@ export function usePostgRESTLazyLoader(
     loading,
     onScroll,
     dispatch,
-    client,
+    getClient,
   };
 }
 
