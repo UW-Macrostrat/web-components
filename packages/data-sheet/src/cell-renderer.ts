@@ -104,9 +104,13 @@ export function basicCellRenderer<T>(
         h(col.dataEditor, {
           value,
           editable,
+          isEdited: edited,
           onChange(value) {
             if (!editable) return;
             state.onSelectionEdited(value);
+          },
+          resetValue() {
+            state.resetChanges();
           },
         }),
       ],
@@ -124,7 +128,7 @@ export function basicCellRenderer<T>(
       {
         intent,
         value,
-        //style,
+        style,
         className,
         interactive: false,
       },
