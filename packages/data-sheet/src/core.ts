@@ -1,4 +1,9 @@
-import { Button, HotkeysProvider, InputGroup } from "@blueprintjs/core";
+import {
+  Button,
+  HotkeysProvider,
+  InputGroup,
+  OverlaysProvider,
+} from "@blueprintjs/core";
 import {
   Column,
   ColumnHeaderCell,
@@ -264,6 +269,7 @@ function _DataSheet<T>({
       };
 
       return h(Column, {
+        id: col.key,
         name: col.name,
         columnHeaderCellRenderer: _columnHeaderCellRenderer,
         cellRenderer: (rowIndex) => {
@@ -334,53 +340,56 @@ function _DataSheet<T>({
     filteredRowIndices,
   ];
 
-  return h("div.data-sheet-container", { className, style }, [
-    h.if(actions != null)(ActionsToolbar, { actions }),
-    h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
-    h.if(hasSortableOrFilterable)(SortFilterBar),
-    dataSheetActions,
-    h(
-      "div.data-sheet-holder",
-      { onKeyDown },
+  return h(
+    OverlaysProvider,
+    h("div.data-sheet-container", { className, style }, [
+      h.if(actions != null)(ActionsToolbar, { actions }),
+      h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
+      h.if(hasSortableOrFilterable)(SortFilterBar),
+      dataSheetActions,
       h(
-        Table,
-        {
-          ref,
-          numRows,
-          className: "data-sheet",
-          enableFocusedCell,
-          onColumnsReordered,
-          focusedCell,
-          selectedRegions,
-          defaultRowHeight: rowHeight,
-          minRowHeight: rowHeight,
-          columnWidths,
-          onColumnWidthChanged,
-          onSelection,
-          enableRowReordering: false,
-          enableRowResizing: false,
-          // The cell renderer is memoized internally based on these data dependencies
-          cellRendererDependencies,
-          onVisibleCellsChange: _onVisibleCellsChange,
-          rowHeaderCellRenderer,
-          selectionModes: _selectionModes,
-          renderMode: RenderMode.BATCH,
-          ...rest,
-        },
-        children,
+        "div.data-sheet-holder",
+        { onKeyDown },
+        h(
+          Table,
+          {
+            ref,
+            numRows,
+            className: "data-sheet",
+            enableFocusedCell,
+            onColumnsReordered,
+            focusedCell,
+            selectedRegions,
+            defaultRowHeight: rowHeight,
+            minRowHeight: rowHeight,
+            columnWidths,
+            onColumnWidthChanged,
+            onSelection,
+            enableRowReordering: false,
+            enableRowResizing: false,
+            // The cell renderer is memoized internally based on these data dependencies
+            cellRendererDependencies,
+            onVisibleCellsChange: _onVisibleCellsChange,
+            rowHeaderCellRenderer,
+            selectionModes: _selectionModes,
+            renderMode: RenderMode.BATCH,
+            ...rest,
+          },
+          children,
+        ),
       ),
-    ),
-    h.if(debugMode)(CellRendererDebugOverlay, {
-      cellRendererDependencies,
-      names: [
-        "data",
-        "updatedData",
-        "focusedCell",
-        "rowStatus",
-        "filteredRowIndices",
-      ],
-    }),
-  ]);
+      h.if(debugMode)(CellRendererDebugOverlay, {
+        cellRendererDependencies,
+        names: [
+          "data",
+          "updatedData",
+          "focusedCell",
+          "rowStatus",
+          "filteredRowIndices",
+        ],
+      }),
+    ]),
+  );
 }
 
 /** Atoms for efficient sub-selection of state */
