@@ -1,7 +1,7 @@
 import { SetStateAction, useEffect, useRef, useState } from "react";
 import h from "@macrostrat/hyper";
 import { createStore, StoreApi, useStore } from "zustand";
-import type { Region, Table } from "@blueprintjs/table";
+import type { Table } from "@blueprintjs/table";
 import { generateColumnSpec } from "./utils";
 import { createScopedStore } from "@macrostrat/data-components";
 import {
@@ -11,13 +11,11 @@ import {
 } from "./types.ts";
 import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
+export { atom } from "jotai";
 import { atom } from "jotai";
 
 /** Create a Jotai scoped store */
-const scope = createScopedStore();
-const { useAtom, useAtomValue, useSetAtom } = scope;
-export { useAtom, useAtomValue, useSetAtom };
-export { atom };
+export const ctx = createScopedStore();
 
 export const storeAPIAtom = atom<StoreApi<DataSheetStore<any>>>();
 
@@ -52,7 +50,7 @@ export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
     return createStore<DataSheetStore<T>>(createZustandStore);
   });
   return h(
-    scope.Provider,
+    ctx.Provider,
     {
       atoms: [[storeAPIAtom, store]],
     },
@@ -76,7 +74,7 @@ export function DataSheetProviderInner<T>({
 
   const tableRef = useRef<Table>(null);
 
-  const initializeStore = scope.useSetAtom(initializeStoreAtom);
+  const initializeStore = ctx.useSet(initializeStoreAtom);
 
   // Not sure how required this initialization is
   useEffect(() => {
@@ -95,7 +93,7 @@ export function DataSheetProviderInner<T>({
 }
 
 export function useStoreAPI<T>(): StoreApi<DataSheetStore<T>> {
-  const store = scope.useAtomValue(storeAPIAtom);
+  const store = ctx.useValue(storeAPIAtom);
   if (!store) {
     throw new Error("Missing DataSheetProvider");
   }
@@ -108,3 +106,6 @@ export function useSelector<T = any, A = any>(
   const store = useStoreAPI<T>();
   return useStore(store, selector);
 }
+/** Atoms for efficient sub-selection of state */
+
+export const columnSpecAtom = atom((get) => get(storeAtom).columnSpec);

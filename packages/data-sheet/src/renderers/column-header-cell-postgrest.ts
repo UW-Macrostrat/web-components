@@ -20,20 +20,20 @@ import h from "./column-header-cell-postgrest.module.sass";
 import type { ColumnSpec, ColumnDataType } from "../utils/column-spec";
 import type {
   ColumnSortEntry,
-  ColumnFilterEntry,
-  PostgRESTFilterOperator,
+  PostgrestColumnFilter,
+  PostgrestFilterOperator,
 } from "../postgrest-table/data-loaders";
 import { ColumnHeaderRendererProps } from "./column-header-cell";
 
 /** Operators appropriate for string columns. */
-const STRING_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
+const STRING_FILTER_OPERATORS: PostgrestFilterOperator[] = [
   "eq",
   "neq",
   "ilike",
 ];
 
 /** Operators appropriate for numeric / integer columns. */
-const NUMERIC_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
+const NUMERIC_FILTER_OPERATORS: PostgrestFilterOperator[] = [
   "eq",
   "neq",
   "gt",
@@ -43,10 +43,10 @@ const NUMERIC_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
 ];
 
 /** Operators appropriate for boolean columns. */
-const BOOLEAN_FILTER_OPERATORS: PostgRESTFilterOperator[] = ["eq", "neq"];
+const BOOLEAN_FILTER_OPERATORS: PostgrestFilterOperator[] = ["eq", "neq"];
 
 /** Fallback operators when no type information is available. */
-const DEFAULT_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
+const DEFAULT_FILTER_OPERATORS: PostgrestFilterOperator[] = [
   "eq",
   "neq",
   "ilike",
@@ -57,14 +57,14 @@ const DEFAULT_FILTER_OPERATORS: PostgRESTFilterOperator[] = [
 ];
 
 /** Map from data type to the appropriate set of filter operators. */
-const OPERATORS_BY_TYPE: Record<string, PostgRESTFilterOperator[]> = {
+const OPERATORS_BY_TYPE: Record<string, PostgrestFilterOperator[]> = {
   string: STRING_FILTER_OPERATORS,
   number: NUMERIC_FILTER_OPERATORS,
   integer: NUMERIC_FILTER_OPERATORS,
   boolean: BOOLEAN_FILTER_OPERATORS,
 };
 
-export const OPERATOR_LABELS: Record<PostgRESTFilterOperator, string> = {
+export const OPERATOR_LABELS: Record<PostgrestFilterOperator, string> = {
   eq: "=",
   neq: "≠",
   like: "like",
@@ -80,7 +80,7 @@ export interface ColumnHeaderActions {
   onSetSort: (key: string, ascending: boolean | null) => void;
   onSetFilter: (
     key: string,
-    operator: PostgRESTFilterOperator | null,
+    operator: PostgrestFilterOperator | null,
     value: string,
   ) => void;
   onClearColumn: (key: string) => void;
@@ -141,10 +141,10 @@ function ColumnHeaderName({ col, activeSort, activeFilter }) {
 
 /** Resolve filter operators for a column, considering explicit config,
  * inferred data type, and fallback defaults. */
-function getOperatorsForColumn(col: ColumnSpec): PostgRESTFilterOperator[] {
+function getOperatorsForColumn(col: ColumnSpec): PostgrestFilterOperator[] {
   // Explicit operators in filterable config take priority
   if (typeof col.filterable === "object" && col.filterable.operators?.length) {
-    return col.filterable.operators as PostgRESTFilterOperator[];
+    return col.filterable.operators as PostgrestFilterOperator[];
   }
   // Otherwise, pick operators based on the inferred data type
   if (col.dataType != null) {
@@ -164,7 +164,7 @@ function ColumnActionsMenu({
 }) {
   const operators = getOperatorsForColumn(col);
 
-  const [filterOperator, setFilterOperator] = useState<PostgRESTFilterOperator>(
+  const [filterOperator, setFilterOperator] = useState<PostgrestFilterOperator>(
     activeFilter?.operator ?? operators[0],
   );
   const filterInputRef = useRef<HTMLInputElement>(null);
@@ -236,7 +236,7 @@ function ColumnActionsMenu({
               label: OPERATOR_LABELS[op] ?? op,
             })),
             onChange(e) {
-              setFilterOperator(e.target.value as PostgRESTFilterOperator);
+              setFilterOperator(e.target.value as PostgrestFilterOperator);
             },
           }),
           h(InputGroup, {

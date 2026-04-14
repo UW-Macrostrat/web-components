@@ -20,11 +20,14 @@ import { useCallback, useRef } from "react";
 import { useSelector, useStoreAPI } from "../provider";
 import type { ColumnSpec } from "../utils/column-spec";
 import type { ColumnSort, TableFilter } from "../actions/types";
-import type { ColumnFilterEntry, ColumnSortEntry } from "../postgrest-table";
+import type {
+  PostgrestColumnFilter,
+  ColumnSortEntry,
+} from "../postgrest-table";
 
 export interface ColumnActionsConfig {
   activeSort?: ColumnSortEntry | null;
-  activeFilter?: ColumnFilterEntry | null;
+  activeFilter?: PostgrestColumnFilter | null;
 }
 
 export interface ColumnHeaderRendererProps extends ColumnActionsConfig {

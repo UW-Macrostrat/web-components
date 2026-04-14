@@ -6,7 +6,6 @@ import {
 } from "@blueprintjs/core";
 import {
   Column,
-  ColumnHeaderCell,
   Region,
   RegionCardinality,
   RowHeaderCell,
@@ -30,12 +29,13 @@ import {
 } from "./renderers";
 import h from "./main.module.sass";
 import {
-  atom,
+  columnSpecAtom,
   DataSheetProvider,
   storeAtom,
-  useAtomValue,
   useSelector,
   useStoreAPI,
+  ctx,
+  atom,
 } from "./provider";
 import {
   DataSheetProviderProps,
@@ -197,7 +197,7 @@ function _DataSheet<T>({
     console.log("Selected regions", selectedRegions);
   }, [selectedRegions]);
 
-  const columnWidths = useAtomValue(columnWidthsAtom);
+  const columnWidths = ctx.useValue(columnWidthsAtom);
 
   // When filters are active, only show matching rows
   const filteredRowIndices = useSelector((state) => state.filteredRowIndices);
@@ -301,7 +301,7 @@ function _DataSheet<T>({
     [rowStatus, filteredRowIndices],
   );
 
-  const onKeyDown = useAtomValue(tableKeyHandlerAtom);
+  const onKeyDown = ctx.useValue(tableKeyHandlerAtom);
 
   let _selectionModes = selectionModes;
   if (
@@ -373,9 +373,6 @@ function _DataSheet<T>({
   );
 }
 
-/** Atoms for efficient sub-selection of state */
-
-const columnSpecAtom = atom((get) => get(storeAtom).columnSpec);
 const columnWidthsIndexAtom = atom((get) => get(storeAtom).columnWidthsIndex);
 const defaultColumnWidthAtom = atom((get) => get(storeAtom).defaultColumnWidth);
 

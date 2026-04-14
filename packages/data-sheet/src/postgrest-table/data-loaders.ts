@@ -32,7 +32,7 @@ export interface PostgrestOrder<T> {
 }
 
 /** Operators available for server-side column filtering via PostgREST. */
-export type PostgRESTFilterOperator =
+export type PostgrestFilterOperator =
   | "eq"
   | "neq"
   | "like"
@@ -50,10 +50,43 @@ export interface ColumnSortEntry {
 }
 
 /** A single column filter entry. */
-export interface ColumnFilterEntry {
+export interface PostgrestColumnFilter {
   key: string;
-  operator: PostgRESTFilterOperator;
+  operator: PostgrestFilterOperator;
   value: string;
+}
+
+export interface PostgrestFilter {
+  type: "filter";
+  apply(
+    req: PostgrestFilterBuilder<any, any, any, any>,
+  ): PostgrestFilterBuilder<any, any, any, any>;
+}
+
+function standardizeFilter(
+  columnFilter: PostgrestColumnFilter,
+): PostgrestFilter {
+  return {
+    type: "filter",
+    apply(req) {
+      return applyColumnFilters(req, [columnFilter]);
+    },
+  };
+}
+
+function applyColumnFilters(
+  req: PostgrestFilterBuilder<any, any, any, any>,
+  filters: PostgrestColumnFilter[],
+) {
+  for (const cf of filters) {
+    if (cf.value === "" || cf.value == null) continue;
+    const val =
+      cf.operator === "like" || cf.operator === "ilike"
+        ? `*${cf.value}*`
+        : cf.value;
+    req = req.filter(cf.key, cf.operator, val);
+  }
+  return req;
 }
 
 type LazyLoaderAction<T> =
@@ -185,7 +218,7 @@ interface QueryConfig {
   /** Additional column-level sort entries (applied after the primary order). */
   columnSorts?: ColumnSortEntry[];
   /** Column-level filter entries applied as PostgREST filter operators. */
-  columnFilters?: ColumnFilterEntry[];
+  columnFilters?: PostgrestColumnFilter[];
   filter?: (
     query: PostgrestFilterBuilder<any, any, any>,
   ) => PostgrestFilterBuilder<any, any, any>;
@@ -211,16 +244,9 @@ function buildQuery<T>(
     query = config.filter(query);
   }
 
-  // Apply column-level filters
-  if (config.columnFilters?.length > 0) {
-    for (const cf of config.columnFilters) {
-      if (cf.value === "" || cf.value == null) continue;
-      const val =
-        cf.operator === "like" || cf.operator === "ilike"
-          ? `*${cf.value}*`
-          : cf.value;
-      query = query[cf.operator](cf.key, val);
-    }
+  const filters = config.columnFilters?.map(standardizeFilter) ?? [];
+  for (const filter of filters) {
+    query = filter.apply(query);
   }
 
   console.log("query", query.url.search);
@@ -318,7 +344,7 @@ type LazyLoaderOptions = Omit<QueryConfig, "count" | "offset" | "limit"> & {
    * the `order` prop for query building. */
   columnSorts?: ColumnSortEntry[];
   /** Column-level filter state, managed externally. */
-  columnFilters?: ColumnFilterEntry[];
+  columnFilters?: PostgrestColumnFilter[];
   filter?: (
     query: PostgrestFilterBuilder<any, any, any>,
   ) => PostgrestFilterBuilder<any, any, any>;

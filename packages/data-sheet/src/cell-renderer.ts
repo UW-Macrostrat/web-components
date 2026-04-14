@@ -5,7 +5,7 @@ import { ReactNode } from "react";
 import { EditorPopup } from "./components";
 import { singleFocusedCell } from "./zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
-import { useAtomValue, useSelector } from "./provider.ts";
+import { ctx, useSelector } from "./provider.ts";
 
 export function basicCellRenderer<T>(
   rowIndex: number,
@@ -198,7 +198,7 @@ export function basicCellRenderer<T>(
 }
 
 function EditorInput(props) {
-  const onKeyDown = useAtomValue(editorKeyHandlerAtom);
+  const onKeyDown = ctx.useValue(editorKeyHandlerAtom);
   return h("input", {
     onKeyDown,
     ...props,

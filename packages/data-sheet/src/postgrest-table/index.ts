@@ -4,9 +4,9 @@ import styles from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
-  ColumnFilterEntry,
+  PostgrestColumnFilter,
   ColumnSortEntry,
-  PostgRESTFilterOperator,
+  PostgrestFilterOperator,
   PostgrestOrder,
   usePostgRESTLazyLoader,
 } from "./data-loaders";
@@ -42,6 +42,7 @@ import {
   renderPostgRESTColumnHeaderCell,
   ColumnHeaderRendererProps,
 } from "../renderers";
+import { atom } from "jotai";
 
 const h = hyper.styled(styles);
 
@@ -77,6 +78,12 @@ export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
 
 const successResponses = [200, 201];
 
+const fullTextSearchAtom = atom((get) =>{
+  get(columnSpecAtom)
+
+});
+
+
 function _PostgRESTTableView<T>({
   endpoint,
   table,
@@ -94,7 +101,9 @@ function _PostgRESTTableView<T>({
 
   // Server-side column sort/filter state
   const [columnSorts, setColumnSorts] = useState<ColumnSortEntry[]>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFilterEntry[]>([]);
+  const [columnFilters, setColumnFilters] = useState<PostgrestColumnFilter[]>(
+    [],
+  );
 
   if (enableFullTableSearch) {
     const columnList = columns ?? getColumnList(endpoint, table);
@@ -156,7 +165,7 @@ function _PostgRESTTableView<T>({
       },
       onSetFilter(
         key: string,
-        operator: PostgRESTFilterOperator | null,
+        operator: PostgrestFilterOperator | null,
         value: string,
       ) {
         setColumnFilters((prev) => {
@@ -371,7 +380,7 @@ function ServerFilterBar({
   onClearAll,
 }: {
   columnSorts: ColumnSortEntry[];
-  columnFilters: ColumnFilterEntry[];
+  columnFilters: PostgrestColumnFilter[];
   onClearFilter: (key: string) => void;
   onClearAll: () => void;
 }) {
