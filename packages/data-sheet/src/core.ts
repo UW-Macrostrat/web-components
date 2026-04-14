@@ -4,6 +4,7 @@ import {
   ColumnHeaderCell,
   Region,
   RegionCardinality,
+  RenderMode,
   RowHeaderCell,
   Table,
   TableProps,
@@ -141,6 +142,9 @@ function _DataSheet<T>({
    * @param columnSpec: The specification for all columns in the table. If not provided, the column spec will be generated from the data.
    * @param columnSpecOptions: Options for generating a column spec from data
    */
+
+  // Turn on debug features
+  const debugMode = false;
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
@@ -360,12 +364,13 @@ function _DataSheet<T>({
           onVisibleCellsChange: _onVisibleCellsChange,
           rowHeaderCellRenderer,
           selectionModes: _selectionModes,
+          renderMode: RenderMode.BATCH,
           ...rest,
         },
         children,
       ),
     ),
-    h(CellRendererDebugOverlay, {
+    h.if(debugMode)(CellRendererDebugOverlay, {
       cellRendererDependencies,
       names: [
         "data",

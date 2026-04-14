@@ -36,16 +36,14 @@ export function basicCellRenderer<T>(
 
   const value =
     updatedData[dataRowIndex]?.[col.key] ?? data[dataRowIndex]?.[col.key];
-  const _renderedValue =
-    value != null ? (col.valueRenderer?.(value) ?? value) : null;
+  const isEmpty = value == null || value === "";
+  const _renderedValue = isEmpty ? null : (col.valueRenderer?.(value) ?? value);
 
   let style = col.style ?? {};
+
   if (isDeleted) {
-    style = {
-      ...style,
-      opacity: 0.5,
-      textDecoration: "line-through",
-    };
+    style.opacity = 0.5;
+    style.textDecoration = "line-through";
   }
 
   const editable = (col.editable ?? state.editable) && !isDeleted;
@@ -54,9 +52,7 @@ export function basicCellRenderer<T>(
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
-  if (!editable && state.editable) {
-    style.color = "var(--secondary-color)";
-  }
+  const tableIsEditable = state.editable;
 
   const edited =
     updatedData[dataRowIndex]?.[col.key] != null ||
@@ -66,7 +62,7 @@ export function basicCellRenderer<T>(
     intent = "danger";
   }
 
-  const _Cell = col.cellComponent ?? BaseCell;
+  const _Cell = col.cellComponent ?? Cell;
 
   let inlineEditor = editable ? (col.inlineEditor ?? true) : false;
 
@@ -78,7 +74,8 @@ export function basicCellRenderer<T>(
         loading,
         value,
         style,
-        isDeleted,
+        disabled: tableIsEditable && !editable,
+        interactive: false,
       },
       _renderedValue,
     );
@@ -127,8 +124,9 @@ export function basicCellRenderer<T>(
       {
         intent,
         value,
-        style,
+        //style,
         className,
+        interactive: false,
       },
       cellContents,
     );
@@ -184,6 +182,7 @@ export function basicCellRenderer<T>(
       value,
       className,
       style,
+      interactive: true,
       //truncated: false,
     },
     [
@@ -207,15 +206,4 @@ function DragHandle() {
   // This should be on the last cell of a selection
   const onMouseDown = useSelector((state) => state.onDragValue);
   return h("div.corner-drag-handle", { onMouseDown });
-}
-
-export function BaseCell({ children, value, ...rest }) {
-  return h(
-    Cell,
-    {
-      interactive: true,
-      ...rest,
-    },
-    children,
-  );
 }
