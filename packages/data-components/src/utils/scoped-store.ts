@@ -27,6 +27,9 @@ interface JotaiScope {
 interface StateIsolation extends JotaiScope {
   Provider: (props: ProviderProps) => ReactNode;
   useAtomValueIfExists: <T>(atom: WritableAtom<T, any, any>) => T | null;
+  use: JotaiScope["useAtom"];
+  useValue: JotaiScope["useAtomValue"];
+  useSet: JotaiScope["useSetAtom"];
 }
 
 export type AtomMap = [WritableAtom<any, any, any>, any][];
@@ -39,9 +42,12 @@ type ProviderProps = {
 };
 
 function enhanceJotaiScope(scope: JotaiScope): StateIsolation {
-  /** Enhance a Jotai scope with more sophisticated Provider */
+  /** Enhance a Jotai scope with more sophisticated Provider and functions */
   return {
     ...scope,
+    use: scope.useAtom,
+    useValue: scope.useAtomValue,
+    useSet: scope.useSetAtom,
     Provider: (props: ProviderProps): ReactNode =>
       h(ScopedProvider, { ...props, scope }) as ReactNode,
     useAtomValueIfExists: function <T>(
