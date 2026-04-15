@@ -144,6 +144,7 @@ function _PostgRESTTableView<T>({
     [],
   );
 
+  /** TODO: remove "full-text search" from filter options */
   const ftsFilter = buildFilter(ctx.useValue(fullTextSearchFilterConfigAtom));
   let filters = [];
   if (ftsFilter != null) {
