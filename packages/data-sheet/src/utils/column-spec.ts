@@ -20,6 +20,7 @@ const defaultWidthForValue = (val) => String(val).length * 8;
 /** Inferred data type of a column, used to select appropriate
  * sort/filter operators. */
 export type ColumnDataType =
+  | "text"
   | "string"
   | "number"
   | "integer"
@@ -115,6 +116,11 @@ export function generateDefaultColumnSpec<T>(
         type = "array";
       }
 
+      // Check if it is strictly a string, if so, we can explicitly mark it as text
+      if (type === "string") {
+        type = "text";
+      }
+
       if (types.has(key)) {
         if (types.get(key) !== type) {
           if (type === "number" && types.get(key) === "integer") {
@@ -150,6 +156,7 @@ export function generateDefaultColumnSpec<T>(
     // Scalar types (string, number, integer, boolean) get sort/filter;
     // complex types (object, array) do not.
     const isScalar =
+      dataType === "text" ||
       dataType === "string" ||
       dataType === "number" ||
       dataType === "integer" ||

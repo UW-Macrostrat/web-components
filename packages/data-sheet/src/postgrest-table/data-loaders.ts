@@ -74,7 +74,7 @@ function standardizeFilter(
   };
 }
 
-function applyColumnFilters(
+export function applyColumnFilters(
   req: PostgrestFilterBuilder<any, any, any, any>,
   filters: PostgrestColumnFilter[],
 ) {
@@ -133,10 +133,12 @@ function lazyLoadingReducer<T>(
       };
     case "loaded":
       let data = adjustArraySize(state.data, action.totalSize);
+      const newData = action.data ?? [];
+      const offset = action.offset ?? 0;
       data = [
-        ...data.slice(0, action.offset),
-        ...action.data,
-        ...data.slice(action.offset + action.data.length),
+        ...data.slice(0, offset),
+        ...newData,
+        ...data.slice(offset + newData.length),
       ];
       return {
         ...state,
@@ -207,7 +209,22 @@ function distanceToNextNonEmptyRow(
   return i;
 }
 
-interface QueryConfig {
+type SortAndFilterOptions = {
+  /** Column-level sort state, managed externally. When provided, overrides
+   * the `order` prop for query building. */
+  columnSorts?: ColumnSortEntry[];
+  /** Column-level filter state, managed externally. */
+  columnFilters?: PostgrestColumnFilter[];
+  filters?: PostgrestFilter[];
+};
+
+type LazyLoaderOptions = Omit<QueryConfig, "count" | "offset" | "limit"> &
+  SortAndFilterOptions & {
+    chunkSize?: number;
+    sortKey?: string;
+  };
+
+interface QueryConfig extends SortAndFilterOptions {
   columns?: string | string[];
   count?: "exact" | "estimated";
   limit?: number;
@@ -215,17 +232,10 @@ interface QueryConfig {
   order?: PostgrestOrder<any>;
   after?: any;
   fullTextSearch?: string;
-  /** Additional column-level sort entries (applied after the primary order). */
-  columnSorts?: ColumnSortEntry[];
-  /** Column-level filter entries applied as PostgREST filter operators. */
-  columnFilters?: PostgrestColumnFilter[];
-  filter?: (
-    query: PostgrestFilterBuilder<any, any, any>,
-  ) => PostgrestFilterBuilder<any, any, any>;
 }
 
 function buildQuery<T>(
-  client: PostgrestQueryBuilder<T, any>,
+  client: PostgrestQueryBuilder<T, any, any>,
   config: QueryConfig,
 ) {
   const { columns = "*", count } = config;
@@ -240,11 +250,12 @@ function buildQuery<T>(
 
   let query = client.select(cols, opts);
 
-  if (config.filter) {
-    query = config.filter(query);
-  }
+  const filters = config.filters ?? [];
 
-  const filters = config.columnFilters?.map(standardizeFilter) ?? [];
+  const columnFilters = config.columnFilters?.map(standardizeFilter) ?? [];
+  filters.push(...columnFilters);
+  console.log(filters);
+
   for (const filter of filters) {
     query = filter.apply(query);
   }
@@ -280,7 +291,7 @@ function buildQuery<T>(
 
 function _loadMoreData<T>(
   client: PostgrestQueryBuilder<T, any>,
-  config: QueryConfig & { chunkSize: number },
+  config: QueryConfig & { chunkSize?: number },
   state: LazyLoaderState<T>,
   dispatch: any,
 ) {
@@ -337,19 +348,6 @@ function _loadMoreData<T>(
 // Ensure only one data load is in progress at a time
 const loadMoreData = debounce(_loadMoreData, 100);
 
-type LazyLoaderOptions = Omit<QueryConfig, "count" | "offset" | "limit"> & {
-  chunkSize?: number;
-  sortKey?: string;
-  /** Column-level sort state, managed externally. When provided, overrides
-   * the `order` prop for query building. */
-  columnSorts?: ColumnSortEntry[];
-  /** Column-level filter state, managed externally. */
-  columnFilters?: PostgrestColumnFilter[];
-  filter?: (
-    query: PostgrestFilterBuilder<any, any, any>,
-  ) => PostgrestFilterBuilder<any, any, any>;
-};
-
 export function usePostgRESTLazyLoader(
   endpoint: string,
   table: string,
@@ -372,8 +370,13 @@ export function usePostgRESTLazyLoader(
 
   // Reset data whenever sort/filter configuration changes so we re-fetch
   const sortFilterKey = useMemo(
-    () => JSON.stringify({ s: config.columnSorts, f: config.columnFilters }),
-    [config.columnSorts, config.columnFilters],
+    () =>
+      JSON.stringify({
+        s: config.columnSorts,
+        f: config.columnFilters,
+        v: config.filters,
+      }),
+    [config.columnSorts, config.columnFilters, config.filters],
   );
 
   useEffect(() => {

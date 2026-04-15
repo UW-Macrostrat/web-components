@@ -20,16 +20,28 @@ export const ctx = createScopedStore();
 export const storeAPIAtom = atom<StoreApi<DataSheetStore<any>>>();
 
 const storeWrapperAtom = atom((get) => {
-  return atomWithStore(get(storeAPIAtom));
+  const _storeAPIAtom = get(storeAPIAtom);
+  if (_storeAPIAtom == null) {
+    return undefined;
+  }
+  return atomWithStore(_storeAPIAtom);
 });
 
 /** This is the basis for all other atoms that manipulate the store. */
 export const storeAtom = atom(
   (get) => {
-    return get(get(storeWrapperAtom));
+    const storeWrapper = get(storeWrapperAtom);
+    if (storeWrapper == null) {
+      return undefined;
+    }
+    return get(storeWrapper);
   },
   (get, set, action: SetStateAction<T>) => {
-    return set(get(storeWrapperAtom), action);
+    const storeWrapper = get(storeWrapperAtom);
+    if (storeWrapper == null) {
+      throw new Error("Missing DataSheetProvider");
+    }
+    return set(storeWrapper, action);
   },
 );
 
@@ -108,4 +120,4 @@ export function useSelector<T = any, A = any>(
 }
 /** Atoms for efficient sub-selection of state */
 
-export const columnSpecAtom = atom((get) => get(storeAtom).columnSpec);
+export const columnSpecAtom = atom((get) => get(storeAtom)?.columnSpec ?? []);

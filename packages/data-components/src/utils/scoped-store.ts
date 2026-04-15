@@ -1,7 +1,7 @@
 /** A scoped state that wraps several Jotai atoms together, creating an isolated state
  * context.
  */
-import type { WritableAtom } from "jotai";
+import type { Atom, WritableAtom } from "jotai";
 import { ReactNode, useEffect, useMemo, useRef } from "react";
 import h from "@macrostrat/hyper";
 
@@ -30,6 +30,7 @@ interface StateIsolation extends JotaiScope {
   use: JotaiScope["useAtom"];
   useValue: JotaiScope["useAtomValue"];
   useSet: JotaiScope["useSetAtom"];
+  useSync<T>(atom: Atom<T>, value: T): T;
 }
 
 export type AtomMap = [WritableAtom<any, any, any>, any][];
@@ -48,6 +49,8 @@ function enhanceJotaiScope(scope: JotaiScope): StateIsolation {
     use: scope.useAtom,
     useValue: scope.useAtomValue,
     useSet: scope.useSetAtom,
+    useSync: <T>(atom: WritableAtom<T, any, any>, value: T): T =>
+      useSyncAtom(scope, atom, value),
     Provider: (props: ProviderProps): ReactNode =>
       h(ScopedProvider, { ...props, scope }) as ReactNode,
     useAtomValueIfExists: function <T>(
@@ -69,16 +72,32 @@ function ScopedProvider({
   children,
   atoms,
   keepUpdated = false,
-  inherit = false,
+  inherit = true,
 }: ProviderProps & { scope: JotaiScope }) {
-  // Always use the same store instance in this tree
+  // Always use the same store instance in this tree. We can set inherit = false
+  // to allow multiple stores to be nested.
   const store = useStore(scope, inherit);
+  const isMounted = useRef(false);
+
+  const updater = keepUpdated ? h(AtomUpdater, { atoms, scope }) : null;
+
   if (store != null) {
-    // This store has already been provided from a parent
-    return children;
+    // Set initial values on mount
+    if (!isMounted.current && atoms != null && atoms.length > 0) {
+      console.log("Setting initial values");
+      isMounted.current = true;
+      if (atoms) {
+        for (const [atom, value] of atoms) {
+          store.set(atom, value);
+        }
+      }
+    }
+
+    return h([updater, children]);
   }
-  return h(scope.Provider, { store: null, initialValues: atoms }, [
-    h.if(keepUpdated)(AtomUpdater, { atoms, scope }),
+
+  return h(scope.Provider, { store, initialValues: atoms }, [
+    updater,
     children,
   ]);
 }
@@ -107,10 +126,6 @@ function AtomUpdater({
    * Useful for scoped providers where state needs to be synced outside
    * the current context.
    */
-  /** TODO: this is an awkward way to keep atoms updated */
-  // The scoped store
-  const store = scope.useStore();
-
   // Warn on atoms changing length
   const prevLengthRef = useRef(atoms.length);
   useEffect(() => {
@@ -121,9 +136,25 @@ function AtomUpdater({
   }, [atoms.length]);
 
   for (const [atom, value] of atoms) {
-    useEffect(() => {
-      store.set(atom, value);
-    }, [store, value]);
+    useSyncAtom(scope, atom, value);
   }
   return null;
+}
+
+function useSyncAtom<T>(
+  scope: JotaiScope,
+  atom: WritableAtom<T, any, any>,
+  value: T,
+): T {
+  /** A hook to sync a Jotai atom with state passed as props.
+   * Useful for scoped providers where state needs to be synced outside
+   * the current context.
+   */
+  const store = scope.useStore();
+  const valueRef = useRef<T>(value);
+  useEffect(() => {
+    store.set(atom, value);
+    valueRef.current = value;
+  }, [store, atom, value]);
+  return valueRef.current;
 }

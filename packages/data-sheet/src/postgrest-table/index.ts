@@ -9,6 +9,8 @@ import {
   PostgrestFilterOperator,
   PostgrestOrder,
   usePostgRESTLazyLoader,
+  PostgrestFilter,
+  applyColumnFilters,
 } from "./data-loaders";
 import {
   Spinner,
@@ -43,6 +45,7 @@ import {
   ColumnHeaderRendererProps,
 } from "../renderers";
 import { atom } from "jotai";
+import { columnSpecAtom, ctx, storeAtom } from "../provider.ts";
 
 const h = hyper.styled(styles);
 
@@ -72,17 +75,53 @@ interface PostgRESTTableViewProps<
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
   return h(
     ErrorBoundary,
-    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props))),
+    h(
+      ctx.Provider,
+      h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props))),
+    ),
   );
 }
 
 const successResponses = [200, 201];
 
-const fullTextSearchAtom = atom((get) =>{
-  get(columnSpecAtom)
+const enableFullTextSearchAtom = atom(false);
 
+const fullTextSearchInputAtom = atom("");
+
+interface FtsFilterConfig {
+  text: string;
+  columns: string[];
+}
+
+const fullTextSearchFilterConfigAtom = atom<FtsFilterConfig | null>((get) => {
+  const enable = get(enableFullTextSearchAtom);
+  const searchText = get(fullTextSearchInputAtom).toLowerCase();
+  console.log("Full text search", enable, searchText);
+  if (!enable || searchText.length < 3) return null;
+  const columnSpec = get(columnSpecAtom);
+
+  const columns = columnSpec
+    .filter((d) => d.dataType == "text")
+    .map((d) => d.key);
+
+  return {
+    text: searchText,
+    columns,
+  } as FtsFilterConfig;
 });
 
+function buildFilter(cfg: FtsFilterConfig | null): PostgrestFilter | null {
+  if (cfg == null) return null;
+  return {
+    type: "filter",
+    id: `fts-${cfg.text}`,
+    apply(res) {
+      const _filters = cfg.columns.map((d) => `${d}.ilike.*${cfg.text}*`);
+      const filters = _filters.join(",");
+      return res.or(filters);
+    },
+  };
+}
 
 function _PostgRESTTableView<T>({
   endpoint,
@@ -91,13 +130,13 @@ function _PostgRESTTableView<T>({
   order,
   columns,
   editable = false,
-  filter = undefined,
   enableFullTableSearch = false,
   dataSheetActions,
   identityKey = "id",
   ...rest
 }: PostgRESTTableViewProps<T>) {
-  const [input, setInput] = useState("");
+  // Boundary of Jotai store
+  ctx.useSync(enableFullTextSearchAtom, enableFullTableSearch);
 
   // Server-side column sort/filter state
   const [columnSorts, setColumnSorts] = useState<ColumnSortEntry[]>([]);
@@ -105,22 +144,10 @@ function _PostgRESTTableView<T>({
     [],
   );
 
-  if (enableFullTableSearch) {
-    const columnList = columns ?? getColumnList(endpoint, table);
-
-    filter = (query) => {
-      const urlParams = new URLSearchParams(query.url.search);
-      urlParams.delete("or");
-      query.url.search = urlParams.toString() ? `?${urlParams.toString()}` : "";
-
-      if (input.length > 2 && enableFullTableSearch) {
-        const conditions = columnList?.map((col) => `${col}.ilike.*${input}*`);
-
-        return query.or(conditions.join(","));
-      }
-
-      return query;
-    };
+  const ftsFilter = buildFilter(ctx.useValue(fullTextSearchFilterConfigAtom));
+  let filters = [];
+  if (ftsFilter != null) {
+    filters.push(ftsFilter);
   }
 
   const { data, onScroll, dispatch, getClient } = usePostgRESTLazyLoader(
@@ -129,7 +156,7 @@ function _PostgRESTTableView<T>({
     {
       order: order ?? { key: identityKey, ascending: true },
       columns,
-      filter,
+      filters,
       columnSorts,
       columnFilters,
     },
@@ -221,10 +248,10 @@ function _PostgRESTTableView<T>({
     h(DataSheet, {
       ...rest,
       dataSheetActions: enableFullTableSearch
-        ? h(SearchAction, { input, setInput, dispatch })
+        ? h(SearchAction)
         : dataSheetActions,
       data,
-      columnSpecOptions: columnOptions ?? {},
+      columnSpecOptions: columnOptions,
       editable,
       onVisibleCellsChange: onScroll,
       columnHeaderCellRenderer,
@@ -239,7 +266,6 @@ function _PostgRESTTableView<T>({
 
         const client = getClient();
         let query = client.delete().in(identityKey, ids);
-        query = filter?.(query) ?? query;
         finishResponse(query, { $delete: Array.from(rowIndices.keys()) });
       },
       onSaveData(updates, data) {
@@ -259,7 +285,6 @@ function _PostgRESTTableView<T>({
         const client = getClient();
         // Save data
         let query = client.upsert(updateRows, { defaultToNull: false });
-        query = filter?.(query) ?? query;
         finishResponse(query, changes);
       },
     }),
@@ -357,17 +382,14 @@ export function ExpandedLithologies({ value, onChange }) {
   ]);
 }
 
-export function SearchAction({ input, setInput, dispatch }) {
+export function SearchAction() {
+  const [input, setInput] = ctx.use(fullTextSearchInputAtom);
   return h(InputGroup, {
     type: "search",
     placeholder: "Search table...",
     value: input,
     onChange(event) {
-      const search = event.target.value;
-      if (search.length > 2 || (input.length === 3 && search.length < 3)) {
-        dispatch({ type: "reset" });
-      }
-      setInput(search.toLowerCase());
+      setInput(event.target.value);
     },
   });
 }
