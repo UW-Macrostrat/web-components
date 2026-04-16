@@ -31,7 +31,7 @@ interface StateIsolation extends JotaiScope {
   use: JotaiScope["useAtom"];
   useValue: JotaiScope["useAtomValue"];
   useSet: JotaiScope["useSetAtom"];
-  useSync<T>(atom: Atom<T>, value: T): T;
+  useSync<T>(atom: Atom<T>, value: T): T | undefined;
 }
 
 export type AtomMap = [WritableAtom<any, any, any>, any][];
