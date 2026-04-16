@@ -1,0 +1,28 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "declarationDir": "dist"
+  },
+  "include": [
+    "src",
+    "stories"
+  ],
+  "references": [
+    { "path": "../api-types" },
+    { "path": "../color-utils" },
+    { "path": "../column-components" },
+    { "path": "../data-components" },
+    { "path": "../data-provider" },
+    { "path": "../map-interface" },
+    { "path": "../map-styles" },
+    { "path": "../mapbox-react" },
+    { "path": "../mapbox-utils" },
+    { "path": "../stratigraphy-utils" },
+    { "path": "../svg-map-components" },
+    { "path": "../timescale" },
+    { "path": "../ui-components" }
+  ]
+}

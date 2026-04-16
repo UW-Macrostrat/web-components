@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "repository": "https://github.com/UW-Macrostrat/web-components.git",
-  "version": "4.0.0",
+  "version": "4.2.0",
   "scripts": {
     "dev": "NODE_NO_WARNINGS=1 storybook dev -p 6006 --no-open",
     "build:storybook": "storybook build --debug",
@@ -16,6 +16,7 @@
     "publish-only": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers publish-only",
     "tag-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers tag-versions",
     "update-metadata": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-package-json-files.ts",
+    "update-tsconfigs": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-tsconfig-files.ts",
     "update-versions": "NODE_NO_WARNINGS=1 tsx scripts/publish-helpers/update-versions.ts",
     "publish:storybook": "./scripts/publish-storybook.sh",
     "format": "prettier --write .",
@@ -45,7 +46,6 @@
     "date-fns": "^4.1.0",
     "glob": "^11.1.0",
     "lorem-ipsum": "^2.0.8",
-    "madge": "^8.0.0",
     "marked": "^11.0",
     "marked-terminal": "^7.1.0",
     "node-fetch": "^3.2.9",
@@ -60,6 +60,7 @@
   "devDependencies": {
     "@changesets/cli": "^2.30.0",
     "changesets-format-with-issue-links": "^0.3.0",
+    "madge": "^8.0.0",
     "prettier": "^3.7.4",
     "vite": "^7.3.1"
   },

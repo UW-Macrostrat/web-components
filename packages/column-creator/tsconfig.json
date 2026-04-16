@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "rootDir": ".",
+    "outDir": "dist",
+    "declarationDir": "dist"
+  },
+  "include": [
+    "src",
+    "stories"
+  ],
+  "references": [
+    { "path": "../color-utils" },
+    { "path": "../column-components" },
+    { "path": "../column-views" },
+    { "path": "../data-sheet" },
+    { "path": "../ui-components" }
+  ]
+}
