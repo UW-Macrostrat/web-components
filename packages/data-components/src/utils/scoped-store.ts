@@ -2,10 +2,9 @@
  * context.
  */
 import type { Atom, WritableAtom } from "jotai";
-import { ReactNode, useEffect, useMemo, useRef } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import h from "@macrostrat/hyper";
 
-import { createStore } from "jotai";
 import { createIsolation } from "jotai-scope";
 
 export function createScopedStore(): StateIsolation {

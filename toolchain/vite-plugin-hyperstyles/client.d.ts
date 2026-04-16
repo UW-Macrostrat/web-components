@@ -1,6 +1,7 @@
 /** Replacement for vite/client declaration that handles hyperscript-enhanced stylesheets
  * from the vite-plugin-hyperstyles module
  */
+
 type CSSModuleClasses = { readonly [key: string]: string };
 
 declare module "*.module.css" {

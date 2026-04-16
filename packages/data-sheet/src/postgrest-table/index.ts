@@ -1,20 +1,23 @@
-import { HotkeysProvider, OverlayToaster } from "@blueprintjs/core";
+import {
+  Button,
+  HotkeysProvider,
+  InputGroup,
+  OverlayToaster,
+  Spinner,
+  Tag as BPTag,
+} from "@blueprintjs/core";
 import h from "./main.module.sass";
 import { DataSheet, getRowsToDelete } from "../core";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
-  PostgrestColumnFilter,
   ColumnSortEntry,
+  PostgrestColumnFilter,
+  PostgrestFilter,
   PostgrestFilterOperator,
   PostgrestOrder,
-  usePostgRESTLazyLoader,
-  PostgrestFilter,
   standardizeFilter,
+  usePostgRESTLazyLoader,
 } from "./data-loaders";
-import { Spinner, InputGroup, Button, Tag as BPTag } from "@blueprintjs/core";
-
-export * from "./data-loaders";
-export * from "./lazy-loader-table";
 import { useCallback, useMemo, useState } from "react";
 import {
   ErrorBoundary,
@@ -23,27 +26,21 @@ import {
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
-import type {
-  GenericFunction,
-  GenericTable,
-  GenericView,
-} from "@supabase/postgrest-js/dist/cjs/index";
 import { ColorCell } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import {
-  OPERATOR_LABELS,
   type ColumnHeaderActions,
-  renderPostgRESTColumnHeaderCell,
   ColumnHeaderRendererProps,
+  OPERATOR_LABELS,
+  renderPostgRESTColumnHeaderCell,
 } from "../renderers";
 import { atom } from "jotai";
 import { columnSpecAtom, ctx } from "../provider.ts";
+import { TableAction } from "../actions";
+import { RegionCardinality } from "@blueprintjs/table";
 
-export type GenericSchema = {
-  Tables: Record<string, GenericTable>;
-  Views: Record<string, GenericView>;
-  Functions: Record<string, GenericFunction>;
-};
+export * from "./data-loaders";
+export * from "./lazy-loader-table";
 
 interface PostgRESTTableViewProps<
   T extends object,
@@ -58,8 +55,8 @@ interface PostgRESTTableViewProps<
   enableFullTableSearch?: boolean;
   dataSheetActions?: any;
   filter(
-    query: PostgrestFilterBuilder<T, any, any>,
-  ): PostgrestFilterBuilder<T, any, any>;
+    query: PostgrestFilterBuilder<T, any, any, any>,
+  ): PostgrestFilterBuilder<T, any, any, any>;
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
@@ -288,6 +285,32 @@ function _PostgRESTTableView<T>({
     }),
   ]);
 }
+
+const saveDataAction: TableAction = {
+  id: "save-data",
+  name: "Save changes",
+  icon: "floppy-disk",
+  intent: "success",
+  requiresEditable: true,
+  targets: [RegionCardinality.FULL_TABLE],
+  async run(ctx) {
+    const data = ctx.data;
+    const updates = ctx.updatedData;
+
+    let changes: Spec<any[]> = {};
+    let updateRows: any[] = [];
+    for (let [key, update] of Object.entries(updates)) {
+      const value = { ...data[key], ...update };
+      updateRows.push(value);
+      changes[key] = { $set: value };
+    }
+
+    dispatch({ type: "start-loading" });
+    const client = getClient();
+    // Save data
+    let query = client.upsert(updateRows, { defaultToNull: false });
+  },
+};
 
 export function notifyOnError(toaster: OverlayToaster, error: any) {
   console.error(error);
