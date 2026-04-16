@@ -1,7 +1,6 @@
 import { HotkeysProvider, OverlayToaster } from "@blueprintjs/core";
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
-import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
+import h from "./main.module.sass";
+import { DataSheet, getRowsToDelete } from "../core";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
 import {
   PostgrestColumnFilter,
@@ -10,23 +9,16 @@ import {
   PostgrestOrder,
   usePostgRESTLazyLoader,
   PostgrestFilter,
-  applyColumnFilters,
+  standardizeFilter,
 } from "./data-loaders";
-import {
-  Spinner,
-  InputGroup,
-  Button,
-  ButtonGroup,
-  Tag as BPTag,
-} from "@blueprintjs/core";
+import { Spinner, InputGroup, Button, Tag as BPTag } from "@blueprintjs/core";
 
 export * from "./data-loaders";
 export * from "./lazy-loader-table";
-import { useCallback, useMemo, useState, useRef } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
-  useAPIResult,
   useToaster,
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
@@ -45,9 +37,7 @@ import {
   ColumnHeaderRendererProps,
 } from "../renderers";
 import { atom } from "jotai";
-import { columnSpecAtom, ctx, storeAtom } from "../provider.ts";
-
-const h = hyper.styled(styles);
+import { columnSpecAtom, ctx } from "../provider.ts";
 
 export type GenericSchema = {
   Tables: Record<string, GenericTable>;
@@ -61,7 +51,7 @@ interface PostgRESTTableViewProps<
   endpoint: string;
   table: string;
   columnOptions?: any;
-  order?: PostgrestOrder<T>;
+  order?: PostgrestOrder<T> | PostgrestOrder<any>[];
   columns?: string;
   editable?: boolean;
   identityKey?: string;
@@ -146,20 +136,27 @@ function _PostgRESTTableView<T>({
 
   /** TODO: remove "full-text search" from filter options */
   const ftsFilter = buildFilter(ctx.useValue(fullTextSearchFilterConfigAtom));
-  let filters = [];
+  let filters = columnFilters.map(standardizeFilter);
   if (ftsFilter != null) {
     filters.push(ftsFilter);
   }
+
+  const _order = [];
+  if (typeof order === "object" && "key" in order) {
+    _order.push(order);
+  } else if (Array.isArray(order)) {
+    _order.push(...order);
+  }
+  _order.push(...columnSorts);
 
   const { data, onScroll, dispatch, getClient } = usePostgRESTLazyLoader(
     endpoint,
     table,
     {
-      order: order ?? { key: identityKey, ascending: true },
+      order: _order,
       columns,
       filters,
-      columnSorts,
-      columnFilters,
+      identityKey,
     },
   );
 
@@ -445,19 +442,4 @@ function ServerFilterBar({
       "Clear all",
     ),
   ]);
-}
-
-function getColumnList(endpoint: string, table: string) {
-  const url = `${endpoint}/${table}?select=*&limit=1`;
-  const res = useAPIResult(url);
-
-  if (!res || !Array.isArray(res) || res.length === 0) return [];
-
-  const sampleRow = res[0];
-
-  return Object.entries(sampleRow)
-    .filter(([_, value]) => {
-      return typeof value === "string";
-    })
-    .map(([key]) => key);
 }

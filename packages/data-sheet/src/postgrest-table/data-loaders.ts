@@ -2,20 +2,15 @@
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { debounce, range } from "underscore";
-import { useCallback, useMemo, useReducer, useRef, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
 import update, { Spec } from "immutability-helper";
-
-interface ChunkIndex {
-  startRow: number;
-  endRow: number;
-  lastValue: any;
-}
-
 import {
   PostgrestClient,
-  PostgrestQueryBuilder,
   PostgrestFilterBuilder,
+  PostgrestQueryBuilder,
 } from "@supabase/postgrest-js";
+import { adjustArraySize, RowRegion, sleep } from "./loading-utils.ts";
+import { ctx } from "../provider.ts";
 
 interface LazyLoaderState<T> {
   data: (T | null)[];
@@ -63,7 +58,7 @@ export interface PostgrestFilter {
   ): PostgrestFilterBuilder<any, any, any, any>;
 }
 
-function standardizeFilter(
+export function standardizeFilter(
   columnFilter: PostgrestColumnFilter,
 ): PostgrestFilter {
   return {
@@ -98,21 +93,10 @@ type LazyLoaderAction<T> =
   | { type: "reset" }
   | { type: "start-reload" };
 
-function adjustArraySize<T>(arr: T[], newSize: number) {
-  if (newSize == null || arr.length === newSize) {
-    return arr;
-  } else if (arr.length > newSize) {
-    // Trim the array
-    arr = arr.slice(0, newSize);
-  }
-  return [...arr, ...Array(newSize - arr.length).fill(null)];
-}
-
 function lazyLoadingReducer<T>(
   state: LazyLoaderState<T>,
   action: LazyLoaderAction<T>,
 ): LazyLoaderState<T> {
-  console.log(action);
   switch (action.type) {
     case "start-loading":
       return {
@@ -173,48 +157,10 @@ function lazyLoadingReducer<T>(
   }
 }
 
-interface RowRegion {
-  rowIndexStart: number;
-  rowIndexEnd: number;
-}
-
-enum LoadDirection {
-  "up",
-  "down",
-}
-
-function overlapsNulls(data: any[], region: RowRegion) {
-  for (let i = region.rowIndexStart; i < region.rowIndexEnd; i++) {
-    if (data[i] == null) {
-      return true;
-    }
-  }
-  return false;
-}
-
-function distanceToNextNonEmptyRow(
-  data: any[],
-  start: number,
-  direction: LoadDirection,
-  limit: number,
-): number {
-  let i = start;
-  while (i < data.length && i > 0 && limit > 0) {
-    if (data[i] != null) {
-      return i;
-    }
-    i += direction === LoadDirection.down ? 1 : -1;
-    limit -= 1;
-  }
-  return i;
-}
-
 type SortAndFilterOptions = {
   /** Column-level sort state, managed externally. When provided, overrides
    * the `order` prop for query building. */
-  columnSorts?: ColumnSortEntry[];
-  /** Column-level filter state, managed externally. */
-  columnFilters?: PostgrestColumnFilter[];
+  order?: PostgrestOrder<any>[];
   filters?: PostgrestFilter[];
 };
 
@@ -229,9 +175,8 @@ interface QueryConfig extends SortAndFilterOptions {
   count?: "exact" | "estimated";
   limit?: number;
   offset?: number;
-  order?: PostgrestOrder<any>;
-  after?: any;
-  fullTextSearch?: string;
+  after?: any; //identitykey value
+  identityKey: string;
 }
 
 function buildQuery<T>(
@@ -251,33 +196,23 @@ function buildQuery<T>(
   let query = client.select(cols, opts);
 
   const filters = config.filters ?? [];
-
-  const columnFilters = config.columnFilters?.map(standardizeFilter) ?? [];
-  filters.push(...columnFilters);
-  console.log(filters);
-
   for (const filter of filters) {
     query = filter.apply(query);
   }
 
-  console.log("query", query.url.search);
+  const orderClauses = buildPostgrestOrderClauses(
+    config.order ?? [],
+    config.identityKey,
+  );
 
-  // Determine effective ordering: use column sorts if present, otherwise fall
-  // back to the primary order prop.
-  if (config.columnSorts?.length > 0) {
-    for (const sort of config.columnSorts) {
-      query = query.order(sort.key, { ascending: sort.ascending });
+  for (const clause of orderClauses) {
+    query = query.order(clause.key, clause);
+    if (clause.key == config.identityKey && config.after != null) {
+      const op = (clause.ascending ?? true) ? "gt" : "lt";
+      query = query[op](clause.key, config.after);
     }
   }
 
-  if (config.order != null) {
-    const { key: orderKey, ...rest } = config.order;
-    query = query.order(orderKey, rest);
-    if (config.after != null) {
-      const op = (rest.ascending ?? true) ? "gt" : "lt";
-      query = query[op](orderKey, config.after);
-    }
-  }
   if (config.limit != null) {
     if (config.offset != null) {
       query = query.range(config.offset, config.offset + config.limit - 1);
@@ -286,7 +221,41 @@ function buildQuery<T>(
       query = query.limit(config.limit);
     }
   }
+
+  console.log("query", query.url.search);
   return query;
+}
+
+function buildPostgrestOrderClauses(
+  sorts: (ColumnSortEntry | PostgrestOrder<any>)[],
+  identityOrder: PostgrestOrder<any> | string,
+): PostgrestOrder<any>[] {
+  // Clause to build ordering for a Postgrest table.
+  // There must be an ordering by identity key, and it must be last...
+  const identitySort =
+    typeof identityOrder == "string"
+      ? { key: identityOrder, ascending: true }
+      : identityOrder;
+  const identityKey = identitySort.key;
+  const clauses: PostgrestOrder<any>[] = sorts.map((sort) => {
+    return {
+      key: sort.key,
+      ascending: sort.ascending,
+      nullsFirst: "nullsFirst" in sort ? sort.nullsFirst : false,
+    };
+  });
+  // sort the clauses so the identity clause is last
+  const hasIdentityClause = clauses.some((d) => d.key === identityKey);
+  if (hasIdentityClause) {
+    clauses.sort((a, b) => {
+      if (a.key === identityKey) return 1;
+      if (b.key === identityKey) return -1;
+      return 0;
+    });
+  } else {
+    clauses.push(identitySort);
+  }
+  return clauses;
 }
 
 function _loadMoreData<T>(
@@ -333,6 +302,7 @@ function _loadMoreData<T>(
 
   const query = buildQuery(client, cfg);
 
+  console.log("Loading more data", cfg);
   query.then((res) => {
     console.log(res);
     const { data, count } = res;
@@ -372,11 +342,11 @@ export function usePostgRESTLazyLoader(
   const sortFilterKey = useMemo(
     () =>
       JSON.stringify({
-        s: config.columnSorts,
-        f: config.columnFilters,
+        s: config.order,
         v: config.filters,
+        i: config.identityKey,
       }),
-    [config.columnSorts, config.columnFilters, config.filters],
+    [config.order, config.filters, config.identityKey],
   );
 
   useEffect(() => {
@@ -575,10 +545,6 @@ const testQueryFunc = async (
     count: cfg.count != null ? 50000 : undefined,
   };
 };
-
-async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function buildSyntheticData(offset: number, count: number | null) {
   console.log(
