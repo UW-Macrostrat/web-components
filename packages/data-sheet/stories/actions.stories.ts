@@ -302,3 +302,39 @@ export const ColumnSpecActions: StoryObj = {
   },
 };
 
+const errorAction = {
+  id: "error-action",
+  name: "Error action",
+  icon: "error",
+  intent: "danger",
+  targets: [
+    RegionCardinality.FULL_ROWS,
+    RegionCardinality.CELLS,
+    RegionCardinality.FULL_COLUMNS,
+    RegionCardinality.FULL_TABLE,
+  ],
+  requiresEditable: false,
+  run(ctx) {
+    throw new Error(
+      `This action targeted ${ctx.getSelectedRegionCardinality()}. But it failed and threw an error!`,
+    );
+  },
+};
+
+/** Defines an action that operates on all selection types, throwing an error
+ that will hopefully be caught and displayed as a Toast
+*/
+export const WithThrowingAction: StoryObj = {
+  render: () =>
+    h(Wrapper, {
+      data: testData,
+      columnSpec,
+      editable: true,
+      actions: [
+        errorAction,
+        addRowAction,
+        deleteRowsAction,
+        resetChangesAction,
+      ],
+    }),
+};

@@ -5,6 +5,7 @@ import type { Atom, WritableAtom } from "jotai";
 import { ReactNode, useEffect, useMemo, useRef } from "react";
 import h from "@macrostrat/hyper";
 
+import { createStore } from "jotai";
 import { createIsolation } from "jotai-scope";
 
 export function createScopedStore(): StateIsolation {
@@ -51,8 +52,9 @@ function enhanceJotaiScope(scope: JotaiScope): StateIsolation {
     useSet: scope.useSetAtom,
     useSync: <T>(atom: WritableAtom<T, any, any>, value: T): T =>
       useSyncAtom(scope, atom, value),
-    Provider: (props: ProviderProps): ReactNode =>
-      h(ScopedProvider, { ...props, scope }) as ReactNode,
+    Provider: (props: ProviderProps): ReactNode => {
+      return h(ScopedProvider, { ...props, scope }) as ReactNode;
+    },
     useAtomValueIfExists: function <T>(
       atom: WritableAtom<T, any, any>,
     ): T | null {

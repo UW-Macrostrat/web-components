@@ -10,6 +10,7 @@ import {
 } from "./selection";
 import type { TableAction, TableActionContext } from "./types";
 import { RegionCardinality } from "@blueprintjs/table";
+import { useToaster } from "../notifications.ts";
 
 /** Toolbar that renders applicable table actions based on the
  * current selection cardinality and edit mode.
@@ -54,6 +55,7 @@ export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
  * and actions with a `detailsForm` (popover with config + run). */
 function ActionButton<T>({ action }: { action: TableAction<T> }) {
   const storeAPI = useStoreAPI();
+  const toaster = useToaster();
 
   // Reactive disabled check — re-renders when relevant state changes
   const isDisabled = useSelector((state) => {
@@ -70,9 +72,28 @@ function ActionButton<T>({ action }: { action: TableAction<T> }) {
         storeAPI.getState(),
         storeAPI.setState,
       ) as TableActionContext<T>;
-      action.run(ctx, configState);
+      try {
+        const res = action.run(ctx, configState);
+        if (res instanceof Promise) {
+          res.then(() => {
+            toaster.show({
+              message: action ?? "Action completed",
+              intent: "success",
+            });
+          });
+        } else {
+          toaster.show({
+            message: action.successMessage ?? "Action completed",
+          });
+        }
+      } catch (e) {
+        toaster.show({
+          message: action.errorMessage ?? "Action failed",
+          intent: "danger",
+        });
+      }
     },
-    [storeAPI, action],
+    [storeAPI, action, toaster],
   );
 
   if (action.detailsForm != null) {
