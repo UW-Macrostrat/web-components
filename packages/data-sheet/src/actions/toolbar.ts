@@ -51,6 +51,13 @@ export function ActionsToolbar<T>({ actions }: { actions: TableAction<T>[] }) {
   );
 }
 
+function getMessageForError(e: any) {
+  if (e instanceof Error) return e.message;
+  if (typeof e === "string") return e;
+  if (e instanceof Object) return JSON.stringify(e);
+  return null;
+}
+
 /** A single action button. Handles both simple actions (direct click)
  * and actions with a `detailsForm` (popover with config + run). */
 function ActionButton<T>({ action }: { action: TableAction<T> }) {
@@ -75,20 +82,13 @@ function ActionButton<T>({ action }: { action: TableAction<T> }) {
       try {
         const res = action.run(ctx, configState);
         if (res instanceof Promise) {
-          res.then(() => {
-            toaster.show({
-              message: action ?? "Action completed",
-              intent: "success",
-            });
-          });
-        } else {
-          toaster.show({
-            message: action.successMessage ?? "Action completed",
-          });
+          res.then(() => {});
         }
       } catch (e) {
+        const message =
+          getMessageForError(e) ?? action.errorMessage ?? "Action failed";
         toaster.show({
-          message: action.errorMessage ?? "Action failed",
+          message,
           intent: "danger",
         });
       }

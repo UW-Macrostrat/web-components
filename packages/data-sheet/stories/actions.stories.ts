@@ -302,7 +302,7 @@ export const ColumnSpecActions: StoryObj = {
   },
 };
 
-const errorAction = {
+const errorAction: TableAction = {
   id: "error-action",
   name: "Error action",
   icon: "error",
@@ -316,7 +316,7 @@ const errorAction = {
   requiresEditable: false,
   run(ctx) {
     throw new Error(
-      `This action targeted ${ctx.getSelectedRegionCardinality()}. But it failed and threw an error!`,
+      `This action targeted ${ctx.selectionCardinality}. But it failed and threw an error!`,
     );
   },
 };

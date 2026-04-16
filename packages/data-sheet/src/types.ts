@@ -5,6 +5,7 @@ import type {
   Table2,
 } from "@blueprintjs/table";
 import { ColumnSpec, ColumnSpecOptions } from "./utils";
+import { OverlayToaster, Toaster } from "@blueprintjs/core";
 
 /** A single column sort entry for client-side sorting.
  * Defined here (rather than in actions/types) to avoid circular imports. */
@@ -111,6 +112,7 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
 export type DataSheetProviderProps<T> = DataSheetCoreProps<T> & {
   children: React.ReactNode;
   columnSpecOptions?: ColumnSpecOptions<T>;
+  toaster?: OverlayToaster;
 };
 
 export interface VisibleCells {

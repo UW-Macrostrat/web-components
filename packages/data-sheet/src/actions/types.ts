@@ -151,4 +151,6 @@ export interface TableAction<T = any, S = null> {
    * or asynchronous (backend fulfillment). For lazy-loaded tables,
    * async actions are required when targeting non-loaded cells. */
   run(context: TableActionContext<T>, state?: S): void | Promise<void>;
+  successMessage?: string;
+  errorMessage?: string;
 }

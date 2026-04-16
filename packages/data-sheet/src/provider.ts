@@ -13,6 +13,7 @@ import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
 export { atom } from "jotai";
 import { atom } from "jotai";
+import { toasterAtom } from "./notifications.ts";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();
@@ -58,15 +59,19 @@ const initializeStoreAtom = atom(
 );
 
 export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
+  const { toaster, ...rest } = props;
   const [store] = useState(() => {
     return createStore<DataSheetStore<T>>(createZustandStore);
   });
   return h(
     ctx.Provider,
     {
-      atoms: [[storeAPIAtom, store]],
+      atoms: [
+        [storeAPIAtom, store],
+        [toasterAtom, toaster],
+      ],
     },
-    h(DataSheetProviderInner, props),
+    h(DataSheetProviderInner, rest),
   );
 }
 

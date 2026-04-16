@@ -359,7 +359,6 @@ function _DataSheet<T>({
           children,
         ),
       ),
-      h(ContextualToaster),
       h.if(debugMode)(CellRendererDebugOverlay, {
         cellRendererDependencies,
         names: [
