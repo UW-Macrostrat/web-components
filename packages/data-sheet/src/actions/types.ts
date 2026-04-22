@@ -153,4 +153,5 @@ export interface TableAction<T = any, S = null> {
   run(context: TableActionContext<T>, state?: S): void | Promise<void>;
   successMessage?: string;
   errorMessage?: string;
+  hotkey?: string;
 }

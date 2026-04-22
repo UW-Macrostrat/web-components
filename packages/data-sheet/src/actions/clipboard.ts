@@ -66,9 +66,7 @@ function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
       rowIndices:
         cardinality === RegionCardinality.FULL_ROWS ? rowIndices : undefined,
       columnKeys:
-        cardinality === RegionCardinality.FULL_COLUMNS
-          ? columnKeys
-          : undefined,
+        cardinality === RegionCardinality.FULL_COLUMNS ? columnKeys : undefined,
       text,
     };
   }
@@ -103,6 +101,7 @@ export const copyAction: TableAction = {
     await navigator.clipboard.writeText(text);
     ctx.setClipboardProxy(proxy ?? null);
   },
+  hotkey: "mod+c",
 };
 
 /** Describes the shape relationship between pasted data and the target region */
@@ -225,6 +224,7 @@ export const pasteAction: TableAction = {
   id: "paste",
   name: "Paste",
   icon: "bring-data",
+  hotkey: "mod+v",
   targets: [
     RegionCardinality.CELLS,
     RegionCardinality.FULL_ROWS,

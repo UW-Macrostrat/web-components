@@ -3,6 +3,7 @@ import {
   HotkeysProvider,
   InputGroup,
   OverlaysProvider,
+  useHotkeys,
 } from "@blueprintjs/core";
 import {
   Column,
@@ -36,6 +37,7 @@ import {
   useStoreAPI,
   ctx,
   atom,
+  tableActionsAtom,
 } from "./provider";
 import {
   DataSheetProviderProps,
@@ -43,8 +45,8 @@ import {
   VisibleCells,
 } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
-import { tableKeyHandlerAtom } from "./utils";
-import type { TableAction, TableFilter } from "./actions";
+import { buildTableHotkeys, tableKeyHandlerAtom } from "./utils";
+import { clipboardActions, TableAction, TableFilter } from "./actions";
 import { ActionsToolbar, FilterBar } from "./actions";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
@@ -65,6 +67,7 @@ interface DataSheetInternalProps<T> extends TableProps {
   onDeleteRows?: (selection: Region[]) => void;
   verbose?: boolean;
   enableColumnReordering?: boolean;
+  enableClipboard?: boolean;
   enableFocusedCell?: boolean;
   dataSheetActions?: ReactNode | null;
   editable?: boolean;
@@ -134,6 +137,7 @@ function _DataSheet<T>({
   dataSheetActions = null,
   enableFocusedCell,
   autoFocusEditor = true,
+  enableClipboard = true,
   density = DataSheetDensity.HIGH,
   selectionModes,
   actions,
@@ -149,6 +153,26 @@ function _DataSheet<T>({
 
   // Turn on debug features
   const debugMode = false;
+
+  const hotkeysConfig = useMemo(() => {
+    return buildTableHotkeys();
+  }, [actions, enableClipboard]);
+
+  // Sync table actions to atom
+  const _actions: TableAction[] = useMemo(() => {
+    const _actions = [];
+    if (actions != null) {
+      _actions.push(...actions);
+    }
+    if (enableClipboard) {
+      _actions.push(...clipboardActions);
+    }
+    return _actions;
+  }, [actions, enableClipboard]);
+
+  const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeysConfig);
+
+  ctx.useSync(tableActionsAtom, _actions);
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
@@ -330,7 +354,7 @@ function _DataSheet<T>({
       dataSheetActions,
       h(
         "div.data-sheet-holder",
-        { onKeyDown },
+        { tabIndex: 0, onKeyDown: handleKeyDown, onKeyUp: handleKeyUp },
         h(
           Table,
           {

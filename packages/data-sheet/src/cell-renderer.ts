@@ -34,7 +34,7 @@ export function basicCellRenderer<T>(
   const _topLeftCell = state.topLeftCell;
   const onCellEdited = state.onCellEdited;
 
-  const value =
+  const value: T | undefined =
     updatedData[dataRowIndex]?.[col.key] ?? data[dataRowIndex]?.[col.key];
   const isEmpty = value == null || value === "";
   const _renderedValue = isEmpty ? null : (col.valueRenderer?.(value) ?? value);
@@ -82,11 +82,6 @@ export function basicCellRenderer<T>(
   }
 
   // The rest is for the top-left cell of a selection or the focused cell
-
-  let hiddenInput = h(EditorInput, {
-    className: "hidden-input",
-    autoFocus: true,
-  });
 
   let cellContents: ReactNode = _renderedValue;
 
@@ -167,6 +162,11 @@ export function basicCellRenderer<T>(
     // If inlineEditor is a ReactNode, we use it directly
     _inlineEditor = inlineEditor as ReactNode;
   }
+
+  let hiddenInput: React.ReactNode = h(EditorInput, {
+    className: "hidden-input",
+    autoFocus: true,
+  });
 
   if (_dataEditor != null) {
     className = "editor-cell";

@@ -58,6 +58,8 @@ const initializeStoreAtom = atom(
   },
 );
 
+export const tableActionsAtom = atom([]);
+
 export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
   const { toaster, ...rest } = props;
   const [store] = useState(() => {

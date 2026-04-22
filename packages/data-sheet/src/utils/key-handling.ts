@@ -1,21 +1,38 @@
 import type { KeyboardEvent } from "react";
-import { storeAPIAtom, storeAtom } from "../provider";
+import { storeAPIAtom, storeAtom, tableActionsAtom } from "../provider";
 import type { DataSheetStoreMain } from "../types";
 import { atom } from "jotai";
 import { singleFocusedCell } from "../zustand-store.ts";
+import { buildActionContext, TableAction } from "../actions";
+import { HotkeyConfig, UseHotkeysReturnValue } from "@blueprintjs/core";
 
 export const tableKeyHandlerAtom = atom((get) => {
   const store = get(storeAPIAtom);
+  const actions = get(tableActionsAtom);
   return (e: KeyboardEvent) => {
     // Kind of a ridiculous hack to get the store from the atom.
     const state = store.getState();
-    tableKeyHandler(e, state);
+    const setState = store.setState;
+    tableKeyHandler(e, state, setState, actions);
   };
 });
+
+export function buildTableHotkeys(): HotkeyConfig[] {
+  return [
+    {
+      combo: "F",
+      group: "Input",
+      label: "Focus text input",
+      onKeyDown: console.log,
+    },
+  ];
+}
 
 export function tableKeyHandler<T>(
   e: KeyboardEvent,
   state: DataSheetStoreMain<T>,
+  setState: (state: Partial<DataSheetStoreMain<T>>) => void,
+  actions: TableAction[],
 ) {
   // General key event
   if (e.key === "Escape") {
@@ -23,12 +40,14 @@ export function tableKeyHandler<T>(
     state.setSelection([]);
     e.preventDefault();
     e.stopPropagation();
+    return;
   }
   // Clear selection on Backspace or Delete
   if (e.key === "Backspace" || e.key === "Delete") {
     // Clear selection on Backspace or Delete
     state.clearSelection();
     e.preventDefault();
+    return;
   }
   // Handle arrow keys for navigation
   if (e.key in directionMap) {
@@ -37,14 +56,35 @@ export function tableKeyHandler<T>(
     state.moveFocusedCell(direction);
     // Prevent default scrolling behavior
     e.preventDefault();
+    return;
   }
   if (e.key === "Tab") {
     state.moveFocusedCell(e.shiftKey ? "left" : "right");
     e.preventDefault();
+    return;
   }
   if (e.key === "Enter") {
     state.moveFocusedCell("down");
     e.preventDefault();
+    return;
+  }
+
+  console.log("Key pressed:", e.key);
+
+  return;
+  // Now, find actions with hotkeys and handle them
+  for (const action of actions) {
+    if (action.hotkey == null) continue;
+    console.log("Checking action:", action.hotkey);
+    if (!matchBlueprintKeyCode(e, action.hotkey)) continue;
+    const ctx = buildActionContext(state, setState);
+
+    if (action.isReady != null) {
+      throw new Error("Action with isReady is not supported in hotkeys");
+    }
+    action.run(ctx);
+    e.preventDefault();
+    return;
   }
 }
 
@@ -155,4 +195,40 @@ function handleSpecialKeys(evt: KeyboardEvent): boolean {
   }
 
   return false;
+}
+
+function matchBlueprintKeyCode(evt: KeyboardEvent, combo: string) {
+  // Map some common keys to their Blueprint equivalents
+  const lowerCaseCombo = combo.toLowerCase();
+  const keys = lowerCaseCombo.split("+").map((key) => key.trim());
+  const nKeys = keys.length;
+  if (nKeys === 1) {
+    return evt.key === keys[0];
+  }
+  if (keys[0] == "mod") {
+    if (!evt.ctrlKey && !evt.metaKey) {
+      return false;
+    }
+  }
+  if (keys[0] == "shift") {
+    if (!evt.shiftKey) {
+      return false;
+    }
+  }
+  if (keys[0] == "alt") {
+    if (!evt.altKey) {
+      return false;
+    }
+  }
+  if (keys[0] == "ctrl") {
+    if (!evt.ctrlKey) {
+      return false;
+    }
+  }
+  if (keys[0] == "meta") {
+    if (!evt.metaKey) {
+      return false;
+    }
+  }
+  return keys.slice(1).every((key) => evt.key === key);
 }
