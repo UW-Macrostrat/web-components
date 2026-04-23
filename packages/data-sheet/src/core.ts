@@ -45,7 +45,7 @@ import {
   VisibleCells,
 } from "./types.ts";
 import { basicCellRenderer } from "./cell-renderer.ts";
-import { buildTableHotkeys, tableKeyHandlerAtom } from "./utils";
+import { tableHotkeysAtom } from "./utils";
 import { clipboardActions, TableAction, TableFilter } from "./actions";
 import { ActionsToolbar, FilterBar } from "./actions";
 
@@ -154,10 +154,6 @@ function _DataSheet<T>({
   // Turn on debug features
   const debugMode = false;
 
-  const hotkeysConfig = useMemo(() => {
-    return buildTableHotkeys();
-  }, [actions, enableClipboard]);
-
   // Sync table actions to atom
   const _actions: TableAction[] = useMemo(() => {
     const _actions = [];
@@ -170,6 +166,7 @@ function _DataSheet<T>({
     return _actions;
   }, [actions, enableClipboard]);
 
+  const hotkeysConfig = ctx.useValue(tableHotkeysAtom);
   const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeysConfig);
 
   ctx.useSync(tableActionsAtom, _actions);
@@ -220,6 +217,12 @@ function _DataSheet<T>({
     if (!verbose) return;
     console.log("Selected regions", selectedRegions);
   }, [selectedRegions]);
+
+  const tableElementRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    // Return the focus to the table
+    tableElementRef.current?.focus();
+  }, [focusedCell]);
 
   const columnWidths = ctx.useValue(columnWidthsAtom);
 
@@ -325,8 +328,6 @@ function _DataSheet<T>({
     [rowStatus, filteredRowIndices],
   );
 
-  const onKeyDown = ctx.useValue(tableKeyHandlerAtom);
-
   let _selectionModes = selectionModes;
   if (
     editable &&
@@ -354,7 +355,12 @@ function _DataSheet<T>({
       dataSheetActions,
       h(
         "div.data-sheet-holder",
-        { tabIndex: 0, onKeyDown: handleKeyDown, onKeyUp: handleKeyUp },
+        {
+          tabIndex: 0,
+          onKeyDown: handleKeyDown,
+          onKeyUp: handleKeyUp,
+          ref: tableElementRef,
+        },
         h(
           Table,
           {
@@ -379,6 +385,7 @@ function _DataSheet<T>({
             rowHeaderCellRenderer,
             selectionModes: _selectionModes,
             ...rest,
+            getCellClipboardData: null,
           },
           children,
         ),

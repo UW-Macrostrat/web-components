@@ -192,7 +192,7 @@ export function basicCellRenderer<T>(
     [
       cellContents,
       h.if(editable && isSingleCellSelection)(DragHandle),
-      hiddenInput,
+      //hiddenInput,
     ],
   );
 }

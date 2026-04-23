@@ -5,7 +5,7 @@ import type { ClipboardProxy } from "../types.ts";
 /** Serialize the current selection to tab-separated values.
  * For full-row/column copies, includes a header row and produces
  * a `ClipboardProxy` for potential backend-mediated paste. */
-function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
+export function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
   text: string;
   proxy?: ClipboardProxy;
 } {
@@ -48,9 +48,18 @@ function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
     rows.push(headers.join("\t"));
   }
 
+  const selectedColumns = columnSpec.filter((d) => columnKeys.includes(d.key));
+
   for (const i of rowIndices) {
     const row = { ...data[i], ...updatedData[i] };
-    rows.push(columnKeys.map((key) => String(row[key] ?? "")).join("\t"));
+    rows.push(
+      selectedColumns
+        .map((col) => {
+          const value = row[col.key];
+          return String(col.valueRenderer?.(value) ?? value ?? "");
+        })
+        .join("\t"),
+    );
   }
 
   const text = rows.join("\n");

@@ -37,6 +37,9 @@ export default {
           "@macrostrat/map-interface",
           "@macrostrat/column-views",
           "@macrostrat/map-styles",
+          "@blueprintjs/core",
+          "@blueprintjs/datetime",
+          "@blueprintjs/table",
         ],
       },
       optimizeDeps: {
