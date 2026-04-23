@@ -116,6 +116,8 @@ export interface TableAction<T = any, S = null> {
   id: string;
   /** Display name */
   name: string;
+  /** Group name (for grouping actions together) */
+  group?: string;
   /** Blueprint icon name */
   icon?: IconName;
   /** Visual intent (e.g., "danger" for destructive actions) */

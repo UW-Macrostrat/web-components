@@ -3,12 +3,7 @@ import { storeAPIAtom, storeAtom, tableActionsAtom } from "../provider";
 import type { DataSheetStoreMain } from "../types";
 import { atom } from "jotai";
 import { singleFocusedCell } from "../zustand-store.ts";
-import {
-  buildActionContext,
-  copyAction,
-  pasteAction,
-  serializeSelectionToTSV,
-} from "../actions";
+import { buildActionContext } from "../actions";
 import { HotkeyConfig } from "@blueprintjs/core";
 import { toasterAtom } from "../notifications.ts";
 
@@ -33,10 +28,15 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
   const store = get(storeAPIAtom);
   const toaster = get(toasterAtom);
   const editable = get(isEditableAtom);
-  const hasSelection = get(hasSelectionAtom);
+
+  /** Set up hotkeys for table actions */
+  const tableActions = get(tableActionsAtom);
+
   if (store == null) return [];
-  const keyHandler = (actionRunner: HotkeyActionRunner) => {
-    return (e: KeyboardEvent) => {
+  const keyHandler = (
+    actionRunner: HotkeyActionRunner,
+  ): HotkeyConfig["onKeyDown"] => {
+    return (e) => {
       // Kind of a ridiculous hack to get the store from the atom.
       const state = store.getState();
       const setState = store.setState;
@@ -77,6 +77,30 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
 
   /** TODO: merge a bit more with the actions config */
 
+  const actionsCombos: HotkeyConfig[] = tableActions
+    .map((action) => {
+      if (action.hotkey == null) return null;
+      return {
+        combo: action.hotkey,
+        label: action.name,
+        group: action.group ?? "Actions",
+        preventDefault: true,
+        disabled: action.requiresEditable !== false && !editable,
+        onKeyDown: keyHandler(async (event: KeyboardEvent, state, setState) => {
+          const ctx = buildActionContext(state, setState);
+          if (action.disabled instanceof Function) {
+            if (action.disabled(ctx)) {
+              return;
+            }
+          } else if (action.disabled) {
+            return;
+          }
+          await action.run(ctx);
+        }),
+      };
+    })
+    .filter((d) => d != null);
+
   const selectionCombos: HotkeyConfig[] = [
     {
       combo: "esc",
@@ -98,6 +122,7 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
       label: "Clear selection",
       group: "Selection",
       allowInInput: true,
+      disabled: !editable,
       onKeyDown: keyHandler((e, state) => {
         state.clearSelection();
       }),
@@ -121,53 +146,7 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
       }),
     },
     ...directionCombos,
-    {
-      combo: copyAction.hotkey,
-      label: "Copy",
-      group: "Clipboard",
-      //allowInInput: true,
-      onKeyDown: keyHandler(async (e, state, setState) => {
-        e.preventDefault();
-        const ctx = buildActionContext(state, setState);
-        await copyAction.run(ctx);
-      }),
-    },
-    {
-      combo: copyAction.hotkey,
-      label: "Copy",
-      group: "Clipboard",
-      //allowInInput: true,
-      onKeyDown: keyHandler(async (e, state, setState) => {
-        e.preventDefault();
-        const ctx = buildActionContext(state, setState);
-        await copyAction.run(ctx);
-      }),
-    },
-    {
-      combo: pasteAction.hotkey,
-      label: "Paste",
-      group: "Clipboard",
-      disabled: !(editable && hasSelection),
-      onKeyDown: keyHandler(async (e, state, setState) => {
-        e.preventDefault();
-        const ctx = buildActionContext(state, setState);
-        await pasteAction.run(ctx);
-      }),
-    },
-    {
-      combo: "mod+r",
-      label: "Reset changes",
-      group: "Editing",
-      allowInInput: true,
-      disabled: !(editable && hasSelection),
-      preventDefault: true,
-      stopPropagation: true,
-      onKeyDown: keyHandler(async (e, state, setState) => {
-        const ctx = buildActionContext(state, setState);
-        ctx.resetChanges(ctx.selection);
-        console.log("Reset changes");
-      }),
-    },
+    ...actionsCombos,
   ];
 
   return selectionCombos;
@@ -183,16 +162,10 @@ const isSingleCellSelectionAtom = atom((get) => {
   return singleFocusedCell(selection) != null;
 });
 
-const tableRefAtom = atom((get) => {
-  const store = get(storeAtom);
-  return store?.tableRef.current;
-});
-
 export const editorKeyHandlerAtom = atom((get) => {
   return (e: KeyboardEvent) => {
     const isSingleCellSelection = get(isSingleCellSelectionAtom);
-    const tableElement = get(tableRefAtom);
-    editorKeyHandler(e, isSingleCellSelection, tableElement);
+    editorKeyHandler(e, isSingleCellSelection);
   };
 });
 

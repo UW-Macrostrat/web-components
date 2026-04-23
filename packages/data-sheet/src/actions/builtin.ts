@@ -35,7 +35,9 @@ export const addRowAction: TableAction = {
  * - Full table: resets all changes */
 export const resetChangesAction: TableAction = {
   id: "reset-changes",
-  name: "Reset",
+  name: "Reset changes",
+  group: "Editing",
+  hotkey: "mod+r",
   icon: "reset",
   intent: "warning",
   targets: [

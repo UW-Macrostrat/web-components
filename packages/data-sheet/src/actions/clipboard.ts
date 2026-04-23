@@ -114,6 +114,27 @@ export const copyAction: TableAction = {
   hotkey: "mod+c",
 };
 
+export const cutAction: TableAction = {
+  id: "cut",
+  name: "Cut",
+  icon: "clipboard",
+  targets: [
+    RegionCardinality.CELLS,
+    RegionCardinality.FULL_ROWS,
+    RegionCardinality.FULL_COLUMNS,
+    RegionCardinality.FULL_TABLE,
+  ],
+  requiresEditable: true,
+  async run(ctx) {
+    const { text, proxy } = serializeSelectionToTSV(ctx);
+    console.log("Cutting text:", text);
+    await navigator.clipboard.writeText(text);
+    ctx.setClipboardProxy(proxy ?? null);
+    ctx.clearSelection();
+  },
+  hotkey: "mod+x",
+};
+
 /** Describes the shape relationship between pasted data and the target region */
 export enum PasteShape {
   /** Data fits exactly into the target region */
@@ -321,4 +342,8 @@ export const pasteAction: TableAction = {
 };
 
 /** Convenience array of clipboard-related actions. */
-export const clipboardActions: TableAction[] = [copyAction, pasteAction];
+export const clipboardActions: TableAction[] = [
+  copyAction,
+  cutAction,
+  pasteAction,
+];

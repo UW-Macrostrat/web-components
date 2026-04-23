@@ -1,6 +1,5 @@
 import {
   Button,
-  HotkeysProvider,
   InputGroup,
   OverlayToaster,
   Spinner,
@@ -62,10 +61,7 @@ interface PostgRESTTableViewProps<
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
   return h(
     ErrorBoundary,
-    h(
-      ctx.Provider,
-      h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props))),
-    ),
+    h(ctx.Provider, h(ToasterContext, h(_PostgRESTTableView, props))),
   );
 }
 
@@ -119,7 +115,7 @@ function _PostgRESTTableView<T>({
   editable = false,
   enableFullTableSearch = false,
   dataSheetActions,
-  identityKey = "id",
+  identityKey = null,
   ...rest
 }: PostgRESTTableViewProps<T>) {
   // Boundary of Jotai store
@@ -146,6 +142,16 @@ function _PostgRESTTableView<T>({
   }
   _order.push(...columnSorts);
 
+  // Infer identity key
+  let _identityKey = identityKey;
+  if (_identityKey == null) {
+    if (_order.length == 0) {
+      throw "Must specify identity key or order by column";
+    } else {
+      _identityKey = _order[0].key;
+    }
+  }
+
   const { data, onScroll, dispatch, getClient } = usePostgRESTLazyLoader(
     endpoint,
     table,
@@ -153,7 +159,7 @@ function _PostgRESTTableView<T>({
       order: _order,
       columns,
       filters,
-      identityKey,
+      identityKey: _identityKey,
     },
   );
 

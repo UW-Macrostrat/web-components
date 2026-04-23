@@ -101,25 +101,22 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
   } = props;
 
   return h(
-    HotkeysProvider,
-    h(
-      DataSheetProvider<T>,
-      {
-        data,
-        columnSpec,
-        columnSpecOptions,
-        enableColumnReordering,
-        defaultColumnWidth,
-        editable,
-        ...rest,
-      },
-      h(_DataSheet, {
-        ...rest,
-        editable,
-        enableColumnReordering,
-        enableFocusedCell,
-      }),
-    ),
+    DataSheetProvider<T>,
+    {
+      data,
+      columnSpec,
+      columnSpecOptions,
+      enableColumnReordering,
+      defaultColumnWidth,
+      editable,
+      ...rest,
+    },
+    h(_DataSheet<any>, {
+      ...rest,
+      editable,
+      enableColumnReordering,
+      enableFocusedCell,
+    }),
   );
 }
 
@@ -166,10 +163,10 @@ function _DataSheet<T>({
     return _actions;
   }, [actions, enableClipboard]);
 
+  ctx.useSync(tableActionsAtom, _actions);
+
   const hotkeysConfig = ctx.useValue(tableHotkeysAtom);
   const { handleKeyDown, handleKeyUp } = useHotkeys(hotkeysConfig);
-
-  ctx.useSync(tableActionsAtom, _actions);
 
   // For now, we only consider a single cell "focused" when we have one cell selected.
   // Multi-cell selections have a different set of "bulk" actions.
@@ -346,62 +343,59 @@ function _DataSheet<T>({
     filteredRowIndices,
   ];
 
-  return h(
-    OverlaysProvider,
-    h("div.data-sheet-container", { className, style }, [
-      h.if(actions != null)(ActionsToolbar, { actions }),
-      h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
-      h.if(hasSortableOrFilterable)(SortFilterBar),
-      dataSheetActions,
+  return h("div.data-sheet-container", { className, style }, [
+    h.if(actions != null)(ActionsToolbar, { actions }),
+    h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
+    h.if(hasSortableOrFilterable)(SortFilterBar),
+    dataSheetActions,
+    h(
+      "div.data-sheet-holder",
+      {
+        tabIndex: 0,
+        onKeyDown: handleKeyDown,
+        onKeyUp: handleKeyUp,
+        ref: tableElementRef,
+      },
       h(
-        "div.data-sheet-holder",
+        Table,
         {
-          tabIndex: 0,
-          onKeyDown: handleKeyDown,
-          onKeyUp: handleKeyUp,
-          ref: tableElementRef,
+          ref,
+          numRows,
+          className: "data-sheet",
+          enableFocusedCell,
+          onColumnsReordered,
+          focusedCell,
+          selectedRegions,
+          defaultRowHeight: rowHeight,
+          minRowHeight: rowHeight,
+          columnWidths,
+          onColumnWidthChanged,
+          onSelection,
+          /** TODO: we could enable this, but we need a use-case first... */
+          enableRowReordering: false,
+          enableRowResizing: false,
+          // The cell renderer is memoized internally based on these data dependencies
+          cellRendererDependencies,
+          onVisibleCellsChange: _onVisibleCellsChange,
+          rowHeaderCellRenderer,
+          selectionModes: _selectionModes,
+          ...rest,
+          getCellClipboardData: null,
         },
-        h(
-          Table,
-          {
-            ref,
-            numRows,
-            className: "data-sheet",
-            enableFocusedCell,
-            onColumnsReordered,
-            focusedCell,
-            selectedRegions,
-            defaultRowHeight: rowHeight,
-            minRowHeight: rowHeight,
-            columnWidths,
-            onColumnWidthChanged,
-            onSelection,
-            /** TODO: we could enable this, but we need a use-case first... */
-            enableRowReordering: false,
-            enableRowResizing: false,
-            // The cell renderer is memoized internally based on these data dependencies
-            cellRendererDependencies,
-            onVisibleCellsChange: _onVisibleCellsChange,
-            rowHeaderCellRenderer,
-            selectionModes: _selectionModes,
-            ...rest,
-            getCellClipboardData: null,
-          },
-          children,
-        ),
+        children,
       ),
-      h.if(debugMode)(CellRendererDebugOverlay, {
-        cellRendererDependencies,
-        names: [
-          "data",
-          "updatedData",
-          "focusedCell",
-          "rowStatus",
-          "filteredRowIndices",
-        ],
-      }),
-    ]),
-  );
+    ),
+    h.if(debugMode)(CellRendererDebugOverlay, {
+      cellRendererDependencies,
+      names: [
+        "data",
+        "updatedData",
+        "focusedCell",
+        "rowStatus",
+        "filteredRowIndices",
+      ],
+    }),
+  ]);
 }
 
 const columnWidthsIndexAtom = atom((get) => get(storeAtom).columnWidthsIndex);
