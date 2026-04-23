@@ -1,7 +1,7 @@
 import { ColumnSpec, editorKeyHandlerAtom } from "./utils";
 import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { EditorPopup } from "./components";
 import { singleFocusedCell } from "./zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
@@ -135,7 +135,7 @@ export function basicCellRenderer<T>(
 
   const onChange = (e) => {
     if (!editable) return;
-    if (value === e.target.value) return;
+    if (_renderedValue === e.target.value) return;
     // Use dataRowIndex for the actual data mutation
     onCellEdited(dataRowIndex, col.key, e.target.value);
   };
@@ -198,10 +198,15 @@ export function basicCellRenderer<T>(
 }
 
 function EditorInput(props) {
+  const { value, onChange, ...rest } = props;
   const onKeyDown = ctx.useValue(editorKeyHandlerAtom);
+  const [_value, setValue] = useState(value);
   return h("input", {
     onKeyDown,
-    ...props,
+    onBlur: onChange,
+    value: _value ?? value,
+    onChange: (e) => setValue(e.target.value),
+    ...rest,
   });
 }
 

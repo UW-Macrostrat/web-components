@@ -107,6 +107,7 @@ export const copyAction: TableAction = {
   requiresEditable: false,
   async run(ctx) {
     const { text, proxy } = serializeSelectionToTSV(ctx);
+    console.log("Copying text:", text);
     await navigator.clipboard.writeText(text);
     ctx.setClipboardProxy(proxy ?? null);
   },

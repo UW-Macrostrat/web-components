@@ -3,7 +3,12 @@ import { storeAPIAtom, storeAtom, tableActionsAtom } from "../provider";
 import type { DataSheetStoreMain } from "../types";
 import { atom } from "jotai";
 import { singleFocusedCell } from "../zustand-store.ts";
-import { buildActionContext, serializeSelectionToTSV } from "../actions";
+import {
+  buildActionContext,
+  copyAction,
+  pasteAction,
+  serializeSelectionToTSV,
+} from "../actions";
 import { HotkeyConfig } from "@blueprintjs/core";
 import { toasterAtom } from "../notifications.ts";
 
@@ -13,9 +18,22 @@ type HotkeyActionRunner = (
   setState: (state: Partial<DataSheetStoreMain<any>>) => void,
 ) => void | Promise<void>;
 
+const isEditableAtom = atom((get) => {
+  const store = get(storeAtom);
+  return store?.editable ?? false;
+});
+
+const hasSelectionAtom = atom((get) => {
+  const store = get(storeAtom);
+  const selection = store?.selection ?? [];
+  return selection.length > 0;
+});
+
 export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
   const store = get(storeAPIAtom);
   const toaster = get(toasterAtom);
+  const editable = get(isEditableAtom);
+  const hasSelection = get(hasSelectionAtom);
   if (store == null) return [];
   const keyHandler = (actionRunner: HotkeyActionRunner) => {
     return (e: KeyboardEvent) => {
@@ -51,14 +69,14 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
       combo: dir,
       group: "Navigation",
       label: "Move focus " + dir,
+      preventDefault: true,
       onKeyDown: keyHandler((e, state) => {
         state.moveFocusedCell(dir);
-        e.preventDefault();
       }),
     };
   });
 
-  const selectionCombos = [
+  const selectionCombos: HotkeyConfig[] = [
     {
       combo: "esc",
       label: "Clear selection",
@@ -103,17 +121,36 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
     },
     ...directionCombos,
     {
-      combo: "mod+c",
+      combo: copyAction.hotkey,
       label: "Copy",
       group: "Clipboard",
       //allowInInput: true,
       onKeyDown: keyHandler(async (e, state, setState) => {
         e.preventDefault();
         const ctx = buildActionContext(state, setState);
-        const { text, proxy } = serializeSelectionToTSV(ctx);
-        console.log("Copying text:", text);
-        await navigator.clipboard.writeText(text);
-        ctx.setClipboardProxy(proxy ?? null);
+        await copyAction.run(ctx);
+      }),
+    },
+    {
+      combo: copyAction.hotkey,
+      label: "Copy",
+      group: "Clipboard",
+      //allowInInput: true,
+      onKeyDown: keyHandler(async (e, state, setState) => {
+        e.preventDefault();
+        const ctx = buildActionContext(state, setState);
+        await copyAction.run(ctx);
+      }),
+    },
+    {
+      combo: pasteAction.hotkey,
+      label: "Paste",
+      group: "Clipboard",
+      disabled: !(editable && hasSelection),
+      onKeyDown: keyHandler(async (e, state, setState) => {
+        e.preventDefault();
+        const ctx = buildActionContext(state, setState);
+        await pasteAction.run(ctx);
       }),
     },
     {
@@ -121,12 +158,13 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
       label: "Reset changes",
       group: "Editing",
       allowInInput: true,
+      disabled: !(editable && hasSelection),
+      preventDefault: true,
+      stopPropagation: true,
       onKeyDown: keyHandler(async (e, state, setState) => {
         const ctx = buildActionContext(state, setState);
         ctx.resetChanges(ctx.selection);
         console.log("Reset changes");
-        e.preventDefault();
-        e.stopPropagation();
       }),
     },
   ];
@@ -160,7 +198,6 @@ export const editorKeyHandlerAtom = atom((get) => {
 function editorKeyHandler(
   e: KeyboardEvent<HTMLInputElement>,
   isSingleCellSelection: boolean,
-  tableElement: HTMLTableElement,
 ) {
   /** Get a key handler for inline cell editing */
 
@@ -225,9 +262,6 @@ function editorKeyHandler(
 }
 
 function shouldPropagateKeystroke(evt: KeyboardEvent): boolean {
-  /* If there is no selection, we should propagate copy/paste/etc. events. */
-  console.log(evt.target.selectionStart, evt.target.selectionEnd, evt.key);
-
   if (evt.target.selectionStart == evt.target.selectionEnd) {
     // We don't have anything selected, so we can propagate the event potentially
     // Propagate copy and paste events even if there is no selection, since they might want to copy/paste an entire row/column based on the focused cell.
@@ -236,7 +270,10 @@ function shouldPropagateKeystroke(evt: KeyboardEvent): boolean {
         return true;
       }
     }
-    return false;
+  }
+
+  if (evt.key === "ArrowUp" || evt.key === "ArrowDown") {
+    return true;
   }
 
   const target = evt.target;
