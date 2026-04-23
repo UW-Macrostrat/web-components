@@ -1,6 +1,6 @@
 import h from "./main.module.sass";
 import { Button } from "@blueprintjs/core";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { multiLineTextKeyHandler } from "../utils";
 
 export type DataEditorProps = {
@@ -19,6 +19,12 @@ export function EditableTextArea({
 }: DataEditorProps) {
   const ref = useRef(null);
 
+  // const [_value, setValue] = useState(value);
+  //
+  // useEffect(() => {
+  //   setValue(value);
+  // }, [value]);
+
   useEffect(() => {
     if (ref.current == null) return;
     ref.current.focus();
@@ -31,8 +37,13 @@ export function EditableTextArea({
   return h("div.editable-text-area", [
     h("textarea.bp6-input", {
       ref,
-      value: value ?? "",
-      onChange: (evt) => onChange(evt.target.value),
+      defaultValue: value ?? "",
+      //onChange: (evt) => setValue(evt.target.value),
+      onBlur: (evt) => {
+        if (evt.target.value !== value) {
+          onChange(evt.target.value);
+        }
+      },
       onKeyDown: multiLineTextKeyHandler,
     }),
     h("div.tools", [
@@ -44,7 +55,7 @@ export function EditableTextArea({
         intent: isEdited ? "success" : "none",
         disabled: !isEdited,
         onClick(evt) {
-          resetValue();
+          resetValue?.();
         },
       }),
     ]),

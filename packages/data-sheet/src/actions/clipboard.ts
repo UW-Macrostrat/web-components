@@ -25,17 +25,18 @@ export function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
     case RegionCardinality.FULL_ROWS:
       rowIndices = ctx.getSelectedRowIndices();
       columnKeys = columnSpec.map((c) => c.key);
-      includeHeaders = true;
+      // TODO: include headers, but copy using proxy...
+      includeHeaders = false;
       break;
     case RegionCardinality.FULL_COLUMNS:
       rowIndices = Array.from({ length: numRows }, (_, i) => i);
       columnKeys = ctx.getSelectedColumnKeys();
-      includeHeaders = true;
+      includeHeaders = false;
       break;
     default:
       rowIndices = Array.from({ length: numRows }, (_, i) => i);
       columnKeys = columnSpec.map((c) => c.key);
-      includeHeaders = true;
+      includeHeaders = false;
       break;
   }
 
