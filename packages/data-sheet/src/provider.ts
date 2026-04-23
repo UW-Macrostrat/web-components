@@ -87,11 +87,6 @@ export function DataSheetProviderInner<T>({
   enableColumnReordering,
   defaultColumnWidth = 150,
 }: DataSheetProviderProps<T>) {
-  const visibleCellsRef = useRef<VisibleCells>({
-    rowIndexStart: 0,
-    rowIndexEnd: 0,
-  });
-
   const tableRef = useRef<Table>(null);
 
   const initializeStore = ctx.useSet(initializeStoreAtom);
@@ -105,7 +100,6 @@ export function DataSheetProviderInner<T>({
       data,
       defaultColumnWidth,
       tableRef,
-      visibleCellsRef,
     });
   }, [data, editable, columnSpec, columnSpecOptions, enableColumnReordering]);
 

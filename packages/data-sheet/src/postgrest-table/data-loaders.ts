@@ -13,12 +13,15 @@ import { adjustArraySize, RowRegion, sleep } from "./loading-utils.ts";
 import { ctx } from "../provider.ts";
 import { atom } from "jotai";
 
-interface LazyLoaderState<T> {
+interface LazyLoaderStateCore<T> {
   data: (T | null)[];
   loading: boolean;
   error: Error | null;
-  visibleRegion: RowRegion;
   initialized: boolean;
+}
+
+interface LazyLoaderState<T> extends LazyLoaderStateCore<T> {
+  visibleRegion: RowRegion;
 }
 
 export interface PostgrestOrder<T> {
@@ -89,7 +92,6 @@ type LazyLoaderAction<T> =
   | { type: "start-loading" }
   | { type: "loaded"; data: T[]; offset: number; totalSize: number }
   | { type: "error"; error: Error }
-  | { type: "set-visible"; region: RowRegion }
   | { type: "update-data"; changes: Spec<T[]> }
   | { type: "reset" }
   | { type: "start-reload" };
@@ -104,11 +106,6 @@ function lazyLoadingReducer<T>(
         ...state,
         loading: true,
         initialized: true,
-      };
-    case "set-visible":
-      return {
-        ...state,
-        visibleRegion: action.region,
       };
     case "update-data":
       return {
@@ -143,7 +140,6 @@ function lazyLoadingReducer<T>(
         data: [],
         loading: false,
         error: null,
-        visibleRegion: { rowIndexStart: 0, rowIndexEnd: 0 },
         initialized: false,
       };
     case "error":
@@ -226,33 +222,36 @@ function buildQuery<T>(
   return query;
 }
 
-const lazyLoaderStateAtom = atom<LazyLoaderState<any>>({
+/** Atom to house the current visible region of the table */
+const visibleRegionAtom = atom<RowRegion>({
+  rowIndexStart: 0,
+  rowIndexEnd: 0,
+});
+
+const lazyLoaderCoreStateAtom = atom<LazyLoaderState<any>>({
   data: [],
   loading: false,
   error: null,
-  visibleRegion: { rowIndexStart: 0, rowIndexEnd: 0 },
   initialized: false,
 });
 
-/** Atom to house the current visible region of the table */
-const visibleRegionAtom = atom(
-  (get) => {
-    return get(lazyLoaderStateAtom).visibleRegion;
-  },
-  (get, set, region: RowRegion) => {
-    set(lazyLoaderStateAtom, (prev) => {
-      return { ...prev, visibleRegion: region };
-    });
-  },
-);
+const lazyLoaderStateAtom = atom((get): LazyLoaderState<any> => {
+  const core = get(lazyLoaderCoreStateAtom);
+  const visibleRegion = get(visibleRegionAtom);
+  return {
+    ...core,
+    visibleRegion,
+  };
+});
 
 function useLazyLoaderReducer() {
-  const [state, setState] = ctx.use(lazyLoaderStateAtom);
+  const setState = ctx.useSet(lazyLoaderCoreStateAtom);
   const dispatch = useCallback(
     (action: LazyLoaderAction<any>) =>
       setState((prev) => lazyLoadingReducer(prev, action)),
     [setState],
   );
+  const state = ctx.useValue(lazyLoaderStateAtom);
   return [state, dispatch] as const;
 }
 
@@ -348,6 +347,7 @@ function _loadMoreData<T>(
 const loadMoreData = debounce(_loadMoreData, 100);
 
 export function useScrollHandler() {
+  /** A standardized approach to holding onto the scroll position for the table */
   // Reference to hold onto the scroll position
   const ref = useRef<RowRegion>(null);
 
@@ -392,6 +392,8 @@ export function usePostgRESTLazyLoader(
     [config.order, config.filters, config.identityKey],
   );
 
+  const visibleRegion = ctx.useValue(visibleRegionAtom);
+
   useEffect(() => {
     dispatch({ type: "reset" });
   }, [sortFilterKey]);
@@ -399,12 +401,7 @@ export function usePostgRESTLazyLoader(
   useAsyncEffect(async () => {
     const client = getClient();
     loadMoreData(client, config, state, dispatch);
-  }, [
-    data,
-    state.visibleRegion.rowIndexStart,
-    state.visibleRegion.rowIndexEnd,
-    sortFilterKey,
-  ]);
+  }, [data, visibleRegion, sortFilterKey]);
 
   return {
     data,
@@ -427,24 +424,14 @@ function indexOfFirstNullInRegion(
 }
 
 export function useTestLazyLoader(config: LazyLoaderOptions = {}) {
-  const initialState: LazyLoaderState<any> = {
-    data: [],
-    loading: false,
-    error: null,
-    visibleRegion: { rowIndexStart: 0, rowIndexEnd: 0 },
-    initialized: false,
-  };
-
-  const [state, dispatch] = useReducer(lazyLoadingReducer, initialState);
+  const [state, dispatch] = useLazyLoaderReducer();
   const { data, loading } = state;
+
+  const visibleRegion = ctx.useValue(visibleRegionAtom);
 
   useAsyncEffect(async () => {
     testDataLoader(config, state, dispatch);
-  }, [
-    data,
-    state.visibleRegion.rowIndexStart,
-    state.visibleRegion.rowIndexEnd,
-  ]);
+  }, [data, visibleRegion]);
 
   return {
     data,
