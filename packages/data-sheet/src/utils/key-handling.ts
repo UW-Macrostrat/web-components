@@ -37,7 +37,6 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
   if (store == null) return [];
   const keyHandler = (actionRunner: HotkeyActionRunner) => {
     return (e: KeyboardEvent) => {
-      console.log("Running key handler", e);
       // Kind of a ridiculous hack to get the store from the atom.
       const state = store.getState();
       const setState = store.setState;
@@ -75,6 +74,8 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
       }),
     };
   });
+
+  /** TODO: merge a bit more with the actions config */
 
   const selectionCombos: HotkeyConfig[] = [
     {

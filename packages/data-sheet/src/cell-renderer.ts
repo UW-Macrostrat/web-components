@@ -201,6 +201,9 @@ function EditorInput(props) {
   const { value, onChange, ...rest } = props;
   const onKeyDown = ctx.useValue(editorKeyHandlerAtom);
   const [_value, setValue] = useState(value);
+  useEffect(() => {
+    setValue(value);
+  }, [value]);
   return h("input", {
     onKeyDown,
     onBlur: onChange,
