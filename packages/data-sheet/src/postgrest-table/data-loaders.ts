@@ -11,6 +11,7 @@ import {
 } from "@supabase/postgrest-js";
 import { adjustArraySize, RowRegion, sleep } from "./loading-utils.ts";
 import { ctx } from "../provider.ts";
+import { atom } from "jotai";
 
 interface LazyLoaderState<T> {
   data: (T | null)[];
@@ -226,6 +227,36 @@ function buildQuery<T>(
   return query;
 }
 
+const lazyLoaderStateAtom = atom<LazyLoaderState<any>>({
+  data: [],
+  loading: false,
+  error: null,
+  visibleRegion: { rowIndexStart: 0, rowIndexEnd: 0 },
+  initialized: false,
+});
+
+/** Atom to house the current visible region of the table */
+const visibleRegionAtom = atom(
+  (get) => {
+    return get(lazyLoaderStateAtom).visibleRegion;
+  },
+  (get, set, region: RowRegion) => {
+    set(lazyLoaderStateAtom, (prev) => {
+      return { ...prev, visibleRegion: region };
+    });
+  },
+);
+
+function useLazyLoaderReducer() {
+  const [state, setState] = ctx.use(lazyLoaderStateAtom);
+  const dispatch = useCallback(
+    (action: LazyLoaderAction<any>) =>
+      setState((prev) => lazyLoadingReducer(prev, action)),
+    [setState],
+  );
+  return [state, dispatch] as const;
+}
+
 function buildPostgrestOrderClauses(
   sorts: (ColumnSortEntry | PostgrestOrder<any>)[],
   identityOrder: PostgrestOrder<any> | string,
@@ -302,7 +333,6 @@ function _loadMoreData<T>(
 
   const query = buildQuery(client, cfg);
 
-  console.log("Loading more data", cfg);
   query.then((res) => {
     console.log(res);
     const { data, count } = res;
@@ -335,7 +365,7 @@ export function usePostgRESTLazyLoader(
     return new PostgrestClient(endpoint).from(table);
   }, [endpoint, table]);
 
-  const [state, dispatch] = useReducer(lazyLoadingReducer, initialState);
+  const [state, dispatch] = useLazyLoaderReducer();
   const { data, loading } = state;
 
   // Reset data whenever sort/filter configuration changes so we re-fetch
@@ -366,6 +396,8 @@ export function usePostgRESTLazyLoader(
   // Reference to hold onto the scroll position
   const ref = useRef(null);
 
+  const setVisibleRegion = ctx.useSet(visibleRegionAtom);
+
   const onScroll = useCallback(
     debounce((visibleCells: RowRegion) => {
       if (
@@ -375,10 +407,7 @@ export function usePostgRESTLazyLoader(
         return;
       }
       console.log("Visible cells changed", visibleCells);
-      dispatch({
-        type: "set-visible",
-        region: visibleCells,
-      });
+      setVisibleRegion(visibleCells);
       ref.current = visibleCells;
     }, 500),
     [dispatch],
@@ -391,14 +420,6 @@ export function usePostgRESTLazyLoader(
     dispatch,
     getClient,
   };
-}
-
-function getRowIndexToLoadFrom<T>(
-  data: (T | null)[],
-  visibleRegion: RowRegion,
-  chunkSize: number,
-) {
-  return indexOfFirstNullInRegion(data, visibleRegion);
 }
 
 function indexOfFirstNullInRegion(
