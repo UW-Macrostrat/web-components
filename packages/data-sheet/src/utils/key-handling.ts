@@ -3,7 +3,7 @@ import { storeAPIAtom, storeAtom, tableActionsAtom } from "../provider";
 import type { DataSheetStoreMain } from "../types";
 import { atom } from "jotai";
 import { singleFocusedCell } from "../zustand-store.ts";
-import { buildActionContext } from "../actions";
+import { buildActionContext, runActionWrapper } from "../actions";
 import { HotkeyConfig } from "@blueprintjs/core";
 import { toasterAtom } from "../notifications.ts";
 
@@ -77,7 +77,7 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
 
   /** TODO: merge a bit more with the actions config */
 
-  const actionsCombos: HotkeyConfig[] = tableActions
+  const actionsCombos = tableActions
     .map((action) => {
       if (action.hotkey == null) return null;
       return {
@@ -86,22 +86,16 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
         group: action.group ?? "Actions",
         preventDefault: true,
         disabled: action.requiresEditable !== false && !editable,
-        onKeyDown: keyHandler(async (event: KeyboardEvent, state, setState) => {
-          const ctx = buildActionContext(state, setState);
-          if (action.disabled instanceof Function) {
-            if (action.disabled(ctx)) {
-              return;
-            }
-          } else if (action.disabled) {
-            return;
-          }
-          await action.run(ctx);
-        }),
-      };
+        onKeyDown(event: KeyboardEvent<any>): any {
+          const state = store.getState();
+          const setState = store.setState;
+          runActionWrapper(action, state, setState, toaster);
+        },
+      } as any as HotkeyConfig;
     })
-    .filter((d) => d != null);
+    .filter(Boolean) as HotkeyConfig[];
 
-  const selectionCombos: HotkeyConfig[] = [
+  return [
     {
       combo: "esc",
       label: "Clear selection",
@@ -148,8 +142,6 @@ export const tableHotkeysAtom = atom<HotkeyConfig[]>((get) => {
     ...directionCombos,
     ...actionsCombos,
   ];
-
-  return selectionCombos;
 });
 
 const selectionAtom = atom((get) => {
@@ -175,22 +167,7 @@ function editorKeyHandler(
 ) {
   /** Get a key handler for inline cell editing */
 
-  // if (e.key == "Enter" || e.key == "Tab") {
-  //   e.target.blur();
-  //   return;
-  // }
-
   const target = e.target as HTMLInputElement;
-
-  console.log("Editor key handler", e.key);
-
-  // if (e.key == "Escape") {
-  //   // Blur the editor but don't clear the selection
-  //   target.blur();
-  //   e.preventDefault();
-  //   e.stopPropagation();
-  //   return;
-  // }
 
   let shouldCaptureEventForInlineEditing = true;
 
@@ -212,25 +189,20 @@ function editorKeyHandler(
   if (!shouldCaptureEventForInlineEditing) {
     target.blur();
     e.preventDefault();
-    console.log("Editor key handler - not capturing event");
     return;
   }
 
   const shouldPropagate = shouldPropagateKeystroke(e);
   if (!shouldPropagate) {
-    console.log("Editor key handler - not propagating event");
     e.stopPropagation();
     //e.preventDefault();
   } else {
-    console.log("Editor key handler - propagating event");
-    //e.stopPropagation();
     // we blur the editor and dispatch a keydown event on the parent to propagate the event to the table
     e.preventDefault();
     target.blur();
     //console.log(tableElement);
     //tableElement.focus();
     //target.parentNode?.dispatchEvent(e);
-    console.log("propagating event to parent", e);
     target.parentNode?.dispatchEvent(new KeyboardEvent("keydown", e));
   }
 }
