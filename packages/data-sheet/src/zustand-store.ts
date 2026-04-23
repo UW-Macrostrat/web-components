@@ -35,7 +35,6 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
     topLeftCell: null,
     initialized: false,
     tableRef: null,
-    visibleCellsRef: null,
     // This is a placeholder
     enableColumnReordering: false,
     activeFilters: new Map<string, { filter: any; state: any }>(),
@@ -171,13 +170,6 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         newColumnWidths.set(colKey, newWidth);
         return { columnWidthsIndex: newColumnWidths };
       });
-    },
-    setVisibleCells(visibleCells: VisibleCells) {
-      // Visible cells are used for infinite scrolling
-      // Right now we don't store this in the state
-      const ref = get().visibleCellsRef;
-      if (ref == null) return;
-      ref.current = visibleCells;
     },
     onDragValue(event: MouseEvent) {
       set((state) => {

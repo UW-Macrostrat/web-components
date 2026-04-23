@@ -101,10 +101,8 @@ export interface DataSheetStoreMain<T> extends DataSheetVals<T> {
   initialize(props: Partial<DataSheetStoreMain<T>>): void;
   onSelection(selection: Region[]): void;
   // Internal method used for infinite scrolling
-  setVisibleCells(visibleCells: VisibleCells): void;
   scrollToRow(rowIndex: number): void;
   tableRef: React.MutableRefObject<Table2>;
-  visibleCellsRef: React.MutableRefObject<VisibleCells>;
   columnWidthsIndex: Map<string, number>;
   defaultColumnWidth: number;
 }

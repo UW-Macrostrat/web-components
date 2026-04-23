@@ -48,6 +48,7 @@ import { basicCellRenderer } from "./cell-renderer.ts";
 import { tableHotkeysAtom } from "./utils";
 import { clipboardActions, TableAction, TableFilter } from "./actions";
 import { ActionsToolbar, FilterBar } from "./actions";
+import { useScrollHandler } from "./postgrest-table";
 
 // More on component templates: https://storybook.js.org/docs/react/writing-stories/introduction#using-args
 
@@ -194,14 +195,13 @@ function _DataSheet<T>({
 
   const storeAPI = useStoreAPI<T>();
 
-  const setVisibleCells = useSelector((state) => state.setVisibleCells);
-
+  const onScroll = useScrollHandler();
   const _onVisibleCellsChange = useCallback(
     (visibleCells: VisibleCells) => {
-      setVisibleCells(visibleCells);
+      onScroll(visibleCells);
       onVisibleCellsChange?.(visibleCells);
     },
-    [onVisibleCellsChange, setVisibleCells],
+    [onVisibleCellsChange, onScroll],
   );
 
   useEffect(() => {

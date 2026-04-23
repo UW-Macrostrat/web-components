@@ -130,7 +130,6 @@ function lazyLoadingReducer<T>(
         data,
         loading: false,
       };
-
     case "start-reload":
       // Preserve the table dimensions but show ghost/skeleton cells
       return {
@@ -348,19 +347,33 @@ function _loadMoreData<T>(
 // Ensure only one data load is in progress at a time
 const loadMoreData = debounce(_loadMoreData, 100);
 
+export function useScrollHandler() {
+  // Reference to hold onto the scroll position
+  const ref = useRef<RowRegion>(null);
+
+  const setVisibleRegion = ctx.useSet(visibleRegionAtom);
+
+  return useCallback(
+    debounce((visibleCells: RowRegion) => {
+      if (
+        visibleCells.rowIndexEnd == ref.current?.rowIndexEnd &&
+        visibleCells.rowIndexStart == ref.current?.rowIndexStart
+      ) {
+        return;
+      }
+      console.log("Visible cells changed", visibleCells);
+      setVisibleRegion(visibleCells);
+      ref.current = visibleCells;
+    }, 500),
+    [setVisibleRegion],
+  );
+}
+
 export function usePostgRESTLazyLoader(
   endpoint: string,
   table: string,
   config: LazyLoaderOptions = {},
 ) {
-  const initialState: LazyLoaderState<any> = {
-    data: [],
-    loading: false,
-    error: null,
-    visibleRegion: { rowIndexStart: 0, rowIndexEnd: 0 },
-    initialized: false,
-  };
-
   const getClient = useCallback(() => {
     return new PostgrestClient(endpoint).from(table);
   }, [endpoint, table]);
@@ -393,30 +406,9 @@ export function usePostgRESTLazyLoader(
     sortFilterKey,
   ]);
 
-  // Reference to hold onto the scroll position
-  const ref = useRef(null);
-
-  const setVisibleRegion = ctx.useSet(visibleRegionAtom);
-
-  const onScroll = useCallback(
-    debounce((visibleCells: RowRegion) => {
-      if (
-        visibleCells.rowIndexEnd == ref.current?.rowIndexEnd &&
-        visibleCells.rowIndexStart == ref.current?.rowIndexStart
-      ) {
-        return;
-      }
-      console.log("Visible cells changed", visibleCells);
-      setVisibleRegion(visibleCells);
-      ref.current = visibleCells;
-    }, 500),
-    [dispatch],
-  );
-
   return {
     data,
     loading,
-    onScroll,
     dispatch,
     getClient,
   };
@@ -454,31 +446,9 @@ export function useTestLazyLoader(config: LazyLoaderOptions = {}) {
     state.visibleRegion.rowIndexEnd,
   ]);
 
-  // Reference to hold onto the scroll position
-  const ref = useRef(null);
-
-  const onScroll = useCallback(
-    debounce((visibleCells: RowRegion) => {
-      if (
-        visibleCells.rowIndexEnd == ref.current?.rowIndexEnd &&
-        visibleCells.rowIndexStart == ref.current?.rowIndexStart
-      ) {
-        return;
-      }
-      console.log("Visible cells changed", visibleCells);
-      dispatch({
-        type: "set-visible",
-        region: visibleCells,
-      });
-      ref.current = visibleCells;
-    }, 500),
-    [dispatch],
-  );
-
   return {
     data,
     loading,
-    onScroll,
     dispatch,
   };
 }

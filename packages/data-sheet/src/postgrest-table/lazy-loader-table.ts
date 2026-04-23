@@ -7,7 +7,7 @@ import { Spinner } from "@blueprintjs/core";
 const h = hyper.styled(styles);
 
 export function TestLazyLoaderTableView<T>({ ...rest }) {
-  const { data, onScroll } = useTestLazyLoader();
+  const { data } = useTestLazyLoader();
 
   if (data == null) {
     return h(Spinner);
@@ -18,7 +18,6 @@ export function TestLazyLoaderTableView<T>({ ...rest }) {
       ...rest,
       data,
       editable: false,
-      onVisibleCellsChange: onScroll,
     }),
   ]);
 }
