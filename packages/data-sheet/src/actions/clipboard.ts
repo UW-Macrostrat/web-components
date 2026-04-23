@@ -5,7 +5,7 @@ import type { ClipboardProxy } from "../types.ts";
 /** Serialize the current selection to tab-separated values.
  * For full-row/column copies, includes a header row and produces
  * a `ClipboardProxy` for potential backend-mediated paste. */
-function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
+export function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
   text: string;
   proxy?: ClipboardProxy;
 } {
@@ -48,9 +48,18 @@ function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
     rows.push(headers.join("\t"));
   }
 
+  const selectedColumns = columnSpec.filter((d) => columnKeys.includes(d.key));
+
   for (const i of rowIndices) {
     const row = { ...data[i], ...updatedData[i] };
-    rows.push(columnKeys.map((key) => String(row[key] ?? "")).join("\t"));
+    rows.push(
+      selectedColumns
+        .map((col) => {
+          const value = row[col.key];
+          return String(col.valueRenderer?.(value) ?? value ?? "");
+        })
+        .join("\t"),
+    );
   }
 
   const text = rows.join("\n");
@@ -66,9 +75,7 @@ function serializeSelectionToTSV<T>(ctx: TableActionContext<T>): {
       rowIndices:
         cardinality === RegionCardinality.FULL_ROWS ? rowIndices : undefined,
       columnKeys:
-        cardinality === RegionCardinality.FULL_COLUMNS
-          ? columnKeys
-          : undefined,
+        cardinality === RegionCardinality.FULL_COLUMNS ? columnKeys : undefined,
       text,
     };
   }
@@ -100,9 +107,32 @@ export const copyAction: TableAction = {
   requiresEditable: false,
   async run(ctx) {
     const { text, proxy } = serializeSelectionToTSV(ctx);
+    console.log("Copying text:", text);
     await navigator.clipboard.writeText(text);
     ctx.setClipboardProxy(proxy ?? null);
   },
+  hotkey: "mod+c",
+};
+
+export const cutAction: TableAction = {
+  id: "cut",
+  name: "Cut",
+  icon: "clipboard",
+  targets: [
+    RegionCardinality.CELLS,
+    RegionCardinality.FULL_ROWS,
+    RegionCardinality.FULL_COLUMNS,
+    RegionCardinality.FULL_TABLE,
+  ],
+  requiresEditable: true,
+  async run(ctx) {
+    const { text, proxy } = serializeSelectionToTSV(ctx);
+    console.log("Cutting text:", text);
+    await navigator.clipboard.writeText(text);
+    ctx.setClipboardProxy(proxy ?? null);
+    ctx.clearSelection();
+  },
+  hotkey: "mod+x",
 };
 
 /** Describes the shape relationship between pasted data and the target region */
@@ -225,6 +255,7 @@ export const pasteAction: TableAction = {
   id: "paste",
   name: "Paste",
   icon: "bring-data",
+  hotkey: "mod+v",
   targets: [
     RegionCardinality.CELLS,
     RegionCardinality.FULL_ROWS,
@@ -311,4 +342,8 @@ export const pasteAction: TableAction = {
 };
 
 /** Convenience array of clipboard-related actions. */
-export const clipboardActions: TableAction[] = [copyAction, pasteAction];
+export const clipboardActions: TableAction[] = [
+  copyAction,
+  cutAction,
+  pasteAction,
+];

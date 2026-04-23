@@ -1,7 +1,7 @@
 import { ColumnSpec, editorKeyHandlerAtom } from "./utils";
 import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { EditorPopup } from "./components";
 import { singleFocusedCell } from "./zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
@@ -34,7 +34,7 @@ export function basicCellRenderer<T>(
   const _topLeftCell = state.topLeftCell;
   const onCellEdited = state.onCellEdited;
 
-  const value =
+  const value: T | undefined =
     updatedData[dataRowIndex]?.[col.key] ?? data[dataRowIndex]?.[col.key];
   const isEmpty = value == null || value === "";
   const _renderedValue = isEmpty ? null : (col.valueRenderer?.(value) ?? value);
@@ -82,11 +82,6 @@ export function basicCellRenderer<T>(
   }
 
   // The rest is for the top-left cell of a selection or the focused cell
-
-  let hiddenInput = h(EditorInput, {
-    className: "hidden-input",
-    autoFocus: true,
-  });
 
   let cellContents: ReactNode = _renderedValue;
 
@@ -140,7 +135,7 @@ export function basicCellRenderer<T>(
 
   const onChange = (e) => {
     if (!editable) return;
-    if (value === e.target.value) return;
+    if (_renderedValue === e.target.value) return;
     // Use dataRowIndex for the actual data mutation
     onCellEdited(dataRowIndex, col.key, e.target.value);
   };
@@ -168,6 +163,11 @@ export function basicCellRenderer<T>(
     _inlineEditor = inlineEditor as ReactNode;
   }
 
+  let hiddenInput: React.ReactNode = h(EditorInput, {
+    className: "hidden-input",
+    autoFocus: true,
+  });
+
   if (_dataEditor != null) {
     className = "editor-cell";
     cellContents = _dataEditor;
@@ -192,16 +192,24 @@ export function basicCellRenderer<T>(
     [
       cellContents,
       h.if(editable && isSingleCellSelection)(DragHandle),
-      hiddenInput,
+      //hiddenInput,
     ],
   );
 }
 
 function EditorInput(props) {
+  const { value, onChange, ...rest } = props;
   const onKeyDown = ctx.useValue(editorKeyHandlerAtom);
+  const [_value, setValue] = useState(value);
+  useEffect(() => {
+    setValue(value);
+  }, [value]);
   return h("input", {
     onKeyDown,
-    ...props,
+    onBlur: onChange,
+    value: _value ?? value,
+    onChange: (e) => setValue(e.target.value),
+    ...rest,
   });
 }
 

@@ -11,6 +11,7 @@ import {
 import type { TableAction, TableActionContext } from "./types";
 import { RegionCardinality } from "@blueprintjs/table";
 import { useToaster } from "../notifications.ts";
+import { DataSheetStore } from "../types.ts";
 
 /** Toolbar that renders applicable table actions based on the
  * current selection cardinality and edit mode.
@@ -58,6 +59,43 @@ function getMessageForError(e: any) {
   return null;
 }
 
+function isActionDisabled(action: TableAction, state: any): boolean {
+  if (typeof action.disabled === "boolean") return action.disabled;
+  if (typeof action.disabled === "function") {
+    return action.disabled(state);
+  }
+  return false;
+}
+
+export function runActionWrapper<T>(
+  action: TableAction<T>,
+  state: DataSheetStore<any>,
+  setState: (state: Partial<DataSheetStore<any>>) => void,
+  toaster: any,
+  configState: any = undefined,
+) {
+  const ctx = buildActionContext(state, setState) as TableActionContext<T>;
+  if (action.disabled instanceof Function) {
+    if (action.disabled(ctx)) {
+      return;
+    }
+  } else if (action.disabled) {
+    return;
+  }
+  try {
+    const res = action.run(ctx, configState);
+    if (res instanceof Promise) {
+      res
+        .then(() => {})
+        .catch((e) => {
+          displayErrorForAction(action, e, toaster);
+        });
+    }
+  } catch (e) {
+    displayErrorForAction(action, e, toaster);
+  }
+}
+
 /** A single action button. Handles both simple actions (direct click)
  * and actions with a `detailsForm` (popover with config + run). */
 function ActionButton<T>({ action }: { action: TableAction<T> }) {
@@ -66,32 +104,18 @@ function ActionButton<T>({ action }: { action: TableAction<T> }) {
 
   // Reactive disabled check — re-renders when relevant state changes
   const isDisabled = useSelector((state) => {
-    if (typeof action.disabled === "boolean") return action.disabled;
-    if (typeof action.disabled === "function") {
-      return action.disabled(buildActionContext(state));
-    }
-    return false;
+    return isActionDisabled(action, state);
   });
 
   const runAction = useCallback(
     (configState?: any) => {
-      const ctx = buildActionContext(
+      runActionWrapper(
+        action,
         storeAPI.getState(),
         storeAPI.setState,
-      ) as TableActionContext<T>;
-      try {
-        const res = action.run(ctx, configState);
-        if (res instanceof Promise) {
-          res.then(() => {});
-        }
-      } catch (e) {
-        const message =
-          getMessageForError(e) ?? action.errorMessage ?? "Action failed";
-        toaster.show({
-          message,
-          intent: "danger",
-        });
-      }
+        toaster,
+        configState,
+      );
     },
     [storeAPI, action, toaster],
   );
@@ -112,6 +136,15 @@ function ActionButton<T>({ action }: { action: TableAction<T> }) {
     },
     action.name,
   );
+}
+
+function displayErrorForAction(action: TableAction, error: any, toaster: any) {
+  const message =
+    getMessageForError(error) ?? action.errorMessage ?? "Action failed";
+  toaster.show({
+    message,
+    intent: "danger",
+  });
 }
 
 /** Action button that opens a popover for pre-run configuration. */

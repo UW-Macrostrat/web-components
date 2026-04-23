@@ -14,6 +14,7 @@ import { atomWithStore } from "jotai-zustand";
 export { atom } from "jotai";
 import { atom } from "jotai";
 import { toasterAtom } from "./notifications.ts";
+import { TableAction } from "./actions";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();
@@ -57,6 +58,8 @@ const initializeStoreAtom = atom(
     });
   },
 );
+
+export const tableActionsAtom = atom<TableAction[]>([]);
 
 export function DataSheetProvider<T>(props: DataSheetProviderProps<T>) {
   const { toaster, ...rest } = props;
