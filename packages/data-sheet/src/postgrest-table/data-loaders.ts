@@ -235,23 +235,37 @@ const lazyLoaderCoreStateAtom = atom<LazyLoaderState<any>>({
   initialized: false,
 });
 
-const lazyLoaderStateAtom = atom((get): LazyLoaderState<any> => {
-  const core = get(lazyLoaderCoreStateAtom);
-  const visibleRegion = get(visibleRegionAtom);
-  return {
-    ...core,
-    visibleRegion,
-  };
-});
+/** Temporary passthrough atom to allow visible region to be separated from the  rest
+ * of the lazy loader state
+ */
+const lazyLoaderStateAtom = atom(
+  (get): LazyLoaderState<any> => {
+    const core = get(lazyLoaderCoreStateAtom);
+    const visibleRegion = get(visibleRegionAtom);
+    return {
+      ...core,
+      visibleRegion,
+    };
+  },
+  (get, set, update: Partial<LazyLoaderState<any>>) => {
+    // Split the state between several places
+    const { visibleRegion, ...rest } = update;
+    if (visibleRegion != null) {
+      set(visibleRegionAtom, visibleRegion);
+    }
+    if (Object.keys(update).length > 1) {
+      set(lazyLoaderCoreStateAtom, (v) => ({ ...v, ...update }));
+    }
+  },
+);
 
 function useLazyLoaderReducer() {
-  const setState = ctx.useSet(lazyLoaderCoreStateAtom);
+  const [state, setState] = ctx.use(lazyLoaderStateAtom);
   const dispatch = useCallback(
     (action: LazyLoaderAction<any>) =>
       setState((prev) => lazyLoadingReducer(prev, action)),
     [setState],
   );
-  const state = ctx.useValue(lazyLoaderStateAtom);
   return [state, dispatch] as const;
 }
 
@@ -287,7 +301,7 @@ function buildPostgrestOrderClauses(
   return clauses;
 }
 
-function _loadMoreData<T>(
+function _loadMorePostgRESTData<T>(
   client: PostgrestQueryBuilder<T, any>,
   config: QueryConfig & { chunkSize?: number },
   state: LazyLoaderState<T>,
@@ -344,7 +358,7 @@ function _loadMoreData<T>(
 }
 
 // Ensure only one data load is in progress at a time
-const loadMoreData = debounce(_loadMoreData, 100);
+const loadMorePostgRESTData = debounce(_loadMorePostgRESTData, 100);
 
 export function useScrollHandler() {
   /** A standardized approach to holding onto the scroll position for the table */
@@ -400,7 +414,7 @@ export function usePostgRESTLazyLoader(
 
   useAsyncEffect(async () => {
     const client = getClient();
-    loadMoreData(client, config, state, dispatch);
+    loadMorePostgRESTData(client, config, state, dispatch);
   }, [data, visibleRegion, sortFilterKey]);
 
   return {
