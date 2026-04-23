@@ -1,5 +1,5 @@
 import { Cell } from "@blueprintjs/table";
-import { useAsyncMemo, useInDarkMode } from "@macrostrat/ui-components";
+import { useInDarkMode } from "@macrostrat/ui-components";
 import h from "./main.module.sass";
 import { getLuminanceAdjustedColorScheme } from "@macrostrat/color-utils";
 import { memoize } from "underscore";

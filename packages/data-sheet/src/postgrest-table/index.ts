@@ -234,19 +234,9 @@ function _PostgRESTTableView<T>({
   const hasActiveFilters = columnFilters.length > 0;
   const hasActiveSort = columnSorts.length > 0;
 
-  return h("div.data-sheet-outer", [
-    h.if(hasActiveFilters || hasActiveSort)(ServerFilterBar, {
-      columnSorts,
-      columnFilters,
-      onClearFilter(key: string) {
-        columnHeaderActions.onClearColumn(key);
-      },
-      onClearAll() {
-        setColumnSorts([]);
-        setColumnFilters([]);
-      },
-    }),
-    h(DataSheet, {
+  return h(
+    DataSheet,
+    {
       ...rest,
       dataSheetActions: enableFullTableSearch
         ? h(SearchAction)
@@ -288,8 +278,21 @@ function _PostgRESTTableView<T>({
         let query = client.upsert(updateRows, { defaultToNull: false });
         finishResponse(query, changes);
       },
-    }),
-  ]);
+    },
+    [
+      h.if(hasActiveFilters || hasActiveSort)(ServerFilterBar, {
+        columnSorts,
+        columnFilters,
+        onClearFilter(key: string) {
+          columnHeaderActions.onClearColumn(key);
+        },
+        onClearAll() {
+          setColumnSorts([]);
+          setColumnFilters([]);
+        },
+      }),
+    ],
+  );
 }
 
 const saveDataAction: TableAction = {

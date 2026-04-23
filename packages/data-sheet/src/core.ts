@@ -97,6 +97,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     enableColumnReordering = false,
     enableFocusedCell = false,
     defaultColumnWidth = 150,
+    children,
     ...rest
   } = props;
 
@@ -113,6 +114,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
     },
     h(_DataSheet<any>, {
       ...rest,
+      children,
       editable,
       enableColumnReordering,
       enableFocusedCell,
@@ -140,6 +142,7 @@ function _DataSheet<T>({
   actions,
   filters,
   columnHeaderCellRenderer,
+  children,
   ...rest
 }: DataSheetInternalProps<T>) {
   /**
@@ -246,7 +249,7 @@ function _DataSheet<T>({
   const columnSorts = useSelector((state) => state.columnSorts);
   const activeFilters = useSelector((state) => state.activeFilters);
 
-  const children = useMemo(() => {
+  const realizedColumns = useMemo(() => {
     return columnSpec.map((col, colIndex) => {
       let fn =
         col.headerCellRenderer ??
@@ -348,6 +351,7 @@ function _DataSheet<T>({
     h.if(filters != null && filters.length > 0)(FilterBar, { filters }),
     h.if(hasSortableOrFilterable)(SortFilterBar),
     dataSheetActions,
+    children,
     h(
       "div.data-sheet-holder",
       {
@@ -382,7 +386,7 @@ function _DataSheet<T>({
           ...rest,
           getCellClipboardData: null,
         },
-        children,
+        realizedColumns,
       ),
     ),
     h.if(debugMode)(CellRendererDebugOverlay, {
