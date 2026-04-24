@@ -152,7 +152,7 @@ function _PostgRESTTableView<T>({
     }
   }
 
-  const { data, onScroll, dispatch, getClient } = usePostgRESTLazyLoader(
+  const { data, dispatch, getClient } = usePostgRESTLazyLoader(
     endpoint,
     table,
     {
@@ -227,10 +227,6 @@ function _PostgRESTTableView<T>({
     [columnSorts, columnFilters, columnHeaderActions],
   );
 
-  if (data == null) {
-    return h(Spinner);
-  }
-
   const hasActiveFilters = columnFilters.length > 0;
   const hasActiveSort = columnSorts.length > 0;
 
@@ -241,10 +237,8 @@ function _PostgRESTTableView<T>({
       dataSheetActions: enableFullTableSearch
         ? h(SearchAction)
         : dataSheetActions,
-      data,
       columnSpecOptions: columnOptions,
       editable,
-      onVisibleCellsChange: onScroll,
       columnHeaderCellRenderer,
       onDeleteRows(selection) {
         if (!editable) return;

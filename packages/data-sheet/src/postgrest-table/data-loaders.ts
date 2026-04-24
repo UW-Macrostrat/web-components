@@ -10,7 +10,7 @@ import {
   PostgrestQueryBuilder,
 } from "@supabase/postgrest-js";
 import { adjustArraySize, RowRegion, sleep } from "./loading-utils.ts";
-import { ctx, storeAPIAtom, tableDataAtom } from "../provider.ts";
+import { ctx, tableDataAtom } from "../provider.ts";
 import { atom } from "jotai";
 
 interface LazyLoaderStateCore<T> {
@@ -359,14 +359,6 @@ function _loadMorePostgRESTData<T>(
     cfg.count = "exact";
   }
 
-  // This only works for forward queries
-  if (!isInitialQuery) {
-    cfg.after = state.data[rowIndex - 1]?.[sortKey];
-    if (cfg.after == null) {
-      cfg.offset = rowIndex;
-    }
-  }
-
   dispatch({ type: "start-loading" });
 
   const query = buildQuery(client, cfg);
@@ -572,7 +564,7 @@ function buildSyntheticData(offset: number, count: number | null) {
     const id = i + 1;
     return {
       id,
-      name: `This is some long text content in row ${id}`,
+      name: `row ${id} has some long text content`,
     };
   });
 }

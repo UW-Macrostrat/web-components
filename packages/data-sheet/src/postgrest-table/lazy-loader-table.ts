@@ -1,23 +1,25 @@
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
+import h from "./main.module.sass";
 import { DataSheet } from "../core";
 import { useTestLazyLoader } from "./data-loaders";
-import { Spinner } from "@blueprintjs/core";
-
-const h = hyper.styled(styles);
 
 export function TestLazyLoaderTableView<T>({ ...rest }) {
-  const { data } = useTestLazyLoader();
-
-  if (data == null) {
-    return h(Spinner);
-  }
-
   return h("div.data-sheet-outer", [
-    h(DataSheet, {
-      ...rest,
-      data,
-      editable: false,
-    }),
+    h(
+      DataSheet,
+      {
+        ...rest,
+        editable: false,
+      },
+      [
+        h(TestLazyLoaderManager, {
+          key: "test-lazy-loader-manager",
+        }),
+      ],
+    ),
   ]);
+}
+
+function TestLazyLoaderManager() {
+  useTestLazyLoader();
+  return null;
 }

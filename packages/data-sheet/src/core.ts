@@ -89,6 +89,8 @@ interface DataSheetInternalProps<T> extends TableProps {
 
 type DataSheetProps<T> = DataSheetProviderProps<T> & DataSheetInternalProps<T>;
 
+const emptyData: any[] = [];
+
 export function DataSheet<T>(props: DataSheetProps<T>) {
   const {
     data,
@@ -105,7 +107,7 @@ export function DataSheet<T>(props: DataSheetProps<T>) {
   return h(
     DataSheetProvider<T>,
     {
-      data,
+      data: data ?? emptyData,
       columnSpec,
       columnSpecOptions,
       enableColumnReordering,
