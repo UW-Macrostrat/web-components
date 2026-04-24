@@ -36,9 +36,9 @@ import {
   useSelector,
   useStoreAPI,
   ctx,
-  atom,
   tableActionsAtom,
 } from "./provider";
+import { atom } from "jotai";
 import {
   DataSheetProviderProps,
   TableElementStatus,

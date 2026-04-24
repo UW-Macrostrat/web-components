@@ -23,6 +23,7 @@ import {
 
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
   return {
+    /** All the data in the table */
     data: [],
     updatedData: [],
     rowStatus: [],

@@ -2,7 +2,7 @@
 
 import { useAsyncEffect } from "@macrostrat/ui-components";
 import { debounce, range } from "underscore";
-import { useCallback, useEffect, useMemo, useReducer, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import update, { Spec } from "immutability-helper";
 import {
   PostgrestClient,
@@ -10,17 +10,17 @@ import {
   PostgrestQueryBuilder,
 } from "@supabase/postgrest-js";
 import { adjustArraySize, RowRegion, sleep } from "./loading-utils.ts";
-import { ctx } from "../provider.ts";
+import { ctx, storeAPIAtom, tableDataAtom } from "../provider.ts";
 import { atom } from "jotai";
 
 interface LazyLoaderStateCore<T> {
-  data: (T | null)[];
   loading: boolean;
   error: Error | null;
   initialized: boolean;
 }
 
 interface LazyLoaderState<T> extends LazyLoaderStateCore<T> {
+  data: (T | null)[];
   visibleRegion: RowRegion;
 }
 
@@ -137,6 +137,7 @@ function lazyLoadingReducer<T>(
       };
     case "reset":
       return {
+        visibleRegion: defaultVisibleRegion,
         data: [],
         loading: false,
         error: null,
@@ -170,16 +171,16 @@ interface QueryConfig extends SortAndFilterOptions {
   columns?: string | string[];
   count?: "exact" | "estimated";
   limit?: number;
-  offset?: number;
-  after?: any; //identitykey value
   identityKey: string;
+  lastLoadedRow?: any;
+  lastLoadedRowIndex: number;
 }
 
 function buildQuery<T>(
   client: PostgrestQueryBuilder<T, any, any>,
   config: QueryConfig,
 ) {
-  const { columns = "*", count } = config;
+  const { columns = "*", count, lastLoadedRowIndex } = config;
   const opts = { count };
 
   let cols: string;
@@ -201,18 +202,27 @@ function buildQuery<T>(
     config.identityKey,
   );
 
+  let hasOrdering = false;
   for (const clause of orderClauses) {
     query = query.order(clause.key, clause);
-    if (clause.key == config.identityKey && config.after != null) {
+    if (config.lastLoadedRow != null) {
       const op = (clause.ascending ?? true) ? "gt" : "lt";
-      query = query[op](clause.key, config.after);
+      const value = config.lastLoadedRow[clause.key];
+      query = query[op](clause.key, value);
     }
+    hasOrdering = true;
+  }
+
+  let offset = null;
+  if (!hasOrdering && lastLoadedRowIndex > 0) {
+    // We need to load based on offsets
+    offset = lastLoadedRowIndex + 1;
   }
 
   if (config.limit != null) {
-    if (config.offset != null) {
-      query = query.range(config.offset, config.offset + config.limit - 1);
-      console.log(`Random seek from ${config.offset}, this will be slow`);
+    if (offset != null) {
+      query = query.range(offset, offset + config.limit - 1);
+      console.log(`Random seek from ${offset}, this will be slow`);
     } else {
       query = query.limit(config.limit);
     }
@@ -222,14 +232,15 @@ function buildQuery<T>(
   return query;
 }
 
-/** Atom to house the current visible region of the table */
-const visibleRegionAtom = atom<RowRegion>({
+const defaultVisibleRegion: RowRegion = {
   rowIndexStart: 0,
   rowIndexEnd: 0,
-});
+};
 
-const lazyLoaderCoreStateAtom = atom<LazyLoaderState<any>>({
-  data: [],
+/** Atom to house the current visible region of the table */
+const visibleRegionAtom = atom<RowRegion>(defaultVisibleRegion);
+
+const lazyLoaderCoreStateAtom = atom<LazyLoaderCoreState<any>>({
   loading: false,
   error: null,
   initialized: false,
@@ -241,20 +252,28 @@ const lazyLoaderCoreStateAtom = atom<LazyLoaderState<any>>({
 const lazyLoaderStateAtom = atom(
   (get): LazyLoaderState<any> => {
     const core = get(lazyLoaderCoreStateAtom);
+    const data = get(tableDataAtom);
     const visibleRegion = get(visibleRegionAtom);
     return {
       ...core,
+      data,
       visibleRegion,
     };
   },
-  (get, set, update: Partial<LazyLoaderState<any>>) => {
+  (get, set, update: any) => {
     // Split the state between several places
-    const { visibleRegion, ...rest } = update;
+    if (typeof update === "function") {
+      update = update(get(lazyLoaderStateAtom));
+    }
+    const { visibleRegion, data, ...rest } = update;
     if (visibleRegion != null) {
       set(visibleRegionAtom, visibleRegion);
     }
-    if (Object.keys(update).length > 1) {
-      set(lazyLoaderCoreStateAtom, (v) => ({ ...v, ...update }));
+    if (data != null && data.length > 0) {
+      set(tableDataAtom, data);
+    }
+    if (Object.keys(rest).length > 1) {
+      set(lazyLoaderCoreStateAtom, (v) => ({ ...v, ...rest }));
     }
   },
 );
@@ -316,6 +335,12 @@ function _loadMorePostgRESTData<T>(
     rowIndex = rowIndex ?? 0;
   }
 
+  const lastLoadedRowIndex: number = rowIndex - 1;
+  let lastLoadedRow = null;
+  if (lastLoadedRowIndex >= 0) {
+    lastLoadedRow = state.data[lastLoadedRowIndex];
+  }
+
   const { chunkSize = 100, ...rest } = config;
 
   // Determine the primary sort key from column sorts or the order prop
@@ -324,7 +349,8 @@ function _loadMorePostgRESTData<T>(
   let cfg: QueryConfig = {
     ...rest,
     limit: chunkSize,
-    offset: null,
+    lastLoadedRow,
+    lastLoadedRowIndex,
   };
 
   // Allows random seeking

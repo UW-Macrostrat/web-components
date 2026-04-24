@@ -6,15 +6,14 @@ import { generateColumnSpec } from "./utils";
 import { createScopedStore } from "@macrostrat/data-components";
 import {
   DataSheetProviderProps,
+  DataSheetState,
   DataSheetStore,
-  VisibleCells,
 } from "./types.ts";
 import { createZustandStore } from "./zustand-store.ts";
 import { atomWithStore } from "jotai-zustand";
-export { atom } from "jotai";
-import { atom } from "jotai";
 import { toasterAtom } from "./notifications.ts";
 import { TableAction } from "./actions";
+import { atom } from "jotai";
 
 /** Create a Jotai scoped store */
 export const ctx = createScopedStore();
@@ -123,3 +122,32 @@ export function useSelector<T = any, A = any>(
 /** Atoms for efficient sub-selection of state */
 
 export const columnSpecAtom = atom((get) => get(storeAtom)?.columnSpec ?? []);
+
+export const tableDataAtom = atom(
+  (get) => {
+    return get(storeAtom)?.data ?? [];
+  },
+  (get, set, newData: any[]) => {
+    set(storeAtom, (state: DataSheetState<any>): DataSheetState<any> => {
+      console.log("Updating table data", newData);
+      if (
+        state.data.length == 0 &&
+        newData.length > 0 &&
+        state.columnSpec.length == 0
+      ) {
+        console.log("Generating column spec from data");
+        /** We haven't yet generated the column spec, and we need to do so. TODO: we may be able to forestall this with loading state */
+        return {
+          ...state,
+          columnSpec: generateColumnSpec(newData, state.columnSpecOptions),
+          data: newData,
+        };
+      }
+
+      return {
+        ...state,
+        data: newData,
+      };
+    });
+  },
+);
