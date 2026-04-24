@@ -22,7 +22,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { DataSheetAction } from "./components";
+import { DataSheetAction, InfoBar } from "./components";
 import {
   autoFilterId,
   renderColumnHeaderCell,
@@ -140,6 +140,7 @@ function _DataSheet<T>({
   enableFocusedCell,
   autoFocusEditor = true,
   enableClipboard = true,
+  showInfoBar = false,
   density = DataSheetDensity.HIGH,
   selectionModes,
   actions,
@@ -391,6 +392,7 @@ function _DataSheet<T>({
         realizedColumns,
       ),
     ),
+    h.if(showInfoBar)(InfoBar),
     h.if(debugMode)(CellRendererDebugOverlay, {
       cellRendererDependencies,
       names: [

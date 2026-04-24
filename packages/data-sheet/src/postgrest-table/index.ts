@@ -2,7 +2,6 @@ import {
   Button,
   InputGroup,
   OverlayToaster,
-  Spinner,
   Tag as BPTag,
 } from "@blueprintjs/core";
 import h from "./main.module.sass";
@@ -25,7 +24,7 @@ import {
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
-import { ColorCell } from "../components";
+import { ColorCell, InfoBar } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
 import {
   type ColumnHeaderActions,

@@ -51,13 +51,20 @@
   flex-direction: column
   min-height: 0
 
-.server-filter-bar
+.toolbar
   display: flex
   flex-direction: row
   flex-wrap: wrap
-  gap: 4px
-  padding: 4px 0
-  align-items: center
+  gap: var(--data-sheet-toolbar-gap, 4px)
+  padding: var(--data-sheet-toolbar-gap, 4px) 0
+
+.server-filter-bar
+  @extend .toolbar
+
+.info-bar
+  @extend .toolbar
+  order: 10
 
 .tag-cell-content
   line-height: 1
+

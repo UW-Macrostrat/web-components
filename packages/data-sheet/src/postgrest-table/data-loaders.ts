@@ -12,6 +12,7 @@ import {
 import { adjustArraySize, RowRegion, sleep } from "./loading-utils.ts";
 import { ctx, tableDataAtom } from "../provider.ts";
 import { atom } from "jotai";
+import h from "./main.module.sass";
 
 interface LazyLoaderStateCore<T> {
   loading: boolean;
@@ -244,6 +245,23 @@ const lazyLoaderCoreStateAtom = atom<LazyLoaderCoreState<any>>({
   loading: false,
   error: null,
   initialized: false,
+});
+
+export interface ViewInfo {
+  visibleRegion: RowRegion;
+  totalCount: number | null;
+  loading: boolean;
+  error: Error | null;
+}
+
+export const viewInfoAtom = atom<ViewInfo>((get) => {
+  const state = get(lazyLoaderStateAtom);
+  return {
+    visibleRegion: state.visibleRegion,
+    loading: state.loading,
+    error: state.error,
+    totalCount: state.data.length,
+  };
 });
 
 /** Temporary passthrough atom to allow visible region to be separated from the  rest
