@@ -21,7 +21,11 @@ function compactSingleKeyObjects(json: string): string {
   return json.replace(/\{\n\s+"(\w+)":\s*"([^"]+)"\n\s+\}/g, '{ "$1": "$2" }');
 }
 
-function writeIfChanged(filePath: string, newText: string, prefix: string): boolean {
+function writeIfChanged(
+  filePath: string,
+  newText: string,
+  prefix: string,
+): boolean {
   if (existsSync(filePath)) {
     const existingText = readFileSync(filePath, "utf-8");
     if (existingText === newText) {
@@ -101,7 +105,7 @@ export function updateTsconfigFiles() {
       extends: extendsPath,
       compilerOptions: {
         composite: true,
-        rootDir: ".",
+        rootDir: "src",
         outDir: "dist",
         declarationDir: "dist",
       },
@@ -112,7 +116,8 @@ export function updateTsconfigFiles() {
       tsconfig.references = references;
     }
 
-    const newText = compactSingleKeyObjects(JSON.stringify(tsconfig, null, 2)) + "\n";
+    const newText =
+      compactSingleKeyObjects(JSON.stringify(tsconfig, null, 2)) + "\n";
     writeIfChanged(tsconfigPath, newText, prefix);
   }
 
@@ -134,11 +139,11 @@ export function updateTsconfigFiles() {
     references: rootReferences,
   };
 
-  const rootText = compactSingleKeyObjects(JSON.stringify(rootTsconfig, null, 2)) + "\n";
+  const rootText =
+    compactSingleKeyObjects(JSON.stringify(rootTsconfig, null, 2)) + "\n";
   const rootPrefix = chalk.magenta.bold("root tsconfig.json") + ": ";
   writeIfChanged(resolve("tsconfig.json"), rootText, rootPrefix);
 }
 
 // Run the function
 updateTsconfigFiles();
-

@@ -6,8 +6,6 @@
     "outDir": "dist",
     "declarationDir": "dist"
   },
-  "include": [
-    "src",
-    "stories"
-  ]
+  "include": ["src", "client.d.ts"],
+  "references": []
 }

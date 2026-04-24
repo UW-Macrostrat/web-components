@@ -1,5 +1,13 @@
 {
   "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "paths": {
+      "@macrostrat/*": [
+        "./packages/*/src/index.ts",
+        "./toolchain/*/src/index.ts"
+      ]
+    }
+  },
   "files": [],
   "references": [
     { "path": "./packages/api-types" },

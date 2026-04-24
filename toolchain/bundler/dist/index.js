@@ -5,7 +5,8 @@ import dts from "vite-plugin-dts";
 import { fileURLToPath } from "node:url";
 import { ensureEntryFilesExist, readPackageJSON, } from "./check-entries.js";
 import chalk from "chalk";
-import hyperStyles from "@macrostrat/vite-plugin-hyperstyles";
+// @ts-ignore
+import hyperStyles from "../../vite-plugin-hyperstyles/src/index.js";
 const module = import.meta.url;
 const __file = fileURLToPath(module);
 const __dirname = dirname(__file);
@@ -35,7 +36,7 @@ function buildStandardViteConfig(pkg, root, opts = {}) {
     const checkExportsPlugin = {
         name: "check-exports",
         async closeBundle() {
-            // Ensure that entry files exist after the bundle is complete
+            // Perform checks after the bundle is complete, such as ensuring entry files exist
             ensureEntryFilesExist(pkgData);
         },
     };
@@ -54,8 +55,8 @@ function buildStandardViteConfig(pkg, root, opts = {}) {
         plugins: [
             dts({
                 rollupTypes: false,
-                tsconfigPath: resolve(workspaceRoot, "tsconfig.base.json"),
-                include: [resolve(root, "src"), globalTypes],
+                tsconfigPath: resolve(root, "tsconfig.json"),
+                include: [resolve(root, "src")],
                 // Exclude storybook files
                 exclude: [
                     resolve(root, "src", "**/*.stories.ts"),
@@ -64,10 +65,10 @@ function buildStandardViteConfig(pkg, root, opts = {}) {
                 ],
                 outDir: resolve(root, "dist"),
                 // We don't care too much about Typescript types. We could change this.
-                logLevel: verbose ? "info" : "silent",
+                logLevel: "info",
             }),
-            checkExportsPlugin,
             hyperStyles(),
+            checkExportsPlugin,
             // cjsInterop({
             //   dependencies: ["labella", "ui-box"],
             // }),
