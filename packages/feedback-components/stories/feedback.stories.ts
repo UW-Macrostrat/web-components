@@ -52,7 +52,7 @@ export const MatchLinks: StoryObj<{}> = {
     types: entityTypes,
     allowOverlap: true,
     matchLinks: {
-      lithology: `${lexURL}/lithology`,
+      lithology: `${lexURL}/lithologies`,
       strat_name: `${lexURL}/strat-names`,
       lith_att: `${lexURL}/lith-atts`,
       concept: `${lexURL}/strat-name-concepts`,
