@@ -2,7 +2,7 @@ import { Switch } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Icon, Divider, Overlay2 } from "@blueprintjs/core";
 import { JSONView, SaveButton } from "@macrostrat/ui-components";
 import { useAPIResult, DataField } from "@macrostrat/ui-components";
@@ -89,12 +89,22 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
   const [selectedItem, setSelectedItem] = useState(h("div", "Select a match"));
   const [disabled, setDisabled] = useState(true);
   const [payload, setPayload] = useState({});
+  const [data, setData] = useState([]);
 
-  const data = useAPIResult(
-    "https://dev.macrostrat.org/api/pg/type_lookup?name=ilike.*" +
-      inputValue +
-      "*",
-  );
+  useEffect(() => {
+    if (!inputValue || inputValue.length < 3) return;
+
+    fetch(
+      "https://dev.macrostrat.org/api/pg/type_lookup?name=ilike.*" +
+        inputValue +
+        "*"
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        setData(res);
+      });
+  }, [inputValue]);
+
   const items = data?.map((data) => h(MatchTag, { data, setPayload }));
 
   return h(
@@ -129,7 +139,7 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
                 setSelectedItem(item);
               },
               onQueryChange: (query) => setInputValue(query),
-              popoverProps: { minimal: true },
+              popoverProps: { minimal: true, usePortal: false },
               query: inputValue,
               placeholder: "Enter match name",
             },
