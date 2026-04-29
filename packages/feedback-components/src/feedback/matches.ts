@@ -181,8 +181,6 @@ interface MatchTagProps {
 export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
   if (!data || Object.keys(data).length === 0) return;
 
-  console.log("Match data", data)
-
   if (data.lith_id || data?.type === "lith") {
     return h(
       "div",

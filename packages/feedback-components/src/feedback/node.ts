@@ -52,8 +52,6 @@ function Node({
   let highlighted: boolean = isNodeHighlighted(node, tree);
   let active: boolean = isNodeActive(node, tree);
 
-  console.log("viewOnly", viewOnly);
-
   const dispatch = useTreeDispatch();
 
   if (!node.data?.type) {
