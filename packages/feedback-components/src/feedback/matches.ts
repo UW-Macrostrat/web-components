@@ -181,6 +181,8 @@ interface MatchTagProps {
 export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
   if (!data || Object.keys(data).length === 0) return;
 
+  console.log("Match data", data)
+
   if (data.lith_id || data?.type === "lith") {
     return h(
       "div",
@@ -193,12 +195,12 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
       },
       h(DataField, {
         className: "match-item",
-        label: "Stratigraphic name",
+        label: "Lithology",
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.id, color: data.color },
+          data: { name: data.name, id: data.id, color: data.color, lith_id: 1 },
           onClick: () =>
             window.open(
-              matchLinks.strat_name + "/" + data.strat_name_id,
+              matchLinks.lithology + "/" + data.lith_id,
               "_blank",
             ),
         }),
@@ -220,7 +222,7 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         className: "match-item",
         label: "Stratigraphic name",
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.id, color: data.color },
+          data: { name: data.name, id: data.id, color: data.color, lith_id: 1 },
           onClick: () =>
             window.open(
               matchLinks.strat_name + "/" + data.strat_name_id,
@@ -245,7 +247,7 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         className: "match-item",
         label: "Lithology attribute",
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.lith_att_id },
+          data: { name: data.name, id: data.lith_att_id, lith_id: 1 },
           onClick: () =>
             window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank"),
         }),
@@ -267,7 +269,7 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         label: "Interval",
         className: "match-item",
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.id },
+          data: { name: data.name, id: data.id, lith_id: 1 },
           onClick: () =>
             window.open(matchLinks.interval + "/" + data.int_id, "_blank"),
         }),
