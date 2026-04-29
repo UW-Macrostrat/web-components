@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.1.0] - 2026-04-29
+
+- Fix matched links searching bugs
+- Update stories with correct matched links
+
 ## [2.0.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/feedback-components-v2.0.2...@macrostrat/feedback-components-v2.0.3)
 
 ### Patch Changes
