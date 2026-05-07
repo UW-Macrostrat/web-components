@@ -1,5 +1,11 @@
 # Changelog
 
+# `[4.2.0]` - 2026-04-16
+
+- Add `update-tsconfigs` script to generate per-package `tsconfig.json` files
+  and a solution-style root tsconfig with project references, parallel to the
+  existing `update-metadata` script for `package.json` files.
+
 # `[4.1.0]` - 2026-04-03
 
 - Begin using the [`changesets`](https://github.com/changesets/changesets) CLI

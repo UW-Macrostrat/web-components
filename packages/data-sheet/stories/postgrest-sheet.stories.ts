@@ -85,6 +85,13 @@ export const Primary: StoryObj<{}> = {
   },
 };
 
+export const WithInfoBar: StoryObj<{}> = {
+  args: {
+    columnOptions: defaultColumnOptions,
+    showInfoBar: true,
+  },
+};
+
 export const Simple = {
   args: {},
 };
@@ -99,6 +106,26 @@ export const ReorderableColumns = {
   args: {
     columnOptions: defaultColumnOptions,
     enableColumnReordering: true,
+  },
+};
+
+/** Column-level sort and filter controls backed by PostgREST queries.
+ * Sorting and filtering are auto-inferred from column data types, with
+ * type-appropriate operators (e.g., numeric columns get >/< but not
+ * "contains"). Click a column header menu icon to configure. Active
+ * sort/filter state is shown in a bar above the table. */
+export const SortAndFilter = {
+  args: {
+    columnOptions: {
+      overrides: {
+        ...defaultColumnOptions.overrides,
+        // Override to restrict source_id to equality only
+        source_id: {
+          name: "Source",
+          filterable: { operators: ["eq", "neq"] },
+        },
+      },
+    },
   },
 };
 

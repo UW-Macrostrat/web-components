@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.7] - 2026-05-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.6...@macrostrat/data-components-v1.1.7)
+
+### Patch Changes
+
+- Add enhancements `{use,useValue,useSet}` to scoped Jotai store
+  [99baa5fb](https://github.com/UW-Macrostrat/web-components/commit/99baa5fb3b6fbe978eb2a9687e295218938b494e)
+- Updated dependencies
+  [64d04951](https://github.com/UW-Macrostrat/web-components/commit/64d04951e8b63f05f9325a0e13817164d1813df7)
+  - @macrostrat/ui-components@5.0.8
+
 ## [1.1.6] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.5...@macrostrat/data-components-v1.1.6)
 
 ### Patch Changes

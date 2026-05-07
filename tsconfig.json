@@ -8,5 +8,28 @@
       ]
     }
   },
-  "include": ["./packages/**/src/*.ts", "./toolchain/**/src/*.ts"]
+  "files": [],
+  "references": [
+    { "path": "./packages/api-types" },
+    { "path": "./packages/color-utils" },
+    { "path": "./packages/column-components" },
+    { "path": "./packages/column-creator" },
+    { "path": "./packages/column-views" },
+    { "path": "./packages/cross-section-utils" },
+    { "path": "./packages/data-components" },
+    { "path": "./packages/data-provider" },
+    { "path": "./packages/data-sheet" },
+    { "path": "./packages/feedback-components" },
+    { "path": "./packages/form-components" },
+    { "path": "./packages/map-interface" },
+    { "path": "./packages/map-styles" },
+    { "path": "./packages/mapbox-react" },
+    { "path": "./packages/mapbox-utils" },
+    { "path": "./packages/static-map-utils" },
+    { "path": "./packages/stratigraphy-utils" },
+    { "path": "./packages/style-system" },
+    { "path": "./packages/svg-map-components" },
+    { "path": "./packages/timescale" },
+    { "path": "./packages/ui-components" }
+  ]
 }

@@ -22,7 +22,7 @@ export type ToasterContextProps = ContextualToasterProps & {
 
 const ToasterCtx = createContext<any>(null);
 
-function ContextualToaster({ containerRef, setToaster, ...rest }) {
+export function ContextualToaster({ containerRef, setToaster, ...rest }) {
   const toaster = h(OverlayToaster, {
     usePortal: false,
     ref: (t) => setToaster(t),

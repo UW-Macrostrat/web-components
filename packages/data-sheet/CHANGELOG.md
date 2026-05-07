@@ -1,5 +1,10 @@
 # Changelog
 
+## [4.0.0-dev1] - 2026-05-06
+
+Major update to internals of data sheet, including a new `jotai`-based state
+model. Also, added cell-based tools for editing and data updates.
+
 ## [3.1.0] - 2026-04-10 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v3.0.4...@macrostrat/data-sheet-v3.1.0)
 
 ### Minor Changes

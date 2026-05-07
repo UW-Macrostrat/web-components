@@ -1,7 +1,11 @@
 import "@blueprintjs/core/lib/css/blueprint.css";
 import { themes } from "storybook/theming";
 
-import { FocusStyleManager, HotkeysProvider } from "@blueprintjs/core";
+import {
+  FocusStyleManager,
+  HotkeysProvider,
+  OverlaysProvider,
+} from "@blueprintjs/core";
 import h from "@macrostrat/hyper";
 import "@macrostrat/style-system/src/main.sass";
 import { DarkModeProvider } from "@macrostrat/ui-components";
@@ -55,8 +59,14 @@ export const decorators = [
   (renderStory) => {
     const isEnabled = useDarkMode();
     return h(
-      MacrostratDataProvider,
-      h(PatternProvider, h(DarkModeProvider, { isEnabled }, renderStory())),
+      HotkeysProvider,
+      h(
+        OverlaysProvider,
+        h(
+          MacrostratDataProvider,
+          h(PatternProvider, h(DarkModeProvider, { isEnabled }, renderStory())),
+        ),
+      ),
     );
   },
 ];

@@ -53,6 +53,7 @@ export function EditorPopup(props) {
       enforceFocus: false,
       autoFocus: false,
       animation: "minimal",
+      //arrow: false,
       lazy: true,
       // modifiers: {
       //   offset: { enabled: true, options: { offset: [0, 8] } },
@@ -61,10 +62,10 @@ export function EditorPopup(props) {
       interactionKind: "hover-target",
       isOpen,
       // Portal must be used to avoid issues with the editor being clipped to the bounds of the cell
-      usePortal: true,
+      //usePortal: true,
     },
     h(
-      "span.editor-popup-target.bp6-table-cell",
+      "span.editor-popup-target",
       {
         className: targetClassName,
         onClick: () => setIsOpen(!isOpen),
