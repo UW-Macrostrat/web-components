@@ -2,7 +2,7 @@ import { Switch } from "@blueprintjs/core";
 import { Select } from "@blueprintjs/select";
 import styles from "./feedback.module.sass";
 import hyper from "@macrostrat/hyper";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Icon, Divider, Overlay2 } from "@blueprintjs/core";
 import { JSONView, SaveButton } from "@macrostrat/ui-components";
 import { useAPIResult, DataField } from "@macrostrat/ui-components";
@@ -89,12 +89,22 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
   const [selectedItem, setSelectedItem] = useState(h("div", "Select a match"));
   const [disabled, setDisabled] = useState(true);
   const [payload, setPayload] = useState({});
+  const [data, setData] = useState([]);
 
-  const data = useAPIResult(
-    "https://dev.macrostrat.org/api/pg/type_lookup?name=ilike.*" +
-      inputValue +
-      "*",
-  );
+  useEffect(() => {
+    if (!inputValue || inputValue.length < 3) return;
+
+    fetch(
+      "https://dev.macrostrat.org/api/pg/type_lookup?name=ilike.*" +
+        inputValue +
+        "*"
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        setData(res);
+      });
+  }, [inputValue]);
+
   const items = data?.map((data) => h(MatchTag, { data, setPayload }));
 
   return h(
@@ -129,7 +139,7 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
                 setSelectedItem(item);
               },
               onQueryChange: (query) => setInputValue(query),
-              popoverProps: { minimal: true },
+              popoverProps: { minimal: true, usePortal: false },
               query: inputValue,
               placeholder: "Enter match name",
             },
@@ -193,12 +203,12 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
       },
       h(DataField, {
         className: "match-item",
-        label: "Stratigraphic name",
+        label: "Lithology",
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.id, color: data.color },
+          data: { name: data.name, id: data.id, color: data.color, lith_id: 1 },
           onClick: () =>
             window.open(
-              matchLinks.strat_name + "/" + data.strat_name_id,
+              matchLinks.lithology + "/" + data.lith_id,
               "_blank",
             ),
         }),
@@ -220,7 +230,7 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         className: "match-item",
         label: "Stratigraphic name",
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.id, color: data.color },
+          data: { name: data.name, id: data.id, color: data.color, lith_id: 1 },
           onClick: () =>
             window.open(
               matchLinks.strat_name + "/" + data.strat_name_id,
@@ -245,7 +255,7 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         className: "match-item",
         label: "Lithology attribute",
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.lith_att_id },
+          data: { name: data.name, id: data.lith_att_id, lith_id: 1 },
           onClick: () =>
             window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank"),
         }),
@@ -267,7 +277,7 @@ export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
         label: "Interval",
         className: "match-item",
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.id },
+          data: { name: data.name, id: data.id, lith_id: 1 },
           onClick: () =>
             window.open(matchLinks.interval + "/" + data.int_id, "_blank"),
         }),
