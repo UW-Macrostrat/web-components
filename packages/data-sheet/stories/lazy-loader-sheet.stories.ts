@@ -11,6 +11,7 @@ function TestLazySheet(props) {
     "div.postgrest-sheet-container",
     h(TestLazyLoaderTableView, {
       density: "medium",
+      showInfoBar: true,
     }),
   );
 }

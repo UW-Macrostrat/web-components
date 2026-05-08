@@ -1,0 +1,71 @@
+.column-header-cell
+  display: flex
+  align-items: center
+  width: 100%
+
+.column-name
+  flex: 1
+  overflow: hidden
+  text-overflow: ellipsis
+  white-space: nowrap
+
+.column-indicators
+  display: flex
+  align-items: center
+  gap: 2px
+  margin-left: 4px
+  flex-shrink: 0
+
+  :global(.bp6-icon)
+    opacity: 0.7
+    color: var(--text-color)
+
+.sort-indicator
+  :global(.bp6-icon)
+    color: var(--intent-primary, #2965cc)
+    opacity: 1
+
+.filter-indicator
+  :global(.bp6-icon)
+    color: var(--intent-warning, #d99e0b)
+    opacity: 1
+
+.column-actions-popover
+  padding: 12px
+  min-width: 220px
+
+.popover-section
+  margin-bottom: 12px
+  &:last-child
+    margin-bottom: 0
+
+.popover-section-title
+  font-weight: 600
+  font-size: 11px
+  text-transform: uppercase
+  letter-spacing: 0.5px
+  color: var(--secondary-color, #5c7080)
+  margin-bottom: 6px
+
+.sort-buttons
+  display: flex
+  gap: 4px
+
+.filter-row
+  display: flex
+  gap: 4px
+  align-items: center
+
+.filter-operator-select
+  flex-shrink: 0
+  width: 80px
+
+.filter-value-input
+  flex: 1
+
+.clear-section
+  display: flex
+  justify-content: flex-end
+  padding-top: 4px
+  border-top: 1px solid var(--divider-color, rgba(16, 22, 26, 0.15))
+

@@ -1,37 +1,44 @@
-import { HotkeysProvider, OverlayToaster } from "@blueprintjs/core";
-import hyper from "@macrostrat/hyper";
-import styles from "./main.module.sass";
-import { DataSheet, getRowsToDelete } from "../core"; //getRowsToDelete
+import {
+  Button,
+  InputGroup,
+  OverlayToaster,
+  Tag as BPTag,
+} from "@blueprintjs/core";
+import h from "./main.module.sass";
+import { DataSheet, getRowsToDelete } from "../core";
 import { LithologyTag, Tag, TagSize } from "@macrostrat/data-components";
-import { PostgrestOrder, usePostgRESTLazyLoader } from "./data-loaders";
-import { Spinner, InputGroup } from "@blueprintjs/core";
-
-export * from "./data-loaders";
-export * from "./lazy-loader-table";
-import { useCallback, useState, useRef } from "react";
+import {
+  ColumnSortEntry,
+  PostgrestColumnFilter,
+  PostgrestFilter,
+  PostgrestFilterOperator,
+  PostgrestOrder,
+  standardizeFilter,
+  usePostgRESTLazyLoader,
+} from "./data-loaders";
+import { useCallback, useMemo, useState } from "react";
 import {
   ErrorBoundary,
   ToasterContext,
-  useAPIResult,
   useToaster,
 } from "@macrostrat/ui-components";
 import { Spec } from "immutability-helper";
 import { PostgrestFilterBuilder } from "@supabase/postgrest-js";
-import type {
-  GenericFunction,
-  GenericTable,
-  GenericView,
-} from "@supabase/postgrest-js/dist/cjs/index";
-import { ColorCell } from "../components";
+import { ColorCell, InfoBar } from "../components";
 import { DataSheetProviderProps } from "../types.ts";
+import {
+  type ColumnHeaderActions,
+  ColumnHeaderRendererProps,
+  OPERATOR_LABELS,
+  renderPostgRESTColumnHeaderCell,
+} from "../renderers";
+import { atom } from "jotai";
+import { columnSpecAtom, ctx } from "../provider.ts";
+import { TableAction } from "../actions";
+import { RegionCardinality } from "@blueprintjs/table";
 
-const h = hyper.styled(styles);
-
-export type GenericSchema = {
-  Tables: Record<string, GenericTable>;
-  Views: Record<string, GenericView>;
-  Functions: Record<string, GenericFunction>;
-};
+export * from "./data-loaders";
+export * from "./lazy-loader-table";
 
 interface PostgRESTTableViewProps<
   T extends object,
@@ -39,25 +46,64 @@ interface PostgRESTTableViewProps<
   endpoint: string;
   table: string;
   columnOptions?: any;
-  order?: PostgrestOrder<T>;
+  order?: PostgrestOrder<T> | PostgrestOrder<any>[];
   columns?: string;
   editable?: boolean;
   identityKey?: string;
   enableFullTableSearch?: boolean;
   dataSheetActions?: any;
   filter(
-    query: PostgrestFilterBuilder<T, any, any>,
-  ): PostgrestFilterBuilder<T, any, any>;
+    query: PostgrestFilterBuilder<T, any, any, any>,
+  ): PostgrestFilterBuilder<T, any, any, any>;
 }
 
 export function PostgRESTTableView<T>(props: PostgRESTTableViewProps<T>) {
   return h(
     ErrorBoundary,
-    h(HotkeysProvider, h(ToasterContext, h(_PostgRESTTableView, props))),
+    h(ctx.Provider, h(ToasterContext, h(_PostgRESTTableView, props))),
   );
 }
 
 const successResponses = [200, 201];
+
+const enableFullTextSearchAtom = atom(false);
+
+const fullTextSearchInputAtom = atom("");
+
+interface FtsFilterConfig {
+  text: string;
+  columns: string[];
+}
+
+const fullTextSearchFilterConfigAtom = atom<FtsFilterConfig | null>((get) => {
+  const enable = get(enableFullTextSearchAtom);
+  const searchText = get(fullTextSearchInputAtom).toLowerCase();
+  console.log("Full text search", enable, searchText);
+  if (!enable || searchText.length < 3) return null;
+  const columnSpec = get(columnSpecAtom);
+
+  const columns = columnSpec
+    .filter((d) => d.dataType == "text")
+    .map((d) => d.key);
+
+  return {
+    text: searchText,
+    columns,
+  } as FtsFilterConfig;
+});
+
+function buildFilter(cfg: FtsFilterConfig | null): PostgrestFilter | null {
+  if (cfg == null) return null;
+  return {
+    type: "filter",
+    id: `fts-${cfg.text}`,
+    apply(res) {
+      const _filters = cfg.columns.map((d) => `${d}.ilike.*${cfg.text}*`);
+      const filters = _filters.join(",");
+      return res.or(filters);
+    },
+  };
+}
 
 function _PostgRESTTableView<T>({
   endpoint,
@@ -66,39 +112,53 @@ function _PostgRESTTableView<T>({
   order,
   columns,
   editable = false,
-  filter = undefined,
   enableFullTableSearch = false,
   dataSheetActions,
-  identityKey = "id",
+  identityKey = null,
   ...rest
 }: PostgRESTTableViewProps<T>) {
-  const [input, setInput] = useState("");
+  // Boundary of Jotai store
+  ctx.useSync(enableFullTextSearchAtom, enableFullTableSearch);
 
-  if (enableFullTableSearch) {
-    const columnList = columns ?? getColumnList(endpoint, table);
+  // Server-side column sort/filter state
+  const [columnSorts, setColumnSorts] = useState<ColumnSortEntry[]>([]);
+  const [columnFilters, setColumnFilters] = useState<PostgrestColumnFilter[]>(
+    [],
+  );
 
-    filter = (query) => {
-      const urlParams = new URLSearchParams(query.url.search);
-      urlParams.delete("or");
-      query.url.search = urlParams.toString() ? `?${urlParams.toString()}` : "";
-
-      if (input.length > 2 && enableFullTableSearch) {
-        const conditions = columnList?.map((col) => `${col}.ilike.*${input}*`);
-
-        return query.or(conditions.join(","));
-      }
-
-      return query;
-    };
+  /** TODO: remove "full-text search" from filter options */
+  const ftsFilter = buildFilter(ctx.useValue(fullTextSearchFilterConfigAtom));
+  let filters = columnFilters.map(standardizeFilter);
+  if (ftsFilter != null) {
+    filters.push(ftsFilter);
   }
 
-  const { data, onScroll, dispatch, client } = usePostgRESTLazyLoader(
+  const _order = [];
+  if (typeof order === "object" && "key" in order) {
+    _order.push(order);
+  } else if (Array.isArray(order)) {
+    _order.push(...order);
+  }
+  _order.push(...columnSorts);
+
+  // Infer identity key
+  let _identityKey = identityKey;
+  if (_identityKey == null) {
+    if (_order.length == 0) {
+      throw "Must specify identity key or order by column";
+    } else {
+      _identityKey = _order[0].key;
+    }
+  }
+
+  const { data, dispatch, getClient } = usePostgRESTLazyLoader(
     endpoint,
     table,
     {
-      order: order ?? { key: identityKey, ascending: true },
+      order: _order,
       columns,
-      filter,
+      filters,
+      identityKey: _identityKey,
     },
   );
 
@@ -119,20 +179,66 @@ function _PostgRESTTableView<T>({
     [dispatch, toaster],
   );
 
-  if (data == null) {
-    return h(Spinner);
-  }
+  // Column header actions for sort/filter
+  const columnHeaderActions: ColumnHeaderActions = useMemo(
+    () => ({
+      onSetSort(key: string, ascending: boolean | null) {
+        // Single-column sort: replace any existing sort
+        if (ascending == null) {
+          setColumnSorts([]);
+        } else {
+          setColumnSorts([{ key, ascending }]);
+        }
+      },
+      onSetFilter(
+        key: string,
+        operator: PostgrestFilterOperator | null,
+        value: string,
+      ) {
+        setColumnFilters((prev) => {
+          const without = prev.filter((f) => f.key !== key);
+          if (operator == null || value === "") return without;
+          return [...without, { key, operator, value }];
+        });
+      },
+      onClearColumn(key: string) {
+        setColumnSorts((prev) => prev.filter((s) => s.key !== key));
+        setColumnFilters((prev) => prev.filter((f) => f.key !== key));
+      },
+    }),
+    [],
+  );
 
-  return h("div.data-sheet-outer", [
-    h(DataSheet, {
+  // Column header cell renderer using sort/filter state
+  const columnHeaderCellRenderer = useCallback(
+    (props: ColumnHeaderRendererProps) => {
+      const { col, colIndex } = props;
+      const activeSort = columnSorts.find((s) => s.key === col.key);
+      const activeFilter = columnFilters.find((f) => f.key === col.key);
+      return renderPostgRESTColumnHeaderCell({
+        col,
+        colIndex,
+        activeSort,
+        activeFilter,
+        actions: columnHeaderActions,
+      });
+    },
+    [columnSorts, columnFilters, columnHeaderActions],
+  );
+
+  const hasActiveFilters = columnFilters.length > 0;
+  const hasActiveSort = columnSorts.length > 0;
+
+  return h(
+    DataSheet,
+    {
       ...rest,
       dataSheetActions: enableFullTableSearch
-        ? h(SearchAction, { input, setInput, dispatch })
+        ? h(SearchAction)
         : dataSheetActions,
-      data,
-      columnSpecOptions: columnOptions ?? {},
+      columnSpecOptions: columnOptions,
       editable,
-      onVisibleCellsChange: onScroll,
+      columnHeaderCellRenderer,
       onDeleteRows(selection) {
         if (!editable) return;
 
@@ -142,10 +248,8 @@ function _PostgRESTTableView<T>({
 
         dispatch({ type: "start-loading" });
 
+        const client = getClient();
         let query = client.delete().in(identityKey, ids);
-
-        query = filter?.(query) ?? query;
-
         finishResponse(query, { $delete: Array.from(rowIndices.keys()) });
       },
       onSaveData(updates, data) {
@@ -162,17 +266,53 @@ function _PostgRESTTableView<T>({
         }
 
         dispatch({ type: "start-loading" });
-
+        const client = getClient();
         // Save data
         let query = client.upsert(updateRows, { defaultToNull: false });
-
-        query = filter?.(query) ?? query;
-
         finishResponse(query, changes);
       },
-    }),
-  ]);
+    },
+    [
+      h.if(hasActiveFilters || hasActiveSort)(ServerFilterBar, {
+        columnSorts,
+        columnFilters,
+        onClearFilter(key: string) {
+          columnHeaderActions.onClearColumn(key);
+        },
+        onClearAll() {
+          setColumnSorts([]);
+          setColumnFilters([]);
+        },
+      }),
+    ],
+  );
 }
+
+const saveDataAction: TableAction = {
+  id: "save-data",
+  name: "Save changes",
+  icon: "floppy-disk",
+  intent: "success",
+  requiresEditable: true,
+  targets: [RegionCardinality.FULL_TABLE],
+  async run(ctx) {
+    const data = ctx.data;
+    const updates = ctx.updatedData;
+
+    let changes: Spec<any[]> = {};
+    let updateRows: any[] = [];
+    for (let [key, update] of Object.entries(updates)) {
+      const value = { ...data[key], ...update };
+      updateRows.push(value);
+      changes[key] = { $set: value };
+    }
+
+    dispatch({ type: "start-loading" });
+    const client = getClient();
+    // Save data
+    let query = client.upsert(updateRows, { defaultToNull: false });
+  },
+};
 
 export function notifyOnError(toaster: OverlayToaster, error: any) {
   console.error(error);
@@ -265,32 +405,66 @@ export function ExpandedLithologies({ value, onChange }) {
   ]);
 }
 
-export function SearchAction({ input, setInput, dispatch }) {
+export function SearchAction() {
+  const [input, setInput] = ctx.use(fullTextSearchInputAtom);
   return h(InputGroup, {
     type: "search",
     placeholder: "Search table...",
     value: input,
     onChange(event) {
-      const search = event.target.value;
-      if (search.length > 2 || (input.length === 3 && search.length < 3)) {
-        dispatch({ type: "reset" });
-      }
-      setInput(search.toLowerCase());
+      setInput(event.target.value);
     },
   });
 }
 
-function getColumnList(endpoint: string, table: string) {
-  const url = `${endpoint}/${table}?select=*&limit=1`;
-  const res = useAPIResult(url);
-
-  if (!res || !Array.isArray(res) || res.length === 0) return [];
-
-  const sampleRow = res[0];
-
-  return Object.entries(sampleRow)
-    .filter(([_, value]) => {
-      return typeof value === "string";
-    })
-    .map(([key]) => key);
+/** Bar showing active server-side sort and filter state as removable tags. */
+function ServerFilterBar({
+  columnSorts,
+  columnFilters,
+  onClearFilter,
+  onClearAll,
+}: {
+  columnSorts: ColumnSortEntry[];
+  columnFilters: PostgrestColumnFilter[];
+  onClearFilter: (key: string) => void;
+  onClearAll: () => void;
+}) {
+  return h("div.server-filter-bar", [
+    columnSorts.map((s) =>
+      h(
+        BPTag,
+        {
+          key: `sort-${s.key}`,
+          icon: s.ascending ? "sort-asc" : "sort-desc",
+          intent: "primary",
+          onRemove: () => onClearFilter(s.key),
+          minimal: true,
+        },
+        `${s.key}: ${s.ascending ? "A→Z" : "Z→A"}`,
+      ),
+    ),
+    columnFilters.map((f) =>
+      h(
+        BPTag,
+        {
+          key: `filter-${f.key}`,
+          icon: "filter",
+          intent: "warning",
+          onRemove: () => onClearFilter(f.key),
+          minimal: true,
+        },
+        `${f.key} ${OPERATOR_LABELS[f.operator] ?? f.operator} ${f.value}`,
+      ),
+    ),
+    h(
+      Button,
+      {
+        minimal: true,
+        small: true,
+        icon: "cross",
+        onClick: onClearAll,
+      },
+      "Clear all",
+    ),
+  ]);
 }

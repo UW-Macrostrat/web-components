@@ -1,6 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import hyper from "@macrostrat/hyper";
-import { DataSheet, ColorCell, ColorPicker, EditableTextArea } from "../src";
+import {
+  DataSheet,
+  ColorCell,
+  ColorPicker,
+  EditableTextArea,
+  defaultTableActions,
+} from "../src";
 import chroma from "chroma-js";
 import styles from "./data-sheet.stories.module.sass";
 import "@blueprintjs/table/lib/css/table.css";
@@ -21,6 +27,7 @@ const meta: Meta<any> = {
   args: {
     data: defaultTestData,
     columnSpec: defaultColumnSpec,
+    actions: defaultTableActions,
   },
 };
 
@@ -91,6 +98,7 @@ export const WithColumnReordering = {
 };
 
 function valueRenderer(d) {
+  if (d == null) return "";
   try {
     return d.toFixed(2);
   } catch (e) {

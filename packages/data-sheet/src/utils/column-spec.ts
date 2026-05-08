@@ -17,6 +17,17 @@ interface ColumnSpecGenerateOptions {
 
 const defaultWidthForValue = (val) => String(val).length * 8;
 
+/** Inferred data type of a column, used to select appropriate
+ * sort/filter operators. */
+export type ColumnDataType =
+  | "text"
+  | "string"
+  | "number"
+  | "integer"
+  | "boolean"
+  | "object"
+  | "array";
+
 export interface ColumnSpec {
   name: string;
   key: string;
@@ -24,6 +35,7 @@ export interface ColumnSpec {
   isValid?: (d: any) => boolean;
   transformValue?: (d: any) => any;
   valueRenderer?: (d: any) => string | React.ReactNode;
+  headerRenderer?: (d: any) => string | React.ReactNode;
   dataEditor?: any;
   cellComponent?: any;
   category?: string;
@@ -31,6 +43,21 @@ export interface ColumnSpec {
   inlineEditor?: boolean | React.ComponentType<any> | string | null;
   style?: React.CSSProperties;
   width?: number;
+  /** Column-specific table actions (TableAction[]). These appear in the
+   * actions toolbar when this column is part of the current selection. */
+  actions?: any[];
+  /** Column-specific table filters (TableFilter[]). These appear in the
+   * filter bar and apply to this column's values. */
+  filters?: any[];
+  /** Whether this column supports server-side sorting. */
+  sortable?: boolean;
+  /** Whether this column supports server-side filtering.
+   * Set to `true` for default operators, or provide a config object
+   * with a custom set of operators. */
+  filterable?: boolean | { operators?: string[] };
+  /** Inferred data type, used to select context-appropriate filter
+   * operators when `filterable` is `true` without explicit operators. */
+  dataType?: ColumnDataType;
 }
 
 export interface ColumnSpecOptions<T> {
@@ -89,6 +116,11 @@ export function generateDefaultColumnSpec<T>(
         type = "array";
       }
 
+      // Check if it is strictly a string, if so, we can explicitly mark it as text
+      if (type === "string") {
+        type = "text";
+      }
+
       if (types.has(key)) {
         if (types.get(key) !== type) {
           if (type === "number" && types.get(key) === "integer") {
@@ -118,11 +150,26 @@ export function generateDefaultColumnSpec<T>(
       );
     }
 
+    const dataType = (types.get(key) ?? "string") as ColumnDataType;
+
+    // Auto-infer sortable/filterable based on data type.
+    // Scalar types (string, number, integer, boolean) get sort/filter;
+    // complex types (object, array) do not.
+    const isScalar =
+      dataType === "text" ||
+      dataType === "string" ||
+      dataType === "number" ||
+      dataType === "integer" ||
+      dataType === "boolean";
+
     spec.push({
       name: key,
       key,
       valueRenderer: defaultRenderers[types.get(key)],
       width,
+      dataType,
+      sortable: isScalar,
+      filterable: isScalar,
     });
   }
   return spec;

@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.8] - 2026-05-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.7...@macrostrat/ui-components-v5.0.8)
+
+### Patch Changes
+
+- Update @types/react
+  [64d04951](https://github.com/UW-Macrostrat/web-components/commit/64d04951e8b63f05f9325a0e13817164d1813df7)
+
 ## [5.0.7] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.6...@macrostrat/ui-components-v5.0.7)
 
 ### Patch Changes

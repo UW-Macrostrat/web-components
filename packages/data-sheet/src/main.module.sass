@@ -5,8 +5,11 @@
   font-size: var(--data-sheet-font-size, 12px)
   line-height: var(--data-sheet-row-height, 20px)
 
+  --data-sheet-cell-padding: 0px 8px
+
   :global
     .bp6-table-cell
+      padding: var(--data-sheet-cell-padding)
       &:not([class*="bp6-intent-"]):not(.bp6-loading)
         color: var(--text-color)
 
@@ -34,12 +37,13 @@
     background-color: var(--panel-secondary-background-color)
 
 .input-cell
-  padding: 0 2px !important
+  // padding: 0 2px !important
 
   input
     width: 100%
     height: 100%
-    padding: 0 8px
+    padding: 0
+    //padding: 0 8px
     z-index: 0
     position: relative
     border: none
@@ -51,6 +55,14 @@
 
     &:focus
       outline: none
+
+.value-viewer-cell
+  :global(.bp6-popover-target)
+    width: 100%
+    height: var(--data-sheet-row-height)
+    position: relative
+    padding: var(--data-sheet-cell-padding)
+    margin: calc(var(--data-sheet-cell-padding) * -1)
 
 // Make sure popover target fills the entire cell
 .editor-cell :global(.bp6-popover-target)

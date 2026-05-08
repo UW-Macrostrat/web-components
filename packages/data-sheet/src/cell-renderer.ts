@@ -1,11 +1,11 @@
 import { ColumnSpec, editorKeyHandlerAtom } from "./utils";
-import { DataSheetStore } from "./types.ts";
+import { DataSheetStore, TableElementStatus } from "./types.ts";
 import h from "./main.module.sass";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { EditorPopup } from "./components";
 import { singleFocusedCell } from "./zustand-store.ts";
 import { Cell } from "@blueprintjs/table";
-import { useAtomValue, useSelector } from "./provider.ts";
+import { ctx, useSelector } from "./provider.ts";
 
 export function basicCellRenderer<T>(
   rowIndex: number,
@@ -13,58 +13,60 @@ export function basicCellRenderer<T>(
   columnSpec: ColumnSpec,
   state: DataSheetStore<T>,
   autoFocusEditor = true,
+  filteredRowIndices?: number[] | null,
 ): any {
+  // When filters are active, `rowIndex` is the visible row position.
+  // Map it to the actual data index for data access.
+  const dataRowIndex =
+    filteredRowIndices != null
+      ? (filteredRowIndices[rowIndex] ?? rowIndex)
+      : rowIndex;
+
   const data = state.data;
   const updatedData = state.updatedData;
 
-  const isDeleted = state.deletedRows.has(rowIndex);
+  const isDeleted = state.rowStatus[dataRowIndex] == TableElementStatus.DELETED;
 
-  const row = data[rowIndex] ?? updatedData[rowIndex];
+  const row = data[dataRowIndex] ?? updatedData[dataRowIndex];
   const loading = row == null;
   const col = columnSpec;
 
   const _topLeftCell = state.topLeftCell;
   const onCellEdited = state.onCellEdited;
 
-  const value = updatedData[rowIndex]?.[col.key] ?? data[rowIndex]?.[col.key];
-  const _renderedValue = col.valueRenderer?.(value) ?? value;
+  const value: T | undefined =
+    updatedData[dataRowIndex]?.[col.key] ?? data[dataRowIndex]?.[col.key];
+  const isEmpty = value == null || value === "";
+  const _renderedValue = isEmpty ? null : (col.valueRenderer?.(value) ?? value);
 
   let style = col.style ?? {};
-  if (isDeleted) {
-    style = {
-      ...style,
-      opacity: 0.5,
-      textDecoration: "line-through",
-    };
-  }
 
-  //const focused =
-  //  focusedCell?.col === colIndex && focusedCell?.row === rowIndex;
+  if (isDeleted) {
+    style.opacity = 0.5;
+    style.textDecoration = "line-through";
+  }
 
   const editable = (col.editable ?? state.editable) && !isDeleted;
 
-  // Top left cell of a ranged selection
+  // topLeftCell stores visible row indices, so compare with the visible rowIndex
   const topLeft =
     _topLeftCell?.col === colIndex && _topLeftCell?.row === rowIndex;
 
-  if (!editable && state.editable) {
-    // If the cell is not editable but the sheet is editable, we want to differentiate
-    // between editable and non-editable cells.
-    style.color = "var(--secondary-color)";
-  }
+  const tableIsEditable = state.editable;
 
-  const edited = updatedData[rowIndex]?.[col.key] != null;
+  const edited =
+    updatedData[dataRowIndex]?.[col.key] != null ||
+    state.rowStatus[dataRowIndex] === TableElementStatus.ADDED;
   let intent = edited ? "success" : undefined;
   if (isDeleted) {
     intent = "danger";
   }
 
-  const _Cell = col.cellComponent ?? BaseCell;
+  const _Cell = col.cellComponent ?? Cell;
 
   let inlineEditor = editable ? (col.inlineEditor ?? true) : false;
 
   if (!topLeft) {
-    // This should be the case for every cell except the focused one
     return h(
       _Cell,
       {
@@ -72,19 +74,14 @@ export function basicCellRenderer<T>(
         loading,
         value,
         style,
-        isDeleted,
+        disabled: tableIsEditable && !editable,
+        interactive: false,
       },
       _renderedValue,
     );
   }
 
   // The rest is for the top-left cell of a selection or the focused cell
-
-  // Hidden input to capture key events
-  let hiddenInput = h(EditorInput, {
-    className: "hidden-input",
-    autoFocus: true,
-  });
 
   let cellContents: ReactNode = _renderedValue;
 
@@ -102,9 +99,13 @@ export function basicCellRenderer<T>(
         h(col.dataEditor, {
           value,
           editable,
+          isEdited: edited,
           onChange(value) {
             if (!editable) return;
             state.onSelectionEdited(value);
+          },
+          resetValue() {
+            state.resetChanges();
           },
         }),
       ],
@@ -112,12 +113,10 @@ export function basicCellRenderer<T>(
   }
 
   if (!editable) {
-    // Most cells are not focused and don't need to be editable.
-    // This will be the rendering logic for almost all cells
-
     if (_dataEditor != null) {
       cellContents = _dataEditor;
     }
+    const className = "value-viewer-cell";
 
     return h(
       _Cell,
@@ -125,18 +124,20 @@ export function basicCellRenderer<T>(
         intent,
         value,
         style,
+        className,
+        interactive: false,
       },
       cellContents,
     );
-    // Could probably put the hidden input elsewhere,
   }
 
   /* The remaining logic covers cells that are focused and editable */
 
   const onChange = (e) => {
     if (!editable) return;
-    if (value === e.target.value) return;
-    onCellEdited(rowIndex, col.key, e.target.value);
+    if (_renderedValue === e.target.value) return;
+    // Use dataRowIndex for the actual data mutation
+    onCellEdited(dataRowIndex, col.key, e.target.value);
   };
 
   const isSingleCellSelection = singleFocusedCell(state.selection) != null;
@@ -162,6 +163,11 @@ export function basicCellRenderer<T>(
     _inlineEditor = inlineEditor as ReactNode;
   }
 
+  let hiddenInput: React.ReactNode = h(EditorInput, {
+    className: "hidden-input",
+    autoFocus: true,
+  });
+
   if (_dataEditor != null) {
     className = "editor-cell";
     cellContents = _dataEditor;
@@ -180,21 +186,30 @@ export function basicCellRenderer<T>(
       value,
       className,
       style,
+      interactive: true,
       //truncated: false,
     },
     [
       cellContents,
       h.if(editable && isSingleCellSelection)(DragHandle),
-      hiddenInput,
+      //hiddenInput,
     ],
   );
 }
 
 function EditorInput(props) {
-  const onKeyDown = useAtomValue(editorKeyHandlerAtom);
+  const { value, onChange, ...rest } = props;
+  const onKeyDown = ctx.useValue(editorKeyHandlerAtom);
+  const [_value, setValue] = useState(value);
+  useEffect(() => {
+    setValue(value);
+  }, [value]);
   return h("input", {
     onKeyDown,
-    ...props,
+    onBlur: onChange,
+    value: _value ?? value,
+    onChange: (e) => setValue(e.target.value),
+    ...rest,
   });
 }
 
@@ -203,15 +218,4 @@ function DragHandle() {
   // This should be on the last cell of a selection
   const onMouseDown = useSelector((state) => state.onDragValue);
   return h("div.corner-drag-handle", { onMouseDown });
-}
-
-export function BaseCell({ children, value, ...rest }) {
-  return h(
-    Cell,
-    {
-      interactive: true,
-      ...rest,
-    },
-    children,
-  );
 }

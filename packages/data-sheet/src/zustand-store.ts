@@ -3,29 +3,45 @@ import {
   DataSheetStore,
   DataSheetStoreMain,
   StateUpdater,
+  TableElementStatus,
   VisibleCells,
 } from "./types.ts";
-import type { FocusedCellCoordinates, Region } from "@blueprintjs/table";
+import {
+  type FocusedCellCoordinates,
+  type Region,
+  RegionCardinality,
+} from "@blueprintjs/table";
 import { range } from "./utils";
 import update, { Spec } from "immutability-helper";
+import {
+  getSelectedColumnKeys,
+  getSelectedRowIndices,
+  getSelectionCardinality,
+  computeFilteredRowIndices,
+  computeTransformedRowIndices,
+} from "./actions";
 
 export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
   return {
+    /** All the data in the table */
     data: [],
+    updatedData: [],
+    rowStatus: [],
     columnSpec: [],
     defaultColumnWidth: 150,
     editable: false,
-    deletedRows: new Set<number>(),
     selection: [],
     fillValueBaseCell: null,
-    updatedData: [],
     focusedCell: null,
     topLeftCell: null,
     initialized: false,
     tableRef: null,
-    visibleCellsRef: null,
     // This is a placeholder
     enableColumnReordering: false,
+    activeFilters: new Map<string, { filter: any; state: any }>(),
+    columnSorts: [],
+    clipboardProxy: null,
+    filteredRowIndices: null,
     setSelection(selection: Region[]) {
       set(updateSelection(selection));
     },
@@ -60,18 +76,23 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       /** Add a new row. If there is a selection, use the last row index to determine
        * where to insert the new row. Otherwise, append to the end of the data. */
       set((state) => {
-        const { updatedData, data, selection } = state;
+        const { updatedData, data, selection, rowStatus } = state;
+
         const lastRowIndex =
           getLastRowIndex(selection) ??
           Math.max(data.length, updatedData.length) - 1;
-        // If there is a selection, insert the new row after the last selected row
-        const spec: Spec<any> = {
-          $splice: [[lastRowIndex + 1, 0, row]],
-        };
-        console.log(spec);
+        // Use $set at a specific index to correctly extend the sparse array.
+        // $splice fails when the target index exceeds the array length.
+        const newIndex = lastRowIndex + 1;
 
         return {
-          updatedData: update(updatedData, spec),
+          updateData: insertItemAtIndex(updatedData, newIndex, row as T),
+          data: insertItemAtIndex(data, newIndex, row as T),
+          rowStatus: insertItemAtIndex(
+            rowStatus,
+            newIndex,
+            TableElementStatus.ADDED,
+          ),
         };
       });
     },
@@ -91,32 +112,56 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         const rowIndices = getRowIndices(selection);
 
         // Delete rows from both updatedData and data
-        const newDeletedRows = new Set(deletedRows);
-        for (const rowIndex of rowIndices) {
-          newDeletedRows.add(rowIndex);
+
+        // If rows are in addedRows, we just delete them outright from the data and updatedData arrays
+        const { addedRows } = state;
+
+        const rowsNewlyDeleted = new Set(rowIndices);
+
+        // We outright remove rows that have not been added to the data array
+        const rowsToRemoveFromDataArrays = new Set(
+          rowIndices.filter(
+            (d) => state.rowStatus[d] == TableElementStatus.ADDED,
+          ),
+        );
+        // ...otherwise we set them to 'deleted'
+        const rowsToMarkAsDeleted = rowsNewlyDeleted.difference(
+          rowsToRemoveFromDataArrays,
+        );
+
+        let data = state.data;
+        let updatedData = state.updatedData;
+        let rowStatus = state.rowStatus;
+        if (rowsToMarkAsDeleted.size > 0) {
+          let spec: Spec<TableElementStatus[]> = {};
+          for (const ix of rowsToMarkAsDeleted) {
+            spec[ix] = { $set: TableElementStatus.DELETED };
+          }
+          rowStatus = update(rowStatus, spec);
+        }
+
+        if (rowsToRemoveFromDataArrays.size > 0) {
+          const filterFunc = (_, i) => !rowsToRemoveFromDataArrays.has(i);
+          data = data.filter(filterFunc);
+          updatedData = updatedData.filter(filterFunc);
+          rowStatus = rowStatus.filter(filterFunc);
         }
 
         // Remove selected rows and reset selection
         return {
-          deletedRows: newDeletedRows,
           selection: [],
+          data,
+          updatedData,
+          rowStatus,
           focusedCell: null,
           topLeftCell: null,
           fillValueBaseCell: null,
         };
       });
     },
-    resetChanges() {
+    resetChanges(regions?: Region[]) {
       // Reset the updated data to the initial data
-      set((state) => ({
-        updatedData: [],
-        deletedRows: new Set<number>(),
-        columnWidths: new Map<string, number>(),
-        selection: [],
-        focusedCell: null,
-        topLeftCell: null,
-        fillValueBaseCell: null,
-      }));
+      set((state) => resetChangesForSelection(state, regions));
     },
     onColumnWidthChanged(columnIx: number, newWidth: number) {
       set((state) => {
@@ -126,13 +171,6 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         newColumnWidths.set(colKey, newWidth);
         return { columnWidthsIndex: newColumnWidths };
       });
-    },
-    setVisibleCells(visibleCells: VisibleCells) {
-      // Visible cells are used for infinite scrolling
-      // Right now we don't store this in the state
-      const ref = get().visibleCellsRef;
-      if (ref == null) return;
-      ref.current = visibleCells;
     },
     onDragValue(event: MouseEvent) {
       set((state) => {
@@ -157,20 +195,20 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
         return { updatedData: update(updatedData, spec) };
       });
     },
-    initialize(props: Partial<DataSheetStoreMain<T>>) {
-      set({ ...props, initialized: true });
-    },
     clearSelection() {
       set((state) => {
         // Delete all selected cells
         const { selection, updatedData, columnSpec, data } = state;
         let spec = {};
         for (const region of selection) {
-          console.log("Clearing region", region);
           const { cols, rows } = region;
           const rowRange = range(rows ?? [0, updatedData.length - 1]);
           const colRange = range(cols ?? [0, columnSpec.length - 1]);
           for (const row of rowRange) {
+            // Don't clear row if it has been deleted
+            const rowIsDeleted =
+              state.rowStatus[row] === TableElementStatus.DELETED;
+            if (rowIsDeleted) continue;
             let vals = {};
             for (const col of colRange) {
               const key = columnSpec[col].key;
@@ -252,6 +290,85 @@ export function createZustandStore<T>(set, get): DataSheetStoreMain<T> {
       tableRef.current.scrollToRegion({
         rows: [rowIndex, rowIndex],
       });
+    },
+    setFilter(filterId: string, filter: any, filterState: any) {
+      set((state) => {
+        const newFilters = new Map<string, { filter: any; state: any }>(
+          state.activeFilters,
+        );
+        newFilters.set(filterId, { filter, state: filterState });
+        return {
+          activeFilters: newFilters,
+          filteredRowIndices: computeTransformedRowIndices(
+            state.data,
+            state.updatedData,
+            newFilters,
+            state.columnSorts,
+          ),
+        };
+      });
+    },
+    removeFilter(filterId: string) {
+      set((state) => {
+        const newFilters = new Map<string, { filter: any; state: any }>(
+          state.activeFilters,
+        );
+        newFilters.delete(filterId);
+        return {
+          activeFilters: newFilters,
+          filteredRowIndices: computeTransformedRowIndices(
+            state.data,
+            state.updatedData,
+            newFilters,
+            state.columnSorts,
+          ),
+        };
+      });
+    },
+    clearFilters() {
+      set((state) => ({
+        activeFilters: new Map<string, { filter: any; state: any }>(),
+        filteredRowIndices: computeTransformedRowIndices(
+          state.data,
+          state.updatedData,
+          new Map(),
+          state.columnSorts,
+        ),
+      }));
+    },
+    setColumnSort(key: string, ascending: boolean | null) {
+      set((state) => {
+        let newSorts;
+        if (ascending == null) {
+          newSorts = state.columnSorts.filter((s) => s.key !== key);
+        } else {
+          const without = state.columnSorts.filter((s) => s.key !== key);
+          newSorts = [...without, { key, ascending }];
+        }
+        return {
+          columnSorts: newSorts,
+          filteredRowIndices: computeTransformedRowIndices(
+            state.data,
+            state.updatedData,
+            state.activeFilters,
+            newSorts,
+          ),
+        };
+      });
+    },
+    clearColumnSorts() {
+      set((state) => ({
+        columnSorts: [],
+        filteredRowIndices: computeTransformedRowIndices(
+          state.data,
+          state.updatedData,
+          state.activeFilters,
+          [],
+        ),
+      }));
+    },
+    setClipboardProxy(proxy) {
+      set({ clipboardProxy: proxy });
     },
   };
 }
@@ -374,4 +491,92 @@ function fillValues<T>(state: DataSheetStore<T>, selection: Region[]) {
     }
   }
   return update(updatedData, spec);
+}
+
+function resetChangesForSelection<T>(
+  state: DataSheetStore<T>,
+  selection: Region[],
+): Partial<DataSheetStore<T>> {
+  const emptySelection = {
+    selection: [],
+    focusedCell: null,
+    topLeftCell: null,
+    fillValueBaseCell: null,
+  };
+
+  const { data } = state;
+  const cardinality =
+    getSelectionCardinality(selection ?? []) ?? RegionCardinality.FULL_TABLE;
+
+  const rowStatus = [...state.rowStatus];
+  const updatedData = [...state.updatedData];
+  const addedRows = new Set<number>();
+
+  // Global reset
+  switch (cardinality) {
+    case RegionCardinality.FULL_TABLE:
+      for (let i = 0; i < rowStatus.length; i++) {
+        if (rowStatus[i] === TableElementStatus.ADDED) {
+          addedRows.add(i);
+        }
+      }
+
+      return {
+        updatedData: [],
+        rowStatus: [],
+        data: data.filter((_, i) => !addedRows.has(i)),
+        ...emptySelection,
+      };
+    case RegionCardinality.FULL_COLUMNS:
+    case RegionCardinality.CELLS:
+      /** Columns or cells. Note, these only work the same because we don't
+       * allow column deletion, only unsetting all values.
+       */
+      const columnKeys = getSelectedColumnKeys(selection, state.columnSpec);
+      const spec: Spec<Record<string, any>[]> = {};
+      const rowIndices =
+        cardinality == RegionCardinality.FULL_COLUMNS
+          ? Array.from({ length: updatedData.length }, (_, i) => i)
+          : getSelectedRowIndices(selection);
+      for (const row of rowIndices) {
+        if (updatedData[row] == null) continue;
+        spec[row] = { $unset: columnKeys };
+      }
+      // TODO: if we allow column addition/deletion, this will require more adjustment
+      return {
+        updatedData: update(updatedData, spec),
+        ...emptySelection,
+      };
+    case RegionCardinality.FULL_ROWS:
+      for (const row of getSelectedRowIndices(selection)) {
+        updatedData[row] = undefined;
+        if (state.rowStatus[row] === TableElementStatus.DELETED) {
+          rowStatus[row] = undefined;
+        } else if (state.rowStatus[row] === TableElementStatus.ADDED) {
+          addedRows.add(row);
+        }
+      }
+
+      const removeCandidateRows = (arr: any[]) => {
+        return arr.filter((d, i) => !addedRows.has(i));
+      };
+
+      return {
+        updatedData: removeCandidateRows(updatedData),
+        data: removeCandidateRows(state.data),
+        rowStatus: removeCandidateRows(rowStatus),
+        ...emptySelection,
+      };
+  }
+}
+
+function insertItemAtIndex<T>(arr: T[], index: number, item: T) {
+  if (arr.length < index) {
+    const newArr = [...arr];
+    newArr.length = index;
+    newArr[index] = item;
+    return newArr;
+  }
+
+  return [...arr.slice(0, index), item, ...arr.slice(index)];
 }
