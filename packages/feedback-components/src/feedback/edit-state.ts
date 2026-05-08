@@ -533,6 +533,7 @@ function matchMode(state, action) {
   }
 
   if (action.type === "add-match") {
+    console.log("Add match payload", action.payload)
     const { id } = action.payload;
 
     // Find the node path

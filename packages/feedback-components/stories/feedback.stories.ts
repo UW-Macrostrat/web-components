@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react-vite";
 
 import { FeedbackComponent } from "../src";
-import { data, entityTypes, data2, data3, entityTypes2 } from "./test-data";
+import { matchData, data, entityTypes, data2, data3, entityTypes2 } from "./test-data";
 import h from "@macrostrat/hyper";
 
 function FeedbackInterface({
@@ -48,7 +48,7 @@ const lexURL = "https://dev.macrostrat.org/lex";
 
 export const MatchLinks: StoryObj<{}> = {
   args: {
-    data,
+    data: matchData,
     types: entityTypes,
     allowOverlap: true,
     matchLinks: {

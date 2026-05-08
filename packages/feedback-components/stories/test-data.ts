@@ -1,3 +1,59 @@
+export const matchData = {
+  entities: [
+{
+"id": 196,
+"name": "Shotwell",
+"type": 4,
+"indices": [
+452,
+460
+],
+"children": [
+{
+"id": 197,
+"name": "fossil",
+"type": 3,
+"match": {
+"name": "abelsonite",
+"entity_id": 1,
+"entity_table": "minerals",
+"global_entity_id": 1
+},
+"indices": [
+65,
+71
+]
+}
+]
+},
+{
+"id": 195,
+"name": "a taxon",
+"type": 4,
+"indices": [
+259,
+266
+]
+}
+],
+  paragraph_text:
+    "One of the most perplexing problems to the ecological study of a fossil assemblage is distinguishing resident taxa from those which were transported to the site of deposition from more distant and differing habitats.\nThe usual subjective assertion is that if a taxon is poorly represented in a deposit, in terms of individuals or degree of preservation, then probably it was transported from another habitat or it was a very minor member of the fauna.\nShotwell 1955, 1958 presented a method which he felt might be used to separate taxa living near the site of deposition \"proximal community\" from those living farther away \"distal community\". His measure of \"completeness of preservation\" was an attempt to make this separation.",
+  model_id: 5321,
+  version_id: 20504,
+  model: {
+    id: 5321,
+    name: "tree_based_span_bert",
+    description: null,
+    url: null,
+    first_run: "2024-10-14T14:39:49.425489",
+    last_run: "2024-11-18T18:33:45.320584",
+    n_runs: 7510,
+    n_entities: 96301,
+    n_matches: 16918,
+    n_strat_names: 4181,
+  },
+};
+
 export const data = {
   entities: [
     {
