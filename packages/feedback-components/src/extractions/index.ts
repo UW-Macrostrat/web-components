@@ -166,7 +166,6 @@ export function EntityTag({
   const className = classNames(
     {
       matched: match != null,
-      type: data.type?.name ?? "lith",
     },
     "entity",
   );
