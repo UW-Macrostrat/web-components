@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1.1] - 2026-05-08
+
+- Supports global entity id
+
 ## [2.1.0] - 2026-04-29
 
 - Fix matched links searching bugs
