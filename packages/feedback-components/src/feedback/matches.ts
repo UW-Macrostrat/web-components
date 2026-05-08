@@ -192,14 +192,23 @@ interface MatchTagProps {
 export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
   if (data == undefined || Object.keys(data).length === 0) return;
 
-  const type = data.entity_table
+  const { entity_id, entity_table, global_entity_id, name } = data
+
+  const type = entity_table
             .split(".")
             .pop()
+
+  const newPayload = {
+    entity_id,
+    entity_table: type,
+    global_entity_id,
+    name,
+  }
 
   return h(
       "div",
       {
-        onClick: () => setPayload(data)
+        onClick: () => setPayload(newPayload)
       },
       h(DataField, {
         className: "match-item",

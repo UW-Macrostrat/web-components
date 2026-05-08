@@ -11,6 +11,7 @@ function FeedbackInterface({
   matchLinks,
   view,
   autoSelect,
+  matchComponent
 }) {
   const { entities = [], paragraph_text, model, model_run, source_text } = data;
 
@@ -25,6 +26,7 @@ function FeedbackInterface({
     view,
     matchLinks,
     autoSelect,
+    matchComponent
   });
 }
 // More on default export: https://storybook.js.org/docs/react/writing-stories/introduction#default-export
@@ -51,6 +53,14 @@ export const MatchLinks: StoryObj<{}> = {
     data: matchData,
     types: entityTypes,
     allowOverlap: true,
+    matchComponent: (e) => {
+      const { data } = e
+
+      return h(
+        "div",
+        "#" + data.entity_id
+      );
+    },
     matchLinks: {
       lithology: `${lexURL}/lithologies`,
       strat_name: `${lexURL}/strat-names`,

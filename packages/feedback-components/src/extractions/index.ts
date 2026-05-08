@@ -161,12 +161,12 @@ export function EntityTag({
   onClickType,
   matchComponent = null,
 }: EntityTagProps) {
+  console.log("Entity tag", data)
   const { name, type, match } = data;
 
   const className = classNames(
     {
       matched: match != null,
-      type: data.type?.name ?? "lith",
     },
     "entity",
   );
