@@ -169,7 +169,6 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
 }
 
 function Match({ data, matchLinks, dispatch, nodeId }) {
-  console.log("DAta in match", data)
   return h.if(data)("div.match-container", [
     MatchTag({ data, matchLinks }),
     h(Icon, {
