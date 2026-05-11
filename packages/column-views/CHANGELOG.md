@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.3.4] - 2026-05-11 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.3...@macrostrat/column-views-v3.3.4)
+
+### Patch Changes
+
+- Simplify handling of nested scoped stores
+- Updated dependencies
+  - @macrostrat/data-components@1.1.8
+
 ## [3.3.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.2...@macrostrat/column-views-v3.3.3)
 
 ### Patch Changes

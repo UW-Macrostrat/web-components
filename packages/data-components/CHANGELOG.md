@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.8] - 2026-05-11 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.7...@macrostrat/data-components-v1.1.8)
+
+### Patch Changes
+
+- Simplify handling of nested scoped stores
+
 ## [1.1.7] - 2026-05-07 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.6...@macrostrat/data-components-v1.1.7)
 
 ### Patch Changes
