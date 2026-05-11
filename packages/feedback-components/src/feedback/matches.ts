@@ -95,7 +95,7 @@ function MatchOverlay({ isOpen, setOverlayOpen, nodeMatch, dispatch }) {
     if (!inputValue || inputValue.length < 3) return;
 
     fetch(
-      "https://dev.macrostrat.org/api/pg/type_lookup?name=ilike.*" +
+      "https://dev.macrostrat.org/api/pg/kg_global_entity?name=ilike.*" +
         inputValue +
         "*"
     )
@@ -189,101 +189,39 @@ interface MatchTagProps {
 }
 
 export function MatchTag({ data, matchLinks, setPayload }: MatchTagProps) {
-  if (!data || Object.keys(data).length === 0) return;
+  if (data == undefined || Object.keys(data).length === 0) return;
 
-  if (data.lith_id || data?.type === "lith") {
-    return h(
+  const { entity_id, entity_table, global_entity_id, name } = data
+
+  const type = entity_table
+            .split(".")
+            .pop()
+
+  const newPayload = {
+    entity_id,
+    entity_table: type,
+    global_entity_id,
+    name,
+  }
+
+  return h(
       "div",
       {
-        onClick: () => {
-          data.type === "lith"
-            ? setPayload({ lith_id: data.id, name: data.name })
-            : null;
-        },
+        onClick: () => setPayload(newPayload)
       },
       h(DataField, {
         className: "match-item",
-        label: "Lithology",
+        label: type.replace(/^./, (c) => c.toUpperCase()),
         value: h(LithologyTag, {
-          data: { name: data.name, id: data.id, color: data.color, lith_id: 1 },
+          data: { name: data.name, id: data.global_entity_id, lith_id: 1 },
           onClick: () =>
             window.open(
-              matchLinks.lithology + "/" + data.lith_id,
+              matchLinks.type + "/" + data.entity_id,
               "_blank",
             ),
         }),
       }),
     );
-  }
-
-  if (data.strat_name_id || data?.type === "strat_name") {
-    return h(
-      "div",
-      {
-        onClick: () => {
-          data.type === "strat_name"
-            ? setPayload({ strat_name_id: data.id, name: data.name })
-            : null;
-        },
-      },
-      h(DataField, {
-        className: "match-item",
-        label: "Stratigraphic name",
-        value: h(LithologyTag, {
-          data: { name: data.name, id: data.id, color: data.color, lith_id: 1 },
-          onClick: () =>
-            window.open(
-              matchLinks.strat_name + "/" + data.strat_name_id,
-              "_blank",
-            ),
-        }),
-      }),
-    );
-  }
-
-  if (data.lith_att_id || data?.type === "lith_att") {
-    return h(
-      "div",
-      {
-        onClick: () => {
-          data.type === "lith_att"
-            ? setPayload({ lith_att_id: data.id, name: data.name })
-            : null;
-        },
-      },
-      h(DataField, {
-        className: "match-item",
-        label: "Lithology attribute",
-        value: h(LithologyTag, {
-          data: { name: data.name, id: data.lith_att_id, lith_id: 1 },
-          onClick: () =>
-            window.open(matchLinks.lith_att + "/" + data.lith_att_id, "_blank"),
-        }),
-      }),
-    );
-  }
-
-  if (data.int_id || data?.type === "interval") {
-    return h(
-      "div",
-      {
-        onClick: () => {
-          data.type === "interval"
-            ? setPayload({ int_id: data.id, name: data.name })
-            : null;
-        },
-      },
-      h(DataField, {
-        label: "Interval",
-        className: "match-item",
-        value: h(LithologyTag, {
-          data: { name: data.name, id: data.id, lith_id: 1 },
-          onClick: () =>
-            window.open(matchLinks.interval + "/" + data.int_id, "_blank"),
-        }),
-      }),
-    );
-  }
 
   return h(JSONView, { data });
 }
