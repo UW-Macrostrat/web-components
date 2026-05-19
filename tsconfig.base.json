@@ -5,12 +5,10 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "esModuleInterop": true,
-    "downlevelIteration": true,
     "allowImportingTsExtensions": true,
     "noImplicitAny": false,
     "skipLibCheck": true,
     "noEmitOnError": false,
-    "emitDeclarationOnly": true,
     "lib": ["esnext", "es2017", "dom"],
     "target": "ESNext",
     // "ES3" (default), "ES5", "ES6"/"ES2015", "ES2016", "ES2017" or "ESNext".
