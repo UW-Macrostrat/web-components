@@ -60,7 +60,7 @@
     "classnames": "^2.5.1",
     "cross-fetch": "^4.1.0",
     "d3-array": "^3.2.4",
-    "jotai": "^2.17.0",
+    "jotai": "^2.20.0",
     "jotai-scope": "^0.11.0",
     "mapbox-gl": "^3.0.0"
   },

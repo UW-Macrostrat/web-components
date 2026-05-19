@@ -68,7 +68,7 @@
   },
   "devDependencies": {
     "@macrostrat/web-components-bundler": "workspace:*",
-    "jotai": "^2.19.1"
+    "jotai": "^2.20.0"
   },
   "publishConfig": {
     "access": "public"
