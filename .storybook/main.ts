@@ -21,7 +21,7 @@ export default {
     getAbsolutePath("@storybook/addon-links"),
     getAbsolutePath("@vueless/storybook-dark-mode"),
   ],
-  framework: "@storybook/react-vite",
+  framework: getAbsolutePath("@storybook/react-vite"),
   async viteFinal(config) {
     // Prioritize source files for bundling if available
     return mergeConfig(config, {
