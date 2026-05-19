@@ -83,7 +83,6 @@
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
     "jotai": "^2.16.0",
-    "jotai-scope": "^0.10.0",
     "mapbox-gl": "^3.0.0",
     "p-map": "^7.0.4",
     "react-spring": "^9.7.5",
@@ -92,7 +91,8 @@
     "zustand-computed": "^2.0.2"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*"
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "jotai-scope": "^0.11.0"
   },
   "publishConfig": {
     "access": "public"

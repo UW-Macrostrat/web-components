@@ -1548,7 +1548,7 @@ __metadata:
     d3-scale: "npm:^4.0.2"
     d3-shape: "npm:^3.2.0"
     jotai: "npm:^2.16.0"
-    jotai-scope: "npm:^0.10.0"
+    jotai-scope: "npm:^0.11.0"
     mapbox-gl: "npm:^3.0.0"
     p-map: "npm:^7.0.4"
     react-spring: "npm:^9.7.5"
@@ -1591,7 +1591,7 @@ __metadata:
     cross-fetch: "npm:^4.1.0"
     d3-array: "npm:^3.2.4"
     jotai: "npm:^2.17.0"
-    jotai-scope: "npm:^0.10.0"
+    jotai-scope: "npm:^0.11.0"
     mapbox-gl: "npm:^3.0.0"
   peerDependencies:
     react: ^18.0.0||^19.0.0
@@ -8397,13 +8397,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"jotai-scope@npm:^0.10.0":
-  version: 0.10.0
-  resolution: "jotai-scope@npm:0.10.0"
+"jotai-scope@npm:^0.11.0":
+  version: 0.11.0
+  resolution: "jotai-scope@npm:0.11.0"
   peerDependencies:
-    jotai: ">=2.16.0"
+    jotai: ">=2.20.0"
     react: ">=16.0.0"
-  checksum: 10c0/3f920059920d294dcaf7fe86c3919e909584f9fba8d5740161a11662bc0306b824346a0de1b62875a43dcd739cce19a314444c90c31e3368a505783b3046fe42
+  checksum: 10c0/ed5aebb0ba45474d6768ae36ef17071007e431f4ea61cf93bbbbe68b0481bf18ac17b16542993b709560d443e7d8b4117768b8ac29b34ed5320f9a87d822b81f
   languageName: node
   linkType: hard
 
