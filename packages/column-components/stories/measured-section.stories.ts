@@ -9,6 +9,8 @@ type UnitDivision = ColumnDivision & BaseUnit;
 
 interface ColumnSurface {
   height: number;
+  pattern: string | number;
+  grainsize: string;
 }
 
 const columnData: ColumnSurface[] = [

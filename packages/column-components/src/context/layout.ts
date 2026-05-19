@@ -97,7 +97,7 @@ class CrossAxisLayoutProvider extends Component<CrossAxisLayoutProviderProps> {
 
 export type GrainsizeLayoutProps = {
   grainSizes: string[];
-  children?: React.ReactNode;
+  children?: ReactNode;
   width?: number;
   grainsizeScaleStart?: number;
   grainsizeScaleRange?: [number, number];

@@ -20,6 +20,9 @@ type UnitDivision = ColumnDivision & BaseUnit;
 
 interface ColumnSurface {
   height: number;
+  grainsize: string;
+  pattern: string | number;
+  lithology?: string;
 }
 
 function applyPatterns<T extends ColumnSurface>(

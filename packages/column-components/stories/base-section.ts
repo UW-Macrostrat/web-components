@@ -81,6 +81,7 @@ function buildDivisions<T extends ColumnSurface>(
 
 function _MeasuredSectionContainer(
   props: IColumnProps & {
+    range: [number, number];
     children: React.ReactNode;
     timescaleIntervals: Interval[] | null;
     timescaleLevels: number[];
