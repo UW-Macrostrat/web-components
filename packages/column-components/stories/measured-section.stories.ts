@@ -1,15 +1,11 @@
 import h from "@macrostrat/hyper";
-import { ColumnDivision, ColumnSurface } from "@macrostrat/column-components";
+import { ColumnDivision } from "@macrostrat/column-components";
 import { BaseUnit } from "@macrostrat/api-types";
 import "./measured-section.stories.module.sass";
 
-import { MeasuredSection } from "./base-section";
+import { MeasuredSection, ColumnSurface } from "./base-section";
 
 type UnitDivision = ColumnDivision & BaseUnit;
-
-interface ColumnSurface {
-  height: number;
-}
 
 const columnData: ColumnSurface[] = [
   {

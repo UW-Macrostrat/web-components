@@ -1,5 +1,19 @@
 # Changelog
 
+## [4.0.0-dev2] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-sheet-v4.0.0-dev1...@macrostrat/data-sheet-v4.0.0)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/data-components@1.1.9
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/color-utils@1.2.2
+
 ## [4.0.0-dev1] - 2026-05-06
 
 Major update to internals of data sheet, including a new `jotai`-based state

@@ -27,7 +27,7 @@ interface FetchBaseOptions {
 
 export interface ColumnFetchOptions extends FetchBaseOptions {
   apiBaseURL?: string;
-  projectID?: number;
+  projectID?: number | null;
   statusCode?: ColumnStatusCode | ColumnStatusCode[];
   format?: "geojson" | "topojson" | "geojson_bare";
 }
@@ -77,7 +77,7 @@ export async function fetchAllColumns(
   });
 
   if (res == null) {
-    return null;
+    return [];
   }
 
   // Get JSON
@@ -237,10 +237,12 @@ export async function fetchUnits(
   const unitsMap = new Map<number, UnitLong[]>();
   for (const unit of units) {
     const colID = unit.col_id;
-    if (!unitsMap.has(colID)) {
-      unitsMap.set(colID, []);
+    let unitsArray = unitsMap.get(colID);
+    if (unitsArray == null) {
+      unitsMap.set(colID, [unit]);
+    } else {
+      unitsArray.push(unit);
     }
-    unitsMap.get(colID).push(unit);
   }
   const result: ColumnData[] = [];
   for (const colID of columns) {

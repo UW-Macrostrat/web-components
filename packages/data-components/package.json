@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-components",
-  "version": "1.1.8",
+  "version": "1.1.9",
   "description": "A library of React components tailored for Macrostrat data and endpoints",
   "repository": {
     "type": "git",
@@ -47,7 +47,7 @@
   "dependencies": {
     "@blueprintjs/core": "^6.11.3",
     "@macrostrat/color-utils": "workspace:^",
-    "@macrostrat/hyper": "^3.1.0",
+    "@macrostrat/hyper": "^3.1.1",
     "@macrostrat/mapbox-utils": "workspace:^",
     "@macrostrat/stratigraphy-utils": "workspace:^",
     "@macrostrat/ui-components": "workspace:^",

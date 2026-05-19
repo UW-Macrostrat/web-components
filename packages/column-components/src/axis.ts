@@ -21,7 +21,7 @@ interface ColumnAxisProps {
 }
 
 interface AgeAxisProps extends ColumnAxisProps {
-  scale?: ScaleContinuousNumeric<number, number>;
+  scale: ScaleContinuousNumeric<number, number>;
   minTickSpacing?: number;
 }
 
@@ -55,7 +55,7 @@ export function AgeAxis(props: AgeAxisProps) {
 
   const pixelHeight = Math.abs(range[0] - range[range.length - 1]);
 
-  let tickValues: number[] = undefined;
+  let tickValues: number[] | undefined = undefined;
 
   let ticks = Math.round(pixelHeight / tickSpacing);
   if (pixelHeight < 3 * tickSpacing) {

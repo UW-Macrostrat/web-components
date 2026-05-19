@@ -114,6 +114,7 @@ export interface IntervalProportionsProps extends Omit<
   unit: UnitIntervalConstraints;
   showProportions?: boolean;
   calculateProportionsFromAges?: boolean;
+  onClickItem?: any;
 }
 
 export function IntervalProportions({

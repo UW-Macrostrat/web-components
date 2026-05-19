@@ -12,7 +12,7 @@ interface IGeologicPatternBase {
   name?: string;
 }
 
-interface IGeologicPatternProvider {
+export interface IGeologicPatternProvider {
   resolvePattern(string): string;
   children?: ReactNode;
 }

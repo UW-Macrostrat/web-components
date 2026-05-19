@@ -1,5 +1,3 @@
-import hyper from "@macrostrat/hyper";
-import styles from "./panel.module.sass";
 import { JSONView } from "@macrostrat/ui-components";
 import { Button, ButtonGroup } from "@blueprintjs/core";
 import { ReactNode, useMemo, useState } from "react";
@@ -30,6 +28,7 @@ import type {
   Environment,
   Interval,
   Lithology,
+  UnitLithology,
   UnitLong,
   UnitLongFull,
 } from "@macrostrat/api-types";
@@ -37,8 +36,7 @@ import { defaultNameFunction } from "../units/names";
 import classNames from "classnames";
 import { AgeField, Duration, IntervalProportions } from "./age-range";
 import { formatRange, formatSignificance } from "./utils.ts";
-
-const h = hyper.styled(styles);
+import h from "./panel.module.sass";
 
 export interface UnitDetailsPanelProps {
   unit: any;
@@ -71,7 +69,7 @@ export function UnitDetailsPanel({
 }: UnitDetailsPanelProps) {
   const [showJSON, setShowJSON] = useState(false);
 
-  let content = null;
+  let content: ReactNode = null;
   if (showJSON) {
     content = h(JSONView, { data: unit, showRoot: false });
   } else {
@@ -115,12 +113,18 @@ export function UnitDetailsPanel({
 
   /** Handle unit selection clicks */
   const clickHandlerForItem = useMemo(() => {
-    if (onSelectUnit == null && onClickItem == null) return null;
+    if (onSelectUnit == null || onClickItem == null) return null;
     return (item: MacrostratItemIdentifier) => {
       if ("unit_id" in item && !("col_id" in item)) {
         // We are selecting a unit within the column
         return (event: MouseEvent) => {
-          onSelectUnit(item.unit_id);
+          if (onSelectUnit != null) {
+            onSelectUnit(item.unit_id);
+          } else if (onClickItem != null) {
+            console.warn(
+              "Unit selection: onClickItem is defined but onSelectUnit is not; ignoring click",
+            );
+          }
           // Don't allow event to propagate further (e.g., to open a link)
           event.preventDefault();
         };
@@ -173,7 +177,7 @@ export function LegendPanelHeader({
       minimal: true,
       small: true,
       onClick() {
-        onClose();
+        onClose?.();
       },
     }),
   ]);
@@ -223,7 +227,7 @@ function UnitDetailsContent({
   const environments = enhanceEnvironments(unit.environ, envMap);
   const lithologies = enhanceLithologies(unit.lith ?? [], lithMap);
 
-  let outcropField = null;
+  let outcropField: ReactNode = null;
   if (features.has(UnitDetailsFeature.OutcropType)) {
     // Determine outcrop type
     let outcrop = unit.outcrop;
@@ -236,7 +240,7 @@ function UnitDetailsContent({
     });
   }
 
-  let thicknessOrHeightRange = null;
+  let thicknessOrHeightRange: ReactNode = null;
   const [thickness, thicknessUnit] = getThickness(unit);
   // Proxy for actual heights in t_pos and b_pos
   if (
@@ -281,7 +285,7 @@ function UnitDetailsContent({
     thicknessOrHeightRange,
     h.if(lithologies != null)(LithologyList, {
       label: "Lithology",
-      lithologies,
+      lithologies: lithologies ?? [],
       features: lithologyFeatures,
     }),
     h(AgeField, { unit }, [
@@ -480,8 +484,8 @@ function Citation({ data, tag = "p" }) {
 }
 
 function enhanceEnvironments(
-  environments: Partial<Environment>[] | null,
-  envMap: Map<number, Environment>,
+  environments?: Partial<Environment>[] | null,
+  envMap?: Map<number, Environment> | null,
 ) {
   return environments?.map((env) => {
     return {
@@ -491,9 +495,14 @@ function enhanceEnvironments(
   });
 }
 
+type LithID =
+  | (Partial<Lithology> & Pick<Lithology, "lith_id">)
+  | UnitLithology
+  | Lithology;
+
 function enhanceLithologies(
-  lithologies: Partial<UnitLong["lith"]>,
-  lithMap: Map<number, any>,
+  lithologies?: LithID[] | null,
+  lithMap?: Map<number, any> | null,
 ) {
   return lithologies?.map((lith) => {
     return {

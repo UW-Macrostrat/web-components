@@ -1,7 +1,7 @@
 import h from "@macrostrat/hyper";
 import { TagField } from "./base";
 import { BaseTagProps, Tag, TagSize } from "./tag";
-import { useMemo } from "react";
+import { ReactNode, useMemo } from "react";
 import { Lithology } from "@macrostrat/api-types";
 import classNames from "classnames";
 import {
@@ -33,7 +33,7 @@ export function LithologyTag({
   interactive = true,
   ...rest
 }: LithologyTagProps) {
-  let proportion = null;
+  let proportion: ReactNode = null;
   const showProportion = features?.has(LithologyTagFeature.Proportion) ?? false;
   const showAttributes = features?.has(LithologyTagFeature.Attributes) ?? false;
   if (data.prop != null && showProportion) {
@@ -41,11 +41,11 @@ export function LithologyTag({
     proportion = h("span.lithology-proportion", `${prop}%`);
   }
 
-  let atts = null;
+  let atts: ReactNode = null;
   if (showAttributes && data.atts != null && data.atts.length > 0) {
     atts = h(List, {
       className: "lithology-attributes",
-      items: data.atts.map((att) =>
+      items: (data.atts as unknown as string[]).map((att) =>
         h("span.lithology-attribute", { key: att }, att),
       ),
       commaSeparated: true,
@@ -83,7 +83,7 @@ function separateElementsWithCommas(children: any[], lastSep = null) {
   return children.reduce((acc, el, i) => {
     if (i > 0) {
       let sep = ", ";
-      let className = null;
+      let className: string | null = null;
       if (i === children.length - 1 && lastSep != null) {
         sep += lastSep + " ";
         className = "last-sep";
@@ -126,7 +126,7 @@ export function LithologyList({
         l1.prop = null;
       }
 
-      let props = {
+      let props: any = {
         data: l1,
         features,
       };

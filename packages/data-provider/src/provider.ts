@@ -99,7 +99,7 @@ function createMacrostratStore(
   });
 }
 
-function createRefsSlice(set, get) {
+function createRefsSlice(set: any, get: any) {
   return {
     refs: new Map(),
     async getRefs(ids: number[]): Promise<MacrostratRef[]> {
@@ -216,14 +216,15 @@ function createIntervalsSlice(set, get) {
         _intervals = intervalMap;
         set({ intervals: _intervals });
       }
-      if (ids == null && timescaleID == null)
-        return Array.from(_intervals.values());
-      if (timescaleID != null) {
+      if (ids != null) {
+        return ids.map((id) => intervals.get(id));
+      } else if (timescaleID != null) {
         return Array.from(_intervals.values() as any[]).filter(
           (d) => d.timescale_id == timescaleID,
         );
+      } else {
+        return Array.from(_intervals.values());
       }
-      return ids.map((id) => intervals.get(id));
     },
   };
 }
@@ -233,12 +234,16 @@ function createStratNamesSlice(set, get) {
     stratNames: null,
     async getStratNames(ids: number[] | null): Promise<StratName[]> {
       const { stratNames, fetch } = get();
+      if (ids == null) {
+        return stratNames?.values() ?? [];
+      }
       let nameMap = stratNames ?? new Map();
-      let stratNamesAlreadyLoaded = [];
-      let stratNamesToLoad = [];
+      let stratNamesAlreadyLoaded: StratName[] = [];
+      let stratNamesToLoad: number[] = [];
       for (const id of ids) {
-        if (nameMap.has(id)) {
-          stratNamesAlreadyLoaded.push(nameMap.get(id));
+        const nameForID = nameMap.get(id);
+        if (nameForID != null) {
+          stratNamesAlreadyLoaded.push(nameForID);
         } else {
           stratNamesToLoad.push(id);
         }
@@ -257,11 +262,14 @@ function createStratNamesSlice(set, get) {
 }
 
 export function useStratNames(ids: number[] | null) {
-  const stratNames = useMemo(() => ids, ids);
+  const stratNames = useMemo(() => ids, [ids]);
   return useMacrostratData("strat_names", stratNames);
 }
 
-function includesTimescale(intervals: Map<number, any>, timescaleID: number) {
+function includesTimescale(
+  intervals: Map<number, any>,
+  timescaleID: number | null,
+) {
   if (intervals == null) return false;
   if (timescaleID == null) return true;
   return Array.from(intervals.values()).some(
@@ -373,7 +381,7 @@ export function useMacrostratColumnInfo(
   }, [columnsMap, columnID]);
 }
 
-export function useMacrostratData(dataType: DataTypeKey, ...args: any[]) {
+export function useMacrostratData(dataType: DataTypeKey, ...args: any[]): any {
   const selector = dataTypeMapping[dataType];
   const operator = useMacrostratStore(selector);
 

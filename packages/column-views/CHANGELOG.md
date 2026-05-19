@@ -1,5 +1,31 @@
 # Changelog
 
+## [3.3.5] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.4...@macrostrat/column-views-v3.3.5)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updates to internal typings
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/column-components@2.0.7
+  - @macrostrat/data-components@1.1.9
+  - @macrostrat/data-provider@1.0.3
+  - @macrostrat/map-interface@2.2.5
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/api-types@1.1.6
+  - @macrostrat/color-utils@1.2.2
+  - @macrostrat/map-styles@2.2.2
+  - @macrostrat/mapbox-react@3.2.1
+  - @macrostrat/mapbox-utils@1.7.4
+  - @macrostrat/stratigraphy-utils@1.2.2
+  - @macrostrat/svg-map-components@2.0.3
+  - @macrostrat/timescale@3.1.3
+
 ## [3.3.4] - 2026-05-11 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.3...@macrostrat/column-views-v3.3.4)
 
 ### Patch Changes

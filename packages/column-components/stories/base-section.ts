@@ -26,7 +26,7 @@ export function PatternProvider({ children }) {
   return h(GeologicPatternProvider, { resolvePattern }, children);
 }
 
-interface IColumnProps {
+export interface IColumnProps {
   data: ColumnSurface[];
   pixelScale?: number;
   range?: [number, number];
@@ -44,9 +44,11 @@ interface MacrostratBaseUnit {
 type UnitDivision = MacrostratBaseUnit;
 
 export interface ColumnSurface {
-  unit_id: number;
+  unit_id?: number;
   height: number;
   top_height?: number;
+  grainsize?: string;
+  pattern?: string;
 }
 
 function buildDivisions<T extends ColumnSurface>(
@@ -81,6 +83,7 @@ function buildDivisions<T extends ColumnSurface>(
 
 function _MeasuredSectionContainer(
   props: IColumnProps & {
+    range: [number, number];
     children: React.ReactNode;
     timescaleIntervals: Interval[] | null;
     timescaleLevels: number[];
