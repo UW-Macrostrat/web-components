@@ -9,7 +9,7 @@ import chroma from "chroma-js";
 import { AgeChip } from "./info-blocks";
 import h from "./main.module.sass";
 
-export function MacrostratLinkedData(props) {
+export function MacrostratLinkedData(props: any) {
   const {
     mapInfo,
     source,
@@ -77,12 +77,22 @@ function DescribedAgeInfo(props) {
 
   return h("div.described-age.macrostrast-detail", [
     h("div.expansion-summary-title", "Age"),
-    h("div.age-chips", null, ageElement),
+    h("div.age-chips", {}, ageElement),
     h("div.description", children),
   ]);
 }
 
-function AgeRefinementBar({ scale, data, color, label = null }) {
+function AgeRefinementBar({
+  scale,
+  data,
+  color,
+  label = null,
+}: {
+  scale: any;
+  data: any;
+  color?: any;
+  label?: string | null;
+}) {
   const { b_int, t_int } = data;
   const b_age = data.b_age ?? b_int.b_age;
   const t_age = data.t_age ?? t_int.t_age;
@@ -313,7 +323,7 @@ function LithsAndClasses(props) {
     h(LithologyList, {
       label: "Matched lithologies",
       lithologies,
-      onClickItem: (e, lith) => {
+      onClickItem: (lith) => {
         window.open(lithologyURL + "/" + lith.lith_id, "_self");
       },
     }),

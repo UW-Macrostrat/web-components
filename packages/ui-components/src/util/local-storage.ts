@@ -1,10 +1,4 @@
-import {
-  useMemo,
-  useState,
-  Dispatch,
-  SetStateAction,
-  useCallback,
-} from "react";
+import { useMemo, useState, useCallback } from "react";
 
 class LocalStorage<T> {
   name: string;
@@ -15,9 +9,9 @@ class LocalStorage<T> {
   }
   get(): T | null {
     const str = window.localStorage.getItem(this.name);
+    if (str == null) return null;
     try {
-      const obj = JSON.parse(str);
-      return obj;
+      return JSON.parse(str);
     } catch {
       return null;
     }
@@ -35,8 +29,8 @@ class LocalStorage<T> {
 function useStoredState<S>(
   key: string | null,
   initialState: S | (() => S),
-  isValid: (S) => boolean = null,
-): [S, Dispatch<SetStateAction<S>>, VoidFunction] {
+  isValid: ((state: S) => boolean) | null = null,
+): [S, (nextState: S, validate?: boolean) => void, VoidFunction] {
   /** React hook for setting and getting values on local storage */
   const storage: LocalStorage<S> | null = useMemo(() => {
     if (typeof window == "undefined" || key == null) return null;
@@ -46,24 +40,34 @@ function useStoredState<S>(
 
   const validator = useCallback(
     (state: S) => {
-      if (isValid != null) return isValid(state);
-      if (state == null) return false;
-      if (typeof state != typeof initialState) return false;
-      if (typeof state == "object") {
-        const expectedKeys = Object.keys(initialState);
-        const actualKeys = Object.keys(state);
-        if (expectedKeys.length != actualKeys.length) return false;
-        for (const [key, value] of Object.entries(initialState)) {
-          if (!actualKeys.includes(key)) return false;
-          if (typeof value != typeof state[key]) return false;
+      try {
+        if (isValid != null) return isValid(state);
+        if (state == null) return false;
+        let _initialState = initialState;
+        if (typeof _initialState == "function") {
+          _initialState = (_initialState as () => S)();
         }
+        if (typeof state != typeof _initialState) return false;
+        if (typeof state == "object" && typeof _initialState == "object") {
+          const expectedKeys = Object.keys(_initialState as {});
+          const actualKeys = Object.keys(state);
+          if (expectedKeys.length != actualKeys.length) return false;
+          for (const [key, value] of Object.entries(_initialState as {})) {
+            if (!actualKeys.includes(key)) return false;
+            if (typeof value != typeof state[key]) return false;
+          }
+        } else {
+          return JSON.stringify(state) === JSON.stringify(_initialState);
+        }
+        return true;
+      } catch {
+        return false;
       }
-      return true;
     },
     [initialState, isValid],
   );
 
-  if (!validator(initialValue)) initialValue = null;
+  if (initialValue != null && !validator(initialValue)) initialValue = null;
   const [state, _setState] = useState<S>(initialValue ?? initialState);
 
   const setState = useCallback(

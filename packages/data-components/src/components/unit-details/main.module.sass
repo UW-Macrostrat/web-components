@@ -1,7 +1,8 @@
 .lithology-id
+  padding-left: 0.5em
+
   &::before
     content: '#'
-  padding-left: 0.5em
 
 .tight-list
   padding-left: 1em
@@ -12,14 +13,19 @@
 .tag
   font-size: var(--font-size)
   align-items: stretch
-  &>*
-    padding: 0.2em 0.5em
-
   display: inline-flex
   border-radius: 0.3em
   flex-flow: row wrap
   background-color: var(--tag-secondary-background, var(--secondary-background))
   color: var(--secondary-color)
+
+  &>*
+    padding: 0.2em 0.5em
+
+  // A multi-line tag has the details on a separate line below the main tag content.
+  &.multi-line .main
+    flex-direction: column
+    gap: 0
 
   .prefix
     //display: inline-block
@@ -34,11 +40,6 @@
     color: var(--text-color)
     align-items: baseline
     background-color: var(--tag-background, var(--tertiary-background))
-
-  // A multi-line tag has the details on a separate line below the main tag content.
-  &.multi-line .main
-    flex-direction: column
-    gap: 0
 
   .details
     color: var(--secondary-color)

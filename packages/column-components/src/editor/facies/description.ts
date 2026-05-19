@@ -6,11 +6,12 @@ import { FaciesSwatch } from "./swatch";
 
 type FaciesData = any;
 
-export const FaciesCard = ({ facies }) =>
-  h("div.header", [
+export function FaciesCard({ facies }: { facies: any }) {
+  return h("div.header", [
     h("p.name", { style: { marginRight: 20, textAlign: "left" } }, facies.name),
     h(FaciesSwatch, { facies }),
   ]);
+}
 
 interface FaciesDescriptionSmallProps {
   selected: string;

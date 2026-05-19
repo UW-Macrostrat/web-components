@@ -1,10 +1,7 @@
 import { Component } from "react";
-import { hyperStyled } from "@macrostrat/hyper";
 import { ColumnDivision, FaciesContext } from "../../context";
 import { RaisedSelect } from "../util";
-import styles from "../main.module.scss";
-
-const h = hyperStyled(styles);
+import h from "../main.module.scss";
 
 const FaciesRow = ({ facies }) =>
   h("span.facies-picker-row", [
@@ -97,27 +94,7 @@ interface FaciesSwatchProps {
   } | null;
 }
 
-export class FaciesSwatch extends Component<FaciesSwatchProps> {
-  static defaultProps = {
-    isEditable: true,
-    facies: null,
-  };
-  constructor(props) {
-    super(props);
-  }
-
-  render() {
-    const { facies, isEditable = false } = this.props;
-    const basic = h(BasicFaciesSwatch, { facies });
-    return basic;
-    // return h(
-    //   Popover,
-    //   {
-    //     // tetherOptions: {
-    //     //   constraints: [{ attachment: "together", to: "scrollParent" }],
-    //     // },
-    //   },
-    //   [basic, h(FaciesColorPicker, { facies })],
-    // );
-  }
+export function FaciesSwatch(props: FaciesSwatchProps) {
+  const { facies, isEditable = false } = props;
+  return h(BasicFaciesSwatch, { facies });
 }

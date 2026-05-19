@@ -8,6 +8,7 @@
     "esModuleInterop": true,
     "downlevelIteration": true,
     "allowImportingTsExtensions": true,
+    "noImplicitAny": false,
     "skipLibCheck": true,
     "noEmitOnError": false,
     "lib": ["esnext", "es2017", "dom"],
