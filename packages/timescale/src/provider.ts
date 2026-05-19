@@ -25,7 +25,7 @@ function TimescaleProvider(props: TimescaleProviderProps) {
     ...rest
   } = props;
 
-  let ageRange2 = null;
+  let ageRange2: [number, number] | null = null;
   if (ageRange != null) {
     ageRange2 = [...ageRange];
   }

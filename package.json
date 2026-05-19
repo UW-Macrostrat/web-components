@@ -40,6 +40,7 @@
     "@storybook/react-vite": "10.4.0",
     "@types/d3-geo": "^3.1.0",
     "@types/geojson": "^7946.0.16",
+    "@types/node": "^25.9.0",
     "@types/react": "^19.2.14",
     "@vueless/storybook-dark-mode": "^10.0.8",
     "chalk": "^5.6.2",

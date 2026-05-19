@@ -10,6 +10,7 @@ type AgeAxisProps = {
 
 function AgeAxis(props: AgeAxisProps) {
   const ctx = useTimescale();
+  if (ctx == null) return null;
   const { scale, length, orientation } = ctx;
   if (!scale) return null;
   const { width = 25, margin = 20 } = props;

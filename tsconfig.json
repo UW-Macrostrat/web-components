@@ -5,6 +5,11 @@
       "@macrostrat/*": [
         "./packages/*/src/index.ts",
         "./toolchain/*/src/index.ts"
+      ],
+      "types": [
+        "node",
+        "@macrostrat/vite-plugin-hyperstyles/client",
+        "vite/client"
       ]
     }
   },
