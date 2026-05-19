@@ -5,3 +5,4 @@ export * from "./columns.d";
 export type { Lithology } from "./lithologies.d";
 export * from "./environments.d";
 export * from "./defs.d";
+export * from "./utils.d";

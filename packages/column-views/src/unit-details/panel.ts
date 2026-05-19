@@ -22,9 +22,9 @@ import {
 } from "@macrostrat/data-provider";
 import type {
   Environment,
+  EnvironmentIdentifier,
   Interval,
   Lithology,
-  UnitLithology,
   UnitLong,
   UnitLongFull,
 } from "@macrostrat/api-types";
@@ -35,6 +35,7 @@ import { formatRange, formatSignificance } from "./utils.ts";
 import h from "./panel.module.sass";
 import { StratNameField } from "./strat-names.ts";
 import { Identifier, UnitIdentifier, UnitInfo } from "./identifiers.ts";
+import { LithologyIdentifier } from "@macrostrat/api-types/src/lithologies";
 
 export interface UnitDetailsPanelProps {
   unit: any;
@@ -367,7 +368,7 @@ export function ReferencesField({ refs, className = null, ...rest }) {
   );
 }
 
-function getThickness(unit): [string, string] {
+function getThickness(unit): [string, string | null] {
   let minThickness = unit.min_thick ?? 0;
   let maxThickness = unit.max_thick ?? unit.min_thick ?? 0;
   let _unit = "m";
@@ -438,7 +439,7 @@ function Citation({ data, tag = "p" }) {
 }
 
 function enhanceEnvironments(
-  environments?: Partial<Environment>[] | null,
+  environments?: EnvironmentIdentifier[] | null,
   envMap?: Map<number, Environment> | null,
 ) {
   return environments?.map((env) => {
@@ -449,13 +450,8 @@ function enhanceEnvironments(
   });
 }
 
-type LithID =
-  | (Partial<Lithology> & Pick<Lithology, "lith_id">)
-  | UnitLithology
-  | Lithology;
-
 function enhanceLithologies(
-  lithologies?: LithID[] | null,
+  lithologies?: LithologyIdentifier[] | null,
   lithMap?: Map<number, any> | null,
 ) {
   return lithologies?.map((lith) => {
@@ -476,7 +472,7 @@ function UnitIDList({ units, showNames = false }) {
     if (showNames) {
       return u1.map((unitID) => {
         const unitData = unitsMap?.get(unitID);
-        let name: string = undefined;
+        let name: string | null = null;
         if (unitData != null) {
           name = defaultNameFunction(unitData);
         }

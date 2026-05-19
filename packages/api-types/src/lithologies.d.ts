@@ -4,12 +4,16 @@
  * {"lith_id":2,"name":"gravel","type":"siliciclastic","group":"unconsolidated","class":"sedimentary","color":"#FFAB00","fill":601,"t_units":1291},
  */
 
+import { TypeIdentifier } from "./utils";
+
 export interface LithologyCore {
   lith_id: number; // Unique identifier for the lithology
   name: string; // Name of the lithology
   type: string; // Type of lithology (e.g., siliciclastic)
   class: string; // Class of lithology (e.g., sedimentary)
 }
+
+export type LithologyIdentifier = TypeIdentifier<LithologyCore, "lith_id">;
 
 export type LithologyAttribute = {
   id: number;
