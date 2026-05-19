@@ -1,11 +1,7 @@
 import hyper from "@macrostrat/hyper";
 import { Popover } from "@blueprintjs/core";
 import styles from "./popover.module.sass";
-import {
-  useAtomOverlayPosition,
-  useSelectedUnit,
-  useUnitSelectionDispatch,
-} from "../data-provider";
+import { useAtomOverlayPosition, useUnitSelection } from "../data-provider";
 import {
   UnitDetailsFeature,
   UnitDetailsPanel,
@@ -66,8 +62,7 @@ function InteractionBarrier({ children }) {
 export function UnitSelectionPopover(
   props: Omit<UnitDetailsPanelProps, "onSelectUnit" | "unit">,
 ) {
-  const unit = useSelectedUnit();
-  const selectUnit = useUnitSelectionDispatch();
+  const [unit, selectUnit] = useUnitSelection();
   const position = useAtomOverlayPosition();
   if (unit == null) {
     return null;

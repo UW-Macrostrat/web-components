@@ -16,6 +16,10 @@ type UnitSelectDispatch = (
   target: HTMLElement | null,
 ) => void;
 
+export function useUnitSelection() {
+  return scope.use(selectedUnitAtom);
+}
+
 export function useUnitSelectionDispatch(): UnitSelectDispatch {
   return scope.useSetAtom(selectedUnitAtom);
 }
@@ -70,6 +74,7 @@ const selectedUnitAtom = atom(
   ): BaseUnit | null => {
     if (!get(allowUnitSelectionAtom)) {
       console.error("Unit selection is disabled.");
+      return null;
     }
 
     let unitID: number | null = null;
@@ -83,8 +88,8 @@ const selectedUnitAtom = atom(
     }
 
     if (unitID != null) {
-      // Verify that the unit exists in the current colum, else throw
       const unitsMap = get(columnUnitsMapAtom);
+      // Verify that the unit exists in the current colum, else throw
       if (!unitsMap?.has(unitID)) {
         throw new Error(
           `Unit with ID ${unitID} not found in current column units.`,
@@ -150,9 +155,8 @@ if (props.onClickedColumn) {
 export function useUnitSelectionTarget(
   unit: IUnit,
 ): [React.RefObject<HTMLElement>, boolean, (evt: Event) => void] {
-  const ref = useRef<HTMLElement>();
-  const selectedUnit = useSelectedUnit();
-  const selectUnit = useUnitSelectionDispatch();
+  const ref = useRef<HTMLElement>(null);
+  const [selectedUnit, selectUnit] = useUnitSelection();
   const selected = selectedUnit?.unit_id == unit.unit_id;
 
   const onClick = useCallback(

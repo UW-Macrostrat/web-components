@@ -232,12 +232,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@blueprintjs/core@npm:^6.11.3":
-  version: 6.11.3
-  resolution: "@blueprintjs/core@npm:6.11.3"
+"@blueprintjs/core@npm:^6.14.0":
+  version: 6.14.0
+  resolution: "@blueprintjs/core@npm:6.14.0"
   dependencies:
     "@blueprintjs/colors": "npm:^5.1.16"
-    "@blueprintjs/icons": "npm:^6.8.0"
+    "@blueprintjs/icons": "npm:^6.10.0"
     "@floating-ui/react": "npm:^0.27.13"
     "@popperjs/core": "npm:^2.11.8"
     classnames: "npm:^2.3.1"
@@ -245,7 +245,6 @@ __metadata:
     react-popper: "npm:^2.3.0"
     react-transition-group: "npm:^4.4.5"
     tslib: "npm:~2.6.2"
-    use-sync-external-store: "npm:^1.2.0"
   peerDependencies:
     "@types/react": 18
     react: 18
@@ -256,17 +255,17 @@ __metadata:
   bin:
     upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
     upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
-  checksum: 10c0/85917340c657467b4e0da681900f2c445d43d6388a7f75bc982ceba84925933230ad23c39bc83d9f2ddaab52a4aecf90741f4a857cdc616d743e65d77e977ade
+  checksum: 10c0/4da15de0970ab1bd1c822f9715af85dc0574fddeb027ccafe12d7663365cd306a36ac2ea411cded5e7f3c295870d1f7966ed0db673b53b359c1ed9e7c93ab311
   languageName: node
   linkType: hard
 
-"@blueprintjs/datetime@npm:^6.0.23":
-  version: 6.0.23
-  resolution: "@blueprintjs/datetime@npm:6.0.23"
+"@blueprintjs/datetime@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "@blueprintjs/datetime@npm:6.1.0"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
-    "@blueprintjs/icons": "npm:^6.8.0"
-    "@blueprintjs/select": "npm:^6.1.8"
+    "@blueprintjs/core": "npm:^6.14.0"
+    "@blueprintjs/icons": "npm:^6.10.0"
+    "@blueprintjs/select": "npm:^6.2.0"
     classnames: "npm:^2.3.1"
     date-fns: "npm:^2.28.0"
     date-fns-tz: "npm:^2.0.0"
@@ -280,13 +279,13 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/c360dfc4cb9d21dd4e63ec6575b620c917304836e9d223a195c1c2fe799e1f14ccdd48d7276e8943a74b5adbc61d417667e61a109591d5b2416954761c2d3d01
+  checksum: 10c0/0aa68184b4ebeaaa67eb32ebc2a25269a04908993439645c144634bf5c7a723b4b82b6c2e81aa99c2a706db89abdef710af0aabc4ce2ced09c7f46246f0c424a
   languageName: node
   linkType: hard
 
-"@blueprintjs/icons@npm:^6.8.0":
-  version: 6.8.0
-  resolution: "@blueprintjs/icons@npm:6.8.0"
+"@blueprintjs/icons@npm:^6.10.0":
+  version: 6.10.0
+  resolution: "@blueprintjs/icons@npm:6.10.0"
   dependencies:
     change-case: "npm:^4.1.2"
     classnames: "npm:^2.3.1"
@@ -298,17 +297,17 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/eaf8ed0e0d3f56da8c243bbc208d80bfd38c3e44e50e1fae85177c27726e36c5414ed2dde1601de42e37daf4cefc88af4bc89ba7a68d645d3df5483e59497d59
+  checksum: 10c0/1111739e69a1ca4273c988d75236e9f2e3cf5b297bda90a74568fcb8edf39eae71dad57ae5d892b303dff28f93e5bb17f575670c1a30245ccb8a458480c60484
   languageName: node
   linkType: hard
 
-"@blueprintjs/select@npm:^6.1.8":
-  version: 6.1.8
-  resolution: "@blueprintjs/select@npm:6.1.8"
+"@blueprintjs/select@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "@blueprintjs/select@npm:6.2.0"
   dependencies:
     "@blueprintjs/colors": "npm:^5.1.16"
-    "@blueprintjs/core": "npm:^6.11.3"
-    "@blueprintjs/icons": "npm:^6.8.0"
+    "@blueprintjs/core": "npm:^6.14.0"
+    "@blueprintjs/icons": "npm:^6.10.0"
     classnames: "npm:^2.3.1"
     tslib: "npm:~2.6.2"
   peerDependencies:
@@ -318,16 +317,16 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/1634d13eaa85d374860251bc930e437f0efb144423ddc7e671ba040942e1a474cc32b3b0a5f823a0603a4522828256fc0d07ecad5247da82422f0879f6a63077
+  checksum: 10c0/ad74f776c9a6852fc457d9da9bc26512733923cb40402917efe76171982cfd297a215b5586b2db13d3b660786409d4a298e3d437e2d1c6cd08abe2e6cac73e99
   languageName: node
   linkType: hard
 
-"@blueprintjs/table@npm:^6.0.23":
-  version: 6.0.23
-  resolution: "@blueprintjs/table@npm:6.0.23"
+"@blueprintjs/table@npm:^6.1.0":
+  version: 6.1.0
+  resolution: "@blueprintjs/table@npm:6.1.0"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
-    "@blueprintjs/icons": "npm:^6.8.0"
+    "@blueprintjs/core": "npm:^6.14.0"
+    "@blueprintjs/icons": "npm:^6.10.0"
     classnames: "npm:^2.3.1"
     react-innertext: "npm:^1.1.5"
     tslib: "npm:~2.6.2"
@@ -338,7 +337,7 @@ __metadata:
   peerDependenciesMeta:
     "@types/react":
       optional: true
-  checksum: 10c0/95dca1805d637a0327f03747873e0c3603a61b5b990178d179fccc034f66b2b2fdb8488aa2c467f44da9cd19e08f3be47e4a951859d1083fce73a4800a23a518
+  checksum: 10c0/f08653c397a0e9008bae14558b680c0d6ccc62aa71e79fbe718b20de26442f0531f76c2751eca2ce6be2dac29bbde2a1a41eaab6f55b59834abff1dbcb838c9d
   languageName: node
   linkType: hard
 
@@ -1460,7 +1459,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-components@workspace:packages/column-components"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/stratigraphy-utils": "workspace:^"
     "@macrostrat/timescale": "workspace:^"
@@ -1489,7 +1488,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-creator@workspace:packages/column-creator"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/column-components": "workspace:^"
     "@macrostrat/column-views": "workspace:^"
@@ -1509,7 +1508,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/column-views@workspace:packages/column-views"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     "@macrostrat/api-types": "workspace:^"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/column-components": "workspace:^"
@@ -1574,7 +1573,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/data-components@workspace:packages/data-components"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/mapbox-utils": "workspace:^"
@@ -1620,8 +1619,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/data-sheet@workspace:packages/data-sheet"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
-    "@blueprintjs/table": "npm:^6.0.23"
+    "@blueprintjs/core": "npm:^6.14.0"
+    "@blueprintjs/table": "npm:^6.1.0"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
@@ -1644,8 +1643,8 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/feedback-components@workspace:packages/feedback-components"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
-    "@blueprintjs/select": "npm:^6.1.8"
+    "@blueprintjs/core": "npm:^6.14.0"
+    "@blueprintjs/select": "npm:^6.2.0"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/data-sheet": "workspace:^"
@@ -1668,10 +1667,10 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/form-components@workspace:packages/form-components"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
-    "@blueprintjs/icons": "npm:^6.8.0"
-    "@blueprintjs/select": "npm:^6.1.8"
-    "@blueprintjs/table": "npm:^6.0.23"
+    "@blueprintjs/core": "npm:^6.14.0"
+    "@blueprintjs/icons": "npm:^6.10.0"
+    "@blueprintjs/select": "npm:^6.2.0"
+    "@blueprintjs/table": "npm:^6.1.0"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/ui-components": "workspace:^"
@@ -1716,7 +1715,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/map-interface@workspace:packages/map-interface"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     "@macrostrat/color-utils": "workspace:^"
     "@macrostrat/data-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
@@ -1764,7 +1763,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/mapbox-react@workspace:packages/mapbox-react"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/map-styles": "workspace:^"
     "@macrostrat/mapbox-utils": "workspace:^"
@@ -1829,7 +1828,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/style-system@workspace:packages/style-system"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     vite: "npm:^7.2.7"
   languageName: unknown
   linkType: soft
@@ -1888,9 +1887,9 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/ui-components@workspace:packages/ui-components"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
-    "@blueprintjs/datetime": "npm:^6.0.23"
-    "@blueprintjs/select": "npm:^6.1.8"
+    "@blueprintjs/core": "npm:^6.14.0"
+    "@blueprintjs/datetime": "npm:^6.1.0"
+    "@blueprintjs/select": "npm:^6.2.0"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@macrostrat/web-components-bundler": "workspace:*"
     "@types/react": "npm:^19.2.14"
@@ -1946,7 +1945,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@macrostrat/web-components@workspace:."
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     "@changesets/cli": "npm:^2.30.0"
     "@macrostrat/column-components": "workspace:^"
     "@macrostrat/hyper": "npm:^3.1.1"
@@ -7379,7 +7378,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "example-strat-column@workspace:examples/strat-column"
   dependencies:
-    "@blueprintjs/core": "npm:^6.11.3"
+    "@blueprintjs/core": "npm:^6.14.0"
     "@macrostrat/hyper": "npm:^3.1.1"
     "@types/react": "npm:^19.2.14"
     "@types/react-dom": "npm:^18"

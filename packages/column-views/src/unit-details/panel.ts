@@ -4,8 +4,6 @@ import { ReactNode, useMemo, useState } from "react";
 import {
   DataField,
   EnvironmentsList,
-  isClickable,
-  ItemInteractionProps,
   ItemList,
   LithologyList,
   LithologyTagFeature,
@@ -14,7 +12,6 @@ import {
   MacrostratItemIdentifier,
   Parenthetical,
   useInteractionManager,
-  useInteractionProps,
   Value,
 } from "@macrostrat/data-components";
 import { useColumnUnitsMap } from "../data-provider";
@@ -22,7 +19,6 @@ import {
   useMacrostratColumnInfo,
   useMacrostratData,
   useMacrostratDefs,
-  useStratNames,
 } from "@macrostrat/data-provider";
 import type {
   Environment,
@@ -37,6 +33,8 @@ import classNames from "classnames";
 import { AgeField, Duration, IntervalProportions } from "./age-range";
 import { formatRange, formatSignificance } from "./utils.ts";
 import h from "./panel.module.sass";
+import { StratNameField } from "./strat-names.ts";
+import { Identifier, UnitIdentifier, UnitInfo } from "./identifiers.ts";
 
 export interface UnitDetailsPanelProps {
   unit: any;
@@ -49,6 +47,7 @@ export interface UnitDetailsPanelProps {
   onSelectUnit?: (unitID: number) => void;
   onClickItem?: MacrostratItemClickHandler;
   interactionManager?: MacrostratInteractionManager;
+  showJSON?: boolean;
 }
 
 export function UnitDetailsPanel({
@@ -66,11 +65,12 @@ export function UnitDetailsPanel({
   hiddenActions = null,
   onSelectUnit,
   onClickItem,
+  showJSON,
 }: UnitDetailsPanelProps) {
-  const [showJSON, setShowJSON] = useState(false);
+  const [_showJSON, setShowJSON] = useState(false);
 
   let content: ReactNode = null;
-  if (showJSON) {
+  if (showJSON ?? _showJSON) {
     content = h(JSONView, { data: unit, showRoot: false });
   } else {
     content = h(UnitDetailsContent, {
@@ -367,52 +367,6 @@ export function ReferencesField({ refs, className = null, ...rest }) {
   );
 }
 
-function useStratNameData(strat_name_id: number) {
-  const stratNames = useStratNames([strat_name_id]);
-  return stratNames?.[0];
-}
-
-function StratNameField(
-  props: {
-    strat_name_id: number;
-    className?: string;
-  } & ItemInteractionProps,
-) {
-  /** Handling for stratigraphic name field */
-  const { strat_name_id, className, ...rest } = props;
-  const data = useStratNameData(strat_name_id);
-
-  const baseInteractionProps = useInteractionProps({ strat_name_id });
-
-  const coreProps = {
-    ...baseInteractionProps,
-    ...rest,
-  };
-
-  let inner: any = h(Identifier, { id: strat_name_id });
-  const name = data?.strat_name_long;
-  if (name != null) {
-    inner = h("span.strat-name", name);
-  }
-
-  const clickable = isClickable(coreProps);
-
-  return h(
-    DataField,
-    {
-      label: "Stratigraphic name",
-    },
-    h(
-      clickable ? "a" : "span",
-      {
-        className: classNames({ clickable }, className),
-        ...coreProps,
-      },
-      inner,
-    ),
-  );
-}
-
 function getThickness(unit): [string, string] {
   let minThickness = unit.min_thick ?? 0;
   let maxThickness = unit.max_thick ?? unit.min_thick ?? 0;
@@ -512,44 +466,6 @@ function enhanceLithologies(
   });
 }
 
-export function ClickableText({
-  className,
-  ...rest
-}: {
-  className?: string;
-  children: ReactNode;
-} & ItemInteractionProps) {
-  /** An optionally clickable text element */
-  const clickable = isClickable(rest);
-  const tag = clickable ? "a" : "span";
-  return h(tag, { className: classNames(className, { clickable }), ...rest });
-}
-
-export function Identifier({
-  id,
-  className,
-  ...rest
-}: {
-  id: number | string;
-  className?: string;
-} & ItemInteractionProps) {
-  /** An item that displays a numeric identifier, optionally clickable */
-  return h(
-    ClickableText,
-    {
-      className: classNames("identifier", className),
-      ...rest,
-    },
-    id,
-  );
-}
-
-type UnitInfo = {
-  unitID: number;
-  colID?: number;
-  name?: string;
-};
-
 function UnitIDList({ units, showNames = false }) {
   const unitsMap = useColumnUnitsMap();
 
@@ -594,29 +510,4 @@ function UnitIDList({ units, showNames = false }) {
       );
     }),
   );
-}
-
-function UnitIdentifier({
-  unitID,
-  colID,
-  name,
-  ...interactionProps
-}: UnitInfo & ItemInteractionProps) {
-  if (name != null) {
-    return h(
-      ClickableText,
-      {
-        className: "unit-name",
-        ...interactionProps,
-      },
-      name,
-    );
-  }
-
-  return h(Identifier, {
-    className: "unit-id",
-    key: unitID,
-    id: unitID,
-    ...interactionProps,
-  });
 }

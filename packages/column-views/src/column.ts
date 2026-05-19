@@ -118,7 +118,7 @@ export function Column(props: ColumnProps) {
 
   /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
    * standardization of scales in all sections */
-  let _targetUnitHeight = targetUnitHeight;
+  let _targetUnitHeight: number | null = targetUnitHeight;
   let _minSectionHeight = minSectionHeight;
   let _minPixelScale = minPixelScale;
   if (pixelScale != null) {
@@ -247,6 +247,8 @@ function ColumnInner(props: ColumnInnerProps) {
     _showTimescale = true;
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
+
+  console.log("Rendering column container");
 
   return h(
     ColumnContainer,
