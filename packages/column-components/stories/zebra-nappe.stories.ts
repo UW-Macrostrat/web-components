@@ -1,7 +1,6 @@
 import hyper from "@macrostrat/hyper";
 import {
   ColumnDivision,
-  ColumnSurface,
   GrainsizeFrame,
   ParameterIntervals,
   SimpleFrame,
@@ -13,17 +12,10 @@ import styles from "./zebra-nappe.stories.module.sass";
 
 const h = hyper.styled(styles);
 
-import { MeasuredSection } from "./base-section";
+import { MeasuredSection, ColumnSurface } from "./base-section";
 import { defaultResolveID } from "@macrostrat/column-components";
 
 type UnitDivision = ColumnDivision & BaseUnit;
-
-interface ColumnSurface {
-  height: number;
-  grainsize: string;
-  pattern: string | number;
-  lithology?: string;
-}
 
 function applyPatterns<T extends ColumnSurface>(
   surfaces: T[],
