@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.0.3] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.2...@macrostrat/data-provider-v1.0.3)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updates to internal typings
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/api-types@1.1.6
+
 ## [1.0.2] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.1...@macrostrat/data-provider-v1.0.2)
 
 ### Patch Changes

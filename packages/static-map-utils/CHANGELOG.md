@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.0.4] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/static-map-utils-v2.0.3...@macrostrat/static-map-utils-v2.0.4)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+- Updated dependencies
+  [3500ef98](https://github.com/UW-Macrostrat/web-components/commit/3500ef9884da7a5feee8e1d42a885531d5e2addf)
+  - @macrostrat/ui-components@5.0.9
+  - @macrostrat/mapbox-react@3.2.1
+  - @macrostrat/mapbox-utils@1.7.4
+
 ## [2.0.3] - 2026-04-05 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/static-map-utils-v2.0.2...@macrostrat/static-map-utils-v2.0.3)
 
 ### Patch Changes

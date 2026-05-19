@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.7.4] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/mapbox-utils-v1.7.3...@macrostrat/mapbox-utils-v1.7.4)
+
+### Patch Changes
+
+- Improved typescript type bundling across the board
+  [75fe675c](https://github.com/UW-Macrostrat/web-components/commit/75fe675cdb93e79dd28291d8769c1a38d2eb21b0)
+
 All notable changes to this project will be documented in this file. The format
 is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this
 project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
