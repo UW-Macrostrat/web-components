@@ -248,8 +248,6 @@ function ColumnInner(props: ColumnInnerProps) {
   }
   _showTimescale = axisType == ColumnAxisType.AGE && _showTimescale;
 
-  console.log("Rendering column container");
-
   return h(
     ColumnContainer,
     {

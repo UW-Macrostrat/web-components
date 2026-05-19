@@ -114,7 +114,7 @@ export function UnitDetailsPanel({
 
   /** Handle unit selection clicks */
   const clickHandlerForItem = useMemo(() => {
-    if (onSelectUnit == null || onClickItem == null) return null;
+    if (onSelectUnit == null && onClickItem == null) return null;
     return (item: MacrostratItemIdentifier) => {
       if ("unit_id" in item && !("col_id" in item)) {
         // We are selecting a unit within the column

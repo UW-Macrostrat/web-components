@@ -99,6 +99,12 @@ function extendDivision(
     column = 1;
   }
 
+  console.log(
+    unit.unit_name,
+    column,
+    overlappingUnits.map((d) => d.unit_name),
+  );
+
   return {
     ...unit,
     bottomOverlap,
