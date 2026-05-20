@@ -55,19 +55,15 @@ function groupUnitsByMutualOverlap<T extends BaseUnit>(
   units: T[],
   tolerance: number = dt,
 ): UnitGroup<T>[] {
-  let sourceUnits = units;
-  let groups: UnitGroup<T>[] = [];
-  while (sourceUnits.length > 0) {
-    const unit = sourceUnits[0];
-    const overlappingUnits = sourceUnits.filter((d) =>
-      unitsOverlap(unit, d, ColumnAxisType.AGE, tolerance),
-    );
-    groups.push(new UnitGroup(overlappingUnits));
-    sourceUnits = sourceUnits.filter(
-      (d) => !overlappingUnits.some((ou) => ou.unit_id === d.unit_id),
-    );
-  }
-  return groups;
+  /** Group units within a section that have mutual overlap. */
+  const sections = groupUnitsIntoSectionsByOverlap(
+    units,
+    ColumnAxisType.AGE,
+    tolerance,
+  );
+  return sections.map((d) => {
+    return new UnitGroup(d.units);
+  });
 }
 
 const sortByAge = createUnitSorter(ColumnAxisType.AGE);
@@ -137,71 +133,31 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
   for (const group of unitGroups) {
     divisions.push(...group.getUnits());
   }
-  //
-  // for (const unit of units) {
-  //   const overlappingUnits = units.filter(
-  //     (d) =>
-  //       d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType, tolerance),
-  //   );
-  //   let column = 0;
-  //   if (overlappingUnits.length == 1) {
-  //     column = 1;
-  //   }
-  //
-  //   let d = {
-  //     ...unit,
-  //     column: unit.column ?? column,
-  //     overlappingUnits: overlappingUnits.map((d) => d.unit_id),
-  //   };
-  //   divisions.push(d);
-  // }
 
-  for (let d of divisions) {
-    // const overlappingUnits = divisions.filter((u) =>
-    //   d.overlappingUnits.includes(u.unit_id),
-    // );
-    //
-    // // Overlapping columns
-    // const columns = overlappingUnits.map((d) => d.column);
-    //
-    // if (columns.includes(d.column)) {
-    //   let col = 0;
-    //   // Go through columns to find a better index
-    //   while (columns.includes(col)) {
-    //     col++;
-    //   }
-    //   d.column ??= col;
-    // }
+  return divisions.map((d) =>
+    enhanceUnitWithClippingPosition(section, d, axisType),
+  );
+}
 
-    // If unit overlaps the edges of a section, set the clip positions
-    const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
-    if (axisType == ColumnAxisType.AGE) {
-      if (b_pos > section.b_age) {
-        d.b_clip_pos = section.b_age;
-      }
-      if (t_pos < section.t_age) {
-        d.t_clip_pos = section.t_age;
-      }
+export function enhanceUnitWithClippingPosition(section, d, axisType) {
+  const [b_pos, t_pos] = getUnitHeightRange(d, axisType);
+  if (axisType == ColumnAxisType.AGE) {
+    if (b_pos > section.b_age) {
+      d.b_clip_pos = section.b_age;
     }
-    if (axisType == ColumnAxisType.DEPTH) {
-      if (b_pos > section.b_pos) {
-        d.b_clip_pos = section.b_pos;
-      }
-      if (t_pos < section.t_pos) {
-        d.t_clip_pos = section.t_pos;
-      }
+    if (t_pos < section.t_age) {
+      d.t_clip_pos = section.t_age;
     }
-    // if (axisType == ColumnAxisType.HEIGHT) {
-    //   if (b_pos < section.b_pos) {
-    //     d.b_clip_pos = section.b_pos;
-    //   }
-    //   if (t_pos > section.t_pos) {
-    //     d.t_clip_pos = section.t_pos;
-    //   }
-    // }
   }
-
-  return divisions;
+  if (axisType == ColumnAxisType.DEPTH) {
+    if (b_pos > section.b_pos) {
+      d.b_clip_pos = section.b_pos;
+    }
+    if (t_pos < section.t_pos) {
+      d.t_clip_pos = section.t_pos;
+    }
+  }
+  return d;
 }
 
 export function groupUnitsIntoSectionsBySectionID<T extends UnitLong>(
@@ -238,9 +194,10 @@ interface WorkingSection {
   heightRange?: [number, number];
 }
 
-export function groupUnitsIntoSectionsByOverlap<T extends UnitLong>(
+export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
   units: T[],
   axisType: ColumnAxisType = ColumnAxisType.AGE,
+  tolerance: number = dt,
 ): SectionInfo<T>[] {
   /** Group units into sections by overlap.
    * This creates "synthetic" sections that correspond to packages bound by scale gaps.
@@ -254,7 +211,7 @@ export function groupUnitsIntoSectionsByOverlap<T extends UnitLong>(
     const heightRange = getUnitHeightRange(unit, axisType);
     let section: WorkingSection | undefined = sectionList.find(
       (s) =>
-        compareAgeRanges(heightRange, s.heightRange) !==
+        compareAgeRanges(heightRange, s.heightRange, tolerance) !==
         AgeRangeRelationship.Disjoint,
     );
     if (section == null) {
