@@ -13,7 +13,8 @@ import { TrackedLabeledUnit } from "./composite";
 import { useEnvironments, useLithologies } from "@macrostrat/data-provider";
 import { useMemo } from "react";
 import { resolveID } from "./resolvers";
-import { Lithology } from "@macrostrat/api-types";
+import { BaseUnit, Lithology } from "@macrostrat/api-types";
+import { UnitWithDefinedOverlap } from "../prepare-units/helpers.ts";
 
 export * from "./composite";
 export * from "./types";
@@ -56,15 +57,37 @@ export function BasicUnitComponent({ division, ...rest }) {
   });
 }
 
-export function UnitComponent({ division, nColumns = 2, ...rest }) {
+interface UnitComponentProps<T extends BaseUnit> {
+  division: UnitWithDefinedOverlap<T> | T;
+  nColumns: number;
+  width?: number;
+}
+
+export function UnitComponent<T extends BaseUnit>({
+  division,
+  nColumns = 2,
+  ...rest
+}: UnitComponentProps<T>) {
   const width = rest.width ?? useColumnLayout()?.width;
 
-  const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
-  const _nColumns = nOverlappingUnits == 0 ? 1 : nColumns;
-  const columnIx = (division.column ?? 0) % _nColumns;
-  const reducedWidth = width / _nColumns;
-  const x = (columnIx * width) / _nColumns;
+  let _nColumns = nColumns;
+  if (isNaN(_nColumns)) {
+    _nColumns = 2;
+  }
+  let columnIx = 0;
+  let x = 0;
 
+  console.log(rest, _nColumns, width);
+
+  let reducedWidth = _nColumns;
+  //const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
+  if ("overlap" in division) {
+    const overlap = division.overlap;
+    _nColumns = Math.min(_nColumns, overlap.nColumns);
+    columnIx = overlap.column;
+    reducedWidth = width / _nColumns;
+    x = (columnIx * width) / _nColumns;
+  }
   return h(TrackedLabeledUnit, {
     division,
     ...rest,

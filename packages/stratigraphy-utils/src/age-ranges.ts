@@ -62,7 +62,7 @@ export function compareAgeRanges(
   let a1 = convertToForwardOrdinal(a);
   let b1 = convertToForwardOrdinal(b);
 
-  if (dt > 0) {
+  if (dt != 0) {
     // Shrink age ranges by dt
     a1 = [a1[0] + dt, a1[1] - dt];
     b1 = [b1[0] + dt, b1[1] - dt];

@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.4] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v0.3.3...@macrostrat/style-system-v0.3.4)
+
+### Patch Changes
+
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+
 ## [0.3.3] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/style-system-v0.3.2...@macrostrat/style-system-v0.3.3)
 
 ### Patch Changes

@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.3.0] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/stratigraphy-utils-v1.2.2...@macrostrat/stratigraphy-utils-v1.3.0)
+
+### Minor Changes
+
+- Update layout for column units overlaps
+  [01048d6f](https://github.com/UW-Macrostrat/web-components/commit/01048d6ffa1335f58334c5c855b86e7a97b3e9c1)
+
 ## [1.2.2] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/stratigraphy-utils-v1.2.1...@macrostrat/stratigraphy-utils-v1.2.2)
 
 ### Patch Changes

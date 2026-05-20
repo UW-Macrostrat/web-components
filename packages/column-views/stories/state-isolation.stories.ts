@@ -1,10 +1,10 @@
-import { createIsolation } from "jotai-scope";
 import { atom } from "jotai";
 import h from "@macrostrat/hyper";
+import { createScopedStore } from "@macrostrat/data-components";
 import { Store } from "jotai/vanilla/store";
 import { ComponentProps } from "react";
 
-const { Provider, useAtom, useStore } = createIsolation();
+const { Provider, useAtom, useStore } = createScopedStore();
 
 const countAtom = atom(0);
 

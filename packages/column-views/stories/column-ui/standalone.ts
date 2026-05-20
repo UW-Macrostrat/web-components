@@ -2,8 +2,8 @@ import h from "@macrostrat/hyper";
 import { FlexRow, useAPIResult } from "@macrostrat/ui-components";
 import { Column } from "../../src";
 import { Spinner } from "@blueprintjs/core";
-import "@macrostrat/style-system";
 import { ColumnProps } from "../../src";
+import "@macrostrat/style-system";
 
 function useColumnUnits(col_id, inProcess) {
   const status_codes = ["active"];

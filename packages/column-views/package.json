@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-views",
-  "version": "3.3.5",
+  "version": "3.4.0",
   "description": "Data views for Macrostrat stratigraphic columns",
   "repository": {
     "type": "git",
@@ -45,7 +45,7 @@
     "react": "^18.0.0||^19.0.0"
   },
   "dependencies": {
-    "@blueprintjs/core": "^6.11.3",
+    "@blueprintjs/core": "^6.14.0",
     "@macrostrat/api-types": "workspace:^",
     "@macrostrat/color-utils": "workspace:^",
     "@macrostrat/column-components": "workspace:^",
@@ -82,8 +82,7 @@
     "d3-path": "^3.1.0",
     "d3-scale": "^4.0.2",
     "d3-shape": "^3.2.0",
-    "jotai": "^2.16.0",
-    "jotai-scope": "^0.10.0",
+    "jotai": "^2.20.0",
     "mapbox-gl": "^3.0.0",
     "p-map": "^7.0.4",
     "react-spring": "^9.7.5",
@@ -92,7 +91,8 @@
     "zustand-computed": "^2.0.2"
   },
   "devDependencies": {
-    "@macrostrat/web-components-bundler": "workspace:*"
+    "@macrostrat/web-components-bundler": "workspace:*",
+    "jotai-scope": "^0.11.0"
   },
   "publishConfig": {
     "access": "public"

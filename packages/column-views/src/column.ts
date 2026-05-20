@@ -118,7 +118,7 @@ export function Column(props: ColumnProps) {
 
   /* Make pixelScale and targetUnitHeight mutually exclusive. PixelScale implies
    * standardization of scales in all sections */
-  let _targetUnitHeight = targetUnitHeight;
+  let _targetUnitHeight: number | null = targetUnitHeight;
   let _minSectionHeight = minSectionHeight;
   let _minPixelScale = minPixelScale;
   if (pixelScale != null) {

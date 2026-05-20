@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.0.4] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.3...@macrostrat/data-provider-v1.0.4)
+
+### Patch Changes
+
+- Fixed error with strat name viewer
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [225ed9a4](https://github.com/UW-Macrostrat/web-components/commit/225ed9a4534b2d1f8be8af6ab7e4035352825614)
+- Updated dependencies
+  [01048d6f](https://github.com/UW-Macrostrat/web-components/commit/01048d6ffa1335f58334c5c855b86e7a97b3e9c1)
+  - @macrostrat/ui-components@5.0.10
+  - @macrostrat/api-types@1.2.0
+
 ## [1.0.3] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.2...@macrostrat/data-provider-v1.0.3)
 
 ### Patch Changes

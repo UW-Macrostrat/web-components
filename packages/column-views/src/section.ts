@@ -164,7 +164,6 @@ function SectionUnits(props: SectionProps) {
       nColumns: Math.min(
         maxInternalColumns ?? Math.floor(width / 10),
         unitComponentProps?.nColumns ?? Infinity,
-        Math.max(...units.map((d) => d.column)) + 1,
       ),
       //axisType,
     };

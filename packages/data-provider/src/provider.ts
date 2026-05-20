@@ -262,7 +262,7 @@ function createStratNamesSlice(set, get) {
 }
 
 export function useStratNames(ids: number[] | null) {
-  const stratNames = useMemo(() => ids, [ids]);
+  const stratNames = useMemo(() => ids, ids ?? []);
   return useMacrostratData("strat_names", stratNames);
 }
 

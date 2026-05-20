@@ -8,6 +8,7 @@
   t_units: "94",
 };
  */
+import { TypeIdentifier } from "./utils";
 
 export interface Environment {
   environ_id: number; // Unique identifier for the environment
@@ -17,3 +18,5 @@ export interface Environment {
   color: string; // Color code for visualization (e.g., hex color)
   t_units?: string; // Total number of units
 }
+
+export type EnvironmentIdentifier = TypeIdentifier<Environment, "environ_id">;

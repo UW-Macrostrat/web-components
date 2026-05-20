@@ -59,7 +59,7 @@ export function prepareColumnUnits(
     scale,
   } = options;
 
-  let _totalHeight = null;
+  let _totalHeight: number | null = null;
 
   if (scale != null) {
     // Set t_age and b_age based on scale domain if not already set
