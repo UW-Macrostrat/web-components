@@ -1,4 +1,4 @@
-import type { BaseUnit, UnitIdentifier, UnitLong } from "@macrostrat/api-types";
+import type { BaseUnit, UnitLong } from "@macrostrat/api-types";
 import { group } from "d3-array";
 import { ColumnAxisType } from "@macrostrat/column-components";
 import {
@@ -39,11 +39,6 @@ class UnitGroup<T extends BaseUnit> implements StratigraphicPackage {
 
   get b_age(): number {
     return Math.max(...this.units.map((d) => d.b_age));
-  }
-
-  includes(unit: UnitIdentifier | number): boolean {
-    const unit_id = typeof unit === "number" ? unit : unit.unit_id;
-    return this.units.some((d) => d.unit_id === unit_id);
   }
 
   getUnits(): UnitWithDefinedOverlap<T>[] {

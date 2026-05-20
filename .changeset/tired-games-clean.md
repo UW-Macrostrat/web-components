@@ -1,7 +1,7 @@
 ---
-"@macrostrat/stratigraphy-utils": patch
-"@macrostrat/column-views": patch
-"@macrostrat/api-types": patch
+"@macrostrat/stratigraphy-utils": minor
+"@macrostrat/column-views": minor
+"@macrostrat/api-types": minor
 ---
 
-Update layout for column units overlapping in time
+Update layout for column units overlaps
