@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/column-components",
-  "version": "2.0.7",
+  "version": "2.0.8",
   "description": "React rendering primitives for stratigraphic columns",
   "keywords": [
     "geology",

@@ -1,5 +1,12 @@
 # Changelog
 
+## [5.0.10] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.9...@macrostrat/ui-components-v5.0.10)
+
+### Patch Changes
+
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+
 ## [5.0.9] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/ui-components-v5.0.8...@macrostrat/ui-components-v5.0.9)
 
 ### Patch Changes

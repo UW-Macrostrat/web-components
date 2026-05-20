@@ -1,6 +1,6 @@
 {
   "name": "@macrostrat/data-provider",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Data views for Macrostrat stratigraphic columns",
   "repository": {
     "type": "git",

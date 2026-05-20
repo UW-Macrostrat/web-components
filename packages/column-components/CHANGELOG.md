@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.0.8] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.7...@macrostrat/column-components-v2.0.8)
+
+### Patch Changes
+
+- Update blueprintjs dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [239c0292](https://github.com/UW-Macrostrat/web-components/commit/239c0292ce143f642cf05ec934f246798d89a54f)
+- Updated dependencies
+  [01048d6f](https://github.com/UW-Macrostrat/web-components/commit/01048d6ffa1335f58334c5c855b86e7a97b3e9c1)
+  - @macrostrat/ui-components@5.0.10
+  - @macrostrat/stratigraphy-utils@1.3.0
+
 ## [2.0.7] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-components-v2.0.6...@macrostrat/column-components-v2.0.7)
 
 ### Patch Changes
