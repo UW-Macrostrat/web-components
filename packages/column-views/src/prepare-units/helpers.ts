@@ -16,6 +16,11 @@ import type { ExtUnit, SectionInfo, StratigraphicPackage } from "./types";
 
 const dt = 0.001;
 
+class UnitsOverlapManager {
+  /** A class to manage overlapping units in a section */
+  constructor(units: ExtUnit[]) {}
+}
+
 export function preprocessUnits<T extends UnitLong = UnitLong>(
   section: SectionInfo<T>,
   axisType: ColumnAxisType = ColumnAxisType.AGE,
@@ -23,7 +28,37 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
   /** Preprocess units to add overlapping units and columns. */
   let units = section.units;
 
-  let divisions = units.map((...args) => extendDivision(...args, axisType));
+  let tolerance = 0.001; // 1 kyr tolerance for age columns
+  if (axisType != ColumnAxisType.AGE) {
+    tolerance = 0.01; // 1cm tolerance for height/depth columns
+  }
+
+  const divisions: ExtUnit[] = [];
+  for (const unit of units) {
+    const overlappingUnits = units.filter(
+      (d) =>
+        d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType, tolerance),
+    );
+    const u_pos = getUnitHeightRange(unit, axisType);
+    const bottomOverlap = overlappingUnits.some((d) => {
+      const d_pos = getUnitHeightRange(d, axisType);
+      // Check if the unit is below the current unit
+      return d_pos[0] < u_pos[0] + dt;
+    });
+    let column = 0;
+    if (overlappingUnits.length == 1) {
+      column = 1;
+    }
+
+    let d = {
+      ...unit,
+      bottomOverlap,
+      column: unit.column ?? column,
+      overlappingUnits: overlappingUnits.map((d) => d.unit_id),
+    };
+    divisions.push(d);
+  }
+
   for (let d of divisions) {
     const overlappingUnits = divisions.filter((u) =>
       d.overlappingUnits.includes(u.unit_id),
@@ -70,47 +105,6 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
   }
 
   return divisions;
-}
-
-function extendDivision(
-  unit: UnitLong,
-  i: number,
-  divisions: UnitLong[],
-  axisType: ColumnAxisType = ColumnAxisType.AGE,
-): ExtUnit {
-  // TODO: make this configurable
-  let tolerance = 0.001; // 1 kyr tolerance for age columns
-  if (axisType != ColumnAxisType.AGE) {
-    tolerance = 0.01; // 1cm tolerance for height/depth columns
-  }
-
-  const overlappingUnits = divisions.filter(
-    (d) =>
-      d.unit_id != unit.unit_id && unitsOverlap(unit, d, axisType, tolerance),
-  );
-  const u_pos = getUnitHeightRange(unit, axisType);
-  const bottomOverlap = overlappingUnits.some((d) => {
-    const d_pos = getUnitHeightRange(d, axisType);
-    // Check if the unit is below the current unit
-    return d_pos[0] < u_pos[0] + dt;
-  });
-  let column = 0;
-  if (overlappingUnits.length == 1) {
-    column = 1;
-  }
-
-  console.log(
-    unit.unit_name,
-    column,
-    overlappingUnits.map((d) => d.unit_name),
-  );
-
-  return {
-    ...unit,
-    bottomOverlap,
-    column: unit.column ?? column,
-    overlappingUnits: overlappingUnits.map((d) => d.unit_id),
-  };
 }
 
 export function groupUnitsIntoSectionsBySectionID<T extends UnitLong>(
