@@ -124,6 +124,5 @@ export interface StratNameConcept {
   author: string;
 }
 
-type AnyUnit = BasuUnit | StratUnit | UnitLong | UnitLongFull;
-
+type AnyUnit = BaseUnit;
 export type UnitIdentifier = TypeIdentifier<AnyUnit, "unit_id">;
