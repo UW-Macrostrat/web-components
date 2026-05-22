@@ -5,12 +5,8 @@
 
 import { MacrostratInterval } from "@macrostrat/api-types";
 import { defaultIntervals } from "./intervals";
-import { useState } from "react";
-import { useAsyncEffect } from "@macrostrat/ui-components";
-import {
-  useMacrostratBaseURL,
-  useMacrostratFetch,
-} from "@macrostrat/data-provider";
+import { useMemo } from "react";
+import { useMacrostratData } from "@macrostrat/data-provider";
 import { Interval } from "./types";
 
 interface FetchIntervalsOptions {
@@ -133,32 +129,24 @@ export function useMacrostratIntervals(
   opts: MacrostratIntervalsOptions = {},
 ): Interval[] {
   /** Get a stratified tree of ICS intervals from the Macrostrat API. */
-  const [intervals, setIntervals] = useState<Interval[]>([]);
   const {
     buildTree = defaultBuildIntervalsTree,
     rootIntervalName,
     timescaleID = 11,
-    ...rest
   } = opts;
 
-  const macrostratFetch = useMacrostratFetch();
-  const macrostratBaseURL = useMacrostratBaseURL();
-  const fetchOpts = {
-    baseURL: rest.baseURL ?? macrostratBaseURL,
-    fetch: rest.fetch ?? macrostratFetch ?? fetch,
-    timescaleID,
-  };
+  const data = useMacrostratData("intervals", null, timescaleID);
 
-  useAsyncEffect(async () => {
-    const fetchedIntervals = await fetchMacrostratIntervals(fetchOpts);
+  return useMemo(() => {
+    if (data == null) {
+      return [];
+    }
     let treeBuilder = buildTree;
     if (timescaleID === 11) {
       treeBuilder = buildInternationalIntervalsTree;
     }
-    setIntervals(treeBuilder(fetchedIntervals));
-  }, [...Object.values(fetchOpts), buildTree]);
-
-  return intervals;
+    return treeBuilder(data);
+  }, [data, buildTree]);
 }
 
 function defaultBuildIntervalsTree(

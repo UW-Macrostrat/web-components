@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.1.4] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.1.3...@macrostrat/timescale-v3.1.4)
+
+### Patch Changes
+
+- Fix interval provision for timescales
+- Updated dependencies
+  - @macrostrat/data-provider@1.0.5
+
 ## [3.1.3] - 2026-05-19 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.1.2...@macrostrat/timescale-v3.1.3)
 
 ### Patch Changes

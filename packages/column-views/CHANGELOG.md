@@ -1,5 +1,14 @@
 # Changelog
 
+## [3.4.2] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.1...@macrostrat/column-views-v3.4.2)
+
+### Patch Changes
+
+- Fix interval provision for timescales
+- Updated dependencies
+  - @macrostrat/data-provider@1.0.5
+  - @macrostrat/timescale@3.1.4
+
 ## [3.4.1] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.0...@macrostrat/column-views-v3.4.1)
 
 ### Patch Changes

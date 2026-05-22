@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.5] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.4...@macrostrat/data-provider-v1.0.5)
+
+### Patch Changes
+
+- Fix interval provision for timescales
+
 ## [1.0.4] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.3...@macrostrat/data-provider-v1.0.4)
 
 ### Patch Changes

@@ -17,7 +17,10 @@ import {
   useMacrostratUnits,
   MacrostratColumnProvider,
 } from "./data-provider";
-import { useMacrostratBaseURL } from "@macrostrat/data-provider";
+import {
+  useMacrostratBaseURL,
+  useMacrostratData,
+} from "@macrostrat/data-provider";
 import { Duration } from "./unit-details";
 import { Value } from "@macrostrat/data-components";
 import type { ExtUnit, PackageScaleLayoutData } from "./prepare-units/types";
@@ -222,7 +225,7 @@ export function CompositeTimescaleCore(props: CompositeTimescaleCoreProps) {
 
   // Use intervals from Macrostrat API
   const baseURL = useMacrostratBaseURL();
-  const intervals = useMacrostratIntervals(baseURL);
+  const intervals = useMacrostratIntervals({ baseURL });
 
   let _levels: [number, number];
   if (typeof levels === "number") {

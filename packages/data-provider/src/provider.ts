@@ -200,10 +200,11 @@ function createEnvironmentsSlice(set, get) {
 function createIntervalsSlice(set, get) {
   return {
     intervals: null,
+    fetchedTimescales: new Set(),
     async getIntervals(ids: number[] | null, timescaleID: number | null) {
-      const { intervals, fetch } = get();
+      const { intervals, fetch, fetchedTimescales } = get();
       let _intervals = intervals;
-      if (intervals == null || !includesTimescale(intervals, timescaleID)) {
+      if (timescaleID != null && !fetchedTimescales.has(timescaleID)) {
         // Fetch the intervals
         const data = await fetchIntervals(timescaleID, { fetch });
         if (data == null) {
@@ -214,19 +215,28 @@ function createIntervalsSlice(set, get) {
           intervalMap.set(d.int_id, d);
         }
         _intervals = intervalMap;
-        set({ intervals: _intervals });
+        set({
+          intervals: _intervals,
+          fetchedTimescales: new Set([...fetchedTimescales, timescaleID]),
+        });
       }
       if (ids != null) {
         return ids.map((id) => intervals.get(id));
       } else if (timescaleID != null) {
-        return Array.from(_intervals.values() as any[]).filter(
-          (d) => d.timescale_id == timescaleID,
+        return Array.from(_intervals.values() as any[]).filter((d) =>
+          intervalIsInTimescale(d, timescaleID),
         );
       } else {
         return Array.from(_intervals.values());
       }
     },
   };
+}
+
+function intervalIsInTimescale(interval: Interval, timescaleID: number) {
+  return (
+    interval.timescales?.some((t) => t.timescale_id === timescaleID) ?? false
+  );
 }
 
 function createStratNamesSlice(set, get) {
@@ -270,10 +280,11 @@ function includesTimescale(
   intervals: Map<number, any>,
   timescaleID: number | null,
 ) {
+  /** TODO: we should keep records of which timescales we have fetched */
   if (intervals == null) return false;
   if (timescaleID == null) return true;
-  return Array.from(intervals.values()).some(
-    (d) => d.timescale_id == timescaleID,
+  return Array.from(intervals.values()).some((d) =>
+    intervalIsInTimescale(d, timescaleID),
   );
 }
 
