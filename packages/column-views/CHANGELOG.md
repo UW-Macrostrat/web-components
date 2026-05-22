@@ -1,5 +1,13 @@
 # Changelog
 
+## [3.4.1] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.0...@macrostrat/column-views-v3.4.1)
+
+### Patch Changes
+
+- Remove stray console log statements
+- Updated dependencies
+  - @macrostrat/data-components@1.1.11
+
 ## [3.4.0] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.3.5...@macrostrat/column-views-v3.4.0)
 
 ### Minor Changes

@@ -212,7 +212,6 @@ export class MacrostratInteractionManager implements MacrostratInteractionCtx {
     // If there are custom interaction props, use them and then return
     if (this.#interactionPropsForItem != null) {
       const customProps = this.#interactionPropsForItem(item) ?? {};
-      console.log("Applying custom props");
       return {
         ...res,
         ...customProps,

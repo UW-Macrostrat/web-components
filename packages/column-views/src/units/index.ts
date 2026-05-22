@@ -77,10 +77,7 @@ export function UnitComponent<T extends BaseUnit>({
   let columnIx = 0;
   let x = 0;
 
-  console.log(rest, _nColumns, width);
-
   let reducedWidth = _nColumns;
-  //const nOverlappingUnits = division.overlappingUnits?.length ?? 0;
   if ("overlap" in division) {
     const overlap = division.overlap;
     _nColumns = Math.min(_nColumns, overlap.nColumns);
