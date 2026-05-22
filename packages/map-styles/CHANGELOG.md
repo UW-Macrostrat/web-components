@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.4] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-styles-v2.2.3...@macrostrat/map-styles-v2.2.4)
+
+### Patch Changes
+
+- Made emphasized style more subtle
+
 ## [2.2.3] - 2026-05-20 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/map-styles-v2.2.2...@macrostrat/map-styles-v2.2.3)
 
 ### Patch Changes
