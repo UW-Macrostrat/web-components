@@ -227,7 +227,7 @@ function createIntervalsSlice(set, get) {
           intervalIsInTimescale(d, timescaleID),
         );
       } else {
-        return Array.from(_intervals.values());
+        return Array.from(_intervals?.values() ?? []);
       }
     },
   };
