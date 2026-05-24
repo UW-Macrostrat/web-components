@@ -2,7 +2,8 @@
 import baseFetch from "cross-fetch";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import h from "@macrostrat/hyper";
-import { create, useStore } from "zustand";
+import { StoreApi, useStore } from "zustand";
+import { createStore } from "zustand/vanilla";
 import {
   ColumnGeoJSONRecord,
   ColumnGeoJSONRecordWithID,
@@ -20,12 +21,13 @@ import {
   fetchStratNames,
   type ColumnStatusCode,
 } from "./fetch";
-import { APIProvider } from "@macrostrat/ui-components";
+import { APIProvider, usePrevious } from "@macrostrat/ui-components";
 
 import type { ReactNode } from "react";
 
 export interface MacrostratDataProviderProps {
-  baseURL: string;
+  baseURL?: string;
+  store?: StoreApi<MacrostratStore>;
   children: React.ReactNode;
 }
 
@@ -65,10 +67,10 @@ interface MacrostratStore extends RefsSlice {
   getStratNames(ids: number[] | null): Promise<StratName[]>;
 }
 
-function createMacrostratStore(
+export function createMacrostratStore(
   baseURL: string = "https://macrostrat.org/api/v2",
 ) {
-  return create<MacrostratStore>((set, get): MacrostratStore => {
+  return createStore<MacrostratStore>((set, get): MacrostratStore => {
     return {
       baseURL,
       inFlightRequests: new Set(),
@@ -413,15 +415,22 @@ export function useMacrostratData(dataType: DataTypeKey, ...args: any[]): any {
 const MacrostratDataProviderContext = createContext(createMacrostratStore());
 
 export function MacrostratDataProvider(props: MacrostratDataProviderProps) {
-  const { baseURL = "https://dev.macrostrat.org/api/v2", children } = props;
+  const {
+    baseURL = "https://macrostrat.org/api/v2",
+    store: _initStore,
+    children,
+  } = props;
 
-  const [store] = useState(() => createMacrostratStore(baseURL));
+  const store = _initStore ?? useState(() => createMacrostratStore(baseURL))[0];
 
-  return h(
-    MacrostratAPIProvider,
-    { baseURL },
-    h(MacrostratDataProviderContext.Provider, { value: store }, children),
-  );
+  return h(MacrostratDataProviderContext.Provider, { value: store }, [
+    h(_StoreAPIProvider, { children }),
+  ]);
+}
+
+function _StoreAPIProvider({ children }) {
+  const baseURL = useMacrostratStore((s) => s.baseURL);
+  return h(MacrostratAPIProvider, { baseURL }, [children]);
 }
 
 /** Legacy API provider so useAPIResult can work */

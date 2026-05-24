@@ -13,6 +13,11 @@ import {
 } from "../src";
 import { useColumnUnits } from "./column-ui/utils";
 import { MacrostratInteractionProvider } from "@macrostrat/data-components";
+import {
+  createMacrostratStore,
+  MacrostratDataProvider,
+} from "@macrostrat/data-provider";
+import { useState } from "react";
 
 function useUnitData(unit_id, inProcess = false) {
   return useAPIResult(
@@ -133,6 +138,24 @@ export function WithDataProvider(args: UnitDetailsPanelProps) {
     MacrostratColumnStateProvider,
     { units, selectedUnit: units?.[0]?.unit_id },
     h(UnitDetailsWithSelection),
+  );
+}
+
+export function WithExternalStoreProvider(args: UnitDetailsPanelProps) {
+  const units = useColumnUnits(432) as ExtUnit[] | null;
+
+  const [store] = useState(createMacrostratStore());
+
+  if (units == null) return h(Spinner);
+
+  return h(
+    MacrostratDataProvider,
+    { store },
+    h(
+      MacrostratColumnStateProvider,
+      { units, selectedUnit: units?.[0]?.unit_id },
+      h(UnitDetailsWithSelection),
+    ),
   );
 }
 
