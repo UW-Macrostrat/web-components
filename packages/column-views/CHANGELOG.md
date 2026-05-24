@@ -1,5 +1,18 @@
 # Changelog
 
+## [3.5.0] - 2026-05-24 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.2...@macrostrat/column-views-v3.5.0)
+
+### Minor Changes
+
+- Createa a basic ColumnRef interface
+
+### Patch Changes
+
+- Updated dependencies
+- Updated dependencies
+  - @macrostrat/data-components@1.1.12
+  - @macrostrat/data-provider@1.1.0
+
 ## [3.4.2] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.1...@macrostrat/column-views-v3.4.2)
 
 ### Patch Changes

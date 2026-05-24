@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0] - 2026-05-24 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.5...@macrostrat/data-provider-v1.1.0)
+
+### Minor Changes
+
+- Allow MacrostratDataStore to be provided from outside of React
+
 ## [1.0.5] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-provider-v1.0.4...@macrostrat/data-provider-v1.0.5)
 
 ### Patch Changes

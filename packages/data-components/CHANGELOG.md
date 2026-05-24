@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.12] - 2026-05-24 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.11...@macrostrat/data-components-v1.1.12)
+
+### Patch Changes
+
+- Createa a basic ColumnRef interface
+
 ## [1.1.11] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/data-components-v1.1.10...@macrostrat/data-components-v1.1.11)
 
 ### Patch Changes
