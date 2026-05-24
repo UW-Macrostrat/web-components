@@ -1,4 +1,10 @@
-import { createContext, ReactNode, useContext, useMemo } from "react";
+import {
+  createContext,
+  ReactNode,
+  RefObject,
+  useContext,
+  useMemo,
+} from "react";
 import h from "@macrostrat/hyper";
 import {
   CompositeColumnScale,
@@ -11,13 +17,18 @@ import {
   selectedUnitIDAtom,
   UnitSelectionCallbacks,
   UnitSelectionCallbackManager,
+  selectedUnitElementAtom,
 } from "./unit-selection";
 import type { BaseUnit } from "@macrostrat/api-types";
-import { type AtomMap, createScopedStore } from "@macrostrat/data-components";
+import {
+  type AtomMap,
+  createScopedStore,
+  StateIsolation,
+} from "@macrostrat/data-components";
 import { atom } from "jotai";
 import { useEffect } from "react";
 
-export const scope = createScopedStore();
+export const scope: StateIsolation = createScopedStore();
 
 export const columnUnitsAtom = atom<BaseUnit[]>();
 
@@ -84,6 +95,13 @@ export function MacrostratColumnStateProvider<T extends BaseUnit>({
   );
 }
 
+/** Interface for imperative handlers that can
+ * be invoked outside of the column's react context
+ */
+export interface ColumnRef {
+  scrollSelectedUnitIntoView(): void;
+}
+
 export interface MacrostratColumnDataContext<T extends BaseUnit> {
   units: T[];
   sections: PackageLayoutData[];
@@ -95,6 +113,7 @@ export interface MacrostratColumnDataContext<T extends BaseUnit> {
 export interface ColumnDataProviderProps<T extends BaseUnit>
   extends MacrostratColumnDataContext<T>, ColumnStateProviderProps<T> {
   children: ReactNode;
+  ref: RefObject<ColumnRef>;
 }
 
 const MacrostratColumnDataContext =
@@ -109,6 +128,7 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
   allowUnitSelection,
   onUnitSelected,
   selectedUnit,
+  ref,
 }: ColumnDataProviderProps<T>) {
   /** Internal provider for Macrostrat column data.
    * As a general rule, we want to provide data and column-axis
@@ -138,9 +158,33 @@ export function MacrostratColumnDataProvider<T extends BaseUnit>({
       allowUnitSelection,
       onUnitSelected,
       selectedUnit,
+      ref,
     },
-    h(MacrostratColumnDataContext.Provider, { value }, children),
+    [
+      h(ColumnRefManager, { ref }),
+      h(MacrostratColumnDataContext.Provider, { value }, children),
+    ],
   );
+}
+
+function ColumnRefManager({ ref }: { ref?: RefObject<ColumnRef> }) {
+  const selectedUnitElement = scope.useAtomValue(selectedUnitElementAtom);
+  useEffect(() => {
+    if (ref == null) return;
+    ref.current = {
+      scrollSelectedUnitIntoView(opts?: ScrollIntoViewOptions) {
+        selectedUnitElement?.scrollIntoView(
+          opts ?? {
+            behavior: "smooth",
+            block: "center",
+            inline: "nearest",
+          },
+        );
+      },
+    };
+  }, [ref, selectedUnitElement]);
+
+  return null;
 }
 
 export function UnitSelectionProvider(props: ColumnStateProviderProps<any>) {

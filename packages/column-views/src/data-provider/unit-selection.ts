@@ -48,6 +48,7 @@ export interface UnitSelectionCallbacks {
 export const allowUnitSelectionAtom = atom<boolean>(true);
 
 export const selectedUnitIDAtom = atom<number | null>();
+export const selectedUnitElementAtom = atom<HTMLElement | null>();
 
 const overlayPositionAtom = atom<RectBounds | null>();
 
@@ -113,6 +114,7 @@ const selectedUnitAtom = atom(
       };
     }
 
+    set(selectedUnitElementAtom, target);
     set(selectedUnitIDAtom, unitID);
     set(overlayPositionAtom, overlayPosition);
 
@@ -158,6 +160,7 @@ export function useUnitSelectionTarget(
   const ref = useRef<HTMLElement>(null);
   const [selectedUnit, selectUnit] = useUnitSelection();
   const selected = selectedUnit?.unit_id == unit.unit_id;
+  const selectedUnitElement = scope.useAtomValue(selectedUnitElementAtom);
 
   const onClick = useCallback(
     (evt: Event) => {
@@ -168,17 +171,19 @@ export function useUnitSelectionTarget(
   );
 
   useEffect(() => {
-    if (!selected || selectUnit == null) return;
-    // In case we haven't set the position of the unit (if we don't have a target), set the selected unit
-    selectUnit(unit, ref.current);
+    // Sync selection with unit element...
+    if (!selected) return;
+    selectUnit?.(unit, ref.current);
+  }, [ref.current, selected, selectUnit]);
 
+  useEffect(() => {
     // Scroll the unit into view
-    ref.current?.scrollIntoView({
+    selectedUnitElement?.scrollIntoView({
       behavior: "smooth",
       block: "center",
       inline: "nearest",
     });
-  }, [selected, selectUnit]);
+  }, [selectedUnitElement]);
 
   return [ref, selected, onClick];
 }

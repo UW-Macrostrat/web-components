@@ -24,7 +24,7 @@ interface JotaiScope {
   useSetAtom: any;
 }
 
-interface StateIsolation extends JotaiScope {
+export interface StateIsolation extends JotaiScope {
   Provider: (props: ProviderProps) => ReactNode;
   useAtomValueIfExists: <T>(atom: WritableAtom<T, any, any>) => T | null;
   use: JotaiScope["useAtom"];
