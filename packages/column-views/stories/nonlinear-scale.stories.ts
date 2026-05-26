@@ -14,7 +14,7 @@ import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 import { MinimalUnit } from "../src/units/boxes";
 import { scaleLinear, scaleLog, scalePow } from "d3-scale";
 import { ColumnAxisType } from "@macrostrat/column-components";
-import type { HybridScaleType } from "../src";
+import { HybridScaleType } from "../src";
 
 const h = hyper.styled(styles);
 
