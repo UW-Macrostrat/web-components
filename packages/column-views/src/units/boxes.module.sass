@@ -4,8 +4,8 @@
 .labeled-unit
   --column-unit-background-internal: var(--column-unit-background-color, var(--column-background-color))
   :global(.unit-overlay)
-    font-size: 10px
-    font-style: italic
+    font-size: var(--column-unit-font-size, 10px)
+    font-style: var(--column-unit-font-style, italic)
     display: flex
     align-items: center
     justify-content: center

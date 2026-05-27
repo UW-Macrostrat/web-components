@@ -14,6 +14,8 @@ import { useColumnSelection } from "../column-ui/utils";
 import { Spinner } from "@blueprintjs/core";
 import { createFormationUnits, convertGBDBUnitToMacrostrat } from "./utils";
 import { useLithologies } from "@macrostrat/data-provider";
+import { BaseUnit, MacrostratInterval, UnitLong } from "@macrostrat/api-types";
+import { UnitWithLayoutHints } from "../../src/prepare-units/helpers.ts";
 
 const accessToken = import.meta.env.VITE_MAPBOX_API_TOKEN;
 
@@ -35,7 +37,11 @@ export default {
 };
 
 function useColumnGeoJSON(view: string = "gbdb_section_geojson") {
-  const res = useAPIResult("https://dev.macrostrat.org/api/pg/" + view);
+  const res = useAPIResult(
+    "https://dev.macrostrat.org/api/pg/" + view,
+    {},
+    (res) => res,
+  );
   return res?.[0]?.geojson;
 }
 
@@ -45,6 +51,7 @@ function useColumnUnits(sectionID: number) {
     {
       section_id: `eq.${sectionID}`,
     },
+    (res) => res,
   );
 }
 
@@ -77,13 +84,18 @@ function GBDBColumn({
       lithNamesMap.set(lith.name.toLowerCase(), lith);
     });
 
-    let units = sectionData.map((d) => {
+    let units: UnitWithLayoutHints<UnitLong>[] = sectionData.map((d) => {
       return convertGBDBUnitToMacrostrat(d, lithNamesMap);
     });
 
     if (showFormations) {
       units = units.map((u) => {
-        return { ...u, column: 1 };
+        return {
+          ...u,
+          layoutHints: {
+            column: 1,
+          },
+        };
       });
 
       units.push(...createFormationUnits(units));
@@ -191,6 +203,7 @@ function GBDBSummaryColumn({ showFormations = true, columnID, setColumn }) {
     {
       col_id: `eq.${columnID}`,
     },
+    (data) => data,
   );
 
   const units = sectionData;

@@ -1,5 +1,17 @@
 # Changelog
 
+## [3.5.1] - 2026-05-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.5.0...@macrostrat/column-views-v3.5.1)
+
+### Patch Changes
+
+- Improve code for section merging
+  [14bde559](https://github.com/UW-Macrostrat/web-components/commit/14bde559db68f21beb0e0a58d57db03bf6e68e69)
+- Added a story for correlation diagram creation
+  [67fba54a](https://github.com/UW-Macrostrat/web-components/commit/67fba54a699a925f1bf5595051c9831dc789a4db)
+- Updated dependencies
+  [89bb4be0](https://github.com/UW-Macrostrat/web-components/commit/89bb4be0d6ae6a73ac22d47cb3d9f12964a05e36)
+  - @macrostrat/timescale@3.1.5
+
 ## [3.5.0] - 2026-05-24 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/column-views-v3.4.2...@macrostrat/column-views-v3.5.0)
 
 ### Minor Changes

@@ -93,7 +93,7 @@ export function UnitDetailsPanel({
         key: "json-view-toggle",
         className: classNames("json-view-toggle", { enabled: setShowJSON }),
         onClick(evt) {
-          setShowJSON(!showJSON);
+          setShowJSON(!_showJSON);
           evt.stopPropagation();
         },
       }),

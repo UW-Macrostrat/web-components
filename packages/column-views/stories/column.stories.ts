@@ -5,10 +5,20 @@ import { FlexRow, JSONView } from "@macrostrat/ui-components";
 
 import "@macrostrat/style-system";
 import { useRef, useState } from "react";
-import { AgeCursor, AgeLabel, ColoredUnitComponent, ColumnRef } from "../src";
+import {
+  AgeCursor,
+  AgeLabel,
+  ColoredUnitComponent,
+  Column,
+  ColumnRef,
+  MergeSectionsMode,
+  UnitComponent,
+} from "../src";
 
 import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 import { Button } from "@blueprintjs/core";
+import { BaseUnit, UnitLithology } from "@macrostrat/api-types";
+import { useGeologicPattern } from "@macrostrat/column-components";
 
 const h = hyper.styled(styles);
 

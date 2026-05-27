@@ -1,4 +1,5 @@
 import type { UnitLong } from "@macrostrat/api-types";
+import { UnitWithLayoutHints } from "../../src/prepare-units/helpers.ts";
 
 interface UnitOutput extends UnitLong {
   covered: boolean;
@@ -69,9 +70,11 @@ export function convertGBDBUnitToMacrostrat(
   };
 }
 
-export function createFormationUnits(units: UnitLong[]): UnitLong[] {
+export function createFormationUnits(
+  units: UnitLong[],
+): UnitWithLayoutHints<UnitLong>[] {
   // Create a new array of units condensed on formation names
-  const formationMap = new Map<string, UnitLong>();
+  const formationMap = new Map<string, UnitWithLayoutHints<UnitLong>>();
   const unitsWithFormation = units.filter((u) => u.Fm != null);
 
   let uid = -1;
@@ -84,7 +87,9 @@ export function createFormationUnits(units: UnitLong[]): UnitLong[] {
         environ: [],
         unit_id: uid, // Indicate it's a formation unit
         unit_name: formationName + " Formation",
-        column: 0,
+        layoutHints: {
+          column: 0,
+        },
       });
       uid -= 1;
     } else {
