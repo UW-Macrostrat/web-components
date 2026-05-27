@@ -11,6 +11,8 @@ import {
 import {
   AgeRangeRelationship,
   compareAgeRanges,
+  mergeAgeRanges,
+  MergeMode,
 } from "@macrostrat/stratigraphy-utils";
 import type { ExtUnit, SectionInfo, StratigraphicPackage } from "./types";
 
@@ -213,7 +215,7 @@ export function groupUnitsIntoSectionsBySectionID<T extends UnitLong>(
 interface WorkingSection {
   units: UnitLong[];
   // Position or age
-  heightRange?: [number, number];
+  heightRange: [number, number];
 }
 
 export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
@@ -228,40 +230,60 @@ export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
    * */
   // Start with each unit as its own "section", and progressively merge...
   const sectionList: WorkingSection[] = [];
-  for (const unit of units) {
-    // Check if the unit overlaps with any existing section
-    const heightRange = getUnitHeightRange(unit, axisType);
-    let section: WorkingSection | undefined = sectionList.find((s) => {
-      const res = compareAgeRanges(heightRange, s.heightRange, tolerance);
-      return res !== AgeRangeRelationship.Disjoint;
-    });
-    if (section == null) {
-      // No overlap, create a new section
-      sectionList.push({
-        heightRange,
-        units: [unit],
-      });
-    } else {
-      // Overlap, merge the unit into the section
-      section.units.push(unit);
-      // Update the height range
-      if (axisType == ColumnAxisType.DEPTH || axisType == ColumnAxisType.AGE) {
-        section.heightRange = [
-          Math.max(section.heightRange[0], heightRange[0]),
-          Math.min(section.heightRange[1], heightRange[1]),
-        ];
+
+  const initialSections: WorkingSection[] = units.map((unit) => {
+    return {
+      units: [unit],
+      heightRange: getUnitHeightRange(unit, axisType),
+    };
+  });
+
+  const isOverlapping = (a: WorkingSection, b: WorkingSection) => {
+    const res = compareAgeRanges(a.heightRange, b.heightRange, tolerance);
+    return res !== AgeRangeRelationship.Disjoint;
+  };
+
+  const mergeSections = (a: WorkingSection, b: WorkingSection) => {
+    return {
+      units: [...a.units, ...b.units],
+      heightRange: mergeAgeRanges(
+        [a.heightRange, b.heightRange],
+        MergeMode.Outer,
+      ),
+    };
+  };
+
+  // Merge overlapping sections progressively until no more merges are possible
+  let finalSectionList = initialSections;
+
+  while (true) {
+    let merged = false;
+    const nextSections: WorkingSection[] = [];
+
+    for (const section of finalSectionList) {
+      if (nextSections.length === 0) {
+        nextSections.push(section);
       } else {
-        section.heightRange = [
-          Math.min(section.heightRange[0], heightRange[0]),
-          Math.max(section.heightRange[1], heightRange[1]),
-        ];
+        const lastSection = nextSections[nextSections.length - 1];
+        if (isOverlapping(section, lastSection)) {
+          // Merge with the last section
+          nextSections[nextSections.length - 1] = mergeSections(lastSection, section);
+          merged = true;
+        } else {
+          nextSections.push(section);
+        }
       }
     }
-  }
-  // We should have a section for each unit, now we can convert to SectionInfo
-  // Ages have to be really actually ages, not heights
 
-  return sectionList.map((section, i) => {
+    finalSectionList = nextSections;
+
+    // Stop when no more merges occurred in this pass
+    if (!merged) {
+      break;
+    }
+  }
+
+  return finalSectionList.map((section, i) => {
     const [b_age, t_age] = getSectionAgeRange(section.units);
     const [b_pos, t_pos] = getSectionPosRange(section.units, axisType);
     return {
