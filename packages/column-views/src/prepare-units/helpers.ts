@@ -16,21 +16,33 @@ import type { ExtUnit, SectionInfo, StratigraphicPackage } from "./types";
 
 const dt = 0.001;
 
-export type UnitWithDefinedOverlap<T extends BaseUnit> = T & {
-  overlap: UnitOverlapInfo<T>;
+export type UnitWithLayoutParameters<T extends BaseUnit> = T & {
+  layout: UnitLayoutData<T>;
 };
 
-type UnitOverlapInfo<T extends BaseUnit> = {
+export type UnitWithLayoutHints<T extends BaseUnit> = T & {
+  layoutHints?: UnitLayoutHints;
+};
+
+interface UnitLayoutInfo {
   column: number;
   nColumns: number;
+}
+
+type UnitLayoutHints = Partial<UnitLayoutInfo>;
+
+type UnitLayoutData<T extends BaseUnit> = UnitLayoutInfo & {
+  totalColumns: number;
   unitGroup: UnitGroup<T>;
 };
 
 class UnitGroup<T extends BaseUnit> implements StratigraphicPackage {
   units: T[];
+  axisType: ColumnAxisType;
 
-  constructor(units: T[]) {
+  constructor(units: T[], axisType: ColumnAxisType = ColumnAxisType.AGE) {
     this.units = units;
+    this.axisType = axisType;
   }
 
   get t_age(): number {
@@ -41,7 +53,7 @@ class UnitGroup<T extends BaseUnit> implements StratigraphicPackage {
     return Math.max(...this.units.map((d) => d.b_age));
   }
 
-  getUnits(): UnitWithDefinedOverlap<T>[] {
+  getUnits(): UnitWithLayoutParameters<T>[] {
     return assignColumnsToUnitsWithinOverlappingGroup(this);
   }
 }
@@ -49,39 +61,51 @@ class UnitGroup<T extends BaseUnit> implements StratigraphicPackage {
 function groupUnitsByMutualOverlap<T extends BaseUnit>(
   units: T[],
   tolerance: number = dt,
+  axisType: ColumnAxisType = ColumnAxisType.AGE,
 ): UnitGroup<T>[] {
   /** Group units within a section that have mutual overlap. */
-  const sections = groupUnitsIntoSectionsByOverlap(
-    units,
-    ColumnAxisType.AGE,
-    tolerance,
-  );
+
+  const sections = groupUnitsIntoSectionsByOverlap(units, axisType, tolerance);
+
+  console.log("Grouped sections", sections);
+
   return sections.map((d) => {
-    return new UnitGroup(d.units);
+    return new UnitGroup(d.units, axisType);
   });
 }
 
 const sortByAge = createUnitSorter(ColumnAxisType.AGE);
 
 function assignColumnsToUnitsWithinOverlappingGroup<T extends BaseUnit>(
-  group: UnitGroup<T>,
-): UnitWithDefinedOverlap<T>[] {
+  group: UnitGroup<UnitWithLayoutHints<T>>,
+): UnitWithLayoutParameters<T>[] {
   /** A relatively naïve function to assign columns to units within a mutually overlapping group.
    * This gets the number of columns that would be needed to accommodate the units in the group.
    * It then assigns columns to units in the group based on the number of columns needed, with
    * lower units further to the left.
    */
 
-  const sortedUnits = [...group.units].sort((a, b) => b.b_age - a.b_age);
+  const sortedUnits = [...group.units].sort(createUnitSorter(group.axisType));
 
   const columns: T[][] = [];
 
+  let nColumns = 1;
+
   for (const unit of sortedUnits) {
+    let startIndex = 0;
+    let endIndex = 0;
     // Find a column that is not already occupied by an overlapping unit
+    const colHint = unit.layoutHints?.column;
+    if (colHint != null) {
+      columns[colHint] ??= [];
+      columns[colHint].push(unit);
+      continue;
+    }
     let didAddToExistingColumn = false;
+
     for (const column of columns) {
       const lastUnit = column[column.length - 1];
-      if (!unitsOverlap(unit, lastUnit, ColumnAxisType.AGE, dt)) {
+      if (!unitsOverlap(unit, lastUnit, group.axisType, dt)) {
         column.push(unit);
         didAddToExistingColumn = true;
         break;
@@ -92,14 +116,17 @@ function assignColumnsToUnitsWithinOverlappingGroup<T extends BaseUnit>(
     }
   }
 
-  const units: UnitWithDefinedOverlap<T>[] = columns.flatMap(
+  console.log(columns);
+
+  const units: UnitWithLayoutParameters<T>[] = columns.flatMap(
     (column, columnIndex) =>
       column.map((unit) => {
         return {
           ...unit,
-          overlap: {
+          layout: {
             column: columnIndex,
-            nColumns: columns.length,
+            nColumns: 1,
+            totalColumns: columns.length,
             unitGroup: group,
           },
         };
@@ -121,7 +148,7 @@ export function preprocessUnits<T extends UnitLong = UnitLong>(
     tolerance = 0.01; // 1cm tolerance for height/depth columns
   }
 
-  const unitGroups = groupUnitsByMutualOverlap(units, tolerance);
+  const unitGroups = groupUnitsByMutualOverlap(units, tolerance, axisType);
 
   const divisions: any[] = [];
   // Serialize all groups' units to a single array
@@ -204,11 +231,10 @@ export function groupUnitsIntoSectionsByOverlap<T extends BaseUnit>(
   for (const unit of units) {
     // Check if the unit overlaps with any existing section
     const heightRange = getUnitHeightRange(unit, axisType);
-    let section: WorkingSection | undefined = sectionList.find(
-      (s) =>
-        compareAgeRanges(heightRange, s.heightRange, tolerance) !==
-        AgeRangeRelationship.Disjoint,
-    );
+    let section: WorkingSection | undefined = sectionList.find((s) => {
+      const res = compareAgeRanges(heightRange, s.heightRange, tolerance);
+      return res !== AgeRangeRelationship.Disjoint;
+    });
     if (section == null) {
       // No overlap, create a new section
       sectionList.push({

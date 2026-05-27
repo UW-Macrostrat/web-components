@@ -5,7 +5,12 @@ import { FlexRow, JSONView } from "@macrostrat/ui-components";
 
 import "@macrostrat/style-system";
 import { useState } from "react";
-import { AgeCursor, AgeLabel, ColoredUnitComponent } from "../src";
+import {
+  AgeCursor,
+  AgeLabel,
+  ColoredUnitComponent,
+  MergeSectionsMode,
+} from "../src";
 
 import { StandaloneColumn, StandaloneColumnProps } from "./column-ui";
 
@@ -24,6 +29,7 @@ function OverlappingUnitsRenderer(props) {
     },
     showUnitPopover: true,
     keyboardNavigation: true,
+    mergeSections: MergeSectionsMode.OVERLAPPING,
     onUnitSelected(unit) {
       console.log(unit);
     },
@@ -55,6 +61,15 @@ export const Primary: Story = {
     t_age: 375,
     b_age: 390,
     pixelScale: 20,
+  },
+};
+
+export const ComplexOverlaps: Story = {
+  args: {
+    id: 432,
+    t_age: 0,
+    b_age: 1.2,
+    pixelScale: 150,
   },
 };
 

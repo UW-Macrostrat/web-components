@@ -14,7 +14,7 @@ import { useEnvironments, useLithologies } from "@macrostrat/data-provider";
 import { useMemo } from "react";
 import { resolveID } from "./resolvers";
 import { BaseUnit, Lithology } from "@macrostrat/api-types";
-import { UnitWithDefinedOverlap } from "../prepare-units/helpers.ts";
+import { UnitWithLayoutParameters } from "../prepare-units/helpers.ts";
 
 export * from "./composite";
 export * from "./types";
@@ -58,7 +58,7 @@ export function BasicUnitComponent({ division, ...rest }) {
 }
 
 interface UnitComponentProps<T extends BaseUnit> {
-  division: UnitWithDefinedOverlap<T> | T;
+  division: UnitWithLayoutParameters<T> | T;
   nColumns: number;
   width?: number;
 }
@@ -78,11 +78,11 @@ export function UnitComponent<T extends BaseUnit>({
   let x = 0;
 
   let reducedWidth = _nColumns;
-  if ("overlap" in division) {
-    const overlap = division.overlap;
-    _nColumns = Math.min(_nColumns, overlap.nColumns);
-    columnIx = overlap.column;
-    reducedWidth = width / _nColumns;
+  if ("layout" in division) {
+    const layout = division.layout;
+    _nColumns = Math.min(_nColumns, layout.totalColumns);
+    columnIx = layout.column;
+    reducedWidth = width / layout.totalColumns / layout.nColumns;
     x = (columnIx * width) / _nColumns;
   }
   return h(TrackedLabeledUnit, {

@@ -143,6 +143,7 @@ export function Timescale(props: TimescaleProps) {
     "increase-" + increaseDirection,
     {
       "rotate-labels": rotateLabels,
+      "with-age-axis": showAgeAxis,
     },
   );
 
