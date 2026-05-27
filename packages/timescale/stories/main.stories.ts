@@ -13,6 +13,15 @@ export const Vertical = {
   },
 };
 
+export const VerticalAbsolute = {
+  args: {
+    orientation: TimescaleOrientation.VERTICAL,
+    levels: [1, 3],
+    absoluteAgeScale: true,
+    length: 800,
+  },
+};
+
 export const VerticalFilteredToAgeRange = {
   args: {
     orientation: TimescaleOrientation.VERTICAL,

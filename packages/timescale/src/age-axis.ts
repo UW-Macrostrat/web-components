@@ -1,7 +1,9 @@
 import h from "./main.module.sass";
-import { Axis } from "@visx/axis";
+import { Axis, TickLabelProps } from "@visx/axis";
 import { TimescaleOrientation } from "./types";
 import { useTimescale } from "./provider";
+import { CSSProperties } from "react";
+import { AxisProps } from "@visx/axis/lib/axis/Axis";
 
 type AgeAxisProps = {
   width?: number;
@@ -13,54 +15,62 @@ function AgeAxis(props: AgeAxisProps) {
   if (ctx == null) return null;
   const { scale, length, orientation } = ctx;
   if (!scale) return null;
-  const { width = 25, margin = 20 } = props;
+  const { margin = 20 } = props;
 
   const isHorizontal = orientation == TimescaleOrientation.HORIZONTAL;
 
-  const size = isHorizontal
-    ? { height: width, width: length + 2 * margin }
-    : { width: width, height: length + 2 * margin };
+  let width = props.width ?? 25;
+  let height = 25;
 
-  const style = isHorizontal
-    ? { marginLeft: -margin, marginRight: -margin }
-    : {
-        marginTop: -margin,
-        marginBottom: -margin,
-      };
+  let style: CSSProperties = {};
+  let axisProps: AxisProps<any> = {
+    scale: scale as any,
+    numTicks: Math.floor(length / 50),
+  };
 
-  const axProps: {
-    orientation: "bottom" | "right" | "top" | "left";
-    left?: number;
-    top?: number;
-  } = isHorizontal
-    ? { orientation: "bottom", left: margin }
-    : { orientation: "right", top: margin };
+  let tickLabelProps: TickLabelProps<any> = {
+    fontSize: 10,
+    fill: "var(--text-color)",
+    textAnchor: "middle",
+  };
+
+  const outerSize = length + 2 * margin;
+  if (isHorizontal) {
+    width = outerSize;
+    style.marginLeft = -margin;
+    style.marginRight = -margin;
+    axisProps.left = margin;
+    axisProps.orientation = "bottom";
+  } else {
+    height = outerSize;
+    style.marginTop = -margin;
+    style.marginBottom = -margin;
+    axisProps.top = margin;
+    axisProps.left = width - 1;
+    axisProps.orientation = "left";
+    axisProps.scale.range([length, 0]);
+    tickLabelProps.dy = -8;
+    tickLabelProps.dx = "-1em";
+  }
 
   return h(
     "svg.timescale-axis",
-    { ...size, style },
+    { width, height, style },
     h(Axis, {
-      scale: scale as any,
-      numTicks: Math.floor(length / 50),
       tickLabelProps(tickValue, index) {
-        const vertProps = isHorizontal
-          ? {}
-          : {
-              dy: "1em",
-              dx: "2em",
-              transform: `rotate(-90 0,${scale(tickValue)})`,
-            };
+        let transform: string | null = null;
+        if (!isHorizontal) {
+          transform = `rotate(-90 0,${scale(tickValue)})`;
+        }
 
         return {
-          ...vertProps,
-          textAnchor: "middle",
-          fontSize: 10,
-          fill: "var(--text-color)",
+          ...tickLabelProps,
+          transform,
         };
       },
       stroke: "var(--text-color)",
       tickStroke: "var(--text-color)",
-      ...axProps,
+      ...axisProps,
       ...props,
     }),
   );
