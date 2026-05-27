@@ -1,5 +1,12 @@
 # Changelog
 
+## [3.1.5] - 2026-05-27 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.1.4...@macrostrat/timescale-v3.1.5)
+
+### Patch Changes
+
+- Fix timescale axis rendering
+  [89bb4be0](https://github.com/UW-Macrostrat/web-components/commit/89bb4be0d6ae6a73ac22d47cb3d9f12964a05e36)
+
 ## [3.1.4] - 2026-05-22 [_changes_](https://github.com/UW-Macrostrat/web-components/compare/@macrostrat/timescale-v3.1.3...@macrostrat/timescale-v3.1.4)
 
 ### Patch Changes
